@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>organizationalPerson</class>
+ <widget class="QWidget" name="organizationalPerson">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>466</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>organizationalPerson</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="snLabel">
+       <property name="text">
+        <string>sn</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="snEdit"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="cnLabel">
+       <property name="text">
+        <string>cn</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="cnEdit">
+       <property name="toolTip">
+        <string comment="Common name" extracomment="The common name of on object"/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="telephoneNumberLabel">
+       <property name="text">
+        <string>telephoneNumber</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="telephoneNumberEdit"/>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="physicalDeliveryOfficeNameLabel">
+       <property name="text">
+        <string>physicalDeliveryOfficeName</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="physicalDeliveryOfficeNameEdit"/>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="cnLabel">
+       <property name="text">
+        <string>Mirrored cn</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="cnEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="titleLabel">
+       <property name="text">
+        <string>title</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QLineEdit" name="titleEdit">
+       <property name="echoMode">
+        <enum>QLineEdit::NoEcho</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="postOfficeBoxLabel">
+       <property name="text">
+        <string>postOfficeBox</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QLineEdit" name="postOfficeBoxEdit">
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="lLabel">
+       <property name="text">
+        <string>l</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QLineEdit" name="lEdit">
+       <property name="placeholderText">
+        <string>the location comes here</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="stLabel">
+       <property name="text">
+        <string>st</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QLineEdit" name="stEdit"/>
+     </item>
+     <item row="9" column="0">
+      <widget class="QLabel" name="postalCodeLabel">
+       <property name="text">
+        <string>postalCode</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::RichText</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QLineEdit" name="postalCodeEdit"/>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="streetLabel">
+       <property name="text">
+        <string>street</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="1">
+      <widget class="QLineEdit" name="streetEdit"/>
+     </item>
+     <item row="11" column="0">
+      <widget class="QLabel" name="ouLabel">
+       <property name="text">
+        <string>ou</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="1">
+      <widget class="QLineEdit" name="ouEdit"/>
+     </item>
+     <item row="12" column="0">
+      <widget class="QLabel" name="preferredDeliveryMethodLabel">
+       <property name="text">
+        <string>preferredDeliveryMethod</string>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="1">
+      <widget class="QComboBox" name="preferredDeliveryMethodEdit"/>
+     </item>
+     <item row="13" column="0">
+      <widget class="QLabel" name="x121AddressLabel">
+       <property name="text">
+        <string>x121Address</string>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="1">
+      <widget class="QLineEdit" name="x121AddressEdit"/>
+     </item>
+     <item row="14" column="0">
+      <widget class="QLabel" name="internationaliSDNNumberLabel">
+       <property name="text">
+        <string>internationaliSDNNumber</string>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="1">
+      <widget class="QLineEdit" name="internationaliSDNNumberEdit"/>
+     </item>
+     <item row="15" column="0">
+      <widget class="QLabel" name="snLabel">
+       <property name="text">
+        <string>sn</string>
+       </property>
+      </widget>
+     </item>
+     <item row="15" column="1">
+      <widget class="QLineEdit" name="snEdit"/>
+     </item>
+     <item row="16" column="0">
+      <widget class="QLabel" name="destinationIndicatorLabel">
+       <property name="text">
+        <string>destinationIndicator</string>
+       </property>
+      </widget>
+     </item>
+     <item row="16" column="1">
+      <widget class="QLineEdit" name="destinationIndicatorEdit"/>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
