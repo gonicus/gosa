@@ -32,7 +32,8 @@ qx.Class.define("cute.renderer.Gui",
     // Call super class
     this.base(arguments);
 
-    this.processDocument(parseXml(ui_definition).childNodes);
+    // Examine UI definition and build widget
+    console.log(this.processUI(parseXml(ui_definition).childNodes));
   },
 
 
@@ -44,92 +45,235 @@ qx.Class.define("cute.renderer.Gui",
      * 
      * @lint ignoreDeprecated(alert)
      */
- 
-    processDocument : function(nodes)
-    {
-        // Process one level, watch out for nodes we know
-        for (var i=0; i<nodes.length; i++) {
-          var node = nodes[i]
 
-          // Skip non elements
-          if (node.nodeType !== 1) {
+    processUI : function(nodes)
+    {
+      // Process one level, watch out for nodes we know
+      for (var i=0; i<nodes.length; i++) {
+        var node = nodes[i]
+
+        // Skip non elements
+        if (node.nodeType !== 1) {
+          continue;
+        }
+
+        // Top level UI element
+        if (node.nodeName == "ui") {
+          if (node.getAttribute("version") !== "4.0") {
+            console.error("*** UI format 4.0 is needed to continue processing!");
+            return null
+          }
+
+          // Continue with processing the child nodes
+          return this.processElements(node.childNodes)
+
+        } else {
+          console.error("*** unexpected element '" + node.nodeName + "'");
+        }
+      }
+
+      return null;
+    },
+ 
+    processElements : function(nodes)
+    {
+      var widgets = new Array();
+
+      // Process one level, watch out for nodes we know
+      for (var i=0; i<nodes.length; i++) {
+        var node = nodes[i]
+
+        // Skip non elements
+        if (node.nodeType !== 1) {
+          continue;
+        }
+
+        // Class
+        if (node.nodeName == "class") {
+          this.name = node.firstChild.nodeValue;
+          this.debug("setting widget name to '" + this.name + "'");
+
+        // Widget
+        } else if (node.nodeName == "widget") {
+          widgets.push(this.processWidget(node))
+
+        // Layout
+        } else if (node.nodeName == "layout") {
+          var layout_name = node.getAttribute("name");
+          var layout_type = node.getAttribute("class");
+          var widget;
+
+          this.debug("layout '" + layout_name + "' (" + layout_type + ")");
+
+          if (layout_type == "QGridLayout") {
+            var layout = new qx.ui.layout.Grid();
+            widget = new qx.ui.container.Composite(layout)
+
+          } else if (layout_type == "QFormLayout") {
+            var layout = new qx.ui.layout.Grid();
+            widget = new qx.ui.container.Composite(layout)
+
+          } else {
+            console.log("*** unknown layout type '" + layout_type + "'!");
             continue;
           }
-          this.debug("Element:", node.nodeName);
 
-          // Top level UI element
-          if (node.nodeName == "ui") {
-            if (node.getAttribute("version") !== "4.0") {
-              alert("UI format 4.0 is needed to continue processing!");
-              exit();
+          // Inspect layout items
+          for (var j=0; j<node.childNodes.length; j++) {
+
+            var topic = node.childNodes[j];
+            if (topic.nodeType == 1 && topic.nodeName == "item") {
+
+              if (layout_type == "QGridLayout") {
+                var column = parseInt(topic.getAttribute("column"));
+                var row = parseInt(topic.getAttribute("row"));
+console.log("---> layout add");
+                var wdgt = this.processElements(topic.childNodes);
+                widget.add(wdgt, {row: row, column: column});
+console.log("layout add <----");
+
+              } else if (layout_type == "QFormLayout") {
+                var column = parseInt(topic.getAttribute("column"));
+                var row = parseInt(topic.getAttribute("row"));
+console.log("---> layout add");
+                var wdgt = this.processElements(topic.childNodes);
+                widget.add(wdgt, {row: row, column: column});
+console.log("layout add <----");
+
+              }
             }
-
-            // Continue with processing the child nodes
-            this.processDocument(node.childNodes)
           }
 
-          // Class
-	  else if (node.nodeName == "class") {
-            this.debug("Class '" + node.firstChild.nodeValue + "'");
-	  }
+          widgets.push(widget)
 
-          // Widget
-	  else if (node.nodeName == "widget") {
-            var more = this.processWidget(node)
-            this.processDocument(more)
-	  }
+        } else {
+          console.error("*** unexpected element '" + node.nodeName + "'");
+        }
 
-          // Layout
-	  else if (node.nodeName == "layout") {
-	    // -> process items
-            //<layout name="gridLayout" class="QGridLayout">
-            //<item column="0" row="0">
-	  }
+      }
 
-	  else {
-            this.debug("*** unknown element '" + node.nodeName + "'");
-	  }
-
-       }
+      // If there is more than one widget on this level,
+      // automatically return a canvas layout with these widgets.
+      if (widgets.length == 1) {
+        //return {'widget': widgets[0], 'properties': null}
+        return widgets[0];
+      } else {
+        console.info("*** migrate your GUI to use layouts instead of plain widget collections");
+        // TODO: HIER
+        //widget + canvas layout
+        //add widgets
+        //return widget
+        return null
+      }
     },
 
 
     processWidget : function(node)
     {
-      var more = new Array()
+      var widgets = new Array();
       var nodes = node.childNodes
 
       // Extract general widget information
       var name = node.getAttribute("name")
-	var clazz = node.getAttribute("class")
-	var properties = new Array()
+      var clazz = node.getAttribute("class")
+      var properties = new Array()
+      var layout = null;
 
-        // Process one level, watch out for nodes we know
-        for (var i=0; i<nodes.length; i++) {
-          var n = nodes[i]
+      // Process one level, watch out for nodes we know
+      for (var i=0; i<nodes.length; i++) {
+        var n = nodes[i]
 
-          // Skip non elements
-          if (n.nodeType !== 1) {
-            continue;
+        // Skip non elements
+        if (n.nodeType !== 1) {
+          continue;
+        }
+
+        // Properties
+        if (n.nodeName == "property") {
+          properties.push(this.processProperty(n))
+
+        // Widget
+        } else if (n.nodeName == "widget") {
+          widgets.push(this.processWidget(n))
+
+        // Layout
+        } else if (n.nodeName == "layout") {
+          layout = n;
+
+        } else {
+          console.error("*** unknown element '" + n.nodeName + "'");
+        }
+      }
+
+      // Call process*Widget method
+      var method = "process" + clazz + "Widget"
+      if (method in this) {
+        widget = this[method](properties);
+      } else {
+        console.error("*** widget '" + method + "' does not exist!");
+        return null;
+      }
+
+      // Process one level, watch out for nodes we know
+      if (layout != null) {
+        var layout_name = layout.getAttribute("name");
+        var layout_type = layout.getAttribute("class");
+
+        this.debug("layout '" + layout_name + "' (" + layout_type + ")");
+
+        if (layout_type == "QGridLayout") {
+          widget.setLayout(new qx.ui.layout.Grid());
+
+        } else if (layout_type == "QFormLayout") {
+          widget.setLayout(new qx.ui.layout.Grid());
+
+        } else {
+          console.log("*** unknown layout type '" + layout_type + "'!");
+          return null;
+        }
+
+        // Inspect layout items
+        for (var j=0; j<layout.childNodes.length; j++) {
+
+          var topic = layout.childNodes[j];
+          if (topic.nodeType == 1 && topic.nodeName == "item") {
+
+            if (layout_type == "QGridLayout") {
+              var column = parseInt(topic.getAttribute("column"));
+              var row = parseInt(topic.getAttribute("row"));
+              console.log("---> layout add");
+              var wdgt = this.processElements(topic.childNodes);
+              widget.add(wdgt, {row: row, column: column});
+              console.log("layout add <----");
+
+            } else if (layout_type == "QFormLayout") {
+              var column = parseInt(topic.getAttribute("column"));
+              var row = parseInt(topic.getAttribute("row"));
+              console.log("---> layout add");
+              var wdgt = this.processElements(topic.childNodes);
+              widget.add(wdgt, {row: row, column: column});
+              console.log("layout add <----");
+
+            }
           }
+        }
+      }
+      
+      widgets.push(widget);
 
-          // Properties
-          if (n.nodeName == "property") {
-            properties.push(this.processProperty(n))
-	  } else {
-            more.push(n);
-	  }
-       }
-
-       // Call processXXXWidget method
-       var method = "process" + clazz + "Widget"
-       if (method in this) {
-         this[method](properties);
-       } else {
-	 this.debug("*** widget '" + method + "' does not exist!");
-       }
-
-       return more;
+      // If there is more than one widget on this level,
+      // automatically return a canvas layout with these widgets.
+      if (widgets.length == 1) {
+        //return {'widget': widgets[0], 'properties': null}
+        return widgets[0];
+      } else {
+        console.info("*** migrate your GUI to use layouts instead of plain widget collections");
+        // TODO
+        //widget + canvas layout
+        //add widgets
+        //return widget
+        return null
+      }
     },
 
     processProperty : function(node)
@@ -163,35 +307,32 @@ qx.Class.define("cute.renderer.Gui",
       return res;
     },
 
-    processGeometryProperty : function(node)
-    {
-      var res = {}
-      // TODO: node 2 hash
-      res[node.getAttribute("name")] = null
-      return res
-    },
-
-    processStringProperty : function(node)
-    {
-      var res = {}
-      res[node.getAttribute("name")] = node.childNodes[1].firstChild.nodeValue;
-      this.debug("  " + node.getAttribute("name") + " = " + node.childNodes[1].firstChild.nodeValue);
-      return res;
-    },
-
     processQWidgetWidget : function(props)
     {
       this.debug("-> Window");
+      console.log(props);
+      return new qx.ui.container.Composite()
     },
 
     processQLabelWidget : function(props)
     {
       this.debug("-> Label");
+      console.log(props);
+      return new qx.ui.container.Composite()
     },
 
     processQLineEditWidget : function(props)
     {
       this.debug("-> LineEdit");
+      console.log(props);
+      return new qx.ui.container.Composite()
+    },
+
+    processQComboBoxWidget : function(props)
+    {
+      this.debug("-> Combobox");
+      console.log(props);
+      return new qx.ui.container.Composite()
     }
 
   }
