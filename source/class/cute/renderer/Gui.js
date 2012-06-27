@@ -115,17 +115,7 @@ qx.Class.define("cute.renderer.Gui",
 
           // Properties
           if (n.nodeName == "property") {
-            var attr_name = n.getAttribute("name")
-
-            if (attr_name == "geometry") {
-              properties.push(this.processGeometryProperty(n))
-	    } else if (attr_name == "windowTitle") {
-              properties.push(this.processStringProperty(n))
-	    } else {
-              alert("Unknown property '" + attr_name + "'!");
-              exit();
-	    }
-
+            properties.push(this.processProperty(n))
 	  } else {
             more.push(n);
 	  }
@@ -140,6 +130,37 @@ qx.Class.define("cute.renderer.Gui",
        }
 
        return more;
+    },
+
+    processProperty : function(node)
+    {
+      var res = {};
+
+      // Transform XML tree to hash
+      for (var i = 0; i<node.childNodes.length; i++) {
+        if (node.childNodes[i].nodeType === 1) {
+          var topic = node.childNodes[i];
+          var tmp = {};
+
+          if (node.nodeName == "property") {
+            if (topic.childNodes && topic.childNodes.length != 1) {
+              tmp[topic.nodeName] = this.processProperty(topic);
+            } else {
+              tmp[topic.nodeName] = topic.firstChild.nodeValue;
+            }
+
+            res[node.getAttribute('name')] = tmp
+          } else {
+            if (topic.childNodes && topic.childNodes.length != 1) {
+              res[topic.nodeName] = this.processProperty(topic);
+            } else {
+              res[topic.nodeName] = topic.firstChild.nodeValue;
+            }
+          }
+        }
+      }
+
+      return res;
     },
 
     processGeometryProperty : function(node)
