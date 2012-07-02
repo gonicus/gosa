@@ -27,18 +27,24 @@ qx.Class.define("cute.renderer.Gui",
      MEMBERS
   *****************************************************************************
   */
-  construct : function(ui_definition)
+  construct : function()
   {
     // Call super class
     this.base(arguments);
 
-    // Examine UI definition and build widget
-    console.log(this.processUI(parseXml(ui_definition).childNodes));
+    //TODO: build factory class instead of Widget, etc. This is just a
+    //      proof of concept.
   },
 
 
   members :
   {
+    getWidget : function(ui_definition)
+    {
+      // Examine UI definition and build widget
+      return this.processUI(parseXml(ui_definition).childNodes);;
+    },
+
     /**
      * This method contains the initial application code and gets called 
      * during startup of the application
@@ -101,7 +107,7 @@ qx.Class.define("cute.renderer.Gui",
         } else if (node.nodeName == "layout") {
           var layout_name = node.getAttribute("name");
           var layout_type = node.getAttribute("class");
-          var widget;
+          var widget = null;
 
           this.debug("layout '" + layout_name + "' (" + layout_type + ")");
 
@@ -127,18 +133,19 @@ qx.Class.define("cute.renderer.Gui",
               if (layout_type == "QGridLayout") {
                 var column = parseInt(topic.getAttribute("column"));
                 var row = parseInt(topic.getAttribute("row"));
-console.log("---> layout add");
+                console.log("---> layout add to ", widget);
                 var wdgt = this.processElements(topic.childNodes);
                 widget.add(wdgt, {row: row, column: column});
-console.log("layout add <----");
+		console.log("layout add <----");
 
               } else if (layout_type == "QFormLayout") {
                 var column = parseInt(topic.getAttribute("column"));
                 var row = parseInt(topic.getAttribute("row"));
-console.log("---> layout add");
+                console.log("---> layout add to ", widget);
                 var wdgt = this.processElements(topic.childNodes);
+                console.log("---> layout adding ", wdgt);
                 widget.add(wdgt, {row: row, column: column});
-console.log("layout add <----");
+		console.log("layout add <----");
 
               }
             }
@@ -241,7 +248,7 @@ console.log("layout add <----");
             if (layout_type == "QGridLayout") {
               var column = parseInt(topic.getAttribute("column"));
               var row = parseInt(topic.getAttribute("row"));
-              console.log("---> layout add");
+              console.log("---> layout add to ", widget);
               var wdgt = this.processElements(topic.childNodes);
               widget.add(wdgt, {row: row, column: column});
               console.log("layout add <----");
@@ -249,7 +256,7 @@ console.log("layout add <----");
             } else if (layout_type == "QFormLayout") {
               var column = parseInt(topic.getAttribute("column"));
               var row = parseInt(topic.getAttribute("row"));
-              console.log("---> layout add");
+              console.log("---> layout add to ", widget);
               var wdgt = this.processElements(topic.childNodes);
               widget.add(wdgt, {row: row, column: column});
               console.log("layout add <----");
@@ -310,29 +317,29 @@ console.log("layout add <----");
     processQWidgetWidget : function(props)
     {
       this.debug("-> Window");
-      console.log(props);
+      console.log("   Properties " + props);
       return new qx.ui.container.Composite()
     },
 
     processQLabelWidget : function(props)
     {
       this.debug("-> Label");
-      console.log(props);
-      return new qx.ui.container.Composite()
+      console.log("   Properties " + props);
+      return new qx.ui.basic.Label()
     },
 
     processQLineEditWidget : function(props)
     {
       this.debug("-> LineEdit");
-      console.log(props);
-      return new qx.ui.container.Composite()
+      console.log("   Properties " + props);
+      return new qx.ui.form.TextField()
     },
 
     processQComboBoxWidget : function(props)
     {
       this.debug("-> Combobox");
-      console.log(props);
-      return new qx.ui.container.Composite()
+      console.log("   Properties " + props);
+      return new qx.ui.form.ComboBox()
     }
 
   }

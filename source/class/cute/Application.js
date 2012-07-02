@@ -66,8 +66,8 @@ qx.Class.define("cute.Application",
       var doc = this.getRoot();
 
       // Add button to document at fixed coordinates
-      doc.add(text, {left: 10, top: 10, right: 10, bottom: 150});
-      doc.add(process, {left: 10, bottom: 100});
+      doc.add(text, {left: 10, top: 10, right: 10, bottom: 250});
+      doc.add(process, {left: 10, bottom: 200});
 
       // Load data
       var req = new qx.bom.request.Xhr();
@@ -77,7 +77,8 @@ qx.Class.define("cute.Application",
 
       // Add an event listener and process known elements
       process.addListener("execute", function(e) {
-	var p = new cute.renderer.Gui(text.getValue());
+	var p = new cute.renderer.Gui();
+	doc.add(p.getWidget(text.getValue()), {left: 10, top: 250, bottom: 10, right: 10});
       }, this);
 
     }
