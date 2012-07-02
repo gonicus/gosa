@@ -215,7 +215,7 @@ qx.Class.define("cute.renderer.Gui",
       // Call process*Widget method
       var method = "process" + clazz + "Widget"
       if (method in this) {
-        widget = this[method](properties);
+        var widget = this[method](properties);
       } else {
         console.error("*** widget '" + method + "' does not exist!");
         return null;
