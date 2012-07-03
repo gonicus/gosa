@@ -84,8 +84,12 @@ qx.Class.define("cute.renderer.Gui",
     configure : function(ui_definition)
     {
       var info = this.processUI(parseXml(ui_definition).childNodes);
-      this.setProperties_(info['properties']);
-      this.add(info['widget']);
+      if (info) {
+        this.setProperties_(info['properties']);
+        this.add(info['widget']);
+      } else {
+        this.debug("Error: no widget found");
+      }
     },
 
     /**
@@ -266,8 +270,11 @@ qx.Class.define("cute.renderer.Gui",
       // If there is more than one widget on this level,
       // automatically return a canvas layout with these widgets.
       if (widgets.length == 1) {
-        //TODO: null handling
-        return widgets[0];
+        if (widgets[0]) {
+          return widgets[0];
+	} else {
+          return null;
+	}
       } else {
         console.info("*** migrate your GUI to use layouts instead of plain widget collections");
         // TODO: HIER
@@ -388,15 +395,31 @@ qx.Class.define("cute.renderer.Gui",
       // If there is more than one widget on this level,
       // automatically return a canvas layout with these widgets.
       if (widgets.length == 1) {
-        //TODO: null handling
-        return widgets[0];
+        if (widgets[0]['widget']) {
+          return widgets[0];
+        } else {
+          return null;
+        }
       } else {
         console.info("*** migrate your GUI to use layouts instead of plain widget collections");
-        // TODO
-        //widget + canvas layout
-        //add widgets
-        //return widget
-        return null;
+
+        var base = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+
+        for (var i in widgets) {
+          if (widgets[i]){
+            // Set geometry
+            var x = 0;
+            var y = 0;
+            var geometry = this.getGeometryProperty('geometry', widgets[i]['properties']);
+            if (geometry) {
+              x = geometry['x'];
+              y = geometry['y'];
+            }
+            base.add(widgets[i]['widget'], {left: x, top: y});
+          }
+        }
+
+        return {widget: base, properties: {}};
       }
     },
 
