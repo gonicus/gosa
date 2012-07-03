@@ -70,7 +70,7 @@ qx.Class.define("cute.Application",
       // Load data
       var req = new qx.bom.request.Xhr();
       req.onload = function() { text.setValue(req.responseText); }
-      req.open("GET", "test2.ui?c=" + Math.floor(Math.random()*100001));
+      req.open("GET", "test.ui?c=" + Math.floor(Math.random()*100001));
       req.send();
 
       // Add an event listener and process known elements
