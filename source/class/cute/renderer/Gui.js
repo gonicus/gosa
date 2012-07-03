@@ -32,6 +32,9 @@ qx.Class.define("cute.renderer.Gui",
     // Call super class
     this.base(arguments);
     this.setLayout(new qx.ui.layout.VBox());
+
+    // Widget store
+    this._widgets = {};
   },
 
   properties :
@@ -43,12 +46,34 @@ qx.Class.define("cute.renderer.Gui",
   {
     getWidget : function(ui_definition, obj)
     {
-      var def = {extend: cute.renderer.Gui /*, properties: properties*/};
+      var properties = {};
+
+      //TODO: setup attributes
+      //for(var attr in attributes){
+      //  var name = attributes[attr];
+      //  var upperName = name.charAt(0).toUpperCase() + name.slice(1);
+      //  var applyName = "_apply_" + upperName;
+      //  var prop = {apply: applyName, event: "changed" + upperName, nullable: true};
+      //  members[applyName] = getApplyMethod(name);
+      //  properties[name] = prop;
+      //}
+
+      var def = {extend: cute.renderer.Gui, properties: properties};
       var clazz = qx.Class.define(name, def);
 
       // Generate widget and place configure it to contain itself
       var widget = new clazz();
       widget.configure(ui_definition);
+
+      // Connect object attributes to intermediate properties
+      //TODO
+
+      // Connect intermediate properties to object attributes
+      //TODO
+
+      // Connect widget properties to intermediate properties
+      //TODO: connect by timer
+
       return widget;
     }
   },
@@ -58,6 +83,9 @@ qx.Class.define("cute.renderer.Gui",
     configure : function(ui_definition)
     {
       var ui = this.processUI(parseXml(ui_definition).childNodes);
+      console.log("-------------");
+      console.log(ui);
+      console.log("-------------");
       this.add(ui);
     },
 
@@ -72,7 +100,7 @@ qx.Class.define("cute.renderer.Gui",
     {
       // Process one level, watch out for nodes we know
       for (var i=0; i<nodes.length; i++) {
-        var node = nodes[i]
+        var node = nodes[i];
 
         // Skip non elements
         if (node.nodeType !== 1) {
@@ -83,11 +111,11 @@ qx.Class.define("cute.renderer.Gui",
         if (node.nodeName == "ui") {
           if (node.getAttribute("version") !== "4.0") {
             console.error("*** UI format 4.0 is needed to continue processing!");
-            return null
+            return null;
           }
 
           // Continue with processing the child nodes
-          return this.processElements(node.childNodes)
+          return this.processElements(node.childNodes);
 
         } else {
           console.error("*** unexpected element '" + node.nodeName + "'");
@@ -103,7 +131,7 @@ qx.Class.define("cute.renderer.Gui",
 
       // Process one level, watch out for nodes we know
       for (var i=0; i<nodes.length; i++) {
-        var node = nodes[i]
+        var node = nodes[i];
 
         // Skip non elements
         if (node.nodeType !== 1) {
@@ -117,7 +145,11 @@ qx.Class.define("cute.renderer.Gui",
 
         // Widget
         } else if (node.nodeName == "widget") {
-          widgets.push(this.processWidget(node))
+          widgets.push(this.processWidget(node));
+
+        // Spacer
+        } else if (node.nodeName == "spacer") {
+          widgets.push(this.processSpacer(node));
 
         // Layout
         } else if (node.nodeName == "layout") {
@@ -130,11 +162,16 @@ qx.Class.define("cute.renderer.Gui",
 
           if (layout_type == "QGridLayout") {
             var layout = new qx.ui.layout.Grid();
-            widget = new qx.ui.container.Composite(layout)
+            widget = new qx.ui.container.Composite(layout);
 
           } else if (layout_type == "QFormLayout") {
             var layout = new qx.ui.layout.Grid();
-            widget = new qx.ui.container.Composite(layout)
+	    layout.setColumnFlex(1, 1);
+            widget = new qx.ui.container.Composite(layout);
+
+          } else if (layout_type == "QHBoxLayout") {
+            var layout = new qx.ui.layout.HBox();
+            widget = new qx.ui.container.Composite(layout);
 
           } else {
             console.log("*** unknown layout type '" + layout_type + "'!");
@@ -158,58 +195,64 @@ qx.Class.define("cute.renderer.Gui",
                 var row = parseInt(topic.getAttribute("row"));
                 var wdgt = this.processElements(topic.childNodes);
                 widget.add(wdgt, {row: row, column: column});
+
+              } else if (layout_type == "QHBoxLayout") {
+                var wdgt = this.processElements(topic.childNodes);
+                widget.add(wdgt);
               }
             }
 
             if (topic.nodeType == 1 && topic.nodeName == "property") {
               var tmp = this.processProperty(topic);
               for (var item in tmp) {
-                properties[item] = tmp[item]
+                properties[item] = tmp[item];
+              }
+	    }
+
+            if (layout_type == "QGridLayout") {
+	      layout.setSpacing(5);
+
+            } else if (layout_type == "QFormLayout") {
+              var hs = 3;
+              var vs = 3;
+
+              if (properties['labelAlignment']) {
+                var align = this.getSetProperty('labelAlignment', properties);
+                var h = "center";
+                var v = "middle";
+
+                if (align.indexOf("Qt::AlignLeft") != -1) {
+                  h = "left";
+                }
+                if (align.indexOf("Qt::AlignRight") != -1) {
+                  h = "right";
+                }
+                if (align.indexOf("Qt::AlignTop") != -1) {
+                  v = "top";
+                }
+                if (align.indexOf("Qt::AlignBottom") != -1) {
+                  v = "bottom";
+                }
+
+                layout.setColumnAlign(0, h, v);
               }
 
-              if (layout_type == "QGridLayout") {
-	        layout.setSpacing(5);
-              } else if (layout_type == "QFormLayout") {
-                if (properties['labelAlignment']) {
-                  var align = this.getSetProperty('labelAlignment', properties);
-                  var h = "center";
-                  var v = "middle";
-                  var hs = 3;
-                  var vs = 3;
-
-                  if (align.indexOf("Qt::AlignLeft") != -1) {
-                    h = "left";
-                  }
-                  if (align.indexOf("Qt::AlignRight") != -1) {
-                    h = "right";
-                  }
-                  if (align.indexOf("Qt::AlignTop") != -1) {
-                    v = "top";
-                  }
-                  if (align.indexOf("Qt::AlignBottom") != -1) {
-                    v = "bottom";
-                  }
-
-                  layout.setColumnAlign(0, h, v);
+              if (properties['horizontalSpacing']) {
+                hs = this.getNumberProperty('horizontalSpacing', properties);
+                if (hs < 0) {
+                  hs = 3;
                 }
+              }
 
-                if (properties['horizontalSpacing']) {
-                  hs = this.getNumberProperty('horizontalSpacing', properties);
-                  if (hs < 0) {
-                    hs = 3;
-                  }
+              if (properties['verticalSpacing']) {
+                vs = this.getNumberProperty('verticalSpacing', properties);
+                if (vs < 0) {
+                  vs = 3;
                 }
+              }
 
-                if (properties['verticalSpacing']) {
-                  vs = this.getNumberProperty('verticalSpacing', properties);
-                  if (vs < 0) {
-                    vs = 3;
-                  }
-                }
-
-	        layout.setSpacingX(3 + hs);
-	        layout.setSpacingY(3 + vs);
-	      }
+	      layout.setSpacingX(3 + hs);
+              layout.setSpacingY(3 + vs);
             }
           }
 
@@ -224,7 +267,6 @@ qx.Class.define("cute.renderer.Gui",
       // If there is more than one widget on this level,
       // automatically return a canvas layout with these widgets.
       if (widgets.length == 1) {
-        //return {'widget': widgets[0], 'properties': null}
         return widgets[0];
       } else {
         console.info("*** migrate your GUI to use layouts instead of plain widget collections");
@@ -232,25 +274,29 @@ qx.Class.define("cute.renderer.Gui",
         //widget + canvas layout
         //add widgets
         //return widget
-        return null
+        return null;
       }
     },
 
+    processSpacer : function(node)
+    {
+	return new qx.ui.core.Widget().set({height: 1, width: 1});
+    },
 
     processWidget : function(node)
     {
       var widgets = new Array();
-      var nodes = node.childNodes
+      var nodes = node.childNodes;
 
       // Extract general widget information
-      var name = node.getAttribute("name")
-      var clazz = node.getAttribute("class")
+      var name = node.getAttribute("name");
+      var clazz = node.getAttribute("class");
       var properties = {};
       var layout = null;
 
       // Process one level, watch out for nodes we know
       for (var i=0; i<nodes.length; i++) {
-        var n = nodes[i]
+        var n = nodes[i];
 
         // Skip non elements
         if (n.nodeType !== 1) {
@@ -261,12 +307,12 @@ qx.Class.define("cute.renderer.Gui",
         if (n.nodeName == "property") {
           var tmp = this.processProperty(n);
           for (var item in tmp) {
-            properties[item] = tmp[item]
+            properties[item] = tmp[item];
           }
 
         // Widget
         } else if (n.nodeName == "widget") {
-          widgets.push(this.processWidget(n))
+          widgets.push(this.processWidget(n));
 
         // Layout
         } else if (n.nodeName == "layout") {
@@ -278,9 +324,9 @@ qx.Class.define("cute.renderer.Gui",
       }
 
       // Call process*Widget method
-      var method = "process" + clazz + "Widget"
+      var method = "process" + clazz + "Widget";
       if (method in this) {
-        var widget = this[method](properties);
+        var widget = this[method](name, properties);
       } else {
         console.error("*** widget '" + method + "' does not exist!");
         return null;
@@ -299,6 +345,9 @@ qx.Class.define("cute.renderer.Gui",
         } else if (layout_type == "QFormLayout") {
           widget.setLayout(new qx.ui.layout.Grid());
 
+        } else if (layout_type == "QHBoxLayout") {
+          widget.setLayout(new qx.ui.layout.HBox());
+
         } else {
           console.log("*** unknown layout type '" + layout_type + "'!");
           return null;
@@ -315,6 +364,7 @@ qx.Class.define("cute.renderer.Gui",
               var row = parseInt(topic.getAttribute("row"));
               var wdgt = this.processElements(topic.childNodes);
               widget.add(wdgt, {row: row, column: column});
+	      widget.getLayout().setColumnFlex(column, 1);
 
             } else if (layout_type == "QFormLayout") {
               var column = parseInt(topic.getAttribute("column"));
@@ -322,6 +372,9 @@ qx.Class.define("cute.renderer.Gui",
               var wdgt = this.processElements(topic.childNodes);
               widget.add(wdgt, {row: row, column: column});
 
+            } else if (layout_type == "QHBoxLayout") {
+              var wdgt = this.processElements(topic.childNodes);
+              widget.add(wdgt);
             }
           }
         }
@@ -332,7 +385,6 @@ qx.Class.define("cute.renderer.Gui",
       // If there is more than one widget on this level,
       // automatically return a canvas layout with these widgets.
       if (widgets.length == 1) {
-        //return {'widget': widgets[0], 'properties': null}
         return widgets[0];
       } else {
         console.info("*** migrate your GUI to use layouts instead of plain widget collections");
@@ -340,7 +392,7 @@ qx.Class.define("cute.renderer.Gui",
         //widget + canvas layout
         //add widgets
         //return widget
-        return null
+        return null;
       }
     },
 
@@ -361,7 +413,7 @@ qx.Class.define("cute.renderer.Gui",
               tmp[topic.nodeName] = topic.firstChild.nodeValue;
             }
 
-            res[node.getAttribute('name')] = tmp
+            res[node.getAttribute('name')] = tmp;
           } else {
             if (topic.childNodes && topic.childNodes.length != 1) {
               res[topic.nodeName] = this.processProperty(topic);
@@ -373,6 +425,173 @@ qx.Class.define("cute.renderer.Gui",
       }
 
       return res;
+    },
+
+    processQWidgetWidget : function(name, props)
+    {
+      this.setTitle(this.getStringProperty('windowTitle', props));
+
+      var widget = new qx.ui.container.Composite();
+      this.processCommonProperties(widget, props);
+      this._widgets[name] = widget;
+
+      return widget;
+    },
+
+    processQLabelWidget : function(name, props)
+    {
+      var label = new qx.ui.basic.Label(this.getStringProperty('text', props));
+
+      // Set tooltip
+      if (this.getStringProperty('toolTip', props)) {
+        label.setToolTip(new qx.ui.tooltip.ToolTip(this.getStringProperty('toolTip', props)));
+      }
+
+      this.processCommonProperties(label, props);
+
+      this._widgets[name] = label;
+      return label;
+    },
+
+    processQLineEditWidget : function(name, props)
+    {
+      var widget;
+
+      // Set echo mode
+      var echomode = this.getEnumProperty('echoMode', props);
+      if (echomode == "QLineEdit::Password") {
+        widget = new qx.ui.form.PasswordField();
+      } else if (echomode == "QLineEdit::NoEcho") {
+        console.error("*** TextField NoEcho not supported!");
+        return null;
+      } else if (echomode == "QLineEdit::PasswordEchoOnEdit") {
+        console.error("*** TextField NoEcho not supported!");
+        return null;
+      } else {
+        widget = new qx.ui.form.TextField();
+      }
+
+      // Set placeholder
+      var placeholder = this.getStringProperty('placeholderText', props);
+      if (placeholder != null) {
+        widget.setPlaceholder(placeholder);
+      }
+
+      // Set max length
+      var ml = this.getNumberProperty('maxLength', props);
+      if (ml != null) {
+        widget.setMaxLength(ml);
+      }
+
+      this.processCommonProperties(widget, props);
+
+      this._widgets[name] = widget;
+      return widget;
+    },
+
+    processQComboBoxWidget : function(name, props)
+    {
+      var widget = new qx.ui.form.ComboBox();
+      this.processCommonProperties(widget, props);
+
+      this._widgets[name] = widget;
+      return widget;
+    },
+
+    processCommonProperties : function(widget, props)
+    {
+      // Set geometry
+      var geometry = this.getGeometryProperty('geometry', props);
+      if (geometry) {
+        widget.setWidth(geometry['width']);
+        widget.setHeight(geometry['height']);
+      }
+
+      // Set tooltip
+      var tooltip = this.getStringProperty('toolTip', props);
+      if (tooltip != null) {
+        widget.setToolTip(new qx.ui.tooltip.ToolTip(tooltip));
+      }
+
+      // Set ro mode
+      var readonly = this.getBoolProperty('readOnly', props);
+      if (readonly != null) {
+        widget.setReadOnly(readonly);
+      }
+
+      // Set maximum size
+      var size = this.getSizeProperty('maximumSize', props);
+      if (size != null) {
+        widget.setMaxWidth(size['width']);
+        widget.setMaxHeight(size['height']);
+      }
+
+      // Set minimum size
+      var size = this.getSizeProperty('minimumSize', props);
+      if (size != null) {
+        widget.setMinWidth(size['width']);
+        widget.setMinHeight(size['height']);
+      }
+    },
+
+    setWidgetInvalidMessage : function(name, message)
+    {
+      name = name + "Edit";
+      if (this._widgets[name]) {
+        this._widgets[name].setInvalidMessage(message);
+      } else {
+        console.error("*** cannot set invalid message for non existing widget '" + name + "'!");
+      }
+    },
+
+    setWidgetValid: function(name, flag)
+    {
+      name = name + "Edit";
+      if (this._widgets[name]) {
+        this._widgets[name].setValid(flag);
+      } else {
+        console.error("*** cannot set valid flag for non existing widget '" + name + "'!");
+      }
+    },
+
+    resetWidgetInvalidMessage : function(name)
+    {
+      name = name + "Edit";
+      if (this._widgets[name]) {
+        this._widgets[name].resetInvalidMessage();
+      } else {
+        console.error("*** cannot set invalid message for non existing widget '" + name + "'!");
+      }
+    },
+
+    setWidgetRequiredInvalidMessage : function(name, message)
+    {
+      name = name + "Edit";
+      if (this._widgets[name]) {
+        this._widgets[name].setRequiredInvalidMessage(message);
+      } else {
+        console.error("*** cannot set required message for non existing widget '" + name + "'!");
+      }
+    },
+
+    setWidgetRequired: function(name, flag)
+    {
+      name = name + "Edit";
+      if (this._widgets[name]) {
+        this._widgets[name].setRequired(flag);
+      } else {
+        console.error("*** cannot set required flag for non existing widget '" + name + "'!");
+      }
+    },
+
+    resetWidgetRequiredInvalidMessage : function(name)
+    {
+      name = name + "Edit";
+      if (this._widgets[name]) {
+        this._widgets[name].resetRequiredInvalidMessage();
+      } else {
+        console.error("*** cannot set required message for non existing widget '" + name + "'!");
+      }
     },
 
     getStringProperty : function(what, props)
@@ -396,7 +615,20 @@ qx.Class.define("cute.renderer.Gui",
     getSizeProperty : function(what, props)
     {
       if (props[what] && props[what]['size']) {
-        return {'height': parseInt(props[what]['size']['height']), 'width': parseInt(props[what]['size']['width'])}
+        return {'height': parseInt(props[what]['size']['height']), 'width': parseInt(props[what]['size']['width'])};
+      }
+
+      return null;
+    },
+
+    getGeometryProperty : function(what, props)
+    {
+      if (props[what] && props[what]['rect']) {
+        return {
+		'x': parseInt(props[what]['rect']['x']),
+		'y': parseInt(props[what]['rect']['y']),
+		'height': parseInt(props[what]['rect']['height']),
+	       	'width': parseInt(props[what]['rect']['width'])}
       }
 
       return null;
@@ -427,100 +659,6 @@ qx.Class.define("cute.renderer.Gui",
       }
 
       return null;
-    },
-
-    processQWidgetWidget : function(props)
-    {
-      this.setTitle(this.getStringProperty('windowTitle', props))
-      return new qx.ui.container.Composite()
-    },
-
-    processQLabelWidget : function(props)
-    {
-      var label = new qx.ui.basic.Label(this.getStringProperty('text', props))
-
-      // Set tooltip
-      if (this.getStringProperty('toolTip', props)) {
-        label.setToolTip(new qx.ui.tooltip.ToolTip(this.getStringProperty('toolTip', props)));
-      }
-
-      this.processCommonProperties(label, props);
-
-      return label;
-    },
-
-    processQLineEditWidget : function(props)
-    {
-      var widget;
-
-      // Set echo mode
-      var echomode = this.getEnumProperty('echoMode', props);
-      if (echomode == "QLineEdit::Password") {
-        widget = new qx.ui.form.PasswordField();
-      } else if (echomode == "QLineEdit::NoEcho") {
-        console.error("*** TextField NoEcho not supported!");
-        return null;
-      } else if (echomode == "QLineEdit::PasswordEchoOnEdit") {
-        console.error("*** TextField NoEcho not supported!");
-        return null;
-      } else {
-        widget = new qx.ui.form.TextField();
-      }
-
-      // Set placeholder
-      var placeholder = this.getStringProperty('placeholderText', props);
-      if (placeholder != null) {
-        widget.setPlaceholder(placeholder);
-      }
-
-      //this.commonParams(widget, props);
-
-      // Set max length
-      var ml = this.getNumberProperty('maxLength', props);
-      if (ml != null) {
-        widget.setMaxLength(ml);
-      }
-
-      this.processCommonProperties(widget, props);
-
-      return widget;
-    },
-
-    processQComboBoxWidget : function(props)
-    {
-      var widget = new qx.ui.form.ComboBox();
-      this.processCommonProperties(widget, props);
-
-      return widget;
-    },
-
-    processCommonProperties : function(widget, props)
-    {
-      // Set tooltip
-      var tooltip = this.getStringProperty('toolTip', props);
-      if (tooltip != null) {
-        widget.setToolTip(new qx.ui.tooltip.ToolTip(tooltip));
-      }
-
-      // Set ro mode
-      var readonly = this.getBoolProperty('readOnly', props);
-      if (readonly != null) {
-        widget.setReadOnly(readonly);
-      }
-
-      // Set maximum size
-      var size = this.getSizeProperty('maximumSize', props);
-      if (size != null) {
-        widget.setMaxWidth(size['width']);
-        widget.setMaxHeight(size['height']);
-      }
-
-      // Set minimum size
-      var size = this.getSizeProperty('minimumSize', props);
-      if (size != null) {
-        widget.setMinWidth(size['width']);
-        widget.setMinHeight(size['height']);
-      }
     }
 
   }

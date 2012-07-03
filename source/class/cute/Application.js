@@ -56,7 +56,7 @@ qx.Class.define("cute.Application",
       */
 
       // Create a button
-      var process = new qx.ui.form.Button("Build...");
+      var process = new qx.ui.form.Button("View...");
       var text = new qx.ui.form.TextArea();
       text.setWrap(false);
 
@@ -70,7 +70,7 @@ qx.Class.define("cute.Application",
       // Load data
       var req = new qx.bom.request.Xhr();
       req.onload = function() { text.setValue(req.responseText); }
-      req.open("GET", "test.ui");
+      req.open("GET", "test.ui?c=" + Math.floor(Math.random()*100001));
       req.send();
 
       // Add an event listener and process known elements
@@ -82,13 +82,18 @@ qx.Class.define("cute.Application",
 	  win.destroy();
 	}
 
-	//w = new cute.renderer.Gui(text.getValue(), null);
 	w = cute.renderer.Gui.getWidget(text.getValue(), null);
-	win = new qx.ui.window.Window("Test" /*w.getTitle()*/);
+	win = new qx.ui.window.Window(w.getTitle());
 	win.setModal(true);
 	win.setLayout(new qx.ui.layout.VBox(10));
 	win.add(w);
 	win.open();
+
+        // Test
+	w.setWidgetInvalidMessage("sn", "Please enter a valid surname!");
+	w.setWidgetValid("sn", false);
+	w.setWidgetRequired("l", true);
+
 	doc.add(win, {left: 100, top: 10});
       }, this);
 
