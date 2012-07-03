@@ -21,8 +21,6 @@ qx.Class.define("cute.Application",
 {
   extend : qx.application.Standalone,
 
-
-
   /*
   *****************************************************************************
      MEMBERS
@@ -58,7 +56,7 @@ qx.Class.define("cute.Application",
       */
 
       // Create a button
-      var process = new qx.ui.form.Button("Analyze");
+      var process = new qx.ui.form.Button("Build...");
       var text = new qx.ui.form.TextArea();
       text.setWrap(false);
 
@@ -66,8 +64,8 @@ qx.Class.define("cute.Application",
       var doc = this.getRoot();
 
       // Add button to document at fixed coordinates
-      doc.add(text, {left: 10, top: 10, right: 10, bottom: 250});
-      doc.add(process, {left: 10, bottom: 200});
+      doc.add(text, {left: 10, top: 10, right: 10, bottom: 50});
+      doc.add(process, {left: 10, bottom: 20});
 
       // Load data
       var req = new qx.bom.request.Xhr();
@@ -76,9 +74,22 @@ qx.Class.define("cute.Application",
       req.send();
 
       // Add an event listener and process known elements
+      var w = null;
+      var win = null;
       process.addListener("execute", function(e) {
-	var p = new cute.renderer.Gui();
-	doc.add(p.getWidget(text.getValue()), {left: 10, top: 250, bottom: 10, right: 10});
+        if (w) {
+          w.destroy();
+	  win.destroy();
+	}
+
+	//w = new cute.renderer.Gui(text.getValue(), null);
+	w = cute.renderer.Gui.getWidget(text.getValue(), null);
+	win = new qx.ui.window.Window("Test" /*w.getTitle()*/);
+	win.setModal(true);
+	win.setLayout(new qx.ui.layout.VBox(10));
+	win.add(w);
+	win.open();
+	doc.add(win, {left: 100, top: 10});
       }, this);
 
     }
