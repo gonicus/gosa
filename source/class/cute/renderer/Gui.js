@@ -39,7 +39,8 @@ qx.Class.define("cute.renderer.Gui",
 
   properties :
   {
-    title: { init: "Unknown", inheritable : true }
+    title_: { init: "Unknown", inheritable : true },
+    properties_: { init: null, inheritable : true },
   },
 
   statics :
@@ -82,11 +83,9 @@ qx.Class.define("cute.renderer.Gui",
   {
     configure : function(ui_definition)
     {
-      var ui = this.processUI(parseXml(ui_definition).childNodes);
-      console.log("-------------");
-      console.log(ui);
-      console.log("-------------");
-      this.add(ui);
+      var info = this.processUI(parseXml(ui_definition).childNodes);
+      this.setProperties_(info['properties']);
+      this.add(info['widget']);
     },
 
     /**
@@ -188,17 +187,17 @@ qx.Class.define("cute.renderer.Gui",
                 var column = parseInt(topic.getAttribute("column"));
                 var row = parseInt(topic.getAttribute("row"));
                 var wdgt = this.processElements(topic.childNodes);
-                widget.add(wdgt, {row: row, column: column});
+                widget.add(wdgt['widget'], {row: row, column: column});
 
               } else if (layout_type == "QFormLayout") {
                 var column = parseInt(topic.getAttribute("column"));
                 var row = parseInt(topic.getAttribute("row"));
                 var wdgt = this.processElements(topic.childNodes);
-                widget.add(wdgt, {row: row, column: column});
+                widget.add(wdgt['widget'], {row: row, column: column});
 
               } else if (layout_type == "QHBoxLayout") {
                 var wdgt = this.processElements(topic.childNodes);
-                widget.add(wdgt);
+                widget.add(wdgt['widget']);
               }
             }
 
@@ -256,7 +255,7 @@ qx.Class.define("cute.renderer.Gui",
             }
           }
 
-          widgets.push(widget);
+          widgets.push({widget: widget, properties: properties});
 
         } else {
           console.error("*** unexpected element '" + node.nodeName + "'");
@@ -267,6 +266,7 @@ qx.Class.define("cute.renderer.Gui",
       // If there is more than one widget on this level,
       // automatically return a canvas layout with these widgets.
       if (widgets.length == 1) {
+        //TODO: null handling
         return widgets[0];
       } else {
         console.info("*** migrate your GUI to use layouts instead of plain widget collections");
@@ -280,7 +280,9 @@ qx.Class.define("cute.renderer.Gui",
 
     processSpacer : function(node)
     {
-	return new qx.ui.core.Widget().set({height: 1, width: 1});
+      //TODO: evaluate properties
+      var w = new qx.ui.core.Widget().set({height: 1, width: 1});
+      return {widget: w, properties: {}};
     },
 
     processWidget : function(node)
@@ -325,8 +327,9 @@ qx.Class.define("cute.renderer.Gui",
 
       // Call process*Widget method
       var method = "process" + clazz + "Widget";
+      var widget;
       if (method in this) {
-        var widget = this[method](name, properties);
+        widget = this[method](name, properties);
       } else {
         console.error("*** widget '" + method + "' does not exist!");
         return null;
@@ -363,28 +366,29 @@ qx.Class.define("cute.renderer.Gui",
               var column = parseInt(topic.getAttribute("column"));
               var row = parseInt(topic.getAttribute("row"));
               var wdgt = this.processElements(topic.childNodes);
-              widget.add(wdgt, {row: row, column: column});
+              widget.add(wdgt['widget'], {row: row, column: column});
 	      widget.getLayout().setColumnFlex(column, 1);
 
             } else if (layout_type == "QFormLayout") {
               var column = parseInt(topic.getAttribute("column"));
               var row = parseInt(topic.getAttribute("row"));
               var wdgt = this.processElements(topic.childNodes);
-              widget.add(wdgt, {row: row, column: column});
+              widget.add(wdgt['widget'], {row: row, column: column});
 
             } else if (layout_type == "QHBoxLayout") {
               var wdgt = this.processElements(topic.childNodes);
-              widget.add(wdgt);
+              widget.add(wdgt['widget']);
             }
           }
         }
       }
       
-      widgets.push(widget);
+      widgets.push({widget: widget, properties: properties});
 
       // If there is more than one widget on this level,
       // automatically return a canvas layout with these widgets.
       if (widgets.length == 1) {
+        //TODO: null handling
         return widgets[0];
       } else {
         console.info("*** migrate your GUI to use layouts instead of plain widget collections");
@@ -429,7 +433,7 @@ qx.Class.define("cute.renderer.Gui",
 
     processQWidgetWidget : function(name, props)
     {
-      this.setTitle(this.getStringProperty('windowTitle', props));
+      this.setTitle_(this.getStringProperty('windowTitle', props));
 
       var widget = new qx.ui.container.Composite();
       this.processCommonProperties(widget, props);

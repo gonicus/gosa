@@ -83,7 +83,7 @@ qx.Class.define("cute.Application",
 	}
 
 	w = cute.renderer.Gui.getWidget(text.getValue(), null);
-	win = new qx.ui.window.Window(w.getTitle());
+	win = new qx.ui.window.Window(w.getTitle_());
 	win.setModal(true);
 	win.setLayout(new qx.ui.layout.VBox(10));
 	win.add(w);
@@ -94,7 +94,14 @@ qx.Class.define("cute.Application",
 	w.setWidgetValid("sn", false);
 	w.setWidgetRequired("l", true);
 
-	doc.add(win, {left: 100, top: 10});
+	var props = w.getProperties_();
+	if (props['geometry']) {
+	  doc.add(win, {
+		  left: parseInt(props['geometry']['rect']['x']),
+		  top: parseInt(props['geometry']['rect']['y'])});
+	} else {
+	  doc.add(win, {left: 0, top: 0});
+        }
       }, this);
 
     }
