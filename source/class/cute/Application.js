@@ -82,26 +82,28 @@ qx.Class.define("cute.Application",
 	  win.destroy();
 	}
 
-	w = cute.ui.Renderer.getWidget(text.getValue(), null);
-	win = new qx.ui.window.Window(w.getTitle_());
-	win.setModal(true);
-	win.setLayout(new qx.ui.layout.VBox(10));
-	win.add(w);
-	win.open();
+      cute.proxy.ObjectFactory.openObject(function(obj){
 
-        // Test
-	w.setWidgetInvalidMessage("sn", "Please enter a valid surname!");
-	w.setWidgetValid("sn", false);
-	w.setWidgetRequired("l", true);
+          // Build widget and place it into a window
+      	  w = cute.ui.Renderer.getWidget(text.getValue(), obj);
+      	  win = new qx.ui.window.Window(w.getTitle_());
+      	  win.setModal(true);
+      	  win.setLayout(new qx.ui.layout.VBox(10));
+      	  win.add(w);
+      	  win.open();
+      
+          // Position window as requested
+      	  var props = w.getProperties_();
+      	  if (props['geometry']) {
+      	    doc.add(win, {
+      	  	  left: parseInt(props['geometry']['rect']['x']),
+      	  	  top: parseInt(props['geometry']['rect']['y'])});
+      	  } else {
+      	    doc.add(win, {left: 0, top: 0});
+          }
 
-	var props = w.getProperties_();
-	if (props['geometry']) {
-	  doc.add(win, {
-		  left: parseInt(props['geometry']['rect']['x']),
-		  top: parseInt(props['geometry']['rect']['y'])});
-	} else {
-	  doc.add(win, {left: 0, top: 0});
-        }
+        }, this, "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de");
+
       }, this);
 
     }
