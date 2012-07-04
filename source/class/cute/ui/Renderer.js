@@ -57,19 +57,34 @@ qx.Class.define("cute.ui.Renderer",
 
     statics :
   {
-    getWidget : function(ui_definition, obj)
+    getWidget : function(obj, ui_definition)
     {
       var properties = {};
 
-      //TODO: setup attributes
-      //for(var attr in attributes){
-      //  var name = attributes[attr];
+      //TODO: ui definitions need to be loaded just with the obj
+      //      information. Development relies on passed ones.
+      if (!ui_definition) {
+        console.error("*** development class needs an external ui definition");
+        return null;
+      }
+
+      var rpc = cute.io.Rpc.getInstance();
+      var attributes = rpc.callSync("dispatchObjectMethod", obj.uuid, "get_attributes");
+
+      // Retrieve all attributes
+      console.log("Object: " + obj.uuid);
+      console.log("Attributes:");
+      console.log(attributes);
+
+      // Setup attributes
+      for(var attr in attributes){
+        var name = attributes[attr];
       //  var upperName = name.charAt(0).toUpperCase() + name.slice(1);
       //  var applyName = "_apply_" + upperName;
       //  var prop = {apply: applyName, event: "changed" + upperName, nullable: true};
-      //  members[applyName] = getApplyMethod(name);
-      //  properties[name] = prop;
-      //}
+        var prop = {nullable: true};
+        properties[name] = prop;
+      }
 
       var def = {extend: cute.ui.Renderer, properties: properties};
       var clazz = qx.Class.define(name, def);
@@ -82,7 +97,11 @@ qx.Class.define("cute.ui.Renderer",
       //TODO
 
       // Connect object attributes to intermediate properties
-      //TODO
+      for(var attr in attributes){
+        var name = attributes[attr];
+        obj.bind(name, widget, name);
+        widget.wire(name);
+      }
 
       // Connect intermediate properties to object attributes
       //TODO
@@ -92,6 +111,11 @@ qx.Class.define("cute.ui.Renderer",
 
       // Connect validator to properties
       //TODO
+
+      // Test
+      //widget.setWidgetInvalidMessage("sn", "Please enter a valid surname!");
+      //widget.setWidgetValid("sn", false);
+      //widget.setWidgetRequired("l", true);
 
       return widget;
     }
@@ -107,6 +131,19 @@ qx.Class.define("cute.ui.Renderer",
         this.add(info['widget']);
       } else {
         this.debug("Error: no widget found");
+      }
+    },
+
+    wire : function(name)
+    {
+      name = name + "Edit"
+
+      if (this._widgets[name]) {
+        console.log("----");
+        console.log(name);
+        console.log(this._widgets[name]);
+        //TODO: depends on widget type
+        //this.bind(name, this._widgets[name], "value");
       }
     },
 

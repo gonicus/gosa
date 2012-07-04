@@ -85,7 +85,7 @@ qx.Class.define("cute.Application",
       cute.proxy.ObjectFactory.openObject(function(obj){
 
           // Build widget and place it into a window
-      	  w = cute.ui.Renderer.getWidget(text.getValue(), obj);
+      	  w = cute.ui.Renderer.getWidget(obj, text.getValue());
       	  win = new qx.ui.window.Window(w.getTitle_());
       	  win.setModal(true);
       	  win.setLayout(new qx.ui.layout.VBox(10));
