@@ -17,7 +17,7 @@
 /**
  * This is the main application class of your custom application "cute"
  */
-qx.Class.define("cute.renderer.Gui",
+qx.Class.define("cute.ui.Renderer",
     {
       extend : qx.ui.container.Composite,
 
@@ -71,7 +71,7 @@ qx.Class.define("cute.renderer.Gui",
       //  properties[name] = prop;
       //}
 
-      var def = {extend: cute.renderer.Gui, properties: properties};
+      var def = {extend: cute.ui.Renderer, properties: properties};
       var clazz = qx.Class.define(name, def);
 
       // Generate widget and place configure it to contain itself

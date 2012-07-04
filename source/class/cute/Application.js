@@ -82,7 +82,7 @@ qx.Class.define("cute.Application",
 	  win.destroy();
 	}
 
-	w = cute.renderer.Gui.getWidget(text.getValue(), null);
+	w = cute.ui.Renderer.getWidget(text.getValue(), null);
 	win = new qx.ui.window.Window(w.getTitle_());
 	win.setModal(true);
 	win.setLayout(new qx.ui.layout.VBox(10));
