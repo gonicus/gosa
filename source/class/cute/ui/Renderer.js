@@ -751,6 +751,20 @@ qx.Class.define("cute.ui.Renderer",
         }
       }
 
+      else if (type == "qx.ui.form.VirtualSelectBox") {
+        var values = this.getAttributes_()[name.slice(0, name.length - 4)]['values'];
+        if (value && values.indexOf(value) >= 0) {
+          this._widgets[name].setSelection(new qx.data.Array([value]));
+        }
+      }
+
+      else if (type == "qx.ui.form.VirtualComboBox") {
+        var values = this.getAttributes_()[name.slice(0, name.length - 4)]['values'];
+        if (value && values.indexOf(value) >= 0) {
+          this._widgets[name].setValue(value);
+        }
+      }
+
       else {
         this.error("*** no knowledge about how to handle widget of type '" + type + "'");
       }
