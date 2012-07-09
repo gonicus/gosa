@@ -188,7 +188,6 @@ qx.Class.define("cute.ui.Renderer",
 
           // Read-only?
           if (attrs['readonly'] === true || attrs['depends_on'].length > 0) {
-            console.log(widget);
             widget.setEnabled(false);
           }
 
@@ -680,8 +679,6 @@ qx.Class.define("cute.ui.Renderer",
       }
 
       this.processCommonProperties(widget, props);
-
-      console.log(name + " <<<");
       this._widgets[name] = widget;
       return widget;
     },
