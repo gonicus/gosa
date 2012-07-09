@@ -161,7 +161,7 @@ qx.Class.define("cute.Application",
 
             // Position window as requested
             var props = w.getProperties_();
-            if (props['geometry']) {
+            if (props && props['geometry']) {
               doc.add(win, {
                 left: parseInt(props['geometry']['rect']['x']),
                 top: parseInt(props['geometry']['rect']['y'])});
