@@ -54,11 +54,6 @@ qx.Class.define("cute.Application",
         Below is your actual application code...
       -------------------------------------------------------------------------
       */
-      if(document.location.href.match("clacks-server")){
-        var dn = "cn=phone Huhu,ou=people,dc=example,dc=net";
-      }else{
-        var dn = "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de";
-      }
 
       // Create a button
       var process = new qx.ui.form.Button("View...");
@@ -66,15 +61,24 @@ qx.Class.define("cute.Application",
       text.setWrap(false);
 
       // Create action bar
-      var dn_field = new qx.ui.form.TextField(dn);
+      var dn_list = new qx.ui.form.VirtualSelectBox();
       var commit = new qx.ui.form.Button("Commit");
       var close = new qx.ui.form.Button("Close");
-      dn_field.set({allowGrowX: true});
       var actions = new qx.ui.container.Composite(new qx.ui.layout.HBox(5));
-      actions.add(dn_field, {flex:1});
+      actions.add(dn_list, {flex:1});
       actions.add(process);
       actions.add(commit);
       actions.add(close);
+
+      // Collect all user dns 
+      var rpc = cute.io.Rpc.getInstance();
+      rpc.cA(function(result, error){
+          var list = new qx.data.Array();
+          for(var i=0;i<result.length;i++){
+            list.push(result[i]['User']['DN'][0]);
+          }
+          dn_list.setModel(list);
+        }, this, "search", "SELECT User.* BASE User SUB \"dc=example,dc=net\" ORDER BY User.uid");
 
       // Document is the application root
       var doc = this.getRoot();
@@ -145,7 +149,7 @@ qx.Class.define("cute.Application",
               }
 
             }, this, obj, text.getValue());
-        }, this, dn_field.getValue());
+        }, this, dn_list.getSelection().getItem(0));
 
       }, this);
 
