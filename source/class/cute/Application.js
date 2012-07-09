@@ -82,6 +82,12 @@ qx.Class.define("cute.Application",
 	  win.destroy();
 	}
 
+        if(document.location.href.match("clacks-server")){
+            var dn = "cn=phone phone,ou=people,dc=example,dc=net";
+          }else{
+            var dn = "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de";
+          }
+
         cute.proxy.ObjectFactory.openObject(function(obj){
 
           // Build widget and place it into a window
@@ -102,7 +108,7 @@ qx.Class.define("cute.Application",
       	    doc.add(win, {left: 0, top: 0});
           }
 
-        }, this, "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de");
+        }, this, dn);
 
       }, this);
 
