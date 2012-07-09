@@ -39,6 +39,16 @@ qx.Class.define("cute.proxy.Object", {
       }
     },
 
+    close: function(func, context){
+      var rpc = cute.io.Rpc.getInstance();
+      var args = ["closeObject", this.uuid];
+      rpc.cA.apply(rpc, [function(result){
+          if(func){
+            func.apply(context, [result]);
+          }
+        }, this].concat(args));
+    },
+
     /* Wrapper method for object calls
      * */
     callMethod: function(method, func, context){

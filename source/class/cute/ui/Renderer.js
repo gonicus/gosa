@@ -122,7 +122,7 @@ qx.Class.define("cute.ui.Renderer",
 
                 //TODO: Collect multivalue here!
                 if(attributes[name]['multivalue']){
-                  widget.set(name, [userInput.getValue(), "another value!"]);
+                  widget.set(name, [userInput.getValue()]);
                 }else{
                   widget.set(name, userInput.getValue());
                 }
