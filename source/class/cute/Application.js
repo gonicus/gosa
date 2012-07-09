@@ -64,7 +64,19 @@ qx.Class.define("cute.Application",
       var dn_list = new qx.ui.form.VirtualSelectBox();
       var commit = new qx.ui.form.Button("Commit");
       var close = new qx.ui.form.Button("Close");
+      var toggle = new qx.ui.form.ToggleButton("User defs");
+      toggle.bind("value", text, "visibility", {"converter": function(inv){
+          if(toggle.getValue()){
+            return("visible");
+          }else{
+            return("hidden");
+          }
+        }});
+      toggle.addListener("changeValue", function(){
+          (toggle.getValue());
+        }, this);
       var actions = new qx.ui.container.Composite(new qx.ui.layout.HBox(5));
+      actions.add(toggle);
       actions.add(dn_list, {flex:1});
       actions.add(process);
       actions.add(commit);
@@ -127,10 +139,13 @@ qx.Class.define("cute.Application",
         }
 
         cute.proxy.ObjectFactory.openObject(function(obj){
-
             _current_object = obj;
 
             // Build widget and place it into a window
+            var ui_def = null;
+            if(toggle.getValue()){
+              ui_def = text.getValue();
+            }
         	  cute.ui.Renderer.getWidget(function(w){
         	    win = new qx.ui.window.Window(w.getTitle_());
         	    win.setModal(true);
@@ -148,7 +163,7 @@ qx.Class.define("cute.Application",
         	      doc.add(win, {left: 0, top: 0});
               }
 
-            }, this, obj, text.getValue());
+            }, this, obj, ui_def);
         }, this, dn_list.getSelection().getItem(0));
 
       }, this);
