@@ -55,8 +55,9 @@ qx.Class.define("cute.ui.Renderer",
     properties_: { init: null, inheritable : true }
   },
 
-    statics :
+  statics :
   {
+
     getWidget : function(cb, context, obj, ui_definition)
     {
       var properties = {};
@@ -87,28 +88,42 @@ qx.Class.define("cute.ui.Renderer",
           var upperName = name.charAt(0).toUpperCase() + name.slice(1);
           var applyName = "_apply_" + upperName;
         //  var prop = {apply: applyName, event: "changed" + upperName, nullable: true};
-          var prop = {nullable: true, apply: applyName};
+          var prop = {nullable: true, apply: applyName, event: "changed" + upperName};
           members[applyName] = getApplyMethod(name);
           properties[name] = prop;
         }
-  
+ 
+        //TODO: What name do we use later? The tab name?
+        var name = "ContainerWidget"; 
         var def = {extend: cute.ui.Renderer, properties: properties, members: members};
         var clazz = qx.Class.define(name, def);
-  
+
         // Generate widget and place configure it to contain itself
         var widget = new clazz();
         widget.configure(ui_definition);
-  
+
         // Initialize widgets depending on type
         //TODO
-  
+
         // Connect object attributes to intermediate properties
-        for(var attr in attributes){
-          var name = attributes[attr];
+        console.log(widget._widgets);
+        for(var id in attributes){
+          var name = attributes[id];
           obj.bind(name, widget, name);
-          widget.wire(name);
+
+          if(name + "Edit" in widget._widgets){
+            var userInput = widget._widgets[name + "Edit"];
+            if(userInput instanceof qx.ui.form.AbstractField){
+              widget._widgets[name + "Edit"].addListener("input", function(){
+
+                console.log(this.getValue());
+                console.log("asdf");
+              }, widget._widgets[name + "Edit"]);
+            }
+          }
         }
-  
+ 
+
         // Connect intermediate properties to object attributes
         //TODO
   
@@ -141,18 +156,17 @@ qx.Class.define("cute.ui.Renderer",
       }
     },
 
-    wire : function(name)
-    {
-      name = name + "Edit"
+    //wire : function(name)
+    //{
+    //  name = name + "Edit"
 
-      if (this._widgets[name]) {
-        console.log("----");
-        console.log(name);
-        console.log(this._widgets[name]);
-        //TODO: depends on widget type
-        //this.bind(name, this._widgets[name], "value");
-      }
-    },
+    //  if (this._widgets[name]) {
+    //    //console.log("----");
+    //    //console.log(name);
+    //    //TODO: depends on widget type
+    //    //this.bind(name, this._widgets[name], "value");
+    //  }
+    //},
 
     /**
      * This method contains the initial application code and gets called 
@@ -615,6 +629,7 @@ qx.Class.define("cute.ui.Renderer",
 
       this.processCommonProperties(widget, props);
 
+      console.log(name + " <<<");
       this._widgets[name] = widget;
       return widget;
     },
