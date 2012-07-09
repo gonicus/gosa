@@ -83,6 +83,11 @@ qx.Class.define("cute.ui.Renderer",
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(attributes) {
 
+        if(!attributes){
+          this.error("RPC calle failed, not attributes returned!");
+          return;
+        }
+
         // Setup attributes
         for(var name in attributes){
           var upperName = name.charAt(0).toUpperCase() + name.slice(1);
@@ -106,8 +111,7 @@ qx.Class.define("cute.ui.Renderer",
         //TODO
 
         // Connect object attributes to intermediate properties
-        for(var id in attributes){
-          var name = attributes[id];
+        for(var name in attributes){
           obj.bind(name, widget, name);
 
           if(name + "Edit" in widget._widgets){
