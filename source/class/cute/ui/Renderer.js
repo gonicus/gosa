@@ -108,18 +108,40 @@ qx.Class.define("cute.ui.Renderer",
         widget.setAttributes_(attributes);
         widget.configure(ui_definition);
 
+        // Create upate function for each widget to ensure that values are transittet to
+        // the server after a given time period.
+        var timer = qx.util.TimerManager.getInstance();
+        var timers = {};
+        var updateFunc = function(name, userInput){
+          var func = function(value){
+            if(timers[name]){
+              timer.stop(timers[name]);
+              timers[name] = null;
+            }
+            timers[name] = timer.start(function(){
+
+                //TODO: Collect multivalue here!
+                if(attributes[name]['multivalue']){
+                  widget.set(name, [userInput.getValue(), "another value!"]);
+                }else{
+                  widget.set(name, userInput.getValue());
+                }
+                timer.stop(timers[name]);
+                timers[name] = null;
+              }, null, this, null, 2000);
+          }
+          return func;
+        }
+
         // Connect object attributes to intermediate properties
         for(var name in attributes){
           obj.bind(name, widget, name);
-
+          widget.bind(name, obj, name);
           if(name + "Edit" in widget._widgets){
             var userInput = widget._widgets[name + "Edit"];
             if(userInput instanceof qx.ui.form.AbstractField){
-              widget._widgets[name + "Edit"].addListener("input", function(){
-
-                console.log(this.getValue());
-                console.log("asdf");
-              }, widget._widgets[name + "Edit"]);
+              userInput.setLiveUpdate(true);
+              userInput.addListener("changeValue", updateFunc(name, userInput), this);
             }
           }
         }
