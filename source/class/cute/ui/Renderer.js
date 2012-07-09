@@ -180,10 +180,6 @@ qx.Class.define("cute.ui.Renderer",
         // Connect validator to properties
         //TODO
   
-        // Test
-        //widget.setWidgetInvalidMessage("sn", "Please enter a valid surname!");
-        //widget.setWidgetValid("sn", false);
-        
         // Connect to the object event 'propertyUpdateOnServer' to be able to act on property changes.
         // e.g. set an invalid-decorator for specific widget.
         obj.addListener("propertyUpdateOnServer", widget.actOnEvents, widget);
@@ -225,13 +221,21 @@ qx.Class.define("cute.ui.Renderer",
     {
       var container;
 
-      if (ui_definition.length > 1) {
+      var size = qx.lang.Object.getKeys(ui_definition).length;
+
+      if (size > 1) {
          container = new qx.ui.tabview.TabView();
          this.add(container);
       }
 
       //TODO: order ui
       for (var i in ui_definition) {
+
+	// Skip empty definitions
+        if (!ui_definition[i]) {
+          continue;
+        }
+
         var info = this.processUI(parseXml(ui_definition[i]).childNodes);
         if (info) {
           // Take over properties of base type
@@ -239,8 +243,8 @@ qx.Class.define("cute.ui.Renderer",
             this.setProperties_(info['properties']);
           }
 
-          if (ui_definition.length > 1) {
-            var page = new qx.ui.tabview.Page(info['widget'].getTitle_());
+          if (size > 1) {
+            var page = new qx.ui.tabview.Page(info['widget'].title_);
             page.setLayout(new qx.ui.layout.VBox());
             page.add(info['widget']);
             container.add(page);
@@ -271,23 +275,13 @@ qx.Class.define("cute.ui.Renderer",
           }
 
           // Toggler
-          if (attrs['blocked_by'].length > 0) {
+          if (qx.lang.Object.getKeys(attrs['blocked_by']).length > 0) {
           //TODO: blocked_by needs to be wired
             console.log("**** blocked_by handling for " + name);
             console.log(attrs['blocked_by']);
           }
         }
       }
-
-
-      //TODO: handle these in widget setup
-      //'case_sensitive'
-      //'unique'
-      //'blocked_by'
-      //'default'
-      //'values'
-      //'multivalue'
-      //'type'
 
       return true;
     },
@@ -698,9 +692,8 @@ qx.Class.define("cute.ui.Renderer",
 
     processQWidgetWidget : function(name, props)
     {
-      this.setTitle_(this.getStringProperty('windowTitle', props));
-
       var widget = new qx.ui.container.Composite();
+      widget.title_ = this.getStringProperty('windowTitle', props);
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
 
