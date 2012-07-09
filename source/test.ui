@@ -71,58 +71,72 @@
       <widget class="QLineEdit" name="physicalDeliveryOfficeNameEdit"/>
      </item>
      <item row="4" column="0">
+      <widget class="QLabel" name="cnLabel">
+       <property name="text">
+        <string>Mirrored cn</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="cnEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
       <widget class="QLabel" name="titleLabel">
        <property name="text">
         <string>title</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="5" column="1">
       <widget class="QLineEdit" name="titleEdit">
        <property name="echoMode">
         <enum>QLineEdit::Password</enum>
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="postOfficeBoxLabel">
        <property name="text">
         <string>postOfficeBox</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="6" column="1">
       <widget class="QLineEdit" name="postOfficeBoxEdit">
        <property name="echoMode">
         <enum>QLineEdit::Password</enum>
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
+     <item row="7" column="0">
       <widget class="QLabel" name="lLabel">
        <property name="text">
         <string>l</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="7" column="1">
       <widget class="QLineEdit" name="lEdit">
        <property name="placeholderText">
         <string>the location comes here</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="0">
+     <item row="8" column="0">
       <widget class="QLabel" name="stLabel">
        <property name="text">
         <string>st</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="8" column="1">
       <widget class="QLineEdit" name="stEdit"/>
      </item>
-     <item row="8" column="0">
+     <item row="9" column="0">
       <widget class="QLabel" name="postalCodeLabel">
        <property name="text">
         <string>postalCode</string>
@@ -132,44 +146,44 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="9" column="1">
       <widget class="QLineEdit" name="postalCodeEdit"/>
      </item>
-     <item row="9" column="0">
+     <item row="10" column="0">
       <widget class="QLabel" name="streetLabel">
        <property name="text">
         <string>street</string>
        </property>
       </widget>
      </item>
-     <item row="9" column="1">
+     <item row="10" column="1">
       <widget class="QLineEdit" name="streetEdit"/>
      </item>
-     <item row="10" column="0">
+     <item row="11" column="0">
       <widget class="QLabel" name="ouLabel">
        <property name="text">
         <string>ou</string>
        </property>
       </widget>
      </item>
-     <item row="10" column="1">
+     <item row="11" column="1">
       <widget class="QLineEdit" name="ouEdit">
        <property name="placeholderText">
         <string>Platzhalter</string>
        </property>
       </widget>
      </item>
-     <item row="11" column="0">
-      <widget class="QLabel" name="preferredDeliveryMethodLabel">
+     <item row="12" column="0">
+      <widget class="QLabel" name="trustModelLabel">
        <property name="text">
-        <string>preferredDeliveryMethod</string>
+        <string>Trust model</string>
        </property>
       </widget>
      </item>
-     <item row="11" column="1">
+     <item row="12" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QComboBox" name="preferredDeliveryMethodEdit">
+        <widget class="QComboBox" name="trustModelEdit">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>1</horstretch>
@@ -199,34 +213,34 @@
        </item>
       </layout>
      </item>
-     <item row="12" column="0">
+     <item row="13" column="0">
       <widget class="QLabel" name="x121AddressLabel">
        <property name="text">
         <string>x121Address</string>
        </property>
       </widget>
      </item>
-     <item row="12" column="1">
+     <item row="13" column="1">
       <widget class="QLineEdit" name="x121AddressEdit"/>
      </item>
-     <item row="13" column="0">
+     <item row="14" column="0">
       <widget class="QLabel" name="internationaliSDNNumberLabel">
        <property name="text">
         <string>internationaliSDNNumber</string>
        </property>
       </widget>
      </item>
-     <item row="13" column="1">
+     <item row="14" column="1">
       <widget class="QLineEdit" name="internationaliSDNNumberEdit"/>
      </item>
-     <item row="14" column="0">
+     <item row="15" column="0">
       <widget class="QLabel" name="destinationIndicatorLabel">
        <property name="text">
         <string>destinationIndicator</string>
        </property>
       </widget>
      </item>
-     <item row="14" column="1">
+     <item row="15" column="1">
       <widget class="QLineEdit" name="destinationIndicatorEdit"/>
      </item>
     </layout>
