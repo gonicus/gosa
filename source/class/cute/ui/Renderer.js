@@ -174,7 +174,11 @@ qx.Class.define("cute.ui.Renderer",
           }
 
           // Toggler
+          if (attrs['blocked_by'].length > 0) {
           //TODO: blocked_by needs to be wired
+            console.log("**** blocked_by handling for " + name);
+            console.log(attrs['blocked_by']);
+          }
         }
       }
 
@@ -182,11 +186,8 @@ qx.Class.define("cute.ui.Renderer",
       //TODO: handle these in widget setup
       //'case_sensitive'
       //'unique'
-      //'mandatory'
-      //'depends_on'
       //'blocked_by'
       //'default'
-      //'readonly'
       //'values'
       //'multivalue'
       //'type'
@@ -194,17 +195,6 @@ qx.Class.define("cute.ui.Renderer",
       return true;
     },
 
-    //wire : function(name)
-    //{
-    //  name = name + "Edit"
-
-    //  if (this._widgets[name]) {
-    //    //console.log("----");
-    //    //console.log(name);
-    //    //TODO: depends on widget type
-    //    //this.bind(name, this._widgets[name], "value");
-    //  }
-    //},
 
     /**
      * This method contains the initial application code and gets called 
