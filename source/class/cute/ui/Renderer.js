@@ -81,10 +81,9 @@ qx.Class.define("cute.ui.Renderer",
 
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(attributes) {
-  
+
         // Setup attributes
-        for(var attr in attributes){
-          var name = attributes[attr];
+        for(var name in attributes){
           var upperName = name.charAt(0).toUpperCase() + name.slice(1);
           var applyName = "_apply_" + upperName;
         //  var prop = {apply: applyName, event: "changed" + upperName, nullable: true};
@@ -106,7 +105,6 @@ qx.Class.define("cute.ui.Renderer",
         //TODO
 
         // Connect object attributes to intermediate properties
-        console.log(widget._widgets);
         for(var id in attributes){
           var name = attributes[id];
           obj.bind(name, widget, name);
@@ -139,7 +137,7 @@ qx.Class.define("cute.ui.Renderer",
         //widget.setWidgetRequired("l", true);
   
         cb.apply(context, [widget]);
-      }, this, "dispatchObjectMethod", obj.uuid, "get_attributes");
+      }, this, "dispatchObjectMethod", obj.uuid, "get_attributes", true);
     }
   },
 
