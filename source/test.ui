@@ -70,20 +70,6 @@
      <item row="3" column="1">
       <widget class="QLineEdit" name="physicalDeliveryOfficeNameEdit"/>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="cnLabel">
-       <property name="text">
-        <string>Mirrored cn</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="cnEdit">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
      <item row="5" column="0">
       <widget class="QLabel" name="titleLabel">
        <property name="text">
@@ -176,7 +162,7 @@
      <item row="12" column="0">
       <widget class="QLabel" name="trustModelLabel">
        <property name="text">
-        <string>Trust model</string>
+        <string>tTrust model</string>
        </property>
       </widget>
      </item>
