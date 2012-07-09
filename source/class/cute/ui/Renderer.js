@@ -52,7 +52,8 @@ qx.Class.define("cute.ui.Renderer",
   properties :
   {
     title_: { init: "Unknown", inheritable : true },
-    properties_: { init: null, inheritable : true }
+    properties_: { init: null, inheritable : true },
+    attributes_: { init: null, inheritable : true }
   },
 
     statics :
@@ -85,7 +86,6 @@ qx.Class.define("cute.ui.Renderer",
         for(var name in attributes){
           var upperName = name.charAt(0).toUpperCase() + name.slice(1);
           var applyName = "_apply_" + upperName;
-        //  var prop = {apply: applyName, event: "changed" + upperName, nullable: true};
           var prop = {nullable: true, apply: applyName};
           members[applyName] = getApplyMethod(name);
           properties[name] = prop;
@@ -96,10 +96,8 @@ qx.Class.define("cute.ui.Renderer",
   
         // Generate widget and place configure it to contain itself
         var widget = new clazz();
+        widget.setAttributes_(attributes);
         widget.configure(ui_definition);
-  
-        // Initialize widgets depending on type
-        //TODO
   
         // Connect object attributes to intermediate properties
         for(var name in attributes){
@@ -119,7 +117,6 @@ qx.Class.define("cute.ui.Renderer",
         // Test
         //widget.setWidgetInvalidMessage("sn", "Please enter a valid surname!");
         //widget.setWidgetValid("sn", false);
-        //widget.setWidgetRequired("l", true);
   
         cb.apply(context, [widget]);
       }, this, "dispatchObjectMethod", obj.uuid, "get_attributes", true);
@@ -136,7 +133,48 @@ qx.Class.define("cute.ui.Renderer",
         this.add(info['widget']);
       } else {
         this.debug("Error: no widget found");
+        return false;
       }
+  
+      // Handle type independen widget settings
+      var attributes = this.getAttributes_();
+      for(var name in attributes){
+        var attrs = attributes[name];
+
+        if (this._widgets[name + "Edit"]) {
+          console.log("+++++++");
+          console.log(name);
+          console.log(attrs);
+
+          // Read-only?
+          if (attrs['readonly'] || attrs['depends_on'].length > 0) {
+            this._widgets[name + "Edit"].setReadOnly(true);
+          }
+
+          // Required?
+          if (attrs['mandatory']) {
+            widget.setWidgetRequired(name, true);
+          }
+
+          // Toggler
+          //TODO: blocked_by needs to be wired
+        }
+      }
+
+
+      //TODO: handle these in widget setup
+      //'case_sensitive'
+      //'unique'
+      //'mandatory'
+      //'depends_on'
+      //'blocked_by'
+      //'default'
+      //'readonly'
+      //'values'
+      //'multivalue'
+      //'type'
+
+      return true;
     },
 
     wire : function(name)
@@ -144,9 +182,9 @@ qx.Class.define("cute.ui.Renderer",
       name = name + "Edit"
 
       if (this._widgets[name]) {
-        console.log("----");
-        console.log(name);
-        console.log(this._widgets[name]);
+        //console.log("----");
+        //console.log(name);
+        //console.log(this._widgets[name]);
         //TODO: depends on widget type
         //this.bind(name, this._widgets[name], "value");
       }
