@@ -97,12 +97,16 @@ qx.Class.define("cute.proxy.ObjectFactory", {
         // We've to do this asynchronously - this is why the calls are stacked ...
         // --
         // First read the objects-base-type (e.g. 'User')
-        rpc.cA(function(baseType, context, error){
+        rpc.cA(function(_baseType, context, error){
             if(!error){
         
+              baseType = _baseType;
+
               // Now read the useable extension types (e.g. ['PosixUser', 'SambaUser', '...'])
-              rpc.cA(function(extensionTypes, context, error){
+              rpc.cA(function(_extensionTypes, context, error){
                   if(!error){
+
+                    extensionTypes = _extensionTypes;
 
                     // Call the result handling method, we had defined eralier above.
                     _handleResult(userData);
