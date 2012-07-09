@@ -162,7 +162,7 @@
      <item row="12" column="0">
       <widget class="QLabel" name="trustModelLabel">
        <property name="text">
-        <string>tTrust model</string>
+        <string>Trust model</string>
        </property>
       </widget>
      </item>
