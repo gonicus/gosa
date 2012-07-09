@@ -97,7 +97,8 @@ qx.Class.define("cute.ui.Renderer",
           properties[name] = prop;
         }
  
-        //TODO: What name do we use later? The tab name?
+        //TODO: When looping thru object and its extension to generate separate
+        //      widgets, set the name according to the object/extension name.
         var name = "ContainerWidget"; 
         var def = {extend: cute.ui.Renderer, properties: properties, members: members};
         var clazz = qx.Class.define(name, def);
@@ -106,9 +107,6 @@ qx.Class.define("cute.ui.Renderer",
         var widget = new clazz();
         widget.setAttributes_(attributes);
         widget.configure(ui_definition);
-
-        // Initialize widgets depending on type
-        //TODO
 
         // Connect object attributes to intermediate properties
         for(var name in attributes){
@@ -670,11 +668,12 @@ qx.Class.define("cute.ui.Renderer",
     {
       var widget;
       var editable = this.getBoolProperty('editable', props);
+      var values = new qx.data.Array(this.getAttributes_()[name.slice(0, name.length - 4)]['values']);
 
       if (editable) {
-        widget = new qx.ui.form.VirtualComboBox();
+        widget = new qx.ui.form.VirtualComboBox(values);
       } else {
-        widget = new qx.ui.form.VirtualSelectBox();
+        widget = new qx.ui.form.VirtualSelectBox(values);
       }
 
       this.processCommonProperties(widget, props);
