@@ -155,31 +155,27 @@ qx.Class.define("cute.ui.Renderer",
       }
   
       // Handle type independen widget settings
-//      var attributes = this.getAttributes_();
-//      for(var name in attributes){
-//        var attrs = attributes[name];
-//
-//        if (this._widgets[name + "Edit"]) {
-//          var widget = this._widgets;
-//
-//          console.log("+++++++");
-//          console.log(name);
-//          console.log(attrs);
-//
-//          // Read-only?
-//          if (attrs['readonly'] || attrs['depends_on'].length > 0) {
-//            widget.setReadOnly(true);
-//          }
-//
-//          // Required?
-//          if (attrs['mandatory']) {
-//            widget.setWidgetRequired(name, true);
-//          }
-//
-//          // Toggler
-//          //TODO: blocked_by needs to be wired
-//        }
-//      }
+      var attributes = this.getAttributes_();
+      for(var name in attributes){
+        var attrs = attributes[name];
+
+        if (this._widgets[name + "Edit"]) {
+          var widget = this._widgets;
+
+          // Read-only?
+          if (attrs['readonly'] === false || attrs['depends_on'].length > 0) {
+            widget.setReadOnly(true);
+          }
+
+          // Required?
+          if (attrs['mandatory'] === true) {
+            widget.setWidgetRequired(name, true);
+          }
+
+          // Toggler
+          //TODO: blocked_by needs to be wired
+        }
+      }
 
 
       //TODO: handle these in widget setup
