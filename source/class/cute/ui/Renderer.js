@@ -60,33 +60,40 @@ qx.Class.define("cute.ui.Renderer",
     getWidget : function(obj, ui_definition)
     {
       var properties = {};
+      var members = {};
+
+      var getApplyMethod = function(name){
+        var func = function(value){
+          if (this._widgets[name + "Edit"]) {
+            this.setWidgetValue(name + "Edit", value);
+          }
+        };
+        return(func);
+      }
+
 
       //TODO: ui definitions need to be loaded just with the obj
       //      information. Development relies on passed ones.
       if (!ui_definition) {
-        console.error("*** development class needs an external ui definition");
+        this.error("*** development class needs an external ui definition");
         return null;
       }
 
       var rpc = cute.io.Rpc.getInstance();
       var attributes = rpc.callSync("dispatchObjectMethod", obj.uuid, "get_attributes");
 
-      // Retrieve all attributes
-      console.log("Object: " + obj.uuid);
-      console.log("Attributes:");
-      console.log(attributes);
-
       // Setup attributes
       for(var attr in attributes){
         var name = attributes[attr];
-      //  var upperName = name.charAt(0).toUpperCase() + name.slice(1);
-      //  var applyName = "_apply_" + upperName;
+        var upperName = name.charAt(0).toUpperCase() + name.slice(1);
+        var applyName = "_apply_" + upperName;
       //  var prop = {apply: applyName, event: "changed" + upperName, nullable: true};
-        var prop = {nullable: true};
+        var prop = {nullable: true, apply: applyName};
+        members[applyName] = getApplyMethod(name);
         properties[name] = prop;
       }
 
-      var def = {extend: cute.ui.Renderer, properties: properties};
+      var def = {extend: cute.ui.Renderer, properties: properties, members: members};
       var clazz = qx.Class.define(name, def);
 
       // Generate widget and place configure it to contain itself
@@ -168,7 +175,7 @@ qx.Class.define("cute.ui.Renderer",
         // Top level UI element
         if (node.nodeName == "ui") {
           if (node.getAttribute("version") !== "4.0") {
-            console.error("*** UI format 4.0 is needed to continue processing!");
+            this.error("*** UI format 4.0 is needed to continue processing!");
             return null;
           }
 
@@ -176,7 +183,7 @@ qx.Class.define("cute.ui.Renderer",
           return this.processElements(node.childNodes);
 
         } else {
-          console.error("*** unexpected element '" + node.nodeName + "'");
+          this.error("*** unexpected element '" + node.nodeName + "'");
         }
       }
 
@@ -232,7 +239,7 @@ qx.Class.define("cute.ui.Renderer",
             widget = new qx.ui.container.Composite(layout);
 
           } else {
-            console.log("*** unknown layout type '" + layout_type + "'!");
+            this.error("*** unknown layout type '" + layout_type + "'!");
             continue;
           }
 
@@ -321,7 +328,7 @@ qx.Class.define("cute.ui.Renderer",
           widgets.push({widget: widget, properties: properties});
 
         } else {
-          console.error("*** unexpected element '" + node.nodeName + "'");
+          this.error("*** unexpected element '" + node.nodeName + "'");
         }
 
       }
@@ -335,7 +342,7 @@ qx.Class.define("cute.ui.Renderer",
           return null;
         }
       } else {
-        console.info("*** migrate your GUI to use layouts instead of plain widget collections");
+        this.info("*** migrate your GUI to use layouts instead of plain widget collections");
 
         var base = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
 
@@ -424,7 +431,7 @@ qx.Class.define("cute.ui.Renderer",
           layout = n;
 
         } else {
-          console.error("*** unknown element '" + n.nodeName + "'");
+          this.error("*** unknown element '" + n.nodeName + "'");
         }
       }
 
@@ -434,7 +441,7 @@ qx.Class.define("cute.ui.Renderer",
       if (method in this) {
         widget = this[method](name, properties);
       } else {
-        console.error("*** widget '" + method + "' does not exist!");
+        this.error("*** widget '" + method + "' does not exist!");
         return null;
       }
 
@@ -455,7 +462,7 @@ qx.Class.define("cute.ui.Renderer",
           widget.setLayout(new qx.ui.layout.HBox());
 
         } else {
-          console.log("*** unknown layout type '" + layout_type + "'!");
+          this.log("*** unknown layout type '" + layout_type + "'!");
           return null;
         }
 
@@ -497,7 +504,7 @@ qx.Class.define("cute.ui.Renderer",
           return null;
         }
       } else {
-        console.info("*** migrate your GUI to use layouts instead of plain widget collections");
+        this.info("*** migrate your GUI to use layouts instead of plain widget collections");
 
         var base = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
 
@@ -585,10 +592,10 @@ qx.Class.define("cute.ui.Renderer",
       if (echomode == "QLineEdit::Password") {
         widget = new qx.ui.form.PasswordField();
       } else if (echomode == "QLineEdit::NoEcho") {
-        console.error("*** TextField NoEcho not supported!");
+        this.error("*** TextField NoEcho not supported!");
         return null;
       } else if (echomode == "QLineEdit::PasswordEchoOnEdit") {
-        console.error("*** TextField NoEcho not supported!");
+        this.error("*** TextField NoEcho not supported!");
         return null;
       } else {
         widget = new qx.ui.form.TextField();
@@ -665,13 +672,29 @@ qx.Class.define("cute.ui.Renderer",
       }
     },
 
+    setWidgetValue : function(name, value) {
+      var type = this._widgets[name].classname;
+
+      if (type == "qx.ui.form.TextField") {
+        if (value) {
+          this._widgets[name].setValue("" + value);
+        } else {
+          this._widgets[name].setValue("");
+        }
+      }
+
+      else {
+        this.error("*** no knowledge about how to handle widget of type '" + type + "'");
+      }
+    },
+
     setWidgetInvalidMessage : function(name, message)
     {
       name = name + "Edit";
       if (this._widgets[name]) {
         this._widgets[name].setInvalidMessage(message);
       } else {
-        console.error("*** cannot set invalid message for non existing widget '" + name + "'!");
+        this.error("*** cannot set invalid message for non existing widget '" + name + "'!");
       }
     },
 
@@ -681,7 +704,7 @@ qx.Class.define("cute.ui.Renderer",
       if (this._widgets[name]) {
         this._widgets[name].setValid(flag);
       } else {
-        console.error("*** cannot set valid flag for non existing widget '" + name + "'!");
+        this.error("*** cannot set valid flag for non existing widget '" + name + "'!");
       }
     },
 
@@ -691,7 +714,7 @@ qx.Class.define("cute.ui.Renderer",
       if (this._widgets[name]) {
         this._widgets[name].resetInvalidMessage();
       } else {
-        console.error("*** cannot set invalid message for non existing widget '" + name + "'!");
+        this.error("*** cannot set invalid message for non existing widget '" + name + "'!");
       }
     },
 
@@ -701,7 +724,7 @@ qx.Class.define("cute.ui.Renderer",
       if (this._widgets[name]) {
         this._widgets[name].setRequiredInvalidMessage(message);
       } else {
-        console.error("*** cannot set required message for non existing widget '" + name + "'!");
+        this.error("*** cannot set required message for non existing widget '" + name + "'!");
       }
     },
 
@@ -711,7 +734,7 @@ qx.Class.define("cute.ui.Renderer",
       if (this._widgets[name]) {
         this._widgets[name].setRequired(flag);
       } else {
-        console.error("*** cannot set required flag for non existing widget '" + name + "'!");
+        this.error("*** cannot set required flag for non existing widget '" + name + "'!");
       }
     },
 
@@ -721,7 +744,7 @@ qx.Class.define("cute.ui.Renderer",
       if (this._widgets[name]) {
         this._widgets[name].resetRequiredInvalidMessage();
       } else {
-        console.error("*** cannot set required message for non existing widget '" + name + "'!");
+        this.error("*** cannot set required message for non existing widget '" + name + "'!");
       }
     },
 

@@ -82,7 +82,7 @@ qx.Class.define("cute.Application",
 	  win.destroy();
 	}
 
-      cute.proxy.ObjectFactory.openObject(function(obj){
+        cute.proxy.ObjectFactory.openObject(function(obj){
 
           // Build widget and place it into a window
       	  w = cute.ui.Renderer.getWidget(obj, text.getValue());

@@ -45,9 +45,11 @@ qx.Class.define("cute.ui.LoginDialog",
       });
     }
 
-    this.__username = new qx.ui.form.TextField("agent");
+    this.__username = new qx.ui.form.TextField();
     this.__username.activate();
-    this.__password = new qx.ui.form.PasswordField("secret");
+    //this.__username.setPlaceholder(this.tr("Login name"));
+    this.__password = new qx.ui.form.PasswordField();
+    //this.__password.setPlaceholder(this.tr("Password"));
 
     this.add(this.__username.set(
     {
