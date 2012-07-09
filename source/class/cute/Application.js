@@ -85,12 +85,17 @@ qx.Class.define("cute.Application",
       // Collect all user dns 
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(result, error){
-          var list = new qx.data.Array();
-          for(var i=0;i<result.length;i++){
-            list.push(result[i]['User']['DN'][0]);
+        if(!error){
+          base = result;
+          rpc.cA(function(result, error){
+              var list = new qx.data.Array();
+              for(var i=0;i<result.length;i++){
+                list.push(result[i]['User']['DN'][0]);
+              }
+              dn_list.setModel(list);
+            }, this, "search", "SELECT User.* BASE User SUB \"" + base + "\" ORDER BY User.uid");
           }
-          dn_list.setModel(list);
-        }, this, "search", "SELECT User.* BASE User SUB \"dc=example,dc=net\" ORDER BY User.uid");
+        }, this, "getBase");
 
       // Document is the application root
       var doc = this.getRoot();
