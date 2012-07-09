@@ -108,6 +108,9 @@ qx.Class.define("cute.Application",
         	      doc.add(win, {left: 0, top: 0});
               }
 
+              console.log(obj.getSn());
+              obj.setSn("Huhu");
+
             }, this, obj, text.getValue());
         }, this, dn);
 
