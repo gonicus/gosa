@@ -108,12 +108,13 @@ qx.Class.define("cute.ui.Renderer",
         widget.setAttributes_(attributes);
         widget.configure(ui_definition);
 
-        // Create upate function for each widget to ensure that values are transittet to
-        // the server after a given time period.
+        // Create upate function for each widget to ensure that values are transmittet to
+        // the server after a given period of time.
         var timer = qx.util.TimerManager.getInstance();
         var timers = {};
-        var updateFunc = function(name, userInput){
+        var updateFuncTimed = function(name, userInput){
           var func = function(value){
+            userInput.addState("modified");
             if(timers[name]){
               timer.stop(timers[name]);
               timers[name] = null;
@@ -126,9 +127,31 @@ qx.Class.define("cute.ui.Renderer",
                 }else{
                   widget.set(name, userInput.getValue());
                 }
+                userInput.removeState("modified");
                 timer.stop(timers[name]);
                 timers[name] = null;
               }, null, this, null, 2000);
+          }
+          return func;
+        }
+
+        /* This method returns a method which directly updates the property-value for the object.
+         * */
+        var updateFunc = function(name, userInput){
+          var func = function(value){
+            if(timers[name]){
+              timer.stop(timers[name]);
+              timers[name] = null;
+            }
+            if(userInput.hasState("modified")){
+              userInput.removeState("modified");
+              //TODO: Collect multivalue here!
+              if(attributes[name]['multivalue']){
+                widget.set(name, [userInput.getValue()]);
+              }else{
+                widget.set(name, userInput.getValue());
+              }
+            }
           }
           return func;
         }
@@ -141,7 +164,8 @@ qx.Class.define("cute.ui.Renderer",
             var userInput = widget._widgets[name + "Edit"];
             if(userInput instanceof qx.ui.form.AbstractField){
               userInput.setLiveUpdate(true);
-              userInput.addListener("changeValue", updateFunc(name, userInput), this);
+              userInput.addListener("changeValue", updateFuncTimed(name, userInput), this);
+              userInput.addListener("focusout", updateFunc(name, userInput), this);
             }
           }
         }
