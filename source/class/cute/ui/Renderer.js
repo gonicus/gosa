@@ -160,16 +160,17 @@ qx.Class.define("cute.ui.Renderer",
         var attrs = attributes[name];
 
         if (this._widgets[name + "Edit"]) {
-          var widget = this._widgets;
+          var widget = this._widgets[name + "Edit"];
 
           // Read-only?
           if (attrs['readonly'] === false || attrs['depends_on'].length > 0) {
-            widget.setReadOnly(true);
+            console.log(widget);
+            widget.setEnabled(false);
           }
 
           // Required?
           if (attrs['mandatory'] === true) {
-            widget.setWidgetRequired(name, true);
+            this.setWidgetRequired(name, true);
           }
 
           // Toggler
