@@ -22,12 +22,14 @@ qx.Class.define("cute.io.Rpc", {
      * */
     process_queue: function(){
       if(!this.running){
-        this.running = true;
-        this.debug("started next rpc job (queue: " + this.queue.length + ")");
         if(this.queue.length){
+          this.debug("started next rpc job (queued: " + this.queue.length + ")");
+          this.running = true;
           var item = this.queue.pop();
           this.callAsync.apply(this, [item['callback']].concat(item['arguments']));
         }
+      }else{
+        this.debug("triggered queue, but a job still running: " + this.queue.length + " jobs left");
       }
     },
 
