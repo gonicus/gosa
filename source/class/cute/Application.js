@@ -86,7 +86,7 @@ qx.Class.define("cute.Application",
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(result, error){
         if(!error){
-          base = result;
+          var base = result;
           rpc.cA(function(result, error){
               var list = new qx.data.Array();
               for(var i=0;i<result.length;i++){
