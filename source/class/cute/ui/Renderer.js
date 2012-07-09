@@ -57,7 +57,7 @@ qx.Class.define("cute.ui.Renderer",
 
     statics :
   {
-    getWidget : function(obj, ui_definition)
+    getWidget : function(cb, context, obj, ui_definition)
     {
       var properties = {};
       var members = {};
@@ -71,60 +71,60 @@ qx.Class.define("cute.ui.Renderer",
         return(func);
       }
 
-
       //TODO: ui definitions need to be loaded just with the obj
       //      information. Development relies on passed ones.
       if (!ui_definition) {
         this.error("*** development class needs an external ui definition");
-        return null;
+        cb.apply(context, [null]);
       }
 
       var rpc = cute.io.Rpc.getInstance();
-      var attributes = rpc.callSync("dispatchObjectMethod", obj.uuid, "get_attributes");
-
-      // Setup attributes
-      for(var attr in attributes){
-        var name = attributes[attr];
-        var upperName = name.charAt(0).toUpperCase() + name.slice(1);
-        var applyName = "_apply_" + upperName;
-      //  var prop = {apply: applyName, event: "changed" + upperName, nullable: true};
-        var prop = {nullable: true, apply: applyName};
-        members[applyName] = getApplyMethod(name);
-        properties[name] = prop;
-      }
-
-      var def = {extend: cute.ui.Renderer, properties: properties, members: members};
-      var clazz = qx.Class.define(name, def);
-
-      // Generate widget and place configure it to contain itself
-      var widget = new clazz();
-      widget.configure(ui_definition);
-
-      // Initialize widgets depending on type
-      //TODO
-
-      // Connect object attributes to intermediate properties
-      for(var attr in attributes){
-        var name = attributes[attr];
-        obj.bind(name, widget, name);
-        widget.wire(name);
-      }
-
-      // Connect intermediate properties to object attributes
-      //TODO
-
-      // Connect widget properties to intermediate properties / timer
-      //TODO
-
-      // Connect validator to properties
-      //TODO
-
-      // Test
-      //widget.setWidgetInvalidMessage("sn", "Please enter a valid surname!");
-      //widget.setWidgetValid("sn", false);
-      //widget.setWidgetRequired("l", true);
-
-      return widget;
+      rpc.cA(function(attributes) {
+  
+        // Setup attributes
+        for(var attr in attributes){
+          var name = attributes[attr];
+          var upperName = name.charAt(0).toUpperCase() + name.slice(1);
+          var applyName = "_apply_" + upperName;
+        //  var prop = {apply: applyName, event: "changed" + upperName, nullable: true};
+          var prop = {nullable: true, apply: applyName};
+          members[applyName] = getApplyMethod(name);
+          properties[name] = prop;
+        }
+  
+        var def = {extend: cute.ui.Renderer, properties: properties, members: members};
+        var clazz = qx.Class.define(name, def);
+  
+        // Generate widget and place configure it to contain itself
+        var widget = new clazz();
+        widget.configure(ui_definition);
+  
+        // Initialize widgets depending on type
+        //TODO
+  
+        // Connect object attributes to intermediate properties
+        for(var attr in attributes){
+          var name = attributes[attr];
+          obj.bind(name, widget, name);
+          widget.wire(name);
+        }
+  
+        // Connect intermediate properties to object attributes
+        //TODO
+  
+        // Connect widget properties to intermediate properties / timer
+        //TODO
+  
+        // Connect validator to properties
+        //TODO
+  
+        // Test
+        //widget.setWidgetInvalidMessage("sn", "Please enter a valid surname!");
+        //widget.setWidgetValid("sn", false);
+        //widget.setWidgetRequired("l", true);
+  
+        cb.apply(context, [widget]);
+      }, this, "dispatchObjectMethod", obj.uuid, "get_attributes");
     }
   },
 
