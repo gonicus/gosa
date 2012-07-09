@@ -98,13 +98,21 @@ qx.Class.define("cute.Application",
 
       commit.addListener('click', function(){
           if(_current_object){
-            _current_object.commit();
+            _current_object.commit(function(result, error){
+                if(error){
+                  this.error(error.message);
+                }
+              }, this);
           }
         }, this);
 
       close.addListener('click', function(){
           if(_current_object){
-            _current_object.close();
+            _current_object.close(function(result, error){
+                if(error){
+                  this.error(error.message);
+                }
+              }, this);
           }
         }, this);
 

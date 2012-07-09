@@ -39,12 +39,14 @@ qx.Class.define("cute.proxy.Object", {
       }
     },
 
+    /* Closes the current object
+     * */
     close: function(func, context){
       var rpc = cute.io.Rpc.getInstance();
       var args = ["closeObject", this.uuid];
-      rpc.cA.apply(rpc, [function(result){
+      rpc.cA.apply(rpc, [function(result, error){
           if(func){
-            func.apply(context, [result]);
+            func.apply(context, [result, error]);
           }
         }, this].concat(args));
     },
@@ -54,9 +56,9 @@ qx.Class.define("cute.proxy.Object", {
     callMethod: function(method, func, context){
       var rpc = cute.io.Rpc.getInstance();
       var args = ["dispatchObjectMethod", this.uuid, method].concat(Array.prototype.slice.call(arguments, 3));
-      rpc.cA.apply(rpc, [function(result){
+      rpc.cA.apply(rpc, [function(result, error){
           if(func){
-            func.apply(context, [result]);
+            func.apply(context, [result, error]);
           }
         }, this].concat(args));
     }
