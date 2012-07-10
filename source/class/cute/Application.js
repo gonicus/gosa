@@ -161,13 +161,7 @@ qx.Class.define("cute.Application",
 
             // Position window as requested
             var props = w.getProperties_();
-            if (props && props['geometry']) {
-              doc.add(win, {
-                left: parseInt(props['geometry']['rect']['x']),
-                top: parseInt(props['geometry']['rect']['y'])});
-            } else {
-              doc.add(win, {left: 0, top: 0});
-            }
+            doc.add(win, {left: 0, top: 0});
 
           }, this, obj, ui_def);
         }, this, dn_list.getSelection().getItem(0));
