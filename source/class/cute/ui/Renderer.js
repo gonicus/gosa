@@ -73,26 +73,19 @@ qx.Class.define("cute.ui.Renderer",
         return(func);
       }
 
-      // ----> TEST
-      console.log("Object info -----------------------------------------------");
-      console.log(obj.baseType);
-      console.log(obj.extensionTypes);
-      console.log(obj.templates);
-      console.log("-----------------------------------------------------------");
-      // <---- TEST
-
-      //TODO: ui definitions need to be loaded just with the obj
-      //      information. Development relies on passed ones.
-      if (!ui_definition) {
-        this.error("*** development class needs an external ui definition");
-        cb.apply(context, [null]);
+      // Check if there's an override for the definitions
+      if (ui_definition) {
+        context.warn("*** overriding object ui by user provided template");
+        ui_definition = new Array(obj.templates);
+      } else {
+        ui_definition = obj.templates;
       }
 
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(attributes) {
 
         if(!attributes){
-          this.error("RPC calle failed, not attributes returned!");
+          this.error("RPC call failed: got no attributes");
           return;
         }
 
@@ -105,9 +98,8 @@ qx.Class.define("cute.ui.Renderer",
           properties[name] = prop;
         }
  
-        //TODO: When looping thru object and its extension to generate separate
-        //      widgets, set the name according to the object/extension name.
-        var name = "ContainerWidget"; 
+        // Configure widget
+        var name = obj.baseType + "Object";
         var def = {extend: cute.ui.Renderer, properties: properties, members: members};
         var clazz = qx.Class.define(name, def);
 
@@ -177,13 +169,28 @@ qx.Class.define("cute.ui.Renderer",
   {
     configure : function(ui_definition)
     {
-      var info = this.processUI(parseXml(ui_definition).childNodes);
-      if (info) {
-        this.setProperties_(info['properties']);
-        this.add(info['widget']);
-      } else {
-        this.debug("Error: no widget found");
-        return false;
+      var container;
+
+      if (ui_definition.length > 1) {
+         container = new qx.ui.tabview.TabView();
+         this.add(container);
+      }
+
+      for (var i in ui_definition) {
+        var info = this.processUI(parseXml(ui_definition[i]).childNodes);
+        if (info) {
+          this.setProperties_(info['properties']);
+          if (ui_definition.length > 1) {
+            var page = new qx.ui.tabview.Page(info['widget'].HIER);
+            page.setLayout(new qx.ui.layout.VBox());
+            page.add(info['widget']);
+            container.add(page);
+          } else {
+             this.add(info['widget']);
+          }
+        } else {
+          this.info("Error: no widget found for '" + i + "'");
+        }
       }
   
       // Handle type independen widget settings
