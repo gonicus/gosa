@@ -23,13 +23,11 @@ qx.Class.define("cute.io.Rpc", {
     process_queue: function(){
       if(!this.running){
         if(this.queue.length){
-          this.debug("started next rpc job (queued: " + this.queue.length + ")");
           this.running = true;
           var item = this.queue.pop();
+          this.debug("started next rpc job '" + item['arguments'][0] + "' (queued: " + this.queue.length + ")");
           this.callAsync.apply(this, [item['callback']].concat(item['arguments']));
         }
-      }else{
-        this.debug("triggered queue, but a job still running: " + this.queue.length + " jobs left");
       }
     },
 
@@ -69,7 +67,7 @@ qx.Class.define("cute.io.Rpc", {
 
             // Everthing went fine, now call the callback method with the result.
             cl.running = false;
-            cl.debug("rpc job finished (queue: " + cl.queue.length + ")");
+            cl.debug("rpc job finished '" + call['arguments'] + "' (queue: " + cl.queue.length + ")");
             func.apply(call['context'], [result, error]);
 
             // Start next rpc-job
@@ -79,7 +77,6 @@ qx.Class.define("cute.io.Rpc", {
 
       // Insert the job into the job-queue and trigger processing.
       this.queue.unshift(call);
-      this.debug("added new job to the queue (queue: " + this.queue.length + ")");
       this.process_queue();
     }
   }
