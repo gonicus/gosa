@@ -21,7 +21,11 @@ qx.Class.define("cute.ui.Renderer",
 {
   extend : qx.ui.container.Composite,
 
-  include: [cute.ui.mixins.QLineEditWidget],
+  include: [
+      cute.ui.mixins.QLineEditWidget,
+      cute.ui.mixins.QComboBoxWidget,
+      cute.ui.mixins.QLabelWidget
+    ],
 
   /*
    *****************************************************************************
@@ -706,39 +710,6 @@ qx.Class.define("cute.ui.Renderer",
       return widget;
     },
 
-    processQLabelWidget : function(name, props)
-    {
-      var label = new qx.ui.basic.Label(this.getStringProperty('text', props));
-
-      // Set tooltip
-      if (this.getStringProperty('toolTip', props)) {
-        label.setToolTip(new qx.ui.tooltip.ToolTip(this.getStringProperty('toolTip', props)));
-      }
-
-      this.processCommonProperties(label, props);
-
-      this._widgets[name] = label;
-      return label;
-    },
-
-    processQComboBoxWidget : function(name, props)
-    {
-      var widget;
-      var editable = this.getBoolProperty('editable', props);
-      var values = new qx.data.Array(this.getAttributes_()[name.slice(0, name.length - 4)]['values']);
-      values.sort();
-
-      if (editable) {
-        widget = new qx.ui.form.VirtualComboBox(values);
-      } else {
-        widget = new qx.ui.form.VirtualSelectBox(values);
-      }
-
-      this.processCommonProperties(widget, props);
-
-      this._widgets[name] = widget;
-      return widget;
-    },
 
     processCommonProperties : function(widget, props)
     {
