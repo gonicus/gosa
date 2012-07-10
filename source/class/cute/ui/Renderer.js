@@ -61,7 +61,6 @@ qx.Class.define("cute.ui.Renderer",
 
     getWidget : function(cb, context, obj, ui_definition)
     {
-console.error("called!");
       var properties = {};
       var members = {};
 
