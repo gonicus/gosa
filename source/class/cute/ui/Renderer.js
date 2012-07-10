@@ -76,7 +76,7 @@ qx.Class.define("cute.ui.Renderer",
       // Check if there's an override for the definitions
       if (ui_definition) {
         context.warn("*** overriding object ui by user provided template");
-        ui_definition = new Array(obj.templates);
+        ui_definition = {'ContainerObject': ui_definition};
       } else {
         ui_definition = obj.templates;
       }
@@ -230,12 +230,17 @@ qx.Class.define("cute.ui.Renderer",
          this.add(container);
       }
 
+      //TODO: order ui
       for (var i in ui_definition) {
         var info = this.processUI(parseXml(ui_definition[i]).childNodes);
         if (info) {
-          this.setProperties_(info['properties']);
+          // Take over properties of base type
+          if (this.baseType == i || i == "ContainerObject") {
+            this.setProperties_(info['properties']);
+          }
+
           if (ui_definition.length > 1) {
-            var page = new qx.ui.tabview.Page(info['widget'].HIER);
+            var page = new qx.ui.tabview.Page(info['widget'].getTitle_());
             page.setLayout(new qx.ui.layout.VBox());
             page.add(info['widget']);
             container.add(page);
@@ -243,7 +248,7 @@ qx.Class.define("cute.ui.Renderer",
              this.add(info['widget']);
           }
         } else {
-          this.info("Error: no widget found for '" + i + "'");
+          this.info("*** no widget found for '" + i + "'");
         }
       }
   
