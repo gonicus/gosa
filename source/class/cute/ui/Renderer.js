@@ -47,6 +47,9 @@ qx.Class.define("cute.ui.Renderer",
             "MinimumExpanding": 2
           };
 
+          // Tabstops
+          this._tabstops = new Array();
+
         },
 
   properties :
@@ -83,7 +86,6 @@ qx.Class.define("cute.ui.Renderer",
 
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(attributes) {
-        console.error(attributes);
 
         if(!attributes){
           this.error("RPC call failed: got no attributes");
@@ -232,7 +234,7 @@ qx.Class.define("cute.ui.Renderer",
       //TODO: order ui
       for (var i in ui_definition) {
 
-	// Skip empty definitions
+        // Skip empty definitions
         if (!ui_definition[i]) {
           continue;
         }
@@ -256,8 +258,28 @@ qx.Class.define("cute.ui.Renderer",
           this.info("*** no widget found for '" + i + "'");
         }
       }
+
+      // Setup tabstop handling
+      for (var i= 0; i<this._tabstops.length; i++) {
+          var w = this._tabstops[i];
+          if (i == 0) {
+
+            // Safari needs the timeout
+            // iOS and Firefox need it called immediately
+            // to be on the save side we do both
+            var _self = this;
+            setTimeout(function() {
+              _self._widgets[w].focus();
+            });
+
+            this._widgets[w].focus();
+          }
+          if (this._widgets[w]) {
+            this._widgets[w].setTabIndex(i + 1);
+          }
+      }
   
-      // Handle type independen widget settings
+      // Handle type independent widget settings
       var attributes = this.getAttributes_();
       for(var name in attributes){
         var attrs = attributes[name];
@@ -342,15 +364,15 @@ qx.Class.define("cute.ui.Renderer",
           this.name = node.firstChild.nodeValue;
           this.debug("setting widget name to '" + this.name + "'");
 
-          // Widget
+        // Widget
         } else if (node.nodeName == "widget") {
           widgets.push(this.processWidget(node));
 
-          // Spacer
+        // Spacer
         } else if (node.nodeName == "spacer") {
           widgets.push(this.processSpacer(node));
 
-          // Layout
+        // Layout
         } else if (node.nodeName == "layout") {
           var layout_name = node.getAttribute("name");
           var layout_type = node.getAttribute("class");
@@ -460,6 +482,17 @@ qx.Class.define("cute.ui.Renderer",
           }
 
           widgets.push({widget: widget, properties: properties});
+
+        // Collect tabstops
+        } else if (node.nodeName == "tabstops") {
+
+          for (var j=0; j<node.childNodes.length; j++) {
+
+            var topic = node.childNodes[j];
+            if (topic.nodeType == 1 && topic.nodeName == "tabstop") {
+              this._tabstops.push(topic.firstChild.nodeValue);
+            }
+          }
 
         } else {
           this.error("*** unexpected element '" + node.nodeName + "'");
