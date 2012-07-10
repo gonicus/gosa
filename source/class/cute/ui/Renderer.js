@@ -83,6 +83,7 @@ qx.Class.define("cute.ui.Renderer",
 
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(attributes) {
+        console.error(attributes);
 
         if(!attributes){
           this.error("RPC call failed: got no attributes");
