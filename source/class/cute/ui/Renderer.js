@@ -28,29 +28,29 @@ qx.Class.define("cute.ui.Renderer",
    *****************************************************************************
    */
   construct : function()
-        {
-          // Call super class
-          this.base(arguments);
-          this.setLayout(new qx.ui.layout.VBox());
+  {
+    // Call super class
+    this.base(arguments);
+    this.setLayout(new qx.ui.layout.VBox());
 
-          // Widget store
-          this._widgets = {};
+    // Widget store
+    this._widgets = {};
+    this._property_timer = {};
 
-          // Flex map
-          this._flexMap = {
-            "Fixed": 0,
-            "Ignored": 0,
-            "Minimum": 0,
-            "Maximum": 10,
-            "Preferred": 1,
-            "Expanding": 4,
-            "MinimumExpanding": 2
-          };
+    // Flex map
+    this._flexMap = {
+      "Fixed": 0,
+      "Ignored": 0,
+      "Minimum": 0,
+      "Maximum": 10,
+      "Preferred": 1,
+      "Expanding": 4,
+      "MinimumExpanding": 2
+    };
 
-          // Tabstops
-          this._tabstops = new Array();
-
-        },
+    // Tabstops
+    this._tabstops = new Array();
+  },
 
   properties :
   {
@@ -108,81 +108,10 @@ qx.Class.define("cute.ui.Renderer",
 
         // Generate widget and place configure it to contain itself
         var widget = new clazz();
+        widget._object = obj;
         widget.setAttributes_(attributes);
         widget.configure(ui_definition);
 
-        // Create upate function for each widget to ensure that values are transmittet to
-        // the server after a given period of time.
-        var timer = qx.util.TimerManager.getInstance();
-        var timers = {};
-        var updateFuncTimed = function(name, userInput){
-          var func = function(value){
-            userInput.addState("modified");
-            if(timers[name]){
-              timer.stop(timers[name]);
-              timers[name] = null;
-            }
-            timers[name] = timer.start(function(){
-
-                //TODO: Collect multivalue here!
-                if(attributes[name]['multivalue']){
-                  widget.set(name, [userInput.getValue()]);
-                }else{
-                  widget.set(name, userInput.getValue());
-                }
-                userInput.removeState("modified");
-                timer.stop(timers[name]);
-                timers[name] = null;
-              }, null, this, null, 2000);
-          }
-          return func;
-        }
-
-        /* This method returns a method which directly updates the property-value for the object.
-         * */
-        var updateFunc = function(name, userInput){
-          var func = function(value){
-            if(timers[name]){
-              timer.stop(timers[name]);
-              timers[name] = null;
-            }
-            if(userInput.hasState("modified")){
-              userInput.removeState("modified");
-              //TODO: Collect multivalue here!
-              if(attributes[name]['multivalue']){
-                widget.set(name, [userInput.getValue()]);
-              }else{
-                widget.set(name, userInput.getValue());
-              }
-            }
-          }
-          return func;
-        }
-
-        // Connect object attributes to intermediate properties
-        for(var name in attributes){
-          obj.bind(name, widget, name);
-          widget.bind(name, obj, name);
-          if(name + "Edit" in widget._widgets){
-            var userInput = widget._widgets[name + "Edit"];
-            if(userInput instanceof qx.ui.form.AbstractField){
-              userInput.setLiveUpdate(true);
-              userInput.addListener("changeValue", updateFuncTimed(name, userInput), this);
-              userInput.addListener("focusout", updateFunc(name, userInput), this);
-            }
-          }
-        }
- 
-
-        // Connect intermediate properties to object attributes
-        //TODO
-  
-        // Connect widget properties to intermediate properties / timer
-        //TODO
-  
-        // Connect validator to properties
-        //TODO
-  
         // Connect to the object event 'propertyUpdateOnServer' to be able to act on property changes.
         // e.g. set an invalid-decorator for specific widget.
         obj.addListener("propertyUpdateOnServer", widget.actOnEvents, widget);
@@ -194,6 +123,47 @@ qx.Class.define("cute.ui.Renderer",
 
   members :
   {
+
+    _property_timer: null,
+    _object: null,
+
+    /* Create upate function for each widget to ensure that values are transmittet to
+     * the server after a given period of time.
+     */
+    __timedPropertyUpdater: function(name, userInput){
+      var func = function(value){
+        var timer = qx.util.TimerManager.getInstance();
+        userInput.addState("modified");
+        if(this._property_timer[name]){
+          timer.stop(this._property_timer[name]);
+          this._property_timer[name] = null;
+        }
+        this._property_timer[name] = timer.start(function(){
+          this.set(name, userInput.getValue());
+          userInput.removeState("modified");
+          timer.stop(this._property_timer[name]);
+          this._property_timer[name] = null;
+        }, null, this, null, 2000);
+      }
+      return func;
+    },
+
+    /* This method returns a method which directly updates the property-value for the object.
+    * */
+    __propertyUpdater: function(name, userInput){
+      var func = function(value){
+        var timer = qx.util.TimerManager.getInstance();
+        if(this._property_timer[name]){
+          timer.stop(this._property_timer[name]);
+          this._property_timer[name] = null;
+        }
+        if(userInput.hasState("modified")){
+          userInput.removeState("modified");
+          this.set(name, userInput.getValue());
+        }
+      }
+      return func;
+    },
 
     /* This method acts on events send by the remote-object which was used to create this gui-widget.
      * */
@@ -781,6 +751,17 @@ qx.Class.define("cute.ui.Renderer",
 
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
+
+      // Bind values from the remote-object to ourselves and vice-versa.
+      var realname = name.replace(/Edit$/, '', name);
+      this._object.bind(realname, this, realname);
+      this.bind(realname, this._object, realname);
+
+      // Add listeners for value changes.
+      widget.setLiveUpdate(true);
+      widget.addListener("changeValue", this.__timedPropertyUpdater(realname, widget), this);
+      widget.addListener("focusout", this.__propertyUpdater(realname, widget), this);
+
       return widget;
     },
 
