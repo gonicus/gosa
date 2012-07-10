@@ -73,6 +73,14 @@ qx.Class.define("cute.ui.Renderer",
         return(func);
       }
 
+      // ----> TEST
+      console.log("Object info -----------------------------------------------");
+      console.log(obj.baseType);
+      console.log(obj.extensionTypes);
+      console.log(obj.templates);
+      console.log("-----------------------------------------------------------");
+      // <---- TEST
+
       //TODO: ui definitions need to be loaded just with the obj
       //      information. Development relies on passed ones.
       if (!ui_definition) {
@@ -691,6 +699,7 @@ qx.Class.define("cute.ui.Renderer",
       var widget;
       var editable = this.getBoolProperty('editable', props);
       var values = new qx.data.Array(this.getAttributes_()[name.slice(0, name.length - 4)]['values']);
+      values.sort();
 
       if (editable) {
         widget = new qx.ui.form.VirtualComboBox(values);
