@@ -159,14 +159,44 @@ qx.Class.define("cute.ui.Renderer",
         // Test
         //widget.setWidgetInvalidMessage("sn", "Please enter a valid surname!");
         //widget.setWidgetValid("sn", false);
-  
+        
+        // Connect to the object event 'propertyUpdateOnServer' to be able to act on property changes.
+        // e.g. set an invalid-decorator for specific widget.
+        obj.addListener("propertyUpdateOnServer", widget.actOnEvents, widget);
+
         cb.apply(context, [widget]);
       }, this, "dispatchObjectMethod", obj.uuid, "get_attributes", true);
     }
   },
 
-    members :
+  members :
   {
+
+    /* This method acts on events send by the remote-object which was used to create this gui-widget.
+     * */
+    actOnEvents: function(e){
+      switch(e.getType()){
+
+        /* This event tells us that a property-change on the server-side has finished.
+         * Now check its result and set decorator for the widgets accordingly.
+         * */
+        case "propertyUpdateOnServer": {
+            var data = e.getData();
+            var name = data['property'];
+            
+            if(name + "Edit" in this._widgets){
+              var widget = this._widgets[name + "Edit"];
+              widget.setValid(data['success']);
+              if(!data['success']){
+                widget.setInvalidMessage(data['error']['message']);
+              }else{
+                widget.setInvalidMessage("");
+              }
+            }
+          }; break;
+      }
+    },
+
     configure : function(ui_definition)
     {
       var container;

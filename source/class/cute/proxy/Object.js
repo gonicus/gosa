@@ -20,6 +20,10 @@ qx.Class.define("cute.proxy.Object", {
     this.initialized = true;
   },
 
+  events: {
+    "propertyUpdateOnServer": "qx.event.type.Data"
+  },
+
   members: {
     initialized: null,
 
@@ -30,6 +34,8 @@ qx.Class.define("cute.proxy.Object", {
         var that = this;
         var rpc = cute.io.Rpc.getInstance();
         rpc.cA(function(result, error) {
+          this.fireDataEvent("propertyUpdateOnServer", {success: !error, error: error, property: name});
+
           if(!error){
             that.debug("update property value " + name + ": "+ value);
           }else{
