@@ -90,7 +90,7 @@ qx.Class.define("cute.Application",
             list.push(result[i]['User']['DN'][0]);
           }
           dn_list.setModel(list);
-        }, this, "search", "SELECT User.* BASE User SUB \"dc=example,dc=net\" ORDER BY User.uid");
+        }, this, "search", "SELECT User.* BASE User SUB \"dc=gonicus,dc=de\" ORDER BY User.uid");
 
       // Document is the application root
       var doc = this.getRoot();
@@ -139,31 +139,32 @@ qx.Class.define("cute.Application",
         }
 
         cute.proxy.ObjectFactory.openObject(function(obj){
-            _current_object = obj;
+          _current_object = obj;
 
-            // Build widget and place it into a window
-            var ui_def = null;
-            if(toggle.getValue()){
-              ui_def = text.getValue();
+          // Build widget and place it into a window
+          var ui_def = undefined;
+          if(toggle.getValue()){
+            ui_def = text.getValue();
+          }
+
+          cute.ui.Renderer.getWidget(function(w){
+            win = new qx.ui.window.Window(w.getTitle_());
+            win.setModal(true);
+            win.setLayout(new qx.ui.layout.VBox(10));
+            win.add(w);
+            win.open();
+
+            // Position window as requested
+            var props = w.getProperties_();
+            if (props['geometry']) {
+              doc.add(win, {
+                left: parseInt(props['geometry']['rect']['x']),
+                top: parseInt(props['geometry']['rect']['y'])});
+            } else {
+              doc.add(win, {left: 0, top: 0});
             }
-        	  cute.ui.Renderer.getWidget(function(w){
-        	    win = new qx.ui.window.Window(w.getTitle_());
-        	    win.setModal(true);
-        	    win.setLayout(new qx.ui.layout.VBox(10));
-        	    win.add(w);
-        	    win.open();
-        
-              // Position window as requested
-        	    var props = w.getProperties_();
-        	    if (props['geometry']) {
-        	      doc.add(win, {
-        	    	  left: parseInt(props['geometry']['rect']['x']),
-        	    	  top: parseInt(props['geometry']['rect']['y'])});
-        	    } else {
-        	      doc.add(win, {left: 0, top: 0});
-              }
 
-            }, this, obj, ui_def);
+          }, this, obj, ui_def);
         }, this, dn_list.getSelection().getItem(0));
 
       }, this);
