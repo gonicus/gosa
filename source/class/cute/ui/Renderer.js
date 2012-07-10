@@ -130,7 +130,7 @@ qx.Class.define("cute.ui.Renderer",
 
                 //TODO: Collect multivalue here!
                 if(attributes[name]['multivalue']){
-                  widget.set(name, [userInput.getValue(), "another value!"]);
+                  widget.set(name, [userInput.getValue()]);
                 }else{
                   widget.set(name, userInput.getValue());
                 }
@@ -196,7 +196,6 @@ qx.Class.define("cute.ui.Renderer",
 
           // Read-only?
           if (attrs['readonly'] === true || attrs['depends_on'].length > 0) {
-            console.log(widget);
             widget.setEnabled(false);
           }
 
@@ -688,8 +687,6 @@ qx.Class.define("cute.ui.Renderer",
       }
 
       this.processCommonProperties(widget, props);
-
-      console.log(name + " <<<");
       this._widgets[name] = widget;
       return widget;
     },
