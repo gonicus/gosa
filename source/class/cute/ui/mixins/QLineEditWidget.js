@@ -47,6 +47,6 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
       widget.addListener("focusout", this.__propertyUpdater(realname, widget), this);
 
       return widget;
-    },
+    }
   }
 });
