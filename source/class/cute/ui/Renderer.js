@@ -238,8 +238,9 @@ qx.Class.define("cute.ui.Renderer",
             // iOS and Firefox need it called immediately
             // to be on the save side we do both
             var _self = this;
+            var q = w;
             setTimeout(function() {
-              _self._widgets[w].focus();
+              _self._widgets[q].focus();
             });
 
             this._widgets[w].focus();
@@ -269,7 +270,7 @@ qx.Class.define("cute.ui.Renderer",
 
           // Toggler
           if (qx.lang.Object.getKeys(attrs['blocked_by']).length > 0) {
-          //TODO: blocked_by needs to be wired
+            //TODO: blocked_by needs to be wired
             console.log("**** blocked_by handling for " + name);
             console.log(attrs['blocked_by']);
           }
