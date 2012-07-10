@@ -31,6 +31,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
         var attributes = jDefs[4];
         var baseType = null;
         var extensionTypes = null;
+        var templates = {};
 
         // This method is called below to make the code more readable.
         var _handleResult = function(){
@@ -50,6 +51,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
                 methods: methods,
                 attributes: attributes,
                 baseType: baseType,
+		templates: templates,
                 extensionTypes: extensionTypes
               };
 
@@ -93,33 +95,19 @@ qx.Class.define("cute.proxy.ObjectFactory", {
           }
         }
 
-        // Unfortunately we have to call two more rpc methods to get the required data.
-        // We've to do this asynchronously - this is why the calls are stacked ...
-        // --
-        // First read the objects-base-type (e.g. 'User')
-        rpc.cA(function(_baseType, context, error){
+	// Load object info - base type, extension types and template information
+        rpc.cA(function(data, context, error){
             if(!error){
-        
-              baseType = _baseType;
+              baseType = data['base'];
+              extensionTypes = data['extensions'];
+              templates = data['templates'];
 
-              // Now read the useable extension types (e.g. ['PosixUser', 'SambaUser', '...'])
-              rpc.cA(function(_extensionTypes, context, error){
-                  if(!error){
-
-                    extensionTypes = _extensionTypes;
-
-                    // Call the result handling method, we had defined eralier above.
-                    _handleResult(userData);
-                                
-                  }else{
-                    console.log(error);
-                  }
-                }, this, "dispatchObjectMethod", uuid, "get_extension_types");
-              
+              // Call the result handling method, we had defined earlier above.
+              _handleResult(userData);
             }else{
-              console.log(error);
+              this.error(error);
             }
-          }, this, "dispatchObjectMethod", uuid, "get_base_type");
+        }, this, "dispatchObjectMethod", uuid, "get_object_info");
 
       }, this, "openObject", "object", dn, type);
     }
