@@ -95,7 +95,7 @@ qx.Class.define("cute.ui.Renderer",
         ui_definition = obj.templates;
       }
 
-      attributes = obj.attribute_data;
+      var attributes = obj.attribute_data;
 
       if(!attributes){
         this.error("RPC call failed: got no attributes");

@@ -40,7 +40,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
   },
 
   events: {
-    "valueChanged" : "qx.event.type.Event",
+    "valueChanged" : "qx.event.type.Event"
   },
 
   members: {
