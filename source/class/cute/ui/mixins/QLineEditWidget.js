@@ -5,20 +5,19 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
 
     processQLineEditWidget : function(name, props)
     {
-      var widget;
-
+      var realname = name.replace(/Edit$/, '', name);
+      var widget = new cute.ui.widgets.QLineEditWidget();
+      
       // Set echo mode
       var echomode = this.getEnumProperty('echoMode', props);
       if (echomode == "QLineEdit::Password") {
-        widget = new qx.ui.form.PasswordField();
+        widget.setEchoMode('password');
       } else if (echomode == "QLineEdit::NoEcho") {
         this.error("*** TextField NoEcho not supported!");
         return null;
       } else if (echomode == "QLineEdit::PasswordEchoOnEdit") {
         this.error("*** TextField NoEcho not supported!");
         return null;
-      } else {
-        widget = new qx.ui.form.TextField();
       }
 
       // Set placeholder
@@ -37,14 +36,16 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
       this._widgets[name] = widget;
 
       // Bind values from the remote-object to ourselves and vice-versa.
-      var realname = name.replace(/Edit$/, '', name);
       this._object.bind(realname, this, realname);
       this.bind(realname, this._object, realname);
 
+      // set widget properties
+      widget.setMultivalue(this.getAttributes_()[realname]['multivalue']);
+
       // Add listeners for value changes.
-      widget.setLiveUpdate(true);
-      widget.addListener("changeValue", this.__timedPropertyUpdater(realname, widget), this);
-      widget.addListener("focusout", this.__propertyUpdater(realname, widget), this);
+      //widget.setLiveUpdate(true);
+      widget.addListener("changedByTyping", this.__timedPropertyUpdater(realname, widget), this);
+      widget.addListener("changedByFocus", this.__propertyUpdater(realname, widget), this);
 
       return widget;
     }
