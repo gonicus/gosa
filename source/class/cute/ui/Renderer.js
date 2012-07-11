@@ -207,7 +207,13 @@ qx.Class.define("cute.ui.Renderer",
       }
 
       //TODO: order ui
-      for (var i in ui_definition) {
+      var tabs = new Array(this._object.baseType);
+      var tmp = qx.lang.Object.getKeys(this._object.extensionTypes);
+      tmp.sort();
+      tabs = tabs.concat(tmp);
+
+      for (var j in tabs) {
+        var i = tabs[j];
 
         // Skip empty definitions
         if (!ui_definition[i]) {

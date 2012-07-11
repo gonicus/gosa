@@ -113,11 +113,11 @@ qx.Class.define("cute.Application",
       req.send();
 
       // Add an event listener and process known elements
-      var w = null;
-      var win = null;
-      var _current_object = null;
 
       process.addListener("execute", function(e) {
+        var w = null;
+        var win = null;
+        var _current_object = null;
 
         cute.proxy.ObjectFactory.openObject(function(obj){
           _current_object = obj;
@@ -150,7 +150,7 @@ qx.Class.define("cute.Application",
 
             // Position window as requested
             var props = w.getProperties_();
-            desktop.add(win, {left: 0, top: 0});
+            desktop.add(win, {left: 5, top: 5});
 
           }, this, obj, ui_def);
         }, this, dn_list.getSelection().getItem(0));
