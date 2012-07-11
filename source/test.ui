@@ -155,7 +155,7 @@
      <item row="11" column="1">
       <widget class="QLineEdit" name="ouEdit">
        <property name="placeholderText">
-        <string>Platzhalter</string>
+        <string>Placeholder</string>
        </property>
       </widget>
      </item>
@@ -233,6 +233,23 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>postOfficeBoxEdit</tabstop>
+  <tabstop>telephoneNumberEdit</tabstop>
+  <tabstop>cnEdit</tabstop>
+  <tabstop>titleEdit</tabstop>
+  <tabstop>snEdit</tabstop>
+  <tabstop>lEdit</tabstop>
+  <tabstop>stEdit</tabstop>
+  <tabstop>postalCodeEdit</tabstop>
+  <tabstop>physicalDeliveryOfficeNameEdit</tabstop>
+  <tabstop>streetEdit</tabstop>
+  <tabstop>ouEdit</tabstop>
+  <tabstop>trustModelEdit</tabstop>
+  <tabstop>x121AddressEdit</tabstop>
+  <tabstop>internationaliSDNNumberEdit</tabstop>
+  <tabstop>destinationIndicatorEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
