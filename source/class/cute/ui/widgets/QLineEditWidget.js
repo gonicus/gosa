@@ -3,10 +3,16 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
   extend: cute.ui.widgets.Widget,
 
   construct: function(){
-    this.base(arguments);  
     this._widgets = [];
     this._widgetContainer = [];
+    this.base(arguments);  
     this.setLayout(new qx.ui.layout.VBox(5));
+
+    var b = new qx.ui.form.Button("a");
+    this.add(b);
+    b.addListener("click", function(){
+        this.setValue(new qx.data.Array([1,2,4,5,7,87,45,]));
+      }, this);
   },
 
   properties: {
@@ -19,33 +25,63 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
   members: {
     _widgets: null,
     _widgetContainer: null,
+    _property_timer: null,
+
+    /* Create upate function for each widget to ensure that values are transmittet to
+     * the server after a given period of time.
+     */
+    __timedPropertyUpdater: function(id, userInput){
+      var func = function(value){
+        var timer = qx.util.TimerManager.getInstance();
+        this.addState("modified");
+        if(this._property_timer != null){
+          timer.stop(this._property_timer);
+          this._property_timer = null;
+        }
+        this._property_timer = timer.start(function(){
+          this.removeState("modified");
+          timer.stop(this._property_timer);
+          this._property_timer = null;
+          
+          this.getValue().setItem(id, userInput.getValue());
+          this.fireEvent("valueChanged");
+        }, null, this, null, 2000);
+      }
+      return func;
+    },
+
+    /* This method returns a method which directly updates the property-value for the object.
+    * */
+    __propertyUpdater: function(id, userInput){
+      var func = function(value){
+        var timer = qx.util.TimerManager.getInstance();
+        if(this._property_timer != null){
+          timer.stop(this._property_timer);
+          this._property_timer = null;
+        }
+        if(this.hasState("modified")){
+          this.removeState("modified");
+          this.getValue().setItem(id, userInput.getValue());
+          this.fireEvent("valueChanged");
+        }
+      }
+      return func;
+    },
 
     __getDel: function(id){
       var func = function(){
-        var value = this.getValue().splice(id, 1);
-        this.fireEvent("changedByTyping");
+        this.getValue().splice(id, 1);
         this._resetFields();
         this.updateFields();
       }
       return func;
     },
 
-    __updateValue: function(id, widget){
-      var func = function(){
-        var value = this.getValue();
-        value.setItem(id, widget.getValue());
-        this.fireEvent("changedByTyping");
-      }
-      return func;
-    },
-
     getWidget: function(id){
       var w = new qx.ui.form.TextField("" + this.getValue().getItem(id));
-      w.addListener("focusout", function(){
-        this.fireEvent("changedByFocus");
-      }, this);
       w.setLiveUpdate(true);
-      w.addListener("changeValue", this.__updateValue(id, w), this); 
+      w.addListener("focusout", this.__propertyUpdater(id, w), this); 
+      w.addListener("changeValue", this.__timedPropertyUpdater(id, w), this); 
       return(w);
     },
 
@@ -53,10 +89,6 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
 
       // Walk through values and create input fields for them
       var len = this.getValue().getLength();
-      if(!this.isMultivalue()){
-        len = 1;
-      }
-
       for(var i=0; i< len; i++){
 
         // First check if we already have an widget for this position
@@ -86,23 +118,12 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
           this._widgetContainer[i] = container;
         }
       }
-
-      // Remove Eventually left widgets.
-      for(var e=this._widgets.length; e > this.getValue().getLength(); e++){
-        this._widgets.splice(e, 1);
-        this._widgetContainer.splice(e, 1);
-      }
     },
 
     /* Apply method for the value property.
      * This method will regenerate the gui.
      * */
     _applyValue: function(value, old_value){
-
-      // Ensure that we've at least one value here...
-      if(!value.getLength()){
-        value.push("");
-      }
 
       if(old_value && old_value.getLength() != value.getLength()){
         this._resetFields();

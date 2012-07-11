@@ -35,17 +35,19 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
 
+      // set widget properties
+      widget.setMultivalue(this.getAttributes_()[realname]['multivalue']);
+
       // Bind values from the remote-object to ourselves and vice-versa.
       this._object.bind(realname, this, realname);
       this.bind(realname, this._object, realname);
 
-      // set widget properties
-      widget.setMultivalue(this.getAttributes_()[realname]['multivalue']);
-
       // Add listeners for value changes.
       //widget.setLiveUpdate(true);
-      widget.addListener("changedByTyping", this.__timedPropertyUpdater(realname, widget), this);
-      widget.addListener("changedByFocus", this.__propertyUpdater(realname, widget), this);
+      //this.bind(realname, widget, "value");
+      widget.addListener("valueChanged", function(){
+          this.set(realname, widget.getValue());
+        }, this);
 
       return widget;
     }

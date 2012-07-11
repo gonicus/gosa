@@ -33,6 +33,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
         var extensionTypes = null;
         var templates = {};
         var translations = {};
+        var attribute_data = {};
 
         // This method is called below to make the code more readable.
         var _handleResult = function(){
@@ -51,9 +52,10 @@ qx.Class.define("cute.proxy.ObjectFactory", {
                 uuid: null,
                 methods: methods,
                 attributes: attributes,
+                attribute_data: attribute_data,
                 baseType: baseType,
-		templates: templates,
-		translations: translations,
+                templates: templates,
+                translations: translations,
                 extensionTypes: extensionTypes
               };
 
@@ -79,7 +81,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
               var name = attributes[attr];
               var upperName = name.charAt(0).toUpperCase() + name.slice(1);
               var applyName = "_apply_" + upperName;
-              var prop = {apply: applyName, event: "changed" + upperName, nullable: true};
+              var prop = {apply: applyName, event: "changed" + upperName, nullable: true, check: "qx.data.Array"};
               members[applyName] = getApplyMethod(name);
               properties[name] = prop;
             }
@@ -97,23 +99,23 @@ qx.Class.define("cute.proxy.ObjectFactory", {
           }
         }
 
-	var theme = "default";
-	if (cute.Config.theme) {
-	    theme = cute.Config.theme;
-	}
+        var theme = "default";
+        if (cute.Config.theme) {
+            theme = cute.Config.theme;
+        }
 
-	var locale;
-	if (cute.Config.locale) {
-	    locale = cute.Config.locale;
-	} else {
-            locale = qx.bom.client.Locale.getLocale();
-            var variant = qx.bom.client.Locale.getVariant();
-            if (locale && variant) {
-                locale = locale + "-" + variant;
-            }
-	}
+        var locale;
+        if (cute.Config.locale) {
+            locale = cute.Config.locale;
+        } else {
+          locale = qx.bom.client.Locale.getLocale();
+          var variant = qx.bom.client.Locale.getVariant();
+          if (locale && variant) {
+              locale = locale + "-" + variant;
+          }
+        }
 
-	// Load object info - base type, extension types and template information
+	      // Load object info - base type, extension types and template information
         rpc.cA(function(data, context, error){
             if(!error){
               baseType = data['base'];
@@ -121,8 +123,15 @@ qx.Class.define("cute.proxy.ObjectFactory", {
               templates = data['templates'];
               translations = data['i18n'];
 
-              // Call the result handling method, we had defined earlier above.
-              _handleResult(userData);
+              rpc.cA(function(_attribute_data, error) {
+
+                if(!error){
+                  // Call the result handling method, we had defined earlier above.
+                  attribute_data = _attribute_data;
+                  _handleResult(userData);
+                }
+              }, this, "dispatchObjectMethod", uuid, "get_attributes", true);
+
             }else{
               this.error(error);
             }

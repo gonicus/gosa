@@ -4,6 +4,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
   construct: function(){
     this.base(arguments);  
+    this.setValue(new qx.data.Array());
   },
 
   properties : {
@@ -39,8 +40,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
   },
 
   events: {
-    "changedByTyping" : "qx.event.type.Event",
-    "changedByFocus" : "qx.event.type.Event"
+    "valueChanged" : "qx.event.type.Event",
   },
 
   members: {

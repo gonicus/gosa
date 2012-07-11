@@ -95,40 +95,38 @@ qx.Class.define("cute.ui.Renderer",
         ui_definition = obj.templates;
       }
 
-      var rpc = cute.io.Rpc.getInstance();
-      rpc.cA(function(attributes) {
+      attributes = obj.attribute_data;
 
-        if(!attributes){
-          this.error("RPC call failed: got no attributes");
-          return;
-        }
+      if(!attributes){
+        this.error("RPC call failed: got no attributes");
+        return;
+      }
 
-        // Setup attributes
-        for(var name in attributes){
-          var upperName = name.charAt(0).toUpperCase() + name.slice(1);
-          var applyName = "_apply_" + upperName;
-          var prop = {nullable: true, apply: applyName, event: "changed" + upperName};
-          members[applyName] = getApplyMethod(name);
-          properties[name] = prop;
-        }
+      // Setup attributes
+      for(var name in attributes){
+        var upperName = name.charAt(0).toUpperCase() + name.slice(1);
+        var applyName = "_apply_" + upperName;
+        var prop = {nullable: true, apply: applyName, event: "changed" + upperName};
+        members[applyName] = getApplyMethod(name);
+        properties[name] = prop;
+      }
 
-        // Configure widget
-        var name = obj.baseType + "Object";
-        var def = {extend: cute.ui.Renderer, properties: properties, members: members};
-        var clazz = qx.Class.define(name, def);
+      // Configure widget
+      var name = obj.baseType + "Object";
+      var def = {extend: cute.ui.Renderer, properties: properties, members: members};
+      var clazz = qx.Class.define(name, def);
 
-        // Generate widget and place configure it to contain itself
-        var widget = new clazz();
-        widget._object = obj;
-        widget.setAttributes_(attributes);
-        widget.configure(ui_definition);
+      // Generate widget and place configure it to contain itself
+      var widget = new clazz();
+      widget._object = obj;
+      widget.setAttributes_(attributes);
+      widget.configure(ui_definition);
 
-        // Connect to the object event 'propertyUpdateOnServer' to be able to act on property changes.
-        // e.g. set an invalid-decorator for specific widget.
-        obj.addListener("propertyUpdateOnServer", widget.actOnEvents, widget);
+      // Connect to the object event 'propertyUpdateOnServer' to be able to act on property changes.
+      // e.g. set an invalid-decorator for specific widget.
+      obj.addListener("propertyUpdateOnServer", widget.actOnEvents, widget);
 
-        cb.apply(context, [widget]);
-      }, this, "dispatchObjectMethod", obj.uuid, "get_attributes", true);
+      cb.apply(context, [widget]);
     }
   },
 
@@ -150,11 +148,7 @@ qx.Class.define("cute.ui.Renderer",
           this._property_timer[name] = null;
         }
         this._property_timer[name] = timer.start(function(){
-          var value = userInput.getValue().toArray();
-          if(!this.getAttributes_()[name]['multivalue']){
-            value = value[0];
-          }
-          this.set(name, value);
+          this.set(name, userInput.getValue());
           userInput.removeState("modified");
           timer.stop(this._property_timer[name]);
           this._property_timer[name] = null;
@@ -174,11 +168,6 @@ qx.Class.define("cute.ui.Renderer",
         }
         if(userInput.hasState("modified")){
           userInput.removeState("modified");
-          var value = userInput.getValue().toArray();
-          if(!this.getAttributes_()[name]['multivalue']){
-            value = value[0];
-          }
-          this.set(name, value);
         }
       }
       return func;
@@ -800,42 +789,7 @@ qx.Class.define("cute.ui.Renderer",
     },
 
     setWidgetValue : function(name, value) {
-
-      if(typeof(value) == "string"){
-        var data = new qx.data.Array([value]);
-      }else{
-        var data = new qx.data.Array(value);
-      }
-
-      this._widgets[name].setValue(data);
-
-      //var type = this._widgets[name].classname;
-
-      //if (type == "qx.ui.form.TextField") {
-      //  if (value) {
-      //    this._widgets[name].setValue("" + value);
-      //  } else {
-      //    this._widgets[name].setValue("");
-      //  }
-      //}
-
-      //else if (type == "qx.ui.form.VirtualSelectBox") {
-      //  var values = this.getAttributes_()[name.slice(0, name.length - 4)]['values'];
-      //  if (value && values.indexOf(value) >= 0) {
-      //    this._widgets[name].setSelection(new qx.data.Array([value]));
-      //  }
-      //}
-
-      //else if (type == "qx.ui.form.VirtualComboBox") {
-      //  var values = this.getAttributes_()[name.slice(0, name.length - 4)]['values'];
-      //  if (value && values.indexOf(value) >= 0) {
-      //    this._widgets[name].setValue(value);
-      //  }
-      //}
-
-      //else {
-      //  this.error("*** no knowledge about how to handle widget of type '" + type + "'");
-      //}
+      this._widgets[name].setValue(value.copy());
     },
 
     setWidgetInvalidMessage : function(name, message)

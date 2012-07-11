@@ -12,7 +12,12 @@ qx.Class.define("cute.proxy.Object", {
     this.uuid = data["__jsonclass__"][1][1];
     for(var item in this.attributes){
       if(this.attributes[item] in data){
-        this.set(this.attributes[item], data[this.attributes[item]]);
+        if(this.attribute_data[this.attributes[item]]['multivalue']){
+          var val = new qx.data.Array(data[this.attributes[item]]);
+        }else{
+          var val = new qx.data.Array([data[this.attributes[item]]]);
+        }
+        this.set(this.attributes[item], val);
       }
     }
 
@@ -37,15 +42,19 @@ qx.Class.define("cute.proxy.Object", {
       if(this.initialized){
         var that = this;
         var rpc = cute.io.Rpc.getInstance();
+        if(this.attribute_data[name]['multivalue']){
+          var rpc_value = value.toArray();
+        }else{
+          var rpc_value = value.toArray()[0];
+        }
         rpc.cA(function(result, error) {
           this.fireDataEvent("propertyUpdateOnServer", {success: !error, error: error, property: name});
-
           if(!error){
-            that.debug("update property value " + name + ": "+ value);
+            that.debug("update property value " + name + ": "+ rpc_value);
           }else{
             that.error("failed to update property value for " + name + "(" + error.message + ")");
           }
-        }, this ,"setObjectProperty", this.uuid, name, value);
+        }, this ,"setObjectProperty", this.uuid, name, rpc_value);
       }
     },
 
