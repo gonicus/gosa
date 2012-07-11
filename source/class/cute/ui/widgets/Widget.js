@@ -44,7 +44,8 @@ qx.Class.define("cute.ui.widgets.Widget", {
   },
 
   members: {
-
+    focus:  function(){
+    },
     setValid: function(bool){
     },
     setInvalidMessage: function(message){
