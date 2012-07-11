@@ -56,14 +56,12 @@ qx.Class.define("cute.Application",
       */
 
       // Create a button
-      var process = new qx.ui.form.Button("View...");
+      var process = new qx.ui.form.Button(this.tr("Open") + "...");
       var text = new qx.ui.form.TextArea();
       text.setWrap(false);
 
       // Create action bar
       var dn_list = new qx.ui.form.VirtualSelectBox();
-      var commit = new qx.ui.form.Button("Commit");
-      var close = new qx.ui.form.Button("Close");
       var toggle = new qx.ui.form.ToggleButton("User defs");
       toggle.bind("value", text, "visibility", {"converter": function(inv){
           if(toggle.getValue()){
@@ -76,11 +74,9 @@ qx.Class.define("cute.Application",
           (toggle.getValue());
         }, this);
       var actions = new qx.ui.container.Composite(new qx.ui.layout.HBox(5));
-      actions.add(toggle);
+      //actions.add(toggle);
       actions.add(dn_list, {flex:1});
       actions.add(process);
-      actions.add(commit);
-      actions.add(close);
 
       // Collect all user dns 
       var rpc = cute.io.Rpc.getInstance();
@@ -105,6 +101,11 @@ qx.Class.define("cute.Application",
       doc.add(text, {left: 10, top: 40, right: 10, bottom: 50});
       //doc.add(process, {left: 10, bottom: 20});
 
+      var windowManager = new qx.ui.window.Manager();
+      var desktop = new qx.ui.window.Desktop(windowManager);
+      desktop.set({decorator: "main", backgroundColor: "background-pane"});
+      doc.add(desktop, {left: 10, top: 45, right: 10, bottom: 10});
+
       // Load data
       var req = new qx.bom.request.Xhr();
       req.onload = function() { text.setValue(req.responseText); }
@@ -116,32 +117,7 @@ qx.Class.define("cute.Application",
       var win = null;
       var _current_object = null;
 
-
-      commit.addListener('click', function(){
-          if(_current_object){
-            _current_object.commit(function(result, error){
-                if(error){
-                  this.error(error.message);
-                }
-              }, this);
-          }
-        }, this);
-
-      close.addListener('click', function(){
-          if(_current_object){
-            _current_object.close(function(result, error){
-                if(error){
-                  this.error(error.message);
-                }
-              }, this);
-          }
-        }, this);
-
       process.addListener("execute", function(e) {
-        if (w) {
-          w.destroy();
-          win.destroy();
-        }
 
         cute.proxy.ObjectFactory.openObject(function(obj){
           _current_object = obj;
@@ -158,9 +134,23 @@ qx.Class.define("cute.Application",
             win.add(w);
             win.open();
 
+	    //http://bugzilla.qooxdoo.org/show_bug.cgi?id=1770
+	    win.setShowMinimize(false);
+
+	    w.addListener("done", function(){
+          	w.destroy();
+	        win.destroy();
+	    }, this);
+
+	    win.addListener("close", function(){
+		obj.close();
+          	w.destroy();
+	        win.destroy();
+	    }, this);
+
             // Position window as requested
             var props = w.getProperties_();
-            doc.add(win, {left: 0, top: 0});
+            desktop.add(win, {left: 0, top: 0});
 
           }, this, obj, ui_def);
         }, this, dn_list.getSelection().getItem(0));

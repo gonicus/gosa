@@ -64,6 +64,10 @@ qx.Class.define("cute.ui.Renderer",
     attributes_: { init: null, inheritable : true }
   },
 
+  events: {
+    "done": "qx.event.type.Event"
+  },
+
   statics :
   {
 
@@ -281,6 +285,47 @@ qx.Class.define("cute.ui.Renderer",
           }
         }
       }
+
+      // Add button static button line for the moment
+      var paneLayout = new qx.ui.layout.HBox().set({
+        spacing: 4,
+        alignX : "right"
+      });
+      var buttonPane = new qx.ui.container.Composite(paneLayout).set({
+        paddingTop: 11
+      });
+
+      var okButton = new qx.ui.form.Button(this.tr("OK"), "icon/22/actions/dialog-apply.png");
+      okButton.addState("default");
+      buttonPane.add(okButton);
+
+      okButton.addListener("click", function() {
+        this._object.commit(function(result, error){
+                if(error){
+                  this.error(error.message);
+                }
+              }, this);
+        this._object.close(function(result, error){
+                if(error){
+                  this.error(error.message);
+                }
+              }, this);
+        this.fireEvent("done");
+      }, this);
+
+      var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), "icon/22/actions/dialog-cancel.png");
+      buttonPane.add(cancelButton);
+
+      cancelButton.addListener("click", function() {
+        this._object.close(function(result, error){
+                if(error){
+                  this.error(error.message);
+                }
+              }, this);
+        this.fireEvent("done");
+      }, this);
+
+      this.add(buttonPane);
 
       return true;
     },
