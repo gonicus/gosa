@@ -153,15 +153,6 @@ qx.Class.define("cute.ui.Renderer",
       return func;
     },
 
-    tr: function(id) {
-      if (this._object.translations[id]) {
-        return this._object.translations[id][0];
-      }
-
-      console.log(this._object.translations);
-      return id;
-    },
-
     /* This method returns a method which directly updates the property-value for the object.
     * */
     __propertyUpdater: function(name, userInput){
