@@ -35,8 +35,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
     maxLength : {
       init : null,
       nullable: true
-    },
-
+    }
   },
 
   events: {
