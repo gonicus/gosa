@@ -23,7 +23,7 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
       // Set placeholder
       var placeholder = this.getStringProperty('placeholderText', props);
       if (placeholder != null) {
-        widget.setPlaceholder(placeholder);
+        widget.setPlaceholder(this.tr(placeholder));
       }
 
       // Set max length

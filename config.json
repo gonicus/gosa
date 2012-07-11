@@ -40,7 +40,7 @@
     "QOOXDOO_PATH" : "../qooxdoo",
     "QXTHEME"      : "cute.theme.Theme",
     "API_EXCLUDE"  : ["qx.test.*", "${APPLICATION}.theme.*", "${APPLICATION}.test.*", "${APPLICATION}.simulation.*"],
-    "LOCALES"      : [ "en" ],
+    "LOCALES"      : [ "en", "de" ],
     "CACHE"        : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
     "ROOT"         : "."
   },
@@ -63,7 +63,12 @@
 		"files"     : [ "script/xml.js", "test.ui" ],
 		"source" : "source",
 		"target"  : "build"
-	}
+	},
+
+        "variants" : 
+        { 
+                "qx.dynlocale" : ["on"] 
+        } 
     },
 
     "source":
@@ -73,7 +78,12 @@
 		{
 			"uri" : "script/xml.js"
 		}
-	]
+	],
+
+        "variants" : 
+        { 
+                "qx.dynlocale" : ["on"] 
+        } 
     }
 
     // Uncomment the following entry to add a contrib or library to your

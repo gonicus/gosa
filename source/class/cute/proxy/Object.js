@@ -16,6 +16,10 @@ qx.Class.define("cute.proxy.Object", {
       }
     }
 
+    // Add more translations to the qx.locale.Manager
+    var lm = qx.locale.Manager.getInstance();
+    lm.addTranslation(qx.locale.Manager.getInstance().getLocale(), this.translations);
+    
     // Initialization is done (Start sending attribute modifications to the backend)
     this.initialized = true;
   },

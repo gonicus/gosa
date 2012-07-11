@@ -1,0 +1,47 @@
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: you@your.org\n"
+"POT-Creation-Date: 2012-07-11 14:05+0100\n"
+"PO-Revision-Date: 2012-07-11 14:05+0100\n"
+"Last-Translator: you <you@your.org>\n"
+"Language-Team: Team <yourteam@your.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Language: de_DE\n"
+"X-Source-Language: de\n"
+
+#: cute/Application.js:59
+msgid "Open"
+msgstr "Öffnen"
+
+#: cute/Application.js:132
+msgid "Object"
+msgstr "Objekt"
+
+#: cute/ui/LoginDialog.js:15 cute/ui/LoginDialog.js:97
+msgid "Login"
+msgstr "Anmeldung"
+
+#: cute/ui/LoginDialog.js:33
+msgid "Name"
+msgstr "Name"
+
+#: cute/ui/LoginDialog.js:33
+msgid "Password"
+msgstr "Kennwort"
+
+#: cute/ui/LoginDialog.js:111
+msgid "Invalid login ..."
+msgstr "Ungültige Anmeldung..."
+
+#: cute/ui/Renderer.js:300
+msgid "OK"
+msgstr "OK"
+
+#: cute/ui/Renderer.js:318
+msgid "Cancel"
+msgstr "Abbrechen"
