@@ -7,12 +7,6 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
     this._widgetContainer = [];
     this.base(arguments);  
     this.setLayout(new qx.ui.layout.VBox(5));
-
-    var b = new qx.ui.form.Button("a");
-    this.add(b);
-    b.addListener("click", function(){
-        this.setValue(new qx.data.Array([1,2,4,5,7,87,45,]));
-      }, this);
   },
 
   properties: {
@@ -73,6 +67,7 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
         this.getValue().splice(id, 1);
         this._resetFields();
         this.updateFields();
+        this.fireEvent("valueChanged");
       }
       return func;
     },
@@ -99,9 +94,13 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
           this.add(container);
 
           if(this.isMultivalue()){
-            var del = new qx.ui.form.Button("-");
-            del.addListener('click', this.__getDel(i), this);
-            container.add(del);
+
+            // Add delete button for input fields, except the first.
+            if(i > 0){
+              var del = new qx.ui.form.Button("-");
+              del.addListener('click', this.__getDel(i), this);
+              container.add(del);
+            }
 
             // If its the last field, the add a '+' button 
             if(i == len-1){
