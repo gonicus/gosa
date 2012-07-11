@@ -1,4 +1,4 @@
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
@@ -18,6 +18,10 @@ msgstr ""
 msgid "Open"
 msgstr "Öffnen"
 
+#: cute/Application.js:132
+msgid "Object"
+msgstr "Objekt"
+
 #: cute/ui/LoginDialog.js:15 cute/ui/LoginDialog.js:97
 msgid "Login"
 msgstr "Anmeldung"
@@ -34,10 +38,10 @@ msgstr "Kennwort"
 msgid "Invalid login ..."
 msgstr "Ungültige Anmeldung..."
 
-#: cute/ui/Renderer.js:298
+#: cute/ui/Renderer.js:300
 msgid "OK"
 msgstr "OK"
 
-#: cute/ui/Renderer.js:316
+#: cute/ui/Renderer.js:318
 msgid "Cancel"
 msgstr "Abbrechen"

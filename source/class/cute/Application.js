@@ -129,7 +129,7 @@ qx.Class.define("cute.Application",
           }
 
           cute.ui.Renderer.getWidget(function(w){
-            win = new qx.ui.window.Window("Object: " + obj.uuid);
+            win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.uuid);
             win.setLayout(new qx.ui.layout.VBox(10));
             win.add(w);
             win.open();

@@ -11,6 +11,8 @@
 /* ************************************************************************
 
 #asset(cute/*)
+#asset(qx/icon/${qx.icontheme}/22/actions/dialog-ok.png)
+#asset(qx/icon/${qx.icontheme}/22/actions/dialog-cancel.png)
 
  ************************************************************************ */
 
@@ -295,7 +297,7 @@ qx.Class.define("cute.ui.Renderer",
         paddingTop: 11
       });
 
-      var okButton = new qx.ui.form.Button(this.tr("OK"), "icon/22/actions/dialog-apply.png");
+      var okButton = new qx.ui.form.Button(this.tr("OK"), "icon/22/actions/dialog-ok.png");
       okButton.addState("default");
       buttonPane.add(okButton);
 

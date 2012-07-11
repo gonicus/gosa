@@ -15,6 +15,10 @@ msgstr ""
 msgid "Open"
 msgstr ""
 
+#: cute/Application.js:132
+msgid "Object"
+msgstr ""
+
 #: cute/ui/LoginDialog.js:15 cute/ui/LoginDialog.js:97
 msgid "Login"
 msgstr ""
@@ -31,10 +35,10 @@ msgstr ""
 msgid "Invalid login ..."
 msgstr ""
 
-#: cute/ui/Renderer.js:298
+#: cute/ui/Renderer.js:300
 msgid "OK"
 msgstr ""
 
-#: cute/ui/Renderer.js:316
+#: cute/ui/Renderer.js:318
 msgid "Cancel"
 msgstr ""
