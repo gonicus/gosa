@@ -32,6 +32,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
         var baseType = null;
         var extensionTypes = null;
         var templates = {};
+        var translations = {};
 
         // This method is called below to make the code more readable.
         var _handleResult = function(){
@@ -52,6 +53,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
                 attributes: attributes,
                 baseType: baseType,
 		templates: templates,
+		translations: translations,
                 extensionTypes: extensionTypes
               };
 
@@ -95,19 +97,36 @@ qx.Class.define("cute.proxy.ObjectFactory", {
           }
         }
 
+	var theme = "default";
+	if (cute.Config.theme) {
+	    theme = cute.Config.theme;
+	}
+
+	var locale;
+	if (cute.Config.locale) {
+	    locale = cute.Config.locale;
+	} else {
+            locale = qx.bom.client.Locale.getLocale();
+            var variant = qx.bom.client.Locale.getVariant();
+            if (locale && variant) {
+                locale = locale + "-" + variant;
+            }
+	}
+
 	// Load object info - base type, extension types and template information
         rpc.cA(function(data, context, error){
             if(!error){
               baseType = data['base'];
               extensionTypes = data['extensions'];
               templates = data['templates'];
+              translations = data['i18n'];
 
               // Call the result handling method, we had defined earlier above.
               _handleResult(userData);
             }else{
               this.error(error);
             }
-        }, this, "dispatchObjectMethod", uuid, "get_object_info");
+        }, this, "dispatchObjectMethod", uuid, "get_object_info", locale, theme);
 
       }, this, "openObject", "object", dn, type);
     }

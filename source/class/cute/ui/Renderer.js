@@ -153,6 +153,15 @@ qx.Class.define("cute.ui.Renderer",
       return func;
     },
 
+    tr: function(id) {
+      if (this._object.translations[id]) {
+        return this._object.translations[id][0];
+      }
+
+      console.log(this._object.translations);
+      return id;
+    },
+
     /* This method returns a method which directly updates the property-value for the object.
     * */
     __propertyUpdater: function(name, userInput){
@@ -222,7 +231,7 @@ qx.Class.define("cute.ui.Renderer",
           }
 
           if (size > 1) {
-            var page = new qx.ui.tabview.Page(info['widget'].title_);
+            var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_));
             page.setLayout(new qx.ui.layout.VBox());
             page.add(info['widget']);
             container.add(page);
@@ -723,7 +732,7 @@ qx.Class.define("cute.ui.Renderer",
       // Set tooltip
       var tooltip = this.getStringProperty('toolTip', props);
       if (tooltip != null) {
-        widget.setToolTip(new qx.ui.tooltip.ToolTip(tooltip));
+        widget.setToolTip(new qx.ui.tooltip.ToolTip(this.tr(tooltip)));
       }
 
       // Set ro mode
