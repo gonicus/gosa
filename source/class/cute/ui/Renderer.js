@@ -111,7 +111,7 @@ qx.Class.define("cute.ui.Renderer",
           members[applyName] = getApplyMethod(name);
           properties[name] = prop;
         }
- 
+
         // Configure widget
         var name = obj.baseType + "Object";
         var def = {extend: cute.ui.Renderer, properties: properties, members: members};
@@ -150,7 +150,11 @@ qx.Class.define("cute.ui.Renderer",
           this._property_timer[name] = null;
         }
         this._property_timer[name] = timer.start(function(){
-          this.set(name, userInput.getValue());
+          var value = userInput.getValue().toArray();
+          if(!this.getAttributes_()[name]['multivalue']){
+            value = value[0];
+          }
+          this.set(name, value);
           userInput.removeState("modified");
           timer.stop(this._property_timer[name]);
           this._property_timer[name] = null;
@@ -170,7 +174,11 @@ qx.Class.define("cute.ui.Renderer",
         }
         if(userInput.hasState("modified")){
           userInput.removeState("modified");
-          this.set(name, userInput.getValue());
+          var value = userInput.getValue().toArray();
+          if(!this.getAttributes_()[name]['multivalue']){
+            value = value[0];
+          }
+          this.set(name, value);
         }
       }
       return func;
@@ -187,15 +195,12 @@ qx.Class.define("cute.ui.Renderer",
         case "propertyUpdateOnServer": {
             var data = e.getData();
             var name = data['property'];
-            
-            if(name + "Edit" in this._widgets){
-              var widget = this._widgets[name + "Edit"];
-              widget.setValid(data['success']);
-              if(!data['success']){
-                widget.setInvalidMessage(data['error']['message']);
-              }else{
-                widget.setInvalidMessage("");
-              }
+            if(data['success']){
+              this.resetWidgetInvalidMessage(name)
+              this.setWidgetValid(name, true);
+            }else{
+              this.setWidgetInvalidMessage(name, data['error']['message'])
+              this.setWidgetValid(name, false);
             }
           }; break;
       }
@@ -801,33 +806,42 @@ qx.Class.define("cute.ui.Renderer",
     },
 
     setWidgetValue : function(name, value) {
-      var type = this._widgets[name].classname;
 
-      if (type == "qx.ui.form.TextField") {
-        if (value) {
-          this._widgets[name].setValue("" + value);
-        } else {
-          this._widgets[name].setValue("");
-        }
+      if(typeof(value) == "string"){
+        var data = new qx.data.Array([value]);
+      }else{
+        var data = new qx.data.Array(value);
       }
 
-      else if (type == "qx.ui.form.VirtualSelectBox") {
-        var values = this.getAttributes_()[name.slice(0, name.length - 4)]['values'];
-        if (value && values.indexOf(value) >= 0) {
-          this._widgets[name].setSelection(new qx.data.Array([value]));
-        }
-      }
+      this._widgets[name].setValue(data);
 
-      else if (type == "qx.ui.form.VirtualComboBox") {
-        var values = this.getAttributes_()[name.slice(0, name.length - 4)]['values'];
-        if (value && values.indexOf(value) >= 0) {
-          this._widgets[name].setValue(value);
-        }
-      }
+      //var type = this._widgets[name].classname;
 
-      else {
-        this.error("*** no knowledge about how to handle widget of type '" + type + "'");
-      }
+      //if (type == "qx.ui.form.TextField") {
+      //  if (value) {
+      //    this._widgets[name].setValue("" + value);
+      //  } else {
+      //    this._widgets[name].setValue("");
+      //  }
+      //}
+
+      //else if (type == "qx.ui.form.VirtualSelectBox") {
+      //  var values = this.getAttributes_()[name.slice(0, name.length - 4)]['values'];
+      //  if (value && values.indexOf(value) >= 0) {
+      //    this._widgets[name].setSelection(new qx.data.Array([value]));
+      //  }
+      //}
+
+      //else if (type == "qx.ui.form.VirtualComboBox") {
+      //  var values = this.getAttributes_()[name.slice(0, name.length - 4)]['values'];
+      //  if (value && values.indexOf(value) >= 0) {
+      //    this._widgets[name].setValue(value);
+      //  }
+      //}
+
+      //else {
+      //  this.error("*** no knowledge about how to handle widget of type '" + type + "'");
+      //}
     },
 
     setWidgetInvalidMessage : function(name, message)
@@ -860,16 +874,6 @@ qx.Class.define("cute.ui.Renderer",
       }
     },
 
-    setWidgetRequiredInvalidMessage : function(name, message)
-    {
-      name = name + "Edit";
-      if (this._widgets[name]) {
-        this._widgets[name].setRequiredInvalidMessage(message);
-      } else {
-        this.error("*** cannot set required message for non existing widget '" + name + "'!");
-      }
-    },
-
     setWidgetRequired: function(name, flag)
     {
       name = name + "Edit";
@@ -877,16 +881,6 @@ qx.Class.define("cute.ui.Renderer",
         this._widgets[name].setRequired(flag);
       } else {
         this.error("*** cannot set required flag for non existing widget '" + name + "'!");
-      }
-    },
-
-    resetWidgetRequiredInvalidMessage : function(name)
-    {
-      name = name + "Edit";
-      if (this._widgets[name]) {
-        this._widgets[name].resetRequiredInvalidMessage();
-      } else {
-        this.error("*** cannot set required message for non existing widget '" + name + "'!");
       }
     },
 
