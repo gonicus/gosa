@@ -6,7 +6,7 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
     {
       var widget;
       var editable = this.getBoolProperty('editable', props);
-      var values = new qx.data.Array(this.getAttributes_()[name.slice(0, name.length - 4)]['values']);
+      var values = new qx.data.Array(this.getAttributeDefinitions_()[name.slice(0, name.length - 4)]['values']);
       values.sort();
 
       if (editable) {

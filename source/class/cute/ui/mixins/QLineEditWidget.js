@@ -36,7 +36,7 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
       this._widgets[name] = widget;
 
       // set widget properties
-      widget.setMultivalue(this.getAttributes_()[realname]['multivalue']);
+      widget.setMultivalue(this.getAttributeDefinitions_()[realname]['multivalue']);
 
       // Bind values from the remote-object to ourselves and vice-versa.
       this._object.bind(realname, this, realname);

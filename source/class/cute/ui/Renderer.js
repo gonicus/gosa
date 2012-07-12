@@ -63,7 +63,7 @@ qx.Class.define("cute.ui.Renderer",
   {
     title_: { init: "Unknown", inheritable : true },
     properties_: { init: null, inheritable : true },
-    attributes_: { init: null, inheritable : true }
+    attributeDefinitions_: { init: null, inheritable : true }
   },
 
   events: {
@@ -73,53 +73,75 @@ qx.Class.define("cute.ui.Renderer",
   statics :
   {
 
+    classes: null,
+
+    /* A static method that returns a gui widget for the given object,
+     * including all properties, tabs (extensions).
+     * */
     getWidget : function(cb, context, obj, ui_definition)
     {
-      var properties = {};
-      var members = {};
-
-      var getApplyMethod = function(name){
-        var func = function(value){
-          if (this._widgets[name + "Edit"]) {
-            this.setWidgetValue(name + "Edit", value);
-          }
-        };
-        return(func);
+      // Initialize meta-class cache
+      if(!cute.ui.Renderer.classes){
+        cute.ui.Renderer.classes = {};
       }
 
       // Check if there's an override for the definitions
+      // If not, use the objects gui templates.
+      var use_cached = false;
       if (ui_definition) {
         context.warn("*** overriding object ui by user provided template");
         ui_definition = {'ContainerObject': ui_definition};
       } else {
         ui_definition = obj.templates;
+        use_cached = true;
       }
 
-      var attributes = obj.attribute_data;
+      // Check if we can use a cached gui here.
+      if(use_cached && obj.classname in cute.ui.Renderer.classes){
+        var clazz = cute.ui.Renderer.classes[obj.classname];
+      }else{
 
-      if(!attributes){
-        this.error("RPC call failed: got no attributes");
-        return;
+        // This method returns an apply-method for the given attribute
+        // (We unfortunately require it this way, due to reference handling in loops)
+        var getApplyMethod = function(name){
+          var func = function(value){
+            if (this._widgets[name + "Edit"]) {
+              this.setWidgetValue(name + "Edit", value);
+            }
+          };
+          return(func);
+        }
+
+        // Prepare meta-class properties here.
+        var properties = {};
+        var members = {};
+
+        // Prepare the property list for the meta-class we are going to create.
+        // Add each remote-object-property as qooxdoo-property and add its setter-method too.
+        for(var name in obj.attribute_data){
+          var upperName = name.charAt(0).toUpperCase() + name.slice(1);
+          var applyName = "_apply_" + upperName;
+          var prop = {nullable: true, apply: applyName, event: "changed" + upperName};
+          members[applyName] = getApplyMethod(name);
+          properties[name] = prop;
+        }
+
+        // Finaly create the meta-class
+        var name = obj.baseType + "Object";
+        var def = {extend: cute.ui.Renderer, properties: properties, members: members};
+        var clazz = qx.Class.define(name, def);
+
+        // Store generated meta-class in the class-cache to speed up opening the next gui.
+        if(use_cached){
+          cute.ui.Renderer.classes[obj.classname] = clazz;
+        }
       }
 
-      // Setup attributes
-      for(var name in attributes){
-        var upperName = name.charAt(0).toUpperCase() + name.slice(1);
-        var applyName = "_apply_" + upperName;
-        var prop = {nullable: true, apply: applyName, event: "changed" + upperName};
-        members[applyName] = getApplyMethod(name);
-        properties[name] = prop;
-      }
-
-      // Configure widget
-      var name = obj.baseType + "Object";
-      var def = {extend: cute.ui.Renderer, properties: properties, members: members};
-      var clazz = qx.Class.define(name, def);
-
-      // Generate widget and place configure it to contain itself
+      // Create an instance of the just created meta-class, set attribute-definitions and
+      // generate the gui-widget out of the ui_definitions.
       var widget = new clazz();
       widget._object = obj;
-      widget.setAttributes_(attributes);
+      widget.setAttributeDefinitions_(obj.attribute_data);
       widget.configure(ui_definition);
 
       // Connect to the object event 'propertyUpdateOnServer' to be able to act on property changes.
@@ -132,46 +154,7 @@ qx.Class.define("cute.ui.Renderer",
 
   members :
   {
-
-    _property_timer: null,
     _object: null,
-
-    /* Create upate function for each widget to ensure that values are transmittet to
-     * the server after a given period of time.
-     */
-    __timedPropertyUpdater: function(name, userInput){
-      var func = function(value){
-        var timer = qx.util.TimerManager.getInstance();
-        userInput.addState("modified");
-        if(this._property_timer[name]){
-          timer.stop(this._property_timer[name]);
-          this._property_timer[name] = null;
-        }
-        this._property_timer[name] = timer.start(function(){
-          this.set(name, userInput.getValue());
-          userInput.removeState("modified");
-          timer.stop(this._property_timer[name]);
-          this._property_timer[name] = null;
-        }, null, this, null, 2000);
-      }
-      return func;
-    },
-
-    /* This method returns a method which directly updates the property-value for the object.
-    * */
-    __propertyUpdater: function(name, userInput){
-      var func = function(value){
-        var timer = qx.util.TimerManager.getInstance();
-        if(this._property_timer[name]){
-          timer.stop(this._property_timer[name]);
-          this._property_timer[name] = null;
-        }
-        if(userInput.hasState("modified")){
-          userInput.removeState("modified");
-        }
-      }
-      return func;
-    },
 
     /* This method acts on events send by the remote-object which was used to create this gui-widget.
      * */
@@ -195,18 +178,25 @@ qx.Class.define("cute.ui.Renderer",
       }
     },
 
+    /* Configure this widget for the given ui_defintion.
+     * The ui_definition is parsed and qooxdoo-object are created for
+     * each found xml-tag.
+     * */
     configure : function(ui_definition)
     {
+
+      // If there are extensions or more than one gui-page 
+      // available for this object, then put all pages into a tab-page.
       var container;
-
       var size = qx.lang.Object.getKeys(ui_definition).length;
-
       if (size > 1) {
          container = new qx.ui.tabview.TabView();
          this.add(container);
       }
 
       //TODO: order ui
+
+      // Create a list of tab-names and order them
       var tabs = new Array(this._object.baseType);
       var tmp = qx.lang.Object.getKeys(this._object.extensionTypes);
       tmp.sort();
@@ -262,9 +252,9 @@ qx.Class.define("cute.ui.Renderer",
       }
   
       // Handle type independent widget settings
-      var attributes = this.getAttributes_();
-      for(var name in attributes){
-        var attrs = attributes[name];
+      var attribute_defs = this.getAttributeDefinitions_();
+      for(var name in attribute_defs){
+        var attrs = attribute_defs[name];
 
         if (this._widgets[name + "Edit"]) {
           var widget = this._widgets[name + "Edit"];
