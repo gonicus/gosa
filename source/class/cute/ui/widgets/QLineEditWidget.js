@@ -10,19 +10,26 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
   },
 
   properties: {
+
+    /* Tells the widget how to display its contents
+     * e.g. for mode 'password' show [***   ] only.
+     * */
     echoMode : {
       init : "normal",
+      check : ["normal", "password"],
+      apply : "_setEchoMode",
       nullable: true
     }
   },
 
   members: {
+
     _widgets: null,
     _widgetContainer: null,
     _property_timer: null,
 
-    /* Create upate function for each widget to ensure that values are transmittet to
-     * the server after a given period of time.
+    /* Creates an update-function for each widget to ensure that values are set
+     * after a given period of time.
      */
     __timedPropertyUpdater: function(id, userInput){
       var func = function(value){
@@ -44,8 +51,8 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
       return func;
     },
 
-    /* This method returns a method which directly updates the property-value for the object.
-    * */
+    /* This method returns a function which directly updates the property-value.
+     * */
     __propertyUpdater: function(id, userInput){
       var func = function(value){
         var timer = qx.util.TimerManager.getInstance();
@@ -62,25 +69,34 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
       return func;
     },
 
+    /* Returns a a delete-callback method
+     * */
     __getDel: function(id){
       var func = function(){
         this.getValue().splice(id, 1);
         this._resetFields();
-        this.updateFields();
+        this._generateGui();
         this.fireEvent("valueChanged");
       }
       return func;
     },
 
-    getWidget: function(id){
-      var w = new qx.ui.form.TextField("" + this.getValue().getItem(id));
+    /* Creates an input-widget depending on the echo mode (normal/password)
+     * and connects the update listeners
+     * */
+    __getWidget: function(id){
+      if(this.getEchoMode() == "password"){
+        var w = new qx.ui.form.PasswordField("" + this.getValue().getItem(id));
+      }else{
+        var w = new qx.ui.form.TextField("" + this.getValue().getItem(id));
+      }
       w.setLiveUpdate(true);
       w.addListener("focusout", this.__propertyUpdater(id, w), this); 
       w.addListener("changeValue", this.__timedPropertyUpdater(id, w), this); 
       return(w);
     },
 
-    updateFields: function(){
+    _generateGui: function(){
 
       // Walk through values and create input fields for them
       var len = this.getValue().getLength();
@@ -88,7 +104,7 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
 
         // First check if we already have an widget for this position
         if(!(i in this._widgets)){
-          var widget = this.getWidget(i);
+          var widget = this.__getWidget(i);
           var container = new qx.ui.container.Composite(new qx.ui.layout.HBox(1));
           container.add(widget, {flex:1});
           this.add(container);
@@ -108,7 +124,7 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
               add.addListener('click', function(){
                 this._resetFields();
                 this.getValue().push("");
-                this.updateFields();
+                this._generateGui();
               }, this);
               container.add(add);
             }
@@ -128,17 +144,27 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
         this._resetFields();
       }
 
-      this.updateFields();
+      this._generateGui();
     },
 
     /* This is the apply method for the multivalue-flag
      * If the multivalue flag is changed, the gui will be regenerated.
      * */
-    _applyMultivalue: function(value){
+    _applyMultivalue: function(){
 
       // Regenerate gui
       this._resetFields();
-      this.updateFields();
+      this._generateGui();
+    },
+
+    /* Sets the echo-mode of the text-field.
+     * E.g. in password mode only * are shown instead of the real content.
+     * */
+    _setEchoMode: function(){
+    
+      // Regenerate gui
+      this._resetFields();
+      this._generateGui();
     },
 
     /* Remove all sub-widgets added to the container and clear
