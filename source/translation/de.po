@@ -24,7 +24,7 @@ msgstr "Objekt"
 
 #: cute/ui/LoginDialog.js:15 cute/ui/LoginDialog.js:97
 msgid "Login"
-msgstr "Anmeldung"
+msgstr "Anmelden"
 
 #: cute/ui/LoginDialog.js:33
 msgid "Name"
