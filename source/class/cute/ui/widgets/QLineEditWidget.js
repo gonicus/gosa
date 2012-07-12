@@ -149,12 +149,8 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
 
     _generateGui: function(){
 
-      var values = this.getValue().copy();
-      if(!values.getLength()){
-        values.push("");
-      }
-
       // Walk through values and create input fields for them
+      var values = this.getValue();
       var len = values.getLength();
       for(var i=0; i< len; i++){
 
@@ -195,6 +191,11 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
      * This method will regenerate the gui.
      * */
     _applyValue: function(value, old_value){
+
+      // Ensure that we've at least one value
+      if(!value.getLength()){
+        value.push("");
+      }
       this._resetFields();
       this._generateGui();
     },
