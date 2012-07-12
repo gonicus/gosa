@@ -1,3 +1,9 @@
+/* This is the base class for all input-widgets created by 
+ * the Renders class.
+ *
+ * It contains all necessary properties/methods and events to bind values,
+ * set error messages, set placeholder...
+ * */
 qx.Class.define("cute.ui.widgets.Widget", {
 
   extend: qx.ui.container.Composite,
@@ -8,12 +14,18 @@ qx.Class.define("cute.ui.widgets.Widget", {
   },
 
   properties : {
+
+    /* Whether the widget is a multi-value input or not.
+     * */
     multivalue : {
       check : 'Boolean',
       apply: '_applyMultivalue',
       init: false
     },
 
+    /* The value(s) for the widget.
+     * All values (each when not multivalue) are of type qx.data.Array.
+     * */
     value : {
       init : null,
       check : "qx.data.Array",
@@ -22,19 +34,26 @@ qx.Class.define("cute.ui.widgets.Widget", {
       apply: '_applyValue'
     },
 
+    /* Whether the field is required or not.
+     * */
     required : {
       init : null,
       check : 'Boolean',
       nullable: false
     },
 
+    /* The placeholder to use.
+     * */
     placeholder : {
       init : null,
       nullable: true
     },
 
+    /* The maximum length
+     * */
     maxLength : {
       init : null,
+      check : "Integer",
       nullable: true
     }
   },
@@ -44,6 +63,9 @@ qx.Class.define("cute.ui.widgets.Widget", {
   },
 
   members: {
+
+    /* Apply method prototypes...
+     * */
     focus:  function(){
     },
     setValid: function(bool){
