@@ -45,8 +45,12 @@ qx.Class.define("cute.proxy.Object", {
         if(this.attribute_data[name]['multivalue']){
           var rpc_value = value.toArray();
         }else{
-          var rpc_value = value.toArray()[0];
+          var rpc_value = null;
+          if(value.getLength()){
+            rpc_value = value.toArray()[0];
+          }
         }
+
         rpc.cA(function(result, error) {
           this.fireDataEvent("propertyUpdateOnServer", {success: !error, error: error, property: name});
           if(!error){

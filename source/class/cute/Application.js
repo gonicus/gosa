@@ -134,19 +134,19 @@ qx.Class.define("cute.Application",
             win.add(w);
             win.open();
 
-	    //http://bugzilla.qooxdoo.org/show_bug.cgi?id=1770
-	    win.setShowMinimize(false);
+            //http://bugzilla.qooxdoo.org/show_bug.cgi?id=1770
+            win.setShowMinimize(false);
 
-	    w.addListener("done", function(){
-          	w.destroy();
-	        win.destroy();
-	    }, this);
+            w.addListener("done", function(){
+              w.destroy();
+              win.destroy();
+            }, this);
 
-	    win.addListener("close", function(){
-		obj.close();
-          	w.destroy();
-	        win.destroy();
-	    }, this);
+            win.addListener("close", function(){
+              obj.close();
+              w.destroy();
+              win.destroy();
+            }, this);
 
             // Position window as requested
             var props = w.getProperties_();

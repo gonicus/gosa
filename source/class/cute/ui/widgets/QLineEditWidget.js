@@ -28,6 +28,47 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
     _widgetContainer: null,
     _property_timer: null,
 
+    _getCleanValue: function(){
+
+      var res = new qx.data.Array();
+
+      // No values given, return null
+      if(!this.getValue().getLength()){
+        return(res);
+      }
+
+      // A single value is given but its empty.
+      if(this.getValue().getLength() == 1 && this.getValue().getItem(0) == ""){
+        return(res);
+      }
+
+      // Append all non empty values
+      for(var i=0; i<this.getValue().getLength(); i++){
+        var v = this.getValue().getItem(i);
+        if(v != ""){
+          res.push(v);
+        }
+      }
+      return(res);
+    },
+
+    /* Sends an update event for the current values of this widget.
+     * e.g. not empty.
+     * */
+    _updateValues: function(){
+      var ok = true;
+      for(var i=1; i< this._widgets.length; i++){
+        this._widgets[i].setValid(true);
+        if(this._widgets[i].getValue() == ""){
+          ok = false;
+          this._widgets[i].setValid(false);
+        }
+      }
+      if(ok){
+        this.fireDataEvent("valueChanged", this._getCleanValue());
+      }
+    },
+
     /* Creates an update-function for each widget to ensure that values are set
      * after a given period of time.
      */
@@ -45,7 +86,7 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
           this._property_timer = null;
           
           this.getValue().setItem(id, userInput.getValue());
-          this.fireEvent("valueChanged");
+          this._updateValues();
         }, null, this, null, 2000);
       }
       return func;
@@ -63,7 +104,7 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
         if(this.hasState("modified")){
           this.removeState("modified");
           this.getValue().setItem(id, userInput.getValue());
-          this.fireEvent("valueChanged");
+          this._updateValues();
         }
       }
       return func;
@@ -76,7 +117,7 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
         this.getValue().splice(id, 1);
         this._resetFields();
         this._generateGui();
-        this.fireEvent("valueChanged");
+        this._updateValues();
       }
       return func;
     },
@@ -85,10 +126,20 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
      * and connects the update listeners
      * */
     __getWidget: function(id){
+
+      // Create a copy of the current value and check if we've
+      // got at least one value, if not then add a dumy one.
+      var value = this.getValue().getItem(id);
+      if(value == null){
+        value = "";
+      }
       if(this.getEchoMode() == "password"){
-        var w = new qx.ui.form.PasswordField("" + this.getValue().getItem(id));
+        var w = new qx.ui.form.PasswordField(value);
       }else{
-        var w = new qx.ui.form.TextField("" + this.getValue().getItem(id));
+        var w = new qx.ui.form.TextField(value);
+      }
+      if(this.getPlaceholder()){
+        w.setPlaceholder(this.getPlaceholder());
       }
       w.setLiveUpdate(true);
       w.addListener("focusout", this.__propertyUpdater(id, w), this); 
@@ -98,8 +149,13 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
 
     _generateGui: function(){
 
+      var values = this.getValue().copy();
+      if(!values.getLength()){
+        values.push("");
+      }
+
       // Walk through values and create input fields for them
-      var len = this.getValue().getLength();
+      var len = values.getLength();
       for(var i=0; i< len; i++){
 
         // First check if we already have an widget for this position
@@ -139,11 +195,7 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
      * This method will regenerate the gui.
      * */
     _applyValue: function(value, old_value){
-
-      if(old_value && old_value.getLength() != value.getLength()){
-        this._resetFields();
-      }
-
+      this._resetFields();
       this._generateGui();
     },
 

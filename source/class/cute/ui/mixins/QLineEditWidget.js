@@ -45,8 +45,8 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
       // Add listeners for value changes.
       //widget.setLiveUpdate(true);
       //this.bind(realname, widget, "value");
-      widget.addListener("valueChanged", function(){
-          this.set(realname, widget.getValue());
+      widget.addListener("valueChanged", function(e){
+          this.set(realname, e.getData());
         }, this);
 
       return widget;
