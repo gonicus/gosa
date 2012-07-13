@@ -239,7 +239,7 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
 
     resetInvalidMessage: function(){
       for(var i=0; i < this._widgets.length; i++){
-        this._widgets[i].resetInvalidMessage(message);
+        this._widgets[i].resetInvalidMessage();
       }
     },
 
