@@ -229,6 +229,30 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
       }
       this._widgets = [];
       this._widgetContainer = [];
+    },
+
+    setInvalidMessage: function(message){
+      for(var i=0; i < this._widgets.length; i++){
+        this._widgets[i].setInvalidMessage(message);
+      }
+    },
+
+    resetInvalidMessage: function(){
+      for(var i=0; i < this._widgets.length; i++){
+        this._widgets[i].resetInvalidMessage(message);
+      }
+    },
+
+    focus: function(){
+      if(this._widgets.length){
+        this._widgets[0].focus();
+      }
+    },
+
+    setValid: function(bool){
+      for(var i=0; i < this._widgets.length; i++){
+        this._widgets[i].setValid(bool);
+      }
     }
   }
 });
