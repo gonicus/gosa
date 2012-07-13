@@ -164,7 +164,7 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
           if(this.isMultivalue()){
 
             // Add delete button for input fields, except the first.
-            if(i > 0){
+            if(len > 1){
               var del = new qx.ui.form.Button("-");
               del.addListener('click', this.__getDel(i), this);
               container.add(del);
