@@ -196,9 +196,12 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
       if(!value.getLength()){
         value.push("");
       }
-      if(old_value && old_value.getLength() != value.getLength()){
+      //TODO: this doesn't seem to work as expected. At least it doesn't
+      //      in the initial case. Looks like old_value doesn't contain
+      //      the proper value already.
+      //if(old_value && old_value.getLength() != value.getLength()){
         this._resetFields();
-      }
+      //}
       this._generateGui();
     },
 
