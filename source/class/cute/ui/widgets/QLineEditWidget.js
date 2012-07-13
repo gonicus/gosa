@@ -196,7 +196,9 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
       if(!value.getLength()){
         value.push("");
       }
-      this._resetFields();
+      if(old_value && old_value.getLength() != value.getLength()){
+        this._resetFields();
+      }
       this._generateGui();
     },
 

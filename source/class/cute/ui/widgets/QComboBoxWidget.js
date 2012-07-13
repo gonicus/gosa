@@ -149,7 +149,8 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
 
       if(this.isEditable()){
         var w = new qx.ui.form.VirtualComboBox(this.getValues());
-        w.addListener("focusout", this.__propertyUpdater(id, w), this); 
+        w.getChildControl("textfield").setLiveUpdate(true);
+        w.getChildControl("textfield").addListener("focusout", this.__propertyUpdater(id, w), this); 
         w.setValue(this.getValue().getItem(id));
         w.getChildControl("textfield").addListener("changeValue", this.__timedPropertyUpdater(id, w), this); 
       } else {
@@ -207,11 +208,15 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
      * */
     _applyValue: function(value, old_value){
 
+
       // Ensure that we've at least one value
       if(!value.getLength()){
         value.push("");
       }
-      this._resetFields();
+
+      if(old_value && old_value.getLength() != value.getLength()){
+        this._resetFields();
+      }
       this._generateGui();
     },
 
