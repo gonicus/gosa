@@ -61,7 +61,14 @@ qx.Class.define("cute.io.Rpc", {
 
             // Catch potential errors here. 
           }else if(error &&  error.code >= 400){
-              cl.running = false;
+
+              alert("Clacks-server up & running? (" +error.message + ")");
+              setTimeout(function(){
+                  cl.queue.push(call);
+                  cl.running = false;
+                  cl.process_queue();
+                }, 2500);
+
               cl.error("unhandled error-code: " + error.code);
           }else{
 
