@@ -61,6 +61,7 @@ qx.Class.define("cute.ui.Renderer",
 
   properties :
   {
+    modified : {init: false, check: "Boolean", "apply": "__applyModified"},
     title_: { init: "Unknown", inheritable : true },
     properties_: { init: null, inheritable : true },
     attributeDefinitions_: { init: null, inheritable : true }
@@ -944,7 +945,12 @@ qx.Class.define("cute.ui.Renderer",
       }
 
       return dflt;
-    }
+    },
 
+    /* Applies the modified state for this widget
+     * */
+    __applyModified: function(value){
+      console.log("Modified: ", value);
+    }
   }
 });
