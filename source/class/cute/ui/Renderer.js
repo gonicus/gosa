@@ -55,8 +55,9 @@ qx.Class.define("cute.ui.Renderer",
       "MinimumExpanding": 2
     };
 
-    // Tabstops
+    // Tabstops and bindings
     this._tabstops = new Array();
+    this._bindings = {};
   },
 
   properties :
@@ -193,8 +194,6 @@ qx.Class.define("cute.ui.Renderer",
          container = new qx.ui.tabview.TabView();
          this.add(container);
       }
-
-      //TODO: order ui
 
       // Create a list of tab-names and order them
       var tabs = new Array(this._object.baseType);
@@ -505,6 +504,30 @@ qx.Class.define("cute.ui.Renderer",
             if (topic.nodeType == 1 && topic.nodeName == "tabstop") {
               this._tabstops.push(topic.firstChild.nodeValue);
             }
+          }
+
+        // Collect bindings
+        } else if (node.nodeName == "connections") {
+
+          for (var j=0; j<node.childNodes.length; j++) {
+            var topic = node.childNodes[j];
+            if (topic.nodeType != 1) {
+              continue;
+            }
+
+            var sender = null;
+            var slot = null;
+
+            for (var k=0; k<topic.childNodes.length; k++) {
+              if (topic.childNodes[k].nodeName == "sender") {
+                sender = topic.childNodes[k].firstChild.nodeValue;
+              }
+              if (topic.childNodes[k].nodeName == "slot") {
+                slot = topic.childNodes[k].firstChild.nodeValue;
+              }
+            }
+            this._bindings[sender] = slot.slice(9, slot.length - 2);
+            
           }
 
         } else {
