@@ -85,6 +85,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
           }
         }
         if(ok){
+          this.setModified(true);
           this.fireDataEvent("valueChanged", this._getCleanValue());
         }
       }
