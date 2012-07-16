@@ -55,6 +55,13 @@ qx.Class.define("cute.ui.widgets.Widget", {
       init : null,
       check : "Integer",
       nullable: true
+    },
+
+    /* Whether the widget was modified
+     * */
+    modified : {
+      init : false,
+      check : "Boolean"
     }
   },
 

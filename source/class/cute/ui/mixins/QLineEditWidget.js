@@ -47,6 +47,7 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
       //this.bind(realname, widget, "value");
       widget.addListener("valueChanged", function(e){
           this.set(realname, e.getData());
+          this.setModified(true);
         }, this);
 
       return widget;

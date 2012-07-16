@@ -62,6 +62,7 @@ qx.Class.define("cute.ui.Renderer",
 
   properties :
   {
+    modified : {init: false, check: "Boolean", "apply": "__applyModified"},
     title_: { init: "Unknown", inheritable : true },
     properties_: { init: null, inheritable : true },
     attributeDefinitions_: { init: null, inheritable : true }
@@ -156,6 +157,8 @@ qx.Class.define("cute.ui.Renderer",
   members :
   {
     _object: null,
+    __okBtn: null,
+    __cancelBtn: null,
 
     /* This method acts on events send by the remote-object which was used to create this gui-widget.
      * */
@@ -287,6 +290,8 @@ qx.Class.define("cute.ui.Renderer",
       });
 
       var okButton = new qx.ui.form.Button(this.tr("OK"), "icon/22/actions/dialog-ok.png");
+      this.__okBtn = okButton;
+      this.__okBtn.setEnabled(false);
       okButton.addState("default");
       buttonPane.add(okButton);
 
@@ -305,6 +310,7 @@ qx.Class.define("cute.ui.Renderer",
       }, this);
 
       var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), "icon/22/actions/dialog-cancel.png");
+      this.__cancelBtn = cancelButton;
       buttonPane.add(cancelButton);
 
       cancelButton.addListener("click", function() {
@@ -967,7 +973,13 @@ qx.Class.define("cute.ui.Renderer",
       }
 
       return dflt;
-    }
+    },
 
+    /* Applies the modified state for this widget
+     * */
+    __applyModified: function(value){
+      console.log("Modified: ", value);
+      this.__okBtn.setEnabled(true);
+    }
   }
 });
