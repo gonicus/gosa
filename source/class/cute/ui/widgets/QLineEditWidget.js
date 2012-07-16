@@ -27,6 +27,7 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
     _widgets: null,
     _widgetContainer: null,
     _property_timer: null,
+    _was_manually_initialized: false,
 
     _getCleanValue: function(){
 
@@ -194,14 +195,12 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
 
       // Ensure that we've at least one value
       if(!value.getLength()){
+        this._was_manually_initialized = true;
         value.push("");
       }
-      //TODO: this doesn't seem to work as expected. At least it doesn't
-      //      in the initial case. Looks like old_value doesn't contain
-      //      the proper value already.
-      //if(old_value && old_value.getLength() != value.getLength()){
+      if(this._was_manually_initialized || old_value && old_value.getLength() != value.getLength()){
         this._resetFields();
-      //}
+      }
       this._generateGui();
     },
 
