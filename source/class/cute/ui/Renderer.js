@@ -55,15 +55,17 @@ qx.Class.define("cute.ui.Renderer",
       "MinimumExpanding": 2
     };
 
-    // Tabstops and bindings
+    // Tabstops, bindings and resources
     this._tabstops = new Array();
     this._bindings = {};
+    this._resources = {};
   },
 
   properties :
   {
     modified : {init: false, check: "Boolean", "apply": "__applyModified"},
     title_: { init: "Unknown", inheritable : true },
+    icon_: { init: null, inheritable : true },
     properties_: { init: null, inheritable : true },
     attributeDefinitions_: { init: null, inheritable : true }
   },
@@ -212,7 +214,41 @@ qx.Class.define("cute.ui.Renderer",
           continue;
         }
 
-        var info = this.processUI(parseXml(ui_definition[i]).childNodes);
+        var ui_def = parseXml(ui_definition[i]).childNodes;
+
+        var theme = "default";
+        if (cute.Config.theme) {
+            theme = cute.Config.theme;
+        }
+
+        // Find resources before we do anything more
+        for (var q=0; q<ui_def.length; q++) {
+          for (var r=0; r<ui_def[q].childNodes.length; r++) {
+            if (ui_def[q].childNodes[r].nodeName == "resources") {
+              var resources = ui_def[q].childNodes[r];
+
+              for (var j=0; j<resources.childNodes.length; j++) {
+                var topic = resources.childNodes[j];
+                if (topic.nodeName != "resource") {
+                  continue;
+                }
+      
+                var loc = topic.getAttribute("location");
+                var files = {};
+                for (var f in topic.childNodes) {
+                  var item = topic.childNodes[f];
+                  if (item.nodeName == "file") {
+                    files[":/" + item.firstChild.nodeValue] = "resource/clacks/" + theme + "/" + item.firstChild.nodeValue;
+                  }
+                }
+      
+                this._resources[loc] = files;
+              }
+            }
+          }
+        }
+
+        var info = this.processUI(ui_def);
         if (info) {
           // Take over properties of base type
           if (this.baseType == i || i == "ContainerObject") {
@@ -220,7 +256,7 @@ qx.Class.define("cute.ui.Renderer",
           }
 
           if (size > 1) {
-            var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_));
+            var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
             page.setLayout(new qx.ui.layout.VBox());
             page.add(info['widget']);
             container.add(page);
@@ -536,6 +572,9 @@ qx.Class.define("cute.ui.Renderer",
             
           }
 
+        // Ignore resources - they're already processed
+        } else if (node.nodeName == "resources") {
+
         } else {
           this.error("*** unexpected element '" + node.nodeName + "'");
         }
@@ -745,6 +784,11 @@ qx.Class.define("cute.ui.Renderer",
           var topic = node.childNodes[i];
           var tmp = {};
 
+          // Move attributes
+          for (var a = 0; a < topic.attributes.length; a++) {
+            tmp["_" + topic.attributes[a].nodeName] = topic.attributes[a].nodeValue;
+          }
+
           if (node.nodeName == "property") {
             if (topic.childNodes && topic.childNodes.length != 1) {
               tmp[topic.nodeName] = this.processProperty(topic);
@@ -770,6 +814,7 @@ qx.Class.define("cute.ui.Renderer",
     {
       var widget = new qx.ui.container.Composite();
       widget.title_ = this.getStringProperty('windowTitle', props);
+      widget.icon_ = this.getIconProperty('windowIcon', props);
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
 
@@ -855,6 +900,19 @@ qx.Class.define("cute.ui.Renderer",
       } else {
         this.error("*** cannot set required flag for non existing widget '" + name + "'!");
       }
+    },
+
+    getIconProperty : function(what, props)
+    {
+      if (props[what] && props[what]['iconset']['normaloff']) {
+        var resource = props[what]['_resource'];
+
+        if (this._resources[resource]) {
+          return this._resources[resource][props[what]['iconset']['normaloff']];
+        }
+      }
+
+      return null;
     },
 
     getStringProperty : function(what, props)
@@ -978,7 +1036,7 @@ qx.Class.define("cute.ui.Renderer",
     /* Applies the modified state for this widget
      * */
     __applyModified: function(value){
-      console.log("Modified: ", value);
+      this.debug("modified: ", value);
       this.__okBtn.setEnabled(true);
     }
   }
