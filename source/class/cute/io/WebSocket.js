@@ -44,12 +44,12 @@ qx.Class.define("cute.io.WebSocket", {
         var popup = new qx.ui.basic.Atom(message, "icon/48/status/dialog-information.png").set({
             backgroundColor : "#0A0A0A",
             textColor : "#F0F0F0",
-            decorator : "main-dark",
+            decorator : "scroll-knob",
             iconPosition : "left",
             padding : 5,
             paddingRight : 20,
             zIndex : 10000,
-            opacity : 0.5,
+            opacity : 0.8,
             allowGrowY: false
         });
         var doc = qx.core.Init.getApplication().getRoot();
