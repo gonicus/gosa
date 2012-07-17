@@ -57,6 +57,10 @@ qx.Class.define("cute.io.Rpc", {
                   cl.queue.push(call);
                   cl.running = false;
                   cl.process_queue();
+
+		  // Re-connect websockets
+		  var messaging = cute.io.WebSocket.getInstance();
+		  messaging.reconnect();
                 }, cl);
 
             // Catch potential errors here. 

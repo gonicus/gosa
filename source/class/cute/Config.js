@@ -4,6 +4,7 @@ qx.Class.define("cute.Config", {
 
   statics: {
     url: "/rpc",
+    ws: "/ws",
     service: "Clacks JSON-RPC service",
     timeout: 60000
   }

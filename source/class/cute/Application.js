@@ -96,6 +96,10 @@ qx.Class.define("cute.Application",
       // Document is the application root
       var doc = this.getRoot();
 
+      // Initialize websocket messaging
+      var messaging = cute.io.WebSocket.getInstance();
+      messaging.reconnect();
+
       // Add button to document at fixed coordinates
       doc.add(actions, {left: 10, top: 10, right: 10});
       doc.add(text, {left: 10, top: 40, right: 10, bottom: 50});
@@ -113,7 +117,6 @@ qx.Class.define("cute.Application",
       req.send();
 
       // Add an event listener and process known elements
-
       process.addListener("execute", function(e) {
         var w = null;
         var win = null;
