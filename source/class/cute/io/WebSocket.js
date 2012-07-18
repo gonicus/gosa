@@ -1,5 +1,5 @@
 /*
-#asset(qx/icon/${qx.icontheme}/48/status/dialog-information.png)
+#asset(qx/icon/${qx.icontheme}/48/status/*)
 */
 
 qx.Class.define("cute.io.WebSocket", {
@@ -36,30 +36,50 @@ qx.Class.define("cute.io.WebSocket", {
          this.__ws = new MozWebSocket(ws_uri);
       }
 
+      var that = this;
       this.__ws.onmessage = function(e) {
-        var timeout = 5000;
-        var message = e['data'];
+        var message = qx.lang.Json.parse(e['data']);
 
-        // Create bubble with timeout
-        var popup = new qx.ui.basic.Atom(message, "icon/48/status/dialog-information.png").set({
-            backgroundColor : "#0A0A0A",
-            textColor : "#F0F0F0",
-            decorator : "scroll-knob",
-            iconPosition : "left",
-            padding : 5,
-            paddingRight : 20,
-            zIndex : 10000,
-            opacity : 0.8,
-            allowGrowY: false
-        });
-        var doc = qx.core.Init.getApplication().getRoot();
-        doc.add(popup, {right: 15, bottom: 15});
-
-        var timer = qx.util.TimerManager.getInstance();
-        timer.start(function(userData, timerId){
-          popup.destroy();
-        }, 0, this, null, timeout);
+        // Check if we can handle that message
+        var capmessage = message[0].charAt(0).toUpperCase() + message[0].slice(1)
+        var method = "_handle" + capmessage + "Message";
+        if (that[method]) {
+          that[method](message[1]);
+        } else {
+          that.error("*** no idea how to handle '" + message[0] + "' messages");
+        }
       }
+    },
+
+    _handleNotificationMessage : function(info) {
+      var timeout = 5000;
+      var icon = "dialog-information";
+      if (info['timeout']) {
+        timeout = info['timeout'];
+      }
+      if (info['icon']) {
+        icon = info['icon'];
+      }
+
+      // Create bubble with timeout
+      var popup = new qx.ui.basic.Atom(info["body"], "icon/48/status/" + icon + ".png").set({
+          backgroundColor : "#0A0A0A",
+          textColor : "#F0F0F0",
+          decorator : "scroll-knob",
+          iconPosition : "left",
+          padding : 5,
+          paddingRight : 20,
+          zIndex : 10000,
+          opacity : 0.8,
+          allowGrowY: false
+      });
+      var doc = qx.core.Init.getApplication().getRoot();
+      doc.add(popup, {right: 15, bottom: 15});
+
+      var timer = qx.util.TimerManager.getInstance();
+      timer.start(function(userData, timerId){
+        popup.destroy();
+      }, 0, this, null, timeout);
     }
   }
 
