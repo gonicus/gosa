@@ -53,33 +53,66 @@ qx.Class.define("cute.io.WebSocket", {
 
     _handleNotificationMessage : function(info) {
       var timeout = 5000;
-      var icon = "dialog-information";
+      var icon = "icon/48/status/dialog-information.png"
+      var title = "";
       if (info['timeout']) {
         timeout = info['timeout'];
       }
       if (info['icon']) {
-        icon = info['icon'];
+        if (info['icon'] == "_no_icon_") {
+          icon = "icon/48/status/dialog-information.png"
+        } else if (info['icon'].substring(0, 7) == "base64:") {
+          icon = "data:image/png;base64, " + info['icon'].substring(7);
+        } else {
+          icon = "icon/48/status/" + info['icon'] + ".png";
+        }
+      }
+      if (info['title']) {
+        title = "<center><b>" + info['title'] + "</b></center>";
       }
 
       // Create bubble with timeout
-      var popup = new qx.ui.basic.Atom(info["body"], "icon/48/status/" + icon + ".png").set({
+      var popup = new qx.ui.basic.Atom(title + info["body"].replace(/\n/g, '<br />'), icon).set({
           backgroundColor : "#0A0A0A",
           textColor : "#F0F0F0",
           decorator : "scroll-knob",
           iconPosition : "left",
-          padding : 5,
+          padding : 8,
           paddingRight : 20,
           zIndex : 10000,
           opacity : 0.8,
-          allowGrowY: false
+          rich : true
       });
-      var doc = qx.core.Init.getApplication().getRoot();
-      doc.add(popup, {right: 15, bottom: 15});
+      popup.addListener("click", function(e){ this.closePopup(popup); }, this);
+      this.showPopup(popup)
 
       var timer = qx.util.TimerManager.getInstance();
       timer.start(function(userData, timerId){
-        popup.destroy();
+        this.closePopup(popup);
       }, 0, this, null, timeout);
+    },
+
+    closePopup : function(popup) {
+      //TODO: take care about multiple popups at one time (rearranging)
+
+      if (!popup) {
+        return;
+      }
+
+      var duration = 250;
+      var desc = {duration: duration, keep: 100, timing: "ease-out", keyFrames : {
+        0 : {"opacity" : 0.8},
+        100 : {"opacity": 0, display: "none"}
+      }};
+
+      qx.bom.element.Animation.animate(popup.getContainerElement().getDomElement(), desc);
+      setTimeout(function() {if (popup){ popup.destroy();}}, duration + 100);
+    },
+
+    showPopup : function(popup) {
+      //TODO: take care about multiple popups at one time (positioning)
+      var doc = qx.core.Init.getApplication().getRoot();
+      doc.add(popup, {right: 15, bottom: 15});
     }
   }
 
