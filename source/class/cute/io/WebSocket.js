@@ -113,6 +113,18 @@ qx.Class.define("cute.io.WebSocket", {
       //TODO: take care about multiple popups at one time (positioning)
       var doc = qx.core.Init.getApplication().getRoot();
       doc.add(popup, {right: 15, bottom: 15});
+    },
+
+    wordwrap : function(str, width, brk, cut) {
+      brk = brk || '\n';
+      width = width || 75;
+      cut = cut || false;
+
+      if (!str) { return str; }
+
+      var regex = '.{1,' +width+ '}(\\s|$)' + (cut ? '|.{' +width+ '}|.+$' : '|\\S+?(\\s|$)');
+
+      return str.match( RegExp(regex, 'g') ).join( brk );
     }
   }
 
