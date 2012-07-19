@@ -9,6 +9,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
   extend: qx.ui.container.Composite,
 
   construct: function(){
+    this.name = this.classname.replace(/^.*\./, "");
     this.base(arguments);  
     this.setValue(new qx.data.Array());
   },
@@ -70,6 +71,8 @@ qx.Class.define("cute.ui.widgets.Widget", {
   },
 
   members: {
+
+    name: null,
 
     /* Apply method prototypes...
      * */

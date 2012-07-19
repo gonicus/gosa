@@ -148,6 +148,9 @@ qx.Class.define("cute.ui.Renderer",
       widget.setAttributeDefinitions_(obj.attribute_data);
       widget.configure(ui_definition);
 
+      // Connect this master-widget with the object properties.
+      widget.processBindings();
+
       // Connect to the object event 'propertyUpdateOnServer' to be able to act on property changes.
       // e.g. set an invalid-decorator for specific widget.
       obj.addListener("propertyUpdateOnServer", widget.actOnEvents, widget);
@@ -159,8 +162,26 @@ qx.Class.define("cute.ui.Renderer",
   members :
   {
     _object: null,
+    _tabstops: null,
+    _bindings: null,
+    _resources: null,
     __okBtn: null,
     __cancelBtn: null,
+
+
+    /* Establish bindings between object-properties and master-widget input fields.
+     * */
+    processBindings: function(){
+      for(var widgetName in this._bindings){
+        var propertyName = this._bindings[widgetName];
+        var method = "process" + this._widgets[widgetName].name + "Binding";
+        if (method in this) {
+          this[method](widgetName, propertyName);
+        } else {
+          this.error("*** widget '" + method + "' does not exist!");
+        }
+      }
+    },
 
     /* This method acts on events send by the remote-object which was used to create this gui-widget.
      * */

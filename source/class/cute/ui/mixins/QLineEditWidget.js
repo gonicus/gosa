@@ -38,10 +38,6 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
       // set widget properties
       widget.setMultivalue(this.getAttributeDefinitions_()[realname]['multivalue']);
 
-      // Bind values from the remote-object to ourselves and vice-versa.
-      this._object.bind(realname, this, realname);
-      this.bind(realname, this._object, realname);
-
       // Add listeners for value changes.
       //widget.setLiveUpdate(true);
       //this.bind(realname, widget, "value");
@@ -51,6 +47,14 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
         }, this);
 
       return widget;
+    },
+
+    /* Bind values from the remote-object to ourselves and vice-versa.
+     * */
+    processQLineEditWidgetBinding: function(widgetName, propertyName){
+      widgetName = widgetName.replace(/Edit$/, "");
+      this._object.bind(propertyName, this, widgetName);
+      this.bind(widgetName, this._object, propertyName);
     }
   }
 });
