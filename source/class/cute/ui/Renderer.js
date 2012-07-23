@@ -26,6 +26,7 @@ qx.Class.define("cute.ui.Renderer",
   include: [
       cute.ui.mixins.QLineEditWidget,
       cute.ui.mixins.QComboBoxWidget,
+      cute.ui.mixins.QGraphicsViewWidget,
       cute.ui.mixins.QCheckBoxWidget,
       cute.ui.mixins.QLabelWidget
     ],
@@ -175,6 +176,13 @@ qx.Class.define("cute.ui.Renderer",
     processBindings: function(){
       for(var widgetName in this._bindings){
         var propertyName = this._bindings[widgetName];
+
+        // We do not have such a widget!
+        if(!(widgetName in this._widgets)){
+          this.error("*** found binding info for '"+widgetName+"' but no such widget was created! ***");
+          continue;
+        }
+
         var method = "process" + this._widgets[widgetName].name + "Binding";
         if (method in this) {
           try{
@@ -1004,7 +1012,6 @@ qx.Class.define("cute.ui.Renderer",
       if (props[what] && props[what]['set']) {
         return props[what]['set'].split("|");
       }
-
       return null;
     },
 
@@ -1013,7 +1020,6 @@ qx.Class.define("cute.ui.Renderer",
       if (props[what] && props[what]['enum']) {
         return props[what]['enum'];
       }
-
       return null;
     },
 
