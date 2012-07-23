@@ -12,7 +12,9 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
     this._chkBoxWidget.addListener("changeValue", function(){
         this.getValue().removeAll();
         this.getValue().push(this._chkBoxWidget.getValue());
-        this.fireDataEvent("valueChanged", this.getValue());
+        if(this._initialized){
+          this.fireDataEvent("valueChanged", this.getValue());
+        }
       }, this);
   },
 
@@ -30,14 +32,18 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
 
   members: {
 
+    _initialized: false,
+
     _chkBoxWidget: null,
 
     /* Apply method for the value property.
      * This method will regenerate the gui.
      * */
     _applyValue: function(value, old_value){
+
       if(value && value.length){
         this._chkBoxWidget.setValue(value.getItem(0));
+        this._initialized = true;
       }
     },
 

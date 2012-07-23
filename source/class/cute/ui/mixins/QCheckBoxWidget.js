@@ -9,7 +9,6 @@ qx.Mixin.define("cute.ui.mixins.QCheckBoxWidget",
       var widget = new cute.ui.widgets.QCheckBoxWidget();
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
-      console.log(this._widgets);
 
       if("text" in props){
         widget.setLabel(props["text"]["string"]);

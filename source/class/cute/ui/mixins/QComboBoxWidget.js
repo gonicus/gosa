@@ -4,10 +4,6 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
   {
     processQComboBoxWidget : function(name, props)
     {
-
-
-      console.log(name, props);
-
       var realname = name.replace(/Edit$/, '', name);
       var widget = new cute.ui.widgets.QComboBoxWidget();
       
