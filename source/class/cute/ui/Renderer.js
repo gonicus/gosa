@@ -26,6 +26,7 @@ qx.Class.define("cute.ui.Renderer",
   include: [
       cute.ui.mixins.QLineEditWidget,
       cute.ui.mixins.QComboBoxWidget,
+      cute.ui.mixins.QCheckBoxWidget,
       cute.ui.mixins.QLabelWidget
     ],
 
@@ -176,7 +177,11 @@ qx.Class.define("cute.ui.Renderer",
         var propertyName = this._bindings[widgetName];
         var method = "process" + this._widgets[widgetName].name + "Binding";
         if (method in this) {
-          this[method](widgetName, propertyName);
+          try{
+            this[method](widgetName, propertyName);
+          }catch(e){
+            this.error("*** failed to establish widget bindings for '"+ widgetName +"' ***");
+          }
         } else {
           this.error("*** widget '" + method + "' does not exist!");
         }
