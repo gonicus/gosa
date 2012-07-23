@@ -22,8 +22,8 @@ qx.Mixin.define("cute.ui.mixins.QGraphicsViewWidget",
      * */
     processQGraphicsViewWidgetBinding: function(widgetName, propertyName){
       widgetName = widgetName.replace(/Edit$/, "");
-      //this._object.bind(propertyName, this, widgetName);
-      //this.bind(widgetName, this._object, propertyName);
+      this._object.bind(propertyName, this, widgetName);
+      this.bind(widgetName, this._object, propertyName);
     }
   }
 });
