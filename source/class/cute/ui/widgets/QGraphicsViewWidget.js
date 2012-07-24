@@ -8,6 +8,21 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
 
     this._widget = new qx.ui.basic.Image("cute/noPicture.jpeg");
     this.add(this._widget);
+
+    var upload = new cute.ui.widgets.Upload();
+    upload.addListener("selected",  function(e) {
+        var fr = new qx.bom.FileReader();
+        fr.addListener("load", function(e){
+            var data = e.getData()['content'];
+            this.setValue(new qx.data.Array([new cute.proxy.dataTypes.Binary(qx.util.Base64.encode(data))]));
+          }, this);
+        fr.readAsBinaryString(upload.getFile());
+      }, this);
+    this.add(upload);
+
+    this._widget.addListener("click", function(){
+        upload.click();
+      }, this);
   },
 
   properties: {
