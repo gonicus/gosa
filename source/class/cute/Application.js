@@ -57,8 +57,6 @@ qx.Class.define("cute.Application",
 
       // Create a button
       var process = new qx.ui.form.Button(this.tr("Open") + "...");
-      var text = new qx.ui.form.TextArea();
-      text.setWrap(false);
 
       // Create action bar
       var dn_list = new qx.ui.form.VirtualSelectBox();
@@ -90,8 +88,6 @@ qx.Class.define("cute.Application",
 
       // Add button to document at fixed coordinates
       doc.add(actions, {left: 10, top: 10, right: 10});
-      doc.add(text, {left: 10, top: 40, right: 10, bottom: 50});
-      //doc.add(process, {left: 10, bottom: 20});
 
       var windowManager = new qx.ui.window.Manager();
       var desktop = new qx.ui.window.Desktop(windowManager);
