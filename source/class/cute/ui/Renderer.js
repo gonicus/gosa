@@ -482,8 +482,12 @@ qx.Class.define("cute.ui.Renderer",
             var layout = new qx.ui.layout.HBox();
             widget = new qx.ui.container.Composite(layout);
 
+          } else if (layout_type == "QVBoxLayout") {
+            var layout = new qx.ui.layout.VBox();
+            widget = new qx.ui.container.Composite(layout);
+
           } else {
-            this.error("*** unknown layout type '" + layout_type + "'!");
+            this.error("*** unknown layout type '" + layout_type + "' in processElements()!");
             continue;
           }
 
@@ -512,6 +516,10 @@ qx.Class.define("cute.ui.Renderer",
               } else if (layout_type == "QHBoxLayout") {
                 var wdgt = this.processElements(topic.childNodes);
                 widget.add(wdgt['widget'], {flex: this.extractHFlex(wdgt['properties'])});
+
+              } else if (layout_type == "QVBoxLayout") {
+                var wdgt = this.processElements(topic.childNodes);
+                widget.add(wdgt['widget'], {flex: this.extractVFlex(wdgt['properties'])});
               }
             }
 
@@ -743,8 +751,11 @@ qx.Class.define("cute.ui.Renderer",
         } else if (layout_type == "QHBoxLayout") {
           widget.setLayout(new qx.ui.layout.HBox());
 
+        } else if (layout_type == "QVBoxLayout") {
+          widget.setLayout(new qx.ui.layout.VBox());
+
         } else {
-          this.log("*** unknown layout type '" + layout_type + "'!");
+          this.log("*** unknown layout type '" + layout_type + "' in processWidget()!");
           return null;
         }
 
@@ -855,6 +866,16 @@ qx.Class.define("cute.ui.Renderer",
       return widget;
     },
 
+    processQGroupBoxWidget : function(name, props)
+    {
+      var title = this.getStringProperty('title', props);
+      //TODO: create a group box with icons
+      var widget = new qx.ui.groupbox.GroupBox(title);
+      this.processCommonProperties(widget, props);
+      this._widgets[name] = widget;
+
+      return widget;
+    },
 
     processCommonProperties : function(widget, props)
     {

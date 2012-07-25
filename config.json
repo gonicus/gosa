@@ -60,7 +60,7 @@
 	],
 	"copy-files" :
 	{
-		"files"     : [ "script/xml.js", "test.ui" ],
+		"files"     : [ "script/xml.js" ],
 		"source" : "source",
 		"target"  : "build"
 	},

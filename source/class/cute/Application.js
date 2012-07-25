@@ -62,19 +62,7 @@ qx.Class.define("cute.Application",
 
       // Create action bar
       var dn_list = new qx.ui.form.VirtualSelectBox();
-      var toggle = new qx.ui.form.ToggleButton("User defs");
-      toggle.bind("value", text, "visibility", {"converter": function(inv){
-          if(toggle.getValue()){
-            return("visible");
-          }else{
-            return("hidden");
-          }
-        }});
-      toggle.addListener("changeValue", function(){
-          (toggle.getValue());
-        }, this);
       var actions = new qx.ui.container.Composite(new qx.ui.layout.HBox(5));
-      //actions.add(toggle);
       actions.add(dn_list, {flex:1});
       actions.add(process);
 
@@ -110,12 +98,6 @@ qx.Class.define("cute.Application",
       desktop.set({decorator: "main", backgroundColor: "background-pane"});
       doc.add(desktop, {left: 10, top: 45, right: 10, bottom: 10});
 
-      // Load data
-      var req = new qx.bom.request.Xhr();
-      req.onload = function() { text.setValue(req.responseText); }
-      req.open("GET", "test.ui?c=" + Math.floor(Math.random()*100001));
-      req.send();
-
       // Add an event listener and process known elements
       process.addListener("execute", function(e) {
         var w = null;
@@ -127,9 +109,6 @@ qx.Class.define("cute.Application",
 
           // Build widget and place it into a window
           var ui_def = undefined;
-          if(toggle.getValue()){
-            ui_def = text.getValue();
-          }
 
           cute.ui.Renderer.getWidget(function(w){
             win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.uuid);
@@ -137,7 +116,7 @@ qx.Class.define("cute.Application",
             win.add(w);
             win.open();
 
-            //http://bugzilla.qooxdoo.org/show_bug.cgi?id=1770
+            // See http://bugzilla.qooxdoo.org/show_bug.cgi?id=1770
             win.setShowMinimize(false);
 
             w.addListener("done", function(){
