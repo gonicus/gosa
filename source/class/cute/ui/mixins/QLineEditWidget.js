@@ -6,6 +6,12 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
     processQLineEditWidget : function(name, props)
     {
       var realname = name.replace(/Edit$/, '', name);
+      var ad = this.getAttributeDefinitions_()[realname];
+      if (!ad) {
+        this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
+	return null
+      }
+
       var widget = new cute.ui.widgets.QLineEditWidget();
       
       // Set echo mode

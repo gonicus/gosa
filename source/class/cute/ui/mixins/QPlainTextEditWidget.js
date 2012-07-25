@@ -1,24 +1,19 @@
-qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
+qx.Mixin.define("cute.ui.mixins.QPlainTextEditWidget",
 {
   members:
   {
-    processQComboBoxWidget : function(name, props)
+
+    processQPlainTextEditWidget : function(name, props)
     {
       var realname = name.replace(/Edit$/, '', name);
-      var widget = new cute.ui.widgets.QComboBoxWidget();
-      
-      var editable = this.getBoolProperty('editable', props) || false;
       var ad = this.getAttributeDefinitions_()[realname];
       if (!ad) {
-	this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
-	return null;
+        this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
+	return null
       }
-      var values = new qx.data.Array();
-      if (ad['values']) {
-        values = new qx.data.Array(ad['values']);
-      }
-      values.sort();
 
+      var widget = new cute.ui.widgets.QPlainTextEditWidget();
+      
       // Set placeholder
       var placeholder = this.getStringProperty('placeholderText', props);
       if (placeholder != null) {
@@ -35,9 +30,7 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
       this._widgets[name] = widget;
 
       // set widget properties
-      widget.setMultivalue(ad['multivalue']);
-      widget.setEditable(editable);
-      widget.setValues(values);
+      widget.setMultivalue(this.getAttributeDefinitions_()[realname]['multivalue']);
 
       // Add listeners for value changes.
       //widget.setLiveUpdate(true);
@@ -52,7 +45,7 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
 
     /* Bind values from the remote-object to ourselves and vice-versa.
      * */
-    processQComboBoxWidgetBinding: function(widgetName, propertyName){
+    processQTextEditWidgetBinding: function(widgetName, propertyName){
       widgetName = widgetName.replace(/Edit$/, "");
       this._object.bind(propertyName, this, widgetName);
       this.bind(widgetName, this._object, propertyName);

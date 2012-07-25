@@ -25,6 +25,7 @@ qx.Class.define("cute.ui.Renderer",
 
   include: [
       cute.ui.mixins.QLineEditWidget,
+      cute.ui.mixins.QPlainTextEditWidget,
       cute.ui.mixins.QComboBoxWidget,
       cute.ui.mixins.QGraphicsViewWidget,
       cute.ui.mixins.QCheckBoxWidget,
