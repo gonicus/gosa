@@ -13,11 +13,13 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
 	this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
 	return null;
       }
+
       var values = new qx.data.Array();
       if (ad['values']) {
         values = new qx.data.Array(ad['values']);
       }
       values.sort();
+
 
       // Set placeholder
       var placeholder = this.getStringProperty('placeholderText', props);

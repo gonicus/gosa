@@ -6,9 +6,14 @@ qx.Class.define("cute.io.Rpc", {
 
   construct: function(){
     this.base(arguments);
+
     this.setUrl(cute.Config.url);
     this.setServiceName(cute.Config.service);
     this.setTimeout(cute.Config.timeout);
+
+    // Hook into parse and stringify to detect class hints
+    //this.setParseHook(function(k, v) {console.log("--- parsing " + k + "/" + v); return v;});
+    //this.setStringifyHook(function(k, v) {console.log("--- stringify " + k + "/" + v); return v;});
   },
 
   members: {
@@ -66,7 +71,7 @@ qx.Class.define("cute.io.Rpc", {
             // Catch potential errors here. 
           }else if(error &&  error.code >= 400){
 
-              alert("Clacks-server up & running? (" +error.message + ")");
+              cl.warning("communication problem: " + error.message);
               setTimeout(function(){
                   cl.queue.push(call);
                   cl.running = false;
