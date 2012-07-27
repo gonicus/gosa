@@ -71,7 +71,7 @@ qx.Class.define("cute.io.Rpc", {
             // Catch potential errors here. 
           }else if(error &&  error.code >= 400){
 
-              cl.warning("communication problem: " + error.message);
+              cl.warn("communication problem: " + error.message);
               setTimeout(function(){
                   cl.queue.push(call);
                   cl.running = false;

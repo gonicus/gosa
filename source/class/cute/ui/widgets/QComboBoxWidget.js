@@ -106,10 +106,11 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
           this.removeState("modified");
           timer.stop(this._property_timer);
           this._property_timer = null;
+
           if(this.isEditable()){
             this.getValue().setItem(id, userInput.getValue());
           }else{
-            this.getValue().setItem(id, userInput.getSelection().getItem(0));
+            this.getValue().setItem(id, userInput.getSelection().getItem(0).getKey());
           }
           this._updateValues();
         }, null, this, null, 2000);
@@ -131,7 +132,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
           if(this.isEditable()){
             this.getValue().setItem(id, userInput.getValue());
           }else{
-            this.getValue().setItem(id, userInput.getSelection().getItem(0));
+            this.getValue().setItem(id, userInput.getSelection().getItem(0).getKey());
           }
           this._updateValues();
         }
@@ -163,20 +164,39 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
         value = "";
       }
 
+      var selection = this.id2item(this.getValues(), this.getValue().getItem(id));
+
       if(this.isEditable()){
-        var w = new qx.ui.form.VirtualComboBox(this.getValues());
+        var w = new qx.ui.form.ComboBox();
         w.getChildControl("textfield").setLiveUpdate(true);
         w.getChildControl("textfield").addListener("focusout", this.__propertyUpdater(id, w), this); 
-        w.setValue(this.getValue().getItem(id));
+        w.setValue(selection);
         w.getChildControl("textfield").addListener("changeValue", this.__timedPropertyUpdater(id, w), this); 
+
+        var controller = new qx.data.controller.List(this.getValues(), w, "value");
       } else {
-        var w = new qx.ui.form.VirtualSelectBox(this.getValues());
-        w.addListener("focusout", this.__propertyUpdater(id, w), this); 
-        w.setSelection(new qx.data.Array([this.getValue().getItem(id)]));
-        w.getSelection().addListener("change", this.__timedPropertyUpdater(id, w), this); 
+        var w = new qx.ui.form.SelectBox();
+        var controller = new qx.data.controller.List(this.getValues(), w, "value");
+
+        // Find model item with appropriate key
+        controller.setSelection(new qx.data.Array([selection]));
+        controller.getSelection().addListener("change", this.__timedPropertyUpdater(id, controller), this); 
+        w.addListener("focusout", this.__propertyUpdater(id, controller), this); 
       }
 
       return(w);
+    },
+
+    id2item : function(values, selected) {
+      if (values) {
+        for (var i = 0; i<values.length; i++) {
+          if (values.getItem(i).getKey() == selected) {
+            return values.getItem(i);
+          }
+        }
+      }
+
+      return null;
     },
 
     _generateGui: function(){

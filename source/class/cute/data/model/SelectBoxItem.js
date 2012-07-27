@@ -1,11 +1,15 @@
-qx.Class.define("cute.data.SelectBoxItem",
+qx.Class.define("cute.data.model.SelectBoxItem",
 {
   extend : qx.core.Object,
 
   properties : {
-    name : {
+    value : {
       check : "String",
-      event : "changeName"
+      event : "changeValue"
+    },
+
+    key : {
+      event : "changeKey"
     },
 
     icon : {
@@ -18,7 +22,7 @@ qx.Class.define("cute.data.SelectBoxItem",
 
   members : {
     toString: function() {
-      return this.getName();
+      return this.getValue();
     }
   }
 

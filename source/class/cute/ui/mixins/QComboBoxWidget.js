@@ -10,16 +10,41 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
       var editable = this.getBoolProperty('editable', props) || false;
       var ad = this.getAttributeDefinitions_()[realname];
       if (!ad) {
-	this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
-	return null;
+        this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
+        return null;
       }
 
-      var values = new qx.data.Array();
+      var values = new qx.data.Array;
       if (ad['values']) {
-        values = new qx.data.Array(ad['values']);
-      }
-      values.sort();
+        var items = [];
 
+        if (qx.Bootstrap.getClass(ad['values']) == "Object") {
+
+          for (var k in ad['values']) {
+            var item = new cute.data.model.SelectBoxItem();
+            item.setKey(k);
+	    if (ad['values'][k]['value']) {
+              item.setValue(ad['values'][k]['value']);
+              item.setIcon(ad['values'][k]['icon']);
+	    } else {
+              item.setValue(ad['values'][k]);
+	    }
+            items.push(item);
+          }
+
+        } else {
+
+          for (var k = 0; k < ad['values'].length; k++) {
+            var item = new cute.data.model.SelectBoxItem();
+            item.setValue(ad['values'][k]);
+            item.setKey(ad['values'][k]);
+            items.push(item);
+          }
+
+        }
+
+        values = new qx.data.Array(items);
+      }
 
       // Set placeholder
       var placeholder = this.getStringProperty('placeholderText', props);
