@@ -6,7 +6,12 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
     this.base(arguments);  
     this.setLayout(new qx.ui.layout.VBox(5));
 
-    this._widget = new qx.ui.basic.Image("cute/noPicture.jpeg");
+    var theme = "default";
+    if (cute.Config.theme) {
+      theme = cute.Config.theme;
+    }
+
+    this._widget = new qx.ui.basic.Image("cute/themes/" + theme + "/noPicture.jpeg");
     this.add(this._widget);
 
     var btn = new com.zenesis.qx.upload.UploadButton("Add File");

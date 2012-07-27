@@ -18,6 +18,13 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
       if (ad['values']) {
         var items = [];
 
+	if (ad['mandatory'] === undefined || ad['mandatory'] !== true) {
+            var item = new cute.data.model.SelectBoxItem();
+	    item.setValue("");
+	    item.setKey(null);
+            items.push(item);
+	}
+
         if (qx.Bootstrap.getClass(ad['values']) == "Object") {
 
           for (var k in ad['values']) {

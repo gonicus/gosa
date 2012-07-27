@@ -164,6 +164,12 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
         value = "";
       }
 
+      var theme = "default";
+      if (cute.Config.theme) {
+          theme = cute.Config.theme;
+      }
+
+
       var selection = this.id2item(this.getValues(), this.getValue().getItem(id));
 
       if(this.isEditable()){
@@ -177,6 +183,16 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
       } else {
         var w = new qx.ui.form.SelectBox();
         var controller = new qx.data.controller.List(this.getValues(), w, "value");
+
+        // create the options for the icon
+        var iconOptions = {
+          converter: function(value) {
+            return "resource/cute/themes/" + theme + "/" + value;
+          }
+        };
+
+	controller.setIconPath('icon');
+	controller.setIconOptions(iconOptions);
 
         // Find model item with appropriate key
         controller.setSelection(new qx.data.Array([selection]));

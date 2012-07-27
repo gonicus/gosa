@@ -9,7 +9,8 @@ qx.Class.define("cute.data.model.SelectBoxItem",
     },
 
     key : {
-      event : "changeKey"
+      event : "changeKey",
+      nullable: true
     },
 
     icon : {
