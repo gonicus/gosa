@@ -9,8 +9,8 @@ qx.Mixin.define("cute.ui.mixins.QDateEditWidget",
       
       var ad = this.getAttributeDefinitions_()[realname];
       if (!ad) {
-	this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
-	return null;
+        this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
+        return null;
       }
 
       // Set placeholder
