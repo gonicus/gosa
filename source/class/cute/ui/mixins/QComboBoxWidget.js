@@ -7,7 +7,6 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
       var realname = name.replace(/Edit$/, '', name);
       var widget = new cute.ui.widgets.QComboBoxWidget();
       
-      var editable = this.getBoolProperty('editable', props) || false;
       var ad = this.getAttributeDefinitions_()[realname];
       if (!ad) {
         this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
@@ -70,7 +69,6 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
 
       // set widget properties
       widget.setMultivalue(ad['multivalue']);
-      widget.setEditable(editable);
       widget.setValues(values);
 
       // Add listeners for value changes.

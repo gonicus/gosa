@@ -19,14 +19,6 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
       init : null 
     },
 
-    /* Whether the input fields are editable or not.
-     * */ 
-    editable: {
-      check : "Boolean",
-      apply : "_applyEditable",
-      init : false 
-    },
-
     /* Tells the widget how to display its contents
      * e.g. for mode 'password' show [***   ] only.
      * */
@@ -73,22 +65,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
      * e.g. not empty.
      * */
     _updateValues: function(){
-      if(!this.isEditable()){
-        this.fireDataEvent("valueChanged", this._getCleanValue());
-      }else{
-        var ok = true;
-        for(var i=1; i< this._widgets.length; i++){
-          this._widgets[i].setValid(true);
-          if(this._widgets[i].getValue() == ""){
-            ok = false;
-            this._widgets[i].setValid(false);
-          }
-        }
-        if(ok){
-          this.setModified(true);
-          this.fireDataEvent("valueChanged", this._getCleanValue());
-        }
-      }
+      this.fireDataEvent("valueChanged", this._getCleanValue());
     },
 
     /* Creates an update-function for each widget to ensure that values are set
@@ -107,11 +84,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
           timer.stop(this._property_timer);
           this._property_timer = null;
 
-          if(this.isEditable()){
-            this.getValue().setItem(id, userInput.getValue());
-          }else{
-            this.getValue().setItem(id, userInput.getSelection().getItem(0).getKey());
-          }
+          this.getValue().setItem(id, userInput.getSelection().getItem(0).getKey());
           this._updateValues();
         }, null, this, null, 2000);
       }
@@ -129,11 +102,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
         }
         if(this.hasState("modified")){
           this.removeState("modified");
-          if(this.isEditable()){
-            this.getValue().setItem(id, userInput.getValue());
-          }else{
-            this.getValue().setItem(id, userInput.getSelection().getItem(0).getKey());
-          }
+          this.getValue().setItem(id, userInput.getSelection().getItem(0).getKey());
           this._updateValues();
         }
       }
@@ -172,33 +141,23 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
 
       var selection = this.id2item(this.getValues(), this.getValue().getItem(id));
 
-      if(this.isEditable()){
-        var w = new qx.ui.form.ComboBox();
-        w.getChildControl("textfield").setLiveUpdate(true);
-        w.getChildControl("textfield").addListener("focusout", this.__propertyUpdater(id, w), this); 
-        w.setValue(selection);
-        w.getChildControl("textfield").addListener("changeValue", this.__timedPropertyUpdater(id, w), this); 
+      var w = new qx.ui.form.SelectBox();
+      var controller = new qx.data.controller.List(this.getValues(), w, "value");
 
-        var controller = new qx.data.controller.List(this.getValues(), w, "value");
-      } else {
-        var w = new qx.ui.form.SelectBox();
-        var controller = new qx.data.controller.List(this.getValues(), w, "value");
+      // create the options for the icon
+      var iconOptions = {
+        converter: function(value) {
+          return "resource/cute/themes/" + theme + "/" + value;
+        }
+      };
 
-        // create the options for the icon
-        var iconOptions = {
-          converter: function(value) {
-            return "resource/cute/themes/" + theme + "/" + value;
-          }
-        };
+      controller.setIconPath('icon');
+      controller.setIconOptions(iconOptions);
 
-	controller.setIconPath('icon');
-	controller.setIconOptions(iconOptions);
-
-        // Find model item with appropriate key
-        controller.setSelection(new qx.data.Array([selection]));
-        controller.getSelection().addListener("change", this.__timedPropertyUpdater(id, controller), this); 
-        w.addListener("focusout", this.__propertyUpdater(id, controller), this); 
-      }
+      // Find model item with appropriate key
+      controller.setSelection(new qx.data.Array([selection]));
+      controller.getSelection().addListener("change", this.__timedPropertyUpdater(id, controller), this); 
+      w.addListener("focusout", this.__propertyUpdater(id, controller), this); 
 
       return(w);
     },
@@ -332,13 +291,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
       // Regenerate gui
       this._resetFields();
       this._generateGui();
-    },
-
-    _applyEditable: function(){
-
-      // Regenerate gui
-      this._resetFields();
-      this._generateGui();
     }
+
   }
 });
