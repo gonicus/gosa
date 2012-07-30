@@ -30,6 +30,7 @@ qx.Class.define("cute.ui.Renderer",
       cute.ui.mixins.QComboBoxWidget,
       cute.ui.mixins.QGraphicsViewWidget,
       cute.ui.mixins.QCheckBoxWidget,
+      cute.ui.mixins.QListWidgetWidget,
       cute.ui.mixins.QLabelWidget
     ],
 
@@ -284,7 +285,6 @@ qx.Class.define("cute.ui.Renderer",
           }
         }
 
-	console.error(ui_def);
         var info = this.processUI(ui_def);
         if (info) {
           // Take over properties of base type

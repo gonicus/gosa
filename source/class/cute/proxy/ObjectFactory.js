@@ -71,61 +71,56 @@ qx.Class.define("cute.proxy.ObjectFactory", {
           // e.g. objects.User
           var className = "objects." + baseType;
 
-          // Create a metaclass for this type of objects on demand, if not done already.
-          if(className in cute.proxy.ObjectFactory.classes){
-            c_callback.apply(c_context, [new cute.proxy.ObjectFactory.classes[className](userData)]); 
-          }else{
+          // The base member variables for the metaclass
+          var members = {
+              uuid: null,
+              methods: methods,
+              attributes: attributes,
+              attribute_data: attribute_data,
+              baseType: baseType,
+              templates: templates,
+              translations: translations,
+              extensionTypes: extensionTypes
+            };
+	  console.error(members['extensionTypes']);
 
-            // The base member variables for the metaclass
-            var members = {
-                uuid: null,
-                methods: methods,
-                attributes: attributes,
-                attribute_data: attribute_data,
-                baseType: baseType,
-                templates: templates,
-                translations: translations,
-                extensionTypes: extensionTypes
-              };
-
-            // this closure returns a new apply method for the given attribute.
-            var getApplyMethod = function(name){
-              var func = function(value){
-                this.setAttribute(name, value);
-              };
-              return(func);
-            }
-
-            // this closure returns a new wrapper-method for an object method
-            var getMethod = function(name){
-              var func = function(){
-                return(this.callMethod.apply(this, [name].concat(Array.prototype.slice.call(arguments))));
-              };
-              return(func);
-            }
-
-            // Create list of properties
-            var properties = {};
-            for(var attr in attributes){
-              var name = attributes[attr];
-              var upperName = name.charAt(0).toUpperCase() + name.slice(1);
-              var applyName = "_apply_" + upperName;
-              var prop = {apply: applyName, event: "changed" + upperName, nullable: true, check: "qx.data.Array"};
-              members[applyName] = getApplyMethod(name);
-              properties[name] = prop;
-            }
-
-            // Create methods
-            for(attr in methods){
-              var name = methods[attr];
-              members[name] = getMethod(name);
-            }
-
-            // Create meta class for this object
-            var def = {extend: cute.proxy.Object, members: members, properties: properties};
-            cute.proxy.ObjectFactory.classes[className] = qx.Class.define(className, def);
-            c_callback.apply(c_context, [new cute.proxy.ObjectFactory.classes[className](userData)]); 
+          // this closure returns a new apply method for the given attribute.
+          var getApplyMethod = function(name){
+            var func = function(value){
+              this.setAttribute(name, value);
+            };
+            return(func);
           }
+
+          // this closure returns a new wrapper-method for an object method
+          var getMethod = function(name){
+            var func = function(){
+              return(this.callMethod.apply(this, [name].concat(Array.prototype.slice.call(arguments))));
+            };
+            return(func);
+          }
+
+          // Create list of properties
+          var properties = {};
+          for(var attr in attributes){
+            var name = attributes[attr];
+            var upperName = name.charAt(0).toUpperCase() + name.slice(1);
+            var applyName = "_apply_" + upperName;
+            var prop = {apply: applyName, event: "changed" + upperName, nullable: true, check: "qx.data.Array"};
+            members[applyName] = getApplyMethod(name);
+            properties[name] = prop;
+          }
+
+          // Create methods
+          for(attr in methods){
+            var name = methods[attr];
+            members[name] = getMethod(name);
+          }
+
+          // Create meta class for this object
+          var def = {extend: cute.proxy.Object, members: members, properties: properties};
+          cute.proxy.ObjectFactory.classes[className] = qx.Class.define(className, def);
+          c_callback.apply(c_context, [new cute.proxy.ObjectFactory.classes[className](userData)]); 
         }
 
         var theme = "default";

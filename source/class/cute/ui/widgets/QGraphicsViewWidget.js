@@ -49,7 +49,6 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
         this._initialized = true;
         var source = "data:image/png;base64," + value.getItem(0).get();
 
-        console.log()
         this._widget.setSource(source);
       }
     },
