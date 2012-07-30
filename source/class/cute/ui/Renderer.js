@@ -284,6 +284,7 @@ qx.Class.define("cute.ui.Renderer",
           }
         }
 
+	console.error(ui_def);
         var info = this.processUI(ui_def);
         if (info) {
           // Take over properties of base type
@@ -698,6 +699,8 @@ qx.Class.define("cute.ui.Renderer",
       var properties = {};
       var layout = null;
 
+      console.debug("processing widget " + name);
+
       // Process one level, watch out for nodes we know
       for (var i=0; i<nodes.length; i++) {
         var n = nodes[i];
@@ -781,6 +784,10 @@ qx.Class.define("cute.ui.Renderer",
               widget.add(wdgt['widget'], {row: row, column: column});
 
             } else if (layout_type == "QHBoxLayout") {
+              var wdgt = this.processElements(topic.childNodes);
+              widget.add(wdgt['widget']);
+
+            } else if (layout_type == "QVBoxLayout") {
               var wdgt = this.processElements(topic.childNodes);
               widget.add(wdgt['widget']);
             }
