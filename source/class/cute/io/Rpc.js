@@ -12,10 +12,8 @@ qx.Class.define("cute.io.Rpc", {
     this.setTimeout(cute.Config.timeout);
 
     // Hook into parse and stringify to detect class hints
-    //this.setParseHook(function(k, v) {console.log("--- parsing " + k + "/" + v); return v;});
-    //this.setStringifyHook(function(k, v) {console.log("--- stringify " + k + "/" + v); return v;});
-    //
-
+    this.setParseHook(this._putMeIntoContext(this._parseHook));
+    this.setStringifyHook(this._putMeIntoContext(this._stringifyHook));
   },
 
   properties: {
@@ -45,6 +43,34 @@ qx.Class.define("cute.io.Rpc", {
   
     queue: [],
     running: false,
+
+    _putMeIntoContext: function(func)
+    {
+      var self = this;
+      var f = function(){
+        return func.apply(self, arguments); 
+      }
+      return(f);
+    },
+
+
+    _parseHook: function(key, value){
+      if(value && typeof(value) == "object" && "__jsonclass__" in value){
+        switch(value['__jsonclass__']){
+          case "datetime.datetime":  {
+            console.log("converting datetime to Javascript!!!");
+          }; break;
+        }
+      }
+      return(value);
+    },
+
+    
+    _stringifyHook: function(key, value){
+      //console.log(key, value, this.classname);
+      return(value);
+    },
+
 
     /* We use a queue to process incoming RPC requests to ensure that we can
      * act on errors accordingly. E.g for error 401 we send a login request
