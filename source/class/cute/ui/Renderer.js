@@ -31,6 +31,7 @@ qx.Class.define("cute.ui.Renderer",
       cute.ui.mixins.QGraphicsViewWidget,
       cute.ui.mixins.QCheckBoxWidget,
       cute.ui.mixins.QListWidgetWidget,
+      cute.ui.mixins.QSpinBoxWidget,
       cute.ui.mixins.QLabelWidget
     ],
 
@@ -503,16 +504,36 @@ qx.Class.define("cute.ui.Renderer",
               if (layout_type == "QGridLayout") {
                 var column = parseInt(topic.getAttribute("column"));
                 var row = parseInt(topic.getAttribute("row"));
+                var colspan = parseInt(topic.getAttribute("colspan"));
+                var rowspan = parseInt(topic.getAttribute("rowspan"));
                 var wdgt = this.processElements(topic.childNodes);
-                widget.add(wdgt['widget'], {row: row, column: column});
+                var pos = {row: row, column: column}
+                if (colspan) {
+                  pos['colSpan'] = colspan;
+                }
+                if (rowspan) {
+                  pos['rowSpan'] = rowspan;
+                }
+                widget.add(wdgt['widget'], pos);
                 widget.getLayout().setColumnFlex(column, this.extractHFlex(wdgt['properties']));
                 widget.getLayout().setRowFlex(row, this.extractVFlex(wdgt['properties']));
 
               } else if (layout_type == "QFormLayout") {
                 var column = parseInt(topic.getAttribute("column"));
                 var row = parseInt(topic.getAttribute("row"));
+                var colspan = parseInt(topic.getAttribute("colspan"));
+                var rowspan = parseInt(topic.getAttribute("rowspan"));
+
+                var pos = {row: row, column: column}
+                if (colspan) {
+                  pos['colSpan'] = colspan;
+                }
+                if (rowspan) {
+                  pos['rowSpan'] = rowspan;
+                }
+
                 var wdgt = this.processElements(topic.childNodes);
-                widget.add(wdgt['widget'], {row: row, column: column});
+                widget.add(wdgt['widget'], pos);
                 widget.getLayout().setColumnFlex(column, this.extractHFlex(wdgt['properties'], 1));
                 widget.getLayout().setRowFlex(row, this.extractVFlex(wdgt['properties'], 1));
 
@@ -699,7 +720,7 @@ qx.Class.define("cute.ui.Renderer",
       var properties = {};
       var layout = null;
 
-      console.debug("processing widget " + name);
+      this.debug("processing widget " + name);
 
       // Process one level, watch out for nodes we know
       for (var i=0; i<nodes.length; i++) {
@@ -773,15 +794,32 @@ qx.Class.define("cute.ui.Renderer",
             if (layout_type == "QGridLayout") {
               var column = parseInt(topic.getAttribute("column"));
               var row = parseInt(topic.getAttribute("row"));
+              var colspan = parseInt(topic.getAttribute("colspan"));
+              var rowspan = parseInt(topic.getAttribute("rowspan"));
+              var pos = {row: row, column: column}
+              if (colspan) {
+                pos['colSpan'] = colspan;
+              }
+              if (rowspan) {
+                pos['rowSpan'] = rowspan;
+              }
               var wdgt = this.processElements(topic.childNodes);
-              widget.add(wdgt['widget'], {row: row, column: column});
+              widget.add(wdgt['widget'], pos);
               widget.getLayout().setColumnFlex(column, 1);
 
             } else if (layout_type == "QFormLayout") {
               var column = parseInt(topic.getAttribute("column"));
               var row = parseInt(topic.getAttribute("row"));
+              var colspan = parseInt(topic.getAttribute("colspan"));
+              var rowspan = parseInt(topic.getAttribute("rowspan"));
+              if (colspan) {
+                pos['colSpan'] = colspan;
+              }
+              if (rowspan) {
+                pos['rowSpan'] = rowspan;
+              }
               var wdgt = this.processElements(topic.childNodes);
-              widget.add(wdgt['widget'], {row: row, column: column});
+              widget.add(wdgt['widget'], pos);
 
             } else if (layout_type == "QHBoxLayout") {
               var wdgt = this.processElements(topic.childNodes);

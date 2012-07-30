@@ -82,7 +82,6 @@ qx.Class.define("cute.proxy.ObjectFactory", {
               translations: translations,
               extensionTypes: extensionTypes
             };
-	  console.error(members['extensionTypes']);
 
           // this closure returns a new apply method for the given attribute.
           var getApplyMethod = function(name){
