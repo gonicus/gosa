@@ -144,15 +144,15 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
       var w = new qx.ui.form.SelectBox();
       var controller = new qx.data.controller.List(this.getValues(), w, "value");
 
-      // create the options for the icon
-      var iconOptions = {
-        converter: function(value) {
-          return "resource/cute/themes/" + theme + "/" + value;
-        }
-      };
-
-      controller.setIconPath('icon');
-      controller.setIconOptions(iconOptions);
+      //TODO: re-enable
+      //// create the options for the icon
+      //var iconOptions = {
+      //  converter: function(value) {
+      //    return "resource/cute/themes/" + theme + "/" + value;
+      //  }
+      //};
+      //controller.setIconPath('icon');
+      //controller.setIconOptions(iconOptions);
 
       // Find model item with appropriate key
       controller.setSelection(new qx.data.Array([selection]));
