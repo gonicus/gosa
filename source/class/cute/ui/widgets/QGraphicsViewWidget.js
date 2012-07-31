@@ -11,9 +11,11 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
       theme = cute.Config.theme;
     }
 
-    this._widget = new qx.ui.basic.Image("cute/themes/" + theme + "/noPicture.jpeg");
+    this._defaultImage = "cute/themes/" + theme + "/noPicture.jpeg";
+
+    this._widget = new qx.ui.basic.Image(this._defaultImage);
     this._widget.addListener("loadingFailed", function(){
-        this._widget.setSource("cute/themes/" + theme + "/noPicture.jpeg");
+        this._widget.setSource(this._defaultImage);
         this.error("*** Invalid Image given! ***")
       }, this);
 
@@ -21,8 +23,14 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
     container.setBackgroundColor("#DDDDDD");
     container.add(this._widget, {top:0, bottom:0, left:0, right:0});
     this.add(container);
+    
+    // Create context menu buttons
+    this._changePicture = new qx.ui.menu.Button(this.tr("Change image"));
+    this._removePicture = new qx.ui.menu.Button(this.tr("Remove image"));
+    this._removePicture.setEnabled(false);
 
-    var uploader = new com.zenesis.qx.upload.UploadMgr(container);
+    // Establish image upload handling
+    var uploader = new com.zenesis.qx.upload.UploadMgr(this._changePicture);
     uploader.setAutoUpload(false);
     uploader.addListener("addFile", function(evt) {
         var file = evt.getData();
@@ -37,6 +45,22 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
         }, this);
         fr.readAsDataURL(f);
       }, this);
+
+    // Create remove image handler
+    this._removePicture.addListener("click", function(){
+        this.setValue(new qx.data.Array());
+        this.fireDataEvent("valueChanged", this.getValue());
+      }, this);
+
+    // Create context menu
+    var menu = new qx.ui.menu.Menu();
+    menu.add(this._changePicture);
+    menu.add(this._removePicture);
+    container.setContextMenu(menu);
+    container.addListener('click', function(e){
+      menu.open();
+      menu.placeToMouse(e);
+    }, this);
   },
 
   properties: {
@@ -44,16 +68,22 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
   },
 
   members: {
-
+    _changePicture: null,
+    _removePictur: null,
     _widget: null,
+    _defaultImage: null,
 
     /* Apply method for the value property.
      * */
     _applyValue: function(value, old_value){
-      if(value && value.length){
-        if(value.getItem(0)){
+      if(this._widget){
+        this._removePicture.setEnabled(false);
+        if(value && value.length && value.getItem(0)){
           var source = "data:image/jpeg;base64," + value.getItem(0).get();
           this._widget.setSource(source);
+          this._removePicture.setEnabled(true);
+        }else{
+          this._widget.setSource(this._defaultImage);
         }
       }
     },
