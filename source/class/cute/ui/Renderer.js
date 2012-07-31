@@ -285,7 +285,7 @@ qx.Class.define("cute.ui.Renderer",
           var info = this.processUI(ui_def);
           if (info) {
             // Take over properties of base type
-            if (this.baseType == i || i == "ContainerObject") {
+            if (this._object.baseType == i || i == "ContainerObject") {
               this.setProperties_(info['properties']);
             }
 
@@ -293,6 +293,28 @@ qx.Class.define("cute.ui.Renderer",
               var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
               page.setLayout(new qx.ui.layout.VBox());
               page.add(info['widget']);
+
+              if (i != this._object.baseType) {
+                page.setShowCloseButton(true);
+                page.setUserData("type", i);
+
+                var closeButton = page.getChildControl("button");
+                closeButton.removeListener("close", page._onButtonClose, page);
+                closeButton.addListener("close", function() {
+                  var type = page.getUserData("type");
+
+                  this._object.retract(function(result, error) {
+                    if (error) {
+                      this.error(error.message);
+                      alert(error.message);
+                    } else {
+                      page.fireEvent("close");
+                      this.setModified(true);
+                    }
+                  }, this, type);
+                }, this);
+              }
+
               container.add(page);
             } else {
                this.add(info['widget']);
