@@ -298,7 +298,8 @@ qx.Class.define("cute.ui.Renderer",
                 page.setShowCloseButton(true);
                 page.setUserData("type", i);
 
-                var closeButton = page.getChildControl("button");
+                var closeButton = page.getButton();
+		closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
                 closeButton.removeListener("close", page._onButtonClose, page);
                 closeButton.addListener("close", function() {
                   var type = page.getUserData("type");
