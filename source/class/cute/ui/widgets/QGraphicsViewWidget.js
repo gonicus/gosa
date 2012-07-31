@@ -12,13 +12,14 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
     }
 
     this._widget = new qx.ui.basic.Image("cute/themes/" + theme + "/noPicture.jpeg");
-    this.add(this._widget);
+    this._widget.setSource("cute/loading.gif");
 
-    var btn = new com.zenesis.qx.upload.UploadButton("Add File");
-    var uploader = new com.zenesis.qx.upload.UploadMgr(btn);
+    var container = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+    container.add(this._widget, {top:0, bottom:0, left:0, right:0});
+    this.add(container);
+
+    var uploader = new com.zenesis.qx.upload.UploadMgr(container);
     uploader.setAutoUpload(false);
-
-    this.add(btn);
     uploader.addListener("addFile", function(evt) {
         var file = evt.getData();
         var f = file.getBrowserObject();
