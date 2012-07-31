@@ -13,7 +13,8 @@ qx.Class.define("cute.io.Rpc", {
 
     // Hook into parse and stringify to detect class hints
     this.setParseHook(this._putMeIntoContext(this._parseHook));
-    this.setStringifyHook(this._putMeIntoContext(this._stringifyHook));
+
+    this.converter.push(cute.io.types.Timestamp);
   },
 
   properties: {
@@ -26,24 +27,19 @@ qx.Class.define("cute.io.Rpc", {
     {
       check : "Function",
       nullable : true
-    },
- 
-    /**
-     * Replacer function to call when stringifying JSON data. Null if no
-     * replacer is used.
-     */
-    stringifyHook :
-    {
-      check : "Function",
-      nullable : true
     }
   },
 
   members: {
-  
+
+    converter: [],
     queue: [],
     running: false,
 
+
+    /* Enables an anonymous method to use the this context.
+     * This is used for parsing the incoming json.
+     * */
     _putMeIntoContext: function(func)
     {
       var self = this;
@@ -52,25 +48,23 @@ qx.Class.define("cute.io.Rpc", {
       }
       return(f);
     },
-
-
+    
+    /* Parse the incoming json-data.
+     * Transform transmitted objects (those with a __jsonclass__ tag)
+     * into real objects.
+     * */
     _parseHook: function(key, value){
       if(value && typeof(value) == "object" && "__jsonclass__" in value){
-        switch(value['__jsonclass__']){
-          case "datetime.datetime":  {
-            console.log("converting datetime to Javascript!!!");
-          }; break;
+        for(var converted_id in this.converter){
+          if(this.converter[converted_id].tag == value['__jsonclass__']){
+            var converter = new this.converter[converted_id]();
+            converter.fromJSON(value);
+            return(converter);
+          }
         }
       }
       return(value);
     },
-
-    
-    _stringifyHook: function(key, value){
-      //console.log(key, value, this.classname);
-      return(value);
-    },
-
 
     /* We use a queue to process incoming RPC requests to ensure that we can
      * act on errors accordingly. E.g for error 401 we send a login request
@@ -409,7 +403,7 @@ qx.Class.define("cute.io.Rpc", {
           });
 
       // Provide a replacer when convert dates is enabled
-      var replacer = this.getStringifyHook();
+      var replacer = null;
       if (this._isConvertDates()) {
         replacer = function(key, value) {
           // The value passed in is of type string, because the Date's

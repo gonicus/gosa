@@ -13,32 +13,6 @@ qx.Class.define("cute.proxy.ObjectFactory", {
   statics: {
     classes: null,
 
-    /* Walks through all the elements of the given object and replaces 
-     * __jsonclass__ statements with their designated object types.
-     * */
-    _handleJsonObjects : function(data, level){
-      if(!level){
-        level = 0;
-      }
-      if(typeof(data) == 'object'){
-        for(var item in data){
-          if(item == "__jsonclass__" && level !=0 ){
-            switch(data[item]){
-              case "json.JSONObjectFactory":
-                break;
-              case "json.Binary":
-                data = new cute.proxy.dataTypes.Binary(data['object']);
-                break;
-              default: 
-                new qx.ui.core.Widget().error("*** unable to handle __jsonclass__:" + data[item] + "***");
-            }
-          }
-          data[item] = cute.proxy.ObjectFactory._handleJsonObjects(data[item], level + 1);
-        }
-      }
-      return(data);
-    },
-
     openObject: function(c_callback, c_context, dn, type){
 
       // Initialize class-cache
@@ -49,9 +23,6 @@ qx.Class.define("cute.proxy.ObjectFactory", {
       // Add an event listener
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(userData, context, error){
-
-        // Manage object inside of the userData, e.g. jpegPhoto may return as object {__jsonclass__: "json.Binary",...}
-        userData = cute.proxy.ObjectFactory._handleJsonObjects(userData);
 
         // Extract required user information out of the '__jsonclass__' result object.
         var jDefs = userData["__jsonclass__"][1];

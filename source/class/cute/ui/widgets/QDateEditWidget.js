@@ -18,6 +18,7 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
     _widgetContainer: null,
     _property_timer: null,
     _was_manually_initialized: false,
+    _skipUpdate: false,
 
     _getCleanValue: function(){
 
@@ -66,6 +67,9 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
      */
     __timedPropertyUpdater: function(id, userInput){
       var func = function(value){
+        if(this._skipUpdate){
+          return;
+        }
         var timer = qx.util.TimerManager.getInstance();
         this.addState("modified");
         if(this._property_timer != null){
@@ -77,7 +81,7 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
           timer.stop(this._property_timer);
           this._property_timer = null;
           
-          this.getValue().setItem(id, userInput.getValue());
+          this.getValue().setItem(id, new cute.io.types.Timestamp(userInput.getValue()));
           this._updateValues();
         }, null, this, null, 2000);
       }
@@ -88,6 +92,9 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
      * */
     __propertyUpdater: function(id, userInput){
       var func = function(value){
+        if(this._skipUpdate){
+          return;
+        }
         var timer = qx.util.TimerManager.getInstance();
         if(this._property_timer != null){
           timer.stop(this._property_timer);
@@ -95,7 +102,7 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
         }
         if(this.hasState("modified")){
           this.removeState("modified");
-          this.getValue().setItem(id, userInput.getValue());
+          this.getValue().setItem(id, new cute.io.types.Timestamp(userInput.getValue()));
           this._updateValues();
         }
       }
@@ -114,18 +121,11 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
       return func;
     },
 
-    /* Creates an input-widget depending on the echo mode (normal/password)
+    /* Creates an input-widget
      * and connects the update listeners
      * */
     __getWidget: function(id){
-
-      // Create a copy of the current value and check if we've
-      // got at least one value, if not then add a dumy one.
-      var value = this.getValue().getItem(id);
-      if(value == null){
-        value = "";
-      }
-      var w = new qx.ui.form.DateField(value);
+      var w = new qx.ui.form.DateField();
       if(this.getPlaceholder()){
         w.setPlaceholder(this.getPlaceholder());
       }
@@ -171,6 +171,9 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
           this._widgets[i] = widget;
           this._widgetContainer[i] = container;
         }
+        if(i < this.getValue().getLength()){
+          this._widgets[i].setValue(this.getValue().getItem(i).get());
+        }
       }
     },
 
@@ -179,15 +182,18 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
      * */
     _applyValue: function(value, old_value){
 
+      this._skipUpdate = true;
+
       // Ensure that we've at least one value
       if(!value.getLength()){
         this._was_manually_initialized = true;
-        value.push("");
+        value.push(new cute.io.types.Timestamp());
       }
       if(this._was_manually_initialized || old_value && old_value.getLength() != value.getLength()){
         this._resetFields();
       }
       this._generateGui();
+      this._skipUpdate = false;
     },
 
     /* This is the apply method for the multivalue-flag
