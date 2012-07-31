@@ -88,7 +88,7 @@ qx.Class.define("cute.ui.Renderer",
     /* A static method that returns a gui widget for the given object,
      * including all properties, tabs (extensions).
      * */
-    getWidget : function(cb, context, obj, ui_definition)
+    getWidget : function(cb, context, obj)
     {
       // Initialize meta-class cache
       if(!cute.ui.Renderer.classes){
@@ -97,14 +97,8 @@ qx.Class.define("cute.ui.Renderer",
 
       // Check if there's an override for the definitions
       // If not, use the objects gui templates.
-      var use_cached = false;
-      if (ui_definition) {
-        context.warn("*** overriding object ui by user provided template");
-        ui_definition = {'ContainerObject': ui_definition};
-      } else {
-        ui_definition = obj.templates;
-        use_cached = true;
-      }
+      var use_cached = true;
+      ui_definition = obj.templates;
 
       // Check if we can use a cached gui here.
       if(use_cached && obj.classname in cute.ui.Renderer.classes){
@@ -252,58 +246,62 @@ qx.Class.define("cute.ui.Renderer",
           continue;
         }
 
-        var ui_def = parseXml(ui_definition[i]).childNodes;
+	for (var k=0; k<ui_definition[i].length; k++) {
 
-        var theme = "default";
-        if (cute.Config.theme) {
-            theme = cute.Config.theme;
-        }
+          var ui_def = parseXml(ui_definition[i][k]).childNodes;
 
-        // Find resources before we do anything more
-        for (var q=0; q<ui_def.length; q++) {
-          for (var r=0; r<ui_def[q].childNodes.length; r++) {
-            if (ui_def[q].childNodes[r].nodeName == "resources") {
-              var resources = ui_def[q].childNodes[r];
+          var theme = "default";
+          if (cute.Config.theme) {
+              theme = cute.Config.theme;
+          }
 
-              for (var j=0; j<resources.childNodes.length; j++) {
-                var topic = resources.childNodes[j];
-                if (topic.nodeName != "resource") {
-                  continue;
-                }
-      
-                var loc = topic.getAttribute("location");
-                var files = {};
-                for (var f in topic.childNodes) {
-                  var item = topic.childNodes[f];
-                  if (item.nodeName == "file") {
-                    files[":/" + item.firstChild.nodeValue] = "resource/clacks/" + theme + "/" + item.firstChild.nodeValue;
+          // Find resources before we do anything more
+          for (var q=0; q<ui_def.length; q++) {
+            for (var r=0; r<ui_def[q].childNodes.length; r++) {
+              if (ui_def[q].childNodes[r].nodeName == "resources") {
+                var resources = ui_def[q].childNodes[r];
+
+                for (var j=0; j<resources.childNodes.length; j++) {
+                  var topic = resources.childNodes[j];
+                  if (topic.nodeName != "resource") {
+                    continue;
                   }
-                }
       
-                this._resources[loc] = files;
+                  var loc = topic.getAttribute("location");
+                  var files = {};
+                  for (var f in topic.childNodes) {
+                    var item = topic.childNodes[f];
+                    if (item.nodeName == "file") {
+                      files[":/" + item.firstChild.nodeValue] = "resource/clacks/" + theme + "/" + item.firstChild.nodeValue;
+                    }
+                  }
+      
+                  this._resources[loc] = files;
+                }
               }
             }
           }
-        }
 
-        var info = this.processUI(ui_def);
-        if (info) {
-          // Take over properties of base type
-          if (this.baseType == i || i == "ContainerObject") {
-            this.setProperties_(info['properties']);
-          }
+          var info = this.processUI(ui_def);
+          if (info) {
+            // Take over properties of base type
+            if (this.baseType == i || i == "ContainerObject") {
+              this.setProperties_(info['properties']);
+            }
 
-          if (size > 1) {
-            var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
-            page.setLayout(new qx.ui.layout.VBox());
-            page.add(info['widget']);
-            container.add(page);
+            if (size > 1) {
+              var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
+              page.setLayout(new qx.ui.layout.VBox());
+              page.add(info['widget']);
+              container.add(page);
+            } else {
+               this.add(info['widget']);
+            }
           } else {
-             this.add(info['widget']);
+            this.info("*** no widget found for '" + i + "'");
           }
-        } else {
-          this.info("*** no widget found for '" + i + "'");
-        }
+	}
+
       }
 
       // Setup tabstop handling

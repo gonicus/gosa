@@ -104,8 +104,6 @@ qx.Class.define("cute.Application",
           _current_object = obj;
 
           // Build widget and place it into a window
-          var ui_def = undefined;
-
           cute.ui.Renderer.getWidget(function(w){
             win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.uuid);
             win.setLayout(new qx.ui.layout.VBox(10));
@@ -130,7 +128,7 @@ qx.Class.define("cute.Application",
             var props = w.getProperties_();
             desktop.add(win, {left: 5, top: 5});
 
-          }, this, obj, ui_def);
+          }, this, obj);
         }, this, dn_list.getSelection().getItem(0));
 
       }, this);
