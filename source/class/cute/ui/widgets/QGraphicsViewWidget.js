@@ -12,8 +12,13 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
     }
 
     this._widget = new qx.ui.basic.Image("cute/themes/" + theme + "/noPicture.jpeg");
+    this._widget.addListener("loadingFailed", function(){
+        this._widget.setSource("cute/themes/" + theme + "/noPicture.jpeg");
+        this.error("*** Invalid Image given! ***")
+      }, this);
 
     var container = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+    container.setBackgroundColor("#DDDDDD");
     container.add(this._widget, {top:0, bottom:0, left:0, right:0});
     this.add(container);
 
@@ -43,13 +48,11 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
     _widget: null,
 
     /* Apply method for the value property.
-     * This method will regenerate the gui.
      * */
     _applyValue: function(value, old_value){
       if(value && value.length){
         if(value.getItem(0)){
-          this._initialized = true;
-          var source = "data:image/png;base64," + value.getItem(0).get();
+          var source = "data:image/jpeg;base64," + value.getItem(0).get();
           this._widget.setSource(source);
         }
       }
