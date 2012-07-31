@@ -578,7 +578,9 @@ qx.Class.define("cute.ui.Renderer",
                 }
 
                 layout.setColumnAlign(0, h, v);
-              }
+              } else {
+                layout.setColumnAlign(0, "right", "top");
+	      }
 
               if (properties['horizontalSpacing']) {
                 hs = this.getNumberProperty('horizontalSpacing', properties);
