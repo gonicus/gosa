@@ -28,6 +28,7 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
           var data = e.getData().content;
           data = data.replace(/^data:.*;base64,/, "");
           this.setValue(new qx.data.Array([new cute.io.types.Binary(data)]));
+          this.fireDataEvent("valueChanged", this.getValue());
         }, this);
         fr.readAsDataURL(f);
       }, this);
@@ -48,25 +49,12 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
       if(value && value.length){
         this._initialized = true;
         var source = "data:image/png;base64," + value.getItem(0).get();
-
         this._widget.setSource(source);
       }
     },
 
-    setInvalidMessage: function(message){
-      this._widget.setInvalidMessage(message);
-    },
-
-    resetInvalidMessage: function(){
-      this._widget.resetInvalidMessage();
-    },
-
     focus: function(){
       this._widget.focus();
-    },
-
-    setValid: function(bool){
-      this._widget.setValid(bool);
     }
   }
 });

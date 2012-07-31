@@ -1,6 +1,5 @@
 qx.Class.define("cute.io.types.Binary", 
 {
-
   extend: qx.core.Object,
 
   construct: function(data){
