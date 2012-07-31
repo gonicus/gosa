@@ -27,7 +27,7 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
         fr.addListener("load", function(e){
           var data = e.getData().content;
           data = data.replace(/^data:.*;base64,/, "");
-          this.setValue(new qx.data.Array([new cute.proxy.dataTypes.Binary(data)]));
+          this.setValue(new qx.data.Array([new cute.io.types.Binary(data)]));
         }, this);
         fr.readAsDataURL(f);
       }, this);

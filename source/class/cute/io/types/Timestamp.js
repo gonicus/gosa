@@ -9,7 +9,7 @@ qx.Class.define("cute.io.types.Timestamp",
   },
 
   statics: {
-    tag: 'datetime.datetime',
+    tag: 'datetime.datetime'
   },
 
   members: {

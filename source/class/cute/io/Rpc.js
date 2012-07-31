@@ -15,6 +15,7 @@ qx.Class.define("cute.io.Rpc", {
     this.setParseHook(this._putMeIntoContext(this._parseHook));
 
     this.converter.push(cute.io.types.Timestamp);
+    this.converter.push(cute.io.types.Binary);
   },
 
   properties: {
