@@ -135,7 +135,7 @@ qx.Class.define("cute.view.Search",
           rpc.cA(function(result, error){
               var endTime = new Date().getTime();
               this.showSearchResults(result, endTime - startTime);
-          }, this, "search", "SELECT User.* BASE User SUB \"" + base + "\" WHERE User.uid = \"" + this.sf.getValue() + "\" ORDER BY User.sn");
+          }, this, "search", "SELECT User.* BASE User SUB \"" + base + "\" WHERE User.uid like \"" + this.sf.getValue() + "\" ORDER BY User.sn");
         }
       }, this, "getBase");
     },
