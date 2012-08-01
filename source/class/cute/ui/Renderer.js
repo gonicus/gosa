@@ -241,7 +241,7 @@ qx.Class.define("cute.ui.Renderer",
         var i = tabs[j];
 
         // Skip empty definitionis
-        if (!ui_definition[i] || (!this._object.extensionTypes[i] && !i == this._object.baseType)) {
+        if (!ui_definition[i] || (!this._object.extensionTypes[i] && i != this._object.baseType)) {
           continue;
         }
 
