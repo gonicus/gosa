@@ -90,6 +90,20 @@ qx.Class.define("cute.view.Search",
     var data = new qx.data.Array();
     this.resultController = new qx.data.controller.List(data, resultList, "dn");
 
+    this.resultController.setDelegate({
+        createItem: function(){
+          return(new cute.ui.SearchListItem());
+        },
+
+        bindItem : function(controller, item, id) {
+          controller.bindProperty("title", "title", null, item, id);
+          controller.bindProperty("dn", "dn", null, item, id);
+          controller.bindProperty("description", "description", null, item, id);
+          controller.bindProperty("icon", "icon", null, item, id);
+          controller.bindProperty("", "model", null, item, id);
+        }
+      });
+
     // Bind dblclick
     resultList.addListener("dblclick", this.editItem, this);
 
