@@ -32,6 +32,11 @@ qx.Class.define("cute.ui.SearchListItem", {
     Button1.addListener("execute", function(){
         this.fireDataEvent("edit", this.getModel());
       }, this);
+
+    this.addListener("mouseover", this._onMouseOver, this);
+    this.addListener("mouseout", this._onMouseOut, this);
+
+    this.setAppearance("SearchListItem");
   },
 
   events: {
@@ -39,6 +44,7 @@ qx.Class.define("cute.ui.SearchListItem", {
   },
 
   properties: {
+
     dn :
     {
       apply : "_applyDn",
@@ -69,11 +75,28 @@ qx.Class.define("cute.ui.SearchListItem", {
       nullable : true,
       check : "String",
       event : "changeTitle"
+    }, 
+
+    gap :
+    {
+      check : "Integer",
+      nullable : false,
+      event : "changeGap",
+      themeable : true,
+      init : 0
     }
   },
 
+
   members:{
- 
+
+    _onMouseOver : function() {
+      this.addState("hovered");
+    },
+
+    _onMouseOut : function() {
+      this.removeState("hovered");
+    },
 
     _applyTitle: function(){
       this._showChildControl("title");
@@ -134,6 +157,14 @@ qx.Class.define("cute.ui.SearchListItem", {
         control.setAnonymous(true); 
       }
       return control || this.base(arguments, id);
+    },
+
+    _forwardStates :
+    {
+      focused : true,
+      hovered : true,
+      selected : true,
+      dragover : true
     }
   }
 });
