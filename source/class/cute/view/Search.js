@@ -90,9 +90,12 @@ qx.Class.define("cute.view.Search",
     var data = new qx.data.Array();
     this.resultController = new qx.data.controller.List(data, resultList, "dn");
 
+    var that = this;
     this.resultController.setDelegate({
         createItem: function(){
-          return(new cute.ui.SearchListItem());
+          var item = new cute.ui.SearchListItem();
+          item.addListener("edit", that.editItemByEvent, that);
+          return(item);
         },
 
         bindItem : function(controller, item, id) {
@@ -171,6 +174,10 @@ qx.Class.define("cute.view.Search",
 
     editItem : function() {
       this.openObject(this.resultController.getSelection().getItem(0).getDn());
+    },
+
+    editItemByEvent : function(e) {
+      this.openObject(e.getData().getDn());
     },
 
     openObject : function(dn) {

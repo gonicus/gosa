@@ -6,7 +6,34 @@ qx.Class.define("cute.ui.SearchListItem", {
 
   construct: function(){
     this.base(arguments);
-    this._setLayout(new qx.ui.layout.Grid(0));
+
+    var layout = new qx.ui.layout.Grid();
+    layout.setColumnFlex(1, 2);
+    layout.setRowFlex(1, 2);
+    layout.setSpacing(0);
+    this._setLayout(layout);
+
+    // create and add Part 3 to the toolbar
+    var toolbar = new qx.ui.toolbar.ToolBar();
+    toolbar.setPadding(0);
+    var part = new qx.ui.toolbar.Part();
+    var Button1 = new qx.ui.toolbar.Button("Edit");
+    var Button2 = new qx.ui.toolbar.Button("Delete");
+    var Button3 = new qx.ui.toolbar.Button("Actions");
+    part.add(Button1);
+    part.add(Button2);
+    part.add(Button3);
+    toolbar.add(part);
+    toolbar.setAllowGrowY(false);
+    this._add(toolbar, {row: 0, column: 2, rowSpan: 3});
+
+    Button1.addListener("execute", function(){
+        this.fireDataEvent("edit", this.getModel());
+      }, this);
+  },
+
+  events: {
+    "edit": "qx.event.type.Data"
   },
 
   properties: {
@@ -68,22 +95,41 @@ qx.Class.define("cute.ui.SearchListItem", {
 
       switch(id)
       {
-        case "dn":
-          control = new qx.ui.basic.Label(this.getDn());
-          this._add(control, {row: 0, column: 0});
+        case "icon":
+
+          var theme = "default";
+          if (cute.Config.theme) {
+            theme = cute.Config.theme;
+          }
+
+          var path = "cute/themes/" + theme + "/objects/" + this.getIcon(); 
+          control = new qx.ui.basic.Image(path);
+          control.setHeight(64);
+          control.setWidth(64);
+          control.setScale(true);
+          this._add(control, {row: 0, column: 0, rowSpan: 3});
           break;
         case "title":
           control = new qx.ui.basic.Label(this.getTitle());
-          this._add(control, {row: 1, column: 0});
+          this._add(control, {row: 0, column: 1});
+          control.setFont("SearchResultTitle");
+          control.setTextColor("blue");
           break;
-        case "icon":
-          control = new qx.ui.basic.Label(this.getIcon());
-          this._add(control, {row: 2, column: 0});
+        case "dn":
+          control = new qx.ui.basic.Label(this.getDn());
+          this._add(control, {row: 1, column: 1});
+          control.setTextColor("green");
           break;
         case "description":
           control = new qx.ui.basic.Label(this.getDescription());
-          this._add(control, {row: 3, column: 0});
+          this._add(control, {row: 2, column: 1});
+          control.setRich(true);
           break;
+      }
+
+      // Forward child events to ourselves
+      if(control){
+        control.setAnonymous(true); 
       }
       return control || this.base(arguments, id);
     }
