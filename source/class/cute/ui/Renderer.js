@@ -245,7 +245,7 @@ qx.Class.define("cute.ui.Renderer",
           continue;
         }
 
-	for (var k=0; k<ui_definition[i].length; k++) {
+        for (var k=0; k<ui_definition[i].length; k++) {
 
           var ui_def = parseXml(ui_definition[i][k]).childNodes;
 
@@ -254,7 +254,7 @@ qx.Class.define("cute.ui.Renderer",
               theme = cute.Config.theme;
           }
 
-          // Find resources before we do anything more
+          // Find resources (e.g. image-paths) before we do anything more
           for (var q=0; q<ui_def.length; q++) {
             for (var r=0; r<ui_def[q].childNodes.length; r++) {
               if (ui_def[q].childNodes[r].nodeName == "resources") {
@@ -282,6 +282,7 @@ qx.Class.define("cute.ui.Renderer",
           }
 
           var info = this.processUI(ui_def);
+
           if (info) {
             // Take over properties of base type
             if (this._object.baseType == i || i == "ContainerObject") {
@@ -297,7 +298,7 @@ qx.Class.define("cute.ui.Renderer",
               page.setUserData("type", i);
 
               var closeButton = page.getButton();
-	      closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
+              closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
               closeButton.removeListener("close", page._onButtonClose, page);
               closeButton.addListener("close", function() {
                 var type = page.getUserData("type");
@@ -319,7 +320,7 @@ qx.Class.define("cute.ui.Renderer",
           } else {
             this.info("*** no widget found for '" + i + "'");
           }
-	}
+        }
 
       }
 
@@ -364,9 +365,10 @@ qx.Class.define("cute.ui.Renderer",
       var attribute_defs = this.getAttributeDefinitions_();
       for(var name in attribute_defs){
         var attrs = attribute_defs[name];
+        var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
 
-        if (this._widgets[name + "Edit"]) {
-          var widget = this._widgets[name + "Edit"];
+        if (widgetName){
+          var widget = this._widgets[widgetName];
 
           // Read-only?
           if (attrs['readonly'] === true || attrs['depends_on'].length > 0) {
