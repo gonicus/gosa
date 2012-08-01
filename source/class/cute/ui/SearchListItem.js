@@ -8,6 +8,7 @@ qx.Class.define("cute.ui.SearchListItem", {
     this.base(arguments);
 
     this.setMarginBottom(10);
+    this.setSelectable(false);
 
     var layout = new qx.ui.layout.Grid();
     layout.setColumnFlex(1, 2);

@@ -78,9 +78,6 @@ qx.Theme.define("cute.theme.Appearance",
 
         var backgroundColor = states.hovered ? 'light-background' : undefined;
         
-        if (states.selected) {
-          backgroundColor = "SearchListItem-selected";
-        }
         return {
           gap : 4,
           padding : padding,
