@@ -64,6 +64,7 @@ qx.Class.define("cute.ui.Renderer",
     // Tabstops, bindings and resources
     this._tabstops = new Array();
     this._bindings = {};
+    this._current_bindings = {};
     this._resources = {};
   },
 
@@ -149,9 +150,6 @@ qx.Class.define("cute.ui.Renderer",
       widget.setAttributeDefinitions_(obj.attribute_data);
       widget.configure(ui_definition);
 
-      // Connect this master-widget with the object properties.
-      widget.processBindings();
-
       // Connect to the object event 'propertyUpdateOnServer' to be able to act on property changes.
       // e.g. set an invalid-decorator for specific widget.
       obj.addListener("propertyUpdateOnServer", widget.actOnEvents, widget);
@@ -172,9 +170,10 @@ qx.Class.define("cute.ui.Renderer",
 
     /* Establish bindings between object-properties and master-widget input fields.
      * */
-    processBindings: function(){
-      for(var widgetName in this._bindings){
-        var propertyName = this._bindings[widgetName];
+    processBindings: function(bindings){
+
+      for(var widgetName in bindings){
+        var propertyName = bindings[widgetName];
 
         // We do not have such a widget!
         if(!(widgetName in this._widgets)){
@@ -248,6 +247,8 @@ qx.Class.define("cute.ui.Renderer",
 
         for (var k=0; k<ui_definition[i].length; k++) {
 
+          this._current_bindings = {};
+
           var ui_def = parseXml(ui_definition[i][k]).childNodes;
 
           var theme = "default";
@@ -318,6 +319,10 @@ qx.Class.define("cute.ui.Renderer",
             }
 
             container.add(page);
+
+            // Connect this master-widget with the object properties.
+            this.processBindings(this._current_bindings);
+
           } else {
             this.info("*** no widget found for '" + i + "'");
           }
@@ -366,6 +371,7 @@ qx.Class.define("cute.ui.Renderer",
       var attribute_defs = this.getAttributeDefinitions_();
       for(var name in attribute_defs){
         var attrs = attribute_defs[name];
+
         var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
 
         if (widgetName){
@@ -618,7 +624,7 @@ qx.Class.define("cute.ui.Renderer",
                 layout.setColumnAlign(0, h, v);
               } else {
                 layout.setColumnAlign(0, "right", "top");
-	      }
+              }
 
               if (properties['horizontalSpacing']) {
                 hs = this.getNumberProperty('horizontalSpacing', properties);
@@ -673,6 +679,7 @@ qx.Class.define("cute.ui.Renderer",
               }
             }
             this._bindings[sender] = slot.slice(9, slot.length - 2);
+            this._current_bindings[sender] = slot.slice(9, slot.length - 2);
             
           }
 
