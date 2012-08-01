@@ -63,6 +63,7 @@ qx.Class.define("cute.ui.Renderer",
 
     // Tabstops, bindings and resources
     this._tabstops = new Array();
+    this._current_tabstops = new Array();
     this._bindings = {};
     this._current_bindings = {};
     this._resources = {};
@@ -194,6 +195,32 @@ qx.Class.define("cute.ui.Renderer",
       }
     },
 
+
+
+
+    processTabStops: function(tabstops){
+      console.log(tabstops);
+      for (var i= 0; i< tabstops.length; i++) {
+        var w = tabstops[i];
+        if (i == 0) {
+
+          // Safari needs the timeout
+          // iOS and Firefox need it called immediately
+          // to be on the save side we do both
+          var _self = this;
+          var q = w;
+          setTimeout(function() {
+            _self._widgets[q].focus();
+          });
+
+          this._widgets[w].focus();
+        }
+        if (this._widgets[w]) {
+          this._widgets[w].setTabIndex(i + 1);
+        }
+      }
+    },
+
     /* This method acts on events send by the remote-object which was used to create this gui-widget.
      * */
     actOnEvents: function(e){
@@ -232,29 +259,36 @@ qx.Class.define("cute.ui.Renderer",
       this.add(container);
 
       // Create a list of tab-names and order them
-      var tabs = new Array(this._object.baseType);
+      var exten_list = new Array(this._object.baseType);
       var tmp = qx.lang.Object.getKeys(this._object.extensionTypes);
       tmp.sort();
-      tabs = tabs.concat(tmp);
+      exten_list = exten_list.concat(tmp);
 
-      for (var j in tabs) {
-        var i = tabs[j];
+      // Detect the theme
+      var theme = "default";
+      if (cute.Config.theme) {
+        theme = cute.Config.theme;
+      }
 
-        // Skip empty definitionis
-        if (!ui_definition[i] || (!this._object.extensionTypes[i] && i != this._object.baseType)) {
+      // Walk through each tab
+      for (var ext_key in exten_list) {
+        var extension = exten_list[ext_key];
+
+        // Skip empty definitions or disabled ones.
+        if (!ui_definition[extension] || 
+            (!this._object.extensionTypes[extension] && extension != this._object.baseType)) {
           continue;
         }
 
-        for (var k=0; k<ui_definition[i].length; k++) {
+        // Process eacht tab of the current extension
+        for (var tab=0; tab<ui_definition[extension].length; tab++) {
 
+          // Clean-up values that were collected per-loop.
           this._current_bindings = {};
+          this._current_tabstops = new Array();
 
-          var ui_def = parseXml(ui_definition[i][k]).childNodes;
-
-          var theme = "default";
-          if (cute.Config.theme) {
-              theme = cute.Config.theme;
-          }
+          // Parse the ui definition of the object
+          var ui_def = parseXml(ui_definition[extension][tab]).childNodes;
 
           // Find resources (e.g. image-paths) before we do anything more
           for (var q=0; q<ui_def.length; q++) {
@@ -287,7 +321,7 @@ qx.Class.define("cute.ui.Renderer",
 
           if (info) {
             // Take over properties of base type
-            if (this._object.baseType == i || i == "ContainerObject") {
+            if (this._object.baseType == extension || extension == "ContainerObject") {
               this.setProperties_(info['properties']);
             }
 
@@ -295,9 +329,9 @@ qx.Class.define("cute.ui.Renderer",
             page.setLayout(new qx.ui.layout.VBox());
             page.add(info['widget']);
 
-            if (i != this._object.baseType) {
+            if (extension != this._object.baseType) {
               page.setShowCloseButton(true);
-              page.setUserData("type", i);
+              page.setUserData("type", extension);
 
               var closeButton = page.getButton();
               closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
@@ -322,9 +356,10 @@ qx.Class.define("cute.ui.Renderer",
 
             // Connect this master-widget with the object properties.
             this.processBindings(this._current_bindings);
+            this.processTabStops(this._current_tabstops);
 
           } else {
-            this.info("*** no widget found for '" + i + "'");
+            this.info("*** no widget found for '" + extension + "'");
           }
         }
 
@@ -333,9 +368,7 @@ qx.Class.define("cute.ui.Renderer",
       // Setup tool menu
       //TODO: fill with proper values
       var toolMenu = new qx.ui.menu.Menu();
-
       var extendMenu = new qx.ui.menu.Menu();
-      //Bindings
       var extendButton = new qx.ui.menu.Button(this.tr("Extend"));
 
       toolMenu.add(extendButton);
@@ -345,27 +378,6 @@ qx.Class.define("cute.ui.Renderer",
       //toolMenu.add(actionsButton);
 
       container.getChildControl("bar").setMenu(toolMenu);
-
-      // Setup tabstop handling
-      for (var i= 0; i<this._tabstops.length; i++) {
-          var w = this._tabstops[i];
-          if (i == 0) {
-
-            // Safari needs the timeout
-            // iOS and Firefox need it called immediately
-            // to be on the save side we do both
-            var _self = this;
-            var q = w;
-            setTimeout(function() {
-              _self._widgets[q].focus();
-            });
-
-            this._widgets[w].focus();
-          }
-          if (this._widgets[w]) {
-            this._widgets[w].setTabIndex(i + 1);
-          }
-      }
   
       // Handle type independent widget settings
       var attribute_defs = this.getAttributeDefinitions_();
@@ -655,6 +667,7 @@ qx.Class.define("cute.ui.Renderer",
             var topic = node.childNodes[j];
             if (topic.nodeType == 1 && topic.nodeName == "tabstop") {
               this._tabstops.push(topic.firstChild.nodeValue);
+              this._current_tabstops.push(topic.firstChild.nodeValue);
             }
           }
 
