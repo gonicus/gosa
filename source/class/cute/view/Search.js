@@ -108,7 +108,7 @@ qx.Class.define("cute.view.Search",
       });
 
     // Bind dblclick
-    resultList.addListener("dblclick", this.editItem, this);
+    //resultList.addListener("dblclick", this.editItem, this);
 
     // Focus search field
     var _self = this;

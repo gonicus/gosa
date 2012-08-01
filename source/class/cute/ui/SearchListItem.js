@@ -154,6 +154,7 @@ qx.Class.define("cute.ui.SearchListItem", {
           control.setHeight(64);
           control.setWidth(64);
           control.setScale(true);
+          control.setAnonymous(true); 
           this._add(control, {row: 0, column: 0, rowSpan: 3});
           break;
         case "title":
@@ -161,23 +162,29 @@ qx.Class.define("cute.ui.SearchListItem", {
           this._add(control, {row: 0, column: 1});
           control.setFont("SearchResultTitle");
           control.setTextColor("blue");
+          control.setCursor("pointer");
+          control.addListener("click", function(){
+              this.fireDataEvent("edit", this.getModel());
+            }, this);
           break;
         case "dn":
           control = new qx.ui.basic.Label(this.getDn());
           this._add(control, {row: 1, column: 1});
+          control.setAnonymous(true); 
           control.setTextColor("green");
+          control.setCursor("default");
+          control.setSelectable(true);
           break;
         case "description":
           control = new qx.ui.basic.Label(this.getDescription());
+          control.setAnonymous(true); 
           this._add(control, {row: 2, column: 1});
+          control.setCursor("default");
           control.setRich(true);
+          control.setSelectable(false);
           break;
       }
 
-      // Forward child events to ourselves
-      if(control){
-        control.setAnonymous(true); 
-      }
       return control || this.base(arguments, id);
     }
   }
