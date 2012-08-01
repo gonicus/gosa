@@ -316,7 +316,7 @@ qx.Class.define("cute.ui.Renderer",
           }
 
           // Create the gui-part for this tab
-          var info = this.processUI(i, ui_def);
+          var info = this.processUI(extension, ui_def);
           if (info) {
 
             // Take over properties of base type
