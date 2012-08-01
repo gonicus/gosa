@@ -3,7 +3,7 @@ qx.Mixin.define("cute.ui.mixins.QListWidgetWidget",
   members:
   {
 
-    processQListWidgetWidget : function(name, props)
+    processQListWidgetWidget : function(loc, name, props)
     {
       var realname = name.replace(/Edit$/, '', name);
       var ad = this.getAttributeDefinitions_()[realname];
@@ -16,6 +16,7 @@ qx.Mixin.define("cute.ui.mixins.QListWidgetWidget",
       
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
+      this.__add_widget_to_extension(name, loc);
 
       // Add listeners for value changes.
       //widget.addListener("valueChanged", function(e){

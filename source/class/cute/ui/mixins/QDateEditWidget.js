@@ -2,7 +2,7 @@ qx.Mixin.define("cute.ui.mixins.QDateEditWidget",
 {
   members:
   {
-    processQDateEditWidget : function(name, props)
+    processQDateEditWidget : function(loc, name, props)
     {
       var realname = name.replace(/Edit$/, '', name);
       var widget = new cute.ui.widgets.QDateEditWidget();
@@ -27,6 +27,7 @@ qx.Mixin.define("cute.ui.mixins.QDateEditWidget",
 
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
+      this.__add_widget_to_extension(name, loc);
 
       // set widget properties
       widget.setMultivalue(ad['multivalue']);

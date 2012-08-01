@@ -3,7 +3,7 @@ qx.Mixin.define("cute.ui.mixins.QPlainTextEditWidget",
   members:
   {
 
-    processQPlainTextEditWidget : function(name, props)
+    processQPlainTextEditWidget : function(loc, name, props)
     {
       var realname = name.replace(/Edit$/, '', name);
       var ad = this.getAttributeDefinitions_()[realname];
@@ -28,6 +28,7 @@ qx.Mixin.define("cute.ui.mixins.QPlainTextEditWidget",
 
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
+      this.__add_widget_to_extension(name, loc);
 
       // set widget properties
       widget.setMultivalue(this.getAttributeDefinitions_()[realname]['multivalue']);
