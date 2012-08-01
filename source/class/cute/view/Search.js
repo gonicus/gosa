@@ -43,7 +43,7 @@ qx.Class.define("cute.view.Search",
     searchHeader.add(sb);
     searchHeader.setPadding(20);
 
-    searchLayout.setAlignX("left");
+    searchLayout.setAlignX("center");
 
     this.add(searchHeader);
 
@@ -85,13 +85,19 @@ qx.Class.define("cute.view.Search",
     sb.addListener("execute", this.doSearch, this);
     sf.addListener("changeValue", this.doSearch, this);
     this.sf = sf;
-    var _self = this;
+
+    // Bind search result model
+    var data = new qx.data.Array();
+    this.resultController = new qx.data.controller.List(data, resultList, "dn");
+
+    // Bind dblclick
+    resultList.addListener("dblclick", this.editItem, this);
 
     // Focus search field
+    var _self = this;
     setTimeout(function() {
       _self.sf.focus();
     });
-
     this.sf.focus();
   },
 
@@ -131,16 +137,27 @@ qx.Class.define("cute.view.Search",
       this.searchInfo.show()
       this.searchResult.show()
 
-      if (items.length) {
-        // Populate result model
-        //if (list.length == 1) {
-        //  this.openObject(list.getItem(0).DN[0]);
-        //} else {
-        //  alert("Search was not unique...");
-        //}
+      var model = [];
+
+      // Dummy feeding for the moment...
+      for (var i= 0; i<items.length; i++) {
+        var item = new cute.data.model.SearchResultItem();
+        item.setDn(items[i]['User'].DN[0]);
+        item.setTitle(items[i]['User'].cn[0]);
+        item.setType("User");
+        item.setDescription("This is a multiline <i>description</i> featuring rich text<br>and some special <a href='clacks://cn=admin,dc=gonicus,dc=de'>links</a> to somewhere else.");
+        //TODO: icon should be able to take path or base64 data
+        item.setIcon("user.png");
+        model.push(item);
       }
+      
+      // Update model
+      this.resultController.setModel(new qx.data.Array(model));
     },
 
+    editItem : function() {
+      this.openObject(this.resultController.getSelection().getItem(0).getDn());
+    },
 
     openObject : function(dn) {
       var w = null;
