@@ -16,8 +16,8 @@ qx.Theme.define("cute.theme.Appearance",
   {
     "list" :
     {
-      alias : "scrollarea",
-      //include : "textfield"
+      alias : "scrollarea"
+      //,include : "textfield"
     },
 
     "SearchListItem":
