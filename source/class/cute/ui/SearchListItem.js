@@ -89,6 +89,13 @@ qx.Class.define("cute.ui.SearchListItem", {
 
 
   members:{
+    
+    _forwardStates: {
+      focused : false,
+      hovered : false,
+      selected : false,
+      dragover : false
+    },
 
     _onMouseOver : function() {
       this.addState("hovered");
@@ -137,7 +144,6 @@ qx.Class.define("cute.ui.SearchListItem", {
       switch(id)
       {
         case "icon":
-
           var theme = "default";
           if (cute.Config.theme) {
             theme = cute.Config.theme;
@@ -173,14 +179,6 @@ qx.Class.define("cute.ui.SearchListItem", {
         control.setAnonymous(true); 
       }
       return control || this.base(arguments, id);
-    },
-
-    _forwardStates :
-    {
-      focused : true,
-      hovered : true,
-      selected : true,
-      dragover : true
     }
   }
 });
