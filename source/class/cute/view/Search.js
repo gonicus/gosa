@@ -20,47 +20,79 @@ qx.Class.define("cute.view.Search",
 
   construct : function()
   {
-    // Call super class
+    // Call super class and configure ourselfs
     this.base(arguments, "", "resource/cute/icons/search.png");
-
     this._excludeChildControl("label");
-    this.setLayout(new qx.ui.layout.Canvas());
+    this.setLayout(new qx.ui.layout.VBox(5));
 
-    // Create a button
-    var process = new qx.ui.form.Button(this.tr("Open") + "...");
+    // Create search field / button
+    var searchHeader = new qx.ui.container.Composite()
+    var searchLayout = new qx.ui.layout.HBox(10);
+    searchHeader.setLayout(searchLayout);
+    searchHeader.setBackgroundColor("red");
 
-    // Create action bar
-    var dn_list = new qx.ui.form.VirtualSelectBox();
-    var actions = new qx.ui.container.Composite(new qx.ui.layout.HBox(5));
-    actions.add(dn_list, {flex:1});
-    actions.add(process);
+    var sf = new qx.ui.form.TextField();
+    sf.setPlaceholder(this.tr("Please enter your search..."));
+    this.addListener("resize", function() {
+      sf.setWidth(parseInt(this.getBounds().width / 2));
+    }, this)
+    searchHeader.add(sf);
 
-    // Collect all user dns 
-    var rpc = cute.io.Rpc.getInstance();
-    rpc.cA(function(result, error){
-      if(!error){
-        var base = result;
-        rpc.cA(function(result, error){
-            var list = new qx.data.Array();
-            for(var i=0;i<result.length;i++){
-              list.push(result[i]['User']['DN'][0]);
-            }
-            dn_list.setModel(list);
-          }, this, "search", "SELECT User.* BASE User SUB \"" + base + "\" ORDER BY User.sn");
+    var sb = new qx.ui.form.Button(this.tr("Search"));
+    searchHeader.add(sb);
+    searchHeader.setPadding(20);
+
+    searchLayout.setAlignX("center");
+
+    this.add(searchHeader);
+
+    // TODO: search while typing
+    // Bind search methods
+    sb.addListener("execute", this.doSearch, this);
+    sf.addListener("changeValue", this.doSearch, this);
+    this.sf = sf;
+    var _self = this;
+
+    // Focus search field
+    setTimeout(function() {
+      _self.sf.focus();
+    });
+
+    this.sf.focus();
+  },
+
+  /*
+  *****************************************************************************
+     MEMBERS
+  *****************************************************************************
+  */
+
+  members :
+  {
+    doSearch : function() {
+      var rpc = cute.io.Rpc.getInstance();
+      rpc.cA(function(result, error){
+        if(!error){
+          var base = result;
+          rpc.cA(function(result, error){
+              var list = new qx.data.Array();
+              for(var i=0;i<result.length;i++){
+                list.push(result[i]['User']);
+              }
+              console.log(list.toArray());
+
+              if (list.length == 1) {
+                this.openObject(list.getItem(0).DN[0]);
+              } else {
+                alert("Search was not unique...");
+              }
+
+          }, this, "search", "SELECT User.* BASE User SUB \"" + base + "\" WHERE User.uid = \"" + this.sf.getValue() + "\" ORDER BY User.sn");
         }
       }, this, "getBase");
+    },
 
-    // Initialize websocket messaging
-    var messaging = cute.io.WebSocket.getInstance();
-    messaging.reconnect();
-
-    // Add button to document at fixed coordinates
-    this.add(actions, {left: 10, top: 0, right: 10});
-
-    var windowManager = new qx.ui.window.Manager();
-
-    // Add an event listener and process known elements
-    process.addListener("execute", function(e) {
+    openObject : function(dn) {
       var w = null;
       var win = null;
       var _current_object = null;
@@ -96,18 +128,8 @@ qx.Class.define("cute.view.Search",
           doc.add(win);
 
         }, this, obj);
-      }, this, dn_list.getSelection().getItem(0));
+      }, this, dn);
 
-    }, this);
-  },
-
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
-  members :
-  {
+    }
   }
 });

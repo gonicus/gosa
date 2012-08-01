@@ -65,6 +65,10 @@ qx.Class.define("cute.Application",
       var search = new cute.view.Search;
       pluginView.add(search);
 
+      // Initialize websocket messaging
+      var messaging = cute.io.WebSocket.getInstance();
+      messaging.reconnect();
+
       doc.add(pluginView, {left: 0, right: 0, top: 50, bottom: 0});
     }
   }
