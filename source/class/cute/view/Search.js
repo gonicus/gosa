@@ -29,7 +29,6 @@ qx.Class.define("cute.view.Search",
     var searchHeader = new qx.ui.container.Composite()
     var searchLayout = new qx.ui.layout.HBox(10);
     searchHeader.setLayout(searchLayout);
-    searchHeader.setBackgroundColor("red");
 
     var sf = new qx.ui.form.TextField();
     sf.setPlaceholder(this.tr("Please enter your search..."));
