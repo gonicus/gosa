@@ -14,6 +14,6 @@ qx.Theme.define("cute.theme.Color",
 
   colors :
   {
-    "SearchListItem-selected": "#DDDDFF"
+    "SearchListItem-selected": "white"
   }
 });
