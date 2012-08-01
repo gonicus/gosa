@@ -20,13 +20,15 @@ qx.Class.define("cute.view.Search",
 
   construct : function()
   {
+    var barWidth = 200;
+
     // Call super class and configure ourselfs
     this.base(arguments, "", "resource/cute/icons/search.png");
     this._excludeChildControl("label");
     this.setLayout(new qx.ui.layout.VBox(5));
 
     // Create search field / button
-    var searchHeader = new qx.ui.container.Composite()
+    var searchHeader = new qx.ui.container.Composite();
     var searchLayout = new qx.ui.layout.HBox(10);
     searchHeader.setLayout(searchLayout);
 
@@ -41,12 +43,45 @@ qx.Class.define("cute.view.Search",
     searchHeader.add(sb);
     searchHeader.setPadding(20);
 
-    searchLayout.setAlignX("center");
+    searchLayout.setAlignX("left");
 
     this.add(searchHeader);
 
-    // TODO: search while typing
+    // Create search info (hidden)
+    this.searchInfo = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
+    this.searchInfo.hide()
+    this.searchInfo.setPadding(20);
+    this.searchInfo.setDecorator("separator-vertical");
+    var sil = new qx.ui.basic.Label(this.tr("Search"));
+    sil.setTextColor("red");
+    //TODO: use custom theme font
+    sil.setFont(qx.bom.Font.fromString("20px Sans Serif"));
+    sil.setWidth(barWidth);
+    this.searchInfo.add(sil);
+
+    this.sii = new qx.ui.basic.Label();
+    this.sii.setTextColor("gray");
+    this.sii.setAlignY("bottom");
+    this.searchInfo.add(this.sii);
+
+    this.add(this.searchInfo);
+
+    // Create search result
+    this.searchResult = new qx.ui.container.Composite(new qx.ui.layout.Canvas);
+    this.searchResult.hide()
+    this.searchResult.setPadding(20);
+    this.searchResult.setDecorator("separator-vertical");
+
+    //TODO: fill the right bar with proper contents with proper contents
+
+    var resultList = new qx.ui.form.List();
+    resultList.setDecorator(null);
+    this.searchResult.add(resultList, {left: barWidth, right: 0, bottom: 0, top: 0});
+
+    this.add(this.searchResult, {flex: 1});
+
     // Bind search methods
+    // TODO: search while typing
     sb.addListener("execute", this.doSearch, this);
     sf.addListener("changeValue", this.doSearch, this);
     this.sf = sf;
@@ -73,23 +108,39 @@ qx.Class.define("cute.view.Search",
       rpc.cA(function(result, error){
         if(!error){
           var base = result;
+          var startTime = new Date().getTime();
           rpc.cA(function(result, error){
-              var list = new qx.data.Array();
-              for(var i=0;i<result.length;i++){
-                list.push(result[i]['User']);
-              }
-              console.log(list.toArray());
-
-              if (list.length == 1) {
-                this.openObject(list.getItem(0).DN[0]);
-              } else {
-                alert("Search was not unique...");
-              }
-
+              var endTime = new Date().getTime();
+              this.showSearchResults(result, endTime - startTime);
           }, this, "search", "SELECT User.* BASE User SUB \"" + base + "\" WHERE User.uid = \"" + this.sf.getValue() + "\" ORDER BY User.sn");
         }
       }, this, "getBase");
     },
+
+    showSearchResults : function(items, duration) {
+      var i = items.length;
+
+      if (i == 0){
+        this.searchInfo.show()
+        this.searchResult.hide()
+      }
+
+      var d = Math.round(duration / 100) / 10;
+      this.sii.setValue(this.trn("%1 result", "%1 results", i, i) + " (" + this.trn("%1 second", "%1 seconds", d, d) + ")");
+
+      this.searchInfo.show()
+      this.searchResult.show()
+
+      if (items.length) {
+        // Populate result model
+        //if (list.length == 1) {
+        //  this.openObject(list.getItem(0).DN[0]);
+        //} else {
+        //  alert("Search was not unique...");
+        //}
+      }
+    },
+
 
     openObject : function(dn) {
       var w = null;
