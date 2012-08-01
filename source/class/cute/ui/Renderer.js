@@ -197,8 +197,8 @@ qx.Class.define("cute.ui.Renderer",
     },
 
 
-
-
+    /* Applies the given tabstops to the gui widgets
+     * */
     processTabStops: function(tabstops){
       console.log(tabstops);
       for (var i= 0; i< tabstops.length; i++) {
@@ -281,7 +281,7 @@ qx.Class.define("cute.ui.Renderer",
           continue;
         }
 
-        // Process eacht tab of the current extension
+        // Process each tab of the current extension
         for (var tab=0; tab<ui_definition[extension].length; tab++) {
 
           // Clean-up values that were collected per-loop.
@@ -296,13 +296,11 @@ qx.Class.define("cute.ui.Renderer",
             for (var r=0; r<ui_def[q].childNodes.length; r++) {
               if (ui_def[q].childNodes[r].nodeName == "resources") {
                 var resources = ui_def[q].childNodes[r];
-
                 for (var j=0; j<resources.childNodes.length; j++) {
                   var topic = resources.childNodes[j];
                   if (topic.nodeName != "resource") {
                     continue;
                   }
-      
                   var loc = topic.getAttribute("location");
                   var files = {};
                   for (var f in topic.childNodes) {
@@ -311,25 +309,27 @@ qx.Class.define("cute.ui.Renderer",
                       files[":/" + item.firstChild.nodeValue] = "resource/clacks/" + theme + "/" + item.firstChild.nodeValue;
                     }
                   }
-      
                   this._resources[loc] = files;
                 }
               }
             }
           }
 
+          // Create the gui-part for this tab
           var info = this.processUI(i, ui_def);
-
           if (info) {
+
             // Take over properties of base type
             if (this._object.baseType == extension || extension == "ContainerObject") {
               this.setProperties_(info['properties']);
             }
 
+            // Create a new tab-page with the generated gui as content.
             var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
             page.setLayout(new qx.ui.layout.VBox());
             page.add(info['widget']);
 
+            // Add "remove extension" buttons to all non-base tabs.
             if (extension != this._object.baseType) {
               page.setShowCloseButton(true);
               page.setUserData("type", extension);
@@ -353,9 +353,10 @@ qx.Class.define("cute.ui.Renderer",
               }, this);
             }
 
+            // Add the page to the gui
             container.add(page);
 
-            // Connect this master-widget with the object properties.
+            // Connect this master-widget with the object properties, establish tabstops
             this.processBindings(this._current_bindings);
             this.processTabStops(this._current_tabstops);
 
@@ -363,7 +364,6 @@ qx.Class.define("cute.ui.Renderer",
             this.info("*** no widget found for '" + extension + "'");
           }
         }
-
       }
 
       // Setup tool menu
