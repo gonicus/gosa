@@ -1003,9 +1003,9 @@ qx.Class.define("cute.ui.Renderer",
 
     setWidgetInvalidMessage : function(name, message)
     {
-      name = name + "Edit";
-      if (this._widgets[name]) {
-        this._widgets[name].setInvalidMessage(message);
+      var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
+      if (this._widgets[widgetName]) {
+        this._widgets[widgetName].setInvalidMessage(message);
       } else {
         this.error("*** cannot set invalid message for non existing widget '" + name + "'!");
       }
@@ -1013,9 +1013,9 @@ qx.Class.define("cute.ui.Renderer",
 
     setWidgetValid: function(name, flag)
     {
-      name = name + "Edit";
-      if (this._widgets[name]) {
-        this._widgets[name].setValid(flag);
+      var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
+      if (this._widgets[widgetName]) {
+        this._widgets[widgetName].setValid(flag);
       } else {
         this.error("*** cannot set valid flag for non existing widget '" + name + "'!");
       }
@@ -1023,9 +1023,9 @@ qx.Class.define("cute.ui.Renderer",
 
     resetWidgetInvalidMessage : function(name)
     {
-      name = name + "Edit";
-      if (this._widgets[name]) {
-        this._widgets[name].resetInvalidMessage();
+      var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
+      if (this._widgets[widgetName]) {
+        this._widgets[widgetName].resetInvalidMessage();
       } else {
         this.error("*** cannot set invalid message for non existing widget '" + name + "'!");
       }
@@ -1033,9 +1033,9 @@ qx.Class.define("cute.ui.Renderer",
 
     setWidgetRequired: function(name, flag)
     {
-      name = name + "Edit";
-      if (this._widgets[name]) {
-        this._widgets[name].setRequired(flag);
+      var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
+      if (this._widgets[widgetName]) {
+        this._widgets[widgetName].setRequired(flag);
       } else {
         this.error("*** cannot set required flag for non existing widget '" + name + "'!");
       }
