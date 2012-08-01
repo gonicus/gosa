@@ -109,8 +109,9 @@ qx.Class.define("cute.ui.Renderer",
         // (We unfortunately require it this way, due to reference handling in loops)
         var getApplyMethod = function(name){
           var func = function(value){
-            if (this._widgets[name + "Edit"]) {
-              this.setWidgetValue(name + "Edit", value);
+            var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
+            if (this._widgets[widgetName]) {
+              this.setWidgetValue(widgetName, value);
             }
           };
           return(func);
