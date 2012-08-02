@@ -20,6 +20,16 @@ qx.Theme.define("cute.theme.Appearance",
       //,include : "textfield"
     },
 
+    "label" :
+    {
+      style : function(states)
+      {
+        return {
+          textColor : states.disabled ? "text-disabled" : "text"
+        };
+      }
+    },
+
     "SearchListItem":
     {
       alias : "atom",

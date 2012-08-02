@@ -108,7 +108,7 @@ qx.Class.define("cute.view.Search",
       });
 
     // Bind click
-    resultList.addListener("click", this.editItem, this);
+    //resultList.addListener("click", this.editItem, this);
 
     // Focus search field
     var _self = this;
