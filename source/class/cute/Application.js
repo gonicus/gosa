@@ -61,6 +61,15 @@ qx.Class.define("cute.Application",
       var pluginView = new qx.ui.tabview.TabView();
       pluginView.setBarPosition("left");
 
+      // Create application header and toolbar
+      var header = new qx.ui.basic.Atom("Logo");
+      header.setBackgroundColor("black");
+      header.setTextColor("white");
+      header.setHeight(48);
+      header.setPadding(5);
+      header.setFont(qx.bom.Font.fromString("sans-serif 28"));
+      doc.add(header, {left: 0, right: 0, top: 0});
+
       //TODO: add one static plugin for testing
       var search = new cute.view.Search;
       pluginView.add(search);
