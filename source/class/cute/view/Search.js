@@ -164,7 +164,7 @@ qx.Class.define("cute.view.Search",
         item.setType("User");
         item.setDescription("This is a multiline <i>description</i> featuring rich text<br>and some special <a href='clacks://cn=admin,dc=gonicus,dc=de'>links</a> to somewhere else.");
         //TODO: icon should be able to take path or base64 data
-        item.setIcon("user.png");
+        item.setIcon(null);
         model.push(item);
       }
       
