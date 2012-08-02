@@ -69,7 +69,7 @@ qx.Class.define("cute.ui.tabview.TabView",
       switch(id)
       {
         case "bar":
-          control = new qx.ui.container.SlideBar();
+          control = new cute.ui.container.SlideBar();
           control.setZIndex(10);
           this._add(control);
           break;

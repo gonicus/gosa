@@ -228,7 +228,8 @@ qx.Class.define("cute.ui.Renderer",
       var container;
       var size = qx.lang.Object.getKeys(ui_definition).length;
       if (size > 1) {
-         container = new qx.ui.tabview.TabView();
+         container = new cute.ui.tabview.TabView();
+	 container.setMaxWidth(800);
          this.add(container);
       }
 
