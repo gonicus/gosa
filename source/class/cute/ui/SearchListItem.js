@@ -17,18 +17,14 @@ qx.Class.define("cute.ui.SearchListItem", {
     this._setLayout(layout);
 
     // create and add Part 3 to the toolbar
-    var toolbar = new qx.ui.toolbar.ToolBar();
-    toolbar.setPadding(0);
-    var part = new qx.ui.toolbar.Part();
-    var Button1 = new qx.ui.toolbar.Button("Edit");
-    var Button2 = new qx.ui.toolbar.Button("Delete");
-    var Button3 = new qx.ui.toolbar.Button("Actions");
-    part.add(Button1);
-    part.add(Button2);
-    part.add(Button3);
-    toolbar.add(part);
-    toolbar.setAllowGrowY(false);
-    this._add(toolbar, {row: 0, column: 2, rowSpan: 3});
+    this._toolbar = new qx.ui.container.Composite(new qx.ui.layout.HBox(0));
+    var Button1 = new qx.ui.toolbar.Button(null, "icon/22/actions/dialog-ok.png");
+    var Button2 = new qx.ui.toolbar.Button(null, "icon/22/actions/dialog-cancel.png");
+    this._toolbar.add(Button1);
+    this._toolbar.add(Button2);
+    this._toolbar.setAllowGrowY(false);
+    this._toolbar.setAllowGrowX(false);
+    this._add(this._toolbar, {row: 0, column: 2, rowSpan: 3});
 
     Button1.addListener("execute", function(){
         this.fireDataEvent("edit", this.getModel());
@@ -38,6 +34,7 @@ qx.Class.define("cute.ui.SearchListItem", {
     this.addListener("mouseout", this._onMouseOut, this);
 
     this.setAppearance("SearchListItem");
+    this._toolbar.hide();
   },
 
   events: {
@@ -90,6 +87,8 @@ qx.Class.define("cute.ui.SearchListItem", {
 
 
   members:{
+
+    _toolbar: null,
     
     _forwardStates: {
       focused : false,
@@ -100,10 +99,12 @@ qx.Class.define("cute.ui.SearchListItem", {
 
     _onMouseOver : function() {
       this.addState("hovered");
+      this._toolbar.show();
     },
 
     _onMouseOut : function() {
       this.removeState("hovered");
+      this._toolbar.hide();
     },
 
     _applyTitle: function(value){
