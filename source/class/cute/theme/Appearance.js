@@ -14,6 +14,12 @@ qx.Theme.define("cute.theme.Appearance",
 
   appearances :
   {
+    "list" :
+    {
+      alias : "scrollarea",
+      //include : "textfield"
+    },
+
     "SearchListItem":
     {
       alias : "atom",
