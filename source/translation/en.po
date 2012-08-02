@@ -11,14 +11,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: cute/Application.js:59
-msgid "Open"
-msgstr ""
-
-#: cute/Application.js:132
-msgid "Object"
-msgstr ""
-
 #: cute/ui/LoginDialog.js:15 cute/ui/LoginDialog.js:97
 msgid "Login"
 msgstr ""
@@ -36,9 +28,52 @@ msgid "Invalid login ..."
 msgstr ""
 
 #: cute/ui/Renderer.js:300
+msgid "Remove extension"
+msgstr ""
+
+#: cute/ui/Renderer.js:328
+msgid "Extend"
+msgstr ""
+
+#: cute/ui/Renderer.js:393
 msgid "OK"
 msgstr ""
 
-#: cute/ui/Renderer.js:318
+#: cute/ui/Renderer.js:413
 msgid "Cancel"
 msgstr ""
+
+#: cute/ui/widgets/QGraphicsViewWidget.js:28
+msgid "Change image"
+msgstr ""
+
+#: cute/ui/widgets/QGraphicsViewWidget.js:29
+msgid "Remove image"
+msgstr ""
+
+#: cute/view/Search.js:36
+msgid "Please enter your search..."
+msgstr ""
+
+#: cute/view/Search.js:42 cute/view/Search.js:55
+msgid "Search"
+msgstr ""
+
+#: cute/view/Search.js:153
+msgid "%1 result"
+msgid_plural "%1 results"
+msgstr[0] ""
+msgstr[1] ""
+
+#: cute/view/Search.js:153
+msgid "%1 second"
+msgid_plural "%1 seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: cute/view/Search.js:194
+msgid "Object"
+msgstr ""
+
+#~ msgid "Open"
+#~ msgstr ""

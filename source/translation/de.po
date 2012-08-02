@@ -14,14 +14,6 @@ msgstr ""
 "X-Language: de_DE\n"
 "X-Source-Language: de\n"
 
-#: cute/Application.js:59
-msgid "Open"
-msgstr "Öffnen"
-
-#: cute/Application.js:132
-msgid "Object"
-msgstr "Objekt"
-
 #: cute/ui/LoginDialog.js:15 cute/ui/LoginDialog.js:97
 msgid "Login"
 msgstr "Anmelden"
@@ -39,9 +31,52 @@ msgid "Invalid login ..."
 msgstr "Ungültige Anmeldung..."
 
 #: cute/ui/Renderer.js:300
+msgid "Remove extension"
+msgstr "Erweiterung entfernen"
+
+#: cute/ui/Renderer.js:328
+msgid "Extend"
+msgstr "Erweitern"
+
+#: cute/ui/Renderer.js:393
 msgid "OK"
 msgstr "OK"
 
-#: cute/ui/Renderer.js:318
+#: cute/ui/Renderer.js:413
 msgid "Cancel"
 msgstr "Abbrechen"
+
+#: cute/ui/widgets/QGraphicsViewWidget.js:28
+msgid "Change image"
+msgstr "Bild ändern"
+
+#: cute/ui/widgets/QGraphicsViewWidget.js:29
+msgid "Remove image"
+msgstr "Bild entfernen"
+
+#: cute/view/Search.js:36
+msgid "Please enter your search..."
+msgstr "Bitte geben Sie den Suchtext ein..."
+
+#: cute/view/Search.js:42 cute/view/Search.js:55
+msgid "Search"
+msgstr "Suche"
+
+#: cute/view/Search.js:153
+msgid "%1 result"
+msgid_plural "%1 results"
+msgstr[0] "%1 Ergebnis"
+msgstr[1] "%1 Ergebnisse"
+
+#: cute/view/Search.js:153
+msgid "%1 second"
+msgid_plural "%1 seconds"
+msgstr[0] "%1 Sekunde"
+msgstr[1] "%1 Sekunden"
+
+#: cute/view/Search.js:194
+msgid "Object"
+msgstr "Objekt"
+
+#~ msgid "Open"
+#~ msgstr "Öffnen"
