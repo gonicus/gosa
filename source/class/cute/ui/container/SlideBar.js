@@ -35,7 +35,7 @@ qx.Class.define("cute.ui.container.SlideBar",
         this._excludeChildControl("button-menu");
       }
 
-      this.getChildControl("button-menu").setMenu(menu)
+      this.getChildControl("button-menu").setMenu(menu);
     },
 
     // overridden
