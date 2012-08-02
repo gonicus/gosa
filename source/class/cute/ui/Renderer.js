@@ -325,7 +325,9 @@ qx.Class.define("cute.ui.Renderer",
       // Setup tool menu
       //TODO: fill with proper values
       var toolMenu = new qx.ui.menu.Menu();
-      var actionsButton = new qx.ui.menu.Button("Actions", "icon/16/actions/contact-new.png", null /*, actionMenu*/);
+      var extendButton = new qx.ui.menu.Button("Extend");
+      toolMenu.add(extendButton);
+      var actionsButton = new qx.ui.menu.Button("Actions");
       toolMenu.add(actionsButton);
       container.getChildControl("bar").setMenu(toolMenu);
 
