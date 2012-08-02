@@ -8,6 +8,7 @@ qx.Class.define("cute.ui.SearchListItem", {
     this.base(arguments);
 
     this.setMarginBottom(10);
+    this.setSelectable(false);
 
     var layout = new qx.ui.layout.Grid();
     layout.setColumnFlex(1, 2);
@@ -152,17 +153,16 @@ qx.Class.define("cute.ui.SearchListItem", {
           var path = "cute/themes/" + theme + "/objects/" + this.getIcon(); 
           control = new qx.ui.basic.Image(path);
           control.setHeight(64);
-          control.setWidth(64);
           control.setScale(true);
+          control.setWidth(64);
+          control.setAppearance("SearchListItem-Icon");
           control.setAnonymous(true); 
           this._add(control, {row: 0, column: 0, rowSpan: 3});
           break;
         case "title":
           control = new qx.ui.basic.Label(this.getTitle());
           this._add(control, {row: 0, column: 1});
-          control.setFont("SearchResultTitle");
-          control.setTextColor("blue");
-          control.setCursor("pointer");
+          control.setAppearance("SearchLIstItem-Title");
           control.addListener("click", function(){
               this.fireDataEvent("edit", this.getModel());
             }, this);
@@ -170,16 +170,15 @@ qx.Class.define("cute.ui.SearchListItem", {
         case "dn":
           control = new qx.ui.basic.Label(this.getDn());
           this._add(control, {row: 1, column: 1});
+          control.setAppearance("SearchLIstItem-Dn");
           control.setAnonymous(true); 
-          control.setTextColor("green");
-          control.setCursor("default");
           control.setSelectable(true);
           break;
         case "description":
           control = new qx.ui.basic.Label(this.getDescription());
           control.setAnonymous(true); 
           this._add(control, {row: 2, column: 1});
-          control.setCursor("default");
+          control.setAppearance("SearchLIstItem-Description");
           control.setRich(true);
           control.setSelectable(false);
           break;

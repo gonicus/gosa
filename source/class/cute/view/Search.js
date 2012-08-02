@@ -75,6 +75,7 @@ qx.Class.define("cute.view.Search",
     //TODO: fill the right bar with proper contents with proper contents
 
     var resultList = new qx.ui.form.List();
+    resultList.setAppearance("SearchList");
     resultList.setDecorator(null);
     this.searchResult.add(resultList, {left: barWidth, right: 0, bottom: 0, top: 0});
 

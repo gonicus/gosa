@@ -14,21 +14,53 @@ qx.Theme.define("cute.theme.Appearance",
 
   appearances :
   {
-    "list" :
+    "SearchList" :
     {
       alias : "scrollarea"
       //,include : "textfield"
     },
 
-    "label" :
+    "SearchListItem-Icon" : 
+    {
+      style : function(states)
+      {
+        return {};
+      }
+    },
+
+    "SearchLIstItem-Dn" :
     {
       style : function(states)
       {
         return {
-          textColor : states.disabled ? "text-disabled" : "text"
+          textColor : "green",
+          cursor: "default"
         };
       }
     },
+
+    "SearchLIstItem-Title" :
+    {
+      style : function(states)
+      {
+        return {
+          textColor : "blue",
+          cursor: "pointer",
+          font : "SearchResultTitle"
+        };
+      }
+    },
+
+    "SearchLIstItem-Description" :
+    {
+      style : function(states)
+      {
+        return {
+          textColor : "black"
+        };
+      }
+    },
+
 
     "SearchListItem":
     {
@@ -46,9 +78,6 @@ qx.Theme.define("cute.theme.Appearance",
 
         var backgroundColor = states.hovered ? 'light-background' : undefined;
         
-        if (states.selected) {
-          backgroundColor = "SearchListItem-selected";
-        }
         return {
           gap : 4,
           padding : padding,
