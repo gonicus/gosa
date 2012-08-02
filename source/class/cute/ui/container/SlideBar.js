@@ -14,12 +14,29 @@ qx.Class.define("cute.ui.container.SlideBar",
   construct : function(orientation)
   {
     this.base(arguments);
+  },
 
-    // Setup menu button
-    this.getChildControl("button-menu");
+  properties :
+  {
+    menu :
+    {
+      init : null,
+      nullable : true,
+      apply : "_applyMenu"
+    }
   },
 
   members : {
+    _applyMenu : function(menu)
+    {
+      if (menu) {
+        this._showChildControl("button-menu");
+      } else {
+        this._excludeChildControl("button-menu");
+      }
+
+      this.getChildControl("button-menu").setMenu(menu)
+    },
 
     // overridden
     _createChildControlImpl : function(id, hash)
@@ -33,10 +50,8 @@ qx.Class.define("cute.ui.container.SlideBar",
           if (cute.Config.theme) {
             theme = cute.Config.theme;
           }
-          control = new qx.ui.form.MenuButton;
+          control = new qx.ui.toolbar.MenuButton;
 	  control.setIcon("resource/cute/themes/" + theme + "/gear.png");
-	  control.setDecorator(null);
-          control.setFocusable(true);
           this._addAt(control, 3);
           break;
 

@@ -227,11 +227,9 @@ qx.Class.define("cute.ui.Renderer",
       // available for this object, then put all pages into a tab-page.
       var container;
       var size = qx.lang.Object.getKeys(ui_definition).length;
-      if (size > 1) {
-         container = new cute.ui.tabview.TabView();
-	 container.setMaxWidth(800);
-         this.add(container);
-      }
+      container = new cute.ui.tabview.TabView();
+      container.setMaxWidth(800);
+      this.add(container);
 
       // Create a list of tab-names and order them
       var tabs = new Array(this._object.baseType);
@@ -290,43 +288,46 @@ qx.Class.define("cute.ui.Renderer",
               this.setProperties_(info['properties']);
             }
 
-            if (size > 1) {
-              var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
-              page.setLayout(new qx.ui.layout.VBox());
-              page.add(info['widget']);
+            var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
+            page.setLayout(new qx.ui.layout.VBox());
+            page.add(info['widget']);
 
-              if (i != this._object.baseType) {
-                page.setShowCloseButton(true);
-                page.setUserData("type", i);
+            if (i != this._object.baseType) {
+              page.setShowCloseButton(true);
+              page.setUserData("type", i);
 
-                var closeButton = page.getButton();
-		closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
-                closeButton.removeListener("close", page._onButtonClose, page);
-                closeButton.addListener("close", function() {
-                  var type = page.getUserData("type");
+              var closeButton = page.getButton();
+	      closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
+              closeButton.removeListener("close", page._onButtonClose, page);
+              closeButton.addListener("close", function() {
+                var type = page.getUserData("type");
 
-                  this._object.retract(function(result, error) {
-                    if (error) {
-                      this.error(error.message);
-                      alert(error.message);
-                    } else {
-                      page.fireEvent("close");
-                      this.setModified(true);
-                    }
-                  }, this, type);
-                }, this);
-              }
-
-              container.add(page);
-            } else {
-               this.add(info['widget']);
+                this._object.retract(function(result, error) {
+                  if (error) {
+                    this.error(error.message);
+                    alert(error.message);
+                  } else {
+                    page.fireEvent("close");
+                    this.setModified(true);
+                  }
+                }, this, type);
+              }, this);
             }
+
+            container.add(page);
           } else {
             this.info("*** no widget found for '" + i + "'");
           }
 	}
 
       }
+
+      // Setup tool menu
+      //TODO: fill with proper values
+      var toolMenu = new qx.ui.menu.Menu();
+      var actionsButton = new qx.ui.menu.Button("Actions", "icon/16/actions/contact-new.png", null /*, actionMenu*/);
+      toolMenu.add(actionsButton);
+      container.getChildControl("bar").setMenu(toolMenu);
 
       // Setup tabstop handling
       for (var i= 0; i<this._tabstops.length; i++) {
