@@ -325,10 +325,12 @@ qx.Class.define("cute.ui.Renderer",
       // Setup tool menu
       //TODO: fill with proper values
       var toolMenu = new qx.ui.menu.Menu();
-      var extendButton = new qx.ui.menu.Button("Extend");
+      var extendButton = new qx.ui.menu.Button(this.tr("Extend"));
       toolMenu.add(extendButton);
-      var actionsButton = new qx.ui.menu.Button("Actions");
-      toolMenu.add(actionsButton);
+
+      //var actionsButton = new qx.ui.menu.Button(this.tr("Actions"));
+      //toolMenu.add(actionsButton);
+
       container.getChildControl("bar").setMenu(toolMenu);
 
       // Setup tabstop handling
