@@ -5,6 +5,7 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
   construct: function(){
     this.base(arguments);  
     this.setLayout(new qx.ui.layout.VBox(5));
+    this.setDecorator("main");
 
     var theme = "default";
     if (cute.Config.theme) {
@@ -20,8 +21,7 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
       }, this);
 
     var container = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-    container.setBackgroundColor("#DDDDDD");
-    container.add(this._widget, {top:0, bottom:0, left:0, right:0});
+    container.add(this._widget, {top:1, bottom:1, left:1, right:1});
     this.add(container);
     
     // Create context menu buttons
