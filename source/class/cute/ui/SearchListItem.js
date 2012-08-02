@@ -98,20 +98,36 @@ qx.Class.define("cute.ui.SearchListItem", {
       this.removeState("hovered");
     },
 
-    _applyTitle: function(){
+    _applyTitle: function(value){
       this._showChildControl("title");
+      var widget = this.getChildControl("title");
+      if(widget){
+        widget.setValue(value);
+      }
     },
 
-    _applyIcon: function(){
+    _applyIcon: function(value){
       this._showChildControl("icon");
+      var widget = this.getChildControl("icon");
+      if(widget){
+        widget.setSource(value);
+      }
     },
 
-    _applyDescription: function(){
+    _applyDescription: function(value){
       this._showChildControl("description");
+      var widget = this.getChildControl("description");
+      if(widget){
+        widget.setValue(value);
+      }
     },
 
     _applyDn: function(value){
       this._showChildControl("dn");
+      var widget = this.getChildControl("dn");
+      if(widget){
+        widget.setValue(value);
+      }
     },
 
     _createChildControlImpl : function(id, hash)
