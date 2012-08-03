@@ -244,6 +244,38 @@ qx.Class.define("cute.ui.Renderer",
       }
     },
 
+    extractResources : function(ui_def, theme)
+    {
+      res = [];
+
+      // Find resources (e.g. image-paths) before we do anything more
+      for (var q=0; q<ui_def.length; q++) {
+        for (var r=0; r<ui_def[q].childNodes.length; r++) {
+          if (ui_def[q].childNodes[r].nodeName == "resources") {
+            var resources = ui_def[q].childNodes[r];
+            for (var j=0; j<resources.childNodes.length; j++) {
+              var topic = resources.childNodes[j];
+              if (topic.nodeName != "resource") {
+                continue;
+              }
+              var loc = topic.getAttribute("location");
+              var files = {};
+              for (var f in topic.childNodes) {
+                var item = topic.childNodes[f];
+                if (item.nodeName == "file") {
+                  files[":/" + item.firstChild.nodeValue] = "resource/clacks/" + theme + "/" + item.firstChild.nodeValue;
+                }
+              }
+              res.push(files);
+            }
+          }
+          res[loc] = files;
+        }
+      }
+
+      return res;
+    },
+
     /* Configure this widget for the given ui_defintion.
      * The ui_definition is parsed and qooxdoo-object are created for
      * each found xml-tag.
@@ -290,29 +322,9 @@ qx.Class.define("cute.ui.Renderer",
 
           // Parse the ui definition of the object
           var ui_def = parseXml(ui_definition[extension][tab]).childNodes;
-
-          // Find resources (e.g. image-paths) before we do anything more
-          for (var q=0; q<ui_def.length; q++) {
-            for (var r=0; r<ui_def[q].childNodes.length; r++) {
-              if (ui_def[q].childNodes[r].nodeName == "resources") {
-                var resources = ui_def[q].childNodes[r];
-                for (var j=0; j<resources.childNodes.length; j++) {
-                  var topic = resources.childNodes[j];
-                  if (topic.nodeName != "resource") {
-                    continue;
-                  }
-                  var loc = topic.getAttribute("location");
-                  var files = {};
-                  for (var f in topic.childNodes) {
-                    var item = topic.childNodes[f];
-                    if (item.nodeName == "file") {
-                      files[":/" + item.firstChild.nodeValue] = "resource/clacks/" + theme + "/" + item.firstChild.nodeValue;
-                    }
-                  }
-                  this._resources[loc] = files;
-                }
-              }
-            }
+          var resources = this.extractResources(ui_def, theme);
+          for (var attr in resources) {
+            this._resources[attr] = resources[attr];
           }
 
           // Create the gui-part for this tab
@@ -369,9 +381,39 @@ qx.Class.define("cute.ui.Renderer",
       // Setup tool menu
       //TODO: fill with proper values
       var toolMenu = new qx.ui.menu.Menu();
-      var extendMenu = new qx.ui.menu.Menu();
-      var extendButton = new qx.ui.menu.Button(this.tr("Extend"));
 
+//HIER
+      var extendMenu = new qx.ui.menu.Menu();
+
+      for (var ext in this._object.extensionTypes) {
+        if (!this._object.extensionTypes[ext] && this._object.templates[ext]) {
+
+          // Find first widget definition and extract windowIcon and windowTitle
+          var nodes = parseXml(this._object.templates[ext]);
+          var resources = this.extractResources(nodes.childNodes, theme);
+          var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
+          var props = {};
+          for (var i in widget) {
+            if (widget[i].nodeName == "property") {
+              var tmp = this.processProperty(widget[i]);
+              for (var item in tmp) {
+                props[item] = tmp[item];
+              }
+            }
+          }
+
+          var eb = new qx.ui.menu.Button(this.getStringProperty('windowTitle', props),
+            this.getIconProperty('windowIcon', props, resources));
+          eb.setUserData("extension", ext);
+          eb.addListener("execute", function() {
+            this.extendObjectWith(eb.getUserData('extension'));
+          }, this);
+
+          extendMenu.add(eb);
+        }
+      }
+
+      var extendButton = new qx.ui.menu.Button(this.tr("Extend"), null, null, extendMenu);
       toolMenu.add(extendButton);
 
       //TODO: fill actions - currently unknown to the server side object
@@ -456,6 +498,21 @@ qx.Class.define("cute.ui.Renderer",
       return true;
     },
 
+    extendObjectWith : function(type) 
+    {
+      //TODO: Check for dependencies, eventually ask for additional extensions
+      //TODO: Setup new tab
+
+      this._object.extend(function(result, error) {
+        if (error) {
+          this.error(error.message);
+          alert(error.message);
+        } else {
+          //TODO: bind new properties
+          this.setModified(true);
+        }
+      }, this, type);
+    },
 
     /**
      * This method contains the initial application code and gets called 
@@ -1073,13 +1130,17 @@ qx.Class.define("cute.ui.Renderer",
       }
     },
 
-    getIconProperty : function(what, props)
+    getIconProperty : function(what, props, resources)
     {
+      if (!resources) {
+        resources = this._resources;
+      }
+
       if (props[what] && props[what]['iconset']['normaloff']) {
         var resource = props[what]['_resource'];
 
-        if (this._resources[resource]) {
-          return this._resources[resource][props[what]['iconset']['normaloff']];
+        if (resources[resource]) {
+          return resources[resource][props[what]['iconset']['normaloff']];
         }
       }
 
@@ -1210,3 +1271,5 @@ qx.Class.define("cute.ui.Renderer",
     }
   }
 });
+
+// vim:tabstop=2:expandtab:shiftwidth=2
