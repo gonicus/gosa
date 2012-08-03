@@ -326,9 +326,14 @@ qx.Class.define("cute.ui.Renderer",
       // Setup tool menu
       //TODO: fill with proper values
       var toolMenu = new qx.ui.menu.Menu();
+
+      var extendMenu = new qx.ui.menu.Menu();
+      //Bindings
       var extendButton = new qx.ui.menu.Button(this.tr("Extend"));
+
       toolMenu.add(extendButton);
 
+      //TODO: fill actions - currently unknown to the server side object
       //var actionsButton = new qx.ui.menu.Button(this.tr("Actions"));
       //toolMenu.add(actionsButton);
 
@@ -947,7 +952,7 @@ qx.Class.define("cute.ui.Renderer",
     {
       var title = this.getStringProperty('title', props);
       //TODO: create a group box with icons
-      var widget = new qx.ui.groupbox.GroupBox(title);
+      var widget = new qx.ui.groupbox.GroupBox(this.tr(title));
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
 
