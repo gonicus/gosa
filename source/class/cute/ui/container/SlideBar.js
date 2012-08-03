@@ -50,7 +50,8 @@ qx.Class.define("cute.ui.container.SlideBar",
           if (cute.Config.theme) {
             theme = cute.Config.theme;
           }
-          control = new qx.ui.toolbar.MenuButton;
+          control = new qx.ui.form.MenuButton;
+	  control.setMargin(4);
 	  control.setIcon("resource/cute/themes/" + theme + "/gear.png");
           this._addAt(control, 3);
           break;

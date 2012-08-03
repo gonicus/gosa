@@ -307,6 +307,7 @@ qx.Class.define("cute.ui.Renderer",
                     this.error(error.message);
                     alert(error.message);
                   } else {
+                    //TODO: unbind unused properties
                     page.fireEvent("close");
                     this.setModified(true);
                   }

@@ -14,19 +14,6 @@ qx.Theme.define("cute.theme.Appearance",
 
   appearances :
   {
-    "arrow" :
-    {
-      include : "image",
-
-      style : function(states)
-      {
-        return {
-          source : states.selected ? "decoration/arrows/down-invert.gif" : "decoration/arrows/down.gif",
-          alignY : "middle"
-        };
-      }
-    },
-
     "SearchList" :
     {
       alias : "scrollarea"
