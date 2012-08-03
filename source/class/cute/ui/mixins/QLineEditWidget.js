@@ -3,7 +3,7 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
   members:
   {
 
-    processQLineEditWidget : function(name, props)
+    processQLineEditWidget : function(loc, name, props)
     {
       var realname = name.replace(/Edit$/, '', name);
       var ad = this.getAttributeDefinitions_()[realname];
@@ -40,6 +40,7 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
 
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
+      this.__add_widget_to_extension(name, loc);
 
       // set widget properties
       widget.setMultivalue(this.getAttributeDefinitions_()[realname]['multivalue']);

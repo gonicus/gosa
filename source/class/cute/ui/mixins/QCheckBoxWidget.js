@@ -3,12 +3,13 @@ qx.Mixin.define("cute.ui.mixins.QCheckBoxWidget",
   members:
   {
 
-    processQCheckBoxWidget : function(name, props)
+    processQCheckBoxWidget : function(loc, name, props)
     {
       var realname = name.replace(/Edit$/, '', name);
       var widget = new cute.ui.widgets.QCheckBoxWidget();
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
+      this.__add_widget_to_extension(name, loc);
 
       if("text" in props){
         widget.setLabel(props["text"]["string"]);

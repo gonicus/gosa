@@ -48,6 +48,7 @@ qx.Class.define("cute.ui.Renderer",
 
     // Widget store
     this._widgets = {};
+    this._extension_to_widgets = {};
     this._property_timer = {};
 
     // Flex map
@@ -282,7 +283,7 @@ qx.Class.define("cute.ui.Renderer",
             }
           }
 
-          var info = this.processUI(ui_def);
+          var info = this.processUI(i, ui_def);
 
           if (info) {
             // Take over properties of base type
@@ -445,7 +446,7 @@ qx.Class.define("cute.ui.Renderer",
      * @lint ignoreDeprecated(alert)
      */
 
-    processUI : function(nodes)
+    processUI : function(loc, nodes)
     {
       // Process one level, watch out for nodes we know
       for (var i=0; i<nodes.length; i++) {
@@ -464,7 +465,7 @@ qx.Class.define("cute.ui.Renderer",
           }
 
           // Continue with processing the child nodes
-          return this.processElements(node.childNodes);
+          return this.processElements(loc, node.childNodes);
 
         } else {
           this.error("*** unexpected element '" + node.nodeName + "'");
@@ -474,7 +475,7 @@ qx.Class.define("cute.ui.Renderer",
       return null;
     },
 
-    processElements : function(nodes)
+    processElements : function(loc, nodes)
     {
       var widgets = new Array();
 
@@ -494,7 +495,7 @@ qx.Class.define("cute.ui.Renderer",
 
         // Widget
         } else if (node.nodeName == "widget") {
-          widgets.push(this.processWidget(node));
+          widgets.push(this.processWidget(loc, node));
 
         // Spacer
         } else if (node.nodeName == "spacer") {
@@ -542,7 +543,7 @@ qx.Class.define("cute.ui.Renderer",
                 var row = parseInt(topic.getAttribute("row"));
                 var colspan = parseInt(topic.getAttribute("colspan"));
                 var rowspan = parseInt(topic.getAttribute("rowspan"));
-                var wdgt = this.processElements(topic.childNodes);
+                var wdgt = this.processElements(loc, topic.childNodes);
                 var pos = {row: row, column: column}
                 if (colspan) {
                   pos['colSpan'] = colspan;
@@ -568,17 +569,17 @@ qx.Class.define("cute.ui.Renderer",
                   pos['rowSpan'] = rowspan;
                 }
 
-                var wdgt = this.processElements(topic.childNodes);
+                var wdgt = this.processElements(loc, topic.childNodes);
                 widget.add(wdgt['widget'], pos);
                 widget.getLayout().setColumnFlex(column, this.extractHFlex(wdgt['properties'], 1));
                 widget.getLayout().setRowFlex(row, this.extractVFlex(wdgt['properties'], 1));
 
               } else if (layout_type == "QHBoxLayout") {
-                var wdgt = this.processElements(topic.childNodes);
+                var wdgt = this.processElements(loc, topic.childNodes);
                 widget.add(wdgt['widget'], {flex: this.extractHFlex(wdgt['properties'])});
 
               } else if (layout_type == "QVBoxLayout") {
-                var wdgt = this.processElements(topic.childNodes);
+                var wdgt = this.processElements(loc, topic.childNodes);
                 widget.add(wdgt['widget'], {flex: this.extractVFlex(wdgt['properties'])});
               }
             }
@@ -747,7 +748,7 @@ qx.Class.define("cute.ui.Renderer",
       return {widget: w, properties: properties};
     },
 
-    processWidget : function(node)
+    processWidget : function(loc, node)
     {
       var widgets = new Array();
       var nodes = node.childNodes;
@@ -778,7 +779,7 @@ qx.Class.define("cute.ui.Renderer",
 
           // Widget
         } else if (n.nodeName == "widget") {
-          widgets.push(this.processWidget(n));
+          widgets.push(this.processWidget(loc, n));
 
           // Layout
         } else if (n.nodeName == "layout") {
@@ -793,7 +794,7 @@ qx.Class.define("cute.ui.Renderer",
       var method = "process" + clazz + "Widget";
       var widget;
       if (method in this) {
-        widget = this[method](name, properties);
+        widget = this[method](loc, name, properties);
       } else {
         this.error("*** widget '" + method + "' does not exist!");
         return null;
@@ -841,7 +842,7 @@ qx.Class.define("cute.ui.Renderer",
               if (rowspan) {
                 pos['rowSpan'] = rowspan;
               }
-              var wdgt = this.processElements(topic.childNodes);
+              var wdgt = this.processElements(loc, topic.childNodes);
               widget.add(wdgt['widget'], pos);
               widget.getLayout().setColumnFlex(column, 1);
 
@@ -856,15 +857,15 @@ qx.Class.define("cute.ui.Renderer",
               if (rowspan) {
                 pos['rowSpan'] = rowspan;
               }
-              var wdgt = this.processElements(topic.childNodes);
+              var wdgt = this.processElements(loc, topic.childNodes);
               widget.add(wdgt['widget'], pos);
 
             } else if (layout_type == "QHBoxLayout") {
-              var wdgt = this.processElements(topic.childNodes);
+              var wdgt = this.processElements(loc, topic.childNodes);
               widget.add(wdgt['widget']);
 
             } else if (layout_type == "QVBoxLayout") {
-              var wdgt = this.processElements(topic.childNodes);
+              var wdgt = this.processElements(loc, topic.childNodes);
               widget.add(wdgt['widget']);
             }
           }
@@ -940,24 +941,34 @@ qx.Class.define("cute.ui.Renderer",
       return res;
     },
 
-    processQWidgetWidget : function(name, props)
+    __add_widget_to_extension : function(name, loc)
+    {
+      if (!this._extension_to_widgets[loc]) {
+        this._extension_to_widgets[loc] = [];
+      }
+      this._extension_to_widgets[loc].push(name);
+    },
+
+    processQWidgetWidget : function(loc, name, props)
     {
       var widget = new qx.ui.container.Composite();
       widget.title_ = this.getStringProperty('windowTitle', props);
       widget.icon_ = this.getIconProperty('windowIcon', props);
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
+      this.__add_widget_to_extension(name, loc);
 
       return widget;
     },
 
-    processQGroupBoxWidget : function(name, props)
+    processQGroupBoxWidget : function(loc, name, props)
     {
       var title = this.getStringProperty('title', props);
       //TODO: create a group box with icons
       var widget = new qx.ui.groupbox.GroupBox(this.tr(title));
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
+      this.__add_widget_to_extension(name, loc);
 
       return widget;
     },

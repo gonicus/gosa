@@ -3,12 +3,13 @@ qx.Mixin.define("cute.ui.mixins.QGraphicsViewWidget",
   members:
   {
 
-    processQGraphicsViewWidget: function(name, props)
+    processQGraphicsViewWidget: function(loc, name, props)
     {
       var realname = name.replace(/Edit$/, '', name);
       var widget = new cute.ui.widgets.QGraphicsViewWidget();
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
+      this.__add_widget_to_extension(name, loc);
 
       widget.addListener("valueChanged", function(e){
           this.set(realname, e.getData());

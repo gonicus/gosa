@@ -2,7 +2,7 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
 {
   members:
   {
-    processQComboBoxWidget : function(name, props)
+    processQComboBoxWidget : function(loc, name, props)
     {
       var realname = name.replace(/Edit$/, '', name);
       var widget = new cute.ui.widgets.QComboBoxWidget();
@@ -66,6 +66,7 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
 
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
+      this.__add_widget_to_extension(name, loc);
 
       // set widget properties
       widget.setMultivalue(ad['multivalue']);
