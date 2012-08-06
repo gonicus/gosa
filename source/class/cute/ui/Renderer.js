@@ -170,11 +170,14 @@ qx.Class.define("cute.ui.Renderer",
 
   members :
   {
-    _widgets: null,
     _object: null,
+    _widgets: null,
     _tabstops: null,
     _bindings: null,
     _resources: null,
+    _current_tabstops: null,
+    _current_bindings: null,
+
     __okBtn: null,
     __cancelBtn: null,
 
