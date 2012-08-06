@@ -6,12 +6,8 @@ qx.Class.define("cute.ui.form.Spinner", {
     /** The value of the spinner. */
     value:
     {
-      check : "this._checkValue(value)",
-      nullable : true,
       refine: true,
-      apply : "_applyValue",
-      init : null,
-      event : "changeValue"
+      init : null
     }
   },
 
@@ -94,4 +90,4 @@ qx.Class.define("cute.ui.form.Spinner", {
       }
     }
   }
-})
+});
