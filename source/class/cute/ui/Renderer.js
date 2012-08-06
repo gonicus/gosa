@@ -421,16 +421,18 @@ qx.Class.define("cute.ui.Renderer",
 
       okButton.addListener("click", function() {
         this._object.commit(function(result, error){
-                if(error){
-                  this.error(error.message);
-                }
-              }, this);
-        this._object.close(function(result, error){
-                if(error){
-                  this.error(error.message);
-                }
-              }, this);
-        this.fireEvent("done");
+          if(error){
+            this.error(error.message);
+          }else{
+            this._object.close(function(result, error){
+              if(error){
+                this.error(error.message);
+              }else{
+                this.fireEvent("done");
+              }
+            }, this);
+          }
+        }, this);
       }, this);
 
       var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), "icon/22/actions/dialog-cancel.png");
@@ -522,7 +524,6 @@ qx.Class.define("cute.ui.Renderer",
               this._object.retract(function(result, error) {
                 if (error) {
                   this.error(error.message);
-                  alert(error.message);
                 } else {
 
                   // Remove all widget references and then close the page
