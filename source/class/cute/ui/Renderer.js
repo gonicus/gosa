@@ -75,7 +75,8 @@ qx.Class.define("cute.ui.Renderer",
     title_: { init: "Unknown", inheritable : true },
     icon_: { init: null, inheritable : true },
     properties_: { init: null, inheritable : true },
-    attributeDefinitions_: { init: null, inheritable : true }
+    attributeDefinitions_: { init: null, inheritable : true },
+    UiDefinition_: { init: null, inheritable : true }
   },
 
   events: {
@@ -149,7 +150,8 @@ qx.Class.define("cute.ui.Renderer",
       var widget = new clazz();
       widget._object = obj;
       widget.setAttributeDefinitions_(obj.attribute_data);
-      widget.configure(ui_definition);
+      widget.setUiDefinition_(ui_definition)
+      widget.configure();
 
       // Connect to the object event 'propertyUpdateOnServer' to be able to act on property changes.
       // e.g. set an invalid-decorator for specific widget.
@@ -177,6 +179,7 @@ qx.Class.define("cute.ui.Renderer",
     _resources: null,
     _current_tabstops: null,
     _current_bindings: null,
+    _tabContainer: null,
 
     __okBtn: null,
     __cancelBtn: null,
@@ -292,14 +295,15 @@ qx.Class.define("cute.ui.Renderer",
      * The ui_definition is parsed and qooxdoo-object are created for
      * each found xml-tag.
      * */
-    configure : function(ui_definition)
+    configure : function()
     {
 
       // If there are extensions or more than one gui-page 
       // available for this object, then put all pages into a tab-page.
       var container;
+      var ui_definition = this.getUiDefinition_();
       var size = qx.lang.Object.getKeys(ui_definition).length;
-      container = new cute.ui.tabview.TabView();
+      this._tabContainer = container = new cute.ui.tabview.TabView();
       container.setMaxWidth(800);
       this.add(container);
 
@@ -324,78 +328,7 @@ qx.Class.define("cute.ui.Renderer",
             (!this._object.extensionTypes[extension] && extension != this._object.baseType)) {
           continue;
         }
-
-        // Process each tab of the current extension
-        for (var tab=0; tab<ui_definition[extension].length; tab++) {
-
-          // Clean-up values that were collected per-loop.
-          this._current_bindings = {};
-          this._current_tabstops = new Array();
-
-          // Parse the ui definition of the object
-          var ui_def = parseXml(ui_definition[extension][tab]).childNodes;
-          var resources = this.extractResources(ui_def, theme);
-          for (var attr in resources) {
-            this._resources[attr] = resources[attr];
-          }
-
-          // Create the gui-part for this tab
-          var info = this.processUI(extension, ui_def);
-          if (info) {
-
-            // Take over properties of base type
-            if (this._object.baseType == extension || extension == "ContainerObject") {
-              this.setProperties_(info['properties']);
-            }
-
-            // Create a new tab-page with the generated gui as content.
-            var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
-            page.setLayout(new qx.ui.layout.VBox());
-            page.add(info['widget']);
-
-            // Add "remove extension" buttons to all non-base tabs.
-            if (extension != this._object.baseType) {
-              page.setShowCloseButton(true);
-              page.setUserData("type", extension);
-
-              var closeButton = page.getButton();
-              closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
-              closeButton.removeListener("close", page._onButtonClose, page);
-              closeButton.addListener("close", function() {
-
-
-                this._object.retract(function(result, error) {
-                  if (error) {
-                    this.error(error.message);
-                    alert(error.message);
-                  } else {
-
-                    // Remove all widget references and then close the page
-                    var type = page.getUserData("type");
-                    for(var widget in this._extension_to_widgets[type]){
-                      widget = this._extension_to_widgets[type][widget];
-                      delete this._widgets[widget]
-                    }
-                    delete this._extension_to_widgets[type];
-
-                    page.fireEvent("close");
-                    page.dispose();
-                  }
-                }, this, type);
-              }, this);
-            }
-
-            // Add the page to the gui
-            container.add(page);
-
-            // Connect this master-widget with the object properties, establish tabstops
-            this.processBindings(this._current_bindings);
-            this.processTabStops(this._current_tabstops);
-
-          } else {
-            this.info("*** no widget found for '" + extension + "'");
-          }
-        }
+        this._createTabsForExtension(extension);
       }
 
       // Setup tool menu
@@ -518,6 +451,8 @@ qx.Class.define("cute.ui.Renderer",
       return true;
     },
 
+    
+
     extendObjectWith : function(type) 
     {
       //TODO: Check for dependencies, eventually ask for additional extensions
@@ -529,9 +464,93 @@ qx.Class.define("cute.ui.Renderer",
           alert(error.message);
         } else {
           //TODO: bind new properties
+          this._createTabsForExtension(type);
           this.setModified(true);
         }
       }, this, type);
+    },
+
+
+    _createTabsForExtension: function(extension){
+
+      // Detect the theme
+      var theme = "default";
+      if (cute.Config.theme) {
+        theme = cute.Config.theme;
+      }
+
+      // Process each tab of the current extension
+      var ui_definition = this.getUiDefinition_();
+      for (var tab=0; tab<ui_definition[extension].length; tab++) {
+
+        // Clean-up values that were collected per-loop.
+        this._current_bindings = {};
+        this._current_tabstops = new Array();
+
+        // Parse the ui definition of the object
+        var ui_def = parseXml(ui_definition[extension][tab]).childNodes;
+        var resources = this.extractResources(ui_def, theme);
+        for (var attr in resources) {
+          this._resources[attr] = resources[attr];
+        }
+
+        // Create the gui-part for this tab
+        var info = this.processUI(extension, ui_def);
+        if (info) {
+
+          // Take over properties of base type
+          if (this._object.baseType == extension || extension == "ContainerObject") {
+            this.setProperties_(info['properties']);
+          }
+
+          // Create a new tab-page with the generated gui as content.
+          var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
+          page.setLayout(new qx.ui.layout.VBox());
+          page.add(info['widget']);
+
+          // Add "remove extension" buttons to all non-base tabs.
+          if (extension != this._object.baseType) {
+            page.setShowCloseButton(true);
+            page.setUserData("type", extension);
+
+            var closeButton = page.getButton();
+            closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
+            closeButton.removeListener("close", page._onButtonClose, page);
+            closeButton.addListener("close", function() {
+
+              var type = page.getUserData("type");
+              this._object.retract(function(result, error) {
+                if (error) {
+                  this.error(error.message);
+                  alert(error.message);
+                } else {
+
+                  // Remove all widget references and then close the page
+                  for(var widget in this._extension_to_widgets[type]){
+                    widget = this._extension_to_widgets[type][widget];
+                    delete this._widgets[widget]
+                  }
+                  delete this._extension_to_widgets[type];
+
+                  page.fireEvent("close");
+                  page.dispose();
+                  this.setModified(true);
+                }
+              }, this, type);
+            }, this);
+          }
+
+          // Add the page to the gui
+          this._tabContainer.add(page);
+
+          // Connect this master-widget with the object properties, establish tabstops
+          this.processBindings(this._current_bindings);
+          this.processTabStops(this._current_tabstops);
+
+        } else {
+          this.info("*** no widget found for '" + extension + "'");
+        }
+      }
     },
 
     /**

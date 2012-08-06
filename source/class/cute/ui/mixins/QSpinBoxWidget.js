@@ -9,17 +9,28 @@ qx.Mixin.define("cute.ui.mixins.QSpinBoxWidget",
       var ad = this.getAttributeDefinitions_()[realname];
       if (!ad) {
         this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
-	return null;
+        return null;
       }
 
-      var widget = new qx.ui.form.Spinner();
-      
+      var widget = new cute.ui.widgets.QSpinBoxWidget();
+
+      // Set max length
+      var ml = this.getNumberProperty('maxLength', props);
+      if (ml != null) {
+        widget.setMaxLength(ml);
+      }
+
       this.processCommonProperties(widget, props);
       this._widgets[name] = widget;
       this.__add_widget_to_extension(name, loc);
 
+      // set widget properties
+      widget.setMultivalue(this.getAttributeDefinitions_()[realname]['multivalue']);
+
       // Add listeners for value changes.
-      widget.addListener("changeValue", function(e){
+      //widget.setLiveUpdate(true);
+      //this.bind(realname, widget, "value");
+      widget.addListener("valueChanged", function(e){
           this.set(realname, e.getData());
           this.setModified(true);
         }, this);
