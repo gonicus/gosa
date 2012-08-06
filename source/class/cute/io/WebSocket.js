@@ -11,6 +11,10 @@ qx.Class.define("cute.io.WebSocket", {
     this.__ws = null;
   },
 
+  destruct : function(){
+    this.__ws = null;
+  },
+
   members : {
 
     reconnect : function() {

@@ -8,6 +8,10 @@ qx.Class.define("cute.io.types.Timestamp",
     this.set(date);
   },
 
+  destruct : function(){
+    this._date_obj = null;
+  },
+
   statics: {
     tag: 'datetime.datetime'
   },

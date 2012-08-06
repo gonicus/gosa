@@ -37,6 +37,10 @@ qx.Class.define("cute.ui.SearchListItem", {
     this._toolbar.hide();
   },
 
+  destruct : function(){
+    this._disposeObjects("_toolbar");
+  },
+
   events: {
     "edit": "qx.event.type.Data"
   },
