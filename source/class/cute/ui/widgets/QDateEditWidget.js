@@ -178,7 +178,10 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
           this._widgetContainer[i] = container;
         }
         if(i < this.getValue().getLength()){
-          this._widgets[i].setValue(this.getValue().getItem(i).get());
+          var value = this.getValue().getItem(i);
+          if(value != null){
+            this._widgets[i].setValue(value.get());
+          }
         }
       }
     },

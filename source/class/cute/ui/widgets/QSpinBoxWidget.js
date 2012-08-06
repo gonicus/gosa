@@ -31,11 +31,6 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
         return(res);
       }
 
-      // A single value is given but its empty.
-      if(this.getValue().getLength() == 1 && this.getValue().getItem(0) == ""){
-        return(res);
-      }
-
       // Append all non empty values
       for(var i=0; i<this.getValue().getLength(); i++){
         var v = this.getValue().getItem(i);
