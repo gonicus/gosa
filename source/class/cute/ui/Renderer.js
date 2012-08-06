@@ -259,6 +259,8 @@ qx.Class.define("cute.ui.Renderer",
       }
     },
 
+    /* Extract resources from the given ui-defintion
+     * */
     extractResources : function(ui_def, theme)
     {
       var res = [];
@@ -454,12 +456,12 @@ qx.Class.define("cute.ui.Renderer",
     },
 
     
-
+    /* Extend the object with the given extension
+     * */
     extendObjectWith : function(type) 
     {
       //TODO: Check for dependencies, eventually ask for additional extensions
       //TODO: Setup new tab
-
       this._object.extend(function(result, error) {
         if (error) {
           this.error(error.message);
@@ -473,6 +475,9 @@ qx.Class.define("cute.ui.Renderer",
     },
 
 
+    /* Create the gui elements for the given extension
+     * and appends a new page the tab-container.
+     * */
     _createTabsForExtension: function(extension){
 
       // Detect the theme
