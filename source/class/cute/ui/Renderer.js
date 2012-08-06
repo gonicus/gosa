@@ -289,9 +289,9 @@ qx.Class.define("cute.ui.Renderer",
           res[loc] = files;
         }
       }
-
       return res;
     },
+
 
     /* Configure this widget for the given ui_defintion.
      * The ui_definition is parsed and qooxdoo-object are created for
@@ -425,6 +425,7 @@ qx.Class.define("cute.ui.Renderer",
         this._object.commit(function(result, error){
           if(error){
             this.error(error.message);
+            new cute.ui.dialogs.Error(error.message).open();
           }else{
             this._object.close(function(result, error){
               if(error){

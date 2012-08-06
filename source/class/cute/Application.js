@@ -37,6 +37,7 @@ qx.Class.define("cute.Application",
      */
     main : function()
     {
+
       // Call super class
       this.base(arguments);
 
@@ -57,7 +58,6 @@ qx.Class.define("cute.Application",
 
       // Document is the application root
       var doc = this.getRoot();
-
       var pluginView = new qx.ui.tabview.TabView();
       pluginView.setBarPosition("left");
 
