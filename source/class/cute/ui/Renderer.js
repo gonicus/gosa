@@ -359,16 +359,24 @@ qx.Class.define("cute.ui.Renderer",
               closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
               closeButton.removeListener("close", page._onButtonClose, page);
               closeButton.addListener("close", function() {
-                var type = page.getUserData("type");
+
 
                 this._object.retract(function(result, error) {
                   if (error) {
                     this.error(error.message);
                     alert(error.message);
                   } else {
-                    //TODO: unbind unused properties
+
+                    // Remove all widget references and then close the page
+                    var type = page.getUserData("type");
+                    for(var widget in this._extension_to_widgets[type]){
+                      widget = this._extension_to_widgets[type][widget];
+                      delete this._widgets[widget]
+                    }
+                    delete this._extension_to_widgets[type];
+
                     page.fireEvent("close");
-                    this.setModified(true);
+                    page.dispose();
                   }
                 }, this, type);
               }, this);
