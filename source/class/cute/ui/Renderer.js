@@ -100,7 +100,7 @@ qx.Class.define("cute.ui.Renderer",
       // Check if there's an override for the definitions
       // If not, use the objects gui templates.
       var use_cached = true;
-      ui_definition = obj.templates;
+      var ui_definition = obj.templates;
 
       // Check if we can use a cached gui here.
       if(use_cached && obj.classname in cute.ui.Renderer.classes){
