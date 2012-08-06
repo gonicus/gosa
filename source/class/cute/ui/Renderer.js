@@ -83,6 +83,11 @@ qx.Class.define("cute.ui.Renderer",
     "done": "qx.event.type.Event"
   },
 
+ 
+  destruct : function(){
+    this._disposeObjects("__okBtn", "__cancelBtn");
+  },
+
   statics :
   {
 

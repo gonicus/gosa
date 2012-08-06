@@ -30,6 +30,11 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
     }
   },
 
+  destruct : function(){
+    this._disposeObjects("_chkBoxWidget");
+  },
+
+
   members: {
 
     _initialized: false,

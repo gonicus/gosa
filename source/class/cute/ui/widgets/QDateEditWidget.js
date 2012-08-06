@@ -12,6 +12,12 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
   properties: {
   },
 
+  destruct : function(){
+    this._property_timer = null;
+    this._disposeArray("_widgets");
+    this._disposeArray("_widgetContainer");
+  },
+
   members: {
 
     _widgets: null,
