@@ -255,7 +255,7 @@ qx.Class.define("cute.ui.Renderer",
 
     extractResources : function(ui_def, theme)
     {
-      res = [];
+      var res = [];
 
       // Find resources (e.g. image-paths) before we do anything more
       for (var q=0; q<ui_def.length; q++) {
