@@ -29,7 +29,8 @@
     "simulation-run",
     "test",
     "test-source",
-    "translation"
+    "translation",
+    "source-disposerDebug"
   ],
   
   "default-job" : "source-hybrid",
@@ -50,40 +51,51 @@
 
   "jobs" :
   {
+    // existing jobs ...
+    "source-disposerDebug" :
+    {
+      "desc" : "source version with 'qx.debug.dispose.level' for destruct support",
+      "extend" : [ "source" ],
+      "environment" :
+      {
+       "qx.debug.dispose.level" : "2"
+      }
+    },
+
     "build":
     {
-	"add-script" :
-	[
-		{
-			"uri" : "script/xml.js"
-		}
-	],
-	"copy-files" :
-	{
-		"files"     : [ "script/xml.js" ],
-		"source" : "source",
-		"target"  : "build"
-	},
+      "add-script" :
+      [
+        {
+          "uri" : "script/xml.js"
+        }
+      ],
+      "copy-files" :
+      {
+        "files"     : [ "script/xml.js" ],
+        "source" : "source",
+        "target"  : "build"
+      },
 
-        "variants" : 
-        { 
-                "qx.dynlocale" : ["on"] 
-        } 
+      "variants" : 
+      { 
+        "qx.dynlocale" : ["on"] 
+      } 
     },
 
     "source":
     {
-	"add-script" :
-	[
-		{
-			"uri" : "script/xml.js"
-		}
-	],
+      "add-script" :
+      [
+        {
+          "uri" : "script/xml.js"
+        }
+      ],
 
-        "variants" : 
-        { 
-                "qx.dynlocale" : ["on"] 
-        } 
+      "variants" : 
+      { 
+        "qx.dynlocale" : ["on"] 
+      } 
     },
 
     // Uncomment the following entry to add a contrib or library to your
