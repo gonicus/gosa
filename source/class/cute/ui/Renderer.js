@@ -424,12 +424,11 @@ qx.Class.define("cute.ui.Renderer",
       okButton.addListener("click", function() {
         this._object.commit(function(result, error){
           if(error){
-            this.error(error.message);
             new cute.ui.dialogs.Error(error.message).open();
           }else{
             this._object.close(function(result, error){
               if(error){
-                this.error(error.message);
+                new cute.ui.dialogs.Error(error.message).open();
               }else{
                 this.fireEvent("done");
               }
@@ -444,10 +443,10 @@ qx.Class.define("cute.ui.Renderer",
 
       cancelButton.addListener("click", function() {
         this._object.close(function(result, error){
-                if(error){
-                  this.error(error.message);
-                }
-              }, this);
+          if(error){
+            new cute.ui.dialogs.Error(error.message).open();
+          }
+        }, this);
         this.fireEvent("done");
       }, this);
 
