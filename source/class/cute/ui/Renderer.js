@@ -49,7 +49,6 @@ qx.Class.define("cute.ui.Renderer",
     // Widget store
     this._widgets = {};
     this._extension_to_widgets = {};
-    this._property_timer = {};
 
     // Flex map
     this._flexMap = {
@@ -161,7 +160,9 @@ qx.Class.define("cute.ui.Renderer",
   },
 
   destruct : function(){
+    this._extension_to_widgets = this._flexMap = null;
     this._tabstops = this._bindings = this._object = null;
+    this._current_tabstops = this._current_bindings = null;
     this._resources = null;
     this._disposeObjects("__okBtn", "__cancelBtn");
     this._disposeMap("_widgets");
