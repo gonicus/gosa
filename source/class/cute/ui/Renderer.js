@@ -83,11 +83,6 @@ qx.Class.define("cute.ui.Renderer",
     "done": "qx.event.type.Event"
   },
 
- 
-  destruct : function(){
-    this._disposeObjects("__okBtn", "__cancelBtn");
-  },
-
   statics :
   {
 
@@ -165,8 +160,16 @@ qx.Class.define("cute.ui.Renderer",
     }
   },
 
+  destruct : function(){
+    this._tabstops = this._bindings = this._object = null;
+    this._resources = null;
+    this._disposeObjects("__okBtn", "__cancelBtn");
+    this._disposeMap("_widgets");
+  },
+
   members :
   {
+    _widgets: null,
     _object: null,
     _tabstops: null,
     _bindings: null,

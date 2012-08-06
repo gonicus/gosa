@@ -28,7 +28,6 @@ qx.Class.define("cute.proxy.Object", {
     // Initialization is done (Start sending attribute modifications to the backend)
     this.initialized = true;
   },
-
   events: {
     "propertyUpdateOnServer": "qx.event.type.Data"
   },
