@@ -58,6 +58,8 @@ qx.Class.define("cute.Application",
 
       // Document is the application root
       var doc = this.getRoot();
+      this.getRoot().setBlockerColor("#000000");
+      this.getRoot().setBlockerOpacity(0.5);
       var pluginView = new qx.ui.tabview.TabView();
       pluginView.setBarPosition("left");
 

@@ -6,6 +6,7 @@ qx.Class.define("cute.ui.dialogs.Error", {
   {
     this.base(arguments, this.tr("An error occured"), "cute/errorDialog.png");
     this.setLayout(new qx.ui.layout.Grid(5,5));
+    this.setModal(true);
     
     var message = new qx.ui.basic.Label(message);
     this.add(message, {row: 1, column: 1});
