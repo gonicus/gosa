@@ -31,6 +31,11 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
         return(res);
       }
 
+      // A single value is given but its empty.
+      if(this.getValue().getLength() == 1 && this.getValue().getItem(0) == ""){
+        return(res);
+      }
+
       // Append all non empty values
       for(var i=0; i<this.getValue().getLength(); i++){
         var v = this.getValue().getItem(i);
@@ -123,11 +128,11 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
       if(value == null){
         value = 0;
       }
-      var w = new qx.ui.form.Spinner(value);
+      var w = new cute.ui.form.Spinner();
       if(this.getPlaceholder()){
         w.setPlaceholder(this.getPlaceholder());
       }
-      w.addListener("focusout", this.__propertyUpdater(id, w), this); 
+      //w.addListener("focusout", this.__propertyUpdater(id, w), this); 
       w.addListener("changeValue", this.__timedPropertyUpdater(id, w), this); 
       return(w);
     },
@@ -169,6 +174,10 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
           this._widgets[i] = widget;
           this._widgetContainer[i] = container;
         }
+        //if(i < this.getValue().getLength()){
+        //  var value = this.getValue().getItem(i);
+        //  this._widgets[i].setValue(value);
+        //}
       }
     },
 
@@ -178,9 +187,10 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
     _applyValue: function(value, old_value){
 
       // Ensure that we've at least one value
+      console.log(value.toArray());
       if(!value.getLength()){
         this._was_manually_initialized = true;
-        value.push(0);
+        value.push(null);
       }
       if(this._was_manually_initialized || old_value && old_value.getLength() != value.getLength()){
         this._resetFields();
