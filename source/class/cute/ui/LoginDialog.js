@@ -46,6 +46,11 @@ qx.Class.define("cute.ui.LoginDialog",
     }
 
     this.__username = new qx.ui.form.TextField();
+    this.__username.addListener("keydown", function(e){
+        if(e.getKeyCode() == 13){
+          this.__password.focus();
+        }
+      }, this);
     var _self = this;
     setTimeout(function() {
         _self.__username.focus();
@@ -56,6 +61,12 @@ qx.Class.define("cute.ui.LoginDialog",
     //this.__username.setPlaceholder(this.tr("Login name"));
     this.__password = new qx.ui.form.PasswordField();
     //this.__password.setPlaceholder(this.tr("Password"));
+
+    this.__password.addListener("keydown", function(e){
+        if(e.getKeyCode() == 13){
+          loginF.apply(this);
+        }
+      }, this);
 
     this.add(this.__username.set(
     {
@@ -116,7 +127,7 @@ qx.Class.define("cute.ui.LoginDialog",
           }, "login", this.__username.getValue(), this.__password.getValue());
       }
     login.addListener("click", loginF, this);
-    this.addListener("keydown", function(e){
+    login.addListener("keydown", function(e){
         if(e.getKeyCode() == 13){
           loginF.apply(this);
         }
