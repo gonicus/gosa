@@ -187,7 +187,6 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
     _applyValue: function(value, old_value){
 
       // Ensure that we've at least one value
-      console.log(value.toArray());
       if(!value.getLength()){
         this._was_manually_initialized = true;
         value.push(null);
