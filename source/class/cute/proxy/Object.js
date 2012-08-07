@@ -24,7 +24,7 @@ qx.Class.define("cute.proxy.Object", {
     // Add more translations to the qx.locale.Manager
     var lm = qx.locale.Manager.getInstance();
     lm.addTranslation(qx.locale.Manager.getInstance().getLocale(), this.translations);
-    
+
     // Initialization is done (Start sending attribute modifications to the backend)
     this.initialized = true;
   },
@@ -63,7 +63,7 @@ qx.Class.define("cute.proxy.Object", {
 
     /* Closes the current object
      * */
-    close: function(func, context){
+    close : function(func, context){
       var rpc = cute.io.Rpc.getInstance();
       var args = ["closeObject", this.uuid];
       rpc.cA.apply(rpc, [function(result, error){
@@ -71,6 +71,24 @@ qx.Class.define("cute.proxy.Object", {
             func.apply(context, [result, error]);
           }
         }, this].concat(args));
+    },
+
+    /* Closes the current object
+     * */
+    refreshMetaInformation : function(cb, ctx)
+    {
+      var rpc = cute.io.Rpc.getInstance();
+      rpc.cA(function(data, context, error){
+        if(!error){
+          this.baseType = data['base'];
+          this.extensionTypes = data['extensions'];
+          this.templates = data['templates'];
+          this.translations = data['i18n'];
+	  cb.apply(ctx);
+        }else{
+          this.error(error);
+        }
+      }, this, "dispatchObjectMethod", this.uuid, "get_object_info", this.locale, this.theme);
     },
 
     /* Wrapper method for object calls
