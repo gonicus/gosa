@@ -35,6 +35,22 @@ qx.Class.define("cute.proxy.ObjectFactory", {
         var translations = {};
         var attribute_data = {};
 
+        var theme = "default";
+        if (cute.Config.theme) {
+            theme = cute.Config.theme;
+        }
+
+        var locale;
+        if (cute.Config.locale) {
+            locale = cute.Config.locale;
+        } else {
+          locale = qx.bom.client.Locale.getLocale();
+          var variant = qx.bom.client.Locale.getVariant();
+          if (locale && variant) {
+              locale = locale + "-" + variant;
+          }
+        }
+
         // This method is called below to make the code more readable.
         var _handleResult = function(){
 
@@ -51,7 +67,9 @@ qx.Class.define("cute.proxy.ObjectFactory", {
               baseType: baseType,
               templates: templates,
               translations: translations,
-              extensionTypes: extensionTypes
+              extensionTypes: extensionTypes,
+	      locale: locale,
+	      theme: theme
             };
 
           // this closure returns a new apply method for the given attribute.
@@ -93,23 +111,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
           c_callback.apply(c_context, [new cute.proxy.ObjectFactory.classes[className](userData)]); 
         }
 
-        var theme = "default";
-        if (cute.Config.theme) {
-            theme = cute.Config.theme;
-        }
-
-        var locale;
-        if (cute.Config.locale) {
-            locale = cute.Config.locale;
-        } else {
-          locale = qx.bom.client.Locale.getLocale();
-          var variant = qx.bom.client.Locale.getVariant();
-          if (locale && variant) {
-              locale = locale + "-" + variant;
-          }
-        }
-
-	      // Load object info - base type, extension types and template information
+	// Load object info - base type, extension types and template information
         rpc.cA(function(data, context, error){
             if(!error){
               baseType = data['base'];

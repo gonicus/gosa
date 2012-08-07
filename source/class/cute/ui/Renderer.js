@@ -67,6 +67,13 @@ qx.Class.define("cute.ui.Renderer",
     this._bindings = {};
     this._current_bindings = {};
     this._resources = {};
+
+    // Detect the theme
+    this._theme = "default";
+    if (cute.Config.theme) {
+      this._theme = cute.Config.theme;
+    }
+
     this._widget_to_page = {};
   },
 
@@ -269,7 +276,7 @@ qx.Class.define("cute.ui.Renderer",
 
     /* Extract resources from the given ui-defintion
      * */
-    extractResources : function(ui_def, theme)
+    extractResources : function(ui_def)
     {
       var res = [];
 
@@ -288,7 +295,7 @@ qx.Class.define("cute.ui.Renderer",
               for (var f in topic.childNodes) {
                 var item = topic.childNodes[f];
                 if (item.nodeName == "file") {
-                  files[":/" + item.firstChild.nodeValue] = "resource/clacks/" + theme + "/" + item.firstChild.nodeValue;
+                  files[":/" + item.firstChild.nodeValue] = "resource/clacks/" + this._theme + "/" + item.firstChild.nodeValue;
                 }
               }
               res.push(files);
@@ -323,12 +330,6 @@ qx.Class.define("cute.ui.Renderer",
       tmp.sort();
       exten_list = exten_list.concat(tmp);
 
-      // Detect the theme
-      var theme = "default";
-      if (cute.Config.theme) {
-        theme = cute.Config.theme;
-      }
-
       // Walk through each tab
       for (var ext_key in exten_list) {
         var extension = exten_list[ext_key];
@@ -341,49 +342,11 @@ qx.Class.define("cute.ui.Renderer",
         this._createTabsForExtension(extension);
       }
 
-      // Setup tool menu
-      //TODO: fill with proper values
-      var toolMenu = new qx.ui.menu.Menu();
+      // Prepare tool menu
+      this.__toolMenu = new qx.ui.menu.Menu();
+      this._updateToolMenu();
 
-//HIER
-      var extendMenu = new qx.ui.menu.Menu();
-
-      for (var ext in this._object.extensionTypes) {
-        if (!this._object.extensionTypes[ext] && this._object.templates[ext]) {
-
-          // Find first widget definition and extract windowIcon and windowTitle
-          var nodes = parseXml(this._object.templates[ext]);
-          var resources = this.extractResources(nodes.childNodes, theme);
-          var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
-          var props = {};
-          for (var i in widget) {
-            if (widget[i].nodeName == "property") {
-              var tmp = this.processProperty(widget[i]);
-              for (var item in tmp) {
-                props[item] = tmp[item];
-              }
-            }
-          }
-
-          var eb = new qx.ui.menu.Button(this.getStringProperty('windowTitle', props),
-            this.getIconProperty('windowIcon', props, resources));
-          eb.setUserData("extension", ext);
-          eb.addListener("execute", function() {
-            this.extendObjectWith(eb.getUserData('extension'));
-          }, this);
-
-          extendMenu.add(eb);
-        }
-      }
-
-      var extendButton = new qx.ui.menu.Button(this.tr("Extend"), null, null, extendMenu);
-      toolMenu.add(extendButton);
-
-      //TODO: fill actions - currently unknown to the server side object
-      //var actionsButton = new qx.ui.menu.Button(this.tr("Actions"));
-      //toolMenu.add(actionsButton);
-
-      container.getChildControl("bar").setMenu(toolMenu);
+      container.getChildControl("bar").setMenu(this.__toolMenu);
   
       // Handle type independent widget settings
       var attribute_defs = this.getAttributeDefinitions_();
@@ -467,6 +430,48 @@ qx.Class.define("cute.ui.Renderer",
       return true;
     },
 
+    /* Make the tool menu reflect the current object/extension settings.
+     * */
+    _updateToolMenu : function() 
+    {
+      if (this._extendButton) {
+        this.__toolMenu.remove(this._extendButton);
+      }
+
+      var extendMenu = new qx.ui.menu.Menu();
+      console.error(this._object.extensionTypes);
+
+      for (var ext in this._object.extensionTypes) {
+        if (!this._object.extensionTypes[ext] && this._object.templates[ext]) {
+
+          // Find first widget definition and extract windowIcon and windowTitle
+          var nodes = parseXml(this._object.templates[ext]);
+          var resources = this.extractResources(nodes.childNodes, this._theme);
+          var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
+          var props = {};
+          for (var i in widget) {
+            if (widget[i].nodeName == "property") {
+              var tmp = this.processProperty(widget[i]);
+              for (var item in tmp) {
+                props[item] = tmp[item];
+              }
+            }
+          }
+
+          var eb = new qx.ui.menu.Button(this.getStringProperty('windowTitle', props),
+            this.getIconProperty('windowIcon', props, resources));
+          eb.setUserData("extension", ext);
+          eb.addListener("execute", function() {
+            this.extendObjectWith(eb.getUserData('extension'));
+          }, this);
+
+          extendMenu.add(eb);
+        }
+      }
+
+      this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), null, null, extendMenu);
+      this.__toolMenu.add(this._extendButton);
+    },
     
     /* Extend the object with the given extension
      * */
@@ -481,6 +486,7 @@ qx.Class.define("cute.ui.Renderer",
         } else {
           //TODO: bind new properties
           this._createTabsForExtension(type);
+	  this._object.refreshMetaInformation(this._updateToolMenu, this);
           this.setModified(true);
         }
       }, this, type);
@@ -491,12 +497,6 @@ qx.Class.define("cute.ui.Renderer",
      * and appends a new page the tab-container.
      * */
     _createTabsForExtension: function(extension){
-
-      // Detect the theme
-      var theme = "default";
-      if (cute.Config.theme) {
-        theme = cute.Config.theme;
-      }
 
       // Process each tab of the current extension
       var ui_definition = this.getUiDefinition_();
@@ -509,7 +509,7 @@ qx.Class.define("cute.ui.Renderer",
 
         // Parse the ui definition of the object
         var ui_def = parseXml(ui_definition[extension][tab]).childNodes;
-        var resources = this.extractResources(ui_def, theme);
+        var resources = this.extractResources(ui_def, this._theme);
         for (var attr in resources) {
           this._resources[attr] = resources[attr];
         }
@@ -563,6 +563,7 @@ qx.Class.define("cute.ui.Renderer",
 
                   page.fireEvent("close");
                   page.dispose();
+	          this._object.refreshMetaInformation(this._updateToolMenu, this);
                   this.setModified(true);
                 }
               }, this, type);
