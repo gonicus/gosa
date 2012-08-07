@@ -102,7 +102,7 @@ qx.Class.define("cute.io.Rpc", {
         // Permission denied - show login screen to allow to log in.
         if(error && error.code == 401){
 
-          var dialog = new cute.ui.LoginDialog();
+          var dialog = new cute.ui.dialogs.LoginDialog();
           dialog.open();
           dialog.addListener("login", function(e){
             cl.queue.push(call);
@@ -117,14 +117,18 @@ qx.Class.define("cute.io.Rpc", {
           // Catch potential errors here. 
         }else if(error &&  error.code >= 400){
 
-          cl.warn("communication problem: " + error.message);
-          setTimeout(function(){
+          var d = new cute.ui.dialogs.RpcError(error.message);
+          d.addListener("retry", function(){
             cl.queue.push(call);
             cl.running = false;
             cl.process_queue();
-          }, 2500);
+          }, this);
+          d.addListener("cancel", function(){
+            cl.running = false;
+            cl.process_queue();
+          }, this);
+          d.open();
 
-          cl.error("unhandled error-code: " + error.code);
         }else{
 
           // Everthing went fine, now call the callback method with the result.
