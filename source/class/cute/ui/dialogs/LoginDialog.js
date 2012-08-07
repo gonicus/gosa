@@ -13,7 +13,7 @@ qx.Class.define("cute.ui.dialogs.LoginDialog",
     this.setLayout(layout);
 
     /* Try to receive currently loggedin user */
-    this.setWidth(220);
+    this.setWidth(310);
     this.add(new qx.ui.basic.Label(this.tr("Name")).set({allowShrinkX : false, paddingTop : 3}), {row: 0, column: 0});
     this.add(new qx.ui.basic.Label(this.tr("Password")).set({allowShrinkX : false, paddingTop : 3}), {row: 1, column: 0});
 
