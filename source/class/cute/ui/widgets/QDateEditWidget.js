@@ -136,7 +136,7 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
         w.setPlaceholder(this.getPlaceholder());
       }
       w.addListener("focusout", this.__propertyUpdater(id, w), this); 
-      w.addListener("changeValue", this.__timedPropertyUpdater(id, w), this); 
+      w.addListener("changeValue", this.__propertyUpdater(id, w), this); 
       return(w);
     },
 
