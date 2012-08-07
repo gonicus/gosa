@@ -20,8 +20,8 @@ qx.Class.define("cute.ui.dialogs.LoginDialog",
     var password = new qx.ui.form.PasswordField();
     var info = new qx.ui.basic.Label().set({rich : true, alignX : "left"});
 
-    this.add(username.set({allowGrowX: true, allowShrinkX: true, width: 200, paddingTop: 3}), {row: 0, column: 1});
-    this.add(password.set({allowGrowX : true, allowShrinkX : true, width : 200, paddingTop : 3}), {row : 1, column : 1});
+    this.add(username.set({allowGrowX: true, allowShrinkX: true, width: 200}), {row: 0, column: 1});
+    this.add(password.set({allowGrowX : true, allowShrinkX : true, width : 200}), {row : 1, column : 1});
     this.add(info, {row : 3, column  : 0, colSpan : 2});
 
     var login = new qx.ui.form.Button(this.tr("Login"));
