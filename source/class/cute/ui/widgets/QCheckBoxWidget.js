@@ -13,7 +13,7 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
         this.getValue().removeAll();
         this.getValue().push(this._chkBoxWidget.getValue());
         if(this._initialized){
-          this.fireDataEvent("valueChanged", this.getValue());
+          this.fireDataEvent("changeValue", this.getValue());
         }
       }, this);
   },

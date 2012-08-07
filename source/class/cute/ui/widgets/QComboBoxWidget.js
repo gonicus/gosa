@@ -71,7 +71,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
      * e.g. not empty.
      * */
     _updateValues: function(){
-      this.fireDataEvent("valueChanged", this._getCleanValue());
+      this.fireDataEvent("changeValue", this._getCleanValue());
     },
 
     /* Creates an update-function for each widget to ensure that values are set

@@ -64,40 +64,17 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
       }
       if(ok){
         this.setModified(true);
-        this.fireDataEvent("valueChanged", this._getCleanValue());
+        this.fireDataEvent("changeValue", this._getCleanValue());
       }
-    },
-
-    /* Creates an update-function for each widget to ensure that values are set
-     * after a given period of time.
-     */
-    __timedPropertyUpdater: function(id, userInput){
-      var func = function(value){
-        if(this._skipUpdate){
-          return;
-        }
-        var timer = qx.util.TimerManager.getInstance();
-        this.addState("modified");
-        if(this._property_timer != null){
-          timer.stop(this._property_timer);
-          this._property_timer = null;
-        }
-        this._property_timer = timer.start(function(){
-          this.removeState("modified");
-          timer.stop(this._property_timer);
-          this._property_timer = null;
-          
-          this.getValue().setItem(id, new cute.io.types.Timestamp(userInput.getValue()));
-          this._updateValues();
-        }, null, this, null, 2000);
-      }
-      return func;
     },
 
     /* This method returns a function which directly updates the property-value.
      * */
     __propertyUpdater: function(id, userInput){
       var func = function(value){
+
+        var updated = this.getValue().getItem(id).get().getTime() == userInput.getValue().getTime();
+
         if(this._skipUpdate){
           return;
         }
@@ -106,7 +83,7 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
           timer.stop(this._property_timer);
           this._property_timer = null;
         }
-        if(this.hasState("modified")){
+        if(updated){
           this.removeState("modified");
           this.getValue().setItem(id, new cute.io.types.Timestamp(userInput.getValue()));
           this._updateValues();
