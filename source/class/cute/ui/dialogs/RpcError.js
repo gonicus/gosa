@@ -18,25 +18,15 @@ qx.Class.define("cute.ui.dialogs.RpcError", {
     this.add(image, {row: 1, column: 0});
     this.add(message, {row: 1, column: 1});
 
-
     var retry = new qx.ui.form.Button(this.tr("Retry")).set({allowGrowX: false});
     this.add(retry, {row: 2, column: 0, colSpan: 3});
     retry.addListener("click", function(){
         this.close();
         this.fireEvent("retry");
       }, this);
-
-    //var cancel = new qx.ui.form.Button(this.tr("Cancel"));
-    //this.add(cancel, {row: 2, column: 2});;
-    //cancel.addListener("click", function(){
-    //    this.close();
-    //    this.fireEvent("cancel");
-    //  }, this);
   },
 
   events: {
-    "retry" : "qx.event.type.Event",
-    "cancel" : "qx.event.type.Event"
+    "retry" : "qx.event.type.Event"
   }
-
 });
