@@ -131,6 +131,21 @@ qx.Class.define("cute.io.Rpc", {
 
         }else{
 
+          // Parse additional information out of the error.message string.
+          if(error){
+            error.field = null;
+
+            // Check for "<field> error-message" formats 
+            if(error.message.match(/<[a-zA-Z0-9\-_ ]*>/)){
+              error.field = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){ 
+                  return(arguments[1])
+                });
+              error.message = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){ 
+                  return(arguments[2])
+                });
+            }
+          }
+
           // Everthing went fine, now call the callback method with the result.
           cl.running = false;
           cl.debug("rpc job finished '" + call['arguments'] + "' (queue: " + cl.queue.length + ")");
