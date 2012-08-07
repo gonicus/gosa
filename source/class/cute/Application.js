@@ -63,8 +63,6 @@ qx.Class.define("cute.Application",
       var pluginView = new qx.ui.tabview.TabView();
       pluginView.setBarPosition("left");
 
-      new cute.ui.dialogs.RpcError("lalilalalallalalalailalalalailalalalaalalalallalalalailalalalailalalalaaalallalalalailalalalailalalalaa").open();
-
       // Create application header and toolbar
       var header = new qx.ui.basic.Atom("Logo");
       header.setBackgroundColor("black");
