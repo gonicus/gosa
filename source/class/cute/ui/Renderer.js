@@ -67,6 +67,7 @@ qx.Class.define("cute.ui.Renderer",
     this._bindings = {};
     this._current_bindings = {};
     this._resources = {};
+    this._widget_to_page = {};
   },
 
   properties :
@@ -179,7 +180,10 @@ qx.Class.define("cute.ui.Renderer",
     _resources: null,
     _current_tabstops: null,
     _current_bindings: null,
+    _current_widgets: null,
     _tabContainer: null,
+    _extension_to_widgets: null,
+    _widget_to_page: null,
 
     __okBtn: null,
     __cancelBtn: null,
@@ -246,14 +250,18 @@ qx.Class.define("cute.ui.Renderer",
          * Now check its result and set decorator for the widgets accordingly.
          * */
         case "propertyUpdateOnServer": {
+
             var data = e.getData();
             var name = data['property'];
+            if(name in this._widget_to_page){
+              this._tabContainer.setSelection([this._widget_to_page[name]]);
+            }
             if(data['success']){
               this.resetWidgetInvalidMessage(name)
-              this.setWidgetValid(name, true);
+                this.setWidgetValid(name, true);
             }else{
               this.setWidgetInvalidMessage(name, data['error']['message'])
-              this.setWidgetValid(name, false);
+                this.setWidgetValid(name, false);
             }
           }; break;
       }
@@ -424,7 +432,11 @@ qx.Class.define("cute.ui.Renderer",
       okButton.addListener("click", function() {
         this._object.commit(function(result, error){
           if(error){
-            new cute.ui.dialogs.Error(error.message).open();
+            if(error.field){
+              this._object.fireDataEvent("propertyUpdateOnServer", {success: !error, error: error, property: error.field});
+            }else{
+              new cute.ui.dialogs.Error(error.message).open();
+            }
           }else{
             this._object.close(function(result, error){
               if(error){
@@ -491,6 +503,7 @@ qx.Class.define("cute.ui.Renderer",
       for (var tab=0; tab<ui_definition[extension].length; tab++) {
 
         // Clean-up values that were collected per-loop.
+        this._current_widgets = [];
         this._current_bindings = {};
         this._current_tabstops = new Array();
 
@@ -502,6 +515,10 @@ qx.Class.define("cute.ui.Renderer",
         }
 
         // Create the gui-part for this tab
+        if(!this._extension_to_widgets){
+          this._extension_to_widgets = {};
+        }
+          
         var info = this.processUI(extension, ui_def);
         if (info) {
 
@@ -514,6 +531,12 @@ qx.Class.define("cute.ui.Renderer",
           var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
           page.setLayout(new qx.ui.layout.VBox());
           page.add(info['widget']);
+
+          // Create a mapping from widget to page
+          for(item in this._current_widgets){
+            var widgetName = this._current_bindings[this._current_widgets[item]];
+            this._widget_to_page[widgetName] = page;
+          }
 
           // Add "remove extension" buttons to all non-base tabs.
           if (extension != this._object.baseType) {
@@ -1069,6 +1092,7 @@ qx.Class.define("cute.ui.Renderer",
         this._extension_to_widgets[loc] = [];
       }
       this._extension_to_widgets[loc].push(name);
+      this._current_widgets.push(name);
     },
 
     processQWidgetWidget : function(loc, name, props)
