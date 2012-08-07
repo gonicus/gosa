@@ -74,6 +74,11 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
     name: null,
 
+    setReadonly: function(bool)
+    {
+      this.setEnabled(!bool);
+    },
+
     /* Apply method prototypes...
      * */
     focus:  function(){

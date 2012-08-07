@@ -360,7 +360,7 @@ qx.Class.define("cute.ui.Renderer",
 
           // Read-only?
           if (attrs['readonly'] === true || attrs['depends_on'].length > 0) {
-            widget.setEnabled(false);
+            widget.setReadOnly(true);
           }
 
           // Required?
