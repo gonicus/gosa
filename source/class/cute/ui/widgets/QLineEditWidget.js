@@ -35,6 +35,13 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
     _property_timer: null,
     _was_manually_initialized: false,
 
+
+    _applyRequired: function(bool){
+      for(var i=0; i<this._widgets.length; i++){
+        this._widgets[i].setBackgroundColor("#FFDDDD");
+      }
+    },
+
     _getCleanValue: function(){
 
       var res = new qx.data.Array();
@@ -149,6 +156,7 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
       if(this.getPlaceholder()){
         w.setPlaceholder(this.getPlaceholder());
       }
+
       w.setLiveUpdate(true);
       w.addListener("focusout", this.__propertyUpdater(id, w), this); 
       w.addListener("changeValue", this.__timedPropertyUpdater(id, w), this); 

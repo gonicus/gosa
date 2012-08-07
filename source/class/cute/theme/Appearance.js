@@ -14,6 +14,7 @@ qx.Theme.define("cute.theme.Appearance",
 
   appearances :
   {
+
     "SearchList" :
     {
       alias : "scrollarea"
