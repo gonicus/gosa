@@ -19,7 +19,7 @@ qx.Mixin.define("cute.ui.mixins.QListWidgetWidget",
       this.__add_widget_to_extension(name, loc);
 
       // Add listeners for value changes.
-      //widget.addListener("valueChanged", function(e){
+      //widget.addListener("changeValue", function(e){
       //    this.set(realname, e.getData());
       //    this.setModified(true);
       //  }, this);

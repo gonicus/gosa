@@ -73,7 +73,7 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
       }
       if(ok){
         this.setModified(true);
-        this.fireDataEvent("valueChanged", this._getCleanValue());
+        this.fireDataEvent("changeValue", this._getCleanValue());
       }
     },
 
