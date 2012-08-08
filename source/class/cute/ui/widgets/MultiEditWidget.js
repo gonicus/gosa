@@ -141,7 +141,7 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
         this._widgetContainer[i].getWidget().setValid(bool);
         console.log(this._widgetContainer[i].getWidget().classname);
       }
-    }
+    },
 
 
     /* This method updates the value-property and immediately 
