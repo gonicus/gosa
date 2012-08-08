@@ -154,7 +154,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
       //// create the options for the icon
       //var iconOptions = {
       //  converter: function(value) {
-      //    return "resource/cute/themes/" + theme + "/" + value;
+      //    return "cute/themes/" + theme + "/" + value;
       //  }
       //};
       //controller.setIconPath('icon');

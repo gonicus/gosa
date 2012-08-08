@@ -52,7 +52,7 @@ qx.Class.define("cute.ui.container.SlideBar",
           }
           control = new qx.ui.form.MenuButton;
 	  control.setMargin(4);
-	  control.setIcon("resource/cute/themes/" + theme + "/gear.png");
+	  control.setIcon("cute/themes/" + theme + "/gear.png");
           this._addAt(control, 3);
           break;
 
