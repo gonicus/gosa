@@ -119,11 +119,23 @@ qx.Class.define("cute.ui.SearchListItem", {
       }
     },
 
+
+    _getIconPath: function(value){
+      if(value){
+        var theme = "default";
+        if (cute.Config.theme) {
+          theme = cute.Config.theme;
+        }
+        return("cute/themes/" + theme + "/objects/" + value);
+      }
+      return(null);
+    },
+
     _applyIcon: function(value){
       this._showChildControl("icon");
       var widget = this.getChildControl("icon");
-      if(widget){
-        widget.setSource(value);
+      if(widget && value){
+        widget.setSource(this._getIconPath(value));
       }
     },
 
@@ -150,13 +162,7 @@ qx.Class.define("cute.ui.SearchListItem", {
       switch(id)
       {
         case "icon":
-          var theme = "default";
-          if (cute.Config.theme) {
-            theme = cute.Config.theme;
-          }
-
-          var path = "cute/themes/" + theme + "/objects/" + this.getIcon(); 
-          control = new qx.ui.basic.Image(path);
+          control = new qx.ui.basic.Image(this._getIconPath(this.getIcon()));
           control.setHeight(64);
           control.setScale(true);
           control.setWidth(64);
