@@ -7,7 +7,7 @@ qx.Mixin.define("cute.ui.mixins.QCheckBoxWidget",
     {
       var realname = name.replace(/Edit$/, '', name);
       var widget = new cute.ui.widgets.QCheckBoxWidget();
-      this.processCommonProperties(widget, props);
+      this.processCommonProperties(name, widget, props);
       this._widgets[name] = widget;
       this.__add_widget_to_extension(name, loc);
 
