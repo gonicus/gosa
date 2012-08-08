@@ -16,6 +16,14 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
   properties : {
 
+    /* Whether the widget is a read only
+     * */
+    readOnly : {
+      check : 'Boolean',
+      apply: '_applyReadOnly',
+      init: false
+    },
+
     /* Whether the widget is a multi-value input or not.
      * */
     multivalue : {
@@ -40,7 +48,8 @@ qx.Class.define("cute.ui.widgets.Widget", {
     required : {
       init : null,
       check : 'Boolean',
-      nullable: false
+      nullable: false,
+      apply: '_applyRequired'
     },
 
     /* The placeholder to use.
@@ -73,6 +82,14 @@ qx.Class.define("cute.ui.widgets.Widget", {
   members: {
 
     name: null,
+
+    _applyReadOnly: function(bool)
+    {
+      this.setEnabled(!bool);
+    },
+
+    _applyRequired: function(bool){
+    },
 
     /* Apply method prototypes...
      * */

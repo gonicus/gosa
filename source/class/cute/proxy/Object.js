@@ -10,12 +10,19 @@ qx.Class.define("cute.proxy.Object", {
     // Initialize object values
     this.initialized = false;
     this.uuid = data["__jsonclass__"][1][1];
+
     for(var item in this.attributes){
       if(this.attributes[item] in data){
+
         if(this.attribute_data[this.attributes[item]]['multivalue']){
           var val = new qx.data.Array(data[this.attributes[item]]);
         }else{
           var val = new qx.data.Array([data[this.attributes[item]]]);
+        }
+
+        // Multivalue may not contain initial values.
+        if(!val.getLength()){
+          val.push(null);
         }
         this.set(this.attributes[item], val);
       }
