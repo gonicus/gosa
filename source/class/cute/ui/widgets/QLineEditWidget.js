@@ -16,7 +16,9 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
   },
 
   members: {
-  
+ 
+    default_value: "",
+
     _setEchoMode: function(){
       this._current_length = 0;
       this.removeAll();
