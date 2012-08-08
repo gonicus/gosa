@@ -14,7 +14,7 @@ qx.Mixin.define("cute.ui.mixins.QListWidgetWidget",
 
       var widget = new qx.ui.table.Table();
       
-      this.processCommonProperties(widget, props);
+      this.processCommonProperties(name, widget, props);
       this._widgets[name] = widget;
       this.__add_widget_to_extension(name, loc);
 

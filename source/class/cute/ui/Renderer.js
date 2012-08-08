@@ -66,6 +66,8 @@ qx.Class.define("cute.ui.Renderer",
     this._current_tabstops = new Array();
     this._bindings = {};
     this._current_bindings = {};
+    this._buddies = {};
+    this._current_buddies = {};
     this._resources = {};
 
     // Detect the theme
@@ -171,8 +173,8 @@ qx.Class.define("cute.ui.Renderer",
 
   destruct : function(){
     this._extension_to_widgets = this._flexMap = null;
-    this._tabstops = this._bindings = this._object = null;
-    this._current_tabstops = this._current_bindings = null;
+    this._buddies = this._tabstops = this._bindings = this._object = null;
+    this._current_buddies = this._current_tabstops = this._current_bindings = null;
     this._resources = null;
     this._disposeObjects("__okBtn", "__cancelBtn");
     this._disposeMap("_widgets");
@@ -186,6 +188,7 @@ qx.Class.define("cute.ui.Renderer",
     _bindings: null,
     _resources: null,
     _current_tabstops: null,
+    _current_buddies: null,
     _current_bindings: null,
     _current_widgets: null,
     _tabContainer: null,
@@ -223,9 +226,19 @@ qx.Class.define("cute.ui.Renderer",
     },
 
 
+    /* Applies the given buddies the labels
+     * */
+    processBuddies: function(buddies)
+    {
+      for (var buddy in buddies) {
+        this._widgets[buddies[buddy]].setBuddy(this._widgets[buddy]);
+      }
+    },
+
     /* Applies the given tabstops to the gui widgets
      * */
-    processTabStops: function(tabstops){
+    processTabStops: function(tabstops)
+    {
       console.log(tabstops);
       for (var i= 0; i< tabstops.length; i++) {
         var w = tabstops[i];
@@ -439,7 +452,6 @@ qx.Class.define("cute.ui.Renderer",
       }
 
       var extendMenu = new qx.ui.menu.Menu();
-      console.error(this._object.extensionTypes);
 
       for (var ext in this._object.extensionTypes) {
         if (!this._object.extensionTypes[ext] && this._object.templates[ext]) {
@@ -506,6 +518,7 @@ qx.Class.define("cute.ui.Renderer",
         this._current_widgets = [];
         this._current_bindings = {};
         this._current_tabstops = new Array();
+        this._current_buddies = {};
 
         // Parse the ui definition of the object
         var ui_def = parseXml(ui_definition[extension][tab]).childNodes;
@@ -576,6 +589,7 @@ qx.Class.define("cute.ui.Renderer",
           // Connect this master-widget with the object properties, establish tabstops
           this.processBindings(this._current_bindings);
           this.processTabStops(this._current_tabstops);
+          this.processBuddies(this._current_buddies);
 
         } else {
           this.info("*** no widget found for '" + extension + "'");
@@ -1101,7 +1115,7 @@ qx.Class.define("cute.ui.Renderer",
       var widget = new qx.ui.container.Composite();
       widget.title_ = this.getStringProperty('windowTitle', props);
       widget.icon_ = this.getIconProperty('windowIcon', props);
-      this.processCommonProperties(widget, props);
+      this.processCommonProperties(name, widget, props);
       this._widgets[name] = widget;
       this.__add_widget_to_extension(name, loc);
 
@@ -1113,14 +1127,14 @@ qx.Class.define("cute.ui.Renderer",
       var title = this.getStringProperty('title', props);
       //TODO: create a group box with icons
       var widget = new qx.ui.groupbox.GroupBox(this.tr(title));
-      this.processCommonProperties(widget, props);
+      this.processCommonProperties(name, widget, props);
       this._widgets[name] = widget;
       this.__add_widget_to_extension(name, loc);
 
       return widget;
     },
 
-    processCommonProperties : function(widget, props)
+    processCommonProperties : function(name, widget, props)
     {
       // Set geometry
       var geometry = this.getGeometryProperty('geometry', props);
@@ -1153,6 +1167,13 @@ qx.Class.define("cute.ui.Renderer",
       if (size != null) {
         widget.setMinWidth(size['width']);
         widget.setMinHeight(size['height']);
+      }
+
+      // Process buddies
+      var buddy = this.getCStringProperty('buddy', props);
+      if (buddy != null) {
+        this._buddies[buddy] = name;
+        this._current_buddies[buddy] = name;
       }
     },
 
@@ -1221,6 +1242,15 @@ qx.Class.define("cute.ui.Renderer",
     {
       if (props[what] && props[what]['string']) {
         return props[what]['string'];
+      }
+
+      return null;
+    },
+
+    getCStringProperty : function(what, props)
+    {
+      if (props[what] && props[what]['cstring']) {
+        return props[what]['cstring'];
       }
 
       return null;
