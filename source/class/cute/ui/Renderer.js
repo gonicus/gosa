@@ -295,7 +295,7 @@ qx.Class.define("cute.ui.Renderer",
               for (var f in topic.childNodes) {
                 var item = topic.childNodes[f];
                 if (item.nodeName == "file") {
-                  files[":/" + item.firstChild.nodeValue] = "clacks/" + this._theme + "/" + item.firstChild.nodeValue;
+                  files[":/" + item.firstChild.nodeValue] = "resource/clacks/" + this._theme + "/" + item.firstChild.nodeValue;
                 }
               }
               res.push(files);
