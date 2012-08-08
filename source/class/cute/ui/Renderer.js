@@ -122,7 +122,10 @@ qx.Class.define("cute.ui.Renderer",
           var func = function(value){
             var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
             if (this._widgets[widgetName]) {
-              this.setWidgetValue(widgetName, value);
+              if(!this._widgets[widgetName]._was_initialized){
+                this.setWidgetValue(widgetName, value);
+                this._widgets[widgetName]._was_initialized = true;
+              }
             }
           };
           return(func);
@@ -264,11 +267,11 @@ qx.Class.define("cute.ui.Renderer",
               this._tabContainer.setSelection([this._widget_to_page[name]]);
             }
             if(data['success']){
-              this.resetWidgetInvalidMessage(name)
-                this.setWidgetValid(name, true);
+              this.resetWidgetInvalidMessage(name);
+              this.setWidgetValid(name, true);
             }else{
-              this.setWidgetInvalidMessage(name, data['error']['message'])
-                this.setWidgetValid(name, false);
+              this.setWidgetInvalidMessage(name, data['error']['message']);
+              this.setWidgetValid(name, false);
             }
           }; break;
       }

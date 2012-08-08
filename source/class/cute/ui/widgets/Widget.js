@@ -81,6 +81,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
   members: {
 
+    _was_initialized: false,
     name: null,
 
     _applyReadOnly: function(bool)
