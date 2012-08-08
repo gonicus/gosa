@@ -73,7 +73,17 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
     __propertyUpdater: function(id, userInput){
       var func = function(value){
 
-        var updated = this.getValue().getItem(id).get().getTime() == userInput.getValue().getTime();
+        var old = null;
+        if(this.getValue().getItem(id) && this.getValue().getItem(id).get()){
+          old = this.getValue().getItem(id).get().getTime();
+        }
+
+        var selected = null;
+        if(userInput.getValue()){
+          selected = userInput.getValue().getTime();
+        }
+
+        var updated = old != selected;
 
         if(this._skipUpdate){
           return;
