@@ -234,7 +234,19 @@ qx.Class.define("cute.ui.Renderer",
     processBuddies: function(buddies)
     {
       for (var buddy in buddies) {
+        // Set buddy
         this._widgets[buddies[buddy]].setBuddy(this._widgets[buddy]);
+
+      	// Process mandatory flag and inform label about it
+        this._widgets[buddies[buddy]].setMandatory(this._widgets[buddy].getMandatory())
+
+        // Add Command if configured
+        var command = this._widgets[buddies[buddy]].getCommand();
+        if (command) {
+          //TODO: collect for dispose
+          var hotkey = new qx.event.Command("Ctrl+" + command);
+          hotkey.addListener("execute", this._widgets[buddy].shortcutExecute, this);
+        }
       }
     },
 
