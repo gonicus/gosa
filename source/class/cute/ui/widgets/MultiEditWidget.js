@@ -6,6 +6,10 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     this._widgetContainer = [];
     this.base(arguments);  
     this.setLayout(new qx.ui.layout.VBox(5));
+    var id = this.addListener("appear", function(){
+        this._generateGui();
+        this.removeListenerById(id);
+      }, this);
   },
 
   destruct : function(){
@@ -139,7 +143,6 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     setValid: function(bool){
       for(var i=0; i < this._current_length; i++){
         this._widgetContainer[i].getWidget().setValid(bool);
-        console.log(this._widgetContainer[i].getWidget().classname);
       }
     },
 
@@ -227,6 +230,11 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
      * All not needed widgets will be excluded from the viewport.
      * */
     _generateGui: function(){
+
+      // Do not generate input widgets if not visible
+      if(!this._visible){
+        return;
+      }
 
       // Do not forward events for input modifications while regenerating the gui
       this._skipUpdates = true;

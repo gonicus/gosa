@@ -579,7 +579,7 @@ qx.Class.define("cute.ui.Renderer",
 
                   page.fireEvent("close");
                   page.dispose();
-	          this._object.refreshMetaInformation(this._updateToolMenu, this);
+                  this._object.refreshMetaInformation(this._updateToolMenu, this);
                   this.setModified(true);
                 }
               }, this, type);

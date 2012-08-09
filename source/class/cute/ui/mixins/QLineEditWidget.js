@@ -9,11 +9,11 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
       var ad = this.getAttributeDefinitions_()[realname];
       if (!ad) {
         this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
-	return null
+        return null;
       }
 
       var widget = new cute.ui.widgets.QLineEditWidget();
-      
+
       // Set echo mode
       var echomode = this.getEnumProperty('echoMode', props);
       if (echomode == "QLineEdit::Password") {
