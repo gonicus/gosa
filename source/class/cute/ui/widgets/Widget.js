@@ -135,6 +135,10 @@ qx.Class.define("cute.ui.widgets.Widget", {
     _visible : false,
     name: null,
 
+    shortcutExecute : function()
+    {
+    },
+
     _applyReadOnly: function(bool)
     {
       this.setEnabled(!bool);
@@ -149,14 +153,19 @@ qx.Class.define("cute.ui.widgets.Widget", {
      * */
     focus:  function(){
     },
+
     setValid: function(bool){
     },
+
     setInvalidMessage: function(message){
     },
+
     resetInvalidMessage: function(){
     },
+
     _applyValue: function(value){
     },
+
     _applyMultivalue: function(value){
     }
   }

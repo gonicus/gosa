@@ -244,8 +244,8 @@ qx.Class.define("cute.ui.Renderer",
         var command = this._widgets[buddies[buddy]].getCommand();
         if (command) {
           //TODO: collect for dispose
-          var hotkey = new qx.event.Command("Ctrl+" + command);
-          hotkey.addListener("execute", this._widgets[buddy].shortcutExecute, this);
+          var hotkey = new qx.ui.core.Command("Ctrl+" + command);
+          hotkey.addListener("execute", this._widgets[buddy].shortcutExecute, this._widgets[buddy]);
         }
       }
     },
