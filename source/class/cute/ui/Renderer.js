@@ -548,6 +548,22 @@ qx.Class.define("cute.ui.Renderer",
           page.setLayout(new qx.ui.layout.VBox());
           page.add(info['widget']);
 
+          // Transmit object property definitions to the widgets
+          for(var item in this._current_bindings){
+            var w = this._widgets[item];
+            var defs = this.getAttributeDefinitions_()[this._current_bindings[item]];
+            w.setCaseSensitive(defs['case_sensitive']);
+            w.setBlockedBy(defs['blocked_by']);
+            w.setDefaultValue(defs['default']);
+            w.setDependsOn(defs['depends_on']);
+            w.setMandatory(defs['mandatory']);
+            w.setMultivalue(defs['multivalue']);
+            w.setReadonly(defs['readonly']);
+            w.setType(defs['type']);
+            w.setUnique(defs['unique']);
+            w.setValues(defs['values']);
+          }
+
           // Create a mapping from widget to page
           for(item in this._current_widgets){
             var widgetName = this._current_bindings[this._current_widgets[item]];

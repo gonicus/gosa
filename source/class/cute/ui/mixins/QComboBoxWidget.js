@@ -6,51 +6,6 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
     {
       var realname = name.replace(/Edit$/, '', name);
       var widget = new cute.ui.widgets.QComboBoxWidget();
-      
-      var ad = this.getAttributeDefinitions_()[realname];
-      if (!ad) {
-        this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
-        return null;
-      }
-
-      var values = new qx.data.Array;
-      if (ad['values']) {
-        var items = [];
-
-	if (ad['mandatory'] === undefined || ad['mandatory'] !== true) {
-            var item = new cute.data.model.SelectBoxItem();
-	    item.setValue("");
-	    item.setKey(null);
-            items.push(item);
-	}
-
-        if (qx.Bootstrap.getClass(ad['values']) == "Object") {
-
-          for (var k in ad['values']) {
-            var item = new cute.data.model.SelectBoxItem();
-            item.setKey(k);
-	    if (ad['values'][k]['value']) {
-              item.setValue(ad['values'][k]['value']);
-              item.setIcon(ad['values'][k]['icon']);
-	    } else {
-              item.setValue(ad['values'][k]);
-	    }
-            items.push(item);
-          }
-
-        } else {
-
-          for (var k = 0; k < ad['values'].length; k++) {
-            var item = new cute.data.model.SelectBoxItem();
-            item.setValue(ad['values'][k]);
-            item.setKey(ad['values'][k]);
-            items.push(item);
-          }
-
-        }
-
-        values = new qx.data.Array(items);
-      }
 
       // Set placeholder
       var placeholder = this.getStringProperty('placeholderText', props);
@@ -68,23 +23,17 @@ qx.Mixin.define("cute.ui.mixins.QComboBoxWidget",
       this._widgets[name] = widget;
       this.__add_widget_to_extension(name, loc);
 
-      // set widget properties
-      widget.setMultivalue(ad['multivalue']);
-      widget.setValues(values);
-
       // Add listeners for value changes.
-      //widget.setLiveUpdate(true);
-      //this.bind(realname, widget, "value");
       widget.addListener("changeValue", function(e){
-          this.set(realname, e.getData());
-          this.setModified(true);
-        }, this);
+        this.set(realname, e.getData());
+        this.setModified(true);
+      }, this);
 
       return widget;
     },
 
     /* Bind values from the remote-object to ourselves and vice-versa.
-     * */
+    * */
     processQComboBoxWidgetBinding: function(widgetName, propertyName){
       widgetName = widgetName.replace(/Edit$/, "");
       this._object.bind(propertyName, this, widgetName);

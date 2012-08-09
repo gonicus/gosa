@@ -20,6 +20,51 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
   properties : {
 
+    caseSensitive: {
+      init: false
+    },
+
+    blockedBy: {
+      init: false
+    },
+
+    defaultValue: {
+      init: null,
+      nullable: true
+    },
+
+    dependsOn: {
+      init: null,
+      nullable: true
+    },
+
+    mandatory: {
+      init: false
+    },
+
+    multivalue: {
+      init: false
+    },
+    
+    readonly: {
+      init: false
+    },
+
+    type: {
+      init: false
+    },
+
+    unique: {
+      init: false
+    },
+
+    /* The values to display as selectables in the dropdown box
+     * */ 
+    values: {
+      apply : "_applyValues",
+      init : null 
+    },
+
     /* Whether the widget is a read only
      * */
     readOnly : {
@@ -105,6 +150,8 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
     _applyRequired: function(bool){
     },
+
+    _applyValues: function(){},
 
     /* Apply method prototypes...
      * */
