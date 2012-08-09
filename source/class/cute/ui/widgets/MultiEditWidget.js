@@ -131,9 +131,8 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     /* Sets the "focus" to the first input widgets
      * */
     focus: function(){
-      for(var i=0; i < this._current_length; i++){
-        this._widgetContainer[i].getWidget().focus();
-        return;
+      if(this._widgetContainer.length){
+        this._widgetContainer[0].getWidget().focus();
       }
     },
 
