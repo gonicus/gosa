@@ -62,7 +62,7 @@ qx.Class.define("cute.ui.widgets.Label",
      * */
     __applyMandatory: function(mandatory){
       if (mandatory) {
-        this.setValue(this._text + "&nbsp;<b>*</b>");
+        this.setValue(this._text + "<b><font color='red'>*</font></b>");
       } else {
         this.setValue(this._text);
       }
