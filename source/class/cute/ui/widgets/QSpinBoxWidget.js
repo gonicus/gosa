@@ -29,7 +29,10 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
       if(this.getPlaceholder()){
         w.setPlaceholder(this.getPlaceholder());
       }
-      w.addListener("changeValue", this._propertyUpdaterTimed, this); 
+      w.addListener("changeValue", function(){
+          this.addState("modified");
+          this._propertyUpdater();
+        }, this); 
       this.bind("maximum", w, "maximum");
       this.bind("minimum", w, "minimum");
       return(w);
