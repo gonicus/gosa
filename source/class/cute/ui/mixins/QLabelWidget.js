@@ -4,7 +4,7 @@ qx.Mixin.define("cute.ui.mixins.QLabelWidget",
   {
     processQLabelWidget : function(loc, name, props)
     {
-      var label = new qx.ui.basic.Label(this.tr(this.getStringProperty('text', props)));
+      var label = new cute.ui.widgets.Label(this.tr(this.getStringProperty('text', props)));
       this.processCommonProperties(name, label, props);
 
       this._widgets[name] = label;
