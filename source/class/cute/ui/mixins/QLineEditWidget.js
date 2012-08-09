@@ -53,14 +53,6 @@ qx.Mixin.define("cute.ui.mixins.QLineEditWidget",
         }, this);
 
       return widget;
-    },
-
-    /* Bind values from the remote-object to ourselves and vice-versa.
-     * */
-    processQLineEditWidgetBinding: function(widgetName, propertyName){
-      widgetName = widgetName.replace(/Edit$/, "");
-      this._object.bind(propertyName, this, widgetName);
-      this.bind(widgetName, this._object, propertyName);
     }
   }
 });

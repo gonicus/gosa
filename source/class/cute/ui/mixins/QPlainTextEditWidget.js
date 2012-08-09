@@ -33,14 +33,6 @@ qx.Mixin.define("cute.ui.mixins.QPlainTextEditWidget",
         }, this);
 
       return widget;
-    },
-
-    /* Bind values from the remote-object to ourselves and vice-versa.
-     * */
-    processQPlainTextEditWidgetBinding: function(widgetName, propertyName){
-      widgetName = widgetName.replace(/Edit$/, "");
-      this._object.bind(propertyName, this, widgetName);
-      this.bind(widgetName, this._object, propertyName);
     }
   }
 });

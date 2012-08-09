@@ -215,16 +215,8 @@ qx.Class.define("cute.ui.Renderer",
           continue;
         }
 
-        var method = "process" + this._widgets[widgetName].name + "Binding";
-        if (method in this) {
-          try{
-            this[method](widgetName, propertyName);
-          }catch(e){
-            this.error("*** failed to establish widget bindings for '"+ widgetName +"' ***");
-          }
-        } else {
-          this.error("*** widget '" + method + "' does not exist!");
-        }
+        this._object.bind(propertyName, this._widgets[widgetName], "value");
+        this._widgets[widgetName].bind("value", this._object, propertyName);
       }
     },
 
