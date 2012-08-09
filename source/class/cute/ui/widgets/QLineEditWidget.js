@@ -26,6 +26,11 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
       this._generateGui();
     },
 
+    shortcutExecute : function()
+    {
+      this.focus();
+    },
+
     /* Creates an input-widget depending on the echo mode (normal/password)
      * and connects the update listeners
      * */
