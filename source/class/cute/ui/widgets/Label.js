@@ -63,10 +63,9 @@ qx.Class.define("cute.ui.widgets.Label",
       this.debug("mandatory: ", value);
     },
 
-    getCommand() : function() {
+    getCommand: function() {
       return this._command;
     }
-
   }
 });
 
