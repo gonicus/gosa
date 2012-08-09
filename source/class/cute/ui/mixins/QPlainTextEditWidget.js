@@ -6,12 +6,6 @@ qx.Mixin.define("cute.ui.mixins.QPlainTextEditWidget",
     processQPlainTextEditWidget : function(loc, name, props)
     {
       var realname = name.replace(/Edit$/, '', name);
-      var ad = this.getAttributeDefinitions_()[realname];
-      if (!ad) {
-        this.error("*** wired attribute '" + realname + "' does not exist in the object definition");
-	return null
-      }
-
       var widget = new cute.ui.widgets.QPlainTextEditWidget();
       
       // Set placeholder
@@ -29,9 +23,6 @@ qx.Mixin.define("cute.ui.mixins.QPlainTextEditWidget",
       this.processCommonProperties(name, widget, props);
       this._widgets[name] = widget;
       this.__add_widget_to_extension(name, loc);
-
-      // set widget properties
-      widget.setMultivalue(this.getAttributeDefinitions_()[realname]['multivalue']);
 
       // Add listeners for value changes.
       //widget.setLiveUpdate(true);
