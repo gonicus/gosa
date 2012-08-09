@@ -37,7 +37,7 @@ qx.Class.define("cute.ui.widgets.Label",
 
     if (match) {
       target_text = match[1] + "<u>" + match[3] + "</u>" + (match.length == 5 ? match[4] : "");
-      this._command(match[3]);
+      this._command = match[3];
     }
 
     // Call super class
