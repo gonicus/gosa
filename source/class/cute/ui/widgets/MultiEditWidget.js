@@ -29,7 +29,7 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     /* Mark the given widget as required
      * */
     _markAsRequired: function(widget){
-      widget.setBackgroundColor("#FFDDDD");    
+      widget.setBackgroundColor("mandatory");    
     },
 
 

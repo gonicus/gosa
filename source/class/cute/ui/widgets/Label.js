@@ -41,6 +41,7 @@ qx.Class.define("cute.ui.widgets.Label",
     }
 
     // Call super class
+    this._text = target_text;
     this.base(arguments, target_text);
     this.setRich(true);
   },
@@ -59,8 +60,12 @@ qx.Class.define("cute.ui.widgets.Label",
 
     /* Applies the mandatory state for this widget
      * */
-    __applyMandatory: function(value){
-      this.debug("mandatory: ", value);
+    __applyMandatory: function(mandatory){
+      if (mandatory) {
+        this.setValue(this._text + "&nbsp;<b>*</b>");
+      } else {
+        this.setValue(this._text);
+      }
     },
 
     getCommand: function() {
