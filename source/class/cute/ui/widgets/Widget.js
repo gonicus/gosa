@@ -12,6 +12,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
     this.name = this.classname.replace(/^.*\./, "");
     this.base(arguments);  
     this.setValue(new qx.data.Array());
+    this.setFocusable(true);
 
     this.addListener("appear", function(){
         this._visible = true;
@@ -121,11 +122,6 @@ qx.Class.define("cute.ui.widgets.Widget", {
     modified : {
       init : false,
       check : "Boolean"
-    },
-
-    definitions: {
-      init: null,
-      apply: "_applyPropertyDefinitions"
     }
   },
 
@@ -138,10 +134,6 @@ qx.Class.define("cute.ui.widgets.Widget", {
     _was_initialized: false,
     _visible : false,
     name: null,
-
-    _applyPropertyDefinitions: function(value){
-      console.log(value);;
-    },
 
     _applyReadOnly: function(bool)
     {

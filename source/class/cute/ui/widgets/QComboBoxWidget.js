@@ -70,7 +70,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
       if(data.classname != "qx.data.Array"){
         var items = [];
 
-        if(this.getMandatory()){
+        if(!this.getMandatory()){
           var item = new cute.data.model.SelectBoxItem();
           item.setValue("");
           item.setKey(null);

@@ -26,6 +26,13 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     _skipUpdates: false,
 
 
+    /* Mark the given widget as required
+     * */
+    _markAsRequired: function(widget){
+      widget.setBackgroundColor("#FFDDDD");    
+    },
+
+
     /* Returns the value from the widget given by its id
      * */
     _getWidgetValue: function(id){
@@ -100,13 +107,6 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
      * */
     _applyMultivalue: function(){
       this._generateGui();
-    },
-
-
-    /* Forwards the "required" flag to all widgets.
-     * */
-    _applyRequired: function(bool){
-      this.error("NYI _applyRequired");
     },
 
 
@@ -206,6 +206,12 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     _addWidget: function(id){
       if(!(id in this._widgetContainer)){
         var w = this._createWidget(id);
+
+        // Mark widget as required
+        if(this.getMandatory()){
+          this._markAsRequired(w);
+        }
+
         var c = new cute.ui.widgets.MultiEditContainer(w);
         this._widgetContainer[id] = c;
         c.addListener("add", function(){
