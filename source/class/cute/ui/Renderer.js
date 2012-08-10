@@ -212,11 +212,7 @@ qx.Class.define("cute.ui.Renderer",
           this.error("*** found binding info for '"+widgetName+"' but no such widget was created! ***");
           continue;
         }
-
-        this._object.bind(propertyName, this._widgets[widgetName], "value");
-        this._widgets[widgetName].bind("value", this._object, propertyName);
         this.__bindHelper(this._widgets[widgetName], propertyName);
-
       }
     },
 
@@ -226,6 +222,8 @@ qx.Class.define("cute.ui.Renderer",
         this.set(name, e.getData());
         this.setModified(true);
       }, this);
+      this._object.bind(name, this, name);
+      this.bind(name, this._object, name);
     },
 
 
@@ -601,7 +599,6 @@ qx.Class.define("cute.ui.Renderer",
           this._tabContainer.add(page);
 
           // Connect this master-widget with the object properties, establish tabstops
-          this.processBindings(this._current_bindings);
           this.processTabStops(this._current_tabstops);
 
           // Transmit object property definitions to the widgets
@@ -610,6 +607,7 @@ qx.Class.define("cute.ui.Renderer",
           }
 
           this.processBuddies(this._current_buddies);
+          this.processBindings(this._current_bindings);
 
         } else {
           this.info("*** no widget found for '" + extension + "'");
