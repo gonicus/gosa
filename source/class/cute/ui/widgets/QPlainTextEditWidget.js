@@ -14,6 +14,11 @@ qx.Class.define("cute.ui.widgets.QPlainTextEditWidget", {
       if(this.getPlaceholder()){
         w.setPlaceholder(this.getPlaceholder());
       }
+
+      if(this.getMaxLength()){
+        w.setMaxLength(this.getMaxLength());
+      }
+
       w.setLiveUpdate(true);
       w.addListener("focusout", this._propertyUpdater, this);
       w.addListener("changeValue", this._propertyUpdaterTimed, this);

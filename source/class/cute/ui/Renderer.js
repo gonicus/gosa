@@ -24,8 +24,6 @@ qx.Class.define("cute.ui.Renderer",
   extend : qx.ui.container.Composite,
 
   include: [
-      cute.ui.mixins.QPlainTextEditWidget,
-      cute.ui.mixins.QGraphicsViewWidget,
       cute.ui.mixins.QListWidgetWidget,
       cute.ui.mixins.QSpinBoxWidget,
       cute.ui.mixins.QLabelWidget
