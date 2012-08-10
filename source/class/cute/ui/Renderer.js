@@ -25,7 +25,6 @@ qx.Class.define("cute.ui.Renderer",
 
   include: [
       cute.ui.mixins.QListWidgetWidget,
-      cute.ui.mixins.QSpinBoxWidget,
       cute.ui.mixins.QLabelWidget
     ],
 
