@@ -19,6 +19,27 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
  
     default_value: "",
 
+    _applyGuiProperties: function(props){
+      if(props["placeholderText"] && props["placeholderText"]["string"]){
+        this.setPlaceholder(props["placeholderText"]["string"]);
+      }
+      if(props["echoMode"] && props["echoMode"]["enum"]){
+        var echomode = props["echoMode"]["enum"];
+        if (echomode == "QLineEdit::Password") {
+          this.setEchoMode('password');
+        } else if (echomode == "QLineEdit::NoEcho") {
+          this.error("*** TextField NoEcho not supported!");
+          return null;
+        } else if (echomode == "QLineEdit::PasswordEchoOnEdit") {
+          this.error("*** TextField NoEcho not supported!");
+          return null;
+        }
+      }
+      if(props["maxLength"] && props["maxLength"]["number"]){
+        this.setMaxLength(parseInt(props["maxLength"]["number"])) ;
+      }
+    },
+
     _setEchoMode: function(){
       this._current_length = 0;
       this.removeAll();
@@ -40,9 +61,14 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
         var w = new qx.ui.form.PasswordField();
       }else{
         var w = new qx.ui.form.TextField();
+        w.getContentElement().setAttribute("spellcheck", true);
       }
       if(this.getPlaceholder()){
         w.setPlaceholder(this.getPlaceholder());
+      }
+
+      if(this.getMaxLength()){
+        w.setMaxLength(this.getMaxLength());
       }
 
       w.setLiveUpdate(true);

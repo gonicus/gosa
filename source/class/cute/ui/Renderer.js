@@ -24,7 +24,6 @@ qx.Class.define("cute.ui.Renderer",
   extend : qx.ui.container.Composite,
 
   include: [
-      cute.ui.mixins.QLineEditWidget,
       cute.ui.mixins.QPlainTextEditWidget,
       cute.ui.mixins.QDateEditWidget,
       cute.ui.mixins.QComboBoxWidget,
@@ -69,6 +68,7 @@ qx.Class.define("cute.ui.Renderer",
     this._buddies = {};
     this._current_buddies = {};
     this._resources = {};
+    this._widget_ui_properties = {};
 
     // Detect the theme
     this._theme = "default";
@@ -197,6 +197,7 @@ qx.Class.define("cute.ui.Renderer",
     _tabContainer: null,
     _extension_to_widgets: null,
     _widget_to_page: null,
+    _widget_ui_properties: null,
 
     __okBtn: null,
     __cancelBtn: null,
@@ -246,7 +247,6 @@ qx.Class.define("cute.ui.Renderer",
      * */
     processTabStops: function(tabstops)
     {
-      console.log(tabstops);
       for (var i= 0; i< tabstops.length; i++) {
         var w = tabstops[i];
         if (i == 0) {
@@ -552,26 +552,6 @@ qx.Class.define("cute.ui.Renderer",
           page.setLayout(new qx.ui.layout.VBox());
           page.add(info['widget']);
 
-          // Transmit object property definitions to the widgets
-          for(var item in this._current_bindings){
-            var w = this._widgets[item];
-            var defs = this.getAttributeDefinitions_()[this._current_bindings[item]];
-            if(defs){
-              w.setCaseSensitive(defs['case_sensitive']);
-              w.setBlockedBy(defs['blocked_by']);
-              w.setDefaultValue(defs['default']);
-              w.setDependsOn(defs['depends_on']);
-              w.setMandatory(defs['mandatory']);
-              w.setMultivalue(defs['multivalue']);
-              w.setReadonly(defs['readonly']);
-              w.setType(defs['type']);
-              w.setUnique(defs['unique']);
-              w.setValues(defs['values']);
-            }else{
-              this.error("Not property definitions found for ", item);
-            }
-          }
-
           // Create a mapping from widget to page
           for(item in this._current_widgets){
             var widgetName = this._current_bindings[this._current_widgets[item]];
@@ -618,11 +598,48 @@ qx.Class.define("cute.ui.Renderer",
           this.processTabStops(this._current_tabstops);
           this.processBuddies(this._current_buddies);
 
+          // Transmit object property definitions to the widgets
+          for(var item in this._current_bindings){
+            this.processWidgetProperties(item);
+          }
+
         } else {
           this.info("*** no widget found for '" + extension + "'");
         }
       }
     },
+
+
+    /* Transfer collected widget-properties to the widgets.
+      */
+    processWidgetProperties: function(item){
+      var w = this._widgets[item];
+      var defs = this.getAttributeDefinitions_()[this._bindings[item]];
+      if(defs){
+        w.setCaseSensitive(defs['case_sensitive']);
+        w.setBlockedBy(defs['blocked_by']);
+        w.setDefaultValue(defs['default']);
+        w.setDependsOn(defs['depends_on']);
+        w.setMandatory(defs['mandatory']);
+        w.setMultivalue(defs['multivalue']);
+        w.setReadonly(defs['readonly']);
+        w.setType(defs['type']);
+        w.setUnique(defs['unique']);
+        w.setValues(defs['values']);
+        w.setGuiProperties(this._widget_ui_properties[item]);
+      }else{
+        this.error("Not property definitions found for ", item);
+      }
+
+      // Add listeners for value changes.
+      if(w){
+        w.addListener("changeValue", function(e){
+          this.set(this._bindings[item], e.getData());
+          this.setModified(true);
+        }, this);
+      }
+    },
+  
 
     /**
      * This method contains the initial application code and gets called 
@@ -977,13 +994,24 @@ qx.Class.define("cute.ui.Renderer",
         }
       }
 
+
       // Call process*Widget method
-      var method = "process" + clazz + "Widget";
-      var widget;
-      if (method in this) {
-        widget = this[method](loc, name, properties);
-      } else {
-        this.error("*** widget '" + method + "' does not exist!");
+      var classname = clazz + "Widget";
+      var method = "process" + classname;
+      if (cute.ui.widgets[classname]) {
+        var widget = new cute.ui.widgets[classname];
+        this._widgets[name] = widget;
+        this.__add_widget_to_extension(name, loc);
+        this.processCommonProperties(name, widget, properties);
+
+        // Store widget ui-properties for this widget to be able
+        // to process them later.
+        this._widget_ui_properties[name] = properties;
+
+      } else if (method in this) {
+        var widget = this[method](loc, name, properties);
+      }else{
+        this.error("*** widget '" + name + "' does not exist!");
         return null;
       }
 

@@ -21,6 +21,11 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
   properties : {
 
+    guiProperties: {
+      apply: "_applyGuiProperties",
+      init: null
+    },
+
     caseSensitive: {
       init: false
     },
@@ -135,9 +140,8 @@ qx.Class.define("cute.ui.widgets.Widget", {
     _visible : false,
     name: null,
 
-    shortcutExecute : function()
-    {
-    },
+    _applyGuiProperties: function(){},
+    shortcutExecute : function(){},
 
     _applyReadOnly: function(bool)
     {
