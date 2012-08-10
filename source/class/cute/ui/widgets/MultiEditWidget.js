@@ -224,6 +224,8 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
           this.getValue().splice(id, 1);
           this._skipUpdates = false;
           this._generateGui();
+          this.addState("modified");
+          this._propertyUpdater();
         }, this);
       }
       this.add(this._widgetContainer[id]);
