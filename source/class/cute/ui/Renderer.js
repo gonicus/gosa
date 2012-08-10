@@ -26,7 +26,6 @@ qx.Class.define("cute.ui.Renderer",
   include: [
       cute.ui.mixins.QPlainTextEditWidget,
       cute.ui.mixins.QGraphicsViewWidget,
-      cute.ui.mixins.QCheckBoxWidget,
       cute.ui.mixins.QListWidgetWidget,
       cute.ui.mixins.QSpinBoxWidget,
       cute.ui.mixins.QLabelWidget
@@ -596,7 +595,7 @@ qx.Class.define("cute.ui.Renderer",
           this.processTabStops(this._current_tabstops);
 
           // Transmit object property definitions to the widgets
-          for(var item in this._current_bindings){
+          for(var item in this._widgets){
             this.processWidgetProperties(item);
           }
 
@@ -613,8 +612,9 @@ qx.Class.define("cute.ui.Renderer",
       */
     processWidgetProperties: function(item){
       var w = this._widgets[item];
-      var defs = this.getAttributeDefinitions_()[this._bindings[item]];
-      if(defs){
+      var widgetName = this._bindings[item];
+      var defs = this.getAttributeDefinitions_()[widgetName];
+      if(defs && w && w.hasState("cuteWidget")){
         w.setCaseSensitive(defs['case_sensitive']);
         w.setBlockedBy(defs['blocked_by']);
         w.setDefaultValue(defs['default']);
@@ -625,13 +625,16 @@ qx.Class.define("cute.ui.Renderer",
         w.setType(defs['type']);
         w.setUnique(defs['unique']);
         w.setValues(defs['values']);
-        w.setGuiProperties(this._widget_ui_properties[item]);
-      }else{
+      }else if(!w){
         this.error("Not property definitions found for ", item);
       }
 
+      if("setGuiProperties" in w){
+        w.setGuiProperties(this._widget_ui_properties[item]);
+      }
+
       // Add listeners for value changes.
-      if(w){
+      if(w && w.hasState("cuteWidget")){
         w.addListener("changeValue", function(e){
           this.set(this._bindings[item], e.getData());
           this.setModified(true);
@@ -1006,7 +1009,6 @@ qx.Class.define("cute.ui.Renderer",
         // Store widget ui-properties for this widget to be able
         // to process them later.
         this._widget_ui_properties[name] = properties;
-
       } else if (method in this) {
         var widget = this[method](loc, name, properties);
       }else{

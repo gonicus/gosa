@@ -52,6 +52,12 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
       }
     },
 
+    _applyGuiProperties: function(props){
+      if(props["text"] && props["text"]["string"]){
+        this.setLabel(props["text"]["string"]);
+      }
+    },
+
     setInvalidMessage: function(message){
       this._chkBoxWidget.setInvalidMessage(message);
     },

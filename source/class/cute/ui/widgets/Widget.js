@@ -17,6 +17,8 @@ qx.Class.define("cute.ui.widgets.Widget", {
     this.addListener("appear", function(){
         this._visible = true;
       }, this);
+
+    this.addState("cuteWidget");
   },
 
   properties : {
