@@ -17,6 +17,7 @@ qx.Class.define("cute.ui.widgets.QPlainTextEditWidget", {
       w.setLiveUpdate(true);
       w.addListener("focusout", this._propertyUpdater, this);
       w.addListener("changeValue", this._propertyUpdaterTimed, this);
+      w.getContentElement().setAttribute("spellcheck", true);
       return(w);
     }
   }
