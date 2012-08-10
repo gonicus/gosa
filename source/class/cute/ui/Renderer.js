@@ -215,7 +215,17 @@ qx.Class.define("cute.ui.Renderer",
 
         this._object.bind(propertyName, this._widgets[widgetName], "value");
         this._widgets[widgetName].bind("value", this._object, propertyName);
+        this.__bindHelper(this._widgets[widgetName], propertyName);
+
       }
+    },
+
+
+    __bindHelper: function(widget, name){
+      widget.addListener("changeValue", function(e){
+        this.set(name, e.getData());
+        this.setModified(true);
+      }, this);
     },
 
 
@@ -502,7 +512,7 @@ qx.Class.define("cute.ui.Renderer",
         } else {
           //TODO: bind new properties
           this._createTabsForExtension(type);
-	  this._object.refreshMetaInformation(this._updateToolMenu, this);
+          this._object.refreshMetaInformation(this._updateToolMenu, this);
           this.setModified(true);
         }
       }, this, type);
@@ -614,31 +624,21 @@ qx.Class.define("cute.ui.Renderer",
       var w = this._widgets[item];
       var widgetName = this._bindings[item];
       var defs = this.getAttributeDefinitions_()[widgetName];
-      if(defs && w && w.hasState("cuteWidget")){
-        w.setCaseSensitive(defs['case_sensitive']);
-        w.setBlockedBy(defs['blocked_by']);
-        w.setDefaultValue(defs['default']);
-        w.setDependsOn(defs['depends_on']);
-        w.setMandatory(defs['mandatory']);
-        w.setMultivalue(defs['multivalue']);
-        w.setReadonly(defs['readonly']);
-        w.setType(defs['type']);
-        w.setUnique(defs['unique']);
-        w.setValues(defs['values']);
-      }else if(!w){
-        this.error("Not property definitions found for ", item);
-      }
 
-      if("setGuiProperties" in w){
-        w.setGuiProperties(this._widget_ui_properties[item]);
-      }
-
-      // Add listeners for value changes.
       if(w && w.hasState("cuteWidget")){
-        w.addListener("changeValue", function(e){
-          this.set(this._bindings[item], e.getData());
-          this.setModified(true);
-        }, this);
+        if(defs){
+          w.setCaseSensitive(defs['case_sensitive']);
+          w.setBlockedBy(defs['blocked_by']);
+          w.setDefaultValue(defs['default']);
+          w.setDependsOn(defs['depends_on']);
+          w.setMandatory(defs['mandatory']);
+          w.setMultivalue(defs['multivalue']);
+          w.setReadonly(defs['readonly']);
+          w.setType(defs['type']);
+          w.setUnique(defs['unique']);
+          w.setValues(defs['values']);
+        }
+        w.setGuiProperties(this._widget_ui_properties[item]);
       }
     },
   
