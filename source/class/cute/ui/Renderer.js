@@ -24,8 +24,7 @@ qx.Class.define("cute.ui.Renderer",
   extend : qx.ui.container.Composite,
 
   include: [
-      cute.ui.mixins.QListWidgetWidget,
-      cute.ui.mixins.QLabelWidget
+      cute.ui.mixins.QListWidgetWidget
     ],
 
   /*
@@ -158,7 +157,7 @@ qx.Class.define("cute.ui.Renderer",
       widget._object = obj;
       widget.setAttributeDefinitions_(obj.attribute_data);
       widget.setUiDefinition_(ui_definition)
-      widget.configure();
+        widget.configure();
 
       // Connect to the object event 'propertyUpdateOnServer' to be able to act on property changes.
       // e.g. set an invalid-decorator for specific widget.
@@ -229,11 +228,12 @@ qx.Class.define("cute.ui.Renderer",
     processBuddies: function(buddies)
     {
       for (var buddy in buddies) {
+
         // Set buddy
         this._widgets[buddies[buddy]].setBuddy(this._widgets[buddy]);
 
-      	// Process mandatory flag and inform label about it
-        this._widgets[buddies[buddy]].setMandatory(this._widgets[buddy].getMandatory())
+        // Process mandatory flag and inform label about it
+        this._widgets[buddies[buddy]].setMandatory(this._widgets[buddy].getMandatory());
 
         // Add Command if configured
         var command = this._widgets[buddies[buddy]].getCommand();

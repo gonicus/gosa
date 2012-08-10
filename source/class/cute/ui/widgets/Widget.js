@@ -47,7 +47,8 @@ qx.Class.define("cute.ui.widgets.Widget", {
     },
 
     mandatory: {
-      init: false
+      init: false,
+      apply: "_applyMandatory"
     },
 
     multivalue: {
@@ -195,6 +196,9 @@ qx.Class.define("cute.ui.widgets.Widget", {
     },
 
     _applyMultivalue: function(value){
+    },
+
+    _applyMandatory: function(value){
     }
   }
 });
