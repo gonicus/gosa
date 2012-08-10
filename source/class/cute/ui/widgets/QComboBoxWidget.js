@@ -39,9 +39,12 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
      * */
     _createWidget: function(){
 
-
       var w = new qx.ui.form.SelectBox();
       var controller = new qx.data.controller.List(this.getValues(), w, "value");
+
+      if(this.getPlaceholder()){
+        w.setPlaceholder(this.getPlaceholder());
+      }
 
       ////TODO: re-enable
       //var theme = "default";

@@ -39,6 +39,9 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
       if(this.getPlaceholder()){
         w.setPlaceholder(this.getPlaceholder());
       }
+      if(this.getPlaceholder()){
+        w.setPlaceholder(this.getPlaceholder());
+      }
       w.addListener("changeValue", function(){
           this.addState("modified");
           this._propertyUpdater();
