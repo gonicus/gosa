@@ -594,12 +594,13 @@ qx.Class.define("cute.ui.Renderer",
           // Connect this master-widget with the object properties, establish tabstops
           this.processBindings(this._current_bindings);
           this.processTabStops(this._current_tabstops);
-          this.processBuddies(this._current_buddies);
 
           // Transmit object property definitions to the widgets
           for(var item in this._current_bindings){
             this.processWidgetProperties(item);
           }
+
+          this.processBuddies(this._current_buddies);
 
         } else {
           this.info("*** no widget found for '" + extension + "'");
