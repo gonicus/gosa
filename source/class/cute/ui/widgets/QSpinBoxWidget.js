@@ -21,6 +21,20 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
  
     default_value: 0,
 
+    /* Apply collected gui properties to this widet
+     * */
+    _applyGuiProperties: function(props){
+      if(props["placeholderText"] && props["placeholderText"]["string"]){
+        this.setPlaceholder(props["placeholderText"]["string"]);
+      }
+      if(props["maximum"] && props["maximum"]["number"]){
+        this.setMaximum(parseInt(props["maximum"]["number"])) ;
+      }
+      if(props["minimum"] && props["minimum"]["number"]){
+        this.setMinimum(parseInt(props["minimum"]["number"])) ;
+      }
+    },
+
     /* Creates an input-widget depending on the echo mode (normal/password)
      * and connects the update listeners
      * */
