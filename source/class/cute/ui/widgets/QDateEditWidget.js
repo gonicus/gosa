@@ -6,6 +6,8 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
  
     default_value: null,
 
+    
+
     /* Returns the value from the widget given by its id
      * */
     _getWidgetValue: function(id){

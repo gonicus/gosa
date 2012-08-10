@@ -54,6 +54,7 @@
     // existing jobs ...
     "source-disposerDebug" :
     {
+      "include": ["cute.ui.widgets.*"],
       "desc" : "source version with 'qx.debug.dispose.level' for destruct support",
       "extend" : [ "source" ],
       "environment" :
@@ -64,6 +65,7 @@
 
     "build":
     {
+      "include": ["cute.ui.widgets.*"],
       "add-script" :
       [
         {
@@ -85,6 +87,7 @@
 
     "source":
     {
+      "include": ["cute.ui.widgets.*"],
       "add-script" :
       [
         {

@@ -98,8 +98,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
           }
         }
 
-        values = new qx.data.Array(items);
-        this.setValues(values);
+        this.setValues(new qx.data.Array(items));
       }
     },
 
