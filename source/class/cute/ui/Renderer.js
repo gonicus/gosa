@@ -23,10 +23,6 @@ qx.Class.define("cute.ui.Renderer",
 {
   extend : qx.ui.container.Composite,
 
-  include: [
-      cute.ui.mixins.QListWidgetWidget
-    ],
-
   /*
    *****************************************************************************
    MEMBERS
