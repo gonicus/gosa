@@ -75,25 +75,38 @@ qx.Class.define("cute.io.WebSocket", {
         title = "<center><b>" + info['title'] + "</b></center>";
       }
 
-      // Create bubble with timeout
-      var popup = new qx.ui.basic.Atom(title + info["body"].replace(/\n/g, '<br />'), icon).set({
-          backgroundColor : "#0A0A0A",
-          textColor : "#F0F0F0",
-          decorator : "scroll-knob",
-          iconPosition : "left",
-          padding : 8,
-          paddingRight : 20,
-          zIndex : 10000,
-          opacity : 0.8,
-          rich : true
-      });
-      popup.addListener("click", function(e){ this.closePopup(popup); }, this);
-      this.showPopup(popup)
+      if (cute.Config.notifications && cute.Config.notifications.checkPermission() == 0) {
+        data = qx.util.Base64.encode("<img src='" + icon + "' align='left'><span style='font-family: arial, verdana, sans-serif;'>" + title + info['body'] + "</span>");
+        var notification = cute.Config.notifications.createHTMLNotification("data:text/html;charset=utf-8;base64," + data);
+        notification.show();
+        var timer = qx.util.TimerManager.getInstance();
+        timer.start(function(userData, timerId){
+          notification.cancel();
+        }, 0, this, null, timeout);
 
-      var timer = qx.util.TimerManager.getInstance();
-      timer.start(function(userData, timerId){
-        this.closePopup(popup);
-      }, 0, this, null, timeout);
+      } else {
+
+        // Create bubble with timeout
+        var popup = new qx.ui.basic.Atom(title + info["body"].replace(/\n/g, '<br />'), icon).set({
+            backgroundColor : "#0A0A0A",
+            textColor : "#F0F0F0",
+            decorator : "scroll-knob",
+            iconPosition : "left",
+            padding : 8,
+            paddingRight : 20,
+            zIndex : 10000,
+            opacity : 0.8,
+            rich : true
+        });
+        popup.addListener("click", function(e){ this.closePopup(popup); }, this);
+        this.showPopup(popup)
+
+        var timer = qx.util.TimerManager.getInstance();
+        timer.start(function(userData, timerId){
+          this.closePopup(popup);
+        }, 0, this, null, timeout);
+
+      }
     },
 
     closePopup : function(popup) {
