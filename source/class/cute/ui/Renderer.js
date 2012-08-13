@@ -690,7 +690,12 @@ qx.Class.define("cute.ui.Renderer",
 
         // Widget
         } else if (node.nodeName == "widget") {
-          widgets.push(this.processWidget(loc, node));
+          var widget = this.processWidget(loc, node);
+          if(!widget){
+            this.error("Skipped widget creation!");
+          }else{
+            widgets.push(widget);
+          }
 
         // Spacer
         } else if (node.nodeName == "spacer") {
@@ -976,7 +981,13 @@ qx.Class.define("cute.ui.Renderer",
 
           // Widget
         } else if (n.nodeName == "widget") {
-          widgets.push(this.processWidget(loc, n));
+
+          var widget = this.processWidget(loc, n);
+          if(!widget){
+            this.error("Skipped widget creation!");
+          }else{
+            widgets.push(widget);
+          }
 
           // Layout
         } else if (n.nodeName == "layout") {
