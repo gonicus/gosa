@@ -28,6 +28,12 @@ qx.Class.define("cute.ui.dialogs.LoginDialog",
     login.setAllowStretchX(false);
     this.add(login, {row : 5, column : 0});
     login.addListener("execute", function(){
+      if (cute.Config.notifications) {
+          if (cute.Config.notifications.checkPermission() != 0) {
+              cute.Config.notifications.requestPermission();
+        }
+      }
+
       var rpc = cute.io.Rpc.getInstance();
       var that = this;
       rpc.callAsync(function(result, error){

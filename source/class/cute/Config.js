@@ -6,6 +6,7 @@ qx.Class.define("cute.Config", {
     url: "/rpc",
     ws: "/ws",
     service: "Clacks JSON-RPC service",
-    timeout: 60000
+    timeout: 60000,
+    notifications: window.webkitNotifications || window.notifications
   }
 });

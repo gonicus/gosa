@@ -3,17 +3,17 @@
   {
     "name" : "cute",
 
-    "summary" : "Custom Application",
-    "description" : "This is a skeleton for a custom application with qooxdoo.",
+    "summary" : "",
+    "description" : "",
     
-    "homepage" : "http://some.homepage.url/",
+    "homepage" : "http://clacks-project.org/",
 
-    "license" : "SomeLicense",
+    "license" : "LGPL 2.1",
     "authors" : 
     [
       {
-        "name" : "First Author (uid)",
-        "email" : "first.author@some.domain"
+        "name" : "GONICUS GmbH",
+        "email" : "pollmeier@gonicus.de"
       }
     ],
 
