@@ -214,8 +214,13 @@ qx.Class.define("cute.ui.Renderer",
         this.set(name, e.getData());
         this.setModified(true);
       }, this);
-      this._object.bind(name, this, name);
-      this.bind(name, this._object, name);
+
+      if(!(qx.lang.Array.contains(this._object.attributes, name))){
+        this.error("*** found binding info for property '"+name+"' but there is no such property! ***");
+      }else{
+        this._object.bind(name, this, name);
+        this.bind(name, this._object, name);
+      }
     },
 
 
