@@ -978,8 +978,18 @@ qx.Class.define("cute.ui.Renderer",
           for (var item in tmp) {
             properties[item] = tmp[item];
           }
+        }else if (n.nodeName == "column") {
+          if(!("columns" in properties)){
+            properties['columns'] = {};
+          }
+          for (var e = 0; e<n.childNodes.length; e++) {
+            var item = n.childNodes[e];
+            if (item.nodeName == "property") {
+              var c_data = this.processProperty(item);
+              properties['columns'][c_data['text']['_comment']] = c_data['text']['string'];
+            }
+          }
 
-          // Widget
         } else if (n.nodeName == "widget") {
 
           var widget = this.processWidget(loc, n);
@@ -998,7 +1008,6 @@ qx.Class.define("cute.ui.Renderer",
         }
       }
 
-
       // Call process*Widget method
       var classname = clazz + "Widget";
       var method = "process" + classname;
@@ -1014,7 +1023,7 @@ qx.Class.define("cute.ui.Renderer",
       } else if (method in this) {
         var widget = this[method](loc, name, properties);
       }else{
-        this.error("*** widget '" + name + "' does not exist!");
+        this.error("*** widget '" + classname + "' does not exist!");
         return null;
       }
 
