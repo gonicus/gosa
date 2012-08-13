@@ -989,7 +989,6 @@ qx.Class.define("cute.ui.Renderer",
               properties['columns'][c_data['text']['_comment']] = c_data['text']['string'];
             }
           }
-
         } else if (n.nodeName == "widget") {
 
           var widget = this.processWidget(loc, n);
