@@ -1172,7 +1172,8 @@ qx.Class.define("cute.ui.Renderer",
     {
       var widget = new qx.ui.container.Composite();
       widget.title_ = this.getStringProperty('windowTitle', props);
-      widget.icon_ = this.getIconProperty('windowIcon', props);
+      var bp = window.location.href.substr(0, window.location.href.lastIndexOf("/") + 1);
+      widget.icon_ = bp + this.getIconProperty('windowIcon', props);
       this.processCommonProperties(name, widget, props);
       this._widgets[name] = widget;
       this.__add_widget_to_extension(name, loc);
