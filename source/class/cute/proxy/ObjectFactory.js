@@ -22,44 +22,49 @@ qx.Class.define("cute.proxy.ObjectFactory", {
 
       // Add an event listener
       var rpc = cute.io.Rpc.getInstance();
-      rpc.cA(function(userData, context, error){
+      rpc.cA(function(userData, error){
 
-        // Extract required user information out of the '__jsonclass__' result object.
-        var jDefs = userData["__jsonclass__"][1];
-        var uuid = jDefs[1];
-        var methods = jDefs[3];
-        var attributes = jDefs[4];
-        var baseType = null;
-        var extensionTypes = null;
-        var templates = {};
-        var translations = {};
-        var attribute_data = {};
+        // Abort on errors
+        if(error){
+          c_callback.apply(c_context, [null, error]); 
+        }else{
 
-        var theme = "default";
-        if (cute.Config.theme) {
-            theme = cute.Config.theme;
-        }
+          // Extract required user information out of the '__jsonclass__' result object.
+          var jDefs = userData["__jsonclass__"][1];
+          var uuid = jDefs[1];
+          var methods = jDefs[3];
+          var attributes = jDefs[4];
+          var baseType = null;
+          var extensionTypes = null;
+          var templates = {};
+          var translations = {};
+          var attribute_data = {};
 
-        var locale;
-        if (cute.Config.locale) {
-            locale = cute.Config.locale;
-        } else {
-          locale = qx.bom.client.Locale.getLocale();
-          var variant = qx.bom.client.Locale.getVariant();
-          if (locale && variant) {
-              locale = locale + "-" + variant;
+          var theme = "default";
+          if (cute.Config.theme) {
+              theme = cute.Config.theme;
           }
-        }
 
-        // This method is called below to make the code more readable.
-        var _handleResult = function(){
+          var locale;
+          if (cute.Config.locale) {
+              locale = cute.Config.locale;
+          } else {
+            locale = qx.bom.client.Locale.getLocale();
+            var variant = qx.bom.client.Locale.getVariant();
+            if (locale && variant) {
+                locale = locale + "-" + variant;
+            }
+          }
 
-          // This is the new classname for the metaclass.
-          // e.g. objects.User
-          var className = "objects." + baseType;
+          // This method is called below to make the code more readable.
+          var _handleResult = function(){
 
-          // The base member variables for the metaclass
-          var members = {
+            // This is the new classname for the metaclass.
+            // e.g. objects.User
+            var className = "objects." + baseType;
+
+            // The base member variables for the metaclass
+            var members = {
               uuid: null,
               methods: methods,
               attributes: attributes,
@@ -68,51 +73,51 @@ qx.Class.define("cute.proxy.ObjectFactory", {
               templates: templates,
               translations: translations,
               extensionTypes: extensionTypes,
-	      locale: locale,
-	      theme: theme
+              locale: locale,
+              theme: theme
             };
 
-          // this closure returns a new apply method for the given attribute.
-          var getApplyMethod = function(name){
-            var func = function(value){
-              this.setAttribute(name, value);
-            };
-            return(func);
+            // this closure returns a new apply method for the given attribute.
+            var getApplyMethod = function(name){
+              var func = function(value){
+                this.setAttribute(name, value);
+              };
+              return(func);
+            }
+
+            // this closure returns a new wrapper-method for an object method
+            var getMethod = function(name){
+              var func = function(){
+                return(this.callMethod.apply(this, [name].concat(Array.prototype.slice.call(arguments))));
+              };
+              return(func);
+            }
+
+            // Create list of properties
+            var properties = {};
+            for(var attr in attributes){
+              var name = attributes[attr];
+              var upperName = name.charAt(0).toUpperCase() + name.slice(1);
+              var applyName = "_apply_" + upperName;
+              var prop = {apply: applyName, event: "changed" + upperName, nullable: true, check: "qx.data.Array"};
+              members[applyName] = getApplyMethod(name);
+              properties[name] = prop;
+            }
+
+            // Create methods
+            for(attr in methods){
+              var name = methods[attr];
+              members[name] = getMethod(name);
+            }
+
+            // Create meta class for this object
+            var def = {extend: cute.proxy.Object, members: members, properties: properties};
+            cute.proxy.ObjectFactory.classes[className] = qx.Class.define(className, def);
+            c_callback.apply(c_context, [new cute.proxy.ObjectFactory.classes[className](userData)]); 
           }
 
-          // this closure returns a new wrapper-method for an object method
-          var getMethod = function(name){
-            var func = function(){
-              return(this.callMethod.apply(this, [name].concat(Array.prototype.slice.call(arguments))));
-            };
-            return(func);
-          }
-
-          // Create list of properties
-          var properties = {};
-          for(var attr in attributes){
-            var name = attributes[attr];
-            var upperName = name.charAt(0).toUpperCase() + name.slice(1);
-            var applyName = "_apply_" + upperName;
-            var prop = {apply: applyName, event: "changed" + upperName, nullable: true, check: "qx.data.Array"};
-            members[applyName] = getApplyMethod(name);
-            properties[name] = prop;
-          }
-
-          // Create methods
-          for(attr in methods){
-            var name = methods[attr];
-            members[name] = getMethod(name);
-          }
-
-          // Create meta class for this object
-          var def = {extend: cute.proxy.Object, members: members, properties: properties};
-          cute.proxy.ObjectFactory.classes[className] = qx.Class.define(className, def);
-          c_callback.apply(c_context, [new cute.proxy.ObjectFactory.classes[className](userData)]); 
-        }
-
-	// Load object info - base type, extension types and template information
-        rpc.cA(function(data, context, error){
+          // Load object info - base type, extension types and template information
+          rpc.cA(function(data, error){
             if(!error){
               baseType = data['base'];
               extensionTypes = data['extensions'];
@@ -131,8 +136,8 @@ qx.Class.define("cute.proxy.ObjectFactory", {
             }else{
               this.error(error);
             }
-        }, this, "dispatchObjectMethod", uuid, "get_object_info", locale, theme);
-
+          }, this, "dispatchObjectMethod", uuid, "get_object_info", locale, theme);
+        }
       }, this, "openObject", "object", dn, type);
     }
   }

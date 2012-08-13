@@ -186,7 +186,14 @@ qx.Class.define("cute.view.Search",
       var win = null;
       var _current_object = null;
 
-      cute.proxy.ObjectFactory.openObject(function(obj){
+      cute.proxy.ObjectFactory.openObject(function(obj, error){
+
+        // Check for errors
+        if(error){
+          new cute.ui.dialogs.Error(error.message).open();
+          return;
+        }
+
         _current_object = obj;
 
         // Build widget and place it into a window
