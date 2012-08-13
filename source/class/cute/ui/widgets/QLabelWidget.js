@@ -46,6 +46,7 @@ qx.Class.define("cute.ui.widgets.QLabelWidget",
       this._widget.setBuddy(w);
     },
 
+
     /* Apply collected gui properties to this widet
      * */
     _applyGuiProperties: function(props){
@@ -58,7 +59,7 @@ qx.Class.define("cute.ui.widgets.QLabelWidget",
         this._command = null;
 
         if (match) {
-          target_text = match[1] + "<u>" + match[3] + "</u>" + (match.length == 5 ? match[4] : "");
+          text = match[1] + "<u>" + match[3] + "</u>" + (match.length == 5 ? match[4] : "");
           this._command = match[3];
         }
         this._widget.setValue(text);
