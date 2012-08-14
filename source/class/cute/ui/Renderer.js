@@ -725,11 +725,11 @@ qx.Class.define("cute.ui.Renderer",
             widget = new qx.ui.container.Composite(layout);
 
           } else if (layout_type == "QHBoxLayout") {
-            var layout = new qx.ui.layout.HBox();
+            var layout = new qx.ui.layout.HBox(5);
             widget = new qx.ui.container.Composite(layout);
 
           } else if (layout_type == "QVBoxLayout") {
-            var layout = new qx.ui.layout.VBox();
+            var layout = new qx.ui.layout.VBox(5);
             widget = new qx.ui.container.Composite(layout);
 
           } else {
@@ -1045,10 +1045,10 @@ qx.Class.define("cute.ui.Renderer",
           widget.setLayout(new qx.ui.layout.Grid());
 
         } else if (layout_type == "QHBoxLayout") {
-          widget.setLayout(new qx.ui.layout.HBox());
+          widget.setLayout(new qx.ui.layout.HBox(5));
 
         } else if (layout_type == "QVBoxLayout") {
-          widget.setLayout(new qx.ui.layout.VBox());
+          widget.setLayout(new qx.ui.layout.VBox(5));
 
         } else {
           this.log("*** unknown layout type '" + layout_type + "' in processWidget()!");
