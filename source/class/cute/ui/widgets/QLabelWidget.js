@@ -55,14 +55,17 @@ qx.Class.define("cute.ui.widgets.QLabelWidget",
 
         // Extract potential key bindings from label text
         var regex = /^(.*)(&(.))(.*$)/g;
-        var match = regex.exec(text);
+        var match = regex.exec(this.tr(text));
         this._command = null;
 
         if (match) {
           text = match[1] + "<u>" + match[3] + "</u>" + (match.length == 5 ? match[4] : "");
           this._command = match[3];
+          this._widget.setValue(text);
+        } else {
+          text = this.tr(text);
+          this._widget.setValue(text);
         }
-        this._widget.setValue(text);
         this._text = text;
       }
     },
