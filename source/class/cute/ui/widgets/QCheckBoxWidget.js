@@ -8,7 +8,6 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
 
     this._chkBoxWidget = new qx.ui.form.CheckBox();
     this.add(this._chkBoxWidget);
-    this.bind("label", this._chkBoxWidget, "label");
     this._chkBoxWidget.addListener("changeValue", function(){
         this.getValue().removeAll();
         this.getValue().push(this._chkBoxWidget.getValue());
@@ -20,13 +19,11 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
 
   properties: {
 
-    /* Tells the widget how to display its contents
-     * e.g. for mode 'password' show [***   ] only.
-     * */
     label : {
       init : "",
       check : "String",
-      event : "_labelChanged"
+      event : "_labelChanged",
+      apply : "_applyLabel"
     }
   },
 
@@ -40,6 +37,10 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
     _initialized: false,
 
     _chkBoxWidget: null,
+
+    _applyLabel : function(value, old_value) {
+        this._chkBoxWidget.setLabel(this.tr(value));
+    },
 
     /* Apply method for the value property.
      * This method will regenerate the gui.
