@@ -15,6 +15,7 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
       init : 0,
       event: "changeMinimum"
     }
+
   },
 
   members: {
@@ -49,6 +50,7 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
         }, this); 
       this.bind("maximum", w, "maximum");
       this.bind("minimum", w, "minimum");
+      w.bind("backgroundColor", w.getChildControl("textfield"), "backgroundColor");
       return(w);
     }
   }
