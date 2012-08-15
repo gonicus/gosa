@@ -32,6 +32,7 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       this._tableModel = new qx.ui.table.model.Simple();
       this._tableModel.setColumns(this._columnNames, this._columnIDs);
       this._table = new cute.ui.table.Table(this._tableModel);
+      this._table.setPreferenceTableName(this.getExtension() + ":" + this.getAttribute());
       this._table.setStatusBarVisible(false);
       this._tableModel.setDataAsMapArray(this._tableData, true);
       this.add(this._table, {top:0 , bottom:0, right: 0, left:0});
