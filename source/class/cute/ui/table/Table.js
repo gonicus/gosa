@@ -14,7 +14,7 @@ qx.Class.define("cute.ui.table.Table",
             }
         }
 
-        this.base(arguments,tableModel, customModel);
+        this.base(arguments, tableModel, customModel);
 
         // Add additional key 
         this.addListener('keyup', function(e){
@@ -142,7 +142,8 @@ qx.Class.define("cute.ui.table.Table",
             }
 
             // Check the user model for table preferences 
-            var prefs = cute.Session.getUser().getTablePreferences(this.__preferenceName);
+            //TODO: load user preferences somewhere
+            var prefs = null;
             
             // If no preferences were defined, then use the default preferences.
             if(prefs == null){
