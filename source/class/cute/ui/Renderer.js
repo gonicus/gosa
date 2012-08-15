@@ -14,6 +14,9 @@
 #asset(qx/icon/${qx.icontheme}/22/actions/dialog-ok.png)
 #asset(qx/icon/${qx.icontheme}/22/actions/dialog-cancel.png)
 
+#ignore(parseXml)
+
+
  ************************************************************************ */
 
 /**

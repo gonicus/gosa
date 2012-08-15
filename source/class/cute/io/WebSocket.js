@@ -1,5 +1,8 @@
 /*
 #asset(qx/icon/${qx.icontheme}/48/status/*)
+
+#ignore(WebSocket)
+#ignore(MozWebSocket)
 */
 
 qx.Class.define("cute.io.WebSocket", {
@@ -76,7 +79,7 @@ qx.Class.define("cute.io.WebSocket", {
       }
 
       if (cute.Config.notifications && cute.Config.notifications.checkPermission() == 0) {
-        data = qx.util.Base64.encode("<div style='padding:5px'><img src='" + icon + "' align='left'><span style='font-family: arial, verdana, sans-serif;'>" + title + info['body'] + "</span></div>");
+        var data = qx.util.Base64.encode("<div style='padding:5px'><img src='" + icon + "' align='left'><span style='font-family: arial, verdana, sans-serif;'>" + title + info['body'] + "</span></div>");
         var notification = cute.Config.notifications.createHTMLNotification("data:text/html;charset=utf-8;base64," + data);
         notification.show();
         var timer = qx.util.TimerManager.getInstance();
