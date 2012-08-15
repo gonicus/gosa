@@ -58,6 +58,12 @@
         <br>
         <script type="text/javascript">
           switch (locale) {
+            case "de":
+              document.write("Laden...");
+	      break;
+            case "fr":
+              document.write("Chargement...");
+	      break;
             default:
               document.write("Loading...");
           }
