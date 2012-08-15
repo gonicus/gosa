@@ -23,6 +23,16 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
   properties : {
 
+    attribute: {
+      check: "String",
+      init: null
+    },
+
+    extension: {
+      check: "String",
+      init: null
+    },
+
     guiProperties: {
       apply: "_applyGuiProperties",
       init: null

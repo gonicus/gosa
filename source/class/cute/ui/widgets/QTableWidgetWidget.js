@@ -13,6 +13,8 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
         this._createGui();
       }, this);
 
+
+    this._resolvedNames = {};
   },
 
   members: {
@@ -23,6 +25,7 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
     _columnNames: null,
     _columnIDs: null,
     _firstColumn: null,
+    _resolvedNames: null,
 
     
     _createGui: function(){
@@ -32,13 +35,13 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       this._table.setStatusBarVisible(false);
       this._tableModel.setDataAsMapArray(this._tableData, true);
       this.add(this._table, {top:0 , bottom:0, right: 0, left:0});
-      console.log("ja");
       this._updatedTableData();
     },
 
 
     _updatedTableData: function(data){
 
+      // Add the given widget-values as first element of the list.
       this._tableData = [];
       for(var i=0; i<this.getValue().getLength();i++){
         var row_data = {}
@@ -46,23 +49,28 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
         this._tableData.push(row_data);
       }
 
+      // Get furhter object information
       for(var i=0; i<this.getValue().getLength(); i++){
         this.__requestRowData(i);
       }
     },
 
     __requestRowData: function(id){
-    
       var rpc = cute.io.Rpc.getInstance();
-      rpc.cA(function(result, error){
-        this._tableData[id] = result[0];
-        if(this._tableModel){
-          this._tableModel.setDataAsMapArray(this._tableData, true);
-        }
-      }, this, "getObjectDetails", [this.getValue().getItem(id)], ["cn", "description"]);
-    },
-
-    _applyValue: function(value){
+      var value = this.getValue().getItem(id);
+      console.log(this.getAttribute());
+      console.log(this.getExtension());
+      if(value in this._resolvedNames){
+        this._tableData[id] = this._resolvedNames[value];
+      }else{
+        rpc.cA(function(result, error){
+          this._tableData[id] = result[0];
+          this._resolvedNames[value] = result[0];
+          if(this._tableModel){
+            this._tableModel.setDataAsMapArray(this._tableData, true);
+          }
+        }, this, "getObjectDetails", [value], ["cn", "description"]);
+      }
     },
 
     _applyGuiProperties: function(props){

@@ -633,6 +633,13 @@ qx.Class.define("cute.ui.Renderer",
           w.setType(defs['type']);
           w.setUnique(defs['unique']);
           w.setValues(defs['values']);
+          w.setAttribute(widgetName);
+          w.setAttribute(widgetName);
+          for(var extension in this._extension_to_widgets){
+            if(qx.lang.Array.contains(this._extension_to_widgets[extension], item)){
+              w.setExtension(extension);
+            }
+          }
         }
         w.setGuiProperties(this._widget_ui_properties[item]);
       }
