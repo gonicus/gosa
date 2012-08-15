@@ -50,30 +50,48 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       }
 
       // Get furhter object information
-      for(var i=0; i<this.getValue().getLength(); i++){
-        this.__requestRowData(i);
-      }
+      this.__requestRowData(i);
     },
 
     __requestRowData: function(id){
+
       var rpc = cute.io.Rpc.getInstance();
-      var value = this.getValue().getItem(id);
-      if(value in this._resolvedNames){
-        this._tableData[id] = this._resolvedNames[value];
-      }else{
+      var values = this.getValue().toArray();
+
+      var unknown_values = [];
+      for(var i=0; i<values.length; i++){
+        if(!(values[i] in this._resolvedNames)){
+          unknown_values.push(values[i]);
+        }
+      }
+      
+      if(unknown_values.length){
         rpc.cA(function(result, error){
           if(error){
             new cute.ui.dialogs.Error(error.message).open();
             return;
+          }else{
+            for(var value in result['map']){
+              this._resolvedNames[value] = result['result'][result['map'][value]];
+            }
+            this.__updateDataModel();
           }
-          this._tableData[id] = result[0];
-          this._resolvedNames[value] = result[0];
-          if(this._tableModel){
-            this._tableModel.setDataAsMapArray(this._tableData, true);
-          }
-        }, this, "getObjectDetails", this.getExtension(), this.getAttribute(), [value], this._columnIDs);
+        }, this, "getObjectDetails", this.getExtension(), this.getAttribute(), unknown_values, this._columnIDs);
+      }else{
+        this.__updateDataModel();
       }
     },
+
+  
+    __updateDataModel: function(){
+      this._tableData = [];
+      var values = this.getValue().toArray();
+      for(var i=0; i<values.length; i++ ){
+        this._tableData.push(this._resolvedNames[values[i]]);
+      }
+      this._tableModel.setDataAsMapArray(this._tableData);
+    },
+  
 
     _applyGuiProperties: function(props){
       this._columnNames = [];
