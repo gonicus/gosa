@@ -4,7 +4,8 @@
   "include" :
   [
     {
-      "path" : "${QOOXDOO_PATH}/tool/data/config/application.json"
+      "path" : "${QOOXDOO_PATH}/tool/data/config/application.json",
+      "as" : "appconf"
     }
   ],
 
@@ -13,6 +14,7 @@
     "api",
     "api-data",
     "build",
+    "build-final",
     "clean",
     "distclean",
     "fix",
@@ -24,13 +26,13 @@
     "profiling",
     "source",
     "source-all",
+    "source-destruct",
     "source-hybrid",    
     "simulation-build",
     "simulation-run",
     "test",
     "test-source",
-    "translation",
-    "source-disposerDebug"
+    "translation"
   ],
   
   "default-job" : "source-hybrid",
@@ -51,30 +53,38 @@
 
   "jobs" :
   {
-    // existing jobs ...
-    "source-disposerDebug" :
+
+    "source-destruct" :
     {
-      "include": ["cute.ui.widgets.*"],
-      "desc" : "source version with 'qx.debug.dispose.level' for destruct support",
-      "extend" : [ "source" ],
-      "environment" :
+      "extend" : ["appconf::source"],
+
+      "variants" : { "qx.aspects" : [ "on" ], "qx.debug" : [ "on" ] },
+
+      "shell" : {
+        "command" : "./customize"
+      },
+
+      "settings" :
       {
-       "qx.debug.dispose.level" : "2"
+        "qx.disposerDebugLevel" : "2",
+        "qx.widgetDebugId" : true
       }
     },
 
     "build":
     {
+      "extend" : ["appconf::build"],
+
       "include": ["cute.ui.widgets.*"],
       "add-script" :
       [
         {
-          "uri" : "script/xml.js"
+          "uri" : "resource/cute/js/xml.js"
         }
       ],
       "copy-files" :
       {
-        "files"     : [ "script/xml.js" ],
+        "files"     : [ "resource/cute/js/xml.js" ],
         "source" : "source",
         "target"  : "build"
       },
@@ -82,23 +92,164 @@
       "variants" : 
       { 
         "qx.dynlocale" : ["on"] 
-      } 
+      },
+
+      "shell" : {
+	"command" : "./customize"
+      }
+    },
+
+    "build-final" :
+    {
+      "extend" : ["appconf::build"],
+
+      "shell" : {
+        "command" : "./customize build-final"
+      },
+
+      "variants" : {
+        "qx.debug" : [ "off" ],
+        "qx.client" : [ "gecko", "mshtml", "webkit", "opera" ]
+      },
+
+      "compile-options" :
+      {
+        "paths"  :
+        {
+          "file" : "${BUILD_PATH}/script/${APPLICATION}-{qx.client}.js"
+        }
+      },
+
+      "compile" : { "type" : "build" }
     },
 
     "source":
     {
+      "extend" : ["appconf::source"],
+
       "include": ["cute.ui.widgets.*"],
+
       "add-script" :
       [
         {
-          "uri" : "script/xml.js"
+          "uri" : "resource/cute/js/xml.js"
         }
       ],
 
       "variants" : 
       { 
         "qx.dynlocale" : ["on"] 
-      } 
+      },
+
+      "shell" : {
+	"command" : "./customize"
+      }
+
+    },
+
+    "translation" :
+    {
+      "extend" : ["appconf::translation"]
+    },
+
+    "clean" :
+    {
+      "extend" : ["appconf::clean"]
+    },
+
+    "distclean" :
+    {
+      "extend" : ["appconf::distclean"]
+    },
+
+    "clean" :
+    {
+      "extend" : ["appconf::clean"]
+    },
+
+    "distclean" :
+    {
+      "extend" : ["appconf::distclean"]
+    },
+
+    "fix" :
+    {
+      "extend" : ["appconf::fix"]
+    },
+
+    "lint" :
+    {
+      "extend" : ["appconf::lint"]
+    },
+
+    "migration" :
+    {
+      "extend" : ["appconf::migration"]
+    },
+
+    "pretty" :
+    {
+      "extend" : ["appconf::pretty"]
+    },
+
+    "api" :
+    {
+      "extend" : ["appconf::api"]
+    },
+
+    "api-data" :
+    {
+      "extend" : ["appconf::api-data"]
+    },
+
+    "info" :
+    {
+      "extend" : ["appconf::info"]
+    },
+
+    "inspector" :
+    {
+      "extend" : ["appconf::inspector"]
+    },
+
+    "migration" :
+    {
+      "extend" : ["appconf::migration"]
+    },
+
+    "profiling" :
+    {
+      "extend" : ["appconf::profiling"]
+    },
+
+    "source-all" :
+    {
+      "extend" : ["appconf::source-all"]
+    },
+
+    "simulation-build" :
+    {
+      "extend" : ["appconf::simulation-build"]
+    },
+
+    "simulation-run" :
+    {
+      "extend" : ["appconf::simulation-run"]
+    },
+
+    "test" :
+    {
+      "extend" : ["appconf::test"]
+    },
+
+    "test-source" :
+    {
+      "extend" : ["appconf::test-source"]
+    },
+
+    "source-hybrid" :
+    {
+      "extend" : ["appconf::source-hybrid"]
     },
 
     // Uncomment the following entry to add a contrib or library to your

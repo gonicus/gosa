@@ -37,7 +37,6 @@ qx.Class.define("cute.Application",
      */
     main : function()
     {
-
       // Call super class
       this.base(arguments);
 
@@ -81,6 +80,12 @@ qx.Class.define("cute.Application",
       messaging.reconnect();
 
       doc.add(pluginView, {left: 0, right: 0, top: 50, bottom: 0});
+
+      // Hide Splash - initialized by index.html
+      var splash = document.getElementById("splash");
+      if (splash != null) {
+        splash.style.visibility = 'hidden';
+      }
     }
   }
 });
