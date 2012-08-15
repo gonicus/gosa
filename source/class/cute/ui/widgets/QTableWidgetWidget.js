@@ -58,18 +58,20 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
     __requestRowData: function(id){
       var rpc = cute.io.Rpc.getInstance();
       var value = this.getValue().getItem(id);
-      console.log(this.getAttribute());
-      console.log(this.getExtension());
       if(value in this._resolvedNames){
         this._tableData[id] = this._resolvedNames[value];
       }else{
         rpc.cA(function(result, error){
+          if(error){
+            new cute.ui.dialogs.Error(error.message).open();
+            return;
+          }
           this._tableData[id] = result[0];
           this._resolvedNames[value] = result[0];
           if(this._tableModel){
             this._tableModel.setDataAsMapArray(this._tableData, true);
           }
-        }, this, "getObjectDetails", [value], ["cn", "description"]);
+        }, this, "getObjectDetails", this.getExtension(), this.getAttribute(), [value], this._columnIDs);
       }
     },
 
