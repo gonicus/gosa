@@ -4,8 +4,7 @@
   "include" :
   [
     {
-      "path" : "${QOOXDOO_PATH}/tool/data/config/application.json",
-      "as" : "appconf"
+      "path" : "${QOOXDOO_PATH}/tool/data/config/application.json"
     }
   ],
 
@@ -56,8 +55,6 @@
 
     "source-destruct" :
     {
-      "extend" : ["appconf::source"],
-
       "variants" : { "qx.aspects" : [ "on" ], "qx.debug" : [ "on" ] },
 
       "shell" : {
@@ -73,8 +70,6 @@
 
     "build":
     {
-      "extend" : ["appconf::build"],
-
       "include": ["cute.ui.widgets.*"],
       "add-script" :
       [
@@ -101,8 +96,6 @@
 
     "build-final" :
     {
-      "extend" : ["appconf::build"],
-
       "shell" : {
         "command" : "./customize build-final"
       },
@@ -125,8 +118,6 @@
 
     "source":
     {
-      "extend" : ["appconf::source"],
-
       "include": ["cute.ui.widgets.*"],
 
       "add-script" :
@@ -145,111 +136,6 @@
 	"command" : "./customize"
       }
 
-    },
-
-    "translation" :
-    {
-      "extend" : ["appconf::translation"]
-    },
-
-    "clean" :
-    {
-      "extend" : ["appconf::clean"]
-    },
-
-    "distclean" :
-    {
-      "extend" : ["appconf::distclean"]
-    },
-
-    "clean" :
-    {
-      "extend" : ["appconf::clean"]
-    },
-
-    "distclean" :
-    {
-      "extend" : ["appconf::distclean"]
-    },
-
-    "fix" :
-    {
-      "extend" : ["appconf::fix"]
-    },
-
-    "lint" :
-    {
-      "extend" : ["appconf::lint"]
-    },
-
-    "migration" :
-    {
-      "extend" : ["appconf::migration"]
-    },
-
-    "pretty" :
-    {
-      "extend" : ["appconf::pretty"]
-    },
-
-    "api" :
-    {
-      "extend" : ["appconf::api"]
-    },
-
-    "api-data" :
-    {
-      "extend" : ["appconf::api-data"]
-    },
-
-    "info" :
-    {
-      "extend" : ["appconf::info"]
-    },
-
-    "inspector" :
-    {
-      "extend" : ["appconf::inspector"]
-    },
-
-    "migration" :
-    {
-      "extend" : ["appconf::migration"]
-    },
-
-    "profiling" :
-    {
-      "extend" : ["appconf::profiling"]
-    },
-
-    "source-all" :
-    {
-      "extend" : ["appconf::source-all"]
-    },
-
-    "simulation-build" :
-    {
-      "extend" : ["appconf::simulation-build"]
-    },
-
-    "simulation-run" :
-    {
-      "extend" : ["appconf::simulation-run"]
-    },
-
-    "test" :
-    {
-      "extend" : ["appconf::test"]
-    },
-
-    "test-source" :
-    {
-      "extend" : ["appconf::test-source"]
-    },
-
-    "source-hybrid" :
-    {
-      "extend" : ["appconf::source-hybrid"]
     },
 
     // Uncomment the following entry to add a contrib or library to your
