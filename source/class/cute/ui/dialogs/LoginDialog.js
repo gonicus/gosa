@@ -50,8 +50,8 @@ qx.Class.define("cute.ui.dialogs.LoginDialog",
     this.setFocusOrder([username, password, login]);
 
     if(qx.core.Environment.get("qx.debug")){
-      username.setValue("admin");
-      password.setValue("secret");
+      username.setValue(cute.LocalConfig.user);
+      password.setValue(cute.LocalConfig.password);
       login.execute();
     }
   },
