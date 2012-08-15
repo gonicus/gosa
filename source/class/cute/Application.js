@@ -86,6 +86,17 @@ qx.Class.define("cute.Application",
       if (splash != null) {
         splash.style.visibility = 'hidden';
       }
+
+      // Enforce login
+      var rpc = cute.io.Rpc.getInstance();
+      rpc.cA(function(result, error) {
+          if (error) {
+              this.error(error);
+              cute.Session.user = null;
+          } else {
+              cute.Session.user = result;
+          }
+      }, this, "getSessionUser");
     }
   }
 });
