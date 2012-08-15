@@ -1,3 +1,11 @@
+/* ************************************************************************
+#ignore(qx.core.ServerSettings)
+#ignore(qx.core.ServerSettings.serverPathSuffix)
+#ignore(qx.core.ServerSettings.serverPathPrefix)
+#ignore(qx.core.ServerSettings.lastSessionRefresh)
+#ignore(qx.core.ServerSettings.sessionTimeoutInSeconds)
+*********************************************************************** */
+
 qx.Class.define("cute.io.Rpc", {
 
   type: "singleton",
