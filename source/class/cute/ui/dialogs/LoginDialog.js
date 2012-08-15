@@ -27,6 +27,7 @@ qx.Class.define("cute.ui.dialogs.LoginDialog",
     var login = new qx.ui.form.Button(this.tr("Login"));
     login.setAllowStretchX(false);
     this.add(login, {row : 5, column : 0});
+
     login.addListener("execute", function(){
       if (cute.Config.notifications) {
           if (cute.Config.notifications.checkPermission() != 0) {
@@ -47,6 +48,12 @@ qx.Class.define("cute.ui.dialogs.LoginDialog",
     }, this);
 
     this.setFocusOrder([username, password, login]);
+
+    if(qx.core.Environment.get("qx.debug")){
+      username.setValue("admin");
+      password.setValue("secret");
+      login.execute();
+    }
   },
 
   events: {
