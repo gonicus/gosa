@@ -13,7 +13,6 @@
     "api",
     "api-data",
     "build",
-    "build-final",
     "clean",
     "distclean",
     "fix",
@@ -68,7 +67,7 @@
       }
     },
 
-    "build":
+    "build-script":
     {
       "include": ["cute.ui.widgets.*"],
       "add-script" :
@@ -86,37 +85,28 @@
 
       "variants" : 
       { 
-        "qx.dynlocale" : ["on"] 
+        "qx.dynlocale" : ["on"]
+      },
+
+      "environment" : 
+      {
+        "engine.name" : [ "gecko", "mshtml", "webkit", "opera" ]
       },
 
       "shell" : {
-	"command" : "./customize"
-      }
-    },
-
-    "build-final" :
-    {
-      "shell" : {
-        "command" : "./customize build-final"
-      },
-
-      "variants" : {
-        "qx.debug" : [ "off" ],
-        "qx.client" : [ "gecko", "mshtml", "webkit", "opera" ]
+	"command" : "./customize build"
       },
 
       "compile-options" :
       {
         "paths"  :
         {
-          "file" : "${BUILD_PATH}/script/${APPLICATION}-{qx.client}.js"
+          "file" : "${BUILD_PATH}/script/${APPLICATION}-{engine.name}.js"
         }
-      },
-
-      "compile" : { "type" : "build" }
+      }
     },
 
-    "source":
+    "source-script":
     {
       "include": ["cute.ui.widgets.*"],
 
@@ -151,21 +141,5 @@
         }
       ]
     }
-
-    // If you want to tweak a job setting, see the following sample where
-    // the "format" feature of the "build-script" job is overridden.
-    // To see a list of available jobs, invoke 'generate.py x'.
-	/*
-    ,"build-script" :
-    {
-      "compile-options" : 
-      {
-        "code" :
-        {
-          "format" : false
-        }
-      }
-    }
-    */
   }
 }
