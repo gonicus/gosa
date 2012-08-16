@@ -32,30 +32,27 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       this._tableModel = new qx.ui.table.model.Simple();
       this._tableModel.setColumns(this._columnNames, this._columnIDs);
       this._table = new cute.ui.table.Table(this._tableModel);
-      this._table.setPreferenceTableName(this.getExtension() + ":" + this.getAttribute());
       this._table.setStatusBarVisible(false);
       this._table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
-      this._tableModel.setDataAsMapArray(this._tableData, true);
       this.add(this._table, {top:0 , bottom:0, right: 0, left:0});
       this._updatedTableData();
+      this._table.setPreferenceTableName(this.getExtension() + ":" + this.getAttribute());
+
+      var b = new qx.ui.form.Button("test");
+      b.addListener("execute", function(){
+          this.__resolveMissingValues();
+        }, this);
+      this.add(b);
     },
 
 
     _updatedTableData: function(data){
 
-      // Add the given widget-values as first element of the list.
-      this._tableData = [];
-      for(var i=0; i<this.getValue().getLength();i++){
-        var row_data = {}
-        row_data[this._firstColumn] = this.getValue().getItem(i);
-        this._tableData.push(row_data);
-      }
-
-      // Get furhter object information
-      this.__requestRowData(i);
+      this.__updateDataModel();
+      //this.__resolveMissingValues();
     },
 
-    __requestRowData: function(id){
+    __resolveMissingValues: function(){
 
       var rpc = cute.io.Rpc.getInstance();
       var values = this.getValue().toArray();
@@ -89,9 +86,16 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       this._tableData = [];
       var values = this.getValue().toArray();
       for(var i=0; i<values.length; i++ ){
-        this._tableData.push(this._resolvedNames[values[i]]);
+        if(values[i] in this._resolvedNames){
+          row_data = this._resolvedNames[values[i]];
+        }else{
+          var row_data = {}
+          row_data[this._firstColumn] = values[i];
+        }
+        this._tableData.push(row_data);
       }
-      this._tableModel.setDataAsMapArray(this._tableData);
+      this._tableModel.setDataAsMapArray(this._tableData, true, false);
+      this._table.sort();
     },
   
 
