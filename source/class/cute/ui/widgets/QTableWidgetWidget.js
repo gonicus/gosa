@@ -100,7 +100,7 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       this._columnIDs = [];
       var first = null;
       for(var col in props['columns']){
-        this._columnNames.push(props['columns'][col]);
+        this._columnNames.push(this.tr(props['columns'][col]));
         this._columnIDs.push(col);
         if(!first){
           first = col;
