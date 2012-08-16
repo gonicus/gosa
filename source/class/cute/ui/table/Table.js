@@ -2,6 +2,10 @@ qx.Class.define("cute.ui.table.Table",
 {
   extend : qx.ui.table.Table,
 
+  statics: {
+    tablePreferences: {}
+  },
+
   construct: function(tableModel, customModel)
   {
     // Create column model
@@ -47,17 +51,15 @@ qx.Class.define("cute.ui.table.Table",
 
   events :
   {
-      "edit" : "qx.event.type.Event",
-      "remove" : "qx.event.type.Event"
+    "edit" : "qx.event.type.Event",
+    "remove" : "qx.event.type.Event"
   },
 
-  
   destruct : function()
   {
-      this.__lastPreferences = this.__defaultPreferences = this.__recurrentSeconds = null;
-      this.__timer = null;
+    this.__lastPreferences = this.__defaultPreferences = this.__recurrentSeconds = null;
+    this.__timer = null;
   },
-
 
   members :
   {
@@ -106,6 +108,7 @@ qx.Class.define("cute.ui.table.Table",
       if(cute.Session.getUser() && !this.comparePreferences(prefs, this.__lastPreferences)){
         var rpc = cute.io.Rpc.getInstance();
         rpc.cA(function(result, error){
+            cute.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
           }, this, "saveUserPreferences", cute.Session.getUser(), this.__preferenceName, prefs);
       }
       this.__lastPreferences = prefs;
@@ -144,44 +147,52 @@ qx.Class.define("cute.ui.table.Table",
         return;
       }
 
-      // Check the user model for table preferences 
-      var rpc = cute.io.Rpc.getInstance();
-      rpc.cA(function(prefs, error){
-
-        // If no preferences were defined, then use the default preferences.
-        if(prefs == null){
-          prefs = this.__defaultPreferences;
-        }
-
-        var cModel = this.getTableColumnModel();
-        var columnCount = cModel.getOverallColumnCount();
-
-        // Walk through active columns and set their state.
-        for(var i=0; i<columnCount; i++){
-          if(prefs[i] != null) {
-
-            // Hide or show column
-            var active = prefs[i] != 0;
-            this.getTableColumnModel().setColumnVisible(i,active);
-
-            // Set sort column ascending
-            if(prefs[i] & 2){
-              this.getTableModel().sortByColumn(i, true);
-            }
-
-            // Set sort column descending
-            if(prefs[i] & 4){
-              this.getTableModel().sortByColumn(i, false);
-            }
-          }else{
-            // Column not defined in prefs.
+      var loadPrefs = function(prefs){
+          // If no preferences were defined, then use the default preferences.
+          if(prefs == null){
+            prefs = this.__defaultPreferences;
           }
+
+          var cModel = this.getTableColumnModel();
+          var columnCount = cModel.getOverallColumnCount();
+
+          // Walk through active columns and set their state.
+          for(var i=0; i<columnCount; i++){
+            if(prefs[i] != null) {
+
+              // Hide or show column
+              var active = prefs[i] != 0;
+              this.getTableColumnModel().setColumnVisible(i,active);
+
+              // Set sort column ascending
+              if(prefs[i] & 2){
+                this.getTableModel().sortByColumn(i, true);
+              }
+
+              // Set sort column descending
+              if(prefs[i] & 4){
+                this.getTableModel().sortByColumn(i, false);
+              }
+            }
+          }
+
+          // Remember the current settigs, so we can decide when a save is needed.
+          this.__lastPreferences = prefs;
         }
 
-        // Remember the current settigs, so we can decide when a save is needed.
-        this.__lastPreferences = prefs;
-      }, this, "loadUserPreferences", cute.Session.getUser(), this.__preferenceName);
+      /* Load preferences from cache if they were load before.
+       * */
+      if(this.__preferenceName in cute.ui.table.Table.tablePreferences){
+        loadPrefs.apply(this, [cute.ui.table.Table.tablePreferences[this.__preferenceName]]);
+      }else{
 
+        // Check the user model for table preferences 
+        var rpc = cute.io.Rpc.getInstance();
+        rpc.cA(function(prefs, error){
+            cute.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
+            loadPrefs.apply(this, [prefs]);
+          }, this, "loadUserPreferences", cute.Session.getUser(), this.__preferenceName);
+      }
     },
 
 
