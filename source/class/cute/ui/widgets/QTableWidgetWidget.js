@@ -24,6 +24,7 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
     _tableModel: null,
     _tableData: null,
     _columnNames: null,
+    _editTitle: null,
     _columnIDs: null,
     _firstColumn: null,
     _resolvedNames: null,
@@ -41,7 +42,7 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       // Add new group membership
       this._table.addListener("dblclick", function(){
 
-          var d = new cute.ui.ItemSelector("No title", this.getValue().toArray(), 
+          var d = new cute.ui.ItemSelector(this.tr(this._editTitle), this.getValue().toArray(), 
           this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
 
           d.addListener("selected", function(e){
@@ -157,6 +158,7 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
      * Collect column names here.
      * */
     _applyGuiProperties: function(props){
+      this._editTitle = props['editTitle']['string'];
       this._columnNames = [];
       this._columnIDs = [];
       var first = null;
