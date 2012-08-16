@@ -11,36 +11,44 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: cute/ui/LoginDialog.js:15 cute/ui/LoginDialog.js:97
-msgid "Login"
+#: cute/ui/Renderer.js:441
+msgid "Cancel"
 msgstr ""
 
-#: cute/ui/LoginDialog.js:33
-msgid "Name"
-msgstr ""
-
-#: cute/ui/LoginDialog.js:33
-msgid "Password"
-msgstr ""
-
-#: cute/ui/LoginDialog.js:111
-msgid "Invalid login ..."
-msgstr ""
-
-#: cute/ui/Renderer.js:300
-msgid "Remove extension"
-msgstr ""
-
-#: cute/ui/Renderer.js:328
+#: cute/ui/Renderer.js:497
 msgid "Extend"
 msgstr ""
 
-#: cute/ui/Renderer.js:393
+#: cute/ui/Renderer.js:573
+msgid "Remove extension"
+msgstr ""
+
+#: cute/ui/dialogs/Error.js:14 cute/ui/Renderer.js:415
 msgid "OK"
 msgstr ""
 
-#: cute/ui/Renderer.js:413
-msgid "Cancel"
+#: cute/ui/dialogs/LoginDialog.js:7 cute/ui/dialogs/LoginDialog.js:27
+msgid "Login"
+msgstr ""
+
+#: cute/ui/dialogs/LoginDialog.js:16
+msgid "Name"
+msgstr ""
+
+#: cute/ui/dialogs/LoginDialog.js:17
+msgid "Password"
+msgstr ""
+
+#: cute/ui/dialogs/LoginDialog.js:42
+msgid "Invalid login ..."
+msgstr ""
+
+#: cute/ui/dialogs/RpcError.js:7 cute/ui/dialogs/Error.js:7
+msgid "An error occured"
+msgstr ""
+
+#: cute/ui/dialogs/RpcError.js:21
+msgid "Retry"
 msgstr ""
 
 #: cute/ui/widgets/QGraphicsViewWidget.js:28
@@ -71,9 +79,12 @@ msgid_plural "%1 seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:194
+#: cute/view/Search.js:201
 msgid "Object"
 msgstr ""
+
+#~ msgid "Ok"
+#~ msgstr ""
 
 #~ msgid "Open"
 #~ msgstr ""

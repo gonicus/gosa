@@ -14,37 +14,45 @@ msgstr ""
 "X-Language: de_DE\n"
 "X-Source-Language: de\n"
 
-#: cute/ui/LoginDialog.js:15 cute/ui/LoginDialog.js:97
-msgid "Login"
-msgstr "Anmelden"
+#: cute/ui/Renderer.js:441
+msgid "Cancel"
+msgstr "Abbrechen"
 
-#: cute/ui/LoginDialog.js:33
-msgid "Name"
-msgstr "Name"
-
-#: cute/ui/LoginDialog.js:33
-msgid "Password"
-msgstr "Kennwort"
-
-#: cute/ui/LoginDialog.js:111
-msgid "Invalid login ..."
-msgstr "Ungültige Anmeldung..."
-
-#: cute/ui/Renderer.js:300
-msgid "Remove extension"
-msgstr "Erweiterung entfernen"
-
-#: cute/ui/Renderer.js:328
+#: cute/ui/Renderer.js:497
 msgid "Extend"
 msgstr "Erweitern"
 
-#: cute/ui/Renderer.js:393
+#: cute/ui/Renderer.js:573
+msgid "Remove extension"
+msgstr "Erweiterung entfernen"
+
+#: cute/ui/dialogs/Error.js:14 cute/ui/Renderer.js:415
 msgid "OK"
 msgstr "OK"
 
-#: cute/ui/Renderer.js:413
-msgid "Cancel"
-msgstr "Abbrechen"
+#: cute/ui/dialogs/LoginDialog.js:7 cute/ui/dialogs/LoginDialog.js:27
+msgid "Login"
+msgstr "Anmelden"
+
+#: cute/ui/dialogs/LoginDialog.js:16
+msgid "Name"
+msgstr "Name"
+
+#: cute/ui/dialogs/LoginDialog.js:17
+msgid "Password"
+msgstr "Kennwort"
+
+#: cute/ui/dialogs/LoginDialog.js:42
+msgid "Invalid login ..."
+msgstr "Ungültige Anmeldung..."
+
+#: cute/ui/dialogs/RpcError.js:7 cute/ui/dialogs/Error.js:7
+msgid "An error occured"
+msgstr "Ein Fehler ist aufgetreten"
+
+#: cute/ui/dialogs/RpcError.js:21
+msgid "Retry"
+msgstr "Erneut versuchen"
 
 #: cute/ui/widgets/QGraphicsViewWidget.js:28
 msgid "Change image"
@@ -74,9 +82,6 @@ msgid_plural "%1 seconds"
 msgstr[0] "%1 Sekunde"
 msgstr[1] "%1 Sekunden"
 
-#: cute/view/Search.js:194
+#: cute/view/Search.js:201
 msgid "Object"
 msgstr "Objekt"
-
-#~ msgid "Open"
-#~ msgstr "Öffnen"
