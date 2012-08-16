@@ -39,12 +39,20 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       this._table.setPreferenceTableName(this.getExtension() + ":" + this.getAttribute());
 
       // Add new group membership
-      var b = new qx.ui.form.Button("test");
-      b.addListener("execute", function(){
-          this.getValue().push("acltest");
-          this.fireDataEvent("changeValue", new qx.data.Array(this.getValue().toArray()));
+      this._table.addListener("dblclick", function(){
+
+          var d = new cute.ui.ItemSelector("No title", this.getValue().toArray(), 
+          this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
+
+          d.addListener("selected", function(e){
+              this.setValue(this.getValue().concat(e.getData()));
+              this.fireDataEvent("changeValue", this.getValue().copy());
+            }, this);
+
+          d.open();
+
+          //this.fireDataEvent("changeValue", new qx.data.Array(this.getValue().toArray()));
         }, this);
-      this.add(b);
 
       // Add a remove listener
       this._table.addListener("remove", function(e){
@@ -53,7 +61,7 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
             var selected = that._tableModel.getRowData(index)["__indentifier__"];
             that.getValue().remove(selected);
           });
-        this.fireDataEvent("changeValue", new qx.data.Array(this.getValue().toArray()));
+        this.fireDataEvent("changeValue", this.getValue().copy());
       }, this);
     },
 

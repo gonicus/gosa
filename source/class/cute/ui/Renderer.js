@@ -643,6 +643,9 @@ qx.Class.define("cute.ui.Renderer",
               w.setExtension(extension);
             }
           }
+          if(this._buddies[item] && this._widgets[this._buddies[item]]){
+            w.setLabelText(this._widgets[this._buddies[item]].getText());
+          }
         }
         w.setGuiProperties(this._widget_ui_properties[item]);
       }

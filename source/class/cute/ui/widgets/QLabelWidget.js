@@ -42,6 +42,10 @@ qx.Class.define("cute.ui.widgets.QLabelWidget",
     _widget: null,
     _text: "",
 
+    getText: function(){
+      return(this._text);
+    },
+
     setBuddy: function(w){
       this._widget.setBuddy(w);
     },
@@ -87,4 +91,4 @@ qx.Class.define("cute.ui.widgets.QLabelWidget",
   }
 });
 
-/* vim:tabstop=2:expandtab:shiftwidth=2 */
+// vim:tabstop=2:expandtab:shiftwidth=2

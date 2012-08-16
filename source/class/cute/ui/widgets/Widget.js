@@ -28,6 +28,12 @@ qx.Class.define("cute.ui.widgets.Widget", {
       init: null
     },
 
+    labelText: {
+      check: "String",
+      init: null
+    },
+
+
     extension: {
       check: "String",
       init: null
