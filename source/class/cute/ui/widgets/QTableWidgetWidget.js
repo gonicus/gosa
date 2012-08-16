@@ -72,7 +72,6 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
 
       // Add a listener to the content array.
       // On each modification update the table model.
-      console.log(value.toArray());
       if(value){
         value.addListener("change", function(){
             this._updatedTableData();        
