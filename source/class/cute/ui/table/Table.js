@@ -78,7 +78,6 @@ qx.Class.define("cute.ui.table.Table",
         return;
       }
 
-
       var cModel = this.getTableColumnModel();
       var columnCount = cModel.getOverallColumnCount();
       var prefs = {}; 
@@ -105,9 +104,9 @@ qx.Class.define("cute.ui.table.Table",
 
       // Save settings back to the user model
       if(cute.Session.getUser() && !this.comparePreferences(prefs, this.__lastPreferences)){
-        //#TODO: Save user preoferences somewhere
-        //cute.Session.getUser().setTablePreferences(this.__preferenceName, prefs);
-
+        var rpc = cute.io.Rpc.getInstance();
+        rpc.cA(function(result, error){
+          }, this, "saveUserPreferences", cute.Session.getUser(), this.__preferenceName, prefs);
       }
       this.__lastPreferences = prefs;
     },
@@ -146,41 +145,43 @@ qx.Class.define("cute.ui.table.Table",
       }
 
       // Check the user model for table preferences 
-      //TODO: load user preferences somewhere
-      var prefs = null;
+      var rpc = cute.io.Rpc.getInstance();
+      rpc.cA(function(prefs, error){
 
-      // If no preferences were defined, then use the default preferences.
-      if(prefs == null){
-        prefs = this.__defaultPreferences;
-      }
-
-      var cModel = this.getTableColumnModel();
-      var columnCount = cModel.getOverallColumnCount();
-
-      // Walk through active columns and set their state.
-      for(var i=0; i<columnCount; i++){
-        if(prefs[i] != null) {
-
-          // Hide or show column
-          var active = prefs[i] != 0;
-          this.getTableColumnModel().setColumnVisible(i,active);
-
-          // Set sort column ascending
-          if(prefs[i] & 2){
-            this.getTableModel().sortByColumn(i, true);
-          }
-
-          // Set sort column descending
-          if(prefs[i] & 4){
-            this.getTableModel().sortByColumn(i, false);
-          }
-        }else{
-          // Column not defined in prefs.
+        // If no preferences were defined, then use the default preferences.
+        if(prefs == null){
+          prefs = this.__defaultPreferences;
         }
-      }
 
-      // Remember the current settigs, so we can decide when a save is needed.
-      this.__lastPreferences = prefs;
+        var cModel = this.getTableColumnModel();
+        var columnCount = cModel.getOverallColumnCount();
+
+        // Walk through active columns and set their state.
+        for(var i=0; i<columnCount; i++){
+          if(prefs[i] != null) {
+
+            // Hide or show column
+            var active = prefs[i] != 0;
+            this.getTableColumnModel().setColumnVisible(i,active);
+
+            // Set sort column ascending
+            if(prefs[i] & 2){
+              this.getTableModel().sortByColumn(i, true);
+            }
+
+            // Set sort column descending
+            if(prefs[i] & 4){
+              this.getTableModel().sortByColumn(i, false);
+            }
+          }else{
+            // Column not defined in prefs.
+          }
+        }
+
+        // Remember the current settigs, so we can decide when a save is needed.
+        this.__lastPreferences = prefs;
+      }, this, "loadUserPreferences", cute.Session.getUser(), this.__preferenceName);
+
     },
 
 
