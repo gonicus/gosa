@@ -20,7 +20,7 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
 
   members: {
  
-    default_value: 0,
+    _default_value: 0,
 
     /* Apply collected gui properties to this widet
      * */

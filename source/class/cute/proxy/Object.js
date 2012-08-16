@@ -17,13 +17,13 @@ qx.Class.define("cute.proxy.Object", {
         if(this.attribute_data[this.attributes[item]]['multivalue']){
           var val = new qx.data.Array(data[this.attributes[item]]);
         }else{
-          var val = new qx.data.Array([data[this.attributes[item]]]);
+          var value = data[this.attributes[item]];
+          var val = new qx.data.Array();
+          if(value){
+            val.push(value);
+          }
         }
 
-        // Multivalue may not contain initial values.
-        if(!val.getLength()){
-          val.push(null);
-        }
         this.set(this.attributes[item], val);
       }
     }

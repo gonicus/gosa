@@ -4,7 +4,7 @@ qx.Class.define("cute.ui.widgets.QPlainTextEditWidget", {
 
   members: {
  
-    default_value: "",
+    _default_value: "",
 
     /* Creates an input-widget depending on the echo mode (normal/password)
      * and connects the update listeners

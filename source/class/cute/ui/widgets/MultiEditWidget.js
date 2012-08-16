@@ -87,6 +87,7 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
           data.push(val);
         }
       }
+      console.log(data.toArray(), this._default_value);
       return(data);
     },
 

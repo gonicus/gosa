@@ -4,7 +4,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
 
   members: {
  
-    default_value: "",
+    _default_value: "",
 
 
     /* Returns the value from the widget given by its id
