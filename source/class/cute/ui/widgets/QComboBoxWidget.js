@@ -65,6 +65,8 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
           this._propertyUpdater();
         }, this);
 
+      this.bind("valid", w, "valid");
+      this.bind("invalidMessage", w, "invalidMessage");
       return(w);
     },
 

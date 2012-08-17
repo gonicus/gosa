@@ -626,6 +626,13 @@ qx.Class.define("cute.ui.Renderer",
 
       if(w && w.hasState("cuteWidget")){
         if(defs){
+          w.setAttribute(widgetName);
+          for(var extension in this._extension_to_widgets){
+            if(qx.lang.Array.contains(this._extension_to_widgets[extension], item)){
+              w.setExtension(extension);
+              break;
+            }
+          }
           w.setCaseSensitive(defs['case_sensitive']);
           w.setBlockedBy(defs['blocked_by']);
           w.setDefaultValue(defs['default']);
@@ -636,13 +643,6 @@ qx.Class.define("cute.ui.Renderer",
           w.setType(defs['type']);
           w.setUnique(defs['unique']);
           w.setValues(defs['values']);
-          w.setAttribute(widgetName);
-          w.setAttribute(widgetName);
-          for(var extension in this._extension_to_widgets){
-            if(qx.lang.Array.contains(this._extension_to_widgets[extension], item)){
-              w.setExtension(extension);
-            }
-          }
           if(this._buddies[item] && this._widgets[this._buddies[item]]){
             w.setLabelText(this._widgets[this._buddies[item]].getText());
           }

@@ -51,6 +51,8 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
       this.bind("maximum", w, "maximum");
       this.bind("minimum", w, "minimum");
       w.bind("backgroundColor", w.getChildControl("textfield"), "backgroundColor");
+      this.bind("valid", w, "valid");
+      this.bind("invalidMessage", w, "invalidMessage");
       return(w);
     }
   }

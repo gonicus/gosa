@@ -22,6 +22,18 @@ qx.Class.define("cute.ui.widgets.Widget", {
   },
 
   properties : {
+    
+    valid: {
+      check: "Boolean",
+      event: "_validChanged",
+      init: true
+    },
+
+    invalidMessage: {
+      check: "String",
+      event: "_invalidMessageChanged",
+      init: ""
+    },
 
     attribute: {
       check: "String",
@@ -199,13 +211,9 @@ qx.Class.define("cute.ui.widgets.Widget", {
     focus:  function(){
     },
 
-    setValid: function(bool){
-    },
-
-    setInvalidMessage: function(message){
-    },
-
     resetInvalidMessage: function(){
+      this.setValid(true);
+      this.setInvalidMessage(true);
     },
 
     _applyValue: function(value){

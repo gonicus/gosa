@@ -110,15 +110,6 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* Forwards the "invalidMessage" string to all widgets.
-     * */
-    setInvalidMessage: function(message){
-      for(var i=0; i < this._current_length; i++){
-        this._widgetContainer[i].getWidget().setInvalidMessage(message);
-      }
-    },
-
-
     /* Resets the "invalidMessage" string for all widgets.
      * */
     resetInvalidMessage: function(){
@@ -133,15 +124,6 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     focus: function(){
       if(this._widgetContainer.length){
         this._widgetContainer[0].getWidget().focus();
-      }
-    },
-
-
-    /* Sets the "isValid" flag for all input widgets
-     * */
-    setValid: function(bool){
-      for(var i=0; i < this._current_length; i++){
-        this._widgetContainer[i].getWidget().setValid(bool);
       }
     },
 

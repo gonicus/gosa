@@ -15,6 +15,8 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
           this.fireDataEvent("changeValue", this.getValue());
         }
       }, this);
+    this.bind("valid", this._chkBoxWidget, "valid");
+    this.bind("invalidMessage", this._chkBoxWidget, "invalidMessage");
   },
 
   properties: {

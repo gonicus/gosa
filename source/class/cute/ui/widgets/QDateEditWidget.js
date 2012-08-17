@@ -45,6 +45,8 @@ qx.Class.define("cute.ui.widgets.QDateEditWidget", {
           this.addState("modified");
           this._propertyUpdater();
         }, this);
+      this.bind("valid", w, "valid");
+      this.bind("invalidMessage", w, "invalidMessage");
       return(w);
     }
   }
