@@ -46,8 +46,10 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
           this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
 
           d.addListener("selected", function(e){
-              this.setValue(this.getValue().concat(e.getData()));
-              this.fireDataEvent("changeValue", this.getValue().copy());
+              if(e.getData().length){
+                this.setValue(this.getValue().concat(e.getData()));
+                this.fireDataEvent("changeValue", this.getValue().copy());
+              }
             }, this);
 
           d.open();
@@ -58,11 +60,17 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       // Add a remove listener
       this._table.addListener("remove", function(e){
         var that = this;
+        var value = this.getValue().toArray()
+        var updated = false;
         this._table.getSelectionModel().iterateSelection(function(index) {
+            updated = true;
             var selected = that._tableModel.getRowData(index)["__indentifier__"];
-            that.getValue().remove(selected);
+            qx.lang.Array.remove(value, selected);
           });
-        this.fireDataEvent("changeValue", this.getValue().copy());
+        if(updated){
+          this.setValue(new qx.data.Array(value));
+          this.fireDataEvent("changeValue", this.getValue().copy());
+        }
       }, this);
     },
 

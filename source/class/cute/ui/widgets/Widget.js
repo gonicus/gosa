@@ -213,7 +213,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
     resetInvalidMessage: function(){
       this.setValid(true);
-      this.setInvalidMessage(true);
+      this.setInvalidMessage("");
     },
 
     _applyValue: function(value){
