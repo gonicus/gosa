@@ -6,7 +6,7 @@ qx.Class.define("cute.ui.dialogs.RpcError", {
   {
     this.base(arguments, this.tr("An error occured"));
 
-    var image = new qx.ui.basic.Image("cute/errorDialog.png")
+    var image = new qx.ui.basic.Image("cute/images/error.png")
 
     var layout = new qx.ui.layout.Grid(9, 5);
     layout.setRowAlign(2, "right", "top");
