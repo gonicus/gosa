@@ -456,6 +456,81 @@ qx.Class.define("cute.ui.Renderer",
       return true;
     },
 
+    executeAction : function(dialog, target)
+    {
+      console.error("-----");
+      console.log("dialog: " + dialog);
+      console.log("target: " + target);
+    },
+
+    _makeActionMenuEntry : function(node, resources)
+    {
+      var widget = node.childNodes;
+      var props = {};
+
+      for (var i in widget) {
+        if (widget[i].nodeName == "property") {
+          var tmp = this.processProperty(widget[i]);
+          for (var item in tmp) {
+            props[item] = tmp[item];
+          }
+        }
+      }
+
+      var label = this.tr(this.getStringProperty("text", props));
+      var icon = this.getIconProperty("icon", props, resources);
+      var dialog = this.getStringProperty("dialog", props);
+      var target = this.getStringProperty("target", props);
+      var shortcut = this.getStringProperty("shortcut", props);
+      var condition = this.getStringProperty("condition", props);
+
+      // Check if we need to add a global shortcut
+      if (shortcut) {
+        //TODO: collect for dispose
+        var hotkey = new qx.ui.core.Command(shortcut);
+        hotkey.addListener("execute", function() {this.executeAction(dialog, target);}, this);
+      }
+
+      // Evaluate enabled state
+      var enabled = true;
+      if (condition) {
+        var stateR = /^(!)?([^(]*)(\((.*)\))?$/;
+        var state = stateR.exec(condition);
+
+        // Method?
+        if (state[4] != undefined){
+          var method = state[2];
+
+          //TODO: look for state[4] attributes and passthem for apply
+          //TODO: add apply for objects
+
+          if (state[1] == "!") {
+            enabled = !this._object.apply(method);
+          } else {
+            enabled = this._object.apply(method);
+          }
+
+        // Attribute!
+        } else {
+          console.log("-----> attribute");
+          var attribute = state[2];
+          if (state[1] == "!") {
+            enabled = !(this._object[attribute] === true);
+          } else {
+            enabled = this._object[attribute] === true;
+          }
+        }
+      }
+
+      var eb = new qx.ui.menu.Button(label, icon);
+      eb.setEnabled(enabled);
+      eb.addListener("execute", function() {
+        this.executeAction(dialog, target);
+      }, this);
+
+      return eb;
+    },
+
     /* Make the tool menu reflect the current object/extension settings.
      * */
     _updateToolMenu : function() 
@@ -464,9 +539,23 @@ qx.Class.define("cute.ui.Renderer",
         this.__toolMenu.remove(this._extendButton);
       }
 
+      if (this._actionButton) {
+        this.__toolMenu.remove(this._actionButton);
+      }
+
+      // Find base level actions
+      var actionMenu = new qx.ui.menu.Menu();
+      var nodes = parseXml(this._object.templates[this._object.baseType]);
+      var resources = this.extractResources(nodes.childNodes, this._theme);
+      var actions = nodes.firstChild.getElementsByTagName("action");
+      for (var i=0; i<actions.length; i++) {
+        actionMenu.add(this._makeActionMenuEntry(actions[i]));
+      }
+
       var extendMenu = new qx.ui.menu.Menu();
 
       for (var ext in this._object.extensionTypes) {
+
         if (!this._object.extensionTypes[ext] && this._object.templates[ext]) {
 
           // Find first widget definition and extract windowIcon and windowTitle
@@ -483,7 +572,7 @@ qx.Class.define("cute.ui.Renderer",
             }
           }
 
-          var eb = new qx.ui.menu.Button(this.getStringProperty('windowTitle', props),
+          var eb = new qx.ui.menu.Button(this.tr(this.getStringProperty('windowTitle', props)),
             this.getIconProperty('windowIcon', props, resources));
           eb.setUserData("extension", ext);
           eb.addListener("execute", function() {
@@ -491,11 +580,21 @@ qx.Class.define("cute.ui.Renderer",
           }, this);
 
           extendMenu.add(eb);
+
+          // Find extension level actions
+          var actions = nodes.firstChild.getElementsByTagName("action");
+          for (var i=0; i<actions.length; i++) {
+            actionMenu.add(this._makeActionMenuEntry(actions[i], resources));
+          }
+
         }
       }
 
-      this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), null, null, extendMenu);
+      this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), "cute/images/extend.png", null, extendMenu);
       this.__toolMenu.add(this._extendButton);
+
+      this._actionButton = new qx.ui.menu.Button(this.tr("Action"), "cute/images/actions.png", null, actionMenu);
+      this.__toolMenu.add(this._actionButton);
     },
     
     /* Extend the object with the given extension
