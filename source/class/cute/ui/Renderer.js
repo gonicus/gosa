@@ -458,9 +458,15 @@ qx.Class.define("cute.ui.Renderer",
 
     executeAction : function(dialog, target)
     {
-      console.error("-----");
-      console.log("dialog: " + dialog);
-      console.log("target: " + target);
+      if (dialog) {
+        //TODO
+        console.log("launch dialog named: cute.ui.dialogs." + dialog);
+      }
+
+      if (target) {
+        //TODO
+        console.log("call method on object: " + target);
+      }
     },
 
     _makeActionMenuEntry : function(node, resources)
@@ -492,27 +498,36 @@ qx.Class.define("cute.ui.Renderer",
       }
 
       // Evaluate enabled state
-      var enabled = true;
+      var enabled = undefined;
+
       if (condition) {
         var stateR = /^(!)?([^(]*)(\((.*)\))?$/;
         var state = stateR.exec(condition);
+        var eb = new qx.ui.menu.Button(label, icon);
 
         // Method?
         if (state[4] != undefined){
           var method = state[2];
 
-          //TODO: look for state[4] attributes and passthem for apply
-          //TODO: add apply for objects
+          //TODO: look for state[4] attributes and pass them for apply
 
           if (state[1] == "!") {
-            enabled = !this._object.apply(method);
+            this._object.callMethod(method, function(result, error) {
+              if (!error) {
+                eb.setEnabled(!result);
+              }
+            }, this);
+
           } else {
-            enabled = this._object.apply(method);
+            this._object.callMethod(method, function(result, error) {
+              if (!error) {
+                eb.setEnabled(result);
+              }
+            }, this);
           }
 
         // Attribute!
         } else {
-          console.log("-----> attribute");
           var attribute = state[2];
           if (state[1] == "!") {
             enabled = !(this._object[attribute] === true);
@@ -522,8 +537,9 @@ qx.Class.define("cute.ui.Renderer",
         }
       }
 
-      var eb = new qx.ui.menu.Button(label, icon);
-      eb.setEnabled(enabled);
+      if (enabled != undefined) {
+        eb.setEnabled(enabled);
+      }
       eb.addListener("execute", function() {
         this.executeAction(dialog, target);
       }, this);
