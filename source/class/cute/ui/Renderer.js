@@ -499,11 +499,11 @@ qx.Class.define("cute.ui.Renderer",
 
       // Evaluate enabled state
       var enabled = undefined;
+      var eb = new qx.ui.menu.Button(label, icon);
 
       if (condition) {
         var stateR = /^(!)?([^(]*)(\((.*)\))?$/;
         var state = stateR.exec(condition);
-        var eb = new qx.ui.menu.Button(label, icon);
 
         // Method?
         if (state[4] != undefined){
