@@ -32,8 +32,8 @@ qx.Class.define("cute.ui.ItemSelector", {
 
     var okButton = new qx.ui.form.Button(this.tr("OK"), "icon/22/actions/dialog-ok.png");
     var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), "icon/22/actions/dialog-cancel.png");
-    buttonPane.add(cancelButton);
     buttonPane.add(okButton);
+    buttonPane.add(cancelButton);
 
     this.add(buttonPane);
 
