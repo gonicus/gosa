@@ -1,3 +1,6 @@
+/*
+#asset(cute/*)
+*/
 qx.Class.define("cute.ui.dialogs.Error", {
 
   extend: cute.ui.dialogs.Dialog,

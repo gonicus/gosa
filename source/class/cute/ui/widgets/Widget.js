@@ -175,7 +175,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
      * */
     _applyGuiProperties: function(props){
       if(props["placeholderText"] && props["placeholderText"]["string"]){
-        this.setPlaceholder(props["placeholderText"]["string"]);
+        this.setPlaceholder(this.tr(props["placeholderText"]["string"]));
       }
       if(props["echoMode"] && props["echoMode"]["enum"]){
         var echomode = props["echoMode"]["enum"];
