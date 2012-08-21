@@ -1127,6 +1127,9 @@ qx.Class.define("cute.ui.Renderer",
         } else if (n.nodeName == "layout") {
           layout = n;
 
+          // Actions are used somewhere else
+        } else if (n.nodeName == "action") {
+
         } else {
           this.error("*** unknown element '" + n.nodeName + "'");
         }
