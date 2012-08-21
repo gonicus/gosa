@@ -335,7 +335,6 @@ qx.Class.define("cute.ui.Renderer",
       // available for this object, then put all pages into a tab-page.
       var container;
       var ui_definition = this.getUiDefinition_();
-      var size = qx.lang.Object.getKeys(ui_definition).length;
       this._tabContainer = container = new cute.ui.tabview.TabView();
       container.setMaxWidth(800);
       this.add(container);

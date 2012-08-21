@@ -211,7 +211,6 @@ qx.Class.define("cute.view.Search",
     },
 
     openObject : function(dn) {
-      var w = null;
       var win = null;
       var _current_object = null;
 
@@ -248,7 +247,6 @@ qx.Class.define("cute.view.Search",
           }, this);
 
           // Position window as requested
-          var props = w.getProperties_();
           var doc = qx.core.Init.getApplication().getRoot();
           doc.add(win);
 

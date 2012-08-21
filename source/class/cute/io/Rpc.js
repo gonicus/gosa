@@ -40,9 +40,8 @@ qx.Class.define("cute.io.Rpc", {
   },
 
   members: {
-
-    converter: [],
     queue: [],
+    converter: [],
     running: false,
 
 
