@@ -1005,6 +1005,8 @@ qx.Class.define("cute.ui.Renderer",
         // Ignore resources - they're already processed
         } else if (node.nodeName == "resources") {
 
+        } else if (node.nodeName == "action") {
+
         } else {
           this.error("*** unexpected element '" + node.nodeName + "'");
         }
