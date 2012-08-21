@@ -44,6 +44,10 @@ qx.Class.define("cute.ui.SearchListItem", {
         this.fireDataEvent("edit", this.getModel());
       }, this);
 
+    Button2.addListener("execute", function(){
+        this.fireDataEvent("remove", this.getModel());
+      }, this);
+
     this.addListener("mouseover", this._onMouseOver, this);
     this.addListener("mouseout", this._onMouseOut, this);
 
@@ -58,7 +62,8 @@ qx.Class.define("cute.ui.SearchListItem", {
   },
 
   events: {
-    "edit": "qx.event.type.Data"
+    "edit": "qx.event.type.Data",
+    "remove": "qx.event.type.Data"
   },
 
   properties: {

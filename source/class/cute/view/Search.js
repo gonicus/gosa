@@ -105,7 +105,15 @@ qx.Class.define("cute.view.Search",
                   }
                 }, that);
             }, this);
-          
+
+          item.addListener("remove", function(e){
+              var dialog = new cute.ui.dialogs.RemoveItem(e.getData().getDn());
+              dialog.addListener("remove", function(){
+                  that.removeObject(item.getDn());
+                }, this);
+              dialog.open();
+              
+            }, this);
           return(item);
         },
 
@@ -189,6 +197,17 @@ qx.Class.define("cute.view.Search",
 
     editItem : function() {
       this.openObject(this.resultController.getSelection().getItem(0).getDn());
+    },
+
+    /* Removes the object given by dn and reloads the search results afterwards
+     * #TODO: Add error handling for RPC errors.
+     * */
+    removeObject: function(dn){
+      cute.proxy.ObjectFactory.openObject(function(obj, error){
+          obj.remove(function(result, error){
+              this.doSearch();
+            }, this);
+        }, this, dn); 
     },
 
     openObject : function(dn) {
