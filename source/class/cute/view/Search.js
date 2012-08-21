@@ -95,7 +95,17 @@ qx.Class.define("cute.view.Search",
     this.resultController.setDelegate({
         createItem: function(){
           var item = new cute.ui.SearchListItem();
-          item.addListener("edit", that.editItemByEvent, that);
+          item.addListener("edit", function(e){
+              item.setIsLoading(true);
+              that.openObject(e.getData().getDn());
+              var lid = that.addListener("loadingComplete", function(e){
+                  if(e.getData()['obj'].dn == item.getDn()){
+                    item.setIsLoading(false);
+                    that.removeListenerById(lid);
+                  }
+                }, that);
+            }, this);
+          
           return(item);
         },
 
@@ -117,6 +127,10 @@ qx.Class.define("cute.view.Search",
       _self.sf.focus();
     });
     this.sf.focus();
+  },
+
+  events: {
+    "loadingComplete" : "qx.event.type.Data"
   },
 
   /*
@@ -177,10 +191,6 @@ qx.Class.define("cute.view.Search",
       this.openObject(this.resultController.getSelection().getItem(0).getDn());
     },
 
-    editItemByEvent : function(e) {
-      this.openObject(e.getData().getDn());
-    },
-
     openObject : function(dn) {
       var w = null;
       var win = null;
@@ -222,6 +232,8 @@ qx.Class.define("cute.view.Search",
           var props = w.getProperties_();
           var doc = qx.core.Init.getApplication().getRoot();
           doc.add(win);
+
+          this.fireDataEvent("loadingComplete", {obj: obj, widget: win});
 
         }, this, obj);
       }, this, dn);

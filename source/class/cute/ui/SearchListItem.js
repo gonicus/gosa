@@ -14,11 +14,21 @@ qx.Class.define("cute.ui.SearchListItem", {
     this.setMarginBottom(10);
     this.setSelectable(false);
 
+    this._setLayout(new qx.ui.layout.Canvas());
+
+    var container = this._container = new qx.ui.container.Composite();
+    var blocker = this._blocker = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+    blocker.add(new qx.ui.basic.Image("cute/reloading.gif"), {top: 22, left: 22});
+    blocker.setBackgroundColor("#000000");
+    blocker.setOpacity(0.2);
+    blocker.exclude();
+
+
     var layout = new qx.ui.layout.Grid();
     layout.setColumnFlex(1, 2);
     layout.setRowFlex(1, 2);
     layout.setSpacing(0);
-    this._setLayout(layout);
+    container.setLayout(layout);
 
     // create and add Part 3 to the toolbar
     this._toolbar = new qx.ui.container.Composite(new qx.ui.layout.HBox(0));
@@ -28,7 +38,7 @@ qx.Class.define("cute.ui.SearchListItem", {
     this._toolbar.add(Button2);
     this._toolbar.setAllowGrowY(false);
     this._toolbar.setAllowGrowX(false);
-    this._add(this._toolbar, {row: 0, column: 2, rowSpan: 3});
+    container.add(this._toolbar, {row: 0, column: 2, rowSpan: 3});
 
     Button1.addListener("execute", function(){
         this.fireDataEvent("edit", this.getModel());
@@ -39,6 +49,8 @@ qx.Class.define("cute.ui.SearchListItem", {
 
     this.setAppearance("SearchListItem");
     this._toolbar.hide();
+    this._add(container,  {top:0, left:0, right:0, bottom:0});
+    this._add(blocker,  {top:0, left:0, right:0, bottom:0});
   },
 
   destruct : function(){
@@ -90,6 +102,15 @@ qx.Class.define("cute.ui.SearchListItem", {
       event : "changeGap",
       themeable : true,
       init : 0
+    },
+
+    isLoading :
+    {
+      check : "Boolean",
+      nullable : false,
+      apply: "_applyIsLoading",
+      event : "changeIsLoading",
+      init : 0
     }
   },
 
@@ -97,6 +118,16 @@ qx.Class.define("cute.ui.SearchListItem", {
   members:{
 
     _toolbar: null,
+    _blocker: null,
+    _container: null,
+
+    _applyIsLoading: function(value){
+      if(value){
+        this._blocker.show();
+      }else{
+        this._blocker.exclude();
+      }
+    },
     
     _forwardStates: {
       focused : false,
@@ -160,11 +191,11 @@ qx.Class.define("cute.ui.SearchListItem", {
           control.setWidth(64);
           control.setAppearance("SearchListItem-Icon");
           control.setAnonymous(true); 
-          this._add(control, {row: 0, column: 0, rowSpan: 3});
+          this._container.add(control, {row: 0, column: 0, rowSpan: 3});
           break;
         case "title":
           control = new qx.ui.basic.Label(this.getTitle());
-          this._add(control, {row: 0, column: 1});
+          this._container.add(control, {row: 0, column: 1});
           control.setAppearance("SearchLIstItem-Title");
           control.addListener("click", function(){
               this.fireDataEvent("edit", this.getModel());
@@ -172,7 +203,7 @@ qx.Class.define("cute.ui.SearchListItem", {
           break;
         case "dn":
           control = new qx.ui.basic.Label(this.getDn());
-          this._add(control, {row: 1, column: 1});
+          this._container.add(control, {row: 1, column: 1});
           control.setAppearance("SearchLIstItem-Dn");
           control.setAnonymous(true); 
           control.setSelectable(true);
@@ -180,7 +211,7 @@ qx.Class.define("cute.ui.SearchListItem", {
         case "description":
           control = new qx.ui.basic.Label(this.getDescription());
           control.setAnonymous(true); 
-          this._add(control, {row: 2, column: 1});
+          this._container.add(control, {row: 2, column: 1});
           control.setAppearance("SearchLIstItem-Description");
           control.setRich(true);
           control.setSelectable(false);
