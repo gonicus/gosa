@@ -641,7 +641,6 @@ qx.Class.define("cute.ui.Renderer",
       this._object.extend(function(result, error) {
         if (error) {
           this.error(error.message);
-          alert(error.message);
         } else {
           //TODO: bind new properties
           this._createTabsForExtension(type);
