@@ -58,12 +58,6 @@ qx.Class.define("cute.ui.Renderer",
     this._resources = {};
     this._widget_ui_properties = {};
 
-    // Detect the theme
-    this._theme = "default";
-    if (cute.Config.theme) {
-      this._theme = cute.Config.theme;
-    }
-
     this._widget_to_page = {};
   },
 
@@ -317,7 +311,7 @@ qx.Class.define("cute.ui.Renderer",
               for (var f in topic.childNodes) {
                 var item = topic.childNodes[f];
                 if (item.nodeName == "file") {
-                  files[":/" + item.firstChild.nodeValue] = "resource/clacks/" + this._theme + "/" + item.firstChild.nodeValue;
+                  files[":/" + item.firstChild.nodeValue] = "resource/clacks/" + cute.Config.getTheme() + "/" + item.firstChild.nodeValue;
                 }
               }
               res.push(files);
@@ -408,7 +402,7 @@ qx.Class.define("cute.ui.Renderer",
         paddingTop: 11
       });
 
-      var okButton = new qx.ui.form.Button(this.tr("OK"), "cute/images/22/actions/dialog-ok.png");
+      var okButton = new qx.ui.form.Button(this.tr("OK"), cute.Config.getImagePath("actions/dialog-ok.png", 22));
       this.__okBtn = okButton;
       this.__okBtn.setEnabled(false);
       okButton.addState("default");
@@ -434,7 +428,7 @@ qx.Class.define("cute.ui.Renderer",
         }, this);
       }, this);
 
-      var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), "cute/images/22/actions/dialog-cancel.png");
+      var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), cute.Config.getImagePath("actions/dialog-cancel.png", 22));
       this.__cancelBtn = cancelButton;
       buttonPane.add(cancelButton);
 
@@ -558,7 +552,7 @@ qx.Class.define("cute.ui.Renderer",
       // Find base level actions
       var actionMenu = new qx.ui.menu.Menu();
       var nodes = parseXml(this._object.templates[this._object.baseType]);
-      var resources = this.extractResources(nodes.childNodes, this._theme);
+      var resources = this.extractResources(nodes.childNodes, cute.Config.getTheme());
       var actions = nodes.firstChild.getElementsByTagName("action");
       for (var i=0; i<actions.length; i++) {
         actionMenu.add(this._makeActionMenuEntry(actions[i]));
@@ -572,7 +566,7 @@ qx.Class.define("cute.ui.Renderer",
 
           // Find first widget definition and extract windowIcon and windowTitle
           var nodes = parseXml(this._object.templates[ext]);
-          var resources = this.extractResources(nodes.childNodes, this._theme);
+          var resources = this.extractResources(nodes.childNodes, cute.Config.getTheme());
           var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
           var props = {};
           for (var i in widget) {
@@ -602,10 +596,10 @@ qx.Class.define("cute.ui.Renderer",
         }
       }
 
-      this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), "cute/images/22/actions/extend.png", null, extendMenu);
+      this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), cute.Config.getImagePath("actions/extend.png", 22), null, extendMenu);
       this.__toolMenu.add(this._extendButton);
 
-      this._actionButton = new qx.ui.menu.Button(this.tr("Action"), "cute/images/22/actions/actions.png", null, actionMenu);
+      this._actionButton = new qx.ui.menu.Button(this.tr("Action"), cute.Config.getImagePath("actions/actions.png", 22), null, actionMenu);
       this.__toolMenu.add(this._actionButton);
     },
     
@@ -646,7 +640,7 @@ qx.Class.define("cute.ui.Renderer",
 
         // Parse the ui definition of the object
         var ui_def = parseXml(ui_definition[extension][tab]).childNodes;
-        var resources = this.extractResources(ui_def, this._theme);
+        var resources = this.extractResources(ui_def, cute.Config.getTheme());
         for (var attr in resources) {
           this._resources[attr] = resources[attr];
         }

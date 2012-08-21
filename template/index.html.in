@@ -54,7 +54,7 @@
   <div id="splash" style='z-index: 250; height: 100%; width: 100%; top:0px; bottom:0px; position:absolute; background-color: #F8F8F8;'>
     <div style='position:absolute; top: 45%; width: 100%; text-align: center'>
       <font style='color:#000; font-family:Verdana; font-size:12px; font-weight:bold'>
-        <center><img src='resource/cute/images/loading.gif' alt='' style='vertical-align:middle' ></center>
+        <center><img src='resource/cute/loading.gif' alt='' style='vertical-align:middle' ></center>
         <br>
         <script type="text/javascript">
           switch (locale) {

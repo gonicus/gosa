@@ -46,13 +46,9 @@ qx.Class.define("cute.ui.container.SlideBar",
       switch(id)
       {
         case "button-menu":
-          var theme = "default";
-          if (cute.Config.theme) {
-            theme = cute.Config.theme;
-          }
           control = new qx.ui.form.MenuButton;
-	  control.setMargin(4);
-	  control.setIcon("cute/themes/" + theme + "/gear.png");
+          control.setMargin(4);
+          control.setIcon(cute.Config.getImagePath("actions/gear.png", 22));
           this._addAt(control, 3);
           break;
 

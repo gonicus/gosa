@@ -60,18 +60,18 @@ qx.Class.define("cute.io.WebSocket", {
 
     _handleNotificationMessage : function(info) {
       var timeout = 5000;
-      var icon = "cute/images/48/status/dialog-information.png"
+      var icon = cute.Config.getImagePath("status/dialog-information.png", 48);
       var title = "";
       if (info['timeout']) {
         timeout = info['timeout'];
       }
       if (info['icon']) {
         if (info['icon'] == "_no_icon_") {
-          icon = "cute/images/48/status/dialog-information.png"
+          icon = cute.Config.getImagePath("status/dialog-information.png", 48);
         } else if (info['icon'].substring(0, 7) == "base64:") {
           icon = "data:image/png;base64, " + info['icon'].substring(7);
         } else {
-          icon = "cute/images/48/status/" + info['icon'] + ".png";
+          icon = cute.Config.getImagePath("status/" + info['icon'] + ".png", 48);
         }
       }
       if (info['title']) {

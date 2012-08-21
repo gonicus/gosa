@@ -23,7 +23,7 @@ qx.Class.define("cute.view.Search",
     var barWidth = 200;
 
     // Call super class and configure ourselfs
-    this.base(arguments, "", "cute/images/32/apps/search.png");
+    this.base(arguments, "", cute.Config.getImagePath("apps/search.png", 32));
     this._excludeChildControl("label");
     this.setLayout(new qx.ui.layout.VBox(5));
 

@@ -40,12 +40,9 @@ qx.Class.define("cute.proxy.ObjectFactory", {
           var translations = {};
           var attribute_data = {};
 
-          var theme = "default";
-          if (cute.Config.theme) {
-              theme = cute.Config.theme;
-          }
-
+          var theme = cute.Config.getTheme();
           var locale;
+
           if (cute.Config.locale) {
               locale = cute.Config.locale;
           } else {

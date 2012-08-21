@@ -46,17 +46,12 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
         w.setPlaceholder(this.getPlaceholder());
       }
 
-      ////TODO: re-enable
-      //var theme = "default";
-      //if (cute.Config.theme) {
-      //    theme = cute.Config.theme;
-      //}
-      //// create the options for the icon
-      //var iconOptions = {
-      //  converter: function(value) {
-      //    return "cute/themes/" + theme + "/" + value;
-      //  }
-      //};
+      // create the options for the icon
+      var iconOptions = {
+        converter: function(value) {
+          return cute.Config.getImagePath(value, 22);
+        }
+      };
 
       //controller.setIconPath('icon');
       //controller.setIconOptions(iconOptions);

@@ -7,12 +7,7 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
     this.setLayout(new qx.ui.layout.VBox(5));
     this.setDecorator("main");
 
-    var theme = "default";
-    if (cute.Config.theme) {
-      theme = cute.Config.theme;
-    }
-
-    this._defaultImage = "cute/themes/" + theme + "/unset-user-image.png";
+    this._defaultImage = cute.Config.getImagePath("unset-user-image.png", 128);
 
     this._widget = new qx.ui.basic.Image(this._defaultImage);
     this._widget.addListener("loadingFailed", function(){

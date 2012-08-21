@@ -22,8 +22,8 @@ qx.Class.define("cute.ui.SearchListItem", {
 
     // create and add Part 3 to the toolbar
     this._toolbar = new qx.ui.container.Composite(new qx.ui.layout.HBox(0));
-    var Button1 = new qx.ui.toolbar.Button(null, "cute/images/22/actions/document-edit.png");
-    var Button2 = new qx.ui.toolbar.Button(null, "cute/images/22/actions/document-close.png");
+    var Button1 = new qx.ui.toolbar.Button(null, cute.Config.getImagePath("actions/document-edit.png", 22));
+    var Button2 = new qx.ui.toolbar.Button(null, cute.Config.getImagePath("actions/document-close.png", 22));
     this._toolbar.add(Button1);
     this._toolbar.add(Button2);
     this._toolbar.setAllowGrowY(false);
@@ -123,23 +123,11 @@ qx.Class.define("cute.ui.SearchListItem", {
       }
     },
 
-
-    _getIconPath: function(value){
-      if(value){
-        var theme = "default";
-        if (cute.Config.theme) {
-          theme = cute.Config.theme;
-        }
-        return("cute/themes/" + theme + "/objects/" + value);
-      }
-      return(null);
-    },
-
     _applyIcon: function(value){
       this._showChildControl("icon");
       var widget = this.getChildControl("icon");
       if(widget && value){
-        widget.setSource(this._getIconPath(value));
+        widget.setSource(cute.Config.getImagePath("objects/" + (value || "null.png"), 64));
       }
     },
 
@@ -166,7 +154,7 @@ qx.Class.define("cute.ui.SearchListItem", {
       switch(id)
       {
         case "icon":
-          control = new qx.ui.basic.Image(this._getIconPath(this.getIcon()));
+          control = new qx.ui.basic.Image(cute.Config.getImagePath("objects/" + (this.getIcon() || "null.png"), 64));
           control.setHeight(64);
           control.setScale(true);
           control.setWidth(64);
