@@ -131,10 +131,6 @@ qx.Class.define("cute.io.Rpc", {
             cl.running = false;
             cl.process_queue();
           }, this);
-          d.addListener("cancel", function(){
-            cl.running = false;
-            cl.process_queue();
-          }, this);
           d.open();
 
         }else{
