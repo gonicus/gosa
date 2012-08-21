@@ -20,6 +20,8 @@ qx.Class.define("cute.io.WebSocket", {
 
   members : {
 
+    __ws: null,
+
     reconnect : function() {
       var loc = window.location;
       var protocol = "";
