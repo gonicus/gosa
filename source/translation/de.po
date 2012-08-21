@@ -14,19 +14,27 @@ msgstr ""
 "X-Language: de_DE\n"
 "X-Source-Language: de\n"
 
-#: cute/ui/Renderer.js:441
+#: cute/ui/ItemSelector.js:38
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: cute/ui/Renderer.js:437 cute/ui/ItemSelector.js:39
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: cute/ui/Renderer.js:497
+#: cute/ui/Renderer.js:605
 msgid "Extend"
 msgstr "Erweitern"
 
-#: cute/ui/Renderer.js:573
+#: cute/ui/Renderer.js:608
+msgid "Action"
+msgstr "Aktion"
+
+#: cute/ui/Renderer.js:684
 msgid "Remove extension"
 msgstr "Erweiterung entfernen"
 
-#: cute/ui/dialogs/Error.js:14 cute/ui/Renderer.js:415
+#: cute/ui/dialogs/Error.js:14 cute/ui/Renderer.js:411
 msgid "OK"
 msgstr "OK"
 
@@ -46,11 +54,11 @@ msgstr "Kennwort"
 msgid "Invalid login ..."
 msgstr "Ungültige Anmeldung..."
 
-#: cute/ui/dialogs/RpcError.js:7 cute/ui/dialogs/Error.js:7
-msgid "An error occured"
-msgstr "Ein Fehler ist aufgetreten"
+#: cute/ui/dialogs/RpcError.js:11 cute/ui/dialogs/Error.js:7
+msgid "Error"
+msgstr "Fehler"
 
-#: cute/ui/dialogs/RpcError.js:21
+#: cute/ui/dialogs/RpcError.js:25
 msgid "Retry"
 msgstr "Erneut versuchen"
 
@@ -85,3 +93,6 @@ msgstr[1] "%1 Sekunden"
 #: cute/view/Search.js:201
 msgid "Object"
 msgstr "Objekt"
+
+#~ msgid "An error occured"
+#~ msgstr "Ein Fehler ist aufgetreten"

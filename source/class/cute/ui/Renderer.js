@@ -11,11 +11,7 @@
 /* ************************************************************************
 
 #asset(cute/*)
-#asset(qx/icon/${qx.icontheme}/22/actions/dialog-ok.png)
-#asset(qx/icon/${qx.icontheme}/22/actions/dialog-cancel.png)
-
 #ignore(parseXml)
-
 
  ************************************************************************ */
 
@@ -412,7 +408,7 @@ qx.Class.define("cute.ui.Renderer",
         paddingTop: 11
       });
 
-      var okButton = new qx.ui.form.Button(this.tr("OK"), "icon/22/actions/dialog-ok.png");
+      var okButton = new qx.ui.form.Button(this.tr("OK"), "cute/images/22/actions/dialog-ok.png");
       this.__okBtn = okButton;
       this.__okBtn.setEnabled(false);
       okButton.addState("default");
@@ -438,7 +434,7 @@ qx.Class.define("cute.ui.Renderer",
         }, this);
       }, this);
 
-      var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), "icon/22/actions/dialog-cancel.png");
+      var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), "cute/images/22/actions/dialog-cancel.png");
       this.__cancelBtn = cancelButton;
       buttonPane.add(cancelButton);
 
@@ -606,10 +602,10 @@ qx.Class.define("cute.ui.Renderer",
         }
       }
 
-      this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), "cute/images/extend.png", null, extendMenu);
+      this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), "cute/images/22/actions/extend.png", null, extendMenu);
       this.__toolMenu.add(this._extendButton);
 
-      this._actionButton = new qx.ui.menu.Button(this.tr("Action"), "cute/images/actions.png", null, actionMenu);
+      this._actionButton = new qx.ui.menu.Button(this.tr("Action"), "cute/images/22/actions/actions.png", null, actionMenu);
       this.__toolMenu.add(this._actionButton);
     },
     

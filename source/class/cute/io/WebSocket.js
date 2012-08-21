@@ -1,5 +1,5 @@
 /*
-#asset(qx/icon/${qx.icontheme}/48/status/*)
+#asset(cute/*)
 
 #ignore(WebSocket)
 #ignore(MozWebSocket)
@@ -60,18 +60,18 @@ qx.Class.define("cute.io.WebSocket", {
 
     _handleNotificationMessage : function(info) {
       var timeout = 5000;
-      var icon = "icon/48/status/dialog-information.png"
+      var icon = "cute/images/48/status/dialog-information.png"
       var title = "";
       if (info['timeout']) {
         timeout = info['timeout'];
       }
       if (info['icon']) {
         if (info['icon'] == "_no_icon_") {
-          icon = "icon/48/status/dialog-information.png"
+          icon = "cute/images/48/status/dialog-information.png"
         } else if (info['icon'].substring(0, 7) == "base64:") {
           icon = "data:image/png;base64, " + info['icon'].substring(7);
         } else {
-          icon = "icon/48/status/" + info['icon'] + ".png";
+          icon = "cute/images/48/status/" + info['icon'] + ".png";
         }
       }
       if (info['title']) {

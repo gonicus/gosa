@@ -35,8 +35,8 @@ qx.Class.define("cute.ui.ItemSelector", {
       paddingTop: 11
     });
 
-    var okButton = new qx.ui.form.Button(this.tr("Add"), "cute/images/actions/dialog-ok.png");
-    var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), "cute/images/actions/dialog-cancel.png");
+    var okButton = new qx.ui.form.Button(this.tr("Add"), "cute/images/22/actions/list-add.png");
+    var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), "cute/images/22/actions/dialog-cancel.png");
     buttonPane.add(okButton);
     buttonPane.add(cancelButton);
 

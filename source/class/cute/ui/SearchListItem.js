@@ -1,3 +1,7 @@
+/*
+#asset(cute/*)
+*/
+
 qx.Class.define("cute.ui.SearchListItem", {
 
   extend: qx.ui.core.Widget,
@@ -18,8 +22,8 @@ qx.Class.define("cute.ui.SearchListItem", {
 
     // create and add Part 3 to the toolbar
     this._toolbar = new qx.ui.container.Composite(new qx.ui.layout.HBox(0));
-    var Button1 = new qx.ui.toolbar.Button(null, "icon/22/actions/dialog-ok.png");
-    var Button2 = new qx.ui.toolbar.Button(null, "icon/22/actions/dialog-cancel.png");
+    var Button1 = new qx.ui.toolbar.Button(null, "cute/images/22/actions/dialog-ok.png");
+    var Button2 = new qx.ui.toolbar.Button(null, "cute/images/22/actions/dialog-cancel.png");
     this._toolbar.add(Button1);
     this._toolbar.add(Button2);
     this._toolbar.setAllowGrowY(false);

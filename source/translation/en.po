@@ -11,19 +11,27 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: cute/ui/Renderer.js:441
+#: cute/ui/ItemSelector.js:38
+msgid "Add"
+msgstr ""
+
+#: cute/ui/Renderer.js:437 cute/ui/ItemSelector.js:39
 msgid "Cancel"
 msgstr ""
 
-#: cute/ui/Renderer.js:497
+#: cute/ui/Renderer.js:605
 msgid "Extend"
 msgstr ""
 
-#: cute/ui/Renderer.js:573
+#: cute/ui/Renderer.js:608
+msgid "Action"
+msgstr ""
+
+#: cute/ui/Renderer.js:684
 msgid "Remove extension"
 msgstr ""
 
-#: cute/ui/dialogs/Error.js:14 cute/ui/Renderer.js:415
+#: cute/ui/dialogs/Error.js:14 cute/ui/Renderer.js:411
 msgid "OK"
 msgstr ""
 
@@ -43,11 +51,11 @@ msgstr ""
 msgid "Invalid login ..."
 msgstr ""
 
-#: cute/ui/dialogs/RpcError.js:7 cute/ui/dialogs/Error.js:7
-msgid "An error occured"
+#: cute/ui/dialogs/RpcError.js:11 cute/ui/dialogs/Error.js:7
+msgid "Error"
 msgstr ""
 
-#: cute/ui/dialogs/RpcError.js:21
+#: cute/ui/dialogs/RpcError.js:25
 msgid "Retry"
 msgstr ""
 
@@ -82,6 +90,9 @@ msgstr[1] ""
 #: cute/view/Search.js:201
 msgid "Object"
 msgstr ""
+
+#~ msgid "An error occured"
+#~ msgstr ""
 
 #~ msgid "Ok"
 #~ msgstr ""
