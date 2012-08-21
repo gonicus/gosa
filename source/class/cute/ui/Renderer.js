@@ -446,16 +446,46 @@ qx.Class.define("cute.ui.Renderer",
       return true;
     },
 
-    executeAction : function(dialog, target)
+    executeAction : function(dialog, target, icon)
     {
       if (dialog) {
-        //TODO
-        console.log("launch dialog named: cute.ui.dialogs." + dialog);
+        this.debug("launch dialog named: cute.ui.dialogs." + dialog);
+
+        if (cute.ui.dialogs[dialog]) {
+          var dialogW = new cute.ui.dialogs[dialog](this._object);
+          dialogW.setIcon(icon);
+          dialogW.show();
+        }
       }
 
       if (target) {
-        //TODO
-        console.log("call method on object: " + target);
+        var re = /^([^(]+)\((.*)\)$/;
+        var info = re.exec(target);
+        var method = info[1];
+        var params = info[2].split(",");
+
+        var ps = /%\(([^)]+)\)s/;
+        for (var i in params) {
+          var match = ps.exec(params[i]);
+          if (match) {
+            var data = this._object[match[1]];
+            if (typeof data === 'string') {
+              params[i] = params[i].replace(match[0], data);
+            } else {
+              params[i] = params[i].replace(match[0], data[0]);
+            }
+          }
+        }
+        
+        params.unshift(method, function(result, error) {
+          if (error) {
+            new cute.ui.dialogs.Error(error.message).open();
+          } else {
+            this.debug("call method " + target + " on object returned with: " + result);
+          }
+        }, this);
+
+        this._object.callMethod.apply(this._object, params);
       }
     },
 
@@ -484,7 +514,7 @@ qx.Class.define("cute.ui.Renderer",
       if (shortcut) {
         //TODO: collect for dispose
         var hotkey = new qx.ui.core.Command(shortcut);
-        hotkey.addListener("execute", function() {this.executeAction(dialog, target);}, this);
+        hotkey.addListener("execute", function() {this.executeAction(dialog, target, icon);}, this);
       }
 
       // Evaluate enabled state
@@ -531,7 +561,7 @@ qx.Class.define("cute.ui.Renderer",
         eb.setEnabled(enabled);
       }
       eb.addListener("execute", function() {
-        this.executeAction(dialog, target);
+        this.executeAction(dialog, target, icon);
       }, this);
 
       return eb;

@@ -69,7 +69,7 @@
 
     "build-script":
     {
-      "include": ["cute.ui.widgets.*"],
+      "include": ["cute.ui.widgets.*", "cute.ui.dialogs.*"],
       "add-script" :
       [
         {
@@ -108,7 +108,7 @@
 
     "source-script":
     {
-      "include": ["cute.ui.widgets.*"],
+      "include": ["cute.ui.widgets.*", "cute.ui.dialogs.*"],
 
       "add-script" :
       [
