@@ -74,8 +74,12 @@ qx.Class.define("cute.Application",
       //TODO: add one static plugin for testing
       var search = new cute.view.Search;
       var tree = new cute.view.Tree;
+      var work = new cute.view.Workflows;
+      var settings = new cute.view.Settings;
       pluginView.add(search);
       pluginView.add(tree);
+      pluginView.add(work);
+      pluginView.add(settings);
 
       // Initialize websocket messaging
       var messaging = cute.io.WebSocket.getInstance();
