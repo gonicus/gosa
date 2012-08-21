@@ -1,3 +1,7 @@
+/*
+#asset(cute/*)
+*/
+
 qx.Class.define("cute.ui.ItemSelector", {
 
   extend: cute.ui.dialogs.Dialog,
@@ -7,7 +11,8 @@ qx.Class.define("cute.ui.ItemSelector", {
     this.base(arguments);
     this.setCaption(title);
 
-
+    this.setResizable(true, true, true, true);
+    this.setWidth(500);
     this.setLayout(new qx.ui.layout.VBox(0));
     var tableModel = new qx.ui.table.model.Simple();
     tableModel.setColumns(column_names, column_keys);
@@ -30,8 +35,8 @@ qx.Class.define("cute.ui.ItemSelector", {
       paddingTop: 11
     });
 
-    var okButton = new qx.ui.form.Button(this.tr("OK"), "icon/22/actions/dialog-ok.png");
-    var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), "icon/22/actions/dialog-cancel.png");
+    var okButton = new qx.ui.form.Button(this.tr("Add"), "cute/images/actions/dialog-ok.png");
+    var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), "cute/images/actions/dialog-cancel.png");
     buttonPane.add(okButton);
     buttonPane.add(cancelButton);
 
