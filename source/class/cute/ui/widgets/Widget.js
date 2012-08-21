@@ -79,10 +79,6 @@ qx.Class.define("cute.ui.widgets.Widget", {
       apply: "_applyMandatory"
     },
 
-    multivalue: {
-      init: false
-    },
-    
     readonly: {
       init: false
     },

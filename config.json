@@ -70,18 +70,6 @@
     "build-script":
     {
       "include": ["cute.ui.widgets.*", "cute.ui.dialogs.*"],
-      "add-script" :
-      [
-        {
-          "uri" : "resource/cute/js/xml.js"
-        }
-      ],
-      "copy-files" :
-      {
-        "files"     : [ "resource/cute/js/xml.js" ],
-        "source" : "source",
-        "target"  : "build"
-      },
 
       "variants" : 
       { 
@@ -109,13 +97,6 @@
     "source-script":
     {
       "include": ["cute.ui.widgets.*", "cute.ui.dialogs.*"],
-
-      "add-script" :
-      [
-        {
-          "uri" : "resource/cute/js/xml.js"
-        }
-      ],
 
       "variants" : 
       { 

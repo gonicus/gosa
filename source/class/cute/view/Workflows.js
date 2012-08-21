@@ -20,8 +20,6 @@ qx.Class.define("cute.view.Workflows",
 
   construct : function()
   {
-    var barWidth = 200;
-
     // Call super class and configure ourselfs
     this.base(arguments, "", cute.Config.getImagePath("apps/workflows.png", 32));
     this._excludeChildControl("label");

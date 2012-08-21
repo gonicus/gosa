@@ -23,7 +23,6 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
     _setWidgetValue: function(id, value){
 
       // Find model item with appropriate key
-      var selection = this.id2item(this.getValues(), value);
       var w = this._getWidget(id);
       for(var item in w.getChildren()){
         if(w.getChildren()[item].getModel().getKey() == value){
@@ -47,11 +46,11 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
       }
 
       // create the options for the icon
-      var iconOptions = {
-        converter: function(value) {
-          return cute.Config.getImagePath(value, 22);
-        }
-      };
+      //var iconOptions = {
+      //  converter: function(value) {
+      //    return cute.Config.getImagePath(value, 22);
+      //  }
+      //};
 
       //controller.setIconPath('icon');
       //controller.setIconOptions(iconOptions);

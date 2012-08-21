@@ -20,12 +20,9 @@ qx.Class.define("cute.view.Settings",
 
   construct : function()
   {
-    var barWidth = 200;
-
     // Call super class and configure ourselfs
     this.base(arguments, "", cute.Config.getImagePath("apps/settings.png", 32));
     this._excludeChildControl("label");
     this.setLayout(new qx.ui.layout.VBox(5));
   }
-
 });

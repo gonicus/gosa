@@ -20,8 +20,6 @@ qx.Class.define("cute.view.Tree",
 
   construct : function()
   {
-    var barWidth = 200;
-
     // Call super class and configure ourselfs
     this.base(arguments, "", cute.Config.getImagePath("apps/tree.png", 32));
     this._excludeChildControl("label");

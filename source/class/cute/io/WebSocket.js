@@ -5,6 +5,9 @@
 #ignore(MozWebSocket)
 */
 
+/**
+ * @lint ignoreUndefined(MozWebSocket,WebSocket)
+ * */
 qx.Class.define("cute.io.WebSocket", {
   extend : qx.core.Object,
   type   : "singleton",
@@ -19,6 +22,8 @@ qx.Class.define("cute.io.WebSocket", {
   },
 
   members : {
+
+    __ws: null,
 
     reconnect : function() {
       var loc = window.location;
