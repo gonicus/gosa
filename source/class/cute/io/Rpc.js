@@ -6,6 +6,10 @@
 #ignore(qx.core.ServerSettings.sessionTimeoutInSeconds)
 *********************************************************************** */
 
+
+/**
+ * @lint ignoreReferenceField(converter,queue)
+ * */
 qx.Class.define("cute.io.Rpc", {
 
   type: "singleton",

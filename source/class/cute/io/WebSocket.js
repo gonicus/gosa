@@ -5,6 +5,9 @@
 #ignore(MozWebSocket)
 */
 
+/**
+ * @lint ignoreUndefined(MozWebSocket,WebSocket)
+ * */
 qx.Class.define("cute.io.WebSocket", {
   extend : qx.core.Object,
   type   : "singleton",

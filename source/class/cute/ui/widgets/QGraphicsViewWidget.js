@@ -1,7 +1,13 @@
+
+
+/**
+ * @lint ignoreUndefined(com)
+ * */
 qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
 
   extend: cute.ui.widgets.Widget,
 
+  
   construct: function(){
     this.base(arguments);  
     this.setLayout(new qx.ui.layout.VBox(5));

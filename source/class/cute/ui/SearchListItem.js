@@ -133,7 +133,10 @@ qx.Class.define("cute.ui.SearchListItem", {
         this._blocker.exclude();
       }
     },
-    
+   
+    /**
+     * @lint ignoreReferenceField(_forwardStates)
+     */
     _forwardStates: {
       focused : false,
       hovered : false,
