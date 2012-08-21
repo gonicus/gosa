@@ -581,7 +581,7 @@ qx.Class.define("cute.ui.Renderer",
 
       // Find base level actions
       var actionMenu = new qx.ui.menu.Menu();
-      var nodes = cute.utils.Xml.parseXml(this._object.templates[this._object.baseType]);
+      var nodes = qx.xml.Document.fromString(this._object.templates[this._object.baseType]);
       var resources = this.extractResources(nodes.childNodes, cute.Config.getTheme());
       var actions = nodes.firstChild.getElementsByTagName("action");
       for (var i=0; i<actions.length; i++) {
@@ -595,7 +595,7 @@ qx.Class.define("cute.ui.Renderer",
         if (!this._object.extensionTypes[ext] && this._object.templates[ext]) {
 
           // Find first widget definition and extract windowIcon and windowTitle
-          var nodes = cute.utils.Xml.parseXml(this._object.templates[ext]);
+          var nodes = qx.xml.Document.fromString(this._object.templates[ext]);
           var resources = this.extractResources(nodes.childNodes, cute.Config.getTheme());
           var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
           var props = {};
@@ -669,7 +669,7 @@ qx.Class.define("cute.ui.Renderer",
         this._current_buddies = {};
 
         // Parse the ui definition of the object
-        var ui_def = cute.utils.Xml.parseXml(ui_definition[extension][tab]).childNodes;
+        var ui_def = qx.xml.Document.fromString(ui_definition[extension][tab]).childNodes;
         var resources = this.extractResources(ui_def, cute.Config.getTheme());
         for (var attr in resources) {
           this._resources[attr] = resources[attr];
