@@ -198,7 +198,7 @@ qx.Class.define("cute.view.Search",
 
         // Build widget and place it into a window
         cute.ui.Renderer.getWidget(function(w){
-          win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.DN);
+          win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
           win.setLayout(new qx.ui.layout.VBox(10));
           win.add(w);
           win.addListener("appear", win.center, win);
