@@ -8,7 +8,6 @@ qx.Class.define("cute.ui.dialogs.SendMessageDialog", {
   construct: function(object)
   {
     this.base(arguments, this.tr("Send message..."));
-    this.setLayout(new qx.ui.layout.VBox(5));
     this.setModal(true);
 
     this._object = object;
@@ -17,7 +16,7 @@ qx.Class.define("cute.ui.dialogs.SendMessageDialog", {
     var form = new qx.ui.form.Form();
     this._form = form;
 
-    // add the form items
+    // Add the form items
     var subject = new qx.ui.form.TextField();
     subject.setRequired(true);
     subject.setWidth(200);
@@ -30,18 +29,9 @@ qx.Class.define("cute.ui.dialogs.SendMessageDialog", {
     form.add(subject, this.tr("Subject"), null, "subject");
     form.add(message, this.tr("Message"), null, "message");
     
-    this.add(new cute.ui.form.renderer.Single(form));
+    this.addElement(new cute.ui.form.renderer.Single(form));
     var controller = new qx.data.controller.Form(null, form);
     this._model = controller.createModel();
-
-    // Add button static button line for the moment
-    var paneLayout = new qx.ui.layout.HBox().set({
-      spacing: 4,
-      alignX : "right"
-    });
-    var buttonPane = new qx.ui.container.Composite(paneLayout).set({
-      paddingTop: 11
-    });
 
     var ok = new qx.ui.form.Button(this.tr("Send"), cute.Config.getImagePath("actions/message-send.png", 22));
     ok.addState("default");
@@ -51,9 +41,10 @@ qx.Class.define("cute.ui.dialogs.SendMessageDialog", {
     cancel.addState("default");
     cancel.addListener("execute", this.close, this);
 
-    buttonPane.add(ok);
-    buttonPane.add(cancel);
-    this.add(buttonPane);
+    this.addButton(ok);
+    this.addButton(cancel);
+
+    this.setFocusOrder([subject, message, ok]);
   },
 
   members : {

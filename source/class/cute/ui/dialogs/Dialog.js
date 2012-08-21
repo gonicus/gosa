@@ -5,13 +5,13 @@ qx.Class.define("cute.ui.dialogs.Dialog",
   construct : function(caption, icon)
   {
     this.base(arguments, caption, icon);
-    this.addListener("appear", function(){
-        this.center(); 
-      }, this);
 
+    // Minimum sizes
     this.setMinWidth(300);
     this.setMinHeight(120);
+    this.addListener("appear", this.__onAppear, this);
 
+    // Basic setup
     this.setModal(true);
     this.setShowClose(false);
     this.setShowMaximize(false);
@@ -19,7 +19,18 @@ qx.Class.define("cute.ui.dialogs.Dialog",
     this.setAlwaysOnTop(true);
     this.setResizable(false, false, false, false);
 
-    this.addListener("appear", this.__onAppear, this);
+    // Set layout and prepare the dialog view
+    this.setLayout(new qx.ui.layout.VBox(5));
+
+    // Build button pane
+    var paneLayout = new qx.ui.layout.HBox().set({
+      spacing: 4,
+      alignX : "right"
+    });
+    this._buttonPane = new qx.ui.container.Composite(paneLayout).set({
+      paddingTop: 11
+    });
+    this.add(this._buttonPane);
   },
 
 
@@ -36,6 +47,15 @@ qx.Class.define("cute.ui.dialogs.Dialog",
 
   members : {
 
+    addButton : function(button)
+    {
+        this._buttonPane.add(button);
+    },
+
+    addElement : function(element, options)
+    {
+        this.addBefore(element, this._buttonPane, options);
+    },
 
     /**
      * Called whenever a window appears on the screen.
@@ -47,6 +67,7 @@ qx.Class.define("cute.ui.dialogs.Dialog",
      */
     __onAppear : function()
     {
+      this.center(); 
       this.setEnabled(true);
       this.setActive(true);
 

@@ -6,54 +6,83 @@ qx.Class.define("cute.ui.dialogs.LoginDialog",
   {
     this.base(arguments, this.tr("Login"));
 
-    /* Container layout */
-    var layout = new qx.ui.layout.Grid(9, 5);
-    layout.setColumnAlign(0, "right", "top");
-    layout.setColumnAlign(2, "right", "top");
-    this.setLayout(layout);
+    // Show Subject/Message pane
+    var form = new qx.ui.form.Form();
+    this._form = form;
 
-    /* Try to receive currently loggedin user */
-    this.add(new qx.ui.basic.Label(this.tr("Name")).set({allowShrinkX : false, paddingTop : 3}), {row: 0, column: 0});
-    this.add(new qx.ui.basic.Label(this.tr("Password")).set({allowShrinkX : false, paddingTop : 3}), {row: 1, column: 0});
+    // Add the form items
+    var uid = new qx.ui.form.TextField();
+    uid.setRequired(true);
+    uid.setWidth(200);
 
-    var username = new qx.ui.form.TextField();
+    // Add the form items
     var password = new qx.ui.form.PasswordField();
-    var info = new qx.ui.basic.Label().set({rich : true, alignX : "left"});
+    password.setRequired(true);
+    password.setWidth(200);
 
-    this.add(username.set({allowGrowX: true, allowShrinkX: true, width: 200}), {row: 0, column: 1});
-    this.add(password.set({allowGrowX : true, allowShrinkX : true, width : 200}), {row : 1, column : 1});
-    this.add(info, {row : 3, column  : 0, colSpan : 2});
+    form.add(uid, this.tr("Login ID"), null, "uid");
+    form.add(password, this.tr("Password"), null, "password");
+
+    this.addElement(new cute.ui.form.renderer.Single(form, false));
+    var controller = new qx.data.controller.Form(null, form);
+    this._model = controller.createModel();
+
+    // Add status label
+    var info = new qx.ui.basic.Label();
+    info.setRich(true);
+    info.exclude();
+    this.addElement(info);
+    this.getLayout().setAlignX("center");
 
     var login = new qx.ui.form.Button(this.tr("Login"));
-    login.setAllowStretchX(false);
-    this.add(login, {row : 5, column : 0});
+    this.addButton(login);
 
     login.addListener("execute", function(){
-      if (cute.Config.notifications) {
-          if (cute.Config.notifications.checkPermission() != 0) {
-              cute.Config.notifications.requestPermission();
-        }
-      }
+      if (this._form.validate()) {
 
-      var rpc = cute.io.Rpc.getInstance();
-      var that = this;
-      rpc.callAsync(function(result, error){
-        if(!result){
-          info.setValue(that.tr("Invalid login ..."));
-        }else{
-          that.close();
-          that.fireEvent("login");
+        if (cute.Config.notifications) {
+            if (cute.Config.notifications.checkPermission() != 0) {
+                cute.Config.notifications.requestPermission();
+          }
         }
-      }, "login", username.getValue(), password.getValue());
+
+        var rpc = cute.io.Rpc.getInstance();
+        var that = this;
+        rpc.callAsync(function(result, error){
+          if(!result){
+            info.setValue("<span style='color:red'>" + that.tr("Invalid login ...") + "</span>");
+            info.show();
+            password.setEnabled(false);
+            uid.setEnabled(false);
+            login.setEnabled(false);
+            
+            var timer = qx.util.TimerManager.getInstance();
+            timer.start(function(userData, timerId){
+              uid.focus();
+              uid.setValue("");
+              password.setValue("");
+              password.setEnabled(true);
+              uid.setEnabled(true);
+              login.setEnabled(true);
+              info.setValue("");
+              info.exclude();
+            }, 0, this, null, 2000);
+
+          }else{
+            that.close();
+            that.fireEvent("login");
+          }
+        }, "login", this._model.get("uid"), this._model.get("password"));
+      }
     }, this);
 
-    this.setFocusOrder([username, password, login]);
+    this.setFocusOrder([uid, password, login]);
 
-    if(qx.core.Environment.get("qx.debug")){
-      username.setValue(cute.LocalConfig.user);
-      password.setValue(cute.LocalConfig.password);
-      login.execute();
-    }
+//    if(qx.core.Environment.get("qx.debug")){
+//      uid.setValue(cute.LocalConfig.user);
+//      password.setValue(cute.LocalConfig.password);
+//      login.execute();
+//    }
   },
 
   events: {
