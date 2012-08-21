@@ -19,7 +19,7 @@ qx.Class.define("cute.ui.SearchListItem", {
     var container = this._container = new qx.ui.container.Composite();
     var blocker = this._blocker = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
     blocker.add(new qx.ui.basic.Image("cute/reloading.gif"), {top: 22, left: 22});
-    blocker.setBackgroundColor("#000000");
+    blocker.setBackgroundColor("black");
     blocker.setOpacity(0.2);
     blocker.exclude();
 
