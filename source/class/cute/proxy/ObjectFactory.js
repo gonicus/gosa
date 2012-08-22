@@ -32,8 +32,8 @@ qx.Class.define("cute.proxy.ObjectFactory", {
           // Extract required user information out of the '__jsonclass__' result object.
           var jDefs = userData["__jsonclass__"][1];
           var uuid = jDefs[1];
-          var methods = jDefs[3];
-          var attributes = jDefs[4];
+          var methods = jDefs[4];
+          var attributes = jDefs[5];
           var baseType = null;
           var extensionTypes = null;
           var templates = {};
@@ -63,7 +63,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
             // The base member variables for the metaclass
             var members = {
               uuid: null,
-              dn: dn,
+              dn: null,
               methods: methods,
               attributes: attributes,
               attribute_data: attribute_data,

@@ -10,6 +10,7 @@ qx.Class.define("cute.proxy.Object", {
     // Initialize object values
     this.initialized = false;
     this.uuid = data["__jsonclass__"][1][1];
+    this.dn = data["__jsonclass__"][1][2];
 
     for(var item in this.attributes){
       if(this.attributes[item] in data){
@@ -35,6 +36,7 @@ qx.Class.define("cute.proxy.Object", {
     // Initialization is done (Start sending attribute modifications to the backend)
     this.initialized = true;
   },
+
   events: {
     "propertyUpdateOnServer": "qx.event.type.Data"
   },
