@@ -548,10 +548,16 @@ qx.Class.define("cute.ui.Renderer",
         // Attribute!
         } else {
           var attribute = state[2];
+          var value = this._object.get(attribute).toArray();
+          if(value.length){
+            value = value[0];
+          }else{
+            value = false;
+          }
           if (state[1] == "!") {
-            enabled = !(this._object[attribute] === true);
+            enabled = !(value === true);
           } else {
-            enabled = this._object[attribute] === true;
+            enabled = value === true;
           }
         }
       }
