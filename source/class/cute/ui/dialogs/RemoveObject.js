@@ -18,10 +18,10 @@ qx.Class.define("cute.ui.dialogs.RemoveObject", {
     message.setWrap(true);
     this.addElement(message);
 
-    var ok = new qx.ui.form.Button(this.tr("OK"), cute.Config.getImagePath("actions/dialog-ok.png", 22));
+    var ok = cute.ui.base.Buttons.getOkButton();
     this.addButton(ok);
 
-    var cancel = new qx.ui.form.Button(this.tr("Cancel"), cute.Config.getImagePath("actions/dialog-cancel.png", 22));
+    var cancel = cute.ui.base.Buttons.getCancelButton();
     this.addButton(cancel);
     ok.addListener("click", function(){
         this.fireEvent("remove");

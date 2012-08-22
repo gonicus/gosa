@@ -12,7 +12,7 @@ qx.Class.define("cute.ui.dialogs.Error", {
     var message = new qx.ui.basic.Label(message);
     this.addElement(message);
 
-    var ok = new qx.ui.form.Button(this.tr("OK"), cute.Config.getImagePath("actions/dialog-ok.png", 22));
+    var ok = cute.ui.base.Buttons.getOkButton();
     ok.addListener("execute", this.close, this);
     this.addButton(ok);
   }

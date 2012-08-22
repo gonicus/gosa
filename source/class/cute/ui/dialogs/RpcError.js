@@ -13,7 +13,7 @@ qx.Class.define("cute.ui.dialogs.RpcError", {
     var message = new qx.ui.basic.Label(message);
     this.addElement(message);
 
-    var retry = new qx.ui.form.Button(this.tr("Retry"), cute.Config.getImagePath("actions/dialog-retry.png", 22));
+    var retry = cute.ui.base.Buttons.getButton(this.tr("Retry"), "actions/dialog-retry.png");
     retry.addListener("execute", function(){
         this.close();
         this.fireEvent("retry");
