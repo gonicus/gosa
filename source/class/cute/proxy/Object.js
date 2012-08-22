@@ -20,7 +20,7 @@ qx.Class.define("cute.proxy.Object", {
         }else{
           var value = data[this.attributes[item]];
           var val = new qx.data.Array();
-          if(value){
+          if(value !== null){
             val.push(value);
           }
         }
