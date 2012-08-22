@@ -13,6 +13,57 @@ qx.Class.define("cute.ui.form.Spinner", {
 
   members: {
 
+    /** Saved last value in case invalid text is entered */
+    __lastValidValue_ : null,
+
+
+    /**
+     * Apply routine for the value property.
+     *
+     * It checks the min and max values, disables / enables the
+     * buttons and handles the wrap around.
+     *
+     * @param value {Number} The new value of the spinner
+     * @param old {Number} The former value of the spinner
+     */
+    _applyValue: function(value, old)
+    {
+      var textField = this.getChildControl("textfield");
+
+      this._updateButtons();
+
+      // save the last valid value of the spinner
+      this.__lastValidValue_ = value;
+
+      // write the value of the spinner to the textfield
+      if (value !== null) {
+        if (this.getNumberFormat()) {
+          textField.setValue(this.getNumberFormat().format(value));
+        } else {
+          textField.setValue(value + "");
+        }
+      } else {
+        textField.setValue("");
+      }
+    },
+
+    /**
+     * Apply routine for the numberFormat property.<br/>
+     * When setting a number format, the display of the
+     * value in the textfield will be changed immediately.
+     *
+     * @param value {Boolean} The new value of the numberFormat property
+     * @param old {Boolean} The former value of the numberFormat property
+     */
+    _applyNumberFormat : function(value, old) {
+      var textfield = this.getChildControl("textfield");
+      textfield.setFilter(this._getFilterRegExp());
+
+      this.getNumberFormat().addListener("changeNumberFormat",
+        this._onChangeNumberFormat, this);
+
+      this._applyValue(this.__lastValidValue_, undefined);
+    },
     
     /**
      * Check whether the value being applied is allowed.
@@ -86,7 +137,7 @@ qx.Class.define("cute.ui.form.Spinner", {
       else
       {
         // otherwise, reset the last valid value
-        this._applyValue(this.__lastValidValue, undefined);
+        this._applyValue(this.__lastValidValue_, undefined);
       }
     }
   }
