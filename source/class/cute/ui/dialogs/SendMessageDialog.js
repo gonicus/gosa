@@ -8,8 +8,6 @@ qx.Class.define("cute.ui.dialogs.SendMessageDialog", {
   construct: function(object)
   {
     this.base(arguments, this.tr("Send message..."));
-    this.setModal(true);
-
     this._object = object;
     
     // Show Subject/Message pane

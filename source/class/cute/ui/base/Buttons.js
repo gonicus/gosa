@@ -5,7 +5,12 @@ qx.Class.define("cute.ui.base.Buttons", {
   statics: {
 
     getButton : function(text, icon, tooltip) {
-      var btn = new qx.ui.form.Button(text, cute.Config.getImagePath(icon, 22));
+      var btn;
+      if (icon) {
+        btn = new qx.ui.form.Button(text, cute.Config.getImagePath(icon, 22));
+      } else {
+        btn = new qx.ui.form.Button(text);
+      }
       btn.addState("default");
 
       if (tooltip) {
