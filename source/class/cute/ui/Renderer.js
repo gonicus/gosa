@@ -401,7 +401,7 @@ qx.Class.define("cute.ui.Renderer",
         paddingTop: 11
       });
 
-      var okButton = new qx.ui.form.Button(this.tr("OK"), cute.Config.getImagePath("actions/dialog-ok.png", 22));
+      var okButton = cute.ui.base.Buttons.getOkButton();
       this.__okBtn = okButton;
       this.__okBtn.setEnabled(false);
       okButton.addState("default");
@@ -427,7 +427,7 @@ qx.Class.define("cute.ui.Renderer",
         }, this);
       }, this);
 
-      var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), cute.Config.getImagePath("actions/dialog-cancel.png", 22));
+      var cancelButton = cute.ui.base.Buttons.getCancelButton();
       this.__cancelBtn = cancelButton;
       buttonPane.add(cancelButton);
 

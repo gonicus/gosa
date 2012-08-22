@@ -34,7 +34,7 @@ qx.Class.define("cute.ui.dialogs.LoginDialog",
     this.addElement(info);
     this.getLayout().setAlignX("center");
 
-    var login = new qx.ui.form.Button(this.tr("Login"));
+    var login = cute.ui.base.Buttons.getButton(this.tr("Login"));
     this.addButton(login);
 
     login.addListener("execute", function(){

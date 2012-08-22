@@ -8,8 +8,6 @@ qx.Class.define("cute.ui.dialogs.SendMessageDialog", {
   construct: function(object)
   {
     this.base(arguments, this.tr("Send message..."));
-    this.setModal(true);
-
     this._object = object;
     
     // Show Subject/Message pane
@@ -33,11 +31,11 @@ qx.Class.define("cute.ui.dialogs.SendMessageDialog", {
     var controller = new qx.data.controller.Form(null, form);
     this._model = controller.createModel();
 
-    var ok = new qx.ui.form.Button(this.tr("Send"), cute.Config.getImagePath("actions/message-send.png", 22));
+    var ok = cute.ui.base.Buttons.getButton(this.tr("Send"), "actions/message-send.png");
     ok.addState("default");
     ok.addListener("execute", this.send, this);
 
-    var cancel = new qx.ui.form.Button(this.tr("Cancel"), cute.Config.getImagePath("actions/dialog-cancel.png", 22));
+    var cancel = cute.ui.base.Buttons.getCancelButton();
     cancel.addState("default");
     cancel.addListener("execute", this.close, this);
 

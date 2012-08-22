@@ -18,55 +18,107 @@ msgstr ""
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: cute/ui/Renderer.js:437 cute/ui/ItemSelector.js:39
-msgid "Cancel"
-msgstr "Abbrechen"
-
-#: cute/ui/Renderer.js:605
+#: cute/ui/Renderer.js:628
 msgid "Extend"
 msgstr "Erweitern"
 
-#: cute/ui/Renderer.js:608
+#: cute/ui/Renderer.js:631
 msgid "Action"
 msgstr "Aktion"
 
-#: cute/ui/Renderer.js:684
+#: cute/ui/Renderer.js:706
 msgid "Remove extension"
 msgstr "Erweiterung entfernen"
 
-#: cute/ui/dialogs/Error.js:14 cute/ui/Renderer.js:411
+#: cute/ui/base/Buttons.js:25
 msgid "OK"
 msgstr "OK"
 
-#: cute/ui/dialogs/LoginDialog.js:7 cute/ui/dialogs/LoginDialog.js:27
+#: cute/ui/base/Buttons.js:29 cute/ui/ItemSelector.js:39
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: cute/ui/dialogs/ChangePasswordDialog.js:10
+msgid "Change password..."
+msgstr "Passwort ändern..."
+
+#: cute/ui/dialogs/ChangePasswordDialog.js:26
+msgid "New password"
+msgstr "Neues Passwort"
+
+#: cute/ui/dialogs/ChangePasswordDialog.js:27
+msgid "New password (repeated)"
+msgstr "Neues Passwort (wiederholt)"
+
+#: cute/ui/dialogs/ChangePasswordDialog.js:47
+msgid "Set password"
+msgstr "Passwort setzen"
+
+#: cute/ui/dialogs/ChangePasswordDialog.js:71
+msgid "Passwords do not match!"
+msgstr "Passwörter stimmen nicht überein!"
+
+#: cute/ui/dialogs/ChangePasswordDialog.js:88
+msgid "Password has been changed successfully."
+msgstr "Das Passwort wurde erfolgreich geändert."
+
+#: cute/ui/dialogs/Info.js:10
+msgid "Info"
+msgstr "Information"
+
+#: cute/ui/dialogs/LoginDialog.js:7 cute/ui/dialogs/LoginDialog.js:37
 msgid "Login"
 msgstr "Anmelden"
 
-#: cute/ui/dialogs/LoginDialog.js:16
-msgid "Name"
-msgstr "Name"
+#: cute/ui/dialogs/LoginDialog.js:23
+msgid "Login ID"
+msgstr "Anmelde-ID"
 
-#: cute/ui/dialogs/LoginDialog.js:17
+#: cute/ui/dialogs/LoginDialog.js:24
 msgid "Password"
 msgstr "Kennwort"
 
-#: cute/ui/dialogs/LoginDialog.js:42
+#: cute/ui/dialogs/LoginDialog.js:53
 msgid "Invalid login ..."
 msgstr "Ungültige Anmeldung..."
 
-#: cute/ui/dialogs/RpcError.js:11 cute/ui/dialogs/Error.js:7
+#: cute/ui/dialogs/RemoveObject.js:10
+msgid "Remove object"
+msgstr "Objekt entfernen"
+
+#: cute/ui/dialogs/RemoveObject.js:15
+msgid "Do you want to remove this object including all of its references to other objects?"
+msgstr "Möchten Sie dieses Objekt mit all seinen Referenzen zu anderen Objekten entfernen?"
+
+#: cute/ui/dialogs/RpcError.js:11 cute/ui/dialogs/Error.js:10
 msgid "Error"
 msgstr "Fehler"
 
-#: cute/ui/dialogs/RpcError.js:25
+#: cute/ui/dialogs/RpcError.js:16
 msgid "Retry"
 msgstr "Erneut versuchen"
 
-#: cute/ui/widgets/QGraphicsViewWidget.js:28
+#: cute/ui/dialogs/SendMessageDialog.js:10
+msgid "Send message..."
+msgstr "Nachricht senden..."
+
+#: cute/ui/dialogs/SendMessageDialog.js:27
+msgid "Subject"
+msgstr "Betreff"
+
+#: cute/ui/dialogs/SendMessageDialog.js:28
+msgid "Message"
+msgstr "Nachricht"
+
+#: cute/ui/dialogs/SendMessageDialog.js:34
+msgid "Send"
+msgstr "Senden"
+
+#: cute/ui/widgets/QGraphicsViewWidget.js:29
 msgid "Change image"
 msgstr "Bild ändern"
 
-#: cute/ui/widgets/QGraphicsViewWidget.js:29
+#: cute/ui/widgets/QGraphicsViewWidget.js:30
 msgid "Remove image"
 msgstr "Bild entfernen"
 
@@ -78,21 +130,24 @@ msgstr "Bitte geben Sie den Suchtext ein..."
 msgid "Search"
 msgstr "Suche"
 
-#: cute/view/Search.js:153
+#: cute/view/Search.js:175
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] "%1 Ergebnis"
 msgstr[1] "%1 Ergebnisse"
 
-#: cute/view/Search.js:153
+#: cute/view/Search.js:175
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] "%1 Sekunde"
 msgstr[1] "%1 Sekunden"
 
-#: cute/view/Search.js:201
+#: cute/view/Search.js:229
 msgid "Object"
 msgstr "Objekt"
 
 #~ msgid "An error occured"
 #~ msgstr "Ein Fehler ist aufgetreten"
+
+#~ msgid "Name"
+#~ msgstr "Name"
