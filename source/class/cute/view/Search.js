@@ -107,7 +107,7 @@ qx.Class.define("cute.view.Search",
             }, this);
 
           item.addListener("remove", function(e){
-              var dialog = new cute.ui.dialogs.RemoveItem(e.getData().getDn());
+              var dialog = new cute.ui.dialogs.RemoveObject(e.getData().getDn());
               dialog.addListener("remove", function(){
                   that.removeObject(item.getDn());
                 }, this);

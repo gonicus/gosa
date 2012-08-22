@@ -1,6 +1,23 @@
 qx.Class.define("cute.ui.form.renderer.Single", {
   extend: qx.ui.form.renderer.Single,
 
+  construct : function(form, show_dots)
+  {
+    if (show_dots === false) {
+      this.setShowDots(false);
+    }
+    this.base(arguments, form);
+  },
+
+  properties : {
+
+    showDots: {
+      check: "Boolean",
+      init: true
+    }
+
+  },
+
   members: {
 
     /**
@@ -14,7 +31,7 @@ qx.Class.define("cute.ui.form.renderer.Single", {
     _createLabelText : function(name, item)
     {
       var required = "";
-      if (item.getRequired()) {
+      if (item.getRequired() && this.getShowDots()) {
        required = " <span style='color:red'>*</span> ";
       }
 

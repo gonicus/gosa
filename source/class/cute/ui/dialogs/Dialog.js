@@ -100,7 +100,7 @@ qx.Class.define("cute.ui.dialogs.Dialog",
       try
       {
         for (var i=0; i<args.length; i++){
-          args[i].addListener("keydown", this.checkInput, this);
+          args[i].addListener("keyup", this.checkInput, this);
         }
       }
       catch(e)
@@ -153,6 +153,14 @@ qx.Class.define("cute.ui.dialogs.Dialog",
 
           // Found field that has currently the focus
           if (item.hasState("focused")) {
+
+            if (item instanceof qx.ui.form.TextArea)
+            {
+              // Don't send the Enter key event somewhere
+              e.stopPropagation();
+              return;
+            }
+
             if (item instanceof qx.ui.form.Button)
             {
               setTimeout(function() {

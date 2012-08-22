@@ -66,7 +66,7 @@ qx.Class.define("cute.ui.dialogs.LoginDialog",
               login.setEnabled(true);
               info.setValue("");
               info.exclude();
-            }, 0, this, null, 2000);
+            }, 0, this, null, 4000);
 
           }else{
             that.close();
@@ -78,11 +78,11 @@ qx.Class.define("cute.ui.dialogs.LoginDialog",
 
     this.setFocusOrder([uid, password, login]);
 
-//    if(qx.core.Environment.get("qx.debug")){
-//      uid.setValue(cute.LocalConfig.user);
-//      password.setValue(cute.LocalConfig.password);
-//      login.execute();
-//    }
+    if(qx.core.Environment.get("qx.debug")){
+      uid.setValue(cute.LocalConfig.user);
+      password.setValue(cute.LocalConfig.password);
+      login.execute();
+    }
   },
 
   events: {
