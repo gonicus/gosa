@@ -520,33 +520,47 @@ qx.Class.define("cute.ui.Renderer",
       var enabled = undefined;
       var eb = new qx.ui.menu.Button(label, icon);
 
+      /* Calculate action dependencies. Right now we support attribute and
+       * method dependent checks in the ui-template file:
+       *  <string notr="true">!isLocked</string>
+       *  <string notr="true">accountUnlockable(dn)</string>
+       * */
       if (condition) {
         var stateR = /^(!)?([^(]*)(\((.*)\))?$/;
         var state = stateR.exec(condition);
 
-        // Method?
+        // Method based condition?
         if (state[4] != undefined){
           var method = state[2];
 
-          //TODO: look for state[4] attributes and pass them for apply
-
-          if (state[1] == "!") {
-            this._object.callMethod(method, function(result, error) {
-              if (!error) {
-                eb.setEnabled(!result);
+          // Collect agruments that have to be passed to the method call.
+          var attrs = state[4].split(",");
+          var args = [];
+          for(var item in attrs){
+            if(attrs[item] == "dn" || attrs[item] == "uuid"){
+              var value = this._object[attrs[item]];
+            }else{
+              var value = this._object.get(attrs[item]).toArray();
+              if(value.length){
+                value = value[0];
+              }else{
+                value = null;
               }
-            }, this);
-
-          } else {
-            this._object.callMethod(method, function(result, error) {
-              if (!error) {
-                eb.setEnabled(result);
-              }
-            }, this);
+            }
+            args.push(value);
           }
 
-        // Attribute!
+          // Now execute the method with its arguments and let the callback
+          // set the button state
+          var rpc = cute.io.Rpc.getInstance();
+          rpc.cA.apply(rpc, [function(result, error){
+              result = (state[1] == "!") ? !result : result;
+              eb.setEnabled(result);
+            }, this, method].concat(args));
+
         } else {
+
+          // Calculate attribute based condition
           var attribute = state[2];
           var value = this._object.get(attribute).toArray();
           if(value.length){
