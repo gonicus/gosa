@@ -14,6 +14,24 @@ qx.Class.define("cute.ui.dialogs.ChangePasswordDialog", {
     var form = new qx.ui.form.Form();
     this._form = form;
 
+    var current = null;
+    if(object.getPasswordMethod().getLength()){
+      current = object.getPasswordMethod().toArray()[0];
+    }
+
+    var method = new qx.ui.form.SelectBox();
+    var rpc = cute.io.Rpc.getInstance();
+    rpc.cA(function(result, error){
+        for(var item in result){
+          var tempItem = new qx.ui.form.ListItem(result[item], null, result[item]);
+          method.add(tempItem);
+
+          if(current == result[item]){
+            method.setSelection([tempItem]);
+          }
+        }
+      }, this, "listPasswordMethods");
+
     // Add the form items
     var pwd1 = new qx.ui.form.PasswordField();
     pwd1.setRequired(true);
@@ -23,6 +41,7 @@ qx.Class.define("cute.ui.dialogs.ChangePasswordDialog", {
     pwd2.setRequired(true);
     pwd2.setWidth(200);
 
+    form.add(method, this.tr("Method"), null, "method");
     form.add(pwd1, this.tr("New password"), null, "pwd1");
     form.add(pwd2, this.tr("New password (repeated)"), null, "pwd2");
     
@@ -80,7 +99,7 @@ qx.Class.define("cute.ui.dialogs.ChangePasswordDialog", {
             return;
         }
 
-        this._object.changePassword(function(response, error){
+        this._object.changePasswordMethod(function(response, error){
           if (error) {
             new cute.ui.dialogs.Error(error.message).open();
           } else {
@@ -88,7 +107,7 @@ qx.Class.define("cute.ui.dialogs.ChangePasswordDialog", {
             new cute.ui.dialogs.Info(this.tr("Password has been changed successfully.")).open();
           } 
           
-        }, this, this._model.get("pwd1"));
+        }, this, this._model.get("method"), this._model.get("pwd1"));
       }
     }
 
