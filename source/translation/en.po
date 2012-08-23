@@ -15,15 +15,15 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: cute/ui/Renderer.js:628
+#: cute/ui/Renderer.js:648
 msgid "Extend"
 msgstr ""
 
-#: cute/ui/Renderer.js:631
+#: cute/ui/Renderer.js:651
 msgid "Action"
 msgstr ""
 
-#: cute/ui/Renderer.js:706
+#: cute/ui/Renderer.js:726
 msgid "Remove extension"
 msgstr ""
 
@@ -39,23 +39,27 @@ msgstr ""
 msgid "Change password..."
 msgstr ""
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:26
+#: cute/ui/dialogs/ChangePasswordDialog.js:44
+msgid "Encryption"
+msgstr ""
+
+#: cute/ui/dialogs/ChangePasswordDialog.js:45
 msgid "New password"
 msgstr ""
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:27
+#: cute/ui/dialogs/ChangePasswordDialog.js:46
 msgid "New password (repeated)"
 msgstr ""
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:47
+#: cute/ui/dialogs/ChangePasswordDialog.js:75
 msgid "Set password"
 msgstr ""
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:71
+#: cute/ui/dialogs/ChangePasswordDialog.js:113
 msgid "Passwords do not match!"
 msgstr ""
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:88
+#: cute/ui/dialogs/ChangePasswordDialog.js:131
 msgid "Password has been changed successfully."
 msgstr ""
 
@@ -99,15 +103,15 @@ msgstr ""
 msgid "Send message..."
 msgstr ""
 
-#: cute/ui/dialogs/SendMessageDialog.js:27
+#: cute/ui/dialogs/SendMessageDialog.js:32
 msgid "Subject"
 msgstr ""
 
-#: cute/ui/dialogs/SendMessageDialog.js:28
+#: cute/ui/dialogs/SendMessageDialog.js:33
 msgid "Message"
 msgstr ""
 
-#: cute/ui/dialogs/SendMessageDialog.js:34
+#: cute/ui/dialogs/SendMessageDialog.js:41
 msgid "Send"
 msgstr ""
 
@@ -144,6 +148,9 @@ msgid "Object"
 msgstr ""
 
 #~ msgid "An error occured"
+#~ msgstr ""
+
+#~ msgid "Method"
 #~ msgstr ""
 
 #~ msgid "Name"

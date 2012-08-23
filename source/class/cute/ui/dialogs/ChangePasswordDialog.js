@@ -41,7 +41,7 @@ qx.Class.define("cute.ui.dialogs.ChangePasswordDialog", {
     pwd2.setRequired(true);
     pwd2.setWidth(200);
 
-    form.add(method, this.tr("Method"), null, "method");
+    form.add(method, this.tr("Encryption"), null, "method");
     form.add(pwd1, this.tr("New password"), null, "pwd1");
     form.add(pwd2, this.tr("New password (repeated)"), null, "pwd2");
     
