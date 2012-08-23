@@ -311,7 +311,7 @@ qx.Class.define("cute.ui.Renderer",
               for (var f in topic.childNodes) {
                 var item = topic.childNodes[f];
                 if (item.nodeName == "file") {
-                  files[":/" + item.firstChild.nodeValue] = "resource/clacks/" + cute.Config.getTheme() + "/" + item.firstChild.nodeValue;
+                  files[":/" + item.firstChild.nodeValue] = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/" + item.firstChild.nodeValue;
                 }
               }
               res.push(files);
@@ -1356,8 +1356,7 @@ qx.Class.define("cute.ui.Renderer",
     {
       var widget = new qx.ui.container.Composite();
       widget.title_ = this.getStringProperty('windowTitle', props);
-      var bp = window.location.href.substr(0, window.location.href.lastIndexOf("/") + 1);
-      widget.icon_ = bp + this.getIconProperty('windowIcon', props);
+      widget.icon_ = this.getIconProperty('windowIcon', props);
       this.processCommonProperties(name, widget, props);
       this._widgets[name] = widget;
       this.__add_widget_to_extension(name, loc);
