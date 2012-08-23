@@ -385,9 +385,8 @@ qx.Class.define("cute.ui.Renderer",
 
           // Toggler
           if (qx.lang.Object.getKeys(attrs['blocked_by']).length > 0) {
-            //TODO: blocked_by needs to be wired
-            console.log("**** blocked_by handling for " + name);
-            console.log(attrs['blocked_by']);
+
+            this._processBlockedBy(widget, attrs['blocked_by']);
           }
         }
       }
@@ -443,6 +442,46 @@ qx.Class.define("cute.ui.Renderer",
       this.add(buttonPane);
 
       return true;
+    },
+
+
+    /* Adds a listener to the given widgets to enable/disable
+     * it depending on the given blockedBy definition.
+     * */
+    _processBlockedBy: function(widget, data){
+   
+      // Skip if there is no block info
+      if(!data.length){
+        return;
+      }
+
+      /* This method get called to verfiy if the widget
+       * has to be blocked or not.
+       * */
+      var func = function(match, values, widget){
+          for(var i=0; i< values.length; i++){
+            if(match == values[i]){
+              widget.block();
+              return;
+            }
+          }
+          widget.unblock(true);
+        }
+     
+      /* Extract information about when to block the widget
+       * and add a listener to the sourceo-widget, to check
+       * its values again after they were modified.
+       * (right now we only support one block-definition)
+       * */
+      data = data[0];
+      var name = data['name'];
+      var value = data['value'];
+      this._widgets[name].addListener("changeValue", function(e){
+          func(value, e.getData().toArray(), widget);
+        }, this);
+
+      // Initially check blocking
+      func(value, this._object.get(name).toArray(), widget);
     },
 
     executeAction : function(dialog, target, icon)

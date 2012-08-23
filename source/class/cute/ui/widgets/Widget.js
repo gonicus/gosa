@@ -167,6 +167,19 @@ qx.Class.define("cute.ui.widgets.Widget", {
     _visible : false,
     name: null,
 
+
+    /* Block the widget and disable modifications
+     * */
+    block: function(){
+      this.setEnabled(false);
+    },
+
+    /* Unblock the widget
+     * */
+    unblock: function(){
+      this.setEnabled(true);
+    },
+
     /* Apply collected gui properties to this widet
      * */
     _applyGuiProperties: function(props){
