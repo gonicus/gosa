@@ -13,6 +13,9 @@ else
     
     # Loop thru libs and optimize them
     for lib in source/resource/cute/js/*js; do
+      if [ "$lib" == "source/resource/cute/js/*js" ]; then
+	      break
+      fi
       libname=$(basename $lib)
       echo ">>> customize: optimizing $libname"
       $QOOXDOO/tool/bin/compile.py $lib | grep -v '^>>' > build/resource/cute/js/$libname
