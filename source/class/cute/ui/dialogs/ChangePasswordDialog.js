@@ -75,6 +75,8 @@ qx.Class.define("cute.ui.dialogs.ChangePasswordDialog", {
     var ok = cute.ui.base.Buttons.getButton(this.tr("Set password"), "status/dialog-password.png");
     ok.addState("default");
     ok.addListener("execute", this.setPassword, this);
+    ok.setEnabled(false);
+    this._ok = ok;
 
     var cancel = cute.ui.base.Buttons.getCancelButton();
     cancel.addState("default");
@@ -106,9 +108,11 @@ qx.Class.define("cute.ui.dialogs.ChangePasswordDialog", {
       if (this._pwd1.getValue() == this._pwd2.getValue()) {
         this._info.setValue("");
         this._info.exclude();
+        this._ok.setEnabled(this._pwd1.getValue() == ""?false:true);
       } else {
         this._info.setValue("<span style='color:red'>" + this.tr("Passwords do not match!") + "</span>");
         this._info.show();
+        this._ok.setEnabled(false);
       }
     },
 
