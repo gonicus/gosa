@@ -18,17 +18,22 @@ qx.Class.define("cute.ui.dialogs.SendMessageDialog", {
     var subject = new qx.ui.form.TextField();
     subject.setRequired(true);
     subject.setWidth(200);
+    subject.addListener("keyup", this.updateState, this);
+    this._subject = subject;
 
     var message = new qx.ui.form.TextArea();
     message.setRequired(true);
     message.setWidth(400);
     message.setHeight(200);
+    message.addListener("keyup", this.updateState, this);
+    message.setValue("");
+    this._message = message;
 
     form.add(subject, this.tr("Subject"), null, "subject");
     form.add(message, this.tr("Message"), null, "message");
     
     var la = new cute.ui.form.renderer.Single(form);
-    la.getLayout().setColumnAlign(0, "left", "middle");
+    la.getLayout().setColumnAlign(0, "left", "top");
     this.addElement(la);
     var controller = new qx.data.controller.Form(null, form);
     this._model = controller.createModel();
@@ -36,6 +41,8 @@ qx.Class.define("cute.ui.dialogs.SendMessageDialog", {
     var ok = cute.ui.base.Buttons.getButton(this.tr("Send"), "actions/message-send.png");
     ok.addState("default");
     ok.addListener("execute", this.send, this);
+    ok.setEnabled(false);
+    this._ok = ok;
 
     var cancel = cute.ui.base.Buttons.getCancelButton();
     cancel.addState("default");
@@ -48,6 +55,11 @@ qx.Class.define("cute.ui.dialogs.SendMessageDialog", {
   },
 
   members : {
+
+    updateState : function()
+    {
+      this._ok.setEnabled((this._message.getValue() != "") && (this._subject.getValue() != ""));
+    },
 
     send : function()
     {
