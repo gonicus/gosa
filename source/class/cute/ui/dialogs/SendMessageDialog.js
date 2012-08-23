@@ -27,7 +27,9 @@ qx.Class.define("cute.ui.dialogs.SendMessageDialog", {
     form.add(subject, this.tr("Subject"), null, "subject");
     form.add(message, this.tr("Message"), null, "message");
     
-    this.addElement(new cute.ui.form.renderer.Single(form));
+    var la = new cute.ui.form.renderer.Single(form);
+    la.getLayout().setColumnAlign(0, "left", "middle");
+    this.addElement(la);
     var controller = new qx.data.controller.Form(null, form);
     this._model = controller.createModel();
 

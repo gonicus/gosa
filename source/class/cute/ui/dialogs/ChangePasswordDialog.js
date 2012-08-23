@@ -45,7 +45,9 @@ qx.Class.define("cute.ui.dialogs.ChangePasswordDialog", {
     form.add(pwd1, this.tr("New password"), null, "pwd1");
     form.add(pwd2, this.tr("New password (repeated)"), null, "pwd2");
     
-    this.addElement(new cute.ui.form.renderer.Single(form));
+    var la = new cute.ui.form.renderer.Single(form, false);
+    la.getLayout().setColumnAlign(0, "left", "middle");
+    this.addElement(la);
     var controller = new qx.data.controller.Form(null, form);
 
     // Add status label
