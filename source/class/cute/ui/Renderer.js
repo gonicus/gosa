@@ -709,14 +709,26 @@ qx.Class.define("cute.ui.Renderer",
         }
       }
 
-      this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), cute.Config.getImagePath("actions/extend.png", 22), null, extendMenu);
-      this.__toolMenu.add(this._extendButton);
+      if (extendMenu.hasChildren()) {
+        this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), cute.Config.getImagePath("actions/extend.png", 22), null, extendMenu);
+        this.__toolMenu.add(this._extendButton);
+      }
 
-      this._retractButton = new qx.ui.menu.Button(this.tr("Retract"), cute.Config.getImagePath("actions/retract.png", 22), null, retractMenu);
-      this.__toolMenu.add(this._retractButton);
+      if (retractMenu.hasChildren()) {
+        this._retractButton = new qx.ui.menu.Button(this.tr("Retract"), cute.Config.getImagePath("actions/retract.png", 22), null, retractMenu);
+        this.__toolMenu.add(this._retractButton);
+      }
 
-      this._actionButton = new qx.ui.menu.Button(this.tr("Action"), cute.Config.getImagePath("actions/actions.png", 22), null, actionMenu);
-      this.__toolMenu.add(this._actionButton);
+      if (actionMenu.hasChildren()) {
+        this._actionButton = new qx.ui.menu.Button(this.tr("Action"), cute.Config.getImagePath("actions/actions.png", 22), null, actionMenu);
+        this.__toolMenu.add(this._actionButton);
+      }
+
+      if (this.__toolMenu.hasChildren()) {
+        this.__toolMenu.show();
+      } else {
+        this.__toolMenu.exclude();
+      }
     },
 
     /* Extract widget properties as a hash
