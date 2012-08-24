@@ -11,9 +11,7 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
     this._chkBoxWidget.addListener("changeValue", function(){
         this.getValue().removeAll();
         this.getValue().push(this._chkBoxWidget.getValue());
-        if(this._initialized){
-          this.fireDataEvent("changeValue", this.getValue().copy());
-        }
+        this.fireDataEvent("changeValue", this.getValue().copy());
       }, this);
     this.bind("valid", this._chkBoxWidget, "valid");
     this.bind("invalidMessage", this._chkBoxWidget, "invalidMessage");
@@ -36,8 +34,6 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
 
   members: {
 
-    _initialized: false,
-
     _chkBoxWidget: null,
 
     _applyLabel : function(value, old_value) {
@@ -51,7 +47,6 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
 
       if(value && value.length){
         this._chkBoxWidget.setValue(value.getItem(0));
-        this._initialized = true;
       }
     },
 
