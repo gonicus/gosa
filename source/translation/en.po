@@ -15,33 +15,55 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: cute/ui/Renderer.js:693
+#: cute/ui/Renderer.js:712
 msgid "Extend"
 msgstr ""
 
-#: cute/ui/Renderer.js:696
+#: cute/ui/Renderer.js:715
+msgid "Retract"
+msgstr ""
+
+#: cute/ui/Renderer.js:718
 msgid "Action"
 msgstr ""
 
-#: cute/ui/Renderer.js:749
+#: cute/ui/Renderer.js:797
+msgid "Dependent extension"
+msgid_plural "Dependent extensions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: cute/ui/Renderer.js:808
+msgid "To retract the <b>%1</b> extension from this object, the following additional extension needs to be removed: %2"
+msgid_plural "To retract the <b>%1</b> extension from this object, the following additional extensions need to be removed: %2"
+msgstr[0] ""
+msgstr[1] ""
+
+#: cute/ui/Renderer.js:811
+msgid "Do you want the dependent extension to be removed?"
+msgid_plural "Do you want the dependent extensions to be removed?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: cute/ui/Renderer.js:882
 msgid "Missing extension"
 msgid_plural "Missing extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:760
+#: cute/ui/Renderer.js:893
 msgid "To extend the object by the <b>%1</b> extension, the following additional extension is required: %2"
 msgid_plural "To extend the object by the <b>%1</b> extension, the following additional extensions are required: %2"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:763
+#: cute/ui/Renderer.js:896
 msgid "Do you want the missing extension to be added?"
 msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:851
+#: cute/ui/Renderer.js:989
 msgid "Remove extension"
 msgstr ""
 
@@ -81,6 +103,10 @@ msgstr ""
 msgid "Password has been changed successfully."
 msgstr ""
 
+#: cute/ui/dialogs/Error.js:10 cute/ui/dialogs/RpcError.js:11
+msgid "Error"
+msgstr ""
+
 #: cute/ui/dialogs/Info.js:10
 msgid "Info"
 msgstr ""
@@ -107,10 +133,6 @@ msgstr ""
 
 #: cute/ui/dialogs/RemoveObject.js:15
 msgid "Do you want to remove this object including all of its references to other objects?"
-msgstr ""
-
-#: cute/ui/dialogs/RpcError.js:11 cute/ui/dialogs/Error.js:10
-msgid "Error"
 msgstr ""
 
 #: cute/ui/dialogs/RpcError.js:16

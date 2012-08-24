@@ -18,33 +18,55 @@ msgstr ""
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: cute/ui/Renderer.js:693
+#: cute/ui/Renderer.js:712
 msgid "Extend"
 msgstr "Erweitern"
 
-#: cute/ui/Renderer.js:696
+#: cute/ui/Renderer.js:715
+msgid "Retract"
+msgstr "Zurücknehmen"
+
+#: cute/ui/Renderer.js:718
 msgid "Action"
 msgstr "Aktion"
 
-#: cute/ui/Renderer.js:749
+#: cute/ui/Renderer.js:797
+msgid "Dependent extension"
+msgid_plural "Dependent extensions"
+msgstr[0] "Abhängige Erweiterung"
+msgstr[1] "Abhängige Erweiterungen"
+
+#: cute/ui/Renderer.js:808
+msgid "To retract the <b>%1</b> extension from this object, the following additional extension needs to be removed: %2"
+msgid_plural "To retract the <b>%1</b> extension from this object, the following additional extensions need to be removed: %2"
+msgstr[0] "Um die <b>%1</b>-Erweiterung von diesem Objekt zurückzunehmen, muss die folgende Erweiterung ebenfalls zurückgenommen werden: %2"
+msgstr[1] "Um die <b>%1</b>-Erweiterung von diesem Objekt zurückzunehmen, müssen die folgenden Erweiterungen ebenfalls zurückgenommen werden: %2"
+
+#: cute/ui/Renderer.js:811
+msgid "Do you want the dependent extension to be removed?"
+msgid_plural "Do you want the dependent extensions to be removed?"
+msgstr[0] "Möchten Sie die abhängende Erweiterung entfernen?"
+msgstr[1] "Möchten Sie die abhängenden Erweiterungen entfernen?"
+
+#: cute/ui/Renderer.js:882
 msgid "Missing extension"
 msgid_plural "Missing extensions"
 msgstr[0] "Fehlende Erweiterung"
 msgstr[1] "Fehlende Erweiterungen"
 
-#: cute/ui/Renderer.js:760
+#: cute/ui/Renderer.js:893
 msgid "To extend the object by the <b>%1</b> extension, the following additional extension is required: %2"
 msgid_plural "To extend the object by the <b>%1</b> extension, the following additional extensions are required: %2"
 msgstr[0] "Um dieses Objekt um die <b>%1</b>-Erweiterung zu erweitern, wird die folgende zusätzliche Erweiterung benötigt: %2"
 msgstr[1] "Um dieses Objekt um die <b>%1</b>-Erweiterung zu erweitern, werden die folgenden zusätzlichen Erweiterungen benötigt: %2"
 
-#: cute/ui/Renderer.js:763
+#: cute/ui/Renderer.js:896
 msgid "Do you want the missing extension to be added?"
 msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] "Soll die fehlende Erweiterung hinzugefügt werden?"
 msgstr[1] "Sollen die fehlenden Erweiterungen hinzugefügt werden?"
 
-#: cute/ui/Renderer.js:851
+#: cute/ui/Renderer.js:989
 msgid "Remove extension"
 msgstr "Erweiterung entfernen"
 
@@ -84,6 +106,10 @@ msgstr "Passwörter stimmen nicht überein!"
 msgid "Password has been changed successfully."
 msgstr "Das Passwort wurde erfolgreich geändert."
 
+#: cute/ui/dialogs/Error.js:10 cute/ui/dialogs/RpcError.js:11
+msgid "Error"
+msgstr "Fehler"
+
 #: cute/ui/dialogs/Info.js:10
 msgid "Info"
 msgstr "Information"
@@ -111,10 +137,6 @@ msgstr "Objekt entfernen"
 #: cute/ui/dialogs/RemoveObject.js:15
 msgid "Do you want to remove this object including all of its references to other objects?"
 msgstr "Möchten Sie dieses Objekt mit all seinen Referenzen zu anderen Objekten entfernen?"
-
-#: cute/ui/dialogs/RpcError.js:11 cute/ui/dialogs/Error.js:10
-msgid "Error"
-msgstr "Fehler"
 
 #: cute/ui/dialogs/RpcError.js:16
 msgid "Retry"
