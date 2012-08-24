@@ -58,6 +58,7 @@ qx.Class.define("cute.ui.Renderer",
     this._resources = {};
     this._widget_ui_properties = {};
 
+    this._extension_to_page = {};
     this._widget_to_page = {};
   },
 
@@ -538,6 +539,16 @@ qx.Class.define("cute.ui.Renderer",
       return eb;
     },
 
+    _makeRetractMenuEntry : function(ext, props, resources) {
+      var eb = new qx.ui.menu.Button(this.tr(this.getStringProperty('windowTitle', props)),
+        this.getIconProperty('windowIcon', props, resources));
+      eb.addListener("execute", function() {
+        this.retractObjectFrom(ext);
+      }, this);
+
+      return eb;
+    },
+
     _makeActionMenuEntry : function(node, resources)
     {
       var widget = node.childNodes;
@@ -655,6 +666,10 @@ qx.Class.define("cute.ui.Renderer",
         this.__toolMenu.remove(this._extendButton);
       }
 
+      if (this._retractButton) {
+        this.__toolMenu.remove(this._retractButton);
+      }
+
       if (this._actionButton) {
         this.__toolMenu.remove(this._actionButton);
       }
@@ -669,29 +684,36 @@ qx.Class.define("cute.ui.Renderer",
       }
 
       var extendMenu = new qx.ui.menu.Menu();
+      var retractMenu = new qx.ui.menu.Menu();
 
       for (var ext in this._object.extensionTypes) {
-
-        if (!this._object.extensionTypes[ext] && this._object.templates[ext]) {
-
+        if (this._object.templates[ext] && this._object.templates[ext].length != 0) {
           // Find first widget definition and extract windowIcon and windowTitle
           var nodes = qx.xml.Document.fromString(this._object.templates[ext]);
           var resources = this.extractResources(nodes.childNodes, cute.Config.getTheme());
           var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
           var props = this.extractProperties(widget);
-          extendMenu.add(this._makeExtensionMenuEntry(ext, props, resources));
 
-          // Find extension level actions
-          var actions = nodes.firstChild.getElementsByTagName("action");
-          for (var i=0; i<actions.length; i++) {
-            actionMenu.add(this._makeActionMenuEntry(actions[i], resources));
+          if (this._object.extensionTypes[ext]) {
+            retractMenu.add(this._makeRetractMenuEntry(ext, props, resources));
+
+          } else {
+            extendMenu.add(this._makeExtensionMenuEntry(ext, props, resources));
+
+            // Find extension level actions
+            var actions = nodes.firstChild.getElementsByTagName("action");
+            for (var i=0; i<actions.length; i++) {
+              actionMenu.add(this._makeActionMenuEntry(actions[i], resources));
+            }
           }
-
         }
       }
 
       this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), cute.Config.getImagePath("actions/extend.png", 22), null, extendMenu);
       this.__toolMenu.add(this._extendButton);
+
+      this._retractButton = new qx.ui.menu.Button(this.tr("Retract"), cute.Config.getImagePath("actions/retract.png", 22), null, retractMenu);
+      this.__toolMenu.add(this._retractButton);
 
       this._actionButton = new qx.ui.menu.Button(this.tr("Action"), cute.Config.getImagePath("actions/actions.png", 22), null, actionMenu);
       this.__toolMenu.add(this._actionButton);
@@ -715,7 +737,114 @@ qx.Class.define("cute.ui.Renderer",
       return props;
     },
 
-    _extendObjectWith : function(extension) {
+    _retractObjectFrom : function(extension, callback)
+    {
+      this._object.retract(function(result, error) {
+        if (error) {
+          this.error(error.message);
+        } else {
+
+          // Remove all widget references and then close the page
+          for(var widget in this._extension_to_widgets[extension]){
+            widget = this._extension_to_widgets[extension][widget];
+            delete this._widgets[widget]
+          }
+          delete this._extension_to_widgets[extension];
+
+          var pages = this._extension_to_page[extension];
+          for (var i = 0; i<pages.length; i++) {
+            pages[i].fireEvent("close");
+            pages[i].dispose();
+            this._object.refreshMetaInformation(this._updateToolMenu, this);
+            this.setModified(true);
+
+            if (callback) {
+                callback();
+            }
+          }
+
+          delete this._extension_to_page[extension];
+        }
+      }, this, extension);
+    },
+
+    /* Retract extension
+     * */
+    retractObjectFrom : function(extension) 
+    {
+      // Check for dependencies, eventually ask for additional extensions
+      var dependencies = [];
+      
+      for (var ext in this._object.extensionDeps) {
+        if (this._object.extensionDeps[ext].indexOf(extension) != -1) {
+          dependencies.push(ext);
+        }
+      }
+
+      if (dependencies) {
+
+        // Strip already used deps
+        var needed = [];
+        for (var dep in dependencies) {
+          var ext = dependencies[dep];
+          if (this._object.extensionTypes[ext] && this._object.templates[ext] && this._object.templates[ext].length != 0) {
+            needed.push(ext);
+          }
+        }
+
+        // Ask user to enable the remaining dependencies
+        if (needed.length != 0) {
+          var dlg = new cute.ui.dialogs.Dialog(this.trn("Dependent extension", "Dependent extensions", needed.length),
+                  cute.Config.getImagePath("status/dialog-warning.png", 22));
+          dlg.setWidth(400);
+
+          var lst = "<ul>";
+          for (var i = 0; i<needed.length; i++) {
+            lst += "<li><b>" + this.getTranslatedExtension(needed[i]) + "</b></li>";
+          }
+          lst += "</ul>";
+
+          var message = new qx.ui.basic.Label(
+            this.trn("To retract the <b>%1</b> extension from this object, the following additional extension needs to be removed: %2",
+                     "To retract the <b>%1</b> extension from this object, the following additional extensions need to be removed: %2",
+                     needed.length, this.getTranslatedExtension(extension), lst) +
+            this.trn("Do you want the dependent extension to be removed?", "Do you want the dependent extensions to be removed?", needed.length)
+          );
+          message.setRich(true);
+          message.setWrap(true);
+
+          dlg.addElement(message);
+
+          var ok = cute.ui.base.Buttons.getOkButton();
+          ok.addListener("execute", function() {
+            var queue = [];
+            for (var i = 0; i<needed.length; i++) {
+              queue.push([this._retractObjectFrom, this, [needed[i]]]);
+            }
+
+            queue.push([this._retractObjectFrom, this, [extension]]);
+            cute.Tools.serialize(queue);
+
+            dlg.close();
+          }, this);
+
+          dlg.addButton(ok);
+          var cancel = cute.ui.base.Buttons.getCancelButton();
+          cancel.addListener("execute", dlg.close, dlg);
+          dlg.addButton(cancel);
+
+          dlg.show();
+
+          return;
+        }
+
+      }
+
+      // Setup new tab
+      this._retractObjectFrom(extension);
+    },
+
+    _extendObjectWith : function(extension, callback) {
       this._object.extend(function(result, error) {
         if (error) {
           this.error(error.message);
@@ -724,6 +853,10 @@ qx.Class.define("cute.ui.Renderer",
           this._createTabsForExtension(extension);
           this._object.refreshMetaInformation(this._updateToolMenu, this);
           this.setModified(true);
+
+          if (callback) {
+            callback();
+          }
         }
       }, this, extension);
     },
@@ -769,13 +902,16 @@ qx.Class.define("cute.ui.Renderer",
 
           var ok = cute.ui.base.Buttons.getOkButton();
           ok.addListener("execute", function() {
+            var queue = [];
+
             // Setup additional tab(s)
             for (var i = 0; i<needed.length; i++) {
-              this._extendObjectWith(needed[i]);
+              queue.push([this._extendObjectWith, this, [needed[i]]]);
             }
 
             // Setup desired tab
-            this._extendObjectWith(type);
+            queue.push([this._extendObjectWith, this, [type]]);
+            cute.Tools.serialize(queue);
 
             dlg.close();
           }, this);
@@ -800,6 +936,7 @@ qx.Class.define("cute.ui.Renderer",
      * and appends a new page the tab-container.
      * */
     _createTabsForExtension: function(extension){
+      this._extension_to_page[extension] = [];
 
       // Process each tab of the current extension
       var ui_definition = this.getUiDefinition_();
@@ -835,6 +972,7 @@ qx.Class.define("cute.ui.Renderer",
           var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
           page.setLayout(new qx.ui.layout.VBox());
           page.add(info['widget']);
+          this._extension_to_page[extension].push(page);
 
           // Create a mapping from widget to page
           for(item in this._current_widgets){
@@ -851,26 +989,7 @@ qx.Class.define("cute.ui.Renderer",
             closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
             closeButton.removeListener("close", page._onButtonClose, page);
             closeButton.addListener("close", function() {
-
-              var type = page.getUserData("type");
-              this._object.retract(function(result, error) {
-                if (error) {
-                  this.error(error.message);
-                } else {
-
-                  // Remove all widget references and then close the page
-                  for(var widget in this._extension_to_widgets[type]){
-                    widget = this._extension_to_widgets[type][widget];
-                    delete this._widgets[widget]
-                  }
-                  delete this._extension_to_widgets[type];
-
-                  page.fireEvent("close");
-                  page.dispose();
-                  this._object.refreshMetaInformation(this._updateToolMenu, this);
-                  this.setModified(true);
-                }
-              }, this, type);
+              this.retractObjectFrom(page.getUserData("type"));
             }, this);
           }
 
