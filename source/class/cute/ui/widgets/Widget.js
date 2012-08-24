@@ -163,7 +163,6 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
   members: {
 
-    _was_initialized: false,
     _visible : false,
     name: null,
 
