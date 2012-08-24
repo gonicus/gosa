@@ -527,6 +527,16 @@ qx.Class.define("cute.ui.Renderer",
       }
     },
 
+    _makeExtensionMenuEntry : function(ext, props, resources) {
+      var eb = new qx.ui.menu.Button(this.tr(this.getStringProperty('windowTitle', props)),
+        this.getIconProperty('windowIcon', props, resources));
+      eb.addListener("execute", function() {
+        this.extendObjectWith(ext);
+      }, this);
+
+      return eb;
+    },
+
     _makeActionMenuEntry : function(node, resources)
     {
       var widget = node.childNodes;
@@ -666,14 +676,7 @@ qx.Class.define("cute.ui.Renderer",
             }
           }
 
-          var eb = new qx.ui.menu.Button(this.tr(this.getStringProperty('windowTitle', props)),
-            this.getIconProperty('windowIcon', props, resources));
-          eb.setUserData("extension", ext);
-          eb.addListener("execute", function() {
-            this.extendObjectWith(eb.getUserData('extension'));
-          }, this);
-
-          extendMenu.add(eb);
+          extendMenu.add(this._makeExtensionMenuEntry(ext, props, resources));
 
           // Find extension level actions
           var actions = nodes.firstChild.getElementsByTagName("action");
