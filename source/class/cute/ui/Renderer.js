@@ -35,6 +35,7 @@ qx.Class.define("cute.ui.Renderer",
     // Widget store
     this._widgets = {};
     this._extension_to_widgets = {};
+    this._translated_extensions = {};
 
     // Flex map
     this._flexMap = {
@@ -635,6 +636,17 @@ qx.Class.define("cute.ui.Renderer",
       return eb;
     },
 
+    getTranslatedExtension : function(ext)
+    {
+      if (!this._translated_extensions[ext]) {
+        var nodes = qx.xml.Document.fromString(this._object.templates[ext]);
+        var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
+        this._translated_extensions[ext] = this.getStringProperty("windowTitle", this.extractProperties(widget));
+      }
+
+      return this._translated_extensions[ext];
+    },
+
     /* Make the tool menu reflect the current object/extension settings.
      * */
     _updateToolMenu : function() 
@@ -666,16 +678,7 @@ qx.Class.define("cute.ui.Renderer",
           var nodes = qx.xml.Document.fromString(this._object.templates[ext]);
           var resources = this.extractResources(nodes.childNodes, cute.Config.getTheme());
           var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
-          var props = {};
-          for (var i in widget) {
-            if (widget[i].nodeName == "property") {
-              var tmp = this.processProperty(widget[i]);
-              for (var item in tmp) {
-                props[item] = tmp[item];
-              }
-            }
-          }
-
+          var props = this.extractProperties(widget);
           extendMenu.add(this._makeExtensionMenuEntry(ext, props, resources));
 
           // Find extension level actions
@@ -693,23 +696,103 @@ qx.Class.define("cute.ui.Renderer",
       this._actionButton = new qx.ui.menu.Button(this.tr("Action"), cute.Config.getImagePath("actions/actions.png", 22), null, actionMenu);
       this.__toolMenu.add(this._actionButton);
     },
-    
-    /* Extend the object with the given extension
+
+    /* Extract widget properties as a hash
      * */
-    extendObjectWith : function(type) 
+    extractProperties : function(widget) 
     {
-      //TODO: Check for dependencies, eventually ask for additional extensions
-      //TODO: Setup new tab
+      var props = {};
+
+      for (var i in widget) {
+        if (widget[i].nodeName == "property") {
+          var tmp = this.processProperty(widget[i]);
+          for (var item in tmp) {
+            props[item] = tmp[item];
+          }
+        }
+      }
+
+      return props;
+    },
+
+    _extendObjectWith : function(extension) {
       this._object.extend(function(result, error) {
         if (error) {
           this.error(error.message);
         } else {
           //TODO: bind new properties
-          this._createTabsForExtension(type);
+          this._createTabsForExtension(extension);
           this._object.refreshMetaInformation(this._updateToolMenu, this);
           this.setModified(true);
         }
-      }, this, type);
+      }, this, extension);
+    },
+    
+    /* Extend the object with the given extension
+     * */
+    extendObjectWith : function(type) 
+    {
+      // Check for dependencies, eventually ask for additional extensions
+      var dependencies = this._object.extensionDeps[type];
+      if (dependencies) {
+
+        // Strip already used deps
+        var needed = [];
+        for (var dep in dependencies) {
+          if (!this._object.extensionTypes[dependencies[dep]]) {
+            needed.push(dependencies[dep]);
+          }
+        }
+
+        // Ask user to enable the remaining dependencies
+        if (needed) {
+          var dlg = new cute.ui.dialogs.Dialog(this.trn("Missing extension", "Missing extensions", needed.length),
+                  cute.Config.getImagePath("status/dialog-warning.png", 22));
+          dlg.setWidth(400);
+
+          var lst = "<ul>";
+          for (var i = 0; i<needed.length; i++) {
+            lst += "<li><b>" + this.getTranslatedExtension(needed[i]) + "</b></li>";
+          }
+          lst += "</ul>";
+
+          var message = new qx.ui.basic.Label(
+            this.trn("To extend the object by the <b>%1</b> extension, the following additional extension is required: %2",
+                     "To extend the object by the <b>%1</b> extension, the following additional extensions are required: %2",
+                     needed.length, this.getTranslatedExtension(type), lst) +
+            this.trn("Do you want the missing extension to be added?", "Do you want the missing extensions to be added?", needed.length)
+          );
+          message.setRich(true);
+          message.setWrap(true);
+
+          dlg.addElement(message);
+
+          var ok = cute.ui.base.Buttons.getOkButton();
+          ok.addListener("execute", function() {
+            // Setup additional tab(s)
+            for (var i = 0; i<needed.length; i++) {
+              this._extendObjectWith(needed[i]);
+            }
+
+            // Setup desired tab
+            this._extendObjectWith(type);
+
+            dlg.close();
+          }, this);
+          dlg.addButton(ok);
+          var cancel = cute.ui.base.Buttons.getCancelButton();
+          cancel.addListener("execute", dlg.close, dlg);
+          dlg.addButton(cancel);
+
+          dlg.show();
+
+          return;
+        }
+
+      }
+
+      // Setup new tab
+      this._extendObjectWith(type);
     },
 
 

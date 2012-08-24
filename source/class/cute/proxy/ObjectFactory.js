@@ -36,6 +36,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
           var attributes = jDefs[5];
           var baseType = null;
           var extensionTypes = null;
+          var extensionDeps = null;
           var templates = {};
           var translations = {};
           var attribute_data = {};
@@ -71,6 +72,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
               templates: templates,
               translations: translations,
               extensionTypes: extensionTypes,
+              extensionDeps: extensionDeps,
               locale: locale,
               theme: theme
             };
@@ -119,6 +121,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
             if(!error){
               baseType = data['base'];
               extensionTypes = data['extensions'];
+              extensionDeps = data['extension_deps'];
               templates = data['templates'];
               translations = data['i18n'];
 

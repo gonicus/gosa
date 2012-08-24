@@ -18,15 +18,33 @@ msgstr ""
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: cute/ui/Renderer.js:648
+#: cute/ui/Renderer.js:693
 msgid "Extend"
 msgstr "Erweitern"
 
-#: cute/ui/Renderer.js:651
+#: cute/ui/Renderer.js:696
 msgid "Action"
 msgstr "Aktion"
 
-#: cute/ui/Renderer.js:726
+#: cute/ui/Renderer.js:749
+msgid "Missing extension"
+msgid_plural "Missing extensions"
+msgstr[0] "Fehlende Erweiterung"
+msgstr[1] "Fehlende Erweiterungen"
+
+#: cute/ui/Renderer.js:760
+msgid "To extend the object by the <b>%1</b> extension, the following additional extension is required: %2"
+msgid_plural "To extend the object by the <b>%1</b> extension, the following additional extensions are required: %2"
+msgstr[0] "Um dieses Objekt um die <b>%1</b>-Erweiterung zu erweitern, wird die folgende zusätzliche Erweiterung benötigt: %2"
+msgstr[1] "Um dieses Objekt um die <b>%1</b>-Erweiterung zu erweitern, werden die folgenden zusätzlichen Erweiterungen benötigt: %2"
+
+#: cute/ui/Renderer.js:763
+msgid "Do you want the missing extension to be added?"
+msgid_plural "Do you want the missing extensions to be added?"
+msgstr[0] "Soll die fehlende Erweiterung hinzugefügt werden?"
+msgstr[1] "Sollen die fehlenden Erweiterungen hinzugefügt werden?"
+
+#: cute/ui/Renderer.js:851
 msgid "Remove extension"
 msgstr "Erweiterung entfernen"
 
@@ -118,6 +136,10 @@ msgstr "Nachricht"
 msgid "Send"
 msgstr "Senden"
 
+#: cute/ui/dialogs/Warning.js:10
+msgid "Warning"
+msgstr "Achtung"
+
 #: cute/ui/widgets/QGraphicsViewWidget.js:29
 msgid "Change image"
 msgstr "Bild ändern"
@@ -149,12 +171,3 @@ msgstr[1] "%1 Sekunden"
 #: cute/view/Search.js:229
 msgid "Object"
 msgstr "Objekt"
-
-#~ msgid "An error occured"
-#~ msgstr "Ein Fehler ist aufgetreten"
-
-#~ msgid "Method"
-#~ msgstr ""
-
-#~ msgid "Name"
-#~ msgstr "Name"

@@ -15,15 +15,33 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: cute/ui/Renderer.js:648
+#: cute/ui/Renderer.js:693
 msgid "Extend"
 msgstr ""
 
-#: cute/ui/Renderer.js:651
+#: cute/ui/Renderer.js:696
 msgid "Action"
 msgstr ""
 
-#: cute/ui/Renderer.js:726
+#: cute/ui/Renderer.js:749
+msgid "Missing extension"
+msgid_plural "Missing extensions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: cute/ui/Renderer.js:760
+msgid "To extend the object by the <b>%1</b> extension, the following additional extension is required: %2"
+msgid_plural "To extend the object by the <b>%1</b> extension, the following additional extensions are required: %2"
+msgstr[0] ""
+msgstr[1] ""
+
+#: cute/ui/Renderer.js:763
+msgid "Do you want the missing extension to be added?"
+msgid_plural "Do you want the missing extensions to be added?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: cute/ui/Renderer.js:851
 msgid "Remove extension"
 msgstr ""
 
@@ -113,6 +131,10 @@ msgstr ""
 
 #: cute/ui/dialogs/SendMessageDialog.js:41
 msgid "Send"
+msgstr ""
+
+#: cute/ui/dialogs/Warning.js:10
+msgid "Warning"
 msgstr ""
 
 #: cute/ui/widgets/QGraphicsViewWidget.js:29
