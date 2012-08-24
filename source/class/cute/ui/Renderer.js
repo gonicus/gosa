@@ -745,7 +745,7 @@ qx.Class.define("cute.ui.Renderer",
         }
 
         // Ask user to enable the remaining dependencies
-        if (needed) {
+        if (needed.length != 0) {
           var dlg = new cute.ui.dialogs.Dialog(this.trn("Missing extension", "Missing extensions", needed.length),
                   cute.Config.getImagePath("status/dialog-warning.png", 22));
           dlg.setWidth(400);
