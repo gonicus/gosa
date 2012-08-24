@@ -1651,9 +1651,7 @@ qx.Class.define("cute.ui.Renderer",
      * */
     __applyModified: function(value){
       this.debug("modified: ", value);
-      if(this.__okBtn){
       this.__okBtn.setEnabled(true);
-      }
     }
   }
 });

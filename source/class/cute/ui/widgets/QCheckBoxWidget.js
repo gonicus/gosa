@@ -8,11 +8,15 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
 
     this._chkBoxWidget = new qx.ui.form.CheckBox();
     this.add(this._chkBoxWidget);
-    this._chkBoxWidget.addListener("changeValue", function(){
-        this.getValue().removeAll();
-        this.getValue().push(this._chkBoxWidget.getValue());
-        this.fireDataEvent("changeValue", this.getValue().copy());
+
+    this._chkBoxWidget.addListener("appear", function(){
+        this._chkBoxWidget.addListener("changeValue", function(){
+          this.getValue().removeAll();
+          this.getValue().push(this._chkBoxWidget.getValue());
+          this.fireDataEvent("changeValue", this.getValue().copy());
+        }, this);
       }, this);
+
     this.bind("valid", this._chkBoxWidget, "valid");
     this.bind("invalidMessage", this._chkBoxWidget, "invalidMessage");
   },
