@@ -197,6 +197,7 @@ qx.Class.define("cute.ui.SearchListItem", {
           control.setHeight(64);
           control.setScale(true);
           control.setWidth(64);
+          control.setMarginRight(5);
           control.setAppearance("SearchListItem-Icon");
           control.setAnonymous(true); 
           this._container.add(control, {row: 0, column: 0, rowSpan: 3});
