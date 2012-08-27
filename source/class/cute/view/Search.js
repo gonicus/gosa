@@ -179,15 +179,14 @@ qx.Class.define("cute.view.Search",
 
       var model = [];
 
-      // Dummy feeding for the moment...
+      // Build model
       for (var i= 0; i<items.length; i++) {
         var item = new cute.data.model.SearchResultItem();
-        item.setDn(items[i]['User'].DN[0]);
-        item.setTitle(items[i]['User'].cn[0]);
-        item.setType("User");
-        item.setDescription("This is a multiline <i>description</i> featuring rich text<br>and some special <a href='clacks://cn=admin,dc=gonicus,dc=de'>links</a> to somewhere else.");
-        //TODO: icon should be able to take path or base64 data
-        item.setIcon(null);
+        item.setDn(items[i]['dn']);
+        item.setTitle(items[i]['title']);
+        item.setType(items[i]['tag']);
+        item.setDescription(items[i]['description']);
+        item.setIcon(items[i]['icon']);
         model.push(item);
       }
       
