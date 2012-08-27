@@ -158,7 +158,7 @@ qx.Class.define("cute.view.Search",
           rpc.cA(function(result, error){
               var endTime = new Date().getTime();
               this.showSearchResults(result, endTime - startTime);
-          }, this, "search", "SELECT User.* BASE User SUB \"" + base + "\" WHERE User.uid like \"" + this.sf.getValue() + "\" ORDER BY User.sn");
+          }, this, "simple_search", base, "sub", this.sf.getValue());
         }
       }, this, "getBase");
     },
@@ -179,15 +179,21 @@ qx.Class.define("cute.view.Search",
 
       var model = [];
 
-      // Dummy feeding for the moment...
+      // Build model
       for (var i= 0; i<items.length; i++) {
         var item = new cute.data.model.SearchResultItem();
-        item.setDn(items[i]['User'].DN[0]);
-        item.setTitle(items[i]['User'].cn[0]);
-        item.setType("User");
-        item.setDescription("This is a multiline <i>description</i> featuring rich text<br>and some special <a href='clacks://cn=admin,dc=gonicus,dc=de'>links</a> to somewhere else.");
-        //TODO: icon should be able to take path or base64 data
-        item.setIcon(null);
+
+        // Icon fallback to server provided images
+        var icon = items[i]['icon'];
+        if (!icon) {
+            icon = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/images/objects/" + items[i]['tag'].toLowerCase() + ".png";
+        }
+
+        item.setDn(items[i]['dn']);
+        item.setTitle(items[i]['title']);
+        item.setType(items[i]['tag']);
+        item.setDescription(items[i]['description']);
+        item.setIcon(icon);
         model.push(item);
       }
       
