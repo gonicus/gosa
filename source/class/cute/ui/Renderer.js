@@ -676,11 +676,14 @@ qx.Class.define("cute.ui.Renderer",
 
       // Find base level actions
       var actionMenu = new qx.ui.menu.Menu();
-      var nodes = qx.xml.Document.fromString(this._object.templates[this._object.baseType]);
-      var resources = this.extractResources(nodes.childNodes, cute.Config.getTheme());
-      var actions = nodes.firstChild.getElementsByTagName("action");
-      for (var i=0; i<actions.length; i++) {
-        actionMenu.add(this._makeActionMenuEntry(actions[i]));
+      var ui_s = this._object.templates[this._object.baseType];
+      for (var i=0; i<ui_s.length; i++) {
+        var nodes = qx.xml.Document.fromString(ui_s[i]);
+        var resources = this.extractResources(nodes.childNodes, cute.Config.getTheme());
+        var actions = nodes.firstChild.getElementsByTagName("action");
+        for (var i=0; i<actions.length; i++) {
+          actionMenu.add(this._makeActionMenuEntry(actions[i]));
+        }
       }
 
       var extendMenu = new qx.ui.menu.Menu();
@@ -688,22 +691,33 @@ qx.Class.define("cute.ui.Renderer",
 
       for (var ext in this._object.extensionTypes) {
         if (this._object.templates[ext] && this._object.templates[ext].length != 0) {
+
           // Find first widget definition and extract windowIcon and windowTitle
-          var nodes = qx.xml.Document.fromString(this._object.templates[ext]);
-          var resources = this.extractResources(nodes.childNodes, cute.Config.getTheme());
-          var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
-          var props = this.extractProperties(widget);
+          var ui_s = this._object.templates[ext];
+          var added = false;
+          for (var i=0; i<ui_s.length; i++) {
+            var nodes = qx.xml.Document.fromString(ui_s[i]);
+            var resources = this.extractResources(nodes.childNodes, cute.Config.getTheme());
+            var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
+            var props = this.extractProperties(widget);
 
-          if (this._object.extensionTypes[ext]) {
-            retractMenu.add(this._makeRetractMenuEntry(ext, props, resources));
+            if (this._object.extensionTypes[ext]) {
+              if (!added) {
+                retractMenu.add(this._makeRetractMenuEntry(ext, props, resources));
+                added = true;
+              }
 
-          } else {
-            extendMenu.add(this._makeExtensionMenuEntry(ext, props, resources));
+            } else {
+              if (!added) {
+                extendMenu.add(this._makeExtensionMenuEntry(ext, props, resources));
+                added = true;
+              }
 
-            // Find extension level actions
-            var actions = nodes.firstChild.getElementsByTagName("action");
-            for (var i=0; i<actions.length; i++) {
-              actionMenu.add(this._makeActionMenuEntry(actions[i], resources));
+              // Find extension level actions
+              var actions = nodes.firstChild.getElementsByTagName("action");
+              for (var i=0; i<actions.length; i++) {
+                actionMenu.add(this._makeActionMenuEntry(actions[i], resources));
+              }
             }
           }
         }
@@ -725,9 +739,9 @@ qx.Class.define("cute.ui.Renderer",
       }
 
       if (this.__toolMenu.hasChildren()) {
-        this.__toolMenu.show();
+        this.__toolMenu.setEnabled(true);
       } else {
-        this.__toolMenu.exclude();
+        this.__toolMenu.setEnabled(false);
       }
     },
 
