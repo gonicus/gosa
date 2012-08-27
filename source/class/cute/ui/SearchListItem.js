@@ -166,7 +166,7 @@ qx.Class.define("cute.ui.SearchListItem", {
       this._showChildControl("icon");
       var widget = this.getChildControl("icon");
       if(widget && value){
-        widget.setSource(cute.Config.getImagePath("objects/" + (value || "null.png"), 64));
+        widget.setSource(value);
       }
     },
 

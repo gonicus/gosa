@@ -182,11 +182,18 @@ qx.Class.define("cute.view.Search",
       // Build model
       for (var i= 0; i<items.length; i++) {
         var item = new cute.data.model.SearchResultItem();
+
+        // Icon fallback to server provided images
+        var icon = items[i]['icon'];
+        if (!icon) {
+            icon = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/images/objects/" + items[i]['tag'].toLowerCase() + ".png";
+        }
+
         item.setDn(items[i]['dn']);
         item.setTitle(items[i]['title']);
         item.setType(items[i]['tag']);
         item.setDescription(items[i]['description']);
-        item.setIcon(items[i]['icon']);
+        item.setIcon(icon);
         model.push(item);
       }
       
