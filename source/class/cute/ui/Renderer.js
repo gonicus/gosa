@@ -662,15 +662,16 @@ qx.Class.define("cute.ui.Renderer",
      * */
     _updateToolMenu : function() 
     {
-      if (this._extendButton) {
+      if (this._extendButton && this.__toolMenu.indexOf(this._extendButton) != -1) {
+        console.log(this._extendButton);
         this.__toolMenu.remove(this._extendButton);
       }
 
-      if (this._retractButton) {
+      if (this._retractButton && this.__toolMenu.indexOf(this._retractButton) != -1) {
         this.__toolMenu.remove(this._retractButton);
       }
 
-      if (this._actionButton) {
+      if (this._actionButton && this.__toolMenu.indexOf(this._actionButton) != -1) {
         this.__toolMenu.remove(this._actionButton);
       }
 
