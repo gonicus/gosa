@@ -22,7 +22,12 @@ qx.Class.define("cute.ui.widgets.Widget", {
   },
 
   properties : {
-    
+   
+    buddyOf: {
+      init: null,
+      check: "qx.ui.core.Widget"
+    },
+
     valid: {
       check: "Boolean",
       event: "_validChanged",
@@ -170,13 +175,19 @@ qx.Class.define("cute.ui.widgets.Widget", {
     /* Block the widget and disable modifications
      * */
     block: function(){
-      this.setEnabled(false);
+      this.exclude();
+      if(this.getBuddyOf()){
+        this.getBuddyOf().exclude();
+      }
     },
 
     /* Unblock the widget
      * */
     unblock: function(){
-      this.setEnabled(true);
+      this.show();
+      if(this.getBuddyOf()){
+        this.getBuddyOf().show();
+      }
     },
 
     /* Apply collected gui properties to this widet

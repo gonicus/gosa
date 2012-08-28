@@ -228,6 +228,10 @@ qx.Class.define("cute.ui.Renderer",
         // Set buddy
         this._widgets[buddies[buddy]].setBuddy(this._widgets[buddy]);
 
+        if(this._widgets[buddy].hasState("cuteWidget")){
+          this._widgets[buddy].setBuddyOf(this._widgets[buddies[buddy]]);
+        }
+
         // Process mandatory flag and inform label about it
         this._widgets[buddies[buddy]].setMandatory(this._widgets[buddy].getMandatory());
 
