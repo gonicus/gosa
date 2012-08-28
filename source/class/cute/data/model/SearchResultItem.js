@@ -19,6 +19,11 @@ qx.Class.define("cute.data.model.SearchResultItem",
       event : "changeType"
     },
 
+    relevance : {
+      check : "Integer",
+      event : "changeRelevance"
+    },
+
     extensions : {
       check : "Array",
       event : "changeExtensions",

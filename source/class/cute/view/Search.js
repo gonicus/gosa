@@ -191,6 +191,7 @@ qx.Class.define("cute.view.Search",
 
         item.setDn(items[i]['dn']);
         item.setTitle(items[i]['title']);
+        item.setRelevance(items[i]['relevance']);
         item.setType(items[i]['tag']);
         item.setDescription(items[i]['description']);
         item.setIcon(icon);
@@ -198,7 +199,15 @@ qx.Class.define("cute.view.Search",
       }
       
       // Update model
-      this.resultController.setModel(new qx.data.Array(model));
+      var data = new qx.data.Array(model);
+      data.sort(function (a, b) {
+          if (a.getRelevance() == b.getRelevance())
+              return 0;
+          if (a.getRelevance() < b.getRelevance())
+              return -1;
+          return 1;
+      });
+      this.resultController.setModel(data);
     },
 
     editItem : function() {
