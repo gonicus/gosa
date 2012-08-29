@@ -54,30 +54,22 @@
   <!-- Show loading splash until GOsa switches it off -->
   <div id="splash" style='z-index: 250; height: 100%; width: 100%; top:0px; bottom:0px; position:absolute; background-color: #F8F8F8;'>
     <div style='position:absolute; top: 45%; width: 100%; text-align: center'>
-      <font style='color:#000; font-family:Verdana; font-size:12px; font-weight:bold'>
-        <center>
-          <div id="throbber" />
-        </center>
-        <br>
-        <script type="text/javascript">
-          switch (locale) {
-            case "de":
-              document.write("Laden...");
-              break;
-            case "fr":
-              document.write("Chargement...");
-              break;
-            default:
-              document.write("Loading...");
-          }
-        </script>
-        <script type="text/javascript">
+      <center>
+        <div id="throbber" />
+      </center>
+      <script type="text/javascript">
 
-          var throb = new Throbber({color: 'black'});
-          throb.appendTo( document.getElementById( 'throbber' ) );
-          throb.start();
-        </script>
-      </font>
+        var throb = new Throbber({
+          color: "black",
+          size: 32,
+          fade: 1000,
+          rotationspeed: 0,
+          lines: 14,
+          strokewidth: 1.8,
+          alpha: 0.4});
+        throb.appendTo( document.getElementById( 'throbber' ) );
+        throb.start();
+      </script>
     </div>
   </div>
 </body>
