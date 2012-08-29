@@ -74,10 +74,10 @@ qx.Class.define("cute.view.Search",
 
     //TODO: fill the right bar with proper contents with proper contents
 
-    var resultList = new qx.ui.form.List();
-    resultList.setAppearance("SearchList");
-    resultList.setDecorator(null);
-    this.searchResult.add(resultList, {left: barWidth, right: 0, bottom: 0, top: 0});
+    this.resultList = new qx.ui.form.List();
+    this.resultList.setAppearance("SearchList");
+    this.resultList.setDecorator(null);
+    this.searchResult.add(this.resultList, {left: barWidth, right: 0, bottom: 0, top: 0});
 
     this.add(this.searchResult, {flex: 1});
 
@@ -89,7 +89,7 @@ qx.Class.define("cute.view.Search",
 
     // Bind search result model
     var data = new qx.data.Array();
-    this.resultController = new qx.data.controller.List(data, resultList, "dn");
+    this.resultController = new qx.data.controller.List(data, this.resultList, "dn");
 
     var that = this;
     this.resultController.setDelegate({
@@ -126,9 +126,6 @@ qx.Class.define("cute.view.Search",
         }
       });
 
-    // Bind click
-    //resultList.addListener("click", this.editItem, this);
-
     // Focus search field
     var _self = this;
     setTimeout(function() {
@@ -155,27 +152,44 @@ qx.Class.define("cute.view.Search",
         if(!error){
           var base = result;
           var startTime = new Date().getTime();
+
+          // Try ordinary search
           rpc.cA(function(result, error){
-              var endTime = new Date().getTime();
-              this.showSearchResults(result, endTime - startTime);
+              if (result.length) {
+                  var endTime = new Date().getTime();
+                  this.showSearchResults(result, endTime - startTime);
+
+              // No results, try fuzzy search
+              } else {
+                  rpc.cA(function(result, error){
+                      var endTime = new Date().getTime();
+                      this.showSearchResults(result, endTime - startTime, true);
+                  }, this, "simple_search", base, "sub", this.sf.getValue(), {'fallback': true});
+              }
           }, this, "simple_search", base, "sub", this.sf.getValue());
         }
       }, this, "getBase");
     },
 
-    showSearchResults : function(items, duration) {
+    showSearchResults : function(items, duration, fuzzy) {
       var i = items.length;
 
+      this.searchInfo.show();
+      this.resultList.getChildControl("scrollbar-x").setPosition(0);
+      this.resultList.getChildControl("scrollbar-y").setPosition(0);
+
       if (i == 0){
-        this.searchInfo.show()
-        this.searchResult.hide()
+          this.searchResult.hide();
+      } else {
+          this.searchResult.show();
       }
 
       var d = Math.round(duration / 100) / 10;
-      this.sii.setValue(this.trn("%1 result", "%1 results", i, i) + " (" + this.trn("%1 second", "%1 seconds", d, d) + ")");
-
-      this.searchInfo.show()
-      this.searchResult.show()
+      if (fuzzy) {
+          this.sii.setValue(this.trn("%1 fuzzy result", "%1 fuzzy results", i, i) + " / " + this.tr("no exact matches") + " (" + this.trn("%1 second", "%1 seconds", d, d) + ")");
+      } else {
+          this.sii.setValue(this.trn("%1 result", "%1 results", i, i) + " (" + this.trn("%1 second", "%1 seconds", d, d) + ")");
+      }
 
       var model = [];
 
