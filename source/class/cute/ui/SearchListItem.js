@@ -193,7 +193,17 @@ qx.Class.define("cute.ui.SearchListItem", {
       switch(id)
       {
         case "icon":
-          control = new qx.ui.basic.Image(cute.Config.getImagePath("objects/" + (this.getIcon() || "null.png"), 64));
+          var icon;
+          if (this.getIcon()) {
+              if (this.getIcon().indexOf("data:") == 0 || this.getIcon().indexOf(cute.Config.spath) == 0) {
+                  icon = this.getIcon();
+              } else {
+                  icon = cute.Config.getImagePath("objects/" + this.getIcon(), 64);
+              }
+          } else {
+              icon = cute.Config.getImagePath("objects/" + "null.png", 64);
+          }
+          control = new qx.ui.basic.Image(icon);
           control.setHeight(64);
           control.setScale(true);
           control.setWidth(64);
