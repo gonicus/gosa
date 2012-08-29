@@ -75,6 +75,18 @@
       { 
         "qx.dynlocale" : ["on"]
       },
+      "add-script" :
+      [
+        {
+          "uri" : "resource/cute/js/throbber.js"
+        }
+      ],
+      "copy-files" :
+      {
+        "files"     : [ "resource/cute/js/throbber.js" ],
+        "source" : "source",
+        "target"  : "build"
+      },
 
       "environment" : 
       {
@@ -82,7 +94,7 @@
       },
 
       "shell" : {
-	"command" : "./customize build"
+        "command" : "./customize build"
       },
 
       "compile-options" :
@@ -104,9 +116,14 @@
       },
 
       "shell" : {
-	"command" : "./customize"
-      }
-
+        "command" : "./customize"
+      },
+      "add-script" :
+        [
+        {
+          "uri" : "resource/cute/js/throbber.js"
+        }
+      ]
     },
 
     // Uncomment the following entry to add a contrib or library to your

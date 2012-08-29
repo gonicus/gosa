@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <script language='JavaScript' src='./resource/cute/js/throbber.js'></script>
   <title>GOsa</title>
 
   <!-- Detect engine, detect languguage and load engine optimized ICE -->
@@ -54,19 +55,27 @@
   <div id="splash" style='z-index: 250; height: 100%; width: 100%; top:0px; bottom:0px; position:absolute; background-color: #F8F8F8;'>
     <div style='position:absolute; top: 45%; width: 100%; text-align: center'>
       <font style='color:#000; font-family:Verdana; font-size:12px; font-weight:bold'>
-        <center><img src='resource/cute/loading.gif' alt='' style='vertical-align:middle' ></center>
+        <center>
+          <div id="throbber" />
+        </center>
         <br>
         <script type="text/javascript">
           switch (locale) {
             case "de":
               document.write("Laden...");
-	      break;
+              break;
             case "fr":
               document.write("Chargement...");
-	      break;
+              break;
             default:
               document.write("Loading...");
           }
+        </script>
+        <script type="text/javascript">
+
+          var throb = new Throbber({color: 'black'});
+          throb.appendTo( document.getElementById( 'throbber' ) );
+          throb.start();
         </script>
       </font>
     </div>
