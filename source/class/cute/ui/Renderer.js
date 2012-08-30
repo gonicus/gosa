@@ -480,14 +480,19 @@ qx.Class.define("cute.ui.Renderer",
        * (right now we only support one block-definition)
        * */
       data = data[0];
-      var name = data['name'];
-      var value = data['value'];
-      this._widgets[name].addListener("changeValue", function(e){
-          func(value, e.getData().toArray(), widget);
-        }, this);
+      try{
+        var name = data['name'];
+        var value = data['value'];
+        this._widgets[name].addListener("changeValue", function(e){
+            func(value, e.getData().toArray(), widget);
+          }, this);
 
-      // Initially check blocking
-      func(value, this._object.get(name).toArray(), widget);
+        // Initially check blocking
+        func(value, this._object.get(name).toArray(), widget);
+
+      }catch(e){
+        this.error("Failed to execute blocking for not existing widget: " + name) ;
+      }
     },
 
     executeAction : function(dialog, target, icon)
