@@ -91,8 +91,8 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       // On each modification update the table model.
       if(value){
         value.addListener("change", function(){
-            this._updatedTableData();        
-          },this);
+          this._updatedTableData();        
+        },this);
       }
       this._updatedTableData();        
     },
@@ -116,7 +116,7 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
           this._resolvedNames[values[i]] = row_data;
         }
       }
-      
+
       if(unknown_values.length){
         rpc.cA(function(result, error){
           if(error){
@@ -159,22 +159,26 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       this._tableModel.setDataAsMapArray(this._tableData, true, false);
       this._table.sort();
     },
-  
+
 
     /* Apply porperties that were defined in the ui-tempalte.
      *
      * Collect column names here.
      * */
     _applyGuiProperties: function(props){
-      this._editTitle = props['editTitle']['string'];
+      if('editTitle' in props && 'string' in props['editTitle']){
+        this._editTitle = props['editTitle']['string'];
+      }
       this._columnNames = [];
       this._columnIDs = [];
       var first = null;
-      for(var col in props['columns']){
-        this._columnNames.push(this.tr(props['columns'][col]));
-        this._columnIDs.push(col);
-        if(!first){
-          first = col;
+      if('columns' in props){
+        for(var col in props['columns']){
+          this._columnNames.push(this.tr(props['columns'][col]));
+          this._columnIDs.push(col);
+          if(!first){
+            first = col;
+          }
         }
       }
       this._firstColumn = first;
