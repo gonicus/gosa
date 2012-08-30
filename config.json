@@ -79,11 +79,14 @@
       [
         {
           "uri" : "resource/cute/js/throbber.js"
+        },
+        {
+          "uri" : "resource/cute/js/utils.js"
         }
       ],
       "copy-files" :
       {
-        "files"     : [ "resource/cute/js/throbber.js" ],
+"files"     : [ "resource/cute/js/throbber.js", "resource/cute/js/utils.js" ],
         "source" : "source",
         "target"  : "build"
       },
@@ -119,9 +122,12 @@
         "command" : "./customize"
       },
       "add-script" :
-        [
+      [
         {
           "uri" : "resource/cute/js/throbber.js"
+        },
+        {
+          "uri" : "resource/cute/js/utils.js"
         }
       ]
     },
