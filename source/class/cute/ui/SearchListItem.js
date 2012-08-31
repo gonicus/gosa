@@ -188,7 +188,7 @@ qx.Class.define("cute.ui.SearchListItem", {
 
     _createChildControlImpl : function(id, hash)
     {
-      var control;
+      var control = null;
 
       switch(id)
       {

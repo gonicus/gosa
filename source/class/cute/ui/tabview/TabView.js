@@ -64,7 +64,7 @@ qx.Class.define("cute.ui.tabview.TabView",
     // overridden
     _createChildControlImpl : function(id, hash)
     {
-      var control;
+      var control = null;
 
       switch(id)
       {

@@ -6,7 +6,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
     this.base(arguments);
 
     if(!cute.proxy.ObjectFactory.classes){
-      cute.proxy.ObjectFactory.classes = {}
+      cute.proxy.ObjectFactory.classes = {};
     }
   },
 
@@ -83,7 +83,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
                 this.setAttribute(name, value);
               };
               return(func);
-            }
+            };
 
             // this closure returns a new wrapper-method for an object method
             var getMethod = function(name){
@@ -91,7 +91,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
                 return(this.callMethod.apply(this, [name].concat(Array.prototype.slice.call(arguments))));
               };
               return(func);
-            }
+            };
 
             // Create list of properties
             var properties = {};
@@ -114,7 +114,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
             var def = {extend: cute.proxy.Object, members: members, properties: properties};
             cute.proxy.ObjectFactory.classes[className] = qx.Class.define(className, def);
             c_callback.apply(c_context, [new cute.proxy.ObjectFactory.classes[className](userData)]); 
-          }
+          };
 
           // Load object info - base type, extension types and template information
           rpc.cA(function(data, error){

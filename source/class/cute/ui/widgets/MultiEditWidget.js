@@ -6,7 +6,8 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     this._widgetContainer = [];
     this.base(arguments);  
     this.setLayout(new qx.ui.layout.VBox(5));
-    var id = this.addListener("appear", function(){
+    var id = null;
+    id = this.addListener("appear", function(){
         this._generateGui();
         this.removeListenerById(id);
       }, this);

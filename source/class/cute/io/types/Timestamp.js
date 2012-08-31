@@ -41,7 +41,7 @@ qx.Class.define("cute.io.types.Timestamp",
 
       var padStr = function(i){
         return (i < 10) ? "0" + i : "" + i;
-      }
+      };
 
       if(this._date_obj){
         var content = 

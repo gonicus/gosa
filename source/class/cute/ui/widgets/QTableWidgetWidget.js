@@ -60,7 +60,7 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       // Add a remove listener
       this._table.addListener("remove", function(e){
         var that = this;
-        var value = this.getValue().toArray()
+        var value = this.getValue().toArray();
         var updated = false;
         this._table.getSelectionModel().iterateSelection(function(index) {
             updated = true;
@@ -110,7 +110,7 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
         if(!(values[i] in this._resolvedNames)){
           unknown_values.push(values[i]);
 
-          var row_data = {}
+          var row_data = {};
           row_data[this._firstColumn] = values[i];
           row_data["__indentifier__"] = values[i];
           this._resolvedNames[values[i]] = row_data;
@@ -148,10 +148,11 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       this._tableData = [];
       var values = this.getValue().toArray();
       for(var i=0; i<values.length; i++ ){
+        var row_data = {};
+
         if(values[i] in this._resolvedNames){
           row_data = this._resolvedNames[values[i]];
         }else{
-          var row_data = {}
           row_data[this._firstColumn] = values[i];
         }
         this._tableData.push(row_data);

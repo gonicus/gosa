@@ -36,11 +36,12 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
      * and connects the update listeners
      * */
     _createWidget: function(){
-
+      var w;
+      
       if(this.getEchoMode() == "password"){
-        var w = new qx.ui.form.PasswordField();
+        w = new qx.ui.form.PasswordField();
       }else{
-        var w = new qx.ui.form.TextField();
+        w = new qx.ui.form.TextField();
         w.getContentElement().setAttribute("spellcheck", true);
       }
       if(this.getPlaceholder()){

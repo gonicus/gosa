@@ -14,7 +14,7 @@ qx.Class.define("cute.ui.table.Table",
         tableColumnModel : function(obj){
           return new qx.ui.table.columnmodel.Resize(obj);
         }
-      }
+      };
     }
 
     this.base(arguments, tableModel, customModel);
@@ -178,7 +178,7 @@ qx.Class.define("cute.ui.table.Table",
 
           // Remember the current settigs, so we can decide when a save is needed.
           this.__lastPreferences = prefs;
-        }
+        };
 
       /* Load preferences from cache if they were load before.
        * */
