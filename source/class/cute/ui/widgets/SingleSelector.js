@@ -5,7 +5,7 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
   construct: function(){
 
     this.base(arguments);
-    this.setLayout(new qx.ui.layout.Canvas());
+    this.setLayout(new qx.ui.layout.HBox(0));
     this._columnNames = [];
     this._columnIDs = [];
     this._resolvedNames = {};
@@ -28,36 +28,60 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
     _firstColumn: null,
     _resolvedNames: null,
     _widget: null,
+    _delButton: null,
 
+
+    _applyValue: function(){
+      this.__updateVisibleText();
+    },
 
     __updateVisibleText: function(){
-
-      if(this.getValue().getLength()){
-        var name = this.getValue().getItem(0);
-        if(name in this._resolvedNames){
-          this._widget.setValue(this._resolvedNames[name][this._columnIDs[0]]);
+      if(this._widget){
+        if(this.getValue().getLength()){
+          var name = this.getValue().getItem(0);
+          if(name in this._resolvedNames){
+            this._widget.setValue(this._resolvedNames[name][this._columnIDs[0]]);
+          }else{
+            this._widget.setValue(this.tr("pending ..."));
+            this.__resolveMissingValues();
+          }
         }else{
-          this.__resolveMissingValues();
+          this._widget.setValue("");
+        }
+      }
+      if(this._delButton){
+        if(this.getValue().getLength()){
+          this._delButton.setLabel("-");
+        }else{
+          this._delButton.setLabel("+");
         }
       }
     },
 
     
     _createGui: function(){
-
       this._widget = new qx.ui.form.TextField("value later ..");
-      this.add(this._widget, {top: 0, left: 0 , bottom:0, right: 0});
+      this._widget.setEnabled(false);
+      this._delButton = new qx.ui.form.Button("-");
+      this.add(this._widget, {flex: 1});
+      this.add(this._delButton);
 
       if(!this.getExtension() || !this.getAttribute()){
         this.error("unabled to load SingleSelector, no bindings given!");
         return;
       }
 
-      this._widget.addListener("dblclick", function(){
-          var d = new cute.ui.ItemSelector(this.tr(this._editTitle), this.getValue().toArray(), 
-          this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
+      this._delButton.addListener("execute", function(){
+          var value = this.getValue();
+          if(value.getLength()){
+            value.removeAll();
+            this._applyValue(value);
+            this.fireDataEvent("changeValue", this.getValue().copy());
+          }else{
+            var d = new cute.ui.ItemSelector(this.tr(this._editTitle), this.getValue().toArray(), 
+              this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
 
-          d.addListener("selected", function(e){
+            d.addListener("selected", function(e){
               if(e.getData().length){
                 this.getValue().removeAll();
                 this.getValue().push(e.getData()[0]);
@@ -66,8 +90,9 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
               }
             }, this);
 
-          d.open();
-        }, this);
+            d.open();
+        }
+          }, this);
 
       return;
     },
