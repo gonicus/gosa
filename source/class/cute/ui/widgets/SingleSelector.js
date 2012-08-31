@@ -11,7 +11,7 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
     this._resolvedNames = {};
 
     // Take care of value modification
-    this.addListener("appear", function(){
+    this.addListenerOnce("appear", function(){
         this._createGui();
         this.__updateVisibleText();
       }, this);
@@ -28,7 +28,7 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
     _firstColumn: null,
     _resolvedNames: null,
     _widget: null,
-    _delButton: null,
+    _actionBtn: null,
 
 
     _applyValue: function(){
@@ -49,11 +49,11 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
           this._widget.setValue("");
         }
       }
-      if(this._delButton){
+      if(this._actionBtn){
         if(this.getValue().getLength()){
-          this._delButton.setLabel("-");
+          this._actionBtn.setLabel("-");
         }else{
-          this._delButton.setLabel("+");
+          this._actionBtn.setLabel("+");
         }
       }
     },
@@ -62,25 +62,30 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
     _createGui: function(){
       this._widget = new qx.ui.form.TextField("value later ..");
       this._widget.setEnabled(false);
-      this._delButton = new qx.ui.form.Button("-");
+      this._actionBtn = new qx.ui.form.Button("-");
       this.add(this._widget, {flex: 1});
-      this.add(this._delButton);
+      this.add(this._actionBtn);
 
+      // Do nothing if there seems to be something wrong with the binding..
       if(!this.getExtension() || !this.getAttribute()){
         this.error("unabled to load SingleSelector, no bindings given!");
         return;
       }
 
-      this._delButton.addListener("execute", function(){
+      // Act on button clicks here, remove the value or allow to select a new one
+      this._actionBtn.addListener("execute", function(){
+
+          // There is already a value, remove it
           var value = this.getValue();
           if(value.getLength()){
             value.removeAll();
             this._applyValue(value);
             this.fireDataEvent("changeValue", this.getValue().copy());
           }else{
+
+            // Open a new selection dialog.
             var d = new cute.ui.ItemSelector(this.tr(this._editTitle), this.getValue().toArray(), 
               this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
-
             d.addListener("selected", function(e){
               if(e.getData().length){
                 this.getValue().removeAll();
@@ -91,8 +96,8 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
             }, this);
 
             d.open();
-        }
-          }, this);
+          }
+        }, this);
 
       return;
     },
@@ -144,6 +149,9 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
      * Collect column names here.
      * */
     _applyGuiProperties: function(props){
+      if(!props){
+        return;
+      }
       if('editTitle' in props && 'string' in props['editTitle']){
         this._editTitle = props['editTitle']['string'];
       }

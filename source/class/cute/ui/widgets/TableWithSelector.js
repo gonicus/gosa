@@ -11,11 +11,11 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
     this._tableData = [];
     this._resolvedNames = {};
 
-    // Take care of value modification
-    this.addListener("appear", function(){
+    this.addListenerOnce("appear", function(){
         this._createGui();
         this._updatedTableData();
-      }, this);
+        this.removeListenerById(id);
+      },this);
   },
 
   members: {
@@ -24,7 +24,7 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
     _tableModel: null,
     _tableData: null,
     _columnNames: null,
-    _editTitle: null,
+    _editTitle: "",
     _columnIDs: null,
     _firstColumn: null,
     _resolvedNames: null,
@@ -166,6 +166,9 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
      * Collect column names here.
      * */
     _applyGuiProperties: function(props){
+      if(!props){
+        return;
+      }
       if('editTitle' in props && 'string' in props['editTitle']){
         this._editTitle = props['editTitle']['string'];
       }
