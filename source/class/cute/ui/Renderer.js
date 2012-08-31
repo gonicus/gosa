@@ -302,7 +302,7 @@ qx.Class.define("cute.ui.Renderer",
      * */
     extractResources : function(ui_def)
     {
-      var res = [];
+      var res = {};
 
       // Find resources (e.g. image-paths) before we do anything more
       for (var q=0; q<ui_def.length; q++) {
@@ -311,10 +311,10 @@ qx.Class.define("cute.ui.Renderer",
             var resources = ui_def[q].childNodes[r];
             for (var j=0; j<resources.childNodes.length; j++) {
               var topic = resources.childNodes[j];
+              var loc = topic.getAttribute("location");
               if (topic.nodeName != "resource") {
                 continue;
               }
-              var loc = topic.getAttribute("location");
               var files = {};
               for (var f in topic.childNodes) {
                 var item = topic.childNodes[f];
@@ -322,13 +322,12 @@ qx.Class.define("cute.ui.Renderer",
                   files[":/" + item.firstChild.nodeValue] = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/" + item.firstChild.nodeValue;
                 }
               }
-              res.push(files);
+              res[loc] = files;
             }
           }
-          //TODO: this looks strange
-          res[loc] = files;
         }
       }
+
       return res;
     },
 
@@ -677,7 +676,6 @@ qx.Class.define("cute.ui.Renderer",
     _updateToolMenu : function() 
     {
       if (this._extendButton && this.__toolMenu.indexOf(this._extendButton) != -1) {
-        console.log(this._extendButton);
         this.__toolMenu.remove(this._extendButton);
       }
 
