@@ -1072,7 +1072,7 @@ qx.Class.define("cute.ui.Renderer",
           w.setDependsOn(defs['depends_on']);
           w.setMandatory(defs['mandatory']);
           w.setMultivalue(defs['multivalue']);
-          w.setReadonly(defs['readonly']);
+          w.setReadOnly(defs['readonly']);
           w.setType(defs['type']);
           w.setUnique(defs['unique']);
           w.setValues(defs['values']);

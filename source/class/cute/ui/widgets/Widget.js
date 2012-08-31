@@ -25,7 +25,9 @@ qx.Class.define("cute.ui.widgets.Widget", {
    
     buddyOf: {
       init: null,
-      check: "qx.ui.core.Widget"
+      event: "_buffyOfChanged",
+      check: "qx.ui.core.Widget",
+      nullable: true
     },
 
     valid: {
@@ -42,57 +44,64 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
     attribute: {
       check: "String",
-      init: null
+      event: "_attributeChanged",
+      init: ""
     },
 
     labelText: {
       check: "String",
-      init: null
+      event: "_labelTextChanged",
+      init: ""
     },
-
 
     extension: {
       check: "String",
-      init: null
+      event: "_extensionChanged",
+      init: ""
     },
 
     guiProperties: {
       apply: "_applyGuiProperties",
-      init: null
+      event: "_guiPropertiesChanged",
+      init: null,
+      nullable: true
     },
 
     caseSensitive: {
+      event: "_caseSensitiveChanged",
       init: false
     },
 
     blockedBy: {
+      event: "_blockedByChanged",
       init: false
     },
 
     defaultValue: {
       init: null,
+      event: "_defaultValueChanged",
       nullable: true
     },
 
     dependsOn: {
       init: null,
+      event: "_dependsOnChanged",
       nullable: true
     },
 
     mandatory: {
       init: false,
+      event: "_mandatoryChanged",
       apply: "_applyMandatory"
     },
 
-    readonly: {
-      init: false
-    },
-
     type: {
+      event: "_typeChanged",
       init: false
     },
 
     unique: {
+      event: "_uniqueChanged",
       init: false
     },
 
@@ -100,6 +109,8 @@ qx.Class.define("cute.ui.widgets.Widget", {
      * */ 
     values: {
       apply : "_applyValues",
+      event: "_valuesChanged",
+      nullable: true,
       init : null 
     },
 
@@ -108,6 +119,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
     readOnly : {
       check : 'Boolean',
       apply: '_applyReadOnly',
+      event: "_readOnlyChanged",
       init: false
     },
 
@@ -116,6 +128,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
     multivalue : {
       check : 'Boolean',
       apply: '_applyMultivalue',
+      event: "_multivalueChanged",
       init: false
     },
 
@@ -133,16 +146,18 @@ qx.Class.define("cute.ui.widgets.Widget", {
     /* Whether the field is required or not.
      * */
     required : {
-      init : null,
+      init : false,
       check : 'Boolean',
       nullable: false,
+      event: "_requiredChanged",
       apply: '_applyRequired'
     },
 
     /* The placeholder to use.
      * */
     placeholder : {
-      init : null,
+      init : "",
+      event: "_placeholderChanged",
       nullable: true
     },
 
@@ -151,6 +166,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
     maxLength : {
       init : null,
       check : "Integer",
+      event: "_maxLengthChanged",
       nullable: true
     },
 
@@ -158,6 +174,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
      * */
     modified : {
       init : false,
+      event: "_modifiedChanged",
       check : "Boolean"
     }
   },
