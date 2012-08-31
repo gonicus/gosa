@@ -27,20 +27,22 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       /* Create the multi-select style widget or the single select
         * widget depending on the source-properties multivalue state.
         * */
-      var widget = null;
-      if(this.isMultivalue()){
-        var widget = new cute.ui.widgets.TableWithSelector();
-      }else{
-        var widget = new cute.ui.widgets.SingleSelector();
-      }
+    this.addListenerOnce("appear", function(){
+        var widget = null;
+        if(this.isMultivalue()){
+          var widget = new cute.ui.widgets.TableWithSelector();
+        }else{
+          var widget = new cute.ui.widgets.SingleSelector();
+        }
 
-      for(var attr in attrs){
-        this.bind(attrs[attr], widget, attrs[attr]);
-      }
-      widget.addListener("changeValue", function(e){
-          this.fireDataEvent("changeValue", e.getData());
-        }, this);
+        for(var attr in attrs){
+          this.bind(attrs[attr], widget, attrs[attr]);
+        }
+        widget.addListener("changeValue", function(e){
+            this.fireDataEvent("changeValue", e.getData());
+          }, this);
 
-      this.add(widget, {left:0, right:0, bottom: 0, top:0});
+        this.add(widget, {left:0, right:0, bottom: 0, top:0});
+      },this);
   }
 });

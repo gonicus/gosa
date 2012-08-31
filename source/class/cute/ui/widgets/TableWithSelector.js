@@ -14,8 +14,7 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
     this.addListenerOnce("appear", function(){
         this._createGui();
         this._updatedTableData();
-        this.removeListenerById(id);
-      },this);
+      }, this);
   },
 
   members: {

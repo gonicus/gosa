@@ -40,7 +40,7 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
         if(this.getValue().getLength()){
           var name = this.getValue().getItem(0);
           if(name in this._resolvedNames){
-            this._widget.setValue(this._resolvedNames[name][this._columnIDs[0]]);
+            this._widget.setValue(this._resolvedNames[name][this._firstColumn]);
           }else{
             this._widget.setValue(this.tr("pending ..."));
             this.__resolveMissingValues();
@@ -168,6 +168,7 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
         }
       }
       this._firstColumn = first;
+      console.log(this._columnIDs, this._columnNames);
     }
   }
 });
