@@ -55,6 +55,9 @@ qx.Class.define("cute.Application",
       -------------------------------------------------------------------------
       */
 
+      // Stop the loading-throbber
+      //throb.stop();
+
       // Document is the application root
       var doc = this.getRoot();
       this.getRoot().setBlockerColor("#000000");

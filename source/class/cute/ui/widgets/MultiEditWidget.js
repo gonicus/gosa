@@ -59,7 +59,11 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     /* Set a new value for the widget given by id.
      * */
     _setWidgetValue: function(id, value){
-      this._getWidget(id).setValue(value);
+      try{
+        this._getWidget(id).setValue(value);
+      }catch(e){
+        this.error("failed to set widget value for " + this.getAttribute() + ". "+ e);
+      }
     },
 
 

@@ -19,6 +19,15 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
  
     _default_value: "",
 
+    /* Set a new value for the widget given by id.
+     * */
+    _setWidgetValue: function(id, value){
+      try{
+        this._getWidget(id).setValue(value);
+      }catch(e){
+        this.error("failed to set widget value for " + this.getAttribute() + ". "+ e);
+      }
+    },
 
     _setEchoMode: function(){
       this._current_length = 0;

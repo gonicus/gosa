@@ -50,7 +50,7 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
     _applyValue: function(value, old_value){
 
       if(value && value.length){
-        this._chkBoxWidget.setValue(value.getItem(0));
+        this._chkBoxWidget.setValue(value.getItem(0) == true);
       }
     },
 
