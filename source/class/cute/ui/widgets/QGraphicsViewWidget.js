@@ -18,7 +18,7 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
     this._widget = new qx.ui.basic.Image(this._defaultImage);
     this._widget.addListener("loadingFailed", function(){
         this._widget.setSource(this._defaultImage);
-        this.error("*** Invalid Image given! ***")
+        this.error("*** Invalid Image given! ***");
       }, this);
 
     var container = new qx.ui.container.Composite(new qx.ui.layout.Canvas());

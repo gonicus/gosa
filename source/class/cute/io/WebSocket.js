@@ -53,14 +53,14 @@ qx.Class.define("cute.io.WebSocket", {
         var message = qx.lang.Json.parse(e['data']);
 
         // Check if we can handle that message
-        var capmessage = message[0].charAt(0).toUpperCase() + message[0].slice(1)
+        var capmessage = message[0].charAt(0).toUpperCase() + message[0].slice(1);
         var method = "_handle" + capmessage + "Message";
         if (that[method]) {
           that[method](message[1]);
         } else {
           that.error("*** no idea how to handle '" + message[0] + "' messages");
         }
-      }
+      };
     },
 
     _handleNotificationMessage : function(info) {
@@ -107,7 +107,7 @@ qx.Class.define("cute.io.WebSocket", {
             rich : true
         });
         popup.addListener("click", function(e){ this.closePopup(popup); }, this);
-        this.showPopup(popup)
+        this.showPopup(popup);
 
         var timer = qx.util.TimerManager.getInstance();
         timer.start(function(userData, timerId){

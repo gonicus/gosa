@@ -13,13 +13,14 @@ qx.Class.define("cute.proxy.Object", {
     this.dn = data["__jsonclass__"][1][2];
 
     for(var item in this.attributes){
+      var val;
       if(this.attributes[item] in data){
 
         if(this.attribute_data[this.attributes[item]]['multivalue']){
-          var val = new qx.data.Array(data[this.attributes[item]]);
+          val = new qx.data.Array(data[this.attributes[item]]);
         }else{
           var value = data[this.attributes[item]];
-          var val = new qx.data.Array();
+          val = new qx.data.Array();
           if(value !== null){
             val.push(value);
           }
@@ -50,10 +51,10 @@ qx.Class.define("cute.proxy.Object", {
       if(this.initialized){
         var that = this;
         var rpc = cute.io.Rpc.getInstance();
+        var rpc_value = null;
         if(this.attribute_data[name]['multivalue']){
-          var rpc_value = value.toArray();
+          rpc_value = value.toArray();
         }else{
-          var rpc_value = null;
           if(value.getLength()){
             rpc_value = value.toArray()[0];
           }

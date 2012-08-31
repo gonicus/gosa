@@ -96,7 +96,7 @@ qx.Class.define("cute.ui.form.Spinner", {
     _onTextChange : function(e)
     {
       var textField = this.getChildControl("textfield");
-      var value;
+      var value = undefined;
 
       // if a number format is set
       if (this.getNumberFormat())

@@ -36,7 +36,7 @@ qx.Class.define("cute.view.Search",
     sf.setPlaceholder(this.tr("Please enter your search..."));
     this.addListener("resize", function() {
       sf.setWidth(parseInt(this.getBounds().width / 2));
-    }, this)
+    }, this);
     searchHeader.add(sf);
 
     var sb = new qx.ui.form.Button(this.tr("Search"));
@@ -49,7 +49,7 @@ qx.Class.define("cute.view.Search",
 
     // Create search info (hidden)
     this.searchInfo = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
-    this.searchInfo.hide()
+    this.searchInfo.hide();
     this.searchInfo.setPadding(20);
     this.searchInfo.setDecorator("separator-vertical");
     var sil = new qx.ui.basic.Label(this.tr("Search"));
@@ -68,7 +68,7 @@ qx.Class.define("cute.view.Search",
 
     // Create search result
     this.searchResult = new qx.ui.container.Composite(new qx.ui.layout.Canvas);
-    this.searchResult.hide()
+    this.searchResult.hide();
     this.searchResult.setPadding(20);
     this.searchResult.setDecorator("separator-vertical");
 
@@ -98,7 +98,8 @@ qx.Class.define("cute.view.Search",
           item.addListener("edit", function(e){
               item.setIsLoading(true);
               that.openObject(e.getData().getDn());
-              var lid = that.addListener("loadingComplete", function(e){
+              var lid = null;
+              lid = that.addListener("loadingComplete", function(e){
                   if(e.getData()['obj'].dn == item.getDn()){
                     item.setIsLoading(false);
                     that.removeListenerById(lid);
@@ -241,7 +242,6 @@ qx.Class.define("cute.view.Search",
 
     openObject : function(dn) {
       var win = null;
-      var _current_object = null;
 
       cute.proxy.ObjectFactory.openObject(function(obj, error){
 
@@ -250,8 +250,6 @@ qx.Class.define("cute.view.Search",
           new cute.ui.dialogs.Error(error.message).open();
           return;
         }
-
-        _current_object = obj;
 
         // Build widget and place it into a window
         cute.ui.Renderer.getWidget(function(w){

@@ -57,7 +57,7 @@ qx.Class.define("cute.io.Rpc", {
       var self = this;
       var f = function(){
         return func.apply(self, arguments); 
-      }
+      };
       return(f);
     },
     
@@ -145,10 +145,10 @@ qx.Class.define("cute.io.Rpc", {
             // Check for "<field> error-message" formats 
             if(error.message.match(/<[a-zA-Z0-9\-_ ]*>/)){
               error.field = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){ 
-                  return(arguments[1])
+                  return(arguments[1]);
                 });
               error.message = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){ 
-                  return(arguments[2])
+                  return(arguments[2]);
                 });
             }
           }

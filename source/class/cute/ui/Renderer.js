@@ -96,9 +96,11 @@ qx.Class.define("cute.ui.Renderer",
       var use_cached = true;
       var ui_definition = obj.templates;
 
+      var clazz;
+      
       // Check if we can use a cached gui here.
       if(use_cached && obj.classname in cute.ui.Renderer.classes){
-        var clazz = cute.ui.Renderer.classes[obj.classname];
+        clazz = cute.ui.Renderer.classes[obj.classname];
       }else{
 
         // This method returns an apply-method for the given attribute
@@ -114,7 +116,7 @@ qx.Class.define("cute.ui.Renderer",
             }
           };
           return(func);
-        }
+        };
 
         // Prepare meta-class properties here.
         var properties = {};
@@ -133,7 +135,7 @@ qx.Class.define("cute.ui.Renderer",
         // Finaly create the meta-class
         var name = obj.baseType + "Object";
         var def = {extend: cute.ui.Renderer, properties: properties, members: members};
-        var clazz = qx.Class.define(name, def);
+        clazz = qx.Class.define(name, def);
 
         // Store generated meta-class in the class-cache to speed up opening the next gui.
         if(use_cached){
@@ -146,8 +148,8 @@ qx.Class.define("cute.ui.Renderer",
       var widget = new clazz();
       widget._object = obj;
       widget.setAttributeDefinitions_(obj.attribute_data);
-      widget.setUiDefinition_(ui_definition)
-        widget.configure();
+      widget.setUiDefinition_(ui_definition);
+      widget.configure();
 
       // Connect to the object event 'propertyUpdateOnServer' to be able to act on property changes.
       // e.g. set an invalid-decorator for specific widget.
@@ -300,7 +302,7 @@ qx.Class.define("cute.ui.Renderer",
      * */
     extractResources : function(ui_def)
     {
-      var res = [];
+      var res = {};
 
       // Find resources (e.g. image-paths) before we do anything more
       for (var q=0; q<ui_def.length; q++) {
@@ -309,10 +311,10 @@ qx.Class.define("cute.ui.Renderer",
             var resources = ui_def[q].childNodes[r];
             for (var j=0; j<resources.childNodes.length; j++) {
               var topic = resources.childNodes[j];
+              var loc = topic.getAttribute("location");
               if (topic.nodeName != "resource") {
                 continue;
               }
-              var loc = topic.getAttribute("location");
               var files = {};
               for (var f in topic.childNodes) {
                 var item = topic.childNodes[f];
@@ -320,12 +322,12 @@ qx.Class.define("cute.ui.Renderer",
                   files[":/" + item.firstChild.nodeValue] = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/" + item.firstChild.nodeValue;
                 }
               }
-              res.push(files);
+              res[loc] = files;
             }
           }
-          res[loc] = files;
         }
       }
+
       return res;
     },
 
@@ -472,7 +474,7 @@ qx.Class.define("cute.ui.Renderer",
             }
           }
           widget.unblock(true);
-        }
+        };
      
       /* Extract information about when to block the widget
        * and add a listener to the sourceo-widget, to check
@@ -606,11 +608,13 @@ qx.Class.define("cute.ui.Renderer",
           // Collect agruments that have to be passed to the method call.
           var attrs = state[4].split(",");
           var args = [];
+          
           for(var item in attrs){
+        	var value;
             if(attrs[item] == "dn" || attrs[item] == "uuid"){
-              var value = this._object[attrs[item]];
+              value = this._object[attrs[item]];
             }else{
-              var value = this._object.get(attrs[item]).toArray();
+              value = this._object.get(attrs[item]).toArray();
               if(value.length){
                 value = value[0];
               }else{
@@ -672,7 +676,6 @@ qx.Class.define("cute.ui.Renderer",
     _updateToolMenu : function() 
     {
       if (this._extendButton && this.__toolMenu.indexOf(this._extendButton) != -1) {
-        console.log(this._extendButton);
         this.__toolMenu.remove(this._extendButton);
       }
 
@@ -689,7 +692,6 @@ qx.Class.define("cute.ui.Renderer",
       var ui_s = this._object.templates[this._object.baseType];
       for (var i=0; i<ui_s.length; i++) {
         var nodes = qx.xml.Document.fromString(ui_s[i]);
-        var resources = this.extractResources(nodes.childNodes, cute.Config.getTheme());
         var actions = nodes.firstChild.getElementsByTagName("action");
         for (var i=0; i<actions.length; i++) {
           actionMenu.add(this._makeActionMenuEntry(actions[i]));
@@ -783,7 +785,7 @@ qx.Class.define("cute.ui.Renderer",
           // Remove all widget references and then close the page
           for(var widget in this._extension_to_widgets[extension]){
             widget = this._extension_to_widgets[extension][widget];
-            delete this._widgets[widget]
+            delete this._widgets[widget];
           }
           delete this._extension_to_widgets[extension];
 
@@ -1185,7 +1187,7 @@ qx.Class.define("cute.ui.Renderer",
 
           // Inspect layout items
           for (var j=0; j<node.childNodes.length; j++) {
-
+             
             var topic = node.childNodes[j];
             if (topic.nodeType == 1 && topic.nodeName == "item") {
 
@@ -1195,7 +1197,7 @@ qx.Class.define("cute.ui.Renderer",
                 var colspan = parseInt(topic.getAttribute("colspan"));
                 var rowspan = parseInt(topic.getAttribute("rowspan"));
                 var wdgt = this.processElements(loc, topic.childNodes);
-                var pos = {row: row, column: column}
+                var pos = {row: row, column: column};
                 if (colspan) {
                   pos['colSpan'] = colspan;
                 }
@@ -1212,7 +1214,7 @@ qx.Class.define("cute.ui.Renderer",
                 var colspan = parseInt(topic.getAttribute("colspan"));
                 var rowspan = parseInt(topic.getAttribute("rowspan"));
 
-                var pos = {row: row, column: column}
+                var pos = {row: row, column: column};
                 if (colspan) {
                   pos['colSpan'] = colspan;
                 }
@@ -1242,6 +1244,8 @@ qx.Class.define("cute.ui.Renderer",
               }
             }
 
+            var layout = widget.getLayout();
+            
             if (layout_type == "QGridLayout") {
               layout.setSpacing(5);
 
@@ -1413,6 +1417,7 @@ qx.Class.define("cute.ui.Renderer",
       var clazz = node.getAttribute("class");
       var properties = {};
       var layout = null;
+      var widget = null;
 
       this.debug("processing widget " + name);
 
@@ -1444,7 +1449,7 @@ qx.Class.define("cute.ui.Renderer",
           }
         } else if (n.nodeName == "widget") {
 
-          var widget = this.processWidget(loc, n);
+          widget = this.processWidget(loc, n);
           if(!widget){
             this.error("Skipped widget creation!");
           }else{
@@ -1467,7 +1472,7 @@ qx.Class.define("cute.ui.Renderer",
       var classname = clazz + "Widget";
       var method = "process" + classname;
       if (cute.ui.widgets[classname]) {
-        var widget = new cute.ui.widgets[classname];
+        widget = new cute.ui.widgets[classname];
         this._widgets[name] = widget;
         this.__add_widget_to_extension(name, loc);
         this.processCommonProperties(name, widget, properties);
@@ -1476,7 +1481,7 @@ qx.Class.define("cute.ui.Renderer",
         // to process them later.
         this._widget_ui_properties[name] = properties;
       } else if (method in this) {
-        var widget = this[method](loc, name, properties);
+        widget = this[method](loc, name, properties);
       }else{
         this.error("*** widget '" + classname + "' does not exist!");
         return null;
@@ -1517,7 +1522,7 @@ qx.Class.define("cute.ui.Renderer",
               var row = parseInt(topic.getAttribute("row"));
               var colspan = parseInt(topic.getAttribute("colspan"));
               var rowspan = parseInt(topic.getAttribute("rowspan"));
-              var pos = {row: row, column: column}
+              var pos = {row: row, column: column};
               if (colspan) {
                 pos['colSpan'] = colspan;
               }
@@ -1529,10 +1534,9 @@ qx.Class.define("cute.ui.Renderer",
               widget.getLayout().setColumnFlex(column, 1);
 
             } else if (layout_type == "QFormLayout") {
-              var column = parseInt(topic.getAttribute("column"));
-              var row = parseInt(topic.getAttribute("row"));
               var colspan = parseInt(topic.getAttribute("colspan"));
               var rowspan = parseInt(topic.getAttribute("rowspan"));
+              var pos = {};
               if (colspan) {
                 pos['colSpan'] = colspan;
               }
@@ -1812,7 +1816,7 @@ qx.Class.define("cute.ui.Renderer",
           'x': parseInt(props[what]['rect']['x']),
           'y': parseInt(props[what]['rect']['y']),
           'height': parseInt(props[what]['rect']['height']),
-          'width': parseInt(props[what]['rect']['width'])}
+          'width': parseInt(props[what]['rect']['width'])};
       }
 
       return null;

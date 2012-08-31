@@ -41,7 +41,7 @@ qx.Class.define("cute.ui.container.SlideBar",
     // overridden
     _createChildControlImpl : function(id, hash)
     {
-      var control;
+      var control = null;
 
       switch(id)
       {
