@@ -46,7 +46,7 @@ qx.Class.define("cute.ui.ItemSelector", {
     okButton.addListener("execute", function(){
         var list = [];
         table.getSelectionModel().iterateSelection(function(index) {
-            list.push(tableModel.getRowData(index)['__indentifier__']);
+            list.push(tableModel.getRowData(index)['__identifier__']);
           });
         this.fireDataEvent("selected", list);
         this.close();

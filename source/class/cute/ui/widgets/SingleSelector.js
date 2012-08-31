@@ -1,4 +1,4 @@
-qx.Class.define("cute.ui.widgets.TableWithSelector", {
+qx.Class.define("cute.ui.widgets.SingleSelector", {
 
   extend: cute.ui.widgets.Widget,
 
@@ -6,15 +6,14 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
 
     this.base(arguments);
     this.setLayout(new qx.ui.layout.Canvas());
-    this.setDecorator("main");
     this._columnNames = [];
-    this._tableData = [];
+    this._columnIDs = [];
     this._resolvedNames = {};
 
     // Take care of value modification
     this.addListener("appear", function(){
         this._createGui();
-        this._updatedTableData();
+        this.__updateVisibleText();
       }, this);
   },
 
@@ -24,77 +23,53 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
     _tableModel: null,
     _tableData: null,
     _columnNames: null,
-    _editTitle: null,
+    _editTitle: "",
     _columnIDs: null,
     _firstColumn: null,
     _resolvedNames: null,
+    _widget: null,
+
+
+    __updateVisibleText: function(){
+
+      if(this.getValue().getLength()){
+        var name = this.getValue().getItem(0);
+        if(name in this._resolvedNames){
+          this._widget.setValue(this._resolvedNames[name][this._columnIDs[0]]);
+        }else{
+          this.__resolveMissingValues();
+        }
+      }
+    },
 
     
     _createGui: function(){
-      this._tableModel = new qx.ui.table.model.Simple();
-      this._tableModel.setColumns(this._columnNames, this._columnIDs);
-      this._table = new cute.ui.table.Table(this._tableModel);
-      this._table.setStatusBarVisible(false);
-      this._table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
-      this.add(this._table, {top:0 , bottom:0, right: 0, left:0});
-      this._table.setPreferenceTableName(this.getExtension() + ":" + this.getAttribute());
 
-      // Add new group membership
-      this._table.addListener("dblclick", function(){
+      this._widget = new qx.ui.form.TextField("value later ..");
+      this.add(this._widget, {top: 0, left: 0 , bottom:0, right: 0});
 
+      if(!this.getExtension() || !this.getAttribute()){
+        this.error("unabled to load SingleSelector, no bindings given!");
+        return;
+      }
+
+      this._widget.addListener("dblclick", function(){
           var d = new cute.ui.ItemSelector(this.tr(this._editTitle), this.getValue().toArray(), 
           this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
 
           d.addListener("selected", function(e){
               if(e.getData().length){
-                this.setValue(this.getValue().concat(e.getData()));
+                this.getValue().removeAll();
+                this.getValue().push(e.getData()[0]);
                 this.fireDataEvent("changeValue", this.getValue().copy());
+                this.__resolveMissingValues();
               }
             }, this);
 
           d.open();
-
-          //this.fireDataEvent("changeValue", new qx.data.Array(this.getValue().toArray()));
         }, this);
 
-      // Add a remove listener
-      this._table.addListener("remove", function(e){
-        var that = this;
-        var value = this.getValue().toArray()
-        var updated = false;
-        this._table.getSelectionModel().iterateSelection(function(index) {
-            updated = true;
-            var selected = that._tableModel.getRowData(index)["__identifier__"];
-            qx.lang.Array.remove(value, selected);
-          });
-        if(updated){
-          this.setValue(new qx.data.Array(value));
-          this.fireDataEvent("changeValue", this.getValue().copy());
-        }
-      }, this);
-    },
-
-
-    /* Update the table model and try to resolve missing values.
-     * */
-    _updatedTableData: function(data){
-      this.__updateDataModel();
-      this.__resolveMissingValues();
-    },
-
-
-    /* Applies a new value for this widget
-     * */
-    _applyValue: function(value){
-
-      // Add a listener to the content array.
-      // On each modification update the table model.
-      if(value){
-        value.addListener("change", function(){
-          this._updatedTableData();        
-        },this);
-      }
-      this._updatedTableData();        
+      return;
     },
 
 
@@ -130,34 +105,12 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
                 this._resolvedNames[value] = data;
               }
             }
-            this.__updateDataModel();
+            this.__updateVisibleText();
           }
         }, this, "getObjectDetails", this.getExtension(), this.getAttribute(), unknown_values, this._columnIDs);
       }else{
-        this.__updateDataModel();
+        this.__updateVisibleText();
       }
-    },
-
-
-    /* Set the visible content of the table.
-     * */
-    __updateDataModel: function(){
-      if(!this._table){
-        return;
-      }
-      this._tableData = [];
-      var values = this.getValue().toArray();
-      for(var i=0; i<values.length; i++ ){
-        if(values[i] in this._resolvedNames){
-          row_data = this._resolvedNames[values[i]];
-        }else{
-          var row_data = {}
-          row_data[this._firstColumn] = values[i];
-        }
-        this._tableData.push(row_data);
-      }
-      this._tableModel.setDataAsMapArray(this._tableData, true, false);
-      this._table.sort();
     },
 
 
