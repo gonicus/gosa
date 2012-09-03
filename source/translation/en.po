@@ -15,55 +15,55 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: cute/ui/Renderer.js:712
+#: cute/ui/Renderer.js:739
 msgid "Extend"
 msgstr ""
 
-#: cute/ui/Renderer.js:715
+#: cute/ui/Renderer.js:744
 msgid "Retract"
 msgstr ""
 
-#: cute/ui/Renderer.js:718
+#: cute/ui/Renderer.js:749
 msgid "Action"
 msgstr ""
 
-#: cute/ui/Renderer.js:797
+#: cute/ui/Renderer.js:835
 msgid "Dependent extension"
 msgid_plural "Dependent extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:808
+#: cute/ui/Renderer.js:846
 msgid "To retract the <b>%1</b> extension from this object, the following additional extension needs to be removed: %2"
 msgid_plural "To retract the <b>%1</b> extension from this object, the following additional extensions need to be removed: %2"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:811
+#: cute/ui/Renderer.js:849
 msgid "Do you want the dependent extension to be removed?"
 msgid_plural "Do you want the dependent extensions to be removed?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:882
+#: cute/ui/Renderer.js:920
 msgid "Missing extension"
 msgid_plural "Missing extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:893
+#: cute/ui/Renderer.js:931
 msgid "To extend the object by the <b>%1</b> extension, the following additional extension is required: %2"
 msgid_plural "To extend the object by the <b>%1</b> extension, the following additional extensions are required: %2"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:896
+#: cute/ui/Renderer.js:934
 msgid "Do you want the missing extension to be added?"
 msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:989
+#: cute/ui/Renderer.js:1027
 msgid "Remove extension"
 msgstr ""
 
@@ -167,6 +167,10 @@ msgstr ""
 msgid "Remove image"
 msgstr ""
 
+#: cute/ui/widgets/SingleSelector.js:45
+msgid "loading"
+msgstr ""
+
 #: cute/view/Search.js:36
 msgid "Please enter your search..."
 msgstr ""
@@ -175,19 +179,29 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: cute/view/Search.js:175
-msgid "%1 result"
-msgid_plural "%1 results"
+#: cute/view/Search.js:190
+msgid "%1 fuzzy result"
+msgid_plural "%1 fuzzy results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:175
+#: cute/view/Search.js:190 cute/view/Search.js:192
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:229
+#: cute/view/Search.js:190
+msgid "no exact matches"
+msgstr ""
+
+#: cute/view/Search.js:192
+msgid "%1 result"
+msgid_plural "%1 results"
+msgstr[0] ""
+msgstr[1] ""
+
+#: cute/view/Search.js:256
 msgid "Object"
 msgstr ""
 

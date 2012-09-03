@@ -42,7 +42,7 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
           if(name in this._resolvedNames){
             this._widget.setValue(this._resolvedNames[name][this._firstColumn]);
           }else{
-            this._widget.setValue(this.tr("pending ..."));
+            this._widget.setValue(this.tr("loading") + "...");
             this.__resolveMissingValues();
           }
         }else{

@@ -344,7 +344,6 @@ qx.Class.define("cute.ui.Renderer",
       var container;
       var ui_definition = this.getUiDefinition_();
       this._tabContainer = container = new cute.ui.tabview.TabView();
-      container.setMaxWidth(800);
       this.add(container);
 
       // Create a list of tab-names and order them
@@ -1802,6 +1801,8 @@ qx.Class.define("cute.ui.Renderer",
     getSizePolicyProperty : function(what, props)
     {
       if (props[what] && props[what]['sizepolicy']) {
+
+        console.log(props[what]['sizepolicy']);
         return {'horstretch': parseInt(props[what]['sizepolicy']['horstretch']), 'verstretch': parseInt(props[what]['sizepolicy']['verstretch'])};
       }
 
