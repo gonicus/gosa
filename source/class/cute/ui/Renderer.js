@@ -322,7 +322,7 @@ qx.Class.define("cute.ui.Renderer",
                   files[":/" + item.firstChild.nodeValue] = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/" + item.firstChild.nodeValue;
                 }
               }
-              res[loc] = files;
+              qx.lang.Object.mergeWith(res, files);
             }
           }
         }
@@ -1754,13 +1754,12 @@ qx.Class.define("cute.ui.Renderer",
       }
 
       if (props[what] && props[what]['iconset']['normaloff']) {
-        var resource = props[what]['_resource'];
-
-        if (resources[resource]) {
-          return resources[resource][props[what]['iconset']['normaloff']];
+        if (resources[props[what]['iconset']['normaloff']]) {
+          return resources[props[what]['iconset']['normaloff']];
         }
       }
 
+      console.log("no image");
       return null;
     },
 
