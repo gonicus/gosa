@@ -30,9 +30,9 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
     this.addListenerOnce("appear", function(){
         var widget = null;
         if(this.isMultivalue()){
-          var widget = new cute.ui.widgets.TableWithSelector();
+          widget = new cute.ui.widgets.TableWithSelector();
         }else{
-          var widget = new cute.ui.widgets.SingleSelector();
+          widget = new cute.ui.widgets.SingleSelector();
         }
 
         for(var attr in attrs){

@@ -311,7 +311,6 @@ qx.Class.define("cute.ui.Renderer",
             var resources = ui_def[q].childNodes[r];
             for (var j=0; j<resources.childNodes.length; j++) {
               var topic = resources.childNodes[j];
-              var loc = topic.getAttribute("location");
               if (topic.nodeName != "resource") {
                 continue;
               }
@@ -483,8 +482,8 @@ qx.Class.define("cute.ui.Renderer",
        * (right now we only support one block-definition)
        * */
       data = data[0];
+      var name = data['name'];
       try{
-        var name = data['name'];
         var value = data['value'];
         this._widgets[name].addListener("changeValue", function(e){
             func(value, e.getData().toArray(), widget);

@@ -127,7 +127,7 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
         if(!(values[i] in this._resolvedNames)){
           unknown_values.push(values[i]);
 
-          var row_data = {}
+          var row_data = {};
           row_data[this._firstColumn] = values[i];
           row_data["__identifier__"] = values[i];
           this._resolvedNames[values[i]] = row_data;

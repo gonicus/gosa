@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="simulation/|test/|theme/" kind="src" path="cache/qx2.1/downloads/UploadMgr/trunk/demo/default/source/class/uploadmgr/demo"/>
+	<classpathentry kind="src" path="cache/qx2.1/downloads/UploadMgr/trunk/demo/default/source/class/uploadmgr/demo/simulation"/>
+	<classpathentry kind="src" path="cache/qx2.1/downloads/UploadMgr/trunk/demo/default/source/class/uploadmgr/demo/test"/>
+	<classpathentry kind="src" path="cache/qx2.1/downloads/UploadMgr/trunk/demo/default/source/class/uploadmgr/demo/theme"/>
+	<classpathentry excluding="test/|simulation/|theme/" kind="src" path="cache/qx2.1/downloads/UploadMgr/trunk/source/class/com/zenesis/qx/upload"/>
+	<classpathentry kind="src" path="cache/qx2.1/downloads/UploadMgr/trunk/source/class/com/zenesis/qx/upload/simulation"/>
+	<classpathentry kind="src" path="cache/qx2.1/downloads/UploadMgr/trunk/source/class/com/zenesis/qx/upload/test"/>
+	<classpathentry kind="src" path="cache/qx2.1/downloads/UploadMgr/trunk/source/class/com/zenesis/qx/upload/theme"/>
+	<classpathentry excluding="ui/container/|io/types/|data/model/|ui/table/|io/|simulation/|ui/widgets/|ui/tabview/|ui/form/renderer/|ui/|view/|theme/|ui/base/|proxy/|ui/dialogs/|test/|ui/form/" kind="src" path="source/class/cute"/>
+	<classpathentry kind="src" path="source/class/cute/data/model"/>
+	<classpathentry excluding="types/" kind="src" path="source/class/cute/io"/>
+	<classpathentry kind="src" path="source/class/cute/io/types"/>
+	<classpathentry kind="src" path="source/class/cute/proxy"/>
+	<classpathentry kind="src" path="source/class/cute/simulation"/>
+	<classpathentry kind="src" path="source/class/cute/test"/>
+	<classpathentry kind="src" path="source/class/cute/theme"/>
+	<classpathentry excluding="container/|table/|widgets/|tabview/|form/renderer/|base/|dialogs/|form/" kind="src" path="source/class/cute/ui"/>
+	<classpathentry kind="src" path="source/class/cute/ui/base"/>
+	<classpathentry kind="src" path="source/class/cute/ui/container"/>
+	<classpathentry kind="src" path="source/class/cute/ui/dialogs"/>
+	<classpathentry excluding="renderer/" kind="src" path="source/class/cute/ui/form"/>
+	<classpathentry kind="src" path="source/class/cute/ui/form/renderer"/>
+	<classpathentry kind="src" path="source/class/cute/ui/table"/>
+	<classpathentry kind="src" path="source/class/cute/ui/tabview"/>
+	<classpathentry kind="src" path="source/class/cute/ui/widgets"/>
+	<classpathentry kind="src" path="source/class/cute/view"/>
+	<classpathentry kind="src" path="source/resource/cute/js"/>
+	<classpathentry kind="src" path="source/script"/>
+	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path=""/>
+</classpath>
