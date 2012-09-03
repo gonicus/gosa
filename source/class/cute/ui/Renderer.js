@@ -395,6 +395,8 @@ qx.Class.define("cute.ui.Renderer",
 
             this._processBlockedBy(widget, attrs['blocked_by']);
           }
+        } else {
+            console.debug("skipping attribute " +  name + " - no binding found");
         }
       }
 
@@ -1801,8 +1803,6 @@ qx.Class.define("cute.ui.Renderer",
     getSizePolicyProperty : function(what, props)
     {
       if (props[what] && props[what]['sizepolicy']) {
-
-        console.log(props[what]['sizepolicy']);
         return {'horstretch': parseInt(props[what]['sizepolicy']['horstretch']), 'verstretch': parseInt(props[what]['sizepolicy']['verstretch'])};
       }
 

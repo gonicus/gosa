@@ -49,20 +49,31 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
           this._widget.setValue("");
         }
       }
+
       if(this._actionBtn){
         if(this.getValue().getLength()){
-          this._actionBtn.setLabel("-");
+          this._actionBtn.setIcon(cute.Config.getImagePath("actions/attribute-remove.png", "22"));
+          this._actionBtn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove value")));
         }else{
-          this._actionBtn.setLabel("+");
+          this._actionBtn.setIcon(cute.Config.getImagePath("actions/attribute-choose.png", "22"));
+          this._actionBtn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Choose value")));
         }
       }
+
     },
 
     
     _createGui: function(){
-      this._widget = new qx.ui.form.TextField("value later ..");
+      this._widget = new qx.ui.form.TextField();
       this._widget.setEnabled(false);
-      this._actionBtn = new qx.ui.form.Button("-");
+
+      this._actionBtn = new qx.ui.form.Button(null, cute.Config.getImagePath("actions/attribute-choose.png", "22")).set({
+            "decorator": null,
+            "padding": 2,
+            "margin": 0
+            });
+      this._actionBtn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Choose value")));
+
       this.add(this._widget, {flex: 1});
       this.add(this._actionBtn);
 
@@ -81,11 +92,12 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
             value.removeAll();
             this._applyValue(value);
             this.fireDataEvent("changeValue", this.getValue().copy());
+
           }else{
 
             // Open a new selection dialog.
             var d = new cute.ui.ItemSelector(this.tr(this._editTitle), this.getValue().toArray(), 
-              this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
+              this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames, true);
             d.addListener("selected", function(e){
               if(e.getData().length){
                 this.getValue().removeAll();

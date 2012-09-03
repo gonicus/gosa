@@ -26,7 +26,6 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     _current_length: 0,
     _skipUpdates: false,
 
-
     /* Mark the given widget as required
      * */
     _markAsRequired: function(widget){
@@ -71,7 +70,7 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
      * and connect it to the update methods
      * */
     _createWidget: function(){
-      var w = new qx.ui.form.TextField("Dummy!");
+      var w = new qx.ui.form.TextField();
       w.setLiveUpdate(true);
       w.addListener("focusout", this._propertyUpdater, this); 
       w.addListener("changeValue", this._propertyUpdaterTimed, this); 

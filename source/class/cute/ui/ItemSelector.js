@@ -6,7 +6,7 @@ qx.Class.define("cute.ui.ItemSelector", {
 
   extend: cute.ui.dialogs.Dialog,
 
-  construct: function(title, current_values, extension, attribute, column_keys, column_names){
+  construct: function(title, current_values, extension, attribute, column_keys, column_names, single){
 
     this.base(arguments);
     this.setCaption(title);
@@ -18,7 +18,9 @@ qx.Class.define("cute.ui.ItemSelector", {
     tableModel.setColumns(column_names, column_keys);
     var table = new cute.ui.table.Table(tableModel);
     table.setStatusBarVisible(false);
-    table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
+    if (!single) {
+      table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
+    }
     this.add(table, {flex: 1});
     table.setPreferenceTableName(extension + ":" + attribute + "Edit");
 
@@ -35,7 +37,12 @@ qx.Class.define("cute.ui.ItemSelector", {
       paddingTop: 11
     });
 
-    var okButton = new qx.ui.form.Button(this.tr("Add"), cute.Config.getImagePath("actions/list-add.png", 22));
+    var okButton;
+    if (single) {
+       okButton = new qx.ui.form.Button(this.tr("Choose"), cute.Config.getImagePath("actions/dialog-ok.png", 22));
+    } else {
+       okButton = new qx.ui.form.Button(this.tr("Add"), cute.Config.getImagePath("actions/list-add.png", 22));
+    }
     var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), cute.Config.getImagePath("actions/dialog-cancel.png", 22));
     buttonPane.add(okButton);
     buttonPane.add(cancelButton);
@@ -43,17 +50,26 @@ qx.Class.define("cute.ui.ItemSelector", {
     this.add(buttonPane);
 
     cancelButton.addListener("execute", this.close, this);
-    okButton.addListener("execute", function(){
-        var list = [];
-        table.getSelectionModel().iterateSelection(function(index) {
-            list.push(tableModel.getRowData(index)['__identifier__']);
-          });
-        this.fireDataEvent("selected", list);
-        this.close();
-      }, this);
+    okButton.addListener("execute", this._ok, this);
+    table.addListener("dblclick", this._ok, this);
+
+    this.__table = table;
+    this.__tableModel = tableModel;
   }, 
 
   events: {
     "selected": "qx.event.type.Data"
-  }
+  },
+
+  members : {
+
+    _ok : function() {
+        var list = [];
+        this.__table.getSelectionModel().iterateSelection(function(index) {
+            list.push(this.__tableModel.getRowData(index)['__identifier__']);
+          }, this);
+        this.fireDataEvent("selected", list);
+        this.close();
+      }
+   }
 });

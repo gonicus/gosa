@@ -11,59 +11,63 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: cute/ui/ItemSelector.js:38
+#: cute/ui/ItemSelector.js:42
+msgid "Choose"
+msgstr ""
+
+#: cute/ui/ItemSelector.js:44
 msgid "Add"
 msgstr ""
 
-#: cute/ui/Renderer.js:739
+#: cute/ui/Renderer.js:740
 msgid "Extend"
 msgstr ""
 
-#: cute/ui/Renderer.js:744
+#: cute/ui/Renderer.js:745
 msgid "Retract"
 msgstr ""
 
-#: cute/ui/Renderer.js:749
+#: cute/ui/Renderer.js:750
 msgid "Action"
 msgstr ""
 
-#: cute/ui/Renderer.js:835
+#: cute/ui/Renderer.js:836
 msgid "Dependent extension"
 msgid_plural "Dependent extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:846
+#: cute/ui/Renderer.js:847
 msgid "To retract the <b>%1</b> extension from this object, the following additional extension needs to be removed: %2"
 msgid_plural "To retract the <b>%1</b> extension from this object, the following additional extensions need to be removed: %2"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:849
+#: cute/ui/Renderer.js:850
 msgid "Do you want the dependent extension to be removed?"
 msgid_plural "Do you want the dependent extensions to be removed?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:920
+#: cute/ui/Renderer.js:921
 msgid "Missing extension"
 msgid_plural "Missing extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:931
+#: cute/ui/Renderer.js:932
 msgid "To extend the object by the <b>%1</b> extension, the following additional extension is required: %2"
 msgid_plural "To extend the object by the <b>%1</b> extension, the following additional extensions are required: %2"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:934
+#: cute/ui/Renderer.js:935
 msgid "Do you want the missing extension to be added?"
 msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:1027
+#: cute/ui/Renderer.js:1028
 msgid "Remove extension"
 msgstr ""
 
@@ -71,7 +75,7 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: cute/ui/base/Buttons.js:29 cute/ui/ItemSelector.js:39
+#: cute/ui/base/Buttons.js:29 cute/ui/ItemSelector.js:46
 msgid "Cancel"
 msgstr ""
 
@@ -159,6 +163,10 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
+#: cute/ui/widgets/MultiEditContainer.js:33
+msgid "Add value"
+msgstr ""
+
 #: cute/ui/widgets/QGraphicsViewWidget.js:29
 msgid "Change image"
 msgstr ""
@@ -169,6 +177,15 @@ msgstr ""
 
 #: cute/ui/widgets/SingleSelector.js:45
 msgid "loading"
+msgstr ""
+
+#: cute/ui/widgets/SingleSelector.js:56
+#: cute/ui/widgets/MultiEditContainer.js:39
+msgid "Remove value"
+msgstr ""
+
+#: cute/ui/widgets/SingleSelector.js:59 cute/ui/widgets/SingleSelector.js:75
+msgid "Choose value"
 msgstr ""
 
 #: cute/view/Search.js:36
