@@ -70,9 +70,6 @@ qx.Class.define("cute.view.Search",
     this.searchResult.hide();
     this.searchResult.setPadding(20);
     this.searchResult.setDecorator("separator-vertical");
-
-    //TODO: fill the right bar with proper contents with proper contents
-
     this.resultList = new qx.ui.form.List();
     this.resultList.setAppearance("SearchList");
     this.resultList.setDecorator(null);
@@ -217,7 +214,7 @@ qx.Class.define("cute.view.Search",
             icon = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/images/objects/" + items[i]['tag'].toLowerCase() + ".png";
         }
 
-        item.setDn(this._highlight(items[i]['dn'], query));
+        item.setDn(items[i]['dn']);
         item.setTitle(items[i]['title']);
         item.setRelevance(items[i]['relevance']);
         item.setType(items[i]['tag']);
