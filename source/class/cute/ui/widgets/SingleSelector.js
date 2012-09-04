@@ -180,7 +180,6 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
         }
       }
       this._firstColumn = first;
-      console.log(this._columnIDs, this._columnNames);
     }
   }
 });
