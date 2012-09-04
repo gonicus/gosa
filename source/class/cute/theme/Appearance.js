@@ -49,10 +49,11 @@ qx.Theme.define("cute.theme.Appearance",
 
       style : function(states)
       {
+        var weight;
         if (states.pressed || states.abandoned || states.checked) {
-          var weight = "bold";
+          weight = "bold";
         } else {
-          var weight = "default";
+          weight = "default";
         }
 
         return {

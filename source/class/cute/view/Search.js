@@ -168,10 +168,11 @@ qx.Class.define("cute.view.Search",
 
               // No results, try fuzzy search
               } else {
+                  selection['fallback'] = true;
                   rpc.cA(function(result, error){
                       var endTime = new Date().getTime();
                       this.showSearchResults(result, endTime - startTime, true);
-                  }, this, "simple_search", base, "sub", this.sf.getValue(), {'fallback': true});
+                  }, this, "simple_search", base, "sub", this.sf.getValue(), selection);
               }
           }, this, "simple_search", base, "sub", this.sf.getValue(), selection);
         }
