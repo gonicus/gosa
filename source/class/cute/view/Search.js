@@ -79,6 +79,11 @@ qx.Class.define("cute.view.Search",
     this.resultList.setDecorator(null);
     this.searchResult.add(this.resultList, {left: barWidth, right: 0, bottom: 0, top: 0});
 
+    // Create search aid bar on the left
+    this.searchAid = new cute.ui.SearchAid();
+    this.searchAid.setWidth(barWidth);
+    this.searchResult.add(this.searchAid, {left: 0, bottom: 0, top: 0});
+
     this.add(this.searchResult, {flex: 1});
 
     // Bind search methods
@@ -292,7 +297,6 @@ qx.Class.define("cute.view.Search",
 
         }, this, obj);
       }, this, dn);
-
     }
   }
 });
