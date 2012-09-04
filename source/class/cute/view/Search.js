@@ -88,8 +88,8 @@ qx.Class.define("cute.view.Search",
 
     // Bind search methods
     // TODO: search while typing
-    sb.addListener("execute", this.doSearch, this);
-    sf.addListener("changeValue", this.doSearch, this);
+    sb.addListener("execute", this.doSearchE, this);
+    sf.addListener("changeValue", this.doSearchE, this);
     this.sf = sf;
 
     // Bind search result model
@@ -152,8 +152,14 @@ qx.Class.define("cute.view.Search",
 
   members :
   {
+    doSearchE : function() {
+      this.searchAid.resetFilter();
+      this.doSearch();
+    },
+
     doSearch : function() {
       var selection = this.searchAid.getSelection();
+      console.log(selection);
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(result, error){
         if(!error){
@@ -182,7 +188,6 @@ qx.Class.define("cute.view.Search",
     showSearchResults : function(items, duration, fuzzy) {
       var i = items.length;
 
-      this.searchAid.resetFilter();
       this.searchInfo.show();
       this.resultList.getChildControl("scrollbar-x").setPosition(0);
       this.resultList.getChildControl("scrollbar-y").setPosition(0);
@@ -240,20 +245,23 @@ qx.Class.define("cute.view.Search",
       this.resultController.setModel(data);
       
       // Add search filters
-      this.searchAid.addFilter("", "category", categories);
-      this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
-          "enabled": this.tr("Enabled"),
-          "disabled": this.tr("Disabled")
-      });
-      this.searchAid.addFilter(this.tr("Last modification"), "mod-time", {
-          "all": this.tr("All"),
-          "hour": this.tr("Last hour"),
-          "day": this.tr("Last 24 hours"),
-          "week": this.tr("Last week"),
-          "month": this.tr("Last month"),
-          "year": this.tr("Last year")
-      });
-      //TODO: list locations
+      console.error(this.searchAid.hasFilter());
+      if (!this.searchAid.hasFilter()) {
+        this.searchAid.addFilter(this.tr("Category"), "category", categories);
+        this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
+            "enabled": this.tr("Enabled"),
+            "disabled": this.tr("Disabled")
+        });
+        this.searchAid.addFilter(this.tr("Last modification"), "mod-time", {
+            "all": this.tr("All"),
+            "hour": this.tr("Last hour"),
+            "day": this.tr("Last 24 hours"),
+            "week": this.tr("Last week"),
+            "month": this.tr("Last month"),
+            "year": this.tr("Last year")
+        });
+        //TODO: list locations
+      }
     },
 
     editItem : function() {

@@ -53,6 +53,8 @@ qx.Class.define("cute.ui.SearchAid",
 	    
 	    var that = this;
 	    group.addListener("changeSelection", function() {
+              that.__selection[cat] = this.getSelection();
+	      console.error(this.getSelection());
 	      that.fireDataEvent("filterChanged", {
 	          "category": cat,
 	          "selection": this.getSelection()
@@ -62,6 +64,10 @@ qx.Class.define("cute.ui.SearchAid",
 	    this.__filters.push(w);
 	    this.add(w);
 	  },
+
+	  hasFilter : function() {
+            return this.__filters.length != 0;
+	  },
 	  
 	  resetFilter : function() {
 	    for (var i= 0; i<this.__filters.length; i++){
@@ -69,7 +75,7 @@ qx.Class.define("cute.ui.SearchAid",
 	    }
 	    
 	    this.__filters = [];
-        this.__selection = {};
+	    this.__selection = {};
 	  }
 	  
   }
