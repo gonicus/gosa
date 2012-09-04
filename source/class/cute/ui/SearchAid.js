@@ -54,7 +54,7 @@ qx.Class.define("cute.ui.SearchAid",
 	    
 	    var that = this;
 	    group.addListener("changeSelection", function() {
-          var selection = this.getSelection()[0].getUserData("category")
+          var selection = this.getSelection()[0].getUserData("category");
           that.__selection[cat] = selection;
 	      that.fireDataEvent("filterChanged", {
 	          "category": cat,
