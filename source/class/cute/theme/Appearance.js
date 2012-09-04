@@ -71,7 +71,8 @@ qx.Theme.define("cute.theme.Appearance",
       style : function(states)
       {
         return {
-          center : false
+          center : false,
+          cursor : "pointer"
         };
       }
     },

@@ -47,17 +47,18 @@ qx.Class.define("cute.ui.SearchAid",
           }
 
           b.setAppearance("SearchAidButton");
+          b.setUserData("category", k);
 	      w.add(b);
 	      group.add(b);
 	    }
 	    
 	    var that = this;
 	    group.addListener("changeSelection", function() {
-              that.__selection[cat] = this.getSelection();
-	      console.error(this.getSelection());
+          var selection = this.getSelection()[0].getUserData("category")
+          that.__selection[cat] = selection;
 	      that.fireDataEvent("filterChanged", {
 	          "category": cat,
-	          "selection": this.getSelection()
+	          "selection": selection
 	        });
 	      }, group);
 	    

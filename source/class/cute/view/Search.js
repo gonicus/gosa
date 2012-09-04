@@ -159,7 +159,6 @@ qx.Class.define("cute.view.Search",
 
     doSearch : function() {
       var selection = this.searchAid.getSelection();
-      console.log(selection);
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(result, error){
         if(!error){
@@ -245,7 +244,6 @@ qx.Class.define("cute.view.Search",
       this.resultController.setModel(data);
       
       // Add search filters
-      console.error(this.searchAid.hasFilter());
       if (!this.searchAid.hasFilter()) {
         this.searchAid.addFilter(this.tr("Category"), "category", categories);
         this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
