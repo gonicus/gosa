@@ -239,6 +239,7 @@ qx.Class.define("cute.view.Search",
       console.log("Categories:");
       console.log(categories);
       //TODO: display that one
+      this.searchAid.addFilter(this.tr("Categories"), "category", categories);
     },
 
     editItem : function() {
