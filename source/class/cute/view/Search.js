@@ -193,6 +193,7 @@ qx.Class.define("cute.view.Search",
       }
 
       var model = [];
+      var categories = {};
 
       // Build model
       for (var i= 0; i<items.length; i++) {
@@ -211,6 +212,11 @@ qx.Class.define("cute.view.Search",
         item.setDescription(items[i]['description']);
         item.setIcon(icon);
         model.push(item);
+        
+        // Update categories
+        if (!categories[items[i]['tag']]) {
+        	categories[items[i]['tag']] = 1;
+        }
       }
       
       // Update model
@@ -222,7 +228,12 @@ qx.Class.define("cute.view.Search",
               return -1;
           return 1;
       });
+      
       this.resultController.setModel(data);
+      
+      console.log("Categories:");
+      console.log(categories);
+      //TODO: display that one
     },
 
     editItem : function() {
