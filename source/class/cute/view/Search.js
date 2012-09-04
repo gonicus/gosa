@@ -51,7 +51,6 @@ qx.Class.define("cute.view.Search",
     this.searchInfo = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
     this.searchInfo.hide();
     this.searchInfo.setPadding(20);
-    this.searchInfo.setDecorator("separator-vertical");
     var sil = new qx.ui.basic.Label(this.tr("Search"));
     sil.setTextColor("red");
     //TODO: use custom theme font
@@ -83,6 +82,7 @@ qx.Class.define("cute.view.Search",
     this.searchAid = new cute.ui.SearchAid();
     this.searchAid.setWidth(barWidth);
     this.searchResult.add(this.searchAid, {left: 0, bottom: 0, top: 0});
+    this.searchAid.addListener("filterChanged", this.doSearch, this);
 
     this.add(this.searchResult, {flex: 1});
 
@@ -153,6 +153,7 @@ qx.Class.define("cute.view.Search",
   members :
   {
     doSearch : function() {
+      var selection = this.searchAid.getSelection();
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(result, error){
         if(!error){
@@ -172,7 +173,7 @@ qx.Class.define("cute.view.Search",
                       this.showSearchResults(result, endTime - startTime, true);
                   }, this, "simple_search", base, "sub", this.sf.getValue(), {'fallback': true});
               }
-          }, this, "simple_search", base, "sub", this.sf.getValue());
+          }, this, "simple_search", base, "sub", this.sf.getValue(), selection);
         }
       }, this, "getBase");
     },
@@ -180,6 +181,7 @@ qx.Class.define("cute.view.Search",
     showSearchResults : function(items, duration, fuzzy) {
       var i = items.length;
 
+      this.searchAid.resetFilter();
       this.searchInfo.show();
       this.resultList.getChildControl("scrollbar-x").setPosition(0);
       this.resultList.getChildControl("scrollbar-y").setPosition(0);
@@ -198,7 +200,7 @@ qx.Class.define("cute.view.Search",
       }
 
       var model = [];
-      var categories = {};
+      var categories = {"all" : this.tr("All")};
 
       // Build model
       for (var i= 0; i<items.length; i++) {
@@ -220,7 +222,7 @@ qx.Class.define("cute.view.Search",
         
         // Update categories
         if (!categories[items[i]['tag']]) {
-        	categories[items[i]['tag']] = 1;
+        	categories[items[i]['tag']] = items[i]['tag'];
         }
       }
       
@@ -236,10 +238,21 @@ qx.Class.define("cute.view.Search",
       
       this.resultController.setModel(data);
       
-      console.log("Categories:");
-      console.log(categories);
-      //TODO: display that one
-      this.searchAid.addFilter(this.tr("Categories"), "category", categories);
+      // Add search filters
+      this.searchAid.addFilter("", "category", categories);
+      this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
+          "enabled": this.tr("Enabled"),
+          "disabled": this.tr("Disabled")
+      });
+      this.searchAid.addFilter(this.tr("Last modification"), "mod-time", {
+          "all": this.tr("All"),
+          "hour": this.tr("Last hour"),
+          "day": this.tr("Last 24 hours"),
+          "week": this.tr("Last week"),
+          "month": this.tr("Last month"),
+          "year": this.tr("Last year")
+      });
+      //TODO: list locations
     },
 
     editItem : function() {

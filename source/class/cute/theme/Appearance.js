@@ -14,6 +14,66 @@ qx.Theme.define("cute.theme.Appearance",
 
   appearances :
   {
+    "SearchAid" : {},
+
+    "SearchAid/legend" :
+    {
+      alias : "atom",
+
+      style : function(states)
+      {
+        return {
+          textColor : "#808080",
+          padding : [5, 0, 0, 5],
+          font: "bold"
+        };
+      }
+    },
+
+    "SearchAid/frame" :
+    {
+      style : function(states)
+      {
+        return {
+          backgroundColor : "background",
+          padding : [5, 0, 0, 5],
+          margin: [10, 0, 0, 0],
+          decorator  : null
+        };
+      }
+    },
+
+    "SearchAidButton-frame" :
+    {
+      alias : "atom",
+
+      style : function(states)
+      {
+        if (states.pressed || states.abandoned || states.checked) {
+          var weight = "bold";
+        } else {
+          var weight = "default";
+        }
+
+        return {
+          textColor : "red",
+          font: weight
+        };
+      }
+    },
+
+    "SearchAidButton" :
+    {
+      alias : "SearchAidButton-frame",
+      include : "SearchAidButton-frame",
+
+      style : function(states)
+      {
+        return {
+          center : false
+        };
+      }
+    },
 
     "SearchList" :
     {
