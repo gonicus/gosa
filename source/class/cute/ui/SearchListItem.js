@@ -224,6 +224,7 @@ qx.Class.define("cute.ui.SearchListItem", {
           control.addListener("click", function(){
               this.fireDataEvent("edit", this.getModel());
             }, this);
+          control.setRich(true);
           break;
         case "dn":
           control = new qx.ui.basic.Label(this.getDn());
@@ -231,6 +232,7 @@ qx.Class.define("cute.ui.SearchListItem", {
           control.setAppearance("SearchLIstItem-Dn");
           control.setAnonymous(true); 
           control.setSelectable(true);
+          control.setRich(true);
           break;
         case "description":
           control = new qx.ui.basic.Label(this.getDescription());

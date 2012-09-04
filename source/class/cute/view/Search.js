@@ -169,14 +169,14 @@ qx.Class.define("cute.view.Search",
           rpc.cA(function(result, error){
               if (result.length) {
                   var endTime = new Date().getTime();
-                  this.showSearchResults(result, endTime - startTime);
+                  this.showSearchResults(result, endTime - startTime, false, this.sf.getValue());
 
               // No results, try fuzzy search
               } else {
                   selection['fallback'] = true;
                   rpc.cA(function(result, error){
                       var endTime = new Date().getTime();
-                      this.showSearchResults(result, endTime - startTime, true);
+                      this.showSearchResults(result, endTime - startTime, true, this.sf.getValue());
                   }, this, "simple_search", base, "sub", this.sf.getValue(), selection);
               }
           }, this, "simple_search", base, "sub", this.sf.getValue(), selection);
@@ -184,7 +184,7 @@ qx.Class.define("cute.view.Search",
       }, this, "getBase");
     },
 
-    showSearchResults : function(items, duration, fuzzy) {
+    showSearchResults : function(items, duration, fuzzy, query) {
       var i = items.length;
 
       this.searchInfo.show();
@@ -217,11 +217,11 @@ qx.Class.define("cute.view.Search",
             icon = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/images/objects/" + items[i]['tag'].toLowerCase() + ".png";
         }
 
-        item.setDn(items[i]['dn']);
+        item.setDn(this._highlight(items[i]['dn'], query));
         item.setTitle(items[i]['title']);
         item.setRelevance(items[i]['relevance']);
         item.setType(items[i]['tag']);
-        item.setDescription(items[i]['description']);
+        item.setDescription(this._highlight(items[i]['description'], query));
         item.setIcon(icon);
         model.push(item);
         
@@ -260,6 +260,11 @@ qx.Class.define("cute.view.Search",
         });
         //TODO: list locations
       }
+    },
+
+    _highlight : function(string, query) {
+        var reg = new RegExp('(' + qx.lang.String.escapeRegexpChars(query) + ')', "ig");
+        return string.replace(reg, "<b>$1</b>");
     },
 
     editItem : function() {
