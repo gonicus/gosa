@@ -251,7 +251,7 @@ msgstr "Letzte Stunde"
 
 #: cute/view/Search.js:256
 msgid "Last 24 hours"
-msgstr "Letzen 24 Stunden"
+msgstr "Letzte 24 Stunden"
 
 #: cute/view/Search.js:257
 msgid "Last week"

@@ -84,9 +84,9 @@ qx.Class.define("cute.view.Search",
     this.add(this.searchResult, {flex: 1});
 
     // Bind search methods
-    // TODO: search while typing
     sb.addListener("execute", this.doSearchE, this);
     sf.addListener("changeValue", this.doSearchE, this);
+    sf.addListener("keyup", this._handle_key_event, this);
     this.sf = sf;
 
     // Bind search result model
@@ -129,6 +129,18 @@ qx.Class.define("cute.view.Search",
         }
       });
 
+    // Establish a timer that handles search updates
+    var timer = qx.util.TimerManager.getInstance();
+    this.sf.addListener("focusin", function() {
+      if (!this._timer) {
+        this._timer = timer.start(this._search_queue_handler, 1000, this, null, 2000);
+      }
+    }, this);
+    this.sf.addListener("focusout", function() {
+      timer.stop(this._timer);
+      this._timer = null; 
+    }, this);
+
     // Focus search field
     var _self = this;
     setTimeout(function() {
@@ -149,12 +161,52 @@ qx.Class.define("cute.view.Search",
 
   members :
   {
-    doSearchE : function() {
-      this.searchAid.resetFilter();
-      this.doSearch();
+    _sq : [],
+    _timer : null,
+    _working : false,
+
+    _search_queue_handler : function() {
+      if (this._sq.length == 0 || this._working) {
+        return;
+      }
+
+      // Lock us
+      this._working = true;
+
+      // Remove all entries from the queue and keep the newest
+      var query = null;
+      while (true) {
+         var q = this._sq.shift();
+         if (!q) {
+           break;
+         }
+         query = q;
+      }
+
+      // Do search and lock ourselves
+      this.doSearchE(function() {
+        this._working = false;
+      });
     },
 
-    doSearch : function() {
+    _handle_key_event : function(e) {
+      var value = this.sf.getValue();
+
+      // Only trigger if the search is longer than three characters
+      if (value.length < 3) {
+        return;
+      }
+
+      // Push the search to the search queue
+      this._sq.push(value);
+    },
+
+    doSearchE : function(callback) {
+      this.searchAid.resetFilter();
+      this.doSearch(callback);
+    },
+
+    doSearch : function(callback) {
       var selection = this.searchAid.getSelection();
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(result, error){
@@ -168,12 +220,20 @@ qx.Class.define("cute.view.Search",
                   var endTime = new Date().getTime();
                   this.showSearchResults(result, endTime - startTime, false, this.sf.getValue());
 
+                  if (callback) {
+                    callback.apply(this);
+                  }
+
               // No results, try fuzzy search
               } else {
                   selection['fallback'] = true;
                   rpc.cA(function(result, error){
                       var endTime = new Date().getTime();
                       this.showSearchResults(result, endTime - startTime, true, this.sf.getValue());
+
+                      if (callback) {
+                        callback.apply(this);
+                      }
                   }, this, "simple_search", base, "sub", this.sf.getValue(), selection);
               }
           }, this, "simple_search", base, "sub", this.sf.getValue(), selection);
