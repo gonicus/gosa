@@ -26,16 +26,16 @@ qx.Class.define("cute.ui.widgets.MultiEditContainer", {
   
     this.__container = new qx.ui.container.Composite(new qx.ui.layout.HBox(0));
     this.__addButton = new qx.ui.form.Button(null, cute.Config.getImagePath("actions/attribute-add.png", "22")).set({
-            "decorator": null,
             "padding": 2,
             "margin": 0
             });
+    this.__addButton.setAppearance("attribute-button");
     this.__addButton.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Add value")));
     this.__delButton = new qx.ui.form.Button(null, cute.Config.getImagePath("actions/attribute-remove.png", "22")).set({
-            "decorator": null,
             "padding": 2,
             "margin": 0
             });
+    this.__delButton.setAppearance("attribute-button");
     this.__delButton.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove value")));
 
     this.add(this.__container, {flex: 1});

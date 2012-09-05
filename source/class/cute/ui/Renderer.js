@@ -395,7 +395,7 @@ qx.Class.define("cute.ui.Renderer",
             this._processBlockedBy(widget, attrs['blocked_by']);
           }
         } else {
-            console.debug("skipping attribute " +  name + " - no binding found");
+          this.warn("skipping attribute " +  name + " - no binding found");
         }
       }
 
@@ -1759,7 +1759,6 @@ qx.Class.define("cute.ui.Renderer",
         }
       }
 
-      console.log("no image");
       return null;
     },
 

@@ -86,6 +86,7 @@ qx.Class.define("cute.view.Search",
 
     // Bind search methods
     sb.addListener("execute", this.doSearchE, this);
+    sb.addListener("changeValue", this._handle_key_event, this);
     sf.addListener("keyup", this._handle_key_event, this);
     this.sf = sf;
 
@@ -190,15 +191,8 @@ qx.Class.define("cute.view.Search",
     },
 
     _handle_key_event : function(e) {
-      var value = this.sf.getValue();
-
-      // Only trigger if the search is longer than three characters
-      if (value.length < 3) {
-        return;
-      }
-
       // Push the search to the search queue
-      this._sq.push(value);
+      this._sq.push(this.sf.getValue());
     },
 
     doSearchE : function(e, callback) {

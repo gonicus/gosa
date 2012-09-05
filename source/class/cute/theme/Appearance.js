@@ -72,7 +72,46 @@ qx.Theme.define("cute.theme.Appearance",
       {
         return {
           center : false,
-          cursor : "pointer"
+          cursor: states.disabled ? undefined : "pointer"
+        };
+      }
+    },
+
+    "attribute-button-frame" :
+    {
+      alias : "atom",
+
+      style : function(states)
+      {
+        var decorator = undefined;
+
+        if (!states.disabled) {
+          if (states.hovered && !states.pressed && !states.checked) {
+            decorator = "button-box-hovered";
+          } else if (states.hovered && (states.pressed || states.checked)) {
+            decorator = "button-box-pressed-hovered";
+          } else if (states.pressed || states.checked) {
+            decorator = "button-box-pressed";
+          }
+        }
+
+        return {
+          decorator : decorator,
+          padding : [3, 7],
+          cursor: states.disabled ? undefined : "pointer",
+          minWidth: 28,
+          minHeight: 28
+        };
+      }
+    },
+
+    "attribute-button" : {
+      alias : "attribute-button-frame",
+      include : "attribute-button-frame",
+
+      style : function(states){
+        return {
+          center : true
         };
       }
     },

@@ -68,10 +68,10 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
       this._widget.setEnabled(false);
 
       this._actionBtn = new qx.ui.form.Button(null, cute.Config.getImagePath("actions/attribute-choose.png", "22")).set({
-            "decorator": null,
             "padding": 2,
             "margin": 0
             });
+      this._actionBtn.setAppearance("attribute-button");
       this._actionBtn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Choose value")));
 
       this.add(this._widget, {flex: 1});
