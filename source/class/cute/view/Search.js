@@ -85,7 +85,6 @@ qx.Class.define("cute.view.Search",
 
     // Bind search methods
     sb.addListener("execute", this.doSearchE, this);
-    sf.addListener("changeValue", this.doSearchE, this);
     sf.addListener("keyup", this._handle_key_event, this);
     this.sf = sf;
 
@@ -184,7 +183,7 @@ qx.Class.define("cute.view.Search",
       }
 
       // Do search and lock ourselves
-      this.doSearchE(function() {
+      this.doSearchE(null, function() {
         this._working = false;
       });
     },
@@ -201,12 +200,12 @@ qx.Class.define("cute.view.Search",
       this._sq.push(value);
     },
 
-    doSearchE : function(callback) {
+    doSearchE : function(e, callback) {
       this.searchAid.resetFilter();
-      this.doSearch(callback);
+      this.doSearch(e, callback);
     },
 
-    doSearch : function(callback) {
+    doSearch : function(e, callback) {
       var selection = this.searchAid.getSelection();
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(result, error){
