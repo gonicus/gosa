@@ -1,10 +1,11 @@
 /* ************************************************************************
 
-   Copyright: Cajus Pollmeier <pollmeier@gonicus.de>
+   Copyright: 2012, GONICUS GmbH
 
    License:
 
-   Authors:
+   Authors: Cajus Pollmeier <pollmeier@gonicus.de>
+            Fabian Hickert <hickert@gonicus.de>
 
 ************************************************************************ */
 
@@ -215,7 +216,7 @@ qx.Class.define("cute.view.Search",
 
           // Try ordinary search
           rpc.cA(function(result, error){
-              if (result.length) {
+              if (result && result.length) {
                   var endTime = new Date().getTime();
                   this.showSearchResults(result, endTime - startTime, false, this.sf.getValue());
 
