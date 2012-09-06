@@ -21,6 +21,7 @@ qx.Class.define("cute.view.Search",
 
   construct : function()
   {
+    this._sq = [];
     var barWidth = 200;
 
     //TODO: Add more translations to the qx.locale.Manager from the categoryDescription
@@ -166,7 +167,7 @@ qx.Class.define("cute.view.Search",
 
   members :
   {
-    _sq : [],
+    _sq : null,
     _timer : null,
     _working : false,
 
@@ -312,10 +313,12 @@ qx.Class.define("cute.view.Search",
       // Update model
       var data = new qx.data.Array(model);
       data.sort(function (a, b) {
-          if (a.getRelevance() == b.getRelevance())
+          if (a.getRelevance() == b.getRelevance()) {
               return 0;
-          if (a.getRelevance() < b.getRelevance())
+          }
+          if (a.getRelevance() < b.getRelevance()) {
               return -1;
+          }
           return 1;
       });
       

@@ -114,13 +114,15 @@ qx.Class.define("cute.Application",
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(result, error) {
         if (error) {
-          this.error(this.tr("Can't determine session user") + ": " + error);
+          this.error("can't determine session user: " + error);
+          new cute.ui.dialogs.Error(this.tr("Can't determine session user") + ": " + error).open();
           cute.Session.user = null;
         } else {
           cute.Session.user = result;
           rpc.cA(function(result, error) {
             if (error) {
-              this.error(this.tr("Can't fetch translation catalog") + ": " + error);
+              this.error("Can't fetch translation catalog: " + error);
+              new cute.ui.dialogs.Error(this.tr("Can't fetch translation catalog") + ": " + error).open();
             } else {
               var lm = qx.locale.Manager.getInstance();
               lm.addTranslation(qx.locale.Manager.getInstance().getLocale(), result);

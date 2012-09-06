@@ -1,6 +1,6 @@
 /*
 #asset(cute/*)
-*/
+ */
 
 qx.Class.define("cute.ui.SearchListItem", {
 
@@ -8,6 +8,9 @@ qx.Class.define("cute.ui.SearchListItem", {
   implement : [qx.ui.form.IModel],
   include : [qx.ui.form.MModelProperty],
 
+  /*
+   * @lint ignoreUndefined(getThrobber)
+   */
   construct: function(){
     this.base(arguments);
 

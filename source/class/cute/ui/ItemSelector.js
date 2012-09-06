@@ -62,6 +62,8 @@ qx.Class.define("cute.ui.ItemSelector", {
   },
 
   members : {
+    __table : null,
+    __tableModel : null,
 
     _ok : function() {
         var list = [];

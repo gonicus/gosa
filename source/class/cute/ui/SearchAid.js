@@ -7,8 +7,8 @@ qx.Class.define("cute.ui.SearchAid",
     this.base(arguments);
     this.setLayout(new qx.ui.layout.VBox(10, "top"));
 
-    this.__filters = [];
     this.__selection = {};
+    this.__filters = [];
   },
 
   events: {
@@ -23,6 +23,9 @@ qx.Class.define("cute.ui.SearchAid",
 
   members :
   {
+      __selection : null,
+      __filters : null,
+
       getSelection : function() {
           return this.__selection;
       },
