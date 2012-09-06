@@ -26,8 +26,10 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
     this.add(container);
     
     // Create context menu buttons
-    this._changePicture = new qx.ui.menu.Button(this.tr("Upload new image"));
-    this._removePicture = new qx.ui.menu.Button(this.tr("Remove image"));
+    this._changePicture = new qx.ui.menu.Button(this.tr("Upload new image"),
+            cute.Config.getImagePath("actions/attribute-choose.png", 22));
+    this._removePicture = new qx.ui.menu.Button(this.tr("Remove image"),
+            cute.Config.getImagePath("actions/attribute-remove.png", 22));
     this._removePicture.setEnabled(false);
 
     // Establish image upload handling
