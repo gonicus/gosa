@@ -11,6 +11,14 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: cute/Application.js:117
+msgid "Can't determine session user"
+msgstr ""
+
+#: cute/Application.js:123
+msgid "Can't fetch translation catalog"
+msgstr ""
+
 #: cute/ui/ItemSelector.js:42
 msgid "Choose"
 msgstr ""
@@ -168,7 +176,7 @@ msgid "Add value"
 msgstr ""
 
 #: cute/ui/widgets/QGraphicsViewWidget.js:29
-msgid "Change image"
+msgid "Upload new image"
 msgstr ""
 
 #: cute/ui/widgets/QGraphicsViewWidget.js:30
@@ -188,85 +196,88 @@ msgstr ""
 msgid "Choose value"
 msgstr ""
 
-#: cute/view/Search.js:36
+#: cute/view/Search.js:41
 msgid "Please enter your search..."
 msgstr ""
 
-#: cute/view/Search.js:42 cute/view/Search.js:54
+#: cute/view/Search.js:47 cute/view/Search.js:59
 msgid "Search"
 msgstr ""
 
-#: cute/view/Search.js:202
+#: cute/view/Search.js:265
 msgid "%1 fuzzy result"
 msgid_plural "%1 fuzzy results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:202 cute/view/Search.js:204
+#: cute/view/Search.js:265 cute/view/Search.js:267
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:202
+#: cute/view/Search.js:265
 msgid "no exact matches"
 msgstr ""
 
-#: cute/view/Search.js:204
+#: cute/view/Search.js:267
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:208 cute/view/Search.js:254
+#: cute/view/Search.js:298 cute/view/Search.js:335
 msgid "All"
 msgstr ""
 
-#: cute/view/Search.js:248
+#: cute/view/Search.js:329
 msgid "Category"
 msgstr ""
 
-#: cute/view/Search.js:249
+#: cute/view/Search.js:330
 msgid "Secondary search"
 msgstr ""
 
-#: cute/view/Search.js:250
+#: cute/view/Search.js:331
 msgid "Enabled"
 msgstr ""
 
-#: cute/view/Search.js:251
+#: cute/view/Search.js:332
 msgid "Disabled"
 msgstr ""
 
-#: cute/view/Search.js:253
+#: cute/view/Search.js:334
 msgid "Last modification"
 msgstr ""
 
-#: cute/view/Search.js:255
+#: cute/view/Search.js:336
 msgid "Last hour"
 msgstr ""
 
-#: cute/view/Search.js:256
+#: cute/view/Search.js:337
 msgid "Last 24 hours"
 msgstr ""
 
-#: cute/view/Search.js:257
+#: cute/view/Search.js:338
 msgid "Last week"
 msgstr ""
 
-#: cute/view/Search.js:258
+#: cute/view/Search.js:339
 msgid "Last month"
 msgstr ""
 
-#: cute/view/Search.js:259
+#: cute/view/Search.js:340
 msgid "Last year"
 msgstr ""
 
-#: cute/view/Search.js:293
+#: cute/view/Search.js:379
 msgid "Object"
 msgstr ""
 
 #~ msgid "An error occured"
+#~ msgstr ""
+
+#~ msgid "Change image"
 #~ msgstr ""
 
 #~ msgid "Method"

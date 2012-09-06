@@ -14,6 +14,14 @@ msgstr ""
 "X-Language: de_DE\n"
 "X-Source-Language: de\n"
 
+#: cute/Application.js:117
+msgid "Can't determine session user"
+msgstr "Kann Sitzungs-Benutzer nicht bestimmen"
+
+#: cute/Application.js:123
+msgid "Can't fetch translation catalog"
+msgstr "Kann Übersetzungs-Katalog nicht beziehen"
+
 #: cute/ui/ItemSelector.js:42
 msgid "Choose"
 msgstr "Auswählen"
@@ -171,8 +179,8 @@ msgid "Add value"
 msgstr "Wert hinzufügen"
 
 #: cute/ui/widgets/QGraphicsViewWidget.js:29
-msgid "Change image"
-msgstr "Bild ändern"
+msgid "Upload new image"
+msgstr "Neues Bild bereitstellen"
 
 #: cute/ui/widgets/QGraphicsViewWidget.js:30
 msgid "Remove image"
@@ -191,80 +199,83 @@ msgstr "Wert entfernen"
 msgid "Choose value"
 msgstr "Wert auswählen"
 
-#: cute/view/Search.js:36
+#: cute/view/Search.js:41
 msgid "Please enter your search..."
 msgstr "Bitte geben Sie den Suchtext ein..."
 
-#: cute/view/Search.js:42 cute/view/Search.js:54
+#: cute/view/Search.js:47 cute/view/Search.js:59
 msgid "Search"
 msgstr "Suche"
 
-#: cute/view/Search.js:202
+#: cute/view/Search.js:265
 msgid "%1 fuzzy result"
 msgid_plural "%1 fuzzy results"
 msgstr[0] "%1 ungenaues Ergebnis"
 msgstr[1] "%1 ungenaue Ergebnisse"
 
-#: cute/view/Search.js:202 cute/view/Search.js:204
+#: cute/view/Search.js:265 cute/view/Search.js:267
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] "%1 Sekunde"
 msgstr[1] "%1 Sekunden"
 
-#: cute/view/Search.js:202
+#: cute/view/Search.js:265
 msgid "no exact matches"
 msgstr "keine exakten Treffer"
 
-#: cute/view/Search.js:204
+#: cute/view/Search.js:267
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] "%1 Ergebnis"
 msgstr[1] "%1 Ergebnisse"
 
-#: cute/view/Search.js:208 cute/view/Search.js:254
+#: cute/view/Search.js:298 cute/view/Search.js:335
 msgid "All"
 msgstr "Alle"
 
-#: cute/view/Search.js:248
+#: cute/view/Search.js:329
 msgid "Category"
 msgstr "Kategorie"
 
-#: cute/view/Search.js:249
+#: cute/view/Search.js:330
 msgid "Secondary search"
 msgstr "Sekundäre Suche"
 
-#: cute/view/Search.js:250
+#: cute/view/Search.js:331
 msgid "Enabled"
 msgstr "Aktiviert"
 
-#: cute/view/Search.js:251
+#: cute/view/Search.js:332
 msgid "Disabled"
 msgstr "Deaktiviert"
 
-#: cute/view/Search.js:253
+#: cute/view/Search.js:334
 msgid "Last modification"
 msgstr "Letzte Änderung"
 
-#: cute/view/Search.js:255
+#: cute/view/Search.js:336
 msgid "Last hour"
 msgstr "Letzte Stunde"
 
-#: cute/view/Search.js:256
+#: cute/view/Search.js:337
 msgid "Last 24 hours"
 msgstr "Letzte 24 Stunden"
 
-#: cute/view/Search.js:257
+#: cute/view/Search.js:338
 msgid "Last week"
 msgstr "Vorherige Woche"
 
-#: cute/view/Search.js:258
+#: cute/view/Search.js:339
 msgid "Last month"
 msgstr "Vorheriger Monat"
 
-#: cute/view/Search.js:259
+#: cute/view/Search.js:340
 msgid "Last year"
 msgstr "Vorheriges Jahr"
 
-#: cute/view/Search.js:293
+#: cute/view/Search.js:379
 msgid "Object"
 msgstr "Objekt"
+
+#~ msgid "Change image"
+#~ msgstr "Bild ändern"
