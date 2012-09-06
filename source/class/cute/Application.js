@@ -66,7 +66,7 @@ qx.Class.define("cute.Application",
       pluginView.setBarPosition("left");
 
       // Create application header and toolbar
-      var header = new qx.ui.basic.Atom("Logo");
+      var header = new qx.ui.basic.Atom("", "cute/logo.png");
       header.setBackgroundColor("black");
       header.setTextColor("white");
       header.setHeight(48);
