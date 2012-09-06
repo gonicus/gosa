@@ -27,7 +27,7 @@ qx.Class.define("cute.ui.SearchAid",
           return this.__selection;
       },
 
-	  addFilter : function(title, cat, elements){
+	  addFilter : function(title, cat, elements, dflt){
         var w = new qx.ui.groupbox.GroupBox(title);
         if (!title) {
             w.getChildControl("legend").exclude();
@@ -43,13 +43,18 @@ qx.Class.define("cute.ui.SearchAid",
 	      var b = new qx.ui.form.ToggleButton(v);
 
           if (!this.__selection[cat]) {
-              this.__selection[cat] = k;
+              this.__selection[cat] = dflt;
           }
 
           b.setAppearance("SearchAidButton");
           b.setUserData("category", k);
 	      w.add(b);
 	      group.add(b);
+
+          // Set activated by default
+          if (k == dflt) {
+            group.setSelection([b]);
+          }
 	    }
 	    
 	    var that = this;

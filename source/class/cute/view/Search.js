@@ -23,6 +23,10 @@ qx.Class.define("cute.view.Search",
   {
     var barWidth = 200;
 
+    //TODO: Add more translations to the qx.locale.Manager from the categoryDescription
+    //var lm = qx.locale.Manager.getInstance();
+    //lm.addTranslation(qx.locale.Manager.getInstance().getLocale(), this.translations);
+
     // Call super class and configure ourselfs
     this.base(arguments, "", cute.Config.getImagePath("apps/search.png", 32));
     this._excludeChildControl("label");
@@ -134,7 +138,7 @@ qx.Class.define("cute.view.Search",
     var timer = qx.util.TimerManager.getInstance();
     this.sf.addListener("focusin", function() {
       if (!this._timer) {
-        this._timer = timer.start(this._search_queue_handler, 1000, this, null, 2000);
+        this._timer = timer.start(this._search_queue_handler, 2000, this, null, 2000);
       }
     }, this);
     this.sf.addListener("focusout", function() {
@@ -196,13 +200,21 @@ qx.Class.define("cute.view.Search",
     },
 
     doSearchE : function(e, callback) {
-      this.searchAid.resetFilter();
-      this.doSearch(e, callback);
+      this.doSearch(e, callback, true);
     },
 
-    doSearch : function(e, callback) {
+    doSearch : function(e, callback, reset) {
       var selection = this.searchAid.getSelection();
       var rpc = cute.io.Rpc.getInstance();
+
+      // Don't search for nothing
+      if (this.sf.getValue() == "") {
+        if (callback) {
+          callback.apply(this);
+        }
+        return;
+      }
+
       rpc.cA(function(result, error){
         if(!error){
           var base = result;
@@ -212,7 +224,7 @@ qx.Class.define("cute.view.Search",
           rpc.cA(function(result, error){
               if (result && result.length) {
                   var endTime = new Date().getTime();
-                  this.showSearchResults(result, endTime - startTime, false, this.sf.getValue());
+                  this.showSearchResults(result, endTime - startTime, false, this.sf.getValue(), reset);
 
                   if (callback) {
                     callback.apply(this);
@@ -223,7 +235,7 @@ qx.Class.define("cute.view.Search",
                   selection['fallback'] = true;
                   rpc.cA(function(result, error){
                       var endTime = new Date().getTime();
-                      this.showSearchResults(result, endTime - startTime, true, this.sf.getValue());
+                      this.showSearchResults(result, endTime - startTime, true, this.sf.getValue(), reset);
 
                       if (callback) {
                         callback.apply(this);
@@ -235,7 +247,7 @@ qx.Class.define("cute.view.Search",
       }, this, "getBase");
     },
 
-    showSearchResults : function(items, duration, fuzzy, query) {
+    showSearchResults : function(items, duration, fuzzy, query, reset) {
       var i = items.length;
 
       this.searchInfo.show();
@@ -256,7 +268,7 @@ qx.Class.define("cute.view.Search",
       }
 
       var model = [];
-      var categories = {"all" : this.tr("All")};
+      var _categories = {};
 
       // Build model
       for (var i= 0; i<items.length; i++) {
@@ -277,11 +289,26 @@ qx.Class.define("cute.view.Search",
         model.push(item);
         
         // Update categories
-        if (!categories[items[i]['tag']]) {
-        	categories[items[i]['tag']] = items[i]['tag'];
+        if (!_categories[items[i]['tag']]) {
+          _categories[items[i]['tag']] = this.tr(items[i]['tag']);
         }
       }
-      
+
+      // Pseudo sort categories
+      var categories = {"all" : this.tr("All")};
+      var tmp = [];
+      for (var i in _categories) {
+        tmp.push([i, _categories[i]]);
+      }
+      tmp.sort(function(a, b) {
+        a = a[1];
+        b = b[1];
+        return a < b ? -1 : (a > b ? 1 : 0);
+      });
+      for (var i=0; i<tmp.length; i++) {
+        categories[tmp[i][0]] = tmp[i][1];
+      }
+
       // Update model
       var data = new qx.data.Array(model);
       data.sort(function (a, b) {
@@ -295,12 +322,15 @@ qx.Class.define("cute.view.Search",
       this.resultController.setModel(data);
       
       // Add search filters
+      if (reset) {
+        this.searchAid.resetFilter();
+      }
       if (!this.searchAid.hasFilter()) {
-        this.searchAid.addFilter(this.tr("Category"), "category", categories);
+        this.searchAid.addFilter(this.tr("Category"), "category", categories, "all");
         this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
             "enabled": this.tr("Enabled"),
             "disabled": this.tr("Disabled")
-        });
+        }, "enabled");
         this.searchAid.addFilter(this.tr("Last modification"), "mod-time", {
             "all": this.tr("All"),
             "hour": this.tr("Last hour"),
@@ -308,7 +338,7 @@ qx.Class.define("cute.view.Search",
             "week": this.tr("Last week"),
             "month": this.tr("Last month"),
             "year": this.tr("Last year")
-        });
+        }, "all");
         //TODO: list locations
       }
     },
