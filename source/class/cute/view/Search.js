@@ -24,10 +24,6 @@ qx.Class.define("cute.view.Search",
     this._sq = [];
     var barWidth = 200;
 
-    //TODO: Add more translations to the qx.locale.Manager from the categoryDescription
-    //var lm = qx.locale.Manager.getInstance();
-    //lm.addTranslation(qx.locale.Manager.getInstance().getLocale(), this.translations);
-
     // Call super class and configure ourselfs
     this.base(arguments, "", cute.Config.getImagePath("apps/search.png", 32));
     this._excludeChildControl("label");
@@ -170,6 +166,7 @@ qx.Class.define("cute.view.Search",
     _sq : null,
     _timer : null,
     _working : false,
+    _old_query : null,
 
     _search_queue_handler : function() {
       if (this._sq.length == 0 || this._working) {
@@ -178,16 +175,6 @@ qx.Class.define("cute.view.Search",
 
       // Lock us
       this._working = true;
-
-      // Remove all entries from the queue and keep the newest
-      var query = null;
-      while (true) {
-         var q = this._sq.shift();
-         if (!q) {
-           break;
-         }
-         query = q;
-      }
 
       // Do search and lock ourselves
       this.doSearchE(null, function() {
@@ -201,6 +188,7 @@ qx.Class.define("cute.view.Search",
     },
 
     doSearchE : function(e, callback) {
+      this._sq.push(this.sf.getValue());
       this.doSearch(e, callback, true);
     },
 
@@ -208,13 +196,27 @@ qx.Class.define("cute.view.Search",
       var selection = this.searchAid.getSelection();
       var rpc = cute.io.Rpc.getInstance();
 
+      // Remove all entries from the queue and keep the newest
+      var query = null;
+      while (true) {
+         var q = this._sq.shift();
+         if (!q) {
+           break;
+         }
+         query = q;
+      }
+     
+  
       // Don't search for nothing
-      if (this.sf.getValue() == "") {
+      if (query == "" || this._old_query == query) {
         if (callback) {
           callback.apply(this);
         }
         return;
       }
+      
+      // Memorize old query
+      this._old_query = query;
 
       rpc.cA(function(result, error){
         if(!error){
@@ -225,7 +227,7 @@ qx.Class.define("cute.view.Search",
           rpc.cA(function(result, error){
               if (result && result.length) {
                   var endTime = new Date().getTime();
-                  this.showSearchResults(result, endTime - startTime, false, this.sf.getValue(), reset);
+                  this.showSearchResults(result, endTime - startTime, false, query, reset);
 
                   if (callback) {
                     callback.apply(this);
@@ -236,14 +238,14 @@ qx.Class.define("cute.view.Search",
                   selection['fallback'] = true;
                   rpc.cA(function(result, error){
                       var endTime = new Date().getTime();
-                      this.showSearchResults(result, endTime - startTime, true, this.sf.getValue(), reset);
+                      this.showSearchResults(result, endTime - startTime, true, query, reset);
 
                       if (callback) {
                         callback.apply(this);
                       }
-                  }, this, "simple_search", base, "sub", this.sf.getValue(), selection);
+                  }, this, "simple_search", base, "sub", query, selection);
               }
-          }, this, "simple_search", base, "sub", this.sf.getValue(), selection);
+          }, this, "simple_search", base, "sub", query, selection);
         }
       }, this, "getBase");
     },
