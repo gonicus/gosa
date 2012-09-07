@@ -779,6 +779,7 @@ qx.Class.define("cute.ui.Renderer",
     {
       this._object.retract(function(result, error) {
         if (error) {
+          new cute.ui.dialogs.Error(qx.lang.String.format(this.tr("Failed to retract the %1 extension: %2"), [extension, error.message])).open();
           this.error(error.message);
         } else {
 
@@ -793,14 +794,15 @@ qx.Class.define("cute.ui.Renderer",
           for (var i = 0; i<pages.length; i++) {
             pages[i].fireEvent("close");
             pages[i].dispose();
-            this._object.refreshMetaInformation(this._updateToolMenu, this);
-            this.setModified(true);
-
-            if (callback) {
-                callback();
-            }
           }
+          
+          this._object.refreshMetaInformation(this._updateToolMenu, this);
+          this.setModified(true);
 
+          if (callback) {
+              callback();
+          }
+          
           delete this._extension_to_page[extension];
         }
       }, this, extension);
