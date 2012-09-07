@@ -89,7 +89,7 @@ qx.Class.define("cute.proxy.Object", {
           this.baseType = data['base'];
           this.extensionTypes = data['extensions'];
           this.templates = data['templates'];
-	  cb.apply(ctx);
+          cb.apply(ctx);
         }else{
           this.error(error);
         }

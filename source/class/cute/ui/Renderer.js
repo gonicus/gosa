@@ -727,8 +727,8 @@ qx.Class.define("cute.ui.Renderer",
 
               // Find extension level actions
               var actions = nodes.firstChild.getElementsByTagName("action");
-              for (var i=0; i<actions.length; i++) {
-                actionMenu.add(this._makeActionMenuEntry(actions[i], resources));
+              for (var j=0; i<actions.length; j++) {
+                actionMenu.add(this._makeActionMenuEntry(actions[j], resources));
               }
             }
           }
@@ -783,6 +783,13 @@ qx.Class.define("cute.ui.Renderer",
           this.error(error.message);
         } else {
 
+          var pages = this._extension_to_page[extension];
+          for (var i = 0; i<pages.length; i++) {
+            pages[i].fireEvent("close");
+            pages[i].dispose();
+          }
+          delete this._extension_to_page[extension];
+
           // Remove all widget references and then close the page
           for(var widget in this._extension_to_widgets[extension]){
             widget = this._extension_to_widgets[extension][widget];
@@ -790,20 +797,12 @@ qx.Class.define("cute.ui.Renderer",
           }
           delete this._extension_to_widgets[extension];
 
-          var pages = this._extension_to_page[extension];
-          for (var i = 0; i<pages.length; i++) {
-            pages[i].fireEvent("close");
-            pages[i].dispose();
-          }
-          
           this._object.refreshMetaInformation(this._updateToolMenu, this);
           this.setModified(true);
 
           if (callback) {
               callback();
           }
-          
-          delete this._extension_to_page[extension];
         }
       }, this, extension);
     },
@@ -880,7 +879,7 @@ qx.Class.define("cute.ui.Renderer",
 
       }
 
-      // Setup new tab
+      // Remove tab
       this._retractObjectFrom(extension);
     },
 
