@@ -81,7 +81,7 @@ qx.Class.define("cute.view.Search",
     this.searchAid = new cute.ui.SearchAid();
     this.searchAid.setWidth(barWidth);
     this.searchResult.add(this.searchAid, {left: 0, bottom: 0, top: 0});
-    this.searchAid.addListener("filterChanged", this.doSearch, this);
+    this.searchAid.addListener("filterChanged", this.doSearchE, this);
 
     this.add(this.searchResult, {flex: 1});
 
@@ -197,7 +197,7 @@ qx.Class.define("cute.view.Search",
       var rpc = cute.io.Rpc.getInstance();
 
       // Remove all entries from the queue and keep the newest
-      var query = null;
+      var query = "";
       while (true) {
          var q = this._sq.shift();
          if (!q) {
@@ -208,7 +208,7 @@ qx.Class.define("cute.view.Search",
      
   
       // Don't search for nothing
-      if (query == "" || this._old_query == query) {
+      if (query == "") {
         if (callback) {
           callback.apply(this);
         }
@@ -235,6 +235,7 @@ qx.Class.define("cute.view.Search",
 
               // No results, try fuzzy search
               } else {
+
                   selection['fallback'] = true;
                   rpc.cA(function(result, error){
                       var endTime = new Date().getTime();
