@@ -35,6 +35,7 @@ qx.Class.define("cute.ui.widgets.QLabelWidget",
     this._widget = new qx.ui.basic.Label();
     this._widget.setRich(true);
     this.add(this._widget, {top:0, bottom:0, left:0, right: 0});
+    this.removeState("cuteInput");
   },
 
   members :

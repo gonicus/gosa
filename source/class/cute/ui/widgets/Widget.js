@@ -19,6 +19,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
       }, this);
 
     this.addState("cuteWidget");
+    this.addState("cuteInput");
   },
 
   properties : {

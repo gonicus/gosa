@@ -46,6 +46,7 @@ qx.Class.define("cute.ui.widgets.LineWidget",
     this.add(this._widget, {top:0, bottom:0, left:0, right: 0});
 
     this._setOrientation("Qt::Horizontal");
+    this.removeState("cuteInput");
   },
 
   members :

@@ -1654,7 +1654,7 @@ qx.Class.define("cute.ui.Renderer",
     {
       var title = this.getStringProperty('title', props);
       //TODO: create a group box with icons
-      var widget = new qx.ui.groupbox.GroupBox(this.tr(title));
+      var widget = new cute.ui.widgets.GroupBox(this.tr(title));
       this.processCommonProperties(name, widget, props);
       this._widgets[name] = widget;
       this.__add_widget_to_extension(name, loc);
