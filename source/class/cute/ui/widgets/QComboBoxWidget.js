@@ -66,6 +66,29 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
 
     _applyValues: function(data){
 
+      if(this.getType() == "Integer"){
+        var that = this;
+        var convert = function(value){
+            var res = parseInt(value);
+            if(res == NaN){
+              that.error("failed to convert ComboBox value "+value+" to int ("+that.getExtension()+"."+that.getAttribute()+")");
+              return(0);
+            }else{
+              return(res);
+            }
+          }
+      }else if(this.getType() == "Boolean"){
+        var convert= function(value){
+            return(value == "True");
+          }
+      }else{
+        var convert= function(value){
+            return(value);
+          }
+      }
+
+
+
       if(data.classname != "qx.data.Array"){
         var items = [];
 
@@ -79,7 +102,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
         if (qx.Bootstrap.getClass(data) == "Object") {
           for (var k in data) {
             var item = new cute.data.model.SelectBoxItem();
-            item.setKey(k);
+            item.setKey(convert(k));
             if (data[k]['value']) {
               item.setValue(data[k]['value']);
               item.setIcon(data[k]['icon']);
@@ -92,7 +115,7 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
           for (var k = 0; k < data.length; k++) {
             var item = new cute.data.model.SelectBoxItem();
             item.setValue(data[k]);
-            item.setKey(data[k]);
+            item.setKey(convert(data[k]));
             items.push(item);
           }
         }
