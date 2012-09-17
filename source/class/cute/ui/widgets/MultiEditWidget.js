@@ -87,7 +87,7 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
       var data = new qx.data.Array();
       for(var i=0; i<this._current_length; i++){
         var val = this._getWidgetValue(i);
-        if(val != null && val != this._default_value){
+        if(val !== null && val !== this._default_value){
           data.push(val);
         }
       }
