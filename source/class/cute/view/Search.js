@@ -135,7 +135,7 @@ qx.Class.define("cute.view.Search",
     var timer = qx.util.TimerManager.getInstance();
     this.sf.addListener("focusin", function() {
       if (!this._timer) {
-        this._timer = timer.start(this._search_queue_handler, 2000, this, null, 2000);
+        this._timer = timer.start(this._search_queue_handler, 500, this, null, 2000);
       }
     }, this);
     this.sf.addListener("focusout", function() {
@@ -184,7 +184,9 @@ qx.Class.define("cute.view.Search",
 
     _handle_key_event : function(e) {
       // Push the search to the search queue
-      this._sq.push(this.sf.getValue());
+      if (this.sf.getValue().length > 2) {
+        this._sq.push(this.sf.getValue());
+      }
     },
 
     doSearchE : function(e, callback) {
