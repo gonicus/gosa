@@ -81,7 +81,7 @@ qx.Class.define("cute.view.Search",
     this.searchAid = new cute.ui.SearchAid();
     this.searchAid.setWidth(barWidth);
     this.searchResult.add(this.searchAid, {left: 0, bottom: 0, top: 0});
-    this.searchAid.addListener("filterChanged", this.doSearchE, this);
+    this.searchAid.addListener("filterChanged", this.doSearchENR, this);
 
     this.add(this.searchResult, {flex: 1});
 
@@ -135,7 +135,7 @@ qx.Class.define("cute.view.Search",
     var timer = qx.util.TimerManager.getInstance();
     this.sf.addListener("focusin", function() {
       if (!this._timer) {
-        this._timer = timer.start(this._search_queue_handler, 2000, this, null, 2000);
+        this._timer = timer.start(this._search_queue_handler, 500, this, null, 2000);
       }
     }, this);
     this.sf.addListener("focusout", function() {
@@ -184,12 +184,19 @@ qx.Class.define("cute.view.Search",
 
     _handle_key_event : function(e) {
       // Push the search to the search queue
-      this._sq.push(this.sf.getValue());
+      if (this.sf.getValue().length > 2) {
+        this._sq.push(this.sf.getValue());
+      }
     },
 
     doSearchE : function(e, callback) {
       this._sq.push(this.sf.getValue());
       this.doSearch(e, callback, true);
+    },
+
+    doSearchENR : function(e, callback) {
+      this._sq.push(this.sf.getValue());
+      this.doSearch(e, callback, false);
     },
 
     doSearch : function(e, callback, reset) {
@@ -258,7 +265,7 @@ qx.Class.define("cute.view.Search",
       this.resultList.getChildControl("scrollbar-x").setPosition(0);
       this.resultList.getChildControl("scrollbar-y").setPosition(0);
 
-      if (i == 0){
+      if (i == 0 && reset){
           this.searchResult.hide();
       } else {
           this.searchResult.show();
