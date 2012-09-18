@@ -7,7 +7,7 @@ qx.Class.define("cute.ui.widgets.DateTimeField", {
     var format = new qx.util.format.DateFormat(
       qx.locale.Date.getDateFormat("short") + " " + qx.locale.Date.getTimeFormat("short"));
 
-    this.setWidth(220);
+    this.setWidth(130);
     this.setDateFormat(format);
   },
 
@@ -28,7 +28,17 @@ qx.Class.define("cute.ui.widgets.DateTimeField", {
       var curDate = this.getValue();
       var format1 = new qx.util.format.DateFormat(qx.locale.Date.getDateFormat("short"));
       var format2 = new qx.util.format.DateFormat(qx.locale.Date.getTimeFormat("short"));
-      var newStr = format1.format(selectedDate) + " " + format2.format(curDate);
+      
+      var newStr = "";
+      if(format1.format(selectedDate)){
+        newStr = format1.format(selectedDate);
+
+        if(format2.format(curDate)){
+          newStr += " " + format2.format(curDate);
+        }else{
+          newStr = this.getDateFormat().format(selectedDate);
+        }
+      }
       textField.setValue(newStr);
       this.close();
     }
