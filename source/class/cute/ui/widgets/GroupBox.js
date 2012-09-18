@@ -1,3 +1,6 @@
+/* This group-box widget is derived from the qooxdoos original group-box, 
+ * it has the ability to hide itself, if all child elements are hidden.
+ * */
 qx.Class.define("cute.ui.widgets.GroupBox", {
 
   extend: qx.ui.groupbox.GroupBox,
@@ -5,19 +8,20 @@ qx.Class.define("cute.ui.widgets.GroupBox", {
   construct: function(title){
     this.base(arguments, title);
 
-    this.__add = this.add;
+    // Collect all cute child widgets on appear
     this.__cuteChildList = [];
-
     this.addListenerOnce("appear", function(){
         this.__cuteChildList = this.loadChildrenList(this.getChildren());
       }, this);
-    
   },
 
   members: {
 
     __cuteChildList: null,
     
+    /* Check if all elements of this group-box are hidden, in this case
+     * hide the group box too.
+     * */
     __check: function(){
       var disable = true;
       for(var i=0; i<this.__cuteChildList.length; i++){
@@ -33,6 +37,11 @@ qx.Class.define("cute.ui.widgets.GroupBox", {
       }
     },
 
+    /* Recursivly load all child elements of the given qooxdoo widget.
+     * Add a listener to all found cute-widgets to receive events about their
+     * visiblity status.
+     * Returns all found cuteWidgets
+     * */
     loadChildrenList: function(current){
       var children = [];
       for(var i=0; i< current.length; i++){
