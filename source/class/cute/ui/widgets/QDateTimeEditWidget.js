@@ -1,16 +1,13 @@
 qx.Class.define("cute.ui.widgets.QDateTimeEditWidget", {
 
-  extend : cute.ui.widgets.QDateEditWidget
+  extend : cute.ui.widgets.QDateEditWidget,
 
   members: {
  
     /* Creates an input-widget and connects the update listeners
      * */
     _createWidget: function(){
-      var w = new qx.ui.form.DateField();
-      var format = new qx.util.format.DateFormat("dd.MM.yyyy HH:mm:ss");
-      w.setWidth(160);
-      w.setDateFormat(format);
+      var w = new cute.ui.widgets.DateTimeField();
 
       if(this.getPlaceholder()){
         w.setPlaceholder(this.getPlaceholder());
