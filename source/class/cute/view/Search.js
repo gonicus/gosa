@@ -265,7 +265,7 @@ qx.Class.define("cute.view.Search",
       this.resultList.getChildControl("scrollbar-x").setPosition(0);
       this.resultList.getChildControl("scrollbar-y").setPosition(0);
 
-      if (i == 0){
+      if (i == 0 && reset){
           this.searchResult.hide();
       } else {
           this.searchResult.show();
