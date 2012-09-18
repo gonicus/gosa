@@ -627,11 +627,14 @@ qx.Class.define("cute.ui.Renderer",
 
           // Now execute the method with its arguments and let the callback
           // set the button state
-          var rpc = cute.io.Rpc.getInstance();
-          rpc.cA.apply(rpc, [function(result, error){
-              result = (state[1] == "!") ? !result : result;
-              eb.setEnabled(result);
-            }, this, method].concat(args));
+          eb.setEnabled(false);
+          eb.addListener("appear", function(){
+            var rpc = cute.io.Rpc.getInstance();
+            rpc.cA.apply(rpc, [function(result, error){
+                result = (state[1] == "!") ? !result : result;
+                eb.setEnabled(result);
+              }, this, method].concat(args));
+            }, this);
 
         } else {
 
