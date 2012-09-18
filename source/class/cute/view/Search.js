@@ -81,7 +81,7 @@ qx.Class.define("cute.view.Search",
     this.searchAid = new cute.ui.SearchAid();
     this.searchAid.setWidth(barWidth);
     this.searchResult.add(this.searchAid, {left: 0, bottom: 0, top: 0});
-    this.searchAid.addListener("filterChanged", this.doSearchE, this);
+    this.searchAid.addListener("filterChanged", this.doSearchENR, this);
 
     this.add(this.searchResult, {flex: 1});
 
@@ -190,6 +190,11 @@ qx.Class.define("cute.view.Search",
     doSearchE : function(e, callback) {
       this._sq.push(this.sf.getValue());
       this.doSearch(e, callback, true);
+    },
+
+    doSearchENR : function(e, callback) {
+      this._sq.push(this.sf.getValue());
+      this.doSearch(e, callback, false);
     },
 
     doSearch : function(e, callback, reset) {
