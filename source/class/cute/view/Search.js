@@ -244,9 +244,9 @@ qx.Class.define("cute.view.Search",
                       if (callback) {
                         callback.apply(this);
                       }
-                  }, this, "simple_search", base, "sub", query, selection);
+                  }, this, "search", base, "sub", query, selection);
               }
-          }, this, "simple_search", base, "sub", query, selection);
+          }, this, "search", base, "sub", query, selection);
         }
       }, this, "getBase");
     },
