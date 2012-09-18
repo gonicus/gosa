@@ -1014,7 +1014,21 @@ qx.Class.define("cute.ui.Renderer",
           // Create a new tab-page with the generated gui as content.
           var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
           page.setLayout(new qx.ui.layout.VBox());
-          page.add(info['widget']);
+
+          // If this is the first page, then add it directly, all other pages will be added on demand
+          if(this._tabContainer.getSelectables().length == 0){
+            page.add(info['widget']);
+            console.log("frist!");
+          }else{
+            var func = function(widget, page){
+                return function(){
+                  page.add(widget);
+                  console.log("yeah!");
+                }
+              }
+            page.addListenerOnce("appear", func(info['widget'], page), this);
+          }
+
           this._extension_to_page[extension].push(page);
 
           // Create a mapping from widget to page
