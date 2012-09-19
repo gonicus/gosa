@@ -43,17 +43,18 @@ qx.Class.define("cute.ui.SearchListItem", {
         this.fireDataEvent("remove", this.getModel());
       }, this);
 
+    // Hide the toolbar as default
+    this.setAppearance("SearchListItem");
+    this._toolbar.hide();
     this.addListener("mouseover", this._onMouseOver, this);
     this.addListener("mouseout", this._onMouseOut, this);
 
-    this.setAppearance("SearchListItem");
-    this._toolbar.hide();
-
-    var throb = getThrobber();
+    // Append the throbber
+    var throb = getThrobber({color: "#FFF", alpha: 1});
     this._throbber = throb;
     this.addListener("appear", function(){
         if(this._throbber_pane){
-          throb.appendTo(this._throbber_pane.getContainerElement().getDomElement());
+          throb.appendTo(this._throbber_placeholder.getContainerElement().getDomElement());
         }
       }, this);
   },
@@ -116,7 +117,7 @@ qx.Class.define("cute.ui.SearchListItem", {
       nullable : false,
       apply: "_applyIsLoading",
       event : "changeIsLoading",
-      init : 0
+      init : false
     }
   },
 
@@ -124,14 +125,16 @@ qx.Class.define("cute.ui.SearchListItem", {
   members:{
 
     _toolbar: null,
-    _blocker: null,
     _throbber_pane: null,
+    _throbber_placeholder: null,
 
     _applyIsLoading: function(value){
       if(value){
         this._throbber.start();
+        this._throbber_pane.setOpacity(0.3);
       }else{
         this._throbber.stop();
+        this._throbber_pane.setOpacity(0);
       }
     },
    
@@ -158,7 +161,6 @@ qx.Class.define("cute.ui.SearchListItem", {
     _applyTitle: function(value){
 
       // Reset the loading state
-//this.setIsLoading(false);
       this._showChildControl("title");
       var widget = this.getChildControl("title");
       if(widget){
@@ -197,6 +199,7 @@ qx.Class.define("cute.ui.SearchListItem", {
       switch(id)
       {
         case "icon":
+
           var icon;
           if (this.getIcon()) {
               if (this.getIcon().indexOf("data:") == 0 || this.getIcon().indexOf(cute.Config.spath) == 0) {
@@ -215,11 +218,16 @@ qx.Class.define("cute.ui.SearchListItem", {
           control.setAppearance("SearchListItem-Icon");
           control.setAnonymous(true); 
 
+          /* Create the throbber panes
+           * */
           var container = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
           container.add(control, {top: 0, left:0, right:0, bottom:0});
-          
           this._throbber_pane = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-          container.add(this._throbber_pane, {top: 16, left:16});
+          this._throbber_pane.setBackgroundColor("#000");
+          this._throbber_pane.setOpacity(0);
+          this._throbber_placeholder = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+          this._throbber_pane.add(this._throbber_placeholder, {left: 16, top: 16});
+          container.add(this._throbber_pane, {top: 1, left:1, right: 1, bottom: 1});
 
           this._add(container, {row: 0, column: 0, rowSpan: 3});
           break;
