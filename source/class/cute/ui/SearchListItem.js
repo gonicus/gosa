@@ -156,6 +156,9 @@ qx.Class.define("cute.ui.SearchListItem", {
     },
 
     _applyTitle: function(value){
+
+      // Reset the loading state
+//this.setIsLoading(false);
       this._showChildControl("title");
       var widget = this.getChildControl("title");
       if(widget){
