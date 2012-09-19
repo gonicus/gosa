@@ -94,7 +94,7 @@ qx.Class.define("cute.ui.Renderer",
       // Check if there's an override for the definitions
       // If not, use the objects gui templates.
       var use_cached = true;
-      var ui_definition = obj.templates;
+      var ui_definition = cute.Cache.gui_templates;
 
       var clazz;
       
@@ -667,7 +667,7 @@ qx.Class.define("cute.ui.Renderer",
     getTranslatedExtension : function(ext)
     {
       if (!this._translated_extensions[ext]) {
-        var nodes = qx.xml.Document.fromString(this._object.templates[ext]);
+        var nodes = qx.xml.Document.fromString(cute.Cache.gui_templates[ext]);
         var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
         this._translated_extensions[ext] = this.getStringProperty("windowTitle", this.extractProperties(widget));
       }
@@ -693,7 +693,7 @@ qx.Class.define("cute.ui.Renderer",
 
       // Find base level actions
       var actionMenu = new qx.ui.menu.Menu();
-      var ui_s = this._object.templates[this._object.baseType];
+      var ui_s = cute.Cache.gui_templates[this._object.baseType];
       for (var i=0; i<ui_s.length; i++) {
         var nodes = qx.xml.Document.fromString(ui_s[i]);
         var actions = nodes.firstChild.getElementsByTagName("action");
@@ -706,10 +706,10 @@ qx.Class.define("cute.ui.Renderer",
       var retractMenu = new qx.ui.menu.Menu();
 
       for (var ext in this._object.extensionTypes) {
-        if (this._object.templates[ext] && this._object.templates[ext].length != 0) {
+        if (cute.Cache.gui_templates[ext] && cute.Cache.gui_templates[ext].length != 0) {
 
           // Find first widget definition and extract windowIcon and windowTitle
-          var ui_s = this._object.templates[ext];
+          var ui_s = cute.Cache.gui_templates[ext];
           var added = false;
           for (var i=0; i<ui_s.length; i++) {
             var nodes = qx.xml.Document.fromString(ui_s[i]);
@@ -830,7 +830,7 @@ qx.Class.define("cute.ui.Renderer",
         var needed = [];
         for (var dep in dependencies) {
           var ext = dependencies[dep];
-          if (this._object.extensionTypes[ext] && this._object.templates[ext] && this._object.templates[ext].length != 0) {
+          if (this._object.extensionTypes[ext] && cute.Cache.gui_templates[ext] && cute.Cache.gui_templates[ext].length != 0) {
             needed.push(ext);
           }
         }
@@ -983,6 +983,9 @@ qx.Class.define("cute.ui.Renderer",
 
       // Process each tab of the current extension
       var ui_definition = this.getUiDefinition_();
+
+      console.log(ui_definition);
+
       for (var tab=0; tab<ui_definition[extension].length; tab++) {
 
         // Clean-up values that were collected per-loop.
