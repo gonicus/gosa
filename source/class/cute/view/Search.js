@@ -177,9 +177,9 @@ qx.Class.define("cute.view.Search",
       this._working = true;
 
       // Do search and lock ourselves
-      this.doSearchE(null, function() {
+      this.doSearch(null, function() {
         this._working = false;
-      });
+      }, true);
     },
 
     _handle_key_event : function(e) {
@@ -224,6 +224,11 @@ qx.Class.define("cute.view.Search",
       
       // Memorize old query
       this._old_query = query;
+
+      // Reset selection if required
+      if (reset) {
+          selection = {};
+      }
 
       rpc.cA(function(result, error){
         if(!error){
