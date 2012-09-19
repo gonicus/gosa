@@ -11,12 +11,20 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: cute/Application.js:117
+#: cute/Application.js:130
 msgid "Can't determine session user"
 msgstr ""
 
-#: cute/Application.js:123
+#: cute/Application.js:140
+msgid "Loading translation"
+msgstr ""
+
+#: cute/Application.js:146
 msgid "Can't fetch translation catalog"
+msgstr ""
+
+#: cute/Application.js:169
+msgid "Loading %1 template"
 msgstr ""
 
 #: cute/ui/ItemSelector.js:42
@@ -27,55 +35,59 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: cute/ui/Renderer.js:739
+#: cute/ui/Renderer.js:743
 msgid "Extend"
 msgstr ""
 
-#: cute/ui/Renderer.js:744
+#: cute/ui/Renderer.js:748
 msgid "Retract"
 msgstr ""
 
-#: cute/ui/Renderer.js:749
+#: cute/ui/Renderer.js:753
 msgid "Action"
 msgstr ""
 
-#: cute/ui/Renderer.js:835
+#: cute/ui/Renderer.js:786
+msgid "Failed to retract the %1 extension: %2"
+msgstr ""
+
+#: cute/ui/Renderer.js:840
 msgid "Dependent extension"
 msgid_plural "Dependent extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:846
+#: cute/ui/Renderer.js:851
 msgid "To retract the <b>%1</b> extension from this object, the following additional extension needs to be removed: %2"
 msgid_plural "To retract the <b>%1</b> extension from this object, the following additional extensions need to be removed: %2"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:849
+#: cute/ui/Renderer.js:854
 msgid "Do you want the dependent extension to be removed?"
 msgid_plural "Do you want the dependent extensions to be removed?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:920
+#: cute/ui/Renderer.js:925
 msgid "Missing extension"
 msgid_plural "Missing extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:931
+#: cute/ui/Renderer.js:936
 msgid "To extend the object by the <b>%1</b> extension, the following additional extension is required: %2"
 msgid_plural "To extend the object by the <b>%1</b> extension, the following additional extensions are required: %2"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:934
+#: cute/ui/Renderer.js:939
 msgid "Do you want the missing extension to be added?"
 msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:1027
+#: cute/ui/Renderer.js:1046
 msgid "Remove extension"
 msgstr ""
 
@@ -121,6 +133,10 @@ msgstr ""
 
 #: cute/ui/dialogs/Info.js:10
 msgid "Info"
+msgstr ""
+
+#: cute/ui/dialogs/Loading.js:7
+msgid "Loading"
 msgstr ""
 
 #: cute/ui/dialogs/LoginDialog.js:7 cute/ui/dialogs/LoginDialog.js:37
@@ -179,7 +195,7 @@ msgstr ""
 msgid "Upload new image"
 msgstr ""
 
-#: cute/ui/widgets/QGraphicsViewWidget.js:30
+#: cute/ui/widgets/QGraphicsViewWidget.js:31
 msgid "Remove image"
 msgstr ""
 
@@ -196,85 +212,91 @@ msgstr ""
 msgid "Choose value"
 msgstr ""
 
-#: cute/view/Search.js:41
+#: cute/view/Search.js:38
 msgid "Please enter your search..."
 msgstr ""
 
-#: cute/view/Search.js:47 cute/view/Search.js:59
+#: cute/view/Search.js:44 cute/view/Search.js:56
 msgid "Search"
 msgstr ""
 
-#: cute/view/Search.js:265
+#: cute/view/Search.js:281
 msgid "%1 fuzzy result"
 msgid_plural "%1 fuzzy results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:265 cute/view/Search.js:267
+#: cute/view/Search.js:281 cute/view/Search.js:283
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:265
+#: cute/view/Search.js:281
 msgid "no exact matches"
 msgstr ""
 
-#: cute/view/Search.js:267
+#: cute/view/Search.js:283
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:298 cute/view/Search.js:335
+#: cute/view/Search.js:314 cute/view/Search.js:353
 msgid "All"
 msgstr ""
 
-#: cute/view/Search.js:329
+#: cute/view/Search.js:347
 msgid "Category"
 msgstr ""
 
-#: cute/view/Search.js:330
+#: cute/view/Search.js:348
 msgid "Secondary search"
 msgstr ""
 
-#: cute/view/Search.js:331
+#: cute/view/Search.js:349
 msgid "Enabled"
 msgstr ""
 
-#: cute/view/Search.js:332
+#: cute/view/Search.js:350
 msgid "Disabled"
 msgstr ""
 
-#: cute/view/Search.js:334
+#: cute/view/Search.js:352
 msgid "Last modification"
 msgstr ""
 
-#: cute/view/Search.js:336
+#: cute/view/Search.js:354
 msgid "Last hour"
 msgstr ""
 
-#: cute/view/Search.js:337
+#: cute/view/Search.js:355
 msgid "Last 24 hours"
 msgstr ""
 
-#: cute/view/Search.js:338
+#: cute/view/Search.js:356
 msgid "Last week"
 msgstr ""
 
-#: cute/view/Search.js:339
+#: cute/view/Search.js:357
 msgid "Last month"
 msgstr ""
 
-#: cute/view/Search.js:340
+#: cute/view/Search.js:358
 msgid "Last year"
 msgstr ""
 
-#: cute/view/Search.js:379
+#: cute/view/Search.js:397
 msgid "Object"
 msgstr ""
 
 #~ msgid "An error occured"
+#~ msgstr ""
+
+#~ msgid "Loading internationalization"
+#~ msgstr ""
+
+#~ msgid "Can't fetch internationalization catalog"
 #~ msgstr ""
 
 #~ msgid "Change image"

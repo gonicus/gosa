@@ -137,7 +137,7 @@ qx.Class.define("cute.Application",
 
           // Add a translation prefetch job.
           var translation = {}
-          translation['message'] = this.tr("Translation");
+          translation['message'] = this.tr("Loading translation");
           translation['context'] = this;
           translation['params'] = ["getTemplateI18N", locale, theme];
           translation['func'] = function(result, error){
@@ -166,7 +166,7 @@ qx.Class.define("cute.Application",
               // 'item' will change in the loop...)
               var addFunc = function(name){
                   var data = {};
-                  data['message'] = that.tr("Template: %1", name);
+                  data['message'] = that.tr("Loading %1 template", name);
                   data['context'] = this;
                   data['params'] = ["getGuiTemplates", name, theme];
                   data['func'] = function(templates, error){

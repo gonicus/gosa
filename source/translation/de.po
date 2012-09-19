@@ -14,13 +14,21 @@ msgstr ""
 "X-Language: de_DE\n"
 "X-Source-Language: de\n"
 
-#: cute/Application.js:117
+#: cute/Application.js:130
 msgid "Can't determine session user"
 msgstr "Kann Sitzungs-Benutzer nicht bestimmen"
 
-#: cute/Application.js:123
+#: cute/Application.js:140
+msgid "Loading translation"
+msgstr "Lade Übersetzung"
+
+#: cute/Application.js:146
 msgid "Can't fetch translation catalog"
 msgstr "Kann Übersetzungs-Katalog nicht beziehen"
+
+#: cute/Application.js:169
+msgid "Loading %1 template"
+msgstr "Lade %1-Vorlage"
 
 #: cute/ui/ItemSelector.js:42
 msgid "Choose"
@@ -30,55 +38,59 @@ msgstr "Auswählen"
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: cute/ui/Renderer.js:739
+#: cute/ui/Renderer.js:743
 msgid "Extend"
 msgstr "Erweitern"
 
-#: cute/ui/Renderer.js:744
+#: cute/ui/Renderer.js:748
 msgid "Retract"
 msgstr "Zurücknehmen"
 
-#: cute/ui/Renderer.js:749
+#: cute/ui/Renderer.js:753
 msgid "Action"
 msgstr "Aktion"
 
-#: cute/ui/Renderer.js:835
+#: cute/ui/Renderer.js:786
+msgid "Failed to retract the %1 extension: %2"
+msgstr "Fehler beim Zurückziehen der %1-Erweiterung: %2"
+
+#: cute/ui/Renderer.js:840
 msgid "Dependent extension"
 msgid_plural "Dependent extensions"
 msgstr[0] "Abhängige Erweiterung"
 msgstr[1] "Abhängige Erweiterungen"
 
-#: cute/ui/Renderer.js:846
+#: cute/ui/Renderer.js:851
 msgid "To retract the <b>%1</b> extension from this object, the following additional extension needs to be removed: %2"
 msgid_plural "To retract the <b>%1</b> extension from this object, the following additional extensions need to be removed: %2"
 msgstr[0] "Um die <b>%1</b>-Erweiterung von diesem Objekt zurückzunehmen, muss die folgende Erweiterung ebenfalls zurückgenommen werden: %2"
 msgstr[1] "Um die <b>%1</b>-Erweiterung von diesem Objekt zurückzunehmen, müssen die folgenden Erweiterungen ebenfalls zurückgenommen werden: %2"
 
-#: cute/ui/Renderer.js:849
+#: cute/ui/Renderer.js:854
 msgid "Do you want the dependent extension to be removed?"
 msgid_plural "Do you want the dependent extensions to be removed?"
 msgstr[0] "Möchten Sie die abhängende Erweiterung entfernen?"
 msgstr[1] "Möchten Sie die abhängenden Erweiterungen entfernen?"
 
-#: cute/ui/Renderer.js:920
+#: cute/ui/Renderer.js:925
 msgid "Missing extension"
 msgid_plural "Missing extensions"
 msgstr[0] "Fehlende Erweiterung"
 msgstr[1] "Fehlende Erweiterungen"
 
-#: cute/ui/Renderer.js:931
+#: cute/ui/Renderer.js:936
 msgid "To extend the object by the <b>%1</b> extension, the following additional extension is required: %2"
 msgid_plural "To extend the object by the <b>%1</b> extension, the following additional extensions are required: %2"
 msgstr[0] "Um dieses Objekt um die <b>%1</b>-Erweiterung zu erweitern, wird die folgende zusätzliche Erweiterung benötigt: %2"
 msgstr[1] "Um dieses Objekt um die <b>%1</b>-Erweiterung zu erweitern, werden die folgenden zusätzlichen Erweiterungen benötigt: %2"
 
-#: cute/ui/Renderer.js:934
+#: cute/ui/Renderer.js:939
 msgid "Do you want the missing extension to be added?"
 msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] "Soll die fehlende Erweiterung hinzugefügt werden?"
 msgstr[1] "Sollen die fehlenden Erweiterungen hinzugefügt werden?"
 
-#: cute/ui/Renderer.js:1027
+#: cute/ui/Renderer.js:1046
 msgid "Remove extension"
 msgstr "Erweiterung entfernen"
 
@@ -125,6 +137,10 @@ msgstr "Fehler"
 #: cute/ui/dialogs/Info.js:10
 msgid "Info"
 msgstr "Information"
+
+#: cute/ui/dialogs/Loading.js:7
+msgid "Loading"
+msgstr "Laden"
 
 #: cute/ui/dialogs/LoginDialog.js:7 cute/ui/dialogs/LoginDialog.js:37
 msgid "Login"
@@ -182,7 +198,7 @@ msgstr "Wert hinzufügen"
 msgid "Upload new image"
 msgstr "Neues Bild bereitstellen"
 
-#: cute/ui/widgets/QGraphicsViewWidget.js:30
+#: cute/ui/widgets/QGraphicsViewWidget.js:31
 msgid "Remove image"
 msgstr "Bild entfernen"
 
@@ -199,83 +215,80 @@ msgstr "Wert entfernen"
 msgid "Choose value"
 msgstr "Wert auswählen"
 
-#: cute/view/Search.js:41
+#: cute/view/Search.js:38
 msgid "Please enter your search..."
 msgstr "Bitte geben Sie den Suchtext ein..."
 
-#: cute/view/Search.js:47 cute/view/Search.js:59
+#: cute/view/Search.js:44 cute/view/Search.js:56
 msgid "Search"
 msgstr "Suche"
 
-#: cute/view/Search.js:265
+#: cute/view/Search.js:281
 msgid "%1 fuzzy result"
 msgid_plural "%1 fuzzy results"
 msgstr[0] "%1 ungenaues Ergebnis"
 msgstr[1] "%1 ungenaue Ergebnisse"
 
-#: cute/view/Search.js:265 cute/view/Search.js:267
+#: cute/view/Search.js:281 cute/view/Search.js:283
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] "%1 Sekunde"
 msgstr[1] "%1 Sekunden"
 
-#: cute/view/Search.js:265
+#: cute/view/Search.js:281
 msgid "no exact matches"
 msgstr "keine exakten Treffer"
 
-#: cute/view/Search.js:267
+#: cute/view/Search.js:283
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] "%1 Ergebnis"
 msgstr[1] "%1 Ergebnisse"
 
-#: cute/view/Search.js:298 cute/view/Search.js:335
+#: cute/view/Search.js:314 cute/view/Search.js:353
 msgid "All"
 msgstr "Alle"
 
-#: cute/view/Search.js:329
+#: cute/view/Search.js:347
 msgid "Category"
 msgstr "Kategorie"
 
-#: cute/view/Search.js:330
+#: cute/view/Search.js:348
 msgid "Secondary search"
 msgstr "Sekundäre Suche"
 
-#: cute/view/Search.js:331
+#: cute/view/Search.js:349
 msgid "Enabled"
 msgstr "Aktiviert"
 
-#: cute/view/Search.js:332
+#: cute/view/Search.js:350
 msgid "Disabled"
 msgstr "Deaktiviert"
 
-#: cute/view/Search.js:334
+#: cute/view/Search.js:352
 msgid "Last modification"
 msgstr "Letzte Änderung"
 
-#: cute/view/Search.js:336
+#: cute/view/Search.js:354
 msgid "Last hour"
 msgstr "Letzte Stunde"
 
-#: cute/view/Search.js:337
+#: cute/view/Search.js:355
 msgid "Last 24 hours"
 msgstr "Letzte 24 Stunden"
 
-#: cute/view/Search.js:338
+#: cute/view/Search.js:356
 msgid "Last week"
 msgstr "Vorherige Woche"
 
-#: cute/view/Search.js:339
+#: cute/view/Search.js:357
 msgid "Last month"
 msgstr "Vorheriger Monat"
 
-#: cute/view/Search.js:340
+#: cute/view/Search.js:358
 msgid "Last year"
 msgstr "Vorheriges Jahr"
 
-#: cute/view/Search.js:379
+#: cute/view/Search.js:397
 msgid "Object"
 msgstr "Objekt"
-
-#~ msgid "Change image"
-#~ msgstr "Bild ändern"
