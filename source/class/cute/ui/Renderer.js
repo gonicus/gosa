@@ -984,8 +984,6 @@ qx.Class.define("cute.ui.Renderer",
       // Process each tab of the current extension
       var ui_definition = this.getUiDefinition_();
 
-      console.log(ui_definition);
-
       for (var tab=0; tab<ui_definition[extension].length; tab++) {
 
         // Clean-up values that were collected per-loop.
@@ -1021,12 +1019,10 @@ qx.Class.define("cute.ui.Renderer",
           // If this is the first page, then add it directly, all other pages will be added on demand
           if(this._tabContainer.getSelectables().length == 0){
             page.add(info['widget']);
-            console.log("frist!");
           }else{
             var func = function(widget, page){
                 return function(){
                   page.add(widget);
-                  console.log("yeah!");
                 }
               }
             page.addListenerOnce("appear", func(info['widget'], page), this);
