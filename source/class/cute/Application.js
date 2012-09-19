@@ -124,12 +124,13 @@ qx.Class.define("cute.Application",
     
       // Enforce login
       var rpc = cute.io.Rpc.getInstance();
-      rpc.cA(function(result, error) {
+      rpc.cA(function(userid, error) {
         if (error) {
           this.error("can't determine session user: " + error);
           new cute.ui.dialogs.Error(this.tr("Can't determine session user") + ": " + error).open();
           cute.Session.user = null;
         } else {
+          cute.Session.user = userid;
 
           // This list contains all loading jobs that need to be
           // processed until the gui gets visible again.
@@ -147,7 +148,6 @@ qx.Class.define("cute.Application",
               } else {
                 var lm = qx.locale.Manager.getInstance();
                 lm.addTranslation(qx.locale.Manager.getInstance().getLocale(), result);
-                cute.Session.user = result;
               }
             }
           queue.push(translation);
@@ -199,7 +199,6 @@ qx.Class.define("cute.Application",
       }else{
         this.getRoot().setBlockerColor("#000000");
         this.getRoot().setBlockerOpacity(0.5);
-        console.log(cute.Cache.gui_templates);
         dialog.close();
       }
     },
