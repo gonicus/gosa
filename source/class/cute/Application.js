@@ -199,6 +199,7 @@ qx.Class.define("cute.Application",
       }else{
         this.getRoot().setBlockerColor("#000000");
         this.getRoot().setBlockerOpacity(0.5);
+        console.log(cute.Cache.gui_templates);
         dialog.close();
       }
     },

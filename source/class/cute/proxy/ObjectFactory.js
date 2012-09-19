@@ -37,7 +37,6 @@ qx.Class.define("cute.proxy.ObjectFactory", {
           var baseType = null;
           var extensionTypes = null;
           var extensionDeps = null;
-          var templates = {};
           var attribute_data = {};
 
           var theme = cute.Config.getTheme();
@@ -68,7 +67,6 @@ qx.Class.define("cute.proxy.ObjectFactory", {
               attributes: attributes,
               attribute_data: attribute_data,
               baseType: baseType,
-              templates: templates,
               extensionTypes: extensionTypes,
               extensionDeps: extensionDeps,
               locale: locale,
@@ -114,13 +112,12 @@ qx.Class.define("cute.proxy.ObjectFactory", {
             c_callback.apply(c_context, [new cute.proxy.ObjectFactory.classes[className](userData)]); 
           };
 
-          // Load object info - base type, extension types and template information
+          // Load object info - base type, extension types
           rpc.cA(function(data, error){
             if(!error){
               baseType = data['base'];
               extensionTypes = data['extensions'];
               extensionDeps = data['extension_deps'];
-              templates = data['templates'];
 
               rpc.cA(function(_attribute_data, error) {
 
