@@ -4,7 +4,7 @@ qx.Class.define("cute.ui.dialogs.Loading",
 
   construct : function()
   {
-    this.base(arguments, this.tr("Loading") + "...");
+    this.base(arguments, this.tr("Initializing") + "...");
     this.label = new qx.ui.basic.Label();
     this.add(this.label);
     this.setLabel("");

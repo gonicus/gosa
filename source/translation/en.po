@@ -87,7 +87,7 @@ msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:1046
+#: cute/ui/Renderer.js:1049
 msgid "Remove extension"
 msgstr ""
 
@@ -136,7 +136,7 @@ msgid "Info"
 msgstr ""
 
 #: cute/ui/dialogs/Loading.js:7
-msgid "Loading"
+msgid "Initializing"
 msgstr ""
 
 #: cute/ui/dialogs/LoginDialog.js:7 cute/ui/dialogs/LoginDialog.js:37
@@ -293,13 +293,16 @@ msgstr ""
 #~ msgid "An error occured"
 #~ msgstr ""
 
-#~ msgid "Loading internationalization"
-#~ msgstr ""
-
 #~ msgid "Can't fetch internationalization catalog"
 #~ msgstr ""
 
 #~ msgid "Change image"
+#~ msgstr ""
+
+#~ msgid "Loading"
+#~ msgstr ""
+
+#~ msgid "Loading internationalization"
 #~ msgstr ""
 
 #~ msgid "Method"

@@ -90,7 +90,7 @@ msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] "Soll die fehlende Erweiterung hinzugefügt werden?"
 msgstr[1] "Sollen die fehlenden Erweiterungen hinzugefügt werden?"
 
-#: cute/ui/Renderer.js:1046
+#: cute/ui/Renderer.js:1049
 msgid "Remove extension"
 msgstr "Erweiterung entfernen"
 
@@ -139,8 +139,8 @@ msgid "Info"
 msgstr "Information"
 
 #: cute/ui/dialogs/Loading.js:7
-msgid "Loading"
-msgstr "Laden"
+msgid "Initializing"
+msgstr "Initialisiere"
 
 #: cute/ui/dialogs/LoginDialog.js:7 cute/ui/dialogs/LoginDialog.js:37
 msgid "Login"
