@@ -12,6 +12,7 @@ qx.Class.define("cute.ui.widgets.GroupBox", {
     this.__cuteChildList = [];
     this.addListenerOnce("appear", function(){
         this.__cuteChildList = this.loadChildrenList(this.getChildren());
+        this.__check();
       }, this);
   },
 
