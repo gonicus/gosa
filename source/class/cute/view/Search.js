@@ -44,6 +44,7 @@ qx.Class.define("cute.view.Search",
     var sb = new qx.ui.form.Button(this.tr("Search"));
     searchHeader.add(sb);
     searchHeader.setPadding(20);
+    searchHeader.setPaddingBottom(0);
 
     searchLayout.setAlignX("center");
 
@@ -354,7 +355,7 @@ qx.Class.define("cute.view.Search",
         this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
             "enabled": this.tr("Enabled"),
             "disabled": this.tr("Disabled")
-        }, "enabled");
+        }, "disabled");
         this.searchAid.addFilter(this.tr("Last modification"), "mod-time", {
             "all": this.tr("All"),
             "hour": this.tr("Last hour"),
