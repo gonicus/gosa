@@ -399,6 +399,7 @@ qx.Class.define("cute.view.Search",
         cute.ui.Renderer.getWidget(function(w){
           win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
           win.setLayout(new qx.ui.layout.VBox(10));
+          win.setWidth(700);
           win.add(w);
           win.addListener("appear", win.center, win);
           win.open();
