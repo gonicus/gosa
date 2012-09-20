@@ -343,6 +343,7 @@ qx.Class.define("cute.ui.Renderer",
       var container;
       var ui_definition = this.getUiDefinition_();
       this._tabContainer = container = new cute.ui.tabview.TabView();
+      this._tabContainer.getChildControl("bar").setScrollStep(150);
       this.add(container);
 
       // Create a list of tab-names and order them
