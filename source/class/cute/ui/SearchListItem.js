@@ -16,14 +16,15 @@ qx.Class.define("cute.ui.SearchListItem", {
 
     this.setMarginBottom(10);
     this.setSelectable(false);
-
     this._setLayout(new qx.ui.layout.Canvas());
 
+    // Create a grid layout to be able to place elements in order
     var layout = new qx.ui.layout.Grid();
     layout.setColumnFlex(1, 2);
     layout.setRowFlex(1, 2);
     layout.setSpacing(0);
-    this._setLayout(layout);
+    this._container = new qx.ui.container.Composite(layout);
+    this._add(this._container, {top:0, left:0, right:0, bottom:0});
 
     // create and add Part 3 to the toolbar
     this._toolbar = new qx.ui.container.Composite(new qx.ui.layout.HBox(0));
@@ -33,7 +34,7 @@ qx.Class.define("cute.ui.SearchListItem", {
     this._toolbar.add(Button2);
     this._toolbar.setAllowGrowY(false);
     this._toolbar.setAllowGrowX(false);
-    this._add(this._toolbar, {row: 0, column: 2, rowSpan: 3});
+    this._container.add(this._toolbar, {row: 0, column: 2, rowSpan: 3});
 
     Button1.addListener("execute", function(){
         this.fireDataEvent("edit", this.getModel());
@@ -44,18 +45,27 @@ qx.Class.define("cute.ui.SearchListItem", {
       }, this);
 
     // Hide the toolbar as default
-    this.setAppearance("SearchListItem");
+    this._container.setAppearance("SearchListItem");
     this._toolbar.hide();
     this.addListener("mouseover", this._onMouseOver, this);
     this.addListener("mouseout", this._onMouseOut, this);
 
     // Append the throbber
-    var throb = getThrobber({color: "#FFF", alpha: 1});
-    this._throbber = throb;
-    this.addListener("appear", function(){
-        if(this._throbber_pane){
-          throb.appendTo(this._throbber_placeholder.getContainerElement().getDomElement());
-        }
+    this._throbber = getThrobber({color: "#FFF", alpha: 1});
+
+    this._throbber_pane = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+    this._throbber_pane.setBackgroundColor("#000");
+    this._throbber_pane.setOpacity(0.3);
+    this._throbber_pane.setAnonymous(true);
+    this._throbber_placeholder = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+    this._add(this._throbber_pane, {top: 0, left:0, right: 0, bottom: 0});
+    this._add(this._throbber_placeholder, {left: 16, top: 16});
+    this._throbber_pane.exclude();
+
+    this.setPadding(0);
+
+    this.addListenerOnce("appear", function(){
+        this._throbber.appendTo(this._throbber_placeholder.getContainerElement().getDomElement());
       }, this);
   },
 
@@ -124,17 +134,18 @@ qx.Class.define("cute.ui.SearchListItem", {
 
   members:{
 
+    _container: null,
     _toolbar: null,
     _throbber_pane: null,
     _throbber_placeholder: null,
 
     _applyIsLoading: function(value){
       if(value){
+        this._throbber_pane.show();
         this._throbber.start();
-        this._throbber_pane.setOpacity(0.3);
       }else{
         this._throbber.stop();
-        this._throbber_pane.setOpacity(0);
+        this._throbber_pane.exclude();
       }
     },
    
@@ -222,18 +233,12 @@ qx.Class.define("cute.ui.SearchListItem", {
            * */
           var container = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
           container.add(control, {top: 0, left:0, right:0, bottom:0});
-          this._throbber_pane = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-          this._throbber_pane.setBackgroundColor("#000");
-          this._throbber_pane.setOpacity(0);
-          this._throbber_placeholder = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-          this._throbber_pane.add(this._throbber_placeholder, {left: 16, top: 16});
-          container.add(this._throbber_pane, {top: 1, left:1, right: 1, bottom: 1});
 
-          this._add(container, {row: 0, column: 0, rowSpan: 3});
+          this._container.add(container, {row: 0, column: 0, rowSpan: 3});
           break;
         case "title":
           control = new qx.ui.basic.Label(this.getTitle());
-          this._add(control, {row: 0, column: 1});
+          this._container.add(control, {row: 0, column: 1});
           control.setAppearance("SearchLIstItem-Title");
           control.addListener("click", function(){
               this.fireDataEvent("edit", this.getModel());
@@ -242,7 +247,7 @@ qx.Class.define("cute.ui.SearchListItem", {
           break;
         case "dn":
           control = new qx.ui.basic.Label(this.getDn());
-          this._add(control, {row: 1, column: 1});
+          this._container.add(control, {row: 1, column: 1});
           control.setAppearance("SearchLIstItem-Dn");
           control.setAnonymous(true); 
           control.setSelectable(true);
@@ -251,7 +256,7 @@ qx.Class.define("cute.ui.SearchListItem", {
         case "description":
           control = new qx.ui.basic.Label(this.getDescription());
           control.setAnonymous(true); 
-          this._add(control, {row: 2, column: 1});
+          this._container.add(control, {row: 2, column: 1});
           control.setAppearance("SearchLIstItem-Description");
           control.setRich(true);
           control.setSelectable(false);

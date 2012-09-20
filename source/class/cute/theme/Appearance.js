@@ -181,7 +181,6 @@ qx.Theme.define("cute.theme.Appearance",
         var backgroundColor = states.hovered ? 'light-background' : undefined;
         
         return {
-          gap : 4,
           padding : padding,
           backgroundColor : backgroundColor,
           textColor : states.selected ? "text-selected" : undefined,
