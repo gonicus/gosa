@@ -44,6 +44,7 @@ qx.Class.define("cute.view.Search",
     var sb = new qx.ui.form.Button(this.tr("Search"));
     searchHeader.add(sb);
     searchHeader.setPadding(20);
+    searchHeader.setPaddingBottom(0);
 
     searchLayout.setAlignX("center");
 
@@ -349,7 +350,7 @@ qx.Class.define("cute.view.Search",
         this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
             "enabled": this.tr("Enabled"),
             "disabled": this.tr("Disabled")
-        }, "enabled");
+        }, "disabled");
         this.searchAid.addFilter(this.tr("Last modification"), "mod-time", {
             "all": this.tr("All"),
             "hour": this.tr("Last hour"),
@@ -398,6 +399,7 @@ qx.Class.define("cute.view.Search",
         cute.ui.Renderer.getWidget(function(w){
           win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
           win.setLayout(new qx.ui.layout.VBox(10));
+          win.setWidth(700);
           win.add(w);
           win.addListener("appear", win.center, win);
           win.open();
