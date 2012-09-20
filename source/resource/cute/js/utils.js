@@ -15,7 +15,6 @@ function getThrobber(data)
     }
   }
 
-  console.log(defaults);
   var throb = new Throbber(defaults)
   return(throb);
 }
