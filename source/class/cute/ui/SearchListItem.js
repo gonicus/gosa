@@ -55,7 +55,7 @@ qx.Class.define("cute.ui.SearchListItem", {
 
     this._throbber_pane = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
     this._throbber_pane.setBackgroundColor("#000");
-    this._throbber_pane.setOpacity(0.3);
+    this._throbber_pane.setOpacity(0.2);
     this._throbber_pane.setAnonymous(true);
     this._throbber_placeholder = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
     this._add(this._throbber_pane, {top: 0, left:0, right: 0, bottom: 0});
