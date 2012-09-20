@@ -664,14 +664,18 @@ qx.Class.define("cute.ui.Renderer",
       return eb;
     },
 
+    /* Walk through extension ui-definitions and return all tab titles
+     * */
     getTranslatedExtension : function(ext)
     {
       if (!this._translated_extensions[ext]) {
-        var nodes = qx.xml.Document.fromString(cute.Cache.gui_templates[ext]);
-        var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
-        this._translated_extensions[ext] = this.getStringProperty("windowTitle", this.extractProperties(widget));
+        this._translated_extensions[ext] = [];
+        for(var ui in cute.Cache.gui_templates[ext]){
+          var nodes = qx.xml.Document.fromString(cute.Cache.gui_templates[ext][ui]);
+          var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
+          this._translated_extensions[ext].push(this.getStringProperty("windowTitle", this.extractProperties(widget)));
+        }
       }
-
       return this._translated_extensions[ext];
     },
 
@@ -842,15 +846,20 @@ qx.Class.define("cute.ui.Renderer",
           dlg.setWidth(400);
 
           var lst = "<ul>";
+          var len = 0;
           for (var i = 0; i<needed.length; i++) {
-            lst += "<li><b>" + this.getTranslatedExtension(needed[i]) + "</b></li>";
+            var items = this.getTranslatedExtension(needed[i]);
+            len += items.length;
+            for(var item=0; item<items.length;item++ ){
+              lst += "<li><b>" + items[item] + "</b></li>";
+            }
           }
           lst += "</ul>";
 
           var message = new qx.ui.basic.Label(
             this.trn("To retract the <b>%1</b> extension from this object, the following additional extension needs to be removed: %2",
                      "To retract the <b>%1</b> extension from this object, the following additional extensions need to be removed: %2",
-                     needed.length, this.getTranslatedExtension(extension), lst) +
+                     len, this.getTranslatedExtension(extension).join(', '), lst) +
             this.trn("Do you want the dependent extension to be removed?", "Do you want the dependent extensions to be removed?", needed.length)
           );
           message.setRich(true);
@@ -926,16 +935,23 @@ qx.Class.define("cute.ui.Renderer",
                   cute.Config.getImagePath("status/dialog-warning.png", 22));
           dlg.setWidth(400);
 
+          // Collect a list of all items that have to be extended too
           var lst = "<ul>";
+          var len = 0;
           for (var i = 0; i<needed.length; i++) {
-            lst += "<li><b>" + this.getTranslatedExtension(needed[i]) + "</b></li>";
+            var items = this.getTranslatedExtension(needed[i]);
+            len += items.length;
+            for(var item=0; item<items.length;item++ ){
+              lst += "<li><b>" + items[item] + "</b></li>";
+            }
           }
           lst += "</ul>";
 
+          // Create the message for the dialog
           var message = new qx.ui.basic.Label(
             this.trn("To extend the object by the <b>%1</b> extension, the following additional extension is required: %2",
                      "To extend the object by the <b>%1</b> extension, the following additional extensions are required: %2",
-                     needed.length, this.getTranslatedExtension(type), lst) +
+                     len, this.getTranslatedExtension(type).join(', '), lst) +
             this.trn("Do you want the missing extension to be added?", "Do you want the missing extensions to be added?", needed.length)
           );
           message.setRich(true);
