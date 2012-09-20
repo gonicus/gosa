@@ -97,12 +97,7 @@ qx.Class.define("cute.view.Search",
 
     var that = this;
     this.resultController.setDelegate({
-
-        configureItem: function(item){
-          console.log(item);
-        },
         createItem: function(){
-
 
           var item = new cute.ui.SearchListItem();
           item.addListener("edit", function(e){
