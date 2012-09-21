@@ -50,7 +50,8 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
             cute.Config.getImagePath("actions/attribute-capture.png", 22));
     cap_button.setWidth(64);
     cap_button.addListener('execute', function() {
-        this.setValue(new qx.data.Array([this.__cap.getImageData('jpeg', 80, 0, 480, 480, 0, 0, 200, 200)]));
+        var data = this.__cap.getImageData('jpeg', 80, 0, 480, 480, 0, 0, 200, 200).split(/,(.+)?/)[1];
+        this.setValue(new qx.data.Array([new cute.io.types.Binary(data)]));
         this.fireDataEvent("changeValue", this.getValue());
         this.__cap.stop();
         this.__cap_win.hide();
@@ -136,10 +137,7 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
       if (this._widget){
         this._removePicture.setEnabled(false);
         if (value && value.length && value.getItem(0)){
-            var source = value.getItem(0);
-            if (typeof(source) != 'string') {
-              source = "data:image/jpeg;base64," + source.get();
-            }
+            var source = "data:image/jpeg;base64," + value.getItem(0).get();
             this._widget.setSource(source);
             this._removePicture.setEnabled(true);
         } else{
