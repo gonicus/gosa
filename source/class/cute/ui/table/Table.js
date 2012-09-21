@@ -2,6 +2,10 @@ qx.Class.define("cute.ui.table.Table",
 {
   extend : qx.ui.table.Table,
 
+  implement : [qx.ui.form.IForm],
+
+  include: [qx.ui.form.MForm],
+
   statics: {
     tablePreferences: {}
   },
