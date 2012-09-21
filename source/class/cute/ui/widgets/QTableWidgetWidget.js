@@ -21,9 +21,8 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
     var attrs = ["buddyOf","valid","invalidMessage","attribute",
           "labelText","extension","guiProperties","caseSensitive",
           "blockedBy","defaultValue","dependsOn","mandatory", 
-          "type","unique","values","readOnly","multivalue", "valid",
-          "value","required","placeholder","maxLength","modified",
-          "invalidMessage"];
+          "type","unique","values","readOnly","multivalue",
+          "value","required","placeholder","maxLength","modified"];
 
     /* Create the multi-select style widget or the single select
      * widget depending on the source-properties multivalue state.

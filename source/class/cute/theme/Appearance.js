@@ -22,7 +22,7 @@ qx.Theme.define("cute.theme.Appearance",
         if (states.invalid) {
           return({decorator: "border-invalid"});
         }else{
-          return({});
+          return({decorator: null});
         }
       }
     },
