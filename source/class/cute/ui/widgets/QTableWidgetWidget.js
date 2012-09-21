@@ -20,13 +20,14 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
     this.setLayout(new qx.ui.layout.Canvas());
     var attrs = ["buddyOf","valid","invalidMessage","attribute",
           "labelText","extension","guiProperties","caseSensitive",
-          "blockedBy","defaultValue","dependsOn","mandatory",
-          "type","unique","values","readOnly","multivalue",
-          "value","required","placeholder","maxLength","modified"];
+          "blockedBy","defaultValue","dependsOn","mandatory", 
+          "type","unique","values","readOnly","multivalue", "valid",
+          "value","required","placeholder","maxLength","modified",
+          "invalidMessage"];
 
-      /* Create the multi-select style widget or the single select
-        * widget depending on the source-properties multivalue state.
-        * */
+    /* Create the multi-select style widget or the single select
+     * widget depending on the source-properties multivalue state.
+     * */
     this.addListenerOnce("appear", function(){
         var widget = null;
         if(this.isMultivalue()){
@@ -39,8 +40,8 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
           this.bind(attrs[attr], widget, attrs[attr]);
         }
         widget.addListener("changeValue", function(e){
-            this.fireDataEvent("changeValue", e.getData());
-          }, this);
+          this.fireDataEvent("changeValue", e.getData());
+        }, this);
 
         this.add(widget, {left:0, right:0, bottom: 0, top:0});
       },this);

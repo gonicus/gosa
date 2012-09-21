@@ -14,6 +14,20 @@ qx.Theme.define("cute.theme.Appearance",
 
   appearances :
   {
+
+    "table" :
+    {
+      style : function(states)
+      {
+        if (states.invalid) {
+          return({decorator: "border-invalid"});
+        }else{
+          return({});
+        }
+      }
+    },
+
+
     "SearchAid" : {},
 
     "SearchAid/legend" :
