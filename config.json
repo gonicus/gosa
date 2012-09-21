@@ -142,6 +142,9 @@
       [
         {
           "manifest" : "contrib://UploadMgr/trunk/Manifest.json"
+        },
+        {
+          "manifest" : "modules/capture/Manifest.json"
         }
       ]
     }
