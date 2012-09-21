@@ -416,6 +416,18 @@ qx.Class.define("cute.ui.Renderer",
       buttonPane.add(okButton);
 
       okButton.addListener("click", function() {
+
+        // Ensure that all widgets are in a valid state before starting the
+        // save action on the server.
+        for(var item in this._widgets){
+          if(this._widgets[item].hasState('cuteInput') && !this._widgets[item].isValid()){
+            if(this._widgets[item].getAttribute() in this._widget_to_page){
+              this._tabContainer.setSelection([this._widget_to_page[this._widgets[item].getAttribute()]]);
+            }
+            return;
+          }
+        }
+
         this._object.commit(function(result, error){
           if(error){
             if(error.field){
