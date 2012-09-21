@@ -1,0 +1,3 @@
+[submodule "modules/capture"]
+	path = modules/capture
+	url = git://github.com/cajus/capture.git
