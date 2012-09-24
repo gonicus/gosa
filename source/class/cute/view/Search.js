@@ -88,7 +88,6 @@ qx.Class.define("cute.view.Search",
 
     // Bind search methods
     sb.addListener("execute", this.doSearchE, this);
-    sb.addListener("changeValue", this._handle_key_event, this);
     sf.addListener("keyup", this._handle_key_event, this);
     this.sf = sf;
 
