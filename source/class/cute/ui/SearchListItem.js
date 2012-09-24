@@ -213,7 +213,7 @@ qx.Class.define("cute.ui.SearchListItem", {
 
           var icon;
           if (this.getIcon()) {
-              if (this.getIcon().indexOf("data:") == 0 || this.getIcon().indexOf(cute.Config.spath) == 0) {
+              if (this.getIcon().indexOf("/") == 0) {
                   icon = this.getIcon();
               } else {
                   icon = cute.Config.getImagePath("objects/" + this.getIcon(), 64);
