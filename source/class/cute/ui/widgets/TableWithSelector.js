@@ -150,6 +150,7 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
       var row_data = {};
       var values = this.getValue().toArray();
       for(var i=0; i<values.length; i++ ){
+        var row_data = {};
         if(values[i] in this._resolvedNames){
           row_data = this._resolvedNames[values[i]];
         }else{
