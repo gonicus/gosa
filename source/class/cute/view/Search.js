@@ -349,7 +349,7 @@ qx.Class.define("cute.view.Search",
         this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
             "enabled": this.tr("Enabled"),
             "disabled": this.tr("Disabled")
-        }, "disabled");
+        }, "enabled");
         this.searchAid.addFilter(this.tr("Last modification"), "mod-time", {
             "all": this.tr("All"),
             "hour": this.tr("Last hour"),
