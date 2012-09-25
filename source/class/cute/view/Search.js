@@ -73,7 +73,7 @@ qx.Class.define("cute.view.Search",
     this.searchResult.hide();
     this.searchResult.setPadding(20);
     this.searchResult.setDecorator("separator-vertical");
-    this.resultList = new qx.ui.form.List();
+    this.resultList = new qx.ui.list.List();
     this.resultList.setAppearance("SearchList");
     this.resultList.setDecorator(null);
     this.searchResult.add(this.resultList, {left: barWidth, right: 0, bottom: 0, top: 0});
@@ -93,10 +93,9 @@ qx.Class.define("cute.view.Search",
 
     // Bind search result model
     var data = new qx.data.Array();
-    this.resultController = new qx.data.controller.List(data, this.resultList, "dn");
 
     var that = this;
-    this.resultController.setDelegate({
+    this.resultList.setDelegate({
         createItem: function(){
 
           var item = new cute.ui.SearchListItem();
@@ -121,8 +120,6 @@ qx.Class.define("cute.view.Search",
           return(item);
         },
 
-        
-
         bindItem : function(controller, item, id) {
           controller.bindProperty("title", "title", null, item, id);
           controller.bindProperty("dn", "dn", null, item, id);
@@ -131,6 +128,8 @@ qx.Class.define("cute.view.Search",
           controller.bindProperty("", "model", null, item, id);
         }
       });
+
+    this.resultList.getPane().getRowConfig().setDefaultItemSize(80);
 
     // Establish a timer that handles search updates
     var timer = qx.util.TimerManager.getInstance();
@@ -338,7 +337,7 @@ qx.Class.define("cute.view.Search",
           return 1;
       });
       
-      this.resultController.setModel(data);
+      this.resultList.setModel(data);
       
       // Add search filters
       if (reset) {
@@ -368,7 +367,7 @@ qx.Class.define("cute.view.Search",
     },
 
     editItem : function() {
-      this.openObject(this.resultController.getSelection().getItem(0).getDn());
+      this.openObject(this.resultList.getSelection().getItem(0).getDn());
     },
 
     /* Removes the object given by dn and reloads the search results afterwards

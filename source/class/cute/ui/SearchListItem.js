@@ -21,7 +21,7 @@ qx.Class.define("cute.ui.SearchListItem", {
     // Create a grid layout to be able to place elements in order
     var layout = new qx.ui.layout.Grid();
     layout.setColumnFlex(1, 2);
-    layout.setRowFlex(1, 2);
+    layout.setRowFlex(2, 2);
     layout.setSpacing(0);
     this._container = new qx.ui.container.Composite(layout);
     this._add(this._container, {top:0, left:0, right:0, bottom:0});
