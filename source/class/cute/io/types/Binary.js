@@ -31,7 +31,10 @@ qx.Class.define("cute.io.types.Binary",
 
     toJSON: function(){
       if(this._data){
-        return({__jsonclass__: cute.io.types.Binary.tag, object: this._data});
+        var data = {};
+        data["__jsonclass__"] = cute.io.types.Binary.tag;
+        data["object"] = this._data;
+        return(data);
       }else{
         return(null);
       }

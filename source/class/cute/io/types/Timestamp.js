@@ -51,7 +51,10 @@ qx.Class.define("cute.io.types.Timestamp",
           padStr(this._date_obj.getHours()) + ":" +
           padStr(this._date_obj.getMinutes()) + ":" +
           padStr(this._date_obj.getSeconds());
-        return({__jsonclass__: cute.io.types.Timestamp.tag, object: content});
+        var data = {};
+        data["__jsonclass__"] = cute.io.types.Timestamp.tag;
+        data["object"] = content;
+        return(data);
       }else{
         return(null);
       }
