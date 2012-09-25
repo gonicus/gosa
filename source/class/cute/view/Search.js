@@ -236,6 +236,7 @@ qx.Class.define("cute.view.Search",
           var startTime = new Date().getTime();
 
           // Try ordinary search
+          selection['fallback'] = true; 
           rpc.cA(function(result, error){
               if (result && result.length) {
                   var endTime = new Date().getTime();
@@ -244,19 +245,6 @@ qx.Class.define("cute.view.Search",
                   if (callback) {
                     callback.apply(this);
                   }
-
-              // No results, try fuzzy search
-              } else {
-
-                  selection['fallback'] = true;
-                  rpc.cA(function(result, error){
-                      var endTime = new Date().getTime();
-                      this.showSearchResults(result, endTime - startTime, true, query, reset);
-
-                      if (callback) {
-                        callback.apply(this);
-                      }
-                  }, this, "search", base, "sub", query, selection);
               }
           }, this, "search", base, "sub", query, selection);
         }
