@@ -24,6 +24,14 @@ qx.Class.define("cute.view.Search",
     this._sq = [];
     var barWidth = 200;
 
+    // Default search parameters
+    this.__default_selection = {
+        'fallback': true,
+        'secondary': "enabled",
+        'category': "all",
+        'mod-time': "all"
+    };
+
     // Call super class and configure ourselfs
     this.base(arguments, "", cute.Config.getImagePath("apps/search.png", 32));
     this._excludeChildControl("label");
@@ -56,7 +64,6 @@ qx.Class.define("cute.view.Search",
     this.searchInfo.setPadding(20);
     var sil = new qx.ui.basic.Label(this.tr("Search"));
     sil.setTextColor("red");
-    //TODO: use custom theme font
     sil.setFont(qx.bom.Font.fromString("20px Sans Serif"));
     sil.setWidth(barWidth);
     this.searchInfo.add(sil);
@@ -227,7 +234,7 @@ qx.Class.define("cute.view.Search",
 
       // Reset selection if required
       if (reset) {
-          selection = {};
+          selection = this.__default_selection;
       }
 
       rpc.cA(function(result, error){
@@ -236,7 +243,6 @@ qx.Class.define("cute.view.Search",
           var startTime = new Date().getTime();
 
           // Try ordinary search
-          selection['fallback'] = true; 
           rpc.cA(function(result, error){
               if (result && result.length) {
                   var endTime = new Date().getTime();
@@ -332,11 +338,12 @@ qx.Class.define("cute.view.Search",
         this.searchAid.resetFilter();
       }
       if (!this.searchAid.hasFilter()) {
-        this.searchAid.addFilter(this.tr("Category"), "category", categories, "all");
+        this.searchAid.addFilter(this.tr("Category"), "category",
+            categories, this.__default_selection['category']);
         this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
             "enabled": this.tr("Enabled"),
             "disabled": this.tr("Disabled")
-        }, "enabled");
+        }, this.__default_selection['secondary']);
         this.searchAid.addFilter(this.tr("Last modification"), "mod-time", {
             "all": this.tr("All"),
             "hour": this.tr("Last hour"),
@@ -344,7 +351,7 @@ qx.Class.define("cute.view.Search",
             "week": this.tr("Last week"),
             "month": this.tr("Last month"),
             "year": this.tr("Last year")
-        }, "all");
+        }, this.__default_selection['mod-time']);
         //TODO: list locations
       }
     },
