@@ -19,6 +19,9 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
 
   members: {
 
+    _initially_set: false,
+    _initially_send_update: true,
+
     _table: null,
     _tableModel: null,
     _tableData: null,
@@ -31,8 +34,16 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
     _actionBtn: null,
 
 
-    _applyValue: function(){
+    _applyValue: function(value){
       this.__updateVisibleText();
+      console.log(value.toArray());
+
+      // Send initial content to process validators"
+      if(this._initially_set && this._initially_send_update){
+        this.fireDataEvent("changeValue", value.copy());
+        this._initially_send_update = false;
+      }
+      this._initially_set = true;
     },
 
     __updateVisibleText: function(){
@@ -65,7 +76,7 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
     
     _createGui: function(){
       this._widget = new qx.ui.form.TextField();
-      this._widget.setEnabled(false);
+      this._widget.setReadOnly(true);
 
       this._actionBtn = new qx.ui.form.Button(null, cute.Config.getImagePath("actions/attribute-choose.png", "22")).set({
             "padding": 2,
@@ -76,6 +87,9 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
 
       this.add(this._widget, {flex: 1});
       this.add(this._actionBtn);
+
+      this.bind("valid", this._widget, "valid");
+      this.bind("invalidMessage", this._widget, "invalidMessage");
 
       // Do nothing if there seems to be something wrong with the binding..
       if(!this.getExtension() || !this.getAttribute()){
