@@ -14,9 +14,14 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
         this._createGui();
         this._updatedTableData();
       }, this);
+
+
   },
 
   members: {
+
+    _initially_set: false,
+    _initially_send_update: true,
 
     _table: null,
     _tableModel: null,
@@ -96,6 +101,14 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
         },this);
       }
       this._updatedTableData();        
+
+      // Send initial content to process validators"
+      if(this._initially_set && this._initially_send_update){
+        this.fireDataEvent("changeValue", value.copy());
+        this._initially_send_update = false;
+      }
+      this._initially_set = true;
+      
     },
 
 

@@ -34,13 +34,13 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
         }else{
           widget = new cute.ui.widgets.SingleSelector();
         }
+        widget.addListener("changeValue", function(e){
+          this.fireDataEvent("changeValue", e.getData());
+        }, this);
 
         for(var attr in attrs){
           this.bind(attrs[attr], widget, attrs[attr]);
         }
-        widget.addListener("changeValue", function(e){
-          this.fireDataEvent("changeValue", e.getData());
-        }, this);
 
         this.add(widget, {left:0, right:0, bottom: 0, top:0});
       },this);
