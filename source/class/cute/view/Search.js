@@ -270,7 +270,7 @@ qx.Class.define("cute.view.Search",
           this.searchResult.show();
       }
 
-      var d = Math.round(duration / 100) / 10;
+      var d = Math.round(duration / 10) / 100;
       if (fuzzy) {
           this.sii.setValue(this.trn("%1 fuzzy result", "%1 fuzzy results", i, i) + " / " + this.tr("no exact matches") + " (" + this.trn("%1 second", "%1 seconds", d, d) + ")");
       } else {
