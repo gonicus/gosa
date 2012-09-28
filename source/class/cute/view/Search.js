@@ -42,7 +42,7 @@ qx.Class.define("cute.view.Search",
     var searchLayout = new qx.ui.layout.HBox(10);
     searchHeader.setLayout(searchLayout);
 
-    var sf = new qx.ui.form.TextField();
+    var sf = new qx.ui.form.TextField('');
     sf.setPlaceholder(this.tr("Please enter your search..."));
     this.addListener("resize", function() {
       sf.setWidth(parseInt(this.getBounds().width / 2));

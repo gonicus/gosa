@@ -29,6 +29,9 @@ qx.Class.define("cute.Application",
 
   members :
   {
+
+    __actions: null,
+
     /**
      * This method contains the initial application code and gets called 
      * during startup of the application
@@ -39,6 +42,8 @@ qx.Class.define("cute.Application",
     {
       // Call super class
       this.base(arguments);
+
+      this.__actions = [];
 
       // Enable logging in debug variant
       if (qx.core.Environment.get("qx.debug"))
@@ -121,6 +126,10 @@ qx.Class.define("cute.Application",
             locale = locale + "-" + variant;
         }
       }
+
+      // Back button and bookmark support
+      this._history = qx.bom.History.getInstance();
+      this._history.addListener("changeState", function(e){this.__handleUrl(e.getData());}, this);
     
       // Enforce login
       var rpc = cute.io.Rpc.getInstance();
@@ -170,6 +179,7 @@ qx.Class.define("cute.Application",
                   data['context'] = this;
                   data['params'] = ["getGuiTemplates", name, theme];
                   data['func'] = function(templates, error){
+                      this.__checkForActionsInUIDefs(templates, name);
                       cute.Cache.gui_templates[name] = templates;
                     }
                   return(data);
@@ -177,7 +187,7 @@ qx.Class.define("cute.Application",
 
               // Append a queue entry for each kind of object.
               for(var item in result){
-                queue.push(addFunc(result[item])); 
+                queue.push(addFunc.apply(this, [result[item]])); 
               }
 
               // Start the queue processing now
@@ -188,6 +198,104 @@ qx.Class.define("cute.Application",
         }
       }, this, "getSessionUser");
     },
+
+
+    /* Registers a new UI-handler for the given 'action'.
+     * Once the action was passed via that browsers address
+     * the given 'func'tion will be called in the given context.
+     */
+    addUrlAction: function(action, func, context, userData){
+      var item = {
+        'userData': userData, 
+        'action': action, 
+        'context': context, 
+        'func': func};
+      this.__actions.push(item);
+      console.log("!!!!! ADDED", item);
+    },
+
+
+    /* This method parses the given list of ui-definitions and tries
+     * to find actions, that may also be triggered from the browsers
+     * address bar.
+     * 
+     * E.g. the 'User' action 'Change_password' should also be triggerable
+     * by passing the url "https://clacks-server/index.html#Change_password:UUID"
+     * to the address bar.
+     * 
+     * This method registers an URL-handler for each found ui-action.
+     */
+    __checkForActionsInUIDefs: function(ui_defs, objectName){
+
+      // Parse each template and create a 
+      for(var item_id in ui_defs){
+        var doc = new qx.xml.Document.fromString(ui_defs[item_id]);
+        var res = doc.firstChild.getElementsByTagName("action");
+        for(var i=0; i<res.length; i++){
+          var action = null;
+          var dialogName = null;
+          var target = null;
+          action = res[i].getAttribute("name").replace(/^action/, "");
+          var props = res[i].getElementsByTagName("property");
+          for(var e=0; e<props.length; e++){
+            if(props[e].nodeName == "property" && props[e].getAttribute("name") == "dialog"){
+              dialogName = props[e].getElementsByTagName("string")[0].firstChild.nodeValue;
+              break;
+            }
+            if(props[e].nodeName == "property" && props[e].getAttribute("name") == "target"){
+              target = props[e].getElementsByTagName("string")[0].firstChild.nodeValue;
+              break;
+            }
+          }
+          if(action){
+            this.addUrlAction(action, this.__handleUiDefinedAction, this, {'dialog': dialogName, 'object': objectName, 'target': target});
+          }
+        }
+      }
+    },
+
+
+ 
+    /* Checks the given url for actions and call the registrars
+     * callback method - If it was registered using this.addUrlAction(). 
+     */  
+    __handleUrl: function(url){
+      var action = url.split(':')[0];
+      for(var id in this.__actions){
+        if(this.__actions[id]['action'] == action){
+          var act = this.__actions[id];
+          act['func'].apply(act['context'], [action, url.split(':'), url, act['userData']]);
+        }
+      }
+    },
+
+
+    /* This is an URL action-handler that performs ui-actions.
+     * UI-actions are actions that are defined in the ui-templates
+     * of an object. 
+     * E.g. the Change_password action of the User object will
+     *   open a dialog to allow password changes for the given ui.
+     */
+    __handleUiDefinedAction: function(action, parsed, url, userData){
+      var oid = parsed[1];
+      cute.proxy.ObjectFactory.openObject(function(obj, error){
+
+          if(error){
+            //#TODO: find better error messages!
+            new cute.ui.dialogs.Error(error.message).open();
+          }else{
+    
+            if(userData && "dialog" in userData && userData['dialog']){
+              var dialog = new cute.ui.dialogs[userData['dialog']](obj);
+              dialog.open();
+            }else{
+              console.log(userData);
+              new cute.ui.dialogs.Info("Action processed! " + userData['target']).open();
+            }
+          }
+        }, this, oid);
+    },
+
 
     /* Handles the loading queue and hides the gui untill
      * all jobs are processed.
@@ -200,6 +308,9 @@ qx.Class.define("cute.Application",
         this.getRoot().setBlockerColor("#000000");
         this.getRoot().setBlockerOpacity(0.5);
         dialog.close();
+
+        // Handle URL actions
+        this.__handleUrl(this._history.getState());
       }
     },
 
