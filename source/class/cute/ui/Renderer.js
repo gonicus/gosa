@@ -412,36 +412,38 @@ qx.Class.define("cute.ui.Renderer",
       this._updateToolMenu();
 
       container.getChildControl("bar").setMenu(this.__toolMenu);
-  
-      // Handle type independent widget settings
-      var attribute_defs = this.getAttributeDefinitions_();
-      for(var name in attribute_defs){
-        var attrs = attribute_defs[name];
+ 
 
-        var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
 
-        if (widgetName){
-          var widget = this._widgets[widgetName];
+      //// Handle type independent widget settings
+      //var attribute_defs = this.getAttributeDefinitions_();
+      //for(var name in attribute_defs){
+      //  var attrs = attribute_defs[name];
 
-          // Read-only?
-          if (attrs['readonly'] === true){
-            widget.setReadOnly(true);
-          }
+      //  var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
 
-          // Required?
-          if (attrs['mandatory'] === true) {
-            this.setWidgetRequired(name, true);
-          }
+      //  if (widgetName){
+      //    var widget = this._widgets[widgetName];
 
-          // Toggler
-          if (qx.lang.Object.getKeys(attrs['blocked_by']).length > 0) {
+      //    // Read-only?
+      //    if (attrs['readonly'] === true){
+      //      widget.setReadOnly(true);
+      //    }
 
-            this._processBlockedBy(widget, attrs['blocked_by']);
-          }
-        } else {
-          this.warn("skipping attribute " +  name + " - no binding found");
-        }
-      }
+      //    // Required?
+      //    if (attrs['mandatory'] === true) {
+      //      this.setWidgetRequired(name, true);
+      //    }
+
+      //    // Toggler
+      //    if (qx.lang.Object.getKeys(attrs['blocked_by']).length > 0) {
+
+      //      this._processBlockedBy(widget, attrs['blocked_by']);
+      //    }
+      //  } else {
+      //    this.warn("skipping attribute " +  name + " - no binding found");
+      //  }
+      //}
 
       // Add button static button line for the moment
       var paneLayout = new qx.ui.layout.HBox().set({
@@ -915,6 +917,9 @@ qx.Class.define("cute.ui.Renderer",
         if (error) {
           this.error(error.message);
         } else {
+
+          this._object.setCtx_flag_tsLogin(new qx.data.Array([true]));
+
           //TODO: bind new properties
           this._createTabsForExtension(extension);
           this._object.refreshMetaInformation(this._updateToolMenu, this);
@@ -1060,12 +1065,6 @@ qx.Class.define("cute.ui.Renderer",
 
           this._extension_to_page[extension].push(page);
 
-          // Create a mapping from widget to page
-          for(item in this._current_widgets){
-            var widgetName = this._current_bindings[this._current_widgets[item]];
-            this._widget_to_page[widgetName] = page;
-          }
-
           // Add "remove extension" buttons to all non-base tabs.
           if (extension != this._object.baseType) {
             page.setShowCloseButton(true);
@@ -1092,6 +1091,18 @@ qx.Class.define("cute.ui.Renderer",
 
           this.processBuddies(this._current_buddies);
           this.processBindings(this._current_bindings);
+
+          // Create a mapping from widget to page
+          for(item in this._current_widgets){
+            var widgetName = this._current_bindings[this._current_widgets[item]];
+            this._widget_to_page[widgetName] = page;
+
+            // Toggler
+            var attrs_defs = this.getAttributeDefinitions_()[widgetName];
+            if(attrs_defs && qx.lang.Object.getKeys(attrs_defs['blocked_by']).length > 0){
+              this._processBlockedBy(this._widgets[this._current_widgets[item]], attrs_defs['blocked_by']);
+            }
+          }
 
         } else {
           this.info("*** no widget found for '" + extension + "'");
