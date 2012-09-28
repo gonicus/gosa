@@ -244,14 +244,12 @@ qx.Class.define("cute.view.Search",
 
           // Try ordinary search
           rpc.cA(function(result, error){
-              if (result && result.length) {
-                  var endTime = new Date().getTime();
-                  this.showSearchResults(result, endTime - startTime, false, query, reset);
+            var endTime = new Date().getTime();
+            this.showSearchResults(result, endTime - startTime, false, query, reset);
 
-                  if (callback) {
-                    callback.apply(this);
-                  }
-              }
+            if (callback) {
+              callback.apply(this);
+            }
           }, this, "search", base, "sub", query, selection);
         }
       }, this, "getBase");
