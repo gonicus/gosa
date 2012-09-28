@@ -244,14 +244,12 @@ qx.Class.define("cute.view.Search",
 
           // Try ordinary search
           rpc.cA(function(result, error){
-              if (result && result.length) {
-                  var endTime = new Date().getTime();
-                  this.showSearchResults(result, endTime - startTime, false, query, reset);
+            var endTime = new Date().getTime();
+            this.showSearchResults(result, endTime - startTime, false, query, reset);
 
-                  if (callback) {
-                    callback.apply(this);
-                  }
-              }
+            if (callback) {
+              callback.apply(this);
+            }
           }, this, "search", base, "sub", query, selection);
         }
       }, this, "getBase");
@@ -270,7 +268,7 @@ qx.Class.define("cute.view.Search",
           this.searchResult.show();
       }
 
-      var d = Math.round(duration / 100) / 10;
+      var d = Math.round(duration / 10) / 100;
       if (fuzzy) {
           this.sii.setValue(this.trn("%1 fuzzy result", "%1 fuzzy results", i, i) + " / " + this.tr("no exact matches") + " (" + this.trn("%1 second", "%1 seconds", d, d) + ")");
       } else {
