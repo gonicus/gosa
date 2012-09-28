@@ -279,19 +279,10 @@ qx.Class.define("cute.Application",
     __handleUiDefinedAction: function(action, parsed, url, userData){
       var oid = parsed[1];
       cute.proxy.ObjectFactory.openObject(function(obj, error){
-
           if(error){
-            //#TODO: find better error messages!
             new cute.ui.dialogs.Error(error.message).open();
           }else{
-    
-            if(userData && "dialog" in userData && userData['dialog']){
-              var dialog = new cute.ui.dialogs[userData['dialog']](obj);
-              dialog.open();
-            }else{
-              console.log(userData);
-              new cute.ui.dialogs.Info("Action processed! " + userData['target']).open();
-            }
+            cute.ui.Renderer.executeAction(userData['dialog'], userData['target'], obj, null);
           }
         }, this, oid);
     },
