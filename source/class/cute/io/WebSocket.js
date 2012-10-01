@@ -63,6 +63,11 @@ qx.Class.define("cute.io.WebSocket", {
       };
     },
 
+    _handleObjectChangeMessage : function(info) {
+        console.log("Object changed");
+        console.log(info);
+    },
+
     _handleNotificationMessage : function(info) {
       var timeout = 5000;
       var icon = cute.Config.getImagePath("status/dialog-information.png", 48);
