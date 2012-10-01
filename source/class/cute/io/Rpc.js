@@ -43,6 +43,22 @@ qx.Class.define("cute.io.Rpc", {
     }
   },
 
+  statics: {
+
+    /* Resolve an error code to an translated text.
+     * */
+    resolveError: function(code, func, ctx){
+      var rpc = cute.io.Rpc.getInstance();
+      rpc.cA(function(data, error){
+          if(error){
+            func.apply(ctx, [error.message]);
+          }else{
+            func.apply(ctx, [data.text]);
+          }
+        }, rpc, "get_error", code, cute.Tools.getLocale());
+    }
+  },
+
   members: {
     queue: [],
     converter: [],
@@ -138,8 +154,21 @@ qx.Class.define("cute.io.Rpc", {
 
         }else{
 
+
+          var func_done = function(){
+            // Everthing went fine, now call the callback method with the result.
+            cl.running = false;
+            cl.debug("rpc job finished '" + call['arguments'] + "' (queue: " + cl.queue.length + ")");
+            func.apply(call['context'], [result, error]);
+
+            // Start next rpc-job
+            cl.process_queue();
+          }
+
+
           // Parse additional information out of the error.message string.
           if(error){
+
             error.field = null;
 
             // Check for "<field> error-message" formats 
@@ -150,16 +179,21 @@ qx.Class.define("cute.io.Rpc", {
               error.message = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){ 
                   return(arguments[2]);
                 });
+
+              // Set processor to finished and then fetch the translated error message
+              cl.running = false;
+              cute.io.Rpc.resolveError(error.field, function(error_message){
+                  error.message = error_message;
+                  func_done();
+                }, this);
+              cl.process_queue();
+
+            }else{
+              func_done();
             }
+          }else{
+            func_done();
           }
-
-          // Everthing went fine, now call the callback method with the result.
-          cl.running = false;
-          cl.debug("rpc job finished '" + call['arguments'] + "' (queue: " + cl.queue.length + ")");
-          func.apply(call['context'], [result, error]);
-
-          // Start next rpc-job
-          cl.process_queue();
         }
       };    
 

@@ -115,17 +115,7 @@ qx.Class.define("cute.Application",
 
       // Base settings
       var theme = cute.Config.getTheme();
-      var locale;
-
-      if (cute.Config.locale) {
-          locale = cute.Config.locale;
-      } else {
-        locale = qx.bom.client.Locale.getLocale();
-        var variant = qx.bom.client.Locale.getVariant();
-        if (locale && variant) {
-            locale = locale + "-" + variant;
-        }
-      }
+      var locale = cute.Tools.getLocale();
 
       // Back button and bookmark support
       this._history = qx.bom.History.getInstance();
