@@ -109,11 +109,11 @@ qx.Class.define("cute.ui.table.Table",
       }
 
       // Save settings back to the user model
-      if(cute.Session.getUser() && !this.comparePreferences(prefs, this.__lastPreferences)){
+      if(cute.Session.getInstance().getUser() && !this.comparePreferences(prefs, this.__lastPreferences)){
         var rpc = cute.io.Rpc.getInstance();
         rpc.cA(function(result, error){
             cute.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
-          }, this, "saveUserPreferences", cute.Session.getUser(), this.__preferenceName, prefs);
+          }, this, "saveUserPreferences", this.__preferenceName, prefs);
       }
       this.__lastPreferences = prefs;
     },
@@ -147,7 +147,7 @@ qx.Class.define("cute.ui.table.Table",
     loadUserPreferences: function()
     {
       // We do not have a table preference name defined, just return.
-      if(this.__preferenceName == null || cute.Session.getUser() == null){
+      if(this.__preferenceName == null || cute.Session.getInstance().getUser() == null){
         return;
       }
 
@@ -195,7 +195,7 @@ qx.Class.define("cute.ui.table.Table",
         rpc.cA(function(prefs, error){
             cute.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
             loadPrefs.apply(this, [prefs]);
-          }, this, "loadUserPreferences", cute.Session.getUser(), this.__preferenceName);
+          }, this, "loadUserPreferences", cute.Session.getInstance().getUser(), this.__preferenceName);
       }
     },
 

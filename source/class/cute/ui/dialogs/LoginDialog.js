@@ -69,8 +69,8 @@ qx.Class.define("cute.ui.dialogs.LoginDialog",
             }, 0, this, null, 4000);
 
           }else{
+            that.fireDataEvent("login", {user: that._model.get("uid")});
             that.close();
-            that.fireEvent("login");
           }
         }, "login", this._model.get("uid"), this._model.get("password"));
       }
@@ -86,7 +86,7 @@ qx.Class.define("cute.ui.dialogs.LoginDialog",
   },
 
   events: {
-    "login": "qx.event.type.Event"
+    "login": "qx.event.type.Data"
   }
 });
 

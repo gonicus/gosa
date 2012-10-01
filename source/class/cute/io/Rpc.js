@@ -128,10 +128,15 @@ qx.Class.define("cute.io.Rpc", {
 
         // Permission denied - show login screen to allow to log in.
         if(error && error.code == 401){
+          cute.Session.getInstance().setUser(null);
 
           var dialog = new cute.ui.dialogs.LoginDialog();
           dialog.open();
           dialog.addListener("login", function(e){
+
+            // Query for the users Real Name
+            cute.Session.getInstance().setUser(e.getData()['user']);
+
             cl.queue.push(call);
             cl.running = false;
             cl.process_queue();

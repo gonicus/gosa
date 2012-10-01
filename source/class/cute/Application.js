@@ -83,13 +83,10 @@ qx.Class.define("cute.Application",
       pluginView.setBarPosition("left");
 
       // Create application header and toolbar
-      var header = new qx.ui.basic.Atom("", "cute/logo.png");
-      header.setBackgroundColor("black");
-      header.setTextColor("white");
-      header.setHeight(48);
-      header.setPadding(5);
-      header.setFont(qx.bom.Font.fromString("sans-serif 28"));
+      //
+      var header = new cute.ui.Header();
       doc.add(header, {left: 0, right: 0, top: 0});
+      cute.Session.getInstance().bind("loggedInName", header, "loggedInName");
 
       //TODO: add one static plugin for testing
       var search = new cute.view.Search;
@@ -127,9 +124,9 @@ qx.Class.define("cute.Application",
         if (error) {
           this.error("can't determine session user: " + error);
           new cute.ui.dialogs.Error(this.tr("Can't determine session user") + ": " + error).open();
-          cute.Session.user = null;
+          cute.Session.getInstance().setUser(null);
         } else {
-          cute.Session.user = userid;
+          cute.Session.getInstance().setUser(userid);
 
           // This list contains all loading jobs that need to be
           // processed until the gui gets visible again.

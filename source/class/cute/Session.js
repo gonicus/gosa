@@ -1,18 +1,46 @@
 qx.Class.define("cute.Session",
 {
-    statics:
-    {
+  extend: qx.core.Object,
 
-        /*! \brief  The currently logged in user as JS object.
-         *          If nobody is logged in, it is 'null'.
-         */
-        user: null,
+  type: "singleton",
 
+  properties: {
+    "loggedInName": {
+      init : "",
+      check: "String",
+      nullable: true,
+      event: "_changedLoggedInName"
+    },
 
-        /*! \brief  Returns the currently logged in user object.
-         */
-        getUser: function(){
-            return(cute.Session.user);
-        }
+    /*! \brief  The currently logged in user as JS object.
+      *          If nobody is logged in, it is 'null'.
+      */
+    "user": {
+      init : "",
+      check: "String",
+      nullable: true,
+      event: "_changedUser",
+      apply: "_changedUser"
     }
+  },
+
+  members: {
+    _changedUser: function(name){
+      if(name !== null){
+        var rpc = cute.io.Rpc.getInstance();
+        rpc.cA(function(result, error){
+            this.setLoggedInName(result['givenName'] + " " + result['sn']);
+          }, this, "getUserDetails");
+      }else{
+        this.setLoggedInName(null);
+      }
+    },
+
+    logout: function(){
+      var rpc = cute.io.Rpc.getInstance();
+      rpc.cA(function(result, error){
+        this.setUser(null);
+      }, this, "logout");
+    }
+  }
 });
