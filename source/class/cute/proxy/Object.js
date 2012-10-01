@@ -79,6 +79,54 @@ qx.Class.define("cute.proxy.Object", {
         }, this].concat(args));
     },
 
+    /* Updates attribute values by fetching them from the server.
+     * */
+    refreshAttributeValues: function(cb, ctx){
+
+      var compare = function(a, b){
+          if(a.length != b.length){
+            return(false)
+          }
+          for(var i=0; i<a.length; i++){
+            if(a[i] != b[i]){
+              return(false)
+            }
+          }
+          return(true);
+        }
+
+      var rpc = cute.io.Rpc.getInstance();
+      rpc.cA(function(data, context, error){
+        if(!error){
+          for(var item in data){
+
+            var value = null;
+            if(data[item] === null){
+              value = [];
+            }else{
+              if(!(this.attribute_data[item]['multivalue'])){
+                value = [data[item]];
+              }else{
+                value = data[item];
+              }
+            }
+
+            // Update modified attributes but skip RPC requests ...
+            if(!compare(this.get(item).toArray(), value)){
+
+              // Skip RPC actions for this set
+              this.initialized = false;
+              this.set(item, new qx.data.Array(value));
+              this.initialized = true;
+            }
+          }
+          cb.apply(ctx);
+        }else{
+          this.error(error);
+        }
+      }, this, "dispatchObjectMethod", this.uuid, "get_attribute_values");
+    },
+
     /* Reloads the current extension status.
      * */
     refreshMetaInformation : function(cb, ctx)

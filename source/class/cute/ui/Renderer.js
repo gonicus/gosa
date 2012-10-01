@@ -880,17 +880,24 @@ qx.Class.define("cute.ui.Renderer",
       this._retractObjectFrom(extension);
     },
 
+
+    /* Extend the current object with the given extension
+     * and then reload its values and extension states.
+     * Afterwards - create the visual part of the tabs.
+     * */
     _extendObjectWith : function(extension, callback) {
       this._object.extend(function(result, error) {
         if (error) {
           this.error(error.message);
         } else {
-          this._createTabsForExtension(extension);
           this._object.refreshMetaInformation(this._updateToolMenu, this);
-          this.setModified(true);
-          if (callback) {
-            callback();
-          }
+          this._object.refreshAttributeValues(function(){
+              if (callback) {
+                callback();
+              }
+              this.setModified(true);
+              this._createTabsForExtension(extension);
+            }, this)
         }
       }, this, extension);
     },
