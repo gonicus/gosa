@@ -412,38 +412,6 @@ qx.Class.define("cute.ui.Renderer",
       this._updateToolMenu();
 
       container.getChildControl("bar").setMenu(this.__toolMenu);
- 
-
-
-      //// Handle type independent widget settings
-      //var attribute_defs = this.getAttributeDefinitions_();
-      //for(var name in attribute_defs){
-      //  var attrs = attribute_defs[name];
-
-      //  var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
-
-      //  if (widgetName){
-      //    var widget = this._widgets[widgetName];
-
-      //    // Read-only?
-      //    if (attrs['readonly'] === true){
-      //      widget.setReadOnly(true);
-      //    }
-
-      //    // Required?
-      //    if (attrs['mandatory'] === true) {
-      //      this.setWidgetRequired(name, true);
-      //    }
-
-      //    // Toggler
-      //    if (qx.lang.Object.getKeys(attrs['blocked_by']).length > 0) {
-
-      //      this._processBlockedBy(widget, attrs['blocked_by']);
-      //    }
-      //  } else {
-      //    this.warn("skipping attribute " +  name + " - no binding found");
-      //  }
-      //}
 
       // Add button static button line for the moment
       var paneLayout = new qx.ui.layout.HBox().set({
@@ -917,14 +885,9 @@ qx.Class.define("cute.ui.Renderer",
         if (error) {
           this.error(error.message);
         } else {
-
-          this._object.setCtx_flag_tsLogin(new qx.data.Array([true]));
-
-          //TODO: bind new properties
           this._createTabsForExtension(extension);
           this._object.refreshMetaInformation(this._updateToolMenu, this);
           this.setModified(true);
-
           if (callback) {
             callback();
           }

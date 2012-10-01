@@ -79,7 +79,7 @@ qx.Class.define("cute.proxy.Object", {
         }, this].concat(args));
     },
 
-    /* Closes the current object
+    /* Reloads the current extension status.
      * */
     refreshMetaInformation : function(cb, ctx)
     {
@@ -88,7 +88,6 @@ qx.Class.define("cute.proxy.Object", {
         if(!error){
           this.baseType = data['base'];
           this.extensionTypes = data['extensions'];
-          this.templates = data['templates'];
           cb.apply(ctx);
         }else{
           this.error(error);
