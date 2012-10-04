@@ -27,8 +27,8 @@ msgstr ""
 msgid "Loading %1 template"
 msgstr ""
 
-#: cute/ui/Header.js:50
-msgid "Logged in: %1"
+#: cute/ui/Header.js:51
+msgid "Logged in:"
 msgstr ""
 
 #: cute/ui/ItemSelector.js:42
@@ -315,6 +315,9 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Loading internationalization"
+#~ msgstr ""
+
+#~ msgid "Logged in: %1"
 #~ msgstr ""
 
 #~ msgid "Method"

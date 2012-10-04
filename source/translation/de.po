@@ -30,9 +30,9 @@ msgstr "Kann Übersetzungs-Katalog nicht beziehen"
 msgid "Loading %1 template"
 msgstr "Lade %1-Vorlage"
 
-#: cute/ui/Header.js:50
-msgid "Logged in: %1"
-msgstr "Angemeldet: %1"
+#: cute/ui/Header.js:51
+msgid "Logged in:"
+msgstr "Angemeldet:"
 
 #: cute/ui/ItemSelector.js:42
 msgid "Choose"
@@ -304,6 +304,3 @@ msgstr "Vorheriges Jahr"
 #: cute/view/Search.js:389
 msgid "Object"
 msgstr "Objekt"
-
-#~ msgid "Video capture"
-#~ msgstr ""

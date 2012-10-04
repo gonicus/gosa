@@ -18,6 +18,7 @@ qx.Class.define("cute.ui.Header", {
 
     container = new qx.ui.container.Composite(new qx.ui.layout.HBox());
     this.__label = new qx.ui.basic.Label("");
+    this.__label.setRich(true);
     this.__label.setAlignY("middle");
     this.__label.setTextColor("header-text");
     container.add(this.__label);
@@ -47,7 +48,7 @@ qx.Class.define("cute.ui.Header", {
       if(value === null){
         this.__label.setValue("");
       }else{
-        this.__label.setValue(this.tr("Logged in: %1", value));
+        this.__label.setValue("<b>" + this.tr("Logged in:") + "</b> " + value);
       }
     }
   }
