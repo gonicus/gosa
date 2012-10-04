@@ -16,9 +16,12 @@ qx.Class.define("cute.ui.Header", {
     header.setPadding(5);
     this.add(header, {top:0, left:0, bottom: 0, right: 0});
 
+    container = new qx.ui.container.Composite(new qx.ui.layout.HBox());
     this.__label = new qx.ui.basic.Label("");
+    this.__label.setAlignY("middle");
     this.__label.setTextColor("header-text");
-    this.add(this.__label, {top:10, right: 10});
+    container.add(this.__label);
+    this.add(container, {top:0, bottom:0, right: 10});
 
     this.__label.addListener("click", function(){
         cute.Session.getInstance().logout();
