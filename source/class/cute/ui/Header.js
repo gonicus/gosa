@@ -10,15 +10,14 @@ qx.Class.define("cute.ui.Header", {
 
 
     var header = new qx.ui.basic.Atom("", "cute/logo.png");
-    header.setBackgroundColor("black");
-    header.setTextColor("white");
+    header.setBackgroundColor("header-bar");
+    header.setTextColor("header-text");
     header.setHeight(48);
     header.setPadding(5);
-    header.setFont(qx.bom.Font.fromString("sans-serif 28"));
     this.add(header, {top:0, left:0, bottom: 0, right: 0});
 
     this.__label = new qx.ui.basic.Label("");
-    this.__label.setTextColor("white");
+    this.__label.setTextColor("header-text");
     this.add(this.__label, {top:10, right: 10});
 
     this.__label.addListener("click", function(){

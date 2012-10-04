@@ -14,6 +14,8 @@ qx.Theme.define("cute.theme.Color",
 
   colors :
   {
-      'mandatory' : '#FFFFE0'
+      'mandatory' : '#FFFFE0',
+      'header-bar' : 'black',
+      'header-text' : 'white'
   }
 });
