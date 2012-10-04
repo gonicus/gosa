@@ -4,6 +4,12 @@ qx.Class.define("cute.Tools", {
 
   statics: {
 
+    createActionUrl: function(action, target){
+      var url = document.location.origin + document.location.pathname;
+      url += "#" + action + cute.Config.actionDelimiter + target;
+      return(url);
+    },
+
     getLocale: function(){
       if (cute.Config.locale) {
         var locale = cute.Config.locale;

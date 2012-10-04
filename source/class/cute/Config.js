@@ -3,10 +3,12 @@ qx.Class.define("cute.Config", {
   type: "static",
 
   statics: {
+
     url: "/rpc",
     ws: "/ws",
     spath: "/static",
     service: "Clacks JSON-RPC service",
+    actionDelimiter: '#',
     timeout: 60000,
     notifications: window.webkitNotifications || window.notifications,
 

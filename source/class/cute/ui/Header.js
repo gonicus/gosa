@@ -19,17 +19,22 @@ qx.Class.define("cute.ui.Header", {
     container = new qx.ui.container.Composite(new qx.ui.layout.HBox());
     this.__label = new qx.ui.basic.Label("");
     this.__label.setRich(true);
+    this.__label.setCursor("pointer");
     this.__label.setAlignY("middle");
     this.__label.setTextColor("header-text");
     container.add(this.__label);
     this.add(container, {top:0, bottom:0, right: 32});
+
+    this.__label.addListener("click", function(){
+        document.location.href = cute.Tools.createActionUrl('openObject', cute.Session.getInstance().getUuid());
+      }, this);
 
     var btn = new qx.ui.basic.Image("cute/btn-logout.png");
     btn.setCursor("pointer");
     btn.addListener("click", function(){
         cute.Session.getInstance().logout();
       }, this);
-    this.add(btn, {top: 15, right: 8})
+    this.add(btn, {top: 15, right: 8});
   }, 
 
   properties: {

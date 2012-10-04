@@ -21,6 +21,37 @@ qx.Class.define("cute.Session",
       nullable: true,
       event: "_changedUser",
       apply: "_changedUser"
+    },
+
+    "uuid": {
+      init : "",
+      check: "String",
+      nullable: true,
+      event: "_changedUUID"
+    },
+    "sn": {
+      init : "",
+      check: "String",
+      nullable: true,
+      event: "_changedSn"
+    },
+    "givenName": {
+      init : "",
+      check: "String",
+      nullable: true,
+      event: "_changedGivenName"
+    },
+    "cn": {
+      init : "",
+      check: "String",
+      nullable: true,
+      event: "_changedCn"
+    },
+    "dn": {
+      init : "",
+      check: "String",
+      nullable: true,
+      event: "_changedCn"
     }
   },
 
@@ -30,6 +61,11 @@ qx.Class.define("cute.Session",
         var rpc = cute.io.Rpc.getInstance();
         rpc.cA(function(result, error){
             this.setLoggedInName(result['givenName'] + " " + result['sn']);
+            this.setCn(result['cn']);
+            this.setSn(result['sn']);
+            this.setGivenName(result['givenName']);
+            this.setUuid(result['uuid']);
+            this.setDn(result['dn']);
           }, this, "getUserDetails");
       }else{
         this.setLoggedInName(null);
