@@ -78,13 +78,20 @@ qx.Class.define("cute.ui.SearchAid",
             return this.__filters.length != 0;
 	  },
 	  
-	  resetFilter : function() {
-	    for (var i= 0; i<this.__filters.length; i++){
-	      this.remove(this.__filters[i]);
-	    }
+	  resetFilter : function(which) {
+        if (!which) {
+    	    for (var i= 0; i<this.__filters.length; i++){
+    	      this.remove(this.__filters[i]);
+    	    }
 	    
-	    this.__filters = [];
-	    this.__selection = {};
+    	    this.__filters = [];
+    	    this.__selection = {};
+        } else {
+            if (this.__filters[which]) {
+        	    this.remove(this.__filters[which]);
+                delete this.__filters[which];
+            }
+        }
 	  }
 	  
   }
