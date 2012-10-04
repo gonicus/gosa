@@ -18,6 +18,7 @@ qx.Class.define("cute.ui.Header", {
 
     var container = new qx.ui.container.Composite(new qx.ui.layout.HBox());
     this.__label = new qx.ui.basic.Label("");
+    this.__label.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Click here to edit your own profile")));
     this.__label.setRich(true);
     this.__label.setCursor("pointer");
     this.__label.setAlignY("middle");
@@ -30,6 +31,7 @@ qx.Class.define("cute.ui.Header", {
       }, this);
 
     var btn = new qx.ui.basic.Image("cute/btn-logout.png");
+    btn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Logout")));
     btn.setCursor("pointer");
     btn.addListener("click", function(){
         cute.Session.getInstance().logout();
