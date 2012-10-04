@@ -77,7 +77,7 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
         var file = evt.getData();
         var f = file.getBrowserObject();
         var fr = new qx.bom.FileReader();
-        this._widget.setSource("cute/loading.gif");
+        this._widget.setSource(null);
         fr.addListener("load", function(e){
           var data = e.getData().content;
           data = data.replace(/^data:.*;base64,/, "");
