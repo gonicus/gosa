@@ -65,10 +65,11 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
     },
 
     _applyValues: function(data){
-
+      var convert;
+    	
       if(this.getType() == "Integer"){
         var that = this;
-        var convert = function(value){
+        convert = function(value){
             var res = parseInt(value);
             if(res == NaN){
               that.error("failed to convert ComboBox value "+value+" to int ("+that.getExtension()+"."+that.getAttribute()+")");
@@ -78,11 +79,11 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
             }
           };
       }else if(this.getType() == "Boolean"){
-        var convert= function(value){
+        convert= function(value){
             return(value == "True");
           };
       }else{
-        var convert= function(value){
+        convert= function(value){
             return(value);
           };
       }
