@@ -117,6 +117,12 @@ qx.Class.define("cute.Application",
       // Back button and bookmark support
       this._history = qx.bom.History.getInstance();
       this._history.addListener("changeState", function(e){this.__handleUrl(e.getData());}, this);
+
+      // Register openObject action to allow to open object using urls
+      this.addUrlAction("openObject", function(action, urlParts){
+          search.openObject(urlParts[1]);
+        }, this);
+
     
       // Enforce login
       var rpc = cute.io.Rpc.getInstance();
@@ -198,7 +204,6 @@ qx.Class.define("cute.Application",
         'context': context, 
         'func': func};
       this.__actions.push(item);
-      console.log("!!!!! ADDED", item);
     },
 
 
@@ -247,11 +252,11 @@ qx.Class.define("cute.Application",
      * callback method - If it was registered using this.addUrlAction(). 
      */  
     __handleUrl: function(url){
-      var action = url.split(':')[0];
+      var action = url.split(cute.Config.actionDelimiter)[0];
       for(var id in this.__actions){
         if(this.__actions[id]['action'] == action){
           var act = this.__actions[id];
-          act['func'].apply(act['context'], [action, url.split(':'), url, act['userData']]);
+          act['func'].apply(act['context'], [action, url.split(cute.Config.actionDelimiter), url, act['userData']]);
         }
       }
     },
