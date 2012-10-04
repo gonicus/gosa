@@ -99,8 +99,6 @@ qx.Class.define("cute.view.Search",
     this.sf = sf;
 
     // Bind search result model
-    var data = new qx.data.Array();
-
     var that = this;
     this.resultList.setDelegate({
         createItem: function(){

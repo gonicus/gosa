@@ -160,7 +160,6 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
         return;
       }
       this._tableData = [];
-      var row_data = {};
       var values = this.getValue().toArray();
       for(var i=0; i<values.length; i++ ){
         var row_data = {};

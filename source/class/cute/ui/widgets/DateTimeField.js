@@ -43,4 +43,4 @@ qx.Class.define("cute.ui.widgets.DateTimeField", {
       this.close();
     }
   }
-})
+});

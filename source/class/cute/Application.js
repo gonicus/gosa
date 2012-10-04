@@ -133,7 +133,7 @@ qx.Class.define("cute.Application",
           var queue = [];
 
           // Add a translation prefetch job.
-          var translation = {}
+          var translation = {};
           translation['message'] = this.tr("Loading translation");
           translation['context'] = this;
           translation['params'] = ["getTemplateI18N", locale, theme];
@@ -145,7 +145,7 @@ qx.Class.define("cute.Application",
                 var lm = qx.locale.Manager.getInstance();
                 lm.addTranslation(qx.locale.Manager.getInstance().getLocale(), result);
               }
-            }
+            };
           queue.push(translation);
 
           // Add prefetching of the gui templates - one job per object-type.
@@ -168,9 +168,9 @@ qx.Class.define("cute.Application",
                   data['func'] = function(templates, error){
                       this.__checkForActionsInUIDefs(templates, name);
                       cute.Cache.gui_templates[name] = templates;
-                    }
+                    };
                   return(data);
-                }
+                };
 
               // Append a queue entry for each kind of object.
               for(var item in result){
@@ -303,7 +303,7 @@ qx.Class.define("cute.Application",
 
           // .. and trigger the queue processor.
           this.__handleQueue(data, dialog);
-        }
+        };
 
       var params = [callback, this].concat(item['params']);
       var rpc = cute.io.Rpc.getInstance();

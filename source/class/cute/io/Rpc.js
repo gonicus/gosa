@@ -168,7 +168,7 @@ qx.Class.define("cute.io.Rpc", {
 
             // Start next rpc-job
             cl.process_queue();
-          }
+          };
 
 
           // Parse additional information out of the error.message string.

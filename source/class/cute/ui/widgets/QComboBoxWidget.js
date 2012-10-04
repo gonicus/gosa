@@ -76,18 +76,16 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
             }else{
               return(res);
             }
-          }
+          };
       }else if(this.getType() == "Boolean"){
         var convert= function(value){
             return(value == "True");
-          }
+          };
       }else{
         var convert= function(value){
             return(value);
-          }
+          };
       }
-
-
 
       if(data.classname != "qx.data.Array"){
         var items = [];

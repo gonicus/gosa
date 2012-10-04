@@ -85,15 +85,15 @@ qx.Class.define("cute.proxy.Object", {
 
       var compare = function(a, b){
           if(a.length != b.length){
-            return(false)
+            return(false);
           }
           for(var i=0; i<a.length; i++){
             if(a[i] != b[i]){
-              return(false)
+              return(false);
             }
           }
           return(true);
-        }
+        };
 
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(data, context, error){

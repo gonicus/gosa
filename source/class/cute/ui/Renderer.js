@@ -897,7 +897,7 @@ qx.Class.define("cute.ui.Renderer",
               }
               this.setModified(true);
               this._createTabsForExtension(extension);
-            }, this)
+            }, this);
         }
       }, this, extension);
     },
@@ -1028,8 +1028,8 @@ qx.Class.define("cute.ui.Renderer",
             var func = function(widget, page){
                 return function(){
                   page.add(widget);
-                }
-              }
+                };
+              };
             page.addListenerOnce("appear", func(info['widget'], page), this);
           }
 
