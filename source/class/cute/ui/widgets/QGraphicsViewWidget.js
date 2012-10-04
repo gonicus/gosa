@@ -30,7 +30,7 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
         width: 320,
         height: 240
     });
-    this.__cap_win = new qx.ui.window.Window(this.tr("Video capture"));
+    this.__cap_win = new qx.ui.window.Window(this.tr("Image capture"));
     this.__cap_win.setShowMaximize(false);
     this.__cap_win.setShowMinimize(false);
     this.__cap_win.setAlwaysOnTop(true);
