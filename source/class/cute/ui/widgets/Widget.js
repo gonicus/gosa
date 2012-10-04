@@ -248,11 +248,6 @@ qx.Class.define("cute.ui.widgets.Widget", {
     focus:  function(){
     },
 
-    resetInvalidMessage: function(){
-      this.setValid(true);
-      this.setInvalidMessage("");
-    },
-
     _applyValue: function(value){
     },
 
@@ -260,6 +255,18 @@ qx.Class.define("cute.ui.widgets.Widget", {
     },
 
     _applyMandatory: function(value){
+    },
+  
+    resetErrorMessage: function(){
+      this.setInvalidMessage("");
+      this.setValid(true);
+    },
+
+    setErrorMessage: function(error_object){
+      console.log(this.getAttribute(), error_object);
+      var message = error_object.text;
+      this.setInvalidMessage(message);
+      this.setValid(false);
     }
   }
 });

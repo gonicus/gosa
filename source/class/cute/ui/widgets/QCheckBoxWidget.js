@@ -60,20 +60,8 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
       }
     },
 
-    setInvalidMessage: function(message){
-      this._chkBoxWidget.setInvalidMessage(message);
-    },
-
-    resetInvalidMessage: function(){
-      this._chkBoxWidget.resetInvalidMessage();
-    },
-
     focus: function(){
       this._chkBoxWidget.focus();
-    },
-
-    setValid: function(bool){
-      this._chkBoxWidget.setValid(bool);
     }
   }
 });

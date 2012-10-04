@@ -330,12 +330,9 @@ qx.Class.define("cute.ui.Renderer",
             if(name in this._widget_to_page){
               this._tabContainer.setSelection([this._widget_to_page[name]]);
             }
-            if(data['success']){
-              this.resetWidgetInvalidMessage(name);
-              this.setWidgetValid(name, true);
-            }else{
-              this.setWidgetInvalidMessage(name, data['error']['message']);
-              this.setWidgetValid(name, false);
+            this.resetErrorMessage(name);
+            if(!data['success']){
+              this.setErrorMessage(name, data['error']);
             }
           }; break;
       }
@@ -873,7 +870,6 @@ qx.Class.define("cute.ui.Renderer",
 
           return;
         }
-
       }
 
       // Remove tab
@@ -1736,31 +1732,21 @@ qx.Class.define("cute.ui.Renderer",
       this._widgets[name].setValue(value.copy());
     },
 
-    setWidgetInvalidMessage : function(name, message)
+    setErrorMessage : function(name, message)
     {
       var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
       if (this._widgets[widgetName]) {
-        this._widgets[widgetName].setInvalidMessage(message);
+        this._widgets[widgetName].setErrorMessage(message);
       } else {
         this.error("*** cannot set invalid message for non existing widget '" + name + "'!");
       }
     },
 
-    setWidgetValid: function(name, flag)
+    resetErrorMessage : function(name)
     {
       var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
       if (this._widgets[widgetName]) {
-        this._widgets[widgetName].setValid(flag);
-      } else {
-        this.error("*** cannot set valid flag for non existing widget '" + name + "'!");
-      }
-    },
-
-    resetWidgetInvalidMessage : function(name)
-    {
-      var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
-      if (this._widgets[widgetName]) {
-        this._widgets[widgetName].resetInvalidMessage();
+        this._widgets[widgetName].resetErrorMessage();
       } else {
         this.error("*** cannot set invalid message for non existing widget '" + name + "'!");
       }

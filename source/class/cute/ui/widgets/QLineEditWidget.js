@@ -64,8 +64,6 @@ qx.Class.define("cute.ui.widgets.QLineEditWidget", {
       w.setLiveUpdate(true);
       w.addListener("focusout", this._propertyUpdater, this); 
       w.addListener("changeValue", this._propertyUpdaterTimed, this); 
-      this.bind("valid", w, "valid");
-      this.bind("invalidMessage", w, "invalidMessage");
       return(w);
     }
   }

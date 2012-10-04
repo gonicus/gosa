@@ -51,9 +51,9 @@ qx.Class.define("cute.io.Rpc", {
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(data, error){
           if(error){
-            func.apply(ctx, [error.message]);
+            func.apply(ctx, [error]);
           }else{
-            func.apply(ctx, [data.text]);
+            func.apply(ctx, [data]);
           }
         }, rpc, "get_error", code, cute.Tools.getLocale());
     }
@@ -187,8 +187,8 @@ qx.Class.define("cute.io.Rpc", {
 
               // Set processor to finished and then fetch the translated error message
               cl.running = false;
-              cute.io.Rpc.resolveError(error.field, function(error_message){
-                  error.message = error_message;
+              cute.io.Rpc.resolveError(error.field, function(error_obj){
+                  error = error_obj;
                   func_done();
                 }, this);
               cl.process_queue();

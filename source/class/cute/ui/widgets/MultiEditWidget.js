@@ -26,6 +26,37 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     _current_length: 0,
     _skipUpdates: false,
 
+
+    /* Sets an error message for this widgets
+     * */
+    setErrorMessage: function(error_object){
+      var message = error_object.text;
+      if(error_object.details){
+        for(var i=0; i< error_object.details.length; i++){
+          var w = this._getWidget(error_object.details[0].index);
+          w.setInvalidMessage(message);
+          w.setValid(false);
+        }
+      }else{
+        var w = this._getWidget(0);
+        if(w){
+          w.setInvalidMessage(message);
+          w.setValid(false);
+        }
+      }
+    },
+
+
+    /* Resets the "invalidMessage" string for all widgets.
+     * */
+    resetErrorMessage: function(){
+      for(var i=0; i < this._current_length; i++){
+        this._getWidget(i).resetInvalidMessage();
+        this._getWidget(i).setValid(true);
+      }
+    },
+
+
     /* Mark the given widget as required
      * */
     _markAsRequired: function(widget){
@@ -111,15 +142,6 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
      * */
     _applyMultivalue: function(){
       this._generateGui();
-    },
-
-
-    /* Resets the "invalidMessage" string for all widgets.
-     * */
-    resetInvalidMessage: function(){
-      for(var i=0; i < this._current_length; i++){
-        this._widgetContainer[i].getWidget().resetInvalidMessage();
-      }
     },
 
 
