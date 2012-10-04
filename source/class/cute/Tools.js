@@ -6,9 +6,9 @@ qx.Class.define("cute.Tools", {
 
     getLocale: function(){
       if (cute.Config.locale) {
-        locale = cute.Config.locale;
+        var locale = cute.Config.locale;
       } else {
-        locale = qx.bom.client.Locale.getLocale();
+        var locale = qx.bom.client.Locale.getLocale();
         var variant = qx.bom.client.Locale.getVariant();
         if (locale && variant) {
           locale = locale + "-" + variant;

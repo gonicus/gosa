@@ -40,6 +40,7 @@ qx.Class.define("cute.Session",
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(result, error){
         this.setUser(null);
+        document.location.reload();
       }, this, "logout");
     }
   }

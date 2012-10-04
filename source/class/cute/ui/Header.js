@@ -22,11 +22,14 @@ qx.Class.define("cute.ui.Header", {
     this.__label.setAlignY("middle");
     this.__label.setTextColor("header-text");
     container.add(this.__label);
-    this.add(container, {top:0, bottom:0, right: 10});
+    this.add(container, {top:0, bottom:0, right: 32});
 
-    this.__label.addListener("click", function(){
+    var btn = new qx.ui.basic.Image("cute/btn-logout.png");
+    btn.setCursor("pointer");
+    btn.addListener("click", function(){
         cute.Session.getInstance().logout();
       }, this);
+    this.add(btn, {top: 15, right: 8})
   }, 
 
   properties: {
