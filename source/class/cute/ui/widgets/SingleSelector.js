@@ -33,10 +33,22 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
     _widget: null,
     _actionBtn: null,
 
+    /* Color the specific row red, if an error occurred!
+     */ 
+    setErrorMessage: function(message, id){
+      this.setValid(false);
+      this.setInvalidMessage(message);
+    },
+
+    /* Resets error messages
+     * */
+    resetErrorMessage: function(){
+      this.setInvalidMessage("");
+      this.setValid(true);
+    },
 
     _applyValue: function(value){
       this.__updateVisibleText();
-      console.log(value.toArray());
 
       // Send initial content to process validators"
       if(this._initially_set && this._initially_send_update){
