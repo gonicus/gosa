@@ -3,6 +3,7 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
   extend: cute.ui.widgets.Widget,
 
   construct: function(){
+
     this.base(arguments);
     this.setLayout(new qx.ui.layout.Canvas());
     this.setDecorator("main");
@@ -15,7 +16,7 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
         this._updatedTableData();
       }, this);
 
-
+    this._errorRows = [];
   },
 
   members: {
@@ -31,7 +32,23 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
     _columnIDs: null,
     _firstColumn: null,
     _resolvedNames: null,
+    _errorRows: null,
 
+    /* Color the specific row red, if an error occurred!
+     */ 
+    setErrorMessage: function(message, id){
+      this._table.colorRow('#F00', this._firstColumn, this._tableData[id][this._firstColumn]);
+      this.setValid(false);
+      this.setInvalidMessage(message);
+    },
+
+    /* Resets error messages
+     * */
+    resetErrorMessage: function(){
+      this.setInvalidMessage("");
+      this.setValid(true);
+      this._table.resetRowColors();
+    },
     
     _createGui: function(){
       this._tableModel = new qx.ui.table.model.Simple();
@@ -41,7 +58,6 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
       this._table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
       this.add(this._table, {top:0 , bottom:0, right: 0, left:0});
       this._table.setPreferenceTableName(this.getExtension() + ":" + this.getAttribute());
-
       this.bind("valid", this._table, "valid");
       this.bind("invalidMessage", this._table, "invalidMessage");
 

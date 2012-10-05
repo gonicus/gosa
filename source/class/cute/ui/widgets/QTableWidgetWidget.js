@@ -18,7 +18,7 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
 
     this.base(arguments);
     this.setLayout(new qx.ui.layout.Canvas());
-    var attrs = ["buddyOf","valid","invalidMessage","attribute",
+    var attrs = ["buddyOf","attribute",
           "labelText","extension","guiProperties","caseSensitive",
           "blockedBy","defaultValue","dependsOn","mandatory", 
           "type","unique","values","readOnly","multivalue",
@@ -43,6 +43,24 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
         }
 
         this.add(widget, {left:0, right:0, bottom: 0, top:0});
+        this._widget = widget;
       },this);
-  }
+  },
+
+  members: {
+
+    _widget: null,
+
+    /* Sets an error message for the widget given by id.
+     */ 
+    setErrorMessage: function(message, id){
+      this._widget.setErrorMessage(message, id);
+    },
+
+    /* Resets error messages
+     * */
+    resetErrorMessage: function(){
+      this._widget.resetErrorMessage();
+    }
+  }                      
 });

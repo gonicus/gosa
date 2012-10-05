@@ -22,6 +22,8 @@ qx.Class.define("cute.ui.table.Table",
     }
 
     this.base(arguments, tableModel, customModel);
+    var rowRenderer = new cute.ui.table.RowRendererColoredRow();
+    this.setDataRowRenderer(rowRenderer);
 
     // Add additional key 
     this.addListener('keyup', function(e){
@@ -70,7 +72,17 @@ qx.Class.define("cute.ui.table.Table",
     __preferenceName: null,
     __lastPreferences: null,
     __defaultPreferences: null,
+    
+    resetRowColors: function(){
+      this.getDataRowRenderer().colorRows = [];
+      this.updateContent();
+    },
 
+    colorRow: function(color, whereAttribute, equals){
+      this.getDataRowRenderer().colorRows.push({color: color, where: whereAttribute, match: equals});
+      this.updateContent();
+    },
+    
 
     /*! \brief  Collects table preferences like sorting direction
      *           and visible columns and save these information back to
