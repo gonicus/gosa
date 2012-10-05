@@ -14,23 +14,31 @@ msgstr ""
 "X-Language: de_DE\n"
 "X-Source-Language: de\n"
 
-#: cute/Application.js:126
+#: cute/Application.js:132
 msgid "Can't determine session user"
 msgstr "Kann Sitzungs-Benutzer nicht bestimmen"
 
-#: cute/Application.js:137
+#: cute/Application.js:143
 msgid "Loading translation"
 msgstr "Lade Übersetzung"
 
-#: cute/Application.js:143
+#: cute/Application.js:149
 msgid "Can't fetch translation catalog"
 msgstr "Kann Übersetzungs-Katalog nicht beziehen"
 
-#: cute/Application.js:165
+#: cute/Application.js:171
 msgid "Loading %1 template"
 msgstr "Lade %1-Vorlage"
 
-#: cute/ui/Header.js:51
+#: cute/ui/Header.js:21
+msgid "Edit your profile"
+msgstr "Eigenes Profil bearbeiten"
+
+#: cute/ui/Header.js:34
+msgid "Logout"
+msgstr "Abmelden"
+
+#: cute/ui/Header.js:61
 msgid "Logged in:"
 msgstr "Angemeldet:"
 
@@ -42,59 +50,59 @@ msgstr "Auswählen"
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: cute/ui/Renderer.js:731
+#: cute/ui/Renderer.js:728
 msgid "Extend"
 msgstr "Erweitern"
 
-#: cute/ui/Renderer.js:736
+#: cute/ui/Renderer.js:733
 msgid "Retract"
 msgstr "Zurücknehmen"
 
-#: cute/ui/Renderer.js:741
+#: cute/ui/Renderer.js:738
 msgid "Action"
 msgstr "Aktion"
 
-#: cute/ui/Renderer.js:774
+#: cute/ui/Renderer.js:771
 msgid "Failed to retract the %1 extension: %2"
 msgstr "Fehler beim Zurückziehen der %1-Erweiterung: %2"
 
-#: cute/ui/Renderer.js:828
+#: cute/ui/Renderer.js:825
 msgid "Dependent extension"
 msgid_plural "Dependent extensions"
 msgstr[0] "Abhängige Erweiterung"
 msgstr[1] "Abhängige Erweiterungen"
 
-#: cute/ui/Renderer.js:844
+#: cute/ui/Renderer.js:841
 msgid "To retract the <b>%1</b> extension from this object, the following additional extension needs to be removed: %2"
 msgid_plural "To retract the <b>%1</b> extension from this object, the following additional extensions need to be removed: %2"
 msgstr[0] "Um die <b>%1</b>-Erweiterung von diesem Objekt zurückzunehmen, muss die folgende Erweiterung ebenfalls zurückgenommen werden: %2"
 msgstr[1] "Um die <b>%1</b>-Erweiterung von diesem Objekt zurückzunehmen, müssen die folgenden Erweiterungen ebenfalls zurückgenommen werden: %2"
 
-#: cute/ui/Renderer.js:847
+#: cute/ui/Renderer.js:844
 msgid "Do you want the dependent extension to be removed?"
 msgid_plural "Do you want the dependent extensions to be removed?"
 msgstr[0] "Möchten Sie die abhängende Erweiterung entfernen?"
 msgstr[1] "Möchten Sie die abhängenden Erweiterungen entfernen?"
 
-#: cute/ui/Renderer.js:923
+#: cute/ui/Renderer.js:919
 msgid "Missing extension"
 msgid_plural "Missing extensions"
 msgstr[0] "Fehlende Erweiterung"
 msgstr[1] "Fehlende Erweiterungen"
 
-#: cute/ui/Renderer.js:941
+#: cute/ui/Renderer.js:937
 msgid "To extend the object by the <b>%1</b> extension, the following additional extension is required: %2"
 msgid_plural "To extend the object by the <b>%1</b> extension, the following additional extensions are required: %2"
 msgstr[0] "Um dieses Objekt um die <b>%1</b>-Erweiterung zu erweitern, wird die folgende zusätzliche Erweiterung benötigt: %2"
 msgstr[1] "Um dieses Objekt um die <b>%1</b>-Erweiterung zu erweitern, werden die folgenden zusätzlichen Erweiterungen benötigt: %2"
 
-#: cute/ui/Renderer.js:944
+#: cute/ui/Renderer.js:940
 msgid "Do you want the missing extension to be added?"
 msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] "Soll die fehlende Erweiterung hinzugefügt werden?"
 msgstr[1] "Sollen die fehlenden Erweiterungen hinzugefügt werden?"
 
-#: cute/ui/Renderer.js:1044
+#: cute/ui/Renderer.js:1040
 msgid "Remove extension"
 msgstr "Erweiterung entfernen"
 
@@ -235,72 +243,72 @@ msgstr "Bitte geben Sie den Suchtext ein..."
 msgid "Search"
 msgstr "Suche"
 
-#: cute/view/Search.js:271
+#: cute/view/Search.js:266
 msgid "%1 fuzzy result"
 msgid_plural "%1 fuzzy results"
 msgstr[0] "%1 ungenaues Ergebnis"
 msgstr[1] "%1 ungenaue Ergebnisse"
 
-#: cute/view/Search.js:271 cute/view/Search.js:273
+#: cute/view/Search.js:266 cute/view/Search.js:268
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] "%1 Sekunde"
 msgstr[1] "%1 Sekunden"
 
-#: cute/view/Search.js:271
+#: cute/view/Search.js:266
 msgid "no exact matches"
 msgstr "keine exakten Treffer"
 
-#: cute/view/Search.js:273
+#: cute/view/Search.js:268
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] "%1 Ergebnis"
 msgstr[1] "%1 Ergebnisse"
 
-#: cute/view/Search.js:304 cute/view/Search.js:344
+#: cute/view/Search.js:299 cute/view/Search.js:342
 msgid "All"
 msgstr "Alle"
 
-#: cute/view/Search.js:337
+#: cute/view/Search.js:335
 msgid "Category"
 msgstr "Kategorie"
 
-#: cute/view/Search.js:339
+#: cute/view/Search.js:337
 msgid "Secondary search"
 msgstr "Sekundäre Suche"
 
-#: cute/view/Search.js:340
+#: cute/view/Search.js:338
 msgid "Enabled"
 msgstr "Aktiviert"
 
-#: cute/view/Search.js:341
+#: cute/view/Search.js:339
 msgid "Disabled"
 msgstr "Deaktiviert"
 
-#: cute/view/Search.js:343
+#: cute/view/Search.js:341
 msgid "Last modification"
 msgstr "Letzte Änderung"
 
-#: cute/view/Search.js:345
+#: cute/view/Search.js:343
 msgid "Last hour"
 msgstr "Letzte Stunde"
 
-#: cute/view/Search.js:346
+#: cute/view/Search.js:344
 msgid "Last 24 hours"
 msgstr "Letzte 24 Stunden"
 
-#: cute/view/Search.js:347
+#: cute/view/Search.js:345
 msgid "Last week"
 msgstr "Vorherige Woche"
 
-#: cute/view/Search.js:348
+#: cute/view/Search.js:346
 msgid "Last month"
 msgstr "Vorheriger Monat"
 
-#: cute/view/Search.js:349
+#: cute/view/Search.js:347
 msgid "Last year"
 msgstr "Vorheriges Jahr"
 
-#: cute/view/Search.js:389
+#: cute/view/Search.js:388
 msgid "Object"
 msgstr "Objekt"

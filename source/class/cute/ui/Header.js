@@ -18,7 +18,7 @@ qx.Class.define("cute.ui.Header", {
 
     var container = new qx.ui.container.Composite(new qx.ui.layout.HBox());
     this.__label = new qx.ui.basic.Label("");
-    this.__label.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Click here to edit your own profile")));
+    this.__label.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Edit your profile")));
     this.__label.setRich(true);
     this.__label.setCursor("pointer");
     this.__label.setAlignY("middle");
