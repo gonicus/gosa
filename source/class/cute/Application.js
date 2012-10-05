@@ -253,11 +253,16 @@ qx.Class.define("cute.Application",
      */  
     __handleUrl: function(url){
       var action = url.split(cute.Config.actionDelimiter)[0];
+      var found = false;
       for(var id in this.__actions){
         if(this.__actions[id]['action'] == action){
           var act = this.__actions[id];
           act['func'].apply(act['context'], [action, url.split(cute.Config.actionDelimiter), url, act['userData']]);
+          found = true;
         }
+      }
+      if(found){
+        this._history.setState("");
       }
     },
 
