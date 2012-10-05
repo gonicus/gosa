@@ -61,7 +61,7 @@ qx.Class.define("cute.proxy.ObjectFactory", {
 
             // The base member variables for the metaclass
             var members = {
-              uuid: null,
+              instance_uuid: null,
               dn: null,
               methods: methods,
               attributes: attributes,

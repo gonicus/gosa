@@ -9,7 +9,9 @@
  * @lint ignoreUndefined(MozWebSocket,WebSocket)
  * */
 qx.Class.define("cute.io.WebSocket", {
+
   extend : qx.core.Object,
+
   type   : "singleton",
 
   construct: function(){
@@ -19,6 +21,10 @@ qx.Class.define("cute.io.WebSocket", {
 
   destruct : function(){
     this.__ws = null;
+  },
+
+  events: {
+    "objectModified": "qx.event.type.Data"
   },
 
   members : {
@@ -64,6 +70,9 @@ qx.Class.define("cute.io.WebSocket", {
     },
 
     _handleObjectChangeMessage : function(info) {
+        if(info['changeType'] == "update"){
+          this.fireDataEvent("objectModified", info); 
+        }
         console.log("Object changed");
         console.log(info);
     },

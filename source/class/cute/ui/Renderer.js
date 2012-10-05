@@ -152,7 +152,7 @@ qx.Class.define("cute.ui.Renderer",
           var func = function(value){
             var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
             if (this._widgets[widgetName]) {
-              if(!this._widgets[widgetName]._was_initialized){
+              if(!this._widgets[widgetName]._was_initialized || this._object.is_reloading){
                 this.setWidgetValue(widgetName, value);
                 this._widgets[widgetName]._was_initialized = true;
               }

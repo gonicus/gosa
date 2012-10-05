@@ -60,12 +60,20 @@ qx.Class.define("cute.Session",
       if(name !== null){
         var rpc = cute.io.Rpc.getInstance();
         rpc.cA(function(result, error){
-            this.setLoggedInName(result['givenName'] + " " + result['sn']);
-            this.setCn(result['cn']);
-            this.setSn(result['sn']);
-            this.setGivenName(result['givenName']);
-            this.setUuid(result['uuid']);
-            this.setDn(result['dn']);
+            cute.proxy.ObjectFactory.openObject(function(result, error){
+                try{
+                  this._object = result;
+                  this._object.bind("sn[0]", this, "sn");
+                  this._object.bind("cn[0]", this, "cn");
+                  this._object.bind("givenName[0]", this, "givenName");
+                  this._object.bind("cn[0]", this, "loggedInName");
+                  this._object.uuid = result['uuid'];
+                  this.setDn(result['dn']);
+                }catch(e){
+                  alert(e);
+                }
+
+              }, this, result['dn']);
           }, this, "getUserDetails");
       }else{
         this.setLoggedInName(null);
