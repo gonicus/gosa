@@ -85,9 +85,11 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
         var value = this.getValue().toArray();
         var updated = false;
         this._table.getSelectionModel().iterateSelection(function(index) {
-            updated = true;
-            var selected = that._tableModel.getRowData(index)["__identifier__"];
-            qx.lang.Array.remove(value, selected);
+            var selected = that._tableModel.getRowData(index);
+            if(selected){
+              updated = true;
+              qx.lang.Array.remove(value, selected['__identifier__']);
+            }
           });
         if(updated){
           this.setValue(new qx.data.Array(value));
