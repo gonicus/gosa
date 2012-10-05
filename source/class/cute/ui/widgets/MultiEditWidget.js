@@ -29,21 +29,10 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
 
     /* Sets an error message for this widgets
      * */
-    setErrorMessage: function(error_object){
-      var message = error_object.text;
-      if(error_object.details){
-        for(var i=0; i< error_object.details.length; i++){
-          var w = this._getWidget(error_object.details[0].index);
-          w.setInvalidMessage(message);
-          w.setValid(false);
-        }
-      }else{
-        var w = this._getWidget(0);
-        if(w){
-          w.setInvalidMessage(message);
-          w.setValid(false);
-        }
-      }
+    setErrorMessage: function(message, id){
+      var w = this._getWidget(id);
+      w.setInvalidMessage(message);
+      w.setValid(false);
     },
 
 

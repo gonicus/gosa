@@ -256,15 +256,31 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
     _applyMandatory: function(value){
     },
-  
+ 
+
+    /* Resets error messages
+     * */
     resetErrorMessage: function(){
       this.setInvalidMessage("");
       this.setValid(true);
     },
 
-    setErrorMessage: function(error_object){
-      console.log(this.getAttribute(), error_object);
+    /* Parses an incoming error-object and then sets the error message.
+     * */
+    setError: function(error_object){
       var message = error_object.text;
+      if(error_object.details){
+        for(var i=0; i< error_object.details.length; i++){
+          this.setErrorMessage(message + " - " + error_object.details[i].detail, error_object.details[i].index);
+        }
+      }else{
+        this.setErrorMessage(message, 0);
+      }
+    },
+
+    /* Sets an error message for the widget given by id.
+     */ 
+    setErrorMessage: function(message, id){
       this.setInvalidMessage(message);
       this.setValid(false);
     }

@@ -330,9 +330,9 @@ qx.Class.define("cute.ui.Renderer",
             if(name in this._widget_to_page){
               this._tabContainer.setSelection([this._widget_to_page[name]]);
             }
-            this.resetErrorMessage(name);
+            this.resetError(name);
             if(!data['success']){
-              this.setErrorMessage(name, data['error']);
+              this.setError(name, data['error']);
             }
           }; break;
       }
@@ -1732,17 +1732,17 @@ qx.Class.define("cute.ui.Renderer",
       this._widgets[name].setValue(value.copy());
     },
 
-    setErrorMessage : function(name, message)
+    setError : function(name, message)
     {
       var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
       if (this._widgets[widgetName]) {
-        this._widgets[widgetName].setErrorMessage(message);
+        this._widgets[widgetName].setError(message);
       } else {
         this.error("*** cannot set invalid message for non existing widget '" + name + "'!");
       }
     },
 
-    resetErrorMessage : function(name)
+    resetError : function(name)
     {
       var widgetName = qx.lang.Object.getKeyFromValue(this._bindings, name);
       if (this._widgets[widgetName]) {
