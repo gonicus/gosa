@@ -81,6 +81,7 @@ qx.Class.define("cute.view.Search",
     this.searchResult.setPadding(20);
     this.searchResult.setDecorator("separator-vertical");
     this.resultList = new qx.ui.list.List();
+    this.resultList.setModel(new qx.data.Array());
     this.resultList.setAppearance("SearchList");
     this.resultList.setDecorator(null);
     this.searchResult.add(this.resultList, {left: barWidth, right: 0, bottom: 0, top: 0});
@@ -156,9 +157,7 @@ qx.Class.define("cute.view.Search",
     });
     this.sf.focus();
 
-
-
-    // Listen for changes comming from the backend
+    // Listen for object changes comming from the backend
     cute.io.WebSocket.getInstance().addListener("objectModified", function(e){
         var data = e.getData();
         if(this._lastUpdateReload != data['lastChanged']){
@@ -170,6 +169,15 @@ qx.Class.define("cute.view.Search",
             }
           }
         }
+        console.log("++ handeled event --- create --- in search result!")
+      }, this);
+
+    cute.io.WebSocket.getInstance().addListener("objectCreated", function(e){
+        console.log("++ UNhandeled event --- create --- in search result!")
+      }, this);
+
+    cute.io.WebSocket.getInstance().addListener("objectRemoved", function(e){
+        console.log("++ UNhandeled event --- remove --- in search result!")
       }, this);
 
   },
@@ -373,25 +381,26 @@ qx.Class.define("cute.view.Search",
       }
     },
 
+    /* Highlights query strings in the given string
+     * */
     _highlight : function(string, query) {
         var reg = new RegExp('(' + qx.lang.String.escapeRegexpChars(query) + ')', "ig");
         return string.replace(reg, "<b>$1</b>");
     },
 
-    editItem : function() {
-      this.openObject(this.resultList.getSelection().getItem(0).getDn());
-    },
-
-    /* Removes the object given by dn and reloads the search results afterwards
-     * #TODO: Add error handling for RPC errors.
+    /* Removes the object given by its uuid
      * */
     removeObject: function(uuid){
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(result, error){
-          new cute.ui.dialogs.Error(this.tr("Failed to remove the entry!") + " " + error.message).open();
+          if(error){
+            new cute.ui.dialogs.Error(this.tr("Failed to remove the entry!") + " " + error.message).open();
+          }
         }, this, "removeObject", "object", uuid); 
     },
 
+    /* Open the object given by its uuid/dn
+     * */
     openObject : function(dn) {
       var win = null;
 

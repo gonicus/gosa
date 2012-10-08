@@ -24,6 +24,8 @@ qx.Class.define("cute.io.WebSocket", {
   },
 
   events: {
+    "objectRemoved": "qx.event.type.Data",
+    "objectCreated": "qx.event.type.Data",
     "objectModified": "qx.event.type.Data"
   },
 
@@ -69,14 +71,22 @@ qx.Class.define("cute.io.WebSocket", {
       };
     },
 
+    /* Handle object change messages and fire up events
+     * to inform other objects of the changes. E.g Lists.
+     * */
     _handleObjectChangeMessage : function(info) {
-        if(info['changeType'] == "update"){
-          this.fireDataEvent("objectModified", info); 
-        }
+      if(info['changeType'] == "update"){
+        this.fireDataEvent("objectModified", info); 
+      }else if(info['changeType'] == "remove"){
+        this.fireDataEvent("objectRemoved", info); 
+      }else if(info['changeType'] == "create"){
+        this.fireDataEvent("objectCreated", info); 
+      }else{
         console.log("");
         console.log(" ----> " + info['changeType']);
         console.log(info);
         console.log("");
+      }
     },
 
     _handleNotificationMessage : function(info) {
