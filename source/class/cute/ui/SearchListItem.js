@@ -88,6 +88,13 @@ qx.Class.define("cute.ui.SearchListItem", {
       event : "changeDn"
     },
 
+    uuid :
+    {
+      nullable : true,
+      check : "String",
+      event : "changeUuid"
+    },
+
     description :
     {
       apply : "_applyDescription",
