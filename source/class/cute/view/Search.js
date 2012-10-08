@@ -117,7 +117,7 @@ qx.Class.define("cute.view.Search",
           item.addListener("remove", function(e){
               var dialog = new cute.ui.dialogs.RemoveObject(e.getData().getDn());
               dialog.addListener("remove", function(){
-                  that.removeObject(item.getDn());
+                  that.removeObject(item.getUuid());
                 }, this);
               dialog.open();
               
@@ -128,6 +128,7 @@ qx.Class.define("cute.view.Search",
         bindItem : function(controller, item, id) {
           controller.bindProperty("title", "title", null, item, id);
           controller.bindProperty("dn", "dn", null, item, id);
+          controller.bindProperty("uuid", "uuid", null, item, id);
           controller.bindProperty("description", "description", null, item, id);
           controller.bindProperty("icon", "icon", null, item, id);
           controller.bindProperty("", "model", null, item, id);
@@ -386,9 +387,7 @@ qx.Class.define("cute.view.Search",
      * */
     removeObject: function(dn){
       cute.proxy.ObjectFactory.openObject(function(obj, error){
-          obj.remove(function(result, error){
-              this.doSearch();
-            }, this);
+          obj.remove();
         }, this, dn); 
     },
 
