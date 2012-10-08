@@ -11,7 +11,7 @@ qx.Class.define("cute.proxy.Object", {
 
     // Listen for changes comming from the backend
     cute.io.WebSocket.getInstance().addListener("objectModified", function(e){
-      if(e.getData()['uuid'] != this.uuid || this.commit_state){
+      if(e.getData()['uuid'] != this.uuid || this.skipEventProcessing){
         return;
       }
       if(e.getData()['lastChanged'] != this._updateLastChanged){
@@ -32,7 +32,7 @@ qx.Class.define("cute.proxy.Object", {
 
   members: {
 
-    commit_state: false,
+    skipEventProcessing: false,
     initialized: null,
     is_reloading: false,
     _updateLastChanged: null,
@@ -99,6 +99,7 @@ qx.Class.define("cute.proxy.Object", {
     /* Closes the current object
      * */
     close : function(func, context){
+      this.skipEventProcessing = true;
       var rpc = cute.io.Rpc.getInstance();
       var args = ["closeObject", this.instance_uuid];
       rpc.cA.apply(rpc, [function(result, error){
@@ -190,14 +191,19 @@ qx.Class.define("cute.proxy.Object", {
     /* Wrapper method for object calls
      * */
     callMethod: function(method, func, context){
-      if(method == "commit"){
-        this.commit_state = true;
+      if(method == "commit" || method == "remove"){
+        this.skipEventProcessing = true;
       }
       var rpc = cute.io.Rpc.getInstance();
       var args = ["dispatchObjectMethod", this.instance_uuid, method].concat(Array.prototype.slice.call(arguments, 3));
       rpc.cA.apply(rpc, [function(result, error){
           if(func){
             func.apply(context, [result, error]);
+            if(method in ["remove"]){
+              this.close();
+            }else{
+              this.skipEventProcessing = false;
+            }
           }
         }, this].concat(args));
     }
