@@ -14,6 +14,11 @@ qx.Class.define("cute.data.model.SearchResultItem",
       event : "changeDn"
     },
 
+    uuid : {
+      check : "String",
+      event : "changeUuid"
+    },
+
     type : {
       check : "String",
       event : "changeType"

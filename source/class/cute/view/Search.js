@@ -154,6 +154,23 @@ qx.Class.define("cute.view.Search",
       _self.sf.focus();
     });
     this.sf.focus();
+
+
+
+    // Listen for changes comming from the backend
+    cute.io.WebSocket.getInstance().addListener("objectModified", function(e){
+        var data = e.getData();
+        if(this._lastUpdateReload != data['lastChanged']){
+          var model = this.resultList.getModel().toArray();
+          for(var i=0; i<model.length; i++){
+            if(model[i].getUuid() == data['uuid']){
+              this._lastUpdateReload = data['lastChanged'];
+              this.doSearchE();
+            }
+          }
+        }
+      }, this);
+
   },
 
   events: {
@@ -168,6 +185,9 @@ qx.Class.define("cute.view.Search",
 
   members :
   {
+    // The timestamp of the last event that triggered a list reload
+    _lastUpdateReload: null,
+
     _sq : null,
     _timer : null,
     _working : false,
@@ -281,6 +301,7 @@ qx.Class.define("cute.view.Search",
             icon = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/images/objects/" + items[i]['tag'].toLowerCase() + ".png";
         }
 
+        item.setUuid(items[i]['uuid']);
         item.setDn(items[i]['dn']);
         item.setTitle(items[i]['title']);
         item.setRelevance(items[i]['relevance']);
