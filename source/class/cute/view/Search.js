@@ -385,10 +385,11 @@ qx.Class.define("cute.view.Search",
     /* Removes the object given by dn and reloads the search results afterwards
      * #TODO: Add error handling for RPC errors.
      * */
-    removeObject: function(dn){
-      cute.proxy.ObjectFactory.openObject(function(obj, error){
-          obj.remove();
-        }, this, dn); 
+    removeObject: function(uuid){
+      var rpc = cute.io.Rpc.getInstance();
+      rpc.cA(function(result, error){
+          new cute.ui.dialogs.Error(this.tr("Failed to remove the entry!") + " " + error.message).open();
+        }, this, "removeObject", "object", uuid); 
     },
 
     openObject : function(dn) {
