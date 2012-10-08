@@ -17,13 +17,9 @@ qx.Class.define("cute.proxy.Object", {
       if(e.getData()['lastChanged'] != this._updateLastChanged){
           this._updateLastChanged = e.getData()['lastChanged'];
           if(!this.is_reloading){
-            var timer = qx.util.TimerManager.getInstance();
-            timer.start(function(){
-                this.reload(function(result, error){
-                  console.log("Done reloading ----");
-                }, this);
-              },0,this,null,2500);
-
+            this.reload(function(result, error){
+                console.log("Done reloading ----");
+              }, this);
           }
         }
       }, this);
