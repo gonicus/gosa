@@ -73,8 +73,10 @@ qx.Class.define("cute.io.WebSocket", {
         if(info['changeType'] == "update"){
           this.fireDataEvent("objectModified", info); 
         }
-        console.log("Object changed");
+        console.log("");
+        console.log(" ----> " + info['changeType']);
         console.log(info);
+        console.log("");
     },
 
     _handleNotificationMessage : function(info) {
