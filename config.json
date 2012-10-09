@@ -54,6 +54,8 @@
 
     "source-destruct" :
     {
+      "extend" : ["source"],
+
       "variants" : { "qx.aspects" : [ "on" ], "qx.debug" : [ "on" ] },
 
       "shell" : {
