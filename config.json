@@ -54,17 +54,17 @@
 
     "source-destruct" :
     {
-      "extend" : ["source"],
+      "desc" : "source version with 'qx.disposerDebugLevel' for destruct support",
 
-      "variants" : { "qx.aspects" : [ "on" ], "qx.debug" : [ "on" ] },
+      "extend" : ["source"],
 
       "shell" : {
         "command" : "./customize"
       },
 
-      "settings" :
+      "environment" :
       {
-        "qx.disposerDebugLevel" : "2",
+        "qx.debug.dispose.level" : "2",
         "qx.widgetDebugId" : true
       }
     },
