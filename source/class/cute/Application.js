@@ -17,6 +17,7 @@
 /**
  * This is the main application class of your custom application "cute"
  */
+
 qx.Class.define("cute.Application",
 {
   extend : qx.application.Standalone,
@@ -123,7 +124,7 @@ qx.Class.define("cute.Application",
           search.openObject(urlParts[1]);
         }, this);
 
-    
+   
       // Enforce login
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(userid, error) {

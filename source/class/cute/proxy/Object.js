@@ -11,10 +11,11 @@ qx.Class.define("cute.proxy.Object", {
 
     // Listen for changes comming from the backend
     cute.io.WebSocket.getInstance().addListener("objectModified", function(e){
-      if(e.getData()['uuid'] != this.uuid || this.skipEventProcessing){
-        return;
-      }
-      if(e.getData()['lastChanged'] != this._updateLastChanged){
+        if(e.getData()['uuid'] != this.uuid || this.skipEventProcessing){
+          return;
+        }
+        console.log("UPDATE! ", e.getData());
+        if(e.getData()['lastChanged'] != this._updateLastChanged){
           this._updateLastChanged = e.getData()['lastChanged'];
           if(!this.is_reloading){
             this.reload(function(result, error){
@@ -24,6 +25,17 @@ qx.Class.define("cute.proxy.Object", {
         }
       }, this);
 
+    // Listen for changes comming from the backend
+    cute.io.WebSocket.getInstance().addListener("objectRemoved", function(e){
+        if(e.getData()['uuid'] != this.uuid || this.skipEventProcessing){
+          return;
+        }
+        console.log("REMOVED! ", e.getData());
+        if(e.getData()['lastChanged'] != this._updateLastChanged){
+          this._updateLastChanged = e.getData()['lastChanged'];
+          new cute.ui.dialogs.Info(this.tr("This object was recently deleted!")).open();
+        }
+      }, this);
   },
 
   events: {

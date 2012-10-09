@@ -158,28 +158,9 @@ qx.Class.define("cute.view.Search",
     this.sf.focus();
 
     // Listen for object changes comming from the backend
-    cute.io.WebSocket.getInstance().addListener("objectModified", function(e){
-        var data = e.getData();
-        if(this._lastUpdateReload != data['lastChanged']){
-          var model = this.resultList.getModel().toArray();
-          for(var i=0; i<model.length; i++){
-            if(model[i].getUuid() == data['uuid']){
-              this._lastUpdateReload = data['lastChanged'];
-              this.doSearchE();
-            }
-          }
-        }
-        console.log("++ handeled event --- create --- in search result!")
-      }, this);
-
-    cute.io.WebSocket.getInstance().addListener("objectCreated", function(e){
-        console.log("++ UNhandeled event --- create --- in search result!")
-      }, this);
-
-    cute.io.WebSocket.getInstance().addListener("objectRemoved", function(e){
-        console.log("++ UNhandeled event --- remove --- in search result!")
-      }, this);
-
+    cute.io.WebSocket.getInstance().addListener("objectModified", this._handleObjectEvent, this);
+    cute.io.WebSocket.getInstance().addListener("objectCreated", this._handleObjectEvent, this);
+    cute.io.WebSocket.getInstance().addListener("objectRemoved", this._handleObjectEvent, this);
   },
 
   events: {
@@ -201,6 +182,22 @@ qx.Class.define("cute.view.Search",
     _timer : null,
     _working : false,
     _old_query : null,
+
+
+    /* Act on backend events related to object modifications
+     * */
+    _handleObjectEvent: function(e){
+      var data = e.getData();
+      if(this._lastUpdateReload != data['lastChanged']){
+        var model = this.resultList.getModel().toArray();
+        for(var i=0; i<model.length; i++){
+          if(model[i].getUuid() == data['uuid']){
+            this._lastUpdateReload = data['lastChanged'];
+            this.doSearchE();
+          }
+        }
+      }
+    },
 
     _search_queue_handler : function() {
       if (this._sq.length == 0 || this._working) {
