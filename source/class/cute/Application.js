@@ -61,17 +61,19 @@ qx.Class.define("cute.Application",
       */
 
       // Stop the loading-throbber
+      //TODO: can this be removed?
       //throb.stop();
 
       // Document is the application root
       var doc = this.getRoot();
+      doc.setDecorator("background");
 
       /* Prepare screen for loading */
 
       // Block the gui while we are loading gui elements like 
       // tab-templates, translations etc.
-      this.getRoot().setBlockerColor("#F8F8F8");
-      this.getRoot().setBlockerOpacity(1);
+      doc.setBlockerColor("#F8F8F8");
+      doc.setBlockerOpacity(1);
 
       // Open the loading dialog which shows the loading status.
       var loadingDialog = new cute.ui.dialogs.Loading();
@@ -88,7 +90,7 @@ qx.Class.define("cute.Application",
       doc.add(header, {left: 0, right: 0, top: 0});
       cute.Session.getInstance().bind("loggedInName", header, "loggedInName");
 
-      //TODO: add one static plugin for testing
+      //TODO: remove static view registration later on
       var search = new cute.view.Search;
       var tree = new cute.view.Tree;
       var work = new cute.view.Workflows;
@@ -102,7 +104,7 @@ qx.Class.define("cute.Application",
       var messaging = cute.io.WebSocket.getInstance();
       messaging.reconnect();
 
-      doc.add(pluginView, {left: 0, right: 0, top: 50, bottom: 0});
+      doc.add(pluginView, {left: 3, right: 3, top: 52, bottom: 4});
 
       // Hide Splash - initialized by index.html
       var splash = document.getElementById("splash");
