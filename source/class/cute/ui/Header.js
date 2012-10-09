@@ -13,6 +13,7 @@ qx.Class.define("cute.ui.Header", {
     header.setDecorator("title-bar");
     header.setTextColor("header-text");
     header.setHeight(48);
+    header.setPadding(5);
     this.add(header, {top:0, left:0, bottom: 0, right: 0});
 
     var container = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
