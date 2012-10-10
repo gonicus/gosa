@@ -61,25 +61,6 @@ qx.Class.define("cute.ui.Renderer",
     this._extension_to_page = {};
     this._widget_to_page = {};
     this.__bindings = [];
-
-    // Act on modify events
-    var id = cute.io.WebSocket.getInstance().addListener("objectModified", function(e){
-        new cute.ui.dialogs.Info(this.tr("This object was modified in the meantime and has been reloaded!")).open();
-      }, this);
-    this.__bindings.push({id: id, widget: cute.io.WebSocket.getInstance()});
-
-    // Act on remove events
-    cute.io.WebSocket.getInstance().addListenerOnce("objectRemoved", function(e){
-
-        // Skip events that are not for us
-        var data = e.getData();
-        if(data['uuid'] != this._object.uuid){
-          return;
-        }
-        this.fireEvent("done");
-        new cute.ui.dialogs.Info(this.tr("This object was removed in the meantime.")).open();
-      }, this);
-
   },
 
   properties :
@@ -218,6 +199,19 @@ qx.Class.define("cute.ui.Renderer",
       // e.g. set an invalid-decorator for specific widget.
       var id = obj.addListener("propertyUpdateOnServer", widget.actOnEvents, widget);
       widget.__bindings.push({id: id, widget: obj});
+
+      // Act on reload events
+      var id = widget._object.addListener("reloaded", function(){
+          new cute.ui.dialogs.Info(this.tr("This object was modified in the meantime and has been reloaded!")).open();
+        }, widget);
+      widget.__bindings.push({id: id, widget: widget._object});
+
+      // Act on remove events
+      var id = widget._object.addListener("removed", function(){
+          new cute.ui.dialogs.Info(this.tr("This object was removed in the meantime.")).open();
+          this.fireEvent("done");
+        }, widget);
+      widget.__bindings.push({id: id, widget: widget._object});
 
       cb.apply(context, [widget]);
     }

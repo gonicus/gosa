@@ -7,15 +7,15 @@ qx.Class.define("cute.proxy.Object", {
     // Call parent contructor
     this.base(arguments);
     this._setAttributes(data);
-    this._listenerIDs = [];
-    this._listenerIDs.push(cute.io.WebSocket.getInstance().addListener("objectModified", this._objectEvent, this));
-    this._listenerIDs.push(cute.io.WebSocket.getInstance().addListener("objectRemoved", this._objectEvent, this));
+    this._listenerID1 = cute.io.WebSocket.getInstance().addListener("objectModified", this._objectEvent, this);
+    this._listenerID2 = cute.io.WebSocket.getInstance().addListener("objectRemoved", this._objectEvent, this);
   },
 
   destruct : function(){
 
     // Stop listening for object changes
-    cute.io.WebSocket.getInstance().removeListenerById(this._listenerID);
+    cute.io.WebSocket.getInstance().removeListenerById(this._listenerID1);
+    cute.io.WebSocket.getInstance().removeListenerById(this._listenerID2);
 
     // Remove every listener that was attached to us.
     // This allows us to set attribute values to null without
@@ -27,15 +27,23 @@ qx.Class.define("cute.proxy.Object", {
   },
 
   events: {
-    "propertyUpdateOnServer": "qx.event.type.Data"
+    "propertyUpdateOnServer": "qx.event.type.Data",
+    "removed": "qx.event.type.Event",
+    "reloaded": "qx.event.type.Event"
   },
 
   members: {
 
-    _listenerID: null,
+    _closed: false,
+    _listenerID1: null,
+    _listenerID2: null,
     initialized: null,
     is_reloading: false,
     _updateLastChanged: null,
+
+    isClosed: function(){
+      return(this.isDisposed() || this._closed);
+    },
 
     _objectEvent: function(e){
 
@@ -47,8 +55,7 @@ qx.Class.define("cute.proxy.Object", {
 
       // Act on the event type
       if(data['changeType'] == "remove"){
-        //..
-
+        this.fireEvent("removed");
       }else if(data['changeType'] == "update"){
         if(!this.is_reloading){
           this.reload(function(result, error){}, this);
@@ -124,6 +131,7 @@ qx.Class.define("cute.proxy.Object", {
     /* Closes the current object
      * */
     close : function(func, context){
+      this.isClosed = true;
       this.dispose();
       var rpc = cute.io.Rpc.getInstance();
       var args = ["closeObject", this.instance_uuid];
@@ -145,6 +153,7 @@ qx.Class.define("cute.proxy.Object", {
       rpc.cA(function(data, error){
           this._setAttributes(data);
           this.is_reloading = false;
+          this.fireEvent("reloaded");
           cb.apply(ctx, [data, error]);
         }, this, "reloadObject", this.instance_uuid);
     },
