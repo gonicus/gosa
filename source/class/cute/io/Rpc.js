@@ -53,6 +53,15 @@ qx.Class.define("cute.io.Rpc", {
           if(error){
             func.apply(ctx, [error]);
           }else{
+
+            // The default error message attribute is 'message'
+            // so fill it with the incoming message
+            data.message = data.text;
+            if("details" in data){
+              for(var item in data.details){
+                data.message += " - " + data.details[item]['detail'];
+              }
+            }
             func.apply(ctx, [data]);
           }
         }, rpc, "get_error", code, cute.Tools.getLocale());
