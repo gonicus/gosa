@@ -59,6 +59,9 @@ qx.Class.define("cute.ui.widgets.QPushButtonWidget",
     /* Apply collected gui properties to this widet
      * */
     _applyGuiProperties: function(props){
+      if(!props){
+        return;
+      }
       if(props["text"] && props["text"]["string"]){
         this._setText(props["text"]["string"]);
       }

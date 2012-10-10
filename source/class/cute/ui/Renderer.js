@@ -203,12 +203,28 @@ qx.Class.define("cute.ui.Renderer",
   },
 
   destruct : function(){
+    this.error("destroying master-cute-widget: ");
+    qx.event.Registration.removeAllListeners(this); 
     this._extension_to_widgets = this._flexMap = null;
     this._buddies = this._tabstops = this._bindings = this._object = null;
     this._current_buddies = this._current_tabstops = this._current_bindings = null;
     this._resources = null;
-    this._disposeObjects("__okBtn", "__cancelBtn");
-    this._disposeMap("_widgets");
+    this._disposeObjects("__okBtn", "__cancelBtn", "_extendButton", "_retractButton", "_actionButton");
+    //this._current_widgets = null;
+    //this._widgets = null;
+    //this._object = null;
+    //this._widgets = null;
+    //this._tabstops = null;
+    //this._bindings = null;
+    //this._resources = null;
+    //this._current_tabstops = null;
+    //this._current_buddies = null;
+    //this._current_bindings = null;
+    //this._current_widgets = null;
+    //this._tabContainer = null;
+    //this._extension_to_widgets = null;
+    //this._widget_to_page = null;
+    //this._widget_ui_properties = null;
   },
 
   members :

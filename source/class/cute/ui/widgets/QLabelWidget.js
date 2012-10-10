@@ -38,6 +38,10 @@ qx.Class.define("cute.ui.widgets.QLabelWidget",
     this.removeState("cuteInput");
   },
 
+  destruct : function(){
+    this._disposeObjects("_widget");
+  },
+
   members :
   {
     _widget: null,
@@ -55,6 +59,10 @@ qx.Class.define("cute.ui.widgets.QLabelWidget",
     /* Apply collected gui properties to this widet
      * */
     _applyGuiProperties: function(props){
+
+      if(!props){
+        return;
+      }
       if(props["text"] && props["text"]["string"]){
         var text = props["text"]["string"];
 

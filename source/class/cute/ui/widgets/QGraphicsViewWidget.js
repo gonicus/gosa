@@ -122,10 +122,13 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
 
   destruct : function(){
     this._defaultImage = null;
-    this._disposeObjects("_changePicture", "_removePicture", "_widget");
+    this._disposeObjects("_changePicture", "_removePicture", "_widget", "__cap", "__cap_win", "_capturePicture");
   },
 
   members: {
+    __cap: null,
+    __cap_win: null,
+    __capturePicture: null,
     _changePicture: null,
     _removePicture: null,
     _widget: null,

@@ -55,6 +55,10 @@ qx.Class.define("cute.ui.widgets.MultiEditContainer", {
     }
   },
 
+  destruct : function(){
+    this._disposeObjects("__container", "__addButton", "__delButton");
+  },
+
   events: {
     "add": "qx.event.type.Event",
     "delete": "qx.event.type.Event"

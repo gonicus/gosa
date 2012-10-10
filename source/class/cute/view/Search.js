@@ -412,6 +412,7 @@ qx.Class.define("cute.view.Search",
 
         // Build widget and place it into a window
         cute.ui.Renderer.getWidget(function(w){
+          var doc = qx.core.Init.getApplication().getRoot();
           win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
           win.setLayout(new qx.ui.layout.VBox(10));
           win.setWidth(700);
@@ -423,18 +424,19 @@ qx.Class.define("cute.view.Search",
           win.setShowMinimize(false);
 
           w.addListener("done", function(){
-            w.destroy();
+            w.dispose();
+            doc.remove(win);
             win.destroy();
           }, this);
 
           win.addListener("close", function(){
+            w.dispose();
+            doc.remove(win);
             obj.close();
-            w.destroy();
             win.destroy();
           }, this);
 
           // Position window as requested
-          var doc = qx.core.Init.getApplication().getRoot();
           doc.add(win);
 
           this.fireDataEvent("loadingComplete", {dn: dn});

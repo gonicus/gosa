@@ -22,6 +22,17 @@ qx.Class.define("cute.ui.widgets.Widget", {
     this.addState("cuteInput");
   },
 
+  destruct: function(){
+
+    // Remove all listeners and then set our values to null.
+    qx.event.Registration.removeAllListeners(this); 
+
+    this.setBuddyOf(null);
+    this.setGuiProperties(null);
+    this.setValues(null);
+    //this.setValue(null);
+  }, 
+
   properties : {
    
     buddyOf: {
@@ -211,6 +222,10 @@ qx.Class.define("cute.ui.widgets.Widget", {
     /* Apply collected gui properties to this widet
      * */
     _applyGuiProperties: function(props){
+      if(!props){
+        return;
+      }
+
       if(props["placeholderText"] && props["placeholderText"]["string"]){
         this.setPlaceholder(this.tr(props["placeholderText"]["string"]));
       }

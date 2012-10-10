@@ -65,6 +65,11 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
     },
 
     _applyValues: function(data){
+
+      if(!data){
+        return;
+      }
+
       var convert;
     	
       if(this.getType() == "Integer"){

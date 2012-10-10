@@ -50,13 +50,9 @@ qx.Class.define("cute.ui.tabview.TabView",
     }
   },
 
-
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
+  destruct : function(){
+    this._disposeObjects("_tabContainer");
+  },
 
   members :
   {

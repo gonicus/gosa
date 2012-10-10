@@ -6,36 +6,22 @@ qx.Class.define("cute.proxy.Object", {
 
     // Call parent contructor
     this.base(arguments);
-
     this._setAttributes(data);
+    this._listenerID = cute.io.WebSocket.getInstance().addListener("objectModified", this._objectEvent, this);
+  },
 
-    // Listen for changes comming from the backend
-    cute.io.WebSocket.getInstance().addListener("objectModified", function(e){
-        if(e.getData()['uuid'] != this.uuid || this.skipEventProcessing){
-          return;
-        }
-        console.log("UPDATE! ", e.getData());
-        if(e.getData()['lastChanged'] != this._updateLastChanged){
-          this._updateLastChanged = e.getData()['lastChanged'];
-          if(!this.is_reloading){
-            this.reload(function(result, error){
-                console.log("Done reloading ----");
-              }, this);
-          }
-        }
-      }, this);
+  destruct : function(){
 
-    // Listen for changes comming from the backend
-    cute.io.WebSocket.getInstance().addListener("objectRemoved", function(e){
-        if(e.getData()['uuid'] != this.uuid || this.skipEventProcessing){
-          return;
-        }
-        console.log("REMOVED! ", e.getData());
-        if(e.getData()['lastChanged'] != this._updateLastChanged){
-          this._updateLastChanged = e.getData()['lastChanged'];
-          new cute.ui.dialogs.Info(this.tr("This object was recently deleted!")).open();
-        }
-      }, this);
+    // Stop listening for object changes
+    cute.io.WebSocket.getInstance().removeListenerById(this._listenerID);
+
+    // Remove every listener that was attached to us.
+    // This allows us to set attribute values to null without
+    // notifying gui widgets or other things.
+    qx.event.Registration.removeAllListeners(this); 
+    for(var item in this.attributes){
+      this.set(this.attributes[item], null);
+    }
   },
 
   events: {
@@ -44,10 +30,30 @@ qx.Class.define("cute.proxy.Object", {
 
   members: {
 
-    skipEventProcessing: false,
+    _listenerID: null,
     initialized: null,
     is_reloading: false,
     _updateLastChanged: null,
+
+    _objectEvent: function(e){
+
+      // Skip events that are not for us
+      var data = e.getData();
+      if(data['uuid'] != this.uuid){
+        return;
+      }
+
+      // Act on the event type
+      if(data['changeType'] == "remove"){
+        this.error(" --> GOT Remove event", this.dn);
+      }else if(data['changeType'] == "modify"){
+        this.error(" --> GOT modify event", this.dn);
+        if(!this.is_reloading){
+          console.log("--> Processed");
+          this.reload(function(result, error){}, this);
+        }
+      }
+    },
 
     /* Helper method that sets attribute values using the 
      * json-rpc response
@@ -86,6 +92,12 @@ qx.Class.define("cute.proxy.Object", {
      * */
     setAttribute: function(name, value){
       if(this.initialized){
+
+        // Do nothing..
+        if(value == null){
+          return
+        }
+
         var that = this;
         var rpc = cute.io.Rpc.getInstance();
         var rpc_value = null;
@@ -111,7 +123,7 @@ qx.Class.define("cute.proxy.Object", {
     /* Closes the current object
      * */
     close : function(func, context){
-      this.skipEventProcessing = true;
+      this.dispose();
       var rpc = cute.io.Rpc.getInstance();
       var args = ["closeObject", this.instance_uuid];
       rpc.cA.apply(rpc, [function(result, error){
@@ -127,6 +139,7 @@ qx.Class.define("cute.proxy.Object", {
       if(this.is_reloading){
         return;
       }
+      this.error("RELOAD", this.dn);
       this.is_reloading = true;
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(data, error){
@@ -203,9 +216,6 @@ qx.Class.define("cute.proxy.Object", {
     /* Wrapper method for object calls
      * */
     callMethod: function(method, func, context){
-      if(method == "commit" || method == "remove"){
-        this.skipEventProcessing = true;
-      }
       var rpc = cute.io.Rpc.getInstance();
       var args = ["dispatchObjectMethod", this.instance_uuid, method].concat(Array.prototype.slice.call(arguments, 3));
       rpc.cA.apply(rpc, [function(result, error){
@@ -213,8 +223,6 @@ qx.Class.define("cute.proxy.Object", {
             func.apply(context, [result, error]);
             if(method in ["remove"]){
               this.close();
-            }else{
-              this.skipEventProcessing = false;
             }
           }
         }, this].concat(args));

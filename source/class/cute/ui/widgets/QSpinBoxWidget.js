@@ -25,6 +25,9 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
     /* Apply collected gui properties to this widet
      * */
     _applyGuiProperties: function(props){
+      if(!props){
+        return;
+      }
       if(props["placeholderText"] && props["placeholderText"]["string"]){
         this.setPlaceholder(props["placeholderText"]["string"]);
       }

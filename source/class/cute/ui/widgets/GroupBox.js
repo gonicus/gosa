@@ -16,6 +16,10 @@ qx.Class.define("cute.ui.widgets.GroupBox", {
       }, this);
   },
 
+  destruct : function(){
+    this._disposeArray("__cuteChildList");
+  },
+
   members: {
 
     __cuteChildList: null,
