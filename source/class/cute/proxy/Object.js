@@ -7,7 +7,9 @@ qx.Class.define("cute.proxy.Object", {
     // Call parent contructor
     this.base(arguments);
     this._setAttributes(data);
-    this._listenerID = cute.io.WebSocket.getInstance().addListener("objectModified", this._objectEvent, this);
+    this._listenerIDs = [];
+    this._listenerIDs.push(cute.io.WebSocket.getInstance().addListener("objectModified", this._objectEvent, this));
+    this._listenerIDs.push(cute.io.WebSocket.getInstance().addListener("objectRemoved", this._objectEvent, this));
   },
 
   destruct : function(){
@@ -47,7 +49,7 @@ qx.Class.define("cute.proxy.Object", {
       if(data['changeType'] == "remove"){
         //..
 
-      }else if(data['changeType'] == "modify"){
+      }else if(data['changeType'] == "update"){
         if(!this.is_reloading){
           this.reload(function(result, error){}, this);
         }
@@ -138,7 +140,6 @@ qx.Class.define("cute.proxy.Object", {
       if(this.is_reloading){
         return;
       }
-      this.error("RELOAD", this.dn);
       this.is_reloading = true;
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(data, error){
