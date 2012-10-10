@@ -60,6 +60,7 @@ qx.Class.define("cute.ui.Renderer",
 
     this._extension_to_page = {};
     this._widget_to_page = {};
+    this.__bindings = [];
   },
 
   properties :
@@ -196,35 +197,51 @@ qx.Class.define("cute.ui.Renderer",
 
       // Connect to the object event 'propertyUpdateOnServer' to be able to act on property changes.
       // e.g. set an invalid-decorator for specific widget.
-      obj.addListener("propertyUpdateOnServer", widget.actOnEvents, widget);
+      var id = obj.addListener("propertyUpdateOnServer", widget.actOnEvents, widget);
+      widget.__bindings.push({id: id, widget: obj});
 
       cb.apply(context, [widget]);
     }
   },
 
   destruct : function(){
-    this.error("destroying master-cute-widget: ");
+
+    // Remove all listeners from our object. 
     qx.event.Registration.removeAllListeners(this); 
-    this._extension_to_widgets = this._flexMap = null;
-    this._buddies = this._tabstops = this._bindings = this._object = null;
-    this._current_buddies = this._current_tabstops = this._current_bindings = null;
-    this._resources = null;
+
+    // Try to remove all bindings we've made during gui preparation.
+    for(var item in this.__bindings){
+      this.__bindings[item]['widget'].removeListenerById(this.__bindings[item]['id']);
+    }
+
+    // Reset class members 
     this._disposeObjects("__okBtn", "__cancelBtn", "_extendButton", "_retractButton", "_actionButton");
-    //this._current_widgets = null;
-    //this._widgets = null;
-    //this._object = null;
-    //this._widgets = null;
-    //this._tabstops = null;
-    //this._bindings = null;
-    //this._resources = null;
-    //this._current_tabstops = null;
-    //this._current_buddies = null;
-    //this._current_bindings = null;
-    //this._current_widgets = null;
-    //this._tabContainer = null;
-    //this._extension_to_widgets = null;
-    //this._widget_to_page = null;
-    //this._widget_ui_properties = null;
+    this.__bindings = null;
+    this._extension_to_widgets = null;
+    this._flexMap = null;
+    this._buddies = null;
+    this._tabstops = null;
+    this._bindings = null;
+    this._object = null;
+    this._current_buddies = null;
+    this._current_tabstops = null;
+    this._current_bindings = null;
+    this._resources = null;
+    this._current_widgets = null;
+    this._widgets = null;
+    this._object = null;
+    this._widgets = null;
+    this._tabstops = null;
+    this._bindings = null;
+    this._resources = null;
+    this._current_tabstops = null;
+    this._current_buddies = null;
+    this._current_bindings = null;
+    this._current_widgets = null;
+    this._tabContainer = null;
+    this._extension_to_widgets = null;
+    this._widget_to_page = null;
+    this._widget_ui_properties = null;
   },
 
   members :
@@ -242,6 +259,7 @@ qx.Class.define("cute.ui.Renderer",
     _extension_to_widgets: null,
     _widget_to_page: null,
     _widget_ui_properties: null,
+    __bindings: null,
 
     __okBtn: null,
     __cancelBtn: null,
@@ -266,10 +284,12 @@ qx.Class.define("cute.ui.Renderer",
 
 
     __bindHelper: function(widget, name){
-      widget.addListener("changeValue", function(e){
+      var id = widget.addListener("changeValue", function(e){
         this.set(name, e.getData());
         this.setModified(true);
       }, this);
+
+      this.__bindings.push({id: id, widget: widget});
 
       if(!(qx.lang.Array.contains(this._object.attributes, name))){
         this.error("*** found binding info for property '"+name+"' but there is no such property! ***");
@@ -301,7 +321,9 @@ qx.Class.define("cute.ui.Renderer",
         if (command) {
           //TODO: collect for dispose
           var hotkey = new qx.ui.core.Command("Ctrl+" + command);
-          hotkey.addListener("execute", this._widgets[buddy].shortcutExecute, this._widgets[buddy]);
+          var id = hotkey.addListener("execute", this._widgets[buddy].shortcutExecute, this._widgets[buddy]);
+
+          this.__bindings.push({id: id, widget: hotkey});
         }
       }
     },
@@ -525,9 +547,11 @@ qx.Class.define("cute.ui.Renderer",
       var name = qx.lang.Object.getKeyFromValue(this._bindings, propertyName);
       try{
         var value = data['value'];
-        this._widgets[name].addListener("changeValue", function(e){
+        var id = this._widgets[name].addListener("changeValue", function(e){
             func(value, e.getData().toArray(), widget);
           }, this);
+
+        this.__bindings.push({id: id, widget: this._widgets[name]});
 
         // Initially check blocking
         func(value, this._object.get(propertyName).toArray(), widget);
@@ -541,9 +565,11 @@ qx.Class.define("cute.ui.Renderer",
     _makeExtensionMenuEntry : function(ext, props, resources) {
       var eb = new qx.ui.menu.Button(this.tr(this.getStringProperty('windowTitle', props)),
         this.getIconProperty('windowIcon', props, resources));
-      eb.addListener("execute", function() {
+      var id = eb.addListener("execute", function() {
         this.extendObjectWith(ext);
       }, this);
+
+      this.__bindings.push({id: id, widget: eb});
 
       return eb;
     },
@@ -551,10 +577,11 @@ qx.Class.define("cute.ui.Renderer",
     _makeRetractMenuEntry : function(ext, props, resources) {
       var eb = new qx.ui.menu.Button(this.tr(this.getStringProperty('windowTitle', props)),
         this.getIconProperty('windowIcon', props, resources));
-      eb.addListener("execute", function() {
+      var id = eb.addListener("execute", function() {
         this.retractObjectFrom(ext);
       }, this);
 
+      this.__bindings.push({id: id, widget: eb});
       return eb;
     },
 
@@ -583,7 +610,8 @@ qx.Class.define("cute.ui.Renderer",
       if (shortcut) {
         //TODO: collect for dispose
         var hotkey = new qx.ui.core.Command(shortcut);
-        hotkey.addListener("execute", function() {cute.ui.Renderer.executeAction(dialog, target, this._object, icon);}, this);
+        var id = hotkey.addListener("execute", function() {cute.ui.Renderer.executeAction(dialog, target, this._object, icon);}, this);
+        this.__bindings.push({id: id, widget: hotkey});
       }
 
       // Evaluate enabled state
@@ -654,9 +682,10 @@ qx.Class.define("cute.ui.Renderer",
       if (enabled != undefined) {
         eb.setEnabled(enabled);
       }
-      eb.addListener("execute", function() {
+      var id = eb.addListener("execute", function() {
         cute.ui.Renderer.executeAction(dialog, target, this._object, icon);
       }, this);
+      this.__bindings.push({id: id, widget: eb});
 
       return eb;
     },
@@ -1042,7 +1071,8 @@ qx.Class.define("cute.ui.Renderer",
                   page.add(widget);
                 };
               };
-            page.addListenerOnce("appear", func(info['widget'], page), this);
+            var id = page.addListenerOnce("appear", func(info['widget'], page), this);
+            this.__bindings.push({id: id, widget: page});
           }
 
           this._extension_to_page[extension].push(page);
@@ -1055,9 +1085,10 @@ qx.Class.define("cute.ui.Renderer",
             var closeButton = page.getButton();
             closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
             closeButton.removeListener("close", page._onButtonClose, page);
-            closeButton.addListener("close", function() {
+            var id = closeButton.addListener("close", function() {
               this.retractObjectFrom(page.getUserData("type"));
             }, this);
+            this.__bindings.push({id: id, widget: closeButton});
           }
 
           // Add the page to the gui
