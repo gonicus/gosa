@@ -30,9 +30,8 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
     this.setValue(null);
     this.setBlockedBy(null);
 
-    this._disposeObjects("_table", "_actionBtn", "_widget");
+    this._disposeObjects("_table", "_actionBtn", "_widget", "_tableModel");
 
-    this._tableModel = null;
     this._tableData = null;
     this._columnNames = null;
     this._editTitle = null;
