@@ -7,6 +7,10 @@ qx.Class.define("cute.ui.table.RowRendererColoredRow",
     this.colorRows = [];
   },
 
+  destruct: function(){
+    this.colorRows = null;
+  },
+
   members: {
 
     colorRows: null,

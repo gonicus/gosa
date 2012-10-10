@@ -47,6 +47,14 @@ qx.Class.define("cute.ui.widgets.QTableWidgetWidget", {
       },this);
   },
 
+  destruct: function(){
+
+    // Remove all listeners and then set our values to null.
+    qx.event.Registration.removeAllListeners(this); 
+
+    this._disposeObjects("_widget");
+  },
+
   members: {
 
     _widget: null,

@@ -19,6 +19,29 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
     this._errorRows = [];
   },
 
+  destruct: function(){
+
+    // Remove all listeners and then set our values to null.
+    qx.event.Registration.removeAllListeners(this); 
+
+    this.setBuddyOf(null);
+    this.setGuiProperties(null);
+    this.setValues(null);
+    this.setValue(null);
+    this.setBlockedBy(null);
+
+    this._disposeObjects("_table", "_actionBtn", "_widget");
+
+    this._tableModel = null;
+    this._tableData = null;
+    this._columnNames = null;
+    this._editTitle = null;
+    this._columnIDs = null;
+    this._firstColumn = null;
+    this._resolvedNames = null;
+    this._errorRows = null;
+  },
+
   members: {
 
     _initially_set: false,

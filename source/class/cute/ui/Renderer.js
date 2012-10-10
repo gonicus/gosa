@@ -215,7 +215,7 @@ qx.Class.define("cute.ui.Renderer",
     }
 
     // Reset class members 
-    this._disposeObjects("__okBtn", "__cancelBtn", "_extendButton", "_retractButton", "_actionButton");
+    this._disposeObjects("__toolMenu", "__okBtn", "__cancelBtn", "_extendButton", "_retractButton", "_actionButton");
     this.__bindings = null;
     this._extension_to_widgets = null;
     this._flexMap = null;
@@ -242,6 +242,8 @@ qx.Class.define("cute.ui.Renderer",
     this._extension_to_widgets = null;
     this._widget_to_page = null;
     this._widget_ui_properties = null;
+    this._extension_to_page = null;
+    this._translated_extensions = null;
   },
 
   members :
@@ -260,6 +262,8 @@ qx.Class.define("cute.ui.Renderer",
     _widget_to_page: null,
     _widget_ui_properties: null,
     __bindings: null,
+    _extension_to_page: null,
+    _translated_extensions: null,
 
     __okBtn: null,
     __cancelBtn: null,
