@@ -10,13 +10,13 @@ qx.Class.define("cute.ui.Header", {
 
 
     var header = new qx.ui.basic.Atom("", "cute/logo.png");
-    header.setBackgroundColor("header-bar");
+    header.setDecorator("title-bar");
     header.setTextColor("header-text");
     header.setHeight(48);
     header.setPadding(5);
     this.add(header, {top:0, left:0, bottom: 0, right: 0});
 
-    var container = new qx.ui.container.Composite(new qx.ui.layout.HBox());
+    var container = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
     this.__label = new qx.ui.basic.Label("");
     this.__label.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Edit your profile")));
     this.__label.setRich(true);
@@ -24,7 +24,6 @@ qx.Class.define("cute.ui.Header", {
     this.__label.setAlignY("middle");
     this.__label.setTextColor("header-text");
     container.add(this.__label);
-    this.add(container, {top:0, bottom:0, right: 32});
 
     this.__label.addListener("click", function(){
         document.location.href = cute.Tools.createActionUrl('openObject', cute.Session.getInstance().getUuid());
@@ -33,10 +32,13 @@ qx.Class.define("cute.ui.Header", {
     var btn = new qx.ui.basic.Image("cute/btn-logout.png");
     btn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Logout")));
     btn.setCursor("pointer");
+    btn.setAlignY("middle");
     btn.addListener("click", function(){
         cute.Session.getInstance().logout();
       }, this);
-    this.add(btn, {top: 15, right: 8});
+    container.add(btn);
+
+    this.add(container, {top:0, bottom:0, right: 10});
   }, 
 
   properties: {

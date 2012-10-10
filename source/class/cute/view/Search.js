@@ -227,6 +227,7 @@ qx.Class.define("cute.view.Search",
 
     doSearch : function(e, callback, reset) {
       var selection = this.searchAid.getSelection();
+      selection['fallback'] = true;
       var rpc = cute.io.Rpc.getInstance();
 
       // Remove all entries from the queue and keep the newest
