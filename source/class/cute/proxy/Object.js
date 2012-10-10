@@ -40,12 +40,18 @@ qx.Class.define("cute.proxy.Object", {
     initialized: null,
     is_reloading: false,
     _updateLastChanged: null,
+    skipEvents: false,
 
     isClosed: function(){
       return(this.isDisposed() || this._closed);
     },
 
     _objectEvent: function(e){
+
+      // Skip event processing while commiting, removing, etc
+      if(this.skipEvents){
+        return;
+      }
 
       // Skip events that are not for us
       var data = e.getData();
@@ -131,6 +137,10 @@ qx.Class.define("cute.proxy.Object", {
     /* Closes the current object
      * */
     close : function(func, context){
+
+      // Skip events now.
+      this.skipEvents = true;
+
       this.isClosed = true;
       this.dispose();
       var rpc = cute.io.Rpc.getInstance();
@@ -225,6 +235,12 @@ qx.Class.define("cute.proxy.Object", {
     /* Wrapper method for object calls
      * */
     callMethod: function(method, func, context){
+
+      // Skip events while saving
+      if(method == "commit" || method == "remove"){
+        this.skipEvents = true;
+      }
+
       var rpc = cute.io.Rpc.getInstance();
       var args = ["dispatchObjectMethod", this.instance_uuid, method].concat(Array.prototype.slice.call(arguments, 3));
       rpc.cA.apply(rpc, [function(result, error){
@@ -232,6 +248,7 @@ qx.Class.define("cute.proxy.Object", {
             func.apply(context, [result, error]);
             if(method in ["remove"]){
               this.close();
+              this.skipEvents = false;
             }
           }
         }, this].concat(args));
