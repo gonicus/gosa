@@ -416,7 +416,7 @@ qx.Class.define("cute.view.Search",
           var doc = qx.core.Init.getApplication().getRoot();
           win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
           win.setLayout(new qx.ui.layout.VBox(10));
-          win.setWidth(700);
+          win.setWidth(800);
           win.add(w);
           win.addListener("appear", win.center, win);
           win.open();
