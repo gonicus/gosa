@@ -123,6 +123,14 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
   destruct : function(){
     this._defaultImage = null;
     this._disposeObjects("_changePicture", "_removePicture", "_widget", "__cap", "__cap_win", "_capturePicture");
+
+    // Remove all listeners and then set our values to null.
+    qx.event.Registration.removeAllListeners(this); 
+
+    this.setBuddyOf(null);
+    this.setGuiProperties(null);
+    this.setValues(null);
+    this.setValue(null);
   },
 
   members: {

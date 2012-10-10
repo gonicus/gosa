@@ -15,8 +15,17 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
   },
 
   destruct : function(){
+
     this._property_timer = null;
     this._disposeArray("_widgetContainer");
+
+    // Remove all listeners and then set our values to null.
+    qx.event.Registration.removeAllListeners(this); 
+
+    this.setBuddyOf(null);
+    this.setGuiProperties(null);
+    this.setValues(null);
+    this.setValue(null);
   },
 
   members: {

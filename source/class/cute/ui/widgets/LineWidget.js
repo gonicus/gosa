@@ -1,22 +1,3 @@
-/* ************************************************************************
-
-   Copyright: Cajus Pollmeier <pollmeier@gonicus.de>
-
-   License:
-
-   Authors:
-
- ************************************************************************ */
-
-/* ************************************************************************
-
-#asset(cute/*)
-
- ************************************************************************ */
-
-/**
- * This is the main application class of your custom application "cute"
- */
 qx.Class.define("cute.ui.widgets.LineWidget",
 {
   extend : cute.ui.widgets.Widget,
@@ -31,11 +12,18 @@ qx.Class.define("cute.ui.widgets.LineWidget",
     }
   },
 
-  /*
-   *****************************************************************************
-   MEMBERS
-   *****************************************************************************
-   */
+  destruct: function(){
+    this._disposeObjects("_widget");
+
+    // Remove all listeners and then set our values to null.
+    qx.event.Registration.removeAllListeners(this); 
+
+    this.setBuddyOf(null);
+    this.setGuiProperties(null);
+    this.setValues(null);
+    this.setValue(null);
+  }, 
+
   construct : function()
   {
     this.base(arguments);

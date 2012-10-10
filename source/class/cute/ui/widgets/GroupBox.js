@@ -22,6 +22,10 @@ qx.Class.define("cute.ui.widgets.GroupBox", {
   },
 
   destruct : function(){
+
+    // Remove all listeners and then set our values to null.
+    qx.event.Registration.removeAllListeners(this); 
+
     this._disposeArray("__cuteChildList");
   },
 

@@ -40,6 +40,14 @@ qx.Class.define("cute.ui.widgets.QLabelWidget",
 
   destruct : function(){
     this._disposeObjects("_widget");
+
+    // Remove all listeners and then set our values to null.
+    qx.event.Registration.removeAllListeners(this); 
+
+    this.setBuddyOf(null);
+    this.setGuiProperties(null);
+    this.setValues(null);
+    this.setValue(null);
   },
 
   members :

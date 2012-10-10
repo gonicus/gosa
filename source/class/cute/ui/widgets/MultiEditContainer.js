@@ -74,6 +74,9 @@ qx.Class.define("cute.ui.widgets.MultiEditContainer", {
 
   destruct : function(){
     this._disposeObjects("__container", "__addButton", "__delButton");
+
+    // Remove all listeners and then set our values to null.
+    qx.event.Registration.removeAllListeners(this); 
   },
 
   /* Events we can fire up

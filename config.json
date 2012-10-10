@@ -65,6 +65,7 @@
       "environment" :
       {
         "qx.debug.dispose.level" : "2",
+        "qx.debug.dispose" : true,
         "qx.widgetDebugId" : true
       }
     },
