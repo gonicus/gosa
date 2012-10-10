@@ -10,7 +10,7 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
     this._columnIDs = [];
     this._resolvedNames = {};
 
-    // Take care of value modification
+    // Create the gui on demand
     this.addListenerOnce("appear", function(){
         this._createGui();
         this.__updateVisibleText();
@@ -47,7 +47,15 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
       this.setValid(true);
     },
 
+    /* Applies the widget value and updates the visible text
+     * */
     _applyValue: function(value){
+
+      // This happens when this widgets gets destroyed - all properties will be set to null.
+      if(value === null){
+        return;
+      }
+
       this.__updateVisibleText();
 
       // Send initial content to process validators"
@@ -58,6 +66,10 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
       this._initially_set = true;
     },
 
+    /* Updates the visible text of the widgets.
+     * If it cannot, eg. some values are still not fetched from the backend
+     * then it enforces a rpc request to fetch those.
+     * */
     __updateVisibleText: function(){
       if(this._widget){
         if(this.getValue().getLength()){
@@ -73,6 +85,7 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
         }
       }
 
+      // Update buttons 
       if(this._actionBtn){
         if(this.getValue().getLength()){
           this._actionBtn.setIcon(cute.Config.getImagePath("actions/attribute-remove.png", "22"));
@@ -82,10 +95,11 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
           this._actionBtn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Choose value")));
         }
       }
-
     },
 
-    
+   
+    /* Creates the gui element of this widget
+     * */
     _createGui: function(){
       this._widget = new qx.ui.form.TextField();
       this._widget.setReadOnly(true);
@@ -187,9 +201,12 @@ qx.Class.define("cute.ui.widgets.SingleSelector", {
      * Collect column names here.
      * */
     _applyGuiProperties: function(props){
+
+      // This happens when this widgets gets destroyed - all properties will be set to null.
       if(!props){
         return;
       }
+
       if('editTitle' in props && 'string' in props['editTitle']){
         this._editTitle = props['editTitle']['string'];
       }

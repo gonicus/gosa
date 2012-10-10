@@ -60,9 +60,11 @@ qx.Class.define("cute.ui.widgets.QLabelWidget",
      * */
     _applyGuiProperties: function(props){
 
+      // This happens when this widgets gets destroyed - all properties will be set to null.
       if(!props){
         return;
       }
+
       if(props["text"] && props["text"]["string"]){
         var text = props["text"]["string"];
 

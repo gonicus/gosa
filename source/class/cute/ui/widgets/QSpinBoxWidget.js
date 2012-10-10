@@ -15,7 +15,6 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
       init : 0,
       event: "changeMinimum"
     }
-
   },
 
   members: {
@@ -25,9 +24,12 @@ qx.Class.define("cute.ui.widgets.QSpinBoxWidget", {
     /* Apply collected gui properties to this widet
      * */
     _applyGuiProperties: function(props){
+
+      // This happens when this widgets gets destroyed - all properties will be set to null.
       if(!props){
         return;
       }
+
       if(props["placeholderText"] && props["placeholderText"]["string"]){
         this.setPlaceholder(props["placeholderText"]["string"]);
       }

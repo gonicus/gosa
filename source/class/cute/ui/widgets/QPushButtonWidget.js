@@ -1,42 +1,18 @@
-/* ************************************************************************
-
-   Copyright: Cajus Pollmeier <pollmeier@gonicus.de>
-
-   License:
-
-   Authors:
-
- ************************************************************************ */
-
-/* ************************************************************************
-
-#asset(cute/*)
-
- ************************************************************************ */
-
-/**
- * This is the main application class of your custom application "cute"
- */
 qx.Class.define("cute.ui.widgets.QPushButtonWidget",
 {
   extend : cute.ui.widgets.Widget,
 
   properties: {
 
+    // The buttons text
     text : {
       init : "",
       check : "String",
       apply : "_setText",
       nullable: true
     }
-
   },
 
-  /*
-   *****************************************************************************
-   MEMBERS
-   *****************************************************************************
-   */
   construct : function()
   {
     this.base(arguments);
@@ -59,14 +35,16 @@ qx.Class.define("cute.ui.widgets.QPushButtonWidget",
     /* Apply collected gui properties to this widet
      * */
     _applyGuiProperties: function(props){
+
+      // This happens when this widgets gets destroyed - all properties will be set to null.
       if(!props){
         return;
       }
+
       if(props["text"] && props["text"]["string"]){
         this._setText(props["text"]["string"]);
       }
     }
-
   }
 });
 

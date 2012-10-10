@@ -137,6 +137,12 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
     /* Apply method for the value property.
      * */
     _applyValue: function(value, old_value){
+
+      // This happens when this widgets gets destroyed - all properties will be set to null.
+      if(value === null){
+        return;
+      }
+
       if (this._widget){
         this._removePicture.setEnabled(false);
         if (value && value.length && value.getItem(0)){

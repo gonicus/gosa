@@ -9,9 +9,14 @@ qx.Class.define("cute.ui.widgets.GroupBox", {
     this.base(arguments, title);
 
     // Collect all cute child widgets on appear
+    // This required to be able to hide the complete group box 
+    // when no visible item is left (for details see BlockedBy).
     this.__cuteChildList = [];
     this.addListenerOnce("appear", function(){
         this.__cuteChildList = this.loadChildrenList(this.getChildren());
+
+        // Now check if we have to hide ourselfes due to the fact that
+        // no visible item is left or not.
         this.__check();
       }, this);
   },

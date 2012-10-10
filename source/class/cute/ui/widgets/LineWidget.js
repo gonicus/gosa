@@ -71,9 +71,12 @@ qx.Class.define("cute.ui.widgets.LineWidget",
     /* Apply collected gui properties to this widet
      * */
     _applyGuiProperties: function(props){
+
+      // This happens when this widgets gets destroyed - all properties will be set to null.
       if(!props){
         return;
       }
+
       if(props["orientation"] && props["orientation"]["enum"]){
         this._setOrientation(props["orientation"]["enum"]);
       }

@@ -30,7 +30,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
     this.setBuddyOf(null);
     this.setGuiProperties(null);
     this.setValues(null);
-    //this.setValue(null);
+    this.setValue(null);
   }, 
 
   properties : {

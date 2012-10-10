@@ -111,6 +111,11 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
      * */
     _applyValue: function(value){
 
+      // This happens when this widgets gets destroyed - all properties will be set to null.
+      if(value === null){
+        return;
+      }
+
       // Add a listener to the content array.
       // On each modification update the table model.
       if(value){
@@ -198,9 +203,12 @@ qx.Class.define("cute.ui.widgets.TableWithSelector", {
      * Collect column names here.
      * */
     _applyGuiProperties: function(props){
-      if(!props){
+
+      // This happens when this widgets gets destroyed - all properties will be set to null.
+      if(props === null){
         return;
       }
+
       if('editTitle' in props && 'string' in props['editTitle']){
         this._editTitle = props['editTitle']['string'];
       }

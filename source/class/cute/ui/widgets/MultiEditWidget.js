@@ -6,8 +6,9 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     this._widgetContainer = [];
     this.base(arguments);  
     this.setLayout(new qx.ui.layout.VBox(5));
-    var id = null;
-    id = this.addListener("appear", function(){
+
+    // Generate the gui once it is shown
+    var id = this.addListener("appear", function(){
         this._generateGui();
         this.removeListenerById(id);
       }, this);
@@ -118,6 +119,11 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     /* Apply method for the value property.
      * */
     _applyValue: function(value, old_value){
+
+      // This happens when we destroy this widget
+      if(value === null){
+        return;
+      }
 
       // Ensure that at least one element is given.
       if(!value.getLength()){

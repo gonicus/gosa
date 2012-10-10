@@ -64,8 +64,11 @@ qx.Class.define("cute.ui.widgets.QComboBoxWidget", {
       return(w);
     },
 
+    /* Apply the widget values - fills the combobox selectables. 
+     * */
     _applyValues: function(data){
-
+    
+      // This happens when this widgets gets destroyed - all properties will be set to null.
       if(!data){
         return;
       }
