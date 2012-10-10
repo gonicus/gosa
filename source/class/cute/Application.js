@@ -53,6 +53,9 @@ qx.Class.define("cute.Application",
         qx.log.appender.Native;
         // support additional cross-browser console. Press F7 to toggle visibility
         qx.log.appender.Console;
+
+        // Include debug object to enable disposer level debugging
+        qx.dev.Debug;
       }
 
       /*

@@ -8,9 +8,8 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     this.setLayout(new qx.ui.layout.VBox(5));
 
     // Generate the gui once it is shown
-    var id = this.addListener("appear", function(){
+    this.addListenerOnce("appear", function(){
         this._generateGui();
-        this.removeListenerById(id);
       }, this);
   },
 
