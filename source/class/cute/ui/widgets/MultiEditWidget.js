@@ -26,6 +26,7 @@ qx.Class.define("cute.ui.widgets.MultiEditWidget", {
     this.setGuiProperties(null);
     this.setValues(null);
     this.setValue(null);
+    this.setBlockedBy(null);
   },
 
   members: {

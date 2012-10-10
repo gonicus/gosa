@@ -31,6 +31,7 @@ qx.Class.define("cute.ui.widgets.Widget", {
     this.setGuiProperties(null);
     this.setValues(null);
     this.setValue(null);
+    this.setBlockedBy(null);
   }, 
 
   properties : {
@@ -86,6 +87,8 @@ qx.Class.define("cute.ui.widgets.Widget", {
 
     blockedBy: {
       event: "_blockedByChanged",
+      check: "Array",
+      nullable: true,
       init: false
     },
 

@@ -22,6 +22,7 @@ qx.Class.define("cute.ui.widgets.LineWidget",
     this.setGuiProperties(null);
     this.setValues(null);
     this.setValue(null);
+    this.setBlockedBy(null);
   }, 
 
   construct : function()

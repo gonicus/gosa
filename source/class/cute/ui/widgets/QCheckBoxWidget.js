@@ -49,6 +49,7 @@ qx.Class.define("cute.ui.widgets.QCheckBoxWidget", {
     this.setGuiProperties(null);
     this.setValues(null);
     this.setValue(null);
+    this.setBlockedBy(null);
   },
 
 

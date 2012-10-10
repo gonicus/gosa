@@ -130,6 +130,7 @@ qx.Class.define("cute.ui.widgets.QGraphicsViewWidget", {
     this.setBuddyOf(null);
     this.setGuiProperties(null);
     this.setValues(null);
+    this.setBlockedBy(null);
     this.setValue(null);
   },
 
