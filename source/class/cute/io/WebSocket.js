@@ -82,9 +82,8 @@ qx.Class.define("cute.io.WebSocket", {
       }else if(info['changeType'] == "create"){
         this.fireDataEvent("objectCreated", info); 
       }else{
-        console.log(" -----> UNHANDLED EVENT");
+        this.error("unhandled websocket event: " + info['changeType']);
       }
-      console.log(" -----> EVENT: ", info);
     },
 
     _handleNotificationMessage : function(info) {

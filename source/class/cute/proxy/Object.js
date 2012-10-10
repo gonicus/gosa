@@ -45,11 +45,10 @@ qx.Class.define("cute.proxy.Object", {
 
       // Act on the event type
       if(data['changeType'] == "remove"){
-        this.error(" --> GOT Remove event", this.dn);
+        //..
+
       }else if(data['changeType'] == "modify"){
-        this.error(" --> GOT modify event", this.dn);
         if(!this.is_reloading){
-          console.log("--> Processed");
           this.reload(function(result, error){}, this);
         }
       }
