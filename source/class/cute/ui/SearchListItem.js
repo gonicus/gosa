@@ -135,9 +135,15 @@ qx.Class.define("cute.ui.SearchListItem", {
       apply: "_applyIsLoading",
       event : "changeIsLoading",
       init : false
+    },
+
+    fadeOut : {
+      check : "Boolean",
+      apply : "__fadeOut",
+      event : "__fadeOutEvent",
+      init : false
     }
   },
-
 
   members:{
 
@@ -146,6 +152,29 @@ qx.Class.define("cute.ui.SearchListItem", {
     _throbber_pane: null,
     _throbber_placeholder: null,
 
+
+    /* Initiate a fade out transition and
+     * afterwards reset the fadeOut flag to false again.
+     * */
+    __fadeOut: function(value, old_value, d){
+      if(value === true){
+
+        this.setBackgroundColor("#F00");
+
+        // We need to set this using a timer, else we will get
+        // strange problems with the binding
+        var timer = qx.util.TimerManager.getInstance();
+        timer.start(function(userData, timerId){
+          this.setFadeOut(false);
+        }, 0, this, null, 1000);
+      }else{
+        this.setBackgroundColor("#FFF");
+      }
+    },
+
+    /* Applies the loading state and toggles the 
+     * spinner accordingly
+     * */
     _applyIsLoading: function(value){
       if(value){
         this._throbber_pane.show();

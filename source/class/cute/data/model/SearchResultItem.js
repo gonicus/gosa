@@ -4,6 +4,12 @@ qx.Class.define("cute.data.model.SearchResultItem",
 
   properties : {
 
+    fadeOut : {
+      check : "Boolean",
+      init  : false,
+      event : "__fadeOutEvent"
+    },
+
     title : {
       check : "String",
       event : "changeTitle"

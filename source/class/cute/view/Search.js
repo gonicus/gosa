@@ -130,6 +130,8 @@ qx.Class.define("cute.view.Search",
         },
 
         bindItem : function(controller, item, id) {
+          controller.bindProperty("fadeOut", "fadeOut", null, item, id);
+          controller.bindPropertyReverse("fadeOut", "fadeOut", null, item, id);
           controller.bindProperty("title", "title", null, item, id);
           controller.bindProperty("dn", "dn", null, item, id);
           controller.bindProperty("uuid", "uuid", null, item, id);
@@ -207,7 +209,7 @@ qx.Class.define("cute.view.Search",
     _sq : null,
     _timer : null,
     _working : false,
-    _old_query : null,
+    _old_query : "",
 
     _removedObjects: null,
     _createdObjects: null,
@@ -325,22 +327,7 @@ qx.Class.define("cute.view.Search",
 
       for (var i= 0; i<items.length; i++) {
         var item = new cute.data.model.SearchResultItem();
-
-        // Icon fallback to server provided images
-        var icon = items[i]['icon'];
-        if (!icon) {
-            icon = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/images/objects/" + items[i]['tag'].toLowerCase() + ".png";
-        }
-
-        item.setUuid(items[i]['uuid']);
-        item.setDn(items[i]['dn']);
-        item.setTitle(items[i]['title']);
-        item.setRelevance(items[i]['relevance']);
-        item.setType(items[i]['tag']);
-        item.setDescription(this._highlight(items[i]['description'], query));
-        item.setLastChanged(items[i]['lastChanged']);
-        item.setSecondary(items[i]['secondary']);
-        item.setIcon(icon);
+        item = this.__fillSearchListItem(item, items[i]);
         model.push(item);
         
         // Update categories
@@ -648,6 +635,19 @@ qx.Class.define("cute.view.Search",
     },
 
 
+    /* Returns the model item for a given uuid
+     * */
+    __getModelEntryForUUID: function(uuid){
+      var model = this.resultList.getModel();
+      for(var i=0; i<model.getLength();i++){
+        if(model.getItem(i).getUuid() == uuid){
+          return(model.getItem(i));
+        }
+      }
+      return(null);
+    },
+
+
     /* Fades out the given search-result entry and finally
      * removes it.
      * */
@@ -655,8 +655,20 @@ qx.Class.define("cute.view.Search",
 
       // Locate gui widget and fade it out 
       //  - here
+      var item = this.__getModelEntryForUUID(entry['uuid']);
 
-      this.__removeEntry(entry);
+      // Fade out the entry then then remove it
+      var id;
+      id = item.addListener("__fadeOutEvent", function(e){
+          if(e.getData() == false){
+            this.__removeEntry(entry);
+            item.setFadeOut(false);
+            item.removeListenerById(id);
+          }
+        }, this);
+
+      // Initiate removal fade
+      item.setFadeOut(true);
     },
 
 
