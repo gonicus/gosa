@@ -25,7 +25,7 @@ qx.Class.define("cute.view.Search",
     var barWidth = 200;
 
     // Default search parameters
-    this.__default_selection = {
+    this.__selection = {
         'fallback': true,
         'secondary': "enabled",
         'category': "all",
@@ -286,7 +286,7 @@ qx.Class.define("cute.view.Search",
             if (callback) {
               callback.apply(this, [result, endTime - startTime]);
             }
-          }, this, "search", base, "sub", query, this.__default_selection);
+          }, this, "search", base, "sub", query, this.__selection);
         }
       }, this, "getBase");
     },
@@ -315,7 +315,11 @@ qx.Class.define("cute.view.Search",
       var _categories = {};
 
       // Build model
-      this.__selection = this.searchAid.getSelection();
+      var tmp = this.searchAid.getSelection();
+      if (tmp['category']) {
+        this.__selection = tmp;
+      }
+
       for (var i= 0; i<items.length; i++) {
         var item = new cute.data.model.SearchResultItem();
 
@@ -372,12 +376,12 @@ qx.Class.define("cute.view.Search",
       } else {
 
         this.searchAid.addFilter(this.tr("Category"), "category",
-            categories, this.__default_selection['category']);
+            categories, this.__selection['category']);
 
         this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
             "enabled": this.tr("Enabled"),
             "disabled": this.tr("Disabled")
-        }, this.__default_selection['secondary']);
+        }, this.__selection['secondary']);
 
         this.searchAid.addFilter(this.tr("Last modification"), "mod-time", {
             "all": this.tr("All"),
@@ -386,7 +390,7 @@ qx.Class.define("cute.view.Search",
             "week": this.tr("Last week"),
             "month": this.tr("Last month"),
             "year": this.tr("Last year")
-        }, this.__default_selection['mod-time']);
+        }, this.__selection['mod-time']);
       }
     },
 
