@@ -365,26 +365,19 @@ qx.Class.define("cute.view.Search",
       }
     },
 
-    doSearchE : function(e, callback, noListUpdate) {
-
-      // Do we want to skip updating the search result list?
-      if(!noListUpdate){
-        noListUpdate = false;
-      }
-      this._sq.push(this.sf.getValue());
-      this.doSearch(e, callback, false, noListUpdate);
+    updateFilter : function(e) {
+      var selection = this.searchAid.getSelection();
+      console.error("----> change filter model is missing");
+      console.log(e);
+      console.log(e.getUserData());
     },
 
-    doSearch : function(e, callback, reset, noListUpdate) {
+    doSearchE : function(e, callback) {
+      this._sq.push(this.sf.getValue());
+      this.doSearch(e, callback);
+    },
 
-      // Do we want to skip updating the search result list?
-      if(!noListUpdate){
-        noListUpdate = false;
-      }
-
-      var selection = this.searchAid.getSelection();
-      selection['fallback'] = true;
-
+    doSearch : function(e, callback) {
       var rpc = cute.io.Rpc.getInstance();
 
       // Remove all entries from the queue and keep the newest
@@ -396,7 +389,6 @@ qx.Class.define("cute.view.Search",
          }
          query = q;
       }
-      this._old_query = query;
      
       // Don't search for nothing or not changed values
       if (query == "" || this._old_query == query) {
@@ -415,9 +407,9 @@ qx.Class.define("cute.view.Search",
           rpc.cA(function(result, error){
             var endTime = new Date().getTime();
 
-            if(!noListUpdate){
-              this.showSearchResults(result, endTime - startTime, false, query, reset);
-            }
+            // Memorize old query and display results
+            this.showSearchResults(result, endTime - startTime, false, query);
+            this._old_query = query;
 
             if (callback) {
               callback.apply(this, [result, endTime - startTime]);
@@ -434,9 +426,7 @@ qx.Class.define("cute.view.Search",
       this.resultList.getChildControl("scrollbar-x").setPosition(0);
       this.resultList.getChildControl("scrollbar-y").setPosition(0);
 
-      this._currentResult = items;
-
-      if (i == 0 && reset){
+      if (i == 0){
           this.searchResult.hide();
       } else {
           this.searchResult.show();
