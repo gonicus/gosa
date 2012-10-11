@@ -256,6 +256,7 @@ qx.Class.define("cute.view.Search",
 
           // Try ordinary search
           rpc.cA(function(result, error){
+  
             var endTime = new Date().getTime();
 
             // Memorize old query and display results
@@ -274,6 +275,8 @@ qx.Class.define("cute.view.Search",
 
     showSearchResults : function(items, duration, fuzzy, query) {
       var i = items.length;
+
+      this._currentResult = items;
 
       this.searchInfo.show();
       this.resultList.getChildControl("scrollbar-x").setPosition(0);
@@ -467,6 +470,10 @@ qx.Class.define("cute.view.Search",
         this._modifiedObjects.push(data['uuid']);
       }
 
+      //console.log("ADD: ", this._createdObjects);
+      //console.log("DEL: ", this._removedObjects);
+      //console.log("MOD: ", this._modifiedObjects);
+
       // Once an event was catched, start a new query, but do not show
       // the result in the list, instead just return it.
       this.doSearchE(null, function(result){
@@ -497,6 +504,10 @@ qx.Class.define("cute.view.Search",
           added = qx.lang.Array.exclude(qx.lang.Array.clone(uuids), current_uuids);
           stillthere = qx.lang.Array.exclude(current_uuids, added);
           stillthere = qx.lang.Array.exclude(stillthere, removed);
+
+          //console.log("added", added);
+          //console.log("removed", removed);
+          //console.log("stillthere", stillthere);
 
           // Walk through collected "remove-event" uuids and check if they were in our list
           // before, but are now gone. If so, then fade it out.
@@ -539,7 +550,7 @@ qx.Class.define("cute.view.Search",
      * and reload the model.
      * */
     __updateEntry: function(entry){
-   
+
       // Locate the search result item in the search result model
       // and update it.
       var model = this.resultList.getModel();
