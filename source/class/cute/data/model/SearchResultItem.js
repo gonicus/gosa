@@ -29,6 +29,21 @@ qx.Class.define("cute.data.model.SearchResultItem",
       event : "changeRelevance"
     },
 
+    lastChanged : {
+      check : "Date",
+      event : "changeLastChanged"
+    },
+
+    secondary : {
+      check : "Bool",
+      event : "changeSecondary"
+    },
+
+    location : {
+      check : "String",
+      event : "changeLocation"
+    },
+
     extensions : {
       check : "Array",
       event : "changeExtensions",

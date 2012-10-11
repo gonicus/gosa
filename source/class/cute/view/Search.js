@@ -31,6 +31,7 @@ qx.Class.define("cute.view.Search",
         'category': "all",
         'mod-time': "all"
     };
+    this._categories = {};
 
     // Call super class and configure ourselfs
     this.base(arguments, "", cute.Config.getImagePath("apps/search.png", 32));
@@ -90,7 +91,7 @@ qx.Class.define("cute.view.Search",
     this.searchAid = new cute.ui.SearchAid();
     this.searchAid.setWidth(barWidth);
     this.searchResult.add(this.searchAid, {left: 0, bottom: 0, top: 0});
-    this.searchAid.addListener("filterChanged", this.doSearchE, this);
+    this.searchAid.addListener("filterChanged", this.updateFilter, this);
 
     this.add(this.searchResult, {flex: 1});
 
@@ -210,7 +211,7 @@ qx.Class.define("cute.view.Search",
       // Do search and lock ourselves
       this.doSearch(null, function() {
         this._working = false;
-      }, false);
+      });
     },
 
     _handle_key_event : function(e) {
@@ -220,14 +221,19 @@ qx.Class.define("cute.view.Search",
       }
     },
 
-    doSearchE : function(e, callback) {
-      this._sq.push(this.sf.getValue());
-      this.doSearch(e, callback, false);
+    updateFilter : function(e) {
+      var selection = this.searchAid.getSelection();
+      console.error("----> change filter model is missing");
+      console.log(e);
+      console.log(e.getUserData());
     },
 
-    doSearch : function(e, callback, reset) {
-      var selection = this.searchAid.getSelection();
-      selection['fallback'] = true;
+    doSearchE : function(e, callback) {
+      this._sq.push(this.sf.getValue());
+      this.doSearch(e, callback);
+    },
+
+    doSearch : function(e, callback) {
       var rpc = cute.io.Rpc.getInstance();
 
       // Remove all entries from the queue and keep the newest
@@ -240,23 +246,14 @@ qx.Class.define("cute.view.Search",
          query = q;
       }
      
-  
-      // Don't search for nothing
-      if (query == "") {
+      // Don't search for nothing or not changed values
+      if (query == "" || this._old_query == query) {
         if (callback) {
           callback.apply(this);
         }
         return;
       }
       
-      // Memorize old query
-      this._old_query = query;
-
-      // Reset selection if required
-      if (reset) {
-          selection = this.__default_selection;
-      }
-
       rpc.cA(function(result, error){
         if(!error){
           var base = result;
@@ -265,24 +262,27 @@ qx.Class.define("cute.view.Search",
           // Try ordinary search
           rpc.cA(function(result, error){
             var endTime = new Date().getTime();
-            this.showSearchResults(result, endTime - startTime, false, query, reset);
+
+            // Memorize old query and display results
+            this.showSearchResults(result, endTime - startTime, false, query);
+            this._old_query = query;
 
             if (callback) {
               callback.apply(this);
             }
-          }, this, "search", base, "sub", query, selection);
+          }, this, "search", base, "sub", query, this.__default_selection);
         }
       }, this, "getBase");
     },
 
-    showSearchResults : function(items, duration, fuzzy, query, reset) {
+    showSearchResults : function(items, duration, fuzzy, query) {
       var i = items.length;
 
       this.searchInfo.show();
       this.resultList.getChildControl("scrollbar-x").setPosition(0);
       this.resultList.getChildControl("scrollbar-y").setPosition(0);
 
-      if (i == 0 && reset){
+      if (i == 0){
           this.searchResult.hide();
       } else {
           this.searchResult.show();
@@ -323,6 +323,9 @@ qx.Class.define("cute.view.Search",
         }
       }
 
+      // Memorize categories
+      this._categories = _categories;
+
       // Pseudo sort categories
       var categories = {"all" : this.tr("All")};
       var tmp = [];
@@ -352,20 +355,20 @@ qx.Class.define("cute.view.Search",
       
       this.resultList.setModel(data);
       
-      // Add search filters
-      var selection = this.searchAid.getSelection();
-      if (reset || !categories[selection['category']]) {
-        this.searchAid.resetFilter();
+      // Update categories
+      if (this.searchAid.hasFilter()) {
+        this.searchAid.updateFilter("category", categories);
+
       } else {
-        this.searchAid.resetFilter("category");
-      }
-      if (!this.searchAid.hasFilter()) {
+
         this.searchAid.addFilter(this.tr("Category"), "category",
             categories, this.__default_selection['category']);
+
         this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
             "enabled": this.tr("Enabled"),
             "disabled": this.tr("Disabled")
         }, this.__default_selection['secondary']);
+
         this.searchAid.addFilter(this.tr("Last modification"), "mod-time", {
             "all": this.tr("All"),
             "hour": this.tr("Last hour"),
@@ -374,8 +377,6 @@ qx.Class.define("cute.view.Search",
             "month": this.tr("Last month"),
             "year": this.tr("Last year")
         }, this.__default_selection['mod-time']);
-
-        //TODO: list locations
       }
     },
 
