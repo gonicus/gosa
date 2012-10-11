@@ -25,7 +25,7 @@ qx.Class.define("cute.view.Search",
     var barWidth = 200;
 
     // Default search parameters
-    this.__selection = {
+    this.__default_selection = this.__selection = {
         'fallback': true,
         'secondary': "enabled",
         'category': "all",
@@ -286,7 +286,7 @@ qx.Class.define("cute.view.Search",
             if (callback) {
               callback.apply(this, [result, endTime - startTime]);
             }
-          }, this, "search", base, "sub", query, this.__selection);
+          }, this, "search", base, "sub", query, this.__default_selection);
         }
       }, this, "getBase");
     },
