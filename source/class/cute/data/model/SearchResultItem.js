@@ -30,12 +30,12 @@ qx.Class.define("cute.data.model.SearchResultItem",
     },
 
     lastChanged : {
-      check : "Date",
+      check : "Integer",
       event : "changeLastChanged"
     },
 
     secondary : {
-      check : "Bool",
+      check : "Boolean",
       event : "changeSecondary"
     },
 
