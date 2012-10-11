@@ -194,155 +194,6 @@ qx.Class.define("cute.view.Search",
     _modifiedObjects: null,
     _currentResult: null,
 
-    /* Act on backend events related to object modifications
-     * */
-    _handleObjectEvent: function(e){
-
-      var data = e.getData();
-
-      if(data['changeType'] == "remove"){
-        this._removedObjects.push(data['uuid']);
-      }
-      if(data['changeType'] == "create"){
-        this._createdObjects.push(data['uuid']);
-      }
-      if(data['changeType'] == "update"){
-        this._modifiedObjects.push(data['uuid']);
-      }
-
-      this.doSearchE(null, function(result){
-      
-          var added = [];
-          var removed = [];
-          var stillthere = [];
-          var entries_by_uuid = {};
-
-          var current_uuids = [];
-          for(var i=0; i<this._currentResult.length; i++){
-            current_uuids.push(this._currentResult[i]['uuid']);
-            entries_by_uuid[this._currentResult[i]['uuid']] = this._currentResult[i];
-          }
-
-          var uuids = [];
-          for(var i=0; i<result.length; i++){
-            uuids.push(result[i]['uuid']);
-            entries_by_uuid[result[i]['uuid']] = result[i];
-          }
-
-          removed = qx.lang.Array.exclude(qx.lang.Array.clone(current_uuids), uuids);
-          added = qx.lang.Array.exclude(qx.lang.Array.clone(uuids), current_uuids);
-
-          stillthere = qx.lang.Array.exclude(current_uuids, added);
-          stillthere = qx.lang.Array.exclude(stillthere, removed);
-
-          for(var i=0; i<removed.length; i++){
-            if(qx.lang.Array.contains(this._removedObjects, removed[i])){
-              this.__fadeOut(entries_by_uuid[removed[i]]);
-            }else{
-              this.__removeEntry(entries_by_uuid[removed[i]]);
-            }
-            qx.lang.Array.remove(this._removedObjects, removed[i]);
-          }
-          for(var i=0; i<stillthere.length; i++){
-            if(qx.lang.Array.contains(this._modifiedObjects, stillthere[i])){
-              this.__updateEntry(entries_by_uuid[stillthere[i]]);
-            }
-            qx.lang.Array.remove(this._modifiedObjects, stillthere[i]);
-          }
-          for(var i=0; i<added.length; i++){
-            if(qx.lang.Array.contains(this._createdObjects, added[i])){
-              this.__addEntry(entries_by_uuid[added[i]]);
-            }
-            qx.lang.Array.remove(this._createdObjects, added[i]);
-          }
-        }, true);
-    },
-
-    __updateEntry: function(entry){
-    
-      var model = this.resultList.getModel();
-      for(var i=0; i<model.getLength(); i++){
-        if(entry['uuid'] == model.getItem(i).getUuid()){
-          var item = model.getItem(i);
-          item = this.__fillSearchListItem(item, entry);
-          model.setItem(i, item);
-          this.resultList.setModel(model);
-          break;
-        }
-      }
-
-      // Now remove the entry from the current result set
-      for(var i=0; i<this._currentResult.length; i++){
-        if(this._currentResult[i]['uuid'] == entry['uuid']){
-          this._currentResult[i] = entry;
-          return;
-        }
-      }
-    },
-
-
-    __addEntry: function(entry){
-      var model = this.resultList.getModel();
-      var item = new cute.data.model.SearchResultItem();
-      item = this.__fillSearchListItem(item, entry);
-      model.push(item);
-      model.sort(this.__sortByRelevance);
-      this.resultList.setModel(model);
-      this._currentResult.push(entry);
-      return;
-    },
-
-    __removeEntry: function(entry){
-      var model = this.resultList.getModel();
-      for(var i=0; i<model.getLength(); i++){
-        if(entry['uuid'] == model.getItem(i).getUuid()){
-          qx.lang.Array.remove(model, model.getItem(i));
-          this.resultList.setModel(model);
-          break;
-        }
-      }
-
-      // Now remove the entry from the current result set
-      for(var i=0; i<this._currentResult.length; i++){
-        if(this._currentResult[i]['uuid'] == entry['uuid']){
-          qx.lang.Array.remove(this._currentResult, this._currentResult[i]);
-          return;
-        }
-      }
-      return;
-    },
-
-    __fillSearchListItem: function(item, entry){
-
-      // Icon fallback to server provided images
-      var icon = entry['icon'];
-      if (!icon) {
-          icon = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/images/objects/" + entry['tag'].toLowerCase() + ".png";
-      }
-
-      item.setUuid(entry['uuid']);
-      item.setDn(entry['dn']);
-      item.setTitle(entry['title']);
-      item.setRelevance(entry['relevance']);
-      item.setType(entry['tag']);
-      item.setDescription(this._highlight(entry['description'], this._old_query));
-      item.setIcon(icon);
-      return(item); 
-    },
-
-    __getListWidgetByUUID: function(){
-      var children = this.resultList.getPane().getChildren();
-
-      console.log(children.classname);
-      for(var i=0; i<children.getLength(); i++){
-        console.log(children.getItem(i)).classname;
-      }
-    },
-
-    __fadeOut: function(entry){
-      this.__getListWidgetByUUID(entry['uuid']);
-      this.__removeEntry(entry);
-    },
 
     _search_queue_handler : function() {
       if (this._sq.length == 0 || this._working) {
@@ -372,13 +223,12 @@ qx.Class.define("cute.view.Search",
       console.log(e.getUserData());
     },
 
-    doSearchE : function(e, callback) {
+    doSearchE : function(e, callback, noListUpdate) {
       this._sq.push(this.sf.getValue());
-      this.doSearch(e, callback);
+      this.doSearch(e, callback, noListUpdate);
     },
 
-    doSearch : function(e, callback) {
-      var rpc = cute.io.Rpc.getInstance();
+    doSearch : function(e, callback, noListUpdate) {
 
       // Remove all entries from the queue and keep the newest
       var query = "";
@@ -391,13 +241,14 @@ qx.Class.define("cute.view.Search",
       }
      
       // Don't search for nothing or not changed values
-      if (query == "" || this._old_query == query) {
+      if (!noListUpdate && (query == "" || this._old_query == query)) {
         if (callback) {
           callback.apply(this, [ [] ]);
         }
         return;
       }
       
+      var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(result, error){
         if(!error){
           var base = result;
@@ -408,7 +259,9 @@ qx.Class.define("cute.view.Search",
             var endTime = new Date().getTime();
 
             // Memorize old query and display results
-            this.showSearchResults(result, endTime - startTime, false, query);
+            if(!noListUpdate){
+              this.showSearchResults(result, endTime - startTime, false, query);
+            }
             this._old_query = query;
 
             if (callback) {
@@ -590,6 +443,150 @@ qx.Class.define("cute.view.Search",
 
         }, this, obj);
       }, this, dn);
+    },
+
+
+    /* Act on object modification events
+     * */
+
+    /* Act on backend events related to object modifications
+     * */
+    _handleObjectEvent: function(e){
+
+      var data = e.getData();
+
+      if(data['changeType'] == "remove"){
+        this._removedObjects.push(data['uuid']);
+      }
+      if(data['changeType'] == "create"){
+        this._createdObjects.push(data['uuid']);
+      }
+      if(data['changeType'] == "update"){
+        this._modifiedObjects.push(data['uuid']);
+      }
+
+      this.doSearchE(null, function(result){
+      
+          var added = [];
+          var removed = [];
+          var stillthere = [];
+          var entries_by_uuid = {};
+
+          var current_uuids = [];
+          for(var i=0; i<this._currentResult.length; i++){
+            current_uuids.push(this._currentResult[i]['uuid']);
+            entries_by_uuid[this._currentResult[i]['uuid']] = this._currentResult[i];
+          }
+
+          var uuids = [];
+          for(var i=0; i<result.length; i++){
+            uuids.push(result[i]['uuid']);
+            entries_by_uuid[result[i]['uuid']] = result[i];
+          }
+
+          removed = qx.lang.Array.exclude(qx.lang.Array.clone(current_uuids), uuids);
+          added = qx.lang.Array.exclude(qx.lang.Array.clone(uuids), current_uuids);
+
+          stillthere = qx.lang.Array.exclude(current_uuids, added);
+          stillthere = qx.lang.Array.exclude(stillthere, removed);
+
+          for(var i=0; i<removed.length; i++){
+            if(qx.lang.Array.contains(this._removedObjects, removed[i])){
+              this.__fadeOut(entries_by_uuid[removed[i]]);
+            }else{
+              this.__removeEntry(entries_by_uuid[removed[i]]);
+            }
+            qx.lang.Array.remove(this._removedObjects, removed[i]);
+          }
+          for(var i=0; i<stillthere.length; i++){
+            if(qx.lang.Array.contains(this._modifiedObjects, stillthere[i])){
+              this.__updateEntry(entries_by_uuid[stillthere[i]]);
+            }
+            qx.lang.Array.remove(this._modifiedObjects, stillthere[i]);
+          }
+          for(var i=0; i<added.length; i++){
+            if(qx.lang.Array.contains(this._createdObjects, added[i])){
+              this.__addEntry(entries_by_uuid[added[i]]);
+            }
+            qx.lang.Array.remove(this._createdObjects, added[i]);
+          }
+        }, true);
+    },
+
+    __updateEntry: function(entry){
+    
+      var model = this.resultList.getModel();
+      for(var i=0; i<model.getLength(); i++){
+        if(entry['uuid'] == model.getItem(i).getUuid()){
+          var item = model.getItem(i);
+          item = this.__fillSearchListItem(item, entry);
+          model.setItem(i, item);
+          this.resultList.setModel(model);
+          break;
+        }
+      }
+
+      // Now remove the entry from the current result set
+      for(var i=0; i<this._currentResult.length; i++){
+        if(this._currentResult[i]['uuid'] == entry['uuid']){
+          this._currentResult[i] = entry;
+          return;
+        }
+      }
+    },
+
+
+    __addEntry: function(entry){
+      var model = this.resultList.getModel();
+      var item = new cute.data.model.SearchResultItem();
+      item = this.__fillSearchListItem(item, entry);
+      model.push(item);
+      model.sort(this.__sortByRelevance);
+      this.resultList.setModel(model);
+      this._currentResult.push(entry);
+      return;
+    },
+
+    __removeEntry: function(entry){
+      var model = this.resultList.getModel();
+      for(var i=0; i<model.getLength(); i++){
+        if(entry['uuid'] == model.getItem(i).getUuid()){
+          qx.lang.Array.remove(model, model.getItem(i));
+          this.resultList.setModel(model);
+          break;
+        }
+      }
+
+      // Now remove the entry from the current result set
+      for(var i=0; i<this._currentResult.length; i++){
+        if(this._currentResult[i]['uuid'] == entry['uuid']){
+          qx.lang.Array.remove(this._currentResult, this._currentResult[i]);
+          return;
+        }
+      }
+      return;
+    },
+
+    __fillSearchListItem: function(item, entry){
+
+      // Icon fallback to server provided images
+      var icon = entry['icon'];
+      if (!icon) {
+          icon = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/images/objects/" + entry['tag'].toLowerCase() + ".png";
+      }
+
+      item.setUuid(entry['uuid']);
+      item.setDn(entry['dn']);
+      item.setTitle(entry['title']);
+      item.setRelevance(entry['relevance']);
+      item.setType(entry['tag']);
+      item.setDescription(this._highlight(entry['description'], this._old_query));
+      item.setIcon(icon);
+      return(item); 
+    },
+
+    __fadeOut: function(entry){
+      this.__removeEntry(entry);
     }
   }
 });
