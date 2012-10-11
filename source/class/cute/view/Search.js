@@ -420,7 +420,8 @@ qx.Class.define("cute.view.Search",
       var rpc = cute.io.Rpc.getInstance();
       rpc.cA(function(result, error){
           if(error){
-            new cute.ui.dialogs.Error(this.tr("Failed to remove the entry!") + " " + error.message).open();
+            new cute.ui.dialogs.Error(this.tr("Cannot remove entry!")).open();
+            this.error("cannot remove entry: " + error);
           }
         }, this, "removeObject", "object", uuid); 
     },

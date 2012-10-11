@@ -71,7 +71,7 @@ qx.Class.define("cute.Session",
                   this.setDn(result['dn']);
                   this.setUuid(result['uuid']);
                 }catch(e){
-                  alert(e);
+                  this.error(e);
                 }
 
               }, this, result['dn']);

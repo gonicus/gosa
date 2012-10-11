@@ -202,13 +202,13 @@ qx.Class.define("cute.ui.Renderer",
 
       // Act on reload events
       var id = widget._object.addListener("reloaded", function(){
-          new cute.ui.dialogs.Info(this.tr("This object was modified in the meantime and has been reloaded!")).open();
+          new cute.ui.dialogs.Info(this.tr("The object was out of date and has been refreshed!")).open();
         }, widget);
       widget.__bindings.push({id: id, widget: widget._object});
 
       // Act on remove events
       var id = widget._object.addListener("removed", function(){
-          new cute.ui.dialogs.Info(this.tr("This object was removed in the meantime.")).open();
+          new cute.ui.dialogs.Info(this.tr("This object does not exist anymore!")).open();
           this.fireEvent("done");
         }, widget);
       widget.__bindings.push({id: id, widget: widget._object});
