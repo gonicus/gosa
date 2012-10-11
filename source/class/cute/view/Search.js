@@ -450,11 +450,13 @@ qx.Class.define("cute.view.Search",
      * */
 
     /* Act on backend events related to object modifications
+     * and remove, update or add list item of the result list.
+     *
      * */
     _handleObjectEvent: function(e){
 
+      // Keep track of each event uuid we receive
       var data = e.getData();
-
       if(data['changeType'] == "remove"){
         this._removedObjects.push(data['uuid']);
       }
@@ -465,31 +467,41 @@ qx.Class.define("cute.view.Search",
         this._modifiedObjects.push(data['uuid']);
       }
 
+      // Once an event was catched, start a new query, but do not show
+      // the result in the list, instead just return it.
       this.doSearchE(null, function(result){
       
+          // Check for differences between the currently active result-set 
+          // and the fetched one.
           var added = [];
           var removed = [];
           var stillthere = [];
           var entries_by_uuid = {};
 
+          // Create a list containing all currently show entry-uuids.
           var current_uuids = [];
           for(var i=0; i<this._currentResult.length; i++){
             current_uuids.push(this._currentResult[i]['uuid']);
             entries_by_uuid[this._currentResult[i]['uuid']] = this._currentResult[i];
           }
 
+          // Create  list of all entry-uuids that ware returned by the query.
           var uuids = [];
           for(var i=0; i<result.length; i++){
             uuids.push(result[i]['uuid']);
             entries_by_uuid[result[i]['uuid']] = result[i];
           }
 
+          // Check which uuids were new, which were removed and which uuids are still there
           removed = qx.lang.Array.exclude(qx.lang.Array.clone(current_uuids), uuids);
           added = qx.lang.Array.exclude(qx.lang.Array.clone(uuids), current_uuids);
-
           stillthere = qx.lang.Array.exclude(current_uuids, added);
           stillthere = qx.lang.Array.exclude(stillthere, removed);
 
+          // Walk through collected "remove-event" uuids and check if they were in our list
+          // before, but are now gone. If so, then fade it out.
+          // If its no longer in our list, but was not removed before (e.g just moved) then
+          // just remove it from the list without fading it out.
           for(var i=0; i<removed.length; i++){
             if(qx.lang.Array.contains(this._removedObjects, removed[i])){
               this.__fadeOut(entries_by_uuid[removed[i]]);
@@ -498,14 +510,23 @@ qx.Class.define("cute.view.Search",
             }
             qx.lang.Array.remove(this._removedObjects, removed[i]);
           }
+
+          // Walk through all uuids that were there before and are still there.
+          // If there was an modify event for one of the uuids, then update
+          // the list entry.
           for(var i=0; i<stillthere.length; i++){
             if(qx.lang.Array.contains(this._modifiedObjects, stillthere[i])){
               this.__updateEntry(entries_by_uuid[stillthere[i]]);
             }
             qx.lang.Array.remove(this._modifiedObjects, stillthere[i]);
           }
+
+          // If there is a new entry in the result and we've got an create event
+          // then fade the new entry in the result list.
           for(var i=0; i<added.length; i++){
             if(qx.lang.Array.contains(this._createdObjects, added[i])){
+              this.__fadeIn(entries_by_uuid[added[i]]);
+            }else{
               this.__addEntry(entries_by_uuid[added[i]]);
             }
             qx.lang.Array.remove(this._createdObjects, added[i]);
@@ -513,8 +534,14 @@ qx.Class.define("cute.view.Search",
         }, true);
     },
 
+
+    /* Update the given result-list item of the search-result-list
+     * and reload the model.
+     * */
     __updateEntry: function(entry){
-    
+   
+      // Locate the search result item in the search result model
+      // and update it.
       var model = this.resultList.getModel();
       for(var i=0; i<model.getLength(); i++){
         if(entry['uuid'] == model.getItem(i).getUuid()){
@@ -536,18 +563,34 @@ qx.Class.define("cute.view.Search",
     },
 
 
+    /* Adds a new entry to the search result-model
+     * */
     __addEntry: function(entry){
+
+      // Add the given result-item to the list
+      // and update the model
       var model = this.resultList.getModel();
       var item = new cute.data.model.SearchResultItem();
       item = this.__fillSearchListItem(item, entry);
       model.push(item);
       model.sort(this.__sortByRelevance);
       this.resultList.setModel(model);
+
+      // Also add this result-item to the current result set,
+      // else we would add the item the the result-list
+      // again and again and ...
       this._currentResult.push(entry);
       return;
     },
 
+
+    /* Removes the given search-result entry from the result-list
+     * and updates the model.
+     * */
     __removeEntry: function(entry){
+
+      // Locate the model entry with the given uuid
+      // and then remove it from the model.
       var model = this.resultList.getModel();
       for(var i=0; i<model.getLength(); i++){
         if(entry['uuid'] == model.getItem(i).getUuid()){
@@ -557,7 +600,7 @@ qx.Class.define("cute.view.Search",
         }
       }
 
-      // Now remove the entry from the current result set
+      // Now remove the entry from the current result set.
       for(var i=0; i<this._currentResult.length; i++){
         if(this._currentResult[i]['uuid'] == entry['uuid']){
           qx.lang.Array.remove(this._currentResult, this._currentResult[i]);
@@ -567,6 +610,35 @@ qx.Class.define("cute.view.Search",
       return;
     },
 
+
+    /* Fades out the given search-result entry and finally
+     * removes it.
+     * */
+    __fadeOut: function(entry){
+
+      // Locate gui widget and fade it out 
+      //  - here
+
+      this.__removeEntry(entry);
+    },
+
+
+    /* Adds the given search result entry to the list 
+     * and then starts a fade-in transition for it.
+     * */
+    __fadeIn: function(entry){
+      
+      this.__addEntry(entry);
+
+      // Locate gui widget and fade it in
+      //  - here
+
+    },
+
+
+    /* Updates the properties of an 'cute.data.model.SearchResultItem' using
+     * the given search-result-entry.
+     * */
     __fillSearchListItem: function(item, entry){
 
       // Icon fallback to server provided images
@@ -583,10 +655,6 @@ qx.Class.define("cute.view.Search",
       item.setDescription(this._highlight(entry['description'], this._old_query));
       item.setIcon(icon);
       return(item); 
-    },
-
-    __fadeOut: function(entry){
-      this.__removeEntry(entry);
     }
   }
 });
