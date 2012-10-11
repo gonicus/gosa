@@ -32,6 +32,7 @@ qx.Class.define("cute.view.Search",
         'mod-time': "all"
     };
     this._categories = {};
+    this.__now = new Date().getTime() / 1000;
 
     // Call super class and configure ourselfs
     this.base(arguments, "", cute.Config.getImagePath("apps/search.png", 32));
@@ -102,6 +103,7 @@ qx.Class.define("cute.view.Search",
 
     // Bind search result model
     var that = this;
+    var deltas = {'hour': 60*60, 'day': 60*60*24 , 'week': 60*60*24*7, 'month': 2678400, 'year': 31536000};
     this.resultList.setDelegate({
         createItem: function(){
 
@@ -134,6 +136,24 @@ qx.Class.define("cute.view.Search",
           controller.bindProperty("description", "description", null, item, id);
           controller.bindProperty("icon", "icon", null, item, id);
           controller.bindProperty("", "model", null, item, id);
+        },
+
+        filter : function(data) {
+          var show = true;
+
+          if (that.__selection['secondary'] != "enabled") {
+            show = data.getSecondary() == false;
+          }
+
+          if (show && that.__selection['category'] != 'all' && that.__selection['category'] != data.getType()) {
+            show = false;
+          }
+
+          if (show && that.__selection['mod-time'] != 'all') {
+            show = data.getLastChanged() > (that.__now - deltas[that.__selection['mod-time']])
+          }
+
+          return show;
         }
       });
 
@@ -217,10 +237,9 @@ qx.Class.define("cute.view.Search",
     },
 
     updateFilter : function(e) {
-      var selection = this.searchAid.getSelection();
-      console.error("----> change filter model is missing");
-      console.log(e);
-      console.log(e.getUserData());
+      this.__selection = this.searchAid.getSelection();
+      this.__now = new Date().getTime() / 1000;
+      this.resultList.refresh();
     },
 
     doSearchE : function(e, callback, noListUpdate) {
@@ -296,6 +315,7 @@ qx.Class.define("cute.view.Search",
       var _categories = {};
 
       // Build model
+      this.__selection = this.searchAid.getSelection();
       for (var i= 0; i<items.length; i++) {
         var item = new cute.data.model.SearchResultItem();
 
@@ -311,6 +331,8 @@ qx.Class.define("cute.view.Search",
         item.setRelevance(items[i]['relevance']);
         item.setType(items[i]['tag']);
         item.setDescription(this._highlight(items[i]['description'], query));
+        item.setLastChanged(items[i]['lastChanged']);
+        item.setSecondary(items[i]['secondary']);
         item.setIcon(icon);
         model.push(item);
         
