@@ -9,6 +9,7 @@ qx.Class.define("cute.ui.SearchAid",
 
     this.__selection = {};
     this.__filters = {};
+    this.__block_event = false;
   },
 
   events: {
@@ -65,9 +66,12 @@ qx.Class.define("cute.ui.SearchAid",
 	    }
 	    
 	    group.addListener("changeSelection", function() {
+            if (this.__block_event) {
+              return;
+            }
             var selection = group.getSelection()[0].getUserData("category");
             if (this.__selection[cat] != selection) {
-              //this.__selection[cat] = selection;
+              this.__selection[cat] = selection;
 	          this.fireDataEvent("filterChanged", {
 	              "category": cat,
 	              "selection": selection
@@ -82,6 +86,7 @@ qx.Class.define("cute.ui.SearchAid",
 	  },
 
       updateFilter : function (cat, elements) {
+        this.__block_event = true;
         var w = this.__filters[cat]['widget'];
         var group = this.__filters[cat]['group'];
         var dflt = this.__filters[cat]['default'];
@@ -108,6 +113,7 @@ qx.Class.define("cute.ui.SearchAid",
             group.setSelection([b]);
           }
 	    }
+        this.__block_event = false;
       },
 
 	  hasFilter : function() {
