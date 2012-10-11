@@ -150,7 +150,7 @@ qx.Class.define("cute.view.Search",
           }
 
           if (show && that.__selection['mod-time'] != 'all') {
-            show = data.getLastChanged() > (that.__now - deltas[that.__selection['mod-time']])
+            show = data.getLastChanged() > (that.__now - deltas[that.__selection['mod-time']]);
           }
 
           return show;
