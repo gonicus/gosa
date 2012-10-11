@@ -157,6 +157,11 @@ qx.Class.define("cute.view.Search",
     });
     this.sf.focus();
 
+    this._removedObjects = [];
+    this._createdObjects = [];
+    this._modifiedObjects = [];
+    this._currentResult = [];
+
     // Listen for object changes comming from the backend
     cute.io.WebSocket.getInstance().addListener("objectModified", this._handleObjectEvent, this);
     cute.io.WebSocket.getInstance().addListener("objectCreated", this._handleObjectEvent, this);
@@ -183,20 +188,159 @@ qx.Class.define("cute.view.Search",
     _working : false,
     _old_query : null,
 
+    _removedObjects: null,
+    _createdObjects: null,
+    _modifiedObjects: null,
+    _currentResult: null,
 
     /* Act on backend events related to object modifications
      * */
     _handleObjectEvent: function(e){
+
       var data = e.getData();
-      if(this._lastUpdateReload != data['lastChanged']){
-        var model = this.resultList.getModel().toArray();
-        for(var i=0; i<model.length; i++){
-          if(model[i].getUuid() == data['uuid']){
-            this._lastUpdateReload = data['lastChanged'];
-            this.doSearchE();
+
+      if(data['changeType'] == "remove"){
+        this._removedObjects.push(data['uuid']);
+      }
+      if(data['changeType'] == "create"){
+        this._createdObjects.push(data['uuid']);
+      }
+      if(data['changeType'] == "update"){
+        this._modifiedObjects.push(data['uuid']);
+      }
+
+      this.doSearchE(null, function(result){
+      
+          var added = [];
+          var removed = [];
+          var stillthere = [];
+          var entries_by_uuid = {};
+
+          var current_uuids = [];
+          for(var i=0; i<this._currentResult.length; i++){
+            current_uuids.push(this._currentResult[i]['uuid']);
+            entries_by_uuid[this._currentResult[i]['uuid']] = this._currentResult[i];
           }
+
+          var uuids = [];
+          for(var i=0; i<result.length; i++){
+            uuids.push(result[i]['uuid']);
+            entries_by_uuid[result[i]['uuid']] = result[i];
+          }
+
+          removed = qx.lang.Array.exclude(qx.lang.Array.clone(current_uuids), uuids);
+          added = qx.lang.Array.exclude(qx.lang.Array.clone(uuids), current_uuids);
+
+          stillthere = qx.lang.Array.exclude(current_uuids, added);
+          stillthere = qx.lang.Array.exclude(stillthere, removed);
+
+          for(var i=0; i<removed.length; i++){
+            if(qx.lang.Array.contains(this._removedObjects, removed[i])){
+              this.__fadeOut(entries_by_uuid[removed[i]]);
+            }else{
+              this.__removeEntry(entries_by_uuid[removed[i]]);
+            }
+            qx.lang.Array.remove(this._removedObjects, removed[i]);
+          }
+          for(var i=0; i<stillthere.length; i++){
+            if(qx.lang.Array.contains(this._modifiedObjects, stillthere[i])){
+              this.__updateEntry(entries_by_uuid[stillthere[i]]);
+            }
+            qx.lang.Array.remove(this._modifiedObjects, stillthere[i]);
+          }
+          for(var i=0; i<added.length; i++){
+            if(qx.lang.Array.contains(this._createdObjects, added[i])){
+              this.__addEntry(entries_by_uuid[added[i]]);
+            }
+            qx.lang.Array.remove(this._createdObjects, added[i]);
+          }
+        }, true);
+    },
+
+    __updateEntry: function(entry){
+    
+      var model = this.resultList.getModel();
+      for(var i=0; i<model.getLength(); i++){
+        if(entry['uuid'] == model.getItem(i).getUuid()){
+          var item = model.getItem(i);
+          item = this.__fillSearchListItem(item, entry);
+          model.setItem(i, item);
+          this.resultList.setModel(model);
+          break;
         }
       }
+
+      // Now remove the entry from the current result set
+      for(var i=0; i<this._currentResult.length; i++){
+        if(this._currentResult[i]['uuid'] == entry['uuid']){
+          this._currentResult[i] = entry;
+          return;
+        }
+      }
+    },
+
+
+    __addEntry: function(entry){
+      var model = this.resultList.getModel();
+      var item = new cute.data.model.SearchResultItem();
+      item = this.__fillSearchListItem(item, entry);
+      model.push(item);
+      model.sort(this.__sortByRelevance);
+      this.resultList.setModel(model);
+      this._currentResult.push(entry);
+      return;
+    },
+
+    __removeEntry: function(entry){
+      var model = this.resultList.getModel();
+      for(var i=0; i<model.getLength(); i++){
+        if(entry['uuid'] == model.getItem(i).getUuid()){
+          qx.lang.Array.remove(model, model.getItem(i));
+          this.resultList.setModel(model);
+          break;
+        }
+      }
+
+      // Now remove the entry from the current result set
+      for(var i=0; i<this._currentResult.length; i++){
+        if(this._currentResult[i]['uuid'] == entry['uuid']){
+          qx.lang.Array.remove(this._currentResult, this._currentResult[i]);
+          return;
+        }
+      }
+      return;
+    },
+
+    __fillSearchListItem: function(item, entry){
+
+      // Icon fallback to server provided images
+      var icon = entry['icon'];
+      if (!icon) {
+          icon = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/images/objects/" + entry['tag'].toLowerCase() + ".png";
+      }
+
+      item.setUuid(entry['uuid']);
+      item.setDn(entry['dn']);
+      item.setTitle(entry['title']);
+      item.setRelevance(entry['relevance']);
+      item.setType(entry['tag']);
+      item.setDescription(this._highlight(entry['description'], this._old_query));
+      item.setIcon(icon);
+      return(item); 
+    },
+
+    __getListWidgetByUUID: function(){
+      var children = this.resultList.getPane().getChildren();
+
+      console.log(children.classname);
+      for(var i=0; i<children.getLength(); i++){
+        console.log(children.getItem(i)).classname;
+      }
+    },
+
+    __fadeOut: function(entry){
+      this.__getListWidgetByUUID(entry['uuid']);
+      this.__removeEntry(entry);
     },
 
     _search_queue_handler : function() {
@@ -220,12 +364,23 @@ qx.Class.define("cute.view.Search",
       }
     },
 
-    doSearchE : function(e, callback) {
+    doSearchE : function(e, callback, noListUpdate) {
+
+      // Do we want to skip updating the search result list?
+      if(!noListUpdate){
+        noListUpdate = false;
+      }
       this._sq.push(this.sf.getValue());
-      this.doSearch(e, callback, false);
+      this.doSearch(e, callback, false, noListUpdate);
     },
 
-    doSearch : function(e, callback, reset) {
+    doSearch : function(e, callback, reset, noListUpdate) {
+
+      // Do we want to skip updating the search result list?
+      if(!noListUpdate){
+        noListUpdate = false;
+      }
+
       var selection = this.searchAid.getSelection();
       selection['fallback'] = true;
       var rpc = cute.io.Rpc.getInstance();
@@ -244,7 +399,7 @@ qx.Class.define("cute.view.Search",
       // Don't search for nothing
       if (query == "") {
         if (callback) {
-          callback.apply(this);
+          callback.apply(this, [ [] ]);
         }
         return;
       }
@@ -265,10 +420,13 @@ qx.Class.define("cute.view.Search",
           // Try ordinary search
           rpc.cA(function(result, error){
             var endTime = new Date().getTime();
-            this.showSearchResults(result, endTime - startTime, false, query, reset);
+
+            if(!noListUpdate){
+              this.showSearchResults(result, endTime - startTime, false, query, reset);
+            }
 
             if (callback) {
-              callback.apply(this);
+              callback.apply(this, [result, endTime - startTime]);
             }
           }, this, "search", base, "sub", query, selection);
         }
@@ -281,6 +439,8 @@ qx.Class.define("cute.view.Search",
       this.searchInfo.show();
       this.resultList.getChildControl("scrollbar-x").setPosition(0);
       this.resultList.getChildControl("scrollbar-y").setPosition(0);
+
+      this._currentResult = items;
 
       if (i == 0 && reset){
           this.searchResult.hide();
@@ -340,16 +500,7 @@ qx.Class.define("cute.view.Search",
 
       // Update model
       var data = new qx.data.Array(model);
-      data.sort(function (a, b) {
-          if (a.getRelevance() == b.getRelevance()) {
-              return 0;
-          }
-          if (a.getRelevance() < b.getRelevance()) {
-              return -1;
-          }
-          return 1;
-      });
-      
+      data.sort(this.__sortByRelevance);
       this.resultList.setModel(data);
       
       // Add search filters
@@ -377,6 +528,16 @@ qx.Class.define("cute.view.Search",
 
         //TODO: list locations
       }
+    },
+
+    __sortByRelevance: function(a, b){
+      if (a.getRelevance() == b.getRelevance()) {
+        return 0;
+      }
+      if (a.getRelevance() < b.getRelevance()) {
+        return -1;
+      }
+      return 1;
     },
 
     /* Highlights query strings in the given string
