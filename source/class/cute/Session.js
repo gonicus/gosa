@@ -69,8 +69,9 @@ qx.Class.define("cute.Session",
                   this._object.bind("cn[0]", this, "loggedInName");
                   this._object.uuid = result['uuid'];
                   this.setDn(result['dn']);
+                  this.setUuid(result['uuid']);
                 }catch(e){
-                  alert(e);
+                  this.error(e);
                 }
 
               }, this, result['dn']);

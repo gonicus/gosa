@@ -89,7 +89,6 @@ qx.Class.define("cute.ui.SearchAid",
         this.__block_event = true;
         var w = this.__filters[cat]['widget'];
         var group = this.__filters[cat]['group'];
-        var dflt = this.__filters[cat]['default'];
 
         // Remove old members
         w.removeAll();

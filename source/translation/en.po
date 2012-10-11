@@ -11,19 +11,19 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: cute/Application.js:132
+#: cute/Application.js:138
 msgid "Can't determine session user"
 msgstr ""
 
-#: cute/Application.js:143
+#: cute/Application.js:149
 msgid "Loading translation"
 msgstr ""
 
-#: cute/Application.js:149
+#: cute/Application.js:155
 msgid "Can't fetch translation catalog"
 msgstr ""
 
-#: cute/Application.js:171
+#: cute/Application.js:177
 msgid "Loading %1 template"
 msgstr ""
 
@@ -31,11 +31,11 @@ msgstr ""
 msgid "Edit your profile"
 msgstr ""
 
-#: cute/ui/Header.js:34
+#: cute/ui/Header.js:33
 msgid "Logout"
 msgstr ""
 
-#: cute/ui/Header.js:61
+#: cute/ui/Header.js:63
 msgid "Logged in:"
 msgstr ""
 
@@ -47,68 +47,84 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: cute/ui/Renderer.js:728
+#: cute/ui/base/Buttons.js:29 cute/ui/ItemSelector.js:46
+msgid "Cancel"
+msgstr ""
+
+#: cute/ui/Renderer.js:205
+msgid "The object was out of date and has been refreshed!"
+msgstr ""
+
+#: cute/ui/Renderer.js:211
+msgid "This object does not exist anymore!"
+msgstr ""
+
+#: cute/ui/Renderer.js:790
 msgid "Extend"
 msgstr ""
 
-#: cute/ui/Renderer.js:733
+#: cute/ui/Renderer.js:795
 msgid "Retract"
 msgstr ""
 
-#: cute/ui/Renderer.js:738
+#: cute/ui/Renderer.js:800
 msgid "Action"
 msgstr ""
 
-#: cute/ui/Renderer.js:771
+#: cute/ui/Renderer.js:833
 msgid "Failed to retract the %1 extension: %2"
 msgstr ""
 
-#: cute/ui/Renderer.js:825
+#: cute/ui/Renderer.js:887
 msgid "Dependent extension"
 msgid_plural "Dependent extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:841
-msgid "To retract the <b>%1</b> extension from this object, the following additional extension needs to be removed: %2"
-msgid_plural "To retract the <b>%1</b> extension from this object, the following additional extensions need to be removed: %2"
+#: cute/ui/Renderer.js:903
+msgid ""
+"To retract the <b>%1</b> extension from this object, the following "
+"additional extension needs to be removed: %2"
+msgid_plural ""
+"To retract the <b>%1</b> extension from this object, the following "
+"additional extensions need to be removed: %2"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:844
+#: cute/ui/Renderer.js:906
 msgid "Do you want the dependent extension to be removed?"
 msgid_plural "Do you want the dependent extensions to be removed?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:919
+#: cute/ui/Renderer.js:981
 msgid "Missing extension"
 msgid_plural "Missing extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:937
-msgid "To extend the object by the <b>%1</b> extension, the following additional extension is required: %2"
-msgid_plural "To extend the object by the <b>%1</b> extension, the following additional extensions are required: %2"
+#: cute/ui/Renderer.js:999
+msgid ""
+"To extend the object by the <b>%1</b> extension, the following additional "
+"extension is required: %2"
+msgid_plural ""
+"To extend the object by the <b>%1</b> extension, the following additional "
+"extensions are required: %2"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:940
+#: cute/ui/Renderer.js:1002
 msgid "Do you want the missing extension to be added?"
 msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:1040
+#: cute/ui/Renderer.js:1103
 msgid "Remove extension"
 msgstr ""
 
 #: cute/ui/base/Buttons.js:25
 msgid "OK"
-msgstr ""
-
-#: cute/ui/base/Buttons.js:29 cute/ui/ItemSelector.js:46
-msgid "Cancel"
 msgstr ""
 
 #: cute/ui/dialogs/ChangePasswordDialog.js:10
@@ -172,7 +188,9 @@ msgid "Remove object"
 msgstr ""
 
 #: cute/ui/dialogs/RemoveObject.js:15
-msgid "Do you want to remove this object including all of its references to other objects?"
+msgid ""
+"Do you want to remove this object including all of its references to other "
+"objects?"
 msgstr ""
 
 #: cute/ui/dialogs/RpcError.js:16
@@ -199,8 +217,13 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
-#: cute/ui/widgets/MultiEditContainer.js:33
+#: cute/ui/widgets/MultiEditContainer.js:48
 msgid "Add value"
+msgstr ""
+
+#: cute/ui/widgets/SingleSelector.js:113
+#: cute/ui/widgets/MultiEditContainer.js:54
+msgid "Remove value"
 msgstr ""
 
 #: cute/ui/widgets/QGraphicsViewWidget.js:33
@@ -219,94 +242,93 @@ msgstr ""
 msgid "Remove image"
 msgstr ""
 
-#: cute/ui/widgets/SingleSelector.js:56
+#: cute/ui/widgets/SingleSelector.js:101
 msgid "loading"
 msgstr ""
 
-#: cute/ui/widgets/SingleSelector.js:67
-#: cute/ui/widgets/MultiEditContainer.js:39
-msgid "Remove value"
-msgstr ""
-
-#: cute/ui/widgets/SingleSelector.js:70 cute/ui/widgets/SingleSelector.js:86
+#: cute/ui/widgets/SingleSelector.js:116 cute/ui/widgets/SingleSelector.js:133
 msgid "Choose value"
 msgstr ""
 
-#: cute/view/Search.js:46
+#: cute/view/Search.js:48
 msgid "Please enter your search..."
 msgstr ""
 
-#: cute/view/Search.js:52 cute/view/Search.js:65
+#: cute/view/Search.js:54 cute/view/Search.js:67
 msgid "Search"
 msgstr ""
 
-#: cute/view/Search.js:266
+#: cute/view/Search.js:312
 msgid "%1 fuzzy result"
 msgid_plural "%1 fuzzy results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:266 cute/view/Search.js:268
+#: cute/view/Search.js:312 cute/view/Search.js:314
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:266
+#: cute/view/Search.js:312
 msgid "no exact matches"
 msgstr ""
 
-#: cute/view/Search.js:268
+#: cute/view/Search.js:314
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:299 cute/view/Search.js:342
+#: cute/view/Search.js:356 cute/view/Search.js:390
 msgid "All"
 msgstr ""
 
-#: cute/view/Search.js:335
+#: cute/view/Search.js:381
 msgid "Category"
 msgstr ""
 
-#: cute/view/Search.js:337
+#: cute/view/Search.js:384
 msgid "Secondary search"
 msgstr ""
 
-#: cute/view/Search.js:338
+#: cute/view/Search.js:385
 msgid "Enabled"
 msgstr ""
 
-#: cute/view/Search.js:339
+#: cute/view/Search.js:386
 msgid "Disabled"
 msgstr ""
 
-#: cute/view/Search.js:341
+#: cute/view/Search.js:389
 msgid "Last modification"
 msgstr ""
 
-#: cute/view/Search.js:343
+#: cute/view/Search.js:391
 msgid "Last hour"
 msgstr ""
 
-#: cute/view/Search.js:344
+#: cute/view/Search.js:392
 msgid "Last 24 hours"
 msgstr ""
 
-#: cute/view/Search.js:345
+#: cute/view/Search.js:393
 msgid "Last week"
 msgstr ""
 
-#: cute/view/Search.js:346
+#: cute/view/Search.js:394
 msgid "Last month"
 msgstr ""
 
-#: cute/view/Search.js:347
+#: cute/view/Search.js:395
 msgid "Last year"
 msgstr ""
 
-#: cute/view/Search.js:388
+#: cute/view/Search.js:423
+msgid "Cannot remove entry!"
+msgstr ""
+
+#: cute/view/Search.js:446
 msgid "Object"
 msgstr ""
 
@@ -317,6 +339,9 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Change image"
+#~ msgstr ""
+
+#~ msgid "Failed to remove the entry!"
 #~ msgstr ""
 
 #~ msgid "Loading"
@@ -338,6 +363,12 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Open"
+#~ msgstr ""
+
+#~ msgid "This object was modified in the meantime and has been reloaded!"
+#~ msgstr ""
+
+#~ msgid "This object was removed in the meantime."
 #~ msgstr ""
 
 #~ msgid "Video capture"
