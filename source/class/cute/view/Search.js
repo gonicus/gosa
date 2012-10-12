@@ -130,8 +130,6 @@ qx.Class.define("cute.view.Search",
         },
 
         bindItem : function(controller, item, id) {
-          controller.bindProperty("fadeOut", "fadeOut", null, item, id);
-          controller.bindPropertyReverse("fadeOut", "fadeOut", null, item, id);
           controller.bindProperty("title", "title", null, item, id);
           controller.bindProperty("dn", "dn", null, item, id);
           controller.bindProperty("uuid", "uuid", null, item, id);
@@ -653,22 +651,7 @@ qx.Class.define("cute.view.Search",
      * removes it.
      * */
     __fadeOut: function(entry){
-
-      // Locate gui widget
-      var item = this.__getModelEntryForUUID(entry['uuid']);
-
-      // Fade out the entry and then remove it
-      var id;
-      id = item.addListener("__fadeOutEvent", function(e){
-          if(e.getData() == false){
-            this.__removeEntry(entry);
-            item.setFadeOut(false);
-            item.removeListenerById(id);
-          }
-        }, this);
-
-      // Initiate removal fade
-      item.setFadeOut(true);
+      this.__removeEntry(entry);
     },
 
 
@@ -676,12 +659,7 @@ qx.Class.define("cute.view.Search",
      * and then starts a fade-in transition for it.
      * */
     __fadeIn: function(entry){
-      
       this.__addEntry(entry);
-
-      // Locate gui widget and fade it in
-      //  - here
-
     },
 
 
@@ -690,13 +668,15 @@ qx.Class.define("cute.view.Search",
      * */
     __fillSearchListItem: function(item, entry){
 
+      // Set the uuid first, this triggers a reset on the widget side.
+      item.setUuid(entry['uuid']);
+
       // Icon fallback to server provided images
       var icon = entry['icon'];
       if (!icon) {
           icon = cute.Config.spath + "/" + cute.Config.getTheme() + "/resources/images/objects/" + entry['tag'].toLowerCase() + ".png";
       }
 
-      item.setUuid(entry['uuid']);
       item.setDn(entry['dn']);
       item.setTitle(entry['title']);
       item.setRelevance(entry['relevance']);

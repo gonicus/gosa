@@ -92,6 +92,7 @@ qx.Class.define("cute.ui.SearchListItem", {
     {
       nullable : true,
       check : "String",
+      apply: "reset",
       event : "changeUuid"
     },
 
@@ -135,13 +136,6 @@ qx.Class.define("cute.ui.SearchListItem", {
       apply: "_applyIsLoading",
       event : "changeIsLoading",
       init : false
-    },
-
-    fadeOut : {
-      check : "Boolean",
-      apply : "__fadeOut",
-      event : "__fadeOutEvent",
-      init : false
     }
   },
 
@@ -153,32 +147,8 @@ qx.Class.define("cute.ui.SearchListItem", {
     _throbber_placeholder: null,
 
 
-    /* Initiate a fade out transition and
-     * afterwards reset the fadeOut flag to false again.
-     * */
-    __fadeOut: function(value, old_value, d){
-      if(value === true){
-
-        // We need to set this using a timer, else we will get
-        // strange problems with the binding
-        var timer = qx.util.TimerManager.getInstance();
-        timer.start(function(userData, timerId){
-          var move = {duration: 500, keep: 100, keyFrames : {
-              0: {opacity: "1"},
-              100: { opacity: "0"}
-          }};
-          var el = q(this.getContentElement().getDomElement());
-          el.on("animationEnd", function(){
-              this.setFadeOut(false);    
-            }, this);
-          el.animate(move);
-        }, 0, this, null, 1);
-      }else{
-        var el = q(this.getContentElement().getDomElement());
-        if(el){
-          el.setStyle("opacity", "1");
-        }
-      }
+    reset: function(){
+      this.setIsLoading(false);
     },
 
     /* Applies the loading state and toggles the 
@@ -215,8 +185,6 @@ qx.Class.define("cute.ui.SearchListItem", {
     },
 
     _applyTitle: function(value){
-
-      // Reset the loading state
       this._showChildControl("title");
       var widget = this.getChildControl("title");
       if(widget){
