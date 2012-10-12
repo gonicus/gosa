@@ -69,10 +69,10 @@ qx.Class.define("gosa.Application",
       */
 
       // Optionally register protocol handler for clacks
-      var reg_path = window.location.origin + window.location.pathname;
-      if (navigator.registerProtocolHandler) {
-        navigator.registerProtocolHandler('web+gosa', reg_path + '#%s', this.tr('GOsa protocol handler'));
-      }
+      //var reg_path = window.location.origin + window.location.pathname;
+      //if (navigator.registerProtocolHandler) {
+      //  navigator.registerProtocolHandler('web+gosa', reg_path + '#%s', this.tr('GOsa protocol handler'));
+      //}
 
       // Document is the application root
       var doc = this.getRoot();
