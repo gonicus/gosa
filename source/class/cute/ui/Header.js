@@ -9,7 +9,7 @@ qx.Class.define("cute.ui.Header", {
     this.setLayout(new qx.ui.layout.Canvas());
 
 
-    var header = new qx.ui.basic.Atom("", "cute/logo.png");
+    var header = new qx.ui.basic.Atom("", "cute/themes/default/logo.png");
     header.setDecorator("title-bar");
     header.setTextColor("header-text");
     header.setHeight(48);
@@ -29,7 +29,7 @@ qx.Class.define("cute.ui.Header", {
         document.location.href = cute.Tools.createActionUrl('openObject', cute.Session.getInstance().getUuid());
       }, this);
 
-    var btn = new qx.ui.basic.Image("cute/btn-logout.png");
+    var btn = new qx.ui.basic.Image("cute/themes/default/btn-logout.png");
     btn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Logout")));
     btn.setCursor("pointer");
     btn.setAlignY("middle");
