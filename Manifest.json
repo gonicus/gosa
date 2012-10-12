@@ -23,7 +23,7 @@
   
   "provides" : 
   {
-    "namespace"   : "cute",
+    "namespace"   : "gosa",
     "encoding"    : "utf-8",
     "class"       : "source/class",
     "resource"    : "source/resource",

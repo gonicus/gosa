@@ -14,81 +14,81 @@ msgstr ""
 "X-Language: de_DE\n"
 "X-Source-Language: de\n"
 
-#: cute/Application.js:74
+#: gosa/Application.js:74
 msgid "GOsa protocol handler"
 msgstr "GOsa Protkoll-Handler"
 
-#: cute/Application.js:144
+#: gosa/Application.js:144
 msgid "Can't determine session user"
 msgstr "Kann Sitzungs-Benutzer nicht bestimmen"
 
-#: cute/Application.js:155
+#: gosa/Application.js:155
 msgid "Loading translation"
 msgstr "Lade Übersetzung"
 
-#: cute/Application.js:161
+#: gosa/Application.js:161
 msgid "Can't fetch translation catalog"
 msgstr "Kann Übersetzungs-Katalog nicht beziehen"
 
-#: cute/Application.js:183
+#: gosa/Application.js:183
 msgid "Loading %1 template"
 msgstr "Lade %1-Vorlage"
 
-#: cute/ui/Header.js:21
+#: gosa/ui/Header.js:21
 msgid "Edit your profile"
 msgstr "Eigenes Profil bearbeiten"
 
-#: cute/ui/Header.js:33
+#: gosa/ui/Header.js:33
 msgid "Logout"
 msgstr "Abmelden"
 
-#: cute/ui/Header.js:63
+#: gosa/ui/Header.js:63
 msgid "Logged in:"
 msgstr "Angemeldet:"
 
-#: cute/ui/ItemSelector.js:42
+#: gosa/ui/ItemSelector.js:42
 msgid "Choose"
 msgstr "Auswählen"
 
-#: cute/ui/ItemSelector.js:44
+#: gosa/ui/ItemSelector.js:44
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: cute/ui/base/Buttons.js:29 cute/ui/ItemSelector.js:46
+#: gosa/ui/base/Buttons.js:29 gosa/ui/ItemSelector.js:46
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: cute/ui/Renderer.js:205
+#: gosa/ui/Renderer.js:205
 msgid "The object was out of date and has been refreshed!"
 msgstr "Das Objekt ist nicht mehr aktuell und wurde aktualisiert!"
 
-#: cute/ui/Renderer.js:211
+#: gosa/ui/Renderer.js:211
 msgid "This object does not exist anymore!"
 msgstr "Dieses Objekt existiert nicht mehr!"
 
-#: cute/ui/Renderer.js:790
+#: gosa/ui/Renderer.js:790
 msgid "Extend"
 msgstr "Erweitern"
 
-#: cute/ui/Renderer.js:795
+#: gosa/ui/Renderer.js:795
 msgid "Retract"
 msgstr "Zurücknehmen"
 
-#: cute/ui/Renderer.js:800
+#: gosa/ui/Renderer.js:800
 msgid "Action"
 msgstr "Aktion"
 
-#: cute/ui/Renderer.js:833
+#: gosa/ui/Renderer.js:833
 msgid "Failed to retract the %1 extension: %2"
 msgstr "Fehler beim Zurückziehen der %1-Erweiterung: %2"
 
-#: cute/ui/Renderer.js:887
+#: gosa/ui/Renderer.js:887
 msgid "Dependent extension"
 msgid_plural "Dependent extensions"
 msgstr[0] "Abhängige Erweiterung"
 msgstr[1] "Abhängige Erweiterungen"
 
-#: cute/ui/Renderer.js:903
+#: gosa/ui/Renderer.js:903
 msgid ""
 "To retract the <b>%1</b> extension from this object, the following "
 "additional extension needs to be removed: %2"
@@ -102,19 +102,19 @@ msgstr[1] ""
 "Um die <b>%1</b>-Erweiterung von diesem Objekt zurückzunehmen, müssen die "
 "folgenden Erweiterungen ebenfalls zurückgenommen werden: %2"
 
-#: cute/ui/Renderer.js:906
+#: gosa/ui/Renderer.js:906
 msgid "Do you want the dependent extension to be removed?"
 msgid_plural "Do you want the dependent extensions to be removed?"
 msgstr[0] "Möchten Sie die abhängende Erweiterung entfernen?"
 msgstr[1] "Möchten Sie die abhängenden Erweiterungen entfernen?"
 
-#: cute/ui/Renderer.js:981
+#: gosa/ui/Renderer.js:981
 msgid "Missing extension"
 msgid_plural "Missing extensions"
 msgstr[0] "Fehlende Erweiterung"
 msgstr[1] "Fehlende Erweiterungen"
 
-#: cute/ui/Renderer.js:999
+#: gosa/ui/Renderer.js:999
 msgid ""
 "To extend the object by the <b>%1</b> extension, the following additional "
 "extension is required: %2"
@@ -128,81 +128,81 @@ msgstr[1] ""
 "Um dieses Objekt um die <b>%1</b>-Erweiterung zu erweitern, werden die "
 "folgenden zusätzlichen Erweiterungen benötigt: %2"
 
-#: cute/ui/Renderer.js:1002
+#: gosa/ui/Renderer.js:1002
 msgid "Do you want the missing extension to be added?"
 msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] "Soll die fehlende Erweiterung hinzugefügt werden?"
 msgstr[1] "Sollen die fehlenden Erweiterungen hinzugefügt werden?"
 
-#: cute/ui/Renderer.js:1103
+#: gosa/ui/Renderer.js:1103
 msgid "Remove extension"
 msgstr "Erweiterung entfernen"
 
-#: cute/ui/base/Buttons.js:25
+#: gosa/ui/base/Buttons.js:25
 msgid "OK"
 msgstr "OK"
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:10
+#: gosa/ui/dialogs/ChangePasswordDialog.js:10
 msgid "Change password..."
 msgstr "Passwort ändern..."
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:44
+#: gosa/ui/dialogs/ChangePasswordDialog.js:44
 msgid "Encryption"
 msgstr "Verschlüsselung"
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:45
+#: gosa/ui/dialogs/ChangePasswordDialog.js:45
 msgid "New password"
 msgstr "Neues Passwort"
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:46
+#: gosa/ui/dialogs/ChangePasswordDialog.js:46
 msgid "New password (repeated)"
 msgstr "Neues Passwort (wiederholt)"
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:75
+#: gosa/ui/dialogs/ChangePasswordDialog.js:75
 msgid "Set password"
 msgstr "Passwort setzen"
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:113
+#: gosa/ui/dialogs/ChangePasswordDialog.js:113
 msgid "Passwords do not match!"
 msgstr "Passwörter stimmen nicht überein!"
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:131
+#: gosa/ui/dialogs/ChangePasswordDialog.js:131
 msgid "Password has been changed successfully."
 msgstr "Das Passwort wurde erfolgreich geändert."
 
-#: cute/ui/dialogs/Error.js:10 cute/ui/dialogs/RpcError.js:11
+#: gosa/ui/dialogs/Error.js:10 gosa/ui/dialogs/RpcError.js:11
 msgid "Error"
 msgstr "Fehler"
 
-#: cute/ui/dialogs/Info.js:10
+#: gosa/ui/dialogs/Info.js:10
 msgid "Info"
 msgstr "Information"
 
-#: cute/ui/dialogs/Loading.js:7
+#: gosa/ui/dialogs/Loading.js:7
 msgid "Initializing"
 msgstr "Initialisiere"
 
-#: cute/ui/dialogs/LoginDialog.js:7 cute/ui/dialogs/LoginDialog.js:37
+#: gosa/ui/dialogs/LoginDialog.js:7 gosa/ui/dialogs/LoginDialog.js:37
 msgid "Login"
 msgstr "Anmelden"
 
-#: cute/ui/dialogs/LoginDialog.js:23
+#: gosa/ui/dialogs/LoginDialog.js:23
 msgid "Login ID"
 msgstr "Anmelde-ID"
 
-#: cute/ui/dialogs/LoginDialog.js:24
+#: gosa/ui/dialogs/LoginDialog.js:24
 msgid "Password"
 msgstr "Kennwort"
 
-#: cute/ui/dialogs/LoginDialog.js:53
+#: gosa/ui/dialogs/LoginDialog.js:53
 msgid "Invalid login ..."
 msgstr "Ungültige Anmeldung..."
 
-#: cute/ui/dialogs/RemoveObject.js:10
+#: gosa/ui/dialogs/RemoveObject.js:10
 msgid "Remove object"
 msgstr "Objekt entfernen"
 
-#: cute/ui/dialogs/RemoveObject.js:15
+#: gosa/ui/dialogs/RemoveObject.js:15
 msgid ""
 "Do you want to remove this object including all of its references to other "
 "objects?"
@@ -210,141 +210,141 @@ msgstr ""
 "Möchten Sie dieses Objekt mit all seinen Referenzen zu anderen Objekten "
 "entfernen?"
 
-#: cute/ui/dialogs/RpcError.js:16
+#: gosa/ui/dialogs/RpcError.js:16
 msgid "Retry"
 msgstr "Erneut versuchen"
 
-#: cute/ui/dialogs/SendMessageDialog.js:10
+#: gosa/ui/dialogs/SendMessageDialog.js:10
 msgid "Send message..."
 msgstr "Nachricht senden..."
 
-#: cute/ui/dialogs/SendMessageDialog.js:32
+#: gosa/ui/dialogs/SendMessageDialog.js:32
 msgid "Subject"
 msgstr "Betreff"
 
-#: cute/ui/dialogs/SendMessageDialog.js:33
+#: gosa/ui/dialogs/SendMessageDialog.js:33
 msgid "Message"
 msgstr "Nachricht"
 
-#: cute/ui/dialogs/SendMessageDialog.js:41
+#: gosa/ui/dialogs/SendMessageDialog.js:41
 msgid "Send"
 msgstr "Senden"
 
-#: cute/ui/dialogs/Warning.js:10
+#: gosa/ui/dialogs/Warning.js:10
 msgid "Warning"
 msgstr "Achtung"
 
-#: cute/ui/widgets/MultiEditContainer.js:48
+#: gosa/ui/widgets/MultiEditContainer.js:48
 msgid "Add value"
 msgstr "Wert hinzufügen"
 
-#: cute/ui/widgets/SingleSelector.js:113
-#: cute/ui/widgets/MultiEditContainer.js:54
+#: gosa/ui/widgets/SingleSelector.js:113
+#: gosa/ui/widgets/MultiEditContainer.js:54
 msgid "Remove value"
 msgstr "Wert entfernen"
 
-#: cute/ui/widgets/QGraphicsViewWidget.js:33
+#: gosa/ui/widgets/QGraphicsViewWidget.js:33
 msgid "Image capture"
 msgstr "Bilderfassung"
 
-#: cute/ui/widgets/QGraphicsViewWidget.js:64
+#: gosa/ui/widgets/QGraphicsViewWidget.js:64
 msgid "Upload new image"
 msgstr "Neues Bild bereitstellen"
 
-#: cute/ui/widgets/QGraphicsViewWidget.js:66
+#: gosa/ui/widgets/QGraphicsViewWidget.js:66
 msgid "Capture"
 msgstr "Aufnehmen"
 
-#: cute/ui/widgets/QGraphicsViewWidget.js:69
+#: gosa/ui/widgets/QGraphicsViewWidget.js:69
 msgid "Remove image"
 msgstr "Bild entfernen"
 
-#: cute/ui/widgets/SingleSelector.js:101
+#: gosa/ui/widgets/SingleSelector.js:101
 msgid "loading"
 msgstr "lade"
 
-#: cute/ui/widgets/SingleSelector.js:116 cute/ui/widgets/SingleSelector.js:133
+#: gosa/ui/widgets/SingleSelector.js:116 gosa/ui/widgets/SingleSelector.js:133
 msgid "Choose value"
 msgstr "Wert auswählen"
 
-#: cute/view/Search.js:48
+#: gosa/view/Search.js:48
 msgid "Please enter your search..."
 msgstr "Bitte geben Sie den Suchtext ein..."
 
-#: cute/view/Search.js:54 cute/view/Search.js:67
+#: gosa/view/Search.js:54 gosa/view/Search.js:67
 msgid "Search"
 msgstr "Suche"
 
-#: cute/view/Search.js:314
+#: gosa/view/Search.js:314
 msgid "%1 fuzzy result"
 msgid_plural "%1 fuzzy results"
 msgstr[0] "%1 ungenaues Ergebnis"
 msgstr[1] "%1 ungenaue Ergebnisse"
 
-#: cute/view/Search.js:314 cute/view/Search.js:316
+#: gosa/view/Search.js:314 gosa/view/Search.js:316
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] "%1 Sekunde"
 msgstr[1] "%1 Sekunden"
 
-#: cute/view/Search.js:314
+#: gosa/view/Search.js:314
 msgid "no exact matches"
 msgstr "keine exakten Treffer"
 
-#: cute/view/Search.js:316
+#: gosa/view/Search.js:316
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] "%1 Ergebnis"
 msgstr[1] "%1 Ergebnisse"
 
-#: cute/view/Search.js:343 cute/view/Search.js:377
+#: gosa/view/Search.js:343 gosa/view/Search.js:377
 msgid "All"
 msgstr "Alle"
 
-#: cute/view/Search.js:368
+#: gosa/view/Search.js:368
 msgid "Category"
 msgstr "Kategorie"
 
-#: cute/view/Search.js:371
+#: gosa/view/Search.js:371
 msgid "Secondary search"
 msgstr "Sekundäre Suche"
 
-#: cute/view/Search.js:372
+#: gosa/view/Search.js:372
 msgid "Enabled"
 msgstr "Aktiviert"
 
-#: cute/view/Search.js:373
+#: gosa/view/Search.js:373
 msgid "Disabled"
 msgstr "Deaktiviert"
 
-#: cute/view/Search.js:376
+#: gosa/view/Search.js:376
 msgid "Last modification"
 msgstr "Letzte Änderung"
 
-#: cute/view/Search.js:378
+#: gosa/view/Search.js:378
 msgid "Last hour"
 msgstr "Letzte Stunde"
 
-#: cute/view/Search.js:379
+#: gosa/view/Search.js:379
 msgid "Last 24 hours"
 msgstr "Letzte 24 Stunden"
 
-#: cute/view/Search.js:380
+#: gosa/view/Search.js:380
 msgid "Last week"
 msgstr "Vorherige Woche"
 
-#: cute/view/Search.js:381
+#: gosa/view/Search.js:381
 msgid "Last month"
 msgstr "Vorheriger Monat"
 
-#: cute/view/Search.js:382
+#: gosa/view/Search.js:382
 msgid "Last year"
 msgstr "Vorheriges Jahr"
 
-#: cute/view/Search.js:410
+#: gosa/view/Search.js:410
 msgid "Cannot remove entry!"
 msgstr "Eintrag kann nicht entfernt werden!"
 
-#: cute/view/Search.js:433
+#: gosa/view/Search.js:433
 msgid "Object"
 msgstr "Objekt"

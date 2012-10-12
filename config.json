@@ -1,5 +1,5 @@
 {
-  "name"    : "cute",
+  "name"    : "gosa",
 
   "include" :
   [
@@ -37,9 +37,9 @@
 
   "let" :
   {
-    "APPLICATION"  : "cute",
+    "APPLICATION"  : "gosa",
     "QOOXDOO_PATH" : "../qooxdoo",
-    "QXTHEME"      : "cute.theme.Theme",
+    "QXTHEME"      : "gosa.theme.Theme",
     "API_EXCLUDE"  : ["qx.test.*", "${APPLICATION}.theme.*", "${APPLICATION}.test.*", "${APPLICATION}.simulation.*"],
     "LOCALES"      : [ "en", "de" ],
     "CACHE"        : "${ROOT}/cache/qx${QOOXDOO_VERSION}",
@@ -71,7 +71,7 @@
 
     "build-script":
     {
-      "include": ["cute.ui.widgets.*", "cute.ui.dialogs.*"],
+      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*"],
 
       "variants" : 
       { 
@@ -80,15 +80,15 @@
       "add-script" :
       [
         {
-          "uri" : "resource/cute/js/throbber.js"
+          "uri" : "resource/gosa/js/throbber.js"
         },
         {
-          "uri" : "resource/cute/js/utils.js"
+          "uri" : "resource/gosa/js/utils.js"
         }
       ],
       "copy-files" :
       {
-"files"     : [ "resource/cute/js/throbber.js", "resource/cute/js/utils.js" ],
+"files"     : [ "resource/gosa/js/throbber.js", "resource/gosa/js/utils.js" ],
         "source" : "source",
         "target"  : "build"
       },
@@ -113,7 +113,7 @@
 
     "source-script":
     {
-      "include": ["cute.ui.widgets.*", "cute.ui.dialogs.*"],
+      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*"],
 
       "variants" : 
       { 
@@ -126,10 +126,10 @@
       "add-script" :
       [
         {
-          "uri" : "resource/cute/js/throbber.js"
+          "uri" : "resource/gosa/js/throbber.js"
         },
         {
-          "uri" : "resource/cute/js/utils.js"
+          "uri" : "resource/gosa/js/utils.js"
         }
       ]
     },

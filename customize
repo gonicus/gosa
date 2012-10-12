@@ -7,17 +7,17 @@ if [ -z "$1" ]; then
 else
     echo ">>> customize: preparing index.html for build-final"
     
-    [ ! -d build/resource/cute/js ] && mkdir -p build/resource/cute/js
+    [ ! -d build/resource/gosa/js ] && mkdir -p build/resource/gosa/js
     sed "/BUILD::REMOVE::START/,/BUILD::REMOVE::END/d" \
         template/index.html.in > source/index.html
     
     # Loop thru libs and optimize them
-    for lib in source/resource/cute/js/*js; do
-      if [ "$lib" == "source/resource/cute/js/*js" ]; then
+    for lib in source/resource/gosa/js/*js; do
+      if [ "$lib" == "source/resource/gosa/js/*js" ]; then
 	      break
       fi
       libname=$(basename $lib)
       echo ">>> customize: optimizing $libname"
-      $QOOXDOO/tool/bin/compile.py $lib | grep -v '^>>' > build/resource/cute/js/$libname
+      $QOOXDOO/tool/bin/compile.py $lib | grep -v '^>>' > build/resource/gosa/js/$libname
     done
 fi

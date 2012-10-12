@@ -4,8 +4,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="apple-mobile-web-app-capable" content="yes" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script language='JavaScript' src='./resource/cute/js/throbber.js'></script>
-  <script language='JavaScript' src='./resource/cute/js/utils.js'></script>
+  <script language='JavaScript' src='./resource/gosa/js/throbber.js'></script>
+  <script language='JavaScript' src='./resource/gosa/js/utils.js'></script>
   <title>GOsa</title>
 
   <!-- Detect engine -->
@@ -32,15 +32,15 @@
     // Redirect to browser hint, if we cannot find a matching variant or platform
     if (!variant)
     {
-      window.location= "resource/cute/browser.html";
+      window.location= "resource/gosa/browser.html";
     }
 
     // Load matching GOsa according to variant
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src = "script/cute-" + variant + ".js"; 
+    script.src = "script/gosa-" + variant + ".js"; 
     //BUILD::REMOVE::START
-    script.src = "script/cute.js"; 
+    script.src = "script/gosa.js"; 
     //BUILD::REMOVE::END
     document.getElementsByTagName('head')[0].appendChild(script);
   </script>

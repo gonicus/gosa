@@ -11,81 +11,81 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: cute/Application.js:74
+#: gosa/Application.js:74
 msgid "GOsa protocol handler"
 msgstr ""
 
-#: cute/Application.js:144
+#: gosa/Application.js:144
 msgid "Can't determine session user"
 msgstr ""
 
-#: cute/Application.js:155
+#: gosa/Application.js:155
 msgid "Loading translation"
 msgstr ""
 
-#: cute/Application.js:161
+#: gosa/Application.js:161
 msgid "Can't fetch translation catalog"
 msgstr ""
 
-#: cute/Application.js:183
+#: gosa/Application.js:183
 msgid "Loading %1 template"
 msgstr ""
 
-#: cute/ui/Header.js:21
+#: gosa/ui/Header.js:21
 msgid "Edit your profile"
 msgstr ""
 
-#: cute/ui/Header.js:33
+#: gosa/ui/Header.js:33
 msgid "Logout"
 msgstr ""
 
-#: cute/ui/Header.js:63
+#: gosa/ui/Header.js:63
 msgid "Logged in:"
 msgstr ""
 
-#: cute/ui/ItemSelector.js:42
+#: gosa/ui/ItemSelector.js:42
 msgid "Choose"
 msgstr ""
 
-#: cute/ui/ItemSelector.js:44
+#: gosa/ui/ItemSelector.js:44
 msgid "Add"
 msgstr ""
 
-#: cute/ui/base/Buttons.js:29 cute/ui/ItemSelector.js:46
+#: gosa/ui/base/Buttons.js:29 gosa/ui/ItemSelector.js:46
 msgid "Cancel"
 msgstr ""
 
-#: cute/ui/Renderer.js:205
+#: gosa/ui/Renderer.js:205
 msgid "The object was out of date and has been refreshed!"
 msgstr ""
 
-#: cute/ui/Renderer.js:211
+#: gosa/ui/Renderer.js:211
 msgid "This object does not exist anymore!"
 msgstr ""
 
-#: cute/ui/Renderer.js:790
+#: gosa/ui/Renderer.js:790
 msgid "Extend"
 msgstr ""
 
-#: cute/ui/Renderer.js:795
+#: gosa/ui/Renderer.js:795
 msgid "Retract"
 msgstr ""
 
-#: cute/ui/Renderer.js:800
+#: gosa/ui/Renderer.js:800
 msgid "Action"
 msgstr ""
 
-#: cute/ui/Renderer.js:833
+#: gosa/ui/Renderer.js:833
 msgid "Failed to retract the %1 extension: %2"
 msgstr ""
 
-#: cute/ui/Renderer.js:887
+#: gosa/ui/Renderer.js:887
 msgid "Dependent extension"
 msgid_plural "Dependent extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:903
+#: gosa/ui/Renderer.js:903
 msgid ""
 "To retract the <b>%1</b> extension from this object, the following "
 "additional extension needs to be removed: %2"
@@ -95,19 +95,19 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:906
+#: gosa/ui/Renderer.js:906
 msgid "Do you want the dependent extension to be removed?"
 msgid_plural "Do you want the dependent extensions to be removed?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:981
+#: gosa/ui/Renderer.js:981
 msgid "Missing extension"
 msgid_plural "Missing extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:999
+#: gosa/ui/Renderer.js:999
 msgid ""
 "To extend the object by the <b>%1</b> extension, the following additional "
 "extension is required: %2"
@@ -117,263 +117,221 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:1002
+#: gosa/ui/Renderer.js:1002
 msgid "Do you want the missing extension to be added?"
 msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/ui/Renderer.js:1103
+#: gosa/ui/Renderer.js:1103
 msgid "Remove extension"
 msgstr ""
 
-#: cute/ui/base/Buttons.js:25
+#: gosa/ui/base/Buttons.js:25
 msgid "OK"
 msgstr ""
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:10
+#: gosa/ui/dialogs/ChangePasswordDialog.js:10
 msgid "Change password..."
 msgstr ""
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:44
+#: gosa/ui/dialogs/ChangePasswordDialog.js:44
 msgid "Encryption"
 msgstr ""
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:45
+#: gosa/ui/dialogs/ChangePasswordDialog.js:45
 msgid "New password"
 msgstr ""
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:46
+#: gosa/ui/dialogs/ChangePasswordDialog.js:46
 msgid "New password (repeated)"
 msgstr ""
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:75
+#: gosa/ui/dialogs/ChangePasswordDialog.js:75
 msgid "Set password"
 msgstr ""
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:113
+#: gosa/ui/dialogs/ChangePasswordDialog.js:113
 msgid "Passwords do not match!"
 msgstr ""
 
-#: cute/ui/dialogs/ChangePasswordDialog.js:131
+#: gosa/ui/dialogs/ChangePasswordDialog.js:131
 msgid "Password has been changed successfully."
 msgstr ""
 
-#: cute/ui/dialogs/Error.js:10 cute/ui/dialogs/RpcError.js:11
+#: gosa/ui/dialogs/Error.js:10 gosa/ui/dialogs/RpcError.js:11
 msgid "Error"
 msgstr ""
 
-#: cute/ui/dialogs/Info.js:10
+#: gosa/ui/dialogs/Info.js:10
 msgid "Info"
 msgstr ""
 
-#: cute/ui/dialogs/Loading.js:7
+#: gosa/ui/dialogs/Loading.js:7
 msgid "Initializing"
 msgstr ""
 
-#: cute/ui/dialogs/LoginDialog.js:7 cute/ui/dialogs/LoginDialog.js:37
+#: gosa/ui/dialogs/LoginDialog.js:7 gosa/ui/dialogs/LoginDialog.js:37
 msgid "Login"
 msgstr ""
 
-#: cute/ui/dialogs/LoginDialog.js:23
+#: gosa/ui/dialogs/LoginDialog.js:23
 msgid "Login ID"
 msgstr ""
 
-#: cute/ui/dialogs/LoginDialog.js:24
+#: gosa/ui/dialogs/LoginDialog.js:24
 msgid "Password"
 msgstr ""
 
-#: cute/ui/dialogs/LoginDialog.js:53
+#: gosa/ui/dialogs/LoginDialog.js:53
 msgid "Invalid login ..."
 msgstr ""
 
-#: cute/ui/dialogs/RemoveObject.js:10
+#: gosa/ui/dialogs/RemoveObject.js:10
 msgid "Remove object"
 msgstr ""
 
-#: cute/ui/dialogs/RemoveObject.js:15
+#: gosa/ui/dialogs/RemoveObject.js:15
 msgid ""
 "Do you want to remove this object including all of its references to other "
 "objects?"
 msgstr ""
 
-#: cute/ui/dialogs/RpcError.js:16
+#: gosa/ui/dialogs/RpcError.js:16
 msgid "Retry"
 msgstr ""
 
-#: cute/ui/dialogs/SendMessageDialog.js:10
+#: gosa/ui/dialogs/SendMessageDialog.js:10
 msgid "Send message..."
 msgstr ""
 
-#: cute/ui/dialogs/SendMessageDialog.js:32
+#: gosa/ui/dialogs/SendMessageDialog.js:32
 msgid "Subject"
 msgstr ""
 
-#: cute/ui/dialogs/SendMessageDialog.js:33
+#: gosa/ui/dialogs/SendMessageDialog.js:33
 msgid "Message"
 msgstr ""
 
-#: cute/ui/dialogs/SendMessageDialog.js:41
+#: gosa/ui/dialogs/SendMessageDialog.js:41
 msgid "Send"
 msgstr ""
 
-#: cute/ui/dialogs/Warning.js:10
+#: gosa/ui/dialogs/Warning.js:10
 msgid "Warning"
 msgstr ""
 
-#: cute/ui/widgets/MultiEditContainer.js:48
+#: gosa/ui/widgets/MultiEditContainer.js:48
 msgid "Add value"
 msgstr ""
 
-#: cute/ui/widgets/SingleSelector.js:113
-#: cute/ui/widgets/MultiEditContainer.js:54
+#: gosa/ui/widgets/SingleSelector.js:113
+#: gosa/ui/widgets/MultiEditContainer.js:54
 msgid "Remove value"
 msgstr ""
 
-#: cute/ui/widgets/QGraphicsViewWidget.js:33
+#: gosa/ui/widgets/QGraphicsViewWidget.js:33
 msgid "Image capture"
 msgstr ""
 
-#: cute/ui/widgets/QGraphicsViewWidget.js:64
+#: gosa/ui/widgets/QGraphicsViewWidget.js:64
 msgid "Upload new image"
 msgstr ""
 
-#: cute/ui/widgets/QGraphicsViewWidget.js:66
+#: gosa/ui/widgets/QGraphicsViewWidget.js:66
 msgid "Capture"
 msgstr ""
 
-#: cute/ui/widgets/QGraphicsViewWidget.js:69
+#: gosa/ui/widgets/QGraphicsViewWidget.js:69
 msgid "Remove image"
 msgstr ""
 
-#: cute/ui/widgets/SingleSelector.js:101
+#: gosa/ui/widgets/SingleSelector.js:101
 msgid "loading"
 msgstr ""
 
-#: cute/ui/widgets/SingleSelector.js:116 cute/ui/widgets/SingleSelector.js:133
+#: gosa/ui/widgets/SingleSelector.js:116 gosa/ui/widgets/SingleSelector.js:133
 msgid "Choose value"
 msgstr ""
 
-#: cute/view/Search.js:48
+#: gosa/view/Search.js:48
 msgid "Please enter your search..."
 msgstr ""
 
-#: cute/view/Search.js:54 cute/view/Search.js:67
+#: gosa/view/Search.js:54 gosa/view/Search.js:67
 msgid "Search"
 msgstr ""
 
-#: cute/view/Search.js:314
+#: gosa/view/Search.js:314
 msgid "%1 fuzzy result"
 msgid_plural "%1 fuzzy results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:314 cute/view/Search.js:316
+#: gosa/view/Search.js:314 gosa/view/Search.js:316
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:314
+#: gosa/view/Search.js:314
 msgid "no exact matches"
 msgstr ""
 
-#: cute/view/Search.js:316
+#: gosa/view/Search.js:316
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:343 cute/view/Search.js:377
+#: gosa/view/Search.js:343 gosa/view/Search.js:377
 msgid "All"
 msgstr ""
 
-#: cute/view/Search.js:368
+#: gosa/view/Search.js:368
 msgid "Category"
 msgstr ""
 
-#: cute/view/Search.js:371
+#: gosa/view/Search.js:371
 msgid "Secondary search"
 msgstr ""
 
-#: cute/view/Search.js:372
+#: gosa/view/Search.js:372
 msgid "Enabled"
 msgstr ""
 
-#: cute/view/Search.js:373
+#: gosa/view/Search.js:373
 msgid "Disabled"
 msgstr ""
 
-#: cute/view/Search.js:376
+#: gosa/view/Search.js:376
 msgid "Last modification"
 msgstr ""
 
-#: cute/view/Search.js:378
+#: gosa/view/Search.js:378
 msgid "Last hour"
 msgstr ""
 
-#: cute/view/Search.js:379
+#: gosa/view/Search.js:379
 msgid "Last 24 hours"
 msgstr ""
 
-#: cute/view/Search.js:380
+#: gosa/view/Search.js:380
 msgid "Last week"
 msgstr ""
 
-#: cute/view/Search.js:381
+#: gosa/view/Search.js:381
 msgid "Last month"
 msgstr ""
 
-#: cute/view/Search.js:382
+#: gosa/view/Search.js:382
 msgid "Last year"
 msgstr ""
 
-#: cute/view/Search.js:410
+#: gosa/view/Search.js:410
 msgid "Cannot remove entry!"
 msgstr ""
 
-#: cute/view/Search.js:433
+#: gosa/view/Search.js:433
 msgid "Object"
 msgstr ""
-
-#~ msgid "An error occured"
-#~ msgstr ""
-
-#~ msgid "Can't fetch internationalization catalog"
-#~ msgstr ""
-
-#~ msgid "Change image"
-#~ msgstr ""
-
-#~ msgid "Failed to remove the entry!"
-#~ msgstr ""
-
-#~ msgid "Loading"
-#~ msgstr ""
-
-#~ msgid "Loading internationalization"
-#~ msgstr ""
-
-#~ msgid "Logged in: %1"
-#~ msgstr ""
-
-#~ msgid "Method"
-#~ msgstr ""
-
-#~ msgid "Name"
-#~ msgstr ""
-
-#~ msgid "Ok"
-#~ msgstr ""
-
-#~ msgid "Open"
-#~ msgstr ""
-
-#~ msgid "This object was modified in the meantime and has been reloaded!"
-#~ msgstr ""
-
-#~ msgid "This object was removed in the meantime."
-#~ msgstr ""
-
-#~ msgid "Video capture"
-#~ msgstr ""
