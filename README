@@ -1,0 +1,42 @@
+Building
+========
+
+Prequisites
+-----------
+
+In order to build this web application, you need to download the qooxdoo
+framework first. Currently this is version 2.0.2, but any later should
+work, too.
+
+  http://downloads.sourceforge.net/qooxdoo/qooxdoo-2.0.2-sdk.zip
+
+Unzip this file into the parent directory of the gosa directory, so that you
+have this structure:
+
+  .../qooxdoo
+  .../gosa
+
+GOsa itself uses a couple of contributed modules which cannot be pulled
+from the original contrib project. They're included as a git submodule.
+Please initialize the submodules before proceeding:
+
+  git submodule init
+  git submodule update
+
+
+Building
+--------
+
+Do do a binary build, execute:
+
+  ./generate build
+
+in GOsa's top level directory. The directory "build" will contain a
+deployable version after that - which needs to be placed on a clacks-agent
+with the gosa-plugin enabled.
+
+If you try to run this standalone in a browser, you'll have to tweak
+your cross domain settings and setup proper webserver configurations to
+route /rpc, /cache, etc. accordingly.
+
+However - it is recommended to serve GOsa thru the clacks-agent.
