@@ -14,19 +14,23 @@ msgstr ""
 "X-Language: de_DE\n"
 "X-Source-Language: de\n"
 
-#: cute/Application.js:138
+#: cute/Application.js:74
+msgid "GOsa protocol handler"
+msgstr "GOsa Protkoll-Handler"
+
+#: cute/Application.js:144
 msgid "Can't determine session user"
 msgstr "Kann Sitzungs-Benutzer nicht bestimmen"
 
-#: cute/Application.js:149
+#: cute/Application.js:155
 msgid "Loading translation"
 msgstr "Lade Übersetzung"
 
-#: cute/Application.js:155
+#: cute/Application.js:161
 msgid "Can't fetch translation catalog"
 msgstr "Kann Übersetzungs-Katalog nicht beziehen"
 
-#: cute/Application.js:177
+#: cute/Application.js:183
 msgid "Loading %1 template"
 msgstr "Lade %1-Vorlage"
 
@@ -271,76 +275,76 @@ msgstr "Bitte geben Sie den Suchtext ein..."
 msgid "Search"
 msgstr "Suche"
 
-#: cute/view/Search.js:312
+#: cute/view/Search.js:314
 msgid "%1 fuzzy result"
 msgid_plural "%1 fuzzy results"
 msgstr[0] "%1 ungenaues Ergebnis"
 msgstr[1] "%1 ungenaue Ergebnisse"
 
-#: cute/view/Search.js:312 cute/view/Search.js:314
+#: cute/view/Search.js:314 cute/view/Search.js:316
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] "%1 Sekunde"
 msgstr[1] "%1 Sekunden"
 
-#: cute/view/Search.js:312
+#: cute/view/Search.js:314
 msgid "no exact matches"
 msgstr "keine exakten Treffer"
 
-#: cute/view/Search.js:314
+#: cute/view/Search.js:316
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] "%1 Ergebnis"
 msgstr[1] "%1 Ergebnisse"
 
-#: cute/view/Search.js:356 cute/view/Search.js:390
+#: cute/view/Search.js:343 cute/view/Search.js:377
 msgid "All"
 msgstr "Alle"
 
-#: cute/view/Search.js:381
+#: cute/view/Search.js:368
 msgid "Category"
 msgstr "Kategorie"
 
-#: cute/view/Search.js:384
+#: cute/view/Search.js:371
 msgid "Secondary search"
 msgstr "Sekundäre Suche"
 
-#: cute/view/Search.js:385
+#: cute/view/Search.js:372
 msgid "Enabled"
 msgstr "Aktiviert"
 
-#: cute/view/Search.js:386
+#: cute/view/Search.js:373
 msgid "Disabled"
 msgstr "Deaktiviert"
 
-#: cute/view/Search.js:389
+#: cute/view/Search.js:376
 msgid "Last modification"
 msgstr "Letzte Änderung"
 
-#: cute/view/Search.js:391
+#: cute/view/Search.js:378
 msgid "Last hour"
 msgstr "Letzte Stunde"
 
-#: cute/view/Search.js:392
+#: cute/view/Search.js:379
 msgid "Last 24 hours"
 msgstr "Letzte 24 Stunden"
 
-#: cute/view/Search.js:393
+#: cute/view/Search.js:380
 msgid "Last week"
 msgstr "Vorherige Woche"
 
-#: cute/view/Search.js:394
+#: cute/view/Search.js:381
 msgid "Last month"
 msgstr "Vorheriger Monat"
 
-#: cute/view/Search.js:395
+#: cute/view/Search.js:382
 msgid "Last year"
 msgstr "Vorheriges Jahr"
 
-#: cute/view/Search.js:423
+#: cute/view/Search.js:410
 msgid "Cannot remove entry!"
 msgstr "Eintrag kann nicht entfernt werden!"
 
-#: cute/view/Search.js:446
+#: cute/view/Search.js:433
 msgid "Object"
 msgstr "Objekt"

@@ -1,23 +1,23 @@
 {
   "info" : 
   {
-    "name" : "cute",
+    "name" : "GOsa",
 
-    "summary" : "",
+    "summary" : "GOsa - a fronted for the clacks framework",
     "description" : "",
     
-    "homepage" : "http://clacks-project.org/",
+    "homepage" : "http://gosa-project.org/",
 
     "license" : "LGPL 2.1",
     "authors" : 
     [
       {
         "name" : "GONICUS GmbH",
-        "email" : "pollmeier@gonicus.de"
+        "email" : "info@gonicus.de"
       }
     ],
 
-    "version" : "trunk",
+    "version" : "3.0",
     "qooxdoo-versions": ["2.0"]
   },
   

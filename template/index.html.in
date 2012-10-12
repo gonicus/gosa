@@ -2,14 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script language='JavaScript' src='./resource/cute/js/throbber.js'></script>
   <script language='JavaScript' src='./resource/cute/js/utils.js'></script>
   <title>GOsa</title>
 
-  <!-- Detect engine, detect languguage and load engine optimized ICE -->
+  <!-- Detect engine -->
   <script type="text/javascript">
-    var ge = null;
-    var google = null;
     var variant = null;
 
     // Get browser variant
@@ -34,9 +34,6 @@
     {
       window.location= "resource/cute/browser.html";
     }
-
-    // Find locale
-    var locale = (variant == "mshtml" ? navigator.userLanguage : navigator.language).toLowerCase();
 
     // Load matching GOsa according to variant
     var script = document.createElement("script");
