@@ -68,9 +68,11 @@ qx.Class.define("cute.Application",
       -------------------------------------------------------------------------
       */
 
-      // Stop the loading-throbber
-      //TODO: can this be removed?
-      //throb.stop();
+      // Optionally register protocol handler for clacks
+      var reg_path = window.location.origin + window.location.pathname;
+      if (navigator.registerProtocolHandler) {
+        navigator.registerProtocolHandler('web+gosa', reg_path + '#%s', this.tr('GOsa protocol handler'));
+      }
 
       // Document is the application root
       var doc = this.getRoot();

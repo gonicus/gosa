@@ -11,19 +11,23 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: cute/Application.js:138
+#: cute/Application.js:74
+msgid "GOsa protocol handler"
+msgstr ""
+
+#: cute/Application.js:144
 msgid "Can't determine session user"
 msgstr ""
 
-#: cute/Application.js:149
+#: cute/Application.js:155
 msgid "Loading translation"
 msgstr ""
 
-#: cute/Application.js:155
+#: cute/Application.js:161
 msgid "Can't fetch translation catalog"
 msgstr ""
 
-#: cute/Application.js:177
+#: cute/Application.js:183
 msgid "Loading %1 template"
 msgstr ""
 
@@ -258,77 +262,77 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: cute/view/Search.js:312
+#: cute/view/Search.js:314
 msgid "%1 fuzzy result"
 msgid_plural "%1 fuzzy results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:312 cute/view/Search.js:314
+#: cute/view/Search.js:314 cute/view/Search.js:316
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:312
+#: cute/view/Search.js:314
 msgid "no exact matches"
 msgstr ""
 
-#: cute/view/Search.js:314
+#: cute/view/Search.js:316
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cute/view/Search.js:356 cute/view/Search.js:390
+#: cute/view/Search.js:343 cute/view/Search.js:377
 msgid "All"
 msgstr ""
 
-#: cute/view/Search.js:381
+#: cute/view/Search.js:368
 msgid "Category"
 msgstr ""
 
-#: cute/view/Search.js:384
+#: cute/view/Search.js:371
 msgid "Secondary search"
 msgstr ""
 
-#: cute/view/Search.js:385
+#: cute/view/Search.js:372
 msgid "Enabled"
 msgstr ""
 
-#: cute/view/Search.js:386
+#: cute/view/Search.js:373
 msgid "Disabled"
 msgstr ""
 
-#: cute/view/Search.js:389
+#: cute/view/Search.js:376
 msgid "Last modification"
 msgstr ""
 
-#: cute/view/Search.js:391
+#: cute/view/Search.js:378
 msgid "Last hour"
 msgstr ""
 
-#: cute/view/Search.js:392
+#: cute/view/Search.js:379
 msgid "Last 24 hours"
 msgstr ""
 
-#: cute/view/Search.js:393
+#: cute/view/Search.js:380
 msgid "Last week"
 msgstr ""
 
-#: cute/view/Search.js:394
+#: cute/view/Search.js:381
 msgid "Last month"
 msgstr ""
 
-#: cute/view/Search.js:395
+#: cute/view/Search.js:382
 msgid "Last year"
 msgstr ""
 
-#: cute/view/Search.js:423
+#: cute/view/Search.js:410
 msgid "Cannot remove entry!"
 msgstr ""
 
-#: cute/view/Search.js:446
+#: cute/view/Search.js:433
 msgid "Object"
 msgstr ""
 
