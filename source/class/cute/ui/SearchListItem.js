@@ -149,6 +149,7 @@ qx.Class.define("cute.ui.SearchListItem", {
 
     reset: function(){
       this.setIsLoading(false);
+      this._onMouseOut();
     },
 
     /* Applies the loading state and toggles the 
