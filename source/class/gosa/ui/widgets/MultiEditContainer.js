@@ -1,3 +1,20 @@
+/*========================================================================
+
+   This file is part of the GOsa project -  http://gosa-project.org
+  
+   Copyright:
+      (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
+  
+   License:
+      LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
+  
+   See the LICENSE file in the project's top-level directory for details.
+
+   It is a modified version of the original one found in the qooxdoo
+   framework.
+
+======================================================================== */
+
 /* This is the visible part of the multiedit widgets
  * or in more detail it is just one line of an multi-edit widget.
  * If you've set more than one telehpone number, for example, then 
