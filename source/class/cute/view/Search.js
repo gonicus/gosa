@@ -281,8 +281,8 @@ qx.Class.define("cute.view.Search",
             // Memorize old query and display results
             if(!noListUpdate){
               this.showSearchResults(result, endTime - startTime, false, query);
+              this._old_query = query;
             }
-            this._old_query = query;
 
             if (callback) {
               callback.apply(this, [result, endTime - startTime]);
@@ -679,7 +679,9 @@ qx.Class.define("cute.view.Search",
 
       item.setDn(entry['dn']);
       item.setTitle(entry['title']);
+      item.setLastChanged(entry['lastChanged']);
       item.setRelevance(entry['relevance']);
+      item.setSecondary(entry['secondary']);
       item.setType(entry['tag']);
       item.setDescription(this._highlight(entry['description'], this._old_query));
       item.setIcon(icon);
