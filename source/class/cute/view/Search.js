@@ -531,6 +531,7 @@ qx.Class.define("cute.view.Search",
             }else{
               this.__removeEntry(entries_by_uuid[removed[i]]);
             }
+            this.updateFilter();
             qx.lang.Array.remove(this._removedObjects, removed[i]);
           }
 
@@ -540,6 +541,7 @@ qx.Class.define("cute.view.Search",
           for(var i=0; i<stillthere.length; i++){
             if(qx.lang.Array.contains(this._modifiedObjects, stillthere[i])){
               this.__updateEntry(entries_by_uuid[stillthere[i]]);
+              this.updateFilter();
             }
             qx.lang.Array.remove(this._modifiedObjects, stillthere[i]);
           }
@@ -552,6 +554,7 @@ qx.Class.define("cute.view.Search",
             }else{
               this.__addEntry(entries_by_uuid[added[i]]);
             }
+            this.updateFilter();
             qx.lang.Array.remove(this._createdObjects, added[i]);
           }
         }, true);
