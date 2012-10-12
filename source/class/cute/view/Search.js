@@ -654,11 +654,10 @@ qx.Class.define("cute.view.Search",
      * */
     __fadeOut: function(entry){
 
-      // Locate gui widget and fade it out 
-      //  - here
+      // Locate gui widget
       var item = this.__getModelEntryForUUID(entry['uuid']);
 
-      // Fade out the entry then then remove it
+      // Fade out the entry and then remove it
       var id;
       id = item.addListener("__fadeOutEvent", function(e){
           if(e.getData() == false){

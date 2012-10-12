@@ -159,16 +159,25 @@ qx.Class.define("cute.ui.SearchListItem", {
     __fadeOut: function(value, old_value, d){
       if(value === true){
 
-        this.setBackgroundColor("#F00");
-
         // We need to set this using a timer, else we will get
         // strange problems with the binding
         var timer = qx.util.TimerManager.getInstance();
         timer.start(function(userData, timerId){
-          this.setFadeOut(false);
-        }, 0, this, null, 1000);
+          var move = {duration: 500, keep: 100, keyFrames : {
+              0: {opacity: "1"},
+              100: { opacity: "0"}
+          }};
+          var el = q(this.getContentElement().getDomElement());
+          el.on("animationEnd", function(){
+              this.setFadeOut(false);    
+            }, this);
+          el.animate(move);
+        }, 0, this, null, 1);
       }else{
-        this.setBackgroundColor("#FFF");
+        var el = q(this.getContentElement().getDomElement());
+        if(el){
+          el.setStyle("opacity", "1");
+        }
       }
     },
 
