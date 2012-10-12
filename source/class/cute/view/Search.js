@@ -32,7 +32,8 @@ qx.Class.define("cute.view.Search",
         'mod-time': "all"
     };
     this._categories = {};
-    this.__now = new Date().getTime() / 1000;
+    var d = new Date();
+    this.__now = d.getTime() / 1000 + d.getTimezoneOffset() * 60;
 
     // Call super class and configure ourselfs
     this.base(arguments, "", cute.Config.getImagePath("apps/search.png", 32));
@@ -237,8 +238,9 @@ qx.Class.define("cute.view.Search",
     },
 
     updateFilter : function(e) {
+      var d = new Date();
       this.__selection = this.searchAid.getSelection();
-      this.__now = new Date().getTime() / 1000;
+      this.__now = d.getTime() / 1000 + d.getTimezoneOffset() * 60;
       this.resultList.refresh();
     },
 
