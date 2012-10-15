@@ -25,9 +25,14 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     this._tableData = [];
     this._resolvedNames = {};
 
-    this._createGui();
-    this._updatedTableData();
-    this._errorRows = [];
+    // Create the gui on demand
+    this.addListener("initCompleteChanged", function(e){
+        if(e.getData()){
+          this._createGui();
+          this._updatedTableData();
+          this._errorRows = [];
+        }
+      }, this);
   },
 
   destruct: function(){
