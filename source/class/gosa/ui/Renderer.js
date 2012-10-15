@@ -1106,8 +1106,8 @@ qx.Class.define("gosa.ui.Renderer",
           this.processTabStops(this._current_tabstops);
 
           // Transmit object property definitions to the widgets
-          for(var item in this._widgets){
-            this.processWidgetProperties(item);
+          for(var item in this._current_widgets){
+            this.processWidgetProperties(this._current_widgets[item]);
           }
 
           this.processBuddies(this._current_buddies);
@@ -1158,6 +1158,7 @@ qx.Class.define("gosa.ui.Renderer",
           w.setType(defs['type']);
           w.setUnique(defs['unique']);
           w.setValues(defs['values']);
+
           if(this._buddies[item] && this._widgets[this._buddies[item]]){
             w.setLabelText(this._widgets[this._buddies[item]].getText());
           }

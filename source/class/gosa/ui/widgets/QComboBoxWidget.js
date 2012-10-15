@@ -16,8 +16,19 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
 
   extend: gosa.ui.widgets.MultiEditWidget,
 
+  properties: {
+  
+    model: {
+      event: "modelChanged",
+      nullable: true,
+      init: null
+    }
+  },
+
   members: {
- 
+
+    _was_initialized: false,
+    _model_initialized: false,
     _default_value: "",
 
 
@@ -40,6 +51,7 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
       var w = this._getWidget(id);
       for(var item in w.getChildren()){
         if(w.getChildren()[item].getModel().getKey() == value){
+          console.log("SET", value, this._getWidgetValue(id));
           w.setSelection([w.getChildren()[item]]);
           break;
         }
@@ -50,10 +62,11 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
     /* Creates an input-widget depending on the echo mode (normal/password)
      * and connects the update listeners
      * */
-    _createWidget: function(){
+    _createWidget: function(id){
 
       var w = new qx.ui.form.SelectBox();
-      var controller = new qx.data.controller.List(this.getValues(), w, "value");
+      var controller = new qx.data.controller.List(null, w, "value");
+      this.bind("model", controller, "model");
 
       if(this.getPlaceholder()){
         w.setPlaceholder(this.getPlaceholder());
@@ -68,9 +81,11 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
 
       //controller.setIconPath('icon');
       //controller.setIconOptions(iconOptions);
-      controller.getSelection().addListener("change", function(){
-          this.addState("modified");
-          this._propertyUpdater();
+      w.addListener("changeSelection", function(e){
+          if(this._model_initialized){
+            this.addState("modified");
+            this._propertyUpdater();
+          }
         }, this);
 
       this.bind("valid", w, "valid");
@@ -78,6 +93,7 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
       return(w);
     },
 
+    
     /* Apply the widget values - fills the combobox selectables. 
      * */
     _applyValues: function(data){
@@ -141,7 +157,8 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
           }
         }
 
-        this.setValues(new qx.data.Array(items));
+        this.setModel(new qx.data.Array(items));
+        this._model_initialized = true;
       }
     },
 
