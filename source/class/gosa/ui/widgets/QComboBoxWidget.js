@@ -51,7 +51,6 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
       var w = this._getWidget(id);
       for(var item in w.getChildren()){
         if(w.getChildren()[item].getModel().getKey() == value){
-          console.log("SET", value, this._getWidgetValue(id));
           w.setSelection([w.getChildren()[item]]);
           break;
         }
