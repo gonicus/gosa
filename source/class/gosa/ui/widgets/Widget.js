@@ -201,6 +201,15 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       init : false,
       event: "_modifiedChanged",
       check : "Boolean"
+    },
+
+    /* Is set to true once the renderer has finished 
+     * preparing this widget
+     * */
+    initComplete : {
+      check : 'Boolean',
+      event: "initCompleteChanged",
+      init: false
     }
   },
 
@@ -283,7 +292,6 @@ qx.Class.define("gosa.ui.widgets.Widget", {
 
     _applyMandatory: function(value){
     },
- 
 
     /* Resets error messages
      * */

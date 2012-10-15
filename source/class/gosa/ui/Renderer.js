@@ -1123,6 +1123,10 @@ qx.Class.define("gosa.ui.Renderer",
             if(attrs_defs && qx.lang.Object.getKeys(attrs_defs['blocked_by']).length > 0){
               this._processBlockedBy(this._widgets[this._current_widgets[item]], attrs_defs['blocked_by']);
             }
+          
+            if(this._widgets[this._current_widgets[item]].hasState("gosaInput")){
+              this._widgets[this._current_widgets[item]].setInitComplete(true);
+            }
           }
 
         } else {

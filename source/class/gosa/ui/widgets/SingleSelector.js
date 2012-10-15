@@ -25,8 +25,12 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
     this._resolvedNames = {};
 
     // Create the gui on demand
-    this._createGui();
-    this.__updateVisibleText();
+    this.addListener("initCompleteChanged", function(e){
+        if(e.getData()){
+          this._createGui();
+          this.__updateVisibleText();
+        }
+      }, this);
   },
 
   destruct: function(){
