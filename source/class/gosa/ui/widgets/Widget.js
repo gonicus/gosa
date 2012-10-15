@@ -102,6 +102,13 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       init: false
     },
 
+    blocked: {
+      event: "_blockedChanged",
+      check: "Boolean",
+      nullable: true,
+      init: false
+    },
+
     defaultValue: {
       init: null,
       event: "_defaultValueChanged",
@@ -227,6 +234,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
      * */
     block: function(){
       this.exclude();
+      this.setBlocked(true);
       if(this.getBuddyOf()){
         this.getBuddyOf().exclude();
       }
@@ -236,6 +244,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
      * */
     unblock: function(){
       this.show();
+      this.setBlocked(false);
       if(this.getBuddyOf()){
         this.getBuddyOf().show();
       }

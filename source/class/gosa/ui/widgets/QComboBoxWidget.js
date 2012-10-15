@@ -16,6 +16,17 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
 
   extend: gosa.ui.widgets.MultiEditWidget,
 
+  construct: function(){
+    this.base(arguments);
+
+    this.addListenerOnce("initCompleteChanged", function(){
+        if(this._use_default && !this.isBlocked()){
+            this.addState("modified");
+            this._propertyUpdater();
+        }
+      }, this);
+  },
+
   properties: {
   
     model: {
@@ -29,7 +40,8 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
 
     _was_initialized: false,
     _model_initialized: false,
-    _default_value: "",
+    _default_value: null,
+    _use_default: false,
 
 
     /* Returns the value from the widget given by its id
@@ -81,6 +93,12 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
       //controller.setIconPath('icon');
       //controller.setIconOptions(iconOptions);
       w.addListener("changeSelection", function(e){
+
+         
+          if(this.isMandatory() && this.getValue().getItem(id) == this._default_value && this._getWidgetValue(id)){
+            this._use_default = true;
+          }
+
           if(this._model_initialized){
             this.addState("modified");
             this._propertyUpdater();

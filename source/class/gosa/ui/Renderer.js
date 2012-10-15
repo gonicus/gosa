@@ -435,6 +435,9 @@ qx.Class.define("gosa.ui.Renderer",
      * */
     configure : function()
     {
+      var okButton = gosa.ui.base.Buttons.getOkButton();
+      this.__okBtn = okButton;
+      this.__okBtn.setEnabled(false);
 
       // If there are extensions or more than one gui-page 
       // available for this object, then put all pages into a tab-page.
@@ -477,9 +480,6 @@ qx.Class.define("gosa.ui.Renderer",
         paddingTop: 11
       });
 
-      var okButton = gosa.ui.base.Buttons.getOkButton();
-      this.__okBtn = okButton;
-      this.__okBtn.setEnabled(false);
       okButton.addState("default");
       buttonPane.add(okButton);
 
