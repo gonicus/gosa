@@ -383,7 +383,6 @@ qx.Class.define("gosa.ui.Renderer",
          * Now check its result and set decorator for the widgets accordingly.
          * */
         case "propertyUpdateOnServer": {
-
             var data = e.getData();
             var name = data['property'];
             if(name in this._widget_to_page){
@@ -499,8 +498,8 @@ qx.Class.define("gosa.ui.Renderer",
 
         this._object.commit(function(result, error){
           if(error){
-            if(error.field){
-              this._object.fireDataEvent("propertyUpdateOnServer", {success: !error, error: error, property: error.field});
+            if(error.topic && error.topic in this._widget_to_page){
+              this._object.fireDataEvent("propertyUpdateOnServer", {success: !error, error: error, property: error.topic});
             }else{
               new gosa.ui.dialogs.Error(error.message).open();
             }
@@ -1082,19 +1081,7 @@ qx.Class.define("gosa.ui.Renderer",
           // Create a new tab-page with the generated gui as content.
           var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
           page.setLayout(new qx.ui.layout.VBox());
-
-          // If this is the first page, then add it directly, all other pages will be added on demand
-          if(this._tabContainer.getSelectables().length == 0){
-            page.add(info['widget']);
-          }else{
-            var func = function(widget, page){
-                return function(){
-                  page.add(widget);
-                };
-              };
-            var id = page.addListenerOnce("appear", func(info['widget'], page), this);
-            this.__bindings.push({id: id, widget: page});
-          }
+          page.add(info['widget']);
 
           this._extension_to_page[extension].push(page);
 

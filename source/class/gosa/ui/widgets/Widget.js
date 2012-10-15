@@ -28,10 +28,6 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     this.setValue(new qx.data.Array());
     this.setFocusable(true);
 
-    this.addListener("appear", function(){
-        this._visible = true;
-      }, this);
-
     this.addState("gosaWidget");
     this.addState("gosaInput");
   },
@@ -214,7 +210,6 @@ qx.Class.define("gosa.ui.widgets.Widget", {
 
   members: {
 
-    _visible : false,
     name: null,
 
 

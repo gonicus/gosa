@@ -21,10 +21,8 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     this.base(arguments);  
     this.setLayout(new qx.ui.layout.VBox(5));
 
-    // Generate the gui once it is shown
-    this.addListenerOnce("appear", function(){
-        this._generateGui();
-      }, this);
+    // Generate the gui
+    this._generateGui();
   },
 
   destruct : function(){
@@ -44,6 +42,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
 
   members: {
 
+    _ready: false,
     _default_value: null,
     _widgetContainer: null,
     _property_timer: null,
@@ -263,11 +262,6 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
      * All not needed widgets will be excluded from the viewport.
      * */
     _generateGui: function(){
-
-      // Do not generate input widgets if not visible
-      if(!this._visible){
-        return;
-      }
 
       // Do not forward events for input modifications while regenerating the gui
       this._skipUpdates = true;
