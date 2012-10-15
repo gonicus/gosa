@@ -252,8 +252,12 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
           this.addState("modified");
           this._propertyUpdater();
         }, this);
+        this.add(this._widgetContainer[id]);
       }
-      this.add(this._widgetContainer[id]);
+
+      if(this.isMandatory()){
+        this._markAsRequired(this._getWidget(id));
+      }
     },
 
 

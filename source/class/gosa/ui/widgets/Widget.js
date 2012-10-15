@@ -115,6 +115,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     },
 
     mandatory: {
+      check: "Boolean",
       init: false,
       event: "_mandatoryChanged",
       apply: "_applyMandatory"
