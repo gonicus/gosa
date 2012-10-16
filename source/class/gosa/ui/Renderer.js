@@ -357,7 +357,7 @@ qx.Class.define("gosa.ui.Renderer",
 
           for(var i=0; i<tabstops.length; i++){
             var w = this._widgets[tabstops[i]];
-            if(w.getReadOnly() || w.isBlocked() || !(w.isEnabled())){
+            if(w.getReadOnly() || w.isBlocked() || !(w.isEnabled()) || !(w.isFocusable())){
               continue;
             }
 
