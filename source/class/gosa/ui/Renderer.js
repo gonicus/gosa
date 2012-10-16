@@ -384,12 +384,12 @@ qx.Class.define("gosa.ui.Renderer",
          * */
         case "propertyUpdateOnServer": {
             var data = e.getData();
-            var name = data['property'];
-            if(name in this._widget_to_page){
-              this._tabContainer.setSelection([this._widget_to_page[name]]);
-            }
-            this.resetError(name);
             if(!data['success']){
+              var name = data['property'];
+              if(name in this._widget_to_page){
+                this._tabContainer.setSelection([this._widget_to_page[name]]);
+              }
+              this.resetError(name);
               this.setError(name, data['error']);
             }
           }; break;
