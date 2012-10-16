@@ -101,7 +101,10 @@ qx.Class.define("gosa.view.Search",
     this.add(this.searchResult, {flex: 1});
 
     // Bind search methods
-    sb.addListener("execute", this.doSearchE, this);
+    sb.addListener("execute", function(){
+        this._old_query = "";
+        this.doSearchE();
+      }, this);
     sf.addListener("keyup", this._handle_key_event, this);
     this.sf = sf;
 
