@@ -351,25 +351,32 @@ qx.Class.define("gosa.ui.Renderer",
 
     /* Applies the given tabstops to the gui widgets
      * */
-    processTabStops: function(tabstops)
+    processTabStops: function(tabstops, page)
     {
+      page.addListener("appear", function(){
+
+          for(var i=0; i<tabstops.length; i++){
+            var w = this._widgets[tabstops[i]];
+            if(w.getReadOnly() || w.isBlocked() || !(w.isEnabled())){
+              continue;
+            }
+
+            // Safari needs the timeout
+            // iOS and Firefox need it called immediately
+            // to be on the save side we do both
+            setTimeout(function() {
+              w.focus();
+            });
+            w.focus();
+            break;
+          }
+        }, this);
+
+
       for (var i= 0; i< tabstops.length; i++) {
         var w = tabstops[i];
-        if (i == 0) {
-
-          // Safari needs the timeout
-          // iOS and Firefox need it called immediately
-          // to be on the save side we do both
-          var _self = this;
-          var q = w;
-          setTimeout(function() {
-            _self._widgets[q].focus();
-          });
-
-          this._widgets[w].focus();
-        }
         if (this._widgets[w]) {
-          this._widgets[w].setTabIndex(i + 1);
+          this._widgets[w].setTabStopIndex((i + 1) * 20);
         }
       }
     },
@@ -438,6 +445,7 @@ qx.Class.define("gosa.ui.Renderer",
       var okButton = gosa.ui.base.Buttons.getOkButton();
       this.__okBtn = okButton;
       this.__okBtn.setEnabled(false);
+      this.__okBtn.setTabIndex(30000);
 
       // If there are extensions or more than one gui-page 
       // available for this object, then put all pages into a tab-page.
@@ -517,6 +525,7 @@ qx.Class.define("gosa.ui.Renderer",
 
       var cancelButton = gosa.ui.base.Buttons.getCancelButton();
       this.__cancelBtn = cancelButton;
+      this.__cancelBtn.setTabIndex(30001);
       buttonPane.add(cancelButton);
 
       cancelButton.addListener("click", function() {
@@ -1102,9 +1111,6 @@ qx.Class.define("gosa.ui.Renderer",
           // Add the page to the gui
           this._tabContainer.add(page);
 
-          // Connect this master-widget with the object properties, establish tabstops
-          this.processTabStops(this._current_tabstops);
-
           // Transmit object property definitions to the widgets
           for(var item in this._current_widgets){
             this.processWidgetProperties(this._current_widgets[item]);
@@ -1123,7 +1129,12 @@ qx.Class.define("gosa.ui.Renderer",
             if(attrs_defs && qx.lang.Object.getKeys(attrs_defs['blocked_by']).length > 0){
               this._processBlockedBy(this._widgets[this._current_widgets[item]], attrs_defs['blocked_by']);
             }
-          
+          }
+
+          // Connect this master-widget with the object properties, establish tabstops
+          this.processTabStops(this._current_tabstops, page);
+
+          for(item in this._current_widgets){
             if(this._widgets[this._current_widgets[item]].hasState("gosaInput")){
               this._widgets[this._current_widgets[item]].setInitComplete(true);
             }

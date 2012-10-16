@@ -61,6 +61,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditContainer", {
             "padding": 2,
             "margin": 0
             });
+    this.__addButton.setFocusable(false);
     this.__addButton.setAppearance("attribute-button");
     this.__addButton.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Add value")));
     this.__delButton = new qx.ui.form.Button(null, gosa.Config.getImagePath("actions/attribute-remove.png", "22")).set({
@@ -69,6 +70,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditContainer", {
             });
     this.__delButton.setAppearance("attribute-button");
     this.__delButton.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove value")));
+    this.__delButton.setFocusable(false);
 
     // Add the created container to ourselves to make it visible.
     this.add(this.__container, {flex: 1});

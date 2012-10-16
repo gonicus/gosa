@@ -19,6 +19,21 @@ qx.Theme.define("gosa.theme.Appearance",
   appearances :
   {
 
+    "tabview-page/button/label" :
+    {
+      alias : "label",
+
+      style : function(states)
+      {
+        return {
+          padding : [0, 1, 0, 1],
+          margin : states.focused ? 0 : 1,
+          decorator : states.focused ? "checkbox-focused" : undefined
+        };
+      }
+    },
+
+
     "table" :
     {
       style : function(states)

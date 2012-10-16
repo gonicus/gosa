@@ -26,10 +26,11 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     this.name = this.classname.replace(/^.*\./, "");
     this.base(arguments);  
     this.setValue(new qx.data.Array());
-    this.setFocusable(true);
 
     this.addState("gosaWidget");
     this.addState("gosaInput");
+
+    this.setFocusable(false);
   },
 
   destruct: function(){
@@ -138,6 +139,12 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       init: false
     },
 
+    tabStopIndex: {
+      event: "_changedTabStopIndex",
+      apply: "_applyTabStopIndex",
+      init: 1
+    },
+
     /* The values to display as selectables in the dropdown box
      * */ 
     values: {
@@ -217,6 +224,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     initComplete : {
       check : 'Boolean',
       event: "initCompleteChanged",
+      apply: "_initComplete",
       init: false
     }
   },
@@ -301,6 +309,12 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     },
 
     _applyMandatory: function(value){
+    },
+
+    _applyTabStopIndex: function(value){
+    },
+
+    _initComplete: function(){
     },
 
     /* Resets error messages

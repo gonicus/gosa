@@ -147,6 +147,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
             });
       this._actionBtn.setAppearance("attribute-button");
       this._actionBtn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Choose value")));
+      this._actionBtn.setFocusable(false);
 
       this.add(this._widget, {flex: 1});
       this.add(this._actionBtn);

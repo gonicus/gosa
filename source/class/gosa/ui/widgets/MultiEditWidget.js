@@ -49,6 +49,9 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     _current_length: 0,
     _skipUpdates: false,
 
+    _initComplete: function(){
+      this._generateGui();
+    },
 
     /* Sets an error message for this widgets
      * */
@@ -151,14 +154,12 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       if(!value.getLength()){
         value.push(this._default_value);
       }
-      this._generateGui();
     },
 
 
     /* This is the apply method for the multivalue-flag
      * */
     _applyMultivalue: function(){
-      this._generateGui();
     },
 
 
@@ -257,6 +258,11 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
 
       if(this.isMandatory()){
         this._markAsRequired(this._getWidget(id));
+      }
+
+      // Set the tabstop-index
+      if(id < 20){
+        this._getWidget(id).setTabIndex(this.getTabStopIndex() + id);
       }
     },
 

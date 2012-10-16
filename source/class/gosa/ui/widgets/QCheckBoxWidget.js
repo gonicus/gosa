@@ -71,6 +71,12 @@ qx.Class.define("gosa.ui.widgets.QCheckBoxWidget", {
 
     _chkBoxWidget: null,
 
+    /* Apply the tabstop index
+     * */
+    _applyTabStopIndex: function(index){
+      this._chkBoxWidget.setTabIndex(index);
+    },
+
     _applyLabel : function(value, old_value) {
       this._chkBoxWidget.setLabel(this.tr(value));
     },

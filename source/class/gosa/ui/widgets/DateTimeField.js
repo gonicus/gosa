@@ -13,6 +13,7 @@
 ======================================================================== */
 
 qx.Class.define("gosa.ui.widgets.DateTimeField", {
+
   extend: qx.ui.form.DateField,
 
   construct: function(){
