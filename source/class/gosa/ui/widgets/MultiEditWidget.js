@@ -21,8 +21,6 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     this.base(arguments);  
     this.setLayout(new qx.ui.layout.VBox(5));
 
-    this.setFocusable(true);
-
     // Generate the gui
     this._generateGui();
   },

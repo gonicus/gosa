@@ -22,7 +22,6 @@ qx.Class.define("gosa.ui.widgets.QCheckBoxWidget", {
 
     this._chkBoxWidget = new qx.ui.form.CheckBox();
     this.add(this._chkBoxWidget);
-    this.setFocusable(true);
 
     /* Once the widget gets visible add a listener which 
      * acts on the value modifications.
