@@ -18,13 +18,15 @@ qx.Class.define("gosa.Session",
 
   type: "singleton",
 
+  construct: function(){
+  
+    this.base(arguments);
+
+    gosa.io.WebSocket.getInstance().addListener("objectModified", this._objectEvent, this);
+    gosa.io.WebSocket.getInstance().addListener("objectRemoved", this._objectEvent, this);
+  },
+
   properties: {
-    "loggedInName": {
-      init : "",
-      check: "String",
-      nullable: true,
-      event: "_changedLoggedInName"
-    },
 
     /*! \brief  The currently logged in user as JS object.
       *          If nobody is logged in, it is 'null'.
@@ -65,33 +67,44 @@ qx.Class.define("gosa.Session",
       init : "",
       check: "String",
       nullable: true,
-      event: "_changedCn"
+      event: "_changedDn"
     }
   },
 
   members: {
+
+    _objectEvent: function(e){
+
+      // Skip events that are not for us
+      var data = e.getData();
+      if(data['uuid'] != this.getUuid()){
+        return;
+      }
+
+      // Act on the event type
+      if(data['changeType'] == "remove"){
+        this.logout();
+      }else if(data['changeType'] == "update"){
+        this._changedUser(this.getUser());
+      }
+    },
+
     _changedUser: function(name){
       if(name !== null){
         var rpc = gosa.io.Rpc.getInstance();
         rpc.cA(function(result, error){
-            gosa.proxy.ObjectFactory.openObject(function(result, error){
-                try{
-                  this._object = result;
-                  this._object.bind("sn[0]", this, "sn");
-                  this._object.bind("cn[0]", this, "cn");
-                  this._object.bind("givenName[0]", this, "givenName");
-                  this._object.bind("cn[0]", this, "loggedInName");
-                  this._object.uuid = result['uuid'];
-                  this.setDn(result['dn']);
-                  this.setUuid(result['uuid']);
-                }catch(e){
-                  this.error(e);
-                }
-
-              }, this, result['dn']);
+            this.setSn(result['sn']);
+            this.setCn(result['cn']);
+            this.setGivenName(result['givenName']);
+            this.setDn(result['dn']);
+            this.setUuid(result['uuid']);
           }, this, "getUserDetails");
       }else{
-        this.setLoggedInName(null);
+        this.setSn(null);
+        this.setCn(null);
+        this.setGivenName(null);
+        this.setDn(null);
+        this.setUuid(null);
       }
     },
 

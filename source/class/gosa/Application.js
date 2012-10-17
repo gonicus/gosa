@@ -98,7 +98,7 @@ qx.Class.define("gosa.Application",
       //
       var header = new gosa.ui.Header();
       doc.add(header, {left: 0, right: 0, top: 0});
-      gosa.Session.getInstance().bind("loggedInName", header, "loggedInName");
+      gosa.Session.getInstance().bind("cn", header, "loggedInName");
 
       //TODO: remove static view registration later on
       var search = new gosa.view.Search;
