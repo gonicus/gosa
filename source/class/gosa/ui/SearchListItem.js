@@ -162,7 +162,9 @@ qx.Class.define("gosa.ui.SearchListItem", {
 
 
     reset: function(){
-      this.setIsLoading(false);
+      if(this.isIsLoading()){
+        this.setIsLoading(false);
+      }
       this._onMouseOut();
     },
 
