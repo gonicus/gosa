@@ -61,11 +61,12 @@ qx.Class.define("gosa.io.Rpc", {
 
     /* Resolve an error code to an translated text.
      * */
-    resolveError: function(code, func, ctx){
+    resolveError: function(old_error, func, ctx){
       var rpc = gosa.io.Rpc.getInstance();
       rpc.cA(function(data, error){
+
           if(error){
-            func.apply(ctx, [error]);
+            func.apply(ctx, [old_error]);
           }else{
 
             // The default error message attribute is 'message'
@@ -78,7 +79,7 @@ qx.Class.define("gosa.io.Rpc", {
             }
             func.apply(ctx, [data]);
           }
-        }, rpc, "get_error", code, gosa.Tools.getLocale());
+        }, rpc, "get_error", old_error.code, gosa.Tools.getLocale());
     }
   },
 
@@ -195,12 +196,13 @@ qx.Class.define("gosa.io.Rpc", {
 
 
           // Parse additional information out of the error.message string.
-          if(error){
+          if(error && call['arguments'][0] != "get_error"){
 
             error.field = null;
 
             // Check for "<field> error-message" formats 
             if(error.message.match(/<[a-zA-Z0-9\-_ ]*>/)){
+
               error.field = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){ 
                   return(arguments[1]);
                 });
@@ -210,7 +212,8 @@ qx.Class.define("gosa.io.Rpc", {
 
               // Set processor to finished and then fetch the translated error message
               cl.running = false;
-              gosa.io.Rpc.resolveError(error.field, function(error_obj){
+
+              gosa.io.Rpc.resolveError(error, function(error_obj){
                   error = error_obj;
                   func_done();
                 }, this);
