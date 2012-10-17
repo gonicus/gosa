@@ -93,11 +93,15 @@ qx.Class.define("gosa.Session",
       if(name !== null){
         var rpc = gosa.io.Rpc.getInstance();
         rpc.cA(function(result, error){
-            this.setSn(result['sn']);
-            this.setCn(result['cn']);
-            this.setGivenName(result['givenName']);
-            this.setDn(result['dn']);
-            this.setUuid(result['uuid']);
+            if(error){
+              new gosa.ui.dialogs.Error("asdf", "asdf").open();
+            }else{
+              this.setSn(result['sn']);
+              this.setCn(result['cn']);
+              this.setGivenName(result['givenName']);
+              this.setDn(result['dn']);
+              this.setUuid(result['uuid']);
+            }
           }, this, "getUserDetails");
       }else{
         this.setSn(null);

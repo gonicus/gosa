@@ -140,9 +140,13 @@ qx.Class.define("gosa.Application",
       var rpc = gosa.io.Rpc.getInstance();
       rpc.cA(function(userid, error) {
         if (error) {
-          this.error("can't determine session user: " + error);
-          new gosa.ui.dialogs.Error(this.tr("Can't determine session user") + ": " + error).open();
-          gosa.Session.getInstance().setUser(null);
+          loadingDialog.close();
+          var d = new gosa.ui.dialogs.Error(this.tr("Insufficient permissions!"));
+          d.open();
+          d.addListener("close", function(){
+              loadingDialog.open();
+              gosa.Session.getInstance().logout();
+            }, this);
         } else {
           gosa.Session.getInstance().setUser(userid);
 
