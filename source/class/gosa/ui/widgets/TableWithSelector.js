@@ -102,7 +102,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       // Add new group membership
       this._table.addListener("dblclick", function(){
 
-          var d = new gosa.ui.ItemSelector(this.tr(this._editTitle), this.getValue().toArray(), 
+          var d = new gosa.ui.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(), 
           this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
 
           d.addListener("selected", function(e){
@@ -255,7 +255,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       var first = null;
       if('columns' in props){
         for(var col in props['columns']){
-          this._columnNames.push(this.tr(props['columns'][col]));
+          this._columnNames.push(this['tr'](props['columns'][col]));
           this._columnIDs.push(col);
           if(!first){
             first = col;

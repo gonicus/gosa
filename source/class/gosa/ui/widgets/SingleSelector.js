@@ -174,7 +174,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
           }else{
 
             // Open a new selection dialog.
-            var d = new gosa.ui.ItemSelector(this.tr(this._editTitle), this.getValue().toArray(), 
+            var d = new gosa.ui.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(), 
               this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames, true);
             d.addListener("selected", function(e){
               if(e.getData().length){
@@ -253,7 +253,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
       var first = null;
       if('columns' in props){
         for(var col in props['columns']){
-          this._columnNames.push(this.tr(props['columns'][col]));
+          this._columnNames.push(this['tr'](props['columns'][col]));
           this._columnIDs.push(col);
           if(!first){
             first = col;

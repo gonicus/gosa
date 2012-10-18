@@ -14,6 +14,7 @@
 
 /*
 #asset(gosa/*)
+#ignore(getThrobber)
  */
 
 qx.Class.define("gosa.ui.SearchListItem", {
@@ -22,9 +23,6 @@ qx.Class.define("gosa.ui.SearchListItem", {
   implement : [qx.ui.form.IModel],
   include : [qx.ui.form.MModelProperty],
 
-  /*
-   * @lint ignoreUndefined(getThrobber)
-   */
   construct: function(){
     this.base(arguments);
 
@@ -66,7 +64,6 @@ qx.Class.define("gosa.ui.SearchListItem", {
 
     // Append the throbber
     this._throbber = getThrobber({color: "#FFF", alpha: 1});
-
     this._throbber_pane = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
     this._throbber_pane.setBackgroundColor("#000");
     this._throbber_pane.setOpacity(0.2);

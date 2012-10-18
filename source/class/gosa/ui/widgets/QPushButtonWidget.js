@@ -43,7 +43,7 @@ qx.Class.define("gosa.ui.widgets.QPushButtonWidget",
 
     _setText : function(value)
     {
-      this._widget.setLabel(this.tr(value));
+      this._widget.setLabel(this['tr'](value));
     },
 
     /* Apply collected gui properties to this widet

@@ -266,7 +266,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       }
 
       if(props["placeholderText"] && props["placeholderText"]["string"]){
-        this.setPlaceholder(this.tr(props["placeholderText"]["string"]));
+        this.setPlaceholder(this['tr'](props["placeholderText"]["string"]));
       }
       if(props["echoMode"] && props["echoMode"]["enum"]){
         var echomode = props["echoMode"]["enum"];

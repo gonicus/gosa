@@ -13,7 +13,7 @@ else
     
     # Loop thru libs and optimize them
     for lib in source/resource/gosa/js/*js; do
-      if [ "$lib" == "source/resource/gosa/js/*js" ]; then
+      if [ "x$lib" = "xsource/resource/gosa/js/*js" ]; then
 	      break
       fi
       libname=$(basename $lib)

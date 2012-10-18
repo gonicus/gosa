@@ -338,7 +338,7 @@ qx.Class.define("gosa.view.Search",
         
         // Update categories
         if (!_categories[items[i]['tag']]) {
-          _categories[items[i]['tag']] = this.tr(items[i]['tag']);
+          _categories[items[i]['tag']] = this['tr'](items[i]['tag']);
         }
       }
 

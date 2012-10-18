@@ -78,7 +78,7 @@ qx.Class.define("gosa.ui.widgets.QCheckBoxWidget", {
     },
 
     _applyLabel : function(value, old_value) {
-      this._chkBoxWidget.setLabel(this.tr(value));
+      this._chkBoxWidget.setLabel(this['tr'](value));
     },
 
     /* Apply method for the value property.

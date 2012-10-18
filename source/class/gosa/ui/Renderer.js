@@ -592,7 +592,7 @@ qx.Class.define("gosa.ui.Renderer",
 
 
     _makeExtensionMenuEntry : function(ext, props, resources) {
-      var eb = new qx.ui.menu.Button(this.tr(this.getStringProperty('windowTitle', props)),
+      var eb = new qx.ui.menu.Button(this['tr'](this.getStringProperty('windowTitle', props)),
         this.getIconProperty('windowIcon', props, resources));
       var id = eb.addListener("execute", function() {
         this.extendObjectWith(ext);
@@ -604,7 +604,7 @@ qx.Class.define("gosa.ui.Renderer",
     },
 
     _makeRetractMenuEntry : function(ext, props, resources) {
-      var eb = new qx.ui.menu.Button(this.tr(this.getStringProperty('windowTitle', props)),
+      var eb = new qx.ui.menu.Button(this['tr'](this.getStringProperty('windowTitle', props)),
         this.getIconProperty('windowIcon', props, resources));
       var id = eb.addListener("execute", function() {
         this.retractObjectFrom(ext);
@@ -628,7 +628,7 @@ qx.Class.define("gosa.ui.Renderer",
         }
       }
 
-      var label = this.tr(this.getStringProperty("text", props));
+      var label = this['tr'](this.getStringProperty("text", props));
       var icon = this.getIconProperty("icon", props, resources);
       var dialog = this.getStringProperty("dialog", props);
       var target = this.getStringProperty("target", props);
@@ -1088,7 +1088,7 @@ qx.Class.define("gosa.ui.Renderer",
           }
 
           // Create a new tab-page with the generated gui as content.
-          var page = new qx.ui.tabview.Page(this.tr(info['widget'].title_), info['widget'].icon_);
+          var page = new qx.ui.tabview.Page(this['tr'](info['widget'].title_), info['widget'].icon_);
           page.setLayout(new qx.ui.layout.VBox());
           page.add(info['widget']);
 
@@ -1748,7 +1748,7 @@ qx.Class.define("gosa.ui.Renderer",
     {
       var title = this.getStringProperty('title', props);
       //TODO: create a group box with icons
-      var widget = new gosa.ui.widgets.GroupBox(this.tr(title));
+      var widget = new gosa.ui.widgets.GroupBox(this['tr'](title));
       this.processCommonProperties(name, widget, props);
       this._widgets[name] = widget;
       this.__add_widget_to_extension(name, loc);
@@ -1768,7 +1768,7 @@ qx.Class.define("gosa.ui.Renderer",
       // Set tooltip
       var tooltip = this.getStringProperty('toolTip', props);
       if (tooltip != null) {
-        widget.setToolTip(new qx.ui.tooltip.ToolTip(this.tr(tooltip)));
+        widget.setToolTip(new qx.ui.tooltip.ToolTip(this['tr'](tooltip)));
       }
 
       // Set ro mode

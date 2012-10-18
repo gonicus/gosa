@@ -83,7 +83,7 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
 
         // Extract potential key bindings from label text
         var regex = /^(.*)(&(.))(.*$)/g;
-        var match = regex.exec(this.tr(text));
+        var match = regex.exec(this['tr'](text));
         this._command = null;
 
         if (match) {
@@ -91,7 +91,7 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
           this._command = match[3];
           this._widget.setValue(text);
         } else {
-          text = this.tr(text);
+          text = this['tr'](text);
           this._widget.setValue(text);
         }
         this._text = text;
