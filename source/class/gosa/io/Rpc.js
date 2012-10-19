@@ -66,6 +66,9 @@ qx.Class.define("gosa.io.Rpc", {
       rpc.cA(function(data, error){
 
           if(error){
+            if(!old_error.message){
+              old_error.message = old_error.text;
+            }
             func.apply(ctx, [old_error]);
           }else{
 
@@ -79,7 +82,7 @@ qx.Class.define("gosa.io.Rpc", {
             }
             func.apply(ctx, [data]);
           }
-        }, rpc, "get_error", old_error.code, gosa.Tools.getLocale());
+        }, rpc, "get_error", old_error.field, gosa.Tools.getLocale());
     }
   },
 

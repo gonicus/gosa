@@ -45,6 +45,12 @@ qx.Class.define("gosa.Session",
       nullable: true,
       event: "_changedUUID"
     },
+    "base": {
+      init : "",
+      check: "String",
+      nullable: true,
+      event: "_changedBase"
+    },
     "sn": {
       init : "",
       check: "String",

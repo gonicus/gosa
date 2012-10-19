@@ -138,12 +138,7 @@ qx.Class.define("gosa.proxy.Object", {
         }
 
         rpc.cA(function(result, error) {
-          this.fireDataEvent("propertyUpdateOnServer", {success: !error, error: error, property: name});
-          if(!error){
-            that.debug("update property value " + name + ": "+ rpc_value);
-          }else{
-            that.error("failed to update property value for " + name + "(" + error.message + ")");
-          }
+          that.fireDataEvent("propertyUpdateOnServer", {success: !error, error: error, property: name});
         }, this ,"setObjectProperty", this.instance_uuid, name, rpc_value);
       }
     },

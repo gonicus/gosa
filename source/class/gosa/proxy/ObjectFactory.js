@@ -128,22 +128,23 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
 
           // Load object info - base type, extension types
           rpc.cA(function(data, error){
-            if(!error){
+            if(error){
+              c_callback.apply(c_context, [null, error]); 
+            }else{
               baseType = data['base'];
               extensionTypes = data['extensions'];
               extensionDeps = data['extension_deps'];
 
               rpc.cA(function(_attribute_data, error) {
-
-                if(!error){
+                if(error){
+                  c_callback.apply(c_context, [null, error]); 
+                }else{
                   // Call the result handling method, we had defined earlier above.
                   attribute_data = _attribute_data;
                   _handleResult(userData);
                 }
               }, this, "dispatchObjectMethod", uuid, "get_attributes", true);
 
-            }else{
-              this.error(error);
             }
           }, this, "dispatchObjectMethod", uuid, "get_object_info", locale, theme);
         }

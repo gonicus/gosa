@@ -395,9 +395,11 @@ qx.Class.define("gosa.ui.Renderer",
               var name = data['property'];
               if(name in this._widget_to_page){
                 this._tabContainer.setSelection([this._widget_to_page[name]]);
+                this.resetError(name);
+                this.setError(name, data['error']);
+              }else{
+                new gosa.ui.dialogs.Error(data['error'].message).open();
               }
-              this.resetError(name);
-              this.setError(name, data['error']);
             }
           }; break;
       }

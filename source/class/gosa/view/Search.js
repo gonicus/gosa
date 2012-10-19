@@ -276,14 +276,16 @@ qx.Class.define("gosa.view.Search",
       }
       
       var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA(function(result, error){
-        if(!error){
-          var base = result;
-          var startTime = new Date().getTime();
+      var base = gosa.Session.getInstance().getBase();
+      var startTime = new Date().getTime();
 
-          // Try ordinary search
-          rpc.cA(function(result, error){
-  
+      // Try ordinary search
+      rpc.cA(function(result, error){
+
+          if(error){
+            var d = new gosa.ui.dialogs.Error(this.tr("Insufficient permissions!"));
+            d.open();
+          }else{
             var endTime = new Date().getTime();
 
             // Memorize old query and display results
@@ -295,9 +297,8 @@ qx.Class.define("gosa.view.Search",
             if (callback) {
               callback.apply(this, [result, endTime - startTime]);
             }
-          }, this, "search", base, "sub", query, this.__default_selection);
-        }
-      }, this, "getBase");
+          }
+        }, this, "search", base, "sub", query, this.__default_selection);
     },
 
     showSearchResults : function(items, duration, fuzzy, query) {

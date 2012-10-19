@@ -176,6 +176,27 @@ qx.Class.define("gosa.Application",
             };
           queue.push(translation);
 
+          // Fetch base
+          var get_base = {};
+          get_base['message'] = this.tr("Loading base");
+          get_base['context'] = this;
+          get_base['params'] = ["getBase"];
+          get_base['func'] = function(result, error){
+              if (error) {
+                var d = new gosa.ui.dialogs.Error(this.tr("Cannot fetch base. Insufficient permissions!"));
+                d.open();
+                d.addListener("close", function(){
+                    loadingDialog.open();
+                    gosa.Session.getInstance().logout();
+                  }, this);
+                return(false);
+              } else {
+                gosa.Session.getInstance().setBase(result);
+                return(true);
+              }
+            };
+          queue.push(get_base);
+
           // Add prefetching of the gui templates - one job per object-type.
 
           // Request a list of all available object-types to be able
