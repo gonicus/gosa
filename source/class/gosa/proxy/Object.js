@@ -78,7 +78,11 @@ qx.Class.define("gosa.proxy.Object", {
         this.fireEvent("removed");
       }else if(data['changeType'] == "update"){
         if(!this.is_reloading){
-          this.reload(function(result, error){}, this);
+          this.reload(function(result, error){
+              if(error){
+                new gosa.ui.dialogs.Error(error.message).open();
+              }
+            }, this);
         }
       }
     },
@@ -170,9 +174,11 @@ qx.Class.define("gosa.proxy.Object", {
       this.is_reloading = true;
       var rpc = gosa.io.Rpc.getInstance();
       rpc.cA(function(data, error){
-          this._setAttributes(data);
-          this.is_reloading = false;
-          this.fireEvent("reloaded");
+          if(!error){
+            this._setAttributes(data);
+            this.is_reloading = false;
+            this.fireEvent("reloaded");
+          }
           cb.apply(ctx, [data, error]);
         }, this, "reloadObject", this.instance_uuid);
     },

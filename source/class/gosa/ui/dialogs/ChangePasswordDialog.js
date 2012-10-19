@@ -36,12 +36,17 @@ qx.Class.define("gosa.ui.dialogs.ChangePasswordDialog", {
     var method = new qx.ui.form.SelectBox();
     var rpc = gosa.io.Rpc.getInstance();
     rpc.cA(function(result, error){
-        for(var item in result){
-          var tempItem = new qx.ui.form.ListItem(result[item], null, result[item]);
-          method.add(tempItem);
+        if(error){
+          new gosa.ui.dialogs.Error(error.message).open();
+          this.close();
+        }else{
+          for(var item in result){
+            var tempItem = new qx.ui.form.ListItem(result[item], null, result[item]);
+            method.add(tempItem);
 
-          if(current == result[item]){
-            method.setSelection([tempItem]);
+            if(current == result[item]){
+              method.setSelection([tempItem]);
+            }
           }
         }
       }, this, "listPasswordMethods");
