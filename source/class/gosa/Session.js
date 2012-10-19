@@ -94,7 +94,11 @@ qx.Class.define("gosa.Session",
         var rpc = gosa.io.Rpc.getInstance();
         rpc.cA(function(result, error){
             if(error){
-              new gosa.ui.dialogs.Error("asdf", "asdf").open();
+              var d = new gosa.ui.dialogs.Error(new qx.ui.core.Widget().tr("Cannot load user details. Insufficient permissions!"));
+              d.open();
+              d.addListener("close", function(){
+                  gosa.Session.getInstance().logout();
+                }, this);
             }else{
               this.setSn(result['sn']);
               this.setCn(result['cn']);

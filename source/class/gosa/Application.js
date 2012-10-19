@@ -161,11 +161,17 @@ qx.Class.define("gosa.Application",
           translation['params'] = ["getTemplateI18N", locale, theme];
           translation['func'] = function(result, error){
               if (error) {
-                this.error("Can't fetch translation catalog: " + error);
-                new gosa.ui.dialogs.Error(this.tr("Can't fetch translation catalog") + ": " + error).open();
+                var d = new gosa.ui.dialogs.Error(this.tr("Cannot fetch translations. Insufficient permissions!"));
+                d.open();
+                d.addListener("close", function(){
+                    loadingDialog.open();
+                    gosa.Session.getInstance().logout();
+                  }, this);
+                return(false);
               } else {
                 var lm = qx.locale.Manager.getInstance();
                 lm.addTranslation(qx.locale.Manager.getInstance().getLocale(), result);
+                return(true);
               }
             };
           queue.push(translation);
@@ -177,30 +183,51 @@ qx.Class.define("gosa.Application",
           var that = this;
           rpc.cA(function(result, error){
 
-              // This method creates a loading-queue entry
-              // which loads the gui-templates for the given
-              // object type
-              // (This needs to a closure, due to the fact that 
-              // 'item' will change in the loop...)
-              var addFunc = function(name){
-                  var data = {};
-                  data['message'] = that.tr("Loading %1 template", name);
-                  data['context'] = this;
-                  data['params'] = ["getGuiTemplates", name, theme];
-                  data['func'] = function(templates, error){
-                      this.__checkForActionsInUIDefs(templates, name);
-                      gosa.Cache.gui_templates[name] = templates;
+              if(error){
+                var d = new gosa.ui.dialogs.Error(this.tr("Cannot fetch object details. Insufficient permissions!"));
+                d.open();
+                d.addListener("close", function(){
+                    loadingDialog.open();
+                    gosa.Session.getInstance().logout();
+                  }, this);
+              }else{
+
+                // This method creates a loading-queue entry
+                // which loads the gui-templates for the given
+                // object type
+                // (This needs to a closure, due to the fact that 
+                // 'item' will change in the loop...)
+                var addFunc = function(name){
+                    var data = {};
+                    data['message'] = that.tr("Loading %1 template", name);
+                    data['context'] = this;
+                    data['params'] = ["getGuiTemplates", name, theme];
+                    data['func'] = function(templates, error){
+                      if(error){
+                        var d = new gosa.ui.dialogs.Error(this.tr("Cannot gui templates. Insufficient permissions!"));
+                        d.open();
+                        d.addListener("close", function(){
+                            loadingDialog.open();
+                            gosa.Session.getInstance().logout();
+                          }, this);
+                        return(false);
+                      }else{
+                        this.__checkForActionsInUIDefs(templates, name);
+                        gosa.Cache.gui_templates[name] = templates;
+                        return(true);
+                      }
                     };
-                  return(data);
-                };
+                    return(data);
+                  };
 
-              // Append a queue entry for each kind of object.
-              for(var item in result){
-                queue.push(addFunc.apply(this, [result[item]])); 
+                // Append a queue entry for each kind of object.
+                for(var item in result){
+                  queue.push(addFunc.apply(this, [result[item]])); 
+                }
+
+                // Start the queue processing now
+                this.__handleQueue(queue, loadingDialog);
               }
-
-              // Start the queue processing now
-              this.__handleQueue(queue, loadingDialog);
 
             }, this, "getAvailableObjectNames");
 
@@ -325,10 +352,11 @@ qx.Class.define("gosa.Application",
       var callback = function(result, error){
 
           // Call the original callback method
-          item['func'].apply(item['context'], [result, error]);
+          if(item['func'].apply(item['context'], [result, error])){
 
-          // .. and trigger the queue processor.
-          this.__handleQueue(data, dialog);
+            // .. and trigger the queue processor.
+            this.__handleQueue(data, dialog);
+          }
         };
 
       var params = [callback, this].concat(item['params']);
