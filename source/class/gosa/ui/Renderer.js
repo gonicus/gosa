@@ -516,7 +516,7 @@ qx.Class.define("gosa.ui.Renderer",
           }else{
             this._object.close(function(result, error){
               if(error){
-                new gosa.ui.dialogs.Error(error.message).open();
+                new gosa.ui.dialogs.Error(this.tr(error.message)).open();
               }else{
                 this.fireEvent("done");
               }
@@ -687,8 +687,14 @@ qx.Class.define("gosa.ui.Renderer",
           eb.addListener("appear", function(){
             var rpc = gosa.io.Rpc.getInstance();
             rpc.cA.apply(rpc, [function(result, error){
-                result = (state[1] == "!") ? !result : result;
-                eb.setEnabled(result);
+
+                if(error){
+                  new gosa.ui.dialogs.Error(error.message).open();
+                  eb.setEnabled(false);
+                }else{
+                  result = (state[1] == "!") ? !result : result;
+                  eb.setEnabled(result);
+                }
               }, this, method].concat(args));
             }, this);
 
