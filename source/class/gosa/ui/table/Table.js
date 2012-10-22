@@ -142,7 +142,11 @@ qx.Class.define("gosa.ui.table.Table",
       if(gosa.Session.getInstance().getUser() && !this.comparePreferences(prefs, this.__lastPreferences)){
         var rpc = gosa.io.Rpc.getInstance();
         rpc.cA(function(result, error){
-            gosa.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
+            if(error){
+              new gosa.ui.dialogs.Error(error.message).open();
+            }else{
+              gosa.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
+            }
           }, this, "saveUserPreferences", this.__preferenceName, prefs);
       }
       this.__lastPreferences = prefs;
@@ -223,8 +227,12 @@ qx.Class.define("gosa.ui.table.Table",
         // Check the user model for table preferences 
         var rpc = gosa.io.Rpc.getInstance();
         rpc.cA(function(prefs, error){
-            gosa.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
-            loadPrefs.apply(this, [prefs]);
+            if(error){
+              new gosa.ui.dialogs.Error(error.message).open();
+            }else{
+              gosa.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
+              loadPrefs.apply(this, [prefs]);
+            }
           }, this, "loadUserPreferences", gosa.Session.getInstance().getUser(), this.__preferenceName);
       }
     },
