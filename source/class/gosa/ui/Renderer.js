@@ -516,7 +516,7 @@ qx.Class.define("gosa.ui.Renderer",
           }else{
             this._object.close(function(result, error){
               if(error){
-                new gosa.ui.dialogs.Error(this.tr(error.message)).open();
+                new gosa.ui.dialogs.Error(error.message).open();
               }else{
                 this.fireEvent("done");
               }
@@ -1781,8 +1781,15 @@ qx.Class.define("gosa.ui.Renderer",
 
       // Set ro mode
       var readonly = this.getBoolProperty('readOnly', props);
-      if (readonly != null) {
-        widget.setReadOnly(readonly);
+      if (readonly === null) {
+        readonly = false;
+      }
+      var enabled = this.getBoolProperty('enabled', props);
+      if (enabled === null) {
+        enabled = true;
+      }
+      if(widget.setReadOnly && (readonly || !enabled)){
+        widget.setReadOnly(true);
       }
 
       // Set maximum size

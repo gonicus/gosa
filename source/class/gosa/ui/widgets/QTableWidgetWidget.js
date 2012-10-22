@@ -38,7 +38,7 @@ qx.Class.define("gosa.ui.widgets.QTableWidgetWidget", {
           "labelText","extension","guiProperties","caseSensitive",
           "blockedBy","defaultValue","dependsOn","mandatory", 
           "type","unique","values","readOnly","multivalue",
-          "initComplete",
+          "initComplete", "enabled",
           "value","required","placeholder","maxLength","modified"];
 
     /* Create the multi-select style widget or the single select

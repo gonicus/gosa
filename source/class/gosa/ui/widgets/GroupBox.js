@@ -19,6 +19,18 @@ qx.Class.define("gosa.ui.widgets.GroupBox", {
 
   extend: qx.ui.groupbox.GroupBox,
 
+  properties: {
+      
+    /* Whether the widget is a read only
+     * */
+    readOnly : {
+      check : 'Boolean',
+      apply: '_applyReadOnly',
+      event: "_readOnlyChanged",
+      init: false
+    }
+  },
+
   construct: function(title){
     this.base(arguments, title);
 
@@ -46,6 +58,11 @@ qx.Class.define("gosa.ui.widgets.GroupBox", {
   members: {
 
     __gosaChildList: null,
+
+    _applyReadOnly: function(bool)
+    {
+      this.setEnabled(!bool);
+    },
     
     /* Check if all elements of this group-box are hidden, in this case
      * hide the group box too.
@@ -76,6 +93,7 @@ qx.Class.define("gosa.ui.widgets.GroupBox", {
 
         if(current[i].hasState && current[i].hasState("gosaInput")){
           children.push(current[i]); 
+          current[i].setEnabled(this.getEnabled());
           current[i].addListener("changeVisibility", this.__check, this);      
         }
 

@@ -64,7 +64,6 @@ qx.Class.define("gosa.io.Rpc", {
     resolveError: function(old_error, func, ctx){
       var rpc = gosa.io.Rpc.getInstance();
       rpc.cA(function(data, error){
-
           if(error){
             if(!old_error.message){
               old_error.message = old_error.text;
