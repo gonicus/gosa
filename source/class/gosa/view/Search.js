@@ -40,7 +40,7 @@ qx.Class.define("gosa.view.Search",
 
     // Call super class and configure ourselfs
     this.base(arguments, "", gosa.Config.getImagePath("apps/search.png", 32));
-    this._excludeChildControl("label");
+    this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.VBox(5));
 
     // Create search field / button

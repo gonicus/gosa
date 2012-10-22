@@ -26,7 +26,7 @@ qx.Class.define("gosa.view.Settings",
   {
     // Call super class and configure ourselfs
     this.base(arguments, "", gosa.Config.getImagePath("apps/settings.png", 32));
-    this._excludeChildControl("label");
+    this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.VBox(5));
   }
 });
