@@ -26,9 +26,7 @@ qx.Theme.define("gosa.theme.Appearance",
       style : function(states)
       {
         return {
-          padding : [0, 1, 0, 1],
-          margin : states.focused ? 0 : 1,
-          decorator : states.focused ? "checkbox-focused" : undefined
+          font: states.focused ? 'underline' : 'default'
         };
       }
     },

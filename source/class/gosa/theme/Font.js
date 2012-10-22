@@ -18,6 +18,15 @@ qx.Theme.define("gosa.theme.Font",
 
   fonts :
   {
+    "underline" :
+    {
+      size : 12,
+      family : ["Lucida Grande", "DejaVu Sans", "Verdana", "sans-serif"],
+      color: "font",
+      lineHeight: 1.8,
+      decoration: "underline"
+    },
+
     "SearchResultTitle" :
       {
         size : 13,
