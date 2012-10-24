@@ -154,6 +154,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       if(!value.getLength()){
         value.push(this._default_value);
       }
+      this._generateGui();
     },
 
 
