@@ -62,7 +62,7 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
             gosa.Config.getImagePath("actions/attribute-capture.png", 22));
     cap_button.setWidth(64);
     cap_button.addListener('execute', function() {
-        var data = this.__cap.getImageData('jpeg', 80, 0, 480, 480, 0, 0, 200, 200).split(/,(.+)?/)[1];
+        var data = this.__cap.getImageData('jpeg', 0, 0, 200, 200).split(/,(.+)?/)[1];
         this.setValue(new qx.data.Array([new gosa.io.types.Binary(data)]));
         this.fireDataEvent("changeValue", this.getValue());
         this.__cap.stop();
