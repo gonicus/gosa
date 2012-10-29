@@ -11,7 +11,6 @@
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
-
 qx.Class.define("gosa.ui.dialogs.LoginDialog",
 {
   extend : gosa.ui.dialogs.Dialog,
@@ -92,7 +91,8 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
 
     this.setFocusOrder([uid, password, login]);
 
-    if(qx.core.Environment.get("qx.debug")){
+    // Automatically fill in username and password if wanted
+    if(gosa.LocalConfig.autologin){
       uid.setValue(gosa.LocalConfig.user);
       password.setValue(gosa.LocalConfig.password);
       login.execute();

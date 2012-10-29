@@ -173,9 +173,14 @@ qx.Class.define("gosa.io.Rpc", {
           }, cl);
 
           // Catch potential errors here. 
-        }else if(error &&  error.code >= 400){
+        }else if(error && (error.code >= 400 || error.code == 0)){
 
-          var d = new gosa.ui.dialogs.RpcError(error.message);
+          var msg = error.message;
+          if(error.code == 0){
+            msg = new qx.ui.core.Widget().tr("Communication with the backend failed! Is the service running?");
+          }
+
+          var d = new gosa.ui.dialogs.RpcError(msg);
           d.addListener("retry", function(){
             cl.queue.push(call);
             cl.running = false;
