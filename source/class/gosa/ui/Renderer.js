@@ -558,37 +558,41 @@ qx.Class.define("gosa.ui.Renderer",
       /* This method get called to verfiy if the widget
        * has to be blocked or not.
        * */
-      var func = function(match, values, widget){
-          for(var i=0; i< values.length; i++){
-            if(match == values[i]){
-              widget.block();
-              return;
+      var that = this;
+      var func = function(data, widget){
+          var block = false;
+          for(var k=0; k<data.length; k++){
+            var propertyName = data[k]['name'];
+            var value = data[k]['value'];
+            var values = that._object.get(propertyName).toArray();
+            var name = qx.lang.Object.getKeyFromValue(that._bindings, propertyName);
+            for(var i=0; i< values.length; i++){
+              if(value == values[i]){
+                block = true;
+              }
             }
           }
-          widget.unblock(true);
+          if(block){
+            widget.block();
+          }else{
+            widget.unblock();
+          }
         };
      
       /* Extract information about when to block the widget
        * and add a listener to the sourceo-widget, to check
        * its values again after they were modified.
-       * (right now we only support one block-definition)
        * */
-      data = data[0];
-      var propertyName = data['name'];
-      var name = qx.lang.Object.getKeyFromValue(this._bindings, propertyName);
-      try{
-        var value = data['value'];
+      for(var k=0; k<data.length; k++){
+        var propertyName = data[k]['name'];
+        var name = qx.lang.Object.getKeyFromValue(this._bindings, propertyName);
         var id = this._widgets[name].addListener("changeValue", function(e){
-            func(value, e.getData().toArray(), widget);
+            func(data, widget);
           }, this);
-
         this.__bindings.push({id: id, widget: this._widgets[name]});
-
+      
         // Initially check blocking
-        func(value, this._object.get(propertyName).toArray(), widget);
-
-      }catch(e){
-        this.error("Failed to execute blocking for not existing widget: " + name) ;
+        func(data, widget);
       }
     },
 
