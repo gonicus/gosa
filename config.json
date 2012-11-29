@@ -35,6 +35,15 @@
   
   "default-job" : "source-hybrid",
 
+  "config-warnings" :
+  {
+    "job-shadowing" : [
+      "build-script",
+      "source-script",
+      "libraries"
+    ]
+  },
+
   "let" :
   {
     "APPLICATION"  : "gosa",
