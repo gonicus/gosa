@@ -327,8 +327,6 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     /* Parses an incoming error-object and then sets the error message.
      * */
     setError: function(error_object){
-
-      console.log(error_object);
       var message = error_object.text;
       if(error_object.details){
         for(var i=0; i< error_object.details.length; i++){
