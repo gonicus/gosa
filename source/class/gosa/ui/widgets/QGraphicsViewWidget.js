@@ -42,10 +42,12 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
         width: 320,
         height: 240
     });
+
     this.__cap_win = new qx.ui.window.Window(this.tr("Image capture"));
     this.__cap_win.setShowMaximize(false);
     this.__cap_win.setShowMinimize(false);
     this.__cap_win.setAlwaysOnTop(true);
+    this.__cap_win.setResizable(false);
     this.__cap_win.setLayout(new qx.ui.layout.VBox(10));
     this.__cap_win.add(this.__cap);
     this.__cap_win.addListener("beforeClose", function() {
@@ -62,7 +64,7 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
             gosa.Config.getImagePath("actions/attribute-capture.png", 22));
     cap_button.setWidth(64);
     cap_button.addListener('execute', function() {
-        var data = this.__cap.getImageData('jpeg', 0, 0, 200, 200).split(/,(.+)?/)[1];
+        var data = this.__cap.getImageData('jpeg').split(/,(.+)?/)[1];
         this.setValue(new qx.data.Array([new gosa.io.types.Binary(data)]));
         this.fireDataEvent("changeValue", this.getValue());
         this.__cap.stop();
@@ -114,6 +116,8 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
         this.__cap_win.show();
         this.__cap_win.center();
         this.__cap.start();
+        this.__cap.setCaptureSizeX(200);
+        this.__cap.setCaptureSizeY(200);
       }, this);
 
     // Create context menu
