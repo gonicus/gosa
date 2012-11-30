@@ -101,7 +101,7 @@ qx.Class.define("gosa.Application",
       gosa.Session.getInstance().bind("cn", header, "loggedInName");
 
       //TODO: remove static view registration later on
-      var search = new gosa.view.Search;
+      var search = this.search = new gosa.view.Search;
       var tree = new gosa.view.Tree;
       var work = new gosa.view.Workflows;
       var settings = new gosa.view.Settings;
@@ -360,6 +360,7 @@ qx.Class.define("gosa.Application",
         this.getRoot().setBlockerColor("#000000");
         this.getRoot().setBlockerOpacity(0.5);
         dialog.close();
+        this.search.updateFocus();
 
         // Handle URL actions
         this.__handleUrl(this._history.getState());

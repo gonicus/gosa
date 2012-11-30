@@ -179,12 +179,7 @@ qx.Class.define("gosa.view.Search",
     }, this);
 
     // Focus search field
-    var _self = this;
-    setTimeout(function() {
-      _self.sf.focus();
-    });
-    this.sf.focus();
-
+    this.sf.addListener("appear", this.updateFocus, this);
     this._removedObjects = [];
     this._createdObjects = [];
     this._modifiedObjects = [];
@@ -221,6 +216,13 @@ qx.Class.define("gosa.view.Search",
     _modifiedObjects: null,
     _currentResult: null,
 
+    
+    updateFocus: function(){
+      var _self = this;
+      setTimeout(function() {
+          _self.sf.focus();
+        });
+    },
 
     _search_queue_handler : function() {
       if (this._sq.length == 0 || this._working) {
