@@ -22,10 +22,9 @@ README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
 data_files = []
-for path, dirs, files in os.walk("gui/build"):
+for path, dirs, files in os.walk("frontend/gosa/build"):
     for f in files:
-            data_files.append(os.path.join(path[17:], f))
-
+        data_files.append(os.path.join(path[17:], f))
 
 setup(
     name = "gosa-plugin-gui",
