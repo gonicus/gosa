@@ -38,11 +38,7 @@ import logging.config
 import getpass
 from argparse import ArgumentParser
 from gosa import __version__ as VERSION
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from io import StringIO
 
 
 # Only import pwd/grp stuff if we're not on windows

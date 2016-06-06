@@ -18,7 +18,7 @@ except:
     pass
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README')).read()
+README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
 data_files = []
@@ -33,7 +33,7 @@ setup(
     author = "GONICUS GmbH",
     author_email = "info@gonicus.de",
     description = "Identity-, system- and configmanagement middleware",
-    long_description = README.md + "\n\n" + CHANGES,
+    long_description = README + "\n\n" + CHANGES,
     keywords = "system config management ldap groupware",
     license = "GPL",
     url = "http://gosa-project.org",

@@ -3,3 +3,6 @@ include/
 lib/
 lib64
 pip-selfcheck.json
+.eggs
+*.egg-info
+__pycache__
