@@ -38,7 +38,10 @@ def mainLoop(env):
     log = logging.getLogger(__name__)
 
     try:
-        pass
+        #TEST
+        for entry in pkg_resources.iter_entry_points("gosa.plugin"):
+            module = entry.load()
+            module()
 
     # Catchall, pylint: disable=W0703
     except Exception as detail:

@@ -2,7 +2,10 @@
 import os
 import sys
 
-modules = ['backend']
+modules = [
+  'backend',
+  'plugin-gui'
+]
 
 for module in modules:
     os.system("cd %s && ./setup.py %s" % (module, " ".join(sys.argv[1:])))
