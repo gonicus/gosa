@@ -16,7 +16,10 @@ import codecs
 from setproctitle import setproctitle
 from gosa.core import Environment
 from gosa import __version__ as VERSION
+from flask import Flask
+from gosa.core import WsgiApplication
 
+app = Flask(__name__)
 
 def shutdown():
     pass
@@ -41,7 +44,10 @@ def mainLoop(env):
         #TEST
         for entry in pkg_resources.iter_entry_points("gosa.plugin"):
             module = entry.load()
-            module()
+            flask_view = module.as_view(entry.name)
+            app.add_url_rule(entry.name, view_func=flask_view)
+
+        WsgiApplication("gosa.main:app", env.config.getOptions('gunicorn')).run()
 
     # Catchall, pylint: disable=W0703
     except Exception as detail:

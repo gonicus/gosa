@@ -21,13 +21,8 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
-data_files = []
-for path, dirs, files in os.walk("frontend/gosa/build"):
-    for f in files:
-        data_files.append(os.path.join(path[17:], f))
-
 setup(
-    name = "gosa-plugin-gui",
+    name = "gosa-plugin-rest",
     version = "3.0",
     author = "GONICUS GmbH",
     author_email = "info@gonicus.de",
@@ -55,7 +50,6 @@ setup(
 
     include_package_data = True,
     package_data = {
-        'gosa.plugin.gui': data_files
     },
 
     test_suite = "nose.collector",
@@ -72,8 +66,6 @@ setup(
 
     entry_points = """
         [gosa.plugin]
-        /gui = gosa.plugin.gui.main:GuiPlugin
         /api/<path:path> = gosa.plugin.rest.main:RestApi
-        /subscribe = gosa.plugin.sse.main:SseHandler
     """,
 )

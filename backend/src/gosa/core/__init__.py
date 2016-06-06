@@ -10,3 +10,4 @@
 __import__('pkg_resources').declare_namespace(__name__)
 
 from gosa.core.env import Environment
+from gosa.core.wsgi import WsgiApplication
