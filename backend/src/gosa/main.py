@@ -40,6 +40,7 @@ def mainLoop(env):
     try:
         #TEST
         for entry in pkg_resources.iter_entry_points("gosa.plugin"):
+            print(entry.name)
             module = entry.load()
             module()
 
