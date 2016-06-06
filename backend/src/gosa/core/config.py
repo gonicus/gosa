@@ -88,10 +88,6 @@ class Config(object):
             self.__parseCmdOptions()
         self.__parseCfgOptions()
 
-        # Overload with command line options
-        if not self.__noargs:
-            self.__parseCmdOptions()
-
         if platform.system() != "Windows":
             user = getpass.getuser()
             userHome = pwd.getpwnam(user).pw_dir
@@ -106,8 +102,8 @@ class Config(object):
 
         parser.add_argument("-c", "--config", dest="config",
                           default=os.environ.get('GOSA_CONFIG_DIR') or "/etc/gosa",
-                          help="read configuration from FILE [%(default)s]",
-                          metavar="FILE")
+                          help="read configuration from DIRECTORY [%(default)s]",
+                          metavar="DIRECTORY")
 
         options = parser.parse_args()
 
