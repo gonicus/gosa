@@ -72,8 +72,6 @@ setup(
 
     entry_points = """
         [gosa.plugin]
-        /gui = gosa.plugin.gui.main:GuiPlugin
-        /api/<path:path> = gosa.plugin.rest.main:RestApi
-        /subscribe = gosa.plugin.sse.main:SseHandler
+        / = gosa.plugin.gui.main:GuiPlugin
     """,
 )

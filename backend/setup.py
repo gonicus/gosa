@@ -77,5 +77,9 @@ setup(
     entry_points = """
         [console_scripts]
         gosa = gosa.main:main
+
+        [gosa.plugin]
+        /subscribe = gosa.plugin.sse.main:SseHandler
+        /api/<path:path> = gosa.plugin.rest.main:RestApi
     """,
 )

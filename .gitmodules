@@ -1,3 +1,3 @@
-[submodule "plugin-gui/frontend/qooxdoo"]
-	path = plugin-gui/frontend/qooxdoo
+[submodule "plugins/gui/frontend/qooxdoo"]
+	path = plugins/gui/frontend/qooxdoo
 	url = https://github.com/qooxdoo/qooxdoo
