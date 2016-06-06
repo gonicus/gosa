@@ -1,8 +1,4 @@
-bin/
-include/
-lib/
-lib64
-pip-selfcheck.json
+.env
 .eggs
 *.egg-info
 __pycache__
