@@ -43,6 +43,7 @@ def mainLoop(env):
     try:
         #TEST
         for entry in pkg_resources.iter_entry_points("gosa.plugin"):
+            print(entry.name)
             module = entry.load()
             flask_view = module.as_view(entry.name)
             app.add_url_rule(entry.name, view_func=flask_view)
