@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Locality</class>
+ <widget class="QWidget" name="Locality">
+  <property name="windowTitle">
+   <string>Locality</string>
+  </property>
+  <property name="categoryTitle" stdset="0">
+   <string>Locality</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/images/locality.png</normaloff>:/images/locality.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Generic</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="nameLabel">
+        <property name="text">
+         <string>Name</string>
+        </property>
+        <property name="buddy">
+         <cstring>lEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lEdit"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="resources/locality.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>lEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>Locality</receiver>
+   <slot>property_l()</slot>
+  </connection>
+ </connections>
+</ui>

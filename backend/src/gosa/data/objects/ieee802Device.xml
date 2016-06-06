@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+  <Object>
+    <Name>ieee802Device</Name>
+    <Description>ieee802Device</Description>
+    <DisplayName>ieee802Device</DisplayName>
+    <BackendParameters>
+      <Backend objectClasses="ieee802Device">LDAP</Backend>
+    </BackendParameters>
+    <Backend>LDAP</Backend>
+    <Attributes>
+      <Attribute>
+        <Name>macAddress</Name>
+        <Description>MAC address</Description>
+        <Type>String</Type>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+    </Attributes>
+    <Extends>
+      <Value>Device</Value>
+    </Extends>
+		<BaseObject>false</BaseObject>
+	</Object>
+</Objects>
+

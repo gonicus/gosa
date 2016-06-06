@@ -1,0 +1,41 @@
+{
+  "roles": {},
+  "acl": {
+    "dc=example,dc=net": [
+      {
+        "acls": [
+          {
+            "priority": -10,
+            "scope": "psub",
+            "members": [
+              "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+            ],
+            "actions": [
+              {
+                "topic": "^net\\.example\\.event\\.(Inventory|ClientAnnounce|ClientLeave|ClientSignature|ClientPing|UserSession)$",
+                "acls": "x",
+                "options": {}
+              }
+            ],
+            "id": 0
+          },
+          {
+            "priority": -10,
+            "scope": "psub",
+            "members": [
+              "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+            ],
+            "actions": [
+              {
+                "topic": "^net\\.example\\.command\\.core\\.(getMethods|sendEvent)$",
+                "acls": "x",
+                "options": {}
+              }
+            ],
+            "id": 1
+          } 
+        ]
+      }
+    ]
+  }
+}

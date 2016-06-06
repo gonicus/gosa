@@ -1,0 +1,16 @@
+GOsa coding guidelines
+======================
+
+The coding guidelines are provided by pep8. To make sure your code
+matches the guidelines, install python's pep8 utility and run it
+against your source code.
+
+If your code is placed in "plugin.py", it should pass the command
+
+$ pep8 plugin.py
+
+without any messages.
+
+Additionally you can make use of the nosetests in the complete code:
+
+$ nosetests

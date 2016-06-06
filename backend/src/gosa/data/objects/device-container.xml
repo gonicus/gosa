@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+	<Object>
+		<Name>DeviceContainer</Name>
+		<DisplayName>DeviceContainer</DisplayName>
+		<Description>Organizational unit that can contain devices</Description>
+		<BackendParameters>
+			<Backend objectClasses="organizationalUnit" RDN="ou">LDAP</Backend>
+		</BackendParameters>
+		<Backend>LDAP</Backend>
+
+		<BaseObject>true</BaseObject>
+		<FixedRDN>ou=devices</FixedRDN>
+                <StructuralInvisible>true</StructuralInvisible>
+		<Container>
+			<Type>Device</Type>
+		</Container>
+	</Object>
+</Objects>
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+	<Object>
+		<Name>OrganizationalRoleContainer</Name>
+		<DisplayName>OrganizationalRoleContainer</DisplayName>
+		<Description>Organizational unit that can contain users</Description>
+		<BackendParameters>
+			<Backend objectClasses="organizationalUnit" RDN="ou">LDAP</Backend>
+		</BackendParameters>
+		<Backend>LDAP</Backend>
+		<Container>
+			<Type>OrganizationalRole</Type>
+		</Container>
+		<BaseObject>true</BaseObject>
+		<FixedRDN>ou=roles</FixedRDN>
+                <StructuralInvisible>true</StructuralInvisible>
+	</Object>
+</Objects>
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+  <Object>
+    <Name>NagiosGroup</Name>
+    <Description>Nagios extension for a group</Description>
+    <DisplayName>Nagios group extension</DisplayName>
+    <BackendParameters>
+      <Backend objectClasses="nagiosContactGroup">LDAP</Backend>
+    </BackendParameters>
+    <Backend>LDAP</Backend>
+    <Extends>
+      <Value>PosixGroup</Value>
+    </Extends>
+    <BaseObject>false</BaseObject>
+  </Object>
+</Objects>
+
+
+

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DomainComponent</class>
+ <widget class="QWidget" name="DomainComponent">
+  <property name="windowTitle">
+   <string>Domain Component</string>
+  </property>
+  <property name="categoryTitle" stdset="0">
+   <string>DomainComponent</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/images/domaincomponent.png</normaloff>:/images/domaincomponent.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Generic</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="nameLabel">
+        <property name="text">
+         <string>Name</string>
+        </property>
+        <property name="buddy">
+         <cstring>dcEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="dcEdit"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="resources/domaincomponent.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>dcEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>DomainComponent</receiver>
+   <slot>property_dc()</slot>
+  </connection>
+ </connections>
+</ui>

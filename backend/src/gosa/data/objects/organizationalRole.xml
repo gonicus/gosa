@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+  <Object>
+    <Name>organizationalRole</Name>
+    <DisplayName>organizationalRole</DisplayName>
+    <Description>RFC2256: an organizational role</Description>
+    <Backend>LDAP</Backend>
+    <BackendParameters>
+      <Backend objectClasses="organizationalRole" RDN="cn">LDAP</Backend>
+    </BackendParameters>
+    <BaseObject>true</BaseObject>
+    <Attributes>
+      <Attribute>
+        <Name>cn</Name>
+        <Description>RFC4519: common name(s) for which the entity is known by</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>telephoneNumber</Name>
+        <Description>RFC2256: Telephone Number</Description>
+        <Type>String</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+        <Validators>
+          <Condition>
+            <Name>RegEx</Name>
+            <Param>^\+[0-9]{2}\s*[0-9\s]+$</Param>
+          </Condition>
+        </Validators>
+      </Attribute>
+      <Attribute>
+        <Name>registeredAddress</Name>
+        <Description>RFC2256: registered postal address</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>physicalDeliveryOfficeName</Name>
+        <Description>RFC2256: Physical Delivery Office Name</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>description</Name>
+        <Description>RFC4519: descriptive information</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>roleOccupant</Name>
+        <Description>RFC2256: occupant of role</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+        <Validators>
+          <Condition>
+            <Name>IsExistingDN</Name>
+          </Condition>
+        </Validators>
+      </Attribute>
+      <Attribute>
+        <Name>facsimileTelephoneNumber</Name>
+        <Description>RFC2256: Facsimile (Fax) Telephone Number</Description>
+        <Type>String</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>postOfficeBox</Name>
+        <Description>RFC2256: Post Office Box</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>teletexTerminalIdentifier</Name>
+        <Description>RFC2256: Teletex Terminal Identifier</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>l</Name>
+        <Description>RFC2256: locality which this object resides in</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>st</Name>
+        <Description>RFC2256: state or province which this object resides in</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>postalCode</Name>
+        <Description>RFC2256: postal code</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>street</Name>
+        <Description>RFC2256: street address of this object</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>ou</Name>
+        <Description>RFC2256: organizational unit this object belongs to</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>preferredDeliveryMethod</Name>
+        <Description>RFC2256: preferred delivery method</Description>
+        <Type>String</Type>
+        <MultiValue>false</MultiValue>
+        <Mandatory>false</Mandatory>
+        <Values>
+          <Value>any</Value>
+          <Value>mhs</Value>
+          <Value>physical</Value>
+          <Value>telex</Value>
+          <Value>teletex</Value>
+          <Value>g3fax</Value>
+          <Value>g4fax</Value>
+          <Value>ia5</Value>
+          <Value>videotex</Value>
+          <Value>telephone</Value>
+        </Values>
+      </Attribute>
+      <Attribute>
+        <Name>telexNumber</Name>
+        <Description>RFC2256: Telex Number</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>x121Address</Name>
+        <Description>RFC2256: X.121 Address</Description>
+        <Type>String</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+        <Validators>
+          <Condition>
+            <Name>RegEx</Name>
+            <Param>^[0-9 ]+$</Param>
+          </Condition>
+        </Validators>
+      </Attribute>
+      <Attribute>
+        <Name>internationaliSDNNumber</Name>
+        <Description>RFC2256: international ISDN number</Description>
+        <Type>String</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+        <Validators>
+          <Condition>
+            <Name>RegEx</Name>
+            <Param>^[0-9 ]+$</Param>
+          </Condition>
+        </Validators>
+      </Attribute>
+      <Attribute>
+        <Name>seeAlso</Name>
+        <Description>RFC4519: DN of related object</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+        <Validators>
+          <Condition>
+            <Name>IsExistingDN</Name>
+          </Condition>
+        </Validators>
+      </Attribute>
+      <Attribute>
+        <Name>postalAddress</Name>
+        <Description>RFC2256: postal address</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>destinationIndicator</Name>
+        <Description>RFC2256: destination indicator</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+        <Validators>
+          <Condition>
+            <Name>RegEx</Name>
+            <Param>^[a-zA-Z0-9"()+,./? -]+$</Param>
+          </Condition>
+        </Validators>
+      </Attribute>
+    </Attributes>
+  </Object>
+</Objects>

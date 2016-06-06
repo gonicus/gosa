@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events">
+
+	<complexType name="NodeMethod">
+        <all>
+			<element name="Name" type="string" maxOccurs="1" minOccurs="1"></element>
+			<element name="Path" type="string" maxOccurs="1" minOccurs="1"></element>
+			<element name="Target" type="string" maxOccurs="1" minOccurs="1"></element>
+			<element name="Signature" type="string" maxOccurs="1" minOccurs="1"></element>
+			<element name="Type" maxOccurs="1" minOccurs="1">
+				<simpleType>
+					<restriction base="string">
+						<enumeration value="NORMAL"></enumeration>
+						<enumeration value="FIRSTRESULT"></enumeration>
+						<enumeration value="CUMMULATIVE"></enumeration>
+					</restriction>
+				</simpleType>
+			</element>
+			<element name="QueueRequired" type="boolean" maxOccurs="1" minOccurs="1"></element>
+			<element name="Documentation" type="string" maxOccurs="1" minOccurs="1"></element>
+		</all>
+	</complexType>
+
+	<complexType name="NodeObject">
+        <all>
+			<element name="OID" type="string" maxOccurs="1" minOccurs="1"></element>
+			<element name="Signature" type="string" maxOccurs="1" minOccurs="0"></element>
+		</all>
+	</complexType>
+
+	<complexType name="NodeCapabilities">
+        <annotation>
+        	<documentation>The NodeCapabilities event normally gets send out after receiving a NodeAnnounce.
+It contains a list of methods that are supported by the sending node.</documentation>
+        </annotation>
+        <sequence>
+            <element name="Id" type="string" minOccurs="1"></element>
+            <element name="NodeMethod" type="e:NodeMethod" maxOccurs="unbounded" minOccurs="0"></element>
+            <element name="NodeObject" type="e:NodeObject" maxOccurs="unbounded" minOccurs="0"></element>
+        </sequence>
+	</complexType>
+
+    <element name="NodeMethod" type="e:NodeMethod"></element>
+    <element name="NodeObject" type="e:NodeObject"></element>
+    <element name="NodeCapabilities" type="e:NodeCapabilities"></element>
+
+</schema>

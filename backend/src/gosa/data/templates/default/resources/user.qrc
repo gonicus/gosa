@@ -1,0 +1,10 @@
+<RCC>
+  <qresource prefix="images">
+    <file>user.png</file>
+    <file>orga.png</file>
+    <file>password.png</file>
+    <file>lock.png</file>
+    <file>unlock.png</file>
+    <file>notify.png</file>
+  </qresource>
+</RCC>

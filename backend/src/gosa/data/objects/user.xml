@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+  <Object>
+    <Name>User</Name>
+    <Description>A generic user</Description>
+    <DisplayName>User</DisplayName>
+    <Templates>
+      <Template>user.ui</Template>
+      <Template>user-organizational.ui</Template>
+    </Templates>
+    <BackendParameters>
+      <Backend objectClasses="inetOrgPerson" manager="User:dn" RDN="cn,uid" filter="(!(uid=*$))">LDAP</Backend>
+      <Backend type="User">JSON</Backend>
+    </BackendParameters>
+    <Backend>LDAP</Backend>
+
+    <Methods>
+      <Method>
+        <Name>lock</Name>
+        <Command>lockAccountPassword</Command>
+        <CommandParameters>
+          <Value>dn</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
+        <Name>unlock</Name>
+        <Command>unlockAccountPassword</Command>
+        <CommandParameters>
+          <Value>dn</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
+        <Name>notify</Name>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>notify_title</Name>
+            <Type>UnicodeString</Type>
+            <Default></Default>
+          </MethodParameter>
+          <MethodParameter>
+            <Name>notify_message</Name>
+            <Type>UnicodeString</Type>
+            <Required>true</Required>
+          </MethodParameter>
+          <MethodParameter>
+            <Name>notify_duration</Name>
+            <Type>Integer</Type>
+            <Required>false</Required>
+            <Default>60</Default>
+          </MethodParameter>
+        </MethodParameters>
+        <Command>notifyUser</Command>
+        <CommandParameters>
+          <Value>uid</Value>
+          <Value>notify_title</Value>
+          <Value>notify_message</Value>
+          <Value>notify_duration</Value>
+        </CommandParameters>
+      </Method>
+
+      <Method>
+        <Name>changePassword</Name>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>password</Name>
+            <Type>UnicodeString</Type>
+            <Default></Default>
+          </MethodParameter>
+        </MethodParameters>
+        <Command>setUserPassword</Command>
+        <CommandParameters>
+          <Value>dn</Value>
+          <Value>password</Value>
+        </CommandParameters>
+      </Method>
+
+      <Method>
+        <Name>changePasswordMethod</Name>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>password_method</Name>
+            <Type>UnicodeString</Type>
+            <Default></Default>
+          </MethodParameter>
+          <MethodParameter>
+            <Name>password</Name>
+            <Type>UnicodeString</Type>
+            <Default></Default>
+          </MethodParameter>
+        </MethodParameters>
+        <Command>setUserPasswordMethod</Command>
+        <CommandParameters>
+          <Value>dn</Value>
+          <Value>password_method</Value>
+          <Value>password</Value>
+        </CommandParameters>
+      </Method>
+    </Methods>
+
+    <Attributes>
+      <Attribute>
+        <Name>guiPreferences</Name>
+        <Description>The Audio attribute type allows the storing of sounds in the Directory. The attribute uses a u-law encoded sound file as used by the "play" utility on a Sun 4. This is an interim format</Description>
+        <Type>AnyType</Type>
+        <Backend>JSON</Backend>
+      </Attribute>
+      <Attribute>
+        <Name>audio</Name>
+        <Description>The Audio attribute type allows the storing of sounds in the Directory. The attribute uses a u-law encoded sound file as used by the "play" utility on a Sun 4. This is an interim format</Description>
+        <Type>Binary</Type>
+      </Attribute>
+      <Attribute>
+        <Name>businessCategory</Name>
+        <Description>This attribute describes the kind of business performed by an organization.</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>carLicense</Name>
+        <Description>This multivalued field is used to record the values of the license or registration plate associated with an individual.</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+      </Attribute>
+      <Attribute>
+        <Name>departmentNumber</Name>
+        <Description>Identifies a department within an organization</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>displayName</Name>
+        <Description>preferred name of a person to be used when displaying entries</Description>
+        <Type>UnicodeString</Type>
+        <BlockedBy>
+          <Attribute value="true">autoDisplayName</Attribute>
+        </BlockedBy>
+        <DependsOn>
+          <Attribute>autoDisplayName</Attribute>
+        </DependsOn>
+      </Attribute>
+
+      <Attribute>
+        <Name>autoDisplayName</Name>
+        <Default>true</Default>
+        <Mandatory>true</Mandatory>
+        <Backend>NULL</Backend>
+        <Type>Boolean</Type>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>GenerateDisplayName</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>LoadDisplayNameState</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <DependsOn>
+          <Attribute>givenName</Attribute>
+          <Attribute>sn</Attribute>
+        </DependsOn>
+      </Attribute>
+
+      <Attribute>
+        <Name>employeeNumber</Name>
+        <Description>numerically identifies an employee within an organization'</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>employeeType</Name>
+        <Description>Used to identify the employer to employee relationship. Typical values used will be "Contractor", "Employee", "Intern", "Temp", "External", and "Unknown" but any value may be used.</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>givenName</Name>
+        <Description>The givenName attribute is used to hold the part of a person's name which is not their surname nor middle name.</Description>
+        <Type>UnicodeString</Type>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>homePhone</Name>
+        <Description>homePhone</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>gender</Name>
+        <Description>Gender of the user</Description>
+        <Type>String</Type>
+        <Values>
+          <Value key="F">female</Value>
+          <Value key="M">male</Value>
+        </Values>
+      </Attribute>
+      <Attribute>
+        <Name>dateOfBirth</Name>
+        <Description>Birthday of the user</Description>
+        <Type>Timestamp</Type>
+        <BackendType>String</BackendType>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>StringToDatetime</Name>
+                <Param>%%Y-%%m-%%d</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>DatetimeToString</Name>
+                <Param>%%Y-%%m-%%d</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>homePostalAddress</Name>
+        <Description>The Home postal address attribute type specifies a home postal address for an object.  This should be limited to up to 6 lines of 30 characters each.</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>initials</Name>
+        <Description>The initials attribute contains the initials of some or all of an individuals names, but not the surname(s).</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>jpegPhoto</Name>
+        <Description>Used to store one or more images of a person using the JPEG File Interchange Format [JFIF].</Description>
+        <Type>Binary</Type>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>ImageProcessor</Name>
+                <Param>22</Param>
+                <Param>32</Param>
+                <Param>48</Param>
+                <Param>64</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>ImageProcessor</Name>
+                <Param>22</Param>
+                <Param>32</Param>
+                <Param>48</Param>
+                <Param>64</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>labeledURI</Name>
+        <Description>Uniform Resource Identifier with optional label</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>mail</Name>
+        <Description>RFC1274: RFC822 Mailbox</Description>
+        <Type>String</Type>
+        <MultiValue>true</MultiValue>
+      </Attribute>
+      <Attribute>
+        <Name>manager</Name>
+        <Description>The Manager attribute type specifies the manager of an object represented by an entry.</Description>
+        <Type>UnicodeString</Type>
+        <Validators>
+          <Condition>
+            <Name>ObjectWithPropertyExists</Name>
+            <Param>User</Param>
+            <Param>dn</Param>
+          </Condition>
+        </Validators>
+      </Attribute>
+      <Attribute>
+        <Name>mobile</Name>
+        <Description>The Mobile Telephone Number attribute type specifies a mobile telephone number associated with a person. Attribute values should follow the agreed format for international telephone numbers: i.e., "+44 71 123 4567".</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>o</Name>
+        <Description>This attribute contains the name of an organization (organizationName).</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>pager</Name>
+        <Description>The Pager Telephone Number attribute type specifies a pager telephone number for an object. Attribute values should follow the agreed format for international telephone numbers: i.e., "+44 71 123 4567".</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>photo</Name>
+        <Description>The Photo attribute type specifies a "photograph" for an object. This should be encoded in G3 fax as explained in recommendation T.4, with an ASN.1 wrapper to make it compatible with an X.400 BodyPart as defined in X.420.</Description>
+        <Type>Binary</Type>
+      </Attribute>
+      <Attribute>
+        <Name>roomNumber</Name>
+        <Description>The Room Number attribute type specifies the room number of an object.  Note that the commonName attribute should be used for naming room objects.</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>secretary</Name>
+        <Description>The Secretary attribute type specifies the secretary of a person. The attribute value for Secretary is a distinguished name</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>userCertificate</Name>
+        <Description>This attribute is to be stored and requested in the binary form, as 'userCertificate;binary'.</Description>
+        <Type>Binary</Type>
+      </Attribute>
+
+      <Attribute>
+        <Name>x500uniqueIdentifier</Name>
+        <Description>The x500UniqueIdentifier attribute is used to distinguish between objects when a distinguished name has been reused.  This is a different attribute type from both the "uid" and "uniqueIdentifier" types.</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+
+      <Attribute>
+        <Name>preferredLanguage</Name>
+        <Description>Preferred written or spoken language for a person</Description>
+        <Type>String</Type>
+        <Values populate="getLanguageList"/>
+      </Attribute>
+      <Attribute>
+        <Name>userSMIMECertificate</Name>
+        <Description>A PKCS#7 [RFC2315] SignedData, where the content that is signed is ignored by consumers of userSMIMECertificate values.  It is recommended that values have a `contentType' of data with an absent `content' field.  Values of this attribute contain a person's entire certificate chain and an smimeCapabilities field [RFC2633] that at a minimum describes their SMIME algorithm capabilities.  Values for this attribute are to be stored and requested in binary form, as 'userSMIMECertificate;binary'.  If available, this attribute is preferred over the userCertificate attribute for S/MIME applications.</Description>
+        <Type>Binary</Type>
+      </Attribute>
+      <Attribute>
+        <Name>userPKCS12</Name>
+        <Description>PKCS #12 [PKCS12] provides a format for exchange of personal identity information.  When such information is stored in a directory service, the userPKCS12 attribute should be used. This attribute is to be stored and requested in binary form, as 'userPKCS12;binary'.  The attribute values are PFX PDUs stored as binary data.</Description>
+        <Type>Binary</Type>
+      </Attribute>
+      <Attribute>
+        <Name>title</Name>
+        <Description>This attribute contains the title, such as "Vice President", of a person in their organizational context.  The "personalTitle" attribute would be used for a person's title independent of their job function.</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>academicTitle</Name>
+        <Description>This attribute contains the title, such as "Phd", of a person in their organizational context.  The "academicTitle" attribute would be used for a person's title independent of their job function.</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>x121Address</Name>
+        <Description>RFC2256: X.121 Address</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>registeredAddress</Name>
+        <Description>This attribute holds a postal address suitable for reception of telegrams or expedited documents, where it is necessary to have the recipient accept delivery.</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>destinationIndicator</Name>
+        <Description>This attribute is used for the telegram service.</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>preferredDeliveryMethod</Name>
+        <Description>Preferred delivery method</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>telexNumber</Name>
+        <Description>Telex number</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>teletexTerminalIdentifier</Name>
+        <Description>Teletex terminal identifier</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>telephoneNumber</Name>
+        <Description>Telephone number</Description>
+        <Type>String</Type>
+        <MultiValue>true</MultiValue>
+        <Validators>
+          <Condition>
+            <Name>RegEx</Name>
+            <Param>^[0-9\_ \/ \(\)\+\-]*$</Param>
+          </Condition>
+        </Validators>
+      </Attribute>
+      <Attribute>
+        <Name>internationaliSDNNumber</Name>
+        <Description>International iSDN number</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>facsimileTelephoneNumber</Name>
+        <Description>Facsimile telephone number</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>street</Name>
+        <Description>This attribute contains the physical address of the object to which the entry corresponds, such as an address for package delivery (streetAddress).</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>postOfficeBox</Name>
+        <Description>Post office box</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>postalCode</Name>
+        <Description>Postal code</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>postalAddress</Name>
+        <Description>The Home postal address attribute type specifies a home postal address for an object.  This should be limited to up to 6 lines of 30 characters each.</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>physicalDeliveryOfficeName</Name>
+        <Description>Physical delivery office name</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>ou</Name>
+        <Description>This attribute contains the name of an organizational unit (organizationalUnitName).</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>st</Name>
+        <Description>This attribute contains the full name of a state or province (stateOrProvinceName).</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>l</Name>
+        <Description>This attribute contains the name of a locality, such as a city, county or other geographic region (localityName).</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>passwordMethod</Name>
+        <Description>The selected password encryption method</Description>
+        <Type>String</Type>
+        <Default>crypt/md5</Default>
+        <ReadOnly>true</ReadOnly>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>DetectPasswordMethod</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <Backend>NULL</Backend>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>isLocked</Name>
+        <Description>Represents the account locking status. True means locked!</Description>
+        <Type>Boolean</Type>
+        <Default>false</Default>
+        <Backend>NULL</Backend>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>DetectAccountLockStatus</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <ReadOnly>true</ReadOnly>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>userPassword</Name>
+        <Description>Passwords are stored using an Octet String syntax and are not encrypted.  Transfer of cleartext passwords are strongly discouraged where the underlying transport service cannot guarantee confidentiality and may result in disclosure of the password to unauthorized parties.</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>seeAlso</Name>
+        <Description>See also (distinguishedName)</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>description</Name>
+        <Description>Description</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sn</Name>
+        <Description>This is the X.500 surname attribute, which contains the family name of a person.</Description>
+        <Mandatory>true</Mandatory>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>cn</Name>
+        <Description>This is the X.500 commonName attribute, which contains a name of an object.  If the object corresponds to a person, it is typically the person's full name.</Description>
+        <Type>UnicodeString</Type>
+        <DependsOn>
+          <Attribute>sn</Attribute>
+          <Attribute>givenName</Attribute>
+        </DependsOn>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>Clear</Name>
+              </Filter>
+            </FilterEntry>
+            <FilterEntry>
+              <Filter>
+                <Name>ConcatString</Name>
+                <Param>%(givenName)s %(sn)s</Param>
+                <Param>left</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+        <MultiValue>false</MultiValue>
+        <ReadOnly>true</ReadOnly>
+      </Attribute>
+      <Attribute>
+        <Name>uid</Name>
+        <Description>The Userid attribute type specifies a computer system login name.</Description>
+        <Type>String</Type>
+        <Mandatory>true</Mandatory>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>SetBackends</Name>
+                <Param>NULL</Param>
+                <Param>LDAP</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+    </Attributes>
+    <BaseObject>true</BaseObject>
+
+	<Find>
+		<Aspect>
+			<Tag>User</Tag>
+			<Keyword>User</Keyword>
+			<Search>givenName</Search>
+			<Search>sn</Search>
+			<Search>cn</Search>
+			<Search>uid</Search>
+			<Resolve type="PosixGroup" filter="cn">groupMembership</Resolve>
+			<Resolve filter="DN">manager</Resolve>
+			<Result>
+				<Map>
+					<Source>cn</Source>
+					<Destination>title</Destination>
+				</Map>
+				<Map>
+					<Source><![CDATA[%(description)s%(phoneRenderer)s%(mailRenderer)s<br>%(extensions)s]]></Source>
+					<Destination>description</Destination>
+				</Map>
+				<Map>
+					<Source>jpegPhoto</Source>
+					<Destination>icon</Destination>
+				</Map>
+			</Result>
+		</Aspect>
+	</Find>
+
+  </Object>
+</Objects>

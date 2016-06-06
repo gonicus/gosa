@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+  <Object>
+    <Name>PosixGroup</Name>
+    <Description>A posix group</Description>
+    <Templates>
+      <Template>group-posix.ui</Template>
+    </Templates>
+    <DisplayName>Posix group</DisplayName>
+    <BackendParameters>
+      <Backend objectClasses="posixGroup"
+        RDN="cn">LDAP</Backend>
+      <Backend memberUid="PosixUser:uid,">ObjectHandler</Backend>
+    </BackendParameters>
+    <Backend>LDAP</Backend>
+
+    <Attributes>
+      <Attribute>
+        <Name>cn</Name>
+        <Description>Common Name</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>false</MultiValue>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>description</Name>
+        <Description>Description</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>false</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>gidNumber</Name>
+        <Description>The primary group number  number</Description>
+        <Type>Integer</Type>
+        <BlockedBy>
+          <Attribute value="true">autoGid</Attribute>
+        </BlockedBy>
+        <DependsOn>
+          <Attribute>autoGid</Attribute>
+        </DependsOn>
+        <Validators>
+          <Condition>
+            <Name>Smaller</Name>
+            <Param>65500</Param>
+          </Condition>
+        </Validators>
+      </Attribute>
+      <Attribute>
+        <Name>memberUid</Name>
+        <Description>A list of member-uids</Description>
+        <Type>String</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+        <References>
+          <Reference>
+            <Object>PosixUser</Object>
+            <Attribute>uid</Attribute>
+          </Reference>
+        </References>
+        <Validators>
+          <Condition>
+            <Name>ObjectWithPropertyExists</Name>
+            <Param>PosixUser</Param>
+            <Param>uid</Param>
+          </Condition>
+        </Validators>
+      </Attribute>
+      <Attribute>
+        <Name>autoGid</Name>
+        <Default>true</Default>
+        <Mandatory>true</Mandatory>
+        <Backend>NULL</Backend>
+        <Type>Boolean</Type>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>GenerateIDs</Name>
+                <Param>65500</Param>
+                <Param>65500</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+    </Attributes>
+    <BaseObject>true</BaseObject>
+
+    <Find>
+	<Aspect>
+		<Tag>PosixGroup</Tag>
+		<Keyword>Group</Keyword>
+		<Keyword>Member</Keyword>
+		<Keyword>Membership</Keyword>
+		<Search>cn</Search>
+		<Search>description</Search>
+		<Resolve type="User" filter="uid">memberUid</Resolve>
+		<Result>
+			<Map>
+				<Source>cn</Source>
+				<Destination>title</Destination>
+			</Map>
+		</Result>
+	</Aspect>
+</Find>
+
+  </Object>
+</Objects>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+  <Object>
+    <Name>TrustAccount</Name>
+    <Description>A trust account extension</Description>
+    <DisplayName>Trust account</DisplayName>
+    <BaseObject>false</BaseObject>
+    <BackendParameters>
+      <Backend objectClasses="trustAccount">LDAP</Backend>
+      <Backend accessTo="Device:cn,">ObjectHandler</Backend>
+    </BackendParameters>
+    <Templates>
+      <Template>trustaccount.ui</Template>
+    </Templates>
+    <Backend>LDAP</Backend>
+    <Attributes>
+      <Attribute>
+        <Name>trustModel</Name>
+        <Description>Access scheme</Description>
+        <Type>String</Type>
+        <Values>
+          <Value key="">Disabled</Value>
+          <Value key="fullaccess">Full access</Value>
+          <Value key="byhost">By host</Value>
+        </Values>
+        <Default></Default>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>accessTo</Name>
+        <Description>Access to which servers user is allowed</Description>
+        <Backend>LDAP</Backend>
+        <Type>String</Type>
+        <ReadOnly>false</ReadOnly>
+        <MultiValue>true</MultiValue>
+        <BlockedBy>
+          <Attribute value="">trustModel</Attribute>
+          <Attribute value="fullaccess">trustModel</Attribute>
+        </BlockedBy>
+      </Attribute>
+    </Attributes>
+    <Extends>
+      <Value>PosixGroup</Value>
+      <Value>User</Value>
+    </Extends>
+  </Object>
+</Objects>
+
+
+

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+	<Object>
+		<Name>SambaDomain</Name>
+		<Description>Samba domain</Description>
+		<DisplayName>Samba domain</DisplayName>
+		<BackendParameters>
+			<Backend objectClasses="sambaDomain" RDN="sambaDomainName">LDAP</Backend>
+		</BackendParameters>
+    <Backend>LDAP</Backend>
+    <Attributes>
+      <Attribute>
+        <Name>sambaDomainName</Name>
+        <Description>Windows NT domain</Description>
+        <Type>UnicodeString</Type>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>sambaSID</Name>
+        <Description>Security ID</Description>
+        <Type>UnicodeString</Type>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>sambaAlgorithmicRidBase</Name>
+        <Description>Base at which the samba RID generation algorithm should operate</Description>
+        <Type>Integer</Type>
+        <Default>1000</Default>
+      </Attribute>
+      <Attribute>
+        <Name>sambaNextUserRid</Name>
+        <Description>Next NT rid to give our for users</Description>
+        <Type>Integer</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sambaMinPwdLength</Name>
+        <Description>Minimal password length (default: 5)</Description>
+        <Default>5</Default>
+        <Type>Integer</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sambaPwdHistoryLength</Name>
+        <Description>Length of Password History Entries (default: 0 => off)</Description>
+        <Default>0</Default>
+        <Type>Integer</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sambaLogonToChgPwd</Name>
+        <Description>Force Users to logon for password change (default: 0 => off, 2 => on)</Description>
+        <Default>0</Default>
+        <Type>Integer</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sambaMaxPwdAge</Name>
+        <Description>Maximum password age, in seconds (default: -1 => never expire passwords)</Description>
+        <Default>-1</Default>
+        <Type>Integer</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sambaMinPwdAge</Name>
+        <Description>Minimum password age, in seconds (default: 0 => allow immediate password change)</Description>
+        <Default>0</Default>
+        <Type>Integer</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sambaLockoutDuration</Name>
+        <Description>Lockout duration in minutes (default: 30, -1 => forever)</Description>
+        <Default>30</Default>
+        <Type>Integer</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sambaLockoutObservationWindow</Name>
+        <Description>Reset time after lockout in minutes (default: 30)</Description>
+        <Default>30</Default>
+        <Type>Integer</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sambaLockoutThreshold</Name>
+        <Description>Lockout users after bad logon attempts (default: 0 => off)</Description>
+        <Default>0</Default>
+        <Type>Integer</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sambaForceLogoff</Name>
+        <Description>Disconnect Users outside logon hours (default: -1 => off, 0 => on)</Description>
+        <Default>-1</Default>
+        <Type>Integer</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sambaRefuseMachinePwdChange</Name>
+        <Description>Allow Machine Password changes (default: 0 => off)</Description>
+        <Default>0</Default>
+        <Type>Integer</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sambaNextRid</Name>
+        <Description>Next NT rid to give out for anything</Description>
+        <Type>Integer</Type>
+      </Attribute>
+    </Attributes>
+    <BaseObject>true</BaseObject>
+    <Find>
+      <Aspect>
+        <Tag>SambaDomain</Tag>
+        <Keyword>Samba</Keyword>
+        <Keyword>Domain</Keyword>
+        <Search>sambaDomainName</Search>
+        <Result>
+          <Map>
+            <Source>sambaDomainName</Source>
+            <Destination>title</Destination>
+          </Map>
+        </Result>
+      </Aspect>
+    </Find>
+  </Object>
+</Objects>
+
+
+

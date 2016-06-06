@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+	<Object>
+		<Name>AclRole</Name>
+		<DisplayName>AclRole</DisplayName>
+		<Description>AclRole</Description>
+		<Backend>MongoDB</Backend>
+    <BackendParameters>
+      <Backend type="AclRole" rdn="name">MongoDB</Backend>
+    </BackendParameters>
+    <Attributes>
+      <Attribute>
+        <Name>name</Name>
+        <Description></Description>
+        <Type>UnicodeString</Type>
+        <Mandatory>true</Mandatory>
+        <Unique>true</Unique>
+      </Attribute>
+      <Attribute>
+        <Name>AclRoles</Name>
+        <Description></Description>
+        <Type>AclRole</Type>
+        <BackendType>UnicodeString</BackendType>
+        <MultiValue>true</MultiValue>
+        <Validators>
+          <Condition>
+            <Name>IsAclRole</Name>
+          </Condition>
+        </Validators>
+      </Attribute>
+    </Attributes>
+		<BaseObject>true</BaseObject>
+    <Find>
+      <Aspect>
+        <Tag>AclRole</Tag>
+        <Keyword>Acl</Keyword>
+        <Search>name</Search>
+        <Result>
+          <Map>
+            <Source>name</Source>
+            <Destination>title</Destination>
+          </Map>
+        </Result>
+      </Aspect>
+    </Find>
+	</Object>
+</Objects>
+

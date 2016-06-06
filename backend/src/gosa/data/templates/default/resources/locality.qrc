@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="images">
+    <file>locality.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Organization</class>
+ <widget class="QWidget" name="Organization">
+  <property name="windowTitle">
+   <string>Organization</string>
+  </property>
+  <property name="categoryTitle" stdset="0">
+   <string>Organization</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/images/organization.png</normaloff>:/images/organization.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Generic</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="nameLabel">
+        <property name="text">
+         <string>Name</string>
+        </property>
+        <property name="buddy">
+         <cstring>oEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="oEdit"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="resources/organization.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>oEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>Organization</receiver>
+   <slot>property_o()</slot>
+  </connection>
+ </connections>
+</ui>

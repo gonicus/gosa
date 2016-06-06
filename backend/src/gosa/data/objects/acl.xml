@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+	<Object>
+		<Name>Acl</Name>
+		<DisplayName>Acl</DisplayName>
+		<Description>Acl extension</Description>
+		<BaseObject>false</BaseObject>
+		<Backend>MongoDB</Backend>
+    <BackendParameters>
+      <Backend type="Acl">MongoDB</Backend>
+    </BackendParameters>
+    <Attributes>
+      <Attribute>
+        <Name>AclSets</Name>
+        <Description></Description>
+        <Type>AclSet</Type>
+        <BackendType>UnicodeString</BackendType>
+        <MultiValue>true</MultiValue>
+        <Validators>
+          <Condition>
+            <Name>IsAclSet</Name>
+          </Condition>
+        </Validators>
+      </Attribute>
+    </Attributes>
+    <Extends>
+      <Value>PosixGroup</Value>
+      <Value>PeopleContainer</Value>
+      <Value>OrganizationalRole</Value>
+      <Value>Domain</Value>
+      <Value>GroupContainer</Value>
+      <Value>DomainComponent</Value>
+      <Value>SambaDomain</Value>
+      <Value>User</Value>
+      <Value>SetBackends</Value>
+      <Value>Device</Value>
+      <Value>OrganizationalUnit</Value>
+      <Value>OrganizationalRoleContainer</Value>
+      <Value>Country</Value>
+      <Value>Organization</Value>
+      <Value>GroupOfNames</Value>
+      <Value>Locality</Value>
+      <Value>DeviceContainer</Value>
+      <Value>DomainComponentOrg</Value>
+		</Extends>
+	</Object>
+</Objects>
+

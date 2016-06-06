@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+  <Object>
+    <Name>DomainComponentOrg</Name>
+    <DisplayName>Domain component</DisplayName>
+    <Description>A domain component</Description>
+    <BackendParameters>
+      <Backend objectClasses="dcObject,organization" RDN="dc">LDAP</Backend>
+    </BackendParameters>
+    <Backend>LDAP</Backend>
+
+    <Templates>
+      <Template>domaincomponent.ui</Template>
+    </Templates>
+
+    <Attributes>
+      <Attribute>
+        <Name>dc</Name>
+        <Description>domain component</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>false</MultiValue>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>description</Name>
+        <Description>Description</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>false</MultiValue>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>ou</Name>
+        <Description>Organizational unit</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>false</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>manager</Name>
+        <Description>The dn of the manager</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>false</MultiValue>
+        <Mandatory>false</Mandatory>
+        <Validators>
+          <Condition>
+            <Name>ObjectWithPropertyExists</Name>
+            <Param>User</Param>
+            <Param>dn</Param>
+          </Condition>
+        </Validators>
+      </Attribute>
+    </Attributes>
+    <Container>
+      <Type>PeopleContainer</Type>
+      <Type>GroupContainer</Type>
+      <Type>OrganizationalUnit</Type>
+      <Type>Organization</Type>
+      <Type>Locality</Type>
+      <Type>DomainComponent</Type>
+      <Type>Domain</Type>
+      <Type>Country</Type>
+      <Type>SambaDomain</Type>
+      <Type>DeviceContainer</Type>
+      <Type>OrganizationalRoleContainer</Type>
+      <Type>AclRole</Type>
+      <Type>SystemsContainer</Type>
+    </Container>
+    <BaseObject>true</BaseObject>
+    <Find>
+      <Aspect>
+        <Tag>DomainComponentOrg</Tag>
+        <Keyword>Container</Keyword>
+        <Keyword>Domain</Keyword>
+        <Keyword>Component</Keyword>
+        <Search>dc</Search>
+        <Resolve filter="DN">manager</Resolve>
+        <Result>
+          <Map>
+            <Source>dc</Source>
+            <Destination>title</Destination>
+          </Map>
+        </Result>
+      </Aspect>
+    </Find>
+  </Object>
+</Objects>
+

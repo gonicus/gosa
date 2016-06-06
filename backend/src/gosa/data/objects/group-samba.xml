@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+  <Object>
+    <Name>SambaGroup</Name>
+    <Description>A samba extension for a posix group</Description>
+    <DisplayName>Samba group extension</DisplayName>
+    <Templates>
+      <Template>group-samba.ui</Template>
+    </Templates>
+    <BackendParameters>
+      <Backend objectClasses="sambaGroupMapping">LDAP</Backend>
+      <Backend sambaSIDList="SambaGroup:sambaSID,">ObjectHandler</Backend>
+    </BackendParameters>
+    <Backend>LDAP</Backend>
+
+    <Attributes>
+      <Attribute>
+        <Name>sambaSID</Name>
+        <Description>Security ID</Description>
+        <Type>String</Type>
+        <DependsOn>
+          <Attribute>sambaDomainName</Attribute>
+          <Attribute>sambaGroupType</Attribute>
+        </DependsOn>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>GenerateSambaSid</Name>
+                <Param>group</Param>
+                <Param>%(gidNumber)s</Param>
+                <Param>%(sambaDomainName)s</Param>
+                <Param>%(sambaGroupType)s</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+        <ReadOnly>true</ReadOnly>
+      </Attribute>
+      <Attribute>
+        <Name>sambaDomainName</Name>
+        <Description></Description>
+        <Backend>NULL</Backend>
+        <Type>String</Type>
+        <Mandatory>true</Mandatory>
+	      <Values populate="getSambaDomainNames" />
+				<InFilter>
+					<FilterChain>
+						<FilterEntry>
+							<Filter>
+                <Name>DetectSambaDomainFromSID</Name>
+                <Param>%(sambaSID)s</Param>
+							</Filter>
+						</FilterEntry>
+					</FilterChain>
+				</InFilter>
+      </Attribute>
+      <ForeignAttribute>
+        <Name>gidNumber</Name>
+      </ForeignAttribute>
+      <Attribute>
+        <Name>sambaGroupType</Name>
+        <Description>Samba group(0) Domain administrators(512) Domain users(513) Domain guests(514)</Description>
+        <Type>Integer</Type>
+        <Values>
+          <Value key="0">Samba group</Value>
+          <Value key="512">Domain administrators</Value>
+          <Value key="513">Domain users</Value>
+          <Value key="514">Domain guests</Value>
+        </Values>
+        <Default>0</Default>
+        <ReadOnly>false</ReadOnly>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>displayName</Name>
+        <Description>Displayed name</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>sambaSIDList</Name>
+        <Description>A list of member-SIDs</Description>
+        <Type>String</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+        <References>
+          <Reference>
+            <Object>SambaGroup</Object>
+            <Attribute>sambaSID</Attribute>
+          </Reference>
+        </References>
+        <Validators>
+          <ConditionOperator>
+            <Operator>and</Operator>
+            <LeftConditionChain>
+              <Condition>
+                <Name>CheckSambaSIDList</Name>
+              </Condition>
+            </LeftConditionChain>
+            <RightConditionChain>
+              <Condition>
+                <Name>ObjectWithPropertyExists</Name>
+                <Param>SambaGroup</Param>
+                <Param>sambaSID</Param>
+              </Condition>
+            </RightConditionChain>
+          </ConditionOperator>
+        </Validators>
+      </Attribute>
+    </Attributes>
+    <Extends>
+      <Value>PosixGroup</Value>
+    </Extends>
+    <BaseObject>false</BaseObject>
+  </Object>
+</Objects>

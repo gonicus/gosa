@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events">
+
+	<complexType name="NodeAnnounce">
+		<annotation>
+			<documentation>
+				The NodeAnnounce event is emitted when a node is started
+				and wants to inform possible additional nodes about its
+				presence. Existing Nodes will answer this event by
+				firing a NodeCapabilities event in order to inform about
+				their presence and capabilities.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="Id" type="string"></element>
+		</sequence>
+	</complexType>
+
+	<element name="NodeAnnounce" type="e:NodeAnnounce"></element>
+
+</schema>

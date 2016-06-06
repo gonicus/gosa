@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+  <Object>
+    <Name>Device</Name>
+    <Description>Device</Description>
+    <DisplayName>Device</DisplayName>
+    <BackendParameters>
+      <Backend objectClasses="device" RDN="cn">LDAP</Backend>
+    </BackendParameters>
+    <Backend>LDAP</Backend>
+    <Attributes>
+      <Attribute>
+        <Name>cn</Name>
+        <Description>Common Name</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>false</MultiValue>
+        <Mandatory>true</Mandatory>
+        <Validators>
+          <Condition>
+            <Name>IsValidHostName</Name>
+          </Condition>
+        </Validators>
+      </Attribute>
+      <Attribute>
+        <Name>description</Name>
+        <Description>description</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>serialNumber</Name>
+        <Description>serialNumber</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>seeAlso</Name>
+        <Description>seeAlso</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>owner</Name>
+        <Description>owner</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>ou</Name>
+        <Description>ou</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>o</Name>
+        <Description>o</Description>
+        <Type>String</Type>
+      </Attribute>
+      <Attribute>
+        <Name>l</Name>
+        <Description>location</Description>
+        <Type>String</Type>
+      </Attribute>
+    </Attributes>
+    <BaseObject>true</BaseObject>
+    <Find>
+      <Aspect>
+        <Tag>Device</Tag>
+        <Keyword>Device</Keyword>
+        <Keyword>Server</Keyword>
+        <Keyword>Workstation</Keyword>
+        <Search>cn</Search>
+        <Resolve filter="DN">manager</Resolve>
+        <Result>
+          <Map>
+            <Source>cn</Source>
+            <Destination>title</Destination>
+          </Map>
+        </Result>
+      </Aspect>
+    </Find>
+  </Object>
+</Objects>
+

@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SambaMachineAccount</class>
+ <widget class="QWidget" name="SambaMachineAccount">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>468</width>
+    <height>339</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Machine Account</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/images/samba-ws.png</normaloff>:/images/samba-ws.png</iconset>
+  </property>
+  <property name="categoryTitle" stdset="0">
+   <string>Windows Workstation</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Generic</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <layout class="QFormLayout" name="formLayout">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::ExpandingFieldsGrow</enum>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="uidLabel">
+              <property name="text">
+               <string>System-ID</string>
+              </property>
+              <property name="buddy">
+               <cstring>uidEdit</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="uidEdit"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>10</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <layout class="QFormLayout" name="formLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="sambaDomainNameLabel">
+              <property name="text">
+               <string>Domain</string>
+              </property>
+              <property name="buddy">
+               <cstring>sambaDomainNameEdit</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="sambaDomainNameEdit"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="sambaSIDLabel">
+              <property name="text">
+               <string>SID</string>
+              </property>
+              <property name="buddy">
+               <cstring>sambaSIDEdit</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="sambaSIDEdit"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QFormLayout" name="formLayout_3">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::ExpandingFieldsGrow</enum>
+          </property>
+          <item row="2" column="0">
+           <widget class="QLabel" name="descriptionLabel">
+            <property name="text">
+             <string>Description</string>
+            </property>
+            <property name="buddy">
+             <cstring>descriptionEdit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="descriptionEdit"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="displayNameEdit"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="displayNameLabel">
+            <property name="text">
+             <string>Display name</string>
+            </property>
+            <property name="buddy">
+             <cstring>displayNameEdit</cstring>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>108</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>uidEdit</tabstop>
+  <tabstop>sambaDomainNameEdit</tabstop>
+  <tabstop>sambaSIDEdit</tabstop>
+  <tabstop>descriptionEdit</tabstop>
+ </tabstops>
+ <resources>
+  <include location="resources/samba-ws.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>uidEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>SambaMachineAccount</receiver>
+   <slot>property_uid()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>displayNameEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>SambaMachineAccount</receiver>
+   <slot>property_displayName()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sambaSIDEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>SambaMachineAccount</receiver>
+   <slot>property_sambaSID()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>descriptionEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>SambaMachineAccount</receiver>
+   <slot>property_description()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sambaDomainNameEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>sambaSamAccount</receiver>
+   <slot>property_sambaDomainName()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>128</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

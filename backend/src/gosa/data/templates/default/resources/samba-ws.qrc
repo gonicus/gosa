@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="images">
+    <file>samba-ws.png</file>
+  </qresource>
+</RCC>

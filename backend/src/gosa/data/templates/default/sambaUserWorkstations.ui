@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>sambaUserWorkstations</class>
+ <widget class="QWidget" name="sambaUserWorkstations">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>472</width>
+    <height>353</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>User workstations</string>
+  </property>
+  <property name="dialogName" stdset="0">
+   <string notr="true">sambaUserWorkstations</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QTableWidget" name="sambaUserWotkstationsEdit">
+     <column>
+      <property name="text">
+       <string comment="uid">Name</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string comment="description">Description</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>sambaUserWotkstationsEdit</sender>
+   <signal>itemChanged(QTableWidgetItem*)</signal>
+   <receiver>sambaUserWorkstations</receiver>
+   <slot>property_sambaUserWorkstations()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>157</x>
+     <y>66</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>62</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

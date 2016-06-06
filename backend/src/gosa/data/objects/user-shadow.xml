@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+  <Object>
+    <Name>ShadowUser</Name>
+    <DisplayName>Shadow extension</DisplayName>
+    <Templates>
+      <Template>user-shadow.ui</Template>
+    </Templates>
+    <Description>A Shadow extension for a generic user</Description>
+    <BaseObject>false</BaseObject>
+    <BackendParameters>
+      <Backend objectClasses="shadowAccount">LDAP</Backend>
+    </BackendParameters>
+    <Backend>LDAP</Backend>
+
+    <Attributes>
+      <Attribute>
+        <Name>shadowLastChange</Name>
+        <Description>The dat of the last password change.</Description>
+        <Type>Timestamp</Type>
+        <BackendType>Integer</BackendType>
+	<ReadOnly>true</ReadOnly>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>ShadowDaysToDatetime</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>DatetimeToShadowDays</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+
+      <Attribute>
+        <Name>shadowMin</Name>
+        <Description>The minimum password age is the number of days the user will have to wait before she will be allowed to change her password again.</Description>
+        <Type>Integer</Type>
+      </Attribute>
+
+      <Attribute>
+        <Name>shadowMax</Name>
+        <Description>The maximum password age is the number of days after which the user will have to change her password.</Description>
+        <Type>Integer</Type>
+      </Attribute>
+
+      <Attribute>
+        <Name>shadowWarning</Name>
+        <Description>The number of days before a password is going to expire (see the shadowMax) during which the user should be warned.</Description>
+        <Type>Integer</Type>
+      </Attribute>
+
+      <Attribute>
+        <Name>shadowInactive</Name>
+        <Description>The number of days after a password has expired (see the shadowMax) during which the password should still be accepted (and the user should update her password during the next login).</Description>
+        <Type>Integer</Type>
+      </Attribute>
+
+      <Attribute>
+        <Name>shadowExpire</Name>
+        <Description>The date of expiration of the account.</Description>
+        <Type>Timestamp</Type>
+        <BackendType>Integer</BackendType>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>ShadowDaysToDatetime</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>DatetimeToShadowDays</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+
+      <Attribute>
+        <Name>shadowFlag</Name>
+        <Description></Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+    </Attributes>
+
+    <Extends>
+      <Value>User</Value>
+    </Extends>
+
+    <RequiresExtension>
+      <Extension>PosixUser</Extension>
+    </RequiresExtension>
+
+  </Object>
+</Objects>
+
+

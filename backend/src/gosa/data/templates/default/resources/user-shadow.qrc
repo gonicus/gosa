@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="images">
+    <file>user-shadow.png</file>
+  </qresource>
+</RCC>
