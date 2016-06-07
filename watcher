@@ -1,0 +1,25 @@
+#!/bin/bash
+
+function restart {
+  gosa_pid=$(cat /tmp/watcher.pid)
+
+  if [ "$gosa_pid" != "" ]; then
+      kill $gosa_pid
+      while pgrep --ns $gosa_pid | grep $gosa_pid &> /dev/null; do
+        sleep 1
+      done
+  fi
+
+  gosa &
+  echo $! > /tmp/watcher.pid
+}
+
+restart
+
+inotifywait -mr -e modify -e moved_to -e create -e delete . | grep --line-buffered '\.py$' | while read EV; do
+    for pid in $(jobs -p); do
+       kill -9 $pid
+    done
+
+    (sleep 1; restart;) &
+done
