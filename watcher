@@ -10,7 +10,7 @@ function restart {
       done
   fi
 
-  gosa &
+  gosa --config example &
   echo $! > /tmp/watcher.pid
 }
 
