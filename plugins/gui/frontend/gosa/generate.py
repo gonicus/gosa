@@ -76,7 +76,7 @@ def stripComments(s):
 def getQxPath():
     path = QOOXDOO_PATH
     # OS env takes precedence
-    if os.environ.has_key("QOOXDOO_PATH"):
+    if "QOOXDOO_PATH" in os.environ:
         path = os.environ["QOOXDOO_PATH"]
 
     # else use QOOXDOO_PATH from config.json
@@ -124,10 +124,10 @@ qxpath = getQxPath()
 REAL_GENERATOR = os.path.join(qxpath, 'tool', 'bin', 'generator.py')
 
 if not os.path.exists(REAL_GENERATOR):
-    print "Cannot find real generator script under: \"%s\"; aborting" % REAL_GENERATOR
+    print("Cannot find real generator script under: \"%s\"; aborting" % REAL_GENERATOR)
     sys.exit(1)
 elif ShellOptions.verbose:
-    print "\nInvoking real generator under %s ..." % REAL_GENERATOR
+    print("\nInvoking real generator under %s ..." % REAL_GENERATOR)
 
 argList = []
 argList.append(CMD_PYTHON)
