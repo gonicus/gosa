@@ -58,7 +58,7 @@ setup(
         'gosa.plugin.gui': data_files
     },
 
-    test_suite = "nose.collector",
+    #test_suite = "nose.collector",
     zip_safe = False,
 
     setup_requires = [

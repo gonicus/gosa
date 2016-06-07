@@ -59,14 +59,15 @@ setup(
         'gosa': data_files
     },
 
-    test_suite = "nose.collector",
     zip_safe = False,
 
     setup_requires = [
-        #'nose==0.11.1',
-        #'NoseXUnit',
+        'pytest-runner',
         'pylint',
         ],
+    tests_require = [
+        'pytest'
+    ],
     install_requires = [
         'flask>=0.11',
         'gevent',
