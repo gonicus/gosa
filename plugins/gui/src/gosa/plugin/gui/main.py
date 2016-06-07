@@ -1,13 +1,14 @@
 import pkg_resources
-from flask import Response
+import os
+from flask import send_from_directory
 from flask.views import MethodView
 
 class GuiPlugin(MethodView):
 
     def __init__(self):
-        print("Heureka!")
-        print(pkg_resources.resource_filename('gosa.plugin.gui', 'frontend/build'))
+        #self.root = pkg_resources.resource_filename('gosa.plugin.gui', 'frontend/build')
+        # TODO: hardcoded path should be replaced later
+        self.root = os.path.join(os.getcwd(), 'plugins', 'gui', 'frontend', 'gosa', 'build')
 
-    def get(self):
-        print("Serve static file")
-        return Response("", mimetype="text/html")
+    def get(self, path):
+        return send_from_directory(self.root, path)
