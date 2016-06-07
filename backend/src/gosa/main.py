@@ -41,9 +41,10 @@ def mainLoop(env):
     log = logging.getLogger(__name__)
 
     try:
-        #TEST
+
         for entry in pkg_resources.iter_entry_points("gosa.plugin"):
             module = entry.load()
+            log.debug("adding route %s" % entry.name)
             flask_view = module.as_view(entry.name)
             app.add_url_rule(entry.name, view_func=flask_view)
 
