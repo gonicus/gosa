@@ -3,9 +3,7 @@ sudo: false
 python:
     - "3.5"
 before_install:
-    - pip install gunicorn gevent setproctitle pylint
-install:
-    - pip install python-coveralls
+    - pip install gunicorn gevent setproctitle
 script:
     - ./setup.py develop
     - ./setup.py test

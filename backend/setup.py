@@ -68,7 +68,7 @@ setup(
     tests_require = [
         'pytest',
         'pytest-cov',
-        'coveralls'
+        'python-coveralls'
     ],
     install_requires = [
         'flask>=0.11',
