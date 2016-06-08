@@ -66,7 +66,9 @@ setup(
         'pylint',
         ],
     tests_require = [
-        'pytest'
+        'pytest',
+        'pytest-cov',
+        'coveralls'
     ],
     install_requires = [
         'flask>=0.11',

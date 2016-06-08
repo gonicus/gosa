@@ -43,3 +43,7 @@ class RestApiTestCase(unittest.TestCase):
         rv = self.open_with_auth('/api/Testabteilung1/user/sepp', 'GET', 'admin', 'secret')
         assert rv.status_code == 200
         assert b'"customAttr": "foobar"' in rv.data
+
+        rv = self.open_with_auth('/api/Testabteilung1/user/sepp/', 'GET', 'admin', 'secret')
+        assert rv.status_code == 200
+        assert b'"customAttr": "foobar"' in rv.data
