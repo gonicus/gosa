@@ -1,0 +1,10 @@
+language: python
+python:
+    - "3.5"
+before_install:
+    - pip install setproctitle pylint
+script:
+    - ./setup.py develop
+    - ./setup.py test
+after_success:
+    - coveralls --data_file backend/.coverage
