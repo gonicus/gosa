@@ -1,0 +1,3515 @@
+# Translations template for PROJECT.
+# Copyright (C) 2012 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2012-12-19 12:43+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.5\n"
+
+#: src/clacks/agent/acl.py:62
+msgid "ACL not found"
+msgstr ""
+
+#: src/clacks/agent/acl.py:63
+#, python-format
+msgid "Item is not of type '%(type)s'"
+msgstr ""
+
+#: src/clacks/agent/acl.py:64
+#, python-format
+msgid "Invalid ACL scope '%(scope)s'"
+msgstr ""
+
+#: src/clacks/agent/acl.py:65
+#, python-format
+msgid "Role '%(role)s' not found"
+msgstr ""
+
+#: src/clacks/agent/acl.py:66
+msgid "Cannot set scope for role ACLs"
+msgstr ""
+
+#: src/clacks/agent/acl.py:67
+msgid "ACL and Role objects are not combinable"
+msgstr ""
+
+#: src/clacks/agent/acl.py:68
+msgid ""
+"Invalid permission map - combination of the characters c, r, o, w, d, s, "
+"e, x and m expected"
+msgstr ""
+
+#: src/clacks/agent/acl.py:69
+#, python-format
+msgid "Entry %(dn)s is not unique"
+msgstr ""
+
+#: src/clacks/agent/acl.py:70
+#, python-format
+msgid "Recursion in ACL resolution for role '%(role)s'"
+msgstr ""
+
+#: src/clacks/agent/acl.py:71
+msgid "Role ACLs do not support members"
+msgstr ""
+
+#: src/clacks/agent/acl.py:72
+#, python-format
+msgid "Unresolved role references: %(references)s"
+msgstr ""
+
+#: src/clacks/agent/acl.py:73
+#, python-format
+msgid "No base ACL definition for '%(base)s' found"
+msgstr ""
+
+#: src/clacks/agent/acl.py:74
+#, python-format
+msgid "No ACL definition for '%(base)s' found"
+msgstr ""
+
+#: src/clacks/agent/acl.py:75
+#, python-format
+msgid "Role '%(role)s' is still in use"
+msgstr ""
+
+#: src/clacks/agent/acl.py:76
+msgid "Priority needs to be above -100 and below 100"
+msgstr ""
+
+#: src/clacks/agent/acl.py:77
+#, python-format
+msgid "Action '%(action)s' lacks a '%(key)s' key"
+msgstr ""
+
+#: src/clacks/agent/acl.py:78
+msgid "Action and role name parameter cannot be used at the same time"
+msgstr ""
+
+#: src/clacks/agent/acl.py:79
+#, python-format
+msgid "No permission to modify '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/acl.py:80
+#, python-format
+msgid "Role '%(name)s' already exists"
+msgstr ""
+
+#: src/clacks/agent/acl.py:81
+msgid "Roles cannot point to themselves"
+msgstr ""
+
+#: src/clacks/agent/acl.py:82
+#, python-format
+msgid "No permission to send event '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/acl.py:1442
+msgid "List defined ACLs by base or topic."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1523
+msgid "Remove defined ACL by ID."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1563
+msgid "Add a new ACL."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1649
+msgid "Refresh existing ACL by ID."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1741
+msgid "List defined roles."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1779
+msgid "Add new role."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1813
+msgid "Add new acl to an existing role."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1895
+msgid "Refresh existing role by ID."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1996
+msgid "Remove defined role-acl by ID."
+msgstr ""
+
+#: src/clacks/agent/acl.py:2024
+msgid "Remove a defined acl-role by name"
+msgstr ""
+
+#: src/clacks/agent/amqp_service.py:91
+msgid "Incoming message has no user_id field"
+msgstr ""
+
+#: src/clacks/agent/amqp_service.py:92
+msgid "Bad parameters - list or dict expected"
+msgstr ""
+
+#: src/clacks/agent/command.py:77
+#, python-format
+msgid "Calling method '%(method)s' without a valid user session is not permitted"
+msgstr ""
+
+#: src/clacks/agent/command.py:78
+#, python-format
+msgid "Method '%(method)s' is not defined"
+msgstr ""
+
+#: src/clacks/agent/command.py:79
+#, python-format
+msgid "No permission to execute method '%(queue)s.%(method)s'"
+msgstr ""
+
+#: src/clacks/agent/command.py:80
+#, python-format
+msgid "Invalid queue '%(queue)s' for method '%(method)s'"
+msgstr ""
+
+#: src/clacks/agent/command.py:81
+#, python-format
+msgid "No method type '%(type)s' defined"
+msgstr ""
+
+#: src/clacks/agent/command.py:82
+#, python-format
+msgid "Method '%(method)s' has no documentation"
+msgstr ""
+
+#: src/clacks/agent/command.py:110
+msgid "Returns the LDAP base"
+msgstr ""
+
+#: src/clacks/agent/command.py:119
+msgid "List available service nodes on the bus."
+msgstr ""
+
+#: src/clacks/agent/command.py:128
+msgid "List available methods that are registered on the bus."
+msgstr ""
+
+#: src/clacks/agent/command.py:172
+msgid "doc"
+msgstr ""
+
+#: src/clacks/agent/command.py:176
+msgid ""
+"Shut down the service belonging to the supplied queue. In case of HTTP "
+"connections, this command will shut down the node you're currently logged"
+" in."
+msgstr ""
+
+#: src/clacks/agent/command.py:662
+msgid "Return the current session's user ID."
+msgstr ""
+
+#: src/clacks/agent/command.py:666
+msgid "Send event to the bus."
+msgstr ""
+
+#: src/clacks/agent/httpd.py:37
+#, python-format
+msgid "'%(path)s' has already been registered"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:27
+#, python-format
+msgid "Reference '%(ref)s' not found"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:28
+#, python-format
+msgid "Property '%(property)s' not found"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:29
+#, python-format
+msgid "Method '%(method)s' not found"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:30
+#, python-format
+msgid "Object '%(object)s' has been locked by '%(user)s' on %(when)s"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:31
+#, python-format
+msgid "Object OID '%(oid)s' not found"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:32
+msgid "Caller does not own the referenced object"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:71
+msgid "List available object OIDs"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:81
+msgid "Close object and remove it from stack"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:105
+msgid "Set property for object on stack"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:134
+msgid "Get property from object on stack"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:164
+msgid "Call method from object on stack"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:196
+msgid "Reloads the object"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:219
+msgid "Returns a delta of the reference currently in store and the data store"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:270
+msgid "Removes the given object"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:312
+msgid "Instantiate object and place it on stack"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_service.py:41
+#, python-format
+msgid "Invalid JSON string '%(data)s'"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_service.py:42
+msgid "Parameter missing in JSON body"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_service.py:43
+msgid "Parameter must be list or dictionary"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_service.py:44
+msgid "Registry is not ready"
+msgstr ""
+
+#: src/clacks/agent/ldap_utils.py:31
+msgid "No SASL support in the installed python-ldap detected"
+msgstr ""
+
+#: src/clacks/agent/ldap_utils.py:32
+msgid "No LDAP connection available"
+msgstr ""
+
+#: src/clacks/agent/scheduler.py:122
+msgid "List jobs matchings an optional filter."
+msgstr ""
+
+#: src/clacks/agent/scheduler.py:182
+msgid "Add a new date based job to the scheduler."
+msgstr ""
+
+#: src/clacks/agent/scheduler.py:227
+msgid "Add a new cron based job to the scheduler."
+msgstr ""
+
+#: src/clacks/agent/scheduler.py:269
+msgid "Add a new interval job to the scheduler."
+msgstr ""
+
+#: src/clacks/agent/scheduler.py:308
+msgid "Remove job from the scheduler."
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:82
+#, python-format
+msgid "'%(type)s' is no base type"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:83 src/clacks/agent/objects/proxy.py:65
+#, python-format
+msgid "Unknown object type '%(type)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:84
+#, python-format
+msgid "Cannot find base object for type '%(type)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:85
+#, python-format
+msgid "No base type for attribute '%(attribute)s found'"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:86
+#, python-format
+msgid ""
+"Cannot identify '%(topic)s' - it seems to be of type '%(type1)s and "
+"%(type2)s at the same time'"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:87
+msgid "Cannot load object schema"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:88
+#, python-format
+msgid "Attribute '%(topic)s' is blocked by non existing attribute '%(blocker)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:89
+#, python-format
+msgid "Attribute '%(topic)s' depends on non existing attribute '%(dependency)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:90
+#, python-format
+msgid "Method '%(method)s' depends on unknown attribute %(attribute)s"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:91
+#, python-format
+msgid "Parameter '%(parameter)s' for command '%(command)s' is missing"
+msgstr ""
+
+#: src/clacks/agent/objects/index.py:48
+#, python-format
+msgid "Object with UUID %(uuid)s already exists"
+msgstr ""
+
+#: src/clacks/agent/objects/index.py:49
+#, python-format
+msgid "Cannot find object %(id)s"
+msgstr ""
+
+#: src/clacks/agent/objects/index.py:50
+msgid "index rebuild in progress - try again later"
+msgstr ""
+
+#: src/clacks/agent/objects/index.py:525
+msgid "Check if an object with the given UUID exists."
+msgstr ""
+
+#: src/clacks/agent/objects/index.py:541
+msgid "Get list of defined base object types."
+msgstr ""
+
+#: src/clacks/agent/objects/index.py:550
+msgid "Query the index for entries."
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:40
+#, python-format
+msgid "Creation of '%(location)s' lacks a base DN"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:41
+#, python-format
+msgid "Error reading properties for backend '%(backend)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:42
+#, python-format
+msgid "Attribute is blocked by %(source)s==%(value)s"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:43
+msgid "Attribute is read only"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:44
+msgid "Attribute is mandatory"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:45
+#, python-format
+msgid "Value is invalid - expected one of %(elements)s"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:46
+msgid "Value is invalid - expected a list"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:47
+#, python-format
+msgid "Value is invalid - expected value of type '%(type)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:48
+msgid "Value is invalid"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:49
+#, python-format
+msgid "Value is not unique (%(value)s)"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:50
+msgid "Attribute not found"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:51
+#, python-format
+msgid "Mode '%(mode)s' is not available for base objects"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:52
+#, python-format
+msgid "Mode '%(mode)s' is only available for base objects"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:53
+#, python-format
+msgid "Object of type '%(ext)s' cannot be added as to the '%(base)s' container"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:54
+msgid "Cannot remove non base object"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:55
+msgid "Cannot move non base object"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:56
+msgid "Base object cannot be retracted"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:57
+#, python-format
+msgid "Invalid key '%(key)s' for filter '%(filter)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:58
+#, python-format
+msgid "Missing key '%(key)s' after processing filter '%(filter)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:59
+#, python-format
+msgid "Filter '%(filter)s' did not return a %(type)s value - a list was expected"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:60
+msgid "Potential loop in attribute dependencies"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:66
+#, python-format
+msgid "Extension '%(extension)s' not allowed"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:67
+#, python-format
+msgid "Extension '%(extension)s' already there"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:68
+#, python-format
+msgid "Extension '%(extension)s' depends on '%(missing)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:69
+#, python-format
+msgid "No permission to extend %(target)s with %(extension)s"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:70
+#, python-format
+msgid "Extension '%(extension)s' already retracted"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:71
+#, python-format
+msgid "Extension '%(extension)s' is required by '%(origin)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:72
+#, python-format
+msgid "No permission to retract '%(extension)s' from '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:73
+#, python-format
+msgid "No permission to move '%(source)s' to '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:74
+#, python-format
+msgid "Object '%(target)s' has children"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:75
+#, python-format
+msgid "No permission to remove '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:76
+#, python-format
+msgid "No permission to create '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:77
+#, python-format
+msgid "No permission to access '%(topic)s' on '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:78
+#, python-format
+msgid "UUID of base (%(b_uuid)s) and extension (%(e_uuid)s) differ"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:23
+#, python-format
+msgid "Attribute '%(topic)s needed to generate a RDN is missing"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:24
+msgid "No 'RDN' backend parameter specified"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:25
+#, python-format
+msgid "Cannot generate a unique DN in '%(base)s' using a combination of %(rdns)s"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:26
+#, python-format
+msgid "Target DN '%(target)s' already exists"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:27
+#, python-format
+msgid "No database configuration found for '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:28
+#, python-format
+msgid ""
+"Attribute '%s' uses the ObjectHandler backend but there is no config for "
+"it"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:29
+#, python-format
+msgid "Cannot find source object '%(object)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:30
+#, python-format
+msgid "No unique '%(object)s' object which matches '%(attribute)s == %(value)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:31
+msgid "Failed to generate a unique ID"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:32
+#, python-format
+msgid "Entry '%(uuid)s' not found"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:33
+#, python-format
+msgid "Entry '%(uuid)s' not unique"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/back_ldap.py:31
+msgid "No ID pool found"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/back_ldap.py:32
+msgid "Multiple ID pools found"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/back_mongodb.py:26
+#: src/clacks/agent/objects/filter/__init__.py:20
+#, python-format
+msgid "No filter instance for '%(filter)s' found"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/registry.py:20
+#, python-format
+msgid "Backend '%(topic)s' not found"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/__init__.py:20
+#, python-format
+msgid "No comparator instance for '%(comparator)s' found"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/acl_roles.py:42
+#: src/clacks/agent/objects/comparator/acl_roles.py:81
+#: src/clacks/agent/objects/comparator/acl_roles.py:89
+#: src/clacks/agent/objects/comparator/acl_roles.py:100
+#: src/clacks/agent/objects/comparator/acl_roles.py:107
+#: src/clacks/agent/objects/comparator/acl_set.py:41
+#: src/clacks/agent/objects/comparator/acl_set.py:49
+#: src/clacks/agent/objects/comparator/acl_set.py:88
+#: src/clacks/agent/objects/comparator/acl_set.py:96
+#: src/clacks/agent/objects/comparator/acl_set.py:105
+#: src/clacks/agent/objects/comparator/acl_set.py:108
+#, python-format
+msgid "missing '%(attribute)s' attribute"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/acl_roles.py:52
+#: src/clacks/agent/objects/comparator/acl_set.py:59
+msgid "rolename and actions cannot be used at the same time"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/acl_roles.py:60
+#: src/clacks/agent/objects/comparator/acl_roles.py:116
+#: src/clacks/agent/objects/comparator/acl_roles.py:125
+#: src/clacks/agent/objects/comparator/acl_roles.py:157
+#: src/clacks/agent/objects/comparator/acl_set.py:67
+#: src/clacks/agent/objects/comparator/acl_set.py:115
+#: src/clacks/agent/objects/comparator/acl_set.py:124
+#: src/clacks/agent/objects/comparator/acl_set.py:156
+#, python-format
+msgid "'%(attribute)' needs to be of type '%(ttype)s' ('%(stype)s' found)"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/acl_roles.py:71
+#: src/clacks/agent/objects/comparator/acl_set.py:78
+#, python-format
+msgid "unknown role '%(role)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/acl_roles.py:136
+#: src/clacks/agent/objects/comparator/acl_set.py:135
+msgid "please use a combination of the charaters c, r, o, w, d, s, e, x and m"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/acl_roles.py:149
+#: src/clacks/agent/objects/comparator/acl_set.py:148
+#, python-format
+msgid "unknown attributes %(attributes)s"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/basic.py:44
+msgid "item does not match the given value ignoring the case"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/basic.py:50
+msgid "item does not match the given value"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/basic.py:83
+#, python-format
+msgid "item needs to be greater than %(compare)s"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/basic.py:117
+#, python-format
+msgid "item needs to be smaller than %(compare)s"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/strings.py:43
+#, python-format
+msgid "value is not like %(comparator)s"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/strings.py:73
+msgid "syntax error"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/strings.py:107
+#, python-format
+msgid "value is short, at least %(count)s characters required"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/strings.py:112
+#, python-format
+msgid "value is long, at max %(count)s characters allowed"
+msgstr ""
+
+#: src/clacks/agent/objects/operator/__init__.py:21
+#, python-format
+msgid "No operator instance for '%(operator)s' found"
+msgstr ""
+
+#: src/clacks/agent/objects/types/__init__.py:22
+#, python-format
+msgid "Cannot check value of type %(type)s"
+msgstr ""
+
+#: src/clacks/agent/objects/types/__init__.py:23
+#, python-format
+msgid "Cannot match value of type %(type)s"
+msgstr ""
+
+#: src/clacks/agent/objects/types/__init__.py:24
+#, python-format
+msgid "Cannot convert from '%(source)s' type to '%(target)s' type"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:35
+#, python-format
+msgid "Invalid scope '%(scope)s' [SUB, BASE, ONE]"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:36
+#, python-format
+msgid "Invalid date specification '%(date)s' [hour, day, week, month, year, all]"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:37
+#, python-format
+msgid "Unknown user '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:38
+#, python-format
+msgid "Backend parameter for '%(extension)s.%(attribute)s' is missing"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:72
+msgid "Returns a list containing all available object names"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:77
+msgid "Returns all templates used by the given object type."
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:85
+msgid "Returns all dialog-templates used by the given object type."
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:93
+msgid "Get all translations bound to templates."
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:103
+msgid "Returns details about the currently logged in user"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:116
+msgid ""
+"Checks whether the given extension is already activated for the current "
+"object"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:125
+msgid "Save user preferences"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:146
+msgid "Load user preferences"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:166
+msgid "Search for object information"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:225
+msgid "Resolves object information"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:281
+msgid "Returns a list with all selectable samba-domain-names"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:289
+msgid "Returns a list of DOS/Windows drive letters"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:297
+msgid "Filter for indexed attributes and return the matches."
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/service.py:287
+msgid "Server information"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/service.py:287
+msgid "Websockets enabled"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/service.py:326
+msgid "System notification"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:60
+#, python-format
+msgid "Device with hardware address '%(topic)s' already exists"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:61
+#, python-format
+msgid "User '%(topic)s' is not unique"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:62
+#, python-format
+msgid "Client '%(topic)s' not found"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:63
+#, python-format
+msgid "Client '%(topic)s' is offline"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:64
+#, python-format
+msgid "Client '%(topic)s' has no method %(method)s"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:65
+#, python-format
+msgid "Invalid data '%(entry)s:%(data)s' for client '%(target)s provided'"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:66
+#, python-format
+msgid ""
+"Device type '%(type)s' for client '%(target)s' is invalid [terminal, "
+"workstation, server, sipphone, switch, router, printer, scanner]"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:67
+#, python-format
+msgid "Owner '%(owner)s' for client '%(target)s' not found"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:68
+#, python-format
+msgid "Invalid client UUID '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:69
+#, python-format
+msgid "Invalid status '%(status)s' for client '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:164
+msgid "List available clients."
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:177
+msgid "Call method exposed by client."
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:217
+msgid "Get the client Interface/IP/Netmask/Broadcast/MAC list."
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:243
+msgid "List available client methods for specified client."
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:257
+msgid "List user sessions per client"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:267
+msgid "List clients a user is logged in"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:274
+msgid "Send synchronous notification message to user"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:337
+#: src/clacks/agent/plugins/goto/client_service.py:358
+msgid "Set system status"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:406
+msgid "Join a client to the clacks infrastructure."
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/network.py:31
+msgid "Resolve network address to a mac / dns name tupel."
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/network.py:58
+msgid "Resolve MAC address to the producer of the network card if possible."
+msgstr ""
+
+#: src/clacks/agent/plugins/inventory/consumer.py:30
+#, python-format
+msgid "No client UUID for hardware UUID '%(target)s' found"
+msgstr ""
+
+#: src/clacks/agent/plugins/inventory/consumer.py:31
+#, python-format
+msgid "No hardware checksum found for client %(target)s"
+msgstr ""
+
+#: src/clacks/agent/plugins/inventory/consumer.py:32
+msgid "Inventory data invalid"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/filter_validators.py:34
+#, python-format
+msgid "invalid hostname '%(hostname)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/filter_validators.py:55
+#: src/clacks/agent/plugins/misc/filter_validators.py:76
+#, python-format
+msgid "DN '%(dn)s' does not exist"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/filter_validators.py:98
+#, python-format
+msgid ""
+"no '%(type)s' object with '%(attribute)s' property matching '%(value)s' "
+"found"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/gravatar.py:33
+msgid "Generate samba lm:nt hash combination from the supplied password."
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:25
+msgid "Afrikaans (South Africa)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:26
+msgid "Albanian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:27
+msgid "Arabic (Algeria)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:28
+msgid "Arabic (Bahrain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:29
+msgid "Arabic (Egypt)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:30
+msgid "Arabic (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:31
+msgid "Arabic (Iraq)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:32
+msgid "Arabic (Jordan)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:33
+msgid "Arabic (Kuwait)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:34
+msgid "Arabic (Lebanon)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:35
+msgid "Arabic (Libyan Arab Jamahiriya)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:36
+msgid "Arabic (Morocco)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:37
+msgid "Arabic (Oman)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:38
+msgid "Arabic (Qatar)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:39
+msgid "Arabic (Saudi Arabia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:40
+msgid "Arabic (Sudan)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:41
+msgid "Arabic (Syrian Arab Republic)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:42
+msgid "Arabic (Tunisia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:43
+msgid "Arabic (United Arab Emirates)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:44
+msgid "Arabic (Yemen)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:45
+msgid "Assamese (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:46
+msgid "Asturian (Spain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:47
+msgid "Basque (Spain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:48
+msgid "Belarusian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:49
+msgid "Bengali (BD)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:50
+msgid "Bengali (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:51
+msgid "Bosnian (Bosnia and Herzegowina)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:52
+msgid "Breton (France)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:53
+msgid "Bulgarian - Български"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:54
+msgid "Catalan (Spain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:55
+msgid "Chinese (Hong Kong)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:56
+msgid "Chinese (P.R. of China) - 中文(简体)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:57
+msgid "Chinese (Taiwan) - 正體中文"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:58
+msgid "Cornish (Britain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:59
+msgid "Croatian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:60
+msgid "Czech - Česká republika"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:61
+msgid "Danish - Dansk"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:62
+msgid "Dutch (Belgium)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:63
+msgid "Dutch (Netherlands)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:64
+msgid "English (Australia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:65
+msgid "English (Botswana)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:66
+msgid "English (Canada)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:67
+msgid "English (Denmark)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:68
+msgid "English (Great Britain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:69
+msgid "English (Hong Kong)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:70
+msgid "English (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:71
+msgid "English (Ireland)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:72
+msgid "English (New Zealand)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:73
+msgid "English (Philippines)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:74
+msgid "English (Singapore)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:75
+msgid "English (South Africa)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:76
+msgid "English (USA)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:77
+msgid "English (Zimbabwe)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:78
+msgid "Estonian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:79
+msgid "Faroese (Faroe Islands)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:80
+msgid "Finnish"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:81
+msgid "French (Belgium)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:82
+msgid "French (Canada)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:83
+msgid "French (France) - Français"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:84
+msgid "French (Luxemburg)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:85
+msgid "French (Switzerland)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:86
+msgid "Galician (Spain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:87
+msgid "German (Austria)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:88
+msgid "German (Belgium)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:89
+msgid "German (Germany) - Deutsch"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:90
+msgid "German (Luxemburg)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:91
+msgid "German (Switzerland)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:92
+msgid "Greek"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:93
+msgid "Greenlandic (Greenland)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:94
+msgid "Gujarati (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:95
+msgid "Hebrew (Israel)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:96
+msgid "Hindi (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:97
+msgid "Hungarian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:98
+msgid "Icelandic - Íslenska"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:99
+msgid "Indonesian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:100
+msgid "Irish"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:101
+msgid "Italian (Italy) Italiano"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:102
+msgid "Italian (Switzerland)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:103
+msgid "Japanese - 日本語"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:104
+msgid "Kannada (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:105
+msgid "Korean (Republic of Korea) - 한국어"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:106
+msgid "Lao (Laos)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:107
+msgid "Latvian (Latvia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:108
+msgid "Lithuanian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:109
+msgid "Macedonian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:110
+msgid "Maithili (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:111
+msgid "Malayalam (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:112
+msgid "Malay (Malaysia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:113
+msgid "Maltese (malta)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:114
+msgid "Manx Gaelic (Britain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:115
+msgid "Marathi (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:116
+msgid "Northern Saami (Norway)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:117
+msgid "Nepali (Nepal)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:118
+msgid "Norwegian - Norsk"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:119
+msgid "Norwegian, Nynorsk (Norway) - Norsk"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:120
+msgid "Occitan (France)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:121
+msgid "Oriya (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:122
+msgid "Persian (Iran)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:123
+msgid "Polish"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:124
+msgid "Portuguese (Brasil)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:125
+msgid "Portuguese (Portugal) - Português"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:126
+msgid "Punjabi (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:127
+msgid "Romanian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:128
+msgid "Russian - Русский"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:129
+msgid "Russian (Ukraine)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:130
+msgid "Serbian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:131
+msgid "Serbian (Latin)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:132
+msgid "Sinhala"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:133
+msgid "Slovak"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:134
+msgid "Slovenian (Slovenia) - slovenščina"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:135
+msgid "Spanish (Argentina)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:136
+msgid "Spanish (Bolivia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:137
+msgid "Spanish (Chile)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:138
+msgid "Spanish (Colombia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:139
+msgid "Spanish (Costa Rica)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:140
+msgid "Spanish (Dominican Republic)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:141
+msgid "Spanish (El Salvador)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:142
+msgid "Spanish (Equador)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:143
+msgid "Spanish (Guatemala)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:144
+msgid "Spanish (Honduras)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:145
+msgid "Spanish (Mexico)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:146
+msgid "Spanish (Nicaragua)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:147
+msgid "Spanish (Panama)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:148
+msgid "Spanish (Paraguay)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:149
+msgid "Spanish (Peru)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:150
+msgid "Spanish (Puerto Rico)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:151
+msgid "Spanish (Spain) - Español"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:152
+msgid "Spanish (USA)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:153
+msgid "Spanish (Uruguay)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:154
+msgid "Spanish (Venezuela)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:155
+msgid "Swedish (Finland)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:156
+msgid "Swedish (Sweden) - Svenska"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:157
+msgid "Tagalog (Philippines)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:158
+msgid "Tamil (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:159
+msgid "Telugu (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:160
+msgid "Thai"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:161
+msgid "Turkish"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:162
+msgid "Ukrainian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:163
+msgid "Urdu (Pakistan)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:164
+msgid "Uzbek (Uzbekistan)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:165
+msgid "Walloon (Belgium)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:166
+msgid "Welsh (Great Britain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:167
+msgid "Xhosa (South Africa)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:168
+msgid "Zulu (South Africa)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:178
+msgid "Return list of languages"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:196
+msgid "value"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/transliterate.py:23
+msgid "Transliterate a given string"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:29
+msgid "Cannot detect password method"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:30
+#, python-format
+msgid "No password method to generate hash of type '%(type)s' available"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:31
+#, python-format
+msgid "Invalid hash type for password method '%(method)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:32
+msgid "Object has no 'userPassword' attribute"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:33
+msgid "No password to lock."
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:64
+msgid "Locks the account password for the given DN"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:98
+msgid "Unlocks the account password for the given DN"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:132
+msgid "Check whether the account can be locked or not"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:164
+msgid "Check whether the account can be unlocked or not"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:194
+msgid "Changes the used password enryption method"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:223
+msgid "Sets a new password for a user"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:254
+msgid "List all password hashing-methods"
+msgstr ""
+
+#: src/clacks/agent/plugins/posix/filters.py:21
+#, python-format
+msgid "Parameter for '%(target)s' have to be numeric"
+msgstr ""
+
+#: src/clacks/agent/plugins/posix/filters.py:22
+#, python-format
+msgid "Too many backends for %(target)s specified"
+msgstr ""
+
+#: src/clacks/agent/plugins/posix/filters.py:23
+#, python-format
+msgid "ID pool for attribute %(target)s is empty [> %(max)s]"
+msgstr ""
+
+#: src/clacks/agent/plugins/posix/shells.py:43
+msgid "Return list of supported shells"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:35
+msgid "Sets a new samba-password for a user"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:64
+msgid "Returns the current samba domain policy for a given user"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:284
+#, python-format
+msgid "Unknown domain '%(domain)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/hash.py:21
+#, python-format
+msgid "Filter '%(target)s' does not support input type '%(type)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/sid.py:24
+#, python-format
+msgid "Domain %(target)s has no SID"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/sid.py:25
+#, python-format
+msgid "Invalid type '%(type)s' for SID generator [user, group]"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/sid.py:47
+msgid "recursive nesting not allowed"
+msgstr ""
+
+#: src/clacks/agent/plugins/user/filters.py:25
+msgid "Image sizes not specified"
+msgstr ""
+
+# Translations template for PROJECT.
+# Copyright (C) 2012 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2012-12-19 12:51+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.5\n"
+
+#: src/clacks/agent/acl.py:62
+msgid "ACL not found"
+msgstr ""
+
+#: src/clacks/agent/acl.py:63
+#, python-format
+msgid "Item is not of type '%(type)s'"
+msgstr ""
+
+#: src/clacks/agent/acl.py:64
+#, python-format
+msgid "Invalid ACL scope '%(scope)s'"
+msgstr ""
+
+#: src/clacks/agent/acl.py:65
+#, python-format
+msgid "Role '%(role)s' not found"
+msgstr ""
+
+#: src/clacks/agent/acl.py:66
+msgid "Cannot set scope for role ACLs"
+msgstr ""
+
+#: src/clacks/agent/acl.py:67
+msgid "ACL and Role objects are not combinable"
+msgstr ""
+
+#: src/clacks/agent/acl.py:68
+msgid ""
+"Invalid permission map - combination of the characters c, r, o, w, d, s, "
+"e, x and m expected"
+msgstr ""
+
+#: src/clacks/agent/acl.py:69
+#, python-format
+msgid "Entry %(dn)s is not unique"
+msgstr ""
+
+#: src/clacks/agent/acl.py:70
+#, python-format
+msgid "Recursion in ACL resolution for role '%(role)s'"
+msgstr ""
+
+#: src/clacks/agent/acl.py:71
+msgid "Role ACLs do not support members"
+msgstr ""
+
+#: src/clacks/agent/acl.py:72
+#, python-format
+msgid "Unresolved role references: %(references)s"
+msgstr ""
+
+#: src/clacks/agent/acl.py:73
+#, python-format
+msgid "No base ACL definition for '%(base)s' found"
+msgstr ""
+
+#: src/clacks/agent/acl.py:74
+#, python-format
+msgid "No ACL definition for '%(base)s' found"
+msgstr ""
+
+#: src/clacks/agent/acl.py:75
+#, python-format
+msgid "Role '%(role)s' is still in use"
+msgstr ""
+
+#: src/clacks/agent/acl.py:76
+msgid "Priority needs to be above -100 and below 100"
+msgstr ""
+
+#: src/clacks/agent/acl.py:77
+#, python-format
+msgid "Action '%(action)s' lacks a '%(key)s' key"
+msgstr ""
+
+#: src/clacks/agent/acl.py:78
+msgid "Action and role name parameter cannot be used at the same time"
+msgstr ""
+
+#: src/clacks/agent/acl.py:79
+#, python-format
+msgid "No permission to modify '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/acl.py:80
+#, python-format
+msgid "Role '%(name)s' already exists"
+msgstr ""
+
+#: src/clacks/agent/acl.py:81
+msgid "Roles cannot point to themselves"
+msgstr ""
+
+#: src/clacks/agent/acl.py:82
+#, python-format
+msgid "No permission to send event '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/acl.py:1442
+msgid "List defined ACLs by base or topic."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1523
+msgid "Remove defined ACL by ID."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1563
+msgid "Add a new ACL."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1649
+msgid "Refresh existing ACL by ID."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1741
+msgid "List defined roles."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1779
+msgid "Add new role."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1813
+msgid "Add new acl to an existing role."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1895
+msgid "Refresh existing role by ID."
+msgstr ""
+
+#: src/clacks/agent/acl.py:1996
+msgid "Remove defined role-acl by ID."
+msgstr ""
+
+#: src/clacks/agent/acl.py:2024
+msgid "Remove a defined acl-role by name"
+msgstr ""
+
+#: src/clacks/agent/amqp_service.py:91
+msgid "Incoming message has no user_id field"
+msgstr ""
+
+#: src/clacks/agent/amqp_service.py:92
+msgid "Bad parameters - list or dict expected"
+msgstr ""
+
+#: src/clacks/agent/command.py:77
+#, python-format
+msgid "Calling method '%(method)s' without a valid user session is not permitted"
+msgstr ""
+
+#: src/clacks/agent/command.py:78
+#, python-format
+msgid "Method '%(method)s' is not defined"
+msgstr ""
+
+#: src/clacks/agent/command.py:79
+#, python-format
+msgid "No permission to execute method '%(queue)s.%(method)s'"
+msgstr ""
+
+#: src/clacks/agent/command.py:80
+#, python-format
+msgid "Invalid queue '%(queue)s' for method '%(method)s'"
+msgstr ""
+
+#: src/clacks/agent/command.py:81
+#, python-format
+msgid "No method type '%(type)s' defined"
+msgstr ""
+
+#: src/clacks/agent/command.py:82
+#, python-format
+msgid "Method '%(method)s' has no documentation"
+msgstr ""
+
+#: src/clacks/agent/command.py:110
+msgid "Returns the LDAP base"
+msgstr ""
+
+#: src/clacks/agent/command.py:119
+msgid "List available service nodes on the bus."
+msgstr ""
+
+#: src/clacks/agent/command.py:128
+msgid "List available methods that are registered on the bus."
+msgstr ""
+
+#: src/clacks/agent/command.py:172
+msgid "doc"
+msgstr ""
+
+#: src/clacks/agent/command.py:176
+msgid ""
+"Shut down the service belonging to the supplied queue. In case of HTTP "
+"connections, this command will shut down the node you're currently logged"
+" in."
+msgstr ""
+
+#: src/clacks/agent/command.py:662
+msgid "Return the current session's user ID."
+msgstr ""
+
+#: src/clacks/agent/command.py:666
+msgid "Send event to the bus."
+msgstr ""
+
+#: src/clacks/agent/httpd.py:37
+#, python-format
+msgid "'%(path)s' has already been registered"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:27
+#, python-format
+msgid "Reference '%(ref)s' not found"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:28
+#, python-format
+msgid "Property '%(property)s' not found"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:29
+#, python-format
+msgid "Method '%(method)s' not found"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:30
+#, python-format
+msgid "Object '%(object)s' has been locked by '%(user)s' on %(when)s"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:31
+#, python-format
+msgid "Object OID '%(oid)s' not found"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:32
+msgid "Caller does not own the referenced object"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:71
+msgid "List available object OIDs"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:81
+msgid "Close object and remove it from stack"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:105
+msgid "Set property for object on stack"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:134
+msgid "Get property from object on stack"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:164
+msgid "Call method from object on stack"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:196
+msgid "Reloads the object"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:219
+msgid "Returns a delta of the reference currently in store and the data store"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:270
+msgid "Removes the given object"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_objects.py:312
+msgid "Instantiate object and place it on stack"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_service.py:41
+#, python-format
+msgid "Invalid JSON string '%(data)s'"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_service.py:42
+msgid "Parameter missing in JSON body"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_service.py:43
+msgid "Parameter must be list or dictionary"
+msgstr ""
+
+#: src/clacks/agent/jsonrpc_service.py:44
+msgid "Registry is not ready"
+msgstr ""
+
+#: src/clacks/agent/ldap_utils.py:31
+msgid "No SASL support in the installed python-ldap detected"
+msgstr ""
+
+#: src/clacks/agent/ldap_utils.py:32
+msgid "No LDAP connection available"
+msgstr ""
+
+#: src/clacks/agent/scheduler.py:122
+msgid "List jobs matchings an optional filter."
+msgstr ""
+
+#: src/clacks/agent/scheduler.py:182
+msgid "Add a new date based job to the scheduler."
+msgstr ""
+
+#: src/clacks/agent/scheduler.py:227
+msgid "Add a new cron based job to the scheduler."
+msgstr ""
+
+#: src/clacks/agent/scheduler.py:269
+msgid "Add a new interval job to the scheduler."
+msgstr ""
+
+#: src/clacks/agent/scheduler.py:308
+msgid "Remove job from the scheduler."
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:82
+#, python-format
+msgid "'%(type)s' is no base type"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:83 src/clacks/agent/objects/proxy.py:65
+#, python-format
+msgid "Unknown object type '%(type)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:84
+#, python-format
+msgid "Cannot find base object for type '%(type)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:85
+#, python-format
+msgid "No base type for attribute '%(attribute)s found'"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:86
+#, python-format
+msgid ""
+"Cannot identify '%(topic)s' - it seems to be of type '%(type1)s and "
+"%(type2)s at the same time'"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:87
+msgid "Cannot load object schema"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:88
+#, python-format
+msgid "Attribute '%(topic)s' is blocked by non existing attribute '%(blocker)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:89
+#, python-format
+msgid "Attribute '%(topic)s' depends on non existing attribute '%(dependency)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:90
+#, python-format
+msgid "Method '%(method)s' depends on unknown attribute %(attribute)s"
+msgstr ""
+
+#: src/clacks/agent/objects/factory.py:91
+#, python-format
+msgid "Parameter '%(parameter)s' for command '%(command)s' is missing"
+msgstr ""
+
+#: src/clacks/agent/objects/index.py:48
+#, python-format
+msgid "Object with UUID %(uuid)s already exists"
+msgstr ""
+
+#: src/clacks/agent/objects/index.py:49
+#, python-format
+msgid "Cannot find object %(id)s"
+msgstr ""
+
+#: src/clacks/agent/objects/index.py:50
+msgid "index rebuild in progress - try again later"
+msgstr ""
+
+#: src/clacks/agent/objects/index.py:525
+msgid "Check if an object with the given UUID exists."
+msgstr ""
+
+#: src/clacks/agent/objects/index.py:541
+msgid "Get list of defined base object types."
+msgstr ""
+
+#: src/clacks/agent/objects/index.py:550
+msgid "Query the index for entries."
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:40
+#, python-format
+msgid "Creation of '%(location)s' lacks a base DN"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:41
+#, python-format
+msgid "Error reading properties for backend '%(backend)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:42
+#, python-format
+msgid "Attribute is blocked by %(source)s==%(value)s"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:43
+msgid "Attribute is read only"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:44
+msgid "Attribute is mandatory"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:45
+#, python-format
+msgid "Value is invalid - expected one of %(elements)s"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:46
+msgid "Value is invalid - expected a list"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:47
+#, python-format
+msgid "Value is invalid - expected value of type '%(type)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:48
+msgid "Value is invalid"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:49
+#, python-format
+msgid "Value is not unique (%(value)s)"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:50
+msgid "Attribute not found"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:51
+#, python-format
+msgid "Mode '%(mode)s' is not available for base objects"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:52
+#, python-format
+msgid "Mode '%(mode)s' is only available for base objects"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:53
+#, python-format
+msgid "Object of type '%(ext)s' cannot be added as to the '%(base)s' container"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:54
+msgid "Cannot remove non base object"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:55
+msgid "Cannot move non base object"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:56
+msgid "Base object cannot be retracted"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:57
+#, python-format
+msgid "Invalid key '%(key)s' for filter '%(filter)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:58
+#, python-format
+msgid "Missing key '%(key)s' after processing filter '%(filter)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:59
+#, python-format
+msgid "Filter '%(filter)s' did not return a %(type)s value - a list was expected"
+msgstr ""
+
+#: src/clacks/agent/objects/object.py:60
+msgid "Potential loop in attribute dependencies"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:66
+#, python-format
+msgid "Extension '%(extension)s' not allowed"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:67
+#, python-format
+msgid "Extension '%(extension)s' already there"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:68
+#, python-format
+msgid "Extension '%(extension)s' depends on '%(missing)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:69
+#, python-format
+msgid "No permission to extend %(target)s with %(extension)s"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:70
+#, python-format
+msgid "Extension '%(extension)s' already retracted"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:71
+#, python-format
+msgid "Extension '%(extension)s' is required by '%(origin)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:72
+#, python-format
+msgid "No permission to retract '%(extension)s' from '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:73
+#, python-format
+msgid "No permission to move '%(source)s' to '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:74
+#, python-format
+msgid "Object '%(target)s' has children"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:75
+#, python-format
+msgid "No permission to remove '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:76
+#, python-format
+msgid "No permission to create '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:77
+#, python-format
+msgid "No permission to access '%(topic)s' on '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/proxy.py:78
+#, python-format
+msgid "UUID of base (%(b_uuid)s) and extension (%(e_uuid)s) differ"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:23
+#, python-format
+msgid "Attribute '%(topic)s needed to generate a RDN is missing"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:24
+msgid "No 'RDN' backend parameter specified"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:25
+#, python-format
+msgid "Cannot generate a unique DN in '%(base)s' using a combination of %(rdns)s"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:26
+#, python-format
+msgid "Target DN '%(target)s' already exists"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:27
+#, python-format
+msgid "No database configuration found for '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:28
+#, python-format
+msgid ""
+"Attribute '%s' uses the ObjectHandler backend but there is no config for "
+"it"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:29
+#, python-format
+msgid "Cannot find source object '%(object)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:30
+#, python-format
+msgid "No unique '%(object)s' object which matches '%(attribute)s == %(value)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:31
+msgid "Failed to generate a unique ID"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:32
+#, python-format
+msgid "Entry '%(uuid)s' not found"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/__init__.py:33
+#, python-format
+msgid "Entry '%(uuid)s' not unique"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/back_ldap.py:31
+msgid "No ID pool found"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/back_ldap.py:32
+msgid "Multiple ID pools found"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/back_mongodb.py:26
+#: src/clacks/agent/objects/filter/__init__.py:20
+#, python-format
+msgid "No filter instance for '%(filter)s' found"
+msgstr ""
+
+#: src/clacks/agent/objects/backend/registry.py:20
+#, python-format
+msgid "Backend '%(topic)s' not found"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/__init__.py:20
+#, python-format
+msgid "No comparator instance for '%(comparator)s' found"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/acl_roles.py:42
+#: src/clacks/agent/objects/comparator/acl_roles.py:81
+#: src/clacks/agent/objects/comparator/acl_roles.py:89
+#: src/clacks/agent/objects/comparator/acl_roles.py:100
+#: src/clacks/agent/objects/comparator/acl_roles.py:107
+#: src/clacks/agent/objects/comparator/acl_set.py:41
+#: src/clacks/agent/objects/comparator/acl_set.py:49
+#: src/clacks/agent/objects/comparator/acl_set.py:88
+#: src/clacks/agent/objects/comparator/acl_set.py:96
+#: src/clacks/agent/objects/comparator/acl_set.py:105
+#: src/clacks/agent/objects/comparator/acl_set.py:108
+#, python-format
+msgid "missing '%(attribute)s' attribute"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/acl_roles.py:52
+#: src/clacks/agent/objects/comparator/acl_set.py:59
+msgid "rolename and actions cannot be used at the same time"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/acl_roles.py:60
+#: src/clacks/agent/objects/comparator/acl_roles.py:116
+#: src/clacks/agent/objects/comparator/acl_roles.py:125
+#: src/clacks/agent/objects/comparator/acl_roles.py:157
+#: src/clacks/agent/objects/comparator/acl_set.py:67
+#: src/clacks/agent/objects/comparator/acl_set.py:115
+#: src/clacks/agent/objects/comparator/acl_set.py:124
+#: src/clacks/agent/objects/comparator/acl_set.py:156
+#, python-format
+msgid "'%(attribute)' needs to be of type '%(ttype)s' ('%(stype)s' found)"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/acl_roles.py:71
+#: src/clacks/agent/objects/comparator/acl_set.py:78
+#, python-format
+msgid "unknown role '%(role)s'"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/acl_roles.py:136
+#: src/clacks/agent/objects/comparator/acl_set.py:135
+msgid "please use a combination of the charaters c, r, o, w, d, s, e, x and m"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/acl_roles.py:149
+#: src/clacks/agent/objects/comparator/acl_set.py:148
+#, python-format
+msgid "unknown attributes %(attributes)s"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/basic.py:44
+msgid "item does not match the given value ignoring the case"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/basic.py:50
+msgid "item does not match the given value"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/basic.py:83
+#, python-format
+msgid "item needs to be greater than %(compare)s"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/basic.py:117
+#, python-format
+msgid "item needs to be smaller than %(compare)s"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/strings.py:43
+#, python-format
+msgid "value is not like %(comparator)s"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/strings.py:73
+msgid "syntax error"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/strings.py:107
+#, python-format
+msgid "value is short, at least %(count)s characters required"
+msgstr ""
+
+#: src/clacks/agent/objects/comparator/strings.py:112
+#, python-format
+msgid "value is long, at max %(count)s characters allowed"
+msgstr ""
+
+#: src/clacks/agent/objects/operator/__init__.py:21
+#, python-format
+msgid "No operator instance for '%(operator)s' found"
+msgstr ""
+
+#: src/clacks/agent/objects/types/__init__.py:22
+#, python-format
+msgid "Cannot check value of type %(type)s"
+msgstr ""
+
+#: src/clacks/agent/objects/types/__init__.py:23
+#, python-format
+msgid "Cannot match value of type %(type)s"
+msgstr ""
+
+#: src/clacks/agent/objects/types/__init__.py:24
+#, python-format
+msgid "Cannot convert from '%(source)s' type to '%(target)s' type"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:35
+#, python-format
+msgid "Invalid scope '%(scope)s' [SUB, BASE, ONE]"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:36
+#, python-format
+msgid "Invalid date specification '%(date)s' [hour, day, week, month, year, all]"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:37
+#, python-format
+msgid "Unknown user '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:38
+#, python-format
+msgid "Backend parameter for '%(extension)s.%(attribute)s' is missing"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:72
+msgid "Returns a list containing all available object names"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:77
+msgid "Returns all templates used by the given object type."
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:85
+msgid "Returns all dialog-templates used by the given object type."
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:93
+msgid "Get all translations bound to templates."
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:103
+msgid "Returns details about the currently logged in user"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:116
+msgid ""
+"Checks whether the given extension is already activated for the current "
+"object"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:125
+msgid "Save user preferences"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:146
+msgid "Load user preferences"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:166
+msgid "Search for object information"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:225
+msgid "Resolves object information"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:281
+msgid "Returns a list with all selectable samba-domain-names"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:289
+msgid "Returns a list of DOS/Windows drive letters"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/methods.py:297
+msgid "Filter for indexed attributes and return the matches."
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/service.py:287
+msgid "Server information"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/service.py:287
+msgid "Websockets enabled"
+msgstr ""
+
+#: src/clacks/agent/plugins/gosa/service.py:326
+msgid "System notification"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:60
+#, python-format
+msgid "Device with hardware address '%(topic)s' already exists"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:61
+#, python-format
+msgid "User '%(topic)s' is not unique"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:62
+#, python-format
+msgid "Client '%(topic)s' not found"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:63
+#, python-format
+msgid "Client '%(topic)s' is offline"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:64
+#, python-format
+msgid "Client '%(topic)s' has no method %(method)s"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:65
+#, python-format
+msgid "Invalid data '%(entry)s:%(data)s' for client '%(target)s provided'"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:66
+#, python-format
+msgid ""
+"Device type '%(type)s' for client '%(target)s' is invalid [terminal, "
+"workstation, server, sipphone, switch, router, printer, scanner]"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:67
+#, python-format
+msgid "Owner '%(owner)s' for client '%(target)s' not found"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:68
+#, python-format
+msgid "Invalid client UUID '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:69
+#, python-format
+msgid "Invalid status '%(status)s' for client '%(target)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:164
+msgid "List available clients."
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:177
+msgid "Call method exposed by client."
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:217
+msgid "Get the client Interface/IP/Netmask/Broadcast/MAC list."
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:243
+msgid "List available client methods for specified client."
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:257
+msgid "List user sessions per client"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:267
+msgid "List clients a user is logged in"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:274
+msgid "Send synchronous notification message to user"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:337
+#: src/clacks/agent/plugins/goto/client_service.py:358
+msgid "Set system status"
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/client_service.py:406
+msgid "Join a client to the clacks infrastructure."
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/network.py:31
+msgid "Resolve network address to a mac / dns name tupel."
+msgstr ""
+
+#: src/clacks/agent/plugins/goto/network.py:58
+msgid "Resolve MAC address to the producer of the network card if possible."
+msgstr ""
+
+#: src/clacks/agent/plugins/inventory/consumer.py:30
+#, python-format
+msgid "No client UUID for hardware UUID '%(target)s' found"
+msgstr ""
+
+#: src/clacks/agent/plugins/inventory/consumer.py:31
+#, python-format
+msgid "No hardware checksum found for client %(target)s"
+msgstr ""
+
+#: src/clacks/agent/plugins/inventory/consumer.py:32
+msgid "Inventory data invalid"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/filter_validators.py:34
+#, python-format
+msgid "invalid hostname '%(hostname)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/filter_validators.py:55
+#: src/clacks/agent/plugins/misc/filter_validators.py:76
+#, python-format
+msgid "DN '%(dn)s' does not exist"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/filter_validators.py:98
+#, python-format
+msgid ""
+"no '%(type)s' object with '%(attribute)s' property matching '%(value)s' "
+"found"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/gravatar.py:33
+msgid "Generate samba lm:nt hash combination from the supplied password."
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:25
+msgid "Afrikaans (South Africa)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:26
+msgid "Albanian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:27
+msgid "Arabic (Algeria)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:28
+msgid "Arabic (Bahrain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:29
+msgid "Arabic (Egypt)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:30
+msgid "Arabic (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:31
+msgid "Arabic (Iraq)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:32
+msgid "Arabic (Jordan)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:33
+msgid "Arabic (Kuwait)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:34
+msgid "Arabic (Lebanon)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:35
+msgid "Arabic (Libyan Arab Jamahiriya)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:36
+msgid "Arabic (Morocco)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:37
+msgid "Arabic (Oman)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:38
+msgid "Arabic (Qatar)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:39
+msgid "Arabic (Saudi Arabia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:40
+msgid "Arabic (Sudan)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:41
+msgid "Arabic (Syrian Arab Republic)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:42
+msgid "Arabic (Tunisia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:43
+msgid "Arabic (United Arab Emirates)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:44
+msgid "Arabic (Yemen)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:45
+msgid "Assamese (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:46
+msgid "Asturian (Spain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:47
+msgid "Basque (Spain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:48
+msgid "Belarusian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:49
+msgid "Bengali (BD)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:50
+msgid "Bengali (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:51
+msgid "Bosnian (Bosnia and Herzegowina)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:52
+msgid "Breton (France)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:53
+msgid "Bulgarian - Български"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:54
+msgid "Catalan (Spain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:55
+msgid "Chinese (Hong Kong)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:56
+msgid "Chinese (P.R. of China) - 中文(简体)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:57
+msgid "Chinese (Taiwan) - 正體中文"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:58
+msgid "Cornish (Britain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:59
+msgid "Croatian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:60
+msgid "Czech - Česká republika"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:61
+msgid "Danish - Dansk"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:62
+msgid "Dutch (Belgium)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:63
+msgid "Dutch (Netherlands)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:64
+msgid "English (Australia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:65
+msgid "English (Botswana)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:66
+msgid "English (Canada)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:67
+msgid "English (Denmark)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:68
+msgid "English (Great Britain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:69
+msgid "English (Hong Kong)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:70
+msgid "English (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:71
+msgid "English (Ireland)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:72
+msgid "English (New Zealand)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:73
+msgid "English (Philippines)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:74
+msgid "English (Singapore)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:75
+msgid "English (South Africa)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:76
+msgid "English (USA)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:77
+msgid "English (Zimbabwe)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:78
+msgid "Estonian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:79
+msgid "Faroese (Faroe Islands)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:80
+msgid "Finnish"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:81
+msgid "French (Belgium)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:82
+msgid "French (Canada)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:83
+msgid "French (France) - Français"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:84
+msgid "French (Luxemburg)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:85
+msgid "French (Switzerland)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:86
+msgid "Galician (Spain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:87
+msgid "German (Austria)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:88
+msgid "German (Belgium)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:89
+msgid "German (Germany) - Deutsch"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:90
+msgid "German (Luxemburg)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:91
+msgid "German (Switzerland)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:92
+msgid "Greek"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:93
+msgid "Greenlandic (Greenland)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:94
+msgid "Gujarati (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:95
+msgid "Hebrew (Israel)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:96
+msgid "Hindi (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:97
+msgid "Hungarian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:98
+msgid "Icelandic - Íslenska"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:99
+msgid "Indonesian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:100
+msgid "Irish"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:101
+msgid "Italian (Italy) Italiano"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:102
+msgid "Italian (Switzerland)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:103
+msgid "Japanese - 日本語"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:104
+msgid "Kannada (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:105
+msgid "Korean (Republic of Korea) - 한국어"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:106
+msgid "Lao (Laos)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:107
+msgid "Latvian (Latvia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:108
+msgid "Lithuanian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:109
+msgid "Macedonian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:110
+msgid "Maithili (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:111
+msgid "Malayalam (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:112
+msgid "Malay (Malaysia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:113
+msgid "Maltese (malta)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:114
+msgid "Manx Gaelic (Britain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:115
+msgid "Marathi (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:116
+msgid "Northern Saami (Norway)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:117
+msgid "Nepali (Nepal)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:118
+msgid "Norwegian - Norsk"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:119
+msgid "Norwegian, Nynorsk (Norway) - Norsk"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:120
+msgid "Occitan (France)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:121
+msgid "Oriya (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:122
+msgid "Persian (Iran)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:123
+msgid "Polish"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:124
+msgid "Portuguese (Brasil)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:125
+msgid "Portuguese (Portugal) - Português"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:126
+msgid "Punjabi (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:127
+msgid "Romanian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:128
+msgid "Russian - Русский"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:129
+msgid "Russian (Ukraine)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:130
+msgid "Serbian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:131
+msgid "Serbian (Latin)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:132
+msgid "Sinhala"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:133
+msgid "Slovak"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:134
+msgid "Slovenian (Slovenia) - slovenščina"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:135
+msgid "Spanish (Argentina)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:136
+msgid "Spanish (Bolivia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:137
+msgid "Spanish (Chile)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:138
+msgid "Spanish (Colombia)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:139
+msgid "Spanish (Costa Rica)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:140
+msgid "Spanish (Dominican Republic)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:141
+msgid "Spanish (El Salvador)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:142
+msgid "Spanish (Equador)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:143
+msgid "Spanish (Guatemala)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:144
+msgid "Spanish (Honduras)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:145
+msgid "Spanish (Mexico)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:146
+msgid "Spanish (Nicaragua)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:147
+msgid "Spanish (Panama)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:148
+msgid "Spanish (Paraguay)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:149
+msgid "Spanish (Peru)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:150
+msgid "Spanish (Puerto Rico)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:151
+msgid "Spanish (Spain) - Español"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:152
+msgid "Spanish (USA)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:153
+msgid "Spanish (Uruguay)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:154
+msgid "Spanish (Venezuela)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:155
+msgid "Swedish (Finland)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:156
+msgid "Swedish (Sweden) - Svenska"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:157
+msgid "Tagalog (Philippines)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:158
+msgid "Tamil (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:159
+msgid "Telugu (India)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:160
+msgid "Thai"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:161
+msgid "Turkish"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:162
+msgid "Ukrainian"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:163
+msgid "Urdu (Pakistan)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:164
+msgid "Uzbek (Uzbekistan)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:165
+msgid "Walloon (Belgium)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:166
+msgid "Welsh (Great Britain)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:167
+msgid "Xhosa (South Africa)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:168
+msgid "Zulu (South Africa)"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:178
+msgid "Return list of languages"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/locales.py:196
+msgid "value"
+msgstr ""
+
+#: src/clacks/agent/plugins/misc/transliterate.py:23
+msgid "Transliterate a given string"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:29
+msgid "Cannot detect password method"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:30
+#, python-format
+msgid "No password method to generate hash of type '%(type)s' available"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:31
+#, python-format
+msgid "Invalid hash type for password method '%(method)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:32
+msgid "Object has no 'userPassword' attribute"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:33
+msgid "No password to lock."
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:64
+msgid "Locks the account password for the given DN"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:98
+msgid "Unlocks the account password for the given DN"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:132
+msgid "Check whether the account can be locked or not"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:164
+msgid "Check whether the account can be unlocked or not"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:194
+msgid "Changes the used password enryption method"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:223
+msgid "Sets a new password for a user"
+msgstr ""
+
+#: src/clacks/agent/plugins/password/manager.py:254
+msgid "List all password hashing-methods"
+msgstr ""
+
+#: src/clacks/agent/plugins/posix/filters.py:21
+#, python-format
+msgid "Parameter for '%(target)s' have to be numeric"
+msgstr ""
+
+#: src/clacks/agent/plugins/posix/filters.py:22
+#, python-format
+msgid "Too many backends for %(target)s specified"
+msgstr ""
+
+#: src/clacks/agent/plugins/posix/filters.py:23
+#, python-format
+msgid "ID pool for attribute %(target)s is empty [> %(max)s]"
+msgstr ""
+
+#: src/clacks/agent/plugins/posix/shells.py:43
+msgid "Return list of supported shells"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:35
+msgid "Sets a new samba-password for a user"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:64
+msgid "Returns the current samba domain policy for a given user"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:142
+#: src/clacks/agent/plugins/samba/domain.py:146
+#: src/clacks/agent/plugins/samba/domain.py:156
+#: src/clacks/agent/plugins/samba/domain.py:162
+#: src/clacks/agent/plugins/samba/domain.py:168
+#: src/clacks/agent/plugins/samba/domain.py:176
+#: src/clacks/agent/plugins/samba/domain.py:180
+#: src/clacks/agent/plugins/samba/domain.py:186
+msgid "default"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:146
+#: src/clacks/agent/plugins/samba/domain.py:150
+#: src/clacks/agent/plugins/samba/domain.py:180
+#: src/clacks/agent/plugins/samba/domain.py:186
+msgid "off"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:152
+#: src/clacks/agent/plugins/samba/domain.py:182
+#: src/clacks/agent/plugins/samba/domain.py:188
+msgid "on"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:156
+#: src/clacks/agent/plugins/samba/domain.py:162
+#: src/clacks/agent/plugins/samba/domain.py:176
+msgid "disabled"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:158
+#: src/clacks/agent/plugins/samba/domain.py:164
+msgid "second"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:158
+msgid "seconds"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:164
+msgid "secdonds"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:168
+#: src/clacks/agent/plugins/samba/domain.py:172
+#: src/clacks/agent/plugins/samba/domain.py:240
+msgid "minutes"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:170
+msgid "unlimited"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:172
+#: src/clacks/agent/plugins/samba/domain.py:240
+msgid "minute"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:192
+#: src/clacks/agent/plugins/samba/domain.py:198
+#: src/clacks/agent/plugins/samba/domain.py:204
+#: src/clacks/agent/plugins/samba/domain.py:210
+#: src/clacks/agent/plugins/samba/domain.py:216
+#: src/clacks/agent/plugins/samba/domain.py:222
+#: src/clacks/agent/plugins/samba/domain.py:226
+#: src/clacks/agent/plugins/samba/domain.py:231
+msgid "not set"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:233
+msgid "immediately"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:238
+msgid "day"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:238
+msgid "days"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:239
+msgid "hour"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:239
+msgid "hours"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:245
+msgid "Domain attributes"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:246
+msgid "Minimum password length"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:247
+msgid "Password history"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:248
+msgid "Force password change"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:249
+msgid "Maximum password age"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:250
+msgid "Minimum password age"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:251
+msgid "Lockout duration"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:252
+msgid "Number of bad lockout attempts"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:253
+msgid "Disconnect time"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:254
+msgid "Refuse machine password change"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:256
+msgid "User attributes"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:257
+msgid "SID"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:258
+msgid "Last failed login"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:259
+msgid "Log on attempts"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:260
+msgid "Last password update"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:261
+msgid "Last log on"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:262
+msgid "Last log off"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:263
+msgid "Automatic log off"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/domain.py:287
+#, python-format
+msgid "Unknown domain '%(domain)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/hash.py:21
+#, python-format
+msgid "Filter '%(target)s' does not support input type '%(type)s'"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/sid.py:24
+#, python-format
+msgid "Domain %(target)s has no SID"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/sid.py:25
+#, python-format
+msgid "Invalid type '%(type)s' for SID generator [user, group]"
+msgstr ""
+
+#: src/clacks/agent/plugins/samba/sid.py:47
+msgid "recursive nesting not allowed"
+msgstr ""
+
+#: src/clacks/agent/plugins/user/filters.py:25
+msgid "Image sizes not specified"
+msgstr ""
+
