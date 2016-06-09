@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# This file is part of the GOsa project.
+# This file is part of the GOsa framework.
 #
 #  http://gosa-project.org
 #
@@ -8,9 +8,9 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-from setuptools import setup, find_packages
 import os
 import platform
+from setuptools import setup, find_packages
 
 try:
     from babel.messages import frontend as babel
@@ -18,24 +18,42 @@ except:
     pass
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.md')).read()
+README = open(os.path.join(here, 'README')).read()
 CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
-data_files = []
-for path, dirs, files in os.walk("src/gosa/backend/data"):
-    for f in files:
-            data_files.append(os.path.join(path[17:], f))
+
+common_install_requires = [
+    'zope.interface>=3.5',
+    'babel',
+    'pyOpenSSL',
+    'lxml',
+    ],
+
+if platform.system() == "Windows":
+    common_install_requires[0].append([
+        'pybonjour',
+    ])
+
+else:
+    # Not installable this way:
+    # avahi, pygtk (gobject), dbus
+    #install_requires[0].append([
+    #    'dbus',
+    #    'avahi',
+    #    'PyGTK',
+    #])
+    pass
 
 
 setup(
-    name = "gosa.backend",
+    name = "gosa.common",
     version = "1.0",
-    author = "GONICUS GmbH",
-    author_email = "info@gonicus.de",
+    author = "Cajus Pollmeier",
+    author_email = "pollmeier@gonicus.de",
     description = "Identity-, system- and configmanagement middleware",
     long_description = README + "\n\n" + CHANGES,
     keywords = "system config management ldap groupware",
-    license = "GPL",
+    license = "LGPL",
     url = "http://gosa-project.org",
     classifiers = [
         'Development Status :: 4 - Beta',
@@ -50,40 +68,31 @@ setup(
         'Topic :: System :: Monitoring',
     ],
 
-    packages = find_packages('src', exclude=['examples', 'tests']),
+    packages = find_packages('src'),
     package_dir={'': 'src'},
     namespace_packages = ['gosa'],
 
     include_package_data = True,
     package_data = {
-        'gosa.backend': data_files
+        'gosa.common': ['data/stylesheets/*', 'data/events/*'],
     },
 
     zip_safe = False,
 
     setup_requires = [
-        'pytest-runner',
         'pylint',
+        'babel',
         ],
-    tests_require = [
-        'pytest'
-    ],
-    install_requires = [
-        'flask>=0.11',
-        'gevent',
-        'gunicorn',
-        'zope.interface>=3.5',
-        ],
+    install_requires = common_install_requires,
 
     entry_points = """
-        [console_scripts]
-        gosa = gosa.backend.main:main
-
-        [gosa.route]
-        /subscribe = gosa.backend.plugin.sse.main:SseHandler
-        /api/<path:path> = gosa.backend.plugin.rest.main:RestApi
-
         [gosa.plugin]
-        command = gosa.backend.command:CommandRegistry
+        error = gosa.common.error:ClacksErrorHandler
+
+        [gosa.json.datahandler]
+        datetime = gosa.common.components.jsonrpc_utils:DateTimeHandler
+        date = gosa.common.components.jsonrpc_utils:DateTimeDateHandler
+        factory = gosa.common.components.jsonrpc_utils:FactoryHandler
+        blob = gosa.common.components.jsonrpc_utils:BinaryHandler
     """,
 )

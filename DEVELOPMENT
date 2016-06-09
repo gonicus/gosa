@@ -3,7 +3,8 @@ TODO: make a real file out of this
 Scratchbook
 
  - install python3-gunicorn, python3-gevent, python3-setproctitle packages
- - virtualenv --python=python3 --system-site-packages .env
+ - Ubuntu: virtualenv --python=python3 --system-site-packages .env
+   Fedora: virtualenv-3.5 --system-site-packages .env
  - source .env/bin/activate
  - ./setup.py develop
  - gosa --config example

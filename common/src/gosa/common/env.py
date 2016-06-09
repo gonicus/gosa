@@ -13,14 +13,14 @@ central information like logging and configuration management.
 
 You can import it to your own code like this::
 
-   >>> from gosa.core import Environment
+   >>> from gosa.common import Environment
    >>> env = Environment.getInstance()
 
 --------
 """
 import logging
 import platform
-from gosa.core.config import Config
+from gosa.common.config import Config
 
 class Environment:
     """

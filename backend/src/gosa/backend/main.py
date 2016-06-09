@@ -14,23 +14,24 @@ import logging
 import pkg_resources
 import codecs
 from setproctitle import setproctitle
-from gosa.core import Environment
-from gosa import __version__ as VERSION
+from gosa.backend import __version__ as VERSION
+from gosa.common import Environment
+from gosa.common.components import ObjectRegistry, PluginRegistry
+from gosa.backend.components.wsgi import WsgiApplication
 from flask import Flask
-from gosa.core import WsgiApplication
 
 app = Flask(__name__)
 
+
 def shutdown():
-    pass
+    """
+    Function to shut down the backend. Do some clean up and close sockets.
+    """
+    # Shutdown plugin registry
+    PluginRegistry.shutdown()
 
-
-def handleTermSignal(a=None, b=None):
-    pass
-
-
-def handleHupSignal(a=None, b=None):
-    pass
+    logging.info("shut down")
+    logging.shutdown()
 
 
 def mainLoop(env):
@@ -41,14 +42,20 @@ def mainLoop(env):
     log = logging.getLogger(__name__)
 
     try:
+        # Load plugins
+        oreg = ObjectRegistry.getInstance() #@UnusedVariable
+        pr = PluginRegistry() #@UnusedVariable
+        cr = PluginRegistry.getInstance("CommandRegistry")
 
-        for entry in pkg_resources.iter_entry_points("gosa.plugin"):
+        # Install routes for flask
+        for entry in pkg_resources.iter_entry_points("gosa.route"):
             module = entry.load()
             log.debug("adding route %s" % entry.name)
             flask_view = module.as_view(entry.name)
             app.add_url_rule(entry.name, view_func=flask_view)
 
-        WsgiApplication("gosa.main:app", env.config.getOptions('gunicorn')).run()
+        # Run web service
+        WsgiApplication("gosa.backend.main:app", env.config.getOptions('gunicorn')).run()
 
     # Catchall, pylint: disable=W0703
     except Exception as detail:
@@ -84,4 +91,5 @@ if __name__ == '__main__':
     if not sys.stderr.encoding:
         sys.stderr = codecs.getwriter('utf8')(sys.stderr)
 
+    pkg_resources.require('gosa.common==%s' % VERSION)
     main()
