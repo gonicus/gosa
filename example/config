@@ -1,5 +1,6 @@
 [core]
 profile = False
+base = dc=example,dc=net
 
 [http]
 host = foobar.example.net

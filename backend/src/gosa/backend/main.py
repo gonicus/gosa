@@ -81,6 +81,10 @@ def main():
 
     # Inizialize core environment
     env = Environment.getInstance()
+    if not env.base:
+        env.log.critical("GOsa backend needs a 'core.base' do operate on")
+        exit(1)
+
     env.log.info("GOsa %s is starting up" % VERSION)
     mainLoop(env)
 

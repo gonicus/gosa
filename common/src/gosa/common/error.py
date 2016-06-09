@@ -26,7 +26,7 @@ class ClacksErrorHandler(Plugin):
     _errors = {}
 
     @Command(needsUser=True, __help__=N_("Get the error message assigned to a specific ID."))
-    def get_error(self, user, _id, locale=None, trace=False):
+    def getError(self, user, _id, locale=None, trace=False):
         res = None
 
         if _id in self._errors:
