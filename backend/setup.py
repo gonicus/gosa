@@ -82,8 +82,8 @@ setup(
         gosa = gosa.backend.main:main
 
         [gosa.route]
-        /subscribe = gosa.backend.plugin.sse.main:SseHandler
-        /api/<path:path> = gosa.backend.plugin.rest.main:RestApi
+        /subscribe = gosa.backend.routes.sse.main:SseHandler
+        /api/<path:path> = gosa.backend.routes.rest.main:RestApi
 
         [gosa.plugin]
         command = gosa.backend.command:CommandRegistry
