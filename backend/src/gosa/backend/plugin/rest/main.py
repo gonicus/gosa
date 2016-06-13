@@ -1,6 +1,6 @@
 from flask import abort, jsonify
 from flask.views import MethodView
-from gosa.plugin.rest.auth import *
+from gosa.backend.plugin.rest.auth import *
 
 data = {
     "root": {

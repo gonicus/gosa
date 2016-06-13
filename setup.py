@@ -3,6 +3,7 @@ import os
 import sys
 
 modules = [
+  'common',
   'backend',
 ]
 

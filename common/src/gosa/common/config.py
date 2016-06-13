@@ -20,13 +20,13 @@ with potential command line parameters.
 
 Here is an example on how to use the common module::
 
-    >>> from gosa.core import Environment
+    >>> from gosa.common import Environment
     >>> cfg = Environment.getInstance().config
     >>> cfg.get('ldap.base')
     dc=gonicus,dc=de
 
 If no configuration is present, the system will raise a
-:class:`gosa.core.config.ConfigNoFile` exception.
+:class:`gosa.common.config.ConfigNoFile` exception.
 
 -----------
 """
