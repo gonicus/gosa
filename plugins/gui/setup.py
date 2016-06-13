@@ -67,11 +67,11 @@ setup(
         'pylint',
         ],
     install_requires = [
-        'gosa',
+        'gosa.backend',
         ],
 
     entry_points = """
-        [gosa.plugin]
+        [gosa.route]
         /<path:path> = gosa.plugin.gui.main:GuiPlugin
     """,
 )
