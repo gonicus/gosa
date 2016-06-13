@@ -9,7 +9,7 @@
 
 import unittest
 import base64
-from gosa.plugin.rest.main import RestApi
+from gosa.backend.plugin.rest.main import RestApi
 from flask import Flask
 
 class RestApiTestCase(unittest.TestCase):

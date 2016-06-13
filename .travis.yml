@@ -2,7 +2,7 @@ language: python
 python:
     - "3.5"
 before_install:
-    - pip install setproctitle pylint
+    - pip install gunicorn gevent setproctitle pylint flask
 script:
     - ./setup.py develop
     - ./setup.py test
