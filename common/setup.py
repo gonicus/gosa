@@ -80,9 +80,15 @@ setup(
     zip_safe = False,
 
     setup_requires = [
+        'pytest-runner',
         'pylint',
         'babel',
         ],
+    tests_require=[
+        'pytest',
+        'pytest-cov',
+        'python-coveralls'
+    ],
     install_requires = common_install_requires,
 
     entry_points = """
