@@ -82,6 +82,7 @@ setup(
 
         [gosa.route]
         /events = gosa.backend.routes.sse.main:SseHandler
+        /sse_test = gosa.backend.routes.sse.main:SseClient
         /api/(.*) = gosa.backend.routes.rest.main:RestApi
 
         [gosa.plugin]

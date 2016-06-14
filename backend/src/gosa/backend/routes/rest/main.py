@@ -37,7 +37,6 @@ data = {
 class RestApi(tornado.web.RequestHandler):
     
     def get(self, path):
-        print(path)
         parts = path.split('/')
         root = data["root"]
         

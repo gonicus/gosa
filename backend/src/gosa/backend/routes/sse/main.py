@@ -1,43 +1,33 @@
-from tornado import gen
-from gosa.common.gjson import dumps
 from gosa.common.sse import EventSource
+from tornado import web
 import random
 
-def event():
-    while True:
-        yield 'data: ' + dumps(random.sample(range(10000000), 60)) + '\n\n'
-        gen.sleep(0.2)
+class SseClient(web.RequestHandler):
+    def get(self):
+        debug_template = """
+                <html>
+                   <head>
+                   </head>
+                   <body>
+                     <h1>Server sent events</h1>
+                     <div id="event"></div>
+                     <script type="text/javascript">
 
-# Client code consumes like this.
-# @app.route("/")
-# def index():
-#     debug_template = """
-#         <html>
-#            <head>
-#            </head>
-#            <body>
-#              <h1>Server sent events</h1>
-#              <div id="event"></div>
-#              <script type="text/javascript">
-#
-#              var eventOutputContainer = document.getElementById("event");
-#              var evtSrc = new EventSource("/subscribe");
-#
-#              evtSrc.onmessage = function(e) {
-#                  console.log(e.data);
-#                  eventOutputContainer.innerHTML = e.data;
-#              };
-#
-#              </script>
-#            </body>
-#          </html>
-#         """
-#     return (debug_template)
+                     var eventOutputContainer = document.getElementById("event");
+                     var evtSrc = new EventSource("/events");
+
+                     evtSrc.onmessage = function(e) {
+                         eventOutputContainer.innerHTML = e.data;
+                     };
+
+                     </script>
+                   </body>
+                 </html>
+                """
+        self.write(debug_template)
+
 
 class SseHandler(EventSource):
 
-    def initialize(self, source):
-        # Ignore 'source'.
-        print("SSE Handler initialized")
-        super(SseHandler, self).initialize(event())
-
+    def post(self):
+        self.source.data = str(self.request.body)
