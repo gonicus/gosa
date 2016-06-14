@@ -72,6 +72,6 @@ setup(
 
     entry_points = """
         [gosa.route]
-        /<path:path> = gosa.plugin.gui.main:GuiPlugin
+        /gui/(.*) = gosa.plugin.gui.main:GuiPlugin
     """,
 )

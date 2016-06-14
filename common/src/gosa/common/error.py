@@ -18,7 +18,7 @@ from gosa.common.components import Command
 from gosa.common.components import Plugin
 
 
-class ClacksErrorHandler(Plugin):
+class GosaErrorHandler(Plugin):
     #TODO: maintain the owner (or originator) of the error message, to
     #      allow only the originator to pull her/his error messages.
     _codes = {}
@@ -38,13 +38,13 @@ class ClacksErrorHandler(Plugin):
 
         # Translate message if requested
         if res and locale:
-            mod = ClacksErrorHandler._i18n_map[res['code']]
+            mod = GosaErrorHandler._i18n_map[res['code']]
             t = gettext.translation('messages',
                 resource_filename(mod, "locale"),
                 fallback=True,
                 languages=[locale])
 
-            res['text'] = t.ugettext(ClacksErrorHandler._codes[res['code']])
+            res['text'] = t.ugettext(GosaErrorHandler._codes[res['code']])
 
             # Process details by translating detail text
             if res['details']:
@@ -69,7 +69,7 @@ class ClacksErrorHandler(Plugin):
         kwargs.update(dict(topic=topic))
 
         # Assemble message
-        text = ClacksErrorHandler._codes[code] % kwargs
+        text = GosaErrorHandler._codes[code] % kwargs
 
         # Assemble error information
         data = dict(code=code, topic=topic, text=text,
@@ -82,18 +82,18 @@ class ClacksErrorHandler(Plugin):
         self._errors[_id] = data 
 
         # First, catch unconverted exceptions
-        if not code in ClacksErrorHandler._codes:
+        if not code in GosaErrorHandler._codes:
             return code
 
         return '<%s> %s' % (__id, text)
 
     @staticmethod
     def register_codes(codes, module="clacks.agent"):
-        ClacksErrorHandler._codes.update(codes)
+        GosaErrorHandler._codes.update(codes)
 
         # Memorize which module to get translations from
         for k in codes.keys():
-            ClacksErrorHandler._i18n_map[k] = module
+            GosaErrorHandler._i18n_map[k] = module
 
 
 class ClacksException(Exception):
@@ -104,12 +104,12 @@ class ClacksException(Exception):
     """
 
     def __init__(self, *args, **kwargs):
-        info = ClacksErrorHandler.make_error(*args, **kwargs)
+        info = GosaErrorHandler.make_error(*args, **kwargs)
         super(ClacksException, self).__init__(info)
 
 
 # Register basic errors
-ClacksErrorHandler.register_codes(dict(
+GosaErrorHandler.register_codes(dict(
     NOT_IMPLEMENTED=N_("Method %(method)s is not implemented"),
     NO_SUCH_RESOURCE=N_("Cannot read resource '%(resource)s'"),
     ))

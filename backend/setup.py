@@ -71,9 +71,8 @@ setup(
         'python-coveralls'
     ],
     install_requires = [
-        'flask>=0.11',
-        'gevent',
-        'gunicorn',
+        'tornado',
+        'webob',
         'zope.interface>=3.5',
         ],
 
@@ -82,8 +81,9 @@ setup(
         gosa = gosa.backend.main:main
 
         [gosa.route]
-        /subscribe = gosa.backend.routes.sse.main:SseHandler
-        /api/<path:path> = gosa.backend.routes.rest.main:RestApi
+        /events = gosa.backend.routes.sse.main:SseHandler
+        /sse_test = gosa.backend.routes.sse.main:SseClient
+        /api/(.*) = gosa.backend.routes.rest.main:RestApi
 
         [gosa.plugin]
         command = gosa.backend.command:CommandRegistry

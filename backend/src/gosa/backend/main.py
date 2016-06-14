@@ -13,14 +13,13 @@ import sys
 import logging
 import pkg_resources
 import codecs
+import signal
 from setproctitle import setproctitle
 from gosa.backend import __version__ as VERSION
 from gosa.common import Environment
 from gosa.common.components import ObjectRegistry, PluginRegistry
-from gosa.backend.components.wsgi import WsgiApplication
-from flask import Flask
-
-app = Flask(__name__)
+from tornado.ioloop import IOLoop
+import tornado.web
 
 
 def shutdown():
@@ -47,15 +46,20 @@ def mainLoop(env):
         pr = PluginRegistry() #@UnusedVariable
         cr = PluginRegistry.getInstance("CommandRegistry")
 
+        routes = []
         # Install routes for flask
         for entry in pkg_resources.iter_entry_points("gosa.route"):
             module = entry.load()
             log.debug("adding route %s" % entry.name)
-            flask_view = module.as_view(entry.name)
-            app.add_url_rule(entry.name, view_func=flask_view)
+            routes.append((entry.name, module))
+
+        log.debug(routes)
+        application = tornado.web.Application(handlers=routes, debug=True)
 
         # Run web service
-        WsgiApplication("gosa.backend.main:app", env.config.getOptions('gunicorn')).run()
+        application.listen(8000)
+        signal.signal(signal.SIGINT, lambda x, y: IOLoop.instance().stop())
+        IOLoop.instance().start()
 
     # Catchall, pylint: disable=W0703
     except Exception as detail:
