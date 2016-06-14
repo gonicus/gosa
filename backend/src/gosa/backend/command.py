@@ -41,7 +41,7 @@ from gosa.common.components import PluginRegistry, ObjectRegistry, Command
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.utils import stripNs, N_
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 from gosa.common.components import Plugin
 from gosa.backend.exceptions import CommandInvalid, CommandNotAuthorized
 
