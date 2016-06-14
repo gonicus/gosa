@@ -34,11 +34,11 @@ class LDAPHandler(object):
     """
     The LDAPHandler provides a connection pool with automatically reconnecting
     LDAP connections and is accessible thru the
-    :meth:`gosa.backend.ldap_utils.LDAPHandler.get_instance` method.
+    :meth:`gosa.backend.utils.ldap.LDAPHandler.get_instance` method.
 
     Example::
 
-        >>> from gosa.backend.ldap_utils import LDAPHandler
+        >>> from gosa.backend.utils.ldap import LDAPHandler
         >>> from ldap.filter import filter_format
         >>> lh = LDAPHandler.get_instance()
         >>> uuid = 'you-will-not-find-anything'

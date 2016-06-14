@@ -87,5 +87,6 @@ setup(
 
         [gosa.plugin]
         command = gosa.backend.command:CommandRegistry
+        jsonrpc_service = gosa.backend.jsonrpc_service:JSONRPCService
     """,
 )
