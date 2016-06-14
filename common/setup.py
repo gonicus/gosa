@@ -94,6 +94,7 @@ setup(
     entry_points = """
         [gosa.plugin]
         error = gosa.common.error:GosaErrorHandler
+        httpd = gosa.common.components.httpd:HTTPService
 
         [gosa.json.datahandler]
         datetime = gosa.common.components.jsonrpc_utils:DateTimeHandler

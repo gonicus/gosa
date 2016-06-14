@@ -3,8 +3,8 @@ profile = False
 base = dc=example,dc=net
 
 [http]
-host = foobar.example.net
-port = 8080
+host = localhost
+port = 8000
 sslpemfile = /etc/gosa/host.pem
 
 [ldap]
