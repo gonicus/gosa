@@ -33,6 +33,7 @@ class SseClient(web.RequestHandler):
                  </html>
                 """
         self.write(debug_template)
+        self.finish()
 
 
 class SseHandler(web.RequestHandler):
