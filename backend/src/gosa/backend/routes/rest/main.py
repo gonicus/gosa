@@ -1,5 +1,5 @@
-from flask import abort, jsonify
-from flask.views import MethodView
+import tornado.web
+from gosa.common.gjson import dumps
 from gosa.backend.routes.rest.auth import *
 
 data = {
@@ -34,10 +34,10 @@ data = {
     }
 }
 
-class RestApi(MethodView):
-    decorators = [requires_auth]
+class RestApi(tornado.web.RequestHandler):
     
     def get(self, path):
+        print(path)
         parts = path.split('/')
         root = data["root"]
         
@@ -46,8 +46,9 @@ class RestApi(MethodView):
                 continue
 
             if not part in root:
-                abort(404)
+                raise tornado.web.HTTPError(404)
             
             root = root[part]
             
-        return jsonify(root)
+        self.write(dumps(root))
+        return

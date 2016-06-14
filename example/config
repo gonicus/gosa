@@ -13,11 +13,6 @@ bind-dn = cn=ldapadmin,dc=example,dc=net
 bind-secret = secret
 pool-size = 10
 
-[gunicorn]
-listen = "127.0.0.1"
-port = 8000
-worker-class = "gevent"
-reload = True
 
 ##############################################################################
 #                            Logger configuration                            #

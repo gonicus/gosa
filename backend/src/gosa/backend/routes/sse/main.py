@@ -1,15 +1,12 @@
-from flask import Flask, Response, json
-from flask.views import MethodView
+from tornado import gen
+from gosa.common.gjson import dumps
+from gosa.common.sse import EventSource
 import random
-import gevent
-
-app = Flask(__name__)
-
 
 def event():
     while True:
-        yield 'data: ' + json.dumps(random.sample(range(10000000), 60)) + '\n\n'
-        gevent.sleep(0.2)
+        yield 'data: ' + dumps(random.sample(range(10000000), 60)) + '\n\n'
+        gen.sleep(0.2)
 
 # Client code consumes like this.
 # @app.route("/")
@@ -37,7 +34,10 @@ def event():
 #         """
 #     return (debug_template)
 
-class SseHandler(MethodView):
+class SseHandler(EventSource):
 
-    def get(self):
-        return Response(event(), mimetype="text/event-stream")
+    def initialize(self, source):
+        # Ignore 'source'.
+        print("SSE Handler initialized")
+        super(SseHandler, self).initialize(event())
+

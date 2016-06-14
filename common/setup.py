@@ -93,7 +93,7 @@ setup(
 
     entry_points = """
         [gosa.plugin]
-        error = gosa.common.error:ClacksErrorHandler
+        error = gosa.common.error:GosaErrorHandler
 
         [gosa.json.datahandler]
         datetime = gosa.common.components.jsonrpc_utils:DateTimeHandler
