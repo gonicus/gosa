@@ -8,6 +8,9 @@ from tornado import web
 CHANNEL = 'sse'
 
 class SseClient(web.RequestHandler):
+    """
+    Simple SSE Client for manual testing purposes
+    """
     def get(self):
         debug_template = """
                 <html>
@@ -33,6 +36,19 @@ class SseClient(web.RequestHandler):
 
 
 class SseHandler(web.RequestHandler):
+    """
+    Server sent event handler based on tornado
+    Example for sending events with SSE:
+
+        >>> from gosa.backend.routes.sse.main import SseHandler
+        >>>
+        >>> # send 'general' message
+        >>> SseHandler.send_message("message content")
+        >>>
+        >>> # send SSE for special event name
+        >>> SseHandler.send_message("message content", "event-name")
+    """
+
     _connections = {}
     _channels = {}
     _cache = []
