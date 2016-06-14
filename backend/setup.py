@@ -73,6 +73,7 @@ setup(
     install_requires = [
         'tornado',
         'webob',
+        'paste',
         'zope.interface>=3.5',
         ],
 
@@ -87,6 +88,6 @@ setup(
 
         [gosa.plugin]
         command = gosa.backend.command:CommandRegistry
-        jsonrpc_service = gosa.backend.jsonrpc_service:JSONRPCService
+        jsonrpc_service = gosa.backend.components.jsonrpc_service:JSONRPCService
     """,
 )

@@ -20,12 +20,12 @@ import sys
 import uuid
 import traceback
 import logging
-from zope.interface import implements
+from zope.interface import implementer
 from gosa.common.gjson import loads, dumps
 from webob import exc, Request, Response #@UnresolvedImport
 from paste.auth.cookie import AuthCookieHandler #@UnresolvedImport
 from gosa.common.utils import f_print, N_
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry, JSONRPCException
@@ -41,6 +41,7 @@ C.register_codes(dict(
     ))
 
 
+@implementer(IInterfaceHandler)
 class JSONRPCService(object):
     """
     This is the JSONRPC GOsa backend plugin which is registering an
@@ -63,7 +64,6 @@ class JSONRPCService(object):
         path = /rpc
         cookie-lifetime = 3600
     """
-    implements(IInterfaceHandler)
     _priority_ = 11
 
     __proxy = {}
@@ -127,9 +127,9 @@ class JsonRpcApp(object):
         req = Request(environ)
         try:
             resp = self.process(req, environ)
-        except ValueError, e:
+        except ValueError as e:
             resp = exc.HTTPBadRequest(str(e))
-        except exc.HTTPException, e:
+        except exc.HTTPException as e:
             resp = e
         return resp(environ, start_response)
 
@@ -160,14 +160,14 @@ class JsonRpcApp(object):
                 allow='POST').exception
         try:
             json = loads(req.body)
-        except ValueError, e:
+        except ValueError as e:
             raise ValueError(C.make_error("INVALID_JSON", data=str(e)))
 
         try:
             method = json['method']
             params = json['params']
             jid = json['id']
-        except KeyError, e:
+        except KeyError as e:
             raise ValueError(C.make_error("JSON_MISSING_PARAMETER"))
 
         if method.startswith('_'):
