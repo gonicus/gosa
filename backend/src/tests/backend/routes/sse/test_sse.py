@@ -32,7 +32,7 @@ class SseHandlerTestCase(AsyncHTTPTestCase):
         self.stop()
 
     def test_subscribe(self):
-        self.http_client.fetch(self.get_url('/events'), streaming_callback = self.handleMessage, headers={"content-type":"text/event-stream"})
+        self.http_client.fetch(self.get_url('/events'), streaming_callback = self.handleMessage)
         # post something
         self.check_data = "Test"
         self.http_client.fetch(self.get_url('/events'), method="POST", body=self.check_data)
@@ -40,8 +40,7 @@ class SseHandlerTestCase(AsyncHTTPTestCase):
 
     def test_missed_events(self):
         # initial connection
-        future = self.http_client.fetch(self.get_url('/events'), streaming_callback=self.handleMessage,
-                               headers={"content-type": "text/event-stream"})
+        future = self.http_client.fetch(self.get_url('/events'), streaming_callback=self.handleMessage)
         self.check_data = "Test"
         self.http_client.fetch(self.get_url('/events'), method="POST", body=self.check_data)
         self.wait()
@@ -51,12 +50,11 @@ class SseHandlerTestCase(AsyncHTTPTestCase):
         self.http_client.fetch(self.get_url('/events'), method="POST", body=self.check_data)
 
         self.http_client.fetch(self.get_url('/events'),
-                               headers={"content-type": "text/event-stream", 'Last-Event-ID': self.last_id})
+                               headers={'Last-Event-ID': self.last_id})
         self.wait()
 
     def test_named_events(self):
-        self.http_client.fetch(self.get_url('/events'), streaming_callback=self.handleMessage,
-                               headers={"content-type": "text/event-stream"})
+        self.http_client.fetch(self.get_url('/events'), streaming_callback=self.handleMessage)
 
         self.check_data = "Test"
         self.check_event = "txt"
