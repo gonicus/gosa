@@ -1,6 +1,6 @@
 import tornado.web
 from gosa.common.gjson import dumps
-from gosa.backend.routes.rest.auth import *
+from gosa.backend.routes.rest.auth import basic_auth
 
 data = {
     "root": {
@@ -34,8 +34,15 @@ data = {
     }
 }
 
+def check_auth(username, password):
+    """This function is called to check if a username /
+    password combination is valid.
+    """
+    return username == 'admin' and password == 'secret'
+
+@basic_auth(check_auth)
 class RestApi(tornado.web.RequestHandler):
-    
+
     def get(self, path):
         parts = path.split('/')
         root = data["root"]

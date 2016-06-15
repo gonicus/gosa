@@ -7,24 +7,21 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import unittest
 import base64
-from gosa.backend.plugin.rest.main import RestApi
-from flask import Flask
+from gosa.backend.routes.rest.main import RestApi
+from tornado.testing import AsyncHTTPTestCase
+from tornado.web import Application
 
-class RestApiTestCase(unittest.TestCase):
+app = Application([('/api/(.*)', RestApi)])
 
-    def setUp(self):
-        app = Flask(__name__)
-        app.testing = True
+class RestApiTestCase(AsyncHTTPTestCase):
 
-        flask_view = RestApi.as_view("test_rest_api")
-        app.add_url_rule("/api/<path:path>", view_func=flask_view)
-        self.client = app.test_client()
+    def get_app(self):
+        return app
 
     def open_with_auth(self, url, method, username, password):
         cred = base64.b64encode(bytes(username + ":" + password, "utf-8")).decode("ascii")
-        return self.client.open(url,
+        return self.fetch(url,
             method=method,
             headers={
                 'Authorization': 'Basic %s' % cred
@@ -32,18 +29,18 @@ class RestApiTestCase(unittest.TestCase):
         )
 
     def test_getUnknown(self):
-        rv = self.open_with_auth('/api/foo/bar', 'GET', 'admin', 'secret')
-        assert rv.status_code == 404
+        response = self.open_with_auth('/api/foo/bar', 'GET', 'admin', 'secret')
+        assert response.code == 404
 
     def test_getExisting(self):
         # without credentials this must be forbidden
-        rv = self.client.get('/api/Testabteilung1/user/sepp')
-        assert rv.status_code == 401
+        rv = self.fetch('/api/Testabteilung1/user/sepp')
+        assert rv.code == 401
 
         rv = self.open_with_auth('/api/Testabteilung1/user/sepp', 'GET', 'admin', 'secret')
-        assert rv.status_code == 200
-        assert b'"customAttr": "foobar"' in rv.data
+        assert rv.code == 200
+        assert b'"customAttr": "foobar"' in rv.body
 
         rv = self.open_with_auth('/api/Testabteilung1/user/sepp/', 'GET', 'admin', 'secret')
-        assert rv.status_code == 200
-        assert b'"customAttr": "foobar"' in rv.data
+        assert rv.code == 200
+        assert b'"customAttr": "foobar"' in rv.body
