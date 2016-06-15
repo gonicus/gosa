@@ -1,0 +1,62 @@
+# German translations for GOsa.
+# Copyright (C) 2010 GONICUS GmbH
+# This file is distributed under the same license as the GOsa project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: GOsa 3.0\n"
+"Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
+"POT-Creation-Date: 2012-10-05 10:44+0200\n"
+"PO-Revision-Date: 2010-07-19 17:03+0200\n"
+"Last-Translator: Cajus Pollmeier <pollmeier@gonicus.de>\n"
+"Language-Team: de <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: src/clacks/shell/main.py:164
+msgid "Searching service provider..."
+msgstr "Suche Dienstanbieter..."
+
+#: src/clacks/shell/main.py:170
+#, python-format
+msgid "DBUS error: %s"
+msgstr "DBUS-Fehler: %s"
+
+#: src/clacks/shell/main.py:189
+msgid "Need at least a service URI!"
+msgstr "Es wird mindestens eine Dienst URI benötigt!"
+
+#: src/clacks/shell/main.py:193
+#, python-format
+msgid "Connected to %s://%s:%s/%s"
+msgstr "Verbunden mit %s://%s:%s/%s"
+
+#: src/clacks/shell/main.py:206
+msgid "Username"
+msgstr "Benutzername"
+
+#: src/clacks/shell/main.py:212
+msgid "Password"
+msgstr "Passwort"
+
+#: src/clacks/shell/main.py:236
+msgid "The selected protocol is not supported!"
+msgstr "Das gewählte Protokoll wird nicht unterstützt!"
+
+#: src/clacks/shell/main.py:242
+#, python-format
+msgid "Login of user '%s' failed"
+msgstr "Anmeldung des Benutzers '%s' ist fehlgeschlagen"
+
+#: src/clacks/shell/main.py:403
+msgid "Clacks infrastructure shell. Use Ctrl+D to exit."
+msgstr "Clacks-Infrastruktur-Interpreter. Benutzen Sie Strg+D zum Beenden."
+
+#: src/clacks/shell/main.py:411
+msgid "Closing session"
+msgstr "Beende Sitzung"
+

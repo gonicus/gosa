@@ -153,9 +153,9 @@ class JSONServiceProxy(object):
             postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
 
         if self.__mode == 'POST':
-            respdata = self.__opener.open(self.__serviceURL, postdata).read()
+            respdata = self.__opener.open(self.__serviceURL, postdata.encode('utf8')).read()
         else:
-            respdata = self.__opener.open(self.__serviceURL + "?" + quote(postdata)).read()
+            respdata = self.__opener.open(self.__serviceURL + "?" + quote(postdata.encode('utf8'))).read()
 
         resp = loads(respdata)
         if resp['error'] != None:

@@ -5,6 +5,7 @@ import sys
 modules = [
   'common',
   'backend',
+  'shell'
 ]
 
 for module in modules:

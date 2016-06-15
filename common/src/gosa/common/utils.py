@@ -80,10 +80,6 @@ def parseURL(url):
     if not url:
         return None
 
-    # Eventually encode URL
-    if type(url) == bytes:
-        url = url.encode('utf-8')
-
     source = url
     url = urlparse(url)
 
@@ -169,56 +165,6 @@ def locate(program):
 
     return None
 
-
-def dmi_system(item, data=None):
-    """
-    Function to retrieve information via DMI.
-
-    ========== ============
-    Parameter  Description
-    ========== ============
-    item       Path to the item to decode.
-    data       Optional external data to parse.
-    ========== ============
-
-    ``Return``: String
-    """
-    return None
-
-# Re-define dmi_system depending on capabilites
-try:
-    import dmidecode
-    dmidecode.clear_warnings() #@UndefinedVariable
-
-    def dmi_system(item, data=None):
-        if not data:
-            data = dmidecode.system() #@UndefinedVariable
-            dmidecode.clear_warnings() #@UndefinedVariable
-
-        item = item.lower()
-
-        for key, value in data.iteritems():
-            if item == key.lower():
-                return value
-            if isinstance(value, dict) and value:
-                value = dmi_system(item, value)
-                if value:
-                    return value
-
-        return None
-
-except ImportError:
-
-    for ext in ["dmidecode", "dmidecode.exe"]:
-        if locate(ext):
-            #pylint: disable=E0102
-            def dmi_system(item, data=None):
-                cmd = [ext, '-s', 'system-uuid']
-                p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-                stdout = p.communicate()[0]
-                return "".join(stdout).strip()
-
-            break
 
 
 def f_print(data):
@@ -336,37 +282,3 @@ def xml2dict(node):
             raise Exception("Cannot convert type %s" % type(v))
 
     return ret
-
-
-class SystemLoad:
-    """
-    The *SystemLoad* class allows to measure the current system load
-    on Linux style systems.
-    """
-    __timeList1 = [1, 1, 1, 1, 1, 1, 1, 1, 1]
-
-    def getLoad(self):
-        """
-        Get current nodes CPU load.
-
-        ``Return:`` load level
-        """
-
-        def getTimeList():
-            with open("/proc/stat", "r") as f:
-                cpuStats = f.readline()
-            columns = cpuStats.replace("cpu", "").split(" ")
-            return map(int, filter(None, columns))
-
-        timeList2 = getTimeList()
-        dt = list([(t2 - t1) for t1, t2 in zip(self.__timeList1, timeList2)])
-
-        idle_time = float(dt[3])
-        total_time = sum(dt)
-        load = 0.0
-        if total_time != 0.0:
-            load = 1 - (idle_time / total_time)
-            # Set old time delta to current
-            self.__timeList1 = timeList2
-
-        return round(load, 2)
