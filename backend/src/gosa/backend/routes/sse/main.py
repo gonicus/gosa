@@ -160,4 +160,4 @@ class SseHandler(web.RequestHandler):
         self.flush()
 
     def post(self):
-        SseHandler.send_message(self.request.body.decode('utf-8'))
+        SseHandler.send_message(self.request.body.decode('utf-8'), self.get_argument("event", None))
