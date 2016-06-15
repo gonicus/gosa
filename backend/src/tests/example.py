@@ -20,7 +20,7 @@ Environment.reset()
 Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test.conf")
 Environment.noargs = True
 
-@pytest.mark.skip(reason="no way of currently testing this")
+@pytest.mark.skip(reason="needs to be updated when ACL has been ported to GOsa")
 class TestACLResolver(unittest.TestCase):
 
     env = None
