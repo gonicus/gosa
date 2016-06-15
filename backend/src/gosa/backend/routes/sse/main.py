@@ -2,7 +2,6 @@ import uuid
 import time
 import hashlib
 import logging
-from gosa.common import Environment
 from tornado import web
 
 CHANNEL = 'sse'
@@ -59,7 +58,6 @@ class SseHandler(web.RequestHandler):
         super(SseHandler, self).__init__(application, request, **kwargs)
         self.stream = request.connection.stream
         self._closed = False
-        self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
     def initialize(self):
@@ -67,9 +65,6 @@ class SseHandler(web.RequestHandler):
         self.set_header('Content-Type', 'text/event-stream; charset=utf-8')
         self.set_header('Cache-Control', 'no-cache')
         self.set_header('Connection', 'keep-alive')
-
-    def get_class(self):
-        return self.__class__
 
     def set_id(self):
         self.connection_id = hashlib.md5(('%s-%s-%s' % (
@@ -85,11 +80,6 @@ class SseHandler(web.RequestHandler):
 
     @web.asynchronous
     def get(self):
-        # Sending the standard headers: open event
-        # headers = self._generate_headers()
-        # self.write(headers)
-        # self.flush()
-
         self.set_id()
         self.channels = self.get_channels()
         if not self.channels:
@@ -170,4 +160,4 @@ class SseHandler(web.RequestHandler):
         self.flush()
 
     def post(self):
-        SseHandler.send_message(str(self.request.body))
+        SseHandler.send_message(self.request.body.decode('utf-8'))
