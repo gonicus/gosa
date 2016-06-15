@@ -72,8 +72,6 @@ setup(
     ],
     install_requires = [
         'tornado',
-        'webob',
-        'paste',
         'zope.interface>=3.5',
         ],
 
@@ -84,10 +82,10 @@ setup(
         [gosa.route]
         /events = gosa.backend.routes.sse.main:SseHandler
         /sse_test = gosa.backend.routes.sse.main:SseClient
-        /api/(.*) = gosa.backend.routes.rest.main:RestApi
+        /rpc = gosa.backend.components.jsonrpc_service:JsonRpcHandler
 
         [gosa.plugin]
+        httpd = gosa.backend.components.httpd:HTTPService
         command = gosa.backend.command:CommandRegistry
-        jsonrpc_service = gosa.backend.components.jsonrpc_service:JSONRPCService
     """,
 )

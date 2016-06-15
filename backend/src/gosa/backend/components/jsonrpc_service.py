@@ -20,10 +20,9 @@ import sys
 import uuid
 import traceback
 import logging
+import tornado.web
 from zope.interface import implementer
 from gosa.common.gjson import loads, dumps
-from webob import exc, Request, Response #@UnresolvedImport
-from paste.auth.cookie import AuthCookieHandler #@UnresolvedImport
 from gosa.common.utils import f_print, N_
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.handler import IInterfaceHandler
@@ -40,100 +39,37 @@ C.register_codes(dict(
     REGISTRY_NOT_READY=N_("Registry is not ready")
     ))
 
-
-@implementer(IInterfaceHandler)
-class JSONRPCService(object):
+class JsonRpcHandler(tornado.web.RequestHandler):
     """
-    This is the JSONRPC GOsa backend plugin which is registering an
-    instance of :class:`gosa.backend.compoments.jsonrpc_service.JsonRpcApp` into the
-    :class:`gosa.backend.compoments.httpd.HTTPService`.
-
-    It is configured thru the ``[jsonrpc]`` section of your GOsa
-    configuration:
-
-    =============== ============
-    Key             Description
-    =============== ============
-    path            Path to register the service in HTTP
-    cookie-lifetime Seconds of authentication cookie lifetime
-    =============== ============
-
-    Example::
-
-        [jsonrpc]
-        path = /rpc
-        cookie-lifetime = 3600
-    """
-    _priority_ = 11
-
-    __proxy = {}
-
-    def __init__(self):
-        env = Environment.getInstance()
-        self.env = env
-        self.log = logging.getLogger(__name__)
-        self.log.info("initializing JSON RPC service provider")
-        self.path = self.env.config.get('jsonrpc.path', default="/rpc")
-
-        self.__http = None
-        self.__app = None
-
-    def serve(self):
-        """ Start JSONRPC service for this GOsa service provider. """
-
-        # Get http service instance
-        self.__http = PluginRegistry.getInstance('HTTPService')
-        cr = PluginRegistry.getInstance('CommandRegistry')
-
-        # Register ourselves
-        self.__app = JsonRpcApp(cr)
-        self.__http.app.register(self.path, AuthCookieHandler(self.__app,
-            timeout=self.env.config.get('http.cookie-lifetime',
-            default=1800), cookie_name='GOsaRPC',
-            secret=self.env.config.get('http.cookie-secret',
-                default="TecloigJink4")))
-
-        self.log.info("ready to process incoming requests")
-
-    def stop(self):
-        """ Stop serving the JSONRPC service for this GOsa service provider. """
-        self.log.debug("shutting down JSON RPC service provider")
-        if hasattr(self.__http, 'app'):
-            self.__http.app.unregister(self.path)
-
-    def check_session(self, sid, user):
-        return self.__app.check_session(sid, user)
-
-    def user_sessions_available(self, user=None):
-        return self.__app.user_sessions_available(user)
-
-
-class JsonRpcApp(object):
-    """
-    This is the WSGI application wich is responsible for serving the
+    This is the tornado request handler wich is responsible for serving the
     :class:`gosa.backend.command.CommandRegistry` via HTTP/JSONRPC.
     """
 
     # Simple authentication saver
     __session = {}
 
-    def __init__(self, dispatcher):
-        self.dispatcher = dispatcher
+    def initialize(self):
+        self.dispatcher = PluginRegistry.getInstance('CommandRegistry')
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.ident = "GOsa JSON-RPC service (%s)" % VERSION
 
-    def __call__(self, environ, start_response):
-        req = Request(environ)
+    def post(self):
         try:
-            resp = self.process(req, environ)
+            resp = self.process(self.request.body)
         except ValueError as e:
-            resp = exc.HTTPBadRequest(str(e))
-        except exc.HTTPException as e:
-            resp = e
-        return resp(environ, start_response)
+            self.clear()
+            self.set_status(400)
+            self.finish(str(e))
+        except tornado.web.HTTPError as e:
+            self.clear()
+            self.set_status(e.status_code) 
+            self.finish(e.log_message)
+            raise e
+        else:
+            self.write(resp)
 
-    def process(self, req, environ):
+    def process(self, data):
         """
         Process an incoming JSONRPC request and dispatch it thru the
         *CommandRegistry*.
@@ -141,25 +77,13 @@ class JsonRpcApp(object):
         ================= ==========================
         Parameter         Description
         ================= ==========================
-        req               Incoming Request
-        environ           WSGI environment
+        data              Incoming body data
         ================= ==========================
 
         ``Return``: varries
         """
-        # Handle OPTIONS
-        if req.method == 'OPTIONS':
-            return Response(
-                    server=self.ident,
-                    allow='POST'
-                    )
-
-        if not req.method == 'POST':
-            raise exc.HTTPMethodNotAllowed(
-                "Only POST allowed",
-                allow='POST').exception
         try:
-            json = loads(req.body)
+            json = loads(data)
         except ValueError as e:
             raise ValueError(C.make_error("INVALID_JSON", data=str(e)))
 
@@ -171,8 +95,7 @@ class JsonRpcApp(object):
             raise ValueError(C.make_error("JSON_MISSING_PARAMETER"))
 
         if method.startswith('_'):
-            raise exc.HTTPForbidden(
-                "Bad method name %s: must not start with _" % method).exception
+            raise tornado.web.HTTPError(403, "Bad method name %s: must not start with _" % method)
         if not isinstance(params, list) and not isinstance(params, dict):
             raise ValueError(C.make_error("PARAMETER_LIST_OR_DICT"))
 
@@ -185,56 +108,42 @@ class JsonRpcApp(object):
 
             if self.authenticate(user, password):
                 self.__session[sid] = user
-                environ['REMOTE_USER'] = user
-                environ['REMOTE_SESSION'] = sid
+                self.set_secure_cookie('REMOTE_USER', user)
+                self.set_secure_cookie('REMOTE_SESSION', sid)
                 result = True
                 self.log.info("login succeeded for user '%s'" % user)
             else:
                 # Remove current sid if present
-                if 'REMOTE_SESSION' in environ and sid in self.__session:
+                if not self.get_secure_cookie('REMOTE_SESSION') and sid in self.__session:
                     del self.__session[sid]
 
                 result = False
                 self.log.error("login failed for user '%s'" % user)
-                raise exc.HTTPUnauthorized(
-                    "Login failed",
-                    allow='POST').exception
+                raise tornado.web.HTTPError(401, "Login failed")
 
-            return Response(
-                server=self.ident,
-                content_type='application/json',
-                charset='utf8',
-                body=dumps(dict(result=result,
-                                error=None,
-                                id=jid)))
+            return dict(result=result, error=None, id=jid)
 
         # Don't let calls pass beyond this point if we've no valid session ID
-        if not environ.get('REMOTE_SESSION') in self.__session:
+        if not self.get_secure_cookie('REMOTE_SESSION') in self.__session:
             self.log.error("blocked unauthenticated call of method '%s'" % method)
-            raise exc.HTTPUnauthorized(
-                    "Please use the login method to authorize yourself.",
-                    allow='POST').exception
+            raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
         # Remove remote session on logout
         if method == 'logout':
 
             # Remove current sid if present
-            if 'REMOTE_SESSION' in environ and environ.get('REMOTE_SESSION') in self.__session:
-                del self.__session[environ.get('REMOTE_SESSION')]
+            if not self.get_secure_cookie('REMOTE_SESSION') and self.get_secure_cookie('REMOTE_SESSION') in self.__session:
+                del self.__session[self.get_secure_cookie('REMOTE_SESSION')]
 
             # Show logout message
-            if 'REMOTE_USER' in environ:
-                self.log.info("logout for user '%s' succeeded" % environ.get('REMOTE_USER'))
+            if self.get_secure_cookie('REMOTE_USER'):
+                self.log.info("logout for user '%s' succeeded" % self.get_secure_cookie('REMOTE_USER'))
 
-            return Response(
-                server=self.ident,
-                content_type='application/json',
-                charset='utf8',
-                body=dumps(dict(result=True,
-                                error=None,
-                                id=jid)))
+            self.clear_cookie("REMOTE_USER")
+            self.clear_cookie("REMOTE_SESSION")
+            return dict(result=True, error=None, id=jid)
 
-        # Try to call method with local dispatcher
+        # Try to call method with dispatcher
         if not self.dispatcher.hasMethod(method):
             text = "No such method '%s'" % method
             error_value = dict(
@@ -244,17 +153,12 @@ class JsonRpcApp(object):
                 error=text)
             self.log.warning(text)
 
-            return Response(
-                server=self.ident,
-                status=500,
-                content_type='application/json',
-                charset='utf8',
-                body=dumps(dict(result=None,
-                                error=error_value,
-                                id=jid)))
+            self.set_status(500);
+            return dict(result=None, error=error_value, id=jid)
+
         try:
             self.log.debug("calling method %s(%s)" % (method, params))
-            user = environ.get('REMOTE_USER')
+            user = self.get_secure_cookie('REMOTE_USER')
 
             self.log.debug("received call [%s] for %s: %s(%s)" % (jid, user, method, params))
 
@@ -279,12 +183,8 @@ class JsonRpcApp(object):
                 error=e.error)
             self.log.error(e.error)
 
-            return Response(
-                server=self.ident,
-                status=500,
-                content_type='application/json',
-                charset='utf8',
-                body=dumps(dict(result=None, error=error_value, id=jid)))
+            self.set_status(500)
+            return dict(result=None, error=error_value, id=jid)
 
         except Exception as e:
             text = traceback.format_exc()
@@ -302,21 +202,12 @@ class JsonRpcApp(object):
             self.log.error("returning call [%s]: %s / %s" % (jid, None, f_print(err)))
             self.log.error(text)
 
-            return Response(
-                server=self.ident,
-                content_type='application/json',
-                charset='utf8',
-                body=dumps(dict(result=None,
-                                error=error_value,
-                                id=jid)))
+            self.set_status(500)
+            return dict(result=None, error=error_value, id=jid)
 
         self.log.debug("returning call [%s]: %s / %s" % (jid, result, None))
 
-        return Response(
-            server=self.ident,
-            content_type='application/json',
-            charset='utf8',
-            body=dumps(dict(result=result, error=None, id=jid)))
+        return dict(result=result, error=None, id=jid)
 
     def authenticate(self, user=None, password=None):
         """

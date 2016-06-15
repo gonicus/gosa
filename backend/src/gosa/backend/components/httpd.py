@@ -23,7 +23,6 @@ import pkg_resources
 from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
 from zope.interface import implementer
-from webob import exc #@UnresolvedImport
 from gosa.common import Environment
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.utils import N_
@@ -34,47 +33,6 @@ C.register_codes(dict(
     HTTP_PATH_ALREADY_REGISTERED=N_("'%(path)s' has already been registered")
     ))
 
-
-class HTTPDispatcher(object):
-    """
-    The *HTTPDispatcher* can be used to register WSGI applications
-    to a given path. It will inspect the path of an incoming request
-    and decides which registered application it gets.
-
-    Analyzing the path can be configured to detect a *subtree* match
-    or an *exact* match. If you need subtree matches, just add the
-    class variable ``http_subtree`` to the WSGI class and set it to
-    *True*.
-    """
-
-    def __init__(self):
-        self.__app = {}
-        self.env = Environment.getInstance()
-        self.log = logging.getLogger(__name__)
-
-    def __call__(self, environ, start_response):
-        path = environ.get('PATH_INFO')
-        for app_path in sorted(self.__app, key=len, reverse=True):
-            app = self.__app[app_path]
-
-            if hasattr(app, "http_subtree") and path.startswith(app_path if app_path == "/" else app_path + "/"):
-                return app.__call__(environ, start_response)
-            elif path == app_path:
-                return app.__call__(environ, start_response)
-
-        # Nothing found
-        self.log.debug('no resource %s registered!' % path)
-        resp = exc.HTTPNotFound('no resource %s registered!' % path)
-        return resp(environ, start_response)
-
-    def register(self, path, app):
-        self.log.debug("registering %s on %s" % (app.__class__.__name__, path))
-        self.__app[path] = app
-
-    def unregister(self, path):
-        if path in self.__app:
-            self.log.debug("unregistering %s" % path)
-            del(self.__app[path])
 
 @implementer(IInterfaceHandler)
 class HTTPService(object):
@@ -121,10 +79,6 @@ class HTTPService(object):
     """
     _priority_ = 10
 
-    __register = {}
-    __register_ws = {}
-    __register_static = {}
-
     def __init__(self):
         env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
@@ -132,7 +86,6 @@ class HTTPService(object):
         self.env = env
         self.srv = None
         self.ssl = None
-        self.app = None
         self.host = None
         self.scheme = None
         self.port = None
@@ -141,8 +94,6 @@ class HTTPService(object):
         """
         Start HTTP service thread.
         """
-        self.app = HTTPDispatcher()
-
         self.host = self.env.config.get('http.host', default="localhost")
         self.port = self.env.config.get('http.port', default=8080)
         self.ssl = self.env.config.get('http.ssl', default=None)
@@ -164,19 +115,7 @@ class HTTPService(object):
             module = entry.load()
             apps.append((entry.name, module))
 
-        # Make statics registerable
-        for pth, local_pth in self.__register_static.items():
-            apps.append((pth, tornado.web.StaticFileHandler, {"path": local_pth}))
-
-        # Make websockets available if registered
-        for pth, ws_app in self.__register_ws.items():
-            apps.append((pth, ws_app))
-
-        # Finally add the WSGI handler
-        wsgi_app = tornado.wsgi.WSGIContainer(self.app)
-        apps.append((r".*", tornado.web.FallbackHandler, dict(fallback=wsgi_app)))
-
-        application = tornado.web.Application(apps)
+        application = tornado.web.Application(apps, cookie_secret=self.env.config.get('http.cookie-secret', default="TecloigJink4"))
 
         # Fetch server
         self.srv = HTTPServer(application, ssl_options=ssl_options)
@@ -186,11 +125,6 @@ class HTTPService(object):
         self.thread.start()
 
         self.log.info("now serving on %s://%s:%s" % (self.scheme, self.host, self.port))
-
-        # Register all possible instances that have shown
-        # interrest to be served
-        for path, obj in self.__register.items():
-            self.app.register(path, obj)
 
     def start(self):
         IOLoop.instance().start()
