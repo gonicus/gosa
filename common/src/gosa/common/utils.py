@@ -81,7 +81,7 @@ def parseURL(url):
         return None
 
     # Eventually encode URL
-    if type(url) == unicode:
+    if type(url) == bytes:
         url = url.encode('utf-8')
 
     source = url
@@ -222,7 +222,7 @@ except ImportError:
 
 
 def f_print(data):
-    if not isinstance(data, basestring):
+    if not isinstance(data, str):
         return data[0] % tuple(data[1:])
     else:
         return data
@@ -353,7 +353,7 @@ class SystemLoad:
         """
 
         def getTimeList():
-            with file("/proc/stat", "r") as f:
+            with open("/proc/stat", "r") as f:
                 cpuStats = f.readline()
             columns = cpuStats.replace("cpu", "").split(" ")
             return map(int, filter(None, columns))

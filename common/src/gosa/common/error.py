@@ -79,7 +79,7 @@ class GosaErrorHandler(Plugin):
 
         # Save entry
         __id = uuid.uuid1()
-        self._errors[_id] = data 
+        GosaErrorHandler._errors[__id] = data
 
         # First, catch unconverted exceptions
         if not code in GosaErrorHandler._codes:
@@ -88,7 +88,7 @@ class GosaErrorHandler(Plugin):
         return '<%s> %s' % (__id, text)
 
     @staticmethod
-    def register_codes(codes, module="clacks.agent"):
+    def register_codes(codes, module="gosa.plugin"):
         GosaErrorHandler._codes.update(codes)
 
         # Memorize which module to get translations from
@@ -96,16 +96,16 @@ class GosaErrorHandler(Plugin):
             GosaErrorHandler._i18n_map[k] = module
 
 
-class ClacksException(Exception):
+class GosaException(Exception):
     """
-    Clacks base exception that converts the error to a string and
+    Gosa base exception that converts the error to a string and
     feeds it to the database  in parallel. Errors emitted with
-    ClacksException can be queried by their ID later on.
+    GosaException can be queried by their ID later on.
     """
 
     def __init__(self, *args, **kwargs):
         info = GosaErrorHandler.make_error(*args, **kwargs)
-        super(ClacksException, self).__init__(info)
+        super(GosaException, self).__init__(info)
 
 
 # Register basic errors

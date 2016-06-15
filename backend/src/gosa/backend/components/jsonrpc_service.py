@@ -89,7 +89,7 @@ class JSONRPCService(object):
         self.__app = JsonRpcApp(cr)
         self.__http.app.register(self.path, AuthCookieHandler(self.__app,
             timeout=self.env.config.get('http.cookie-lifetime',
-            default=1800), cookie_name='ClacksRPC',
+            default=1800), cookie_name='GosaRPC',
             secret=self.env.config.get('http.cookie-secret',
                 default="TecloigJink4")))
 
@@ -258,28 +258,28 @@ class JsonRpcApp(object):
             user = environ.get('REMOTE_USER')
 
             # Automatically prepend queue option for current
-            if self.dispatcher.capabilities[method]['needsQueue']:
-                queue = '%s.command.%s.%s' % (self.env.domain,
-                    self.dispatcher.capabilities[method]['target'],
-                    self.env.id)
-                if isinstance(params, dict):
-                    params['queue'] = queue
-                else:
-                    params.insert(0, queue)
+            # if self.dispatcher.capabilities[method]['needsQueue']:
+            #     queue = '%s.command.%s.%s' % (self.env.domain,
+            #         self.dispatcher.capabilities[method]['target'],
+            #         self.env.id)
+            #     if isinstance(params, dict):
+            #         params['queue'] = queue
+            #     else:
+            #         params.insert(0, queue)
 
             self.log.debug("received call [%s] for %s: %s(%s)" % (jid, user, method, params))
 
             # Don't process messages if the command registry thinks it's not ready
-            if not self.dispatcher.processing.is_set():
-                self.log.warning("waiting for registry to get ready")
-                if not self.dispatcher.processing.wait(5):
-                    self.log.error("aborting call [%s] for %s: %s(%s) - timed out" % (jid, user, method, params))
-                    raise RuntimeError(C.make_error("REGISTRY_NOT_READY"))
+            # if not self.dispatcher.processing.is_set():
+            #     self.log.warning("waiting for registry to get ready")
+            #     if not self.dispatcher.processing.wait(5):
+            #         self.log.error("aborting call [%s] for %s: %s(%s) - timed out" % (jid, user, method, params))
+            #         raise RuntimeError(C.make_error("REGISTRY_NOT_READY"))
 
             if isinstance(params, dict):
-                result = self.dispatcher.dispatch(user, None, method, **params)
+                result = self.dispatcher.dispatch(user, method, **params)
             else:
-                result = self.dispatcher.dispatch(user, None, method, *params)
+                result = self.dispatcher.dispatch(user, method, *params)
 
         except JSONRPCException as e:
             exc_value = sys.exc_info()[1]

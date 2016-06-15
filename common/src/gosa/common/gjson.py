@@ -15,6 +15,8 @@ def dumps(obj):
 
 
 def loads(json_string):
+    if isinstance(json_string, bytes):
+        json_string = json_string.decode('ascii')
     return json.loads(json_string, object_hook=PObjectDecoder)
 
 
