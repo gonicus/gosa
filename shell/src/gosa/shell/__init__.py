@@ -22,7 +22,7 @@ The Clacks shell can be called in different ways.
    You're presented a python prompt which can be used
    to get the list of commands using the *proxy* object::
 
-     >>> clacks.help()
+     >>> gosa.help()
      createDistribution()
          Create a new distribution based on type, mirror and installation
          method

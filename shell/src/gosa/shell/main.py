@@ -99,7 +99,7 @@ class MyConsole(code.InteractiveConsole):
         """
         self.lastCode = code
         try:
-            exec(code, None, self.locals)
+            exec(code, self.locals)
         except SystemExit:
             raise
         except HTTPError as e:
@@ -236,7 +236,7 @@ class GosaService():
         except TypeError:
             loc = None
 
-        for method, info in self.proxy.getMethods(None, loc).iteritems():
+        for method, info in self.proxy.getMethods(loc).items():
             # Get the name of the module.
             module = info['target']
             if module not in mlist:
@@ -251,7 +251,7 @@ class GosaService():
                     doc += "    %s\n" % line
             mlist[module].append((method, args, doc))
 
-        keylist = mlist.keys()
+        keylist = list(mlist.keys())
         keylist.sort()
         for module in keylist:
             print(module.upper())
@@ -387,7 +387,7 @@ for i in gosa.getMethods().keys():
             except HTTPError as e:
                 if e.code == 401:
                     service.reconnectJson(service_uri, username, password)
-                    context = {'clacks': service, 'service': service.proxy,
+                    context = {'gosa': service, 'service': service.proxy,
                         '__name__': '__console__', '__doc__': None}
                 else:
                     print(e)

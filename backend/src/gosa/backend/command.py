@@ -56,8 +56,7 @@ CUMULATIVE = 4
 C.register_codes(dict(
     COMMAND_NO_USERNAME=N_("Calling method '%(method)s' without a valid user session is not permitted"),
     COMMAND_NOT_DEFINED=N_("Method '%(method)s' is not defined"),
-    PERMISSION_EXEC=N_("No permission to execute method '%(queue)s.%(method)s'"),
-    COMMAND_INVALID_QUEUE=N_("Invalid queue '%(queue)s' for method '%(method)s'"),
+    PERMISSION_EXEC=N_("No permission to execute method '%(method)s'"),
     COMMAND_TYPE_NOT_DEFINED=N_("No method type '%(type)s' defined"),
     COMMAND_WITHOUT_DOCS=N_("Method '%(method)s' has no documentation")
     ))
@@ -70,6 +69,7 @@ class CommandRegistry(Plugin):
     imported thru plugins.
     """
     _priority_ = 0
+    _target_ = "core"
 
     objects = {}
     commands = {}
@@ -104,7 +104,7 @@ class CommandRegistry(Plugin):
         ``Return``: dict describing all methods
         """
         res = {}
-        for name, info in self.commands.iteritems():
+        for name, info in self.commands.items():
 
             # Only list local methods
             res[name] = info
@@ -116,15 +116,14 @@ class CommandRegistry(Plugin):
                         resource_filename(mod, "locale"),
                         fallback=True,
                         languages=[locale])
-                res[name]['doc'] = t.ugettext(info['doc'])
+                res[name]['doc'] = t.gettext(info['doc'])
 
         return res
 
-    @Command(__help__=N_("Shut down the service belonging to the supplied queue. In case of HTTP connections, this command will shut down the node you're currently logged in."))
-    def shutdown(self, queue, force=False):
+    @Command(__help__=N_("Shut down the service."))
+    def shutdown(self, force=False):
         """
-        Shut down the service belonging to the supplied queue. In case of HTTP
-        connections, this command will shut down the node you're currently
+        In case of HTTP connections, this command will shut down the node you're currently
         logged in.
 
         ================= ==========================
@@ -136,7 +135,7 @@ class CommandRegistry(Plugin):
         ``Return``: True when shutting down
         """
         self.log.debug("received shutdown signal - waiting for threads to terminate")
-        self.env.active = False
+        PluginRegistry.getInstance('HTTPService').stop()
         return True
 
     def hasMethod(self, func):
@@ -200,8 +199,8 @@ class CommandRegistry(Plugin):
 
         # Check for permission (if user equals 'self' then this is an internal call)
         if user != self:
-            chk_options = dict(dict(zip(self.commands[func]['sig'], arg)).items() + larg.items())
             print("! ACL check is disabled")
+            #chk_options = dict(dict(zip(self.commands[func]['sig'], arg)).items() + larg.items())
             #TODO: re-enable later on
             #acl = PluginRegistry.getInstance("ACLResolver")
             #if not acl.check(user, "%s.%s" % (queue, func), "x", options=chk_options):
@@ -287,6 +286,7 @@ class CommandRegistry(Plugin):
                         'name': func,
                         'path': "%s.%s" % (clazz.__class__.__name__, mname),
                         'sig': [] if not getargspec(method).args else getargspec(method).args,
+                        'target': clazz.get_target(),
                         'type': getattr(method, "type", NORMAL),
                         'doc': doc,
                         }

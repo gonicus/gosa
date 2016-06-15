@@ -124,7 +124,7 @@ class JsonRpcHandler(tornado.web.RequestHandler):
             return dict(result=result, error=None, id=jid)
 
         # Don't let calls pass beyond this point if we've no valid session ID
-        if not self.get_secure_cookie('REMOTE_SESSION') in self.__session:
+        if not self.get_secure_cookie('REMOTE_SESSION').decode('ascii') in self.__session:
             self.log.error("blocked unauthenticated call of method '%s'" % method)
             raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
@@ -132,8 +132,8 @@ class JsonRpcHandler(tornado.web.RequestHandler):
         if method == 'logout':
 
             # Remove current sid if present
-            if not self.get_secure_cookie('REMOTE_SESSION') and self.get_secure_cookie('REMOTE_SESSION') in self.__session:
-                del self.__session[self.get_secure_cookie('REMOTE_SESSION')]
+            if not self.get_secure_cookie('REMOTE_SESSION') and self.get_secure_cookie('REMOTE_SESSION').decode('ascii') in self.__session:
+                del self.__session[self.get_secure_cookie('REMOTE_SESSION').decode('ascii')]
 
             # Show logout message
             if self.get_secure_cookie('REMOTE_USER'):
@@ -161,13 +161,6 @@ class JsonRpcHandler(tornado.web.RequestHandler):
             user = self.get_secure_cookie('REMOTE_USER')
 
             self.log.debug("received call [%s] for %s: %s(%s)" % (jid, user, method, params))
-
-            # Don't process messages if the command registry thinks it's not ready
-            if not self.dispatcher.processing.is_set():
-                self.log.warning("waiting for registry to get ready")
-                if not self.dispatcher.processing.wait(5):
-                    self.log.error("aborting call [%s] for %s: %s(%s) - timed out" % (jid, user, method, params))
-                    raise RuntimeError(C.make_error("REGISTRY_NOT_READY"))
 
             if isinstance(params, dict):
                 result = self.dispatcher.dispatch(user, method, **params)

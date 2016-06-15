@@ -21,6 +21,7 @@ from gosa.common.components import Plugin
 class GosaErrorHandler(Plugin):
     #TODO: maintain the owner (or originator) of the error message, to
     #      allow only the originator to pull her/his error messages.
+    _target_ = "core"
     _codes = {}
     _i18n_map = {}
     _errors = {}
@@ -44,12 +45,12 @@ class GosaErrorHandler(Plugin):
                 fallback=True,
                 languages=[locale])
 
-            res['text'] = t.ugettext(GosaErrorHandler._codes[res['code']])
+            res['text'] = t.gettext(GosaErrorHandler._codes[res['code']])
 
             # Process details by translating detail text
             if res['details']:
                 for detail in res['details']:
-                    detail['detail'] = t.ugettext(detail['detail']) % detail
+                    detail['detail'] = t.gettext(detail['detail']) % detail
 
         # Fill keywords
         res['text'] = res['text'] % res['kwargs']
