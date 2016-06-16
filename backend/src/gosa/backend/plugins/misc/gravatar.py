@@ -44,8 +44,8 @@ class Gravatar(Plugin):
         ``Return:`` Image URL
         """
         gravatar_url = "http://www.gravatar.com/avatar.php?"
-        gravatar_url += urllib.urlencode({
-            'gravatar_id': hashlib.md5(mail.lower()).hexdigest(),
+        gravatar_url += urllib.parse.urlencode({
+            'gravatar_id': hashlib.md5(mail.lower().encode()).hexdigest(),
             'default': url,
             'size': str(size)})
         return gravatar_url
