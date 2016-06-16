@@ -153,7 +153,7 @@ class JsonRpcHandler(tornado.web.RequestHandler):
                 error=text)
             self.log.warning(text)
 
-            self.set_status(500);
+            self.set_status(500)
             return dict(result=None, error=error_value, id=jid)
 
         try:
