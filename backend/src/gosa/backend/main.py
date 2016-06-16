@@ -60,7 +60,7 @@ def mainLoop(env):
 
 def main():
     """
-    Main programm which is called when the clacks agent process gets started.
+    Main programm which is called when the GOsa backend process gets started.
     It does the main forking os related tasks.
     """
 
