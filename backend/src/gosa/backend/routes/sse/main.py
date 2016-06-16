@@ -136,10 +136,12 @@ class SseHandler(web.RequestHandler):
         """ Sends a message to all live connections """
         id = str(uuid.uuid4())
 
+        dataString = format("%s\n" % "\n".join([("data: %s" % x) for x in msg.splitlines() if not x == '']))
+
         if (event != None):
-            message = format('id: %s\nevent: %s\ndata: %s\n\n' % (id, event, msg))
+            message = format('id: %s\nevent: %s\n%s' % (id, event, dataString))
         else:
-            message = format('id: %s\ndata: %s\n\n' % (id, msg))
+            message = format('id: %s\n%s' % (id, dataString))
 
         cls._cache.append({
             'id': id,

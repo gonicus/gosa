@@ -78,7 +78,7 @@ def softspace(fn, newvalue):
 class SseClient(BaseSseClient):
     """ SseClient prints incoming SSE Events on the console"""
     def on_event(self, event):
-        print("Incoming SSE Event: %s" % event)
+        print("Incoming SSE message:\n%s" % event)
 
 class MyConsole(code.InteractiveConsole):
     """ MyConsole Subclass of code.InteractiveConsole """

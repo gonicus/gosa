@@ -25,7 +25,7 @@ class Event(object):
         self.id = None
 
     def __repr__(self):
-        return "Event<%s,%s,%s>" % (str(self.id), str(self.name), str(self.data))
+        return "Event\n  id: %s\n  name: %s\n  data:\n\t%s" % (str(self.id), str(self.name), "\n\t".join(self.data.splitlines()))
 
 class BaseSseClient():
     """"
