@@ -27,7 +27,7 @@ class Gravatar(Plugin):
         env = Environment.getInstance()
         self.env = env
 
-    @Command(__help__=N_("Generate samba lm:nt hash combination from the supplied password."))
+    @Command(__help__=N_("Generate the gravatar URL for the given mail address and size."))
     def getGravatarURL(self, mail, size=40, url="http://www.gonicus.de"):
         """
         Generate the gravatar URL to be used for user pictures on
