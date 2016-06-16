@@ -47,14 +47,10 @@ class BaseSseClient():
         if hasattr(self, "connection"):
             del self.connection
 
-        headers = httputil.HTTPHeaders({
-            'content-type': 'text/event-stream'
-        })
         request = httpclient.HTTPRequest(url=url,
                                          method='GET',
                                          request_timeout=0,
                                          connect_timeout=self.connect_timeout,
-                                         headers=headers,
                                          streaming_callback=self.parse_event)
         self.connection = self.client.fetch(request, self.handle_request)
         self.thread = Thread(target=self.start)
