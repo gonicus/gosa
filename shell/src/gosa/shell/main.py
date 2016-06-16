@@ -273,7 +273,7 @@ def main(argv=sys.argv):
         print(__doc__)
         return 0
     try:
-        opts, args = getopt.getopt(argv[1:], "u:p:c:", ["user=", "password=", "command="])
+        opts, args = getopt.getopt(argv[1:], "u:p:c:d", ["user=", "password=", "command=", "debug"])
     except getopt.GetoptError:
         print(__doc__)
         sys.exit(2)
@@ -282,6 +282,7 @@ def main(argv=sys.argv):
     username = ''
     password = ''
     command = ''
+    debug = False
 
     if len(args) >= 1:
         service_uri = args[0]
@@ -293,6 +294,8 @@ def main(argv=sys.argv):
             password = arg
         elif opt in ("-c", "--command"):
             command = arg
+        elif opt in ("-d", "--debug"):
+            debug = True
 
     # Create service object
     service = GosaService()
@@ -304,10 +307,11 @@ def main(argv=sys.argv):
         print()
         sys.exit(1)
 
-    # Connect to the SSE service and show incoming messages on console
-    sse_client = SseClient()
-    parsed_url = parseURL(service_uri)
-    sse_client.connect(format('%s://%s:%d/%s' % (parsed_url['scheme'], parsed_url['host'], parsed_url['port'], 'events')))
+    if debug:
+        # Connect to the SSE service and show incoming messages on console
+        sse_client = SseClient()
+        parsed_url = parseURL(service_uri)
+        sse_client.connect(format('%s://%s:%d/%s' % (parsed_url['scheme'], parsed_url['host'], parsed_url['port'], 'events')))
 
     # Prepare to enter the interactive console.
     # Make the the GosaService instance available to the console via the
