@@ -7,9 +7,9 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-from gosa.backend.routes.sse.main import SseHandler
 from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application
+from gosa.backend.routes.sse.main import SseHandler
 
 class SseHandlerTestCase(AsyncHTTPTestCase):
 
@@ -32,7 +32,7 @@ class SseHandlerTestCase(AsyncHTTPTestCase):
         self.stop()
 
     def test_subscribe(self):
-        self.http_client.fetch(self.get_url('/events'), streaming_callback = self.handleMessage)
+        self.http_client.fetch(self.get_url('/events'), streaming_callback=self.handleMessage)
         # post something
         self.check_data = "Test"
         self.http_client.fetch(self.get_url('/events'), method="POST", body=self.check_data)

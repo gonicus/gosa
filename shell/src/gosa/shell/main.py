@@ -54,6 +54,7 @@ from pkg_resources import resource_filename #@UnresolvedImport
 
 from gosa.common.components import JSONServiceProxy, JSONRPCException
 from gosa.common.utils import parseURL
+from gosa.common.components.sse_client import BaseSseClient
 
 # Set locale domain
 t = gettext.translation('messages', resource_filename("gosa.shell", "locale"), fallback=True)
@@ -74,6 +75,10 @@ def softspace(fn, newvalue):
         pass
     return oldvalue
 
+class SseClient(BaseSseClient):
+    """ SseClient prints incoming SSE Events on the console"""
+    def on_event(self, event):
+        print("Incoming SSE Event: %s" % event)
 
 class MyConsole(code.InteractiveConsole):
     """ MyConsole Subclass of code.InteractiveConsole """
@@ -298,6 +303,11 @@ def main(argv=sys.argv):
     except KeyboardInterrupt:
         print()
         sys.exit(1)
+
+    # Connect to the SSE service and show incoming messages on console
+    sse_client = SseClient()
+    parsed_url = parseURL(service_uri)
+    sse_client.connect(format('%s://%s:%d/%s' % (parsed_url['scheme'], parsed_url['host'], parsed_url['port'], 'events')))
 
     # Prepare to enter the interactive console.
     # Make the the GosaService instance available to the console via the
