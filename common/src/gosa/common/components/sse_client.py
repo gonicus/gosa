@@ -88,13 +88,17 @@ class BaseSseClient():
             field = field.strip()
             if field == "data":
                 try:
-                    event.data = loads(value.strip())
+                    data = loads(value.strip())
                 except JSONDecodeError as e:
                     # no json just use string
-                    event.data = value.strip()
-            if field == "id":
+                    data = value.strip()
+                if event.data is None:
+                    event.data = data
+                else:
+                    event.data = "%s\n%s" % (event.data, data)
+            elif field == "id":
                 event.id = value.strip()
-            if field == "event":
+            elif field == "event":
                 event.name = value.strip()
         self.on_event(event)
 
