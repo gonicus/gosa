@@ -124,7 +124,7 @@ class JsonRpcHandler(tornado.web.RequestHandler):
             return dict(result=result, error=None, id=jid)
 
         # Don't let calls pass beyond this point if we've no valid session ID
-        if not self.get_secure_cookie('REMOTE_SESSION').decode('ascii') in self.__session:
+        if self.get_secure_cookie('REMOTE_SESSION') is None or not self.get_secure_cookie('REMOTE_SESSION').decode('ascii') in self.__session:
             self.log.error("blocked unauthenticated call of method '%s'" % method)
             raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 

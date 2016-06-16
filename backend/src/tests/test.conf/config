@@ -1,0 +1,60 @@
+[core]
+profile = False
+base = dc=example,dc=net
+
+[http]
+host = localhost
+port = 8000
+sslpemfile = /etc/gosa/host.pem
+
+[ldap]
+url = ldap://ldap.example.net/dc=example,dc=net
+bind-dn = cn=ldapadmin,dc=example,dc=net
+bind-secret = secret
+pool-size = 10
+
+
+##############################################################################
+#                            Logger configuration                            #
+##############################################################################
+
+[loggers]
+keys=root,gosa
+
+[handlers]
+keys=syslog,console
+
+[formatters]
+keys=syslog,console
+
+[logger_root]
+level=NOTSET
+handlers=console
+
+[logger_gosa]
+# Desired loglevel: DEBUG, INFO, WARNING, ERROR, CRITICAL
+level=DEBUG
+# Desired handler: syslog, console
+handlers=console
+qualname=gosa
+propagate=0
+
+[handler_console]
+class=StreamHandler
+formatter=console
+args=(sys.stderr,)
+
+[handler_syslog]
+class=logging.handlers.SysLogHandler
+formatter=syslog
+args=('/dev/log',)
+
+[formatter_syslog]
+format=%(name)s: %(module)s - %(message)s
+datefmt=
+class=logging.Formatter
+
+[formatter_console]
+format=%(asctime)s %(levelname)s: %(module)s - %(message)s
+datefmt=
+class=logging.Formatter
