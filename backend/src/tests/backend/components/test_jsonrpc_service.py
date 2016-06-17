@@ -74,12 +74,15 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
             response = self.login()
             assert response.code == 401
 
-        response = self.login()
-        assert response.code == 200
-        json = loads(response.body)
-        assert json['result'] == True
-        assert json['error'] is None
-        assert json['id'] == 0
+        # successfull login
+        with unittest.mock.patch.object(JsonRpcHandler, 'authenticate') as m:
+            m.return_value = True
+            response = self.login()
+            assert response.code == 200
+            json = loads(response.body)
+            assert json['result'] == True
+            assert json['error'] is None
+            assert json['id'] == 0
 
     def test_bad_method_name(self):
         # fetch the xsrf cookie
