@@ -35,7 +35,7 @@ class ShellSupport(Plugin):
         source = env.config.get('posix.shells', default="/etc/shells")
 
         with open(source) as f:
-            self.__shells = filter(lambda y: not y.startswith("#"), [x.strip() for x in f.read().split("\n")])
+            self.__shells =list(filter(lambda y: not y.startswith("#"), [x.strip() for x in f.read().split("\n")]))
 
     @Command(__help__=N_("Return list of supported shells"))
     def getShellList(self):

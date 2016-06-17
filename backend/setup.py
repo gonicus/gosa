@@ -89,13 +89,14 @@ setup(
         [gosa.plugin]
         httpd = gosa.backend.components.httpd:HTTPService
         command = gosa.backend.command:CommandRegistry
-        #guimethods = clacks.agent.plugins.gosa.methods:GuiMethods
-        #sambaguimethods = clacks.agent.plugins.samba.domain:SambaGuiMethods
+        #xxxxxxx guimethods = clacks.agent.plugins.gosa.methods:GuiMethods
+        #xxxxxxx sambaguimethods = clacks.agent.plugins.samba.domain:SambaGuiMethods
         transliterate = gosa.backend.plugins.misc.transliterate:Transliterate
         locales = gosa.backend.plugins.misc.locales:Locales
         gravatar = gosa.backend.plugins.misc.gravatar:Gravatar
         shells = gosa.backend.plugins.posix.shells:ShellSupport
-        #password = gosa.backend.plugins.password.manager:PasswordManager
+        #xxxxxxx password = gosa.backend.plugins.password.manager:PasswordManager
+        #xxxxxxx jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
@@ -145,8 +146,8 @@ setup(
         generategecos = gosa.backend.plugins.posix.filters:GenerateGecos
         loadgecosstate = gosa.backend.plugins.posix.filters:LoadGecosState
         #xxxxx imagefilter = clacks.agent.plugins.user.filters:ImageProcessor
-        #xxxxx generatedn = clacks.agent.plugins.user.filters:GenerateDisplayName
-        #xxxxx loaddnstate = clacks.agent.plugins.user.filters:LoadDisplayNameState
+        generatedn = clacks.agent.plugins.user.filters:GenerateDisplayName
+        loaddnstate = clacks.agent.plugins.user.filters:LoadDisplayNameState
         generateids = gosa.backend.plugins.posix.filters:GenerateIDs
         datetoshadowdays = gosa.backend.plugins.posix.shadow:DatetimeToShadowDays
         shadowdaystodate = gosa.backend.plugins.posix.shadow:ShadowDaysToDatetime
@@ -186,6 +187,5 @@ setup(
 #        scheduler = clacks.agent.scheduler:SchedulerService
 #        acl = clacks.agent.acl:ACLResolver
 #        objects = clacks.agent.objects.index:ObjectIndex
-#        jsonrpc_om = clacks.agent.jsonrpc_objects:JSONRPCObjectMapper
     """,
 )
