@@ -65,6 +65,35 @@ class JSONObjectFactory(object):
                 (JSONObjectFactory, object),
                 JSONObjectFactory.__dict__.copy())(proxy, ref, dn, oid, methods, properties, data)
 
+class XSRFCookieProcessor(urllib2.HTTPCookieProcessor):
+    """
+    Extend the HTTPCookieProcessor by handling the XSRF Cookie from tornado
+    """
+    def __init__(self, cookiejar=None):
+        if cookiejar is None:
+            cookiejar = cookielib.CookieJar()
+        self.cookiejar = cookiejar
+        self.xsrf_token = None
+
+    def http_request(self, request):
+        if not request.has_header('X-XSRFToken') and (self.xsrf_token):
+            request.add_unredirected_header("X-XSRFToken", self.xsrf_token)
+        self.cookiejar.add_cookie_header(request)
+        return request
+
+    def http_response(self, request, response):
+        self.cookiejar.extract_cookies(response, request)
+        cookies = requests.utils.dict_from_cookiejar(self.cookiejar)
+        if '_xsrf' in cookies:
+            self.xsrf_token = cookies['_xsrf']
+        return response
+
+    def has_token(self):
+        return not self.xsrf_token is None
+
+    https_request = http_request
+    https_response = http_response
+
 
 class JSONServiceProxy(object):
     """
@@ -100,17 +129,21 @@ class JSONServiceProxy(object):
        The HTTP service is operated by a gosa-backend instance.
     """
 
-    def __init__(self, serviceURL=None, serviceName=None, opener=None, mode='POST'):
+    def __init__(self, serviceURL=None, serviceName=None, opener=None, mode='POST', cookieProcessor=None):
         self.__serviceURL = serviceURL
         self.__serviceName = serviceName
         self.__mode = mode
+        if cookieProcessor is None:
+            self.__cookieProcessor = XSRFCookieProcessor()
+        else:
+            self.__cookieProcessor = cookieProcessor
+
         username = None
         password = None
 
         if not opener:
             http_handler = urllib2.HTTPHandler()
             https_handler = urllib2.HTTPSHandler()
-            cookie_handler = urllib2.HTTPCookieProcessor(cookielib.CookieJar())
 
             # Split URL, user, password from provided URL
             tmp = urlparse(serviceURL)
@@ -123,10 +156,10 @@ class JSONServiceProxy(object):
                 passman.add_password(None, self.__serviceURL, username, password)
                 auth_handler = urllib2.HTTPBasicAuthHandler(passman)
                 opener = urllib2.build_opener(http_handler, https_handler,
-                        cookie_handler, auth_handler)
+                                              self.__cookieProcessor, auth_handler)
 
             else:
-                opener = urllib2.build_opener(http_handler, https_handler, cookie_handler)
+                opener = urllib2.build_opener(http_handler, https_handler, self.__cookieProcessor)
 
         self.__opener = opener
 
@@ -138,7 +171,7 @@ class JSONServiceProxy(object):
         if self.__serviceName != None:
             name = "%s.%s" % (self.__serviceName, name)
 
-        return JSONServiceProxy(self.__serviceURL, name, self.__opener, self.__mode)
+        return JSONServiceProxy(self.__serviceURL, name, self.__opener, self.__mode, self.__cookieProcessor)
 
     def getProxy(self):
         return JSONServiceProxy(self.__serviceURL, None, self.__opener, self.__mode)
@@ -146,6 +179,10 @@ class JSONServiceProxy(object):
     def __call__(self, *args, **kwargs):
         if len(kwargs) > 0 and len(args) > 0:
             raise JSONRPCException("JSON-RPC does not support positional and keyword arguments at the same time")
+
+        if not self.__cookieProcessor.has_token():
+            # get the cookie
+            self.__opener.open(self.__serviceURL).read()
 
         if len(kwargs):
             postdata = dumps({"method": self.__serviceName, 'params': kwargs, 'id': 'jsonrpc'})

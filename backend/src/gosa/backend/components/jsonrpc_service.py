@@ -54,6 +54,12 @@ class JsonRpcHandler(tornado.web.RequestHandler):
         self.log = logging.getLogger(__name__)
         self.ident = "GOsa JSON-RPC service (%s)" % VERSION
 
+    def get(self):
+        """Allow the clients to get the XSRF cookie"""
+        # trigger the token generation
+        self.xsrf_token
+        self.write("")
+
     def post(self):
         try:
             resp = self.process(self.request.body)

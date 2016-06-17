@@ -115,8 +115,9 @@ class HTTPService(object):
             module = entry.load()
             apps.append((entry.name, module))
 
-        application = tornado.web.Application(apps, cookie_secret=self.env.config.get('http.cookie-secret', default="TecloigJink4"))
-        #"xsrf_cookies": True,
+        application = tornado.web.Application(apps,
+                                              cookie_secret=self.env.config.get('http.cookie-secret', default="TecloigJink4"),
+                                              xsrf_cookies=True)
 
         # Fetch server
         self.srv = HTTPServer(application, ssl_options=ssl_options)
