@@ -9,6 +9,7 @@
 
 import urllib.request as urllib2
 import http.cookiejar as cookielib
+import requests
 from urllib.parse import quote, urlparse
 from gosa.common.gjson import dumps, loads
 from gosa.common.components.json_exception import JSONRPCException
