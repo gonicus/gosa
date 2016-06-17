@@ -1,12 +1,9 @@
-# This file is part of the clacks framework.
+# This file is part of the GOsa framework.
 #
-#  http://clacks-project.org
+#  http://gosa-project.org
 #
 # Copyright:
-#  (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-#
-# License:
-#  GPL-2: http://www.gnu.org/licenses/gpl-2.0.html
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
 
@@ -22,7 +19,7 @@ The object factory provides access to backend-data in an object
 oriented way. You can create, read, update and delete objects easily.
 
 What object-types are avaialable is configured using XML files, these files
-are located here: "./clacks.common/src/clacks/common/data/objects/".
+are located here: "src/gosa/backend/data/objects/".
 
 Each XML file can contain multiple object definitions, with object related
 information, like attributes, methods, how to store and read
@@ -37,7 +34,7 @@ which will then provide the defined attributes, methods, aso.
 
 Here are some examples on how to instatiate on new object:
 
->>> from clacks.agent.objects import ObjectFactory
+>>> from gosa.backend.objects import ObjectFactory
 >>> f = ObjectFactory.getInstance()
 >>> person = f.getObject('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
 >>> print person.sn
@@ -51,16 +48,16 @@ import re
 import logging
 import ldap
 from lxml import etree, objectify
-from clacks.common import Environment
-from clacks.common.components import PluginRegistry
-from clacks.common.utils import N_
-from clacks.common.error import ClacksErrorHandler as C
-from clacks.agent.objects.filter import get_filter
-from clacks.agent.objects.backend.registry import ObjectBackendRegistry
-from clacks.agent.objects.comparator import get_comparator
-from clacks.agent.objects.operator import get_operator
-from clacks.agent.objects.object import Object
-from clacks.agent.exceptions import FactoryException
+from gosa.common import Environment
+from gosa.common.components import PluginRegistry
+from gosa.common.utils import N_
+from gosa.common.error import ClacksErrorHandler as C
+from gosa.backend.objects.filter import get_filter
+from gosa.backend.objects.backend.registry import ObjectBackendRegistry
+from gosa.backend.objects.comparator import get_comparator
+from gosa.backend.objects.operator import get_operator
+from gosa.backend.objects.object import Object
+from gosa.backend.exceptions import FactoryException
 
 try:
     from cStringIO import StringIO
@@ -106,7 +103,7 @@ class ObjectFactory(object):
     """
     This class reads object defintions and generates python-meta classes
     for each object, which can then be instantiated using
-    :meth:`clacks.agent.objects.factory.ObjectFactory.getObject`.
+    :meth:`gosa.backend.objects.factory.ObjectFactory.getObject`.
     """
     __instance = None
     __xml_defs = {}
@@ -130,7 +127,7 @@ class ObjectFactory(object):
             self.__attribute_type[module.__alias__] = module()
 
         # Initialize parser
-        schema_path = pkg_resources.resource_filename('clacks.agent', 'data/object.xsd') #@UndefinedVariable
+        schema_path = pkg_resources.resource_filename('gosa.backend', 'data/object.xsd') #@UndefinedVariable
         schema_doc = open(schema_path).read()
 
         # Prepare list of object types
@@ -675,12 +672,12 @@ class ObjectFactory(object):
         into one single xml-dump.
 
         This combined-xml-dump will then be forwarded to
-        :meth:`clacks.agent.objects.factory.ObjectFactory.__parse_schema`
+        :meth:`gosa.backend.objects.factory.ObjectFactory.__parse_schema`
         to generate meta-classes for each object.
 
         This meta-classes can then be used to instantiate those objects.
         """
-        path = pkg_resources.resource_filename('clacks.agent', 'data/objects') #@UndefinedVariable
+        path = pkg_resources.resource_filename('gosa.backend', 'data/objects') #@UndefinedVariable
 
         # Include built in schema
         schema_paths = []
@@ -701,7 +698,7 @@ class ObjectFactory(object):
 
         # Now combine all files into one single xml construct
         xml_doc = etree.parse(StringIO(xstr))
-        xslt_doc = etree.parse(pkg_resources.resource_filename('clacks.agent', 'data/combine_objects.xsl')) #@UndefinedVariable
+        xslt_doc = etree.parse(pkg_resources.resource_filename('gosa.backend', 'data/combine_objects.xsl')) #@UndefinedVariable
         transform = etree.XSLT(xslt_doc)
         self.__xml_objects_combined = transform(xml_doc)
         self.__parse_schema(etree.tostring(self.__xml_objects_combined))
@@ -709,7 +706,7 @@ class ObjectFactory(object):
     def __parse_schema(self, schema):
         """
         Parses a schema definition
-        :meth:`clacks.agent.objects.factory.ObjectFactory.__parser`
+        :meth:`gosa.backend.objects.factory.ObjectFactory.__parser`
         method.
         """
         try:
@@ -733,7 +730,7 @@ class ObjectFactory(object):
         attributes and mehtods of the object.
 
         The final meta-class will be stored and can then be requested using:
-        :meth:`clacks.agent.objects.factory.ObjectFactory.getObject`
+        :meth:`gosa.backend.objects.factory.ObjectFactory.getObject`
         """
 
         self.log.debug("building meta-class for object-type '%s'" % (name,))
@@ -1139,7 +1136,7 @@ class ObjectFactory(object):
         a process lists. This list can then be easily executed line by line for
         each property, using the method:
 
-        :meth:`clacks.agent.objects.object.Object.__processFilter`
+        :meth:`gosa.backend.objects.object.Object.__processFilter`
 
         """
 
@@ -1402,7 +1399,7 @@ class ObjectFactory(object):
         """
         # Transform xml-combination into a useable xml-class representation
         xmldefs = self.getXMLDefinitionsCombined()
-        xslt_doc = etree.parse(pkg_resources.resource_filename('clacks.agent', 'data/xml_object_schema.xsl')) #@UndefinedVariable
+        xslt_doc = etree.parse(pkg_resources.resource_filename('gosa.backend', 'data/xml_object_schema.xsl')) #@UndefinedVariable
         transform = etree.XSLT(xslt_doc)
         if not asString:
             return transform(xmldefs)
@@ -1443,9 +1440,9 @@ class ObjectFactory(object):
 
                     # Find path
                     for loc in locales:
-                        paths.append(pkg_resources.resource_filename('clacks.agent', os.path.join('data', 'templates', theme, "i18n", "%s_%s.ts" % (tn, loc)))) #@UndefinedVariable
+                        paths.append(pkg_resources.resource_filename('gosa.backend', os.path.join('data', 'templates', theme, "i18n", "%s_%s.ts" % (tn, loc)))) #@UndefinedVariable
                         paths.append(os.path.join(env.config.getBaseDir(), 'templates', theme, "%s_%s.ts" % (tn, loc)))
-                        paths.append(pkg_resources.resource_filename('clacks.agent', os.path.join('data', 'templates', "default", "i18n", "%s_%s.ts" % (tn, loc)))) #@UndefinedVariable
+                        paths.append(pkg_resources.resource_filename('gosa.backend', os.path.join('data', 'templates', "default", "i18n", "%s_%s.ts" % (tn, loc)))) #@UndefinedVariable
                         paths.append(os.path.join(env.config.getBaseDir(), 'templates', "default", "%s_%s.ts" % (tn, loc)))
 
                 for path in paths:

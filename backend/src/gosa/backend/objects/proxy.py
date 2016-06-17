@@ -1,12 +1,9 @@
-# This file is part of the clacks framework.
+# This file is part of the GOsa framework.
 #
-#  http://clacks-project.org
+#  http://gosa-project.org
 #
 # Copyright:
-#  (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-#
-# License:
-#  GPL-2: http://www.gnu.org/licenses/gpl-2.0.html
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
 
@@ -14,7 +11,7 @@
 Object Proxy
 ============
 
-The object proxy sits on top of the :class:`clacks.agent.objects.factory:ObjectFactory`
+The object proxy sits on top of the :class:`gosa.backend.objects.factory:ObjectFactory`
 and is the glue between objects that are defined via XML descriptions. The proxy should
 be used to load, remove and modify objects.
 
@@ -48,11 +45,11 @@ from lxml import etree
 from ldap.dn import str2dn, dn2str
 from logging import getLogger
 from bson.binary import Binary
-from clacks.common import Environment
-from clacks.common.utils import is_uuid, N_
-from clacks.common.components import PluginRegistry
-from clacks.common.error import ClacksErrorHandler as C
-from clacks.agent.exceptions import ACLException, ProxyException
+from gosa.common import Environment
+from gosa.common.utils import is_uuid, N_
+from gosa.common.components import PluginRegistry
+from gosa.common.error import ClacksErrorHandler as C
+from gosa.agent.exceptions import ACLException, ProxyException
 
 try:
         from cStringIO import StringIO
@@ -978,7 +975,7 @@ class ObjectProxy(object):
 
         # Transform xml-combination into a useable xml-class representation
         xml_doc = etree.parse(StringIO(xml))
-        xslt_doc = etree.parse(pkg_resources.resource_filename('clacks.agent', 'data/object_to_xml.xsl')) #@UndefinedVariable
+        xslt_doc = etree.parse(pkg_resources.resource_filename('gosa.backend', 'data/object_to_xml.xsl')) #@UndefinedVariable
         transform = etree.XSLT(xslt_doc)
         res = transform(xml_doc)
         return etree.tostring(res)

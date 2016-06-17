@@ -26,8 +26,6 @@ from gosa.common.error import ClacksErrorHandler as C
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 from gosa.backend.exceptions import ObjectException
 
-#- REVIEW stops here ------------------
-
 
 # Status
 STATUS_OK = 0
@@ -485,11 +483,11 @@ class Object(object):
                 # Relative path
                 else:
                     # Find path
-                    path = pkg_resources.resource_filename('clacks.agent', os.path.join('data', 'templates', theme, template)) #@UndefinedVariable
+                    path = pkg_resources.resource_filename('gosa.backend', os.path.join('data', 'templates', theme, template)) #@UndefinedVariable
                     if not os.path.exists(path):
                         path = os.path.join(env.config.getBaseDir(), 'templates', theme, template)
                         if not os.path.exists(path):
-                            path = pkg_resources.resource_filename('clacks.agent', os.path.join('data', 'templates', "default", template)) #@UndefinedVariable
+                            path = pkg_resources.resource_filename('gosa.backend', os.path.join('data', 'templates', "default", template)) #@UndefinedVariable
                             if not os.path.exists(path):
                                 path = os.path.join(env.config.getBaseDir(), 'templates', "default", template)
                                 if not os.path.exists(path):
@@ -1387,4 +1385,4 @@ class AttributeChanged(object):
         self.uuid = obj.uuid
 
 
-from clacks.agent.objects.proxy import ObjectProxy
+from gosa.backend.objects.proxy import ObjectProxy
