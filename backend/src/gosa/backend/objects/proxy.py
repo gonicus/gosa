@@ -862,7 +862,7 @@ class ObjectProxy(object):
         # Check permissions
         topic = "%s.objects.%s" % (self.__env.domain, self.__base_type)
         if self.__current_user is not None and not self.__acl_resolver.check(self.__current_user, topic, "r", base=self.dn):
-            self.__log.debug("user '%s' has insufficient permissions for asXML on %s, required is %s:%s" % (
+            self.__log.debug("user '%s' has insufficient permissions for asJSON on %s, required is %s:%s" % (
                 self.__current_user, self.dn, topic, "r"))
             raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=self.dn))
 
@@ -872,7 +872,6 @@ class ObjectProxy(object):
                '_uuid': self.__base.uuid}
 
         # Create non object pseudo attributes
-
         if self.__base.modifyTimestamp:
             res['_last_changed'] = time.mktime(self.__base.modifyTimestamp.timetuple())
 
