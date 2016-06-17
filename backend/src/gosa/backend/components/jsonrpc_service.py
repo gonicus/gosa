@@ -138,7 +138,7 @@ class JsonRpcHandler(tornado.web.RequestHandler):
         if method == 'logout':
 
             # Remove current sid if present
-            if not self.get_secure_cookie('REMOTE_SESSION') and self.get_secure_cookie('REMOTE_SESSION').decode('ascii') in self.__session:
+            if self.get_secure_cookie('REMOTE_SESSION') and self.get_secure_cookie('REMOTE_SESSION').decode('ascii') in self.__session:
                 del self.__session[self.get_secure_cookie('REMOTE_SESSION').decode('ascii')]
 
             # Show logout message
