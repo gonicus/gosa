@@ -1,4 +1,5 @@
 import re
+import unittest.mock
 from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application
 from gosa.common.gjson import dumps, loads
@@ -67,6 +68,12 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
                           )
 
     def test_login(self):
+        # failed login
+        with unittest.mock.patch.object(JsonRpcHandler, 'authenticate') as m:
+            m.return_value = False
+            response = self.login()
+            assert response.code == 401
+
         response = self.login()
         assert response.code == 200
         json = loads(response.body)
@@ -127,6 +134,18 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
         assert json['result'] == True
         assert json['error'] is None
         assert json['id'] == 3
+
+        # check if we are logged out
+        data = dumps({
+            "id": 3,
+            "method": "getSessionUser",
+            "params": []
+        })
+        response = self.fetch('/rpc',
+                              method='POST',
+                              body=data
+                              )
+        assert response.code == 401
 
     def test_unknown(self):
         self.login()
@@ -195,3 +214,20 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
         assert response.code == 200
         json = loads(response.body)
         assert json['result'] == "username"
+
+
+    def test_exception(self):
+        self.login()
+        data = dumps({
+            "id": 1,
+            "method": "getSessionUser",
+            "params": {'test': 'test'}
+        })
+        response = self.fetch('/rpc',
+                              method='POST',
+                              body=data
+                              )
+        assert response.code == 500
+        json = loads(response.body)
+        assert json['error']['code'] == 100
+        assert json['error']['name'] == "JSONRPCError"
