@@ -92,7 +92,7 @@ setup(
         #xxxxxxx objects = gosa.backend.objects.index:ObjectIndex
         httpd = gosa.backend.components.httpd:HTTPService
         command = gosa.backend.command:CommandRegistry
-        #jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
+        #xxxxxxx jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
         #xxxxxxx guimethods = clacks.agent.plugins.gosa.methods:GuiMethods
         #xxxxxxx sambaguimethods = clacks.agent.plugins.samba.domain:SambaGuiMethods
         transliterate = gosa.backend.plugins.misc.transliterate:Transliterate

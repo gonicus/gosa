@@ -203,7 +203,7 @@ class SchedulerService(Plugin):
         options     Set of job options
         =========== =======================================
 
-        For an option description, see :meth:`gosa.backend.scheduler.SchedulerService.schedulerDateJob`.
+        For an option description, see :meth:`gosa.backend.components.scheduler.SchedulerService.schedulerDateJob`.
 
         `Return:` Job ID
         """
@@ -243,7 +243,7 @@ class SchedulerService(Plugin):
         options     Set of job options
         =========== =======================================
 
-        For an option description, see :meth:`gosa.backend.scheduler.SchedulerService.schedulerDateJob`.
+        For an option description, see :meth:`gosa.backend.components.scheduler.SchedulerService.schedulerDateJob`.
 
         `Return:` Job ID
         """

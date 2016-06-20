@@ -44,7 +44,6 @@ import zope.event
 from lxml import etree
 from ldap.dn import str2dn, dn2str
 from logging import getLogger
-from bson.binary import Binary
 from gosa.common import Environment
 from gosa.common.utils import is_uuid, N_
 from gosa.common.components import PluginRegistry
