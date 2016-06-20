@@ -6,7 +6,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 
 
 class PasswordMethod(object):

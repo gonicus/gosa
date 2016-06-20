@@ -21,7 +21,7 @@ from json import loads, dumps
 from logging import getLogger
 from gosa.common import Environment
 from gosa.common.utils import is_uuid
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects.backend import ObjectBackend
 from gosa.backend.exceptions import DNGeneratorError, RDNNotSpecified, BackendError
 

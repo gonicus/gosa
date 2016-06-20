@@ -13,7 +13,7 @@ from gosa.common import Environment
 from gosa.backend.objects.filter import ElementFilter
 from gosa.common.components import PluginRegistry
 from gosa.backend.objects.comparator import ElementComparator
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 
 
 # Register the errors handled  by us

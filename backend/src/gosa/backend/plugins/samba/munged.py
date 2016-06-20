@@ -10,7 +10,7 @@
 from base64 import b64decode, b64encode
 from binascii import hexlify, unhexlify
 from gosa.backend.objects.filter import ElementFilter
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 
 
 class SambaMungedDialOut(ElementFilter):

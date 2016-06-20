@@ -11,7 +11,7 @@ __import__('pkg_resources').declare_namespace(__name__)
 import ldap
 from itertools import permutations
 from gosa.common.utils import N_
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.exceptions import DNGeneratorError
 
 

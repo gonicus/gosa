@@ -48,8 +48,8 @@ from bson.binary import Binary
 from gosa.common import Environment
 from gosa.common.utils import is_uuid, N_
 from gosa.common.components import PluginRegistry
-from gosa.common.error import ClacksErrorHandler as C
-from gosa.agent.exceptions import ACLException, ProxyException
+from gosa.common.error import GosaErrorHandler as C
+from gosa.backend.exceptions import ACLException, ProxyException
 
 try:
         from cStringIO import StringIO

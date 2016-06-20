@@ -20,7 +20,7 @@ import logging
 from contextlib import contextmanager
 from gosa.common import Environment
 from gosa.common.utils import N_
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.exceptions import LDAPException
 
 

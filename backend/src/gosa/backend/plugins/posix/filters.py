@@ -9,7 +9,7 @@
 
 from gosa.backend.objects.filter import ElementFilter
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 from gosa.common.utils import N_
 
 

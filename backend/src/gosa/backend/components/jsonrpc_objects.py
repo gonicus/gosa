@@ -13,7 +13,7 @@ from types import MethodType
 from zope.interface import implements
 from gosa.common.utils import N_
 from gosa.common import Environment
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import Command, PluginRegistry, ObjectRegistry, Plugin
 from gosa.backend.objects import ObjectProxy

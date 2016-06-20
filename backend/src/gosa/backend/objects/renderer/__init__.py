@@ -9,7 +9,7 @@
 
 __import__('pkg_resources').declare_namespace(__name__)
 import pkg_resources
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 
 
 def get_renderers():

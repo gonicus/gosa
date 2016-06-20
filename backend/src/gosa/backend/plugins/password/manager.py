@@ -18,7 +18,7 @@ from gosa.backend.objects.proxy import ObjectProxy
 from gosa.common.components import PluginRegistry
 from gosa.common import Environment
 from gosa.backend.exceptions import ACLException
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 
 
 # Register the errors handled  by us

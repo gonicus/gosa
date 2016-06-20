@@ -51,7 +51,7 @@ from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry
 from gosa.common.utils import N_
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects.filter import get_filter
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 from gosa.backend.objects.comparator import get_comparator

@@ -22,7 +22,7 @@ from zope.interface import Interface, implements
 from gosa.common import Environment
 from gosa.common.utils import N_, is_uuid
 from gosa.common.components import PluginRegistry
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 from gosa.backend.exceptions import ObjectException
 

@@ -17,7 +17,7 @@ from logging import getLogger
 from gosa.common import Environment
 from gosa.common.utils import is_uuid, N_
 from gosa.common.components.jsonrpc_utils import Binary
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.utils.ldap import LDAPHandler
 from gosa.backend.objects.backend import ObjectBackend
 from gosa.backend.exceptions import EntryNotFound, RDNNotSpecified, DNGeneratorError

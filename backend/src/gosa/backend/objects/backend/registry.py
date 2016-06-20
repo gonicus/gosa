@@ -9,7 +9,7 @@
 
 import pkg_resources
 from gosa.common.utils import N_
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 
 
 # Register the errors handled  by us
