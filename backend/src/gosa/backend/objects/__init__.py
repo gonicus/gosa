@@ -704,9 +704,9 @@ parameters of the method as placeholders.
 
 """
 __import__('pkg_resources').declare_namespace(__name__)
-from gosa.backend.objects.proxy import ObjectProxy, ProxyException
-from gosa.backend.objects.factory import ObjectFactory
-from gosa.backend.objects.object import ObjectException, ObjectChanged
+#from gosa.backend.objects.proxy import ObjectProxy, ProxyException
+#from gosa.backend.objects.factory import ObjectFactory
+#from gosa.backend.objects.object import ObjectException, ObjectChanged
 
 SCOPE_BASE = 0
 SCOPE_ONE = 1
