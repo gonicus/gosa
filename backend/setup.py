@@ -87,8 +87,12 @@ setup(
         /rpc = gosa.backend.components.jsonrpc_service:JsonRpcHandler
 
         [gosa.plugin]
+        scheduler = gosa.backend.components.scheduler:SchedulerService
+        #xxxxxxx acl = gosa.backend.acl:ACLResolver
+        #xxxxxxx objects = gosa.backend.objects.index:ObjectIndex
         httpd = gosa.backend.components.httpd:HTTPService
         command = gosa.backend.command:CommandRegistry
+        #jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
         #xxxxxxx guimethods = clacks.agent.plugins.gosa.methods:GuiMethods
         #xxxxxxx sambaguimethods = clacks.agent.plugins.samba.domain:SambaGuiMethods
         transliterate = gosa.backend.plugins.misc.transliterate:Transliterate
@@ -96,7 +100,6 @@ setup(
         gravatar = gosa.backend.plugins.misc.gravatar:Gravatar
         shells = gosa.backend.plugins.posix.shells:ShellSupport
         #xxxxxxx password = gosa.backend.plugins.password.manager:PasswordManager
-        #xxxxxxx jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
@@ -181,11 +184,5 @@ setup(
 
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt
-
-#----------------CLACKS ALT-----------------
-#        [agent.module]
-#        scheduler = clacks.agent.scheduler:SchedulerService
-#        acl = clacks.agent.acl:ACLResolver
-#        objects = clacks.agent.objects.index:ObjectIndex
     """,
 )

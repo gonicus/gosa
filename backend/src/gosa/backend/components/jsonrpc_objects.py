@@ -54,12 +54,11 @@ class JSONRPCObjectMapper(Plugin):
     implements(IInterfaceHandler)
     _target_ = 'core'
     _priority_ = 70
-    __proxy = {}
-    __object = {}
+    __stack = None
 
     def __init__(self):
         self.env = Environment.getInstance()
-        self.db = self.env.get_mongo_db('clacks')
+        self.__stack = {}
 
     def serve(self):
         sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
@@ -93,11 +92,8 @@ class JSONRPCObjectMapper(Plugin):
         if not self.__check_user(ref, user):
             raise ValueError(C.make_error("NO_OBJECT_OWNER"))
 
-        # Remove local object if needed
-        if ref in self.__object:
-            del self.__object[ref]
+        del self.__stack[ref]
 
-        self.db.object_pool.remove({'uuid': ref})
 
     @Command(needsUser=True, __help__=N_("Set property for object on stack"))
     def setObjectProperty(self, user, ref, name, value):
@@ -183,8 +179,8 @@ class JSONRPCObjectMapper(Plugin):
         Opens a copy of the object given as ref and
         closes the original instance.
         """
-        item = self.db.object_pool.find_one({'uuid': ref})
-        if item:
+        if ref in self.__stack:
+            item = self.__stack[ref]
 
             if not self.__check_user(ref, user):
                 raise ValueError(C.make_error("NO_OBJECT_OWNER"))
@@ -197,6 +193,7 @@ class JSONRPCObjectMapper(Plugin):
             self.closeObject(user, item['uuid'])
 
             return new_item
+
         else:
             raise ValueError(C.make_error("REFERENCE_NOT_FOUND", ref=ref))
 
@@ -206,20 +203,18 @@ class JSONRPCObjectMapper(Plugin):
         Opens a copy of the object given as ref and
         returns a diff - if any.
         """
-        item = self.db.object_pool.find_one({'uuid': ref})
-        if item is None:
+        if not ref in self.__stack:
             return None
 
         if not self.__check_user(ref, user):
             raise ValueError(C.make_error("NO_OBJECT_OWNER"))
 
         # Load current object
+        item = self.__stack[ref]
         current_obj = ObjectProxy(item['object']['dn'])
 
         # Load cache object
         cache_obj = item['object']['object']
-        if cache_obj is None:
-            cache_obj = self.__object[ref]
 
         ##
         ## Generate delta
@@ -267,17 +262,11 @@ class JSONRPCObjectMapper(Plugin):
         """
 
         # In case of "object" we want to check the lock
-        if oid == 'object':
-            lck = self.db.object_pool.find_one({'$or': [
-                {'object.uuid': args[0]},
-                {'object.dn': args[0]}]},
-                {'user': 1, 'created': 1})
-            #TODO: re-enable locking
-            #if lck:
-            #    raise Exception(C.make_error("OBJECT_LOCKED", object=args[0],
-            #        user=lck['user'],
-            #        when=lck['created'].strftime("%Y-%m-%d (%H:%M:%S)")
-            #        ))
+        if oid == 'object' and self.__is_locked(args[0]):
+            raise Exception(C.make_error("OBJECT_LOCKED", object=args[0],
+                user=item['user'],
+                when=item['created'].strftime("%Y-%m-%d (%H:%M:%S)")
+                ))
 
         # Use oid to find the object type
         obj_type = self.__get_object_type(oid)
@@ -306,17 +295,11 @@ class JSONRPCObjectMapper(Plugin):
         """
 
         # In case of "object" we want to check the lock
-        if oid == 'object':
-            lck = self.db.object_pool.find_one({'$or': [
-                {'object.uuid': args[0]},
-                {'object.dn': args[0]}]},
-                {'user': 1, 'created': 1})
-            #TODO: re-enable locking
-            #if lck:
-            #    raise Exception(C.make_error("OBJECT_LOCKED", object=args[0],
-            #        user=lck['user'],
-            #        when=lck['created'].strftime("%Y-%m-%d (%H:%M:%S)")
-            #        ))
+        if oid == 'object' and self.__is_locked(args[0]):
+            raise Exception(C.make_error("OBJECT_LOCKED", object=args[0],
+                user=item['user'],
+                when=item['created'].strftime("%Y-%m-%d (%H:%M:%S)")
+                ))
 
         env = Environment.getInstance()
 
@@ -340,24 +323,20 @@ class JSONRPCObjectMapper(Plugin):
         if hasattr(obj, 'get_methods'):
             methods = methods + obj.get_methods()
 
-        pickle = not hasattr(obj, "_no_pickle_")
-        if not pickle:
-            self.__object[ref] = obj
+        objdsc = {
+            'oid': oid,
+            'dn': obj.dn if hasattr(obj, 'dn') else None,
+            'uuid': obj.uuid if hasattr(obj, 'uuid') else None,
+            'object': obj,
+            'methods': methods,
+            'properties': properties
+        }
 
-        objdsc = {'node': env.id,
-                'oid': oid,
-                'dn': obj.dn if hasattr(obj, 'dn') else None,
-                'uuid': obj.uuid if hasattr(obj, 'uuid') else None,
-                'object': obj if pickle else None,
-                'methods': methods,
-                'properties': properties}
-
-        self.db.object_pool.save({
-            'uuid': ref,
+        self.__stack[ref] = {
             'user': user,
-            'node': self.env.id,
             'object': objdsc,
-            'created': datetime.datetime.now()})
+            'created': datetime.datetime.now()
+        }
 
         # Build property dict
         propvals = {}
@@ -373,7 +352,11 @@ class JSONRPCObjectMapper(Plugin):
         return result
 
     def __check_user(self, ref, user):
-        return self.db.object_pool.find_one({'uuid': ref, 'user': user}, {'user': 1}) != None
+        for ref, item in self.__stack.items():
+            if item.user == user:
+                return True
+
+        return False
 
     def __get_object_type(self, oid):
         if not oid in ObjectRegistry.objects:
@@ -397,28 +380,19 @@ class JSONRPCObjectMapper(Plugin):
         return methods, properties
 
     def __get_ref(self, ref):
-        res = self.db.object_pool.find_one({'uuid': ref})
-        if not res:
-            return None
+        return self.__stack[ref] if ref in self.__stack else None
 
-        # Fill in local object if needed
-        if ref in self.__object:
-            res['object']['object'] = self.__object[ref]
+    def __is_locked(self, value):
+        for ref, item in self.__stack.items():
+            if item.object.oid == value or item.object.dn == value:
+                return True
 
-        return res
+        return False
 
     def __gc(self):
         self.env.log.debug("running garbage collector on object store")
+        one_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=1)
 
-        entries = self.db.object_pool.find({
-            'created': {'$lt': datetime.datetime.now() - datetime.timedelta(hours=1)},
-            'node': self.env.id}, {'uuid': 1})
-        for entry in entries:
-            ref = entry['uuid']
-            if ref in self.__object:
-                del self.__object[ref]
-
-        self.db.object_pool.remove({
-            'created': {'$lt': datetime.datetime.now() - datetime.timedelta(hours=1)},
-            'node': self.env.id
-            })
+        for ref, item in self.__stack.items():
+            if item.created < one_hour_ago:
+                del self.__stack[ref]

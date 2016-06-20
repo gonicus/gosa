@@ -21,6 +21,12 @@ You can import it to your own code like this::
 import logging
 import platform
 from gosa.common.config import Config
+try:
+    from sqlalchemy.orm import sessionmaker, scoped_session
+    from sqlalchemy import create_engine
+except ImportError:
+    pass
+
 
 class Environment:
     """
@@ -31,11 +37,13 @@ class Environment:
     reset_requested = False
     noargs = False
     __instance = None
+    __db = None
 
     def __init__(self):
         # Load configuration
         self.config = Config(config=Environment.config, noargs=Environment.noargs)
         self.log = logging.getLogger(__name__)
+        self.__db = {}
 
         # Dump configuration
         if self.log.getEffectiveLevel() == logging.DEBUG:
@@ -56,6 +64,47 @@ class Environment:
     def requestRestart(self):
         self.log.warning("a component requested an environment reset")
         self.reset_requested = True
+
+    def getDatabaseEngine(self, section, key="database"):
+        """
+        Return a database engine from the registry.
+
+        ========= ============
+        Parameter Description
+        ========= ============
+        section   name of the configuration section where the config is placed.
+        key       optional value for the key where the database information is stored, defaults to *database*.
+        ========= ============
+
+        ``Return``: database engine
+        """
+        index = "%s.%s" % (section, key)
+
+        if not index in self.__db:
+            if not self.config.get(index):
+                raise Exception("No database connection defined for '%s'!" % index)
+            self.__db[index] = create_engine(self.config.get(index),
+                    pool_size=40, pool_recycle=120)
+
+        return self.__db[index]
+
+    def getDatabaseSession(self, section, key="database"):
+        """
+        Return a database session from the pool.
+
+        ========= ============
+        Parameter Description
+        ========= ============
+        section   name of the configuration section where the config is placed.
+        key       optional value for the key where the database information is stored, defaults to *database*.
+        ========= ============
+
+        ``Return``: database session
+        """
+        sql = self.getDatabaseEngine(section, key)
+        session = scoped_session(sessionmaker(autoflush=True))
+        session.configure(bind=sql)
+        return session()
 
     @staticmethod
     def getInstance():
