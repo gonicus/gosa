@@ -53,7 +53,7 @@ class PasswordMethod(object):
 
     def is_responsible_for_password_hash(self, password_hash):
         """
-        Checks whether this class is responsilbe for this kind of password hashes of not.
+        Checks whether this class is responsible for this kind of password hashes of not.
         """
         raise NotImplementedError(C.make_error('NOT_IMPLEMENTED', method="is_responsible_for_password_hash"))
 
