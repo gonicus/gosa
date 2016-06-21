@@ -74,7 +74,8 @@ setup(
         'tornado',
         'zope.interface>=3.5',
         'zope.event',
-        'unidecode'
+        'unidecode',
+        'pyldap'
         ],
 
     entry_points = """
