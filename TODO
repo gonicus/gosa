@@ -11,3 +11,5 @@
 - sobald ObjectFactory funktioniert, müssen dort noch 2 Tests auskommentiert werden, die davon abh. sind und zur Zeit nicht laufen
 - DatetimeToString und (TimeToString, DateToString) sind redundant (Unterschied: DatetimeToString setzt 'backend_type')
 - StringToDatetime und StringToTime sind redundant (Unterschied: DatetimeToString setzt 'backend_type')
+
+- PWDPolicy Extension
