@@ -1,3 +1,6 @@
 # Comparatoren (gosa.backend.objects.comparator)
 - Konstruktor wird ein Object übergeben, diese wird aber nirgendwo genutzt
 - einige der Parameter der process-Methode werden ebenfalls nicht genutzt (all_props, key)
+
+# Operatoren (gosa.backend.objects.operator)
+- Konstruktor wird ein Object übergeben, diese wird aber nirgendwo genutzt
