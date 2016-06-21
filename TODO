@@ -1,6 +1,12 @@
 # Comparatoren (gosa.backend.objects.comparator)
-- Konstruktor wird ein Object übergeben, diese wird aber nirgendwo genutzt
+- Konstruktor wird ein Object übergeben, dieses wird aber nirgendwo genutzt
 - einige der Parameter der process-Methode werden ebenfalls nicht genutzt (all_props, key)
 
 # Operatoren (gosa.backend.objects.operator)
-- Konstruktor wird ein Object übergeben, diese wird aber nirgendwo genutzt
+- Konstruktor wird ein Object übergeben, dieses wird aber nirgendwo genutzt
+
+# Filter (gosa.backend.objects.filter)
+- Konstruktor wird ein Object übergeben, dieses wird zwar dem Parent-Konstruktor übergeben, welcher wiederum nichts damit macht
+- sobald ObjectFactory funktioniert, müssen dort noch 2 Tests auskommentiert werden, die davon abh. sind und zur Zeit nicht laufen
+- DatetimeToString und (TimeToString, DateToString) sind redundant (Unterschied: DatetimeToString setzt 'backend_type')
+- StringToDatetime und StringToTime sind redundant (Unterschied: DatetimeToString setzt 'backend_type')

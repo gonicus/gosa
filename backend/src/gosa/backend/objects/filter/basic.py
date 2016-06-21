@@ -180,7 +180,7 @@ class DatetimeToString(ElementFilter):
     e.g.:
     >>> <FilterEntry>
     >>>  <Filter>
-    >>>   <Name>DatetimeToInteger</Name>
+    >>>   <Name>DatetimeToString</Name>
     >>>   <Param>%%Y-%%m-%%d</Param>
     >>>  </Filter>
     >>> </FilterEntry>

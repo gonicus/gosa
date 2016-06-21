@@ -13,7 +13,7 @@ import datetime
 
 class SplitString(ElementFilter):
     """
-    splits a string ba the given separator
+    splits a string by the given separator
 
     =========== ===========================
     Key         Description
