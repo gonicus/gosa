@@ -24,7 +24,7 @@ import re
 import hashlib
 import time
 import itertools
-from zope.interface import implements
+from zope.interface import implementer
 from gosa.common.components.jsonrpc_utils import Binary as CBinary
 from gosa.common import Environment
 from gosa.common.utils import N_
@@ -97,14 +97,13 @@ class ObjectIndex(Base):
 class IndexScanFinished():
     pass
 
-
+@implementer(IInterfaceHandler)
 class ObjectIndex(Plugin):
     """
     The *ObjectIndex* keeps track of objects and their indexed attributes. It
     is the search engine that allows quick querries on the data set with
     paged results and wildcards.
     """
-    implements(IInterfaceHandler)
 
     db = None
     base = None
