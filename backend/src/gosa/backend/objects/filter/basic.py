@@ -8,7 +8,7 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 from gosa.backend.objects.filter import ElementFilter
-from gosa.backend.objects import ObjectFactory
+from gosa.backend.objects.factory import ObjectFactory
 import time
 import datetime
 
