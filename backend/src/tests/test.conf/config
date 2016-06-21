@@ -13,6 +13,8 @@ bind-dn = cn=ldapadmin,dc=example,dc=net
 bind-secret = secret
 pool-size = 10
 
+[backend-database]
+database = sqlite:///:memory:
 
 ##############################################################################
 #                            Logger configuration                            #
