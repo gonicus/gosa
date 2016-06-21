@@ -33,7 +33,7 @@ class PasswordMethodCrypt(PasswordMethod):
         if not hash_value:
             return False
 
-        return not(self.is_locked(hash_value))
+        return not self.is_locked(hash_value)
 
     def isUnlockable(self, hash_value):
         """
@@ -61,16 +61,16 @@ class PasswordMethodCrypt(PasswordMethod):
 
         password_hash = re.sub('^{[^}]+}!?', '', password_hash)
         if re.match(r'^[a-zA-Z0-9.\\/][a-zA-Z0-9.\\/]', password_hash):
-            return "crypt/standard-des"
+            return crypt.METHOD_CRYPT
 
-        if re.match(r'^_[a-zA-Z0-9.\\/]', password_hash):
-            return "crypt/enhanced-des"
+        if re.match(r'^\$5\$', password_hash):
+            return crypt.METHOD_SHA256
+
+        if re.match(r'^\$6\$', password_hash):
+            return crypt.METHOD_SHA512
 
         if re.match(r'^\$1\$', password_hash):
-            return "crypt/md5"
-
-        if re.match(r'^(\$2\$|\$2a|\$2x)', password_hash):
-            return "crypt/blowfish"
+            return crypt.METHOD_MD5
 
         return None
 
@@ -96,34 +96,10 @@ class PasswordMethodCrypt(PasswordMethod):
         """
         See PasswordMethod Interface for details
         """
-        return ["crypt/standard-des", "crypt/enhanced-des", "crypt/md5", "crypt/blowfish"]
+        return crypt.methods
 
     def generate_password_hash(self, new_password, method=None):
         """
         See PasswordMethod Interface for details
         """
-
-        salt = ""
-        if method == "crypt/standard-des":
-            for i in range(2): #@UnusedVariable
-                salt += random.choice(string.letters + string.digits)
-
-        if method == "crypt/enhanced-des":
-            salt = "_"
-            for i in range(8): #@UnusedVariable
-                salt += random.choice(string.letters + string.digits)
-
-        if method == "crypt/md5":
-            salt = "$1$"
-            for i in range(8): #@UnusedVariable
-                salt += random.choice(string.letters + string.digits)
-            salt += "$"
-
-        if method == "crypt/blowfish":
-            salt = "$2a$07$"
-            CRYPT_SALT_LENGTH = 22 #TODO: ??
-            for i in range(CRYPT_SALT_LENGTH): #@UnusedVariable
-                salt += random.choice(string.letters + string.digits)
-            salt += "$"
-
-        return u"{%s}%s" % (self.hash_name, crypt.crypt(new_password, salt))
+        return u"{%s}%s" % (self.hash_name, crypt.crypt(new_password, crypt.mksalt(method)))
