@@ -18,7 +18,7 @@ import os
 from lxml import etree
 from lxml.builder import E
 from logging import getLogger
-from zope.interface import Interface, implements
+from zope.interface import Interface, implementer
 from gosa.common import Environment
 from gosa.common.utils import N_, is_uuid
 from gosa.common.components import PluginRegistry
@@ -1364,9 +1364,8 @@ class IAttributeChanged(Interface):
     def __init__(self, attr, value):
         pass
 
-
+@implementer(IObjectChanged)
 class ObjectChanged(object):
-    implements(IObjectChanged)
 
     def __init__(self, reason, obj=None, dn=None, uuid=None, orig_dn=None, o_type=None):
         self.reason = reason
@@ -1375,9 +1374,8 @@ class ObjectChanged(object):
         self.orig_dn = orig_dn or obj.orig_dn
         self.o_type = o_type or obj.__class__.__name__
 
-
+@implementer(IAttributeChanged)
 class AttributeChanged(object):
-    implements(IAttributeChanged)
 
     def __init__(self, reason, obj, target):
         self.reason = reason

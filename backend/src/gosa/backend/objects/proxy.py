@@ -49,12 +49,7 @@ from gosa.common.utils import is_uuid, N_
 from gosa.common.components import PluginRegistry
 from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.exceptions import ACLException, ProxyException
-
-try:
-        from cStringIO import StringIO
-except ImportError:
-        from StringIO import StringIO
-
+from io import StringIO
 
 # Register the errors handled  by us
 C.register_codes(dict(

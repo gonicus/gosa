@@ -58,11 +58,7 @@ from gosa.backend.objects.comparator import get_comparator
 from gosa.backend.objects.operator import get_operator
 from gosa.backend.objects.object import Object
 from gosa.backend.exceptions import FactoryException
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from io import StringIO
 
 # Status
 STATUS_OK = 0
