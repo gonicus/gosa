@@ -25,19 +25,19 @@ import hashlib
 import time
 import itertools
 from zope.interface import implements
-from bson.binary import Binary
 from gosa.common.components.jsonrpc_utils import Binary as CBinary
 from gosa.common import Environment
 from gosa.common.utils import N_
-from gosa.common.event import EventMaker
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import Command, Plugin, PluginRegistry
-from gosa.common.components.amqp import EventConsumer
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects import ObjectFactory, ObjectProxy, ObjectChanged
 from gosa.backend.exceptions import ProxyException, ObjectException, FilterException, IndexException
 from gosa.backend.lock import GlobalLock
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, String, DateTime
 
+Base = declarative_base()
 
 # Register the errors handled  by us
 C.register_codes(dict(
@@ -45,6 +45,53 @@ C.register_codes(dict(
     OBJECT_NOT_FOUND=N_("Cannot find object %(id)s"),
     INDEXING=N_("index rebuild in progress - try again later")
 ))
+
+
+class Schema(Base):
+    __tablename__ = 'schema'
+
+    hash = Column(String(32), primary_key=True)
+
+    def __repr__(self):
+       return "<Schema(hash='%s')>" % self.hash
+
+
+class KeyValueIndex(Base):
+    __tablename__ = 'kv-index'
+
+    uuid = Column(String(36), primary_key=True)
+    key = Column(String(64))
+    value = Column(String)
+
+    def __repr__(self):
+       return "<KeyValueIndex(uuid='%s', key='%s', value='%s')>" % (
+                            self.uuid, self.key, self.value)
+
+
+class ExtensionIndex(Base):
+    __tablename__ = 'ext-index'
+
+    uuid = Column(String(36), primary_key=True)
+    extension = Column(String(64))
+
+    def __repr__(self):
+       return "<ExtensionIndex(uuid='%s', extension='%s')>" % (
+                            self.uuid, self.extension)
+
+
+class ObjectIndex(Base):
+    __tablename__ = 'obj-index'
+
+    uuid = Column(String(36), primary_key=True)
+    dn = Column(String)
+    parent_dn = Column(String)
+    adjusted_parent_dn = Column(String)
+    type = Column(String(64))
+    last_modified = Column(DateTime)
+
+    def __repr__(self):
+       return "<ObjectIndex(uuid='%s', dn='%s', parent_dn='%s', adjusted_parent_dn'%s', type='%s', last_modified='%s')>" % (
+                            self.uuid, self.dn, self.parent_dn, self.adjusted_parent_dn, self.type, self.last_modified)
 
 
 class IndexScanFinished():
@@ -61,6 +108,7 @@ class ObjectIndex(Plugin):
 
     db = None
     base = None
+    __session = None
     _priority_ = 20
     _target_ = 'core'
     _indexed = False
@@ -78,14 +126,22 @@ class ObjectIndex(Plugin):
         zope.event.subscribers.append(self.__handle_events)
 
     def serve(self):
-        # Load db instance
-        self.db = self.env.get_mongo_db('clacks')
+        # Configure database for the index
+        Base.metadata.create_all(self.env.getDatabaseEngine("backend-database"))
+
+        # Store DB session
+        self.__session = self.env.getDatabaseSession("backend-database")
 
         # If there is already a collection, check if there is a newer schema available
         schema = self.factory.getXMLObjectSchema(True)
-        if "index" in self.db.collection_names() and self.isSchemaUpdated("index", schema):
-            self.db.index.drop()
+        if self.isSchemaUpdated(schema):
+            self.__session.query(Schema).delete()
+            self.__session.query(KeyValueIndex).delete()
+            self.__session.query(ExtensionIndex).delete()
+            self.__session.query(ObjectIndex).delete()
             self.log.info('object definitions changed, dropped old object index collection')
+
+        # HIER---------------
 
         # Create the initial schema information if required
         if not "index" in self.db.collection_names():
@@ -105,6 +161,7 @@ class ObjectIndex(Plugin):
 
         # Ensure basic index for the objects
         for index in ['dn', '_uuid', '_last_changed', '_type', '_extensions', '_container', '_parent_dn']:
+            self.db.index.ensure_index(index)
 
         # Extract search aid
         attrs = {}
@@ -183,16 +240,18 @@ class ObjectIndex(Plugin):
                                  resolve=resolve,
                                  aliases=aliases)
 
+        #TODO: implement an external event send/subscribe mechanism via SSE/RPC/ROUTING/WHATEVER and
+        #      re-enable the ability to update ourself
         # Add event processor
-        amqp = PluginRegistry.getInstance('AMQPHandler')
-        EventConsumer(self.env,
-            amqp.getConnection(),
-            xquery="""
-                declare namespace f='http://www.gonicus.de/Events';
-                let $e := ./f:Event
-                return $e/f:BackendChange
-            """,
-            callback=self.__backend_change_processor)
+        #amqp = PluginRegistry.getInstance('AMQPHandler')
+        #EventConsumer(self.env,
+        #    amqp.getConnection(),
+        #    xquery="""
+        #        declare namespace f='http://www.gonicus.de/Events';
+        #        let $e := ./f:Event
+        #        return $e/f:BackendChange
+        #    """,
+        #    callback=self.__backend_change_processor)
 
     def __backend_change_processor(self, data):
         """
@@ -283,19 +342,13 @@ class ObjectIndex(Plugin):
     def get_search_aid(self):
         return self.__search_aid
 
-    def isSchemaUpdated(self, collection, schema):
+    def isSchemaUpdated(self, schema):
         # Calculate md5 checksum for potentially new schema
         md5s = hashlib.md5()
         md5s.update(schema)
         md5sum = md5s.hexdigest()
 
-        # Load stored checksum of current schema from the collection
-        old_md5sum = None
-        tmp = self.db[collection].find_one({'schema.checksum': {'$exists': True}}, {'schema.checksum': 1})
-        if tmp:
-            old_md5sum = tmp['schema']['checksum']
-
-        return old_md5sum != md5sum
+        return self.__session.query(Schema.hash).one_or_none() != md5sum
 
     def sync_index(self):
         # Don't index if someone else is already doing it
@@ -454,21 +507,6 @@ class ObjectIndex(Plugin):
                 obj = ObjectProxy(event.dn)
                 self.update(obj)
                 change_type = "update"
-
-            # If there were changes, notify about changed objects
-            if change_type:
-                amqp = PluginRegistry.getInstance('AMQPHandler')
-
-                e = EventMaker()
-                update = e.Event(
-                    e.ObjectChanged(
-                        e.DN(_dn),
-                        e.UUID(_uuid),
-                        e.ModificationTime(str(_last_changed)),
-                        e.ChangeType(change_type)
-                    )
-                )
-                amqp.sendEvent(update)
 
     def insert(self, obj):
         self.log.debug("creating object index for %s" % obj.uuid)

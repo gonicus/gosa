@@ -775,10 +775,6 @@ class ObjectFactory(object):
             fixed_rdn = classr.FixedRDN.text
             back_attrs[classr.Backend.text]['FixedRDN'] = fixed_rdn
 
-        # Tweak name to the new target
-        if type(name) == unicode:
-            name = name.encode('ascii')
-
         setattr(klass, '__name__', name)
         setattr(klass, '_objectFactory', self)
         setattr(klass, '_backend', classr.Backend.text)
@@ -1462,12 +1458,12 @@ class ObjectFactory(object):
 
                             # With length variants?
                             if "variants" in translation.keys() and translation.get("variants") == "yes":
-                                res[unicode(message.find("source").text)] = [unicode(m.text) for m in translation.findall("lengthvariant")][0]
+                                res[message.find("source").text] = [m.text for m in translation.findall("lengthvariant")][0]
 
                             # Ordinary?
                             else:
                                 if translation.text:
-                                    res[unicode(message.find("source").text)] = unicode(translation.text)
+                                    res[message.find("source").text] = translation.text
 
         return res
 

@@ -90,7 +90,7 @@ setup(
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
         #xxxxxxx acl = gosa.backend.acl:ACLResolver
-        #xxxxxxx objects = gosa.backend.objects.index:ObjectIndex
+        objects = gosa.backend.objects.index:ObjectIndex
         httpd = gosa.backend.components.httpd:HTTPService
         command = gosa.backend.command:CommandRegistry
         #xxxxxxx jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper

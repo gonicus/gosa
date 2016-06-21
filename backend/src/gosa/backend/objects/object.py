@@ -514,7 +514,7 @@ class Object(object):
                         files = []
                         prefix = resource.get("prefix")
                         for f in resource.findall("file"):
-                            files.append(E.file(os.path.join(prefix, unicode(f.text))))
+                            files.append(E.file(os.path.join(prefix, f.text)))
 
                         new_resources.append(E.resource(*files, location=rc))
 
