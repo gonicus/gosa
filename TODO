@@ -5,8 +5,9 @@
 # Operatoren (gosa.backend.objects.operator)
 - Konstruktor wird ein Object übergeben, dieses wird aber nirgendwo genutzt
 
-# Filter (gosa.backend.objects.filter)
+# Filter (gosa.backend.objects.filter + gosa.backend.plugins.*filter)
 - Konstruktor wird ein Object übergeben, dieses wird zwar dem Parent-Konstruktor übergeben, welcher wiederum nichts damit macht
+- auch der erste Parameter in der process Methode wird nicht genutzt
 - sobald ObjectFactory funktioniert, müssen dort noch 2 Tests auskommentiert werden, die davon abh. sind und zur Zeit nicht laufen
 - DatetimeToString und (TimeToString, DateToString) sind redundant (Unterschied: DatetimeToString setzt 'backend_type')
 - StringToDatetime und StringToTime sind redundant (Unterschied: DatetimeToString setzt 'backend_type')

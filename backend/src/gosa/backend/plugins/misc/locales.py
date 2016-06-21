@@ -190,7 +190,7 @@ class Locales(Plugin):
 
         for lang, info in self.__locales.items():
             _locales[lang] = info
-            _locales[lang]['value'] = t.ugettext(_locales[lang]['value'])
+            _locales[lang]['value'] = t.gettext(_locales[lang]['value'])
 
         return _locales
 
