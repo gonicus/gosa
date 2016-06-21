@@ -35,7 +35,7 @@ class Like(ElementComparator):
         # All items of value have to match.
         cnt = 0
         for item in value:
-            if difflib.SequenceMatcher(None, unicode(item), unicode(match)).ratio() < 0.75:
+            if difflib.SequenceMatcher(None, item, match).ratio() < 0.75:
                 errors.append(dict(index=cnt,
                     detail=N_("value is not like %(comparator)s"),
                     comparator=match))
