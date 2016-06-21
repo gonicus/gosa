@@ -51,7 +51,6 @@ setup(
 
     include_package_data = False,
 
-    test_suite = "nose.collector",
     zip_safe = False,
 
     setup_requires = ['pylint', 'babel' ],
