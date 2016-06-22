@@ -26,9 +26,9 @@ mapping = {'D': 'acct_accountDisabled',
 
 class SambaAcctFlagsOut(ElementFilter):
     """
-    In-Filter for sambaAcctFlags.
+    Out-Filter for sambaAcctFlags.
 
-    Combines flag-properties into sambaAcctFlags proeprty
+    Combines flag-properties into sambaAcctFlags property
     """
 
     #pylint: disable=W0613

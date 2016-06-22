@@ -18,7 +18,7 @@ class SambaDollarFilterOut(ElementFilter):
         super(SambaDollarFilterOut, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        if len(valDict[key]['value']) and type(valDict[key]['value'][0]) in [str, unicode]:
+        if len(valDict[key]['value']) and type(valDict[key]['value'][0]) == str:
             valDict[key]['value'][0] = valDict[key]['value'][0].rstrip("$") + "$"
         else:
             raise ValueError(C.make_error("TYPE_UNKNOWN", self.__class__.__name__, type=type(valDict[key]['value'])))
@@ -28,13 +28,13 @@ class SambaDollarFilterOut(ElementFilter):
 
 class SambaDollarFilterIn(ElementFilter):
     """
-    An object filter which can add a '$' after the machines system-ID
+    An object filter which can remove a '$' after the machines system-ID
     """
     def __init__(self, obj):
         super(SambaDollarFilterIn, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        if len(valDict[key]['value']) and type(valDict[key]['value'][0]) in [str, unicode]:
+        if len(valDict[key]['value']) and type(valDict[key]['value'][0]) == str:
             valDict[key]['value'][0] = valDict[key]['value'][0].rstrip("$")
         else:
             raise ValueError(C.make_error("TYPE_UNKNOWN", self.__class__.__name__, type=type(valDict[key]['value'])))

@@ -15,9 +15,9 @@ from gosa.common.utils import N_
 
 # Register the errors handled  by us
 C.register_codes(dict(
-    PARAMETER_NOT_NUMERIC=N_("Parameter for '%(target)s' have to be numeric"),
-    BACKEND_TOO_MANY=N_("Too many backends for %(target)s specified"),
-    POSIX_ID_POOL_EMPTY=N_("ID pool for attribute %(target)s is empty [> %(max)s]")
+    PARAMETER_NOT_NUMERIC=N_("Parameter for '%(topic)s' have to be numeric"),
+    BACKEND_TOO_MANY=N_("Too many backends for %(topic)s specified"),
+    POSIX_ID_POOL_EMPTY=N_("ID pool for attribute %(topic)s is empty [> %(max)s]")
 ))
 
 

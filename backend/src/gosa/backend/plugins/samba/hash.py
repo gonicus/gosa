@@ -7,7 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import smbpasswd #@UnresolvedImport
+import passlib
 from gosa.backend.objects.filter import ElementFilter
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.utils import N_
@@ -15,7 +15,7 @@ from gosa.common.utils import N_
 
 # Register the errors handled  by us
 C.register_codes(dict(
-    TYPE_UNKNOWN=N_("Filter '%(target)s' does not support input type '%(type)s'")))
+    TYPE_UNKNOWN=N_("Filter '%(topic)s' does not support input type '%(type)s'")))
 
 
 class SambaHash(ElementFilter):
@@ -26,10 +26,9 @@ class SambaHash(ElementFilter):
         super(SambaHash, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        if len(valDict[key]['value']) and type(valDict[key]['value'][0]) in [str, unicode]:
-            lm, nt = smbpasswd.hash(valDict[key]['value'][0])
-            valDict['sambaNTPassword']['value'] = [nt]
-            valDict['sambaLMPassword']['value'] = [lm]
+        if len(valDict[key]['value']) and type(valDict[key]['value'][0]) == str:
+            valDict['sambaNTPassword']['value'] = [passlib.hash.nthash.encrypt(valDict[key]['value'][0])]
+            valDict['sambaLMPassword']['value'] = [passlib.hash.lmhash.encrypt(valDict[key]['value'][0])]
         else:
             raise ValueError(C.make_error("TYPE_UNKNOWN", self.__class__.__name__, type=type(valDict[key]['value'])))
 

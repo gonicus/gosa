@@ -16,3 +16,6 @@
 
 # gosa.backend.plugins.password.manager
 - Benötigt funktionierende ACLs, ObjectIndex bevor restliche Tests geschrieben werden können
+
+# gosa.backend.plugins.samba.domain
+- Benötigt ACLs, ObjectIndex
