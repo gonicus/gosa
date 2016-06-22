@@ -7,13 +7,13 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import smbpasswd #@UnresolvedImport
+import passlib
 import gettext
 from pkg_resources import resource_filename #@UnresolvedImport
 from datetime import date, datetime
 from time import mktime
 from gosa.common.utils import N_
-from zope.interface import implements
+from zope.interface import implementer
 from gosa.common.components import Plugin
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
@@ -21,10 +21,11 @@ from gosa.common.components import PluginRegistry
 from gosa.common.components import Command
 from gosa.backend.objects.proxy import ObjectProxy
 from gosa.backend.objects.comparator import ElementComparator
+from gosa.backend.exceptions import ACLException
+from gosa.common.error import GosaErrorHandler as C
 
-
+@implementer(IInterfaceHandler)
 class SambaGuiMethods(Plugin):
-    implements(IInterfaceHandler)
     _target_ = 'gosa'
     _priority_ = 80
 
@@ -52,16 +53,15 @@ class SambaGuiMethods(Plugin):
             raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
 
         # Set the password and commit the changes
-        lm, nt = smbpasswd.hash(password)
         user = ObjectProxy(object_dn)
-        user.sambaNTPassword = nt
-        user.sambaLMPassword = lm
+        user.sambaNTPassword = passlib.hash.nthash.encrypt(password)
+        user.sambaLMPassword = passlib.hash.lmhash.encrypt(password)
         user.commit()
 
     @Command(needsUser=True, __help__=N_("Returns the current samba domain policy for a given user"))
     def getSambaDomainInformation(self, user, target_object, locale=None):
-        print "-------> ACL check for user", user
-        print target_object
+        print("-------> ACL check for user", user)
+        print(target_object)
 
         # Do we have a locale?
         if locale is None:
