@@ -8,7 +8,7 @@ port = 8000
 sslpemfile = /etc/gosa/host.pem
 
 [ldap]
-url = ldap://ldap.example.net/dc=example,dc=net
+url = ldap:///dc=example,dc=net
 bind-dn = cn=ldapadmin,dc=example,dc=net
 bind-secret = secret
 pool-size = 10

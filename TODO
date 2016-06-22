@@ -13,3 +13,6 @@
 - StringToDatetime und StringToTime sind redundant (Unterschied: DatetimeToString setzt 'backend_type')
 
 - PWDPolicy Extension
+
+# gosa.backend.plugins.password.manager
+- Benötigt funktionierende ACLs, ObjectIndex bevor restliche Tests geschrieben werden können

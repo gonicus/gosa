@@ -124,22 +124,22 @@ class ObjectFactory(object):
 
         # Initialize parser
         schema_path = pkg_resources.resource_filename('gosa.backend', 'data/object.xsd') #@UndefinedVariable
-        schema_doc = open(schema_path).read()
+        schema_doc = open(schema_path, 'rb').read()
 
         # Prepare list of object types
-        object_types = ""
+        object_types = b""
         for o_type in self.__attribute_type.keys():
-            object_types += "<enumeration value=\"%s\"></enumeration>" % (o_type,)
+            object_types += b"<enumeration value=\"%s\"></enumeration>" % (o_type,)
 
         # Insert available object types into the xsd schema
-        schema_doc = re.sub(r"<simpleType name=\"AttributeTypes\">\n?\s*<restriction base=\"string\"></restriction>\n?\s*</simpleType>",
-            """
+        schema_doc = re.sub(b"<simpleType name=\"AttributeTypes\">\n?\s*<restriction base=\"string\"></restriction>\n?\s*</simpleType>",
+            b"""
             <simpleType name="AttributeTypes">
               <restriction base="string">
                 %(object_types)s
               </restriction>
             </simpleType>
-            """ % {'object_types': object_types},
+            """ % {b'object_types': object_types},
             schema_doc)
 
         schema_root = etree.XML(schema_doc)
