@@ -12,7 +12,7 @@ import logging
 from gosa.common.components import Plugin
 from gosa.common.components.command import Command
 from gosa.common.utils import N_
-from zope.interface import implements
+from zope.interface import implementer
 from gosa.common.handler import IInterfaceHandler
 from gosa.backend.objects.proxy import ObjectProxy
 from gosa.common.components import PluginRegistry
@@ -33,7 +33,7 @@ C.register_codes(dict(
 class PasswordException(Exception):
     pass
 
-
+@implementer(IInterfaceHandler)
 class PasswordManager(Plugin):
     """
     Manager password changes
@@ -43,7 +43,6 @@ class PasswordManager(Plugin):
 
     methods = None
     instance = None
-    implements(IInterfaceHandler)
 
     def __init__(self):
         super(PasswordManager, self).__init__()
