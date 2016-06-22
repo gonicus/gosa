@@ -149,6 +149,7 @@ class ObjectIndex(Plugin):
 
             schema = Schema(hash=md5sum)
             self.__session.add(schema)
+            self.__session.commit()
 
         # Schedule index sync
         if self.env.config.get("backend.index", "True").lower() == "true":
@@ -275,7 +276,7 @@ class ObjectIndex(Plugin):
         if change_type == "delete":
             self.log.info("object has changed in backend: indexing %s" % dn)
             self.log.warning("external delete might not take care about references")
-            self._remove_uuid_from_index(_uuid)
+            self.remove_by_uuid(_uuid)
 
         # Move
         if change_type in ['modrdn', 'moddn']:
@@ -297,11 +298,6 @@ class ObjectIndex(Plugin):
 
             else:
                 self.insert(obj)
-
-    def _remove_uuid_from_index(self, uuid):
-        self.__session.query(ObjectIndex).filter(ObjectIndex.uuid == uuid).delete()
-        self.__session.query(KeyValueIndex).filter(KeyValueIndex.uuid == uuid).delete()
-        self.__session.query(ExtensionIndex).filter(ExtensionIndex.uuid == uuid).delete()
 
     def _get_object(self, dn):
         try:
@@ -327,8 +323,6 @@ class ObjectIndex(Plugin):
         md5sum = md5s.hexdigest()
 
         return self.__session.query(Schema.hash).one_or_none() != md5sum
-
-# transition pointer -----------------------------------------------------------
 
     def sync_index(self):
         # Don't index if someone else is already doing it
@@ -386,16 +380,16 @@ class ObjectIndex(Plugin):
                     continue
 
                 # Check for index entry
-                indexEntry = self.db.index.find_one({'_uuid': obj.uuid}, {'_last_changed': 1})
+                last_modified = self.__session.query(ObjectIndex.last_modified).find(ObjectIndex.uuid == obj.uuid).one_or_none()
 
                 # Entry is not in the database
-                if not indexEntry:
+                if not last_modified:
                     self.insert(obj)
 
                 # Entry is in the database
                 else:
                     # OK: already there
-                    if obj.modifyTimestamp == indexEntry['_last_changed']:
+                    if obj.modifyTimestamp == last_modified:
                         self.log.debug("found up-to-date object index for %s" % obj.uuid)
 
                     else:
@@ -406,9 +400,9 @@ class ObjectIndex(Plugin):
                 del obj
 
             # Remove entries that are in the index, but not in any other backends
-            for entry in self.db.index.find({'_uuid': {'$exists': True}}, {'_uuid': 1}):
-                if entry['_uuid'] not in backend_objects:
-                    self.remove_by_uuid(entry['_uuid'])
+            for uuid in self.__session.query(ObjectIndex.uuid):
+                if uuid not in backend_objects:
+                    self.remove_by_uuid(uuid)
 
             t1 = time.time()
             self.log.info("processed %d objects in %ds" % (len(res), t1 - t0))
@@ -424,10 +418,10 @@ class ObjectIndex(Plugin):
             # Some object may have queued themselves to be re-indexed, process them now.
             self.log.info("need to refresh index for %d objects" % (len(ObjectIndex.to_be_updated)))
             for uuid in ObjectIndex.to_be_updated:
-                entry = self.db.index.find_one({'_uuid': uuid, 'dn': {'$exists': True}}, {'dn': 1})
+                dn = self.__session.query(ObjectIndex.dn).filter(ObjectIndex.uuid == uuid).one_or_none()
 
-                if entry:
-                    obj = ObjectProxy(entry['dn'])
+                if dn:
+                    obj = ObjectProxy(dn)
                     self.update(obj)
 
             self.log.info("index refresh finished")
@@ -447,13 +441,13 @@ class ObjectIndex(Plugin):
             _last_changed = time.mktime(datetime.datetime.now().timetuple())
 
             # Try to find the affected DN
-            e = self.db.index.find_one({'_uuid': _uuid}, {'dn': 1, '_last_changed': 1})
+            e = self.__session.query(ObjectIndex).filter(ObjectIndex.uuid == _uuid).one_or_none()
             if e:
 
                 # New pre-events don't have a dn. Just skip is in this case...
                 if 'dn' in e:
                     _dn = e['dn']
-                    _last_changed = e['_last_changed']
+                    _last_changed = e['last_modified']
                 else:
                     _dn = "not known yet"
                     _last_changed = datetime.datetime.now()
@@ -480,9 +474,9 @@ class ObjectIndex(Plugin):
             if event.reason in ["post object update"]:
                 self.log.debug("updating object index for %s" % _uuid)
                 if not event.dn:
-                    entry = self.db.index.find_one({'_uuid': _uuid, 'dn': {'$exists': 1}}, {'dn': 1})
-                    if entry:
-                        event.dn = entry['dn']
+                    dn = self.__session.query(ObjectIndex.dn).filter(ObjectIndex.uuid == _uuid).one_or_none()
+                    if dn:
+                        event.dn = dn
 
                 obj = ObjectProxy(event.dn)
                 self.update(obj)
@@ -491,46 +485,84 @@ class ObjectIndex(Plugin):
     def insert(self, obj):
         self.log.debug("creating object index for %s" % obj.uuid)
 
-        # If this is the root node, add the root document
-        if self.db.index.find_one({'_uuid': obj.uuid}, {'_uuid': 1}):
+        uuid = self.__session.query(ObjectIndex.uuid).filter(ObjectIndex.uuid == obj.uuid).one_or_none()
+        if uuid:
             raise IndexException(C.make_error('OBJECT_EXISTS', "base", uuid=obj.uuid))
 
-        self.db.index.save(obj.asJSON(True))
+        self.__save(obj.asJSON(True))
+
+    def __save(self, data):
+        # Assemble object index object
+        oi = ObjectIndex(
+            uuid=data._uuid,
+            dn=data.dn,
+            parent_dn=data._parent_dn,
+            adjusted_parent_dn=data._adjusted_parent_dn
+        )
+
+        if '_last_changed' in data:
+            oi.last_modified = data._last_changed
+
+        self.__session.add(oi)
+
+        # Assemble extension index objects
+        for ext in data._extensions:
+            ei = ExtensionIndex(uuid=data._uuid, extension=ext)
+            self.__session.add(ei)
+
+        # Assemble key value index objects
+        for key, value in data.items():
+
+            # Skip meta information and DN
+            if key.startswith("_") or key == "dn":
+                continue
+
+            kvi = KeyValueIndex(uuid=data._uuid, key=key, value=value)
+            self.__session.add(kvi)
+
+        self.__session.commit()
 
     def remove(self, obj):
         self.remove_by_uuid(obj.uuid)
 
     def remove_by_uuid(self, uuid):
         self.log.debug("removing object index for %s" % uuid)
+
         if self.exists(uuid):
-            self.db.index.remove({'_uuid': uuid})
+            self.__session.query(ObjectIndex).filter(ObjectIndex.uuid == uuid).delete()
+            self.__session.query(KeyValueIndex).filter(KeyValueIndex.uuid == uuid).delete()
+            self.__session.query(ExtensionIndex).filter(ExtensionIndex.uuid == uuid).delete()
+            self.__session.commit()
 
     def update(self, obj):
         # Gather information
         current = obj.asJSON(True)
-        saved = self.db.index.find_one({'_uuid': obj.uuid})
-        if not saved:
+        old_dn = self.__session.query(ObjectIndex.dn).filter(ObjectIndex.uuid == obj.uuid).one_or_none()
+        if not old_dn:
             raise IndexException(C.make_error('OBJECT_NOT_FOUND', "base", id=obj.uuid))
 
         # Remove old entry and insert new
         self.remove_by_uuid(obj.uuid)
-        self.db.index.save(obj.asJSON(True))
+        self.__save(current)
+
+# transition pointer ---------------------------------------------------------------------------------------------------
 
         # Has the entry been moved?
-        if current['dn'] != saved['dn']:
+        if current['dn'] != old_dn:
 
             # Adjust all ParentDN entries of child objects
-            res = self.db.index.find(
-                {'_parent_dn': re.compile('^(.*,)?%s$' % re.escape(saved['dn']))},
-                {'_uuid': 1, 'dn': 1, '_parent_dn': 1})
+            res = self.__session.query(ObjectIndex).filter(
+                ObjectIndex.parent_dn == re.compile('^(.*,)?%s$' % re.escape(old_dn))
+            ).all()
 
             for entry in res:
-                o_uuid = entry['_uuid']
-                o_dn = entry['dn']
-                o_parent = entry['_parent_dn']
-
+                o_uuid = entry.uuid
+                o_dn = entry.dn
+                o_parent = entry.parent_dn
+#STOP HIER
                 n_dn = o_dn[:-len(saved['dn'])] + current['dn']
                 n_parent = o_parent[:-len(saved['dn'])] + current['dn']
+                n_adjusted_parent = 
 
                 self.db.index.update({'_uuid': o_uuid}, {
                         '$set': {'dn': n_dn, '_parent_dn': n_parent}})
