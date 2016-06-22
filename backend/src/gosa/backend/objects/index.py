@@ -35,7 +35,7 @@ from gosa.backend.objects import ObjectFactory, ObjectProxy, ObjectChanged
 from gosa.backend.exceptions import ProxyException, ObjectException, FilterException, IndexException
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column, String, DateTime, or_
 
 Base = declarative_base()
 
@@ -138,29 +138,24 @@ class ObjectIndex(Plugin):
             self.__session.query(KeyValueIndex).delete()
             self.__session.query(ExtensionIndex).delete()
             self.__session.query(ObjectIndex).delete()
-            self.log.info('object definitions changed, dropped old object index collection')
-
-        # HIER---------------
+            self.log.info('object definitions changed, dropped old object index')
 
         # Create the initial schema information if required
-        if not "index" in self.db.collection_names():
-            self.log.info('created object index collection')
+        if not self.__session.query(Schema).one_or_none():
+            self.log.info('created schema')
             md5s = hashlib.md5()
             md5s.update(schema)
             md5sum = md5s.hexdigest()
 
-            self.db.index.save({'schema': {'checksum': md5sum}})
+            schema = Schema(hash=md5sum)
+            self.__session.add(schema)
 
-        # Sync index
-        if self.env.config.get("agent.index", "True").lower() == "true":
+        # Schedule index sync
+        if self.env.config.get("backend.index", "True").lower() == "true":
             sobj = PluginRegistry.getInstance("SchedulerService")
             sobj.getScheduler().add_date_job(self.sync_index,
                     datetime.datetime.now() + datetime.timedelta(seconds=30),
                     tag='_internal', jobstore='ram')
-
-        # Ensure basic index for the objects
-        for index in ['dn', '_uuid', '_last_changed', '_type', '_extensions', '_container', '_parent_dn']:
-            self.db.index.ensure_index(index)
 
         # Extract search aid
         attrs = {}
@@ -206,32 +201,6 @@ class ObjectIndex(Plugin):
         # Remove potentially not assigned values
         used_attrs = [u for u in used_attrs if u]
 
-        # Prepare index
-        indices = [x['key'][0][0] for x in self.db.index.index_information().values()]
-        binaries = self.factory.getBinaryAttributes()
-
-        # Remove index that is not in use anymore
-        for attr in indices:
-            if not attr in used_attrs and not attr in ['dn', '_id', '_uuid', '_last_changed', '_type', '_extensions', '_container', '_parent_dn']:
-                self.log.debug("removing obsolete index for '%s'" % attr)
-                try:
-                    self.db.index.drop_index(attr)
-                except pymongo.errors.OperationFailure:
-                    pass
-
-        # Ensure index for all attributes that want an index
-        for attr in used_attrs[:39]:
-
-            # Skip non attribute values
-            if '%' in attr or attr in binaries:
-                self.log.debug("not adding index for '%s'" % attr)
-                continue
-
-            # Add index if it doesn't exist already
-            if not attr in indices:
-                self.log.debug("adding index for '%s'" % attr)
-                self.db.index.ensure_index(attr)
-
         # Memorize search information for later use
         self.__search_aid = dict(attrs=attrs,
                                  used_attrs=used_attrs,
@@ -269,9 +238,7 @@ class ObjectIndex(Plugin):
 
         # Resolve dn from uuid if needed
         if not dn:
-            entry = self.db.index.find_one({'_uuid': _uuid}, {'dn': 1})
-            if entry:
-                dn = entry['dn']
+            dn = self.__session.query(ObjectIndex.dn).find(ObjectIndex.uuid == _uuid).one_or_none()
 
         # Modification
         if change_type == "modify":
@@ -282,8 +249,11 @@ class ObjectIndex(Plugin):
                 return
 
             # Check if the entry exists - if not, maybe let create it
-            entry = self.db.index.find_one({'$or': [{'dn': re.compile(r'^%s$' %
-                re.escape(dn), re.IGNORECASE)}, {'_uuid': _uuid}]}, {'_last_changed': 1})
+            entry = self.__session.query(ObjectIndex.dn).find(
+                or_(
+                    ObjectIndex.uuid == _uuid,
+                    ObjectIndex.dn == re.compile(r'^%s$' % re.escape(dn), re.IGNORECASE)
+                )).one_or_none()
 
             if entry:
                 self.update(obj)
@@ -305,7 +275,7 @@ class ObjectIndex(Plugin):
         if change_type == "delete":
             self.log.info("object has changed in backend: indexing %s" % dn)
             self.log.warning("external delete might not take care about references")
-            self.db.index.remove({'dn': dn})
+            self._remove_uuid_from_index(_uuid)
 
         # Move
         if change_type in ['modrdn', 'moddn']:
@@ -316,13 +286,22 @@ class ObjectIndex(Plugin):
                 return
 
             # Check if the entry exists - if not, maybe let create it
-            entry = self.db.index.find_one({'$or': [{'dn': re.compile(r'^%s$' % re.escape(new_dn), re.IGNORECASE)}, {'_uuid': _uuid}]}, {'_last_changed': 1})
+            entry = self.__session.query(ObjectIndex.dn).find(
+                or_(
+                    ObjectIndex.uuid == _uuid,
+                    ObjectIndex.dn == re.compile(r'^%s$' % re.escape(dn), re.IGNORECASE)
+                )).one_or_none()
 
             if entry and obj:
                 self.update(obj)
 
             else:
                 self.insert(obj)
+
+    def _remove_uuid_from_index(self, uuid):
+        self.__session.query(ObjectIndex).filter(ObjectIndex.uuid == uuid).delete()
+        self.__session.query(KeyValueIndex).filter(KeyValueIndex.uuid == uuid).delete()
+        self.__session.query(ExtensionIndex).filter(ExtensionIndex.uuid == uuid).delete()
 
     def _get_object(self, dn):
         try:
@@ -348,6 +327,8 @@ class ObjectIndex(Plugin):
         md5sum = md5s.hexdigest()
 
         return self.__session.query(Schema.hash).one_or_none() != md5sum
+
+# transition pointer -----------------------------------------------------------
 
     def sync_index(self):
         # Don't index if someone else is already doing it
