@@ -18,7 +18,7 @@ from gosa.common.error import GosaErrorHandler as C
 
 # Register the errors handled  by us
 C.register_codes(dict(
-    SAMBA_DOMAIN_WITHOUT_SID=N_("Domain %(target)s has no SID"),
+    SAMBA_DOMAIN_WITHOUT_SID=N_("Domain %(topic)s has no SID"),
     SAMBA_NO_SID_TYPE=N_("Invalid type '%(type)s' for SID generator [user, group]")
 ))
 
