@@ -29,7 +29,7 @@ class SambaLogonHoursAttribute(AttributeType):
             try:
 
                 # Check if each week day contains 24 values.
-                if type(value[0]) not in  [str, unicode] or len(value[0]) != 168 or len(set(value[0]) - set('01')):
+                if type(value[0]) is not str or len(value[0]) != 168 or len(set(value[0]) - set('01')):
                     return False
                 return True
 
@@ -81,7 +81,7 @@ class SambaLogonHoursAttribute(AttributeType):
                 lstr += n[0:4] + n[4:]
 
             # Shift lster by timezone offset
-            shift_by = (168 + (time.timezone/3600)) % 168
+            shift_by = int((168 + (time.timezone/3600)) % 168)
             lstr = lstr[shift_by:] + lstr[:shift_by]
 
             # Parse result into more readable value
