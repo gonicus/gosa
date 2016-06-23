@@ -240,7 +240,6 @@ class SambaGuiMethods(Plugin):
             attrs['sambaPwdCanChange']+= " " + hours   + " " + trn(N_("hour"), N_("hours"), hours)
             attrs['sambaPwdCanChange']+= " " + minutes + " " + trn(N_("minute"), N_("minutes"), minutes)
 
-        print(attrs)
         res = "\n<div style='overflow: auto;'>" + \
             "\n<table style='width:100%;'>" + \
             "\n<tr><td><b>" + tr(N_("Domain attributes")) + "</b></td></tr>" + \
