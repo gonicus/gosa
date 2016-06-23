@@ -559,10 +559,11 @@ class ObjectIndex(Plugin):
                 o_uuid = entry.uuid
                 o_dn = entry.dn
                 o_parent = entry.parent_dn
-#STOP HIER
-                n_dn = o_dn[:-len(saved['dn'])] + current['dn']
-                n_parent = o_parent[:-len(saved['dn'])] + current['dn']
-                n_adjusted_parent = 
+                o_adjusted_parent = entry.adjusted_parent_dn
+
+                n_dn = o_dn[:-len(old_dn)] + current['dn']
+                n_parent = o_parent[:-len(old_dn)] + current['dn']
+                n_adjusted_parent = o_adjusted_parent[:-len(old_adjusted_dn)] + current.adjusted_parent_dn
 
                 self.db.index.update({'_uuid': o_uuid}, {
                         '$set': {'dn': n_dn, '_parent_dn': n_parent}})
