@@ -7,7 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import passlib
+from passlib.hash import lmhash, nthash
 from gosa.backend.objects.filter import ElementFilter
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.utils import N_
@@ -27,8 +27,8 @@ class SambaHash(ElementFilter):
 
     def process(self, obj, key, valDict):
         if len(valDict[key]['value']) and type(valDict[key]['value'][0]) == str:
-            valDict['sambaNTPassword']['value'] = [passlib.hash.nthash.encrypt(valDict[key]['value'][0])]
-            valDict['sambaLMPassword']['value'] = [passlib.hash.lmhash.encrypt(valDict[key]['value'][0])]
+            valDict['sambaNTPassword']['value'] = [nthash.encrypt(valDict[key]['value'][0])]
+            valDict['sambaLMPassword']['value'] = [lmhash.encrypt(valDict[key]['value'][0])]
         else:
             raise ValueError(C.make_error("TYPE_UNKNOWN", self.__class__.__name__, type=type(valDict[key]['value'])))
 
