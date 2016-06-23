@@ -7,7 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import passlib
+from passlib.hash import lmhash, nthash
 import gettext
 from pkg_resources import resource_filename #@UnresolvedImport
 from datetime import date, datetime
@@ -28,6 +28,9 @@ from gosa.common.error import GosaErrorHandler as C
 class SambaGuiMethods(Plugin):
     _target_ = 'gosa'
     _priority_ = 80
+
+    def __init__(self):
+        self.__log = Environment.getInstance().log
 
 
     @Command(needsUser=True, __help__=N_("Sets a new samba-password for a user"))
@@ -54,8 +57,8 @@ class SambaGuiMethods(Plugin):
 
         # Set the password and commit the changes
         user = ObjectProxy(object_dn)
-        user.sambaNTPassword = passlib.hash.nthash.encrypt(password)
-        user.sambaLMPassword = passlib.hash.lmhash.encrypt(password)
+        user.sambaNTPassword = nthash.encrypt(password)
+        user.sambaLMPassword = lmhash.encrypt(password)
         user.commit()
 
     @Command(needsUser=True, __help__=N_("Returns the current samba domain policy for a given user"))
@@ -70,8 +73,8 @@ class SambaGuiMethods(Plugin):
         t = gettext.translation('messages', resource_filename('gosa.backend', "locale"),
             fallback=True, languages=[locale])
 
-        tr = t.ugettext
-        trn = t.ungettext
+        tr = t.gettext
+        trn = t.ngettext
 
         # Use proxy if available
         _self = target_object
@@ -145,7 +148,7 @@ class SambaGuiMethods(Plugin):
 
         # sambaLogonToChgPwd: Force Users to logon for password change (default: 0 => off, 2 => on)
         if attrs['sambaLogonToChgPwd'] == "unset" or attrs['sambaLogonToChgPwd'] == 0:
-            attrs['sambaLogonToChgPwd'] = tr(N_("off")) + " <i>(" + t.ugettext(N_("default")) + ")</i>"
+            attrs['sambaLogonToChgPwd'] = tr(N_("off")) + " <i>(" + t.gettext(N_("default")) + ")</i>"
         else:
             attrs['sambaLogonToChgPwd'] = tr(N_("on"))
 
@@ -189,7 +192,7 @@ class SambaGuiMethods(Plugin):
         if attrs['sambaBadPasswordTime'] == "unset" or not attrs['sambaBadPasswordTime']:
             attrs['sambaBadPasswordTime'] = "<i>(" + tr(N_("not set")) + ")</i>"
         else:
-            attrs['sambaRefuseMachinePwdChange'] = date.fromtimestamp(attrs['sambaBadPasswordTime']).strftime("%d.%m.%Y")
+            attrs['sambaBadPasswordTime'] = date.fromtimestamp(attrs['sambaBadPasswordTime']).strftime("%d.%m.%Y")
 
         # sambaBadPasswordCount: Bad password attempt count
         if attrs['sambaBadPasswordCount'] == "unset" or not attrs['sambaBadPasswordCount']:
@@ -237,7 +240,7 @@ class SambaGuiMethods(Plugin):
             attrs['sambaPwdCanChange']+= " " + hours   + " " + trn(N_("hour"), N_("hours"), hours)
             attrs['sambaPwdCanChange']+= " " + minutes + " " + trn(N_("minute"), N_("minutes"), minutes)
 
-
+        print(attrs)
         res = "\n<div style='overflow: auto;'>" + \
             "\n<table style='width:100%;'>" + \
             "\n<tr><td><b>" + tr(N_("Domain attributes")) + "</b></td></tr>" + \
@@ -252,7 +255,7 @@ class SambaGuiMethods(Plugin):
             "\n<tr><td>" + tr(N_("Refuse machine password change")) + ":</td><td>" + attrs['sambaRefuseMachinePwdChange'] + "</td></tr>" + \
             "\n<tr><td>&nbsp;</td></tr>" + \
             "\n<tr><td><b>" + tr(N_("User attributes")) + "</b></td></tr>" + \
-            "\n<tr><td>" + tr(N_("SID")) + ":                           </td><td>" + attrs['sambaSID'] + "</td></tr>" + \
+            "\n<tr><td>" + tr(N_("SID")) + ":                           </td><td>" + str(attrs['sambaSID']) + "</td></tr>" + \
             "\n<tr><td>" + tr(N_("Last failed login")) + ":             </td><td>" + attrs['sambaBadPasswordTime'] + "</td></tr>" + \
             "\n<tr><td>" + tr(N_("Log on attempts")) + ":                </td><td>"+ attrs['sambaBadPasswordCount'] + "</td></tr>" + \
             "\n<tr><td>" + tr(N_("Last password update")) + ":          </td><td>" + attrs['sambaPwdLastSet'] + "</td></tr>" + \
