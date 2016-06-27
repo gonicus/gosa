@@ -157,6 +157,9 @@ class SambaMungedDial(object):
         # Build up 'CtxCfgFlags1' property.
         flags = list(values['CtxCfgFlags1'])
 
+        for index, value in enumerate(flags):
+            flags[index] = chr(value) if type(value) is int else value
+
         # Handle flag at position 2
         flag = int(flags[2], 16)
         if values['Ctx_flag_defaultPrinter']:
@@ -201,7 +204,7 @@ class SambaMungedDial(object):
         values['CtxCfgFlags1'] = ''.join(flags)
         values['CtxShadow'] = '0%1X000000' % (values['Ctx_shadow'])
 
-        # A list of all properties we are goind to encode.
+        # A list of all properties we are going to encode.
         params = ["CtxCfgPresent", "CtxCfgFlags1", "CtxCallback", "CtxShadow",
                 "CtxMaxConnectionTime", "CtxMaxDisconnectionTime", "CtxKeyboardLayout",
                 "CtxMinEncryptionLevel", "CtxWorkDirectory", "CtxNWLogonServer", "CtxWFHomeDir",
@@ -213,7 +216,7 @@ class SambaMungedDial(object):
             values[entry] = str(values[entry])
 
         # Convert each param into an sambaMungedDial style value.
-        result_tmp = ""
+        result_tmp = b""
         for name in params:
             value = values[name]
             is_str = False
@@ -221,8 +224,12 @@ class SambaMungedDial(object):
             # Special handling for strings and timeParams
             if name in SambaMungedDial.stringParams:
                 is_str = True
-                value += '\0'
-                value = value.encode('utf-16')[2:]
+                if type(value) is bytes:
+                    value += b'\0'
+                else:
+                    value += '\0'
+                    value = value.encode('utf-16')[2:]
+                print("String: %s" % value)
             elif name in SambaMungedDial.timeParams:
 
                 # Convert numerical value back to into mungedDial style.
@@ -256,19 +263,19 @@ class SambaMungedDial(object):
         =========== ===============================
         """
 
-        # Encode parameter name with utf-16 and reomve the 2 Byte BOM infront of the string.
-        utfName = name.encode('utf-16')[2:]
+        # Encode parameter name with utf-16
+        utfName = name.encode('utf-16')
 
         # Set parameter length, high and low byte
         paramLen = len(utfName)
-        result = ''
-        result += chr(paramLen & 0x0FF)
-        result += chr((paramLen & 0x0FF00) >> 8)
+        result = b''
+        result += chr(paramLen & 0x0FF).encode("utf-8")
+        result += chr((paramLen & 0x0FF00) >> 8).encode("utf-8")
 
         # String parameters have additional trailing bytes
         valueLen = len(value)
-        result += chr(valueLen & 0x0FF)
-        result += chr((valueLen & 0x0FF00) >> 8)
+        result += chr(valueLen & 0x0FF).encode("utf-8")
+        result += chr((valueLen & 0x0FF00) >> 8).encode("utf-8")
 
         # Length fields have a trailing '01' appended by the UTF-16 converted name
         result += unhexlify('%02x00' % (0x1,))
@@ -276,9 +283,13 @@ class SambaMungedDial(object):
 
         # Append a trailing '00' to string parameters
         if isString and len(value):
-            result += hexlify(value.decode('utf-16'))
+            print(value)
+            result += hexlify(value)
         else:
-            result += value
+            if type(value) is str:
+                result += value.encode("ascii")
+            else:
+                result += value
 
         return result
 
@@ -297,19 +308,19 @@ class SambaMungedDial(object):
 
         # check if we've to use the old or new munged dial storage behavior
         test = b64decode(mstr)
-        old_behavior = hexlify(test)[0:2] == "6d"
+        old_behavior = hexlify(test)[0:2] == b"6d"
         if old_behavior:
             ctxField = test[len(unhexlify(SambaMungedDial.old_header))::]
         else:
-            ctxField = test[len(unhexlify(SambaMungedDial.new_header)) + 2::]
+            ctxField = test[len(unhexlify(SambaMungedDial.new_header)) +2 ::]
 
         # Decode parameters
         result = {'oldStorageBehavior': True}
-        while ctxField != "":
+        while len(ctxField) > 0:
 
             # Get parameter-name length and parameter value length
-            ctxParmNameLength = ord(ctxField[0]) + (16 * ord(ctxField[1]))
-            ctxParmLength = ord(ctxField[2]) + (16 * ord(ctxField[3]))
+            ctxParmNameLength = ord(ctxField[0:1]) + (16 * ord(ctxField[1:2]))
+            ctxParmLength = ord(ctxField[2:3]) + (16 * ord(ctxField[3:4]))
 
             # Reposition ctxField on start of parameter name, read parameter name
             ctxField = ctxField[6::]
@@ -321,8 +332,9 @@ class SambaMungedDial(object):
 
             # If string parameter, convert
             if ctxParmName in SambaMungedDial.stringParams:
-                ctxParm = unicode(unhexlify(ctxParm))
-                if ctxParm[-1] == '\0':
+                print("%s: %s" % (ctxParmName, ctxParm))
+                ctxParm = unhexlify(ctxParm)
+                if ctxParm[len(ctxParm)-1] == 0:
                     ctxParm = ctxParm[:-1]
 
             # If time parameter, convert
@@ -339,11 +351,11 @@ class SambaMungedDial(object):
             ctxField = ctxField[ctxParmLength::]
 
         # Detect TS Login Flag
-        flags = ord(result['CtxCfgFlags1'][5])
+        flags = result['CtxCfgFlags1'][5]
         result[u'Ctx_flag_tsLogin'] = bool(flags & 1)
         result[u'Ctx_flag_reConn'] = bool(flags & 2)
         result[u'Ctx_flag_brokenConn'] = bool(flags & 4)
-        result[u'Ctx_flag_inheritMode'] = bool(result['CtxCfgFlags1'][6:7] == "1")
+        result[u'Ctx_flag_inheritMode'] = bool(result['CtxCfgFlags1'][6:7] == b'1')
 
         # convert the shadow value into integer.
         if old_behavior:
