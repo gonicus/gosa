@@ -116,8 +116,8 @@ class ObjectFactory(object):
         # Initialize backend registry
         ObjectBackendRegistry.getInstance()
 
-        # Loade attribute type mapping
-        for entry in pkg_resources.iter_entry_points("object.type"):
+        # Load attribute type mapping
+        for entry in pkg_resources.iter_entry_points("gosa.object.type"):
             module = entry.load()
             self.log.info("attribute type %s included" % module.__alias__)
             self.__attribute_type[module.__alias__] = module()
@@ -129,7 +129,7 @@ class ObjectFactory(object):
         # Prepare list of object types
         object_types = b""
         for o_type in self.__attribute_type.keys():
-            object_types += b"<enumeration value=\"%s\"></enumeration>" % (o_type,)
+            object_types += b"<enumeration value=\"%s\"></enumeration>" % (o_type.encode(),)
 
         # Insert available object types into the xsd schema
         schema_doc = re.sub(b"<simpleType name=\"AttributeTypes\">\n?\s*<restriction base=\"string\"></restriction>\n?\s*</simpleType>",
@@ -171,7 +171,7 @@ class ObjectFactory(object):
         if not name in self.__classes:
             self.__classes[name] = self.__build_class(name)
 
-        return getattr(self.__classes[name], "__methods").keys()
+        return list(getattr(self.__classes[name], "__methods").keys())
 
     def getXMLDefinitionsCombined(self):
         """

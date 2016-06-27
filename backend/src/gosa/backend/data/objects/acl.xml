@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
-	<Object>
-		<Name>Acl</Name>
-		<DisplayName>Acl</DisplayName>
-		<Description>Acl extension</Description>
-		<BaseObject>false</BaseObject>
-		<Backend>MongoDB</Backend>
+  <Object>
+    <Name>Acl</Name>
+    <DisplayName>Acl</DisplayName>
+    <Description>Acl extension</Description>
+    <BaseObject>false</BaseObject>
+    <Backend>JSON</Backend>
     <BackendParameters>
-      <Backend type="Acl">MongoDB</Backend>
+      <Backend type="Acl">JSON</Backend>
     </BackendParameters>
     <Attributes>
       <Attribute>

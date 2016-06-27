@@ -23,7 +23,7 @@ class GlobalLock(object):
         self.__locks = {}
 
     def _exists(self, name):
-        if self.__locks[name]:
+        if name in self.__locks:
             return True
         return False
 

@@ -105,7 +105,8 @@ class ObjectProxy(object):
         self.__attribute_map = {}
         self.__method_map = {}
         self.__current_user = user
-        self.__acl_resolver = PluginRegistry.getInstance("ACLResolver")
+        print("ACL resolver is disabled currently")
+        #self.__acl_resolver = PluginRegistry.getInstance("ACLResolver")
         self.__attribute_type_map = {}
         self.__attributes = []
         self.__method_type_map = {}
@@ -310,7 +311,7 @@ class ObjectProxy(object):
     def get_parent_dn(self, dn=None):
         if not dn:
             dn = self.__base.dn
-        return dn2str(str2dn(dn.encode('utf-8'))[1:]).decode('utf-8')
+        return dn2str(str2dn(dn)[1:])
 
     def get_adjusted_parent_dn(self, dn=None):
         index = PluginRegistry.getInstance("ObjectIndex")
@@ -333,9 +334,9 @@ class ObjectProxy(object):
 
             pdn = self.get_parent_dn(pdn)
 
-        tdn = str2dn(self.__env.base.encode('utf-8'))[::-1] + tdn[::-1]
+        tdn = str2dn(self.__env.base)[::-1] + tdn[::-1]
 
-        return dn2str(tdn[::-1]).decode('utf-8')
+        return dn2str(tdn[::-1])
 
     def get_base_type(self):
         return self.__base.__class__.__name__
@@ -522,7 +523,7 @@ class ObjectProxy(object):
             old_base = self.__base.dn
 
             try:
-                child_new_base = dn2str([str2dn(self.__base.dn.encode('utf-8'))[0]]).decode('utf-8') + "," + new_base
+                child_new_base = dn2str([str2dn(self.__base.dn)[0]]) + "," + new_base
 
                 # Get primary backend of the object to be moved
                 p_backend = getattr(self.__base, '_backend')
@@ -541,7 +542,7 @@ class ObjectProxy(object):
                     if cback != p_backend:
                         if not cback in foreign_backends:
                             foreign_backends = []
-                        foreign_backends[cback].append(cdn.decode('utf-8'))
+                        foreign_backends[cback].append(cdn)
 
                 # Only keep the first per backend that is close to the root
                 root_elements = {}
@@ -557,7 +558,7 @@ class ObjectProxy(object):
 
                     # Get new base of child
                     new_child_dn = fdn[:len(fdn) - len(old_base)] + child_new_base
-                    new_child_base = dn2str(str2dn(new_child_dn.encode('utf-8'))[1:]).decode('utf-8')
+                    new_child_base = dn2str(str2dn(new_child_dn)[1:])
 
                     # Select objects with different base and trigger a move, the
                     # primary backend move will be triggered and do a recursive
@@ -727,7 +728,7 @@ class ObjectProxy(object):
 
                     # Get new base of child
                     new_child_dn = fdn[:len(fdn) - len(old_base)] + self.__base.dn
-                    new_child_base = dn2str(str2dn(new_child_dn.encode('utf-8'))[1:]).decode('utf-8')
+                    new_child_base = dn2str(str2dn(new_child_dn)[1:])
 
                     # Select objects with different base and trigger a move, the
                     # primary backend move will be triggered and do a recursive

@@ -81,7 +81,7 @@ class ExtensionIndex(Base):
                             self.uuid, self.extension)
 
 
-class ObjectIndex(Base):
+class ObjectInfoIndex(Base):
     __tablename__ = 'obj-index'
 
     uuid = Column(String(36), primary_key=True)
@@ -94,7 +94,7 @@ class ObjectIndex(Base):
     extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension)
 
     def __repr__(self):
-       return "<ObjectIndex(uuid='%s', dn='%s', parent_dn='%s', adjusted_parent_dn'%s', type='%s', last_modified='%s')>" % (
+       return "<ObjectInfoIndex(uuid='%s', dn='%s', parent_dn='%s', adjusted_parent_dn'%s', type='%s', last_modified='%s')>" % (
                             self.uuid, self.dn, self.parent_dn, self.adjusted_parent_dn, self.type, self.last_modified)
 
 class IndexScanFinished():
@@ -141,7 +141,7 @@ class ObjectIndex(Plugin):
             self.__session.query(Schema).delete()
             self.__session.query(KeyValueIndex).delete()
             self.__session.query(ExtensionIndex).delete()
-            self.__session.query(ObjectIndex).delete()
+            self.__session.query(ObjectInfoIndex).delete()
             self.log.info('object definitions changed, dropped old object index')
 
         # Create the initial schema information if required
@@ -157,10 +157,11 @@ class ObjectIndex(Plugin):
 
         # Schedule index sync
         if self.env.config.get("backend.index", "True").lower() == "true":
-            sobj = PluginRegistry.getInstance("SchedulerService")
-            sobj.getScheduler().add_date_job(self.sync_index,
-                    datetime.datetime.now() + datetime.timedelta(seconds=30),
-                    tag='_internal', jobstore='ram')
+            self.sync_index()
+            #sobj = PluginRegistry.getInstance("SchedulerService")
+            #sobj.getScheduler().add_date_job(self.sync_index,
+            #        datetime.datetime.now() + datetime.timedelta(seconds=1),
+            #        tag='_internal', jobstore='ram')
 
         # Extract search aid
         attrs = {}
@@ -243,7 +244,7 @@ class ObjectIndex(Plugin):
 
         # Resolve dn from uuid if needed
         if not dn:
-            dn = self.__session.query(ObjectIndex.dn).find(ObjectIndex.uuid == _uuid).one_or_none()
+            dn = self.__session.query(ObjectInfoIndex.dn).find(ObjectInfoIndex.uuid == _uuid).one_or_none()
 
         # Modification
         if change_type == "modify":
@@ -254,10 +255,10 @@ class ObjectIndex(Plugin):
                 return
 
             # Check if the entry exists - if not, maybe let create it
-            entry = self.__session.query(ObjectIndex.dn).find(
+            entry = self.__session.query(ObjectInfoIndex.dn).find(
                 or_(
-                    ObjectIndex.uuid == _uuid,
-                    ObjectIndex.dn == re.compile(r'^%s$' % re.escape(dn), re.IGNORECASE)
+                    ObjectInfoIndex.uuid == _uuid,
+                    ObjectInfoIndex.dn == re.compile(r'^%s$' % re.escape(dn), re.IGNORECASE)
                 )).one_or_none()
 
             if entry:
@@ -291,10 +292,10 @@ class ObjectIndex(Plugin):
                 return
 
             # Check if the entry exists - if not, maybe let create it
-            entry = self.__session.query(ObjectIndex.dn).find(
+            entry = self.__session.query(ObjectInfoIndex.dn).find(
                 or_(
-                    ObjectIndex.uuid == _uuid,
-                    ObjectIndex.dn == re.compile(r'^%s$' % re.escape(dn), re.IGNORECASE)
+                    ObjectInfoIndex.uuid == _uuid,
+                    ObjectInfoIndex.dn == re.compile(r'^%s$' % re.escape(dn), re.IGNORECASE)
                 )).one_or_none()
 
             if entry and obj:
@@ -336,12 +337,7 @@ class ObjectIndex(Plugin):
         # Don't run index, if someone else already did until the last
         # restart.
         cr = PluginRegistry.getInstance("CommandRegistry")
-        nodes = cr.getNodes()
-        if len([n for n, v in nodes.items() if 'Indexed' in v and v['Indexed']]):
-            return
-
         GlobalLock.acquire()
-
         ObjectIndex.first_run = True
 
         try:
@@ -354,10 +350,10 @@ class ObjectIndex(Plugin):
                 res = {}
 
                 children = self.factory.getObjectChildren(dn)
-                res = dict(res.items() + children.items())
+                res = {**res, **children}
 
                 for chld in children.keys():
-                    res = dict(res.items() + resolve_children(chld).items())
+                    res = {**res, **resolve_children(chld)}
 
                 return res
 
@@ -384,7 +380,7 @@ class ObjectIndex(Plugin):
                     continue
 
                 # Check for index entry
-                last_modified = self.__session.query(ObjectIndex.last_modified).find(ObjectIndex.uuid == obj.uuid).one_or_none()
+                last_modified = self.__session.query(ObjectInfoIndex.last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
 
                 # Entry is not in the database
                 if not last_modified:
@@ -404,7 +400,7 @@ class ObjectIndex(Plugin):
                 del obj
 
             # Remove entries that are in the index, but not in any other backends
-            for uuid in self.__session.query(ObjectIndex.uuid):
+            for uuid in self.__session.query(ObjectInfoIndex.uuid):
                 if uuid not in backend_objects:
                     self.remove_by_uuid(uuid)
 
@@ -422,7 +418,7 @@ class ObjectIndex(Plugin):
             # Some object may have queued themselves to be re-indexed, process them now.
             self.log.info("need to refresh index for %d objects" % (len(ObjectIndex.to_be_updated)))
             for uuid in ObjectIndex.to_be_updated:
-                dn = self.__session.query(ObjectIndex.dn).filter(ObjectIndex.uuid == uuid).one_or_none()
+                dn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == uuid).one_or_none()
 
                 if dn:
                     obj = ObjectProxy(dn)
@@ -445,7 +441,7 @@ class ObjectIndex(Plugin):
             _last_changed = time.mktime(datetime.datetime.now().timetuple())
 
             # Try to find the affected DN
-            e = self.__session.query(ObjectIndex).filter(ObjectIndex.uuid == _uuid).one_or_none()
+            e = self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == _uuid).one_or_none()
             if e:
 
                 # New pre-events don't have a dn. Just skip is in this case...
@@ -478,7 +474,7 @@ class ObjectIndex(Plugin):
             if event.reason in ["post object update"]:
                 self.log.debug("updating object index for %s" % _uuid)
                 if not event.dn:
-                    dn = self.__session.query(ObjectIndex.dn).filter(ObjectIndex.uuid == _uuid).one_or_none()
+                    dn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == _uuid).one_or_none()
                     if dn:
                         event.dn = dn
 
@@ -489,7 +485,7 @@ class ObjectIndex(Plugin):
     def insert(self, obj):
         self.log.debug("creating object index for %s" % obj.uuid)
 
-        uuid = self.__session.query(ObjectIndex.uuid).filter(ObjectIndex.uuid == obj.uuid).one_or_none()
+        uuid = self.__session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
         if uuid:
             raise IndexException(C.make_error('OBJECT_EXISTS', "base", uuid=obj.uuid))
 
@@ -497,21 +493,21 @@ class ObjectIndex(Plugin):
 
     def __save(self, data):
         # Assemble object index object
-        oi = ObjectIndex(
-            uuid=data._uuid,
-            dn=data.dn,
-            parent_dn=data._parent_dn,
-            adjusted_parent_dn=data._adjusted_parent_dn
+        oi = ObjectInfoIndex(
+            uuid=data["_uuid"],
+            dn=data["dn"],
+            parent_dn=data["_parent_dn"],
+            adjusted_parent_dn=data["_adjusted_parent_dn"]
         )
 
         if '_last_changed' in data:
-            oi.last_modified = data._last_changed
+            oi.last_modified = datetime.datetime.fromtimestamp(data["_last_changed"])
 
         self.__session.add(oi)
 
         # Assemble extension index objects
-        for ext in data._extensions:
-            ei = ExtensionIndex(uuid=data._uuid, extension=ext)
+        for ext in data["_extensions"]:
+            ei = ExtensionIndex(uuid=data["_uuid"], extension=ext)
             self.__session.add(ei)
 
         # Assemble key value index objects
@@ -523,10 +519,10 @@ class ObjectIndex(Plugin):
 
             if isinstance(value, list):
                 for v in value:
-                    kvi = KeyValueIndex(uuid=data._uuid, key=key, value=v)
+                    kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=v)
                     self.__session.add(kvi)
             else:
-                kvi = KeyValueIndex(uuid=data._uuid, key=key, value=value)
+                kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=value)
                 self.__session.add(kvi)
 
         self.__session.commit()
@@ -538,7 +534,7 @@ class ObjectIndex(Plugin):
         self.log.debug("removing object index for %s" % uuid)
 
         if self.exists(uuid):
-            self.__session.query(ObjectIndex).filter(ObjectIndex.uuid == uuid).delete()
+            self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == uuid).delete()
             self.__session.query(KeyValueIndex).filter(KeyValueIndex.uuid == uuid).delete()
             self.__session.query(ExtensionIndex).filter(ExtensionIndex.uuid == uuid).delete()
             self.__session.commit()
@@ -546,7 +542,7 @@ class ObjectIndex(Plugin):
     def update(self, obj):
         # Gather information
         current = obj.asJSON(True)
-        old_dn = self.__session.query(ObjectIndex.dn).filter(ObjectIndex.uuid == obj.uuid).one_or_none()
+        old_dn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
         if not old_dn:
             raise IndexException(C.make_error('OBJECT_NOT_FOUND', "base", id=obj.uuid))
 
@@ -558,8 +554,8 @@ class ObjectIndex(Plugin):
         if current['dn'] != old_dn:
 
             # Adjust all ParentDN entries of child objects
-            res = self.__session.query(ObjectIndex).filter(
-                ObjectIndex.parent_dn == re.compile('^(.*,)?%s$' % re.escape(old_dn))
+            res = self.__session.query(ObjectInfoIndex).filter(
+                ObjectInfoIndex.parent_dn == re.compile('^(.*,)?%s$' % re.escape(old_dn))
             ).all()
 
             for entry in res:
@@ -572,7 +568,7 @@ class ObjectIndex(Plugin):
                 n_parent = o_parent[:-len(old_dn)] + current['dn']
                 n_adjusted_parent = o_adjusted_parent[:-len(o_adjusted_parent)] + current.adjusted_parent_dn
 
-                oi = self.__session.query(ObjectIndex).filter(ObjectIndex.uuid == o_uuid).one()
+                oi = self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == o_uuid).one()
                 oi.dn = n_dn
                 oi.parent_dn = n_parent
                 oi.adjusted_parent_dn = n_adjusted_parent
@@ -593,7 +589,7 @@ class ObjectIndex(Plugin):
 
         ``Return``: True/False
         """
-        return self.__session.query(ObjectIndex.uuid).find(ObjectIndex.uuid == uuid).one_or_none() is not None
+        return self.__session.query(ObjectInfoIndex.uuid).find(ObjectInfoIndex.uuid == uuid).one_or_none() is not None
 
     @Command(__help__=N_("Get list of defined base object types."))
     def getBaseObjectTypes(self):
@@ -670,8 +666,8 @@ class ObjectIndex(Plugin):
                     # keys with the same name
                     exprs = []
                     for v in value:
-                        if hasattr(ObjectIndex, key):
-                            exprs.append(ObjectIndex[key] == v)
+                        if hasattr(ObjectInfoIndex, key):
+                            exprs.append(ObjectInfoIndex[key] == v)
                         elif key == "extension":
                             exprs.append(ExtensionIndex.extension == v)
                         else:
@@ -680,8 +676,8 @@ class ObjectIndex(Plugin):
                     res.append(or_(*exprs))
 
                 else:
-                    if hasattr(ObjectIndex, key):
-                        res.append(ObjectIndex[key] == value)
+                    if hasattr(ObjectInfoIndex, key):
+                        res.append(ObjectInfoIndex[key] == value)
                     elif key == "extension":
                         res.append(ExtensionIndex.extension == value)
                     else:
@@ -690,7 +686,7 @@ class ObjectIndex(Plugin):
             return res
 
         # Add query information to be able to search various tables
-        args = [ObjectIndex.uuid == KeyValueIndex.uuid == ExtensionIndex.uuid]
+        args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid == ExtensionIndex.uuid]
         args += __make_filter(node)
 
         return and_(*args)
@@ -747,7 +743,7 @@ class ObjectIndex(Plugin):
 
             return _res
 
-        for o in self.__session.query(ObjectIndex).filter(*fltr):
+        for o in self.__session.query(ObjectInfoIndex).filter(*fltr):
             res.append(normalize(o, properties))
 
         return res

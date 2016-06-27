@@ -36,6 +36,7 @@ class Environment:
     log = None
     reset_requested = False
     noargs = False
+    domain = "gosa"
     __instance = None
     __db = None
 

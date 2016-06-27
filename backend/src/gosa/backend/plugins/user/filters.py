@@ -7,26 +7,19 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import Image
-import ImageOps #@UnresolvedImport
-from bson.binary import Binary
+from PIL import Image
+from PIL import ImageOps #@UnresolvedImport
 from gosa.common import Environment
 from gosa.backend.objects.filter import ElementFilter
 from gosa.backend.exceptions import ElementFilterException
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 from gosa.common.utils import N_
+from io import StringIO
 
 
 # Register the errors handled  by us
 C.register_codes(dict(
     USER_IMAGE_SIZE_MISSING=N_("Image sizes not specified")))
-
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
-
 
 class ImageProcessor(ElementFilter):
     """
@@ -44,6 +37,8 @@ class ImageProcessor(ElementFilter):
             self.db.cache.ensure_index(index)
 
     def process(self, obj, key, valDict, *sizes):
+        print("!!!!! SKIPPED image processing")
+        return
 
         # Sanity check
         if len(sizes) == 0:

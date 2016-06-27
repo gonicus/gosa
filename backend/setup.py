@@ -75,7 +75,8 @@ setup(
         'zope.interface>=3.5',
         'zope.event',
         'unidecode',
-        'pyldap'
+        'pyldap',
+        'PIL'
         ],
 
     entry_points = """
@@ -150,8 +151,8 @@ setup(
         generategecos = gosa.backend.plugins.posix.filters:GenerateGecos
         loadgecosstate = gosa.backend.plugins.posix.filters:LoadGecosState
         #xxxxx imagefilter = clacks.agent.plugins.user.filters:ImageProcessor
-        generatedn = clacks.agent.plugins.user.filters:GenerateDisplayName
-        loaddnstate = clacks.agent.plugins.user.filters:LoadDisplayNameState
+        generatedn = gosa.backend.plugins.user.filters:GenerateDisplayName
+        loaddnstate = gosa.backend.plugins.user.filters:LoadDisplayNameState
         generateids = gosa.backend.plugins.posix.filters:GenerateIDs
         datetoshadowdays = gosa.backend.plugins.posix.shadow:DatetimeToShadowDays
         shadowdaystodate = gosa.backend.plugins.posix.shadow:ShadowDaysToDatetime

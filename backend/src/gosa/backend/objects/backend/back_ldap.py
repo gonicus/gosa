@@ -31,6 +31,7 @@ C.register_codes(dict(
 
 
 class LDAP(ObjectBackend):
+    con = None
 
     def __init__(self):
         # Load LDAP handler class
@@ -48,12 +49,13 @@ class LDAP(ObjectBackend):
         self.__i_cache_ttl = {}
 
     def __del__(self):
-        self.lh.free_connection(self.con)
+        if self.con:
+            self.lh.free_connection(self.con)
 
     def load(self, uuid, info, back_attrs=None):
         keys = info.keys()
         fltr_tpl = "%s=%%s" % self.uuid_entry
-        fltr = ldap.filter.filter_format(fltr_tpl, [uuid])
+        fltr = ldap.filter.filter_format(fltr_tpl, [uuid.decode()])
 
         self.log.debug("searching with filter '%s' on base '%s'" % (fltr,
             self.lh.get_base(False)))
@@ -64,7 +66,7 @@ class LDAP(ObjectBackend):
         self.__check_res(uuid, res)
 
         # Do value conversation
-        items = dict((k, v) for k, v in res[0][1].iteritems() if k in keys)
+        items = dict((k, v) for k, v in res[0][1].items() if k in keys)
         for key in items.keys():
             cnv = getattr(self, "_convert_from_%s" % info[key].lower())
             lcnv = []
@@ -81,7 +83,7 @@ class LDAP(ObjectBackend):
         # Check for special RDN attribute
         if 'RDN' in params:
             rdns = [o.strip() for o in params['RDN'].split(",")]
-            rdn_parts = ldap.dn.str2dn(dn.encode('utf-8'), flags=ldap.DN_FORMAT_LDAPV3)[0]
+            rdn_parts = ldap.dn.str2dn(dn, flags=ldap.DN_FORMAT_LDAPV3)[0]
 
             found = False
             for rdn_a, rdn_v, dummy in rdn_parts: #@UnusedVariable
@@ -95,7 +97,7 @@ class LDAP(ObjectBackend):
         if 'filter' in params:
             custom_filter = params['filter']
 
-        ocs = [o.strip() for o in params['objectClasses'].split(",")]
+        ocs = [o.strip().encode() for o in params['objectClasses'].split(",")]
 
         # Remove cache if too old
         if dn in self.__i_cache_ttl and self.__i_cache_ttl[dn] - time.time() > 60:
@@ -106,7 +108,7 @@ class LDAP(ObjectBackend):
         fixed_rdn_filter = ""
         attr = None
         if fixed_rdn:
-            attr, value, _ = ldap.dn.str2dn(fixed_rdn.encode('utf-8'), flags=ldap.DN_FORMAT_LDAPV3)[0][0]
+            attr, value, _ = ldap.dn.str2dn(fixed_rdn, flags=ldap.DN_FORMAT_LDAPV3)[0][0]
             fixed_rdn_filter = ldap.filter.filter_format("(%s=*)", [attr])
 
         # If we just query for an objectClass, try to get the
@@ -125,7 +127,7 @@ class LDAP(ObjectBackend):
 
         fltr = "(&(objectClass=*)" + fixed_rdn_filter + custom_filter + ")"
         try:
-            res = self.con.search_s(dn.encode('utf-8'), ldap.SCOPE_BASE, fltr,
+            res = self.con.search_s(dn, ldap.SCOPE_BASE, fltr,
                     [self.uuid_entry, 'objectClass'] + ([attr] if attr else []))
         except ldap.NO_SUCH_OBJECT:
             return False
@@ -153,9 +155,9 @@ class LDAP(ObjectBackend):
     def query(self, base, scope, params, fixed_rdn=None):
         ocs = ["(objectClass=%s)" % o.strip() for o in params['objectClasses'].split(",")]
         fltr = "(&" + "".join(ocs) + (ldap.filter.filter_format("(%s)", [fixed_rdn]) if fixed_rdn else "") + ")"
-        res = self.con.search_s(base.encode('utf-8'), ldap.SCOPE_ONELEVEL, fltr,
+        res = self.con.search_s(base, ldap.SCOPE_ONELEVEL, fltr,
                 [self.uuid_entry])
-        return [unicode(x.decode('utf-8')) for x in dict(res).keys()]
+        return [x for x in dict(res).keys()]
 
     def exists(self, misc):
         if is_uuid(misc):
@@ -178,7 +180,7 @@ class LDAP(ObjectBackend):
         dn = self.uuid2dn(uuid)
 
         self.log.debug("removing entry '%s'" % dn)
-        return self.con.delete_s(dn.encode('utf-8'))
+        return self.con.delete_s(dn)
 
     def __delete_children(self, dn):
         res = self.con.search_s(dn, ldap.SCOPE_ONELEVEL, '(objectClass=*)',
@@ -205,7 +207,7 @@ class LDAP(ObjectBackend):
         for key in data.keys():
             mod_attrs.append((ldap.MOD_DELETE, key, None))
 
-        self.con.modify_s(dn.encode('utf-8'), mod_attrs)
+        self.con.modify_s(dn, mod_attrs)
 
         # Clear identify cache, else we will receive old values from self.identifyObject
         if dn in self.__i_cache_ttl:
@@ -267,7 +269,6 @@ class LDAP(ObjectBackend):
             dn = self.get_uniq_dn(rdns, base, data, FixedRDN)
             if not dn:
                 raise DNGeneratorError(C.make_error("NO_UNIQUE_DN", base=base, rdns=", ".join(rdns)))
-            dn = dn.encode('utf-8')
 
         else:
             dn = base
@@ -322,7 +323,7 @@ class LDAP(ObjectBackend):
 
         # Did we change one of the RDN attributes?
         new_rdn_parts = []
-        rdns = ldap.dn.str2dn(dn.encode('utf-8'), flags=ldap.DN_FORMAT_LDAPV3)
+        rdns = ldap.dn.str2dn(dn, flags=ldap.DN_FORMAT_LDAPV3)
         rdn_parts = rdns[0]
 
         for attr, value, idx in rdn_parts:
@@ -337,11 +338,11 @@ class LDAP(ObjectBackend):
 
         if tdn != dn:
             self.log.debug("entry needs a rename from '%s' to '%s'" % (dn, tdn))
-            self.con.rename_s(dn.encode('utf-8'), ldap.dn.dn2str([new_rdn_parts]))
+            self.con.rename_s(dn, ldap.dn.dn2str([new_rdn_parts]))
 
         # Write back...
         self.log.debug("saving entry '%s'" % tdn)
-        return self.con.modify_s(tdn.encode('utf-8'), mod_attrs)
+        return self.con.modify_s(tdn, mod_attrs)
 
     def uuid2dn(self, uuid):
         # Get DN of entry
@@ -355,11 +356,11 @@ class LDAP(ObjectBackend):
 
         self.__check_res(uuid, res)
 
-        return res[0][0].decode('utf-8')
+        return res[0][0]
 
     def dn2uuid(self, dn):
         try:
-            res = self.con.search_s(dn.encode('utf-8'), ldap.SCOPE_BASE, '(objectClass=*)',
+            res = self.con.search_s(dn, ldap.SCOPE_BASE, '(objectClass=*)',
                     [self.uuid_entry])
         except:
             return False
@@ -370,7 +371,7 @@ class LDAP(ObjectBackend):
         return res[0][1][self.uuid_entry][0]
 
     def get_timestamps(self, dn):
-        res = self.con.search_s(dn.encode('utf-8'), ldap.SCOPE_BASE,
+        res = self.con.search_s(dn, ldap.SCOPE_BASE,
                 '(objectClass=*)', [self.create_ts_entry, self.modify_ts_entry])
         cts = self._convert_from_timestamp(res[0][1][self.create_ts_entry][0])
         mts = self._convert_from_timestamp(res[0][1][self.modify_ts_entry][0])
@@ -381,7 +382,7 @@ class LDAP(ObjectBackend):
 
         for dn in self.build_dn_list(rdns, base, data, FixedRDN):
             try:
-                self.con.search_s(dn.encode('utf-8'), ldap.SCOPE_BASE, '(objectClass=*)',
+                self.con.search_s(dn, ldap.SCOPE_BASE, '(objectClass=*)',
                     [self.uuid_entry])
 
             except ldap.NO_SUCH_OBJECT:
@@ -476,10 +477,10 @@ class LDAP(ObjectBackend):
         return int(value)
 
     def _convert_from_timestamp(self, value):
-        return datetime.datetime.strptime(value, "%Y%m%d%H%M%SZ")
+        return datetime.datetime.strptime(value.decode(), "%Y%m%d%H%M%SZ")
 
     def _convert_from_date(self, value):
-        ts = time.mktime(time.strptime(value, "%Y%m%d%H%M%SZ"))
+        ts = time.mktime(time.strptime(value.decode(), "%Y%m%d%H%M%SZ"))
         return datetime.date.fromtimestamp(ts)
 
     def _convert_from_binary(self, value):
@@ -492,7 +493,7 @@ class LDAP(ObjectBackend):
         return str(value)
 
     def _convert_to_unicodestring(self, value):
-        return str(value.encode('utf-8'))
+        return str(value)
 
     def _convert_to_integer(self, value):
         return str(value)
