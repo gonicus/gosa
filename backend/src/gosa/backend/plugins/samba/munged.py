@@ -229,7 +229,6 @@ class SambaMungedDial(object):
                 else:
                     value += '\0'
                     value = value.encode('utf-16')[2:]
-                print("String: %s" % value)
             elif name in SambaMungedDial.timeParams:
 
                 # Convert numerical value back to into mungedDial style.
@@ -273,7 +272,7 @@ class SambaMungedDial(object):
         result += chr((paramLen & 0x0FF00) >> 8).encode("utf-8")
 
         # String parameters have additional trailing bytes
-        valueLen = len(value)
+        valueLen = len(value) if not name in SambaMungedDial.stringParams else len(value) * 2
         result += chr(valueLen & 0x0FF).encode("utf-8")
         result += chr((valueLen & 0x0FF00) >> 8).encode("utf-8")
 
@@ -283,7 +282,6 @@ class SambaMungedDial(object):
 
         # Append a trailing '00' to string parameters
         if isString and len(value):
-            print(value)
             result += hexlify(value)
         else:
             if type(value) is str:
@@ -332,7 +330,6 @@ class SambaMungedDial(object):
 
             # If string parameter, convert
             if ctxParmName in SambaMungedDial.stringParams:
-                print("%s: %s" % (ctxParmName, ctxParm))
                 ctxParm = unhexlify(ctxParm)
                 if ctxParm[len(ctxParm)-1] == 0:
                     ctxParm = ctxParm[:-1]
