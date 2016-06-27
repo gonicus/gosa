@@ -273,7 +273,7 @@ class SambaMungedDial(object):
         result += chr((paramLen & 0x0FF00) >> 8).encode("utf-8")
 
         # String parameters have additional trailing bytes
-        valueLen = len(value)
+        valueLen = len(value) if not name in SambaMungedDial.stringParams else len(value) * 2
         result += chr(valueLen & 0x0FF).encode("utf-8")
         result += chr((valueLen & 0x0FF00) >> 8).encode("utf-8")
 

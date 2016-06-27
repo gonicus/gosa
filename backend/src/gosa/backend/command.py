@@ -169,7 +169,7 @@ class CommandRegistry(Plugin):
         """
 
         # We pass 'self' as user, to skip acls checks.
-        return self.dispatch(self, None, func, *arg, **larg)
+        return self.dispatch(self, func, *arg, **larg)
 
     def dispatch(self, user, func, *arg, **larg):
         """

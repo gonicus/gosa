@@ -55,7 +55,7 @@ class LDAP(ObjectBackend):
     def load(self, uuid, info, back_attrs=None):
         keys = info.keys()
         fltr_tpl = "%s=%%s" % self.uuid_entry
-        fltr = ldap.filter.filter_format(fltr_tpl, [uuid.decode()])
+        fltr = ldap.filter.filter_format(fltr_tpl, [uuid])
 
         self.log.debug("searching with filter '%s' on base '%s'" % (fltr,
             self.lh.get_base(False)))
@@ -368,7 +368,7 @@ class LDAP(ObjectBackend):
         # Check if res is valid
         self.__check_res(dn, res)
 
-        return res[0][1][self.uuid_entry][0]
+        return res[0][1][self.uuid_entry][0].decode()
 
     def get_timestamps(self, dn):
         res = self.con.search_s(dn, ldap.SCOPE_BASE,

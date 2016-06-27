@@ -68,7 +68,6 @@ setup(
     tests_require = [
         'pytest',
         'pytest-cov',
-        'python-coveralls'
     ],
     install_requires = [
         'tornado',
@@ -76,7 +75,7 @@ setup(
         'zope.event',
         'unidecode',
         'pyldap',
-        'PIL'
+        'Pillow',
         ],
 
     entry_points = """
@@ -95,8 +94,8 @@ setup(
         httpd = gosa.backend.components.httpd:HTTPService
         command = gosa.backend.command:CommandRegistry
         #xxxxxxx jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
-        #xxxxxxx guimethods = clacks.agent.plugins.gosa.methods:GuiMethods
-        #xxxxxxx sambaguimethods = clacks.agent.plugins.samba.domain:SambaGuiMethods
+        #guimethods = gosa.backend.plugins.gui.methods:GuiMethods
+        #xxxxxxx sambaguimethods = gosa.backend.plugins.samba.domain:SambaGuiMethods
         transliterate = gosa.backend.plugins.misc.transliterate:Transliterate
         locales = gosa.backend.plugins.misc.locales:Locales
         gravatar = gosa.backend.plugins.misc.gravatar:Gravatar
