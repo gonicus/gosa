@@ -35,7 +35,8 @@ from gosa.backend.objects import ObjectFactory, ObjectProxy, ObjectChanged
 from gosa.backend.exceptions import ProxyException, ObjectException, FilterException, IndexException
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, DateTime, or_
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, Integer, Sequence, DateTime, ForeignKey, or_, and_
 
 Base = declarative_base()
 
@@ -59,19 +60,20 @@ class Schema(Base):
 class KeyValueIndex(Base):
     __tablename__ = 'kv-index'
 
-    uuid = Column(String(36), primary_key=True)
+    id = Column(Integer, Sequence('kv_id_seq'), primary_key=True, nullable=False)
+    uuid = Column(String(36), ForeignKey('obj-index.uuid'))
     key = Column(String(64))
     value = Column(String)
 
     def __repr__(self):
-       return "<KeyValueIndex(uuid='%s', key='%s', value='%s')>" % (
-                            self.uuid, self.key, self.value)
+       return "<KeyValueIndex(uuid='%s', key='%s', value='%s')>" % (self.uuid, self.key, self.value)
 
 
 class ExtensionIndex(Base):
     __tablename__ = 'ext-index'
 
-    uuid = Column(String(36), primary_key=True)
+    id = Column(Integer, Sequence('ei_id_seq'), primary_key=True, nullable=False)
+    uuid = Column(String(36), ForeignKey('obj-index.uuid'))
     extension = Column(String(64))
 
     def __repr__(self):
@@ -88,14 +90,16 @@ class ObjectIndex(Base):
     adjusted_parent_dn = Column(String)
     type = Column(String(64))
     last_modified = Column(DateTime)
+    properties = relationship("KeyValueIndex", order_by=KeyValueIndex.key)
+    extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension)
 
     def __repr__(self):
        return "<ObjectIndex(uuid='%s', dn='%s', parent_dn='%s', adjusted_parent_dn'%s', type='%s', last_modified='%s')>" % (
                             self.uuid, self.dn, self.parent_dn, self.adjusted_parent_dn, self.type, self.last_modified)
 
-
 class IndexScanFinished():
     pass
+
 
 @implementer(IInterfaceHandler)
 class ObjectIndex(Plugin):
@@ -517,8 +521,13 @@ class ObjectIndex(Plugin):
             if key.startswith("_") or key == "dn":
                 continue
 
-            kvi = KeyValueIndex(uuid=data._uuid, key=key, value=value)
-            self.__session.add(kvi)
+            if isinstance(value, list):
+                for v in value:
+                    kvi = KeyValueIndex(uuid=data._uuid, key=key, value=v)
+                    self.__session.add(kvi)
+            else:
+                kvi = KeyValueIndex(uuid=data._uuid, key=key, value=value)
+                self.__session.add(kvi)
 
         self.__session.commit()
 
@@ -545,8 +554,6 @@ class ObjectIndex(Plugin):
         self.remove_by_uuid(obj.uuid)
         self.__save(current)
 
-# transition pointer ---------------------------------------------------------------------------------------------------
-
         # Has the entry been moved?
         if current['dn'] != old_dn:
 
@@ -563,10 +570,14 @@ class ObjectIndex(Plugin):
 
                 n_dn = o_dn[:-len(old_dn)] + current['dn']
                 n_parent = o_parent[:-len(old_dn)] + current['dn']
-                n_adjusted_parent = o_adjusted_parent[:-len(old_adjusted_dn)] + current.adjusted_parent_dn
+                n_adjusted_parent = o_adjusted_parent[:-len(o_adjusted_parent)] + current.adjusted_parent_dn
 
-                self.db.index.update({'_uuid': o_uuid}, {
-                        '$set': {'dn': n_dn, '_parent_dn': n_parent}})
+                oi = self.__session.query(ObjectIndex).filter(ObjectIndex.uuid == o_uuid).one()
+                oi.dn = n_dn
+                oi.parent_dn = n_parent
+                oi.adjusted_parent_dn = n_adjusted_parent
+
+                self.__session.commit()
 
     @Command(__help__=N_("Check if an object with the given UUID exists."))
     def exists(self, uuid):
@@ -582,7 +593,7 @@ class ObjectIndex(Plugin):
 
         ``Return``: True/False
         """
-        return self.db.index.find_one({'_uuid': uuid}, {'_uuid': 1}) is not None
+        return self.__session.query(ObjectIndex.uuid).find(ObjectIndex.uuid == uuid).one_or_none() is not None
 
     @Command(__help__=N_("Get list of defined base object types."))
     def getBaseObjectTypes(self):
@@ -614,7 +625,7 @@ class ObjectIndex(Plugin):
         # Always return dn and _type - we need it for ACL control
         if isinstance(conditions, dict):
             conditions['dn'] = 1
-            conditions['_type'] = 1
+            conditions['type'] = 1
 
         else:
             conditions = None
@@ -628,37 +639,71 @@ class ObjectIndex(Plugin):
             # Filter out what the current use is not allowed to see
             item = self.__filter_entry(user, item)
             if item and item['dn'] is not None:
-                del item['_id']
-
-                # Convert binary (bson) to Binary
-                for key in item.keys():
-                    if isinstance(item[key], list):
-
-                        n = []
-                        for v in item[key]:
-                            if isinstance(v, Binary):
-                                v = CBinary(v)
-
-                            n.append(v)
-
-                        item[key] = n
-
-                    elif isinstance(item[key], Binary):
-                        item[key] = CBinary(item[key])
-
                 res.append(item)
 
         return res
 
-    def search(self, query, conditions):
+    def _make_filter(self, node):
+
+        def __make_filter(n):
+            res = []
+
+            for key, value in n.items():
+                if isinstance(value, dict):
+                    meth = None
+
+                    # We support and_, or_ and not_ as a key for hash values
+                    if key == "and_":
+                        meth = and_
+                    elif key == "or_":
+                        meth = or_
+                    elif key == "not_":
+                        meth = not_
+                    else:
+                        # TODO: do it the gosa way...
+                        raise Exception("operation not supported")
+
+                    res.append(meth(*__make_filter(value)))
+
+                elif isinstance(value, list):
+                    # implicit or_ in case of lists - hashes cannot have multiple
+                    # keys with the same name
+                    exprs = []
+                    for v in value:
+                        if hasattr(ObjectIndex, key):
+                            exprs.append(ObjectIndex[key] == v)
+                        elif key == "extension":
+                            exprs.append(ExtensionIndex.extension == v)
+                        else:
+                            exprs.append(and_(KeyValueIndex.key == key, KeyValueIndex.value == v))
+
+                    res.append(or_(*exprs))
+
+                else:
+                    if hasattr(ObjectIndex, key):
+                        res.append(ObjectIndex[key] == value)
+                    elif key == "extension":
+                        res.append(ExtensionIndex.extension == value)
+                    else:
+                        res.append(and_(KeyValueIndex.key == key, KeyValueIndex.value == value))
+
+            return res
+
+        # Add query information to be able to search various tables
+        args = [ObjectIndex.uuid == KeyValueIndex.uuid == ExtensionIndex.uuid]
+        args += __make_filter(node)
+
+        return and_(*args)
+
+    def search(self, query, properties):
         """
-        Perform a raw mongodb find call.
+        Perform an index search
 
         ========== ==================
         Parameter  Description
         ========== ==================
         query      Query hash
-        conditions Conditions hash
+        properties Conditions hash
         ========== ==================
 
         For more information on the query format, consult the mongodb documentation.
@@ -669,7 +714,43 @@ class ObjectIndex(Plugin):
         if GlobalLock.exists("scan_index"):
             raise FilterException(C.make_error('INDEXING', "base"))
 
-        return self.db.index.find(query, conditions)
+        res = []
+        fltr = self._make_filter(query)
+
+        def normalize(data, resultset=None):
+            _res = {
+                "_uuid": data.uuid,
+                "dn": data.dn,
+                "_type": data.type,
+                "_parent_dn": data.parent_dn,
+                "_adjusted_parent_dn": data.adjusted_parent_dn,
+                "_last_changed": data.last_modified,
+                "_extensions": []
+            }
+
+            # Add extension list
+            for extension in data.extensions:
+                _res["_extensions"].append(extension.extension)
+
+            # Add indexed properties
+            for kv in data.properties:
+                if kv.key in _res:
+                    _res[kv.key].append(kv.value)
+
+                else:
+                    _res[kv.key] = [kv.value]
+
+            # Clean the result set?
+            if resultset:
+                for key in [_key for _key in _res if not _key in resultset.keys()]:
+                    _res.pop(key, None)
+
+            return _res
+
+        for o in self.__session.query(ObjectIndex).filter(*fltr):
+            res.append(normalize(o, properties))
+
+        return res
 
     def __filter_entry(self, user, entry):
         """
@@ -692,7 +773,7 @@ class ObjectIndex(Plugin):
                 res[attr] = entry[attr]
                 continue
 
-           if self.__has_access_to(user, entry['dn'], entry['_type'], attr):
+           if self.__has_access_to(user, entry['dn'], entry['type'], attr):
                 res[attr] = entry[attr]
 
         return res
@@ -701,9 +782,11 @@ class ObjectIndex(Plugin):
         """
         Checks whether the given user has access to the given object/attribute or not.
         """
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if user:
-            topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
-            return aclresolver.check(user, topic, "r", base=object_dn)
-        else:
-            return True
+        print("ACL checks are disabled!")
+        return True
+        #aclresolver = PluginRegistry.getInstance("ACLResolver")
+        #if user:
+        #    topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
+        #    return aclresolver.check(user, topic, "r", base=object_dn)
+        #else:
+        #    return True
