@@ -10,8 +10,6 @@
 import unittest
 from gosa.backend.plugins.misc.filter_validators import *
 
-
-#TODO: write tests for other filters when ObjectIndex is working again
 class FilterValidatorTests(unittest.TestCase):
 
     def test_IsValidHostName(self):
