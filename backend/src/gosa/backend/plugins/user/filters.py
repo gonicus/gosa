@@ -7,6 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
+import os
 from PIL import Image
 from PIL import ImageOps #@UnresolvedImport
 from gosa.common import Environment
@@ -15,11 +16,41 @@ from gosa.backend.exceptions import ElementFilterException
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.utils import N_
 from io import StringIO
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, Integer, DateTime, and_, Sequence, ForeignKey
 
+Base = declarative_base()
 
 # Register the errors handled  by us
 C.register_codes(dict(
+    USER_IMAGE_CACHE_BROKEN=N_("Invalid image cache"),
     USER_IMAGE_SIZE_MISSING=N_("Image sizes not specified")))
+
+
+class ImageSize(Base):
+    __tablename__ = 'image-sizes'
+
+    id = Column(Integer, Sequence('size_id_seq'), primary_key=True, nullable=False)
+    uuid = Column(String(36), ForeignKey('image-index.uuid'))
+    size = Column(Integer)
+    path = Column(String)
+
+    def __repr__(self):
+       return "<ImageSize(uuid='%s', path='%s', size='%d')>" % (self.uuid, self.path, self.size)
+
+
+class ImageIndex(Base):
+    __tablename__ = 'image-index'
+
+    uuid = Column(String(36), primary_key=True)
+    attribute = Column(String(64))
+    modified = Column(DateTime)
+    images = relationship("ImageSize", order_by=ImageSize.size)
+
+    def __repr__(self):
+       return "<ImageIndex(uuid='%s', attribute='%s')>" % (self.uuid, self.attribute)
+
 
 class ImageProcessor(ElementFilter):
     """
@@ -28,17 +59,11 @@ class ImageProcessor(ElementFilter):
     def __init__(self, obj):
         super(ImageProcessor, self).__init__(obj)
 
-        # Get mongo cache collection
         env = Environment.getInstance()
-        self.db = env.get_mongo_db('clacks')
-
-        # Ensure basic index for the objects
-        for index in ['uuid', 'attribute', 'modified']:
-            self.db.cache.ensure_index(index)
+        self.__session = env.getDatabaseSession("backend-database")
+        self.__path = env.config.get("user.image-path", "/var/lib/gosa/images")
 
     def process(self, obj, key, valDict, *sizes):
-        print("!!!!! SKIPPED image processing")
-        return
 
         # Sanity check
         if len(sizes) == 0:
@@ -48,27 +73,21 @@ class ImageProcessor(ElementFilter):
         if key in valDict and valDict[key]['value']:
 
             # Check if a cache entry exists...
-            entry = self.db.cache.find_one({'uuid': obj.uuid, 'attribute': key}, {'modified': 1})
+            entry = self.__session.query(ImageIndex.modified).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
             if entry:
 
                 # Nothing to do if it's unmodified
-                if obj.modifyTimestamp == entry['modified']:
+                if obj.modifyTimestamp == entry.modified:
                     return key, valDict
 
             # Create new cache entry
             else:
-                c_entry = {
-                    'uuid': obj.uuid,
-                    'attribute': key
-                    }
-                self.db.cache.save(c_entry)
+                entry = ImageIndex(uuid=obj.uuid, attribute=key)
+                self.__session.add(entry)
 
             # Convert all images to all requested sizes
-            data = {
-                    'uuid': obj.uuid,
-                    'attribute': key,
-                    'modified': obj.modifyTimestamp
-                    }
+            entry.modified = obj.modifyTimestamp
+
             for idx in range(0, len(valDict[key]['value'])):
                 image = StringIO(valDict[key]['value'][idx].get())
                 try:
@@ -76,20 +95,28 @@ class ImageProcessor(ElementFilter):
                 except IOError:
                     continue
 
+                # Check for target directory
+                wd = os.path.join(self.__path, obj.uuid)
+                if os.path.exists(wd) and not os.path.isdir(wd):
+                    raise ElementFilterException(C.make_error("USER_IMAGE_CACHE_BROKEN"))
+                if not os.path.exists(wd):
+                    os.makedirs(wd)
+
                 for size in sizes:
+                    wds = os.path.join(wd, size + ".jpg")
                     s = int(size)
                     tmp = ImageOps.fit(im, (s, s), Image.ANTIALIAS) #@UndefinedVariable
                     tgt = StringIO()
-                    tmp.save(tgt, "JPEG")
+                    tmp.save(wds, "JPEG")
 
-                    # Collect all images in [size][] lists
-                    if not size in data:
-                        data[size] = []
+                    # Save size reference if not there yet
+                    se = self.__session.query(ImageSize.size).filter(and_(ImageSize.uuid == obj.uuid, ImageSize.size == s)).one_or_none()
+                    if not se:
+                        se = ImageSize(uuid=obj.uuid, size=s, path=wds)
+                        self.__session.add(se)
 
-                    data[size].append(Binary(tgt.getvalue()))
-
-            # Update cache
-            self.db.cache.update({'uuid': obj.uuid, 'attribute': key}, data)
+            # Flush
+            self.__session.commit()
 
         return key, valDict
 

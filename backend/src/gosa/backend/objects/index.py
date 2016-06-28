@@ -25,7 +25,6 @@ import hashlib
 import time
 import itertools
 from zope.interface import implementer
-from gosa.common.components.jsonrpc_utils import Binary as CBinary
 from gosa.common import Environment
 from gosa.common.utils import N_
 from gosa.common.handler import IInterfaceHandler
@@ -305,16 +304,17 @@ class ObjectIndex(Plugin):
                 self.insert(obj)
 
     def _get_object(self, dn):
-        try:
-            obj = ObjectProxy(dn)
+        obj = ObjectProxy(dn)
+        #try:
+        #    obj = ObjectProxy(dn)
 
-        except ProxyException as e:
-            self.log.warning("not found %s: %s" % (dn, str(e)))
-            obj = None
+        #except ProxyException as e:
+        #    self.log.warning("not found %s: %s" % (dn, str(e)))
+        #    obj = None
 
-        except ObjectException as e:
-            self.log.warning("not indexing %s: %s" % (dn, str(e)))
-            obj = None
+        #except ObjectException as e:
+        #    self.log.warning("not indexing %s: %s" % (dn, str(e)))
+        #    obj = None
 
         return obj
 
@@ -368,16 +368,17 @@ class ObjectIndex(Plugin):
             for o in sorted(res.keys(), key=len):
 
                 # Get object
-                try:
-                    obj = ObjectProxy(o)
+                obj = ObjectProxy(o)
+                #try:
+                #    obj = ObjectProxy(o)
 
-                except ProxyException as e:
-                    self.log.warning("not indexing %s: %s" % (o, str(e)))
-                    continue
+                #except ProxyException as e:
+                #    self.log.warning("not indexing %s: %s" % (o, str(e)))
+                #    continue
 
-                except ObjectException as e:
-                    self.log.warning("not indexing %s: %s" % (o, str(e)))
-                    continue
+                #except ObjectException as e:
+                #    self.log.warning("not indexing %s: %s" % (o, str(e)))
+                #    continue
 
                 # Check for index entry
                 last_modified = self.__session.query(ObjectInfoIndex.last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
@@ -400,7 +401,8 @@ class ObjectIndex(Plugin):
                 del obj
 
             # Remove entries that are in the index, but not in any other backends
-            for uuid in self.__session.query(ObjectInfoIndex.uuid):
+            for uuid in self.__session.query(ObjectInfoIndex.uuid).all():
+                uuid = uuid[0]
                 if uuid not in backend_objects:
                     self.remove_by_uuid(uuid)
 
@@ -591,7 +593,7 @@ class ObjectIndex(Plugin):
 
         ``Return``: True/False
         """
-        return self.__session.query(ObjectInfoIndex.uuid).find(ObjectInfoIndex.uuid == uuid).one_or_none() is not None
+        return self.__session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.uuid == uuid).one_or_none() is not None
 
     @Command(__help__=N_("Get list of defined base object types."))
     def getBaseObjectTypes(self):
@@ -745,10 +747,7 @@ class ObjectIndex(Plugin):
             raise FilterException(C.make_error('INDEXING', "base"))
 
         res = []
-        print("search -----------")
-        print(query)
         fltr = self._make_filter(query)
-        print(fltr)
 
         def normalize(data, resultset=None):
             _res = {
@@ -783,8 +782,6 @@ class ObjectIndex(Plugin):
         for o in self.__session.query(ObjectInfoIndex).filter(*fltr).all():
             res.append(normalize(o, properties))
 
-        print("result ----------------")
-        print(res)
         return res
 
     def __filter_entry(self, user, entry):

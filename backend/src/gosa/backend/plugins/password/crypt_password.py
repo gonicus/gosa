@@ -48,7 +48,7 @@ class PasswordMethodCrypt(PasswordMethod):
         """
         See PasswordMethod Interface for details
         """
-        if re.match("^\{%s\}" % self.hash_name, password_hash):
+        if re.match("^\{%s\}" % self.hash_name, password_hash.decode()):
             return True
         return False
 
@@ -59,7 +59,7 @@ class PasswordMethodCrypt(PasswordMethod):
         if not self.is_responsible_for_password_hash(password_hash):
             return None
 
-        password_hash = re.sub('^{[^}]+}!?', '', password_hash)
+        password_hash = re.sub('^{[^}]+}!?', '', password_hash.decode())
         if re.match(r'^[a-zA-Z0-9.\\/][a-zA-Z0-9.\\/]', password_hash):
             return crypt.METHOD_CRYPT
 

@@ -30,6 +30,34 @@
         </CommandParameters>
       </Method>
       <Method>
+        <Name>notify</Name>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>notify_title</Name>
+            <Type>UnicodeString</Type>
+            <Default></Default>
+          </MethodParameter>
+          <MethodParameter>
+            <Name>notify_message</Name>
+            <Type>UnicodeString</Type>
+            <Required>true</Required>
+          </MethodParameter>
+          <MethodParameter>
+            <Name>notify_duration</Name>
+            <Type>Integer</Type>
+            <Required>false</Required>
+            <Default>60</Default>
+          </MethodParameter>
+        </MethodParameters>
+        <Command>notifyUser</Command>
+        <CommandParameters>
+          <Value>uid</Value>
+          <Value>notify_title</Value>
+          <Value>notify_message</Value>
+          <Value>notify_duration</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
         <Name>changePassword</Name>
         <MethodParameters>
           <MethodParameter>

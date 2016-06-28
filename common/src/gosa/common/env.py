@@ -84,7 +84,7 @@ class Environment:
         if not index in self.__db:
             if not self.config.get(index):
                 raise Exception("No database connection defined for '%s'!" % index)
-            self.__db[index] = create_engine(self.config.get(index), echo=True)
+            self.__db[index] = create_engine(self.config.get(index))
             #TODO: configure engine
             #self.__db[index] = create_engine(self.config.get(index),
             #        pool_size=40, pool_recycle=120, echo=True)

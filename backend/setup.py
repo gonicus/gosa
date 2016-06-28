@@ -97,15 +97,16 @@ setup(
         command = gosa.backend.command:CommandRegistry
         #xxxxxxx jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
         rpc = gosa.backend.plugins.rpc.methods:RPCMethods
-        #xxxxxxx sambaguimethods = gosa.backend.plugins.samba.domain:SambaGuiMethods
+        sambaguimethods = gosa.backend.plugins.samba.domain:SambaGuiMethods
         transliterate = gosa.backend.plugins.misc.transliterate:Transliterate
         locales = gosa.backend.plugins.misc.locales:Locales
         gravatar = gosa.backend.plugins.misc.gravatar:Gravatar
         shells = gosa.backend.plugins.posix.shells:ShellSupport
-        #xxxxxxx password = gosa.backend.plugins.password.manager:PasswordManager
+        password = gosa.backend.plugins.password.manager:PasswordManager
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
+        object_handler = gosa.backend.objects.backend.back_object:ObjectHandler
         null = gosa.backend.objects.backend.back_null:NULL
         json = gosa.backend.objects.backend.back_json:JSON
 
@@ -151,7 +152,7 @@ setup(
         posixgetnextid = gosa.backend.plugins.posix.filters:GetNextID
         generategecos = gosa.backend.plugins.posix.filters:GenerateGecos
         loadgecosstate = gosa.backend.plugins.posix.filters:LoadGecosState
-        #xxxxx imagefilter = clacks.agent.plugins.user.filters:ImageProcessor
+        imagefilter = gosa.backend.plugins.user.filters:ImageProcessor
         generatedn = gosa.backend.plugins.user.filters:GenerateDisplayName
         loaddnstate = gosa.backend.plugins.user.filters:LoadDisplayNameState
         generateids = gosa.backend.plugins.posix.filters:GenerateIDs

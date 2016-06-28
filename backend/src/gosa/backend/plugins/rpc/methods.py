@@ -294,7 +294,7 @@ class RPCMethods(Plugin):
         return ["%s:" % c for c in self.letterizer('C', 'Z')]
 
     def letterizer(self, start='A', stop='Z'):
-        for number in xrange(ord(start), ord(stop) + 1):
+        for number in range(ord(start), ord(stop) + 1):
             yield chr(number)
 
     #@Command(needsUser=True, __help__=N_("Filter for indexed attributes and return the matches."))

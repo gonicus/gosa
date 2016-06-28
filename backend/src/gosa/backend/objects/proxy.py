@@ -327,8 +327,6 @@ class ObjectProxy(object):
                 break
 
             # Fetch object type for pdn
-            print("REMOVEME")
-            foo = index.search({"dn": "%"}, {'dn': 1})
             ptype = index.search({"dn": pdn}, {'_type': 1})[0]['_type']
             schema = self.__factory.getXMLSchema(ptype)
             if not ("StructuralInvisible" in schema.__dict__ and schema.StructuralInvisible == True):
@@ -879,7 +877,7 @@ class ObjectProxy(object):
             # Use the object-type conversion method to get valid item string-representations.
             prop_value = props[propname]['value']
             if props[propname]['type'] == "Binary":
-                res[propname] = map(lambda x: Binary(str(x.get())), prop_value)
+                res[propname] = list(map(lambda x: Binary(str(x.get())), prop_value))
 
             # Make remaining values unicode
             else:

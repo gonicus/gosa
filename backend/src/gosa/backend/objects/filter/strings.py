@@ -100,9 +100,9 @@ class ConcatString(ElementFilter):
     def process(self, obj, key, valDict, appstr, position):
         if type(valDict[key]['value'] is not None):
             if position == "right":
-                new_val = map(lambda x: x + appstr, valDict[key]['value'])
+                new_val = list(map(lambda x: x + appstr, valDict[key]['value']))
             else:
-                new_val = map(lambda x: appstr + x, valDict[key]['value'])
+                new_val = list(map(lambda x: appstr + x, valDict[key]['value']))
             valDict[key]['value'] = new_val
         return key, valDict
 
@@ -134,7 +134,7 @@ class Replace(ElementFilter):
 
     def process(self, obj, key, valDict, regex, replacement):
         if type(valDict[key]['value'] is not None):
-            valDict[key]['value'] = map(lambda x: re.sub(regex, str(replacement), x), valDict[key]['value'])
+            valDict[key]['value'] = list(map(lambda x: re.sub(regex, str(replacement), x), valDict[key]['value']))
         return key, valDict
 
 
@@ -163,7 +163,7 @@ class DateToString(ElementFilter):
 
     def process(self, obj, key, valDict, fmt="%Y%m%d%H%M%SZ"):
         if type(valDict[key]['value'] is not None):
-            valDict[key]['value'] = map(lambda x: x.strftime(fmt), valDict[key]['value'])
+            valDict[key]['value'] = list(map(lambda x: x.strftime(fmt), valDict[key]['value']))
         return key, valDict
 
 
@@ -215,7 +215,7 @@ class StringToDate(ElementFilter):
 
     def process(self, obj, key, valDict, fmt="%Y%m%d%H%M%SZ"):
         if type(valDict[key]['value'] is not None):
-            valDict[key]['value'] = map(lambda x: datetime.datetime.strptime(x, fmt).date(), valDict[key]['value'])
+            valDict[key]['value'] = list(map(lambda x: datetime.datetime.strptime(x, fmt).date(), valDict[key]['value']))
         return key, valDict
 
 
@@ -244,5 +244,5 @@ class StringToTime(ElementFilter):
 
     def process(self, obj, key, valDict, fmt="%Y%m%d%H%M%SZ"):
         if type(valDict[key]['value'] is not None):
-            valDict[key]['value'] = map(lambda x: datetime.datetime.strptime(x, fmt), valDict[key]['value'])
+            valDict[key]['value'] = list(map(lambda x: datetime.datetime.strptime(x, fmt), valDict[key]['value']))
         return key, valDict

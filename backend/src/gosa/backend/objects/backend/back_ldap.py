@@ -468,10 +468,10 @@ class LDAP(ObjectBackend):
         return value == "TRUE"
 
     def _convert_from_string(self, value):
-        return str(value)
+        return value.decode('ascii')
 
     def _convert_from_unicodestring(self, value):
-        return value.decode('utf-8')
+        return value
 
     def _convert_from_integer(self, value):
         return int(value)

@@ -123,7 +123,7 @@ class IntegerToDatetime(ElementFilter):
         super(IntegerToDatetime, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        valDict[key]['value'] = map(lambda x: datetime.datetime.fromtimestamp(x), valDict[key]['value'])
+        valDict[key]['value'] = list(map(lambda x: datetime.datetime.fromtimestamp(x), valDict[key]['value']))
         valDict[key]['backend_type'] = 'Timestamp'
         return key, valDict
 
@@ -145,7 +145,7 @@ class DatetimeToInteger(ElementFilter):
         super(DatetimeToInteger, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        valDict[key]['value'] = map(lambda x: int(time.mktime(x.timetuple())), valDict[key]['value'])
+        valDict[key]['value'] = list(map(lambda x: int(time.mktime(x.timetuple())), valDict[key]['value']))
         valDict[key]['backend_type'] = 'Integer'
         return key, valDict
 
@@ -168,7 +168,7 @@ class StringToDatetime(ElementFilter):
         super(StringToDatetime, self).__init__(obj)
 
     def process(self, obj, key, valDict, fmt):
-        valDict[key]['value'] = map(lambda x: datetime.datetime.strptime(x, fmt), valDict[key]['value'])
+        valDict[key]['value'] = list(map(lambda x: datetime.datetime.strptime(x, fmt), valDict[key]['value']))
         valDict[key]['backend_type'] = 'Timestamp'
         return key, valDict
 
@@ -191,6 +191,6 @@ class DatetimeToString(ElementFilter):
         super(DatetimeToString, self).__init__(obj)
 
     def process(self, obj, key, valDict, fmt):
-        valDict[key]['value'] = map(lambda x: x.strftime(fmt), valDict[key]['value'])
+        valDict[key]['value'] = list(map(lambda x: x.strftime(fmt), valDict[key]['value']))
         valDict[key]['backend_type'] = 'String'
         return key, valDict
