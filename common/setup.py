@@ -28,6 +28,7 @@ common_install_requires = [
     'pyOpenSSL',
     'sqlalchemy',
     'lxml',
+    'cryptography>=1.3'
     ],
 
 if platform.system() == "Windows":
