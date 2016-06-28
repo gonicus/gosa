@@ -8,13 +8,17 @@ port = 8000
 sslpemfile = /etc/gosa/host.pem
 
 [ldap]
-url = ldap:///dc=example,dc=net
+url = ldap://127.0.0.1/dc=example,dc=net
 bind-dn = cn=ldapadmin,dc=example,dc=net
 bind-secret = secret
 pool-size = 10
 
 [backend-database]
 database = sqlite:///:memory:
+
+[backend-json]
+database-file = /tmp/gosa.json
+
 
 ##############################################################################
 #                            Logger configuration                            #

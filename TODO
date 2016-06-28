@@ -19,3 +19,6 @@
 
 # gosa.backend.plugins.samba.domain
 - Benötigt ACLs, ObjectIndex
+
+# gosa.backend.plugins.user.filter
+- ImageProcessor fixed + testen

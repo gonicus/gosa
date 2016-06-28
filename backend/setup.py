@@ -68,6 +68,7 @@ setup(
     tests_require = [
         'pytest',
         'pytest-cov',
+        'python-coveralls'
     ],
     install_requires = [
         'tornado',
@@ -76,6 +77,7 @@ setup(
         'unidecode',
         'pyldap',
         'Pillow',
+        'passlib'
         ],
 
     entry_points = """
