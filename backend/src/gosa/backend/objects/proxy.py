@@ -327,6 +327,8 @@ class ObjectProxy(object):
                 break
 
             # Fetch object type for pdn
+            print("REMOVEME")
+            foo = index.search({"dn": "%"}, {'dn': 1})
             ptype = index.search({"dn": pdn}, {'_type': 1})[0]['_type']
             schema = self.__factory.getXMLSchema(ptype)
             if not ("StructuralInvisible" in schema.__dict__ and schema.StructuralInvisible == True):

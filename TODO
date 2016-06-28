@@ -5,6 +5,11 @@
 # Operatoren (gosa.backend.objects.operator)
 - Konstruktor wird ein Object übergeben, dieses wird aber nirgendwo genutzt
 
+# Rückwärtsbeziehungen zu Objektdefinitionen erlauben
+- Wird ein Plugin installiert, welches z.B. Benutzer erweitert, so sollte es die
+  Objektdefinitionen dazu selbst mitbringen und ein Verweiss auf "extends" des Benutzers
+  enthalten, ohne dass die Benutzerdefinition selbst angefasst werden muss.
+
 # Filter (gosa.backend.objects.filter + gosa.backend.plugins.*filter)
 - Konstruktor wird ein Object übergeben, dieses wird zwar dem Parent-Konstruktor übergeben, welcher wiederum nichts damit macht
 - auch der erste Parameter in der process Methode wird nicht genutzt

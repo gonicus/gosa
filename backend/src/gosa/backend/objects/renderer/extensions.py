@@ -7,7 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-from gosa.agent.objects.renderer import ResultRenderer
+from gosa.backend.objects.renderer import ResultRenderer
 
 
 class ExtensionRenderer(ResultRenderer):

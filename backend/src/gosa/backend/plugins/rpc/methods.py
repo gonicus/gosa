@@ -12,19 +12,18 @@ import os
 import shlex
 import time
 import datetime
-from bson.binary import Binary
-from zope.interface import implements
+from zope.interface import implementer
 from gosa.common import Environment
 from gosa.common.components import Command
 from gosa.common.components import Plugin
 from gosa.common.utils import N_
 from gosa.common.components import PluginRegistry
 from gosa.backend.objects import ObjectProxy
-from gosa.abackend.objects.factory import ObjectFactory
+from gosa.backend.objects.factory import ObjectFactory
 import gosa.backend.objects.renderer
 from gosa.common.handler import IInterfaceHandler
 from json import loads, dumps
-from gosa.common.error import ClacksErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C
 
 
 # Register the errors handled  by us
@@ -39,7 +38,8 @@ class GOsaException(Exception):
     pass
 
 
-class GuiMethods(Plugin):
+@implementer(IInterfaceHandler)
+class RPCMethods(Plugin):
     """
     Key for configuration section **gosa**
 
@@ -51,7 +51,6 @@ class GuiMethods(Plugin):
     +------------------+------------+-------------------------------------------------------------+
 
     """
-    implements(IInterfaceHandler)
     _target_ = 'gui'
     _priority_ = 80
 
@@ -70,8 +69,8 @@ class GuiMethods(Plugin):
         self.__value_extender = gosa.backend.objects.renderer.get_renderers()
         self.__search_aid = PluginRegistry.getInstance("ObjectIndex").get_search_aid()
 
-        # Load DB instance
-        #self.db = self.env.get_mongo_db('clacks')
+        # Load DB session
+        self.__session = self.env.getDatabaseSession('backend-database')
 
     @Command(__help__=N_("Returns a list containing all available object names"))
     def getAvailableObjectNames(self):
@@ -285,7 +284,7 @@ class GuiMethods(Plugin):
     @Command(__help__=N_("Returns a list with all selectable samba-domain-names"))
     def getSambaDomainNames(self):
         index = PluginRegistry.getInstance("ObjectIndex")
-        res = index.search({'_type': 'SambaDomain', 'sambaDomainName': {'$exists': True}},
+        res = index.search({'_type': 'SambaDomain', 'sambaDomainName': '%'},
             {'sambaDomainName': 1})
 
         return list(set([x['sambaDomainName'][0] for x in res]))
@@ -465,54 +464,54 @@ class GuiMethods(Plugin):
 
     #    return res.values()
 
-    def __make_relevance(self, item, keywords, fltr, fuzzy=False):
-        """
-        Very simple relevance weight-o-meter for search results. To
-        be improved...
+    #def __make_relevance(self, item, keywords, fltr, fuzzy=False):
+    #    """
+    #    Very simple relevance weight-o-meter for search results. To
+    #    be improved...
 
-        It basically takes the item and checks if one of the keyword
-        is contained. Takes account on fuzzyness, secondary searches,
-        tags.
-        """
-        penalty = 1
+    #    It basically takes the item and checks if one of the keyword
+    #    is contained. Takes account on fuzzyness, secondary searches,
+    #    tags.
+    #    """
+    #    penalty = 1
 
-        # Prepare attribute set
-        values = []
-        for attrs in item.values():
-            if isinstance(attrs, list):
-                for attr in attrs:
-                    if isinstance(attr, str) and not isinstance(attr, Binary):
-                        values.append(attr)
-        # Walk thru keywords
-        if keywords:
-            for keyword in keywords:
+    #    # Prepare attribute set
+    #    values = []
+    #    for attrs in item.values():
+    #        if isinstance(attrs, list):
+    #            for attr in attrs:
+    #                if isinstance(attr, str) and not isinstance(attr, Binary):
+    #                    values.append(attr)
+    #    # Walk thru keywords
+    #    if keywords:
+    #        for keyword in keywords:
 
-                # No exact match
-                if not keyword in values:
-                    penalty *= 2
+    #            # No exact match
+    #            if not keyword in values:
+    #                penalty *= 2
 
-                # Penalty for not having an case insensitive match
-                elif not keyword.lower() in [s.lower() for s in item]:
-                    penalty *= 4
+    #            # Penalty for not having an case insensitive match
+    #            elif not keyword.lower() in [s.lower() for s in item]:
+    #                penalty *= 4
 
-                # Penalty for not having the correct category
-                elif fltr['category'] != "all" and fltr['category'].lower() != item['_type'].lower():
-                    penalty *= 2
+    #            # Penalty for not having the correct category
+    #            elif fltr['category'] != "all" and fltr['category'].lower() != item['_type'].lower():
+    #                penalty *= 2
 
-            # Penalty for not having category in keywords
-            if item['_type'] in self.__search_aid['aliases']:
-                if not set([t.lower() for t in self.__search_aid['aliases'][item['_type']]]).intersection(set([k.lower() for k in keywords])):
-                    penalty *= 6
+    #        # Penalty for not having category in keywords
+    #        if item['_type'] in self.__search_aid['aliases']:
+    #            if not set([t.lower() for t in self.__search_aid['aliases'][item['_type']]]).intersection(set([k.lower() for k in keywords])):
+    #                penalty *= 6
 
-        # Penalty for secondary
-        if fltr['secondary'] == "enabled":
-            penalty *= 10
+    #    # Penalty for secondary
+    #    if fltr['secondary'] == "enabled":
+    #        penalty *= 10
 
-        # Penalty for fuzzyness
-        if fuzzy:
-            penalty *= 10
+    #    # Penalty for fuzzyness
+    #    if fuzzy:
+    #        penalty *= 10
 
-        return penalty
+    #    return penalty
 
     def __update_res(self, res, item, user=None, relevance=0, secondary=False):
 

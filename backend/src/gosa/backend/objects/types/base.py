@@ -64,7 +64,7 @@ class StringAttribute(AttributeType):
         return list(map(lambda x: not(x in ['', 'false', '0', 'False']), value))
 
     def _convert_to_string(self, value):
-        return list(map(lambda x: bytes(x), value))
+        return list(map(lambda x: bytes(x, 'utf-8'), value))
 
     def _convert_to_integer(self, value):
         return list(map(lambda x: int(x), value))

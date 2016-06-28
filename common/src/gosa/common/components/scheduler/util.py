@@ -191,7 +191,7 @@ def ref_to_obj(ref):
     if not ':' in ref:
         raise ValueError('Invalid reference')
 
-    if ref == "gosa.agent.command:CommandRegistry.dispatch":
+    if ref == "gosa.backend.command:CommandRegistry.dispatch":
         return getattr(PluginRegistry.getInstance('CommandRegistry'), "dispatch")
 
     modulename, rest = ref.split(':', 1)

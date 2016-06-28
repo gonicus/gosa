@@ -492,10 +492,12 @@ class ObjectIndex(Plugin):
         self.__save(obj.asJSON(True))
 
     def __save(self, data):
+
         # Assemble object index object
         oi = ObjectInfoIndex(
             uuid=data["_uuid"],
             dn=data["dn"],
+            type=data["_type"],
             parent_dn=data["_parent_dn"],
             adjusted_parent_dn=data["_adjusted_parent_dn"]
         )
@@ -657,7 +659,7 @@ class ObjectIndex(Plugin):
                         meth = not_
                     else:
                         # TODO: do it the gosa way...
-                        raise Exception("operation not supported")
+                        raise Exception("operation '%s' not supported" % key)
 
                     res.append(meth(*__make_filter(value)))
 
@@ -667,21 +669,33 @@ class ObjectIndex(Plugin):
                     exprs = []
                     for v in value:
                         if hasattr(ObjectInfoIndex, key):
-                            exprs.append(ObjectInfoIndex[key] == v)
+                            if "%" in v:
+                                exprs.append(getattr(ObjectInfoIndex, key).like(v))
+                            else:
+                                exprs.append(getattr(ObjectInfoIndex, key) == v)
                         elif key == "extension":
                             exprs.append(ExtensionIndex.extension == v)
                         else:
-                            exprs.append(and_(KeyValueIndex.key == key, KeyValueIndex.value == v))
+                            if "%" in v:
+                                exprs.append(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(v)))
+                            else:
+                                exprs.append(and_(KeyValueIndex.key == key, KeyValueIndex.value == v))
 
                     res.append(or_(*exprs))
 
                 else:
                     if hasattr(ObjectInfoIndex, key):
-                        res.append(ObjectInfoIndex[key] == value)
+                        if "%" in value:
+                            res.append(getattr(ObjectInfoIndex, key).like(value))
+                        else:
+                            res.append(getattr(ObjectInfoIndex, key) == value)
                     elif key == "extension":
                         res.append(ExtensionIndex.extension == value)
                     else:
-                        res.append(and_(KeyValueIndex.key == key, KeyValueIndex.value == value))
+                        if "%" in value:
+                            res.append(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(value)))
+                        else:
+                            res.append(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(value)))
 
             return res
 
@@ -711,7 +725,10 @@ class ObjectIndex(Plugin):
             raise FilterException(C.make_error('INDEXING', "base"))
 
         res = []
+        print("search -----------")
+        print(query)
         fltr = self._make_filter(query)
+        print(fltr)
 
         def normalize(data, resultset=None):
             _res = {
@@ -743,9 +760,11 @@ class ObjectIndex(Plugin):
 
             return _res
 
-        for o in self.__session.query(ObjectInfoIndex).filter(*fltr):
+        for o in self.__session.query(ObjectInfoIndex).filter(*fltr).all():
             res.append(normalize(o, properties))
 
+        print("result ----------------")
+        print(res)
         return res
 
     def __filter_entry(self, user, entry):

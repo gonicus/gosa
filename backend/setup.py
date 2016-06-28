@@ -96,7 +96,7 @@ setup(
         httpd = gosa.backend.components.httpd:HTTPService
         command = gosa.backend.command:CommandRegistry
         #xxxxxxx jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
-        #guimethods = gosa.backend.plugins.gui.methods:GuiMethods
+        rpc = gosa.backend.plugins.rpc.methods:RPCMethods
         #xxxxxxx sambaguimethods = gosa.backend.plugins.samba.domain:SambaGuiMethods
         transliterate = gosa.backend.plugins.misc.transliterate:Transliterate
         locales = gosa.backend.plugins.misc.locales:Locales
