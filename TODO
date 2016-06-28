@@ -23,4 +23,4 @@
 - ImageProcessor fixed + testen
 
 #gosa.backend.object.(comparator|types).(acl_set|acl_roles)
-- code nahezu indentisch, nur das bei den sets auch der 'members'-key im Dict berücksichtigt wird => prüfen ob man das vereinheitliche kann
+- code nahezu identisch, nur das bei den sets auch der 'members'-key im Dict berücksichtigt wird => prüfen ob man das vereinheitlichen kann
