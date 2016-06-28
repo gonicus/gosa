@@ -36,7 +36,7 @@ from gosa.backend.exceptions import ProxyException, ObjectException, FilterExcep
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, Integer, Sequence, DateTime, ForeignKey, or_, and_
+from sqlalchemy import Column, String, Integer, Sequence, DateTime, ForeignKey, or_, and_, not_
 
 Base = declarative_base()
 
@@ -642,6 +642,8 @@ class ObjectIndex(Plugin):
         return res
 
     def _make_filter(self, node):
+        use_key_value = False
+        user_extension = False
 
         def __make_filter(n):
             res = []
@@ -674,8 +676,10 @@ class ObjectIndex(Plugin):
                             else:
                                 exprs.append(getattr(ObjectInfoIndex, key) == v)
                         elif key == "extension":
+                            user_extension = True
                             exprs.append(ExtensionIndex.extension == v)
                         else:
+                            use_key_value = True
                             if "%" in v:
                                 exprs.append(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(v)))
                             else:
@@ -690,8 +694,10 @@ class ObjectIndex(Plugin):
                         else:
                             res.append(getattr(ObjectInfoIndex, key) == value)
                     elif key == "extension":
+                        use_extension = True
                         res.append(ExtensionIndex.extension == value)
                     else:
+                        use_key_value = True
                         if "%" in value:
                             res.append(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(value)))
                         else:
@@ -700,10 +706,24 @@ class ObjectIndex(Plugin):
             return res
 
         # Add query information to be able to search various tables
-        args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid == ExtensionIndex.uuid]
-        args += __make_filter(node)
+        _args = __make_filter(node)
 
-        return and_(*args)
+        if user_extension and use_key_value:
+            args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid == ExtensionIndex.uuid]
+            args += _args
+            return and_(*args)
+
+        if user_extension:
+            args = [ObjectInfoIndex.uuid == ExtensionIndex.uuid]
+            args += _args
+            return and_(*args)
+
+        if user_extension:
+            args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid]
+            args += _args
+            return and_(*args)
+
+        return _args
 
     def search(self, query, properties):
         """
