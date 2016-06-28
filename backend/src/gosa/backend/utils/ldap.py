@@ -15,7 +15,6 @@ make LDAP connections a little bit easier to use.
 """
 import ldapurl
 import ldap.sasl
-import types
 import logging
 from contextlib import contextmanager
 from gosa.common import Environment
@@ -106,16 +105,13 @@ class LDAPHandler(object):
         LDAPHandler.connection_handle = [None] * self.__pool
         LDAPHandler.connection_usage = [False] * self.__pool
 
-    def get_base(self, utf_8=True):
+    def get_base(self):
         """
         Return the configured base DN.
 
         ``Return``: base DN
         """
-        if utf_8:
-            return self.__url.dn.decode('utf-8')
-        else:
-            return self.__url.dn
+        return self.__url.dn
 
     def get_connection(self):
         """
@@ -217,7 +213,7 @@ class LDAPHandler(object):
 def map_ldap_value(value):
     """
     Method to map various data into LDAP compatible values. Maps
-    bool values to TRUE/FALSE and unicode values to be 'utf-8' encoded.
+    bool values to TRUE/FALSE.
 
     ================= ==========================
     Parameter         Description
@@ -227,28 +223,11 @@ def map_ldap_value(value):
 
     ``Return``: adapted dict
     """
-    if type(value) == types.BooleanType:
+    if type(value) == bool:
         return "TRUE" if value else "FALSE"
-    if type(value) == types.UnicodeType:
-        return value.encode('utf-8')
-    if type(value) == types.ListType:
+    if type(value) == list:
         return map(map_ldap_value, value)
     return value
-
-
-def unicode2utf8(data):
-    """
-    Method to map unicode strings to utf-8.
-
-    ================= ==========================
-    Parameter         Description
-    ================= ==========================
-    data              string or list to convert
-    ================= ==========================
-
-    ``Return``: adapted data
-    """
-    return map_ldap_value(data)
 
 
 def normalize_ldap(data):
@@ -263,7 +242,7 @@ def normalize_ldap(data):
 
     ``Return``: adapted data
     """
-    if type(data) != types.ListType:
+    if type(data) != list:
         return [data]
 
     return data

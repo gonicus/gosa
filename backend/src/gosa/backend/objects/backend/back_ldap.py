@@ -58,8 +58,8 @@ class LDAP(ObjectBackend):
         fltr = ldap.filter.filter_format(fltr_tpl, [uuid])
 
         self.log.debug("searching with filter '%s' on base '%s'" % (fltr,
-            self.lh.get_base(False)))
-        res = self.con.search_s(self.lh.get_base(False), ldap.SCOPE_SUBTREE, fltr,
+            self.lh.get_base()))
+        res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr,
             keys)
 
         # Check if res is valid
@@ -164,7 +164,7 @@ class LDAP(ObjectBackend):
             fltr_tpl = "%s=%%s" % self.uuid_entry
             fltr = ldap.filter.filter_format(fltr_tpl, [misc])
 
-            res = self.con.search_s(self.lh.get_base(False), ldap.SCOPE_SUBTREE,
+            res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE,
                     fltr, [self.uuid_entry])
 
         else:
@@ -351,7 +351,7 @@ class LDAP(ObjectBackend):
 
         self.log.debug("searching with filter '%s' on base '%s'" % (fltr,
             self.lh.get_base()))
-        res = self.con.search_s(self.lh.get_base(False), ldap.SCOPE_SUBTREE, fltr,
+        res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr,
                 [self.uuid_entry])
 
         self.__check_res(uuid, res)
@@ -399,7 +399,7 @@ class LDAP(ObjectBackend):
 
         self.log.debug("uniq test with filter '%s' on base '%s'" % (fltr,
             self.lh.get_base()))
-        res = self.con.search_s(self.lh.get_base(False), ldap.SCOPE_SUBTREE, fltr,
+        res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr,
             [self.uuid_entry])
 
         return len(res) == 0
@@ -435,7 +435,7 @@ class LDAP(ObjectBackend):
 
     def get_next_id(self, attr):
         fltr = self.env.config.get("backend-ldap.pool-filter", "(objectClass=sambaUnixIdPool)")
-        res = self.con.search_s(self.lh.get_base(False), ldap.SCOPE_SUBTREE, fltr, [attr])
+        res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr, [attr])
 
         if not res:
             raise EntryNotFound(C.make_error("NO_POOL_ID"))
