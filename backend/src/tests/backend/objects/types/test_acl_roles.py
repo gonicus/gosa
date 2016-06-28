@@ -1,5 +1,4 @@
 import unittest
-import pytest
 from gosa.backend.objects.types.acl_roles import *
 
 
