@@ -69,7 +69,7 @@ class JSON(ObjectBackend):
         data = {}
         if item_uuid in json:
             for obj in json[item_uuid]:
-                data = dict(data.items() + json[item_uuid][obj].items())
+                data.update(json[item_uuid][obj].items())
         return data
 
     def identify(self, object_dn, params, fixed_rdn=None):
@@ -169,8 +169,8 @@ class JSON(ObjectBackend):
         if self.scope_map[scope] == "sub":
             for uuid in json:
                 for obj in json[uuid]:
-                    if "parentDN" in json[uuid][obj] and re.match(re.escape(base) + "$", json[uuid][obj]['parentDN']):
-                        found.append(json['objects'][uuid]['dn'])
+                    if "parentDN" in json[uuid][obj] and re.search(re.escape(base) + "$", json[uuid][obj]['parentDN']):
+                        found.append(json[uuid][obj]['dn'])
         return found
 
     def create(self, base, data, params, foreign_keys=None):
@@ -192,7 +192,6 @@ class JSON(ObjectBackend):
         object_dn = self.get_uniq_dn(rdns, base, data, FixedRDN)
         if not object_dn:
             raise DNGeneratorError(C.make_error("NO_UNIQUE_DN", base=base, rdns=", ".join(rdns)))
-        object_dn = object_dn.encode('utf-8')
 
         # Build the entry that will be written to the json-database
         json = self.__load()
@@ -314,7 +313,7 @@ class JSON(ObjectBackend):
 
     def move(self, item_uuid, new_base):
         """
-        Moves an entry to antoher base
+        Moves an entry to another base
         """
         json = self.__load()
         if item_uuid in json:

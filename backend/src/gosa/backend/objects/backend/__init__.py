@@ -17,7 +17,7 @@ from gosa.backend.exceptions import DNGeneratorError
 
 # Register the errors handled  by us
 C.register_codes(dict(
-    GENERATOR_RDN_ATTRIBUTE_MISSING=N_("Attribute '%(topic)s needed to generate a RDN is missing"),
+    GENERATOR_RDN_ATTRIBUTE_MISSING=N_("Attribute '%(topic)s' needed to generate a RDN is missing"),
     RDN_NOT_SPECIFIED=N_("No 'RDN' backend parameter specified"),
     NO_UNIQUE_DN=N_("Cannot generate a unique DN in '%(base)s' using a combination of %(rdns)s"),
     TARGET_EXISTS=N_("Target DN '%(target)s' already exists"),

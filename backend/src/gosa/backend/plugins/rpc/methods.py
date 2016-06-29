@@ -9,9 +9,6 @@
 
 import re
 import os
-import shlex
-import time
-import datetime
 from zope.interface import implementer
 from gosa.common import Environment
 from gosa.common.components import Command

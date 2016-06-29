@@ -31,7 +31,7 @@ class AnyType(AttributeType):
         return list(map(lambda x: not(x in ['', 'false', '0', 'False']), value))
 
     def _convert_to_string(self, value):
-        return list(map(lambda x: bytes(x), value))
+        return list(map(lambda x: bytes(x, 'utf-8'), value))
 
     def _convert_to_integer(self, value):
         return list(map(lambda x: int(x), value))
@@ -73,7 +73,7 @@ class StringAttribute(AttributeType):
         return list(map(lambda x: str(x), value))
 
     def _convert_from_datetime(self, value):
-        return list(map(lambda x: bytes(x), value))
+        return list(map(lambda x: bytes(str(x), 'utf-8'), value))
 
     def fixup(self, value):
         return self._convert_to_string(value)
@@ -95,7 +95,7 @@ class IntegerAttribute(AttributeType):
         return value1 == value2
 
     def _convert_to_string(self, value):
-        return list(map(lambda x: bytes(x), value))
+        return list(map(lambda x: bytes(str(x), 'utf-8'), value))
 
     def _convert_to_unicodestring(self, value):
         return list(map(lambda x: str(x), value))
@@ -120,7 +120,7 @@ class BooleanAttribute(AttributeType):
         return value1 == value2
 
     def _convert_to_string(self, value):
-        return list(map(lambda x: bytes(x), value))
+        return list(map(lambda x: bytes(str(x), 'utf-8'), value))
 
     def _convert_to_unicodestring(self, value):
         return list(map(lambda x: str(x), value))
@@ -145,10 +145,10 @@ class BinaryAttribute(AttributeType):
         return value1 == value2
 
     def _convert_to_string(self, value):
-        return list(map(lambda x: bytes(x), value))
+        return list(map(lambda x: bytes(str(x.get()), 'utf-8'), value))
 
     def _convert_to_unicodestring(self, value):
-        return list(map(lambda x: str(x), value))
+        return list(map(lambda x: str(x.get()), value))
 
 
 class UnicodeStringAttribute(AttributeType):
@@ -165,7 +165,7 @@ class UnicodeStringAttribute(AttributeType):
         return value1 == value2
 
     def _convert_to_string(self, value):
-        return list(map(lambda x: bytes(x), value))
+        return list(map(lambda x: bytes(x, 'utf-8'), value))
 
     def _convert_to_unicodestring(self, value):
         return list(map(lambda x: str(x), value))
@@ -195,7 +195,7 @@ class DateAttribute(AttributeType):
         return value1 == value2
 
     def _convert_to_string(self, value):
-        return list(map(lambda x: x.strftime("%Y-%m-%d"), value))
+        return list(map(lambda x: bytes(x.strftime("%Y-%m-%d"), 'utf-8'), value))
 
     def _convert_to_unicodestring(self, value):
         return list(map(lambda x: str(x.strftime("%Y-%m-%d")), value))
@@ -217,7 +217,7 @@ class TimestampAttribute(AttributeType):
         return value1 == value2
 
     def _convert_to_string(self, value):
-        return list(map(lambda x: x.strftime("%Y-%m-%dT%H:%M:%S%z"), value))
+        return list(map(lambda x: bytes(x.strftime("%Y-%m-%dT%H:%M:%S%z"),'utf-8'), value))
 
     def _convert_to_unicodestring(self, value):
         return list(map(lambda x: str(x.strftime("%Y-%m-%dT%H:%M:%S%z")), value))

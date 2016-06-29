@@ -58,7 +58,7 @@ class IsAclSet(ElementComparator):
                     return False, errors
 
                 # If a 'rolename' is we do not allow other dict, keys
-                if type(entry["rolename"]) not in [str, unicode]:
+                if type(entry["rolename"]) not in [str, bytes]:
                     errors.append(dict(
                         index=entry_cnt,
                         detail=N_("'%(attribute)' needs to be of type '%(ttype)s' ('%(stype)s' found)"),
@@ -106,22 +106,22 @@ class IsAclSet(ElementComparator):
                         return False, errors
 
                     # Check for the correct attribute types
-                    if not type(item["topic"]) in [str, unicode]:
+                    if not type(item["topic"]) in [str, bytes]:
                         errors.append(dict(
                             index=entry_cnt,
                             detail=N_("'%(attribute)' needs to be of type '%(ttype)s' ('%(stype)s' found)"),
                             attribute="topic",
                             ttype=str.__name__,
-                            stype=type(entry["topic"]).__name__
+                            stype=type(item["topic"]).__name__
                             ))
                         return False, errors
-                    if not type(item["acl"]) in [str, unicode]:
+                    if not type(item["acl"]) in [str, bytes]:
                         errors.append(dict(
                             index=entry_cnt,
                             detail=N_("'%(attribute)' needs to be of type '%(ttype)s' ('%(stype)s' found)"),
                             attribute="acl",
                             ttype=str.__name__,
-                            stype=type(entry["acl"]).__name__
+                            stype=type(item["acl"]).__name__
                             ))
                         return False, errors
 
@@ -134,7 +134,7 @@ class IsAclSet(ElementComparator):
                         return False, errors
 
                     # Check if there are unsupported keys given
-                    keys = item.keys()
+                    keys = list(item.keys())
                     keys.remove("topic")
                     keys.remove("acl")
                     if "options" in item:
@@ -153,7 +153,7 @@ class IsAclSet(ElementComparator):
                             detail=N_("'%(attribute)' needs to be of type '%(ttype)s' ('%(stype)s' found)"),
                             attribute="options",
                             ttype=dict.__name__,
-                            stype=type(entry["options"]).__name__
+                            stype=type(item["options"]).__name__
                             ))
                         return False, errors
 

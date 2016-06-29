@@ -19,12 +19,9 @@
 
 - PWDPolicy Extension
 
-# gosa.backend.plugins.password.manager
-- Benötigt funktionierende ACLs, ObjectIndex bevor restliche Tests geschrieben werden können
-
-# gosa.backend.plugins.samba.domain
-- Benötigt ACLs, ObjectIndex
-
 # gosa.backend.plugins.user.filter
 - ImageProcessor fixed + testen
 - Wer räumt das Ding wieder auf?
+
+#gosa.backend.object.(comparator|types).(acl_set|acl_roles)
+- code nahezu identisch, nur das bei den sets auch der 'members'-key im Dict berücksichtigt wird => prüfen ob man das vereinheitlichen kann
