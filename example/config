@@ -15,9 +15,13 @@ pool-size = 10
 
 [backend-database]
 database = sqlite:///:memory:
+#database = sqlite:////tmp/gosa.db
 
 [backend-json]
 database-file = /tmp/gosa.json
+
+[user]
+image-path = /tmp/images
 
 
 ##############################################################################
