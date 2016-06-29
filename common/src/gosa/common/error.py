@@ -64,6 +64,10 @@ class GosaErrorHandler(Plugin):
     @staticmethod
     def make_error(code, topic=None, details=None, **kwargs):
 
+        # First, catch unconverted exceptions
+        if not code in GosaErrorHandler._codes:
+            return code
+
         # Add topic to make it usable inside of the error messages
         if not kwargs:
             kwargs = {}
@@ -81,10 +85,6 @@ class GosaErrorHandler(Plugin):
         # Save entry
         __id = uuid.uuid1()
         GosaErrorHandler._errors[__id] = data
-
-        # First, catch unconverted exceptions
-        if not code in GosaErrorHandler._codes:
-            return code
 
         return '<%s> %s' % (__id, text)
 
