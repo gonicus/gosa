@@ -10,7 +10,7 @@
 import uuid
 import datetime
 from types import MethodType
-from zope.interface import implements
+from zope.interface import implementer
 from gosa.common.utils import N_
 from gosa.common import Environment
 from gosa.common.error import GosaErrorHandler as C
@@ -29,7 +29,7 @@ C.register_codes(dict(
     NOT_OBJECT_OWNER=N_("Caller does not own the referenced object")
     ))
 
-
+@implementer(IInterfaceHandler)
 class JSONRPCObjectMapper(Plugin):
     """
     The *JSONRPCObjectMapper* is a GOsa backend plugin that implements a stack
@@ -51,7 +51,6 @@ class JSONRPCObjectMapper(Plugin):
 
     This will indirectly use the object mapper on the agent side.
     """
-    implements(IInterfaceHandler)
     _target_ = 'core'
     _priority_ = 70
     __stack = None
@@ -72,7 +71,7 @@ class JSONRPCObjectMapper(Plugin):
         ``Return:`` list
         """
         cr = PluginRegistry.getInstance('CommandRegistry')
-        return cr.objects.keys()
+        return list(cr.objects.keys())
 
     @Command(needsUser=True, __help__=N_("Close object and remove it from stack"))
     def closeObject(self, user, ref):
@@ -262,11 +261,13 @@ class JSONRPCObjectMapper(Plugin):
         """
 
         # In case of "object" we want to check the lock
-        if oid == 'object' and self.__is_locked(args[0]):
-            raise Exception(C.make_error("OBJECT_LOCKED", object=args[0],
-                user=item['user'],
-                when=item['created'].strftime("%Y-%m-%d (%H:%M:%S)")
-                ))
+        if oid == 'object':
+            lck = self.__get_lock(args[0])
+            if lck:
+                raise Exception(C.make_error("OBJECT_LOCKED", object=args[0],
+                    user=lck['user'],
+                    when=lck['created'].strftime("%Y-%m-%d (%H:%M:%S)")
+                    ))
 
         # Use oid to find the object type
         obj_type = self.__get_object_type(oid)
@@ -295,11 +296,13 @@ class JSONRPCObjectMapper(Plugin):
         """
 
         # In case of "object" we want to check the lock
-        if oid == 'object' and self.__is_locked(args[0]):
-            raise Exception(C.make_error("OBJECT_LOCKED", object=args[0],
-                user=item['user'],
-                when=item['created'].strftime("%Y-%m-%d (%H:%M:%S)")
-                ))
+        if oid == 'object':
+            lck = self.__get_lock(args[0])
+            if lck:
+                raise Exception(C.make_error("OBJECT_LOCKED", object=args[0],
+                    user=lck['user'],
+                    when=lck['created'].strftime("%Y-%m-%d (%H:%M:%S)")
+                    ))
 
         env = Environment.getInstance()
 
@@ -388,6 +391,13 @@ class JSONRPCObjectMapper(Plugin):
                 return True
 
         return False
+
+    def __get_lock(self, value):
+        for ref, item in self.__stack.items():
+            if item.object.oid == value or item.object.dn == value:
+                return item
+
+        return None
 
     def __gc(self):
         self.env.log.debug("running garbage collector on object store")
