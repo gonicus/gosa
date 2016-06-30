@@ -15,6 +15,7 @@ pool-size = 10
 
 [backend-database]
 database = sqlite:///:memory:
+#database = postgresql://admin:secret@localhost:5432/gosa
 
 [backend-json]
 database-file = /tmp/gosa.json

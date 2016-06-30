@@ -51,7 +51,7 @@ class SQLAlchemyJobStore(JobStore):
             Column('name', Unicode(1024)),
             Column('misfire_grace_time', Integer, nullable=False),
             Column('coalesce', Boolean, nullable=False),
-            Column('origin', String(1024), nullable=False),
+            Column('origin', String(1024), nullable=True),
             Column('owner', String(1024), nullable=True),
             Column('tag', String(1024), nullable=True),
             Column('description', String(1024), nullable=True),
@@ -61,7 +61,10 @@ class SQLAlchemyJobStore(JobStore):
             Column('max_runs', Integer),
             Column('max_instances', Integer),
             Column('next_run_time', DateTime, nullable=False),
-            Column('runs', BigInteger))
+            Column('runs', BigInteger),
+            Column('uuid', String(1024), nullable=False),
+            Column('job_type', String(1024), nullable=False),
+            Column('callback', String(1024), nullable=True))
 
         self.jobs_t.create(self.engine, True)
 

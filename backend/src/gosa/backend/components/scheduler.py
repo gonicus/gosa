@@ -209,7 +209,7 @@ class SchedulerService(Plugin):
         """
         options['owner'] = user
         options['job_type'] = 'cron'
-        start_date = datetime.strptime(start_date, '%Y%m%d%H%M%S')
+        start_date = datetime.strptime(start_date, '%Y%m%d%H%M%S') if start_date is not None else None
 
         # Load CommandRegistry dispatcher to schedule with that method
         cr = PluginRegistry.getInstance("CommandRegistry")
@@ -249,7 +249,7 @@ class SchedulerService(Plugin):
         """
         options['owner'] = user
         options['job_type'] = 'interval'
-        start_date = datetime.strptime(start_date, '%Y%m%d%H%M%S')
+        start_date = datetime.strptime(start_date, '%Y%m%d%H%M%S') if start_date is not None else None
 
         # Load CommandRegistry dispatcher to schedule with that method
         cr = PluginRegistry.getInstance("CommandRegistry")

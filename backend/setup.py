@@ -78,7 +78,8 @@ setup(
         'pyldap',
         'Pillow',
         'passlib',
-        'cryptography>=1.3'
+        'cryptography>=1.3',
+        'psycopg2'
         ],
 
     entry_points = """
