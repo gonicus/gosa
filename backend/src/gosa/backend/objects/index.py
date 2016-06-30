@@ -423,7 +423,7 @@ class ObjectIndex(Plugin):
                 dn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == uuid).one_or_none()
 
                 if dn:
-                    obj = ObjectProxy(dn)
+                    obj = ObjectProxy(dn[0])
                     self.update(obj)
 
             self.log.info("index refresh finished")
@@ -549,6 +549,7 @@ class ObjectIndex(Plugin):
         old_dn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
         if not old_dn:
             raise IndexException(C.make_error('OBJECT_NOT_FOUND', "base", id=obj.uuid))
+        old_dn = old_dn[0]
 
         # Remove old entry and insert new
         self.remove_by_uuid(obj.uuid)

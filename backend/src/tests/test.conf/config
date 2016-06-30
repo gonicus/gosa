@@ -19,6 +19,8 @@ database = sqlite:///:memory:
 [backend-json]
 database-file = /tmp/gosa.json
 
+[user]
+image-path = /tmp/images
 
 ##############################################################################
 #                            Logger configuration                            #

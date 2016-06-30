@@ -60,8 +60,8 @@ class ObjectHandler(ObjectBackend):
             for targetAttr in mapping:
                 result[targetAttr] = []
                 foreignObject, foreignAttr, foreignMatchAttr, matchAttr = mapping[targetAttr]
-                results = index.search({'_uuid': uuid, matchAttr: {'$exists': True}}, {matchAttr: 1})
-                if results.count():
+                results = index.search({'_uuid': uuid, matchAttr: "%"}, {matchAttr: 1})
+                if len(results):
                     matchValue = results[0][matchAttr][0]
                     xq = index.search({'_type': foreignObject, foreignMatchAttr: matchValue}, {foreignAttr: 1})
                     result[targetAttr] = list(itertools.chain.from_iterable([x[foreignAttr] for x in xq]))
