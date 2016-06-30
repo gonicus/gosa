@@ -51,7 +51,6 @@ class SQLAlchemyJobStore(JobStore):
             Column('name', Unicode(1024)),
             Column('misfire_grace_time', Integer, nullable=False),
             Column('coalesce', Boolean, nullable=False),
-            Column('origin', String(1024), nullable=True),
             Column('owner', String(1024), nullable=True),
             Column('tag', String(1024), nullable=True),
             Column('description', String(1024), nullable=True),
@@ -99,13 +98,6 @@ class SQLAlchemyJobStore(JobStore):
                 logger.exception('Unable to restore job "%s"', job_name)
 
         self.jobs = jobs
-
-    def migrate_jobs(self, job, origin):
-        # Migrate job only if it still has it's original origin, elseways
-        # someone else already migrated it...
-        update = self.jobs_t.update().where(and_(self.jobs_t.c.origin ==
-            job.origin, self.jobs_t.c.id == job.id)).values(origin=origin)
-        self.engine.execute(update)
 
     def update_job(self, job):
         job_dict = job.__getstate__()
