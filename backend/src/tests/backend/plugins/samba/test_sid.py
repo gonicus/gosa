@@ -31,18 +31,10 @@ class SambaSidTestCase(unittest.TestCase):
     @unittest.mock.patch.object(PluginRegistry, 'getInstance')
     def test_DetectSambaDomainFromSID(self, mockedRegistry):
         # mock the whole lookup in the ObjectIndex to return True
-        MyObject = type('MyObject', (object,), {})
-        index = MyObject()
-
-        def search(param1, param2):
-            res = {
+        mockedRegistry.return_value.search.return_value = [{
                 "sambaSID": ["sid"],
                 "sambaDomainName": ["domain"]
-            }
-            return [res]
-
-        index.search = search
-        mockedRegistry.return_value = index
+            }]
 
         filter = DetectSambaDomainFromSID(None)
 
@@ -61,16 +53,7 @@ class SambaSidTestCase(unittest.TestCase):
     @unittest.mock.patch.object(PluginRegistry, 'getInstance')
     def test_GenerateSambaSid(self, mockedRegistry):
         # mock the whole lookup in the ObjectIndex to return True
-        MyObject = type('MyObject', (object,), {})
-        index = MyObject()
-
-        def search(param1, param2):
-            mock = unittest.mock.MagicMock(autoSpec=True, create=True)
-            mock.count.return_value = 0
-            return mock
-
-        index.search = search
-        mockedRegistry.return_value = index
+        mockedRegistry.return_value.search.return_value.count.return_value = 0
 
         filter = GenerateSambaSid(None)
 
@@ -89,16 +72,12 @@ class SambaSidTestCase(unittest.TestCase):
         with pytest.raises(SambaException):
             filter.process(None, "sid", testDict, "user", "1", "domain")
 
-        def search(param1, param2):
-            mock = unittest.mock.MagicMock()
-            mock.count.return_value = 1
-            mock.__getitem__.return_value = {
-                "sambaAlgorithmicRidBase": [1],
-                "sambaSID": ["sid"]
-            }
-            return mock
-
-        index.search = search
+        mock = mockedRegistry.return_value.search.return_value
+        mock.count.return_value = 1
+        mock.__getitem__.return_value = {
+            "sambaAlgorithmicRidBase": [1],
+            "sambaSID": ["sid"]
+        }
 
         with pytest.raises(SambaException):
             filter.process(None, None, None, "unknown", "1", "domain")
@@ -113,14 +92,8 @@ class SambaSidTestCase(unittest.TestCase):
         (key, valDict) = filter.process(None, "sid", testDict, "group", "1", "domain", 1)
         assert valDict["sid"]["value"][0] == "sid-1"
 
-        def search(param1, param2):
-            mock = unittest.mock.MagicMock()
-            mock.count.return_value = 1
-            mock.__getitem__.return_value = {
-                "sambaSID": ["sid"]
-            }
-            return mock
-
-        index.search = search
+        mock.__getitem__.return_value = {
+            "sambaSID": ["sid"]
+        }
         (key, valDict) = filter.process(None, "sid", testDict, "group", "1", "domain")
         assert valDict["sid"]["value"][0] == "sid-1003"

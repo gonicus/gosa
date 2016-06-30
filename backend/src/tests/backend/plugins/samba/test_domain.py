@@ -18,12 +18,7 @@ class SambaGuiMethodsTestCase(unittest.TestCase):
     def test_getSambaPassword(self, mockedRegistry, mockedEnv):
 
         # mockup ACL resolver
-        MyResolver = type('MyResolver', (object,), {})
-        resolver = MyResolver()
-        def check(user, topic, flags, base):
-            return True
-        resolver.check = check
-        mockedRegistry.return_value = resolver
+        mockedRegistry.return_value.check.return_value = True
 
         # mockup the environment
         mockedEnv.return_value.domain = "testdomain"
@@ -39,26 +34,20 @@ class SambaGuiMethodsTestCase(unittest.TestCase):
             assert m.called is True
 
         # test with ACL.check for sambaNTPassword is False
-        resolver = MyResolver()
-        def check(user, topic, flags, base):
-            return False
-        resolver.check = check
-        mockedRegistry.return_value = resolver
+        mockedRegistry.return_value.check.return_value = False
 
-        with unittest.mock.patch('gosa.backend.plugins.samba.domain.ObjectProxy', autoSpec=True, create=True) as m:
+        with unittest.mock.patch('gosa.backend.plugins.samba.domain.ObjectProxy', create=True):
             # run the test
             methods = SambaGuiMethods()
             with pytest.raises(ACLException):
                 methods.setSambaPassword("username", "dn", "password")
 
         # test with ACL.check for sambaLMPassword is False
-        resolver = MyResolver()
         def check(user, topic, flags, base):
             return not topic == "testdomain.objects.User.attributes.sambaLMPassword"
-        resolver.check = check
-        mockedRegistry.return_value = resolver
+        mockedRegistry.return_value.check.side_effect = check
 
-        with unittest.mock.patch('gosa.backend.plugins.samba.domain.ObjectProxy', autoSpec=True, create=True) as m:
+        with unittest.mock.patch('gosa.backend.plugins.samba.domain.ObjectProxy', create=True):
             # run the test
             methods = SambaGuiMethods()
             with pytest.raises(ACLException):
@@ -67,15 +56,10 @@ class SambaGuiMethodsTestCase(unittest.TestCase):
     @unittest.mock.patch.object(PluginRegistry, 'getInstance')
     def test_getSambaDomainInformation(self, mockedInstance):
         # mock the whole lookup in the ObjectIndex to return True
-        MyObject = type('MyObject', (object,), {})
-        index = MyObject()
-        def search(param1, param2):
-            return unittest.mock.MagicMock(autoSpec=True, create=True)
-        index.search = search
-        mockedInstance.return_value = index
+        mockedInstance.return_value.search.return_value = unittest.mock.MagicMock()
 
         methods = SambaGuiMethods()
-        target = unittest.mock.MagicMock(autoSpec=True, create=True)
+        target = unittest.mock.MagicMock()
         res = methods.getSambaDomainInformation("username", target)
         # this is just a check that the method is callable so we do not really check the output here
         assert len(res) > 0
@@ -84,15 +68,7 @@ class SambaGuiMethodsTestCase(unittest.TestCase):
 @unittest.mock.patch.object(PluginRegistry, 'getInstance')
 def test_IsValidSambaDomainName(mockedInstance):
     # mock the whole lookup in the ObjectIndex to return True
-    MyObject = type('MyObject', (object,), {})
-    index = MyObject()
-    def search(param1, param2):
-        res = MyObject()
-        res.count = lambda: True
-        return res
-    index.search = search
-
-    mockedInstance.return_value = index
+    mockedInstance.return_value.search.return_value.count.return_value = True
 
     check = IsValidSambaDomainName(None)
 
@@ -101,15 +77,7 @@ def test_IsValidSambaDomainName(mockedInstance):
     assert len(errors) == 0
 
     # mockup everything to return False
-    index = MyObject()
-
-    def search(param1, param2):
-        res = MyObject()
-        res.count = lambda: False
-        return res
-
-    index.search = search
-    mockedInstance.return_value = index
+    mockedInstance.return_value.search.return_value.count.return_value = False
 
     (res, errors) = check.process(None, None, ["test"])
     assert res == False

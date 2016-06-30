@@ -69,14 +69,12 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
 
     def test_login(self):
         # failed login
-        with unittest.mock.patch.object(JsonRpcHandler, 'authenticate') as m:
-            m.return_value = False
+        with unittest.mock.patch.object(JsonRpcHandler, 'authenticate', return_value=False) as m:
             response = self.login()
             assert response.code == 401
 
         # successfull login
-        with unittest.mock.patch.object(JsonRpcHandler, 'authenticate') as m:
-            m.return_value = True
+        with unittest.mock.patch.object(JsonRpcHandler, 'authenticate', return_value=True) as m:
             response = self.login()
             assert response.code == 200
             json = loads(response.body)

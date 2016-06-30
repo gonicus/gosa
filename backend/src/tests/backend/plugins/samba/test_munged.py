@@ -126,32 +126,6 @@ class SambaHashTestCase(unittest.TestCase):
 
     def test_SambaMungedDialOut(self):
         filter = SambaMungedDialOut(None)
-        testDict = {'CtxWorkDirectory': {'value': ['']},
-                    'CtxCfgPresent': {'value': ['551e0bb0']},
-                    'CtxKeyboardLayout': {'value': ['']},
-                    'oldStorageBehavior': {'value': []},
-                    'Ctx_flag_connectClientPrinters': {'value': [False]},
-                    'Ctx_flag_connectClientDrives': {'value': [False]},
-                    'CtxWFHomeDir': {'value': ['']},
-                    'munged': {'value': [] },
-                    'Ctx_flag_defaultPrinter': {'value': [False]},
-                    'Ctx_flag_reConn': {'value': [False]},
-                    'CtxMaxIdleTime': {'value': [3.0]},
-                    'Ctx_shadow': {'value': [1]},
-                    'CtxCallback': {'value': ['']},
-                    'Ctx_flag_inheritMode': {'value': [False]},
-                    'CtxMaxConnectionTime': {'value': [1.0]},
-                    'CtxMinEncryptionLevel': {'value': ['']},
-                    'Ctx_flag_brokenConn': {'value': [False]},
-                    'CtxCallbackNumber': {'value': ['']},
-                    'CtxWFProfilePath': {'value': ['']},
-                    'Ctx_flag_tsLogin': {'value': [False]},
-                    'CtxWFHomeDirDrive': {'value': ['']},
-                    'CtxInitialProgram': {'value': ['']},
-                    'CtxShadow': {'value': ['01000000']},
-                    'CtxNWLogonServer': {'value': ['']},
-                    'CtxCfgFlags1': {'value': ['00000000']},
-                    'CtxMaxDisconnectionTime': {'value': [2.0]}}
         testDict = {'CtxCfgFlags1': {'value': [b'00000000']},
                     'CtxCfgPresent': {'value': [b'551e0bb0']},
                     'Ctx_flag_reConn': {'value': [False]},
@@ -188,12 +162,10 @@ class SambaHashTestCase(unittest.TestCase):
         for flag in ['Ctx_flag_brokenConn', 'Ctx_flag_connectClientDrives', 'Ctx_flag_connectClientPrinters', 'Ctx_flag_defaultPrinter', 'Ctx_flag_inheritMode', 'Ctx_flag_reConn', 'Ctx_shadow', 'Ctx_flag_tsLogin']:
             testDict[flag]["value"] = [True]
 
-        print(testDict)
         (key, valDict) = filter.process(None, "munged", testDict.copy())
         assert valDict['munged']['value']
 
         filterIn = SambaMungedDialIn(None)
-        print(valDict)
         (key, valDict) = filterIn.process(None, "munged", valDict.copy())
         for flag in ['Ctx_flag_brokenConn', 'Ctx_flag_connectClientDrives', 'Ctx_flag_connectClientPrinters',
                      'Ctx_flag_defaultPrinter', 'Ctx_flag_inheritMode', 'Ctx_flag_reConn', 'Ctx_shadow',
