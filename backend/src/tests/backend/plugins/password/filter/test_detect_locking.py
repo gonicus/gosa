@@ -7,7 +7,7 @@ class DetectAccountLockStatusTestCase(unittest.TestCase):
         filter = DetectAccountLockStatus(None)
         testDict = {
             "userPassword":{
-                "in_value": ["{CRYPT}jsafdüudfopndv38"]
+                "in_value": [bytes("{CRYPT}jsafdüudfopndv38","utf-8")]
             },
             "attr": {
                 "value": [True]
@@ -16,6 +16,6 @@ class DetectAccountLockStatusTestCase(unittest.TestCase):
         (new_key, newDict) = filter.process(None, "attr", testDict)
         assert list(newDict["attr"]["value"])[0] == False
 
-        testDict["userPassword"]["in_value"] = ["{CRYPT}!jsafdüudfopndv38"]
+        testDict["userPassword"]["in_value"] = [bytes("{CRYPT}!jsafdüudfopndv38","utf-8")]
         (new_key, newDict) = filter.process(None, "attr", testDict)
         assert list(newDict["attr"]["value"])[0] == True

@@ -78,19 +78,19 @@ class PasswordMethodCrypt(PasswordMethod):
         """
         See PasswordMethod Interface for details
         """
-        return re.match("\{[^\}]*\}!", password_hash) is not None
+        return re.match("\{[^\}]*\}!", password_hash.decode()) is not None
 
     def lock_account(self, password_hash):
         """
         See PasswordMethod Interface for details
         """
-        return re.sub("\{([^\}]*)\}!?", "{\\1}!", password_hash)
+        return re.sub("\{([^\}]*)\}!?", "{\\1}!", password_hash.decode())
 
     def unlock_account(self, password_hash):
         """
         See PasswordMethod Interface for details
         """
-        return re.sub("\{([^\}]*)\}!?", "{\\1}", password_hash)
+        return re.sub("\{([^\}]*)\}!?", "{\\1}", password_hash.decode())
 
     def get_hash_names(self):
         """
@@ -102,4 +102,4 @@ class PasswordMethodCrypt(PasswordMethod):
         """
         See PasswordMethod Interface for details
         """
-        return u"{%s}%s" % (self.hash_name, crypt.crypt(new_password, crypt.mksalt(method)))
+        return bytes("{%s}%s" % (self.hash_name, crypt.crypt(new_password, crypt.mksalt(method))),'utf-8')

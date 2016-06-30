@@ -77,7 +77,8 @@ setup(
         'unidecode',
         'pyldap',
         'Pillow',
-        'passlib'
+        'passlib',
+        'cryptography>=1.3'
         ],
 
     entry_points = """
