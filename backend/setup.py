@@ -107,7 +107,7 @@ setup(
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
-        object_handler = gosa.backend.objects.backend.back_object:ObjectHandler
+        #object_handler = gosa.backend.objects.backend.back_object:ObjectHandler
         null = gosa.backend.objects.backend.back_null:NULL
         json = gosa.backend.objects.backend.back_json:JSON
 
