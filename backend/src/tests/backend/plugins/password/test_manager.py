@@ -34,14 +34,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
     @unittest.mock.patch.object(PluginRegistry, 'getInstance')
     def test_lockAccountPassword(self, mockedResolver, mockedEnv):
         # mockup ACL resolver
-        MyResolver = type('MyResolver', (object,), {})
-        resolver = MyResolver()
-
-        def check(user, topic, flags, base):
-            return False
-
-        resolver.check = check
-        mockedResolver.return_value = resolver
+        mockedResolver.return_value.check.return_value = False
 
         # mockup the environment
         mockedEnv.return_value.domain = "testdomain"
@@ -49,11 +42,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
         with pytest.raises(ACLException):
             self.obj.lockAccountPassword("Test", "dn")
 
-        def check(user, topic, flags, base):
-            return True
-
-        resolver.check = check
-        mockedResolver.return_value = resolver
+        mockedResolver.return_value.check.return_value = True
 
         with unittest.mock.patch('gosa.backend.plugins.password.manager.ObjectProxy', autoSpec=True, create=True) as m:
             # run the test
@@ -77,14 +66,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
     @unittest.mock.patch.object(PluginRegistry, 'getInstance')
     def test_unlockAccountPassword(self, mockedResolver, mockedEnv):
         # mockup ACL resolver
-        MyResolver = type('MyResolver', (object,), {})
-        resolver = MyResolver()
-
-        def check(user, topic, flags, base):
-            return False
-
-        resolver.check = check
-        mockedResolver.return_value = resolver
+        mockedResolver.return_value.check.return_value = False
 
         # mockup the environment
         mockedEnv.return_value.domain = "testdomain"
@@ -92,11 +74,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
         with pytest.raises(ACLException):
             self.obj.unlockAccountPassword("Test", "dn")
 
-        def check(user, topic, flags, base):
-            return True
-
-        resolver.check = check
-        mockedResolver.return_value = resolver
+        mockedResolver.return_value.check.return_value = True
 
         with unittest.mock.patch('gosa.backend.plugins.password.manager.ObjectProxy', autoSpec=True, create=True) as m:
             # run the test
@@ -123,14 +101,9 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
         resolver = unittest.mock.MagicMock(autoSpec=True, create=True)
         resolver.check.side_effect = [False, True, True, True]
 
-        MyIndex = type('MyIndex', (object,), {})
-        index = MyIndex()
-
-        found = unittest.mock.MagicMock(autoSpec=True, create=True)
-
-        def search(param1, param2):
-            return found
-        index.search = search
+        index = unittest.mock.MagicMock()
+        found = unittest.mock.MagicMock()
+        index.search.return_value = found
 
         def sideEffect(key):
             if key == "ObjectIndex":
@@ -138,6 +111,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
             elif key == "ACLResolver":
                 return resolver
 
+        mockedRegistry.return_value.check.return_value = False
         mockedRegistry.side_effect = sideEffect
 
         # mockup the environment
@@ -166,18 +140,12 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
     @unittest.mock.patch.object(PluginRegistry, 'getInstance')
     def test_accountUnlockable(self, mockedRegistry, mockedEnv):
         # mockup ACL resolver
-        resolver = unittest.mock.MagicMock(autoSpec=True, create=True)
+        resolver = unittest.mock.MagicMock()
         resolver.check.side_effect = [False, True, True, True]
 
-        MyIndex = type('MyIndex', (object,), {})
-        index = MyIndex()
-
-        found = unittest.mock.MagicMock(autoSpec=True, create=True)
-
-        def search(param1, param2):
-            return found
-
-        index.search = search
+        index = unittest.mock.MagicMock()
+        found = unittest.mock.MagicMock()
+        index.search.return_value = found
 
         def sideEffect(key):
             if key == "ObjectIndex":
