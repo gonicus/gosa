@@ -138,7 +138,7 @@ class Scheduler(object):
 
         # Close all job stores
         if close_jobstores:
-            for jobstore in itervalues(self._jobstores):
+            for jobstore in self._jobstores.values():
                 jobstore.close()
 
     @property
@@ -176,7 +176,7 @@ class Scheduler(object):
         self._wakeup.set()
 
     def refresh(self):
-        for jobstore in itervalues(self._jobstores):
+        for jobstore in self._jobstores.values():
             jobstore.load_jobs()
 
         self._wakeup.set()
@@ -409,7 +409,7 @@ class Scheduler(object):
         self._jobstores_lock.acquire()
         try:
             jobs = []
-            for jobstore in itervalues(self._jobstores):
+            for jobstore in self._jobstores.values():
                 jobs.extend(jobstore.jobs)
             return jobs
         finally:
@@ -421,7 +421,7 @@ class Scheduler(object):
         """
         self._jobstores_lock.acquire()
         try:
-            for alias, jobstore in iteritems(self._jobstores):
+            for alias, jobstore in self._jobstores.items():
                 if job in list(jobstore.jobs):
                     self._remove_job(job, alias, jobstore)
                     return
@@ -437,7 +437,7 @@ class Scheduler(object):
         found = False
         self._jobstores_lock.acquire()
         try:
-            for alias, jobstore in iteritems(self._jobstores):
+            for alias, jobstore in self._jobstores.items():
                 for job in list(jobstore.jobs):
                     if job.func == func:
                         self._remove_job(job, alias, jobstore)
@@ -454,7 +454,7 @@ class Scheduler(object):
 
         self._jobstores_lock.acquire()
         try:
-            for jobstore in iteritems(self._jobstores).values():
+            for jobstore in self._jobstores.values():
                 if jobstore.jobs:
                     for job in jobstore.jobs:
                         if job.uuid == job_id:
@@ -481,7 +481,7 @@ class Scheduler(object):
         job_strs = []
         self._jobstores_lock.acquire()
         try:
-            for alias, jobstore in iteritems(self._jobstores):
+            for alias, jobstore in self._jobstores.items():
                 job_strs.append('Jobstore %s:' % alias)
                 if jobstore.jobs:
                     for job in jobstore.jobs:
@@ -567,7 +567,7 @@ class Scheduler(object):
         next_wakeup_time = None
         self._jobstores_lock.acquire()
         try:
-            for alias, jobstore in iteritems(self._jobstores):
+            for alias, jobstore in self._jobstores.items():
                 for job in tuple(jobstore.jobs):
                     run_times = job.get_run_times(now)
 
