@@ -471,7 +471,7 @@ class LDAP(ObjectBackend):
         return value.decode('ascii')
 
     def _convert_from_unicodestring(self, value):
-        return value
+        return value.decode()
 
     def _convert_from_integer(self, value):
         return int(value)

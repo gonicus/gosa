@@ -73,7 +73,6 @@ class JsonRpcHandler(tornado.web.RequestHandler):
             self.finish(e.log_message)
             raise e
         else:
-            print(resp)
             self.write(resp)
 
     def process(self, data):
