@@ -25,7 +25,9 @@ class SchedulerServiceTestCase(unittest.TestCase):
         assert type(self.service.getScheduler()) == Scheduler
 
 
-    def test_schedulerAddDateJob(self):
+    @unittest.mock.patch.object(PluginRegistry, "getInstance")
+    def test_schedulerAddDateJob(self, mockedRegistry):
+
         jobid = self.service.schedulerAddDateJob("admin","queue", "getMethods", [], [], "20990101000000", jobstore='ram')
         jobs = self.service.schedulerGetJobs()
         assert len(jobs) == 1
@@ -39,22 +41,24 @@ class SchedulerServiceTestCase(unittest.TestCase):
         assert len(jobs) == 1
         assert jobid in jobs
 
-    def test_schedulerIntervalJob(self):
+    @unittest.mock.patch.object(PluginRegistry, "getInstance")
+    def test_schedulerIntervalJob(self, mockedRegistry):
         jobid = self.service.schedulerIntervalJob("admin","queue", "getMethods", [], [], days=1, jobstore='ram')
         jobs = self.service.schedulerGetJobs()
         assert len(jobs) == 1
         assert jobid in jobs
         assert jobs[jobid]['job_type'] == 'interval'
 
-    def test_schedulerCronJob(self):
+    @unittest.mock.patch.object(PluginRegistry, "getInstance")
+    def test_schedulerCronJob(self, mockedRegistry):
         jobid = self.service.schedulerCronDateJob("admin","queue", "getMethods", [], [], day_of_week=0, jobstore='ram')
         jobs = self.service.schedulerGetJobs()
         assert len(jobs) == 1
         assert jobid in jobs
         assert jobs[jobid]['job_type'] == 'cron'
 
-
-    def test_schedulerRemoveJob(self):
+    @unittest.mock.patch.object(PluginRegistry, "getInstance")
+    def test_schedulerRemoveJob(self, mockedRegistry):
         jobid = self.service.schedulerAddDateJob("admin", "queue", "getMethods", [], [], "20990101000000", jobstore='ram')
         jobs = self.service.schedulerGetJobs()
         assert len(jobs) == 1
