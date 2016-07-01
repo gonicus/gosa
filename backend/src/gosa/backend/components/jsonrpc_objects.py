@@ -387,14 +387,14 @@ class JSONRPCObjectMapper(Plugin):
 
     def __is_locked(self, value):
         for ref, item in self.__stack.items():
-            if item.object.oid == value or item.object.dn == value:
+            if item['object']['oid'] == value or item['object']['dn'] == value:
                 return True
 
         return False
 
     def __get_lock(self, value):
         for ref, item in self.__stack.items():
-            if item.object.oid == value or item.object.dn == value:
+            if item['object']['oid'] == value or item['object']['dn'] == value:
                 return item
 
         return None
@@ -404,5 +404,5 @@ class JSONRPCObjectMapper(Plugin):
         one_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=1)
 
         for ref, item in self.__stack.items():
-            if item.created < one_hour_ago:
+            if item['created'] < one_hour_ago:
                 del self.__stack[ref]
