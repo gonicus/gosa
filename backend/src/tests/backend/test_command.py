@@ -16,7 +16,7 @@ class CommandRegistryTestCase(GosaTestCase):
 
     def setUp(self):
         super(CommandRegistryTestCase, self).setUp()
-        self.reg = self.registry.getInstance("CommandRegistry")
+        self.reg = PluginRegistry.getInstance("CommandRegistry")
 
     def test_getBase(self):
         assert self.reg.getBase() == "dc=example,dc=net"

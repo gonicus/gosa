@@ -8,13 +8,15 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 from unittest import mock, TestCase
-from gosa.common.components import PluginRegistry
+from gosa.common.components import PluginRegistry, ObjectRegistry
 
 class GosaTestCase(TestCase):
 
     def setUp(self):
-        self.registry = PluginRegistry()
+        oreg = ObjectRegistry.getInstance()  # @UnusedVariable
+        pr = PluginRegistry()  # @UnusedVariable
+        cr = PluginRegistry.getInstance("CommandRegistry") # @UnusedVariable
 
     def tearDown(self):
         PluginRegistry.getInstance('HTTPService').srv.stop()
-        self.registry.shutdown()
+        PluginRegistry.shutdown()
