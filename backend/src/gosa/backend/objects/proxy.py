@@ -120,7 +120,7 @@ class ObjectProxy(object):
         if is_uuid(_id):
             index = PluginRegistry.getInstance("ObjectIndex")
             res = index.search({'_uuid': _id}, {'dn': 1})
-            if res.count() == 1:
+            if len(res) == 1:
                 dn_or_base = res[0]['dn']
             else:
                 raise ProxyException(C.make_error('OBJECT_NOT_FOUND', id=_id))
@@ -826,10 +826,11 @@ class ObjectProxy(object):
             # Do we have read permissions for the requested attribute, method
             attr_type = self.__attribute_type_map[name]
             topic = "%s.objects.%s.attributes.%s" % (self.__env.domain, attr_type, name)
-            if not self.__acl_resolver.check(self.__current_user, topic, "w", base=self.dn):
-                self.__log.debug("user '%s' has insufficient permissions to write %s on %s, required is %s:%s" % (
-                    self.__current_user, name, self.dn, topic, "w"))
-                raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=self.dn))
+            print("ACL check is disabled currently")
+            # if not self.__acl_resolver.check(self.__current_user, topic, "w", base=self.dn):
+            #     self.__log.debug("user '%s' has insufficient permissions to write %s on %s, required is %s:%s" % (
+            #         self.__current_user, name, self.dn, topic, "w"))
+            #     raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=self.dn))
 
         found = False
         classes = [self.__attribute_map[name]['base']] + self.__attribute_map[name]['secondary']
