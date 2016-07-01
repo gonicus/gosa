@@ -188,6 +188,9 @@ setup(
         [gosa.object.renderer]
         extensions = gosa.backend.objects.renderer.extensions:ExtensionRenderer
 
+        [gosa.object]
+        object = gosa.backend.objects.proxy:ObjectProxy
+
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt
     """,
