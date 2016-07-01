@@ -89,7 +89,7 @@ class JSONRPCObjectMapper(Plugin):
             raise ValueError(C.make_error("REFERENCE_NOT_FOUND", ref=ref))
 
         if not self.__check_user(ref, user):
-            raise ValueError(C.make_error("NO_OBJECT_OWNER"))
+            raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
 
         del self.__stack[ref]
 
@@ -115,7 +115,7 @@ class JSONRPCObjectMapper(Plugin):
             raise ValueError(C.make_error("PROPERTY_NOT_FOUND", property=name))
 
         if not self.__check_user(ref, user):
-            raise ValueError(C.make_error("NO_OBJECT_OWNER"))
+            raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
 
         return setattr(objdsc['object']['object'], name, value)
 
@@ -141,7 +141,7 @@ class JSONRPCObjectMapper(Plugin):
             raise ValueError(C.make_error("PROPERTY_NOT_FOUND", property=name))
 
         if not self.__check_user(ref, user):
-            raise ValueError(C.make_error("NO_OBJECT_OWNER"))
+            raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
 
         return getattr(objdsc['object']['object'], name)
 
@@ -168,7 +168,7 @@ class JSONRPCObjectMapper(Plugin):
             raise ValueError(C.make_error("METHOD_NOT_FOUND", method=method))
 
         if not self.__check_user(ref, user):
-            raise ValueError(C.make_error("NO_OBJECT_OWNER"))
+            raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
 
         return getattr(objdsc['object']['object'], method)(*args)
 
@@ -182,7 +182,7 @@ class JSONRPCObjectMapper(Plugin):
             item = self.__stack[ref]
 
             if not self.__check_user(ref, user):
-                raise ValueError(C.make_error("NO_OBJECT_OWNER"))
+                raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
 
             oid = item['object']['oid']
             uuid = item['object']['uuid']
@@ -206,7 +206,7 @@ class JSONRPCObjectMapper(Plugin):
             return None
 
         if not self.__check_user(ref, user):
-            raise ValueError(C.make_error("NO_OBJECT_OWNER"))
+            raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
 
         # Load current object
         item = self.__stack[ref]
@@ -356,7 +356,7 @@ class JSONRPCObjectMapper(Plugin):
 
     def __check_user(self, ref, user):
         for ref, item in self.__stack.items():
-            if item.user == user:
+            if item['user'] == user:
                 return True
 
         return False
