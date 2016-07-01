@@ -10,23 +10,19 @@
 import unittest
 import pytest
 from gosa.backend.command import *
+from tests.GosaTestCase import GosaTestCase
 
-class CommandRegistryTestCase(unittest.TestCase):
+class CommandRegistryTestCase(GosaTestCase):
 
     def setUp(self):
-        self.registry = PluginRegistry()
+        super(CommandRegistryTestCase, self).setUp()
         self.reg = self.registry.getInstance("CommandRegistry")
-
-    def tearDown(self):
-        PluginRegistry.getInstance('HTTPService').srv.stop()
-        self.registry.shutdown()
 
     def test_getBase(self):
         assert self.reg.getBase() == "dc=example,dc=net"
 
     def test_getMethods(self):
         res = self.reg.getMethods()
-        print(res)
         assert len(res) > 0
         assert 'setUserPassword' in res
         assert res['setUserPassword']['doc'] == 'Sets a new password for a user'

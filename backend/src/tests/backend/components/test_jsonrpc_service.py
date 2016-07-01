@@ -28,6 +28,7 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
 
     def tearDown(self):
         super(JsonRpcHandlerTestCase, self).tearDown()
+        PluginRegistry.getInstance('HTTPService').srv.stop()
         self.registry.shutdown()
 
     def _update_cookies(self, headers):
