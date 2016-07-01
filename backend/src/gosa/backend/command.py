@@ -57,7 +57,6 @@ C.register_codes(dict(
     COMMAND_NO_USERNAME=N_("Calling method '%(method)s' without a valid user session is not permitted"),
     COMMAND_NOT_DEFINED=N_("Method '%(method)s' is not defined"),
     PERMISSION_EXEC=N_("No permission to execute method '%(method)s'"),
-    COMMAND_TYPE_NOT_DEFINED=N_("No method type '%(type)s' defined"),
     COMMAND_WITHOUT_DOCS=N_("Method '%(method)s' has no documentation")
     ))
 
@@ -217,15 +216,10 @@ class CommandRegistry(Plugin):
                 arg.insert(0, None)
 
         # Handle function type (additive, first match, regular)
-        methodType = self.commands[func]['type']
         (clazz, method) = self.path2method(self.commands[func]['path'])
 
-        # Do we have this method locally?
-        if func in self.commands:
-            return PluginRegistry.modules[clazz].\
-                    __getattribute__(method)(*arg, **larg)
-        else:
-            raise CommandInvalid(C.make_error("COMMAND_TYPE_NOT_DEFINED", type=methodType))
+        return PluginRegistry.modules[clazz].\
+                 __getattribute__(method)(*arg, **larg)
 
     def path2method(self, path):
         """
