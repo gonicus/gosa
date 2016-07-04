@@ -8,8 +8,19 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import pytest
+import crypt
+from unittest import mock
 from gosa.backend.components.jsonrpc_objects import JSONRPCObjectMapper, ObjectRegistry
+from gosa.common.components import PluginRegistry
 from tests.GosaTestCase import GosaTestCase
+
+def getPlugin(name):
+    if name == "ACLResolver":
+        mockedResolver = mock.MagicMock()
+        mockedResolver.return_value.check.return_value = True
+        return mockedResolver
+    else:
+        return
 
 class JSONRPCObjectMapperTestCase(GosaTestCase):
 
@@ -95,3 +106,26 @@ class JSONRPCObjectMapperTestCase(GosaTestCase):
         res = self.mapper.reloadObject('admin', ref)
         assert uuid == res['uuid']
         assert ref != res["__jsonclass__"][1][1]
+
+    def test_dispatchObjectMethod(self):
+        res = self.mapper.openObject('admin', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+        ref = res["__jsonclass__"][1][1]
+
+        with pytest.raises(ValueError):
+            self.mapper.dispatchObjectMethod('admin','wrong_ref','lock')
+
+        with pytest.raises(ValueError):
+            self.mapper.dispatchObjectMethod('admin', ref, 'wrong_method')
+
+        with pytest.raises(ValueError):
+            self.mapper.dispatchObjectMethod('someone_else', ref, 'lock')
+
+        # mock a method in the object
+        mockedResolver = mock.MagicMock()
+        mockedResolver.return_value.check.return_value = True
+        with mock.patch.dict(PluginRegistry.modules, {'ACLResolver': mockedResolver}), mock.patch('gosa.backend.plugins.password.manager.ObjectProxy') as m:
+            user = m.return_value
+            user.passwordMethod = crypt.METHOD_MD5
+            self.mapper.dispatchObjectMethod('admin', ref, 'changePassword','Test')
+            assert user.userPassword
+            assert user.commit.called

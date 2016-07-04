@@ -1112,7 +1112,7 @@ class ObjectFactory(object):
 
             # Do we need a user specification?
             if needsUser:
-                return cr.dispatch(caller_object.owner, None, command, *parmList)
+                return cr.dispatch(caller_object.owner, command, *parmList)
 
             return cr.call(command, *parmList)
         return funk
