@@ -189,7 +189,7 @@ class JSONRPCObjectMapper(Plugin):
             new_item = self.openObject(user, oid, uuid)
 
             # Close original ref and return the new one
-            self.closeObject(user, item['uuid'])
+            self.closeObject(user, ref)
 
             return new_item
 

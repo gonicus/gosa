@@ -119,7 +119,7 @@ class ObjectProxy(object):
         dn_or_base = _id
         if is_uuid(_id):
             index = PluginRegistry.getInstance("ObjectIndex")
-            res = index.search({'_uuid': _id}, {'dn': 1})
+            res = index.search({'uuid': _id}, {'dn': 1})
             if len(res) == 1:
                 dn_or_base = res[0]['dn']
             else:

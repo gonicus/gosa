@@ -84,14 +84,14 @@ class JSONRPCObjectMapperTestCase(GosaTestCase):
         self.mapper.setObjectProperty('admin', ref, 'description', 'Example')
         assert self.mapper.getObjectProperty('admin', ref, 'description') == "Example"
 
-    # Todo: Fix ObjectProxy.__init__ call with uuid (as _id)
-    # def test_reloadObjectProperty(self):
-    #     res = self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
-    #     uuid = res['uuid']
-    #     ref = res["__jsonclass__"][1][1]
-    #
-    #     with pytest.raises(ValueError):
-    #         self.mapper.reloadObject('someone else', ref)
-    #
-    #     res = self.mapper.reloadObject('admin', ref)
-    #     assert uuid != res['uuid']
+    def test_reloadObjectProperty(self):
+        res = self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
+        uuid = res['uuid']
+        ref = res["__jsonclass__"][1][1]
+
+        with pytest.raises(ValueError):
+            self.mapper.reloadObject('someone else', ref)
+
+        res = self.mapper.reloadObject('admin', ref)
+        assert uuid == res['uuid']
+        assert ref != res["__jsonclass__"][1][1]
