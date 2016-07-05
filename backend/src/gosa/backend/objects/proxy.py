@@ -347,7 +347,7 @@ class ObjectProxy(object):
         return self.__base.__class__.__name__
 
     def get_extension_types(self):
-        return dict([(e, i is not None) for e, i in self.__extensions.iteritems()])
+        return dict([(e, i is not None) for e, i in self.__extensions.items()])
 
     def get_templates(self, theme="default"):
         res = {self.get_base_type(): self.__base.getTemplate(theme)}

@@ -447,9 +447,9 @@ class ObjectIndex(Plugin):
             if e:
 
                 # New pre-events don't have a dn. Just skip is in this case...
-                if 'dn' in e:
-                    _dn = e['dn']
-                    _last_changed = e['last_modified']
+                if hasattr(e, 'dn'):
+                    _dn = e.dn
+                    _last_changed = e.last_modified
                 else:
                     _dn = "not known yet"
                     _last_changed = datetime.datetime.now()

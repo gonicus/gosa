@@ -70,8 +70,7 @@ class JSONRPCObjectMapper(Plugin):
 
         ``Return:`` list
         """
-        cr = PluginRegistry.getInstance('CommandRegistry')
-        return list(cr.objects.keys())
+        return list(ObjectRegistry.objects.keys())
 
     @Command(needsUser=True, __help__=N_("Close object and remove it from stack"))
     def closeObject(self, user, ref):
