@@ -28,12 +28,10 @@ class JSONRPCObjectMapperTestCase(GosaTestCase):
         super(JSONRPCObjectMapperTestCase, self).setUp()
         self.mapper = JSONRPCObjectMapper()
 
-    # def test_listObjectOIDs(self):
-    #     objectRegistry = ObjectRegistry.getInstance()
-    #     objectRegistry.register('test.oid', unittest.mock.MagicMock())
-    #     res = self.mapper.listObjectOIDs()
-    #     assert 'test.oid' in res
-    #     assert len(res) == 1
+    def test_listObjectOIDs(self):
+        res = self.mapper.listObjectOIDs()
+        assert 'object' in res
+        assert len(res) == 1
 
     def test_openObject(self):
         res = self.mapper.openObject('admin','object','dc=example,dc=net')
@@ -129,3 +127,31 @@ class JSONRPCObjectMapperTestCase(GosaTestCase):
             self.mapper.dispatchObjectMethod('admin', ref, 'changePassword','Test')
             assert user.userPassword
             assert user.commit.called
+
+    def test_diffObject(self):
+        assert self.mapper.diffObject('admin','unkown_ref') is None
+
+        res = self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
+        ref = res["__jsonclass__"][1][1]
+
+        with pytest.raises(ValueError):
+            self.mapper.diffObject('someone_else', ref)
+
+        self.mapper.setObjectProperty('admin', ref, 'description', 'val')
+        delta = self.mapper.diffObject('admin', ref)
+        assert 'description' in delta['attributes']['changed']
+
+
+    def test_removeObject(self):
+        res = self.mapper.openObject('admin', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+        ref = res["__jsonclass__"][1][1]
+
+        with pytest.raises(Exception):
+            self.mapper.removeObject('admin','object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+
+        self.mapper.closeObject('admin', ref)
+
+        with mock.patch.dict(ObjectRegistry.objects['object'], {'object': mock.MagicMock()}):
+            mockedObject = ObjectRegistry.objects['object']['object'].return_value
+            self.mapper.removeObject('admin', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+            assert mockedObject.remove.called
