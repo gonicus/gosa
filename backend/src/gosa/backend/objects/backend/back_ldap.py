@@ -168,8 +168,12 @@ class LDAP(ObjectBackend):
                     fltr, [self.uuid_entry])
 
         else:
-            res = self.con.search_s(misc, ldap.SCOPE_ONELEVEL, '(objectClass=*)',
-                [self.uuid_entry])
+            res = []
+            try:
+                res = self.con.search_s(misc, ldap.SCOPE_BASE, '(objectClass=*)',
+                    [self.uuid_entry])
+            except ldap.NO_SUCH_OBJECT:
+                pass
 
         if not res:
             return False
