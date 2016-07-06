@@ -190,12 +190,14 @@ class LDAP(ObjectBackend):
         res = self.con.search_s(dn, ldap.SCOPE_ONELEVEL, '(objectClass=*)',
                 [self.uuid_entry])
 
-        for c_dn in res.keys():
+        for c_dn, data in res:
             self.__delete_children(c_dn)
 
         # Delete ourselves
-        self.log.debug("removing entry '%s'" % dn)
-        return self.con.delete_s(dn)
+        if not res:
+            self.log.debug("removing entry '%s'" % dn)
+            return self.con.delete_s(dn)
+        return None
 
     def retract(self, uuid, data, params):
         # Remove defined data from the specified object
@@ -235,7 +237,7 @@ class LDAP(ObjectBackend):
     def create(self, base, data, params, foreign_keys=None):
         mod_attrs = []
         self.log.debug("gathering modifications for entry on base '%s'" % base)
-        for attr, entry in data.iteritems():
+        for attr, entry in data.items():
 
             # Skip foreign keys
             if foreign_keys and attr in foreign_keys:
@@ -302,7 +304,7 @@ class LDAP(ObjectBackend):
 
         mod_attrs = []
         self.log.debug("gathering modifications for entry '%s'" % dn)
-        for attr, entry in data.iteritems():
+        for attr, entry in data.items():
 
             # Value removed?
             if entry['orig'] and not entry['value']:
@@ -331,6 +333,7 @@ class LDAP(ObjectBackend):
         rdn_parts = rdns[0]
 
         for attr, value, idx in rdn_parts:
+            print(attr)
             if attr in data:
                 cnv = getattr(self, "_convert_to_%s" % data[attr]['type'].lower())
                 new_rdn_parts.append((attr, cnv(data[attr]['value'][0]), 4))
@@ -338,7 +341,7 @@ class LDAP(ObjectBackend):
                 new_rdn_parts.append((attr, value, idx))
 
         # Build new target DN and check if it has changed...
-        tdn = ldap.dn.dn2str([new_rdn_parts] + rdns[1:]).decode('utf-8')
+        tdn = ldap.dn.dn2str([new_rdn_parts] + rdns[1:])
 
         if tdn != dn:
             self.log.debug("entry needs a rename from '%s' to '%s'" % (dn, tdn))
