@@ -1,10 +1,25 @@
+sudo: required
+
 language: python
+
+services:
+    - docker
+
 python:
     - "3.5"
+
 before_install:
-    - pip install setproctitle pylint tornado
+    - docker pull cpollmeier/gosa3:devel
+    - docker run -d -p 389:389 -p 5433:5432 cpollmeier/gosa3:devel
+    - docker ps -a
+    - pip install setproctitle pylint tornado coveralls
+    - sudo [ $(ip addr show | grep "inet6 ::1" | wc -l) -lt "1" ] && sudo sed -i '/^::1/d' /etc/hosts
+    - cat /etc/hosts
+    - export TZ=Europe/Berlin
+    - date
 script:
     - ./setup.py develop
     - ./setup.py test
 after_success:
-    - coveralls --data_file backend/.coverage
+    - cd backend/
+    - coveralls
