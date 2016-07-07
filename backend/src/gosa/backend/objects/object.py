@@ -493,7 +493,7 @@ class Object(object):
                                 if not os.path.exists(path):
                                     return None
 
-                with open(path, "r") as f:
+                with open(path, "rb") as f:
                     _ui = f.read()
 
                 # Build new merged resource element
@@ -507,7 +507,7 @@ class Object(object):
                         raise IOError(C.make_error("NO_SUCH_RESOURCE", resource=location))
 
                     res = ""
-                    with open(location, "r") as f:
+                    with open(location, "rb") as f:
                         res = f.read()
 
                     for resource in etree.fromstring(res).findall("qresource"):
