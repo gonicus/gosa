@@ -13,6 +13,7 @@ make the life of plugin programming easier.
 """
 import re
 import os
+import datetime
 import time
 import tempfile
 import lxml
@@ -21,7 +22,6 @@ from tokenize import generate_tokens
 from token import STRING
 from subprocess import Popen, PIPE
 from urllib.parse import urlparse
-from datetime import datetime
 from io import StringIO
 
 
@@ -132,8 +132,8 @@ def get_timezone_delta():
 
     ``Return``: String in the format [+-]hours:minutes
     """
-    timestamp = time.mktime(datetime.now().timetuple())
-    timeDelta = datetime.fromtimestamp(timestamp) - datetime.utcfromtimestamp(timestamp)
+    timestamp = time.mktime(datetime.datetime.now().timetuple())
+    timeDelta = datetime.datetime.fromtimestamp(timestamp) - datetime.datetime.utcfromtimestamp(timestamp)
     seconds = timeDelta.seconds
     return "%s%02d:%02d" % ("-" if seconds < 0 else "+", abs(seconds // 3600), abs(seconds % 60))
 
@@ -269,7 +269,7 @@ def xml2dict(node):
         elif isinstance(v, lxml.objectify.IntElement):
             ret[k] = v.text
         elif isinstance(v, lxml.objectify.ObjectifiedElement):
-            if v.__len__ > 1:
+            if v.__len__() > 1:
                 tmp = []
                 for el in v:
                     tmp.append(xml2dict(el))
