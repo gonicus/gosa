@@ -69,14 +69,8 @@ class JobTestCase(unittest.TestCase):
         assert j1.compute_next_run_time(dt) == None
     
     def test_get_run_times(self):
+        # NOTE: get_run_times only works if compute_next_run_time was called before
+        # (and therefore next_run_time is set).
         trigger = SimpleTrigger("2016-12-12")
         j1 = Job(trigger, dummy, (), {}, 1, 0, max_runs=2)
-        # NOTE: attribute "runs" is supposed to be accessed directly by scheduler.
-        # Unlike "instances" it is not protected by locks (at least from the perspective of the Job).
-        dt = datetime(2016, 12, 11)
-        assert j1.compute_next_run_time(dt) == datetime(2016, 12, 12)
-        assert j1.next_run_time == datetime(2016, 12, 12)
-        j1.runs = 2
-        assert j1.compute_next_run_time(dt) == None
-        assert j1.next_run_time == None
 
