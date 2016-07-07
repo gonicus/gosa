@@ -86,8 +86,7 @@ class SetValue(ElementFilter):
         super(SetValue, self).__init__(obj)
 
     def process(self, obj, key, valDict, value):
-        f = ObjectFactory()
-        types = f.getAttributeTypes()
+        types = ObjectFactory.getInstance().getAttributeTypes()
         valDict[key]['value'] = types['String'].convert_to(valDict[key]['type'], [value])
         return key, valDict
 
@@ -100,8 +99,7 @@ class Clear(ElementFilter):
         super(Clear, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        f = ObjectFactory()
-        types = f.getAttributeTypes()
+        types = ObjectFactory.getInstance().getAttributeTypes()
         valDict[key]['value'] = types['String'].convert_to(valDict[key]['type'], [''])
         return key, valDict
 

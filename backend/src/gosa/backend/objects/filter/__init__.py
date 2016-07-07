@@ -32,7 +32,7 @@ class ElementFilter(object):
     def __init__(self, obj):  # pragma: nocover
         pass
 
-    def process(self, obj, key, value, *args):
+    def process(self, obj, key, value, *args):  # pragma: nocover
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", method="process"))
 
     def __copy__(self):  # pragma: nocover

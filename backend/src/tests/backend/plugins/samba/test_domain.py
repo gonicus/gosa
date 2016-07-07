@@ -68,17 +68,17 @@ class SambaGuiMethodsTestCase(unittest.TestCase):
 @unittest.mock.patch.object(PluginRegistry, 'getInstance')
 def test_IsValidSambaDomainName(mockedInstance):
     # mock the whole lookup in the ObjectIndex to return True
-    mockedInstance.return_value.search.return_value.count.return_value = True
+    mockedInstance.return_value.search.return_value = [1]
 
     check = IsValidSambaDomainName(None)
 
     (res, errors) = check.process(None, None, ["test"])
-    assert res == True
+    assert res is True
     assert len(errors) == 0
 
     # mockup everything to return False
-    mockedInstance.return_value.search.return_value.count.return_value = False
+    mockedInstance.return_value.search.return_value = []
 
     (res, errors) = check.process(None, None, ["test"])
-    assert res == False
+    assert res is False
     assert len(errors) == 1

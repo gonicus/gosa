@@ -280,7 +280,7 @@ class IsValidSambaDomainName(ElementComparator):
 
         res = index.search({'_type': 'SambaDomain', 'sambaDomainName': domain},
             {'_uuid': 1})
-
+        print(res)
         if len(res):
             return True, errors
 
