@@ -24,7 +24,7 @@ from gosa.common.config import Config
 try:
     from sqlalchemy.orm import sessionmaker, scoped_session
     from sqlalchemy import create_engine
-except ImportError:
+except ImportError: # pragma: nocover
     pass
 
 

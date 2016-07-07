@@ -7,7 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-from datetime import datetime, timedelta
+import datetime
 from math import ceil
 
 from gosa.common.components.scheduler.util import convert_to_datetime, timedelta_seconds
@@ -15,7 +15,7 @@ from gosa.common.components.scheduler.util import convert_to_datetime, timedelta
 
 class IntervalTrigger(object):
     def __init__(self, interval, start_date=None):
-        if not isinstance(interval, timedelta):
+        if not isinstance(interval, datetime.timedelta):
             raise TypeError('interval must be a timedelta')
         if start_date:
             start_date = convert_to_datetime(start_date)
@@ -23,11 +23,11 @@ class IntervalTrigger(object):
         self.interval = interval
         self.interval_length = timedelta_seconds(self.interval)
         if self.interval_length == 0:
-            self.interval = timedelta(seconds=1)
+            self.interval = datetime.timedelta(seconds=1)
             self.interval_length = 1
 
         if start_date is None:
-            self.start_date = datetime.now() + self.interval
+            self.start_date = datetime.datetime.now() + self.interval
         else:
             self.start_date = convert_to_datetime(start_date)
 
