@@ -11,13 +11,10 @@ python:
 before_install:
     - docker pull cpollmeier/gosa3:devel
     - docker run -d -p 389:389 -p 5433:5432 cpollmeier/gosa3:devel
-    - docker ps -a
     - pip install setproctitle pylint tornado coveralls
     - sudo [ $(ip addr show | grep "inet6 ::1" | wc -l) -lt "1" ] && sudo sed -i '/^::1/d' /etc/hosts
-    - sudo sed -i '/127.0.1.1/d' /etc/hosts"  # Workaround tornadoweb/tornado#1573
-    - cat /etc/hosts
+    - sudo sed -i '/127.0.1.1/d' /etc/hosts  # Workaround tornadoweb/tornado#1573
     - export TZ=Europe/Berlin
-    - date
 script:
     - ./setup.py develop
     - ./setup.py test
