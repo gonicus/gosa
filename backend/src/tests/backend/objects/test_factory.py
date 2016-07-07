@@ -186,7 +186,6 @@ class ObjectBackendTestCase(GosaTestCase):
         assert self.obj.getNamedI18N(None) == {}
 
         res = self.obj.getNamedI18N(['user.ui'], 'de')
-        print(res)
         assert res['User'] == 'Benutzer'
         assert res['Title'] == 'Titel'
 
