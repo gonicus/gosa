@@ -108,7 +108,7 @@ class SambaGuiMethods(Plugin):
 
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'_type': 'SambaDomain', 'sambaDomainName': _self.sambaDomainName}, dict(zip(domain_attributes, [1 for n in domain_attributes])))
-        if not res.count():
+        if not len(res):
             return("invalid domain selected")
 
         attrs = {}
@@ -281,7 +281,7 @@ class IsValidSambaDomainName(ElementComparator):
         res = index.search({'_type': 'SambaDomain', 'sambaDomainName': domain},
             {'_uuid': 1})
 
-        if res.count():
+        if len(res):
             return True, errors
 
         errors.append(dict(index=0, detail=N_("Unknown domain '%(domain)s'"), domain=value[0]))

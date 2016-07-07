@@ -71,18 +71,3 @@ class ObjectBackendTestCase(GosaTestCase):
     #     print(res)
     #     assert False
     #     super(ObjectBackendTestCase, self).tearDown()
-
-    def test_rest(self):
-        assert self.back.identify_by_uuid('uuid', {}) is False
-        assert self.back.identify('dn', {}) is False
-        assert self.back.query('base', 'scope', {}) == []
-        assert self.back.exists('misc') is False
-        assert self.back.move('uuid', 'new_base') is False
-        assert self.back.create('base', [], []) is None
-        assert self.back.uuid2dn('uuid') is None
-        assert self.back.dn2uuid('dn') is None
-        assert self.back.get_timestamps('dn') == (None, None)
-        assert self.back.is_uniq(None, None, None) is False
-        assert self.back.get_uniq_dn(None, None, None, None) is None
-        with pytest.raises(BackendError):
-            self.back.get_next_id(None)
