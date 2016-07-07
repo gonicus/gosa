@@ -104,7 +104,7 @@ class IndexScanFinished():
 class ObjectIndex(Plugin):
     """
     The *ObjectIndex* keeps track of objects and their indexed attributes. It
-    is the search engine that allows quick querries on the data set with
+    is the search engine that allows quick queries on the data set with
     paged results and wildcards.
     """
 
