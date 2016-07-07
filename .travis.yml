@@ -14,6 +14,7 @@ before_install:
     - docker ps -a
     - pip install setproctitle pylint tornado coveralls
     - sudo [ $(ip addr show | grep "inet6 ::1" | wc -l) -lt "1" ] && sudo sed -i '/^::1/d' /etc/hosts
+    - sudo sed -i '/127.0.1.1/d' /etc/hosts"  # Workaround tornadoweb/tornado#1573
     - cat /etc/hosts
     - export TZ=Europe/Berlin
     - date
