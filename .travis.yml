@@ -21,3 +21,5 @@ script:
 after_success:
     - cd backend/
     - coveralls
+    - cd ../common/
+    - coveralls
