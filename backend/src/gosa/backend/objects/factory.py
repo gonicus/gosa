@@ -155,23 +155,19 @@ class ObjectFactory(object):
     def getAttributeTypes(self):
         return self.__attribute_type
 
-    def getObjectBackendProperties(self, name):
+    def __get_class(self, name):
         if not name in self.__classes:
             self.__classes[name] = self.__build_class(name)
+        return self.__classes[name]
 
-        return getattr(self.__classes[name], "_backendAttrs")
+    def getObjectBackendProperties(self, name):
+        return getattr(self.__get_class(name), "_backendAttrs")
 
     def getObjectProperties(self, name):
-        if not name in self.__classes:
-            self.__classes[name] = self.__build_class(name)
-
-        return getattr(self.__classes[name], "__properties")
+        return getattr(self.__get_class(name), "__properties")
 
     def getObjectMethods(self, name):
-        if not name in self.__classes:
-            self.__classes[name] = self.__build_class(name)
-
-        return list(getattr(self.__classes[name], "__methods").keys())
+        return list(getattr(self.__get_class(name), "__methods").keys())
 
     def getXMLDefinitionsCombined(self):
         """
@@ -657,10 +653,7 @@ class ObjectFactory(object):
 
         """
         self.log.debug("object of type '%s' requested %s" % (name, args))
-        if not name in self.__classes:
-            self.__classes[name] = self.__build_class(name)
-
-        return self.__classes[name](*args, **kwargs)
+        return self.__get_class(name)(*args, **kwargs)
 
     def load_schema(self):
         """
@@ -719,11 +712,11 @@ class ObjectFactory(object):
 
     def __build_class(self, name):
         """
-        This method builds a meta-class for each object defintion read from the
-        xml defintion files.
+        This method builds a meta-class for each object definition read from the
+        xml definition files.
 
         It uses a base-meta-class which will be extended by the define
-        attributes and mehtods of the object.
+        attributes and methods of the object.
 
         The final meta-class will be stored and can then be requested using:
         :meth:`gosa.backend.objects.factory.ObjectFactory.getObject`
