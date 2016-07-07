@@ -105,8 +105,9 @@ class ObjectHandler(ObjectBackend):
 
             # Get the matching attribute for the current object
             foreignObject, foreignAttr, foreignMatchAttr, matchAttr = mapping[targetAttr]
-            res = index.search({'_uuid': uuid}, {matchAttr: 1})
-            if not res.count():
+
+            res = index.search({'_uuid': uuid, matchAttr: "%"}, {matchAttr: 1})
+            if len(res) == 0:
                 raise BackendError(C.make_error("SOURCE_OBJECT_NOT_FOUND", object=targetAttr))
             matchValue = res[0][matchAttr][0]
 
@@ -115,7 +116,7 @@ class ObjectHandler(ObjectBackend):
             object_mapping = {}
             for value in allvalues:
                 res = index.search({'_type': foreignObject, foreignAttr: value}, {'dn': 1})
-                if res.count() != 1:
+                if len(res) != 1:
                     raise EntryNotFound(C.make_error("NO_UNIQUE_ENTRY", object=foreignObject, attribute=foreignAttr, value=value))
                 else:
                     object_mapping[value] = ObjectProxy(res[0]['dn'])

@@ -13,10 +13,16 @@ from gosa.common.components import PluginRegistry, ObjectRegistry
 class GosaTestCase(TestCase):
 
     def setUp(self):
+        self._init()
+
+    def tearDown(self):
+        self._deinit();
+
+    def _init(self):
         oreg = ObjectRegistry.getInstance()  # @UnusedVariable
         pr = PluginRegistry()  # @UnusedVariable
         cr = PluginRegistry.getInstance("CommandRegistry") # @UnusedVariable
 
-    def tearDown(self):
+    def _deinit(self):
         PluginRegistry.getInstance('HTTPService').srv.stop()
         PluginRegistry.shutdown()
