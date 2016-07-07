@@ -61,8 +61,15 @@ setup(
     zip_safe = False,
 
     setup_requires = [
+        'pytest-runner',
         'pylint',
         ],
+    tests_require=[
+        'pytest',
+        'pytest-cov',
+        'coveralls',
+        'tornado'
+    ],
     install_requires = [
         'gosa.backend',
         ],

@@ -8,6 +8,10 @@ services:
 python:
     - "3.5"
 
+cache:
+  directories:
+    - plugins/gui/frontend/gosa/build
+
 before_install:
     - docker pull cpollmeier/gosa3:devel
     - docker run -d -p 389:389 -p 5433:5432 cpollmeier/gosa3:devel
@@ -17,9 +21,12 @@ before_install:
     - export TZ=Europe/Berlin
 
 script:
+    - cd plugins/gui/frontend/gosa/
+    - python2 generate.py build
+    - cd ../../../../
     - ./setup.py develop
     - ./setup.py test
 
 after_success:
-    - coverage combine common/.coverage backend/.coverage
+    - coverage combine common/.coverage backend/.coverage shell/.coverage plugins/gui/.coverage # needs to be more generic
     - coveralls

@@ -27,7 +27,7 @@ class SchedulerTestCase(unittest.TestCase):
     def test_SchedulerAlreadyRunningError(self):
         err = SchedulerAlreadyRunningError()
         self.assertEqual(str(err), 'Scheduler is already running')
-    @pytest.mark.skip(reason="Long running")
+
     def test_interval_jobs(self):
         s = Scheduler()
         s.add_jobstore(RAMJobStore(), "ram1")
@@ -45,7 +45,7 @@ class SchedulerTestCase(unittest.TestCase):
         #s.stop()
         s.reschedule()
         s.refresh()
-    @pytest.mark.skip(reason="Long running")
+
     def test_cron_jobs(self):
         s = Scheduler()
         s.add_jobstore(RAMJobStore(), "ram1")
