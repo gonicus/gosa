@@ -6,6 +6,7 @@ from gosa.common.env import *
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm.session import Session
 
+# Todo: Mocking
 class EnvTestCase(unittest.TestCase):
     def setUp(self):
         self.old_environ = os.environ.copy()
@@ -20,6 +21,10 @@ class EnvTestCase(unittest.TestCase):
         self.assertTrue(e.reset_requested)
         
         self.assertIsInstance(e.getDatabaseEngine("backend-database"), Engine)
+        self.assertIsInstance(e.getDatabaseEngine("backend-database", key="database"), Engine)
+        if not e.config.get("notexistantsection"):
+            self.assertRaises(Exception, e.getDatabaseEngine, "notexistantsection")
+            self.assertRaises(Exception, e.getDatabaseEngine, "notexistantsection", key="db")
         self.assertIsInstance(e.getDatabaseSession("backend-database"), Session)
         
         self.assertEqual(e, Environment.getInstance())
