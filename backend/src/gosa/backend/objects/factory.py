@@ -493,7 +493,7 @@ class ObjectFactory(object):
 
                         if not obj in res[attr.Name.text]:
                             res[attr.Name.text][obj] = {
-                                'description': attr.Description.text,
+                                'description': str(load(attr, "Description", "")),
                                 'type': attr.Type.text,
                                 'multivalue': bool(load(attr, "MultiValue", False)),
                                 'mandatory': bool(load(attr, "Mandatory", False)),
@@ -1432,7 +1432,7 @@ class ObjectFactory(object):
 
                 for path in paths:
                     if os.path.exists(path):
-                        with open(path, "r") as f:
+                        with open(path, "rb") as f:
                             i18n = f.read()
                         break
 
@@ -1460,11 +1460,11 @@ class ObjectFactory(object):
 
         return res
 
-    def getObjectBackendParameters(self, backend, attribute):
+    def getObjectBackendParameters(self, name, attribute):
         """
         Helper method to extract backendParameter infos
         """
-        attrs = self.getObjectBackendProperties(backend)
+        attrs = self.getObjectBackendProperties(name)
 
         for be in attrs:
             if attribute in attrs[be]:
