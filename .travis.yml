@@ -19,7 +19,5 @@ script:
     - ./setup.py develop
     - ./setup.py test
 after_success:
-    - cd backend/
-    - coveralls
-    - cd ../common/
+    - coverage combine common/.coverage backend/.coverage
     - coveralls
