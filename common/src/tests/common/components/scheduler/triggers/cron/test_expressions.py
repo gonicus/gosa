@@ -98,14 +98,9 @@ class ExpressionsTestCase(unittest.TestCase):
         assert wpex.get_next_value(dt, day_field) == 4
         
         wpex = WeekdayPositionExpression("last", "fri")
+        assert wpex.get_next_value(dt, day_field) == 29
         assert str(wpex) == "last fri"
         assert repr(wpex) == "WeekdayPositionExpression('last', 'fri')"
-        return True
-        # Python2-Python3 difference:
-        # Py2: ((15) / 7) * 7 == 14
-        # Py3: ((15) / 7) * 7 == 15.0
-        # Implementation relies on Py2 behaviour.
-        assert wpex.get_next_value(dt, day_field) == 30
     def test_LastDayOfMonthExpression(self):
         assert LastDayOfMonthExpression.value_re == re.compile(r'last', re.IGNORECASE)
         
