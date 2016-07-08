@@ -21,7 +21,7 @@ import atexit
 try:
     #pylint: disable=F0401
     from queue import Queue, Empty
-except ImportError:
+except ImportError: # pragma: nocover
     #pylint: disable=F0401
     from Queue import Queue, Empty
 

@@ -15,8 +15,7 @@ class FieldsTestCase(unittest.TestCase):
         assert bf.is_default == True
         assert bf.get_min(None) == 1
         assert bf.get_max(None) == 12
-        #Note: get_min and get_max do not use the dateval parameter (but it should?).
-        #May be replaced with *args.
+        # Note: get_min and get_max do not use the dateval parameter.
         
         assert bf.get_value(datetime.datetime(2016, 12, 13)) == 12
         

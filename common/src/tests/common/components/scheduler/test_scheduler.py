@@ -116,7 +116,6 @@ class SchedulerTestCase(unittest.TestCase):
         self.assert_jobs(s, handler)
         s.shutdown()
 
-    @slow
     def test_date_jobs(self):
         with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
             s = Scheduler()
