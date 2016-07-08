@@ -22,7 +22,7 @@ class CronTriggerTestCase(unittest.TestCase):
     def test__increment_field_value(self):
         t = CronTrigger(hour="12")
         dt = datetime(2016, 6, 12)
-        # Magic numbers are indexes of CronTrigger.FIELD_NAMES
+        # Second parameter numbers are indexes of CronTrigger.FIELD_NAMES
         assert t._increment_field_value(dt, 2) == (datetime(2016, 6, 13), 2)
         assert t._increment_field_value(dt, 4) == (datetime(2016, 6, 13), 2)
         assert t._increment_field_value(dt, 5) == (datetime(2016, 6, 12, 1), 5)
@@ -32,7 +32,7 @@ class CronTriggerTestCase(unittest.TestCase):
         t = CronTrigger(hour="12")
         dt = datetime(2016, 6, 12)
         assert t._set_field_value(dt, 2, 8) == datetime(2016, 6, 8)
-        # Note: _set_field_value will not change not REAL fields.
+        # Note: _set_field_value won't change not REAL fields.
     def test_get_next_fire_time(self):
         t = CronTrigger(hour="12")
         dt = datetime(2016, 6, 12)

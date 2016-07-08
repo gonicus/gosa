@@ -101,7 +101,7 @@ class UtilTestCase(unittest.TestCase):
         
         #from gosa.common.components.registry import PluginRegistry
         # Won't work...
-        #self.assertEqual(ref_to_obj("gosa.agent.command:CommandRegistry.dispatch"),
+        #self.assertEqual(ref_to_obj("gosa.backend.command:CommandRegistry.dispatch"),
             #getattr(PluginRegistry.getInstance('CommandRegistry'), "dispatch") )
     def test_maybe_ref(self):
         self.assertEqual(maybe_ref("datetime:timedelta"), datetime.timedelta)

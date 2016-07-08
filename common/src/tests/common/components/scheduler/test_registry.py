@@ -7,6 +7,6 @@ class RegistryTestCase(unittest.TestCase):
     def test_PluginRegistry(self):
         #pr = PluginRegistry()
         #PluginRegistry.shutdown()
-        #print(PluginRegistry.getEventSchema())
+        #PluginRegistry.getEventSchema()
         #assert 0
         pass

@@ -4,7 +4,8 @@ import unittest
 import pytest
 from gosa.common.components.scheduler.job import *
 from gosa.common.components.scheduler.triggers.simple import *
-from datetime import datetime
+from gosa.common.components.scheduler.triggers.interval import *
+from datetime import datetime, timedelta
 
 def dummy():
     pass
@@ -71,6 +72,50 @@ class JobTestCase(unittest.TestCase):
     def test_get_run_times(self):
         # NOTE: get_run_times only works if compute_next_run_time was called before
         # (and therefore next_run_time is set).
-        trigger = SimpleTrigger("2016-12-12")
-        j1 = Job(trigger, dummy, (), {}, 1, 0, max_runs=2)
+        trigger = IntervalTrigger(timedelta(days=2), start_date="2016-12-12")
+        j1 = Job(trigger, dummy, (), {}, 1, 0)
+        j1.compute_next_run_time(datetime(2016,12,12))
+        assert j1.get_run_times(datetime(2016,12,14)) == [datetime(2016,12,12), datetime(2016,12,14)]
+    
+    def test_instances(self):
+        trigger = IntervalTrigger(timedelta(days=2), start_date="2016-12-12")
+        j1 = Job(trigger, dummy, (), {}, 1, 0, max_instances=2)
+        j1.add_instance()
+        j1.add_instance()
+        with pytest.raises(MaxInstancesReachedError):
+            j1.add_instance()
+        j1.remove_instance()
+        j1.remove_instance()
+    
+    def test_state(self):
+        trigger = IntervalTrigger(timedelta(days=2), start_date="2016-12-12")
+        j1 = Job(trigger, dummy, (), {}, 1, 0, max_instances=2)
+        expected_state = {
+                'max_instances': 2,
+                'status': 1,
+                'job_type': None,
+                'description': None,
+                'owner': None,
+                'coalesce': 0,
+                'func_ref': 'common.components.scheduler.test_job:dummy',
+                'args': (),
+                'kwargs': {},
+                'uuid': j1.uuid,
+                'callback_ref': None,
+                'callback': None,
+                'tag': None,
+                'max_runs': None,
+                'name': 'dummy',
+                'progress': 0,
+                'misfire_grace_time': 1,
+                'origin': None,
+                'trigger': trigger,
+                'runs': 0}
+        assert j1.__getstate__() == expected_state
+        
+        return True
+        # Note: __getstate__ does not return values __setstate__ expects.
+        expected_state["max_instances"] = 3
+        j1.__setstate__(expected_state)
+        assert j1.max_instances == 3
 

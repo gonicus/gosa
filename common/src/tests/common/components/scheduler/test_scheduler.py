@@ -3,7 +3,10 @@
 import unittest
 import pytest
 import threading
+import os
+from io import StringIO
 from gosa.common.components.scheduler.scheduler import *
+from gosa.common.components.scheduler.events import *
 from gosa.common.components.scheduler.jobstores.ram_store import *
 
 class CallHandler:
@@ -19,7 +22,6 @@ class CallHandler:
         retval = self.i
         self.lock.release()
         return retval
-
 def process(handler):
     handler.count()
 
@@ -27,6 +29,67 @@ class SchedulerTestCase(unittest.TestCase):
     def test_SchedulerAlreadyRunningError(self):
         err = SchedulerAlreadyRunningError()
         self.assertEqual(str(err), 'Scheduler is already running')
+    def test_configure(self):
+        s = Scheduler()
+        s.shutdown() # Does nothing
+        s.start()
+        with pytest.raises(SchedulerAlreadyRunningError):
+            s.start()
+        with pytest.raises(SchedulerAlreadyRunningError):
+            s.configure()
+        s.shutdown()
+        
+    def test_add_job(self):
+        # Adding jobs before and after start()
+        def dummy(): pass
+        s = Scheduler()
+        s.add_jobstore(RAMJobStore(), "default")
+        with StringIO("") as buf:
+            s.print_jobs(out=buf)
+            assert buf.getvalue() == os.linesep.join("""Jobstore default:
+    No scheduled jobs""".splitlines())+os.linesep
+        trigger = SimpleTrigger("2016-12-12")
+        j1 = s.add_job(trigger, dummy, (), {})
+        assert isinstance(j1, Job)
+        s.start()
+        j2 = s.add_job(trigger, dummy, (), {})
+        assert isinstance(j2, Job)
+        assert len(s.get_jobs()) == 2
+        with StringIO("") as buf:
+            s.print_jobs(out=buf)
+            assert buf.getvalue() == os.linesep.join("""Jobstore default:
+    dummy (trigger: date[2016-12-12 00:00:00], next run at: 2016-12-12 00:00:00)
+    dummy (trigger: date[2016-12-12 00:00:00], next run at: 2016-12-12 00:00:00)""".splitlines())+os.linesep
+        s.shutdown()
+        
+    def test_jobstores(self):
+        s = Scheduler()
+        s.add_jobstore(RAMJobStore(), "ram1")
+        with pytest.raises(KeyError):
+            s.add_jobstore(RAMJobStore(), "ram1")
+        s.remove_jobstore("ram1")
+        with pytest.raises(KeyError):
+            s.remove_jobstore("ram2")
+        
+    def test_listeners(self):
+        s = Scheduler()
+        event = SchedulerEvent(123)
+        dummyCallback = unittest.mock.MagicMock()
+        s.add_listener(dummyCallback)
+        s._notify_listeners(event)
+        dummyCallback.assert_called_once_with(event)
+        s.remove_listener(dummyCallback)
+    
+    def assert_jobs(self, s, handler):
+        while len(s.get_jobs()) == 0:
+            pass
+        while handler.get_count() < 2:
+            pass
+        for j in s.get_jobs():
+            s.unschedule_job(j)
+        s.reschedule()
+        s.refresh()
+        
     @pytest.mark.skip(reason="Long running")
     def test_interval_jobs(self):
         s = Scheduler()
@@ -34,17 +97,8 @@ class SchedulerTestCase(unittest.TestCase):
         handler = CallHandler()
         s.add_interval_job(process, args=(handler,), seconds=1)
         s.start()
-        while len(s.get_jobs()) == 0:
-            pass
-        while handler.get_count() < 2:
-            pass
-        for j in s.get_jobs():
-            s.unschedule_job(j)
-        
-            #s.unschedule_func(process)
-        #s.stop()
-        s.reschedule()
-        s.refresh()
+        self.assert_jobs(s, handler)
+        s.shutdown()
     @pytest.mark.skip(reason="Long running")
     def test_cron_jobs(self):
         s = Scheduler()
@@ -52,17 +106,24 @@ class SchedulerTestCase(unittest.TestCase):
         handler = CallHandler()
         s.add_cron_job(process, args=(handler,))
         s.start()
-        while len(s.get_jobs()) == 0:
-            pass
-        while handler.get_count() < 2:
-            pass
-        for j in s.get_jobs():
-            #s.unschedule_job(j)
-        
-            s.unschedule_func(process)
-        #s.stop()
-        s.reschedule()
-        s.refresh()
+        self.assert_jobs(s, handler)
+        s.shutdown()
+    @pytest.mark.skip(reason="Long running")
+    def test_date_jobs(self):
+        s = Scheduler()
+        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+            datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
+            s.add_jobstore(RAMJobStore(), "ram1")
+            s.start()
+            handler = CallHandler()
+            s.add_date_job(process, "2016-12-12", args=(handler,))
+            while len(s.get_jobs()) == 0:
+                pass
+            while handler.get_count() < 1:
+                pass
+            for j in s.get_jobs():
+                s.unschedule_job(j)
+            s.shutdown()
 
 
 
