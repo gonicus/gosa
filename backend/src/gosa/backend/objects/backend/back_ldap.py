@@ -224,7 +224,7 @@ class LDAP(ObjectBackend):
         dn = self.uuid2dn(uuid)
         return self.create(dn, data, params, foreign_keys)
 
-    def move_extension(self, uuid, new_base):
+    def move_extension(self, uuid, new_base):  # pragma: nocover
         # There is no need to handle this inside of the LDAP backend
         pass
 

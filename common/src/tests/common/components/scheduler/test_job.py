@@ -97,7 +97,7 @@ class JobTestCase(unittest.TestCase):
                 'description': None,
                 'owner': None,
                 'coalesce': 0,
-                'func_ref': 'common.components.scheduler.test_job:dummy',
+                'func_ref': 'tests.common.components.scheduler.test_job:dummy',
                 'args': (),
                 'kwargs': {},
                 'uuid': j1.uuid,

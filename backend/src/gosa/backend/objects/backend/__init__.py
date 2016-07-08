@@ -33,94 +33,94 @@ C.register_codes(dict(
 
 class ObjectBackend(object):
 
-    def dn2uuid(self, dn):
+    def dn2uuid(self, dn):  # pragma: nocover
         """
         Convert DN to uuid.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", dn, method="dn2uuid"))
 
-    def uuid2dn(self, uuid):
+    def uuid2dn(self, uuid):  # pragma: nocover
         """
         Convert uuid to DN.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="uuid2dn"))
 
-    def get_timestamps(self, dn):
+    def get_timestamps(self, dn):  # pragma: nocover
         """
         Return a tuple (createdTimestamp, modifyTimestamp)
         """
         return None, None
 
-    def load(self, uuid, keys, back_attrs=None):
+    def load(self, uuid, keys, back_attrs=None):  # pragma: nocover
         """
         Load given keys from entry with uuid.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="load"))
 
-    def move(self, uuid, new_base):
+    def move(self, uuid, new_base):  # pragma: nocover
         """
         Move object to new base.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="move"))
 
-    def move_extension(self, uuid, new_base):
+    def move_extension(self, uuid, new_base):  # pragma: nocover
         """
         Notify extension that it is on another base now.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="move_extension"))
 
-    def create(self, dn, data, params):
+    def create(self, dn, data, params):  # pragma: nocover
         """
         Create a new base object entry with the given DN.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", dn, method="create"))
 
-    def extend(self, uuid, data, params, foreign_keys):
+    def extend(self, uuid, data, params, foreign_keys):  # pragma: nocover
         """
         Create an extension to a base object with the given UUID.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="extend"))
 
-    def update(self, uuid, data, params):
+    def update(self, uuid, data, params):  # pragma: nocover
         """
         Update a base entry or an extension with the given UUID.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="update"))
 
-    def exists(self, misc):
+    def exists(self, misc):  # pragma: nocover
         """
         Check if an object with the given UUID or DN exists.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", method="exists"))
 
-    def remove(self, uuid, data, params):
+    def remove(self, uuid, data, params):  # pragma: nocover
         """
         Remove base object specified by UUID.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="remove"))
 
-    def retract(self, uuid, data, params):
+    def retract(self, uuid, data, params):  # pragma: nocover
         """
         Retract extension from base object specified by UUID.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="retract"))
 
-    def is_uniq(self, attr, value, at_type):
+    def is_uniq(self, attr, value, at_type):  # pragma: nocover
         """
         Check if the given attribute is unique.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", method="is_uniq"))
 
-    def identify(self, dn, params, fixed_rdn=None):
+    def identify(self, dn, params, fixed_rdn=None):  # pragma: nocover
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", dn, method="identify"))
 
-    def identify_by_uuid(self, dn, params):
+    def identify_by_uuid(self, dn, params):  # pragma: nocover
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", dn, method="identify_by_uuid"))
 
-    def query(self, base, scope, params, fixed_rdn=None):
+    def query(self, base, scope, params, fixed_rdn=None):  # pragma: nocover
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", method="query"))
 
-    def get_next_id(self, attr):
+    def get_next_id(self, attr):  # pragma: nocover
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", method="get_next_id"))
 
     def build_dn_list(self, rdns, base, data, FixedRDN):

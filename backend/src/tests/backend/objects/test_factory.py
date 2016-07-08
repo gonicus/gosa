@@ -8,17 +8,20 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import pytest
-from tests.GosaTestCase import GosaTestCase
+from tests.GosaTestCase import *
 from gosa.backend.objects.factory import *
 
 
+@slow
 class ObjectBackendTestCase(GosaTestCase):
 
     def setUp(self):
+        super(ObjectBackendTestCase, self).setUp()
         self.obj = ObjectFactory()
 
     def tearDown(self):
         del self.obj
+        super(ObjectBackendTestCase, self).tearDown()
 
     def test_getAttributeTypes(self):
         res = self.obj.getAttributeTypes()
@@ -186,7 +189,6 @@ class ObjectBackendTestCase(GosaTestCase):
         assert self.obj.getNamedI18N(None) == {}
 
         res = self.obj.getNamedI18N(['user.ui'], 'de')
-        print(res)
         assert res['User'] == 'Benutzer'
         assert res['Title'] == 'Titel'
 

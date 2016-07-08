@@ -61,29 +61,27 @@ class BasicFilterTests(unittest.TestCase):
         assert "ldap" in newDict["backends"]["backend"]
         assert "null" in newDict["backends"]["backend"]
 
-    # @pytest.mark.skip(reason="TODO: Needs to be reactivated when ObjectFactory is working")
-    # def test_SetValue(self):
-    #     filter = SetValue(None)
-    #     testDict = {
-    #         "attr": {
-    #             "value": ["test"],
-    #             "type": "String"
-    #         }
-    #     }
-    #     (new_key, newDict) = filter.process(None, "attr", testDict, "123")
-    #     assert "123" in newDict["attr"]["value"]
-    #
-    # @pytest.mark.skip(reason="TODO: Needs to be reactivated when ObjectFactory is working")
-    # def test_Clear(self):
-    #     filter = Clear(None)
-    #     testDict = {
-    #         "attr": {
-    #             "value": ["test"],
-    #             "type": "String"
-    #         }
-    #     }
-    #     (new_key, newDict) = filter.process(None, "attr", testDict)
-    #     assert newDict["attr"]["value"] == ''
+    def test_SetValue(self):
+        filter = SetValue(None)
+        testDict = {
+            "attr": {
+                "value": ["test"],
+                "type": "String"
+            }
+        }
+        (new_key, newDict) = filter.process(None, "attr", testDict, "123")
+        assert b"123" in newDict["attr"]["value"]
+
+    def test_Clear(self):
+        filter = Clear(None)
+        testDict = {
+            "attr": {
+                "value": ["test"],
+                "type": "String"
+            }
+        }
+        (new_key, newDict) = filter.process(None, "attr", testDict)
+        assert newDict["attr"]["value"] == [b'']
 
     def test_IntegerToDatetime(self):
         filter = IntegerToDatetime(None)

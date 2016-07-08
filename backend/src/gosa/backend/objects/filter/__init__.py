@@ -29,19 +29,19 @@ def get_filter(name):
 
 class ElementFilter(object):
 
-    def __init__(self, obj):
+    def __init__(self, obj):  # pragma: nocover
         pass
 
-    def process(self, obj, key, value, *args):
+    def process(self, obj, key, value, *args):  # pragma: nocover
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", method="process"))
 
-    def __copy__(self):
+    def __copy__(self):  # pragma: nocover
         """
         Do not make copies of ourselves.
         """
         return self
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo):  # pragma: nocover
         """
         Do not make copies of ourselves.
         """

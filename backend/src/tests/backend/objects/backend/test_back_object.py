@@ -8,8 +8,7 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 from unittest import mock
-import pytest
-from tests.GosaTestCase import GosaTestCase
+from tests.GosaTestCase import *
 from gosa.backend.objects.backend.back_object import *
 
 
@@ -21,6 +20,7 @@ class ObjectBackendTestCase(GosaTestCase):
     def tearDown(self):
         del self.back
 
+    @slow
     def test_load(self):
         super(ObjectBackendTestCase, self).setUp()
         res = self.back.load('78475884-c7f2-1035-8262-f535be14d43a',
@@ -57,6 +57,7 @@ class ObjectBackendTestCase(GosaTestCase):
             m.assert_called_with('uuid', 'data', 'params')
 
     # TODO: must be completed
+    # @slow
     # def test_update(self):
     #     super(ObjectBackendTestCase, self).setUp()
     #
@@ -71,18 +72,3 @@ class ObjectBackendTestCase(GosaTestCase):
     #     print(res)
     #     assert False
     #     super(ObjectBackendTestCase, self).tearDown()
-
-    def test_rest(self):
-        assert self.back.identify_by_uuid('uuid', {}) is False
-        assert self.back.identify('dn', {}) is False
-        assert self.back.query('base', 'scope', {}) == []
-        assert self.back.exists('misc') is False
-        assert self.back.move('uuid', 'new_base') is False
-        assert self.back.create('base', [], []) is None
-        assert self.back.uuid2dn('uuid') is None
-        assert self.back.dn2uuid('dn') is None
-        assert self.back.get_timestamps('dn') == (None, None)
-        assert self.back.is_uniq(None, None, None) is False
-        assert self.back.get_uniq_dn(None, None, None, None) is None
-        with pytest.raises(BackendError):
-            self.back.get_next_id(None)

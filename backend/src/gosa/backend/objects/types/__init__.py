@@ -33,89 +33,89 @@ class AttributeType(object):
         else:
             return self.__alias__.lower(), fname[14:].replace("_", " ")
 
-    def is_valid_value(self, value):
+    def is_valid_value(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CHECK', type=self.__alias__.lower()))
 
-    def values_match(self, value1, value2):
+    def values_match(self, value1, value2):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_MATCH', type=self.__alias__.lower()))
 
     def convert_to(self, target_type, value):
         cnv = getattr(self, "_convert_to_%s" % target_type.lower())
         return cnv(value)
 
-    def fixup(self, value):
+    def fixup(self, value):  # pragma: nocover
         return value
 
     def convert_from(self, source_type, value):
         cnv = getattr(self, "_convert_from_%s" % source_type.lower())
         return cnv(value)
 
-    def _convert_to_boolean(self, value):
+    def _convert_to_boolean(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_to_string(self, value):
+    def _convert_to_string(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_to_unicodestring(self, value):
+    def _convert_to_unicodestring(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_to_integer(self, value):
+    def _convert_to_integer(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_to_timestamp(self, value):
+    def _convert_to_timestamp(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_to_date(self, value):
+    def _convert_to_date(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_to_binary(self, value):
+    def _convert_to_binary(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_from_boolean(self, value):
+    def _convert_from_boolean(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_from_string(self, value):
+    def _convert_from_string(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_from_unicodestring(self, value):
+    def _convert_from_unicodestring(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_from_integer(self, value):
+    def _convert_from_integer(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_from_timestamp(self, value):
+    def _convert_from_timestamp(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_from_date(self, value):
+    def _convert_from_date(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))
 
-    def _convert_from_binary(self, value):
+    def _convert_from_binary(self, value):  # pragma: nocover
         raise ConversationNotSupported(C.make_error('TYPE_NO_CONVERT',
             source=self.__alias__.lower(),
             target=self._cnv_topic()[1]))

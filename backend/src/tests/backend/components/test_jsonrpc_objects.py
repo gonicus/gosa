@@ -12,7 +12,7 @@ import crypt
 from unittest import mock
 from gosa.backend.components.jsonrpc_objects import JSONRPCObjectMapper, ObjectRegistry
 from gosa.common.components import PluginRegistry
-from tests.GosaTestCase import GosaTestCase
+from tests.GosaTestCase import *
 
 def getPlugin(name):
     if name == "ACLResolver":
@@ -22,6 +22,8 @@ def getPlugin(name):
     else:
         return
 
+
+@slow
 class JSONRPCObjectMapperTestCase(GosaTestCase):
 
     def setUp(self):

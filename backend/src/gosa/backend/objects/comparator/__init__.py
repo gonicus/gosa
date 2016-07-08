@@ -30,19 +30,19 @@ def get_comparator(name):
 
 class ElementComparator(object):
 
-    def __init(self, obj):
+    def __init(self, obj):  # pragma: nocover
         pass
 
-    def process(self, *args, **kwargs):
+    def process(self, *args, **kwargs):  # pragma: nocover
         raise NotImplementedError(C.make_error('NOT_IMPLEMENTED', method="process"))
 
-    def __copy__(self):
+    def __copy__(self):  # pragma: nocover
         """
         Do not make copies of ourselves.
         """
         return self
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo):  # pragma: nocover
         """
         Do not make copies of ourselves.
         """

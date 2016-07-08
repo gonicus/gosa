@@ -144,46 +144,46 @@ class ObjectHandler(ObjectBackend):
                 if object_mapping[item]:
                     object_mapping[item].commit()
 
-    def __init__(self):
+    def __init__(self):  # pragma: nocover
         pass
 
-    def identify_by_uuid(self, uuid, params):
+    def identify_by_uuid(self, uuid, params):  # pragma: nocover
         return False
 
-    def identify(self, dn, params, fixed_rdn=None):
+    def identify(self, dn, params, fixed_rdn=None):  # pragma: nocover
         return False
 
-    def query(self, base, scope, params, fixed_rdn=None):
+    def query(self, base, scope, params, fixed_rdn=None):  # pragma: nocover
         return []
 
-    def exists(self, misc):
+    def exists(self, misc):  # pragma: nocover
         return False
 
-    def move_extension(self, uuid, new_base):
+    def move_extension(self, uuid, new_base):  # pragma: nocover
         pass
 
-    def move(self, uuid, new_base):
+    def move(self, uuid, new_base):  # pragma: nocover
         return False
 
-    def create(self, base, data, params, foreign_keys=None):
+    def create(self, base, data, params, foreign_keys=None):  # pragma: nocover
         return None
 
-    def uuid2dn(self, uuid):
+    def uuid2dn(self, uuid):  # pragma: nocover
         return None
 
-    def dn2uuid(self, dn):
+    def dn2uuid(self, dn):  # pragma: nocover
         return None
 
-    def get_timestamps(self, dn):
+    def get_timestamps(self, dn):  # pragma: nocover
         return None, None
 
-    def get_uniq_dn(self, rdns, base, data, FixedRDN):
+    def get_uniq_dn(self, rdns, base, data, FixedRDN):  # pragma: nocover
         return None
 
-    def is_uniq(self, attr, value, at_type):
+    def is_uniq(self, attr, value, at_type):  # pragma: nocover
         return False
 
-    def get_next_id(self, attr):
+    def get_next_id(self, attr):  # pragma: nocover
         raise BackendError(C.make_error("ID_GENERATION_FAILED"))
 
     def extractBackAttrs(self, attrs):

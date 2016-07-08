@@ -7,8 +7,15 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-from unittest import mock, TestCase
+from unittest import TestCase
+import pytest
 from gosa.common.components import PluginRegistry, ObjectRegistry
+
+slow = pytest.mark.skipif(
+    not pytest.config.getoption("--runslow"),
+    reason="need --runslow option to run"
+)
+
 
 class GosaTestCase(TestCase):
 

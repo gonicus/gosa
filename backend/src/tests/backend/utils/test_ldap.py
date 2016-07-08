@@ -10,6 +10,7 @@
 import unittest
 from gosa.backend.utils.ldap import *
 
+
 class LdapUtilsTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -30,7 +31,8 @@ def test_map_ldap_value():
     assert map_ldap_value(False) == "FALSE"
     assert list(map_ldap_value(["Test", True, False])) == ["Test", "TRUE", "FALSE"]
 
-def test_normalize_ldape():
+
+def test_normalize_ldap():
     assert normalize_ldap(True) == [True]
     assert normalize_ldap("Test") == ["Test"]
     assert normalize_ldap(["Test", True, False]) == ["Test", True, False]

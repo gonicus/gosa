@@ -25,3 +25,6 @@
 
 #gosa.backend.object.(comparator|types).(acl_set|acl_roles)
 - code nahezu identisch, nur das bei den sets auch der 'members'-key im Dict berücksichtigt wird => prüfen ob man das vereinheitlichen kann
+
+# TOX für tests mit unterschiedlichen Python versionen (aktuell funktioniert nur 3.5 unter 3.4 schlagen einige tests fehl)
+- Welche Versionen möchten wir unterstützen?

@@ -6,14 +6,17 @@ from gosa.common.env import *
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm.session import Session
 
+
 # Todo: Mocking
 class EnvTestCase(unittest.TestCase):
+
     def setUp(self):
         self.old_environ = os.environ.copy()
         virt_env = os.environ.get("VIRTUAL_ENV")
         
         if virt_env:
-            os.environ.update({"GOSA_CONFIG_DIR": os.path.join(virt_env, "../common/src/tests/test.conf")})
+            os.environ.update({"GOSA_CONFIG_DIR": os.path.join(os.path.dirname(os.path.realpath(__file__)), "../test.conf")})
+
     def test_Environment(self):
         e = Environment.getInstance()
         

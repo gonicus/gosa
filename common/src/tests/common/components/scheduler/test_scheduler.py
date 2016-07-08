@@ -1,4 +1,12 @@
 #!/usr/bin/python3
+# This file is part of the GOsa framework.
+#
+#  http://gosa-project.org
+#
+# Copyright:
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
+#
+# See the LICENSE file in the project's top-level directory for details.
 
 import unittest
 import pytest
@@ -8,6 +16,8 @@ from io import StringIO
 from gosa.common.components.scheduler.scheduler import *
 from gosa.common.components.scheduler.events import *
 from gosa.common.components.scheduler.jobstores.ram_store import *
+from tests.helper import slow
+
 
 class CallHandler:
     def __init__(self):
@@ -18,10 +28,7 @@ class CallHandler:
         self.i += 1
         self.lock.release()
     def get_count(self):
-        self.lock.acquire()
-        retval = self.i
-        self.lock.release()
-        return retval
+        return self.i
 def process(handler):
     handler.count()
 
@@ -29,6 +36,7 @@ class SchedulerTestCase(unittest.TestCase):
     def test_SchedulerAlreadyRunningError(self):
         err = SchedulerAlreadyRunningError()
         self.assertEqual(str(err), 'Scheduler is already running')
+
     def test_configure(self):
         s = Scheduler()
         s.shutdown() # Does nothing
@@ -70,7 +78,7 @@ class SchedulerTestCase(unittest.TestCase):
         s.remove_jobstore("ram1")
         with pytest.raises(KeyError):
             s.remove_jobstore("ram2")
-        
+
     def test_listeners(self):
         s = Scheduler()
         event = SchedulerEvent(123)
@@ -79,18 +87,16 @@ class SchedulerTestCase(unittest.TestCase):
         s._notify_listeners(event)
         dummyCallback.assert_called_once_with(event)
         s.remove_listener(dummyCallback)
-    
+
     def assert_jobs(self, s, handler):
-        while len(s.get_jobs()) == 0:
-            pass
         while handler.get_count() < 2:
             pass
         for j in s.get_jobs():
             s.unschedule_job(j)
         s.reschedule()
         s.refresh()
-        
-    @pytest.mark.skip(reason="Long running")
+
+    @slow
     def test_interval_jobs(self):
         s = Scheduler()
         s.add_jobstore(RAMJobStore(), "ram1")
@@ -99,7 +105,8 @@ class SchedulerTestCase(unittest.TestCase):
         s.start()
         self.assert_jobs(s, handler)
         s.shutdown()
-    @pytest.mark.skip(reason="Long running")
+
+    @slow
     def test_cron_jobs(self):
         s = Scheduler()
         s.add_jobstore(RAMJobStore(), "ram1")
@@ -108,63 +115,18 @@ class SchedulerTestCase(unittest.TestCase):
         s.start()
         self.assert_jobs(s, handler)
         s.shutdown()
-    @pytest.mark.skip(reason="Long running")
+
+    @slow
     def test_date_jobs(self):
-        s = Scheduler()
         with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+            s = Scheduler()
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
             s.add_jobstore(RAMJobStore(), "ram1")
             s.start()
             handler = CallHandler()
-            s.add_date_job(process, "2016-12-12", args=(handler,))
-            while len(s.get_jobs()) == 0:
-                pass
+            s.add_date_job(process, "2016-12-12", args=(handler,), misfire_grace_time=5, coalesce=True)
             while handler.get_count() < 1:
                 pass
             for j in s.get_jobs():
                 s.unschedule_job(j)
             s.shutdown()
-
-
-
-#from gosa.common.components.scheduler.job import *
-#from gosa.common.components.scheduler import *
-
-#class InstantTrigger(object):
-    #def __init__(self):
-        #self.done = False
-#
-    #def get_next_fire_time(self, n):
-        #if self.done:
-            #return datetime.datetime(1995, 1, 1)
-        #self.done = True
-        #return datetime.datetime.now()
-#
-    #def __str__(self):
-        #return 'now'
-#
-    #def __repr__(self):
-        #return '<%s (run_date=now)>' % (
-            #self.__class__.__name__,)
-#
-#def callback(arg, kwarg="TEST"):
-    #assert arg == "TEST"
-    #assert kwarg == "TEST2"
-    #time.sleep(5)
-    #assert 0
-#class RAMJobStoreTestCase(unittest.TestCase):
-    #def test_RAMJobStore(self):
-        #s = Scheduler()
-        #s.add_interval_job(callback, seconds=1, args=("TEST",), kwargs={"kwarg": "TEST2"})
-        #s.start()
-        #time.sleep(1)
-        #while s._threadpool.num_threads:
-            #pass
-        #time.sleep(2)
-        #assert s.get_jobs()
-        #j = RAMJobStore()
-        #s.add_job(InstantTrigger(), callback, ("TEST",), dict(kwarg="TEST2"))
-        #time.sleep(0.1)
-        #j.remove_job(j.jobs[0])
-        #assert repr(j) == "<RAMJobStore>"
-        #pass
