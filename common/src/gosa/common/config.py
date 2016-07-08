@@ -104,8 +104,7 @@ class Config(object):
                           default=os.environ.get('GOSA_CONFIG_DIR') or "/etc/gosa",
                           help="read configuration from DIRECTORY [%(default)s]",
                           metavar="DIRECTORY")
-
-        options = parser.parse_args()
+        options, argv = parser.parse_known_args()
 
         items = options.__dict__
         self.__registry['core'].update(dict([(k, items[k]) for k in items if items[k] != None]))
