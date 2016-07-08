@@ -52,7 +52,7 @@ class Schema(Base):
 
     hash = Column(String(32), primary_key=True)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: nocover
        return "<Schema(hash='%s')>" % self.hash
 
 
@@ -64,8 +64,9 @@ class KeyValueIndex(Base):
     key = Column(String(64))
     value = Column(String)
 
-    def __repr__(self):
-       return "<KeyValueIndex(uuid='%s', key='%s', value='%s')>" % (self.uuid, self.key, self.value)
+    def __repr__(self):  # pragma: nocover
+
+        return "<KeyValueIndex(uuid='%s', key='%s', value='%s')>" % (self.uuid, self.key, self.value)
 
 
 class ExtensionIndex(Base):
@@ -75,7 +76,7 @@ class ExtensionIndex(Base):
     uuid = Column(String(36), ForeignKey('obj-index.uuid'))
     extension = Column(String(64))
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: nocover
        return "<ExtensionIndex(uuid='%s', extension='%s')>" % (
                             self.uuid, self.extension)
 
@@ -92,11 +93,11 @@ class ObjectInfoIndex(Base):
     properties = relationship("KeyValueIndex", order_by=KeyValueIndex.key)
     extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: nocover
        return "<ObjectInfoIndex(uuid='%s', dn='%s', parent_dn='%s', adjusted_parent_dn'%s', type='%s', last_modified='%s')>" % (
                             self.uuid, self.dn, self.parent_dn, self.adjusted_parent_dn, self.type, self.last_modified)
 
-class IndexScanFinished():
+class IndexScanFinished():  # pragma: nocover
     pass
 
 
@@ -560,7 +561,7 @@ class ObjectIndex(Plugin):
 
             # Adjust all ParentDN entries of child objects
             res = self.__session.query(ObjectInfoIndex).filter(
-                ObjectInfoIndex.parent_dn == re.compile('^(.*,)?%s$' % re.escape(old_dn))
+                or_(ObjectInfoIndex.parent_dn == old_dn, ObjectInfoIndex.parent_dn.like('%' + old_dn))
             ).all()
 
             for entry in res:
@@ -571,7 +572,7 @@ class ObjectIndex(Plugin):
 
                 n_dn = o_dn[:-len(old_dn)] + current['dn']
                 n_parent = o_parent[:-len(old_dn)] + current['dn']
-                n_adjusted_parent = o_adjusted_parent[:-len(o_adjusted_parent)] + current.adjusted_parent_dn
+                n_adjusted_parent = o_adjusted_parent[:-len(o_adjusted_parent)] + current['adjusted_parent_dn']
 
                 oi = self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == o_uuid).one()
                 oi.dn = n_dn
@@ -636,7 +637,7 @@ class ObjectIndex(Plugin):
 
         # Create result-set
         for item in self.search(query, conditions):
-
+            print(item)
             # Filter out what the current use is not allowed to see
             item = self.__filter_entry(user, item)
             if item and item['dn'] is not None:
@@ -645,10 +646,14 @@ class ObjectIndex(Plugin):
         return res
 
     def _make_filter(self, node):
+        print(node)
         use_key_value = False
-        user_extension = False
+        use_extension = False
 
         def __make_filter(n):
+            global use_key_value
+            global use_extension
+
             res = []
 
             for key, value in n.items():
@@ -679,10 +684,11 @@ class ObjectIndex(Plugin):
                             else:
                                 exprs.append(getattr(ObjectInfoIndex, key) == v)
                         elif key == "extension":
-                            user_extension = True
+                            use_extension = True
                             exprs.append(ExtensionIndex.extension == v)
                         else:
                             use_key_value = True
+                            print("useKeyValue set to: %s" % use_key_value)
                             if "%" in v:
                                 exprs.append(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(v)))
                             else:
@@ -704,24 +710,26 @@ class ObjectIndex(Plugin):
                         if "%" in value:
                             res.append(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(value)))
                         else:
-                            res.append(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(value)))
+                            res.append(and_(KeyValueIndex.key == key, KeyValueIndex.value == value))
 
             return res
 
         # Add query information to be able to search various tables
         _args = __make_filter(node)
+        print(str(and_(*_args).compile()))
+        print("useKeyValue is: %s" % use_key_value)
 
-        if user_extension and use_key_value:
+        if use_extension and use_key_value:
             args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid == ExtensionIndex.uuid]
             args += _args
             return and_(*args)
 
-        if user_extension:
+        if use_extension:
             args = [ObjectInfoIndex.uuid == ExtensionIndex.uuid]
             args += _args
             return and_(*args)
 
-        if user_extension:
+        if use_key_value:
             args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid]
             args += _args
             return and_(*args)
@@ -775,7 +783,7 @@ class ObjectIndex(Plugin):
 
             # Clean the result set?
             if resultset:
-                for key in [_key for _key in _res if not _key in resultset.keys()]:
+                for key in [_key for _key in _res if not _key in resultset.keys() and _key[0:1] != "_"]:
                     _res.pop(key, None)
 
             return _res
@@ -806,7 +814,7 @@ class ObjectIndex(Plugin):
                 res[attr] = entry[attr]
                 continue
 
-           if self.__has_access_to(user, entry['dn'], entry['type'], attr):
+           if self.__has_access_to(user, entry['dn'], entry['_type'], attr):
                 res[attr] = entry[attr]
 
         return res
