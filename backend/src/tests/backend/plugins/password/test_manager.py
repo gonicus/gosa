@@ -25,7 +25,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
             assert method in res
 
     def test_detect_method_by_hash(self):
-        assert self.obj.detect_method_by_hash(b"{UNKNOWN}$0$md") is None
+        assert self.obj.detect_method_by_hash("{UNKNOWN}$0$md") is None
 
         methods = self.obj.list_methods()
         for method in methods:
@@ -62,10 +62,10 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
             user.get_attributes.return_value = ['userPassword']
             with pytest.raises(PasswordException):
                 self.obj.lockAccountPassword("Test", "dn")
-            user.userPassword = b"{UNKNOWN}$0$md"
+            user.userPassword = "{UNKNOWN}$0$md"
             with pytest.raises(PasswordException):
                 self.obj.lockAccountPassword("Test", "dn")
-            user.userPassword = b"{CRYPT}uw8er0hjewofh"
+            user.userPassword = "{CRYPT}uw8er0hjewofh"
             self.obj.lockAccountPassword("Test", "dn")
             # account should be locked
             assert user.userPassword == "{CRYPT}!uw8er0hjewofh"
@@ -94,10 +94,10 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
             user.get_attributes.return_value = ['userPassword']
             with pytest.raises(PasswordException):
                 self.obj.unlockAccountPassword("Test", "dn")
-            user.userPassword = b"{UNKNOWN}$0$md"
+            user.userPassword = "{UNKNOWN}$0$md"
             with pytest.raises(PasswordException):
                 self.obj.unlockAccountPassword("Test", "dn")
-            user.userPassword = b"{CRYPT}!uw8er0hjewofh"
+            user.userPassword = "{CRYPT}!uw8er0hjewofh"
             self.obj.unlockAccountPassword("Test", "dn")
             # account should be locked
             assert user.userPassword == "{CRYPT}uw8er0hjewofh"
@@ -128,7 +128,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
 
         # mockup the found user
         found.__getitem__.return_value = {
-            "userPassword": [b"{UNKNOWN}uw8er0hjewofh"]
+            "userPassword": ["{UNKNOWN}uw8er0hjewofh"]
         }
 
         with pytest.raises(ACLException):
@@ -141,7 +141,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
         assert self.obj.accountLockable("Test", "dn") is False
 
         found.__getitem__.return_value = {
-            "userPassword": [b"{CRYPT}uw8er0hjewofh"]
+            "userPassword": ["{CRYPT}uw8er0hjewofh"]
         }
         assert self.obj.accountLockable("Test", "dn") is True
 
@@ -169,7 +169,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
 
         # mockup the found user
         found.__getitem__.return_value = {
-            "userPassword": [b"{UNKNOWN}uw8er0hjewofh"]
+            "userPassword": ["{UNKNOWN}uw8er0hjewofh"]
         }
 
         with pytest.raises(ACLException):
@@ -182,7 +182,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
         assert self.obj.accountUnlockable("Test", "dn") is False
 
         found.__getitem__.return_value = {
-            "userPassword": [b"{CRYPT}!uw8er0hjewofh"]
+            "userPassword": ["{CRYPT}!uw8er0hjewofh"]
         }
         assert self.obj.accountUnlockable("Test", "dn") is True
 
