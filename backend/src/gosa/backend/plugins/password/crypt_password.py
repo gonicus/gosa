@@ -48,7 +48,7 @@ class PasswordMethodCrypt(PasswordMethod):
         """
         See PasswordMethod Interface for details
         """
-        if re.match("^\{%s\}" % self.hash_name, password_hash.decode()):
+        if re.match("^\{%s\}" % self.hash_name, password_hash):
             return True
         return False
 
@@ -59,7 +59,7 @@ class PasswordMethodCrypt(PasswordMethod):
         if not self.is_responsible_for_password_hash(password_hash):
             return None
 
-        password_hash = re.sub('^{[^}]+}!?', '', password_hash.decode())
+        password_hash = re.sub('^{[^}]+}!?', '', password_hash)
         if re.match(r'^[a-zA-Z0-9.\\/][a-zA-Z0-9.\\/]', password_hash):
             return crypt.METHOD_CRYPT
 
@@ -78,19 +78,19 @@ class PasswordMethodCrypt(PasswordMethod):
         """
         See PasswordMethod Interface for details
         """
-        return re.match("\{[^\}]*\}!", password_hash.decode()) is not None
+        return re.match("\{[^\}]*\}!", password_hash) is not None
 
     def lock_account(self, password_hash):
         """
         See PasswordMethod Interface for details
         """
-        return re.sub("\{([^\}]*)\}!?", "{\\1}!", password_hash.decode())
+        return re.sub("\{([^\}]*)\}!?", "{\\1}!", password_hash)
 
     def unlock_account(self, password_hash):
         """
         See PasswordMethod Interface for details
         """
-        return re.sub("\{([^\}]*)\}!?", "{\\1}", password_hash.decode())
+        return re.sub("\{([^\}]*)\}!?", "{\\1}", password_hash)
 
     def get_hash_names(self):
         """
@@ -102,4 +102,4 @@ class PasswordMethodCrypt(PasswordMethod):
         """
         See PasswordMethod Interface for details
         """
-        return bytes("{%s}%s" % (self.hash_name, crypt.crypt(new_password, crypt.mksalt(method))),'utf-8')
+        return "{%s}%s" % (self.hash_name, crypt.crypt(new_password, crypt.mksalt(method)))
