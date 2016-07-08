@@ -13,8 +13,8 @@ and related exceptions.
 """
 
 from threading import Thread, Event, Lock
-from datetime import datetime, timedelta
 from logging import getLogger
+import datetime
 import os
 import sys
 import inspect
@@ -189,7 +189,7 @@ class Scheduler(object):
         """
         self._jobstores_lock.acquire()
         try:
-            jobstore = self._jobstores.pop(alias)
+            jobstore = self._jobstores.pop(alias, None)
             if not jobstore:
                 raise KeyError('No such job store: %s' % alias)
 
@@ -246,7 +246,7 @@ class Scheduler(object):
                     logger.exception('error notifying listener')
 
     def _real_add_job(self, job, jobstore, wakeup):
-        job.compute_next_run_time(datetime.now())
+        job.compute_next_run_time(datetime.datetime.now())
         if not job.next_run_time:
             raise ValueError('Not adding job since it would never be run')
 
@@ -313,7 +313,7 @@ class Scheduler(object):
         :param jobstore: stored the job in the named (or given) job store
         :param misfire_grace_time: seconds after the designated run time that
             the job is still allowed to be run
-        :type date: :class:`datetime.date`
+        :type date: :class:`datetime.datetime.date`
         :rtype: :class:`~gosa.common.components.scheduler.job.Job`
         """
         trigger = SimpleTrigger(date)
@@ -341,7 +341,7 @@ class Scheduler(object):
             the job is still allowed to be run
         :rtype: :class:`~gosa.common.components.scheduler.job.Job`
         """
-        interval = timedelta(weeks=weeks, days=days, hours=hours,
+        interval = datetime.timedelta(weeks=weeks, days=days, hours=hours,
                              minutes=minutes, seconds=seconds)
         trigger = IntervalTrigger(interval, start_date)
         return self.add_job(trigger, func, args, kwargs, **options)
@@ -500,8 +500,8 @@ class Scheduler(object):
         for run_time in run_times:
             # See if the job missed its run time window, and handle possible
             # misfires accordingly
-            difference = datetime.now() - run_time
-            grace_time = timedelta(seconds=job.misfire_grace_time)
+            difference = datetime.datetime.now() - run_time
+            grace_time = datetime.timedelta(seconds=job.misfire_grace_time)
             if difference > grace_time:
                 # Notify listeners about a missed run
                 event = JobEvent(EVENT_JOB_MISSED, job, run_time)
@@ -581,7 +581,7 @@ class Scheduler(object):
                             job.runs += len(run_times)
 
                         # Update the job, but don't keep finished jobs around
-                        if job.compute_next_run_time(now + timedelta(microseconds=1)):
+                        if job.compute_next_run_time(now + datetime.timedelta(microseconds=1)):
                             jobstore.update_job(job)
                         else:
                             self._remove_job(job, alias, jobstore)
@@ -604,7 +604,7 @@ class Scheduler(object):
         self._wakeup.clear()
         while not self._stopped:
             logger.debug('looking for jobs to run')
-            now = datetime.now()
+            now = datetime.datetime.now()
             next_wakeup_time = self._process_jobs(now)
 
             # Sleep until the next job is scheduled to be run,
