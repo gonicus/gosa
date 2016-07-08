@@ -101,7 +101,6 @@ class CommonUtilsTestCase(unittest.TestCase):
             
             assert get_timezone_delta() == "+02:00"
             assert get_timezone_delta() == "+00:00"
-            return True
             assert get_timezone_delta() == "-02:00"
     
     def test_get_timezone_delta(self):

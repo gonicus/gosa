@@ -134,7 +134,7 @@ def get_timezone_delta():
     """
     timestamp = time.mktime(datetime.datetime.now().timetuple())
     timeDelta = datetime.datetime.fromtimestamp(timestamp) - datetime.datetime.utcfromtimestamp(timestamp)
-    seconds = timeDelta.seconds
+    seconds = timeDelta.total_seconds()
     return "%s%02d:%02d" % ("-" if seconds < 0 else "+", abs(seconds // 3600), abs(seconds % 60))
 
 
