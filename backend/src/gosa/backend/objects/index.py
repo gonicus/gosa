@@ -304,7 +304,7 @@ class ObjectIndex(Plugin):
             else:
                 self.insert(obj)
 
-    def _get_object(self, dn):
+    def _get_object(self, dn):  # pragma: nocover
         obj = ObjectProxy(dn)
         #try:
         #    obj = ObjectProxy(dn)
@@ -646,13 +646,12 @@ class ObjectIndex(Plugin):
         return res
 
     def _make_filter(self, node):
-        print(node)
         use_key_value = False
         use_extension = False
 
         def __make_filter(n):
-            global use_key_value
-            global use_extension
+            nonlocal use_key_value
+            nonlocal use_extension
 
             res = []
 
@@ -688,7 +687,6 @@ class ObjectIndex(Plugin):
                             exprs.append(ExtensionIndex.extension == v)
                         else:
                             use_key_value = True
-                            print("useKeyValue set to: %s" % use_key_value)
                             if "%" in v:
                                 exprs.append(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(v)))
                             else:
@@ -716,8 +714,7 @@ class ObjectIndex(Plugin):
 
         # Add query information to be able to search various tables
         _args = __make_filter(node)
-        print(str(and_(*_args).compile()))
-        print("useKeyValue is: %s" % use_key_value)
+        print(str(and_(*_args)))
 
         if use_extension and use_key_value:
             args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid == ExtensionIndex.uuid]
