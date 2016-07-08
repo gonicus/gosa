@@ -1,10 +1,20 @@
 #!/usr/bin/python3
+# This file is part of the GOsa framework.
+#
+#  http://gosa-project.org
+#
+# Copyright:
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
+#
+# See the LICENSE file in the project's top-level directory for details.
 
 import unittest
 import pytest
 import threading
 from gosa.common.components.scheduler.scheduler import *
 from gosa.common.components.scheduler.jobstores.ram_store import *
+from tests.helper import slow
+
 
 class CallHandler:
     def __init__(self):
@@ -28,6 +38,7 @@ class SchedulerTestCase(unittest.TestCase):
         err = SchedulerAlreadyRunningError()
         self.assertEqual(str(err), 'Scheduler is already running')
 
+    @slow
     def test_interval_jobs(self):
         s = Scheduler()
         s.add_jobstore(RAMJobStore(), "ram1")
@@ -46,6 +57,7 @@ class SchedulerTestCase(unittest.TestCase):
         s.reschedule()
         s.refresh()
 
+    @slow
     def test_cron_jobs(self):
         s = Scheduler()
         s.add_jobstore(RAMJobStore(), "ram1")

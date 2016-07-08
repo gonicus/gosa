@@ -10,8 +10,9 @@
 import unittest
 import pytest
 from gosa.backend.command import *
-from tests.GosaTestCase import GosaTestCase
+from tests.GosaTestCase import GosaTestCase, slow
 
+@slow
 class CommandRegistryTestCase(GosaTestCase):
 
     def setUp(self):

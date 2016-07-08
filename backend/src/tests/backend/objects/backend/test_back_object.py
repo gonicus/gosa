@@ -8,8 +8,7 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 from unittest import mock
-import pytest
-from tests.GosaTestCase import GosaTestCase
+from tests.GosaTestCase import *
 from gosa.backend.objects.backend.back_object import *
 
 
@@ -21,6 +20,7 @@ class ObjectBackendTestCase(GosaTestCase):
     def tearDown(self):
         del self.back
 
+    @slow
     def test_load(self):
         super(ObjectBackendTestCase, self).setUp()
         res = self.back.load('78475884-c7f2-1035-8262-f535be14d43a',
@@ -57,6 +57,7 @@ class ObjectBackendTestCase(GosaTestCase):
             m.assert_called_with('uuid', 'data', 'params')
 
     # TODO: must be completed
+    # @slow
     # def test_update(self):
     #     super(ObjectBackendTestCase, self).setUp()
     #

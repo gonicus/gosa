@@ -14,7 +14,10 @@ from tornado.web import Application
 from gosa.common.gjson import dumps, loads
 from gosa.backend.components.jsonrpc_service import JsonRpcHandler
 from gosa.common.components import PluginRegistry
+from tests.GosaTestCase import slow
 
+
+@slow
 class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
 
     def get_app(self):

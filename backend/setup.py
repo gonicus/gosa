@@ -26,7 +26,6 @@ for path, dirs, files in os.walk("src/gosa/backend/data"):
     for f in files:
             data_files.append(os.path.join(path[17:], f))
 
-
 setup(
     name = "gosa.backend",
     version = "1.0",

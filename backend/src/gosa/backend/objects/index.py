@@ -431,7 +431,7 @@ class ObjectIndex(Plugin):
             zope.event.notify(IndexScanFinished())
             GlobalLock.release()
 
-    def index_active(self):
+    def index_active(self):  # pragma: nocover
         return self._indexed
 
     def __handle_events(self, event):
