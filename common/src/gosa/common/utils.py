@@ -18,9 +18,10 @@ import time
 import tempfile
 import lxml
 import urllib.request as urllib2
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
 from tokenize import generate_tokens
 from token import STRING
-from urllib.parse import urlparse
 from io import StringIO
 
 
@@ -234,11 +235,11 @@ def downloadFile(url, download_dir=None, use_filename=False):
             local_file.close()
             result = f
 
-        except urllib2.HTTPError as e:
+        except HTTPError as e:
             result = None
             raise e
 
-        except urllib2.URLError as e:
+        except URLError as e:
             result = None
             raise e
 
