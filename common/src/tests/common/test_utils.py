@@ -208,6 +208,13 @@ class CommonUtilsTestCase(unittest.TestCase):
     @unittest.mock.patch("tempfile.mkdtemp")
     @unittest.mock.patch("tempfile.NamedTemporaryFile")
     def test_downloadFile(self, NamedTemporaryFileMock, mkdtempMock, urllib2Mock):
+        with pytest.raises(ValueError):
+            downloadFile(None)
+        with pytest.raises(ValueError):
+            downloadFile(2)
+        with pytest.raises(ValueError):
+            downloadFile("abc://test/test")
+        
         download_dir = "/test/downloads"
         targetFile = ModStringIO("")
         downloadData = ModStringIO("downloaded content")
