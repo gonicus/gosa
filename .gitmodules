@@ -3,7 +3,7 @@
 	url = https://github.com/qooxdoo/qooxdoo
 [submodule "plugins/gui/frontend/capture"]
 	path = plugins/gui/frontend/capture
-	url = git://github.com/cajus/capture.git
+	url = https://github.com/cajus/capture.git
 [submodule "plugins/gui/frontend/uploadmgr"]
 	path = plugins/gui/frontend/uploadmgr
-	url = git@github.com:johnspackman/UploadMgr.git
+	url = https://github.com:johnspackman/UploadMgr.git

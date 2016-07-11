@@ -1,0 +1,23 @@
+#!/bin/sh
+QOOXDOO=${QOOXDOO:-../qooxdoo}
+
+if [ -z "$1" ]; then
+    echo ">>> customize: creating index.html"
+    cp template/index.html.in source/index.html
+else
+    echo ">>> customize: preparing index.html for build-final"
+    
+    [ ! -d build/resource/gosa/js ] && mkdir -p build/resource/gosa/js
+    sed "/BUILD::REMOVE::START/,/BUILD::REMOVE::END/d" \
+        template/index.html.in > source/index.html
+    
+    # Loop thru libs and optimize them
+    for lib in source/resource/gosa/js/*js; do
+      if [ "x$lib" = "xsource/resource/gosa/js/*js" ]; then
+	      break
+      fi
+      libname=$(basename $lib)
+      echo ">>> customize: optimizing $libname"
+      $QOOXDOO/tool/bin/compile.py $lib | grep -v '^>>' > build/resource/gosa/js/$libname
+    done
+fi

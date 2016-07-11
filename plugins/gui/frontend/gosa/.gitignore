@@ -1,0 +1,9 @@
+# .gitignore template for skeleton-based apps
+/api/
+/cache/
+/build/
+/inspector/
+/simulator/
+/test/
+/source/script/
+/source/index.html

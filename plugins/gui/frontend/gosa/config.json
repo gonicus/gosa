@@ -1,0 +1,191 @@
+{
+  "name"    : "gosa",
+
+  "include" :
+  [
+    {
+      "path" : "${QOOXDOO_PATH}/tool/data/config/application.json"
+    }
+  ],
+
+  "export" :
+  [
+    "api",
+    "api-data",
+    "build",
+    "clean",
+    "distclean",
+    "fix",
+    "info",
+    "lint",
+    "migration",
+    "pretty",
+    "profiling",
+    "source",
+    "source-all",
+    "source-destruct",
+    "source-hybrid",    
+    "test",
+    "test-source",
+    "translation"
+  ],
+  
+  "default-job" : "source-hybrid",
+
+  "config-warnings" :
+  {
+    "job-shadowing" : [
+      "build",
+      "build-script",
+      "source-script",
+      "libraries"
+    ]
+  },
+
+  "let" :
+  {
+    "APPLICATION"  : "gosa",
+    "QOOXDOO_PATH" : "../qooxdoo",
+    "QXTHEME"      : "gosa.theme.Theme",
+    "API_EXCLUDE"  : ["qx.test.*", "${APPLICATION}.theme.*", "${APPLICATION}.test.*", "${APPLICATION}.simulation.*"],
+    "LOCALES"      : [ "en", "de" ],
+    "CACHE"        : "${ROOT}/cache/qx${QOOXDOO_VERSION}",
+    "ROOT"         : "."
+  },
+
+  // You only need to edit the remainder of this file, if you want to customize
+  // specific jobs, or add own job definitions.
+
+  "jobs" :
+  {
+
+    "source-destruct" :
+    {
+      "desc" : "source version with 'qx.disposerDebugLevel' for destruct support",
+
+      "extend" : ["source"],
+
+      "shell" : {
+        "command" : "./customize"
+      },
+
+      "environment" :
+      {
+        "qx.debug.dispose" : "true",
+        "qx.debug.dispose.level" : "2"
+      }
+    },
+
+    "build" :
+    {
+      "desc"    : "create build version of current application",
+
+      "run" :
+      [
+        "build-resources",
+        "build-script",
+        "build-files",
+        "build-manifest-file",
+        "build-ssl-index",
+        "build-manifest-index"
+      ]
+    },
+
+    "build-manifest-file":
+    {
+      "shell" : {
+        "command" : "(cd build && ../mkmanifest.sh) > build/cache.manifest"
+      }
+    },
+
+    "build-ssl-index":
+    {
+      "shell" : {
+        "command" : "cp build/index.html build/index-ssl.html"
+      }
+    },
+
+    "build-manifest-index":
+    {
+      "shell" : {
+        "command" : "sed -i 's/^<html/<html manifest=\"cache.manifest\"/' build/index.html"
+      }
+    },
+
+    "build-script":
+    {
+      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*"],
+
+      "variants" : 
+      { 
+        "qx.dynlocale" : ["on"]
+      },
+      "add-script" :
+      [
+        {
+          "uri" : "resource/gosa/js/throbber.js"
+        }
+      ],
+      "copy-files" :
+      {
+	"files"     : [ "resource/gosa/js/throbber.js" ],
+        "source" : "source",
+        "target"  : "build"
+      },
+
+      "environment" : 
+      {
+        "engine.name" : [ "gecko", "mshtml", "webkit", "opera" ]
+      },
+
+      "shell" : {
+        "command" : "./customize build"
+      },
+
+      "compile-options" :
+      {
+        "paths"  :
+        {
+          "file" : "${BUILD_PATH}/script/${APPLICATION}-{engine.name}.js"
+        }
+      }
+    },
+
+    "source-script":
+    {
+      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*"],
+
+      "variants" : 
+      { 
+        "qx.dynlocale" : ["on"] 
+      },
+
+      "shell" : {
+        "command" : "./customize"
+      },
+      "add-script" :
+      [
+        {
+          "uri" : "resource/gosa/js/throbber.js"
+        }
+      ]
+    },
+
+    // Uncomment the following entry to add a contrib or library to your
+    // project; make sure to adapt the path to the Manifest.json; if you are
+    // using a contrib: library, it will be downloaded into the path specified
+    // by the 'cache/downloads' config key
+    "libraries" : 
+    {
+      "library" :
+      [
+        {
+          "manifest" : "../uploadmgr/Manifest.json"
+        },
+        {
+          "manifest" : "../capture/Manifest.json"
+        }
+      ]
+    }
+  }
+}

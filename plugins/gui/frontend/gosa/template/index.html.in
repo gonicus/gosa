@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+  <script language='JavaScript' src='./resource/gosa/js/throbber.js'></script>
+  <title>GOsa</title>
+
+  <!-- Detect engine -->
+  <script type="text/javascript">
+    // Notify if ready
+    if (window.applicationCache) {
+      var appCache = window.applicationCache;
+
+      appCache.addEventListener("cached", function() {
+        window.applicationReady = true;
+      }, false);
+
+      appCache.addEventListener("progress", function(ev) {
+        var progress = Math.round(ev.loaded * 100 / ev.total) + "%";
+        document.getElementById("progress").innerHTML = progress;
+      }, false);
+
+      appCache.addEventListener("noupdate", function() {
+        window.applicationReady = true;
+      }, false);
+
+      appCache.addEventListener("updateready", function() {
+        window.updateAvailable = true;
+      }, false);
+    }
+
+    var variant = null;
+
+    // Get browser variant
+    if (navigator.userAgent.indexOf("AppleWebKit/") != -1)
+    {
+      variant = "webkit";
+    }
+    else if (window.controllers && navigator.product === "Gecko")
+    {
+      variant = "gecko";
+    }
+    else if (navigator.cpuClass && /MSIE\s+([^\);]+)(\)|;)/.test(navigator.userAgent))
+    {
+      variant = "mshtml";
+    }
+    else if (/Opera[\/\s](\d+\.\d+)/.test(navigator.userAgent)){
+      variant = "opera";
+    }
+
+    // Redirect to browser hint, if we cannot find a matching variant or platform
+    if (!variant)
+    {
+      window.location= "resource/gosa/browser.html";
+    }
+
+    function getThrobber(data)
+    {
+      var defaults = {
+          color: "#000",
+          size: 32,
+          fade: 1000,
+          rotationspeed: 0,
+          lines: 14,
+          strokewidth: 1.8,
+          alpha: 0.4};
+    
+      if(data){
+        for(var key in data){
+          defaults[key] = data[key];
+        }
+      }
+    
+      var throb = new Throbber(defaults);
+      return(throb);
+    }
+
+    // Load matching GOsa according to variant
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "script/gosa-" + variant + ".js"; 
+    //BUILD::REMOVE::START
+    script.src = "script/gosa.js"; 
+    //BUILD::REMOVE::END
+    document.getElementsByTagName('head')[0].appendChild(script);
+  </script>
+
+</head>
+
+<body style='padding:0px; margin:0px;width:100%; height: 100%;'>
+
+  <!-- Show loading splash until GOsa switches it off -->
+  <div id="splash" style='z-index: 250; height: 100%; width: 100%; top:0px; bottom:0px; position:absolute; background-color: #F8F8F8;'>
+    <div style='position:absolute; top: 45%; width: 100%; text-align: center'>
+      <center>
+        <div id="throbber" />
+      </center>
+      <center>
+        <div id="progress" style="padding-top:10px"/>
+      </center>
+      <script type="text/javascript">
+        var throb = getThrobber();
+        throb.appendTo(document.getElementById('throbber'));
+        throb.start();
+      </script>
+    </div>
+  </div>
+</body>
+
+</html>
