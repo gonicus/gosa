@@ -20,7 +20,6 @@ import lxml
 import urllib.request as urllib2
 from tokenize import generate_tokens
 from token import STRING
-from subprocess import Popen, PIPE
 from urllib.parse import urlparse
 from io import StringIO
 
