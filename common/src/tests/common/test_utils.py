@@ -4,10 +4,22 @@ import unittest
 import unittest.mock
 import re
 import os
+import pytest
 import time
 from gosa.common.utils import *
 from datetime import timedelta
 from lxml import objectify, etree
+from io import StringIO
+
+class ModStringIO(StringIO):
+    def __init__(self, *args, **kwargs):
+        super(ModStringIO, self).__init__(*args, **kwargs)
+        self.closeCalls = 0
+    def close(self, really=False):
+        if really:
+            super(ModStringIO, self).close()
+        else:
+            self.closeCalls += 1
 
 class CommonUtilsTestCase(unittest.TestCase):
     def test_stripNs(self):
@@ -191,9 +203,36 @@ class CommonUtilsTestCase(unittest.TestCase):
         # As there are no tuples in JSON, these may be turned to lists.
     
     # Unused
-    def test_downloadFile(self):
-        # rewrite and use requests-Library?
-        pass
+    @unittest.mock.patch("os.sep", "/")
+    @unittest.mock.patch("gosa.common.utils.urllib2")
+    @unittest.mock.patch("tempfile.mkdtemp")
+    @unittest.mock.patch("tempfile.NamedTemporaryFile")
+    def test_downloadFile(self, NamedTemporaryFileMock, mkdtempMock, urllib2Mock):
+        download_dir = "/test/downloads"
+        targetFile = ModStringIO("")
+        downloadData = ModStringIO("downloaded content")
+        try:
+            request = object()
+            def urlopenFunc(r):
+                assert r == request
+                return downloadData
+            urllib2Mock.Request.return_value = request
+            urllib2Mock.urlopen.side_effect = urlopenFunc
+            
+            with unittest.mock.patch("gosa.common.utils.open", create=True) as openMock:
+                def openFunc(path, mode):
+                    assert path == "/test/downloads/test"
+                    assert mode == "w"
+                    return targetFile
+                openMock.side_effect = openFunc
+                downloadFile("http://localhost/test", download_dir=download_dir, use_filename=True)
+                assert targetFile.getvalue() == downloadData.getvalue()
+        finally:
+            downloadData.close(True)
+            targetFile.close(True)
+        # Input stream is never explicitly closed...
+        #assert downloadData.closeCalls == 1
+        assert targetFile.closeCalls == 1
     
     # Unused
     def test_xml2dict(self):
