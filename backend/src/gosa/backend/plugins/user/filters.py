@@ -15,7 +15,7 @@ from gosa.backend.objects.filter import ElementFilter
 from gosa.backend.exceptions import ElementFilterException
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.utils import N_
-from io import StringIO
+from io import StringIO, BytesIO
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, Integer, DateTime, and_, Sequence, ForeignKey
@@ -36,7 +36,7 @@ class ImageSize(Base):
     size = Column(Integer)
     path = Column(String)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: nocover
        return "<ImageSize(uuid='%s', path='%s', size='%d')>" % (self.uuid, self.path, self.size)
 
 
@@ -48,8 +48,10 @@ class ImageIndex(Base):
     modified = Column(DateTime)
     images = relationship("ImageSize", order_by=ImageSize.size)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: nocover
        return "<ImageIndex(uuid='%s', attribute='%s')>" % (self.uuid, self.attribute)
+
+Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
 
 
 class ImageProcessor(ElementFilter):
@@ -89,7 +91,7 @@ class ImageProcessor(ElementFilter):
             entry.modified = obj.modifyTimestamp
 
             for idx in range(0, len(valDict[key]['value'])):
-                image = StringIO(valDict[key]['value'][idx].get())
+                image = BytesIO(valDict[key]['value'][idx].get())
                 try:
                     im = Image.open(image) #@UndefinedVariable
                 except IOError:
@@ -106,7 +108,6 @@ class ImageProcessor(ElementFilter):
                     wds = os.path.join(wd, size + ".jpg")
                     s = int(size)
                     tmp = ImageOps.fit(im, (s, s), Image.ANTIALIAS) #@UndefinedVariable
-                    tgt = StringIO()
                     tmp.save(wds, "JPEG")
 
                     # Save size reference if not there yet
