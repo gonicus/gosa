@@ -210,21 +210,19 @@ class CommonUtilsTestCase(unittest.TestCase):
         with unittest.mock.patch("gosa.common.utils.urllib2") as urllib2Mock:
             targetFile = ModStringIO("")
             downloadData = ModStringIO("downloaded content")
-            
-            request = object()
-            def urlopenFunc(r):
-                if errorToRaise == HTTPError:
-                    raise errorToRaise(None, None, None, None, None)
-                elif errorToRaise == URLError:
-                    raise errorToRaise(None, None)
-                elif errorToRaise:
-                    raise errorToRaise()
-                assert r == request
-                return downloadData
-            urllib2Mock.Request.return_value = request
-            urllib2Mock.urlopen.side_effect = urlopenFunc
-            
             try:
+                request = object()
+                def urlopenFunc(r):
+                    if errorToRaise == HTTPError:
+                        raise errorToRaise(None, None, None, None, None)
+                    elif errorToRaise == URLError:
+                        raise errorToRaise(None, None)
+                    elif errorToRaise:
+                        raise errorToRaise()
+                    assert r == request
+                    return downloadData
+                urllib2Mock.Request.return_value = request
+                urllib2Mock.urlopen.side_effect = urlopenFunc
                 with unittest.mock.patch("gosa.common.utils.open", create=True) as openMock:
                     def openFunc(path, mode):
                         assert path == expectedFilePath
