@@ -637,7 +637,6 @@ class ObjectIndex(Plugin):
 
         # Create result-set
         for item in self.search(query, conditions):
-            print(item)
             # Filter out what the current use is not allowed to see
             item = self.__filter_entry(user, item)
             if item and item['dn'] is not None:
@@ -714,7 +713,6 @@ class ObjectIndex(Plugin):
 
         # Add query information to be able to search various tables
         _args = __make_filter(node)
-        print(str(and_(*_args)))
 
         if use_extension and use_key_value:
             args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid == ExtensionIndex.uuid]
@@ -784,8 +782,10 @@ class ObjectIndex(Plugin):
                     _res.pop(key, None)
 
             return _res
-
-        for o in self.__session.query(ObjectInfoIndex).filter(*fltr).all():
+        q = self.__session.query(ObjectInfoIndex).filter(*fltr)
+        from sqlalchemy.dialects import postgresql
+        print(str(q.statement.compile(dialect=postgresql.dialect(),compile_kwargs={"literal_binds": True})))
+        for o in q.all():
             res.append(normalize(o, properties))
 
         return res
