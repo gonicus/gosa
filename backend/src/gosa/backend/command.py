@@ -292,4 +292,4 @@ class CommandRegistry(Plugin):
 
     @Command(needsUser=True, __help__=N_("Return the current session's user ID."))
     def getSessionUser(self, user):
-        return user.decode()
+        return user

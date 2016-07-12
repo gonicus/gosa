@@ -165,8 +165,9 @@ qx.Class.define("gosa.Application",
       pluginView.add(settings);
 
       // Initialize websocket messaging
-      var messaging = gosa.io.WebSocket.getInstance();
-      messaging.reconnect();
+      //TODO: SSE later on
+      //var messaging = gosa.io.WebSocket.getInstance();
+      //messaging.reconnect();
 
       doc.add(pluginView, {left: 3, right: 3, top: 52, bottom: 4});
 

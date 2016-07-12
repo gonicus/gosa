@@ -22,8 +22,9 @@ qx.Class.define("gosa.Session",
   
     this.base(arguments);
 
-    gosa.io.WebSocket.getInstance().addListener("objectModified", this._objectEvent, this);
-    gosa.io.WebSocket.getInstance().addListener("objectRemoved", this._objectEvent, this);
+    //TODO: go SSE, maybe use Bus
+    //gosa.io.WebSocket.getInstance().addListener("objectModified", this._objectEvent, this);
+    //gosa.io.WebSocket.getInstance().addListener("objectRemoved", this._objectEvent, this);
   },
 
   properties: {

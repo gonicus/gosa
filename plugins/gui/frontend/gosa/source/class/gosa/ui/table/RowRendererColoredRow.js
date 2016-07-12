@@ -28,12 +28,10 @@ qx.Class.define("gosa.ui.table.RowRendererColoredRow",
   members: {
 
     colorRows: null,
-   __fontStyleString: null,
-   __fontStyle: null,
 
     updateDataRowElement : function(rowInfo, rowElem)
     {
-      var fontStyle = this.__fontStyle;
+      var fontStyle = this._fontStyle;
       var style = rowElem.style;
 
       // set font styles
@@ -65,7 +63,7 @@ qx.Class.define("gosa.ui.table.RowRendererColoredRow",
     {
       var rowStyle = [];
       rowStyle.push(";");
-      rowStyle.push(this.__fontStyleString);
+      rowStyle.push(this._fontStyleString);
       rowStyle.push("background-color:");
 
       var colorSet = false;

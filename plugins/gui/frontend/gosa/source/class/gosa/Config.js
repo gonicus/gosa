@@ -21,7 +21,7 @@ qx.Class.define("gosa.Config", {
     url: "/rpc",
     ws: "/ws",
     spath: "/static",
-    service: "Clacks JSON-RPC service",
+    service: "GOsa JSON-RPC service",
     actionDelimiter: '#',
     timeout: 60000,
     notifications: window.webkitNotifications || window.notifications,

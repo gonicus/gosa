@@ -113,6 +113,14 @@ qx.Class.define("gosa.io.Rpc", {
       return(value);
     },
 
+    // overridden
+    createRequest: function()
+    {
+      var req = this.base(arguments);
+      req.setRequestHeader("X-XSRFToken", this.__xsrf);
+      return req;
+    },
+
     /* We use a queue to process incoming RPC requests to ensure that we can
      * act on errors accordingly. E.g for error 401 we send a login request
      * first and then re-queue the current remote-procedure-call again.
@@ -123,7 +131,23 @@ qx.Class.define("gosa.io.Rpc", {
           this.running = true;
           var item = this.queue.pop();
           this.debug("started next rpc job '" + item['arguments'][0] + "' (queued: " + this.queue.length + ")");
-          this.callAsync.apply(this, [item['callback']].concat(item['arguments']));
+
+          if (!this.__xsrf) {
+            // Do a simple GET
+            var req = new qx.io.request.Xhr(this.getUrl());
+            req.addListener("success", function(e) {
+              this.__xsrf = qx.bom.Cookie.get("_xsrf");
+              this.callAsync.apply(this, [item['callback']].concat(item['arguments']));
+            }, this);
+            req.addListener("fail", function() {
+              //TODO: error handling
+              alert("doh");
+            }, this);
+            req.send();
+          }
+          else {
+            this.callAsync.apply(this, [item['callback']].concat(item['arguments']));
+          }
         }
       }
     },
@@ -161,8 +185,9 @@ qx.Class.define("gosa.io.Rpc", {
             cl.process_queue();
 
             // Re-connect websockets
-            var messaging = gosa.io.WebSocket.getInstance();
-            messaging.reconnect();
+            //TODO: go SSE
+            //var messaging = gosa.io.WebSocket.getInstance();
+            //messaging.reconnect();
           }, cl);
 
           // Catch potential errors here. 

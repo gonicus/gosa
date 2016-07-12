@@ -164,8 +164,7 @@ class JsonRpcHandler(tornado.web.RequestHandler):
 
         try:
             self.log.debug("calling method %s(%s)" % (method, params))
-            user = self.get_secure_cookie('REMOTE_USER')
-
+            user = self.get_secure_cookie('REMOTE_USER').decode('ascii')
             self.log.debug("received call [%s] for %s: %s(%s)" % (jid, user, method, params))
 
             if isinstance(params, dict):
