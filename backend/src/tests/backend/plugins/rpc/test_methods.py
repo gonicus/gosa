@@ -5,6 +5,7 @@ import gosa
 from tests.GosaTestCase import GosaTestCase, slow
 
 
+@slow
 class RpcMethodsTestCase(GosaTestCase):
 
     def setUp(self):
