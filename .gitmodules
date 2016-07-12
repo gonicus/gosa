@@ -6,4 +6,4 @@
 	url = https://github.com/cajus/capture.git
 [submodule "plugins/gui/frontend/uploadmgr"]
 	path = plugins/gui/frontend/uploadmgr
-	url = https://github.com:johnspackman/UploadMgr.git
+	url = https://github.com/johnspackman/UploadMgr.git

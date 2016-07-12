@@ -27,7 +27,7 @@ from gosa.common.error import GosaErrorHandler as C
 C.register_codes(dict(
     INVALID_SEARCH_SCOPE=N_("Invalid scope '%(scope)s' [SUB, BASE, ONE, CHILDREN]"),
     INVALID_SEARCH_DATE=N_("Invalid date specification '%(date)s' [hour, day, week, month, year, all]"),
-    UNKNOWN_USER=N_("Unknown user '%(target)s'"),
+    UNKNOWN_USER=N_("Unknown user '%(topic)s'"),
     BACKEND_PARAMETER_MISSING=N_("Backend parameter for '%(extension)s.%(attribute)s' is missing")))
 
 
@@ -104,7 +104,7 @@ class RPCMethods(Plugin):
     def getUserDetails(self, userid):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'_type': 'User', 'uid': userid}, {'sn': 1, 'givenName': 1, 'cn': 1, 'dn': 1, '_uuid': 1})
-        if not res.count():
+        if len(res) == 0:
             raise GOsaException(C.make_error("UNKNOWN_USER", userid))
 
         return({'sn': res[0]['sn'][0],
@@ -117,16 +117,16 @@ class RPCMethods(Plugin):
     def extensionExists(self, userid, dn, etype):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'_type': 'User', 'dn': dn}, {'_extensions': 1})
-        if not res.count():
+        if len(res) == 0:
             raise GOsaException(C.make_error("UNKNOWN_USER", userid))
-
+        print(res[0])
         return etype in res[0]['_extensions'] if '_extensions' in res[0] else False
 
     @Command(__help__=N_("Save user preferences"), needsUser=True)
     def saveUserPreferences(self, userid, name, value):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'_type': 'User', 'uid': userid}, {'dn': 1})
-        if not res.count():
+        if len(res) == 0:
             raise GOsaException(C.make_error("UNKNOWN_USER", userid))
 
         user = ObjectProxy(res[0]['dn'])
@@ -147,7 +147,7 @@ class RPCMethods(Plugin):
     def loadUserPreferences(self, userid, name):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'_type': 'User', 'uid': userid}, {'dn': 1})
-        if not res.count():
+        if len(res) == 0:
             raise GOsaException(C.make_error("UNKNOWN_USER", userid))
 
         user = ObjectProxy(res[0]['dn'])
@@ -191,8 +191,8 @@ class RPCMethods(Plugin):
         # Start the query and brind the result in a usable form
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({
-            '$or': [{'_type': otype}, {'_extensions': otype}],
-            oattr: re.compile("^.*" + re.escape(fltr) + ".*$")
+            'or_': {'_type': otype, '_extensions': otype},
+            oattr: '%{}%'.format(fltr) if len(fltr) > 0 else '%'
             }, attrs)
         result = []
 
@@ -253,8 +253,7 @@ class RPCMethods(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
 
         res = index.search({
-            '$or': [{'_type': otype}, {'_extensions': otype}],
-            oattr: {'$in': names}
+            'or_': {'_type': otype, '_extensions': otype, oattr: names}
             }, attrs)
 
         result = {}
@@ -438,7 +437,7 @@ class RPCMethods(Plugin):
     #        if item['_type'] in self.__search_aid['resolve']:
     #            for r in self.__search_aid['resolve'][item['_type']]:
     #                if r['attribute'] in item:
-    #                    tag = r['type'] if r['type'] else item['_type']
+    #                    tag = r['_type'] if r['_type'] else item['_type']
 
     #                    # If a category was choosen and it does not fit the
     #                    # desired target tag - skip that one
@@ -510,114 +509,114 @@ class RPCMethods(Plugin):
 
     #    return penalty
 
-    def __update_res(self, res, item, user=None, relevance=0, secondary=False):
-
-        # Filter out what the current use is not allowed to see
-        item = self.__filter_entry(user, item)
-        if not item or item['dn'] is None:
-            # We've obviously no permission to see thins one - skip it
-            return
-
-        if item['dn'] in res:
-            dn = item['dn']
-            if res[dn]['relevance'] > relevance:
-                res[dn]['relevance'] = relevance
-            return
-
-        entry = {'tag': item['_type'], 'relevance': relevance, 'uuid': item['_uuid'],
-            'secondary': secondary, 'lastChanged': item['_last_changed'], 'hasChildren': True}
-        for k, v in self.__search_aid['mapping'][item['_type']].items():
-            if k:
-                if k == "icon":
-                    continue
-                if v in item and item[v]:
-                    if v == "dn":
-                        entry[k] = item[v]
-                    else:
-                        entry[k] = item[v][0]
-                else:
-                    entry[k] = self.__build_value(v, item)
-
-            entry['icon'] = None
-            entry['container'] = item['_type'] in self.containers
-
-            icon_attribute = self.__search_aid['mapping'][item['_type']]['icon']
-            if icon_attribute and icon_attribute in item and item[icon_attribute]:
-                cache_path = self.env.config.get('gui.cache-path', default="/cache")
-                entry['icon'] = os.path.join(cache_path, item['_uuid'],
-                        icon_attribute, "0", "64.jpg?c=%s" %
-                        item['_last_changed'])
-
-        res[item['dn']] = entry
-
-    def __build_value(self, v, info):
-        """
-        Fill placeholders in the value to be displayed as "description".
-        """
-
-        if not v:
-            return ""
-
-        # Find all placeholders
-        attrs = {}
-        for attr in re.findall(r"%\(([^)]+)\)s", v):
-
-            # Extract ordinary attributes
-            if attr in info:
-                attrs[attr] = ", ".join(info[attr])
-
-            # Check for result renderers
-            elif attr in self.__value_extender:
-                attrs[attr] = self.__value_extender[attr](info)
-
-            # Fallback - just set nothing
-            else:
-                attrs[attr] = ""
-
-        # Assemble and remove empty lines and multiple whitespaces
-        res = v % attrs
-        res = re.sub(r"(<br>)+", "<br>", res)
-        res = re.sub(r"^<br>", "", res)
-        res = re.sub(r"<br>$", "", res)
-        return "<br>".join([s.strip() for s in res.split("<br>")])
-
-    def __filter_entry(self, user, entry):
-        """
-        Takes a query entry and decides based on the user what to do
-        with the result set.
-
-        ========== ===========================
-        Parameter  Description
-        ========== ===========================
-        user       User ID
-        entry      Search entry as hash
-        ========== ===========================
-
-        ``Return``: Filtered result entry
-        """
-        ne = {'dn': entry['dn'], '_type': entry['_type'], '_uuid':
-                entry['_uuid'], '_last_changed': entry['_last_changed']}
-
-        if not entry['_type'] in self.__search_aid['mapping']:
-            return None
-
-        attrs = self.__search_aid['mapping'][entry['_type']].values()
-
-        for attr in attrs:
-            if attr is not None and self.__has_access_to(user, entry['dn'], entry['_type'], attr):
-                ne[attr] = entry[attr] if attr in entry else None
-            else:
-                ne[attr] = None
-
-        return ne
-
-    def __has_access_to(self, user, object_dn, object_type, attr):
-        """
-        Checks whether the given user has access to the given object/attribute or not.
-        """
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if user:
-            topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
-            return aclresolver.check(user, topic, "r", base=object_dn)
-        else:
-            return True
+    # def __update_res(self, res, item, user=None, relevance=0, secondary=False):
+    #
+    #     # Filter out what the current use is not allowed to see
+    #     item = self.__filter_entry(user, item)
+    #     if not item or item['dn'] is None:
+    #         # We've obviously no permission to see thins one - skip it
+    #         return
+    #
+    #     if item['dn'] in res:
+    #         dn = item['dn']
+    #         if res[dn]['relevance'] > relevance:
+    #             res[dn]['relevance'] = relevance
+    #         return
+    #
+    #     entry = {'tag': item['_type'], 'relevance': relevance, 'uuid': item['_uuid'],
+    #         'secondary': secondary, 'lastChanged': item['_last_changed'], 'hasChildren': True}
+    #     for k, v in self.__search_aid['mapping'][item['_type']].items():
+    #         if k:
+    #             if k == "icon":
+    #                 continue
+    #             if v in item and item[v]:
+    #                 if v == "dn":
+    #                     entry[k] = item[v]
+    #                 else:
+    #                     entry[k] = item[v][0]
+    #             else:
+    #                 entry[k] = self.__build_value(v, item)
+    #
+    #         entry['icon'] = None
+    #         entry['container'] = item['_type'] in self.containers
+    #
+    #         icon_attribute = self.__search_aid['mapping'][item['_type']]['icon']
+    #         if icon_attribute and icon_attribute in item and item[icon_attribute]:
+    #             cache_path = self.env.config.get('gui.cache-path', default="/cache")
+    #             entry['icon'] = os.path.join(cache_path, item['_uuid'],
+    #                     icon_attribute, "0", "64.jpg?c=%s" %
+    #                     item['_last_changed'])
+    #
+    #     res[item['dn']] = entry
+    #
+    # def __build_value(self, v, info):
+    #     """
+    #     Fill placeholders in the value to be displayed as "description".
+    #     """
+    #
+    #     if not v:
+    #         return ""
+    #
+    #     # Find all placeholders
+    #     attrs = {}
+    #     for attr in re.findall(r"%\(([^)]+)\)s", v):
+    #
+    #         # Extract ordinary attributes
+    #         if attr in info:
+    #             attrs[attr] = ", ".join(info[attr])
+    #
+    #         # Check for result renderers
+    #         elif attr in self.__value_extender:
+    #             attrs[attr] = self.__value_extender[attr](info)
+    #
+    #         # Fallback - just set nothing
+    #         else:
+    #             attrs[attr] = ""
+    #
+    #     # Assemble and remove empty lines and multiple whitespaces
+    #     res = v % attrs
+    #     res = re.sub(r"(<br>)+", "<br>", res)
+    #     res = re.sub(r"^<br>", "", res)
+    #     res = re.sub(r"<br>$", "", res)
+    #     return "<br>".join([s.strip() for s in res.split("<br>")])
+    #
+    # def __filter_entry(self, user, entry):
+    #     """
+    #     Takes a query entry and decides based on the user what to do
+    #     with the result set.
+    #
+    #     ========== ===========================
+    #     Parameter  Description
+    #     ========== ===========================
+    #     user       User ID
+    #     entry      Search entry as hash
+    #     ========== ===========================
+    #
+    #     ``Return``: Filtered result entry
+    #     """
+    #     ne = {'dn': entry['dn'], '_type': entry['_type'], '_uuid':
+    #             entry['_uuid'], '_last_changed': entry['_last_changed']}
+    #
+    #     if not entry['_type'] in self.__search_aid['mapping']:
+    #         return None
+    #
+    #     attrs = self.__search_aid['mapping'][entry['_type']].values()
+    #
+    #     for attr in attrs:
+    #         if attr is not None and self.__has_access_to(user, entry['dn'], entry['_type'], attr):
+    #             ne[attr] = entry[attr] if attr in entry else None
+    #         else:
+    #             ne[attr] = None
+    #
+    #     return ne
+    #
+    # def __has_access_to(self, user, object_dn, object_type, attr):
+    #     """
+    #     Checks whether the given user has access to the given object/attribute or not.
+    #     """
+    #     aclresolver = PluginRegistry.getInstance("ACLResolver")
+    #     if user:
+    #         topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
+    #         return aclresolver.check(user, topic, "r", base=object_dn)
+    #     else:
+    #         return True

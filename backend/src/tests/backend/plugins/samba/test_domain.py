@@ -10,7 +10,6 @@
 from unittest import TestCase, mock
 import pytest
 from gosa.backend.plugins.samba.domain import *
-from tests.GosaTestCase import slow, gosaContext
 
 class SambaGuiMethodsTestCase(TestCase):
 

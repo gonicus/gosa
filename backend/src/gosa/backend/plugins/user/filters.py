@@ -15,10 +15,11 @@ from gosa.backend.objects.filter import ElementFilter
 from gosa.backend.exceptions import ElementFilterException
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.utils import N_
-from io import StringIO
+from io import BytesIO
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, Integer, DateTime, and_, Sequence, ForeignKey
+from sqlalchemy.exc import OperationalError
 
 Base = declarative_base()
 
@@ -36,8 +37,8 @@ class ImageSize(Base):
     size = Column(Integer)
     path = Column(String)
 
-    def __repr__(self):
-       return "<ImageSize(uuid='%s', path='%s', size='%d')>" % (self.uuid, self.path, self.size)
+    def __repr__(self):  # pragma: nocover
+        return "<ImageSize(uuid='%s', path='%s', size='%d')>" % (self.uuid, self.path, self.size)
 
 
 class ImageIndex(Base):
@@ -48,8 +49,8 @@ class ImageIndex(Base):
     modified = Column(DateTime)
     images = relationship("ImageSize", order_by=ImageSize.size)
 
-    def __repr__(self):
-       return "<ImageIndex(uuid='%s', attribute='%s')>" % (self.uuid, self.attribute)
+    def __repr__(self):  # pragma: nocover
+        return "<ImageIndex(uuid='%s', attribute='%s')>" % (self.uuid, self.attribute)
 
 
 class ImageProcessor(ElementFilter):
@@ -73,7 +74,12 @@ class ImageProcessor(ElementFilter):
         if key in valDict and valDict[key]['value']:
 
             # Check if a cache entry exists...
-            entry = self.__session.query(ImageIndex.modified).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
+            try:
+                entry = self.__session.query(ImageIndex.modified).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
+            except OperationalError:
+                Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
+                entry = None
+
             if entry:
 
                 # Nothing to do if it's unmodified
@@ -89,7 +95,7 @@ class ImageProcessor(ElementFilter):
             entry.modified = obj.modifyTimestamp
 
             for idx in range(0, len(valDict[key]['value'])):
-                image = StringIO(valDict[key]['value'][idx].get())
+                image = BytesIO(valDict[key]['value'][idx].get())
                 try:
                     im = Image.open(image) #@UndefinedVariable
                 except IOError:
@@ -106,7 +112,6 @@ class ImageProcessor(ElementFilter):
                     wds = os.path.join(wd, size + ".jpg")
                     s = int(size)
                     tmp = ImageOps.fit(im, (s, s), Image.ANTIALIAS) #@UndefinedVariable
-                    tgt = StringIO()
                     tmp.save(wds, "JPEG")
 
                     # Save size reference if not there yet

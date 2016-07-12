@@ -9,7 +9,7 @@
 from gosa.common.error import GosaErrorHandler as C
 
 
-class PasswordMethod(object):
+class PasswordMethod(object):  # pragma: nocover
     """
     The interface all password-methods should use.
     """

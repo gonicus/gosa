@@ -13,6 +13,7 @@ from tests.GosaTestCase import *
 from gosa.backend.objects.index import *
 
 
+@slow
 class ObjectBackendTestCase(GosaTestCase):
 
     def setUp(self):
@@ -51,7 +52,7 @@ class ObjectBackendTestCase(GosaTestCase):
         test.asJSON.return_value = {
             'uuid': '78475884-c7f2-1035-8262-f535be14d43a',
             'dn': 'cn=Frank Reich,ou=people,dc=example,dc=de',
-            'adjusted_parent_dn': 'ou=people,dc=example,dc=de'
+            '_adjusted_parent_dn': 'ou=people,dc=example,dc=de'
         }
         with pytest.raises(IndexException):
             self.obj.update(test)
@@ -60,7 +61,7 @@ class ObjectBackendTestCase(GosaTestCase):
         test.asJSON.return_value = {
             'uuid': '7ff15c20-b305-1031-916b-47d262a62cc5',
             'dn': 'ou=people,dc=example,dc=de',
-            'adjusted_parent_dn': 'dc=example,dc=de'
+            '_adjusted_parent_dn': 'dc=example,dc=de'
         }
         with mock.patch.object(self.obj, "_ObjectIndex__save") as ms, \
                 mock.patch.object(self.obj._ObjectIndex__session, "commit") as mc:
@@ -98,7 +99,7 @@ class ObjectBackendTestCase(GosaTestCase):
         assert len(res) == 1
         assert res[0]['dn'] == 'cn=Frank Reich,ou=people,dc=example,dc=net'
 
-        res = self.obj.search({'parent_dn': 'ou=people,dc=example,dc=net',
+        res = self.obj.search({'_parent_dn': 'ou=people,dc=example,dc=net',
                                'not_': {'dn': 'cn=Frank Reich,ou=people,dc=example,dc=net'}}, {'dn': 1})
         assert len(res) == 1
         assert res[0]['dn'] == 'cn=System Administrator,ou=people,dc=example,dc=net'
@@ -108,7 +109,7 @@ class ObjectBackendTestCase(GosaTestCase):
         assert 'cn=Frank Reich,ou=people,dc=example,dc=net' in [res[0]['dn'], res[1]['dn']]
         assert 'cn=System Administrator,ou=people,dc=example,dc=net' in [res[0]['dn'], res[1]['dn']]
 
-        res = self.obj.search({'parent_dn': ['ou=people,dc=example,dc=net'], 'extension': ['PosixUser']}, {'dn': 1})
+        res = self.obj.search({'_parent_dn': ['ou=people,dc=example,dc=net'], 'extension': ['PosixUser']}, {'dn': 1})
         assert len(res) == 1
         assert res[0]['dn'] == 'cn=Frank Reich,ou=people,dc=example,dc=net'
 
