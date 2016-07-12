@@ -366,12 +366,6 @@ class Object(object):
             if self.myProperties[name]['readonly']:
                 raise AttributeError(C.make_error('ATTRIBUTE_READ_ONLY', name))
 
-            # Check if the given value has to match one out of a given list.
-            if len(self.myProperties[name]['values']) and value not in self.myProperties[name]['values']:
-                raise TypeError(C.make_error(
-                    'ATTRIBUTE_INVALID_CONSTANT', name,
-                    elements=", ".join(self.myProperties[name]['values'])))
-
             # Set the new value
             if self.myProperties[name]['multivalue']:
 
@@ -393,6 +387,12 @@ class Object(object):
             #pylint: disable=E1101
             if not self._objectFactory.getAttributeTypes()[s_type].is_valid_value(new_value):
                 raise TypeError(C.make_error('ATTRIBUTE_INVALID', name, type=s_type))
+
+            # Check if the given value has to match one out of a given list.
+            if len(self.myProperties[name]['values']) and [True for x in new_value if x not in self.myProperties[name]['values']]:
+                raise TypeError(C.make_error(
+                    'ATTRIBUTE_INVALID_CONSTANT', name,
+                    elements=", ".join(self.myProperties[name]['values'])))
 
             # Validate value
             if self.myProperties[name]['validator']:

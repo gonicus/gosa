@@ -891,6 +891,7 @@ class ObjectFactory(object):
                     else:
                         for d in prop.__dict__['Values'].iterchildren():
                             if 'key' in d.attrib:
+                                print(self.__attribute_type['String'].convert_to)
                                 dvalues[self.__attribute_type['String'].convert_to(syntax, [d.attrib['key']])[0]] = d.text
                             else:
                                 avalues.append(d.text)
