@@ -69,7 +69,7 @@ class Object(object):
     It also contains the ability to execute the in- and out-filters for the
     object properties.
 
-    All meta-classes for objects, created by the XML defintions, will inherit this class.
+    All meta-classes for objects, created by the XML definitions, will inherit this class.
 
     """
     _reg = None
@@ -1353,13 +1353,13 @@ class Object(object):
                 hook["ref"](self)
 
 
-class IObjectChanged(Interface):
+class IObjectChanged(Interface):  # pragma: nocover
 
     def __init__(self, obj):
         pass
 
 
-class IAttributeChanged(Interface):
+class IAttributeChanged(Interface):  # pragma: nocover
 
     def __init__(self, attr, value):
         pass
