@@ -43,7 +43,9 @@ Base = declarative_base()
 C.register_codes(dict(
     OBJECT_EXISTS=N_("Object with UUID %(uuid)s already exists"),
     OBJECT_NOT_FOUND=N_("Cannot find object %(id)s"),
-    INDEXING=N_("index rebuild in progress - try again later")
+    INDEXING=N_("index rebuild in progress - try again later"),
+    NOT_SUPPORTED=N_("requested search operation %(operation)s is not supported"),
+    NOT_SUPPORTED_KEY_VALUE=N_("requested search operation %(operation)s is not supported on non meta data attributes"),
 ))
 
 
@@ -656,20 +658,32 @@ class ObjectIndex(Plugin):
 
             for key, value in n.items():
                 if isinstance(value, dict):
-                    meth = None
 
-                    # We support and_, or_ and not_ as a key for hash values
+                    # Maintain certain key words
                     if key == "and_":
-                        meth = and_
+                        res.append(and_(*__make_filter(value)))
                     elif key == "or_":
-                        meth = or_
+                        res.append(or_(*__make_filter(value)))
                     elif key == "not_":
-                        meth = not_
+                        res.append(not_(*__make_filter(value)))
+                    elif "=>" in value:
+                        if not hasattr(ObjectInfoIndex, key):
+                            raise IndexException(C.make_error('NOT_SUPPORTED_KEY_VALUE', "base", operator=key))
+                        res.append(getattr(ObjectInfoIndex, key) >= value['=>'])
+                    elif "=<" in value:
+                        if not hasattr(ObjectInfoIndex, key):
+                            raise IndexException(C.make_error('NOT_SUPPORTED_KEY_VALUE', "base", operator=key))
+                        res.append(getattr(ObjectInfoIndex, key) <= value['=<'])
+                    elif ">" in value:
+                        if not hasattr(ObjectInfoIndex, key):
+                            raise IndexException(C.make_error('NOT_SUPPORTED_KEY_VALUE', "base", operator=key))
+                        res.append(getattr(ObjectInfoIndex, key) > value['>'])
+                    elif "<" in value:
+                        if not hasattr(ObjectInfoIndex, key):
+                            raise IndexException(C.make_error('NOT_SUPPORTED_KEY_VALUE', "base", operator=key))
+                        res.append(getattr(ObjectInfoIndex, key) < value['<'])
                     else:
-                        # TODO: do it the gosa way...
-                        raise Exception("operation '%s' not supported" % key)
-
-                    res.append(meth(*__make_filter(value)))
+                        raise IndexException(C.make_error('NOT_SUPPORTED', "base", operator=key))
 
                 elif isinstance(value, list):
                     # implicit or_ in case of lists - hashes cannot have multiple
