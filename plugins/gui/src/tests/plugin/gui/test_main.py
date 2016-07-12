@@ -10,9 +10,20 @@
 from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application
 from gosa.plugin.gui.main import GuiPlugin
+import os
 
 
 class GuiPluginTestCase(AsyncHTTPTestCase):
+
+    def setUp(self):
+        self.old_env = dict(os.environ)
+        os.environ.update({"GOSA_CONFIG_DIR": os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "test.conf")})
+        super(GuiPluginTestCase, self).setUp()
+
+    def tearDown(self):
+        os.environ.clear()
+        os.environ.update(self.old_env)
+        super(GuiPluginTestCase, self).tearDown()
 
     def get_app(self):
         return Application([('/(?P<path>.*)?', GuiPlugin)])
