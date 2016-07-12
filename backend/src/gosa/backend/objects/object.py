@@ -519,7 +519,7 @@ class Object(object):
                         new_resources.append(E.resource(*files, location=rc))
 
                 root.replace(root.find("resources"), E.resources(*new_resources))
-                ui.append(etree.tostring(root))
+                ui.append(etree.tostring(root).decode('utf-8'))
 
         return ui
 
