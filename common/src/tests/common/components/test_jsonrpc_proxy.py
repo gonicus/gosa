@@ -16,7 +16,7 @@ class JSONRPCProxyTestCase(unittest.TestCase):
         def respError(*args, **kwargs):
             return StringIO("""{"error": "data", "result": null, "id": "jsonrpc"}""")
         def respSuccess(*args, **kwargs):
-            return StringIO("""{"error": null, "result": "information", "id": 123}""")
+            return StringIO("""{"error": null, "result": "information", "id": "jsonrpc"}""")
         http_handler = unittest.mock.MagicMock()
         https_handler = unittest.mock.MagicMock()
         opener = unittest.mock.MagicMock()
@@ -29,7 +29,7 @@ class JSONRPCProxyTestCase(unittest.TestCase):
         
         sp = JSONServiceProxy()
         sp("test parameter", 1)
-        jsonDumpsMock.assert_called_with({"method": None, "params": ("Testparameter", 1), "id": "jsonrpc"})
+        jsonDumpsMock.assert_called_with({"method": None, "params": ("test parameter", 1), "id": "jsonrpc"})
         opener.open.side_effect = respError
         sp = sp.getProxy() # Recreates instance (with a few parameters gone)
         with pytest.raises(JSONRPCException):
