@@ -52,8 +52,6 @@ class JSONRPCProxyTestCase(unittest.TestCase):
         
         # Trigger line 173 - Expansion of __serviceName
         sp.name1.name2
-        
-        # What is line 186 doing?
 
     @unittest.mock.patch("gosa.common.components.jsonrpc_proxy.cookielib")
     @unittest.mock.patch("gosa.common.components.jsonrpc_proxy.requests.utils")
@@ -115,4 +113,40 @@ class JSONRPCProxyTestCase(unittest.TestCase):
         request.has_header.return_value = True
         cp.http_request(request)
         assert countRequestAdded == request.add_unredirected_header.call_count
+
+    def test_JSONObjectFactory(self):
+        import uuid
+        object_uuid = str(uuid.uuid4())
         
+        def dispatchObjectMethod(ref, name, *args):
+            # Note: No keyword arguments are forwarded.
+            assert ref == object_uuid
+            assert name == "testfunction"
+            assert args == ("required parameter",)
+            return "success"
+        
+        proxy = unittest.mock.MagicMock()
+        proxy.dispatchObjectMethod.side_effect = dispatchObjectMethod
+        
+        of = JSONObjectFactory.get_instance(proxy,
+                "TestType",
+                object_uuid,
+                "dc=test,dc=de",
+                "tests.common.components.test_jsonrpc_proxy.TestType",
+                ("testfunction"),
+                ("attr1", "attr2"),
+                {"attr1": "Data1", "attr2": "Data2"})
+        assert of.uuid == object_uuid
+        assert of.dn == "dc=test,dc=de"
+        assert of.testfunction("required parameter") == "success"
+        assert of.attr1 == "Data1"
+        assert of.attr2 == "Data2"
+        with pytest.raises(AttributeError):
+            of.attr3
+        
+        of.attr2 = "Data"
+        assert of.attr2 == "Data"
+        with pytest.raises(AttributeError):
+            of.attr3 = "TEST"
+        
+        assert repr(of) == object.__getattribute__(of, "ref") == object_uuid
