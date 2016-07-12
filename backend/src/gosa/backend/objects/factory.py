@@ -210,7 +210,7 @@ class ObjectFactory(object):
         """
         Retuns a list with all available object names
         """
-        return self.__xml_defs.keys()
+        return list(self.__xml_defs.keys())
 
     def getObjectTemplates(self, objectType, theme="default"):
         """
