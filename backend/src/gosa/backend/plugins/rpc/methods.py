@@ -479,7 +479,7 @@ class RPCMethods(Plugin):
             for item in self.db.index.find(query, these):
                 self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr, True), secondary=True)
 
-        return res.values()
+        return list(res.values())
 
     def __make_relevance(self, item, keywords, fltr, fuzzy=False):
         """
@@ -494,11 +494,8 @@ class RPCMethods(Plugin):
 
         # Prepare attribute set
         values = []
-        for attrs in item.values():
-            if isinstance(attrs, list):
-                for attr in attrs:
-                    if isinstance(attr, str) and not isinstance(attr, Binary):
-                        values.append(attr)
+        for prop in item.properties:
+            values.append(prop.value)
 
         # Walk thru keywords
         if keywords:
@@ -509,7 +506,7 @@ class RPCMethods(Plugin):
                     penalty *= 2
 
                 # Penalty for not having an case insensitive match
-                elif not keyword.lower() in [s.lower() for s in item]:
+                elif not keyword.lower() in [s.value.lower() for s in item.properties]:
                     penalty *= 4
 
                 # Penalty for not having the correct category
@@ -616,17 +613,20 @@ class RPCMethods(Plugin):
     
         ``Return``: Filtered result entry
         """
-        ne = {'dn': entry['dn'], '_type': entry['_type'], '_uuid':
-                entry['_uuid'], '_last_changed': entry['_last_changed']}
+        ne = {'dn': entry.dn, '_type': entry._type, '_uuid': entry.uuid, '_last_changed': entry._last_modified}
     
-        if not entry['_type'] in self.__search_aid['mapping']:
+        if not entry._type in self.__search_aid['mapping']:
             return None
     
-        attrs = self.__search_aid['mapping'][entry['_type']].values()
+        attrs = self.__search_aid['mapping'][entry._type].values()
     
         for attr in attrs:
-            if attr is not None and self.__has_access_to(user, entry['dn'], entry['_type'], attr):
-                ne[attr] = entry[attr] if attr in entry else None
+            if attr is not None and self.__has_access_to(user, entry.dn, entry._type, attr):
+                if hasattr(ObjectInfoIndex, attr):
+                    ne[attr] = getattr(entry, attr)
+                else:
+                    kv = dict([(prop.key, prop.value) for prop in entry.properties])
+                    ne[attr] = kv[attr] if attr in kv else None
             else:
                 ne[attr] = None
     
