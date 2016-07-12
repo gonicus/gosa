@@ -92,7 +92,7 @@ setup(
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
-        #xxxxxxx acl = gosa.backend.acl:ACLResolver
+        acl = gosa.backend.acl:ACLResolver
         objects = gosa.backend.objects.index:ObjectIndex
         httpd = gosa.backend.components.httpd:HTTPService
         command = gosa.backend.command:CommandRegistry

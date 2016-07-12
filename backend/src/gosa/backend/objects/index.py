@@ -45,7 +45,6 @@ C.register_codes(dict(
     OBJECT_NOT_FOUND=N_("Cannot find object %(id)s"),
     INDEXING=N_("index rebuild in progress - try again later"),
     NOT_SUPPORTED=N_("requested search operation %(operation)s is not supported"),
-    NOT_SUPPORTED_KEY_VALUE=N_("requested search operation %(operation)s is not supported on non meta data attributes"),
 ))
 
 
@@ -249,7 +248,7 @@ class ObjectIndex(Plugin):
 
         # Resolve dn from uuid if needed
         if not dn:
-            dn = self.__session.query(ObjectInfoIndex.dn).find(ObjectInfoIndex.uuid == _uuid).one_or_none()
+            dn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == _uuid).one_or_none()
 
         # Modification
         if change_type == "modify":
@@ -260,7 +259,7 @@ class ObjectIndex(Plugin):
                 return
 
             # Check if the entry exists - if not, maybe let create it
-            entry = self.__session.query(ObjectInfoIndex.dn).find(
+            entry = self.__session.query(ObjectInfoIndex.dn).filter(
                 or_(
                     ObjectInfoIndex.uuid == _uuid,
                     ObjectInfoIndex.dn == re.compile(r'^%s$' % re.escape(dn), re.IGNORECASE)
@@ -297,7 +296,7 @@ class ObjectIndex(Plugin):
                 return
 
             # Check if the entry exists - if not, maybe let create it
-            entry = self.__session.query(ObjectInfoIndex.dn).find(
+            entry = self.__session.query(ObjectInfoIndex.dn).filter(
                 or_(
                     ObjectInfoIndex.uuid == _uuid,
                     ObjectInfoIndex.dn == re.compile(r'^%s$' % re.escape(dn), re.IGNORECASE)
@@ -669,22 +668,6 @@ class ObjectIndex(Plugin):
                         res.append(or_(*__make_filter(value)))
                     elif key == "not_":
                         res.append(not_(*__make_filter(value)))
-                    elif "=>" in value:
-                        if not hasattr(ObjectInfoIndex, key):
-                            raise IndexException(C.make_error('NOT_SUPPORTED_KEY_VALUE', "base", operator=key))
-                        res.append(getattr(ObjectInfoIndex, key) >= value['=>'])
-                    elif "=<" in value:
-                        if not hasattr(ObjectInfoIndex, key):
-                            raise IndexException(C.make_error('NOT_SUPPORTED_KEY_VALUE', "base", operator=key))
-                        res.append(getattr(ObjectInfoIndex, key) <= value['=<'])
-                    elif ">" in value:
-                        if not hasattr(ObjectInfoIndex, key):
-                            raise IndexException(C.make_error('NOT_SUPPORTED_KEY_VALUE', "base", operator=key))
-                        res.append(getattr(ObjectInfoIndex, key) > value['>'])
-                    elif "<" in value:
-                        if not hasattr(ObjectInfoIndex, key):
-                            raise IndexException(C.make_error('NOT_SUPPORTED_KEY_VALUE', "base", operator=key))
-                        res.append(getattr(ObjectInfoIndex, key) < value['<'])
                     else:
                         raise IndexException(C.make_error('NOT_SUPPORTED', "base", operator=key))
 
@@ -840,11 +823,9 @@ class ObjectIndex(Plugin):
         """
         Checks whether the given user has access to the given object/attribute or not.
         """
-        print("ACL checks are disabled!")
-        return True
-        #aclresolver = PluginRegistry.getInstance("ACLResolver")
-        #if user:
-        #    topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
-        #    return aclresolver.check(user, topic, "r", base=object_dn)
-        #else:
-        #    return True
+        aclresolver = PluginRegistry.getInstance("ACLResolver")
+        if user:
+            topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
+            return aclresolver.check(user, topic, "r", base=object_dn)
+        else:
+            return True

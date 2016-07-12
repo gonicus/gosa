@@ -63,6 +63,8 @@ class SambaGuiMethods(Plugin):
 
     @Command(needsUser=True, __help__=N_("Returns the current samba domain policy for a given user"))
     def getSambaDomainInformation(self, user, target_object, locale=None):
+
+        #TODO?
         print("-------> ACL check for user", user)
         print(target_object)
 

@@ -12,6 +12,8 @@ import os
 import datetime
 import shlex
 import time
+import gosa.backend.objects.renderer
+from json import loads, dumps
 from zope.interface import implementer
 from gosa.common import Environment
 from gosa.common.components import Command
@@ -21,10 +23,10 @@ from gosa.common.components import PluginRegistry
 from gosa.common.components.jsonrpc_utils import Binary
 from gosa.backend.objects import ObjectProxy
 from gosa.backend.objects.factory import ObjectFactory
-import gosa.backend.objects.renderer
 from gosa.common.handler import IInterfaceHandler
-from json import loads, dumps
 from gosa.common.error import GosaErrorHandler as C
+from gosa.backend.objects.index import ObjectInfoIndex, KeyValueIndex
+from sqlalchemy import and_, or_
 
 
 # Register the errors handled  by us
@@ -123,7 +125,6 @@ class RPCMethods(Plugin):
         res = index.search({'_type': 'User', 'dn': dn}, {'_extensions': 1})
         if len(res) == 0:
             raise GOsaException(C.make_error("UNKNOWN_USER", userid))
-        print(res[0])
         return etype in res[0]['_extensions'] if '_extensions' in res[0] else False
 
     @Command(__help__=N_("Save user preferences"), needsUser=True)
@@ -359,9 +360,9 @@ class RPCMethods(Plugin):
         _s = {}
         if keywords:
             if fallback:
-                _s = {'or_': ["%%s%" % kw for kw in keywords]}
+                _s = ["%%s%" % kw for kw in keywords]
             else:
-                _s = {'or_': keywords}
+                _s = keywords
 
         # Build query: join attributes and keywords
         queries = []
@@ -377,34 +378,46 @@ class RPCMethods(Plugin):
                 continue
             if _s:
                 if len(attrs) == 1:
-                    queries.append({'_type': typ, attrs[0]: _s})
+                    if hasattr(ObjectInfoIndex, attrs[0]):
+                        queries.append(and_(ObjectInfoIndex._type == typ, getattr(ObjectInfoIndex[attrs[0]]).in_(_s)))
+                    else:
+                        queries.append(and_(
+                            ObjectInfoIndex._type == typ,
+                            KeyValueIndex.uuid == ObjectInfoIndex.uuid,
+                            KeyValueIndex.key == attrs[0],
+                            KeyValueIndex.value.in_(_s)))
+
                 if len(attrs) > 1:
-                    queries.append({'_type': typ, "or_": list(map(lambda a: {a: _s}, attrs))})
+                    cond = []
+                    for attr in attrs:
+                        if hasattr(ObjectInfoIndex, attr):
+                            cond.append(getattr(ObjectInfoIndex[attr]).in_(_s))
+                        else:
+                            cond.append(and_(KeyValueIndex.key == attr, KeyValueIndex.value.in_(_s)))
+                    queries.append(and_(ObjectInfoIndex._type == typ, or_(*cond)))
             else:
                 if dn_hook != "_adjusted_parent_dn":
-                    queries.append({'_type': typ})
+                    queries.append(ObjectInfoIndex._type == typ)
 
         # Build query: assemble
-        query = ""
+        query = None
         if scope == "SUB":
             if queries:
-                query = {"or_": {"_parent_dn": base, "_parent_dn": "%," + base}, "or_": queries}
+                query = or_(ObjectInfoIndex._parent_dn == base, ObjectInfoIndex._parent_dn.like("%," + base), or_(*queries))
             else:
-                query = {"or_": {"_parent_dn": base, "_parent_dn": "%," + base}}
+                query = or_(ObjectInfoIndex._parent_dn == base, ObjectInfoIndex._parent_dn.like("%," + base))
 
         elif scope == "ONE":
-            query = {"or_": {"dn": base, dn_hook: base}}
-            query.update(dict((k,v) for d in queries for (k,v) in d.items()))
+            query = and_(or_(ObjectInfoIndex.dn == base, getattr(ObjectInfoIndex, dn_hook) == base), *queries)
 
         elif scope == "CHILDREN":
-            query = {dn_hook: base}
-            query.update(dict((k,v) for d in queries for (k,v) in d.items()))
+            query = and_(getattr(ObjectInfoIndex, dn_hook) == base, *queries)
 
         else:
             if queries:
-                query = {"dn": base, "or_": queries}
+                query = and_(ObjectInfoIndex.dn == base, *queries)
             else:
-                query = {"dn": base}
+                query = ObjectInfoIndex.dn == base
 
         # Build query: eventually extend with timing information
         td = None
@@ -421,17 +434,22 @@ class RPCMethods(Plugin):
             elif fltr['mod-time'] == 'year':
                 td = now - datetime.timedelta(days=365)
 
-            td = {">=": time.mktime(td.timetuple())}
-            query["_last_changed"] = td
+            query = and_(ObjectInfoIndex._last_modified >= time.mktime(td.timetuple()), query)
 
         # Perform primary query and get collect the results
         squery = []
         these = dict([(x, 1) for x in self.__search_aid['used_attrs']])
         these.update(dict(dn=1, _type=1, _uuid=1, _last_changed=1))
 
-        for item in self.db.index.find(query, these):
+        #TODO: "these" looks strange...
+        print("---------------------------------")
+        print(query)
+        print(these)
 
+        for item in self.__session.query(ObjectInfoIndex).filter(query):
             self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr))
+
+#HIER ------------------------------
 
             # Collect information for secondary search?
             if fltr['secondary'] != "enabled":
@@ -481,6 +499,7 @@ class RPCMethods(Plugin):
                 for attr in attrs:
                     if isinstance(attr, str) and not isinstance(attr, Binary):
                         values.append(attr)
+
         # Walk thru keywords
         if keywords:
             for keyword in keywords:
@@ -617,11 +636,9 @@ class RPCMethods(Plugin):
         """
         Checks whether the given user has access to the given object/attribute or not.
         """
-        #aclresolver = PluginRegistry.getInstance("ACLResolver")
-        #if user:
-        #    topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
-        #    return aclresolver.check(user, topic, "r", base=object_dn)
-        #else:
-        #    return True
-        print("!ACL check disabled")
-        return True
+        aclresolver = PluginRegistry.getInstance("ACLResolver")
+        if user:
+            topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
+            return aclresolver.check(user, topic, "r", base=object_dn)
+        else:
+            return True
