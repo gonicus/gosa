@@ -115,7 +115,11 @@ class ImageProcessor(ElementFilter):
                     tmp.save(wds, "JPEG")
 
                     # Save size reference if not there yet
-                    se = self.__session.query(ImageSize.size).filter(and_(ImageSize.uuid == obj.uuid, ImageSize.size == s)).one_or_none()
+                    try:
+                        se = self.__session.query(ImageSize.size).filter(and_(ImageSize.uuid == obj.uuid, ImageSize.size == s)).one_or_none()
+                    except OperationalError:
+                        Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
+                        se = None
                     if not se:
                         se = ImageSize(uuid=obj.uuid, size=s, path=wds)
                         self.__session.add(se)

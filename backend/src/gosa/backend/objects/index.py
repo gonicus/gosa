@@ -159,11 +159,14 @@ class ObjectIndex(Plugin):
 
         # Schedule index sync
         if self.env.config.get("backend.index", "True").lower() == "true":
-            self.sync_index()
-            #sobj = PluginRegistry.getInstance("SchedulerService")
-            #sobj.getScheduler().add_date_job(self.sync_index,
-            #        datetime.datetime.now() + datetime.timedelta(seconds=1),
-            #        tag='_internal', jobstore='ram')
+            import sys
+            if hasattr(sys, '_called_from_test'):
+                self.sync_index()
+            else:
+                sobj = PluginRegistry.getInstance("SchedulerService")
+                sobj.getScheduler().add_date_job(self.sync_index,
+                       datetime.datetime.now() + datetime.timedelta(seconds=1),
+                       tag='_internal', jobstore='ram')
 
         # Extract search aid
         attrs = {}

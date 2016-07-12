@@ -18,6 +18,6 @@ else
       fi
       libname=$(basename $lib)
       echo ">>> customize: optimizing $libname"
-      $QOOXDOO/tool/bin/compile.py $lib | grep -v '^>>' > build/resource/gosa/js/$libname
+      python2 $QOOXDOO/tool/bin/compile.py $lib | grep -v '^>>' > build/resource/gosa/js/$libname
     done
 fi
