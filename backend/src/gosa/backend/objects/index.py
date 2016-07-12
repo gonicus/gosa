@@ -86,16 +86,16 @@ class ObjectInfoIndex(Base):
 
     uuid = Column(String(36), primary_key=True)
     dn = Column(String)
-    parent_dn = Column(String)
-    adjusted_parent_dn = Column(String)
-    type = Column(String(64))
-    last_modified = Column(DateTime)
+    _parent_dn = Column(String)
+    _adjusted_parent_dn = Column(String)
+    _type = Column(String(64))
+    _last_modified = Column(DateTime)
     properties = relationship("KeyValueIndex", order_by=KeyValueIndex.key)
     extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension)
 
     def __repr__(self):  # pragma: nocover
-       return "<ObjectInfoIndex(uuid='%s', dn='%s', parent_dn='%s', adjusted_parent_dn'%s', type='%s', last_modified='%s')>" % (
-                            self.uuid, self.dn, self.parent_dn, self.adjusted_parent_dn, self.type, self.last_modified)
+       return "<ObjectInfoIndex(uuid='%s', dn='%s', _parent_dn='%s', _adjusted_parent_dn'%s', _type='%s', _last_modified='%s')>" % (
+                            self.uuid, self.dn, self._parent_dn, self._adjusted_parent_dn, self._type, self._last_modified)
 
 class IndexScanFinished():  # pragma: nocover
     pass
@@ -382,7 +382,7 @@ class ObjectIndex(Plugin):
                 #    continue
 
                 # Check for index entry
-                last_modified = self.__session.query(ObjectInfoIndex.last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
+                last_modified = self.__session.query(ObjectInfoIndex._last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
 
                 # Entry is not in the database
                 if not last_modified:
@@ -500,13 +500,13 @@ class ObjectIndex(Plugin):
         oi = ObjectInfoIndex(
             uuid=data["_uuid"],
             dn=data["dn"],
-            type=data["_type"],
-            parent_dn=data["_parent_dn"],
-            adjusted_parent_dn=data["_adjusted_parent_dn"]
+            _type=data["_type"],
+            _parent_dn=data["_parent_dn"],
+            _adjusted_parent_dn=data["_adjusted_parent_dn"]
         )
 
         if '_last_changed' in data:
-            oi.last_modified = datetime.datetime.fromtimestamp(data["_last_changed"])
+            oi._last_modified = datetime.datetime.fromtimestamp(data["_last_changed"])
 
         self.__session.add(oi)
 
@@ -561,23 +561,23 @@ class ObjectIndex(Plugin):
 
             # Adjust all ParentDN entries of child objects
             res = self.__session.query(ObjectInfoIndex).filter(
-                or_(ObjectInfoIndex.parent_dn == old_dn, ObjectInfoIndex.parent_dn.like('%' + old_dn))
+                or_(ObjectInfoIndex._parent_dn == old_dn, ObjectInfoIndex._parent_dn.like('%' + old_dn))
             ).all()
 
             for entry in res:
                 o_uuid = entry.uuid
                 o_dn = entry.dn
-                o_parent = entry.parent_dn
-                o_adjusted_parent = entry.adjusted_parent_dn
+                o_parent = entry._parent_dn
+                o_adjusted_parent = entry._adjusted_parent_dn
 
                 n_dn = o_dn[:-len(old_dn)] + current['dn']
                 n_parent = o_parent[:-len(old_dn)] + current['dn']
-                n_adjusted_parent = o_adjusted_parent[:-len(o_adjusted_parent)] + current['adjusted_parent_dn']
+                n_adjusted_parent = o_adjusted_parent[:-len(o_adjusted_parent)] + current['_adjusted_parent_dn']
 
                 oi = self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == o_uuid).one()
                 oi.dn = n_dn
-                oi.parent_dn = n_parent
-                oi.adjusted_parent_dn = n_adjusted_parent
+                oi._parent_dn = n_parent
+                oi._adjusted_parent_dn = n_adjusted_parent
 
                 self.__session.commit()
 
@@ -757,10 +757,10 @@ class ObjectIndex(Plugin):
             _res = {
                 "_uuid": data.uuid,
                 "dn": data.dn,
-                "_type": data.type,
-                "_parent_dn": data.parent_dn,
-                "_adjusted_parent_dn": data.adjusted_parent_dn,
-                "_last_changed": data.last_modified,
+                "_type": data._type,
+                "_parent_dn": data._parent_dn,
+                "_adjusted_parent_dn": data._adjusted_parent_dn,
+                "_last_changed": data._last_modified,
                 "_extensions": []
             }
 
@@ -785,8 +785,8 @@ class ObjectIndex(Plugin):
         q = self.__session.query(ObjectInfoIndex).filter(*fltr)
 
         #TODO: remove me
-        from sqlalchemy.dialects import postgresql
-        print(str(q.statement.compile(dialect=postgresql.dialect(),compile_kwargs={"literal_binds": True})))
+        #from sqlalchemy.dialects import postgresql
+        #print(str(q.statement.compile(dialect=postgresql.dialect(),compile_kwargs={"literal_binds": True})))
 
         for o in q.all():
             res.append(normalize(o, properties))

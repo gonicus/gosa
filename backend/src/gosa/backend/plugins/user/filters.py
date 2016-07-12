@@ -15,10 +15,11 @@ from gosa.backend.objects.filter import ElementFilter
 from gosa.backend.exceptions import ElementFilterException
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.utils import N_
-from io import StringIO, BytesIO
+from io import BytesIO
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, Integer, DateTime, and_, Sequence, ForeignKey
+from sqlalchemy.exc import OperationalError
 
 Base = declarative_base()
 
@@ -37,7 +38,7 @@ class ImageSize(Base):
     path = Column(String)
 
     def __repr__(self):  # pragma: nocover
-       return "<ImageSize(uuid='%s', path='%s', size='%d')>" % (self.uuid, self.path, self.size)
+        return "<ImageSize(uuid='%s', path='%s', size='%d')>" % (self.uuid, self.path, self.size)
 
 
 class ImageIndex(Base):
@@ -49,9 +50,7 @@ class ImageIndex(Base):
     images = relationship("ImageSize", order_by=ImageSize.size)
 
     def __repr__(self):  # pragma: nocover
-       return "<ImageIndex(uuid='%s', attribute='%s')>" % (self.uuid, self.attribute)
-
-Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
+        return "<ImageIndex(uuid='%s', attribute='%s')>" % (self.uuid, self.attribute)
 
 
 class ImageProcessor(ElementFilter):
@@ -75,7 +74,12 @@ class ImageProcessor(ElementFilter):
         if key in valDict and valDict[key]['value']:
 
             # Check if a cache entry exists...
-            entry = self.__session.query(ImageIndex.modified).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
+            try:
+                entry = self.__session.query(ImageIndex.modified).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
+            except OperationalError:
+                Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
+                entry = None
+
             if entry:
 
                 # Nothing to do if it's unmodified

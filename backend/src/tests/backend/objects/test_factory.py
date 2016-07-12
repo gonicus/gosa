@@ -17,7 +17,7 @@ class ObjectBackendTestCase(GosaTestCase):
 
     def setUp(self):
         super(ObjectBackendTestCase, self).setUp()
-        self.obj = ObjectFactory()
+        self.obj = ObjectFactory.getInstance()
 
     def tearDown(self):
         del self.obj
