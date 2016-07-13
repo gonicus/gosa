@@ -113,9 +113,16 @@ class SSEClientTestCase(unittest.TestCase):
         id = str(uuid.uuid4())
         with unittest.mock.patch("gosa.common.components.sse_client.BaseSseClient.on_event") as onEventMock:
             sseClient = self.test_BaseSseClient()
-            sseClient.parse_event(("id: %s\nevent: Event name\ndata: somedata\ndata: more data" % id).encode())
             sseClient.parse_event(("id: %s\nevent: Event name\ndata: somedata" % id).encode())
+            
+            def validate(e):
+                assert e.id == id
+                assert e.name == "Event name"
+                assert e.data == "somedata\nmore data"
+            onEventMock.side_effect = validate
+            sseClient.parse_event(("id: %s\nevent: Event name\ndata: somedata\ndata: more data" % id).encode())
             assert onEventMock.call_count == 2
+            
             def validate(e):
                 assert e.id == id
                 assert e.name == None
