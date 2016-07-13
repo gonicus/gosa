@@ -825,7 +825,7 @@ qx.Class.define("gosa.ui.Renderer",
 
       // Create a list of tab-names and order them
       var exten_list = new Array(this._object.baseType);
-      var tmp = qx.lang.Object.getKeys(this._object.extensionTypes);
+      var tmp = Object.keys(this._object.extensionTypes);
       tmp.sort();
       exten_list = exten_list.concat(tmp);
 
@@ -1612,7 +1612,7 @@ qx.Class.define("gosa.ui.Renderer",
 
           // Toggler
           var attrs_defs = this.getAttributeDefinitions_()[widgetName];
-          if(attrs_defs && qx.lang.Object.getKeys(attrs_defs['blocked_by']).length > 0){
+          if(attrs_defs && Object.keys((attrs_defs['blocked_by']).length > 0)){
             this._processBlockedBy(this._widgets[this._current_widgets[item]], attrs_defs['blocked_by']);
           }
         }
