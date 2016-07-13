@@ -1,45 +1,18 @@
 #!/usr/bin/python3
 
 import unittest
-from gosa.common.exceptions import *
+import inspect
+import gosa.common.exceptions
 
 class ExceptionsTestCase(unittest.TestCase):
-    def test_ACLException(self):
-        pass
-    def test_CommandInvalid(self):
-        pass
-    def test_CommandNotAuthorized(self):
-        pass
-    def test_HTTPException(self):
-        pass
-    def test_LDAPException(self):
-        pass
-    def test_LockError(self):
-        pass
-    def test_ConversationNotSupported(self):
-        pass
-    def test_FilterException(self):
-        pass
-    def test_IndexException(self):
-        pass
-    def test_FactoryException(self):
-        pass
-    def test_ProxyException(self):
-        pass
-    def test_ObjectException(self):
-        pass
-    def test_ElementFilterException(self):
-        pass
-    def test_EntryNotUnique(self):
-        pass
-    def test_EntryNotFound(self):
-        pass
-    def test_DNGeneratorError(self):
-        pass
-    def test_RDNNotSpecified(self):
-        pass
-    def test_BackendError(self):
-        pass
-    def test_ProxyError(self):
-        pass
-        
+    def test_Exceptions(self):
+        # Note: This test relies on gosa.common.exceptions to only contain
+        # classes which are Exceptions (and other attributes starting with "__").
+        i = 0
+        for name, exc in inspect.getmembers(gosa.common.exceptions):
+            if name.startswith("__"): continue
+            if inspect.isclass(exc):
+                print(name, exc)
+                assert issubclass(exc, Exception)
+                i += 1
+        assert i == 19
