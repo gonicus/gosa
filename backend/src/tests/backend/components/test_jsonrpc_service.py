@@ -26,11 +26,18 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
     def setUp(self):
         super(JsonRpcHandlerTestCase, self).setUp()
         self.registry = PluginRegistry()
+
+        self.mocked_resolver = unittest.mock.MagicMock()
+        self.mocked_resolver.return_value.check.return_value = True
+        self.patcher = unittest.mock.patch.dict(PluginRegistry.modules, {'ACLResolver': self.mocked_resolver})
+        self.patcher.start()
+
         self.__cookies = ''
         self._xsrf = None
 
     def tearDown(self):
         super(JsonRpcHandlerTestCase, self).tearDown()
+        self.patcher.stop()
         PluginRegistry.getInstance('HTTPService').srv.stop()
         self.registry.shutdown()
 
@@ -228,7 +235,6 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
         assert response.code == 200
         json = loads(response.body)
         assert json['result'] == "username"
-
 
     def test_exception(self):
         self.login()

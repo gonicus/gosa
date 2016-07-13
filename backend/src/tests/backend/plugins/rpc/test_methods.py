@@ -28,7 +28,7 @@ class RpcMethodsTestCase(GosaTestCase):
             self.rpc.getGuiTemplates('UnknownType')
 
         res = self.rpc.getGuiTemplates('User')
-        assert res[0][0:3] == b"<ui"
+        assert res[0][0:3] == "<ui"
 
     def test_getGuiDialogs(self):
 
@@ -36,7 +36,7 @@ class RpcMethodsTestCase(GosaTestCase):
             self.rpc.getGuiDialogs('UnknownType')
 
         res = self.rpc.getGuiDialogs('SambaUser')
-        assert res[0][0:3] == b"<ui"
+        assert res[0][0:3] == "<ui"
 
     def test_getTemplateI18N(self):
 
