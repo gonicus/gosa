@@ -6,35 +6,6 @@ from tornado import web
 
 CHANNEL = 'sse'
 
-class SseClient(web.RequestHandler):
-    """
-    Simple SSE Client for manual testing purposes
-    """
-    def get(self):
-        debug_template = """
-                <html>
-                   <head>
-                   </head>
-                   <body>
-                     <h1>Server sent events</h1>
-                     <div id="event"></div>
-                     <script type="text/javascript">
-
-                     var eventOutputContainer = document.getElementById("event");
-                     var evtSrc = new EventSource("/events");
-
-                     evtSrc.onmessage = function(e) {
-                         eventOutputContainer.innerHTML = e.data;
-                     };
-
-                     </script>
-                   </body>
-                 </html>
-                """
-        self.write(debug_template)
-        self.finish()
-
-
 class SseHandler(web.RequestHandler):
     """
     Server sent event handler based on tornado
