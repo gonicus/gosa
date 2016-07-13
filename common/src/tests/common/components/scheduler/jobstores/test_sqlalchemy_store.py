@@ -11,9 +11,14 @@ from gosa.common.components.scheduler.job import *
 def dummy(): pass
 
 class SQLAlchemyJobStoreTestCase(unittest.TestCase):
+    @unittest.mock.patch("gosa.common.components.scheduler.jobstores.sqlalchemy_store.PickleType")
     @unittest.mock.patch("gosa.common.components.scheduler.jobstores.sqlalchemy_store.Table")
     @unittest.mock.patch("gosa.common.components.scheduler.jobstores.sqlalchemy_store.create_engine")
-    def test_SQLAlchemyJobStore(self, createEngineMock, tableMock, full=True):
+    def test_SQLAlchemyJobStore(self, createEngineMock, tableMock, pickleTypeMock, full=True):
+        pickleType = unittest.mock.MagicMock()
+        pickleTypeMock.return_value = pickleType
+        metadata = unittest.mock.MagicMock()
+        
         engine = unittest.mock.MagicMock()
         engine.url.__repr__ = lambda a: "sqlurl/test"
         def create_engine(url):
@@ -34,8 +39,56 @@ class SQLAlchemyJobStoreTestCase(unittest.TestCase):
             SQLAlchemyJobStore()
         
         SQLAlchemyJobStore(engine=engine)
-        s = SQLAlchemyJobStore(url="sqlurl/test")
-        assert repr(s) == "<SQLAlchemyJobStore (url=sqlurl/test)>"
+        
+        # Testing mainly the table layout parameters...
+        with unittest.mock.patch("gosa.common.components.scheduler.jobstores.sqlalchemy_store.Column") as columnMock,\
+                unittest.mock.patch("gosa.common.components.scheduler.jobstores.sqlalchemy_store.Sequence") as sequenceMock,\
+                unittest.mock.patch("gosa.common.components.scheduler.jobstores.sqlalchemy_store.Unicode") as unicodeMock,\
+                unittest.mock.patch("gosa.common.components.scheduler.jobstores.sqlalchemy_store.String") as stringMock:
+            unicodeO = unittest.mock.MagicMock()
+            unicodeMock.return_value = unicodeO
+            string = unittest.mock.MagicMock()
+            stringMock.return_value = string
+            sequence = unittest.mock.MagicMock()
+            sequenceMock.return_value = sequence
+            def validateTableParams(tablename, metadata, *args):
+                assert tablename == 'gosa.common.components.scheduler_jobs'
+                assert metadata == metadata
+                assert columnMock.call_args_list == [unittest.mock.call("id", Integer, sequence, primary_key=True),
+                    unittest.mock.call("trigger", pickleType, nullable=False),
+                    unittest.mock.call('func_ref', string, nullable=False),
+                    unittest.mock.call('args', pickleType, nullable=False),
+                    unittest.mock.call('kwargs', pickleType, nullable=False),
+                    unittest.mock.call('name', unicodeO),
+                    unittest.mock.call('misfire_grace_time', Integer, nullable=False),
+                    unittest.mock.call('coalesce', Boolean, nullable=False),
+                    unittest.mock.call('owner', string, nullable=True),
+                    unittest.mock.call('tag', string, nullable=True),
+                    unittest.mock.call('description', string, nullable=True),
+                    unittest.mock.call('callback_ref', string, nullable=True),
+                    unittest.mock.call('progress', Integer, nullable=False),
+                    unittest.mock.call('status', Integer, nullable=False),
+                    unittest.mock.call('max_runs', Integer),
+                    unittest.mock.call('max_instances', Integer),
+                    unittest.mock.call('next_run_time', DateTime, nullable=False),
+                    unittest.mock.call('runs', BigInteger),
+                    unittest.mock.call('uuid', string, nullable=False),
+                    unittest.mock.call('job_type', string, nullable=False),
+                    unittest.mock.call('callback', string, nullable=True)]
+                
+                assert sequenceMock.call_args_list == [unittest.mock.call(tablename + '_id_seq', optional=True)]
+                
+                stringCall = unittest.mock.call(1024)
+                for c in stringMock.call_args_list:
+                    assert c == stringCall
+                assert len(stringMock.call_args_list) == 8
+                
+                assert unicodeMock.call_args_list == [unittest.mock.call(1024)]
+                
+                return unittest.mock.MagicMock()
+            tableMock.side_effect = validateTableParams
+            s = SQLAlchemyJobStore(url="sqlurl/test", metadata=metadata)
+            assert repr(s) == "<SQLAlchemyJobStore (url=sqlurl/test)>"
     
     def test_add_remove_job(self):
         # Add
