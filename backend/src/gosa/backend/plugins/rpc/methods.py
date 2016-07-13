@@ -440,6 +440,7 @@ class RPCMethods(Plugin):
         squery = []
         these = dict([(x, 1) for x in self.__search_aid['used_attrs']])
         these.update(dict(dn=1, _type=1, _uuid=1, _last_changed=1))
+        these = list(these.keys())
 
         #TODO: "these" looks strange...
         print("---------------------------------")
@@ -447,37 +448,39 @@ class RPCMethods(Plugin):
         print(these)
 
         for item in self.__session.query(ObjectInfoIndex).filter(query):
-            self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr))
-
-#HIER ------------------------------
+            self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr), these=these)
 
             # Collect information for secondary search?
             if fltr['secondary'] != "enabled":
                 continue
 
-            if item['_type'] in self.__search_aid['resolve']:
-                for r in self.__search_aid['resolve'][item['_type']]:
-                    if r['attribute'] in item:
-                        tag = r['_type'] if r['_type'] else item['_type']
+            kv = self.__index_props_to_key_value(item, these)
+            if item._type in self.__search_aid['resolve']:
+                for r in self.__search_aid['resolve'][item._type]:
+                    if r['attribute'] in kv:
+                        tag = r['_type'] if r['_type'] else item._type
 
                         # If a category was choosen and it does not fit the
                         # desired target tag - skip that one
                         if not (fltr['category'] == "all" or fltr['category'] == tag):
                             continue
 
-                        squery.append({'_type': tag, r['filter']: [item[r['attribute']]]})
+                        if hasattr(ObjectInfoIndex, r['filter']):
+                            squery.append(and_(ObjectInfoIndex._type == tag, getattr(ObjectInfoIndex, r['filter']) ==  kv[r['attribute']]))
+                        else:
+                            squery.append(and_(ObjectInfoIndex._type == tag, KeyValueIndex.key == r['filter'], KeyValueIndex.value == kv[r['attribute']]))
 
         # Perform secondary query and update the result
         if fltr['secondary'] == "enabled" and squery:
-            query = {"or_": squery}
+            query = or_(*squery)
 
             # Add "_last_changed" information to query
             if fltr['mod-time'] != "all":
-                query["_last_changed"] = td
+                query = and_(query, ObjectInfoIndex._last_modified >= time.mktime(td.timetuple()))
 
             # Execute query and update results
-            for item in self.db.index.find(query, these):
-                self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr, True), secondary=True)
+            for item in self.__session.query(ObjectInfoIndex).filter(query):
+                self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr, True), secondary=True, these=these)
 
         return list(res.values())
 
@@ -528,10 +531,10 @@ class RPCMethods(Plugin):
 
         return penalty
 
-    def __update_res(self, res, item, user=None, relevance=0, secondary=False):
+    def __update_res(self, res, item, user=None, relevance=0, secondary=False, these=None):
     
         # Filter out what the current use is not allowed to see
-        item = self.__filter_entry(user, item)
+        item = self.__filter_entry(user, item, these)
         if not item or item['dn'] is None:
             # We've obviously no permission to see thins one - skip it
             return
@@ -599,7 +602,7 @@ class RPCMethods(Plugin):
         res = re.sub(r"<br>$", "", res)
         return "<br>".join([s.strip() for s in res.split("<br>")])
     
-    def __filter_entry(self, user, entry):
+    def __filter_entry(self, user, entry, these=None):
         """
         Takes a query entry and decides based on the user what to do
         with the result set.
@@ -621,15 +624,14 @@ class RPCMethods(Plugin):
         attrs = self.__search_aid['mapping'][entry._type].values()
     
         for attr in attrs:
+            if attr is not None and these is not None and attr not in these:
+                continue
+
             if attr is not None and self.__has_access_to(user, entry.dn, entry._type, attr):
                 if hasattr(ObjectInfoIndex, attr):
                     ne[attr] = getattr(entry, attr)
                 else:
-                    kv = {}
-                    for prop in entry.properties:
-                        if not prop.key in kv:
-                            kv[prop.key] = []
-                        kv[prop.key].append(prop.value)
+                    kv = self.__index_props_to_key_value(entry.properties)
 
                     ne[attr] = kv[attr] if attr in kv else None
             else:
@@ -637,6 +639,17 @@ class RPCMethods(Plugin):
     
         return ne
     
+    def __index_props_to_key_value(self, properties):
+        kv = {}
+
+        for prop in properties:
+            if not prop.key in kv:
+                kv[prop.key] = []
+
+            kv[prop.key].append(prop.value)
+
+        return kv
+
     def __has_access_to(self, user, object_dn, object_type, attr):
         """
         Checks whether the given user has access to the given object/attribute or not.
