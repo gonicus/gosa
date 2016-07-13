@@ -360,7 +360,7 @@ class RPCMethods(Plugin):
         _s = {}
         if keywords:
             if fallback:
-                _s = ["%%s%" % kw for kw in keywords]
+                _s = ["%%%s%%" % kw for kw in keywords]
             else:
                 _s = keywords
 
@@ -454,7 +454,7 @@ class RPCMethods(Plugin):
             if fltr['secondary'] != "enabled":
                 continue
 
-            kv = self.__index_props_to_key_value(item, these)
+            kv = self.__index_props_to_key_value(item.properties)
             if item._type in self.__search_aid['resolve']:
                 for r in self.__search_aid['resolve'][item._type]:
                     if r['attribute'] in kv:
@@ -517,8 +517,8 @@ class RPCMethods(Plugin):
                     penalty *= 2
 
             # Penalty for not having category in keywords
-            if item['_type'] in self.__search_aid['aliases']:
-                if not set([t.lower() for t in self.__search_aid['aliases'][item['_type']]]).intersection(set([k.lower() for k in keywords])):
+            if item._type in self.__search_aid['aliases']:
+                if not set([t.lower() for t in self.__search_aid['aliases'][item._type]]).intersection(set([k.lower() for k in keywords])):
                     penalty *= 6
 
         # Penalty for secondary
