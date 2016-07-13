@@ -7,9 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import pytest
-from unittest import mock, TestCase
-
+from unittest import mock
 from gosa.backend.objects import ObjectFactory
 from tests.GosaTestCase import *
 from gosa.backend.objects.object import *
