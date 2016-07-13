@@ -70,7 +70,7 @@ class BasicFilterTests(unittest.TestCase):
             }
         }
         (new_key, newDict) = filter.process(None, "attr", testDict, "123")
-        assert b"123" in newDict["attr"]["value"]
+        assert "123" in newDict["attr"]["value"]
 
     def test_Clear(self):
         filter = Clear(None)
@@ -81,7 +81,7 @@ class BasicFilterTests(unittest.TestCase):
             }
         }
         (new_key, newDict) = filter.process(None, "attr", testDict)
-        assert newDict["attr"]["value"] == [b'']
+        assert newDict["attr"]["value"] == ['']
 
     def test_IntegerToDatetime(self):
         filter = IntegerToDatetime(None)

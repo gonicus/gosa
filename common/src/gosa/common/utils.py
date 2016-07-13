@@ -18,10 +18,10 @@ import time
 import tempfile
 import lxml
 import urllib.request as urllib2
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
 from tokenize import generate_tokens
 from token import STRING
-from subprocess import Popen, PIPE
-from urllib.parse import urlparse
 from io import StringIO
 
 
@@ -215,36 +215,24 @@ def downloadFile(url, download_dir=None, use_filename=False):
 
     #pylint: disable=E1101
     if o.scheme in ('http', 'https', 'ftp'):
-        try:
-            if use_filename:
-                if not download_dir:
-                    download_dir = tempfile.mkdtemp()
+        if use_filename:
+            if not download_dir:
+                download_dir = tempfile.mkdtemp()
 
-                f = os.sep.join((download_dir, os.path.basename(o.path)))
+            f = os.sep.join((download_dir, os.path.basename(o.path)))
 
+        else:
+            if download_dir:
+                f = tempfile.NamedTemporaryFile(delete=False, dir=download_dir).name
             else:
-                if download_dir:
-                    f = tempfile.NamedTemporaryFile(delete=False, dir=download_dir).name
-                else:
-                    f = tempfile.NamedTemporaryFile(delete=False).name
+                f = tempfile.NamedTemporaryFile(delete=False).name
 
-            request = urllib2.Request(url)
-            dfile = urllib2.urlopen(request)
-            local_file = open(f, "w")
-            local_file.write(dfile.read())
-            local_file.close()
-            result = f
-
-        except urllib2.HTTPError as e:
-            result = None
-            raise e
-
-        except urllib2.URLError as e:
-            result = None
-            raise e
-
-        except:
-            raise
+        request = urllib2.Request(url)
+        dfile = urllib2.urlopen(request)
+        local_file = open(f, "w")
+        local_file.write(dfile.read())
+        local_file.close()
+        result = f
     else:
         #pylint: disable=E1101
         raise ValueError(N_("Unsupported URL scheme %s!"), o.scheme)

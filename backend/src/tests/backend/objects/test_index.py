@@ -14,10 +14,10 @@ from gosa.backend.objects.index import *
 
 
 @slow
-class ObjectBackendTestCase(GosaTestCase):
+class ObjectIndexTestCase(GosaTestCase):
 
     def setUp(self):
-        super(ObjectBackendTestCase, self).setUp()
+        super(ObjectIndexTestCase, self).setUp()
         self.obj = PluginRegistry.getInstance("ObjectIndex")
 
     def test_insert(self):

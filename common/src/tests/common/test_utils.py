@@ -4,10 +4,25 @@ import unittest
 import unittest.mock
 import re
 import os
+import pytest
 import time
 from gosa.common.utils import *
 from datetime import timedelta
 from lxml import objectify, etree
+from io import StringIO
+from urllib.parse import urlparse
+from urllib.error import *
+
+class ModStringIO(StringIO):
+    def __init__(self, *args, **kwargs):
+        super(ModStringIO, self).__init__(*args, **kwargs)
+        self.closeCalls = 0
+        self.name = "/random/directory/file"
+    def close(self, really=False):
+        if really:
+            super(ModStringIO, self).close()
+        else:
+            self.closeCalls += 1
 
 class CommonUtilsTestCase(unittest.TestCase):
     def test_stripNs(self):
@@ -190,10 +205,80 @@ class CommonUtilsTestCase(unittest.TestCase):
         # Impementation does not handle tuples correctly: 
         # As there are no tuples in JSON, these may be turned to lists.
     
+    @unittest.mock.patch("os.sep", "/")
+    def downloadFileTest(self, url, expectedFilePath, errorToRaise, **kwargs):
+        with unittest.mock.patch("gosa.common.utils.urllib2") as urllib2Mock:
+            targetFile = ModStringIO("")
+            downloadData = ModStringIO("downloaded content")
+            try:
+                request = object()
+                def urlopenFunc(r):
+                    if errorToRaise == HTTPError:
+                        raise errorToRaise(None, None, None, None, None)
+                    elif errorToRaise == URLError:
+                        raise errorToRaise(None, None)
+                    elif errorToRaise:
+                        raise errorToRaise()
+                    assert r == request
+                    return downloadData
+                urllib2Mock.Request.return_value = request
+                urllib2Mock.urlopen.side_effect = urlopenFunc
+                with unittest.mock.patch("gosa.common.utils.open", create=True) as openMock:
+                    def openFunc(path, mode):
+                        assert path == expectedFilePath
+                        assert mode == "w"
+                        return targetFile
+                    openMock.side_effect = openFunc
+                    downloadFile(url, **kwargs)
+                    assert targetFile.getvalue() == downloadData.getvalue()
+            finally:
+                downloadData.close(True)
+                targetFile.close(True)
+            # Input stream is never explicitly closed...
+            #assert downloadData.closeCalls == 1
+            assert targetFile.closeCalls == 1
+    
     # Unused
-    def test_downloadFile(self):
-        # rewrite and use requests-Library?
-        pass
+    @unittest.mock.patch("tempfile.mkdtemp")
+    @unittest.mock.patch("tempfile.NamedTemporaryFile")
+    def test_downloadFile(self, NamedTemporaryFileMock, mkdtempMock):
+        with pytest.raises(ValueError):
+            downloadFile(None)
+        with pytest.raises(ValueError):
+            downloadFile(2)
+        with pytest.raises(ValueError):
+            downloadFile("abc://test/test")
+        
+        self.downloadFileTest("http://localhost/test", "/test/downloads/test", None, download_dir="/test/downloads", use_filename=True)
+        
+        # NamedTemporaryFile file object is used to obtain the name only.
+        # The same file is opened after that again.
+        ntf = ModStringIO("")
+        NamedTemporaryFileMock.return_value = ntf
+        try:
+            self.downloadFileTest("http://localhost/test", "/random/directory/file", None)
+        finally:
+            if not ntf.closeCalls:
+                ntf.close(True)
+        
+        ntf = ModStringIO("")
+        ntf.name = "/test/downloads/test"
+        NamedTemporaryFileMock.return_value = ntf
+        try:
+            self.downloadFileTest("http://localhost/test", "/test/downloads/test", None, download_dir="/test/downloads")
+        finally:
+            if not ntf.closeCalls:
+                ntf.close(True)
+        
+        mkdtempMock.return_value = "/random/tmpdir"
+        self.downloadFileTest("http://localhost/test", "/random/tmpdir/test", None, use_filename=True)
+        
+        with pytest.raises(HTTPError):
+            self.downloadFileTest("http://localhost/test", "/random/tmpdir/test", HTTPError, use_filename=True)
+        with pytest.raises(URLError):
+            self.downloadFileTest("http://localhost/test", "/random/tmpdir/test", URLError, use_filename=True)
+        with pytest.raises(BaseException):
+            self.downloadFileTest("http://localhost/test", "/random/tmpdir/test", BaseException, use_filename=True)
     
     # Unused
     def test_xml2dict(self):

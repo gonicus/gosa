@@ -55,7 +55,7 @@ class StringAttribute(AttributeType):
         return new_value
 
     def is_valid_value(self, value):
-        return not len(value) or all(map(lambda x: type(x) == bytes, value))
+        return not len(value) or all(map(lambda x: type(x) == str, value))
 
     def values_match(self, value1, value2):
         return value1 == value2
@@ -64,7 +64,7 @@ class StringAttribute(AttributeType):
         return list(map(lambda x: not(x in ['', 'false', '0', 'False']), value))
 
     def _convert_to_string(self, value):
-        return list(map(lambda x: bytes(x, 'utf-8'), value))
+        return list(map(lambda x: x.decode('ascii') if type(x) == bytes else x, value))
 
     def _convert_to_integer(self, value):
         return list(map(lambda x: int(x), value))
@@ -73,7 +73,7 @@ class StringAttribute(AttributeType):
         return list(map(lambda x: str(x), value))
 
     def _convert_from_datetime(self, value):
-        return list(map(lambda x: bytes(str(x), 'utf-8'), value))
+        return list(map(lambda x: str(x), value))
 
     def fixup(self, value):
         return self._convert_to_string(value)
