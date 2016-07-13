@@ -13,6 +13,7 @@ class JSONRPCProxyTestCase(unittest.TestCase):
         # ServiceURL is a optional argument and could be None through requests
         # (which of course would cause errors).
         
+        # id's are not unique...
         def respError(*args, **kwargs):
             return StringIO("""{"error": "data", "result": null, "id": "jsonrpc"}""")
         def respSuccess(*args, **kwargs):

@@ -15,6 +15,8 @@ class SQLAlchemyJobStoreTestCase(unittest.TestCase):
     @unittest.mock.patch("gosa.common.components.scheduler.jobstores.sqlalchemy_store.Table")
     @unittest.mock.patch("gosa.common.components.scheduler.jobstores.sqlalchemy_store.create_engine")
     def test_SQLAlchemyJobStore(self, createEngineMock, tableMock, pickleTypeMock, full=True):
+        # Note: Test does not cover the use of some kwargs.
+        # Assuming standard values.
         pickleType = unittest.mock.MagicMock()
         pickleTypeMock.return_value = pickleType
         metadata = unittest.mock.MagicMock()
