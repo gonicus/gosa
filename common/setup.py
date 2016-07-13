@@ -87,7 +87,7 @@ setup(
         'babel',
         ],
     tests_require=[
-        'pytest>=2.9',
+        'pytest',
         'pytest-cov',
         'coveralls'
     ],
