@@ -26,7 +26,7 @@ from gosa.backend.objects.factory import ObjectFactory
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects.index import ObjectInfoIndex, KeyValueIndex
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, func
 
 
 # Register the errors handled  by us
@@ -323,6 +323,18 @@ class RPCMethods(Plugin):
         dn_hook = "_parent_dn"
         fallback = fltr and "fallback" in fltr and fltr["fallback"]
 
+        def keywords_to_query_list(subject, keywords, fallback=False):
+            res = []
+
+            for kw in keywords:
+                if fallback:
+                    res.append(subject.like("%" + kw.replace(r"%", "\%") + "%"))
+                else:
+                    res.append(subject == kw)
+
+            return res
+
+
         if not base:
             return []
 
@@ -356,13 +368,7 @@ class RPCMethods(Plugin):
         if not fltr['mod-time'] in ["hour", "day", "week", "month", "year", "all"]:
             raise GOsaException(C.make_error("INVALID_SEARCH_DATE", date=fltr['mod-time']))
 
-        # Build query: assemble keywords
-        _s = {}
-        if keywords:
-            if fallback:
-                _s = ["%%%s%%" % kw for kw in keywords]
-            else:
-                _s = keywords
+        print("888888888888888888888888888888888")
 
         # Build query: join attributes and keywords
         queries = []
@@ -376,24 +382,30 @@ class RPCMethods(Plugin):
 
             if len(attrs) == 0:
                 continue
-            if _s:
+
+            if keywords:
+
                 if len(attrs) == 1:
                     if hasattr(ObjectInfoIndex, attrs[0]):
-                        queries.append(and_(ObjectInfoIndex._type == typ, getattr(ObjectInfoIndex[attrs[0]]).in_(_s)))
+                        sq = keywords_to_query_list(getattr(ObjectInfoIndex, attrs[0]), keywords, fallback)
+                        queries.append(and_(ObjectInfoIndex._type == typ, getattr(ObjectInfoIndex, attrs[0]), or_(*sq)))
                     else:
+                        sq = keywords_to_query_list(KeyValueIndex.value, keywords, fallback)
                         queries.append(and_(
                             ObjectInfoIndex._type == typ,
                             KeyValueIndex.uuid == ObjectInfoIndex.uuid,
                             KeyValueIndex.key == attrs[0],
-                            KeyValueIndex.value.in_(_s)))
+                            or_(*sq)))
 
                 if len(attrs) > 1:
                     cond = []
                     for attr in attrs:
                         if hasattr(ObjectInfoIndex, attr):
-                            cond.append(getattr(ObjectInfoIndex[attr]).in_(_s))
+                            sq = keywords_to_query_list(getattr(ObjectInfoIndex, attr), keywords, fallback)
+                            cond.extend(sq)
                         else:
-                            cond.append(and_(KeyValueIndex.key == attr, KeyValueIndex.value.in_(_s)))
+                            sq = keywords_to_query_list(KeyValueIndex.value, keywords, fallback)
+                            cond.append(and_(KeyValueIndex.key == attr, or_(*sq)))
                     queries.append(and_(ObjectInfoIndex._type == typ, or_(*cond)))
             else:
                 if dn_hook != "_adjusted_parent_dn":
@@ -403,7 +415,7 @@ class RPCMethods(Plugin):
         query = None
         if scope == "SUB":
             if queries:
-                query = or_(ObjectInfoIndex._parent_dn == base, ObjectInfoIndex._parent_dn.like("%," + base), or_(*queries))
+                query = and_(or_(ObjectInfoIndex._parent_dn == base, ObjectInfoIndex._parent_dn.like("%," + base)), or_(*queries))
             else:
                 query = or_(ObjectInfoIndex._parent_dn == base, ObjectInfoIndex._parent_dn.like("%," + base))
 
