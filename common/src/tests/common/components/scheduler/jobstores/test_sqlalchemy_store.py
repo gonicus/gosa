@@ -15,8 +15,9 @@ class SQLAlchemyJobStoreTestCase(unittest.TestCase):
     @unittest.mock.patch("gosa.common.components.scheduler.jobstores.sqlalchemy_store.create_engine")
     def test_SQLAlchemyJobStore(self, createEngineMock, tableMock, full=True):
         engine = unittest.mock.MagicMock()
+        engine.url.__repr__ = lambda a: "sqlurl/test"
         def create_engine(url):
-            assert url == "<url>"
+            assert url == "sqlurl/test"
             return engine
         createEngineMock.side_effect = create_engine
         
@@ -33,7 +34,8 @@ class SQLAlchemyJobStoreTestCase(unittest.TestCase):
             SQLAlchemyJobStore()
         
         SQLAlchemyJobStore(engine=engine)
-        SQLAlchemyJobStore(url="<url>")
+        s = SQLAlchemyJobStore(url="sqlurl/test")
+        assert repr(s) == "<SQLAlchemyJobStore (url=sqlurl/test)>"
     
     def test_add_remove_job(self):
         # Add
