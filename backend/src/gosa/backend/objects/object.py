@@ -1063,7 +1063,7 @@ class Object(object):
 
             for ref in refs:
 
-                # Next iterration if there's no change for the relevant
+                # Next iteration if there's no change for the relevant
                 # attribute
                 if not self_attr in data:
                     continue
@@ -1075,12 +1075,12 @@ class Object(object):
 
                 if type(c_value) == list:
                     if type(o_value) == list:
-                        c_value = filter(lambda x: x not in o_value, c_value)
+                        c_value = list(filter(lambda x: x not in o_value, c_value))
                     else:
-                        c_value = filter(lambda x: x != o_value, c_value)
+                        c_value = list(filter(lambda x: x != o_value, c_value))
 
                     if multivalue:
-                        c_value.append(data[self_attr]['value'])
+                        c_value.extend(data[self_attr]['value'])
                     else:
                         c_value.append(data[self_attr]['value'][0])
 
@@ -1100,9 +1100,9 @@ class Object(object):
 
                 if type(c_value) == list:
                     if type(value) == list:
-                        c_value = filter(lambda x: x not in value, c_value)
+                        c_value = list(filter(lambda x: x not in value, c_value))
                     else:
-                        c_value = filter(lambda x: x != value, c_value)
+                        c_value = list(filter(lambda x: x != value, c_value))
 
                     setattr(c_obj, ref_attr, c_value)
 
@@ -1122,7 +1122,7 @@ class Object(object):
                     dns = [x['dn'] for x in dns]
                 res.append((
                     ref_attribute,
-                    map(lambda s: s.decode('utf-8'), dns if dns else [])
+                    list(map(lambda s: s.decode('utf-8'), dns if dns else []))
                 ))
 
         return res
@@ -1134,7 +1134,7 @@ class Object(object):
                 c_value = getattr(c_obj, ref_attr)
 
                 if type(c_value) == list:
-                    c_value = filter(lambda x: x != self.dn, c_value)
+                    c_value = list(filter(lambda x: x != self.dn, c_value))
                     c_value.append(new_dn)
                     setattr(c_obj, ref_attr, list(set(c_value)))
 
@@ -1326,10 +1326,10 @@ class Object(object):
         self.__execute_hook("PostRemove")
 
     def is_attr_set(self, name):
-        return len(self.myProperties[name]['in_value'])
+        return len(self.myProperties[name]['in_value']) > 0
 
     def is_attr_using_default(self, name):
-        return not self.is_attr_set(name) and self.myProperties[name]['default']
+        return not self.is_attr_set(name) and self.myProperties[name]['default'] == self.myProperties[name]['value']
 
     def __execute_hook(self, hook_type):
 
