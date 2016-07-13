@@ -1257,7 +1257,7 @@ class ACLResolver(Plugin):
                                     self.log.debug("ACL DO NOT match due to reset. (ONE)")
 
             # Remove the first part of the dn
-            base = ','.join([d.decode("utf-8") for d in ldap.dn.explode_dn(base.encode('utf-8'), flags=ldap.DN_FORMAT_LDAPV3)[1::]])
+            base = ','.join([d for d in ldap.dn.explode_dn(base.encode('utf-8'), flags=ldap.DN_FORMAT_LDAPV3)[1::]])
 
         return allowed
 
