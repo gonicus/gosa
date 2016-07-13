@@ -11,7 +11,7 @@ class GuiPlugin(tornado.web.StaticFileHandler):
         path = None
         default = "index.html"
 
-        if env.config.get("gui.debug", "false") == "true":
+        if env.config.get("gui.debug", "false") == "true":  # pragma: nocover
             path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                 '..', '..', '..', '..', 'frontend')
             default = "gosa/source/index.html"
