@@ -625,7 +625,12 @@ class RPCMethods(Plugin):
                 if hasattr(ObjectInfoIndex, attr):
                     ne[attr] = getattr(entry, attr)
                 else:
-                    kv = dict([(prop.key, prop.value) for prop in entry.properties])
+                    kv = {}
+                    for prop in entry.properties:
+                        if not prop.key in kv:
+                            kv[prop.key] = []
+                        kv[prop.key].append(prop.value)
+
                     ne[attr] = kv[attr] if attr in kv else None
             else:
                 ne[attr] = None
