@@ -110,12 +110,27 @@ class SSEClientTestCase(unittest.TestCase):
     
     def test_parse_event(self):
         import uuid
+        id = str(uuid.uuid4())
         with unittest.mock.patch("gosa.common.components.sse_client.BaseSseClient.on_event") as onEventMock:
             sseClient = self.test_BaseSseClient()
-            sseClient.parse_event("id: %s\nevent: Event name\ndata: somedata\ndata: more data".encode())
-            sseClient.parse_event("id: %s\nevent: Event name\ndata: somedata".encode())
-            sseClient.parse_event("id: %s\ndata: somedata".encode())
+            sseClient.parse_event(("id: %s\nevent: Event name\ndata: somedata\ndata: more data" % id).encode())
+            sseClient.parse_event(("id: %s\nevent: Event name\ndata: somedata" % id).encode())
+            assert onEventMock.call_count == 2
+            def validate(e):
+                assert e.id == id
+                assert e.name == None
+                assert e.data == "somedata"
+            onEventMock.side_effect = validate
+            sseClient.parse_event(("id: %s\ndata: somedata" % id).encode())
             assert onEventMock.call_count == 3
+            
+            def validate(e):
+                assert e.id == id
+                assert e.name == "Event name"
+                assert e.data == {"some": "json", "data": [1, 2, 3]}
+            onEventMock.side_effect = validate
+            sseClient.parse_event(("""id: %s\nevent: Event name\ndata: {"some": "json", "data": [1, 2, 3]}""" % id).encode())
+            assert onEventMock.call_count == 4
     def test_on_event(self):
         sseClient = self.test_BaseSseClient()
         e = Event()
