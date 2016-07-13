@@ -55,7 +55,7 @@ class StringTypeTestCase(unittest.TestCase):
         assert self.type._convert_to_integer(["1", "2"]) == [1, 2]
 
     def test__convert_from_string(self):
-        assert self.type._convert_from_string(["1", "2", False]) == ["1", "2", ""]
+        assert self.type._convert_from_string([b"1", "2"]) == ["1", "2"]
 
     def test__convert_from_datetime(self):
         assert self.type._convert_from_datetime(["1", "2"]) == ["1", "2"]
@@ -174,7 +174,7 @@ class UnicodeStringTypeTestCase(unittest.TestCase):
         assert self.type._convert_to_unicodestring(["1", "2"]) == ["1", "2"]
 
     def test__convert_to_string(self):
-        assert self.type._convert_to_string(["1", "2"]) == [b"1", b"2"]
+        assert self.type._convert_to_string([b"1", b"2"]) == ["1", "2"]
 
 class DateTypeTestCase(unittest.TestCase):
 

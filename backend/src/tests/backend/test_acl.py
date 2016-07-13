@@ -9,15 +9,12 @@
 
 import pytest
 from gosa.common.components import PluginRegistry
-from tests.GosaTestCase import GosaTestCase
+from tests.GosaTestCase import GosaTestCase, slow
 from gosa.backend.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLException
 from gosa.common import Environment
 
-# Environment.reset()
-# Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test.conf")
-# Environment.noargs = True
 
-
+@slow
 class ACLResolverTestCase(GosaTestCase):
 
     env = None

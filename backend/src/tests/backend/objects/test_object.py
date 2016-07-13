@@ -15,7 +15,7 @@ from tests.GosaTestCase import *
 from gosa.backend.objects.object import *
 
 
-#@slow
+@slow
 class ObjectTestCase(GosaTestCase):
 
     def test_listProperties(self):
