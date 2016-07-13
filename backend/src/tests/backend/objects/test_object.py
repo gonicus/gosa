@@ -123,12 +123,76 @@ class ObjectTestCase(GosaTestCase):
         with pytest.raises(ValueError):
             obj.telephoneNumber = ["wrong"]
 
-
     def test_check(self):
+        # wrong mode for base object
+        obj = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a', 'delete')
+        with pytest.raises(ObjectException):
+            obj.check()
+
+        # remove a non base object
+        obj = ObjectFactory.getInstance().getObject('PosixUser', '78475884-c7f2-1035-8262-f535be14d43a', 'remove')
+        with pytest.raises(ObjectException):
+            obj.check()
+
+        # update base object
         obj = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
         res = obj.check()
-
         # just test if something is there
         assert 'uid' in res
         assert 'gender' in res
+
+        # create new object with wrong dn
+        obj = ObjectFactory.getInstance().getObject('User', 'cn=Test User,ou=people,dc=example,dc=net', 'create')
+        with pytest.raises(ObjectException):
+            obj.check()
+
+        # create new SambaDomain object with base dn for User
+        obj = ObjectFactory.getInstance().getObject('SambaDomain', 'ou=people,dc=example,dc=net', 'create')
+        with pytest.raises(ObjectException):
+            obj.check()
+
+        # create new user object, missing mandatory attributes
+        obj = ObjectFactory.getInstance().getObject('User', 'ou=people,dc=example,dc=net', 'create')
+        with pytest.raises(ObjectException):
+            obj.check()
+
+        # add mandatory values
+        obj.givenName = "Test"
+        obj.sn = "User"
+        obj.uid = "tuser"
+
+        res = obj.check()
+        assert 'uid' in res
+        assert res['uid']['value'][0] == "tuser"
+
+    def test_revert(self):
+        obj = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
+        obj.uid = 'frank'
+        obj.revert()
+        assert obj.uid == 'freich'
+
+    def test_getExclusiveProperties(self):
+        obj = ObjectFactory.getInstance().getObject('PosixUser', '78475884-c7f2-1035-8262-f535be14d43a')
+        res = obj.getExclusiveProperties()
+        assert 'uid' not in res
+        assert 'groupMembership' in res
+
+    def test_getForeignProperties(self):
+        obj = ObjectFactory.getInstance().getObject('PosixUser', '78475884-c7f2-1035-8262-f535be14d43a')
+        res = obj.getForeignProperties()
+        assert 'uid' in res
+        assert 'groupMembership' not in res
+
+    def test_object_type_by_dn(self):
+        obj = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
+        assert obj.get_object_type_by_dn("ou=people,dc=example,dc=net") == "PeopleContainer"
+        assert obj.get_object_type_by_dn("ou=people,dc=example,dc=de") is None
+
+    def test_get_references(self):
+        obj = ObjectFactory.getInstance().getObject('PosixUser', '78475884-c7f2-1035-8262-f535be14d43a')
+        res = obj.get_references()
+        assert res[0] == ('memberUid', 'uid', 'freich', [], False)
+
+
+
 
