@@ -87,7 +87,7 @@ setup(
 
         [gosa.route]
         /events = gosa.backend.routes.sse.main:SseHandler
-        /static = gosa.backend.routes.static.main:StaticHandler
+        /static/(?P<path>.*)? = gosa.backend.routes.static.main:StaticHandler
         /rpc = gosa.backend.components.jsonrpc_service:JsonRpcHandler
 
         [gosa.plugin]
