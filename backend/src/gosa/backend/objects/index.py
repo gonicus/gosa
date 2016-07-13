@@ -35,7 +35,7 @@ from gosa.backend.exceptions import ProxyException, ObjectException, FilterExcep
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, Integer, Sequence, DateTime, ForeignKey, or_, and_, not_
+from sqlalchemy import Column, String, Integer, Sequence, DateTime, ForeignKey, or_, and_, not_, func
 
 Base = declarative_base()
 
@@ -262,7 +262,7 @@ class ObjectIndex(Plugin):
             entry = self.__session.query(ObjectInfoIndex.dn).filter(
                 or_(
                     ObjectInfoIndex.uuid == _uuid,
-                    ObjectInfoIndex.dn == re.compile(r'^%s$' % re.escape(dn), re.IGNORECASE)
+                    func.lower(ObjectInfoIndex.dn) == func.lower(dn)
                 )).one_or_none()
 
             if entry:
@@ -299,7 +299,7 @@ class ObjectIndex(Plugin):
             entry = self.__session.query(ObjectInfoIndex.dn).filter(
                 or_(
                     ObjectInfoIndex.uuid == _uuid,
-                    ObjectInfoIndex.dn == re.compile(r'^%s$' % re.escape(dn), re.IGNORECASE)
+                    func.lower(ObjectInfoIndex.dn) == func.lower(dn)
                 )).one_or_none()
 
             if entry and obj:

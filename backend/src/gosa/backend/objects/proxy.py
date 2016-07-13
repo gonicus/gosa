@@ -532,7 +532,7 @@ class ObjectProxy(object):
                 # Traverse tree and find different backends
                 foreign_backends = {}
                 index = PluginRegistry.getInstance("ObjectIndex")
-                children = index.search({"dn": re.compile("^(.*,)?" + re.escape(self.__base.dn) + "$")},
+                children = index.search({"dn": [self.__base.dn, "%," + self.__base.dn]},
                     {'dn': 1, '_type': 1})
 
                 # Note all elements with different backends
@@ -628,7 +628,7 @@ class ObjectProxy(object):
             # Load all children and remove them, starting from the most
             # nested ones.
             index = PluginRegistry.getInstance("ObjectIndex")
-            children = index.search({"dn": re.compile("^(.*,)?" + re.escape(self.__base.dn) + "$")}, {'dn': 1})
+            children = index.search({"dn": [self.__base.dn, "%," + self.__base.dn]}, {'dn': 1})
             children = [c['dn'] for c in children]
 
             children.sort(key=len, reverse=True)
@@ -640,7 +640,7 @@ class ObjectProxy(object):
         else:
             # Test if we've children
             index = PluginRegistry.getInstance("ObjectIndex")
-            if index.search({"dn": re.compile("^(.*,)" + re.escape(self.__base.dn) + "$")}, {'dn': 1}).count():
+            if len(index.search({"dn": [self.__base.dn, "%," + self.__base.dn]}, {'dn': 1})):
                 raise ProxyException(C.make_error('OBJECT_HAS_CHILDREN', target=self.__base.dn))
 
         for extension in [e for e in self.__extensions.values() if e]:
@@ -673,7 +673,7 @@ class ObjectProxy(object):
         # Traverse tree and find different backends
         foreign_backends = {}
         index = PluginRegistry.getInstance("ObjectIndex")
-        children = index.search({"dn": re.compile("^(.*,)?" + re.escape(self.__base.dn) + "$")},
+        children = index.search({"dn": [self.__base.dn, "%," + self.__base.dn]},
             {'dn': 1, '_type': 1})
 
         # Note all elements with different backends

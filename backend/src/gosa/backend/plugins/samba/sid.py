@@ -98,7 +98,7 @@ class GenerateSambaSid(ElementFilter):
         sid = index.search({'_type': 'SambaDomain', 'sambaDomainName': domain},
             {'sambaSID': 1, 'sambaAlgorithmicRidBase': 1})
 
-        if sid.count() != 1:
+        if len(sid) != 1:
             raise SambaException(C.make_error("SAMBA_DOMAIN_WITHOUT_SID", domain))
         dsid = sid[0]['sambaSID'][0]
 
