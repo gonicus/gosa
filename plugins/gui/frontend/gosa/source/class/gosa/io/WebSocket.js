@@ -167,7 +167,7 @@ qx.Class.define("gosa.io.WebSocket", {
         100 : {"opacity": 0, display: "none"}
       }};
 
-      qx.bom.element.Animation.animate(popup.getContainerElement().getDomElement(), desc);
+      qx.bom.element.Animation.animate(popup.getContentElement().getDomElement(), desc);
       setTimeout(function() {if (popup){ popup.destroy();}}, duration + 100);
     },
 

@@ -44,7 +44,7 @@ qx.Class.define("gosa.data.model.SearchResultItem",
     },
 
     lastChanged : {
-      check : "Integer",
+      check : "gosa.io.types.Timestamp",
       event : "changeLastChanged"
     },
 

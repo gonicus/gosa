@@ -77,7 +77,7 @@ qx.Class.define("gosa.ui.SearchListItem", {
     this.setPadding(0);
 
     this.addListenerOnce("appear", function(){
-        this._throbber.appendTo(this._throbber_placeholder.getContainerElement().getDomElement());
+        this._throbber.appendTo(this._throbber_placeholder.getContentElement().getDomElement());
       }, this);
   },
 
