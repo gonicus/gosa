@@ -51,6 +51,11 @@ qx.Class.define("gosa.io.types.Timestamp",
       return(this._date_obj);
     },
 
+    toTimeStamp : function()
+    {
+      return(this._date_obj.getTime() / 1000)
+    },
+
     toJSON: function(){
 
       var padStr = function(i){

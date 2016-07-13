@@ -454,11 +454,6 @@ class RPCMethods(Plugin):
         these.update(dict(dn=1, _type=1, _uuid=1, _last_changed=1))
         these = list(these.keys())
 
-        #TODO: "these" looks strange...
-        print("---------------------------------")
-        print(query)
-        print(these)
-
         for item in self.__session.query(ObjectInfoIndex).filter(query):
             self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr), these=these)
 
