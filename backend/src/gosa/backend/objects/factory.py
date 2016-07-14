@@ -76,7 +76,7 @@ C.register_codes(dict(
     OBJECT_TYPE_NOT_FOUND=N_("Unknown object type '%(type)s'"),
     OBJECT_NO_BASE_FOUND=N_("Cannot find base object for type '%(type)s'"),
     BASE_OBJECT_NOT_FOUND=N_("No base type for attribute '%(attribute)s found'"),
-    FACTORY_TYPE_MISMATCH=N_("Cannot identify '%(topic)s' - it seems to be of type '%(type1)s and %(type2)s at the same time'"),
+    FACTORY_TYPE_MISMATCH=N_("Cannot identify '%(topic)s' - it seems to be of type '%(type1)s' and '%(type2)s' at the same time"),
     FACTORY_SCHEMA_ERROR=N_("Cannot load object schema"),
     FACTORY_BLOCK_BY_NON_EXISTING=N_("Attribute '%(topic)s' is blocked by non existing attribute '%(blocker)s'"),
     FACTORY_DEPEND_NON_EXISTING=N_("Attribute '%(topic)s' depends on non existing attribute '%(dependency)s'"),

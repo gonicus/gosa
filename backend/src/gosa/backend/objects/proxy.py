@@ -144,7 +144,7 @@ class ObjectProxy(object):
         self.__log.debug("loading %s base object for %s" % (base, dn_or_base))
         all_extensions = object_types[base]['extended_by']
 
-        # Load base object and extenions
+        # Load base object and extensions
         self.__base = self.__factory.getObject(base, dn_or_base, mode=base_mode)
         self.__base.owner = self.__current_user
         self.__base.parent = self
@@ -472,7 +472,7 @@ class ObjectProxy(object):
                 raise ACLException(C.make_error('PERMISSION_RETRACT', extension=extension, target=self.__base.dn))
 
         # Unregister the extensions methods
-        for method in self.__method_type_map.keys():
+        for method in list(self.__method_type_map):
             if self.__method_type_map[method] == extension:
                 del(self.__method_map[method])
                 del(self.__method_type_map[method])
@@ -570,7 +570,9 @@ class ObjectProxy(object):
 
                 # Update all DN references
                 # Emit 'post move' events
-                for cdn, ctype in children.items():
+                for child in children:
+                    cdn = child['dn']
+                    ctype = child['_type']
 
                     # Don't handle objects that already have been moved
                     if cdn in root_elements.values():
@@ -598,11 +600,16 @@ class ObjectProxy(object):
             if len(self.__factory.getObjectChildren(self.__base.dn)):
                 raise ProxyException(C.make_error('OBJECT_HAS_CHILDREN', target=self.__base.dn))
 
-        res = self.__base.move(new_base)
-        if res:
+        try:
+            self.__base.move(new_base)
             zope.event.notify(ObjectChanged("post object move", self.__base))
+            return True
 
-        return res
+        except Exception as e:
+            from traceback import print_exc
+            print_exc()
+            self.__log.error("moving object '%s' from '%s' to '%s' failed: %s" % (self.__base.uuid, self.__base.dn, new_base, str(e)))
+            return False
 
     def remove(self, recursive=False):
         """
@@ -817,7 +824,7 @@ class ObjectProxy(object):
         except AttributeError:
             pass
 
-        # If we try to modify pbject specific properties then check acls
+        # If we try to modify object specific properties then check acls
         if self.__attribute_map and name in self.__attribute_map and self.__current_user is not None:
 
             # Do we have read permissions for the requested attribute, method
@@ -827,6 +834,10 @@ class ObjectProxy(object):
                 self.__log.debug("user '%s' has insufficient permissions to write %s on %s, required is %s:%s" % (
                     self.__current_user, name, self.dn, topic, "w"))
                 raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=self.dn))
+
+        # Valid attribute?
+        if not name in self.__attribute_map:
+            raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
 
         found = False
         classes = [self.__attribute_map[name]['base']] + self.__attribute_map[name]['secondary']
@@ -946,7 +957,7 @@ class ObjectProxy(object):
         for key in attrs:
 
             # Skip empty ones
-            if not len(attrs[key]):
+            if not len(list(attrs[key])):
                 continue
 
             # Build up xml-elements
