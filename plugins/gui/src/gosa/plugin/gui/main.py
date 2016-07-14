@@ -16,6 +16,6 @@ class GuiPlugin(tornado.web.StaticFileHandler):
                 '..', '..', '..', '..', 'frontend')
             default = "gosa/source/index.html"
         else:
-            path = pkg_resources.resource_filename("gosa.plugin.gui", "build")
-
+            path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                '..', '..', '..', '..', 'frontend', 'gosa', 'build')
         super(GuiPlugin, self).initialize(path, default)
