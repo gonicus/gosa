@@ -99,10 +99,12 @@ class UtilTestCase(unittest.TestCase):
         
         self.assertRaises(LookupError, ref_to_obj, "datetime:not_existant_module_name")
         
-        #from gosa.common.components.registry import PluginRegistry
-        # Won't work...
-        #self.assertEqual(ref_to_obj("gosa.backend.command:CommandRegistry.dispatch"),
-            #getattr(PluginRegistry.getInstance('CommandRegistry'), "dispatch") )
+        with unittest.mock.patch("gosa.common.components.scheduler.util.PluginRegistry") as pluginRegistryMock:
+            expected = unittest.mock.MagicMock()
+            pluginRegistryMock.getInstance.return_value = expected
+            self.assertEqual(ref_to_obj("gosa.backend.command:CommandRegistry.dispatch"),
+                expected.dispatch )
+            pluginRegistryMock.getInstance.assert_called_once_with("CommandRegistry")
     def test_maybe_ref(self):
         self.assertEqual(maybe_ref("datetime:timedelta"), datetime.timedelta)
         self.assertEqual(maybe_ref(datetime.timedelta), datetime.timedelta)
