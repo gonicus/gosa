@@ -14,6 +14,7 @@ from tests.GosaTestCase import *
 from gosa.backend.objects.proxy import *
 
 
+@slow
 class ObjectProxyTestCase(GosaTestCase):
 
     def test_init(self):
