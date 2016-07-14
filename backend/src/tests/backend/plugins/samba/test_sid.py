@@ -72,12 +72,10 @@ class SambaSidTestCase(unittest.TestCase):
         with pytest.raises(SambaException):
             filter.process(None, "sid", testDict, "user", "1", "domain")
 
-        mock = mockedRegistry.return_value.search.return_value
-        mock.count.return_value = 1
-        mock.__getitem__.return_value = {
+        mockedRegistry.return_value.search.return_value = [{
             "sambaAlgorithmicRidBase": [1],
             "sambaSID": ["sid"]
-        }
+        }]
 
         with pytest.raises(SambaException):
             filter.process(None, None, None, "unknown", "1", "domain")
@@ -92,8 +90,8 @@ class SambaSidTestCase(unittest.TestCase):
         (key, valDict) = filter.process(None, "sid", testDict, "group", "1", "domain", 1)
         assert valDict["sid"]["value"][0] == "sid-1"
 
-        mock.__getitem__.return_value = {
+        mockedRegistry.return_value.search.return_value = [{
             "sambaSID": ["sid"]
-        }
+        }]
         (key, valDict) = filter.process(None, "sid", testDict, "group", "1", "domain")
         assert valDict["sid"]["value"][0] == "sid-1003"
