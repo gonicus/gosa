@@ -60,7 +60,7 @@ class ObjectHandler(ObjectBackend):
             for targetAttr in mapping:
                 result[targetAttr] = []
                 foreignObject, foreignAttr, foreignMatchAttr, matchAttr = mapping[targetAttr]
-                results = index.search({'_uuid': uuid, matchAttr: "%"}, {matchAttr: 1})
+                results = index.search({'uuid': uuid, matchAttr: "%"}, {matchAttr: 1})
                 if len(results):
                     matchValue = results[0][matchAttr][0]
                     xq = index.search({'_type': foreignObject, foreignMatchAttr: matchValue}, {foreignAttr: 1})
@@ -106,7 +106,7 @@ class ObjectHandler(ObjectBackend):
             # Get the matching attribute for the current object
             foreignObject, foreignAttr, foreignMatchAttr, matchAttr = mapping[targetAttr]
 
-            res = index.search({'_uuid': uuid, matchAttr: "%"}, {matchAttr: 1})
+            res = index.search({'uuid': uuid, matchAttr: "%"}, {matchAttr: 1})
             if len(res) == 0:
                 raise BackendError(C.make_error("SOURCE_OBJECT_NOT_FOUND", object=targetAttr))
             matchValue = res[0][matchAttr][0]
