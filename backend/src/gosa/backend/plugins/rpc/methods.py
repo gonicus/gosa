@@ -388,7 +388,7 @@ class RPCMethods(Plugin):
                 if len(attrs) == 1:
                     if hasattr(ObjectInfoIndex, attrs[0]):
                         sq = keywords_to_query_list(getattr(ObjectInfoIndex, attrs[0]), keywords, fallback)
-                        queries.append(and_(ObjectInfoIndex._type == typ, getattr(ObjectInfoIndex, attrs[0]), or_(*sq)))
+                        queries.append(and_(ObjectInfoIndex._type == typ, or_(*sq)))
                     else:
                         sq = keywords_to_query_list(KeyValueIndex.value, keywords, fallback)
                         queries.append(and_(
