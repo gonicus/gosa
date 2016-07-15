@@ -333,7 +333,6 @@ class LDAP(ObjectBackend):
         rdn_parts = rdns[0]
 
         for attr, value, idx in rdn_parts:
-            print(attr)
             if attr in data:
                 cnv = getattr(self, "_convert_to_%s" % data[attr]['type'].lower())
                 new_rdn_parts.append((attr, cnv(data[attr]['value'][0]), 4))
@@ -500,7 +499,7 @@ class LDAP(ObjectBackend):
         return str(value)
 
     def _convert_to_unicodestring(self, value):
-        return str(value)
+        return bytes(value, 'utf-8')
 
     def _convert_to_integer(self, value):
         return str(value)
