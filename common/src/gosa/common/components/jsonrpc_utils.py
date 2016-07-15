@@ -143,6 +143,7 @@ class FactoryHandler(JSONDataHandler):
                     jc.insert(0, proxy)
                     jc.append(dat)
 
+                    from gosa.common.components.jsonrpc_proxy import JSONObjectFactory
                     return JSONObjectFactory.get_instance(*jc)
 
         raise NotImplementedError("Proxy does not support the getProxy() method")

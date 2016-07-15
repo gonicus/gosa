@@ -424,11 +424,11 @@ class ACLAdmin(object):
         base = self.get_value_from_args("base", args)
 
         # Try to open the target object
-        try:
-            obj = self.proxy.openObject("object", base)
-        except:
-            print("invalid base given, failed to open object!")
-            return
+        #try:
+        obj = self.proxy.openObject("object", base)
+        #except:
+        #    print("invalid base given, failed to open object!")
+        #    return
             
         priority = self.get_value_from_args("priority", args)
         members = self.get_value_from_args("members", args)
@@ -477,11 +477,11 @@ class ACLAdmin(object):
         obj_dn = self.get_value_from_args("dn", args)
 
         # Try to open the target object
-        try:
-            obj = self.proxy.openObject("object", obj_dn)
-        except:
-            print("invalid dn given, failed to open object!")
-            return
+        #try:
+        obj = self.proxy.openObject("object", obj_dn)
+        #except:
+        #    print("invalid dn given, failed to open object!")
+        #    return
 
         priority = self.get_value_from_args("priority", args)
 
@@ -522,11 +522,11 @@ class ACLAdmin(object):
 
         base = self.get_value_from_args("base", args)
         rolename = self.get_value_from_args("rolename", args)
-        try:
-            obj = self.proxy.openObject("object", base, "AclRole")
-        except:
-            print("invalid dn given, failed to open object!")
-            return
+        #try:
+        obj = self.proxy.openObject("object", base, "AclRole")
+        #except:
+        #    print("invalid dn given, failed to open object!")
+        #    return
 
         obj.name = rolename
         obj.commit()
@@ -538,10 +538,10 @@ class ACLAdmin(object):
         """
 
         obj_dn = self.get_value_from_args("dn", args)
-        try:
-            obj = self.proxy.openObject("object", obj_dn)
-        except:
-            print("invalid dn given, failed to open object!")
+        #try:
+        obj = self.proxy.openObject("object", obj_dn)
+        #except:
+        #    print("invalid dn given, failed to open object!")
 
         obj.AclRoles = []
         obj.commit()
@@ -559,11 +559,11 @@ class ACLAdmin(object):
         """
 
         obj_dn = self.get_value_from_args("base", args)
-        try:
-            obj = self.proxy.openObject("object", obj_dn)
-        except:
-            print("invalid dn given, failed to open object!")
-            return
+        #try:
+        obj = self.proxy.openObject("object", obj_dn)
+        #except:
+        #    print("invalid dn given, failed to open object!")
+        #    return
 
         # Check if we've to add the Acl-extension
         ext_types = obj.get_extension_types()
@@ -593,11 +593,11 @@ class ACLAdmin(object):
         =========== =============
         """
         obj_dn = self.get_value_from_args("dn", args)
-        try:
-            obj = self.proxy.openObject("object", obj_dn)
-        except:
-            print("invalid dn given, failed to open object!")
-            return
+        #try:
+        obj = self.proxy.openObject("object", obj_dn)
+        #except:
+        #    print("invalid dn given, failed to open object!")
+        #    return
 
         obj.remove()
 
