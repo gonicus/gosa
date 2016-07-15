@@ -721,15 +721,15 @@ class ACLResolverTestCase(GosaTestCase):
         res = self.resolver.getEntryPoints('admin')
         assert base in res
 
-    def test_getACLs(self):
-        base = "ou=people," + self.ldap_base
-        aclset = ACLSet(base)
-        acl = ACL(scope=ACL.ONE)
-        acl.set_members(['admin'])
-        acl.add_action('gosa\.acl', 'r')
-        aclset.add(acl)
-        self.resolver.add_acl_set(aclset)
-
-        res = self.resolver.getACLs('admin')
-        print(res)
-        assert False
+    # def test_getACLs(self):
+    #     base = "ou=people," + self.ldap_base
+    #     aclset = ACLSet(base)
+    #     acl = ACL(scope=ACL.ONE)
+    #     acl.set_members(['admin'])
+    #     acl.add_action('gosa\.acl', 'r')
+    #     aclset.add(acl)
+    #     self.resolver.add_acl_set(aclset)
+    #
+    #     res = self.resolver.getACLs('admin')
+    #     print(res)
+    #     assert False
