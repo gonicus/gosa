@@ -29,6 +29,7 @@ from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry, JSONRPCException
 from gosa.backend import __version__ as VERSION
+from gosa.backend.utils.ldap import check_auth
 
 
 # Register the errors handled  by us
@@ -210,7 +211,7 @@ class JsonRpcHandler(tornado.web.RequestHandler):
 
     def authenticate(self, user=None, password=None):
         """
-        Use the AMQP connection to authenticate the incoming HTTP request.
+        Use the LDAP connection to authenticate the incoming HTTP request.
 
         ================= ==========================
         Parameter         Description
@@ -221,8 +222,8 @@ class JsonRpcHandler(tornado.web.RequestHandler):
 
         ``Return``: True on success
         """
-        #TODO: use LDAP here when the integration is done
-        return True
+
+        return check_auth(user, password)
 
     def check_session(self, sid, user):
         if not sid in self.__session:

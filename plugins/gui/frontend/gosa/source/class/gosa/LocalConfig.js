@@ -18,7 +18,7 @@ qx.Class.define("gosa.LocalConfig", {
 
   statics: {
     autologin : true,
-    user : "freich",
-    password : "secret"
+    user : "admin",
+    password : "tester"
   }
 });
