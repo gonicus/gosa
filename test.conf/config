@@ -1,6 +1,7 @@
 [core]
 profile = False
 base = dc=example,dc=net
+domain = gosa
 
 [http]
 host = localhost
