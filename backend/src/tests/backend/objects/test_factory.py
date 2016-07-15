@@ -17,7 +17,7 @@ class ObjectBackendTestCase(GosaTestCase):
 
     def setUp(self):
         super(ObjectBackendTestCase, self).setUp()
-        self.obj = ObjectFactory()
+        self.obj = ObjectFactory.getInstance()
 
     def tearDown(self):
         del self.obj
@@ -72,14 +72,14 @@ class ObjectBackendTestCase(GosaTestCase):
 
     def test_getObjectTemplates(self):
         res = self.obj.getObjectTemplates('User')
-        assert res[0][0:3] == b'<ui'
+        assert res[0][0:3] == '<ui'
 
     def test_getObjectDialogs(self):
         res = self.obj.getObjectDialogs('User')
         assert res == []
 
         res = self.obj.getObjectDialogs('SambaUser')
-        assert res[0][0:3] == b'<ui'
+        assert res[0][0:3] == '<ui'
 
     def test_getObjectTemplateNames(self):
         with pytest.raises(KeyError):

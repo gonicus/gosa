@@ -87,12 +87,12 @@ setup(
 
         [gosa.route]
         /events = gosa.backend.routes.sse.main:SseHandler
-        /sse_test = gosa.backend.routes.sse.main:SseClient
+        /static/(?P<path>.*)? = gosa.backend.routes.static.main:StaticHandler
         /rpc = gosa.backend.components.jsonrpc_service:JsonRpcHandler
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
-        #xxxxxxx acl = gosa.backend.acl:ACLResolver
+        acl = gosa.backend.acl:ACLResolver
         objects = gosa.backend.objects.index:ObjectIndex
         httpd = gosa.backend.components.httpd:HTTPService
         command = gosa.backend.command:CommandRegistry

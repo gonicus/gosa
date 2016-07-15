@@ -9,7 +9,7 @@
 
 import uuid
 import datetime
-from types import MethodType
+from types import FunctionType
 from zope.interface import implementer
 from gosa.common.utils import N_
 from gosa.common import Environment
@@ -374,11 +374,11 @@ class JSONRPCObjectMapper(Plugin):
             if part.startswith("_"):
                 continue
             obj = getattr(clazz, part)
-            if isinstance(obj, MethodType):
+            if isinstance(obj, FunctionType):
                 methods.append(part)
-            if isinstance(obj, property):
+            if isinstance(getattr(type(clazz), part, None), property):
                 properties.append(part)
-
+          
         return methods, properties
 
     def __get_ref(self, ref):

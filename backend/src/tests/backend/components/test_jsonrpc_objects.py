@@ -14,14 +14,6 @@ from gosa.backend.components.jsonrpc_objects import JSONRPCObjectMapper, ObjectR
 from gosa.common.components import PluginRegistry
 from tests.GosaTestCase import *
 
-def getPlugin(name):
-    if name == "ACLResolver":
-        mockedResolver = mock.MagicMock()
-        mockedResolver.return_value.check.return_value = True
-        return mockedResolver
-    else:
-        return
-
 
 @slow
 class JSONRPCObjectMapperTestCase(GosaTestCase):
@@ -29,6 +21,14 @@ class JSONRPCObjectMapperTestCase(GosaTestCase):
     def setUp(self):
         super(JSONRPCObjectMapperTestCase, self).setUp()
         self.mapper = JSONRPCObjectMapper()
+        self.mocked_resolver = mock.MagicMock()
+        self.mocked_resolver.return_value.check.return_value = True
+        self.patcher = mock.patch.dict(PluginRegistry.modules, {'ACLResolver': self.mocked_resolver})
+        self.patcher.start()
+
+    def tearDown(self):
+        self.patcher.stop()
+        super(JSONRPCObjectMapperTestCase, self).tearDown()
 
     def test_listObjectOIDs(self):
         res = self.mapper.listObjectOIDs()
@@ -41,7 +41,6 @@ class JSONRPCObjectMapperTestCase(GosaTestCase):
 
         with pytest.raises(Exception):
             self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
-
 
     def test_closeObject(self):
         res = self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
@@ -58,7 +57,6 @@ class JSONRPCObjectMapperTestCase(GosaTestCase):
         with pytest.raises(ValueError):
             self.mapper.reloadObject('admin', res["__jsonclass__"][1][1])
 
-
     def test_getObjectProperty(self):
         res = self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
@@ -74,9 +72,8 @@ class JSONRPCObjectMapperTestCase(GosaTestCase):
 
         assert self.mapper.getObjectProperty('admin', ref, 'description') == "Example"
 
-
     def test_setObjectProperty(self):
-        res = self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
+        res = self.mapper.openObject('admin', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(ValueError):
@@ -88,12 +85,12 @@ class JSONRPCObjectMapperTestCase(GosaTestCase):
         with pytest.raises(ValueError):
             self.mapper.setObjectProperty('someone else', ref, 'description', 'val')
 
-        self.mapper.setObjectProperty('admin', ref, 'description', 'val')
-        assert self.mapper.getObjectProperty('admin', ref, 'description') == "val"
+        self.mapper.setObjectProperty('admin', ref, 'uid', 'val')
+        assert self.mapper.getObjectProperty('admin', ref, 'uid') == "val"
 
         #undo
-        self.mapper.setObjectProperty('admin', ref, 'description', 'Example')
-        assert self.mapper.getObjectProperty('admin', ref, 'description') == "Example"
+        self.mapper.setObjectProperty('admin', ref, 'uid', 'admin')
+        assert self.mapper.getObjectProperty('admin', ref, 'uid') == "admin"
 
     def test_reloadObjectProperty(self):
         res = self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
@@ -121,9 +118,8 @@ class JSONRPCObjectMapperTestCase(GosaTestCase):
             self.mapper.dispatchObjectMethod('someone_else', ref, 'lock')
 
         # mock a method in the object
-        mockedResolver = mock.MagicMock()
-        mockedResolver.return_value.check.return_value = True
-        with mock.patch.dict(PluginRegistry.modules, {'ACLResolver': mockedResolver}), mock.patch('gosa.backend.plugins.password.manager.ObjectProxy') as m:
+
+        with mock.patch('gosa.backend.plugins.password.manager.ObjectProxy') as m:
             user = m.return_value
             user.passwordMethod = crypt.METHOD_MD5
             self.mapper.dispatchObjectMethod('admin', ref, 'changePassword','Test')
@@ -133,16 +129,17 @@ class JSONRPCObjectMapperTestCase(GosaTestCase):
     def test_diffObject(self):
         assert self.mapper.diffObject('admin','unkown_ref') is None
 
-        res = self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
+
+        res = self.mapper.openObject('admin', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(ValueError):
             self.mapper.diffObject('someone_else', ref)
 
-        self.mapper.setObjectProperty('admin', ref, 'description', 'val')
-        delta = self.mapper.diffObject('admin', ref)
-        assert 'description' in delta['attributes']['changed']
 
+        self.mapper.setObjectProperty('admin', ref, 'uid', 'val')
+        delta = self.mapper.diffObject('admin', ref)
+        assert 'uid' in delta['attributes']['changed']
 
     def test_removeObject(self):
         res = self.mapper.openObject('admin', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')

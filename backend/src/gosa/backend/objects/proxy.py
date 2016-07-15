@@ -106,8 +106,7 @@ class ObjectProxy(object):
         self.__attribute_map = {}
         self.__method_map = {}
         self.__current_user = user
-        print("ACL resolver is disabled currently")
-        #self.__acl_resolver = PluginRegistry.getInstance("ACLResolver")
+        self.__acl_resolver = PluginRegistry.getInstance("ACLResolver")
         self.__attribute_type_map = {}
         self.__attributes = []
         self.__method_type_map = {}
@@ -145,7 +144,7 @@ class ObjectProxy(object):
         self.__log.debug("loading %s base object for %s" % (base, dn_or_base))
         all_extensions = object_types[base]['extended_by']
 
-        # Load base object and extenions
+        # Load base object and extensions
         self.__base = self.__factory.getObject(base, dn_or_base, mode=base_mode)
         self.__base.owner = self.__current_user
         self.__base.parent = self
@@ -261,11 +260,9 @@ class ObjectProxy(object):
         # Do we have read permissions for the requested attribute, method
         if self.__current_user:
             def check_acl(self, attribute):
-                print("ACL check is disabled!")
-                return True
                 attr_type = self.__attribute_type_map[attribute]
                 topic = "%s.objects.%s.attributes.%s" % (self.__env.domain, attr_type, attribute)
-                #result = self.__acl_resolver.check(self.__current_user, topic, "r", base=self.dn)
+                result = self.__acl_resolver.check(self.__current_user, topic, "r", base=self.dn)
                 if result:
                     self.__log.debug("User %s is allowed to access property %s!" % (self.__current_user, topic))
                 else:
@@ -305,9 +302,7 @@ class ObjectProxy(object):
             def check_acl(method):
                 attr_type = self.__method_type_map[method]
                 topic = "%s.objects.%s.methods.%s" % (self.__env.domain, attr_type, method)
-                #return self.__acl_resolver.check(self.__current_user, topic, "x", base=self.dn)
-                print("ACL resolver is disabled at the moment")
-                return True
+                return self.__acl_resolver.check(self.__current_user, topic, "x", base=self.dn)
 
             return list(filter(lambda x: check_acl(x), self.__method_map.keys()))
 
@@ -427,11 +422,10 @@ class ObjectProxy(object):
         # Required is the 'c' (create) right for the extension on the current object.
         if self.__current_user is not None:
             topic = "%s.objects.%s" % (self.__env.domain, extension)
-            print("ACL resolver is disabled at the moment")
-            # if not self.__acl_resolver.check(self.__current_user, topic, "c", base=self.__base.dn):
-            #     self.__log.debug("user '%s' has insufficient permissions to add extension %s to %s, required is %s:%s on %s" % (
-            #     self.__current_user, extension, self.__base.dn, topic, "c", self.__base.dn))
-            #     raise ACLException(C.make_error('PERMISSION_EXTEND', extension=extension, target=self.__base.dn))
+            if not self.__acl_resolver.check(self.__current_user, topic, "c", base=self.__base.dn):
+                self.__log.debug("user '%s' has insufficient permissions to add extension %s to %s, required is %s:%s on %s" % (
+                self.__current_user, extension, self.__base.dn, topic, "c", self.__base.dn))
+                raise ACLException(C.make_error('PERMISSION_EXTEND', extension=extension, target=self.__base.dn))
 
         # Create extension
         if extension in self.__retractions:
@@ -472,14 +466,13 @@ class ObjectProxy(object):
         # Required is the 'd' (delete) right for the extension on the current object.
         if self.__current_user is not None:
             topic = "%s.objects.%s" % (self.__env.domain, extension)
-            print("ACL resolver is disabled at the moment")
-            # if not self.__acl_resolver.check(self.__current_user, topic, "d", base=self.__base.dn):
-            #     self.__log.debug("user '%s' has insufficient permissions to add extension %s to %s, required is %s:%s on %s" % (
-            #     self.__current_user, extension, self.__base.dn, topic, "d", self.__base.dn))
-            #     raise ACLException(C.make_error('PERMISSION_RETRACT', extension=extension, target=self.__base.dn))
+            if not self.__acl_resolver.check(self.__current_user, topic, "d", base=self.__base.dn):
+                self.__log.debug("user '%s' has insufficient permissions to add extension %s to %s, required is %s:%s on %s" % (
+                self.__current_user, extension, self.__base.dn, topic, "d", self.__base.dn))
+                raise ACLException(C.make_error('PERMISSION_RETRACT', extension=extension, target=self.__base.dn))
 
         # Unregister the extensions methods
-        for method in self.__method_type_map.keys():
+        for method in list(self.__method_type_map):
             if self.__method_type_map[method] == extension:
                 del(self.__method_map[method])
                 del(self.__method_type_map[method])
@@ -502,10 +495,10 @@ class ObjectProxy(object):
             # Prepare ACL results
             topic_user = "%s.objects.%s" % (self.__env.domain, self.__base_type)
             topic_base = "%s.objects.%s.attributes.base" % (self.__env.domain, self.__base_type)
-            print("ACL resolver disabled")
-            allowed_base_mod = True #self.__acl_resolver.check(self.__current_user, topic_base, "w", base=self.dn)
-            allowed_delete = True #self.__acl_resolver.check(self.__current_user, topic_user, "d", base=self.dn)
-            allowed_create = True #self.__acl_resolver.check(self.__current_user, topic_user, "c", base=new_base)
+
+            allowed_base_mod = self.__acl_resolver.check(self.__current_user, topic_base, "w", base=self.dn)
+            allowed_delete = self.__acl_resolver.check(self.__current_user, topic_user, "d", base=self.dn)
+            allowed_create = self.__acl_resolver.check(self.__current_user, topic_user, "c", base=new_base)
 
             # Check for 'w' access to attribute base
             if not allowed_base_mod:
@@ -539,7 +532,7 @@ class ObjectProxy(object):
                 # Traverse tree and find different backends
                 foreign_backends = {}
                 index = PluginRegistry.getInstance("ObjectIndex")
-                children = index.search({"dn": re.compile("^(.*,)?" + re.escape(self.__base.dn) + "$")},
+                children = index.search({"dn": [self.__base.dn, "%," + self.__base.dn]},
                     {'dn': 1, '_type': 1})
 
                 # Note all elements with different backends
@@ -577,7 +570,9 @@ class ObjectProxy(object):
 
                 # Update all DN references
                 # Emit 'post move' events
-                for cdn, ctype in children.items():
+                for child in children:
+                    cdn = child['dn']
+                    ctype = child['_type']
 
                     # Don't handle objects that already have been moved
                     if cdn in root_elements.values():
@@ -605,11 +600,16 @@ class ObjectProxy(object):
             if len(self.__factory.getObjectChildren(self.__base.dn)):
                 raise ProxyException(C.make_error('OBJECT_HAS_CHILDREN', target=self.__base.dn))
 
-        res = self.__base.move(new_base)
-        if res:
+        try:
+            self.__base.move(new_base)
             zope.event.notify(ObjectChanged("post object move", self.__base))
+            return True
 
-        return res
+        except Exception as e:
+            from traceback import print_exc
+            print_exc()
+            self.__log.error("moving object '%s' from '%s' to '%s' failed: %s" % (self.__base.uuid, self.__base.dn, new_base, str(e)))
+            return False
 
     def remove(self, recursive=False):
         """
@@ -623,11 +623,10 @@ class ObjectProxy(object):
                                                          item is not None]
             for ext_type in required_acl_objects:
                 topic = "%s.objects.%s" % (self.__env.domain, ext_type)
-                print("ACL resolver disabled")
-                # if not self.__acl_resolver.check(self.__current_user, topic, "d", base=self.dn):
-                #     self.__log.debug("user '%s' has insufficient permissions to remove %s, required is %s:%s" % (
-                #         self.__current_user, self.__base.dn, topic, 'd'))
-                #     raise ACLException(C.make_error('PERMISSION_REMOVE', target=self.__base.dn))
+                if not self.__acl_resolver.check(self.__current_user, topic, "d", base=self.dn):
+                    self.__log.debug("user '%s' has insufficient permissions to remove %s, required is %s:%s" % (
+                        self.__current_user, self.__base.dn, topic, 'd'))
+                    raise ACLException(C.make_error('PERMISSION_REMOVE', target=self.__base.dn))
 
         zope.event.notify(ObjectChanged("pre object remove", self.__base))
 
@@ -636,7 +635,7 @@ class ObjectProxy(object):
             # Load all children and remove them, starting from the most
             # nested ones.
             index = PluginRegistry.getInstance("ObjectIndex")
-            children = index.search({"dn": re.compile("^(.*,)?" + re.escape(self.__base.dn) + "$")}, {'dn': 1})
+            children = index.search({"dn": [self.__base.dn, "%," + self.__base.dn]}, {'dn': 1})
             children = [c['dn'] for c in children]
 
             children.sort(key=len, reverse=True)
@@ -648,7 +647,7 @@ class ObjectProxy(object):
         else:
             # Test if we've children
             index = PluginRegistry.getInstance("ObjectIndex")
-            if index.search({"dn": re.compile("^(.*,)" + re.escape(self.__base.dn) + "$")}, {'dn': 1}).count():
+            if len(index.search({"dn": [self.__base.dn, "%," + self.__base.dn]}, {'dn': 1})):
                 raise ProxyException(C.make_error('OBJECT_HAS_CHILDREN', target=self.__base.dn))
 
         for extension in [e for e in self.__extensions.values() if e]:
@@ -665,11 +664,10 @@ class ObjectProxy(object):
         # Check create permissions
         if self.__base_mode == "create":
             topic = "%s.objects.%s" % (self.__env.domain, self.__base_type)
-            print("ACL resolver disabled")
-            # if self.__current_user is not None and not self.__acl_resolver.check(self.__current_user, topic, "c", base=self.dn):
-            #     self.__log.debug("user '%s' has insufficient permissions to create %s, required is %s:%s" % (
-            #         self.__current_user, self.__base.dn, topic, 'c'))
-            #     raise ACLException(C.make_error('PERMISSION_CREATE', target=self.__base.dn))
+            if self.__current_user is not None and not self.__acl_resolver.check(self.__current_user, topic, "c", base=self.dn):
+                self.__log.debug("user '%s' has insufficient permissions to create %s, required is %s:%s" % (
+                    self.__current_user, self.__base.dn, topic, 'c'))
+                raise ACLException(C.make_error('PERMISSION_CREATE', target=self.__base.dn))
 
         zope.event.notify(ObjectChanged("pre object %s" % self.__base_mode, self.__base))
 
@@ -682,7 +680,7 @@ class ObjectProxy(object):
         # Traverse tree and find different backends
         foreign_backends = {}
         index = PluginRegistry.getInstance("ObjectIndex")
-        children = index.search({"dn": re.compile("^(.*,)?" + re.escape(self.__base.dn) + "$")},
+        children = index.search({"dn": [self.__base.dn, "%," + self.__base.dn]},
             {'dn': 1, '_type': 1})
 
         # Note all elements with different backends
@@ -778,11 +776,10 @@ class ObjectProxy(object):
             # To execute a method the 'x' permission is required.
             attr_type = self.__method_type_map[name]
             topic = "%s.objects.%s.methods.%s" % (self.__env.domain, attr_type, name)
-            print("ACL checks are disabled!")
-            # if self.__current_user is not None and not self.__acl_resolver.check(self.__current_user, topic, "x", base=self.dn):
-            #     self.__log.debug("user '%s' has insufficient permissions to execute %s on %s, required is %s:%s" % (
-            #         self.__current_user, name, self.dn, topic, "x"))
-            #     raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=self.dn))
+            if self.__current_user is not None and not self.__acl_resolver.check(self.__current_user, topic, "x", base=self.dn):
+                self.__log.debug("user '%s' has insufficient permissions to execute %s on %s, required is %s:%s" % (
+                    self.__current_user, name, self.dn, topic, "x"))
+                raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=self.dn))
             return self.__method_map[name]
 
         if name == 'modifyTimestamp':
@@ -800,11 +797,10 @@ class ObjectProxy(object):
         # Do we have read permissions for the requested attribute
         attr_type = self.__attribute_type_map[name]
         topic = "%s.objects.%s.attributes.%s" % (self.__env.domain, attr_type, name)
-        print("ACL checks are disabled!")
-        #if self.__current_user is not None and not self.__acl_resolver.check(self.__current_user, topic, "r", base=self.dn):
-        #    self.__log.debug("user '%s' has insufficient permissions to read %s on %s, required is %s:%s" % (
-        #        self.__current_user, name, self.dn, topic, "r"))
-        #    raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=self.dn))
+        if self.__current_user is not None and not self.__acl_resolver.check(self.__current_user, topic, "r", base=self.dn):
+            self.__log.debug("user '%s' has insufficient permissions to read %s on %s, required is %s:%s" % (
+                self.__current_user, name, self.dn, topic, "r"))
+            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=self.dn))
 
         # Load from primary object
         base_object = self.__attribute_map[name]['base']
@@ -828,17 +824,20 @@ class ObjectProxy(object):
         except AttributeError:
             pass
 
-        # If we try to modify pbject specific properties then check acls
+        # If we try to modify object specific properties then check acls
         if self.__attribute_map and name in self.__attribute_map and self.__current_user is not None:
 
             # Do we have read permissions for the requested attribute, method
             attr_type = self.__attribute_type_map[name]
             topic = "%s.objects.%s.attributes.%s" % (self.__env.domain, attr_type, name)
-            print("ACL check is disabled currently")
-            # if not self.__acl_resolver.check(self.__current_user, topic, "w", base=self.dn):
-            #     self.__log.debug("user '%s' has insufficient permissions to write %s on %s, required is %s:%s" % (
-            #         self.__current_user, name, self.dn, topic, "w"))
-            #     raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=self.dn))
+            if not self.__acl_resolver.check(self.__current_user, topic, "w", base=self.dn):
+                self.__log.debug("user '%s' has insufficient permissions to write %s on %s, required is %s:%s" % (
+                    self.__current_user, name, self.dn, topic, "w"))
+                raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=self.dn))
+
+        # Valid attribute?
+        if not name in self.__attribute_map:
+            raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
 
         found = False
         classes = [self.__attribute_map[name]['base']] + self.__attribute_map[name]['secondary']
@@ -958,7 +957,7 @@ class ObjectProxy(object):
         for key in attrs:
 
             # Skip empty ones
-            if not len(attrs[key]):
+            if not len(list(attrs[key])):
                 continue
 
             # Build up xml-elements

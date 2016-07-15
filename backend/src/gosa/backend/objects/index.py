@@ -35,7 +35,7 @@ from gosa.backend.exceptions import ProxyException, ObjectException, FilterExcep
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, Integer, Sequence, DateTime, ForeignKey, or_, and_, not_
+from sqlalchemy import Column, String, Integer, Sequence, DateTime, ForeignKey, or_, and_, not_, func
 
 Base = declarative_base()
 
@@ -43,7 +43,8 @@ Base = declarative_base()
 C.register_codes(dict(
     OBJECT_EXISTS=N_("Object with UUID %(uuid)s already exists"),
     OBJECT_NOT_FOUND=N_("Cannot find object %(id)s"),
-    INDEXING=N_("index rebuild in progress - try again later")
+    INDEXING=N_("index rebuild in progress - try again later"),
+    NOT_SUPPORTED=N_("requested search operation %(operation)s is not supported"),
 ))
 
 
@@ -86,16 +87,16 @@ class ObjectInfoIndex(Base):
 
     uuid = Column(String(36), primary_key=True)
     dn = Column(String)
-    parent_dn = Column(String)
-    adjusted_parent_dn = Column(String)
-    type = Column(String(64))
-    last_modified = Column(DateTime)
+    _parent_dn = Column(String)
+    _adjusted_parent_dn = Column(String)
+    _type = Column(String(64))
+    _last_modified = Column(DateTime)
     properties = relationship("KeyValueIndex", order_by=KeyValueIndex.key)
     extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension)
 
     def __repr__(self):  # pragma: nocover
-       return "<ObjectInfoIndex(uuid='%s', dn='%s', parent_dn='%s', adjusted_parent_dn'%s', type='%s', last_modified='%s')>" % (
-                            self.uuid, self.dn, self.parent_dn, self.adjusted_parent_dn, self.type, self.last_modified)
+       return "<ObjectInfoIndex(uuid='%s', dn='%s', _parent_dn='%s', _adjusted_parent_dn'%s', _type='%s', _last_modified='%s')>" % (
+                            self.uuid, self.dn, self._parent_dn, self._adjusted_parent_dn, self._type, self._last_modified)
 
 class IndexScanFinished():  # pragma: nocover
     pass
@@ -157,11 +158,14 @@ class ObjectIndex(Plugin):
 
         # Schedule index sync
         if self.env.config.get("backend.index", "True").lower() == "true":
-            self.sync_index()
-            #sobj = PluginRegistry.getInstance("SchedulerService")
-            #sobj.getScheduler().add_date_job(self.sync_index,
-            #        datetime.datetime.now() + datetime.timedelta(seconds=1),
-            #        tag='_internal', jobstore='ram')
+            import sys
+            if hasattr(sys, '_called_from_test'):
+                self.sync_index()
+            else:
+                sobj = PluginRegistry.getInstance("SchedulerService")
+                sobj.getScheduler().add_date_job(self.sync_index,
+                       datetime.datetime.now() + datetime.timedelta(seconds=1),
+                       tag='_internal', jobstore='ram')
 
         # Extract search aid
         attrs = {}
@@ -244,7 +248,7 @@ class ObjectIndex(Plugin):
 
         # Resolve dn from uuid if needed
         if not dn:
-            dn = self.__session.query(ObjectInfoIndex.dn).find(ObjectInfoIndex.uuid == _uuid).one_or_none()
+            dn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == _uuid).one_or_none()
 
         # Modification
         if change_type == "modify":
@@ -255,10 +259,10 @@ class ObjectIndex(Plugin):
                 return
 
             # Check if the entry exists - if not, maybe let create it
-            entry = self.__session.query(ObjectInfoIndex.dn).find(
+            entry = self.__session.query(ObjectInfoIndex.dn).filter(
                 or_(
                     ObjectInfoIndex.uuid == _uuid,
-                    ObjectInfoIndex.dn == re.compile(r'^%s$' % re.escape(dn), re.IGNORECASE)
+                    func.lower(ObjectInfoIndex.dn) == func.lower(dn)
                 )).one_or_none()
 
             if entry:
@@ -292,10 +296,10 @@ class ObjectIndex(Plugin):
                 return
 
             # Check if the entry exists - if not, maybe let create it
-            entry = self.__session.query(ObjectInfoIndex.dn).find(
+            entry = self.__session.query(ObjectInfoIndex.dn).filter(
                 or_(
                     ObjectInfoIndex.uuid == _uuid,
-                    ObjectInfoIndex.dn == re.compile(r'^%s$' % re.escape(dn), re.IGNORECASE)
+                    func.lower(ObjectInfoIndex.dn) == func.lower(dn)
                 )).one_or_none()
 
             if entry and obj:
@@ -382,7 +386,7 @@ class ObjectIndex(Plugin):
                 #    continue
 
                 # Check for index entry
-                last_modified = self.__session.query(ObjectInfoIndex.last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
+                last_modified = self.__session.query(ObjectInfoIndex._last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
 
                 # Entry is not in the database
                 if not last_modified:
@@ -450,7 +454,7 @@ class ObjectIndex(Plugin):
                 # New pre-events don't have a dn. Just skip is in this case...
                 if hasattr(e, 'dn'):
                     _dn = e.dn
-                    _last_changed = e.last_modified
+                    _last_changed = e._last_modified
                 else:
                     _dn = "not known yet"
                     _last_changed = datetime.datetime.now()
@@ -500,13 +504,13 @@ class ObjectIndex(Plugin):
         oi = ObjectInfoIndex(
             uuid=data["_uuid"],
             dn=data["dn"],
-            type=data["_type"],
-            parent_dn=data["_parent_dn"],
-            adjusted_parent_dn=data["_adjusted_parent_dn"]
+            _type=data["_type"],
+            _parent_dn=data["_parent_dn"],
+            _adjusted_parent_dn=data["_adjusted_parent_dn"]
         )
 
         if '_last_changed' in data:
-            oi.last_modified = datetime.datetime.fromtimestamp(data["_last_changed"])
+            oi._last_modified = datetime.datetime.fromtimestamp(data["_last_changed"])
 
         self.__session.add(oi)
 
@@ -561,23 +565,23 @@ class ObjectIndex(Plugin):
 
             # Adjust all ParentDN entries of child objects
             res = self.__session.query(ObjectInfoIndex).filter(
-                or_(ObjectInfoIndex.parent_dn == old_dn, ObjectInfoIndex.parent_dn.like('%' + old_dn))
+                or_(ObjectInfoIndex._parent_dn == old_dn, ObjectInfoIndex._parent_dn.like('%' + old_dn))
             ).all()
 
             for entry in res:
                 o_uuid = entry.uuid
                 o_dn = entry.dn
-                o_parent = entry.parent_dn
-                o_adjusted_parent = entry.adjusted_parent_dn
+                o_parent = entry._parent_dn
+                o_adjusted_parent = entry._adjusted_parent_dn
 
                 n_dn = o_dn[:-len(old_dn)] + current['dn']
                 n_parent = o_parent[:-len(old_dn)] + current['dn']
-                n_adjusted_parent = o_adjusted_parent[:-len(o_adjusted_parent)] + current['adjusted_parent_dn']
+                n_adjusted_parent = o_adjusted_parent[:-len(o_adjusted_parent)] + current['_adjusted_parent_dn']
 
                 oi = self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == o_uuid).one()
                 oi.dn = n_dn
-                oi.parent_dn = n_parent
-                oi.adjusted_parent_dn = n_adjusted_parent
+                oi._parent_dn = n_parent
+                oi._adjusted_parent_dn = n_adjusted_parent
 
                 self.__session.commit()
 
@@ -637,7 +641,6 @@ class ObjectIndex(Plugin):
 
         # Create result-set
         for item in self.search(query, conditions):
-            print(item)
             # Filter out what the current use is not allowed to see
             item = self.__filter_entry(user, item)
             if item and item['dn'] is not None:
@@ -657,20 +660,16 @@ class ObjectIndex(Plugin):
 
             for key, value in n.items():
                 if isinstance(value, dict):
-                    meth = None
 
-                    # We support and_, or_ and not_ as a key for hash values
+                    # Maintain certain key words
                     if key == "and_":
-                        meth = and_
+                        res.append(and_(*__make_filter(value)))
                     elif key == "or_":
-                        meth = or_
+                        res.append(or_(*__make_filter(value)))
                     elif key == "not_":
-                        meth = not_
+                        res.append(not_(*__make_filter(value)))
                     else:
-                        # TODO: do it the gosa way...
-                        raise Exception("operation '%s' not supported" % key)
-
-                    res.append(meth(*__make_filter(value)))
+                        raise IndexException(C.make_error('NOT_SUPPORTED', "base", operator=key))
 
                 elif isinstance(value, list):
                     # implicit or_ in case of lists - hashes cannot have multiple
@@ -714,7 +713,6 @@ class ObjectIndex(Plugin):
 
         # Add query information to be able to search various tables
         _args = __make_filter(node)
-        print(str(and_(*_args)))
 
         if use_extension and use_key_value:
             args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid == ExtensionIndex.uuid]
@@ -759,10 +757,10 @@ class ObjectIndex(Plugin):
             _res = {
                 "_uuid": data.uuid,
                 "dn": data.dn,
-                "_type": data.type,
-                "_parent_dn": data.parent_dn,
-                "_adjusted_parent_dn": data.adjusted_parent_dn,
-                "_last_changed": data.last_modified,
+                "_type": data._type,
+                "_parent_dn": data._parent_dn,
+                "_adjusted_parent_dn": data._adjusted_parent_dn,
+                "_last_changed": data._last_modified,
                 "_extensions": []
             }
 
@@ -784,8 +782,13 @@ class ObjectIndex(Plugin):
                     _res.pop(key, None)
 
             return _res
+        q = self.__session.query(ObjectInfoIndex).filter(*fltr)
 
-        for o in self.__session.query(ObjectInfoIndex).filter(*fltr).all():
+        #TODO: remove me
+        #from sqlalchemy.dialects import postgresql
+        #print(str(q.statement.compile(dialect=postgresql.dialect(),compile_kwargs={"literal_binds": True})))
+
+        for o in q.all():
             res.append(normalize(o, properties))
 
         return res
@@ -820,11 +823,9 @@ class ObjectIndex(Plugin):
         """
         Checks whether the given user has access to the given object/attribute or not.
         """
-        print("ACL checks are disabled!")
-        return True
-        #aclresolver = PluginRegistry.getInstance("ACLResolver")
-        #if user:
-        #    topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
-        #    return aclresolver.check(user, topic, "r", base=object_dn)
-        #else:
-        #    return True
+        aclresolver = PluginRegistry.getInstance("ACLResolver")
+        if user:
+            topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
+            return aclresolver.check(user, topic, "r", base=object_dn)
+        else:
+            return True

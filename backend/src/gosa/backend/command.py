@@ -198,12 +198,11 @@ class CommandRegistry(Plugin):
 
         # Check for permission (if user equals 'self' then this is an internal call)
         if user != self:
-            print("! ACL check is disabled")
-            #chk_options = dict(dict(zip(self.commands[func]['sig'], arg)).items() + larg.items())
-            #TODO: re-enable later on
-            #acl = PluginRegistry.getInstance("ACLResolver")
-            #if not acl.check(user, "%s.%s" % (queue, func), "x", options=chk_options):
-            #    raise CommandNotAuthorized(C.make_error("PERMISSION_EXEC", method=func))
+            chk_options = dict(zip(self.commands[func]['sig'], arg))
+            chk_options.update(larg)
+            acl = PluginRegistry.getInstance("ACLResolver")
+            if not acl.check(user, "%s.%s.%s" % (self.env.domain, "command", func), "x", options=chk_options):
+                raise CommandNotAuthorized(C.make_error("PERMISSION_EXEC", method=func))
 
         # Convert to list
         arg = list(arg)
@@ -292,4 +291,4 @@ class CommandRegistry(Plugin):
 
     @Command(needsUser=True, __help__=N_("Return the current session's user ID."))
     def getSessionUser(self, user):
-        return user.decode()
+        return user

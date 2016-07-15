@@ -36,15 +36,17 @@ class Environment:
     log = None
     reset_requested = False
     noargs = False
-    domain = "gosa"
+    domain = None
     __instance = None
     __db = None
+    __db_session = None
 
     def __init__(self):
         # Load configuration
         self.config = Config(config=Environment.config, noargs=Environment.noargs)
         self.log = logging.getLogger(__name__)
         self.__db = {}
+        self.__db_session = {}
 
         # Dump configuration
         if self.log.getEffectiveLevel() == logging.DEBUG:
@@ -61,6 +63,7 @@ class Environment:
 
         # Load base - we need one
         self.base = self.config.get("core.base")
+        self.domain = self.config.get("core.domain", "default")
 
     def requestRestart(self):
         self.log.warning("a component requested an environment reset")
@@ -84,7 +87,14 @@ class Environment:
         if not index in self.__db:
             if not self.config.get(index):
                 raise Exception("No database connection defined for '%s'!" % index)
-            self.__db[index] = create_engine(self.config.get(index))
+            if self.config.get(index) == "sqlite:///:memory:":
+                from sqlalchemy.pool import StaticPool
+                self.__db[index] = create_engine(self.config.get(index),
+                                                 connect_args={'check_same_thread': False},
+                                                 poolclass=StaticPool)
+            else:
+                self.__db[index] = create_engine(self.config.get(index))
+
             #TODO: configure engine
             #self.__db[index] = create_engine(self.config.get(index),
             #        pool_size=40, pool_recycle=120, echo=True)
@@ -104,10 +114,12 @@ class Environment:
 
         ``Return``: database session
         """
+        index = "%s.%s" % (section, key)
         sql = self.getDatabaseEngine(section, key)
-        session = scoped_session(sessionmaker(autoflush=True))
-        session.configure(bind=sql)
-        return session()
+        if index not in self.__db_session:
+            self.__db_session[index] = scoped_session(sessionmaker(autoflush=True, bind=sql))
+
+        return self.__db_session[index]()
 
     @staticmethod
     def getInstance():

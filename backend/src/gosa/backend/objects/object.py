@@ -37,8 +37,8 @@ C.register_codes(dict(
     CREATE_NEEDS_BASE=N_("Creation of '%(location)s' lacks a base DN"),
     READ_BACKEND_PROPERTIES=N_("Error reading properties for backend '%(backend)s'"),
     ATTRIBUTE_BLOCKED_BY=N_("Attribute is blocked by %(source)s==%(value)s"),
-    ATTRIBUTE_READ_ONLY=N_("Attribute is read only"),
-    ATTRIBUTE_MANDATORY=N_("Attribute is mandatory"),
+    ATTRIBUTE_READ_ONLY=N_("Attribute '%(topic)s' is read only"),
+    ATTRIBUTE_MANDATORY=N_("Attribute '%(topic)s' is mandatory"),
     ATTRIBUTE_INVALID_CONSTANT=N_("Value is invalid - expected one of %(elements)s"),
     ATTRIBUTE_INVALID_LIST=N_("Value is invalid - expected a list"),
     ATTRIBUTE_INVALID=N_("Value is invalid - expected value of type '%(type)s'"),
@@ -69,7 +69,7 @@ class Object(object):
     It also contains the ability to execute the in- and out-filters for the
     object properties.
 
-    All meta-classes for objects, created by the XML defintions, will inherit this class.
+    All meta-classes for objects, created by the XML definitions, will inherit this class.
 
     """
     _reg = None
@@ -366,12 +366,6 @@ class Object(object):
             if self.myProperties[name]['readonly']:
                 raise AttributeError(C.make_error('ATTRIBUTE_READ_ONLY', name))
 
-            # Check if the given value has to match one out of a given list.
-            if len(self.myProperties[name]['values']) and value not in self.myProperties[name]['values']:
-                raise TypeError(C.make_error(
-                    'ATTRIBUTE_INVALID_CONSTANT', name,
-                    elements=", ".join(self.myProperties[name]['values'])))
-
             # Set the new value
             if self.myProperties[name]['multivalue']:
 
@@ -394,6 +388,12 @@ class Object(object):
             if not self._objectFactory.getAttributeTypes()[s_type].is_valid_value(new_value):
                 raise TypeError(C.make_error('ATTRIBUTE_INVALID', name, type=s_type))
 
+            # Check if the given value has to match one out of a given list.
+            if len(self.myProperties[name]['values']) and [True for x in new_value if x not in self.myProperties[name]['values']]:
+                raise TypeError(C.make_error(
+                    'ATTRIBUTE_INVALID_CONSTANT', name,
+                    elements=", ".join(self.myProperties[name]['values'])))
+
             # Validate value
             if self.myProperties[name]['validator']:
 
@@ -413,13 +413,15 @@ class Object(object):
             #    if not backendI.is_uniq(name, new_value):
             #        raise ObjectException(C.make_error('ATTRIBUTE_NOT_UNIQUE', name, value=value))
 
+            current = copy.deepcopy(self.myProperties[name]['value'])
+
             # Assign the properties new value.
             self.myProperties[name]['value'] = new_value
             self.log.debug("updated property value of [%s|%s] %s:%s" % (type(self).__name__, self.uuid, name, new_value))
 
             # Update status if there's a change
             t = self.myProperties[name]['type']
-            current = copy.deepcopy(self.myProperties[name]['value'])
+
             #pylint: disable=E1101
             if not self._objectFactory.getAttributeTypes()[t].values_match(self.myProperties[name]['value'], self.myProperties[name]['orig_value']):
                 self.myProperties[name]['status'] = STATUS_CHANGED
@@ -519,7 +521,7 @@ class Object(object):
                         new_resources.append(E.resource(*files, location=rc))
 
                 root.replace(root.find("resources"), E.resources(*new_resources))
-                ui.append(etree.tostring(root))
+                ui.append(etree.tostring(root).decode('utf-8'))
 
         return ui
 
@@ -578,7 +580,7 @@ class Object(object):
 
             # Check if this attribute is blocked by another attribute and its value.
             is_blocked = False
-            for bb in  props[key]['blocked_by']:
+            for bb in props[key]['blocked_by']:
                 if bb['value'] in props[bb['name']]['value']:
                     is_blocked = True
                     break
@@ -594,21 +596,6 @@ class Object(object):
                 self.log.debug(" found %s out-filter for %s" % (str(len(props[key]['out_filter'])), key,))
                 for out_f in props[key]['out_filter']:
                     self.__processFilter(out_f, key, props)
-
-        # Collect properties by backend
-        for prop_key in self.attributesInSaveOrder:
-
-            # Skip foreign properties
-            if props[prop_key]['foreign']:
-                continue
-
-            # Ensure that mandatory values are set
-            if props[prop_key]['mandatory'] and not len(props[prop_key]['value']):
-                raise ObjectException(C.make_error('ATTRIBUTE_MANDATORY', prop_key))
-
-            # Do not save untouched values
-            if not props[prop_key]['commit_status'] & STATUS_CHANGED:
-                continue
 
         return props
 
@@ -1045,7 +1032,7 @@ class Object(object):
         """
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'dn': dn}, {'_type': 1})
-        return res[0]['_type'] if res.count() == 1 else None
+        return res[0]['_type'] if len(res) == 1 else None
 
     def get_references(self, override=None):
         res = []
@@ -1060,7 +1047,7 @@ class Object(object):
                     else:
                         oval = None
                     dns = index.search({'_type': ref, ref_attribute: oval}, {'dn': 1})
-                    if dns.count():
+                    if len(dns):
                         dns = [x['dn'] for x in dns]
                     res.append((
                         ref_attribute,
@@ -1076,7 +1063,7 @@ class Object(object):
 
             for ref in refs:
 
-                # Next iterration if there's no change for the relevant
+                # Next iteration if there's no change for the relevant
                 # attribute
                 if not self_attr in data:
                     continue
@@ -1088,12 +1075,12 @@ class Object(object):
 
                 if type(c_value) == list:
                     if type(o_value) == list:
-                        c_value = filter(lambda x: x not in o_value, c_value)
+                        c_value = list(filter(lambda x: x not in o_value, c_value))
                     else:
-                        c_value = filter(lambda x: x != o_value, c_value)
+                        c_value = list(filter(lambda x: x != o_value, c_value))
 
                     if multivalue:
-                        c_value.append(data[self_attr]['value'])
+                        c_value.extend(data[self_attr]['value'])
                     else:
                         c_value.append(data[self_attr]['value'][0])
 
@@ -1113,9 +1100,9 @@ class Object(object):
 
                 if type(c_value) == list:
                     if type(value) == list:
-                        c_value = filter(lambda x: x not in value, c_value)
+                        c_value = list(filter(lambda x: x not in value, c_value))
                     else:
-                        c_value = filter(lambda x: x != value, c_value)
+                        c_value = list(filter(lambda x: x != value, c_value))
 
                     setattr(c_obj, ref_attr, c_value)
 
@@ -1131,11 +1118,11 @@ class Object(object):
         for info in self._objectFactory.getReferences("*", "dn").values():
             for ref_attribute in info.keys():
                 dns = index.search({ref_attribute: self.dn}, {'dn': 1})
-                if dns.count():
+                if len(dns):
                     dns = [x['dn'] for x in dns]
                 res.append((
                     ref_attribute,
-                    map(lambda s: s.decode('utf-8'), dns if dns else [])
+                    list(map(lambda s: s.decode('utf-8'), dns if dns else []))
                 ))
 
         return res
@@ -1147,7 +1134,7 @@ class Object(object):
                 c_value = getattr(c_obj, ref_attr)
 
                 if type(c_value) == list:
-                    c_value = filter(lambda x: x != self.dn, c_value)
+                    c_value = list(filter(lambda x: x != self.dn, c_value))
                     c_value.append(new_dn)
                     setattr(c_obj, ref_attr, list(set(c_value)))
 
@@ -1339,10 +1326,10 @@ class Object(object):
         self.__execute_hook("PostRemove")
 
     def is_attr_set(self, name):
-        return len(self.myProperties[name]['in_value'])
+        return len(self.myProperties[name]['in_value']) > 0
 
     def is_attr_using_default(self, name):
-        return not self.is_attr_set(name) and self.myProperties[name]['default']
+        return not self.is_attr_set(name) and self.myProperties[name]['default'] == self.myProperties[name]['value']
 
     def __execute_hook(self, hook_type):
 
@@ -1353,13 +1340,13 @@ class Object(object):
                 hook["ref"](self)
 
 
-class IObjectChanged(Interface):
+class IObjectChanged(Interface):  # pragma: nocover
 
     def __init__(self, obj):
         pass
 
 
-class IAttributeChanged(Interface):
+class IAttributeChanged(Interface):  # pragma: nocover
 
     def __init__(self, attr, value):
         pass

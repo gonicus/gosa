@@ -1,0 +1,453 @@
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: you@your.org\n"
+"POT-Creation-Date: 2012-07-11 14:05+0100\n"
+"PO-Revision-Date: 2012-07-11 14:05+0100\n"
+"Last-Translator: you <you@your.org>\n"
+"Language-Team: Team <yourteam@your.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Language: de_DE\n"
+"X-Source-Language: de\n"
+
+#: gosa/view/Search.js:291 gosa/Application.js:145
+msgid "Insufficient permission!"
+msgstr "Nicht ausreichende Berechtigungen!"
+
+#: gosa/Application.js:160
+msgid "Loading translation"
+msgstr "Lade Übersetzung"
+
+#: gosa/Application.js:165
+msgid "Fetching translations failed."
+msgstr "Beziehen der Übersetzungen ist fehlgeschlagen."
+
+#: gosa/Application.js:182
+msgid "Loading base"
+msgstr "Lade Basis"
+
+#: gosa/Application.js:187
+msgid "Fetching base failed."
+msgstr "Beziehen der Basis ist fehlgeschlagen."
+
+#: gosa/Application.js:209
+msgid "Fetching object description failed."
+msgstr "Beziehen der Objektbeschreibungen ist fehlgeschlagen."
+
+#: gosa/Application.js:219
+msgid "Loading %1 dialog template"
+msgstr "Lade %1 Dialog-Vorlage"
+
+#: gosa/Application.js:224
+msgid "Fetching dialog templates failed."
+msgstr "Beziehen der Dialog-Vorlagen ist fehlgeschlagen."
+
+#: gosa/Application.js:252
+msgid "Loading %1 template"
+msgstr "Lade %1-Vorlage"
+
+#: gosa/Application.js:257
+msgid "Fetching templates failed."
+msgstr "Beziehen der Vorlagen ist fehlgeschlagen."
+
+#: gosa/Session.js:103
+msgid "Failed to fetch current user information."
+msgstr ""
+"Beziehen von Informationen zum aktuellen Benutzer ist "
+"fehlgeschlagen.Beziehen von Informationen über den momentanen Benutzer ist "
+"fehlgeschlagen."
+
+#: gosa/io/Rpc.js:180
+msgid "Communication with the backend failed!"
+msgstr "Kommunikation mit dem Server ist fehlgeschlagen!"
+
+#: gosa/ui/Header.js:40
+msgid "Edit your profile"
+msgstr "Eigenes Profil bearbeiten"
+
+#: gosa/ui/Header.js:52
+msgid "Logout"
+msgstr "Abmelden"
+
+#: gosa/ui/Header.js:82
+msgid "Logged in:"
+msgstr "Angemeldet:"
+
+#: gosa/ui/ItemSelector.js:56
+msgid "Choose"
+msgstr "Auswählen"
+
+#: gosa/ui/ItemSelector.js:58
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: gosa/ui/base/Buttons.js:43 gosa/ui/ItemSelector.js:60
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: gosa/ui/Renderer.js:284
+msgid "This object does not exist anymore!"
+msgstr "Dieses Objekt existiert nicht mehr!"
+
+#: gosa/ui/Renderer.js:531
+msgid "empty"
+msgstr "leer"
+
+#: gosa/ui/Renderer.js:555
+msgid "removed"
+msgstr "entfernt"
+
+#: gosa/ui/Renderer.js:1212
+msgid "Extend"
+msgstr "Erweitern"
+
+#: gosa/ui/Renderer.js:1217
+msgid "Retract"
+msgstr "Zurücknehmen"
+
+#: gosa/ui/Renderer.js:1222
+msgid "Action"
+msgstr "Aktion"
+
+#: gosa/ui/Renderer.js:1255
+msgid "Failed to retract the %1 extension: %2"
+msgstr "Fehler beim Zurückziehen der %1-Erweiterung: %2"
+
+#: gosa/ui/Renderer.js:1312
+msgid "Dependent extension"
+msgid_plural "Dependent extensions"
+msgstr[0] "Abhängige Erweiterung"
+msgstr[1] "Abhängige Erweiterungen"
+
+#: gosa/ui/Renderer.js:1328
+msgid ""
+"To retract the <b>%1</b> extension from this object, the following "
+"additional extension needs to be removed: %2"
+msgid_plural ""
+"To retract the <b>%1</b> extension from this object, the following "
+"additional extensions need to be removed: %2"
+msgstr[0] ""
+"Um die <b>%1</b>-Erweiterung von diesem Objekt zurückzunehmen, muss die "
+"folgende Erweiterung ebenfalls zurückgenommen werden: %2"
+msgstr[1] ""
+"Um die <b>%1</b>-Erweiterung von diesem Objekt zurückzunehmen, müssen die "
+"folgenden Erweiterungen ebenfalls zurückgenommen werden: %2"
+
+#: gosa/ui/Renderer.js:1331
+msgid "Do you want the dependent extension to be removed?"
+msgid_plural "Do you want the dependent extensions to be removed?"
+msgstr[0] "Möchten Sie die abhängende Erweiterung entfernen?"
+msgstr[1] "Möchten Sie die abhängenden Erweiterungen entfernen?"
+
+#: gosa/ui/Renderer.js:1406
+msgid "Missing extension"
+msgid_plural "Missing extensions"
+msgstr[0] "Fehlende Erweiterung"
+msgstr[1] "Fehlende Erweiterungen"
+
+#: gosa/ui/Renderer.js:1424
+msgid ""
+"To extend the object by the <b>%1</b> extension, the following additional "
+"extension is required: %2"
+msgid_plural ""
+"To extend the object by the <b>%1</b> extension, the following additional "
+"extensions are required: %2"
+msgstr[0] ""
+"Um dieses Objekt um die <b>%1</b>-Erweiterung zu erweitern, wird die "
+"folgende zusätzliche Erweiterung benötigt: %2"
+msgstr[1] ""
+"Um dieses Objekt um die <b>%1</b>-Erweiterung zu erweitern, werden die "
+"folgenden zusätzlichen Erweiterungen benötigt: %2"
+
+#: gosa/ui/Renderer.js:1427
+msgid "Do you want the missing extension to be added?"
+msgid_plural "Do you want the missing extensions to be added?"
+msgstr[0] "Soll die fehlende Erweiterung hinzugefügt werden?"
+msgstr[1] "Sollen die fehlenden Erweiterungen hinzugefügt werden?"
+
+#: gosa/ui/base/Buttons.js:39 gosa/ui/Renderer.js:1505
+msgid "OK"
+msgstr "OK"
+
+#: gosa/ui/Renderer.js:1572
+msgid "Remove extension"
+msgstr "Erweiterung entfernen"
+
+#: gosa/ui/dialogs/ChangePasswordDialog.js:24
+#: gosa/ui/dialogs/ChangeSambaPasswordDialog.js:24
+msgid "Change password..."
+msgstr "Passwort ändern..."
+
+#: gosa/ui/dialogs/ChangePasswordDialog.js:63
+msgid "Encryption"
+msgstr "Verschlüsselung"
+
+#: gosa/ui/dialogs/ChangePasswordDialog.js:64
+#: gosa/ui/dialogs/ChangeSambaPasswordDialog.js:40
+msgid "New password"
+msgstr "Neues Passwort"
+
+#: gosa/ui/dialogs/ChangePasswordDialog.js:65
+#: gosa/ui/dialogs/ChangeSambaPasswordDialog.js:41
+msgid "New password (repeated)"
+msgstr "Neues Passwort (wiederholt)"
+
+#: gosa/ui/dialogs/ChangePasswordDialog.js:94
+#: gosa/ui/dialogs/ChangeSambaPasswordDialog.js:70
+msgid "Set password"
+msgstr "Passwort setzen"
+
+#: gosa/ui/dialogs/ChangePasswordDialog.js:132
+#: gosa/ui/dialogs/ChangeSambaPasswordDialog.js:108
+msgid "Passwords do not match!"
+msgstr "Passwörter stimmen nicht überein!"
+
+#: gosa/ui/dialogs/ChangePasswordDialog.js:150
+#: gosa/ui/dialogs/ChangeSambaPasswordDialog.js:126
+msgid "Password has been changed successfully."
+msgstr "Das Passwort wurde erfolgreich geändert."
+
+#: gosa/ui/dialogs/RpcError.js:25 gosa/ui/dialogs/Error.js:24
+msgid "Error"
+msgstr "Fehler"
+
+#: gosa/ui/dialogs/Info.js:24
+msgid "Info"
+msgstr "Information"
+
+#: gosa/ui/dialogs/Loading.js:21
+msgid "Initializing"
+msgstr "Initialisiere"
+
+#: gosa/ui/dialogs/LoginDialog.js:20 gosa/ui/dialogs/LoginDialog.js:50
+msgid "Login"
+msgstr "Anmelden"
+
+#: gosa/ui/dialogs/LoginDialog.js:36
+msgid "Login ID"
+msgstr "Anmelde-ID"
+
+#: gosa/ui/dialogs/LoginDialog.js:37
+msgid "Password"
+msgstr "Kennwort"
+
+#: gosa/ui/dialogs/LoginDialog.js:66
+msgid "Invalid login..."
+msgstr "Ungültige Anmeldung..."
+
+#: gosa/ui/dialogs/MergeDialog.js:24
+msgid "Merge required"
+msgstr "Zusammenführen notwendig"
+
+#: gosa/ui/dialogs/MergeDialog.js:53
+msgid "Attribute"
+msgstr "Attribut"
+
+#: gosa/ui/dialogs/MergeDialog.js:54 gosa/ui/dialogs/MergeDialog.js:93
+msgid "Local"
+msgstr "Lokal"
+
+#: gosa/ui/dialogs/MergeDialog.js:55 gosa/ui/dialogs/MergeDialog.js:94
+msgid "Server"
+msgstr "Server"
+
+#: gosa/ui/dialogs/MergeDialog.js:92
+msgid "Extension"
+msgstr "Erweiterung"
+
+#: gosa/ui/dialogs/MergeDialog.js:198
+msgid ""
+"The object has been updated while you were modifying it. Please determine to"
+" keep your local or the server version of the item. You can achieve this by "
+"marking the appropriate one."
+msgstr ""
+"Das Objekt wurde während des Bearbeitungsvorganges verändert. Bitte "
+"bestimmen Sie ob Ihre lokale oder die Server-Version übernommen werden soll."
+" Dies können Sie durch Markieren des entsprechenden Wertes erreichen."
+
+#: gosa/ui/dialogs/RemoveObject.js:24
+msgid "Remove object"
+msgstr "Objekt entfernen"
+
+#: gosa/ui/dialogs/RemoveObject.js:29
+msgid ""
+"Do you want to remove this object including all of its references to other "
+"objects?"
+msgstr ""
+"Möchten Sie dieses Objekt mit all seinen Referenzen zu anderen Objekten "
+"entfernen?"
+
+#: gosa/ui/dialogs/RpcError.js:30
+msgid "Retry"
+msgstr "Erneut versuchen"
+
+#: gosa/ui/dialogs/SendMessageDialog.js:24
+msgid "Send message..."
+msgstr "Nachricht senden..."
+
+#: gosa/ui/dialogs/SendMessageDialog.js:46
+msgid "Subject"
+msgstr "Betreff"
+
+#: gosa/ui/dialogs/SendMessageDialog.js:47
+msgid "Message"
+msgstr "Nachricht"
+
+#: gosa/ui/dialogs/SendMessageDialog.js:55
+msgid "Send"
+msgstr "Senden"
+
+#: gosa/ui/dialogs/Warning.js:24
+msgid "Warning"
+msgstr "Achtung"
+
+#: gosa/ui/widgets/MultiEditContainer.js:66
+msgid "Add value"
+msgstr "Wert hinzufügen"
+
+#: gosa/ui/widgets/MultiEditContainer.js:72
+#: gosa/ui/widgets/SingleSelector.js:129
+msgid "Remove value"
+msgstr "Wert entfernen"
+
+#: gosa/ui/widgets/QGraphicsViewWidget.js:46
+msgid "Image capture"
+msgstr "Bilderfassung"
+
+#: gosa/ui/widgets/QGraphicsViewWidget.js:78
+msgid "Upload new image"
+msgstr "Neues Bild bereitstellen"
+
+#: gosa/ui/widgets/QGraphicsViewWidget.js:80
+msgid "Capture"
+msgstr "Aufnehmen"
+
+#: gosa/ui/widgets/QGraphicsViewWidget.js:83
+msgid "Remove image"
+msgstr "Bild entfernen"
+
+#: gosa/ui/widgets/SambaLogonHoursWidget.js:31
+msgid "Hour"
+msgstr "Stunde"
+
+#: gosa/ui/widgets/SingleSelector.js:117
+msgid "loading"
+msgstr "lade"
+
+#: gosa/ui/widgets/SingleSelector.js:132 gosa/ui/widgets/SingleSelector.js:149
+msgid "Choose value"
+msgstr "Wert auswählen"
+
+#: gosa/ui/widgets/Widget.js:320
+msgid "Pending..."
+msgstr "Anstehend..."
+
+#: gosa/ui/widgets/Widget.js:344
+msgid "Failed..."
+msgstr "Fehlgeschlagen..."
+
+#: gosa/view/Search.js:52
+msgid "Please enter your search..."
+msgstr "Bitte geben Sie den Suchtext ein..."
+
+#: gosa/view/Search.js:58 gosa/view/Search.js:71
+msgid "Search"
+msgstr "Suche"
+
+#: gosa/view/Search.js:326
+msgid "%1 fuzzy result"
+msgid_plural "%1 fuzzy results"
+msgstr[0] "%1 ungenaues Ergebnis"
+msgstr[1] "%1 ungenaue Ergebnisse"
+
+#: gosa/view/Search.js:326 gosa/view/Search.js:328
+msgid "%1 second"
+msgid_plural "%1 seconds"
+msgstr[0] "%1 Sekunde"
+msgstr[1] "%1 Sekunden"
+
+#: gosa/view/Search.js:326
+msgid "no exact matches"
+msgstr "keine exakten Treffer"
+
+#: gosa/view/Search.js:328
+msgid "%1 result"
+msgid_plural "%1 results"
+msgstr[0] "%1 Ergebnis"
+msgstr[1] "%1 Ergebnisse"
+
+#: gosa/view/Search.js:356 gosa/view/Search.js:390
+msgid "All"
+msgstr "Alle"
+
+#: gosa/view/Search.js:381
+msgid "Category"
+msgstr "Kategorie"
+
+#: gosa/view/Search.js:384
+msgid "Secondary search"
+msgstr "Sekundäre Suche"
+
+#: gosa/view/Search.js:385
+msgid "Enabled"
+msgstr "Aktiviert"
+
+#: gosa/view/Search.js:386
+msgid "Disabled"
+msgstr "Deaktiviert"
+
+#: gosa/view/Search.js:389
+msgid "Last modification"
+msgstr "Letzte Änderung"
+
+#: gosa/view/Search.js:391
+msgid "Last hour"
+msgstr "Letzte Stunde"
+
+#: gosa/view/Search.js:392
+msgid "Last 24 hours"
+msgstr "Letzte 24 Stunden"
+
+#: gosa/view/Search.js:393
+msgid "Last week"
+msgstr "Vorherige Woche"
+
+#: gosa/view/Search.js:394
+msgid "Last month"
+msgstr "Vorheriger Monat"
+
+#: gosa/view/Search.js:395
+msgid "Last year"
+msgstr "Vorheriges Jahr"
+
+#: gosa/view/Search.js:423
+msgid "Cannot remove entry!"
+msgstr "Eintrag kann nicht entfernt werden!"
+
+#: gosa/view/Search.js:446
+msgid "Object"
+msgstr "Objekt"
+
+#: gosa/view/Tree.js:34
+msgid "Root"
+msgstr "Wurzel"
+
+#: gosa/view/Tree.js:83
+msgid "Search .."
+msgstr "Suchen..."
+
+#: gosa/view/Tree.js:90
+msgid "Actions"
+msgstr "Aktionen"
+
+#: gosa/view/Tree.js:90
+msgid "Description"
+msgstr "Beschreibung"
+
+#: gosa/view/Tree.js:90
+msgid "Name"
+msgstr "Name"

@@ -10,26 +10,35 @@
 from unittest import TestCase
 import pytest
 from gosa.common.components import PluginRegistry, ObjectRegistry
+from contextlib import contextmanager
 
 slow = pytest.mark.skipif(
     not pytest.config.getoption("--runslow"),
     reason="need --runslow option to run"
 )
 
+@contextmanager
+def gosaContext():
+    try:
+        yield initGosa()
+    finally:
+        deinitGosa()
+
+
+def initGosa():
+    oreg = ObjectRegistry.getInstance()  # @UnusedVariable
+    pr = PluginRegistry()  # @UnusedVariable
+    cr = PluginRegistry.getInstance("CommandRegistry") # @UnusedVariable
+
+
+def deinitGosa():
+    PluginRegistry.getInstance('HTTPService').srv.stop()
+    PluginRegistry.shutdown()
 
 class GosaTestCase(TestCase):
 
     def setUp(self):
-        self._init()
+        initGosa()
 
     def tearDown(self):
-        self._deinit();
-
-    def _init(self):
-        oreg = ObjectRegistry.getInstance()  # @UnusedVariable
-        pr = PluginRegistry()  # @UnusedVariable
-        cr = PluginRegistry.getInstance("CommandRegistry") # @UnusedVariable
-
-    def _deinit(self):
-        PluginRegistry.getInstance('HTTPService').srv.stop()
-        PluginRegistry.shutdown()
+        deinitGosa()

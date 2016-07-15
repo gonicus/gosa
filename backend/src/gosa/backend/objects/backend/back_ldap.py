@@ -333,7 +333,6 @@ class LDAP(ObjectBackend):
         rdn_parts = rdns[0]
 
         for attr, value, idx in rdn_parts:
-            print(attr)
             if attr in data:
                 cnv = getattr(self, "_convert_to_%s" % data[attr]['type'].lower())
                 new_rdn_parts.append((attr, cnv(data[attr]['value'][0]), 4))
@@ -494,22 +493,22 @@ class LDAP(ObjectBackend):
         return Binary(value)
 
     def _convert_to_boolean(self, value):
-        return "TRUE" if value else "FALSE"
+        return bytes("TRUE", "ascii") if value else bytes("FALSE", "ascii")
 
     def _convert_to_string(self, value):
-        return str(value)
+        return bytes(str(value), 'ascii')
 
     def _convert_to_unicodestring(self, value):
-        return str(value)
+        return bytes(value, 'utf-8')
 
     def _convert_to_integer(self, value):
-        return str(value)
+        return bytes(str(value), 'ascii')
 
     def _convert_to_timestamp(self, value):
-        return value.strftime("%Y%m%d%H%M%SZ")
+        return bytes(value.strftime("%Y%m%d%H%M%SZ"), 'ascii')
 
     def _convert_to_date(self, value):
-        return value.strftime("%Y%m%d%H%M%SZ")
+        return bytes(value.strftime("%Y%m%d%H%M%SZ"), 'ascii')
 
     def _convert_to_binary(self, value):
-        return value.get()
+        return bytes(value.get())

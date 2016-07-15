@@ -7,14 +7,14 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import unittest
+from unittest import TestCase, mock
 import pytest
 from gosa.backend.plugins.samba.domain import *
 
-class SambaGuiMethodsTestCase(unittest.TestCase):
+class SambaGuiMethodsTestCase(TestCase):
 
-    @unittest.mock.patch.object(Environment, "getInstance")
-    @unittest.mock.patch.object(PluginRegistry, 'getInstance')
+    @mock.patch.object(Environment, "getInstance")
+    @mock.patch.object(PluginRegistry, 'getInstance')
     def test_getSambaPassword(self, mockedRegistry, mockedEnv):
 
         # mockup ACL resolver
@@ -23,7 +23,7 @@ class SambaGuiMethodsTestCase(unittest.TestCase):
         # mockup the environment
         mockedEnv.return_value.domain = "testdomain"
 
-        with unittest.mock.patch('gosa.backend.plugins.samba.domain.ObjectProxy', autoSpec=True, create=True) as m:
+        with mock.patch('gosa.backend.plugins.samba.domain.ObjectProxy', autoSpec=True, create=True) as m:
             # run the test
             user = m.return_value
             methods = SambaGuiMethods()
@@ -36,7 +36,7 @@ class SambaGuiMethodsTestCase(unittest.TestCase):
         # test with ACL.check for sambaNTPassword is False
         mockedRegistry.return_value.check.return_value = False
 
-        with unittest.mock.patch('gosa.backend.plugins.samba.domain.ObjectProxy', create=True):
+        with mock.patch('gosa.backend.plugins.samba.domain.ObjectProxy', create=True):
             # run the test
             methods = SambaGuiMethods()
             with pytest.raises(ACLException):
@@ -47,25 +47,34 @@ class SambaGuiMethodsTestCase(unittest.TestCase):
             return not topic == "testdomain.objects.User.attributes.sambaLMPassword"
         mockedRegistry.return_value.check.side_effect = check
 
-        with unittest.mock.patch('gosa.backend.plugins.samba.domain.ObjectProxy', create=True):
+        with mock.patch('gosa.backend.plugins.samba.domain.ObjectProxy', create=True):
             # run the test
             methods = SambaGuiMethods()
             with pytest.raises(ACLException):
                 methods.setSambaPassword("username", "dn", "password")
 
-    @unittest.mock.patch.object(PluginRegistry, 'getInstance')
+    @mock.patch.object(PluginRegistry, 'getInstance')
     def test_getSambaDomainInformation(self, mockedInstance):
         # mock the whole lookup in the ObjectIndex to return True
-        mockedInstance.return_value.search.return_value = unittest.mock.MagicMock()
+        mockedInstance.return_value.search.return_value = [{"sambaMinPwdLength": 6,
+                                                            "sambaPwdHistoryLength": 10,
+                                                            "sambaMaxPwdAge": 10,
+                                                            "sambaMinPwdAge": 1,
+                                                            "sambaLockoutDuration": 60,
+                                                            "sambaRefuseMachinePwdChange": False,
+                                                            "sambaLogonToChgPwd": True,
+                                                            "sambaLockoutThreshold": 30,
+                                                            "sambaBadPasswordTime": 2147483647}]
 
         methods = SambaGuiMethods()
-        target = unittest.mock.MagicMock()
+        target = mock.MagicMock()
+        target.sambaDomainName = 'DEFAULT'
         res = methods.getSambaDomainInformation("username", target)
         # this is just a check that the method is callable so we do not really check the output here
         assert len(res) > 0
 
 
-@unittest.mock.patch.object(PluginRegistry, 'getInstance')
+@mock.patch.object(PluginRegistry, 'getInstance')
 def test_IsValidSambaDomainName(mockedInstance):
     # mock the whole lookup in the ObjectIndex to return True
     mockedInstance.return_value.search.return_value = [1]

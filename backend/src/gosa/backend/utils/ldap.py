@@ -16,6 +16,7 @@ make LDAP connections a little bit easier to use.
 import ldapurl
 import ldap.sasl
 import logging
+from ldap.filter import filter_format
 from contextlib import contextmanager
 from gosa.common import Environment
 from gosa.common.utils import N_
@@ -44,7 +45,7 @@ class LDAPHandler(object):
         >>> with lh.get_handle() as con:
         ...     res = con.search_s(lh.get_base(),
         ...         ldap.SCOPE_SUBTREE,
-        ...         filter_format("(&(objectClass=device)(uuid=%s))", uuid),
+        ...         filter_format("(&(objectClass=device)(uuid=%s))", [uuid]),
         ...         ['deviceStatus'])
         ...
 
@@ -228,6 +229,63 @@ def map_ldap_value(value):
     if type(value) == list:
         return map(map_ldap_value, value)
     return value
+
+
+def check_auth(user, password):
+    get = Environment.getInstance().config.get
+    log = logging.getLogger(__name__)
+
+    url = ldapurl.LDAPUrl(get("ldap.url"))
+    bind_user = get('ldap.bind-user', default=None)
+    bind_dn = get('ldap.bind-dn', default=None)
+    bind_secret = get('ldap.bind-secret', default=None)
+
+    conn = ldap.ldapobject.ReconnectLDAPObject("%s://%s" % (url.urlscheme, url.hostport),
+        retry_max=int(get("ldap.retry-max", default=3)),
+        retry_delay=int(get("ldap.retry-delay", default=5)))
+
+    # We only want v3
+    conn.protocol_version = ldap.VERSION3
+
+    # If no SSL scheme used, try TLS
+    if get("ldap.tls", default="True").lower() == "true" and ldap.TLS_AVAIL and url.urlscheme != "ldaps":
+        try:
+            conn.start_tls_s()
+        except ldap.PROTOCOL_ERROR as detail:
+            log.debug("cannot use TLS, falling back to unencrypted session")
+
+    try:
+        # Get a connection
+        if bind_dn:
+            log.debug("starting simple bind using '%s'" % bind_dn)
+            conn.simple_bind_s(bind_dn, bind_secret)
+        elif bind_user:
+            log.debug("starting SASL bind using '%s'" % bind_user)
+            auth_tokens = ldap.sasl.digest_md5(bind_user, bind_secret)
+            conn.sasl_interactive_bind_s("", auth_tokens)
+        else:
+            self.log.debug("starting anonymous bind")
+            conn.simple_bind_s()
+
+        # Search for the given user UID
+        res = conn.search_s(url.dn, ldap.SCOPE_SUBTREE,
+                filter_format("(&(objectClass=person)(uid=%s))", [user]),
+                ['dn'])
+
+        if len(res) == 1:
+            dn = res[0][0]
+            log.debug("starting simple bind using '%s'" % dn)
+            conn.simple_bind_s(dn, password)
+            return True
+        elif len(res) > 1:
+            log.error("LDAP authentication failed: user %s not unique" % user)
+        else:
+            log.error("LDAP authentication failed: user %s not found" % user)
+
+    except ldap.INVALID_CREDENTIALS as detail:
+        log.error("LDAP authentication failed: %s" % str(detail))
+
+    return False
 
 
 def normalize_ldap(data):

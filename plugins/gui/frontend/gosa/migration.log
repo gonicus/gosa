@@ -1,0 +1,90 @@
+
+UPGRADE TO 5.1
+----------------------------------------------------------------------------
+  * Number of script input files: 72
+  * Number of HTML input files: 0
+  * Update to version: 5.1
+  * Searching for patch module...
+  * Searching for info expression data...
+    - Compiling expressions...
+    - Number of infos: 0
+  * Searching for patch expression data...
+    - Compiling expressions...
+    - Number of patches: 0
+
+  FILE PROCESSING:
+----------------------------------------------------------------------------
+  * Processing script files:
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/theme/Color.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/dialogs/Warning.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/QDateEditWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/QCheckBoxWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/theme/Theme.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/ItemSelector.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/theme/Font.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/QLineEditWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/io/types/Binary.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/Tools.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/QPushButtonWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/QGraphicsViewWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/data/model/SelectBoxItem.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/MultiEditWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/simulation/DemoSimulation.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/dialogs/Dialog.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/MultiEditContainer.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/dialogs/Loading.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/test/DemoTest.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/data/model/SearchResultItem.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/SingleSelector.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/dialogs/Info.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/dialogs/ChangePasswordDialog.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/base/Buttons.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/QDateTimeEditWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/dialogs/RemoveObject.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/form/Spinner.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/container/MergeItem.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/dialogs/RpcError.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/SearchListItem.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/QPlainTextEditWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/dialogs/Error.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/DateTimeField.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/QTableWidgetWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/view/Search.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/TableWithSelector.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/theme/Decoration.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/table/Table.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/QLabelWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/dialogs/SendMessageDialog.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/view/Tree.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/table/RowRendererColoredRow.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/data/model/TreeResultItem.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/Widget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/Cache.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/tabview/TabView.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/dialogs/LoginDialog.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/SambaLogonHoursWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/form/renderer/Single.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/io/WebSocket.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/theme/Appearance.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/container/SlideBar.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/GroupBox.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/view/Workflows.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/SearchAid.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/LineWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/dialogs/ChangeSambaPasswordDialog.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/proxy/ObjectFactory.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/io/Rpc.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/Renderer.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/proxy/Object.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/__init__.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/io/types/Timestamp.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/ScrollArea.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/Application.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/QComboBoxWidget.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/Header.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/dialogs/MergeDialog.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/Session.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/Config.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/view/Settings.js
+  - File: /home/cajus/Projekte/gosa-next/plugins/gui/frontend/gosa/source/class/gosa/ui/widgets/QSpinBoxWidget.js
+  * Done

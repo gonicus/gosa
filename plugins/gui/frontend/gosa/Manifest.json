@@ -1,24 +1,24 @@
 {
   "info" : 
   {
-    "name" : "gosa",
+    "name" : "GOsa",
 
-    "summary" : "Custom Application",
-    "description" : "This is a skeleton for a custom application with qooxdoo.",
+    "summary" : "GOsa - a fronted for the clacks framework",
+    "description" : "",
     
-    "homepage" : "http://some.homepage.url/",
+    "homepage" : "http://gosa-project.org/",
 
-    "license" : "SomeLicense",
+    "license" : "LGPL 2.1",
     "authors" : 
     [
       {
-        "name" : "First Author (uid)",
-        "email" : "first.author@some.domain"
+        "name" : "GONICUS GmbH",
+        "email" : "info@gonicus.de"
       }
     ],
 
-    "version" : "master",
-    "qooxdoo-versions": ["5.1"]
+    "version" : "3.0",
+    "qooxdoo-versions": ["2.0"]
   },
   
   "provides" : 

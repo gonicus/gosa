@@ -47,15 +47,10 @@ class StringAttribute(AttributeType):
     __alias__ = "String"
 
     def _convert_from_string(self, value):
-        new_value = []
-        for item in value:
-            if not item and type(item) != bytes:
-                item = ""
-            new_value.append(item)
-        return new_value
+        return list(map(lambda x: x.decode('ascii') if type(x) == bytes else x, value))
 
     def is_valid_value(self, value):
-        return not len(value) or all(map(lambda x: type(x) == bytes, value))
+        return not len(value) or all(map(lambda x: type(x) == str, value))
 
     def values_match(self, value1, value2):
         return value1 == value2
@@ -64,7 +59,7 @@ class StringAttribute(AttributeType):
         return list(map(lambda x: not(x in ['', 'false', '0', 'False']), value))
 
     def _convert_to_string(self, value):
-        return list(map(lambda x: bytes(x, 'utf-8'), value))
+        return list(map(lambda x: x.decode('ascii') if type(x) == bytes else x, value))
 
     def _convert_to_integer(self, value):
         return list(map(lambda x: int(x), value))
@@ -73,7 +68,7 @@ class StringAttribute(AttributeType):
         return list(map(lambda x: str(x), value))
 
     def _convert_from_datetime(self, value):
-        return list(map(lambda x: bytes(str(x), 'utf-8'), value))
+        return list(map(lambda x: str(x), value))
 
     def fixup(self, value):
         return self._convert_to_string(value)
@@ -155,8 +150,7 @@ class UnicodeStringAttribute(AttributeType):
     __alias__ = "UnicodeString"
 
     def _convert_from_unicodestring(self, value):
-        #TODO: is this enough?
-        return value
+        return list(map(lambda x: x.decode('utf-8') if type(x) == bytes else x, value))
 
     def is_valid_value(self, value):
         return not len(value) or all(map(lambda x: type(x) == str, value))
@@ -165,10 +159,10 @@ class UnicodeStringAttribute(AttributeType):
         return value1 == value2
 
     def _convert_to_string(self, value):
-        return list(map(lambda x: bytes(x, 'utf-8'), value))
+        return list(map(lambda x: x.decode('utf-8'), value))
 
     def _convert_to_unicodestring(self, value):
-        return list(map(lambda x: str(x), value))
+        return list(map(lambda x: x.decode('utf-8') if type(x) == bytes else x, value))
 
     def _convert_from_string(self, value):
         new_value = []
