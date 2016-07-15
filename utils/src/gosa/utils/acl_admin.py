@@ -25,6 +25,9 @@ from gosa.common.utils import parseURL
 _ = gettext.gettext
 
 
+print("TODO: ES SIND DIVERSE try/catch Aufrufe auskommentiert...")
+
+
 class helpDecorator(object):
     """
     A method decorator which allows to mark those methods that can be used
