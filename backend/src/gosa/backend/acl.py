@@ -1209,6 +1209,10 @@ class ACLResolver(Plugin):
         allowed = False
         reset = False
 
+#2016-07-15 12:50:18,530 DEBUG: acl - checking ACL for admin/dc=example,dc=net/command.getACLs
+#2016-07-15 12:50:18,530 DEBUG: acl - checking ACL role entries for role: Administrators
+#2016-07-15 12:50:18,530 DEBUG: acl - checking ACL role entries for role: Administrators
+
         self.log.debug("checking ACL for %s/%s/%s" % (user, base, str(topic)))
 
         # Remove the first part of the dn, until we reach the ldap base.

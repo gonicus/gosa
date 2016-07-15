@@ -36,7 +36,7 @@ class Environment:
     log = None
     reset_requested = False
     noargs = False
-    domain = "gosa"
+    domain = None
     __instance = None
     __db = None
     __db_session = None
@@ -63,6 +63,7 @@ class Environment:
 
         # Load base - we need one
         self.base = self.config.get("core.base")
+        self.domain = self.config.get("core.domain", "default")
 
     def requestRestart(self):
         self.log.warning("a component requested an environment reset")

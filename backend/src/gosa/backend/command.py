@@ -201,7 +201,7 @@ class CommandRegistry(Plugin):
             chk_options = dict(zip(self.commands[func]['sig'], arg))
             chk_options.update(larg)
             acl = PluginRegistry.getInstance("ACLResolver")
-            if not acl.check(user, "%s.%s" % ("command", func), "x", options=chk_options):
+            if not acl.check(user, "%s.%s.%s" % (self.env.domain, "command", func), "x", options=chk_options):
                 raise CommandNotAuthorized(C.make_error("PERMISSION_EXEC", method=func))
 
         # Convert to list
