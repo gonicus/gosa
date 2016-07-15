@@ -8,4 +8,5 @@ class JSONRPCUtilsTestCase(unittest.TestCase):
         p = Plugin()
         assert p.get_locale_module() == p._locale_module_
         return True
+        # _target_ attribute is not initialized in this class (but in subclasses)
         assert p.get_target() == p._target_
