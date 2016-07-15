@@ -309,10 +309,6 @@ class JSONRPCObjectMapper(Plugin):
         obj_type = self.__get_object_type(oid)
         methods, properties = self.__inspect(obj_type)
 
-        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-        print(methods)
-        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-
         # Load instance, fill with dummy stuff
         ref = str(uuid.uuid1())
 
@@ -383,10 +379,6 @@ class JSONRPCObjectMapper(Plugin):
             if isinstance(getattr(type(clazz), part, None), property):
                 properties.append(part)
           
-
-        print("INSPECT", clazz)
-        print(methods)
-        print(properties)
         return methods, properties
 
     def __get_ref(self, ref):
