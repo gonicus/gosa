@@ -5,7 +5,8 @@ import sys
 modules = [
   'common',
   'backend',
-  'shell'
+  'shell',
+  'utils',
 ]
 return_code = 0
 for module in modules:
