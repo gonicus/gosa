@@ -40,7 +40,19 @@ class SchedulerTestCase(unittest.TestCase):
     def test_configure(self):
         s = Scheduler()
         s.shutdown() # Does nothing
+        
+        
+        gconfig = {"gosa.common.components.scheduler.jobstore.jobstoredefault.class": "gosa.common.components.scheduler.jobstores.ram_store:RAMJobStore"}
+        options = {}
+        
+        config = combine_opts(gconfig, 'gosa.common.components.scheduler.', options)
+        s.configure(gconfig=gconfig)
         s.start()
+        
+        # If the jobstore "jobstoredefault" does not exist, an exception
+        # will be raised.
+        s.add_date_job(process, "2016-12-13", args=(unittest.mock.MagicMock(),), jobstore="jobstoredefault")
+        
         with pytest.raises(SchedulerAlreadyRunningError):
             s.start()
         with pytest.raises(SchedulerAlreadyRunningError):
@@ -188,7 +200,7 @@ class SchedulerTestCase(unittest.TestCase):
             s.add_jobstore(RAMJobStore(), "ram1")
             s.start()
             handler = CallHandler()
-            job = s.add_date_job(process, "2016-12-12", args=(handler,), misfire_grace_time=5, coalesce=True)
+            job = s.add_date_job(process, "2016-12-12", args=(handler,), misfire_grace_time=5, coalesce=False)
             self.assert_jobs(s, handler)
             loggerMock.debug.call_args[-2:-1] == [unittest.mock.call("running job \"%s\" (scheduled at %s)" % (job, datetime.datetime.now())),
                     unittest.mock.call("job \"%s\" executed successfully" % job)]
@@ -213,6 +225,15 @@ class SchedulerTestCase(unittest.TestCase):
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
             s.start()
             handler = CallHandler()
-            s.add_date_job(process, "2016-12-12", args=(handler,))
+            with pytest.raises(ValueError): # Would not be run ever
+                s.add_date_job(process, "2016-12-11", args=(handler,))
+            with pytest.raises(KeyError): # Not existant job store
+                s.add_date_job(process, "2016-12-13", args=(handler,), jobstore="notexistant")
+            
+            dummyCallback = unittest.mock.MagicMock() # Trigger error while notifying listener
+            s.add_listener(dummyCallback)
+            dummyCallback.side_effect = Exception
+            s.add_date_job(process, "2016-12-13", args=(handler,))
+            
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 13)
             s.shutdown()
