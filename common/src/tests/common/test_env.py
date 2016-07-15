@@ -1,36 +1,77 @@
 #!/usr/bin/python3
 
-import unittest
-import os
+import unittest, pytest
+import unittest.mock
 from gosa.common.env import *
-from sqlalchemy.engine import Engine
-from sqlalchemy.orm.session import Session
 
-
-# Todo: Mocking
 class EnvTestCase(unittest.TestCase):
-
-    def setUp(self):
-        self.old_environ = os.environ.copy()
-        virt_env = os.environ.get("VIRTUAL_ENV")
+    @unittest.mock.patch("gosa.common.env.sessionmaker")
+    @unittest.mock.patch("gosa.common.env.scoped_session")
+    @unittest.mock.patch("gosa.common.env.create_engine")
+    @unittest.mock.patch("gosa.common.env.Config")
+    @unittest.mock.patch("gosa.common.env.logging")
+    def test_Environment(self, loggingMock, configMock, createEngineMock, scopedSessionMock, sessionmakerMock):
+        # __init__:
+        loggerMock = unittest.mock.MagicMock()
+        loggerMock.getEffectiveLevel.return_value = loggingMock.DEBUG
+        loggingMock.getLogger.return_value = loggerMock
         
-        if virt_env:
-            os.environ.update({"GOSA_CONFIG_DIR": os.path.join(os.path.dirname(os.path.realpath(__file__)), "../test.conf")})
-
-    def test_Environment(self):
+        def getOptions(section):
+            if section == "section":
+                return {"option": "value", "key": "val"}
+            else:
+                return {"opt": "v"}
+        confMock = unittest.mock.MagicMock()
+        confMock.getSections.return_value = ["section", "other"]
+        confMock.getOptions.side_effect = getOptions
+        configMock.return_value = confMock
+        
         e = Environment.getInstance()
         
+        assert loggerMock.debug.call_args_list[0] == unittest.mock.call("configuration dump:")
+        assert loggerMock.debug.call_args_list[1] == unittest.mock.call("[section]")
+        # As implementation iterates a dict the order is not defined
+        assert unittest.mock.call("option = value") in loggerMock.debug.call_args_list[2:4]
+        assert unittest.mock.call("key = val") in loggerMock.debug.call_args_list[2:4]
+        assert loggerMock.debug.call_args_list[4] == unittest.mock.call("[other]")
+        assert loggerMock.debug.call_args_list[5] == unittest.mock.call("opt = v")
+        assert loggerMock.debug.call_args_list[6] == unittest.mock.call("end of configuration dump")
+        
+        # requestRestart:
         e.requestRestart()
-        self.assertTrue(e.reset_requested)
+        loggerMock.warning.assert_called_with("a component requested an environment reset")
+        assert e.reset_requested == True
         
-        self.assertIsInstance(e.getDatabaseEngine("backend-database"), Engine)
-        self.assertIsInstance(e.getDatabaseEngine("backend-database", key="database"), Engine)
-        if not e.config.get("notexistantsection"):
-            self.assertRaises(Exception, e.getDatabaseEngine, "notexistantsection")
-            self.assertRaises(Exception, e.getDatabaseEngine, "notexistantsection", key="db")
-        self.assertIsInstance(e.getDatabaseSession("backend-database"), Session)
+        # getDatabaseEngine:
+        dsnames = {"db1.dbs": "db1datasourcename", "db2.dbs": "db2datasourcename"}
+        engines = {"db1datasourcename": unittest.mock.MagicMock(), "db2datasourcename": unittest.mock.MagicMock()}
+        sessions = {engines["db1datasourcename"]: unittest.mock.MagicMock(), engines["db2datasourcename"]: unittest.mock.MagicMock()}
+        def createEngine(dsn):
+            return engines[dsn]
+        createEngineMock.side_effect = createEngine
+        def get(index):
+            if index in dsnames:
+                return dsnames[index]
+            elif index == "notexistant.dbs":
+                return None
+            else:
+                return unittest.mock.MagicMock()
+        confMock.get.side_effect = get
         
-        self.assertEqual(e, Environment.getInstance())
+        assert e.getDatabaseEngine("db1", key="dbs") == engines["db1datasourcename"]
+        with pytest.raises(Exception):
+            e.getDatabaseEngine("notexistant", key="dbs")
+        
+        # getDatabaseSession
+        sessionMock = unittest.mock.MagicMock()
+        scopedSessionMock.return_value = sessionMock
+        
+        assert e.getDatabaseSession("db1", key="dbs") == sessionMock()
+        
+        sessionMock.configure.assert_called_with(bind=engines["db1datasourcename"])
+        scopedSessionMock.assert_called_with(sessionmakerMock(autoflush=True))
+        
+        assert e == Environment.getInstance()
         
         del e
         Environment.reset()
@@ -39,7 +80,3 @@ class EnvTestCase(unittest.TestCase):
         
         # Note: References of the Environment object may be hold by others.
         # An reset followed by getInstance would lead to multiple instances.
-    
-    def tearDown(self):
-        os.environ.clear()
-        os.environ.update(self.old_environ)

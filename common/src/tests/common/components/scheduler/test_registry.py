@@ -17,6 +17,9 @@ class RegistryTestCase(unittest.TestCase):
             resource_isdirMock, resource_listdirMock, resource_filenameMock, loggingMock, EnvironmentMock):
         # Use of only one test method to guarantee right execution order
         
+        loggerMock = unittest.mock.MagicMock()
+        loggingMock.getLogger.return_value = loggerMock
+        
         # __init__:
         resource_filenameMock.return_value = "/test/filename"
         def addEntryMock(l, implements, modulename, isdir, is_class):
@@ -58,6 +61,11 @@ class RegistryTestCase(unittest.TestCase):
         assert PluginRegistry.modules == {"Module1": entries[0].load()(), "Module2": entries[1].load()()}
         assert PluginRegistry.handlers == {"Module1": entries[0].load()()}
         assert PluginRegistry.evreg == {"globalevent": "/test/filename/globalevent.xsd", "testevent": "/test/filename/testevent.xsd"}
+        
+        assert loggerMock.debug.call_args_list == [unittest.mock.call("inizializing plugin registry"),
+                unittest.mock.call("adding common event 'globalevent'"),
+                unittest.mock.call('registering handler module Module1'),
+                unittest.mock.call("adding module event 'testevent'")]
         
         # getInstance:
         with pytest.raises(ValueError):
