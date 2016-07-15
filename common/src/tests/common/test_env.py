@@ -2,10 +2,7 @@
 
 import unittest, pytest
 import unittest.mock
-#import os
 from gosa.common.env import *
-#from sqlalchemy.engine import Engine
-#from sqlalchemy.orm.session import Session
 
 class EnvTestCase(unittest.TestCase):
     @unittest.mock.patch("gosa.common.env.sessionmaker")
