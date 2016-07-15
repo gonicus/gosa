@@ -7,7 +7,6 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import pytest
 from gosa.common.components import PluginRegistry
 from tests.GosaTestCase import GosaTestCase, slow
 from gosa.backend.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLException
@@ -29,7 +28,6 @@ class ACLResolverTestCase(GosaTestCase):
         self.resolver.clear()
         self.ldap_base = self.resolver.base
 
-    @pytest.mark.skip()
     def test_simple_exported_command(self):
 
         # Ensure that we've got the right permissions to perform this tests.
@@ -50,44 +48,44 @@ class ACLResolverTestCase(GosaTestCase):
         self.resolver.addACLRole('acl_tester', 'rolle2')
         self.resolver.addACLToRole('acl_tester', 'rolle2', 0, None, None, 'rolle1')
 
-        # Now use the role 'rolle1' and check if it is resolved correclty
-        lid = self.resolver.addACL('acl_tester', 'dc=gonicus,dc=de', 0, ['peter'], None, None, 'rolle2')
-        self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
-                        "Resolving acl-roles using the exported gosa.agent commands does not work! The user should be able to read, but he cannot!")
+        # Now use the role 'rolle1' and check if it is resolved correctly
+        lid = self.resolver.addACL('acl_tester', 'dc=example,dc=net', 0, ['peter'], None, None, 'rolle2')
+        self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=example,dc=net'),
+                        "Resolving acl-roles using the exported gosa.backend commands does not work! The user should be able to read, but he cannot!")
 
         # Set the currently added acl-rule to a non-role based acl and defined some actions
         self.resolver.updateACL('acl_tester', lid, members=['peter', 'cajus'], actions=[{'topic': 'com.*', 'acls': 'rwcds'}], scope='sub')
-        self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
-                        "Resolving acl-roles using the exported gosa.agent commands does not work! The user should be able to read, but he cannot!")
+        self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=example,dc=net'),
+                        "Resolving acl-roles using the exported gosa.backend commands does not work! The user should be able to read, but he cannot!")
 
         self.resolver.updateACL('acl_tester', lid, actions=[{'topic': 'com.nope', 'acls': 'rwcds'}])
-        self.assertFalse(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
-                         "Resolving acl-roles using the exported gosa.agent commands does not work! The user should not be able to read, but he can!")
+        self.assertFalse(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=example,dc=net'),
+                         "Resolving acl-roles using the exported gosa.backend commands does not work! The user should not be able to read, but he can!")
 
         # Drop the actions and fall back to use a role.
         self.resolver.updateACL('acl_tester', lid, rolename='rolle2')
-        self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
-                        "Resolving acl-roles using the exported gosa.agent commands does not work! The user should be able to read, but he cannot!")
+        self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=example,dc=net'),
+                        "Resolving acl-roles using the exported gosa.backend commands does not work! The user should be able to read, but he cannot!")
 
         # -----------------
 
         # Now update the role-acl 1 to use another role.
         self.resolver.addACLRole('acl_tester', 'dummy')
         self.resolver.updateACLRole('acl_tester', 2, use_role='dummy')
-        self.assertFalse(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
-                         "Resolving acl-roles using the exported gosa.agent commands does not work! The user should not be able to read, but he can!")
+        self.assertFalse(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=example,dc=net'),
+                         "Resolving acl-roles using the exported gosa.backend commands does not work! The user should not be able to read, but he can!")
 
         # Now switch back to an action-based acl.
         self.resolver.updateACLRole('acl_tester', 2, actions=[{'topic': 'com.wurstpelle.de', 'acls': 'rwcds'}], scope='sub')
-        self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
-                        "Resolving acl-roles using the exported gosa.agent commands does not work! The user should be able to read, but he cannot!")
+        self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=example,dc=net'),
+                        "Resolving acl-roles using the exported gosa.backend commands does not work! The user should be able to read, but he cannot!")
 
         #------------------
 
         # Now remove the role-acl with id 1 from the resolver.
         self.resolver.removeRoleACL('acl_tester', 2)
-        self.assertFalse(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
-                         "Resolving acl-roles using the exported gosa.agent commands does not work! The user should not be able to read, but he can!")
+        self.assertFalse(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=example,dc=net'),
+                         "Resolving acl-roles using the exported gosa.backend commands does not work! The user should not be able to read, but he can!")
 
         # -----------------
 
@@ -110,7 +108,7 @@ class ACLResolverTestCase(GosaTestCase):
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(role='role1')
-        acl.set_members([u'tester1'])
+        acl.set_members(['tester1'])
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
 
@@ -139,7 +137,7 @@ class ACLResolverTestCase(GosaTestCase):
         # Create acls with scope SUB
         aclset = ACLSet()
         acl = ACL(scope=ACL.SUB)
-        acl.set_members([u'tester1', u'tester2'])
+        acl.set_members(['tester1', 'tester2'])
         acl.add_action('org.gosa.factory', 'rwx')
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
@@ -180,7 +178,7 @@ class ACLResolverTestCase(GosaTestCase):
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(role='role1')
-        acl.set_members([u'tester1'])
+        acl.set_members(['tester1'])
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
 
@@ -192,14 +190,14 @@ class ACLResolverTestCase(GosaTestCase):
         """
         checks if wildcards/regular expressions can be used for ACL member names
         i.e. to match all users starting with 'gosa_' and ending with '_test'
-            acl.set_members([u'^gosa_.*_test$'])
+            acl.set_members(['^gosa_.*_test$'])
         """
 
         # Create acls with wildcard # in actions
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
-        acl.set_members([u'^gosa_.*_test$'])
+        acl.set_members(['^gosa_.*_test$'])
         acl.add_action('org.gosa.factory', 'rwx')
         acl.set_priority(100)
         aclset.add(acl)
@@ -217,52 +215,32 @@ class ACLResolverTestCase(GosaTestCase):
         self.assertFalse(self.resolver.check('gosa_test_testWrong', 'org.gosa.factory', 'r', base=base),
                          "Wildcards in ACL members are not resolved correctly! The was able to read, but he shouldn't!")
 
-    @pytest.mark.skip()
     def test_action_wildcards(self):
         """
         This test checks if ACLs containing wildcard actions are processed correctly.
         e.g.    To match all actions for 'com.' that ends with '.factory'
-                acl.add_action('com.#.factory', 'rwx')
+                acl.add_action('com\..*\.factory', 'rwx')
         """
-
-        # Create acls with wildcard # in actions
-        base = self.ldap_base
-        aclset = ACLSet(base)
-        acl = ACL(scope=ACL.ONE)
-        acl.set_members([u'tester1'])
-        acl.add_action('com.#.factory', 'rwx')
-        acl.set_priority(100)
-        aclset.add(acl)
-        self.resolver.add_acl_set(aclset)
-
-        # Check the permissions to be sure that they are set correctly
-        self.assertTrue(self.resolver.check('tester1', 'org.gosa.factory', 'r', base=base),
-                        "Wildcards (#) in actions are not resolved correctly! The user should be able to read, but he cannot!")
-        self.assertTrue(self.resolver.check('tester1', 'com.gonicus.factory', 'r', base=base),
-                        "Wildcards (#) in actions are not resolved correctly! The user should be able to read, but he cannot!")
-        self.assertFalse(self.resolver.check('tester1_wrong', 'org.gosa.factory', 'r', base=base),
-                         "Wildcards (#) in actions are not resolved correctly! The user should not be able to read, but he can!")
-
-        # Clear created ACL defintions
-        self.resolver.clear()
 
         # Create acls with wildcard * in actions
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
-        acl.set_members([u'tester1'])
-        acl.add_action('com.*.factory', 'rwx')
+        acl.set_members(['tester1'])
+        acl.add_action('com\..*\.factory', 'rwx')
         acl.set_priority(100)
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
 
         # Check the permissions to be sure that they are set correctly
-        self.assertTrue(self.resolver.check('tester1', 'org.gosa.factory', 'r', base=base),
+        self.assertTrue(self.resolver.check('tester1', 'com.gosa.factory', 'r', base=base),
                         "Wildcards (*) in actions are not resolved correctly! The user should be able to read, but he cannot!")
+        self.assertFalse(self.resolver.check('tester1', 'comgosa.factory', 'r', base=base),
+                         "Wildcards (#) in actions are not resolved correctly! The user should be able to read, but he cannot!")
         self.assertTrue(self.resolver.check('tester1', 'com.gonicus.factory', 'r', base=base),
                         "Wildcards (*) in actions are not resolved correctly! The user should be able to read, but he cannot!")
-        self.assertTrue(self.resolver.check('tester1_wrong', 'org.gosa.factory', 'r', base=base),
-                        "Wildcards (*) in actions are not resolved correctly! The user should be able to read, but he cannot!")
+        self.assertFalse(self.resolver.check('tester1_wrong', 'org.gosa.factory', 'r', base=base),
+                        "Wildcards (*) in actions are not resolved correctly! The user should be not able to read, but he can!")
 
     def test_roles(self):
         """
@@ -280,7 +258,7 @@ class ACLResolverTestCase(GosaTestCase):
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(role='role1')
-        acl.set_members([u'tester1'])
+        acl.set_members(['tester1'])
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
 
@@ -288,14 +266,13 @@ class ACLResolverTestCase(GosaTestCase):
         self.assertTrue(self.resolver.check('tester1', 'org.gosa.factory', 'r', base=base),
                         "ACLRoles are not resolved correctly! The user should be able to read, but he cannot!")
 
-    @pytest.mark.skip()
     def test_role_recursion(self):
         """
         This test checks if ACLRoles that contain ACLRoles are resolved correctly.
         e.g.
-        ACLSet -> Acl -> points to role1
-                         role1 -> AclRoleEntry -> points to role 2
-                                                  role 2 contains the effective acls.
+        ACLSet -> Acl -> points to role2
+                         role1 -> AclRoleEntry -> points to role 1
+                                                  role 1 contains the effective acls.
         """
 
         # Create an ACLRole
@@ -315,9 +292,10 @@ class ACLResolverTestCase(GosaTestCase):
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(role='role2')
-        acl.set_members([u'tester1'])
+        acl.set_members(['tester1'])
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
+        print(aclset)
 
         # Check the permissions to be sure that they are set correctly
         self.assertTrue(self.resolver.check('tester1', 'org.gosa.factory', 'r',
@@ -333,7 +311,7 @@ class ACLResolverTestCase(GosaTestCase):
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
-        acl.set_members([u'tester1'])
+        acl.set_members(['tester1'])
         acl.add_action('org.gosa.factory', 'rwx')
         acl.set_priority(100)
         aclset.add(acl)
@@ -345,7 +323,7 @@ class ACLResolverTestCase(GosaTestCase):
 
         # Now add the RESET acl
         acl = ACL(scope=ACL.RESET)
-        acl.set_members([u'tester1'])
+        acl.set_members(['tester1'])
         acl.add_action('org.gosa.factory', 'rwx')
         acl.set_priority(99)
         aclset.add(acl)
@@ -363,7 +341,7 @@ class ACLResolverTestCase(GosaTestCase):
         base = "dc=a," + self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.SUB)
-        acl.set_members([u'tester1'])
+        acl.set_members(['tester1'])
         acl.add_action('org.gosa.factory', 'rwx')
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
@@ -394,7 +372,7 @@ class ACLResolverTestCase(GosaTestCase):
         base = "dc=b,dc=a," + self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.RESET)
-        acl.set_members([u'tester1'])
+        acl.set_members(['tester1'])
         acl.add_action('org.gosa.factory', 'rwx')
         aclset.add(acl)
 
@@ -428,7 +406,7 @@ class ACLResolverTestCase(GosaTestCase):
         base = "dc=a," + self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.SUB)
-        acl.set_members([u'tester1'])
+        acl.set_members(['tester1'])
         acl.add_action('org.gosa.factory', 'rwx')
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
@@ -471,7 +449,7 @@ class ACLResolverTestCase(GosaTestCase):
         base = "dc=a," + self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
-        acl.set_members([u'tester1'])
+        acl.set_members(['tester1'])
         acl.add_action('org.gosa.factory', 'rwx')
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)

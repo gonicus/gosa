@@ -113,7 +113,7 @@ class ACLSet(list):
         # If no base is given use the default one.
         self.base = base or self.env.base
 
-    def get_base(self):
+    def get_base(self):  # pragma: nocover
         """
         Returns the base for this ACLSet.
         """
@@ -604,7 +604,7 @@ class ACL(object):
          * e - Receive event
 
         The actions have to passed as a string, which contains all actions at once::
-            >>> add_action(``topic``, "rwcdm", ``options``)
+            >>> add_action(repr('topic'), "rwcdm", repr('options'))
 
         .. _options_description:
 
@@ -708,7 +708,7 @@ class ACL(object):
         options         Special additional options that have to be checked.
         skip_user_check Skips checks for users, this is required to resolve roles.
         used_roles      A list of roles used in this recursion, to be able to check for endless-recursions.
-        override_users  If an acl ises a role, then the original user list will be passed to the roles-match method
+        override_users  If an acl uses a role, then the original user list will be passed to the roles-match method
                         to ensure that we can match for the correct list of users.
         targetBase      To object that was initially checked for (DN)
         =============== =============
@@ -722,7 +722,7 @@ class ACL(object):
 
             # Roles do not have users themselves, so we need to check
             # for the original set of users.
-            override_users = self.members
+            override_users = override_users + self.members if override_users else self.members
 
             # Check for recursions while resolving the acls.
             if self.role in used_roles:
@@ -2044,7 +2044,7 @@ class ACLResolver(Plugin):
             raise ACLException(C.make_error("ATTRIBUTE_INVALID", "priority", int.__name__))
 
         # Check for priority
-        if priority is not None and priority < -100 or priority > 100:
+        if priority is not None and (priority < -100 or priority > 100):
             raise ACLException(C.make_error('ACL_PRIORITY_INVALID'))
 
         # We cannot set a role and actions.
