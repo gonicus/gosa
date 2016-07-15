@@ -8,6 +8,7 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 from unittest import mock
+import datetime
 from tests.GosaTestCase import *
 from gosa.backend.objects.backend.back_object import *
 
@@ -24,7 +25,13 @@ class ObjectBackendTestCase(GosaTestCase):
     def test_load(self):
         super(ObjectBackendTestCase, self).setUp()
         res = self.back.load('78475884-c7f2-1035-8262-f535be14d43a',
-                             {'groupMembership': 'String'},
+                             {
+                                 'groupMembership': {
+                                     'value': ['freich'],
+                                     'type': 'String',
+                                     'orig': ['freich']
+                                 }
+                             },
                              {'groupMembership': 'PosixGroup:cn,memberUid=uid'})
 
         assert 'groupMembership' in res
@@ -57,18 +64,69 @@ class ObjectBackendTestCase(GosaTestCase):
             m.assert_called_with('uuid', 'data', 'params')
 
     # TODO: must be completed
-    # @slow
-    # def test_update(self):
-    #     super(ObjectBackendTestCase, self).setUp()
-    #
-    #     with pytest.raises(BackendError):
-    #         self.back.update('78475884-c7f2-1035-8262-f535be14d43a',
-    #                                {'groupMembership': 'String'},
-    #                                {})
-    #
-    #     res = self.back.update('78475884-c7f2-1035-8262-f535be14d43a',
-    #                          {'groupMembership': 'String'},
-    #                          {'groupMembership': 'PosixGroup:cn,memberUid=uid'})
-    #     print(res)
-    #     assert False
-    #     super(ObjectBackendTestCase, self).tearDown()
+    @slow
+    def test_update(self):
+        super(ObjectBackendTestCase, self).setUp()
+
+        with pytest.raises(BackendError):
+            self.back.update('78475884-c7f2-1035-8262-f535be14d43a',
+                                   {'groupMembership': 'String'},
+                                   {})
+        with pytest.raises(BackendError):
+            # wrong uuid
+            self.back.update('78475884-c7f2-1035-8262-f535be14d43b',
+                                   {
+                                       'groupMembership': {
+                                           'value': ['freich'],
+                                           'type': 'String',
+                                           'orig': ['freich']
+                                       }
+                                   },
+                                   {'groupMembership': 'PosixGroup:cn,memberUid=uid'})
+        with pytest.raises(EntryNotFound):
+            # wrong group
+            self.back.update('78475884-c7f2-1035-8262-f535be14d43a',
+                             {
+                                 'groupMembership': {
+                                     'value': ['unknown'],
+                                     'type': 'String',
+                                     'orig': ['freich']
+                                 }
+                             },
+                             {'groupMembership': 'PosixGroup:cn,memberUid=uid'})
+
+        with mock.patch("gosa.backend.objects.backend.back_object.ObjectProxy") as m:
+            self.back.update('78475884-c7f2-1035-8262-f535be14d43a',
+                                 {
+                                     'groupMembership': {
+                                         'value': ['freich'],
+                                         'type': 'String',
+                                         'orig': ['freich']
+                                     }
+                                 },
+                                 {'groupMembership': 'PosixGroup:cn,memberUid=uid'})
+            assert m.return_value.commit.called
+
+            # fake the index search for groups
+            mocked_index = mock.MagicMock()
+            real_index = PluginRegistry.getInstance('ObjectIndex')
+
+            def search(query, attrs):
+                if '_type' in query and 'cn' in query:
+                    return [{'dn': 'cn=freich,ou=groups,dc=example,dc=net'}]
+                else:
+                    return real_index.search(query, attrs)
+            mocked_index.search.side_effect = search
+            with mock.patch.dict("gosa.backend.objects.proxy.PluginRegistry.modules", {'ObjectIndex': mocked_index}):
+                self.back.update('78475884-c7f2-1035-8262-f535be14d43a',
+                                 {
+                                     'groupMembership': {
+                                         'value': ['new', 'add'],
+                                         'type': 'String',
+                                         'orig': ['freich', 'remove']
+                                     }
+                                 },
+                                 {'groupMembership': 'PosixGroup:cn,memberUid=uid'})
+                assert m.return_value.commit.called
+
+        super(ObjectBackendTestCase, self).tearDown()

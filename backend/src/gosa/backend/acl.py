@@ -471,7 +471,7 @@ class ACL(object):
 
         """
         if not isinstance(rolename, str):
-            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "rolename", str.__name__))
+            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "rolename", type=str.__name__))
 
         r = PluginRegistry.getInstance("ACLResolver")
         if rolename in r.acl_roles:
@@ -544,7 +544,7 @@ class ACL(object):
 
         """
         if type(members) != list:
-            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "members", list.__name__))
+            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "members", type=list.__name__))
 
         self.members = members
 
@@ -604,7 +604,7 @@ class ACL(object):
          * e - Receive event
 
         The actions have to passed as a string, which contains all actions at once::
-            >>> add_action(``topic``, "rwcdm", ``options``)
+            >>> add_action(repr('topic'), "rwcdm", repr('options'))
 
         .. _options_description:
 
@@ -624,7 +624,7 @@ class ACL(object):
         """
 
         if options and type(options) != dict:
-            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "options", dict.__name__))
+            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "options", type=dict.__name__))
 
         if self.uses_role and self.role:
             raise ACLException(C.make_error("ACL_TYPE_MISMATCH"))
@@ -708,7 +708,7 @@ class ACL(object):
         options         Special additional options that have to be checked.
         skip_user_check Skips checks for users, this is required to resolve roles.
         used_roles      A list of roles used in this recursion, to be able to check for endless-recursions.
-        override_users  If an acl ises a role, then the original user list will be passed to the roles-match method
+        override_users  If an acl uses a role, then the original user list will be passed to the roles-match method
                         to ensure that we can match for the correct list of users.
         targetBase      To object that was initially checked for (DN)
         =============== =============
@@ -722,7 +722,7 @@ class ACL(object):
 
             # Roles do not have users themselves, so we need to check
             # for the original set of users.
-            override_users = self.members
+            override_users = override_users + self.members if override_users else self.members
 
             # Check for recursions while resolving the acls.
             if self.role in used_roles:
@@ -900,7 +900,7 @@ class ACLResolver(Plugin):
             if 'options' not in action:
                 action['options'] = {}
             if type(action['options']) != dict:
-                raise ACLException(C.make_error("ATTRIBUTE_INVALID", "options", dict.__name__))
+                raise ACLException(C.make_error("ATTRIBUTE_INVALID", "options", type=dict.__name__))
             if len(set(action['acls']) - set("rwcdmxose")) != 0:
                 raise ACLException(C.make_error("ACL_STRING_INVALID"))
 
@@ -1152,7 +1152,7 @@ class ACLResolver(Plugin):
         """
 
         if type(acl) != ACLRoleEntry:
-            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "acl", type(acl).__name__))
+            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "acl", type=type(acl).__name__))
 
         if rolename not in self.acl_roles:
             raise ACLException(C.make_error("ROLE_NOT_FOUND", role=rolename))
@@ -1294,7 +1294,7 @@ class ACLResolver(Plugin):
         """
 
         if not isinstance(rolename, str):
-            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "rolename", str.__name__))
+            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "rolename", type=str.__name__))
 
         for aclset in self.acl_sets:
             if self.__is_role_used(aclset, rolename):
@@ -1384,7 +1384,7 @@ class ACLResolver(Plugin):
 
         # Check if we've got a valid name type.
         if not isinstance(name, str):
-            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "name", str.__name__))
+            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "name", type=str.__name__))
 
         # Check if such a role-name exists and then try to remove it.
         if name in self.acl_roles:
@@ -1408,7 +1408,7 @@ class ACLResolver(Plugin):
         ============== =============
         """
         if type(acl) != ACL:
-            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "acl", ACL.__name__))
+            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "acl", type=ACL.__name__))
 
         for aclset in self.acl_sets:
             if aclset.base == base:
@@ -1722,7 +1722,7 @@ class ACLResolver(Plugin):
 
         # Validate the priority
         if type(priority) != int:
-            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "priority", int.__name__))
+            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "priority", type=int.__name__))
 
         if priority < -100 or priority > 100:
             raise ACLException(C.make_error('ACL_PRIORITY_INVALID'))
@@ -1730,7 +1730,7 @@ class ACLResolver(Plugin):
         # Validate given actions
         if actions:
             if type(actions) != list:
-                raise ACLException(C.make_error("ATTRIBUTE_INVALID", "actions", list.__name__))
+                raise ACLException(C.make_error("ATTRIBUTE_INVALID", "actions", type=list.__name__))
             else:
                 self.__check_actions(actions)
 
@@ -1804,7 +1804,7 @@ class ACLResolver(Plugin):
 
         if actions:
             if type(actions) != list:
-                raise ACLException(C.make_error("ATTRIBUTE_INVALID", "actions", list.__name__))
+                raise ACLException(C.make_error("ATTRIBUTE_INVALID", "actions", type=list.__name__))
             else:
                 self.__check_actions(actions)
 
@@ -1915,7 +1915,7 @@ class ACLResolver(Plugin):
 
         # Validate the rolename
         if not isinstance(rolename, str) or len(rolename) <= 0:
-            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "rolename", str.__name__))
+            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "rolename", type=str.__name__))
 
         # Check if rolename exists
         if rolename in self.acl_roles:
@@ -1963,7 +1963,7 @@ class ACLResolver(Plugin):
 
         # Validate the priority
         if type(priority) != int:
-            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "priority", int.__name__))
+            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "priority", type=int.__name__))
 
         if priority < -100 or priority > 100:
             raise ACLException(C.make_error("ACL_PRIORITY_INVALID"))
@@ -1979,7 +1979,7 @@ class ACLResolver(Plugin):
             scope_int = acl_scope_map[scope]
 
             if type(actions) != list:
-                raise ACLException(C.make_error("ATTRIBUTE_INVALID", "actions", list.__name__))
+                raise ACLException(C.make_error("ATTRIBUTE_INVALID", "actions", type=list.__name__))
             else:
                 self.__check_actions(actions)
 
@@ -2041,10 +2041,10 @@ class ACLResolver(Plugin):
 
         # Validate the priority
         if priority is not None and type(priority) != int:
-            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "priority", int.__name__))
+            raise ACLException(C.make_error("ATTRIBUTE_INVALID", "priority", type=int.__name__))
 
         # Check for priority
-        if priority is not None and priority < -100 or priority > 100:
+        if priority is not None and (priority < -100 or priority > 100):
             raise ACLException(C.make_error('ACL_PRIORITY_INVALID'))
 
         # We cannot set a role and actions.
@@ -2064,7 +2064,7 @@ class ACLResolver(Plugin):
         # Validate the given actions
         if actions:
             if type(actions) != list:
-                raise ACLException(C.make_error("ATTRIBUTE_INVALID", "actions", list.__name__))
+                raise ACLException(C.make_error("ATTRIBUTE_INVALID", "actions", type=list.__name__))
             else:
                 self.__check_actions(actions)
 
