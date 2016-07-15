@@ -6,11 +6,223 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
+from unittest import mock
+import pytest
 from gosa.common.components import PluginRegistry
 from tests.GosaTestCase import GosaTestCase, slow
 from gosa.backend.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLException
 from gosa.common import Environment
+
+
+@slow
+class ACLSetTestCase(GosaTestCase):
+
+    def setUp(self):
+        super(ACLSetTestCase, self).setUp()
+        self.resolver = PluginRegistry.getInstance("ACLResolver")
+        self.resolver.clear()
+        self.set = ACLSet()
+
+    def test_get_base(self):
+        assert self.set.get_base() == "dc=example,dc=net"
+
+        test = ACLSet('test_base')
+        assert test.get_base() == "test_base"
+
+    def test_remove_acls_for_user(self):
+        acl = ACL(scope=ACL.ONE)
+        acl.set_members(['tester1', 'tester2'])
+
+        # "[^\.]*" means everything one level
+        acl.add_action('^org\.gosa\.event\.[^\.]*$', 'rwx')
+        acl.set_priority(100)
+        self.set.add(acl)
+
+        self.set.remove_acls_for_user('tester1')
+
+        assert acl.members == ['tester2']
+
+    def test_remove_acl(self):
+        acl = ACL(scope=ACL.ONE)
+        acl.set_members([u'tester1', u'tester2'])
+        acl.add_action('^org\.gosa\.event\.ClientLeave$', 'rwx')
+        acl.set_priority(100)
+        self.set.add(acl)
+
+        assert len(self.set) == 1
+
+        with pytest.raises(ACLException):
+            self.set.remove_acl('unknown')
+        assert len(self.set) == 1
+
+        self.set.remove_acl(acl)
+        assert len(self.set) == 0
+
+    def test_add(self):
+        with pytest.raises(TypeError):
+            self.set.add("wrong type")
+
+        acl = ACL(scope=ACL.ONE)
+        assert len(self.set) == 0
+        self.set.add(acl)
+        # test auto proprity
+        assert self.set[0].priority == 0
+
+    def test_tostring(self):
+        acl = ACL(scope=ACL.ONE)
+        self.set.add(acl)
+        res = str(self.set)
+        assert res == "<ACLSet: dc=example,dc=net>\n <ACL scope(1)> []: "
+
+
+@slow
+class ACLRoleTestCase(GosaTestCase):
+
+    def setUp(self):
+        super(ACLRoleTestCase, self).setUp()
+        PluginRegistry.getInstance("ACLResolver").clear()
+
+    def test_add(self):
+        role = ACLRole('role1')
+
+        with pytest.raises(TypeError):
+            role.add("wrong type")
+
+        acl = ACLRoleEntry(scope=ACL.ONE)
+        acl.add_action('^org\.gosa\.event\.ClientLeave$', 'rwx')
+        role.add(acl)
+
+        assert len(role) == 1
+        assert role[0] == acl
+
+    def test_get_name(self):
+        assert ACLRole('role1').get_name() == "role1"
+
+    def test_tostring(self):
+        role = ACLRole('role1')
+        acl = ACLRoleEntry(scope=ACL.ONE)
+        role.add(acl)
+        res = str(role)
+        assert res == "<ACLRole: role1>\n <ACL scope(1)> []: "
+
+
+@slow
+class ACLTestCase(GosaTestCase):
+
+    def setUp(self):
+        super(ACLTestCase, self).setUp()
+        PluginRegistry.getInstance("ACLResolver").clear()
+
+    def test_init(self):
+
+        with pytest.raises(TypeError):
+            ACL(scope='wrong scope')
+
+        with pytest.raises(ACLException):
+            # wrong role type
+            ACL(scope=ACL.ONE, role=True)
+
+        with pytest.raises(ACLException):
+            # unknown role
+            ACL(scope=ACL.ONE, role="unknown")
+
+    def test_use_role(self):
+        role = ACLRole('role1')
+        resolver = PluginRegistry.getInstance("ACLResolver")
+        resolver.add_acl_role(role)
+
+        acl = ACL(scope=ACL.ONE)
+
+        with pytest.raises(ACLException):
+            # wrong role type
+            acl.use_role(True)
+
+        with pytest.raises(ACLException):
+            # unknown role
+            acl.use_role("unknown")
+
+        assert acl.uses_role is False
+        acl.use_role("role1")
+        assert acl.uses_role is True
+        assert acl.role == "role1"
+
+    def test_set_scope(self):
+        acl = ACL()
+
+        with pytest.raises(TypeError):
+            # wrong role type
+            acl.set_scope("wrong scope")
+
+        acl.set_scope(ACL.ONE)
+        assert acl.get_scope() == ACL.ONE
+
+        role = ACLRole('role1')
+        resolver = PluginRegistry.getInstance("ACLResolver")
+        resolver.add_acl_role(role)
+        acl.use_role("role1")
+
+        with pytest.raises(ACLException):
+            # when ACL uses role no scope is allowed
+            acl.set_scope(ACL.ONE)
+
+    def test_set_priority(self):
+        acl = ACL(scope=ACL.ONE)
+        assert acl.priority is None
+        acl.set_priority(100)
+        assert acl.priority == 100
+
+    def test_set_members(self):
+        acl = ACL(scope=ACL.ONE)
+        assert acl.get_members() == []
+
+        with pytest.raises(ACLException):
+            # wrong type
+            acl.set_members(True)
+
+        acl.set_members(['test1', 'test2'])
+
+        assert acl.get_members() == ['test1', 'test2']
+
+    def test_add_action(self):
+        acl = ACL(scope=ACL.ONE)
+
+        with pytest.raises(ACLException):
+            # wrong options type
+            acl.add_action('topic', "w", True)
+
+        with pytest.raises(ACLException):
+            # unknown acls
+            acl.add_action('topic', "qx", {})
+
+        role = ACLRole('role1')
+        resolver = PluginRegistry.getInstance("ACLResolver")
+        resolver.add_acl_role(role)
+        acl.use_role("role1")
+
+        with pytest.raises(ACLException):
+            # no actions allowed for role ACLs
+            acl.add_action('topic', "r", {})
+
+        acl = ACL(scope=ACL.ONE)
+        assert len(acl.actions) == 0
+        acl.add_action('topic', "r", {})
+        assert len(acl.actions) == 1
+
+        acl.clear_actions()
+        assert len(acl.actions) == 0
+
+
+@slow
+class ACLRoleEntryTestCase(GosaTestCase):
+
+    def setUp(self):
+        super(ACLRoleEntryTestCase, self).setUp()
+        PluginRegistry.getInstance("ACLResolver").clear()
+
+    def test_set_members(self):
+        entry = ACLRoleEntry()
+        with pytest.raises(ACLException):
+            entry.set_members(['test'])
 
 
 @slow
@@ -27,6 +239,23 @@ class ACLResolverTestCase(GosaTestCase):
         self.resolver = PluginRegistry.getInstance("ACLResolver")
         self.resolver.clear()
         self.ldap_base = self.resolver.base
+
+    def test_member_owner_acls(self):
+        # Ensure that we've got the right permissions to perform this tests.
+        acls = ACLSet()
+        acl = ACL(scope=ACL.SUB)
+        acl.add_action('acl\.manager', 'm')
+        acl.add_action('acl\.owner', 'o')
+        acl.set_members(['acl_tester'])
+        acls.add(acl)
+        self.resolver.add_acl_set(acls)
+
+        # Check the permissions to be sure that they are set correctly
+        self.assertFalse(self.resolver.check('acl_tester', 'acl.manager', 'r', base=self.ldap_base),
+                        "Manager ACLs are not resolved correctly! The user was able to read, but he should not!")
+
+        self.assertFalse(self.resolver.check('acl_tester', 'acl.manager', 'm', base=self.ldap_base),
+                         "Manager ACLs are not resolved correctly! The user was not able to access, but he should!")
 
     def test_simple_exported_command(self):
 
@@ -474,3 +703,33 @@ class ACLResolverTestCase(GosaTestCase):
         base = self.ldap_base
         self.assertFalse(self.resolver.check('tester1', 'org.gosa.factory', 'r', base=base),
                          "ACL scope ONE is not resolved correclty! The user should not be able to read, but he can!")
+
+    def test_getEntryPoints(self):
+        # TODO needs to be completed
+        self.resolver.admins = ['admin']
+        assert self.resolver.getEntryPoints('admin') == [self.resolver.env.base]
+
+        self.resolver.admins = []
+        base = "ou=people," + self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(scope=ACL.ONE)
+        acl.set_members(['admin'])
+        acl.add_action('gosa\.objects\.PeopleContainer', 'rwxs')
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        res = self.resolver.getEntryPoints('admin')
+        assert base in res
+
+    def test_getACLs(self):
+        base = "ou=people," + self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(scope=ACL.ONE)
+        acl.set_members(['admin'])
+        acl.add_action('gosa\.acl', 'r')
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        res = self.resolver.getACLs('admin')
+        print(res)
+        assert False

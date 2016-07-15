@@ -484,12 +484,12 @@ class ACL(object):
         """
         This methods updates the ACLs scope level.
 
-        See :class:`gosa.agent.acl.ACL` for details on the scope-levels.
+        See :class:`gosa.backend.acl.ACL` for details on the scope-levels.
 
         ============== =============
         Key            Description
         ============== =============
-        priority       The new priority value for this ACl.
+        scope          The new scope value for this ACl.
         ============== =============
         """
 
@@ -824,10 +824,10 @@ class ACLRoleEntry(ACL):
     The ``ACLRoleEntry`` object describes a set of actions that can be accessed in a given scope.
     ``ACLRoleEntry`` classes can then be bundled in ``ACLRole`` objects, to build up roles.
 
-    This class inherits most methods from :class:`gosa.agent.acl.ACL`, except for methods that manage members,
+    This class inherits most methods from :class:`gosa.backend.acl.ACL`, except for methods that manage members,
     due to the fact that ACLRoleEntries do not have members!
 
-    Take a look at :class:`gosa.agent.acl.ACLRole` to get an idea about how roles are created.
+    Take a look at :class:`gosa.backend.acl.ACLRole` to get an idea about how roles are created.
 
     """
 
@@ -1470,7 +1470,7 @@ class ACLResolver(Plugin):
             res = self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.dn == aclset.base).one_or_none()
             if not res:
                 raise ACLException(C.make_error("ACL_BASE_ERROR"))
-            base_type = res['_type']
+            base_type = res._type
 
             # Check if this ACL is eventually already covered by a previous sub ACL
             for acl in aclset:
@@ -1586,6 +1586,7 @@ class ACLResolver(Plugin):
 
                 # Check permissions
                 if not self.check(user, '%s.acl' % self.env.domain, 'r', aclset.base):
+                    print("ACCESS DENIED: User: %s, topic: %s.acl, base: %s" % (user, self.env.domain, aclset.base))
                     continue
 
                 for acl in aclset:
