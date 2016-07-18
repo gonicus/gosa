@@ -43,10 +43,10 @@ class EnvTestCase(unittest.TestCase):
         assert e.reset_requested == True
         
         # getDatabaseEngine:
-        dsnames = {"db1.dbs": "db1datasourcename", "db2.dbs": "db2datasourcename"}
-        engines = {"db1datasourcename": unittest.mock.MagicMock(), "db2datasourcename": unittest.mock.MagicMock()}
-        sessions = {engines["db1datasourcename"]: unittest.mock.MagicMock(), engines["db2datasourcename"]: unittest.mock.MagicMock()}
-        def createEngine(dsn):
+        dsnames = {"db1.dbs": "db1datasourcename", "db2.dbs": "db2datasourcename", "db3.dbs": "sqlite:///:memory:"}
+        engines = {"db1datasourcename": unittest.mock.MagicMock(), "db2datasourcename": unittest.mock.MagicMock(), "sqlite:///:memory:": unittest.mock.MagicMock()}
+        sessions = {engines["db1datasourcename"]: unittest.mock.MagicMock(), engines["db2datasourcename"]: unittest.mock.MagicMock(), engines["sqlite:///:memory:"]: unittest.mock.MagicMock()}
+        def createEngine(dsn, *args, **kwargs):
             return engines[dsn]
         createEngineMock.side_effect = createEngine
         def get(index, default=None):
@@ -59,6 +59,7 @@ class EnvTestCase(unittest.TestCase):
         confMock.get.side_effect = get
         
         assert e.getDatabaseEngine("db1", key="dbs") == engines["db1datasourcename"]
+        assert e.getDatabaseEngine("db3", key="dbs") == engines["sqlite:///:memory:"]
         with pytest.raises(Exception):
             e.getDatabaseEngine("notexistant", key="dbs")
         
@@ -70,8 +71,6 @@ class EnvTestCase(unittest.TestCase):
         
         del e
         Environment.reset()
-        
-        Environment.getInstance()
         
         # Note: References of the Environment object may be hold by others.
         # An reset followed by getInstance would lead to multiple instances.

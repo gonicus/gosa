@@ -63,22 +63,18 @@ class CommonUtilsTestCase(unittest.TestCase):
             }
         self.assertEqual(parseURL(url), expected)
         
-        return True
-        # Does the implementation need to handle urls without extra information at all?
-        # Right now it can't.
-        url = """http://hostname.org"""
+        url = """http://peter:secret@hostname.org"""
         expected = {"source": url,
             "scheme": "http",
-            "user": None,
-            "password": None,
+            "user": "peter",
+            "password": "secret",
             "host": "hostname.org",
             "port": 80,
             "path": "rpc",
             "transport": "tcp",
-            "url": "http://hostname.org"
+            "url": "http://peter:secret@hostname.org:80/rpc"
             }
         self.assertEqual(parseURL(url), expected)
-        
         
         url = """https://hostname.org:1234"""
         expected = {"source": url,
@@ -89,7 +85,7 @@ class CommonUtilsTestCase(unittest.TestCase):
             "port": 1234,
             "path": "rpc",
             "transport": "tcp+ssl",
-            "url": "https://hostname.org:1234"
+            "url": "https://None:None@hostname.org:1234/rpc"
             }
         self.assertEqual(parseURL(url), expected)
     
@@ -105,7 +101,7 @@ class CommonUtilsTestCase(unittest.TestCase):
             self.assertTrue(is_uuid(str(uuid.uuid1())))
             self.assertTrue(is_uuid(str(uuid.uuid4())))
     
-    def test_get_timezone_delta_mo(self):
+    def test_get_timezone_delta_mocked(self):
         orig_datetime = datetime.datetime(2016, 7, 1, 10, 16, 36, 163915)
         delta = timedelta(hours=2)
         
@@ -121,32 +117,11 @@ class CommonUtilsTestCase(unittest.TestCase):
     def test_get_timezone_delta(self):
         delta = get_timezone_delta()
         self.assertRegex(delta, """([-+])(\d+):(\d+)$""")
-    
-    def test_locate(self):
-        if not os.path.exists("/usr/bin/notexistanttool"):
-            exe = "notexistanttool"
-            self.assertEqual(locate(exe), None)
-        exe = "cp"
-        self.assertEqual(locate(exe), "/bin/cp")
-        exe = "python"
-        self.assertIn(locate(exe), ("/usr/bin/python", os.path.expandvars("$VIRTUAL_ENV/bin/python")))
-        
-        if not os.path.exists("/usr/bin/notexistanttool"):
-            exe = "/usr/bin/notexistanttool"
-            self.assertEqual(locate(exe), None)
-        exe = "/bin/cp"
-        self.assertEqual(locate(exe), "/bin/cp")
-        
-        exe = "/bin"
-        self.assertEqual(locate(exe), None)
-        
-        # Untested condition: There is a not executable file given.
-        # Is there any non-executeable file that is present on any unix/linux system?
-    
+
     @unittest.mock.patch("os.pathsep", ":")
     @unittest.mock.patch.object(os, "access")
     @unittest.mock.patch.object(os.path, "isfile")
-    def test_locate2(self, isfileMock, accessMock):
+    def test_locate(self, isfileMock, accessMock):
         def isfile(path):
             if path in ("/usr/bin/existanttool", "/bin/existanttool"):
                 return True
