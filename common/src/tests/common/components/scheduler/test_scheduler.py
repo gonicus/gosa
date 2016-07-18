@@ -41,11 +41,9 @@ class SchedulerTestCase(unittest.TestCase):
         s = Scheduler()
         s.shutdown() # Does nothing
         
-        
         gconfig = {"gosa.common.components.scheduler.jobstore.jobstoredefault.class": "gosa.common.components.scheduler.jobstores.ram_store:RAMJobStore"}
         options = {}
         
-        config = combine_opts(gconfig, 'gosa.common.components.scheduler.', options)
         s.configure(gconfig=gconfig)
         s.start()
         
@@ -195,7 +193,9 @@ class SchedulerTestCase(unittest.TestCase):
     @unittest.mock.patch("gosa.common.components.scheduler.scheduler.logger")
     def test_date_jobs_mocked(self, loggerMock):
         with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+            listener = unittest.mock.MagicMock()
             s = Scheduler()
+            s.add_listener(listener, mask=EVENT_JOB_EXECUTED)
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
             s.add_jobstore(RAMJobStore(), "ram1")
             s.start()
@@ -205,6 +205,7 @@ class SchedulerTestCase(unittest.TestCase):
             loggerMock.debug.call_args[-2:-1] == [unittest.mock.call("running job \"%s\" (scheduled at %s)" % (job, datetime.datetime.now())),
                     unittest.mock.call("job \"%s\" executed successfully" % job)]
             s.shutdown()
+            assert listener.call_count == 1
     
     def test_decorators(self):
         s = Scheduler()
@@ -237,3 +238,60 @@ class SchedulerTestCase(unittest.TestCase):
             
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 13)
             s.shutdown()
+
+    def test_callback(self):
+        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+            s = Scheduler()
+            datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
+            def dummy(): pass
+            callback = unittest.mock.MagicMock()
+            s.add_job(SimpleTrigger("2016-12-12"), dummy, (), {}, callback=callback)
+            s.start()
+            while s.get_jobs(): pass
+            s.shutdown()
+            assert callback.call_count
+
+    def test_missed_job(self):
+        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+            listener = unittest.mock.MagicMock()
+            s = Scheduler()
+            s.add_listener(listener, mask=EVENT_JOB_MISSED)
+            datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
+            def dummy(): pass
+            s.add_job(SimpleTrigger("2016-12-13"), dummy, (), {})
+            s.start()
+            datetimeMock.now.return_value = datetime.datetime(2016, 12, 15)
+            s.refresh()
+            while s.get_jobs(): pass
+            s.shutdown()
+            assert listener.call_count == 1
+
+    def test_max_instances(self):
+        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+            listener = unittest.mock.MagicMock()
+            s = Scheduler()
+            s.add_listener(listener, mask=EVENT_JOB_MISSED)
+            datetimeMock.now.return_value = datetime.datetime(2016, 12, 11)
+            def dummy(): pass
+            s.add_job(SimpleTrigger("2016-12-12"), dummy, (), {})
+            s.start()
+            s.get_jobs()[0].max_instances = 0
+            datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
+            s.refresh()
+            while s.get_jobs(): pass
+            s.shutdown()
+            assert listener.call_count == 1
+
+    def test_job_failure(self):
+        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+            listener = unittest.mock.MagicMock()
+            s = Scheduler()
+            s.add_listener(listener, mask=EVENT_JOB_ERROR)
+            datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
+            def dummy():
+                raise Exception
+            s.add_job(SimpleTrigger("2016-12-12"), dummy, (), {})
+            s.start()
+            while s.get_jobs(): pass
+            s.shutdown()
+            assert listener.call_count == 1
