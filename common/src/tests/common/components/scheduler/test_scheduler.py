@@ -295,3 +295,13 @@ class SchedulerTestCase(unittest.TestCase):
             while s.get_jobs(): pass
             s.shutdown()
             assert listener.call_count == 1
+
+    def test_multiple_jobs(self):
+        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+            s = Scheduler()
+            datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
+            def dummy(): pass
+            s.add_job(SimpleTrigger("2016-12-13"), dummy, (), {})
+            s.add_job(SimpleTrigger("2016-12-14"), dummy, (), {})
+            s.start()
+            s.shutdown()
