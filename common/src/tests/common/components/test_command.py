@@ -12,5 +12,3 @@ class CommandTestCase(unittest.TestCase):
     def test_command2(self):
         """Docs"""
         pass
-    
-    # agent and client terms still in use in command.py

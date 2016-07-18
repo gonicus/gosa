@@ -60,7 +60,7 @@ def Command(**d_kwargs):
             name = getattr(f, '__name__')
             try:
                 hlp = getattr(f, '__help__')
-                setattr(f, '__doc__', ".. command:: agent %s\n\n    %s\n\n.. note::\n    **This method will be exported by the CommandRegistry.**\n\n%s" % (name, hlp, "\n".join(lines)))
+                setattr(f, '__doc__', ".. command:: backend %s\n\n    %s\n\n.. note::\n    **This method will be exported by the CommandRegistry.**\n\n%s" % (name, hlp, "\n".join(lines)))
             except AttributeError:
                 setattr(f, '__doc__', ".. command:: client %s\n\n    %s\n\n..  note::\n    **This method will be exported by the CommandRegistry.**\n\n%s" % (name, "\n%s" % doc, "\n".join(lines)))
 
