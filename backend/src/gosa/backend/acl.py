@@ -981,6 +981,7 @@ class ACLResolver(Plugin):
         """
         self.acl_sets = []
         self.acl_roles = {}
+        self.next_acl_id = 0
 
     def serve(self):
         """

@@ -25,7 +25,6 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
 
     def setUp(self):
         super(JsonRpcHandlerTestCase, self).setUp()
-        self.registry = PluginRegistry()
 
         self.mocked_resolver = unittest.mock.MagicMock()
         self.mocked_resolver.return_value.check.return_value = True
@@ -38,8 +37,6 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
     def tearDown(self):
         super(JsonRpcHandlerTestCase, self).tearDown()
         self.patcher.stop()
-        PluginRegistry.getInstance('HTTPService').srv.stop()
-        self.registry.shutdown()
 
     def _update_cookies(self, headers):
         try:
