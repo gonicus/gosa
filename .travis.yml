@@ -22,7 +22,7 @@ before_install:
 
 script:
     - cd plugins/gui/frontend/gosa/
-    - python2 generate.py build
+    - python2 generate.py -sI build
     - cd ../../../../
     - ./setup.py develop
     - ./setup.py test --addopts="--runslow"
