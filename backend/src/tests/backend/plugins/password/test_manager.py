@@ -22,7 +22,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
 
         # the hash methods from the crypt module must be available
         for method in crypt.methods:
-            assert method in res
+            assert method.name in res
 
     def test_detect_method_by_hash(self):
         assert self.obj.detect_method_by_hash("{UNKNOWN}$0$md") is None
@@ -207,7 +207,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
         with unittest.mock.patch('gosa.backend.plugins.password.manager.ObjectProxy', autoSpec=True, create=True) as m:
             # run the test
             user = m.return_value
-            self.obj.setUserPasswordMethod("Test", "dn", crypt.METHOD_MD5, "pwd")
+            self.obj.setUserPasswordMethod("Test", "dn", "MD5", "pwd")
             assert user.userPassword
             assert user.commit.called
 
@@ -233,7 +233,7 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
             with pytest.raises(PasswordException):
                 self.obj.setUserPassword("Test", "dn", "pwd")
 
-            user.passwordMethod = crypt.METHOD_MD5
+            user.passwordMethod = "MD5"
             self.obj.setUserPassword("Test", "dn", "pwd")
             assert user.userPassword
             assert user.commit.called

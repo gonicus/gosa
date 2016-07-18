@@ -61,16 +61,16 @@ class PasswordMethodCrypt(PasswordMethod):
 
         password_hash = re.sub('^{[^}]+}!?', '', password_hash)
         if re.match(r'^[a-zA-Z0-9.\\/][a-zA-Z0-9.\\/]', password_hash):
-            return crypt.METHOD_CRYPT
+            return crypt.METHOD_CRYPT.name
 
         if re.match(r'^\$5\$', password_hash):
-            return crypt.METHOD_SHA256
+            return crypt.METHOD_SHA256.name
 
         if re.match(r'^\$6\$', password_hash):
-            return crypt.METHOD_SHA512
+            return crypt.METHOD_SHA512.name
 
         if re.match(r'^\$1\$', password_hash):
-            return crypt.METHOD_MD5
+            return crypt.METHOD_MD5.name
 
         return None
 
@@ -96,10 +96,10 @@ class PasswordMethodCrypt(PasswordMethod):
         """
         See PasswordMethod Interface for details
         """
-        return crypt.methods
+        return [method.name for method in crypt.methods]
 
     def generate_password_hash(self, new_password, method=None):
         """
         See PasswordMethod Interface for details
         """
-        return "{%s}%s" % (self.hash_name, crypt.crypt(new_password, crypt.mksalt(method)))
+        return "{%s}%s" % (self.hash_name, crypt.crypt(new_password, crypt.mksalt(getattr(crypt, "METHOD_" + method) if method else None)))

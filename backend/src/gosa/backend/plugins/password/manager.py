@@ -252,7 +252,7 @@ class PasswordManager(Plugin):
         """
         Returns a list of all available password methods
         """
-        return self.list_methods().keys()
+        return list(self.list_methods().keys())
 
     def detect_method_by_hash(self, hash_value):
         """
@@ -290,6 +290,7 @@ class PasswordManager(Plugin):
 
                 for name in names:
                     methods[name] = module
+
             PasswordManager.methods = methods
 
         return PasswordManager.methods
