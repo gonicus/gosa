@@ -13,6 +13,7 @@ and related exceptions.
 """
 
 from threading import Thread, Event, Lock
+from concurrent.futures import ThreadPoolExecutor as ThreadPool
 from logging import getLogger
 import datetime
 import os
@@ -24,7 +25,6 @@ from gosa.common.components.scheduler.triggers import SimpleTrigger, IntervalTri
 from gosa.common.components.scheduler.jobstores.ram_store import RAMJobStore
 from gosa.common.components.scheduler.job import Job, MaxInstancesReachedError, JOB_RUNNING, JOB_ERROR, JOB_DONE
 from gosa.common.components.scheduler.events import *
-from gosa.common.components.scheduler.threadpool import ThreadPool
 
 logger = getLogger(__name__)
 
