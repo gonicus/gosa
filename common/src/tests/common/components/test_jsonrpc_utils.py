@@ -54,21 +54,6 @@ class JSONRPCUtilsTestCase(unittest.TestCase):
         encoded = BinaryHandler.encode(b)
         assert encoded == {'object': b.encode(), '__jsonclass__': 'json.Binary'}
         assert BinaryHandler.decode(encoded) == b
-    #def test_FactoryHandler(self):
-        #import sys, inspect
-        #for l in range(2, 9999):
-            #v = inspect.getargvalues(sys._getframe(l))[3]
-            #if "self" in v:
-                #print(l, v["self"].__class__.__name__)
-        #assert 0
-        #import inspect
-        #for base in inspect.stack():
-            #if base[3] == "__call__" and "self" in base[0].f_locals:
-                #if getattr(base[0].f_locals["self"], "getProxy"):
-                    #print(base)
-        #print(inspect.stack()[3])
-        #FactoryHandler.decode("test")
-        #assert 0
     def test_Binary(self):
         data1 = b"DATA1"
         b1 = Binary(data1)
