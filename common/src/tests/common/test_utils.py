@@ -26,16 +26,10 @@ class ModStringIO(StringIO):
 
 class CommonUtilsTestCase(unittest.TestCase):
     def test_stripNs(self):
-        # Required xml scheme unknown. Following won't work.
-        full_xml = """<?xml version="1.0"?><xml xmlns="http://example.com/xmlns"><a><p>TESTING</p></a></xml>"""
-        expected = """
-            <xml xmlns="http://example.com/xmlns">
-                <p>TESTING</p>
-            </xml>
-        """
+        full_xml = """{testNs}Key=Value"""
+        expected = """Key=Value"""
         
-        return True
-        self.assertEqual(stripNs(full_xml), expected)
+        assert stripNs(full_xml) == expected
     
     def test_makeAuthURL(self):
         url = "https://hostname.org:1234/example"
