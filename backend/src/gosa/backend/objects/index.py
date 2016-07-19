@@ -24,6 +24,8 @@ import re
 import hashlib
 import time
 import itertools
+
+from gosa.common.events import ZopeEventConsumer
 from zope.interface import implementer
 from gosa.common import Environment
 from gosa.common.utils import N_
@@ -218,18 +220,8 @@ class ObjectIndex(Plugin):
                                  resolve=resolve,
                                  aliases=aliases)
 
-        #TODO: implement an external event send/subscribe mechanism via SSE/RPC/ROUTING/WHATEVER and
-        #      re-enable the ability to update ourself
         # Add event processor
-        #amqp = PluginRegistry.getInstance('AMQPHandler')
-        #EventConsumer(self.env,
-        #    amqp.getConnection(),
-        #    xquery="""
-        #        declare namespace f='http://www.gonicus.de/Events';
-        #        let $e := ./f:Event
-        #        return $e/f:BackendChange
-        #    """,
-        #    callback=self.__backend_change_processor)
+        ZopeEventConsumer(callback=self.__backend_change_processor, type="BackendChange")
 
     def __backend_change_processor(self, data):
         """
@@ -245,6 +237,9 @@ class ObjectIndex(Plugin):
         change_type = data.ChangeType.text
         _uuid = data.UUID.text if hasattr(data, 'UUID') else None
         _last_changed = datetime.datetime.strptime(data.ModificationTime.text, "%Y%m%d%H%M%SZ")
+
+        if not _uuid and not dn:
+            return
 
         # Resolve dn from uuid if needed
         if not dn:
