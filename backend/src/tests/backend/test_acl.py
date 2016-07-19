@@ -524,7 +524,6 @@ class ACLResolverTestCase(GosaTestCase):
         acl.set_members(['tester1'])
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
-        print(aclset)
 
         # Check the permissions to be sure that they are set correctly
         self.assertTrue(self.resolver.check('tester1', 'org.gosa.factory', 'r',
@@ -733,3 +732,31 @@ class ACLResolverTestCase(GosaTestCase):
     #     res = self.resolver.getACLs('admin')
     #     print(res)
     #     assert False
+
+    def test_removeRole(self):
+        role1 = ACLRole('role1')
+        acl = ACLRoleEntry(scope=ACL.ONE)
+        role1.add(acl)
+        self.resolver.add_acl_role(role1)
+
+        base = self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(role='role1')
+        acl.set_members(['tester1'])
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        with mock.patch.object(self.resolver, "check", return_value=False) as m:
+            with pytest.raises(ACLException):
+                self.resolver.removeRole('tester1', 'role1')
+
+            m.return_value = True
+            assert len(self.resolver.getACLRoles('tester1')) == 1
+
+            with pytest.raises(ACLException):
+                # role still in use
+                self.resolver.removeRole('tester1', 'role1')
+
+            self.resolver.removeACL('tester1', acl.id)
+            self.resolver.removeRole('tester1', 'role1')
+            assert len(self.resolver.getACLRoles('tester1')) == 0

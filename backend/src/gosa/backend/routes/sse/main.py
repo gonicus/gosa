@@ -4,7 +4,6 @@ import hashlib
 import logging
 from tornado import web
 
-CHANNEL = 'sse'
 
 class SseHandler(web.RequestHandler):
     """
@@ -30,6 +29,7 @@ class SseHandler(web.RequestHandler):
         self.stream = request.connection.stream
         self._closed = False
         self.log = logging.getLogger(__name__)
+        self.channels = []
 
     def initialize(self):
         self._last = None
@@ -44,19 +44,14 @@ class SseHandler(web.RequestHandler):
             time.time(),
         )).encode('utf-8')).hexdigest()
 
-    def get_channels(self):
-        result = self.get_argument('channels', CHANNEL)
-        result = [x.strip() for x in result.split(',') if x]
-        return result
-
     @web.asynchronous
     def get(self):
-        self.set_id()
-        self.channels = self.get_channels()
-        if not self.channels:
-            self.set_status(403)
+        if self.get_secure_cookie('REMOTE_SESSION') is None or self.get_secure_cookie('REMOTE_USER') is None:
+            self.set_status(401)
             self.finish()
         else:
+            self.set_id()
+            self.channels = ["user.%s" % self.get_secure_cookie('REMOTE_USER').decode('ascii')]
             self.on_open()
 
     def on_open(self, *args, **kwargs):
@@ -103,14 +98,14 @@ class SseHandler(web.RequestHandler):
         self.stream.close()
 
     @classmethod
-    def send_message(cls, msg, event=None, channel='sse'):
+    def send_message(cls, msg, topic=None, channel='broadcast'):
         """ Sends a message to all live connections """
         id = str(uuid.uuid4())
 
         dataString = format("%s\n" % "\n".join([("data: %s" % x) for x in msg.splitlines() if not x == '']))
 
-        if (event != None):
-            message = format('id: %s\nevent: %s\n%s' % (id, event, dataString))
+        if (topic != None):
+            message = format('id: %s\nevent: %s\n%s' % (id, topic, dataString))
         else:
             message = format('id: %s\n%s' % (id, dataString))
 
@@ -122,8 +117,15 @@ class SseHandler(web.RequestHandler):
         if len(cls._cache) > cls._cache_size:
             cls._cache = cls._cache[-cls._cache_size:]
 
-        clients = cls._channels.get(channel, [])
-        logging.info('Sending %s "%s" to channel %s for %s clients' % (event, msg, channel, len(clients)))
+        if channel == 'broadcast':
+            clients = []
+            for chan in cls._channels:
+                for client in cls._channels[chan]:
+                    clients.append(client)
+        else:
+            clients = cls._channels.get(channel, [])
+
+        logging.info('Sending %s "%s" to channel %s for %s clients' % (topic, msg, channel, len(clients)))
         for client_id in clients:
             client = cls._connections[client_id]
             client.on_message(message)
@@ -131,6 +133,3 @@ class SseHandler(web.RequestHandler):
     def on_message(self, message):
         self.write(message)
         self.flush()
-
-    def post(self):
-        SseHandler.send_message(self.request.body.decode('utf-8'), self.get_argument("event", None))

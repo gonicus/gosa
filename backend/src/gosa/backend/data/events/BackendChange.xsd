@@ -6,7 +6,7 @@
     		<documentation>
     		The BackendChange event is fired if an external
 			Backend monitor process detects a change on a
-			possibly managed (and indexed) clacks object.
+			possibly managed (and indexed) GOsa object.
     		</documentation>
     	</annotation>
         <all>

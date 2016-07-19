@@ -121,7 +121,7 @@ class JSONRPCObjectMapperTestCase(GosaTestCase):
 
         with mock.patch('gosa.backend.plugins.password.manager.ObjectProxy') as m:
             user = m.return_value
-            user.passwordMethod = crypt.METHOD_MD5
+            user.passwordMethod = "MD5"
             self.mapper.dispatchObjectMethod('admin', ref, 'changePassword','Test')
             assert user.userPassword
             assert user.commit.called
