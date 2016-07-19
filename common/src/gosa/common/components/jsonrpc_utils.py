@@ -129,7 +129,7 @@ class FactoryHandler(JSONDataHandler):
         # parameters that were used to call ourselves.
         for base in inspect.stack():
             if base[3] == "__call__" and 'self' in base[0].f_locals:
-                if getattr(base[0].f_locals['self'], 'getProxy'):
+                if hasattr(base[0].f_locals['self'], 'getProxy'):
                     proxy = base[0].f_locals['self'].getProxy()
 
                     jc = data["__jsonclass__"][1]
