@@ -301,6 +301,7 @@ class JSON(ObjectBackend):
 
         for item in data:
             json[item_uuid][o_type][item] = data[item]['value']
+
         self.__save(json)
         return True
 

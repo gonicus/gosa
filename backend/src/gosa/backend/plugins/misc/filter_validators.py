@@ -7,15 +7,17 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
+import re
 from gosa.common.components import PluginRegistry
 from gosa.common.utils import N_
 from gosa.backend.objects.comparator import ElementComparator
-import re
+from gosa.backend.objects.index import ObjectInfoIndex, ExtensionIndex
+from sqlalchemy import or_, and_
 
 
 class IsValidHostName(ElementComparator):
     """
-    Validates a given domain name.
+    Validates a given host name.
     """
 
     def __init__(self, obj):
@@ -36,7 +38,7 @@ class IsValidHostName(ElementComparator):
 
 class IsExistingDN(ElementComparator):
     """
-    Validates a given domain name.
+    Check if the given DN exists.
     """
 
     def __init__(self, obj):
@@ -78,7 +80,7 @@ class IsExistingDnOfType(ElementComparator):
 
 class ObjectWithPropertyExists(ElementComparator):
     """
-    Validates a given domain name.
+    Checks if an object with the given property exists.
     """
 
     def __init__(self, obj):
@@ -89,8 +91,9 @@ class ObjectWithPropertyExists(ElementComparator):
         errors = []
         index = PluginRegistry.getInstance("ObjectIndex")
         for val in value:
-            query = {'$or': [{'_type': objectType}, {'_extensions': {'$in': [objectType]}}], attribute: val}
-            if not index.search(query, {'dn': 1}).count():
+            #query = or_(ObjectInfoIndex._type == objectType, and_(ObjectInfoIndex.uuid == ExtensionIndex.uuid, ExtensionIndex.extension == objectType))
+            query = {'or_': {'_type': objectType, 'extension': objectType}, attribute: val}
+            if not len(index.search(query, {'dn': 1})):
                 errors.append(dict(index=value.index(val),
                     detail=N_("no '%(type)s' object with '%(attribute)s' property matching '%(value)s' found"),
                     type=objectType,

@@ -284,7 +284,7 @@ class ACLRole(list):
         >>> resolver = ACLResolver()
         >>> resolver.add_acl_set(aclrole2)
 
-        >>> # Now use the role2 in an ACL defintion. (Role2 point to Role1 now.)
+        >>> # Now use the role2 in an ACL definition. (Role2 point to Role1 now.)
         >>> aclset = ACLSet()
         >>> acl = ACL(role=aclrole2)
         >>> aclset.add(acl)
@@ -2127,7 +2127,7 @@ class ACLResolver(Plugin):
 
         # Check permissions
         if not self.check(user, '%s.acl' % self.env.domain, 'w', self.base):
-            raise ACLException(C.make_error("PERMISSION_REMOVE"), target=self.base)
+            raise ACLException(C.make_error("PERMISSION_REMOVE", target=self.base))
 
         # Try to find role-acl with the given ID.
         for _aclrole in self.acl_roles:
@@ -2152,7 +2152,7 @@ class ACLResolver(Plugin):
 
         # Check permissions
         if not self.check(user, '%s.acl' % self.env.domain, 'w', self.base):
-            raise ACLException(C.make_error("PERMISSION_REMOVE"), target=self.base)
+            raise ACLException(C.make_error("PERMISSION_REMOVE", target=self.base))
 
         # Try to find role-acl with the given ID.
         self.remove_role(rolename)

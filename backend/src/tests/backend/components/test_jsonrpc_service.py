@@ -7,18 +7,17 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import re
 import unittest.mock
-from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application
 from gosa.common.gjson import dumps, loads
 from gosa.backend.components.jsonrpc_service import JsonRpcHandler
 from gosa.common.components import PluginRegistry
 from tests.GosaTestCase import slow
+from tests.RemoteTestCase import RemoteTestCase
 
 
 @slow
-class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
+class JsonRpcHandlerTestCase(RemoteTestCase):
 
     def get_app(self):
         return Application([('/rpc', JsonRpcHandler)], cookie_secret='TecloigJink4', xsrf_cookies=True)
@@ -31,58 +30,9 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
         self.patcher = unittest.mock.patch.dict(PluginRegistry.modules, {'ACLResolver': self.mocked_resolver})
         self.patcher.start()
 
-        self.__cookies = ''
-        self._xsrf = None
-
     def tearDown(self):
         super(JsonRpcHandlerTestCase, self).tearDown()
         self.patcher.stop()
-
-    def _update_cookies(self, headers):
-        try:
-            raw = headers['Set-Cookie']
-            #remove expires + path
-            raw = re.sub(r"; expires=[^;]+;", "", raw)
-            raw = re.sub(r";? Path=[^,]+,", ";", raw)
-            # last path
-            raw = re.sub(r";? Path=[^,]$", "", raw)
-            for cookie in raw.split(";"):
-                (key, value) = cookie.split("=", 1)
-                if key == "_xsrf":
-                    self._xsrf = value
-            self.__cookies = raw
-        except KeyError:
-            return
-
-    def fetch(self, url, **kw):
-        header = {}
-        if self.__cookies != '':
-            header['Cookie'] = self.__cookies
-        if self._xsrf:
-            header['X-XSRFToken'] = self._xsrf
-            if len(header['Cookie'])>0 and '_xsrf' not in header['Cookie']:
-                header['Cookie'] = "%s;%s=%s" % (header['Cookie'], '_xsrf', self._xsrf)
-        if 'body' in kw:
-            print("URL: {}, Body: {}, Headers: {}".format(url, kw['body'] , header))
-        else:
-            print("URL: {}, Headers: {}".format(url, header))
-        resp = AsyncHTTPTestCase.fetch(self, url, headers=header, **kw)
-        self._update_cookies(resp.headers)
-        return resp
-
-    def login(self):
-        # fetch the xsrf cookie
-        self.fetch('/rpc', method='GET')
-        data = dumps({
-            "id": 0,
-            "method": "login",
-            "params": ["admin", "tester"]
-        })
-        # login
-        return self.fetch('/rpc',
-                          method='POST',
-                          body=data
-                          )
 
     def test_login(self):
         # failed login

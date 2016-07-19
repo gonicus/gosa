@@ -10,6 +10,8 @@
 import os
 import logging
 from inspect import isclass
+from lxml import objectify
+
 from lxml import etree
 from pkg_resources import resource_filename, resource_listdir, iter_entry_points, resource_isdir #@UnresolvedImport
 from gosa.common.handler import IInterfaceHandler
@@ -31,6 +33,7 @@ class PluginRegistry(object):
     modules = {}
     handlers = {}
     evreg = {}
+    _event_parser = None
 
     def __init__(self, component="gosa.plugin"):
         env = Environment.getInstance()
@@ -152,3 +155,14 @@ class PluginRegistry(object):
         # Transform the tree of all event paths into the final XSD
         res = transform(xml_doc)
         return str(res)
+
+    @staticmethod
+    def getEventParser():
+        if PluginRegistry._event_parser is None:
+            # Initialize parser
+            schema_root = etree.XML(PluginRegistry.getEventSchema())
+            schema = etree.XMLSchema(schema_root)
+            PluginRegistry._event_parser = objectify.makeparser(schema=schema)
+
+        return PluginRegistry._event_parser
+

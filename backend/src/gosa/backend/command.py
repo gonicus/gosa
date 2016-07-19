@@ -29,10 +29,12 @@ via the :meth:`clacks.agent.command.CommandRegistry.dispatch` method
 -------
 """
 import re
-import time
 import logging
-import datetime
+from lxml import objectify, etree
+
+import zope
 import gettext
+from gosa.common.exceptions import ACLException
 from pkg_resources import resource_filename #@UnresolvedImport
 from threading import Event
 from inspect import getargspec, getmembers, ismethod
@@ -43,7 +45,9 @@ from gosa.common import Environment
 from gosa.common.utils import stripNs, N_
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.components import Plugin
+from gosa.common.events import Event, EventNotAuthorized
 from gosa.backend.exceptions import CommandInvalid, CommandNotAuthorized
+from gosa.backend.routes.sse.main import SseHandler
 
 
 # Global command types
@@ -57,6 +61,7 @@ C.register_codes(dict(
     COMMAND_NO_USERNAME=N_("Calling method '%(method)s' without a valid user session is not permitted"),
     COMMAND_NOT_DEFINED=N_("Method '%(method)s' is not defined"),
     PERMISSION_EXEC=N_("No permission to execute method '%(method)s'"),
+    PERMISSION_EVENT=N_("No permission to send event '%(topic)s'"),
     COMMAND_WITHOUT_DOCS=N_("Method '%(method)s' has no documentation")
     ))
 
@@ -307,5 +312,36 @@ class CommandRegistry(Plugin):
 
         *sendEvent* will indirectly validate the event against the bundled "XSD".
         """
-        #TODO: check permission, inject event to zope event bus, optionally forward via SSE
-        pass
+
+        try:
+            event = "<?xml version='1.0'?>\n"
+
+            if isinstance(data, str):
+                event += data
+            elif isinstance(data, bytes):
+                event += data.decode('utf-8')
+            else:
+                event += etree.tostring(data, pretty_print=True).decode()
+
+            # Validate event
+            xml = objectify.fromstring(event, PluginRegistry.getEventParser())
+            event_type = list(xml.__dict__.keys())[0]
+            # If a user was supplied, check if she's authorized...
+            if user:
+                acl = PluginRegistry.getInstance("ACLResolver")
+                topic = ".".join([self.env.domain, 'event', event_type])
+                if not acl.check(user, topic, "x"):
+                    raise EventNotAuthorized("sending the event '%s' is not permitted" % topic)
+
+            if event_type == "Message":
+                if hasattr(xml.Message, "Topic"):
+                    SseHandler.send_message(etree.tostring(xml).decode('utf-8'), topic=xml.Message.Topic.text, channel=xml.Message.Channel.text if hasattr(xml.Message, "Channel") else 'broadcast')
+                else:
+                    SseHandler.send_message(etree.tostring(xml).decode('utf-8'), channel=xml.Message.Channel.text if hasattr(xml.Message, "Channel") else 'broadcast')
+
+            zope.event.notify(Event(data=xml, emitter=user))
+
+        except etree.XMLSyntaxError as e:
+            if self.env:
+                self.log.error("event rejected (%s): %s" % (str(e), data))
+            raise

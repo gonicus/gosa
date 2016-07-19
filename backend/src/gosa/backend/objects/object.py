@@ -402,8 +402,7 @@ class Object(object):
                 res, error = self.__processValidator(self.myProperties[name]['validator'], name, new_value, props_copy)
                 if not res:
                     if len(error):
-                        raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED',
-                            name, details=error))
+                        raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
                     else:
                         raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name))
 
@@ -690,6 +689,7 @@ class Object(object):
                 # Convert the properities type to the required format - if its not of the expected type.
                 be_type = collectedAttrs[prop_key]['backend_type']
                 s_type = collectedAttrs[prop_key]['type']
+
                 if not self._objectFactory.getAttributeTypes()[be_type].is_valid_value(collectedAttrs[prop_key]['value']):
                     collectedAttrs[prop_key]['value'] = self._objectFactory.getAttributeTypes()[s_type].convert_to(
                             be_type, collectedAttrs[prop_key]['value'])

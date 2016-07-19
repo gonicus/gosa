@@ -206,13 +206,15 @@ class LDAP(ObjectBackend):
 
         # We know about object classes - remove them
         if 'objectClasses' in params:
-            ocs = [o.strip() for o in params['objectClasses'].split(",")]
+            ocs = [bytes(o.strip(), 'ascii') for o in params['objectClasses'].split(",")]
             mod_attrs.append((ldap.MOD_DELETE, 'objectClass', ocs))
 
         # Remove all other keys related to this object
         for key in data.keys():
             mod_attrs.append((ldap.MOD_DELETE, key, None))
 
+        print(dn)
+        print(mod_attrs)
         self.con.modify_s(dn, mod_attrs)
 
         # Clear identify cache, else we will receive old values from self.identifyObject
@@ -256,7 +258,7 @@ class LDAP(ObjectBackend):
 
         # We know about object classes - add them if possible
         if 'objectClasses' in params:
-            ocs = [o.strip() for o in params['objectClasses'].split(",")]
+            ocs = [bytes(o.strip(), "ascii") for o in params['objectClasses'].split(",")]
             if foreign_keys is None:
                 mod_attrs.append(('objectClass', ocs))
             else:
