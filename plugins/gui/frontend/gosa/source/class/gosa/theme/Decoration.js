@@ -12,11 +12,6 @@
 
 ======================================================================== */
 
-/*
-#asset(gosa/themes/default/background.png)
-#asset(gosa/themes/default/title-bar.png)
-*/
-
 qx.Theme.define("gosa.theme.Decoration",
 {
   extend : qx.theme.indigo.Decoration,
@@ -32,13 +27,6 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
-    "title-bar" :
-    {
-      style :
-      {
-        backgroundImage  : "gosa/themes/default/title-bar.png",
-        backgroundRepeat : "scale"
-      }
-    }
+    "title-bar" : {}
   }
 });

@@ -25,7 +25,6 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
 
     def setUp(self):
         super(JsonRpcHandlerTestCase, self).setUp()
-        self.registry = PluginRegistry()
 
         self.mocked_resolver = unittest.mock.MagicMock()
         self.mocked_resolver.return_value.check.return_value = True
@@ -38,8 +37,6 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
     def tearDown(self):
         super(JsonRpcHandlerTestCase, self).tearDown()
         self.patcher.stop()
-        PluginRegistry.getInstance('HTTPService').srv.stop()
-        self.registry.shutdown()
 
     def _update_cookies(self, headers):
         try:
@@ -79,7 +76,7 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
         data = dumps({
             "id": 0,
             "method": "login",
-            "params": ["username", "password"]
+            "params": ["admin", "tester"]
         })
         # login
         return self.fetch('/rpc',
@@ -120,7 +117,7 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
         data = dumps({
             "id": 3,
             "method": "login",
-            "params": ["username", "passwd"]
+            "params": ["admin", "tester"]
         })
         response = self.fetch('/rpc',
                           method='POST',
@@ -234,7 +231,7 @@ class JsonRpcHandlerTestCase(AsyncHTTPTestCase):
                               )
         assert response.code == 200
         json = loads(response.body)
-        assert json['result'] == "username"
+        assert json['result'] == "admin"
 
     def test_exception(self):
         self.login()

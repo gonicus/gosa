@@ -49,7 +49,7 @@ class EnvTestCase(unittest.TestCase):
         def createEngine(dsn, *args, **kwargs):
             return engines[dsn]
         createEngineMock.side_effect = createEngine
-        def get(index):
+        def get(index, default=None):
             if index in dsnames:
                 return dsnames[index]
             elif index == "notexistant.dbs":
@@ -63,11 +63,7 @@ class EnvTestCase(unittest.TestCase):
         with pytest.raises(Exception):
             e.getDatabaseEngine("notexistant", key="dbs")
         
-        # getDatabaseSession
-        sessionMock = unittest.mock.MagicMock()
-        scopedSessionMock.return_value = sessionMock
-        
-        assert e.getDatabaseSession("db1", key="dbs") == sessionMock()
+        e.getDatabaseSession("db1", key="dbs")
         
         scopedSessionMock.assert_called_with(sessionmakerMock(autoflush=True))
         

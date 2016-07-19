@@ -23,16 +23,11 @@ qx.Class.define("gosa.ui.Header", {
     this.setLayout(new qx.ui.layout.Canvas());
 
 
-    var header = new qx.ui.basic.Atom("", "gosa/themes/default/logo.png");
-    header.setDecorator("title-bar");
+    var header = new qx.ui.basic.Atom("", "gosa/themes/default/logo.svg");
+    header.setAppearance("title-bar");
     header.setTextColor("header-text");
     header.setHeight(48);
     header.setPadding(5);
-    header.getChildControl("icon").set({
-        "width": 200,
-        "paddingTop": 3,
-        "paddingLeft": 2
-    });
     this.add(header, {top:0, left:0, bottom: 0, right: 0});
 
     var container = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));

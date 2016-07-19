@@ -30,21 +30,21 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
 
         assert self.obj.detect_hash_method("{CRYPT}$0$md") is None
 
-        pwd = self.obj.generate_password_hash("test", crypt.METHOD_MD5)
-        assert self.obj.detect_hash_method(pwd) == crypt.METHOD_MD5
+        pwd = self.obj.generate_password_hash("test", "MD5")
+        assert self.obj.detect_hash_method(pwd) == "MD5"
 
-        pwd = self.obj.generate_password_hash("test", crypt.METHOD_CRYPT)
-        assert self.obj.detect_hash_method(pwd) == crypt.METHOD_CRYPT
+        pwd = self.obj.generate_password_hash("test", "CRYPT")
+        assert self.obj.detect_hash_method(pwd) == "CRYPT"
 
-        pwd = self.obj.generate_password_hash("test", crypt.METHOD_SHA256)
-        assert self.obj.detect_hash_method(pwd) == crypt.METHOD_SHA256
+        pwd = self.obj.generate_password_hash("test", "SHA256")
+        assert self.obj.detect_hash_method(pwd) == "SHA256"
 
-        pwd = self.obj.generate_password_hash("test", crypt.METHOD_SHA512)
-        assert self.obj.detect_hash_method(pwd) == crypt.METHOD_SHA512
+        pwd = self.obj.generate_password_hash("test", "SHA512")
+        assert self.obj.detect_hash_method(pwd) == "SHA512"
 
     def test_get_hash_names(self):
         # crypt method must be available on every system
-        assert crypt.METHOD_CRYPT in self.obj.get_hash_names()
+        assert "CRYPT" in self.obj.get_hash_names()
 
     def test_lock_account(self):
         assert self.obj.lock_account("{CRYPT}uw8er0hjewofh") == "{CRYPT}!uw8er0hjewofh"

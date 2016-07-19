@@ -9,6 +9,8 @@
 
 import pytest
 from unittest import mock
+
+from gosa.common.components import ObjectRegistry
 from tests.GosaTestCase import *
 from gosa.backend.objects.index import *
 
@@ -54,20 +56,35 @@ class ObjectIndexTestCase(GosaTestCase):
             'dn': 'cn=Frank Reich,ou=people,dc=example,dc=de',
             '_adjusted_parent_dn': 'ou=people,dc=example,dc=de'
         }
-        with pytest.raises(IndexException):
-            self.obj.update(test)
 
-        test.uuid = '7ff15c20-b305-1031-916b-47d262a62cc5'
-        test.asJSON.return_value = {
-            'uuid': '7ff15c20-b305-1031-916b-47d262a62cc5',
-            'dn': 'ou=people,dc=example,dc=de',
-            '_adjusted_parent_dn': 'dc=example,dc=de'
-        }
         with mock.patch.object(self.obj, "_ObjectIndex__save") as ms, \
-                mock.patch.object(self.obj._ObjectIndex__session, "commit") as mc:
+                mock.patch.object(self.obj._ObjectIndex__session, "commit") as mc,\
+                mock.patch.object(self.obj, "remove_by_uuid") as mr:
+            with pytest.raises(IndexException):
+                self.obj.update(test)
+            assert not ms.called
+            assert not mc.called
+            assert not mr.called
+
+            test.uuid = '7ff15c20-b305-1031-916b-47d262a62cc5'
+            test.asJSON.return_value = {
+                'uuid': '7ff15c20-b305-1031-916b-47d262a62cc5',
+                'dn': 'ou=people,dc=example,dc=de',
+                '_adjusted_parent_dn': 'dc=example,dc=de'
+            }
+
             self.obj.update(test)
             assert ms.called
             assert mc.called
+            mr.assert_called_with(test.uuid)
+
+        # ObjectIndex needs to be rebuild after this test
+        PluginRegistry.getInstance('HTTPService').srv.stop()
+        PluginRegistry.shutdown()
+
+        oreg = ObjectRegistry.getInstance()  # @UnusedVariable
+        pr = PluginRegistry()  # @UnusedVariable
+        cr = PluginRegistry.getInstance("CommandRegistry") # @UnusedVariable
 
     def test_find(self):
 

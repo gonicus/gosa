@@ -335,7 +335,7 @@ class LDAP(ObjectBackend):
         for attr, value, idx in rdn_parts:
             if attr in data:
                 cnv = getattr(self, "_convert_to_%s" % data[attr]['type'].lower())
-                new_rdn_parts.append((attr, cnv(data[attr]['value'][0]), 4))
+                new_rdn_parts.append((attr, cnv(data[attr]['value'][0]).decode(), 4))
             else:
                 new_rdn_parts.append((attr, value, idx))
 
@@ -401,7 +401,7 @@ class LDAP(ObjectBackend):
 
         cnv = getattr(self, "_convert_to_%s" % at_type.lower())
         value = cnv(value)
-        fltr = ldap.filter.filter_format(fltr_tpl, [value])
+        fltr = ldap.filter.filter_format(fltr_tpl, [value.decode()])
 
         self.log.debug("uniq test with filter '%s' on base '%s'" % (fltr,
             self.lh.get_base()))
@@ -499,7 +499,7 @@ class LDAP(ObjectBackend):
         return bytes(str(value), 'ascii')
 
     def _convert_to_unicodestring(self, value):
-        return bytes(value, 'utf-8')
+        return bytes(str(value), 'utf-8')
 
     def _convert_to_integer(self, value):
         return bytes(str(value), 'ascii')
@@ -511,4 +511,4 @@ class LDAP(ObjectBackend):
         return bytes(value.strftime("%Y%m%d%H%M%SZ"), 'ascii')
 
     def _convert_to_binary(self, value):
-        return bytes(value.get())
+        return bytes(value.get(), "ascii")

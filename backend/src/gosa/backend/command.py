@@ -292,3 +292,20 @@ class CommandRegistry(Plugin):
     @Command(needsUser=True, __help__=N_("Return the current session's user ID."))
     def getSessionUser(self, user):
         return user
+
+    @Command(needsUser=True, __help__=N_("Send event to the bus."))
+    def sendEvent(self, user, data):
+        """
+        Sends an event to the AMQP bus. Data must be in XML format,
+        see :ref:`Events handling <events>` for details.
+
+        ========== ============
+        Parameter  Description
+        ========== ============
+        data       valid event
+        ========== ============
+
+        *sendEvent* will indirectly validate the event against the bundled "XSD".
+        """
+        #TODO: check permission, inject event to zope event bus, optionally forward via SSE
+        pass

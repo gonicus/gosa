@@ -647,7 +647,7 @@ class ObjectProxy(object):
         else:
             # Test if we've children
             index = PluginRegistry.getInstance("ObjectIndex")
-            if len(index.search({"dn": [self.__base.dn, "%," + self.__base.dn]}, {'dn': 1})):
+            if len(index.search({"dn": "%," + self.__base.dn}, {'dn': 1})):
                 raise ProxyException(C.make_error('OBJECT_HAS_CHILDREN', target=self.__base.dn))
 
         for extension in [e for e in self.__extensions.values() if e]:

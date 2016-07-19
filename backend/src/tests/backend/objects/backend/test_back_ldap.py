@@ -104,8 +104,8 @@ class LdapBackendTestCase(TestCase):
             args, kwargs = ma.call_args_list[0]
             assert 'cn=Test User,ou=people,dc=example,dc=net' == args[0]
             assert ('objectClass', ['top', 'person', 'organizationalPerson']) in args[1]
-            assert ('attr', ['test']) in args[1]
-            assert ('cn', ['Test User']) in args[1]
+            assert ('attr', [b'test']) in args[1]
+            assert ('cn', [b'Test User']) in args[1]
             assert len(args[1]) == 3
 
         # with foreign keys
@@ -127,7 +127,7 @@ class LdapBackendTestCase(TestCase):
             args, kwargs = mm.call_args_list[0]
             assert 'ou=people,dc=example,dc=net' == args[0]
             assert (ldap.MOD_ADD, 'objectClass', ['top', 'person', 'organizationalPerson']) in args[1]
-            assert (ldap.MOD_ADD, 'cn', ['Test User']) in args[1]
+            assert (ldap.MOD_ADD, 'cn', [b'Test User']) in args[1]
             assert len(args[1]) == 2
 
     def test_update(self):
@@ -155,8 +155,8 @@ class LdapBackendTestCase(TestCase):
             args, kwargs = mm.call_args_list[0]
             assert args[0] == 'cn=Frank Reich,ou=people,dc=example,dc=net'
             assert (ldap.MOD_DELETE, 'gender', None) in args[1]
-            assert (ldap.MOD_ADD, 'attr', ['new']) in args[1]
-            assert (ldap.MOD_REPLACE, 'description', ['changed']) in args[1]
+            assert (ldap.MOD_ADD, 'attr', [b'new']) in args[1]
+            assert (ldap.MOD_REPLACE, 'description', [b'changed']) in args[1]
 
             #with changed rdn part
             mm.reset_mock()
@@ -177,23 +177,23 @@ class LdapBackendTestCase(TestCase):
                     'type': 'string'
                 },
                 'cn': {
-                    'value': ['Frank Reich-Ranitzki'],
+                    'value': ['Frank Möller'],
                     'orig': ['Frank Reich'],
-                    'type': 'string'
+                    'type': 'unicodestring'
                 }
             }, None)
             assert mr.called
             args, kwargs = mr.call_args_list[0]
             assert args[0] == 'cn=Frank Reich,ou=people,dc=example,dc=net'
-            assert args[1] == 'cn=Frank Reich-Ranitzki'
+            assert args[1] == 'cn=Frank Möller'
 
             assert mm.called
             args, kwargs = mm.call_args_list[0]
-            assert args[0] == 'cn=Frank Reich-Ranitzki,ou=people,dc=example,dc=net'
+            assert args[0] == 'cn=Frank Möller,ou=people,dc=example,dc=net'
             assert (ldap.MOD_DELETE, 'gender', None) in args[1]
-            assert (ldap.MOD_ADD, 'attr', ['new']) in args[1]
-            assert (ldap.MOD_REPLACE, 'description', ['changed']) in args[1]
-            assert (ldap.MOD_REPLACE, 'cn', ['Frank Reich-Ranitzki']) in args[1]
+            assert (ldap.MOD_ADD, 'attr', [b'new']) in args[1]
+            assert (ldap.MOD_REPLACE, 'description', [b'changed']) in args[1]
+            assert (ldap.MOD_REPLACE, 'cn', [bytes('Frank Möller', 'utf-8')]) in args[1]
 
     def test_uuid2dn(self):
         assert self.ldap.dn2uuid('cn=Frank Reich,ou=people,dc=example,dc=net') == '78475884-c7f2-1035-8262-f535be14d43a'
@@ -204,8 +204,8 @@ class LdapBackendTestCase(TestCase):
             'cn': {'value': ['Frank Reich']}
         }, None) is None
         assert self.ldap.get_uniq_dn(['cn'], 'ou=people,dc=example,dc=net', {
-            'cn': {'value': ['Frank Reich-Ranitzki']}
-        }, None) == 'cn=Frank Reich-Ranitzki,ou=people,dc=example,dc=net'
+            'cn': {'value': ['Frank Möller']}
+        }, None) == 'cn=Frank Möller,ou=people,dc=example,dc=net'
 
     def test_is_uniq(self):
         assert self.ldap.is_uniq('entryUUID','78475884-c7f2-1035-8262-f535be14d43a','string') is False
@@ -287,15 +287,16 @@ class LdapBackendTestCase(TestCase):
         assert self.ldap._convert_from_boolean("FALSE") is False
 
     def test_convert_to_boolean(self):
-        assert self.ldap._convert_to_boolean(True) == "TRUE"
-        assert self.ldap._convert_to_boolean(False) == "FALSE"
+        assert self.ldap._convert_to_boolean(True) == bytes("TRUE", "ascii")
+        assert self.ldap._convert_to_boolean(False) == bytes("FALSE", "ascii")
 
     def test_convert_to_unicodestring(self):
-        assert self.ldap._convert_to_unicodestring(1) == "1"
-        assert self.ldap._convert_to_unicodestring("test") == "test"
+        assert self.ldap._convert_to_unicodestring(1) == bytes("1", "utf-8")
+        assert self.ldap._convert_to_unicodestring("foobar") == bytes("foobar", "utf-8")
+        assert self.ldap._convert_to_unicodestring("möller") == bytes("möller", "utf-8")
 
     def test_convert_to_integer(self):
-        assert self.ldap._convert_to_integer(1) == "1"
+        assert self.ldap._convert_to_integer(1) == bytes("1", "ascii")
 
     def test_convert_from_integer(self):
         assert self.ldap._convert_from_integer("1") == 1
@@ -306,14 +307,14 @@ class LdapBackendTestCase(TestCase):
 
     def test_convert_to_date(self):
         date = datetime.date(2016, 1, 1)
-        assert self.ldap._convert_to_date(date) == "20160101000000Z"
+        assert self.ldap._convert_to_date(date) == bytes("20160101000000Z", "ascii")
 
     def test_convert_to_timestamp(self):
         date = datetime.date(2016, 1, 1)
-        assert self.ldap._convert_to_timestamp(date) == "20160101000000Z"
+        assert self.ldap._convert_to_timestamp(date) == bytes("20160101000000Z", "ascii")
 
     def test_convert_from_binary(self):
         assert self.ldap._convert_from_binary("10") == Binary("10")
 
     def test_convert_to_binary(self):
-        assert self.ldap._convert_to_binary(Binary("10")) == "10"
+        assert self.ldap._convert_to_binary(Binary("10")) == bytes("10", "ascii")

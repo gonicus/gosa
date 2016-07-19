@@ -95,7 +95,7 @@ class ObjectInfoIndex(Base):
     extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension)
 
     def __repr__(self):  # pragma: nocover
-       return "<ObjectInfoIndex(uuid='%s', dn='%s', _parent_dn='%s', _adjusted_parent_dn'%s', _type='%s', _last_modified='%s')>" % (
+       return "<ObjectInfoIndex(uuid='%s', dn='%s', _parent_dn='%s', _adjusted_parent_dn='%s', _type='%s', _last_modified='%s')>" % (
                             self.uuid, self.dn, self._parent_dn, self._adjusted_parent_dn, self._type, self._last_modified)
 
 class IndexScanFinished():  # pragma: nocover
