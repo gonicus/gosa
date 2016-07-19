@@ -13,6 +13,14 @@ from io import StringIO
 from urllib.parse import urlparse
 from urllib.error import *
 
+class Type1:
+    def __init__(self):
+        self.prop1 = "TEST"
+class Type2:
+    def __init__(self):
+        self.prop1 = "TEST"
+        self.prop2 = set()
+
 class ModStringIO(StringIO):
     def __init__(self, *args, **kwargs):
         super(ModStringIO, self).__init__(*args, **kwargs)
@@ -162,7 +170,6 @@ class CommonUtilsTestCase(unittest.TestCase):
         data = ("A %s string with %s %s.", "long", "variables")
         self.assertRaises(TypeError, f_print, data)
     
-    # Unused
     def test_repr2json(self):
         # ???
         
@@ -207,7 +214,6 @@ class CommonUtilsTestCase(unittest.TestCase):
             #assert downloadData.closeCalls == 1
             assert targetFile.closeCalls == 1
     
-    # Unused
     @unittest.mock.patch("tempfile.mkdtemp")
     @unittest.mock.patch("tempfile.NamedTemporaryFile")
     def test_downloadFile(self, NamedTemporaryFileMock, mkdtempMock):
@@ -249,28 +255,27 @@ class CommonUtilsTestCase(unittest.TestCase):
         with pytest.raises(BaseException):
             self.downloadFileTest("http://localhost/test", "/random/tmpdir/test", BaseException, use_filename=True)
     
-    # Unused
     def test_xml2dict(self):
         # Implementation returns int values as string.
         # It could also alternatively return python ints.
         # v.pyval instead of v.text (as per lxml docs)
         # BUT: Some code may rely on that.
         
-        #root = objectify.Element("root")
         root = objectify.XML("""
         <root>
             <test>
-                data
+                <attr>Data1</attr>
+            </test>
+            <test>
                 <attr>Data1</attr>
                 <attrtwo>2</attrtwo>
             </test>
             <AttrList>
-                <attr>1</attr>
-                <attr>2</attr>
-                <attr>3</attr>
-                <attr>4</attr>
+                <attr>TEST</attr>
             </AttrList>
         </root>
         """)
-        objectify.SubElement(root, "sub2", data2="data")
-        print(xml2dict(root))
+        assert xml2dict(root) == {"test": [{"attr": "Data1"}, {"attrtwo": "2", "attr": "Data1"}], "AttrList": {"attr": "TEST"}}
+        assert xml2dict(Type1()) == {"prop1": "TEST"}
+        with pytest.raises(Exception):
+            xml2dict(Type2())
