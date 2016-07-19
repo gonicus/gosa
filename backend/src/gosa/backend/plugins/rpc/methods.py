@@ -368,8 +368,6 @@ class RPCMethods(Plugin):
         if not fltr['mod-time'] in ["hour", "day", "week", "month", "year", "all"]:
             raise GOsaException(C.make_error("INVALID_SEARCH_DATE", date=fltr['mod-time']))
 
-        print("888888888888888888888888888888888")
-
         # Build query: join attributes and keywords
         queries = []
         for typ in self.__search_aid['attrs'].keys():
@@ -389,6 +387,7 @@ class RPCMethods(Plugin):
                     if hasattr(ObjectInfoIndex, attrs[0]):
                         sq = keywords_to_query_list(getattr(ObjectInfoIndex, attrs[0]), keywords, fallback)
                         queries.append(and_(ObjectInfoIndex._type == typ, or_(*sq)))
+
                     else:
                         sq = keywords_to_query_list(KeyValueIndex.value, keywords, fallback)
                         queries.append(and_(
@@ -405,8 +404,10 @@ class RPCMethods(Plugin):
                             cond.extend(sq)
                         else:
                             sq = keywords_to_query_list(KeyValueIndex.value, keywords, fallback)
-                            cond.append(and_(KeyValueIndex.key == attr, or_(*sq)))
+                            cond.append(and_(KeyValueIndex.uuid == ObjectInfoIndex.uuid, KeyValueIndex.key == attr, or_(*sq)))
+
                     queries.append(and_(ObjectInfoIndex._type == typ, or_(*cond)))
+
             else:
                 if dn_hook != "_adjusted_parent_dn":
                     queries.append(ObjectInfoIndex._type == typ)

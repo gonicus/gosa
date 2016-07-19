@@ -30,3 +30,6 @@
 
 # TOX für tests mit unterschiedlichen Python versionen (aktuell funktioniert nur 3.5 unter 3.4 schlagen einige tests fehl)
 - Welche Versionen möchten wir unterstützen?
+
+# Index
+- Zu viele Attribute im Index. Warum?
