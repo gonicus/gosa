@@ -233,6 +233,18 @@ qx.Theme.define("gosa.theme.Appearance",
           decorator : states.lead ? "lead-item" : states.dragover ? "dragover" : undefined
         };
       }
+    },
+
+    "title-bar":
+    {
+      alias : "atom",
+
+      style : function(states)
+      {
+        return {
+          backgroundColor : "#303030"
+        };
+      }
     }
 
   }
