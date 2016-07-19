@@ -701,7 +701,7 @@ class ObjectProxy(object):
             root_elements[fbe] = fdns[0]
 
         # Handle retracts
-        for idx in self.__retractions.keys():
+        for idx in list(self.__retractions.keys()):
             if self.__initial_extension_state[idx]:
                 self.__retractions[idx].retract()
             del self.__retractions[idx]
