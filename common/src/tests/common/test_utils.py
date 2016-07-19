@@ -46,11 +46,11 @@ class CommonUtilsTestCase(unittest.TestCase):
         
         expected = "https://peter:secret@hostname.org:1234/example"
         
-        self.assertEqual(makeAuthURL(url, username, password), expected)
+        assert makeAuthURL(url, username, password) == expected
     
     def test_parseURL(self):
         url = ""
-        self.assertEqual(parseURL(url), None)
+        assert parseURL(url) == None
         
         url = """https://peter:secret@hostname.org/example/test"""
         expected = {"source": url,
@@ -63,7 +63,7 @@ class CommonUtilsTestCase(unittest.TestCase):
             "transport": "tcp+ssl",
             "url": "https://peter:secret@hostname.org:443/example/test"
             }
-        self.assertEqual(parseURL(url), expected)
+        assert parseURL(url) == expected
         
         url = """http://peter:secret@hostname.org"""
         expected = {"source": url,
@@ -76,7 +76,7 @@ class CommonUtilsTestCase(unittest.TestCase):
             "transport": "tcp",
             "url": "http://peter:secret@hostname.org:80/rpc"
             }
-        self.assertEqual(parseURL(url), expected)
+        assert parseURL(url) == expected
         
         url = """https://hostname.org:1234"""
         expected = {"source": url,
@@ -89,19 +89,18 @@ class CommonUtilsTestCase(unittest.TestCase):
             "transport": "tcp+ssl",
             "url": "https://None:None@hostname.org:1234/rpc"
             }
-        self.assertEqual(parseURL(url), expected)
+        assert parseURL(url) == expected
     
     def test_N_(self):
-        self.assertEqual(N_("Not yet translated"), "Not yet translated")
+        assert N_("Not yet translated") == "Not yet translated"
     
     def test_is_uuid(self):
         import uuid
-        self.assertFalse(is_uuid("".join([str(x) for x in range(36)])))
-        self.assertFalse(is_uuid("-".join([str(x) for x in range(36)])))
-        self.assertFalse(is_uuid("anything"))
-        for i in range(100):
-            self.assertTrue(is_uuid(str(uuid.uuid1())))
-            self.assertTrue(is_uuid(str(uuid.uuid4())))
+        assert is_uuid("".join([str(x) for x in range(36)])) == False
+        assert is_uuid("anything") == False
+        for i in range(10):
+            assert is_uuid(str(uuid.uuid1())) == True
+            assert is_uuid(str(uuid.uuid4())) == True
     
     def test_get_timezone_delta_mocked(self):
         orig_datetime = datetime.datetime(2016, 7, 1, 10, 16, 36, 163915)
@@ -116,10 +115,6 @@ class CommonUtilsTestCase(unittest.TestCase):
             assert get_timezone_delta() == "+00:00"
             assert get_timezone_delta() == "-02:00"
     
-    def test_get_timezone_delta(self):
-        delta = get_timezone_delta()
-        self.assertRegex(delta, """([-+])(\d+):(\d+)$""")
-
     @unittest.mock.patch("os.pathsep", ":")
     @unittest.mock.patch.object(os, "access")
     @unittest.mock.patch.object(os.path, "isfile")
@@ -159,10 +154,10 @@ class CommonUtilsTestCase(unittest.TestCase):
         # def f_print(basestr, *values):
         #     return basestr % values
         data = "Testing"
-        self.assertEqual(f_print(data), "Testing")
+        assert f_print(data) == "Testing"
         
         data = ("A %s string with %s.", "short", "variables")
-        self.assertEqual(f_print(data), "A short string with variables.")
+        assert f_print(data) == "A short string with variables."
         
         data = ("A %s string with %s.", "short", "too", "many", "variables")
         self.assertRaises(TypeError, f_print, data)
@@ -171,15 +166,10 @@ class CommonUtilsTestCase(unittest.TestCase):
         self.assertRaises(TypeError, f_print, data)
     
     def test_repr2json(self):
-        # ???
+        obj = {"err": "data", "list": [12.00, 12, "12"]}
+        assert repr2json(obj.__repr__()) in ("""{"list":[12.0,12,"12"],"err":"data"}""", """{"err":"data","list":[12.0,12,"12"]}""")
         
-        obj = {"err": ReferenceError(), "list": [12.00, 12, "12"]}
-        print(obj.__repr__())
-        print(repr2json(obj.__repr__()))
-        print(repr2json("""{"json": 2}"""))
-        
-        # Impementation does not handle tuples correctly: 
-        # As there are no tuples in JSON, these may be turned to lists.
+        # Handle tuples specially?
     
     @unittest.mock.patch("os.sep", "/")
     def downloadFileTest(self, url, expectedFilePath, errorToRaise, **kwargs):
@@ -256,11 +246,6 @@ class CommonUtilsTestCase(unittest.TestCase):
             self.downloadFileTest("http://localhost/test", "/random/tmpdir/test", BaseException, use_filename=True)
     
     def test_xml2dict(self):
-        # Implementation returns int values as string.
-        # It could also alternatively return python ints.
-        # v.pyval instead of v.text (as per lxml docs)
-        # BUT: Some code may rely on that.
-        
         root = objectify.XML("""
         <root>
             <test>

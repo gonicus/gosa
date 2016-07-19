@@ -34,7 +34,7 @@ def process(handler):
 class SchedulerTestCase(unittest.TestCase):
     def test_SchedulerAlreadyRunningError(self):
         err = SchedulerAlreadyRunningError()
-        self.assertEqual(str(err), 'Scheduler is already running')
+        assert str(err) == "Scheduler is already running"
 
     def test_configure(self):
         s = Scheduler()
