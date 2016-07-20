@@ -50,21 +50,25 @@ qx.Class.define("gosa.io.Sse", {
         this.__eventSource.close();
       }
 
-      var uri ="http://" + window.location.host + gosa.Config.sse;
+      var uri = "http://" + window.location.host + gosa.Config.sse;
+
       this.__eventSource = new EventSource(uri);
       var that = this;
-      this.__eventSource.addEventListener("message", function(e) {
-        var message = qx.lang.Json.parse(e['data']);
+      this.__eventSource.addEventListener("notification", function (e) {
+        var message = qx.lang.Json.parse(e.data);
+        that._handleNotificationMessage(message);
+      }, false);
+      this.__eventSource.addEventListener("objectChange", function (e) {
+        var message = qx.lang.Json.parse(e.data);
+        that._handleObjectChangeMessage(message);
+      }, false);
 
-        // Check if we can handle that message
-        var capmessage = message[0].charAt(0).toUpperCase() + message[0].slice(1);
-        var method = "_handle" + capmessage + "Message";
-        if (that[method]) {
-          that[method](message[1]);
-        } else {
-          that.error("*** no idea how to handle '" + message[0] + "' messages");
+      this.__eventSource.onerror = function (e) {
+        if (e.readyState == EventSource.CLOSED) {
+          // Connection was closed.
+          this.error("connection closed");
         }
-      });
+      }
     },
 
     /* Handle object change messages and fire up events

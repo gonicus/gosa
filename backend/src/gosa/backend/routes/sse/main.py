@@ -2,6 +2,9 @@ import uuid
 import time
 import hashlib
 import logging
+
+from gosa.common.utils import stripNs, N_
+from gosa.common.gjson import dumps
 from tornado import web
 
 
@@ -98,16 +101,56 @@ class SseHandler(web.RequestHandler):
         self.stream.close()
 
     @classmethod
+    def notify(cls, xml, channel='broadcast'):
+        eventType = stripNs(xml.xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag)
+        func = getattr(cls, "_handle" + eventType)
+        func(xml, channel)
+
+    @classmethod
+    def _handleObjectChanged(cls, data, channel):
+        data = data.ObjectChanged
+
+        SseHandler.send_message({
+            "uuid": data.UUID.text,
+            "dn": data.DN.text,
+            "lastChanged": data.ModificationTime.text,
+            "changeType": data.ChangeType.text,
+        }, topic="objectChange", channel=channel)
+
+    @classmethod
+    def _handleNotification(cls, data, channel):
+        data = data.Notification
+
+        title = N_("System notification")
+        icon = "dialog-information"
+        timeout = 10000
+        if hasattr(data, 'Title'):
+            title = data.Title.text
+        if hasattr(data, 'Icon'):
+            icon = data.Icon.text
+        if hasattr(data, 'Timeout'):
+            timeout = int(data.Timeout.text)
+
+        SseHandler.send_message({
+            "title": title,
+            "body": data.Body.text,
+            "icon": icon, "timeout": timeout}, topic="notification", channel=channel)
+
+
+    @classmethod
     def send_message(cls, msg, topic=None, channel='broadcast'):
         """ Sends a message to all live connections """
         id = str(uuid.uuid4())
 
+        if isinstance(msg, dict):
+            msg = dumps(msg)
+
         dataString = format("%s\n" % "\n".join([("data: %s" % x) for x in msg.splitlines() if not x == '']))
 
-        if (topic != None):
-            message = format('id: %s\nevent: %s\n%s' % (id, topic, dataString))
+        if topic is not None:
+            message = format('id: %s\nevent: %s\n%s\n' % (id, topic, dataString))
         else:
-            message = format('id: %s\n%s' % (id, dataString))
+            message = format('id: %s\n%s\n' % (id, dataString))
 
         cls._cache.append({
             'id': id,
