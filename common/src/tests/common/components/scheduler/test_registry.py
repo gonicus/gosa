@@ -7,11 +7,20 @@ class RegistryTestCase(unittest.TestCase):
     def test_PluginRegistry(self):
         # Use of only one test method to guarantee right execution order
         
-        assert PluginRegistry._event_parser == None
-        ep = PluginRegistry.getEventParser()
-        assert PluginRegistry._event_parser is ep
-        assert ep is PluginRegistry.getEventParser()
-        assert isinstance(ep, etree.XMLParser)
+        with unittest.mock.patch.object(PluginRegistry, "getEventSchema") as getEventSchemaMock,\
+                unittest.mock.patch("gosa.common.components.registry.etree") as etreeMock,\
+                unittest.mock.patch("gosa.common.components.registry.objectify") as objectifyMock:
+            assert PluginRegistry._event_parser is None
+            ep = PluginRegistry.getEventParser()
+            
+            etreeMock.XML.assert_called_once_with(getEventSchemaMock())
+            schema_root = etreeMock.XML(getEventSchemaMock())
+            etreeMock.XMLSchema.assert_called_once_with(schema_root)
+            schema = etreeMock.XMLSchema(schema_root)
+            objectifyMock.makeparser.assert_called_once_with(schema=schema)
+            parser = objectifyMock.makeparser(schema=schema)
+            
+            assert PluginRegistry._event_parser is ep is PluginRegistry.getEventParser() is parser
         
         with unittest.mock.patch("gosa.common.components.registry.Environment") as EnvironmentMock,\
                 unittest.mock.patch("gosa.common.components.registry.logging") as loggingMock,\
