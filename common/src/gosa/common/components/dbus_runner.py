@@ -16,6 +16,8 @@ except ImportError:
     sys.exit(1)
 
 import gi
+from gi.repository import GObject
+GObject.threads_init()
 import time
 from threading import Thread
 from dbus.mainloop.glib import DBusGMainLoop
@@ -47,7 +49,7 @@ class DBusRunner(object):
         self.__active = True
 
         def runner():
-            self.__gloop = gi.MainLoop()
+            self.__gloop = GObject.MainLoop()
             context = self.__gloop.get_context()
             while self.__active:
                 context.iteration(False)
