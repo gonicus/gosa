@@ -140,7 +140,7 @@ qx.Class.define("gosa.io.Rpc", {
               this.callAsync.apply(this, [item['callback']].concat(item['arguments']));
             }, this);
             req.addListener("fail", function(e) {
-              var d = new gosa.ui.dialogs.RpcError(str(e));
+              var d = new gosa.ui.dialogs.RpcError(e.toString());
               d.show();
             }, this);
             req.send();

@@ -33,6 +33,7 @@ class Environment:
     The global information container, used as a singleton.
     """
     config = None
+    threads = []
     log = None
     reset_requested = False
     noargs = False
