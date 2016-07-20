@@ -10,3 +10,13 @@ Scratchbook
  - ./setup.py develop
  - gosa --config example
 
+
+Testing:
+ # run all tests
+ - ./setup.py test --addopts="--runslow"
+ # run only fast tests
+ - ./setup.py test
+ # stop testing after first failed test (does not work in the root dir currently, only in the modules subdirs)
+ - ./setup.py test --addopts="-x --runslow"
+ # verbose output
+ - ./setup.py test --addopts="-v --runslow" or - ./setup.py test --addopts="-vv --runslow"
