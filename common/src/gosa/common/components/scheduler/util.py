@@ -227,16 +227,9 @@ def to_unicode(string, encoding='ascii'):
     """
     if hasattr(string, 'decode'):
         return string.decode(encoding, 'ignore')
-    return string  # pragma: nocover
+    return string
 
-
-if sys.version_info < (3, 0):  # pragma: nocover
-    iteritems = lambda d: d.iteritems()
-    itervalues = lambda d: d.itervalues()
-    xrange = xrange #@ReservedAssignment
-    basestring = basestring #@ReservedAssignment
-else:  # pragma: nocover
-    iteritems = lambda d: d.items()
-    itervalues = lambda d: d.values()
-    xrange = range #@ReservedAssignment
-    basestring = str #@ReservedAssignment
+iteritems = lambda d: d.items()
+itervalues = lambda d: d.values()
+xrange = range #@ReservedAssignment
+basestring = str #@ReservedAssignment

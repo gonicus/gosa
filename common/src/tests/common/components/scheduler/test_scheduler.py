@@ -18,7 +18,6 @@ from gosa.common.components.scheduler.events import *
 from gosa.common.components.scheduler.jobstores.ram_store import *
 from tests.helper import slow
 
-
 class CallHandler:
     def __init__(self):
         self.lock = threading.Lock()
@@ -35,7 +34,7 @@ def process(handler):
 class SchedulerTestCase(unittest.TestCase):
     def test_SchedulerAlreadyRunningError(self):
         err = SchedulerAlreadyRunningError()
-        self.assertEqual(str(err), 'Scheduler is already running')
+        assert str(err) == "Scheduler is already running"
 
     def test_configure(self):
         s = Scheduler()
@@ -305,3 +304,36 @@ class SchedulerTestCase(unittest.TestCase):
             s.add_job(SimpleTrigger("2016-12-14"), dummy, (), {})
             s.start()
             s.shutdown()
+
+    @unittest.mock.patch("gosa.common.components.scheduler.scheduler.inspect")
+    @unittest.mock.patch("gosa.common.components.scheduler.scheduler.sys", wraps=sys)
+    def test_set_job_property(self, sysMock, inspectMock):
+        def dummy(): pass
+        j = Job(SimpleTrigger("2016-12-12"), dummy, (), {}, 1, False)
+        
+        sysMock._getframe.return_value = unittest.mock.MagicMock()
+        
+        def getargvalues(fr):
+            if fr:
+                self_ = unittest.mock.MagicMock(name="Scheduler")
+                self_.__class__.__name__ = "Scheduler"
+                self_.__contains__.return_value = True
+                return [0, 0, 0, {"self": self_, "job": j}]
+            else:
+                return unittest.mock.MagicMock()
+        inspectMock.getargvalues.side_effect = getargvalues
+        
+        set_job_property("key", "value")
+        
+        assert getattr(j, "key", None) == "value"
+        
+        inspectMock.getargvalues.side_effect = None
+        inspectMock.getargvalues.return_value = [0, 0, 0, {}]
+        with pytest.raises(Exception):
+            set_job_property("key", "value")
+    
+    def test_custom_threadpool(self):
+        pool = unittest.mock.MagicMock()
+        s = Scheduler(gconfig={"gosa.common.components.scheduler.threadpool": pool})
+        assert pool == s._threadpool
+        s.shutdown()    

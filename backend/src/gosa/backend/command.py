@@ -339,7 +339,7 @@ class CommandRegistry(Plugin):
                 if event_type == "Notification" and xml.Notification.Target.text != "all":
                     params['channel'] = "user.%s" % xml.Notification.Target.text
 
-                SseHandler.send_message(etree.tostring(xml).decode('utf-8'), **params)
+                SseHandler.notify(xml, **params)
 
             zope.event.notify(Event(data=xml, emitter=user))
 

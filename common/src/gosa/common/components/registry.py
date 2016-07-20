@@ -43,8 +43,6 @@ class PluginRegistry(object):
 
         # Load common event resources
         base_dir = resource_filename('gosa.common', 'data/events') + os.sep
-        if os.sep == "\\":
-            base_dir = "file:///" + "/".join(base_dir.split("\\"))
 
         files = [ev for ev in resource_listdir('gosa.common', 'data/events')
                 if ev[-4:] == '.xsd']
@@ -71,8 +69,6 @@ class PluginRegistry(object):
             # Check for event resources
             if resource_isdir(clazz.__module__, 'data/events'):
                 base_dir = resource_filename(clazz.__module__, 'data/events')
-                if os.sep == "\\":
-                    base_dir = "file:///" + "/".join(base_dir.split("\\"))
 
                 for filename in resource_listdir(clazz.__module__, 'data/events'):
                     if filename[-4:] != '.xsd':

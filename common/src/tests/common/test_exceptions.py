@@ -12,7 +12,6 @@ class ExceptionsTestCase(unittest.TestCase):
         for name, exc in inspect.getmembers(gosa.common.exceptions):
             if name.startswith("__"): continue
             if inspect.isclass(exc):
-                print(name, exc)
                 assert issubclass(exc, Exception)
                 i += 1
         assert i == 19

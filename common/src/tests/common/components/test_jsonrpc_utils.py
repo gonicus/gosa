@@ -7,6 +7,13 @@ import pytest
 from io import StringIO
 from gosa.common.components.jsonrpc_utils import *
 
+class ProxyDummy:
+    new_proxy = unittest.mock.MagicMock()
+    def __call__(self):
+        return FactoryHandler.decode({"object": "data", "__jsonclass__": ["json.FactoryHandler", ["json.FactoryHandler"]]})
+    def getProxy(self, *args, **kwargs):
+        return ProxyDummy.new_proxy
+
 class JSONRPCUtilsTestCase(unittest.TestCase):
     def test_JSONRPCException(self):
         error = "error details"
@@ -74,6 +81,21 @@ class JSONRPCUtilsTestCase(unittest.TestCase):
         
         assert b1.__ne__(data1) == NotImplemented
         assert b1.__eq__(data1) == NotImplemented
+    def test_FactoryHandler(self):
+        assert issubclass(FactoryHandler, JSONDataHandler)
+        
+        assert FactoryHandler.canhandle() == "json.JSONObjectFactory"
+        assert FactoryHandler.encode("anything") == "anything"
+        assert FactoryHandler.isinstance("anything") == False
+        
+        with unittest.mock.patch("gosa.common.components.jsonrpc_proxy.JSONObjectFactory") as jsonOF:
+            pd = ProxyDummy()
+            factory = pd()()
+            assert jsonOF.get_instance.call_args_list == [unittest.mock.call(ProxyDummy.new_proxy, "json.FactoryHandler", {"object": "data"})]
+        
+        with pytest.raises(NotImplementedError):
+            FactoryHandler.decode({"any": "thing"})
+
     @unittest.mock.patch.dict("gosa.common.components.jsonrpc_utils.json_handlers", {"datetime.date": DateTimeDateHandler}, clear=True)
     def test_PObjectEncoder(self):
         poe = PObjectEncoder()

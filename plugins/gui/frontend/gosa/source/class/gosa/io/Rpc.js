@@ -184,10 +184,9 @@ qx.Class.define("gosa.io.Rpc", {
             cl.running = false;
             cl.process_queue();
 
-            // Re-connect websockets
-            //TODO: go SSE
-            //var messaging = gosa.io.WebSocket.getInstance();
-            //messaging.reconnect();
+            // Re-connect SSE
+            var messaging = gosa.io.Sse.getInstance();
+            messaging.reconnect();
           }, cl);
 
           // Catch potential errors here. 

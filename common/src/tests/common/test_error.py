@@ -9,8 +9,6 @@ class ExceptionsTestCase(unittest.TestCase):
         m = regex.match(to_match)
         error_uuid = uuid.UUID(m.group(1))
         error_code = m.group(2)
-        print("UUID: "+str(error_uuid))
-        print("ERROR_CODE: "+error_code)
         return (error_uuid, error_code)
     
     def test_make_error(self):
@@ -26,16 +24,15 @@ class ExceptionsTestCase(unittest.TestCase):
             #self.assertRaises(KeyError, GosaErrorHandler.make_error, "NOT_EXISTANT_ERROR_CODE1234", resource="test")
         
         if not "TEST_ERROR" in GosaErrorHandler._codes:
-            self.assertEqual(GosaErrorHandler.make_error("TEST_ERROR"), "TEST_ERROR")
+            assert GosaErrorHandler.make_error("TEST_ERROR") == "TEST_ERROR"
             
             GosaErrorHandler.register_codes({"TEST_ERROR": N_("Message without further variables")})
         err = GosaErrorHandler.make_error("TEST_ERROR")
         self.parseGosaExceptionArgs(err)
-        
-    
+
     def test_GosaException(self):
         exc = GosaException("NO_SUCH_RESOURCE", resource="test")
-    
+
     def test_getError(self):
         # Method does not use the user parameter
         
@@ -47,7 +44,7 @@ class ExceptionsTestCase(unittest.TestCase):
             ).args[0])
         error_handler = GosaErrorHandler()
         got_error = error_handler.getError(None, error_uuid, locale="en_EN.UTF-8")
-        self.assertEqual(got_error["text"], error_code)
+        assert got_error["text"] == error_code
         
         # Test trace flag
         error_uuid, error_code = self.parseGosaExceptionArgs(
@@ -57,4 +54,4 @@ class ExceptionsTestCase(unittest.TestCase):
             ).args[0])
         error_handler = GosaErrorHandler()
         got_error = error_handler.getError(None, error_uuid, trace=True)
-        self.assertEqual(got_error["text"], error_code)
+        assert got_error["text"] == error_code

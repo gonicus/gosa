@@ -8,7 +8,6 @@ from gosa.common.components.scheduler.triggers.cron.fields import *
 from gosa.common.components.scheduler.triggers.cron.expressions import *
 
 class ExpressionsTestCase(unittest.TestCase):
-    # TODO
     def test_AllExpression(self):
         assert AllExpression.value_re == re.compile(r'\*(?:/(?P<step>\d+))?$')
         
@@ -22,14 +21,11 @@ class ExpressionsTestCase(unittest.TestCase):
         assert str(ae) == "*"
         assert repr(ae) == "AllExpression(None)"
         
-        ae = AllExpression(step=2)
-        day_field = DayOfWeekField("day_of_week", "mon")
-        dt = datetime.date(2016, 6, 12)
-        #assert ae.get_next_value(dt, week_field) == ((dt + datetime.timedelta(weeks=4)).isocalendar()[1])# == 52
-        assert ae.get_next_value(dt, week_field)
+        ae = AllExpression(step=3)
+        assert ae.get_next_value(dt, week_field) == 52
 
-        assert str(ae) == "*/2"
-        assert repr(ae) == "AllExpression(2)"
+        assert str(ae) == "*/3"
+        assert repr(ae) == "AllExpression(3)"
         # Note to __str__(self): May be more explicit:
         # if step is None:
         #     return '*'
