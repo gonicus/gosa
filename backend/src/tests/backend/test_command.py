@@ -82,7 +82,7 @@ class CommandRegistryTestCase(unittest.TestCase):
             # add listener
             handle_event = unittest.mock.MagicMock()
 
-            ZopeEventConsumer(type='Message', callback=handle_event.process)
+            ZopeEventConsumer(type='Notification', callback=handle_event.process)
             self.reg.sendEvent('admin', backendChangeData)
             assert not handle_event.process.called
 

@@ -49,7 +49,7 @@ class LdapBackendTestCase(TestCase):
             assert m.called
             args, kwargs = m.call_args_list[0]
             assert args[0] == 'cn=Frank Reich,ou=people,dc=example,dc=net'
-            assert (ldap.MOD_DELETE, 'objectClass', ['shadowAccount', 'sambaSamAccount']) in args[1]
+            assert (ldap.MOD_DELETE, 'objectClass', [b'shadowAccount', b'sambaSamAccount']) in args[1]
             assert (ldap.MOD_DELETE, 'gender', None) in args[1]
             assert 'cn=Frank Reich,ou=people,dc=example,dc=net' not in self.ldap._LDAP__i_cache_ttl
             assert 'cn=Frank Reich,ou=people,dc=example,dc=net' not in self.ldap._LDAP__i_cache
@@ -103,7 +103,7 @@ class LdapBackendTestCase(TestCase):
             })
             args, kwargs = ma.call_args_list[0]
             assert 'cn=Test User,ou=people,dc=example,dc=net' == args[0]
-            assert ('objectClass', ['top', 'person', 'organizationalPerson']) in args[1]
+            assert ('objectClass', [b'top', b'person', b'organizationalPerson']) in args[1]
             assert ('attr', [b'test']) in args[1]
             assert ('cn', [b'Test User']) in args[1]
             assert len(args[1]) == 3
@@ -126,7 +126,7 @@ class LdapBackendTestCase(TestCase):
             }, ['attr'])
             args, kwargs = mm.call_args_list[0]
             assert 'ou=people,dc=example,dc=net' == args[0]
-            assert (ldap.MOD_ADD, 'objectClass', ['top', 'person', 'organizationalPerson']) in args[1]
+            assert (ldap.MOD_ADD, 'objectClass', [b'top', b'person', b'organizationalPerson']) in args[1]
             assert (ldap.MOD_ADD, 'cn', [b'Test User']) in args[1]
             assert len(args[1]) == 2
 

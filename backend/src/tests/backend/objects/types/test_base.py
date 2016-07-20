@@ -18,7 +18,7 @@ class AnyTypeTestCase(unittest.TestCase):
         assert self.type.values_match(False, True) is False
 
     def test_fixup(self):
-        assert self.type.fixup(["1", "2"]) == [b"1",b"2"]
+        assert self.type.fixup(["1", "2"]) == ["1", "2"]
 
     def test__convert_to_integer(self):
         assert self.type._convert_to_integer(["1", "2"]) == [1, 2]

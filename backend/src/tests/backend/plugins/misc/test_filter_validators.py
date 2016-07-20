@@ -71,26 +71,16 @@ class FilterValidatorTests(unittest.TestCase):
         assert len(errors) == 0
 
     @unittest.mock.patch.object(PluginRegistry, 'getInstance')
-    def test_ObjectWithPropertyExists(self, mockedRegistry):
-        # mockup ObjectIndex.search
-        MyIndex = type('MyIndex', (object,), {})
-        index = MyIndex()
-        found = unittest.mock.MagicMock(autoSpec=True, create=True)
-        found.count.return_value = 0
-
-        def search(param1, param2):
-            return found
-
-        index.search = search
-        mockedRegistry.return_value = index
+    def test_ObjectWithPropertyExists(self, mocked_registry):
+        mocked_registry.return_value.search.return_value = []
 
         # start the tests
         filter = ObjectWithPropertyExists(None)
         (res, errors) = filter.process(None, None, ["test"], "type", "attr")
-        assert res == False
+        assert res is False
         assert len(errors) == 1
 
-        found.count.return_value = 1
+        mocked_registry.return_value.search.return_value = [1]
         (res, errors) = filter.process(None, None, ["test"], "type", "attr")
-        assert res == True
+        assert res is True
         assert len(errors) == 0
