@@ -12,11 +12,10 @@ try:
     import dbus
 
 except ImportError:
-    print "Please install the python dbus module."
+    print("Please install the python dbus module.")
     sys.exit(1)
 
-import gobject
-gobject.threads_init() #@UndefinedVariable
+import gi
 import time
 from threading import Thread
 from dbus.mainloop.glib import DBusGMainLoop
@@ -40,7 +39,7 @@ class DBusRunner(object):
 
     def start(self):
         """
-        Start the :func:`gobject.MainLoop` to establish DBUS communications.
+        Start the :func:`gi.MainLoop` to establish DBUS communications.
         """
         if self.__active:
             return
@@ -48,7 +47,7 @@ class DBusRunner(object):
         self.__active = True
 
         def runner():
-            self.__gloop = gobject.MainLoop()
+            self.__gloop = gi.MainLoop()
             context = self.__gloop.get_context()
             while self.__active:
                 context.iteration(False)
