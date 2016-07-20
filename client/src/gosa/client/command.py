@@ -23,7 +23,7 @@ via the :meth:`gosa.agent.plugins.goto.client_service.ClientService.clientDispat
 import re
 import inspect
 import logging
-from zope.interface import implements
+from zope.interface import implementer
 
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import Command, CommandInvalid
@@ -31,12 +31,12 @@ from gosa.common.components.registry import PluginRegistry
 from gosa.common import Environment
 
 
+@implementer(IInterfaceHandler)
 class ClientCommandRegistry(object):
     """
     This class covers the registration and invocation of methods
     imported thru plugins.
     """
-    implements(IInterfaceHandler)
     _priority_ = 2
     commands = {}
     nodes = {}

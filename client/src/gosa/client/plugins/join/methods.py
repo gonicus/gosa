@@ -1,6 +1,6 @@
-# This file is part of the clacks framework.
+# This file is part of the gosa framework.
 #
-#  http://clacks-project.org
+#  http://gosa-project.org
 #
 # Copyright:
 #  (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
@@ -20,18 +20,18 @@ import logging
 from urlparse import urlparse
 from pkg_resources import resource_filename #@UnresolvedImport
 from urllib import quote_plus as quote
-from clacks.common.components.zeroconf_client import ZeroconfClient
-from clacks.common.components import AMQPServiceProxy
-from clacks.common.components.jsonrpc_proxy import JSONRPCException
-from clacks.common import Environment
-from clacks.common.utils import dmi_system
+from gosa.common.components.zeroconf_client import ZeroconfClient
+from gosa.common.components import AMQPServiceProxy
+from gosa.common.components.jsonrpc_proxy import JSONRPCException
+from gosa.common import Environment
+from gosa.common.utils import dmi_system
 from qpid.messaging.exceptions import ConnectionError
 from Crypto.Cipher import AES
 from base64 import b64decode
 
 
 # Include locales
-t = gettext.translation('messages', resource_filename("clacks.client", "locale"), fallback=True)
+t = gettext.translation('messages', resource_filename("gosa.client", "locale"), fallback=True)
 _ = t.ugettext
 
 
@@ -43,7 +43,7 @@ class join_method(object):
      * Curses
      * QT
 
-    in the moment. By implementing the :class:`clacks.client.plugins.join.methods.join_method` interface,
+    in the moment. By implementing the :class:`gosa.client.plugins.join.methods.join_method` interface,
     new ones (i.e. graphical) can simply be added. The resulting modules have to be
     registerd in the setuptools ``[gosa.client.join.module]`` section.
 
@@ -238,7 +238,7 @@ class join_method(object):
         """
         This dialog presents the join dialog aquiring the username
         and the password of a person capable to join the client. It
-        must call the :meth:`clacks.client.plugins.join.methods.join_method.join`
+        must call the :meth:`gosa.client.plugins.join.methods.join_method.join`
         method and loop until success or abort itself.
         """
         raise NotImplemented("join_dialog not implemented")

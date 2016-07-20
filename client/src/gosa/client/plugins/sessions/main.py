@@ -16,27 +16,27 @@ Session trigger
 To. Do.
 """
 
-import gobject #@UnusedImport
 import pwd
+import dbus
 import zope.event
-from dateutil.parser import parse
 from gosa.common.components import Plugin
 from gosa.common.components import Command
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.dbus_runner import DBusRunner
 from gosa.common import Environment
 from gosa.common.event import EventMaker
-from zope.interface import implements
+from zope.interface import implementer
 from gosa.common.handler import IInterfaceHandler
 from gosa.client.event import Resume
 
 
+@implementer(IInterfaceHandler)
 class SessionKeeper(Plugin):
     """
     Utility class that contains methods needed to handle WakeOnLAN
     functionality.
     """
-    implements(IInterfaceHandler)
+
     _priority_ = 99
     _target_ = 'session'
     __sessions = {}
@@ -65,8 +65,7 @@ class SessionKeeper(Plugin):
 
         # register a signal receiver
         self.__bus.add_signal_receiver(self.event_handler,
-            dbus_interface="org.freedesktop.ConsoleKit.Seat",
-            message_keyword='dbus_message')
+            dbus_interface="org.freedesktop.login1.Manager")
 
         # Trigger session update
         self.__update_sessions()
@@ -74,8 +73,7 @@ class SessionKeeper(Plugin):
     def stop(self):
         if self.__bus:
             self.__bus.remove_signal_receiver(self.event_handler,
-                dbus_interface="org.freedesktop.ConsoleKit.Seat",
-                message_keyword='dbus_message')
+                dbus_interface="org.freedesktop.login1.Manager")
 
     def __handle_events(self, event):
         if isinstance(event, Resume):
@@ -89,34 +87,30 @@ class SessionKeeper(Plugin):
             self.__callback(dbus_message.get_member(), msg_string)
 
     def __update_sessions(self):
-        obj = self.__bus.get_object("org.freedesktop.ConsoleKit",
-            "/org/freedesktop/ConsoleKit/Manager")
+        obj = self.__bus.get_object("org.freedesktop.login1",
+            "/org/freedesktop/login1")
+        interface = dbus.Interface(obj, "org.freedesktop.login1.Manager")
         sessions = {}
 
-        for session_name in obj.GetSessions():
-            session_o = self.__bus.get_object("org.freedesktop.ConsoleKit",
-                session_name)
-
-            uid = pwd.getpwuid(int(session_o.GetUser())).pw_name
-            sessions[str(session_name).split("/")[-1]] = {
-                "uid": uid,
-                "active": bool(session_o.IsActive()),
-                "created": parse(str(session_o.GetCreationTime())),
-                "display": str(session_o.GetX11Display()),
-            }
-
+        for uid_number, uid, user_path in interface.ListUsers():
+            if int(uid_number) > int(self.env.config.get('user.min-uid', "1000")):
+                sessions[str(uid_number)] = {
+                    "uid": str(uid),
+                }
         self.__sessions = sessions
         self.sendSessionNotification()
 
     def sendSessionNotification(self):
         # Build event
-        amqp = PluginRegistry.getInstance("AMQPClientHandler")
-        e = EventMaker()
-        more = set([x['uid'] for x in self.__sessions.values()])
-        more = map(e.Name, more)
-        info = e.Event(
-            e.UserSession(
-                e.Id(self.env.uuid),
-                e.User(*more)))
-
-        amqp.sendEvent(info)
+        print("event sending deactivated")
+        # TODO replace with SSE/RPC
+        # amqp = PluginRegistry.getInstance("AMQPClientHandler")
+        # e = EventMaker()
+        # more = set([x['uid'] for x in self.__sessions.values()])
+        # more = map(e.Name, more)
+        # info = e.Event(
+        #     e.UserSession(
+        #         e.Id(self.env.uuid),
+        #         e.User(*more)))
+        #
+        # amqp.sendEvent(info)

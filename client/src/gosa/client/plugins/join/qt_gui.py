@@ -12,9 +12,9 @@
 
 import os
 import gettext
-from clacks.client import __version__ as VERSION
-from clacks.client.plugins.join.methods import join_method
-from clacks.common.components.zeroconf_client import ZeroconfClient
+from gosa.client import __version__ as VERSION
+from gosa.client.plugins.join.methods import join_method
+from gosa.common.components.zeroconf_client import ZeroconfClient
 from pkg_resources import resource_filename #@UnresolvedImport
 
 # Include locales

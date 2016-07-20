@@ -7,7 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-from zope.interface import Interface, implements
+from zope.interface import Interface, implementer
 
 
 class IResume(Interface):
@@ -16,8 +16,8 @@ class IResume(Interface):
         pass
 
 
+@implementer(IResume)
 class Resume(object):
-    implements(IResume)
 
     def __init__(self):
         pass

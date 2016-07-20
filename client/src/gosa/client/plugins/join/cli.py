@@ -13,7 +13,7 @@
 import time
 import gettext
 import getpass
-from clacks.client.plugins.join.methods import join_method
+from gosa.client.plugins.join.methods import join_method
 from pkg_resources import resource_filename #@UnresolvedImport
 
 # Include locales

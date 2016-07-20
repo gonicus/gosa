@@ -59,7 +59,7 @@ from dbus.exceptions import DBusException
 import os
 import logging
 from lxml import etree
-from zope.interface import implements
+from zope.interface import implementer
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import Plugin, PluginRegistry
 from gosa.common.components.dbus_runner import DBusRunner
@@ -69,6 +69,7 @@ class DBusProxyException(Exception):
     pass
 
 
+@implementer(IInterfaceHandler)
 class DBUSProxy(Plugin):
     """
     DBus service plugin.
@@ -80,7 +81,6 @@ class DBUSProxy(Plugin):
     can be accessed by calling callDBusMethod, except for
     anonymous methods (those starting with _ or :)
     """
-    implements(IInterfaceHandler)
     _target_ = 'service'
     _priority_ = 5
 
@@ -104,7 +104,7 @@ class DBUSProxy(Plugin):
                  'u': [int],
                  't': [int],
                  'b': [bool],
-                 's': [unicode, str],
+                 's': [str],
                  'o': [object],
                  'd': [float]}
 

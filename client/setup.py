@@ -93,7 +93,7 @@ setup(
         [gosa.client.module]
         command = gosa.client.command:ClientCommandRegistry
         amqp = gosa.client.amqp:AMQPClientHandler
-        amqp_service = gosa.client.amqp_service:AMQPClientService
+        #amqp_service = gosa.client.amqp_service:AMQPClientService
         notify = gosa.client.plugins.notify.main:Notify
         inventory = gosa.client.plugins.inventory.main:Inventory
         service = gosa.client.plugins.dbus.proxy:DBUSProxy

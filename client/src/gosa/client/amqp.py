@@ -11,18 +11,18 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import socket
-import thread
+#import thread
 import logging
 from lxml import etree
-from urlparse import urlparse
-from qpid.messaging import Connection
-from qpid.messaging.util import auto_fetch_reconnect_urls
-from qpid.messaging.exceptions import NotFound
-from clacks.common.components import AMQPServiceProxy
-from clacks.common.components.amqp import AMQPHandler, EventProvider
-from clacks.common.components.zeroconf_client import ZeroconfClient
-from clacks.common.utils import parseURL
-from clacks.common import Environment
+# from urlparse import urlparse
+# from qpid.messaging import Connection
+# from qpid.messaging.util import auto_fetch_reconnect_urls
+# from qpid.messaging.exceptions import NotFound
+# from gosa.common.components import AMQPServiceProxy
+# from gosa.common.components.amqp import AMQPHandler, EventProvider
+# from gosa.common.components.zeroconf_client import ZeroconfClient
+from gosa.common.utils import parseURL
+from gosa.common import Environment
 
 # Global lock
 a_lock = thread.allocate_lock()

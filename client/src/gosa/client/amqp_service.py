@@ -51,14 +51,14 @@ from netaddr import IPNetwork
 from zope.interface import implements
 from qpid.messaging import Message
 from qpid.messaging.exceptions import NotFound
-from clacks.common.gjson import loads, dumps
-from clacks.common.components.jsonrpc_utils import ServiceRequestNotTranslatable, BadServiceRequest
-from clacks.common.handler import IInterfaceHandler
-from clacks.common.components.registry import PluginRegistry
-from clacks.common.components.amqp import AMQPWorker, EventConsumer
-from clacks.common.event import EventMaker
-from clacks.common import Environment
-from clacks.client.event import Resume
+from gosa.common.gjson import loads, dumps
+from gosa.common.components.jsonrpc_utils import ServiceRequestNotTranslatable, BadServiceRequest
+from gosa.common.handler import IInterfaceHandler
+from gosa.common.components.registry import PluginRegistry
+from gosa.common.components.amqp import AMQPWorker, EventConsumer
+from gosa.common.event import EventMaker
+from gosa.common import Environment
+from gosa.client.event import Resume
 
 
 class AMQPClientService(object):
@@ -199,7 +199,7 @@ class AMQPClientService(object):
 
         try:
             req = loads(message.content)
-        except ServiceRequestNotTranslatable, e:
+        except ServiceRequestNotTranslatable as e:
             err = str(e)
             req = {'id': id_}
 
