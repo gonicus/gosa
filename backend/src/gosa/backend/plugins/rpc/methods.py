@@ -466,7 +466,7 @@ class RPCMethods(Plugin):
             if item._type in self.__search_aid['resolve']:
                 for r in self.__search_aid['resolve'][item._type]:
                     if r['attribute'] in kv:
-                        tag = r['_type'] if r['_type'] else item._type
+                        tag = r['type'] if r['type'] else item._type
 
                         # If a category was choosen and it does not fit the
                         # desired target tag - skip that one
@@ -476,7 +476,7 @@ class RPCMethods(Plugin):
                         if hasattr(ObjectInfoIndex, r['filter']):
                             squery.append(and_(ObjectInfoIndex._type == tag, getattr(ObjectInfoIndex, r['filter']) ==  kv[r['attribute']]))
                         else:
-                            squery.append(and_(ObjectInfoIndex._type == tag, KeyValueIndex.key == r['filter'], KeyValueIndex.value == kv[r['attribute']]))
+                            squery.append(and_(ObjectInfoIndex._type == tag, KeyValueIndex.key == r['filter'], KeyValueIndex.value == kv[r['attribute']][0]))
 
         # Perform secondary query and update the result
         if fltr['secondary'] == "enabled" and squery:

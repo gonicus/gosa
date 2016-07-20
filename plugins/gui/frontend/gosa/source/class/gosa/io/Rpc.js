@@ -139,9 +139,9 @@ qx.Class.define("gosa.io.Rpc", {
               this.__xsrf = qx.bom.Cookie.get("_xsrf");
               this.callAsync.apply(this, [item['callback']].concat(item['arguments']));
             }, this);
-            req.addListener("fail", function() {
-              //TODO: error handling
-              alert("doh");
+            req.addListener("fail", function(e) {
+              var d = new gosa.ui.dialogs.RpcError(str(e));
+              d.show();
             }, this);
             req.send();
           }
