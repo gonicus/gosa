@@ -22,7 +22,7 @@ Testing:
  - ./setup.py test --addopts="-v --runslow" or - ./setup.py test --addopts="-vv --runslow"
 
 DBus access:
- - create /etc/dbus-1/system.d/org.gosa.conf with content:
+ - create /etc/dbus-1/system.d/org.gosa.conf with content below and reload dbus (service dbus reload):
  <!DOCTYPE busconfig PUBLIC
   "-//freedesktop//DTD D-BUS Bus Configuration 1.0//EN"
   "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
@@ -46,3 +46,4 @@ DBus access:
    </policy>
 
  </busconfig>
+
