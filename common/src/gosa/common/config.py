@@ -37,15 +37,11 @@ import configparser
 import logging
 import logging.config
 import getpass
+import pwd
+import grp
 from argparse import ArgumentParser
 from gosa import __version__ as VERSION
 from io import StringIO
-
-
-# Only import pwd/grp stuff if we're not on windows
-if platform.system() != "Windows":
-    import pwd
-    import grp
 
 
 class ConfigNoFile(Exception):
@@ -89,13 +85,12 @@ class Config(object):
             self.__parseCmdOptions()
         self.__parseCfgOptions()
 
-        if platform.system() != "Windows":
-            user = getpass.getuser()
-            userHome = pwd.getpwnam(user).pw_dir
-            group = grp.getgrgid(pwd.getpwnam(user).pw_gid).gr_name
+        user = getpass.getuser()
+        userHome = pwd.getpwnam(user).pw_dir
+        group = grp.getgrgid(pwd.getpwnam(user).pw_gid).gr_name
 
-            self.__registry['core']['user'] = user
-            self.__registry['core']['group'] = group
+        self.__registry['core']['user'] = user
+        self.__registry['core']['group'] = group
 
     def __parseCmdOptions(self):
         parser = ArgumentParser(usage="%(prog)s - the gosa daemon")

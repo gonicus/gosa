@@ -182,8 +182,6 @@ class SQLAlchemyJobStoreTestCase(unittest.TestCase):
             assert arg == updateParam
         job_store.engine.execute.side_effect = execute
         
-        #job.
-        
         job_store.update_job(job)
 
     def test_close(self):

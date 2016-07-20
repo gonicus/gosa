@@ -5,7 +5,6 @@ import pytest
 from gosa.common.components.scheduler.triggers.interval import *
 
 class IntervalTriggerTestCase(unittest.TestCase):
-    #@unittest.mock.patch("gosa.common.components.scheduler.triggers.simple.convert_to_datetime", convert_to_datetime_mock)
     def test_intervalTrigger(self):
         with pytest.raises(TypeError):
             IntervalTrigger("TEST")
@@ -13,7 +12,7 @@ class IntervalTriggerTestCase(unittest.TestCase):
         with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
             now_dt = datetime.datetime(2016, 12, 12)
             datetimeMock.now.return_value = now_dt
-            # Automatic set time to 1s
+            # Automatically set time to 1s
             t = IntervalTrigger(datetime.timedelta())
             assert t.start_date == now_dt + datetime.timedelta(seconds=1)
             assert t.interval == datetime.timedelta(seconds=1)
