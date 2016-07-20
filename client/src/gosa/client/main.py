@@ -36,14 +36,15 @@ def shutdown(a=None, b=None):
     log = logging.getLogger(__name__)
 
     # Function to shut down the client. Do some clean up and close sockets.
-    amqp = PluginRegistry.getInstance("AMQPClientHandler")
-
-    # Tell others that we're away now
-    e = EventMaker()
-    goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
-    if amqp:
-        amqp.sendEvent(goodbye)
-        amqp.close()
+    # TODO replace with SSE/RPC
+    # amqp = PluginRegistry.getInstance("AMQPClientHandler")
+    #
+    # # Tell others that we're away now
+    # e = EventMaker()
+    # goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
+    # if amqp:
+    #     amqp.sendEvent(goodbye)
+    #     amqp.close()
 
     # Shutdown plugins
     PluginRegistry.shutdown()
@@ -108,7 +109,7 @@ def mainLoop(env):
                 time.sleep(1)
 
             # Load plugins
-            PluginRegistry(component='client.module')
+            PluginRegistry(component='gosa.client.module')
 
             # Sleep and slice
             wait = 2
@@ -185,15 +186,16 @@ def netactivity(online):
         env = Environment.getInstance()
         netstate = False
 
+        # TODO replace with SSE/RPC
         # Function to shut down the client. Do some clean up and close sockets.
-        amqp = PluginRegistry.getInstance("AMQPClientHandler")
-
-        # Tell others that we're away now
-        e = EventMaker()
-        goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
-        if amqp:
-            amqp.sendEvent(goodbye)
-            amqp.close()
+        # amqp = PluginRegistry.getInstance("AMQPClientHandler")
+        #
+        # # Tell others that we're away now
+        # e = EventMaker()
+        # goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
+        # if amqp:
+        #     amqp.sendEvent(goodbye)
+        #     amqp.close()
 
         env.reset_requested = True
         env.active = False
