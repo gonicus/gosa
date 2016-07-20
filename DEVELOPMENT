@@ -20,3 +20,29 @@ Testing:
  - ./setup.py test --addopts="-x --runslow"
  # verbose output
  - ./setup.py test --addopts="-v --runslow" or - ./setup.py test --addopts="-vv --runslow"
+
+DBus access:
+ - create /etc/dbus-1/system.d/org.gosa.conf with content:
+ <!DOCTYPE busconfig PUBLIC
+  "-//freedesktop//DTD D-BUS Bus Configuration 1.0//EN"
+  "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+ <busconfig>
+
+   <!-- Only user root can own the clacks dbus instance -->
+   <policy user="root">
+     <allow own="org.gosa"/>
+   </policy>
+
+   <policy group="gonicus">
+     <allow own="org.gosa"/>
+     <allow receive_sender="org.gosa"/>
+     <allow send_destination="org.gosa"
+            send_interface="org.freedesktop.DBus.Introspectable"/>
+     <allow send_destination="org.gosa"
+            send_interface="org.gosa"/>
+     <allow send_destination="org.freedesktop.login1"/>
+     <allow send_destination="org.freedesktop.Hal"
+            send_interface="org.freedesktop.Hal.Device.SystemPowerManagement"/>
+   </policy>
+
+ </busconfig>
