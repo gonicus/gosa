@@ -32,7 +32,6 @@ class SseHandlerTestCase(RemoteTestCase):
 
     def handleMessage(self, msg):
         for line in msg.strip().splitlines():
-            print(line)
             (field, value) = line.decode().split(":", 1)
             field = field.strip()
             if field == "data":
@@ -85,5 +84,16 @@ class SseHandlerTestCase(RemoteTestCase):
 
         self.check_data = '<Event xmlns="http://www.gonicus.de/Events"><Message><Topic>txt</Topic><Content>test</Content></Message></Event>'
         self.check_event = "txt"
+        self.io_loop.call_later(1, lambda: self.send_event('admin', self.check_data))
+        self.wait()
+
+    @slow
+    def test_notification(self, mocked_resolver):
+        mocked_resolver.return_value.check.return_value = True
+
+        self.login()
+        self.fetch_async(self.get_url('/events'), streaming_callback=self.handleMessage)
+
+        self.check_data = '<Event xmlns="http://www.gonicus.de/Events"><Notification><Target>admin</Target><Body>test</Body></Notification></Event>'
         self.io_loop.call_later(1, lambda: self.send_event('admin', self.check_data))
         self.wait()

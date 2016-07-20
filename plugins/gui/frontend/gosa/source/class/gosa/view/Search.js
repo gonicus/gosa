@@ -186,9 +186,9 @@ qx.Class.define("gosa.view.Search",
     this._currentResult = [];
 
     // Listen for object changes comming from the backend
-    gosa.io.WebSocket.getInstance().addListener("objectModified", this._handleObjectEvent, this);
-    gosa.io.WebSocket.getInstance().addListener("objectCreated", this._handleObjectEvent, this);
-    gosa.io.WebSocket.getInstance().addListener("objectRemoved", this._handleObjectEvent, this);
+    gosa.io.Sse.getInstance().addListener("objectModified", this._handleObjectEvent, this);
+    gosa.io.Sse.getInstance().addListener("objectCreated", this._handleObjectEvent, this);
+    gosa.io.Sse.getInstance().addListener("objectRemoved", this._handleObjectEvent, this);
   },
 
   events: {

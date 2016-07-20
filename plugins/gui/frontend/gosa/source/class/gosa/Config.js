@@ -19,7 +19,7 @@ qx.Class.define("gosa.Config", {
   statics: {
 
     url: "/rpc",
-    ws: "/ws",
+    sse: "/events",
     spath: "/static",
     service: "GOsa JSON-RPC service",
     actionDelimiter: '#',

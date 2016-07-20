@@ -21,15 +21,15 @@ qx.Class.define("gosa.proxy.Object", {
     // Call parent contructor
     this.base(arguments);
     this._setAttributes(data);
-    this._listenerID1 = gosa.io.WebSocket.getInstance().addListener("objectModified", this._objectEvent, this);
-    this._listenerID2 = gosa.io.WebSocket.getInstance().addListener("objectRemoved", this._objectEvent, this);
+    this._listenerID1 = gosa.io.Sse.getInstance().addListener("objectModified", this._objectEvent, this);
+    this._listenerID2 = gosa.io.Sse.getInstance().addListener("objectRemoved", this._objectEvent, this);
   },
 
   destruct : function(){
 
     // Stop listening for object changes
-    gosa.io.WebSocket.getInstance().removeListenerById(this._listenerID1);
-    gosa.io.WebSocket.getInstance().removeListenerById(this._listenerID2);
+    gosa.io.Sse.getInstance().removeListenerById(this._listenerID1);
+    gosa.io.Sse.getInstance().removeListenerById(this._listenerID2);
 
     // Remove every listener that was attached to us.
     // This allows us to set attribute values to null without
