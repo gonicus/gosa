@@ -7,16 +7,14 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import pytest
-import crypt
-from unittest import mock
+from unittest import mock, TestCase
 from gosa.backend.components.jsonrpc_objects import JSONRPCObjectMapper, ObjectRegistry
 from gosa.common.components import PluginRegistry
 from tests.GosaTestCase import *
 
 
 @slow
-class JSONRPCObjectMapperTestCase(GosaTestCase):
+class JSONRPCObjectMapperTestCase(TestCase):
 
     def setUp(self):
         super(JSONRPCObjectMapperTestCase, self).setUp()

@@ -1,12 +1,21 @@
+# This file is part of the GOsa framework.
+#
+#  http://gosa-project.org
+#
+# Copyright:
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
+#
+# See the LICENSE file in the project's top-level directory for details.
+
 import pytest
-from unittest import mock
+from unittest import mock, TestCase
 from gosa.backend.plugins.rpc.methods import GOsaException
 import gosa
-from tests.GosaTestCase import GosaTestCase, slow
+from tests.GosaTestCase import slow
 
 
 @slow
-class RpcMethodsTestCase(GosaTestCase):
+class RpcMethodsTestCase(TestCase):
 
     def setUp(self):
         super(RpcMethodsTestCase, self).setUp()

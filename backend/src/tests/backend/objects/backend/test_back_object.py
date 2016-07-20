@@ -7,13 +7,12 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-from unittest import mock
-import datetime
+from unittest import mock, TestCase
 from tests.GosaTestCase import *
 from gosa.backend.objects.backend.back_object import *
 
 
-class ObjectBackendTestCase(GosaTestCase):
+class ObjectBackendTestCase(TestCase):
 
     def setUp(self):
         self.back = ObjectHandler()

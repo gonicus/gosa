@@ -11,10 +11,10 @@ import unittest
 import pytest
 from gosa.backend.command import *
 from gosa.common.events import ZopeEventConsumer
-from tests.GosaTestCase import GosaTestCase, slow
+from tests.GosaTestCase import slow
 
 @slow
-class CommandRegistryTestCase(GosaTestCase):
+class CommandRegistryTestCase(unittest.TestCase):
 
     def setUp(self):
         super(CommandRegistryTestCase, self).setUp()
@@ -62,7 +62,7 @@ class CommandRegistryTestCase(GosaTestCase):
 
     def test_sendEvent(self):
         backendChangeData = '<Event xmlns="http://www.gonicus.de/Events"><BackendChange><ChangeType>modify</ChangeType><ModificationTime>20150101000000Z</ModificationTime></BackendChange></Event>'
-        data = '<Event xmlns="http://www.gonicus.de/Events"><Message><Content>test</Content></Message></Event>'
+        data = '<Event xmlns="http://www.gonicus.de/Events"><Notification><Target>admin</Target><Body>test</Body></Notification></Event>'
 
         mocked_resolver = unittest.mock.MagicMock()
         mocked_resolver.check.return_value = False
@@ -76,7 +76,7 @@ class CommandRegistryTestCase(GosaTestCase):
 
             with pytest.raises(etree.XMLSyntaxError):
                 # message without content
-                self.reg.sendEvent('admin', '<Event xmlns="http://www.gonicus.de/Events"><Message></Message></Event>')
+                self.reg.sendEvent('admin', '<Event xmlns="http://www.gonicus.de/Events"><Notification></Notification></Event>')
 
 
             # add listener
@@ -88,6 +88,7 @@ class CommandRegistryTestCase(GosaTestCase):
 
             # send data as str
             self.reg.sendEvent('admin', data)
+            assert handle_event.process.called
             args, kwargs = handle_event.process.call_args
             called_string = etree.tostring(args[0])
             assert called_string.decode() == data
@@ -95,6 +96,7 @@ class CommandRegistryTestCase(GosaTestCase):
 
             # send data as bytes
             self.reg.sendEvent('admin', bytes(data, 'utf-8'))
+            assert handle_event.process.called
             args, kwargs = handle_event.process.call_args
             called_string = etree.tostring(args[0])
             assert called_string.decode() == data
@@ -102,17 +104,18 @@ class CommandRegistryTestCase(GosaTestCase):
 
             # send data as xml
             self.reg.sendEvent('admin', etree.fromstring(data))
+            assert handle_event.process.called
             args, kwargs = handle_event.process.call_args
             called_string = etree.tostring(args[0])
             assert called_string.decode() == data
             handle_event.reset_mock()
 
-            # send data as str with topic + channel
-            data = '<Event xmlns="http://www.gonicus.de/Events"><Message><Topic>tester</Topic><Channel>chan</Channel><Content>test</Content></Message></Event>'
+            # send data with target all
+            data = '<Event xmlns="http://www.gonicus.de/Events"><Notification><Target>all</Target><Body>test</Body></Notification></Event>'
             self.reg.sendEvent('admin', data)
+            assert handle_event.process.called
             args, kwargs = handle_event.process.call_args
             called_string = etree.tostring(args[0])
             assert called_string.decode() == data
             args, kwargs = mocked_sse.call_args
-            assert kwargs.get('topic') == "tester"
-            assert kwargs.get('channel') == "chan"
+            assert kwargs.get('channel') == "broadcast"

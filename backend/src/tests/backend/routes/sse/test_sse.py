@@ -52,7 +52,7 @@ class SseHandlerTestCase(RemoteTestCase):
         self.login()
         self.fetch_async(self.get_url('/events'), streaming_callback=self.handleMessage)
         # post something
-        self.check_data = '<Event xmlns="http://www.gonicus.de/Events"><Message><Content>test</Content></Message></Event>'
+        self.check_data = '<Event xmlns="http://www.gonicus.de/Events"><Notification><Target>admin</Target><Body>test</Body></Notification></Event>'
         self.io_loop.call_later(1, lambda: self.send_event('admin', self.check_data))
         self.wait()
 
@@ -63,28 +63,16 @@ class SseHandlerTestCase(RemoteTestCase):
         self.login()
         # initial connection
         future = self.fetch_async(self.get_url('/events'), streaming_callback=self.handleMessage)
-        self.check_data = '<Event xmlns="http://www.gonicus.de/Events"><Message><Content>test</Content></Message></Event>'
+        self.check_data = '<Event xmlns="http://www.gonicus.de/Events"><Notification><Target>admin</Target><Body>test</Body></Notification></Event>'
         self.io_loop.call_later(1, lambda: self.send_event('admin', self.check_data))
         self.wait()
         del future
 
-        self.check_data = '<Event xmlns="http://www.gonicus.de/Events"><Message><Content>deferred test</Content></Message></Event>'
+        self.check_data = '<Event xmlns="http://www.gonicus.de/Events"><Notification><Target>admin</Target><Body>deferred test</Body></Notification></Event>'
         self.send_event('admin', self.check_data)
 
         self.fetch_async(self.get_url('/events'), streaming_callback=self.handleMessage,
                          headers={'Last-Event-ID': self.last_id})
-        self.wait()
-
-    @slow
-    def test_named_events(self, mocked_resolver):
-        mocked_resolver.return_value.check.return_value = True
-
-        self.login()
-        self.fetch_async(self.get_url('/events'), streaming_callback=self.handleMessage)
-
-        self.check_data = '<Event xmlns="http://www.gonicus.de/Events"><Message><Topic>txt</Topic><Content>test</Content></Message></Event>'
-        self.check_event = "txt"
-        self.io_loop.call_later(1, lambda: self.send_event('admin', self.check_data))
         self.wait()
 
     @slow

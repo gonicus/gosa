@@ -7,8 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import pytest
-from unittest import mock
+from unittest import mock, TestCase
 
 from gosa.common.components import ObjectRegistry
 from tests.GosaTestCase import *
@@ -16,7 +15,7 @@ from gosa.backend.objects.index import *
 
 
 @slow
-class ObjectIndexTestCase(GosaTestCase):
+class ObjectIndexTestCase(TestCase):
 
     def setUp(self):
         super(ObjectIndexTestCase, self).setUp()

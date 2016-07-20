@@ -7,15 +7,14 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import pytest
 import datetime
-from unittest import mock
+from unittest import mock, TestCase
 from tests.GosaTestCase import *
 from gosa.backend.objects.proxy import *
 
 
 @slow
-class ObjectProxyTestCase(GosaTestCase):
+class ObjectProxyTestCase(TestCase):
 
     def test_init(self):
         with pytest.raises(ProxyException),\

@@ -7,13 +7,13 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import pytest
+import unittest
 from tests.GosaTestCase import *
 from gosa.backend.objects.factory import *
 
 
 @slow
-class ObjectBackendTestCase(GosaTestCase):
+class ObjectBackendTestCase(unittest.TestCase):
 
     def setUp(self):
         super(ObjectBackendTestCase, self).setUp()

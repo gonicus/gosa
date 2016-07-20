@@ -7,14 +7,14 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-from unittest import mock
+from unittest import mock, TestCase
 from gosa.backend.objects import ObjectFactory
 from tests.GosaTestCase import *
 from gosa.backend.objects.object import *
 
 
 @slow
-class ObjectTestCase(GosaTestCase):
+class ObjectTestCase(TestCase):
 
     def test_listProperties(self):
         obj = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')

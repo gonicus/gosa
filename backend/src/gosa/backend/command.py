@@ -333,17 +333,12 @@ class CommandRegistry(Plugin):
                 if not acl.check(user, topic, "x"):
                     raise EventNotAuthorized("sending the event '%s' is not permitted" % topic)
 
-            params = {'channel': 'broadcast'}
-            if event_type in ['Message', 'Notification']:
-                if event_type == "Message":
-                    if hasattr(xml.Message, "Channel"):
-                        params['channel'] = xml.Message.Channel.text
-                    if hasattr(xml.Message, "Topic"):
-                        params['topic'] = xml.Message.Topic.text
+            if event_type in ['ObjectChanged', 'Notification']:
+                params = {'channel': 'broadcast'}
 
-                elif event_type == "Notification":
+                if event_type == "Notification" and xml.Notification.Target.text != "all":
                     params['channel'] = "user.%s" % xml.Notification.Target.text
-                print("send %s event to sse" % event_type)
+
                 SseHandler.send_message(etree.tostring(xml).decode('utf-8'), **params)
 
             zope.event.notify(Event(data=xml, emitter=user))

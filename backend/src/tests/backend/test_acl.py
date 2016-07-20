@@ -6,16 +6,16 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-from unittest import mock
+from unittest import mock, TestCase
 import pytest
 from gosa.common.components import PluginRegistry
-from tests.GosaTestCase import GosaTestCase, slow
+from tests.GosaTestCase import slow
 from gosa.backend.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLException
 from gosa.common import Environment
 
 
 @slow
-class ACLSetTestCase(GosaTestCase):
+class ACLSetTestCase(TestCase):
 
     def setUp(self):
         super(ACLSetTestCase, self).setUp()
@@ -76,7 +76,7 @@ class ACLSetTestCase(GosaTestCase):
 
 
 @slow
-class ACLRoleTestCase(GosaTestCase):
+class ACLRoleTestCase(TestCase):
 
     def setUp(self):
         super(ACLRoleTestCase, self).setUp()
@@ -107,7 +107,7 @@ class ACLRoleTestCase(GosaTestCase):
 
 
 @slow
-class ACLTestCase(GosaTestCase):
+class ACLTestCase(TestCase):
 
     def setUp(self):
         super(ACLTestCase, self).setUp()
@@ -213,7 +213,7 @@ class ACLTestCase(GosaTestCase):
 
 
 @slow
-class ACLRoleEntryTestCase(GosaTestCase):
+class ACLRoleEntryTestCase(TestCase):
 
     def setUp(self):
         super(ACLRoleEntryTestCase, self).setUp()
@@ -226,7 +226,7 @@ class ACLRoleEntryTestCase(GosaTestCase):
 
 
 @slow
-class ACLResolverTestCase(GosaTestCase):
+class ACLResolverTestCase(TestCase):
 
     env = None
     ldap_base = None
