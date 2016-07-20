@@ -75,7 +75,7 @@ class ImageProcessor(ElementFilter):
 
             # Check if a cache entry exists...
             try:
-                entry = self.__session.query(ImageIndex.modified).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
+                entry = self.__session.query(ImageIndex).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
             except OperationalError:
                 Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
                 entry = None

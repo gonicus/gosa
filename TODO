@@ -33,3 +33,4 @@
 
 # Index
 - Zu viele Attribute im Index. Warum?
+  -> weil nicht gefiltert wird...
