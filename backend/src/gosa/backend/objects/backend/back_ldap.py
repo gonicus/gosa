@@ -513,4 +513,4 @@ class LDAP(ObjectBackend):
         return bytes(value.strftime("%Y%m%d%H%M%SZ"), 'ascii')
 
     def _convert_to_binary(self, value):
-        return bytes(value.get(), "ascii")
+        return value.get();

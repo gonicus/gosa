@@ -128,7 +128,7 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
     container.setContextMenu(menu);
     container.addListener('click', function(e){
       menu.open();
-      menu.placeToMouse(e);
+      menu.placeToPointer(e);
     }, this);
   },
 
