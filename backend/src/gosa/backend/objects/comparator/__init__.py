@@ -30,9 +30,6 @@ def get_comparator(name):
 
 class ElementComparator(object):
 
-    def __init(self, obj):  # pragma: nocover
-        pass
-
     def process(self, *args, **kwargs):  # pragma: nocover
         raise NotImplementedError(C.make_error('NOT_IMPLEMENTED', method="process"))
 

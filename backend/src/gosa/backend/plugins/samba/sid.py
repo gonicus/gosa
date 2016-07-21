@@ -32,8 +32,6 @@ class CheckSambaSIDList(ElementComparator):
     Checks whether the given sambaSIDList can be saved or if it
     will produce recursions.
     """
-    def __init__(self, obj):
-        super(CheckSambaSIDList, self).__init__()
 
     def process(self, all_props, key, value):
         errors = []
@@ -55,7 +53,7 @@ class DetectSambaDomainFromSID(ElementFilter):
         super(DetectSambaDomainFromSID, self).__init__(obj)
         self.env = Environment.getInstance()
 
-    def process(self, obj, key, valDict, sid):
+    def process(self, all_props, key, valDict, sid):
 
         index = PluginRegistry.getInstance("ObjectIndex")
         sids = index.search({'_type': 'SambaDomain'}, {'sambaSID': 1, 'sambaDomainName': 1})

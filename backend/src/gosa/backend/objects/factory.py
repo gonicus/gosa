@@ -1321,9 +1321,9 @@ class ObjectFactory(object):
         # Append operator
         cnt = len(out)
         if element.__dict__['Operator'] == "or":
-            out[cnt + 1] = {'operator': get_operator('Or')(self)}
+            out[cnt + 1] = {'operator': get_operator('Or')()}
         else:
-            out[cnt + 1] = {'operator': get_operator('And')(self)}
+            out[cnt + 1] = {'operator': get_operator('And')()}
 
         return out
 
@@ -1348,7 +1348,7 @@ class ObjectFactory(object):
 
         # Append the condition to the process list.
         cnt = len(out) + 1
-        out[cnt] = {'condition': get_comparator(name)(self), 'params': params}
+        out[cnt] = {'condition': get_comparator(name)(), 'params': params}
         return out
 
     @staticmethod
