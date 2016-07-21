@@ -557,8 +557,6 @@ class RPCMethods(Plugin):
             'secondary': secondary, 'lastChanged': item['_last_changed'], 'hasChildren': True}
         for k, v in self.__search_aid['mapping'][item['_type']].items():
             if k:
-                if k == "icon":
-                    continue
                 if v in item and item[v]:
                     if v == "dn":
                         entry[k] = item[v]
@@ -567,15 +565,7 @@ class RPCMethods(Plugin):
                 else:
                     entry[k] = self.__build_value(v, item)
     
-            entry['icon'] = None
             entry['container'] = item['_type'] in self.containers
-    
-            icon_attribute = self.__search_aid['mapping'][item['_type']]['icon']
-            if icon_attribute and icon_attribute in item and item[icon_attribute]:
-                cache_path = self.env.config.get('gui.cache-path', default="/cache")
-                entry['icon'] = os.path.join(cache_path, item['_uuid'],
-                        icon_attribute, "0", "64.jpg?c=%s" %
-                        item['_last_changed'])
     
         res[item['dn']] = entry
     
