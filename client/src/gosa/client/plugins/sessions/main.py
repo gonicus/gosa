@@ -102,15 +102,13 @@ class SessionKeeper(Plugin):
 
     def sendSessionNotification(self):
         # Build event
-        print("event sending deactivated")
-        # TODO replace with SSE/RPC
-        # amqp = PluginRegistry.getInstance("AMQPClientHandler")
-        # e = EventMaker()
-        # more = set([x['uid'] for x in self.__sessions.values()])
-        # more = map(e.Name, more)
-        # info = e.Event(
-        #     e.UserSession(
-        #         e.Id(self.env.uuid),
-        #         e.User(*more)))
-        #
-        # amqp.sendEvent(info)
+        mqtt = PluginRegistry.getInstance("MQTTClientHandler")
+        e = EventMaker()
+        more = set([x['uid'] for x in self.__sessions.values()])
+        more = map(e.Name, more)
+        info = e.Event(
+            e.UserSession(
+                e.Id(self.env.uuid),
+                e.User(*more)))
+
+        mqtt.send_message(info)

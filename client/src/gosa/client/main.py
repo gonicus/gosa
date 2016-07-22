@@ -37,14 +37,14 @@ def shutdown(a=None, b=None):
 
     # Function to shut down the client. Do some clean up and close sockets.
     # TODO replace with SSE/RPC
-    # amqp = PluginRegistry.getInstance("AMQPClientHandler")
-    #
-    # # Tell others that we're away now
-    # e = EventMaker()
-    # goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
-    # if amqp:
-    #     amqp.sendEvent(goodbye)
-    #     amqp.close()
+    mqtt = PluginRegistry.getInstance("MQTTClientHandler")
+
+    # Tell others that we're away now
+    e = EventMaker()
+    goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
+    if mqtt:
+        mqtt.send_message(goodbye)
+        mqtt.close()
 
     # Shutdown plugins
     PluginRegistry.shutdown()
@@ -93,7 +93,7 @@ def mainLoop(env):
 
     # Do network monitoring
     nm = Monitor(netactivity)
-    netstate = nm.is_online()
+    netactivity(nm.is_online())
 
     """ Main event loop which will process all registerd threads in a loop.
         It will run as long env.active is set to True."""
@@ -162,7 +162,7 @@ def mainLoop(env):
                 time.sleep(1)
 
             sleep = randint(30, 60)
-            env.log.info("waiting %s seconds to try an AMQP connection recovery" % sleep)
+            env.log.info("waiting %s seconds to try an MQTT connection recovery" % sleep)
             time.sleep(sleep)
 
     except Exception as detail:
@@ -186,16 +186,15 @@ def netactivity(online):
         env = Environment.getInstance()
         netstate = False
 
-        # TODO replace with SSE/RPC
         # Function to shut down the client. Do some clean up and close sockets.
-        # amqp = PluginRegistry.getInstance("AMQPClientHandler")
-        #
-        # # Tell others that we're away now
-        # e = EventMaker()
-        # goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
-        # if amqp:
-        #     amqp.sendEvent(goodbye)
-        #     amqp.close()
+        mqtt = PluginRegistry.getInstance("MQTTClientHandler")
+
+        # Tell others that we're away now
+        e = EventMaker()
+        goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
+        if mqtt:
+            mqtt.send_message(goodbye)
+            mqtt.close()
 
         env.reset_requested = True
         env.active = False
@@ -213,6 +212,12 @@ def main():
 
     # Inizialize core environment
     env = Environment.getInstance()
+    # TODO: remove this
+    env.uuid = 'admin'
+    env.id = 'client_id'
+
+    env.active = False
+
     env.log.info("GOsa client is starting up")
 
     mainLoop(env)

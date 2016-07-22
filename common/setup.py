@@ -28,24 +28,8 @@ common_install_requires = [
     'pyOpenSSL',
     'sqlalchemy',
     'lxml',
-    'cryptography>=1.3'
+    'cryptography>=1.3',
     ],
-
-if platform.system() == "Windows":
-    common_install_requires[0].append([
-        'pybonjour',
-    ])
-
-else:
-    # Not installable this way:
-    # avahi, pygtk (gobject), dbus
-    #install_requires[0].append([
-    #    'dbus',
-    #    'avahi',
-    #    'PyGTK',
-    #])
-    pass
-
 
 setup(
     name = "gosa.common",

@@ -14,17 +14,18 @@ import re
 import os
 import gettext
 import netifaces #@UnresolvedImport
-import ConfigParser
+from configparser import ConfigParser
 import socket
 import logging
-from urlparse import urlparse
+from urllib.parse import urlparse
 from pkg_resources import resource_filename #@UnresolvedImport
-from urllib import quote_plus as quote
+from urllib.parse import quote_plus as quote
 from gosa.common.components.zeroconf_client import ZeroconfClient
 from gosa.common.components import AMQPServiceProxy
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
 from gosa.common import Environment
 from gosa.common.utils import dmi_system
+from gosa.common.utils import N_
 from qpid.messaging.exceptions import ConnectionError
 from Crypto.Cipher import AES
 from base64 import b64decode
@@ -147,7 +148,7 @@ class join_method(object):
         return (url, sys_id, key)
 
     def discover(self):
-        print _("Searching for service provider...")
+        print(N_("Searching for service provider..."))
         return ZeroconfClient.discover(['_amqps._tcp', '_amqp._tcp'], domain=self.domain)[0]
 
     def get_service(self):

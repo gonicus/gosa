@@ -59,7 +59,6 @@ setup(
         'gosa.client.plugins.inventory': ['data/xmlToChecksumXml.xsl'],
     },
 
-    test_suite = "nose.collector",
     zip_safe = False,
 
     setup_requires = [
@@ -77,6 +76,7 @@ setup(
         'netifaces',
         'python_dateutil',
         'setproctitle',
+        'pycrypto',
     ],
 
     entry_points = """
@@ -92,8 +92,8 @@ setup(
 
         [gosa.client.module]
         command = gosa.client.command:ClientCommandRegistry
-        amqp = gosa.client.amqp:AMQPClientHandler
-        #amqp_service = gosa.client.amqp_service:AMQPClientService
+        mqtt = gosa.client.mqtt:MQTTClientHandler
+        mqtt_service = gosa.client.mqtt_service:MQTTClientService
         notify = gosa.client.plugins.notify.main:Notify
         inventory = gosa.client.plugins.inventory.main:Inventory
         service = gosa.client.plugins.dbus.proxy:DBUSProxy

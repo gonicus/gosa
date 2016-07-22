@@ -89,6 +89,9 @@ setup(
         /events = gosa.backend.routes.sse.main:SseHandler
         /static/(?P<path>.*)? = gosa.backend.routes.static.main:StaticHandler
         /rpc = gosa.backend.components.jsonrpc_service:JsonRpcHandler
+        /mqtt/auth/(?P<path>.*)? = gosa.backend.routes.mqtt.auth:MosquittoAuthHandler
+        /mqtt/acl = gosa.backend.routes.mqtt.auth:MosquittoAclHandler
+        /mqtt/superuser = gosa.backend.routes.mqtt.auth:MosquittoSuperuserHandler
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
