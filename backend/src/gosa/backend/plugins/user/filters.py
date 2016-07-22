@@ -102,7 +102,7 @@ class ImageProcessor(ElementFilter):
                     continue
 
                 # Check for target directory
-                wd = os.path.join(self.__path, obj.uuid)
+                wd = os.path.join(self.__path, obj.uuid, key, str(idx))
                 if os.path.exists(wd) and not os.path.isdir(wd):
                     raise ElementFilterException(C.make_error("USER_IMAGE_CACHE_BROKEN"))
                 if not os.path.exists(wd):

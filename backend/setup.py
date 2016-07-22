@@ -87,6 +87,7 @@ setup(
 
         [gosa.route]
         /events = gosa.backend.routes.sse.main:SseHandler
+        /images/(?P<path>.*)? = gosa.backend.routes.static.main:ImageHandler
         /static/(?P<path>.*)? = gosa.backend.routes.static.main:StaticHandler
         /rpc = gosa.backend.components.jsonrpc_service:JsonRpcHandler
         /mqtt/auth/(?P<path>.*)? = gosa.backend.routes.mqtt.auth:MosquittoAuthHandler
@@ -189,6 +190,7 @@ setup(
 
         [gosa.object.renderer]
         extensions = gosa.backend.objects.renderer.extensions:ExtensionRenderer
+        user_photo = gosa.backend.objects.renderer.photo:UserPhotoRenderer
 
         [gosa.object]
         object = gosa.backend.objects.proxy:ObjectProxy

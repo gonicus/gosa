@@ -17,9 +17,6 @@ class IsAclRole(ElementComparator):
     Checks whether the given value is a valid AclRole.
     """
 
-    def __init__(self, obj):
-        super(IsAclRole, self).__init__()
-
     def process(self, all_props, key, value):
 
         errors = []

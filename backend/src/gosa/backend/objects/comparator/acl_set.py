@@ -17,9 +17,6 @@ class IsAclSet(ElementComparator):
     Checks whether the given value is a valid AclSet.
     """
 
-    def __init__(self, obj):
-        super(IsAclSet, self).__init__()
-
     def process(self, all_props, key, value):
 
         # Check each property value

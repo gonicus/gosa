@@ -1046,7 +1046,7 @@ class Object(object):
                         oval = self.myProperties[idsc[1]]['orig_value'][0]
                     else:
                         oval = None
-                    dns = index.search({'_type': ref, ref_attribute: oval}, {'dn': 1})
+                    dns = index.search({'_type': ref, ref_attribute: str(oval)}, {'dn': 1})
                     if len(dns):
                         dns = [x['dn'] for x in dns]
                     res.append((
