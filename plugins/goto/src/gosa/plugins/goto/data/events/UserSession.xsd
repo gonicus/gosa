@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events">
+
+    <complexType name="User">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+                <element name="Name" type="string"></element>
+        </sequence>
+    </complexType>
+
+    <complexType name="UserSession">
+    	<annotation>
+    		<documentation>
+    			The UserSession event is fired when a user logs on or off.
+    		</documentation>
+    	</annotation>
+        <all>
+		<element name="Id" type="string"></element>
+    		<element name="User" type="e:User" minOccurs="0" maxOccurs="1"></element>
+    	</all>
+    </complexType>
+    
+    <element name="UserSession" type="e:UserSession"></element>
+
+</schema>
