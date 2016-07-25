@@ -79,7 +79,7 @@ def test_IsValidSambaDomainName(mockedInstance):
     # mock the whole lookup in the ObjectIndex to return True
     mockedInstance.return_value.search.return_value = [1]
 
-    check = IsValidSambaDomainName(None)
+    check = IsValidSambaDomainName()
 
     (res, errors) = check.process(None, None, ["test"])
     assert res is True

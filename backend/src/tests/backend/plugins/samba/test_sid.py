@@ -14,7 +14,7 @@ from gosa.backend.plugins.samba.sid import *
 class SambaSidTestCase(unittest.TestCase):
 
     def test_CheckSambaSIDList(self):
-        comp = CheckSambaSIDList(None)
+        comp = CheckSambaSIDList()
         testDict = {
             "sambaSID": {
                 "value": ["test"]

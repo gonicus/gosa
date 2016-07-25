@@ -50,8 +50,8 @@ class UserFiltersTestCase(TestCase):
             filter.process(user, "image", test_dict, "32", "64")
             assert ma.called
             assert mc.called
-            assert os.path.exists(os.path.join(image_dir, "32.jpg"))
-            assert os.path.exists(os.path.join(image_dir, "64.jpg"))
+            assert os.path.exists(os.path.join(image_dir, "image", "0", "32.jpg"))
+            assert os.path.exists(os.path.join(image_dir, "image", "0", "64.jpg"))
 
         shutil.rmtree(image_dir)
 
@@ -63,8 +63,8 @@ class UserFiltersTestCase(TestCase):
             filter.process(user, "image", test_dict, "32", "64")
             assert not ma.called
             assert not mc.called
-            assert not os.path.exists(os.path.join(image_dir, "32.jpg"))
-            assert not os.path.exists(os.path.join(image_dir, "64.jpg"))
+            assert not os.path.exists(os.path.join(image_dir, "image", "0", "32.jpg"))
+            assert not os.path.exists(os.path.join(image_dir, "image", "0", "64.jpg"))
 
             filter.process(user, "image", {'image': {'value': [Binary(b"wrong binary data")]}}, "32", "64")
 
@@ -73,8 +73,8 @@ class UserFiltersTestCase(TestCase):
             filter.process(user, "image", {'image': {'value': [Binary(b"wrong binary data")]}}, "32", "64")
             assert ma.called
             assert mc.called
-            assert not os.path.exists(os.path.join(image_dir, "32.jpg"))
-            assert not os.path.exists(os.path.join(image_dir, "64.jpg"))
+            assert not os.path.exists(os.path.join(image_dir, "image", "0", "32.jpg"))
+            assert not os.path.exists(os.path.join(image_dir, "image", "0", "64.jpg"))
 
     def test_LoadDisplayNameState(self):
         filter = LoadDisplayNameState(None)

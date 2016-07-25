@@ -13,7 +13,7 @@ from gosa.backend.plugins.misc.filter_validators import *
 class FilterValidatorTests(unittest.TestCase):
 
     def test_IsValidHostName(self):
-        filter = IsValidHostName(None)
+        filter = IsValidHostName()
         (res, errors) = filter.process(None, None, ["www.gonicus.de"])
         assert res == True
         assert len(errors) == 0
@@ -35,7 +35,7 @@ class FilterValidatorTests(unittest.TestCase):
         mockedRegistry.return_value = index
 
         # start the tests
-        filter = IsExistingDN(None)
+        filter = IsExistingDN()
         (res, errors) = filter.process(None, None, ["test"])
         assert res == False
         assert len(errors) == 1
@@ -60,7 +60,7 @@ class FilterValidatorTests(unittest.TestCase):
         mockedRegistry.return_value = index
 
         # start the tests
-        filter = IsExistingDnOfType(None)
+        filter = IsExistingDnOfType()
         (res, errors) = filter.process(None, None, ["test"], "type")
         assert res == False
         assert len(errors) == 1
@@ -75,7 +75,7 @@ class FilterValidatorTests(unittest.TestCase):
         mocked_registry.return_value.search.return_value = []
 
         # start the tests
-        filter = ObjectWithPropertyExists(None)
+        filter = ObjectWithPropertyExists()
         (res, errors) = filter.process(None, None, ["test"], "type", "attr")
         assert res is False
         assert len(errors) == 1

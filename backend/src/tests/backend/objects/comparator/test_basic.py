@@ -13,7 +13,7 @@ from gosa.backend.objects.comparator.basic import Equals, Greater, Smaller
 class BasicComparatorTests(unittest.TestCase):
 
     def test_equals(self):
-        comp = Equals(None)
+        comp = Equals()
         (result, errors) = comp.process(None, None, ["test","test"], "test")
         assert result == True
         assert len(errors) == 0
@@ -39,7 +39,7 @@ class BasicComparatorTests(unittest.TestCase):
         assert len(errors) == 1
 
     def test_greater(self):
-        comp = Greater(None)
+        comp = Greater()
         (result, errors) = comp.process(None, None, [5, 6], 3)
         assert result == True
         assert len(errors) == 0
@@ -66,7 +66,7 @@ class BasicComparatorTests(unittest.TestCase):
         assert len(errors) == 1
 
     def test_smaller(self):
-        comp = Smaller(None)
+        comp = Smaller()
         (result, errors) = comp.process(None, None, [5, 6], 13)
         assert result == True
         assert len(errors) == 0
