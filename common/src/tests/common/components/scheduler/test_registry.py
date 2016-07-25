@@ -77,11 +77,6 @@ class RegistryTestCase(unittest.TestCase):
             assert PluginRegistry.handlers == {"Module1": entries[0].load()()}
             assert PluginRegistry.evreg == {"globalevent": "/test/filename/globalevent.xsd", "testevent": "/test/filename/testevent.xsd"}
             
-            assert loggerMock.debug.call_args_list == [unittest.mock.call("inizializing plugin registry"),
-                    unittest.mock.call("adding common event 'globalevent'"),
-                    unittest.mock.call('registering handler module Module1'),
-                    unittest.mock.call("adding module event 'testevent'")]
-            
             # getInstance:
             with pytest.raises(ValueError):
                 PluginRegistry.getInstance("notexistant")

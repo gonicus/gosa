@@ -72,7 +72,7 @@ class JSONRPCUtilsTestCase(unittest.TestCase):
         b1.set(data2)
         assert b1.data == data2
         assert b1.get() == data2
-        assert b1.encode() == base64.b64encode(data2)
+        assert b1.encode() == base64.b64encode(data2).decode('ascii')
         
         b2 = Binary(data2)
         assert b1.__eq__(b2)
@@ -100,14 +100,13 @@ class JSONRPCUtilsTestCase(unittest.TestCase):
     def test_PObjectEncoder(self):
         poe = PObjectEncoder()
         
-        with unittest.mock.patch("sys.stdout", new=StringIO()) as stdoutMock:
-            data = datetime.date(2016, 12, 12)
-            poe.default(data) == DateTimeDateHandler.encode(data)
+        data = datetime.date(2016, 12, 12)
+        poe.default(data) == DateTimeDateHandler.encode(data)
             
-            data = "TESTING"
-            with pytest.raises(TypeError):
-                poe.default(data)
-            assert stdoutMock.getvalue().strip() == "no TESTING <class 'str'>"
+        data = "TESTING"
+        with pytest.raises(TypeError):
+            poe.default(data)
+
     @unittest.mock.patch.dict("gosa.common.components.jsonrpc_utils.json_handlers", {"datetime.date": DateTimeDateHandler}, clear=True)
     def test_PObjectDecoder(self):
         dt = datetime.date(2016, 12, 12)
