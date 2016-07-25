@@ -85,9 +85,6 @@ setup(
         gosa-join = gosa.client.join:main
 
         [gosa.client.join.module]
-        join.qt = gosa.client.plugins.join.qt_gui:CuteGUI
-        join.newt = gosa.client.plugins.join.newt_gui:NewtGUI
-        join.curses = gosa.client.plugins.join.curses_gui:CursesGUI
         join.cli = gosa.client.plugins.join.cli:Cli
 
         [gosa.client.module]
