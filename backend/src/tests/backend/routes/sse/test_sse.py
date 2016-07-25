@@ -15,6 +15,7 @@ from gosa.backend.routes.sse.main import SseHandler
 from gosa.backend.components.jsonrpc_service import JsonRpcHandler
 from tests.RemoteTestCase import RemoteTestCase
 from tests.GosaTestCase import slow
+from gosa.common.event import EventMaker
 
 
 @mock.patch("gosa.backend.command.PluginRegistry.getInstance")
@@ -65,11 +66,20 @@ class SseHandlerTestCase(RemoteTestCase):
         self.fetch_async(self.get_url('/events'), streaming_callback=self.handle_message)
         # post something
         self.check_data = {
-            "body": "test",
-            "title": "System notification"
+            "uuid": "uuid",
+            "changeType": "modify"
         }
-        self.check_event = "notification"
-        self.io_loop.call_later(1, lambda: self.send_event('admin', '<Event xmlns="http://www.gonicus.de/Events"><Notification><Target>admin</Target><Body>test</Body></Notification></Event>'))
+        e = EventMaker()
+
+        self.check_event = "objectChange"
+        self.io_loop.call_later(1, lambda: self.send_event('admin',
+                                                           e.Event(
+                                                               e.ObjectChanged(
+                                                                   e.UUID('uuid'),
+                                                                   e.ModificationTime("20150101000000Z"),
+                                                                   e.ChangeType("modify")
+                                                               )
+                                                           )))
         self.wait()
 
     @slow
@@ -80,35 +90,32 @@ class SseHandlerTestCase(RemoteTestCase):
         # initial connection
         future = self.fetch_async(self.get_url('/events'), streaming_callback=self.handle_message)
         self.check_data = {
-            "body": "test",
-            "title": "System notification"
+            "uuid": "test"
         }
-        self.check_event = "notification"
-        self.io_loop.call_later(1, lambda: self.send_event('admin', '<Event xmlns="http://www.gonicus.de/Events"><Notification><Target>admin</Target><Body>test</Body></Notification></Event>'))
+        self.check_event = "objectChange"
+        e = EventMaker()
+        self.io_loop.call_later(1, lambda: self.send_event('admin',
+                                                           e.Event(
+                                                               e.ObjectChanged(
+                                                                   e.UUID('test'),
+                                                                   e.ModificationTime("20150101000000Z"),
+                                                                   e.ChangeType("modify")
+                                                               )
+                                                           )))
         self.wait()
         del future
 
         self.check_data = {
-            "body": "deferred test",
-            "title": "System notification"
+            "uuid": "deferred test"
         }
-        self.send_event('admin', '<Event xmlns="http://www.gonicus.de/Events"><Notification><Target>admin</Target><Body>deferred test</Body></Notification></Event>')
+        self.send_event('admin', e.Event(
+            e.ObjectChanged(
+                e.UUID('deferred test'),
+                e.ModificationTime("20150101000000Z"),
+                e.ChangeType("modify")
+            )
+        ))
 
         self.fetch_async(self.get_url('/events'), streaming_callback=self.handle_message,
                          headers={'Last-Event-ID': self.last_id})
-        self.wait()
-
-    @slow
-    def test_notification(self, mocked_resolver):
-        mocked_resolver.return_value.check.return_value = True
-
-        self.login()
-        self.fetch_async(self.get_url('/events'), streaming_callback=self.handle_message)
-
-        self.check_data = {
-            "body": "test",
-            "title": "System notification"
-        }
-        self.check_event = "notification"
-        self.io_loop.call_later(1, lambda: self.send_event('admin', '<Event xmlns="http://www.gonicus.de/Events"><Notification><Target>admin</Target><Body>test</Body></Notification></Event>'))
         self.wait()

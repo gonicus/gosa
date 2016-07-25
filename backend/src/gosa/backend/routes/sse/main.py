@@ -120,8 +120,8 @@ class SseHandler(web.RequestHandler):
         data = data.ObjectChanged
 
         SseHandler.send_message({
-            "uuid": data.UUID.text,
-            "dn": data.DN.text,
+            "uuid": data.UUID.text if hasattr(data, "UUID") else "",
+            "dn": data.DN.text if hasattr(data, "DN") else "",
             "lastChanged": data.ModificationTime.text,
             "changeType": data.ChangeType.text,
         }, topic="objectChange", channel=channel)
