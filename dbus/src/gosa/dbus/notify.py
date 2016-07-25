@@ -209,7 +209,7 @@ class Notify(object):
         """
 
         # Prepare regular expressions to find processes for X sessions
-        prog = re.compile("(gnome-session|x-session-manager|/bin/sh.*/usr/bin/startkde|.*/start_kdeinit)")
+        prog = re.compile("(/usr/bin/gnome-shell|x-session-manager|/bin/sh.*/usr/bin/startkde|.*/start_kdeinit)")
 
         # Walk through process ids and search for processes owned by 'user'
         #  which represents a X Session.
