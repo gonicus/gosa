@@ -51,11 +51,11 @@ setup(
 
     packages = find_packages('src', exclude=['examples', 'tests']),
     package_dir={'': 'src'},
-    namespace_packages = ['gosa.plugin.gosa'],
+    namespace_packages = ['gosa.plugins.goto'],
 
     include_package_data = True,
     package_data = {
-        'gosa.plugin.goto': data_files
+        'gosa.plugins.goto': data_files
     },
 
     zip_safe = False,
