@@ -90,9 +90,9 @@ setup(
         /images/(?P<path>.*)? = gosa.backend.routes.static.main:ImageHandler
         /static/(?P<path>.*)? = gosa.backend.routes.static.main:StaticHandler
         /rpc = gosa.backend.components.jsonrpc_service:JsonRpcHandler
-        /mqtt/auth/(?P<path>.*)? = gosa.backend.routes.mqtt.auth:MosquittoAuthHandler
-        /mqtt/acl = gosa.backend.routes.mqtt.auth:MosquittoAclHandler
-        /mqtt/superuser = gosa.backend.routes.mqtt.auth:MosquittoSuperuserHandler
+        /mqtt/auth/(?P<path>.*)? = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoAuthHandler
+        /mqtt/acl = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoAclHandler
+        /mqtt/superuser = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoSuperuserHandler
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
