@@ -23,7 +23,7 @@ from operator import itemgetter
 
 # Include locales
 t = gettext.translation('messages', resource_filename("gosa.client", "locale"), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 joiner = None
 
 
@@ -34,6 +34,12 @@ def signal_handler(signal, frame):
 
 def main():
     global joiner
+
+    # check for root permission
+    if os.geteuid() != 0:
+        print("Error: you need to be root to join to the GOsa infrastructure!")
+        exit()
+
 
     # Init handler
     signal.signal(signal.SIGINT, signal_handler)
@@ -127,9 +133,4 @@ def main():
 
 
 if __name__ == '__main__':
-    # check for root permission
-    if os.geteuid() != 0:
-        print("Error: you need to be root to join to the GOsa infrastructure!")
-        exit()
-
     main()
