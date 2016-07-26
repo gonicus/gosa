@@ -13,7 +13,9 @@ cache:
     - plugins/gui/frontend/gosa/build
 
 before_install:
+    - sudo apt-get update
     - sudo apt-get install mosquitto
+    - mosquitto --version
     - mosquitto -d -c test.conf/mosquitto.conf
     - docker pull cpollmeier/gosa3:devel
     - docker run -d -p 389:389 -p 5433:5432 cpollmeier/gosa3:devel
