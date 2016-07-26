@@ -1,12 +1,9 @@
-# This file is part of the clacks framework.
+# This file is part of the GOsa framework.
 #
-#  http://clacks-project.org
+#  http://gosa-project.org
 #
 # Copyright:
-#  (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-#
-# License:
-#  GPL-2: http://www.gnu.org/licenses/gpl-2.0.html
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
 
@@ -14,8 +11,8 @@
 
 .. _dbus-service:
 
-Clacks D-Bus System Service Plugin
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GOsa D-Bus System Service Plugin
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Allows to manage client services and the runlevel.
 
@@ -23,9 +20,9 @@ Allows to manage client services and the runlevel.
 import dbus.service
 import logging
 from os.path import basename
-from clacks.common import Environment
-from clacks.common.components import Plugin
-from clacks.dbus import get_system_bus
+from gosa.common import Environment
+from gosa.common.components import Plugin
+from gosa.dbus import get_system_bus
 import re
 import subprocess
 
@@ -47,7 +44,7 @@ class NoSuchServiceException(ServiceException):
 class DBusUnixServiceHandler(dbus.service.Object, Plugin):
     """
 
-    The clacks-dbus system-service-plugin allows to manage services
+    The gosa-dbus system-service-plugin allows to manage services
     running on the client side. Services can be maintained by executing
     actions for them, e.g. ``start``, ``restart``, ``stop`` and so on,
     whatever action the service supports.
@@ -68,7 +65,7 @@ class DBusUnixServiceHandler(dbus.service.Object, Plugin):
 
     def __init__(self):
         conn = get_system_bus()
-        dbus.service.Object.__init__(self, conn, '/org/clacks/service')
+        dbus.service.Object.__init__(self, conn, '/org/gosa/service')
         self.env = Environment.getInstance()
         self.svc_command = self.env.config.get("dbus.service-command", default="/usr/sbin/service")
         self.log = logging.getLogger(__name__)
@@ -86,31 +83,31 @@ class DBusUnixServiceHandler(dbus.service.Object, Plugin):
 
         return services[name]
 
-    @dbus.service.method('org.clacks', out_signature='i')
+    @dbus.service.method('org.gosa', out_signature='i')
     def service_get_runlevel(self):
         """
-        Returns the current runlevel of the clacks-client.
+        Returns the current runlevel of the gosa-client.
         """
 
         # Call 'who -r' and parse the return value to get the run-level
         # run-level 2  Dec 19 01:21                   last=S
         process = subprocess.Popen(["who", "-r"], env={'LC_ALL': 'C'}, \
                 shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        ret = process.communicate()
-        runlevel = re.sub("^run-level[ ]*([0-9]*).*$", "\\1", ret[0].strip())
+        out = process.communicate()[0].decode()
+        runlevel = re.sub("^run-level[ ]*([0-9]*).*$", "\\1", out.strip())
         return int(runlevel)
 
-    @dbus.service.method('org.clacks', in_signature='i', out_signature='i')
+    @dbus.service.method('org.gosa', in_signature='i', out_signature='i')
     def service_set_runlevel(self, level):
         """
-        Sets a new runlevel for the clacks-client
+        Sets a new runlevel for the gosa-client
         """
         self.log.debug("client runlevel set toggled to: %s" % (str(level)))
         process = subprocess.Popen(["telinit", "%s" % (str(level))], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process.communicate()
         return process.returncode
 
-    @dbus.service.method('org.clacks', in_signature='ss', out_signature='i')
+    @dbus.service.method('org.gosa', in_signature='ss', out_signature='i')
     def service_action(self, service, action):
         """
         Executes a service action
@@ -122,7 +119,7 @@ class DBusUnixServiceHandler(dbus.service.Object, Plugin):
         process.communicate()
         return process.returncode == 0
 
-    @dbus.service.method('org.clacks', in_signature='s', out_signature='a{sv}')
+    @dbus.service.method('org.gosa', in_signature='s', out_signature='a{sv}')
     def get_service(self, name):
         """
         Returns status information for the given service.
@@ -133,7 +130,7 @@ class DBusUnixServiceHandler(dbus.service.Object, Plugin):
 
         return services[name]
 
-    @dbus.service.method('org.clacks', out_signature='a{sa{sas}}')
+    @dbus.service.method('org.gosa', out_signature='a{sa{sas}}')
     def get_services(self):
         """
         Returns status information for all services.
@@ -144,11 +141,11 @@ class DBusUnixServiceHandler(dbus.service.Object, Plugin):
         level = self.service_get_runlevel()
         process = subprocess.Popen(["run-parts", "--test", "--regex=^S*", "/etc/rc%s.d" % (str(level))],
                 shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env={'LC_ALL': 'C'})
-        ret = process.communicate()
+        out = process.communicate()[0].decode()
 
         # Parse results and strip out path infos and S[0-9] prefix
         services = {}
-        for entry in ret[0].split("\n"):
+        for entry in out.split("\n"):
             sname = re.sub("^S[0-9]*", "", basename(entry))
 
             # Do not add empty service names
@@ -158,7 +155,7 @@ class DBusUnixServiceHandler(dbus.service.Object, Plugin):
             # Try to detect the service actions we can perform (e.g. start/stop)
             _svcs = subprocess.Popen([self.svc_command, sname], env={'LC_ALL': 'C'},
                     stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
-            content = _svcs[0] + _svcs[1]
+            content = _svcs[0].decode() + _svcs[1].decode()
 
             # Search useable service actions in the result
             res = re.findall("(([a-zA-Z\-]*)\|)", content, re.MULTILINE) + re.findall("(\|([a-zA-Z\-]*))", content, re.MULTILINE)
@@ -177,7 +174,7 @@ class DBusUnixServiceHandler(dbus.service.Object, Plugin):
                 # Search for a string which tells us that the service is running
                 # Be careful some infos return values like this:
                 #  * isn't running | is not running | not running | failed (running) ...
-                state = re.search('is running', _svcs[0] + _svcs[1], flags=re.IGNORECASE) != None
+                state = re.search('is running', _svcs[0].decode() + _svcs[1].decode(), flags=re.IGNORECASE) != None
                 services[sname]['running'] = ["True"] if(state) else ["False"]
 
         return services
