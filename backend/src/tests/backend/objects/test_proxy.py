@@ -151,6 +151,7 @@ class ObjectProxyTestCase(TestCase):
         mocked_resolver.check.return_value = False
         with mock.patch.dict("gosa.backend.objects.proxy.PluginRegistry.modules", {'ACLResolver': mocked_resolver}),\
                 pytest.raises(ACLException):
+            user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net', None, 'admin')
             user.extend('TrustAccount')
 
         user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net')
@@ -185,6 +186,7 @@ class ObjectProxyTestCase(TestCase):
         mocked_resolver.check.return_value = False
         with mock.patch.dict("gosa.backend.objects.proxy.PluginRegistry.modules", {'ACLResolver': mocked_resolver}), \
              pytest.raises(ACLException):
+            user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net', None, 'admin')
             user.retract('SambaUser')
 
         user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net')
