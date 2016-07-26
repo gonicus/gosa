@@ -14,24 +14,27 @@ import random
 import hashlib
 import ldap
 import datetime
-import types
 import logging
+from uuid import uuid4
 from copy import copy
 from threading import Timer
-from zope.interface import implements
+from lxml import etree
+
+from gosa.backend.components.jsonrpc_service import JsonRpcHandler
+from gosa.common.components.mqtt_handler import MQTTHandler
+from zope.interface import implementer
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
-from qpid.messaging import uuid4
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.event import EventMaker
 from gosa.common import Environment
 from gosa.common.utils import stripNs, N_
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.components.registry import PluginRegistry
-from gosa.common.components.amqp import EventConsumer
-from gosa.common.components import AMQPServiceProxy, Plugin
+from gosa.common.components.mqtt_proxy import MQTTServiceProxy
+from gosa.common.components import Plugin
 from gosa.common.components.command import Command
-from gosa.backend.ldap_utils import LDAPHandler
-from base64 import encodestring as encode
+from gosa.backend.utils.ldap import LDAPHandler
+from base64 import b64encode as encode
 from Crypto.Cipher import AES
 
 STATUS_SYSTEM_ON = "O"
@@ -70,6 +73,7 @@ class GOtoException(Exception):
     pass
 
 
+@implementer(IInterfaceHandler)
 class ClientService(Plugin):
     """
     Plugin to register clients and expose their functionality
@@ -86,7 +90,7 @@ class ClientService(Plugin):
     +------------------+------------+-------------------------------------------------------------+
 
     """
-    implements(IInterfaceHandler)
+    
     _priority_ = 90
     _target_ = 'goto'
     __client = {}
@@ -104,30 +108,26 @@ class ClientService(Plugin):
         self.log.info("initializing client service")
         self.env = env
         self.__cr = None
+        self.mqtt = None
+
+    def __get_handler(self):
+        if self.mqtt is None:
+            self.mqtt = MQTTHandler()
+        return self.mqtt
 
     def serve(self):
         # Add event processor
-        amqp = PluginRegistry.getInstance('AMQPHandler')
-        EventConsumer(self.env,
-            amqp.getConnection(),
-            xquery="""
-                declare namespace f='http://www.gonicus.de/Events';
-                let $e := ./f:Event
-                return $e/f:ClientAnnounce
-                    or $e/f:ClientSignature
-                    or $e/f:ClientPing
-                    or $e/f:ClientLeave
-                    or $e/f:UserSession
-            """,
-            callback=self.__eventProcessor)
+        mqtt = self.__get_handler()
+        mqtt.get_client().add_subscription('%s/client/#' % self.env.domain)
+        mqtt.set_subscription_callback(self.__eventProcessor)
 
         # Get registry - we need it later on
         self.__cr = PluginRegistry.getInstance("CommandRegistry")
 
-        # Start maintainence with a delay of 5 seconds
-        timer = Timer(5.0, self.__refresh)
-        timer.start()
-        self.env.threads.append(timer)
+        # Start maintenance with a delay of 5 seconds
+        # timer = Timer(5.0, self.__refresh)
+        # timer.start()
+        # self.env.threads.append(timer)
 
         # Register scheduler task to remove outdated clients
         sched = PluginRegistry.getInstance('SchedulerService').getScheduler()
@@ -143,9 +143,8 @@ class ClientService(Plugin):
 
             # If we're alone, please clients to announce themselves
             if len(nodes) == 1 and self.env.id in nodes:
-                amqp = PluginRegistry.getInstance('AMQPHandler')
                 e = EventMaker()
-                amqp.sendEvent(e.Event(e.ClientPoll()))
+                self.mqtt.send_message(e.Event(e.ClientPoll()), "%s/client/broadcast" % self.env.domain)
 
             # Elseways, ask other servers for more client info
             else:
@@ -166,7 +165,7 @@ class ClientService(Plugin):
         ``Return:`` dict with name and timestamp informatio, indexed by UUID
         """
         res = {}
-        for uuid, info in self.__client.iteritems():
+        for uuid, info in self.__client.items():
             if info['online']:
                 res[uuid] = {'name': info['name'], 'last-seen': info['last-seen']}
         return res
@@ -195,14 +194,13 @@ class ClientService(Plugin):
         if not method in self.__client[client]['caps']:
             raise JSONRPCException("client '%s' has no method '%s' exported" % (client, method))
 
-        # Generate tage queue name
-        queue = '%s.client.%s' % (self.env.domain, client)
+        # Generate tag queue name
+        queue = '%s/client/%s' % (self.env.domain, client)
         self.log.debug("got client dispatch: '%s(%s)', sending to %s" % (method, arg, queue))
 
-        # client queue -> amqp rpc proxy
+        # client queue -> mqtt rpc proxy
         if not client in self.__proxy:
-            amqp = PluginRegistry.getInstance("AMQPHandler")
-            self.__proxy[client] = AMQPServiceProxy(amqp.url['source'], queue)
+            self.__proxy[client] = MQTTServiceProxy(self.mqtt, queue)
 
         # Call her to the moon...
         methodCall = getattr(self.__proxy[client], method)
@@ -279,7 +277,7 @@ class ClientService(Plugin):
 
         if users:
             # Notify a single / group of users
-            if type(users) != types.ListType:
+            if type(users) != list:
                 users = [users]
 
             for user in users:
@@ -298,10 +296,9 @@ class ClientService(Plugin):
                     self.log.error("sending message failed: no client found for user '%s'" % user)
 
                 # Notify websession user if available
-                jsrpc = PluginRegistry.getInstance("JSONRPCService")
-                if jsrpc.user_sessions_available(user):
-                    amqp = PluginRegistry.getInstance("AMQPHandler")
-                    amqp.sendEvent(self.notification2event(user, title, message, timeout, icon))
+                if JsonRpcHandler.user_sessions_available(user):
+                    mqtt = self.__get_handler()
+                    mqtt.send_message(self.notification2event(user, title, message, timeout, icon), topic="%s/client/%s" % (self.env.domain, user))
 
         else:
             # Notify all users
@@ -314,10 +311,9 @@ class ClientService(Plugin):
                     pass
 
             # Notify all websession users if any
-            jsrpc = PluginRegistry.getInstance("JSONRPCService")
-            if jsrpc.user_sessions_available():
-                amqp = PluginRegistry.getInstance("AMQPHandler")
-                amqp.sendEvent(self.notification2event("*", title, message, timeout, icon))
+            if JsonRpcHandler.user_sessions_available():
+                self.mqtt.send_message(self.notification2event("*", title, message, timeout, icon))
+                self.mqtt.send_message(self.notification2event("*", title, message, timeout, icon))
 
     def notification2event(self, user, title, message, timeout, icon):
         e = EventMaker()
@@ -329,7 +325,8 @@ class ClientService(Plugin):
             data.append(e.Timeout(str(timeout * 1000)))
         if icon != "_no_icon_":
             data.append(e.Icon(icon))
-        return e.Event(e.Notification(*data))
+
+        return etree.tostring(e.Event(e.Notification(*data)), pretty_print=True).decode()
 
     @Command(__help__=N_("Set system status"))
     def systemGetStatus(self, device_uuid):
@@ -450,9 +447,9 @@ class ClientService(Plugin):
 
         # Generate random client key
         random.seed()
-        key = ''.join(random.Random().sample(string.letters + string.digits, 32))
+        key = ''.join(random.Random().sample(string.ascii_letters + string.digits, 32))
         salt = os.urandom(4)
-        h = hashlib.sha1(key)
+        h = hashlib.sha1(key.encode('ascii'))
         h.update(salt)
 
         # Do LDAP operations to add the system
@@ -481,13 +478,13 @@ class ClientService(Plugin):
 
             # Create new machine entry
             record = [
-                ('objectclass', ['device', 'ieee802Device', 'simpleSecurityObject', 'registeredDevice']),
-                ('deviceUUID', cn),
+                ('objectclass', [b'device', b'ieee802Device', b'simpleSecurityObject', b'registeredDevice']),
+                ('deviceUUID', bytes(cn, 'utf-8')),
                 ('deviceKey', [device_key]),
-                ('cn', [cn]),
-                ('manager', [manager]),
+                ('cn', [bytes(cn, 'utf-8')]),
+                ('manager', [bytes(manager, 'utf-8')]),
                 ('macAddress', [mac.encode("ascii", "ignore")]),
-                ('userPassword', ["{SSHA}" + encode(h.digest() + salt)])
+                ('userPassword', [b"{SSHA}" + encode(h.digest() + salt)])
             ]
             record += more_info
 
@@ -499,6 +496,7 @@ class ClientService(Plugin):
             # Add record
             dn = ",".join(["cn=" + cn, self.env.config.get("goto.machine-rdn",
                 default="ou=systems"), base])
+            print(record)
             conn.add_s(dn, record)
 
             self.log.info("UUID '%s' joined as %s" % (device_uuid, dn))

@@ -10,117 +10,125 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import logging
-import paho.mqtt.client as mqtt
-from gosa.common import Environment
+import uuid
+import time
+import asyncio
+from gosa.common.components.json_exception import JSONRPCException
+from gosa.common.components.mqtt_handler import MQTTHandler
+from gosa.common.gjson import dumps, loads
+
+
+class MQTTException(Exception):
+    pass
 
 
 class MQTTServiceProxy(object):
-    __published_messages = {}
+    """
+    The MQTTServiceProxy provides a simple way to use clacks RPC
+    services from various clients. Using the proxy object, you
+    can directly call methods without the need to know where
+    it actually gets executed::
 
-    def __init__(self, host, port=1883, keepalive=60):
-        self.env = Environment.getInstance()
-        self.log = logging.getLogger(__name__)
+        >>> from gosa.common.components.mqtt_proxy import MQTTServiceProxy
+        >>> proxy = MQTTServiceProxy('localhost')
+        >>> proxy.getMethods()
 
-        self.connected = False
+    This will return a dictionary describing the available methods.
 
-        self.client = mqtt.Client()
-        self.host = host
-        self.port = port
-        self.keepalive = keepalive
-        self.client.on_connect = self.on_connect
-        self.client.on_message = self.on_message
-        self.client.on_subscribe = self.on_subscribe
-        self.client.on_unsubscribe = self.on_unsubscribe
-        self.client.on_publish = self.on_publish
+    =============== ============
+    Parameter       Description
+    =============== ============
+    serviceURL      URL used to connect to the MQTT service broker
+    serviceAddress  Address string describing the target queue to bind to, must be skipped if no special queue is needed
+    serviceName     *internal*
+    methods         *internal*
+    =============== ============
 
-        self.subscriptions = {}
+    The MQTTService proxy creates a temporary MQTT *reply to* queue, which
+    is used for command results.
+    """
+    worker = {}
 
-    def authenticate(self, uuid, secret=None):
-        self.client.username_pw_set(uuid, secret)
+    def __init__(self, mqttHandler=None, serviceAddress=None, serviceName=None,
+                 methods=None):
+        self.__handler = mqttHandler if isinstance(mqttHandler, MQTTHandler) else MQTTHandler()
+        self.__serviceName = serviceName
+        self.__serviceAddress = serviceAddress
+        self.__methods = methods
 
-    def connect(self, uuid=None, secret=None):
-        if uuid is not None:
-            self.authenticate(uuid, secret)
-        self.client.connect(self.host, port=self.port, keepalive=self.keepalive)
-        self.client.loop_forever()
+        # Retrieve methods
+        if not self.__methods:
+            self.__serviceName = "getMethods"
+            self.__methods = self.__call__()
+            self.__serviceName = None
 
-    def disconnect(self):
-        self.client.disconnect()
-        self.client.loop_stop()
+    #pylint: disable=W0613
+    def login(self, user, password):
+        return True
 
-    def add_subscription(self, topic, callback=None, qos=0):
-        if topic not in self.subscriptions.keys():
-            self.subscriptions[topic] = {
-                'subscribed': False,
-                'qos': qos,
-                'callback': callback
-            }
+    def logout(self):
+        return True
 
-    def set_subscription_callback(self, callback):
-        for topic in self.subscriptions:
-            self.subscriptions[topic]['callback'] = callback
+    def getProxy(self):
+        return MQTTServiceProxy(self.__serviceURL,
+                self.__serviceAddress,
+                None,
+                self.__conn,
+                methods=self.__methods)
 
-    def on_subscribe(self, client, userdata, mid, granted_qos):
-        self.log.debug("on_subscribe client='%s', userdata='%s', mid='%s', granted_qos='%s'" % (client, userdata, mid, granted_qos))
-        for topic in self.subscriptions:
-            if hasattr(self.subscriptions[topic], 'mid') and self.subscriptions[topic]['mid'] == mid:
-                self.subscriptions[topic]['granted_qos'] = granted_qos
-                self.subscriptions[topic]['subscribed'] = True
+    def __getattr__(self, name):
+        if self.__serviceName != None:
+            name = "%s.%s" % (self.__serviceName, name)
 
-    def on_unsubscribe(self, client, userdata, mid):
-        self.log.debug("on_unsubscribe client='%s', userdata='%s', mid='%s'" % (client, userdata, mid))
-        for topic in self.subscriptions:
-            if hasattr(self.subscriptions[topic], 'mid') and self.subscriptions[topic]['mid'] == mid:
-                self.subscriptions[topic]['subscribed'] = False
-                del self.subscriptions[topic]['granted_qos']
-                del self.subscriptions[topic]['mid']
+        return MQTTServiceProxy(self.__serviceURL, self.__serviceAddress, name,
+                self.__conn, methods=self.__methods)
 
-    def remove_subscription(self, topic):
-        if topic in self.subscriptions:
-            self.subscriptions.remove(topic)
-            if self.connected is True:
-                (res, mid) = self.client.unsubscribe(topic)
+    def __call__(self, *args, **kwargs):
+        if len(kwargs) > 0 and len(args) > 0:
+            raise JSONRPCException("JSON-RPC does not support positional and keyword arguments at the same time")
 
-    def on_connect(self, client, userdata, flags, rc):
-        if rc == mqtt.CONNACK_ACCEPTED:
-            # connection successful
-            self.connected = True
-            for topic in self.subscriptions.keys():
-                (res, mid) = self.client.subscribe(topic)
-                self.log.debug("subscribing to '%s' => mid: '%s' == '%s'" % (topic, mid, res))
-                self.subscriptions[topic]['mid'] = mid
-                self.subscriptions[topic]['subscription_result'] = res
+        # Default to 'core' queue
+        call_id = uuid.uuid4()
+        queue = "%s.%s" % (self.__serviceAddress, call_id)
+
+        if self.__methods and self.__serviceName not in self.__methods:
+            raise NameError("name '%s' not defined" % self.__serviceName)
+
+        # Send
+        if len(kwargs):
+            postdata = dumps({"method": self.__serviceName, 'params': kwargs, 'id': 'jsonrpc'})
         else:
-            msg = "Connection refused - "
-            if rc == mqtt.CONNACK_REFUSED_PROTOCOL_VERSION:
-                msg += "incorrect protocol version"
-            elif rc == mqtt.CONNACK_REFUSED_IDENTIFIER_REJECTED:
-                msg += "invalid client identifier"
-            elif rc == mqtt.CONNACK_REFUSED_SERVER_UNAVAILABLE:
-                msg += "server unavailable"
-            elif rc == mqtt.CONNACK_REFUSED_BAD_USERNAME_PASSWORD:
-                msg += "bad username or password"
-            elif rc == mqtt.CONNACK_REFUSED_NOT_AUTHORIZED:
-                msg += "not authorized"
+            postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
 
-            self.log.error(msg)
+        response = {}
 
-    def on_message(self, client, userdata, message):
-        if message.topic in self.subscriptions.keys():
-            callback = self.subscriptions[message.topic]['callback']
-            callback(message.topic, message.payload)
-        else:
-            self.log.warning("Incoming message for unhandled topic '%s'" % message.topic)
+        def handle_response(topic, message):
+            global response
+            print("received response")
+            response = message
 
-    def publish(self, topic, message, qos=0, retain=False):
-        res, mid = self.client.publish(topic, payload=message, qos=qos, retain=retain)
-        self.log.debug("publishing message to '%s', mid: '%s' == '%s'" % (topic, mid, res))
+        # apply listener for response
+        self.__handler.get_client().add_subscription(queue, handle_response)
 
-        self.__published_messages[mid] = res
-        if res == mqtt.MQTT_ERR_NO_CONN:
-            self.log.error("mqtt server not reachable, message could not be send to '%s'" % topic)
+        self.__handler.send_message(postdata)
 
-    def on_publish(self, client, userdata, mid):
-        #del self.__published_messages[mid]
-        pass
+        # wait for response
+        # @asyncio.coroutine
+        # def wait_for_response():
+        #     global response
+        #     while response is None:
+        #         yield from asyncio.sleep(1)
+        #
+        # loop = asyncio.get_event_loop()
+        # loop.run_until_complete(wait_for_response())
+        # loop.close()
+
+        resp = loads(response)
+
+        self.__handler.get_client().remove_subscription(queue)
+
+        if resp['error'] != None:
+            raise JSONRPCException(resp['error'])
+
+        return resp['result']
+

@@ -12,13 +12,10 @@
 
 import socket
 import logging
-from zope.interface import implementer
-from gosa.common.handler import IInterfaceHandler
-from gosa.common.components.mqtt_proxy import MQTTServiceProxy
+from gosa.common.components.mqtt_client import MQTTClient
 from gosa.common import Environment
 
 
-@implementer(IInterfaceHandler)
 class MQTTHandler(object):
     """
     This class handles the MQTT connection, incoming and outgoing connections
@@ -28,7 +25,7 @@ class MQTTHandler(object):
     __capabilities = {}
     __peers = {}
     _eventProvider = None
-    __proxy = None
+    __client = None
     url = None
     joined = False
 
@@ -44,6 +41,9 @@ class MQTTHandler(object):
         self.log = logging.getLogger(__name__)
         self.log.debug("initializing MQTT client handler")
         self.env = env
+
+        # TODO: must be removed later
+        self.env.uuid = 'admin'
 
         # Load configuration
         self.host = self.env.config.get('mqtt.host', default="localhost")
@@ -62,9 +62,9 @@ class MQTTHandler(object):
 
         # Make proxy connection
         self.log.info("using service '%s:%s'" % (self.host, self.port))
-        self.__proxy = MQTTServiceProxy(self.host, port=self.port, keepalive=self.keep_alive)
+        self.__client = MQTTClient(self.host, port=self.port, keepalive=self.keep_alive)
 
-        self.__proxy.authenticate(user, key)
+        self.__client.authenticate(user, key)
 
         self.init_subscriptions()
 
@@ -75,14 +75,14 @@ class MQTTHandler(object):
         pass
 
     def set_subscription_callback(self, callback):
-        self.__proxy.set_subscription_callback(callback)
+        self.__client.set_subscription_callback(callback)
 
-    def get_proxy(self):
-        return self.__proxy
+    def get_client(self):
+        return self.__client
 
     def send_message(self, data, topic):
         """ Send message via proxy to mqtt. """
-        return self.__proxy.publish(topic, data)
+        return self.__client.publish(topic, data)
 
     def start(self):
         """
@@ -92,12 +92,12 @@ class MQTTHandler(object):
         self.log.debug("enabling MQTT connection")
 
         # Create initial broker connection
-        self.__proxy.connect()
+        self.__client.connect()
 
     def close(self):
         self.log.debug("shutting down MQTT client handler")
-        if self.__proxy:
-            self.__proxy.disconnect()
+        if self.__client:
+            self.__client.disconnect()
 
     def __del__(self):
         self.close()

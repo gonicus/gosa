@@ -23,7 +23,7 @@ from urllib.parse import urlparse
 from tokenize import generate_tokens
 from token import STRING
 from io import StringIO
-
+from subprocess import Popen, PIPE
 
 _is_uuid = re.compile(r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$')
 
@@ -317,6 +317,6 @@ except ImportError:
                 cmd = [ext, '-s', 'system-uuid']
                 p = Popen(cmd, stdout=PIPE, stderr=PIPE)
                 stdout = p.communicate()[0]
-                return "".join(stdout).strip().decode('utf-8')
+                return stdout.strip().decode('utf-8')
 
             break

@@ -12,7 +12,7 @@ import os
 import sys
 import gettext
 import netifaces #@UnresolvedImport
-from configparser import ConfigParser
+import configparser as ConfigParser
 import socket
 import logging
 from urllib.parse import urlparse
@@ -153,7 +153,7 @@ class join_method(object):
             parser.set("jsonrpc", "key", key)
 
             # Write back to file
-            with open(config, "wb") as f:
+            with open(config, "w") as f:
                 parser.write(f)
 
         return key
@@ -166,9 +166,9 @@ class join_method(object):
         return data[:-ord(data[-1])]
 
     def get_service_from_config(self):
-        url = self.env.config.get("amqp.url", default=None)
+        url = self.env.config.get("mqtt.url", default=None)
         sys_id = self.env.config.get("client.id", default=None)
-        key = self.env.config.get("amqp.key", default=None)
+        key = self.env.config.get("mqtt.key", default=None)
         return (url, sys_id, key)
 
     def discover(self):
@@ -238,7 +238,7 @@ class join_method(object):
             parser.set("jsonrpc", "key", self.key)
 
             # Write back to file
-            with open(config, "wb") as f:
+            with open(config, "w") as f:
                 parser.write(f)
 
     def get_mac_address(self):
