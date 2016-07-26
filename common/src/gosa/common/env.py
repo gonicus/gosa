@@ -21,6 +21,8 @@ You can import it to your own code like this::
 import logging
 import platform
 from gosa.common.config import Config
+from gosa.common.utils import dmi_system
+
 try:
     from sqlalchemy.orm import sessionmaker, scoped_session
     from sqlalchemy import create_engine
@@ -65,6 +67,15 @@ class Environment:
         # Load base - we need one
         self.base = self.config.get("core.base")
         self.domain = self.config.get("core.domain", "default")
+
+        self.uuid = self.config.get("core.id", default=None)
+        if not self.uuid:
+            self.log.warning("system has no id - falling back to configured hardware uuid")
+            self.uuid = dmi_system("uuid")
+
+            if not self.uuid:
+                self.log.error("system has no id - please configure one in the core section")
+                raise Exception("No system id found")
 
     def requestRestart(self):
         self.log.warning("a component requested an environment reset")
@@ -126,9 +137,9 @@ class Environment:
     def getInstance():
         """
         Act like a singleton and return the
-        :class:`clacks.common.env.Environment` instance.
+        :class:`gosa.common.env.Environment` instance.
 
-        ``Return``: :class:`clacks.common.env.Environment`
+        ``Return``: :class:`gosa.common.env.Environment`
         """
         if not Environment.__instance:
             Environment.__instance = Environment()
