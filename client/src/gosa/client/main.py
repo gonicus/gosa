@@ -210,12 +210,8 @@ def main():
     os.putenv('SPT_NOENV', 'non_empty_value')
     setproctitle("gosa-client")
 
-    # Inizialize core environment
+    # Initialize core environment
     env = Environment.getInstance()
-    # TODO: remove this
-    env.uuid = 'admin'
-    env.id = 'client_id'
-
     env.active = False
 
     env.log.info("GOsa client is starting up")

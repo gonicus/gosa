@@ -18,7 +18,7 @@ from gosa.common import Environment
 class MQTTClient(object):
     __published_messages = {}
 
-    def __init__(self, host, port=1883, keepalive=60):
+    def __init__(self, host, port=1883, keepalive=60, loop_forever=False):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
@@ -33,6 +33,7 @@ class MQTTClient(object):
         self.client.on_subscribe = self.on_subscribe
         self.client.on_unsubscribe = self.on_unsubscribe
         self.client.on_publish = self.on_publish
+        self.loop_forever = loop_forever
 
         self.subscriptions = {}
 
@@ -43,7 +44,10 @@ class MQTTClient(object):
         if uuid is not None:
             self.authenticate(uuid, secret)
         self.client.connect(self.host, port=self.port, keepalive=self.keepalive)
-        self.client.loop_start()
+        if self.loop_forever is True:
+            self.client.loop_forever()
+        else:
+            self.client.loop_start()
 
     def disconnect(self):
         self.client.disconnect()
