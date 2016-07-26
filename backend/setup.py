@@ -100,6 +100,7 @@ setup(
         acl = gosa.backend.acl:ACLResolver
         objects = gosa.backend.objects.index:ObjectIndex
         httpd = gosa.backend.components.httpd:HTTPService
+        workflow = gosa.backend.components.workflowregistry:WorkflowRegistry
         command = gosa.backend.command:CommandRegistry
         jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
         rpc = gosa.backend.plugins.rpc.methods:RPCMethods
