@@ -269,7 +269,7 @@ def check_auth(user, password):
 
         # Search for the given user UID
         res = conn.search_s(url.dn, ldap.SCOPE_SUBTREE,
-                filter_format("(&(objectClass=person)(uid=%s))", [user]),
+                filter_format("(&(|(objectClass=person)(objectClass=registeredDevice))(uid=%s))", [user]),
                 ['dn'])
 
         if len(res) == 1:
