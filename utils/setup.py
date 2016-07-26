@@ -57,8 +57,8 @@ setup(
     entry_points = """
         [console_scripts]
         acl-admin = gosa.utils.acl_admin:main
-        gosa-ldap-monitor = clacks.utils.clacks_ldap_monitor:main
-        gosa-plugin-skel = clacks.utils.clacks_plugin_skel:main
+        gosa-ldap-monitor = gosa.utils.gosa_ldap_monitor:main
+        gosa-plugin-skel = gosa.utils.gosa_plugin_skel:main
         schema2xml = gosa.utils.schema2xml:main
         update-i18n = gosa.utils.update_i18n:main
     """,
