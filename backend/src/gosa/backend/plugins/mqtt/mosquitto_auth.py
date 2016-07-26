@@ -45,8 +45,11 @@ class MosquittoAuthHandler(BaseMosquittoClass):
     def post(self, *args, **kwargs):
         username = self.get_argument('username', '')
         password = self.get_argument('password')
-
-        self.send_result(check_auth(username, password))
+        if hasattr(self.env, "core_uuid") and hasattr(self.env, "core_key"):
+            # backend self authentification mode
+            self.send_result(username == self.env.core_uuid and password == self.env.core_key)
+        else:
+            self.send_result(check_auth(username, password))
 
 
 class MosquittoAclHandler(BaseMosquittoClass):
@@ -67,11 +70,13 @@ class MosquittoAclHandler(BaseMosquittoClass):
         topic    = self.get_argument('topic')
         acc      = self.get_argument('acc') # 1 == SUB, 2 == PUB
 
+        backend = hasattr(self.env, "core_uuid") and uuid == self.env.core_uuid
+
         client_channel = "%s/client/%s" % (self.env.domain, uuid)
 
         if topic == "%s/client/broadcast" % self.env.domain:
             # listen on client broadcast channel
-            self.send_result(acc == "1")
+            self.send_result(acc == "1" or backend is True)
         elif topic == client_channel or topic.startswith(client_channel):
             # our own channel -> everything goes
             self.send_result(True)

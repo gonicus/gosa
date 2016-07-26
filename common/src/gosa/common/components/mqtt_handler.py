@@ -50,15 +50,20 @@ class MQTTHandler(object):
         self.port = self.env.config.get('mqtt.port', default=1883)
         self.keep_alive = self.env.config.get('mqtt.keepalive', default=60)
         self.domain = self.env.config.get('mqtt.domain', default="gosa")
-        self.dns_domain = socket.getfqdn().split('.', 1)[1]
+        domain_parts = socket.getfqdn().split('.', 1)
+        self.dns_domain = domain_parts[1] if len(domain_parts) == 2 else "local"
 
         # Check if credentials are supplied
-        if not self.env.config.get("mqtt.key"):
+        if not self.env.config.get("mqtt.key") and not hasattr(self.env, "core_key"):
             raise Exception("no key supplied - please join the client")
 
         # Configure system
-        user = self.env.uuid
-        key = self.env.config.get('mqtt.key')
+        if hasattr(self.env, "core_uuid") and hasattr(self.env, "core_key"):
+            user = self.env.core_uuid
+            key = self.env.core_key
+        else:
+            user = self.env.uuid
+            key = self.env.config.get('mqtt.key')
 
         # Make proxy connection
         self.log.info("using service '%s:%s'" % (self.host, self.port))
