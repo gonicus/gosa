@@ -16,6 +16,9 @@ from gosa.common.components.mqtt_handler import MQTTHandler
 
 class MQTTClientHandler(MQTTHandler):
 
+    def __init__(self):
+        super(MQTTClientHandler, self).__init__(loop_forever=True)
+
     def send_message(self, data, topic=None):
         """ Send message via proxy to mqtt. """
         if not isinstance(data, str):
@@ -23,10 +26,10 @@ class MQTTClientHandler(MQTTHandler):
         if topic is None:
             topic = "%s/client/%s" % (self.domain, self.env.uuid)
 
-        super(MQTTHandler, self).send_message(data, topic)
+        super(MQTTClientHandler, self).send_message(data, topic)
 
     def init_subscriptions(self):
         """ add client subscriptions """
-        self.get_proxy().add_subscription("%s/client/broadcast" % self.domain)
-        self.get_proxy().add_subscription("%s/client/%s" % (self.domain, self.env.uuid))
-        self.get_proxy().add_subscription("%s/client/%s/#" % (self.domain, self.env.uuid))
+        self.get_client().add_subscription("%s/client/broadcast" % self.domain)
+        self.get_client().add_subscription("%s/client/%s" % (self.domain, self.env.uuid))
+        self.get_client().add_subscription("%s/client/%s/#" % (self.domain, self.env.uuid))

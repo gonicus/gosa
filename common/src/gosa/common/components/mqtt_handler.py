@@ -29,7 +29,7 @@ class MQTTHandler(object):
     url = None
     joined = False
 
-    def __init__(self):
+    def __init__(self,loop_forever=False):
         """
         Construct a new MQTTClientHandler instance based on the configuration
         stored in the environment.
@@ -42,9 +42,6 @@ class MQTTHandler(object):
         self.log.debug("initializing MQTT client handler")
         self.env = env
 
-        # TODO: must be removed later
-        self.env.uuid = 'admin'
-
         # Load configuration
         self.host = self.env.config.get('mqtt.host', default="localhost")
         self.port = self.env.config.get('mqtt.port', default=1883)
@@ -54,7 +51,7 @@ class MQTTHandler(object):
         self.dns_domain = domain_parts[1] if len(domain_parts) == 2 else "local"
 
         # Check if credentials are supplied
-        if not self.env.config.get("mqtt.key") and not hasattr(self.env, "core_key"):
+        if not self.env.config.get("jsonrpc.key") and not hasattr(self.env, "core_key"):
             raise Exception("no key supplied - please join the client")
 
         # Configure system
@@ -63,11 +60,11 @@ class MQTTHandler(object):
             key = self.env.core_key
         else:
             user = self.env.uuid
-            key = self.env.config.get('mqtt.key')
+            key = self.env.config.get('jsonrpc.key')
 
         # Make proxy connection
         self.log.info("using service '%s:%s'" % (self.host, self.port))
-        self.__client = MQTTClient(self.host, port=self.port, keepalive=self.keep_alive)
+        self.__client = MQTTClient(self.host, port=self.port, keepalive=self.keep_alive, loop_forever=loop_forever)
 
         self.__client.authenticate(user, key)
 
