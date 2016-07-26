@@ -78,7 +78,8 @@ setup(
         'Pillow',
         'passlib',
         'cryptography>=1.3',
-        'psycopg2'
+        'psycopg2',
+        'paho-mqtt'
         ],
 
     entry_points = """

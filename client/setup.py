@@ -77,6 +77,7 @@ setup(
         'python_dateutil',
         'setproctitle',
         'pycrypto',
+        'paho-mqtt'
     ],
 
     entry_points = """
