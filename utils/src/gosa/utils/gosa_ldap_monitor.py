@@ -8,33 +8,29 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-print("This tool is still using AMQP. Needs to be revised.")
-exit()
-
 import os
 from time import sleep
 from datetime import datetime
 from lxml import etree
 from base64 import b64decode
 from gosa.common import Environment
-from gosa.common.utils import parseURL, makeAuthURL
 from gosa.common.event import EventMaker
-from gosa.common.components import AMQPServiceProxy
+from gosa.common.components.mqtt_handler import MQTTHandler
 
 
 def tail(path):
     # Start listening from the end of the given path
     path.seek(0, 2)
 
-    # Try to read until somthing new pops up
+    # Try to read until something new pops up
     while True:
-         line = path.readline()
+        line = path.readline()
 
-         if not line:
-             sleep(0.1)
-             continue
+        if not line:
+            sleep(0.1)
+            continue
 
-         yield line.strip()
+        yield line.strip()
 
 
 def monitor(path, modifier, proxy):
@@ -42,7 +38,6 @@ def monitor(path, modifier, proxy):
     dn = None
     ts = None
     ct = None
-    ch = False
 
     try:
         with open(path) as f:
@@ -75,14 +70,10 @@ def monitor(path, modifier, proxy):
                 # gosa-backend who triggered the change,
                 # just reset the DN, because we don't need
                 # to propagate this change.
-                if  line.startswith("modifiersName:"):
+                if line.startswith("modifiersName:"):
                     if line[15:].lower() == modifier.lower():
                         dn = None
                     continue
-
-                # Catch everything else except entryCSN and modifiersName
-                if not (line.startswith("entryCSN:") or line.startswith("modifiersName")):
-                    ch = True
 
                 # Trigger on newline.
                 if line == "":
@@ -100,13 +91,12 @@ def monitor(path, modifier, proxy):
                         )
 
                         update = etree.tostring(update, pretty_print=True)
-                        proxy.sendEvent(update)
+                        proxy.send_message(update, topic="%s/events" % Environment.getInstance().domain)
 
                     dn = ts = ct = None
-                    ch = False
 
     except Exception as e:
-        print "Error:", str(e)
+        print("Error:", str(e))
 
 
 def main():
@@ -116,12 +106,9 @@ def main():
     # Load configuration
     path = config.get('backend-monitor.audit-log', default='/var/lib/gosa/ldap-audit.log')
     modifier = config.get('backend-monitor.modifier')
-    user = config.get('core.id')
-    password = config.get('amqp.key')
-    url = parseURL(makeAuthURL(config.get('amqp.url'), user, password))
 
-    # Connect to Clacks BUS
-    proxy = AMQPServiceProxy(url['source'] + "/" + env.domain)
+    # Connect to MQTT BUS
+    proxy = MQTTHandler(loop_forever=True)
 
     # Main loop
     while True:
@@ -137,9 +124,9 @@ def main():
 
         # Check if it is effectively readable
         try:
-            with open(path) as f:
+            with open(path):
                 pass
-        except IOError as e:
+        except IOError:
             continue
 
         # Listen for changes

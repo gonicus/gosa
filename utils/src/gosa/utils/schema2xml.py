@@ -44,10 +44,10 @@ TYPE_MAP = {
         param=[r"^[\x00-\x7F]*$"]),
     "1.3.6.1.4.1.1466.115.121.1.27": dict(
         name="Integer",
-	widget="QSpinBox"),
+        widget="QSpinBox"),
     "1.3.6.1.4.1.1466.115.121.1.44": dict(
         name="UnicodeString",
-	widget="QLineEdit",
+        widget="QLineEdit",
         condition="RegEx",
         param=[r'^[a-zA-Z0-9"()+,./? -]+$']),
     "1.3.6.1.4.1.1466.115.121.1.53": dict(
@@ -66,7 +66,7 @@ TYPE_MAP = {
         param=[r"^\+[0-9]{2}\s*[0-9\s]+$"]),
     "1.3.6.1.4.1.1466.115.121.1.5": dict(
         name="Binary",
-	#widget="Upload",
+	    #widget="Upload",
         index=False),
     "1.3.6.1.4.1.1466.115.121.1.25": dict(
         name="UnicodeString",
@@ -74,11 +74,11 @@ TYPE_MAP = {
         index=False),
     "1.3.6.1.4.1.1466.115.121.1.40": dict(
         name="Binary",
-	#widget="Upload",
+        #widget="Upload",
         index=False),
     "1.3.6.1.4.1.1466.115.121.1.36": dict(
         name="String",
-	widget="QLineEdit",
+        widget="QLineEdit",
         condition="RegEx",
         param=[r"^[0-9 ]+$"]),
 
@@ -338,34 +338,35 @@ def dump_class(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
         if skip(syntax):
             continue
 
-	values = gen_values(syntax)
-	values += gen_validators(syntax)
-	values += gen_index(syntax)
+    values = gen_values(syntax)
+    values += gen_validators(syntax)
+    values += gen_index(syntax)
 
-        attrs.append(
+    attrs.append(
            e.Attribute(
                e.Name(attr['name']),
                e.Description(attr['desc']),
                e.Type(attr['type']),
                e.MultiValue("true" if attr['multivalue'] else "false"),
                e.Mandatory("true"),
-	       *values))
+               *values))
+
     for mua in oco.may:
         attr = resolve_attribute(schema, mua)
         syntax = attr['syntax']
         if skip(syntax):
             continue
-	values = gen_values(syntax)
-	values += gen_validators(syntax)
-	values += gen_index(syntax)
-        attrs.append(
+    values = gen_values(syntax)
+    values += gen_validators(syntax)
+    values += gen_index(syntax)
+    attrs.append(
            e.Attribute(
                e.Name(attr['name']),
                e.Description(attr['desc']),
                e.Type(attr['type']),
                e.MultiValue("true" if attr['multivalue'] else "false"),
                e.Mandatory("false"),
-	       *values))
+               *values))
 
     more.append(e.Attributes(*attrs))
 
