@@ -34,6 +34,12 @@ class ServiceException(Exception):
     pass
 
 
+class NotAServiceException(ServiceException):
+    """
+    Exception thrown for unit_ids which do not end with ".service"
+    """
+    pass
+
 class NoSuchServiceException(ServiceException):
     """
     Exception thrown for unknown services
@@ -45,136 +51,116 @@ class DBusUnixServiceHandler(dbus.service.Object, Plugin):
     """
 
     The gosa-dbus system-service-plugin allows to manage services
-    running on the client side. Services can be maintained by executing
-    actions for them, e.g. ``start``, ``restart``, ``stop`` and so on,
-    whatever action the service supports.
+    running on the client side with systemd.
 
-    The status of all services can be listed and additionally the
-    runlevel can be read and set to another level.
-
-
-    >>> clientDispatch("49cb1287-db4b-4ddf-bc28-5f4743eac594", "dbus_service_get_runlevel")
-    >>> 2
-    >>> clientDispatch("49cb1287-db4b-4ddf-bc28-5f4743eac594", "dbus_service_set_runlevel", 2)
+    A few of the systemd dbus-methods are wrapped.
+    Service units can be started, stopped etc.
+    PowerOff, Halt and Reboot are also possible.
 
     """
 
     log = None
     env = None
-    svc_command = None
+    systembus = None
 
     def __init__(self):
         conn = get_system_bus()
         dbus.service.Object.__init__(self, conn, '/org/gosa/service')
         self.env = Environment.getInstance()
-        self.svc_command = self.env.config.get("dbus.service-command", default="/usr/sbin/service")
         self.log = logging.getLogger(__name__)
+        self.systembus = dbus.SystemBus()
+        systemd_obj = self.systembus.get_object("org.freedesktop.systemd1", "/org/freedesktop/systemd1")
+        self.systemd = dbus.Interface(systemd_obj, "org.freedesktop.systemd1.Manager")
 
-    def _validate(self, name, action=None):
+    def service_action(self, unit_id, method):
+        if not unit_id.endswith(".service"):
+            raise NotAServiceException()
+        ret = method(unit_id, "replace") # "replace" is default in systemctl, too
+        return ret != None
+
+    @dbus.service.method('org.gosa', in_signature='s', out_signature='i')
+    def start_service(self, unit_id):
         """
-        Checks if the requested service exists and if it provides the requested action.
+        Starts a systemd service unit
         """
-        services = self.get_services()
-        if not name in services:
-            raise ServiceException("unknown service %s" % name)
+        return self.service_action(unit_id, self.systemd.StartUnit)
 
-        if action and not action in services[name]['actions']:
-            raise ServiceException("action '%s' not supported for service %s" % (action, name))
-
-        return services[name]
-
-    @dbus.service.method('org.gosa', out_signature='i')
-    def service_get_runlevel(self):
+    @dbus.service.method('org.gosa', in_signature='s', out_signature='i')
+    def stop_service(self, unit_id):
         """
-        Returns the current runlevel of the gosa-client.
+        Stops a systemd service unit
         """
+        return self.service_action(unit_id, self.systemd.StopUnit)
 
-        # Call 'who -r' and parse the return value to get the run-level
-        # run-level 2  Dec 19 01:21                   last=S
-        process = subprocess.Popen(["who", "-r"], env={'LC_ALL': 'C'}, \
-                shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out = process.communicate()[0].decode()
-        runlevel = re.sub("^run-level[ ]*([0-9]*).*$", "\\1", out.strip())
-        return int(runlevel)
-
-    @dbus.service.method('org.gosa', in_signature='i', out_signature='i')
-    def service_set_runlevel(self, level):
+    @dbus.service.method('org.gosa', in_signature='s', out_signature='i')
+    def restart_service(self, unit_id):
         """
-        Sets a new runlevel for the gosa-client
+        Restarts a systemd service unit
         """
-        self.log.debug("client runlevel set toggled to: %s" % (str(level)))
-        process = subprocess.Popen(["telinit", "%s" % (str(level))], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        process.communicate()
-        return process.returncode
+        return self.service_action(unit_id, self.systemd.RestartUnit)
 
-    @dbus.service.method('org.gosa', in_signature='ss', out_signature='i')
-    def service_action(self, service, action):
+    @dbus.service.method('org.gosa', in_signature='s', out_signature='i')
+    def reload_service(self, unit_id):
         """
-        Executes a service action
+        Reloads a systemd service unit
         """
-        self._validate(service, action)
-        self.log.debug("%s service %s" % (action, service))
+        return self.service_action(unit_id, self.systemd.ReloadUnit)
 
-        process = subprocess.Popen([self.svc_command, service, action], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        process.communicate()
-        return process.returncode == 0
+    @dbus.service.method('org.gosa', in_signature='s', out_signature='i')
+    def reload_or_restart_service(self, unit_id):
+        """
+        Reloads or restarts a systemd service unit
+        """
+        return self.service_action(unit_id, self.systemd.ReloadOrRestartUnit)
 
-    @dbus.service.method('org.gosa', in_signature='s', out_signature='a{sv}')
-    def get_service(self, name):
+    @dbus.service.method('org.gosa', in_signature='s', out_signature='i')
+    def reload_or_try_restart_service(self, unit_id):
+        """
+        Reloads or try restarts a systemd service unit
+        """
+        return self.service_action(unit_id, self.systemd.ReloadOrTryRestartUnit)
+
+    @dbus.service.method('org.gosa', in_signature='ssi')
+    def kill_service(self, unit_id, who, signal_id):
+        """
+        Kills processes of a systemd service unit
+        """
+        if not unit_id.endswith(".service"):
+            raise NotAServiceException()
+        self.systemd.KillUnit(unit_id, who, signal_id)
+
+    @dbus.service.method('org.gosa', in_signature='s', out_signature='a{sas}')
+    def get_service(self, unit_id):
         """
         Returns status information for the given service.
         """
+        if not unit_id.endswith(".service"):
+            raise NotAServiceException()
         services = self.get_services()
-        if not name in services:
-            raise NoSuchServiceException("unknown service %s" % name)
+        if not unit_id in services:
+            raise NoSuchServiceException("unknown service %s" % unit_id)
 
-        return services[name]
+        return services[unit_id]
 
     @dbus.service.method('org.gosa', out_signature='a{sa{sas}}')
     def get_services(self):
         """
         Returns status information for all services.
         """
-
-        # Get the current runlevel and then check for registered services using
-        #  run-parts --test --regex=^S* /etc/rc<level>.d
-        level = self.service_get_runlevel()
-        process = subprocess.Popen(["run-parts", "--test", "--regex=^S*", "/etc/rc%s.d" % (str(level))],
-                shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env={'LC_ALL': 'C'})
-        out = process.communicate()[0].decode()
-
-        # Parse results and strip out path infos and S[0-9] prefix
         services = {}
-        for entry in out.split("\n"):
-            sname = re.sub("^S[0-9]*", "", basename(entry))
-
-            # Do not add empty service names
-            if not sname:
+        units = self.systemd.ListUnits()
+        for unit in units:
+            if not unit[0].endswith(".service"):
                 continue
-
-            # Try to detect the service actions we can perform (e.g. start/stop)
-            _svcs = subprocess.Popen([self.svc_command, sname], env={'LC_ALL': 'C'},
-                    stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
-            content = _svcs[0].decode() + _svcs[1].decode()
-
-            # Search useable service actions in the result
-            res = re.findall("(([a-zA-Z\-]*)\|)", content, re.MULTILINE) + re.findall("(\|([a-zA-Z\-]*))", content, re.MULTILINE)
-            actions = set()
-            for entry in res:
-                actions |= set([entry[1]],)
-
-            # Create a service entry for the result
-            services[sname] = {'actions': list(actions), 'running': ['None'], 'icon': ['']}
-
-            # Check if the service running by calling 'status', if available
-            if 'status' in services[sname]['actions']:
-                _svcs = subprocess.Popen([self.svc_command, sname, 'status'], env={'LC_ALL': 'C'},
-                        stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
-
-                # Search for a string which tells us that the service is running
-                # Be careful some infos return values like this:
-                #  * isn't running | is not running | not running | failed (running) ...
-                state = re.search('is running', _svcs[0].decode() + _svcs[1].decode(), flags=re.IGNORECASE) != None
-                services[sname]['running'] = ["True"] if(state) else ["False"]
-
+            services[unit[0]] = {"running": ["True" if unit[4] == "running" else "False"]}
         return services
+
+    @dbus.service.method('org.gosa')
+    def reboot(self):
+        self.systemd.Reboot()
+    @dbus.service.method('org.gosa')
+    def poweroff(self):
+        self.systemd.PowerOff()
+    @dbus.service.method('org.gosa')
+    def halt(self):
+        self.systemd.Halt()
