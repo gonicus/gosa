@@ -77,13 +77,9 @@ class Notify(object):
             return(RETURN_ABORTED)
 
         else:
-
-            # Set DBUS address in the environment
-            os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_session
-
             # Build notification
             notifyid = 0
-            bus = dbus.Bus(dbus.Bus.TYPE_SESSION)
+            bus = dbus.connection.Connection._new_for_bus(dbus_session)
             notifyservice = bus.get_object('org.freedesktop.Notifications', '/org/freedesktop/Notifications')
             notifyservice = dbus.Interface(notifyservice, "org.freedesktop.Notifications")
 
@@ -127,7 +123,6 @@ class Notify(object):
             self.children = []
             for use_user in dbus_sessions:
                 for d_session in set(dbus_sessions[use_user]):
-
                     # Some verbose output
                     if self.verbose:
                         print("\nInitiating notifications for user: %s" % use_user)
@@ -167,8 +162,8 @@ class Notify(object):
                                 str(os.getpid()), str(info[2]), str(info[3]), str(gids)))
 
                         # Try to send the notification now.
-                        res = self.send(title, message, icon=icon,
-                            timeout=timeout, dbus_session=d_session)
+                        res = self.send(title, message, d_session, icon=icon,
+                            timeout=timeout)
 
                         # Exit the cild process
                         sys.exit(res)
@@ -203,43 +198,37 @@ class Notify(object):
 
     def getDBUSAddressesForUser(self, user):
         """
-        Searches the process list for a DBUS Sessions that were opened by
-        the given user, the found DBUS addresses will be returned in a dictionary
-        indexed by the username.
+        Obtains a list with logged in users from the login manager per dbus
+        and looks for the dbus adress given in the .dbus directories in their
+        homes.
         """
 
-        # Prepare regular expressions to find processes for X sessions
-        prog = re.compile("(/usr/bin/gnome-shell|x-session-manager|/bin/sh.*/usr/bin/startkde|.*/start_kdeinit)")
+        obj = dbus.SystemBus().get_object("org.freedesktop.login1",
+            "/org/freedesktop/login1")
+        interface = dbus.Interface(obj, "org.freedesktop.login1.Manager")
+        sessions = {}
 
-        # Walk through process ids and search for processes owned by 'user'
-        #  which represents a X Session.
-        dbusAddresses = {}
-        pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
-        for pid in pids:
-
-            # Get the command line statement for the process and check if it represents
-            #  an X Session.
-            with open(os.path.join('/proc', pid, 'cmdline'), 'rb') as f:
-                cmdline = f.read().decode()
-            if prog.match(cmdline) and (user == '*' or
-                    user == pwd.getpwuid(os.stat(os.path.join('/proc', pid, 'cmdline')).st_uid).pw_name):
-
-                # Extract user name from running DBUS session
-                dbus_user = pwd.getpwuid(os.stat(os.path.join('/proc', pid, 'cmdline')).st_uid).pw_name
-
-                # Extract the DBUS Session address, to be able to connect to it later.
-                with open(os.path.join('/proc', pid, 'environ'), 'rb') as f:
-                    environment = f.read().decode()
-                m = re.search('^.*DBUS_SESSION_BUS_ADDRESS=([^\0]*).*$', environment + "test")
-                if m.group(1):
-
-                    # Append the new dbus session to list of sessions found for the user
-                    if dbus_user not in dbusAddresses:
-                        dbusAddresses[dbus_user] = []
-
-                    dbusAddresses[dbus_user].append(m.group(1))
-
-        return dbusAddresses
+        for uid_number, uid, user_path in interface.ListUsers():
+            uid_number = int(uid_number)
+            uid = str(uid)
+            userdbusdir = os.path.join("/home", uid, ".dbus/session-bus")
+            if uid_number >= 1000 and (user == uid or user == "*") and os.path.isdir(userdbusdir):
+                ids = os.listdir(userdbusdir)
+                assert len(ids) == 1
+                with open(os.path.join(userdbusdir, ids[0])) as f:
+                    lines = f.readlines()
+                dbusvars = {}
+                for line in lines:
+                    line = line.strip()
+                    if line.startswith("#"):
+                        continue
+                    if "=" in line:
+                        key, value = line.split("=", 1)
+                        dbusvars[key] = value.split(",")[0]
+                if not "DBUS_SESSION_BUS_ADDRESS" in dbusvars:
+                    continue
+                sessions[uid] = [dbusvars["DBUS_SESSION_BUS_ADDRESS"]]
+        return sessions
 
 
 def main():
