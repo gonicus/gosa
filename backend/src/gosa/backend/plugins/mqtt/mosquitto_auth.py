@@ -47,7 +47,10 @@ class MosquittoAuthHandler(BaseMosquittoClass):
         password = self.get_argument('password')
         if hasattr(self.env, "core_uuid") and hasattr(self.env, "core_key"):
             # backend self authentification mode
-            self.send_result((username == self.env.core_uuid and password == self.env.core_key) or check_auth(username, password))
+            is_backend = username == self.env.core_uuid and password == self.env.core_key
+            if is_backend:
+                self.log.debug("backend authenticated %s" % username)
+            self.send_result(is_backend or check_auth(username, password))
         else:
             self.send_result(check_auth(username, password))
 
@@ -70,17 +73,23 @@ class MosquittoAclHandler(BaseMosquittoClass):
         topic    = self.get_argument('topic')
         acc      = self.get_argument('acc') # 1 == SUB, 2 == PUB
 
-        backend = hasattr(self.env, "core_uuid") and uuid == self.env.core_uuid
+        is_backend = hasattr(self.env, "core_uuid") and uuid == self.env.core_uuid
 
         client_channel = "%s/client/%s" % (self.env.domain, uuid)
 
         if topic == "%s/client/broadcast" % self.env.domain:
             # listen on client broadcast channel
-            self.send_result(acc == "1" or backend is True)
+            self.log.debug("ACL request for client broadcasting channel authenticated '%s' for client '%s' (Backend=%s)" % (acc == "1" or is_backend is True, uuid, is_backend))
+            self.send_result(acc == "1" or is_backend is True)
+        elif is_backend and topic.startswith("%s/client/" % self.env.domain):
+            self.log.debug("ACL request for client channel '%s' authenticated for backend client '%s'" % (topic, uuid))
+            self.send_result(True)
         elif topic == client_channel or topic.startswith(client_channel):
+            self.log.debug("ACL request for client channel '%s' authenticated for client '%s'" % (topic, uuid))
             # our own channel -> everything goes
             self.send_result(True)
         else:
+            self.log.debug("ACL request for client channel '%s' NOT authenticated for client '%s'" % (topic, uuid))
             self.send_result(False)
 
 
