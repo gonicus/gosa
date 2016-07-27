@@ -196,6 +196,7 @@ setup(
 
         [gosa.object]
         object = gosa.backend.objects.proxy:ObjectProxy
+        workflow = gosa.backend.components.workflow:Workflow
 
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt
