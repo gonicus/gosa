@@ -15,6 +15,15 @@ import paho.mqtt.client as mqtt
 from gosa.common import Environment
 
 
+class BaseClient(mqtt.Client):
+
+    def __init__(self):
+        super(BaseClient, self).__init__()
+
+    def get_thread(self):
+        return self._thread
+
+
 class MQTTClient(object):
     __published_messages = {}
 
@@ -24,7 +33,7 @@ class MQTTClient(object):
 
         self.connected = False
 
-        self.client = mqtt.Client()
+        self.client = BaseClient()
         self.host = host
         self.port = port
         self.keepalive = keepalive
@@ -48,6 +57,7 @@ class MQTTClient(object):
             self.client.loop_forever()
         else:
             self.client.loop_start()
+            self.env.threads.append(self.client.get_thread())
 
     def disconnect(self):
         self.client.disconnect()
@@ -116,15 +126,25 @@ class MQTTClient(object):
             self.log.error(msg)
 
     def on_message(self, client, userdata, message):
-        if message.topic in self.subscriptions.keys():
-            callback = self.subscriptions[message.topic]['callback']
-            callback(message.topic, message.payload)
-        else:
+        handled = False
+        for topic in self.subscriptions:
+            match = False
+            if topic == message.topic:
+                match = True
+            if topic[-1] == "#" and message.topic.startswith(topic[0:-1]):
+                match = True
+
+            if match:
+                callback = self.subscriptions[topic]['callback']
+                callback(message.topic, message.payload)
+                handled = True
+
+        if not handled:
             self.log.warning("Incoming message for unhandled topic '%s'" % message.topic)
 
     def publish(self, topic, message, qos=0, retain=False):
         res, mid = self.client.publish(topic, payload=message, qos=qos, retain=retain)
-        self.log.debug("publishing message to '%s', mid: '%s' == '%s'" % (topic, mid, res))
+        self.log.debug("publishing message to '%s', content: '%s'" % (topic, message))
 
         self.__published_messages[mid] = res
         if res == mqtt.MQTT_ERR_NO_CONN:

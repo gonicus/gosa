@@ -83,11 +83,11 @@ class MQTTClientService(object):
             self.commandReceived(topic, message)
         else:
             # event received
-            xml = objectify.fromstring(message, PluginRegistry.getEventParser())
-            if xml.ClientPoll:
+            xml = objectify.fromstring(message)
+            if hasattr(xml, "ClientPoll"):
                 self.__handleClientPoll()
             else:
-                raise Exception("unhandled event received '%s'" % xml.getchildren()[0].tag)
+                self.log.debug("unhandled event received '%s'" % xml.getchildren()[0].tag)
 
     def serve(self):
         """ Start MQTT service for this gosa service provider. """
@@ -108,10 +108,10 @@ class MQTTClientService(object):
                 e = EventMaker()
                 mqtt = PluginRegistry.getInstance('MQTTClientHandler')
                 info = e.Event(e.ClientPing(e.Id(uuid)))
-                mqtt.send_message(info)
+                mqtt.send_event(info)
                 time.sleep(timeout)
 
-        pinger = Timer(10.0, ping)
+        pinger = Timer(1.0, ping)
         pinger.start()
         self.env.threads.append(pinger)
 
@@ -192,7 +192,7 @@ class MQTTClientService(object):
         mqtt = PluginRegistry.getInstance('MQTTClientHandler')
         mqtt.send_message(response, topic=topic)
 
-    def __handleClientPoll(self, data):
+    def __handleClientPoll(self):
         delay = random.randint(0, 30)
         self.log.debug("received client poll - will answer in %d seconds" % delay)
         time.sleep(delay)
@@ -247,7 +247,7 @@ class MQTTClientService(object):
                     e.Name(self.env.id),
                     *more))
 
-            mqtt.send_message(info)
+            mqtt.send_event(info)
 
         # Assemble capabilities
         more = []
@@ -267,7 +267,7 @@ class MQTTClientService(object):
                 e.Name(self.env.id),
                 *more))
 
-        mqtt.send_message(info)
+        mqtt.send_event(info)
 
         if not initial:
             try:

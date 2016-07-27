@@ -12,6 +12,7 @@
 
 import socket
 import logging
+from lxml import etree
 from gosa.common.components.mqtt_client import MQTTClient
 from gosa.common import Environment
 
@@ -46,7 +47,7 @@ class MQTTHandler(object):
         self.host = self.env.config.get('mqtt.host', default="localhost")
         self.port = self.env.config.get('mqtt.port', default=1883)
         self.keep_alive = self.env.config.get('mqtt.keepalive', default=60)
-        self.domain = self.env.config.get('mqtt.domain', default="gosa")
+        self.domain = self.env.domain
         domain_parts = socket.getfqdn().split('.', 1)
         self.dns_domain = domain_parts[1] if len(domain_parts) == 2 else "local"
 
@@ -85,6 +86,10 @@ class MQTTHandler(object):
     def send_message(self, data, topic):
         """ Send message via proxy to mqtt. """
         return self.__client.publish(topic, data)
+
+    def send_event(self, event, topic):
+        data = etree.tostring(event, pretty_print=True).decode()
+        self.send_message(data, topic)
 
     def start(self):
         """

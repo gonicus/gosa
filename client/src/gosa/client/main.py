@@ -28,6 +28,7 @@ from gosa.common.components.dbus_runner import DBusRunner
 from gosa.common.network import Monitor
 from gosa.common.event import EventMaker
 
+netstate = False
 
 def shutdown(a=None, b=None):
     global dr
@@ -36,14 +37,13 @@ def shutdown(a=None, b=None):
     log = logging.getLogger(__name__)
 
     # Function to shut down the client. Do some clean up and close sockets.
-    # TODO replace with SSE/RPC
     mqtt = PluginRegistry.getInstance("MQTTClientHandler")
 
     # Tell others that we're away now
     e = EventMaker()
     goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
     if mqtt:
-        mqtt.send_message(goodbye)
+        mqtt.send_event(goodbye)
         mqtt.close()
 
     # Shutdown plugins
@@ -179,9 +179,10 @@ def mainLoop(env):
 
 def netactivity(online):
     global netstate
+    env = Environment.getInstance()
     if online:
         netstate = True
-
+        env.active = True
     else:
         env = Environment.getInstance()
         netstate = False
@@ -193,7 +194,7 @@ def netactivity(online):
         e = EventMaker()
         goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
         if mqtt:
-            mqtt.send_message(goodbye)
+            mqtt.send_event(goodbye)
             mqtt.close()
 
         env.reset_requested = True
