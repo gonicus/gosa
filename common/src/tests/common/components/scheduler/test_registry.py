@@ -73,7 +73,7 @@ class RegistryTestCase(unittest.TestCase):
             
             pr = PluginRegistry()
             
-            assert PluginRegistry.modules == {"Module1": entries[0].load()(), "Module2": entries[1].load()()}
+            assert PluginRegistry.modules == {"Module1": entries[0].load()(), "Module2": entries[1].load().get_instance()}
             assert PluginRegistry.handlers == {"Module1": entries[0].load()()}
             assert PluginRegistry.evreg == {"globalevent": "/test/filename/globalevent.xsd", "testevent": "/test/filename/testevent.xsd"}
             

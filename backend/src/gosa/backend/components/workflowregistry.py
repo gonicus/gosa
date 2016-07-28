@@ -57,6 +57,10 @@ class WorkflowRegistry(Plugin):
         else:
             raise Exception("This is a singleton, please use getInstance instead")
 
+    def stop(self):
+        # called from PluginRegistry.shutdown()
+        del WorkflowRegistry.instance
+
     @Command(needsUser=True, __help__=N_("List available workflows"))
     def getWorkflows(self, user):
         """

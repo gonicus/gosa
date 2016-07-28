@@ -31,7 +31,8 @@ class JSONRPCObjectMapperTestCase(TestCase):
     def test_listObjectOIDs(self):
         res = self.mapper.listObjectOIDs()
         assert 'object' in res
-        assert len(res) == 1
+        assert 'workflow' in res
+        assert len(res) == 2
 
     def test_openObject(self):
         res = self.mapper.openObject('admin','object','dc=example,dc=net')

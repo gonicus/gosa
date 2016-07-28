@@ -87,7 +87,10 @@ class PluginRegistry(object):
             if module in PluginRegistry.handlers:
                 PluginRegistry.modules[module] = PluginRegistry.handlers[module]
             else:
-                PluginRegistry.modules[module] = clazz()
+                if hasattr(clazz, 'get_instance'):
+                    PluginRegistry.modules[module] = clazz.get_instance()
+                else:
+                    PluginRegistry.modules[module] = clazz()
 
         # Let handlers serve
         for handler, clazz in sorted(PluginRegistry.handlers.items(),
