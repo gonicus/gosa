@@ -11,9 +11,6 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import logging
-import re
-
-import asyncio
 import paho.mqtt.client as mqtt
 from queue import Queue, Empty
 from gosa.common import Environment
@@ -43,23 +40,32 @@ class MQTTClient(object):
         self.host = host
         self.port = port
         self.keepalive = keepalive
-        self.client.on_connect = self.on_connect
-        self.client.on_message = self.on_message
-        self.client.on_subscribe = self.on_subscribe
-        self.client.on_unsubscribe = self.on_unsubscribe
-        self.client.on_publish = self.on_publish
-        self.client.on_log = self.on_log
         self.loop_forever = loop_forever
+
+        # set the callbacks
+        self.client.on_connect = self.__on_connect
+        self.client.on_message = self.__on_message
+        self.client.on_subscribe = self.__on_subscribe
+        self.client.on_unsubscribe = self.__on_unsubscribe
+        self.client.on_publish = self.__on_publish
+        self.client.on_log = self.__on_log
 
         self.subscriptions = {}
 
-    def on_log(self, client, userdata, level, buf):
+    def __on_log(self, client, userdata, level, buf):
         self.log.debug("MQTT-log message: %s" % buf)
 
     def authenticate(self, uuid, secret=None):
+        """ Send credentials to the MQTT broker.
+        Note: must be called before connecting """
         self.client.username_pw_set(uuid, secret)
 
     def connect(self, uuid=None, secret=None):
+        """
+        Connect to the MQTT broker
+        :param uuid: username (optional)
+        :param secret: password (optional)
+        """
         if uuid is not None:
             self.authenticate(uuid, secret)
         self.client.connect(self.host, port=self.port, keepalive=self.keepalive)
@@ -70,10 +76,12 @@ class MQTTClient(object):
         self.env.threads.append(self.client.get_thread())
 
     def disconnect(self):
+        """ disconnect from the MQTT broker """
         self.client.disconnect()
         self.client.loop_stop()
 
     def add_subscription(self, topic, callback=None, qos=0, sync=False):
+        """ subscribe to a topic """
         if topic not in self.subscriptions.keys():
             self.subscriptions[topic] = {
                 'subscribed': False,
@@ -88,17 +96,18 @@ class MQTTClient(object):
             self.subscriptions[topic]['subscription_result'] = res
 
     def set_subscription_callback(self, callback):
+        """ set a general callback for all subscriptions """
         for topic in self.subscriptions:
             self.subscriptions[topic]['callback'] = callback
 
-    def on_subscribe(self, client, userdata, mid, granted_qos):
+    def __on_subscribe(self, client, userdata, mid, granted_qos):
         self.log.debug("on_subscribe client='%s', userdata='%s', mid='%s', granted_qos='%s'" % (client, userdata, mid, granted_qos))
         for topic in self.subscriptions:
             if 'mid' in self.subscriptions[topic] and self.subscriptions[topic]['mid'] == mid:
                 self.subscriptions[topic]['granted_qos'] = granted_qos
                 self.subscriptions[topic]['subscribed'] = True
 
-    def on_unsubscribe(self, client, userdata, mid):
+    def __on_unsubscribe(self, client, userdata, mid):
         self.log.debug("on_unsubscribe client='%s', userdata='%s', mid='%s'" % (client, userdata, mid))
         for topic in self.subscriptions:
             if 'mid' in self.subscriptions[topic] and self.subscriptions[topic]['mid'] == mid:
@@ -107,15 +116,17 @@ class MQTTClient(object):
                 del self.subscriptions[topic]['mid']
 
     def remove_subscription(self, topic):
+        """ unsubscribe from the given topic """
         if topic in self.subscriptions:
             del self.subscriptions[topic]
             if self.connected is True:
                 self.client.unsubscribe(topic)
 
     def clear_subscriptions(self):
+        """ unsubscribe from all subscribed topics """
         self.client.unsubscribe(self.subscriptions.keys())
 
-    def on_connect(self, client, userdata, flags, rc):
+    def __on_connect(self, client, userdata, flags, rc):
         if rc == mqtt.CONNACK_ACCEPTED:
             # connection successful
             self.connected = True
@@ -125,21 +136,10 @@ class MQTTClient(object):
                 self.subscriptions[topic]['mid'] = mid
                 self.subscriptions[topic]['subscription_result'] = res
         else:
-            msg = "Connection refused - "
-            if rc == mqtt.CONNACK_REFUSED_PROTOCOL_VERSION:
-                msg += "incorrect protocol version"
-            elif rc == mqtt.CONNACK_REFUSED_IDENTIFIER_REJECTED:
-                msg += "invalid client identifier"
-            elif rc == mqtt.CONNACK_REFUSED_SERVER_UNAVAILABLE:
-                msg += "server unavailable"
-            elif rc == mqtt.CONNACK_REFUSED_BAD_USERNAME_PASSWORD:
-                msg += "bad username or password"
-            elif rc == mqtt.CONNACK_REFUSED_NOT_AUTHORIZED:
-                msg += "not authorized"
-
+            msg = mqtt.error_string(rc)
             self.log.error(msg)
 
-    def on_message(self, client, userdata, message):
+    def __on_message(self, client, userdata, message):
         subs = self.get_subscriptions(message.topic)
         for sub in subs:
             if sub['sync'] is True:
@@ -154,6 +154,14 @@ class MQTTClient(object):
             self.log.warning("Incoming message for unhandled topic '%s'" % message.topic)
 
     def get_sync_response(self, topic, message, qos=0):
+        """
+        Sends a message to a client queue and waits and returns the response from the client.
+
+        :param topic: Topic this message should be sent to / received from
+        :param message: The message published on the to-client topic
+        :param qos: QOS value
+        :return: The clients response
+        """
         # listen on the backend response topic
         listen_to_topic = "%s/to-backend" % topic
         self.__sync_message_queues[listen_to_topic] = Queue()
@@ -170,6 +178,7 @@ class MQTTClient(object):
             self.remove_subscription(listen_to_topic)
 
     def publish(self, topic, message, qos=0, retain=False):
+        """ Publish a message on the MQTT bus"""
         res, mid = self.client.publish(topic, payload=message, qos=qos, retain=retain)
         self.log.debug("publishing message to '%s', content: '%s'" % (topic, message))
 
@@ -177,31 +186,15 @@ class MQTTClient(object):
         if res == mqtt.MQTT_ERR_NO_CONN:
             self.log.error("mqtt server not reachable, message could not be send to '%s'" % topic)
 
-    def on_publish(self, client, userdata, mid):
+    def __on_publish(self, client, userdata, mid):
         self.log.debug("on publish message mid '%s' received" % mid)
         if mid in self.__published_messages:
             del self.__published_messages[mid]
 
     def get_subscriptions(self, topic):
+        """
+        Find the subscriptions that match the given topic
+        :param topic: Topic to check
+        :return: list of found subscriptions
+        """
         return [self.subscriptions[t] for t in self.subscriptions if mqtt.topic_matches_sub(t, topic)]
-        # for t in self.subscriptions:
-        #     match = False
-        #     if t[-1] == "#":
-        #         match = topic.startswith(t[0:-1])
-        #         self.log.debug("%s matches %s => %s" % (t, topic, match))
-        #     elif "+" in t:
-        #         # use a regex
-        #         regex = t.replace("+", "[^\/]+")
-        #         if t[-1] == "+":
-        #             regex += "$"
-        #         p = re.compile(regex)
-        #         match = p.match(topic) is not None
-        #         self.log.debug("%s matches %s => %s" % (regex, topic, match))
-        #     elif t == topic:
-        #         match = True
-        #         self.log.debug("'%s' equals '%s' => %s" % (t, topic, match))
-        #
-        #     if match:
-        #         subscriptions.append(self.subscriptions[t])
-        #
-        # return subscriptions
