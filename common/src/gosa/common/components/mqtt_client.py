@@ -15,8 +15,9 @@ import re
 
 import asyncio
 import paho.mqtt.client as mqtt
-from queue import Queue
+from queue import Queue, Empty
 from gosa.common import Environment
+from gosa.common.components import JSONRPCException
 
 
 class BaseClient(mqtt.Client):
@@ -47,9 +48,13 @@ class MQTTClient(object):
         self.client.on_subscribe = self.on_subscribe
         self.client.on_unsubscribe = self.on_unsubscribe
         self.client.on_publish = self.on_publish
+        self.client.on_log = self.on_log
         self.loop_forever = loop_forever
 
         self.subscriptions = {}
+
+    def on_log(self, client, userdata, level, buf):
+        self.log.debug("MQTT-log message: %s" % buf)
 
     def authenticate(self, uuid, secret=None):
         self.client.username_pw_set(uuid, secret)
@@ -135,24 +140,34 @@ class MQTTClient(object):
             self.log.error(msg)
 
     def on_message(self, client, userdata, message):
-        for sub in self.get_subscriptions(message.topic):
+        subs = self.get_subscriptions(message.topic)
+        for sub in subs:
             if sub['sync'] is True:
+                self.log.debug("incoming message for synced topic %s" % message.topic)
                 if message.topic not in self.__sync_message_queues:
                     self.__sync_message_queues[message.topic] = Queue()
                 self.__sync_message_queues[message.topic].put(message.payload.decode('utf-8'))
-            callback = sub['callback']
-            callback(message.topic, message.payload.decode('utf-8'))
-        else:
+            if 'callback' in sub and sub['callback'] is not None:
+                callback = sub['callback']
+                callback(message.topic, message.payload.decode('utf-8'))
+        if len(subs) == 0:
             self.log.warning("Incoming message for unhandled topic '%s'" % message.topic)
 
     def get_sync_response(self, topic, message, qos=0):
-        self.__sync_message_queues[topic] = Queue()
-        self.add_subscription(topic, sync=True)
-        self.publish(topic, message, qos)
-        response = self.__sync_message_queues[topic].get()
-        self.__sync_message_queues[topic].empty()
-        self.remove_subscription(topic)
-        return response
+        # listen on the backend response topic
+        listen_to_topic = "%s/to-backend" % topic
+        self.__sync_message_queues[listen_to_topic] = Queue()
+        self.add_subscription(listen_to_topic, sync=True)
+        self.publish("%s/to-client" % topic, message, qos)
+        # send to the client topic
+        try:
+            response = self.__sync_message_queues[listen_to_topic].get(True, 10)
+            self.__sync_message_queues[listen_to_topic].task_done()
+            return response
+        except Empty:
+            raise JSONRPCException("Timeout while waiting for the clients response")
+        finally:
+            self.remove_subscription(listen_to_topic)
 
     def publish(self, topic, message, qos=0, retain=False):
         res, mid = self.client.publish(topic, payload=message, qos=qos, retain=retain)
@@ -168,22 +183,25 @@ class MQTTClient(object):
             del self.__published_messages[mid]
 
     def get_subscriptions(self, topic):
-        subscriptions = []
-        for t in self.subscriptions:
-            match = False
-            if t[-1] == "#":
-                match = topic.startswith(t[0:-1])
-            elif "+" in t:
-                # use a regex
-                regex = t.replace("+", "[^\/]+")
-                if t[-1] == "+":
-                    regex += "$"
-                p = re.compile(regex)
-                match = p.match(topic) is not None
-                print("%s matches %s => %s" % (regex, topic, match))
-            elif t == topic:
-                match = True
-            if match:
-                subscriptions.append(self.subscriptions[t])
-
-        return subscriptions
+        return [self.subscriptions[t] for t in self.subscriptions if mqtt.topic_matches_sub(t, topic)]
+        # for t in self.subscriptions:
+        #     match = False
+        #     if t[-1] == "#":
+        #         match = topic.startswith(t[0:-1])
+        #         self.log.debug("%s matches %s => %s" % (t, topic, match))
+        #     elif "+" in t:
+        #         # use a regex
+        #         regex = t.replace("+", "[^\/]+")
+        #         if t[-1] == "+":
+        #             regex += "$"
+        #         p = re.compile(regex)
+        #         match = p.match(topic) is not None
+        #         self.log.debug("%s matches %s => %s" % (regex, topic, match))
+        #     elif t == topic:
+        #         match = True
+        #         self.log.debug("'%s' equals '%s' => %s" % (t, topic, match))
+        #
+        #     if match:
+        #         subscriptions.append(self.subscriptions[t])
+        #
+        # return subscriptions

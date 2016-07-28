@@ -173,8 +173,6 @@ class ClientService(Plugin):
         """
 
         # Bail out if the client is not available
-        for uuid, info in self.__client.items():
-            print("ID: %s, info: %s" % (uuid, info))
         if not client in self.__client:
             raise JSONRPCException("client '%s' not available" % client)
         if not self.__client[client]['online']:
@@ -358,8 +356,6 @@ class ClientService(Plugin):
         # Write to LDAP
         lh = LDAPHandler.get_instance()
         fltr = "deviceUUID=%s" % device_uuid
-        self.log.debug("setting system status '%s' for client '%s'" % (status, device_uuid))
-        print(self.__client)
         with lh.get_handle() as conn:
             res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
                 "(&(objectClass=device)(%s))" % fltr, ['deviceStatus'])
@@ -485,7 +481,6 @@ class ClientService(Plugin):
             # Add record
             dn = ",".join(["cn=" + cn, self.env.config.get("goto.machine-rdn",
                 default="ou=systems"), base])
-            print(record)
             conn.add_s(dn, record)
 
             self.log.info("UUID '%s' joined as %s" % (device_uuid, dn))
@@ -627,7 +622,6 @@ class ClientService(Plugin):
 
         self.__client[data.Id.text] = info
 
-        print(self.__client)
         # Handle pending "P"repare actions for that client
         if "P" in self.systemGetStatus(client):
             try:

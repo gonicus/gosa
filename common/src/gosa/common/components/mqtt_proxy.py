@@ -77,11 +77,10 @@ class MQTTServiceProxy(object):
                 methods=self.__methods)
 
     def __getattr__(self, name):
-        if self.__serviceName != None:
-            name = "%s.%s" % (self.__serviceName, name)
+        if self.__serviceName is not None:
+            name = "%s/%s" % (self.__serviceName, name)
 
-        return MQTTServiceProxy(self.__serviceURL, self.__serviceAddress, name,
-                self.__conn, methods=self.__methods)
+        return MQTTServiceProxy(self.__handler, self.__serviceAddress, name, methods=self.__methods)
 
     def __call__(self, *args, **kwargs):
         if len(kwargs) > 0 and len(args) > 0:
@@ -101,10 +100,9 @@ class MQTTServiceProxy(object):
             postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
 
         response = self.__handler.send_sync_message(postdata, queue)
-        print(response)
         resp = loads(response)
 
-        if resp['error'] is not None:
+        if 'error' in resp and resp['error'] is not None:
             raise JSONRPCException(resp['error'])
 
         return resp['result']

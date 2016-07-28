@@ -35,4 +35,5 @@ class MQTTClientHandler(MQTTHandler):
         """ add client subscriptions """
         self.get_client().add_subscription("%s/client/broadcast" % self.domain)
         self.get_client().add_subscription("%s/client/%s" % (self.domain, self.env.uuid))
-        self.get_client().add_subscription("%s/client/%s/#" % (self.domain, self.env.uuid))
+        # RPC calls from backend
+        self.get_client().add_subscription("%s/client/%s/+/to-client" % (self.domain, self.env.uuid))

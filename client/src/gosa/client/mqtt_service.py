@@ -78,7 +78,7 @@ class MQTTClientService(object):
         self.__cr = None
 
     def _handle_message(self, topic, message):
-        if message[0:1] == b"{":
+        if message[0:1] == "{":
             # RPC command
             self.commandReceived(topic, message)
         else:
@@ -90,7 +90,6 @@ class MQTTClientService(object):
                 else:
                     self.log.debug("unhandled event received '%s'" % xml.getchildren()[0].tag)
             except etree.XMLSyntaxError as e:
-                print(message)
                 self.log.error("Message parsing error: %s" % e)
 
     def serve(self):
@@ -162,8 +161,9 @@ class MQTTClientService(object):
         args = None
         id_ = ''
 
+        response_topic = "%s/to-backend" % "/".join(topic.split("/")[0:4])
+
         try:
-            print(message)
             req = loads(message)
         except ServiceRequestNotTranslatable as e:
             err = str(e)
@@ -172,9 +172,6 @@ class MQTTClientService(object):
 
         if err is None:
             try:
-                if '__sender_id' in req and req['__sender_id'] == self.env.uuid:
-                    # do not react on our own messages
-                    return
                 id_ = req['id']
                 name = req['method']
                 args = req['params']
@@ -198,11 +195,11 @@ class MQTTClientService(object):
 
         self.log.debug("returning call [%s]: %s / %s" % (id_, res, err))
 
-        response = dumps({"result": res, "id": id_, '__sender_id': self.env.uuid})
+        response = dumps({"result": res, "id": id_})
 
         # Get rid of it...
         mqtt = PluginRegistry.getInstance('MQTTClientHandler')
-        mqtt.send_message(response, topic=topic)
+        mqtt.send_message(response, topic=response_topic)
 
     def __handleClientPoll(self):
         delay = random.randint(0, 30)
