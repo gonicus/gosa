@@ -303,7 +303,7 @@ class ACLAdmin(object):
                                 self.para_missing(name)
                                 sys.exit(1)
                             else:
-                                onname, ovalue = opt_entries
+                                oname, ovalue = opt_entries
                                 action['options'][oname] = ovalue
                         actions.append(action)
                 del(args[0])
@@ -760,7 +760,7 @@ def connect(service_uri='', username='', password=''):
     # Test if one argument is still needed.
     if len(service_uri) <= 0:
         tmp = service_uri
-        service_uri = raw_input('Service URI: [%s]' % service_uri).strip()
+        service_uri = input('Service URI: [%s]' % service_uri).strip()
         if len(service_uri) <= 0:
             service_uri = tmp
 
@@ -788,7 +788,7 @@ def connect(service_uri='', username='', password=''):
     # If we have still no credentials query for them
     if len(username) <= 0:
         # TRANSLATOR: This is a prompt - Username [joe]:
-        username = raw_input(_("Username") + " [%s]: " % getpass.getuser()).strip()
+        username = input(_("Username") + " [%s]: " % getpass.getuser()).strip()
         if len(username) <= 0:
             username = getpass.getuser()
 

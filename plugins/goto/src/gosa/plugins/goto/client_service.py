@@ -118,41 +118,27 @@ class ClientService(Plugin):
     def serve(self):
         # Add event processor
         mqtt = self.__get_handler()
-        mqtt.get_client().add_subscription('%s/client/#' % self.env.domain)
+        mqtt.get_client().add_subscription('%s/client/+' % self.env.domain)
+        self.log.debug("subscribing to %s event queue" % '%s/client/+' % self.env.domain)
         mqtt.set_subscription_callback(self.__eventProcessor)
 
         # Get registry - we need it later on
         self.__cr = PluginRegistry.getInstance("CommandRegistry")
 
         # Start maintenance with a delay of 5 seconds
-        # timer = Timer(5.0, self.__refresh)
-        # timer.start()
-        # self.env.threads.append(timer)
+        timer = Timer(5.0, self.__refresh)
+        timer.start()
+        self.env.threads.append(timer)
 
         # Register scheduler task to remove outdated clients
         sched = PluginRegistry.getInstance('SchedulerService').getScheduler()
         sched.add_interval_job(self.__gc, minutes=1, tag='_internal', jobstore="ram")
 
     def __refresh(self):
-        # Initially check if we need to ask for client caps or if there's someone
-        # who knows...
+        # Initially check if we need to ask for client caps
         if not self.__client:
-            nodes = self.__cr.getNodes()
-            if not nodes:
-                return
-
-            # If we're alone, please clients to announce themselves
-            if len(nodes) == 1 and self.env.id in nodes:
-                e = EventMaker()
-                self.mqtt.send_message(e.Event(e.ClientPoll()), "%s/client/broadcast" % self.env.domain)
-
-            # Elseways, ask other servers for more client info
-            else:
-                #TODO: get from host
-                #take a random node and:
-                # ... for all clients
-                #     ... load client capabilities and store them localy
-                raise NotImplementedError("getting client information from other nodes is not implemented!")
+            e = EventMaker()
+            self.mqtt.send_event(e.Event(e.ClientPoll()), "%s/client/broadcast" % self.env.domain)
 
     def stop(self):
         pass
@@ -200,7 +186,7 @@ class ClientService(Plugin):
 
         # client queue -> mqtt rpc proxy
         if not client in self.__proxy:
-            self.__proxy[client] = MQTTServiceProxy(self.mqtt, queue)
+            self.__proxy[client] = MQTTServiceProxy(mqttHandler=self.mqtt, serviceAddress=queue)
 
         # Call her to the moon...
         methodCall = getattr(self.__proxy[client], method)
@@ -255,15 +241,17 @@ class ClientService(Plugin):
         TODO
         """
         if client:
-            return self.__user_session[client] if client in self.__user_session else []
+            return list(self.__user_session[client]) if client in self.__user_session else []
 
-        return self.__user_session
+        return list(self.__user_session)
 
     @Command(__help__=N_("List clients a user is logged in"))
     def getUserClients(self, user):
         """
         TODO
         """
+        for id in self.__user_session:
+            print(",".join(self.__user_session[id]))
         return [client for client, users in self.__user_session.items() if user in users]
 
     @Command(__help__=N_("Send synchronous notification message to user"))
@@ -298,7 +286,7 @@ class ClientService(Plugin):
                 # Notify websession user if available
                 if JsonRpcHandler.user_sessions_available(user):
                     mqtt = self.__get_handler()
-                    mqtt.send_message(self.notification2event(user, title, message, timeout, icon), topic="%s/client/%s" % (self.env.domain, user))
+                    mqtt.send_event(self.notification2event(user, title, message, timeout, icon), topic="%s/client/%s" % (self.env.domain, user))
 
         else:
             # Notify all users
@@ -312,8 +300,8 @@ class ClientService(Plugin):
 
             # Notify all websession users if any
             if JsonRpcHandler.user_sessions_available():
-                self.mqtt.send_message(self.notification2event("*", title, message, timeout, icon))
-                self.mqtt.send_message(self.notification2event("*", title, message, timeout, icon))
+                self.mqtt.send_event(self.notification2event("*", title, message, timeout, icon))
+                self.mqtt.send_event(self.notification2event("*", title, message, timeout, icon))
 
     def notification2event(self, user, title, message, timeout, icon):
         e = EventMaker()
@@ -326,7 +314,7 @@ class ClientService(Plugin):
         if icon != "_no_icon_":
             data.append(e.Icon(icon))
 
-        return etree.tostring(e.Event(e.Notification(*data)), pretty_print=True).decode()
+        return e.Event(e.Notification(*data))
 
     @Command(__help__=N_("Set system status"))
     def systemGetStatus(self, device_uuid):
@@ -345,7 +333,7 @@ class ClientService(Plugin):
                 raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid))
 
             if 'deviceStatus' in res[0][1]:
-                return res[0][1]["deviceStatus"][0]
+                return res[0][1]["deviceStatus"][0].decode().strip('[""]')
 
         return ""
 
@@ -368,17 +356,15 @@ class ClientService(Plugin):
         # Write to LDAP
         lh = LDAPHandler.get_instance()
         fltr = "deviceUUID=%s" % device_uuid
-
         with lh.get_handle() as conn:
             res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
                 "(&(objectClass=device)(%s))" % fltr, ['deviceStatus'])
 
             if len(res) != 1:
                 raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid))
-
             devstat = res[0][1]['deviceStatus'][0] if 'deviceStatus' in res[0][1] else ""
             is_new = not bool(devstat)
-            devstat = list(devstat.strip("[]"))
+            devstat = list(devstat.decode().strip('[""]'))
 
             r = re.compile(r"([+-].)")
             for stat in r.findall(status):
@@ -390,8 +376,7 @@ class ClientService(Plugin):
                 else:
                     if stat[1] in devstat:
                         devstat.remove(stat[1])
-
-            devstat = "[" + "".join(devstat).encode('utf8') + "]"
+            devstat = bytes('["%s"]' % "".join(str(x) for x in devstat), 'utf-8')
             if is_new:
                 conn.modify(res[0][0], [(ldap.MOD_ADD, "deviceStatus", [devstat])])
             else:
@@ -496,7 +481,6 @@ class ClientService(Plugin):
             # Add record
             dn = ",".join(["cn=" + cn, self.env.config.get("goto.machine-rdn",
                 default="ou=systems"), base])
-            print(record)
             conn.add_s(dn, record)
 
             self.log.info("UUID '%s' joined as %s" % (device_uuid, dn))
@@ -522,10 +506,23 @@ class ClientService(Plugin):
 
         return AES.new(key, AES.MODE_ECB).encrypt(data)
 
-    def __eventProcessor(self, data):
-        eventType = stripNs(data.xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag)
-        func = getattr(self, "_handle" + eventType)
-        func(data)
+    def __eventProcessor(self, topic, message):
+        if message[0:1] == "{":
+            # RPC response
+            self.log.debug("RPC response received in channel %s: '%s'" % (topic, message))
+        else:
+            try:
+                data = etree.fromstring(message, PluginRegistry.getEventParser())
+                eventType = stripNs(data.xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag)
+                self.log.debug("Incoming MQTT event[%s]: '%s'" % (eventType, data))
+                if hasattr(self, "_handle"+eventType):
+                    func = getattr(self, "_handle" + eventType)
+                    func(data)
+                else:
+                    self.log.debug("unhandled event %s" % eventType)
+            except etree.XMLSyntaxError as e:
+                self.log.error("XML parse error %s on message %s" % (e, message))
+
 
     def _handleUserSession(self, data):
         data = data.UserSession

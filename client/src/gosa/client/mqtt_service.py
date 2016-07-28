@@ -45,7 +45,7 @@ import logging
 import random
 import time
 import zope.event
-from lxml import objectify
+from lxml import objectify, etree
 from threading import Timer
 from netaddr import IPNetwork
 from zope.interface import implementer
@@ -83,11 +83,14 @@ class MQTTClientService(object):
             self.commandReceived(topic, message)
         else:
             # event received
-            xml = objectify.fromstring(message, PluginRegistry.getEventParser())
-            if xml.ClientPoll:
-                self.__handleClientPoll()
-            else:
-                raise Exception("unhandled event received '%s'" % xml.getchildren()[0].tag)
+            try:
+                xml = objectify.fromstring(message)
+                if hasattr(xml, "ClientPoll"):
+                    self.__handleClientPoll()
+                else:
+                    self.log.debug("unhandled event received '%s'" % xml.getchildren()[0].tag)
+            except etree.XMLSyntaxError as e:
+                self.log.error("Message parsing error: %s" % e)
 
     def serve(self):
         """ Start MQTT service for this gosa service provider. """
@@ -108,10 +111,10 @@ class MQTTClientService(object):
                 e = EventMaker()
                 mqtt = PluginRegistry.getInstance('MQTTClientHandler')
                 info = e.Event(e.ClientPing(e.Id(uuid)))
-                mqtt.send_message(info)
+                mqtt.send_event(info)
                 time.sleep(timeout)
 
-        pinger = Timer(10.0, ping)
+        pinger = Timer(1.0, ping)
         pinger.start()
         self.env.threads.append(pinger)
 
@@ -154,27 +157,33 @@ class MQTTClientService(object):
         """
         err = None
         res = None
+        name = None
+        args = None
         id_ = ''
 
+        response_topic = "%s/to-backend" % "/".join(topic.split("/")[0:4])
+
         try:
-            req = loads(message.content)
+            req = loads(message)
         except ServiceRequestNotTranslatable as e:
             err = str(e)
-            req = {'id': topic.split("/")[-1]}
+            self.log.error("ServiceRequestNotTranslatable: %s" % err)
+            req = {'id': topic.split("/")[-2]}
 
-        if err == None:
+        if err is None:
             try:
                 id_ = req['id']
                 name = req['method']
                 args = req['params']
 
-            except KeyError:
-                err = str(BadServiceRequest(message.content))
+            except KeyError as e:
+                self.log.error("KeyError: %s" % e)
+                err = str(BadServiceRequest(message))
 
-        self.log.debug("received call [%s] for %s: %s(%s)" % (id_, message.user_id, name, args))
+        self.log.debug("received call [%s] for %s: %s(%s)" % (id_, topic, name, args))
 
         # Try to execute
-        if err == None:
+        if err is None:
             try:
                 res = self.__cr.dispatch(name, *args)
             except Exception as e:
@@ -186,13 +195,13 @@ class MQTTClientService(object):
 
         self.log.debug("returning call [%s]: %s / %s" % (id_, res, err))
 
-        response = dumps({"result": res, "id": id_, "error": err})
+        response = dumps({"result": res, "id": id_})
 
         # Get rid of it...
         mqtt = PluginRegistry.getInstance('MQTTClientHandler')
-        mqtt.send_message(response, topic=topic)
+        mqtt.send_message(response, topic=response_topic)
 
-    def __handleClientPoll(self, data):
+    def __handleClientPoll(self):
         delay = random.randint(0, 30)
         self.log.debug("received client poll - will answer in %d seconds" % delay)
         time.sleep(delay)
@@ -247,7 +256,7 @@ class MQTTClientService(object):
                     e.Name(self.env.id),
                     *more))
 
-            mqtt.send_message(info)
+            mqtt.send_event(info)
 
         # Assemble capabilities
         more = []
@@ -267,7 +276,7 @@ class MQTTClientService(object):
                 e.Name(self.env.id),
                 *more))
 
-        mqtt.send_message(info)
+        mqtt.send_event(info)
 
         if not initial:
             try:

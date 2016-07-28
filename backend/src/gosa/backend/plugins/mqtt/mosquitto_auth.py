@@ -11,6 +11,7 @@ import re
 from gosa.common import Environment
 import tornado.web
 from gosa.backend.utils.ldap import check_auth
+import paho.mqtt.client as mqtt
 
 
 class BaseMosquittoClass(tornado.web.RequestHandler):
@@ -47,7 +48,8 @@ class MosquittoAuthHandler(BaseMosquittoClass):
         password = self.get_argument('password')
         if hasattr(self.env, "core_uuid") and hasattr(self.env, "core_key"):
             # backend self authentification mode
-            self.send_result(username == self.env.core_uuid and password == self.env.core_key)
+            is_backend = username == self.env.core_uuid and password == self.env.core_key
+            self.send_result(is_backend or check_auth(username, password))
         else:
             self.send_result(check_auth(username, password))
 
@@ -67,28 +69,58 @@ class MosquittoAclHandler(BaseMosquittoClass):
             acc (1 == subscribe, 2 == publish)
         """
         uuid = self.get_argument('username', '')
-        topic    = self.get_argument('topic')
-        acc      = self.get_argument('acc') # 1 == SUB, 2 == PUB
+        topic = self.get_argument('topic')
+        # 1 == SUB, 2 == PUB
+        acc = self.get_argument('acc')
 
-        backend = hasattr(self.env, "core_uuid") and uuid == self.env.core_uuid
+        is_backend = hasattr(self.env, "core_uuid") and uuid == self.env.core_uuid
 
         client_channel = "%s/client/%s" % (self.env.domain, uuid)
+        if is_backend:
+            client_channel = "%s/client/+" % self.env.domain
 
-        if topic == "%s/client/broadcast" % self.env.domain:
-            # listen on client broadcast channel
-            self.send_result(acc == "1" or backend is True)
-        elif topic == client_channel or topic.startswith(client_channel):
-            # our own channel -> everything goes
-            self.send_result(True)
+        is_allowed = False
+
+        if is_backend:
+            if topic == "%s/client/broadcast" % self.env.domain:
+                # backend can publish/subscribe on client broadcast channel
+                is_allowed = True
+            elif mqtt.topic_matches_sub(client_channel, topic):
+                # backend can publish/subscribe (send ClientPoll, receive ClientPing)
+                is_allowed = True
+            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/to-client"):
+                # the temporary RPC to-client channel: backend can send
+                is_allowed = acc == "2"
+            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/to-backend"):
+                # the temporary RPC to-backend channel: backend can receive
+                is_allowed = acc == "1"
+            else:
+                is_allowed = False
         else:
-            self.send_result(False)
+            if topic == "%s/client/broadcast" % self.env.domain:
+                # client can listen on client broadcast channel
+                is_allowed = acc == "1"
+            elif topic == client_channel:
+                # client can do both on own channel
+                is_allowed = True
+            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/to-client"):
+                # the temporary RPC to-client channel: client can subscribe
+                is_allowed = acc == "1"
+            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/to-backend"):
+                # the temporary RPC to-backend channel: client can publish
+                is_allowed = acc == "2"
+            else:
+                is_allowed = False
+
+        self.log.debug("ACL request: '%s'/%s from '%s' for '%s' => %s" %
+                       (topic, acc, uuid, "backend" if is_backend else "client", "GRANTED" if is_allowed else "DENIED"))
+        self.send_result(is_allowed)
 
 
 class MosquittoSuperuserHandler(BaseMosquittoClass):
     """
     Handles Mosquitto auth plugins http superuser authentification requests
     """
-
     def __init__(self, application, request, **kwargs):
         super(MosquittoSuperuserHandler, self).__init__(application, request, **kwargs)
         admins = self.env.config.get("backend.admins", default=None)

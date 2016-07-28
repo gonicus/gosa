@@ -17,19 +17,23 @@ from gosa.common.components.mqtt_handler import MQTTHandler
 class MQTTClientHandler(MQTTHandler):
 
     def __init__(self):
-        super(MQTTClientHandler, self).__init__(loop_forever=True)
+        super(MQTTClientHandler, self).__init__()
 
     def send_message(self, data, topic=None):
-        """ Send message via proxy to mqtt. """
-        if not isinstance(data, str):
-            data = etree.tostring(data)
+        """ Send message to mqtt. """
         if topic is None:
             topic = "%s/client/%s" % (self.domain, self.env.uuid)
-
         super(MQTTClientHandler, self).send_message(data, topic)
+
+    def send_event(self, data, topic=None):
+        """ Send event to mqtt. """
+        if topic is None:
+            topic = "%s/client/%s" % (self.domain, self.env.uuid)
+        super(MQTTClientHandler, self).send_event(data, topic)
 
     def init_subscriptions(self):
         """ add client subscriptions """
         self.get_client().add_subscription("%s/client/broadcast" % self.domain)
         self.get_client().add_subscription("%s/client/%s" % (self.domain, self.env.uuid))
-        self.get_client().add_subscription("%s/client/%s/#" % (self.domain, self.env.uuid))
+        # RPC calls from backend
+        self.get_client().add_subscription("%s/client/%s/+/to-client" % (self.domain, self.env.uuid))

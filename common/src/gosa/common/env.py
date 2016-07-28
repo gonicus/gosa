@@ -37,6 +37,7 @@ class Environment:
     config = None
     threads = []
     log = None
+    id = None
     reset_requested = False
     noargs = False
     domain = None
@@ -48,6 +49,7 @@ class Environment:
         # Load configuration
         self.config = Config(config=Environment.config, noargs=Environment.noargs)
         self.log = logging.getLogger(__name__)
+        self.id = platform.node()
         self.__db = {}
         self.__db_session = {}
 

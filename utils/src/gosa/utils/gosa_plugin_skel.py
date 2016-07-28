@@ -16,11 +16,11 @@ import os
 
 #TODO: proper input validation
 print("Generate plugin skeleton. Please provide some information:\n")
-name = raw_input("Plugin name (must be [a-z][a-z0-9]+): ")
-p_type = raw_input("Plugin type (agent, client, dbus): ")
-version = raw_input("Version: ")
-a_name =  raw_input("Authors name: ")
-a_email = raw_input("Authors email: ")
+name = input("Plugin name (must be [a-z][a-z0-9]+): ")
+p_type = input("Plugin type (agent, client, dbus): ")
+version = input("Version: ")
+a_name =  input("Authors name: ")
+a_email = input("Authors email: ")
 
 if not re.match(r"^(agent|client|dbus)$", p_type):
     raise ValueError("Invalid type supplied.")
@@ -97,24 +97,6 @@ setup(
 tag_build = dev
 tag_date = false
 tag_svn_revision = false
-
-[nosetests]
-verbose = 1
-detailed-errors = 1
-with-xunit = 1
-with-doctest = 1
-doctest-tests = 1
-where = gosa
-with-nosexunit = 1
-source-folder = .
-core-target = reports/tests
-enable-cover = 1
-enable-audit = 1
-audit-output = text
-audit-target = reports/audit
-cover-target = reports/cobertura
-cover-clean = 1
-cover-collect = 1
 
 [extract_messages]
 output_file = {base_path}/locale/messages.pot
