@@ -79,7 +79,12 @@ class Notify(object):
         else:
             # Build notification
             notifyid = 0
-            bus = dbus.connection.Connection._new_for_bus(dbus_session)
+            try:
+                bus = dbus.connection.Connection._new_for_bus(dbus_session)
+            except dbus.exceptions.DBusException:
+                if not self.quiet:
+                    print("Connecting to dbus at '%s' failed." % dbus_session)
+                return RETURN_ABORTED
             notifyservice = bus.get_object('org.freedesktop.Notifications', '/org/freedesktop/Notifications')
             notifyservice = dbus.Interface(notifyservice, "org.freedesktop.Notifications")
 
