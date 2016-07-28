@@ -11,8 +11,8 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import uuid
-import time
-import asyncio
+from threading import Thread
+from queue import Queue
 from gosa.common.components.json_exception import JSONRPCException
 from gosa.common.components.mqtt_handler import MQTTHandler
 from gosa.common.gjson import dumps, loads
@@ -88,7 +88,7 @@ class MQTTServiceProxy(object):
 
         # Default to 'core' queue
         call_id = uuid.uuid4()
-        queue = "%s/%s" % (self.__serviceAddress, call_id)
+        topic = "%s/%s" % (self.__serviceAddress, call_id)
 
         if self.__methods and self.__serviceName not in self.__methods:
             raise NameError("name '%s' not defined" % self.__serviceName)
@@ -99,7 +99,7 @@ class MQTTServiceProxy(object):
         else:
             postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
 
-        response = self.__handler.send_sync_message(postdata, queue)
+        response = self.__handler.send_sync_message(postdata, topic)
         resp = loads(response)
 
         if 'error' in resp and resp['error'] is not None:

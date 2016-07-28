@@ -66,7 +66,7 @@ class MosquittoAclHandler(BaseMosquittoClass):
             username: current username
             topic: mqtt topic
             clientid: client id
-            acc (1 == subscribe, 2 == publish)
+            acc: (1 == subscribe, 2 == publish)
         """
         uuid = self.get_argument('username', '')
         topic = self.get_argument('topic')
