@@ -152,7 +152,8 @@ class DBusUnixServiceHandler(dbus.service.Object, Plugin):
         for unit in units:
             if not unit[0].endswith(".service"):
                 continue
-            services[unit[0]] = {"active": ["True" if unit[3] == "active" else "False"]}
+            services[unit[0]] = {"active": ["True" if unit[3] == "active" else "False"],
+                    "running": ["True" if unit[4] == "running" else "False"]}
         return services
 
     @dbus.service.method('org.gosa')
