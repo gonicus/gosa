@@ -49,8 +49,6 @@ class MosquittoAuthHandler(BaseMosquittoClass):
         if hasattr(self.env, "core_uuid") and hasattr(self.env, "core_key"):
             # backend self authentification mode
             is_backend = username == self.env.core_uuid and password == self.env.core_key
-            if is_backend:
-                self.log.debug("backend authenticated %s" % username)
             self.send_result(is_backend or check_auth(username, password))
         else:
             self.send_result(check_auth(username, password))
