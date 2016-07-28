@@ -14,7 +14,7 @@
 GOsa D-Bus System Service Plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Allows to manage client services and the runlevel.
+Allows to manage systemd service units (PowerOff and Reboot are also available).
 
 """
 import dbus.service
