@@ -27,6 +27,19 @@ class BaseClient(mqtt.Client):
 
 
 class MQTTClient(object):
+    """
+    The MQTTClient is responsible for the connectio to a MQTT broker (Mosquitto)
+    Usage example:
+        >>> from gosa.common.components.mqtt_client import MQTTClient
+        >>>
+        >>> def my_callback(topic, message):
+        >>>     print("Message: %s, Topic: %s" % (message, topic))
+        >>>
+        >>> client = MQTTClient('localhost')
+        >>> client.connect('username', 'password')
+        >>> client.add_subscription('/topic/im/interested/in', callback=my_callback)
+        >>> client.publish('/topic/to/pushish', 'my message')
+    """
     __published_messages = {}
     __sync_message_queues = {}
 
