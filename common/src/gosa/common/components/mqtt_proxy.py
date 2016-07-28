@@ -89,7 +89,7 @@ class MQTTServiceProxy(object):
 
         # Default to 'core' queue
         call_id = uuid.uuid4()
-        queue = "%s.%s" % (self.__serviceAddress, call_id)
+        queue = "%s/%s" % (self.__serviceAddress, call_id)
 
         if self.__methods and self.__serviceName not in self.__methods:
             raise NameError("name '%s' not defined" % self.__serviceName)
@@ -100,34 +100,11 @@ class MQTTServiceProxy(object):
         else:
             postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
 
-        response = {}
-
-        def handle_response(topic, message):
-            global response
-            print("received response")
-            response = message
-
-        # apply listener for response
-        self.__handler.get_client().add_subscription(queue, handle_response)
-
-        self.__handler.send_message(postdata)
-
-        # wait for response
-        # @asyncio.coroutine
-        # def wait_for_response():
-        #     global response
-        #     while response is None:
-        #         yield from asyncio.sleep(1)
-        #
-        # loop = asyncio.get_event_loop()
-        # loop.run_until_complete(wait_for_response())
-        # loop.close()
-
+        response = self.__handler.send_sync_message(postdata, queue)
+        print(response)
         resp = loads(response)
 
-        self.__handler.get_client().remove_subscription(queue)
-
-        if resp['error'] != None:
+        if resp['error'] is not None:
             raise JSONRPCException(resp['error'])
 
         return resp['result']

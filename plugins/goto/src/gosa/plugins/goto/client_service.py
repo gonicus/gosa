@@ -118,8 +118,8 @@ class ClientService(Plugin):
     def serve(self):
         # Add event processor
         mqtt = self.__get_handler()
-        mqtt.get_client().add_subscription('%s/client/#' % self.env.domain)
-        self.log.debug("subscribing to %s event queue" % '%s/client/#' % self.env.domain)
+        mqtt.get_client().add_subscription('%s/client/+' % self.env.domain)
+        self.log.debug("subscribing to %s event queue" % '%s/client/+' % self.env.domain)
         mqtt.set_subscription_callback(self.__eventProcessor)
 
         # Get registry - we need it later on
@@ -135,25 +135,10 @@ class ClientService(Plugin):
         sched.add_interval_job(self.__gc, minutes=1, tag='_internal', jobstore="ram")
 
     def __refresh(self):
-        # Initially check if we need to ask for client caps or if there's someone
-        # who knows...
+        # Initially check if we need to ask for client caps
         if not self.__client:
-            # nodes = self.__cr.getNodes()
-            # if not nodes:
-            #     return
-            #
-            # # If we're alone, please clients to announce themselves
-            # if len(nodes) == 1 and self.env.id in nodes:
             e = EventMaker()
             self.mqtt.send_event(e.Event(e.ClientPoll()), "%s/client/broadcast" % self.env.domain)
-
-            # Elseways, ask other servers for more client info
-            # else:
-            #     #TODO: get from host
-            #     #take a random node and:
-            #     # ... for all clients
-            #     #     ... load client capabilities and store them localy
-            #     raise NotImplementedError("getting client information from other nodes is not implemented!")
 
     def stop(self):
         pass
@@ -188,6 +173,8 @@ class ClientService(Plugin):
         """
 
         # Bail out if the client is not available
+        for uuid, info in self.__client.items():
+            print("ID: %s, info: %s" % (uuid, info))
         if not client in self.__client:
             raise JSONRPCException("client '%s' not available" % client)
         if not self.__client[client]['online']:
@@ -201,7 +188,7 @@ class ClientService(Plugin):
 
         # client queue -> mqtt rpc proxy
         if not client in self.__proxy:
-            self.__proxy[client] = MQTTServiceProxy(self.mqtt, queue)
+            self.__proxy[client] = MQTTServiceProxy(mqttHandler=self.mqtt, serviceAddress=queue)
 
         # Call her to the moon...
         methodCall = getattr(self.__proxy[client], method)
@@ -371,7 +358,8 @@ class ClientService(Plugin):
         # Write to LDAP
         lh = LDAPHandler.get_instance()
         fltr = "deviceUUID=%s" % device_uuid
-
+        self.log.debug("setting system status '%s' for client '%s'" % (status, device_uuid))
+        print(self.__client)
         with lh.get_handle() as conn:
             res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
                 "(&(objectClass=device)(%s))" % fltr, ['deviceStatus'])
@@ -524,14 +512,22 @@ class ClientService(Plugin):
         return AES.new(key, AES.MODE_ECB).encrypt(data)
 
     def __eventProcessor(self, topic, message):
-        data = etree.fromstring(message, PluginRegistry.getEventParser())
-        eventType = stripNs(data.xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag)
-        self.log.debug("Incoming MQTT event[%s]: '%s'" % (eventType, data))
-        if hasattr(self, "_handle"+eventType):
-            func = getattr(self, "_handle" + eventType)
-            func(data)
+        if message[0:1] == "{":
+            # RPC response
+            self.log.debug("RPC response received in channel %s: '%s'" % (topic, message))
         else:
-            self.log.debug("unhandled event %s" % eventType)
+            try:
+                data = etree.fromstring(message, PluginRegistry.getEventParser())
+                eventType = stripNs(data.xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag)
+                self.log.debug("Incoming MQTT event[%s]: '%s'" % (eventType, data))
+                if hasattr(self, "_handle"+eventType):
+                    func = getattr(self, "_handle" + eventType)
+                    func(data)
+                else:
+                    self.log.debug("unhandled event %s" % eventType)
+            except etree.XMLSyntaxError as e:
+                self.log.error("XML parse error %s on message %s" % (e, message))
+
 
     def _handleUserSession(self, data):
         data = data.UserSession
@@ -630,6 +626,8 @@ class ClientService(Plugin):
         }
 
         self.__client[data.Id.text] = info
+
+        print(self.__client)
         # Handle pending "P"repare actions for that client
         if "P" in self.systemGetStatus(client):
             try:

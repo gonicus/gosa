@@ -45,7 +45,7 @@ import logging
 import random
 import time
 import zope.event
-from lxml import objectify
+from lxml import objectify, etree
 from threading import Timer
 from netaddr import IPNetwork
 from zope.interface import implementer
@@ -78,16 +78,20 @@ class MQTTClientService(object):
         self.__cr = None
 
     def _handle_message(self, topic, message):
-        if message[0:1] == "{":
+        if message[0:1] == b"{":
             # RPC command
             self.commandReceived(topic, message)
         else:
             # event received
-            xml = objectify.fromstring(message)
-            if hasattr(xml, "ClientPoll"):
-                self.__handleClientPoll()
-            else:
-                self.log.debug("unhandled event received '%s'" % xml.getchildren()[0].tag)
+            try:
+                xml = objectify.fromstring(message)
+                if hasattr(xml, "ClientPoll"):
+                    self.__handleClientPoll()
+                else:
+                    self.log.debug("unhandled event received '%s'" % xml.getchildren()[0].tag)
+            except etree.XMLSyntaxError as e:
+                print(message)
+                self.log.error("Message parsing error: %s" % e)
 
     def serve(self):
         """ Start MQTT service for this gosa service provider. """
@@ -154,27 +158,35 @@ class MQTTClientService(object):
         """
         err = None
         res = None
+        name = None
+        args = None
         id_ = ''
 
         try:
-            req = loads(message.content)
+            print(message)
+            req = loads(message)
         except ServiceRequestNotTranslatable as e:
             err = str(e)
-            req = {'id': topic.split("/")[-1]}
+            self.log.error("ServiceRequestNotTranslatable: %s" % err)
+            req = {'id': topic.split("/")[-2]}
 
-        if err == None:
+        if err is None:
             try:
+                if '__sender_id' in req and req['__sender_id'] == self.env.uuid:
+                    # do not react on our own messages
+                    return
                 id_ = req['id']
                 name = req['method']
                 args = req['params']
 
-            except KeyError:
-                err = str(BadServiceRequest(message.content))
+            except KeyError as e:
+                self.log.error("KeyError: %s" % e)
+                err = str(BadServiceRequest(message))
 
-        self.log.debug("received call [%s] for %s: %s(%s)" % (id_, message.user_id, name, args))
+        self.log.debug("received call [%s] for %s: %s(%s)" % (id_, topic, name, args))
 
         # Try to execute
-        if err == None:
+        if err is None:
             try:
                 res = self.__cr.dispatch(name, *args)
             except Exception as e:
@@ -186,7 +198,7 @@ class MQTTClientService(object):
 
         self.log.debug("returning call [%s]: %s / %s" % (id_, res, err))
 
-        response = dumps({"result": res, "id": id_, "error": err})
+        response = dumps({"result": res, "id": id_, '__sender_id': self.env.uuid})
 
         # Get rid of it...
         mqtt = PluginRegistry.getInstance('MQTTClientHandler')

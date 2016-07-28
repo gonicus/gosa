@@ -97,7 +97,6 @@ class MosquittoSuperuserHandler(BaseMosquittoClass):
     """
     Handles Mosquitto auth plugins http superuser authentification requests
     """
-
     def __init__(self, application, request, **kwargs):
         super(MosquittoSuperuserHandler, self).__init__(application, request, **kwargs)
         admins = self.env.config.get("backend.admins", default=None)

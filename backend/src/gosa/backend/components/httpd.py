@@ -20,7 +20,9 @@ import logging
 import tornado.wsgi
 import tornado.web
 import pkg_resources
+import asyncio
 from tornado.ioloop import IOLoop
+from tornado.platform.asyncio import AsyncIOMainLoop
 from tornado.httpserver import HTTPServer
 from zope.interface import implementer
 from gosa.common import Environment
@@ -129,6 +131,7 @@ class HTTPService(object):
         self.log.info("now serving on %s://%s:%s" % (self.scheme, self.host, self.port))
 
     def start(self):
+        IOLoop.configure('tornado.platform.asyncio.AsyncIOLoop')
         IOLoop.instance().start()
 
     def stop(self):
