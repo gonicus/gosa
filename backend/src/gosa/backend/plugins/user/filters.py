@@ -75,7 +75,7 @@ class ImageProcessor(ElementFilter):
 
             # Check if a cache entry exists...
             try:
-                entry = self.__session.query(ImageIndex.modified).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
+                entry = self.__session.query(ImageIndex).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
             except OperationalError:
                 Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
                 entry = None
@@ -102,7 +102,7 @@ class ImageProcessor(ElementFilter):
                     continue
 
                 # Check for target directory
-                wd = os.path.join(self.__path, obj.uuid)
+                wd = os.path.join(self.__path, obj.uuid, key, str(idx))
                 if os.path.exists(wd) and not os.path.isdir(wd):
                     raise ElementFilterException(C.make_error("USER_IMAGE_CACHE_BROKEN"))
                 if not os.path.exists(wd):

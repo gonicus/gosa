@@ -111,8 +111,10 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
         resolver.check.side_effect = [False, True, True, True]
 
         index = unittest.mock.MagicMock()
-        found = unittest.mock.MagicMock()
-        index.search.return_value = found
+        # mockup the found user
+        index.search.return_value = [
+            {"userPassword": ["{UNKNOWN}!uw8er0hjewofh"]}
+        ]
 
         def sideEffect(key):
             if key == "ObjectIndex":
@@ -126,23 +128,17 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
         # mockup the environment
         mockedEnv.return_value.domain = "testdomain"
 
-        # mockup the found user
-        found.__getitem__.return_value = {
-            "userPassword": ["{UNKNOWN}uw8er0hjewofh"]
-        }
-
         with pytest.raises(ACLException):
             self.obj.accountLockable("Test", "dn")
 
-        found.count.return_value = 0
         assert self.obj.accountLockable("Test","dn") is False
 
-        found.count.return_value = 1
+        index.search.return_value = []
         assert self.obj.accountLockable("Test", "dn") is False
 
-        found.__getitem__.return_value = {
+        index.search.return_value = [{
             "userPassword": ["{CRYPT}uw8er0hjewofh"]
-        }
+        }]
         assert self.obj.accountLockable("Test", "dn") is True
 
     @unittest.mock.patch.object(Environment, "getInstance")
@@ -153,8 +149,10 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
         resolver.check.side_effect = [False, True, True, True]
 
         index = unittest.mock.MagicMock()
-        found = unittest.mock.MagicMock()
-        index.search.return_value = found
+        # mockup the found user
+        index.search.return_value = [
+            {"userPassword": ["{UNKNOWN}uw8er0hjewofh"]}
+        ]
 
         def sideEffect(key):
             if key == "ObjectIndex":
@@ -167,23 +165,17 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
         # mockup the environment
         mockedEnv.return_value.domain = "testdomain"
 
-        # mockup the found user
-        found.__getitem__.return_value = {
-            "userPassword": ["{UNKNOWN}uw8er0hjewofh"]
-        }
-
         with pytest.raises(ACLException):
             self.obj.accountUnlockable("Test", "dn")
 
-        found.count.return_value = 0
         assert self.obj.accountUnlockable("Test", "dn") is False
 
-        found.count.return_value = 1
+        index.search.return_value = []
         assert self.obj.accountUnlockable("Test", "dn") is False
 
-        found.__getitem__.return_value = {
-            "userPassword": ["{CRYPT}!uw8er0hjewofh"]
-        }
+        index.search.return_value = [
+            {"userPassword": ["{CRYPT}!uw8er0hjewofh"]}
+        ]
         assert self.obj.accountUnlockable("Test", "dn") is True
 
     @unittest.mock.patch.object(Environment, "getInstance")

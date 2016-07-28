@@ -13,6 +13,7 @@ import sys
 import logging
 import pkg_resources
 import codecs
+from uuid import uuid4
 from setproctitle import setproctitle
 from gosa.backend import __version__ as VERSION
 from gosa.common import Environment
@@ -68,8 +69,13 @@ def main():
     os.putenv('SPT_NOENV', 'non_empty_value')
     setproctitle("gosa")
 
-    # Inizialize core environment
+    # Initialize core environment
     env = Environment.getInstance()
+
+    # create temporal credentials for mqtt
+    env.core_uuid = str(uuid4())
+    env.core_key = str(uuid4())
+
     if not env.base:
         env.log.critical("GOsa backend needs a 'core.base' do operate on")
         exit(1)

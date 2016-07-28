@@ -28,5 +28,4 @@ script:
     - ./setup.py test --addopts="--runslow"
 
 after_success:
-    - coverage combine common/.coverage backend/.coverage shell/.coverage plugins/gui/.coverage # needs to be more generic
     - coveralls

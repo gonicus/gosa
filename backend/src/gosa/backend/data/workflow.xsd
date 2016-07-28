@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.gonicus.de/Workflows"
+  elementFormDefault="qualified"
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  xmlns:o="http://www.gonicus.de/Workflows">
+
+  <element name="Workflow" type="o:Workflow"></element>
+
+  <complexType name="Workflow">
+    <all>
+      <element name="Id" type="token" maxOccurs="1" minOccurs="1"></element>
+      <element name="Description" type="string" maxOccurs="1" minOccurs="1"></element>
+      <element name="DisplayName" type="string" maxOccurs="1" minOccurs="0"></element>
+      <element name="Icon" type="string" maxOccurs="1" minOccurs="0"></element>
+      <element name="Templates" maxOccurs="1" minOccurs="0">
+        <complexType>
+          <sequence>
+            <element name="Template" type="string" maxOccurs="unbounded" minOccurs="1"></element>
+          </sequence>
+        </complexType>
+      </element>
+      <element name="Attributes" type="o:Attributes" maxOccurs="1" minOccurs="0"></element>
+    </all>
+  </complexType>
+
+  <complexType name="Attributes">
+    <choice maxOccurs="unbounded">
+      <element name="Attribute" type="o:Attribute" />
+    </choice>
+  </complexType>
+
+  <complexType name="Attribute">
+    <all>
+      <element name="Name" type="token" maxOccurs="1" minOccurs="1"></element>
+      <element name="Description" type="string" maxOccurs="1" minOccurs="0">
+      </element>
+      <element name="DependsOn" type="o:DependsOn" maxOccurs="1" minOccurs="0"></element>
+      <element name="Type" type="o:AttributeTypes" maxOccurs="1" minOccurs="1"></element>
+      <element name="Values" maxOccurs="1" minOccurs="0">
+        <complexType>
+          <sequence>
+              <element name="Value" maxOccurs="unbounded" minOccurs="0" type="o:ValueWithKey"></element>
+          </sequence>
+          <attribute name="populate" type="string" use="optional"/>
+        </complexType>
+      </element>
+      <element name="Default" type="string" maxOccurs="1" minOccurs="0"></element>
+      <element name="Validators" type="o:Validator" maxOccurs="1" minOccurs="0"></element>
+      <element name="InFilter" type="o:FilterElement" maxOccurs="1" minOccurs="0"></element>
+      <element name="OutFilter" type="o:FilterElement" maxOccurs="1" minOccurs="0"></element>
+      <element name="MultiValue" type="boolean" maxOccurs="1" minOccurs="0"></element>
+      <element name="ReadOnly" type="boolean" maxOccurs="1" minOccurs="0"></element>
+      <element name="Mandatory" type="boolean" maxOccurs="1" minOccurs="0"></element>
+      <element name="Unique" type="boolean" maxOccurs="1" minOccurs="0"></element>
+      <element name="BlockedBy" maxOccurs="1" minOccurs="0">
+        <complexType>
+          <sequence>
+            <element name="Attribute" maxOccurs="unbounded" minOccurs="1">
+              <complexType>
+                <simpleContent>
+                  <extension base="string">
+                    <attribute name="value" type="string"></attribute>
+                  </extension>
+                </simpleContent>
+              </complexType>
+            </element>
+          </sequence>
+        </complexType>
+      </element>
+      <element name="CaseSensitive" type="boolean" maxOccurs="1" minOccurs="0"></element>
+    </all>
+  </complexType>
+
+  <simpleType name="AttributeTypes">
+    <restriction base="string"></restriction>
+  </simpleType>
+
+  <complexType name="FilterChain">
+    <choice>
+      <element name="FilterEntry" type="o:FilterEntry" maxOccurs="unbounded" minOccurs="1"></element>
+    </choice>
+  </complexType>
+
+  <complexType name="Choice">
+    <sequence>
+      <element name="When" type="o:When" maxOccurs="unbounded" minOccurs="1"></element>
+    </sequence>
+  </complexType>
+
+  <complexType name="When">
+    <sequence>
+      <element name="ConditionChain" type="o:ConditionChain" maxOccurs="1" minOccurs="1"></element>
+      <element name="FilterChain" type="o:FilterChain" maxOccurs="unbounded" minOccurs="1"></element>
+      <element name="Else" type="o:Else" maxOccurs="1" minOccurs="0"></element>
+    </sequence>
+  </complexType>
+
+  <complexType name="ValueWithKey">
+    <simpleContent>
+      <extension base="string">
+        <attribute name="key" type="string"/>
+      </extension>
+    </simpleContent>
+  </complexType>
+
+  <complexType name="FilterElement">
+    <sequence>
+      <element name="FilterChain" type="o:FilterChain" maxOccurs="unbounded" minOccurs="1"></element>
+    </sequence>
+  </complexType>
+
+  <complexType name="Filter">
+    <sequence>
+      <element name="Name" type="token" maxOccurs="1" minOccurs="1"></element>
+      <element name="Param" type="string" maxOccurs="unbounded" minOccurs="0"></element>
+    </sequence>
+  </complexType>
+
+  <complexType name="Else">
+    <sequence>
+      <element name="FilterChain" type="o:FilterChain" maxOccurs="unbounded" minOccurs="1"></element>
+    </sequence>
+  </complexType>
+
+  <complexType name="ConditionChain">
+    <choice>
+      <element name="Condition" type="o:Condition" maxOccurs="1" minOccurs="0"></element>
+      <element name="ConditionOperator" type="o:ConditionOperator" maxOccurs="1" minOccurs="0"></element>
+    </choice>
+  </complexType>
+
+  <complexType name="Condition">
+    <sequence>
+      <element name="Name" type="token" maxOccurs="1" minOccurs="1"></element>
+      <element name="Param" type="string" maxOccurs="unbounded" minOccurs="0"></element>
+    </sequence>
+  </complexType>
+
+  <complexType name="Validator">
+    <choice>
+      <element name="ConditionOperator" type="o:ConditionOperator" maxOccurs="1" minOccurs="0"></element>
+      <element name="Condition" type="o:Condition" maxOccurs="1" minOccurs="0"></element>
+    </choice>
+  </complexType>
+
+  <complexType name="FilterEntry">
+    <choice>
+      <element name="Filter" type="o:Filter" maxOccurs="1" minOccurs="0"></element>
+      <element name="Choice" type="o:Choice" maxOccurs="1" minOccurs="0"></element>
+    </choice>
+  </complexType>
+
+  <complexType name="ConditionOperator">
+    <sequence>
+      <element name="Operator" type="o:NewType" maxOccurs="1" minOccurs="1"></element>
+      <element name="LeftConditionChain" type="o:ConditionChain" maxOccurs="1" minOccurs="1"></element>
+      <element name="RightConditionChain" type="o:ConditionChain" maxOccurs="1" minOccurs="1"></element>
+    </sequence>
+  </complexType>
+
+  <complexType name="DependsOn">
+    <sequence>
+      <element name="Attribute" type="string" maxOccurs="unbounded" minOccurs="1"></element>
+    </sequence>
+  </complexType>
+
+  <simpleType name="NewType">
+    <restriction base="token">
+      <enumeration value="or"></enumeration>
+      <enumeration value="and"></enumeration>
+    </restriction>
+  </simpleType>
+</schema>

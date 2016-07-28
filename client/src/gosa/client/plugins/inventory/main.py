@@ -40,15 +40,11 @@ import logging
 from threading import Thread
 from lxml import etree
 from dbus import DBusException
+from io import StringIO
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry, Plugin
 from gosa.common.components.dbus_runner import DBusRunner
 from pkg_resources import resource_filename #@UnresolvedImport
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
 
 
 class Inventory(Plugin):

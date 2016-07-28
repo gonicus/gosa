@@ -20,9 +20,6 @@ class IsValidHostName(ElementComparator):
     Validates a given host name.
     """
 
-    def __init__(self, obj):
-        super(IsValidHostName, self).__init__()
-
     def process(self, all_props, key, value):
 
         errors = []
@@ -40,9 +37,6 @@ class IsExistingDN(ElementComparator):
     """
     Check if the given DN exists.
     """
-
-    def __init__(self, obj):
-        super(IsExistingDN, self).__init__()
 
     def process(self, all_props, key, value):
 
@@ -62,9 +56,6 @@ class IsExistingDnOfType(ElementComparator):
     Validates a given domain name.
     """
 
-    def __init__(self, obj):
-        super(IsExistingDnOfType, self).__init__()
-
     def process(self, all_props, key, value, objectType):
 
         errors = []
@@ -82,9 +73,6 @@ class ObjectWithPropertyExists(ElementComparator):
     """
     Checks if an object with the given property exists.
     """
-
-    def __init__(self, obj):
-        super(ObjectWithPropertyExists, self).__init__()
 
     def process(self, all_props, key, value, objectType, attribute):
 

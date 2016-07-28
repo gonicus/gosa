@@ -22,6 +22,7 @@ database-file = /tmp/gosa.json
 
 [user]
 image-path = /tmp/images
+min-uid = 1000
 
 
 ##############################################################################

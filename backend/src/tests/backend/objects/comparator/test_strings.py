@@ -13,7 +13,7 @@ from gosa.backend.objects.comparator.strings import *
 class StringComparatorTests(unittest.TestCase):
 
     def test_like(self):
-        comp = Like(None)
+        comp = Like()
         (result, errors) = comp.process(None, None, ["test","test"], "test")
         assert result == True
         assert len(errors) == 0
@@ -31,18 +31,18 @@ class StringComparatorTests(unittest.TestCase):
         assert len(errors) == 1
 
     def test_regex(self):
-        comp = RegEx(None)
+        comp = RegEx()
         (result, errors) = comp.process(None, None, ["test", "test"], "[\w]")
         assert result == True
         assert len(errors) == 0
 
-        comp = RegEx(None)
+        comp = RegEx()
         (result, errors) = comp.process(None, None, ["test", "1"], "[\d]")
         assert result == False
         assert len(errors) == 1
 
     def test_stringLength(self):
-        comp = stringLength(None)
+        comp = stringLength()
         (result, errors) = comp.process(None, None, ["test", "test"], 0, 5)
         assert result == True
         assert len(errors) == 0

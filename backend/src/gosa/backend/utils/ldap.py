@@ -264,12 +264,12 @@ def check_auth(user, password):
             auth_tokens = ldap.sasl.digest_md5(bind_user, bind_secret)
             conn.sasl_interactive_bind_s("", auth_tokens)
         else:
-            self.log.debug("starting anonymous bind")
+            log.debug("starting anonymous bind")
             conn.simple_bind_s()
 
         # Search for the given user UID
         res = conn.search_s(url.dn, ldap.SCOPE_SUBTREE,
-                filter_format("(&(objectClass=person)(uid=%s))", [user]),
+                filter_format("(|(&(objectClass=registeredDevice)(deviceUUID=%s))(&(objectClass=person)(uid=%s)))", [user, user]),
                 ['dn'])
 
         if len(res) == 1:

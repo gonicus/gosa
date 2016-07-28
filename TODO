@@ -1,11 +1,4 @@
-# Auth via digest
-
-# Comparatoren (gosa.backend.objects.comparator)
-- Konstruktor wird ein Object übergeben, dieses wird aber nirgendwo genutzt
-- einige der Parameter der process-Methode werden ebenfalls nicht genutzt (all_props, key)
-
-# Operatoren (gosa.backend.objects.operator)
-- Konstruktor wird ein Object übergeben, dieses wird aber nirgendwo genutzt
+# Auth via digest ermöglichen
 
 # Rückwärtsbeziehungen zu Objektdefinitionen erlauben
 - Wird ein Plugin installiert, welches z.B. Benutzer erweitert, so sollte es die
@@ -15,17 +8,12 @@
 # Filter (gosa.backend.objects.filter + gosa.backend.plugins.*filter)
 - Konstruktor wird ein Object übergeben, dieses wird zwar dem Parent-Konstruktor übergeben, welcher wiederum nichts damit macht
 - auch der erste Parameter in der process Methode wird nicht genutzt
-- sobald ObjectFactory funktioniert, müssen dort noch 2 Tests auskommentiert werden, die davon abh. sind und zur Zeit nicht laufen
 - DatetimeToString und (TimeToString, DateToString) sind redundant (Unterschied: DatetimeToString setzt 'backend_type')
 - StringToDatetime und StringToTime sind redundant (Unterschied: DatetimeToString setzt 'backend_type')
 
-- PWDPolicy Extension
+# PWDPolicy Extension hinzufügen
 
-# gosa.backend.plugins.user.filter
-- ImageProcessor fixed + testen
-- Wer räumt das Ding wieder auf?
-
-#gosa.backend.object.(comparator|types).(acl_set|acl_roles)
+# gosa.backend.object.(comparator|types).(acl_set|acl_roles)
 - code nahezu identisch, nur das bei den sets auch der 'members'-key im Dict berücksichtigt wird => prüfen ob man das vereinheitlichen kann
 
 # TOX für tests mit unterschiedlichen Python versionen (aktuell funktioniert nur 3.5 unter 3.4 schlagen einige tests fehl)
@@ -33,3 +21,9 @@
 
 # Index
 - Zu viele Attribute im Index. Warum?
+  -> weil nicht gefiltert wird...
+
+# GUI -> gravatar import
+
+# Mosquitto Auth Routen
+- in plugin auslagern

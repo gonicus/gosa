@@ -2,6 +2,7 @@
 profile = False
 base = dc=example,dc=net
 domain = gosa
+id = fff0c8ad-d26b-4b6d-8e8e-75e054614dd9
 
 [http]
 host = localhost
@@ -23,6 +24,13 @@ database-file = /tmp/gosa.json
 
 [user]
 image-path = /tmp/images
+
+[backend]
+admins = admin
+
+[jsonrpc]
+url = http://localhost:8000/rpc
+key = FIAYj6kqb273a0UoZl4MPz1WTs8E9iHw
 
 ##############################################################################
 #                            Logger configuration                            #

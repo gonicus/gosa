@@ -272,9 +272,6 @@ class IsValidSambaDomainName(ElementComparator):
     Validates a given sambaDomainName.
     """
 
-    def __init__(self, obj):
-        super(IsValidSambaDomainName, self).__init__()
-
     def process(self, all_props, key, value):
         domain = value[0]
         errors = []

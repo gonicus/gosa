@@ -863,6 +863,8 @@ class ObjectProxy(object):
         """
         Returns JSON representations for the base-object and all its extensions.
         """
+
+        #TODO: only_indexed!?
         atypes = self.__factory.getAttributeTypes()
 
         # Check permissions
@@ -888,11 +890,7 @@ class ObjectProxy(object):
 
             # Use the object-type conversion method to get valid item string-representations.
             prop_value = props[propname]['value']
-            if props[propname]['type'] == "Binary":
-                res[propname] = list(map(lambda x: Binary(str(x.get())), prop_value))
-
-            # Make remaining values unicode
-            else:
+            if props[propname]['type'] != "Binary":
                 res[propname] = atypes[props[propname]['type']].convert_to("UnicodeString", prop_value)
 
         return res

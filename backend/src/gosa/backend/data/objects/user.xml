@@ -542,7 +542,7 @@
 					<Destination>description</Destination>
 				</Map>
 				<Map>
-					<Source>jpegPhoto</Source>
+					<Source><![CDATA[%(userPhotoRenderer)s]]></Source>
 					<Destination>icon</Destination>
 				</Map>
 			</Result>

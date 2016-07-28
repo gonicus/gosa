@@ -13,7 +13,7 @@ from gosa.backend.objects.operator.bool import *
 class BoolComparatorTests(unittest.TestCase):
 
     def test_and(self):
-        op = And(None)
+        op = And()
         assert op.process(True, True) == True
         assert op.process(True, False) == False
         assert op.process(False, False) == False
@@ -21,13 +21,13 @@ class BoolComparatorTests(unittest.TestCase):
 
 
     def test_Or(self):
-        op = Or(None)
+        op = Or()
         assert op.process(True, True) == True
         assert op.process(True, False) == True
         assert op.process(False, False) == False
         assert op.process(False, True) == True
 
     def test_not(self):
-        op = Not(None)
+        op = Not()
         assert op.process(True) == False
         assert op.process(False) == True

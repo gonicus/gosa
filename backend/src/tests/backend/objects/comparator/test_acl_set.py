@@ -18,7 +18,7 @@ class AclSetComparatorTests(unittest.TestCase):
         resolver.getAclRoles.return_value = {"name":["role1","role2"]}
         mockedResolver.return_value = resolver
 
-        comp = IsAclSet(None)
+        comp = IsAclSet()
         (result, errors) = comp.process(None, None, [{}])
         assert result == False
         assert len(errors) == 1

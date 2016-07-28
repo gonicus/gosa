@@ -15,14 +15,10 @@ except ImportError:
     print("Please install the python dbus module.")
     sys.exit(1)
 
-import gi
-from gi.repository import GObject
-GObject.threads_init()
+from gi.repository import GLib
 import time
 from threading import Thread
 from dbus.mainloop.glib import DBusGMainLoop
-from dbus import glib
-glib.init_threads()
 
 
 class DBusRunner(object):
@@ -36,8 +32,8 @@ class DBusRunner(object):
     __instance = None
 
     def __init__(self):
-        loop = DBusGMainLoop()
-        DBusRunner.__bus = dbus.SystemBus(mainloop=loop)
+        DBusGMainLoop(set_as_default=True)
+        DBusRunner.__bus = dbus.SystemBus()
 
     def start(self):
         """
@@ -49,7 +45,8 @@ class DBusRunner(object):
         self.__active = True
 
         def runner():
-            self.__gloop = GObject.MainLoop()
+            self.__gloop = GLib.MainLoop()
+            self.__gloop.run()
             context = self.__gloop.get_context()
             while self.__active:
                 context.iteration(False)

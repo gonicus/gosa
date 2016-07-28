@@ -23,7 +23,7 @@ from operator import itemgetter
 
 # Include locales
 t = gettext.translation('messages', resource_filename("gosa.client", "locale"), fallback=True)
-_ = t.ugettext
+_ = t.gettext
 joiner = None
 
 
@@ -34,6 +34,12 @@ def signal_handler(signal, frame):
 
 def main():
     global joiner
+
+    # check for root permission
+    if os.geteuid() != 0:
+        print("Error: you need to be root to join to the GOsa infrastructure!")
+        exit()
+
 
     # Init handler
     signal.signal(signal.SIGINT, signal_handler)
@@ -55,7 +61,7 @@ def main():
     try:
         env = Environment.getInstance()
     except ConfigNoFile:
-        config_file = os.environ.get("CLACKS_CONFIG_DIR") or "/etc/gosa"
+        config_file = os.environ.get("GOSA_CONFIG_DIR") or "/etc/gosa"
         config_file = os.path.join(config_file, "config")
         service = None
 
@@ -96,7 +102,7 @@ def main():
             f.write(config)
 
         # Nothing important here yet, but lock us down
-        os.chmod(config_file, 0600)
+        os.chmod(config_file, 0o0600)
         env = Environment.getInstance()
 
     # Instanciate joiner and ask for help
@@ -117,19 +123,14 @@ def main():
     env.log.debug("setting ownership for '%s' to (%s/%s)" % (cfg, "root", group))
     os.chown(cfg, 0, gid)
     env.log.debug("setting permission for '%s' to (%s)" % (cfg, '0640'))
-    os.chmod(cfg, 0750)
+    os.chmod(cfg, 0o0750)
 
     cfg = os.path.join(cfg, "config")
     env.log.debug("setting ownership for '%s' to (%s/%s)" % (cfg, "root", group))
     os.chown(cfg, 0, gid)
     env.log.debug("setting permission for '%s' to (%s)" % (cfg, '0640'))
-    os.chmod(cfg, 0640)
+    os.chmod(cfg, 0o0640)
 
 
 if __name__ == '__main__':
-    # check for root permission
-    if os.geteuid() != 0:
-        print("Error: you need to be root to join to the GOsa infrastructure!")
-        exit()
-
     main()

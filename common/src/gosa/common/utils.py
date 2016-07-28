@@ -23,7 +23,7 @@ from urllib.parse import urlparse
 from tokenize import generate_tokens
 from token import STRING
 from io import StringIO
-
+from subprocess import Popen, PIPE
 
 _is_uuid = re.compile(r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$')
 
@@ -270,3 +270,53 @@ def xml2dict(node):
             raise Exception("Cannot convert type %s" % type(v))
 
     return ret
+
+def dmi_system(item, data=None):
+    """
+    Function to retrieve information via DMI.
+
+    ========== ============
+    Parameter  Description
+    ========== ============
+    item       Path to the item to decode.
+    data       Optional external data to parse.
+    ========== ============
+
+    ``Return``: String
+    """
+    return None
+
+# Re-define dmi_system depending on capabilites
+try:
+    import dmidecode
+    dmidecode.clear_warnings() #@UndefinedVariable
+
+    def dmi_system(item, data=None):
+        if not data:
+            data = dmidecode.system() #@UndefinedVariable
+            dmidecode.clear_warnings() #@UndefinedVariable
+
+        item = item.lower()
+
+        for key, value in data.items():
+            if item == key.lower():
+                return value.decode('utf-8')
+            if isinstance(value, dict) and value:
+                value = dmi_system(item, value)
+                if value:
+                    return value
+
+        return None
+
+except ImportError:
+
+    for ext in ["dmidecode", "dmidecode.exe"]:
+        if locate(ext):
+            #pylint: disable=E0102
+            def dmi_system(item, data=None):
+                cmd = [ext, '-s', 'system-uuid']
+                p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+                stdout = p.communicate()[0]
+                return stdout.strip().decode('utf-8')
+
+            break

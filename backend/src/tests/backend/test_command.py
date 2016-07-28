@@ -10,6 +10,7 @@
 import unittest
 import pytest
 from gosa.backend.command import *
+from gosa.common.event import EventMaker
 from gosa.common.events import ZopeEventConsumer
 from tests.GosaTestCase import slow
 
@@ -61,8 +62,21 @@ class CommandRegistryTestCase(unittest.TestCase):
         assert self.reg.callNeedsUser('getSessionUser') is True
 
     def test_sendEvent(self):
-        backendChangeData = '<Event xmlns="http://www.gonicus.de/Events"><BackendChange><ChangeType>modify</ChangeType><ModificationTime>20150101000000Z</ModificationTime></BackendChange></Event>'
-        data = '<Event xmlns="http://www.gonicus.de/Events"><Notification><Target>admin</Target><Body>test</Body></Notification></Event>'
+        e = EventMaker()
+
+        backendChangeData = e.Event(
+            e.BackendChange(
+                e.ModificationTime("20150101000000Z"),
+                e.ChangeType("modify")
+            )
+        )
+        data = e.Event(
+            e.ObjectChanged(
+                e.ModificationTime("20150101000000Z"),
+                e.ChangeType("modify")
+            )
+        )
+        data_str = '<Event xmlns="http://www.gonicus.de/Events"><ObjectChanged><ModificationTime>20150101000000Z</ModificationTime><ChangeType>modify</ChangeType></ObjectChanged></Event>'
 
         mocked_resolver = unittest.mock.MagicMock()
         mocked_resolver.check.return_value = False
@@ -76,46 +90,36 @@ class CommandRegistryTestCase(unittest.TestCase):
 
             with pytest.raises(etree.XMLSyntaxError):
                 # message without content
-                self.reg.sendEvent('admin', '<Event xmlns="http://www.gonicus.de/Events"><Notification></Notification></Event>')
+                self.reg.sendEvent('admin', e.Event(e.ObjectChanged()))
 
 
             # add listener
             handle_event = unittest.mock.MagicMock()
 
-            ZopeEventConsumer(type='Notification', callback=handle_event.process)
+            ZopeEventConsumer(type='ObjectChanged', callback=handle_event.process)
             self.reg.sendEvent('admin', backendChangeData)
             assert not handle_event.process.called
 
             # send data as str
-            self.reg.sendEvent('admin', data)
+            self.reg.sendEvent('admin', data_str)
             assert handle_event.process.called
             args, kwargs = handle_event.process.call_args
             called_string = etree.tostring(args[0])
-            assert called_string.decode() == data
+            assert called_string.decode() == data_str
             handle_event.reset_mock()
 
             # send data as bytes
-            self.reg.sendEvent('admin', bytes(data, 'utf-8'))
+            self.reg.sendEvent('admin', bytes(data_str, 'utf-8'))
             assert handle_event.process.called
             args, kwargs = handle_event.process.call_args
             called_string = etree.tostring(args[0])
-            assert called_string.decode() == data
+            assert called_string.decode() == data_str
             handle_event.reset_mock()
 
             # send data as xml
-            self.reg.sendEvent('admin', etree.fromstring(data))
-            assert handle_event.process.called
-            args, kwargs = handle_event.process.call_args
-            called_string = etree.tostring(args[0])
-            assert called_string.decode() == data
-            handle_event.reset_mock()
-
-            # send data with target all
-            data = '<Event xmlns="http://www.gonicus.de/Events"><Notification><Target>all</Target><Body>test</Body></Notification></Event>'
             self.reg.sendEvent('admin', data)
             assert handle_event.process.called
             args, kwargs = handle_event.process.call_args
             called_string = etree.tostring(args[0])
-            assert called_string.decode() == data
-            args, kwargs = mocked_sse.call_args
-            assert kwargs.get('channel') == "broadcast"
+            assert called_string.decode() == data_str
+            handle_event.reset_mock()

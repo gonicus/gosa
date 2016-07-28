@@ -21,11 +21,9 @@ import uuid
 import traceback
 import logging
 import tornado.web
-from zope.interface import implementer
 from gosa.common.gjson import loads, dumps
 from gosa.common.utils import f_print, N_
 from gosa.common.error import GosaErrorHandler as C
-from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry, JSONRPCException
 from gosa.backend import __version__ as VERSION
@@ -40,9 +38,10 @@ C.register_codes(dict(
     REGISTRY_NOT_READY=N_("Registry is not ready")
     ))
 
+
 class JsonRpcHandler(tornado.web.RequestHandler):
     """
-    This is the tornado request handler wich is responsible for serving the
+    This is the tornado request handler which is responsible for serving the
     :class:`gosa.backend.command.CommandRegistry` via HTTP/JSONRPC.
     """
 
@@ -107,6 +106,8 @@ class JsonRpcHandler(tornado.web.RequestHandler):
         if not isinstance(params, list) and not isinstance(params, dict):
             raise ValueError(C.make_error("PARAMETER_LIST_OR_DICT"))
 
+        cls = self.__class__
+
         # Create an authentication cookie on login
         if method == 'login':
             (user, password) = params
@@ -115,15 +116,15 @@ class JsonRpcHandler(tornado.web.RequestHandler):
             sid = str(uuid.uuid1())
 
             if self.authenticate(user, password):
-                self.__session[sid] = user
+                cls.__session[sid] = user
                 self.set_secure_cookie('REMOTE_USER', user)
                 self.set_secure_cookie('REMOTE_SESSION', sid)
                 result = True
                 self.log.info("login succeeded for user '%s'" % user)
             else:
                 # Remove current sid if present
-                if not self.get_secure_cookie('REMOTE_SESSION') and sid in self.__session:
-                    del self.__session[sid]
+                if not self.get_secure_cookie('REMOTE_SESSION') and sid in cls.__session:
+                    del cls.__session[sid]
 
                 result = False
                 self.log.error("login failed for user '%s'" % user)
@@ -132,7 +133,7 @@ class JsonRpcHandler(tornado.web.RequestHandler):
             return dict(result=result, error=None, id=jid)
 
         # Don't let calls pass beyond this point if we've no valid session ID
-        if self.get_secure_cookie('REMOTE_SESSION') is None or not self.get_secure_cookie('REMOTE_SESSION').decode('ascii') in self.__session:
+        if self.get_secure_cookie('REMOTE_SESSION') is None or not self.get_secure_cookie('REMOTE_SESSION').decode('ascii') in cls.__session:
             self.log.error("blocked unauthenticated call of method '%s'" % method)
             raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
@@ -140,8 +141,8 @@ class JsonRpcHandler(tornado.web.RequestHandler):
         if method == 'logout':
 
             # Remove current sid if present
-            if self.get_secure_cookie('REMOTE_SESSION') and self.get_secure_cookie('REMOTE_SESSION').decode('ascii') in self.__session:
-                del self.__session[self.get_secure_cookie('REMOTE_SESSION').decode('ascii')]
+            if self.get_secure_cookie('REMOTE_SESSION') and self.get_secure_cookie('REMOTE_SESSION').decode('ascii') in cls.__session:
+                del cls.__session[self.get_secure_cookie('REMOTE_SESSION').decode('ascii')]
 
             # Show logout message
             if self.get_secure_cookie('REMOTE_USER'):
@@ -225,14 +226,16 @@ class JsonRpcHandler(tornado.web.RequestHandler):
 
         return check_auth(user, password)
 
-    def check_session(self, sid, user):
-        if not sid in self.__session:
+    @classmethod
+    def check_session(cls, sid, user):
+        if not sid in cls.__session:
             return False
 
-        return self.__session[sid] == user
+        return cls.__session[sid] == user
 
-    def user_sessions_available(self, user):
+    @classmethod
+    def user_sessions_available(cls, user):
         if user:
-            return user in self.__session.values()
+            return user in cls.__session.values()
         else:
-            return len(self.__session) > 0
+            return len(cls.__session) > 0

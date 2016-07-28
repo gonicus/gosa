@@ -1,38 +1,35 @@
-# This file is part of the clacks framework.
+# This file is part of the GOsa framework.
 #
-#  http://clacks-project.org
+#  http://gosa-project.org
 #
 # Copyright:
-#  (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-#
-# License:
-#  GPL-2: http://www.gnu.org/licenses/gpl-2.0.html
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
 
 import re
 import os
+import sys
 import gettext
 import netifaces #@UnresolvedImport
-import ConfigParser
+import configparser as ConfigParser
 import socket
 import logging
-from urlparse import urlparse
+from urllib.parse import urlparse
 from pkg_resources import resource_filename #@UnresolvedImport
-from urllib import quote_plus as quote
-from clacks.common.components.zeroconf_client import ZeroconfClient
-from clacks.common.components import AMQPServiceProxy
-from clacks.common.components.jsonrpc_proxy import JSONRPCException
-from clacks.common import Environment
-from clacks.common.utils import dmi_system
-from qpid.messaging.exceptions import ConnectionError
+from urllib.parse import quote_plus as quote
+from urllib.request import HTTPError
+from gosa.common.components import JSONServiceProxy, JSONRPCException
+from gosa.common import Environment
+from gosa.common.utils import dmi_system
+from gosa.common.utils import N_
 from Crypto.Cipher import AES
 from base64 import b64decode
 
 
 # Include locales
-t = gettext.translation('messages', resource_filename("clacks.client", "locale"), fallback=True)
-_ = t.ugettext
+t = gettext.translation('messages', resource_filename("gosa.client", "locale"), fallback=True)
+_ = t.gettext
 
 
 class join_method(object):
@@ -43,7 +40,7 @@ class join_method(object):
      * Curses
      * QT
 
-    in the moment. By implementing the :class:`clacks.client.plugins.join.methods.join_method` interface,
+    in the moment. By implementing the :class:`gosa.client.plugins.join.methods.join_method` interface,
     new ones (i.e. graphical) can simply be added. The resulting modules have to be
     registerd in the setuptools ``[gosa.client.join.module]`` section.
 
@@ -58,15 +55,13 @@ class join_method(object):
         self.log = logging.getLogger(__name__)
         self.uuid = dmi_system("uuid")
         self.mac = self.get_mac_address()
-        self.domain = socket.getfqdn().split('.', 1)[1]
-        self.get_service()
+        try:
+            self.domain = socket.getfqdn().split('.', 1)[1]
+        except IndexError:
+            self.log.warning("system has no proper DNS domain")
+            self.domain = socket.getfqdn().split('.', 1)[0] + ".local"
 
-    def url_builder(self, username, password):
-        username = quote(username)
-        password = quote(password)
-        u = urlparse(self.url)
-        #pylint: disable=E1101
-        return "%s://%s:%s@%s%s" % (u.scheme, username, password, u.netloc, u.path)
+        self.get_service()
 
     def test_login(self):
         # No key set? Go away...
@@ -75,33 +70,63 @@ class join_method(object):
             return False
 
         # Prepare URL for login
-        url = self.url_builder(self.svc_id, self.key)
+        url = urlparse(self.url)
 
         # Try to log in with provided credentials
+        connection = '%s://%s%s' % (url.scheme, url.netloc, url.path)
+        proxy = JSONServiceProxy(connection)
+
+        # Try to log in
         try:
-            AMQPServiceProxy(url)
-            self.log.debug("machine key is valid")
-            return True
-        except ConnectionError:
-            self.log.warning("machine key is invalid - join required")
-            return False
+            if not proxy.login(self.svc_id, self.key):
+                self.log.warning("machine key is invalid - join required")
+                return False
+        except HTTPError as e:
+            if e.code == 401:
+                self.log.error("connection to GOsa backend failed")
+                self.show_error(_("Cannot join client: check user name or password!"))
+                return False
+            else:
+                print(e)
+                sys.exit(1)
+        except Exception as e:
+            print(e)
+            sys.exit(1)
+
+        self.log.debug("machine key is valid")
+        return True
 
     def join(self, username, password, data=None):
 
         # Prepare URL for login
-        url = self.url_builder(username, password)
+        url = urlparse(self.url)
 
         # Try to log in with provided credentials
+        connection = '%s://%s%s' % (url.scheme, url.netloc, url.path)
+        proxy = JSONServiceProxy(connection)
+
+        # Try to log in
         try:
-            proxy = AMQPServiceProxy(url)
-        except ConnectionError as e:
-            self.log.error("connection to AMQP failed: %s" % str(e))
-            self.show_error(_("Cannot join client: check user name or password!"))
-            return None
+            if not proxy.login(username, password):
+                self.log.error("connection to GOsa backend failed")
+                self.show_error(_("Cannot join client: check user name or password!"))
+                return False
+        except HTTPError as e:
+            if e.code == 401:
+                self.log.error("connection to GOsa backend failed")
+                self.show_error(_("Cannot join client: check user name or password!"))
+                return False
+            else:
+                print(e)
+                sys.exit(1)
+
+        except Exception as e:
+            print(e)
+            sys.exit(1)
 
         # Try to join client
         try:
-            key, uuid = proxy.joinClient(u"" + self.uuid, self.mac, data)
+            key, uuid = proxy.joinClient("" + self.uuid, self.mac, data)
         except JSONRPCException as e:
             self.show_error(e.error.capitalize())
             self.log.error(e.error)
@@ -116,19 +141,19 @@ class join_method(object):
 
             # Section present?
             try:
-                url = parser.get("amqp", "url")
+                url = parser.get("jsonrpc", "url")
             except ConfigParser.NoSectionError:
-                parser.add_section("amqp")
+                parser.add_section("jsonrpc")
             except ConfigParser.NoOptionError:
                 pass
 
             # Set url and key
-            parser.set("amqp", "url", self.url)
+            parser.set("jsonrpc", "url", self.url)
             parser.set("core", "id", uuid)
-            parser.set("amqp", "key", key)
+            parser.set("jsonrpc", "key", key)
 
             # Write back to file
-            with open(config, "wb") as f:
+            with open(config, "w") as f:
                 parser.write(f)
 
         return key
@@ -141,14 +166,15 @@ class join_method(object):
         return data[:-ord(data[-1])]
 
     def get_service_from_config(self):
-        url = self.env.config.get("amqp.url", default=None)
+        url = self.env.config.get("mqtt.url", default=None)
         sys_id = self.env.config.get("client.id", default=None)
-        key = self.env.config.get("amqp.key", default=None)
+        key = self.env.config.get("mqtt.key", default=None)
         return (url, sys_id, key)
 
     def discover(self):
-        print _("Searching for service provider...")
-        return ZeroconfClient.discover(['_amqps._tcp', '_amqp._tcp'], domain=self.domain)[0]
+        #TODO
+        print(N_("Searching for service provider..."))
+        return None
 
     def get_service(self):
 
@@ -160,26 +186,36 @@ class join_method(object):
             self.key = svc_key
             return
 
-        # Check for svc information
-        with open("/proc/cmdline", "r") as f:
-            line = f.readlines()[0]
+        # Check for svc in CLI command line
+        if len(sys.argv) == 2:
+            svc_url = sys.argv[1]
 
-        # Scan command line for svc_ entries
-        for dummy, var, data in re.findall(r"(([a-z0-9_]+)=([^\s]+))",
-            line, flags=re.IGNORECASE):
+        # Check for svc in kernel command line
+        if not svc_url:
+            with open("/proc/cmdline", "r") as f:
+                line = f.readlines()[0]
 
-            # Save relevant values
-            if var == "svc_url":
-                svc_url = data
-            if var == "svc_key":
-                tmp = self.decrypt(self.uuid.replace("-", ""), b64decode(data))
-                svc_id = tmp[0:36]
-                svc_key = tmp[36:]
-                self._need_config_refresh = True
+            # Scan command line for svc_ entries
+            for dummy, var, data in re.findall(r"(([a-z0-9_]+)=([^\s]+))",
+                line, flags=re.IGNORECASE):
 
-        # If there's no url, try to find it using zeroconf
+                # Save relevant values
+                if var == "svc_url":
+                    svc_url = data
+                if var == "svc_key":
+                    tmp = self.decrypt(self.uuid.replace("-", ""), b64decode(data))
+                    svc_id = tmp[0:36]
+                    svc_key = tmp[36:]
+                    self._need_config_refresh = True
+
+        # If there's no url, try to find it using DNS
         if not svc_url:
             svc_url = self.discover()
+
+        if not svc_url:
+            self.log.error("no service URL specified")
+            self.show_error(_("Cannot join client: please provide a service URL!"))
+            sys.exit(1)
 
         self.svc_id = svc_id
         self.url = svc_url
@@ -192,17 +228,17 @@ class join_method(object):
 
             # Section present?
             try:
-                parser.get("amqp", "url")
+                parser.get("jsonrpc", "url")
             except ConfigParser.NoSectionError:
-                parser.add_section("amqp")
+                parser.add_section("jsonrpc")
 
             # Set url and key
-            parser.set("amqp", "url", self.url)
+            parser.set("jsonrpc", "url", self.url)
             parser.set("core", "id", self.svc_id)
-            parser.set("amqp", "key", self.key)
+            parser.set("jsonrpc", "key", self.key)
 
             # Write back to file
-            with open(config, "wb") as f:
+            with open(config, "w") as f:
                 parser.write(f)
 
     def get_mac_address(self):
@@ -238,7 +274,7 @@ class join_method(object):
         """
         This dialog presents the join dialog aquiring the username
         and the password of a person capable to join the client. It
-        must call the :meth:`clacks.client.plugins.join.methods.join_method.join`
+        must call the :meth:`gosa.client.plugins.join.methods.join_method.join`
         method and loop until success or abort itself.
         """
         raise NotImplemented("join_dialog not implemented")

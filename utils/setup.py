@@ -47,9 +47,13 @@ setup(
     include_package_data = False,
     zip_safe = False,
 
-    setup_requires = ['babel' ],
+    setup_requires = ['babel', 'pytest-runner' ],
     install_requires = ['gosa.common'],
-
+    tests_require=[
+        'pytest',
+        'pytest-cov',
+        'coveralls'
+    ],
     entry_points = """
         [console_scripts]
         acl-admin = gosa.utils.acl_admin:main

@@ -140,8 +140,8 @@ class PasswordManager(Plugin):
             raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
 
         # Get password hash
-        res = index.search({'dn': object_dn, 'userPassword': {'$size': 1}}, {'userPassword': 1})
-        if res.count():
+        res = index.search({'dn': object_dn, 'userPassword': '%'}, {'userPassword': 1})
+        if len(res):
             hsh = res[0]['userPassword'][0]
 
         else:
@@ -171,8 +171,8 @@ class PasswordManager(Plugin):
                 user, "isLocked", object_dn, topic, "r"))
             raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
 
-        res = index.search({'dn': object_dn, 'userPassword': {'$size': 1}}, {'userPassword': 1})
-        if res.count():
+        res = index.search({'dn': object_dn, 'userPassword': '%'}, {'userPassword': 1})
+        if len(res):
             hsh = res[0]['userPassword'][0]
         else:
             # No password hash -> cannot lock/unlock account

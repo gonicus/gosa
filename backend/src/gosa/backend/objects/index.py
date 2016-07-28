@@ -608,7 +608,7 @@ class ObjectIndex(Plugin):
     @Command(needsUser=True, __help__=N_("Query the index for entries."))
     def find(self, user, query, conditions=None):
         """
-        Perform a raw mongodb find call.
+        Perform a raw sqlalchemy query.
 
         ========== ==================
         Parameter  Description

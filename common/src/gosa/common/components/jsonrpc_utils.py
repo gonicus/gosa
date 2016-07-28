@@ -164,8 +164,6 @@ class PObjectEncoder(json.JSONEncoder):
             if handler.isinstance(obj):
                 return handler.encode(obj)
 
-        print("no", obj, type(obj))
-
         return json.JSONEncoder.default(self, obj)
 
 
@@ -206,7 +204,7 @@ class Binary(object):
         return self.data
 
     def encode(self):
-        return base64.b64encode(self.data)
+        return base64.b64encode(self.data).decode('ascii')
 
 
 # Load our entrypoints

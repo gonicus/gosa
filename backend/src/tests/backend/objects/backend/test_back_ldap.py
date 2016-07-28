@@ -317,4 +317,4 @@ class LdapBackendTestCase(TestCase):
         assert self.ldap._convert_from_binary("10") == Binary("10")
 
     def test_convert_to_binary(self):
-        assert self.ldap._convert_to_binary(Binary("10")) == bytes("10", "ascii")
+        assert self.ldap._convert_to_binary(Binary("10")) == "10"

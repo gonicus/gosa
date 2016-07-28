@@ -25,9 +25,6 @@ class Like(ElementComparator):
     =========== ==================
     """
 
-    def __init__(self, obj):
-        super(Like, self).__init__()
-
     def process(self, all_props, key, value, match):
 
         errors = []
@@ -56,9 +53,6 @@ class RegEx(ElementComparator):
     =========== ==================
     """
 
-    def __init__(self, obj):
-        super(RegEx, self).__init__()
-
     def process(self, all_props, key, value, match):
 
         errors = []
@@ -85,8 +79,6 @@ class stringLength(ElementComparator):
     ======= ==================
 
     """
-    def __init__(self, obj):
-        super(stringLength, self).__init__()
 
     def process(self, all_props, key, value, minSize, maxSize):
 

@@ -78,7 +78,8 @@ setup(
         'Pillow',
         'passlib',
         'cryptography>=1.3',
-        'psycopg2'
+        'psycopg2',
+        'paho-mqtt'
         ],
 
     entry_points = """
@@ -87,14 +88,19 @@ setup(
 
         [gosa.route]
         /events = gosa.backend.routes.sse.main:SseHandler
+        /images/(?P<path>.*)? = gosa.backend.routes.static.main:ImageHandler
         /static/(?P<path>.*)? = gosa.backend.routes.static.main:StaticHandler
         /rpc = gosa.backend.components.jsonrpc_service:JsonRpcHandler
+        /mqtt/auth/(?P<path>.*)? = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoAuthHandler
+        /mqtt/acl = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoAclHandler
+        /mqtt/superuser = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoSuperuserHandler
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
         acl = gosa.backend.acl:ACLResolver
         objects = gosa.backend.objects.index:ObjectIndex
         httpd = gosa.backend.components.httpd:HTTPService
+        workflow = gosa.backend.components.workflowregistry:WorkflowRegistry
         command = gosa.backend.command:CommandRegistry
         jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
         rpc = gosa.backend.plugins.rpc.methods:RPCMethods
@@ -186,9 +192,11 @@ setup(
 
         [gosa.object.renderer]
         extensions = gosa.backend.objects.renderer.extensions:ExtensionRenderer
+        user_photo = gosa.backend.objects.renderer.photo:UserPhotoRenderer
 
         [gosa.object]
         object = gosa.backend.objects.proxy:ObjectProxy
+        workflow = gosa.backend.components.workflow:Workflow
 
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt

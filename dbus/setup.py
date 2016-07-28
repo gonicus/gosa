@@ -54,16 +54,20 @@ setup(
         'gosa.dbus.plugins.inventory': ['data/fusionToGosa.xsl'],
     },
 
-    test_suite = "nose.collector",
-
     setup_requires = [
         'python_dateutil',
+        'pytest-runner'
         ],
 
     install_requires = [
         'gosa.common',
         'setproctitle'
         ],
+    tests_require=[
+        'pytest',
+        'pytest-cov',
+        'coveralls'
+    ],
 
     entry_points = """
         [console_scripts]

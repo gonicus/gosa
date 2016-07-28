@@ -69,14 +69,6 @@
         <Description></Description>
         <Type>String</Type>
       </Attribute>
-      <!--
-      <Attribute>
-        <Name>installPartitionTable</Name>
-        <Description></Description>
-        <Type>DevicePartitionTableType</Type>
-        <BackendType>UnicodeString</BackendType>
-      </Attribute>
-      -->
       <Attribute>
         <Name>installRecipeDN</Name>
         <Description></Description>

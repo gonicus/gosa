@@ -39,7 +39,7 @@ class PluginRegistry(object):
         env = Environment.getInstance()
         self.env = env
         self.log = logging.getLogger(__name__)
-        self.log.debug("inizializing plugin registry")
+        self.log.debug("initializing plugin registry")
 
         # Load common event resources
         base_dir = resource_filename('gosa.common', 'data/events') + os.sep
