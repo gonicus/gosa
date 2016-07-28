@@ -28,7 +28,7 @@ class BaseClient(mqtt.Client):
 
 class MQTTClient(object):
     """
-    The MQTTClient is responsible for the connectio to a MQTT broker (Mosquitto)
+    The MQTTClient is responsible for the connection to a MQTT broker (Mosquitto)
     Usage example:
         >>> from gosa.common.components.mqtt_client import MQTTClient
         >>>
