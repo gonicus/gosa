@@ -250,8 +250,6 @@ class ClientService(Plugin):
         """
         TODO
         """
-        for id in self.__user_session:
-            print(",".join(self.__user_session[id]))
         return [client for client, users in self.__user_session.items() if user in users]
 
     @Command(__help__=N_("Send synchronous notification message to user"))
@@ -523,11 +521,10 @@ class ClientService(Plugin):
             except etree.XMLSyntaxError as e:
                 self.log.error("XML parse error %s on message %s" % (e, message))
 
-
     def _handleUserSession(self, data):
         data = data.UserSession
         if hasattr(data.User, 'Name'):
-            self.__user_session[str(data.Id)] = map(str, data.User.Name)
+            self.__user_session[str(data.Id)] = list(map(str, data.User.Name))
             self.systemSetStatus(str(data.Id), "+B")
         else:
             self.__user_session[str(data.Id)] = []
