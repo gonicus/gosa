@@ -55,7 +55,7 @@ class Notify(Plugin):
     def __dbus_proxy_monitor(self, bus_name):
         """
         This method monitors the DBus service 'org.gosa' and whenever there is a
-        change in the status (dbus closed/startet) we will take notice.
+        change in the status (dbus closed/started) we will take notice.
         And can register or unregister methods to the dbus
         """
         if "org.gosa" in self.bus.list_names():
@@ -63,12 +63,12 @@ class Notify(Plugin):
                 del(self.gosa_dbus)
             self.gosa_dbus = self.bus.get_object('org.gosa', '/org/gosa/notify')
             ccr = PluginRegistry.getInstance('ClientCommandRegistry')
-            ccr.register("notify", 'Notify.notify', [], \
-                    ['user', 'title', 'message', 'timeout', 'icon'], \
-                    'Sent a notification to a given user')
-            ccr.register("notify_all", 'Notify.notify_all', [], \
-                    ['title', 'message', 'timeout', 'icon'], \
-                    'Sent a notification to a given user')
+            ccr.register("notify", 'Notify.notify', [],
+                         ['user', 'title', 'message', 'timeout', 'icon'],
+                         'Sent a notification to a given user')
+            ccr.register("notify_all", 'Notify.notify_all', [],
+                         ['title', 'message', 'timeout', 'icon'],
+                         'Sent a notification to a given user')
             amcs = PluginRegistry.getInstance('AMQPClientService')
             amcs.reAnnounce()
             self.log.info("established dbus connection")
