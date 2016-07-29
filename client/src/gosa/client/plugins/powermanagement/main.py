@@ -62,8 +62,8 @@ class PowerManagement(Plugin):
             ccr.register("suspend", 'PowerManagement.suspend', [], [], 'Execute a suspend of the client.')
             ccr.register("hibernate", 'PowerManagement.hibernate', [], [], 'Execute a hibernation of the client.')
             ccr.register("setpowersave", 'PowerManagement.setpowersave', [], [], 'Set powersave mode of the client.')
-            amcs = PluginRegistry.getInstance('AMQPClientService')
-            amcs.reAnnounce()
+            mqtt = PluginRegistry.getInstance('MQTTClientService')
+            mqtt.reAnnounce()
             self.log.info("established dbus connection")
         else:
             if self.hal_dbus:
@@ -76,8 +76,8 @@ class PowerManagement(Plugin):
                 ccr.unregister("suspend")
                 ccr.unregister("hibernate")
                 ccr.unregister("setpowersave")
-                amcs = PluginRegistry.getInstance('AMQPClientService')
-                amcs.reAnnounce()
+                mqtt = PluginRegistry.getInstance('MQTTClientService')
+                mqtt.reAnnounce()
                 self.log.info("lost dbus connection")
             else:
                 self.log.info("no dbus connection")

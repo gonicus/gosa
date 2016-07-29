@@ -11,7 +11,7 @@
 Overview
 ========
 
-The *DBUS* module bundles the Clacks DBUS daemon and a couple code modules
+The *DBUS* module bundles the GOsa DBUS daemon and a couple code modules
 needed to run it. The DBUS itself is meant to be extended by implementing
 :class:`dbus.service.Object` and additionally inherit from
 :class:`gosa.common.components.plugin.Plugin`.

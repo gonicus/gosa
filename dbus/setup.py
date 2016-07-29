@@ -51,7 +51,7 @@ setup(
 
     include_package_data = True,
     package_data = {
-        'gosa.dbus.plugins.inventory': ['data/fusionToClacks.xsl'],
+        'gosa.dbus.plugins.inventory': ['data/fusionToGosa.xsl'],
     },
 
     setup_requires = [
@@ -79,7 +79,7 @@ setup(
         inventory = gosa.dbus.plugins.inventory.main:DBusInventoryHandler
         service = gosa.dbus.plugins.services.main:DBusUnixServiceHandler
         notify = gosa.dbus.plugins.notify.main:DBusNotifyHandler
-        wol = gosa.dbus.plugins.wakeonlan.main:DBusWakeOnLanHandler
-        shell = gosa.dbus.plugins.shell.main:DBusShellHandler
+        #wol = gosa.dbus.plugins.wakeonlan.main:DBusWakeOnLanHandler
+        #shell = gosa.dbus.plugins.shell.main:DBusShellHandler
     """,
 )

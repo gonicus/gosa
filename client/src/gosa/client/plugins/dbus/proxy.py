@@ -19,12 +19,12 @@ client plugin created for them.
 
 
 The gosa-client receives its commands form the GOsa backend, but it cannot
-execute commands that require root prvileges, so it communicates with the
+execute commands that require root privileges, so it communicates with the
 gosa-dbus module which runs as root on the same machine.
 
 >>> Server             Client
 >>> -----------------------------------
->>> Agent --> Amqp --> Client
+>>> Agent --> Mqtt --> Client
 >>>                    Client --> DBus --> GOsa-DBus
 
 Normally you would write a client-plugin for each command that has to be forwarded to
@@ -86,7 +86,6 @@ class DBUSProxy(Plugin):
 
     log = None
     bus = None
-    gosa_dbus = None
     methods = None
 
     # DBus proxy object
@@ -134,10 +133,10 @@ class DBUSProxy(Plugin):
             # Trigger resend of capapability event
             ccr = PluginRegistry.getInstance('ClientCommandRegistry')
             ccr.register("listDBusMethods", 'DBUSProxy.listDBusMethods', [], [], 'This method lists all callable dbus methods')
-            ccr.register("callDBusMethod", 'DBUSProxy.callDBusMethod', [], ['method', '*args'], \
-                    'This method allows to access registered dbus methods by forwarding methods calls')
-            amcs = PluginRegistry.getInstance('AMQPClientService')
-            amcs.reAnnounce()
+            ccr.register("callDBusMethod", 'DBUSProxy.callDBusMethod', [], ['method', '*args'],
+                         'This method allows to access registered dbus methods by forwarding methods calls')
+            mqtt = PluginRegistry.getInstance('MQTTClientService')
+            mqtt.reAnnounce()
         else:
             if self.gosa_dbus:
                 del(self.gosa_dbus)
@@ -148,8 +147,8 @@ class DBUSProxy(Plugin):
                 ccr = PluginRegistry.getInstance('ClientCommandRegistry')
                 ccr.unregister("listDBusMethods")
                 ccr.unregister("callDBusMethod")
-                amcs = PluginRegistry.getInstance('AMQPClientService')
-                amcs.reAnnounce()
+                mqtt = PluginRegistry.getInstance('MQTTClientService')
+                mqtt.reAnnounce()
             else:
                 self.log.info("no dbus connection")
 
@@ -200,8 +199,8 @@ class DBUSProxy(Plugin):
             ccr.unregister(name)
 
         # Trigger resend of capapability event
-        amcs = PluginRegistry.getInstance('AMQPClientService')
-        amcs.reAnnounce()
+        mqtt = PluginRegistry.getInstance('MQTTClientService')
+        mqtt.reAnnounce()
 
     def _call_introspection(self, service, path, methods=None):
         """
@@ -221,7 +220,7 @@ class DBUSProxy(Plugin):
 
         # Start the 'Introspection' method on the dbus.
         data = self.bus.call_blocking(service, path, INTROSPECTABLE_IFACE,
-                'Introspect', '', (), utf8_strings=True)
+                'Introspect', '', ())
 
         # Return parsed results.
         if methods == None:

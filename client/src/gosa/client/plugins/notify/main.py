@@ -55,34 +55,34 @@ class Notify(Plugin):
     def __dbus_proxy_monitor(self, bus_name):
         """
         This method monitors the DBus service 'org.gosa' and whenever there is a
-        change in the status (dbus closed/startet) we will take notice.
+        change in the status (dbus closed/started) we will take notice.
         And can register or unregister methods to the dbus
         """
         if "org.gosa" in self.bus.list_names():
             if self.gosa_dbus:
-                del(self.gosa_dbus)
+                del self.gosa_dbus
             self.gosa_dbus = self.bus.get_object('org.gosa', '/org/gosa/notify')
             ccr = PluginRegistry.getInstance('ClientCommandRegistry')
-            ccr.register("notify", 'Notify.notify', [], \
-                    ['user', 'title', 'message', 'timeout', 'icon'], \
-                    'Sent a notification to a given user')
-            ccr.register("notify_all", 'Notify.notify_all', [], \
-                    ['title', 'message', 'timeout', 'icon'], \
-                    'Sent a notification to a given user')
-            amcs = PluginRegistry.getInstance('AMQPClientService')
-            amcs.reAnnounce()
+            ccr.register("notify", 'Notify.notify', [],
+                         ['user', 'title', 'message', 'timeout', 'icon'],
+                         'Sent a notification to a given user')
+            ccr.register("notify_all", 'Notify.notify_all', [],
+                         ['title', 'message', 'timeout', 'icon'],
+                         'Sent a notification to a given user')
+            mqtt = PluginRegistry.getInstance('MQTTClientService')
+            mqtt.reAnnounce()
             self.log.info("established dbus connection")
 
         else:
             if self.gosa_dbus:
-                del(self.gosa_dbus)
+                del self.gosa_dbus
 
                 # Trigger resend of capapability event
                 ccr = PluginRegistry.getInstance('ClientCommandRegistry')
                 ccr.unregister("notify")
                 ccr.unregister("notify_all")
-                amcs = PluginRegistry.getInstance('AMQPClientService')
-                amcs.reAnnounce()
+                mqtt = PluginRegistry.getInstance('MQTTClientService')
+                mqtt.reAnnounce()
                 self.log.info("lost dbus connection")
             else:
                 self.log.info("no dbus connection")
@@ -106,13 +106,13 @@ class Notify(Plugin):
 
         # Send notification and keep return code
         o = self.gosa_dbus._notify(user, title, message, timeout,
-            icon, dbus_interface="org.gosa")
-        return(int(o))
+                                   icon, dbus_interface="org.gosa")
+        return int(o)
 
     def notify_all(self, title, message, timeout=0, icon="dialog-information"):
         """ Send a notification to all users on a machine """
 
         # Send notification and keep return code
         o = self.gosa_dbus._notify_all(title, message, timeout,
-            icon, dbus_interface="org.gosa")
-        return(int(o))
+                                       icon, dbus_interface="org.gosa")
+        return int(o)
