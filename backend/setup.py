@@ -79,6 +79,7 @@ setup(
         'passlib',
         'cryptography>=1.3',
         'psycopg2',
+        'passlib',
         'paho-mqtt'
         ],
 
