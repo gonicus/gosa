@@ -13,10 +13,10 @@
 import socket
 import logging
 import asyncio
-import time
 from lxml import etree
 from gosa.common.components.mqtt_client import MQTTClient
 from gosa.common import Environment
+from tornado import gen
 
 
 class MQTTHandler(object):
@@ -98,26 +98,11 @@ class MQTTHandler(object):
             asyncio.sleep(1)
         return True
 
+    @gen.coroutine
     def send_sync_message(self, data, topic):
         """Send request and return the response"""
-
-        return self.__client.get_sync_response(topic, data)
-
-        # with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
-        #     try:
-        #         future = executor.submit(wait_for_response)
-        #         self.__client.add_subscription(topic, handle_response)
-        #         subscribe_future = executor.submit(self.wait_for_subscription, topic)
-        #         if subscribe_future.result() is True:
-        #             self.__client.publish(topic, data)
-        #
-        #         return future.result()
-        #
-        #     except TimeoutError as e:
-        #         self.log.error("MQTT response timeout: %s" % e)
-        #         return '{"error": "MQTT response timeout: %s"}' % e
-        #     finally:
-        #         self.__client.remove_subscription(topic)
+        result = yield self.__client.get_sync_response(topic, data)
+        raise gen.Return(result)
 
     def start(self):
         """

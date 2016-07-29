@@ -50,8 +50,6 @@ DBus access:
 
 Mosquitto server:
  - install server + auth plugin: apt-get install mosquitto mosquitto-auth-plugin
- - SKIP this step (currently authentification is blocking client RPC calls):
-    configure auth plugin:
     - create /etc/mosquitto/conf.d/auth.conf with following content
       """
       allow_anonymous false

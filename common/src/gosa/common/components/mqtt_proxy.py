@@ -11,11 +11,11 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import uuid
-from threading import Thread
-from queue import Queue
+from tornado import gen
 from gosa.common.components.json_exception import JSONRPCException
 from gosa.common.components.mqtt_handler import MQTTHandler
 from gosa.common.gjson import dumps, loads
+from tornado.concurrent import Future
 
 
 class MQTTException(Exception):
@@ -85,6 +85,7 @@ class MQTTServiceProxy(object):
 
         return MQTTServiceProxy(self.__handler, self.__serviceAddress, name, methods=self.__methods)
 
+    @gen.coroutine
     def __call__(self, *args, **kwargs):
         if len(kwargs) > 0 and len(args) > 0:
             raise JSONRPCException("JSON-RPC does not support positional and keyword arguments at the same time")
@@ -92,6 +93,9 @@ class MQTTServiceProxy(object):
         # Default to 'core' queue
         call_id = uuid.uuid4()
         topic = "%s/%s" % (self.__serviceAddress, call_id)
+
+        if isinstance(self.__methods, Future):
+            self.__methods = yield self.__methods
 
         if self.__methods and self.__serviceName not in self.__methods:
             raise NameError("name '%s' not defined" % self.__serviceName)
@@ -102,11 +106,11 @@ class MQTTServiceProxy(object):
         else:
             postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
 
-        response = self.__handler.send_sync_message(postdata, topic)
+        response = yield self.__handler.send_sync_message(postdata, topic)
         resp = loads(response)
 
         if 'error' in resp and resp['error'] is not None:
             raise JSONRPCException(resp['error'])
 
-        return resp['result']
+        raise gen.Return(response)
 

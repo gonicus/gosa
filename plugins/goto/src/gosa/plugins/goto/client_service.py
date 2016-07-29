@@ -22,6 +22,7 @@ from lxml import etree
 
 from gosa.backend.components.jsonrpc_service import JsonRpcHandler
 from gosa.common.components.mqtt_handler import MQTTHandler
+from tornado import gen
 from zope.interface import implementer
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
 from gosa.common.handler import IInterfaceHandler
@@ -156,6 +157,7 @@ class ClientService(Plugin):
                 res[uuid] = {'name': info['name'], 'last-seen': info['last-seen']}
         return res
 
+    @gen.coroutine
     @Command(__help__=N_("Call method exposed by client."))
     def clientDispatch(self, client, method, *arg, **larg):
         """
@@ -192,8 +194,8 @@ class ClientService(Plugin):
         methodCall = getattr(self.__proxy[client], method)
 
         # Do the call
-        res = methodCall(*arg, **larg)
-        return res
+        res = yield methodCall(*arg, **larg)
+        raise gen.Return(res)
 
     @Command(__help__=N_("Get the client Interface/IP/Netmask/Broadcast/MAC list."))
     def getClientNetInfo(self, client):

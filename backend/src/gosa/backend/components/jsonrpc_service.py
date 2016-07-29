@@ -21,6 +21,7 @@ import uuid
 import traceback
 import logging
 import tornado.web
+from tornado.gen import coroutine
 from gosa.common.gjson import loads, dumps
 from gosa.common.utils import f_print, N_
 from gosa.common.error import GosaErrorHandler as C
@@ -31,6 +32,8 @@ from gosa.backend.utils.ldap import check_auth
 
 
 # Register the errors handled  by us
+from tornado.concurrent import Future
+
 C.register_codes(dict(
     INVALID_JSON=N_("Invalid JSON string '%(data)s'"),
     JSON_MISSING_PARAMETER=N_("Parameter missing in JSON body"),
@@ -60,6 +63,7 @@ class JsonRpcHandler(tornado.web.RequestHandler):
         self.xsrf_token
         self.write("")
 
+    @coroutine
     def post(self):
         try:
             resp = self.process(self.request.body)
@@ -73,6 +77,9 @@ class JsonRpcHandler(tornado.web.RequestHandler):
             self.finish(e.log_message)
             raise e
         else:
+            if isinstance(resp['result'], Future):
+                resp['result'] = yield resp['result']
+
             self.write(dumps(resp))
             self.set_header("Content-Type", "application/json")
 

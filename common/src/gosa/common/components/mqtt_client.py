@@ -11,8 +11,10 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import logging
+import datetime
 import paho.mqtt.client as mqtt
-from queue import Queue, Empty
+from tornado.queues import Queue, QueueEmpty
+from tornado import gen
 from gosa.common import Environment
 from gosa.common.components import JSONRPCException
 
@@ -166,6 +168,7 @@ class MQTTClient(object):
         if len(subs) == 0:
             self.log.warning("Incoming message for unhandled topic '%s'" % message.topic)
 
+    @gen.coroutine
     def get_sync_response(self, topic, message, qos=0):
         """
         Sends a message to a client queue and waits and returns the response from the client.
@@ -182,10 +185,10 @@ class MQTTClient(object):
         self.publish("%s/to-client" % topic, message, qos)
         # send to the client topic
         try:
-            response = self.__sync_message_queues[listen_to_topic].get(True, 10)
+            response = yield self.__sync_message_queues[listen_to_topic].get(timeout=datetime.timedelta(seconds=10))
             self.__sync_message_queues[listen_to_topic].task_done()
-            return response
-        except Empty:
+            raise gen.Return(response)
+        except QueueEmpty:
             raise JSONRPCException("Timeout while waiting for the clients response")
         finally:
             self.remove_subscription(listen_to_topic)

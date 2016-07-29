@@ -25,8 +25,3 @@
 
 # GUI -> gravatar import
 
-# Mosquitto Auth Routen
-    - RPC Calls zum Client blockieren den Tornado-Thread und somit auch die Mosquitto-Autentifizierung/Autorisierung
-        was dann zu einen Timeout von beidem führt
-    - Tornado multithreaded starten?
-
