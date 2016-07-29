@@ -193,14 +193,12 @@ class MQTTClient(object):
     def publish(self, topic, message, qos=0, retain=False):
         """ Publish a message on the MQTT bus"""
         res, mid = self.client.publish(topic, payload=message, qos=qos, retain=retain)
-        self.log.debug("publishing message to '%s', content: '%s'" % (topic, message))
 
         self.__published_messages[mid] = res
         if res == mqtt.MQTT_ERR_NO_CONN:
             self.log.error("mqtt server not reachable, message could not be send to '%s'" % topic)
 
     def __on_publish(self, client, userdata, mid):
-        self.log.debug("on publish message mid '%s' received" % mid)
         if mid in self.__published_messages:
             del self.__published_messages[mid]
 

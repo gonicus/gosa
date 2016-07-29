@@ -112,8 +112,9 @@ class MosquittoAclHandler(BaseMosquittoClass):
             else:
                 is_allowed = False
 
-        self.log.debug("ACL request: '%s'/%s from '%s' for '%s' => %s" %
-                       (topic, acc, uuid, "backend" if is_backend else "client", "GRANTED" if is_allowed else "DENIED"))
+        self.log.debug("ACL request: '%s'|->%s from '%s' ['%s'] => %s" %
+                       (topic, "PUB" if acc == "2" else "SUB" if acc == "1" else "BOTH" if acc == "0" else "UNKOWN",
+                        uuid, "backend" if is_backend else "client", "GRANTED" if is_allowed else "DENIED"))
         self.send_result(is_allowed)
 
 
