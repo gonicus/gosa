@@ -69,6 +69,9 @@ class MQTTServiceProxy(object):
     def logout(self):
         return True
 
+    def close(self):
+        pass
+
     def getProxy(self):
         return MQTTServiceProxy(self.__serviceURL,
                 self.__serviceAddress,
