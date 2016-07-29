@@ -16,7 +16,7 @@ import re
 import sys
 import grp
 import dbus
-from optparse import OptionParser
+from argparse import ArgumentParser
 import pwd
 import getpass
 import signal
@@ -46,7 +46,7 @@ class Notify(object):
         Closes the current show notification and its mainloop if it exists.
         """
         if self.verbose:
-            print "%s: Closing" % (str(os.getpid()))
+            print("%s: Closing" % (str(os.getpid())))
 
         if self.__loop:
             self.__loop.quit()
@@ -72,18 +72,19 @@ class Notify(object):
 
             # No dbus session was specified, abort here.
             if not self.quiet:
-                print "Requires a DBUS address to send notifications"
+                print("Requires a DBUS address to send notifications")
 
             return(RETURN_ABORTED)
 
         else:
-
-            # Set DBUS address in the environment
-            os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_session
-
             # Build notification
             notifyid = 0
-            bus = dbus.Bus(dbus.Bus.TYPE_SESSION)
+            try:
+                bus = dbus.connection.Connection._new_for_bus(dbus_session)
+            except dbus.exceptions.DBusException:
+                if not self.quiet:
+                    print("Connecting to dbus at '%s' failed." % dbus_session)
+                return RETURN_ABORTED
             notifyservice = bus.get_object('org.freedesktop.Notifications', '/org/freedesktop/Notifications')
             notifyservice = dbus.Interface(notifyservice, "org.freedesktop.Notifications")
 
@@ -95,7 +96,7 @@ class Notify(object):
             if not "body-hyperlinks" in capabilities:
                 message = re.sub(r'(<a[^>]*>|</a>)', '', message)
 
-            self.notifyid = notifyservice.Notify("Clacks Client", notifyid, icon, title, message, [], {}, timeout)
+            self.notifyid = notifyservice.Notify("Gosa Client", notifyid, icon, title, message, [], {}, timeout)
 
         return RETURN_CLOSED
 
@@ -117,7 +118,7 @@ class Notify(object):
         res = None
         if not dbus_sessions:
             if not self.quiet:
-                print "No DBUS sessions found for user " + user
+                print("No DBUS sessions found for user " + user)
 
             res = RETURN_ABORTED
         else:
@@ -127,11 +128,10 @@ class Notify(object):
             self.children = []
             for use_user in dbus_sessions:
                 for d_session in set(dbus_sessions[use_user]):
-
                     # Some verbose output
                     if self.verbose:
-                        print "\nInitiating notifications for user: %s" % use_user
-                        print "Session: %s" % d_session
+                        print("\nInitiating notifications for user: %s" % use_user)
+                        print("Session: %s" % d_session)
 
                     # Detecting groups for user
                     gids = []
@@ -150,7 +150,7 @@ class Notify(object):
                     if child_pid == 0:
 
                         if self.verbose:
-                            print "%s: Forking process for user %s" % (str(os.getpid()), str(info[2]))
+                            print("%s: Forking process for user %s" % (str(os.getpid()), str(info[2])))
 
                         # Set the users groups
                         if os.geteuid() != info[2]:
@@ -163,12 +163,12 @@ class Notify(object):
                         signal.signal(signal.SIGTERM, self.__close)
 
                         if self.verbose:
-                            print "%s: Setting process uid(%s), gid(%s) and groups(%s)" % (
-                                str(os.getpid()), str(info[2]), str(info[3]), str(gids))
+                            print("%s: Setting process uid(%s), gid(%s) and groups(%s)" % (
+                                str(os.getpid()), str(info[2]), str(info[3]), str(gids)))
 
                         # Try to send the notification now.
-                        res = self.send(title, message, icon=icon,
-                            timeout=timeout, dbus_session=d_session)
+                        res = self.send(title, message, d_session, icon=icon,
+                            timeout=timeout)
 
                         # Exit the cild process
                         sys.exit(res)
@@ -195,7 +195,7 @@ class Notify(object):
                     try:
                         os.kill(pid, signal.SIGTERM)
                         if self.verbose:
-                            print "Killed process %s" % pid
+                            print("Killed process %s" % pid)
                     except Exception:
                         pass
 
@@ -203,94 +203,87 @@ class Notify(object):
 
     def getDBUSAddressesForUser(self, user):
         """
-        Searches the process list for a DBUS Sessions that were opened by
-        the given user, the found DBUS addresses will be returned in a dictionary
-        indexed by the username.
+        Obtains a list with logged in users from the login manager per dbus
+        and looks for the dbus adress given in the .dbus directories in their
+        homes.
         """
 
-        # Prepare regular expressions to find processes for X sessions
-        prog = re.compile("(gnome-session|x-session-manager|/bin/sh.*/usr/bin/startkde|.*/start_kdeinit)")
+        obj = dbus.SystemBus().get_object("org.freedesktop.login1",
+            "/org/freedesktop/login1")
+        interface = dbus.Interface(obj, "org.freedesktop.login1.Manager")
+        sessions = {}
 
-        # Walk through process ids and search for processes owned by 'user'
-        #  which represents a X Session.
-        dbusAddresses = {}
-        pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
-        for pid in pids:
-
-            # Get the command line statement for the process and check if it represents
-            #  an X Session.
-            cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read()
-            if prog.match(cmdline) and (user == '*' or
-                    user == pwd.getpwuid(os.stat(os.path.join('/proc', pid, 'cmdline')).st_uid).pw_name):
-
-                # Extract user name from running DBUS session
-                dbus_user = pwd.getpwuid(os.stat(os.path.join('/proc', pid, 'cmdline')).st_uid).pw_name
-
-                # Extract the DBUS Session address, to be able to connect to it later.
-                environment = open(os.path.join('/proc', pid, 'environ'), 'rb').read()
-                m = re.search('^.*DBUS_SESSION_BUS_ADDRESS=([^\0]*).*$', environment + "test")
-                if m.group(1):
-
-                    # Append the new dbus session to list of sessions found for the user
-                    if dbus_user not in dbusAddresses:
-                        dbusAddresses[dbus_user] = []
-
-                    dbusAddresses[dbus_user].append(m.group(1))
-
-        return dbusAddresses
+        for uid_number, uid, user_path in interface.ListUsers():
+            uid_number = int(uid_number)
+            uid = str(uid)
+            userdbusdir = os.path.join("/home", uid, ".dbus/session-bus")
+            if uid_number >= 1000 and (user == uid or user == "*") and os.path.isdir(userdbusdir):
+                ids = os.listdir(userdbusdir)
+                assert len(ids) == 1
+                with open(os.path.join(userdbusdir, ids[0])) as f:
+                    lines = f.readlines()
+                dbusvars = {}
+                for line in lines:
+                    line = line.strip()
+                    if line.startswith("#"):
+                        continue
+                    if "=" in line:
+                        key, value = line.split("=", 1)
+                        dbusvars[key] = value.split(",")[0]
+                if not "DBUS_SESSION_BUS_ADDRESS" in dbusvars:
+                    continue
+                sessions[uid] = [dbusvars["DBUS_SESSION_BUS_ADDRESS"]]
+        return sessions
 
 
 def main():
 
     # Define cli-script parameters
-    parser = OptionParser(description="Sends a notification dialog "
-        "to a user on the local machine.",
-        prog="notify", usage="%prog <title> <message> [options] ")
+    parser = ArgumentParser(description="Sends a notification dialog "
+        "to a user on the local machine.")
 
-    parser.add_option("-i", "--icon", dest="icon", default="dialog-information",
+    parser.add_argument("title")
+    parser.add_argument("message")
+    parser.add_argument("-i", "--icon", dest="icon", default="dialog-information",
         help="An icon file to use in the notifcation", metavar="FILE")
-    parser.add_option("-t", "--timeout", dest="timeout",
+    parser.add_argument("-t", "--timeout", dest="timeout",
         help="Seconds the notification is displayed")
-    parser.add_option("-u", "--user", dest="user", help="The target user")
-    parser.add_option("-b", "--broadcast", action="store_true", dest="to_all",
+    parser.add_argument("-u", "--user", dest="user", help="The target user")
+    parser.add_argument("-b", "--broadcast", action="store_true", dest="to_all",
         default=False, help="send message to all users")
-    parser.add_option("-q", "--quiet", action="store_true", dest="quiet",
+    parser.add_argument("-q", "--quiet", action="store_true", dest="quiet",
         default=False, help="don't print status messages to stdout")
-    parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
+    parser.add_argument("-v", "--verbose", action="store_true", dest="verbose",
         default=False, help="Run in verbose mode")
 
     # Check if at least 'message' and 'title' are given.
-    (options, args) = parser.parse_args()
+    options = parser.parse_args()
 
-    if len(args) != 2:
-        parser.print_help()
+    # Check if we've to send the message to all users instead of just one.
+    if options.to_all:
+
+        # Check if --user/-u was specified additionally.
+        if options.user and not options.quiet:
+            print("The option -b/--broadcast cannot be combined with the option -u/--user")
+
+        options.user = "*"
+
+    # If verbose output is enabled, then disable quiet mode.
+    if options.verbose:
+        options.quiet = False
+
+    # Ensure that the timeout is valid
+    if options.timeout:
+        options.timeout = int(options.timeout)
     else:
+        options.timeout = 5000
 
-        # Check if we've to send the message to all users instead of just one.
-        if options.to_all:
+    # Create notifcation object
+    n = Notify(options.quiet, options.verbose)
 
-            # Check if --user/-u was specified additionally.
-            if options.user and not options.quiet:
-                print "The option -b/--broadcast cannot be combined with the option -u/--user"
-
-            options.user = "*"
-
-        # If verbose output is enabled, then disable quiet mode.
-        if options.verbose:
-            options.quiet = False
-
-        # Ensure that the timeout is valid
-        if options.timeout:
-            options.timeout = int(options.timeout)
-        else:
-            options.timeout = 5000
-
-        # Create notifcation object
-        n = Notify(options.quiet, options.verbose)
-
-        # Call the send method for our notification instance
-        sys.exit(n.send_to_user(args[0], args[1], user=options.user, icon=options.icon,
-            timeout=options.timeout))
+    # Call the send method for our notification instance
+    sys.exit(n.send_to_user(options.title, options.message, user=options.user, icon=options.icon,
+        timeout=options.timeout))
 
 
 if __name__ == '__main__':

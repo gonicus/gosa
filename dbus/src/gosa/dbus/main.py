@@ -13,7 +13,7 @@ import sys
 import pkg_resources
 import codecs
 import traceback
-import gobject
+from gi.repository import GLib
 import dbus.mainloop.glib
 import logging
 
@@ -56,7 +56,7 @@ def mainLoop(env):
         PluginRegistry(component='gosa.dbus.module')
 
         # Enter main loop
-        loop = gobject.MainLoop()
+        loop = GLib.MainLoop()
         loop.run()
 
     except Exception as detail:
