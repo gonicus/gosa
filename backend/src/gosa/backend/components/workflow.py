@@ -135,6 +135,10 @@ class Workflow:
             for method in dispatcher.getMethods():
                 env[method] = make_dispatch(method)
 
+            print("-----------")
+            print(env)
+            print(script)
+            print("-----------")
             exec(script, env)
 
         except Exception as e:
@@ -144,7 +148,7 @@ class Workflow:
             print("Exception while executing the embedded script:")
             print(fname, "line", exc_tb.tb_lineno)
             print(exc_type)
-            print(e)
+            print(exc_obj)
             return False
 
         return True
@@ -156,23 +160,26 @@ class Workflow:
 
         return self.__attribute[name]
 
-#    def __setattr__(self, name, value):
-#        # Valid attribute?
-#        if not name in self._get_attributes():
-#            raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
-#
-#        self.__attribute[name] = value
+    def __setattr__(self, name, value):
+        # Store non property values
+        try:
+            object.__getattribute__(self, name)
+            self.__dict__[name] = value
+            return
+        except AttributeError:
+            pass
+
+        # Valid attribute?
+        if not name in self._get_attributes():
+            raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
+
+        self.__attribute[name] = value
 
     def _get_data(self):
         """
         Returns a dictionary with key being the attribute ids and the values the data the user entered.
         """
-        res = {}
-        
-#        for attr in self._get_attributes().keys():
-#            res[attr] = getattr(self, attr)
-
-        return res
+        return self.__attribute
 
     def _has_mandatory_attributes_values(self):
         """
