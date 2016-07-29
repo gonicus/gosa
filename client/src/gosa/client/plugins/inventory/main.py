@@ -80,8 +80,8 @@ class Inventory(Plugin):
             self.gosa_dbus = self.bus.get_object('org.gosa', '/org/gosa/inventory')
             ccr = PluginRegistry.getInstance('ClientCommandRegistry')
             ccr.register("request_inventory", 'Inventory.request_inventory', [], ['old_checksum=None'], 'Request client inventory information')
-            amcs = PluginRegistry.getInstance('AMQPClientService')
-            amcs.reAnnounce()
+            mqtt = PluginRegistry.getInstance('MQTTClientService')
+            mqtt.reAnnounce()
             self.log.info("established dbus connection")
 
         else:
@@ -91,8 +91,8 @@ class Inventory(Plugin):
                 # Trigger resend of capapability event
                 ccr = PluginRegistry.getInstance('ClientCommandRegistry')
                 ccr.unregister("request_inventory")
-                amcs = PluginRegistry.getInstance('AMQPClientService')
-                amcs.reAnnounce()
+                mqtt = PluginRegistry.getInstance('MQTTClientService')
+                mqtt.reAnnounce()
                 self.log.info("lost dbus connection")
             else:
                 self.log.info("no dbus connection")
@@ -140,8 +140,8 @@ class Inventory(Plugin):
         def runner():
             # Establish amqp connection
             self.log.info("sending inventory data!")
-            amqp = PluginRegistry.getInstance("AMQPClientHandler")
-            amqp.sendEvent(str(result))
+            mqtt = PluginRegistry.getInstance("MQTTClientHandler")
+            mqtt.sendEvent(str(result))
 
         self.__thread = Thread(target=runner)
         self.__thread.start()
