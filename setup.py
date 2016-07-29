@@ -6,6 +6,7 @@ modules = [
   'common',
   'backend',
   'client',
+  'dbus',
   'shell',
   'utils',
 ]
