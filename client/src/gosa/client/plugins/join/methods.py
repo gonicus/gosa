@@ -172,8 +172,11 @@ class join_method(object):
         return (url, sys_id, key)
 
     def discover(self):
-        #TODO
         print(N_("Searching for service provider..."))
+        svcs = find_api_service()
+        if svcs:
+            return svcs[0]
+
         return None
 
     def get_service(self):
