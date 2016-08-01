@@ -28,6 +28,8 @@ for root, dirs, files in os.walk("plugins"):
         paths.append("%s/" % root)
 
 if sys.argv[1] == "test":  # and return_code == 0:
+    # check if coverage exists for path
+    paths = [x for x in paths if os.exists("%s.coverage" % x)]
     os.system("coverage combine %s.coverage" % ".coverage ".join(paths))
     os.system("coverage report -m")
     os.system("coverage html -d htmlcov")
