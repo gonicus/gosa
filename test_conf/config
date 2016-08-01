@@ -3,6 +3,7 @@ profile = False
 base = dc=example,dc=net
 domain = gosa
 id = fff0c8ad-d26b-4b6d-8e8e-75e054614dd9
+workflow_path = /tmp/workflows
 
 [http]
 host = localhost
