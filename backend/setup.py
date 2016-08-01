@@ -81,7 +81,6 @@ setup(
         'psycopg2',
         'passlib',
         'paho-mqtt',
-        'dbus-python'
         ],
 
     entry_points = """
