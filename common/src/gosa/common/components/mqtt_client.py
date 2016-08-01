@@ -40,7 +40,7 @@ class MQTTClient(object):
         >>> client = MQTTClient('localhost')
         >>> client.connect('username', 'password')
         >>> client.add_subscription('/topic/im/interested/in', callback=my_callback)
-        >>> client.publish('/topic/to/pushish', 'my message')
+        >>> client.publish('/topic/to/publish', 'my message')
     """
     __published_messages = {}
     __sync_message_queues = {}
