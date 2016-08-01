@@ -11,7 +11,15 @@ import logging
 import dns.resolver
 
 
-def find_service():
+def find_api_service():
+     return _find_service(["-ssl-api", "-api"])
+
+
+def find_bus_service():
+     return _find_service(["-ssl-bus", "-bus"])
+
+
+def _find_service(what):
     """
     Search for DNS SRV records like these:
 
@@ -29,7 +37,7 @@ def find_service():
         log.error("invalid DNS configuration: there is no domain configured for this client")
 
     res = []
-    for part in ["-ssl-api", "-ssl-bus", "-api", "-bus"]:
+    for part in what:
         try:
             log.debug("looking for DNS SRV records: _gosa%s._tcp" % part)
             for data in dns.resolver.query("_gosa%s._tcp" % part, "SRV"):
