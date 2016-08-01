@@ -35,7 +35,6 @@ class WorkflowRegistry(Plugin):
     _target_ = "workflow"
     instance = None
     env = None
-    __acl_resolver = None
 
     @staticmethod
     def get_instance():
@@ -45,7 +44,6 @@ class WorkflowRegistry(Plugin):
 
     def __init__(self):
         self.env = Environment.getInstance()
-        self.__acl_resolver = PluginRegistry.getInstance("ACLResolver")
         self.__path = self.env.config.get("core.workflow_path", "/var/lib/gosa/workflows")
 
         if not os.path.exists(self.__path) or not os.path.isdir(self.__path):
@@ -69,9 +67,10 @@ class WorkflowRegistry(Plugin):
         """
 
         res = {}
+        aclresolver = PluginRegistry.getInstance("ACLResolver")
         for id, workflow in self._workflows.items():
             topic = "%s.workflows.%s" % (self.env.domain, id)
-            if self.__acl_resolver.check(user, topic, "r", base=self.env.base):
+            if not user or aclresolver.check(user, topic, "r", base=self.env.base):
                 res[id] = dict(
                     name=workflow["display_name"],
                     description=workflow["description"],
@@ -82,8 +81,9 @@ class WorkflowRegistry(Plugin):
 
     @Command(needsUser=True, __help__=N_("Add a new workflow to the list of available workflows"))
     def removeWorkflow(self, user, id):
+        aclresolver = PluginRegistry.getInstance("ACLResolver")
         topic = "%s.workflows.%s" % (self.env.domain, id)
-        if self.__acl_resolver.check(user, topic, "d", base=self.env.base):
+        if not user or aclresolver.check(user, topic, "d", base=self.env.base):
             try:
                 shutil.rmtree(os.path.join(self.__path, id))
             except OSError as e:
