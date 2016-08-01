@@ -141,7 +141,7 @@ class ClientService(Plugin):
             e = EventMaker()
             self.mqtt.send_event(e.Event(e.ClientPoll()), "%s/client/broadcast" % self.env.domain)
 
-    def stop(self):
+    def stop(self):  # pragma: nocover
         pass
 
     @Command(__help__=N_("List available clients."))
@@ -362,7 +362,7 @@ class ClientService(Plugin):
 
             if len(res) != 1:
                 raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid))
-            devstat = res[0][1]['deviceStatus'][0] if 'deviceStatus' in res[0][1] else ""
+            devstat = res[0][1]['deviceStatus'][0] if 'deviceStatus' in res[0][1] else b""
             is_new = not bool(devstat)
             devstat = list(devstat.decode().strip('[""]'))
 
