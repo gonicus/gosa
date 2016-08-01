@@ -79,7 +79,7 @@ class WorkflowRegistry(Plugin):
 
         return res
 
-    @Command(needsUser=True, __help__=N_("Add a new workflow to the list of available workflows"))
+    @Command(needsUser=True, __help__=N_("Remove a workflow from the list of available workflows"))
     def removeWorkflow(self, user, id):
         aclresolver = PluginRegistry.getInstance("ACLResolver")
         topic = "%s.workflows.%s" % (self.env.domain, id)
