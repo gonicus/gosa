@@ -1,6 +1,7 @@
 TODO: make a real file out of this
 
-Scratchbook
+Quickstart
+==========
 
  - docker run -d -p 389:389 -p 1883:1883 -p 5432:5432 cpollmeier/gosa3:devel
  - install python3-gunicorn, python3-gevent, python3-setproctitle, python3-pyldap, python3-unidecode, python3-psycop2 packages
@@ -11,7 +12,9 @@ Scratchbook
  - gosa --config example
 
 
-Testing:
+Testing
+=======
+
  # run all tests
  - ./setup.py test --addopts="--runslow"
  # run only fast tests
@@ -21,7 +24,9 @@ Testing:
  # verbose output
  - ./setup.py test --addopts="-v --runslow" or - ./setup.py test --addopts="-vv --runslow"
 
-DBus access:
+DBus access
+===========
+
  - create /etc/dbus-1/system.d/org.gosa.conf with content below and reload dbus (service dbus reload):
  <!DOCTYPE busconfig PUBLIC
   "-//freedesktop//DTD D-BUS Bus Configuration 1.0//EN"
@@ -46,23 +51,3 @@ DBus access:
    </policy>
 
  </busconfig>
-
-
-Mosquitto server:
- - install server + auth plugin: apt-get install mosquitto mosquitto-auth-plugin
-    - create /etc/mosquitto/conf.d/auth.conf with following content
-      """
-      allow_anonymous false
-
-      auth_plugin /usr/lib/mosquitto-auth-plugin/auth-plugin.so
-      auth_opt_backends http
-      auth_opt_http_ip 127.0.0.1
-      auth_opt_http_port 8000
-      #auth_opt_http_with_tls true
-      auth_opt_http_getuser_uri /mqtt/auth/
-      auth_opt_http_superuser_uri /mqtt/superuser
-      auth_opt_http_aclcheck_uri /mqtt/acl
-      """
-    - note for non testing systems the tls setting must be uncommented
-
-
