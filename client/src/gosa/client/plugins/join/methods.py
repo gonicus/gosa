@@ -21,7 +21,7 @@ from urllib.parse import quote_plus as quote
 from urllib.request import HTTPError
 from gosa.common.components import JSONServiceProxy, JSONRPCException
 from gosa.common import Environment
-from gosa.common.utils import dmi_system
+from gosa.common.utils import dmi_system, find_api_service
 from gosa.common.utils import N_
 from Crypto.Cipher import AES
 from base64 import b64decode
