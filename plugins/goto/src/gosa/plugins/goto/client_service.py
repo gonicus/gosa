@@ -149,7 +149,7 @@ class ClientService(Plugin):
         """
         List available domain clients.
 
-        ``Return:`` dict with name and timestamp informatio, indexed by UUID
+        ``Return:`` dict with name and timestamp information, indexed by UUID
         """
         res = {}
         for uuid, info in self.__client.items():
