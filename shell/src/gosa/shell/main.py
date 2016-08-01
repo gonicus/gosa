@@ -53,7 +53,7 @@ from urllib.request import HTTPError
 from pkg_resources import resource_filename #@UnresolvedImport
 
 from gosa.common.components import JSONServiceProxy, JSONRPCException
-from gosa.common.utils import parseURL
+from gosa.common.utils import parseURL, find_api_service
 from gosa.common.components.sse_client import BaseSseClient
 
 # Set locale domain
@@ -159,6 +159,12 @@ class GosaService():
         username = username.strip()
         password = password.strip()
         service_uri = service_uri.strip()
+
+        # Discover?
+        if len(service_uri) <= 0:
+            srvc = find_api_service()
+            if srvc:
+                service_uri = srvc[0]
 
         # Test if one argument is still needed.
         if len(service_uri) <= 0:

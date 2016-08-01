@@ -276,11 +276,19 @@ def xml2dict(node):
 
 
 def find_api_service():
-     return _find_service(["-ssl-api", "-api"])
+     res = []
+     for host, port in _find_service("api"):
+         res.append("https://" + host + ":" + str(port) + "/rpc")
+
+     return res
 
 
 def find_bus_service():
-     return _find_service(["-ssl-bus", "-bus"])
+     res = []
+     for host, port in _find_service("bus"):
+         res.append(host + ":" + str(port))
+
+     return res
 
 
 def _find_service(what):
@@ -288,11 +296,8 @@ def _find_service(what):
     Search for DNS SRV records like these:
 
     _gosa-api._tcp.example.com. 3600  IN  SRV  10  0  8000  gosa.intranet.gonicus.de.
-    _gosa-ssl-api._tcp.example.com. 3600  IN  SRV  10  0  8000  gosa.intranet.gonicus.de.
     _gosa-bus._tcp.example.com. 3600  IN  SRV  10  50  1883  gosa-bus.intranet.gonicus.de.
                                       IN  SRV  10  60  1883  gosa-bus2.intranet.gonicus.de.
-    _gosa-ssl-bus._tcp.example.com. 3600  IN  SRV  10  50  8883  gosa-bus.intranet.gonicus.de.
-                                      IN  SRV  10  60  8883  gosa-bus2.intranet.gonicus.de.
     """
     log = logging.getLogger(__name__)
 
@@ -303,16 +308,16 @@ def _find_service(what):
     res = []
     for part in what:
         try:
-            log.debug("looking for DNS SRV records: _gosa%s._tcp" % part)
-            for data in dns.resolver.query("_gosa%s._tcp" % part, "SRV"):
-                res.append((data.priority, data.weight, str(data.target)[:-1]))
+            log.debug("looking for DNS SRV records: _gosa-%s._tcp" % part)
+            for data in dns.resolver.query("_gosa-%s._tcp" % part, "SRV"):
+                res.append((data.priority, data.weight, str(data.target)[:-1], data.port))
 
         except dns.resolver.NXDOMAIN:
             pass
 
     # Sort by priorty
     sorted(res, key=lambda entry: entry[1])
-    return [entry[2] for entry in res]
+    return [(entry[2], entry[3]) for entry in res]
 
 
 def dmi_system(item, data=None):
