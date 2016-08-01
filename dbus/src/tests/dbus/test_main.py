@@ -6,19 +6,21 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
-import unittest
+import pytest
+from unittest import TestCase, mock
 import gosa.dbus.main
 
 
-class MainTestCase(unittest.TestCase):
+class MainTestCase(TestCase):
 
     def test_main(self):
-        with unittest.mock.patch("gosa.dbus.main.mainLoop") as m,\
-                unittest.mock.patch("gosa.dbus.main.os.geteuid", return_value=1) as mg:
+        with mock.patch("gosa.dbus.main.mainLoop") as m,\
+                mock.patch("gosa.dbus.main.os.geteuid", return_value=1) as mg:
 
-            gosa.dbus.main.main()
-            assert not m.called
+            with pytest.raises(SystemExit) as cm:
+                gosa.dbus.main.main()
+                assert not m.called
+                assert cm.exception_code == 1
 
             mg.return_value = 0
 
