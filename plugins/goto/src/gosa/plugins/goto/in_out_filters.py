@@ -28,7 +28,7 @@ class registeredDeviceStatusOut(ElementFilter):
     """
     out-Filter for deviceStatus.
 
-    Combines flag-properties into deviceStatus proeprty
+    Combines flag-properties into deviceStatus property
     """
 
     #pylint: disable=W0613
