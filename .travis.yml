@@ -13,7 +13,6 @@ cache:
     - plugins/gui/frontend/gosa/build
 
 before_install:
-    - sudo apt-get install python3-dbus
     - docker pull cpollmeier/gosa3:devel
     - docker run -d -p 389:389 -p 1883:1883 -p 5433:5432 cpollmeier/gosa3:devel
     - pip install setproctitle pylint tornado coveralls 'pytest>=2.9'

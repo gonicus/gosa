@@ -56,7 +56,8 @@ setup(
 
     setup_requires = [
         'python_dateutil',
-        'pytest-runner'
+        'pytest-runner',
+        'dbus-python'
         ],
 
     install_requires = [
