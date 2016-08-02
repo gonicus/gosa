@@ -28,7 +28,7 @@ common_install_requires = [
     'pyOpenSSL',
     'sqlalchemy',
     'lxml',
-    'dns',
+    'dnspython',
     'cryptography>=1.3',
     ],
 
