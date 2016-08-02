@@ -2,6 +2,10 @@
 
 # Non SSL Verbindungen abschalten
 
+# Locking an Session hängen und entweder bei "logout" tilgen, oder nach
+# einer einstellbaren Zeit eine Nachricht an den Client senden, dass in
+# n Sekunden die locks gelöscht werden und eine Abmeldung erfolgt.
+
 # Rückwärtsbeziehungen zu Objektdefinitionen erlauben
 - Wird ein Plugin installiert, welches z.B. Benutzer erweitert, so sollte es die
   Objektdefinitionen dazu selbst mitbringen und ein Verweiss auf "extends" des Benutzers
