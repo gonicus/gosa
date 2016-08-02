@@ -53,6 +53,9 @@ class ImageIndex(Base):
         return "<ImageIndex(uuid='%s', attribute='%s')>" % (self.uuid, self.attribute)
 
 
+Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
+
+
 class ImageProcessor(ElementFilter):
     """
     Generate a couple of pre-sized images and place them in the cache.
