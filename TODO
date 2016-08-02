@@ -1,5 +1,7 @@
 # Auth via digest ermöglichen
 
+# Non SSL Verbindungen abschalten
+
 # Rückwärtsbeziehungen zu Objektdefinitionen erlauben
 - Wird ein Plugin installiert, welches z.B. Benutzer erweitert, so sollte es die
   Objektdefinitionen dazu selbst mitbringen und ein Verweiss auf "extends" des Benutzers
@@ -25,3 +27,4 @@
 
 # GUI -> gravatar import
 
+# Workflows / upload

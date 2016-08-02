@@ -1,12 +1,9 @@
-# This file is part of the clacks framework.
+# This file is part of the GOsa framework.
 #
-#  http://clacks-project.org
+#  http://gosa-project.org
 #
 # Copyright:
-#  (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-#
-# License:
-#  GPL-2: http://www.gnu.org/licenses/gpl-2.0.html
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
 

@@ -21,7 +21,7 @@ from urllib.parse import quote_plus as quote
 from urllib.request import HTTPError
 from gosa.common.components import JSONServiceProxy, JSONRPCException
 from gosa.common import Environment
-from gosa.common.utils import dmi_system
+from gosa.common.utils import dmi_system, find_api_service
 from gosa.common.utils import N_
 from Crypto.Cipher import AES
 from base64 import b64decode
@@ -172,8 +172,11 @@ class join_method(object):
         return (url, sys_id, key)
 
     def discover(self):
-        #TODO
         print(N_("Searching for service provider..."))
+        svcs = find_api_service()
+        if svcs:
+            return svcs[0]
+
         return None
 
     def get_service(self):
