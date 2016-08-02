@@ -97,8 +97,7 @@ class ClientCommandRegistry(object):
             if 'args' in self.commands[func] and self.commands[func]['args']:
                 arg = self.commands[func]['args'] + list(arg)
 
-            return PluginRegistry.modules[clazz].\
-                    __getattribute__(method)(*arg, **larg)
+            return PluginRegistry.modules[clazz].__getattribute__(method)(*arg, **larg)
         else:
             raise CommandInvalid("no method '%s' available" % func)
 
