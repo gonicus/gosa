@@ -142,7 +142,7 @@ class RpcMethodsTestCase(TestCase):
             assert len(res) == 1
             assert 'freich' in res[0]['uid']
             assert 'dn' not in res[0]
-            mockedResolver.check.assert_called_with('admin','gosa.objects.User', 's', base='cn=Frank Reich,ou=people,dc=example,dc=net')
+            mockedResolver.check.assert_called_with('admin','net.example.objects.User', 's', base='cn=Frank Reich,ou=people,dc=example,dc=net')
 
     def test_getObjectDetails(self):
         with pytest.raises(GOsaException), \

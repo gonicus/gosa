@@ -1,7 +1,7 @@
 [core]
 profile = False
 base = dc=example,dc=net
-domain = gosa
+domain = net.example
 id = fff0c8ad-d26b-4b6d-8e8e-75e054614dd9
 workflow_path = /tmp/workflows
 
@@ -32,6 +32,9 @@ admins = admin
 [jsonrpc]
 url = http://localhost:8000/rpc
 key = FIAYj6kqb273a0UoZl4MPz1WTs8E9iHw
+
+[mqtt]
+host = localhost
 
 ##############################################################################
 #                            Logger configuration                            #
