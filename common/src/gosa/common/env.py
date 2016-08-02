@@ -105,9 +105,9 @@ class Environment:
                 from sqlalchemy.pool import StaticPool
                 self.__db[index] = create_engine(self.config.get(index),
                                                  connect_args={'check_same_thread': False},
-                                                 poolclass=StaticPool)
+                                                 poolclass=StaticPool, encoding="utf-8")
             else:
-                self.__db[index] = create_engine(self.config.get(index))
+                self.__db[index] = create_engine(self.config.get(index), encoding="utf-8")
 
             #TODO: configure engine
             #self.__db[index] = create_engine(self.config.get(index),

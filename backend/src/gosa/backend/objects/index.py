@@ -112,6 +112,7 @@ class ObjectIndex(Plugin):
     paged results and wildcards.
     """
 
+    fuzzy = False
     db = None
     base = None
     __session = None
@@ -137,6 +138,13 @@ class ObjectIndex(Plugin):
 
         # Store DB session
         self.__session = self.env.getDatabaseSession("backend-database")
+
+        # Do a feature check
+        try:
+            self.__session.query(KeyValueIndex).filter(func.levenshtein("foo", "foo") < 2).one_or_none()
+            self.fuzzy = True
+        except:
+            self.__session.rollback()
 
         # If there is already a collection, check if there is a newer schema available
         schema = self.factory.getXMLObjectSchema(True)

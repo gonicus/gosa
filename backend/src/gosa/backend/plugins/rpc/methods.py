@@ -56,6 +56,8 @@ class RPCMethods(Plugin):
     """
     _target_ = 'gui'
     _priority_ = 80
+    __value_extender = None
+    __search_aid = None
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -71,6 +73,7 @@ class RPCMethods(Plugin):
         # Collect value extenders
         self.__value_extender = gosa.backend.objects.renderer.get_renderers()
         self.__search_aid = PluginRegistry.getInstance("ObjectIndex").get_search_aid()
+        self.__oi = PluginRegistry.getInstance("ObjectIndex")
 
         # Load DB session
         self.__session = self.env.getDatabaseSession('backend-database')
@@ -328,7 +331,13 @@ class RPCMethods(Plugin):
 
             for kw in keywords:
                 if fallback:
-                    res.append(subject.like("%" + kw.replace(r"%", "\%") + "%"))
+                    if not self.__oi.fuzzy:
+                        res.append(or_(
+                            func.levenshtein(func.substring(subject, 0, 50), func.substring(kw, 0, 50)) < 3,
+                            subject.like("%" + kw.replace(r"%", "\%") + "%")
+                        ))
+                    else:
+                        res.append(subject.like("%" + kw.replace(r"%", "\%") + "%"))
                 else:
                     res.append(subject == kw)
 
