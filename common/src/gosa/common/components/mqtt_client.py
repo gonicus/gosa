@@ -10,6 +10,7 @@
 import logging
 import datetime
 import paho.mqtt.client as mqtt
+from gosa.common.gjson import loads, dumps
 from tornado.queues import Queue, QueueEmpty
 from tornado import gen
 from gosa.common import Environment
@@ -41,6 +42,7 @@ class MQTTClient(object):
     """
     __published_messages = {}
     __sync_message_queues = {}
+    __sender_id = None
 
     def __init__(self, host, port=1883, keepalive=60, loop_forever=False):
         self.env = Environment.getInstance()
@@ -70,6 +72,7 @@ class MQTTClient(object):
     def authenticate(self, uuid, secret=None):
         """ Send credentials to the MQTT broker.
         Note: must be called before connecting """
+        self.__sender_id = uuid
         self.client.username_pw_set(uuid, secret)
 
     def connect(self, uuid=None, secret=None):
@@ -150,18 +153,24 @@ class MQTTClient(object):
         else:
             msg = mqtt.error_string(rc)
             self.log.error(msg)
+            self.__sender_id = None
 
     def __on_message(self, client, userdata, message):
+        payload = loads(message.payload)
+        if self.__sender_id is not None and payload['sender_id'] == self.__sender_id:
+            # skip own messages
+            return
+
         subs = self.get_subscriptions(message.topic)
         for sub in subs:
             if sub['sync'] is True:
                 self.log.debug("incoming message for synced topic %s" % message.topic)
                 if message.topic not in self.__sync_message_queues:
                     self.__sync_message_queues[message.topic] = Queue()
-                self.__sync_message_queues[message.topic].put(message.payload.decode('utf-8'))
+                self.__sync_message_queues[message.topic].put(payload['content'])
             if 'callback' in sub and sub['callback'] is not None:
                 callback = sub['callback']
-                callback(message.topic, message.payload.decode('utf-8'))
+                callback(message.topic, payload['content'])
         if len(subs) == 0:
             self.log.warning("Incoming message for unhandled topic '%s'" % message.topic)
 
@@ -192,7 +201,11 @@ class MQTTClient(object):
 
     def publish(self, topic, message, qos=0, retain=False):
         """ Publish a message on the MQTT bus"""
-        res, mid = self.client.publish(topic, payload=message, qos=qos, retain=retain)
+        message = {
+            "sender_id": self.__sender_id,
+            "content": message
+        }
+        res, mid = self.client.publish(topic, payload=dumps(message), qos=qos, retain=retain)
 
         self.__published_messages[mid] = res
         if res == mqtt.MQTT_ERR_NO_CONN:
