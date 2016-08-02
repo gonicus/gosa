@@ -66,8 +66,8 @@ C.register_codes(dict(
     CLIENT_DATA_INVALID=N_("Invalid data '%(entry)s:%(data)s' for client '%(target)s provided'"),
     CLIENT_TYPE_INVALID=N_("Device type '%(type)s' for client '%(target)s' is invalid [terminal, workstation, server, sipphone, switch, router, printer, scanner]"),
     CLIENT_OWNER_NOT_FOUND=N_("Owner '%(owner)s' for client '%(target)s' not found"),
-    CLIENT_UUID_INVALID=N_("Invalid client UUID '%(target)s'"),
-    CLIENT_STATUS_INVALID=N_("Invalid status '%(status)s' for client '%(target)s'")))
+    CLIENT_UUID_INVALID=N_("Invalid client UUID '%(topic)s'"),
+    CLIENT_STATUS_INVALID=N_("Invalid status '%(status)s' for client '%(topic)s'")))
 
 
 class GOtoException(Exception):
@@ -299,9 +299,9 @@ class ClientService(Plugin):
                     pass
 
             # Notify all websession users if any
-            if JsonRpcHandler.user_sessions_available():
-                self.mqtt.send_event(self.notification2event("*", title, message, timeout, icon))
-                self.mqtt.send_event(self.notification2event("*", title, message, timeout, icon))
+            if JsonRpcHandler.user_sessions_available(None):
+                mqtt = self.__get_handler()
+                mqtt.send_event(self.notification2event("*", title, message, timeout, icon))
 
     def notification2event(self, user, title, message, timeout, icon):
         e = EventMaker()
@@ -446,7 +446,7 @@ class ClientService(Plugin):
                 "(&(objectClass=registeredDevice)(macAddress=%s))" % mac, ["macAddress"])
 
             # Already registered?
-            if res:
+            if len(res) > 0:
                 raise GOtoException(C.make_error("DEVICE_EXISTS", mac))
 
             # While the client is going to be joined, generate a random uuid and
