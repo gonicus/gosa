@@ -63,9 +63,9 @@ C.register_codes(dict(
     CLIENT_NOT_FOUND=N_("Client '%(topic)s' not found"),
     CLIENT_OFFLINE=N_("Client '%(topic)s' is offline"),
     CLIENT_METHOD_NOT_FOUND=N_("Client '%(topic)s' has no method %(method)s"),
-    CLIENT_DATA_INVALID=N_("Invalid data '%(entry)s:%(data)s' for client '%(target)s provided'"),
-    CLIENT_TYPE_INVALID=N_("Device type '%(type)s' for client '%(target)s' is invalid [terminal, workstation, server, sipphone, switch, router, printer, scanner]"),
-    CLIENT_OWNER_NOT_FOUND=N_("Owner '%(owner)s' for client '%(target)s' not found"),
+    CLIENT_DATA_INVALID=N_("Invalid data '%(entry)s:%(data)s' for client '%(topic)s provided'"),
+    CLIENT_TYPE_INVALID=N_("Device type '%(type)s' for client '%(topic)s' is invalid [terminal, workstation, server, sipphone, switch, router, printer, scanner]"),
+    CLIENT_OWNER_NOT_FOUND=N_("Owner '%(owner)s' for client '%(topic)s' not found"),
     CLIENT_UUID_INVALID=N_("Invalid client UUID '%(topic)s'"),
     CLIENT_STATUS_INVALID=N_("Invalid status '%(status)s' for client '%(topic)s'")))
 
@@ -427,7 +427,7 @@ class ClientService(Plugin):
                     try:
                         conn.search_s(info["owner"], ldap.SCOPE_BASE, attrlist=['dn'])
                         more_info.append(("owner", info["owner"]))
-                    except Exception as e:
+                    except Exception:
                         raise ValueError(C.make_error("CLIENT_OWNER_NOT_FOUND", device_uuid, owner=info["owner"]))
 
         # Generate random client key

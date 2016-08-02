@@ -7,7 +7,9 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import pytest
-from unittest import TestCase, mock
+from tornado.concurrent import Future
+from tornado.testing import AsyncTestCase, gen_test
+from unittest import mock
 from gosa.plugins.goto.client_service import *
 
 
@@ -21,9 +23,10 @@ class MQTTHandlerMock(mock.MagicMock):
         self.callback(topic, message)
 
 
-class GotoClientServiceTestCase(TestCase):
+class GotoClientServiceTestCase(AsyncTestCase):
 
     def setUp(self):
+        super(GotoClientServiceTestCase, self).setUp()
         self.service = ClientService()
         # use the mocked handler instead of the real one
         self.service.mqtt = MQTTHandlerMock()
@@ -71,6 +74,19 @@ class GotoClientServiceTestCase(TestCase):
                 *more))
         self.service.mqtt.simulate_message("net.example/client/fake_client_uuid", etree.tostring(info))
 
+    def __set_client_offline(self, uuid):
+        utcnow = datetime.datetime.utcnow() - datetime.timedelta(seconds=1500)
+        e = EventMaker()
+        # set client offline
+        with mock.patch("gosa.plugins.goto.client_service.datetime.datetime") as m:
+            m.utcnow.return_value = utcnow
+            # send a client ping to store the faked current time
+            ping = e.Event(e.ClientPing(e.Id(uuid)))
+            self.service.mqtt.simulate_message("net.example/client/%s" % uuid, etree.tostring(ping))
+
+        # run garbage collection
+        self.service._ClientService__gc()
+
     @mock.patch("gosa.plugins.goto.client_service.ClientService.systemSetStatus")
     @mock.patch("gosa.plugins.goto.client_service.ClientService.systemGetStatus", return_value="")
     def test_clients(self, mocked_get_status, mocked_set_status):
@@ -97,25 +113,42 @@ class GotoClientServiceTestCase(TestCase):
         methods = self.service.getClientMethods('fake_client_uuid')
         assert 'fakeCommand' in methods
 
-        utcnow = datetime.datetime.utcnow() - datetime.timedelta(seconds=1500)
-        e = EventMaker()
-        # set client offline
-        with mock.patch("gosa.plugins.goto.client_service.datetime.datetime") as m:
-            m.utcnow.return_value = utcnow
-            # send a client ping to store the faked current time
-            ping = e.Event(e.ClientPing(e.Id('fake_client_uuid')))
-            self.service.mqtt.simulate_message("net.example/client/fake_client_uuid", etree.tostring(ping))
-
-        # run garbage collection
-        self.service._ClientService__gc()
+        self.__set_client_offline('fake_client_uuid')
         assert self.service.getClientMethods('fake_client_uuid') == []
 
         # disconnect client
+        e = EventMaker()
         offline = e.Event(e.ClientLeave(
             e.Id('fake_client_uuid')
         ))
         self.service.mqtt.simulate_message("net.example/client/fake_client_uuid", etree.tostring(offline))
         assert self.service.getClientMethods('fake_client_uuid') == []
+
+    @mock.patch("gosa.plugins.goto.client_service.ClientService.systemSetStatus")
+    @mock.patch("gosa.plugins.goto.client_service.ClientService.systemGetStatus", return_value="")
+    @gen_test
+    def test_clientDispatch(self, mocked_get_status, mocked_set_status):
+        # announce fake client via MQTT
+        self.__announce_client()
+        self.__announce_client_caps()
+
+        with pytest.raises(JSONRPCException):
+            yield self.service.clientDispatch('unknown_client', 'fakeCommand')
+
+        with pytest.raises(JSONRPCException):
+            yield self.service.clientDispatch('fake_client_uuid', 'unknown_command')
+
+        with mock.patch("gosa.plugins.goto.client_service.MQTTServiceProxy") as m:
+            future = Future()
+            future.set_result("result")
+            m.return_value.fakeCommand.return_value = future
+            res = yield self.service.clientDispatch('fake_client_uuid', 'fakeCommand')
+            assert res == "result"
+
+        self.__set_client_offline('fake_client_uuid')
+        with pytest.raises(JSONRPCException):
+            yield self.service.clientDispatch('fake_client_uuid', 'fakeCommand')
+
 
     @mock.patch("gosa.plugins.goto.client_service.ClientService.systemSetStatus")
     @mock.patch("gosa.plugins.goto.client_service.ClientService.systemGetStatus", return_value="")
@@ -177,6 +210,13 @@ class GotoClientServiceTestCase(TestCase):
             m.side_effect = Exception("test")
             self.service.notifyUser(None, 'Title', 'Message')
 
+        # remove the user
+        info = e.Event(
+            e.UserSession(
+                e.Id('fake_client_uuid'), e.User()))
+        self.service.mqtt.simulate_message("net.example/client/fake_client_uuid", etree.tostring(info))
+        assert len(self.service.getUserSessions("fake_client_uuid")) == 0
+
     @mock.patch("gosa.plugins.goto.client_service.LDAPHandler.get_instance")
     def test_systemGetStatus(self, mocked_ldap):
         mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.return_value = []
@@ -216,8 +256,47 @@ class GotoClientServiceTestCase(TestCase):
         with pytest.raises(ValueError):
             self.service.joinClient('tester', 'wrong_uuid', '00:00:00:00:00:01')
 
+        # device exists
+        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.return_value = [1]
         with pytest.raises(GOtoException):
             self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01')
+
+        # user not unique
+        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.side_effect = [[], [1, 2]]
+        with pytest.raises(GOtoException):
+            self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01')
+
+        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.side_effect = [[], ['manager']]
+        mocked_ldap.return_value.get_base.return_value = "dc=example,dc=net"
+        self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01')
+        assert mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.add_s.called
+
+        mocked_ldap.reset_mock()
+        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.side_effect = None
+
+        # with info
+        with pytest.raises(ValueError):
+            # wrong value type
+            self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01', info={'ou': '&/(&'})
+
+        with pytest.raises(ValueError):
+            # wrong deviceType
+            self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01', info={'ou': 'devices',
+                                                                                                                 'deviceType': 'unknown'})
+
+        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.side_effect = [Exception("test"), [], ['manager']]
+        with pytest.raises(ValueError):
+            # wrong owner
+            self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01', info={'ou': 'devices',
+                                                                                                                 'deviceType': 'terminal',
+                                                                                                                 'owner': 'tester'})
+        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.side_effect = [[], [], ['manager']]
+        self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01', info={'ou': 'devices',
+                                                                                                             'deviceType': 'terminal',
+                                                                                                             'owner': 'tester'})
+        assert mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.add_s.called
+        args, kwargs = mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.add_s.call_args
+        assert ('owner', 'tester') in args[1]
 
     def test_listeners(self):
         callback1 = mock.MagicMock()
@@ -234,3 +313,14 @@ class GotoClientServiceTestCase(TestCase):
 
         callback1.assert_called_with("id1", "testMethod1", "state1")
         assert not callback2.called
+
+    def test_eventProcessor(self):
+        with mock.patch.object(self.service.log, "debug") as m:
+            self.service.mqtt.simulate_message("net.example/client/fake_client_uuid", "{}")
+            assert m.called
+
+        e = EventMaker()
+        event = e.Event(e.UnknownEvent())
+        with mock.patch.object(self.service.log, "error") as m:
+            self.service.mqtt.simulate_message("net.example/client/fake_client_uuid", etree.tostring(event))
+            assert m.called
