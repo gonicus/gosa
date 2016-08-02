@@ -538,9 +538,9 @@ class ObjectIndex(Plugin):
         self.log.debug("removing object index for %s" % uuid)
 
         if self.exists(uuid):
-            self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == uuid).delete()
             self.__session.query(KeyValueIndex).filter(KeyValueIndex.uuid == uuid).delete()
             self.__session.query(ExtensionIndex).filter(ExtensionIndex.uuid == uuid).delete()
+            self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == uuid).delete()
             self.__session.commit()
 
     def update(self, obj):
