@@ -12,6 +12,7 @@ import logging
 import asyncio
 from lxml import etree
 from gosa.common.components.mqtt_client import MQTTClient
+from gosa.common.utils import find_bus_service
 from gosa.common import Environment
 from tornado import gen
 
@@ -43,8 +44,20 @@ class MQTTHandler(object):
         self.env = env
 
         # Load configuration
-        self.host = self.env.config.get('mqtt.host', default="localhost")
+        self.host = self.env.config.get('mqtt.host')
         self.port = self.env.config.get('mqtt.port', default=1883)
+
+        # Auto detect if possible
+        if not self.host:
+            svcs = find_bus_service()
+            if svcs:
+                self.host, self.port = svcs[0]
+
+        # Bail out?
+        if not self.host:
+            self.log.error("no MQTT host available for bus communication")
+            raise Exception("no MQTT host available")
+
         self.keep_alive = self.env.config.get('mqtt.keepalive', default=60)
         self.domain = self.env.domain
         domain_parts = socket.getfqdn().split('.', 1)
