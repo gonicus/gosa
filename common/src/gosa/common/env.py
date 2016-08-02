@@ -101,7 +101,7 @@ class Environment:
         if not index in self.__db:
             if not self.config.get(index):
                 raise Exception("No database connection defined for '%s'!" % index)
-            if self.config.get(index) == "sqlite:///:memory:":
+            if self.config.get(index).startswith("sqlite://"):
                 from sqlalchemy.pool import StaticPool
                 self.__db[index] = create_engine(self.config.get(index),
                                                  connect_args={'check_same_thread': False},
