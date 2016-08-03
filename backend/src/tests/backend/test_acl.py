@@ -34,7 +34,7 @@ class ACLSetTestCase(TestCase):
         acl.set_members(['tester1', 'tester2'])
 
         # "[^\.]*" means everything one level
-        acl.add_action('^org\.gosa\.event\.[^\.]*$', 'rwx')
+        acl.add_action('^net\.example\.event\.[^\.]*$', 'rwx')
         acl.set_priority(100)
         self.set.add(acl)
 
@@ -45,7 +45,7 @@ class ACLSetTestCase(TestCase):
     def test_remove_acl(self):
         acl = ACL(scope=ACL.ONE)
         acl.set_members([u'tester1', u'tester2'])
-        acl.add_action('^org\.gosa\.event\.ClientLeave$', 'rwx')
+        acl.add_action('^net\.example\.event\.ClientLeave$', 'rwx')
         acl.set_priority(100)
         self.set.add(acl)
 
@@ -89,7 +89,7 @@ class ACLRoleTestCase(TestCase):
             role.add("wrong type")
 
         acl = ACLRoleEntry(scope=ACL.ONE)
-        acl.add_action('^org\.gosa\.event\.ClientLeave$', 'rwx')
+        acl.add_action('^net\.example\.event\.ClientLeave$', 'rwx')
         role.add(acl)
 
         assert len(role) == 1
@@ -713,7 +713,7 @@ class ACLResolverTestCase(TestCase):
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
         acl.set_members(['admin'])
-        acl.add_action('gosa\.objects\.PeopleContainer', 'rwxs')
+        acl.add_action('net\.example\.objects\.PeopleContainer', 'rwxs')
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
 
@@ -725,7 +725,7 @@ class ACLResolverTestCase(TestCase):
     #     aclset = ACLSet(base)
     #     acl = ACL(scope=ACL.ONE)
     #     acl.set_members(['admin'])
-    #     acl.add_action('gosa\.acl', 'r')
+    #     acl.add_action('net\.example\.acl', 'r')
     #     aclset.add(acl)
     #     self.resolver.add_acl_set(aclset)
     #

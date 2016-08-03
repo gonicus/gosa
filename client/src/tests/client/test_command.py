@@ -37,9 +37,12 @@ class ClientCommandTestCase(TestCase):
             reg = ClientCommandRegistry()
             reg.register('test_func2', 'path2', [], 'signature2', 'documentation2')
 
-            assert len(reg.getMethods()) == 2
+            res = reg.getMethods()
+            assert 'test_func1' in res
+            assert 'test_func2' in res
             reg.unregister('test_func2')
-            assert len(reg.getMethods()) == 1
+            assert 'test_func1' in res
+            assert 'test_func2' not in res
 
             with pytest.raises(CommandInvalid):
                 reg.dispatch('test_func2')

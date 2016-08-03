@@ -95,7 +95,7 @@ def mainLoop(env):
     nm = Monitor(netactivity)
     netactivity(nm.is_online())
 
-    """ Main event loop which will process all registerd threads in a loop.
+    """ Main event loop which will process all registered threads in a loop.
         It will run as long env.active is set to True."""
     try:
         log = logging.getLogger(__name__)

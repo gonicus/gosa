@@ -165,7 +165,7 @@ class MQTTClientService(object):
 
         try:
             req = loads(message)
-        except ServiceRequestNotTranslatable as e:
+        except Exception as e:
             err = str(e)
             self.log.error("ServiceRequestNotTranslatable: %s" % err)
             req = {'id': topic.split("/")[-2]}
@@ -282,5 +282,5 @@ class MQTTClientService(object):
             try:
                 sk = PluginRegistry.getInstance('SessionKeeper')
                 sk.sendSessionNotification()
-            except:
+            except:  # pragma: nocover
                 pass

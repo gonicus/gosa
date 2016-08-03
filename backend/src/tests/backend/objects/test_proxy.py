@@ -57,7 +57,7 @@ class ObjectProxyTestCase(TestCase):
         mocked_resolver = mock.MagicMock()
 
         def check(user, topic, mode, base):
-            return topic == "gosa.objects.User.attributes.uid"
+            return topic == "net.example.objects.User.attributes.uid"
         mocked_resolver.check.side_effect = check
 
         with mock.patch.dict("gosa.backend.objects.proxy.PluginRegistry.modules", {'ACLResolver': mocked_resolver}):
@@ -81,7 +81,7 @@ class ObjectProxyTestCase(TestCase):
         mocked_resolver = mock.MagicMock()
 
         def check(user, topic, mode, base):
-            return topic == "gosa.objects.User.methods.lock"
+            return topic == "net.example.objects.User.methods.lock"
         mocked_resolver.check.side_effect = check
 
         with mock.patch.dict("gosa.backend.objects.proxy.PluginRegistry.modules", {'ACLResolver': mocked_resolver}):
