@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events">
+    <complexType name="ObjectCloseAnnouncement">
+    	<annotation>
+    		<documentation>
+    			The ObjectCloseAnnouncement event is fired by the CommandRegistry if there is a opened object
+				which has not been modified in the last 10 minutes. This event informs the user that the object is
+				about to be closed within the next minute, unless he continues modifying the object.
+    		</documentation>
+    	</annotation>
+        <all>
+    		<element name="Target" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="SessionId" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="ObjectRef" type="string" maxOccurs="1" minOccurs="1"></element>
+			<element name="Minutes" type="string" maxOccurs="1" minOccurs="1"></element>
+    	</all>
+    </complexType>
+    <element name="ObjectCloseAnnouncement" type="e:ObjectCloseAnnouncement"></element>
+</schema>

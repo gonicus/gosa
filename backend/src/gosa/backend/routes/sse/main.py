@@ -76,9 +76,9 @@ class SseHandler(web.RequestHandler):
         # Bind channels
         for channel in self.channels:
             if channel not in cls._channels:
-                cls._channels[channel] = []
+                cls._channels[channel] = {}
 
-            cls._channels[channel].append(self.connection_id)
+            cls._channels[channel][self.connection_id] = self.get_secure_cookie('REMOTE_SESSION').decode('ascii')
 
         event_id = self.request.headers.get('Last-Event-ID', None)
         if event_id:
@@ -100,7 +100,7 @@ class SseHandler(web.RequestHandler):
 
         for channel in self.channels:
             if len(cls._channels[channel]) > 1:
-                cls._channels[channel].remove(self.connection_id)
+                del cls._channels[channel][self.connection_id]
             else:
                 del cls._channels[channel]
 
@@ -145,9 +145,21 @@ class SseHandler(web.RequestHandler):
             "body": data.Body.text,
             "icon": icon, "timeout": timeout}, topic="notification", channel=channel)
 
+    @classmethod
+    def _handleObjectCloseAnnouncement(cls, data, channel):
+        data = data.ObjectCloseAnnouncement
+
+        object_ref = data.ObjectRef.text
+        minutes = data.Minutes.text
+        sid = data.SessionId.text
+
+        SseHandler.send_message({
+            "objectRef": object_ref,
+            "minutes": minutes}, topic="objectcloseaccouncement", channel=channel, session_id=sid)
+
 
     @classmethod
-    def send_message(cls, msg, topic=None, channel='broadcast'):
+    def send_message(cls, msg, topic=None, channel='broadcast', session_id=None):
         """ Sends a message to all live connections """
         id = str(uuid.uuid4())
 
@@ -174,6 +186,12 @@ class SseHandler(web.RequestHandler):
             for chan in cls._channels:
                 for client in cls._channels[chan]:
                     clients.append(client)
+        elif session_id is not None:
+            clients = []
+            channel_clients = cls._channels.get(channel, [])
+            for connection_id in channel_clients:
+                if channel_clients[connection_id] == session_id:
+                    clients.append(connection_id)
         else:
             clients = cls._channels.get(channel, [])
 

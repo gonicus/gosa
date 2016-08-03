@@ -62,6 +62,10 @@ qx.Class.define("gosa.io.Sse", {
         var message = qx.lang.Json.parse(e.data);
         that._handleObjectChangeMessage(message);
       }, false);
+      this.__eventSource.addEventListener("objectcloseaccouncement", function (e) {
+        var message = qx.lang.Json.parse(e.data);
+        that._handleObjectCloseAnnouncement(message);
+      }, false);
 
       this.__eventSource.onerror = function (e) {
         if (e.readyState == EventSource.CLOSED) {
@@ -138,6 +142,13 @@ qx.Class.define("gosa.io.Sse", {
         }, 0, this, null, timeout);
 
       }
+    },
+
+    _handleObjectCloseAnnouncement : function(info) {
+      minutes = parseInt(info['minutes']);
+      object = info['objectRef'];
+
+      console.log("Object '%s' is about to be closed in %d minutes", object, minutes);
     },
 
     closePopup : function(popup) {

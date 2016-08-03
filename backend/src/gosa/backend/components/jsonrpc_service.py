@@ -175,12 +175,13 @@ class JsonRpcHandler(tornado.web.RequestHandler):
         try:
             self.log.debug("calling method %s(%s)" % (method, params))
             user = self.get_secure_cookie('REMOTE_USER').decode('ascii')
-            self.log.debug("received call [%s] for %s: %s(%s)" % (jid, user, method, params))
+            sid = self.get_secure_cookie('REMOTE_SESSION').decode('ascii')
+            self.log.debug("received call [%s] for %s (SID=%s): %s(%s)" % (jid, user, sid, method, params))
 
             if isinstance(params, dict):
-                result = self.dispatcher.dispatch(user, method, **params)
+                result = self.dispatcher.dispatch(user, sid, method, **params)
             else:
-                result = self.dispatcher.dispatch(user, method, *params)
+                result = self.dispatcher.dispatch(user, sid, method, *params)
 
         except JSONRPCException as e:
             exc_value = sys.exc_info()[1]

@@ -10,6 +10,8 @@
 import uuid
 import datetime
 from types import FunctionType
+
+from gosa.common.event import EventMaker
 from zope.interface import implementer
 from gosa.common.utils import N_
 from gosa.common import Environment
@@ -61,7 +63,7 @@ class JSONRPCObjectMapper(Plugin):
 
     def serve(self):
         sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
-        sched.add_interval_job(self.__gc, minutes=10, tag='_internal', jobstore="ram")
+        sched.add_interval_job(self.__gc, minutes=1, tag='_internal', jobstore="ram")
 
     @Command(__help__=N_("List available object OIDs"))
     def listObjectOIDs(self):
@@ -116,6 +118,7 @@ class JSONRPCObjectMapper(Plugin):
         if not self.__check_user(ref, user):
             raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
 
+        self.__stack[ref]['last_modified'] = datetime.datetime.now()
         return setattr(objdsc['object']['object'], name, value)
 
     @Command(needsUser=True, __help__=N_("Get property from object on stack"))
@@ -277,8 +280,8 @@ class JSONRPCObjectMapper(Plugin):
         obj.remove()
         return True
 
-    @Command(needsUser=True, __help__=N_("Instantiate object and place it on stack"))
-    def openObject(self, user, oid, *args, **kwargs):
+    @Command(needsUser=True, needsSession=True, __help__=N_("Instantiate object and place it on stack"))
+    def openObject(self, user, session_id, oid, *args, **kwargs):
         """
         Open object on the agent side. This creates an instance on the
         stack and returns an a JSON description of the object and it's
@@ -336,6 +339,7 @@ class JSONRPCObjectMapper(Plugin):
 
         self.__stack[ref] = {
             'user': user,
+            'session_id': session_id,
             'object': objdsc,
             'created': datetime.datetime.now()
         }
@@ -400,8 +404,28 @@ class JSONRPCObjectMapper(Plugin):
 
     def __gc(self):
         self.env.log.debug("running garbage collector on object store")
-        one_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=1)
+        ten_minutes_ago = datetime.datetime.now() - datetime.timedelta(minutes=1)
 
         for ref, item in self.__stack.items():
-            if item['created'] < one_hour_ago:
-                del self.__stack[ref]
+            last_interaction_time = item['last_modified'] if 'last_modified' in item else item['created']
+            if last_interaction_time < ten_minutes_ago:
+                if 'mark_for_deletion' in item:
+                    if item['mark_for_deletion'] < datetime.datetime.now():
+                        del self.__stack[ref]
+                else:
+                    # notify user to do something otherwise the lock gets removed in 1 minute
+                    command = PluginRegistry.getInstance("CommandRegistry")
+                    e = EventMaker()
+                    event = e.Event(
+                        e.ObjectCloseAnnouncement(
+                            e.Target(item['user']),
+                            e.SessionId(item['session_id']),
+                            e.ObjectRef(ref),
+                            e.Minutes("1")
+                        )
+                    )
+                    command.sendEvent(item['user'], event)
+                    item['mark_for_deletion'] = datetime.datetime.now() + datetime.timedelta(minutes=1)
+            elif 'mark_for_deletion' in item:
+                # item has been modified -> remove the deletion marking
+                del item['mark_for_deletion']

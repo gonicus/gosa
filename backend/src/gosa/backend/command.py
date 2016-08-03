@@ -173,9 +173,9 @@ class CommandRegistry(Plugin):
         """
 
         # We pass 'self' as user, to skip acls checks.
-        return self.dispatch(self, func, *arg, **larg)
+        return self.dispatch(self, None, func, *arg, **larg)
 
-    def dispatch(self, user, func, *arg, **larg):
+    def dispatch(self, user, session_id, func, *arg, **larg):
         """
         The dispatch method will try to call the specified function and
         checks for user.
@@ -186,6 +186,7 @@ class CommandRegistry(Plugin):
         Parameter  Description
         ========== ============
         user       the calling users name
+        session_id the calling session id
         func       method to call
         args       ordinary argument list/dict
         ========== ============
@@ -218,6 +219,14 @@ class CommandRegistry(Plugin):
                 arg.insert(0, user)
             else:
                 arg.insert(0, None)
+
+        # Check if call is interested in calling session ID, prepend it
+        if self.callNeedsSession(func):
+            index = 1 if self.callNeedsUser(func) else 0
+            if user != self:
+                arg.insert(index, session_id)
+            else:
+                arg.insert(index, None)
 
         # Handle function type (additive, first match, regular)
         (clazz, method) = self.path2method(self.commands[func]['path'])
@@ -258,6 +267,26 @@ class CommandRegistry(Plugin):
 
         method = PluginRegistry.modules[clazz].__getattribute__(method)
         return getattr(method, "needsUser", False)
+
+    def callNeedsSession(self, func):
+        """
+        Checks if the provided method requires a session parameter.
+
+        ========== ============
+        Parameter  Description
+        ========== ============
+        func       method name
+        ========== ============
+
+        ``Return:`` success or failure
+        """
+        if not func in self.commands:
+            raise CommandInvalid(C.make_error("COMMAND_NOT_DEFINED", method=func))
+
+        (clazz, method) = self.path2method(self.commands[func]['path'])
+
+        method = PluginRegistry.modules[clazz].__getattribute__(method)
+        return getattr(method, "needsSession", False)
 
     def __del__(self):
         self.log.debug("shutting down command registry")
@@ -301,7 +330,7 @@ class CommandRegistry(Plugin):
     @Command(needsUser=True, __help__=N_("Send event to the bus."))
     def sendEvent(self, user, data):
         """
-        Sends an event to the AMQP bus. Data must be in XML format,
+        Sends an event to the SSE handler and the zope event bus. Data must be in XML format,
         see :ref:`Events handling <events>` for details.
 
         ========== ============
@@ -333,11 +362,13 @@ class CommandRegistry(Plugin):
                 if not acl.check(user, topic, "x"):
                     raise EventNotAuthorized("sending the event '%s' is not permitted" % topic)
 
-            if event_type in ['ObjectChanged', 'Notification']:
+            if event_type in ['ObjectChanged', 'Notification', 'ObjectCloseAnnouncement']:
                 params = {'channel': 'broadcast'}
 
                 if event_type == "Notification" and xml.Notification.Target.text != "all":
                     params['channel'] = "user.%s" % xml.Notification.Target.text
+                if event_type == "ObjectCloseAnnouncement":
+                    params['channel'] = "user.%s" % xml.ObjectCloseAnnouncement.Target.text
 
                 SseHandler.notify(xml, **params)
 
