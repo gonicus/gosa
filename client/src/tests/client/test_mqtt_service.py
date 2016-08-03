@@ -96,14 +96,13 @@ class ClientMqttServiceTestCase(TestCase):
 
     def test_reAnnounce(self):
         mocked_handler.reset_mock()
-        topic = "%s/client/%s" % (self.env.domain, self.env.uuid)
         self.mqtt.reAnnounce()
         args, kwargs = mocked_handler.send_event.call_args
         assert stripNs(args[0].xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag) == "UserSession"
 
     def test_ping(self):
         mocked_handler.reset_mock()
-        # just wait a second and test if the first ping has been called
+        # just wait a second and test if the first ping has been sent
         time.sleep(1)
         args, kwargs = mocked_handler.send_event.call_args
         assert stripNs(args[0].xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag) == "ClientPing"
