@@ -68,7 +68,8 @@ setup(
     tests_require = [
         'pytest',
         'pytest-cov',
-        'coveralls'
+        'coveralls',
+        'python-dbusmock'
     ],
     install_requires = [
         'gosa.common',
