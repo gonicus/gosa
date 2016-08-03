@@ -282,5 +282,5 @@ class MQTTClientService(object):
             try:
                 sk = PluginRegistry.getInstance('SessionKeeper')
                 sk.sendSessionNotification()
-            except:
+            except:  # pragma: nocover
                 pass

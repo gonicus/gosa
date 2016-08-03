@@ -6,11 +6,11 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-import pytest
 from uuid import uuid4
 from unittest import TestCase, mock
 from gosa.client.mqtt_service import *
 from gosa.common import Environment
+from gosa.common.utils import stripNs
 
 
 class MQTTHandlerMock(mock.MagicMock):
@@ -30,6 +30,7 @@ class ClientMqttServiceTestCase(TestCase):
 
     def setUp(self):
         self.mqtt = MQTTClientService()
+        self.mqtt.time_int = 0
         with mock.patch.dict("gosa.client.mqtt_service.PluginRegistry.modules", {'MQTTClientHandler': mocked_handler}):
             self.mqtt.serve()
         self.env = Environment.getInstance()
@@ -71,7 +72,38 @@ class ClientMqttServiceTestCase(TestCase):
             sent_message = loads(args[0])
             assert sent_message['result'] is None
 
+        # key error
+        mocked_handler.reset_mock()
+        self.mqtt.commandReceived(topic, '{"id": "0", "params": []}')
+        args, kwargs = mocked_handler.send_message.call_args
+        assert kwargs['topic'] == "%s/to-backend" % topic
+        sent_message = loads(args[0])
+        assert sent_message['result'] is None
+
+        # key error
+        mocked_handler.reset_mock()
+        self.mqtt.commandReceived(topic, '{"id": "0", "method": "unknown_method", "params": []}')
+        args, kwargs = mocked_handler.send_message.call_args
+        assert kwargs['topic'] == "%s/to-backend" % topic
+        sent_message = loads(args[0])
+        assert sent_message['result'] is None
+
+        # real call
         mocked_handler.reset_mock()
         self.mqtt.commandReceived(topic, '{"id": "0", "method": "getMethods", "params": []}')
         args, kwargs = mocked_handler.send_message.call_args
         assert kwargs['topic'] == "%s/to-backend" % topic
+
+    def test_reAnnounce(self):
+        mocked_handler.reset_mock()
+        topic = "%s/client/%s" % (self.env.domain, self.env.uuid)
+        self.mqtt.reAnnounce()
+        args, kwargs = mocked_handler.send_event.call_args
+        assert stripNs(args[0].xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag) == "UserSession"
+
+    def test_ping(self):
+        mocked_handler.reset_mock()
+        # just wait a second and test if the first ping has been called
+        time.sleep(1)
+        args, kwargs = mocked_handler.send_event.call_args
+        assert stripNs(args[0].xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag) == "ClientPing"
