@@ -198,7 +198,7 @@ class DBUSProxy(Plugin):
         for name in to_unregister:
             ccr.unregister(name)
 
-        # Trigger resend of capapability event
+        # Trigger resend of capability event
         mqtt = PluginRegistry.getInstance('MQTTClientService')
         mqtt.reAnnounce()
 
@@ -211,7 +211,7 @@ class DBUSProxy(Plugin):
         =============== ================
         service         The dbus service we want to introspect. (e.g. org.gosa)
         path            The path we want to start introspection from. (e.g. '/' or '/org/gosa')
-        methods         A dictionary used internaly to build up a result.
+        methods         A dictionary used internally to build up a result.
         =============== ================
 
         This method returns a dictionary containing all found methods
@@ -223,7 +223,7 @@ class DBUSProxy(Plugin):
                 'Introspect', '', ())
 
         # Return parsed results.
-        if methods == None:
+        if methods is None:
             methods = {}
         return self._introspection_handler(data, service, path, methods)
 
@@ -231,7 +231,7 @@ class DBUSProxy(Plugin):
         """
         Parses the result of the dbus method 'Introspect'.
 
-        It will recursivly load information for newly received paths and methods,
+        It will recursively load information for newly received paths and methods,
         by calling '_call_introspection'.
 
         =============== ================
@@ -240,9 +240,12 @@ class DBUSProxy(Plugin):
         data            The result of the dbus method call 'Introspect'
         service         The dbus service that was introspected
         path            The path we introspected
-        methods         A dictionary used internaly to build up a result.
+        methods         A dictionary used internally to build up a result.
         =============== ================
         """
+        # strip xml header
+        if data.startswith("<?xml"):
+            data = data.split("\n", 1)[1]
 
         # Transform received XML data into a python object.
         res = etree.fromstring(data)
