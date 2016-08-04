@@ -21,15 +21,19 @@ qx.Class.define("gosa.proxy.Object", {
     // Call parent contructor
     this.base(arguments);
     this._setAttributes(data);
-    this._listenerID1 = gosa.io.Sse.getInstance().addListener("objectModified", this._objectEvent, this);
-    this._listenerID2 = gosa.io.Sse.getInstance().addListener("objectRemoved", this._objectEvent, this);
+    this._listeners = new qx.data.Array();
+    this._listeners.push(gosa.io.Sse.getInstance().addListener("objectModified", this._objectEvent, this));
+    this._listeners.push(gosa.io.Sse.getInstance().addListener("objectRemoved", this._objectEvent, this));
+    this._listeners.push(gosa.io.Sse.getInstance().addListener("objectClosing", this._objectClosingEvent, this));
   },
 
   destruct : function(){
 
     // Stop listening for object changes
-    gosa.io.Sse.getInstance().removeListenerById(this._listenerID1);
-    gosa.io.Sse.getInstance().removeListenerById(this._listenerID2);
+    this._listeners.forEach(function(listener) {
+      gosa.io.Sse.getInstance().removeListenerById(listener);
+    }, this);
+    this.__listeners = null;
 
     // Remove every listener that was attached to us.
     // This allows us to set attribute values to null without
@@ -53,14 +57,14 @@ qx.Class.define("gosa.proxy.Object", {
     "foundDifferencesDuringReload": "qx.event.type.Data",
     "propertyUpdateOnServer": "qx.event.type.Data",
     "updatedAttributeValues": "qx.event.type.Data",
-    "removed": "qx.event.type.Event"
+    "removed": "qx.event.type.Event",
+    "closing": "qx.event.type.Data"
   },
 
   members: {
 
     _closed: false,
-    _listenerID1: null,
-    _listenerID2: null,
+    _listeners: null,
     initialized: null,
     is_reloading: false,
     _updateLastChanged: null,
@@ -70,9 +74,22 @@ qx.Class.define("gosa.proxy.Object", {
       return(this.isDisposed() || this._closed);
     },
 
+    _objectClosingEvent: function(e) {
+      // Skip event processing while committing, removing, etc
+      if(this.skipEvents){
+        return;
+      }
+      var data = e.getData();
+      // Skip events that are not for us
+      if(data['uuid'] != this.uuid) {
+        return;
+      }
+      this.fireDataEvent("closing", data);
+    },
+
     _objectEvent: function(e){
 
-      // Skip event processing while commiting, removing, etc
+      // Skip event processing while committing, removing, etc
       if(this.skipEvents){
         return;
       }

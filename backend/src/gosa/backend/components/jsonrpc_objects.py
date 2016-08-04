@@ -63,7 +63,7 @@ class JSONRPCObjectMapper(Plugin):
 
     def serve(self):
         sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
-        sched.add_interval_job(self.__gc, minutes=1, tag='_internal', jobstore="ram")
+        sched.add_interval_job(self.__gc, minutes=10, tag='_internal', jobstore="ram")
 
     @Command(__help__=N_("List available object OIDs"))
     def listObjectOIDs(self):
@@ -119,6 +119,11 @@ class JSONRPCObjectMapper(Plugin):
             raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
 
         self.__stack[ref]['last_modified'] = datetime.datetime.now()
+        if 'mark_for_deletion' in self.__stack[ref]:
+            # as this object has been marked for deletion, we have to run the garbage collection
+            # to remove this mark now
+            self.__gc()
+
         return setattr(objdsc['object']['object'], name, value)
 
     @Command(needsUser=True, __help__=N_("Get property from object on stack"))
@@ -300,11 +305,11 @@ class JSONRPCObjectMapper(Plugin):
         # In case of "object" we want to check the lock
         if oid == 'object':
             lck = self.__get_lock(args[0])
-            if lck:
+            if lck and (not session_id or lck['user'] != user or lck['session_id'] != session_id):
                 raise Exception(C.make_error("OBJECT_LOCKED", object=args[0],
-                    user=lck['user'],
-                    when=lck['created'].strftime("%Y-%m-%d (%H:%M:%S)")
-                    ))
+                                             user=lck['user'],
+                                             when=lck['created'].strftime("%Y-%m-%d (%H:%M:%S)")
+                                             ))
 
         env = Environment.getInstance()
 
@@ -404,28 +409,60 @@ class JSONRPCObjectMapper(Plugin):
 
     def __gc(self):
         self.env.log.debug("running garbage collector on object store")
-        ten_minutes_ago = datetime.datetime.now() - datetime.timedelta(minutes=1)
+        ten_minutes_ago = datetime.datetime.now() - datetime.timedelta(minutes=10)
+        e = EventMaker()
+        command = PluginRegistry.getInstance("CommandRegistry")
+        sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
 
-        for ref, item in self.__stack.items():
+        for ref, item in list(self.__stack.items()):
+            uuid = item['object']['uuid']
             last_interaction_time = item['last_modified'] if 'last_modified' in item else item['created']
             if last_interaction_time < ten_minutes_ago:
                 if 'mark_for_deletion' in item:
-                    if item['mark_for_deletion'] < datetime.datetime.now():
+                    if item['mark_for_deletion'] <= datetime.datetime.now():
+                        if 'countdown_job' in item:
+                            sched.unschedule_job(item['countdown_job'])
+                            del item['countdown_job']
+
                         del self.__stack[ref]
+
+                        event = e.Event(
+                            e.ObjectCloseAnnouncement(
+                                e.Target(item['user']),
+                                e.SessionId(item['session_id']),
+                                e.State("closed"),
+                                e.UUID(uuid)
+                            )
+                        )
+                        command.sendEvent(item['user'], event)
                 else:
                     # notify user to do something otherwise the lock gets removed in 1 minute
-                    command = PluginRegistry.getInstance("CommandRegistry")
-                    e = EventMaker()
                     event = e.Event(
                         e.ObjectCloseAnnouncement(
                             e.Target(item['user']),
                             e.SessionId(item['session_id']),
-                            e.ObjectRef(ref),
+                            e.State("closing"),
+                            e.UUID(uuid),
                             e.Minutes("1")
                         )
                     )
                     command.sendEvent(item['user'], event)
-                    item['mark_for_deletion'] = datetime.datetime.now() + datetime.timedelta(minutes=1)
+                    item['mark_for_deletion'] = datetime.datetime.now() + datetime.timedelta(seconds=59)
+                    if 'countdown_job' in item:
+                        sched.add_date_job(self.__gc, datetime.datetime.now() + datetime.timedelta(minutes=1))
+
             elif 'mark_for_deletion' in item:
                 # item has been modified -> remove the deletion marking
                 del item['mark_for_deletion']
+                event = e.Event(
+                    e.ObjectCloseAnnouncement(
+                        e.Target(item['user']),
+                        e.SessionId(item['session_id']),
+                        e.State("closing_aborted"),
+                        e.UUID(uuid)
+                    )
+                )
+                command.sendEvent(item['user'], event)
+                if 'countdown_job' in item:
+                    sched.unschedule_job(item['countdown_job'])
+                    del item['countdown_job']

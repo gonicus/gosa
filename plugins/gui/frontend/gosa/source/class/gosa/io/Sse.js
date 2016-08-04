@@ -37,7 +37,8 @@ qx.Class.define("gosa.io.Sse", {
   events: {
     "objectRemoved": "qx.event.type.Data",
     "objectCreated": "qx.event.type.Data",
-    "objectModified": "qx.event.type.Data"
+    "objectModified": "qx.event.type.Data",
+    "objectClosing": "qx.event.type.Data"
   },
 
   members : {
@@ -145,10 +146,7 @@ qx.Class.define("gosa.io.Sse", {
     },
 
     _handleObjectCloseAnnouncement : function(info) {
-      minutes = parseInt(info['minutes']);
-      object = info['objectRef'];
-
-      console.log("Object '%s' is about to be closed in %d minutes", object, minutes);
+      this.fireDataEvent("objectClosing", info);
     },
 
     closePopup : function(popup) {

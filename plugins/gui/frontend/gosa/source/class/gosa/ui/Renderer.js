@@ -274,17 +274,57 @@ qx.Class.define("gosa.ui.Renderer",
       // e.g. set an invalid-decorator for specific widget.
       var id = obj.addListener("propertyUpdateOnServer", widget.actOnEvents, widget);
       widget.__bindings.push({id: id, widget: obj});
-      var id = obj.addListener("updatedAttributeValues", widget.actOnEvents, widget);
+      id = obj.addListener("updatedAttributeValues", widget.actOnEvents, widget);
       widget.__bindings.push({id: id, widget: obj});
-      var id = obj.addListener("foundDifferencesDuringReload", widget.actOnEvents, widget);
+      id = obj.addListener("foundDifferencesDuringReload", widget.actOnEvents, widget);
       widget.__bindings.push({id: id, widget: obj});
 
       // Act on remove events
-      var id = widget._object.addListener("removed", function(){
+      id = obj.addListener("removed", function(){
           new gosa.ui.dialogs.Info(this.tr("This object does not exist anymore!")).open();
           this.fireEvent("done");
         }, widget);
-      widget.__bindings.push({id: id, widget: widget._object});
+      widget.__bindings.push({id: id, widget: obj});
+      id = obj.addListener("closing", function(e) {
+        data = e.getData();
+        switch (data['state']) {
+          case "closing":
+            var hint = new qx.ui.basic.Label(this.tr("This object will be closed in %1 seconds if you don't continue editing!", parseInt(data['minutes'])*60)).set({
+              marginRight: 20
+            });
+            var closingCountdownEnd = Date.now() + parseInt(data['minutes'])*60000;
+            this._timer = new qx.event.Timer(1000);
+            this._timer.addListener("interval", function() {
+              var remaining = Math.max(0,Math.round((closingCountdownEnd - Date.now())/1000));
+              hint.setValue(this.tr("This object will be closed in %1 seconds if you don't continue editing!", remaining));
+              if (remaining <= 0) {
+                this._timer.stop();
+              }
+            }, this);
+            this._timer.start();
+            this._closingHint = hint;
+            this._buttonPane.addAt(hint, 0, {flex: 1});
+            this._buttonPane.setBackgroundColor("#FFC107");
+            break;
+          case "closing_aborted":
+            this._buttonPane.remove(widget._closingHint);
+            if (this._timer) {
+              this._timer.stop();
+            }
+            this._closingHint.dispose();
+            this._buttonPane.setBackgroundColor(null);
+            break;
+          case "closed":
+            new gosa.ui.dialogs.Info(this.tr("This object has been closed due to inactivity!")).open();
+            if (this._timer) {
+              this._timer.stop();
+            }
+            this.fireEvent("done");
+            break;
+        }
+
+      }, widget);
+      widget.__bindings.push({id: id, widget: obj});
 
       cb.apply(context, [widget]);
     }
@@ -330,6 +370,7 @@ qx.Class.define("gosa.ui.Renderer",
     this._widget_ui_properties = null;
     this._extension_to_page = null;
     this._translated_extensions = null;
+    this._buttonPane = null;
   },
 
   members :
@@ -355,7 +396,7 @@ qx.Class.define("gosa.ui.Renderer",
     __okBtn: null,
     __cancelBtn: null,
     __toolMenu: null,
-
+    _buttonPane: null,
 
     /* Establish bindings between object-properties and master-widget input fields.
      * */
@@ -850,10 +891,11 @@ qx.Class.define("gosa.ui.Renderer",
       // Add button static button line for the moment
       var paneLayout = new qx.ui.layout.HBox().set({
         spacing: 4,
-        alignX : "right"
+        alignX : "right",
+        alignY : "middle"
       });
-      var buttonPane = new qx.ui.container.Composite(paneLayout).set({
-        paddingTop: 11
+      var buttonPane = this._buttonPane = new qx.ui.container.Composite(paneLayout).set({
+        marginTop: 11
       });
 
       okButton.addState("default");
@@ -905,24 +947,25 @@ qx.Class.define("gosa.ui.Renderer",
       this.__cancelBtn.setTabIndex(30001);
       buttonPane.add(cancelButton);
 
-      cancelButton.addListener("click", function() {
-
-        // Close all sub-dialogs
-        for(var d in this._dialogs){
-          this._dialogs[d].close();
-        }
-
-        this._object.close(function(result, error){
-          if(error){
-            new gosa.ui.dialogs.Error(error.message).open();
-          }
-        }, this);
-        this.fireEvent("done");
-      }, this);
+      cancelButton.addListener("click", this.__cancel, this);
 
       this.add(buttonPane);
 
       return true;
+    },
+
+    __cancel: function() {
+      // Close all sub-dialogs
+      for(var d in this._dialogs){
+        this._dialogs[d].close();
+      }
+
+      this._object.close(function(result, error){
+        if(error){
+          new gosa.ui.dialogs.Error(error.message).open();
+        }
+      }, this);
+      this.fireEvent("done");
     },
 
 

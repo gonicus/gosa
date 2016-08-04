@@ -149,13 +149,12 @@ class SseHandler(web.RequestHandler):
     def _handleObjectCloseAnnouncement(cls, data, channel):
         data = data.ObjectCloseAnnouncement
 
-        object_ref = data.ObjectRef.text
-        minutes = data.Minutes.text
-        sid = data.SessionId.text
+        minutes = data.Minutes.text if hasattr(data, "Minutes") else ""
 
         SseHandler.send_message({
-            "objectRef": object_ref,
-            "minutes": minutes}, topic="objectcloseaccouncement", channel=channel, session_id=sid)
+            "uuid": data.UUID.text,
+            "minutes": minutes,
+            "state": data.State.text}, topic="objectcloseaccouncement", channel=channel, session_id=data.SessionId.text)
 
 
     @classmethod
@@ -195,7 +194,7 @@ class SseHandler(web.RequestHandler):
         else:
             clients = cls._channels.get(channel, [])
 
-        logging.info('Sending %s "%s" to channel %s for %s clients' % (topic, msg, channel, len(clients)))
+        logging.info('Sending %s "%s" in channel %s (session: %s) to %s clients' % (topic, msg, channel, session_id, len(clients)))
         for client_id in clients:
             client = cls._connections[client_id]
             client.on_message(message)

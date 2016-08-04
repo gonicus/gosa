@@ -10,10 +10,20 @@
     	</annotation>
         <all>
     		<element name="Target" type="string" maxOccurs="1" minOccurs="1"></element>
+			<element name="State" maxOccurs="1" minOccurs="1">
+				<simpleType>
+					<restriction base="string">
+						<enumeration value="closing" />
+						<enumeration value="closing_aborted" />
+						<enumeration value="closed" />
+					</restriction>
+				</simpleType>
+			</element>
     		<element name="SessionId" type="string" maxOccurs="1" minOccurs="1"></element>
-    		<element name="ObjectRef" type="string" maxOccurs="1" minOccurs="1"></element>
-			<element name="Minutes" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="UUID" type="string" maxOccurs="1" minOccurs="1"></element>
+			<element name="Minutes" type="string" maxOccurs="1" minOccurs="0"></element>
     	</all>
     </complexType>
+
     <element name="ObjectCloseAnnouncement" type="e:ObjectCloseAnnouncement"></element>
 </schema>
