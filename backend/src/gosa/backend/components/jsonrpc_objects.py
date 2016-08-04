@@ -15,7 +15,7 @@ from gosa.common.event import EventMaker
 from zope.interface import implementer
 from gosa.common.utils import N_
 from gosa.common import Environment
-from gosa.common.error import GosaErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C, GosaException
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import Command, PluginRegistry, ObjectRegistry, Plugin
 from gosa.backend.objects import ObjectProxy

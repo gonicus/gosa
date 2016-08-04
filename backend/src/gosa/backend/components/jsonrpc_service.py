@@ -24,7 +24,7 @@ import tornado.web
 from tornado.gen import coroutine
 from gosa.common.gjson import loads, dumps
 from gosa.common.utils import f_print, N_
-from gosa.common.error import GosaErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C, GosaException
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry, JSONRPCException
 from gosa.backend import __version__ as VERSION
@@ -39,7 +39,7 @@ C.register_codes(dict(
     JSON_MISSING_PARAMETER=N_("Parameter missing in JSON body"),
     PARAMETER_LIST_OR_DICT=N_("Parameter must be list or dictionary"),
     REGISTRY_NOT_READY=N_("Registry is not ready")
-    ))
+    ), module="gosa.backend")
 
 
 class JsonRpcHandler(tornado.web.RequestHandler):
@@ -80,6 +80,7 @@ class JsonRpcHandler(tornado.web.RequestHandler):
             if isinstance(resp['result'], Future):
                 resp['result'] = yield resp['result']
 
+            print(dumps(resp))
             self.write(dumps(resp))
             self.set_header("Content-Type", "application/json")
 
@@ -201,6 +202,8 @@ class JsonRpcHandler(tornado.web.RequestHandler):
 
             #TODO: enroll information if it's an extended exception
             err = str(e)
+            print(err)
+            print(str(exc_value))
 
             error_value = dict(
                 name='JSONRPCError',

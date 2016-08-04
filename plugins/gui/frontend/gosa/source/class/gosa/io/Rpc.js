@@ -74,7 +74,7 @@ qx.Class.define("gosa.io.Rpc", {
             }
             func.apply(ctx, [data]);
           }
-        }, rpc, "get_error", old_error.field, gosa.Tools.getLocale());
+        }, rpc, "getError", old_error.field, gosa.Tools.getLocale());
     }
   },
 
@@ -165,7 +165,7 @@ qx.Class.define("gosa.io.Rpc", {
       call['arguments'] = argx;
       call['context'] = context;
 
-      // This is the method that gets called when the rpc reqeust has finished
+      // This is the method that gets called when the rpc request has finished
       var cl = this;
       call['callback'] = function(result, error){
 
@@ -190,7 +190,7 @@ qx.Class.define("gosa.io.Rpc", {
           }, cl);
 
           // Catch potential errors here. 
-        }else if(error && (error.code >= 400 || error.code == 0)){
+        }else if(error && error.code != 500 && (error.code >= 400 || error.code == 0)){
 
           var msg = error.message;
           if(error.code == 0){
@@ -209,7 +209,7 @@ qx.Class.define("gosa.io.Rpc", {
 
 
           var func_done = function(){
-            // Everthing went fine, now call the callback method with the result.
+            // Everything went fine, now call the callback method with the result.
             cl.running = false;
             cl.debug("rpc job finished '" + call['arguments'] + "' (queue: " + cl.queue.length + ")");
             func.apply(call['context'], [result, error]);
@@ -415,9 +415,16 @@ qx.Class.define("gosa.io.Rpc", {
       req.addListener("failed", function(evt)
           {
             var code = evt.getStatusCode();
+            var message = qx.io.remote.Exchange.statusCodeToString(code);
+            try {
+              var content = qx.lang.Json.parse(evt.getContent());
+              if (content.error) {
+                message = content.error.message;
+              }
+            } catch(e) {}
             ex = makeException(qx.io.remote.Rpc.origin.transport,
               code,
-              qx.io.remote.Exchange.statusCodeToString(code));
+              message);
             id = this.getSequenceNumber();
             handleRequestFinished("failed", eventTarget);
           });

@@ -6,7 +6,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
+import inspect
 import traceback
 import gettext
 import uuid
@@ -29,35 +29,38 @@ class GosaErrorHandler(Plugin):
     @Command(needsUser=True, __help__=N_("Get the error message assigned to a specific ID."))
     def getError(self, user, _id, locale=None, trace=False):
         res = None
-
-        if _id in self._errors:
+        if _id in GosaErrorHandler._errors:
             if trace:
-                res = self._errors[_id]
+                res = GosaErrorHandler._errors[_id]
             else:
-                res = self._errors[_id]
+                res = GosaErrorHandler._errors[_id]
                 del res['trace']
 
         # Translate message if requested
         if res and locale:
+            print("translate error to %s" % locale)
             mod = GosaErrorHandler._i18n_map[res['code']]
+            print(mod)
+            print(resource_filename(mod, "locale"))
             t = gettext.translation('messages',
                 resource_filename(mod, "locale"),
                 fallback=True,
                 languages=[locale])
-
+            print(t)
             res['text'] = t.gettext(GosaErrorHandler._codes[res['code']])
+            print(res['text'])
 
             # Process details by translating detail text
             if res['details']:
                 for detail in res['details']:
                     detail['detail'] = t.gettext(detail['detail']) % detail
-
-        # Fill keywords
-        res['text'] = res['text'] % res['kwargs']
-        res['_id'] = _id
+        if res:
+            # Fill keywords
+            res['text'] = res['text'] % res['kwargs']
+            res['_id'] = _id
 
         # Remove the entry
-        del self._errors[_id]
+        del GosaErrorHandler._errors[_id]
 
         return res
 
@@ -83,14 +86,23 @@ class GosaErrorHandler(Plugin):
                 timestamp=datetime.now(), user=None)
 
         # Save entry
-        __id = uuid.uuid1()
+        __id = str(uuid.uuid1())
         GosaErrorHandler._errors[__id] = data
 
         return '<%s> %s' % (__id, text)
 
     @staticmethod
-    def register_codes(codes, module="gosa.plugin"):
+    def register_codes(codes, module=None):
         GosaErrorHandler._codes.update(codes)
+        if module is None:
+            try:
+                frm = inspect.stack()[1]
+                mod = inspect.getmodule(frm[0])
+                if mod:
+                    module = ".".join(mod.__name__.split(".")[0:2])
+            except:
+                # fallback to old behaviour
+                module = "gosa.plugin"
 
         # Memorize which module to get translations from
         for k in codes.keys():
