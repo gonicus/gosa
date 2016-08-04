@@ -35,17 +35,17 @@ class JSONRPCObjectMapperTestCase(TestCase):
         assert len(res) == 2
 
     def test_openObject(self):
-        res = self.mapper.openObject('admin','object','dc=example,dc=net')
+        res = self.mapper.openObject('admin', None, 'object', 'dc=example,dc=net')
         assert res['dc'] == "example"
 
         with pytest.raises(Exception):
-            self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
+            self.mapper.openObject('admin', None, 'object', 'dc=example,dc=net')
 
     def test_closeObject(self):
-        res = self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
+        res = self.mapper.openObject('admin', None, 'object', 'dc=example,dc=net')
 
         with pytest.raises(ValueError):
-            self.mapper.closeObject('admin','unknown')
+            self.mapper.closeObject('admin', 'unknown')
 
         with pytest.raises(ValueError):
             self.mapper.closeObject('someone else', res["__jsonclass__"][1][1])
@@ -57,7 +57,7 @@ class JSONRPCObjectMapperTestCase(TestCase):
             self.mapper.reloadObject('admin', res["__jsonclass__"][1][1])
 
     def test_getObjectProperty(self):
-        res = self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
+        res = self.mapper.openObject('admin', None, 'object', 'dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(ValueError):
@@ -72,7 +72,7 @@ class JSONRPCObjectMapperTestCase(TestCase):
         assert self.mapper.getObjectProperty('admin', ref, 'description') == "Example"
 
     def test_setObjectProperty(self):
-        res = self.mapper.openObject('admin', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+        res = self.mapper.openObject('admin', None, 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(ValueError):
@@ -87,12 +87,12 @@ class JSONRPCObjectMapperTestCase(TestCase):
         self.mapper.setObjectProperty('admin', ref, 'uid', 'val')
         assert self.mapper.getObjectProperty('admin', ref, 'uid') == "val"
 
-        #undo
+        # undo
         self.mapper.setObjectProperty('admin', ref, 'uid', 'admin')
         assert self.mapper.getObjectProperty('admin', ref, 'uid') == "admin"
 
     def test_reloadObjectProperty(self):
-        res = self.mapper.openObject('admin', 'object', 'dc=example,dc=net')
+        res = self.mapper.openObject('admin', None, 'object', 'dc=example,dc=net')
         uuid = res['uuid']
         ref = res["__jsonclass__"][1][1]
 
@@ -104,44 +104,42 @@ class JSONRPCObjectMapperTestCase(TestCase):
         assert ref != res["__jsonclass__"][1][1]
 
     def test_dispatchObjectMethod(self):
-        res = self.mapper.openObject('admin', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+        res = self.mapper.openObject('admin', None, 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(ValueError):
-            self.mapper.dispatchObjectMethod('admin','wrong_ref','lock')
+            self.mapper.dispatchObjectMethod('admin', None, 'wrong_ref', 'lock')
 
         with pytest.raises(ValueError):
-            self.mapper.dispatchObjectMethod('admin', ref, 'wrong_method')
+            self.mapper.dispatchObjectMethod('admin', None, ref, 'wrong_method')
 
         with pytest.raises(ValueError):
-            self.mapper.dispatchObjectMethod('someone_else', ref, 'lock')
+            self.mapper.dispatchObjectMethod('someone_else', None, ref, 'lock')
 
         # mock a method in the object
 
         with mock.patch('gosa.backend.plugins.password.manager.ObjectProxy') as m:
             user = m.return_value
             user.passwordMethod = "MD5"
-            self.mapper.dispatchObjectMethod('admin', ref, 'changePassword','Test')
+            self.mapper.dispatchObjectMethod('admin', None, ref, 'changePassword', 'Test')
             assert user.userPassword
             assert user.commit.called
 
     def test_diffObject(self):
-        assert self.mapper.diffObject('admin','unkown_ref') is None
+        assert self.mapper.diffObject('admin', 'unkown_ref') is None
 
-
-        res = self.mapper.openObject('admin', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+        res = self.mapper.openObject('admin', None, 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(ValueError):
             self.mapper.diffObject('someone_else', ref)
-
 
         self.mapper.setObjectProperty('admin', ref, 'uid', 'val')
         delta = self.mapper.diffObject('admin', ref)
         assert 'uid' in delta['attributes']['changed']
 
     def test_removeObject(self):
-        res = self.mapper.openObject('admin', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+        res = self.mapper.openObject('admin', None, 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(Exception):

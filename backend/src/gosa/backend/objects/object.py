@@ -86,6 +86,7 @@ class Object(object):
     env = None
     parent = None
     owner = None
+    session_id = None
     attributesInSaveOrder = None
 
     def __saveOrder(self):

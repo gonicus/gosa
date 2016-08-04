@@ -12,7 +12,7 @@ import dbusmock
 import time
 import pytest
 from unittest import mock
-from gosa.client.plugins.dbus.inventory import *
+from gosa.client.plugins.inventory import *
 
 
 class ClientDbusProxyTestCase(dbusmock.DBusTestCase):

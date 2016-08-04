@@ -42,18 +42,16 @@ class CommandRegistryTestCase(unittest.TestCase):
             assert self.reg.shutdown() is True
             assert m.called is True
 
-
     def test_dispatch(self):
 
         with pytest.raises(CommandNotAuthorized):
-            self.reg.dispatch(None, None)
+            self.reg.dispatch(None, None, None)
 
         with pytest.raises(CommandInvalid):
-            self.reg.dispatch(self.reg, 'unknownCommand')
+            self.reg.dispatch(self.reg, None, 'unknownCommand')
 
-        res = self.reg.dispatch(self.reg, 'getBase')
+        res = self.reg.dispatch(self.reg, None, 'getBase')
         assert res == "dc=example,dc=net"
-
 
     def test_callNeedsUser(self):
         with pytest.raises(CommandInvalid):

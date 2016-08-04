@@ -7,9 +7,9 @@ class ExceptionsTestCase(unittest.TestCase):
     def parseGosaExceptionArgs(self, to_match):
         regex = re.compile("""\<(.*)\> (.*)""")
         m = regex.match(to_match)
-        error_uuid = uuid.UUID(m.group(1))
+        error_uuid = m.group(1)
         error_code = m.group(2)
-        return (error_uuid, error_code)
+        return error_uuid, error_code
     
     def test_make_error(self):
         err = GosaErrorHandler.make_error("NOT_IMPLEMENTED", method="test")

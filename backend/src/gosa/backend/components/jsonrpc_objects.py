@@ -152,8 +152,8 @@ class JSONRPCObjectMapper(Plugin):
 
         return getattr(objdsc['object']['object'], name)
 
-    @Command(needsUser=True, __help__=N_("Call method from object on stack"))
-    def dispatchObjectMethod(self, user, ref, method, *args):
+    @Command(needsUser=True, needsSession=True, __help__=N_("Call method from object on stack"))
+    def dispatchObjectMethod(self, user, session_id, ref, method, *args):
         """
         Call a member method of the referenced object.
 
@@ -193,7 +193,8 @@ class JSONRPCObjectMapper(Plugin):
 
             oid = item['object']['oid']
             uuid = item['object']['uuid']
-            new_item = self.openObject(user, oid, uuid)
+            session_id = item['session_id']
+            new_item = self.openObject(user, session_id, oid, uuid)
 
             # Close original ref and return the new one
             self.closeObject(user, ref)

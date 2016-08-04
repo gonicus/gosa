@@ -87,6 +87,7 @@ class ObjectProxy(object):
     __method_map = None
     __acl_resolver = None
     __current_user = None
+    __current_session_id = None
     __attribute_type_map = None
     __method_type_map = None
     __attributes = None
@@ -95,7 +96,7 @@ class ObjectProxy(object):
     __foreign_attrs = None
     __all_method_names = None
 
-    def __init__(self, _id, what=None, user=None):
+    def __init__(self, _id, what=None, user=None, session_id=None):
         self.__env = Environment.getInstance()
         self.__log = getLogger(__name__)
         self.__factory = ObjectFactory.getInstance()
@@ -106,6 +107,7 @@ class ObjectProxy(object):
         self.__attribute_map = {}
         self.__method_map = {}
         self.__current_user = user
+        self.__current_session_id = session_id
         self.__acl_resolver = PluginRegistry.getInstance("ACLResolver")
         self.__attribute_type_map = {}
         self.__attributes = []
@@ -147,6 +149,7 @@ class ObjectProxy(object):
         # Load base object and extensions
         self.__base = self.__factory.getObject(base, dn_or_base, mode=base_mode)
         self.__base.owner = self.__current_user
+        self.__base.session_id = self.__current_session_id
         self.__base.parent = self
         self.__base_type = base
         self.__base_mode = base_mode
@@ -156,6 +159,7 @@ class ObjectProxy(object):
             self.__extensions[extension].dn = self.__base.dn
             self.__extensions[extension].parent = self
             self.__extensions[extension].owner = self.__current_user
+            self.__extensions[extension].session_id = self.__current_session_id
             self.__initial_extension_state[extension] = True
         for extension in all_extensions:
             if extension not in self.__extensions:

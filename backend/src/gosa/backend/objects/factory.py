@@ -18,7 +18,7 @@ Short description
 The object factory provides access to backend-data in an object
 oriented way. You can create, read, update and delete objects easily.
 
-What object-types are avaialable is configured using XML files, these files
+What object-types are available is configured using XML files, these files
 are located here: "src/gosa/backend/data/objects/".
 
 Each XML file can contain multiple object definitions, with object related
@@ -32,7 +32,7 @@ A python meta-class will be created for each object-definition.
 Those meta-classes will then be used to instantiate a new python object,
 which will then provide the defined attributes, methods, aso.
 
-Here are some examples on how to instatiate on new object:
+Here are some examples on how to instantiate on new object:
 
 >>> from gosa.backend.objects import ObjectFactory
 >>> f = ObjectFactory.getInstance()
@@ -975,7 +975,9 @@ class ObjectFactory(object):
                 # object
                 self.log.debug("adding method: '%s'" % (methodName, ))
                 cr = PluginRegistry.getInstance('CommandRegistry')
-                methods[methodName] = {'ref': self.__create_class_method(klass, methodName, command, mParams, cParams, cr.callNeedsUser(command))}
+                methods[methodName] = {'ref': self.__create_class_method(klass, methodName, command, mParams, cParams,
+                                                                         cr.callNeedsUser(command),
+                                                                         cr.callNeedsSession(command))}
 
         # Build list of hooks
         if 'Hooks' in classr.__dict__:
@@ -1006,7 +1008,7 @@ class ObjectFactory(object):
 
     def __create_hook(self, klass, m_type, command, cParams):
         """
-        Creates a new executeable hook-method for the current objekt.
+        Creates a new executable hook-method for the current object.
         """
 
         # Now add the method to the object
@@ -1042,7 +1044,7 @@ class ObjectFactory(object):
 
         return funk
 
-    def __create_class_method(self, klass, methodName, command, mParams, cParams, needsUser=False):
+    def __create_class_method(self, klass, methodName, command, mParams, cParams, needsUser=False, needsSession=False):
         """
         Creates a new klass-method for the current objekt.
         """
@@ -1101,9 +1103,14 @@ class ObjectFactory(object):
             cr = PluginRegistry.getInstance('CommandRegistry')
             self.log.info("Executed %s.%s which invoked %s(...)" % (klass.__name__, methodName, command))
 
-            # Do we need a user specification?
+            # Do we need a user / session_id specification?
             if needsUser:
-                return cr.dispatch(caller_object.owner, command, *parmList)
+                if needsSession:
+                    return cr.dispatch(caller_object.owner, caller_object.session_id, command, *parmList)
+                else:
+                    return cr.dispatch(caller_object.owner, None, command, *parmList)
+            elif needsSession:
+                return cr.dispatch(cr, caller_object.session_id, command, *parmList)
 
             return cr.call(command, *parmList)
         return funk
