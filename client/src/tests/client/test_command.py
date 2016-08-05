@@ -33,7 +33,8 @@ class ClientCommandTestCase(TestCase):
             ClientCommandRegistry()
 
     def test_commands(self):
-        with mock.patch.dict("gosa.client.command.PluginRegistry.modules", {'TestModule': TestModule}):
+        with mock.patch("gosa.client.command.PluginRegistry.modules", new_callable=mock.PropertyMock, return_value={'TestModule':
+                                                                                                                      TestModule}):
             reg = ClientCommandRegistry()
             reg.register('test_func2', 'path2', [], 'signature2', 'documentation2')
 
@@ -47,5 +48,5 @@ class ClientCommandTestCase(TestCase):
             with pytest.raises(CommandInvalid):
                 reg.dispatch('test_func2')
 
-        with mock.patch.dict("gosa.client.command.PluginRegistry.modules", {'TestModule': TestModule()}):
+        with mock.patch("gosa.client.command.PluginRegistry.modules", new_callable=mock.PropertyMock, return_value={'TestModule': TestModule()}):
             assert reg.dispatch('test_func1', 'test') is True

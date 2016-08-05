@@ -38,30 +38,28 @@ class PowerManagement(Plugin):
         self.env = env
         self.log = logging.getLogger(__name__)
 
-        # Register ourselfs for bus changes on org.freedesktop.Hal
+        # Register ourselfs for bus changes on org.freedesktop.login1
         dr = DBusRunner.get_instance()
         self.bus = dr.get_system_bus()
-        self.bus.watch_name_owner("org.freedesktop.Hal", self.__dbus_proxy_monitor)
+        self.bus.watch_name_owner("org.freedesktop.login1", self.__dbus_proxy_monitor)
 
     def __dbus_proxy_monitor(self, bus_name):
         """
-        This method monitors the DBus service 'org.gosa' and whenever there is a
+        This method monitors the DBus service 'org.freedesktop.login1' and whenever there is a
         change in the status (dbus closed/startet) we will take notice.
         And can register or unregister methods to the dbus
         """
-        if "org.freedesktop.Hal" in self.bus.list_names():
+        if "org.freedesktop.login1" in self.bus.list_names():
             if self.hal_dbus:
                 del(self.hal_dbus)
 
             # Trigger resend of capapability event
-            self.hal_dbus = self.bus.get_object('org.freedesktop.Hal', '/org/freedesktop/Hal/devices/computer')
-            ccr = PluginRegistry.getInstance('ClientCommandRegistry')
+            self.hal_dbus = self.bus.get_object('org.freedesktop.login1', '/org/freedesktop/login1')
             ccr = PluginRegistry.getInstance('ClientCommandRegistry')
             ccr.register("shutdown", 'PowerManagement.shutdown', [], [], 'Execute a shutdown of the client.')
             ccr.register("reboot", 'PowerManagement.reboot', [], [], 'Execute a reboot of the client.')
             ccr.register("suspend", 'PowerManagement.suspend', [], [], 'Execute a suspend of the client.')
             ccr.register("hibernate", 'PowerManagement.hibernate', [], [], 'Execute a hibernation of the client.')
-            ccr.register("setpowersave", 'PowerManagement.setpowersave', [], [], 'Set powersave mode of the client.')
             mqtt = PluginRegistry.getInstance('MQTTClientService')
             mqtt.reAnnounce()
             self.log.info("established dbus connection")
@@ -75,7 +73,6 @@ class PowerManagement(Plugin):
                 ccr.unregister("reboot")
                 ccr.unregister("suspend")
                 ccr.unregister("hibernate")
-                ccr.unregister("setpowersave")
                 mqtt = PluginRegistry.getInstance('MQTTClientService')
                 mqtt.reAnnounce()
                 self.log.info("lost dbus connection")
@@ -84,25 +81,20 @@ class PowerManagement(Plugin):
 
     def shutdown(self):
         """ Execute a shutdown of the client. """
-        self.hal_dbus.Shutdown(dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
+        self.hal_dbus.PowerOff(True, dbus_interface="org.freedesktop.login1.Manager")
         return True
 
     def reboot(self):
         """ Execute a reboot of the client. """
-        self.hal_dbus.Reboot(dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
+        self.hal_dbus.Reboot(True, dbus_interface="org.freedesktop.login1.Manager")
         return True
 
     def suspend(self):
         """ Execute a suspend of the client. """
-        self.hal_dbus.Suspend(dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
+        self.hal_dbus.Suspend(True, dbus_interface="org.freedesktop.login1.Manager")
         return True
 
     def hibernate(self):
         """ Execute a hibernation of the client. """
-        self.hal_dbus.Hibernate(dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
-        return True
-
-    def setpowersave(self, enable):
-        """ Set powersave mode of the client. """
-        self.hal_dbus.SetPowerSave(enable, dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
+        self.hal_dbus.Hibernate(True, dbus_interface="org.freedesktop.login1.Manager")
         return True

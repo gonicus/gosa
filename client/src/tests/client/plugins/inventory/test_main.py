@@ -7,18 +7,14 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import subprocess
-
-from dbus import DBusException
-
 import dbus
 import dbusmock
 import time
-import pytest
 from unittest import mock
 from gosa.client.plugins.inventory.main import *
 
 
-class ClientDbusProxyTestCase(dbusmock.DBusTestCase):
+class ClientInventoryTestCase(dbusmock.DBusTestCase):
 
     @classmethod
     def setUpClass(klass):
@@ -32,7 +28,7 @@ class ClientDbusProxyTestCase(dbusmock.DBusTestCase):
                                            system_bus=True,
                                            stdout=subprocess.PIPE)
 
-        # Get a proxy for the UPower object's Mock interface
+        # Get a proxy for the object's Mock interface
         self.dbus_inventory_mock = dbus.Interface(self.dbus_con.get_object(
             'org.gosa', '/org/gosa/inventory'),
             dbusmock.MOCK_IFACE)
@@ -64,6 +60,7 @@ class ClientDbusProxyTestCase(dbusmock.DBusTestCase):
             with mock.patch("gosa.client.plugins.inventory.main.PluginRegistry.getInstance") as m:
                 assert inv.request_inventory("f9f56039886788f4716909b32a19dac7") is None
                 assert inv.request_inventory() is True
+                time.sleep(0.1)
                 assert m.return_value.send_message.called
 
             self.inv_mock.terminate()
