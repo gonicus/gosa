@@ -54,6 +54,7 @@ from pkg_resources import resource_filename #@UnresolvedImport
 
 from gosa.common.components import JSONServiceProxy, JSONRPCException
 from gosa.common.utils import parseURL, find_api_service
+from gosa.common.error import GosaErrorHandler as C
 from gosa.common.components.sse_client import BaseSseClient
 
 # Set locale domain
@@ -117,12 +118,11 @@ class MyConsole(code.InteractiveConsole):
                 err = e.error["error"]
             except TypeError:
                 err = str(e)
-
             # Resolve error details if supplied
-            error_id = re.match(r'^<([^>]+)>.*$', err)
+            error_id = C.get_error_id(err)
             if error_id:
                 locs = locale.getdefaultlocale()
-                info = self.proxy.get_error(error_id.groups()[0], ".".join(locs if locs != (None, None) else ("en", "US")))
+                info = self.proxy.getError(error_id, ".".join(locs if locs != (None, None) else ("en_US", "UTF-8")))
                 detail = ""
                 if info['details']:
                     detail = " - %s [%s]" % (info['details'][0]['detail'], info['details'][0]['index'])

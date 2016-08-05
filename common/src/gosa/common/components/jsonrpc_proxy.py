@@ -9,6 +9,8 @@
 
 import urllib.request as urllib2
 import http.cookiejar as cookielib
+from urllib.error import HTTPError
+
 import requests
 from urllib.parse import quote, urlparse
 from gosa.common.gjson import dumps, loads
@@ -190,10 +192,14 @@ class JSONServiceProxy(object):
         else:
             postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
 
-        if self.__mode == 'POST':
-            respdata = self.__opener.open(self.__serviceURL, postdata.encode('utf8')).read()
-        else:
-            respdata = self.__opener.open(self.__serviceURL + "?" + quote(postdata.encode('utf8'))).read()
+        try:
+            if self.__mode == 'POST':
+                respdata = self.__opener.open(self.__serviceURL, postdata.encode('utf8')).read()
+            else:
+                respdata = self.__opener.open(self.__serviceURL + "?" + quote(postdata.encode('utf8'))).read()
+        except HTTPError as e:
+            error = loads(e.fp.readline())
+            raise JSONRPCException(error['error']['message'])
 
         resp = loads(respdata)
         if resp['error'] != None:

@@ -10,65 +10,62 @@ import inspect
 import traceback
 import gettext
 import uuid
+import re
 from datetime import datetime
-from pkg_resources import resource_filename #@UnresolvedImport
+from pkg_resources import resource_filename
 from gosa.common.utils import N_
-from gosa.common import Environment
 from gosa.common.components import Command
 from gosa.common.components import Plugin
 
 
 class GosaErrorHandler(Plugin):
-    #TODO: maintain the owner (or originator) of the error message, to
-    #      allow only the originator to pull her/his error messages.
+
     _target_ = "core"
     _codes = {}
     _i18n_map = {}
     _errors = {}
+    _error_regex = re.compile("^<([^>]+)>.*$")
 
     @Command(needsUser=True, __help__=N_("Get the error message assigned to a specific ID."))
-    def getError(self, user, _id, locale=None, trace=False):
+    def getError(self, user, _id, locale=None, trace=False, keep=False):
         res = None
         if _id in GosaErrorHandler._errors:
-            if trace:
-                res = GosaErrorHandler._errors[_id]
-            else:
-                res = GosaErrorHandler._errors[_id]
+            res = GosaErrorHandler._errors[_id]
+            if user is not None and res['error_owner'] is not None and user != res['error_owner']:
+                # user is not the originator of this error
+                return None
+
+            if not trace and not keep:
                 del res['trace']
 
-        # Translate message if requested
-        if res and locale:
-            print("translate error to %s" % locale)
-            mod = GosaErrorHandler._i18n_map[res['code']]
-            print(mod)
-            print(resource_filename(mod, "locale"))
-            t = gettext.translation('messages',
-                resource_filename(mod, "locale"),
-                fallback=True,
-                languages=[locale])
-            print(t)
-            res['text'] = t.gettext(GosaErrorHandler._codes[res['code']])
-            print(res['text'])
+            # Translate message if requested
+            if locale:
+                mod = GosaErrorHandler._i18n_map[res['code']]
+                t = gettext.translation('messages',
+                                        resource_filename(mod, "locale"),
+                                        fallback=True,
+                                        languages=[locale])
+                res['text'] = t.gettext(GosaErrorHandler._codes[res['code']])
+                # Process details by translating detail text
+                if res['details']:
+                    for detail in res['details']:
+                        detail['detail'] = t.gettext(detail['detail']) % detail
 
-            # Process details by translating detail text
-            if res['details']:
-                for detail in res['details']:
-                    detail['detail'] = t.gettext(detail['detail']) % detail
-        if res:
             # Fill keywords
             res['text'] = res['text'] % res['kwargs']
             res['_id'] = _id
 
-        # Remove the entry
-        del GosaErrorHandler._errors[_id]
+            # Remove the entry
+            if not keep:
+                del GosaErrorHandler._errors[_id]
 
         return res
 
     @staticmethod
-    def make_error(code, topic=None, details=None, **kwargs):
+    def make_error(code, topic=None, details=None, error_owner=None, status_code=None, **kwargs):
 
         # First, catch unconverted exceptions
-        if not code in GosaErrorHandler._codes:
+        if code not in GosaErrorHandler._codes:
             return code
 
         # Add topic to make it usable inside of the error messages
@@ -81,9 +78,10 @@ class GosaErrorHandler(Plugin):
 
         # Assemble error information
         data = dict(code=code, topic=topic, text=text,
-                kwargs=kwargs, trace=traceback.format_stack(),
-                details=details,
-                timestamp=datetime.now(), user=None)
+                    kwargs=kwargs, trace=traceback.format_stack(),
+                    details=details,
+                    timestamp=datetime.now(), error_owner=error_owner,
+                    status_code=status_code)
 
         # Save entry
         __id = str(uuid.uuid1())
@@ -107,6 +105,14 @@ class GosaErrorHandler(Plugin):
         # Memorize which module to get translations from
         for k in codes.keys():
             GosaErrorHandler._i18n_map[k] = module
+
+    @staticmethod
+    def get_error_id(error_string):
+        m = GosaErrorHandler._error_regex.match(error_string)
+        if m is not None:
+            return m.group(1)
+        else:
+            return None
 
 
 class GosaException(Exception):

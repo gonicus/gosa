@@ -80,7 +80,6 @@ class JsonRpcHandler(tornado.web.RequestHandler):
             if isinstance(resp['result'], Future):
                 resp['result'] = yield resp['result']
 
-            print(dumps(resp))
             self.write(dumps(resp))
             self.set_header("Content-Type", "application/json")
 
@@ -199,11 +198,16 @@ class JsonRpcHandler(tornado.web.RequestHandler):
         except Exception as e:
             text = traceback.format_exc()
             exc_value = sys.exc_info()[1]
+            status_code = 500
 
             #TODO: enroll information if it's an extended exception
             err = str(e)
-            print(err)
-            print(str(exc_value))
+            err_id = C.get_error_id(err)
+            if err_id is not None:
+                # get error
+                err = C.getError(None, None, err_id, keep=True)
+                if err and 'status_code' in err and err['status_code'] is not None:
+                    status_code = err['status_code']
 
             error_value = dict(
                 name='JSONRPCError',
@@ -214,7 +218,7 @@ class JsonRpcHandler(tornado.web.RequestHandler):
             self.log.error("returning call [%s]: %s / %s" % (jid, None, f_print(err)))
             self.log.error(text)
 
-            self.set_status(500)
+            self.set_status(status_code)
             return dict(result=None, error=error_value, id=jid)
 
         self.log.debug("returning call [%s]: %s / %s" % (jid, result, None))

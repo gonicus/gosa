@@ -169,9 +169,10 @@ def locate(program):
     return None
 
 
-
 def f_print(data):
-    if not isinstance(data, str):
+    if isinstance(data, dict):
+        return str(data)
+    elif not isinstance(data, str):
         return data[0] % tuple(data[1:])
     else:
         return data

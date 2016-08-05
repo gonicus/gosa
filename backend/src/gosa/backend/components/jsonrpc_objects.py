@@ -309,8 +309,8 @@ class JSONRPCObjectMapper(Plugin):
             if lck and (not session_id or lck['user'] != user or lck['session_id'] != session_id):
                 raise Exception(C.make_error("OBJECT_LOCKED", object=args[0],
                                              user=lck['user'],
-                                             when=lck['created'].strftime("%Y-%m-%d (%H:%M:%S)")
-                                             ))
+                                             when=lck['created'].strftime("%Y-%m-%d (%H:%M:%S)"),
+                                             status_code=423))
 
         env = Environment.getInstance()
 
