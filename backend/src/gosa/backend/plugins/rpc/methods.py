@@ -257,7 +257,7 @@ class RPCMethods(Plugin):
             attributes.append(oattr)
         attrs = dict([(x, 1) for x in attributes])
 
-        # Start the query and brind the result in a usable form
+        # Start the query and bring the result in a usable form
         index = PluginRegistry.getInstance("ObjectIndex")
 
         res = index.search({
