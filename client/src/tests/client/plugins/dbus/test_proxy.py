@@ -29,12 +29,12 @@ class ClientDbusProxyTestCase(dbusmock.DBusTestCase):
                                         system_bus=True,
                                         stdout=subprocess.PIPE)
 
-        # Get a proxy for the UPower object's Mock interface
-        self.dbus_upower_mock = dbus.Interface(self.dbus_con.get_object(
+        # Get a proxy for the object's Mock interface
+        self.dbus_mock = dbus.Interface(self.dbus_con.get_object(
             'org.gosa', '/org/gosa'),
             dbusmock.MOCK_IFACE)
 
-        self.dbus_upower_mock.AddMethod('', 'test_method', 's', '', '')
+        self.dbus_mock.AddMethod('', 'test_method', 's', '', '')
 
     def tearDown(self):
         self.p_mock.terminate()

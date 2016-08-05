@@ -74,7 +74,7 @@ class Inventory(Plugin):
         """
         if "org.gosa" in self.bus.list_names():
             if self.gosa_dbus:
-                del(self.gosa_dbus)
+                del self.gosa_dbus
 
             # Trigger resend of capapability event
             self.gosa_dbus = self.bus.get_object('org.gosa', '/org/gosa/inventory')
@@ -126,7 +126,7 @@ class Inventory(Plugin):
 
         #TODO Debug - remove me later
         import datetime
-        open("/tmp/inventory_%s" % (str(datetime.datetime.now()),), 'w').write(etree.tostring(checksum_result, pretty_print=True))
+        open("/tmp/inventory_%s" % (str(datetime.datetime.now()),), 'wb').write(etree.tostring(checksum_result, pretty_print=True))
 
         # Just don't do anything with the remote if the checksum did
         # not change
@@ -138,10 +138,10 @@ class Inventory(Plugin):
         result = re.sub(r"%%CHECKSUM%%", checksum, result)
 
         def runner():
-            # Establish amqp connection
+            # Establish mqtt connection
             self.log.info("sending inventory data!")
             mqtt = PluginRegistry.getInstance("MQTTClientHandler")
-            mqtt.sendEvent(str(result))
+            mqtt.send_message(str(result))
 
         self.__thread = Thread(target=runner)
         self.__thread.start()
