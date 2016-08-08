@@ -286,7 +286,7 @@ qx.Class.define("gosa.ui.Renderer",
         }, widget);
       widget.__bindings.push({id: id, widget: obj});
       id = obj.addListener("closing", function(e) {
-        data = e.getData();
+        var data = e.getData();
         switch (data['state']) {
           case "closing":
             var hint = new qx.ui.basic.Label(this.tr("This object will be closed in %1 seconds if you don't continue editing!", parseInt(data['minutes'])*60)).set({
