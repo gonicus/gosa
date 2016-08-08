@@ -46,7 +46,7 @@ class ClientSessionTestCase(dbusmock.DBusTestCase):
             inv.serve()
             time.sleep(0.1)
 
-            self.dbus_mock.EmitSignal("org.freedesktop.login1.Manager", "SessionNew")
+            self.dbus_mock.EmitSignal("org.freedesktop.login1.Manager", "SessionNew", "")
 
             assert 1010 in inv.getSessions()
 
