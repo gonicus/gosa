@@ -61,7 +61,6 @@ class ClientNotifyTestCase(dbusmock.DBusTestCase):
             assert inv.notify("admin", "Title", "message", 0, "base64:%s" % base64.b64encode(b"test").decode()) is 1
             self.assertRegex(self.inv_mock.stdout.readline(), b'^[0-9.]+ _notify "admin" "Title" "message" 0 "dialog-information"\n?$')
 
-
     def test_notify_all(self):
         with mock.patch("gosa.client.plugins.notify.main.DBusRunner.get_instance") as m:
             m.return_value.get_system_bus.return_value = self.dbus_con

@@ -56,7 +56,11 @@ class ClientSessionTestCase(dbusmock.DBusTestCase):
         with mock.patch("gosa.client.plugins.notify.main.DBusRunner.get_instance") as m:
             m.return_value.get_system_bus.return_value = self.dbus_con
             inv = SessionKeeper()
+            inv.serve()
+            time.sleep(0.3)
 
             with mock.patch.object(inv, "sendSessionNotification") as m:
                 zope.event.notify(Resume())
                 assert m.called
+
+            inv.stop()

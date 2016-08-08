@@ -260,7 +260,7 @@ class join_method(object):
 
         return None
 
-    def show_error(self, error):
+    def show_error(self, error):  # pragma: nocover
         """
         *show_error* is the function used to show messages to the user. It
         needs to be implemented.
@@ -273,7 +273,7 @@ class join_method(object):
         """
         raise NotImplemented("show_error not implemented")
 
-    def join_dialog(self):
+    def join_dialog(self):  # pragma: nocover
         """
         This dialog presents the join dialog aquiring the username
         and the password of a person capable to join the client. It
@@ -283,7 +283,7 @@ class join_method(object):
         raise NotImplemented("join_dialog not implemented")
 
     @staticmethod
-    def available():
+    def available():  # pragma: nocover
         """
         This method can check if the current method is available
         on the system. It is used to avoid that i.e. a framebuffer

@@ -83,3 +83,26 @@ class ClientJoinTestCase(TestCase):
                 assert join.join("admin", "tester") == "fake_key"
                 handle = mocked_open()
                 assert handle.write.called
+
+    def test_get_mac_address(self):
+        join = join_method()
+        with mock.patch("gosa.client.plugins.join.methods.netifaces.interfaces", return_value=[]) as mocked_ifaces, \
+                mock.patch("gosa.client.plugins.join.methods.netifaces.ifaddresses", return_value=[]) as mocked_ifaddresses:
+            assert join.get_mac_address() is None
+
+            mocked_ifaces.return_value = ['loop0', 'loop1', 'loop2']
+            mocked_ifaddresses.side_effect = [{
+                netifaces.AF_LINK: [
+                    {'addr': '00:00:00:00:00:00'}
+                ]
+            }, {
+                netifaces.AF_LINK: [
+                    {'addr': '00:00:00:00:00:01'}
+                ]
+            }, {
+                netifaces.AF_LINK: [
+                    {'addr': '00:00:00:00:00:02'}
+                ],
+                netifaces.AF_INET: []
+            }]
+            assert join.get_mac_address() is '00:00:00:00:00:02'
