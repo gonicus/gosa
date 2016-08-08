@@ -46,7 +46,7 @@ class ClientPowermanagementTestCase(dbusmock.DBusTestCase):
         with mock.patch("gosa.client.plugins.notify.main.DBusRunner.get_instance") as m:
             m.return_value.get_system_bus.return_value = self.dbus_con
             inv = PowerManagement()
-            time.sleep(0.1)
+            time.sleep(0.3)
             inv.shutdown()
             self.assertRegex(self.inv_mock.stdout.readline(), b'^[0-9.]+ PowerOff True\n?$')
 
@@ -54,7 +54,7 @@ class ClientPowermanagementTestCase(dbusmock.DBusTestCase):
         with mock.patch("gosa.client.plugins.notify.main.DBusRunner.get_instance") as m:
             m.return_value.get_system_bus.return_value = self.dbus_con
             inv = PowerManagement()
-            time.sleep(0.1)
+            time.sleep(0.3)
             inv.reboot()
             self.assertRegex(self.inv_mock.stdout.readline(), b'^[0-9.]+ Reboot True\n?$')
 
@@ -62,7 +62,7 @@ class ClientPowermanagementTestCase(dbusmock.DBusTestCase):
         with mock.patch("gosa.client.plugins.notify.main.DBusRunner.get_instance") as m:
             m.return_value.get_system_bus.return_value = self.dbus_con
             inv = PowerManagement()
-            time.sleep(0.1)
+            time.sleep(0.3)
             inv.suspend()
             self.assertRegex(self.inv_mock.stdout.readline(), b'^[0-9.]+ Suspend True\n?$')
 
@@ -70,6 +70,6 @@ class ClientPowermanagementTestCase(dbusmock.DBusTestCase):
         with mock.patch("gosa.client.plugins.notify.main.DBusRunner.get_instance") as m:
             m.return_value.get_system_bus.return_value = self.dbus_con
             inv = PowerManagement()
-            time.sleep(0.1)
+            time.sleep(0.3)
             inv.hibernate()
             self.assertRegex(self.inv_mock.stdout.readline(), b'^[0-9.]+ Hibernate True\n?$')

@@ -46,7 +46,7 @@ class ClientNotifyTestCase(dbusmock.DBusTestCase):
                 mock.patch("gosa.client.plugins.notify.main.open", mo, create=True):
             m.return_value.get_system_bus.return_value = self.dbus_con
             inv = Notify()
-            time.sleep(0.1)
+            time.sleep(0.3)
             assert inv.notify("admin", "Title", "message") is 1
             self.assertRegex(self.inv_mock.stdout.readline(), b'^[0-9.]+ _notify "admin" "Title" "message" 0 "dialog-information"\n?$')
 
@@ -66,5 +66,5 @@ class ClientNotifyTestCase(dbusmock.DBusTestCase):
         with mock.patch("gosa.client.plugins.notify.main.DBusRunner.get_instance") as m:
             m.return_value.get_system_bus.return_value = self.dbus_con
             inv = Notify()
-            time.sleep(0.1)
+            time.sleep(0.3)
             assert inv.notify_all("Title", "message")

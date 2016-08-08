@@ -45,7 +45,7 @@ class ClientDbusProxyTestCase(dbusmock.DBusTestCase):
             m.return_value.get_system_bus.return_value = self.dbus_con
             proxy = DBUSProxy()
             proxy.serve()
-            time.sleep(0.1)
+            time.sleep(0.3)
             res = proxy.listDBusMethods()
             assert 'dbus_test_method' in res
             assert res['dbus_test_method']['path'] == "/org/gosa"
@@ -57,7 +57,7 @@ class ClientDbusProxyTestCase(dbusmock.DBusTestCase):
             m.return_value.get_system_bus.return_value = self.dbus_con
             proxy = DBUSProxy()
             proxy.serve()
-            time.sleep(0.1)
+            time.sleep(0.3)
 
             with pytest.raises(TypeError):
                 proxy.callDBusMethod("dbus_test_method", 1)

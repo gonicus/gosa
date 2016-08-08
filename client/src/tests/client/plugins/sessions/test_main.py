@@ -7,7 +7,6 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import subprocess
-import dbus
 import dbusmock
 import time
 from unittest import mock
@@ -44,12 +43,20 @@ class ClientSessionTestCase(dbusmock.DBusTestCase):
             m.return_value.get_system_bus.return_value = self.dbus_con
             inv = SessionKeeper()
             inv.serve()
-            time.sleep(0.1)
+            time.sleep(0.3)
 
-            self.dbus_mock.EmitSignal("org.freedesktop.login1.Manager", "SessionNew", "")
+            self.dbus_mock.EmitSignal("org.freedesktop.login1.Manager", "SessionNew", "", [])
+            time.sleep(0.2)
 
-            assert 1010 in inv.getSessions()
+            assert '1010' in inv.getSessions()
 
             inv.stop()
 
+    def test_resume(self):
+        with mock.patch("gosa.client.plugins.notify.main.DBusRunner.get_instance") as m:
+            m.return_value.get_system_bus.return_value = self.dbus_con
+            inv = SessionKeeper()
 
+            with mock.patch.object(inv, "sendSessionNotification") as m:
+                zope.event.notify(Resume())
+                assert m.called
