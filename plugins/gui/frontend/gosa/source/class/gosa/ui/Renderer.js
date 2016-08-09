@@ -286,6 +286,10 @@ qx.Class.define("gosa.ui.Renderer",
           rpc.cA(function(result, error) {
             if (result === false) {
               new gosa.ui.dialogs.Info(this.tr("This object has been closed by the backend!")).open();
+              if (this._closingHint) {
+                this._closingHint.close();
+                this._closingHint = null;
+              }
               this.fireEvent("done");
             }
           }, this ,"checkObjectRef", obj.instance_uuid);
@@ -320,9 +324,11 @@ qx.Class.define("gosa.ui.Renderer",
             break;
           case "closing_aborted":
             this._closingHint.close();
+            this._closingHint = null;
             break;
           case "closed":
             this._closingHint.close();
+            this._closingHint = null;
             new gosa.ui.dialogs.Info(this.tr("This object has been closed due to inactivity!")).open();
             this.fireEvent("done");
             break;
