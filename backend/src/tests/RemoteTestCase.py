@@ -33,8 +33,9 @@ class RemoteTestCase(AsyncHTTPTestCase):
                 (key, value) = cookie.split("=", 1)
                 if key == "_xsrf":
                     self._xsrf = value
-                if key == "REMOTE_SESSION":
-                    self.session_id = decode_signed_value('TecloigJink4', 'REMOTE_SESSION', value).decode('ascii')
+                elif key == "REMOTE_SESSION":
+                    tmp = decode_signed_value('TecloigJink4', 'REMOTE_SESSION', value)
+                    self.session_id = tmp.decode('ascii') if tmp else None
             self.__cookies = raw
         except KeyError:
             return
