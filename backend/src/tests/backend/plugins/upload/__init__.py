@@ -1,4 +1,4 @@
-# This file is part of the GOsa project.
+# This file is part of the GOsa framework.
 #
 #  http://gosa-project.org
 #

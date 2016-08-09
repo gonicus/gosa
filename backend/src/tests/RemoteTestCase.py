@@ -10,6 +10,7 @@
 import re
 from tornado.testing import AsyncHTTPTestCase
 from gosa.common.gjson import dumps
+from tornado.web import decode_signed_value
 
 
 class RemoteTestCase(AsyncHTTPTestCase):
@@ -18,6 +19,7 @@ class RemoteTestCase(AsyncHTTPTestCase):
         super(RemoteTestCase, self).setUp()
         self.__cookies = ''
         self._xsrf = None
+        self.session_id = None
 
     def _update_cookies(self, headers):
         try:
@@ -31,23 +33,25 @@ class RemoteTestCase(AsyncHTTPTestCase):
                 (key, value) = cookie.split("=", 1)
                 if key == "_xsrf":
                     self._xsrf = value
+                if key == "REMOTE_SESSION":
+                    self.session_id = decode_signed_value('TecloigJink4', 'REMOTE_SESSION', value).decode('ascii')
             self.__cookies = raw
         except KeyError:
             return
 
     def fetch(self, url, **kw):
-        header = {}
+        headers = kw.pop('headers', {})
         if self.__cookies != '':
-            header['Cookie'] = self.__cookies
+            headers['Cookie'] = self.__cookies
         if self._xsrf:
-            header['X-XSRFToken'] = self._xsrf
-            if len(header['Cookie'])>0 and '_xsrf' not in header['Cookie']:
-                header['Cookie'] = "%s;%s=%s" % (header['Cookie'], '_xsrf', self._xsrf)
-        if 'body' in kw:
-            print("URL: {}, Body: {}, Headers: {}".format(url, kw['body'] , header))
-        else:
-            print("URL: {}, Headers: {}".format(url, header))
-        resp = AsyncHTTPTestCase.fetch(self, url, headers=header, **kw)
+            headers['X-XSRFToken'] = self._xsrf
+            if len(headers['Cookie'])>0 and '_xsrf' not in headers['Cookie']:
+                headers['Cookie'] = "%s;%s=%s" % (headers['Cookie'], '_xsrf', self._xsrf)
+        # if 'body' in kw:
+        #     print("URL: {}, Body: {}, Headers: {}".format(url, kw['body'] , headers))
+        # else:
+        #     print("URL: {}, Headers: {}".format(url, headers))
+        resp = AsyncHTTPTestCase.fetch(self, url, headers=headers, **kw)
         self._update_cookies(resp.headers)
         return resp
 
@@ -59,10 +63,10 @@ class RemoteTestCase(AsyncHTTPTestCase):
             header['X-XSRFToken'] = self._xsrf
             if len(header['Cookie'])>0 and '_xsrf' not in header['Cookie']:
                 header['Cookie'] = "%s;%s=%s" % (header['Cookie'], '_xsrf', self._xsrf)
-        if 'body' in kw:
-            print("URL: {}, Body: {}, Headers: {}".format(url, kw['body'] , header))
-        else:
-            print("URL: {}, Headers: {}".format(url, header))
+        # if 'body' in kw:
+        #     print("URL: {}, Body: {}, Headers: {}".format(url, kw['body'] , header))
+        # else:
+        #     print("URL: {}, Headers: {}".format(url, header))
         return self.http_client.fetch(url, self.stop, headers=header, **kw)
 
     def login(self):

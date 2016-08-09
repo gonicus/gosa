@@ -67,7 +67,8 @@ setup(
     tests_require = [
         'pytest',
         'pytest-cov',
-        'coveralls'
+        'coveralls',
+        'requests_toolbelt'
     ],
     install_requires = [
         'tornado',
@@ -95,6 +96,7 @@ setup(
         /mqtt/auth/(?P<path>.*)? = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoAuthHandler
         /mqtt/acl = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoAclHandler
         /mqtt/superuser = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoSuperuserHandler
+        /uploads/(?P<uuid>.*)? = gosa.backend.plugins.upload.main:UploadHandler
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
@@ -111,6 +113,7 @@ setup(
         gravatar = gosa.backend.plugins.misc.gravatar:Gravatar
         shells = gosa.backend.plugins.posix.shells:ShellSupport
         password = gosa.backend.plugins.password.manager:PasswordManager
+        uploads = gosa.backend.plugins.upload.main:UploadManager
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
@@ -199,7 +202,11 @@ setup(
         object = gosa.backend.objects.proxy:ObjectProxy
         workflow = gosa.backend.components.workflow:Workflow
 
+        [gosa.upload_handler]
+        workflow = gosa.backend.plugins.upload.handler.workflow:WorkflowUploadHandler
+
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt
+
     """,
 )
