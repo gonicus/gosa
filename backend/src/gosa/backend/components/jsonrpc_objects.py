@@ -466,8 +466,12 @@ class JSONRPCObjectMapper(Plugin):
                 if 'mark_for_deletion' in item:
                     if item['mark_for_deletion'] <= datetime.datetime.now():
                         if 'countdown_job' in item:
-                            sched.unschedule_job(item['countdown_job'])
-                            del item['countdown_job']
+                            try:
+                                sched.unschedule_job(item['countdown_job'])
+                            except KeyError:
+                                pass
+                            finally:
+                                del item['countdown_job']
 
                         del self.__stack[ref]
 
@@ -494,10 +498,20 @@ class JSONRPCObjectMapper(Plugin):
                     command.sendEvent(item['user'], event)
                     item['mark_for_deletion'] = datetime.datetime.now() + datetime.timedelta(seconds=59)
                     if 'countdown_job' in item:
-                        sched.add_date_job(self.__gc, datetime.datetime.now() + datetime.timedelta(minutes=1))
+                        try:
+                            sched.unschedule_job(item['countdown_job'])
+                        except KeyError:
+                            pass
+                        finally:
+                            del item['countdown_job']
+
+                    item['countdown_job'] = sched.add_date_job(self.__gc,
+                                                               datetime.datetime.now() + datetime.timedelta(minutes=1),
+                                                               tag="_internal",
+                                                               jobstore="ram")
 
             elif 'mark_for_deletion' in item:
-                # item has been modified -> remove the deletion marking
+                # item has been modified -> remove the deletion mark
                 del item['mark_for_deletion']
                 event = e.Event(
                     e.ObjectCloseAnnouncement(
@@ -509,5 +523,9 @@ class JSONRPCObjectMapper(Plugin):
                 )
                 command.sendEvent(item['user'], event)
                 if 'countdown_job' in item:
-                    sched.unschedule_job(item['countdown_job'])
-                    del item['countdown_job']
+                    try:
+                        sched.unschedule_job(item['countdown_job'])
+                    except KeyError:
+                        pass
+                    finally:
+                        del item['countdown_job']
