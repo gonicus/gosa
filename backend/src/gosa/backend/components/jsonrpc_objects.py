@@ -94,6 +94,50 @@ class JSONRPCObjectMapper(Plugin):
 
         del self.__stack[ref]
 
+    @Command(needsUser=True, __help__=N_("Prevent an object from beeing automatically closed by an inactivity timeout"))
+    def continueObjectEditing(self, user, ref):
+        """
+        Objects which have been opened but not edited for a certain amount of time are automatically closed by the backend.
+        This command delays this behaviour by increasing the timeout.
+        ================= ==========================
+        Parameter         Description
+        ================= ==========================
+        ref               UUID / object reference
+        """
+        objdsc = self.__get_ref(ref)
+        if not objdsc:
+            raise ValueError(C.make_error("REFERENCE_NOT_FOUND", ref=ref))
+
+        if not self.__check_user(ref, user):
+            raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
+        
+        self.__stack[ref]['last_interaction'] = datetime.datetime.now()
+        if 'mark_for_deletion' in self.__stack[ref]:
+            # as this object has been marked for deletion, we have to run the garbage collection
+            # to remove this mark now
+            self.__gc()
+
+    @Command(needsUser=True, needsSession=True, __help__=N_("Check if an object references is still available"))
+    def checkObjectRef(self, user, session_id, ref):
+        """
+        Objects which have been opened but not edited for a certain amount of time are automatically closed by the backend.
+        This command delays this behaviour by increasing the timeout.
+        ================= ==========================
+        Parameter         Description
+        ================= ==========================
+        ref               UUID / object reference
+        ================= ==========================
+
+        ``Return``: boolean
+        """
+        objdsc = self.__get_ref(ref)
+        if objdsc and objdsc['user'] == user:
+            # update session-id, which might have changed and is needed to inform the user about object closing
+            objdsc['session_id'] = session_id
+            return True
+
+        return False
+
 
     @Command(needsUser=True, __help__=N_("Set property for object on stack"))
     def setObjectProperty(self, user, ref, name, value):
@@ -118,7 +162,7 @@ class JSONRPCObjectMapper(Plugin):
         if not self.__check_user(ref, user):
             raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
 
-        self.__stack[ref]['last_modified'] = datetime.datetime.now()
+        self.__stack[ref]['last_interaction'] = datetime.datetime.now()
         if 'mark_for_deletion' in self.__stack[ref]:
             # as this object has been marked for deletion, we have to run the garbage collection
             # to remove this mark now
@@ -417,7 +461,7 @@ class JSONRPCObjectMapper(Plugin):
 
         for ref, item in list(self.__stack.items()):
             uuid = item['object']['uuid']
-            last_interaction_time = item['last_modified'] if 'last_modified' in item else item['created']
+            last_interaction_time = item['last_interaction'] if 'last_interaction' in item else item['created']
             if last_interaction_time < ten_minutes_ago:
                 if 'mark_for_deletion' in item:
                     if item['mark_for_deletion'] <= datetime.datetime.now():

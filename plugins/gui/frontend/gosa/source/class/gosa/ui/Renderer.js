@@ -279,46 +279,51 @@ qx.Class.define("gosa.ui.Renderer",
       id = obj.addListener("foundDifferencesDuringReload", widget.actOnEvents, widget);
       widget.__bindings.push({id: id, widget: obj});
 
+      // Listen to reconnects to check if the object reference is still available
+      id = gosa.io.Sse.getInstance().addListener("changeConnected", function(e) {
+        if (e.getData() === true) {
+          var rpc = gosa.io.Rpc.getInstance();
+          rpc.cA(function(result, error) {
+            if (result === false) {
+              new gosa.ui.dialogs.Info(this.tr("This object has been closed by the backend!")).open();
+              this.fireEvent("done");
+            }
+          }, this ,"checkObjectRef", obj.instance_uuid);
+        }
+      }, widget);
+      widget.__bindings.push({id: id, widget: gosa.io.Sse.getInstance()});
+
       // Act on remove events
       id = obj.addListener("removed", function(){
           new gosa.ui.dialogs.Info(this.tr("This object does not exist anymore!")).open();
           this.fireEvent("done");
         }, widget);
       widget.__bindings.push({id: id, widget: obj});
+
+      // automatic closing by backend
       id = obj.addListener("closing", function(e) {
         var data = e.getData();
+        if (data['uuid'] !== this._object.uuid) {
+          // wrong uuid
+          return;
+        }
         switch (data['state']) {
           case "closing":
-            var hint = new qx.ui.basic.Label(this.tr("This object will be closed in %1 seconds if you don't continue editing!", parseInt(data['minutes'])*60)).set({
-              marginRight: 20
-            });
-            var closingCountdownEnd = Date.now() + parseInt(data['minutes'])*60000;
-            this._timer = new qx.event.Timer(1000);
-            this._timer.addListener("interval", function() {
-              var remaining = Math.max(0,Math.round((closingCountdownEnd - Date.now())/1000));
-              hint.setValue(this.tr("This object will be closed in %1 seconds if you don't continue editing!", remaining));
-              if (remaining <= 0) {
-                this._timer.stop();
-              }
+            this._closingHint = new gosa.ui.dialogs.ClosingObject(this._object.dn, parseInt(data['minutes'])*60);
+            this._closingHint.open();
+            this._closingHint.addListener("closeObject", this.__cancel, this);
+            this._closingHint.addListener("continue", function() {
+              // tell the backend that the user wants to continue to edit the object
+              var rpc = gosa.io.Rpc.getInstance();
+              rpc.cA(function(result, error) {}, this ,"continueObjectEditing", this._object.instance_uuid);
             }, this);
-            this._timer.start();
-            this._closingHint = hint;
-            this._buttonPane.addAt(hint, 0, {flex: 1});
-            this._buttonPane.setBackgroundColor("#FFC107");
             break;
           case "closing_aborted":
-            this._buttonPane.remove(widget._closingHint);
-            if (this._timer) {
-              this._timer.stop();
-            }
-            this._closingHint.dispose();
-            this._buttonPane.setBackgroundColor(null);
+            this._closingHint.close();
             break;
           case "closed":
+            this._closingHint.close();
             new gosa.ui.dialogs.Info(this.tr("This object has been closed due to inactivity!")).open();
-            if (this._timer) {
-              this._timer.stop();
-            }
             this.fireEvent("done");
             break;
         }

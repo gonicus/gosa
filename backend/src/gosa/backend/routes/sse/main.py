@@ -72,6 +72,8 @@ class SseHandler(web.RequestHandler):
 
         self.log.info('Incoming connection %s to channels "%s"' % (self.connection_id, ', '.join(self.channels)))
         cls._connections[self.connection_id] = self
+        # send something to the client to let it know that the connection has been established
+        self.on_message("ping")
 
         # Bind channels
         for channel in self.channels:
@@ -154,7 +156,7 @@ class SseHandler(web.RequestHandler):
         SseHandler.send_message({
             "uuid": data.UUID.text,
             "minutes": minutes,
-            "state": data.State.text}, topic="objectcloseaccouncement", channel=channel, session_id=data.SessionId.text)
+            "state": data.State.text}, topic="objectCloseAnnouncement", channel=channel, session_id=data.SessionId.text)
 
 
     @classmethod

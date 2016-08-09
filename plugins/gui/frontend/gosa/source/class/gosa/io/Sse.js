@@ -41,6 +41,14 @@ qx.Class.define("gosa.io.Sse", {
     "objectClosing": "qx.event.type.Data"
   },
 
+  properties: {
+    connected: {
+      check: "Boolean",
+      init: false,
+      event: "changeConnected"
+    }
+  },
+
   members : {
 
     __eventSource: null,
@@ -63,17 +71,24 @@ qx.Class.define("gosa.io.Sse", {
         var message = qx.lang.Json.parse(e.data);
         that._handleObjectChangeMessage(message);
       }, false);
-      this.__eventSource.addEventListener("objectcloseaccouncement", function (e) {
+      this.__eventSource.addEventListener("objectCloseAnnouncement", function (e) {
         var message = qx.lang.Json.parse(e.data);
         that._handleObjectCloseAnnouncement(message);
       }, false);
-
       this.__eventSource.onerror = function (e) {
-        if (e.readyState == EventSource.CLOSED) {
+        var readyState = e.currentTarget.readyState;
+        if (readyState != EventSource.OPEN) {
           // Connection was closed.
-          this.error("connection closed");
+          this.setConnected(false);
         }
-      }
+      }.bind(this);
+      this.__eventSource.onopen = function(e) {
+        var readyState = e.currentTarget.readyState;
+        if (readyState == EventSource.OPEN) {
+          // Connection was opened.
+          this.setConnected(true);
+        }
+      }.bind(this);
     },
 
     /* Handle object change messages and fire up events
