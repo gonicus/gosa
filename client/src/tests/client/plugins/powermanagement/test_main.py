@@ -12,14 +12,10 @@ import dbusmock
 import time
 from unittest import mock
 from gosa.client.plugins.powermanagement.main import *
+from tests.dbus_test_case import ClientDBusTestCase
 
 
-class ClientPowermanagementTestCase(dbusmock.DBusTestCase):
-
-    @classmethod
-    def setUpClass(klass):
-        klass.start_system_bus()
-        klass.dbus_con = klass.get_dbus(system_bus=True)
+class ClientPowermanagementTestCase(ClientDBusTestCase):
 
     def setUp(self):
         self.inv_mock = self.spawn_server('org.freedesktop.login1',

@@ -30,7 +30,7 @@ class MQTTHandler(object):
     url = None
     joined = False
 
-    def __init__(self,loop_forever=False):
+    def __init__(self, loop_forever=False, autostart=True):
         """
         Construct a new MQTTClientHandler instance based on the configuration
         stored in the environment.
@@ -83,8 +83,9 @@ class MQTTHandler(object):
 
         self.init_subscriptions()
 
-        # Start connection
-        self.start()
+        if autostart:
+            # Start connection
+            self.start()
 
     def init_subscriptions(self):
         pass
