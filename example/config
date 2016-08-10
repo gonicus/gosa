@@ -1,9 +1,11 @@
 [core]
 profile = False
 base = dc=example,dc=net
+domain = net.example
+id = backend
 
 [http]
-host = localhost
+host = 0.0.0.0
 port = 8000
 sslpemfile = /etc/gosa/host.pem
 
@@ -14,16 +16,25 @@ bind-secret = secret
 pool-size = 10
 
 [backend-database]
-database = sqlite:///:memory:
+database = postgresql://admin:secret@localhost:5432/gosa
+#database = sqlite:///:memory:
 #database = sqlite:////tmp/gosa.db
 
 [backend-json]
 database-file = /tmp/gosa.json
 
+[backend]
+admins = admin
+
 [user]
 image-path = /tmp/images
-min-uid = 1000
 
+[gui]
+debug = true
+
+[mqtt]
+host = localhost
+key = tester
 
 ##############################################################################
 #                            Logger configuration                            #
