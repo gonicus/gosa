@@ -85,7 +85,7 @@
         </OutFilter>
       </Attribute>
     </Attributes>
-    <BaseObject>true</BaseObject>
+    <BaseObject>false</BaseObject>
 
     <Find>
 	<Aspect>
@@ -104,6 +104,8 @@
 		</Result>
 	</Aspect>
 </Find>
-
+    <Extends>
+      <Value>GroupOfNames</Value>
+    </Extends>
   </Object>
 </Objects>

@@ -44,18 +44,18 @@ class DBusRunner(object):
 
         self.__active = True
 
-        def runner():
-            self.__gloop = GLib.MainLoop()
-            self.__gloop.run()
-            context = self.__gloop.get_context()
-            while self.__active:
-                context.iteration(False)
-                if not context.pending():
-                    time.sleep(.1)
-
-        self.__thread = Thread(target=runner)
+        self.__thread = Thread(target=self.__runner)
         self.__thread.daemon = True
         self.__thread.start()
+
+    def __runner(self):
+        self.__gloop = GLib.MainLoop()
+        self.__gloop.run()
+        context = self.__gloop.get_context()
+        while self.__active:
+            context.iteration(False)
+            if not context.pending():
+                time.sleep(.1)
 
     def stop(self):
         """

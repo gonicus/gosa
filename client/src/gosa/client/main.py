@@ -62,10 +62,10 @@ def shutdown(a=None, b=None):
                 t.cancel()
             t.join(wait)
 
-        if t.isAlive():
+        if t.is_alive():
             try:
                 log.warning("calling built in 'stop' for thread %s" % t.getName())
-                t._Thread__stop()
+                t._stop()
             except:
                 log.error("could not stop thread %s" % t.getName())
 
@@ -73,15 +73,6 @@ def shutdown(a=None, b=None):
 
     log.info("shut down")
     logging.shutdown()
-
-
-def handleTermSignal(a=None, b=None):
-    """ Signal handler which will shut down the whole machinery """
-    Environment.getInstance().active = False
-
-
-def handleHupSignal(a=None, b=None):
-    pass
 
 
 def mainLoop(env):
@@ -143,9 +134,9 @@ def mainLoop(env):
                 t.join(wait)
 
                 #TODO: remove me
-                if t.isAlive():
+                if t.is_alive():
                     try:
-                        t._Thread__stop()
+                        t._stop()
                     except:
                         print(str(t.getName()) + ' could not be terminated')
 

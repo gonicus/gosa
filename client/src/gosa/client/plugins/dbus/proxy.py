@@ -319,14 +319,17 @@ class DBUSProxy(Plugin):
 
     def serve(self):
         """
-        This method registeres all known methods to the command registry.
+        This method registers all known methods to the command registry.
         """
         # Register ourselfs for bus changes on org.gosa
-        self.bus.watch_name_owner("org.gosa", self.__dbus_proxy_monitor)
+        self.watcher = self.bus.watch_name_owner("org.gosa", self.__dbus_proxy_monitor)
 
         ccr = PluginRegistry.getInstance('ClientCommandRegistry')
         for name in self.methods.keys():
             ccr.register(name, 'DBUSProxy.callDBusMethod', [name], ['(signatur)'], 'docstring')
+
+    def stop(self):
+        self.watcher.cancel()
 
     def listDBusMethods(self):
         """ This method lists all callable dbus methods """

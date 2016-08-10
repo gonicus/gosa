@@ -33,10 +33,11 @@ class ClientCommandTestCase(TestCase):
             ClientCommandRegistry()
 
     def test_commands(self):
+        reg = PluginRegistry.getInstance("ClientCommandRegistry")
         with mock.patch("gosa.client.command.PluginRegistry.modules", new_callable=mock.PropertyMock, return_value={'TestModule':
                                                                                                                       TestModule}):
-            reg = ClientCommandRegistry()
-            reg.register('test_func2', 'path2', [], 'signature2', 'documentation2')
+            reg.register('test_func1', 'TestModule.test_func1', [], 'signature1', 'documentation1')
+            reg.register('test_func2', 'TestModule.test_func2', [], 'signature2', 'documentation2')
 
             res = reg.getMethods()
             assert 'test_func1' in res
