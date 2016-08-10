@@ -39,6 +39,9 @@ class SseHandlerTestCase(RemoteTestCase):
     def handle_message(self, msg):
         message_end = msg[-2:] == b'\n\n'
         for line in msg.strip().splitlines():
+            if line == b'ping':
+                # skip the ping events
+                continue
             (field, value) = line.decode().split(":", 1)
             field = field.strip()
             if field == "data":
