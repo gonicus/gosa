@@ -40,7 +40,7 @@ import getpass
 import pwd
 import grp
 from argparse import ArgumentParser
-from gosa import __version__ as VERSION
+from gosa.common import __version__ as VERSION
 from io import StringIO
 
 
