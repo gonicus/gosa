@@ -11,6 +11,7 @@ from unittest import TestCase, mock
 from gosa.client.mqtt_service import *
 from gosa.common import Environment
 from gosa.common.utils import stripNs
+import time
 
 
 class MQTTHandlerMock(mock.MagicMock):
@@ -29,11 +30,16 @@ mocked_handler = MQTTHandlerMock()
 class ClientMqttServiceTestCase(TestCase):
 
     def setUp(self):
+        self.env = Environment.getInstance()
         self.mqtt = MQTTClientService()
         self.mqtt.time_int = 0
         with mock.patch.dict("gosa.client.mqtt_service.PluginRegistry.modules", {'MQTTClientHandler': mocked_handler}):
             self.mqtt.serve()
-        self.env = Environment.getInstance()
+
+    def tearDown(self):
+        self.mqtt.stop()
+        del self.mqtt
+        mocked_handler.reset_mock()
 
     def test_handle_message(self):
         topic = "%s/client/%s" % (self.env.domain, self.env.uuid)
@@ -95,14 +101,14 @@ class ClientMqttServiceTestCase(TestCase):
         assert kwargs['topic'] == "%s/to-backend" % topic
 
     def test_reAnnounce(self):
-        mocked_handler.reset_mock()
         self.mqtt.reAnnounce()
+        print(mocked_handler.send_event.call_args)
         args, kwargs = mocked_handler.send_event.call_args
         assert stripNs(args[0].xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag) == "UserSession"
 
     def test_ping(self):
-        mocked_handler.reset_mock()
         # just wait a second and test if the first ping has been sent
         time.sleep(1)
         args, kwargs = mocked_handler.send_event.call_args
         assert stripNs(args[0].xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag) == "ClientPing"
+

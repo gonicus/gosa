@@ -5,15 +5,8 @@ import os
 from gosa.common.components.dbus_runner import DBusRunner
 
 
-def pytest_unconfigure(config):
-    global dr
-    Environment.getInstance().active = False
-    PluginRegistry.shutdown()
-    dr.stop()
-
 @pytest.fixture(scope="session", autouse=True)
-def use_test_config():
-    global dr
+def use_test_config(request):
     Environment.reset()
     Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "test_conf")
     Environment.noargs = True
@@ -25,3 +18,19 @@ def use_test_config():
 
     PluginRegistry(component='gosa.client.module')  # @UnusedVariable
     env.active = True
+
+    def shutdown():
+        env.active = False
+
+        # Wait for threads to shut down
+        for t in env.threads:
+            if hasattr(t, 'stop'):
+                t.stop()
+            if hasattr(t, 'cancel'):
+                t.cancel()
+            t.join(2)
+
+        PluginRegistry.shutdown()
+        dr.stop()
+
+    request.addfinalizer(shutdown)
