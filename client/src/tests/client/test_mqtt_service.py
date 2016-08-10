@@ -37,8 +37,6 @@ class ClientMqttServiceTestCase(TestCase):
             self.mqtt.serve()
 
     def tearDown(self):
-        self.mqtt.stop()
-        del self.mqtt
         mocked_handler.reset_mock()
 
     def test_handle_message(self):
