@@ -57,21 +57,22 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
     this.setBlockedBy(null);
   },
 
+  properties :
+  {
+    text : {apply : "_applyGuiProperties"}
+  },
+
   members :
   {
     _widget: null,
     _text: "",
-
-    getText: function(){
-      return(this._text);
-    },
 
     setBuddy: function(w){
       this._widget.setBuddy(w);
     },
 
 
-    /* Apply collected gui properties to this widet
+    /* Apply collected gui properties to this widget
      * */
     _applyGuiProperties: function(props){
 
@@ -82,8 +83,7 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
 
 
       this.setValue(new qx.data.Array());
-      if(props["text"] && props["text"]["string"]){
-        var text = props["text"]["string"];
+      var text = props;
 
         // Extract potential key bindings from label text
         var regex = /^(.*)(&(.))(.*$)/g;
