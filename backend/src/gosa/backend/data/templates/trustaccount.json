@@ -1,0 +1,60 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.Atom",
+    "extensions": {
+        "resources": {
+            "favicon": "images/trustaccount.png"
+        }
+    },
+    "properties": {
+        "height": 388,
+        "width": 512,
+        "windowTitle": "tr('Trust account')"
+    },
+    "children": [{
+        "class": "qx.ui.container.Composite",
+        "layout": "qx.ui.layout.Grid",
+        "children": [{
+            "class": "gosa3.ui.widgets.GroupBox",
+            "layout": "qx.ui.layout.Atom",
+            "addOptions": {
+                "row": 0,
+                "column": 0
+            },
+            "properties": {
+                "legend": "tr('Trust settings')"
+            },
+            "children": [{
+                "class": "qx.ui.container.Composite",
+                "layout": "qx.ui.layout.VBox",
+                "children": [{
+                    "class": "qx.ui.container.Composite",
+                    "layout": "qx.ui.layout.HBox",
+                    "children": [{
+                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "buddyModelPath": "trustModel",
+                        "properties": {
+                            "text": "tr('Mode')"
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QComboBoxWidget",
+                        "modelPath": "trustModel"
+                    }]
+                }, {
+                    "class": "gosa3.ui.widgets.QTableWidgetWidget",
+                    "modelPath": "accessTo",
+                    "extensions": {
+                        "guiProperties": {
+                            "editTitle": "tr('Edit trusted hosts')",
+                            "columns": {
+                                "cn": "tr('Name')",
+                                "description": "tr('Description')"
+                            }
+                        }
+                    }
+                }]
+            }]
+        }]
+    }]
+}

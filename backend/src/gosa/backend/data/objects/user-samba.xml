@@ -6,13 +6,13 @@
 		<Description>A samba extension for a POSIX user</Description>
 		<DisplayName>Samba</DisplayName>
 		<Templates>
-			<Template>user-samba.ui</Template>
-			<Template>user-samba-ts.ui</Template>
+			<Template>user-samba.json</Template>
+			<Template>user-samba-ts.json</Template>
 		</Templates>
 		<Dialogs>
-			<Dialog>sambaLogonHours.ui</Dialog>
-			<Dialog>sambaUserWorkstations.ui</Dialog>
-			<Dialog>sambaDomainInfo.ui</Dialog>
+			<Dialog>sambaLogonHours.json</Dialog>
+			<Dialog>sambaUserWorkstations.json</Dialog>
+			<Dialog>sambaDomainInfo.json</Dialog>
 		</Dialogs>
 		<BackendParameters>
 			<Backend sambaPrimaryGroupSID="SambaGroup:sambaSID" objectClasses="sambaSamAccount">LDAP</Backend>

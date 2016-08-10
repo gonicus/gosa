@@ -1,0 +1,31 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.Atom",
+    "properties": {
+        "width": 472,
+        "height": 353,
+        "windowTitle": "tr('User workstations')",
+        "dialogName": "sambaUserWorkstations"
+    },
+    "children": [{
+        "class": "qx.ui.container.Composite",
+        "layout": "qx.ui.layout.Grid",
+        "children": [{
+            "class": "gosa.ui.widgets.QTableWidgetWidget",
+            "modelPath": "sambaUserWorkstations",
+            "addOptions": {
+                "row": 0,
+                "column": 0
+            },
+            "extensions": {
+                "guiProperties": {
+                    "columns": {
+                        "uid": "tr('Name')",
+                        "description": "tr('Description')"
+                    }
+                }
+            }
+        }]
+    }]
+}

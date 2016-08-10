@@ -176,7 +176,6 @@ qx.Class.define("gosa.Application",
       }
 
       // Base settings
-      var theme = gosa.Config.getTheme();
       var locale = gosa.Tools.getLocale();
 
       // Back button and bookmark support
@@ -211,7 +210,7 @@ qx.Class.define("gosa.Application",
           var translation = {};
           translation['message'] = this.tr("Loading translation");
           translation['context'] = this;
-          translation['params'] = ["getTemplateI18N", locale, theme];
+          translation['params'] = ["getTemplateI18N", locale];
           translation['func'] = function(result, error){
               if (error) {
                 var d = new gosa.ui.dialogs.Error(this.tr("Fetching translations failed."));
@@ -270,7 +269,7 @@ qx.Class.define("gosa.Application",
                     var data = {};
                     data['message'] = that.tr("Loading %1 dialog template", name);
                     data['context'] = this;
-                    data['params'] = ["getGuiDialogs", name, theme];
+                    data['params'] = ["getGuiDialogs", name];
                     data['func'] = function(templates, error){
                       if(error){
                         var d = new gosa.ui.dialogs.Error(this.tr("Fetching dialog templates failed."));
@@ -303,7 +302,7 @@ qx.Class.define("gosa.Application",
                     var data = {};
                     data['message'] = that.tr("Loading %1 template", name);
                     data['context'] = this;
-                    data['params'] = ["getGuiTemplates", name, theme];
+                    data['params'] = ["getGuiTemplates", name];
                     data['func'] = function(templates, error){
                       if(error){
                         var d = new gosa.ui.dialogs.Error(this.tr("Fetching templates failed."));

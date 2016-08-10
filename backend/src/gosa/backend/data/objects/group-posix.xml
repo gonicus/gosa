@@ -4,7 +4,7 @@
     <Name>PosixGroup</Name>
     <Description>A posix group</Description>
     <Templates>
-      <Template>group-posix.ui</Template>
+      <Template>group-posix.json</Template>
     </Templates>
     <DisplayName>Posix group</DisplayName>
     <BackendParameters>

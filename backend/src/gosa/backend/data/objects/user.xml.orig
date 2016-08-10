@@ -5,8 +5,8 @@
     <Description>A generic user</Description>
     <DisplayName>User</DisplayName>
     <Templates>
-      <Template>user.ui</Template>
-      <Template>user-organizational.ui</Template>
+      <Template>user.json</Template>
+      <Template>user-organizational.json</Template>
     </Templates>
     <BackendParameters>
       <Backend objectClasses="inetOrgPerson" manager="User:dn" RDN="cn,uid" filter="(!(uid=*$))">LDAP</Backend>

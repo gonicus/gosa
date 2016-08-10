@@ -1,0 +1,15 @@
+{
+  "Options": null,
+  "Minimum password age": null,
+  "Maximum password age": null,
+  "Password expires on": null,
+  "Specifices the minimum number of days required between password changes.": null,
+  "Last password modification": null,
+  "Specifies the maximum number of days the password is valid.": null,
+  "Inactivity before account is disabled": null,
+  "Shadow": null,
+  "Password expiry": null,
+  "Specifies the number of days of inactivity allowed for the specified user.": null,
+  "Warn berfore password expires": null,
+  "Specifies the number of days before the password expires that the user is warned.": null
+}

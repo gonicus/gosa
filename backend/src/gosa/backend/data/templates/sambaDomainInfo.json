@@ -1,0 +1,35 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.Atom",
+    "properties": {
+        "width": 354,
+        "height": 334,
+        "windowTitle": "tr('Domain policy information')",
+        "dialogName": "sambaDomainInfo"
+    },
+    "children": [{
+        "class": "qx.ui.container.Composite",
+        "layout": "qx.ui.layout.VBox",
+        "children": [{
+            "class": "gosa.ui.widgets.ScrollArea",
+            "properties": {
+                "widgetResizable": true
+            },
+            "children": [{
+                "class": "qx.ui.container.Composite",
+                "layout": "qx.ui.layout.VBox",
+                "properties": {
+                    "width": 340,
+                    "height": 320
+                },
+                "children": [{
+                    "class": "gosa.ui.widget.QLabelWidget",
+                    "properties": {
+                        "callObjectMethod": "getSambaDomainInformation(%locale)"
+                    }
+                }]
+            }]
+        }]
+    }]
+}

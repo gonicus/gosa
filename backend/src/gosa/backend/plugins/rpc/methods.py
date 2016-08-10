@@ -84,30 +84,30 @@ class RPCMethods(Plugin):
         return factory.getAvailableObjectNames()
 
     @Command(__help__=N_("Returns all templates used by the given object type."))
-    def getGuiTemplates(self, objectType, theme="default"):
+    def getGuiTemplates(self, objectType):
         factory = ObjectFactory.getInstance()
         if objectType not in factory.getObjectTypes():
             raise GOsaException(C.make_error("OBJECT_UNKNOWN_TYPE", type=objectType))
 
-        return factory.getObjectTemplates(objectType, theme)
+        return factory.getObjectTemplates(objectType)
 
     @Command(__help__=N_("Returns all dialog-templates used by the given object type."))
-    def getGuiDialogs(self, objectType, theme="default"):
+    def getGuiDialogs(self, objectType):
         factory = ObjectFactory.getInstance()
         if objectType not in factory.getObjectTypes():
             raise GOsaException(C.make_error("OBJECT_UNKNOWN_TYPE", type=objectType))
 
-        return factory.getObjectDialogs(objectType, theme)
+        return factory.getObjectDialogs(objectType)
 
     @Command(__help__=N_("Get all translations bound to templates."))
-    def getTemplateI18N(self, language, theme="default"):
+    def getTemplateI18N(self, language):
         templates = []
         factory = ObjectFactory.getInstance()
 
         for otype in factory.getObjectTypes():
             templates += factory.getObjectTemplateNames(otype)
 
-        return factory.getNamedI18N(list(set(templates)), language=language, theme=theme)
+        return factory.getNamedI18N(list(set(templates)), language=language)
 
     @Command(__help__=N_("Returns details about the currently logged in user"), needsUser=True)
     def getUserDetails(self, userid):

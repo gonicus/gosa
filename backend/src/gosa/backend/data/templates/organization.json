@@ -1,0 +1,39 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.Atom",
+    "extensions": {
+        "resources": {
+            "favicon": "images/organization.png"
+        }
+    },
+    "properties": {
+        "windowTitle": "tr('Organization')",
+        "categoryTitle": "tr('Organization')"
+    },
+    "children": [{
+        "class": "qx.ui.container.Composite",
+        "layout": "qx.ui.layout.VBox",
+        "children": [{
+            "class": "gosa3.ui.widgets.GroupBox",
+            "layout": "qx.ui.layout.Atom",
+            "properties": {
+                "legend": "tr('Generic')"
+            },
+            "children": [{
+                "class": "qx.ui.container.Composite",
+                "layout": "qx.ui.layout.HBox",
+                "children": [{
+                    "class": "gosa3.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "o",
+                    "properties": {
+                        "text": "tr('Name')"
+                    }
+                }, {
+                    "class": "gosa3.ui.widgets.QLineEditWidget",
+                    "modelPath": "o"
+                }]
+            }]
+        }]
+    }]
+}

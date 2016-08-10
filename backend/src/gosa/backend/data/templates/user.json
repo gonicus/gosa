@@ -1,0 +1,367 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.Atom",
+    "extensions": {
+        "resources": {
+            "favicon": "images/user.png",
+            "actionChangePassword": "images/password.png",
+            "actionLockAccount": "images/lock.png",
+            "actionUnlockAccount": "images/unlock.png",
+            "actionSendMessage": "images/notify.png"
+        },
+        "actions": [{
+            "dialog": "ChangePasswordDialog",
+            "text": "tr('Change password...')",
+            "icon": "actionChangePassword",
+            "condition": "!isLocked",
+            "shortcut": "Ctrl+P"
+        }, {
+            "target": "lock()",
+            "text": "tr('Lock account')",
+            "icon": "actionLockAccount",
+            "condition": "accountLockable(dn)"
+       }, {
+            "target": "unlock()",
+            "text": "tr('Unlock account')",
+            "icon": "actionUnlockAccount",
+            "condition": "accountUnlockable(dn)"
+       }, {
+            "dialog": "SendMessageDialog",
+            "text": "tr('Send message...')",
+            "icon": "actionSendMessage"
+       }]
+    },
+    "properties": {
+        "width": 486,
+        "height": 426,
+        "windowTitle": "tr('Personal')",
+        "categoryTitle": "tr('User')"
+    },
+    "children": [{
+        "class": "qx.ui.container.Composite",
+        "layout": "qx.ui.layout.Grid",
+        "children": [{
+            "class": "gosa3.ui.widgets.GroupBox",
+            "layout": "qx.ui.layout.VBox",
+            "addOptions": {
+                "row": 0,
+                "column": 0
+            },
+            "properties": {
+                "legend": "tr('Login information')"
+            },
+            "children": [{
+                "class": "qx.ui.container.Composite",
+                "layout": "qx.ui.layout.Grid",
+                "children": [{
+                    "class": "qx.ui.container.Composite",
+                    "layout": "qx.ui.layout.Grid",
+                    "addOptions": {
+                        "row": 0,
+                        "column": 2
+                    },
+                    "children": [{
+                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "buddyModelPath": "uid",
+                        "addOptions": {
+                            "row": 0,
+                            "column": 0
+                        },
+                        "properties": {
+                            "text": "tr('Login &ID')"
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "modelPath": "uid",
+                        "addOptions": {
+                            "row": 0,
+                            "column": 1
+                        },
+                        "properties": {
+                            "tabIndex": 1
+                        }
+                    }, {
+                        "class": "qx.ui.core.Widget",
+                        "addOptions": {
+                            "row": 1,
+                            "column": 1
+                        },
+                        "properties" : {
+													"width": 20,
+													"height": 5
+												}
+                    }, {
+                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "buddyModelPath": "sn",
+                        "addOptions": {
+                            "row": 2,
+                            "column": 0
+                        },
+                        "properties": {
+                            "text": "tr('Surname')"
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "modelPath": "sn",
+                        "addOptions": {
+                            "row": 2,
+                            "column": 1
+                        },
+                        "properties": {
+                            "tabIndex": 2
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "buddyModelPath": "givenName",
+                        "addOptions": {
+                            "row": 3,
+                            "column": 0
+                        },
+                        "properties": {
+                            "text": "tr('Given name')"
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "modelPath": "givenName",
+                        "addOptions": {
+                            "row": 3,
+                            "column": 1
+                        },
+                        "properties": {
+                            "tabIndex": 3
+                        }
+                    }, {
+                        "class": "qx.ui.core.Widget",
+                        "addOptions": {
+                            "row": 4,
+                            "column": 1
+                        },
+                        "properties" : {
+													"width": 20,
+													"height": 5
+												}
+										}, {
+                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "buddyModelPath": "preferredLanguage",
+                        "addOptions": {
+                            "row": 5,
+                            "column": 0
+                        },
+                        "properties": {
+                            "text": "tr('Preferred language')"
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QComboBoxWidget",
+                        "modelPath": "preferredLanguage",
+                        "addOptions": {
+                            "row": 5,
+                            "column": 1
+                        },
+                        "properties": {
+                            "tabIndex": 4
+                        }
+                    }, {
+                        "class": "qx.ui.core.Widget",
+                        "addOptions": {
+                            "row": 6,
+                            "column": 1
+                        },
+                        "properites" : {
+													"width": 20,
+													"height": 40
+												}
+                    }]
+                }, {
+                    "class": "gosa3.ui.widgets.QGraphicsViewWidget",
+                    "modelPath": "jpegPhoto",
+                    "addOptions": {
+                        "row": 0,
+                        "column": 0
+                    },
+                    "properties": {
+                        "minWidth": 200,
+                        "minHeight": 200,
+                        "maxWidth": 200,
+                        "maxHeight": 200
+                    }
+                }, {
+                    "class": "qx.ui.core.Widget",
+                    "addOptions": {
+                        "row": 0,
+                        "column": 1
+                    },
+                    "properties": {
+											"width": 13,
+											"height": 17,
+                    	"allowGrowX" : false,
+                    	"allowGrowY" : false
+										}
+                }]
+            }]
+        }, {
+            "class": "gosa3.ui.widgets.GroupBox",
+            "layout": "qx.ui.layout.VBox",
+            "addOptions": {
+                "row": 1,
+                "column": 0
+            },
+            "property": {
+                "legend": "tr('Contact information')"
+            },
+            "children": [{
+                "class": "qx.ui.container.Composite",
+                "layout": "qx.ui.layout.Grid",
+                "children": [{
+                    "class": "qx.ui.container.Composite",
+                    "layout": "qx.ui.layout.HBox",
+                    "addOptions": {
+                        "row": 0,
+                        "column": 0
+                    },
+                    "children": [{
+                        "class": "qx.ui.container.Composite",
+                        "layout": "qx.ui.layout.Grid",
+                        "children": [{
+                            "class": "gosa3.ui.widgets.QCheckBoxWidget",
+                            "modelPath": "autoDisplay",
+                            "addOptions": {
+                                "row": 0,
+                                "column": 0
+                            },
+                            "properties": {
+                                "label": "tr('Automatic display name')",
+                                "tabIndex": 5
+                            }
+                        }, {
+                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "buddyModelPath": "displayName",
+                            "addOptions": {
+                                "row": 1,
+                                "column": 0
+                            },
+                            "properties": {
+                                "text": "tr('Display name')"
+                            }
+                        }, {
+                            "class": "gosa3.ui.widgets.QLineEditWidget",
+                            "modelPath": "displayName",
+                            "addOptions": {
+                                "row": 1,
+                                "column": 1
+                            },
+                            "properties": {
+                                "tabIndex": 6
+                            }
+                        }, {
+                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "buddyModelPath": "title",
+                            "addOptions": {
+                                "row": 2,
+                                "column": 0
+                            },
+                            "properties": {
+                                "text": "tr('Title')"
+                            }
+                        }, {
+                            "class": "gosa3.ui.widgets.QLineEditWidget",
+                            "modelPath": "title",
+                            "addOptions": {
+                                "row": 2,
+                                "column": 1
+                            },
+                            "properties": {
+                                "tabIndex": 7
+                            }
+                        }]
+                    }, {
+                        "class": "qx.ui.core.Widget",
+												"properties" : {
+													"width": 13,
+													"height": 20
+												}
+										}, {
+                        "class": "qx.ui.container.Composite",
+                        "layout": "qx.ui.layout.Grid",
+                        "children": [{
+                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "buddyModelPath": "homePostalAddress",
+                            "addOptions": {
+                                "row": 0,
+                                "column": 0
+                            },
+                            "properties": {
+                                "text": "tr('Address')"
+                            }
+                        }, {
+                            "class": "gosa3.ui.widgets.QPlainTextEditWidget",
+                            "modelPath": "homePostalAddress",
+                            "addOptions": {
+                                "row": 0,
+                                "column": 1
+                            },
+                            "properties": {
+                                "minWidth": 0,
+                                "minHeight": 60,
+                                "maxWidth": 16777215,
+                                "maxHeight": 120,
+                                "tabIndex": 8
+                            }
+                        }, {
+                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "buddyModelPath": "homePhone",
+                            "addOptions": {
+                                "row": 1,
+                                "column": 0
+                            },
+                            "properties": {
+                                "text": "tr('Phone')"
+                            }
+                        }, {
+                            "class": "gosa3.ui.widgets.QLineEditWidget",
+                            "modelPath": "homePhone",
+                            "addOptions": {
+                                "row": 1,
+                                "column": 1
+                            },
+                            "properties": {
+                                "tabIndex": 9
+                            }
+                        }, {
+                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "buddyModelPath": "labeledURI",
+                            "addOptions": {
+                                "row": 2,
+                                "column": 0
+                            },
+                            "properties": {
+                                "text": "tr('Homepage')"
+                            }
+                        }, {
+                            "class": "gosa3.ui.widgets.QLineEditWidget",
+                            "modelPath": "labeledURI",
+                            "addOptions": {
+                                "row": 2,
+                                "column": 1
+                            },
+                            "properties": {
+                                "tabIndex": 10,
+                                "toolTipText": "tr('Please provide your web page here')"
+                            }
+                        }]
+                    }]
+                }]
+            }]
+        }, {
+            "class": "qx.ui.core.Widget",
+            "addOptions": {
+                "row": 2,
+                "column": 0
+            },
+						"properties" : {
+							"width": 20,
+							"height": 40
+						}
+        }]
+    }]
+}

@@ -4,7 +4,7 @@
     <Name>PosixUser</Name>
     <DisplayName>POSIX extension</DisplayName>
     <Templates>
-      <Template>user-posix.ui</Template>
+      <Template>user-posix.json</Template>
     </Templates>
     <Description>A posix extension for a generic user</Description>
     <BaseObject>false</BaseObject>

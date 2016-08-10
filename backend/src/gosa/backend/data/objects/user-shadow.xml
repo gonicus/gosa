@@ -4,7 +4,7 @@
     <Name>ShadowUser</Name>
     <DisplayName>Shadow extension</DisplayName>
     <Templates>
-      <Template>user-shadow.ui</Template>
+      <Template>user-shadow.json</Template>
     </Templates>
     <Description>A Shadow extension for a generic user</Description>
     <BaseObject>false</BaseObject>

@@ -10,7 +10,7 @@
       <Backend accessTo="Device:cn,">ObjectHandler</Backend>
     </BackendParameters>
     <Templates>
-      <Template>trustaccount.ui</Template>
+      <Template>trustaccount.json</Template>
     </Templates>
     <Backend>LDAP</Backend>
     <Attributes>

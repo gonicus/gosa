@@ -348,10 +348,10 @@ class ObjectProxy(object):
     def get_extension_types(self):
         return dict([(e, i is not None) for e, i in self.__extensions.items()])
 
-    def get_templates(self, theme="default"):
-        res = {self.get_base_type(): self.__base.getTemplate(theme)}
+    def get_templates(self):
+        res = {self.get_base_type(): self.__base.getTemplate()}
         for name, ext in self.__extensions.items():
-            res[name] = ext.getTemplate(theme) if ext else self._get_template(name, theme)
+            res[name] = ext.getTemplate() if ext else self._get_template(name)
         return res
 
     def _get_object_templates(self, obj):
@@ -363,10 +363,10 @@ class ObjectProxy(object):
 
         return templates
 
-    def _get_template(self, obj, theme):
+    def _get_template(self, obj):
         templates = self._get_object_templates(obj)
         if templates:
-            return self.__base.__class__.getNamedTemplate(self.__env, templates, theme)
+            return self.__base.__class__.getNamedTemplate(self.__env, templates)
 
         return None
 
@@ -387,7 +387,7 @@ class ObjectProxy(object):
 
         return res
 
-    def get_object_info(self, locale=None, theme="default"):
+    def get_object_info(self, locale=None):
         res = {'base': self.get_base_type(), 'extensions': self.get_extension_types()}
 
         # Resolve all available extensions for their dependencies

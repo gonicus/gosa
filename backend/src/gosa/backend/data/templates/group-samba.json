@@ -1,0 +1,153 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.Atom",
+    "extensions": {
+        "resources": {
+            "favicon": "images/group-samba.png"
+        }
+    },
+    "properties": {
+        "width": 523,
+        "height": 429,
+        "windowTitle": "tr('Samba')"
+    },
+    "children": [{
+        "class": "qx.ui.container.Composite",
+        "layout": "qx.ui.layout.VBox",
+        "children": [{
+            "class": "gosa3.ui.widgets.GroupBox",
+            "layout": "qx.ui.layout.Atom",
+            "properites": {
+                "legend": "tr('Generic')"
+            },
+            "children": [{
+                "class": "qx.ui.container.Composite",
+                "layout": "qx.ui.layout.Grid",
+                "children": [{
+                    "class": "qx.ui.container.Composite",
+                    "layout": "qx.ui.layout.Grid",
+                    "addOptions": {
+                        "row": 0,
+                        "column": 0
+                    },
+                    "children": [{
+                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "buddyModelPath": "sambaSID",
+                        "addOptions": {
+                            "row": 0,
+                            "column": 0
+                        },
+                        "properties": {
+                            "text": "tr('SID')"
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "modelPath": "sambaSID",
+                        "addOptions": {
+                            "row": 0,
+                            "column": 1
+                        },
+                        "properties": {
+                            "tabIndex": 1,
+                            "readOnly": true
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "buddyModelPath": "sambaDomain",
+                        "addOptions": {
+                            "row": 1,
+                            "column": 0
+                        },
+                        "properties": {
+                            "text": "tr('Domain')"
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QComboBoxWidget",
+                        "modelPath": "sambaDomainName",
+                        "addOptions": {
+                            "row": 1,
+                            "column": 1
+                        },
+                        "properties": {
+                            "tabIndex": 2
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "buddyModelPath": "sambaGroupType",
+                        "addOptions": {
+                            "row": 2,
+                            "column": 0
+                        },
+                        "properties": {
+                            "text": "tr('Group type')"
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QComboBoxWidget",
+                        "modelPath": "sambaGroupType",
+                        "addOptions": {
+                            "row": 2,
+                            "column": 1
+                        },
+                        "properties": {
+                            "tabIndex": 3
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "buddyModelPath": "displayName",
+                        "addOptions": {
+                            "row": 3,
+                            "column": 0
+                        },
+                        "properties": {
+                            "text": "tr('Display name')"
+                        }
+                    }, {
+                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "modelPath": "displayName",
+                        "addOptions": {
+                            "row": 3,
+                            "column": 1
+                        },
+                        "properties": {
+                            "tabIndex": 4
+                        }
+                    }]
+                }]
+            }]
+        }, {
+            "class": "gosa3.ui.widgets.GroupBox",
+            "layout": "qx.ui.layout.Atom",
+            "properties": {
+                "legend": "tr('Nested groups')"
+            },
+            "children": [{
+                "class": "qx.ui.container.Composite",
+                "layout": "qx.ui.layout.Grid",
+                "children": [{
+                    "class": "gosa3.ui.widgets.QTableWidgetWidget",
+                    "modelPath": "sambaSIDList",
+                    "addOptions": {
+                        "row": 0,
+                        "column": 0
+                    },
+                    "properties": {
+                        "maxWidth": 16777215,
+                        "maxHeight": 16777215,
+                        "editTitle": "tr('Edit nested groups')"
+                    },
+                    "extensions": {
+                        "guiProperties": {
+                            "editTitle": "tr('Edit nested groups')",
+                            "columns": {
+                                "cn": "tr('Name')",
+                                "description": "tr('Description')",
+                                "sambaSID": "tr('SID')"
+                            }
+                        }
+                    }
+                }]
+            }]
+        }]
+    }]
+}
