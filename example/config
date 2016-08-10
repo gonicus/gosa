@@ -34,6 +34,9 @@ debug = true
 
 [mqtt]
 host = localhost
+
+[jsonrpc]
+url = http://localhost:8000/rpc
 key = tester
 
 ##############################################################################

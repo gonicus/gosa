@@ -15,7 +15,6 @@ class ClientJoinTestCase(TestCase):
 
     def test_login(self):
         join = join_method()
-        assert join.test_login() is False
 
         with mock.patch.object(join, "key", new_callable=mock.PropertyMock, return_value="fake_key"),\
                 mock.patch("gosa.client.plugins.join.methods.JSONServiceProxy") as mocked_proxy, \
@@ -84,7 +83,8 @@ class ClientJoinTestCase(TestCase):
                 handle = mocked_open()
                 assert handle.write.called
 
-    def test_get_mac_address(self):
+    @mock.patch("gosa.client.plugins.join.methods.join_method.show_error")
+    def test_get_mac_address(self, mocked_show_error):
         join = join_method()
         with mock.patch("gosa.client.plugins.join.methods.netifaces.interfaces", return_value=[]) as mocked_ifaces, \
                 mock.patch("gosa.client.plugins.join.methods.netifaces.ifaddresses", return_value=[]) as mocked_ifaddresses:

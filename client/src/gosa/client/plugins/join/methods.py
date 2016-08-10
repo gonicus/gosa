@@ -166,9 +166,10 @@ class join_method(object):
         return data[:-ord(data[-1])]
 
     def get_service_from_config(self):
-        url = self.env.config.get("mqtt.url", default=None)
-        sys_id = self.env.config.get("client.id", default=None)
-        key = self.env.config.get("mqtt.key", default=None)
+        url = self.env.config.get("jsonrpc.url", default=None)
+        sys_id = self.env.config.get("core.id", default=None)
+        key = self.env.config.get("jsonrpc.key", default=None)
+        print(url, sys_id, key)
         return (url, sys_id, key)
 
     def discover(self):

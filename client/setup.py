@@ -18,8 +18,10 @@ except:
     pass
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README')).read()
-CHANGES = open(os.path.join(here, 'CHANGES')).read()
+with open(os.path.join(here, 'README')) as f:
+    README = f.read()
+with open(os.path.join(here, 'CHANGES')) as f:
+    CHANGES = f.read()
 
 
 client_install_requires = [
@@ -98,5 +100,6 @@ setup(
         service = gosa.client.plugins.dbus.proxy:DBUSProxy
         powermanagement = gosa.client.plugins.powermanagement.main:PowerManagement
         session = gosa.client.plugins.sessions.main:SessionKeeper
+        scheduler = gosa.client.scheduler:SchedulerService
     """
 )

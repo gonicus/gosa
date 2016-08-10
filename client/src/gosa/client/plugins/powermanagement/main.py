@@ -53,7 +53,7 @@ class PowerManagement(Plugin):
             if self.hal_dbus:
                 del(self.hal_dbus)
 
-            # Trigger resend of capapability event
+            # Trigger resend of capability event
             self.hal_dbus = self.bus.get_object('org.freedesktop.login1', '/org/freedesktop/login1')
             ccr = PluginRegistry.getInstance('ClientCommandRegistry')
             ccr.register("shutdown", 'PowerManagement.shutdown', [], [], 'Execute a shutdown of the client.')
