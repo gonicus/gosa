@@ -245,15 +245,15 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
         return;
       }
 
-      if('editTitle' in props && 'string' in props['editTitle']){
-        this._editTitle = props['editTitle']['string'];
+      if('editTitle' in props){
+        this._editTitle = props['editTitle'];
       }
       this._columnNames = [];
       this._columnIDs = [];
       var first = null;
       if('columns' in props){
         for(var col in props['columns']){
-          this._columnNames.push(this['tr'](props['columns'][col]));
+          this._columnNames.push(props['columns'][col]);
           this._columnIDs.push(col);
           if(!first){
             first = col;
