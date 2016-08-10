@@ -692,7 +692,7 @@ qx.Class.define("gosa.view.Search",
       // Icon fallback to server provided images
       var icon = entry['icon'];
       if (!icon) {
-          icon = gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/64/" + entry['tag'].toLowerCase() + ".png";
+          icon = gosa.Config.spath + "/resources/images/objects/64/" + entry['tag'].toLowerCase() + ".png";
       }
 
       item.setDn(entry['dn']);

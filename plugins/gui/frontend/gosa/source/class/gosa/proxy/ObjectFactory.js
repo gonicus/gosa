@@ -53,7 +53,6 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
           var extensionDeps = null;
           var attribute_data = {};
 
-          var theme = gosa.Config.getTheme();
           var locale;
 
           if (gosa.Config.locale) {
@@ -83,8 +82,7 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
               baseType: baseType,
               extensionTypes: extensionTypes,
               extensionDeps: extensionDeps,
-              locale: locale,
-              theme: theme
+              locale: locale
             };
 
             // this closure returns a new apply method for the given attribute.
@@ -146,7 +144,7 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
               }, this, "dispatchObjectMethod", uuid, "get_attributes", true);
 
             }
-          }, this, "dispatchObjectMethod", uuid, "get_object_info", locale, theme);
+          }, this, "dispatchObjectMethod", uuid, "get_object_info", locale);
         }
       }, this, "openObject", "object", dn, type);
     }

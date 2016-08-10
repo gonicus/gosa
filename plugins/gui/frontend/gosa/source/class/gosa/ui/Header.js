@@ -23,7 +23,7 @@ qx.Class.define("gosa.ui.Header", {
     this.setLayout(new qx.ui.layout.Canvas());
 
 
-    var header = new qx.ui.basic.Atom("", "gosa/themes/default/logo.svg");
+    var header = new qx.ui.basic.Atom("", "gosa/images/logo.svg");
     header.setAppearance("title-bar");
     header.setTextColor("header-text");
     header.setHeight(48);
@@ -43,7 +43,7 @@ qx.Class.define("gosa.ui.Header", {
         document.location.href = gosa.Tools.createActionUrl('openObject', gosa.Session.getInstance().getUuid());
       }, this);
 
-    var btn = new qx.ui.basic.Image("gosa/themes/default/btn-logout.png");
+    var btn = new qx.ui.basic.Image("gosa/images/btn-logout.png");
     btn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Logout")));
     btn.setCursor("pointer");
     btn.setAlignY("middle");

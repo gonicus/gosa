@@ -28,7 +28,7 @@ qx.Theme.define("gosa.theme.Appearance",
         if(states['checked']){
           style['paddingLeft'] = 0;
           style['backgroundColor'] = '#EDEDED';
-          style['icon'] = 'gosa/themes/default/22/actions/dialog-ok-apply.png';
+          style['icon'] = 'gosa/images/22/actions/dialog-ok-apply.png';
         }
         return(style);
       }

@@ -65,7 +65,7 @@ qx.Class.define("gosa.view.Tree",
           controller.bindProperty("", "icon", {converter: function(item){
             if (!item.isLoading()){
               if(item.getType()){
-                var path = gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/22/" + item.getType().toLowerCase() + ".png";
+                var path = gosa.Config.spath + "/resources/images/objects/22/" + item.getType().toLowerCase() + ".png";
                 path = document.URL.replace(/\/[^\/]*[a-zA-Z]\/.*/, "") + path;
                 return path;
               }
@@ -123,7 +123,7 @@ qx.Class.define("gosa.view.Tree",
         extend : qx.ui.table.cellrenderer.Image,
         members :      {
           _getImageInfos : function(cellInfo){
-            var path = gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/16/" + cellInfo['value'].toLowerCase() + ".png";
+            var path = gosa.Config.spath + "/resources/images/objects/16/" + cellInfo['value'].toLowerCase() + ".png";
             path = document.URL.replace(/\/[^\/]*[a-zA-Z]\/.*/, "") + path;
             cellInfo['value'] = path;
             return(this.base(arguments, cellInfo));
@@ -135,7 +135,7 @@ qx.Class.define("gosa.view.Tree",
         extend : qx.ui.table.cellrenderer.Boolean,
         members :      {
           _getImageInfos : function(cellInfo){
-            cellInfo['value'] =  gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/16/" + cellInfo['value'].toLowerCase() + ".png";
+            cellInfo['value'] =  gosa.Config.spath + "/resources/images/objects/16/" + cellInfo['value'].toLowerCase() + ".png";
             return(this.base(arguments, cellInfo));
           }
         }

@@ -843,7 +843,7 @@ qx.Class.define("gosa.ui.Renderer",
               for (var f in topic.childNodes) {
                 var item = topic.childNodes[f];
                 if (item.nodeName == "file") {
-                  files[":/" + item.firstChild.nodeValue] = gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/" + item.firstChild.nodeValue;
+                  files[":/" + item.firstChild.nodeValue] = gosa.Config.spath + "/resources/" + item.firstChild.nodeValue;
                 }
               }
               qx.lang.Object.mergeWith(res, files);
@@ -1238,7 +1238,7 @@ qx.Class.define("gosa.ui.Renderer",
           var added = false;
           for (var i=0; i<ui_s.length; i++) {
             var nodes = qx.xml.Document.fromString(ui_s[i]);
-            var resources = this.extractResources(nodes.childNodes, gosa.Config.getTheme());
+            var resources = this.extractResources(nodes.childNodes);
             var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
             var props = this.extractProperties(widget);
 
@@ -1600,7 +1600,7 @@ qx.Class.define("gosa.ui.Renderer",
       this._current_buddies = {};
 
       // Parse the ui definition of the object
-      var resources = this.extractResources(ui_def, gosa.Config.getTheme());
+      var resources = this.extractResources(ui_def);
       for (var attr in resources) {
         this._resources[attr] = resources[attr];
       }
