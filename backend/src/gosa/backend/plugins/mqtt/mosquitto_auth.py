@@ -46,12 +46,17 @@ class MosquittoAuthHandler(BaseMosquittoClass):
     def post(self, *args, **kwargs):
         username = self.get_argument('username', '')
         password = self.get_argument('password')
+        is_allowed = False
+        is_backend = False
         if hasattr(self.env, "core_uuid") and hasattr(self.env, "core_key"):
             # backend self authentification mode
             is_backend = username == self.env.core_uuid and password == self.env.core_key
-            self.send_result(is_backend or check_auth(username, password))
+            is_allowed = is_backend or check_auth(username, password)
         else:
-            self.send_result(check_auth(username, password))
+            is_allowed = check_auth(username, password)
+        self.log.debug("MQTT AUTH request from '%s' ['%s'] => %s" %
+                       (username, "backend" if is_backend else "client", "GRANTED" if is_allowed else "DENIED"))
+        self.send_result(is_allowed)
 
 
 class MosquittoAclHandler(BaseMosquittoClass):
@@ -112,7 +117,7 @@ class MosquittoAclHandler(BaseMosquittoClass):
             else:
                 is_allowed = False
 
-        self.log.debug("ACL request: '%s'|->%s from '%s' ['%s'] => %s" %
+        self.log.debug("MQTT ACL request: '%s'|->%s from '%s' ['%s'] => %s" %
                        (topic, "PUB" if acc == "2" else "SUB" if acc == "1" else "BOTH" if acc == "0" else "UNKOWN",
                         uuid, "backend" if is_backend else "client", "GRANTED" if is_allowed else "DENIED"))
         self.send_result(is_allowed)

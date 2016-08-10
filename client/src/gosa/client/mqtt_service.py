@@ -45,6 +45,7 @@ import logging
 import random
 import time
 import zope.event
+import datetime
 from lxml import objectify, etree
 from threading import Timer
 from netaddr import IPNetwork
@@ -103,20 +104,15 @@ class MQTTClientService(object):
         self.__announce(True)
 
         # Send a ping on a regular base
-        uuid = self.env.uuid
         timeout = float(self.env.config.get('client.ping-interval', default=600))
+        sched = PluginRegistry.getInstance("SchedulerService").get_scheduler()
+        sched.add_interval_job(self.__ping, seconds=timeout, start_date=datetime.datetime.now() + datetime.timedelta(seconds=1))
 
-        def ping():
-            while self.env.active:
-                e = EventMaker()
-                mqtt = PluginRegistry.getInstance('MQTTClientHandler')
-                info = e.Event(e.ClientPing(e.Id(uuid)))
-                mqtt.send_event(info)
-                time.sleep(timeout)
-
-        pinger = Timer(1.0, ping)
-        pinger.start()
-        self.env.threads.append(pinger)
+    def __ping(self):
+        e = EventMaker()
+        mqtt = PluginRegistry.getInstance('MQTTClientHandler')
+        info = e.Event(e.ClientPing(e.Id(self.env.uuid)))
+        mqtt.send_event(info)
 
     def reAnnounce(self):
         """
