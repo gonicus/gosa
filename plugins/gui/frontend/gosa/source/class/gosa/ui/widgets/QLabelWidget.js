@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -48,7 +48,7 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
     this._disposeObjects("_widget");
 
     // Remove all listeners and then set our values to null.
-    qx.event.Registration.removeAllListeners(this); 
+    qx.event.Registration.removeAllListeners(this);
 
     this.setBuddyOf(null);
     this.setGuiProperties(null);
@@ -85,20 +85,20 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
       this.setValue(new qx.data.Array());
       var text = props;
 
-        // Extract potential key bindings from label text
-        var regex = /^(.*)(&(.))(.*$)/g;
-        var match = regex.exec(this['tr'](text));
-        this._command = null;
+      // Extract potential key bindings from label text
+      var regex = /^(.*)(&(.))(.*$)/g;
+      var match = regex.exec(this['tr'](text));
+      this._command = null;
 
-        if (match) {
-          text = match[1] + "<u>" + match[3] + "</u>" + (match.length == 5 ? match[4] : "");
-          this._command = match[3];
-        } else {
-          text = this['tr'](text);
-        }
-        this._text = text;
-        this.setValue(new qx.data.Array([text]));
+      if (match) {
+        text = match[1] + "<u>" + match[3] + "</u>" + (match.length == 5 ? match[4] : "");
+        this._command = match[3];
+      } else {
+        text = this['tr'](text);
       }
+      this._text = text;
+      this.setValue(new qx.data.Array([text]));
+
       this.bind("value[0]", this._widget, "value");
       this.base(arguments, props);
     },
