@@ -8,7 +8,7 @@
     <BackendParameters>
       <Backend objectClasses="groupOfNames" RDN="cn">LDAP</Backend>
     </BackendParameters>
-    <BaseObject>true</BaseObject>
+    <BaseObject>false</BaseObject>
     <Attributes>
       <Attribute>
         <Name>member</Name>
@@ -88,5 +88,8 @@
         </Validators>
       </Attribute>
     </Attributes>
+    <Extends>
+      <Value>PosixGroup</Value>
+    </Extends>
   </Object>
 </Objects>
