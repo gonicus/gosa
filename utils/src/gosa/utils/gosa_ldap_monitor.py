@@ -90,7 +90,7 @@ def monitor(path, modifier, proxy):
                             )
                         )
 
-                        update = etree.tostring(update, pretty_print=True)
+                        update = etree.tostring(update, pretty_print=True).decode('utf-8')
                         proxy.send_message(update, topic="%s/events" % Environment.getInstance().domain)
 
                     dn = ts = ct = None
