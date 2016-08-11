@@ -446,7 +446,7 @@ qx.Class.define("gosa.view.Search",
           win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
           win.setWidth(800);
           win.setLayout(new qx.ui.layout.Canvas());
-          win.add(w, {top: 0, bottom: 0, left: 0, right: 0});
+          win.add(w, {edge: 0});
           win.addListener("appear", win.center, win);
           win.open();
 

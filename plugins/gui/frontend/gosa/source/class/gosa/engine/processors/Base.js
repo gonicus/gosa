@@ -16,8 +16,7 @@ qx.Class.define("gosa.engine.processors.Base", {
      * Processes the template and generates widget, widget registry entries, extensions, etc.
      *
      * @param node {Object} The top node of the template
-     * @param target {qx.ui.core.Widget ? null} Widget where the template widget shall be added; defaults to the root
-     *   widget of the context
+     * @param target {qx.ui.core.Widget} Widget where the template widget shall be added
      */
     process : function(node, target) {
       throw new Error("Processing is not implemented");
