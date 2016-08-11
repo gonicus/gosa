@@ -190,7 +190,7 @@ class MqttClientTestCase(AsyncTestCase):
         def send():
             self.mqtt.client.on_message(None, None, m_message)
 
-        timer = Timer(1, send)
+        timer = Timer(0.1, send)
         timer.start()
         res = yield self.mqtt.get_sync_response("test/topic", "message")
 
