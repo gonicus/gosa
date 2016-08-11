@@ -26,6 +26,12 @@ class MqttClientTestCase(AsyncTestCase):
         super(MqttClientTestCase, self).tearDown()
         self.mqtt.client.reset_mock()
 
+    def test_loop_forever(self):
+        with mock.patch("gosa.common.components.mqtt_client.BaseClient"):
+            mqtt = MQTTClient('localhost', loop_forever=True)
+            mqtt.connect()
+            assert mqtt.client.loop_forever.called
+
     def test_authenticate(self):
         self.mqtt.authenticate("uuid", "secret")
         self.mqtt.client.username_pw_set.assert_called_with("uuid", "secret")
