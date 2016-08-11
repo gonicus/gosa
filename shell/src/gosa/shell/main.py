@@ -106,7 +106,7 @@ class MyConsole(code.InteractiveConsole):
         self.lastCode = code
         try:
             exec(code, self.locals)
-        except SystemExit:
+        except SystemExit:  # pragma: nocover
             raise
         except HTTPError as e:
             if e.code == 401:
@@ -116,7 +116,7 @@ class MyConsole(code.InteractiveConsole):
             # Check for error member
             try:
                 err = e.error["error"]
-            except TypeError:
+            except KeyError:
                 err = str(e)
             # Resolve error details if supplied
             error_id = C.get_error_id(err)
@@ -414,6 +414,6 @@ for i in gosa.getMethods().keys():
                     sys.exit(1)
     return 0
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: nocover
     logging.basicConfig(level=logging.INFO, format='%(asctime)s (%(levelname)s): %(message)s')
     sys.exit(main())
