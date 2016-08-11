@@ -25,9 +25,13 @@ qx.Class.define("gosa.engine.WidgetProvider", {
         return;
       }
       var templateRaw = gosa.Cache.gui_templates[objectName][0];
-      var template = JSON.parse(templateRaw);
+
+      // translate
+      var translator = gosa.engine.Translator.getInstance();
+      var translated = translator.translateJson(templateRaw);
 
       // generate widget
+      var template = JSON.parse(translated);
       var templateContext = new gosa.engine.Context(template);
 
       // invoke callback

@@ -27,7 +27,7 @@ qx.Class.define("gosa.engine.WidgetRegistry", {
       qx.core.Assert.assertQxWidget(widget);
 
       if (this._registry.hasOwnProperty(key)) {
-        this.error("There is already a widet registered under the key '" + key + "'.");
+        this.error("There is already a widget registered for the key '" + key + "'.");
         return;
       }
       this._registry[key] = widget;

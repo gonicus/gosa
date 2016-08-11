@@ -1,7 +1,9 @@
 qx.Class.define("gosa.engine.Translator", {
   extend : qx.core.Object,
+  type : "singleton",
 
   construct : function() {
+    this.base(arguments);
     this._findRegEx = new RegExp('"\s*((trnc|trn|trc|tr)\\((.+?)\\))\s*"', "g");
     this._subRegEx = new RegExp("\s*(?:\"(.+?)\")|(?:'(.+?)')\s*", "g");
   },
