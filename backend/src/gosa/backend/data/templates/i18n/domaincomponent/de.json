@@ -1,6 +1,5 @@
 {
-  "DomainComponent": null,
-  "Generic": null,
-  "Domain Component": null,
-  "Name": null
+  "Generic": "Allgemein",
+  "Domain Component": "Domänen-Objekt-Klasse",
+  "Name": "Name"
 }

@@ -1,5 +1,5 @@
 {
-  "Generic": null,
-  "Country": null,
-  "Name": null
+  "Generic": "Allgemein",
+  "Country": "Land",
+  "Name": "Name" 
 }
