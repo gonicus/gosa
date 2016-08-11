@@ -1,18 +1,24 @@
 qx.Class.define("gosa.engine.processors.Base", {
   extend : qx.core.Object,
 
-  properties : {
-    target : {
-      check : function(value) {
-        return qx.Class.hasMixin(qx.Class.getByName(value.classname), qx.ui.core.MChildrenHandling);
-      },
-      init : null
-    }
+  /**
+   * @param context {gosa.engine.Context}
+   */
+  construct : function(context){
+    this.base(arguments);
+    this._context = context;
   },
 
   members : {
-    _targetWidget : null,
+    _context : null,
 
+    /**
+     * Processes the template and generates widget, widget registry entries, extensions, etc.
+     *
+     * @param node {Object} The top node of the template
+     * @param target {qx.ui.core.Widget ? null} Widget where the template widget shall be added; defaults to the root
+     *   widget of the context
+     */
     process : function(node, target) {
       throw new Error("Processing is not implemented");
     },
@@ -62,5 +68,9 @@ qx.Class.define("gosa.engine.processors.Base", {
         }
       }
     }
+  },
+
+  destruct : function()  {
+    this._context = null;
   }
 });

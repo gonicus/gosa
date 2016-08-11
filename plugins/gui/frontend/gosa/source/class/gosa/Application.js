@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -42,9 +42,9 @@ qx.Class.define("gosa.Application",
     __actions: null,
 
     /**
-     * This method contains the initial application code and gets called 
+     * This method contains the initial application code and gets called
      * during startup of the application
-     * 
+     *
      * @lint ignoreDeprecated(alert)
      */
     main : function()
@@ -133,7 +133,7 @@ qx.Class.define("gosa.Application",
 
       /* Prepare screen for loading */
 
-      // Block the gui while we are loading gui elements like 
+      // Block the gui while we are loading gui elements like
       // tab-templates, translations etc.
       doc.setBlockerColor("#F8F8F8");
       doc.setBlockerOpacity(1);
@@ -187,7 +187,7 @@ qx.Class.define("gosa.Application",
           search.openObject(urlParts[1]);
         }, this);
 
-   
+
       // Enforce login
       var rpc = gosa.io.Rpc.getInstance();
       rpc.cA(function(userid, error) {
@@ -290,13 +290,13 @@ qx.Class.define("gosa.Application",
 
                 // Append a queue entry for each kind of object.
                 for(var item in result){
-                  queue.push(addFunc.apply(this, [result[item]])); 
+                  queue.push(addFunc.apply(this, [result[item]]));
                 }
 
                 // This method creates a loading-queue entry
                 // which loads the gui-templates for the given
                 // object type
-                // (This needs to a closure, due to the fact that 
+                // (This needs to a closure, due to the fact that
                 // 'item' will change in the loop...)
                 var addFunc2 = function(name){
                     var data = {};
@@ -338,7 +338,7 @@ qx.Class.define("gosa.Application",
 
                 // Append a queue entry for each kind of object.
                 for(var item in result){
-                  queue.push(addFunc2.apply(this, [result[item]])); 
+                  queue.push(addFunc2.apply(this, [result[item]]));
                 }
 
                 // Start the queue processing now
@@ -358,9 +358,9 @@ qx.Class.define("gosa.Application",
      */
     addUrlAction: function(action, func, context, userData){
       var item = {
-        'userData': userData, 
-        'action': action, 
-        'context': context, 
+        'userData': userData,
+        'action': action,
+        'context': context,
         'func': func};
       this.__actions.push(item);
     },
@@ -369,16 +369,16 @@ qx.Class.define("gosa.Application",
     /* This method parses the given list of ui-definitions and tries
      * to find actions, that may also be triggered from the browsers
      * address bar.
-     * 
+     *
      * E.g. the 'User' action 'Change_password' should also be triggerable
      * by passing the url "https://clacks-server/index.html#Change_password:UUID"
      * to the address bar.
-     * 
+     *
      * This method registers an URL-handler for each found ui-action.
      */
     __checkForActionsInUIDefs: function(ui_defs, objectName){
 
-      // Parse each template and create a 
+      // Parse each template and create a
       for(var item_id in ui_defs){
         var doc = new qx.xml.Document.fromString(ui_defs[item_id]);
         var res = doc.firstChild.getElementsByTagName("action");
@@ -406,10 +406,10 @@ qx.Class.define("gosa.Application",
     },
 
 
- 
+
     /* Checks the given url for actions and call the registrars
-     * callback method - If it was registered using this.addUrlAction(). 
-     */  
+     * callback method - If it was registered using this.addUrlAction().
+     */
     __handleUrl: function(url){
       var action = url.split(gosa.Config.actionDelimiter)[0];
       var found = false;
@@ -428,7 +428,7 @@ qx.Class.define("gosa.Application",
 
     /* This is an URL action-handler that performs ui-actions.
      * UI-actions are actions that are defined in the ui-templates
-     * of an object. 
+     * of an object.
      * E.g. the Change_password action of the User object will
      *   open a dialog to allow password changes for the given ui.
      */

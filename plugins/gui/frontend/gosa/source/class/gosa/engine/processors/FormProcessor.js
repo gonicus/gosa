@@ -14,7 +14,7 @@ qx.Class.define("gosa.engine.processors.FormProcessor", {
 
       process : function(node, target) {
         if (!target) {
-          target = this.getTarget();
+          target = this._context.getRootWidget();
         }
         this._form = this._createNewForm(node, target);
         this._handleElements(node, this._form);

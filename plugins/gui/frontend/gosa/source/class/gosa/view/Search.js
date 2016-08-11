@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -131,7 +131,7 @@ qx.Class.define("gosa.view.Search",
                   that.removeObject(item.getUuid());
                 }, this);
               dialog.open();
-              
+
             }, this);
           return(item);
         },
@@ -175,7 +175,7 @@ qx.Class.define("gosa.view.Search",
     }, this);
     this.sf.addListener("focusout", function() {
       timer.stop(this._timer);
-      this._timer = null; 
+      this._timer = null;
     }, this);
 
     // Focus search field
@@ -219,7 +219,7 @@ qx.Class.define("gosa.view.Search",
     __default_selection: null,
     __now: null,
 
-    
+
     updateFocus: function(){
       var _self = this;
       setTimeout(function() {
@@ -271,7 +271,7 @@ qx.Class.define("gosa.view.Search",
          }
          query = _query;
       }
-     
+
       // Don't search for nothing or not changed values
       if (!noListUpdate && (query == "" || this._old_query == query)) {
         if (callback) {
@@ -279,7 +279,7 @@ qx.Class.define("gosa.view.Search",
         }
         return;
       }
-      
+
       var rpc = gosa.io.Rpc.getInstance();
       var base = gosa.Session.getInstance().getBase();
       var startTime = new Date().getTime();
@@ -342,7 +342,7 @@ qx.Class.define("gosa.view.Search",
         var item = new gosa.data.model.SearchResultItem();
         item = this.__fillSearchListItem(item, items[i]);
         model.push(item);
-        
+
         // Update categories
         if (!_categories[items[i]['tag']]) {
             _categories[items[i]['tag']] = this['tr'](gosa.Cache.object_categories[items[i]['tag']]);
@@ -371,7 +371,7 @@ qx.Class.define("gosa.view.Search",
       var data = new qx.data.Array(model);
       data.sort(this.__sortByRelevance);
       this.resultList.setModel(data);
-      
+
       // Update categories
       if (this.searchAid.hasFilter()) {
         this.searchAid.updateFilter("category", categories);
@@ -423,7 +423,7 @@ qx.Class.define("gosa.view.Search",
             new gosa.ui.dialogs.Error(this.tr("Cannot remove entry!")).open();
             this.error("cannot remove entry: " + error);
           }
-        }, this, "removeObject", "object", uuid); 
+        }, this, "removeObject", "object", uuid);
     },
 
     /* Open the object given by its uuid/dn
@@ -441,7 +441,7 @@ qx.Class.define("gosa.view.Search",
         }
 
         // Build widget and place it into a window
-        gosa.ui.Renderer.getWidget(function(w){
+        gosa.engine.WidgetProvider.createWidget(function(w){
           var doc = qx.core.Init.getApplication().getRoot();
           win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
           win.setWidth(800);
@@ -504,8 +504,8 @@ qx.Class.define("gosa.view.Search",
       // Once an event was catched, start a new query, but do not show
       // the result in the list, instead just return it.
       this.doSearchE(null, function(result){
-      
-          // Check for differences between the currently active result-set 
+
+          // Check for differences between the currently active result-set
           // and the fetched one.
           var added = [];
           var removed = [];
@@ -673,7 +673,7 @@ qx.Class.define("gosa.view.Search",
     },
 
 
-    /* Adds the given search result entry to the list 
+    /* Adds the given search result entry to the list
      * and then starts a fade-in transition for it.
      * */
     __fadeIn: function(entry){
@@ -703,7 +703,7 @@ qx.Class.define("gosa.view.Search",
       item.setType(entry['tag']);
       item.setDescription(this._highlight(entry['description'], this._old_query));
       item.setIcon(icon);
-      return(item); 
+      return(item);
     }
   }
 });

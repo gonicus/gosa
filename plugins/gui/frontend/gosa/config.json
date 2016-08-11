@@ -24,12 +24,12 @@
     "source",
     "source-all",
     "source-destruct",
-    "source-hybrid",    
+    "source-hybrid",
     "test",
     "test-source",
     "translation"
   ],
-  
+
   "default-job" : "source-hybrid",
 
   "config-warnings" :
@@ -114,10 +114,10 @@
 
     "build-script":
     {
-      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*"],
+      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*", "gosa.engine.extensions.*"],
 
-      "variants" : 
-      { 
+      "variants" :
+      {
         "qx.dynlocale" : ["on"]
       },
       "add-script" :
@@ -133,7 +133,7 @@
         "target"  : "build"
       },
 
-      "environment" : 
+      "environment" :
       {
         "engine.name" : [ "gecko", "mshtml", "webkit", "opera" ]
       },
@@ -153,11 +153,11 @@
 
     "source-script":
     {
-      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*", "gosa.LocalConfig"],
+      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*", "gosa.LocalConfig", "gosa.engine.extensions.*"],
 
-      "variants" : 
-      { 
-        "qx.dynlocale" : ["on"] 
+      "variants" :
+      {
+        "qx.dynlocale" : ["on"]
       },
 
       "shell" : {
@@ -175,7 +175,7 @@
     // project; make sure to adapt the path to the Manifest.json; if you are
     // using a contrib: library, it will be downloaded into the path specified
     // by the 'cache/downloads' config key
-    "libraries" : 
+    "libraries" :
     {
       "library" :
       [

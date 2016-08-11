@@ -1,13 +1,8 @@
 qx.Class.define("gosa.engine.processors.WidgetProcessor", {
   extend : gosa.engine.processors.Base,
 
-  construct : function(context){
-    this._context = context;
-    this.base(arguments);
-  },
-
   members : {
-    _context : '',
+    _context : null,
 
     process : function(node, target) {
       if (this._getValue(node, "class")) {
@@ -27,21 +22,20 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
 
       var widget = new clazz();
       if (!target) {
-        target = this.getTarget();
-        gosa.engine.WidgetRegistry.getInstance().addWidget(this._context, target);
+        target = this._context.getRootWidget();
       }
       target.add(widget, this._getValue(node, "addOptions"));
       this._handleExtensions(node, widget);
 
+      // register widget
       var modelPath = this._getValue(node, "modelPath");
-      if(modelPath){
-        gosa.engine.WidgetRegistry.getInstance().addBuddy(this._context, modelPath, widget);
+      if (modelPath) {
+        this._context.getWidgetRegistry().addWidget(modelPath, widget);
       }
-      gosa.engine.WidgetRegistry.getInstance().addWidget(this._context, widget);
 
       var buddyModelPath = this._getValue(node, "buddyModelPath");
-      if(buddyModelPath){
-        gosa.engine.WidgetRegistry.getInstance().addMate(this._context, buddyModelPath, widget);
+      if (buddyModelPath) {
+        this._context.getBuddyRegistry().addWidget(buddyModelPath, widget);
       }
 
       return widget;
@@ -74,7 +68,7 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
       var properties = this._getValue(node, "properties");
       if (properties) {
         var transformedProperties = this._transformProperties(properties);
-        
+
         for(var property in transformedProperties){
           if(qx.Class.hasProperty(target.constructor, property)){
             target.set(property, transformedProperties[property]);
