@@ -108,7 +108,7 @@ def main():
     modifier = config.get('backend-monitor.modifier')
 
     # Connect to MQTT BUS
-    proxy = MQTTHandler(loop_forever=True)
+    proxy = MQTTHandler(loop_forever=False)
 
     # Main loop
     while True:
