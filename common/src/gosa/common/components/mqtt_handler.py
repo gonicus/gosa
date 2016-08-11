@@ -30,7 +30,7 @@ class MQTTHandler(object):
     url = None
     joined = False
 
-    def __init__(self, loop_forever=False, autostart=True):
+    def __init__(self, autostart=True):
         """
         Construct a new MQTTClientHandler instance based on the configuration
         stored in the environment.
@@ -77,7 +77,7 @@ class MQTTHandler(object):
 
         # Make proxy connection
         self.log.info("using service '%s:%s'" % (self.host, self.port))
-        self.__client = MQTTClient(self.host, port=self.port, keepalive=self.keep_alive, loop_forever=loop_forever)
+        self.__client = MQTTClient(self.host, port=self.port, keepalive=self.keep_alive)
 
         self.__client.authenticate(user, key)
 
