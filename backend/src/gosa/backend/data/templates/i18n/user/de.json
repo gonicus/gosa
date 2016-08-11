@@ -1,17 +1,17 @@
 {
-  "Please provide your web page here": "Bitte geben Sie hier Ihre Webseite an",
+  "Please provide your web page here": "Bitte geben Sie hier die Adresse Ihrer Internetseite an",
   "Surname": "Nachname",
-  "Personal": "Personalien",
+  "Personal": "Persönlich",
   "Address": "Adresse",
   "Homepage": "Internetseite",
   "Title": "Titel",
   "Given name": "Vorname",
   "Phone": "Telefon",
-  "Automatic display name": "automatischer Anzeigename",
-  "Preferred language": "bevorzugte Sprache",
-  "Login information": "Login-Informationen",
-  "Contact information": "Kontaktinformationen",
+  "Automatic display name": "Automatischer angezeigter Name",
+  "Preferred language": "Bevorzugte Sprache",
+  "Login information": "Anmelde-Information",
+  "Contact information": "Kontakt-Information",
   "Display name": "Anzeigename",
   "User": "Benutzer",
-  "Login &ID": "Benutzer-&Id"
+  "Login &ID": "Anmelde &ID"
 }

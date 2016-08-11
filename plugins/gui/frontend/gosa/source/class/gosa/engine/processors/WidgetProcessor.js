@@ -7,8 +7,6 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
     process : function(node, target) {
       if (this._getValue(node, "class")) {
         var widget = this._createAndAddWidget(node, target);
-        this._handleLayout(node, widget);
-        this._handleProperties(node, widget);
         this._createAndAddChildren(node, widget);
       }
       else if (this._getValue(node, "form")) {
@@ -21,10 +19,10 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
       qx.core.Assert.assertNotUndefined(clazz, "Unknown class: '" + this._getValue(node, "class") + "'");
 
       var widget = new clazz();
-      if (!target) {
-        target = this._context.getRootWidget();
-      }
       target.add(widget, this._getValue(node, "addOptions"));
+
+      this._handleLayout(node, widget);
+      this._handleProperties(node, widget);
       this._handleExtensions(node, widget);
 
       // register widget

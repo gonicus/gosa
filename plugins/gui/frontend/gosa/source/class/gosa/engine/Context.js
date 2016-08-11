@@ -49,9 +49,13 @@ qx.Class.define("gosa.engine.Context", {
 
     _createWidgets : function() {
       var processor = gosa.engine.ProcessorFactory.getProcessor(this._template, this);
-      this._rootWidget = new qx.ui.container.Composite(new qx.ui.layout.Atom());
-      processor.process(this._template);
+      this._rootWidget = new gosa.ui.tabview.TabView();
+      this._rootWidget.getChildControl("bar").setScrollStep(150);
 
+      var tabPage = new qx.ui.tabview.Page();
+      tabPage.setLayout(new qx.ui.layout.Canvas());
+      processor.process(this._template, tabPage);
+      this._rootWidget.add(tabPage, {edge : 1});
       this._connectBuddies();
     },
 
