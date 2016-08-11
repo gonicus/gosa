@@ -77,10 +77,6 @@ class MyConsoleTestCase(TestCase):
                 con.runcode("some fake code")
                 mp.assert_called_with()
 
-            # m.side_effect = SystemExit()
-            # with pytest.raises(Exception):
-            #     con.runcode("some fake code")
-
             m.side_effect = HTTPError("", 500, "", "", "")
             with mock.patch.object(con, "showtraceback") as mt:
                 con.runcode("some fake code")
@@ -278,7 +274,6 @@ class MainTestCase(TestCase):
                     pytest.raises(SystemExit):
                 m_service.return_value.connect.side_effect = KeyboardInterrupt()
                 main()
-
 
             with mock.patch("gosa.shell.main.JSONServiceProxy") as m,\
                     mock.patch("gosa.shell.main.SseClient") as m_sse:
