@@ -16,13 +16,13 @@
         "class": "qx.ui.container.Composite",
         "layout": "qx.ui.layout.VBox",
         "children": [{
-            "class": "gosa3.ui.widgets.QCheckBoxWidget",
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "Ctx_flag_tsLogin",
             "properties": {
                 "label": "tr('Allow login on terminal server')"
             }
         }, {
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.Atom",
             "properties": {
                 "legend": "tr('Generic')"
@@ -38,7 +38,7 @@
                         "column": 0
                     },
                     "children": [{
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "CtxWFHomeDirEdit",
                         "addOptions": {
                             "row": 1,
@@ -55,13 +55,13 @@
                             "column": 1
                         },
                         "children": [{
-                            "class": "gosa3.ui.widgets.QLineEditWidget",
+                            "class": "gosa.ui.widgets.QLineEditWidget",
                             "modelPath": "CtxWFHomeDir",
                             "properties": {
                                 "tabIndex": 2
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QComboBoxWidget",
+                            "class": "gosa.ui.widgets.QComboBoxWidget",
                             "modelPath": "CtxWFHomeDirDrive",
                             "properties": {
                                 "tabIndex": 3,
@@ -70,7 +70,7 @@
                             }
                         }]
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "CtxWFProfilePath",
                         "addOptions": {
                             "row": 2,
@@ -80,7 +80,7 @@
                             "text": "tr('Profile path')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "class": "gosa.ui.widgets.QLineEditWidget",
                         "modelPath": "CtxWFProfilePath",
                         "addOptions": {
                             "row": 2,
@@ -91,7 +91,7 @@
                         }
                     }]
                 }, {
-                    "class": "gosa3.ui.widgets.LineWidget",
+                    "class": "gosa.ui.widgets.LineWidget",
                     "addOptions": {
                         "row": 1,
                         "column": 0
@@ -107,7 +107,7 @@
                         "column": 0
                     },
                     "children": [{
-                        "class": "gosa3.ui.widgets.QCheckBoxWidget",
+                        "class": "gosa.ui.widgets.QCheckBoxWidget",
                         "modelPath": "Ctx_flag_inheritMode",
                         "addOptions": {
                             "row": 0,
@@ -119,7 +119,7 @@
                             "tabIndex": 5
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "CtxInitialProgram",
                         "addOptions": {
                             "row": 1,
@@ -129,7 +129,7 @@
                             "text": "tr('Initial program')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "class": "gosa.ui.widgets.QLineEditWidget",
                         "modelPath": "CtxInitialProgram",
                         "addOptions": {
                             "row": 1,
@@ -139,7 +139,7 @@
                             "tabIndex": 6
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "CtxWorkDirectory",
                         "addOptions": {
                             "row": 2,
@@ -149,7 +149,7 @@
                             "text": "tr('Working directory')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "class": "gosa.ui.widgets.QLineEditWidget",
                         "modelPath": "CtxWorkDirectory",
                         "addOptions": {
                             "row": 2,
@@ -162,7 +162,7 @@
                 }]
             }]
         }, {
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.Atom",
             "properties": {
                 "legend": "tr('Connection')"
@@ -181,7 +181,7 @@
                         "class": "qx.ui.container.Composite",
                         "layout": "qx.ui.layout.Grid",
                         "children": [{
-                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "CtxMaxConnectionTime",
                             "addOptions": {
                                 "row": 0,
@@ -191,7 +191,7 @@
                                 "text": "tr('Connection time limit')"
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QSpinBoxWidget",
+                            "class": "gosa.ui.widgets.QSpinBoxWidget",
                             "modelPath": "CtxMaxConnectionTime",
                             "addOptions": {
                                 "row": 0,
@@ -201,7 +201,7 @@
                                 "tabIndex": 8
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "CtxMaxDisconnectionTime",
                             "addOptions": {
                                 "row": 1,
@@ -211,7 +211,7 @@
                                 "text": "tr('Disconnection time')"
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QSpinBoxWidget",
+                            "class": "gosa.ui.widgets.QSpinBoxWidget",
                             "modelPath": "CtxMaxDisconnectionTime",
                             "addOptions": {
                                 "row": 1,
@@ -221,7 +221,7 @@
                                 "tabIndex": 9
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "CtxMaxIdleTime",
                             "addOptions": {
                                 "row": 2,
@@ -231,7 +231,7 @@
                                 "text": "tr('IDLE time limit')"
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QSpinBoxWidget",
+                            "class": "gosa.ui.widgets.QSpinBoxWidget",
                             "modelPath": "CtxMaxIdleTime",
                             "addOptions": {
                                 "row": 2,
@@ -251,7 +251,7 @@
                         "class": "qx.ui.container.Composite",
                         "layout": "qx.ui.layout.Grid",
                         "children": [{
-                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "CtxShadow",
                             "addOptions": {
                                 "row": 0,
@@ -261,7 +261,7 @@
                                 "text": "tr('Shadowing')"
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QComboBoxWidget",
+                            "class": "gosa.ui.widgets.QComboBoxWidget",
                             "modelPath": "CtxShadow",
                             "addOptions": {
                                 "row": 0,
@@ -271,7 +271,7 @@
                                 "tabIndex": 11
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "Ctx_flag_brokenConn",
                             "addOptions": {
                                 "row": 1,
@@ -281,7 +281,7 @@
                                 "text": "tr('On broken or timed out')"
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QComboBoxWidget",
+                            "class": "gosa.ui.widgets.QComboBoxWidget",
                             "modelPath": "Ctx_flag_brokenConn",
                             "addOptions": {
                                 "row": 1,
@@ -291,7 +291,7 @@
                                 "tabIndex": 12
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "Ctx_flag_reConn",
                             "addOptions": {
                                 "row": 2,
@@ -301,7 +301,7 @@
                                 "text": "tr('Reconnect if disconnected')"
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QComboBoxWidget",
+                            "class": "gosa.ui.widgets.QComboBoxWidget",
                             "modelPath": "Ctx_flag_reConn",
                             "addOptions": {
                                 "row": 2,
@@ -313,7 +313,7 @@
                         }]
                     }]
                 }, {
-                    "class": "gosa3.ui.widgets.LineWidget",
+                    "class": "gosa.ui.widgets.LineWidget",
                     "addOptions": {
                         "row": 1,
                         "column": 0
@@ -329,21 +329,21 @@
                         "column": 0
                     },
                     "children": [{
-                        "class": "gosa3.ui.widgets.QCheckBoxWidget",
+                        "class": "gosa.ui.widgets.QCheckBoxWidget",
                         "modelPath": "Ctx_flag_connectClientDrives",
                         "properties": {
                             "label": "tr('Connect client drives at log on')",
                             "tabIndex": 14
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QCheckBoxWidget",
+                        "class": "gosa.ui.widgets.QCheckBoxWidget",
                         "modelPath": "Ctx_flag_connectClientPrinters",
                         "properties": {
                             "label": "tr('Connect client printer at log on')",
                             "tabIndex": 15
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QCheckBoxWidget",
+                        "class": "gosa.ui.widgets.QCheckBoxWidget",
                         "modelPath": "Ctx_flag_defaultPrinter",
                         "properties": {
                             "label": "tr('Default to main client printer')",

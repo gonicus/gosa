@@ -17,7 +17,7 @@
         "class": "qx.ui.container.Composite",
         "layout": "qx.ui.layout.VBox",
         "children": [{
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.Atom",
             "properties": {
                 "legend": "tr('Generic')"
@@ -33,7 +33,7 @@
                         "column": 0
                     },
                     "children": [{
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "cn",
                         "addOptions": {
                             "row": 0,
@@ -43,7 +43,7 @@
                             "text": "tr('Group name')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "class": "gosa.ui.widgets.QLineEditWidget",
                         "modelPath": "cn",
                         "addOptions": {
                             "row": 0,
@@ -53,7 +53,7 @@
                             "tabIndex": 1
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "description",
                         "addOptions": {
                             "row": 1,
@@ -63,7 +63,7 @@
                             "text": "tr('Description')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "class": "gosa.ui.widgets.QLineEditWidget",
                         "modelPath": "description",
                         "addOptions": {
                             "row": 1,
@@ -83,7 +83,7 @@
                             "height": 20
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QCheckBoxWidget",
+                        "class": "gosa.ui.widgets.QCheckBoxWidget",
                         "modelPath": "autoGid",
                         "addOptions": {
                             "row": 3,
@@ -94,7 +94,7 @@
                             "label": "tr('Automatically assign group ID')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "gidNumber",
                         "addOptions": {
                             "row": 4,
@@ -104,7 +104,7 @@
                             "text": "tr('Group ID')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QSpinBoxWidget",
+                        "class": "gosa.ui.widgets.QSpinBoxWidget",
                         "modelPath": "gidNumber",
                         "addOptions": {
                             "row": 4,
@@ -117,7 +117,7 @@
                 }]
             }]
         }, {
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.Atom",
             "properties": {
                 "legend": "tr('Members')"
@@ -126,7 +126,7 @@
                 "class": "qx.ui.container.Composite",
                 "layout": "qx.ui.layout.Grid",
                 "children": [{
-                    "class": "gosa3.ui.widgets.QTableWidgetWidget",
+                    "class": "gosa.ui.widgets.QTableWidgetWidget",
                     "modelPath": "memberUid",
                     "addOptions": {
                         "row": 0,

@@ -10,6 +10,13 @@ qx.Class.define("gosa.engine.WidgetRegistry", {
     _registry : null,
 
     /**
+     * @return {Map} The actual registry (= hash map)
+     */
+    getMap : function() {
+      return this._registry;
+    },
+
+    /**
      * Saves a widget in the registry.
      *
      * @param key {String} The key under which the widget shall be saved (e.g. the model path)

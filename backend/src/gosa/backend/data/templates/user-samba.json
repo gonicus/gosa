@@ -27,7 +27,7 @@
             "column": 0
         },
         "children": [{
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.VBox",
             "properties": {
                 "legend": "tr('Common')"
@@ -43,7 +43,7 @@
                     "class": "qx.ui.container.Composite",
                     "layout": "qx.ui.layout.Grid",
                     "children": [{
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaSID",
                         "addOptions": {
                             "row": 0,
@@ -53,7 +53,7 @@
                             "text": "tr('SID')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "class": "gosa.ui.widgets.QLineEditWidget",
                         "modelPath": "sambaSID",
                         "addOptions": {
                             "row": 0,
@@ -63,7 +63,7 @@
                             "tabIndex": 2
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaPrimaryGroupSID",
                         "addOptions": {
                             "row": 2,
@@ -73,7 +73,7 @@
                             "text": "tr('Primary group')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QTableWidgetWidget",
+                        "class": "gosa.ui.widgets.QTableWidgetWidget",
                         "modelPath": "sambaPrimaryGroupSID",
                         "addOptions": {
                             "row": 2,
@@ -93,7 +93,7 @@
                             }
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "description",
                         "addOptions": {
                             "row": 3,
@@ -103,7 +103,7 @@
                             "text": "tr('Description')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "class": "gosa.ui.widgets.QLineEditWidget",
                         "modelPath": "description",
                         "addOptions": {
                             "row": 3,
@@ -123,7 +123,7 @@
                         "fieldGrowthPolicy": "QFormLayout::ExpandingFieldsGrow"
                     },
                     "children": [{
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaDomainName",
                         "addOptions": {
                             "row": 0,
@@ -133,7 +133,7 @@
                             "text": "tr('Domain')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QComboBoxWidget",
+                        "class": "gosa.ui.widgets.QComboBoxWidget",
                         "modelPath": "sambaDomainName",
                         "addOptions": {
                             "row": 0,
@@ -166,7 +166,7 @@
                               "height": 20
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QPushButtonWidget",
+                            "class": "gosa.ui.widgets.QPushButtonWidget",
                             "properties": {
                                 "text": "tr('Show policy')",
                                 "dialog": "sambaDomainInfo"
@@ -176,7 +176,7 @@
                 }]
             }]
         }, {
-            "class": "gosa3.ui.widgets.LineWidget",
+            "class": "gosa.ui.widgets.LineWidget",
             "properties": {
                 "orientation": "Qt::Horizontal"
             },
@@ -192,7 +192,7 @@
                 "column": 0
             },
             "children": [{
-                "class": "gosa3.ui.widgets.QLabelWidget",
+                "class": "gosa.ui.widgets.QLabelWidget",
                 "buddyModelPath": "sambaHomePath",
                 "properties": {
                     "text": "tr('Home directory')"
@@ -209,13 +209,13 @@
                     "column": 1
                 },
                 "children": [{
-                    "class": "gosa3.ui.widgets.QLineEditWidget",
+                    "class": "gosa.ui.widgets.QLineEditWidget",
                     "modelPath": "sambaHomePath",
                     "properties": {
                         "tabIndex": 4
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QComboBoxWidget",
+                    "class": "gosa.ui.widgets.QComboBoxWidget",
                     "modelPath": "sambaHomeDrive",
                     "properties": {
                         "maxWidth": 60,
@@ -224,7 +224,7 @@
                     }
                 }]
             }, {
-                "class": "gosa3.ui.widgets.QLabelWidget",
+                "class": "gosa.ui.widgets.QLabelWidget",
                 "buddyModelPath": "sambaLogonScript",
                 "addOptions": {
                     "row": 1,
@@ -234,7 +234,7 @@
                     "text": "tr('Logon script')"
                 }
             }, {
-                "class": "gosa3.ui.widgets.QLineEditWidget",
+                "class": "gosa.ui.widgets.QLineEditWidget",
                 "modelPath": "sambaLogonScript",
                 "addOptions": {
                     "row": 1,
@@ -244,7 +244,7 @@
                     "tabIndex": 6
                 }
             }, {
-                "class": "gosa3.ui.widgets.QLabelWidget",
+                "class": "gosa.ui.widgets.QLabelWidget",
                 "buddyModelPath": "sambaProfilePath",
                 "addOptions": {
                     "row": 2,
@@ -254,7 +254,7 @@
                     "text": "tr('Profile path')"
                 }
             }, {
-                "class": "gosa3.ui.widgets.QLineEditWidget",
+                "class": "gosa.ui.widgets.QLineEditWidget",
                 "modelPath": "sambaProfilePath",
                 "addOptions": {
                     "row": 2,
@@ -266,7 +266,7 @@
             }]
         }]
     }, {
-        "class": "gosa3.ui.widgets.GroupBox",
+        "class": "gosa.ui.widgets.GroupBox",
         "layout": "qx.ui.layout.Atom",
         "addOptions": {
             "row": 1,
@@ -289,7 +289,7 @@
                     "class": "qx.ui.container.Composite",
                     "layout": "qx.ui.layout.Grid",
                     "children": [{
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaPwdLastSet",
                         "addOptions": {
                             "row": 0,
@@ -299,7 +299,7 @@
                             "text": "tr('Last password change')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QDateTimeEditWidget",
+                        "class": "gosa.ui.widgets.QDateTimeEditWidget",
                         "modelPath": "sambaPwdLastSet",
                         "addOptions": {
                             "row": 0,
@@ -309,7 +309,7 @@
                             "tabIndex": 8
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaBadPasswordCount",
                         "addOptions": {
                             "row": 1,
@@ -320,7 +320,7 @@
                             "toolTipText": "tr('Number of failed login attempts')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QSpinBoxWidget",
+                        "class": "gosa.ui.widgets.QSpinBoxWidget",
                         "modelPath": "sambaBadPasswordCount",
                         "addOptions": {
                             "row": 1,
@@ -330,7 +330,7 @@
                             "tabIndex": 9
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaBadPasswordTime",
                         "addOptions": {
                             "row": 2,
@@ -340,7 +340,7 @@
                             "text": "tr('Date of last failed login')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QDateTimeEditWidget",
+                        "class": "gosa.ui.widgets.QDateTimeEditWidget",
                         "modelPath": "sambaBadPasswordTime",
                         "addOptions": {
                             "row": 2,
@@ -350,7 +350,7 @@
                             "tabIndex": 10
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaLogonTime",
                         "addOptions": {
                             "row": 3,
@@ -360,7 +360,7 @@
                             "text": "tr('Last login')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QDateTimeEditWidget",
+                        "class": "gosa.ui.widgets.QDateTimeEditWidget",
                         "modelPath": "sambaLogonTime",
                         "addOptions": {
                             "row": 3,
@@ -370,7 +370,7 @@
                             "tabIndex": 11
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaLogoffTime",
                         "addOptions": {
                             "row": 4,
@@ -380,7 +380,7 @@
                             "text": "tr('Last logout')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QDateTimeEditWidget",
+                        "class": "gosa.ui.widgets.QDateTimeEditWidget",
                         "modelPath": "sambaLogoffTime",
                         "addOptions": {
                             "row": 4,
@@ -400,7 +400,7 @@
                     "class": "qx.ui.container.Composite",
                     "layout": "qx.ui.layout.Grid",
                     "children": [{
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaKickoffTime",
                         "addOptions": {
                             "row": 1,
@@ -411,7 +411,7 @@
                             "toolTipText": "tr('Date and time when the user should be logged of the workstation')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QDateTimeEditWidget",
+                        "class": "gosa.ui.widgets.QDateTimeEditWidget",
                         "modelPath": "sambaKickoffTime",
                         "addOptions": {
                             "row": 1,
@@ -421,7 +421,7 @@
                             "tabIndex": 13
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaPwdCanChange",
                         "addOptions": {
                             "row": 2,
@@ -431,7 +431,7 @@
                             "text": "tr('Password change required after')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QDateTimeEditWidget",
+                        "class": "gosa.ui.widgets.QDateTimeEditWidget",
                         "modelPath": "sambaPwdCanChange",
                         "addOptions": {
                             "row": 2,
@@ -441,7 +441,7 @@
                             "tabIndex": 14
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QDateTimeEditWidget",
+                        "class": "gosa.ui.widgets.QDateTimeEditWidget",
                         "modelPath": "sambaPwdMustChange",
                         "addOptions": {
                             "row": 3,
@@ -465,7 +465,7 @@
             }]
         }]
     }, {
-        "class": "gosa3.ui.widgets.GroupBox",
+        "class": "gosa.ui.widgets.GroupBox",
         "layout": "qx.ui.layout.Atom",
         "properties": {
             "enabled": true,
@@ -486,13 +486,13 @@
                     "column": 0
                 },
                 "children": [{
-                    "class": "gosa3.ui.widgets.QPushButtonWidget",
+                    "class": "gosa.ui.widgets.QPushButtonWidget",
                     "properties": {
                         "text": "tr('Logon hours')",
                         "dialog": "sambaLogonHours"
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QPushButtonWidget",
+                    "class": "gosa.ui.widgets.QPushButtonWidget",
                     "properties": {
                         "text": "tr('User workstations')",
                         "dialog": "sambaUserWorkStations"

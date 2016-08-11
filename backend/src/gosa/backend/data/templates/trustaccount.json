@@ -16,7 +16,7 @@
         "class": "qx.ui.container.Composite",
         "layout": "qx.ui.layout.Grid",
         "children": [{
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.Atom",
             "addOptions": {
                 "row": 0,
@@ -32,17 +32,17 @@
                     "class": "qx.ui.container.Composite",
                     "layout": "qx.ui.layout.HBox",
                     "children": [{
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "trustModel",
                         "properties": {
                             "text": "tr('Mode')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QComboBoxWidget",
+                        "class": "gosa.ui.widgets.QComboBoxWidget",
                         "modelPath": "trustModel"
                     }]
                 }, {
-                    "class": "gosa3.ui.widgets.QTableWidgetWidget",
+                    "class": "gosa.ui.widgets.QTableWidgetWidget",
                     "modelPath": "accessTo",
                     "extensions": {
                         "guiProperties": {

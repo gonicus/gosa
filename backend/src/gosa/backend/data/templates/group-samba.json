@@ -16,7 +16,7 @@
         "class": "qx.ui.container.Composite",
         "layout": "qx.ui.layout.VBox",
         "children": [{
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.Atom",
             "properites": {
                 "legend": "tr('Generic')"
@@ -32,7 +32,7 @@
                         "column": 0
                     },
                     "children": [{
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaSID",
                         "addOptions": {
                             "row": 0,
@@ -42,7 +42,7 @@
                             "text": "tr('SID')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "class": "gosa.ui.widgets.QLineEditWidget",
                         "modelPath": "sambaSID",
                         "addOptions": {
                             "row": 0,
@@ -53,7 +53,7 @@
                             "readOnly": true
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaDomain",
                         "addOptions": {
                             "row": 1,
@@ -63,7 +63,7 @@
                             "text": "tr('Domain')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QComboBoxWidget",
+                        "class": "gosa.ui.widgets.QComboBoxWidget",
                         "modelPath": "sambaDomainName",
                         "addOptions": {
                             "row": 1,
@@ -73,7 +73,7 @@
                             "tabIndex": 2
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaGroupType",
                         "addOptions": {
                             "row": 2,
@@ -83,7 +83,7 @@
                             "text": "tr('Group type')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QComboBoxWidget",
+                        "class": "gosa.ui.widgets.QComboBoxWidget",
                         "modelPath": "sambaGroupType",
                         "addOptions": {
                             "row": 2,
@@ -93,7 +93,7 @@
                             "tabIndex": 3
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "displayName",
                         "addOptions": {
                             "row": 3,
@@ -103,7 +103,7 @@
                             "text": "tr('Display name')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "class": "gosa.ui.widgets.QLineEditWidget",
                         "modelPath": "displayName",
                         "addOptions": {
                             "row": 3,
@@ -116,7 +116,7 @@
                 }]
             }]
         }, {
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.Atom",
             "properties": {
                 "legend": "tr('Nested groups')"
@@ -125,7 +125,7 @@
                 "class": "qx.ui.container.Composite",
                 "layout": "qx.ui.layout.Grid",
                 "children": [{
-                    "class": "gosa3.ui.widgets.QTableWidgetWidget",
+                    "class": "gosa.ui.widgets.QTableWidgetWidget",
                     "modelPath": "sambaSIDList",
                     "addOptions": {
                         "row": 0,

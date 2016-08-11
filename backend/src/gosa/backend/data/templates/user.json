@@ -42,7 +42,7 @@
         "class": "qx.ui.container.Composite",
         "layout": "qx.ui.layout.Grid",
         "children": [{
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.VBox",
             "addOptions": {
                 "row": 0,
@@ -62,7 +62,7 @@
                         "column": 2
                     },
                     "children": [{
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "uid",
                         "addOptions": {
                             "row": 0,
@@ -72,7 +72,7 @@
                             "text": "tr('Login &ID')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "class": "gosa.ui.widgets.QLineEditWidget",
                         "modelPath": "uid",
                         "addOptions": {
                             "row": 0,
@@ -92,7 +92,7 @@
 													"height": 5
 												}
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sn",
                         "addOptions": {
                             "row": 2,
@@ -102,7 +102,7 @@
                             "text": "tr('Surname')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "class": "gosa.ui.widgets.QLineEditWidget",
                         "modelPath": "sn",
                         "addOptions": {
                             "row": 2,
@@ -112,7 +112,7 @@
                             "tabIndex": 2
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "givenName",
                         "addOptions": {
                             "row": 3,
@@ -122,7 +122,7 @@
                             "text": "tr('Given name')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QLineEditWidget",
+                        "class": "gosa.ui.widgets.QLineEditWidget",
                         "modelPath": "givenName",
                         "addOptions": {
                             "row": 3,
@@ -142,7 +142,7 @@
 													"height": 5
 												}
 										}, {
-                        "class": "gosa3.ui.widgets.QLabelWidget",
+                        "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "preferredLanguage",
                         "addOptions": {
                             "row": 5,
@@ -152,7 +152,7 @@
                             "text": "tr('Preferred language')"
                         }
                     }, {
-                        "class": "gosa3.ui.widgets.QComboBoxWidget",
+                        "class": "gosa.ui.widgets.QComboBoxWidget",
                         "modelPath": "preferredLanguage",
                         "addOptions": {
                             "row": 5,
@@ -173,7 +173,7 @@
 												}
                     }]
                 }, {
-                    "class": "gosa3.ui.widgets.QGraphicsViewWidget",
+                    "class": "gosa.ui.widgets.QGraphicsViewWidget",
                     "modelPath": "jpegPhoto",
                     "addOptions": {
                         "row": 0,
@@ -200,7 +200,7 @@
                 }]
             }]
         }, {
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.VBox",
             "addOptions": {
                 "row": 1,
@@ -223,7 +223,7 @@
                         "class": "qx.ui.container.Composite",
                         "layout": "qx.ui.layout.Grid",
                         "children": [{
-                            "class": "gosa3.ui.widgets.QCheckBoxWidget",
+                            "class": "gosa.ui.widgets.QCheckBoxWidget",
                             "modelPath": "autoDisplay",
                             "addOptions": {
                                 "row": 0,
@@ -234,7 +234,7 @@
                                 "tabIndex": 5
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "displayName",
                             "addOptions": {
                                 "row": 1,
@@ -244,7 +244,7 @@
                                 "text": "tr('Display name')"
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QLineEditWidget",
+                            "class": "gosa.ui.widgets.QLineEditWidget",
                             "modelPath": "displayName",
                             "addOptions": {
                                 "row": 1,
@@ -254,7 +254,7 @@
                                 "tabIndex": 6
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "title",
                             "addOptions": {
                                 "row": 2,
@@ -264,7 +264,7 @@
                                 "text": "tr('Title')"
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QLineEditWidget",
+                            "class": "gosa.ui.widgets.QLineEditWidget",
                             "modelPath": "title",
                             "addOptions": {
                                 "row": 2,
@@ -284,7 +284,7 @@
                         "class": "qx.ui.container.Composite",
                         "layout": "qx.ui.layout.Grid",
                         "children": [{
-                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "homePostalAddress",
                             "addOptions": {
                                 "row": 0,
@@ -294,7 +294,7 @@
                                 "text": "tr('Address')"
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QPlainTextEditWidget",
+                            "class": "gosa.ui.widgets.QPlainTextEditWidget",
                             "modelPath": "homePostalAddress",
                             "addOptions": {
                                 "row": 0,
@@ -308,7 +308,7 @@
                                 "tabIndex": 8
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "homePhone",
                             "addOptions": {
                                 "row": 1,
@@ -318,7 +318,7 @@
                                 "text": "tr('Phone')"
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QLineEditWidget",
+                            "class": "gosa.ui.widgets.QLineEditWidget",
                             "modelPath": "homePhone",
                             "addOptions": {
                                 "row": 1,
@@ -328,7 +328,7 @@
                                 "tabIndex": 9
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QLabelWidget",
+                            "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "labeledURI",
                             "addOptions": {
                                 "row": 2,
@@ -338,7 +338,7 @@
                                 "text": "tr('Homepage')"
                             }
                         }, {
-                            "class": "gosa3.ui.widgets.QLineEditWidget",
+                            "class": "gosa.ui.widgets.QLineEditWidget",
                             "modelPath": "labeledURI",
                             "addOptions": {
                                 "row": 2,

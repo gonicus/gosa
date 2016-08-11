@@ -16,7 +16,7 @@
         "class": "qx.ui.container.Composite",
         "layout": "qx.ui.layout.Grid",
         "children": [{
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.Atom",
             "addOptions": {
                 "row": 0,
@@ -29,7 +29,7 @@
                 "class": "qx.ui.container.Composite",
                 "layout": "qx.ui.layout.Grid",
                 "children": [{
-                    "class": "gosa3.ui.widgets.QLabelWidget",
+                    "class": "gosa.ui.widgets.QLabelWidget",
                     "buddyModelPath": "homeDirectory",
                     "addOptions": {
                         "row": 0,
@@ -39,7 +39,7 @@
                         "text": "tr('Login shell')"
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QLineEditWidget",
+                    "class": "gosa.ui.widgets.QLineEditWidget",
                     "modelPath": "homeDirectory",
                     "addOptions": {
                         "row": 0,
@@ -49,7 +49,7 @@
                         "tabIndex": 1
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QLabelWidget",
+                    "class": "gosa.ui.widgets.QLabelWidget",
                     "buddyModelPath": "loginShell",
                     "addOptions": {
                         "row": 1,
@@ -59,7 +59,7 @@
                         "text": "tr('Login shell')"
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QComboBoxWidget",
+                    "class": "gosa.ui.widgets.QComboBoxWidget",
                     "modelPath": "loginShell",
                     "addOptions": {
                         "row": 1,
@@ -79,7 +79,7 @@
                         "height": 5
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QCheckBoxWidget",
+                    "class": "gosa.ui.widgets.QCheckBoxWidget",
                     "modelPath": "autoGECOS",
                     "addOptions": {
                         "row": 3,
@@ -91,7 +91,7 @@
                         "label": "tr('Automatic GECOS')"
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QLabelWidget",
+                    "class": "gosa.ui.widgets.QLabelWidget",
                     "buddyModelPath": "gecos",
                     "addOptions": {
                         "row": 4,
@@ -101,7 +101,7 @@
                         "text": "tr('GECOS')"
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QLineEditWidget",
+                    "class": "gosa.ui.widgets.QLineEditWidget",
                     "modelPath": "gecos",
                     "addOptions": {
                         "row": 4,
@@ -121,7 +121,7 @@
                         "height": 5
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QCheckBoxWidget",
+                    "class": "gosa.ui.widgets.QCheckBoxWidget",
                     "modelPath": "autoID",
                     "addOptions": {
                         "row": 6,
@@ -133,7 +133,7 @@
                         "tabIndex": 5
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QLabelWidget",
+                    "class": "gosa.ui.widgets.QLabelWidget",
                     "buddyModelPath": "uidNumber",
                     "addOptions": {
                         "row": 7,
@@ -143,7 +143,7 @@
                         "text": "tr('User ID')"
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QSpinBoxWidget",
+                    "class": "gosa.ui.widgets.QSpinBoxWidget",
                     "modelPath": "uidNumber",
                     "addOptions": {
                         "row": 7,
@@ -155,7 +155,7 @@
                         "maxHeight": 16777215
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QLabelWidget",
+                    "class": "gosa.ui.widgets.QLabelWidget",
                     "buddyModelPath": "gidNumber",
                     "addOptions": {
                         "row": 8,
@@ -165,7 +165,7 @@
                         "text": "tr('Group ID')"
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QSpinBoxWidget",
+                    "class": "gosa.ui.widgets.QSpinBoxWidget",
                     "modelPath": "gidNumber",
                     "addOptions": {
                         "row": 8,
@@ -179,7 +179,7 @@
                 }]
             }]
         }, {
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.Atom",
             "addOptions": {
                 "row": 1,
@@ -192,7 +192,7 @@
                 "class": "qx.ui.container.Composite",
                 "layout": "qx.ui.layout.Grid",
                 "children": [{
-                    "class": "gosa3.ui.widgets.QTableWidgetWidget",
+                    "class": "gosa.ui.widgets.QTableWidgetWidget",
                     "modelPath": "memberUid",
                     "addOptions": {
                         "row": 0,

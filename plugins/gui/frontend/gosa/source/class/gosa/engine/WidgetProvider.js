@@ -27,7 +27,7 @@ qx.Class.define("gosa.engine.WidgetProvider", {
       var templateRaw = gosa.Cache.gui_templates[objectName][0];
       var template = JSON.parse(templateRaw);
 
-      // generate and register widget
+      // generate widget
       var templateContext = new gosa.engine.Context(template);
 
       // invoke callback

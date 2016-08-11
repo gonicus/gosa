@@ -56,25 +56,16 @@ qx.Class.define("gosa.engine.Context", {
     },
 
     _connectBuddies : function() {
-      console.log("TODO: connect buddies");
+      var buddyMap = this._buddyRegistry.getMap();
+      var widgetMap = this._widgetRegistry.getMap();
 
-
-  //   /**
-  //    * Connect buddies and mates
-  //    */
-  //   connectBuddies : function(){
-  //     Object.keys(this._buddies).forEach(function(context){
-  //       Object.keys(this._buddies[context]).forEach(function(path){
-  //         if (this._buddies[context][path].hasOwnProperty('buddy') &&
-  //             this._buddies[context][path].hasOwnProperty('mates')) {
-  //           var mates = this._buddies[context][path].mates;
-  //           for (var mate in mates) {
-  //             mates[mate].setBuddy(this._buddies[context][path].buddy);
-  //           }
-  //         }
-  //       }, this);
-  //     }, this);
-  //   }
+      for (var modelPath in buddyMap) {
+        if (buddyMap.hasOwnProperty(modelPath)) {
+          if (widgetMap.hasOwnProperty(modelPath)) {
+            buddyMap[modelPath].setBuddy(widgetMap[modelPath]);
+          }
+        }
+      }
     }
   },
 

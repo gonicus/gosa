@@ -15,7 +15,7 @@
         "class": "qx.ui.container.Composite",
         "layout": "qx.ui.layout.VBox",
         "children": [{
-            "class": "gosa3.ui.widgets.GroupBox",
+            "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.Atom",
             "properties": {
                 "legend": "tr('Generic')"
@@ -24,13 +24,13 @@
                 "class": "qx.ui.container.Composite",
                 "layout": "qx.ui.layout.HBox",
                 "children": [{
-                    "class": "gosa3.ui.widgets.QLabelWidget",
+                    "class": "gosa.ui.widgets.QLabelWidget",
                     "buddyModelPath": "c",
                     "properties": {
                         "text": "tr('Name')"
                     }
                 }, {
-                    "class": "gosa3.ui.widgets.QLineEditWidget",
+                    "class": "gosa.ui.widgets.QLineEditWidget",
                     "modelPath": "c"
                 }]
             }]
