@@ -1,6 +1,6 @@
 {
   "Common": "Gesamt",
-  "Date and time when the user should be logged of the workstation": null,
+  "Date and time when the user should be logged of the workstation": "Datum und Uhrzeit an denen der Benutzer nicht an dem Arbeitsplatz angemeldet sein sollte",
   "Failed login attempts": "Fehlgeschlagene Anmeldeversuche",
   "Date of last failed login": "Letzte Fehlanmeldung",
   "Access options": "Zugriffsoptionen",
