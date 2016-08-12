@@ -100,7 +100,7 @@ class MQTTHandler(object):
         return self.__client.publish(topic, data)
 
     def send_event(self, event, topic):
-        data = etree.tostring(event, pretty_print=True).decode()
+        data = etree.tostring(event, pretty_print=True).decode('utf-8')
         self.send_message(data, topic)
 
     @gen.coroutine
