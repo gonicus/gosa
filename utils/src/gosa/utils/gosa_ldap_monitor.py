@@ -18,9 +18,10 @@ from gosa.common.event import EventMaker
 from gosa.common.components.mqtt_handler import MQTTHandler
 
 
-def tail(path):
+def tail(path, initially_failed=False):
     # Start listening from the end of the given path
-    path.seek(0, 2)
+    if not initially_failed:
+        path.seek(0, 2)
 
     # Try to read until something new pops up
     while True:
@@ -33,7 +34,7 @@ def tail(path):
         yield line.strip()
 
 
-def monitor(path, modifier, proxy):
+def monitor(path, modifier, proxy, initially_failed=False):
     # Initialize dn, timestamp and change type.
     dn = None
     ts = None
@@ -45,7 +46,7 @@ def monitor(path, modifier, proxy):
             # Collect lines until a newline occurs, fill
             # dn, ts and ct accordingly. Entries that only
             # change administrative values.
-            for line in tail(f):
+            for line in tail(f, initially_failed):
 
                 # Catch dn
                 if line.startswith("dn::"):
@@ -110,15 +111,18 @@ def main():
     proxy = MQTTHandler()
 
     # Main loop
+    initially_failed = False
     while True:
         sleep(1)
 
         # Wait for file to pop up
         if not os.path.exists(path):
+            initially_failed = True
             continue
 
         # Wait for file to be file
         if not os.path.isfile(path):
+            initially_failed = True
             continue
 
         # Check if it is effectively readable
@@ -126,10 +130,11 @@ def main():
             with open(path):
                 pass
         except IOError:
+            initially_failed = True
             continue
 
         # Listen for changes
-        monitor(path, modifier, proxy)
+        monitor(path, modifier, proxy, initially_failed)
 
 
 if __name__ == "__main__":
