@@ -90,8 +90,7 @@ def monitor(path, modifier, proxy):
                             )
                         )
 
-                        update = etree.tostring(update, pretty_print=True).decode('utf-8')
-                        proxy.send_message(update, topic="%s/events" % Environment.getInstance().domain)
+                        proxy.send_event(update, topic="%s/events" % Environment.getInstance().domain)
 
                     dn = ts = ct = None
 
@@ -108,7 +107,7 @@ def main():
     modifier = config.get('backend-monitor.modifier')
 
     # Connect to MQTT BUS
-    proxy = MQTTHandler(loop_forever=False)
+    proxy = MQTTHandler()
 
     # Main loop
     while True:
