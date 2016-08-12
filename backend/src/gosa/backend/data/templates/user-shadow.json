@@ -1,7 +1,7 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Atom",
+    "layout": "qx.ui.layout.Canvas",
     "addOptions": {
         "flex" : 1
     },
@@ -20,13 +20,18 @@
     },
     "children": [{
         "class": "qx.ui.container.Composite",
-        "layout": "qx.ui.layout.Grid",
+        "layout": "qx.ui.layout.VBox",
+        "addOptions": {
+            "edge": 0
+        },
+        "layoutConfig": {
+            "spacing": 5
+        },
         "children": [{
             "class": "gosa.ui.widgets.GroupBox",
-            "layout": "qx.ui.layout.Atom",
-            "addOptions": {
-                "row": 0,
-                "column": 0
+            "layout": "qx.ui.layout.VBox",
+            "layoutConfig": {
+                "spacing": 5
             },
             "properties": {
                 "legend": "tr('Password expiry')"
@@ -34,108 +39,110 @@
             "children": [{
                 "class": "qx.ui.container.Composite",
                 "layout": "qx.ui.layout.Grid",
+                "layoutConfig": {
+                    "spacing": 5
+                },
+                "extensions": {
+                    "layoutOptions": {
+                        "columnFlex": {
+                            "column": [0, 1],
+                            "flex": 1
+                        }
+                    }
+                },
                 "children": [{
-                    "class": "qx.ui.container.Composite",
-                    "layout": "qx.ui.layout.Grid",
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "shadowLastChange",
                     "addOptions": {
                         "row": 0,
                         "column": 0
                     },
-                    "children": [{
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "shadowLastChange",
-                        "addOptions": {
-                            "row": 0,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Last password modification')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QDateEditWidget",
-                        "modelPath": "shadowLastChange",
-                        "addOptions": {
-                            "row": 0,
-                            "column": 1
-                        }
-                    }, {
-                        "class": "qx.ui.core.Widget",
-                        "addOptions": {
-                            "row": 1,
-                            "column": 0
-                        },
-                        "properties": {
-                            "width": 20,
-                            "height": 5
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "shadowExpire",
-                        "addOptions": {
-                            "row": 2,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Password expires on')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QDateEditWidget",
-                        "modelPath": "shadowExpire",
-                        "addOptions": {
-                            "row": 2,
-                            "column": 1
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "shadowWarning",
-                        "addOptions": {
-                            "row": 3,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Warn berfore password expires')",
-                            "toolTipText": "tr('Specifies the number of days before the password expires that the user is warned.')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QSpinBoxWidget",
-                        "modelPath": "shadowWarning",
-                        "addOptions": {
-                            "row": 3,
-                            "column": 1
-                        },
-                        "properties": {
-                            "toolTipText": "tr('Specifies the number of days before the password expires that the user is warned.')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "shadowInactive",
-                        "addOptions": {
-                            "row": 4,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Inactivity before account is disabled')",
-                            "toolTipText": "tr('Specifies the number of days of inactivity allowed for the specified user.')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QSpinBoxWidget",
-                        "modelPath": "shadowInactive",
-                        "addOptions": {
-                            "row": 4,
-                            "column": 1
-                        },
-                        "properties": {
-                            "toolTipText": "tr('Specifies the number of days of inactivity allowed for the specified user.')"
-                        }
-                    }]
+                    "properties": {
+                        "text": "tr('Last password modification')"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QDateEditWidget",
+                    "modelPath": "shadowLastChange",
+                    "addOptions": {
+                        "row": 0,
+                        "column": 1
+                    }
+                }, {
+                    "class": "qx.ui.core.Widget",
+                    "addOptions": {
+                        "row": 1,
+                        "column": 0
+                    },
+                    "properties": {
+                        "width": 20,
+                        "height": 5
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "shadowExpire",
+                    "addOptions": {
+                        "row": 2,
+                        "column": 0
+                    },
+                    "properties": {
+                        "text": "tr('Password expires on')"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QDateEditWidget",
+                    "modelPath": "shadowExpire",
+                    "addOptions": {
+                        "row": 2,
+                        "column": 1
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "shadowWarning",
+                    "addOptions": {
+                        "row": 3,
+                        "column": 0
+                    },
+                    "properties": {
+                        "text": "tr('Warn berfore password expires')",
+                        "toolTipText": "tr('Specifies the number of days before the password expires that the user is warned.')"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QSpinBoxWidget",
+                    "modelPath": "shadowWarning",
+                    "addOptions": {
+                        "row": 3,
+                        "column": 1
+                    },
+                    "properties": {
+                        "toolTipText": "tr('Specifies the number of days before the password expires that the user is warned.')"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "shadowInactive",
+                    "addOptions": {
+                        "row": 4,
+                        "column": 0
+                    },
+                    "properties": {
+                        "text": "tr('Inactivity before account is disabled')",
+                        "toolTipText": "tr('Specifies the number of days of inactivity allowed for the specified user.')"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QSpinBoxWidget",
+                    "modelPath": "shadowInactive",
+                    "addOptions": {
+                        "row": 4,
+                        "column": 1
+                    },
+                    "properties": {
+                        "toolTipText": "tr('Specifies the number of days of inactivity allowed for the specified user.')"
+                    }
                 }]
             }]
         }, {
             "class": "gosa.ui.widgets.GroupBox",
-            "layout": "qx.ui.layout.Atom",
-            "addOptions": {
-                "row": 1,
-                "column": 0
+            "layout": "qx.ui.layout.VBox",
+            "layoutConfig": {
+                "spacing": 5
             },
             "properties": {
                 "legend": "tr('Options')"
@@ -143,64 +150,63 @@
             "children": [{
                 "class": "qx.ui.container.Composite",
                 "layout": "qx.ui.layout.Grid",
+                "layoutConfig": {
+                    "spacing": 5
+                },
+                "extensions": {
+                    "layoutOptions": {
+                        "columnFlex": {
+                            "column": [0, 1],
+                            "flex": 1
+                        }
+                    }
+                },
                 "children": [{
-                    "class": "qx.ui.container.Composite",
-                    "layout": "qx.ui.layout.Grid",
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "shadowMin",
                     "addOptions": {
                         "row": 0,
                         "column": 0
                     },
-                    "children": [{
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "shadowMin",
-                        "addOptions": {
-                            "row": 0,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Minimum password age')",
-                            "toolTipText": "tr('Specifices the minimum number of days required between password changes.')'"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QSpinBoxWidget",
-                        "modelPath": "shadowMin",
-                        "addOptions": {
-                            "row": 0,
-                            "column": 1
-                        },
-                        "properties": {
-                            "toolTipText": "tr('Specifices the minimum number of days required between password changes.')'"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "shadowMax",
-                        "addOptions": {
-                            "row": 1,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Maximum password age')",
-                            "toolTipText": "tr('Specifies the maximum number of days the password is valid.')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QSpinBoxWidget",
-                        "modelPath": "shadowMax",
-                        "addOptions": {
-                            "row": 1,
-                            "column": 1
-                        },
-                        "properties": {
-                            "toolTipText": "tr('Specifies the maximum number of days the password is valid.')"
-                        }
-                    }]
+                    "properties": {
+                        "text": "tr('Minimum password age')",
+                        "toolTipText": "tr('Specifices the minimum number of days required between password changes.')'"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QSpinBoxWidget",
+                    "modelPath": "shadowMin",
+                    "addOptions": {
+                        "row": 0,
+                        "column": 1
+                    },
+                    "properties": {
+                        "toolTipText": "tr('Specifices the minimum number of days required between password changes.')'"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "shadowMax",
+                    "addOptions": {
+                        "row": 1,
+                        "column": 0
+                    },
+                    "properties": {
+                        "text": "tr('Maximum password age')",
+                        "toolTipText": "tr('Specifies the maximum number of days the password is valid.')"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QSpinBoxWidget",
+                    "modelPath": "shadowMax",
+                    "addOptions": {
+                        "row": 1,
+                        "column": 1
+                    },
+                    "properties": {
+                        "toolTipText": "tr('Specifies the maximum number of days the password is valid.')"
+                    }
                 }]
             }]
         }, {
             "class": "qx.ui.core.Widget",
-            "addOptions": {
-                "row": 2,
-                "column": 0
-            },
             "properties": {
                "width": 20,
                 "height": 40
