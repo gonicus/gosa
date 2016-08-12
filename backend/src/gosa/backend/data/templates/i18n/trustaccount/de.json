@@ -3,6 +3,6 @@
   "Description": "Beschreibung",
   "Name": "Name",
   "Mode": "Modus",
-  "Edit trusted hosts": null,
+  "Edit trusted hosts": "Vertrauenswürdige Gegenstellen bearbeiten",
   "Trust account": "Konto vertrauen" 
 }
