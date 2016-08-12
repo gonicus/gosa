@@ -20,12 +20,11 @@ local index database
 import logging
 import zope.event
 import datetime
-import re
 import hashlib
 import time
 import itertools
 
-from gosa.common.events import ZopeEventConsumer
+from gosa.common.events import MqttEventConsumer
 from zope.interface import implementer
 from gosa.common import Environment
 from gosa.common.utils import N_
@@ -33,7 +32,7 @@ from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import Command, Plugin, PluginRegistry
 from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects import ObjectFactory, ObjectProxy, ObjectChanged
-from gosa.backend.exceptions import ProxyException, ObjectException, FilterException, IndexException
+from gosa.backend.exceptions import FilterException, IndexException
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -229,7 +228,7 @@ class ObjectIndex(Plugin):
                                  aliases=aliases)
 
         # Add event processor
-        ZopeEventConsumer(callback=self.__backend_change_processor, type="BackendChange")
+        MqttEventConsumer(callback=self.__backend_change_processor, event_type="BackendChange")
 
     def __backend_change_processor(self, data):
         """
