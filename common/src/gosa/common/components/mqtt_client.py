@@ -44,7 +44,7 @@ class MQTTClient(object):
     __sync_message_queues = {}
     __sender_id = None
 
-    def __init__(self, host, port=1883, keepalive=60, loop_forever=False):
+    def __init__(self, host, port=1883, keepalive=60):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
@@ -54,7 +54,6 @@ class MQTTClient(object):
         self.host = host
         self.port = port
         self.keepalive = keepalive
-        self.loop_forever = loop_forever
 
         # set the callbacks
         self.client.on_connect = self.__on_connect
@@ -84,10 +83,7 @@ class MQTTClient(object):
         if uuid is not None:
             self.authenticate(uuid, secret)
         self.client.connect(self.host, port=self.port, keepalive=self.keepalive)
-        if self.loop_forever:
-            self.client.loop_forever()
-        else:
-            self.client.loop_start()
+        self.client.loop_start()
         self.env.threads.append(self.client.get_thread())
 
     def disconnect(self):
