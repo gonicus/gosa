@@ -1,14 +1,14 @@
 {
-  "POSIX": null,
-  "Generic": null,
-  "PosixGroup": null,
-  "Edit members": null,
-  "Given name": null,
-  "Description": null,
-  "Name": null,
-  "Members": null,
-  "Group name": null,
-  "Login ID": null,
-  "Group ID": null,
-  "Automatically assign group ID": null
+  "POSIX": "POSIX",
+  "Generic": "Allgemein",
+  "PosixGroup": "POSIX-Gruppe",
+  "Edit members": "Mitglieder bearbeiten",
+  "Given name": "Vorname",
+  "Description": "Beschreibung",
+  "Name": "Nachname",
+  "Members": "Mitglieder",
+  "Group name": "Gruppen Name",
+  "Login ID": "Anmelde ID",
+  "Group ID": "Gruppen-ID",
+  "Automatically assign group ID": "Gruppen-ID automatisch vergeben"
 }

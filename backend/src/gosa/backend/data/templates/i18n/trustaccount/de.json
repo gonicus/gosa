@@ -1,8 +1,8 @@
 {
-  "Trust settings": null,
-  "Description": null,
-  "Name": null,
-  "Mode": null,
+  "Trust settings": "Vertrauenseinstellungen",
+  "Description": "Beschreibung",
+  "Name": "Name",
+  "Mode": "Modus",
   "Edit trusted hosts": null,
-  "Trust account": null
+  "Trust account": "Konto vertrauen" 
 }

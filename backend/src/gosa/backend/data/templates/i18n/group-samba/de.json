@@ -1,12 +1,12 @@
 {
-  "Description": null,
-  "Edit nested groups": null,
-  "Group type": null,
-  "Samba": null,
-  "Domain": null,
-  "Generic": null,
-  "Nested groups": null,
-  "Display name": null,
-  "SID": null,
-  "Name": null
+  "Description": "Beschreibung",
+  "Edit nested groups": "Verschachtelte Gruppen bearbeiten",
+  "Group type": "Gruppen-Typ",
+  "Samba": "Samba",
+  "Domain": "Domäne",
+  "Generic": "Allgemein",
+  "Nested groups": "Verschachtelte Gruppen",
+  "Display name": "Angezeigter Name",
+  "SID": "SID",
+  "Name": "Name" 
 }
