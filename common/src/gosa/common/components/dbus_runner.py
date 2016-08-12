@@ -8,6 +8,9 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import sys
+
+from gosa.common import Environment
+
 try:
     import dbus
 
@@ -50,12 +53,18 @@ class DBusRunner(object):
 
     def __runner(self):
         self.__gloop = GLib.MainLoop()
-        self.__gloop.run()
-        context = self.__gloop.get_context()
-        while self.__active:
-            context.iteration(False)
-            if not context.pending():
-                time.sleep(.1)
+        try:
+            self.__gloop.run()
+            context = self.__gloop.get_context()
+            while self.__active:
+                context.iteration(False)
+                if not context.pending():
+                    time.sleep(.1)
+        except KeyboardInterrupt:
+            self.__active = False
+            env = Environment.getInstance()
+            if hasattr(env, "active"):
+                env.active = False
 
     def stop(self):
         """

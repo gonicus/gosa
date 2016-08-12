@@ -32,7 +32,7 @@ from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import Command, Plugin, PluginRegistry
 from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects import ObjectFactory, ObjectProxy, ObjectChanged
-from gosa.backend.exceptions import FilterException, IndexException, ProxyException
+from gosa.backend.exceptions import FilterException, IndexException, ProxyException, ObjectException
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
