@@ -110,9 +110,9 @@ class JSONRPCObjectMapper(Plugin):
 
         if not self.__check_user(ref, user):
             raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
-        
-        self.__stack[ref]['last_interaction'] = datetime.datetime.now()
-        if 'mark_for_deletion' in self.__stack[ref]:
+
+        objdsc['last_interaction'] = datetime.datetime.now()
+        if 'mark_for_deletion' in objdsc:
             # as this object has been marked for deletion, we have to run the garbage collection
             # to remove this mark now
             self.__gc()
@@ -162,8 +162,8 @@ class JSONRPCObjectMapper(Plugin):
         if not self.__check_user(ref, user):
             raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
 
-        self.__stack[ref]['last_interaction'] = datetime.datetime.now()
-        if 'mark_for_deletion' in self.__stack[ref]:
+        objdsc['last_interaction'] = datetime.datetime.now()
+        if 'mark_for_deletion' in objdsc:
             # as this object has been marked for deletion, we have to run the garbage collection
             # to remove this mark now
             self.__gc()
