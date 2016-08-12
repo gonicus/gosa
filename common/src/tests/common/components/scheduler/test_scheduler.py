@@ -90,16 +90,22 @@ class SchedulerTestCase(unittest.TestCase):
 
     def test_listeners(self):
         s = Scheduler()
-        s.start()
-        dummyCallback = unittest.mock.MagicMock()
-        s.add_listener(dummyCallback)
-        job = s.add_date_job(process, "2016-12-12", args=(unittest.mock.MagicMock(),))
-        e = dummyCallback.call_args[0][0]
-        assert isinstance(e, JobStoreEvent)
-        assert e.alias == "default"
-        assert e.job == job
-        s.remove_listener(dummyCallback)
-        s.shutdown()
+        with unittest.mock.patch.object(s, "_main_loop"):
+            s.start()
+            m_thread = unittest.mock.MagicMock()
+            m_thread.isAlive.return_value = True
+            s._thread = m_thread
+
+            dummyCallback = unittest.mock.MagicMock()
+            s.add_listener(dummyCallback)
+            job = s.add_date_job(process, "2016-12-12", args=(unittest.mock.MagicMock(),))
+            assert dummyCallback.called
+            e = dummyCallback.call_args[0][0]
+            assert isinstance(e, JobStoreEvent)
+            assert e.alias == "default"
+            assert e.job == job
+            s.remove_listener(dummyCallback)
+            s.shutdown()
 
     def test_get_job_by_id(self):
         s = Scheduler()
