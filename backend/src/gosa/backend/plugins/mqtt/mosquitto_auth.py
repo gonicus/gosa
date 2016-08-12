@@ -134,18 +134,8 @@ class MosquittoAclHandler(BaseMosquittoClass):
 
 class MosquittoSuperuserHandler(BaseMosquittoClass):
     """
-    Handles Mosquitto auth plugins http superuser authentification requests
+    Handles Mosquitto auth plugins http superuser authentication requests
     """
-    def __init__(self, application, request, **kwargs):
-        super(MosquittoSuperuserHandler, self).__init__(application, request, **kwargs)
-        admins = self.env.config.get("backend.admins", default=None)
-        self.admins = []
-        if admins:
-            admins = re.sub(r'\s', '', admins)
-            self.admins = admins.split(",")
 
     def post(self, *args, **kwargs):
-
-        username = self.get_argument('username', '')
-        #self.send_result(username in self.admins)
         self.send_result(False)
