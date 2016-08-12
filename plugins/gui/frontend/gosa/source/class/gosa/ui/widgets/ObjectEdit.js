@@ -64,7 +64,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
         var context = new gosa.engine.Context(template, tabPage);
         this._contexts.push(context);
-        this._tabView.add(context.getRootWidget(), {edge : 1});
+        this._tabView.add(context.getRootWidget());
       }, this);
     },
 

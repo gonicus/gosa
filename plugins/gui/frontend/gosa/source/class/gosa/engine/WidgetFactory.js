@@ -14,21 +14,19 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       qx.core.Assert.assertFunction(callback);
       qx.core.Assert.assertInstance(obj, gosa.proxy.Object);
 
-      // get template
+      // collect templates
       var objectName = obj.baseType;
       if (!gosa.Cache.gui_templates.hasOwnProperty(objectName)) {
         qx.log.Logger.error("No template found for '" + objectName + "'.");
         return;
       }
-      var templateRaw = gosa.Cache.gui_templates[objectName][0];
-
-      // translate
-      var translator = gosa.engine.Translator.getInstance();
-      var translated = translator.translateJson(templateRaw);
+      var templates = [];
+      gosa.Cache.gui_templates[objectName].forEach(function(jsonTemplate) {
+        templates.push(gosa.engine.TemplateCompiler.compile(jsonTemplate));
+      });
 
       // generate widget
-      var template = JSON.parse(translated);
-      var widget = new gosa.ui.widgets.ObjectEdit(obj, [template]);
+      var widget = new gosa.ui.widgets.ObjectEdit(obj, templates);
 
       // invoke callback
       if (context) {
