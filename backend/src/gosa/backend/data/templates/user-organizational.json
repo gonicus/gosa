@@ -141,16 +141,6 @@
                                 }
                             }
                         }
-                    }, {
-                        "class": "qx.ui.core.Widget",
-                        "addOptions": {
-                            "row": 4,
-                            "column": 1
-                        },
-                        "properties": {
-                            "width": 20,
-                            "height": 40
-                        }
                     }]
                 }, {
                     "class": "qx.ui.core.Widget",
@@ -390,16 +380,6 @@
                         },
                         "properties": {
                             "tabIndex": 11
-                        }
-                    }, {
-                        "class": "qx.ui.core.Widget",
-                        "addOptions": {
-                            "row": 5,
-                            "column": 0
-                        },
-                        "properties": {
-                            "width": 20,
-                            "height": 40
                         }
                     }]
                 }, {

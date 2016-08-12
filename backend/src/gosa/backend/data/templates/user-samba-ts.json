@@ -1,7 +1,7 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Atom",
+    "layout": "qx.ui.layout.Canvas",
     "addOptions": {
         "flex" : 1
     },
@@ -21,6 +21,12 @@
     "children": [{
         "class": "qx.ui.container.Composite",
         "layout": "qx.ui.layout.VBox",
+        "layoutConfig": {
+            "spacing": 5
+        },
+        "addOptions": {
+            "edge": 0
+        },
         "children": [{
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "Ctx_flag_tsLogin",
@@ -29,19 +35,32 @@
             }
         }, {
             "class": "gosa.ui.widgets.GroupBox",
-            "layout": "qx.ui.layout.Atom",
+            "layout": "qx.ui.layout.VBox",
+            "layoutConfig": {
+                "spacing": 5
+            },
             "properties": {
                 "legend": "tr('Generic')"
             },
             "children": [{
                 "class": "qx.ui.container.Composite",
-                "layout": "qx.ui.layout.Grid",
+                "layout": "qx.ui.layout.VBox",
+                "layoutConfig": {
+                    "spacing": 5
+                },
                 "children": [{
                     "class": "qx.ui.container.Composite",
                     "layout": "qx.ui.layout.Grid",
-                    "addOptions": {
-                        "row": 0,
-                        "column": 0
+                    "layoutConfig": {
+                        "spacing": 5
+                    },
+                    "extensions": {
+                        "layoutOptions": {
+                            "columnFlex": {
+                                "column": [0, 1],
+                                "flex": 1
+                            }
+                        }
                     },
                     "children": [{
                         "class": "gosa.ui.widgets.QLabelWidget",
@@ -56,6 +75,9 @@
                     }, {
                         "class": "qx.ui.container.Composite",
                         "layout": "qx.ui.layout.HBox",
+                        "layoutConfig": {
+                            "spacing": 5
+                        },
                         "addOptions": {
                             "row": 1,
                             "column": 1
@@ -63,6 +85,9 @@
                         "children": [{
                             "class": "gosa.ui.widgets.QLineEditWidget",
                             "modelPath": "CtxWFHomeDir",
+                            "addOptions": {
+                                "flex": 1
+                            },
                             "properties": {
                                 "tabIndex": 2
                             }
@@ -98,19 +123,22 @@
                     }]
                 }, {
                     "class": "gosa.ui.widgets.LineWidget",
-                    "addOptions": {
-                        "row": 1,
-                        "column": 0
-                    },
                     "properties": {
                         "orientation": "Qt::Horizontal"
                     }
                 }, {
                     "class": "qx.ui.container.Composite",
                     "layout": "qx.ui.layout.Grid",
-                    "addOptions": {
-                        "row": 2,
-                        "column": 0
+                    "layoutConfig": {
+                        "spacing": 5
+                    },
+                    "extensions": {
+                        "layoutOptions": {
+                            "columnFlex": {
+                                "column": [0, 1],
+                                "flex": 1
+                            }
+                        }
                     },
                     "children": [{
                         "class": "gosa.ui.widgets.QCheckBoxWidget",
@@ -169,16 +197,33 @@
             }]
         }, {
             "class": "gosa.ui.widgets.GroupBox",
-            "layout": "qx.ui.layout.Atom",
+            "layout": "qx.ui.layout.VBox",
+            "layoutConfig": {
+                "spacing": 5
+            },
             "properties": {
                 "legend": "tr('Connection')"
             },
             "children": [{
                 "class": "qx.ui.container.Composite",
                 "layout": "qx.ui.layout.Grid",
+                "layoutConfig": {
+                    "spacing": 5
+                },
+                "extensions": {
+                    "layoutOptions": {
+                        "columnFlex": {
+                            "column": [0, 1],
+                            "flex": 1
+                        }
+                    }
+                },
                 "children": [{
                     "class": "qx.ui.container.Composite",
                     "layout": "qx.ui.layout.HBox",
+                    "layoutConfig": {
+                        "spacing": 5
+                    },
                     "addOptions": {
                         "row": 0,
                         "column": 0
@@ -186,6 +231,20 @@
                     "children": [{
                         "class": "qx.ui.container.Composite",
                         "layout": "qx.ui.layout.Grid",
+                        "layoutConfig": {
+                            "spacing": 5
+                        },
+                        "addOptions": {
+                            "flex": 1
+                        },
+                        "extensions": {
+                            "layoutOptions": {
+                                "columnFlex": {
+                                    "column": [0, 1],
+                                    "flex": 1
+                                }
+                            }
+                        },
                         "children": [{
                             "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "CtxMaxConnectionTime",
@@ -256,6 +315,20 @@
                     }, {
                         "class": "qx.ui.container.Composite",
                         "layout": "qx.ui.layout.Grid",
+                        "layoutConfig": {
+                            "spacing": 5
+                        },
+                        "addOptions": {
+                            "flex": 1
+                        },
+                        "extensions": {
+                            "layoutOptions": {
+                                "columnFlex": {
+                                    "column": [0, 1],
+                                    "flex": 1
+                                }
+                            }
+                        },
                         "children": [{
                             "class": "gosa.ui.widgets.QLabelWidget",
                             "buddyModelPath": "CtxShadow",
@@ -330,6 +403,9 @@
                 }, {
                     "class": "qx.ui.container.Composite",
                     "layout": "qx.ui.layout.VBox",
+                    "layoutConfig": {
+                        "spacing": 5
+                    },
                     "addOptions": {
                         "row": 2,
                         "column": 0
