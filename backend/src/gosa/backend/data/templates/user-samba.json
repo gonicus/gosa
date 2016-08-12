@@ -1,7 +1,13 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Grid",
+    "layout": "qx.ui.layout.VBox",
+    "layoutConfig": {
+        "spacing": 5
+    },
+    "addOptions": {
+        "flex" : 1
+    },
     "extensions": {
         "resources": {
             "favicon": "images/user-samba.png",
@@ -12,29 +18,30 @@
             "text": "tr('Change samba password...')",
             "icon": "actionChangeSambaPassword",
             "condition": "extensionExists(dn,'SambaUser')"
+        },
+        "tabConfig": {
+            "title": "tr('Samba')",
+            "icon": "favicon"
         }
     },
     "properties": {
         "width": 726,
-        "height": 627,
-        "windowTitle": "tr('Samba')"
+        "height": 627
     },
     "children": [{
         "class": "qx.ui.container.Composite",
-        "layout": "qx.ui.layout.Grid",
-        "addOptions": {
-            "row": 0,
-            "column": 0
+        "layout": "qx.ui.layout.VBox",
+        "layoutConfig": {
+            "spacing": 5
         },
         "children": [{
             "class": "gosa.ui.widgets.GroupBox",
             "layout": "qx.ui.layout.VBox",
+            "layoutConfig": {
+                "spacing": 5
+            },
             "properties": {
                 "legend": "tr('Common')"
-            },
-            "addOptions": {
-                "row": 0,
-                "column": 0
             },
             "children": [{
                 "class": "qx.ui.container.Composite",
@@ -42,6 +49,20 @@
                 "children": [{
                     "class": "qx.ui.container.Composite",
                     "layout": "qx.ui.layout.Grid",
+                    "layoutConfig": {
+                        "spacing": 5
+                    },
+                    "addOptions": {
+                        "flex": 1
+                    },
+                    "extensions": {
+                        "layoutOptions": {
+                            "columnFlex": {
+                                "column": [0, 1],
+                                "flex": 1
+                            }
+                        }
+                    },
                     "children": [{
                         "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaSID",
@@ -119,8 +140,19 @@
                 }, {
                     "class": "qx.ui.container.Composite",
                     "layout": "qx.ui.layout.Grid",
-                    "properties": {
-                        "fieldGrowthPolicy": "QFormLayout::ExpandingFieldsGrow"
+                    "layoutConfig": {
+                        "spacing": 5
+                    },
+                    "addOptions": {
+                        "flex": 1
+                    },
+                    "extensions": {
+                        "layoutOptions": {
+                            "columnFlex": {
+                                "column": [0, 1],
+                                "flex": 1
+                            }
+                        }
                     },
                     "children": [{
                         "class": "gosa.ui.widgets.QLabelWidget",
@@ -155,18 +187,27 @@
                     }, {
                         "class": "qx.ui.container.Composite",
                         "layout": "qx.ui.layout.HBox",
+                        "layoutConfig": {
+                            "spacing": 5
+                        },
                         "addOptions": {
                             "row": 3,
                             "column": 1
                         },
                         "children": [{
                             "class": "qx.ui.core.Widget",
+                            "addOptions": {
+                                "flex": 1
+                            },
                             "properties": {
                               "width": 40,
                               "height": 20
                             }
                         }, {
                             "class": "gosa.ui.widgets.QPushButtonWidget",
+                            "addOptions": {
+                                "flex": 1
+                            },
                             "properties": {
                                 "text": "tr('Show policy')",
                                 "dialog": "sambaDomainInfo"
@@ -174,120 +215,141 @@
                         }]
                     }]
                 }]
-            }]
-        }, {
-            "class": "gosa.ui.widgets.LineWidget",
-            "properties": {
-                "orientation": "Qt::Horizontal"
-            },
-            "addOptions": {
-                "row": 1,
-                "column": 0
-            }
-        }, {
-            "class": "qx.ui.container.Composite",
-            "layout": "qx.ui.layout.Grid",
-            "addOptions": {
-                "row": 2,
-                "column": 0
-            },
-            "children": [{
-                "class": "gosa.ui.widgets.QLabelWidget",
-                "buddyModelPath": "sambaHomePath",
+            }, {
+                "class": "gosa.ui.widgets.LineWidget",
                 "properties": {
-                    "text": "tr('Home directory')"
-                },
-                "addOptions": {
-                    "row": 0,
-                    "column": 0
+                    "orientation": "Qt::Horizontal"
                 }
             }, {
                 "class": "qx.ui.container.Composite",
-                "layout": "qx.ui.layout.HBox",
-                "addOptions": {
-                    "row": 0,
-                    "column": 1
+                "layout": "qx.ui.layout.Grid",
+                "layoutConfig": {
+                    "spacing": 5
+                },
+                "extensions": {
+                    "layoutOptions": {
+                        "columnFlex": {
+                            "column": [0, 1],
+                            "flex": 1
+                        }
+                    }
                 },
                 "children": [{
-                    "class": "gosa.ui.widgets.QLineEditWidget",
-                    "modelPath": "sambaHomePath",
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "sambaHomePath",
                     "properties": {
-                        "tabIndex": 4
+                        "text": "tr('Home directory')"
+                    },
+                    "addOptions": {
+                        "row": 0,
+                        "column": 0
                     }
                 }, {
-                    "class": "gosa.ui.widgets.QComboBoxWidget",
-                    "modelPath": "sambaHomeDrive",
+                    "class": "qx.ui.container.Composite",
+                    "layout": "qx.ui.layout.HBox",
+                    "layoutConfig": {
+                        "spacing": 5
+                    },
+                    "addOptions": {
+                        "row": 0,
+                        "column": 1
+                    },
+                    "children": [{
+                        "class": "gosa.ui.widgets.QLineEditWidget",
+                        "modelPath": "sambaHomePath",
+                        "addOptions": {
+                            "flex": 1
+                        },
+                        "properties": {
+                            "tabIndex": 4
+                        }
+                    }, {
+                        "class": "gosa.ui.widgets.QComboBoxWidget",
+                        "modelPath": "sambaHomeDrive",
+                        "properties": {
+                            "maxWidth": 60,
+                            "maxHeight": 1677721,
+                            "tabIndex": 5
+                        }
+                    }]
+                }, {
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "sambaLogonScript",
+                    "addOptions": {
+                        "row": 1,
+                        "column": 0
+                    },
                     "properties": {
-                        "maxWidth": 60,
-                        "maxHeight": 1677721,
-                        "tabIndex": 5
+                        "text": "tr('Logon script')"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QLineEditWidget",
+                    "modelPath": "sambaLogonScript",
+                    "addOptions": {
+                        "row": 1,
+                        "column": 1
+                    },
+                    "properties": {
+                        "tabIndex": 6
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "sambaProfilePath",
+                    "addOptions": {
+                        "row": 2,
+                        "column": 0
+                    },
+                    "properties": {
+                        "text": "tr('Profile path')"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QLineEditWidget",
+                    "modelPath": "sambaProfilePath",
+                    "addOptions": {
+                        "row": 2,
+                        "column": 1
+                    },
+                    "properties": {
+                        "tabIndex": 7
                     }
                 }]
-            }, {
-                "class": "gosa.ui.widgets.QLabelWidget",
-                "buddyModelPath": "sambaLogonScript",
-                "addOptions": {
-                    "row": 1,
-                    "column": 0
-                },
-                "properties": {
-                    "text": "tr('Logon script')"
-                }
-            }, {
-                "class": "gosa.ui.widgets.QLineEditWidget",
-                "modelPath": "sambaLogonScript",
-                "addOptions": {
-                    "row": 1,
-                    "column": 1
-                },
-                "properties": {
-                    "tabIndex": 6
-                }
-            }, {
-                "class": "gosa.ui.widgets.QLabelWidget",
-                "buddyModelPath": "sambaProfilePath",
-                "addOptions": {
-                    "row": 2,
-                    "column": 0
-                },
-                "properties": {
-                    "text": "tr('Profile path')"
-                }
-            }, {
-                "class": "gosa.ui.widgets.QLineEditWidget",
-                "modelPath": "sambaProfilePath",
-                "addOptions": {
-                    "row": 2,
-                    "column": 1
-                },
-                "properties": {
-                    "tabIndex": 7
-                }
             }]
         }]
     }, {
         "class": "gosa.ui.widgets.GroupBox",
-        "layout": "qx.ui.layout.Atom",
-        "addOptions": {
-            "row": 1,
-            "column": 0
+        "layout": "qx.ui.layout.VBox",
+        "layoutConfig": {
+            "spacing": 5
         },
         "properties": {
             "legend": "tr('Login options')"
         },
         "children": [{
             "class": "qx.ui.container.Composite",
-            "layout": "qx.ui.layout.Grid",
+            "layout": "qx.ui.layout.Canvas",
             "children": [{
                 "class": "qx.ui.container.Composite",
-                "addOptions": {
-                    "row": 0,
-                    "column": 0
-                },
                 "layout": "qx.ui.layout.HBox",
+                "addOptions": {
+                    "edge": 0
+                },
                 "children": [{
                     "class": "qx.ui.container.Composite",
                     "layout": "qx.ui.layout.Grid",
+                    "layoutConfig": {
+                        "spacing": 5
+                    },
+                    "addOptions": {
+                        "flex": 1
+                    },
+                    "extensions": {
+                        "layoutOptions": {
+                            "columnFlex": {
+                                "column": [0, 1],
+                                "flex": 1
+                            }
+                        }
+                    },
                     "children": [{
                         "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaPwdLastSet",
@@ -399,6 +461,20 @@
                 }, {
                     "class": "qx.ui.container.Composite",
                     "layout": "qx.ui.layout.Grid",
+                    "layoutConfig": {
+                        "spacing": 5
+                    },
+                    "addOptions": {
+                        "flex": 1
+                    },
+                    "extensions": {
+                        "layoutOptions": {
+                            "columnFlex": {
+                                "column": [0, 1],
+                                "flex": 1
+                            }
+                        }
+                    },
                     "children": [{
                         "class": "gosa.ui.widgets.QLabelWidget",
                         "buddyModelPath": "sambaKickoffTime",
@@ -428,7 +504,7 @@
                             "column": 0
                         },
                         "properties": {
-                            "text": "tr('Password change required after')"
+                            "text": "tr('Password change allowed after')"
                         }
                     }, {
                         "class": "gosa.ui.widgets.QDateTimeEditWidget",
@@ -439,6 +515,16 @@
                         },
                         "properties": {
                             "tabIndex": 14
+                        }
+                    }, {
+                        "class": "gosa.ui.widgets.QLabelWidget",
+                        "buddyModelPath": "sambaPwdMustChange",
+                        "addOptions": {
+                            "row": 3,
+                            "column": 0
+                        },
+                        "properties": {
+                            "text": "tr('Password change required after')"
                         }
                     }, {
                         "class": "gosa.ui.widgets.QDateTimeEditWidget",
@@ -466,46 +552,42 @@
         }]
     }, {
         "class": "gosa.ui.widgets.GroupBox",
-        "layout": "qx.ui.layout.Atom",
+        "layout": "qx.ui.layout.VBox",
+        "layoutConfig": {
+            "spacing": 5
+        },
         "properties": {
             "enabled": true,
             "legend": "tr('Access options')"
         },
-        "addOptions": {
-            "row": 3,
-            "column": 0
-        },
         "children": [{
             "class": "qx.ui.container.Composite",
-            "layout": "qx.ui.layout.Grid",
+            "layout": "qx.ui.layout.HBox",
+            "layoutConfig": {
+                "spacing": 5
+            },
             "children": [{
-                "class": "qx.ui.container.Composite",
-                "layout": "qx.ui.layout.HBox",
+                "class": "gosa.ui.widgets.QPushButtonWidget",
                 "addOptions": {
-                    "row": 0,
-                    "column": 0
+                    "flex": 1
                 },
-                "children": [{
-                    "class": "gosa.ui.widgets.QPushButtonWidget",
-                    "properties": {
-                        "text": "tr('Logon hours')",
-                        "dialog": "sambaLogonHours"
-                    }
-                }, {
-                    "class": "gosa.ui.widgets.QPushButtonWidget",
-                    "properties": {
-                        "text": "tr('User workstations')",
-                        "dialog": "sambaUserWorkStations"
-                    }
-                }]
+                "properties": {
+                    "text": "tr('Logon hours')",
+                    "dialog": "sambaLogonHours"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QPushButtonWidget",
+                "addOptions": {
+                    "flex": 1
+                },
+                "properties": {
+                    "text": "tr('User workstations')",
+                    "dialog": "sambaUserWorkStations"
+                }
             }]
         }]
     }, {
         "class": "qx.ui.core.Widget",
-        "addOptions": {
-            "row": 4,
-            "column": 0
-        },
         "properties": {
           "width": 20,
           "height": 40

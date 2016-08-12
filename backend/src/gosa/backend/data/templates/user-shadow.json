@@ -2,15 +2,21 @@
     "type": "widget",
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.Atom",
+    "addOptions": {
+        "flex" : 1
+    },
     "extensions": {
         "resources": {
             "favicon": "images/user-shadow.png"
+        },
+        "tabConfig": {
+            "title": "tr('Shadow')",
+            "icon": "favicon"
         }
     },
     "properties": {
         "width": 461,
-        "height": 385,
-        "windowTitle": "tr('Shadow')"
+        "height": 385
     },
     "children": [{
         "class": "qx.ui.container.Composite",

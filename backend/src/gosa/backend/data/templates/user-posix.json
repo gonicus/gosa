@@ -1,33 +1,52 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Atom",
+    "layout": "qx.ui.layout.Canvas",
+    "addOptions": {
+        "flex": 1
+    },
     "extensions": {
         "resources": {
             "favicon": "images/user-posix.png"
+        },
+        "tabConfig": {
+            "title": "tr('POSIX')",
+            "icon": "favicon"
         }
     },
     "properties": {
         "width": 561,
-        "height": 533,
-        "windowTitle": "tr('POSIX')"
+        "height": 533
     },
     "children": [{
         "class": "qx.ui.container.Composite",
-        "layout": "qx.ui.layout.Grid",
+        "layout": "qx.ui.layout.VBox",
+        "addOptions": {
+            "edge": 0
+        },
+        "layoutConfig": {
+            "spacing": 5
+        },
         "children": [{
             "class": "gosa.ui.widgets.GroupBox",
-            "layout": "qx.ui.layout.Atom",
-            "addOptions": {
-                "row": 0,
-                "column": 0
-            },
+            "layout": "qx.ui.layout.VBox",
             "properties": {
                 "legend": "tr('Generic POSIX settings')"
             },
             "children": [{
                 "class": "qx.ui.container.Composite",
                 "layout": "qx.ui.layout.Grid",
+                "layoutConfig": {
+                    "spacing": 5
+                },
+                "extensions": {
+                    "layoutOptions": {
+                        "columnFlex": {
+                            "column": 1,
+                            "flex": 1
+                        }
+                    }
+                },
                 "children": [{
                     "class": "gosa.ui.widgets.QLabelWidget",
                     "buddyModelPath": "homeDirectory",
@@ -36,7 +55,7 @@
                         "column": 0
                     },
                     "properties": {
-                        "text": "tr('Login shell')"
+                        "text": "tr('Home directory')"
                     }
                 }, {
                     "class": "gosa.ui.widgets.QLineEditWidget",
@@ -180,11 +199,7 @@
             }]
         }, {
             "class": "gosa.ui.widgets.GroupBox",
-            "layout": "qx.ui.layout.Atom",
-            "addOptions": {
-                "row": 1,
-                "column": 0
-            },
+            "layout": "qx.ui.layout.VBox",
             "properties": {
                 "legend": "tr('Group mempership')"
             },

@@ -2,15 +2,21 @@
     "type": "widget",
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.Atom",
+    "addOptions": {
+        "flex" : 1
+    },
     "extensions": {
         "resources": {
             "favicon": "images/user-samba.png"
+        },
+        "tabConfig": {
+            "title": "tr('Samba terminal server')",
+            "icon": "favicon"
         }
     },
     "properties": {
         "width": 561,
-        "height": 537,
-        "windowTitle": "tr('Samba terminal server')"
+        "height": 537
     },
     "children": [{
         "class": "qx.ui.container.Composite",
