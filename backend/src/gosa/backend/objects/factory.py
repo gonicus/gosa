@@ -752,15 +752,15 @@ class ObjectFactory(object):
         # Collect extends lists. A list of objects that we can extend.
         extends = []
         if "Extends" in classr.__dict__:
-            for entry in classr["Extends"]:
-                extends.append(entry.Value.text)
+            for entry in classr["Extends"].Value:
+                extends.append(entry.text)
 
         # Load object properties like: is base object and allowed container elements
         base_object = bool(classr['BaseObject']) if "BaseObject" in classr.__dict__ else False
         container = []
         if "Container" in classr.__dict__:
-            for entry in classr["Container"]:
-                container.append(entry.Type.text)
+            for entry in classr["Container"].Type:
+                container.append(entry.text)
 
         # Load FixedRDN value
         fixed_rdn = None
