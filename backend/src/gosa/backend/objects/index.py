@@ -32,7 +32,7 @@ from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import Command, Plugin, PluginRegistry
 from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects import ObjectFactory, ObjectProxy, ObjectChanged
-from gosa.backend.exceptions import FilterException, IndexException
+from gosa.backend.exceptions import FilterException, IndexException, ProxyException
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -311,17 +311,16 @@ class ObjectIndex(Plugin):
                 self.insert(obj)
 
     def _get_object(self, dn):  # pragma: nocover
-        obj = ObjectProxy(dn)
-        #try:
-        #    obj = ObjectProxy(dn)
+        try:
+            obj = ObjectProxy(dn)
 
-        #except ProxyException as e:
-        #    self.log.warning("not found %s: %s" % (dn, str(e)))
-        #    obj = None
+        except ProxyException as e:
+            self.log.warning("not found %s: %s" % (dn, str(e)))
+            obj = None
 
-        #except ObjectException as e:
-        #    self.log.warning("not indexing %s: %s" % (dn, str(e)))
-        #    obj = None
+        except ObjectException as e:
+            self.log.warning("not indexing %s: %s" % (dn, str(e)))
+            obj = None
 
         return obj
 
@@ -375,17 +374,16 @@ class ObjectIndex(Plugin):
             for o in sorted(res.keys(), key=len):
 
                 # Get object
-                obj = ObjectProxy(o)
-                #try:
-                #    obj = ObjectProxy(o)
+                try:
+                    obj = ObjectProxy(o)
 
-                #except ProxyException as e:
-                #    self.log.warning("not indexing %s: %s" % (o, str(e)))
-                #    continue
+                except ProxyException as e:
+                    self.log.warning("not indexing %s: %s" % (o, str(e)))
+                    continue
 
-                #except ObjectException as e:
-                #    self.log.warning("not indexing %s: %s" % (o, str(e)))
-                #    continue
+                except ObjectException as e:
+                    self.log.warning("not indexing %s: %s" % (o, str(e)))
+                    continue
 
                 # Check for index entry
                 last_modified = self.__session.query(ObjectInfoIndex._last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()

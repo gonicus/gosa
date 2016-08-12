@@ -40,7 +40,7 @@ def monitor(path, modifier, proxy):
     ct = None
 
     try:
-        with open(path) as f:
+        with open(path, encoding='utf-8', errors='ignore') as f:
 
             # Collect lines until a newline occurs, fill
             # dn, ts and ct accordingly. Entries that only
