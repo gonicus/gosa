@@ -3,7 +3,7 @@
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.Canvas",
     "addOptions": {
-        "edge" : 1
+        "flex" : 1
     },
     "extensions": {
         "tabConfig": {

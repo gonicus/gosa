@@ -23,6 +23,7 @@ qx.Class.define("gosa.engine.Context", {
   members : {
     _template : null,
     _rootWidget : null,
+    _tabPage : null,
     _widgetRegistry : null,
     _buddyRegistry : null,
 
@@ -48,15 +49,28 @@ qx.Class.define("gosa.engine.Context", {
     },
 
     _createWidgets : function() {
-      var processor = gosa.engine.ProcessorFactory.getProcessor(this._template, this);
-      this._rootWidget = new gosa.ui.tabview.TabView();
-      this._rootWidget.getChildControl("bar").setScrollStep(150);
+      this._createContainerWidgets();
 
-      var tabPage = new qx.ui.tabview.Page();
-      tabPage.setLayout(new qx.ui.layout.Canvas());
-      processor.process(this._template, tabPage);
-      this._rootWidget.add(tabPage, {edge : 1});
+      var processor = gosa.engine.ProcessorFactory.getProcessor(this._template, this);
+      processor.process(this._template, this._tabPage);
+
       this._connectBuddies();
+      this._createButtons();
+    },
+
+    _createContainerWidgets : function() {
+      // root container
+      this._rootWidget = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+
+      // tab view
+      var tabView = new gosa.ui.tabview.TabView();
+      tabView.getChildControl("bar").setScrollStep(150);
+      this._rootWidget.add(tabView, {flex : 1});
+
+      // tab page
+      this._tabPage = new qx.ui.tabview.Page();
+      this._tabPage.setLayout(new qx.ui.layout.VBox());
+      tabView.add(this._tabPage, {edge : 1});
     },
 
     _connectBuddies : function() {
@@ -70,11 +84,37 @@ qx.Class.define("gosa.engine.Context", {
           }
         }
       }
+    },
+
+    _createButtons : function() {
+      var paneLayout = new qx.ui.layout.HBox();
+      paneLayout.set({
+        spacing: 4,
+        alignX : "right",
+        alignY : "middle"
+      });
+      var buttonPane = this._buttonPane = new qx.ui.container.Composite(paneLayout);
+      buttonPane.setMarginTop(11);
+
+      this._rootWidget.add(buttonPane);
+
+      var okButton = gosa.ui.base.Buttons.getOkButton();
+      okButton.set({
+        enabled : false,
+        tabIndex : 30000
+      });
+      okButton.addState("default");
+      buttonPane.add(okButton);
+
+      var cancelButton = gosa.ui.base.Buttons.getCancelButton();
+      cancelButton.setTabIndex(30001);
+      buttonPane.add(cancelButton);
     }
   },
 
   destruct : function() {
     this._disposeObjects(
+      "_tabPage",
       "_rootWidget",
       "_widgetRegistry",
       "_buddyRegistry"
