@@ -390,7 +390,7 @@ class ObjectIndex(Plugin):
 
                 # Entry is not in the database
                 if not last_modified:
-                    self.insert(obj)
+                    self.insert(obj, True)
 
                 # Entry is in the database
                 else:
@@ -489,7 +489,20 @@ class ObjectIndex(Plugin):
                 self.update(obj)
                 change_type = "update"
 
-    def insert(self, obj):
+    def insert(self, obj, skip_base_check=False):
+        if not skip_base_check:
+            pdn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.dn == obj.get_parent_dn()).one_or_none()
+
+            # No parent?
+            if not pdn:
+                self.log.debug("ignoring object that has no base in the current index: " + obj.dn)
+                return
+
+            parent = self._get_object(obj.get_parent_dn())
+            if not parent.can_host(obj.get_base_type()):
+                self.log.debug("ignoring object that is not relevant for the index: " + obj.dn)
+                return
+
         self.log.debug("creating object index for %s" % obj.uuid)
 
         uuid = self.__session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()

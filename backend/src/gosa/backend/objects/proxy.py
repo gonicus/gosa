@@ -615,6 +615,9 @@ class ObjectProxy(object):
             self.__log.error("moving object '%s' from '%s' to '%s' failed: %s" % (self.__base.uuid, self.__base.dn, new_base, str(e)))
             return False
 
+    def can_host(self, typ):
+        return typ in self.__base._container_for
+
     def remove(self, recursive=False):
         """
         Removes the currently proxied object.

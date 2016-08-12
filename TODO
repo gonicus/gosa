@@ -28,6 +28,7 @@
 # Index
 - Zu viele Attribute im Index. Warum?
   -> weil nicht gefiltert wird...
+- Warum wird immer komplett refreshed?
 
 # GUI -> gravatar import
 
