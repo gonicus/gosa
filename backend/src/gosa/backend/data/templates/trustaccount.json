@@ -1,7 +1,7 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Atom",
+    "layout": "qx.ui.layout.Canvas",
     "addOptions": {
         "flex" : 1
     },
@@ -19,47 +19,54 @@
         "width": 512
     },
     "children": [{
-        "class": "qx.ui.container.Composite",
-        "layout": "qx.ui.layout.Grid",
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.Canvas",
+        "addOptions": {
+            "edge": 0
+        },
+        "properties": {
+            "legend": "tr('Trust settings')"
+        },
         "children": [{
-            "class": "gosa.ui.widgets.GroupBox",
-            "layout": "qx.ui.layout.Atom",
-            "addOptions": {
-                "row": 0,
-                "column": 0
+            "class": "qx.ui.container.Composite",
+            "layout": "qx.ui.layout.VBox",
+            "layoutConfig": {
+                "spacing": 5
             },
-            "properties": {
-                "legend": "tr('Trust settings')"
+            "addOptions": {
+                "edge": 0
             },
             "children": [{
                 "class": "qx.ui.container.Composite",
-                "layout": "qx.ui.layout.VBox",
+                "layout": "qx.ui.layout.HBox",
+                "layoutConfig": {
+                    "spacing": 5
+                },
                 "children": [{
-                    "class": "qx.ui.container.Composite",
-                    "layout": "qx.ui.layout.HBox",
-                    "children": [{
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "trustModel",
-                        "properties": {
-                            "text": "tr('Mode')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QComboBoxWidget",
-                        "modelPath": "trustModel"
-                    }]
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "trustModel",
+                    "properties": {
+                        "text": "tr('Mode')"
+                    }
                 }, {
-                    "class": "gosa.ui.widgets.QTableWidgetWidget",
-                    "modelPath": "accessTo",
-                    "extensions": {
-                        "guiProperties": {
-                            "editTitle": "tr('Edit trusted hosts')",
-                            "columns": {
-                                "cn": "tr('Name')",
-                                "description": "tr('Description')"
-                            }
-                        }
+                    "class": "gosa.ui.widgets.QComboBoxWidget",
+                    "modelPath": "trustModel",
+                    "addOptions": {
+                        "flex": 1
                     }
                 }]
+            }, {
+                "class": "gosa.ui.widgets.QTableWidgetWidget",
+                "modelPath": "accessTo",
+                "extensions": {
+                    "guiProperties": {
+                        "editTitle": "tr('Edit trusted hosts')",
+                        "columns": {
+                            "cn": "tr('Name')",
+                            "description": "tr('Description')"
+                        }
+                    }
+                }
             }]
         }]
     }]
