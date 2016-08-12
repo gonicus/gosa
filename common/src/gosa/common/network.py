@@ -71,7 +71,7 @@ class Monitor(object):
 
             iface.connect_to_signal("Sleeping", self.__upower_sleeping)
         except:
-            self.log.warning("no UPower detected: will not be able to suppend network")
+            self.log.warning("no UPower detected: will not be able to suspend network")
 
     def __network_actions(self):
         try:
