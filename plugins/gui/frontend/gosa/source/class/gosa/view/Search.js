@@ -441,7 +441,7 @@ qx.Class.define("gosa.view.Search",
         }
 
         // Build widget and place it into a window
-        gosa.engine.WidgetProvider.createWidget(function(w){
+        gosa.engine.WidgetFactory.createWidget(function(w){
           var doc = qx.core.Init.getApplication().getRoot();
           win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
           win.setWidth(800);

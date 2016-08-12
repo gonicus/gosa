@@ -1,4 +1,4 @@
-qx.Class.define("gosa.engine.WidgetProvider", {
+qx.Class.define("gosa.engine.WidgetFactory", {
   type : "static",
 
   statics : {
@@ -8,15 +8,11 @@ qx.Class.define("gosa.engine.WidgetProvider", {
      *
      * @param callback {Function} Called after the widget is created; only argument is the widget
      * @param context {Object ? null} Context for the callback function
-     * @param obj {Object} The objects.* object for which the widget shall be created
+     * @param obj {gosa.proxy.Object} The objects.* object for which the widget shall be created
      */
     createWidget : function(callback, context, obj) {
       qx.core.Assert.assertFunction(callback);
-      qx.core.Assert.assertObject(obj);
-      qx.core.Assert.assertTrue(
-        qx.lang.String.startsWith(obj.classname, "objects."),
-        "The object must be of the type objects.*"
-      );
+      qx.core.Assert.assertInstance(obj, gosa.proxy.Object);
 
       // get template
       var objectName = obj.baseType;
@@ -32,13 +28,13 @@ qx.Class.define("gosa.engine.WidgetProvider", {
 
       // generate widget
       var template = JSON.parse(translated);
-      var templateContext = new gosa.engine.Context(template);
+      var widget = new gosa.ui.widgets.ObjectEdit(obj, [template]);
 
       // invoke callback
       if (context) {
         callback = qx.lang.Function.bind(callback, context);
       }
-      callback(templateContext.getRootWidget());
+      callback(widget);
     }
   }
 });

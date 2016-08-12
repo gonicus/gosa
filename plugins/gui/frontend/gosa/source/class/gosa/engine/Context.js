@@ -8,12 +8,15 @@ qx.Class.define("gosa.engine.Context", {
 
   /**
    * @param template {Object} A widget template as a object (i.e. already parsed from json)
+   * @param rootWidget {qx.ui.container.Composite} The contianer widget where the template widgets will be added to
    */
-  construct : function(template) {
+  construct : function(template, rootWidget) {
     this.base(arguments);
     qx.core.Assert.assertObject(template);
+    qx.core.Assert.assertInstance(rootWidget, qx.ui.container.Composite);
 
     this._template = template;
+    this._rootWidget = rootWidget;
     this._widgetRegistry = new gosa.engine.WidgetRegistry();
     this._buddyRegistry = new gosa.engine.WidgetRegistry();
 
@@ -23,7 +26,6 @@ qx.Class.define("gosa.engine.Context", {
   members : {
     _template : null,
     _rootWidget : null,
-    _tabPage : null,
     _widgetRegistry : null,
     _buddyRegistry : null,
 
@@ -49,28 +51,10 @@ qx.Class.define("gosa.engine.Context", {
     },
 
     _createWidgets : function() {
-      this._createContainerWidgets();
-
       var processor = gosa.engine.ProcessorFactory.getProcessor(this._template, this);
-      processor.process(this._template, this._tabPage);
+      processor.process(this._template, this._rootWidget);
 
       this._connectBuddies();
-      this._createButtons();
-    },
-
-    _createContainerWidgets : function() {
-      // root container
-      this._rootWidget = new qx.ui.container.Composite(new qx.ui.layout.VBox());
-
-      // tab view
-      var tabView = new gosa.ui.tabview.TabView();
-      tabView.getChildControl("bar").setScrollStep(150);
-      this._rootWidget.add(tabView, {flex : 1});
-
-      // tab page
-      this._tabPage = new qx.ui.tabview.Page();
-      this._tabPage.setLayout(new qx.ui.layout.VBox());
-      tabView.add(this._tabPage, {edge : 1});
     },
 
     _connectBuddies : function() {
@@ -84,37 +68,11 @@ qx.Class.define("gosa.engine.Context", {
           }
         }
       }
-    },
-
-    _createButtons : function() {
-      var paneLayout = new qx.ui.layout.HBox();
-      paneLayout.set({
-        spacing: 4,
-        alignX : "right",
-        alignY : "middle"
-      });
-      var buttonPane = this._buttonPane = new qx.ui.container.Composite(paneLayout);
-      buttonPane.setMarginTop(11);
-
-      this._rootWidget.add(buttonPane);
-
-      var okButton = gosa.ui.base.Buttons.getOkButton();
-      okButton.set({
-        enabled : false,
-        tabIndex : 30000
-      });
-      okButton.addState("default");
-      buttonPane.add(okButton);
-
-      var cancelButton = gosa.ui.base.Buttons.getCancelButton();
-      cancelButton.setTabIndex(30001);
-      buttonPane.add(cancelButton);
     }
   },
 
   destruct : function() {
     this._disposeObjects(
-      "_tabPage",
       "_rootWidget",
       "_widgetRegistry",
       "_buddyRegistry"
