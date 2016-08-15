@@ -23,18 +23,21 @@ class ObjectIndexTestCase(TestCase):
 
     def test_insert(self):
         test = mock.MagicMock()
+        test.get_parent_dn.return_value = "dc=example,dc=net"
         test.uuid = '78475884-c7f2-1035-8262-f535be14d43a'
         test.asJSON.return_value = {'uuid': test.uuid}
-        with pytest.raises(IndexException),\
-                mock.patch.object(self.obj, "_ObjectIndex__save") as m:
-            self.obj.insert(test)
-            assert not m.called
 
-        with mock.patch.object(self.obj, "_ObjectIndex__save") as m:
-            test.uuid = '78475884-c7f2-1035-8262-f535be14d43b'
+        with mock.patch.object(self.obj, "_ObjectIndex__save") as m_save,\
+                mock.patch.object(self.obj, "_get_object") as m_get_object:
+            m_get_object.return_value.can_host.return_value = True
+            with pytest.raises(IndexException):
+                self.obj.insert(test)
+                assert not m_save.called
+
+            test.uuid = 'new-uuid'
             test.asJSON.return_value = {'uuid': test.uuid}
             self.obj.insert(test)
-            m.assert_called_with({'uuid': '78475884-c7f2-1035-8262-f535be14d43b'})
+            m_save.assert_called_with({'uuid': 'new-uuid'})
 
     def test_remove(self):
         test = mock.MagicMock()
