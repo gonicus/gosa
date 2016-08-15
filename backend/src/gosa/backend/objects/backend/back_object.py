@@ -43,11 +43,11 @@ class ObjectHandler(ObjectBackend):
         we have to postpone this process after the index-process has finished and
         all objects were inserted to the index.
 
-        Take a look at the 'ObjectIndex' and its static variable 'first_run' for details.
+        Take a look at the 'ObjectIndex' and its static variable 'importing' for details.
 
         """
         result = {}
-        if ObjectIndex.first_run:
+        if ObjectIndex.importing:
             ObjectIndex.to_be_updated.append(uuid)
         else:
 

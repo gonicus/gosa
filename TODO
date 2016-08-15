@@ -29,6 +29,7 @@
 - Zu viele Attribute im Index. Warum?
   -> weil nicht gefiltert wird...
 - Warum wird immer komplett refreshed?
+- Abhängigkeiten vom Objekt-Index benötigen einen re-index beim Hinzufügen via BackendModified Event
 
 # GUI -> gravatar import
 

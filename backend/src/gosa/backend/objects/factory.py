@@ -652,7 +652,7 @@ class ObjectFactory(object):
         >>> person = f.getObject('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
 
         """
-        self.log.debug("object of type '%s' requested %s" % (name, args))
+        self.log.debug("object of type '%s' requested %s" % (name, args[0]))
         return self.__get_class(name)(*args, **kwargs)
 
     def load_schema(self):

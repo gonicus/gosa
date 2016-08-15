@@ -118,7 +118,8 @@ class ObjectIndex(Plugin):
     _priority_ = 20
     _target_ = 'core'
     _indexed = False
-    first_run = False
+    _post_process_job = None
+    importing = False
     to_be_updated = []
 
     def __init__(self):
@@ -238,6 +239,7 @@ class ObjectIndex(Plugin):
         We use it to update / create / delete existing index
         entries.
         """
+        ObjectIndex.importing = True
         data = data.BackendChange
         dn = data.DN.text if hasattr(data, 'DN') else None
         new_dn = data.NewDN.text if hasattr(data, 'NewDN') else None
@@ -247,6 +249,18 @@ class ObjectIndex(Plugin):
 
         if not _uuid and not dn:
             return
+
+        # Set importing flag to true in order to be able to post process incoming
+        # objects.
+        ObjectIndex.importing = True
+
+        # Setup or refresh timer job to run the post processing
+        sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
+        next_run = sched.make_next_run(5)
+        if self._post_process_job:
+            self._post_process_job.refresh(**next_run)
+        else:
+            self._post_process_job = sched.add_cron_job(self._post_process_by_timer, tag='_internal', jobstore="ram", **next_run)
 
         # Resolve dn from uuid if needed
         if not dn:
@@ -310,6 +324,10 @@ class ObjectIndex(Plugin):
             else:
                 self.insert(obj)
 
+    def _post_process_by_timer(self):
+        self._post_process_job = None
+        self.post_process()
+
     def _get_object(self, dn):  # pragma: nocover
         try:
             obj = ObjectProxy(dn)
@@ -333,7 +351,11 @@ class ObjectIndex(Plugin):
         md5s.update(schema)
         md5sum = md5s.hexdigest()
 
-        return self.__session.query(Schema.hash).one_or_none() != md5sum
+        stored_md5sum = self.__session.query(Schema.hash).one_or_none()
+        if stored_md5sum and stored_md5sum[0] == md5sum:
+            return False
+
+        return True
 
     def sync_index(self):
         # Don't index if someone else is already doing it
@@ -344,7 +366,7 @@ class ObjectIndex(Plugin):
         # restart.
         cr = PluginRegistry.getInstance("CommandRegistry")
         GlobalLock.acquire()
-        ObjectIndex.first_run = True
+        ObjectIndex.importing = True
 
         try:
             self._indexed = True
@@ -395,7 +417,7 @@ class ObjectIndex(Plugin):
                 # Entry is in the database
                 else:
                     # OK: already there
-                    if obj.modifyTimestamp == last_modified:
+                    if obj.modifyTimestamp == last_modified[0]:
                         self.log.debug("found up-to-date object index for %s" % obj.uuid)
 
                     else:
@@ -420,21 +442,23 @@ class ObjectIndex(Plugin):
             traceback.print_exc()
 
         finally:
-            ObjectIndex.first_run = False
-
-            # Some object may have queued themselves to be re-indexed, process them now.
-            self.log.info("need to refresh index for %d objects" % (len(ObjectIndex.to_be_updated)))
-            for uuid in ObjectIndex.to_be_updated:
-                dn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == uuid).one_or_none()
-
-                if dn:
-                    obj = ObjectProxy(dn[0])
-                    self.update(obj)
-
+            self.post_process()
             self.log.info("index refresh finished")
 
             zope.event.notify(IndexScanFinished())
             GlobalLock.release()
+
+    def post_process(self):
+        ObjectIndex.importing = False
+
+        # Some object may have queued themselves to be re-indexed, process them now.
+        self.log.info("need to refresh index for %d objects" % (len(ObjectIndex.to_be_updated)))
+        for uuid in ObjectIndex.to_be_updated:
+            dn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == uuid).one_or_none()
+
+            if dn:
+                obj = ObjectProxy(dn[0])
+                self.update(obj)
 
     def index_active(self):  # pragma: nocover
         return self._indexed
