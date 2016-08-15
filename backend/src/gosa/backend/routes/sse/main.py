@@ -84,27 +84,30 @@ class SseHandler(web.RequestHandler):
 
         event_id = self.request.headers.get('Last-Event-ID', None)
         if event_id:
-            self.log.info('Client %s last event ID: %s' % (self.connection_id, event_id))
+            self.log.debug('Client %s last event ID: %s' % (self.connection_id, event_id))
             i = 0
             for i, msg in enumerate(cls._cache):
-                if msg['id'] == event_id: break
+                if msg['id'] == event_id:
+                    break
 
-            for msg in cls._cache[i:]:
-                if msg['channel'] in self.channels:
+            for msg in cls._cache[i+1:]:
+                if msg['channel'] == 'broadcast' or msg['channel'] in self.channels:
                     self.on_message(msg['body'])
 
     def on_close(self):
         """ Invoked when the connection for this instance is closed. """
         cls = self.__class__
 
-        self.log.info('Connection %s is closed' % self.connection_id)
-        del cls._connections[self.connection_id]
+        if self.connection_id in cls._connections:
+            self.log.info('Connection %s is closed' % self.connection_id)
+            del cls._connections[self.connection_id]
 
         for channel in self.channels:
-            if len(cls._channels[channel]) > 1:
-                del cls._channels[channel][self.connection_id]
-            else:
-                del cls._channels[channel]
+            if channel in cls._channels:
+                if len(cls._channels[channel]) > 1:
+                    del cls._channels[channel][self.connection_id]
+                else:
+                    del cls._channels[channel]
 
     def on_connection_close(self):
         """ Closes the connection for this instance """
