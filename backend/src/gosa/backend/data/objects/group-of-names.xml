@@ -10,6 +10,12 @@
     </BackendParameters>
     <BaseObject>false</BaseObject>
     <Attributes>
+      <ForeignAttribute>
+        <Name>cn</Name>
+      </ForeignAttribute>
+      <ForeignAttribute>
+        <Name>description</Name>
+      </ForeignAttribute>
       <Attribute>
         <Name>member</Name>
         <Description>RFC2256: member of a group</Description>
@@ -27,20 +33,6 @@
             <Attribute>dn</Attribute>
           </Reference>
         </References>
-      </Attribute>
-      <Attribute>
-        <Name>cn</Name>
-        <Description>RFC4519: common name(s) for which the entity is known by</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>true</MultiValue>
-        <Mandatory>true</Mandatory>
-      </Attribute>
-      <Attribute>
-        <Name>description</Name>
-        <Description>RFC4519: descriptive information</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>true</MultiValue>
-        <Mandatory>false</Mandatory>
       </Attribute>
       <Attribute>
         <Name>businessCategory</Name>
