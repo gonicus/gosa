@@ -350,7 +350,7 @@ class CommandRegistry(Plugin):
             elif isinstance(data, bytes):
                 event += data.decode('utf-8')
             else:
-                event += etree.tostring(data, pretty_print=True).decode()
+                event += etree.tostring(data, pretty_print=True).decode('utf-8')
 
             # Validate event
             xml = objectify.fromstring(event, PluginRegistry.getEventParser())
