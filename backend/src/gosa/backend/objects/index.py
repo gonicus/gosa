@@ -256,11 +256,11 @@ class ObjectIndex(Plugin):
 
         # Setup or refresh timer job to run the post processing
         sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
-        next_run = sched.make_next_run(5)
+        next_run = datetime.datetime.now() + datetime.timedelta(0, 5)
         if self._post_process_job:
-            self._post_process_job.refresh(**next_run)
+            sched.reschedule_date_job(self._post_process_job, next_run)
         else:
-            self._post_process_job = sched.add_cron_job(self._post_process_by_timer, tag='_internal', jobstore="ram", **next_run)
+            self._post_process_job = sched.add_date_job(self._post_process_by_timer, next_run, tag='_internal', jobstore="ram", )
 
         # Resolve dn from uuid if needed
         if not dn:

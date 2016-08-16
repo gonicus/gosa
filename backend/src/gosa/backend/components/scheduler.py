@@ -281,22 +281,5 @@ class SchedulerService(Plugin):
         self.sched.unschedule_job(job)
         return True
 
-    def make_next_run(self, seconds):
-        """
-        Create time spec for a job which is some seconds in the future.
-
-        =========== =======================================
-        Parameter   Description
-        =========== =======================================
-        seconds     Numer of seconds in the future
-        =========== =======================================
-
-        ``Return:`` Dictionary containing the time spec
-        """
-        now = datetime.now()
-        then = now + timedelta(0, seconds)
-
-        return {year: now.year, month: now.month, day: now.day, hour: now.hour, minute: now.minute, second: now.second}
-
     def __eventProcessor(self, data):
         self.sched.refresh()
