@@ -144,20 +144,24 @@ class SchedulerTestCase(TestCase):
             callback = mock.MagicMock()
 
             time1 = now + datetime.timedelta(seconds=1)
-            time2 = now + datetime.timedelta(seconds=3)
 
             s.start()
+            time.sleep(0.1)
             m_event.return_value.wait.assert_called_with()
 
-            #m_datetime.datetime.now.return_value = now
             job = s.add_date_job(callback, time1)
             time.sleep(0.1)
             assert round(m_event.return_value.wait.call_args[0][0]) == 1
 
+            time2 = datetime.datetime.now() + datetime.timedelta(seconds=3)
             s.reschedule_date_job(job, time2)
+            time.sleep(0.1)
+            assert round(m_event.return_value.wait.call_args[0][0]) == 3
+
+            # make sure that the callback really does not ge called on initial time
             time.sleep(1)
             assert not callback.called
-            assert round(m_event.return_value.wait.call_args[0][0]) == 2
+
 
 
         s.shutdown()
