@@ -8,7 +8,7 @@ qx.Class.define("gosa.engine.extensions.TabConfig", {
 
   members : {
 
-    process : function(data, target) {
+    process : function(data, target, context) {
       qx.core.Assert.assertObject(data);
 
       var tabPage = this._findTabPage(target);
@@ -20,6 +20,9 @@ qx.Class.define("gosa.engine.extensions.TabConfig", {
       // set values
       if (data.hasOwnProperty("title")) {
         tabPage.setLabel(data.title);
+      }
+      if (data.hasOwnProperty("icon")) {
+        tabPage.setIcon(context.getResourceManager().getResource(data.icon));
       }
     },
 

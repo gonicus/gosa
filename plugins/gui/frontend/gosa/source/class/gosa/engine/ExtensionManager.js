@@ -16,14 +16,15 @@ qx.Class.define("gosa.engine.ExtensionManager", {
      * @param name {String} Name of the extension that shall do something
      * @param data {var} Configuration for the extension
      * @param target {qx.core.Object} The object for which the configuration was given
+     * @param context {gosa.engine.Context} The context object in which the extension runs
      */
-    handleExtension : function(name, data, target) {
+    handleExtension : function(name, data, target, context) {
       qx.core.Assert.assertString(name);
       qx.core.Assert.assertQxObject(target);
       qx.core.Assert.assertKeyInMap(name, this._registry, "No extension registered for '" + name + "'");
 
       var handler = new this._registry[name]();
-      handler.process(data, target);
+      handler.process(data, target, context);
       handler.dispose();
     },
 

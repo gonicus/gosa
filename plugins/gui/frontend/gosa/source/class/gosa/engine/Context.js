@@ -19,6 +19,7 @@ qx.Class.define("gosa.engine.Context", {
     this._rootWidget = rootWidget;
     this._widgetRegistry = new gosa.engine.WidgetRegistry();
     this._buddyRegistry = new gosa.engine.WidgetRegistry();
+    this._resourceManager = new gosa.engine.ResourceManager();
 
     this._createWidgets();
   },
@@ -28,6 +29,7 @@ qx.Class.define("gosa.engine.Context", {
     _rootWidget : null,
     _widgetRegistry : null,
     _buddyRegistry : null,
+    _resourceManager : null,
 
     /**
      * @return {gosa.ui.widgets.Widget} The root widget container for this template
@@ -48,6 +50,13 @@ qx.Class.define("gosa.engine.Context", {
      */
     getBuddyRegistry : function() {
       return this._buddyRegistry;
+    },
+
+    /**
+     * @return {gosa.engine.ResourceManager} The manager for resources (e.g. images)
+     */
+    getResourceManager : function() {
+      return this._resourceManager;
     },
 
     _createWidgets : function() {
@@ -75,7 +84,8 @@ qx.Class.define("gosa.engine.Context", {
     this._disposeObjects(
       "_rootWidget",
       "_widgetRegistry",
-      "_buddyRegistry"
+      "_buddyRegistry",
+      "_resourceManager"
     );
   }
 });

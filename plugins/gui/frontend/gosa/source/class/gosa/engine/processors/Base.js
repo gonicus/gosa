@@ -36,7 +36,8 @@ qx.Class.define("gosa.engine.processors.Base", {
     },
 
     /**
-     * Looks through the property values and transforms them, if necessary (e.g. makes a font object out of "font: [32, 'Arial']").
+     * Looks through the property values and transforms them, if necessary (e.g. makes a font object out of
+     * "font: [32, 'Arial']").
      *
      * @param properties {Map} Hash map property -> value
      * @return {Map} Properties with (maybe) transformed values
@@ -59,10 +60,17 @@ qx.Class.define("gosa.engine.processors.Base", {
 
     _handleExtensions : function(node, target) {
       var extensions = this._getValue(node, "extensions");
+      var extensionManager = gosa.engine.ExtensionManager.getInstance();
       if (extensions) {
+        // 'resources' extension must be loaded first
+        if (extensions.hasOwnProperty("resources")) {
+          extensionManager.handleExtension("resources", extensions.resources, target, this._context);
+        }
+
+        // all other extensions
         for (var extensionKey in extensions) {
-          if (extensions.hasOwnProperty(extensionKey)) {
-            gosa.engine.ExtensionManager.getInstance().handleExtension(extensionKey, extensions[extensionKey], target);
+          if (extensionKey !== "resources" && extensions.hasOwnProperty(extensionKey)) {
+            extensionManager.handleExtension(extensionKey, extensions[extensionKey], target, this._context);
           }
         }
       }
