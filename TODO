@@ -1,23 +1,27 @@
-# Auth via digest ermöglichen
+# Transport Security
+- HTTPS Verbindungen per default
+- HSTS aktivieren
 
-# Non SSL Verbindungen abschalten
-
-# Locking an Session hängen und entweder bei "logout" tilgen, oder nach
-# einer einstellbaren Zeit eine Nachricht an den Client senden, dass in
-# n Sekunden die locks gelöscht werden und eine Abmeldung erfolgt.
+# Login
+- Auth via digest ermöglichen
+- U2F support einbauen
+- Passwort in JS Sitzung?
 
 # Rückwärtsbeziehungen zu Objektdefinitionen erlauben
 - Wird ein Plugin installiert, welches z.B. Benutzer erweitert, so sollte es die
   Objektdefinitionen dazu selbst mitbringen und ein Verweiss auf "extends" des Benutzers
   enthalten, ohne dass die Benutzerdefinition selbst angefasst werden muss.
 
+# Plugins
+- PWDPolicy Extension hinzufügen
+- GOfax
+- Zarafa
+
 # Filter (gosa.backend.objects.filter + gosa.backend.plugins.*filter)
 - Konstruktor wird ein Object übergeben, dieses wird zwar dem Parent-Konstruktor übergeben, welcher wiederum nichts damit macht
 - auch der erste Parameter in der process Methode wird nicht genutzt
 - DatetimeToString und (TimeToString, DateToString) sind redundant (Unterschied: DatetimeToString setzt 'backend_type')
 - StringToDatetime und StringToTime sind redundant (Unterschied: DatetimeToString setzt 'backend_type')
-
-# PWDPolicy Extension hinzufügen
 
 # gosa.backend.object.(comparator|types).(acl_set|acl_roles)
 - code nahezu identisch, nur das bei den sets auch der 'members'-key im Dict berücksichtigt wird => prüfen ob man das vereinheitlichen kann
@@ -27,10 +31,17 @@
 
 # Index
 - Zu viele Attribute im Index. Warum?
-  -> weil nicht gefiltert wird...
+  -> Weil nicht gefiltert wird. Zu indizierende Attribute vorher ermitteln.
+- Warum wird immer komplett refreshed?
+  -> Erste Prüfung war fehlerhaft. Fixed.
+  -> Zweites "Problem" ist der Refresh bei Objekten mit Abhängigkeit zum Object-Index.
 
-# GUI -> gravatar import
+# Backend TODOs
+- Workflows upload
+- LDAP Umbau von pyldap nach ldap3 möglich?
 
-# Workflows / upload
-
-# Struktur für Templates ändern
+# GUI improvements
+- Gravatar Import bei Benutzerbildern anbieten
+- Workflows einbauen
+- Objektanlage hinzufügen
+- Capture rewrite bzgl. aktueller Technik

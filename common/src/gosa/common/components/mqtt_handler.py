@@ -30,7 +30,7 @@ class MQTTHandler(object):
     url = None
     joined = False
 
-    def __init__(self, loop_forever=False, autostart=True):
+    def __init__(self, autostart=True):
         """
         Construct a new MQTTClientHandler instance based on the configuration
         stored in the environment.
@@ -38,10 +38,9 @@ class MQTTHandler(object):
         @type env: Environment
         @param env: L{Environment} object
         """
-        env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.log.debug("initializing MQTT client handler")
-        self.env = env
+        self.env = Environment.getInstance()
 
         # Load configuration
         self.host = self.env.config.get('mqtt.host')
@@ -77,7 +76,7 @@ class MQTTHandler(object):
 
         # Make proxy connection
         self.log.info("using service '%s:%s'" % (self.host, self.port))
-        self.__client = MQTTClient(self.host, port=self.port, keepalive=self.keep_alive, loop_forever=loop_forever)
+        self.__client = MQTTClient(self.host, port=self.port, keepalive=self.keep_alive)
 
         self.__client.authenticate(user, key)
 
@@ -87,7 +86,7 @@ class MQTTHandler(object):
             # Start connection
             self.start()
 
-    def init_subscriptions(self):
+    def init_subscriptions(self): # pragma: nocover
         pass
 
     def set_subscription_callback(self, callback):
@@ -101,13 +100,8 @@ class MQTTHandler(object):
         return self.__client.publish(topic, data)
 
     def send_event(self, event, topic):
-        data = etree.tostring(event, pretty_print=True).decode()
+        data = etree.tostring(event, pretty_print=True).decode('utf-8')
         self.send_message(data, topic)
-
-    def wait_for_subscription(self, topic):
-        while not topic in self.__client.subscriptions or self.__client.subscriptions[topic]['subscribed'] is False:
-            asyncio.sleep(1)
-        return True
 
     @gen.coroutine
     def send_sync_message(self, data, topic):

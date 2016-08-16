@@ -17,7 +17,7 @@ from gosa.common import Environment
 from gosa.common.components import JSONRPCException
 
 
-class BaseClient(mqtt.Client):
+class BaseClient(mqtt.Client):  # pragma: nocover
 
     def __init__(self):
         super(BaseClient, self).__init__()
@@ -44,7 +44,7 @@ class MQTTClient(object):
     __sync_message_queues = {}
     __sender_id = None
 
-    def __init__(self, host, port=1883, keepalive=60, loop_forever=False):
+    def __init__(self, host, port=1883, keepalive=60):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
@@ -54,7 +54,6 @@ class MQTTClient(object):
         self.host = host
         self.port = port
         self.keepalive = keepalive
-        self.loop_forever = loop_forever
 
         # set the callbacks
         self.client.on_connect = self.__on_connect
@@ -84,10 +83,7 @@ class MQTTClient(object):
         if uuid is not None:
             self.authenticate(uuid, secret)
         self.client.connect(self.host, port=self.port, keepalive=self.keepalive)
-        if self.loop_forever is True:
-            self.client.loop_forever()
-        else:
-            self.client.loop_start()
+        self.client.loop_start()
         self.env.threads.append(self.client.get_thread())
 
     def disconnect(self):
@@ -124,11 +120,9 @@ class MQTTClient(object):
 
     def __on_unsubscribe(self, client, userdata, mid):
         self.log.debug("on_unsubscribe client='%s', userdata='%s', mid='%s'" % (client, userdata, mid))
-        for topic in self.subscriptions:
+        for topic in list(self.subscriptions):
             if 'mid' in self.subscriptions[topic] and self.subscriptions[topic]['mid'] == mid:
-                self.subscriptions[topic]['subscribed'] = False
-                del self.subscriptions[topic]['granted_qos']
-                del self.subscriptions[topic]['mid']
+                del self.subscriptions[topic]
 
     def remove_subscription(self, topic):
         """ unsubscribe from the given topic """
@@ -165,8 +159,6 @@ class MQTTClient(object):
         for sub in subs:
             if sub['sync'] is True:
                 self.log.debug("incoming message for synced topic %s" % message.topic)
-                if message.topic not in self.__sync_message_queues:
-                    self.__sync_message_queues[message.topic] = Queue()
                 self.__sync_message_queues[message.topic].put(payload['content'])
             if 'callback' in sub and sub['callback'] is not None:
                 callback = sub['callback']

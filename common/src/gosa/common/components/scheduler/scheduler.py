@@ -175,6 +175,18 @@ class Scheduler(object):
     def reschedule(self):
         self._wakeup.set()
 
+    def reschedule_date_job(self, job, date):
+        """ change the execution date of an existing job """
+        if datetime.datetime.now() < date:
+            job.trigger.run_date = date
+            job.compute_next_run_time(datetime.datetime.now())
+
+            # Notify listeners about a reschedules run
+            event = JobEvent(EVENT_JOBSTORE_JOB_RESCHEDULED, job, job.next_run_time)
+            self._notify_listeners(event)
+
+            self._wakeup.set()
+
     def refresh(self):
         for jobstore in self._jobstores.values():
             jobstore.load_jobs()

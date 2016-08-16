@@ -12,6 +12,7 @@ from gosa.common import Environment
 import tornado.web
 from gosa.backend.utils.ldap import check_auth
 import paho.mqtt.client as mqtt
+from gosa.common.components import PluginRegistry
 
 
 class BaseMosquittoClass(tornado.web.RequestHandler):
@@ -81,13 +82,16 @@ class MosquittoAclHandler(BaseMosquittoClass):
         is_backend = hasattr(self.env, "core_uuid") and uuid == self.env.core_uuid
 
         client_channel = "%s/client/%s" % (self.env.domain, uuid)
-        if is_backend:
-            client_channel = "%s/client/+" % self.env.domain
+        event_channel = "%s/events" % self.env.domain
 
         is_allowed = False
 
         if is_backend:
-            if topic == "%s/client/broadcast" % self.env.domain:
+            client_channel = "%s/client/+" % self.env.domain
+            if topic == event_channel:
+                # backend can publish/subscribe to event channel
+                is_allowed = True
+            elif topic == "%s/client/broadcast" % self.env.domain:
                 # backend can publish/subscribe on client broadcast channel
                 is_allowed = True
             elif mqtt.topic_matches_sub(client_channel, topic):
@@ -102,7 +106,12 @@ class MosquittoAclHandler(BaseMosquittoClass):
             else:
                 is_allowed = False
         else:
-            if topic == "%s/client/broadcast" % self.env.domain:
+            if topic == event_channel:
+                # global event topic -> check acls
+                acl = PluginRegistry.getInstance("ACLResolver")
+                topic = ".".join([self.env.domain, 'event'])
+                is_allowed = acl.check(uuid, topic, "x")
+            elif topic == "%s/client/broadcast" % self.env.domain:
                 # client can listen on client broadcast channel
                 is_allowed = acc == "1"
             elif topic == client_channel:
@@ -125,18 +134,8 @@ class MosquittoAclHandler(BaseMosquittoClass):
 
 class MosquittoSuperuserHandler(BaseMosquittoClass):
     """
-    Handles Mosquitto auth plugins http superuser authentification requests
+    Handles Mosquitto auth plugins http superuser authentication requests
     """
-    def __init__(self, application, request, **kwargs):
-        super(MosquittoSuperuserHandler, self).__init__(application, request, **kwargs)
-        admins = self.env.config.get("backend.admins", default=None)
-        self.admins = []
-        if admins:
-            admins = re.sub(r'\s', '', admins)
-            self.admins = admins.split(",")
 
     def post(self, *args, **kwargs):
-
-        username = self.get_argument('username', '')
-        #self.send_result(username in self.admins)
         self.send_result(False)

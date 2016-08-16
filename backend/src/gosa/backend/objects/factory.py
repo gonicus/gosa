@@ -653,7 +653,7 @@ class ObjectFactory(object):
         >>> person = f.getObject('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
 
         """
-        self.log.debug("object of type '%s' requested %s" % (name, args))
+        self.log.debug("object of type '%s' requested %s" % (name, args[0]))
         return self.__get_class(name)(*args, **kwargs)
 
     def load_schema(self):
@@ -753,15 +753,15 @@ class ObjectFactory(object):
         # Collect extends lists. A list of objects that we can extend.
         extends = []
         if "Extends" in classr.__dict__:
-            for entry in classr["Extends"]:
-                extends.append(entry.Value.text)
+            for entry in classr["Extends"].Value:
+                extends.append(entry.text)
 
         # Load object properties like: is base object and allowed container elements
         base_object = bool(classr['BaseObject']) if "BaseObject" in classr.__dict__ else False
         container = []
         if "Container" in classr.__dict__:
-            for entry in classr["Container"]:
-                container.append(entry.Type.text)
+            for entry in classr["Container"].Type:
+                container.append(entry.text)
 
         # Load FixedRDN value
         fixed_rdn = None

@@ -18,9 +18,10 @@ from gosa.common.event import EventMaker
 from gosa.common.components.mqtt_handler import MQTTHandler
 
 
-def tail(path):
+def tail(path, initially_failed=False):
     # Start listening from the end of the given path
-    path.seek(0, 2)
+    if not initially_failed:
+        path.seek(0, 2)
 
     # Try to read until something new pops up
     while True:
@@ -33,19 +34,19 @@ def tail(path):
         yield line.strip()
 
 
-def monitor(path, modifier, proxy):
+def monitor(path, modifier, proxy, initially_failed=False):
     # Initialize dn, timestamp and change type.
     dn = None
     ts = None
     ct = None
 
     try:
-        with open(path) as f:
+        with open(path, encoding='utf-8', errors='ignore') as f:
 
             # Collect lines until a newline occurs, fill
             # dn, ts and ct accordingly. Entries that only
             # change administrative values.
-            for line in tail(f):
+            for line in tail(f, initially_failed):
 
                 # Catch dn
                 if line.startswith("dn::"):
@@ -90,8 +91,7 @@ def monitor(path, modifier, proxy):
                             )
                         )
 
-                        update = etree.tostring(update, pretty_print=True)
-                        proxy.send_message(update, topic="%s/events" % Environment.getInstance().domain)
+                        proxy.send_event(update, topic="%s/events" % Environment.getInstance().domain)
 
                     dn = ts = ct = None
 
@@ -108,18 +108,21 @@ def main():
     modifier = config.get('backend-monitor.modifier')
 
     # Connect to MQTT BUS
-    proxy = MQTTHandler(loop_forever=True)
+    proxy = MQTTHandler()
 
     # Main loop
+    initially_failed = False
     while True:
         sleep(1)
 
         # Wait for file to pop up
         if not os.path.exists(path):
+            initially_failed = True
             continue
 
         # Wait for file to be file
         if not os.path.isfile(path):
+            initially_failed = True
             continue
 
         # Check if it is effectively readable
@@ -127,10 +130,11 @@ def main():
             with open(path):
                 pass
         except IOError:
+            initially_failed = True
             continue
 
         # Listen for changes
-        monitor(path, modifier, proxy)
+        monitor(path, modifier, proxy, initially_failed)
 
 
 if __name__ == "__main__":

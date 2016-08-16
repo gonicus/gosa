@@ -35,7 +35,7 @@ class MQTTServiceProxy(object):
     =============== ============
     Parameter       Description
     =============== ============
-    serviceURL      URL used to connect to the MQTT service broker
+    mqttHandler     MQTTHandler used to connect to the MQTT service broker
     serviceAddress  Address string describing the target queue to bind to, must be skipped if no special queue is needed
     serviceName     *internal*
     methods         *internal*
@@ -48,7 +48,7 @@ class MQTTServiceProxy(object):
 
     def __init__(self, mqttHandler=None, serviceAddress=None, serviceName=None,
                  methods=None):
-        self.__handler = mqttHandler if isinstance(mqttHandler, MQTTHandler) else MQTTHandler()
+        self.__handler = mqttHandler if mqttHandler is not None else MQTTHandler()
         self.__serviceName = serviceName
         self.__serviceAddress = serviceAddress
         self.__methods = methods
@@ -60,21 +60,17 @@ class MQTTServiceProxy(object):
             self.__serviceName = None
 
     #pylint: disable=W0613
-    def login(self, user, password):
+    def login(self, user, password):  # pragma: nocover
         return True
 
-    def logout(self):
+    def logout(self):  # pragma: nocover
         return True
 
-    def close(self):
+    def close(self):  # pragma: nocover
         pass
 
     def getProxy(self):
-        return MQTTServiceProxy(self.__serviceURL,
-                self.__serviceAddress,
-                None,
-                self.__conn,
-                methods=self.__methods)
+        return MQTTServiceProxy(self.__handler, self.__serviceAddress, None, methods=self.__methods)
 
     def __getattr__(self, name):
         if self.__serviceName is not None:

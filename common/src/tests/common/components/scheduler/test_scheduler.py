@@ -7,31 +7,38 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
-import unittest
+from contextlib import contextmanager
+from unittest import mock, TestCase
 import pytest
 import threading
-import os
 from io import StringIO
+
+import time
 from gosa.common.components.scheduler.scheduler import *
 from gosa.common.components.scheduler.events import *
 from gosa.common.components.scheduler.jobstores.ram_store import *
 from tests.helper import slow
 
+
 class CallHandler:
     def __init__(self):
         self.lock = threading.Lock()
         self.i = 0
+
     def count(self):
         self.lock.acquire()
         self.i += 1
         self.lock.release()
+
     def get_count(self):
         return self.i
+
+
 def process(handler):
     handler.count()
 
-class SchedulerTestCase(unittest.TestCase):
+
+class SchedulerTestCase(TestCase):
     def test_SchedulerAlreadyRunningError(self):
         err = SchedulerAlreadyRunningError()
         assert str(err) == "Scheduler is already running"
@@ -48,7 +55,7 @@ class SchedulerTestCase(unittest.TestCase):
         
         # If the jobstore "jobstoredefault" does not exist, an exception
         # will be raised.
-        s.add_date_job(process, "2016-12-13", args=(unittest.mock.MagicMock(),), jobstore="jobstoredefault")
+        s.add_date_job(process, "2016-12-13", args=(mock.MagicMock(),), jobstore="jobstoredefault")
         
         with pytest.raises(SchedulerAlreadyRunningError):
             s.start()
@@ -90,21 +97,27 @@ class SchedulerTestCase(unittest.TestCase):
 
     def test_listeners(self):
         s = Scheduler()
-        s.start()
-        dummyCallback = unittest.mock.MagicMock()
-        s.add_listener(dummyCallback)
-        job = s.add_date_job(process, "2016-12-12", args=(unittest.mock.MagicMock(),))
-        e = dummyCallback.call_args[0][0]
-        assert isinstance(e, JobStoreEvent)
-        assert e.alias == "default"
-        assert e.job == job
-        s.remove_listener(dummyCallback)
-        s.shutdown()
+        with mock.patch.object(s, "_main_loop"):
+            s.start()
+            m_thread = mock.MagicMock()
+            m_thread.isAlive.return_value = True
+            s._thread = m_thread
+
+            dummyCallback = mock.MagicMock()
+            s.add_listener(dummyCallback)
+            job = s.add_date_job(process, "2016-12-12", args=(mock.MagicMock(),))
+            assert dummyCallback.called
+            e = dummyCallback.call_args[0][0]
+            assert isinstance(e, JobStoreEvent)
+            assert e.alias == "default"
+            assert e.job == job
+            s.remove_listener(dummyCallback)
+            s.shutdown()
 
     def test_get_job_by_id(self):
         s = Scheduler()
         s.start()
-        job = s.add_date_job(process, "2016-12-12", args=(unittest.mock.MagicMock(),))
+        job = s.add_date_job(process, "2016-12-12", args=(mock.MagicMock(),))
         assert s.get_job_by_id(job.uuid) == job
         assert s.get_job_by_id("unknown") == None
         s.shutdown()
@@ -112,23 +125,57 @@ class SchedulerTestCase(unittest.TestCase):
     def test_unschedule_job(self):
         s = Scheduler()
         s.start()
-        job = s.add_date_job(process, "2016-12-12", args=(unittest.mock.MagicMock(),))
+        job = s.add_date_job(process, "2016-12-12", args=(mock.MagicMock(),))
         assert len(s.get_jobs()) == 1
         s.unschedule_job(job)
         assert len(s.get_jobs()) == 0
         with pytest.raises(KeyError):
-            s.unschedule_job(unittest.mock.MagicMock())
+            s.unschedule_job(mock.MagicMock())
         s.shutdown()
+
+    def test_reschedule_date_job(self):
+
+        now = datetime.datetime.now()
+        with mock.patch("gosa.common.components.scheduler.scheduler.Event", wraps=Event) as m_event:
+            m_event.return_value
+
+            s = Scheduler()
+
+            callback = mock.MagicMock()
+
+            time1 = now + datetime.timedelta(seconds=1)
+
+            s.start()
+            time.sleep(0.1)
+            m_event.return_value.wait.assert_called_with()
+
+            job = s.add_date_job(callback, time1)
+            time.sleep(0.1)
+            assert round(m_event.return_value.wait.call_args[0][0]) == 1
+
+            time2 = datetime.datetime.now() + datetime.timedelta(seconds=3)
+            s.reschedule_date_job(job, time2)
+            time.sleep(0.1)
+            assert round(m_event.return_value.wait.call_args[0][0]) == 3
+
+            # make sure that the callback really does not ge called on initial time
+            time.sleep(1)
+            assert not callback.called
+
+
+
+        s.shutdown()
+
 
     def test_unschedule_func(self):
         s = Scheduler()
         s.start()
-        s.add_date_job(process, "2016-12-12", args=(unittest.mock.MagicMock(),))
+        s.add_date_job(process, "2016-12-12", args=(mock.MagicMock(),))
         assert len(s.get_jobs()) == 1
         s.unschedule_func(process)
         assert len(s.get_jobs()) == 0
         with pytest.raises(KeyError):
-            s.unschedule_func(unittest.mock.MagicMock())
+            s.unschedule_func(mock.MagicMock())
         s.shutdown()
 
     def assert_jobs(self, s, handler, calls=1):
@@ -139,10 +186,10 @@ class SchedulerTestCase(unittest.TestCase):
         s.reschedule()
         s.refresh()
 
-    @unittest.mock.patch("gosa.common.components.scheduler.scheduler.logger")
+    @mock.patch("gosa.common.components.scheduler.scheduler.logger")
     def test_interval_jobs_mocked(self, loggerMock):
-        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock,\
-                unittest.mock.patch("gosa.common.components.scheduler.scheduler.IntervalTrigger", wraps=IntervalTrigger) as triggerMock:
+        with mock.patch.object(datetime, "datetime", mock.Mock(wraps=datetime.datetime)) as datetimeMock,\
+                mock.patch("gosa.common.components.scheduler.scheduler.IntervalTrigger", wraps=IntervalTrigger) as triggerMock:
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
             triggerMock.get_next_fire_time.return_value = datetime.datetime.now()
             s = Scheduler()
@@ -151,8 +198,8 @@ class SchedulerTestCase(unittest.TestCase):
             handler = CallHandler()
             job = s.add_interval_job(process, args=(handler,), seconds=1, start_date=datetime.datetime.now())
             self.assert_jobs(s, handler)
-            loggerMock.debug.call_args[-2:-1] == [unittest.mock.call("running job \"%s\" (scheduled at %s)" % (job, datetime.datetime.now())),
-                    unittest.mock.call("job \"%s\" executed successfully" % job)]
+            loggerMock.debug.call_args[-2:-1] == [mock.call("running job \"%s\" (scheduled at %s)" % (job, datetime.datetime.now())),
+                    mock.call("job \"%s\" executed successfully" % job)]
             s.shutdown()
     @slow
     def test_interval_jobs(self):
@@ -164,10 +211,10 @@ class SchedulerTestCase(unittest.TestCase):
         self.assert_jobs(s, handler)
         s.shutdown()
 
-    @unittest.mock.patch("gosa.common.components.scheduler.scheduler.logger")
+    @mock.patch("gosa.common.components.scheduler.scheduler.logger")
     def test_cron_jobs_mocked(self, loggerMock):
-        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock,\
-                unittest.mock.patch("gosa.common.components.scheduler.scheduler.CronTrigger", wraps=CronTrigger) as triggerMock:
+        with mock.patch.object(datetime, "datetime", mock.Mock(wraps=datetime.datetime)) as datetimeMock,\
+                mock.patch("gosa.common.components.scheduler.scheduler.CronTrigger", wraps=CronTrigger) as triggerMock:
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
             triggerMock.get_next_fire_time.return_value = datetime.datetime.now()
             s = Scheduler()
@@ -176,8 +223,8 @@ class SchedulerTestCase(unittest.TestCase):
             handler = CallHandler()
             job = s.add_cron_job(process, args=(handler,))
             self.assert_jobs(s, handler)
-            loggerMock.debug.call_args[-2:-1] == [unittest.mock.call("running job \"%s\" (scheduled at %s)" % (job, datetime.datetime.now())),
-                    unittest.mock.call("job \"%s\" executed successfully" % job)]
+            loggerMock.debug.call_args[-2:-1] == [mock.call("running job \"%s\" (scheduled at %s)" % (job, datetime.datetime.now())),
+                    mock.call("job \"%s\" executed successfully" % job)]
             s.shutdown()
     @slow
     def test_cron_job(self):
@@ -189,10 +236,10 @@ class SchedulerTestCase(unittest.TestCase):
         self.assert_jobs(s, handler)
         s.shutdown()
 
-    @unittest.mock.patch("gosa.common.components.scheduler.scheduler.logger")
+    @mock.patch("gosa.common.components.scheduler.scheduler.logger")
     def test_date_jobs_mocked(self, loggerMock):
-        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
-            listener = unittest.mock.MagicMock()
+        with mock.patch.object(datetime, "datetime", mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+            listener = mock.MagicMock()
             s = Scheduler()
             s.add_listener(listener, mask=EVENT_JOB_EXECUTED)
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
@@ -201,8 +248,8 @@ class SchedulerTestCase(unittest.TestCase):
             handler = CallHandler()
             job = s.add_date_job(process, "2016-12-12", args=(handler,), misfire_grace_time=5, coalesce=False)
             self.assert_jobs(s, handler)
-            loggerMock.debug.call_args[-2:-1] == [unittest.mock.call("running job \"%s\" (scheduled at %s)" % (job, datetime.datetime.now())),
-                    unittest.mock.call("job \"%s\" executed successfully" % job)]
+            loggerMock.debug.call_args[-2:-1] == [mock.call("running job \"%s\" (scheduled at %s)" % (job, datetime.datetime.now())),
+                    mock.call("job \"%s\" executed successfully" % job)]
             s.shutdown()
             assert listener.call_count == 1
     
@@ -220,7 +267,7 @@ class SchedulerTestCase(unittest.TestCase):
         s.shutdown()
 
     def test_exceptions(self):
-        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+        with mock.patch.object(datetime, "datetime", mock.Mock(wraps=datetime.datetime)) as datetimeMock:
             s = Scheduler()
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
             s.start()
@@ -230,7 +277,7 @@ class SchedulerTestCase(unittest.TestCase):
             with pytest.raises(KeyError): # Not existant job store
                 s.add_date_job(process, "2016-12-13", args=(handler,), jobstore="notexistant")
             
-            dummyCallback = unittest.mock.MagicMock() # Trigger error while notifying listener
+            dummyCallback = mock.MagicMock() # Trigger error while notifying listener
             s.add_listener(dummyCallback)
             dummyCallback.side_effect = Exception
             s.add_date_job(process, "2016-12-13", args=(handler,))
@@ -239,11 +286,11 @@ class SchedulerTestCase(unittest.TestCase):
             s.shutdown()
 
     def test_callback(self):
-        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+        with mock.patch.object(datetime, "datetime", mock.Mock(wraps=datetime.datetime)) as datetimeMock:
             s = Scheduler()
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
             def dummy(): pass
-            callback = unittest.mock.MagicMock()
+            callback = mock.MagicMock()
             s.add_job(SimpleTrigger("2016-12-12"), dummy, (), {}, callback=callback)
             s.start()
             while s.get_jobs(): pass
@@ -251,8 +298,8 @@ class SchedulerTestCase(unittest.TestCase):
             assert callback.call_count
 
     def test_missed_job(self):
-        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
-            listener = unittest.mock.MagicMock()
+        with mock.patch.object(datetime, "datetime", mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+            listener = mock.MagicMock()
             s = Scheduler()
             s.add_listener(listener, mask=EVENT_JOB_MISSED)
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
@@ -266,8 +313,8 @@ class SchedulerTestCase(unittest.TestCase):
             assert listener.call_count == 1
 
     def test_max_instances(self):
-        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
-            listener = unittest.mock.MagicMock()
+        with mock.patch.object(datetime, "datetime", mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+            listener = mock.MagicMock()
             s = Scheduler()
             s.add_listener(listener, mask=EVENT_JOB_MISSED)
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 11)
@@ -282,8 +329,8 @@ class SchedulerTestCase(unittest.TestCase):
             assert listener.call_count == 1
 
     def test_job_failure(self):
-        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
-            listener = unittest.mock.MagicMock()
+        with mock.patch.object(datetime, "datetime", mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+            listener = mock.MagicMock()
             s = Scheduler()
             s.add_listener(listener, mask=EVENT_JOB_ERROR)
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
@@ -296,7 +343,7 @@ class SchedulerTestCase(unittest.TestCase):
             assert listener.call_count == 1
 
     def test_multiple_jobs(self):
-        with unittest.mock.patch.object(datetime, "datetime", unittest.mock.Mock(wraps=datetime.datetime)) as datetimeMock:
+        with mock.patch.object(datetime, "datetime", mock.Mock(wraps=datetime.datetime)) as datetimeMock:
             s = Scheduler()
             datetimeMock.now.return_value = datetime.datetime(2016, 12, 12)
             def dummy(): pass
@@ -305,22 +352,22 @@ class SchedulerTestCase(unittest.TestCase):
             s.start()
             s.shutdown()
 
-    @unittest.mock.patch("gosa.common.components.scheduler.scheduler.inspect")
-    @unittest.mock.patch("gosa.common.components.scheduler.scheduler.sys", wraps=sys)
+    @mock.patch("gosa.common.components.scheduler.scheduler.inspect")
+    @mock.patch("gosa.common.components.scheduler.scheduler.sys", wraps=sys)
     def test_set_job_property(self, sysMock, inspectMock):
         def dummy(): pass
         j = Job(SimpleTrigger("2016-12-12"), dummy, (), {}, 1, False)
         
-        sysMock._getframe.return_value = unittest.mock.MagicMock()
+        sysMock._getframe.return_value = mock.MagicMock()
         
         def getargvalues(fr):
             if fr:
-                self_ = unittest.mock.MagicMock(name="Scheduler")
+                self_ = mock.MagicMock(name="Scheduler")
                 self_.__class__.__name__ = "Scheduler"
                 self_.__contains__.return_value = True
                 return [0, 0, 0, {"self": self_, "job": j}]
             else:
-                return unittest.mock.MagicMock()
+                return mock.MagicMock()
         inspectMock.getargvalues.side_effect = getargvalues
         
         set_job_property("key", "value")
@@ -333,7 +380,7 @@ class SchedulerTestCase(unittest.TestCase):
             set_job_property("key", "value")
     
     def test_custom_threadpool(self):
-        pool = unittest.mock.MagicMock()
+        pool = mock.MagicMock()
         s = Scheduler(gconfig={"gosa.common.components.scheduler.threadpool": pool})
         assert pool == s._threadpool
         s.shutdown()    

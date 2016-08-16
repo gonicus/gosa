@@ -20,12 +20,11 @@ local index database
 import logging
 import zope.event
 import datetime
-import re
 import hashlib
 import time
 import itertools
 
-from gosa.common.events import ZopeEventConsumer
+from gosa.common.events import MqttEventConsumer
 from zope.interface import implementer
 from gosa.common import Environment
 from gosa.common.utils import N_
@@ -33,7 +32,7 @@ from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import Command, Plugin, PluginRegistry
 from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects import ObjectFactory, ObjectProxy, ObjectChanged
-from gosa.backend.exceptions import ProxyException, ObjectException, FilterException, IndexException
+from gosa.backend.exceptions import FilterException, IndexException, ProxyException, ObjectException
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -119,7 +118,8 @@ class ObjectIndex(Plugin):
     _priority_ = 20
     _target_ = 'core'
     _indexed = False
-    first_run = False
+    _post_process_job = None
+    importing = False
     to_be_updated = []
 
     def __init__(self):
@@ -229,7 +229,7 @@ class ObjectIndex(Plugin):
                                  aliases=aliases)
 
         # Add event processor
-        ZopeEventConsumer(callback=self.__backend_change_processor, type="BackendChange")
+        MqttEventConsumer(callback=self.__backend_change_processor, event_type="BackendChange")
 
     def __backend_change_processor(self, data):
         """
@@ -239,6 +239,7 @@ class ObjectIndex(Plugin):
         We use it to update / create / delete existing index
         entries.
         """
+        ObjectIndex.importing = True
         data = data.BackendChange
         dn = data.DN.text if hasattr(data, 'DN') else None
         new_dn = data.NewDN.text if hasattr(data, 'NewDN') else None
@@ -248,6 +249,18 @@ class ObjectIndex(Plugin):
 
         if not _uuid and not dn:
             return
+
+        # Set importing flag to true in order to be able to post process incoming
+        # objects.
+        ObjectIndex.importing = True
+
+        # Setup or refresh timer job to run the post processing
+        sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
+        next_run = datetime.datetime.now() + datetime.timedelta(0, 5)
+        if self._post_process_job:
+            sched.reschedule_date_job(self._post_process_job, next_run)
+        else:
+            self._post_process_job = sched.add_date_job(self._post_process_by_timer, next_run, tag='_internal', jobstore="ram", )
 
         # Resolve dn from uuid if needed
         if not dn:
@@ -311,18 +324,21 @@ class ObjectIndex(Plugin):
             else:
                 self.insert(obj)
 
+    def _post_process_by_timer(self):
+        self._post_process_job = None
+        self.post_process()
+
     def _get_object(self, dn):  # pragma: nocover
-        obj = ObjectProxy(dn)
-        #try:
-        #    obj = ObjectProxy(dn)
+        try:
+            obj = ObjectProxy(dn)
 
-        #except ProxyException as e:
-        #    self.log.warning("not found %s: %s" % (dn, str(e)))
-        #    obj = None
+        except ProxyException as e:
+            self.log.warning("not found %s: %s" % (dn, str(e)))
+            obj = None
 
-        #except ObjectException as e:
-        #    self.log.warning("not indexing %s: %s" % (dn, str(e)))
-        #    obj = None
+        except ObjectException as e:
+            self.log.warning("not indexing %s: %s" % (dn, str(e)))
+            obj = None
 
         return obj
 
@@ -335,7 +351,11 @@ class ObjectIndex(Plugin):
         md5s.update(schema)
         md5sum = md5s.hexdigest()
 
-        return self.__session.query(Schema.hash).one_or_none() != md5sum
+        stored_md5sum = self.__session.query(Schema.hash).one_or_none()
+        if stored_md5sum and stored_md5sum[0] == md5sum:
+            return False
+
+        return True
 
     def sync_index(self):
         # Don't index if someone else is already doing it
@@ -346,7 +366,7 @@ class ObjectIndex(Plugin):
         # restart.
         cr = PluginRegistry.getInstance("CommandRegistry")
         GlobalLock.acquire()
-        ObjectIndex.first_run = True
+        ObjectIndex.importing = True
 
         try:
             self._indexed = True
@@ -376,29 +396,28 @@ class ObjectIndex(Plugin):
             for o in sorted(res.keys(), key=len):
 
                 # Get object
-                obj = ObjectProxy(o)
-                #try:
-                #    obj = ObjectProxy(o)
+                try:
+                    obj = ObjectProxy(o)
 
-                #except ProxyException as e:
-                #    self.log.warning("not indexing %s: %s" % (o, str(e)))
-                #    continue
+                except ProxyException as e:
+                    self.log.warning("not indexing %s: %s" % (o, str(e)))
+                    continue
 
-                #except ObjectException as e:
-                #    self.log.warning("not indexing %s: %s" % (o, str(e)))
-                #    continue
+                except ObjectException as e:
+                    self.log.warning("not indexing %s: %s" % (o, str(e)))
+                    continue
 
                 # Check for index entry
                 last_modified = self.__session.query(ObjectInfoIndex._last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
 
                 # Entry is not in the database
                 if not last_modified:
-                    self.insert(obj)
+                    self.insert(obj, True)
 
                 # Entry is in the database
                 else:
                     # OK: already there
-                    if obj.modifyTimestamp == last_modified:
+                    if obj.modifyTimestamp == last_modified[0]:
                         self.log.debug("found up-to-date object index for %s" % obj.uuid)
 
                     else:
@@ -423,21 +442,23 @@ class ObjectIndex(Plugin):
             traceback.print_exc()
 
         finally:
-            ObjectIndex.first_run = False
-
-            # Some object may have queued themselves to be re-indexed, process them now.
-            self.log.info("need to refresh index for %d objects" % (len(ObjectIndex.to_be_updated)))
-            for uuid in ObjectIndex.to_be_updated:
-                dn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == uuid).one_or_none()
-
-                if dn:
-                    obj = ObjectProxy(dn[0])
-                    self.update(obj)
-
+            self.post_process()
             self.log.info("index refresh finished")
 
             zope.event.notify(IndexScanFinished())
             GlobalLock.release()
+
+    def post_process(self):
+        ObjectIndex.importing = False
+
+        # Some object may have queued themselves to be re-indexed, process them now.
+        self.log.info("need to refresh index for %d objects" % (len(ObjectIndex.to_be_updated)))
+        for uuid in ObjectIndex.to_be_updated:
+            dn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == uuid).one_or_none()
+
+            if dn:
+                obj = ObjectProxy(dn[0])
+                self.update(obj)
 
     def index_active(self):  # pragma: nocover
         return self._indexed
@@ -492,7 +513,20 @@ class ObjectIndex(Plugin):
                 self.update(obj)
                 change_type = "update"
 
-    def insert(self, obj):
+    def insert(self, obj, skip_base_check=False):
+        if not skip_base_check:
+            pdn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.dn == obj.get_parent_dn()).one_or_none()
+
+            # No parent?
+            if not pdn:
+                self.log.debug("ignoring object that has no base in the current index: " + obj.dn)
+                return
+
+            parent = self._get_object(obj.get_parent_dn())
+            if not parent.can_host(obj.get_base_type()):
+                self.log.debug("ignoring object that is not relevant for the index: " + obj.dn)
+                return
+
         self.log.debug("creating object index for %s" % obj.uuid)
 
         uuid = self.__session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
