@@ -9,7 +9,7 @@
 
 __all__ = ('EVENT_SCHEDULER_START', 'EVENT_SCHEDULER_SHUTDOWN',
            'EVENT_JOBSTORE_ADDED', 'EVENT_JOBSTORE_REMOVED',
-           'EVENT_JOBSTORE_JOB_ADDED', 'EVENT_JOBSTORE_JOB_REMOVED',
+           'EVENT_JOBSTORE_JOB_ADDED', 'EVENT_JOBSTORE_JOB_REMOVED', 'EVENT_JOBSTORE_JOB_RESCHEDULED',
            'EVENT_JOB_EXECUTED', 'EVENT_JOB_ERROR', 'EVENT_JOB_MISSED',
            'EVENT_ALL', 'SchedulerEvent', 'JobStoreEvent', 'JobEvent')
 
@@ -20,13 +20,14 @@ EVENT_JOBSTORE_ADDED = 4         # A job store was added to the scheduler
 EVENT_JOBSTORE_REMOVED = 8       # A job store was removed from the scheduler
 EVENT_JOBSTORE_JOB_ADDED = 16    # A job was added to a job store
 EVENT_JOBSTORE_JOB_REMOVED = 32  # A job was removed from a job store
+EVENT_JOBSTORE_JOB_RESCHEDULED = 512  # A job was rescheduled
 EVENT_JOB_EXECUTED = 64          # A job was executed successfully
 EVENT_JOB_ERROR = 128            # A job raised an exception during execution
 EVENT_JOB_MISSED = 256           # A job's execution was missed
 EVENT_ALL = (EVENT_SCHEDULER_START | EVENT_SCHEDULER_SHUTDOWN |
              EVENT_JOBSTORE_ADDED | EVENT_JOBSTORE_REMOVED |
              EVENT_JOBSTORE_JOB_ADDED | EVENT_JOBSTORE_JOB_REMOVED |
-             EVENT_JOB_EXECUTED | EVENT_JOB_ERROR | EVENT_JOB_MISSED)
+             EVENT_JOB_EXECUTED | EVENT_JOB_ERROR | EVENT_JOB_MISSED | EVENT_JOBSTORE_JOB_RESCHEDULED)
 
 
 class SchedulerEvent(object):
