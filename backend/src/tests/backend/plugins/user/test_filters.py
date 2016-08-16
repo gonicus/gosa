@@ -18,22 +18,36 @@ from gosa.common.components.jsonrpc_utils import Binary
 class UserFiltersTestCase(TestCase):
 
     def test_ImageProcessor(self):
-        filter = ImageProcessor(None)
-
-        user = mock.MagicMock()
-        user.uuid = '78475884-c7f2-1035-8262-f535be14d43a'
-        user.modifyTimestamp = datetime.datetime.now()
-        image_dir = os.path.join(Environment.getInstance().config.get("user.image-path", "/tmp/images"), user.uuid)
-
         # read example image
         with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "test.jpg"), "r+b") as f:
             byte = f.read()
 
+        user = mock.MagicMock()
+        user.uuid = '78475884-c7f2-1035-8262-f535be14d43a'
+        user.modifyTimestamp = datetime.datetime.now()
         test_dict = {
             "image": {
                 "value": [Binary(byte)]
             }
         }
+        image_dir = os.path.join(Environment.getInstance().config.get("user.image-path", "/tmp/images"), user.uuid)
+
+        with mock.patch("gosa.backend.plugins.user.filters.Environment.getInstance") as m_env, \
+                mock.patch("gosa.backend.plugins.user.filters.Base.metadata.create_all") as m_create_all, \
+                mock.patch("gosa.backend.plugins.user.filters.os.path.exists", return_value=True), \
+                mock.patch("gosa.backend.plugins.user.filters.os.path.isdir", return_value=True):
+            mocked_db_query = m_env.return_value.getDatabaseSession.return_value.query.return_value.filter.return_value.one_or_none
+            mocked_db_query.side_effect = OperationalError(None, None, None)
+            filter = ImageProcessor(None)
+            filter.process(user, "image", test_dict, "32", "64")
+            assert m_create_all.called
+            m_create_all.reset_mock()
+
+            mocked_db_query.side_effect = [None, OperationalError(None, None, None)]
+            filter.process(user, "image", test_dict, "32")
+            assert m_create_all.called
+
+        filter = ImageProcessor(None)
 
         with pytest.raises(ElementFilterException):
             filter.process(None, None, None)
