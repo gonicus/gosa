@@ -17,6 +17,7 @@ is redirecting a path to a module.
 """
 from threading import Thread
 import logging
+import ssl
 import tornado.wsgi
 import tornado.web
 import pkg_resources
@@ -102,13 +103,12 @@ class HTTPService(object):
 
         if self.ssl and self.ssl.lower() in ['true', 'yes', 'on']:
             self.scheme = "https"
-            ssl_options = dict(
-                certfile=self.env.config.get('http.certfile', default=None),
-                keyfile=self.env.config.get('http.keyfile', default=None),
-                ca_certs=self.env.config.get('http.ca-certs', default=None))
+            ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            ssl_ctx.load_verify_locations(cafile=self.env.config.get('http.ca-certs', default=None))
+            ssl_ctx.load_cert_chain(self.env.config.get('http.certfile', default=None), self.env.config.get('http.keyfile', default=None))
         else:
             self.scheme = "http"
-            ssl_options = None
+            ssl_ctx = None
 
         apps = []
 
@@ -122,7 +122,7 @@ class HTTPService(object):
                                               xsrf_cookies=True)
 
         # Fetch server
-        self.srv = HTTPServer(application, ssl_options=ssl_options)
+        self.srv = HTTPServer(application, ssl_options=ssl_ctx)
 
         self.srv.listen(self.port, self.host)
         self.thread = Thread(target=self.start)
