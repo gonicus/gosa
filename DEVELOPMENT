@@ -11,6 +11,12 @@ Quickstart
  - ./setup.py develop
  - gosa --config example
 
+SSL - selfsigned
+================
+
+ - openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 365
+ - add "ssl = true", "cert-file = /path/to/cert.pem", "key-file = /path/to/key.pem" to the "http" section
+
 
 Testing
 =======

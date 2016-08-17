@@ -104,7 +104,11 @@ class HTTPService(object):
         if self.ssl and self.ssl.lower() in ['true', 'yes', 'on']:
             self.scheme = "https"
             ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-            ssl_ctx.load_verify_locations(cafile=self.env.config.get('http.ca-certs', default=None))
+
+            cafile = self.env.config.get('http.ca-certs', default=None)
+            if cafile:
+                ssl_ctx.load_verify_locations(cafile=cafile)
+
             ssl_ctx.load_cert_chain(self.env.config.get('http.certfile', default=None), self.env.config.get('http.keyfile', default=None))
         else:
             self.scheme = "http"

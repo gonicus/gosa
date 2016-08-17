@@ -7,7 +7,6 @@ id = backend
 [http]
 host = 0.0.0.0
 port = 8000
-sslpemfile = /etc/gosa/host.pem
 
 [ldap]
 url = ldap://127.0.0.1/dc=example,dc=net
