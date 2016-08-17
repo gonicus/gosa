@@ -44,8 +44,8 @@ Base = declarative_base()
 C.register_codes(dict(
     OBJECT_EXISTS=N_("Object with UUID %(uuid)s already exists"),
     OBJECT_NOT_FOUND=N_("Cannot find object %(id)s"),
-    INDEXING=N_("index rebuild in progress - try again later"),
-    NOT_SUPPORTED=N_("requested search operation %(operation)s is not supported"),
+    INDEXING=N_("Index rebuild in progress - try again later"),
+    NOT_SUPPORTED=N_("Requested search operation %(operation)s is not supported"),
 ))
 
 
@@ -124,6 +124,10 @@ class ObjectIndex(Plugin):
 
     def __init__(self):
         self.env = Environment.getInstance()
+
+        # Remove old lock if exists
+        if GlobalLock.exists("scan_index"):
+            GlobalLock.release("scan_index")
 
         self.log = logging.getLogger(__name__)
         self.log.info("initializing object index handler")
@@ -359,13 +363,13 @@ class ObjectIndex(Plugin):
 
     def sync_index(self):
         # Don't index if someone else is already doing it
-        if GlobalLock.exists():
+        if GlobalLock.exists("scan_index"):
             return
 
         # Don't run index, if someone else already did until the last
         # restart.
         cr = PluginRegistry.getInstance("CommandRegistry")
-        GlobalLock.acquire()
+        GlobalLock.acquire("scan_index")
         ObjectIndex.importing = True
 
         try:
@@ -446,7 +450,7 @@ class ObjectIndex(Plugin):
             self.log.info("index refresh finished")
 
             zope.event.notify(IndexScanFinished())
-            GlobalLock.release()
+            GlobalLock.release("scan_index")
 
     def post_process(self):
         ObjectIndex.importing = False
@@ -459,6 +463,8 @@ class ObjectIndex(Plugin):
             if dn:
                 obj = ObjectProxy(dn[0])
                 self.update(obj)
+
+        ObjectIndex.to_be_updated = []
 
     def index_active(self):  # pragma: nocover
         return self._indexed
@@ -783,10 +789,6 @@ class ObjectIndex(Plugin):
 
         ``Return``: List of dicts
         """
-
-        if GlobalLock.exists("scan_index"):
-            raise FilterException(C.make_error('INDEXING', "base"))
-
         res = []
         fltr = self._make_filter(query)
 

@@ -1,9 +1,6 @@
 # Index
 - Zu viele Attribute im Index. Warum?
   -> Weil nicht gefiltert wird. Zu indizierende Attribute vorher ermitteln.
-- Warum wird immer komplett refreshed?
-  -> Erste Prüfung war fehlerhaft. Fixed.
-  -> Zweites "Problem" ist der Refresh bei Objekten mit Abhängigkeit zum Object-Index.
 - Was passiert wenn z.B. eine Gruppenmitgliedschaft hinzugefügt wird?
 
 # Rückwärtsbeziehungen zu Objektdefinitionen erlauben
@@ -33,6 +30,7 @@
 - Workflows einbauen
 - Objektanlage hinzufügen
 - Capture rewrite bzgl. aktueller Technik
+- RPC-Locked sollte nicht in ein "nicht genügend Berechtigungen" resultieren, sondern den Fehler holen und anzeigen
 
 # Filter (gosa.backend.objects.filter + gosa.backend.plugins.*filter)
 - Konstruktor wird ein Object übergeben, dieses wird zwar dem Parent-Konstruktor übergeben, welcher wiederum nichts damit macht
