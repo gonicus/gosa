@@ -146,7 +146,7 @@ class MQTTClient(object):
                 self.subscriptions[topic]['subscription_result'] = res
         else:
             msg = mqtt.error_string(rc)
-            self.log.error("MQTT connection error: %s" % msg)
+            self.log.error(msg)
             self.__sender_id = None
 
     def __on_message(self, client, userdata, message):
