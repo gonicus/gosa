@@ -590,7 +590,7 @@ class ObjectProxy(object):
                     obj.parent = self
                     obj.simulate_move(cdn)
 
-                zope.event.notify(ObjectChanged("post object move", self.__base))
+                zope.event.notify(ObjectChanged("post object move", self.__base, dn=new_base))
                 return True
 
             except Exception as e:
@@ -606,7 +606,7 @@ class ObjectProxy(object):
 
         try:
             self.__base.move(new_base)
-            zope.event.notify(ObjectChanged("post object move", self.__base))
+            zope.event.notify(ObjectChanged("post object move", self.__base, dn=new_base))
             return True
 
         except Exception as e:
