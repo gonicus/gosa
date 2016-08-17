@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -25,18 +25,16 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
     this._resolvedNames = {};
 
     // Create the gui on demand
-    this.addListener("initCompleteChanged", function(e){
-        if(e.getData()){
-          this._createGui();
-          this.__updateVisibleText();
-        }
-      }, this);
+    this.addListener("initCompleteChanged", function() {
+      this._createGui();
+      this.__updateVisibleText();
+    }, this);
   },
 
   destruct: function(){
 
     // Remove all listeners and then set our values to null.
-    qx.event.Registration.removeAllListeners(this); 
+    qx.event.Registration.removeAllListeners(this);
 
     this.setBuddyOf(null);
     this.setGuiProperties(null);
@@ -71,7 +69,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
     _actionBtn: null,
 
     /* Color the specific row red, if an error occurred!
-     */ 
+     */
     setErrorMessage: function(message, id){
       this.setValid(false);
       this.setInvalidMessage(message);
@@ -122,7 +120,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
         }
       }
 
-      // Update buttons 
+      // Update buttons
       if(this._actionBtn){
         if(this.getValue().getLength()){
           this._actionBtn.setIcon(gosa.Config.getImagePath("actions/attribute-remove.png", "22"));
@@ -134,7 +132,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
       }
     },
 
-   
+
     /* Creates the gui element of this widget
      * */
     _createGui: function(){
@@ -174,7 +172,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
           }else{
 
             // Open a new selection dialog.
-            var d = new gosa.ui.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(), 
+            var d = new gosa.ui.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
               this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames, true);
             d.addListener("selected", function(e){
               if(e.getData().length){

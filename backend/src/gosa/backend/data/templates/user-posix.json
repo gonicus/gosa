@@ -204,37 +204,23 @@
                 "legend": "tr('Group mempership')"
             },
             "children": [{
-                "class": "qx.ui.container.Composite",
-                "layout": "qx.ui.layout.Grid",
-                "children": [{
-                    "class": "gosa.ui.widgets.QTableWidgetWidget",
-                    "modelPath": "memberUid",
-                    "addOptions": {
-                        "row": 0,
-                        "column": 0
-                    },
-                    "properties": {
-                        "sizePolicy": {
-                            "hsizetype": "Expanding",
-                            "vsizetype": "Expanding",
-                            "horstretch": 1,
-                            "verstretch": 1
-                        },
-                        "maxWidth": 16777215,
-                        "maxHeight": 16777215,
-                        "rowCount": 0,
-                        "columnCount": 2
-                    },
-                    "extensions": {
-                        "guiProperties": {
-                            "editTitle": "tr('dit group membership')",
-                            "columns": {
-                                "cn": "tr('Name')",
-                                "description": "tr('Description')"
-                            }
+                "class": "gosa.ui.widgets.QTableWidgetWidget",
+                "modelPath": "memberUid",
+                "addOptions": {
+                    "flex": 1
+                },
+                "properties": {
+                    "multivalue": true
+                },
+                "extensions": {
+                    "guiProperties": {
+                        "editTitle": "tr('dit group membership')",
+                        "columns": {
+                            "cn": "tr('Name')",
+                            "description": "tr('Description')"
                         }
                     }
-                }]
+                }
             }]
         }]
     }]

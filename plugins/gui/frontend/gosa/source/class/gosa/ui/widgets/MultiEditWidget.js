@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -18,7 +18,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
 
   construct: function(){
     this._widgetContainer = [];
-    this.base(arguments);  
+    this.base(arguments);
     this.contents.setLayout(new qx.ui.layout.VBox(5));
 
     // Generate the gui
@@ -31,7 +31,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     this._disposeArray("_widgetContainer");
 
     // Remove all listeners and then set our values to null.
-    qx.event.Registration.removeAllListeners(this); 
+    qx.event.Registration.removeAllListeners(this);
 
     this.setBuddyOf(null);
     this.setGuiProperties(null);
@@ -40,14 +40,14 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     this.setBlockedBy(null);
   },
 
-  statics: { 
- 
-    /* Create a readonly representation of this widget for the given value. 
-     * This is used while merging object properties. 
-     * */ 
-    getMergeWidget: function(value){ 
-      var w = new qx.ui.form.TextField(); 
-      w.setReadOnly(true); 
+  statics: {
+
+    /* Create a readonly representation of this widget for the given value.
+     * This is used while merging object properties.
+     * */
+    getMergeWidget: function(value){
+      var w = new qx.ui.form.TextField();
+      w.setReadOnly(true);
       if(value.getLength()){
         w.setValue(value.getItem(0) + "");
       }
@@ -66,6 +66,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     _skipUpdates: false,
 
     _initComplete: function(){
+      this.base(arguments);
       this._generateGui();
     },
 
@@ -91,7 +92,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     /* Mark the given widget as required
      * */
     _markAsRequired: function(widget){
-      widget.setBackgroundColor("mandatory");    
+      widget.setBackgroundColor("mandatory");
     },
 
 
@@ -108,7 +109,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       this.remove(this._widgetContainer[id]);
     },
 
-   
+
     /* Returns the "real" widget (e.g. the qx.ui.form.Textfield)
      * For the given id.
      * */
@@ -134,8 +135,8 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     _createWidget: function(){
       var w = new qx.ui.form.TextField();
       w.setLiveUpdate(true);
-      w.addListener("focusout", this._propertyUpdater, this); 
-      w.addListener("changeValue", this._propertyUpdaterTimed, this); 
+      w.addListener("focusout", this._propertyUpdater, this);
+      w.addListener("changeValue", this._propertyUpdaterTimed, this);
       return(w);
     },
 
@@ -172,7 +173,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* This method updates the value-property and immediately 
+    /* This method updates the value-property and immediately
      * sends the "changeValue" to tell the object-proxy that values have changed.
      *
      * This is a method which can be used as listener for value updates.
@@ -195,7 +196,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* This method updates the value-property and sends the "changeValue" 
+    /* This method updates the value-property and sends the "changeValue"
      * event after a period of time, to tell the object-proxy that values have changed.
      *
      * This is a method which can be used as listener for value updates.

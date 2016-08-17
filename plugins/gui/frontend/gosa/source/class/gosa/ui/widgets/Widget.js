@@ -1,18 +1,18 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
 
-/* This is the base class for all input-widgets created by 
+/* This is the base class for all input-widgets created by
  * the Renders class.
  *
  * It contains all necessary properties/methods and events to bind values,
@@ -23,7 +23,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
   extend: qx.ui.container.Composite,
 
   construct: function(){
-    this.base(arguments);  
+    this.base(arguments);
     this.name = this.classname.replace(/^.*\./, "");
     this.addState("gosaWidget");
     this.addState("gosaInput");
@@ -37,17 +37,17 @@ qx.Class.define("gosa.ui.widgets.Widget", {
   destruct: function(){
 
     // Remove all listeners and then set our values to null.
-    qx.event.Registration.removeAllListeners(this); 
+    qx.event.Registration.removeAllListeners(this);
 
     this.setBuddyOf(null);
     this.setGuiProperties(null);
     this.setValues(null);
     this.setValue(null);
     this.setBlockedBy(null);
-  }, 
+  },
 
   properties : {
-   
+
     buddyOf: {
       init: null,
       event: "_buffyOfChanged",
@@ -158,12 +158,12 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     },
 
     /* The values to display as selectables in the dropdown box
-     * */ 
+     * */
     values: {
       apply : "_applyValues",
       event: "_valuesChanged",
       nullable: true,
-      init : null 
+      init : null
     },
 
     /* Whether the widget is a read only
@@ -230,7 +230,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       check : "Boolean"
     },
 
-    /* Is set to true once the renderer has finished 
+    /* Is set to true once the renderer has finished
      * preparing this widget
      * */
     initComplete : {
@@ -332,7 +332,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
                 } else {
                     args.push(tmp);
                 }
-            } 
+            }
 
             var ob = this.getParent().getObject();
             ob[info[1]].apply(ob, [function(result, error){
@@ -395,6 +395,11 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     },
 
     _initComplete: function(){
+      this.getChildren().forEach(function(child) {
+        if (child instanceof gosa.ui.widgets.Widget) {
+          child.setInitComplete(this.getInitComplete());
+        }
+      }, this);
     },
 
     /* Resets error messages
@@ -418,7 +423,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     },
 
     /* Sets an error message for the widget given by id.
-     */ 
+     */
     setErrorMessage: function(message, id){
       this.setInvalidMessage(message);
       this.setValid(false);
