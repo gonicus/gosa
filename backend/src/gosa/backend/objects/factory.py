@@ -1106,11 +1106,11 @@ class ObjectFactory(object):
             # Do we need a user / session_id specification?
             if needsUser:
                 if needsSession:
-                    return cr.dispatch(caller_object.owner, caller_object.session_id, command, *parmList)
+                    return cr.dispatch(caller_object._owner, caller_object._session_id, command, *parmList)
                 else:
-                    return cr.dispatch(caller_object.owner, None, command, *parmList)
+                    return cr.dispatch(caller_object._owner, None, command, *parmList)
             elif needsSession:
-                return cr.dispatch(cr, caller_object.session_id, command, *parmList)
+                return cr.dispatch(cr, caller_object._session_id, command, *parmList)
 
             return cr.call(command, *parmList)
         return funk

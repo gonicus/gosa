@@ -85,8 +85,8 @@ class Object(object):
     myProperties = None
     env = None
     parent = None
-    owner = None
-    session_id = None
+    _owner = None
+    _session_id = None
     attributesInSaveOrder = None
 
     def __saveOrder(self):

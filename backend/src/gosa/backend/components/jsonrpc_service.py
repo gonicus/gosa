@@ -28,7 +28,9 @@ from gosa.common.error import GosaErrorHandler as C, GosaException
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry, JSONRPCException
 from gosa.backend import __version__ as VERSION
+from gosa.backend.lock import GlobalLock
 from gosa.backend.utils.ldap import check_auth
+from gosa.backend.exceptions import FilterException
 
 
 # Register the errors handled  by us
@@ -38,6 +40,7 @@ C.register_codes(dict(
     INVALID_JSON=N_("Invalid JSON string '%(data)s'"),
     JSON_MISSING_PARAMETER=N_("Parameter missing in JSON body"),
     PARAMETER_LIST_OR_DICT=N_("Parameter must be list or dictionary"),
+    INDEXING=N_("Index rebuild in progress - try again later"),
     REGISTRY_NOT_READY=N_("Registry is not ready")
     ), module="gosa.backend")
 
@@ -66,6 +69,10 @@ class JsonRpcHandler(tornado.web.RequestHandler):
     @coroutine
     def post(self):
         try:
+            # Check if we're globally locked currently
+            if GlobalLock.exists("scan_index"):
+                raise FilterException(C.make_error('INDEXING', "base"))
+
             resp = self.process(self.request.body)
         except ValueError as e:
             self.clear()

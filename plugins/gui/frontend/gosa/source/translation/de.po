@@ -58,7 +58,6 @@ msgstr "Beziehen der Vorlagen ist fehlgeschlagen."
 msgid "Failed to fetch current user information."
 msgstr ""
 "Beziehen von Informationen zum aktuellen Benutzer ist "
-"fehlgeschlagen.Beziehen von Informationen über den momentanen Benutzer ist "
 "fehlgeschlagen."
 
 #: gosa/io/Rpc.js:180
