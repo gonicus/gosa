@@ -495,10 +495,6 @@ class RPCMethods(Plugin):
             if fltr['mod-time'] != "all":
                 query = and_(query, ObjectInfoIndex._last_modified >= td)
 
-            #TODO: remove me
-            #from sqlalchemy.dialects import postgresql
-            #print(str(query.statement.compile(dialect=postgresql.dialect(),compile_kwargs={"literal_binds": True})))
-
             # Execute query and update results
             for item in self.__session.query(ObjectInfoIndex).filter(query):
                 self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr, True), secondary=True, these=these)
