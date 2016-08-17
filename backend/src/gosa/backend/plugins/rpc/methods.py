@@ -33,7 +33,7 @@ from sqlalchemy import and_, or_, func
 C.register_codes(dict(
     INVALID_SEARCH_SCOPE=N_("Invalid scope '%(scope)s' [SUB, BASE, ONE, CHILDREN]"),
     INVALID_SEARCH_DATE=N_("Invalid date specification '%(date)s' [hour, day, week, month, year, all]"),
-    UNKNOWN_USER=N_("Unknown user '%(topic)s'"),
+    UNKNOWN_USER=N_("Unknown user '%(target)s'"),
     BACKEND_PARAMETER_MISSING=N_("Backend parameter for '%(extension)s.%(attribute)s' is missing")))
 
 
@@ -114,7 +114,7 @@ class RPCMethods(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'_type': 'User', 'uid': userid}, {'sn': 1, 'givenName': 1, 'cn': 1, 'dn': 1, '_uuid': 1})
         if len(res) == 0:
-            raise GOsaException(C.make_error("UNKNOWN_USER", userid))
+            raise GOsaException(C.make_error("UNKNOWN_USER", target=userid))
 
         return({'sn': res[0]['sn'][0],
                 'givenName': res[0]['givenName'][0],
@@ -127,7 +127,7 @@ class RPCMethods(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'_type': 'User', 'dn': dn}, {'_extensions': 1})
         if len(res) == 0:
-            raise GOsaException(C.make_error("UNKNOWN_USER", userid))
+            raise GOsaException(C.make_error("UNKNOWN_USER", target=userid))
         return etype in res[0]['_extensions'] if '_extensions' in res[0] else False
 
     @Command(__help__=N_("Save user preferences"), needsUser=True)
@@ -135,7 +135,7 @@ class RPCMethods(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'_type': 'User', 'uid': userid}, {'dn': 1})
         if len(res) == 0:
-            raise GOsaException(C.make_error("UNKNOWN_USER", userid))
+            raise GOsaException(C.make_error("UNKNOWN_USER", target=userid))
 
         user = ObjectProxy(res[0]['dn'])
         prefs = user.guiPreferences
@@ -156,7 +156,7 @@ class RPCMethods(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'_type': 'User', 'uid': userid}, {'dn': 1})
         if len(res) == 0:
-            raise GOsaException(C.make_error("UNKNOWN_USER", userid))
+            raise GOsaException(C.make_error("UNKNOWN_USER", target=userid))
 
         user = ObjectProxy(res[0]['dn'])
         prefs = user.guiPreferences
