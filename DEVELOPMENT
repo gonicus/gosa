@@ -24,6 +24,9 @@ Testing
  # verbose output
  - ./setup.py test --addopts="-v --runslow" or - ./setup.py test --addopts="-vv --runslow"
 
+**Hint**
+For debugging tests in PyCharm/Idea coverage must be turned of. Just comment out the `addopts` property on pytest.ini
+
 DBus access
 ===========
 
