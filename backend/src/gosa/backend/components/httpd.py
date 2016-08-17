@@ -118,7 +118,7 @@ class HTTPService(object):
         for entry in pkg_resources.iter_entry_points("gosa.route"):
             module = entry.load()
             if issubclass(module, (HSTSStaticFileHandler, HSTSRequestHandler)):
-                apps.append((entry.name, module, {"hsts": True}))
+                apps.append((entry.name, module, {"hsts": self.ssl}))
             else:
                 self.log.error("Registering '%s' as HTTP service denied: no subclass of HSTSRequestHandler or HSTSStaticFileHandler" % module)
 
