@@ -19,8 +19,8 @@ from gosa.common.components import Command
 from gosa.common.components import Plugin
 from gosa.common.components import PluginRegistry
 from gosa.common.handler import IInterfaceHandler
-from gosa.common.utils import stripNs, N_
-from gosa.common.gjson import dumps
+from gosa.common.hsts_request_handler import HSTSRequestHandler
+from gosa.common.utils import N_
 from tornado import web
 from zope.interface import implementer
 
@@ -78,7 +78,7 @@ class UploadManager(Plugin):
 
 
 @web.stream_request_body
-class UploadHandler(web.RequestHandler):
+class UploadHandler(HSTSRequestHandler):
     """
     Handle uploads to the backend like workflows
     """

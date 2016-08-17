@@ -14,10 +14,11 @@ import logging
 
 from gosa.common.utils import stripNs, N_
 from gosa.common.gjson import dumps
+from gosa.common.hsts_request_handler import HSTSRequestHandler
 from tornado import web
 
 
-class SseHandler(web.RequestHandler):
+class SseHandler(HSTSRequestHandler):
     """
     Server sent event handler based on tornado
     Example for sending events with SSE:

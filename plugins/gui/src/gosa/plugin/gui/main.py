@@ -2,9 +2,10 @@ import os
 import tornado.web
 import pkg_resources
 from gosa.common import Environment
+from gosa.common.hsts_request_handler import HSTSStaticFileHandler
 
 
-class GuiPlugin(tornado.web.StaticFileHandler):
+class GuiPlugin(HSTSStaticFileHandler):
 
     def initialize(self):
         env = Environment.getInstance()

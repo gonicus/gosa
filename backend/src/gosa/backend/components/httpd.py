@@ -21,16 +21,14 @@ import ssl
 import tornado.wsgi
 import tornado.web
 import pkg_resources
-import asyncio
 from tornado.ioloop import IOLoop
-from tornado.platform.asyncio import AsyncIOMainLoop
 from tornado.httpserver import HTTPServer
 from zope.interface import implementer
 from gosa.common import Environment
+from gosa.common.hsts_request_handler import HSTSRequestHandler, HSTSStaticFileHandler
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.utils import N_
 from gosa.common.error import GosaErrorHandler as C
-from gosa.common.exceptions import HTTPException
 
 C.register_codes(dict(
     HTTP_PATH_ALREADY_REGISTERED=N_("'%(path)s' has already been registered")
@@ -109,7 +107,7 @@ class HTTPService(object):
             if cafile:
                 ssl_ctx.load_verify_locations(cafile=cafile)
 
-            ssl_ctx.load_cert_chain(self.env.config.get('http.certfile', default=None), self.env.config.get('http.keyfile', default=None))
+            ssl_ctx.load_cert_chain(self.env.config.get('http.cert-file', default=None), self.env.config.get('http.key-file', default=None))
         else:
             self.scheme = "http"
             ssl_ctx = None
@@ -119,7 +117,10 @@ class HTTPService(object):
         # register routes in the HTTPService
         for entry in pkg_resources.iter_entry_points("gosa.route"):
             module = entry.load()
-            apps.append((entry.name, module))
+            if issubclass(module, (HSTSStaticFileHandler, HSTSRequestHandler)):
+                apps.append((entry.name, module, {"hsts": True}))
+            else:
+                self.log.error("Registering '%s' as HTTP service denied: no subclass of HSTSRequestHandler or HSTSStaticFileHandler" % module)
 
         application = tornado.web.Application(apps,
                                               cookie_secret=self.env.config.get('http.cookie-secret', default="TecloigJink4"),

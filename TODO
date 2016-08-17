@@ -15,7 +15,6 @@
 
 # Transport Security
 - HTTPS Verbindungen per default
-- HSTS aktivieren
 
 # Login
 - U2F support einbauen
@@ -42,3 +41,6 @@
 
 # gosa.backend.object.(comparator|types).(acl_set|acl_roles)
 - Code nahezu identisch, nur das bei den sets auch der 'members'-key im Dict berücksichtigt wird => prüfen ob man das vereinheitlichen kann
+
+# ObjectProxy.move
+- die ObjectChange-Events werden einmal in der move-Methode gefeuert und dann nochmal beim commit() => Kann man eine davon entfernen?

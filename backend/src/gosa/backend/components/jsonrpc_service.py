@@ -21,6 +21,7 @@ import uuid
 import traceback
 import logging
 import tornado.web
+from gosa.common.hsts_request_handler import HSTSRequestHandler
 from tornado.gen import coroutine
 from gosa.common.gjson import loads, dumps
 from gosa.common.utils import f_print, N_
@@ -45,7 +46,7 @@ C.register_codes(dict(
     ), module="gosa.backend")
 
 
-class JsonRpcHandler(tornado.web.RequestHandler):
+class JsonRpcHandler(HSTSRequestHandler):
     """
     This is the tornado request handler which is responsible for serving the
     :class:`gosa.backend.command.CommandRegistry` via HTTP/JSONRPC.
