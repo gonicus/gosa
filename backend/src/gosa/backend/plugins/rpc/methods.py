@@ -430,14 +430,14 @@ class RPCMethods(Plugin):
                 query = or_(ObjectInfoIndex._parent_dn == base, ObjectInfoIndex._parent_dn.like("%," + base))
 
         elif scope == "ONE":
-            query = and_(or_(ObjectInfoIndex.dn == base, getattr(ObjectInfoIndex, dn_hook) == base), *queries)
+            query = and_(or_(ObjectInfoIndex.dn == base, getattr(ObjectInfoIndex, dn_hook) == base), or_(*queries))
 
         elif scope == "CHILDREN":
-            query = and_(getattr(ObjectInfoIndex, dn_hook) == base, *queries)
+            query = and_(getattr(ObjectInfoIndex, dn_hook) == base, or_(*queries))
 
         else:
             if queries:
-                query = and_(ObjectInfoIndex.dn == base, *queries)
+                query = and_(ObjectInfoIndex.dn == base, or_(*queries))
             else:
                 query = ObjectInfoIndex.dn == base
 
@@ -456,7 +456,7 @@ class RPCMethods(Plugin):
             elif fltr['mod-time'] == 'year':
                 td = now - datetime.timedelta(days=365)
 
-            query = and_(ObjectInfoIndex._last_modified >= time.mktime(td.timetuple()), query)
+            query = and_(ObjectInfoIndex._last_modified >= td, query)
 
         # Perform primary query and get collect the results
         squery = []
@@ -493,7 +493,11 @@ class RPCMethods(Plugin):
 
             # Add "_last_changed" information to query
             if fltr['mod-time'] != "all":
-                query = and_(query, ObjectInfoIndex._last_modified >= time.mktime(td.timetuple()))
+                query = and_(query, ObjectInfoIndex._last_modified >= td)
+
+            #TODO: remove me
+            #from sqlalchemy.dialects import postgresql
+            #print(str(query.statement.compile(dialect=postgresql.dialect(),compile_kwargs={"literal_binds": True})))
 
             # Execute query and update results
             for item in self.__session.query(ObjectInfoIndex).filter(query):
