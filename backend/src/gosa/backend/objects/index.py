@@ -819,12 +819,8 @@ class ObjectIndex(Plugin):
                     _res.pop(key, None)
 
             return _res
+
         q = self.__session.query(ObjectInfoIndex).filter(*fltr)
-
-        #TODO: remove me
-        #from sqlalchemy.dialects import postgresql
-        #print(str(q.statement.compile(dialect=postgresql.dialect(),compile_kwargs={"literal_binds": True})))
-
         for o in q.all():
             res.append(normalize(o, properties))
 

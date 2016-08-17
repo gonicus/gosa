@@ -1,47 +1,42 @@
-# Transport Security
-- HTTPS Verbindungen per default
-- HSTS aktivieren
-
-# Login
-- Auth via digest ermöglichen
-- U2F support einbauen
-- Passwort in JS Sitzung?
-
-# Rückwärtsbeziehungen zu Objektdefinitionen erlauben
-- Wird ein Plugin installiert, welches z.B. Benutzer erweitert, so sollte es die
-  Objektdefinitionen dazu selbst mitbringen und ein Verweiss auf "extends" des Benutzers
-  enthalten, ohne dass die Benutzerdefinition selbst angefasst werden muss.
-
-# Plugins
-- PWDPolicy Extension hinzufügen
-- GOfax
-- Zarafa
-
-# Filter (gosa.backend.objects.filter + gosa.backend.plugins.*filter)
-- Konstruktor wird ein Object übergeben, dieses wird zwar dem Parent-Konstruktor übergeben, welcher wiederum nichts damit macht
-- auch der erste Parameter in der process Methode wird nicht genutzt
-- DatetimeToString und (TimeToString, DateToString) sind redundant (Unterschied: DatetimeToString setzt 'backend_type')
-- StringToDatetime und StringToTime sind redundant (Unterschied: DatetimeToString setzt 'backend_type')
-
-# gosa.backend.object.(comparator|types).(acl_set|acl_roles)
-- code nahezu identisch, nur das bei den sets auch der 'members'-key im Dict berücksichtigt wird => prüfen ob man das vereinheitlichen kann
-
-# TOX für tests mit unterschiedlichen Python versionen (aktuell funktioniert nur 3.5 unter 3.4 schlagen einige tests fehl)
-- Welche Versionen möchten wir unterstützen?
-
 # Index
 - Zu viele Attribute im Index. Warum?
   -> Weil nicht gefiltert wird. Zu indizierende Attribute vorher ermitteln.
 - Warum wird immer komplett refreshed?
   -> Erste Prüfung war fehlerhaft. Fixed.
   -> Zweites "Problem" ist der Refresh bei Objekten mit Abhängigkeit zum Object-Index.
+- Was passiert wenn z.B. eine Gruppenmitgliedschaft hinzugefügt wird?
+
+# Rückwärtsbeziehungen zu Objektdefinitionen erlauben
+- Wird ein Plugin installiert, welches z.B. Benutzer erweitert, so sollte es die
+  Objektdefinitionen dazu selbst mitbringen und ein Verweiss auf "extends" des Benutzers
+  enthalten, ohne dass die Benutzerdefinition selbst angefasst werden muss.
 
 # Backend TODOs
 - Workflows upload
 - LDAP Umbau von pyldap nach ldap3 möglich?
+
+# Transport Security
+- HTTPS Verbindungen per default
+- HSTS aktivieren
+
+# Login
+- U2F support einbauen
+- Passwort in JS Sitzung?
+
+# Plugins
+- PWDPolicy Extension hinzufügen
+- GOfax
+- Zarafa
 
 # GUI improvements
 - Gravatar Import bei Benutzerbildern anbieten
 - Workflows einbauen
 - Objektanlage hinzufügen
 - Capture rewrite bzgl. aktueller Technik
+
+# Filter (gosa.backend.objects.filter + gosa.backend.plugins.*filter)
+- Konstruktor wird ein Object übergeben, dieses wird zwar dem Parent-Konstruktor übergeben, welcher wiederum nichts damit macht
+- auch der erste Parameter in der process Methode wird nicht genutzt
+
+# gosa.backend.object.(comparator|types).(acl_set|acl_roles)
+- Code nahezu identisch, nur das bei den sets auch der 'members'-key im Dict berücksichtigt wird => prüfen ob man das vereinheitlichen kann
