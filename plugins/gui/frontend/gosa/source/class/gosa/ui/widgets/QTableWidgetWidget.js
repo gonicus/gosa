@@ -46,6 +46,7 @@ qx.Class.define("gosa.ui.widgets.QTableWidgetWidget", {
       // Create the multi-select style widget or the single select widget depending on the source-properties multivalue
       // state.
 
+      var widget;
       if (this.isMultivalue()) {
         widget = new gosa.ui.widgets.TableWithSelector();
       } else {

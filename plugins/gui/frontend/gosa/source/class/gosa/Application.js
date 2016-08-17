@@ -281,7 +281,13 @@ qx.Class.define("gosa.Application",
                         return(false);
                       }else{
                         this.__checkForActionsInUIDefs(templates, name);
-                        gosa.Cache.gui_dialogs[name] = templates;
+
+                        var templateMap = {};
+                        templates.forEach(function(template) {
+                          templateMap[gosa.util.Template.getDialogName(template)] = template;
+                        });
+
+                        gosa.Cache.gui_dialogs[name] = templateMap;
                         return(true);
                       }
                     };

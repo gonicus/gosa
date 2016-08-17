@@ -8,12 +8,12 @@ qx.Class.define("gosa.engine.Context", {
 
   /**
    * @param template {Object} A widget template as a object (i.e. already parsed from json)
-   * @param rootWidget {qx.ui.container.Composite} The contianer widget where the template widgets will be added to
+   * @param rootWidget {qx.ui.core.Widget} The container widget where the template widgets will be added to
    */
   construct : function(template, rootWidget) {
     this.base(arguments);
     qx.core.Assert.assertObject(template);
-    qx.core.Assert.assertInstance(rootWidget, qx.ui.container.Composite);
+    qx.core.Assert.assertQxWidget(rootWidget);
 
     this._template = template;
     this._rootWidget = rootWidget;

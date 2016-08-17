@@ -1,7 +1,7 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Atom",
+    "layout": "qx.ui.layout.Canvas",
     "properties": {
         "width": 354,
         "height": 334,
@@ -9,26 +9,25 @@
         "dialogName": "sambaDomainInfo"
     },
     "children": [{
-        "class": "qx.ui.container.Composite",
-        "layout": "qx.ui.layout.VBox",
+        "class": "gosa.ui.widgets.ScrollArea",
+        "properties": {
+            "widgetResizable": true
+        },
+        "addOptions": {
+            "edge": 0
+        },
         "children": [{
-            "class": "gosa.ui.widgets.ScrollArea",
+            "class": "qx.ui.container.Composite",
+            "layout": "qx.ui.layout.VBox",
             "properties": {
-                "widgetResizable": true
+                "width": 340,
+                "height": 320
             },
             "children": [{
-                "class": "qx.ui.container.Composite",
-                "layout": "qx.ui.layout.VBox",
+                "class": "gosa.ui.widgets.QLabelWidget",
                 "properties": {
-                    "width": 340,
-                    "height": 320
-                },
-                "children": [{
-                    "class": "gosa.ui.widget.QLabelWidget",
-                    "properties": {
-                        "callObjectMethod": "getSambaDomainInformation(%locale)"
-                    }
-                }]
+                    "callObjectMethod": "getSambaDomainInformation(%locale)"
+                }
             }]
         }]
     }]

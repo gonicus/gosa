@@ -1,7 +1,7 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Atom",
+    "layout": "qx.ui.layout.Canvas",
     "properties": {
         "width": 315,
         "height": 125,
@@ -9,23 +9,10 @@
         "dialogName": "sambaLogonHours"
     },
     "children": [{
-        "class": "qx.ui.container.Composite",
-        "layout": "qx.ui.layout.Grid",
-        "children": [{
-            "class": "qx.ui.container.Composite",
-            "layout": "qx.ui.layout.Grid",
-            "addOptions": {
-                "row": 0,
-                "column": 0
-            },
-            "children": [{
-                "class": "gosa.ui.widgets.SambaLogonHoursWidget",
-                "modelPath": "sambaLogonHours",
-                "addOptions": {
-                    "row": 0,
-                    "column": 0
-                }
-            }]
-        }]
+        "class": "gosa.ui.widgets.SambaLogonHoursWidget",
+        "modelPath": "sambaLogonHours",
+        "addOptions": {
+            "edge": 0
+        }
     }]
 }

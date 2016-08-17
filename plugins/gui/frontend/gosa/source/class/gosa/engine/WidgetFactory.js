@@ -37,6 +37,49 @@ qx.Class.define("gosa.engine.WidgetFactory", {
         callback = qx.lang.Function.bind(callback, context);
       }
       callback(widget);
+    },
+
+    /**
+     * Tries to find and create the dialog from the given name. It is first searched for a corresponding class under
+     * {@link gosa.ui.dialogs}. If that is not found, it looks into the transferred cache of dialog templates.
+     *
+     * @param name {String} Name of the dialog class/template
+     * @return {gosa.ui.dialogs.Dialog | null} The (unopened) dialog widget
+     */
+    createDialog : function(name) {
+      qx.core.Assert.assertString(name);
+      var clazzName = name.substring(0, 1).toUpperCase() + name.substring(1);
+      var clazz = qx.Class.getByName("gosa.ui.dialogs." + clazzName);
+
+      // directly known class
+      if (clazz) {
+        var dialog = new clazz();
+        dialog.setAutoDispose(true);
+        return dialog;
+      }
+
+      // find dialog template
+      var template;
+      var dialogs = gosa.Cache.gui_dialogs;
+      for (var extensionName in dialogs) {
+        if (dialogs.hasOwnProperty(extensionName)) {
+          for (var dialogName in dialogs[extensionName]) {
+            if (dialogs[extensionName].hasOwnProperty(dialogName)) {
+              if (dialogName === name) {
+                template = dialogs[extensionName][dialogName];
+                break;
+              }
+            }
+          }
+          if (template) {
+            break;
+          }
+        }
+      }
+      if (template) {
+        return new gosa.ui.dialogs.TemplateDialog(template);
+      }
+      return null;
     }
   }
 });

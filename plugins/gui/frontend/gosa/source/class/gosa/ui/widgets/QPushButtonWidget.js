@@ -100,12 +100,7 @@ qx.Class.define("gosa.ui.widgets.QPushButtonWidget", {
     _createDialogExecutionListener : function() {
       if (!this._dialogExecutionListener) {
         this._dialogExecutionListener = this._widget.addListener("execute", function() {
-          var clazz = qx.Class.getByName("gosa.ui.dialogs." + this.getDialog());
-          if (!clazz) {
-            qx.core.Assert.fail("Unkown dialog class: '" + this.getDialog() + "'");
-          }
-          var dialog = new clazz();
-          dialog.setAutoDispose();
+          var dialog = gosa.engine.WidgetFactory.createDialog(this.getDialog());
           dialog.open();
         }, this);
       }

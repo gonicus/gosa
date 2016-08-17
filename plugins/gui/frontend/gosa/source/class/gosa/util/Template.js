@@ -27,6 +27,23 @@ qx.Class.define("gosa.util.Template", {
         return null;
       }
       return gosa.Cache.gui_templates[objectName];
+    },
+
+    /**
+     * Finds the identifying name of a dialog template.
+     *
+     * @param template {String} The template as a json string (i.e. unparsed)
+     * @return {String | null} The name of the template or null if not found/no valid dialog template
+     */
+    getDialogName : function(template) {
+      qx.core.Assert.assertString(template);
+      var json = JSON.parse(template);
+      if (json.hasOwnProperty("type") && json.type === "widget" &&
+          json.hasOwnProperty("properties") && (typeof json.properties === "object") &&
+          json.properties.hasOwnProperty("dialogName") && (typeof json.properties.dialogName === "string")) {
+            return json.properties.dialogName;
+          }
+      return null;
     }
   }
 });
