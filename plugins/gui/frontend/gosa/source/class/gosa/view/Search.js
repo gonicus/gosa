@@ -453,12 +453,6 @@ qx.Class.define("gosa.view.Search",
           // See http://bugzilla.qooxdoo.org/show_bug.cgi?id=1770
           win.setShowMinimize(false);
 
-          w.addListener("done", function(){
-            w.dispose();
-            doc.remove(win);
-            win.destroy();
-          }, this);
-
           win.addListener("close", function(){
             w.dispose();
             doc.remove(win);
