@@ -13,12 +13,13 @@
             "favicon": "images/user-samba.png",
             "actionChangeSambaPassword": "images/password.png"
         },
-        "actions": {
+        "actions": [{
+            "name": "actionChangeSambaPassword",
             "dialog": "ChangeSambaPasswordDialog",
             "text": "tr('Change samba password...')",
             "icon": "actionChangeSambaPassword",
             "condition": "extensionExists(dn,'SambaUser')"
-        },
+        }],
         "tabConfig": {
             "title": "tr('Samba')",
             "icon": "favicon"

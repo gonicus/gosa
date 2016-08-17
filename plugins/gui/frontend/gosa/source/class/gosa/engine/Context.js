@@ -17,6 +17,7 @@ qx.Class.define("gosa.engine.Context", {
 
     this._template = template;
     this._rootWidget = rootWidget;
+    this._actionMenuEntries = {};
     this._widgetRegistry = new gosa.engine.WidgetRegistry();
     this._buddyRegistry = new gosa.engine.WidgetRegistry();
     this._resourceManager = new gosa.engine.ResourceManager();
@@ -30,6 +31,7 @@ qx.Class.define("gosa.engine.Context", {
     _widgetRegistry : null,
     _buddyRegistry : null,
     _resourceManager : null,
+    _actionMenuEntries : null,
 
     /**
      * @return {gosa.ui.widgets.Widget} The root widget container for this template
@@ -59,6 +61,29 @@ qx.Class.define("gosa.engine.Context", {
       return this._resourceManager;
     },
 
+    /**
+     * @return {Map} Hash in the shape "name" -> {@link qx.ui.menu.Button}
+     */
+    getActions : function() {
+      return this._actionMenuEntries;
+    },
+
+    /**
+     * Adds a new button to the action menu.
+     *
+     * @param name {String} Unique identifier of the action
+     * @param button {qx.ui.menu.Button} The button for the action
+     */
+    addActionMenuEntry : function(name, button) {
+      qx.core.Assert.assertString(name);
+      qx.core.Assert.assertInstance(button, qx.ui.menu.Button);
+      qx.core.Assert.assertFalse(
+        this._actionMenuEntries.hasOwnProperty(name),
+        "There already is an action with the key '" + name + "'"
+      );
+      this._actionMenuEntries[name] = button;
+    },
+
     _createWidgets : function() {
       var processor = gosa.engine.ProcessorFactory.getProcessor(this._template, this);
       processor.process(this._template, this._rootWidget);
@@ -81,6 +106,7 @@ qx.Class.define("gosa.engine.Context", {
   },
 
   destruct : function() {
+    this._actionMenuEntries = null;
     this._disposeObjects(
       "_rootWidget",
       "_widgetRegistry",

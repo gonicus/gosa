@@ -42,12 +42,14 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _obj : null,
     _templates : null,
     _tabView : null,
+    _toolMenu : null,
     _buttonPane : null,
     _contexts : null,
 
     _initWidgets : function() {
       this._createTabView();
       this._createTabPages();
+      this._createToolmenu();
       this._createButtons();
     },
 
@@ -65,6 +67,41 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         var context = new gosa.engine.Context(template, tabPage);
         this._contexts.push(context);
         this._tabView.add(context.getRootWidget());
+      }, this);
+    },
+
+    _createToolmenu : function() {
+      this._toolMenu = new qx.ui.menu.Menu();
+      this._tabView.getChildControl("bar").setMenu(this._toolMenu);
+
+      this._createActionButtons();
+    },
+
+    _createActionButtons : function() {
+      var allActionEntries = {};
+      var actionEntries, key;
+
+      // collect action menu entries
+      this._contexts.forEach(function(context) {
+        actionEntries = context.getActions();
+        for (var name in actionEntries) {
+          if (actionEntries.hasOwnProperty(name)) {
+            qx.core.Assert.assertFalse(allActionEntries.hasOwnProperty(name), "Duplicate action name: '" + name + "'");
+            allActionEntries[name] = actionEntries[name];
+          }
+        }
+      });
+
+      // sort by name
+      var sorted = [];
+      for(key in allActionEntries) {
+        sorted[sorted.length] = key;
+      }
+      sorted.sort();
+
+      // add menu entries to widget
+      sorted.forEach(function(key) {
+        this._toolMenu.add(allActionEntries[key]);
       }, this);
     },
 
@@ -104,6 +141,6 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     this._obj = null;
     this._templates = null;
     qx.util.DisposeUtil.disposeArray("_contexts");
-    this._disposeObjects("_buttonPane", "_tabView");
+    this._disposeObjects("_toolMenu", "_buttonPane", "_tabView");
   }
 });

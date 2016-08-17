@@ -18,22 +18,26 @@
             "actionSendMessage": "images/notify.png"
         },
         "actions": [{
+            "name": "actionChangePassword",
             "dialog": "ChangePasswordDialog",
             "text": "tr('Change password...')",
             "icon": "actionChangePassword",
             "condition": "!isLocked",
             "shortcut": "Ctrl+P"
         }, {
+            "name": "actionLock",
             "target": "lock()",
             "text": "tr('Lock account')",
             "icon": "actionLockAccount",
             "condition": "accountLockable(dn)"
        }, {
+            "name": "actionUnlock",
             "target": "unlock()",
             "text": "tr('Unlock account')",
             "icon": "actionUnlockAccount",
             "condition": "accountUnlockable(dn)"
        }, {
+            "name": "actionSendMessageDialog",
             "dialog": "SendMessageDialog",
             "text": "tr('Send message...')",
             "icon": "actionSendMessage"
