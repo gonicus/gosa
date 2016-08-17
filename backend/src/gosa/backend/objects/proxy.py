@@ -148,8 +148,8 @@ class ObjectProxy(object):
 
         # Load base object and extensions
         self.__base = self.__factory.getObject(base, dn_or_base, mode=base_mode)
-        self.__base.owner = self.__current_user
-        self.__base.session_id = self.__current_session_id
+        self.__base._owner = self.__current_user
+        self.__base._session_id = self.__current_session_id
         self.__base.parent = self
         self.__base_type = base
         self.__base_mode = base_mode
@@ -158,8 +158,8 @@ class ObjectProxy(object):
             self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid)
             self.__extensions[extension].dn = self.__base.dn
             self.__extensions[extension].parent = self
-            self.__extensions[extension].owner = self.__current_user
-            self.__extensions[extension].session_id = self.__current_session_id
+            self.__extensions[extension]._owner = self.__current_user
+            self.__extensions[extension]._session_id = self.__current_session_id
             self.__initial_extension_state[extension] = True
         for extension in all_extensions:
             if extension not in self.__extensions:
@@ -438,7 +438,7 @@ class ObjectProxy(object):
         else:
             self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid, mode="extend")
             self.__extensions[extension].parent = self
-            self.__extensions[extension].owner = self.__current_user
+            self.__extensions[extension]._owner = self.__current_user
 
         # Register the extensions methods
         object_types = self.__factory.getObjectTypes()
