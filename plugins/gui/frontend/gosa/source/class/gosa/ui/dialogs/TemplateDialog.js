@@ -56,7 +56,6 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
     },
 
     _addWidgets : function() {
-      var processor = gosa.engine.ProcessorFactory.getProcessor(this._parsedTemplate, this);
       new gosa.engine.Context(this._parsedTemplate, this);
     }
   }

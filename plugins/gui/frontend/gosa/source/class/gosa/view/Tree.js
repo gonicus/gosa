@@ -131,17 +131,6 @@ qx.Class.define("gosa.view.Tree",
         }
       });
 
-      var Action = qx.Class.define("Action",{
-        extend : qx.ui.table.cellrenderer.Boolean,
-        members :      {
-          _getImageInfos : function(cellInfo){
-            cellInfo['value'] =  gosa.Config.spath + "/resources/images/objects/16/" + cellInfo['value'].toLowerCase() + ".png";
-            return(this.base(arguments, cellInfo));
-          }
-        }
-      });
-
-
       table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
       var tcm = table.getTableColumnModel();
       var resizeBehavior = tcm.getBehavior();
@@ -155,7 +144,6 @@ qx.Class.define("gosa.view.Tree",
       // Act on tree selection to automatically update the list
       tree.getSelection().addListener("change", function(e){
         var sel = tree.getSelection();
-        var data = [];
         var done = [];
         tableModel.setData([]);
         var f = function(item){

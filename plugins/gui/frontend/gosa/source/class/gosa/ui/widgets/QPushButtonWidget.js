@@ -71,7 +71,7 @@ qx.Class.define("gosa.ui.widgets.QPushButtonWidget", {
     _dialogExecutionListener : null,
 
     _setText : function(value) {
-      this._widget.setLabel(this.tr(value));
+      this._widget.setLabel(this['tr'](value));
     },
 
     _applyGuiProperties : function(props) {
