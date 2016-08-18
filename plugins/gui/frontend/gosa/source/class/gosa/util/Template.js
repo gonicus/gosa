@@ -50,7 +50,7 @@ qx.Class.define("gosa.util.Template", {
      * Finds the category title in the template.
      *
      * @param template {String} The unparsed template as a json string
-     * @param {String | null} The category title or null if it does not exist/cannot be found
+     * @return {String | null} The category title or null if it does not exist/cannot be found
      */
     getCategoryTitle : function(template) {
       qx.core.Assert.assertString(template);

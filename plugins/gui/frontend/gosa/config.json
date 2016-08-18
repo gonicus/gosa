@@ -21,6 +21,7 @@
     "migration",
     "pretty",
     "profiling",
+    "profile",
     "source",
     "source-all",
     "source-destruct",
@@ -170,6 +171,16 @@
         }
       ]
     },
+
+    "profile" :
+    {   
+        "desc" : "generate profling source",
+        "extend" : [ "source" ],
+        "environment" :
+        {   
+            "qx.aspects" : true
+        }   
+    }, 
 
     // Uncomment the following entry to add a contrib or library to your
     // project; make sure to adapt the path to the Manifest.json; if you are

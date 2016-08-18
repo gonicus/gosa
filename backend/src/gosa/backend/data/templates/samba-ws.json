@@ -1,7 +1,10 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Atom",
+    "layout": "qx.ui.layout.VBox",
+    "layoutConfig": {
+        "spacing": 5
+    },
     "extensions": {
         "resources": {
             "favicon": "images/samba-ws.png"
@@ -14,157 +17,144 @@
         "categoryTitle": "tr('Windows Workstation')"
     },
     "children": [{
-        "class": "qx.ui.container.Composite",
+        "class": "gosa.ui.widgets.GroupBox",
         "layout": "qx.ui.layout.VBox",
+        "layoutConfig": {
+            "spacing": 5
+        },
+        "properties": {
+            "legend": "tr('Generic')"
+        },
         "children": [{
-            "class": "gosa.ui.widgets.GroupBox",
-            "layout": "qx.ui.layout.Atom",
-            "properties": {
-                "legend": "tr('Generic')"
-            },
+            "class": "qx.ui.container.Composite",
+            "layout": "qx.ui.layout.HBox",
             "children": [{
                 "class": "qx.ui.container.Composite",
                 "layout": "qx.ui.layout.Grid",
                 "children": [{
-                    "class": "qx.ui.container.Composite",
-                    "layout": "qx.ui.layout.VBox",
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "uid",
                     "addOptions": {
                         "row": 0,
                         "column": 0
                     },
-                    "children": [{
-                        "class": "qx.ui.container.Composite",
-                        "layout": "qx.ui.layout.HBox",
-                        "children": [{
-                            "class": "qx.ui.container.Composite",
-                            "layout": "qx.ui.layout.Grid",
-                            "children": [{
-                                "class": "gosa.ui.widgets.QLabelWidget",
-                                "buddyModelPath": "uid",
-                                "addOptions": {
-                                    "row": 0,
-                                    "column": 0
-                                },
-                                "properties": {
-                                    "text": "tr('System ID')"
-                                }
-                            }, {
-                                "class": "gosa.ui.widgets.QLineEditWidget",
-                                "modelPath": "uid",
-                                "addOptions": {
-                                    "row": 0,
-                                    "column": 1
-                                },
-                                "properties": {
-                                    "tabIndex": 1
-                                }
-                            }]
-                        }, {
-                            "class": "qx.ui.core.Widget",
-                            "properties": {
-                                "width": 10,
-                                "height": 20
-                            }
-                        }, {
-                            "class": "qx.ui.container.Composite",
-                            "layout": "qx.ui.layout.Grid",
-                            "children": [{
-                                "class": "gosa.ui.widgets.QLabelWidget",
-                                "buddyModelPath": "sambaDomainName",
-                                "addOptions": {
-                                    "row": 0,
-                                    "column": 0
-                                },
-                                "properties": {
-                                    "text": "tr('Domain')"
-                                }
-                            }, {
-                                "class": "gosa.ui.widgets.QComboBoxWidget",
-                                "modelPath": "sambaDomainName",
-                                "addOptions": {
-                                    "row": 0,
-                                    "column": 1
-                                },
-                                "properties": {
-                                    "tabIndex": 2
-                                }
-                            }, {
-                                "class": "gosa.ui.widgets.QLabelWidget",
-                                "buddyModelPath": "sambaSID",
-                                "addOptions": {
-                                    "row": 1,
-                                    "column": 0
-                                },
-                                "properties": {
-                                    "text": "tr('SID')"
-                                }
-                            }, {
-                                "class": "gosa.ui.widgets.QLineEditWidget",
-                                "modelPath": "sambaSID",
-                                "addOptions": {
-                                    "row": 1,
-                                    "column": 1
-                                },
-                                "properties": {
-                                    "tabIndex": 3
-                                }
-                            }]
-                        }]
-                    }, {
-                        "class": "gosa.ui.widgets.LineWidget",
-                        "property": {
-                            "orientation": "Qt::Horizontal"
-                        }
-                    }, {
-                        "class": "qx.ui.container.Composite",
-                        "layout": "qx.ui.layout.Grid",
-                        "children": [{
-                            "class": "gosa.ui.widgets.QLabelWidget",
-                            "buddyModelPath": "displayName",
-                            "addOptions": {
-                                "row": 0,
-                                "column": 0
-                            },
-                            "properties": {
-                                "text": "tr('Display Name')"
-                            }
-                        }, {
-                            "class": "gosa.ui.widgets.QLineEditWidget",
-                            "modelPath": "displayName",
-                            "addOptions": {
-                                "row": 0,
-                                "column": 1
-                            }
-                        }, {
-                            "class": "gosa.ui.widgets.QLabelWidget",
-                            "buddyModelPath": "description",
-                            "addOptions": {
-                                "row": 1,
-                                "column": 0
-                            },
-                            "properties": {
-                                "text": "tr('Description')"
-                            }
-                        }, {
-                            "class": "gosa.ui.widgets.QLineEditWidget",
-                            "modelPath": "description",
-                            "addOptions": {
-                                "row": 1,
-                                "column": 1
-                            },
-                            "properties": {
-                                "tabIndex": 4
-                            }
-                        }]
-                    }]
+                    "properties": {
+                        "text": "tr('System ID')"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QLineEditWidget",
+                    "modelPath": "uid",
+                    "addOptions": {
+                        "row": 0,
+                        "column": 1
+                    },
+                    "properties": {
+                        "tabIndex": 1
+                    }
+                }]
+            }, {
+                "class": "qx.ui.core.Widget",
+                "properties": {
+                    "width": 10,
+                    "height": 20
+                }
+            }, {
+                "class": "qx.ui.container.Composite",
+                "layout": "qx.ui.layout.Grid",
+                "children": [{
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "sambaDomainName",
+                    "addOptions": {
+                        "row": 0,
+                        "column": 0
+                    },
+                    "properties": {
+                        "text": "tr('Domain')"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QComboBoxWidget",
+                    "modelPath": "sambaDomainName",
+                    "addOptions": {
+                        "row": 0,
+                        "column": 1
+                    },
+                    "properties": {
+                        "tabIndex": 2
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "sambaSID",
+                    "addOptions": {
+                        "row": 1,
+                        "column": 0
+                    },
+                    "properties": {
+                        "text": "tr('SID')"
+                    }
+                }, {
+                    "class": "gosa.ui.widgets.QLineEditWidget",
+                    "modelPath": "sambaSID",
+                    "addOptions": {
+                        "row": 1,
+                        "column": 1
+                    },
+                    "properties": {
+                        "tabIndex": 3
+                    }
                 }]
             }]
         }, {
-            "class": "qx.ui.core.Widget",
-            "properties": {
-                "width": 20,
-                "height": 108
+            "class": "gosa.ui.widgets.LineWidget",
+            "property": {
+                "orientation": "Qt::Horizontal"
             }
+        }, {
+            "class": "qx.ui.container.Composite",
+            "layout": "qx.ui.layout.Grid",
+            "children": [{
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "displayName",
+                "addOptions": {
+                    "row": 0,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Display Name')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "displayName",
+                "addOptions": {
+                    "row": 0,
+                    "column": 1
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "description",
+                "addOptions": {
+                    "row": 1,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Description')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "description",
+                "addOptions": {
+                    "row": 1,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 4
+                }
+            }]
         }]
+    }, {
+        "class": "qx.ui.core.Widget",
+        "properties": {
+            "width": 20,
+            "height": 108
+        }
     }]
 }

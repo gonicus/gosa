@@ -1,7 +1,7 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Atom",
+    "layout": "qx.ui.layout.Canvas",
     "extensions": {
         "resources": {
             "favicon": "images/organization.png"
@@ -12,28 +12,26 @@
         "categoryTitle": "tr('Organization')"
     },
     "children": [{
-        "class": "qx.ui.container.Composite",
-        "layout": "qx.ui.layout.VBox",
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.HBox",
+        "layoutConfig": {
+            "spacing": 5
+        },
+        "addOptions": {
+            "edge": 0
+        },
+        "properties": {
+            "legend": "tr('Generic')"
+        },
         "children": [{
-            "class": "gosa.ui.widgets.GroupBox",
-            "layout": "qx.ui.layout.Atom",
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "o",
             "properties": {
-                "legend": "tr('Generic')"
-            },
-            "children": [{
-                "class": "qx.ui.container.Composite",
-                "layout": "qx.ui.layout.HBox",
-                "children": [{
-                    "class": "gosa.ui.widgets.QLabelWidget",
-                    "buddyModelPath": "o",
-                    "properties": {
-                        "text": "tr('Name')"
-                    }
-                }, {
-                    "class": "gosa.ui.widgets.QLineEditWidget",
-                    "modelPath": "o"
-                }]
-            }]
+                "text": "tr('Name')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "o"
         }]
     }]
 }

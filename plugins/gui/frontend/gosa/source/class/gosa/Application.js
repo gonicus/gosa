@@ -57,6 +57,8 @@ qx.Class.define("gosa.Application",
       // Enable logging in debug variant
       if (qx.core.Environment.get("qx.debug"))
       {
+        qx.dev.Profile;  // jshint ignore:line
+
         // support native logging capabilities, e.g. Firebug for Firefox
         qx.log.appender.Native;
         // support additional cross-browser console. Press F7 to toggle visibility

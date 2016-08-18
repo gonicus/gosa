@@ -1,9 +1,12 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Canvas",
+    "layout": "qx.ui.layout.VBox",
     "addOptions": {
         "flex": 1
+    },
+    "layoutConfig": {
+        "spacing": 5
     },
     "extensions": {
         "resources": {
@@ -19,470 +22,449 @@
         "height": 428
     },
     "children": [{
-        "class": "qx.ui.container.Composite",
-        "layout": "qx.ui.layout.VBox",
-        "addOptions": {
-            "edge": 0
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.Grid",
+        "properties": {
+            "legend": "tr('Organizational information')"
+        },
+        "extensions": {
+            "layoutOptions": {
+                "columnFlex": {
+                    "column": [0, 2],
+                    "flex": 1
+                }
+            }
+        },
+        "children": [{
+            "class": "qx.ui.container.Composite",
+            "layout": "qx.ui.layout.Grid",
+            "addOptions": {
+                "row": 0,
+                "column": 0
+            },
+            "layoutConfig": {
+                "spacing": 5
+            },
+            "extensions": {
+                "layoutOptions": {
+                    "columnFlex": {
+                        "column": [0, 1],
+                        "flex": 1
+                    }
+                }
+            },
+            "children": [{
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "employeeNumber",
+                "addOptions": {
+                    "row": 0,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Employee no.')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "employeeNumber",
+                "addOptions": {
+                    "row": 0,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 1
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "employeeType",
+                "addOptions": {
+                    "row": 1,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Employee type')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "employeeType",
+                "addOptions": {
+                    "row": 1,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 2
+                }
+            }, {
+                "class": "qx.ui.core.Widget",
+                "addOptions": {
+                    "row": 2,
+                    "column": 1
+                },
+                "properties": {
+                    "width": 20,
+                    "height": 5
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "manager",
+                "addOptions": {
+                    "row": 3,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Manager')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QTableWidgetWidget",
+                "modelPath": "manager",
+                "addOptions": {
+                    "row": 3,
+                    "column": 1
+                },
+                "extensions": {
+                    "guiProperties": {
+                        "editTitle": "tr('Choose a manager')",
+                        "columns": {
+                            "cn": "tr('Name')",
+                            "uid": "tr('Login ID')"
+                        }
+                    }
+                }
+            }]
+        }, {
+            "class": "qx.ui.core.Widget",
+            "addOptions": {
+                "row": 0,
+                "column": 1
+            },
+            "properties": {
+                "width": 10,
+                "height": 20
+            }
+        }, {
+            "class": "qx.ui.container.Composite",
+            "layout": "qx.ui.layout.Grid",
+            "addOptions": {
+                "row": 0,
+                "column": 2
+            },
+            "layoutConfig": {
+                "spacing": 5
+            },
+            "extensions": {
+                "layoutOptions": {
+                    "columnFlex": {
+                        "column": [0, 1],
+                        "flex": 1
+                    }
+                }
+            },
+            "children": [{
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "o",
+                "addOptions": {
+                    "row": 0,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Organization')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "o",
+                "addOptions": {
+                    "row": 0,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 4
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "ou",
+                "addOptions": {
+                    "row": 1,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Unit')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "ou",
+                "addOptions": {
+                    "row": 1,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 5
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "departmentNumber",
+                "addOptions": {
+                    "row": 2,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Deparment no.')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "departmentNumber",
+                "addOptions": {
+                    "row": 2,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 6
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "roomNumber",
+                "addOptions": {
+                    "row": 3,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Room no.')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "roomNumber",
+                "addOptions": {
+                    "row": 3,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 7
+                }
+            }]
+        }]
+    }, {
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.Grid",
+        "properties": {
+            "legend": "tr('Contact information')"
         },
         "layoutConfig": {
             "spacing": 5
         },
+        "extensions": {
+            "layoutOptions": {
+                "columnFlex": {
+                    "column": [0, 2],
+                    "flex": 1
+                }
+            }
+        },
         "children": [{
-            "class": "gosa.ui.widgets.GroupBox",
-            "layout": "qx.ui.layout.VBox",
-            "properties": {
-                "legend": "tr('Organizational information')"
+            "class": "qx.ui.container.Composite",
+            "layout": "qx.ui.layout.Grid",
+            "layoutConfig": {
+                "spacing": 5
+            },
+            "extensions": {
+                "layoutOptions": {
+                    "columnFlex": {
+                        "column": [0, 1],
+                        "flex": 1
+                    }
+                }
+            },
+            "addOptions": {
+                "row": 0,
+                "column": 0
             },
             "children": [{
-                "class": "qx.ui.container.Composite",
-                "layout": "qx.ui.layout.Grid",
-                "layoutConfig": {
-                    "spacing": 5
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "telephoneNumber",
+                "addOptions": {
+                    "row": 0,
+                    "column": 0
                 },
-                "extensions": {
-                    "layoutOptions": {
-                        "columnFlex": {
-                            "column": [0, 2],
-                            "flex": 1
-                        }
-                    }
+                "properties": {
+                    "text": "tr('Phone')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "telephoneNumber",
+                "addOptions": {
+                    "row": 0,
+                    "column": 1
                 },
-                "children": [{
-                    "class": "qx.ui.container.Composite",
-                    "layout": "qx.ui.layout.Grid",
-                    "addOptions": {
-                        "row": 0,
-                        "column": 0
-                    },
-                    "layoutConfig": {
-                        "spacing": 5
-                    },
-                    "extensions": {
-                        "layoutOptions": {
-                            "columnFlex": {
-                                "column": [0, 1],
-                                "flex": 1
-                            }
-                        }
-                    },
-                    "children": [{
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "employeeNumber",
-                        "addOptions": {
-                            "row": 0,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Employee no.')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLineEditWidget",
-                        "modelPath": "employeeNumber",
-                        "addOptions": {
-                            "row": 0,
-                            "column": 1
-                        },
-                        "properties": {
-                            "tabIndex": 1
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "employeeType",
-                        "addOptions": {
-                            "row": 1,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Employee type')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLineEditWidget",
-                        "modelPath": "employeeType",
-                        "addOptions": {
-                            "row": 1,
-                            "column": 1
-                        },
-                        "properties": {
-                            "tabIndex": 2
-                        }
-                    }, {
-                        "class": "qx.ui.core.Widget",
-                        "addOptions": {
-                            "row": 2,
-                            "column": 1
-                        },
-                        "properties": {
-                            "width": 20,
-                            "height": 5
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "manager",
-                        "addOptions": {
-                            "row": 3,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Manager')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QTableWidgetWidget",
-                        "modelPath": "manager",
-                        "addOptions": {
-                            "row": 3,
-                            "column": 1
-                        },
-                        "extensions": {
-                            "guiProperties": {
-                                "editTitle": "tr('Choose a manager')",
-                                "columns": {
-                                    "cn": "tr('Name')",
-                                    "uid": "tr('Login ID')"
-                                }
-                            }
-                        }
-                    }]
-                }, {
-                    "class": "qx.ui.core.Widget",
-                    "addOptions": {
-                        "row": 0,
-                        "column": 1
-                    },
-                    "properties": {
-                        "width": 10,
-                        "height": 20
-                    }
-                }, {
-                    "class": "qx.ui.container.Composite",
-                    "layout": "qx.ui.layout.Grid",
-                    "addOptions": {
-                        "row": 0,
-                        "column": 2
-                    },
-                    "layoutConfig": {
-                        "spacing": 5
-                    },
-                    "extensions": {
-                        "layoutOptions": {
-                            "columnFlex": {
-                                "column": [0, 1],
-                                "flex": 1
-                            }
-                        }
-                    },
-                    "children": [{
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "o",
-                        "addOptions": {
-                            "row": 0,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Organization')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLineEditWidget",
-                        "modelPath": "o",
-                        "addOptions": {
-                            "row": 0,
-                            "column": 1
-                        },
-                        "properties": {
-                            "tabIndex": 4
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "ou",
-                        "addOptions": {
-                            "row": 1,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Unit')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLineEditWidget",
-                        "modelPath": "ou",
-                        "addOptions": {
-                            "row": 1,
-                            "column": 1
-                        },
-                        "properties": {
-                            "tabIndex": 5
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "departmentNumber",
-                        "addOptions": {
-                            "row": 2,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Deparment no.')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLineEditWidget",
-                        "modelPath": "departmentNumber",
-                        "addOptions": {
-                            "row": 2,
-                            "column": 1
-                        },
-                        "properties": {
-                            "tabIndex": 6
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "roomNumber",
-                        "addOptions": {
-                            "row": 3,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Room no.')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLineEditWidget",
-                        "modelPath": "roomNumber",
-                        "addOptions": {
-                            "row": 3,
-                            "column": 1
-                        },
-                        "properties": {
-                            "tabIndex": 7
-                        }
-                    }]
-                }]
-            }]
-        }, {
-            "class": "gosa.ui.widgets.GroupBox",
-            "layout": "qx.ui.layout.VBox",
-            "properties": {
-                "legend": "tr('Contact information')"
-            },
-            "children": [{
-                "class": "qx.ui.container.Composite",
-                "layout": "qx.ui.layout.Grid",
-                "layoutConfig": {
-                    "spacing": 5
+                "properties": {
+                    "tabIndex": 8
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "mobile",
+                "addOptions": {
+                    "row": 1,
+                    "column": 0
                 },
-                "extensions": {
-                    "layoutOptions": {
-                        "columnFlex": {
-                            "column": [0, 2],
-                            "flex": 1
-                        }
-                    }
+                "properties": {
+                    "text": "tr('Mobile phone')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "mobile",
+                "addOptions": {
+                    "row": 1,
+                    "column": 1
                 },
-                "children": [{
-                    "class": "qx.ui.container.Composite",
-                    "layout": "qx.ui.layout.Grid",
-                    "layoutConfig": {
-                        "spacing": 5
-                    },
-                    "extensions": {
-                        "layoutOptions": {
-                            "columnFlex": {
-                                "column": [0, 1],
-                                "flex": 1
-                            }
-                        }
-                    },
-                    "addOptions": {
-                        "row": 0,
-                        "column": 0
-                    },
-                    "children": [{
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "telephoneNumber",
-                        "addOptions": {
-                            "row": 0,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Phone')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLineEditWidget",
-                        "modelPath": "telephoneNumber",
-                        "addOptions": {
-                            "row": 0,
-                            "column": 1
-                        },
-                        "properties": {
-                            "tabIndex": 8
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "mobile",
-                        "addOptions": {
-                            "row": 1,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Mobile phone')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLineEditWidget",
-                        "modelPath": "mobile",
-                        "addOptions": {
-                            "row": 1,
-                            "column": 1
-                        },
-                        "properties": {
-                            "tabIndex": 9
-                        }
-                    }, {
-                        "class": "qx.ui.core.Widget",
-                        "addOptions": {
-                            "row": 2,
-                            "column": 1
-                        },
-                        "properties": {
-                            "width": 20,
-                            "height": 5
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "pager",
-                        "addOptions": {
-                            "row": 3,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Pager')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLineEditWidget",
-                        "modelPath": "pager",
-                        "addOptions": {
-                            "row": 3,
-                            "column": 1
-                        },
-                        "properties": {
-                            "tabIndex": 10
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "facsimileTelephoneNumber",
-                        "addOptions": {
-                            "row": 4,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Fax')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLineEditWidget",
-                        "modelPath": "facsimileTelephoneNumber",
-                        "addOptions": {
-                            "row": 4,
-                            "column": 1
-                        },
-                        "properties": {
-                            "tabIndex": 11
-                        }
-                    }]
-                }, {
-                    "class": "qx.ui.core.Widget",
-                    "addOptions": {
-                        "row": 0,
-                        "column": 1
-                    },
-                    "properties": {
-                        "width": 10,
-                        "height": 20
-                    }
-                }, {
-                    "class": "qx.ui.container.Composite",
-                    "layout": "qx.ui.layout.Grid",
-                    "addOptions": {
-                        "row": 0,
-                        "column": 2
-                    },
-                    "layoutConfig": {
-                        "spacing": 5
-                    },
-                    "extensions": {
-                        "layoutOptions": {
-                            "columnFlex": {
-                                "column": [0, 1],
-                                "flex": 1
-                            }
-                        }
-                    },
-                    "children": [{
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "l",
-                        "addOptions": {
-                            "row": 0,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Location')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLineEditWidget",
-                        "modelPath": "l",
-                        "addOptions": {
-                            "row": 0,
-                            "column": 1
-                        },
-                        "properties": {
-                            "tabIndex": 12
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "st",
-                        "addOptions": {
-                            "row": 1,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('State')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLineEditWidget",
-                        "modelPath": "st",
-                        "addOptions": {
-                            "row": 1,
-                            "column": 1
-                        },
-                        "properties": {
-                            "tabIndex": 13
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QLabelWidget",
-                        "buddyModelPath": "postalAddress",
-                        "addOptions": {
-                            "row": 2,
-                            "column": 0
-                        },
-                        "properties": {
-                            "text": "tr('Address')"
-                        }
-                    }, {
-                        "class": "gosa.ui.widgets.QPlainTextEditWidget",
-                        "modelPath": "postalAddress",
-                        "addOptions": {
-                            "row": 2,
-                            "column": 1
-                        },
-                        "properties": {
-                            "minWidth": 0,
-                            "minHeight": 60,
-                            "maxWidth": 16777215,
-                            "maxHeight": 120,
-                            "tabIndex": 14
-                        }
-                    }]
-                }]
+                "properties": {
+                    "tabIndex": 9
+                }
+            }, {
+                "class": "qx.ui.core.Widget",
+                "addOptions": {
+                    "row": 2,
+                    "column": 1
+                },
+                "properties": {
+                    "width": 20,
+                    "height": 5
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "pager",
+                "addOptions": {
+                    "row": 3,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Pager')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "pager",
+                "addOptions": {
+                    "row": 3,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 10
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "facsimileTelephoneNumber",
+                "addOptions": {
+                    "row": 4,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Fax')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "facsimileTelephoneNumber",
+                "addOptions": {
+                    "row": 4,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 11
+                }
             }]
         }, {
             "class": "qx.ui.core.Widget",
+            "addOptions": {
+                "row": 0,
+                "column": 1
+            },
             "properties": {
-                "width": 20,
-                "height": 40
+                "width": 10,
+                "height": 20
             }
+        }, {
+            "class": "qx.ui.container.Composite",
+            "layout": "qx.ui.layout.Grid",
+            "addOptions": {
+                "row": 0,
+                "column": 2
+            },
+            "layoutConfig": {
+                "spacing": 5
+            },
+            "extensions": {
+                "layoutOptions": {
+                    "columnFlex": {
+                        "column": [0, 1],
+                        "flex": 1
+                    }
+                }
+            },
+            "children": [{
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "l",
+                "addOptions": {
+                    "row": 0,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Location')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "l",
+                "addOptions": {
+                    "row": 0,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 12
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "st",
+                "addOptions": {
+                    "row": 1,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('State')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "st",
+                "addOptions": {
+                    "row": 1,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 13
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "postalAddress",
+                "addOptions": {
+                    "row": 2,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Address')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QPlainTextEditWidget",
+                "modelPath": "postalAddress",
+                "addOptions": {
+                    "row": 2,
+                    "column": 1
+                },
+                "properties": {
+                    "minWidth": 0,
+                    "minHeight": 60,
+                    "maxWidth": 16777215,
+                    "maxHeight": 120,
+                    "tabIndex": 14
+                }
+            }]
         }]
+    }, {
+        "class": "qx.ui.core.Widget",
+        "properties": {
+            "width": 20,
+            "height": 40
+        }
     }]
 }

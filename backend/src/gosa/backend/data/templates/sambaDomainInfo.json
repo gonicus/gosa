@@ -17,18 +17,10 @@
             "edge": 0
         },
         "children": [{
-            "class": "qx.ui.container.Composite",
-            "layout": "qx.ui.layout.VBox",
+            "class": "gosa.ui.widgets.QLabelWidget",
             "properties": {
-                "width": 340,
-                "height": 320
-            },
-            "children": [{
-                "class": "gosa.ui.widgets.QLabelWidget",
-                "properties": {
-                    "callObjectMethod": "getSambaDomainInformation(%locale)"
-                }
-            }]
+                "callObjectMethod": "getSambaDomainInformation(%locale)"
+            }
         }]
     }]
 }

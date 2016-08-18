@@ -1,7 +1,10 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Atom",
+    "layout": "qx.ui.layout.Canvas",
+    "layoutConfig": {
+        "spacing": 5
+    },
     "extensions": {
         "resources": {
             "favicon": "images/locality.png"
@@ -12,28 +15,26 @@
         "categoryTitle": "tr('Locality')"
     },
     "children": [{
-        "class": "qx.ui.container.Composite",
-        "layout": "qx.ui.layout.VBox",
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.HBox",
+        "layoutConfig": {
+            "spacing": 5
+        },
+        "addOptions": {
+            "edge": 0
+        },
+        "properties": {
+            "legend": "tr('Generic')"
+        },
         "children": [{
-            "class": "gosa.ui.widgets.GroupBox",
-            "layout": "qx.ui.layout.Atom",
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "l",
             "properties": {
-                "legend": "tr('Generic')"
-            },
-            "children": [{
-                "class": "qx.ui.container.Composite",
-                "layout": "qx.ui.layout.HBox",
-                "children": [{
-                    "class": "gosa.ui.widgets.QLabelWidget",
-                    "buddyModelPath": "l",
-                    "properties": {
-                        "text": "tr('Name')"
-                    }
-                }, {
-                    "class": "gosa.ui.widgets.QLineEditWidget",
-                    "modelPath": "l"
-                }]
-            }]
+                "text": "tr('Name')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "l"
         }]
     }]
 }

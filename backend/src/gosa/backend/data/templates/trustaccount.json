@@ -20,7 +20,10 @@
     },
     "children": [{
         "class": "gosa.ui.widgets.GroupBox",
-        "layout": "qx.ui.layout.Canvas",
+        "layout": "qx.ui.layout.VBox",
+        "layoutConfig": {
+            "spacing": 5
+        },
         "addOptions": {
             "edge": 0
         },
@@ -29,45 +32,41 @@
         },
         "children": [{
             "class": "qx.ui.container.Composite",
-            "layout": "qx.ui.layout.VBox",
+            "layout": "qx.ui.layout.HBox",
             "layoutConfig": {
                 "spacing": 5
             },
             "addOptions": {
-                "edge": 0
+                "flex": 1
             },
             "children": [{
-                "class": "qx.ui.container.Composite",
-                "layout": "qx.ui.layout.HBox",
-                "layoutConfig": {
-                    "spacing": 5
-                },
-                "children": [{
-                    "class": "gosa.ui.widgets.QLabelWidget",
-                    "buddyModelPath": "trustModel",
-                    "properties": {
-                        "text": "tr('Mode')"
-                    }
-                }, {
-                    "class": "gosa.ui.widgets.QComboBoxWidget",
-                    "modelPath": "trustModel",
-                    "addOptions": {
-                        "flex": 1
-                    }
-                }]
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "trustModel",
+                "properties": {
+                    "text": "tr('Mode')"
+                }
             }, {
-                "class": "gosa.ui.widgets.QTableWidgetWidget",
-                "modelPath": "accessTo",
-                "extensions": {
-                    "guiProperties": {
-                        "editTitle": "tr('Edit trusted hosts')",
-                        "columns": {
-                            "cn": "tr('Name')",
-                            "description": "tr('Description')"
-                        }
-                    }
+                "class": "gosa.ui.widgets.QComboBoxWidget",
+                "modelPath": "trustModel",
+                "addOptions": {
+                    "flex": 1
                 }
             }]
+        }, {
+            "class": "gosa.ui.widgets.QTableWidgetWidget",
+            "modelPath": "accessTo",
+            "properties": {
+                "multivalue": true
+            },
+            "extensions": {
+                "guiProperties": {
+                    "editTitle": "tr('Edit trusted hosts')",
+                    "columns": {
+                        "cn": "tr('Name')",
+                        "description": "tr('Description')"
+                    }
+                }
+            }
         }]
     }]
 }
