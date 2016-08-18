@@ -235,6 +235,9 @@ class ObjectIndex(Plugin):
         # Add event processor
         MqttEventConsumer(callback=self.__backend_change_processor, event_type="BackendChange")
 
+    def stop(self):
+        zope.event.subscribers.remove(self.__handle_events)
+
     def __backend_change_processor(self, data):
         """
         This method gets called if an external backend reports

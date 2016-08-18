@@ -107,10 +107,17 @@ class PluginRegistry(object):
         """
         Call handlers stop() methods in order to grant a clean shutdown.
         """
-        for clazz  in PluginRegistry.handlers.values():
+        for clazz in PluginRegistry.handlers.values():
             if hasattr(clazz, 'stop'):
                 clazz.stop()
-                del clazz
+            del clazz
+
+        PluginRegistry.handlers = {}
+
+        for clazz in PluginRegistry.modules.values():
+            del clazz
+
+        PluginRegistry.modules = {}
 
     @staticmethod
     def getInstance(name):
