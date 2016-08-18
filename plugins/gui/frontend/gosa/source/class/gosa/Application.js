@@ -306,10 +306,10 @@ qx.Class.define("gosa.Application",
                 // 'item' will change in the loop...)
                 var addFunc2 = function(name){
                     var data = {};
-                    data['message'] = that.tr("Loading %1 template", name);
-                    data['context'] = this;
-                    data['params'] = ["getGuiTemplates", name];
-                    data['func'] = function(templates, error){
+                    data.message = that.tr("Loading %1 template", name);
+                    data.context = this;
+                    data.params = ["getGuiTemplates", name];
+                    data.func = function(templates, error){
                       if(error){
                         var d = new gosa.ui.dialogs.Error(this.tr("Fetching templates failed."));
                         d.open();
@@ -325,14 +325,10 @@ qx.Class.define("gosa.Application",
                         // Generate category mapping
                         var categoryTitle = name;
                         for (var j= 0; j<templates.length; j++) {
-                            var nodes = qx.xml.Document.fromString(templates[j]);
-                            var props = nodes.firstChild.getElementsByTagName("property");
-                            for (var k= 0; k<props.length; k++) {
-                                if (props[k].getAttribute("name") == "categoryTitle") {
-                                    categoryTitle = props[k].getElementsByTagName("string")[0].firstChild.nodeValue;
-                                    break;
-                                }
-                            }
+                          categoryTitle = gosa.util.Template.getCategoryTitle(templates[j]);
+                          if (categoryTitle) {
+                            break;
+                          }
                         }
                         gosa.Cache.object_categories[name] = categoryTitle;
 
@@ -343,7 +339,7 @@ qx.Class.define("gosa.Application",
                   };
 
                 // Append a queue entry for each kind of object.
-                for(var item in result){
+                for(item in result){
                   queue.push(addFunc2.apply(this, [result[item]]));
                 }
 

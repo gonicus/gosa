@@ -44,6 +44,23 @@ qx.Class.define("gosa.util.Template", {
             return json.properties.dialogName;
           }
       return null;
+    },
+
+    /**
+     * Finds the category title in the template.
+     *
+     * @param template {String} The unparsed template as a json string
+     * @param {String | null} The category title or null if it does not exist/cannot be found
+     */
+    getCategoryTitle : function(template) {
+      qx.core.Assert.assertString(template);
+      var json = gosa.util.Template.compileTemplate(template);
+      if (json.hasOwnProperty("type") && json.type === "widget" &&
+          json.hasOwnProperty("properties") && (typeof json.properties === "object") &&
+          json.properties.hasOwnProperty("categoryTitle") && (typeof json.properties.categoryTitle === "string")) {
+            return json.properties.categoryTitle;
+          }
+      return null;
     }
   }
 });

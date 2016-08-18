@@ -1,6 +1,16 @@
 qx.Class.define("gosa.engine.processors.WidgetProcessor", {
   extend : gosa.engine.processors.Base,
 
+  statics : {
+
+    /**
+     * @type {Array} Properties on widgets in the template that shall be ignored
+     */
+    IGNORED_PROPERTIES : [
+      "categoryTitle"
+    ]
+  },
+
   members : {
     _context : null,
 
@@ -67,11 +77,15 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
       if (properties) {
         var transformedProperties = this._transformProperties(properties);
 
-        for(var property in transformedProperties){
-          if(qx.Class.hasProperty(target.constructor, property)){
+        for (var property in transformedProperties) {
+          if (qx.lang.Array.contains(this.self(arguments).IGNORED_PROPERTIES, property)) {
+            break;
+          }
+          if (qx.Class.hasProperty(target.constructor, property)) {
             target.set(property, transformedProperties[property]);
-          } else {
-            qx.log.Logger.warn('Property: ' + property + ' not available on target widget: '+ target.basename);
+          } 
+          else {
+            qx.log.Logger.warn('Property: ' + property + ' not available on target widget: ' + target.basename);
             target[property] = transformedProperties[property];
           }
         }
