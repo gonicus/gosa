@@ -642,7 +642,7 @@ class ObjectProxy(object):
             # Load all children and remove them, starting from the most
             # nested ones.
             index = PluginRegistry.getInstance("ObjectIndex")
-            children = index.search({"dn": [self.__base.dn, "%," + self.__base.dn]}, {'dn': 1})
+            children = index.search({"dn": ["%," + self.__base.dn]}, {'dn': 1})
             children = [c['dn'] for c in children]
 
             children.sort(key=len, reverse=True)
