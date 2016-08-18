@@ -42,5 +42,35 @@
 # gosa.backend.object.(comparator|types).(acl_set|acl_roles)
 - Code nahezu identisch, nur das bei den sets auch der 'members'-key im Dict berücksichtigt wird => prüfen ob man das vereinheitlichen kann
 
-# ObjectProxy.move
+# ObjectProxy
+- Beispiel: Beim Anlegen eines Benutzers sollte erkannt werden dass kein PeopleContainer existiert, dieser angelegt werden und der User
+dann da reingelegt werden:
+Test dazu:
+  new_base = ObjectProxy("dc=example,dc=net", "DomainComponent")
+  new_base.dc = "test"
+  new_base.description = "Domain for testing purposes"
+  new_base.commit()
+
+  # new user
+  user = ObjectProxy("dc=test,dc=example,dc=net", "User")
+  user.uid = "testu"
+  user.givenName = "Test"
+  user.sn = "User"
+  user.commit()
+
 - die ObjectChange-Events werden einmal in der move-Methode gefeuert und dann nochmal beim commit() => Kann man eine davon entfernen?
+- beim move scheint keine Überprüfung stattzufinden ob das Object an dieser Stelle erlaubt ist. Zumindest führt:
+       roles = ObjectProxy('ou=roles,dc=test,dc=example,dc=net')
+       roles.move('ou=people,dc=test,dc=example,dc=net')
+
+       zu
+
+       # roles, people, test.example.net
+       dn: ou=roles,ou=people,dc=test,dc=example,dc=net
+       objectClass: organizationalUnit
+       ou: roles
+
+  ist das erlaubt???
+- self.__base_mode wird nur initial gesetzt. Wird über den Proxy ein Objekt angelegt (self.__base_mode = "create"), dieses dann commited
+  danach ein move oder andere Operationen ausgeführt und dann wieder commited führt der "create"-mode zu Fehlern (im self.__base.check()).
+  Sollte das nach dem ersten commit auf "update" geändert werden?
