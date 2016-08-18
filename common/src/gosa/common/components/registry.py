@@ -148,7 +148,6 @@ class PluginRegistry(object):
         eventsxml = "<events>"
 
         for file_path in PluginRegistry.evreg.values():
-            print(file_path)
 
             # Build a tree of all event paths
             eventsxml += '<path name="%s">%s</path>' % (os.path.splitext(os.path.basename(file_path))[0], file_path)

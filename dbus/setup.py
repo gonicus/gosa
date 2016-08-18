@@ -56,13 +56,13 @@ setup(
 
     setup_requires = [
         'python_dateutil',
-        'pytest-runner'
+        'pytest-runner',
+        'dbus-python'
         ],
 
     install_requires = [
         'gosa.common',
-        'setproctitle',
-        'dbus-python'
+        'setproctitle'
         ],
     tests_require=[
         'pytest',
