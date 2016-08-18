@@ -1262,6 +1262,7 @@ class Object(object):
         p_backend = getattr(self, '_backend')
         be = ObjectBackendRegistry.getBackend(p_backend)
         dn = be.uuid2dn(self.uuid)
+        self.dn = dn
         self.update_dn_refs(dn)
 
         zope.event.notify(ObjectChanged("post move", obj, dn=dn))
