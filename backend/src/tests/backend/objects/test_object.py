@@ -400,6 +400,6 @@ class ObjectTestCase(TestCase):
             res = object.commit()
             assert mb.return_value.update.called
             assert me.called
-            print(res)
+
             assert res['homePhone']['value'][0] == '023456'
             assert res['uidNumber']['value'][0] == 999

@@ -98,10 +98,6 @@ class ObjectIndexTestCase(TestCase):
 
     def test_search(self):
 
-        with mock.patch("gosa.backend.objects.index.GlobalLock.exists", return_value=True),\
-                pytest.raises(FilterException):
-            self.obj.search(None, None)
-
         with pytest.raises(Exception):
             self.obj.search({'unsupported_': {'uuid': '7ff15c20-b305-1031-916b-47d262a62cc5',
                                               'dn': 'cn=Frank Reich,ou=people,dc=example,dc=net'}}, {'dn': 1})
