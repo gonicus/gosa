@@ -5,15 +5,21 @@
     "layoutConfig": {
         "spacing": 5
     },
+    "addOptions": {
+        "flex" : 1
+    },
     "extensions": {
         "resources": {
-            "favicon": "images/group-samba.png"
+            "favicon": "images/user-samba.png"
+        },
+        "tabConfig": {
+            "title": "tr('Samba')",
+            "icon": "favicon"
         }
     },
     "properties": {
         "width": 523,
-        "height": 429,
-        "windowTitle": "tr('Samba')"
+        "height": 429
     },
     "children": [{
         "class": "gosa.ui.widgets.GroupBox",
@@ -23,6 +29,14 @@
         },
         "properties": {
             "legend": "tr('Generic')"
+        },
+        "extensions": {
+            "layoutOptions": {
+                "columnFlex": {
+                    "column": [0, 1],
+                    "flex": 1
+                }
+            }
         },
         "children": [{
             "class": "gosa.ui.widgets.QLabelWidget",
@@ -119,9 +133,7 @@
                 "edge": 0
             },
             "properties": {
-                "maxWidth": 16777215,
-                "maxHeight": 16777215,
-                "editTitle": "tr('Edit nested groups')"
+                "multivalue": true
             },
             "extensions": {
                 "guiProperties": {

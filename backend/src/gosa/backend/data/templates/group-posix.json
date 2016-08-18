@@ -5,15 +5,21 @@
     "layoutConfig": {
         "spacing": 5
     },
+    "addOptions": {
+        "flex" : 1
+    },
     "extensions": {
         "resources": {
             "favicon": "images/group-posix.png"
+        },
+        "tabConfig": {
+            "title": "tr('POSIX')",
+            "icon": "favicon"
         }
     },
     "properties": {
         "width": 645,
         "height": 578,
-        "windowTitle": "tr('POSIX')",
         "categoryTitle": "tr('PosixGroup')"
     },
     "children": [{
@@ -24,6 +30,14 @@
         },
         "properties": {
             "legend": "tr('Generic')"
+        },
+        "extensions": {
+            "layoutOptions": {
+                "columnFlex": {
+                    "column": 1,
+                    "flex": 1
+                }
+            }
         },
         "children": [{
             "class": "gosa.ui.widgets.QLabelWidget",
@@ -120,8 +134,7 @@
                 "edge": 0
             },
             "properties": {
-                "maxWidth": 16777215,
-                "maxHeight": 16777215
+                "multivalue": true
             },
             "extensions": {
                 "guiProperties": {
