@@ -20,15 +20,11 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
   extend: qx.ui.container.Composite,
 
   /**
-   * @param obj {gosa.proxy.Object} The object for which this widget shows tabs with edit forms
    * @param templates {Array} List of template objects; each appears in its own tab
    */
-  construct: function(obj, templates) {
+  construct: function(templates) {
     this.base(arguments);
-
-    qx.core.Assert.assertInstance(obj, gosa.proxy.Object);
     qx.core.Assert.assertArray(templates);
-    this._obj = obj;
     this._templates = templates;
 
     this._contexts = [];
@@ -39,12 +35,20 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
   members : {
 
-    _obj : null,
     _templates : null,
     _tabView : null,
     _toolMenu : null,
     _buttonPane : null,
     _contexts : null,
+
+    /**
+     * Retrieve all contexts this widget is showing.
+     *
+     * @return {Array} A (maybe empty) array of {@link gosa.engine.Context} objects
+     */
+    getContexts : function() {
+      return this._contexts;
+    },
 
     _initWidgets : function() {
       this._createTabView();
@@ -138,7 +142,6 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
   },
 
   destruct : function() {
-    this._obj = null;
     this._templates = null;
     qx.util.DisposeUtil.disposeArray("_contexts");
     this._disposeObjects("_toolMenu", "_buttonPane", "_tabView");

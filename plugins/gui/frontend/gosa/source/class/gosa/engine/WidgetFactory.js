@@ -30,7 +30,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       }
 
       // generate widget
-      var widget = new gosa.ui.widgets.ObjectEdit(obj, templates);
+      var widget = new gosa.ui.widgets.ObjectEdit(templates);
 
       // invoke callback
       if (context) {

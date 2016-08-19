@@ -454,6 +454,7 @@ qx.Class.define("gosa.view.Search",
           win.setShowMinimize(false);
 
           win.addListener("close", function(){
+            controller.dispose();
             w.dispose();
             doc.remove(win);
             obj.close();
@@ -462,6 +463,8 @@ qx.Class.define("gosa.view.Search",
 
           // Position window as requested
           doc.add(win);
+
+          var controller = new gosa.data.ObjectEditController(obj, w);
 
           this.fireDataEvent("loadingComplete", {dn: dn});
 
