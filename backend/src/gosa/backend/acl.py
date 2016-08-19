@@ -1853,7 +1853,7 @@ class ACLResolver(Plugin):
 
                     # Check permissions
                     if not self.check(user, '%s.acl' % self.env.domain, 'w', _aclset.base):
-                        raise ACLException(C.make_error("PERMISSION_UPDATE"), target=_aclset.base)
+                        raise ACLException(C.make_error("PERMISSION_UPDATE", target=_aclset.base))
 
                     acl = _acl
 
@@ -1935,7 +1935,7 @@ class ACLResolver(Plugin):
         Example:
 
         >>> addACLRole('role1')
-        >>> addACLtoRole('role1', 'sub', 0, {...})
+        >>> addACLtoRole('role1', 0, {...}, scope='sub')
 
         """
 
@@ -1975,11 +1975,11 @@ class ACLResolver(Plugin):
 
         Example:
 
-            >>> resolver.addACLtoRole('rolle1', 'sub', 0, [{'topic': r'^some\.topic.*$', 'acls': 'rwcdm'}])
+            >>> resolver.addACLtoRole('rolle1', 0, [{'topic': r'^some\.topic.*$', 'acls': 'rwcdm'}], 'sub')
 
         or with some options:
 
-            >>> resolver.addACLtoRole('rolle1', 'sub', 0, [{'topic': r'^some\.topic.*$', 'acls': 'rwcdm', 'options': {'uid': '^u[0-9]'}}])
+            >>> resolver.addACLtoRole('rolle1', 0, [{'topic': r'^some\.topic.*$', 'acls': 'rwcdm', 'options': {'uid': '^u[0-9]'}}], 'sub')
 
         """
 
