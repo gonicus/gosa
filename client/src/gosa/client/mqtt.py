@@ -9,8 +9,8 @@
 #  GPL-2: http://www.gnu.org/licenses/gpl-2.0.html
 #
 # See the LICENSE file in the project's top-level directory for details.
-
-from lxml import etree
+from gosa.common import Environment
+from gosa.common.event import EventMaker
 from gosa.common.components.mqtt_handler import MQTTHandler
 
 
@@ -18,6 +18,11 @@ class MQTTClientHandler(MQTTHandler):
 
     def __init__(self):
         super(MQTTClientHandler, self).__init__()
+        e = EventMaker()
+        goodbye = e.Event(e.ClientLeave(
+            e.Id(Environment.getInstance().uuid)
+        ))
+        self.will_set("%s/client/%s" % (self.domain, self.env.uuid), goodbye)
 
     def send_message(self, data, topic=None):
         """ Send message to mqtt. """

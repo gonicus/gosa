@@ -203,6 +203,13 @@ class MQTTClient(object):
         if res == mqtt.MQTT_ERR_NO_CONN:
             self.log.error("mqtt server not reachable, message could not be send to '%s'" % topic)
 
+    def will_set(self, topic, message, qos=0, retain=False):
+        """
+        Set a Will to be sent to the broker. If the client disconnects without calling disconnect(),
+        the broker will publish the message on its behalf.
+        """
+        self.client.will_set(topic, dumps(message), qos, retain)
+
     def __on_publish(self, client, userdata, mid):
         if mid in self.__published_messages:
             del self.__published_messages[mid]

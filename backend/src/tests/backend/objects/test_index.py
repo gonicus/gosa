@@ -10,6 +10,8 @@
 from unittest import mock, TestCase
 
 from gosa.common.components import ObjectRegistry
+from gosa.common.components.mqtt_handler import MQTTHandler
+from gosa.common.event import EventMaker
 from tests.GosaTestCase import *
 from gosa.backend.objects.index import *
 
@@ -151,3 +153,16 @@ class ObjectIndexTestCase(TestCase):
         res = self.obj.search({'dn': 'cn=Frank Reich,ou=people%'}, {'dn': 1})
         assert len(res) == 1
         assert 'cn=Frank Reich,ou=people,dc=example,dc=net' in res[0]['dn']
+
+    def test_backend_change_processor(self):
+        mqtt = MQTTHandler()
+        e = EventMaker()
+
+        event = e.Event(e.BackendChange(
+            e.ModificationTime("20150101000000Z"),
+            e.ChangeType("modify")
+        ))
+
+        mqtt.send_event(event, '%s/events' % Environment.getInstance().domain)
+
+
