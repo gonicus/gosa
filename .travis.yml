@@ -24,7 +24,6 @@ before_install:
     - sudo mkdir /tmp/workflows
     - sudo mkdir /etc/gosa
     - sudo cp ./test_conf/config /etc/gosa/
-    - sudo ls -la /etc/gosa/
 
 script:
     - cd plugins/gui/frontend/gosa/
