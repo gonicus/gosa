@@ -22,7 +22,7 @@ class MQTTClientHandler(MQTTHandler):
         goodbye = e.Event(e.ClientLeave(
             e.Id(Environment.getInstance().uuid)
         ))
-        self.will_set("%s/client/%s" % (self.domain, self.env.uuid), goodbye)
+        self.will_set("%s/client/%s" % (self.domain, self.env.uuid), goodbye, qos=2)
 
     def send_message(self, data, topic=None):
         """ Send message to mqtt. """
