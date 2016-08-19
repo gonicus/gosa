@@ -15,6 +15,7 @@ import logging
 from argparse import ArgumentParser
 from lxml import etree
 from lxml.builder import ElementMaker
+import json
 
 
 VERSION = "1.0"
@@ -214,41 +215,30 @@ def dump_ui(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
     ts = []
     cs = []
 
-    # Build resulting XML dump
-    e = ElementMaker()
+    # Build resulting json dump
+    children_must = generate_children(oco.must, schema)
+    children_may = generate_children(oco.may, schema, len(children_must) // 2, children_must)
 
-    n = 0
-    attrs = []
-    for mua in oco.must:
-        attr = resolve_attribute(schema, mua)
-        syntax = attr['syntax']
+    template = {
+        'type': 'widget',
+        'class': 'qx.ui.container.Composite',
+        'layout': 'qx.ui.layout.Grid',
+        'extensions': {
+            'tabConfig': {
+                'title': oc
+            }
+        },
+        'children': children_must + children_may
+    };
 
-        if skip(syntax):
-            continue
+    return json.dumps(template, indent=2)
 
-        if not 'widget' in TYPE_MAP[syntax]:
-            continue
+def generate_children(widget_list, schema, row_start = 0, must = None):
+    children = []
+    z = row_start
 
-        widget = TYPE_MAP[syntax]['widget']
-
-        attrs.append(
-           e.item(
-               e.widget(
-                   e.property(e.string(mua), name="text"),
-                   CLASS("QLabel"), name="%sLabel*" % mua), row=str(n), column="0"))
-        attrs.append(e.item(e.widget(CLASS(widget), name="%sEdit*" % mua), row=str(n), column="1"))
-
-        ts.append(e.tabstop(mua))
-        cs.append(e.connection(
-          e.sender("%sEdit" % mua),
-          e.signal("textChanged(QString)"),
-          e.receiver(oc),
-          e.slot("property_%s()" % mua)))
-
-        n += 1
-
-    for mua in oco.may:
-        if mua in oco.must:
+    for mua in widget_list:
+        if must and mua in must:
             continue
 
         attr = resolve_attribute(schema, mua)
@@ -256,45 +246,38 @@ def dump_ui(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
 
         if skip(syntax):
             continue
-
         if not 'widget' in TYPE_MAP[syntax]:
             continue
+        widget_name = TYPE_MAP[syntax]['widget']
 
-        widget = TYPE_MAP[syntax]['widget']
+        # buddy label
+        children.append({
+            'class': 'gosa.ui.widgets.QLabelWidget',
+            'buddyModelPath': mua,
+            'addOptions': {
+                'row': z,
+                'column': 0
+            },
+            'properties': {
+                'text': mua
+            }
+        })
 
-        attrs.append(
-           e.item(
-               e.widget(
-                   e.property(e.string(mua), name="text"),
-                   CLASS("QLabel"), name="%sLabel" % mua), row=str(n), column="0"))
-        attrs.append(e.item(e.widget(CLASS(widget), name="%sEdit" % mua), row=str(n), column="1"))
+        # actual widget
+        children.append({
+            'class': 'gosa.ui.widgets.' + widget_name + 'Widget',
+            'modelPath': mua,
+            'addOptions': {
+                'row': z,
+                'column': 1
+            },
+            'properties': {
+                'tabIndex': z + 1
+            }
+        })
+        z += 1
 
-        ts.append(e.tabstop(mua))
-        cs.append(e.connection(
-          e.sender("%sEdit" % mua),
-          e.signal("textChanged(QString)"),
-          e.receiver(oc),
-          e.slot("property_%s()" % mua)))
-
-        n += 1
-
-    res = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    data = e.ui(
-        e("class", oc),
-        e.widget(
-            e.property(e.rect(e.x("0"), e.y("0"), e.width("400"), e.height("300")), name="geometry"),
-            e.property(e.string(oc), name="windowTitle"),
-            e.layout(
-                e.item(
-                    e.layout(CLASS("QFormLayout"), *attrs, name="formLayout"), row="0", column="0"),
-                CLASS("QGridLayout"), name="gridLayout"),
-            CLASS("QWidget"), name=oc),
-            e.tabstops(*ts),
-            e.connections(*cs),
-        version="4.0")
-    res += etree.tostring(data, pretty_print=True)
-
-    return res
+    return children
 
 
 def dump_class(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
@@ -383,7 +366,7 @@ def dump_class(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
 
     res = '<?xml version="1.0" encoding="UTF-8"?>\n'
     data = e.Objects(e.Object(e.Name(oc), e.DisplayName(oc), *more))
-    res += etree.tostring(data, pretty_print=True)
+    res += etree.tostring(data, pretty_print=True).decode('utf-8')
 
     return res
 
