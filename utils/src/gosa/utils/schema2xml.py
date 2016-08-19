@@ -292,7 +292,7 @@ def dump_ui(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
             e.tabstops(*ts),
             e.connections(*cs),
         version="4.0")
-    res += etree.tostring(data, pretty_print=True)
+    res += etree.tostring(data, pretty_print=True).decode('utf-8')
 
     return res
 
@@ -383,7 +383,7 @@ def dump_class(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
 
     res = '<?xml version="1.0" encoding="UTF-8"?>\n'
     data = e.Objects(e.Object(e.Name(oc), e.DisplayName(oc), *more))
-    res += etree.tostring(data, pretty_print=True)
+    res += etree.tostring(data, pretty_print=True).decode('utf-8')
 
     return res
 
