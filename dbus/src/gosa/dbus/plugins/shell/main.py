@@ -305,13 +305,13 @@ class DBusShellHandler(dbus.service.Object, Plugin):
             # Signature was readable, now check if we got everything we need
             sig = loads(scall.stdout.read())
             if not(('in' in sig and type(sig['in']) == list) or 'in' not in sig):
-                self.log.debug("failed to undertand in-signature of D-Bus shell script '%s'" % (path))
-            elif 'out' not in sig or type(sig['out']) not in [str, unicode]:
-                self.log.debug("failed to undertand out-signature of D-Bus shell script '%s'" % (path))
+                self.log.debug("failed to understand in-signature of D-Bus shell script '%s'" % (path))
+            elif 'out' not in sig or type(sig['out']) not in [str, bytes]:
+                self.log.debug("failed to understand out-signature of D-Bus shell script '%s'" % (path))
             else:
                 return (os.path.basename(path), sig, path)
         except ValueError:
-            self.log.debug("failed to undertand signature of D-Bus shell script '%s'" % (path))
+            self.log.debug("failed to understand signature of D-Bus shell script '%s'" % (path))
         return None
 
     @dbus.service.method('org.gosa', in_signature='', out_signature='av')
@@ -334,7 +334,7 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         cmd = self.scripts[action][2]
 
         # Execute the script and return the results
-        args = map(lambda x: str(x), [os.path.join(self.script-path, cmd)] + args)
+        args = map(lambda x: str(x), [os.path.join(self.script_path, cmd)] + args)
         res = Popen(args, stdout=PIPE, stderr=PIPE)
         res.wait()
         return ({'code': res.returncode,
