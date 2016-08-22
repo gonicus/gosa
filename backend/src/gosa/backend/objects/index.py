@@ -282,12 +282,13 @@ class ObjectIndex(Plugin):
                 return
 
             # Check if the entry exists - if not, maybe let create it
+            print(dn)
             entry = self.__session.query(ObjectInfoIndex.dn).filter(
                 or_(
                     ObjectInfoIndex.uuid == _uuid,
                     func.lower(ObjectInfoIndex.dn) == func.lower(dn)
                 )).one_or_none()
-
+            print(entry)
             if entry:
                 self.update(obj)
 
@@ -325,7 +326,7 @@ class ObjectIndex(Plugin):
                     func.lower(ObjectInfoIndex.dn) == func.lower(dn)
                 )).one_or_none()
 
-            if entry and obj:
+            if entry:
                 self.update(obj)
 
             else:
@@ -335,7 +336,7 @@ class ObjectIndex(Plugin):
         self._post_process_job = None
         self.post_process()
 
-    def _get_object(self, dn):  # pragma: nocover
+    def _get_object(self, dn):
         try:
             obj = ObjectProxy(dn)
 

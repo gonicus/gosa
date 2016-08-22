@@ -18,12 +18,18 @@ from gosa.common.components import JSONRPCException
 
 
 class BaseClient(mqtt.Client):  # pragma: nocover
+    _clients = []
 
     def __init__(self):
         super(BaseClient, self).__init__()
+        BaseClient._clients.append(self)
 
     def get_thread(self):
         return self._thread
+
+    @classmethod
+    def get_clients(cls):
+        return cls._clients
 
 
 class MQTTClient(object):

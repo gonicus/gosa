@@ -34,13 +34,13 @@ class MqttHandlerTestCase(AsyncTestCase):
 
     def test_send_message(self):
         self.mqtt.send_message("message", "test/topic")
-        self.mqtt.get_client().publish.assert_called_with("test/topic", "message")
+        self.mqtt.get_client().publish.assert_called_with("test/topic", "message", qos=0)
 
     def test_send_event(self):
         e = EventMaker()
         event = e.Event(e.ClientPoll())
         self.mqtt.send_event(event, "test/topic")
-        self.mqtt.get_client().publish.assert_called_with("test/topic", etree.tostring(event, pretty_print=True).decode())
+        self.mqtt.get_client().publish.assert_called_with("test/topic", etree.tostring(event, pretty_print=True).decode(), qos=0)
 
     @gen_test
     def test_send_sync_message(self):

@@ -6,10 +6,12 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
+from gosa.common.gjson import dumps
+from lxml import etree
 from unittest import mock, TestCase
 
 from gosa.common.components import ObjectRegistry
+from gosa.common.components.mqtt_client import MQTTClient, BaseClient
 from gosa.common.components.mqtt_handler import MQTTHandler
 from gosa.common.event import EventMaker
 from tests.GosaTestCase import *
@@ -155,14 +157,76 @@ class ObjectIndexTestCase(TestCase):
         assert 'cn=Frank Reich,ou=people,dc=example,dc=net' in res[0]['dn']
 
     def test_backend_change_processor(self):
-        mqtt = MQTTHandler()
+        env = Environment.getInstance()
+
         e = EventMaker()
 
-        event = e.Event(e.BackendChange(
-            e.ModificationTime("20150101000000Z"),
-            e.ChangeType("modify")
-        ))
+        class MessageMock:
+            def __init__(self, s_id, topic, message):
+                self.sender_id = s_id
+                self.topic = topic
+                self.payload = dumps({
+                    'sender_id': None,
+                    'content': message
+                })
 
-        mqtt.send_event(event, '%s/events' % Environment.getInstance().domain)
+        def send_change(dn, type, mod_time, new_dn=None):
+            if dn is not None:
+                if new_dn is not None:
+                    event = e.Event(e.BackendChange(
+                        e.ModificationTime(mod_time),
+                        e.ChangeType(type),
+                        e.DN(dn),
+                        e.NewDN(new_dn)
+                    ))
+                else:
+                    event = e.Event(e.BackendChange(
+                        e.ModificationTime(mod_time),
+                        e.ChangeType(type),
+                        e.DN(dn)
+                    ))
+
+            else:
+                event = e.Event(e.BackendChange(
+                    e.ModificationTime(mod_time),
+                    e.ChangeType(type)
+                ))
+
+            m_message = MessageMock(None, '%s/events' % env.domain, etree.tostring(event).decode('utf-8'))
+            for client in BaseClient.get_clients():
+                client.on_message(None, None, m_message)
+
+        index = PluginRegistry.getInstance("ObjectIndex")
+        with mock.patch.object(index, "insert") as m_insert,\
+                mock.patch.object(index, "update") as m_update, \
+                mock.patch.object(index, "remove_by_uuid") as m_remove_by_uuid:
+            send_change(None, "modify", "20150101000000Z")
+            assert not m_update.called
+            assert not m_insert.called
+            assert not m_remove_by_uuid.called
+
+            send_change("cn=Frank Reich,ou=people,dc=example,dc=net", "modify", "20150101000000Z")
+            assert m_update.called
+            assert not m_insert.called
+            assert not m_remove_by_uuid.called
+            m_update.reset_mock()
+
+            # unknown user
+            send_change("cn=Peter Lustig,ou=people,dc=example,dc=net", "modify", "20150101000000Z")
+            assert not m_insert.called
+            assert not m_remove_by_uuid.called
+
+            send_change("cn=Peter Lustig,ou=people,dc=example,dc=net", "delete", "20150101000000Z")
+            assert m_remove_by_uuid.called
+            m_remove_by_uuid.reset_mock()
+
+            send_change("cn=Frank Reich,ou=people,dc=example,dc=net", "add", "20150101000000Z")
+            assert m_insert.called
+            m_insert.reset_mock()
+
+            with mock.patch.object(index, "_get_object", return_value=mock.MagicMock()):
+                send_change("cn=Frank Reich,ou=people,dc=example,dc=net", "moddn", "20150101000000Z", new_dn="cn=Frank Räich,ou=people,"
+                                                                                                             "dc=example,dc=net")
+                assert m_update.called
 
 

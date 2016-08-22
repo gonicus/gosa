@@ -24,17 +24,17 @@ class MQTTClientHandler(MQTTHandler):
         ))
         self.will_set("%s/client/%s" % (self.domain, self.env.uuid), goodbye, qos=2)
 
-    def send_message(self, data, topic=None):
+    def send_message(self, data, topic=None, qos=0):
         """ Send message to mqtt. """
         if topic is None:
             topic = "%s/client/%s" % (self.domain, self.env.uuid)
-        super(MQTTClientHandler, self).send_message(data, topic)
+        super(MQTTClientHandler, self).send_message(data, topic, qos=qos)
 
-    def send_event(self, data, topic=None):
+    def send_event(self, data, topic=None, qos=0):
         """ Send event to mqtt. """
         if topic is None:
             topic = "%s/client/%s" % (self.domain, self.env.uuid)
-        super(MQTTClientHandler, self).send_event(data, topic)
+        super(MQTTClientHandler, self).send_event(data, topic, qos=qos)
 
     def init_subscriptions(self):
         """ add client subscriptions """
