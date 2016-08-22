@@ -13,8 +13,11 @@ qx.Class.define("gosa.data.ObjectEditController", {
     qx.core.Assert.assertInstance(obj, gosa.proxy.Object);
     qx.core.Assert.assertInstance(widget, gosa.ui.widgets.ObjectEdit);
 
+    console.log(obj);
+
     this._obj = obj;
     this._widget = widget;
+    this._bindings = [];
 
     this._connectModelWithWidget();
   },
@@ -22,6 +25,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
   members : {
     _obj : null,
     _widget : null,
+    _bindings : null,
 
     _currentWidget : null,
     _currentBuddy : null,
@@ -48,6 +52,11 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
           this._handleProperties(attribute);
           this._currentWidget.setValue(o.get(name));
+          var binding = this._currentWidget.bind("value", o, name);
+          this._bindings.push({
+            binding : binding,
+            source : this._currentWidget
+          });
         }
       }
     },
@@ -170,11 +179,21 @@ qx.Class.define("gosa.data.ObjectEditController", {
         }
       }, this);
       listenerCallback();
+    },
+
+    _cleanupBindings : function() {
+      this._bindings.forEach(function(item) {
+        item.source.removeBinding(item.binding);
+      });
+      this._bindings = [];
     }
   },
 
   destruct : function() {
+    this._cleanupBindings();
+
     this._obj = null;
     this._widget = null;
+    this._bindings = null;
   }
 });
