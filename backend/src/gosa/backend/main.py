@@ -45,7 +45,8 @@ def mainLoop(env):
         cr = PluginRegistry.getInstance("CommandRegistry")
 
         httpd = PluginRegistry.getInstance("HTTPService")
-        httpd.thread.join()
+        if not hasattr(sys, "_called_from_test") or sys._called_from_test is False:
+            httpd.thread.join()
 
     # Catchall, pylint: disable=W0703
     except Exception as detail:
@@ -56,7 +57,8 @@ def mainLoop(env):
         log.info("console requested shutdown")
 
     finally:
-        shutdown()
+        if not hasattr(sys, "_called_from_test") or sys._called_from_test is False:
+            shutdown()
 
 
 def main():
