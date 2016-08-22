@@ -153,12 +153,6 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
       this.bind("valid", this._widget, "valid");
       this.bind("invalidMessage", this._widget, "invalidMessage");
 
-      // Do nothing if there seems to be something wrong with the binding..
-      if(!this.getExtension() || !this.getAttribute()){
-        this.error("unabled to load SingleSelector, no bindings given!");
-        return;
-      }
-
       // Act on button clicks here, remove the value or allow to select a new one
       this._actionBtn.addListener("execute", function(){
 

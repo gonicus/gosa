@@ -206,7 +206,7 @@
                     "column": 0
                 },
                 "properties": {
-                    "text": "tr('Deparment no.')"
+                    "text": "tr('Department no.')"
                 }
             }, {
                 "class": "gosa.ui.widgets.QLineEditWidget",

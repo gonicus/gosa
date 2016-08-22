@@ -103,14 +103,21 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* Removes the widget from the view-port
-     * */
-    __delWidget: function(id){
-      this.remove(this._widgetContainer[id]);
+    /**
+     * Removes the widget from the view-port
+     */
+    __delWidget: function(id) {
+      var widget = this._widgetContainer[id];
+      if (widget.getLayoutParent()) {
+        widget.getLayoutParent().remove(widget);
+        widget.dispose();
+        this._widgetContainer.splice(id, 1);
+      }
+      widget = null;
     },
 
 
-    /* Returns the "real" widget (e.g. the qx.ui.form.Textfield)
+    /* Returns the "real" widget (e.g. the qx.ui.form.TextField)
      * For the given id.
      * */
     _getWidget: function(id){
@@ -188,7 +195,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       }
       this.fireDataEvent("changeValue", this.getCleanValues());
       var timer = qx.util.TimerManager.getInstance();
-      if(this._property_timer != null){
+      if (this._property_timer !== null) {
         timer.stop(this._property_timer);
         this._property_timer = null;
         this.removeState("modified");
@@ -317,7 +324,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
         this.__delWidget(l);
       }
 
-      // Forward uopdates again
+      // Forward updates again
       this._skipUpdates = false;
     }
   }
