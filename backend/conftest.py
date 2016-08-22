@@ -29,4 +29,12 @@ def use_test_config():
     Environment.reset()
     Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "test_conf")
     Environment.noargs = True
+
+    env = Environment.getInstance()
+    workflow_path = env.config.get("core.workflow_path", "/var/lib/gosa/workflows")
+
+    # create workflow path
+    if not os.path.exists(workflow_path):
+        os.makedirs(workflow_path)
+
     main()
