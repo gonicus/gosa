@@ -229,4 +229,19 @@ class ObjectIndexTestCase(TestCase):
                                                                                                              "dc=example,dc=net")
                 assert m_update.called
 
+    def test_serve(self):
+        with mock.patch("gosa.backend.objects.index.ObjectIndex.isSchemaUpdated", return_value=True),\
+                mock.patch("gosa.backend.objects.index.Environment.getInstance") as m_env, \
+                mock.patch("gosa.backend.objects.index.MqttEventConsumer"):
+            m_session = m_env.return_value.getDatabaseSession.return_value
+            m_session.query.return_value.one_or_none.return_value = None
+            index = ObjectIndex()
+            index.serve()
+
+            assert m_session.query.return_value.delete.called
+            assert m_session.add.called
+            assert m_session.commit.called
+
+            index.stop()
+            del index
 
