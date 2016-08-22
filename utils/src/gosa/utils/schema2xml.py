@@ -124,11 +124,11 @@ log = logging.getLogger("schema2xml")
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 
-def CLASS(v):
+def CLASS(v):  # pragma: nocover
     return {'class': v}
 
 
-def list_classes(uri):
+def list_classes(uri):  # pragma: nocover
     subschemasubentry_dn, schema = ldap.schema.urlfetch(uri)
     schema_reverse = ldap.schema.SubSchema(schema.ldap_entry())
 
@@ -138,7 +138,7 @@ def list_classes(uri):
         print("%s - %s" % (obj.names[0], obj.desc or "no description"))
 
 
-def gen_values(syntax):
+def gen_values(syntax):  # pragma: nocover
     res = []
     if not syntax in TYPE_MAP:
         return res
@@ -155,7 +155,7 @@ def gen_values(syntax):
     return res
 
 
-def gen_validators(syntax):
+def gen_validators(syntax):  # pragma: nocover
     res = []
     if not syntax in TYPE_MAP:
         return res
@@ -177,7 +177,7 @@ def gen_validators(syntax):
     return res
 
 
-def gen_index(syntax):
+def gen_index(syntax):  # pragma: nocover
     if not syntax in TYPE_MAP:
         return []
 
@@ -188,14 +188,14 @@ def gen_index(syntax):
     return []
 
 
-def skip(syntax):
+def skip(syntax):  # pragma: nocover
     if not syntax in TYPE_MAP:
         return True
 
     return 'skip' in TYPE_MAP[syntax] and TYPE_MAP[syntax]['skip']
 
 
-def dump_ui(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
+def dump_ui(uri, oc, outfile=None, extend=None, rdn=None, contains=None):  # pragma: nocover
     subschemasubentry_dn, schema = ldap.schema.urlfetch(uri)
     schema_reverse = ldap.schema.SubSchema(schema.ldap_entry())
 
@@ -297,7 +297,7 @@ def dump_ui(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
     return res
 
 
-def dump_class(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
+def dump_class(uri, oc, outfile=None, extend=None, rdn=None, contains=None):  # pragma: nocover
     subschemasubentry_dn, schema = ldap.schema.urlfetch(uri)
     schema_reverse = ldap.schema.SubSchema(schema.ldap_entry())
 
@@ -388,7 +388,7 @@ def dump_class(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
     return res
 
 
-def resolve_type(atype):
+def resolve_type(atype):  # pragma: nocover
     if not atype in TYPE_MAP:
         log.warning("unknown mapping for %s - fallback to UnicodeString" % atype)
         return "UnicodeString"
@@ -396,7 +396,7 @@ def resolve_type(atype):
     return TYPE_MAP[atype]['name']
 
 
-def resolve_inherited_attrs(schema, oc):
+def resolve_inherited_attrs(schema, oc):  # pragma: nocover
     res = {'must': [], 'may': []}
     if oc == 'top':
         return res
@@ -413,7 +413,7 @@ def resolve_inherited_attrs(schema, oc):
     return res
 
 
-def _resolve_attribute(schema, attr, blank=None):
+def _resolve_attribute(schema, attr, blank=None):  # pragma: nocover
     if not blank:
         blank = ldap.schema.AttributeType()
         blank.syntax_len = None
@@ -433,7 +433,7 @@ def _resolve_attribute(schema, attr, blank=None):
     return blank
 
 
-def resolve_attribute(schema, attr):
+def resolve_attribute(schema, attr):  # pragma: nocover
     blank = {}
     attr = schema.get_obj(ldap.schema.AttributeType, attr)
 
@@ -455,7 +455,7 @@ def resolve_attribute(schema, attr):
     return blank
 
 
-def main():
+def main():  # pragma: nocover
     parser = ArgumentParser(usage="%(prog)s - GOsa schema conversion tool")
     parser.add_argument("--version", action='version', version=VERSION)
 
@@ -509,5 +509,5 @@ def main():
         print(res)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: nocover
     main()
