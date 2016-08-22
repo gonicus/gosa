@@ -47,7 +47,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
             this._currentBuddy = widgets.buddy;
           }
 
-          // console.log("%s, %O, %O", name, attribute, widgets);
           this._handleProperties(attribute);
         }
       }
@@ -109,14 +108,34 @@ qx.Class.define("gosa.data.ObjectEditController", {
         return;
       }
       var allWidgets = [];
+      var currentBuddy = this._currentBuddy;
+      var currentWidget = this._currentWidget;
 
       var listenerCallback = function() {
         var block = allWidgets.every(function(item) {
-          console.log("%O, %O", item.widget.getValue(), item.value);
-          return item.widget.getValue() === item.value;
+          var value = item.widget.getValue();
+          if (value instanceof qx.data.Array && value.getLength() > 0) {
+            value = value.getItem(0);
+          }
+          return value === item.value;
         });
 
-        console.log(block);
+        if (block) {
+          if (currentBuddy) {
+            currentBuddy.block();
+          }
+          if (currentWidget) {
+            currentWidget.block();
+          }
+        }
+        else {
+          if (currentBuddy) {
+            currentBuddy.unblock();
+          }
+          if (currentWidget) {
+            currentWidget.unblock();
+          }
+        }
       };
 
       value.forEach(function(item) {
