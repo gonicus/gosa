@@ -21,14 +21,14 @@ This GOsa-DBus plugin provides wake on lan functionality.
 
 import dbus.service
 import subprocess
-from clacks.common import Environment
-from clacks.common.components import Plugin
-from clacks.dbus import get_system_bus
+from gosa.common import Environment
+from gosa.common.components import Plugin
+from gosa.dbus import get_system_bus
 
 
 class DBusWakeOnLanHandler(dbus.service.Object, Plugin):
     """
-    This Clacks-DBus plugin provides wake on lan functionality.
+    This GOsa-DBus plugin provides wake on lan functionality.
     """
     def __init__(self):
         conn = get_system_bus()
