@@ -192,7 +192,7 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         else:
 
             # If no path or file is given reload all signatures
-            if fullpath == None:
+            if fullpath is None:
                 fullpath = self.script_path
 
             # Collect files to look for recursivly
@@ -241,7 +241,7 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         # Check if the file was removed or changed.
         elif not os.path.exists(filepath) and dbus_func_name in self.scripts:
 
-            ## UNREGISTER Shell Script
+            # UNREGISTER Shell Script
 
             del(self.scripts[dbus_func_name])
             self.log.debug("unregistered D-Bus shell script '%s' (%s)" % (dbus_func_name, filename,))
@@ -256,7 +256,7 @@ class DBusShellHandler(dbus.service.Object, Plugin):
             self.log.debug("skipped event for '%s' its not an executable file" % (filename,))
         else:
 
-            ## REGISTER Shell Script
+            # REGISTER Shell Script
 
             # Parse the script and if this was successful then add it te the list of known once.
             data = self._parse_shell_script(filepath)
@@ -271,7 +271,7 @@ class DBusShellHandler(dbus.service.Object, Plugin):
                     # Call the script with the --signature parameter
                     scall = Popen(args, stdout=PIPE, stderr=PIPE)
                     scall.wait()
-                    return (scall.returncode, scall.stdout.read(), scall.stderr.read())
+                    return scall.returncode, scall.stdout.read(), scall.stderr.read()
 
                 # Dynamically change the functions name and then register
                 # it as instance method to ourselves
@@ -282,9 +282,9 @@ class DBusShellHandler(dbus.service.Object, Plugin):
     def _parse_shell_script(self, path):
         """
         This method executes the given script (path) with the parameter
-        '--signature' to receive the scripts signatur.
+        '--signature' to receive the scripts signature.
 
-        It returns a tuple containing all found agruments and their type.
+        It returns a tuple containing all found arguments and their type.
         """
 
         # Call the script with the --signature parameter
@@ -317,7 +317,7 @@ class DBusShellHandler(dbus.service.Object, Plugin):
     @dbus.service.method('org.gosa', in_signature='', out_signature='av')
     def shell_list(self):
         """
-        Returns all availabe scripts and their signatures.
+        Returns all available scripts and their signatures.
         """
         return self.scripts
 
@@ -338,8 +338,8 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         res = Popen(args, stdout=PIPE, stderr=PIPE)
         res.wait()
         return ({'code': res.returncode,
-                'stdout': res.stdout.read(),
-                'stderr': res.stderr.read()})
+                 'stdout': res.stdout.read(),
+                 'stderr': res.stderr.read()})
 
     def register_dbus_method(self, func, dbus_interface, in_sig, out_sig):
         """
