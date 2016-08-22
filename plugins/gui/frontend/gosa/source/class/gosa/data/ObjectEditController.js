@@ -35,7 +35,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
           attribute = o.attribute_data[name];
           widgets = this._findWidgets(name);
           if (widgets === null) {
-            qx.log.Logger.warn("No widgets found for '" + name + "'");
             continue;
           }
 
@@ -48,6 +47,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
           }
 
           this._handleProperties(attribute);
+          this._currentWidget.setValue(o.get(name));
         }
       }
     },
@@ -88,6 +88,27 @@ qx.Class.define("gosa.data.ObjectEditController", {
       }
       if (attribute.hasOwnProperty("readonly")) {
         this._setProperty("readOnly", !!attribute.readonly);
+      }
+      if (attribute.hasOwnProperty("multivalue")) {
+        this._setProperty("multivalue", !!attribute.multivalue);
+      }
+      if (attribute.hasOwnProperty("default")) {
+        this._setProperty("defaultValue", attribute.default);
+      }
+      if (attribute.hasOwnProperty("type")) {
+        this._setProperty("type", attribute.type);
+      }
+      if (attribute.hasOwnProperty("case_sensitive")) {
+        this._setProperty("caseSensitive", attribute.case_sensitive);
+      }
+      if (attribute.hasOwnProperty("unique")) {
+        this._setProperty("unique", attribute.unique);
+      }
+      if (attribute.hasOwnProperty("depends_on")) {
+        this._setProperty("dependsOn", attribute.depends_on);
+      }
+      if (attribute.hasOwnProperty("values")) {
+        this._setProperty("values", attribute.values);
       }
       if (attribute.hasOwnProperty("blocked_by")) {
         this._handleBlockedBy(attribute.blocked_by);
