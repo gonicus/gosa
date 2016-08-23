@@ -12,6 +12,9 @@ from tornado.web import RequestHandler, StaticFileHandler
 
 class HSTSRequestHandler(RequestHandler):
 
+    def data_received(self, chunk):  # pragma: nocover
+        pass
+
     def __init__(self, application, request, hsts=True,
                  **kwargs):
         super(HSTSRequestHandler, self).__init__(application, request, **kwargs)
@@ -25,6 +28,9 @@ class HSTSRequestHandler(RequestHandler):
 
 
 class HSTSStaticFileHandler(StaticFileHandler):
+
+    def data_received(self, chunk):  # pragma: nocover
+        pass
 
     def __init__(self, application, request, hsts=True,
                  **kwargs):
