@@ -316,7 +316,7 @@ def _find_service(what):
         except dns.resolver.NXDOMAIN:
             pass
 
-    # Sort by priorty
+    # Sort by priority
     sorted(res, key=lambda entry: entry[1])
     return [(entry[2], entry[3]) for entry in res]
 
@@ -336,7 +336,7 @@ def dmi_system(item, data=None):
     """
     return None
 
-# Re-define dmi_system depending on capabilites
+# Re-define dmi_system depending on capabilities
 try:
     import dmidecode
     dmidecode.clear_warnings() #@UndefinedVariable
