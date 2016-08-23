@@ -18,7 +18,7 @@ before_install:
     - docker run -d -p 389:389 -p 1883:1883 -p 5432:5432 cpollmeier/gosa3:devel
     - pip install --upgrade pip
     - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev
-    - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python
+    - pip install setproctitle pylint tornado coveralls 'pytest>=2.9'
     - export TZ=Europe/Berlin
     - sudo mkdir /tmp/workflows
     - sudo mkdir /etc/gosa
