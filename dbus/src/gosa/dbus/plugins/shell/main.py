@@ -168,13 +168,13 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         try:
             ShellDNotifier(self.script_path, self.__notifier_callback)
 
-            # Intitially load all signatures
+            # Initially load all signatures
             self.__notifier_callback()
         except Exception:
-            self.log.error("failed to start monitoring of '%s'" % (self.script_path))
+            self.log.error("failed to start monitoring of '%s'" % self.script_path)
 
     @dbus.service.signal('org.gosa', signature='s')
-    def _signatureChanged(self, filename):
+    def _signatureChanged(self, filename):  # pragma: nocover
         """
         Sends a signal on the dbus named '_signatureChanged' this can then be received
         by other processes like the gosa-client.
@@ -188,14 +188,14 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         """
         # Check if we've the required permissions to access the shell.d directory
         if not os.path.exists(self.script_path):
-            self.log.debug("the script path '%s' does not exists! " % (self.script_path,))
+            self.log.debug("the script path '%s' does not exists! " % self.script_path)
         else:
 
             # If no path or file is given reload all signatures
             if fullpath is None:
                 fullpath = self.script_path
 
-            # Collect files to look for recursivly
+            # Collect files to look for recursively
             if os.path.isdir(fullpath):
                 files = map(lambda x: os.path.join(self.script_path, x), os.listdir(fullpath))
             else:
@@ -206,7 +206,7 @@ class DBusShellHandler(dbus.service.Object, Plugin):
                 self._reload_signature(filename)
 
             # Send some logging
-            self.log.info("found %s scripts to be registered" % (len(self.scripts.keys())))
+            self.log.info("found %s scripts to be registered" % len(self.scripts.keys()))
             for script in self.scripts.keys():
                 self.log.debug("registered script: %s" % script)
 
@@ -251,7 +251,7 @@ class DBusShellHandler(dbus.service.Object, Plugin):
             except:
                 raise
         elif not os.path.isfile(filepath):
-            self.log.debug("skipped event for '%s' its not a file" % (filename,))
+            self.log.debug("skipped event for '%s' its not a file" % (filepath,))
         elif not os.access(filepath, os.X_OK):
             self.log.debug("skipped event for '%s' its not an executable file" % (filename,))
         else:
@@ -303,7 +303,7 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         sig = {}
         try:
             # Signature was readable, now check if we got everything we need
-            sig = loads(scall.stdout.read())
+            sig = loads(scall.stdout.read().decode('utf-8'))
             if not(('in' in sig and type(sig['in']) == list) or 'in' not in sig):
                 self.log.debug("failed to understand in-signature of D-Bus shell script '%s'" % (path))
             elif 'out' not in sig or type(sig['out']) not in [str, bytes]:
@@ -338,8 +338,8 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         res = Popen(args, stdout=PIPE, stderr=PIPE)
         res.wait()
         return ({'code': res.returncode,
-                 'stdout': res.stdout.read(),
-                 'stderr': res.stderr.read()})
+                 'stdout': res.stdout.read().decode('utf-8'),
+                 'stderr': res.stderr.read().decode('utf-8')})
 
     def register_dbus_method(self, func, dbus_interface, in_sig, out_sig):
         """
@@ -354,8 +354,8 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         out_signature = out_sig
         in_signature = ""
         for entry in in_sig:
-            args.append(entry.keys()[0])
-            in_signature += entry.values()[0]
+            args.append(list(entry.keys())[0])
+            in_signature += list(entry.values())[0]
 
         # Set DBus specific properties
         func._dbus_is_method = True

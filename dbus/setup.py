@@ -57,7 +57,8 @@ setup(
     setup_requires = [
         'python_dateutil',
         'pytest-runner',
-        'dbus-python'
+        'dbus-python',
+        'pyinotify'
         ],
 
     install_requires = [

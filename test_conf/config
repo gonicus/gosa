@@ -36,6 +36,9 @@ key = FIAYj6kqb273a0UoZl4MPz1WTs8E9iHw
 [mqtt]
 host = localhost
 
+[dbus]
+script-path = /tmp/shell.d
+
 ##############################################################################
 #                            Logger configuration                            #
 ##############################################################################
@@ -55,7 +58,7 @@ handlers=console
 
 [logger_gosa]
 # Desired loglevel: DEBUG, INFO, WARNING, ERROR, CRITICAL
-level=INFO
+level=DEBUG
 # Desired handler: syslog, console
 handlers=console
 qualname=gosa

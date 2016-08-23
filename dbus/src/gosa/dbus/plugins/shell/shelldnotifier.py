@@ -11,7 +11,7 @@
 This plugin is part of the shell extension module of gosa-dbus.
 
 It starts a Thread and uses inotify to register itself to the kernel to receive
-events about changes made in the shelld directory.
+events about changes made in the shell.d directory.
 
 """
 import pyinotify
@@ -43,12 +43,12 @@ class ShellDNotifier(pyinotify.ProcessEvent):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
-        # Start the files ystem surveillance thread now
+        # Start the files system surveillance thread now
         self.__start()
 
     def __start(self):
         """
-        Starts the survailance. This is automatically called in the constructor.
+        Starts the surveillance. This is automatically called in the constructor.
         """
         wm = pyinotify.WatchManager()
         res = wm.add_watch(self.path, pyinotify.IN_MOVED_FROM | pyinotify.IN_ATTRIB | pyinotify.IN_MODIFY | pyinotify.IN_DELETE | pyinotify.IN_MOVED_TO, rec=True, auto_add=True) #@UndefinedVariable

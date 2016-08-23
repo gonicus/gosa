@@ -19,12 +19,9 @@ Allows to manage systemd service units (PowerOff and Reboot are also available).
 """
 import dbus.service
 import logging
-from os.path import basename
 from gosa.common import Environment
 from gosa.common.components import Plugin
 from gosa.dbus import get_system_bus
-import re
-import subprocess
 
 
 class ServiceException(Exception):
@@ -76,7 +73,7 @@ class DBusUnixServiceHandler(dbus.service.Object, Plugin):
         if not unit_id.endswith(".service"):
             raise NotAServiceException()
         ret = method(unit_id, "replace") # "replace" is default in systemctl, too
-        return ret != None
+        return ret is not None
 
     @dbus.service.method('org.gosa', in_signature='s', out_signature='i')
     def start_service(self, unit_id):
@@ -159,9 +156,11 @@ class DBusUnixServiceHandler(dbus.service.Object, Plugin):
     @dbus.service.method('org.gosa')
     def reboot(self):
         self.systemd.Reboot()
+
     @dbus.service.method('org.gosa')
     def poweroff(self):
         self.systemd.PowerOff()
+
     @dbus.service.method('org.gosa')
     def halt(self):
         self.systemd.Halt()
