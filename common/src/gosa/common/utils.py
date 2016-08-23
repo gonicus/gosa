@@ -278,7 +278,7 @@ def xml2dict(node):
 
 def find_api_service():
      res = []
-     for host, port in _find_service("api"):
+     for host, port in _find_service(["api"]):
          res.append("https://" + host + ":" + str(port) + "/rpc")
 
      return res
@@ -286,7 +286,7 @@ def find_api_service():
 
 def find_bus_service():
      res = []
-     for host, port in _find_service("bus"):
+     for host, port in _find_service(["bus"]):
          res.append((host, port))
 
      return res
