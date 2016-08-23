@@ -1,20 +1,15 @@
 sudo: required
-
+dist: trusty
 language: python
-
 services:
     - docker
-
 python:
     - "3.5"
-
 virtualenv:
   system_site_packages: true
-
 cache:
   directories:
     - plugins/gui/frontend/gosa/build
-
 before_install:
     - sudo killall -9 postgres
     - docker pull cpollmeier/gosa3:devel
@@ -24,17 +19,14 @@ before_install:
     - sudo mkdir /tmp/workflows
     - sudo mkdir /etc/gosa
     - sudo cp ./test_conf/config /etc/gosa/
-
 install:
     - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev python3-gi
     - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python
-
 script:
     - cd plugins/gui/frontend/gosa/
     - python2 generate.py -sI build
     - cd ../../../../
     - ./setup.py develop
     - dbus-launch ./setup.py test --addopts="--runslow"
-
 after_success:
     - coveralls
