@@ -29,7 +29,7 @@ script:
     - python2 generate.py -sI build
     - cd ../../../../
     - ./setup.py develop
-    - ./setup.py test --addopts="--runslow"
+    - dbus-launch ./setup.py test --addopts="--runslow"
 
 after_success:
     - coveralls
