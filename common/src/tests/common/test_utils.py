@@ -1,16 +1,19 @@
-#!/usr/bin/python3
+# This file is part of the GOsa framework.
+#
+#  http://gosa-project.org
+#
+# Copyright:
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
+#
+# See the LICENSE file in the project's top-level directory for details.
 
 import unittest
 import unittest.mock
-import re
-import os
 import pytest
-import time
 from gosa.common.utils import *
 from datetime import timedelta
-from lxml import objectify, etree
+from lxml import objectify
 from io import StringIO
-from urllib.parse import urlparse
 from urllib.error import *
 
 class Type1:
