@@ -19,13 +19,14 @@ before_install:
     - sudo mkdir /etc/gosa
     - sudo cp ./test_conf/config /etc/gosa/
 install:
-    - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev python3-gi
+    - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev
     - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python
 script:
     - cd plugins/gui/frontend/gosa/
     - python2 generate.py -sI build
     - cd ../../../../
     - ./setup.py develop
+    - ln -s /usr/lib/python3/dist-packages/gi ~/virtualenv/lib/python3.5/site-packages/
     - dbus-launch ./setup.py test --addopts="--runslow"
 after_success:
     - coveralls
