@@ -9,24 +9,32 @@ cache:
   directories:
     - plugins/gui/frontend/gosa/build
 before_install:
-    - sudo find /usr/lib/python* -name *importer*
-    - sudo killall -9 postgres
-    - docker pull cpollmeier/gosa3:devel
-    - docker run -d -p 389:389 -p 1883:1883 -p 5432:5432 cpollmeier/gosa3:devel
-    - pip install --upgrade pip
+    - ls -la ~/virtualenv/
+    - ls -la ~/virtualenv/lib/
+    - ls -la ~/virtualenv/lib/python3.5/
+    - sudo killall -9 postgres # kill system docker, as we use the one from docker
+    - docker pull cpollmeier/gosa3:devel # download docker container
+    - docker run -d -p 389:389 -p 1883:1883 -p 5432:5432 cpollmeier/gosa3:devel # start it
+    - pip install --upgrade pip # upgrade pip, we need the latest version
+    # some preparations for the tests
     - export TZ=Europe/Berlin
     - sudo mkdir /tmp/workflows
     - sudo mkdir /etc/gosa
     - sudo cp ./test_conf/config /etc/gosa/
 install:
-    - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev
+    - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev # needed to compile dbus-python
     - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python
 script:
+    # build the gui, to be able to test it if gets served
     - cd plugins/gui/frontend/gosa/
     - python2 generate.py -sI build
     - cd ../../../../
+    # setup GOsa, install deps...
     - ./setup.py develop
+    # use gi package from system, as it is not installable from pip and travis' python3.5 does not use the system packages
     - ln -s /usr/lib/python3/dist-packages/gi ~/virtualenv/lib/python3.5/site-packages/
+    # finally run the tests, with running dbus
     - dbus-launch ./setup.py test --addopts="--runslow"
 after_success:
+    # send test coverage results to coveralls.io
     - coveralls

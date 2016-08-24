@@ -74,7 +74,8 @@ setup(
     tests_require=[
         'pytest',
         'pytest-cov',
-        'coveralls'
+        'coveralls',
+        'python-dbusmock'
     ],
     install_requires = common_install_requires,
 
