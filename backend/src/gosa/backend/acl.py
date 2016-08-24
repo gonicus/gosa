@@ -1628,7 +1628,7 @@ class ACLResolver(Plugin):
                         # Walk through defined topics of the current acl and check if one
                         # matches the required topic.
                         for action in acl.actions:
-                            if re.match(topic, action['topic']):
+                            if re.match(action['topic'], topic):
                                 match = True
                                 break
 
