@@ -8,6 +8,8 @@
 # See the LICENSE file in the project's top-level directory for details.
 from unittest import mock, TestCase
 import pytest
+from gosa.backend.exceptions import ProxyException
+from gosa.backend.objects import ObjectProxy
 from gosa.common.components import PluginRegistry
 from tests.GosaTestCase import slow
 from gosa.backend.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLException
@@ -16,7 +18,6 @@ from gosa.common import Environment
 
 @slow
 class ACLSetTestCase(TestCase):
-
     def setUp(self):
         super(ACLSetTestCase, self).setUp()
         self.resolver = PluginRegistry.getInstance("ACLResolver")
@@ -77,7 +78,6 @@ class ACLSetTestCase(TestCase):
 
 @slow
 class ACLRoleTestCase(TestCase):
-
     def setUp(self):
         super(ACLRoleTestCase, self).setUp()
         PluginRegistry.getInstance("ACLResolver").clear()
@@ -108,13 +108,11 @@ class ACLRoleTestCase(TestCase):
 
 @slow
 class ACLTestCase(TestCase):
-
     def setUp(self):
         super(ACLTestCase, self).setUp()
         PluginRegistry.getInstance("ACLResolver").clear()
 
     def test_init(self):
-
         with pytest.raises(TypeError):
             ACL(scope='wrong scope')
 
@@ -214,7 +212,6 @@ class ACLTestCase(TestCase):
 
 @slow
 class ACLRoleEntryTestCase(TestCase):
-
     def setUp(self):
         super(ACLRoleEntryTestCase, self).setUp()
         PluginRegistry.getInstance("ACLResolver").clear()
@@ -227,6 +224,7 @@ class ACLRoleEntryTestCase(TestCase):
 
 @slow
 class ACLResolverTestCase(TestCase):
+    __remove_objects = []
 
     env = None
     ldap_base = None
@@ -240,6 +238,15 @@ class ACLResolverTestCase(TestCase):
         self.resolver.clear()
         self.ldap_base = self.resolver.base
 
+    def tearDown(self):
+        super(ACLResolverTestCase, self).tearDown()
+        for dn in self.__remove_objects:
+            try:
+                obj = ObjectProxy(dn)
+                obj.remove()
+            except ProxyException:
+                pass
+
     def test_member_owner_acls(self):
         # Ensure that we've got the right permissions to perform this tests.
         acls = ACLSet()
@@ -252,7 +259,7 @@ class ACLResolverTestCase(TestCase):
 
         # Check the permissions to be sure that they are set correctly
         self.assertFalse(self.resolver.check('acl_tester', 'acl.manager', 'r', base=self.ldap_base),
-                        "Manager ACLs are not resolved correctly! The user was able to read, but he should not!")
+                         "Manager ACLs are not resolved correctly! The user was able to read, but he should not!")
 
         self.assertFalse(self.resolver.check('acl_tester', 'acl.manager', 'm', base=self.ldap_base),
                          "Manager ACLs are not resolved correctly! The user was not able to access, but he should!")
@@ -309,7 +316,7 @@ class ACLResolverTestCase(TestCase):
         self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=example,dc=net'),
                         "Resolving acl-roles using the exported gosa.backend commands does not work! The user should be able to read, but he cannot!")
 
-        #------------------
+        # ------------------
 
         # Now remove the role-acl with id 1 from the resolver.
         self.resolver.removeRoleACL('acl_tester', 2)
@@ -469,7 +476,7 @@ class ACLResolverTestCase(TestCase):
         self.assertTrue(self.resolver.check('tester1', 'com.gonicus.factory', 'r', base=base),
                         "Wildcards (*) in actions are not resolved correctly! The user should be able to read, but he cannot!")
         self.assertFalse(self.resolver.check('tester1_wrong', 'org.gosa.factory', 'r', base=base),
-                        "Wildcards (*) in actions are not resolved correctly! The user should be not able to read, but he can!")
+                         "Wildcards (*) in actions are not resolved correctly! The user should be not able to read, but he can!")
 
     def test_roles(self):
         """
@@ -730,7 +737,7 @@ class ACLResolverTestCase(TestCase):
         res = self.resolver.getEntryPoints('admin')
         assert base in res
 
-        with mock.patch.object(self.resolver, "_ACLResolver__session") as m_session,\
+        with mock.patch.object(self.resolver, "_ACLResolver__session") as m_session, \
                 pytest.raises(ACLException):
             m_session.query.return_value.filter.return_value.one_or_none.return_value = None
             self.resolver.getEntryPoints('admin')
@@ -740,18 +747,27 @@ class ACLResolverTestCase(TestCase):
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
         acl.set_members(['admin'])
-        acl.add_action('net\.example\.acl', 'r')
+        acl.add_action('net\.example\.topic', 'r')
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
 
+        role = ACLRole('role1')
+        self.resolver.add_acl_role(role)
+        self.resolver.addACL("admin", base, 0, ['admin', 'tester'], scope="sub", rolename="role1")
+
+        assert self.resolver.getACLs('unknown_user') == {}
+        assert self.resolver.getACLs('admin', topic="net.example.other") == {}
+        assert base in self.resolver.getACLs('admin', topic="net.example.topic")
+
         res = self.resolver.getACLs('admin')
-        assert "ou=people," + self.ldap_base in res
+        assert base in res
+        assert len(res[base]) == 2
 
     def test_addACL(self):
 
         # no permission to add ACLs
-        with mock.patch.object(self.resolver, "check", return_value=False),\
-                pytest.raises(ACLException):
+        with mock.patch.object(self.resolver, "check", return_value=False), \
+             pytest.raises(ACLException):
             self.resolver.addACL("admin", "dc=example,dc=net", 0, ['admin', 'tester'])
 
         with pytest.raises(ACLException):
@@ -897,24 +913,70 @@ class ACLResolverTestCase(TestCase):
     def test_updateACLRole(self):
         with mock.patch.object(self.resolver, "check", return_value=True) as m_check:
             self.resolver.addACLRole("admin", "role1")
+            id = self.resolver.addACLToRole("admin", "role1", 0, [{'topic': r'^some\.topic.*$', 'acls': 'rwcdm'}], "sub")
             m_check.return_value = False
             with pytest.raises(ACLException):
-                self.resolver.updateACLRole("admin", 0)
+                self.resolver.updateACLRole("admin", id)
             m_check.return_value = True
 
             with pytest.raises(ACLException):
-                self.resolver.updateACLRole("admin", 0, priority="WRONG_PRIO_TYPE")
+                self.resolver.updateACLRole("admin", id, priority="WRONG_PRIO_TYPE")
 
             with pytest.raises(ACLException):
-                self.resolver.updateACLRole("admin", 0, priority=101)
+                self.resolver.updateACLRole("admin", id, priority=101)
             with pytest.raises(ACLException):
-                self.resolver.updateACLRole("admin", 0, priority=-101)
+                self.resolver.updateACLRole("admin", id, priority=-101)
 
             with pytest.raises(ACLException):
-                self.resolver.updateACLRole("admin", 0, actions=[{'topic': r'^some\.topic.*$', 'acls': 'rwcdm'}], use_role="role1")
+                self.resolver.updateACLRole("admin", id, actions=[{'topic': r'^some\.topic.*$', 'acls': 'rwcdm'}], use_role="role1")
+
+            with pytest.raises(ACLException):
+                self.resolver.updateACLRole("admin", id, actions="wrong_type")
+
+            with pytest.raises(ACLException):
+                self.resolver.updateACLRole("admin", id, use_role="role1")
+
+            with pytest.raises(ACLException):
+                self.resolver.updateACLRole("admin", id + 10, use_role="role1")
 
             with pytest.raises(TypeError):
-                self.resolver.updateACLRole("admin", 0, scope="UNKNOWN_SCOPE")
+                self.resolver.updateACLRole("admin", id, scope="UNKNOWN_SCOPE")
+
+            self.resolver.updateACLRole("admin", id, priority=99)
+            assert self.resolver.getACLRoles("admin")[0]['acls'][0]['priority'] == 99
+
+            self.resolver.updateACLRole("admin", id, actions=[{'topic': r'^some\.topic.*$', 'acls': 'rwcdm'}])
+            assert self.resolver.getACLRoles("admin")[0]['acls'][0]['actions'] == [{
+                'topic': r'^some\.topic.*$',
+                'options': {},
+                'acls': 'rwcdm'
+            }]
+
+    def test_removeACL(self):
+        base = "ou=people," + self.ldap_base
+        actions = [
+            {
+                "topic": 'net\.example\.acl1',
+                "acls": "r",
+                "options": {
+                    "uid": "^u[0-9"
+                }
+            }
+        ]
+        with mock.patch.object(self.resolver, "check", return_value=True) as m_check:
+            id = self.resolver.addACL("admin", base, 0, ['admin', 'tester'], actions=actions, scope="sub")
+            assert len(self.resolver.getACLs("admin")[base]) == 1
+
+            m_check.return_value = False
+            with pytest.raises(ACLException):
+                self.resolver.removeACL("unknown_user", id)
+            m_check.return_value = True
+            with pytest.raises(ACLException):
+                self.resolver.removeACL("admin", 10)
+
+            assert len(self.resolver.getACLs("admin")[base]) == 1
+            self.resolver.removeACL("admin", id)
+            assert base not in self.resolver.getACLs("admin")
 
     def test_removeRoleACL(self):
         with mock.patch.object(self.resolver, "check", return_value=True) as m_check:
@@ -1069,3 +1131,24 @@ class ACLResolverTestCase(TestCase):
         assert self.resolver.aclset_exists_by_base(self.ldap_base) is True
         self.resolver.remove_aclset_by_base(self.ldap_base)
         assert self.resolver.aclset_exists_by_base(self.ldap_base) is False
+
+    def test_load_from_object_database(self):
+        # prepare some AclRoles
+        role = ObjectProxy('ou=aclroles,dc=example,dc=net', 'AclRole')
+        role.name = "tester"
+        role.AclRoles = []
+        aclentry = {
+            "priority": 0,
+            "rolename": "tester"
+        }
+        role.AclRoles.append(aclentry)
+        role.commit()
+        self.__remove_objects.append('name=tester,ou=aclroles,dc=example,dc=net')
+
+        with mock.patch("gosa.backend.acl.PluginRegistry.getInstance") as m_index:
+            m_index.return_value.search.side_effect = [[
+                {'dn': 'name=tester,ou=aclroles,dc=example,dc=net'}
+            ],
+                []  # no ACLSets
+            ]
+            self.resolver.load_from_object_database()

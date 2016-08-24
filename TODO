@@ -74,3 +74,4 @@ Test dazu:
 - self.__base_mode wird nur initial gesetzt. Wird über den Proxy ein Objekt angelegt (self.__base_mode = "create"), dieses dann commited
   danach ein move oder andere Operationen ausgeführt und dann wieder commited führt der "create"-mode zu Fehlern (im self.__base.check()).
   Sollte das nach dem ersten commit auf "update" geändert werden?
+- Object mit JSON-Backend removen (AclRole), anschließendes commit() führt zu einem Fehler, muss man nach einem remove überhaupt committen?
