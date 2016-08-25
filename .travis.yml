@@ -9,6 +9,7 @@ cache:
   directories:
     - plugins/gui/frontend/gosa/build
 before_install:
+    - ls -la /usr/lib/python3/dist-packages/
     - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
     - docker pull cpollmeier/gosa3:devel # download docker container
     - docker run -d -p 389:389 -p 1883:1883 -p 5432:5432 cpollmeier/gosa3:devel # start it
