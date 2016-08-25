@@ -11,9 +11,10 @@ from unittest import mock, TestCase
 import dbusmock
 import subprocess
 import pytest
+import dbus
 try:
+    from gosa.common.network import Monitor, NM_STATE_DISCONNECTED, NM_STATE_CONNECTED_GLOBAL, NM_STATE_CONNECTED_SITE
     from gi.repository import GLib
-    from gosa.common.network import Monitor
     has_glib = True
 except ImportError:
     has_glib = False
