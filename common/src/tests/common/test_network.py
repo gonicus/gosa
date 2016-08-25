@@ -10,13 +10,18 @@
 from unittest import mock, TestCase
 import dbusmock
 import subprocess
-from pytest import skip
-from gi.repository import GLib
+import pytest
+try:
+    from gi.repository import GLib
+    has_glib = True
+except ImportError:
+    has_glib = False
 from gosa.common.network import *
 from tests.helper import slow
 
 
 @slow
+@pytest.mark.skipif(has_glib is False, reason="requires gi package")
 class MonitorTestCase(dbusmock.DBusTestCase):
 
     @classmethod

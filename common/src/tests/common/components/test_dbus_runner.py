@@ -9,9 +9,15 @@
 
 from unittest import TestCase, mock
 import pytest
+try:
+    from gi.repository import GLib
+    has_glib = True
+except ImportError:
+    has_glib = False
 from gosa.common.components.dbus_runner import *
 
 
+@pytest.mark.skipif(has_glib is False, reason="requires gi package")
 class DBusRunnerTestCase(TestCase):
 
     @mock.patch("gosa.common.components.dbus_runner.GLib.MainLoop")
