@@ -20,11 +20,6 @@ class ClientPowermanagementTestCase(ClientDBusTestCase):
     def setUp(self):
         (self.inv_mock, self.dbus_mock) = self.spawn_server_template('logind', stdout=subprocess.PIPE)
 
-        self.dbus_mock.AddMethod('org.freedesktop.login1.Manager', 'PowerOff', 'b', '', '')
-        self.dbus_mock.AddMethod('org.freedesktop.login1.Manager', 'Reboot', 'b', '', '')
-        self.dbus_mock.AddMethod('org.freedesktop.login1.Manager', 'Suspend', 'b', '', '')
-        self.dbus_mock.AddMethod('org.freedesktop.login1.Manager', 'Hibernate', 'b', '', '')
-
     def tearDown(self):
         self.inv_mock.terminate()
         self.inv_mock.wait()
