@@ -18,16 +18,7 @@ from tests.dbus_test_case import ClientDBusTestCase
 class ClientPowermanagementTestCase(ClientDBusTestCase):
 
     def setUp(self):
-        self.inv_mock = self.spawn_server('org.freedesktop.login1',
-                                           '/org/freedesktop/login1',
-                                           'org.freedesktop.login1',
-                                           system_bus=True,
-                                           stdout=subprocess.PIPE)
-
-        # Get a proxy for the object's Mock interface
-        self.dbus_mock = dbus.Interface(self.dbus_con.get_object(
-                                        'org.freedesktop.login1', '/org/freedesktop/login1'),
-                                        dbusmock.MOCK_IFACE)
+        (self.inv_mock, self.dbus_mock) = self.spawn_server_template('logind', stdout=subprocess.PIPE)
 
         self.dbus_mock.AddMethod('org.freedesktop.login1.Manager', 'PowerOff', 'b', '', '')
         self.dbus_mock.AddMethod('org.freedesktop.login1.Manager', 'Reboot', 'b', '', '')
