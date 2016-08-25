@@ -58,7 +58,7 @@ handlers=console
 
 [logger_gosa]
 # Desired loglevel: DEBUG, INFO, WARNING, ERROR, CRITICAL
-level=DEBUG
+level=INFO
 # Desired handler: syslog, console
 handlers=console
 qualname=gosa
