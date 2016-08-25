@@ -20,7 +20,7 @@ before_install:
     - sudo cp ./test_conf/config /etc/gosa/
 install:
     - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev # needed to compile dbus-python
-    - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python git+https://github.com/bochecha/pygobject.git@pip-install#egg=pygobject
+    - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python PyGObject
 script:
     # build the gui, to be able to test it if gets served
     - cd plugins/gui/frontend/gosa/
