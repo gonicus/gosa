@@ -9,7 +9,6 @@ cache:
   directories:
     - plugins/gui/frontend/gosa/build
 before_install:
-    - ls -la /usr/lib/python3/dist-packages/
     - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
     - docker pull cpollmeier/gosa3:devel # download docker container
     - docker run -d -p 389:389 -p 1883:1883 -p 5432:5432 cpollmeier/gosa3:devel # start it
@@ -31,7 +30,7 @@ script:
     - ./setup.py develop
     # use gi package from system (the hacky way), as it is not installable from pip and travis' python3.5 does not use the system packages
     - ln -s /usr/lib/python3/dist-packages/gi ~/virtualenv/python3.5/lib/python3.5/site-packages/
-    - cp /usr/lib/python3/dist-packages/apt_pkg.cpython-35m-x86_64-linux-gnu.so ~/virtualenv/python3.5/lib/python3.5/site-packages/
+    - cp /usr/lib/python3/dist-packages/apt_pkg.cpython-34m-x86_64-linux-gnu.so ~/virtualenv/python3.5/lib/python3.5/site-packages/
     # finally run the tests, with running dbus
     - dbus-launch ./setup.py test --addopts="--runslow"
 after_success:
