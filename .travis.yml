@@ -10,7 +10,11 @@ cache:
     - plugins/gui/frontend/gosa/build
 before_install:
     - sudo cp test_conf/org.gosa.conf /etc/dbus-1/system.d/
+    - ls -la /etc/dbus-1/system.d/
+    - ls -la /etc/init.d/
     - sudo service dbus reload
+    - # use gi package from system (the hacky way), as it is not installable from pip and travis' python3.5 does not use the system packages
+    - ln -s /usr/lib/python3/dist-packages/gi ~/virtualenv/python3.5/lib/python3.5/site-packages/
     - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
     - docker pull cpollmeier/gosa3:devel # download docker container
     - docker run -d -p 389:389 -p 1883:1883 -p 5432:5432 cpollmeier/gosa3:devel # start it
