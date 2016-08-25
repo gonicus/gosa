@@ -13,10 +13,10 @@ import subprocess
 import pytest
 try:
     from gi.repository import GLib
+    from gosa.common.network import Monitor
     has_glib = True
 except ImportError:
     has_glib = False
-from gosa.common.network import *
 from tests.helper import slow
 
 
