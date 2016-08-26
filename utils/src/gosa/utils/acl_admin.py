@@ -17,6 +17,7 @@ from getopt import GetoptError
 import getpass
 #pylint: disable=W0611
 from gosa.common.components import JSONServiceProxy
+from gosa.common.components.auth.console import ConsoleHandler
 from gosa.common.utils import parseURL
 
 _ = gettext.gettext
@@ -807,13 +808,8 @@ def connect(service_uri='', username='', password=''):
         sys.exit(1)
 
     # Try to log in
-    try:
-        if not proxy.login(username, password):
-            print(_("Login of user '%s' failed") % username)
-            sys.exit(1)
-    except Exception as e:
-        print(e)
-        sys.exit(1)
+    auth_handler = ConsoleHandler(proxy)
+    auth_handler.login(username, password)
 
     return proxy
 

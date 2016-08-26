@@ -26,6 +26,11 @@ qx.Class.define("gosa.Config", {
     timeout: 60000,
     notifications: window.webkitNotifications || window.notifications,
 
+    AUTH_OTP_REQUIRED: 2,
+    AUTH_U2F_REQUIRED: 3,
+    AUTH_FAILED: 99,
+    AUTH_SUCCESS: 100,
+
     getTheme : function()
     {
       if (gosa.Config.theme) {

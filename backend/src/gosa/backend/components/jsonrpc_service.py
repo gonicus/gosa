@@ -21,6 +21,7 @@ import uuid
 import traceback
 import logging
 import tornado.web
+from gosa.backend.objects import ObjectProxy
 from gosa.common.hsts_request_handler import HSTSRequestHandler
 from tornado.gen import coroutine
 from gosa.common.gjson import loads, dumps
@@ -28,6 +29,7 @@ from gosa.common.utils import f_print, N_
 from gosa.common.error import GosaErrorHandler as C, GosaException
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry, JSONRPCException
+from gosa.common.components.auth import *
 from gosa.backend import __version__ as VERSION
 from gosa.backend.lock import GlobalLock
 from gosa.backend.utils.ldap import check_auth
@@ -129,19 +131,32 @@ class JsonRpcHandler(HSTSRequestHandler):
 
             # Check password and create session id on success
             sid = str(uuid.uuid1())
-
-            if self.authenticate(user, password):
-                cls.__session[sid] = user
+            dn = self.authenticate(user, password)
+            if dn is not False:
+                cls.__session[sid] = {
+                    'user': user,
+                    'dn': dn,
+                    'auth_state': None
+                }
                 self.set_secure_cookie('REMOTE_USER', user)
                 self.set_secure_cookie('REMOTE_SESSION', sid)
-                result = True
+                user = ObjectProxy(dn)
+                factor_method = PluginRegistry.getInstance("TwoFactorAuthManager").get_method_from_user(user)
+                if factor_method is None:
+                    result = AUTH_SUCCESS
+                elif factor_method == "otp":
+                    result = AUTH_OTP_REQUIRED
+                elif factor_method == "u2f":
+                    result = AUTH_U2F_REQUIRED
+
+                cls.__session[sid]['auth_state'] = result
                 self.log.info("login succeeded for user '%s'" % user)
             else:
                 # Remove current sid if present
                 if not self.get_secure_cookie('REMOTE_SESSION') and sid in cls.__session:
                     del cls.__session[sid]
 
-                result = False
+                result = AUTH_FAILED
                 self.log.error("login failed for user '%s'" % user)
                 raise tornado.web.HTTPError(401, "Login failed")
 
@@ -166,6 +181,21 @@ class JsonRpcHandler(HSTSRequestHandler):
             self.clear_cookie("REMOTE_USER")
             self.clear_cookie("REMOTE_SESSION")
             return dict(result=True, error=None, id=jid)
+
+        # check two-factor authentication
+        sid = self.get_secure_cookie('REMOTE_SESSION').decode('ascii')
+        if method == 'verify':
+            (key,) = params
+            if cls.__session[sid]['auth_state'] == AUTH_OTP_REQUIRED:
+                manager = PluginRegistry.getInstance("TwoFactorAuthManager")
+                if manager.verify(cls.__session[sid]['user'], cls.__session[sid]['dn'], key):
+                    cls.__session[sid]['auth_state'] = AUTH_SUCCESS
+                    return dict(result=AUTH_SUCCESS, error=None, id=jid)
+                else:
+                    raise tornado.web.HTTPError(401, "Login failed")
+
+        if cls.__session[sid]['auth_state'] != AUTH_SUCCESS:
+            raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
         # Try to call method with dispatcher
         if not self.dispatcher.hasMethod(method):
@@ -244,10 +274,10 @@ class JsonRpcHandler(HSTSRequestHandler):
         password          Password
         ================= ==========================
 
-        ``Return``: True on success
+        ``Return``: user dn on success else False
         """
 
-        return check_auth(user, password)
+        return check_auth(user, password, get_dn=True)
 
     @classmethod
     def check_session(cls, sid, user):

@@ -49,10 +49,12 @@ import readline #@UnusedImport
 import gettext
 import textwrap
 import locale
+import pyqrcode
 from urllib.request import HTTPError
 from pkg_resources import resource_filename #@UnresolvedImport
 
 from gosa.common.components import JSONServiceProxy, JSONRPCException
+from gosa.common.components.auth.console import ConsoleHandler
 from gosa.common.utils import parseURL, find_api_service
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.components.sse_client import BaseSseClient
@@ -217,26 +219,23 @@ class GosaService():
             sys.exit(1)
 
         # Try to log in
-        try:
-            if not self.proxy.login(username, password):
-                print(_("Login of user '%s' failed") % username)
-                sys.exit(1)
-        except Exception as e:
-            print(e)
-            sys.exit(1)
+        auth_handler = ConsoleHandler(self.proxy)
+        auth_handler.login(username, password)
 
         return connection, username, password
 
     def reconnectJson(self, connection, username, password):
         self.proxy = JSONServiceProxy(connection)
-        try:
-            if self.proxy.login(username, password):
-                pass
-            else:
-                sys.exit(1)
-        except Exception as e:
-            print(e)
-            sys.exit(1)
+        auth_handler = ConsoleHandler(self.proxy)
+        auth_handler.login(username, password)
+
+    def enableOTP(self, user_dn):
+        auth_url = self.proxy.setTwoFactorMethod(user_dn, 'otp')
+        if auth_url.startswith("otpauth://"):
+            url = pyqrcode.create(auth_url, error='L')
+            print(url.terminal(quiet_zone=1))
+        else:
+            print(auth_url)
 
     def help(self):
         """ Prints some help """
@@ -323,6 +322,7 @@ def main(argv=sys.argv):
     # Make the the GosaService instance available to the console via the
     # "gosa" object.
     service.proxy.help = service.help
+    service.proxy.enableOTP = service.enableOTP
     context = {'gosa': service.proxy, '__name__': '__console__', '__doc__': None}
 
     # This python wrap string catches any exception, prints it and exists the
@@ -356,6 +356,8 @@ del os, histfile, readline, rlcompleter
 
 for i in gosa.getMethods().keys():
     globals()[i] = getattr(gosa, i)
+
+globals()['enableOTP'] = gosa.enableOTP
 """
 
     # Use script mode:
@@ -407,7 +409,7 @@ for i in gosa.getMethods().keys():
             except HTTPError as e:
                 if e.code == 401:
                     service.reconnectJson(service_uri, username, password)
-                    context = {'gosa': service, 'service': service.proxy,
+                    context = {'gosa': service.proxy,
                         '__name__': '__console__', '__doc__': None}
                 else:
                     print(e)
