@@ -229,13 +229,15 @@ class GosaService():
         auth_handler = ConsoleHandler(self.proxy)
         auth_handler.login(username, password)
 
-    def enableOTP(self, user_dn):
-        auth_url = self.proxy.setTwoFactorMethod(user_dn, 'otp')
-        if auth_url.startswith("otpauth://"):
-            url = pyqrcode.create(auth_url, error='L')
+    def setTwoFactorMethod(self, user_dn, factor_method, key=None):
+        response = self.proxy.setTwoFactorMethod(user_dn, factor_method, key)
+        if response is None:
+            return
+        if response.startswith("otpauth://"):
+            url = pyqrcode.create(response, error='L')
             print(url.terminal(quiet_zone=1))
         else:
-            print(auth_url)
+            print(response)
 
     def help(self):
         """ Prints some help """
@@ -255,7 +257,7 @@ class GosaService():
             sig = info['sig']
             args = ', '.join(sig)
             doc = ""
-            if info['doc'] != None:
+            if info['doc'] is not None:
                 d = ' '.join(info['doc'].split())
                 for line in textwrap.wrap(d, 72):
                     doc += "    %s\n" % line
@@ -322,8 +324,7 @@ def main(argv=sys.argv):
     # Make the the GosaService instance available to the console via the
     # "gosa" object.
     service.proxy.help = service.help
-    service.proxy.enableOTP = service.enableOTP
-    context = {'gosa': service.proxy, '__name__': '__console__', '__doc__': None}
+    context = {'gosa': service.proxy, 'service': service, '__name__': '__console__', '__doc__': None}
 
     # This python wrap string catches any exception, prints it and exists the
     # program with a failure that can be processed by the caller (e.g. on a
@@ -357,7 +358,8 @@ del os, histfile, readline, rlcompleter
 for i in gosa.getMethods().keys():
     globals()[i] = getattr(gosa, i)
 
-globals()['enableOTP'] = gosa.enableOTP
+# override setTwoFactorMethod as we need the result to e.g. calculate QR-Code
+globals()['setTwoFactorMethod'] = service.setTwoFactorMethod
 """
 
     # Use script mode:
@@ -409,7 +411,7 @@ globals()['enableOTP'] = gosa.enableOTP
             except HTTPError as e:
                 if e.code == 401:
                     service.reconnectJson(service_uri, username, password)
-                    context = {'gosa': service.proxy,
+                    context = {'gosa': service.proxy, 'service': service,
                         '__name__': '__console__', '__doc__': None}
                 else:
                     print(e)

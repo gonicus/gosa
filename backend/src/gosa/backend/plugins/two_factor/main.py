@@ -9,6 +9,7 @@
 import logging
 import os
 import pyqrcode
+from gosa.common.components import Command
 
 from pyotp import TOTP, random_base32
 from gosa.backend.exceptions import ACLException
@@ -16,17 +17,14 @@ from gosa.backend.objects import ObjectProxy
 from gosa.common import Environment
 from gosa.common.components import Plugin
 from gosa.common.components import PluginRegistry
-from gosa.common.handler import IInterfaceHandler
 from json import loads, dumps
-from zope.interface import implementer
-from gosa.common.components.command import Command
 from gosa.common.utils import N_
 from gosa.common.error import GosaErrorHandler as C
 
 # Register the errors handled  by us
 C.register_codes(dict(
     UNKNOWN_2FA_METHOD=N_("Unknown two factor authentication method '%(method)s'"),
-    CHANGE_2FA_METHOD_FORBIDDEN=N_("Two factor authentication method already set for this user")
+    CHANGE_2FA_METHOD_FORBIDDEN=N_("You are not allowed to change the two factor authentication method")
 ))
 
 
@@ -38,7 +36,6 @@ class ChangingNotAllowed(Exception):
     pass
 
 
-@implementer(IInterfaceHandler)
 class TwoFactorAuthManager(Plugin):
     """
     Manages the two factor authentication settings for users
@@ -46,7 +43,8 @@ class TwoFactorAuthManager(Plugin):
     # TODO: implement U2F
 
     _priority_ = 80
-    _target_ = 'auth'
+    _target_ = 'user'
+    instance = None
 
     def __init__(self):
         super(TwoFactorAuthManager, self).__init__()
@@ -74,9 +72,9 @@ class TwoFactorAuthManager(Plugin):
             f.write(dumps(self.settings))
 
     @Command(needsUser=True, __help__=N_("Enable two factor authentication for the given user"))
-    def setTwoFactorMethod(self, user, object_dn, factor_method):
+    def setTwoFactorMethod(self, user, object_dn, factor_method, key=None):
 
-        if factor_method not in ("otp", "u2f"):
+        if factor_method not in ("otp", "u2f", None):
             raise UnknownTwoFAMethod(C.make_error("UNKNOWN_2FA_METHOD", method=factor_method))
 
         # Do we have read permissions for the requested attribute
@@ -91,10 +89,28 @@ class TwoFactorAuthManager(Plugin):
 
         # Get the object for the given dn
         user = ObjectProxy(object_dn)
+        current_method = self.get_method_from_user(user)
+        if current_method == factor_method:
+            # nothing to change
+            return None
+
+        if current_method is not None:
+            # we need to be verified by the old method in order to change the method
+            if current_method == "otp":
+                totp = TOTP(self.settings[user.uuid]['otp_secret'])
+                if key is None or not totp.verify(key):
+                    raise ChangingNotAllowed(C.make_error('CHANGE_2FA_METHOD_FORBIDDEN'))
+            elif current_method == "u2f":
+                raise NotImplementedError()
+
         if factor_method == "otp":
             return self.__enable_otp(user)
         elif factor_method == "u2f":
             return self.__enable_u2f(user)
+        elif factor_method is None:
+            # disable two factor auth
+            del self.settings[user.uuid]
+            self.__save_settings()
         return None
 
     def verify(self, user, object_dn, key):
@@ -122,6 +138,8 @@ class TwoFactorAuthManager(Plugin):
         return False
 
     def get_method_from_user(self, user):
+        if isinstance(user, str):
+            user = ObjectProxy(user)
         if user.uuid in self.settings:
             if 'otp_secret' in self.settings[user.uuid]:
                 return "otp"
@@ -139,7 +157,7 @@ class TwoFactorAuthManager(Plugin):
             'otp_secret': secret
         }
         self.__save_settings()
-        return totp.provisioning_uri("%s@gosa" % user.uid)
+        return totp.provisioning_uri("%s@%s.gosa" % (user.uid, self.env.domain))
 
     def __enable_u2f(self, user):
         raise NotImplementedError()

@@ -125,6 +125,8 @@ class JsonRpcHandler(HSTSRequestHandler):
 
         cls = self.__class__
 
+        twofa_manager = PluginRegistry.getInstance("TwoFactorAuthManager")
+
         # Create an authentication cookie on login
         if method == 'login':
             (user, password) = params
@@ -140,17 +142,19 @@ class JsonRpcHandler(HSTSRequestHandler):
                 }
                 self.set_secure_cookie('REMOTE_USER', user)
                 self.set_secure_cookie('REMOTE_SESSION', sid)
-                user = ObjectProxy(dn)
-                factor_method = PluginRegistry.getInstance("TwoFactorAuthManager").get_method_from_user(user)
+                factor_method = twofa_manager.get_method_from_user(dn)
                 if factor_method is None:
                     result = AUTH_SUCCESS
+                    self.log.info("login succeeded for user '%s'" % user)
                 elif factor_method == "otp":
                     result = AUTH_OTP_REQUIRED
+                    self.log.info("login succeeded for user '%s', proceeding two-factor authentication" % user)
                 elif factor_method == "u2f":
                     result = AUTH_U2F_REQUIRED
+                    self.log.info("login succeeded for user '%s', proceeding two-factor authentication" % user)
 
                 cls.__session[sid]['auth_state'] = result
-                self.log.info("login succeeded for user '%s'" % user)
+
             else:
                 # Remove current sid if present
                 if not self.get_secure_cookie('REMOTE_SESSION') and sid in cls.__session:
@@ -187,8 +191,8 @@ class JsonRpcHandler(HSTSRequestHandler):
         if method == 'verify':
             (key,) = params
             if cls.__session[sid]['auth_state'] == AUTH_OTP_REQUIRED:
-                manager = PluginRegistry.getInstance("TwoFactorAuthManager")
-                if manager.verify(cls.__session[sid]['user'], cls.__session[sid]['dn'], key):
+
+                if twofa_manager.verify(cls.__session[sid]['user'], cls.__session[sid]['dn'], key):
                     cls.__session[sid]['auth_state'] = AUTH_SUCCESS
                     return dict(result=AUTH_SUCCESS, error=None, id=jid)
                 else:
