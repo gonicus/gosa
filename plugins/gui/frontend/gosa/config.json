@@ -124,6 +124,9 @@
       [
         {
           "uri" : "resource/gosa/js/throbber.js"
+        },
+        {
+          "uri" : "resource/gosa/js/qrcode.js"
         }
       ],
       "copy-files" :

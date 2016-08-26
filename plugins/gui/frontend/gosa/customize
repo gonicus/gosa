@@ -1,5 +1,6 @@
 #!/bin/sh
 QOOXDOO=${QOOXDOO:-../qooxdoo}
+BUILD_PATH="build"
 
 if [ -z "$1" ]; then
     echo ">>> customize: creating index.html"
@@ -7,7 +8,8 @@ if [ -z "$1" ]; then
 else
     echo ">>> customize: preparing index.html for build-final"
     
-    [ ! -d build/resource/gosa/js ] && mkdir -p build/resource/gosa/js
+    [ ! -d $BUILD_PATH/resource/gosa/js ] && mkdir -p $BUILD_PATH/resource/gosa/js
+
     sed "/BUILD::REMOVE::START/,/BUILD::REMOVE::END/d" \
         template/index.html.in > source/index.html
     
@@ -16,8 +18,14 @@ else
       if [ "x$lib" = "xsource/resource/gosa/js/*js" ]; then
 	      break
       fi
+
       libname=$(basename $lib)
-      echo ">>> customize: optimizing $libname"
-      python2 $QOOXDOO/tool/bin/compile.py $lib | grep -v '^>>' > build/resource/gosa/js/$libname
+      if [ "$libname" = "qrcode.js" ]; then
+        echo "  - Copying $libname"
+        cp $lib $BUILD_PATH/resource/gosa/js/$libname
+      else
+        echo "  - Optimizing $libname"
+        python2 $QOOXDOO/tool/bin/compile.py -q $lib > $BUILD_PATH/resource/gosa/js/$libname
+      fi
     done
 fi
