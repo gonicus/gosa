@@ -20,7 +20,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
   extend: qx.ui.container.Composite,
 
   /**
-   * @param templates {Array} List of template objects; each appears in its own tab
+   * @param templates {Array} List of hash maps in the shape {extension: <name>, template: <template>}; each appears 
+   *   in its own tab
    */
   construct: function(templates) {
     this.base(arguments);
@@ -64,11 +65,12 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _createTabPages : function() {
-      this._templates.forEach(function(template) {
+      this._templates.forEach(function(templateObj) {
+        var template = templateObj.template;
         var tabPage = new qx.ui.tabview.Page();
         tabPage.setLayout(new qx.ui.layout.VBox());
 
-        var context = new gosa.engine.Context(template, tabPage);
+        var context = new gosa.engine.Context(template, tabPage, templateObj.extension);
         this._contexts.push(context);
         this._tabView.add(context.getRootWidget());
       }, this);

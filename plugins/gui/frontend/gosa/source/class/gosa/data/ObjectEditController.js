@@ -13,8 +13,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
     qx.core.Assert.assertInstance(obj, gosa.proxy.Object);
     qx.core.Assert.assertInstance(widget, gosa.ui.widgets.ObjectEdit);
 
-    console.log(obj);
-
     this._obj = obj;
     this._widget = widget;
     this._bindings = [];
