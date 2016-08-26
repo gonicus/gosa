@@ -22,7 +22,11 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
   construct : function()
   {
     this.base(arguments, this.tr("Login"));
-    this.__init();
+    this.__initLoginForm();
+    this.__initOtpForm();
+
+    var controller = new qx.data.controller.Form(null, this._form);
+    this._model = controller.createModel();
   },
 
   events: {
@@ -34,8 +38,10 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
     _password: null,
     _login: null,
     _info: null,
+    _key: null,
+    _mode: "login",
 
-    __init: function() {
+    __initLoginForm: function() {
       // Show Subject/Message pane
       var form = new qx.ui.form.Form();
       this._form = form;
@@ -54,9 +60,6 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
       form.add(password, this.tr("Password"), null, "password");
 
       this.addElement(new gosa.ui.form.renderer.Single(form, false));
-
-      var controller = new qx.data.controller.Form(null, form);
-      this._model = controller.createModel();
 
       // Add status label
       var info = this._info = new qx.ui.basic.Label();
@@ -78,7 +81,11 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
           }
 
           var rpc = gosa.io.Rpc.getInstance();
-          rpc.callAsync(this._handleAuthentification.bind(this), "login", this._model.get("uid"), this._model.get("password"));
+          if (this._mode === "login") {
+            rpc.callAsync(this._handleAuthentification.bind(this), "login", this._model.get("uid"), this._model.get("password"));
+          } else if (this._mode === "verify") {
+            rpc.callAsync(this._handleAuthentification.bind(this), "verify", this._model.get("key"));
+          }
         }
       }, this);
 
@@ -92,6 +99,14 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
       }
     },
 
+    __initOtpForm: function() {
+      var key = this._key = new qx.ui.form.TextField();
+      key.setWidth(200);
+      key.exclude();
+
+      this._form.add(key, this.tr("OTP-Passkey"), null, "key");
+    },
+
     /**
      * Callback function for RPC login responses
      *
@@ -102,8 +117,8 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
     _handleAuthentification: function(result, error) {
       switch (parseInt(result)) {
         case gosa.Config.AUTH_FAILED:
-          info.setValue('<span style="color:red">' + this.tr("Invalid login...") + '</span>');
-          info.show();
+          this._info.setValue('<span style="color:red">' + this.tr("Invalid login...") + '</span>');
+          this._info.show();
           this._password.setEnabled(false);
           this._uid.setEnabled(false);
           this._login.setEnabled(false);
@@ -128,6 +143,13 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
 
         case gosa.Config.AUTH_OTP_REQUIRED:
           // TODO: handle OTP authentification
+          console.log("OTP");
+          this._uid.exclude();
+          this._password.exclude();
+          this._key.show();
+          this._info.setValue( this.tr("Two factor authentification:"));
+          this._info.show();
+          this._mode = "verify"
           break;
 
         case gosa.Config.AUTH_U2F_REQUIRED:
@@ -139,7 +161,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
   },
 
   destruct : function() {
-    this._disposeObjects("_uid", "_password", "_login", "_info");
+    this._disposeObjects("_uid", "_password", "_login", "_info", "_key");
   }
 });
 
