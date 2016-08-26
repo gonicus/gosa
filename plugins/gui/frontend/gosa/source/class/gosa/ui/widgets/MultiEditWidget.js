@@ -228,7 +228,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
           timer.stop(this._property_timer);
           this._property_timer = null;
           this.fireDataEvent("changeValue", this.getCleanValues());
-        }, null, this, null, 2000);
+        }, null, this, null, 100);
     },
 
 

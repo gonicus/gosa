@@ -465,6 +465,7 @@ qx.Class.define("gosa.view.Search",
           doc.add(win);
 
           var controller = new gosa.data.ObjectEditController(obj, w);
+          w.setController(controller);
 
           this.fireDataEvent("loadingComplete", {dn: dn});
 

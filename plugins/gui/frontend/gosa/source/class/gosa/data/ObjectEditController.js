@@ -16,14 +16,25 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._obj = obj;
     this._widget = widget;
     this._bindings = [];
+    this._changeValueListeners = {};
 
     this._connectModelWithWidget();
+    this._addModifyListeners();
+  },
+
+  properties : {
+    modified : {
+      check : "Boolean",
+      init : false,
+      event : "changeModified"
+    }
   },
 
   members : {
     _obj : null,
     _widget : null,
     _bindings : null,
+    _changeValueListeners : null,
 
     _currentWidget : null,
     _currentBuddy : null,
@@ -50,6 +61,8 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
           this._handleProperties(attribute);
           this._currentWidget.setValue(o.get(name));
+
+          // binding from widget to model
           var binding = this._currentWidget.bind("value", o, name);
           this._bindings.push({
             binding : binding,
@@ -57,6 +70,20 @@ qx.Class.define("gosa.data.ObjectEditController", {
           });
         }
       }
+    },
+
+    _addModifyListeners : function() {
+      this._widget.getContexts().forEach(function(context) {
+        var widgets = context.getWidgetRegistry().getMap();
+        var widget, listenerId;
+        for (var modelPath in widgets) {
+          if (widgets.hasOwnProperty(modelPath)) {
+            widget = widgets[modelPath];
+            listenerId = widget.addListener("changeValue", this._onChangeWidgetValue, this);
+            widget[listenerId] = this._currentWidget;
+          }
+        }
+      }, this);
     },
 
     /**
@@ -179,19 +206,36 @@ qx.Class.define("gosa.data.ObjectEditController", {
       listenerCallback();
     },
 
+    _onChangeWidgetValue : function() {
+      this.setModified(true);
+    },
+
     _cleanupBindings : function() {
       this._bindings.forEach(function(item) {
         item.source.removeBinding(item.binding);
       });
       this._bindings = [];
+    },
+
+    _cleanupChangeValueListeners : function() {
+      for (var id in this._changeValueListeners) {
+        if (this._changeValueListeners.hasOwnProperty(id)) {
+          if (!this._changeValueListeners[id].isDisposed()) {
+            this._changeValueListeners[id].removeListenerById(id);
+          }
+        }
+      }
+      this._changeValueListeners = {};
     }
   },
 
   destruct : function() {
     this._cleanupBindings();
+    this._cleanupChangeValueListeners();
 
     this._obj = null;
     this._widget = null;
     this._bindings = null;
+    this._changeValueListeners = null;
   }
 });

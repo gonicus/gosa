@@ -34,6 +34,14 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     this._initWidgets();
   },
 
+  properties : {
+    controller: {
+      check : "gosa.data.ObjectEditController",
+      init : null,
+      apply : "_applyController"
+    }
+  },
+
   members : {
 
     _templates : null,
@@ -41,6 +49,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _toolMenu : null,
     _buttonPane : null,
     _contexts : null,
+    _okButton : null,
 
     /**
      * Retrieve all contexts this widget is showing.
@@ -49,6 +58,16 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
      */
     getContexts : function() {
       return this._contexts;
+    },
+
+    _applyController : function(value, old) {
+      if (old) {
+        value.removeRelatedBindings(this._okButton);
+      }
+
+      if (value) {
+        value.bind("modified", this._okButton, "enabled");
+      }
     },
 
     _initWidgets : function() {
@@ -127,25 +146,53 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _createOkButton : function() {
-      var button = gosa.ui.base.Buttons.getOkButton();
+      var button = this._okButton = gosa.ui.base.Buttons.getOkButton();
       button.set({
         enabled : false,
         tabIndex : 30000
       });
       button.addState("default");
       this._buttonPane.add(button);
+
+      button.addListener("execute", this._onOk, this);
     },
 
     _createCancelButton : function() {
       var button = gosa.ui.base.Buttons.getCancelButton();
       button.setTabIndex(30001);
       this._buttonPane.add(button);
+
+      button.addListener("execute", this._onCancel, this);
+    },
+
+    /**
+     * @return {qx.ui.window.Window | null}
+     */
+    _getParentWindow : function() {
+      var parent = this;
+      do {
+        parent = parent.getLayoutParent();
+        if (parent instanceof qx.ui.window.Window) {
+          return parent;
+        }
+      } while (parent);
+      return null;
+    },
+
+    _onOk : function() {
+      console.warn("TODO: save changed values");
+      this._getParentWindow().close();
+    },
+
+    _onCancel : function() {
+      console.warn("TODO: cancel");
+      this._getParentWindow().close();
     }
   },
 
   destruct : function() {
     this._templates = null;
     qx.util.DisposeUtil.disposeArray("_contexts");
-    this._disposeObjects("_toolMenu", "_buttonPane", "_tabView");
+    this._disposeObjects("_okButton", "_toolMenu", "_buttonPane", "_tabView");
   }
 });
