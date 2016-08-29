@@ -247,12 +247,19 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    "error": {
+    "statusLabel": {
       include: "label",
 
-      style : function() {
+      style : function(states) {
+        console.log(states);
+
+        var tc = null;
+        if (states.error) {
+          tc = "error-text"
+        }
+
         return {
-          textColor: "error-text"
+          textColor: tc
         }
       }
     }

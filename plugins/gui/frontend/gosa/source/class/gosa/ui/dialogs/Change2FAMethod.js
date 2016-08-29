@@ -72,8 +72,8 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
     var pwd = this._pwd = new qx.ui.form.PasswordField();
     pwd.setWidth(200);
 
-    form.add(method, this.tr("Method"), null, "method");
-    form.add(pwd, this.tr("Password"), null, "pwd");
+    form.add(method, this.tr("Select method"), null, "method");
+    form.add(pwd, this.tr("Verify with password"), null, "pwd");
 
     var la = new gosa.ui.form.renderer.Single(form);
     la.getLayout().setColumnAlign(0, "left", "middle");
@@ -81,8 +81,7 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
     var controller = new qx.data.controller.Form(null, form);
 
     // Add status label
-    this._info = new qx.ui.basic.Label();
-    this._info.setRich(true);
+    this._info = new gosa.ui.basic.StatusLabel();
     this._info.exclude();
     this.addElement(this._info);
     this.getLayout().setAlignX("center");
@@ -165,11 +164,11 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
 
     _showInfo : function(message, error) {
       if (!error) {
-        this._info.setAppearance("label");
+        this._info.removeState("error");
         this._info.setValue(message);
         this._info.exclude();
       } else {
-        this._info.setAppearance("error");
+        this._info.addState("error");
         this._info.setValue(error);
         this._info.show();
       }
