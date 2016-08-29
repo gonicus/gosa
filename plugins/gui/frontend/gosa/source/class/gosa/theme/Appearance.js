@@ -251,7 +251,6 @@ qx.Theme.define("gosa.theme.Appearance",
       include: "label",
 
       style : function(states) {
-        console.log(states);
 
         var tc = null;
         if (states.error) {
