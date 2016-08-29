@@ -120,7 +120,7 @@ class TwoFactorAuthManager(Plugin):
         if current_method is not None:
             # we need to be verified by user password in order to change the method
             if current_method == "otp":
-                if user_password is None or not check_auth(user.uid, user_password):
+                if user_password is None or not check_auth(self.get_secure_cookie('REMOTE_USER').decode('ascii'), user_password):
                     raise ChangingNotAllowed(C.make_error('CHANGE_2FA_METHOD_FORBIDDEN'))
             elif current_method == "u2f":
                 raise NotImplementedError()
