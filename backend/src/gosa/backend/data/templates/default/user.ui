@@ -393,6 +393,18 @@
     <string notr="true">SendMessageDialog</string>
    </property>
   </action>
+  <action name="m_actionChange_2FA_Method">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/images/trustaccount.png</normaloff>:/images/trustaccount.png</iconset>
+   </property>
+   <property name="text">
+    <string>Change 2FA method...</string>
+   </property>
+   <property name="dialog" stdset="0">
+    <string notr="true">Change2FAMethod</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>uidEdit</tabstop>

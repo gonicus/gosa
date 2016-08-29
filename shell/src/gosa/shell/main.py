@@ -229,8 +229,8 @@ class GosaService():
         auth_handler = ConsoleHandler(self.proxy)
         auth_handler.login(username, password)
 
-    def setTwoFactorMethod(self, user_dn, factor_method, key=None):
-        response = self.proxy.setTwoFactorMethod(user_dn, factor_method, key)
+    def setTwoFactorMethod(self, user_dn, factor_method, user_password=None):
+        response = self.proxy.setTwoFactorMethod(user_dn, factor_method, user_password)
         if response is None:
             return
         if response.startswith("otpauth://"):

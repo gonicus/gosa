@@ -319,7 +319,12 @@ qx.Class.define("gosa.ui.Renderer",
             this._closingHint.addListener("continue", function() {
               // tell the backend that the user wants to continue to edit the object
               var rpc = gosa.io.Rpc.getInstance();
-              rpc.cA(function(result, error) {}, this ,"continueObjectEditing", this._object.instance_uuid);
+              if (this._object && !this._object.isDisposed()) {
+                rpc.cA(function(result, error) {
+                }, this, "continueObjectEditing", this._object.instance_uuid);
+              } else {
+                this._closingHint.close();
+              }
             }, this);
             break;
           case "closing_aborted":

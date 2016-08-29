@@ -111,7 +111,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
      * Callback function for RPC login responses
      *
      * @param result {Number} One of gosa.Config.AUTH_*
-     * @param error
+     * @param error {Error}
      * @protected
      */
     _handleAuthentification: function(result, error) {
