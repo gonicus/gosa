@@ -93,15 +93,15 @@ class TwoFactorAuthManager(Plugin):
         return self.get_method_from_user(user)
 
     @Command(needsUser=True, __help__=N_("Enable two factor authentication for the given user"))
-    def setTwoFactorMethod(self, user, object_dn, factor_method, user_password=None):
+    def setTwoFactorMethod(self, user_name, object_dn, factor_method, user_password=None):
 
         # Do we have read permissions for the requested attribute
         topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
         aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if not aclresolver.check(user, topic, "w", base=object_dn):
+        if not aclresolver.check(user_name, topic, "w", base=object_dn):
 
             self.__log.debug("user '%s' has insufficient permissions to write %s on %s, required is %s:%s" % (
-                user, "twoFactorMethod", object_dn, topic, "w"))
+                user_name, "twoFactorMethod", object_dn, topic, "w"))
             raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
 
         if factor_method == "None":
@@ -120,7 +120,7 @@ class TwoFactorAuthManager(Plugin):
         if current_method is not None:
             # we need to be verified by user password in order to change the method
             if current_method == "otp":
-                if user_password is None or not check_auth(self.get_secure_cookie('REMOTE_USER').decode('ascii'), user_password):
+                if user_password is None or not check_auth(user_name, user_password):
                     raise ChangingNotAllowed(C.make_error('CHANGE_2FA_METHOD_FORBIDDEN'))
             elif current_method == "u2f":
                 raise NotImplementedError()
