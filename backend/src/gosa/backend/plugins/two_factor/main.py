@@ -89,7 +89,7 @@ class TwoFactorAuthManager(Plugin):
                 user, "twoFactorMethod", object_dn, topic, "r"))
             raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
         user = ObjectProxy(object_dn)
-        print(self.get_method_from_user(user))
+        user = ObjectProxy(object_dn)
         return self.get_method_from_user(user)
 
     @Command(needsUser=True, __help__=N_("Enable two factor authentication for the given user"))
