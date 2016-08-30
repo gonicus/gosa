@@ -25,6 +25,7 @@ database-file = /tmp/gosa.json
 
 [user]
 image-path = /tmp/images
+2fa-store = /tmp/2fa
 
 [backend]
 admins = admin

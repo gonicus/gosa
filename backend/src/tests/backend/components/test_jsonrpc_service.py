@@ -10,7 +10,7 @@
 import unittest.mock
 from tornado.web import Application
 from gosa.common.gjson import dumps, loads
-from gosa.backend.components.jsonrpc_service import JsonRpcHandler
+from gosa.backend.components.jsonrpc_service import JsonRpcHandler, AUTH_SUCCESS, AUTH_FAILED
 from gosa.common.components import PluginRegistry
 from tests.GosaTestCase import slow
 from tests.RemoteTestCase import RemoteTestCase
@@ -41,11 +41,12 @@ class JsonRpcHandlerTestCase(RemoteTestCase):
             assert response.code == 401
 
         # successfull login
-        with unittest.mock.patch.object(JsonRpcHandler, 'authenticate', return_value=True) as m:
+        with unittest.mock.patch.object(JsonRpcHandler, 'authenticate', return_value='cn=System Administrator,ou=people,dc=example,'
+                                                                                     'dc=net') as m:
             response = self.login()
             assert response.code == 200
             json = loads(response.body)
-            assert json['result'] == True
+            assert json['result'] == AUTH_SUCCESS
             assert json['error'] is None
             assert json['id'] == 0
 
@@ -99,7 +100,7 @@ class JsonRpcHandlerTestCase(RemoteTestCase):
 
         assert response.code == 200
         json = loads(response.body)
-        assert json['result'] == True
+        assert json['result'] is True
         assert json['error'] is None
         assert json['id'] == 3
 
