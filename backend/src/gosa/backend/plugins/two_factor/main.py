@@ -8,7 +8,6 @@
 # See the LICENSE file in the project's top-level directory for details.
 import logging
 import os
-import pyqrcode
 from gosa.backend.utils.ldap import check_auth
 from gosa.common.components import Command
 
@@ -47,18 +46,21 @@ class TwoFactorAuthManager(Plugin):
     _target_ = 'user'
     instance = None
     methods = [None, "otp"]#, "u2f"]
+    __settings = {}
 
     def __init__(self):
         super(TwoFactorAuthManager, self).__init__()
         self.__log = logging.getLogger(__name__)
         self.env = Environment.getInstance()
         self.settings_file = self.env.config.get("user.2fa-store", "/var/lib/gosa/2fa")
-        self.settings = {}
+        self.__reload()
+
+    def __reload(self):
         if not os.path.exists(self.settings_file):
             self.__save_settings()
         else:
             with open(self.settings_file, "r") as f:
-                self.settings = loads(f.read())
+                self.__settings = loads(f.read())
 
     @staticmethod
     def get_instance():
@@ -71,24 +73,24 @@ class TwoFactorAuthManager(Plugin):
 
     def __save_settings(self):
         with open(self.settings_file, "w") as f:
-            f.write(dumps(self.settings))
+            f.write(dumps(self.__settings))
 
     @Command(needsUser=True, __help__=N_("Returns the available two factor authentication methods"))
-    def getAvailable2FAMethods(self, user):
+    def getAvailable2FAMethods(self, user_name):
         return self.methods
 
     @Command(needsUser=True, __help__=N_("Returns the current two factor authentication method for the given user"))
-    def getTwoFactorMethod(self, user, object_dn):
+    def getTwoFactorMethod(self, user_name, object_dn):
 
         # Do we have read permissions for the requested attribute
         topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
         aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if not aclresolver.check(user, topic, "r", base=object_dn):
+        if not aclresolver.check(user_name, topic, "r", base=object_dn):
 
             self.__log.debug("user '%s' has insufficient permissions to read %s on %s, required is %s:%s" % (
-                user, "twoFactorMethod", object_dn, topic, "r"))
+                user_name, "twoFactorMethod", object_dn, topic, "r"))
             raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
-        user = ObjectProxy(object_dn)
+
         user = ObjectProxy(object_dn)
         return self.get_method_from_user(user)
 
@@ -131,50 +133,57 @@ class TwoFactorAuthManager(Plugin):
             return self.__enable_u2f(user)
         elif factor_method is None:
             # disable two factor auth
-            del self.settings[user.uuid]
+            del self.__settings[user.uuid]
             self.__save_settings()
         return None
 
-    def verify(self, user, object_dn, key):
+    def verify(self, user_name, object_dn, key):
 
         # Do we have read permissions for the requested attribute
         topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
         aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if not aclresolver.check(user, topic, "r", base=object_dn):
+        if not aclresolver.check(user_name, topic, "r", base=object_dn):
 
             self.__log.debug("user '%s' has insufficient permissions to read %s on %s, required is %s:%s" % (
-                user, "twoFactorMethod", object_dn, topic, "r"))
+                user_name, "twoFactorMethod", object_dn, topic, "r"))
             raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
 
         # Get the object for the given dn
         user = ObjectProxy(object_dn)
         factor_method = self.get_method_from_user(user)
         if factor_method == "otp":
-            totp = TOTP(self.settings[user.uuid]['otp_secret'])
+            totp = TOTP(self.__settings[user.uuid]['otp_secret'])
             return totp.verify(key)
 
         elif factor_method == "u2f":
             raise NotImplementedError()
 
+        elif factor_method is None:
+            return True
+
         return False
 
     def get_method_from_user(self, user):
+        """
+        Get the currently used two-factor authentication method of the given user
+
+        :param user: User to check
+        :type user: ObjectProxy
+        :return: the two-factor method of the user
+        :rtype: string or None
+        """
         if isinstance(user, str):
             user = ObjectProxy(user)
-        if user.uuid in self.settings:
-            if 'otp_secret' in self.settings[user.uuid]:
+        if user.uuid in self.__settings:
+            if 'otp_secret' in self.__settings[user.uuid]:
                 return "otp"
         return None
 
     def __enable_otp(self, user):
 
-        if self.get_method_from_user(user) is not None:
-            # 2FA already set, not changeable yet
-            raise ChangingNotAllowed(C.make_error('CHANGE_2FA_METHOD_FORBIDDEN'))
-
         secret = random_base32()
         totp = TOTP(secret)
-        self.settings[user.uuid] = {
+        self.__settings[user.uuid] = {
             'otp_secret': secret
         }
         self.__save_settings()
