@@ -9,6 +9,7 @@
 import pytest
 from unittest import mock, TestCase
 from gosa.shell.main import *
+from gosa.common.components.auth import AUTH_FAILED, AUTH_SUCCESS
 
 
 class SoftspaceTestCase(TestCase):
@@ -142,7 +143,7 @@ class GosaServiceTestCase(TestCase):
 
     def test_connect(self):
         with mock.patch("gosa.shell.main.JSONServiceProxy") as m:
-            m.return_value.login.return_value = True
+            m.return_value.login.return_value = AUTH_SUCCESS
             service = GosaService()
             (connection, username, password) = service.connect('http://localhost:8000/rpc', 'admin', 'secret')
             assert connection == 'http://localhost:8000/rpc'
@@ -210,7 +211,7 @@ class GosaServiceTestCase(TestCase):
                 service.connect('ftp://localhost:8000/rpc', 'admin', 'secret')
 
             # failed login
-            m.return_value.login.return_value = False
+            m.return_value.login.return_value = AUTH_FAILED
             with pytest.raises(SystemExit):
                 service.connect('http://localhost:8000/rpc', 'admin', 'secret')
 
@@ -220,11 +221,11 @@ class GosaServiceTestCase(TestCase):
 
     def test_reconnectJson(self):
         with mock.patch("gosa.shell.main.JSONServiceProxy") as m:
-            m.return_value.login.return_value = True
+            m.return_value.login.return_value = AUTH_SUCCESS
             service = GosaService()
             service.reconnectJson('http://localhost:8000/rpc', 'admin', 'secret')
 
-            m.return_value.login.return_value = False
+            m.return_value.login.return_value = AUTH_FAILED
             with pytest.raises(SystemExit):
                 service.reconnectJson('http://localhost:8000/rpc', 'admin', 'secret')
 
@@ -255,6 +256,24 @@ class GosaServiceTestCase(TestCase):
                 service.help()
                 m.return_value.getMethods.assert_called_with(None)
 
+    def test_setTwoFactorMethod(self):
+        with mock.patch("gosa.shell.main.JSONServiceProxy") as m,\
+                mock.patch("gosa.shell.main.pyqrcode") as m_qr,\
+                mock.patch("gosa.shell.main.print") as m_print:
+            service = GosaService()
+            service.proxy = m.return_value
+            service.proxy.setTwoFactorMethod.return_value = None
+            service.setTwoFactorMethod("fake-dn", "otp")
+            assert not m_print.called
+
+            service.proxy.setTwoFactorMethod.return_value = "anything"
+            service.setTwoFactorMethod("fake-dn", "otp")
+            m_print.assert_called_with("anything")
+
+            service.proxy.setTwoFactorMethod.return_value = "otpauth://fake-string-to-encode"
+            service.setTwoFactorMethod("fake-dn", "otp")
+            m_qr.create.assert_called_with("otpauth://fake-string-to-encode", error='L')
+
 
 class MainTestCase(TestCase):
 
@@ -277,7 +296,7 @@ class MainTestCase(TestCase):
 
             with mock.patch("gosa.shell.main.JSONServiceProxy") as m,\
                     mock.patch("gosa.shell.main.SseClient") as m_sse:
-                m.return_value.login.return_value = True
+                m.return_value.login.return_value = AUTH_SUCCESS
 
                 # script mode
                 with mock.patch("gosa.shell.main.sys.stdin.isatty", return_value=False), \
@@ -306,7 +325,8 @@ class MainTestCase(TestCase):
                 with mock.patch("gosa.shell.main.sys.stdin.isatty", return_value=True), \
                         mock.patch("gosa.shell.main.MyConsole") as m_console:
                     assert main() == 0
-                    m_console.return_value.runcode.assert_called_with("\nimport readline\nimport rlcompleter\nimport atexit\nimport os\n\n# Tab completion\nreadline.parse_and_bind('tab: complete')\n\n# history file\nhistfile = os.path.join(os.environ['HOME'], '.gosa.history')\ntry:\n    readline.read_history_file(histfile)\nexcept IOError:\n    pass\natexit.register(readline.write_history_file, histfile)\ndel os, histfile, readline, rlcompleter\n\nfor i in gosa.getMethods().keys():\n    globals()[i] = getattr(gosa, i)\n")
+                    param = m_console.return_value.runcode.call_args[0][0]
+                    assert param.startswith("\nimport readline\nimport rlcompleter")
                     m_sse.return_value.connect.assert_called_with("http://localhost:8000/events")
 
                     m_console.reset_mock()

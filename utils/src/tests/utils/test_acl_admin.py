@@ -8,6 +8,8 @@
 # See the LICENSE file in the project's top-level directory for details.
 import pytest
 from unittest import mock, TestCase
+
+from gosa.common.components.auth import AUTH_FAILED, AUTH_SUCCESS
 from gosa.utils.acl_admin import *
 
 
@@ -252,7 +254,7 @@ def test_connect():
         with pytest.raises(SystemExit):
             connect()
 
-        m_proxy.return_value.login.return_value = False
+        m_proxy.return_value.login.return_value = AUTH_FAILED
         with pytest.raises(SystemExit):
             connect('http://admin:tester@localhost:8000/rpc')
 
@@ -264,7 +266,7 @@ def test_connect():
             connect('ftp://admin:tester@localhost:8000/rpc')
 
         m_proxy.return_value.login.side_effect = None
-        m_proxy.return_value.login.return_value = True
+        m_proxy.return_value.login.return_value = AUTH_SUCCESS
         connect('http://localhost:8000/rpc', 'admin', 'tester')
 
         with mock.patch("gosa.utils.acl_admin.getpass.getpass", return_value="tester"), \

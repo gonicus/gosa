@@ -27,7 +27,12 @@ class ConsoleHandler(object):
     def login(self, username, password):
         """ start the login process """
         self.__username = username
-        return self.__handle_result(int(self.proxy.login(username, password)))
+        try:
+            res = self.proxy.login(username, password)
+            return self.__handle_result(int(res))
+        except Exception:
+            print(_("Login of user '%s' failed") % self.__username)
+            sys.exit(1)
 
     def __handle_result(self, result_code):
         """
