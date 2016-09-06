@@ -191,10 +191,10 @@ qx.Class.define("gosa.proxy.Object", {
       var rpc = gosa.io.Rpc.getInstance();
       var args = ["closeObject", this.instance_uuid];
       rpc.cA.apply(rpc, [function(result, error){
-          if(func){
-            func.apply(context, [result, error]);
-          }
-        }, this].concat(args));
+        if(func){
+          func.apply(context, [result, error]);
+        }
+      }, this].concat(args));
     },
 
     /* If this object is bound to a gui, then send a merge event to that

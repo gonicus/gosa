@@ -48,6 +48,22 @@ qx.Class.define("gosa.data.ObjectEditController", {
       }
     },
 
+    saveObject : function() {
+      this._obj.commit(function(result, error){
+        if (error) {
+          this.error(error);
+          this.error(error.message);
+          this.error(error.topic);
+          this.error(error.code);
+          this.error(error.details);
+          new gosa.ui.dialogs.Error(error.message).open();
+        }
+        else {
+          this.closeObject();
+        }
+      }, this);
+    },
+
     _connectModelWithWidget : function() {
       var o = this._obj;
       var widgets, attribute, widget, buddy;

@@ -188,7 +188,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _onOk : function() {
-      console.warn("TODO: save changed values");
+      this.getController().saveObject();
       this._close();
     },
 
@@ -197,14 +197,12 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         this._createConfirmDialog();
       }
       else {
+        this.getController().closeObject();
         this._close();
       }
     },
 
     _close : function() {
-      if (this.getController()) {
-        this.getController().closeObject();
-      }
       this._getParentWindow().close();
       this.fireEvent("close");
     },
@@ -217,6 +215,9 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       var okButton = new qx.ui.form.Button(this.tr("Ok"));
       okButton.addListener("execute", function() {
         dialog.close();
+        if (this.getController()) {
+          this.getController().closeObject();
+        }
         this._close();
       }, this);
       dialog.addButton(okButton);
