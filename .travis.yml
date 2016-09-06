@@ -6,6 +6,7 @@ services:
 python:
     - "3.5"
 cache:
+  pip: true
   directories:
     - plugins/gui/frontend/gosa/build
 before_install:
