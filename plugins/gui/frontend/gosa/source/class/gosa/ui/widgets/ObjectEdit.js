@@ -20,7 +20,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
   extend: qx.ui.container.Composite,
 
   /**
-   * @param templates {Array} List of hash maps in the shape {extension: <name>, template: <template>}; each appears 
+   * @param templates {Array} List of hash maps in the shape {extension: <name>, template: <template>}; each appears
    *   in its own tab
    */
   construct: function(templates) {
@@ -185,8 +185,31 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _onCancel : function() {
-      console.warn("TODO: cancel");
-      this._getParentWindow().close();
+      if (this.getController() && this.getController().isModified()) {
+        this._createConfirmDialog();
+      }
+      else {
+        this._getParentWindow().close();
+      }
+    },
+
+    _createConfirmDialog : function() {
+      var dialog = new gosa.ui.dialogs.Dialog(this.tr("Unsaved changes"));
+      dialog.setAutoDispose(true);
+      dialog.addElement(new qx.ui.basic.Label(this.tr("There are unsaved changes. Are you sure to really abort?")));
+
+      var okButton = new qx.ui.form.Button(this.tr("Ok"));
+      okButton.addListener("execute", function() {
+        this._getParentWindow().close();
+        dialog.close();
+      }, this);
+      dialog.addButton(okButton);
+
+      var cancelButton = new qx.ui.form.Button(this.tr("Cancel"));
+      cancelButton.addListener("execute", dialog.close, dialog);
+      dialog.addButton(cancelButton);
+
+      dialog.open();
     }
   },
 
