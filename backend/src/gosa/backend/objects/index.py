@@ -282,13 +282,11 @@ class ObjectIndex(Plugin):
                 return
 
             # Check if the entry exists - if not, maybe let create it
-            print(dn)
             entry = self.__session.query(ObjectInfoIndex.dn).filter(
                 or_(
                     ObjectInfoIndex.uuid == _uuid,
                     func.lower(ObjectInfoIndex.dn) == func.lower(dn)
                 )).one_or_none()
-            print(entry)
             if entry:
                 self.update(obj)
 
