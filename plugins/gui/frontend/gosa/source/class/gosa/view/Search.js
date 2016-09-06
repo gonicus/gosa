@@ -444,22 +444,22 @@ qx.Class.define("gosa.view.Search",
         gosa.engine.WidgetFactory.createWidget(function(w){
           var doc = qx.core.Init.getApplication().getRoot();
           win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
-          win.setWidth(800);
-          win.setLayout(new qx.ui.layout.Canvas());
+          win.set({
+            width : 800,
+            layout : new qx.ui.layout.Canvas(),
+            showMinimize : false,
+            showClose : false
+          });
           win.add(w, {edge: 0});
           win.addListener("appear", win.center, win);
           win.open();
 
-          // See http://bugzilla.qooxdoo.org/show_bug.cgi?id=1770
-          win.setShowMinimize(false);
-
-          win.addListener("close", function(){
+          w.addListener("close", function() {
             controller.dispose();
             w.dispose();
             doc.remove(win);
-            obj.close();
             win.destroy();
-          }, this);
+          });
 
           // Position window as requested
           doc.add(win);

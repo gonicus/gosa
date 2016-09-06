@@ -15,7 +15,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
     this._obj = obj;
     this._widget = widget;
-    this._bindings = [];
     this._changeValueListeners = {};
 
     this._connectModelWithWidget();
@@ -33,11 +32,21 @@ qx.Class.define("gosa.data.ObjectEditController", {
   members : {
     _obj : null,
     _widget : null,
-    _bindings : null,
     _changeValueListeners : null,
 
     _currentWidget : null,
     _currentBuddy : null,
+
+    closeObject : function() {
+      if (!this._obj.isDisposed() && !this._obj.isClosed()) {
+        this._obj.close(function(result, error) {
+          // no result expected
+          if (error) {
+            new gosa.ui.dialogs.Error(error.message).open();
+          }
+        });
+      }
+    },
 
     _connectModelWithWidget : function() {
       var o = this._obj;
@@ -63,11 +72,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
           this._currentWidget.setValue(o.get(name));
 
           // binding from widget to model
-          var binding = this._currentWidget.bind("value", o, name);
-          this._bindings.push({
-            binding : binding,
-            source : this._currentWidget
-          });
+          this._currentWidget.bind("value", o, name);
         }
       }
     },
@@ -210,13 +215,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
       this.setModified(true);
     },
 
-    _cleanupBindings : function() {
-      this._bindings.forEach(function(item) {
-        item.source.removeBinding(item.binding);
-      });
-      this._bindings = [];
-    },
-
     _cleanupChangeValueListeners : function() {
       for (var id in this._changeValueListeners) {
         if (this._changeValueListeners.hasOwnProperty(id)) {
@@ -230,12 +228,11 @@ qx.Class.define("gosa.data.ObjectEditController", {
   },
 
   destruct : function() {
-    this._cleanupBindings();
     this._cleanupChangeValueListeners();
+    this.closeObject();
 
     this._obj = null;
     this._widget = null;
-    this._bindings = null;
     this._changeValueListeners = null;
   }
 });

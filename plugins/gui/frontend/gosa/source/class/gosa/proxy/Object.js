@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -38,7 +38,7 @@ qx.Class.define("gosa.proxy.Object", {
     // Remove every listener that was attached to us.
     // This allows us to set attribute values to null without
     // notifying gui widgets or other things.
-    qx.event.Registration.removeAllListeners(this); 
+    qx.event.Registration.removeAllListeners(this);
     for(var item in this.attributes){
       this.set(this.attributes[item], null);
     }
@@ -113,17 +113,17 @@ qx.Class.define("gosa.proxy.Object", {
               }
             }, this);
           }else{
-            this.mergeChanges(); 
+            this.mergeChanges();
           }
         }
       }
     },
 
-    /* Helper method that sets attribute values using the 
+    /* Helper method that sets attribute values using the
      * json-rpc response
      * */
     _setAttributes: function(data){
-    
+
       // Initialize object values
       this.initialized = false;
       this.instance_uuid = data["__jsonclass__"][1][1];
@@ -249,7 +249,7 @@ qx.Class.define("gosa.proxy.Object", {
         if(!error){
           for(var item in data['value']){
 
-            // Tell anybody thats interested, that the 'values'-list for the given 
+            // Tell anybody thats interested, that the 'values'-list for the given
             // attribute has changed.
             if(data['values'][item]){
               this.fireDataEvent("updatedAttributeValues", {item: item, values: data['values'][item]});

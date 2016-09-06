@@ -34,8 +34,16 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     this._initWidgets();
   },
 
+  events : {
+
+    /**
+     * Fired when the widget/the window in which the window is gets closed.
+     */
+    "close" : "qx.event.type.Event"
+  },
+
   properties : {
-    controller: {
+    controller : {
       check : "gosa.data.ObjectEditController",
       init : null,
       apply : "_applyController"
@@ -181,7 +189,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
     _onOk : function() {
       console.warn("TODO: save changed values");
-      this._getParentWindow().close();
+      this._close();
     },
 
     _onCancel : function() {
@@ -189,8 +197,16 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         this._createConfirmDialog();
       }
       else {
-        this._getParentWindow().close();
+        this._close();
       }
+    },
+
+    _close : function() {
+      if (this.getController()) {
+        this.getController().closeObject();
+      }
+      this._getParentWindow().close();
+      this.fireEvent("close");
     },
 
     _createConfirmDialog : function() {
@@ -200,8 +216,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
       var okButton = new qx.ui.form.Button(this.tr("Ok"));
       okButton.addListener("execute", function() {
-        this._getParentWindow().close();
         dialog.close();
+        this._close();
       }, this);
       dialog.addButton(okButton);
 
