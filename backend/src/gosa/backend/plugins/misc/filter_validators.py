@@ -43,7 +43,7 @@ class IsExistingDN(ElementComparator):
         errors = []
         index = PluginRegistry.getInstance("ObjectIndex")
         for dn in value:
-            if not index.search({'dn': dn}, {'dn': 1}).count():
+            if not len(index.search({'dn': dn}, {'dn': 1})):
                 errors.append(dict(index=value.index(dn),
                     detail=N_("DN '%(dn)s' does not exist"),
                     dn=dn))
@@ -61,7 +61,7 @@ class IsExistingDnOfType(ElementComparator):
         errors = []
         index = PluginRegistry.getInstance("ObjectIndex")
         for dn in value:
-            if not index.search({'_type': objectType, 'dn': dn}, {'dn': 1}).count():
+            if not len(index.search({'_type': objectType, 'dn': dn}, {'dn': 1})):
                 errors.append(dict(index=value.index(dn),
                     detail=N_("DN '%(dn)s' does not exist"),
                     dn=dn))

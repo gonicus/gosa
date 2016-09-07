@@ -33,7 +33,7 @@
 					the state without reading system logs.
 				</Description>
 				<Type>String</Type>
-                		<ReadOnly>true</ReadOnly>
+				<ReadOnly>true</ReadOnly>
 				<DependsOn>
 					<Attribute>status_Online</Attribute>
 					<Attribute>status_Offline</Attribute>

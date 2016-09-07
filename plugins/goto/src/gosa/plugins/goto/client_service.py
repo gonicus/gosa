@@ -12,12 +12,14 @@ import os
 import string
 import random
 import hashlib
-import ldap
 import datetime
 import logging
 from uuid import uuid4
 from copy import copy
 from threading import Timer
+
+from gosa.backend.objects import ObjectProxy
+from gosa.common.components.jsonrpc_utils import Binary
 from lxml import etree
 
 from gosa.backend.components.jsonrpc_service import JsonRpcHandler
@@ -34,27 +36,9 @@ from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.mqtt_proxy import MQTTServiceProxy
 from gosa.common.components import Plugin
 from gosa.common.components.command import Command
-from gosa.backend.utils.ldap import LDAPHandler
+from gosa.plugins.goto.in_out_filters import mapping
 from base64 import b64encode as encode
 from Crypto.Cipher import AES
-
-STATUS_SYSTEM_ON = "O"
-STATUS_UPDATABLE = "u"
-STATUS_UPDATING = "U"
-STATUS_INVENTORY = "i"
-STATUS_CONFIGURING = "C"
-STATUS_INSTALLING = "I"
-STATUS_VM_INITIALIZING = "V"
-STATUS_WARNING = "W"
-STATUS_ERROR = "E"
-STATUS_OCCUPIED = "B"
-STATUS_LOCKED = "L"
-STATUS_BOOTING = "b"
-STATUS_NEEDS_INITIAL_CONFIG = "P"
-STATUS_NEEDS_REMOVE_CONFIG = "R"
-STATUS_NEEDS_CONFIG = "c"
-STATUS_NEEDS_INSTALL = "N"
-
 
 # Register the errors handled  by us
 C.register_codes(dict(
@@ -321,19 +305,16 @@ class ClientService(Plugin):
         """
         TODO
         """
-        #TODO: use object backends instead of LDAP
-        lh = LDAPHandler.get_instance()
-        fltr = "deviceUUID=%s" % device_uuid
 
-        with lh.get_handle() as conn:
-            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
-                "(&(objectClass=device)(%s))" % fltr, ['deviceStatus'])
+        index = PluginRegistry.getInstance("ObjectIndex")
 
-            if len(res) != 1:
-                raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid))
+        res = index.search({'_type': 'Device', 'deviceUUID': device_uuid},
+                           {'_uuid': 1})
+        if len(res) != 1:
+            raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid))
 
-            if 'deviceStatus' in res[0][1]:
-                return res[0][1]["deviceStatus"][0].decode().strip('[""]')
+        if 'deviceStatus' in res[0]:
+            return res[0]["deviceStatus"][0].decode().strip('[""]')
 
         return ""
 
@@ -343,44 +324,19 @@ class ClientService(Plugin):
         TODO
         """
 
-        #TODO: use object backends instead of LDAP
+        # Write to backend
+        index = PluginRegistry.getInstance("ObjectIndex")
 
-        # Check params
-        valid = [STATUS_SYSTEM_ON, STATUS_LOCKED, STATUS_UPDATABLE,
-            STATUS_UPDATING, STATUS_INVENTORY, STATUS_CONFIGURING,
-            STATUS_INSTALLING, STATUS_VM_INITIALIZING, STATUS_WARNING,
-            STATUS_ERROR, STATUS_OCCUPIED, STATUS_BOOTING,
-            STATUS_NEEDS_INSTALL, STATUS_NEEDS_CONFIG,
-            STATUS_NEEDS_INITIAL_CONFIG, STATUS_NEEDS_REMOVE_CONFIG]
-
-        # Write to LDAP
-        lh = LDAPHandler.get_instance()
-        fltr = "deviceUUID=%s" % device_uuid
-        with lh.get_handle() as conn:
-            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
-                "(&(objectClass=device)(%s))" % fltr, ['deviceStatus'])
-
-            if len(res) != 1:
-                raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid))
-            devstat = res[0][1]['deviceStatus'][0] if 'deviceStatus' in res[0][1] else b""
-            is_new = not bool(devstat)
-            devstat = list(devstat.decode().strip('[""]'))
-
-            r = re.compile(r"([+-].)")
-            for stat in r.findall(status):
-                if not stat[1] in valid:
-                    raise ValueError(C.make_error("CLIENT_STATUS_INVALID", device_uuid, status=stat[1]))
-                if stat.startswith("+"):
-                    if not stat[1] in devstat:
-                        devstat.append(stat[1])
-                else:
-                    if stat[1] in devstat:
-                        devstat.remove(stat[1])
-            devstat = bytes('["%s"]' % "".join(str(x) for x in devstat), 'utf-8')
-            if is_new:
-                conn.modify(res[0][0], [(ldap.MOD_ADD, "deviceStatus", [devstat])])
-            else:
-                conn.modify(res[0][0], [(ldap.MOD_REPLACE, "deviceStatus", [devstat])])
+        res = index.search({'_type': 'Device', 'deviceUUID': device_uuid}, {'_uuid': 1})
+        if len(res) != 1:
+            raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid))
+        device = ObjectProxy(res[0]['_uuid'])
+        r = re.compile(r"([+-].)")
+        for stat in r.findall(status):
+            if stat[1] not in mapping:
+                raise ValueError(C.make_error("CLIENT_STATUS_INVALID", device_uuid, status=stat[1]))
+            setattr(device, mapping[stat[1]], stat.startswith("+"))
+        device.commit()
 
     @Command(needsUser=True, __help__=N_("Join a client to the GOsa infrastructure."))
     def joinClient(self, user, device_uuid, mac, info=None):
@@ -388,21 +344,18 @@ class ClientService(Plugin):
         TODO
         """
 
-        #TODO: use objects
+        index = PluginRegistry.getInstance("ObjectIndex")
 
         uuid_check = re.compile(r"^[0-9a-f]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$", re.IGNORECASE)
         if not uuid_check.match(device_uuid):
             raise ValueError(C.make_error("CLIENT_UUID_INVALID", device_uuid))
-
-        lh = LDAPHandler.get_instance()
 
         # Handle info, if present
         more_info = []
 
         if info:
             # Check string entries
-            for entry in filter(lambda x: x in info,
-                ["serialNumber", "ou", "o", "l", "description"]):
+            for entry in filter(lambda x: x in info, ["serialNumber", "ou", "o", "l", "description"]):
 
                 if not re.match(r"^[\w\s]+$", info[entry]):
                     raise ValueError(C.make_error("CLIENT_DATA_INVALID", device_uuid, entry=entry, data=info[entry]))
@@ -411,8 +364,7 @@ class ClientService(Plugin):
 
             # Check desired device type if set
             if "deviceType" in info:
-                if re.match(r"^(terminal|workstation|server|sipphone|switch|router|printer|scanner)$",
-                    info["deviceType"]):
+                if re.match(r"^(terminal|workstation|server|sipphone|switch|router|printer|scanner)$", info["deviceType"]):
 
                     more_info.append(("deviceType", info["deviceType"]))
                 else:
@@ -420,15 +372,11 @@ class ClientService(Plugin):
 
             # Check owner for presence
             if "owner" in info:
-                with lh.get_handle() as conn:
-
-                    # Take a look at the directory to see if there's
-                    # such an owner DN
-                    try:
-                        conn.search_s(info["owner"], ldap.SCOPE_BASE, attrlist=['dn'])
-                        more_info.append(("owner", info["owner"]))
-                    except Exception:
-                        raise ValueError(C.make_error("CLIENT_OWNER_NOT_FOUND", device_uuid, owner=info["owner"]))
+                # Take a look at the directory to see if there's  such an owner DN
+                res = index.search({'_dn': info["owner"]}, {'_dn': 1})
+                if len(res) == 0:
+                    raise ValueError(C.make_error("CLIENT_OWNER_NOT_FOUND", device_uuid, owner=info["owner"]))
+                more_info.append(("owner", info["owner"]))
 
         # Generate random client key
         random.seed()
@@ -437,55 +385,48 @@ class ClientService(Plugin):
         h = hashlib.sha1(key.encode('ascii'))
         h.update(salt)
 
-        # Do LDAP operations to add the system
-        with lh.get_handle() as conn:
+        # Take a look at the directory to see if there's already a joined client with this uuid
+        res = index.search({'_type': 'Device', 'macAddress': mac},
+                           {'_uuid': 1})
 
-            # Take a look at the directory to see if there's
-            # already a joined client with this uuid
-            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
-                "(&(objectClass=registeredDevice)(macAddress=%s))" % mac, ["macAddress"])
+        if len(res):
+            raise GOtoException(C.make_error("DEVICE_EXISTS", mac))
 
-            # Already registered?
-            if len(res) > 0:
-                raise GOtoException(C.make_error("DEVICE_EXISTS", mac))
+        # While the client is going to be joined, generate a random uuid and an encoded join key
+        cn = str(uuid4())
+        device_key = self.__encrypt_key(device_uuid.replace("-", ""), cn + key)
 
-            # While the client is going to be joined, generate a random uuid and
-            # an encoded join key
-            cn = str(uuid4())
-            device_key = self.__encrypt_key(device_uuid.replace("-", ""), cn + key)
+        # Resolve manager
+        res = index.search({'_type': 'User', 'uid': user},
+                           {'dn': 1})
 
-            # Resolve manger
-            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
-                    "(uid=%s)" % user, [])
-            if len(res) != 1:
-                raise GOtoException(C.make_error("USER_NOT_UNIQUE" if res else "UNKNOWN_USER", target=user))
-            manager = res[0][0]
+        if len(res) != 1:
+            raise GOtoException(C.make_error("USER_NOT_UNIQUE" if res else "UNKNOWN_USER", target=user))
+        manager = res[0]['dn']
 
-            # Create new machine entry
-            record = [
-                ('objectclass', [b'device', b'ieee802Device', b'simpleSecurityObject', b'registeredDevice']),
-                ('deviceUUID', bytes(cn, 'utf-8')),
-                ('deviceKey', [device_key]),
-                ('cn', [bytes(cn, 'utf-8')]),
-                ('manager', [bytes(manager, 'utf-8')]),
-                ('macAddress', [mac.encode("ascii", "ignore")]),
-                ('userPassword', [b"{SSHA}" + encode(h.digest() + salt)])
-            ]
-            record += more_info
+        # Create new machine entry
+        # dn = ",".join([self.env.config.get("goto.machine-rdn", default="ou=systems"), self.env.base])
+        # container = ObjectProxy(dn, "DeviceContainer")
+        # container.commit()
+        dn = ",".join([self.env.config.get("goto.machine-rdn", default="ou=devices,ou=systems"), self.env.base])
+        record = ObjectProxy(dn, "Device")
+        record.extend("RegisteredDevice")
+        record.extend("ieee802Device")
+        record.extend("simpleSecurityObject")
+        record.deviceUUID = cn
+        record.deviceKey = Binary(device_key)
+        record.cn = cn
+        record.manager = manager
+        record.status_Offline = True
+        record.macAddress = mac.encode("ascii", "ignore")
+        record.userPassword = "{SSHA}" + encode(h.digest() + salt).decode()
+        for key in more_info:
+            setattr(record, key, more_info[key])
 
-            # Evaluate base
-            #TODO: take hint from "info" parameter, to allow "joiner" to provide
-            #      a target base
-            base = lh.get_base()
+        record.commit()
+        self.log.info("UUID '%s' joined as %s" % (device_uuid, record.dn))
 
-            # Add record
-            dn = ",".join(["cn=" + cn, self.env.config.get("goto.machine-rdn",
-                default="ou=systems"), base])
-            conn.add_s(dn, record)
-
-            self.log.info("UUID '%s' joined as %s" % (device_uuid, dn))
-
-            return [key, cn]
+        return [key, cn]
 
         return None
 
@@ -597,7 +538,7 @@ class ClientService(Plugin):
         data = data.ClientAnnounce
         client = data.Id.text
         self.log.info("client '%s' is joining us" % client)
-        self.systemSetStatus(client, "+O")
+        self.systemSetStatus(client, "+O-o")
 
         # Assemble network information
         network = {}
@@ -636,12 +577,12 @@ class ClientService(Plugin):
         self.__set_client_offline(client, True)
 
     def __set_client_online(self, client):
-        self.systemSetStatus(client, "+O")
+        self.systemSetStatus(client, "+O-o")
         if client in self.__client:
             self.__client[client]['online'] = True
 
     def __set_client_offline(self, client, purge=False):
-        self.systemSetStatus(client, "-O")
+        self.systemSetStatus(client, "-O+o")
 
         if client in self.__client:
             if purge:
