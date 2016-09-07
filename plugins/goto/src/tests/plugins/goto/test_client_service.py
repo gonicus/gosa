@@ -217,86 +217,89 @@ class GotoClientServiceTestCase(AsyncTestCase):
         self.service.mqtt.simulate_message("net.example/client/fake_client_uuid", etree.tostring(info))
         assert len(self.service.getUserSessions("fake_client_uuid")) == 0
 
-    @mock.patch("gosa.plugins.goto.client_service.LDAPHandler.get_instance")
-    def test_systemGetStatus(self, mocked_ldap):
-        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.return_value = []
+    @mock.patch("gosa.plugins.goto.client_service.ObjectProxy")
+    def test_systemGetStatus(self, mocked_proxy):
+        mocked_proxy.return_value.deviceStatus = "O"
+        with mock.patch("gosa.plugins.goto.client_service.PluginRegistry.getInstance") as mocked_index:
+            mocked_index.return_value.search.return_value = []
 
-        with pytest.raises(ValueError):
-            self.service.systemGetStatus('some_uuid')
+            with pytest.raises(ValueError):
+                self.service.systemGetStatus('some_uuid')
 
-        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.return_value = [[0, {'deviceStatus': [b"O"]}]]
+            mocked_index.return_value.search.return_value = [{'_uuid': ["some_uuid"]}]
 
-        assert self.service.systemGetStatus('some_uuid') == "O"
+            assert self.service.systemGetStatus('some_uuid') == "O"
 
-    @mock.patch("gosa.plugins.goto.client_service.LDAPHandler.get_instance")
-    def test_systemSetStatus(self, mocked_ldap):
-        mocked_conn = mocked_ldap.return_value.get_handle.return_value.__enter__.return_value
-        mocked_conn.search_s.return_value = []
+    @mock.patch("gosa.plugins.goto.client_service.ObjectProxy")
+    def test_systemSetStatus(self, mocked_proxy):
+        with mock.patch("gosa.plugins.goto.client_service.PluginRegistry.getInstance") as mocked_index:
+            mocked_index.return_value.search.return_value = []
 
-        with pytest.raises(ValueError):
-            self.service.systemSetStatus('some_uuid', "+O")
+            with pytest.raises(ValueError):
+                self.service.systemSetStatus('some_uuid', "+O")
 
-        mocked_conn.search_s.return_value = [[0, {'deviceStatus': [b"O"]}]]
-        self.service.systemSetStatus('some_uuid', "-O")
-        mocked_conn.modify.assert_called_with(0, [(ldap.MOD_REPLACE, "deviceStatus", [b'[""]'])])
+            mocked_index.return_value.search.return_value = [{'_uuid': 'some_uuid'}]
+            self.service.systemSetStatus('some_uuid', "-O")
+            mocked_proxy.return_value.system_Online is False
 
-        with pytest.raises(ValueError):
-            self.service.systemSetStatus('some_uuid', "+X")
+            with pytest.raises(ValueError):
+                self.service.systemSetStatus('some_uuid', "+X")
 
-        self.service.systemSetStatus('some_uuid', "+U")
-        mocked_conn.modify.assert_called_with(0, [(ldap.MOD_REPLACE, "deviceStatus", [b'["OU"]'])])
+            self.service.systemSetStatus('some_uuid', "+U")
+            mocked_proxy.return_value.status_UpdateInProgress is True
 
-        mocked_conn.search_s.return_value = [[0, {}]]
-        self.service.systemSetStatus('some_uuid', "+U")
-        mocked_conn.modify.assert_called_with(0, [(ldap.MOD_ADD, "deviceStatus", [b'["U"]'])])
+            self.service.systemSetStatus('some_uuid', "-U")
+            mocked_proxy.return_value.status_UpdateInProgress is False
 
-    @mock.patch("gosa.plugins.goto.client_service.LDAPHandler.get_instance")
-    def test_joinClient(self, mocked_ldap):
+    @mock.patch("gosa.plugins.goto.client_service.ObjectProxy")
+    def test_joinClient(self, mocked_proxy):
 
-        with pytest.raises(ValueError):
-            self.service.joinClient('tester', 'wrong_uuid', '00:00:00:00:00:01')
+        with mock.patch("gosa.plugins.goto.client_service.PluginRegistry.getInstance") as mocked_reg:
+            mocked_index = mocked_reg.return_value
+            with pytest.raises(ValueError):
+                self.service.joinClient('tester', 'wrong_uuid', '00:00:00:00:00:01')
 
-        # device exists
-        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.return_value = [1]
-        with pytest.raises(GOtoException):
+            # device exists
+            mocked_index.search.return_value = [1]
+            with pytest.raises(GOtoException):
+                self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01')
+
+            # user not unique
+            mocked_index.search.side_effect = [[], [1, 2]]
+            with pytest.raises(GOtoException):
+                self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01')
+
+            mocked_index.search.side_effect = [[], [{'dn': 'fake-manager-dn'}]]
             self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01')
+            assert mocked_proxy.return_value.commit.called
 
-        # user not unique
-        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.side_effect = [[], [1, 2]]
-        with pytest.raises(GOtoException):
-            self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01')
+            mocked_proxy.reset_mock()
+            mocked_index.search.side_effect = None
 
-        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.side_effect = [[], ['manager']]
-        mocked_ldap.return_value.get_base.return_value = "dc=example,dc=net"
-        self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01')
-        assert mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.add_s.called
+            # with info
+            with pytest.raises(ValueError):
+                # wrong value type
+                self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01', info={'ou': '&/(&'})
 
-        mocked_ldap.reset_mock()
-        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.side_effect = None
+            with pytest.raises(ValueError):
+                # wrong deviceType
+                self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01', info={'ou': 'devices',
+                                                                                                                     'deviceType': 'unknown'})
 
-        # with info
-        with pytest.raises(ValueError):
-            # wrong value type
-            self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01', info={'ou': '&/(&'})
-
-        with pytest.raises(ValueError):
-            # wrong deviceType
-            self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01', info={'ou': 'devices',
-                                                                                                                 'deviceType': 'unknown'})
-
-        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.side_effect = [Exception("test"), [], ['manager']]
-        with pytest.raises(ValueError):
-            # wrong owner
+            mocked_index.search.side_effect = [[], [], [{'dn': 'fake-manager-dn'}]]
+            with pytest.raises(ValueError):
+                # wrong owner
+                self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01', info={'ou': 'devices',
+                                                                                                                     'deviceType': 'terminal',
+                                                                                                                     'owner': 'tester'})
+            mocked_index.search.side_effect = [['tester-dn'], [], [{'dn': 'fake-manager-dn'}]]
             self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01', info={'ou': 'devices',
                                                                                                                  'deviceType': 'terminal',
                                                                                                                  'owner': 'tester'})
-        mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.search_s.side_effect = [[], [], ['manager']]
-        self.service.joinClient('tester', 'fff0c8ad-d26b-4b6d-8e8e-75e054614dd9', '00:00:00:00:00:01', info={'ou': 'devices',
-                                                                                                             'deviceType': 'terminal',
-                                                                                                             'owner': 'tester'})
-        assert mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.add_s.called
-        args, kwargs = mocked_ldap.return_value.get_handle.return_value.__enter__.return_value.add_s.call_args
-        assert ('owner', 'tester') in args[1]
+            assert mocked_proxy.return_value.commit.called
+            assert mocked_proxy.return_value.owner == "tester"
+            assert mocked_proxy.return_value.deviceType == "terminal"
+            assert mocked_proxy.return_value.ou == "devices"
 
     def test_listeners(self):
         callback1 = mock.MagicMock()

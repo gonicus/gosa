@@ -313,10 +313,8 @@ class ClientService(Plugin):
         if len(res) != 1:
             raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid))
 
-        if 'deviceStatus' in res[0]:
-            return res[0]["deviceStatus"][0].decode().strip('[""]')
-
-        return ""
+        device = ObjectProxy(res[0]['_uuid'])
+        return device.deviceStatus
 
     @Command(__help__=N_("Set system status"))
     def systemSetStatus(self, device_uuid, status):
@@ -420,8 +418,8 @@ class ClientService(Plugin):
         record.status_Offline = True
         record.macAddress = mac.encode("ascii", "ignore")
         record.userPassword = "{SSHA}" + encode(h.digest() + salt).decode()
-        for key in more_info:
-            setattr(record, key, more_info[key])
+        for key, value in more_info:
+            setattr(record, key, value)
 
         record.commit()
         self.log.info("UUID '%s' joined as %s" % (device_uuid, record.dn))
