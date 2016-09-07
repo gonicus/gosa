@@ -25,39 +25,23 @@ class FilterValidatorTests(unittest.TestCase):
     @unittest.mock.patch.object(PluginRegistry, 'getInstance')
     def test_IsExistingDN(self, mockedRegistry):
         # mockup ObjectIndex.search
-        MyIndex = type('MyIndex', (object,), {})
-        index = MyIndex()
-        found = unittest.mock.MagicMock(autoSpec=True, create=True)
-        found.count.return_value = 0
-        def search(param1, param2):
-            return found
-        index.search = search
-        mockedRegistry.return_value = index
+        mockedRegistry.return_value.search.return_value = []
 
         # start the tests
         filter = IsExistingDN()
         (res, errors) = filter.process(None, None, ["test"])
-        assert res == False
+        assert res is False
         assert len(errors) == 1
 
-        found.count.return_value = 1
+        mockedRegistry.return_value.search.return_value = [1]
         (res, errors) = filter.process(None, None, ["test"])
-        assert res == True
+        assert res is True
         assert len(errors) == 0
 
     @unittest.mock.patch.object(PluginRegistry, 'getInstance')
     def test_IsExistingDnOfType(self, mockedRegistry):
         # mockup ObjectIndex.search
-        MyIndex = type('MyIndex', (object,), {})
-        index = MyIndex()
-        found = unittest.mock.MagicMock(autoSpec=True, create=True)
-        found.count.return_value = 0
-
-        def search(param1, param2):
-            return found
-
-        index.search = search
-        mockedRegistry.return_value = index
+        mockedRegistry.return_value.search.return_value = []
 
         # start the tests
         filter = IsExistingDnOfType()
@@ -65,7 +49,7 @@ class FilterValidatorTests(unittest.TestCase):
         assert res == False
         assert len(errors) == 1
 
-        found.count.return_value = 1
+        mockedRegistry.return_value.search.return_value = [1]
         (res, errors) = filter.process(None, None, ["test"], "type")
         assert res == True
         assert len(errors) == 0
