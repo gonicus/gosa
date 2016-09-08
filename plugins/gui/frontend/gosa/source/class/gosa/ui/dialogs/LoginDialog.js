@@ -152,7 +152,11 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
           break;
 
         case gosa.Config.AUTH_U2F_REQUIRED:
-
+          // TODO: complete url (add protocol, host , port)
+          var rpc = gosa.io.Rpc.getInstance();
+          u2f.sign(gosa.Config.url, [result.u2f_data], [], function(deviceResponse) {
+            rpc.callAsync(this._handleAuthentification.bind(this), "verify", deviceResponse);
+          });
           break;
 
       }
