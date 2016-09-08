@@ -155,7 +155,7 @@ class TwoFactorAuthManager(Plugin):
         self.__check_acl(user_name, object_dn, "r")
 
         user = ObjectProxy(object_dn)
-        user_settings = self.__settings[user.uuid]
+        user_settings = self.__settings[user.uuid] if user.uuid in self.__settings else {}
         devices = [DeviceRegistration.wrap(device)
                    for device in user_settings.get('_u2f_devices_', [])]
         challenge = start_authenticate(devices)
@@ -170,7 +170,7 @@ class TwoFactorAuthManager(Plugin):
         # Get the object for the given dn
         user = ObjectProxy(object_dn)
         factor_method = self.get_method_from_user(user)
-        user_settings = self.__settings[user.uuid]
+        user_settings = self.__settings[user.uuid] if user.uuid in self.__settings else {}
         if factor_method == "otp":
             totp = TOTP(user_settings.get('otp_secret'))
             return totp.verify(key)
@@ -211,6 +211,9 @@ class TwoFactorAuthManager(Plugin):
         return None
 
     def __enable_otp(self, user):
+        if user.uuid not in self.__settings:
+            self.__settings[user.uuid] = {}
+
         user_settings = self.__settings[user.uuid]
         secret = random_base32()
         totp = TOTP(secret)
@@ -219,6 +222,9 @@ class TwoFactorAuthManager(Plugin):
         return totp.provisioning_uri("%s@%s.gosa" % (user.uid, self.env.domain))
 
     def __enable_u2f(self, user):
+        if user.uuid not in self.__settings:
+            self.__settings[user.uuid] = {}
+
         user_settings = self.__settings[user.uuid]
         devices = [DeviceRegistration.wrap(device)
                    for device in user_settings.get('_u2f_devices_', [])]

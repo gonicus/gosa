@@ -46,7 +46,7 @@ class JsonRpcHandlerTestCase(RemoteTestCase):
             response = self.login()
             assert response.code == 200
             json = loads(response.body)
-            assert json['result'] == AUTH_SUCCESS
+            assert json['result']['state'] == AUTH_SUCCESS
             assert json['error'] is None
             assert json['id'] == 0
 
