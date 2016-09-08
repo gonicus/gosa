@@ -57,8 +57,9 @@ class TwoFactorAuthManager(Plugin):
         self.env = Environment.getInstance()
         self.settings_file = self.env.config.get("user.2fa-store", "/var/lib/gosa/2fa")
         self.__reload()
-        # TODO: get that value from somewhere
-        self.facet = "http://localhost:8000/rpc"
+
+        # needed for U2F
+        self.facet = self.env.config.get("jsonrpc.url")
         self.app_id = self.facet
 
     def __reload(self):
@@ -89,13 +90,7 @@ class TwoFactorAuthManager(Plugin):
     def getTwoFactorMethod(self, user_name, object_dn):
 
         # Do we have read permissions for the requested attribute
-        topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if not aclresolver.check(user_name, topic, "r", base=object_dn):
-
-            self.__log.debug("user '%s' has insufficient permissions to read %s on %s, required is %s:%s" % (
-                user_name, "twoFactorMethod", object_dn, topic, "r"))
-            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
+        self.__check_acl(user_name, object_dn, "r")
 
         user = ObjectProxy(object_dn)
         return self.get_method_from_user(user)
@@ -104,13 +99,7 @@ class TwoFactorAuthManager(Plugin):
     def setTwoFactorMethod(self, user_name, object_dn, factor_method, user_password=None):
 
         # Do we have write permissions for the requested attribute
-        topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if not aclresolver.check(user_name, topic, "w", base=object_dn):
-
-            self.__log.debug("user '%s' has insufficient permissions to write %s on %s, required is %s:%s" % (
-                user_name, "twoFactorMethod", object_dn, topic, "w"))
-            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
+        self.__check_acl(user_name, object_dn, "w")
 
         if factor_method == "None":
             factor_method = None
@@ -144,22 +133,16 @@ class TwoFactorAuthManager(Plugin):
     def completeU2FRegistration(self, user_name, object_dn, data):
 
         # Do we have write permissions for the requested attribute
-        topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if not aclresolver.check(user_name, topic, "w", base=object_dn):
-
-            self.__log.debug("user '%s' has insufficient permissions to write %s on %s, required is %s:%s" % (
-                user_name, "twoFactorMethod", object_dn, topic, "w"))
-            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
+        self.__check_acl(user_name, object_dn, "w")
 
         user = ObjectProxy(object_dn)
-
-        binding, cert = complete_register(self.__settings[user.uuid].pop('_u2f_enroll_'), data,
+        user_settings = self.__settings[user.uuid]
+        binding, cert = complete_register(user_settings.pop('_u2f_enroll_'), data,
                                           [self.facet])
         devices = [DeviceRegistration.wrap(device)
-                   for device in user.get('_u2f_devices_', [])]
+                   for device in user_settings.get('_u2f_devices_', [])]
         devices.append(binding)
-        user['_u2f_devices_'] = [d.json for d in devices]
+        user_settings['_u2f_devices_'] = [d.json for d in devices]
 
         self.__log.info("U2F device enrolled. Username: %s", user_name)
         self.__log.debug("Attestation certificate:\n%s", cert.public_bytes(Encoding.PEM))
@@ -169,44 +152,34 @@ class TwoFactorAuthManager(Plugin):
     def sign(self, user_name, object_dn):
 
         # Do we have read permissions for the requested attribute
-        topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if not aclresolver.check(user_name, topic, "r", base=object_dn):
-
-            self.__log.debug("user '%s' has insufficient permissions to read %s on %s, required is %s:%s" % (
-                user_name, "twoFactorMethod", object_dn, topic, "r"))
-            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
+        self.__check_acl(user_name, object_dn, "r")
 
         user = ObjectProxy(object_dn)
+        user_settings = self.__settings[user.uuid]
         devices = [DeviceRegistration.wrap(device)
-                   for device in self.__settings[user.uuid].get('_u2f_devices_', [])]
+                   for device in user_settings.get('_u2f_devices_', [])]
         challenge = start_authenticate(devices)
-        self.__settings[user.uuid]['_u2f_challenge_'] = challenge.json
+        user_settings['_u2f_challenge_'] = challenge.json
         return challenge.json
 
     def verify(self, user_name, object_dn, key):
 
         # Do we have read permissions for the requested attribute
-        topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if not aclresolver.check(user_name, topic, "r", base=object_dn):
-
-            self.__log.debug("user '%s' has insufficient permissions to read %s on %s, required is %s:%s" % (
-                user_name, "twoFactorMethod", object_dn, topic, "r"))
-            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
+        self.__check_acl(user_name, object_dn, "r")
 
         # Get the object for the given dn
         user = ObjectProxy(object_dn)
         factor_method = self.get_method_from_user(user)
+        user_settings = self.__settings[user.uuid]
         if factor_method == "otp":
-            totp = TOTP(self.__settings[user.uuid]['otp_secret'])
+            totp = TOTP(user_settings.get('otp_secret'))
             return totp.verify(key)
 
         elif factor_method == "u2f":
             devices = [DeviceRegistration.wrap(device)
-                       for device in user.get('_u2f_devices_', [])]
+                       for device in user_settings.get('_u2f_devices_', [])]
 
-            challenge = self.__settings[user.uuid].pop('_u2f_challenge_')
+            challenge = user_settings.pop('_u2f_challenge_')
             c, t = verify_authenticate(devices, challenge, key, [self.facet])
             return {
                 'touch': t,
@@ -232,23 +205,34 @@ class TwoFactorAuthManager(Plugin):
         if user.uuid in self.__settings:
             if 'otp_secret' in self.__settings[user.uuid]:
                 return "otp"
+            elif '_u2f_devices_' in self.__settings[user.uuid]:
+                return "u2f"
+
         return None
 
     def __enable_otp(self, user):
-
+        user_settings = self.__settings[user.uuid]
         secret = random_base32()
         totp = TOTP(secret)
-        self.__settings[user.uuid] = {
-            'otp_secret': secret
-        }
+        user_settings['otp_secret'] = secret
         self.__save_settings()
         return totp.provisioning_uri("%s@%s.gosa" % (user.uid, self.env.domain))
 
     def __enable_u2f(self, user):
+        user_settings = self.__settings[user.uuid]
         devices = [DeviceRegistration.wrap(device)
-                   for device in self.__settings[user.uuid].get('_u2f_devices_', [])]
+                   for device in user_settings.get('_u2f_devices_', [])]
         enroll = start_register(self.app_id, devices)
-        self.__settings[user.uuid]['_u2f_enroll_'] = enroll.json
+        user_settings['_u2f_enroll_'] = enroll.json
         self.__save_settings()
         return enroll.json
 
+    def __check_acl(self, user_name, object_dn, actions):
+        # Do we have read permissions for the requested attribute
+        topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
+        aclresolver = PluginRegistry.getInstance("ACLResolver")
+        if not aclresolver.check(user_name, topic, "r", base=object_dn):
+
+            self.__log.debug("user '%s' has insufficient permissions for %s on %s, required is %s:%s" % (
+                user_name, "twoFactorMethod", object_dn, topic, actions))
+            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))

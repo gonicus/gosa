@@ -35,24 +35,26 @@ class ConsoleHandler(object):
             print(_("Login of user '%s' failed") % self.__username)
             sys.exit(1)
 
-    def __handle_result(self, result_code):
+    def __handle_result(self, response):
         """
         Handle the results of the different login steps (login, 2FA, U2F) and process with
         the next required step until the login process succeeds or fails.
         """
         try:
+            result_code = int(response['state'])
+
             if result_code == AUTH_FAILED:
                 print(_("Login of user '%s' failed") % self.__username)
                 sys.exit(1)
 
             elif result_code == AUTH_OTP_REQUIRED:
                 key = input(_("OTP-Passkey: "))
-                return self.__handle_result(int(self.proxy.verify(key)))
+                return self.__handle_result(self.proxy.verify(key))
 
-            elif 'state' in result_code  and result_code['state'] == AUTH_U2F_REQUIRED and 'u2f_data' in result_code:
+            elif result_code == AUTH_U2F_REQUIRED and 'u2f_data' in response:
                 for device in u2f.list_devices():
                     with device as dev:
-                        data = u2f.authenticate(device, result_code['u2f_data'], self.proxy.get_facet())
+                        data = u2f.authenticate(device, response['u2f_data'], self.proxy.get_facet())
                         res = self.proxy.verify(data)
                         if 'counter' in res and 'touch' in res:
                             return True

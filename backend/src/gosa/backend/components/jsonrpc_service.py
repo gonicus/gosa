@@ -133,6 +133,9 @@ class JsonRpcHandler(HSTSRequestHandler):
 
             # Check password and create session id on success
             sid = str(uuid.uuid1())
+            result = {
+                'state': AUTH_FAILED
+            }
             dn = self.authenticate(user, password)
             if dn is not False:
                 cls.__session[sid] = {
@@ -144,26 +147,23 @@ class JsonRpcHandler(HSTSRequestHandler):
                 self.set_secure_cookie('REMOTE_SESSION', sid)
                 factor_method = twofa_manager.get_method_from_user(dn)
                 if factor_method is None:
-                    result = AUTH_SUCCESS
+                    result['state'] = AUTH_SUCCESS
                     self.log.info("login succeeded for user '%s'" % user)
                 elif factor_method == "otp":
-                    result = AUTH_OTP_REQUIRED
+                    result['state'] = AUTH_OTP_REQUIRED
                     self.log.info("login succeeded for user '%s', proceeding two-factor authentication" % user)
                 elif factor_method == "u2f":
                     self.log.info("login succeeded for user '%s', proceeding two-factor authentication" % user)
-                    result = {
-                        'u2f_data': twofa_manager.sign(user, dn),
-                        'state': AUTH_U2F_REQUIRED
-                    }
+                    result['state'] = AUTH_U2F_REQUIRED
+                    result['u2f_data'] = twofa_manager.sign(user, dn)
 
-                cls.__session[sid]['auth_state'] = result
+                cls.__session[sid]['auth_state'] = result['state']
 
             else:
                 # Remove current sid if present
                 if not self.get_secure_cookie('REMOTE_SESSION') and sid in cls.__session:
                     del cls.__session[sid]
 
-                result = AUTH_FAILED
                 self.log.error("login failed for user '%s'" % user)
                 raise tornado.web.HTTPError(401, "Login failed")
 
