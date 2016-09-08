@@ -115,7 +115,8 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
      * @protected
      */
     _handleAuthentification: function(result, error) {
-      switch (parseInt(result)) {
+      var state = parseInt(result.state);
+      switch (state) {
         case gosa.Config.AUTH_FAILED:
           this._info.setValue('<span style="color:red">' + this.tr("Invalid login...") + '</span>');
           this._info.show();
@@ -142,18 +143,16 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
           break;
 
         case gosa.Config.AUTH_OTP_REQUIRED:
-          // TODO: handle OTP authentification
-          console.log("OTP");
           this._uid.exclude();
           this._password.exclude();
           this._key.show();
           this._info.setValue( this.tr("Two factor authentification:"));
           this._info.show();
-          this._mode = "verify"
+          this._mode = "verify";
           break;
 
         case gosa.Config.AUTH_U2F_REQUIRED:
-          // TODO: handle U2F authentification
+
           break;
 
       }
