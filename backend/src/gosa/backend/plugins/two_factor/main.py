@@ -10,7 +10,10 @@ import logging
 import os
 from gosa.backend.utils.ldap import check_auth
 from gosa.common.components import Command
-
+from u2flib_server.jsapi import DeviceRegistration
+from u2flib_server.u2f import (start_register, complete_register,
+                               start_authenticate, verify_authenticate)
+from cryptography.hazmat.primitives.serialization import Encoding
 from pyotp import TOTP, random_base32
 from gosa.backend.exceptions import ACLException
 from gosa.backend.objects import ObjectProxy
@@ -45,7 +48,7 @@ class TwoFactorAuthManager(Plugin):
     _priority_ = 80
     _target_ = 'user'
     instance = None
-    methods = [None, "otp"]#, "u2f"]
+    methods = [None, "otp", "u2f"]
     __settings = {}
 
     def __init__(self):
@@ -54,6 +57,9 @@ class TwoFactorAuthManager(Plugin):
         self.env = Environment.getInstance()
         self.settings_file = self.env.config.get("user.2fa-store", "/var/lib/gosa/2fa")
         self.__reload()
+        # TODO: get that value from somewhere
+        self.facet = "http://localhost:8000/rpc"
+        self.app_id = self.facet
 
     def __reload(self):
         if not os.path.exists(self.settings_file):
@@ -97,7 +103,7 @@ class TwoFactorAuthManager(Plugin):
     @Command(needsUser=True, __help__=N_("Enable two factor authentication for the given user"))
     def setTwoFactorMethod(self, user_name, object_dn, factor_method, user_password=None):
 
-        # Do we have read permissions for the requested attribute
+        # Do we have write permissions for the requested attribute
         topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
         aclresolver = PluginRegistry.getInstance("ACLResolver")
         if not aclresolver.check(user_name, topic, "w", base=object_dn):
@@ -121,11 +127,8 @@ class TwoFactorAuthManager(Plugin):
 
         if current_method is not None:
             # we need to be verified by user password in order to change the method
-            if current_method == "otp":
-                if user_password is None or not check_auth(user_name, user_password):
-                    raise ChangingNotAllowed(C.make_error('CHANGE_2FA_METHOD_FORBIDDEN'))
-            elif current_method == "u2f":
-                raise NotImplementedError()
+           if user_password is None or not check_auth(user_name, user_password):
+            raise ChangingNotAllowed(C.make_error('CHANGE_2FA_METHOD_FORBIDDEN'))
 
         if factor_method == "otp":
             return self.__enable_otp(user)
@@ -136,6 +139,50 @@ class TwoFactorAuthManager(Plugin):
             del self.__settings[user.uuid]
             self.__save_settings()
         return None
+
+    @Command(needsUser=True, __help__=N_("Complete the started U2F registration"))
+    def completeU2FRegistration(self, user_name, object_dn, data):
+
+        # Do we have write permissions for the requested attribute
+        topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
+        aclresolver = PluginRegistry.getInstance("ACLResolver")
+        if not aclresolver.check(user_name, topic, "w", base=object_dn):
+
+            self.__log.debug("user '%s' has insufficient permissions to write %s on %s, required is %s:%s" % (
+                user_name, "twoFactorMethod", object_dn, topic, "w"))
+            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
+
+        user = ObjectProxy(object_dn)
+
+        binding, cert = complete_register(self.__settings[user.uuid].pop('_u2f_enroll_'), data,
+                                          [self.facet])
+        devices = [DeviceRegistration.wrap(device)
+                   for device in user.get('_u2f_devices_', [])]
+        devices.append(binding)
+        user['_u2f_devices_'] = [d.json for d in devices]
+
+        self.__log.info("U2F device enrolled. Username: %s", user_name)
+        self.__log.debug("Attestation certificate:\n%s", cert.public_bytes(Encoding.PEM))
+
+        return True
+
+    def sign(self, user_name, object_dn):
+
+        # Do we have read permissions for the requested attribute
+        topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
+        aclresolver = PluginRegistry.getInstance("ACLResolver")
+        if not aclresolver.check(user_name, topic, "r", base=object_dn):
+
+            self.__log.debug("user '%s' has insufficient permissions to read %s on %s, required is %s:%s" % (
+                user_name, "twoFactorMethod", object_dn, topic, "r"))
+            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
+
+        user = ObjectProxy(object_dn)
+        devices = [DeviceRegistration.wrap(device)
+                   for device in self.__settings[user.uuid].get('_u2f_devices_', [])]
+        challenge = start_authenticate(devices)
+        self.__settings[user.uuid]['_u2f_challenge_'] = challenge.json
+        return challenge.json
 
     def verify(self, user_name, object_dn, key):
 
@@ -156,7 +203,15 @@ class TwoFactorAuthManager(Plugin):
             return totp.verify(key)
 
         elif factor_method == "u2f":
-            raise NotImplementedError()
+            devices = [DeviceRegistration.wrap(device)
+                       for device in user.get('_u2f_devices_', [])]
+
+            challenge = self.__settings[user.uuid].pop('_u2f_challenge_')
+            c, t = verify_authenticate(devices, challenge, key, [self.facet])
+            return {
+                'touch': t,
+                'counter': c
+            }
 
         elif factor_method is None:
             return True
@@ -190,5 +245,10 @@ class TwoFactorAuthManager(Plugin):
         return totp.provisioning_uri("%s@%s.gosa" % (user.uid, self.env.domain))
 
     def __enable_u2f(self, user):
-        raise NotImplementedError()
+        devices = [DeviceRegistration.wrap(device)
+                   for device in self.__settings[user.uuid].get('_u2f_devices_', [])]
+        enroll = start_register(self.app_id, devices)
+        self.__settings[user.uuid]['_u2f_enroll_'] = enroll.json
+        self.__save_settings()
+        return enroll.json
 

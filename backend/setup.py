@@ -83,7 +83,8 @@ setup(
         'passlib',
         'paho-mqtt',
         'pyotp',
-        'pyqrcode'
+        'pyqrcode',
+        'python-u2flib-server'
         ],
 
     entry_points = """

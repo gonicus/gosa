@@ -150,8 +150,11 @@ class JsonRpcHandler(HSTSRequestHandler):
                     result = AUTH_OTP_REQUIRED
                     self.log.info("login succeeded for user '%s', proceeding two-factor authentication" % user)
                 elif factor_method == "u2f":
-                    result = AUTH_U2F_REQUIRED
                     self.log.info("login succeeded for user '%s', proceeding two-factor authentication" % user)
+                    result = {
+                        'u2f_data': twofa_manager.sign(user, dn),
+                        'state': AUTH_U2F_REQUIRED
+                    }
 
                 cls.__session[sid]['auth_state'] = result
 

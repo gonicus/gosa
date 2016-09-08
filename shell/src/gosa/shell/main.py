@@ -52,6 +52,7 @@ import locale
 import pyqrcode
 from urllib.request import HTTPError
 from pkg_resources import resource_filename #@UnresolvedImport
+from u2flib_host import u2f, exc
 
 from gosa.common.components import JSONServiceProxy, JSONRPCException
 from gosa.common.components.auth.console import ConsoleHandler
@@ -230,10 +231,28 @@ class GosaService():
         auth_handler.login(username, password)
 
     def setTwoFactorMethod(self, user_dn, factor_method, user_password=None):
+        if factor_method == "u2f":
+            # check for devices
+            devices = u2f.list_devices()
+            if len(devices) == 0:
+                print(_("No U2F devices found, aborting!"))
+                return
+
         response = self.proxy.setTwoFactorMethod(user_dn, factor_method, user_password)
         if response is None:
             return
-        if response.startswith("otpauth://"):
+        if factor_method == "u2f":
+            # bind
+            for device in devices:
+                # The with block ensures that the device is opened and closed.
+                with device as dev:
+                    # Register the device with some service
+                    registration_response = u2f.register(device, response, self.proxy.get_facet())
+                    response = self.proxy.completeU2FRegistration(user_dn, registration_response)
+                    if response is True:
+                        print(_("U2F authentication has been enabled"))
+
+        elif response.startswith("otpauth://"):
             url = pyqrcode.create(response, error='L')
             print(url.terminal(quiet_zone=1))
         else:

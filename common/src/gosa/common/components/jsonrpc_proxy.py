@@ -176,6 +176,9 @@ class JSONServiceProxy(object):
 
         return JSONServiceProxy(self.__serviceURL, name, self.__opener, self.__mode, self.__cookieProcessor)
 
+    def get_facet(self):
+        return self.__serviceURL
+
     def getProxy(self):
         return JSONServiceProxy(self.__serviceURL, None, self.__opener, self.__mode)
 

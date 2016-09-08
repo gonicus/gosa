@@ -17,8 +17,6 @@
 - HTTPS Verbindungen per default
 
 # Login
-- U2F support einbauen
-- https://github.com/pyotp/pyotp
 - Passwort in JS Sitzung?
 
 # Plugins

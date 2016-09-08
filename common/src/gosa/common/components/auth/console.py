@@ -11,6 +11,7 @@ import sys
 import gettext
 from pkg_resources import resource_filename
 from gosa.common.components.auth import *
+from u2flib_host import u2f
 
 # Set locale domain
 t = gettext.translation('messages', resource_filename("gosa.shell", "locale"), fallback=True)
@@ -29,7 +30,7 @@ class ConsoleHandler(object):
         self.__username = username
         try:
             res = self.proxy.login(username, password)
-            return self.__handle_result(int(res))
+            return self.__handle_result(res)
         except Exception:
             print(_("Login of user '%s' failed") % self.__username)
             sys.exit(1)
@@ -43,15 +44,25 @@ class ConsoleHandler(object):
             if result_code == AUTH_FAILED:
                 print(_("Login of user '%s' failed") % self.__username)
                 sys.exit(1)
+
             elif result_code == AUTH_OTP_REQUIRED:
                 key = input(_("OTP-Passkey: "))
                 return self.__handle_result(int(self.proxy.verify(key)))
-            elif result_code == AUTH_U2F_REQUIRED:
-                # TODO
+
+            elif 'state' in result_code  and result_code['state'] == AUTH_U2F_REQUIRED and 'u2f_data' in result_code:
+                for device in u2f.list_devices():
+                    with device as dev:
+                        data = u2f.authenticate(device, result_code['u2f_data'], self.proxy.get_facet())
+                        res = self.proxy.verify(data)
+                        if 'counter' in res and 'touch' in res:
+                            return True
+
                 return False
             elif result_code == AUTH_SUCCESS:
                 return True
+
         except Exception as e:
             print(e)
             sys.exit(1)
+
         return False
