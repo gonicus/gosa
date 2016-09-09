@@ -9,6 +9,8 @@
 
 import sys
 import gettext
+
+from gosa.common.gjson import loads
 from pkg_resources import resource_filename
 from gosa.common.components.auth import *
 from u2flib_host import u2f
@@ -54,10 +56,14 @@ class ConsoleHandler(object):
             elif result_code == AUTH_U2F_REQUIRED and 'u2f_data' in response:
                 for device in u2f.list_devices():
                     with device as dev:
-                        data = u2f.authenticate(device, response['u2f_data'], self.proxy.get_facet())
-                        res = self.proxy.verify(data)
-                        if 'counter' in res and 'touch' in res:
-                            return True
+                        data = loads(response['u2f_data'])
+                        print(data)
+                        print(_("Please touch the flashing U2F device now."))
+                        for request in data['authenticateRequests']:
+                            data = u2f.authenticate(device, request, request['appId'])
+                            res = self.proxy.verify(data)
+                            if 'counter' in res and 'touch' in res:
+                                return True
 
                 return False
             elif result_code == AUTH_SUCCESS:

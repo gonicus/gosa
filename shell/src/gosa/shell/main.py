@@ -234,24 +234,28 @@ class GosaService():
 
     def setTwoFactorMethod(self, user_dn, factor_method, user_password=None):
         if factor_method == "u2f":
+            print(_("checking U2F devices..."))
             # check for devices
             devices = u2f.list_devices()
             if len(devices) == 0:
                 print(_("No U2F devices found, aborting!"))
                 return
-
+        print("%s device(s) found" % len(devices))
+        print("sending method change request")
         response = self.proxy.setTwoFactorMethod(user_dn, factor_method, user_password)
+        print("Response: %s" % response)
         if response is None:
             return
         if factor_method == "u2f":
             # bind
+            response = loads(response)
             for device in devices:
                 # The with block ensures that the device is opened and closed.
+                print(_("Please touch the flashing U2F device now."))
                 with device as dev:
                     # Register the device with some service
-                    response = loads(response)
                     for request in response['registerRequests']:
-                        registration_response = u2f.register(device, request, self.proxy.get_facet())
+                        registration_response = u2f.register(device, request, request['appId'])
                         response = self.proxy.completeU2FRegistration(user_dn, registration_response)
                         if response is True:
                             print(_("U2F authentication has been enabled"))
@@ -261,6 +265,9 @@ class GosaService():
             print(url.terminal(quiet_zone=1))
         else:
             print(response)
+
+    def twoFactorNotAllowed(self, user_dn=None, factor_method=None, user_password=None):
+        print(_("You have to activate SSL support for enabling/changing the two-factor authentication method!"))
 
     def help(self):
         """ Prints some help """
@@ -380,9 +387,16 @@ del os, histfile, readline, rlcompleter
 
 for i in gosa.getMethods().keys():
     globals()[i] = getattr(gosa, i)
-
-# override setTwoFactorMethod as we need the result to e.g. calculate QR-Code
+"""
+    if service_uri[0:5] == "https":
+        startup += """
+# override setTwoFactorMethod as we need the result to e.g. calculate QR-Code or setup U2F
 globals()['setTwoFactorMethod'] = service.setTwoFactorMethod
+"""
+    else:
+        startup += """
+# setTwoFactorMethod not allowed in non https environment
+globals()['setTwoFactorMethod'] = service.twoFactorNotAllowed
 """
 
     # Use script mode:
