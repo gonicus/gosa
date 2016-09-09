@@ -116,6 +116,7 @@
           <Value>user_password</Value>
         </CommandParameters>
       </Method>
+
       <Method>
         <Name>finishU2FRegistration</Name>
         <MethodParameters>
@@ -591,6 +592,24 @@
             </FilterEntry>
           </FilterChain>
         </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>isSecureContext</Name>
+        <Description>True means we are in a secure context</Description>
+        <Type>Boolean</Type>
+        <Default>false</Default>
+        <Backend>NULL</Backend>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>DetectSecureContext</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <ReadOnly>true</ReadOnly>
+        <Mandatory>true</Mandatory>
       </Attribute>
     </Attributes>
     <BaseObject>true</BaseObject>

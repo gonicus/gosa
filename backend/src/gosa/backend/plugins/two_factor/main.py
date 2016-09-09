@@ -59,7 +59,6 @@ class TwoFactorAuthManager(Plugin):
         self.__reload()
 
         # needed for U2F
-        ssl = self.env.config.get('http.ssl', default=None)
         self.facet = "https://%s:%s" % ("localhost", self.env.config.get('http.port', default=8080))
         self.app_id = self.facet
 

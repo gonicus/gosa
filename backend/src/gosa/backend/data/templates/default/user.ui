@@ -404,6 +404,9 @@
    <property name="dialog" stdset="0">
     <string notr="true">Change2FAMethod</string>
    </property>
+   <property name="condition" stdset="0">
+    <string notr="true">isSecureContext</string>
+   </property>
   </action>
  </widget>
  <tabstops>
