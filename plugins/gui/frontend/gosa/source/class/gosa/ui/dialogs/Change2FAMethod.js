@@ -151,9 +151,12 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
           } else {
             try {
               var data = qx.lang.Json.parse(result);
+              var dialog = new gosa.ui.dialogs.U2FInfo();
+              dialog.show();
               u2f.register(data.registerRequests[0]['appId'], data.registerRequests, data.authenticateRequests, function(deviceResponse) {
+                dialog.close();
                 if (deviceResponse.errorCode) {
-                  this._showInfo(null, this.tr("Device responded with error '%1': %2", deviceResponse.errorCode, this.__getErrorMessage(deviceResponse.errorCode)));
+                  this._showInfo(null, this.tr("Device responded with error '%1': %2", deviceResponse.errorCode, gosa.Tools.getU2FErrorMessage(deviceResponse.errorCode)));
                 } else {
                   this._object.finishU2FRegistration(this._handleMethodChangeResponse, this, qx.lang.Json.stringify(deviceResponse));
                 }
@@ -170,27 +173,7 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
       }
     },
 
-    /**
-     * Get an error string to the given error code
-     *
-     * @see https://developers.yubico.com/U2F/Libraries/Client_error_codes.html
-     * @param code
-     * @private
-     */
-    __getErrorMessage: function(code) {
-      switch(code) {
-        case 1:
-          return this.tr("Unkown error");
-        case 2:
-          return this.tr("Bad request");
-        case 3:
-          return this.tr("Client configuration is not supported");
-        case 4:
-          return this.tr("The presented device is not eligible for this request");
-        case 5:
-          return this.tr("Timeout reached before request could be satisfied");
-      }
-    },
+
 
     _showQrCode : function(data) {
       this._qrCodeField.removeAll();
