@@ -49,6 +49,8 @@ import readline #@UnusedImport
 import gettext
 import textwrap
 import locale
+from json import loads
+
 import pyqrcode
 from urllib.request import HTTPError
 from pkg_resources import resource_filename #@UnresolvedImport
@@ -247,10 +249,12 @@ class GosaService():
                 # The with block ensures that the device is opened and closed.
                 with device as dev:
                     # Register the device with some service
-                    registration_response = u2f.register(device, response, self.proxy.get_facet())
-                    response = self.proxy.completeU2FRegistration(user_dn, registration_response)
-                    if response is True:
-                        print(_("U2F authentication has been enabled"))
+                    response = loads(response)
+                    for request in response['registerRequests']:
+                        registration_response = u2f.register(device, request, self.proxy.get_facet())
+                        response = self.proxy.completeU2FRegistration(user_dn, registration_response)
+                        if response is True:
+                            print(_("U2F authentication has been enabled"))
 
         elif response.startswith("otpauth://"):
             url = pyqrcode.create(response, error='L')

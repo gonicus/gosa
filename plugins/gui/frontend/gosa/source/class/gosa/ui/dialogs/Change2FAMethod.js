@@ -12,8 +12,8 @@
 
 ======================================================================== */
 
-/*
-#asset(gosa/*)
+/**
+* @ignore(u2f.register)
 */
 qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
 
@@ -139,16 +139,56 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
       if (error) {
         this._showInfo(null, error.message);
       } else {
-        if (result && result.startsWith("otpauth://")) {
-          // generate and show QR-Code
-          this._showQrCode(result);
-          this._showInfo(result);
-          this._ok.exclude();
-          this._cancel.setLabel(this.tr("Close"));
+        if (result) {
+          if (qx.lang.Type.isString(result) && result.startsWith("otpauth://")) {
+            // generate and show QR-Code
+            this._showQrCode(result);
+            this._showInfo(result);
+            this._ok.exclude();
+            this._cancel.setLabel(this.tr("Close"));
+          } else if (result === "true") {
+            this.close();
+          } else {
+            try {
+              var data = qx.lang.Json.parse(result);
+              u2f.register(data.registerRequests[0]['appId'], data.registerRequests, data.authenticateRequests, function(deviceResponse) {
+                if (deviceResponse.errorCode) {
+                  this._showInfo(null, this.tr("Device responded with error '%1': %2", deviceResponse.errorCode, this.__getErrorMessage(deviceResponse.errorCode)));
+                } else {
+                  this._object.finishU2FRegistration(this._handleMethodChangeResponse, this, qx.lang.Json.stringify(deviceResponse));
+                }
+              }.bind(this));
+            } catch (e) {
+              console.error(e)
+            }
+
+          }
         } else {
           this._showQrCode(null);
           this.close();
         }
+      }
+    },
+
+    /**
+     * Get an error string to the given error code
+     *
+     * @see https://developers.yubico.com/U2F/Libraries/Client_error_codes.html
+     * @param code
+     * @private
+     */
+    __getErrorMessage: function(code) {
+      switch(code) {
+        case 1:
+          return this.tr("Unkown error");
+        case 2:
+          return this.tr("Bad request");
+        case 3:
+          return this.tr("Client configuration is not supported");
+        case 4:
+          return this.tr("The presented device is not eligible for this request");
+        case 5:
+          return this.tr("Timeout reached before request could be satisfied");
       }
     },
 

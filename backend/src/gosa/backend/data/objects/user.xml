@@ -116,6 +116,21 @@
           <Value>user_password</Value>
         </CommandParameters>
       </Method>
+      <Method>
+        <Name>finishU2FRegistration</Name>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>data</Name>
+            <Type>UnicodeString</Type>
+            <Default></Default>
+          </MethodParameter>
+        </MethodParameters>
+        <Command>completeU2FRegistration</Command>
+        <CommandParameters>
+          <Value>dn</Value>
+          <Value>data</Value>
+        </CommandParameters>
+      </Method>
 
       <Method>
         <Name>getTwoFactorMethod</Name>

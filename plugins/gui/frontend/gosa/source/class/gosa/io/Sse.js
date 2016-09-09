@@ -59,7 +59,7 @@ qx.Class.define("gosa.io.Sse", {
         this.__eventSource.close();
       }
 
-      var uri = "http://" + window.location.host + gosa.Config.sse;
+      var uri = window.location.protocol +"//" + window.location.host + gosa.Config.sse;
 
       this.__eventSource = new EventSource(uri);
       var that = this;

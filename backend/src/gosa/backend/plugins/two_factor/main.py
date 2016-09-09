@@ -10,6 +10,7 @@ import logging
 import os
 from gosa.backend.utils.ldap import check_auth
 from gosa.common.components import Command
+from gosa.common.gjson import loads, dumps
 from u2flib_server.jsapi import DeviceRegistration
 from u2flib_server.u2f import (start_register, complete_register,
                                start_authenticate, verify_authenticate)
@@ -20,7 +21,6 @@ from gosa.backend.objects import ObjectProxy
 from gosa.common import Environment
 from gosa.common.components import Plugin
 from gosa.common.components import PluginRegistry
-from json import loads, dumps
 from gosa.common.utils import N_
 from gosa.common.error import GosaErrorHandler as C
 
@@ -59,7 +59,8 @@ class TwoFactorAuthManager(Plugin):
         self.__reload()
 
         # needed for U2F
-        self.facet = self.env.config.get("jsonrpc.url")
+        ssl = self.env.config.get('http.ssl', default=None)
+        self.facet = "https://%s:%s" % ("localhost", self.env.config.get('http.port', default=8080))
         self.app_id = self.facet
 
     def __reload(self):
@@ -137,12 +138,14 @@ class TwoFactorAuthManager(Plugin):
 
         user = ObjectProxy(object_dn)
         user_settings = self.__settings[user.uuid]
+        data = loads(data)
         binding, cert = complete_register(user_settings.pop('_u2f_enroll_'), data,
                                           [self.facet])
         devices = [DeviceRegistration.wrap(device)
                    for device in user_settings.get('_u2f_devices_', [])]
         devices.append(binding)
         user_settings['_u2f_devices_'] = [d.json for d in devices]
+        self.__save_settings()
 
         self.__log.info("U2F device enrolled. Username: %s", user_name)
         self.__log.debug("Attestation certificate:\n%s", cert.public_bytes(Encoding.PEM))
@@ -160,6 +163,7 @@ class TwoFactorAuthManager(Plugin):
                    for device in user_settings.get('_u2f_devices_', [])]
         challenge = start_authenticate(devices)
         user_settings['_u2f_challenge_'] = challenge.json
+        self.__save_settings()
         return challenge.json
 
     def verify(self, user_name, object_dn, key):
@@ -180,7 +184,8 @@ class TwoFactorAuthManager(Plugin):
                        for device in user_settings.get('_u2f_devices_', [])]
 
             challenge = user_settings.pop('_u2f_challenge_')
-            c, t = verify_authenticate(devices, challenge, key, [self.facet])
+            data = loads(key)
+            c, t = verify_authenticate(devices, challenge, data, [self.facet])
             return {
                 'touch': t,
                 'counter': c
