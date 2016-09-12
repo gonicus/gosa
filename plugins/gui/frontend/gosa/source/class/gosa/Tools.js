@@ -64,6 +64,28 @@ qx.Class.define("gosa.Tools", {
             });
             func.apply(context, params);
         }, 10, null, null, 0);
+    },
+
+    /**
+     * Get an error string to the given error code
+     *
+     * @see https://developers.yubico.com/U2F/Libraries/Client_error_codes.html
+     * @param code {Number} error code
+     * @private
+     */
+    getU2FErrorMessage: function(code) {
+      switch(code) {
+        case 1:
+          return qx.locale.Manager.tr("Unkown error");
+        case 2:
+          return qx.locale.Manager.tr("Bad request");
+        case 3:
+          return qx.locale.Manager.tr("Client configuration is not supported");
+        case 4:
+          return qx.locale.Manager.tr("The presented device is not eligible for this request");
+        case 5:
+          return qx.locale.Manager.tr("Timeout reached before request could be satisfied");
+      }
     }
   }
 });

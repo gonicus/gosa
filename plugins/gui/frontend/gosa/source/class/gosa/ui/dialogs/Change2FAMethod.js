@@ -12,8 +12,8 @@
 
 ======================================================================== */
 
-/*
-#asset(gosa/*)
+/**
+* @ignore(u2f.register)
 */
 qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
 
@@ -139,18 +139,41 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
       if (error) {
         this._showInfo(null, error.message);
       } else {
-        if (result && result.startsWith("otpauth://")) {
-          // generate and show QR-Code
-          this._showQrCode(result);
-          this._showInfo(result);
-          this._ok.exclude();
-          this._cancel.setLabel(this.tr("Close"));
+        if (result) {
+          if (qx.lang.Type.isString(result) && result.startsWith("otpauth://")) {
+            // generate and show QR-Code
+            this._showQrCode(result);
+            this._showInfo(result);
+            this._ok.exclude();
+            this._cancel.setLabel(this.tr("Close"));
+          } else if (result === "true") {
+            this.close();
+          } else {
+            try {
+              var data = qx.lang.Json.parse(result);
+              var dialog = new gosa.ui.dialogs.U2FInfo();
+              dialog.show();
+              u2f.register(data.registerRequests[0]['appId'], data.registerRequests, data.authenticateRequests, function(deviceResponse) {
+                dialog.close();
+                if (deviceResponse.errorCode) {
+                  this._showInfo(null, this.tr("Device responded with error '%1': %2", deviceResponse.errorCode, gosa.Tools.getU2FErrorMessage(deviceResponse.errorCode)));
+                } else {
+                  this._object.finishU2FRegistration(this._handleMethodChangeResponse, this, qx.lang.Json.stringify(deviceResponse));
+                }
+              }.bind(this));
+            } catch (e) {
+              console.error(e)
+            }
+
+          }
         } else {
           this._showQrCode(null);
           this.close();
         }
       }
     },
+
+
 
     _showQrCode : function(data) {
       this._qrCodeField.removeAll();

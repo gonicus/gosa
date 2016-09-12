@@ -13,7 +13,7 @@
 ======================================================================== */
 
 /**
- * @ignore(gosa.LocalConfig,gosa.LocalConfig.autologin,gosa.LocalConfig.user,gosa.LocalConfig.password)
+ * @ignore(gosa.LocalConfig,gosa.LocalConfig.autologin,gosa.LocalConfig.user,gosa.LocalConfig.password,u2f.sign)
  */
 qx.Class.define("gosa.ui.dialogs.LoginDialog",
 {
@@ -115,7 +115,8 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
      * @protected
      */
     _handleAuthentification: function(result, error) {
-      switch (parseInt(result)) {
+      var state = parseInt(result.state);
+      switch (state) {
         case gosa.Config.AUTH_FAILED:
           this._info.setValue('<span style="color:red">' + this.tr("Invalid login...") + '</span>');
           this._info.show();
@@ -142,18 +143,28 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
           break;
 
         case gosa.Config.AUTH_OTP_REQUIRED:
-          // TODO: handle OTP authentification
-          console.log("OTP");
           this._uid.exclude();
           this._password.exclude();
           this._key.show();
           this._info.setValue( this.tr("Two factor authentification:"));
           this._info.show();
-          this._mode = "verify"
+          this._mode = "verify";
           break;
 
         case gosa.Config.AUTH_U2F_REQUIRED:
-          // TODO: handle U2F authentification
+          var rpc = gosa.io.Rpc.getInstance();
+          var data = qx.lang.Json.parse(result.u2f_data);
+          var dialog = new gosa.ui.dialogs.U2FInfo();
+          dialog.show();
+          u2f.sign(data.authenticateRequests[0]['appId'], data.registerRequests, data.authenticateRequests, function(deviceResponse) {
+            dialog.close();
+            if (deviceResponse.errorCode) {
+              this._info.setValue('<span style="color:red">' + this.tr("Device responded with error '%1': %2", deviceResponse.errorCode, gosa.Tools.getU2FErrorMessage(deviceResponse.errorCode)) + '</span>');
+              this._info.show();
+            } else {
+              rpc.callAsync(this._handleAuthentification.bind(this), "verify", qx.lang.Json.stringify(deviceResponse));
+            }
+          }.bind(this));
           break;
 
       }

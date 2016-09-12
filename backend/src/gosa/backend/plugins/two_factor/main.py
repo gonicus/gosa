@@ -10,14 +10,17 @@ import logging
 import os
 from gosa.backend.utils.ldap import check_auth
 from gosa.common.components import Command
-
+from gosa.common.gjson import loads, dumps
+from u2flib_server.jsapi import DeviceRegistration
+from u2flib_server.u2f import (start_register, complete_register,
+                               start_authenticate, verify_authenticate)
+from cryptography.hazmat.primitives.serialization import Encoding
 from pyotp import TOTP, random_base32
 from gosa.backend.exceptions import ACLException
 from gosa.backend.objects import ObjectProxy
 from gosa.common import Environment
 from gosa.common.components import Plugin
 from gosa.common.components import PluginRegistry
-from json import loads, dumps
 from gosa.common.utils import N_
 from gosa.common.error import GosaErrorHandler as C
 
@@ -45,7 +48,7 @@ class TwoFactorAuthManager(Plugin):
     _priority_ = 80
     _target_ = 'user'
     instance = None
-    methods = [None, "otp"]#, "u2f"]
+    methods = [None, "otp", "u2f"]
     __settings = {}
 
     def __init__(self):
@@ -54,6 +57,11 @@ class TwoFactorAuthManager(Plugin):
         self.env = Environment.getInstance()
         self.settings_file = self.env.config.get("user.2fa-store", "/var/lib/gosa/2fa")
         self.__reload()
+
+        host = "localhost" if self.env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] else self.env.config.get("http.host", default="localhost")
+        # U2F requires https protocol otherwise facet is invalid
+        self.facet = "https://%s:%s" % (host, self.env.config.get('http.port', default=8080))
+        self.app_id = self.facet
 
     def __reload(self):
         if not os.path.exists(self.settings_file):
@@ -83,13 +91,7 @@ class TwoFactorAuthManager(Plugin):
     def getTwoFactorMethod(self, user_name, object_dn):
 
         # Do we have read permissions for the requested attribute
-        topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if not aclresolver.check(user_name, topic, "r", base=object_dn):
-
-            self.__log.debug("user '%s' has insufficient permissions to read %s on %s, required is %s:%s" % (
-                user_name, "twoFactorMethod", object_dn, topic, "r"))
-            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
+        self.__check_acl(user_name, object_dn, "r")
 
         user = ObjectProxy(object_dn)
         return self.get_method_from_user(user)
@@ -97,14 +99,8 @@ class TwoFactorAuthManager(Plugin):
     @Command(needsUser=True, __help__=N_("Enable two factor authentication for the given user"))
     def setTwoFactorMethod(self, user_name, object_dn, factor_method, user_password=None):
 
-        # Do we have read permissions for the requested attribute
-        topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if not aclresolver.check(user_name, topic, "w", base=object_dn):
-
-            self.__log.debug("user '%s' has insufficient permissions to write %s on %s, required is %s:%s" % (
-                user_name, "twoFactorMethod", object_dn, topic, "w"))
-            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
+        # Do we have write permissions for the requested attribute
+        self.__check_acl(user_name, object_dn, "w")
 
         if factor_method == "None":
             factor_method = None
@@ -121,11 +117,8 @@ class TwoFactorAuthManager(Plugin):
 
         if current_method is not None:
             # we need to be verified by user password in order to change the method
-            if current_method == "otp":
-                if user_password is None or not check_auth(user_name, user_password):
-                    raise ChangingNotAllowed(C.make_error('CHANGE_2FA_METHOD_FORBIDDEN'))
-            elif current_method == "u2f":
-                raise NotImplementedError()
+           if user_password is None or not check_auth(user_name, user_password):
+            raise ChangingNotAllowed(C.make_error('CHANGE_2FA_METHOD_FORBIDDEN'))
 
         if factor_method == "otp":
             return self.__enable_otp(user)
@@ -137,26 +130,66 @@ class TwoFactorAuthManager(Plugin):
             self.__save_settings()
         return None
 
+    @Command(needsUser=True, __help__=N_("Complete the started U2F registration"))
+    def completeU2FRegistration(self, user_name, object_dn, data):
+
+        # Do we have write permissions for the requested attribute
+        self.__check_acl(user_name, object_dn, "w")
+
+        user = ObjectProxy(object_dn)
+        user_settings = self.__settings[user.uuid]
+        data = loads(data)
+        binding, cert = complete_register(user_settings.pop('_u2f_enroll_'), data,
+                                          [self.facet])
+        devices = [DeviceRegistration.wrap(device)
+                   for device in user_settings.get('_u2f_devices_', [])]
+        devices.append(binding)
+        user_settings['_u2f_devices_'] = [d.json for d in devices]
+        self.__save_settings()
+
+        self.__log.info("U2F device enrolled. Username: %s", user_name)
+        self.__log.debug("Attestation certificate:\n%s", cert.public_bytes(Encoding.PEM))
+
+        return True
+
+    def sign(self, user_name, object_dn):
+
+        # Do we have read permissions for the requested attribute
+        self.__check_acl(user_name, object_dn, "r")
+
+        user = ObjectProxy(object_dn)
+        user_settings = self.__settings[user.uuid] if user.uuid in self.__settings else {}
+        devices = [DeviceRegistration.wrap(device)
+                   for device in user_settings.get('_u2f_devices_', [])]
+        challenge = start_authenticate(devices)
+        user_settings['_u2f_challenge_'] = challenge.json
+        self.__save_settings()
+        return challenge.json
+
     def verify(self, user_name, object_dn, key):
 
         # Do we have read permissions for the requested attribute
-        topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
-        if not aclresolver.check(user_name, topic, "r", base=object_dn):
-
-            self.__log.debug("user '%s' has insufficient permissions to read %s on %s, required is %s:%s" % (
-                user_name, "twoFactorMethod", object_dn, topic, "r"))
-            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))
+        self.__check_acl(user_name, object_dn, "r")
 
         # Get the object for the given dn
         user = ObjectProxy(object_dn)
         factor_method = self.get_method_from_user(user)
+        user_settings = self.__settings[user.uuid] if user.uuid in self.__settings else {}
         if factor_method == "otp":
-            totp = TOTP(self.__settings[user.uuid]['otp_secret'])
+            totp = TOTP(user_settings.get('otp_secret'))
             return totp.verify(key)
 
         elif factor_method == "u2f":
-            raise NotImplementedError()
+            devices = [DeviceRegistration.wrap(device)
+                       for device in user_settings.get('_u2f_devices_', [])]
+
+            challenge = user_settings.pop('_u2f_challenge_')
+            data = loads(key)
+            c, t = verify_authenticate(devices, challenge, data, [self.facet])
+            return {
+                'touch': t,
+                'counter': c
+            }
 
         elif factor_method is None:
             return True
@@ -177,18 +210,40 @@ class TwoFactorAuthManager(Plugin):
         if user.uuid in self.__settings:
             if 'otp_secret' in self.__settings[user.uuid]:
                 return "otp"
+            elif '_u2f_devices_' in self.__settings[user.uuid]:
+                return "u2f"
+
         return None
 
     def __enable_otp(self, user):
+        if user.uuid not in self.__settings:
+            self.__settings[user.uuid] = {}
 
+        user_settings = self.__settings[user.uuid]
         secret = random_base32()
         totp = TOTP(secret)
-        self.__settings[user.uuid] = {
-            'otp_secret': secret
-        }
+        user_settings['otp_secret'] = secret
         self.__save_settings()
         return totp.provisioning_uri("%s@%s.gosa" % (user.uid, self.env.domain))
 
     def __enable_u2f(self, user):
-        raise NotImplementedError()
+        if user.uuid not in self.__settings:
+            self.__settings[user.uuid] = {}
 
+        user_settings = self.__settings[user.uuid]
+        devices = [DeviceRegistration.wrap(device)
+                   for device in user_settings.get('_u2f_devices_', [])]
+        enroll = start_register(self.app_id, devices)
+        user_settings['_u2f_enroll_'] = enroll.json
+        self.__save_settings()
+        return enroll.json
+
+    def __check_acl(self, user_name, object_dn, actions):
+        # Do we have read permissions for the requested attribute
+        topic = "%s.objects.%s.attributes.%s" % (self.env.domain, "User", "twoFactorMethod")
+        aclresolver = PluginRegistry.getInstance("ACLResolver")
+        if not aclresolver.check(user_name, topic, "r", base=object_dn):
+
+            self.__log.debug("user '%s' has insufficient permissions for %s on %s, required is %s:%s" % (
+                user_name, "twoFactorMethod", object_dn, topic, actions))
+            raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=object_dn))

@@ -83,7 +83,8 @@ setup(
         'passlib',
         'paho-mqtt',
         'pyotp',
-        'pyqrcode'
+        'pyqrcode',
+        'python-u2flib-server'
         ],
 
     entry_points = """
@@ -175,6 +176,7 @@ setup(
         detect_pwd_method = gosa.backend.plugins.password.filter.detect_method:DetectPasswordMethod
         password_lock = gosa.backend.plugins.password.filter.detect_locking:DetectAccountLockStatus
         addbackend = gosa.backend.objects.filter.basic:AddBackend
+        securecontext = gosa.backend.plugins.two_factor.filter.detect_security:DetectSecureContext
 
         [gosa.object.comparator]
         like = gosa.backend.objects.comparator.strings:Like

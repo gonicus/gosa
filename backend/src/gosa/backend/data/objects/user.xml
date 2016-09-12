@@ -118,6 +118,22 @@
       </Method>
 
       <Method>
+        <Name>finishU2FRegistration</Name>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>data</Name>
+            <Type>UnicodeString</Type>
+            <Default></Default>
+          </MethodParameter>
+        </MethodParameters>
+        <Command>completeU2FRegistration</Command>
+        <CommandParameters>
+          <Value>dn</Value>
+          <Value>data</Value>
+        </CommandParameters>
+      </Method>
+
+      <Method>
         <Name>getTwoFactorMethod</Name>
         <Command>getTwoFactorMethod</Command>
         <CommandParameters>
@@ -576,6 +592,24 @@
             </FilterEntry>
           </FilterChain>
         </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>isSecureContext</Name>
+        <Description>True means we are in a secure context</Description>
+        <Type>Boolean</Type>
+        <Default>false</Default>
+        <Backend>NULL</Backend>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>DetectSecureContext</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <ReadOnly>true</ReadOnly>
+        <Mandatory>true</Mandatory>
       </Attribute>
     </Attributes>
     <BaseObject>true</BaseObject>

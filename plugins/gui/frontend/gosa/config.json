@@ -127,6 +127,9 @@
         },
         {
           "uri" : "resource/gosa/js/qrcode.js"
+        },
+        {
+          "uri" : "resource/gosa/js/u2f-api.js"
         }
       ],
       "copy-files" :
@@ -173,6 +176,9 @@
         },
         {
           "uri" : "resource/gosa/js/qrcode.js"
+        },
+        {
+          "uri" : "resource/gosa/js/u2f-api.js"
         }
       ]
     },
