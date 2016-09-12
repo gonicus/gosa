@@ -267,7 +267,7 @@ class GosaService():
             print(response)
 
     def twoFactorNotAllowed(self, user_dn=None, factor_method=None, user_password=None):
-        print(_("You have to activate SSL support for enabling/changing the two-factor authentication method!"))
+        print(_("You have to activate SSL support in the backend for enabling/changing the two-factor authentication method!"))
 
     def help(self):
         """ Prints some help """
