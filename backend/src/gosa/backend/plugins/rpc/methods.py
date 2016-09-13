@@ -280,8 +280,9 @@ class RPCMethods(Plugin):
                 else:
                     item[attr] = ""
 
-            _id = mapping[item[oattr]]
-            result[_id] = item
+            if item[oattr] in mapping:
+                _id = mapping[item[oattr]]
+                result[_id] = item
 
         return {"result": result, "map": mapping}
 
@@ -549,19 +550,19 @@ class RPCMethods(Plugin):
         return penalty
 
     def __update_res(self, res, item, user=None, relevance=0, secondary=False, these=None):
-    
+
         # Filter out what the current use is not allowed to see
         item = self.__filter_entry(user, item, these)
         if not item or item['dn'] is None:
             # We've obviously no permission to see thins one - skip it
             return
-    
+
         if item['dn'] in res:
             dn = item['dn']
             if res[dn]['relevance'] > relevance:
                 res[dn]['relevance'] = relevance
             return
-    
+
         entry = {'tag': item['_type'], 'relevance': relevance, 'uuid': item['_uuid'],
             'secondary': secondary, 'lastChanged': item['_last_changed'], 'hasChildren': True}
         for k, v in self.__search_aid['mapping'][item['_type']].items():
@@ -573,63 +574,63 @@ class RPCMethods(Plugin):
                         entry[k] = item[v][0]
                 else:
                     entry[k] = self.__build_value(v, item)
-    
+
             entry['container'] = item['_type'] in self.containers
-    
+
         res[item['dn']] = entry
-    
+
     def __build_value(self, v, info):
         """
         Fill placeholders in the value to be displayed as "description".
         """
-    
+
         if not v:
             return ""
-    
+
         # Find all placeholders
         attrs = {}
         for attr in re.findall(r"%\(([^)]+)\)s", v):
-    
+
             # Extract ordinary attributes
             if attr in info:
                 attrs[attr] = ", ".join(info[attr])
-    
+
             # Check for result renderers
             elif attr in self.__value_extender:
                 attrs[attr] = self.__value_extender[attr](info)
-    
+
             # Fallback - just set nothing
             else:
                 attrs[attr] = ""
-    
+
         # Assemble and remove empty lines and multiple whitespaces
         res = v % attrs
         res = re.sub(r"(<br>)+", "<br>", res)
         res = re.sub(r"^<br>", "", res)
         res = re.sub(r"<br>$", "", res)
         return "<br>".join([s.strip() for s in res.split("<br>")])
-    
+
     def __filter_entry(self, user, entry, these=None):
         """
         Takes a query entry and decides based on the user what to do
         with the result set.
-    
+
         ========== ===========================
         Parameter  Description
         ========== ===========================
         user       User ID
         entry      Search entry as hash
         ========== ===========================
-    
+
         ``Return``: Filtered result entry
         """
         ne = {'dn': entry.dn, '_type': entry._type, '_uuid': entry.uuid, '_last_changed': entry._last_modified}
-    
+
         if not entry._type in self.__search_aid['mapping']:
             return None
-    
+
         attrs = self.__search_aid['mapping'][entry._type].values()
-    
+
         for attr in attrs:
             if attr is not None and these is not None and attr not in these:
                 continue
@@ -643,9 +644,9 @@ class RPCMethods(Plugin):
                     ne[attr] = kv[attr] if attr in kv else None
             else:
                 ne[attr] = None
-    
+
         return ne
-    
+
     def __index_props_to_key_value(self, properties):
         kv = {}
 

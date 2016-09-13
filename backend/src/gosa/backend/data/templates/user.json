@@ -256,7 +256,7 @@
                 },
                 "children": [{
                     "class": "gosa.ui.widgets.QCheckBoxWidget",
-                    "modelPath": "autoDisplay",
+                    "modelPath": "autoDisplayName",
                     "addOptions": {
                         "row": 0,
                         "column": 0,
