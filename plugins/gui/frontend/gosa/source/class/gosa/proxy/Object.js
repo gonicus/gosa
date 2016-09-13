@@ -158,8 +158,8 @@ qx.Class.define("gosa.proxy.Object", {
       if(this.initialized){
 
         // Do nothing..
-        if(value == null){
-          return
+        if (value === null || value === undefined) {
+          return;
         }
 
         var that = this;
@@ -249,8 +249,6 @@ qx.Class.define("gosa.proxy.Object", {
         if(!error){
           for(var item in data['value']){
 
-            // Tell anybody thats interested, that the 'values'-list for the given
-            // attribute has changed.
             if(data['values'][item]){
               this.fireDataEvent("updatedAttributeValues", {item: item, values: data['values'][item]});
             }

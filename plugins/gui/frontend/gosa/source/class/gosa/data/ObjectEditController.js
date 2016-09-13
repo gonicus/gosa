@@ -19,6 +19,9 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
     this._connectModelWithWidget();
     this._addModifyListeners();
+
+    this._obj.setUiBound(true);
+    obj.addListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
   },
 
   properties : {
@@ -38,7 +41,8 @@ qx.Class.define("gosa.data.ObjectEditController", {
     _currentBuddy : null,
 
     closeObject : function() {
-      if (!this._obj.isDisposed() && !this._obj.isClosed()) {
+      if (this._obj && !this._obj.isDisposed() && !this._obj.isClosed()) {
+        this._obj.setUiBound(false);
         this._obj.close(function(result, error) {
           // no result expected
           if (error) {
@@ -49,7 +53,8 @@ qx.Class.define("gosa.data.ObjectEditController", {
     },
 
     saveObject : function() {
-      this._obj.commit(function(result, error){
+      this._obj.setUiBound(false);
+      this._obj.commit(function(result, error) {
         if (error) {
           this.error(error);
           this.error(error.message);
@@ -148,7 +153,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
         this._setProperty("multivalue", !!attribute.multivalue);
       }
       if (attribute.hasOwnProperty("default")) {
-        this._setProperty("defaultValue", attribute.default);
+        this._setProperty("defaultValue", attribute["default"]);
       }
       if (attribute.hasOwnProperty("type")) {
         this._setProperty("type", attribute.type);
@@ -227,8 +232,10 @@ qx.Class.define("gosa.data.ObjectEditController", {
       listenerCallback();
     },
 
-    _onChangeWidgetValue : function() {
+    _onChangeWidgetValue : function(event) {
       this.setModified(true);
+      var attr = event.getTarget().getAttribute();
+      this._obj.setAttribute(attr, event.getData());
     },
 
     _cleanupChangeValueListeners : function() {
@@ -240,10 +247,18 @@ qx.Class.define("gosa.data.ObjectEditController", {
         }
       }
       this._changeValueListeners = {};
+    },
+
+    _onUpdatedAttributeValues : function(event) {
+      console.warn("TODO: _onUpdatedAttributeValues %O", event);
     }
   },
 
   destruct : function() {
+    if (this._obj && !this._obj.isDisposed()) {
+      this._obj.removeListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
+    }
+
     this._cleanupChangeValueListeners();
     this.closeObject();
 
