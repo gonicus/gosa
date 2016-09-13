@@ -152,7 +152,7 @@ class Notify(object):
                             os.setgid(info[3])
                             os.seteuid(info[2])
 
-                        # Act on termniation events this process receives,
+                        # Act on termination events this process receives,
                         #  by closing the main loop and the notification window.
                         signal.signal(signal.SIGTERM, self.__close)
 
@@ -164,7 +164,7 @@ class Notify(object):
                         res = self.send(title, message, d_session, icon=icon,
                                         timeout=timeout)
 
-                        # Exit the cild process
+                        # Exit the child process
                         sys.exit(res)
                     else:
                         self.children.append(child_pid)
@@ -284,5 +284,5 @@ def main():
                             timeout=options.timeout))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: nocover
     main()

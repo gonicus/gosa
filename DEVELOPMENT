@@ -11,6 +11,12 @@ Quickstart
  - ./setup.py develop
  - gosa --config example
 
+SSL - selfsigned
+================
+
+ - openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 365
+ - add "ssl = true", "cert-file = /path/to/cert.pem", "key-file = /path/to/key.pem" to the "http" section
+
 
 Testing
 =======
@@ -23,6 +29,9 @@ Testing
  - ./setup.py test --addopts="-x --runslow"
  # verbose output
  - ./setup.py test --addopts="-v --runslow" or - ./setup.py test --addopts="-vv --runslow"
+
+**Hint**
+For debugging tests in PyCharm/Idea coverage must be turned of. Just comment out the `addopts` property on pytest.ini
 
 DBus access
 ===========

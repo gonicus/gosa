@@ -20,6 +20,7 @@ qx.Theme.define("gosa.theme.Color",
   {
       'mandatory' : '#FFFFE0',
       'header-bar' : 'black',
-      'header-text' : 'white'
+      'header-text' : 'white',
+      'error-text': '#8A0808'
   }
 });

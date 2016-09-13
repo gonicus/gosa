@@ -7,15 +7,14 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import logging
-import re
 from gosa.common import Environment
-import tornado.web
 from gosa.backend.utils.ldap import check_auth
 import paho.mqtt.client as mqtt
 from gosa.common.components import PluginRegistry
+from gosa.common.hsts_request_handler import HSTSRequestHandler
 
 
-class BaseMosquittoClass(tornado.web.RequestHandler):
+class BaseMosquittoClass(HSTSRequestHandler):
     def __init__(self, application, request, **kwargs):
         super(BaseMosquittoClass, self).__init__(application, request, **kwargs)
         self.env = Environment.getInstance()

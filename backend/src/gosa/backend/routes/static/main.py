@@ -1,16 +1,17 @@
 import tornado.web
 import pkg_resources
 from gosa.common import Environment
+from gosa.common.hsts_request_handler import HSTSStaticFileHandler
 
 
-class StaticHandler(tornado.web.StaticFileHandler):
+class StaticHandler(HSTSStaticFileHandler):
 
     def initialize(self):
         path = pkg_resources.resource_filename("gosa.backend", "data/templates")
         super(StaticHandler, self).initialize(path)
 
 
-class ImageHandler(tornado.web.StaticFileHandler):
+class ImageHandler(HSTSStaticFileHandler):
 
     def initialize(self):
         env = Environment.getInstance()

@@ -20,5 +20,5 @@ class WorkflowUploadHandler(IUploadFileHandler):
 
     def handle_upload(self, file):
         # TODO: do something with the file
-        print(file)
+
         self.log.debug("uploaded file received %s" % file.name)

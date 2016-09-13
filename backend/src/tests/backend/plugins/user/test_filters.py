@@ -11,7 +11,9 @@ from unittest import mock, TestCase
 import pytest
 import shutil
 import datetime
-from gosa.backend.plugins.user.filters import *
+import os
+from gosa.backend.plugins.user.filters import GenerateDisplayName, ImageProcessor, LoadDisplayNameState, OperationalError, Environment, \
+    ElementFilterException
 from gosa.common.components.jsonrpc_utils import Binary
 
 

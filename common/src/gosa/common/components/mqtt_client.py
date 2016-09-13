@@ -18,12 +18,18 @@ from gosa.common.components import JSONRPCException
 
 
 class BaseClient(mqtt.Client):  # pragma: nocover
+    _clients = []
 
     def __init__(self):
         super(BaseClient, self).__init__()
+        BaseClient._clients.append(self)
 
     def get_thread(self):
         return self._thread
+
+    @classmethod
+    def get_clients(cls):
+        return cls._clients
 
 
 class MQTTClient(object):
@@ -146,7 +152,7 @@ class MQTTClient(object):
                 self.subscriptions[topic]['subscription_result'] = res
         else:
             msg = mqtt.error_string(rc)
-            self.log.error(msg)
+            self.log.error("MQTT connection error: %s" % msg)
             self.__sender_id = None
 
     def __on_message(self, client, userdata, message):
@@ -202,6 +208,13 @@ class MQTTClient(object):
         self.__published_messages[mid] = res
         if res == mqtt.MQTT_ERR_NO_CONN:
             self.log.error("mqtt server not reachable, message could not be send to '%s'" % topic)
+
+    def will_set(self, topic, message, qos=0, retain=False):
+        """
+        Set a Will to be sent to the broker. If the client disconnects without calling disconnect(),
+        the broker will publish the message on its behalf.
+        """
+        self.client.will_set(topic, dumps(message), qos, retain)
 
     def __on_publish(self, client, userdata, mid):
         if mid in self.__published_messages:

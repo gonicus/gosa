@@ -66,7 +66,7 @@ qx.Theme.define("gosa.theme.Appearance",
     {
       alias : "atom",
 
-      style : function(states)
+      style : function()
       {
         return {
           textColor : "#808080",
@@ -78,7 +78,7 @@ qx.Theme.define("gosa.theme.Appearance",
 
     "SearchAid/frame" :
     {
-      style : function(states)
+      style : function()
       {
         return {
           backgroundColor : "background",
@@ -155,7 +155,7 @@ qx.Theme.define("gosa.theme.Appearance",
       alias : "attribute-button-frame",
       include : "attribute-button-frame",
 
-      style : function(states){
+      style : function(){
         return {
           center : true
         };
@@ -170,7 +170,7 @@ qx.Theme.define("gosa.theme.Appearance",
 
     "SearchListItem-Icon" : 
     {
-      style : function(states)
+      style : function()
       {
         return {};
       }
@@ -178,7 +178,7 @@ qx.Theme.define("gosa.theme.Appearance",
 
     "SearchLIstItem-Dn" :
     {
-      style : function(states)
+      style : function()
       {
         return {
           textColor : "green",
@@ -189,7 +189,7 @@ qx.Theme.define("gosa.theme.Appearance",
 
     "SearchLIstItem-Title" :
     {
-      style : function(states)
+      style : function()
       {
         return {
           textColor : "blue",
@@ -201,7 +201,7 @@ qx.Theme.define("gosa.theme.Appearance",
 
     "SearchLIstItem-Description" :
     {
-      style : function(states)
+      style : function()
       {
         return {
           textColor : "black"
@@ -239,11 +239,27 @@ qx.Theme.define("gosa.theme.Appearance",
     {
       alias : "atom",
 
-      style : function(states)
+      style : function()
       {
         return {
           backgroundColor : "#303030"
         };
+      }
+    },
+
+    "statusLabel": {
+      include: "label",
+
+      style : function(states) {
+
+        var tc = null;
+        if (states.error) {
+          tc = "error-text"
+        }
+
+        return {
+          textColor: tc
+        }
       }
     }
 

@@ -16,9 +16,7 @@ Fusioninventory module
 To. Do.
 """
 
-import os
 import re
-import shutil
 import subprocess
 import dbus.service
 import hashlib
@@ -36,7 +34,7 @@ class InventoryException(Exception):
 
 
 class DBusInventoryHandler(dbus.service.Object, Plugin):
-    """ This handler collect client inventory data """
+    """ This handler collects client inventory data """
 
     def __init__(self):
         conn = get_system_bus()
@@ -47,35 +45,40 @@ class DBusInventoryHandler(dbus.service.Object, Plugin):
     def inventory(self):
         """
         Start inventory client and transform the results into a gosa usable way.
-
-        We should support other invetory clients, later.
         """
+        # TODO support other inventory clients.
 
         # Added other report types here
         result = self.load_from_fusion_agent()
         return result
 
     def load_from_fusion_agent(self):
-        # Execute the inventory agent.
+        """
+        Execute the inventory agent.
+        """
         try:
             content = subprocess.check_output(["fusioninventory-agent", "--local", "-"], stderr=subprocess.DEVNULL)
 
-        except OSError as e:
+        except (OSError, subprocess.CalledProcessError) as e:
             log = logging.getLogger(__name__)
             log.error("failed to invoke fusion-inventory agent: %s" % str(e))
             return None
 
-        # Try to extract HardwareUUID
-        tmp = objectify.fromstring(content)
-        huuid = tmp.xpath('/REQUEST/CONTENT/HARDWARE/UUID/text()')[0]
-
         # Open the first found result file and transform it into a gosa usable
         # event-style xml.
         try:
+            # Try to extract HardwareUUID
+            tmp = objectify.fromstring(content)
+            huuid = tmp.xpath('/REQUEST/CONTENT/HARDWARE/UUID/text()')[0]
+
             xml_doc = etree.fromstring(content)
             xslt_doc = etree.parse(resource_filename("gosa.dbus.plugins.inventory", "data/fusionToGosa.xsl"))
             transform = etree.XSLT(xslt_doc)
-            result = etree.tostring(transform(xml_doc)).decode()
+            xml_string = etree.tostring(transform(xml_doc))
+            md5s = hashlib.md5()
+            md5s.update(xml_string)
+            md5sum = md5s.hexdigest()
+            result = xml_string.decode('utf-8')
         except Exception as e:
             raise InventoryException("Failed to read and transform fusion-inventory-agent results (%s)!")
 
@@ -83,6 +86,7 @@ class DBusInventoryHandler(dbus.service.Object, Plugin):
         result = re.sub("%%CUUID%%", self.env.uuid, result)
         result = re.sub("%%HWUUID%%", self.hash_hardware_uuid(huuid).decode(), result)
         result = re.sub("%%SCHEMALOC%%", resource_filename("gosa.plugins.goto", "data/events/Inventory.xsd"), result)
+        result = re.sub("%%CHECKSUM%%", md5sum, result)
 
         return result
 

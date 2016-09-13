@@ -15,13 +15,12 @@
 
         <!-- Create the 'Class' element -->
         <xsl:element name="{$class}" 
-            xmlns:g="http://www.gonicus.de/Objects"
+            xmlns="http://www.gonicus.de/Objects"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://www.gonicus.de/Objects objects.xsd"
             >
            
             <!-- Add namespace attributes --> 
-            <xsl:attribute name="xmlns">http://www.gonicus.de/Objects</xsl:attribute>
             <xsl:attribute namespace="http://www.w3.org/2001/XMLSchema-instance"
                 name="schemaLocation">http://www.gonicus.de/Objects objects.xsd</xsl:attribute>
 

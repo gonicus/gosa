@@ -7,7 +7,7 @@ workflow_path = /tmp/workflows
 
 [http]
 host = localhost
-port = 8001
+port = 8000
 sslpemfile = /etc/gosa/host.pem
 
 [ldap]
@@ -25,6 +25,7 @@ database-file = /tmp/gosa.json
 
 [user]
 image-path = /tmp/images
+2fa-store = /tmp/2fa
 
 [backend]
 admins = admin
@@ -35,6 +36,9 @@ key = FIAYj6kqb273a0UoZl4MPz1WTs8E9iHw
 
 [mqtt]
 host = localhost
+
+[dbus]
+script-path = /tmp/shell.d
 
 ##############################################################################
 #                            Logger configuration                            #

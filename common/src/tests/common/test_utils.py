@@ -1,16 +1,19 @@
-#!/usr/bin/python3
+# This file is part of the GOsa framework.
+#
+#  http://gosa-project.org
+#
+# Copyright:
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
+#
+# See the LICENSE file in the project's top-level directory for details.
 
 import unittest
 import unittest.mock
-import re
-import os
 import pytest
-import time
 from gosa.common.utils import *
 from datetime import timedelta
-from lxml import objectify, etree
+from lxml import objectify
 from io import StringIO
-from urllib.parse import urlparse
 from urllib.error import *
 
 class Type1:
@@ -264,3 +267,34 @@ class CommonUtilsTestCase(unittest.TestCase):
         assert xml2dict(Type1()) == {"prop1": "TEST"}
         with pytest.raises(Exception):
             xml2dict(Type2())
+
+    def test_find_api_service(self):
+
+        class Result:
+            def __init__(self, prio, w, t, p):
+                self.priority = prio
+                self.weight = w
+                self.target = t
+                self.port = p
+
+        with unittest.mock.patch("gosa.common.utils.dns.resolver.query", return_value=[Result(100, 50, "localhost_", 8080)]):
+            print(find_api_service())
+            assert find_api_service() == ["https://localhost:8080/rpc"]
+
+    def test_find_bus_service(self):
+
+        class Result:
+            def __init__(self, prio, w, t, p):
+                self.priority = prio
+                self.weight = w
+                self.target = t
+                self.port = p
+
+        with unittest.mock.patch("gosa.common.utils.dns.resolver.query", return_value=[Result(100, 50, "localhost_", 8080)]) as m_query:
+            assert find_bus_service() == [("localhost", 8080)]
+
+            m_query.side_effect = dns.resolver.NXDOMAIN
+            with unittest.mock.patch("gosa.common.utils.socket.getfqdn", return_value="invalid-domain"):
+                assert find_bus_service() == []
+
+

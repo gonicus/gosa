@@ -13,13 +13,11 @@ import sys
 import copy
 import gettext
 import getopt
-import socket
+from getopt import GetoptError
 import getpass
 #pylint: disable=W0611
-import readline
-import textwrap
-import locale
-from gosa.common.components import JSONServiceProxy, JSONRPCException
+from gosa.common.components import JSONServiceProxy
+from gosa.common.components.auth.console import ConsoleHandler
 from gosa.common.utils import parseURL
 
 _ = gettext.gettext
@@ -670,7 +668,7 @@ class ACLAdmin(object):
             print()
 
 
-def print_help():
+def print_help():  # pragma: nocover
     """
     This method prints out the command-line help for this script.
     """
@@ -699,7 +697,7 @@ def main():
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "u:p:s", ["user=", "password=", "url="])
-    except getopt.GetoptError:
+    except GetoptError:
         sys.exit(2)
 
     service_uri = ''
@@ -810,13 +808,8 @@ def connect(service_uri='', username='', password=''):
         sys.exit(1)
 
     # Try to log in
-    try:
-        if not proxy.login(username, password):
-            print(_("Login of user '%s' failed") % username)
-            sys.exit(1)
-    except Exception as e:
-        print(e)
-        sys.exit(1)
+    auth_handler = ConsoleHandler(proxy)
+    auth_handler.login(username, password)
 
     return proxy
 

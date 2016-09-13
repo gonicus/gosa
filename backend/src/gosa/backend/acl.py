@@ -32,6 +32,34 @@ How an ACL assignment could look like
      |-> ACL
 
 --------
+
+@startuml
+namespace gosa.backend.acl #DDDDDD {
+    class ACLSet <<list>>
+    class ACLRole <<list>>
+    class ACL <<object>>
+    class ACLRoleEntry <<ACL>>
+
+    ACLSet "1" -- "0..n" ACL : contains
+    ACL "1" -- "0..1" ACLRole : contains
+    ACL  <|-- ACLRoleEntry
+    ACLRole "1" -- "0..n" ACLRoleEntry : contains
+
+    gosa.common.components.Plugin <|-- ACLResolver
+    gosa.common.handler.IInterfaceHandler <|-- ACLResolver
+
+    ACLResolver "1" o-- "0..n" ACLSet
+    ACLResolver "1" o-- "0..n" ACLRole
+}
+
+namespace gosa.common.components {
+    class Plugin
+}
+
+namespace gosa.common.handler {
+    interface IInterfaceHandler
+}
+@enduml
 """
 import re
 import ldap
@@ -1524,34 +1552,34 @@ class ACLResolver(Plugin):
                                         if scope in [ACL.SUB, ACL.PSUB]:
                                             sub_bases[aclset.base] = scope
 
-                        # Options! Search for all potentially affected entries and check the permissions
-                        else:
-                            for attr, val in action['options'].items():
-                                entries = []
+                            # Options! Search for all potentially affected entries and check the permissions
+                            else:
+                                for attr, val in action['options'].items():
+                                    entries = []
 
-                                match_attr = None
-                                if attr in ObjectInfoIndex:
-                                    entries = self.__session.query(ObjectInfoIndex).filter(and_(
-                                        or_(ObjectInfoIndex.dn == aclset.base, ObjectInfoIndex.dn.like("%," + aclset.base)),
-                                        getattr(ObjectInfoIndex, attr) == val
-                                        ))
-                                else:
-                                    entries = self.__session.query(ObjectInfoIndex).filter(and_(
-                                        ObjectInfoIndex.uuid == KeyValueIndex.uuid,
-                                        or_(ObjectInfoIndex.dn == aclset.base, ObjectInfoIndex.dn.like("%," + aclset.base)),
-                                        KeyValueIndex.key == attr,
-                                        KeyValueIndex.value == val,
-                                        ))
+                                    match_attr = None
+                                    if attr in ObjectInfoIndex:
+                                        entries = self.__session.query(ObjectInfoIndex).filter(and_(
+                                            or_(ObjectInfoIndex.dn == aclset.base, ObjectInfoIndex.dn.like("%," + aclset.base)),
+                                            getattr(ObjectInfoIndex, attr) == val
+                                            ))
+                                    else:
+                                        entries = self.__session.query(ObjectInfoIndex).filter(and_(
+                                            ObjectInfoIndex.uuid == KeyValueIndex.uuid,
+                                            or_(ObjectInfoIndex.dn == aclset.base, ObjectInfoIndex.dn.like("%," + aclset.base)),
+                                            KeyValueIndex.key == attr,
+                                            KeyValueIndex.value == val,
+                                            ))
 
-                                for entry in entries:
-                                    if self.check(user, "%s.objects.%s" % (self.env.base, entries['_type']), "rs", entry['dn']):
-                                        # Ok. Seems to be a candidate. Check for [P]?SUB/RESET
-                                        s_base = self._get_base(entry['dn'], sub_bases.keys())
-                                        if s_base:
-                                            if sub_bases[s_base] == ACL.RESET:
+                                    for entry in entries:
+                                        if self.check(user, "%s.objects.%s" % (self.env.base, entries['_type']), "rs", entry['dn']):
+                                            # Ok. Seems to be a candidate. Check for [P]?SUB/RESET
+                                            s_base = self._get_base(entry['dn'], sub_bases.keys())
+                                            if s_base:
+                                                if sub_bases[s_base] == ACL.RESET:
+                                                    bases[entry['dn']] = True
+                                            else:
                                                 bases[entry['dn']] = True
-                                        else:
-                                            bases[entry['dn']] = True
 
         return bases.keys()
 
@@ -1600,7 +1628,7 @@ class ACLResolver(Plugin):
                         # Walk through defined topics of the current acl and check if one
                         # matches the required topic.
                         for action in acl.actions:
-                            if re.match(topic, action['topic']):
+                            if re.match(action['topic'], topic):
                                 match = True
                                 break
 
@@ -1825,7 +1853,7 @@ class ACLResolver(Plugin):
 
                     # Check permissions
                     if not self.check(user, '%s.acl' % self.env.domain, 'w', _aclset.base):
-                        raise ACLException(C.make_error("PERMISSION_UPDATE"), target=_aclset.base)
+                        raise ACLException(C.make_error("PERMISSION_UPDATE", target=_aclset.base))
 
                     acl = _acl
 
@@ -1907,7 +1935,7 @@ class ACLResolver(Plugin):
         Example:
 
         >>> addACLRole('role1')
-        >>> addACLtoRole('role1', 'sub', 0, {...})
+        >>> addACLtoRole('role1', 0, {...}, scope='sub')
 
         """
 
@@ -1947,11 +1975,11 @@ class ACLResolver(Plugin):
 
         Example:
 
-            >>> resolver.addACLtoRole('rolle1', 'sub', 0, [{'topic': r'^some\.topic.*$', 'acls': 'rwcdm'}])
+            >>> resolver.addACLtoRole('rolle1', 0, [{'topic': r'^some\.topic.*$', 'acls': 'rwcdm'}], 'sub')
 
         or with some options:
 
-            >>> resolver.addACLtoRole('rolle1', 'sub', 0, [{'topic': r'^some\.topic.*$', 'acls': 'rwcdm', 'options': {'uid': '^u[0-9]'}}])
+            >>> resolver.addACLtoRole('rolle1', 0, [{'topic': r'^some\.topic.*$', 'acls': 'rwcdm', 'options': {'uid': '^u[0-9]'}}], 'sub')
 
         """
 

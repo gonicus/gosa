@@ -85,8 +85,8 @@ class Object(object):
     myProperties = None
     env = None
     parent = None
-    owner = None
-    session_id = None
+    _owner = None
+    _session_id = None
     attributesInSaveOrder = None
 
     def __saveOrder(self):
@@ -1233,6 +1233,7 @@ class Object(object):
         p_backend = getattr(self, '_backend')
         be = ObjectBackendRegistry.getBackend(p_backend)
         dn = be.uuid2dn(self.uuid)
+        self.dn = dn
         self.update_dn_refs(dn)
 
         zope.event.notify(ObjectChanged("post move", obj, dn=dn))

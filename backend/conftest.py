@@ -1,8 +1,14 @@
+# This file is part of the GOsa framework.
+#
+#  http://gosa-project.org
+#
+# Copyright:
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
+#
+# See the LICENSE file in the project's top-level directory for details.
+
 import pytest
-import sys
-from gosa.common import Environment
-from gosa.common.components import PluginRegistry, ObjectRegistry
-import os
+from gosa.backend.main import *
 
 def pytest_addoption(parser):
     parser.addoption("--runslow", action="store_true",
@@ -16,7 +22,7 @@ def pytest_configure(config):
 def pytest_unconfigure(config):
     del sys._called_from_test
     PluginRegistry.getInstance('HTTPService').srv.stop()
-    PluginRegistry.shutdown()
+    shutdown()
 
 @pytest.fixture(scope="session", autouse=True)
 def use_test_config():
@@ -24,6 +30,11 @@ def use_test_config():
     Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "test_conf")
     Environment.noargs = True
 
-    oreg = ObjectRegistry.getInstance()  # @UnusedVariable
-    pr = PluginRegistry()  # @UnusedVariable
-    cr = PluginRegistry.getInstance("CommandRegistry") # @UnusedVariable
+    env = Environment.getInstance()
+    workflow_path = env.config.get("core.workflow_path", "/var/lib/gosa/workflows")
+
+    # create workflow path
+    if not os.path.exists(workflow_path):
+        os.makedirs(workflow_path)
+
+    main()

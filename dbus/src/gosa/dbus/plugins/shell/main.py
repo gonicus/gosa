@@ -1,28 +1,25 @@
-# This file is part of the clacks framework.
+# This file is part of the GOsa framework.
 #
-#  http://clacks-project.org
+#  http://gosa-project.org
 #
 # Copyright:
-#  (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-#
-# License:
-#  GPL-2: http://www.gnu.org/licenses/gpl-2.0.html
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
 
 """
 .. _dbus-shell:
 
-Clacks D-Bus Shell plugin
+GOsa D-Bus Shell plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-The clacks-dbus shell plugin allows to execute shell scripts
+The GOsa-dbus shell plugin allows to execute shell scripts
 on the client side with root privileges.
 
 Scripts can be executed like this:
 
->>> clacksh
+>>> gosash
 >>>  Suche Dienstanbieter...
 >>> ...
 >>> clientDispatch("49cb1287-db4b-4ddf-bc28-5f4743eac594", "dbus_shell_list")
@@ -35,7 +32,7 @@ Scripts can be executed like this:
 Creating scripts
 ^^^^^^^^^^^^^^^^
 
-Create a new executable file in ``/etc/clacks/shell.d`` and ensure that its name match the
+Create a new executable file in ``/etc/gosa/shell.d`` and ensure that its name match the
 following expression ``^[a-zA-Z0-9][a-zA-Z0-9_\.]*$``.
 
 The script can contain any programming language you want, it just has to be executable
@@ -46,7 +43,7 @@ The parameter -- --signature
 ............................
 
 Each script has to return a signature when it is used with the parameter '-- --signature'.
-This is required to populate the method to the clacks-dbus process.
+This is required to populate the method to the gosa-dbus process.
 
 A signature is a json string describing what is required and what is returned by the
 script. See `dbus-python tutorial from freedesktop.org <http://dbus.freedesktop.org/doc/dbus-python/doc/tutorial.html>`_
@@ -104,11 +101,11 @@ import os
 import dbus.service
 import logging
 import inspect
-from clacks.dbus.plugins.shell.shelldnotifier import ShellDNotifier
+from gosa.dbus.plugins.shell.shelldnotifier import ShellDNotifier
 from subprocess import Popen, PIPE
-from clacks.common import Environment
-from clacks.common.components import Plugin
-from clacks.dbus import get_system_bus
+from gosa.common import Environment
+from gosa.common.components import Plugin
+from gosa.dbus import get_system_bus
 from json import loads
 from dbus import validate_interface_name
 from threading import Timer
@@ -132,7 +129,7 @@ class DBusShellHandler(dbus.service.Object, Plugin):
     """
     The DBus shell handler exports shell scripts to the DBus.
 
-    Scripts placed in '/etc/clacks/shell.d' can then be executed using the
+    Scripts placed in '/etc/gosa/shell.d' can then be executed using the
     'shell_exec()' method.
 
     Exported scripts can be listed using the 'shell_list()' method.
@@ -140,8 +137,8 @@ class DBusShellHandler(dbus.service.Object, Plugin):
     e.g.
         print proxy.clientDispatch("<clientUUID>", "dbus_shell_exec", "myScript.sh", [])
 
-    (The '\_dbus' prefix in the above example was added by the clacks-client dbus-proxy
-    plugin to mark exported dbus methods - See clacks-client proxy  plugin for details)
+    (The '\_dbus' prefix in the above example was added by the gosa-client dbus-proxy
+    plugin to mark exported dbus methods - See gosa-client proxy  plugin for details)
     """
 
     # The path were scripts were read from.
@@ -160,27 +157,27 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         # Connect to D-Bus service
         conn = get_system_bus()
         self.conn = conn
-        dbus.service.Object.__init__(self, conn, '/org/clacks/shell')
+        dbus.service.Object.__init__(self, conn, '/org/gosa/shell')
 
         # Initialize paths and logging
         self.log = logging.getLogger(__name__)
         self.env = Environment.getInstance()
-        self.script_path = self.env.config.get("dbus.script-path", "/etc/clacks/shell.d").strip("'\"")
+        self.script_path = self.env.config.get("dbus.script-path", "/etc/gosa/shell.d").strip("'\"")
 
-        # Start notifier for file changes in /etc/clacks/shell.d
+        # Start notifier for file changes in /etc/gosa/shell.d
         try:
             ShellDNotifier(self.script_path, self.__notifier_callback)
 
-            # Intitially load all signatures
+            # Initially load all signatures
             self.__notifier_callback()
         except Exception:
-            self.log.error("failed to start monitoring of '%s'" % (self.script_path))
+            self.log.error("failed to start monitoring of '%s'" % self.script_path)
 
-    @dbus.service.signal('org.clacks', signature='s')
-    def _signatureChanged(self, filename):
+    @dbus.service.signal('org.gosa', signature='s')
+    def _signatureChanged(self, filename):  # pragma: nocover
         """
         Sends a signal on the dbus named '_signatureChanged' this can then be received
-        by other processes like the clacks-client.
+        by other processes like the gosa-client.
         """
         pass
 
@@ -191,14 +188,14 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         """
         # Check if we've the required permissions to access the shell.d directory
         if not os.path.exists(self.script_path):
-            self.log.debug("the script path '%s' does not exists! " % (self.script_path,))
+            self.log.debug("the script path '%s' does not exists! " % self.script_path)
         else:
 
             # If no path or file is given reload all signatures
-            if fullpath == None:
+            if fullpath is None:
                 fullpath = self.script_path
 
-            # Collect files to look for recursivly
+            # Collect files to look for recursively
             if os.path.isdir(fullpath):
                 files = map(lambda x: os.path.join(self.script_path, x), os.listdir(fullpath))
             else:
@@ -209,7 +206,7 @@ class DBusShellHandler(dbus.service.Object, Plugin):
                 self._reload_signature(filename)
 
             # Send some logging
-            self.log.info("found %s scripts to be registered" % (len(self.scripts.keys())))
+            self.log.info("found %s scripts to be registered" % len(self.scripts.keys()))
             for script in self.scripts.keys():
                 self.log.debug("registered script: %s" % script)
 
@@ -244,7 +241,7 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         # Check if the file was removed or changed.
         elif not os.path.exists(filepath) and dbus_func_name in self.scripts:
 
-            ## UNREGISTER Shell Script
+            # UNREGISTER Shell Script
 
             del(self.scripts[dbus_func_name])
             self.log.debug("unregistered D-Bus shell script '%s' (%s)" % (dbus_func_name, filename,))
@@ -254,12 +251,12 @@ class DBusShellHandler(dbus.service.Object, Plugin):
             except:
                 raise
         elif not os.path.isfile(filepath):
-            self.log.debug("skipped event for '%s' its not a file" % (filename,))
+            self.log.debug("skipped event for '%s' its not a file" % (filepath,))
         elif not os.access(filepath, os.X_OK):
             self.log.debug("skipped event for '%s' its not an executable file" % (filename,))
         else:
 
-            ## REGISTER Shell Script
+            # REGISTER Shell Script
 
             # Parse the script and if this was successful then add it te the list of known once.
             data = self._parse_shell_script(filepath)
@@ -274,20 +271,20 @@ class DBusShellHandler(dbus.service.Object, Plugin):
                     # Call the script with the --signature parameter
                     scall = Popen(args, stdout=PIPE, stderr=PIPE)
                     scall.wait()
-                    return (scall.returncode, scall.stdout.read(), scall.stderr.read())
+                    return scall.returncode, scall.stdout.read(), scall.stderr.read()
 
                 # Dynamically change the functions name and then register
                 # it as instance method to ourselves
                 setattr(f, '__name__', dbus_func_name)
                 setattr(self.__class__, dbus_func_name, f)
-                self.register_dbus_method(f, 'org.clacks', in_sig=data[1]['in'], out_sig='vvv')
+                self.register_dbus_method(f, 'org.gosa', in_sig=data[1]['in'], out_sig='vvv')
 
     def _parse_shell_script(self, path):
         """
         This method executes the given script (path) with the parameter
-        '--signature' to receive the scripts signatur.
+        '--signature' to receive the scripts signature.
 
-        It returns a tuple containing all found agruments and their type.
+        It returns a tuple containing all found arguments and their type.
         """
 
         # Call the script with the --signature parameter
@@ -306,25 +303,25 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         sig = {}
         try:
             # Signature was readable, now check if we got everything we need
-            sig = loads(scall.stdout.read())
+            sig = loads(scall.stdout.read().decode('utf-8'))
             if not(('in' in sig and type(sig['in']) == list) or 'in' not in sig):
-                self.log.debug("failed to undertand in-signature of D-Bus shell script '%s'" % (path))
-            elif 'out' not in sig or type(sig['out']) not in [str, unicode]:
-                self.log.debug("failed to undertand out-signature of D-Bus shell script '%s'" % (path))
+                self.log.debug("failed to understand in-signature of D-Bus shell script '%s'" % (path))
+            elif 'out' not in sig or type(sig['out']) not in [str, bytes]:
+                self.log.debug("failed to understand out-signature of D-Bus shell script '%s'" % (path))
             else:
                 return (os.path.basename(path), sig, path)
         except ValueError:
-            self.log.debug("failed to undertand signature of D-Bus shell script '%s'" % (path))
+            self.log.debug("failed to understand signature of D-Bus shell script '%s'" % (path))
         return None
 
-    @dbus.service.method('org.clacks', in_signature='', out_signature='av')
+    @dbus.service.method('org.gosa', in_signature='', out_signature='av')
     def shell_list(self):
         """
-        Returns all availabe scripts and their signatures.
+        Returns all available scripts and their signatures.
         """
         return self.scripts
 
-    @dbus.service.method('org.clacks', in_signature='sas', out_signature='a{sv}')
+    @dbus.service.method('org.gosa', in_signature='sas', out_signature='a{sv}')
     def shell_exec(self, action, args):
         """
         Executes a shell command and returns the result with its return code
@@ -337,12 +334,12 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         cmd = self.scripts[action][2]
 
         # Execute the script and return the results
-        args = map(lambda x: str(x), [os.path.join(self.script-path, cmd)] + args)
+        args = map(lambda x: str(x), [os.path.join(self.script_path, cmd)] + args)
         res = Popen(args, stdout=PIPE, stderr=PIPE)
         res.wait()
         return ({'code': res.returncode,
-                'stdout': res.stdout.read(),
-                'stderr': res.stderr.read()})
+                 'stdout': res.stdout.read().decode('utf-8'),
+                 'stderr': res.stderr.read().decode('utf-8')})
 
     def register_dbus_method(self, func, dbus_interface, in_sig, out_sig):
         """
@@ -357,8 +354,8 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         out_signature = out_sig
         in_signature = ""
         for entry in in_sig:
-            args.append(entry.keys()[0])
-            in_signature += entry.values()[0]
+            args.append(list(entry.keys())[0])
+            in_signature += list(entry.values())[0]
 
         # Set DBus specific properties
         func._dbus_is_method = True
@@ -400,15 +397,15 @@ class DBusShellHandler(dbus.service.Object, Plugin):
         # Reset list first
 
         cname = self.__module__ + "." + self.__class__.__name__
-        old_list = self._dbus_class_table[cname]['org.clacks']
+        old_list = self._dbus_class_table[cname]['org.gosa']
         try:
 
             # Reload list
             for func in inspect.getmembers(self, predicate=inspect.ismethod):
                 if getattr(func[1].__func__, '_dbus_interface', False):
-                    self._dbus_class_table[cname]['org.clacks'][func[0]] = func[1].__func__
+                    self._dbus_class_table[cname]['org.gosa'][func[0]] = func[1].__func__
 
         # Restore the old method list if something goes wrong
         except Exception as error:
-            self._dbus_class_table[cname]['org.clacks'] = old_list
+            self._dbus_class_table[cname]['org.gosa'] = old_list
             raise DBusShellException("failed to manually register dbus method: %s" % (str(error),))

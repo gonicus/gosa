@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+  <Object>
+    <Name>simpleSecurityObject</Name>
+    <Description>simpleSecurityObject</Description>
+    <DisplayName>simpleSecurityObject</DisplayName>
+    <BackendParameters>
+      <Backend objectClasses="simpleSecurityObject">LDAP</Backend>
+    </BackendParameters>
+    <Backend>LDAP</Backend>
+    <Attributes>
+      <Attribute>
+        <Name>userPassword</Name>
+        <Description>password</Description>
+        <Type>UnicodeString</Type>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+    </Attributes>
+    <Extends>
+      <Value>Device</Value>
+    </Extends>
+    <BaseObject>false</BaseObject>
+	</Object>
+</Objects>
+

@@ -30,6 +30,34 @@
         </CommandParameters>
       </Method>
       <Method>
+        <Name>notify</Name>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>notify_title</Name>
+            <Type>UnicodeString</Type>
+            <Default></Default>
+          </MethodParameter>
+          <MethodParameter>
+            <Name>notify_message</Name>
+            <Type>UnicodeString</Type>
+            <Required>true</Required>
+          </MethodParameter>
+          <MethodParameter>
+            <Name>notify_duration</Name>
+            <Type>Integer</Type>
+            <Required>false</Required>
+            <Default>60</Default>
+          </MethodParameter>
+        </MethodParameters>
+        <Command>notifyUser</Command>
+        <CommandParameters>
+          <Value>uid</Value>
+          <Value>notify_title</Value>
+          <Value>notify_message</Value>
+          <Value>notify_duration</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
         <Name>changePassword</Name>
         <MethodParameters>
           <MethodParameter>
@@ -66,6 +94,53 @@
           <Value>password</Value>
         </CommandParameters>
       </Method>
+
+      <Method>
+        <Name>changeTwoFactorMethod</Name>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>two_FA_method</Name>
+            <Type>UnicodeString</Type>
+            <Default></Default>
+          </MethodParameter>
+          <MethodParameter>
+            <Name>user_password</Name>
+            <Type>UnicodeString</Type>
+            <Required>false</Required>
+          </MethodParameter>
+        </MethodParameters>
+        <Command>setTwoFactorMethod</Command>
+        <CommandParameters>
+          <Value>dn</Value>
+          <Value>two_FA_method</Value>
+          <Value>user_password</Value>
+        </CommandParameters>
+      </Method>
+
+      <Method>
+        <Name>finishU2FRegistration</Name>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>data</Name>
+            <Type>UnicodeString</Type>
+            <Default></Default>
+          </MethodParameter>
+        </MethodParameters>
+        <Command>completeU2FRegistration</Command>
+        <CommandParameters>
+          <Value>dn</Value>
+          <Value>data</Value>
+        </CommandParameters>
+      </Method>
+
+      <Method>
+        <Name>getTwoFactorMethod</Name>
+        <Command>getTwoFactorMethod</Command>
+        <CommandParameters>
+          <Value>dn</Value>
+        </CommandParameters>
+      </Method>
+
     </Methods>
 
     <Attributes>
@@ -434,7 +509,6 @@
           </FilterChain>
         </InFilter>
         <Backend>NULL</Backend>
-        <Mandatory>true</Mandatory>
       </Attribute>
       <Attribute>
         <Name>isLocked</Name>
@@ -518,6 +592,24 @@
             </FilterEntry>
           </FilterChain>
         </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>isSecureContext</Name>
+        <Description>True means we are in a secure context</Description>
+        <Type>Boolean</Type>
+        <Default>false</Default>
+        <Backend>NULL</Backend>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>DetectSecureContext</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <ReadOnly>true</ReadOnly>
+        <Mandatory>true</Mandatory>
       </Attribute>
     </Attributes>
     <BaseObject>true</BaseObject>

@@ -50,7 +50,7 @@ def monitor(path, modifier, proxy, initially_failed=False):
 
                 # Catch dn
                 if line.startswith("dn::"):
-                    dn = b64decode(line[5:])
+                    dn = b64decode(line[5:]).decode('utf-8')
                     continue
 
                 elif line.startswith("dn:"):
@@ -72,7 +72,8 @@ def monitor(path, modifier, proxy, initially_failed=False):
                 # just reset the DN, because we don't need
                 # to propagate this change.
                 if line.startswith("modifiersName:"):
-                    if line[15:].lower() == modifier.lower():
+                    print("%s == %s" % (line[14:].lower(), modifier.lower()))
+                    if line[14:].lower() == modifier.lower():
                         dn = None
                     continue
 
@@ -99,7 +100,7 @@ def monitor(path, modifier, proxy, initially_failed=False):
         print("Error:", str(e))
 
 
-def main():
+def main():  # pragma: nocover
     env = Environment.getInstance()
     config = env.config
 
@@ -137,7 +138,7 @@ def main():
         monitor(path, modifier, proxy, initially_failed)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: nocover
     try:
         main()
     except KeyboardInterrupt:

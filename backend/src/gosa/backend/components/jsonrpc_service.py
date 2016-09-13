@@ -21,14 +21,19 @@ import uuid
 import traceback
 import logging
 import tornado.web
+from gosa.backend.objects import ObjectProxy
+from gosa.common.hsts_request_handler import HSTSRequestHandler
 from tornado.gen import coroutine
 from gosa.common.gjson import loads, dumps
 from gosa.common.utils import f_print, N_
 from gosa.common.error import GosaErrorHandler as C, GosaException
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry, JSONRPCException
+from gosa.common.components.auth import *
 from gosa.backend import __version__ as VERSION
+from gosa.backend.lock import GlobalLock
 from gosa.backend.utils.ldap import check_auth
+from gosa.backend.exceptions import FilterException
 
 
 # Register the errors handled  by us
@@ -38,11 +43,12 @@ C.register_codes(dict(
     INVALID_JSON=N_("Invalid JSON string '%(data)s'"),
     JSON_MISSING_PARAMETER=N_("Parameter missing in JSON body"),
     PARAMETER_LIST_OR_DICT=N_("Parameter must be list or dictionary"),
+    INDEXING=N_("Index rebuild in progress - try again later"),
     REGISTRY_NOT_READY=N_("Registry is not ready")
     ), module="gosa.backend")
 
 
-class JsonRpcHandler(tornado.web.RequestHandler):
+class JsonRpcHandler(HSTSRequestHandler):
     """
     This is the tornado request handler which is responsible for serving the
     :class:`gosa.backend.command.CommandRegistry` via HTTP/JSONRPC.
@@ -66,6 +72,10 @@ class JsonRpcHandler(tornado.web.RequestHandler):
     @coroutine
     def post(self):
         try:
+            # Check if we're globally locked currently
+            if GlobalLock.exists("scan_index"):
+                raise FilterException(C.make_error('INDEXING', "base"))
+
             resp = self.process(self.request.body)
         except ValueError as e:
             self.clear()
@@ -115,25 +125,45 @@ class JsonRpcHandler(tornado.web.RequestHandler):
 
         cls = self.__class__
 
+        twofa_manager = PluginRegistry.getInstance("TwoFactorAuthManager")
+
         # Create an authentication cookie on login
         if method == 'login':
             (user, password) = params
 
             # Check password and create session id on success
             sid = str(uuid.uuid1())
-
-            if self.authenticate(user, password):
-                cls.__session[sid] = user
+            result = {
+                'state': AUTH_FAILED
+            }
+            dn = self.authenticate(user, password)
+            if dn is not False:
+                cls.__session[sid] = {
+                    'user': user,
+                    'dn': dn,
+                    'auth_state': None
+                }
                 self.set_secure_cookie('REMOTE_USER', user)
                 self.set_secure_cookie('REMOTE_SESSION', sid)
-                result = True
-                self.log.info("login succeeded for user '%s'" % user)
+                factor_method = twofa_manager.get_method_from_user(dn)
+                if factor_method is None:
+                    result['state'] = AUTH_SUCCESS
+                    self.log.info("login succeeded for user '%s'" % user)
+                elif factor_method == "otp":
+                    result['state'] = AUTH_OTP_REQUIRED
+                    self.log.info("login succeeded for user '%s', proceeding with OTP two-factor authentication" % user)
+                elif factor_method == "u2f":
+                    self.log.info("login succeeded for user '%s', proceeding with U2F two-factor authentication" % user)
+                    result['state'] = AUTH_U2F_REQUIRED
+                    result['u2f_data'] = twofa_manager.sign(user, dn)
+
+                cls.__session[sid]['auth_state'] = result['state']
+
             else:
                 # Remove current sid if present
                 if not self.get_secure_cookie('REMOTE_SESSION') and sid in cls.__session:
                     del cls.__session[sid]
 
-                result = False
                 self.log.error("login failed for user '%s'" % user)
                 raise tornado.web.HTTPError(401, "Login failed")
 
@@ -158,6 +188,21 @@ class JsonRpcHandler(tornado.web.RequestHandler):
             self.clear_cookie("REMOTE_USER")
             self.clear_cookie("REMOTE_SESSION")
             return dict(result=True, error=None, id=jid)
+
+        # check two-factor authentication
+        sid = self.get_secure_cookie('REMOTE_SESSION').decode('ascii')
+        if method == 'verify':
+            (key,) = params
+            if cls.__session[sid]['auth_state'] == AUTH_OTP_REQUIRED or cls.__session[sid]['auth_state'] == AUTH_U2F_REQUIRED:
+
+                if twofa_manager.verify(cls.__session[sid]['user'], cls.__session[sid]['dn'], key):
+                    cls.__session[sid]['auth_state'] = AUTH_SUCCESS
+                    return dict(result={'state': AUTH_SUCCESS}, error=None, id=jid)
+                else:
+                    raise tornado.web.HTTPError(401, "Login failed")
+
+        if cls.__session[sid]['auth_state'] != AUTH_SUCCESS:
+            raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
         # Try to call method with dispatcher
         if not self.dispatcher.hasMethod(method):
@@ -236,10 +281,10 @@ class JsonRpcHandler(tornado.web.RequestHandler):
         password          Password
         ================= ==========================
 
-        ``Return``: True on success
+        ``Return``: user dn on success else False
         """
 
-        return check_auth(user, password)
+        return check_auth(user, password, get_dn=True)
 
     @classmethod
     def check_session(cls, sid, user):

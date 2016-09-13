@@ -95,13 +95,21 @@ class MQTTHandler(object):
     def get_client(self):
         return self.__client
 
-    def send_message(self, data, topic):
+    def send_message(self, data, topic, qos=0):
         """ Send message via proxy to mqtt. """
-        return self.__client.publish(topic, data)
+        return self.__client.publish(topic, data, qos=qos)
 
-    def send_event(self, event, topic):
+    def send_event(self, event, topic, qos=0):
         data = etree.tostring(event, pretty_print=True).decode('utf-8')
-        self.send_message(data, topic)
+        self.send_message(data, topic, qos=qos)
+
+    def will_set(self, topic, event, qos=0, retain=False):
+        """
+        Set a Will to be sent to the broker. If the client disconnects without calling disconnect(),
+        the broker will publish the message on its behalf.
+        """
+        data = etree.tostring(event, pretty_print=True).decode('utf-8')
+        self.__client.will_set(topic, data, qos, retain)
 
     @gen.coroutine
     def send_sync_message(self, data, topic):

@@ -11,10 +11,54 @@ import datetime
 from unittest import mock, TestCase
 from tests.GosaTestCase import *
 from gosa.backend.objects.proxy import *
+from lxml import objectify
 
 
 @slow
 class ObjectProxyTestCase(TestCase):
+    __test_dn = None
+
+    def __create_test_data(self):
+        """
+        Insert new data just for testing purposes
+        """
+        try:
+            new_domain = ObjectProxy("dc=test,dc=example,dc=net")
+            new_domain.remove(True)
+            new_domain.commit()
+        except:
+            pass
+
+        new_domain = ObjectProxy("dc=example,dc=net", "DomainComponent")
+        new_domain.dc = "test"
+        new_domain.description = "Domain for testing purposes"
+        new_domain.commit()
+
+        # new ou's
+        ou = ObjectProxy("dc=test,dc=example,dc=net", "PeopleContainer")
+        ou.commit()
+        ou = ObjectProxy("dc=test,dc=example,dc=net", "OrganizationalRoleContainer")
+        ou.commit()
+
+        # new user
+        user = ObjectProxy("ou=people,dc=test,dc=example,dc=net", "User")
+        user.uid = "testu"
+        user.givenName = "Test"
+        user.sn = "User"
+        user.commit()
+
+        self.__test_dn = "dc=test,dc=example,dc=net"
+
+    def tearDown(self):
+        super(ObjectProxyTestCase, self).tearDown()
+        if self.__test_dn is not None:
+            try:
+                new_domain = ObjectProxy("dc=test,dc=example,dc=net")
+                new_domain.remove(True)
+                new_domain.commit()
+                self.__test_dn = None
+            except Exception as e:
+                print(str(e))
 
     def test_init(self):
         with pytest.raises(ProxyException),\
@@ -195,6 +239,9 @@ class ObjectProxyTestCase(TestCase):
         assert user.get_object_info()['extensions']['SambaUser'] is False
 
     def test_move(self):
+        # initialize some test data
+        self.__create_test_data()
+
         # check permissions
         mocked_resolver = mock.MagicMock()
         # First run: w=False, d=True, c=True
@@ -213,29 +260,28 @@ class ObjectProxyTestCase(TestCase):
             with pytest.raises(ACLException):
                 user.move('new_base')
 
-        user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net')
-        with mock.patch("zope.event.notify") as me, \
-                mock.patch("gosa.backend.objects.object.ObjectBackendRegistry.getBackend") as mb:
-            mb.return_value.identify.return_value = False
-            assert user.move('ou=roles,dc=example,dc=net') is True
-            mb.return_value.move.assert_called_with(user.uuid, 'ou=roles,dc=example,dc=net')
-            assert me.called
+        test_dn = "cn=Test User,ou=people,dc=test,dc=example,dc=net"
+        moved_dn = "cn=Test User,ou=roles,dc=test,dc=example,dc=net"
 
-            mocked_factory = mock.MagicMock()
-            mocked_factory.identifyObject.return_value = ObjectFactory.getInstance().identifyObject('cn=Frank Reich,ou=people,dc=example,dc=net')
-            mocked_factory.getObjectChildren.return_value = [1]
-            with pytest.raises(ProxyException), \
-                 mock.patch('gosa.backend.objects.proxy.ObjectFactory.getInstance', return_value=mocked_factory):
-                # none recursive with children
-                user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net')
-                user.move('ou=roles,dc=example,dc=net')
+        people = ObjectProxy('ou=people,dc=test,dc=example,dc=net')
+        # non-recursive with children -> error
+        with pytest.raises(ProxyException):
+            people.move('ou=roles,dc=test,dc=example,dc=net')
 
-            # TODO test recursive moving
-            # mb.reset_mock()
-            # with mock.patch("gosa.backend.objects.proxy.ObjectProxy") as mp:
-            #     # recursive
-            #     assert user.move('cn=Frank Reich,ou=roles,dc=example,dc=net', True) is False
-            #     mb.return_value.move.assert_called_with(user.uuid, 'cn=Frank Reich,ou=roles,dc=example,dc=net')
+        # recursive
+        user = ObjectProxy(test_dn)
+        assert user.move('ou=roles,dc=test,dc=example,dc=net', True) is True
+        user.commit()
+        assert user.dn == moved_dn
+
+        # move back, non-recursive
+        assert user.move('ou=people,dc=test,dc=example,dc=net') is True
+        user.commit()
+        assert user.dn == test_dn
+
+        # non-recursive, wrong container, fails at the moment
+        # roles = ObjectProxy('ou=roles,dc=test,dc=example,dc=net')
+        # assert roles.move('ou=people,dc=test,dc=example,dc=net') is False
 
     def test_remove(self):
         # check permissions
@@ -340,9 +386,7 @@ class ObjectProxyTestCase(TestCase):
         assert res['dn'] == 'cn=Frank Reich,ou=people,dc=example,dc=net'
         assert type(res) == dict
 
-    @pytest.mark.skip(reason="XSTL Stylesheet can't be parsed")
     def test_asXML(self):
-        #TODO: fix the XSLT error
 
         # check permissions
         mocked_resolver = mock.MagicMock()
@@ -355,6 +399,6 @@ class ObjectProxyTestCase(TestCase):
                 user.asXML()
 
         user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net')
-        res = user.asXML()
-        print(res)
-        assert res['dn'] == 'cn=Frank Reich,ou=people,dc=example,dc=net'
+        xml_string = user.asXML().decode('utf-8')
+        res = objectify.fromstring(xml_string)
+        assert res.DN == 'cn=Frank Reich,ou=people,dc=example,dc=net'

@@ -82,6 +82,9 @@ setup(
         'psycopg2',
         'passlib',
         'paho-mqtt',
+        'pyotp',
+        'pyqrcode',
+        'python-u2flib-server'
         ],
 
     entry_points = """
@@ -114,6 +117,7 @@ setup(
         shells = gosa.backend.plugins.posix.shells:ShellSupport
         password = gosa.backend.plugins.password.manager:PasswordManager
         uploads = gosa.backend.plugins.upload.main:UploadManager
+        two_factor = gosa.backend.plugins.two_factor.main:TwoFactorAuthManager
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
@@ -172,6 +176,7 @@ setup(
         detect_pwd_method = gosa.backend.plugins.password.filter.detect_method:DetectPasswordMethod
         password_lock = gosa.backend.plugins.password.filter.detect_locking:DetectAccountLockStatus
         addbackend = gosa.backend.objects.filter.basic:AddBackend
+        securecontext = gosa.backend.plugins.two_factor.filter.detect_security:DetectSecureContext
 
         [gosa.object.comparator]
         like = gosa.backend.objects.comparator.strings:Like

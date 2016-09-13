@@ -231,7 +231,7 @@ def map_ldap_value(value):
     return value
 
 
-def check_auth(user, password):
+def check_auth(user, password, get_dn=False):
     get = Environment.getInstance().config.get
     log = logging.getLogger(__name__)
 
@@ -276,7 +276,7 @@ def check_auth(user, password):
             dn = res[0][0]
             log.debug("starting simple bind using '%s'" % dn)
             conn.simple_bind_s(dn, password)
-            return True
+            return True if not get_dn else dn
         elif len(res) > 1:
             log.error("LDAP authentication failed: user %s not unique" % user)
         else:

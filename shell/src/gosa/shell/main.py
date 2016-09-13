@@ -49,10 +49,15 @@ import readline #@UnusedImport
 import gettext
 import textwrap
 import locale
+from json import loads
+
+import pyqrcode
 from urllib.request import HTTPError
 from pkg_resources import resource_filename #@UnresolvedImport
+from u2flib_host import u2f, exc
 
 from gosa.common.components import JSONServiceProxy, JSONRPCException
+from gosa.common.components.auth.console import ConsoleHandler
 from gosa.common.utils import parseURL, find_api_service
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.components.sse_client import BaseSseClient
@@ -217,26 +222,52 @@ class GosaService():
             sys.exit(1)
 
         # Try to log in
-        try:
-            if not self.proxy.login(username, password):
-                print(_("Login of user '%s' failed") % username)
-                sys.exit(1)
-        except Exception as e:
-            print(e)
-            sys.exit(1)
+        auth_handler = ConsoleHandler(self.proxy)
+        auth_handler.login(username, password)
 
         return connection, username, password
 
     def reconnectJson(self, connection, username, password):
         self.proxy = JSONServiceProxy(connection)
-        try:
-            if self.proxy.login(username, password):
-                pass
-            else:
-                sys.exit(1)
-        except Exception as e:
-            print(e)
-            sys.exit(1)
+        auth_handler = ConsoleHandler(self.proxy)
+        auth_handler.login(username, password)
+
+    def setTwoFactorMethod(self, user_dn, factor_method, user_password=None):
+        if factor_method == "u2f":
+            print(_("checking U2F devices..."))
+            # check for devices
+            devices = u2f.list_devices()
+            if len(devices) == 0:
+                print(_("No U2F devices found, aborting!"))
+                return
+        print("%s device(s) found" % len(devices))
+        print("sending method change request")
+        response = self.proxy.setTwoFactorMethod(user_dn, factor_method, user_password)
+        print("Response: %s" % response)
+        if response is None:
+            return
+        if factor_method == "u2f":
+            # bind
+            response = loads(response)
+            for device in devices:
+                # The with block ensures that the device is opened and closed.
+                print(_("Please touch the flashing U2F device now."))
+                with device as dev:
+                    # Register the device with some service
+                    for request in response['registerRequests']:
+                        registration_response = u2f.register(device, request, request['appId'])
+                        response = self.proxy.completeU2FRegistration(user_dn, registration_response)
+                        if response is True:
+                            print(_("U2F authentication has been enabled"))
+
+        elif response.startswith("otpauth://"):
+            url = pyqrcode.create(response, error='L')
+            print(url.terminal(quiet_zone=1))
+        else:
+            print(response)
+
+    def twoFactorNotAllowed(self, user_dn=None, factor_method=None, user_password=None):
+        print(_("You have to activate SSL support in the backend for enabling/changing the two-factor authentication method!"))
 
     def help(self):
         """ Prints some help """
@@ -256,7 +287,7 @@ class GosaService():
             sig = info['sig']
             args = ', '.join(sig)
             doc = ""
-            if info['doc'] != None:
+            if info['doc'] is not None:
                 d = ' '.join(info['doc'].split())
                 for line in textwrap.wrap(d, 72):
                     doc += "    %s\n" % line
@@ -323,7 +354,7 @@ def main(argv=sys.argv):
     # Make the the GosaService instance available to the console via the
     # "gosa" object.
     service.proxy.help = service.help
-    context = {'gosa': service.proxy, '__name__': '__console__', '__doc__': None}
+    context = {'gosa': service.proxy, 'service': service, '__name__': '__console__', '__doc__': None}
 
     # This python wrap string catches any exception, prints it and exists the
     # program with a failure that can be processed by the caller (e.g. on a
@@ -356,6 +387,16 @@ del os, histfile, readline, rlcompleter
 
 for i in gosa.getMethods().keys():
     globals()[i] = getattr(gosa, i)
+"""
+    if service_uri[0:5] == "https":
+        startup += """
+# override setTwoFactorMethod as we need the result to e.g. calculate QR-Code or setup U2F
+globals()['setTwoFactorMethod'] = service.setTwoFactorMethod
+"""
+    else:
+        startup += """
+# setTwoFactorMethod not allowed in non https environment
+globals()['setTwoFactorMethod'] = service.twoFactorNotAllowed
 """
 
     # Use script mode:
@@ -407,7 +448,7 @@ for i in gosa.getMethods().keys():
             except HTTPError as e:
                 if e.code == 401:
                     service.reconnectJson(service_uri, username, password)
-                    context = {'gosa': service, 'service': service.proxy,
+                    context = {'gosa': service.proxy, 'service': service,
                         '__name__': '__console__', '__doc__': None}
                 else:
                     print(e)

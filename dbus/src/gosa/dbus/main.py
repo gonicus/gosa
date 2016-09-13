@@ -88,7 +88,7 @@ def main():
     mainLoop(env)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: nocover
     if not sys.stdout.encoding:
         sys.stdout = codecs.getwriter('utf8')(sys.stdout)
     if not sys.stderr.encoding:

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+from pkg_resources import resource_filename
 import unittest
 import zope.event
 from gosa.common.event import EventMaker
@@ -35,7 +35,7 @@ class EventsTestCase(unittest.TestCase):
         schema = '<?xml version="1.0"?>' \
                  '<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events" ' \
                  'targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified">'\
-                 '<include schemaLocation="/home/tobiasb/develop/gosa3/next/backend/src/gosa/backend/data/events/BackendChange.xsd"/>'\
+                 '<include schemaLocation="%s"/>'\
                  '<complexType name="Event">'\
                  '<choice maxOccurs="1" minOccurs="1">'\
                  '<group ref="e:Events"/>'\
@@ -47,7 +47,7 @@ class EventsTestCase(unittest.TestCase):
                  '</choice>'\
                  '</group>'\
                  '<element name="Event" type="e:Event"/>'\
-                 '</schema>'
+                 '</schema>' % resource_filename('gosa.backend', 'data/events/BackendChange.xsd')
 
         with unittest.mock.patch("gosa.common.events.PluginRegistry.getEventSchema", return_value=schema):
             e = EventMaker()
