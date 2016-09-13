@@ -428,7 +428,7 @@ qx.Class.define("gosa.view.Search",
 
     /* Open the object given by its uuid/dn
      * */
-    openObject : function(dn) {
+    openObject : function(dn, type) {
       var win = null;
 
       gosa.proxy.ObjectFactory.openObject(function(obj, error){
@@ -472,7 +472,7 @@ qx.Class.define("gosa.view.Search",
           this.fireDataEvent("loadingComplete", {dn: dn});
 
         }, this, obj);
-      }, this, dn);
+      }, this, dn, type);
     },
 
 

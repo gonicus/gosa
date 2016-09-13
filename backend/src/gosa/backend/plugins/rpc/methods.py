@@ -79,9 +79,9 @@ class RPCMethods(Plugin):
         self.__session = self.env.getDatabaseSession('backend-database')
 
     @Command(__help__=N_("Returns a list containing all available object names"))
-    def getAvailableObjectNames(self):
+    def getAvailableObjectNames(self, only_base_objects=False):
         factory = ObjectFactory.getInstance()
-        return factory.getAvailableObjectNames()
+        return factory.getAvailableObjectNames(only_base_objects)
 
     @Command(__help__=N_("Returns all templates used by the given object type."))
     def getGuiTemplates(self, objectType, theme="default"):
