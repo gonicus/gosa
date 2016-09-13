@@ -21,7 +21,18 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._addModifyListeners();
 
     this._obj.setUiBound(true);
+
+    this._initialized = true;
+    this.fireEvent("initialized");
+
     obj.addListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
+  },
+
+  events : {
+    /**
+     * Fired when all setup etc. is done.
+     */
+    "initialized" : "qx.event.type.Event"
   },
 
   properties : {
@@ -39,6 +50,8 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
     _currentWidget : null,
     _currentBuddy : null,
+
+    _initialized : false,
 
     closeObject : function() {
       if (this._obj && !this._obj.isDisposed() && !this._obj.isClosed()) {
@@ -229,11 +242,22 @@ qx.Class.define("gosa.data.ObjectEditController", {
           widgets.widget.addListener("changeValue", listenerCallback);
         }
       }, this);
-      listenerCallback();
+
+      this.addListenerOnce("initialized", listenerCallback);
     },
 
+    /**
+     * @param event {qx.event.type.Data}
+     */
     _onChangeWidgetValue : function(event) {
-      this.setModified(true);
+      if (!this._initialized) {
+        return;
+      }
+      qx.core.Assert.assertInstance(event, qx.event.type.Data);
+
+      if (!event.getData().getUserData("initial")) {
+        this.setModified(true);
+      }
       var attr = event.getTarget().getAttribute();
       this._obj.setAttribute(attr, event.getData());
     },

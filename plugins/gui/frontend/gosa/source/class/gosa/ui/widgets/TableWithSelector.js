@@ -163,7 +163,9 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
 
       // Send initial content to process validators"
       if(this._initially_set && this._initially_send_update){
-        this.fireDataEvent("changeValue", value.copy());
+        var data = value.copy();
+        data.setUserData("initial", true);
+        this.fireDataEvent("changeValue", data);
         this._initially_send_update = false;
       }
       this._initially_set = true;

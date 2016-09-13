@@ -132,7 +132,7 @@
             }
         }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
-            "modelPath": "autoID",
+            "modelPath": "autoIDs",
             "addOptions": {
                 "row": 6,
                 "column": 0,
