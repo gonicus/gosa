@@ -31,6 +31,10 @@ qx.Class.define("gosa.view.Tree",
     this.setLayout(new qx.ui.layout.Canvas());
     this.addListenerOnce("appear", this.load, this);
     this._rpc = gosa.io.Rpc.getInstance();
+
+    gosa.io.Sse.getInstance().addListener("objectRemoved", this.__reloadTree, this);
+    gosa.io.Sse.getInstance().addListener("objectCreated", this.__reloadTree, this);
+    gosa.io.Sse.getInstance().addListener("objectModified", this.__reloadTree, this);
   },
 
   members : {
@@ -283,15 +287,7 @@ qx.Class.define("gosa.view.Tree",
     _onDeleteObject : function() {
       // get currently selected dn in tree
       this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
-        this.parent.search.removeObject(this.getChildControl("table").getTableModel().getRowData(index)[5], function(result, error) {
-          if(error) {
-            new gosa.ui.dialogs.Error(this.tr("Cannot remove entry!")).open();
-            this.error("cannot remove entry: " + error);
-          } else {
-            // refresh
-            this.__reloadTree();
-          }
-        }, this);
+        this.parent.search.removeObject(this.getChildControl("table").getTableModel().getRowData(index)[5]);
       }, this);
     }
   },
@@ -299,5 +295,9 @@ qx.Class.define("gosa.view.Tree",
   destruct : function() {
     this._rpc = null;
     this._disposeObjects("_deleteButton");
+
+    gosa.io.Sse.getInstance().removeListener("objectRemoved", this.__reloadTree, this);
+    gosa.io.Sse.getInstance().removeListener("objectCreated", this.__reloadTree, this);
+    gosa.io.Sse.getInstance().removeListener("objectModified", this.__reloadTree, this);
   }
 });
