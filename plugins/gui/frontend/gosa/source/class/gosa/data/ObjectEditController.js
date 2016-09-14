@@ -97,9 +97,15 @@ qx.Class.define("gosa.data.ObjectEditController", {
           if (widgets.hasOwnProperty("widget") && widgets.widget instanceof qx.ui.core.Widget) {
             this._currentWidget = widgets.widget;
           }
+          else {
+            this._currentWidget = null;
+          }
 
           if (widgets.hasOwnProperty("buddy") && widgets.buddy instanceof qx.ui.core.Widget) {
             this._currentBuddy = widgets.buddy;
+          }
+          else {
+            this._currentBuddy = null;
           }
 
           this._handleProperties(attribute);

@@ -32,7 +32,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       };
       var extensions = obj.extensionTypes;
       for (var ext in extensions) {
-        if (extensions.hasOwnProperty(ext)) {
+        if (extensions.hasOwnProperty(ext) && extensions[ext]) {
           gosa.util.Template.getTemplates(ext).forEach(addExtTemplate);
         }
       }
