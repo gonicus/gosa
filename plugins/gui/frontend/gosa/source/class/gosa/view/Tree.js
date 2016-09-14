@@ -36,24 +36,137 @@ qx.Class.define("gosa.view.Tree",
   members : {
 
     parent : null,
-    splitpane : null,
+    _deleteButton : null,
     _rpc : null,
-    _tree : null,
 
-    load : function(){
-      this.splitpane = new qx.ui.splitpane.Pane("horizontal");
-      this.add(this.splitpane, {top: 0, bottom: 0, left:0, right: 0});
+    _createChildControlImpl : function(id, hash) {
 
-      //var tree = new qx.ui.treevirtual.TreeVirtual("Tree");
-      var root = new gosa.data.model.TreeResultItem(this.tr("Root"));
-      root.setType("root");     // Required to show the icon
-      root.load();  // Required to auto fetch children
+      var control = null;
 
-      // Create the Tree
-      var tree = this._tree = new qx.ui.tree.VirtualTree(root, "title", "children");
-      tree.setMinWidth(260);
-      tree.setSelectionMode("multi");
+      switch(id) {
 
+        case "tree":
+          var root = new gosa.data.model.TreeResultItem(this.tr("Root"));
+          root.setType("root");     // Required to show the icon
+          root.load();  // Required to auto fetch children
+
+          control = new qx.ui.tree.VirtualTree(root, "title", "children");
+          control.setMinWidth(260);
+          control.setSelectionMode("multi");
+          this.__applyTreeDelegate(control);
+          this.getChildControl("splitpane").add(control, 1);
+          // Act on tree selection to automatically update the list
+          control.getSelection().addListener("change", this.__refreshTable, this);
+          break;
+
+        case "splitpane":
+          console.log("adding and creating splitpane");
+          control = new qx.ui.splitpane.Pane("horizontal");
+          this.add(control, {top: 0, bottom: 0, left:0, right: 0});
+          break;
+
+        // Create the action-bar for the list panel
+        case "listcontainer":
+          control = new qx.ui.container.Composite(new qx.ui.layout.VBox(5));
+          var toolbar = new qx.ui.toolbar.ToolBar;
+          var menuPart = new qx.ui.toolbar.Part;
+          var menuPart2 = new qx.ui.toolbar.Part;
+          var actionMenuButton = new qx.ui.toolbar.MenuButton("Action");
+          var createMenuButton = new qx.ui.toolbar.MenuButton("Create");
+          var filterMenuButton = new qx.ui.toolbar.MenuButton("Show");
+          menuPart.add(actionMenuButton);
+          menuPart.add(createMenuButton);
+          menuPart.add(filterMenuButton);
+          menuPart2.add(new qx.ui.form.TextField().set({placeholder: this.tr("Search ..")}).set({enabled: false}));
+          toolbar.add(menuPart2);
+          toolbar.add(menuPart);
+
+          var actionMenu = new qx.ui.menu.Menu();
+          actionMenuButton.setMenu(actionMenu);
+          var deleteButton = this._deleteButton = new qx.ui.menu.Button(this.tr("Delete"));
+          actionMenu.add(deleteButton);
+          deleteButton.setEnabled(false);
+
+          deleteButton.addListener("execute", this._onDeleteObject, this);
+
+          var createMenu = this.getChildControl("createMenu");
+          createMenuButton.setMenu(createMenu);
+
+          toolbar.setEnabled(true);
+          control.add(toolbar);
+          this.getChildControl("splitpane").add(control, 2);
+          break;
+
+        case "createMenu":
+          control = new qx.ui.menu.Menu();
+          break;
+
+        case "table":
+          // Create the table
+          var tableModel = this._tableModel = new qx.ui.table.model.Simple();
+          tableModel.setColumns([ "-", this.tr("Name"), this.tr("Description"), this.tr("DN"), this.tr("Actions"), this.tr("UUID")]);
+          var customModel = {
+            tableColumnModel : function(obj){
+              return new qx.ui.table.columnmodel.Resize(obj);
+            }
+          };
+          var table = new qx.ui.table.Table(tableModel, customModel);
+          this.getChildControl("listcontainer").add(table, {flex: 1});
+          var that = this;
+          table.addListener('dblclick', function(){
+            table.getSelectionModel().iterateSelection(function(index) {
+              that.parent.search.openObject(tableModel.getRowData(index)[3]);
+            });
+          }, this);
+
+          table.getSelectionModel().addListener("changeSelection", function() {
+            // TODO: check if the selected object is deletable, check ACL too?
+            this._deleteButton.setEnabled(table.getSelectionModel().getSelectedCount() > 0);
+          }, this);
+
+          var ImageByType = qx.Class.define("ImageByType",{
+            extend : qx.ui.table.cellrenderer.Image,
+            members :      {
+              _getImageInfos : function(cellInfo){
+                var path = gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/16/" + cellInfo['value'].toLowerCase() + ".png";
+                path = document.URL.replace(/\/[^\/]*[a-zA-Z]\/.*/, "") + path;
+                cellInfo['value'] = path;
+                return(this.base(arguments, cellInfo));
+              }
+            }
+          });
+
+          var Action = qx.Class.define("Action",{
+            extend : qx.ui.table.cellrenderer.Boolean,
+            members :      {
+              _getImageInfos : function(cellInfo){
+                cellInfo['value'] =  gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/16/" + cellInfo['value'].toLowerCase() + ".png";
+                return(this.base(arguments, cellInfo));
+              }
+            }
+          });
+
+
+          table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
+          var tcm = table.getTableColumnModel();
+          var resizeBehavior = tcm.getBehavior();
+          resizeBehavior.setWidth(0, 25);
+          resizeBehavior.setWidth(1, "1*");
+          resizeBehavior.setWidth(2, "1*");
+          resizeBehavior.setWidth(3, "1*");
+          tcm.setColumnVisible(3, false);
+          tcm.setColumnVisible(5, false);
+          tcm.setDataCellRenderer(0, new ImageByType());
+
+          control = table;
+          break;
+
+      }
+
+      return control || this.base(arguments, id, hash);
+    },
+
+    __applyTreeDelegate : function(tree) {
       // Special delegation handling
       var delegate = {
 
@@ -80,130 +193,75 @@ qx.Class.define("gosa.view.Tree",
         }
       };
       tree.setDelegate(delegate);
+    },
 
-      this.splitpane.add(tree, 1);
+    load : function(){
 
-      // Create the action-bar for the list panel
-      var listContainer = new qx.ui.container.Composite(new qx.ui.layout.VBox(5));
-      var toolbar = new qx.ui.toolbar.ToolBar;
-      var menuPart = new qx.ui.toolbar.Part;
-      var menuPart2 = new qx.ui.toolbar.Part;
-      var actionMenuButton = new qx.ui.toolbar.MenuButton("Action");
-      var createMenuButton = new qx.ui.toolbar.MenuButton("Create");
-      var filterMenuButton = new qx.ui.toolbar.MenuButton("Show");
-      menuPart.add(actionMenuButton);
-      menuPart.add(createMenuButton);
-      menuPart.add(filterMenuButton);
-      menuPart2.add(new qx.ui.form.TextField().set({placeholder: this.tr("Search ..")}).set({enabled: false}));
-      toolbar.add(menuPart2);
-      toolbar.add(menuPart);
+      // Create the Tree
+      var tree = this.getChildControl("tree");
+      tree.addListener("updatedItems", this.__refreshTable, this);
+      this.getChildControl("listcontainer");
+      this.getChildControl("table");
+      this.__updateCreateMenu();
+      this.__refreshTable();
+    },
 
-      var createMenu = new qx.ui.menu.Menu();
-      createMenuButton.setMenu(createMenu);
-
-      toolbar.setEnabled(true);
-
+    __updateCreateMenu : function() {
       // load object types
-
       this._rpc.cA(function(result, error){
         if(error){
           new gosa.ui.dialogs.Error(error.message).open();
-        }else{
+        } else {
           result.sort();
           for (var index in result) {
             var name = result[index];
             var button = new qx.ui.menu.Button(name);
             button.setUserData("type", name);
-            createMenu.add(button);
+            this.getChildControl("createMenu").add(button);
             button.addListener("execute", this._onCreateObject, this);
           }
         }
       }, this, "getAvailableObjectNames", true);
+    },
 
-      listContainer.add(toolbar);
-      this.splitpane.add(listContainer, 2);
+    __refreshTable : function() {
+      var sel = this.getChildControl("tree").getSelection();
 
-      // Create the table
-      var tableModel = this._tableModel = new qx.ui.table.model.Simple();
-      tableModel.setColumns([ "-", this.tr("Name"), this.tr("Description"), this.tr("DN"), this.tr("Actions")]);
-      var customModel = {
-        tableColumnModel : function(obj){
-          return new qx.ui.table.columnmodel.Resize(obj);
+      var done = [];
+      var tableModel = this.getChildControl("table").getTableModel();
+      tableModel.setData([]);
+      var f = function(item){
+        if(!qx.lang.Array.contains(done, item)){
+          tableModel.addRows([item.getTableRow()]);
+          done.push(item);
         }
       };
-      var table = new qx.ui.table.Table(tableModel, customModel);
-      listContainer.add(table, {flex: 1});
-      var that = this;
-      table.addListener('dblclick', function(){
-          table.getSelectionModel().iterateSelection(function(index) {
-              that.parent.search.openObject(tableModel.getRowData(index)[3]);
-          });
+
+      var f2 = function(index){
+        sel.getItem(index).load(function(){
+          if(sel.getItem(index).getChildren()){
+            sel.getItem(index).getChildren().forEach(f);
+          }
+          if(sel.getItem(index).getLeafs()){
+            sel.getItem(index).getLeafs().forEach(f);
+          }
+        },this);
+      };
+      for(var i=0; i<sel.getLength(); i++){
+        f2(i);
+      }
+    },
+
+    __reloadTree : function() {
+      var queue = this.getChildControl("tree").getSelection().length;
+      this.getChildControl("tree").getSelection().forEach(function(sel) {
+        sel.addListenerOnce("updatedItems", function() {
+          queue--;
+          if (queue === 0) {
+            this.__refreshTable();
+          }
         }, this);
-
-
-      var ImageByType = qx.Class.define("ImageByType",{
-        extend : qx.ui.table.cellrenderer.Image,
-        members :      {
-          _getImageInfos : function(cellInfo){
-            var path = gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/16/" + cellInfo['value'].toLowerCase() + ".png";
-            path = document.URL.replace(/\/[^\/]*[a-zA-Z]\/.*/, "") + path;
-            cellInfo['value'] = path;
-            return(this.base(arguments, cellInfo));
-          }
-        }
-      });
-
-      var Action = qx.Class.define("Action",{
-        extend : qx.ui.table.cellrenderer.Boolean,
-        members :      {
-          _getImageInfos : function(cellInfo){
-            cellInfo['value'] =  gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/16/" + cellInfo['value'].toLowerCase() + ".png";
-            return(this.base(arguments, cellInfo));
-          }
-        }
-      });
-
-
-      table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
-      var tcm = table.getTableColumnModel();
-      var resizeBehavior = tcm.getBehavior();
-      resizeBehavior.setWidth(0, 25);
-      resizeBehavior.setWidth(1, "1*");
-      resizeBehavior.setWidth(2, "1*");
-      resizeBehavior.setWidth(3, "1*");
-      tcm.setColumnVisible(3, false);
-      tcm.setDataCellRenderer(0, new ImageByType());
-
-      // Act on tree selection to automatically update the list
-      tree.getSelection().addListener("change", function(e){
-        var sel = tree.getSelection();
-        var data = [];
-        var done = [];
-        tableModel.setData([]);
-        var f = function(item){
-          if(!qx.lang.Array.contains(done, item)){
-            tableModel.addRows([item.getTableRow()]);
-            done.push(item);
-          }
-        };
-
-        var f2 = function(index){
-          sel.getItem(index).load(function(){
-            if(sel.getItem(index).getChildren()){
-              for(var j=0; j<sel.getItem(index).getChildren().getLength(); j++){
-                f(sel.getItem(index).getChildren().getItem(j));
-              }
-            }
-            if(sel.getItem(index).getLeafs()){
-              for(var j=0; j<sel.getItem(index).getLeafs().getLength(); j++){
-                f(sel.getItem(index).getLeafs().getItem(j));
-              }
-            }
-          },this);
-        };
-        for(var i=0; i<sel.getLength(); i++){
-          f2(i);
-        }
+        sel.reload();
       }, this);
     },
 
@@ -211,7 +269,7 @@ qx.Class.define("gosa.view.Tree",
       var button = ev.getTarget();
 
       // get currently selected dn in tree
-      var selection = this._tree.getSelection();
+      var selection = this.getChildControl("tree").getSelection();
       var dns = new qx.data.Array();
       selection.forEach(function(sel) {
         if (!dns.contains(sel.getDn())) {
@@ -220,11 +278,26 @@ qx.Class.define("gosa.view.Tree",
       }, this);
       // TODO: how to handle multiple dns
       this.parent.search.openObject(dns.getItem(0), button.getUserData("type"));
+    },
+
+    _onDeleteObject : function() {
+      // get currently selected dn in tree
+      this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
+        this.parent.search.removeObject(this.getChildControl("table").getTableModel().getRowData(index)[5], function(result, error) {
+          if(error) {
+            new gosa.ui.dialogs.Error(this.tr("Cannot remove entry!")).open();
+            this.error("cannot remove entry: " + error);
+          } else {
+            // refresh
+            this.__reloadTree();
+          }
+        }, this);
+      }, this);
     }
   },
 
   destruct : function() {
     this._rpc = null;
-    this._disposeObjects("_tree");
+    this._disposeObjects("_deleteButton");
   }
 });

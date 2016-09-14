@@ -33,6 +33,10 @@ qx.Class.define("gosa.data.model.TreeResultItem",
     this.setLeafs(new qx.data.Array());
   },
 
+  events : {
+    "updatedItems" : "qx.event.type.Event"
+  },
+
   members: {
 
     _onOpen : function(value){
@@ -43,105 +47,103 @@ qx.Class.define("gosa.data.model.TreeResultItem",
       }
     },
 
+    reload : function(callback, context) {
+      this.setLoaded(false);
+      this.setLoading(false);
+      this.getChildren().removeAll();
+      this.getLeafs().removeAll();
+      this.load(callback, context);
+    },
+
     load: function(func, ctx){
 
-      var that = this;
-
       // If not done yet, resolve the child elements of this container
-      if(that.isLoaded()){
-        if(func){
+      if (this.isLoaded()) {
+        if (func) {
           func.apply(ctx);
         }
-      }else{
+      } else {
 
-        that.setLoaded(true);
-        that.setLoading(true);
+        this.setLoaded(true);
+        this.setLoading(true);
 
         // TODO: check for getHasChildren, once its implemented in the backend
 
-        setTimeout(function(){
+        qx.event.Timer.once(function() {
           var rpc = gosa.io.Rpc.getInstance();
-          if (that.getParent()) {
+          if (this.getParent()) {
 
             // We're looking for entries on the current base
             rpc.cA(function(data, error){
                 var newc = new qx.data.Array();
                 for(var id in data){
-                  var item  = that.parseItemForResult(data[id]);
+                  var item  = this.parseItemForResult(data[id]);
                   if(item.isContainer()){
                     newc.push(item);
                   }else{
-                    that.getLeafs().push(item);
+                    this.getLeafs().push(item);
                   }
                 }
-                that.setChildren(newc);
-                that.sortElements();
+                this.setChildren(newc);
+                this.sortElements();
                 if(func){
                   func.apply(ctx);
                 }
-                that.setLoading(false);
+                this.setLoading(false);
                 
-              }, that, "search", that.getDn(), "children", null, {secondary: false, 'adjusted-dn': true});
+              }, this, "search", this.getDn(), "children", null, {secondary: false, 'adjusted-dn': true});
 
           } else {
             // We're added uppon the root
             // Fetch all available domains
-            rpc.cA(function(data, error){
+            rpc.cA(function(data, error) {
 
-                var queue = 0;
+              var queue = 0;
+              data.forEach(function(entry) {
+                // Count startet job and once the last has finished sort the elements
+                queue ++;
+                rpc.cA(function(result, error) {
+                  queue --;
 
-                // Starts a new domain resolve (e.g. "dc=example,dc=net" into a TreeResultItem)
-                var resolve = function(name){
+                  // Add the resolved element to the child list
+                  if(result.length == 1){
+                    var item = this.parseItemForResult(result[0]);
+                    this.getChildren().push(item);
 
-                  // Count startet job and once the last has finished sort the elements
-                  queue ++;
-                  rpc.cA(function(result, error){
-                    queue --;
+                    // Sort on last resolved domain element
+                    if(queue === 0){
+                      this.sortElements();
 
-                    // Add the resolved element to the cild list
-                    if(result.length == 1){
-                      var item = that.parseItemForResult(result[0]);
-                      that.getChildren().push(item);
+                      // Stop loading throbber
+                      this.setLoading(false);
 
-                      // Sort on last resolved domain element
-                      if(queue==0){
-                        that.sortElements();
-
-                        // Stop loading throbber
-                        that.setLoading(false);
-                
-                        if(func){
-                          func.apply(ctx);
-                        }
+                      if(func) {
+                        func.apply(ctx);
                       }
-                    }else{
-                      that.error("could not resolve tree element '" + name + "'!");
                     }
-                  }, that, "search", name, "base", null, {secondary: false, 'adjusted-dn': true});
-                }
-
-                // Start resolve process for each catched domain
-                for (var i=0; i<data.length; i++) {
-                  resolve(data[i]);
-                }
-
-              }, that, "getEntryPoints");
+                  } else {
+                    this.error("could not resolve tree element '" + entry + "'!");
+                  }
+                }, this, "search", entry, "base", null, {secondary: false, 'adjusted-dn': true});
+              }, this);
+            }, this, "getEntryPoints");
           }
-        }, 10);
+        }, this, 10);
       }
     },
 
     /* Sort child and leaf elements
      * */
     sortElements : function(){
-      var sortF= function(a,b){
-          if(a.getTitle() == b.getTitle()){
-            return 0;
-          }
-          return (a.getTitle() < b.getTitle()) ? -1 : 1;
+      var sortF= function(a,b) {
+        if(a.getTitle() == b.getTitle()){
+          return 0;
         }
+        return (a.getTitle() < b.getTitle()) ? -1 : 1;
+      };
       this.getChildren().sort(sortF);
       this.getLeafs().sort(sortF);
+      this.fireEvent("updatedItems");
     },
 
     /* Parses a result item into a TreeResultItem
@@ -151,7 +153,6 @@ qx.Class.define("gosa.data.model.TreeResultItem",
       if(result['container']){
         container = result['container']; 
       }
-
       var item = new gosa.data.model.TreeResultItem(result['title'], this).set({
           container: container,
           dn: result['dn'],
@@ -176,7 +177,9 @@ qx.Class.define("gosa.data.model.TreeResultItem",
       return([this.getType(), 
           this.getTitle(), 
           this.getDescription(),
-          this.getDn()]);
+          this.getDn(),
+          '',
+          this.getUuid()]);
     }
   },
 
