@@ -135,7 +135,7 @@ class ObjectProxy(object):
             if what not in object_types:
                 raise ProxyException(C.make_error('OBJECT_UNKNOWN_TYPE', type=type))
 
-            dn_or_base = self.find_dn_for_object(what, base, dn_or_base)
+            dn_or_base = self.find_dn_for_object(what, base, dn_or_base) if base else dn_or_base
             base = what
             base_mode = "create"
             extensions = []

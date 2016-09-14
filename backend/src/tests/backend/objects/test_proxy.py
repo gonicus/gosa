@@ -9,6 +9,8 @@
 
 import datetime
 from unittest import mock, TestCase
+
+from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 from tests.GosaTestCase import *
 from gosa.backend.objects.proxy import *
 from lxml import objectify
@@ -83,7 +85,7 @@ class ObjectProxyTestCase(TestCase):
         assert user.uid == 'freich'
 
         # create new user
-        user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net', 'User')
+        user = ObjectProxy('dc=example,dc=net', 'User')
         assert user.uid is None
 
     def test_get_all_method_names(self):
@@ -311,39 +313,31 @@ class ObjectProxyTestCase(TestCase):
             user.remove()
 
     @mock.patch("zope.event.notify")
-    @mock.patch("gosa.backend.objects.object.ObjectBackendRegistry.getBackend")
-    def test_commit(self, mb, me):
-        mb.return_value.identify.return_value = False
+    def test_commit(self, me):
+        ldap_backend = ObjectBackendRegistry.getBackend("LDAP")
 
-        # check permissions
-        mocked_resolver = mock.MagicMock()
-        mocked_resolver.check.return_value = False
+        with mock.patch.object(ldap_backend, "create", return_value="fake-uuid") as mb,\
+                mock.patch.object(ldap_backend, "uuid2dn", return_value="cn=Test User,ou=people'dc=example,dc=net"):
+            # check permissions
+            mocked_resolver = mock.MagicMock()
+            mocked_resolver.check.return_value = False
 
-        with mock.patch.dict("gosa.backend.objects.proxy.PluginRegistry.modules", {'ACLResolver': mocked_resolver}):
-            user = ObjectProxy('cn=Test User,ou=people,dc=example,dc=net', 'User', 'admin')
+            with mock.patch.dict("gosa.backend.objects.proxy.PluginRegistry.modules", {'ACLResolver': mocked_resolver}):
+                user = ObjectProxy('dc=example,dc=net', 'User', 'admin')
 
-            with pytest.raises(ACLException):
+                with pytest.raises(ACLException):
+                    user.commit()
+
+                mocked_resolver.check.return_value = True
+                user = ObjectProxy('dc=example,dc=net', 'User')
+
+                # add mandatory values
+                user.givenName = "Test"
+                user.sn = "User"
+                user.uid = "tuser"
+
                 user.commit()
-
-        mocked_factory = mock.MagicMock()
-        mocked_factory.identifyObject = ObjectFactory.getInstance().identifyObject
-        mocked_factory.getObjectTypes = ObjectFactory.getInstance().getObjectTypes
-        mocked_factory.getObject = ObjectFactory.getInstance().getObject
-        mocked_factory.get_attributes_by_object = ObjectFactory.getInstance().get_attributes_by_object
-        mocked_factory.getObjectProperties = ObjectFactory.getInstance().getObjectProperties
-        mocked_factory.getObjectMethods = ObjectFactory.getInstance().getObjectMethods
-        mocked_factory.getAttributeTypeMap = ObjectFactory.getInstance().getAttributeTypeMap
-        mocked_factory.getAttributeTypes = ObjectFactory.getInstance().getAttributeTypes
-        with mock.patch('gosa.backend.objects.proxy.ObjectFactory.getInstance', return_value=mocked_factory):
-            user = ObjectProxy('ou=people,dc=example,dc=net', 'User')
-
-            # add mandatory values
-            user.givenName = "Test"
-            user.sn = "User"
-            user.uid = "tuser"
-
-            user.commit()
-            assert mb.return_value.create.called
+                assert mb.called
 
     def test_attribute_manipulation(self):
         # check permissions

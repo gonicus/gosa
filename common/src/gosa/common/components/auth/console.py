@@ -43,6 +43,7 @@ class ConsoleHandler(object):
         the next required step until the login process succeeds or fails.
         """
         try:
+            print(response)
             result_code = int(response['state'])
 
             if result_code == AUTH_FAILED:
