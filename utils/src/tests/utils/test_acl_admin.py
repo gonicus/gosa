@@ -254,7 +254,7 @@ def test_connect():
         with pytest.raises(SystemExit):
             connect()
 
-        m_proxy.return_value.login.return_value = AUTH_FAILED
+        m_proxy.return_value.login.return_value = {'state': AUTH_FAILED}
         with pytest.raises(SystemExit):
             connect('http://admin:tester@localhost:8000/rpc')
 
@@ -266,7 +266,7 @@ def test_connect():
             connect('ftp://admin:tester@localhost:8000/rpc')
 
         m_proxy.return_value.login.side_effect = None
-        m_proxy.return_value.login.return_value = AUTH_SUCCESS
+        m_proxy.return_value.login.return_value = {'state': AUTH_SUCCESS}
         connect('http://localhost:8000/rpc', 'admin', 'tester')
 
         with mock.patch("gosa.utils.acl_admin.getpass.getpass", return_value="tester"), \

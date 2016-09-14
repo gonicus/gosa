@@ -18,12 +18,16 @@ local index database
 ----
 """
 import logging
+from gosa.common.event import EventMaker
+from lxml import etree
+from lxml import objectify
 import zope.event
 import datetime
 import hashlib
 import time
 import itertools
 
+from gosa.backend.routes.sse.main import SseHandler
 from gosa.common.events import MqttEventConsumer
 from zope.interface import implementer
 from gosa.common import Environment
@@ -477,7 +481,7 @@ class ObjectIndex(Plugin):
             change_type = None
             _uuid = event.uuid
             _dn = None
-            _last_changed = time.mktime(datetime.datetime.now().timetuple())
+            _last_changed = datetime.datetime.now()
 
             # Try to find the affected DN
             e = self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == _uuid).one_or_none()
@@ -489,7 +493,6 @@ class ObjectIndex(Plugin):
                     _last_changed = e._last_modified
                 else:
                     _dn = "not known yet"
-                    _last_changed = datetime.datetime.now()
 
             if event.reason == "post object remove":
                 self.log.debug("removing object index for %s" % _uuid)
@@ -520,6 +523,24 @@ class ObjectIndex(Plugin):
                 obj = ObjectProxy(event.dn)
                 self.update(obj)
                 change_type = "update"
+
+            # send the event to the clients
+            e = EventMaker()
+
+            if event.reason[0:4] == "post" and _uuid and _dn and change_type:
+
+                ev = e.Event(e.ObjectChanged(
+                    e.UUID(_uuid),
+                    e.DN(_dn),
+                    e.ModificationTime(_last_changed.strftime("%Y%m%d%H%M%SZ")),
+                    e.ChangeType(change_type)
+                ))
+                event = "<?xml version='1.0'?>\n%s" % etree.tostring(ev, pretty_print=True).decode('utf-8')
+
+                # Validate event
+                xml = objectify.fromstring(event, PluginRegistry.getEventParser())
+
+                SseHandler.notify(xml, channel="broadcast")
 
     def insert(self, obj, skip_base_check=False):
         if not skip_base_check:

@@ -416,19 +416,22 @@ qx.Class.define("gosa.view.Search",
 
     /* Removes the object given by its uuid
      * */
-    removeObject: function(uuid){
+    removeObject: function(uuid, callback, context) {
       var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA(function(result, error){
-          if(error){
+      if (!callback) {
+        callback = function(result, error) {
+          if(error) {
             new gosa.ui.dialogs.Error(this.tr("Cannot remove entry!")).open();
             this.error("cannot remove entry: " + error);
           }
-        }, this, "removeObject", "object", uuid); 
+        }
+      }
+      rpc.cA(callback.bind(context), this, "removeObject", "object", uuid);
     },
 
     /* Open the object given by its uuid/dn
      * */
-    openObject : function(dn) {
+    openObject : function(dn, type) {
       var win = null;
 
       gosa.proxy.ObjectFactory.openObject(function(obj, error){
@@ -472,7 +475,7 @@ qx.Class.define("gosa.view.Search",
           this.fireDataEvent("loadingComplete", {dn: dn});
 
         }, this, obj);
-      }, this, dn);
+      }, this, dn, type);
     },
 
 

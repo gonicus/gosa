@@ -1123,7 +1123,7 @@ class Object(object):
                     dns = [x['dn'] for x in dns]
                 res.append((
                     ref_attribute,
-                    list(map(lambda s: s.decode('utf-8'), dns if dns else []))
+                    dns
                 ))
 
         return res

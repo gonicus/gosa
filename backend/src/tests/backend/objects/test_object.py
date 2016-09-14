@@ -255,7 +255,7 @@ class ObjectTestCase(TestCase):
         assert 'member' in res[0]
 
         mocked_index = mock.MagicMock()
-        mocked_index.search.return_value = [{'dn': b'dn1'}, {'dn': b'dn2'}]
+        mocked_index.search.return_value = [{'dn': 'dn1'}, {'dn': 'dn2'}]
         with mock.patch.dict(PluginRegistry.modules, {'ObjectIndex': mocked_index}):
             res = object.get_dn_references()
             assert len(res) == 1

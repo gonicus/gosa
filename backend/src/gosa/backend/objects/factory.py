@@ -206,11 +206,14 @@ class ObjectFactory(object):
 
         return list(set(res))
 
-    def getAvailableObjectNames(self):
+    def getAvailableObjectNames(self, only_base_objects=False):
         """
         Retuns a list with all available object names
         """
-        return list(self.__xml_defs.keys())
+        if only_base_objects:
+            return [name for name in self.__xml_defs.keys() if name in self.__object_types and self.__object_types[name]['base']]
+        else:
+            return list(self.__xml_defs.keys())
 
     def getObjectTemplates(self, objectType, theme="default"):
         """

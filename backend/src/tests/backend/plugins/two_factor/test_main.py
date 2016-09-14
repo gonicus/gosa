@@ -97,7 +97,8 @@ class TwoFactorAuthManagerTestCase(TestCase):
             assert len(res['registerRequests']) == 1
 
             # proceed with some fake data
-            fake_response = {"clientData": "eyJvcmlnaW4iOiAiaHR0cDovL2xvY2FsaG9zdDo4MDgxIiwgImNoYWxsZW5nZSI6ICJEMnB6VFBaYTdicTY5QUJ1aUdRSUxvOXpjc1RVUlAyNlJMaWZUeUNraWxjIiwgInR5cCI6ICJuYXZpZ2F0b3IuaWQuZmluaXNoRW5yb2xsbWVudCJ9", "registrationData": "BQSivQtJ6-lAgZ2qQ0aUGLEiJSRoLWUSGcmMO8C-GuibA0-xTvmuQfTqKyFJZWOUjGzEIgF4xV6gJ6itcagsyuUWQEQh9noDSu-WtzTOMhK_lKHxwHtQgJHCkzs4mukfpf310K5Dq9k6zBNtZ2RMBWgJhI7hJo4JiFn3k2GUNLwKZpwwggGHMIIBLqADAgECAgkAmb7osQyi7BwwCQYHKoZIzj0EATAhMR8wHQYDVQQDDBZZdWJpY28gVTJGIFNvZnQgRGV2aWNlMB4XDTEzMDcxNzE0MjEwM1oXDTE2MDcxNjE0MjEwM1owITEfMB0GA1UEAwwWWXViaWNvIFUyRiBTb2Z0IERldmljZTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABDvhl91zfpg9n7DeCedcQ8gGXUnemiXoi-JEAxz-EIhkVsMPAyzhtJZ4V3CqMZ-MOUgICt2aMxacMX9cIa8dgS2jUDBOMB0GA1UdDgQWBBQNqL-TV04iaO6mS5tjGE6ShfexnjAfBgNVHSMEGDAWgBQNqL-TV04iaO6mS5tjGE6ShfexnjAMBgNVHRMEBTADAQH_MAkGByqGSM49BAEDSAAwRQIgXJWZdbvOWdhVaG7IJtn44o21Kmi8EHsDk4cAfnZ0r38CIQD6ZPi3Pl4lXxbY7BXFyrpkiOvCpdyNdLLYbSTbvIBQOTBFAiEA1uwJKNez6_BHdA2d-DPmRFJj19biYNkhN86SFH5Z_lYCICld2L3ZAVsm_uNFRt13_N9dlhGu50pb1ql8-_3_p5v1"}
+            fake_response = dumps({"clientData":
+                                       "eyJvcmlnaW4iOiAiaHR0cDovL2xvY2FsaG9zdDo4MDgxIiwgImNoYWxsZW5nZSI6ICJEMnB6VFBaYTdicTY5QUJ1aUdRSUxvOXpjc1RVUlAyNlJMaWZUeUNraWxjIiwgInR5cCI6ICJuYXZpZ2F0b3IuaWQuZmluaXNoRW5yb2xsbWVudCJ9", "registrationData": "BQSivQtJ6-lAgZ2qQ0aUGLEiJSRoLWUSGcmMO8C-GuibA0-xTvmuQfTqKyFJZWOUjGzEIgF4xV6gJ6itcagsyuUWQEQh9noDSu-WtzTOMhK_lKHxwHtQgJHCkzs4mukfpf310K5Dq9k6zBNtZ2RMBWgJhI7hJo4JiFn3k2GUNLwKZpwwggGHMIIBLqADAgECAgkAmb7osQyi7BwwCQYHKoZIzj0EATAhMR8wHQYDVQQDDBZZdWJpY28gVTJGIFNvZnQgRGV2aWNlMB4XDTEzMDcxNzE0MjEwM1oXDTE2MDcxNjE0MjEwM1owITEfMB0GA1UEAwwWWXViaWNvIFUyRiBTb2Z0IERldmljZTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABDvhl91zfpg9n7DeCedcQ8gGXUnemiXoi-JEAxz-EIhkVsMPAyzhtJZ4V3CqMZ-MOUgICt2aMxacMX9cIa8dgS2jUDBOMB0GA1UdDgQWBBQNqL-TV04iaO6mS5tjGE6ShfexnjAfBgNVHSMEGDAWgBQNqL-TV04iaO6mS5tjGE6ShfexnjAMBgNVHRMEBTADAQH_MAkGByqGSM49BAEDSAAwRQIgXJWZdbvOWdhVaG7IJtn44o21Kmi8EHsDk4cAfnZ0r38CIQD6ZPi3Pl4lXxbY7BXFyrpkiOvCpdyNdLLYbSTbvIBQOTBFAiEA1uwJKNez6_BHdA2d-DPmRFJj19biYNkhN86SFH5Z_lYCICld2L3ZAVsm_uNFRt13_N9dlhGu50pb1ql8-_3_p5v1"})
             m_resolver.return_value.check.return_value = False
             with pytest.raises(ACLException):
                 self.manager.completeU2FRegistration("admin", "cn=System Administrator,ou=people,dc=example,dc=net", fake_response)
@@ -125,7 +126,8 @@ class TwoFactorAuthManagerTestCase(TestCase):
             assert 'authenticateRequests' in res
             assert len(res['authenticateRequests']) == 1
 
-            fake_response = {"clientData": "eyJvcmlHR0cDovL2xvY2FsaG9zdDo4MDgxIiwgImNoYWxsZW5nZSI6ICJlNGtScWk3eTdmUHdtZGZ1RnJ5WkxyVUhYby1BdF91YUFwWHdxdkV2UmxzIiwgInR5cCI6ICJuYXZpZ2F0b3IuaWQuZ2V0QXNzZXJ0aW9uIn0", "challenge": "e4kRqi7y7fPwmdfuFryZLrUHXo-At_uaApXwqvEvRls", "keyHandle": "RCH2egNK75a3NM4yEr-UofHAe1CAkcKTOzia6R-l_fXQrkOr2TrME21nZEwFaAmEjuEmjgmIWfeTYZQ0vApmnA", "signatureData": "AQAAAAIwRQIhAIyr0y4xg-pI8NhAUHJmaluGXwZ7yd5i0e7FQE4l9OaEAiB68JP-df7ro8ohxCcgyxfRiKrsY1J67kLcEuYb0MCrDg"}
+            fake_response = dumps({"clientData":
+                                  "eyJvcmlHR0cDovL2xvY2FsaG9zdDo4MDgxIiwgImNoYWxsZW5nZSI6ICJlNGtScWk3eTdmUHdtZGZ1RnJ5WkxyVUhYby1BdF91YUFwWHdxdkV2UmxzIiwgInR5cCI6ICJuYXZpZ2F0b3IuaWQuZ2V0QXNzZXJ0aW9uIn0", "challenge": "e4kRqi7y7fPwmdfuFryZLrUHXo-At_uaApXwqvEvRls", "keyHandle": "RCH2egNK75a3NM4yEr-UofHAe1CAkcKTOzia6R-l_fXQrkOr2TrME21nZEwFaAmEjuEmjgmIWfeTYZQ0vApmnA", "signatureData": "AQAAAAIwRQIhAIyr0y4xg-pI8NhAUHJmaluGXwZ7yd5i0e7FQE4l9OaEAiB68JP-df7ro8ohxCcgyxfRiKrsY1J67kLcEuYb0MCrDg"})
 
             # verify
             m_resolver.return_value.check.return_value = False

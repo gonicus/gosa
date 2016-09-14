@@ -132,9 +132,10 @@ class ObjectProxy(object):
         base_mode = "update"
         base, extensions = self.__factory.identifyObject(dn_or_base)
         if what:
-            if not what in object_types:
+            if what not in object_types:
                 raise ProxyException(C.make_error('OBJECT_UNKNOWN_TYPE', type=type))
 
+            dn_or_base = self.find_dn_for_object(what, base, dn_or_base) if base else dn_or_base
             base = what
             base_mode = "create"
             extensions = []
@@ -216,6 +217,27 @@ class ObjectProxy(object):
         self.dn = self.__base.dn
 
         self.populate_to_foreign_properties()
+
+    def find_dn_for_object(self, new_base, current_base, dn=""):
+        """
+        Traverse through the object_types to find the container, which holds objects of type *base* and return that containers
+        DN
+
+        :param new_base: object type to be created
+        :param current_base: object type the new object should be created in
+        :param dn: base DN suffix
+        :return: DN of found container
+        """
+        object_types = self.__factory.getObjectTypes()
+
+        if new_base in object_types[current_base]['container']:
+            return dn
+        else:
+            for sub_base in object_types[current_base]['container']:
+                if new_base not in object_types[sub_base]['container']:
+                    self.find_dn_for_object(new_base, sub_base, dn)
+                else:
+                    return "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
 
     def get_all_method_names(self):
         return self.__all_method_names

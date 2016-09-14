@@ -143,7 +143,7 @@ class GosaServiceTestCase(TestCase):
 
     def test_connect(self):
         with mock.patch("gosa.shell.main.JSONServiceProxy") as m:
-            m.return_value.login.return_value = AUTH_SUCCESS
+            m.return_value.login.return_value = {'state': AUTH_SUCCESS}
             service = GosaService()
             (connection, username, password) = service.connect('http://localhost:8000/rpc', 'admin', 'secret')
             assert connection == 'http://localhost:8000/rpc'
@@ -211,7 +211,7 @@ class GosaServiceTestCase(TestCase):
                 service.connect('ftp://localhost:8000/rpc', 'admin', 'secret')
 
             # failed login
-            m.return_value.login.return_value = AUTH_FAILED
+            m.return_value.login.return_value = {'state': AUTH_FAILED}
             with pytest.raises(SystemExit):
                 service.connect('http://localhost:8000/rpc', 'admin', 'secret')
 
@@ -221,11 +221,11 @@ class GosaServiceTestCase(TestCase):
 
     def test_reconnectJson(self):
         with mock.patch("gosa.shell.main.JSONServiceProxy") as m:
-            m.return_value.login.return_value = AUTH_SUCCESS
+            m.return_value.login.return_value = {'state': AUTH_SUCCESS}
             service = GosaService()
             service.reconnectJson('http://localhost:8000/rpc', 'admin', 'secret')
 
-            m.return_value.login.return_value = AUTH_FAILED
+            m.return_value.login.return_value = {'state': AUTH_FAILED}
             with pytest.raises(SystemExit):
                 service.reconnectJson('http://localhost:8000/rpc', 'admin', 'secret')
 
@@ -296,7 +296,7 @@ class MainTestCase(TestCase):
 
             with mock.patch("gosa.shell.main.JSONServiceProxy") as m,\
                     mock.patch("gosa.shell.main.SseClient") as m_sse:
-                m.return_value.login.return_value = AUTH_SUCCESS
+                m.return_value.login.return_value = {'state': AUTH_SUCCESS}
 
                 # script mode
                 with mock.patch("gosa.shell.main.sys.stdin.isatty", return_value=False), \

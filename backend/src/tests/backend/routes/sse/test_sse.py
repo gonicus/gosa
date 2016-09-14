@@ -38,6 +38,10 @@ class TestSseHandler(SseHandler):
     def get_cache(cls):
         return SseHandler._cache
 
+    @classmethod
+    def reset_cache(cls):
+        SseHandler._cache = []
+
 
 @mock.patch("gosa.backend.command.PluginRegistry.getInstance")
 class SseHandlerTestCase(RemoteTestCase):
@@ -303,6 +307,7 @@ class SseHandlerTestCase(RemoteTestCase):
         assert not con3.on_message.called
         con2.reset_mock()
 
+        TestSseHandler.reset_cache()
         # check the cache size limit
         for num in range(0, 10):
             TestSseHandler.send_message("Test")

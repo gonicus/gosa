@@ -240,10 +240,8 @@ class GosaService():
             if len(devices) == 0:
                 print(_("No U2F devices found, aborting!"))
                 return
-        print("%s device(s) found" % len(devices))
-        print("sending method change request")
+
         response = self.proxy.setTwoFactorMethod(user_dn, factor_method, user_password)
-        print("Response: %s" % response)
         if response is None:
             return
         if factor_method == "u2f":
