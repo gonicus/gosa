@@ -42,21 +42,6 @@
 - Code nahezu identisch, nur das bei den sets auch der 'members'-key im Dict berücksichtigt wird => prüfen ob man das vereinheitlichen kann
 
 # ObjectProxy
-- Beispiel: Beim Anlegen eines Benutzers sollte erkannt werden dass kein PeopleContainer existiert, dieser angelegt werden und der User
-dann da reingelegt werden:
-Test dazu:
-  new_base = ObjectProxy("dc=example,dc=net", "DomainComponent")
-  new_base.dc = "test"
-  new_base.description = "Domain for testing purposes"
-  new_base.commit()
-
-  # new user
-  user = ObjectProxy("dc=test,dc=example,dc=net", "User")
-  user.uid = "testu"
-  user.givenName = "Test"
-  user.sn = "User"
-  user.commit()
-
 - die ObjectChange-Events werden einmal in der move-Methode gefeuert und dann nochmal beim commit() => Kann man eine davon entfernen?
 - beim move scheint keine Überprüfung stattzufinden ob das Object an dieser Stelle erlaubt ist. Zumindest führt:
        roles = ObjectProxy('ou=roles,dc=test,dc=example,dc=net')

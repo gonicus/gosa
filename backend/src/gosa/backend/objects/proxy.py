@@ -135,7 +135,9 @@ class ObjectProxy(object):
             if what not in object_types:
                 raise ProxyException(C.make_error('OBJECT_UNKNOWN_TYPE', type=type))
 
-            dn_or_base = self.find_dn_for_object(what, base, dn_or_base) if base else dn_or_base
+            start_dn = dn_or_base
+            dn_or_base = self.find_dn_for_object(what, base, start_dn) if base else dn_or_base
+            self.create_missing_containers(dn_or_base, start_dn, base)
             base = what
             base_mode = "create"
             extensions = []
@@ -238,6 +240,33 @@ class ObjectProxy(object):
                     self.find_dn_for_object(new_base, sub_base, dn)
                 else:
                     return "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
+
+    def create_missing_containers(self, new_dn, base_dn, base_type, pointer=0):
+        if new_dn == base_dn:
+            return
+        rel_dn = new_dn[0:-len(base_dn)-1]
+        parts = rel_dn.split(",")
+        if len(parts) < pointer:
+            return
+        part = parts[pointer*-1-1]
+
+        check_dn = "%s,%s" % (",".join(parts[-1*pointer-1:]), base_dn)
+        index = PluginRegistry.getInstance("ObjectIndex")
+
+        res = index.search({'dn': check_dn}, {'_type': 1})
+        object_types = self.__factory.getObjectTypes()
+        for sub_base in object_types[base_type]['container']:
+            if 'FixedRDN' in object_types[sub_base]['backend_attrs'] and object_types[sub_base]['backend_attrs']['FixedRDN'] == part:
+                base_type = sub_base
+
+        if len(res) == 0:
+            # create container
+            self.__log.debug("create container of type %s in %s" % (base_type, check_dn))
+            container = ObjectProxy(base_dn, base_type)
+            container.commit()
+
+        if len(parts) > pointer+1:
+            self.create_missing_containers(new_dn, base_dn, base_type, pointer+1)
 
     def get_all_method_names(self):
         return self.__all_method_names

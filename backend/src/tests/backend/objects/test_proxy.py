@@ -37,13 +37,11 @@ class ObjectProxyTestCase(TestCase):
         new_domain.commit()
 
         # new ou's
-        ou = ObjectProxy("dc=test,dc=example,dc=net", "PeopleContainer")
-        ou.commit()
         ou = ObjectProxy("dc=test,dc=example,dc=net", "OrganizationalRoleContainer")
         ou.commit()
 
         # new user
-        user = ObjectProxy("ou=people,dc=test,dc=example,dc=net", "User")
+        user = ObjectProxy("dc=test,dc=example,dc=net", "User")
         user.uid = "testu"
         user.givenName = "Test"
         user.sn = "User"
