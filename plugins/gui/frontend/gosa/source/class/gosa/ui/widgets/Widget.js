@@ -263,13 +263,6 @@ qx.Class.define("gosa.ui.widgets.Widget", {
 
   members: {
 
-    /**
-     * @lint ignoreReferenceField(_forwardStates)
-     */
-    _forwardStates : {
-      invalid : true
-    },
-
     name: null,
     contents: null,
     _default_value: null,
