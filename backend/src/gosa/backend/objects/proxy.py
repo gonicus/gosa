@@ -136,7 +136,7 @@ class ObjectProxy(object):
                 raise ProxyException(C.make_error('OBJECT_UNKNOWN_TYPE', type=type))
 
             start_dn = dn_or_base
-            dn_or_base = self.find_dn_for_object(what, base, start_dn) if base else dn_or_base
+            dn_or_base = self.find_dn_for_object(what, base, start_dn, []) if base else dn_or_base
             self.create_missing_containers(dn_or_base, start_dn, base)
             base = what
             base_mode = "create"
@@ -241,6 +241,8 @@ class ObjectProxy(object):
                         checked.append(sub_base)
                         self.find_dn_for_object(new_base, sub_base, dn, checked)
                     else:
+                        self.__log.debug("found DN '%s,%s' for base '%s'" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn,
+                                                                             new_base))
                         return "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
 
     def create_missing_containers(self, new_dn, base_dn, base_type):
@@ -256,6 +258,7 @@ class ObjectProxy(object):
     def get_missing_containers(self, new_dn, base_dn, base_type, result=[]):
         if new_dn == base_dn:
             return result
+        self.__log.debug("collect missing containers for new object '%s' starting from '%s' (%s)" % (new_dn, base_dn, base_type))
         rel_dn = new_dn[0:-len(base_dn)-1]
         parts = rel_dn.split(",")
         if len(parts) < 0:
