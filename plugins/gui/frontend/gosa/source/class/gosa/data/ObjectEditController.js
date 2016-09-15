@@ -25,8 +25,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
     this._initialized = true;
     this.fireEvent("initialized");
-
-    obj.addListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
   },
 
   events : {
@@ -132,6 +130,9 @@ qx.Class.define("gosa.data.ObjectEditController", {
           this._currentWidget.bind("value", o, name);
         }
       }
+
+      o.addListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
+      o.addListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
     },
 
     _addModifyListeners : function() {
@@ -146,7 +147,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
             // check validity
             if (widget instanceof gosa.ui.widgets.Widget) {
-              this._validatingWidgets.push(this._currentWidget);
+              this._validatingWidgets.push(widget);
               this._currentWidget.addListener("_validChanged", this._updateValidity, this);
             }
           }
@@ -291,6 +292,38 @@ qx.Class.define("gosa.data.ObjectEditController", {
       this._obj.setAttribute(attr, event.getData());
     },
 
+    /**
+     * Called when the event "propertyUpdateOnServer" is fired on the object.
+     *
+     * @param event {qx.event.type.Data}
+     */
+    _onPropertyUpdateOnServer : function(event) {
+      var data = event.getData();
+      console.log(data);
+      var widget = null;
+      if (data.property) {
+        widget = this._validatingWidgets.find(function(widget) {
+          return widget instanceof gosa.ui.widgets.Widget && widget.getAttribute() === data.property;
+        });
+      }
+
+      if (data.success) {
+        if (widget) {
+          widget.setValid(true);
+        }
+      }
+      else if (!data.success && data.error) {
+        if (data.error.code === "ATTRIBUTE_CHECK_FAILED") {
+          if (widget) {
+            widget.setValid(false);
+          }
+        }
+        else {
+          new gosa.ui.dialogs.Error(data.error.message).open();
+        }
+      }
+    },
+
     _cleanupChangeValueListeners : function() {
       for (var id in this._changeValueListeners) {
         if (this._changeValueListeners.hasOwnProperty(id)) {
@@ -322,7 +355,9 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
     if (this._obj && !this._obj.isDisposed()) {
       this._obj.removeListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
+      this._obj.removeListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
     }
+
 
     this._cleanupChangeValueListeners();
     this.closeObject();
