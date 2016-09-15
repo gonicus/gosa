@@ -299,7 +299,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
      */
     _onPropertyUpdateOnServer : function(event) {
       var data = event.getData();
-      console.log(data);
       var widget = null;
       if (data.property) {
         widget = this._validatingWidgets.find(function(widget) {
