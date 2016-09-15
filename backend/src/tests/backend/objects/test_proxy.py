@@ -66,7 +66,6 @@ class ObjectProxyTestCase(TestCase):
             # unknown uuid
             ObjectProxy('78475884-c7f2-1035-8262-f535be14d43n')
 
-
         with pytest.raises(ProxyException):
             # unknown object type
             ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net', 'Unknown')
@@ -394,3 +393,13 @@ class ObjectProxyTestCase(TestCase):
         xml_string = user.asXML().decode('utf-8')
         res = objectify.fromstring(xml_string)
         assert res.DN == 'cn=Frank Reich,ou=people,dc=example,dc=net'
+
+    def test_get_missing_containers(self):
+        self.__create_test_data()
+
+        # create some object to have access to the method
+        proxy = ObjectProxy('dc=example,dc=net')
+        res = proxy.get_missing_containers("ou=devices,ou=systems,dc=test,dc=example,dc=net", "dc=test,dc=example,dc=net",
+                                           "DomainComponent")
+        assert ('SystemsContainer', 'dc=test,dc=example,dc=net') in res
+        assert ('DeviceContainer', 'ou=systems,dc=test,dc=example,dc=net') in res

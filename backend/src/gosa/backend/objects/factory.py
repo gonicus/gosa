@@ -531,6 +531,8 @@ class ObjectFactory(object):
             is_base = bool(t_obj.BaseObject)
             backend = t_obj.Backend.text
             backend_attrs = self.__get_backend_parameters(t_obj)
+            if "FixedRDN" in t_obj.__dict__:
+                backend_attrs['FixedRDN'] = t_obj.FixedRDN.text
 
             methods = []
             if hasattr(t_obj, "Methods"):

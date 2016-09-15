@@ -220,7 +220,7 @@ class ObjectProxy(object):
 
         self.populate_to_foreign_properties()
 
-    def find_dn_for_object(self, new_base, current_base, dn=""):
+    def find_dn_for_object(self, new_base, current_base, dn="", checked=[]):
         """
         Traverse through the object_types to find the container, which holds objects of type *base* and return that containers
         DN
@@ -234,39 +234,52 @@ class ObjectProxy(object):
 
         if new_base in object_types[current_base]['container']:
             return dn
-        else:
+        elif 'container' in object_types[current_base]:
             for sub_base in object_types[current_base]['container']:
-                if new_base not in object_types[sub_base]['container']:
-                    self.find_dn_for_object(new_base, sub_base, dn)
-                else:
-                    return "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
+                if sub_base not in checked and 'container' in object_types[sub_base]:
+                    if new_base not in object_types[sub_base]['container']:
+                        checked.append(sub_base)
+                        self.find_dn_for_object(new_base, sub_base, dn, checked)
+                    else:
+                        return "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
 
-    def create_missing_containers(self, new_dn, base_dn, base_type, pointer=0):
+    def create_missing_containers(self, new_dn, base_dn, base_type):
         if new_dn == base_dn:
             return
+        for base, dn in self.get_missing_containers(new_dn, base_dn, base_type, []):
+            if dn != new_dn:
+                # create container
+                self.__log.debug("create container of type %s in %s" % (base, dn))
+                container = ObjectProxy(dn, base)
+                container.commit()
+
+    def get_missing_containers(self, new_dn, base_dn, base_type, result=[]):
+        if new_dn == base_dn:
+            return result
         rel_dn = new_dn[0:-len(base_dn)-1]
         parts = rel_dn.split(",")
-        if len(parts) < pointer:
-            return
-        part = parts[pointer*-1-1]
+        if len(parts) < 0:
+            return result
+        part = parts[-1]
 
-        check_dn = "%s,%s" % (",".join(parts[-1*pointer-1:]), base_dn)
+        check_dn = "%s,%s" % (",".join(parts[-1:]), base_dn)
         index = PluginRegistry.getInstance("ObjectIndex")
 
-        res = index.search({'dn': check_dn}, {'_type': 1})
         object_types = self.__factory.getObjectTypes()
         for sub_base in object_types[base_type]['container']:
             if 'FixedRDN' in object_types[sub_base]['backend_attrs'] and object_types[sub_base]['backend_attrs']['FixedRDN'] == part:
                 base_type = sub_base
+                break
 
+        res = index.search({'dn': check_dn}, {'_type': 1})
         if len(res) == 0:
             # create container
-            self.__log.debug("create container of type %s in %s" % (base_type, check_dn))
-            container = ObjectProxy(base_dn, base_type)
-            container.commit()
+            result.append((base_type, base_dn))
 
-        if len(parts) > pointer+1:
-            self.create_missing_containers(new_dn, base_dn, base_type, pointer+1)
+        if len(parts) > 1:
+            return self.get_missing_containers(new_dn, check_dn, base_type, result=result)
+        else:
+            return result
 
     def get_all_method_names(self):
         return self.__all_method_names
