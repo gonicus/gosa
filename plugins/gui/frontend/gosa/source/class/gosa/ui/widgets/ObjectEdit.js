@@ -70,12 +70,19 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
     _applyController : function(value, old) {
       if (old) {
-        value.removeRelatedBindings(this._okButton);
+        old.removeListener("changeModified", this._updateOkButtonEnabled, this);
+        old.removeListener("changeValid", this._updateOkButtonEnabled, this);
       }
 
       if (value) {
-        value.bind("modified", this._okButton, "enabled");
+        value.addListener("changeModified", this._updateOkButtonEnabled, this);
+        value.addListener("changeValid", this._updateOkButtonEnabled, this);
       }
+    },
+
+    _updateOkButtonEnabled : function() {
+      var c = this.getController();
+      this._okButton.setEnabled(c.isModified() && c.isValid());
     },
 
     _initWidgets : function() {
@@ -231,6 +238,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
   },
 
   destruct : function() {
+    this.resetController();
     this._templates = null;
     qx.util.DisposeUtil.disposeArray("_contexts");
     this._disposeObjects("_okButton", "_toolMenu", "_buttonPane", "_tabView");

@@ -16,6 +16,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._obj = obj;
     this._widget = widget;
     this._changeValueListeners = {};
+    this._validatingWidgets = [];
 
     this._connectModelWithWidget();
     this._addModifyListeners();
@@ -40,6 +41,12 @@ qx.Class.define("gosa.data.ObjectEditController", {
       check : "Boolean",
       init : false,
       event : "changeModified"
+    },
+
+    valid : {
+      check : "Boolean",
+      init : true,
+      event : "changeValid"
     }
   },
 
@@ -47,11 +54,10 @@ qx.Class.define("gosa.data.ObjectEditController", {
     _obj : null,
     _widget : null,
     _changeValueListeners : null,
-
     _currentWidget : null,
     _currentBuddy : null,
-
     _initialized : false,
+    _validatingWidgets : null,
 
     closeObject : function() {
       if (this._obj && !this._obj.isDisposed() && !this._obj.isClosed()) {
@@ -66,6 +72,17 @@ qx.Class.define("gosa.data.ObjectEditController", {
     },
 
     saveObject : function() {
+      if (!this.isModified()) {
+        this._obj.setUiBound(false);
+        this.closeObject();
+        return;
+      }
+
+      if (!this.isValid()) {
+        console.warn("TODO: Invalid values detected");
+        return;
+      }
+
       this._obj.setUiBound(false);
       this._obj.commit(function(result, error) {
         if (error) {
@@ -126,6 +143,12 @@ qx.Class.define("gosa.data.ObjectEditController", {
             widget = widgets[modelPath];
             listenerId = widget.addListener("changeValue", this._onChangeWidgetValue, this);
             widget[listenerId] = this._currentWidget;
+
+            // check validity
+            if (widget instanceof gosa.ui.widgets.Widget) {
+              this._validatingWidgets.push(this._currentWidget);
+              this._currentWidget.addListener("_validChanged", this._updateValidity, this);
+            }
           }
         }
       }, this);
@@ -281,10 +304,22 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
     _onUpdatedAttributeValues : function(event) {
       console.warn("TODO: _onUpdatedAttributeValues %O", event);
+    },
+
+    _updateValidity : function() {
+      this.setValid(this._validatingWidgets.every(function(widget) {
+        return widget.isValid();
+      }));
     }
   },
 
   destruct : function() {
+    this._validatingWidgets.forEach(function(validitiyWidget) {
+      if (!validitiyWidget.isDisposed()) {
+        validitiyWidget.removeListener("_validChanged", this._updateValidity, this);
+      }
+    }, this);
+
     if (this._obj && !this._obj.isDisposed()) {
       this._obj.removeListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
     }
@@ -295,5 +330,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._obj = null;
     this._widget = null;
     this._changeValueListeners = null;
+    this._validatingWidgets = null;
   }
 });
