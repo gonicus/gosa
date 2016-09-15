@@ -58,7 +58,8 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     valid: {
       check: "Boolean",
       event: "_validChanged",
-      init: true
+      init: true,
+      apply: "_applyValid"
     },
 
     invalidMessage: {
@@ -262,6 +263,13 @@ qx.Class.define("gosa.ui.widgets.Widget", {
 
   members: {
 
+    /**
+     * @lint ignoreReferenceField(_forwardStates)
+     */
+    _forwardStates : {
+      invalid : true
+    },
+
     name: null,
     contents: null,
     _default_value: null,
@@ -389,6 +397,15 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     },
 
     _applyMandatory: function(value){
+    },
+
+    _applyValid : function(value) {
+      if (value) {
+        this.removeState("invalid");
+      }
+      else {
+        this.addState("invalid");
+      }
     },
 
     _applyTabStopIndex: function(value){
