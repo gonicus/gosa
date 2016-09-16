@@ -383,7 +383,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     focus:  function(){
     },
 
-    _applyValue: function(value){
+    _applyValue: function(value) {
     },
 
     _applyMultivalue: function(value){
