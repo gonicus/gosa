@@ -148,7 +148,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
             // check validity
             if (widget instanceof gosa.ui.widgets.Widget) {
               this._validatingWidgets.push(widget);
-              // widget.addListener("_validChanged", this._updateValidity, this);
             }
           }
         }
@@ -349,17 +348,10 @@ qx.Class.define("gosa.data.ObjectEditController", {
   },
 
   destruct : function() {
-    this._validatingWidgets.forEach(function(validitiyWidget) {
-      if (!validitiyWidget.isDisposed()) {
-        validitiyWidget.removeListener("_validChanged", this._updateValidity, this);
-      }
-    }, this);
-
     if (this._obj && !this._obj.isDisposed()) {
       this._obj.removeListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
       this._obj.removeListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
     }
-
 
     this._cleanupChangeValueListeners();
     this.closeObject();
