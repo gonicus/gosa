@@ -148,7 +148,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
             // check validity
             if (widget instanceof gosa.ui.widgets.Widget) {
               this._validatingWidgets.push(widget);
-              this._currentWidget.addListener("_validChanged", this._updateValidity, this);
+              // widget.addListener("_validChanged", this._updateValidity, this);
             }
           }
         }
@@ -323,6 +323,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
           new gosa.ui.dialogs.Error(data.error.message).open();
         }
       }
+      this._updateValidity();
     },
 
     _cleanupChangeValueListeners : function() {
