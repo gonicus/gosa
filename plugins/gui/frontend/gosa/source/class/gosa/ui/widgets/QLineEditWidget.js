@@ -52,20 +52,6 @@ qx.Class.define("gosa.ui.widgets.QLineEditWidget", {
 
   members: {
     _default_value: "",
-    _mainWidget : null,
-
-    _applyValid : function(value, old, name) {
-      this.base(arguments, value, old, name);
-
-      if (this._mainWidget) {
-        if (value) {
-          this._mainWidget.removeState("invalid");
-        }
-        else {
-          this._mainWidget.addState("invalid");
-        }
-      }
-    },
 
     /* Set a new value for the widget given by id.
      * */
@@ -113,12 +99,7 @@ qx.Class.define("gosa.ui.widgets.QLineEditWidget", {
       w.addListener("focusout", this._propertyUpdater, this);
       w.addListener("changeValue", this._propertyUpdaterTimed, this);
 
-      this._mainWidget = w;
       return(w);
     }
-  },
-
-  destruct : function() {
-    this._disposeObjects("_mainWidget");
   }
 });

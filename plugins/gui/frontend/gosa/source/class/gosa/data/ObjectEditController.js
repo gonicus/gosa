@@ -315,8 +315,8 @@ qx.Class.define("gosa.data.ObjectEditController", {
       else if (!data.success && data.error) {
         if (data.error.code === "ATTRIBUTE_CHECK_FAILED") {
           if (widget) {
-            widget.setValid(false);
             widget.setInvalidMessage(data.error.message);
+            widget.setValid(false);
           }
         }
         else {

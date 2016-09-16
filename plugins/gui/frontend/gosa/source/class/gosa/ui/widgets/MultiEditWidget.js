@@ -170,7 +170,8 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       // forward valid state to "real" widget children
       this._widgetContainer.forEach(function(multiEditContainer) {
         multiEditContainer.getWidget().setValid(value);
-      });
+        multiEditContainer.getWidget().setInvalidMessage(this.getInvalidMessage());
+      }, this);
     },
 
     /* This is the apply method for the multivalue-flag
