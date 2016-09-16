@@ -188,31 +188,31 @@ qx.Class.define("gosa.data.ObjectEditController", {
     _handleProperties : function(attribute) {
       var setValue = {};
       if (attribute.hasOwnProperty("mandatory")) {
-        setValue["mandatory"] = !!attribute.mandatory;
+        setValue.mandatory = !!attribute.mandatory;
       }
       if (attribute.hasOwnProperty("readonly")) {
-        setValue["readOnly"] = !!attribute.readonly;
+        setValue.readOnly = !!attribute.readonly;
       }
       if (attribute.hasOwnProperty("multivalue")) {
-        setValue["multivalue"] = !!attribute.multivalue;
+        setValue.multivalue = !!attribute.multivalue;
       }
       if (attribute.hasOwnProperty("default")) {
-        setValue["defaultValue"] = attribute["default"];
+        setValue.defaultValue = attribute["default"];
       }
       if (attribute.hasOwnProperty("type")) {
-        setValue["type"] = attribute.type;
+        setValue.type = attribute.type;
       }
       if (attribute.hasOwnProperty("case_sensitive")) {
-        setValue["caseSensitive"] = attribute.case_sensitive;
+        setValue.caseSensitive = attribute.case_sensitive;
       }
       if (attribute.hasOwnProperty("unique")) {
-        setValue["unique"] = attribute.unique;
+        setValue.unique = attribute.unique;
       }
       if (attribute.hasOwnProperty("depends_on")) {
-        setValue["dependsOn"] = attribute.depends_on;
+        setValue.dependsOn = attribute.depends_on;
       }
       if (attribute.hasOwnProperty("values")) {
-        setValue["values"] = attribute.values;
+        setValue.values = attribute.values;
       }
 
       if (this._currentWidget) {
