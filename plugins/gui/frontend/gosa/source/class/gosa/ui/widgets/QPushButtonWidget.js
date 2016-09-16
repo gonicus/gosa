@@ -101,6 +101,9 @@ qx.Class.define("gosa.ui.widgets.QPushButtonWidget", {
       if (!this._dialogExecutionListener) {
         this._dialogExecutionListener = this._widget.addListener("execute", function() {
           var dialog = gosa.engine.WidgetFactory.createDialog(this.getDialog());
+          if (dialog.setController) {
+            dialog.setController(this._getController());
+          }
           dialog.open();
         }, this);
       }

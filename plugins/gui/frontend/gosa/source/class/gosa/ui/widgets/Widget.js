@@ -317,17 +317,17 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       }
 
       // Call a remote method to get the widgets value
-      if(props['callObjectMethod'] && props["callObjectMethod"]["string"]){
+      if(props.callObjectMethod && props.callObjectMethod){
         this.setValue(new qx.data.Array([this.tr("Pending...")]));
         try{
           this.addListener('appear', function(){
-            var method_signature = props["callObjectMethod"]["string"];
+            var method_signature = props.callObjectMethod;
             var splitter = /([^(]+)\(([^)]*)\)/;
             var info = splitter.exec(method_signature);
             var _args = info[2].split(",");
             var args = [];
             for (var i= 0; i<_args.length; i++) {
-                var tmp = _args[i].trim()
+                var tmp = _args[i].trim();
                 if (tmp == "%locale") {
                     args.push(gosa.Tools.getLocale());
                 } else {
@@ -335,10 +335,12 @@ qx.Class.define("gosa.ui.widgets.Widget", {
                 }
             }
 
-            var ob = this.getParent().getObject();
-            ob[info[1]].apply(ob, [function(result, error){
+            var controller = this._getController();
+            controller.callObjectMethod(info[1], [
+              function(result, error) {
                 this.setValue(new qx.data.Array([result]));
-              }, this].concat(args));
+              },
+              this].concat(args));
           }, this);
         }catch(e){
           this.error("failed to call method '" + props["callObjectMethod"]["string"] + "'");
@@ -364,6 +366,17 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       if(props["maxLength"] && props["maxLength"]["number"]){
         this.setMaxLength(parseInt(props["maxLength"]["number"])) ;
       }
+    },
+
+    _getController : function() {
+      var widget = this;
+      do {
+        if (widget.getController) {
+          return widget.getController();
+        }
+        widget = widget.getLayoutParent();
+      } while (widget);
+      return null;
     },
 
     shortcutExecute : function(){},

@@ -15,7 +15,10 @@ qx.Class.define("gosa.engine.Context", {
     this.base(arguments);
     qx.core.Assert.assertObject(template);
     qx.core.Assert.assertQxWidget(rootWidget);
-    qx.core.Assert.assertString(extension);
+
+    if (extension !== undefined && extension !== null) {
+      qx.core.Assert.assertString(extension);
+    }
 
     this._template = template;
     this._rootWidget = rootWidget;

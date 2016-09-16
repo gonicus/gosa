@@ -10,16 +10,15 @@
     },
     "children": [{
         "class": "gosa.ui.widgets.ScrollArea",
-        "properties": {
-            "widgetResizable": true
-        },
         "addOptions": {
             "edge": 0
         },
         "children": [{
             "class": "gosa.ui.widgets.QLabelWidget",
-            "properties": {
-                "callObjectMethod": "getSambaDomainInformation(%locale)"
+            "extensions": {
+                "guiProperties" : {
+                    "callObjectMethod": "getSambaDomainInformation(%locale)"
+                }
             }
         }]
     }]

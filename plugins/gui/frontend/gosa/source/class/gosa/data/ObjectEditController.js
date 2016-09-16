@@ -97,6 +97,19 @@ qx.Class.define("gosa.data.ObjectEditController", {
       }, this);
     },
 
+    /**
+     * Calls the method on the object.
+     *
+     * @param methodName {String} The method to call
+     * @param args {Array ? null} Arguments to pass to that function
+     */
+    callObjectMethod : function(methodName, args) {
+      qx.core.Assert.assertString(methodName);
+      qx.core.Assert.assertFunction(this._obj[methodName]);
+
+      this._obj[methodName].apply(this._obj, args);
+    },
+
     _connectModelWithWidget : function() {
       var o = this._obj;
       var widgets, attribute, widget, buddy;
@@ -186,6 +199,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
      */
     _handleProperties : function(attribute) {
       var setValue = {};
+
       if (attribute.hasOwnProperty("mandatory")) {
         setValue.mandatory = !!attribute.mandatory;
       }

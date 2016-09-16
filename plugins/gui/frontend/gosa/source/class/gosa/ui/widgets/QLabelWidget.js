@@ -40,6 +40,7 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
     this._widget.setRich(true);
     this._widget.setAllowGrowX(true);
     this._widget.setAllowGrowY(true);
+    this._applyValue(this.getValue());
     this.contents.add(this._widget, {top:0, bottom:0, left:0, right: 0});
     this.removeState("gosaInput");
   },
@@ -71,6 +72,19 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
       this._widget.setBuddy(w);
     },
 
+    _applyValue : function(value, old, name) {
+      this.base(arguments, value, old, name);
+
+      if (this._widget) {
+        if (old) {
+          this._widget.removeRelatedBindings(this);
+        }
+
+        if (value) {
+          this.bind("value[0]", this._widget, "value");
+        }
+      }
+    },
 
     /* Apply collected gui properties to this widget
      * */
@@ -81,25 +95,26 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
         return;
       }
 
+      if (typeof props === "string") {
+        this.setValue(new qx.data.Array());
+        var text = props;
 
-      this.setValue(new qx.data.Array());
-      var text = props;
+        // Extract potential key bindings from label text
+        var regex = /^(.*)(&(.))(.*$)/g;
+        var match = regex.exec(this['tr'](text));
+        this._command = null;
 
-      // Extract potential key bindings from label text
-      var regex = /^(.*)(&(.))(.*$)/g;
-      var match = regex.exec(this['tr'](text));
-      this._command = null;
+        if (match) {
+          text = match[1] + "<u>" + match[3] + "</u>" + (match.length == 5 ? match[4] : "");
+          this._command = match[3];
+        } else {
+          text = this['tr'](text);
+        }
+        this._text = text;
+        this.setValue(new qx.data.Array([text]));
 
-      if (match) {
-        text = match[1] + "<u>" + match[3] + "</u>" + (match.length == 5 ? match[4] : "");
-        this._command = match[3];
-      } else {
-        text = this['tr'](text);
+        this.bind("value[0]", this._widget, "value");
       }
-      this._text = text;
-      this.setValue(new qx.data.Array([text]));
-
-      this.bind("value[0]", this._widget, "value");
       this.base(arguments, props);
     },
 

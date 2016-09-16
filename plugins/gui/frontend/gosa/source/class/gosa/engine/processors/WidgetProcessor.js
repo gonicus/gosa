@@ -37,7 +37,9 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
 
       var modelPath = this._getValue(node, "modelPath");
       if (widget instanceof gosa.ui.widgets.Widget) {
-        widget.setExtension(this._context.getExtension());
+        if (this._context.getExtension()) {
+          widget.setExtension(this._context.getExtension());
+        }
         if (modelPath) {
           widget.setAttribute(modelPath);
         }

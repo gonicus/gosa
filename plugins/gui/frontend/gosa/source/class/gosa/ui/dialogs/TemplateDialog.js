@@ -19,6 +19,8 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
 {
   extend : gosa.ui.dialogs.Dialog,
 
+  include : [gosa.ui.dialogs.MController],
+
   /**
    * @param template {String} The unparsed dialog template
    */
@@ -56,7 +58,9 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
     },
 
     _addWidgets : function() {
-      new gosa.engine.Context(this._parsedTemplate, this);
+      var container = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+      this.addElement(container, {flex : 1});
+      new gosa.engine.Context(this._parsedTemplate, container);
     }
   }
 });
