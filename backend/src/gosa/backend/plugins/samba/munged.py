@@ -264,6 +264,7 @@ class SambaMungedDial(object):
 
         # Encode parameter name with utf-16
         utfName = name.encode('utf-16')
+        value = value if value is not None else ""
 
         # Set parameter length, high and low byte
         paramLen = len(utfName)
@@ -331,7 +332,8 @@ class SambaMungedDial(object):
             # If string parameter, convert
             if ctxParmName in SambaMungedDial.stringParams:
                 ctxParm = unhexlify(ctxParm)
-                if ctxParm[len(ctxParm)-1] == 0:
+                ctxParm = ctxParm.replace(b"\x00", b"")
+                if len(ctxParm) and ctxParm[len(ctxParm)-1] == 0:
                     ctxParm = ctxParm[:-1]
 
             # If time parameter, convert
