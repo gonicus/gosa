@@ -73,10 +73,6 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
     /* Set a new value for the widget given by id.
      * */
     _setWidgetValue: function(id, value){
-      // value strings sometimes have non-printable chars; this workarounds removes them
-      if (typeof value === "string") {
-        value = value.replace(/[\x00-\x1F\x7F-\x9F]/g, "");
-      }
 
       // Find model item with appropriate key
       var w = this._getWidget(id);
