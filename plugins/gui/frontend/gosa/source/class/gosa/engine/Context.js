@@ -27,11 +27,22 @@ qx.Class.define("gosa.engine.Context", {
     this._widgetRegistry = new gosa.engine.WidgetRegistry();
     this._buddyRegistry = new gosa.engine.WidgetRegistry();
     this._resourceManager = new gosa.engine.ResourceManager();
+    this._processor = gosa.engine.ProcessorFactory.getProcessor(this._template, this);
 
-    this._createWidgets();
+    this._processor.processFirstLevelExtensions(this._template, this._rootWidget);
+    rootWidget.addListenerOnce("appear", this._createWidgets, this);
+  },
+
+  events : {
+    /**
+     * The widgets are created lazy just when they need to be shown. In that case, this event is fired. It is only
+     * fired once. Data is this object.
+     */
+    "widgetsCreated" : "qx.event.type.Data"
   },
 
   members : {
+    _processor : null,
     _template : null,
     _rootWidget : null,
     _extension : null,
@@ -39,6 +50,7 @@ qx.Class.define("gosa.engine.Context", {
     _buddyRegistry : null,
     _resourceManager : null,
     _actionMenuEntries : null,
+    _appeared : false,
 
     /**
      * @return {gosa.ui.widgets.Widget} The root widget container for this template
@@ -79,6 +91,10 @@ qx.Class.define("gosa.engine.Context", {
       return this._actionMenuEntries;
     },
 
+    isAppeared : function() {
+      return this._appeared;
+    },
+
     /**
      * Adds a new button to the action menu.
      *
@@ -96,10 +112,10 @@ qx.Class.define("gosa.engine.Context", {
     },
 
     _createWidgets : function() {
-      var processor = gosa.engine.ProcessorFactory.getProcessor(this._template, this);
-      processor.process(this._template, this._rootWidget);
-
+      this._processor.process(this._template, this._rootWidget);
       this._connectBuddies();
+      this._appeared = true;
+      this.fireDataEvent("widgetsCreated", this);
     },
 
     _connectBuddies : function() {
@@ -119,6 +135,7 @@ qx.Class.define("gosa.engine.Context", {
   destruct : function() {
     this._actionMenuEntries = null;
     this._disposeObjects(
+      "_processor",
       "_rootWidget",
       "_widgetRegistry",
       "_buddyRegistry",
