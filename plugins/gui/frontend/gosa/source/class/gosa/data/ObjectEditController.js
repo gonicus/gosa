@@ -17,9 +17,11 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._widget = widget;
     this._changeValueListeners = {};
     this._validatingWidgets = [];
+    this._connectedAttributes = [];
 
-    this._connectModelWithWidget();
-    this._addModifyListeners();
+    this._addContextListeners();
+
+    this._setUpWidgets();
 
     this._obj.setUiBound(true);
 
@@ -56,6 +58,8 @@ qx.Class.define("gosa.data.ObjectEditController", {
     _currentBuddy : null,
     _initialized : false,
     _validatingWidgets : null,
+    _connectedAttributes : null,
+    _globalObjectListenersSet : false,
 
     closeObject : function() {
       if (this._obj && !this._obj.isDisposed() && !this._obj.isClosed()) {
@@ -110,12 +114,30 @@ qx.Class.define("gosa.data.ObjectEditController", {
       this._obj[methodName].apply(this._obj, args);
     },
 
+    _addContextListeners : function() {
+      this._widget.getContexts().forEach(function(context) {
+        if (!context.isAppeared()) {
+          context.addListenerOnce("widgetsCreated", this._setUpWidgets, this);
+        }
+      }, this);
+    },
+
+    _setUpWidgets : function() {
+      this._connectModelWithWidget();
+      this._addModifyListeners();
+    },
+
     _connectModelWithWidget : function() {
       var o = this._obj;
       var widgets, attribute, widget, buddy;
 
       for (var name in o.attribute_data) {
         if (o.attribute_data.hasOwnProperty(name)) {
+
+          if (qx.lang.Array.contains(this._connectedAttributes, name)) {
+            continue;
+          }
+
           attribute = o.attribute_data[name];
           widgets = this._findWidgets(name);
           if (widgets === null) {
@@ -144,8 +166,11 @@ qx.Class.define("gosa.data.ObjectEditController", {
         }
       }
 
-      o.addListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
-      o.addListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
+      if (!this._globalObjectListenersSet) {
+        o.addListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
+        o.addListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
+        this._globalObjectListenersSet = true;
+      }
     },
 
     _addModifyListeners : function() {
@@ -153,6 +178,10 @@ qx.Class.define("gosa.data.ObjectEditController", {
         var widgets = context.getWidgetRegistry().getMap();
         var widget, listenerId;
         for (var modelPath in widgets) {
+          if (qx.lang.Array.contains(this._connectedAttributes, modelPath)) {
+            continue;
+          }
+
           if (widgets.hasOwnProperty(modelPath)) {
             widget = widgets[modelPath];
             listenerId = widget.addListener("changeValue", this._onChangeWidgetValue, this);
@@ -162,6 +191,8 @@ qx.Class.define("gosa.data.ObjectEditController", {
             if (widget instanceof gosa.ui.widgets.Widget) {
               this._validatingWidgets.push(widget);
             }
+
+            this._connectedAttributes.push(modelPath);
           }
         }
       }, this);
@@ -374,5 +405,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._widget = null;
     this._changeValueListeners = null;
     this._validatingWidgets = null;
+    this._connectedAttributes = null;
   }
 });

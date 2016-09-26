@@ -451,7 +451,10 @@ qx.Class.define("gosa.view.Search",
             showClose : false
           });
           win.add(w, {edge: 0});
-          win.addListener("appear", win.center, win);
+          win.addListenerOnce("appear", function() {
+            // wait till the window contents are rendered (which happens on appear as well)
+            (new qx.util.DeferredCall(win.center, win)).schedule();
+          });
           win.open();
 
           w.addListener("close", function() {

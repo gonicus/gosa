@@ -13,14 +13,23 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
 
   members : {
     _context : null,
+    _firstLevelExtensionsProcessed : false,
 
     process : function(node, target) {
       if (this._getValue(node, "class")) {
         var widget = this._createAndAddWidget(node, target);
+        this._firstLevelExtensionsProcessed = false;
         this._createAndAddChildren(node, widget);
       }
       else if (this._getValue(node, "form")) {
         this._includeForm(node, target);
+      }
+    },
+
+    processFirstLevelExtensions : function(node, target) {
+      if (this._getValue(node, "class")) {
+        this._firstLevelExtensionsProcessed = true;
+        this._handleExtensions(node, target);
       }
     },
 
@@ -33,7 +42,10 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
 
       this._handleLayout(node, widget);
       this._handleProperties(node, widget);
-      this._handleExtensions(node, widget);
+
+      if (!this._firstLevelExtensionsProcessed) {
+        this._handleExtensions(node, widget);
+      }
 
       var modelPath = this._getValue(node, "modelPath");
       if (widget instanceof gosa.ui.widgets.Widget) {
