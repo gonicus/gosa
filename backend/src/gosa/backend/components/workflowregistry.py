@@ -132,6 +132,9 @@ class WorkflowRegistry(Plugin):
 
         self._workflows[id] = entry
 
+    def refresh(self):
+        self._update_map()
+
     def _update_map(self):
         """
         Recreates the internal workflow map.
