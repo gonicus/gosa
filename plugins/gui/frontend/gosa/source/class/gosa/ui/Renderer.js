@@ -975,12 +975,13 @@ qx.Class.define("gosa.ui.Renderer",
       for(var d in this._dialogs){
         this._dialogs[d].close();
       }
-
-      this._object.close(function(result, error){
-        if(error){
-          new gosa.ui.dialogs.Error(error.message).open();
-        }
-      }, this);
+      if (this._object) {
+        this._object.close(function(result, error) {
+          if (error) {
+            new gosa.ui.dialogs.Error(error.message).open();
+          }
+        }, this);
+      }
       this.fireEvent("done");
     },
 
