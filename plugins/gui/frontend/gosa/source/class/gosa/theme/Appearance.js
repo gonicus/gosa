@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -129,7 +129,7 @@ qx.Theme.define("gosa.theme.Appearance",
 
       style : function(states)
       {
-        var decorator = undefined;
+        var decorator;
 
         if (!states.disabled) {
           if (states.hovered && !states.pressed && !states.checked) {
@@ -168,7 +168,7 @@ qx.Theme.define("gosa.theme.Appearance",
       //,include : "textfield"
     },
 
-    "SearchListItem-Icon" : 
+    "SearchListItem-Icon" :
     {
       style : function()
       {
@@ -225,7 +225,7 @@ qx.Theme.define("gosa.theme.Appearance",
         }
 
         var backgroundColor = states.hovered ? 'light-background' : undefined;
-        
+
         return {
           padding : padding,
           backgroundColor : backgroundColor,
@@ -254,12 +254,12 @@ qx.Theme.define("gosa.theme.Appearance",
 
         var tc = null;
         if (states.error) {
-          tc = "error-text"
+          tc = "error-text";
         }
 
         return {
           textColor: tc
-        }
+        };
       }
     }
 

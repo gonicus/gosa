@@ -33,6 +33,11 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
 
     this._addWidgets();
     this._addButtons();
+
+    // necessary because contents are loaded on appear and it can only be centered with contents added
+    this.addListenerOnce("appear", function() {
+      (new qx.util.DeferredCall(this.center, this)).schedule();
+    }, this);
   },
 
   members : {

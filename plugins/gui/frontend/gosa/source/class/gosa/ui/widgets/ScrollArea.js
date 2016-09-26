@@ -17,7 +17,7 @@
  * */
 qx.Class.define("gosa.ui.widgets.ScrollArea", {
 
-  extend: qx.ui.core.scroll.ScrollPane,
+  extend: qx.ui.container.Scroll,
 
   properties: {
 
@@ -33,10 +33,6 @@ qx.Class.define("gosa.ui.widgets.ScrollArea", {
 
   construct: function(){
     this.base(arguments);
-
-    this.addListener("changeVisibility", function(event) {
-      console.trace("%s %O", event.getData(), this);
-    }, this);
 
     // Collect all gosa child widgets on appear
     // This required to be able to hide the complete group box
