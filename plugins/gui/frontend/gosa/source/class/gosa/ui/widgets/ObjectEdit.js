@@ -58,6 +58,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _buttonPane : null,
     _contexts : null,
     _okButton : null,
+    _extendMenu : null,
 
     /**
      * Retrieve all contexts this widget is showing.
@@ -66,6 +67,19 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
      */
     getContexts : function() {
       return this._contexts;
+    },
+
+    /**
+     * Removes and disposes a tab page from the tab view. It removes only the widget and nothing from the object.
+     *
+     * @param tabPage {qx.ui.tabview.TabPage}
+     */
+    removeTab : function(tabPage) {
+      qx.core.Assert.assertNotUndefined(tabPage);
+      qx.core.Assert.assertInstance(tabPage, qx.ui.tabview.Page);
+
+      this._tabView.remove(tabPage);
+      tabPage.dispose();
     },
 
     _applyController : function(value, old) {
@@ -77,6 +91,9 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       if (value) {
         value.addListener("changeModified", this._updateOkButtonEnabled, this);
         value.addListener("changeValid", this._updateOkButtonEnabled, this);
+
+        this._createRetractMenu();
+        this._createExtendMenu();
       }
     },
 
@@ -104,9 +121,25 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         var tabPage = new qx.ui.tabview.Page();
         tabPage.setLayout(new qx.ui.layout.VBox());
 
+        if (!templateObj.isBaseType) {
+          tabPage.setShowCloseButton(true);
+
+          var closeButton = tabPage.getButton();
+          closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
+          closeButton.addListener("close", function(event) {
+            this.getController().removeExtension(templateObj.extension);
+          }, this);
+        }
+
         var context = new gosa.engine.Context(template, tabPage, templateObj.extension);
         this._contexts.push(context);
         this._tabView.add(context.getRootWidget());
+
+        // remove existing listeners on the tab page to prevent automatic closing
+        var manager = qx.event.Registration.getManager(tabPage);
+        manager.getListeners(tabPage, "close").forEach(function(l) {
+          tabPage.removeListener("close", l.handler, l.context);
+        });
       }, this);
     },
 
@@ -142,6 +175,39 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       // add menu entries to widget
       sorted.forEach(function(key) {
         this._toolMenu.add(allActionEntries[key]);
+      }, this);
+    },
+
+    _createRetractMenu : function() {
+      console.warn("TODO: create retract menu");
+    },
+
+    _createExtendMenu : function() {
+      this._extendMenu = new qx.ui.menu.Menu();
+      var extendButton = new qx.ui.menu.Button(this.tr("Extend"), gosa.Config.getImagePath("actions/extend.png", 22),
+        null, this._extendMenu);
+      this._toolMenu.add(extendButton);
+      this._updateExtendMenu();
+    },
+
+    _updateExtendMenu : function() {
+      // cleanup menu
+      var oldChildren = this._extendMenu.removeAll();
+      oldChildren.forEach(function(child) {
+        if (!child.isDisposed()) {
+          child.dispose();
+        }
+      });
+
+      // create new menu entries
+      this.getController().getExtendableExtensions().forEach(function(ext) {
+        var button = new qx.ui.menu.Button(ext);
+        this._extendMenu.add(button);
+
+        button.addListener("execute", function() {
+          // this.extendObjectWith(ext);
+          console.log(ext);
+        }, this);
       }, this);
     },
 
@@ -241,6 +307,6 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     this.resetController();
     this._templates = null;
     qx.util.DisposeUtil.disposeArray("_contexts");
-    this._disposeObjects("_okButton", "_toolMenu", "_buttonPane", "_tabView");
+    this._disposeObjects("_okButton", "_extendMenu", "_toolMenu", "_buttonPane", "_tabView");
   }
 });

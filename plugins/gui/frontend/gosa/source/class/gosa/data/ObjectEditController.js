@@ -2,7 +2,9 @@
  * Controller for the {@link gosa.ui.widget.ObjectEdit} widget; connects it to the model.
  */
 qx.Class.define("gosa.data.ObjectEditController", {
+
   extend : qx.core.Object,
+  include : [qx.locale.MTranslation],
 
   /**
    * @param obj {gosa.proxy.Object}
@@ -112,6 +114,185 @@ qx.Class.define("gosa.data.ObjectEditController", {
       qx.core.Assert.assertFunction(this._obj[methodName]);
 
       this._obj[methodName].apply(this._obj, args);
+    },
+
+    /**
+     * Removes the extension from the object in that its tab page(s) won't be shown any more.
+     *
+     * @param extension {String} Name of the extension (e.g. "SambaUser")
+     */
+    removeExtension : function(extension) {
+      qx.core.Assert.assertString(extension);
+      this._checkExtensionDependencies(extension);
+    },
+
+    /**
+     * Adds the stated extension to the object.
+     *
+     * @param extensino {String}
+     */
+    addExtension : function(extension) {
+      qx.core.Assert.assertString(extension);
+    },
+
+    /**
+     * Returns a list of extensions that the object can be extended by.
+     *
+     * @return {Array} List of extension names (as strings); might be empty
+     */
+    getExtendableExtensions : function() {
+      var result = [];
+      var exts = this._obj.extensionTypes;
+
+      for (var ext in exts) {
+        if (exts.hasOwnProperty(ext) && !exts[ext]) {
+          result.push(ext);
+        }
+      }
+      return result;
+    },
+
+    /**
+     * Check dependencies of extension and possibly raise dailog which asks if to remove the other extensions.
+     */
+    _checkExtensionDependencies : function(extension) {
+      // gather dependencies
+      var dependencies = [];
+      for (var ext in this._obj.extensionDeps) {
+        if (qx.lang.Array.contains(this._obj.extensionDeps[ext], extension)) {
+          dependencies.push(ext);
+        }
+      }
+
+      if (dependencies.length > 0) {
+        // strip already closes extensions
+        dependencies = dependencies.filter(function(ext) {
+          return this._obj.extensionTypes[ext] && gosa.Cache.gui_templates[ext] &&
+                 gosa.Cache.gui_templates[ext].length > 0;
+        }, this);
+
+        if (dependencies.length > 0) {
+          this._createDependencyDialog(extension, dependencies);
+        }
+      }
+
+      if (dependencies.length === 0) {
+        this._removeExtensionFromObject(extension);
+      }
+    },
+
+    /**
+     * Creates dialog to ask if dependent extensions sould be removed as well.
+     *
+     * @param extension {String} The extension that should originally be removed
+     * @param dependencies {Array}
+     */
+    _createDependencyDialog : function(extension, dependencies) {
+      qx.core.Assert.assertString(extension);
+      qx.core.Assert.assertArray(dependencies);
+
+      var dialog = new gosa.ui.dialogs.Dialog(this.trn("Dependent extension", "Dependent extensions", dependencies.length),
+        gosa.Config.getImagePath("status/dialog-warning.png", 22));
+      dialog.setWidth(400);
+
+      // list of dependencies
+      var list = "<ul>";
+      var length = 0;
+
+      for (var i = 0; i < dependencies.length; i++) {
+        var items = this._getTranslatedExtension(dependencies[i]);
+        length += items.length;
+        for(var item = 0; item < items.length; item++) {
+          list += "<li><b>" + items[item] + "</b></li>";
+        }
+      }
+      list += "</ul>";
+
+      // message in addition to the list
+      var messageLabel = new qx.ui.basic.Label(
+        this.trn("To retract the <b>%1</b> extension from this object, the following additional extension needs to be removed: %2",
+          "To retract the <b>%1</b> extension from this object, the following additional extensions need to be removed: %2",
+          length, this._getTranslatedExtension(extension).join(', '), list) +
+        this.trn("Do you want the dependent extension to be removed?", "Do you want the dependent extensions to be removed?",
+          dependencies.length)
+      );
+      messageLabel.set({
+        rich : true,
+        wrap : true
+      });
+      dialog.addElement(messageLabel);
+
+      // buttons
+      var ok = gosa.ui.base.Buttons.getOkButton();
+      ok.addListener("execute", function() {
+        var queue = [];
+        for (var i = 0; i < dependencies.length; i++) {
+          queue.push([this._removeExtensionFromObject, this, [dependencies[i]]]);
+        }
+        queue.push([this._removeExtensionFromObject, this, [extension]]);
+        gosa.Tools.serialize(queue);
+
+        dialog.close();
+      }, this);
+      dialog.addButton(ok);
+
+      var cancel = gosa.ui.base.Buttons.getCancelButton();
+      cancel.addListener("execute", dialog.close, dialog);
+      dialog.addButton(cancel);
+
+      dialog.show();
+    },
+
+    _getTranslatedExtension : function(extension) {
+      qx.core.Assert.assertString(extension);
+      console.warn("TODO: _getTranslatedExtension(" + extension + ")");
+      return [extension];
+    },
+
+    /**
+     * Removes (aka disables) the extension from the object. Dependent extensions will also be removed.
+     *
+     * @param extension {String} Name of the extension, e.g. "UserSamba"
+     * @param callback {Function ? null} Optional callback to invoke once the extension has been retracted
+     */
+    _removeExtensionFromObject : function(extension, callback) {
+      qx.core.Assert.assertString(extension);
+      this._obj.retract(function(result, error) {
+        if (error) {
+          new gosa.ui.dialogs.Error(
+            qx.lang.String.format(this.tr("Failed to retract the %1 extension: %2"),
+            [extension, error.message]))
+          .open();
+          this.error(error.message);
+        }
+        else {
+          this._removeExtensionTabs(extension);
+          this.setModified(true);
+        }
+        this._obj.refreshMetaInformation();
+
+        if (callback) {
+          qx.core.Assert.assertFunction(callback);
+          callback();
+        }
+
+      }, this, extension);
+    },
+
+    /**
+     * Removes the tab page (widget only!) for the given extension.
+     *
+     * @param extension {String} Name of the extension, e.g. SambaUser
+     */
+    _removeExtensionTabs : function(extension) {
+      qx.core.Assert.assertString(extension);
+
+      var context = this._widget.getContexts().find(function(context) {
+        return context.getExtension() === extension;
+      });
+
+      qx.core.Assert.assertInstance(context, gosa.engine.Context, "Unknown extension: " + extension);
+      this._widget.removeTab(context.getRootWidget());
     },
 
     _addContextListeners : function() {

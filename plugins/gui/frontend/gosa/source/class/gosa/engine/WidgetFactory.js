@@ -19,6 +19,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       var addTemplate = function(name, jsonTemplate) {
         templates.push({
           extension : name,
+          isBaseType : name === obj.baseType,
           template : gosa.util.Template.compileTemplate(jsonTemplate)
         });
       };

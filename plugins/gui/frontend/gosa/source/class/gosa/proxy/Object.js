@@ -298,7 +298,7 @@ qx.Class.define("gosa.proxy.Object", {
         }else{
           this.error(error);
         }
-      }, this, "dispatchObjectMethod", this.instance_uuid, "get_object_info", this.locale, this.theme);
+      }, this, "dispatchObjectMethod", this.instance_uuid, "get_object_info", this.locale);
     },
 
     /* Wrapper method for object calls

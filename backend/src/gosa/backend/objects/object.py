@@ -1092,10 +1092,7 @@ class Object(object):
                 dns = index.search({ref_attribute: self.dn}, {'dn': 1})
                 if len(dns):
                     dns = [x['dn'] for x in dns]
-                res.append((
-                    ref_attribute,
-                    list(map(lambda s: s.decode('utf-8'), dns if dns else []))
-                ))
+                res.append((ref_attribute,dns))
 
         return res
 
