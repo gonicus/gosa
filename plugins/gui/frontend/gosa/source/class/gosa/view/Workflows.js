@@ -25,7 +25,7 @@ qx.Class.define("gosa.view.Workflows",
   construct : function()
   {
     // Call super class and configure ourselfs
-    this.base(arguments, "", gosa.Config.getImagePath("apps/workflows.png", 32));
+    this.base(arguments, "", "@FontAwesome/f0c3");
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.VBox(5));
   }

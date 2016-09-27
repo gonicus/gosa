@@ -261,6 +261,21 @@ qx.Theme.define("gosa.theme.Appearance",
           textColor: tc
         }
       }
+    },
+    "icon-menu-button": "menu-button",
+    "icon-menu-button/icon": {
+      include: "menu-button/icon",
+      alias: "menu-button/icon",
+
+      style: function(states) {
+
+        return  {
+          width: 20,
+          height: 20,
+          scale: true,
+          textColor: states.disabled ? "disabled-text" : undefined
+        }
+      }
     }
 
   }

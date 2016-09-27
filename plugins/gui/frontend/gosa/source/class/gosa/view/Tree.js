@@ -25,7 +25,7 @@ qx.Class.define("gosa.view.Tree",
   construct : function(parent)
   {
     // Call super class and configure ourselfs
-    this.base(arguments, "", gosa.Config.getImagePath("apps/tree.png", 32));
+    this.base(arguments, "", "@FontAwesome/list");
     this.parent = parent;
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.Canvas());
@@ -92,7 +92,8 @@ qx.Class.define("gosa.view.Tree",
 
           var actionMenu = new qx.ui.menu.Menu();
           actionMenuButton.setMenu(actionMenu);
-          var deleteButton = this._deleteButton = new qx.ui.menu.Button(this.tr("Delete"));
+          var deleteButton = this._deleteButton = new qx.ui.menu.Button(this.tr("Delete"), "@FontAwesome/trash");
+          deleteButton.setAppearance("icon-menu-button");
           actionMenu.add(deleteButton);
           deleteButton.setEnabled(false);
 

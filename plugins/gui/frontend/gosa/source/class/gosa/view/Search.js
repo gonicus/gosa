@@ -39,7 +39,7 @@ qx.Class.define("gosa.view.Search",
     this.__now = d.getTime() / 1000 + d.getTimezoneOffset() * 60;
 
     // Call super class and configure ourselfs
-    this.base(arguments, "", gosa.Config.getImagePath("apps/search.png", 32));
+    this.base(arguments, "", "@FontAwesome/search");
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.VBox(5));
 
