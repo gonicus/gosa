@@ -72,18 +72,23 @@ qx.Class.define("gosa.view.Tree",
         // Create the action-bar for the list panel
         case "listcontainer":
           control = new qx.ui.container.Composite(new qx.ui.layout.VBox(5));
-          var toolbar = new qx.ui.toolbar.ToolBar;
+          control.add(this.getChildControl("toolbar"));
+          this.getChildControl("splitpane").add(control, 2);
+          break;
+
+        case "toolbar":
+          control = new qx.ui.toolbar.ToolBar;
           var menuPart = new qx.ui.toolbar.Part;
           var menuPart2 = new qx.ui.toolbar.Part;
           var actionMenuButton = new qx.ui.toolbar.MenuButton("Action");
-          var createMenuButton = new qx.ui.toolbar.MenuButton("Create");
+          var createMenuButton = this._createMenuButton = new qx.ui.toolbar.MenuButton("Create");
           var filterMenuButton = new qx.ui.toolbar.MenuButton("Show");
           menuPart.add(actionMenuButton);
           menuPart.add(createMenuButton);
           menuPart.add(filterMenuButton);
           menuPart2.add(new qx.ui.form.TextField().set({placeholder: this.tr("Search ..")}).set({enabled: false}));
-          toolbar.add(menuPart2);
-          toolbar.add(menuPart);
+          control.add(menuPart2);
+          control.add(menuPart);
 
           var actionMenu = new qx.ui.menu.Menu();
           actionMenuButton.setMenu(actionMenu);
@@ -95,10 +100,6 @@ qx.Class.define("gosa.view.Tree",
 
           var createMenu = this.getChildControl("createMenu");
           createMenuButton.setMenu(createMenu);
-
-          toolbar.setEnabled(true);
-          control.add(toolbar);
-          this.getChildControl("splitpane").add(control, 2);
           break;
 
         case "createMenu":
@@ -230,6 +231,7 @@ qx.Class.define("gosa.view.Tree",
 
     __refreshTable : function() {
       var sel = this.getChildControl("tree").getSelection();
+      this._createMenuButton.setEnabled(sel.length > 0);
 
       var done = [];
       var tableModel = this.getChildControl("table").getTableModel();
@@ -294,7 +296,7 @@ qx.Class.define("gosa.view.Tree",
 
   destruct : function() {
     this._rpc = null;
-    this._disposeObjects("_deleteButton");
+    this._disposeObjects("_deleteButton", "_createMenuButton");
 
     gosa.io.Sse.getInstance().removeListener("objectRemoved", this.__reloadTree, this);
     gosa.io.Sse.getInstance().removeListener("objectCreated", this.__reloadTree, this);
