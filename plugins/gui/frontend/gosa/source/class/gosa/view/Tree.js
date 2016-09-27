@@ -56,7 +56,7 @@ qx.Class.define("gosa.view.Tree",
 
           control = new qx.ui.tree.VirtualTree(root, "title", "children");
           control.setMinWidth(260);
-          control.setSelectionMode("multi");
+          control.setSelectionMode("single");
           this.__applyTreeDelegate(control);
           this.getChildControl("splitpane").add(control, 1);
           // Act on tree selection to automatically update the list
@@ -207,26 +207,31 @@ qx.Class.define("gosa.view.Tree",
       tree.addListener("updatedItems", this.__refreshTable, this);
       this.getChildControl("listcontainer");
       this.getChildControl("table");
-      this.__updateCreateMenu();
+      //this.__updateCreateMenu();
       this.__refreshTable();
     },
 
     __updateCreateMenu : function() {
-      // load object types
-      this._rpc.cA(function(result, error){
-        if(error){
-          new gosa.ui.dialogs.Error(error.message).open();
-        } else {
-          result.sort();
-          for (var index in result) {
-            var name = result[index];
-            var button = new qx.ui.menu.Button(name);
-            button.setUserData("type", name);
-            this.getChildControl("createMenu").add(button);
-            button.addListener("execute", this._onCreateObject, this);
+      var selection = this.getChildControl("tree").getSelection().getItem(0);
+      if (selection) {
+        // load object types
+        this._rpc.cA(function(result, error) {
+          if (error) {
+            new gosa.ui.dialogs.Error(error.message).open();
           }
-        }
-      }, this, "getAvailableObjectNames", true);
+          else {
+            result.sort();
+            this.getChildControl("createMenu").removeAll();
+            for (var index in result) {
+              var name = result[index];
+              var button = new qx.ui.menu.Button(name);
+              button.setUserData("type", name);
+              this.getChildControl("createMenu").add(button);
+              button.addListener("execute", this._onCreateObject, this);
+            }
+          }
+        }, this, "getAllowedSubElementsForObject", selection.getType());
+      }
     },
 
     __refreshTable : function() {
@@ -256,6 +261,9 @@ qx.Class.define("gosa.view.Tree",
       for(var i=0; i<sel.getLength(); i++){
         f2(i);
       }
+      if (sel.length > 0) {
+        this.__updateCreateMenu();
+      }
     },
 
     __reloadTree : function() {
@@ -276,14 +284,7 @@ qx.Class.define("gosa.view.Tree",
 
       // get currently selected dn in tree
       var selection = this.getChildControl("tree").getSelection();
-      var dns = new qx.data.Array();
-      selection.forEach(function(sel) {
-        if (!dns.contains(sel.getDn())) {
-          dns.push(sel.getDn());
-        }
-      }, this);
-      // TODO: how to handle multiple dns
-      this.parent.search.openObject(dns.getItem(0), button.getUserData("type"));
+      this.parent.search.openObject(selection.getItem(0).getDn(), button.getUserData("type"));
     },
 
     _onDeleteObject : function() {

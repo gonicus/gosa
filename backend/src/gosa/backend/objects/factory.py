@@ -206,12 +206,13 @@ class ObjectFactory(object):
 
         return list(set(res))
 
-    def getAvailableObjectNames(self, only_base_objects=False):
+    def getAvailableObjectNames(self, only_base_objects=False, base=None):
         """
-        Retuns a list with all available object names
+        Returns a list with all available object names
         """
         if only_base_objects:
-            return [name for name in self.__xml_defs.keys() if name in self.__object_types and self.__object_types[name]['base']]
+            return [name for name in self.__xml_defs.keys() if name in self.__object_types and self.__object_types[name]['base']
+                    and not self.__object_types[name]['invisible']]
         else:
             return list(self.__xml_defs.keys())
 
@@ -311,7 +312,12 @@ class ObjectFactory(object):
         find = objectify.ObjectPath("Object.Container.Type")
         if find.hasattr(self.__xml_defs[objectType]):
             for attr in find(self.__xml_defs[objectType]):
-                res.append(attr.text)
+                if attr.text in self.__object_types and self.__object_types[attr.text]['base']:
+                    if self.__object_types[attr.text]['invisible']:
+                        # look deeper
+                        res.extend(x for x in self.getAllowedSubElementsForObject(attr.text) if x not in res)
+                    else:
+                        res.append(attr.text)
         return res
 
     def getAttributeTypeMap(self, objectType):
@@ -546,6 +552,7 @@ class ObjectFactory(object):
                 'requires': [],
                 'methods': methods,
                 'base': is_base,
+                'invisible': bool(t_obj.StructuralInvisible) if "StructuralInvisible" in t_obj.__dict__ else False
             }
 
             if "Extends" in t_obj.__dict__:
