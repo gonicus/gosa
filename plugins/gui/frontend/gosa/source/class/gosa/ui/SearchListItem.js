@@ -41,8 +41,8 @@ qx.Class.define("gosa.ui.SearchListItem", {
 
     // create and add Part 3 to the toolbar
     this._toolbar = new qx.ui.container.Composite(new qx.ui.layout.HBox(0));
-    var Button1 = new qx.ui.toolbar.Button(null, gosa.Config.getImagePath("actions/document-edit.png", 22));
-    var Button2 = new qx.ui.toolbar.Button(null, gosa.Config.getImagePath("actions/document-close.png", 22));
+    var Button1 = new qx.ui.toolbar.Button(null, "@FontAwesome/pencil");
+    var Button2 = new qx.ui.toolbar.Button(null, "@FontAwesome/trash");
     this._toolbar.add(Button1);
     this._toolbar.add(Button2);
     this._toolbar.setAllowGrowY(false);
@@ -58,7 +58,6 @@ qx.Class.define("gosa.ui.SearchListItem", {
       }, this);
 
     // Hide the toolbar as default
-    this._container.setAppearance("SearchListItem");
     this._toolbar.hide();
     this.addListener("mouseover", this._onMouseOver, this);
     this.addListener("mouseout", this._onMouseOut, this);
@@ -91,6 +90,10 @@ qx.Class.define("gosa.ui.SearchListItem", {
   },
 
   properties: {
+    appearance: {
+      refine: true,
+      init: "search-list-item"
+    },
 
     dn :
     {
@@ -139,6 +142,11 @@ qx.Class.define("gosa.ui.SearchListItem", {
       event : "changeGap",
       themeable : true,
       init : 0
+    },
+
+    type : {
+      check: "String",
+      nullable: true
     },
 
     isLoading :
@@ -241,7 +249,7 @@ qx.Class.define("gosa.ui.SearchListItem", {
 
           var icon;
           if (this.getIcon()) {
-              if (this.getIcon().indexOf("/") == 0) {
+              if (this.getIcon().indexOf("/") === 0 || this.getIcon().indexOf("@") === 0) {
                   icon = this.getIcon();
               } else {
                   icon = gosa.Config.getImagePath("objects/" + this.getIcon(), 64);
@@ -250,11 +258,6 @@ qx.Class.define("gosa.ui.SearchListItem", {
               icon = gosa.Config.getImagePath("objects/" + "null.png", 64);
           }
           control = new qx.ui.basic.Image(icon);
-          control.setHeight(64);
-          control.setScale(true);
-          control.setWidth(64);
-          control.setMarginRight(5);
-          control.setAppearance("SearchListItem-Icon");
           control.setAnonymous(true); 
 
           /* Create the throbber panes
@@ -267,25 +270,24 @@ qx.Class.define("gosa.ui.SearchListItem", {
         case "title":
           control = new qx.ui.basic.Label(this.getTitle());
           this._container.add(control, {row: 0, column: 1});
-          control.setAppearance("SearchLIstItem-Title");
           control.addListener("click", function(){
               this.fireDataEvent("edit", this.getModel());
             }, this);
           control.setRich(true);
           break;
+
         case "dn":
           control = new qx.ui.basic.Label(this.getDn());
           this._container.add(control, {row: 1, column: 1});
-          control.setAppearance("SearchLIstItem-Dn");
           control.setAnonymous(true); 
           control.setSelectable(true);
           control.setRich(true);
           break;
+
         case "description":
           control = new qx.ui.basic.Label(this.getDescription());
           control.setAnonymous(true); 
           this._container.add(control, {row: 2, column: 1});
-          control.setAppearance("SearchLIstItem-Description");
           control.setRich(true);
           control.setSelectable(false);
           break;

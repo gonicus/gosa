@@ -22,6 +22,7 @@ qx.Theme.define("gosa.theme.Color",
       'header-bar' : 'black',
       'header-text' : 'white',
       'error-text': '#8A0808',
-      'disabled-text': '#CCCCCC'
+      'disabled-text': '#CCCCCC',
+      'icon-color': '#666666'
   }
 });

@@ -46,6 +46,17 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
+    "tabview-page/button/icon" :
+    {
+
+      style : function(states)
+      {
+        return {
+          textColor: states.focused | states.checked ? "header-bar" : "icon-color"
+        };
+      }
+    },
+
 
     "table" :
     {
@@ -168,15 +179,20 @@ qx.Theme.define("gosa.theme.Appearance",
       //,include : "textfield"
     },
 
-    "SearchListItem-Icon" : 
+    "search-list-item/icon" :
     {
       style : function()
       {
-        return {};
+        return {
+          width: 64,
+          scale: true,
+          marginRight: 5,
+          textColor: "icon-color"
+        };
       }
     },
 
-    "SearchLIstItem-Dn" :
+    "search-list-item/dn" :
     {
       style : function()
       {
@@ -187,7 +203,7 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    "SearchLIstItem-Title" :
+    "search-list-item/title" :
     {
       style : function()
       {
@@ -199,7 +215,7 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    "SearchLIstItem-Description" :
+    "search-list-item/description" :
     {
       style : function()
       {
@@ -210,7 +226,7 @@ qx.Theme.define("gosa.theme.Appearance",
     },
 
 
-    "SearchListItem":
+    "search-list-item":
     {
       alias : "atom",
 
@@ -267,13 +283,26 @@ qx.Theme.define("gosa.theme.Appearance",
       include: "menu-button/icon",
       alias: "menu-button/icon",
 
-      style: function(states) {
+      style: function() {
 
         return  {
-          width: 20,
-          height: 20,
+          width: 22,
+          height: 22,
+          scale: true
+        }
+      }
+    },
+
+    "virtual-tree-folder/icon": {
+      include: "image",
+      alias: "image",
+
+      style: function(states) {
+        return {
+          width: 22,
+          height: 22,
           scale: true,
-          textColor: states.disabled ? "disabled-text" : undefined
+          textColor: states.selected | states.focused ? '#FFFFFF' : 'icon-color'
         }
       }
     }
