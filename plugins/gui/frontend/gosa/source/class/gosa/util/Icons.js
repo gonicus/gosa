@@ -32,7 +32,9 @@ qx.Class.define("gosa.util.Icons", {
       if (gosa.util.Icons.iconMappings[type.toLowerCase()]) {
         return gosa.util.Icons.iconMappings[type.toLowerCase()]
       } else {
-        return gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/"+size+"/" + type.toLowerCase() + ".png";
+        var path = gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/"+size+"/" + type.toLowerCase() + ".png";
+        path = document.URL.replace(/\/[^\/]*[a-zA-Z]\/.*/, "") + path;
+        return path;
       }
     }
   }

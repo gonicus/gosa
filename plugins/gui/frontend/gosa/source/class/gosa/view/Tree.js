@@ -162,7 +162,6 @@ qx.Class.define("gosa.view.Tree",
 
     __applyTreeDelegate : function(tree) {
       // Special delegation handling
-      var that = this;
       var delegate = {
 
         // Bind properties from the item to the tree-widget and vice versa

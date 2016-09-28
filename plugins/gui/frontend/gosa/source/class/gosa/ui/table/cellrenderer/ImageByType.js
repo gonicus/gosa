@@ -17,6 +17,7 @@ qx.Class.define("gosa.ui.table.cellrenderer.ImageByType", {
 
   members : {
 
+    // overridden
     _getImageInfos : function(cellInfo) {
       cellInfo['value'] = gosa.util.Icons.getIconByType(cellInfo['value'], 16);
       return this.base(arguments, cellInfo);
