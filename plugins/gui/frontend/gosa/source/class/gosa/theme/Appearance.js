@@ -217,10 +217,19 @@ qx.Theme.define("gosa.theme.Appearance",
 
         return {
           padding         : padding,
+          marginBottom    : 10,
           backgroundColor : backgroundColor,
-          textColor       : states.selected ? "text-selected" : undefined,
           decorator       : states.lead ? "lead-item" : states.dragover ? "dragover" : undefined
         };
+      }
+    },
+
+    "search-list-item/throbber-pane": {
+      style: function() {
+        return {
+          backgroundColor: '#000000',
+          opacity: 0.2
+        }
       }
     },
 
