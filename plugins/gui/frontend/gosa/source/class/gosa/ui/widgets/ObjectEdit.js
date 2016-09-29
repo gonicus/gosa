@@ -82,6 +82,32 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       tabPage.dispose();
     },
 
+    addTab : function(templateObj) {
+      var template = templateObj.template;
+      var tabPage = new qx.ui.tabview.Page();
+      tabPage.setLayout(new qx.ui.layout.VBox());
+
+      if (!templateObj.isBaseType) {
+        tabPage.setShowCloseButton(true);
+
+        var closeButton = tabPage.getButton();
+        closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
+        closeButton.addListener("close", function(event) {
+          this.getController().removeExtension(templateObj.extension);
+        }, this);
+      }
+
+      var context = new gosa.engine.Context(template, tabPage, templateObj.extension);
+      this._contexts.push(context);
+      this._tabView.add(context.getRootWidget());
+
+      // remove existing listeners on the tab page to prevent automatic closing
+      var manager = qx.event.Registration.getManager(tabPage);
+      manager.getListeners(tabPage, "close").forEach(function(l) {
+        tabPage.removeListener("close", l.handler, l.context);
+      });
+    },
+
     _applyController : function(value, old) {
       if (old) {
         old.removeListener("changeModified", this._updateOkButtonEnabled, this);
@@ -116,31 +142,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _createTabPages : function() {
-      this._templates.forEach(function(templateObj) {
-        var template = templateObj.template;
-        var tabPage = new qx.ui.tabview.Page();
-        tabPage.setLayout(new qx.ui.layout.VBox());
-
-        if (!templateObj.isBaseType) {
-          tabPage.setShowCloseButton(true);
-
-          var closeButton = tabPage.getButton();
-          closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
-          closeButton.addListener("close", function(event) {
-            this.getController().removeExtension(templateObj.extension);
-          }, this);
-        }
-
-        var context = new gosa.engine.Context(template, tabPage, templateObj.extension);
-        this._contexts.push(context);
-        this._tabView.add(context.getRootWidget());
-
-        // remove existing listeners on the tab page to prevent automatic closing
-        var manager = qx.event.Registration.getManager(tabPage);
-        manager.getListeners(tabPage, "close").forEach(function(l) {
-          tabPage.removeListener("close", l.handler, l.context);
-        });
-      }, this);
+      this._templates.forEach(this.addTab, this);
     },
 
     _createToolmenu : function() {
@@ -205,8 +207,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         this._extendMenu.add(button);
 
         button.addListener("execute", function() {
-          // this.extendObjectWith(ext);
-          console.log(ext);
+          this.getController().addExtension(ext);
         }, this);
       }, this);
     },

@@ -16,25 +16,17 @@ qx.Class.define("gosa.engine.WidgetFactory", {
 
       // collect templates
       var templates = [];
-      var addTemplate = function(name, jsonTemplate) {
-        templates.push({
-          extension : name,
-          isBaseType : name === obj.baseType,
-          template : gosa.util.Template.compileTemplate(jsonTemplate)
-        });
+      var addTemplates = function(name) {
+        qx.lang.Array.append(templates, gosa.util.Template.getTemplateObjects(name, obj.baseType));
       };
-      gosa.util.Template.getTemplates(obj.baseType).forEach(function(template) {
-        addTemplate(obj.baseType, template);
-      });
+
+      addTemplates(obj.baseType);
 
       // extensions
-      var addExtTemplate = function(template) {
-        addTemplate(ext, template);
-      };
       var extensions = obj.extensionTypes;
       for (var ext in extensions) {
         if (extensions.hasOwnProperty(ext) && extensions[ext]) {
-          gosa.util.Template.getTemplates(ext).forEach(addExtTemplate);
+          addTemplates(ext);
         }
       }
 

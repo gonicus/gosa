@@ -30,6 +30,30 @@ qx.Class.define("gosa.util.Template", {
     },
 
     /**
+     * Gives an array of maps with a template and other information.
+     *
+     * @param {String} The objectName (e.g. "PosixUser")
+     * @param {String} The base type of the original object
+     * @param {Array} An (maybe empty) array of hash maps
+     */
+    getTemplateObjects : function(objectName, baseType) {
+      qx.core.Assert.assertString(objectName);
+      qx.core.Assert.assertString(baseType);
+
+      var self = gosa.util.Template;
+      var result = [];
+
+      self.getTemplates(objectName).forEach(function(template) {
+        result.push({
+          extension : objectName,
+          isBaseType : objectName === baseType,
+          template : self.compileTemplate(template)
+        });
+      });
+      return result;
+    },
+
+    /**
      * Finds the identifying name of a dialog template.
      *
      * @param template {String} The template as a json string (i.e. unparsed)
