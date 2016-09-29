@@ -212,6 +212,5 @@ setup(
 
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt
-
     """,
 )
