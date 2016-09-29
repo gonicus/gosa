@@ -403,7 +403,23 @@ class Object(object):
                 res, error = self.__processValidator(self.myProperties[name]['validator'], name, new_value, props_copy)
                 if not res:
                     if len(error):
-                        raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
+                        # TODO: check if we really want the validators to manipulate the data?
+                        # remove invalid values from value list
+                        error_indexes = [err["index"] for err in error if "index" in err]
+                        error_indexes.sort(reverse=True)
+                        for index in error_indexes:
+                            del new_value[index]
+
+                        if not len(new_value):
+                            # nothing left to save
+                            raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
+                        else:
+                            res, error = self.__processValidator(self.myProperties[name]['validator'], name, new_value, props_copy)
+                            if not res:
+                                if len(error):
+                                    raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
+                                else:
+                                    raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name))
                     else:
                         raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name))
 
