@@ -171,16 +171,31 @@ qx.Class.define("gosa.view.Tree",
           controller.bindProperty("dn", "toolTipText", null, item, index);
 
           // Handle images
-          controller.bindProperty("", "icon", {converter: function(item){
-            if (!item.isLoading()) {
-              if(item.getType()) {
-                return gosa.util.Icons.getIconByType(item.getType(), 22);
+          controller.bindProperty("type", "icon", {
+            converter: function(data, model) {
+              if (!model.isLoading()) {
+                if (data) {
+                  return gosa.util.Icons.getIconByType(data, 22);
+                }
+                return "@FontAwesome/pencil";
+              } else {
+                return "@FontAwesome/spinner";
               }
-              return "@FontAwesome/pencil";
-            } else {
-              return "@FontAwesome/spinner";
             }
-          }}, item, index);
+          }, item, index);
+
+          controller.bindProperty("loading", "icon", {
+            converter: function(data, model) {
+              if (!data) {
+                if (model.getType()) {
+                  return gosa.util.Icons.getIconByType(model.getType(), 22);
+                }
+                return "@FontAwesome/pencil";
+              } else {
+                return "@FontAwesome/spinner";
+              }
+            }
+          }, item, index);
         }
       };
       tree.setDelegate(delegate);
