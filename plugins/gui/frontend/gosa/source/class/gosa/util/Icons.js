@@ -23,9 +23,15 @@ qx.Class.define("gosa.util.Icons", {
       'root': '@FontAwesome/sitemap',
       'organization': '@FontAwesome/f275', //'industry',
       'domaincomponent': '@FontAwesome/globe',
+      'country': '@FontAwesome/globe',
       'user': '@FontAwesome/user',
+      'aclrole': '@FontAwesome/f21b', // user-secret
       'posixgroup': '@FontAwesome/f0c0', // users
-      'sambadomain': '@FontAwesome/server'
+      'sambadomain': '@FontAwesome/f233', // server
+      'device': '@FontAwesome/f108', // desktop
+      'locality': '@FontAwesome/f041', // map-marker
+      'domain': '@FontAwesome/f08e', // external-link
+      //'sambamachineaccount': '@FontAwesome/'
     },
 
     getIconByType: function(type, size) {

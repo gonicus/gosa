@@ -211,7 +211,9 @@ qx.Class.define("gosa.view.Tree",
             this.getChildControl("createMenu").removeAll();
             for (var index in result) {
               var name = result[index];
-              var button = new qx.ui.menu.Button(name);
+              var icon = gosa.util.Icons.getIconByType(name, 22);
+              var button = new qx.ui.menu.Button(name, icon);
+              button.setAppearance("icon-menu-button");
               button.setUserData("type", name);
               this.getChildControl("createMenu").add(button);
               button.addListener("execute", this._onCreateObject, this);

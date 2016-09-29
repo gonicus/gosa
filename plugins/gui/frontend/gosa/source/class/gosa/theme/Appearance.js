@@ -294,12 +294,13 @@ qx.Theme.define("gosa.theme.Appearance",
       include: "menu-button/icon",
       alias: "menu-button/icon",
 
-      style: function() {
+      style: function(states) {
 
         return  {
           width: 22,
           height: 22,
-          scale: true
+          scale: true,
+          textColor: states.selected | states.focused ? '#FFFFFF' : 'icon-color'
         }
       }
     },
