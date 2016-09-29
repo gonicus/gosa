@@ -174,7 +174,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
     /* Returns a table row
      * */
     getTableRow: function(){
-      return([this.getType(), 
+      return([gosa.util.Icons.getIconByType(this.getType(), 16),
           this.getTitle(), 
           this.getDescription(),
           this.getDn(),

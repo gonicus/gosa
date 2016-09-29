@@ -118,11 +118,10 @@ qx.Class.define("gosa.view.Tree",
           };
           var table = new qx.ui.table.Table(tableModel, customModel);
           this.getChildControl("listcontainer").add(table, {flex: 1});
-          var that = this;
           table.addListener('dblclick', function(){
             table.getSelectionModel().iterateSelection(function(index) {
-              that.parent.search.openObject(tableModel.getRowData(index)[3]);
-            });
+              this.parent.search.openObject(tableModel.getRowData(index)[3]);
+            }, this);
           }, this);
 
           table.getSelectionModel().addListener("changeSelection", function() {
@@ -150,7 +149,7 @@ qx.Class.define("gosa.view.Tree",
           resizeBehavior.setWidth(3, "1*");
           tcm.setColumnVisible(3, false);
           tcm.setColumnVisible(5, false);
-          tcm.setDataCellRenderer(0, new gosa.ui.table.cellrenderer.ImageByType());
+          tcm.setDataCellRenderer(0, new qx.ui.table.cellrenderer.Image());
 
           control = table;
           break;
