@@ -39,7 +39,7 @@ qx.Class.define("gosa.view.Search",
     this.__now = d.getTime() / 1000 + d.getTimezoneOffset() * 60;
 
     // Call super class and configure ourselfs
-    this.base(arguments, "", gosa.Config.getImagePath("apps/search.png", 32));
+    this.base(arguments, "", "@FontAwesome/search");
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.VBox(5));
 
@@ -138,6 +138,7 @@ qx.Class.define("gosa.view.Search",
 
         bindItem : function(controller, item, id) {
           controller.bindProperty("title", "title", null, item, id);
+          controller.bindProperty("type", "type", null, item, id);
           controller.bindProperty("dn", "dn", null, item, id);
           controller.bindProperty("uuid", "uuid", null, item, id);
           controller.bindProperty("description", "description", null, item, id);
@@ -693,10 +694,7 @@ qx.Class.define("gosa.view.Search",
       item.setUuid(entry['uuid']);
 
       // Icon fallback to server provided images
-      var icon = entry['icon'];
-      if (!icon) {
-          icon = gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/64/" + entry['tag'].toLowerCase() + ".png";
-      }
+      var icon = entry['icon'] ? entry['icon'] : gosa.util.Icons.getIconByType(entry['tag'], 64);
 
       item.setDn(entry['dn']);
       item.setTitle(entry['title']);

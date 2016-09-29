@@ -25,7 +25,7 @@ qx.Class.define("gosa.view.Tree",
   construct : function(parent)
   {
     // Call super class and configure ourselfs
-    this.base(arguments, "", gosa.Config.getImagePath("apps/tree.png", 32));
+    this.base(arguments, "", "@FontAwesome/sitemap");
     this.parent = parent;
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.Canvas());
@@ -92,7 +92,8 @@ qx.Class.define("gosa.view.Tree",
 
           var actionMenu = new qx.ui.menu.Menu();
           actionMenuButton.setMenu(actionMenu);
-          var deleteButton = this._deleteButton = new qx.ui.menu.Button(this.tr("Delete"));
+          var deleteButton = this._deleteButton = new qx.ui.menu.Button(this.tr("Delete"), "@FontAwesome/trash");
+          deleteButton.setAppearance("icon-menu-button");
           actionMenu.add(deleteButton);
           deleteButton.setEnabled(false);
 
@@ -117,29 +118,16 @@ qx.Class.define("gosa.view.Tree",
           };
           var table = new qx.ui.table.Table(tableModel, customModel);
           this.getChildControl("listcontainer").add(table, {flex: 1});
-          var that = this;
           table.addListener('dblclick', function(){
             table.getSelectionModel().iterateSelection(function(index) {
-              that.parent.search.openObject(tableModel.getRowData(index)[3]);
-            });
+              this.parent.search.openObject(tableModel.getRowData(index)[3]);
+            }, this);
           }, this);
 
           table.getSelectionModel().addListener("changeSelection", function() {
             // TODO: check if the selected object is deletable, check ACL too?
             this._deleteButton.setEnabled(table.getSelectionModel().getSelectedCount() > 0);
           }, this);
-
-          var ImageByType = qx.Class.define("ImageByType",{
-            extend : qx.ui.table.cellrenderer.Image,
-            members :      {
-              _getImageInfos : function(cellInfo){
-                var path = gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/16/" + cellInfo['value'].toLowerCase() + ".png";
-                path = document.URL.replace(/\/[^\/]*[a-zA-Z]\/.*/, "") + path;
-                cellInfo['value'] = path;
-                return(this.base(arguments, cellInfo));
-              }
-            }
-          });
 
           var Action = qx.Class.define("Action",{
             extend : qx.ui.table.cellrenderer.Boolean,
@@ -161,7 +149,7 @@ qx.Class.define("gosa.view.Tree",
           resizeBehavior.setWidth(3, "1*");
           tcm.setColumnVisible(3, false);
           tcm.setColumnVisible(5, false);
-          tcm.setDataCellRenderer(0, new ImageByType());
+          tcm.setDataCellRenderer(0, new qx.ui.table.cellrenderer.Image());
 
           control = table;
           break;
@@ -184,15 +172,13 @@ qx.Class.define("gosa.view.Tree",
 
           // Handle images
           controller.bindProperty("", "icon", {converter: function(item){
-            if (!item.isLoading()){
-              if(item.getType()){
-                var path = gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/22/" + item.getType().toLowerCase() + ".png";
-                path = document.URL.replace(/\/[^\/]*[a-zA-Z]\/.*/, "") + path;
-                return path;
+            if (!item.isLoading()) {
+              if(item.getType()) {
+                return gosa.util.Icons.getIconByType(item.getType(), 22);
               }
-              return(gosa.Config.getImagePath("actions/document-edit.png", 22));
+              return "@FontAwesome/pencil";
             } else {
-              return(gosa.Config.getImagePath("status/loading.gif", 22));
+              return "@FontAwesome/spinner";
             }
           }}, item, index);
         }
@@ -224,7 +210,9 @@ qx.Class.define("gosa.view.Tree",
             this.getChildControl("createMenu").removeAll();
             for (var index in result) {
               var name = result[index];
-              var button = new qx.ui.menu.Button(name);
+              var icon = gosa.util.Icons.getIconByType(name, 22);
+              var button = new qx.ui.menu.Button(name, icon);
+              button.setAppearance("icon-menu-button");
               button.setUserData("type", name);
               this.getChildControl("createMenu").add(button);
               button.addListener("execute", this._onCreateObject, this);

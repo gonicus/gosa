@@ -16,233 +16,269 @@ qx.Theme.define("gosa.theme.Appearance",
 {
   extend : qx.theme.indigo.Appearance,
 
-  appearances :
-  {
+  appearances : {
     "mergeButton" : {
-      style: function(states){
+      style : function(states) {
         var style = {};
         style['backgroundColor'] = null;
         style['icon'] = null;
         style['padding'] = 4;
         style['paddingLeft'] = 22;
-        if(states['checked']){
+        if (states['checked']) {
           style['paddingLeft'] = 0;
           style['backgroundColor'] = '#EDEDED';
           style['icon'] = 'gosa/themes/default/22/actions/dialog-ok-apply.png';
         }
-        return(style);
+        return (style);
       }
     },
 
-    "tabview-page/button/label" :
-    {
+    "tabview-page/button/label" : {
       alias : "label",
 
-      style : function(states)
-      {
+      style : function(states) {
         return {
-          font: states.focused ? 'underline' : 'default'
+          font : states.focused ? 'underline' : 'default'
         };
       }
     },
 
+    "tabview-page/button/icon" : {
 
-    "table" :
-    {
-      style : function(states)
-      {
+      style : function(states) {
+        return {
+          textColor : states.focused | states.checked ? "header-bar" : "icon-color"
+        };
+      }
+    },
+
+    "table" : {
+      style : function(states) {
         if (states.invalid) {
-          return({decorator: "border-invalid"});
-        }else{
-          return({decorator: null});
+          return ({decorator : "border-invalid"});
+        }
+        else {
+          return ({decorator : null});
         }
       }
     },
 
-
     "SearchAid" : {},
 
-    "SearchAid/legend" :
-    {
+    "SearchAid/legend" : {
       alias : "atom",
 
-      style : function()
-      {
+      style : function() {
         return {
           textColor : "#808080",
-          padding : [5, 0, 0, 5],
-          font: "bold"
+          padding   : [5, 0, 0, 5],
+          font      : "bold"
         };
       }
     },
 
-    "SearchAid/frame" :
-    {
-      style : function()
-      {
+    "SearchAid/frame" : {
+      style : function() {
         return {
           backgroundColor : "background",
-          padding : [5, 0, 0, 5],
-          margin: [10, 0, 0, 0],
-          decorator  : null
+          padding         : [5, 0, 0, 5],
+          margin          : [10, 0, 0, 0],
+          decorator       : null
         };
       }
     },
 
-    "SearchAidButton-frame" :
-    {
+    "SearchAidButton-frame" : {
       alias : "atom",
 
-      style : function(states)
-      {
+      style : function(states) {
         var weight;
         if (states.pressed || states.abandoned || states.checked) {
           weight = "bold";
-        } else {
+        }
+        else {
           weight = "default";
         }
 
         return {
           textColor : "red",
-          font: weight
+          font      : weight
         };
       }
     },
 
-    "SearchAidButton" :
-    {
-      alias : "SearchAidButton-frame",
+    "SearchAidButton" : {
+      alias   : "SearchAidButton-frame",
       include : "SearchAidButton-frame",
 
-      style : function(states)
-      {
+      style : function(states) {
         return {
           center : false,
-          cursor: states.disabled ? undefined : "pointer"
+          cursor : states.disabled ? undefined : "pointer"
         };
       }
     },
 
-    "attribute-button-frame" :
-    {
+    "attribute-button-frame" : {
       alias : "atom",
 
-      style : function(states)
-      {
+      style : function(states) {
         var decorator = undefined;
 
         if (!states.disabled) {
           if (states.hovered && !states.pressed && !states.checked) {
             decorator = "button-box-hovered";
-          } else if (states.hovered && (states.pressed || states.checked)) {
+          }
+          else if (states.hovered && (states.pressed || states.checked)) {
             decorator = "button-box-pressed-hovered";
-          } else if (states.pressed || states.checked) {
+          }
+          else if (states.pressed || states.checked) {
             decorator = "button-box-pressed";
           }
         }
 
         return {
           decorator : decorator,
-          padding : [3, 7],
-          cursor: states.disabled ? undefined : "pointer",
-          minWidth: 28,
-          minHeight: 28
+          padding   : [3, 7],
+          cursor    : states.disabled ? undefined : "pointer",
+          minWidth  : 28,
+          minHeight : 28
         };
       }
     },
 
     "attribute-button" : {
-      alias : "attribute-button-frame",
+      alias   : "attribute-button-frame",
       include : "attribute-button-frame",
 
-      style : function(){
+      style : function() {
         return {
           center : true
         };
       }
     },
 
-    "SearchList" :
-    {
+    "SearchList" : {
       alias : "scrollarea"
       //,include : "textfield"
     },
 
-    "SearchListItem-Icon" : 
-    {
-      style : function()
-      {
-        return {};
+    "search-list-item/icon" : {
+      style : function() {
+        return {
+          width       : 64,
+          scale       : true,
+          marginRight : 5,
+          textColor   : "icon-color"
+        };
       }
     },
 
-    "SearchLIstItem-Dn" :
-    {
-      style : function()
-      {
+    "search-list-item/dn" : {
+      style : function() {
         return {
           textColor : "green",
-          cursor: "default"
+          cursor    : "default"
         };
       }
     },
 
-    "SearchLIstItem-Title" :
-    {
-      style : function()
-      {
+    "search-list-item/title" : {
+      style : function() {
         return {
           textColor : "blue",
-          cursor: "pointer",
-          font : "SearchResultTitle"
+          cursor    : "pointer",
+          font      : "SearchResultTitle"
         };
       }
     },
 
-    "SearchLIstItem-Description" :
-    {
-      style : function()
-      {
+    "search-list-item/description" : {
+      style : function() {
         return {
           textColor : "black"
         };
       }
     },
 
-
-    "SearchListItem":
-    {
+    "search-list-item" : {
       alias : "atom",
 
-      style : function(states)
-      {
+      style : function(states) {
         var padding = [3, 5, 3, 5];
         if (states.lead) {
-          padding = [ 2, 4 , 2, 4];
+          padding = [2, 4, 2, 4];
         }
         if (states.dragover) {
           padding[2] -= 2;
         }
 
         var backgroundColor = states.hovered ? 'light-background' : undefined;
-        
+
         return {
-          padding : padding,
+          padding         : padding,
+          marginBottom    : 10,
           backgroundColor : backgroundColor,
-          textColor : states.selected ? "text-selected" : undefined,
-          decorator : states.lead ? "lead-item" : states.dragover ? "dragover" : undefined
+          decorator       : states.lead ? "lead-item" : states.dragover ? "dragover" : undefined
         };
       }
     },
 
-    "title-bar":
-    {
+    "search-list-item/throbber-pane": {
+      style: function() {
+        return {
+          backgroundColor: '#000000',
+          opacity: 0.2
+        }
+      }
+    },
+
+    "title-bar": {
+      style: function()  {
+        return {
+          textColor: "header-text"
+        }
+      }
+    },
+
+    "title-bar/logo": {
+      include: "atom",
       alias : "atom",
 
       style : function()
       {
         return {
-          backgroundColor : "#303030"
+          backgroundColor : "#303030",
+          height: 48,
+          padding: 5,
+          icon: "gosa/themes/default/logo.svg"
+        };
+      }
+    },
+    "title-bar/label": {
+      include: "label",
+      alias : "label",
+
+      style : function()
+      {
+        return {
+          alignY : "middle",
+          cursor: "pointer"
+        };
+      }
+    },
+    "title-bar/logout": {
+      include: "image",
+      alias : "image",
+
+      style : function()
+      {
+        return {
+          source: "@FontAwesome/f08b", // sign-out
+          alignY : "middle",
+          cursor: "pointer",
+          width: 22,
+          scale: true
         };
       }
     },
@@ -259,6 +295,35 @@ qx.Theme.define("gosa.theme.Appearance",
 
         return {
           textColor: tc
+        }
+      }
+    },
+    "icon-menu-button": "menu-button",
+    "icon-menu-button/icon": {
+      include: "menu-button/icon",
+      alias: "menu-button/icon",
+
+      style: function(states) {
+
+        return  {
+          width: 22,
+          height: 22,
+          scale: true,
+          textColor: states.selected | states.focused ? '#FFFFFF' : 'icon-color'
+        }
+      }
+    },
+
+    "virtual-tree-folder/icon": {
+      include: "image",
+      alias: "image",
+
+      style: function(states) {
+        return {
+          width: 22,
+          height: 22,
+          scale: true,
+          textColor: states.selected | states.focused ? '#FFFFFF' : 'icon-color'
         }
       }
     }

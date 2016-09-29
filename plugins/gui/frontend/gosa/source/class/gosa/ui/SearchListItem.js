@@ -27,62 +27,8 @@ qx.Class.define("gosa.ui.SearchListItem", {
   construct: function(){
     this.base(arguments);
 
-    this.setMarginBottom(10);
     this.setSelectable(false);
     this._setLayout(new qx.ui.layout.Canvas());
-
-    // Create a grid layout to be able to place elements in order
-    var layout = new qx.ui.layout.Grid();
-    layout.setColumnFlex(1, 2);
-    layout.setRowFlex(2, 2);
-    layout.setSpacing(0);
-    this._container = new qx.ui.container.Composite(layout);
-    this._add(this._container, {top:0, left:0, right:0, bottom:0});
-
-    // create and add Part 3 to the toolbar
-    this._toolbar = new qx.ui.container.Composite(new qx.ui.layout.HBox(0));
-    var Button1 = new qx.ui.toolbar.Button(null, gosa.Config.getImagePath("actions/document-edit.png", 22));
-    var Button2 = new qx.ui.toolbar.Button(null, gosa.Config.getImagePath("actions/document-close.png", 22));
-    this._toolbar.add(Button1);
-    this._toolbar.add(Button2);
-    this._toolbar.setAllowGrowY(false);
-    this._toolbar.setAllowGrowX(false);
-    this._container.add(this._toolbar, {row: 0, column: 2, rowSpan: 3});
-
-    Button1.addListener("execute", function(){
-        this.fireDataEvent("edit", this.getModel());
-      }, this);
-
-    Button2.addListener("execute", function(){
-        this.fireDataEvent("remove", this.getModel());
-      }, this);
-
-    // Hide the toolbar as default
-    this._container.setAppearance("SearchListItem");
-    this._toolbar.hide();
-    this.addListener("mouseover", this._onMouseOver, this);
-    this.addListener("mouseout", this._onMouseOut, this);
-
-    // Append the throbber
-    this._throbber = getThrobber({color: "#FFF", alpha: 1});
-    this._throbber_pane = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-    this._throbber_pane.setBackgroundColor("#000");
-    this._throbber_pane.setOpacity(0.2);
-    this._throbber_pane.setAnonymous(true);
-    this._throbber_placeholder = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-    this._add(this._throbber_pane, {top: 0, left:0, right: 0, bottom: 0});
-    this._add(this._throbber_placeholder, {left: 16, top: 16});
-    this._throbber_pane.exclude();
-
-    this.setPadding(0);
-
-    this.addListenerOnce("appear", function(){
-        this._throbber.appendTo(this._throbber_placeholder.getContentElement().getDomElement());
-      }, this);
-  },
-
-  destruct : function(){
-    this._disposeObjects("_toolbar");
   },
 
   events: {
@@ -91,6 +37,10 @@ qx.Class.define("gosa.ui.SearchListItem", {
   },
 
   properties: {
+    appearance: {
+      refine: true,
+      init: "search-list-item"
+    },
 
     dn :
     {
@@ -141,6 +91,11 @@ qx.Class.define("gosa.ui.SearchListItem", {
       init : 0
     },
 
+    type : {
+      check: "String",
+      nullable: true
+    },
+
     isLoading :
     {
       check : "Boolean",
@@ -151,13 +106,7 @@ qx.Class.define("gosa.ui.SearchListItem", {
     }
   },
 
-  members:{
-
-    _container: null,
-    _toolbar: null,
-    _throbber_pane: null,
-    _throbber_placeholder: null,
-
+  members: {
 
     reset: function(){
       if(this.isIsLoading()){
@@ -171,11 +120,11 @@ qx.Class.define("gosa.ui.SearchListItem", {
      * */
     _applyIsLoading: function(value){
       if(value){
-        this._throbber_pane.show();
-        this._throbber.start();
+        this.getChildControl("throbber-pane").show();
+        this.getChildControl("throbber").start();
       }else{
-        this._throbber.stop();
-        this._throbber_pane.exclude();
+        this.getChildControl("throbber").stop();
+        this.getChildControl("throbber-pane").exclude();
       }
     },
    
@@ -191,12 +140,12 @@ qx.Class.define("gosa.ui.SearchListItem", {
 
     _onMouseOver : function() {
       this.addState("hovered");
-      this._toolbar.show();
+      this.getChildControl("toolbar").show();
     },
 
     _onMouseOut : function() {
       this.removeState("hovered");
-      this._toolbar.hide();
+      this.getChildControl("toolbar").hide();
     },
 
     _applyTitle: function(value){
@@ -231,67 +180,121 @@ qx.Class.define("gosa.ui.SearchListItem", {
       }
     },
 
+    // overidden
     _createChildControlImpl : function(id, hash)
     {
       var control = null;
 
       switch(id)
       {
-        case "icon":
+        case "container":
+          // Create a grid layout to be able to place elements in order
+          var layout = new qx.ui.layout.Grid();
+          layout.setColumnFlex(1, 2);
+          layout.setRowFlex(2, 2);
+          layout.setSpacing(0);
+          control = new qx.ui.container.Composite(layout);
+          this._add(control, {top:0, left:0, right:0, bottom:0});
+          break;
+        
+        case "toolbar":
+          // create and add Part 3 to the toolbar
+          control = new qx.ui.container.Composite(new qx.ui.layout.HBox(0));
+          var Button1 = new qx.ui.toolbar.Button(null, "@FontAwesome/pencil");
+          var Button2 = new qx.ui.toolbar.Button(null, "@FontAwesome/trash");
+          control.add(Button1);
+          control.add(Button2);
+          control.setAllowGrowY(false);
+          control.setAllowGrowX(false);
+          this.getChildControl("container").add(control, {row: 0, column: 2, rowSpan: 3});
 
-          var icon;
-          if (this.getIcon()) {
-              if (this.getIcon().indexOf("/") == 0) {
-                  icon = this.getIcon();
+          Button1.addListener("execute", function(){
+            this.fireDataEvent("edit", this.getModel());
+          }, this);
+
+          Button2.addListener("execute", function(){
+            this.fireDataEvent("remove", this.getModel());
+          }, this);
+
+          // Hide the toolbar as default
+          control.hide();
+          this.addListener("mouseover", this._onMouseOver, this);
+          this.addListener("mouseout", this._onMouseOut, this);
+          break;
+        
+        case "throbber":
+          // Append the throbber
+          control = getThrobber({color: "#FFF", alpha: 1});
+          this.addListenerOnce("appear", function(){
+            control.appendTo(this.getChildControl("throbber-placeholder").getContentElement().getDomElement());
+          }, this);
+          break;
+        
+        case "throbber-pane":
+          control = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+          control.setAnonymous(true);
+          control.exclude();
+          this._add(control, {top: 0, left:0, right: 0, bottom: 0});
+          break;
+        
+        case "throbber-placeholder":
+          control = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+          this._add(control, {left: 16, top: 16});
+          break;
+        
+        case "icon":
+          control = new qx.ui.basic.Image();
+          this.bind("icon", control, "source", {
+            converter: function(data, model, source, target) {
+              if (data) {
+                if (data.indexOf("/") === 0 || data.indexOf("@") === 0) {
+                  return data;
+                } else {
+                  return gosa.Config.getImagePath("objects/" + data, 64);
+                }
               } else {
-                  icon = gosa.Config.getImagePath("objects/" + this.getIcon(), 64);
+                return gosa.Config.getImagePath("objects/" + "null.png", 64);
               }
-          } else {
-              icon = gosa.Config.getImagePath("objects/" + "null.png", 64);
-          }
-          control = new qx.ui.basic.Image(icon);
-          control.setHeight(64);
-          control.setScale(true);
-          control.setWidth(64);
-          control.setMarginRight(5);
-          control.setAppearance("SearchListItem-Icon");
+            }
+          });
           control.setAnonymous(true); 
 
-          /* Create the throbber panes
-           * */
           var container = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
           container.add(control, {top: 0, left:0, right:0, bottom:0});
 
-          this._container.add(container, {row: 0, column: 0, rowSpan: 3});
+          this.getChildControl("container").add(container, {row: 0, column: 0, rowSpan: 3});
           break;
+
         case "title":
-          control = new qx.ui.basic.Label(this.getTitle());
-          this._container.add(control, {row: 0, column: 1});
-          control.setAppearance("SearchLIstItem-Title");
+          control = new qx.ui.basic.Label("");
+          this.bind("title", control, "value");
+          this.getChildControl("container").add(control, {row: 0, column: 1});
           control.addListener("click", function(){
               this.fireDataEvent("edit", this.getModel());
             }, this);
           control.setRich(true);
           break;
+
         case "dn":
-          control = new qx.ui.basic.Label(this.getDn());
-          this._container.add(control, {row: 1, column: 1});
-          control.setAppearance("SearchLIstItem-Dn");
+          control = new qx.ui.basic.Label("");
+          this.bind("dn", control, "value");
+          this.getChildControl("container").add(control, {row: 1, column: 1});
           control.setAnonymous(true); 
           control.setSelectable(true);
           control.setRich(true);
           break;
+
         case "description":
-          control = new qx.ui.basic.Label(this.getDescription());
+          control = new qx.ui.basic.Label("");
+          this.bind("description", control, "value");
           control.setAnonymous(true); 
-          this._container.add(control, {row: 2, column: 1});
-          control.setAppearance("SearchLIstItem-Description");
+          this.getChildControl("container").add(control, {row: 2, column: 1});
           control.setRich(true);
           control.setSelectable(false);
           break;
       }
 
-      return control || this.base(arguments, id);
+      return control || this.base(arguments, id, hash);
     }
   }
 });

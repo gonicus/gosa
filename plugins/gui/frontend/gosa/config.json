@@ -27,7 +27,8 @@
     "source-hybrid",    
     "test",
     "test-source",
-    "translation"
+    "translation",
+    "make-font-map"
   ],
   
   "default-job" : "source-hybrid",
@@ -198,6 +199,29 @@
           "manifest" : "../capture/Manifest.json"
         }
       ]
+    },
+    "make-font-map" :
+    {
+      "desc" : "Build a font mapping from glyphname to unicode id",
+
+      "let" :
+      {
+        "RESPATH" : "./source/resource",
+        "QXRESPATH" : "${QOOXDOO_PATH}/framework/source/resource"
+      },
+
+      "font-map" :
+      {
+        "fonts" :
+        {
+          "${RESPATH}/gosa/fonts/fontawesome-webfont.ttf" :
+          {
+            "prefix": [ "${RESPATH}" ],
+            "alias" : "FontAwesome",
+            "size" : 40
+          }
+        }
+      }
     }
   }
 }

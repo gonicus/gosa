@@ -27,15 +27,30 @@ qx.Theme.define("gosa.theme.Font",
       decoration: "underline"
     },
 
-    "SearchResultTitle" :
-      {
+    "SearchResultTitle" : {
         size : 13,
         lineHeight : 1.4,
         bold: true,
         color: "blue",
         decoration: "underline",
         family : [ "Lucida Grande", "Tahoma", "Verdana", "Bitstream Vera Sans", "Liberation Sans" ]
-      }
-
+    },
+    "FontAwesome": {
+      size: 40,
+      lineHeight: 1,
+      comparisonString : "\uf1e3\uf1f7\uf11b\uf19d",
+      family: ["FontAwesome"],
+      sources: [
+        {
+          family: "FontAwesome",
+          source: [
+            "gosa/fonts/fontawesome-webfont.eot",
+            "gosa/fonts/fontawesome-webfont.woff2",
+            "gosa/fonts/fontawesome-webfont.woff",
+            "gosa/fonts/fontawesome-webfont.ttf"
+          ]
+        }
+      ]
+    }
   }
 });
