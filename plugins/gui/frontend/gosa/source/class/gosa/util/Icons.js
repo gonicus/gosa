@@ -30,7 +30,7 @@ qx.Class.define("gosa.util.Icons", {
       'sambadomain': '@FontAwesome/f233', // server
       'device': '@FontAwesome/f108', // desktop
       'locality': '@FontAwesome/f041', // map-marker
-      'domain': '@FontAwesome/f08e', // external-link
+      'domain': '@FontAwesome/f08e' // external-link
       //'sambamachineaccount': '@FontAwesome/'
     },
 
