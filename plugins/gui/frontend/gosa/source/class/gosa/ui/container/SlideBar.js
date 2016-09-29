@@ -37,6 +37,13 @@ qx.Class.define("gosa.ui.container.SlideBar",
       init : null,
       nullable : true,
       apply : "_applyMenu"
+    },
+
+    // overridden
+    appearance :
+    {
+      refine : true,
+      init : "edit-slidebar"
     }
   },
 
@@ -60,9 +67,7 @@ qx.Class.define("gosa.ui.container.SlideBar",
       switch(id)
       {
         case "button-menu":
-          control = new qx.ui.form.MenuButton;
-          control.setMargin(4);
-          control.setIcon(gosa.Config.getImagePath("actions/gear.png", 22));
+          control = new qx.ui.form.MenuButton();
           this._addAt(control, 3);
           break;
 

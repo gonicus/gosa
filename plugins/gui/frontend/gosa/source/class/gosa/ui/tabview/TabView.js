@@ -19,41 +19,9 @@ qx.Class.define("gosa.ui.tabview.TabView",
 
   /*
   *****************************************************************************
-     CONSTRUCTOR
-  *****************************************************************************
-  */
-
-
-  /**
-   * @param barPosition {String} Initial bar position ({@link #barPosition})
-   */
-  construct : function(barPosition)
-  {
-    this.base(arguments);
-  },
-
-
-  /*
-  *****************************************************************************
-     EVENTS
-  *****************************************************************************
-  */
-
-
-  events :
-  {
-    /** Fires after the selection was modified */
-    //"changeSelection" : "qx.event.type.Data"
-  },
-
-
-  /*
-  *****************************************************************************
      PROPERTIES
   *****************************************************************************
   */
-
-
   properties :
   {
     // overridden
@@ -62,10 +30,6 @@ qx.Class.define("gosa.ui.tabview.TabView",
       check : qx.ui.form.MenuButton,
       nullable : true
     }
-  },
-
-  destruct : function(){
-    this._disposeObjects("_tabContainer");
   },
 
   members :

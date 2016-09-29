@@ -21,7 +21,16 @@ qx.Class.define("gosa.ui.base.Buttons", {
     getButton : function(text, icon, tooltip) {
       var btn;
       if (icon) {
-        btn = new qx.ui.form.Button(text, gosa.Config.getImagePath(icon, 22));
+        if (icon.startsWith("@")) {
+          btn = new qx.ui.form.Button(text, icon);
+          btn.getChildControl("icon").set({
+            height: 22,
+            width: 22,
+            scale: true
+          })
+        } else {
+          btn = new qx.ui.form.Button(text, gosa.Config.getImagePath(icon, 22));
+        }
       } else {
         btn = new qx.ui.form.Button(text);
       }
@@ -36,11 +45,11 @@ qx.Class.define("gosa.ui.base.Buttons", {
     },
 
     getOkButton : function() {
-      return gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("OK"), "actions/dialog-ok.png");
+      return gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("OK"), "@FontAwesome/f00c"); // check
     },
 
     getCancelButton : function() {
-      return gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("Cancel"), "actions/dialog-cancel.png");
+      return gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("Cancel"), "@FontAwesome/f05e"); // ban
     }
   }
 });

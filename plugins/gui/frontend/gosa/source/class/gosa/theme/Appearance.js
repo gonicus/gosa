@@ -326,6 +326,28 @@ qx.Theme.define("gosa.theme.Appearance",
           textColor: states.selected | states.focused ? '#FFFFFF' : 'icon-color'
         }
       }
+    },
+
+    "slidebar/button-menu": {
+      include: "menubutton",
+      alias: "menubutton",
+
+      style: function() {
+        return {
+          icon   : "@FontAwesome/f013",
+          margin : 4
+        }
+      }
+    },
+    "slidebar/button-menu/icon": {
+      include: "image",
+
+      style: function() {
+        return {
+          width: 22,
+          scale: true
+        }
+      }
     }
 
   }

@@ -336,7 +336,7 @@
   <action name="1p_actionChange_password">
    <property name="icon">
     <iconset>
-     <normaloff>:/images/password.png</normaloff>:/images/password.png</iconset>
+     <normaloff>@FontAwesome/f084</normaloff>@FontAwesome/f084</iconset>
    </property>
    <property name="text">
     <string>Change password...</string>
@@ -354,7 +354,7 @@
   <action name="l_actionLock_account">
    <property name="icon">
     <iconset>
-     <normaloff>:/images/lock.png</normaloff>:/images/lock.png</iconset>
+     <normaloff>@FontAwesome/f023</normaloff>@FontAwesome/f023</iconset>
    </property>
    <property name="text">
     <string>Lock account</string>
@@ -369,7 +369,7 @@
   <action name="l_actionUnlock_account">
    <property name="icon">
     <iconset>
-     <normaloff>:/images/unlock.png</normaloff>:/images/unlock.png</iconset>
+     <normaloff>@FontAwesome/f09c</normaloff>@FontAwesome/f09c</iconset>
    </property>
    <property name="text">
     <string>Unlock account</string>
@@ -384,7 +384,7 @@
   <action name="m_actionSend_message">
    <property name="icon">
     <iconset>
-     <normaloff>:/images/notify.png</normaloff>:/images/notify.png</iconset>
+     <normaloff>@FontAwesome/f27b</normaloff>@FontAwesome/f27b</iconset>
    </property>
    <property name="text">
     <string>Send message...</string>
@@ -396,7 +396,7 @@
   <action name="m_actionChange_2FA_Method">
    <property name="icon">
     <iconset>
-     <normaloff>:/images/trustaccount.png</normaloff>:/images/trustaccount.png</iconset>
+     <normaloff>@FontAwesome/f21b</normaloff>@FontAwesome/f21b</iconset>
    </property>
    <property name="text">
     <string>Change 2FA method...</string>

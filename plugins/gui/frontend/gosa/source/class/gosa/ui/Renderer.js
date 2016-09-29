@@ -1105,6 +1105,7 @@ qx.Class.define("gosa.ui.Renderer",
       // Evaluate enabled state
       var enabled = undefined;
       var eb = new qx.ui.menu.Button(label, icon);
+      eb.setAppearance("icon-menu-button");
 
       /* Calculate action dependencies. Right now we support attribute and
        * method dependent checks in the ui-template file:
@@ -1282,17 +1283,20 @@ qx.Class.define("gosa.ui.Renderer",
       }
 
       if (extendMenu.hasChildren()) {
-        this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), gosa.Config.getImagePath("actions/extend.png", 22), null, extendMenu);
+        this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), "@FontAwesome/f0fe", null, extendMenu);
+        this._extendButton.setAppearance("icon-menu-button");
         this.__toolMenu.add(this._extendButton);
       }
 
       if (retractMenu.hasChildren()) {
-        this._retractButton = new qx.ui.menu.Button(this.tr("Retract"), gosa.Config.getImagePath("actions/retract.png", 22), null, retractMenu);
+        this._retractButton = new qx.ui.menu.Button(this.tr("Retract"), "@FontAwesome/f146", null, retractMenu);
+        this._retractButton.setAppearance("icon-menu-button");
         this.__toolMenu.add(this._retractButton);
       }
 
       if (actionMenu.hasChildren()) {
-        this._actionButton = new qx.ui.menu.Button(this.tr("Action"), gosa.Config.getImagePath("actions/actions.png", 22), null, actionMenu);
+        this._actionButton = new qx.ui.menu.Button(this.tr("Action"), "@FontAwesome/f0d0", null, actionMenu);
+        this._actionButton.setAppearance("icon-menu-button");
         this.__toolMenu.add(this._actionButton);
       }
 
@@ -2448,7 +2452,10 @@ qx.Class.define("gosa.ui.Renderer",
       }
 
       if (props[what] && props[what]['iconset']['normaloff']) {
-        if (resources[props[what]['iconset']['normaloff']]) {
+        if (props[what]['iconset']['normaloff'].startsWith("@")) {
+          return props[what]['iconset']['normaloff'];
+        }
+        else if (resources[props[what]['iconset']['normaloff']]) {
           return resources[props[what]['iconset']['normaloff']];
         }
       }
