@@ -164,6 +164,15 @@ qx.Class.define("gosa.data.ObjectEditController", {
     },
 
     /**
+     * Returns a list of extensions that can be retracted from the object.
+     *
+     * @return {Array} List of extension names (as strings); might be empty
+     */
+    getRetractableExtensions : function() {
+      return this._extensionController.getRetractableExtensions();
+    },
+
+    /**
      * Removes the tab page (widget only!) for the given extension.
      *
      * @param extension {String} Name of the extension, e.g. SambaUser

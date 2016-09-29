@@ -41,6 +41,23 @@ qx.Class.define("gosa.data.ExtensionController", {
     },
 
     /**
+     * Returns a list of extensions that can be retracted from the object.
+     *
+     * @return {Array} List of extension names (as strings); might be empty
+     */
+    getRetractableExtensions : function() {
+      var result = [];
+      var exts = this._obj.extensionTypes;
+
+      for (var ext in exts) {
+        if (exts.hasOwnProperty(ext) && exts[ext]) {
+          result.push(ext);
+        }
+      }
+      return result;
+    },
+
+    /**
      * Removes the extension from the object in that its tab page(s) won't be shown any more.
      *
      * @param extension {String} Name of the extension (e.g. "SambaUser")
@@ -179,14 +196,16 @@ qx.Class.define("gosa.data.ExtensionController", {
           this.error(error.message);
         }
         else {
-          this._widgetController.removeExtensionTab(extension);
-          this._widgetController.setModified(true);
-        }
-        this._obj.refreshMetaInformation(function() {});
+          this._obj.refreshMetaInformation(function() {});
+          this._obj.refreshAttributeInformation(function () {
+            this._widgetController.removeExtensionTab(extension);
+            this._widgetController.setModified(true);
 
-        if (callback) {
-          qx.core.Assert.assertFunction(callback);
-          callback();
+            if (callback) {
+              qx.core.Assert.assertFunction(callback);
+              callback();
+            }
+          }, this);
         }
       }, this, extension);
     }

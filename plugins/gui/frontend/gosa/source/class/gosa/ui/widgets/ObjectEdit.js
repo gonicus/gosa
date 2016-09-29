@@ -59,6 +59,9 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _contexts : null,
     _okButton : null,
     _extendMenu : null,
+    _retractMenu : null,
+    _extendButton : null,
+    _retractButton : null,
 
     /**
      * Retrieve all contexts this widget is showing.
@@ -78,8 +81,15 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       qx.core.Assert.assertNotUndefined(tabPage);
       qx.core.Assert.assertInstance(tabPage, qx.ui.tabview.Page);
 
+      var context = this._contexts.find(function(context) {
+        return context.getRootWidget() === tabPage;
+      });
+
       this._tabView.remove(tabPage);
       tabPage.dispose();
+      qx.lang.Array.remove(this._contexts, context);
+
+      this._updateExtensionMenus();
     },
 
     addTab : function(templateObj) {
@@ -106,6 +116,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       manager.getListeners(tabPage, "close").forEach(function(l) {
         tabPage.removeListener("close", l.handler, l.context);
       });
+
+      this._updateExtensionMenus();
     },
 
     _applyController : function(value, old) {
@@ -181,18 +193,32 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _createRetractMenu : function() {
-      console.warn("TODO: create retract menu");
+      this._retractMenu = new qx.ui.menu.Menu();
+      this._retractButton = new qx.ui.menu.Button(this.tr("Retract"), gosa.Config.getImagePath("actions/retract.png", 22),
+        null, this._retractMenu);
+      this._toolMenu.add(this._retractButton);
+      this._updateRetractMenu();
     },
 
     _createExtendMenu : function() {
       this._extendMenu = new qx.ui.menu.Menu();
-      var extendButton = new qx.ui.menu.Button(this.tr("Extend"), gosa.Config.getImagePath("actions/extend.png", 22),
+      this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), gosa.Config.getImagePath("actions/extend.png", 22),
         null, this._extendMenu);
-      this._toolMenu.add(extendButton);
+      this._toolMenu.add(this._extendButton);
       this._updateExtendMenu();
     },
 
+    _updateExtensionMenus : function() {
+      this._updateExtendMenu();
+      this._updateRetractMenu();
+    },
+
     _updateExtendMenu : function() {
+      if (!this._extendMenu) {
+        // might not be initialized yet
+        return;
+      }
+
       // cleanup menu
       var oldChildren = this._extendMenu.removeAll();
       oldChildren.forEach(function(child) {
@@ -210,6 +236,51 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
           this.getController().addExtension(ext);
         }, this);
       }, this);
+
+      // switch visibility
+      if (this._extendMenu.getChildren().length > 0) {
+        this._extendButton.show();
+      }
+      else {
+        this._extendButton.exclude();
+      }
+    },
+
+    _updateRetractMenu : function() {
+      if (!this._retractMenu) {
+        // might not be initialized yet
+        return;
+      }
+
+      // cleanup menu
+      var oldChildren = this._retractMenu.removeAll();
+      oldChildren.forEach(function(child) {
+        if (!child.isDisposed()) {
+          child.dispose();
+        }
+      });
+
+      // create new menu entries
+      var actExts = this.getController().getActiveExtensions();
+
+      this.getController().getRetractableExtensions().forEach(function(ext) {
+        if (qx.lang.Array.contains(actExts, ext)) {
+          var button = new qx.ui.menu.Button(ext);
+          this._retractMenu.add(button);
+
+          button.addListener("execute", function() {
+            this.getController().removeExtension(ext);
+          }, this);
+        }
+      }, this);
+
+      // switch visibility
+      if (this._retractMenu.getChildren().length > 0) {
+        this._retractButton.show();
+      }
+      else {
+        this._retractButton.exclude();
+      }
     },
 
     _createButtons : function() {
@@ -308,6 +379,15 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     this.resetController();
     this._templates = null;
     qx.util.DisposeUtil.disposeArray("_contexts");
-    this._disposeObjects("_okButton", "_extendMenu", "_toolMenu", "_buttonPane", "_tabView");
+    this._disposeObjects(
+      "_okButton",
+      "_extendMenu",
+      "_retractMenu",
+      "_extendButton",
+      "_retractButton",
+      "_toolMenu",
+      "_buttonPane",
+      "_tabView"
+    );
   }
 });
