@@ -161,41 +161,29 @@ qx.Class.define("gosa.view.Tree",
 
     __applyTreeDelegate : function(tree) {
       // Special delegation handling
+      var iconConverter = function(data, model) {
+        if (!model.isLoading()) {
+          if (model.getType()) {
+            return gosa.util.Icons.getIconByType(model.getType(), 22);
+          }
+          return "@FontAwesome/pencil";
+        } else {
+          return "@FontAwesome/spinner";
+        }
+      };
+
       var delegate = {
 
         // Bind properties from the item to the tree-widget and vice versa
-        bindItem : function(controller, item, index){
+        bindItem : function(controller, item, index) {
           controller.bindDefaultProperties(item, index);
           controller.bindPropertyReverse("open", "open", null, item, index);
           controller.bindProperty("open", "open", null, item, index);
           controller.bindProperty("dn", "toolTipText", null, item, index);
 
           // Handle images
-          controller.bindProperty("type", "icon", {
-            converter: function(data, model) {
-              if (!model.isLoading()) {
-                if (data) {
-                  return gosa.util.Icons.getIconByType(data, 22);
-                }
-                return "@FontAwesome/pencil";
-              } else {
-                return "@FontAwesome/spinner";
-              }
-            }
-          }, item, index);
-
-          controller.bindProperty("loading", "icon", {
-            converter: function(data, model) {
-              if (!data) {
-                if (model.getType()) {
-                  return gosa.util.Icons.getIconByType(model.getType(), 22);
-                }
-                return "@FontAwesome/pencil";
-              } else {
-                return "@FontAwesome/spinner";
-              }
-            }
-          }, item, index);
+          controller.bindProperty("type", "icon", { converter: iconConverter }, item, index);
+          controller.bindProperty("loading", "icon", { converter: iconConverter }, item, index);
         }
       };
       tree.setDelegate(delegate);
@@ -208,7 +196,6 @@ qx.Class.define("gosa.view.Tree",
       tree.addListener("updatedItems", this.__refreshTable, this);
       this.getChildControl("listcontainer");
       this.getChildControl("table");
-      //this.__updateCreateMenu();
       this.__refreshTable();
     },
 
