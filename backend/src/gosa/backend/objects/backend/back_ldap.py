@@ -453,7 +453,10 @@ class LDAP(ObjectBackend):
 
         # Current value
         old_value = res[0][1][attr][0]
-        new_value = str(int(old_value) + 1)
+        new_value = bytes(str(int(old_value) + 1),  'ascii')
+
+        print(type(old_value))
+        print(type(new_value))
 
         # Remove old, add new
         mod_attrs = [
