@@ -420,7 +420,8 @@ qx.Class.define("gosa.data.ObjectEditController", {
       }, this);
 
       if (this._initialized) {
-        listenerCallback();
+        // deferred to make sure everything is loaded completely
+        (new qx.util.DeferredCall(listenerCallback, this)).schedule();
       }
       else {
         this.addListenerOnce("initialized", listenerCallback);
