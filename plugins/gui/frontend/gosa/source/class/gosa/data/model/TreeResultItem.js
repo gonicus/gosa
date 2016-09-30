@@ -148,69 +148,67 @@ qx.Class.define("gosa.data.model.TreeResultItem",
         this.setLoaded(true);
         this.setLoading(true);
 
-        // TODO: check for getHasChildren, once its implemented in the backend
+        var rpc = gosa.io.Rpc.getInstance();
+        if (this.getParent()) {
 
-          var rpc = gosa.io.Rpc.getInstance();
-          if (this.getParent()) {
+          // We're looking for entries on the current base
+          rpc.cA(function(data){
+            var newc = new qx.data.Array();
+            for(var id in data){
+              if (data.hasOwnProperty(id)) {
+                var item = this.parseItemForResult(data[id]);
+                if (item.isContainer()) {
+                  newc.push(item);
+                }
+                else {
+                  this.getLeafs().push(item);
+                }
+              }
+            }
+            this.setChildren(newc);
+            this.sortElements();
+            if(func){
+              func.apply(ctx);
+            }
+            this.setLoading(false);
 
-            // We're looking for entries on the current base
-            rpc.cA(function(data){
-                var newc = new qx.data.Array();
-                for(var id in data){
-                  if (data.hasOwnProperty(id)) {
-                    var item = this.parseItemForResult(data[id]);
-                    if (item.isContainer()) {
-                      newc.push(item);
-                    }
-                    else {
-                      this.getLeafs().push(item);
+          }, this, "search", this.getDn(), "children", null, {secondary: false, 'adjusted-dn': true});
+
+        } else {
+          // We're added uppon the root
+          // Fetch all available domains
+          rpc.cA(function(data) {
+
+            var queue = 0;
+            data.forEach(function(entry) {
+              // Count startet job and once the last has finished sort the elements
+              queue ++;
+              rpc.cA(function(result) {
+                queue --;
+
+                // Add the resolved element to the child list
+                if(result.length == 1){
+                  var item = this.parseItemForResult(result[0]);
+                  this.getChildren().push(item);
+
+                  // Sort on last resolved domain element
+                  if(queue === 0){
+                    this.sortElements();
+
+                    // Stop loading throbber
+                    this.setLoading(false);
+
+                    if(func) {
+                      func.apply(ctx);
                     }
                   }
+                } else {
+                  this.error("could not resolve tree element '" + entry + "'!");
                 }
-                this.setChildren(newc);
-                this.sortElements();
-                if(func){
-                  func.apply(ctx);
-                }
-                this.setLoading(false);
-
-              }, this, "search", this.getDn(), "children", null, {secondary: false, 'adjusted-dn': true});
-
-          } else {
-            // We're added uppon the root
-            // Fetch all available domains
-            rpc.cA(function(data) {
-
-              var queue = 0;
-              data.forEach(function(entry) {
-                // Count startet job and once the last has finished sort the elements
-                queue ++;
-                rpc.cA(function(result) {
-                  queue --;
-
-                  // Add the resolved element to the child list
-                  if(result.length == 1){
-                    var item = this.parseItemForResult(result[0]);
-                    this.getChildren().push(item);
-
-                    // Sort on last resolved domain element
-                    if(queue === 0){
-                      this.sortElements();
-
-                      // Stop loading throbber
-                      this.setLoading(false);
-
-                      if(func) {
-                        func.apply(ctx);
-                      }
-                    }
-                  } else {
-                    this.error("could not resolve tree element '" + entry + "'!");
-                  }
-                }, this, "search", entry, "base", null, {secondary: false, 'adjusted-dn': true});
-              }, this);
-            }, this, "getEntryPoints");
-          }
+              }, this, "search", entry, "base", null, {secondary: false, 'adjusted-dn': true});
+            }, this);
+          }, this, "getEntryPoints");
+        }
       }
     },
 
