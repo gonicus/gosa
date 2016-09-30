@@ -419,7 +419,12 @@ qx.Class.define("gosa.data.ObjectEditController", {
         }
       }, this);
 
-      this.addListenerOnce("initialized", listenerCallback);
+      if (this._initialized) {
+        listenerCallback();
+      }
+      else {
+        this.addListenerOnce("initialized", listenerCallback);
+      }
     },
 
     /**
