@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -35,152 +35,6 @@ qx.Class.define("gosa.data.model.TreeResultItem",
 
   events : {
     "updatedItems" : "qx.event.type.Event"
-  },
-
-  members: {
-
-    _onOpen : function(value){
-    
-      if(!this.isLoaded() && value){
-        this.getChildren().removeAll();
-        this.load();
-      }
-    },
-
-    reload : function(callback, context) {
-      this.setLoaded(false);
-      this.setLoading(false);
-      this.getChildren().removeAll();
-      this.getLeafs().removeAll();
-      this.load(callback, context);
-    },
-
-    load: function(func, ctx){
-
-      // If not done yet, resolve the child elements of this container
-      if (this.isLoaded()) {
-        if (func) {
-          func.apply(ctx);
-        }
-      } else {
-
-        this.setLoaded(true);
-        this.setLoading(true);
-
-        // TODO: check for getHasChildren, once its implemented in the backend
-
-        qx.event.Timer.once(function() {
-          var rpc = gosa.io.Rpc.getInstance();
-          if (this.getParent()) {
-
-            // We're looking for entries on the current base
-            rpc.cA(function(data, error){
-                var newc = new qx.data.Array();
-                for(var id in data){
-                  var item  = this.parseItemForResult(data[id]);
-                  if(item.isContainer()){
-                    newc.push(item);
-                  }else{
-                    this.getLeafs().push(item);
-                  }
-                }
-                this.setChildren(newc);
-                this.sortElements();
-                if(func){
-                  func.apply(ctx);
-                }
-                this.setLoading(false);
-                
-              }, this, "search", this.getDn(), "children", null, {secondary: false, 'adjusted-dn': true});
-
-          } else {
-            // We're added uppon the root
-            // Fetch all available domains
-            rpc.cA(function(data, error) {
-
-              var queue = 0;
-              data.forEach(function(entry) {
-                // Count startet job and once the last has finished sort the elements
-                queue ++;
-                rpc.cA(function(result, error) {
-                  queue --;
-
-                  // Add the resolved element to the child list
-                  if(result.length == 1){
-                    var item = this.parseItemForResult(result[0]);
-                    this.getChildren().push(item);
-
-                    // Sort on last resolved domain element
-                    if(queue === 0){
-                      this.sortElements();
-
-                      // Stop loading throbber
-                      this.setLoading(false);
-
-                      if(func) {
-                        func.apply(ctx);
-                      }
-                    }
-                  } else {
-                    this.error("could not resolve tree element '" + entry + "'!");
-                  }
-                }, this, "search", entry, "base", null, {secondary: false, 'adjusted-dn': true});
-              }, this);
-            }, this, "getEntryPoints");
-          }
-        }, this, 10);
-      }
-    },
-
-    /* Sort child and leaf elements
-     * */
-    sortElements : function(){
-      var sortF= function(a,b) {
-        if(a.getTitle() == b.getTitle()){
-          return 0;
-        }
-        return (a.getTitle() < b.getTitle()) ? -1 : 1;
-      };
-      this.getChildren().sort(sortF);
-      this.getLeafs().sort(sortF);
-      this.fireEvent("updatedItems");
-    },
-
-    /* Parses a result item into a TreeResultItem
-     * */
-    parseItemForResult: function(result){
-      var container = false;
-      if(result['container']){
-        container = result['container']; 
-      }
-      var item = new gosa.data.model.TreeResultItem(result['title'], this).set({
-          container: container,
-          dn: result['dn'],
-          description: result['description'],
-          title: result['title'],
-          type: result['tag'],
-          uuid: result['uuid']
-        });
-
-      // Add a dummy object if we know that this container has children.
-      if(result['hasChildren']){
-        item.setHasChildren(true);
-        item.getChildren().push(new gosa.data.model.TreeResultItem("Dummy")); 
-      }
-
-      return(item);
-    },
-
-    /* Returns a table row
-     * */
-    getTableRow: function(){
-      return([gosa.util.Icons.getIconByType(this.getType(), 16),
-          this.getTitle(), 
-          this.getDescription(),
-          this.getDn(),
-          '',
-          this.getUuid()]);
-    }
   },
 
   properties : {
@@ -261,6 +115,152 @@ qx.Class.define("gosa.data.model.TreeResultItem",
       check : "String",
       event : "changeDescription",
       init : ""
+    }
+  },
+
+  members: {
+
+    _onOpen : function(value){
+
+      if(!this.isLoaded() && value){
+        //this.getChildren().removeAll();
+        this.load();
+      }
+    },
+
+    reload : function(callback, context) {
+      this.setLoaded(false);
+      this.setLoading(false);
+      this.getChildren().removeAll();
+      this.getLeafs().removeAll();
+      this.load(callback, context);
+    },
+
+    load: function(func, ctx){
+
+      // If not done yet, resolve the child elements of this container
+      if (this.isLoaded()) {
+        if (func) {
+          func.apply(ctx);
+        }
+      } else {
+
+        this.setLoaded(true);
+        this.setLoading(true);
+
+        // TODO: check for getHasChildren, once its implemented in the backend
+
+          var rpc = gosa.io.Rpc.getInstance();
+          if (this.getParent()) {
+
+            // We're looking for entries on the current base
+            rpc.cA(function(data){
+                var newc = new qx.data.Array();
+                for(var id in data){
+                  if (data.hasOwnProperty(id)) {
+                    var item = this.parseItemForResult(data[id]);
+                    if (item.isContainer()) {
+                      newc.push(item);
+                    }
+                    else {
+                      this.getLeafs().push(item);
+                    }
+                  }
+                }
+                this.setChildren(newc);
+                this.sortElements();
+                if(func){
+                  func.apply(ctx);
+                }
+                this.setLoading(false);
+
+              }, this, "search", this.getDn(), "children", null, {secondary: false, 'adjusted-dn': true});
+
+          } else {
+            // We're added uppon the root
+            // Fetch all available domains
+            rpc.cA(function(data) {
+
+              var queue = 0;
+              data.forEach(function(entry) {
+                // Count startet job and once the last has finished sort the elements
+                queue ++;
+                rpc.cA(function(result) {
+                  queue --;
+
+                  // Add the resolved element to the child list
+                  if(result.length == 1){
+                    var item = this.parseItemForResult(result[0]);
+                    this.getChildren().push(item);
+
+                    // Sort on last resolved domain element
+                    if(queue === 0){
+                      this.sortElements();
+
+                      // Stop loading throbber
+                      this.setLoading(false);
+
+                      if(func) {
+                        func.apply(ctx);
+                      }
+                    }
+                  } else {
+                    this.error("could not resolve tree element '" + entry + "'!");
+                  }
+                }, this, "search", entry, "base", null, {secondary: false, 'adjusted-dn': true});
+              }, this);
+            }, this, "getEntryPoints");
+          }
+      }
+    },
+
+    /**
+     *  Sort child and leaf elements
+     */
+    sortElements : function(){
+      var sortF= function(a,b) {
+        if(a.getTitle() == b.getTitle()){
+          return 0;
+        }
+        return (a.getTitle() < b.getTitle()) ? -1 : 1;
+      };
+      this.getChildren().sort(sortF);
+      this.getLeafs().sort(sortF);
+      this.fireEvent("updatedItems");
+    },
+
+    /**
+     *  Parses a result item into a TreeResultItem
+     */
+    parseItemForResult: function(result){
+      var item = new gosa.data.model.TreeResultItem(result['title'], this).set({
+          container: !!result['container'],
+          dn: result['dn'],
+          description: result['description'],
+          title: result['title'],
+          type: result['tag'],
+          uuid: result['uuid']
+        });
+
+      // Add a dummy object if we know that this container has children.
+      if(result['hasChildren']){
+        item.setHasChildren(true);
+        item.getChildren().push(new gosa.data.model.TreeResultItem("Dummy"));
+      }
+
+      return(item);
+    },
+
+    /**
+     * Returns a table row
+     */
+    getTableRow: function(){
+      return([gosa.util.Icons.getIconByType(this.getType(), 16),
+          this.getTitle(),
+          this.getDescription(),
+          this.getDn(),
+          '',
+          this.getUuid()]);
     }
   }
 });
