@@ -6,6 +6,17 @@ qx.Class.define("gosa.engine.ResourceManager", {
     this._registry = {};
   },
 
+  statics : {
+   /**
+     * @param resource {String} Resource to convert
+     * @return {String} converted Resource
+     */
+    convertResource : function(resource) {
+      qx.core.Assert.assertString(resource);
+      return "/static/resources/" + resource;
+    }
+  },
+
   members : {
     _registry : null,
 
@@ -34,16 +45,7 @@ qx.Class.define("gosa.engine.ResourceManager", {
         this.error("There is already a resource registered for the key '" + key + "'.");
         return;
       }
-      this._registry[key] = this._convertResource(resource);
-    },
-
-    /**
-     * @param resource {String} Resource to convert
-     * @return {String} converted Resource
-     */
-    _convertResource : function(resource) {
-      qx.core.Assert.assertString(resource);
-      return "/static/resources/" + resource;
+      this._registry[key] = this.self(arguments).convertResource(resource);
     }
   },
 

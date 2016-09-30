@@ -324,15 +324,10 @@ qx.Class.define("gosa.Application",
                         this.__checkForActionsInUIDefs(templates, name);
                         gosa.Cache.gui_templates[name] = templates;
 
-                        // Generate category mapping
-                        var categoryTitle = name;
-                        for (var j= 0; j<templates.length; j++) {
-                          categoryTitle = gosa.util.Template.getCategoryTitle(templates[j]);
-                          if (categoryTitle) {
-                            break;
-                          }
-                        }
-                        gosa.Cache.object_categories[name] = categoryTitle;
+                        // populate cache
+                        templates.forEach(function(template) {
+                          gosa.util.Template.fillTemplateCache(name, template);
+                        });
 
                         return(true);
                       }

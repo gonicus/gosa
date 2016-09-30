@@ -71,20 +71,43 @@ qx.Class.define("gosa.util.Template", {
     },
 
     /**
-     * Finds the category title in the template.
+     * Some templates have information hidden inside them, e.g. the category title or extension names.
+     * This function extracts the information and writes them to the gosa.Cache object.
      *
+     * @param name {String} Name of the extension/template
      * @param template {String} The unparsed template as a json string
-     * @return {String | null} The category title or null if it does not exist/cannot be found
      */
-    getCategoryTitle : function(template) {
+    fillTemplateCache : function(name, template) {
+      qx.core.Assert.assertString(name);
       qx.core.Assert.assertString(template);
       var json = gosa.util.Template.compileTemplate(template);
+      qx.core.Assert.assertObject(json, "Template could not be properly parsed.");
+
+      // category title
+      gosa.Cache.object_categories[name] = name;
       if (json.hasOwnProperty("type") && json.type === "widget" &&
           json.hasOwnProperty("properties") && (typeof json.properties === "object") &&
           json.properties.hasOwnProperty("categoryTitle") && (typeof json.properties.categoryTitle === "string")) {
-            return json.properties.categoryTitle;
-          }
-      return null;
+        gosa.Cache.object_categories[name] = json.properties.categoryTitle;
+      }
+
+      // extension config (translated name, icon)
+      if (!gosa.Cache.extensionConfig.hasOwnProperty(name) && json.extensions && json.extensions.tabConfig) {
+        var result = {};
+        var tabConfig = json.extensions.tabConfig;
+
+        // extension title
+        if (tabConfig.title) {
+          result.title = tabConfig.title;
+        }
+
+        // extension icon
+        if (tabConfig.icon && json.extensions.resources) {
+          var iconSource = json.extensions.resources[tabConfig.icon];
+          result.icon = gosa.engine.ResourceManager.convertResource(iconSource);
+        }
+        gosa.Cache.extensionConfig[name] = result;
+      }
     }
   }
 });

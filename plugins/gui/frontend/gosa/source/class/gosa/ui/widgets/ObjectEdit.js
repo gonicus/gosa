@@ -229,7 +229,23 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
       // create new menu entries
       this.getController().getExtendableExtensions().forEach(function(ext) {
-        var button = new qx.ui.menu.Button(ext);
+
+        var config = gosa.Cache.extensionConfig[ext];
+        if (!config) {
+          // don't show menus w/o configuration
+          return;
+        }
+
+        // some buttons extensions don't have an icon
+        var button;
+        if (config.icon) {
+          // button = new qx.ui.menu.Button(ext, gosa.Config.getImagePath(config.icon, 22));
+          button = new qx.ui.menu.Button(config.title, config.icon);
+        }
+        else {
+          button = new qx.ui.menu.Button(config.title);
+        }
+
         this._extendMenu.add(button);
 
         button.addListener("execute", function() {
@@ -265,7 +281,21 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
       this.getController().getRetractableExtensions().forEach(function(ext) {
         if (qx.lang.Array.contains(actExts, ext)) {
-          var button = new qx.ui.menu.Button(ext);
+          var config = gosa.Cache.extensionConfig[ext];
+          if (!config) {
+            // don't show menus w/o configuration
+            return;
+          }
+
+          // some buttons extensions don't have an icon
+          var button;
+          if (config.icon) {
+            button = new qx.ui.menu.Button(config.title, config.icon);
+          }
+          else {
+            button = new qx.ui.menu.Button(config.title);
+          }
+
           this._retractMenu.add(button);
 
           button.addListener("execute", function() {

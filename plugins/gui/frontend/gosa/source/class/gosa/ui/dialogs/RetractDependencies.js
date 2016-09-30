@@ -67,22 +67,23 @@ qx.Class.define("gosa.ui.dialogs.RetractDependencies", {
         var names = this._getTranslatedExtension(dependency);
         names.forEach(function(name) {
           this._numberOfNames++;
-          this._list += "<li><b>" + dependency + "</b></li>";
+          this._list += "<li><b>" + name + "</b></li>";
         }, this);
       }, this);
       this._list += "</ul>";
     },
 
     /**
-     * Finds all translated names for an extension; one extension might have several names.
+     * Finds all translated names for an extension; one extension might have several names. If no translation is
+     * found, it returns the original extension name as a fallback.
      *
      * @param extension {String}
      * @return {Array} List of strings
      */
     _getTranslatedExtension : function(extension) {
       qx.core.Assert.assertString(extension);
-      console.warn("TODO: _getTranslatedExtension(" + extension + ")");
-      return [extension];
+      var config = gosa.Cache.extensionConfig[extension];
+      return config && config.title ? [config.title] : [extension];
     },
 
     _getListMessage : function() {
