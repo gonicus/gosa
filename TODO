@@ -12,6 +12,8 @@
 # Backend TODOs
 - Workflows upload
 - LDAP Umbau von pyldap nach ldap3 möglich?
+- Validierung von Objekten beim einlesen/öffnen + GUI mitteilen was invalide ist und dort anzeigen (Popup + Formularfeld umranden)
+    (ggf. Speicherbutton ausgrauen solange das Problem nicht behoben wurde)
 
 # Transport Security
 - HTTPS Verbindungen per default
