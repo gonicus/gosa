@@ -81,7 +81,7 @@ qx.Class.define("gosa.proxy.Object", {
       }
       var data = e.getData();
       // Skip events that are not for us
-      if(data['uuid'] != this.uuid) {
+      if(data.uuid != this.uuid) {
         return;
       }
       this.fireDataEvent("closing", data);
@@ -96,14 +96,14 @@ qx.Class.define("gosa.proxy.Object", {
 
       // Skip events that are not for us
       var data = e.getData();
-      if(data['uuid'] != this.uuid){
+      if(data.uuid != this.uuid){
         return;
       }
 
       // Act on the event type
-      if(data['changeType'] == "remove"){
+      if(data.changeType == "remove"){
         this.fireEvent("removed");
-      }else if(data['changeType'] == "update"){
+      }else if(data.changeType == "update"){
         if(!this.is_reloading){
 
           if(!this.isUiBound()){
@@ -126,15 +126,15 @@ qx.Class.define("gosa.proxy.Object", {
 
       // Initialize object values
       this.initialized = false;
-      this.instance_uuid = data["__jsonclass__"][1][1];
-      this.dn = data["__jsonclass__"][1][2];
-      this.uuid = data['uuid'];
+      this.instance_uuid = data.__jsonclass__[1][1];
+      this.dn = data.__jsonclass__[1][2];
+      this.uuid = data.uuid;
 
       for(var item in this.attributes){
         var val;
         if(this.attributes[item] in data){
 
-          if(this.attribute_data[this.attributes[item]]['multivalue']){
+          if(this.attribute_data[this.attributes[item]].multivalue){
             val = new qx.data.Array(data[this.attributes[item]]);
           }else{
             var value = data[this.attributes[item]];
@@ -165,7 +165,7 @@ qx.Class.define("gosa.proxy.Object", {
         var that = this;
         var rpc = gosa.io.Rpc.getInstance();
         var rpc_value = null;
-        if(this.attribute_data[name]['multivalue']){
+        if(this.attribute_data[name].multivalue){
           rpc_value = value.toArray();
         }else{
           if(value.getLength()){
@@ -247,22 +247,33 @@ qx.Class.define("gosa.proxy.Object", {
       var rpc = gosa.io.Rpc.getInstance();
       rpc.cA(function(data, context, error){
         if(!error){
-          for(var item in data['value']){
+          for(var item in data.value){
 
-            if(data['values'][item]){
-              this.fireDataEvent("updatedAttributeValues", {item: item, values: data['values'][item]});
+            if(data.values[item]){
+              var attr = this.attribute_data;
+              if (attr[item]) {
+                attr[item].values = data.values[item];
+              }
+              this.fireDataEvent("updatedAttributeValues", {item: item, values: data.values[item]});
             }
 
             // Do not update the property-value
             if(!skipValueUpdate){
               var value = null;
-              if(data['value'][item] === null){
-                value = [];
+              if(data.value[item] === null){
+                var attrData = this.attribute_data[item];
+                if (attrData.mandatory && attrData.values && attrData.values.length > 0) {
+                  value = [attrData.values[0]];
+                  this.setAttribute(item, new qx.data.Array(value));
+                }
+                else {
+                  value = [];
+                }
               }else{
-                if(!(this.attribute_data[item]['multivalue'])){
-                  value = [data['value'][item]];
+                if(!(this.attribute_data[item].multivalue)){
+                  value = [data.value[item]];
                 }else{
-                  value = data['value'][item];
+                  value = data.value[item];
                 }
               }
 
@@ -292,8 +303,8 @@ qx.Class.define("gosa.proxy.Object", {
       var rpc = gosa.io.Rpc.getInstance();
       rpc.cA(function(data, context, error){
         if(!error){
-          this.baseType = data['base'];
-          this.extensionTypes = data['extensions'];
+          this.baseType = data.base;
+          this.extensionTypes = data.extensions;
           cb.apply(ctx);
         }else{
           this.error(error);

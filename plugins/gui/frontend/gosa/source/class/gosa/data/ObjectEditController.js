@@ -268,7 +268,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
       }
 
       if (!this._globalObjectListenersSet) {
-        o.addListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
         o.addListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
         this._globalObjectListenersSet = true;
       }
@@ -488,10 +487,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
       this._changeValueListeners = {};
     },
 
-    _onUpdatedAttributeValues : function(event) {
-      console.warn("TODO: _onUpdatedAttributeValues %O", event);
-    },
-
     _updateValidity : function() {
       this.setValid(this._validatingWidgets.every(function(widget) {
         return widget.isValid();
@@ -511,7 +506,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._widget.removeListener("contextAdded", this._onContextAdded, this);
 
     if (this._obj && !this._obj.isDisposed()) {
-      this._obj.removeListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
       this._obj.removeListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
     }
 
