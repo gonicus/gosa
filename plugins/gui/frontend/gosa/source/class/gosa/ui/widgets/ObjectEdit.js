@@ -39,7 +39,12 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     /**
      * Fired when the widget/the window in which the window is gets closed.
      */
-    "close" : "qx.event.type.Event"
+    "close" : "qx.event.type.Event",
+
+    /**
+     * Fired when a context was added. Data is the context object (of type {@link gosa.engine.Context}).
+     */
+    "contextAdded": "qx.event.type.Data"
   },
 
   properties : {
@@ -118,6 +123,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       });
 
       this._updateExtensionMenus();
+
+      this.fireDataEvent("contextAdded", context);
     },
 
     _applyController : function(value, old) {

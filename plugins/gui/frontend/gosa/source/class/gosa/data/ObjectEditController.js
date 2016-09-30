@@ -21,12 +21,12 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._connectedAttributes = [];
     this._extensionController = new gosa.data.ExtensionController(obj, this);
 
-    this._addContextListeners();
-
+    this._addListenersToAllContexts();
     this._setUpWidgets();
 
-    this._obj.setUiBound(true);
+    this._widget.addListener("contextAdded", this._onContextAdded, this);
 
+    this._obj.setUiBound(true);
     this._initialized = true;
     this.fireEvent("initialized");
   },
@@ -152,6 +152,12 @@ qx.Class.define("gosa.data.ObjectEditController", {
     addExtension : function(extension) {
       qx.core.Assert.assertString(extension);
       this._extensionController.addExtension(extension);
+
+      this._widget.getContexts().forEach(function(context) {
+        if (context.getExtension() === extension) {
+          console.log(context);
+        }
+      });
     },
 
     /**
@@ -207,12 +213,14 @@ qx.Class.define("gosa.data.ObjectEditController", {
       }, this);
     },
 
-    _addContextListeners : function() {
-      this._widget.getContexts().forEach(function(context) {
-        if (!context.isAppeared()) {
-          context.addListenerOnce("widgetsCreated", this._setUpWidgets, this);
-        }
-      }, this);
+    _addListenersToAllContexts : function() {
+      this._widget.getContexts().forEach(this._addListenerToContext, this);
+    },
+
+    _addListenerToContext : function(context) {
+      if (!context.isAppeared()) {
+        context.addListenerOnce("widgetsCreated", this._setUpWidgets, this);
+      }
     },
 
     _setUpWidgets : function() {
@@ -482,10 +490,20 @@ qx.Class.define("gosa.data.ObjectEditController", {
       this.setValid(this._validatingWidgets.every(function(widget) {
         return widget.isValid();
       }));
+    },
+
+    /**
+     * @param event {qx.event.type.Data}
+     */
+    _onContextAdded : function(event) {
+      this._addListenerToContext(event.getData());
+      this._setUpWidgets();
     }
   },
 
   destruct : function() {
+    this._widget.removeListener("contextAdded", this._onContextAdded, this);
+
     if (this._obj && !this._obj.isDisposed()) {
       this._obj.removeListener("updatedAttributeValues", this._onUpdatedAttributeValues, this);
       this._obj.removeListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
