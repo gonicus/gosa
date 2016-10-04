@@ -1581,7 +1581,7 @@ class ACLResolver(Plugin):
                                             else:
                                                 bases[entry['dn']] = True
 
-        return bases.keys()
+        return list(bases.keys())
 
     @Command(needsUser=True, __help__=N_("List defined ACLs by base or topic."))
     def getACLs(self, user, base=None, topic=None):
@@ -1595,8 +1595,8 @@ class ACLResolver(Plugin):
 
         Example::
 
-            >>> getACls(base='dc=gonicus,dc=de')
-            >>> getACls(topic=r'^com\.gonicus\.factory$')
+            >>> getACLs(base='dc=gonicus,dc=de')
+            >>> getACLs(topic=r'^com\.gonicus\.factory$')
 
         ============== =============
         Key            Description
