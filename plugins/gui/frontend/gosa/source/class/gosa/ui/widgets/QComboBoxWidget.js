@@ -137,25 +137,28 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
 
       var convert;
 
-      if(this.getType() == "Integer"){
+      if (this.getType() == "Integer") {
         var that = this;
-        convert = function(value){
-            var res = parseInt(value);
-            if(res == NaN){
-              that.error("failed to convert ComboBox value "+value+" to int ("+that.getExtension()+"."+that.getAttribute()+")");
-              return(0);
-            }else{
-              return(res);
-            }
-          };
-      }else if(this.getType() == "Boolean"){
-        convert= function(value){
-            return(value == "True");
-          };
-      }else{
-        convert= function(value){
-            return(value);
-          };
+        convert = function(value) {
+          var res = parseInt(value);
+          if(res == NaN) {
+            that.error("failed to convert ComboBox value "+value+" to int ("+that.getExtension()+"."+that.getAttribute()+")");
+            return(0);
+          }
+          else {
+            return(res);
+          }
+        };
+      }
+      else if (this.getType() == "Boolean"){
+        convert = function(value) {
+          return value.toLowerCase() === "true";
+        };
+      }
+      else{
+        convert = function(value) {
+          return value;
+        };
       }
 
       if(data.classname != "qx.data.Array"){
