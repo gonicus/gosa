@@ -23,6 +23,8 @@ qx.Class.define("gosa.ui.dialogs.ClosingObject", {
   construct: function(dn, timeout)
   {
     this.base(arguments, this.tr("Object: %1", dn), gosa.Config.getImagePath("status/dialog-information.png", 22));
+    this.setAutoDispose(true);
+
     var closingCountdownEnd = Date.now() + timeout*1000;
     this._timer = new qx.event.Timer(1000);
     this._timer.addListener("interval", function() {

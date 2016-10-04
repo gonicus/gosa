@@ -67,6 +67,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _retractMenu : null,
     _extendButton : null,
     _retractButton : null,
+    _closingDialog : null,
 
     /**
      * Retrieve all contexts this widget is showing.
@@ -125,6 +126,48 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       this._updateExtensionMenus();
 
       this.fireDataEvent("contextAdded", context);
+    },
+
+    /**
+     * Listener for when the object should get closed automatically (timeout pending).
+     *
+     * @param dn {String} dn of the object
+     * @param minutes {Integer} Timeout until the object is automatically closed
+     */
+    onClosing : function(dn, minutes) {
+      qx.core.Assert.assertPositiveInteger(minutes);
+
+      this._closingDialog = new gosa.ui.dialogs.ClosingObject(dn, minutes * 60);
+
+      this._closingDialog.addListener("closeObject", function() {
+        this.onClosingAborted();
+        this.getController().closeObject();
+        this._close();
+      }, this);
+
+      // keep open
+      this._closingDialog.addListener("continue", this.getController().continueEditing, this.getController());
+
+      this._closingDialog.open();
+    },
+
+    /**
+     * Call when the automatic closing process is aborted.
+     */
+    onClosingAborted: function () {
+      if (this._closingDialog) {
+        this._closingDialog.close();
+        this._closingDialog = null;
+      }
+    },
+
+    /**
+     * Call when the object was closed due to inactivity.
+     */
+    onClosed : function() {
+      this.onClosingAborted();
+      new gosa.ui.dialogs.Info(this.tr("This object has been closed due to inactivity!")).open();
+      this._getParentWindow().close();  // don't fire close event
     },
 
     _applyController : function(value, old) {
@@ -417,6 +460,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     this._templates = null;
     qx.util.DisposeUtil.disposeArray("_contexts");
     this._disposeObjects(
+      "_closingDialog",
       "_okButton",
       "_extendMenu",
       "_retractMenu",

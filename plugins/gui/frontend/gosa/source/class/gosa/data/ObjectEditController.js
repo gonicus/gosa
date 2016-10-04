@@ -29,6 +29,8 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._obj.setUiBound(true);
     this._initialized = true;
     this.fireEvent("initialized");
+
+    obj.addListener("closing", this._onObjectClosing, this);
   },
 
   events : {
@@ -176,6 +178,37 @@ qx.Class.define("gosa.data.ObjectEditController", {
      */
     getRetractableExtensions : function() {
       return this._extensionController.getRetractableExtensions();
+    },
+
+    /**
+     * Called when the event {@link gosa.proxy.Object#closing} is sent.
+     */
+    _onObjectClosing : function(event) {
+      var data = event.getData();
+
+      // TODO: How can this happen?
+      if (data.uuid !== this._obj.uuid) {
+        return;
+      }
+
+      switch (data.state) {
+        case "closing":
+          this._widget.onClosing(this._obj.dn, parseInt(data.minutes));
+          break;
+        case "closing_aborted":
+          this._widget.onClosingAborted();
+          break;
+        case "closed":
+          this._widget.onClosed();
+          break;
+      }
+    },
+
+    /**
+     * Invoke rpc to continue editing while the timeout for automatic closing is running.
+     */
+    continueEditing : function() {
+      gosa.io.Rpc.getInstance().cA(function() {}, null, "continueObjectEditing", this._obj.instance_uuid);
     },
 
     /**
@@ -503,6 +536,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
   },
 
   destruct : function() {
+    this._obj.removeListener("closing", this._onObjectClosing, this);
     this._widget.removeListener("contextAdded", this._onContextAdded, this);
 
     if (this._obj && !this._obj.isDisposed()) {
