@@ -246,6 +246,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
           uuid: result['uuid'],
           actions: new qx.data.Array(result['actions'])
         });
+      gosa.data.cache.AllowedActions.add(item.getDn(), item.getActions());
 
       // Add a dummy object if we know that this container has children.
       if(result['hasChildren']){
