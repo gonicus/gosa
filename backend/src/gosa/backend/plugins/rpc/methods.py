@@ -86,10 +86,10 @@ class RPCMethods(Plugin):
         else:
             return factory.getAvailableObjectNames(only_base_objects, base)
 
-    @Command(__help__=N_("Returns a list of objects that can be stored as sub-objects for the given object."))
-    def getAllowedSubElementsForObject(self, base=None):
+    @Command(needsUser=True, __help__=N_("Returns a list of objects that can be stored as sub-objects for the given object."))
+    def getAllowedSubElementsForObject(self, user, base=None):
         factory = ObjectFactory.getInstance()
-        return factory.getAllowedSubElementsForObject(base)
+        return factory.getAllowedSubElementsForObject(user, base)
 
     @Command(__help__=N_("Returns all templates used by the given object type."))
     def getGuiTemplates(self, objectType, theme="default"):
@@ -351,7 +351,6 @@ class RPCMethods(Plugin):
 
             return res
 
-
         if not base:
             return []
 
@@ -364,8 +363,9 @@ class RPCMethods(Plugin):
             fltr['secondary'] = "enabled"
         if not 'mod-time' in fltr:
             fltr['mod-time'] = "all"
-        if 'adjusted-dn' in fltr and fltr['adjusted-dn'] == True:
+        if 'adjusted-dn' in fltr and fltr['adjusted-dn'] is True:
             dn_hook = "_adjusted_parent_dn"
+        actions = 'actions' in fltr and fltr['actions'] is True
 
         if qstring:
             try:
@@ -473,7 +473,7 @@ class RPCMethods(Plugin):
         these = list(these.keys())
 
         for item in self.__session.query(ObjectInfoIndex).filter(query):
-            self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr), these=these)
+            self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr), these=these, actions=actions)
 
             # Collect information for secondary search?
             if fltr['secondary'] != "enabled":
@@ -491,7 +491,7 @@ class RPCMethods(Plugin):
                             continue
 
                         if hasattr(ObjectInfoIndex, r['filter']):
-                            squery.append(and_(ObjectInfoIndex._type == tag, getattr(ObjectInfoIndex, r['filter']) ==  kv[r['attribute']]))
+                            squery.append(and_(ObjectInfoIndex._type == tag, getattr(ObjectInfoIndex, r['filter']) == kv[r['attribute']]))
                         else:
                             squery.append(and_(ObjectInfoIndex._type == tag, KeyValueIndex.key == r['filter'], KeyValueIndex.value == kv[r['attribute']][0]))
 
@@ -505,7 +505,7 @@ class RPCMethods(Plugin):
 
             # Execute query and update results
             for item in self.__session.query(ObjectInfoIndex).filter(query):
-                self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr, True), secondary=True, these=these)
+                self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr, True), secondary=True, these=these, actions=actions)
 
         return list(res.values())
 
@@ -556,7 +556,7 @@ class RPCMethods(Plugin):
 
         return penalty
 
-    def __update_res(self, res, item, user=None, relevance=0, secondary=False, these=None):
+    def __update_res(self, res, item, user=None, relevance=0, secondary=False, these=None, actions=False):
     
         # Filter out what the current use is not allowed to see
         item = self.__filter_entry(user, item, these)
@@ -583,7 +583,12 @@ class RPCMethods(Plugin):
                     entry[k] = self.__build_value(v, item)
     
             entry['container'] = item['_type'] in self.containers
-    
+
+        if actions and user:
+            aclresolver = PluginRegistry.getInstance("ACLResolver")
+            topic = "%s.objects.%s" % (self.env.domain, item['_type'])
+            entry['actions'] = aclresolver.getAllowedActions(user, topic, base=item['dn'])
+
         res[item['dn']] = entry
     
     def __build_value(self, v, info):

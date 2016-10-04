@@ -1583,6 +1583,22 @@ class ACLResolver(Plugin):
 
         return list(bases.keys())
 
+    @Command(needsUser=True, __help__=N_("List allowed Actions by topic."))
+    def getAllowedActions(self, user, topic, base=None):
+        # Actions we are interested in
+        check = ['c', 'w', 'r', 'd']
+
+        # Admin users are allowed to do anything.
+        if user in self.admins:
+            return check
+
+        result = [x for x in check if self.check(user, topic, x, base=base)]
+        return result
+
+    @Command(needsUser=True, __help__=N_("List allowed Actions for the given object type."))
+    def getAllowedActionsByType(self, user, type):
+        return self.getAllowedActions(user, "%s.objects.%s" % (self.env.domain, type))
+
     @Command(needsUser=True, __help__=N_("List defined ACLs by base or topic."))
     def getACLs(self, user, base=None, topic=None):
         """

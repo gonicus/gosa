@@ -297,7 +297,7 @@ class ObjectFactory(object):
 
         return res
 
-    def getAllowedSubElementsForObject(self, objectType):
+    def getAllowedSubElementsForObject(self, user, objectType):
         """
         Returns a list of objects that can be stored as sub-objects for the given object.
         """
@@ -308,16 +308,19 @@ class ObjectFactory(object):
             raise TypeError(C.make_error("OBJECT_TYPE_NO_BASE_TYPE", type=objectType))
 
         # Get list of allowed sub-elements
-        res = []
+        res = {}
         find = objectify.ObjectPath("Object.Container.Type")
+        resolver = PluginRegistry.getInstance("ACLResolver")
         if find.hasattr(self.__xml_defs[objectType]):
             for attr in find(self.__xml_defs[objectType]):
                 if attr.text in self.__object_types and self.__object_types[attr.text]['base']:
                     if self.__object_types[attr.text]['invisible']:
                         # look deeper
-                        res.extend(x for x in self.getAllowedSubElementsForObject(attr.text) if x not in res)
+                        res.update(self.getAllowedSubElementsForObject(user, attr.text))
                     else:
-                        res.append(attr.text)
+                        actions = resolver.getAllowedActions(user, topic="%s.objects.%s" % (self.env.domain, attr.text))
+                        if len(actions):
+                            res[attr.text] = "".join(actions)
         return res
 
     def getAttributeTypeMap(self, objectType):

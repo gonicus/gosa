@@ -125,20 +125,15 @@ qx.Class.define("gosa.view.Tree",
           }, this);
 
           table.getSelectionModel().addListener("changeSelection", function() {
-            // TODO: check if the selected object is deletable, check ACL too?
-            this._deleteButton.setEnabled(table.getSelectionModel().getSelectedCount() > 0);
-          }, this);
-
-          var Action = qx.Class.define("Action",{
-            extend : qx.ui.table.cellrenderer.Boolean,
-            members :      {
-              _getImageInfos : function(cellInfo){
-                cellInfo['value'] =  gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/16/" + cellInfo['value'].toLowerCase() + ".png";
-                return(this.base(arguments, cellInfo));
-              }
+            if (table.getSelectionModel().getSelectedCount() > 0) {
+              table.getSelectionModel().iterateSelection(function(index) {
+                var selection = tableModel.getRowData(index);
+                this._deleteButton.setEnabled(qx.lang.Array.contains(selection[4], "d"));
+              }, this);
+            } else {
+              this._deleteButton.setEnabled(false);
             }
-          });
-
+          }, this);
 
           table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
           var tcm = table.getTableColumnModel();
@@ -149,7 +144,8 @@ qx.Class.define("gosa.view.Tree",
           resizeBehavior.setWidth(3, "1*");
           tcm.setColumnVisible(3, false);
           tcm.setColumnVisible(5, false);
-          tcm.setDataCellRenderer(0, new qx.ui.table.cellrenderer.Image());
+          tcm.setDataCellRenderer(0, new gosa.ui.table.cellrenderer.ImageByType());
+          tcm.setDataCellRenderer(4, new gosa.ui.table.cellrenderer.Actions());
 
           control = table;
           break;
@@ -208,17 +204,17 @@ qx.Class.define("gosa.view.Tree",
             new gosa.ui.dialogs.Error(error.message).open();
           }
           else {
-            result.sort();
             this.getChildControl("createMenu").removeAll();
-            for (var index in result) {
-              var name = result[index];
+            Object.getOwnPropertyNames(result).sort().forEach(function(name) {
+              var allowed = result[name];
               var icon = gosa.util.Icons.getIconByType(name, 22);
               var button = new qx.ui.menu.Button(name, icon);
               button.setAppearance("icon-menu-button");
               button.setUserData("type", name);
+              button.setEnabled(allowed.includes("c"));
               this.getChildControl("createMenu").add(button);
               button.addListener("execute", this._onCreateObject, this);
-            }
+            }, this);
           }
         }, this, "getAllowedSubElementsForObject", selection.getType());
       }
@@ -231,26 +227,19 @@ qx.Class.define("gosa.view.Tree",
       var done = [];
       var tableModel = this.getChildControl("table").getTableModel();
       tableModel.setData([]);
-      var f = function(item){
-        if(!qx.lang.Array.contains(done, item)){
-          tableModel.addRows([item.getTableRow()]);
-          done.push(item);
-        }
-      };
 
-      var f2 = function(index){
-        sel.getItem(index).load(function(){
-          if(sel.getItem(index).getChildren()){
-            sel.getItem(index).getChildren().forEach(f);
-          }
-          if(sel.getItem(index).getLeafs()){
-            sel.getItem(index).getLeafs().forEach(f);
-          }
-        },this);
-      };
-      for(var i=0; i<sel.getLength(); i++){
-        f2(i);
-      }
+      sel.forEach(function(item) {
+        item.load(function() {
+          var children = item.getChildren().concat(item.getLeafs());
+          children.forEach(function(child) {
+            if(!qx.lang.Array.contains(done, child)){
+              tableModel.addRows([child.getTableRow()]);
+              done.push(child);
+            }
+          }, this);
+        })
+      }, this);
+
       if (sel.length > 0) {
         this.__updateCreateMenu();
       }

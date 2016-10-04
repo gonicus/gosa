@@ -31,6 +31,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
 
     this.setChildren(new qx.data.Array());
     this.setLeafs(new qx.data.Array());
+    this.setActions(new qx.data.Array());
   },
 
   events : {
@@ -115,6 +116,11 @@ qx.Class.define("gosa.data.model.TreeResultItem",
       check : "String",
       event : "changeDescription",
       init : ""
+    },
+
+    actions: {
+      check: "qx.data.Array",
+      event: "changeActions"
     }
   },
 
@@ -172,7 +178,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
             }
             this.setLoading(false);
 
-          }, this, "search", this.getDn(), "children", null, {secondary: false, 'adjusted-dn': true});
+          }, this, "search", this.getDn(), "children", null, {secondary: false, 'adjusted-dn': true, actions: true});
 
         } else {
           // We're added uppon the root
@@ -205,7 +211,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
                 } else {
                   this.error("could not resolve tree element '" + entry + "'!");
                 }
-              }, this, "search", entry, "base", null, {secondary: false, 'adjusted-dn': true});
+              }, this, "search", entry, "base", null, {secondary: false, 'adjusted-dn': true, actions: true});
             }, this);
           }, this, "getEntryPoints");
         }
@@ -237,7 +243,8 @@ qx.Class.define("gosa.data.model.TreeResultItem",
           description: result['description'],
           title: result['title'],
           type: result['tag'],
-          uuid: result['uuid']
+          uuid: result['uuid'],
+          actions: new qx.data.Array(result['actions'])
         });
 
       // Add a dummy object if we know that this container has children.
@@ -253,11 +260,11 @@ qx.Class.define("gosa.data.model.TreeResultItem",
      * Returns a table row
      */
     getTableRow: function(){
-      return([gosa.util.Icons.getIconByType(this.getType(), 16),
+      return([this.getType(),
           this.getTitle(),
           this.getDescription(),
           this.getDn(),
-          '',
+          this.getActions(),
           this.getUuid()]);
     }
   }
