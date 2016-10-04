@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -111,10 +111,16 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
      * Callback function for RPC login responses
      *
      * @param result {Number} One of gosa.Config.AUTH_*
-     * @param error {Error}
+     * @param error {Object} Error as sent by the backend
      * @protected
      */
     _handleAuthentification: function(result, error) {
+
+      if (error) {
+        new gosa.ui.dialogs.Error(error.message).open();
+        return;
+      }
+
       var state = parseInt(result.state);
       switch (state) {
         case gosa.Config.AUTH_FAILED:
