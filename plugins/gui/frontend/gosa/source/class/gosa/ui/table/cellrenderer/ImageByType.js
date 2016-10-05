@@ -19,7 +19,7 @@ qx.Class.define("gosa.ui.table.cellrenderer.ImageByType", {
     // overridden
     _identifyImage : function(cellInfo)
     {
-      var imageHints = this.base._identifyImage(cellInfo);
+      var imageHints = this.base(arguments, cellInfo);
 
       if (cellInfo.value !== "") {
         imageHints.url = gosa.util.Icons.getIconByType(cellInfo.value, 16);
