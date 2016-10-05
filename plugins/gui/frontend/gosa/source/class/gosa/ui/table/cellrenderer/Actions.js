@@ -16,21 +16,17 @@ qx.Class.define("gosa.ui.table.cellrenderer.Actions", {
   extend : qx.ui.table.cellrenderer.Image,
 
   members: {
-    _map: {
-      'c': '@FontAwesome/f196', // plus
-      'r': '@FontAwesome/f06e', // eye
-      'w': '@FontAwesome/f044', // pencil
-      'd': '@FontAwesome/f014'  // trash
-    },
 
     // overridden
     _getContentHtml : function(cellInfo) {
       var content = "";
+      var imageHints = this._identifyImage(cellInfo);
       cellInfo.value.forEach(function(action) {
         if (this._map[action]) {
-          content += qx.bom.element.Decoration.create(this._map[action], this.getRepeat(), {
-            width         : this.__imageData.width + "px",
-            height        : this.__imageData.height + "px",
+
+          content += qx.bom.element.Decoration.create(gosa.util.Icons.getIconByAction(action), this.getRepeat(), {
+            width         : imageHints.imageWidth + "px",
+            height        : imageHints.imageHeight + "px",
             display       : qx.core.Environment.get("css.inlineblock"),
             verticalAlign : "top",
             position      : "static",
@@ -39,16 +35,6 @@ qx.Class.define("gosa.ui.table.cellrenderer.Actions", {
         }
       }, this);
       return content;
-    },
-
-    // overridden
-    _identifyImage: function(cellinfo) {
-      var imageHints =
-      {
-        imageWidth  : this.__imageWidth,
-        imageHeight : this.__imageHeight
-      };
-      return imageHints;
     }
   }
 });

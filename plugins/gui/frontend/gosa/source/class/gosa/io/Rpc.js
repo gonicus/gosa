@@ -82,7 +82,7 @@ qx.Class.define("gosa.io.Rpc", {
     queue: [],
     converter: [],
     running: false,
-    __xsrf : undefined,
+    __xsrf : null,
 
 
     /* Enables an anonymous method to use the this context.

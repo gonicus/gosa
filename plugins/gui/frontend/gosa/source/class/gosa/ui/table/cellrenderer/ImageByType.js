@@ -19,19 +19,11 @@ qx.Class.define("gosa.ui.table.cellrenderer.ImageByType", {
     // overridden
     _identifyImage : function(cellInfo)
     {
-      var imageHints =
-      {
-        imageWidth  : this.__imageWidth,
-        imageHeight : this.__imageHeight
-      };
+      var imageHints = this.base._identifyImage(cellInfo);
 
-      if (cellInfo.value == "") {
-        imageHints.url = null;
-      } else {
+      if (cellInfo.value !== "") {
         imageHints.url = gosa.util.Icons.getIconByType(cellInfo.value, 16);
       }
-
-      imageHints.tooltip = cellInfo.tooltip;
 
       return imageHints;
     }

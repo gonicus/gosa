@@ -32,6 +32,18 @@ qx.Class.define("gosa.util.Icons", {
       'locality': '@FontAwesome/f041', // map-marker
       'domain': '@FontAwesome/f08e' // external-link
       //'sambamachineaccount': '@FontAwesome/'
+
+    },
+
+    iconActionMappings: {
+      'c': '@FontAwesome/f196', // plus
+      'r': '@FontAwesome/f06e', // eye
+      'w': '@FontAwesome/f044', // pencil
+      'd': '@FontAwesome/f014'  // trash
+    },
+
+    getIconByAction: function(action) {
+      return gosa.util.Icons.iconActionMappings[action];
     },
 
     getIconByType: function(type, size) {
