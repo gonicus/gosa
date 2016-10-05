@@ -32,9 +32,9 @@ qx.Class.define("gosa.util.Template", {
     /**
      * Gives an array of maps with a template and other information.
      *
-     * @param {String} The objectName (e.g. "PosixUser")
-     * @param {String} The base type of the original object
-     * @param {Array} An (maybe empty) array of hash maps
+     * @param objectName {String} The objectName (e.g. "PosixUser")
+     * @param baseType {String} The base type of the original object
+     * @return {Array} An (maybe empty) array of hash maps
      */
     getTemplateObjects : function(objectName, baseType) {
       qx.core.Assert.assertString(objectName);

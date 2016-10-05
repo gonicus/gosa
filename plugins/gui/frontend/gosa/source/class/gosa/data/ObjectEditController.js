@@ -224,14 +224,9 @@ qx.Class.define("gosa.data.ObjectEditController", {
         return context.getExtension() === extension;
       });
 
-      if (contexts.length === 0) {
-        qx.core.Assert.assertInstance(context, gosa.engine.Context, "Unknown extension: " + extension);
-      }
-      else {
-        contexts.forEach(function(context) {
-          this._widget.removeTab(context.getRootWidget());
-        }, this);
-      }
+      contexts.forEach(function(context) {
+        this._widget.removeTab(context.getRootWidget());
+      }, this);
     },
 
     /**

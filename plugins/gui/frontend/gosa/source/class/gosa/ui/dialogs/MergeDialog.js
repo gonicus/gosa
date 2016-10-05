@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -69,7 +69,7 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
       group.add(right);
 
       // Add the elements to the grid layout
-      changesPane.add(new qx.ui.basic.Label(that.tr(desc)).set({rich: true}), {row: row, column: 0});
+      changesPane.add(new qx.ui.basic.Label(that["tr"](desc)).set({rich: true}), {row: row, column: 0});  // jshint ignore:line
       changesPane.add(left, {row: row, column: 1});
       changesPane.add(right, {row: row, column: 2});
 
@@ -121,7 +121,7 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
       }
 
       // Add the selectors to the grid
-      changesPane.add(new qx.ui.basic.Label(that.tr(desc)).set({rich: true}), {row: row, column: 0});
+      changesPane.add(new qx.ui.basic.Label(that["tr"](desc)).set({rich: true}), {row: row, column: 0});  // jshint ignore:line
       changesPane.add(left, {row: row, column: 1});
       changesPane.add(right, {row: row, column: 2});
       extensions.push(function(){
