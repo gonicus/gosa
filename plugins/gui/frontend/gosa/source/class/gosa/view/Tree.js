@@ -216,7 +216,7 @@ qx.Class.define("gosa.view.Tree",
               button.addListener("execute", this._onCreateObject, this);
             }, this);
           }
-        }, this, "getAllowedSubElementsForObject", selection.getType());
+        }, this, "getAllowedSubElementsForObjectWithActions", selection.getType());
       }
     },
 

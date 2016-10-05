@@ -87,9 +87,9 @@ class RPCMethods(Plugin):
             return factory.getAvailableObjectNames(only_base_objects, base)
 
     @Command(needsUser=True, __help__=N_("Returns a list of objects that can be stored as sub-objects for the given object."))
-    def getAllowedSubElementsForObject(self, user, base=None):
+    def getAllowedSubElementsForObjectWithActions(self, user, base=None):
         factory = ObjectFactory.getInstance()
-        return factory.getAllowedSubElementsForObject(user, base)
+        return factory.getAllowedSubElementsForObjectWithActions(user, base)
 
     @Command(__help__=N_("Returns all templates used by the given object type."))
     def getGuiTemplates(self, objectType):
