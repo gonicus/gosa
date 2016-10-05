@@ -10,7 +10,7 @@
     <Backend>LDAP</Backend>
 
     <Templates>
-      <Template>domaincomponent.ui</Template>
+      <Template>domaincomponent.json</Template>
     </Templates>
 
     <Attributes>

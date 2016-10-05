@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -80,7 +80,7 @@ qx.Class.define("gosa.ui.SearchListItem", {
       nullable : true,
       check : "String",
       event : "changeTitle"
-    }, 
+    },
 
     gap :
     {
@@ -115,7 +115,7 @@ qx.Class.define("gosa.ui.SearchListItem", {
       this._onMouseOut();
     },
 
-    /* Applies the loading state and toggles the 
+    /* Applies the loading state and toggles the
      * spinner accordingly
      * */
     _applyIsLoading: function(value){
@@ -127,7 +127,7 @@ qx.Class.define("gosa.ui.SearchListItem", {
         this.getChildControl("throbber-pane").exclude();
       }
     },
-   
+
     /**
      * @lint ignoreReferenceField(_forwardStates)
      */

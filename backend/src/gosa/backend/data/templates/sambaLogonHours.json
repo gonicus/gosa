@@ -1,0 +1,18 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.Canvas",
+    "properties": {
+        "width": 315,
+        "height": 125,
+        "windowTitle": "tr('Logon hours')",
+        "dialogName": "sambaLogonHours"
+    },
+    "children": [{
+        "class": "gosa.ui.widgets.SambaLogonHoursWidget",
+        "modelPath": "sambaLogonHours",
+        "addOptions": {
+            "edge": 0
+        }
+    }]
+}

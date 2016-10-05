@@ -1,0 +1,44 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.Canvas",
+    "layoutConfig": {
+        "spacing": 5
+    },
+    "extensions": {
+        "resources": {
+            "favicon": "images/domaincomponentorg.png"
+        }
+    },
+    "properties": {
+        "windowTitle": "tr('Domain component/organization')",
+        "categoryTitle": "tr('DomainComponentOrg')"
+    },
+    "children": [{
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.Canvas",
+        "properties": {
+            "legend": "tr('Generic')"
+        },
+        "children": [{
+            "class": "qx.ui.container.Composite",
+            "layout": "qx.ui.layout.HBox",
+            "layoutConfig": {
+                "spacing": 5
+            },
+            "addOptions": {
+                "edge": 0
+            },
+            "children": [{
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "dc",
+                "properties": {
+                    "text": "tr('Name')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "dc"
+            }]
+        }]
+    }]
+}

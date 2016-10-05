@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -38,7 +38,7 @@ qx.Class.define("gosa.io.Rpc", {
   },
 
   properties: {
-  
+
     /**
      * Reviver function to call when parsing JSON responses. Null if no
      * preprocessing is used.
@@ -82,6 +82,7 @@ qx.Class.define("gosa.io.Rpc", {
     queue: [],
     converter: [],
     running: false,
+    __xsrf : undefined,
 
 
     /* Enables an anonymous method to use the this context.
@@ -91,11 +92,11 @@ qx.Class.define("gosa.io.Rpc", {
     {
       var self = this;
       var f = function(){
-        return func.apply(self, arguments); 
+        return func.apply(self, arguments);
       };
       return(f);
     },
-    
+
     /* Parse the incoming json-data.
      * Transform transmitted objects (those with a __jsonclass__ tag)
      * into real objects.
@@ -189,7 +190,7 @@ qx.Class.define("gosa.io.Rpc", {
             messaging.reconnect();
           }, cl);
 
-          // Catch potential errors here. 
+          // Catch potential errors here.
         }else if(error && error.code != 500 && (error.code >= 400 || error.code == 0)){
 
           var msg = error.message;
@@ -224,13 +225,13 @@ qx.Class.define("gosa.io.Rpc", {
 
             error.field = null;
 
-            // Check for "<field> error-message" formats 
+            // Check for "<field> error-message" formats
             if(error.message.match(/<[a-zA-Z0-9\-_ ]*>/)){
 
-              error.field = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){ 
+              error.field = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){
                   return(arguments[1]);
                 });
-              error.message = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){ 
+              error.message = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){
                   return(arguments[2]);
                 });
 
@@ -250,7 +251,7 @@ qx.Class.define("gosa.io.Rpc", {
             func_done();
           }
         }
-      };    
+      };
 
       // Insert the job into the job-queue and trigger processing.
       this.queue.unshift(call);

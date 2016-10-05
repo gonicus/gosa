@@ -10,7 +10,7 @@
     <Backend>LDAP</Backend>
 
     <Templates>
-      <Template>organization.ui</Template>
+      <Template>organization.json</Template>
     </Templates>
 
     <Attributes>

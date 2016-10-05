@@ -1,0 +1,20 @@
+{
+  "Connect client drives at log on": null,
+  "Connect client printer at log on": null,
+  "Disconnection time": null,
+  "Generic": null,
+  "Inherit client configuration": null,
+  "Reconnect if disconnected": null,
+  "Initial program": null,
+  "Connection time limit": null,
+  "Default to main client printer": null,
+  "Allow login on terminal server": null,
+  "Connection": null,
+  "On broken or timed out": null,
+  "Home directory": null,
+  "Working directory": null,
+  "Profile path": null,
+  "Samba terminal server": null,
+  "IDLE time limit": null,
+  "Shadowing": null
+}

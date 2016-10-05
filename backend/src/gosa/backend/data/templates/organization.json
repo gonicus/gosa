@@ -1,0 +1,37 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.Canvas",
+    "extensions": {
+        "resources": {
+            "favicon": "images/organization.png"
+        }
+    },
+    "properties": {
+        "windowTitle": "tr('Organization')",
+        "categoryTitle": "tr('Organization')"
+    },
+    "children": [{
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.HBox",
+        "layoutConfig": {
+            "spacing": 5
+        },
+        "addOptions": {
+            "edge": 0
+        },
+        "properties": {
+            "legend": "tr('Generic')"
+        },
+        "children": [{
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "o",
+            "properties": {
+                "text": "tr('Name')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "o"
+        }]
+    }]
+}

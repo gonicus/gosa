@@ -92,30 +92,30 @@ class RPCMethods(Plugin):
         return factory.getAllowedSubElementsForObject(user, base)
 
     @Command(__help__=N_("Returns all templates used by the given object type."))
-    def getGuiTemplates(self, objectType, theme="default"):
+    def getGuiTemplates(self, objectType):
         factory = ObjectFactory.getInstance()
         if objectType not in factory.getObjectTypes():
             raise GOsaException(C.make_error("OBJECT_UNKNOWN_TYPE", type=objectType))
 
-        return factory.getObjectTemplates(objectType, theme)
+        return factory.getObjectTemplates(objectType)
 
     @Command(__help__=N_("Returns all dialog-templates used by the given object type."))
-    def getGuiDialogs(self, objectType, theme="default"):
+    def getGuiDialogs(self, objectType):
         factory = ObjectFactory.getInstance()
         if objectType not in factory.getObjectTypes():
             raise GOsaException(C.make_error("OBJECT_UNKNOWN_TYPE", type=objectType))
 
-        return factory.getObjectDialogs(objectType, theme)
+        return factory.getObjectDialogs(objectType)
 
     @Command(__help__=N_("Get all translations bound to templates."))
-    def getTemplateI18N(self, language, theme="default"):
+    def getTemplateI18N(self, language):
         templates = []
         factory = ObjectFactory.getInstance()
 
         for otype in factory.getObjectTypes():
             templates += factory.getObjectTemplateNames(otype)
 
-        return factory.getNamedI18N(list(set(templates)), language=language, theme=theme)
+        return factory.getNamedI18N(list(set(templates)), language=language)
 
     @Command(__help__=N_("Returns details about the currently logged in user"), needsUser=True)
     def getUserDetails(self, userid):
@@ -288,8 +288,9 @@ class RPCMethods(Plugin):
                 else:
                     item[attr] = ""
 
-            _id = mapping[item[oattr]]
-            result[_id] = item
+            if item[oattr] in mapping:
+                _id = mapping[item[oattr]]
+                result[_id] = item
 
         return {"result": result, "map": mapping}
 
@@ -563,13 +564,13 @@ class RPCMethods(Plugin):
         if not item or item['dn'] is None:
             # We've obviously no permission to see thins one - skip it
             return
-    
+
         if item['dn'] in res:
             dn = item['dn']
             if res[dn]['relevance'] > relevance:
                 res[dn]['relevance'] = relevance
             return
-    
+
         entry = {'tag': item['_type'], 'relevance': relevance, 'uuid': item['_uuid'],
             'secondary': secondary, 'lastChanged': item['_last_changed'], 'hasChildren': True}
         for k, v in self.__search_aid['mapping'][item['_type']].items():
@@ -581,7 +582,7 @@ class RPCMethods(Plugin):
                         entry[k] = item[v][0]
                 else:
                     entry[k] = self.__build_value(v, item)
-    
+
             entry['container'] = item['_type'] in self.containers
 
         if actions and user:
@@ -590,59 +591,59 @@ class RPCMethods(Plugin):
             entry['actions'] = aclresolver.getAllowedActions(user, topic, base=item['dn'])
 
         res[item['dn']] = entry
-    
+
     def __build_value(self, v, info):
         """
         Fill placeholders in the value to be displayed as "description".
         """
-    
+
         if not v:
             return ""
-    
+
         # Find all placeholders
         attrs = {}
         for attr in re.findall(r"%\(([^)]+)\)s", v):
-    
+
             # Extract ordinary attributes
             if attr in info:
                 attrs[attr] = ", ".join(info[attr])
-    
+
             # Check for result renderers
             elif attr in self.__value_extender:
                 attrs[attr] = self.__value_extender[attr](info)
-    
+
             # Fallback - just set nothing
             else:
                 attrs[attr] = ""
-    
+
         # Assemble and remove empty lines and multiple whitespaces
         res = v % attrs
         res = re.sub(r"(<br>)+", "<br>", res)
         res = re.sub(r"^<br>", "", res)
         res = re.sub(r"<br>$", "", res)
         return "<br>".join([s.strip() for s in res.split("<br>")])
-    
+
     def __filter_entry(self, user, entry, these=None):
         """
         Takes a query entry and decides based on the user what to do
         with the result set.
-    
+
         ========== ===========================
         Parameter  Description
         ========== ===========================
         user       User ID
         entry      Search entry as hash
         ========== ===========================
-    
+
         ``Return``: Filtered result entry
         """
         ne = {'dn': entry.dn, '_type': entry._type, '_uuid': entry.uuid, '_last_changed': entry._last_modified}
-    
+
         if not entry._type in self.__search_aid['mapping']:
             return None
-    
+
         attrs = self.__search_aid['mapping'][entry._type].values()
-    
+
         for attr in attrs:
             if attr is not None and these is not None and attr not in these:
                 continue
@@ -656,9 +657,9 @@ class RPCMethods(Plugin):
                     ne[attr] = kv[attr] if attr in kv else None
             else:
                 ne[attr] = None
-    
+
         return ne
-    
+
     def __index_props_to_key_value(self, properties):
         kv = {}
 

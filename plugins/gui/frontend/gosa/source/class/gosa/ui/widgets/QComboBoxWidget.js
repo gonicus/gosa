@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -28,7 +28,7 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
   },
 
   properties: {
-  
+
     model: {
       event: "modelChanged",
       nullable: true,
@@ -36,14 +36,14 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
     }
   },
 
-  statics: { 
- 
-    /* Create a readonly representation of this widget for the given value. 
-     * This is used while merging object properties. 
-     * */ 
-    getMergeWidget: function(value){ 
-      var w = new qx.ui.form.TextField(); 
-      w.setReadOnly(true); 
+  statics: {
+
+    /* Create a readonly representation of this widget for the given value.
+     * This is used while merging object properties.
+     * */
+    getMergeWidget: function(value){
+      var w = new qx.ui.form.TextField();
+      w.setReadOnly(true);
       if(value.getLength()){
         w.setValue(value.getItem(0) + "");
       }
@@ -109,7 +109,7 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
       //controller.setIconOptions(iconOptions);
       w.addListener("changeSelection", function(e){
 
-         
+
           if(this.isMandatory() && this.getValue().getItem(id) == this._default_value && this._getWidgetValue(id)){
             this._use_default = true;
           }
@@ -125,37 +125,40 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
       return(w);
     },
 
-    
-    /* Apply the widget values - fills the combobox selectables. 
+
+    /* Apply the widget values - fills the combobox selectables.
      * */
     _applyValues: function(data){
-   
+
       // This happens when this widgets gets destroyed - all properties will be set to null.
       if(!data){
         return;
       }
 
       var convert;
-    	
-      if(this.getType() == "Integer"){
+
+      if (this.getType() == "Integer") {
         var that = this;
-        convert = function(value){
-            var res = parseInt(value);
-            if(res == NaN){
-              that.error("failed to convert ComboBox value "+value+" to int ("+that.getExtension()+"."+that.getAttribute()+")");
-              return(0);
-            }else{
-              return(res);
-            }
-          };
-      }else if(this.getType() == "Boolean"){
-        convert= function(value){
-            return(value == "True");
-          };
-      }else{
-        convert= function(value){
-            return(value);
-          };
+        convert = function(value) {
+          var res = parseInt(value);
+          if(res == NaN) {
+            that.error("failed to convert ComboBox value "+value+" to int ("+that.getExtension()+"."+that.getAttribute()+")");
+            return(0);
+          }
+          else {
+            return(res);
+          }
+        };
+      }
+      else if (this.getType() == "Boolean"){
+        convert = function(value) {
+          return value.toLowerCase() === "true";
+        };
+      }
+      else{
+        convert = function(value) {
+          return value;
+        };
       }
 
       if(data.classname != "qx.data.Array"){
@@ -194,7 +197,7 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
       }
     },
 
-    
+
     id2item : function(values, selected) {
       if (values) {
         for (var i = 0; i<values.length; i++) {

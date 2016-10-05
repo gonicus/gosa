@@ -45,6 +45,7 @@ Here are some examples on how to instantiate on new object:
 import pkg_resources
 import os
 import re
+import json
 import logging
 import ldap
 from lxml import etree, objectify
@@ -216,19 +217,19 @@ class ObjectFactory(object):
         else:
             return list(self.__xml_defs.keys())
 
-    def getObjectTemplates(self, objectType, theme="default"):
+    def getObjectTemplates(self, objectType):
         """
         Returns a list of templates for this object.
         """
         names = self.getObjectTemplateNames(objectType)
-        return Object.getNamedTemplate(self.env, names, theme)
+        return Object.getNamedTemplate(self.env, names)
 
-    def getObjectDialogs(self, objectType, theme="default"):
+    def getObjectDialogs(self, objectType):
         """
         Returns a list of templates for this object.
         """
         names = self.getObjectDialogNames(objectType)
-        return Object.getNamedTemplate(self.env, names, theme)
+        return Object.getNamedTemplate(self.env, names)
 
     def getObjectTemplateNames(self, objectType):
         """
@@ -1411,7 +1412,7 @@ class ObjectFactory(object):
         else:
             return etree.tostring(transform(xmldefs))
 
-    def getNamedI18N(self, templates, language=None, theme="default"):
+    def getNamedI18N(self, templates, language=None):
         if not language:
             return {}
 
@@ -1435,20 +1436,18 @@ class ObjectFactory(object):
                 # Absolute path
                 if template.startswith(os.path.sep):
                     tp = os.path.dirname(template)
-                    tn = os.path.basename(template)[:-3]
+                    tn = os.path.basename(template)[:-5]
                     for loc in locales:
-                        paths.append(os.path.join(tp, "i18n", "%s_%s.ts" % (tn, loc)))
+                        paths.append(os.path.join(tp, "i18n", tn, "%s.json" % loc))
 
                 # Relative path
                 else:
-                    tn = os.path.basename(template)[:-3]
+                    tn = os.path.basename(template)[:-5]
 
                     # Find path
                     for loc in locales:
-                        paths.append(pkg_resources.resource_filename('gosa.backend', os.path.join('data', 'templates', theme, "i18n", "%s_%s.ts" % (tn, loc)))) #@UndefinedVariable
-                        paths.append(os.path.join(env.config.getBaseDir(), 'templates', theme, "%s_%s.ts" % (tn, loc)))
-                        paths.append(pkg_resources.resource_filename('gosa.backend', os.path.join('data', 'templates', "default", "i18n", "%s_%s.ts" % (tn, loc)))) #@UndefinedVariable
-                        paths.append(os.path.join(env.config.getBaseDir(), 'templates', "default", "%s_%s.ts" % (tn, loc)))
+                        paths.append(pkg_resources.resource_filename('gosa.backend', os.path.join('data', 'templates', "i18n", tn, "%s.json" % loc))) #@UndefinedVariable
+                        paths.append(os.path.join(env.config.getBaseDir(), 'templates', 'i18n', tn, "%s.json" % loc))
 
                 for path in paths:
                     if os.path.exists(path):
@@ -1457,26 +1456,7 @@ class ObjectFactory(object):
                         break
 
                 if i18n:
-                    # Reading the XML file will ignore extra tags, because they're not supported
-                    # for ordinary GUI rendering (i.e. plural needs a 'count').
-                    root = etree.fromstring(i18n)
-                    contexts = root.findall("context")
-
-                    for context in contexts:
-                        for message in context.findall("message"):
-                            if "numerus" in message.keys():
-                                continue
-
-                            translation = message.find("translation")
-
-                            # With length variants?
-                            if "variants" in translation.keys() and translation.get("variants") == "yes":
-                                res[message.find("source").text] = [m.text for m in translation.findall("lengthvariant")][0]
-
-                            # Ordinary?
-                            else:
-                                if translation.text:
-                                    res[message.find("source").text] = translation.text
+                    res = {**res, **json.loads(i18n.decode('utf-8'))}
 
         return res
 

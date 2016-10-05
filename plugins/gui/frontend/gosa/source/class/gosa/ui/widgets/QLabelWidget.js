@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -40,6 +40,7 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
     this._widget.setRich(true);
     this._widget.setAllowGrowX(true);
     this._widget.setAllowGrowY(true);
+    this._applyValue(this.getValue());
     this.contents.add(this._widget, {top:0, bottom:0, left:0, right: 0});
     this.removeState("gosaInput");
   },
@@ -48,7 +49,7 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
     this._disposeObjects("_widget");
 
     // Remove all listeners and then set our values to null.
-    qx.event.Registration.removeAllListeners(this); 
+    qx.event.Registration.removeAllListeners(this);
 
     this.setBuddyOf(null);
     this.setGuiProperties(null);
@@ -57,21 +58,35 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
     this.setBlockedBy(null);
   },
 
+  properties :
+  {
+    text : {apply : "_applyGuiProperties"}
+  },
+
   members :
   {
     _widget: null,
     _text: "",
 
-    getText: function(){
-      return(this._text);
-    },
-
     setBuddy: function(w){
       this._widget.setBuddy(w);
     },
 
+    _applyValue : function(value, old, name) {
+      this.base(arguments, value, old, name);
 
-    /* Apply collected gui properties to this widet
+      if (this._widget) {
+        if (old) {
+          this._widget.removeRelatedBindings(this);
+        }
+
+        if (value) {
+          this.bind("value[0]", this._widget, "value");
+        }
+      }
+    },
+
+    /* Apply collected gui properties to this widget
      * */
     _applyGuiProperties: function(props){
 
@@ -80,10 +95,9 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
         return;
       }
 
-
-      this.setValue(new qx.data.Array());
-      if(props["text"] && props["text"]["string"]){
-        var text = props["text"]["string"];
+      if (typeof props === "string") {
+        this.setValue(new qx.data.Array());
+        var text = props;
 
         // Extract potential key bindings from label text
         var regex = /^(.*)(&(.))(.*$)/g;
@@ -98,8 +112,9 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
         }
         this._text = text;
         this.setValue(new qx.data.Array([text]));
+
+        this.bind("value[0]", this._widget, "value");
       }
-      this.bind("value[0]", this._widget, "value");
       this.base(arguments, props);
     },
 

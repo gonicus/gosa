@@ -1,0 +1,14 @@
+{
+  "GECOS": "GECOS",
+  "User ID": "Benutzer-ID",
+  "Automatic UID/GID numbers": "Automatische UID-/GID-Nummern",
+  "Automatic GECOS": "Automatischer GECOS",
+  "POSIX": "POSIX",
+  "Description": "Beschreibung",
+  "Generic POSIX settings": "Allgemeine POSIX-Einstellungen",
+  "Login shell": "Anmelde-Interpreter",
+  "Edit group membership": "Gruppenzugehörigkeit bearbeiten",
+  "Group mempership": "Gruppenmitgliedschaft",
+  "Group ID": "Gruppen-ID",
+  "Name": "Name" 
+}

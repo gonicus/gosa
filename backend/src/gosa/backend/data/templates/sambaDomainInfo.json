@@ -1,0 +1,25 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.Canvas",
+    "properties": {
+        "width": 354,
+        "height": 334,
+        "windowTitle": "tr('Domain policy information')",
+        "dialogName": "sambaDomainInfo"
+    },
+    "children": [{
+        "class": "gosa.ui.widgets.ScrollArea",
+        "addOptions": {
+            "edge": 0
+        },
+        "children": [{
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "extensions": {
+                "guiProperties" : {
+                    "callObjectMethod": "getSambaDomainInformation(%locale)"
+                }
+            }
+        }]
+    }]
+}

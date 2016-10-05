@@ -9,7 +9,7 @@
     </BackendParameters>
     <Backend>LDAP</Backend>
     <Templates>
-      <Template>samba-ws.ui</Template>
+      <Template>samba-ws.json</Template>
     </Templates>
     <Attributes>
       <Attribute>

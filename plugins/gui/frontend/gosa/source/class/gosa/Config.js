@@ -46,7 +46,7 @@ qx.Class.define("gosa.Config", {
             size = "22";
         }
 
-        return "gosa/themes/" + gosa.Config.getTheme() + "/" + size + "/" + icon;
+        return "gosa/images/" + size + "/" + icon;
     }
   }
 });

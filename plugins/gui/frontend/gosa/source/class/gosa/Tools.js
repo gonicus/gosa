@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -40,30 +40,30 @@ qx.Class.define("gosa.Tools", {
 
     serialize : function(queue)
     {
-        var timer = qx.util.TimerManager.getInstance();
-        var locked = false;
+      var timer = qx.util.TimerManager.getInstance();
+      var locked = false;
 
-        timer.start(function(userData, timerId){
-            if (locked) {
-                return;
-            } 
+      timer.start(function(userData, timerId){
+        if (locked) {
+          return;
+        }
 
-            locked = true;
+        locked = true;
 
-            var entry = queue.shift();
-            if (entry == undefined) {
-                timer.stop();
-                return;
-            }
+        var entry = queue.shift();
+        if (entry === undefined) {
+          timer.stop();
+          return;
+        }
 
-            var func = entry[0];
-            var context = entry[1];
-            var params = entry[2];
-            params.push(function() {
-                locked = false;
-            });
-            func.apply(context, params);
-        }, 10, null, null, 0);
+        var func = entry[0];
+        var context = entry[1];
+        var params = entry[2];
+        params.push(function() {
+          locked = false;
+        });
+        func.apply(context, params);
+      }, 10, null, null, 0);
     },
 
     /**

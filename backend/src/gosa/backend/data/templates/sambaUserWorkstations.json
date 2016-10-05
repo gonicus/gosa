@@ -1,0 +1,26 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.Canvas",
+    "properties": {
+        "width": 472,
+        "height": 353,
+        "windowTitle": "tr('User workstations')",
+        "dialogName": "sambaUserWorkStations"
+    },
+    "children": [{
+        "class": "gosa.ui.widgets.QTableWidgetWidget",
+        "modelPath": "sambaUserWorkstations",
+        "addOptions": {
+            "edge": 0
+        },
+        "extensions": {
+            "guiProperties": {
+                "columns": {
+                    "uid": "tr('Name')",
+                    "description": "tr('Description')"
+                }
+            }
+        }
+    }]
+}

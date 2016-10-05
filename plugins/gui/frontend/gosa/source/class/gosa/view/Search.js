@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -82,7 +82,7 @@ qx.Class.define("gosa.view.Search",
     this.add(this.searchInfo);
 
     // Create search result
-    this.searchResult = new qx.ui.container.Composite(new qx.ui.layout.Canvas);
+    this.searchResult = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
     this.searchResult.hide();
     this.searchResult.setPadding(20);
     this.searchResult.setDecorator("separator-vertical");
@@ -119,7 +119,7 @@ qx.Class.define("gosa.view.Search",
               item.setIsLoading(true);
               that.openObject(e.getData().getDn());
               that.addListenerOnce("loadingComplete", function(e){
-                  if(e.getData()['dn'] == item.getDn()){
+                  if(e.getData().dn == item.getDn()){
                     item.setIsLoading(false);
                   }
                 }, that);
@@ -131,7 +131,7 @@ qx.Class.define("gosa.view.Search",
                   that.removeObject(item.getUuid());
                 }, this);
               dialog.open();
-              
+
             }, this);
           return(item);
         },
@@ -149,16 +149,16 @@ qx.Class.define("gosa.view.Search",
         filter : function(data) {
           var show = true;
 
-          if (that.__selection['secondary'] != "enabled") {
-            show = data.getSecondary() == false;
+          if (that.__selection.secondary != "enabled") {
+            show = data.getSecondary() === false;
           }
 
-          if (show && that.__selection['category'] != 'all' && that.__selection['category'] != data.getType()) {
+          if (show && that.__selection.category !== 'all' && that.__selection.category != data.getType()) {
             show = false;
           }
 
-          if (show && that.__selection['mod-time'] != 'all') {
-            show = data.getLastChanged().toTimeStamp() > (that.__now - deltas[that.__selection['mod-time']]);
+          if (show && that.__selection["mod-time"] !== 'all') {
+            show = data.getLastChanged().toTimeStamp() > (that.__now - deltas[that.__selection["mod-time"]]);
           }
 
           return show;
@@ -176,7 +176,7 @@ qx.Class.define("gosa.view.Search",
     }, this);
     this.sf.addListener("focusout", function() {
       timer.stop(this._timer);
-      this._timer = null; 
+      this._timer = null;
     }, this);
 
     // Focus search field
@@ -220,7 +220,7 @@ qx.Class.define("gosa.view.Search",
     __default_selection: null,
     __now: null,
 
-    
+
     updateFocus: function(){
       var _self = this;
       setTimeout(function() {
@@ -229,7 +229,7 @@ qx.Class.define("gosa.view.Search",
     },
 
     _search_queue_handler : function() {
-      if (this._sq.length == 0 || this._working) {
+      if (this._sq.length === 0 || this._working) {
         return;
       }
 
@@ -272,15 +272,15 @@ qx.Class.define("gosa.view.Search",
          }
          query = _query;
       }
-     
+
       // Don't search for nothing or not changed values
-      if (!noListUpdate && (query == "" || this._old_query == query)) {
+      if (!noListUpdate && (query === "" || this._old_query === query)) {
         if (callback) {
           callback.apply(this, [ [] ]);
         }
         return;
       }
-      
+
       var rpc = gosa.io.Rpc.getInstance();
       var base = gosa.Session.getInstance().getBase();
       var startTime = new Date().getTime();
@@ -316,7 +316,7 @@ qx.Class.define("gosa.view.Search",
       this.resultList.getChildControl("scrollbar-x").setPosition(0);
       this.resultList.getChildControl("scrollbar-y").setPosition(0);
 
-      if (i == 0){
+      if (i === 0){
           this.searchResult.hide();
       } else {
           this.searchResult.show();
@@ -334,19 +334,19 @@ qx.Class.define("gosa.view.Search",
 
       // Build model
       var tmp = this.searchAid.getSelection();
-      if (tmp['category']) {
+      if (tmp.category) {
         this.__selection = tmp;
       }
 
 
-      for (var i= 0; i<items.length; i++) {
+      for (i = 0; i<items.length; i++) {
         var item = new gosa.data.model.SearchResultItem();
         item = this.__fillSearchListItem(item, items[i]);
         model.push(item);
-        
+
         // Update categories
-        if (!_categories[items[i]['tag']]) {
-            _categories[items[i]['tag']] = this['tr'](gosa.Cache.object_categories[items[i]['tag']]);
+        if (!_categories[items[i].tag]) {
+            _categories[items[i].tag] = this['tr'](gosa.Cache.object_categories[items[i].tag]);  // jshint ignore:line
         }
       }
 
@@ -355,8 +355,8 @@ qx.Class.define("gosa.view.Search",
 
       // Pseudo sort categories
       var categories = {"all" : this.tr("All")};
-      var tmp = [];
-      for (var i in _categories) {
+      tmp = [];
+      for (i in _categories) {
         tmp.push([i, _categories[i]]);
       }
       tmp.sort(function(a, b) {
@@ -364,7 +364,7 @@ qx.Class.define("gosa.view.Search",
         b = b[1];
         return a < b ? -1 : (a > b ? 1 : 0);
       });
-      for (var i=0; i<tmp.length; i++) {
+      for (i = 0; i<tmp.length; i++) {
         categories[tmp[i][0]] = tmp[i][1];
       }
 
@@ -372,7 +372,7 @@ qx.Class.define("gosa.view.Search",
       var data = new qx.data.Array(model);
       data.sort(this.__sortByRelevance);
       this.resultList.setModel(data);
-      
+
       // Update categories
       if (this.searchAid.hasFilter()) {
         this.searchAid.updateFilter("category", categories);
@@ -380,12 +380,12 @@ qx.Class.define("gosa.view.Search",
       } else {
 
         this.searchAid.addFilter(this.tr("Category"), "category",
-            categories, this.__selection['category']);
+            categories, this.__selection.category);
 
         this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
             "enabled": this.tr("Enabled"),
             "disabled": this.tr("Disabled")
-        }, this.__selection['secondary']);
+        }, this.__selection.secondary);
 
         this.searchAid.addFilter(this.tr("Last modification"), "mod-time", {
             "all": this.tr("All"),
@@ -445,33 +445,34 @@ qx.Class.define("gosa.view.Search",
         }
 
         // Build widget and place it into a window
-        gosa.ui.Renderer.getWidget(function(w){
+        gosa.engine.WidgetFactory.createWidget(function(w){
           var doc = qx.core.Init.getApplication().getRoot();
           win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
-          win.setWidth(800);
-          win.setLayout(new qx.ui.layout.Canvas());
-          win.add(w, {top: 0, bottom: 0, left: 0, right: 0});
-          win.addListener("appear", win.center, win);
+          win.set({
+            width : 800,
+            layout : new qx.ui.layout.Canvas(),
+            showMinimize : false,
+            showClose : false
+          });
+          win.add(w, {edge: 0});
+          win.addListenerOnce("appear", function() {
+            // wait till the window contents are rendered (which happens on appear as well)
+            (new qx.util.DeferredCall(win.center, win)).schedule();
+          });
           win.open();
 
-          // See http://bugzilla.qooxdoo.org/show_bug.cgi?id=1770
-          win.setShowMinimize(false);
-
-          w.addListener("done", function(){
+          w.addListener("close", function() {
+            controller.dispose();
             w.dispose();
             doc.remove(win);
             win.destroy();
-          }, this);
-
-          win.addListener("close", function(){
-            w.dispose();
-            doc.remove(win);
-            obj.close();
-            win.destroy();
-          }, this);
+          });
 
           // Position window as requested
           doc.add(win);
+
+          var controller = new gosa.data.ObjectEditController(obj, w);
+          w.setController(controller);
 
           this.fireDataEvent("loadingComplete", {dn: dn});
 
@@ -491,14 +492,14 @@ qx.Class.define("gosa.view.Search",
 
       // Keep track of each event uuid we receive
       var data = e.getData();
-      if(data['changeType'] == "remove"){
-        this._removedObjects.push(data['uuid']);
+      if(data.changeType == "remove"){
+        this._removedObjects.push(data.uuid);
       }
-      if(data['changeType'] == "create"){
-        this._createdObjects.push(data['uuid']);
+      if(data.changeType == "create"){
+        this._createdObjects.push(data.uuid);
       }
-      if(data['changeType'] == "update"){
-        this._modifiedObjects.push(data['uuid']);
+      if(data.changeType == "update"){
+        this._modifiedObjects.push(data.uuid);
       }
 
       //console.log("ADD: ", this._createdObjects);
@@ -508,8 +509,8 @@ qx.Class.define("gosa.view.Search",
       // Once an event was catched, start a new query, but do not show
       // the result in the list, instead just return it.
       this.doSearchE(null, function(result){
-      
-          // Check for differences between the currently active result-set 
+
+          // Check for differences between the currently active result-set
           // and the fetched one.
           var added = [];
           var removed = [];
@@ -519,15 +520,15 @@ qx.Class.define("gosa.view.Search",
           // Create a list containing all currently show entry-uuids.
           var current_uuids = [];
           for(var i=0; i<this._currentResult.length; i++){
-            current_uuids.push(this._currentResult[i]['uuid']);
-            entries_by_uuid[this._currentResult[i]['uuid']] = this._currentResult[i];
+            current_uuids.push(this._currentResult[i].uuid);
+            entries_by_uuid[this._currentResult[i].uuid] = this._currentResult[i];
           }
 
           // Create  list of all entry-uuids that ware returned by the query.
           var uuids = [];
-          for(var i=0; i<result.length; i++){
-            uuids.push(result[i]['uuid']);
-            entries_by_uuid[result[i]['uuid']] = result[i];
+          for(i=0; i<result.length; i++){
+            uuids.push(result[i].uuid);
+            entries_by_uuid[result[i].uuid] = result[i];
           }
 
           // Check which uuids were new, which were removed and which uuids are still there
@@ -544,7 +545,7 @@ qx.Class.define("gosa.view.Search",
           // before, but are now gone. If so, then fade it out.
           // If its no longer in our list, but was not removed before (e.g just moved) then
           // just remove it from the list without fading it out.
-          for(var i=0; i<removed.length; i++){
+          for(i=0; i<removed.length; i++){
             if(qx.lang.Array.contains(this._removedObjects, removed[i])){
               this.__fadeOut(entries_by_uuid[removed[i]]);
             }else{
@@ -557,7 +558,7 @@ qx.Class.define("gosa.view.Search",
           // Walk through all uuids that were there before and are still there.
           // If there was an modify event for one of the uuids, then update
           // the list entry.
-          for(var i=0; i<stillthere.length; i++){
+          for(i=0; i<stillthere.length; i++){
             if(qx.lang.Array.contains(this._modifiedObjects, stillthere[i])){
               this.__updateEntry(entries_by_uuid[stillthere[i]]);
               this.updateFilter();
@@ -567,7 +568,7 @@ qx.Class.define("gosa.view.Search",
 
           // If there is a new entry in the result and we've got an create event
           // then fade the new entry in the result list.
-          for(var i=0; i<added.length; i++){
+          for(i=0; i<added.length; i++){
             if(qx.lang.Array.contains(this._createdObjects, added[i])){
               this.__fadeIn(entries_by_uuid[added[i]]);
             }else{
@@ -589,7 +590,7 @@ qx.Class.define("gosa.view.Search",
       // and update it.
       var model = this.resultList.getModel();
       for(var i=0; i<model.getLength(); i++){
-        if(entry['uuid'] == model.getItem(i).getUuid()){
+        if(entry.uuid == model.getItem(i).getUuid()){
           var item = model.getItem(i);
           item = this.__fillSearchListItem(item, entry);
           model.setItem(i, item);
@@ -599,8 +600,8 @@ qx.Class.define("gosa.view.Search",
       }
 
       // Now remove the entry from the current result set
-      for(var i=0; i<this._currentResult.length; i++){
-        if(this._currentResult[i]['uuid'] == entry['uuid']){
+      for(i=0; i<this._currentResult.length; i++){
+        if(this._currentResult[i].uuid == entry.uuid){
           this._currentResult[i] = entry;
           return;
         }
@@ -638,7 +639,7 @@ qx.Class.define("gosa.view.Search",
       // and then remove it from the model.
       var model = this.resultList.getModel();
       for(var i=0; i<model.getLength(); i++){
-        if(entry['uuid'] == model.getItem(i).getUuid()){
+        if(entry.uuid == model.getItem(i).getUuid()){
           qx.lang.Array.remove(model, model.getItem(i));
           this.resultList.setModel(model);
           break;
@@ -646,8 +647,8 @@ qx.Class.define("gosa.view.Search",
       }
 
       // Now remove the entry from the current result set.
-      for(var i=0; i<this._currentResult.length; i++){
-        if(this._currentResult[i]['uuid'] == entry['uuid']){
+      for(i=0; i<this._currentResult.length; i++){
+        if(this._currentResult[i].uuid == entry.uuid){
           qx.lang.Array.remove(this._currentResult, this._currentResult[i]);
           return;
         }
@@ -677,7 +678,7 @@ qx.Class.define("gosa.view.Search",
     },
 
 
-    /* Adds the given search result entry to the list 
+    /* Adds the given search result entry to the list
      * and then starts a fade-in transition for it.
      * */
     __fadeIn: function(entry){
@@ -691,20 +692,20 @@ qx.Class.define("gosa.view.Search",
     __fillSearchListItem: function(item, entry){
 
       // Set the uuid first, this triggers a reset on the widget side.
-      item.setUuid(entry['uuid']);
+      item.setUuid(entry.uuid);
 
       // Icon fallback to server provided images
       var icon = entry['icon'] ? entry['icon'] : gosa.util.Icons.getIconByType(entry['tag'], 64);
 
-      item.setDn(entry['dn']);
-      item.setTitle(entry['title']);
-      item.setLastChanged(entry['lastChanged']);
-      item.setRelevance(entry['relevance']);
-      item.setSecondary(entry['secondary']);
-      item.setType(entry['tag']);
-      item.setDescription(this._highlight(entry['description'], this._old_query));
+      item.setDn(entry.dn);
+      item.setTitle(entry.title);
+      item.setLastChanged(entry.lastChanged);
+      item.setRelevance(entry.relevance);
+      item.setSecondary(entry.secondary);
+      item.setType(entry.tag);
+      item.setDescription(this._highlight(entry.description, this._old_query));
       item.setIcon(icon);
-      return(item); 
+      return(item);
     }
   }
 });

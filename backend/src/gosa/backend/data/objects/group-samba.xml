@@ -5,7 +5,7 @@
     <Description>A samba extension for a posix group</Description>
     <DisplayName>Samba group extension</DisplayName>
     <Templates>
-      <Template>group-samba.ui</Template>
+      <Template>group-samba.json</Template>
     </Templates>
     <BackendParameters>
       <Backend objectClasses="sambaGroupMapping">LDAP</Backend>

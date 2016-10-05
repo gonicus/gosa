@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -55,6 +55,12 @@ qx.Class.define("gosa.ui.dialogs.Dialog",
       check : "Array",
       apply : "__applyFocusOrder",
       init  : []
+    },
+
+    autoDispose : {
+      check : "Boolean",
+      init : false,
+      apply : "_applyAutoDispose"
     }
   },
 
@@ -73,15 +79,15 @@ qx.Class.define("gosa.ui.dialogs.Dialog",
 
     /**
      * Called whenever a window appears on the screen.
-     * Sets the focus on first input field and registers the window 
+     * Sets the focus on first input field and registers the window
      *  in the list of currenlty opened windows.
      * (Since a window is opened the GE plugin cannot appear.)
      *
-     * @return {void} 
+     * @return {void}
      */
     __onAppear : function()
     {
-      this.center(); 
+      this.center();
       this.setEnabled(true);
       this.setActive(true);
 
@@ -103,10 +109,10 @@ qx.Class.define("gosa.ui.dialogs.Dialog",
 
 
     /**
-     * Sets the order of the focus. 
+     * Sets the order of the focus.
      *
      * @param args {Array} An array, containing the widgets to set focus on.
-     * @return {void} 
+     * @return {void}
      */
     __applyFocusOrder : function(args)
     {
@@ -124,12 +130,20 @@ qx.Class.define("gosa.ui.dialogs.Dialog",
       }
     },
 
+    _applyAutoDispose : function(value) {
+      if (value) {
+        this.addListener("close", this.dispose, this);
+      }
+      else {
+        this.removeListener("close", this.dispose, this);
+      }
+    },
 
     /**
      * On each ENTER keypress we have to switch to the next input widget.
      *
-     * @param e {Event} Key press event 
-     * @return {void} 
+     * @param e {Event} Key press event
+     * @return {void}
      */
     checkInput : function(e)
     {

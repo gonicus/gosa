@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -117,7 +117,7 @@ qx.Class.define("gosa.ui.Renderer",
             }
           }
         }
-        
+
         params.unshift(method, function(result, error) {
           if (error) {
             new gosa.ui.dialogs.Error(error.message).open();
@@ -215,7 +215,7 @@ qx.Class.define("gosa.ui.Renderer",
       }
 
       var clazz;
-      
+
       // Check if we can use a cached gui here.
       if(use_cached && obj.classname in gosa.ui.Renderer.classes){
         clazz = gosa.ui.Renderer.classes[obj.classname];
@@ -348,15 +348,15 @@ qx.Class.define("gosa.ui.Renderer",
 
   destruct : function(){
 
-    // Remove all listeners from our object. 
-    qx.event.Registration.removeAllListeners(this); 
+    // Remove all listeners from our object.
+    qx.event.Registration.removeAllListeners(this);
 
     // Try to remove all bindings we've made during gui preparation.
     for(var item in this.__bindings){
       this.__bindings[item]['widget'].removeListenerById(this.__bindings[item]['id']);
     }
 
-    // Reset class members 
+    // Reset class members
     this._disposeObjects("__toolMenu", "__okBtn", "__cancelBtn", "_extendButton", "_retractButton", "_actionButton");
     this.__bindings = null;
     this._extension_to_widgets = null;
@@ -542,7 +542,7 @@ qx.Class.define("gosa.ui.Renderer",
           var data = e.getData();
           var mods = [];
 
-          // Collect all attribute changes and prepare the merge-widgets  
+          // Collect all attribute changes and prepare the merge-widgets
           for(var name in data['attributes']['changed']){
             var widgetName = this._mapping['rbindings'][name];
             if(widgetName){
@@ -571,7 +571,7 @@ qx.Class.define("gosa.ui.Renderer",
             }
           }
 
-          // Collect all added attributes and prepare the merge-widgets  
+          // Collect all added attributes and prepare the merge-widgets
           for(var name in data['attributes']['added']){
             var widgetName = this._mapping['rbindings'][name];
             if(widgetName){
@@ -599,7 +599,7 @@ qx.Class.define("gosa.ui.Renderer",
             }
           }
 
-          // Collect all removed attributes and prepare the merge-widgets  
+          // Collect all removed attributes and prepare the merge-widgets
           for(var id in data['attributes']['removed']){
             var name = data['attributes']['removed'][id];
             var widgetName = this._mapping['rbindings'][name];
@@ -666,7 +666,7 @@ qx.Class.define("gosa.ui.Renderer",
                 if(res['attrs'][name]){
                   var widgetName = this._mapping['rbindings'][name];
 
-                  // If there is no widget with the given name, then we 
+                  // If there is no widget with the given name, then we
                   // just have to set an empty value for the property.
                   if(this._widgets[widgetName]){
                     keep[name] = this._widgets[widgetName].getValue().copy();
@@ -683,7 +683,7 @@ qx.Class.define("gosa.ui.Renderer",
                 this._object.get_extension_types(function(result, error){
 
                   // Create a queue which later extends or retracts
-                  // addons step by step. 
+                  // addons step by step.
                   // Without queue, we cannot handle multiple retractions or extensions
                   // due to the fact all they would be executed all once.
                   // --
@@ -772,7 +772,7 @@ qx.Class.define("gosa.ui.Renderer",
                   // Helper method which inserts a 'retraction' to the queue.
                   var del = function(ext){
                     queue.push(function(){
-                      that._retractObjectFrom(ext, handleQueue); 
+                      that._retractObjectFrom(ext, handleQueue);
                     });
                   }
 
@@ -801,7 +801,7 @@ qx.Class.define("gosa.ui.Renderer",
 
                   // Process the queue
                   handleQueue();
-              
+
                 }, this);
 
               }, this);
@@ -848,7 +848,7 @@ qx.Class.define("gosa.ui.Renderer",
               for (var f in topic.childNodes) {
                 var item = topic.childNodes[f];
                 if (item.nodeName == "file") {
-                  files[":/" + item.firstChild.nodeValue] = gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/" + item.firstChild.nodeValue;
+                  files[":/" + item.firstChild.nodeValue] = gosa.Config.spath + "/resources/" + item.firstChild.nodeValue;
                 }
               }
               qx.lang.Object.mergeWith(res, files);
@@ -872,7 +872,7 @@ qx.Class.define("gosa.ui.Renderer",
       this.__okBtn.setEnabled(false);
       this.__okBtn.setTabIndex(30000);
 
-      // If there are extensions or more than one gui-page 
+      // If there are extensions or more than one gui-page
       // available for this object, then put all pages into a tab-page.
       var container;
       var ui_definition = this.getUiDefinition_();
@@ -891,7 +891,7 @@ qx.Class.define("gosa.ui.Renderer",
         var extension = exten_list[ext_key];
 
         // Skip empty definitions or disabled ones.
-        if (!ui_definition[extension] || 
+        if (!ui_definition[extension] ||
             (!this._object.extensionTypes[extension] && extension != this._object.baseType)) {
           continue;
         }
@@ -990,7 +990,7 @@ qx.Class.define("gosa.ui.Renderer",
      * it depending on the given blockedBy definition.
      * */
     _processBlockedBy: function(widget, data){
-   
+
       // Skip if there is no block info
       if(!data.length){
         return;
@@ -1018,7 +1018,7 @@ qx.Class.define("gosa.ui.Renderer",
             widget.unblock();
           }
         };
-     
+
       /* Extract information about when to block the widget
        * and add a listener to the source-widget, to check
        * its values again after they were modified.
@@ -1035,7 +1035,7 @@ qx.Class.define("gosa.ui.Renderer",
         }else{
           this.error("invalid blocking information for '" + propertyName + "' there is no such widget!");
         }
-      
+
         // Initially check blocking
         func(data, widget);
       }
@@ -1123,7 +1123,7 @@ qx.Class.define("gosa.ui.Renderer",
           // Collect agruments that have to be passed to the method call.
           var attrs = state[4].split(",");
           var args = [];
-          
+
           for(var item in attrs){
         	var value;
             if(attrs[item] == "dn" || attrs[item] == "uuid"){
@@ -1207,7 +1207,7 @@ qx.Class.define("gosa.ui.Renderer",
 
     /* Make the tool menu reflect the current object/extension settings.
      * */
-    _updateToolMenu : function() 
+    _updateToolMenu : function()
     {
       if (this._extendButton && this.__toolMenu.indexOf(this._extendButton) != -1) {
         this.__toolMenu.remove(this._extendButton);
@@ -1245,7 +1245,7 @@ qx.Class.define("gosa.ui.Renderer",
           var added = false;
           for (var i=0; i<ui_s.length; i++) {
             var nodes = qx.xml.Document.fromString(ui_s[i]);
-            var resources = this.extractResources(nodes.childNodes, gosa.Config.getTheme());
+            var resources = this.extractResources(nodes.childNodes);
             var widget = nodes.firstChild.getElementsByTagName("widget").item(0).childNodes;
             var props = this.extractProperties(widget);
 
@@ -1309,7 +1309,7 @@ qx.Class.define("gosa.ui.Renderer",
 
     /* Extract widget properties as a hash
      * */
-    extractProperties : function(widget) 
+    extractProperties : function(widget)
     {
       var props = {};
 
@@ -1338,7 +1338,7 @@ qx.Class.define("gosa.ui.Renderer",
           this.setModified(true);
 
           if (callback) {
-              callback();
+            callback();
           }
         }
       }, this, extension);
@@ -1366,11 +1366,11 @@ qx.Class.define("gosa.ui.Renderer",
 
     /* Retract extension
      * */
-    retractObjectFrom : function(extension) 
+    retractObjectFrom : function(extension)
     {
       // Check for dependencies, eventually ask for additional extensions
       var dependencies = [];
-      
+
       for (var ext in this._object.extensionDeps) {
         if (this._object.extensionDeps[ext].indexOf(extension) != -1) {
           dependencies.push(ext);
@@ -1465,10 +1465,10 @@ qx.Class.define("gosa.ui.Renderer",
         }
       }, this, extension);
     },
-    
+
     /* Extend the object with the given extension
      * */
-    extendObjectWith : function(type) 
+    extendObjectWith : function(type)
     {
       // Check for dependencies, eventually ask for additional extensions
       var dependencies = this._object.extensionDeps[type];
@@ -1602,7 +1602,7 @@ qx.Class.define("gosa.ui.Renderer",
      * and additional properties.
      * */
     __createTabContent: function(extension, ui_def, is_dialog){
-    
+
       // Clean-up values that were collected per-loop.
       this._current_widgets = [];
       this._current_bindings = {};
@@ -1610,7 +1610,7 @@ qx.Class.define("gosa.ui.Renderer",
       this._current_buddies = {};
 
       // Parse the ui definition of the object
-      var resources = this.extractResources(ui_def, gosa.Config.getTheme());
+      var resources = this.extractResources(ui_def);
       for (var attr in resources) {
         this._resources[attr] = resources[attr];
       }
@@ -1747,12 +1747,12 @@ qx.Class.define("gosa.ui.Renderer",
         w.setGuiProperties(this._widget_ui_properties[item]);
       }
     },
-  
+
 
     /**
-     * This method contains the initial application code and gets called 
+     * This method contains the initial application code and gets called
      * during startup of the application
-     * 
+     *
      * @lint ignoreDeprecated(alert)
      */
 
@@ -1851,7 +1851,7 @@ qx.Class.define("gosa.ui.Renderer",
 
           // Inspect layout items
           for (var j=0; j<node.childNodes.length; j++) {
-             
+
             var topic = node.childNodes[j];
             if (topic.nodeType == 1 && topic.nodeName == "item") {
 
@@ -1923,7 +1923,7 @@ qx.Class.define("gosa.ui.Renderer",
                   widget.setAllowGrowY(true);
                 }
               }
-              
+
             }
 
             if (topic.nodeType == 1 && topic.nodeName == "property") {
@@ -1934,7 +1934,7 @@ qx.Class.define("gosa.ui.Renderer",
             }
 
             var layout = widget.getLayout();
-            
+
             if (layout_type == "QGridLayout") {
               layout.setSpacing(5);
 
@@ -2020,7 +2020,7 @@ qx.Class.define("gosa.ui.Renderer",
             }
             this._bindings[sender] = slot.slice(9, slot.length - 2);
             this._current_bindings[sender] = slot.slice(9, slot.length - 2);
-            
+
           }
 
         // Ignore resources - they're already processed

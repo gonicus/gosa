@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -40,7 +40,7 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
 
         // Abort on errors
         if(error){
-          c_callback.apply(c_context, [null, error]); 
+          c_callback.apply(c_context, [null, error]);
         }else{
 
           // Extract required user information out of the '__jsonclass__' result object.
@@ -53,7 +53,6 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
           var extensionDeps = null;
           var attribute_data = {};
 
-          var theme = gosa.Config.getTheme();
           var locale;
 
           if (gosa.Config.locale) {
@@ -83,8 +82,7 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
               baseType: baseType,
               extensionTypes: extensionTypes,
               extensionDeps: extensionDeps,
-              locale: locale,
-              theme: theme
+              locale: locale
             };
 
             // this closure returns a new apply method for the given attribute.
@@ -123,13 +121,13 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
             // Create meta class for this object
             var def = {extend: gosa.proxy.Object, members: members, properties: properties};
             gosa.proxy.ObjectFactory.classes[className] = qx.Class.define(className, def);
-            c_callback.apply(c_context, [new gosa.proxy.ObjectFactory.classes[className](userData)]); 
+            c_callback.apply(c_context, [new gosa.proxy.ObjectFactory.classes[className](userData)]);
           };
 
           // Load object info - base type, extension types
           rpc.cA(function(data, error){
             if(error){
-              c_callback.apply(c_context, [null, error]); 
+              c_callback.apply(c_context, [null, error]);
             }else{
               baseType = data['base'];
               extensionTypes = data['extensions'];
@@ -137,7 +135,7 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
 
               rpc.cA(function(_attribute_data, error) {
                 if(error){
-                  c_callback.apply(c_context, [null, error]); 
+                  c_callback.apply(c_context, [null, error]);
                 }else{
                   // Call the result handling method, we had defined earlier above.
                   attribute_data = _attribute_data;
@@ -146,7 +144,7 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
               }, this, "dispatchObjectMethod", uuid, "get_attributes", true);
 
             }
-          }, this, "dispatchObjectMethod", uuid, "get_object_info", locale, theme);
+          }, this, "dispatchObjectMethod", uuid, "get_object_info", locale);
         }
       }, this, "openObject", "object", dn, type);
     }

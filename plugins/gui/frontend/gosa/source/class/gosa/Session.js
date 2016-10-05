@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -19,7 +19,7 @@ qx.Class.define("gosa.Session",
   type: "singleton",
 
   construct: function(){
-  
+
     this.base(arguments);
 
     //TODO: go SSE, maybe use Bus
@@ -101,7 +101,8 @@ qx.Class.define("gosa.Session",
         var rpc = gosa.io.Rpc.getInstance();
         rpc.cA(function(result, error){
             if(error){
-              var d = new gosa.ui.dialogs.Error(new qx.ui.core.Widget().tr("Failed to fetch current user information."));
+              // var d = new gosa.ui.dialogs.Error(new qx.ui.core.Widget().tr("Failed to fetch current user information."));
+              var d = new gosa.ui.dialogs.Error(error.message);
               d.open();
               d.addListener("close", function(){
                   gosa.Session.getInstance().logout();

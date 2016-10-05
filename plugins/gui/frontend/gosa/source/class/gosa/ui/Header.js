@@ -37,7 +37,7 @@ qx.Class.define("gosa.ui.Header", {
       check: "String",
       event: "_changedLoggedInName",
       nullable: true,
-      apply: "setLoggedInName"
+      apply: "_applyLoggedInName"
     }
   },
 
@@ -81,7 +81,7 @@ qx.Class.define("gosa.ui.Header", {
       return control || this.base(arguments, id);
     },
 
-    setLoggedInName: function(value){
+    _applyLoggedInName: function(value){
       if(value === null){
         this.getChildControl("label").setValue("");
       }else{

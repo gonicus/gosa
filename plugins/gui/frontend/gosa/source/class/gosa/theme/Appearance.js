@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -27,7 +27,7 @@ qx.Theme.define("gosa.theme.Appearance",
         if (states['checked']) {
           style['paddingLeft'] = 0;
           style['backgroundColor'] = '#EDEDED';
-          style['icon'] = 'gosa/themes/default/22/actions/dialog-ok-apply.png';
+          style['icon'] = 'gosa/images/22/actions/dialog-ok-apply.png';
         }
         return (style);
       }
@@ -122,8 +122,9 @@ qx.Theme.define("gosa.theme.Appearance",
     "attribute-button-frame" : {
       alias : "atom",
 
-      style : function(states) {
-        var decorator = undefined;
+      style : function(states)
+      {
+        var decorator;
 
         if (!states.disabled) {
           if (states.hovered && !states.pressed && !states.checked) {
@@ -290,12 +291,12 @@ qx.Theme.define("gosa.theme.Appearance",
 
         var tc = null;
         if (states.error) {
-          tc = "error-text"
+          tc = "error-text";
         }
 
         return {
           textColor: tc
-        }
+        };
       }
     },
     "icon-menu-button": "menu-button",

@@ -22,7 +22,7 @@ qx.Theme.define("gosa.theme.Decoration",
     {
       style :
       {
-        backgroundImage  : "gosa/themes/default/background.png",
+        backgroundImage  : "gosa/images/background.png",
         backgroundRepeat : "repeat"
       }
     },

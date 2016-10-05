@@ -403,7 +403,23 @@ class Object(object):
                 res, error = self.__processValidator(self.myProperties[name]['validator'], name, new_value, props_copy)
                 if not res:
                     if len(error):
-                        raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
+                        # TODO: check if we really want the validators to manipulate the data?
+                        # remove invalid values from value list
+                        error_indexes = [err["index"] for err in error if "index" in err]
+                        error_indexes.sort(reverse=True)
+                        for index in error_indexes:
+                            del new_value[index]
+
+                        if not len(new_value):
+                            # nothing left to save
+                            raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
+                        else:
+                            res, error = self.__processValidator(self.myProperties[name]['validator'], name, new_value, props_copy)
+                            if not res:
+                                if len(error):
+                                    raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
+                                else:
+                                    raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name))
                     else:
                         raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name))
 
@@ -460,14 +476,14 @@ class Object(object):
         else:
             raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
 
-    def getTemplate(self, theme="default"):
+    def getTemplate(self):
         """
         Return the template data - if any. Else None.
         """
-        return Object.getNamedTemplate(self.env, self._templates, theme)
+        return Object.getNamedTemplate(self.env, self._templates)
 
     @staticmethod
-    def getNamedTemplate(env, templates, theme="default"):
+    def getNamedTemplate(env, templates):
         """
         Return the template data - if any. Else None.
         """
@@ -485,43 +501,14 @@ class Object(object):
                 # Relative path
                 else:
                     # Find path
-                    path = pkg_resources.resource_filename('gosa.backend', os.path.join('data', 'templates', theme, template)) #@UndefinedVariable
+                    path = pkg_resources.resource_filename('gosa.backend', os.path.join('data', 'templates', template)) #@UndefinedVariable
                     if not os.path.exists(path):
-                        path = os.path.join(env.config.getBaseDir(), 'templates', theme, template)
+                        path = os.path.join(env.config.getBaseDir(), 'templates', template)
                         if not os.path.exists(path):
-                            path = pkg_resources.resource_filename('gosa.backend', os.path.join('data', 'templates', "default", template)) #@UndefinedVariable
-                            if not os.path.exists(path):
-                                path = os.path.join(env.config.getBaseDir(), 'templates', "default", template)
-                                if not os.path.exists(path):
-                                    return None
+                            return None
 
                 with open(path, "rb") as f:
-                    _ui = f.read()
-
-                # Build new merged resource element
-                root = etree.fromstring(_ui)
-                new_resources = []
-                resources = root.find("resources")
-                for include in resources.findall("include"):
-                    rc = include.get("location")
-                    location = os.path.join(os.path.dirname(path), rc)
-                    if not os.path.exists(location):
-                        raise IOError(C.make_error("NO_SUCH_RESOURCE", resource=location))
-
-                    res = ""
-                    with open(location, "rb") as f:
-                        res = f.read()
-
-                    for resource in etree.fromstring(res).findall("qresource"):
-                        files = []
-                        prefix = resource.get("prefix")
-                        for f in resource.findall("file"):
-                            files.append(E.file(os.path.join(prefix, f.text)))
-
-                        new_resources.append(E.resource(*files, location=rc))
-
-                root.replace(root.find("resources"), E.resources(*new_resources))
-                ui.append(etree.tostring(root).decode('utf-8'))
+                    ui.append(f.read().decode('utf-8'))
 
         return ui
 
@@ -1121,10 +1108,7 @@ class Object(object):
                 dns = index.search({ref_attribute: self.dn}, {'dn': 1})
                 if len(dns):
                     dns = [x['dn'] for x in dns]
-                res.append((
-                    ref_attribute,
-                    dns
-                ))
+                res.append((ref_attribute,dns))
 
         return res
 

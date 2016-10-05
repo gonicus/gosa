@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -19,9 +19,9 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
 
   extend: gosa.ui.widgets.Widget,
 
-  
+
   construct: function(){
-    this.base(arguments);  
+    this.base(arguments);
     this.contents.setLayout(new qx.ui.layout.VBox(5));
     this.setDecorator("main");
 
@@ -72,8 +72,8 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
     }, this);
 
     buttonPane.add(cap_button);
-    this.__cap_win.add(buttonPane); 
-    
+    this.__cap_win.add(buttonPane);
+
     // Create context menu buttons
     this._changePicture = new qx.ui.menu.Button(this.tr("Upload new image"),
             gosa.Config.getImagePath("actions/attribute-choose.png", 22));
@@ -146,10 +146,10 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
     this._defaultImage = null;
 
     // Remove all listeners and then set our values to null.
-    qx.event.Registration.removeAllListeners(this.__cap_win); 
-    qx.event.Registration.removeAllListeners(this._removePicture); 
-    qx.event.Registration.removeAllListeners(this._capturePicture); 
-    qx.event.Registration.removeAllListeners(this); 
+    qx.event.Registration.removeAllListeners(this.__cap_win);
+    qx.event.Registration.removeAllListeners(this._removePicture);
+    qx.event.Registration.removeAllListeners(this._capturePicture);
+    qx.event.Registration.removeAllListeners(this);
 
     this._disposeObjects("_changePicture", "_removePicture", "_widget", "_capturePicture");
   },

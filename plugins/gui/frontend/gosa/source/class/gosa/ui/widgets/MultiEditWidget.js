@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -18,7 +18,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
 
   construct: function(){
     this._widgetContainer = [];
-    this.base(arguments);  
+    this.base(arguments);
     this.contents.setLayout(new qx.ui.layout.VBox(5));
 
     // Generate the gui
@@ -31,7 +31,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     this._disposeArray("_widgetContainer");
 
     // Remove all listeners and then set our values to null.
-    qx.event.Registration.removeAllListeners(this); 
+    qx.event.Registration.removeAllListeners(this);
 
     this.setBuddyOf(null);
     this.setGuiProperties(null);
@@ -40,14 +40,14 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     this.setBlockedBy(null);
   },
 
-  statics: { 
- 
-    /* Create a readonly representation of this widget for the given value. 
-     * This is used while merging object properties. 
-     * */ 
-    getMergeWidget: function(value){ 
-      var w = new qx.ui.form.TextField(); 
-      w.setReadOnly(true); 
+  statics: {
+
+    /* Create a readonly representation of this widget for the given value.
+     * This is used while merging object properties.
+     * */
+    getMergeWidget: function(value){
+      var w = new qx.ui.form.TextField();
+      w.setReadOnly(true);
       if(value.getLength()){
         w.setValue(value.getItem(0) + "");
       }
@@ -66,6 +66,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     _skipUpdates: false,
 
     _initComplete: function(){
+      this.base(arguments);
       this._generateGui();
     },
 
@@ -91,7 +92,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     /* Mark the given widget as required
      * */
     _markAsRequired: function(widget){
-      widget.setBackgroundColor("mandatory");    
+      widget.setBackgroundColor("mandatory");
     },
 
 
@@ -102,14 +103,21 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* Removes the widget from the view-port
-     * */
-    __delWidget: function(id){
-      this.remove(this._widgetContainer[id]);
+    /**
+     * Removes the widget from the view-port
+     */
+    __delWidget: function(id) {
+      var widget = this._widgetContainer[id];
+      if (widget.getLayoutParent()) {
+        widget.getLayoutParent().remove(widget);
+        widget.dispose();
+        this._widgetContainer.splice(id, 1);
+      }
+      widget = null;
     },
 
-   
-    /* Returns the "real" widget (e.g. the qx.ui.form.Textfield)
+
+    /* Returns the "real" widget (e.g. the qx.ui.form.TextField)
      * For the given id.
      * */
     _getWidget: function(id){
@@ -134,8 +142,8 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     _createWidget: function(){
       var w = new qx.ui.form.TextField();
       w.setLiveUpdate(true);
-      w.addListener("focusout", this._propertyUpdater, this); 
-      w.addListener("changeValue", this._propertyUpdaterTimed, this); 
+      w.addListener("focusout", this._propertyUpdater, this);
+      w.addListener("changeValue", this._propertyUpdaterTimed, this);
       return(w);
     },
 
@@ -156,6 +164,15 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       this._generateGui();
     },
 
+    _applyValid : function(value, old, name) {
+      this.base(arguments, value, old, name);
+
+      // forward valid state to "real" widget children
+      this._widgetContainer.forEach(function(multiEditContainer) {
+        multiEditContainer.getWidget().setValid(value);
+        multiEditContainer.getWidget().setInvalidMessage(this.getInvalidMessage());
+      }, this);
+    },
 
     /* This is the apply method for the multivalue-flag
      * */
@@ -172,7 +189,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* This method updates the value-property and immediately 
+    /* This method updates the value-property and immediately
      * sends the "changeValue" to tell the object-proxy that values have changed.
      *
      * This is a method which can be used as listener for value updates.
@@ -187,7 +204,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       }
       this.fireDataEvent("changeValue", this.getCleanValues());
       var timer = qx.util.TimerManager.getInstance();
-      if(this._property_timer != null){
+      if (this._property_timer !== null) {
         timer.stop(this._property_timer);
         this._property_timer = null;
         this.removeState("modified");
@@ -195,7 +212,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* This method updates the value-property and sends the "changeValue" 
+    /* This method updates the value-property and sends the "changeValue"
      * event after a period of time, to tell the object-proxy that values have changed.
      *
      * This is a method which can be used as listener for value updates.
@@ -220,7 +237,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
           timer.stop(this._property_timer);
           this._property_timer = null;
           this.fireDataEvent("changeValue", this.getCleanValues());
-        }, null, this, null, 2000);
+        }, null, this, null, 100);
     },
 
 
@@ -316,7 +333,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
         this.__delWidget(l);
       }
 
-      // Forward uopdates again
+      // Forward updates again
       this._skipUpdates = false;
     }
   }
