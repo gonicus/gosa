@@ -15,10 +15,11 @@
         },
         "resources": {
             "favicon": "images/user.png",
-            "actionChangePassword": "images/password.png",
-            "actionLockAccount": "images/lock.png",
-            "actionUnlockAccount": "images/unlock.png",
-            "actionSendMessage": "images/notify.png"
+            "actionChangePassword": "@FontAwesome/f084",
+            "actionLockAccount": "@FontAwesome/f023",
+            "actionUnlockAccount": "@FontAwesome/f09c",
+            "actionSendMessage": "@FontAwesome/f27b",
+            "actionChange2FAMethod": "@FontAwesome/f21b"
         },
         "actions": [{
             "name": "actionChangePassword",
@@ -44,7 +45,12 @@
             "dialog": "SendMessageDialog",
             "text": "tr('Send message...')",
             "icon": "actionSendMessage"
-       }]
+       }, {
+            "name": "actionChange2FAMethod",
+            "dialog": "Change2FAMethod",
+            "text": "tr('Change 2FA method...')",
+            "icon": "actionChange2FAMethod"
+        }]
     },
     "properties": {
         "width": 486,

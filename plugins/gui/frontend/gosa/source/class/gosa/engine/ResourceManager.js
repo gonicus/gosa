@@ -13,6 +13,9 @@ qx.Class.define("gosa.engine.ResourceManager", {
      */
     convertResource : function(resource) {
       qx.core.Assert.assertString(resource);
+      if (qx.util.ResourceManager.getInstance().isFontUri(resource)) {
+        return resource;
+      }
       return "/static/resources/" + resource;
     }
   },

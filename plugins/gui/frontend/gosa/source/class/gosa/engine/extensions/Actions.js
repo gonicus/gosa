@@ -21,6 +21,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       qx.core.Assert.assertKeyInMap("text", data, "Action configuration must have the key 'text'");
 
       var button = new qx.ui.menu.Button(data.text, context.getResourceManager().getResource(data.icon));
+      button.setAppearance("icon-menu-button");
 
       // TODO: shortcuts, conditions, target
       if (data.hasOwnProperty("dialog")) {
