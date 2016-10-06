@@ -99,18 +99,23 @@ qx.Class.define("gosa.view.Tree",
 
           deleteButton.addListener("execute", this._onDeleteObject, this);
 
-          var createMenu = this.getChildControl("createMenu");
-          createMenuButton.setMenu(createMenu);
+          createMenuButton.setMenu(this.getChildControl("createMenu"));
+          filterMenuButton.setMenu(this.getChildControl("filterMenu"));
           break;
 
         case "createMenu":
           control = new qx.ui.menu.Menu();
           break;
 
+        case "filterMenu":
+          control = new qx.ui.menu.Menu();
+          break;
+
         case "table":
           // Create the table
-          var tableModel = this._tableModel = new qx.ui.table.model.Simple();
-          tableModel.setColumns([ "-", this.tr("Name"), this.tr("Description"), this.tr("DN"), this.tr("UUID")]);
+          var tableModel = this._tableModel = new qx.ui.table.model.Filtered();
+          tableModel.setColumns([ "-", this.tr("Name"), this.tr("Description"), this.tr("DN"), this.tr("UUID")],
+                                ['type', 'title', 'description', 'dn', 'uuid']);
           var customModel = {
             tableColumnModel : function(obj){
               return new qx.ui.table.columnmodel.Resize(obj);
@@ -194,7 +199,7 @@ qx.Class.define("gosa.view.Tree",
       this.__refreshTable();
     },
 
-    __updateCreateMenu : function() {
+    __updateMenus : function() {
       var selection = this.getChildControl("tree").getSelection().getItem(0);
       if (selection) {
         // load object types
@@ -204,15 +209,29 @@ qx.Class.define("gosa.view.Tree",
           }
           else {
             this.getChildControl("createMenu").removeAll();
+            this.getChildControl("filterMenu").removeAll();
+            var visibleTypes = {};
+            this._tableModel.getData().forEach(function(item) {
+              visibleTypes[item[0]] = true;
+            });
             Object.getOwnPropertyNames(result).sort().forEach(function(name) {
               var allowed = result[name];
-              var icon = gosa.util.Icons.getIconByType(name, 22);
-              var button = new qx.ui.menu.Button(name, icon);
-              button.setAppearance("icon-menu-button");
-              button.setUserData("type", name);
-              button.setEnabled(allowed.includes("c"));
-              this.getChildControl("createMenu").add(button);
-              button.addListener("execute", this._onCreateObject, this);
+              if (allowed.includes("c")) {
+                var icon = gosa.util.Icons.getIconByType(name, 22);
+                var button = new qx.ui.menu.Button(name, icon);
+                button.setAppearance("icon-menu-button");
+                button.setUserData("type", name);
+                this.getChildControl("createMenu").add(button);
+                button.addListener("execute", this._onCreateObject, this);
+              }
+              if (visibleTypes[name] && allowed.includes("r")) {
+                //var icon = gosa.util.Icons.getIconByType(name, 22);
+                var button = new qx.ui.menu.CheckBox(name);
+                //button.setAppearance("icon-menu-button");
+                button.setUserData("type", name);
+                this.getChildControl("filterMenu").add(button);
+                button.addListener("execute", this._applyFilter, this);
+              }
             }, this);
           }
         }, this, "getAllowedSubElementsForObjectWithActions", selection.getType());
@@ -232,7 +251,7 @@ qx.Class.define("gosa.view.Tree",
           var children = item.getChildren().concat(item.getLeafs());
           children.forEach(function(child) {
             if(!qx.lang.Array.contains(done, child)){
-              tableModel.addRows([child.getTableRow()]);
+              tableModel.addRowsAsMapArray([child.getTableRow()]);
               done.push(child);
             }
           }, this);
@@ -240,7 +259,7 @@ qx.Class.define("gosa.view.Tree",
       }, this);
 
       if (sel.length > 0) {
-        this.__updateCreateMenu();
+        this.__updateMenus();
       }
     },
 
@@ -270,6 +289,22 @@ qx.Class.define("gosa.view.Tree",
       this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
         this.parent.search.removeObject(this.getChildControl("table").getTableModel().getRowData(index)[5]);
       }, this);
+    },
+
+    _applyFilter : function() {
+      var types = [];
+      var all = 0;
+      this.getChildControl("filterMenu").getChildren().forEach(function(button) {
+        if (button.getValue()) {
+          types.push(button.getUserData("type"));
+        }
+        all++;
+      }, this);
+      this._tableModel.resetHiddenRows();
+      if (types.length > 0 && types.length < all) {
+        this._tableModel.addNotRegex("(" + types.join("|") + ")", "type", true);
+      }
+      this._tableModel.applyFilters();
     }
   },
 

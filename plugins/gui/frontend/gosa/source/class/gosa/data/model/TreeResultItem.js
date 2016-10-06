@@ -253,11 +253,13 @@ qx.Class.define("gosa.data.model.TreeResultItem",
      * Returns a table row
      */
     getTableRow: function(){
-      return([this.getType(),
-          this.getTitle(),
-          this.getDescription(),
-          this.getDn(),
-          this.getUuid()]);
+      return({
+        type: this.getType(),
+        title: this.getTitle(),
+        description: this.getDescription(),
+        dn:  this.getDn(),
+        uuid: this.getUuid()
+      });
     }
   }
 });
