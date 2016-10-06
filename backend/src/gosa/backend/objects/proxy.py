@@ -327,7 +327,6 @@ class ObjectProxy(object):
         Returns a list containing all property names known for the instantiated object.
         """
         attrs = None
-
         # Do we have read permissions for the requested attribute, method
         if self.__current_user:
             def check_acl(self, attribute):
@@ -347,6 +346,14 @@ class ObjectProxy(object):
         if detail:
             res = {}
             for attr in attrs:
+                readonly = self.__property_map[attr]['readonly']
+                attr_type = self.__attribute_type_map[attr]
+                topic = "%s.objects.%s.attributes.%s" % (self.__env.domain, attr_type, attr)
+
+                # check if user is allowed to edit this attribute, otherwise set it to readonly
+                if not readonly and not self.__acl_resolver.check(self.__current_user, topic, "w", base=self.dn):
+                    readonly = True
+
                 res[attr] = {
                     'case_sensitive': self.__property_map[attr]['case_sensitive'],
                     'unique': self.__property_map[attr]['unique'],
@@ -354,7 +361,7 @@ class ObjectProxy(object):
                     'depends_on': self.__property_map[attr]['depends_on'],
                     'blocked_by': self.__property_map[attr]['blocked_by'],
                     'default': self.__property_map[attr]['default'],
-                    'readonly': self.__property_map[attr]['readonly'],
+                    'readonly': readonly,
                     'values': self.__property_map[attr]['values'],
                     'multivalue': self.__property_map[attr]['multivalue'],
                     'type': self.__property_map[attr]['type']}

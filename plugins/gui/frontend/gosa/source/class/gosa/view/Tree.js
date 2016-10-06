@@ -110,7 +110,7 @@ qx.Class.define("gosa.view.Tree",
         case "table":
           // Create the table
           var tableModel = this._tableModel = new qx.ui.table.model.Simple();
-          tableModel.setColumns([ "-", this.tr("Name"), this.tr("Description"), this.tr("DN"), this.tr("Actions"), this.tr("UUID")]);
+          tableModel.setColumns([ "-", this.tr("Name"), this.tr("Description"), this.tr("DN"), this.tr("UUID")]);
           var customModel = {
             tableColumnModel : function(obj){
               return new qx.ui.table.columnmodel.Resize(obj);
@@ -143,9 +143,8 @@ qx.Class.define("gosa.view.Tree",
           resizeBehavior.setWidth(2, "1*");
           resizeBehavior.setWidth(3, "1*");
           tcm.setColumnVisible(3, false);
-          tcm.setColumnVisible(5, false);
+          tcm.setColumnVisible(4, false);
           tcm.setDataCellRenderer(0, new gosa.ui.table.cellrenderer.ImageByType());
-          tcm.setDataCellRenderer(4, new gosa.ui.table.cellrenderer.Actions());
 
           control = table;
           break;

@@ -31,7 +31,6 @@ qx.Class.define("gosa.data.model.TreeResultItem",
 
     this.setChildren(new qx.data.Array());
     this.setLeafs(new qx.data.Array());
-    this.setActions(new qx.data.Array());
   },
 
   events : {
@@ -116,11 +115,6 @@ qx.Class.define("gosa.data.model.TreeResultItem",
       check : "String",
       event : "changeDescription",
       init : ""
-    },
-
-    actions: {
-      check: "qx.data.Array",
-      event: "changeActions"
     }
   },
 
@@ -243,10 +237,8 @@ qx.Class.define("gosa.data.model.TreeResultItem",
           description: result['description'],
           title: result['title'],
           type: result['tag'],
-          uuid: result['uuid'],
-          actions: new qx.data.Array(result['actions'])
+          uuid: result['uuid']
         });
-      gosa.data.cache.AllowedActions.add(item.getDn(), item.getActions());
 
       // Add a dummy object if we know that this container has children.
       if(result['hasChildren']){
@@ -265,7 +257,6 @@ qx.Class.define("gosa.data.model.TreeResultItem",
           this.getTitle(),
           this.getDescription(),
           this.getDn(),
-          this.getActions(),
           this.getUuid()]);
     }
   }

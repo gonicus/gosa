@@ -870,6 +870,33 @@ class ACLRoleEntry(ACL):
         raise ACLException(C.make_error("ROLE_DIRECT_MEMBER"))
 
 
+class CacheCheck:
+
+    def __init__(self, function):
+        self.function = function
+        self.memoized = {}
+        self.kwd_mark = object()     # sentinel for separating args from kwargs
+
+    def __get__(self, instance, cls=None):
+        self._instance = instance
+        return self
+
+    def __call__(self, user, topic, acls, options=None, base=None):
+        try:
+            key = "%s.%s.%s" % (user, topic, acls)
+            if options is not None and len(options):
+                key += "."+str(tuple(sorted(options.items())))
+            if base is not None:
+                key += "."+base
+            res = self.memoized[key]
+            print("cache HIT %s" % key)
+            return res
+        except KeyError:
+            print("cache MISS %s" % key)
+            self.memoized[key] = self.function(self._instance, user, topic, acls, options, base)
+            return self.memoized[key]
+
+
 @implementer(IInterfaceHandler)
 class ACLResolver(Plugin):
     """
@@ -1202,6 +1229,7 @@ class ACLResolver(Plugin):
         """
         self.acl_roles[role.name] = role
 
+    @CacheCheck
     def check(self, user, topic, acls, options=None, base=None):
         """
         Check permission for a given user and a base.

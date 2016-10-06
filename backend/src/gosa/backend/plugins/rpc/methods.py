@@ -585,11 +585,6 @@ class RPCMethods(Plugin):
 
             entry['container'] = item['_type'] in self.containers
 
-        if actions and user:
-            aclresolver = PluginRegistry.getInstance("ACLResolver")
-            topic = "%s.objects.%s" % (self.env.domain, item['_type'])
-            entry['actions'] = aclresolver.getAllowedActions(user, topic, base=item['dn'])
-
         res[item['dn']] = entry
 
     def __build_value(self, v, info):
