@@ -37,10 +37,21 @@ qx.Class.define("gosa.view.Tree",
     gosa.io.Sse.getInstance().addListener("objectModified", this.__reloadTree, this);
   },
 
+  /*
+  *****************************************************************************
+     PROPERTIES
+  *****************************************************************************
+  */
+  properties : {
+    appearance : {
+      refine: true,
+      init: "tree-view"
+    }
+  },
+
   members : {
 
     parent : null,
-    _deleteButton : null,
     _rpc : null,
 
     _createChildControlImpl : function(id, hash) {
@@ -64,7 +75,6 @@ qx.Class.define("gosa.view.Tree",
           break;
 
         case "splitpane":
-          console.log("adding and creating splitpane");
           control = new qx.ui.splitpane.Pane("horizontal");
           this.add(control, {top: 0, bottom: 0, left:0, right: 0});
           break;
@@ -77,38 +87,58 @@ qx.Class.define("gosa.view.Tree",
           break;
 
         case "toolbar":
-          control = new qx.ui.toolbar.ToolBar;
-          var menuPart = new qx.ui.toolbar.Part;
-          var menuPart2 = new qx.ui.toolbar.Part;
-          var actionMenuButton = new qx.ui.toolbar.MenuButton("Action");
-          var createMenuButton = this._createMenuButton = new qx.ui.toolbar.MenuButton("Create");
-          var filterMenuButton = new qx.ui.toolbar.MenuButton("Show");
-          menuPart.add(actionMenuButton);
-          menuPart.add(createMenuButton);
-          menuPart.add(filterMenuButton);
-          menuPart2.add(new qx.ui.form.TextField().set({placeholder: this.tr("Search ..")}).set({enabled: false}));
+          control = new qx.ui.toolbar.ToolBar();
+          var menuPart = new qx.ui.toolbar.Part();
+          var menuPart2 = new qx.ui.toolbar.Part();
+          menuPart.add(this.getChildControl("action-menu-button"));
+          menuPart.add(this.getChildControl("create-menu-button"));
+          menuPart.add(this.getChildControl("filter-menu-button"));
+          menuPart2.add(this.getChildControl("search-field"));
+
           control.add(menuPart2);
           control.add(menuPart);
-
-          var actionMenu = new qx.ui.menu.Menu();
-          actionMenuButton.setMenu(actionMenu);
-          var deleteButton = this._deleteButton = new qx.ui.menu.Button(this.tr("Delete"), "@FontAwesome/trash");
-          deleteButton.setAppearance("icon-menu-button");
-          actionMenu.add(deleteButton);
-          deleteButton.setEnabled(false);
-
-          deleteButton.addListener("execute", this._onDeleteObject, this);
-
-          createMenuButton.setMenu(this.getChildControl("createMenu"));
-          filterMenuButton.setMenu(this.getChildControl("filterMenu"));
+          break;
+        
+        case "create-menu-button":
+          control = new qx.ui.toolbar.MenuButton(this.tr("Create"));
+          control.setMenu(this.getChildControl("create-menu"));
+          break;
+        
+        case "filter-menu-button":
+          control = new qx.ui.toolbar.MenuButton(this.tr("Show"));
+          control.setMenu(this.getChildControl("filter-menu"));
+          break;
+        
+        case "action-menu-button":
+          control = new qx.ui.toolbar.MenuButton(this.tr("Action"));
+          control.setMenu(this.getChildControl("action-menu"));
           break;
 
-        case "createMenu":
+        case "search-field":
+          control = new qx.ui.form.TextField().set({
+            placeholder: this.tr("Search .."),
+            liveUpdate : true
+          });
+          control.addListener("changeValue", this._applyFilter, this);
+          break;
+
+        case "create-menu":
           control = new qx.ui.menu.Menu();
           break;
 
-        case "filterMenu":
+        case "filter-menu":
           control = new qx.ui.menu.Menu();
+          break;
+        
+        case "delete-button":
+          control = new qx.ui.menu.Button(this.tr("Delete"), "@FontAwesome/trash");
+          control.setEnabled(false);
+          control.addListener("execute", this._onDeleteObject, this);
+          break;
+        
+        case "action-menu":
+          control = new qx.ui.menu.Menu();          
+          control.add(this.getChildControl("delete-button"));
           break;
 
         case "table":
@@ -133,10 +163,10 @@ qx.Class.define("gosa.view.Tree",
             if (table.getSelectionModel().getSelectedCount() > 0) {
               table.getSelectionModel().iterateSelection(function(index) {
                 var selection = tableModel.getRowData(index);
-                this._deleteButton.setEnabled(qx.lang.Array.contains(selection[4], "d"));
+                this.getChildControl("delete-button").setEnabled(qx.lang.Array.contains(selection[4], "d"));
               }, this);
             } else {
-              this._deleteButton.setEnabled(false);
+              this.getChildControl("delete-button").setEnabled(false);
             }
           }, this);
 
@@ -208,8 +238,8 @@ qx.Class.define("gosa.view.Tree",
             new gosa.ui.dialogs.Error(error.message).open();
           }
           else {
-            this.getChildControl("createMenu").removeAll();
-            this.getChildControl("filterMenu").removeAll();
+            this.getChildControl("create-menu").removeAll();
+            this.getChildControl("filter-menu").removeAll();
             var visibleTypes = {};
             this._tableModel.getData().forEach(function(item) {
               visibleTypes[item[0]] = true;
@@ -221,7 +251,7 @@ qx.Class.define("gosa.view.Tree",
                 var button = new qx.ui.menu.Button(name, icon);
                 button.setAppearance("icon-menu-button");
                 button.setUserData("type", name);
-                this.getChildControl("createMenu").add(button);
+                this.getChildControl("create-menu").add(button);
                 button.addListener("execute", this._onCreateObject, this);
               }
               if (visibleTypes[name] && allowed.includes("r")) {
@@ -229,7 +259,7 @@ qx.Class.define("gosa.view.Tree",
                 var button = new qx.ui.menu.CheckBox(name);
                 //button.setAppearance("icon-menu-button");
                 button.setUserData("type", name);
-                this.getChildControl("filterMenu").add(button);
+                this.getChildControl("filter-menu").add(button);
                 button.addListener("execute", this._applyFilter, this);
               }
             }, this);
@@ -240,7 +270,8 @@ qx.Class.define("gosa.view.Tree",
 
     __refreshTable : function() {
       var sel = this.getChildControl("tree").getSelection();
-      this._createMenuButton.setEnabled(sel.length > 0);
+      this.getChildControl("create-menu-button").setEnabled(sel.length > 0);
+      this.getChildControl("filter-menu-button").setEnabled(sel.length > 0);
 
       var done = [];
       var tableModel = this.getChildControl("table").getTableModel();
@@ -294,7 +325,7 @@ qx.Class.define("gosa.view.Tree",
     _applyFilter : function() {
       var types = [];
       var all = 0;
-      this.getChildControl("filterMenu").getChildren().forEach(function(button) {
+      this.getChildControl("filter-menu").getChildren().forEach(function(button) {
         if (button.getValue()) {
           types.push(button.getUserData("type"));
         }
@@ -304,13 +335,16 @@ qx.Class.define("gosa.view.Tree",
       if (types.length > 0 && types.length < all) {
         this._tableModel.addNotRegex("(" + types.join("|") + ")", "type", true);
       }
+      var searchValue = this.getChildControl("searchField").getValue();
+      if (searchValue.length > 2) {
+        this._tableModel.addNotRegex(".*"+searchValue+".*", "title", true);
+      }
       this._tableModel.applyFilters();
     }
   },
 
   destruct : function() {
     this._rpc = null;
-    this._disposeObjects("_deleteButton", "_createMenuButton");
 
     gosa.io.Sse.getInstance().removeListener("objectRemoved", this.__reloadTree, this);
     gosa.io.Sse.getInstance().removeListener("objectCreated", this.__reloadTree, this);

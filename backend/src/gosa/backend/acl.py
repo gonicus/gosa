@@ -1152,18 +1152,16 @@ class ACLResolver(Plugin):
                         acl = ACL(role=str(acls_data['rolename']))
                         acl.set_members(acls_data["members"])
                         acl.set_priority(int(acls_data["priority"]))
-                        acls.add(acl)
                     else:
                         acl = ACL(acl_scope_map[acls_data["scope"]])
                         acl.set_members(acls_data["members"])
                         acl.set_priority(int(acls_data["priority"]))
                         for action in acls_data["actions"]:
                             acl.add_action(action['topic'], action['acl'], action['options'])
+                    acls.add(acl)
                 except Exception as e:
                     self.log.warning("failed to load acl information for '%s': %s" % (entry_dn, str(e)))
                     continue
-
-                acls.add(acl)
 
             self.add_acl_set(acls)
 
