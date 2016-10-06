@@ -17,9 +17,11 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
 
     process : function(node, target) {
       if (this._getValue(node, "class")) {
-        var widget = this._createAndAddWidget(node, target);
-        this._firstLevelExtensionsProcessed = false;
-        this._createAndAddChildren(node, widget);
+        if (this._shallGenerateWidget(node)) {
+          var widget = this._createAndAddWidget(node, target);
+          this._firstLevelExtensionsProcessed = false;
+          this._createAndAddChildren(node, widget);
+        }
       }
       else if (this._getValue(node, "form")) {
         this._includeForm(node, target);
@@ -31,6 +33,17 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
         this._firstLevelExtensionsProcessed = true;
         this._handleExtensions(node, target);
       }
+    },
+
+    /**
+     * Checks if the widget should be generated.
+     *
+     * @param node {Object}
+     * @return Boolean
+     */
+    _shallGenerateWidget : function(node) {
+      var modelPath = this._getValue(node, "modelPath") || this._getValue(node, "buddyModelPath");
+      return !modelPath || qx.lang.Array.contains(this._context.getAttributes(), modelPath);
     },
 
     _createAndAddWidget : function(node, target) {

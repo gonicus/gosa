@@ -17,8 +17,10 @@ qx.Class.define("gosa.engine.processors.Base", {
      *
      * @param node {Object} The top node of the template
      * @param target {qx.ui.core.Widget} Widget where the template widget shall be added
+     * @param attributes {Array} List of attributes/model paths (as string) for which widgets shall be created. If an
+     *   attribute is not in this array, no widget is created.
      */
-    process : function(node, target) {
+    process : function(node, target, attributes) {
       throw new Error("Processing is not implemented");
     },
 

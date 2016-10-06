@@ -34,9 +34,10 @@ qx.Class.define("gosa.util.Template", {
      *
      * @param objectName {String} The objectName (e.g. "PosixUser")
      * @param baseType {String} The base type of the original object
+     * @param attributes {Array ? undefined} Names of all attributes that are in the object
      * @return {Array} An (maybe empty) array of hash maps
      */
-    getTemplateObjects : function(objectName, baseType) {
+    getTemplateObjects : function(objectName, baseType, attributes) {
       qx.core.Assert.assertString(objectName);
       qx.core.Assert.assertString(baseType);
 
@@ -46,6 +47,7 @@ qx.Class.define("gosa.util.Template", {
       self.getTemplates(objectName).forEach(function(template) {
         result.push({
           extension : objectName,
+          attributes : attributes,
           isBaseType : objectName === baseType,
           template : self.compileTemplate(template)
         });

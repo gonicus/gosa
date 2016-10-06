@@ -10,11 +10,13 @@ qx.Class.define("gosa.engine.Context", {
    * @param template {Object} A widget template as a object (i.e. already parsed from json)
    * @param rootWidget {qx.ui.core.Widget} The container widget where the template widgets will be added to
    * @param extension {String} Name of the extension this context creates widgets for (e.g. "PosixUser")
+   * @param attributes {Array} Names of all attributes that are in the object
    */
-  construct : function(template, rootWidget, extension) {
+  construct : function(template, rootWidget, extension, attributes) {
     this.base(arguments);
     qx.core.Assert.assertObject(template);
     qx.core.Assert.assertQxWidget(rootWidget);
+    qx.core.Assert.assertArray(attributes);
 
     if (extension !== undefined && extension !== null) {
       qx.core.Assert.assertString(extension);
@@ -23,6 +25,7 @@ qx.Class.define("gosa.engine.Context", {
     this._template = template;
     this._rootWidget = rootWidget;
     this._extension = extension;
+    this._attributes = attributes;
     this._actionMenuEntries = {};
     this._widgetRegistry = new gosa.engine.WidgetRegistry();
     this._buddyRegistry = new gosa.engine.WidgetRegistry();
@@ -46,6 +49,7 @@ qx.Class.define("gosa.engine.Context", {
     _template : null,
     _rootWidget : null,
     _extension : null,
+    _attributes : null,
     _widgetRegistry : null,
     _buddyRegistry : null,
     _resourceManager : null,
@@ -61,6 +65,13 @@ qx.Class.define("gosa.engine.Context", {
 
     getExtension : function() {
       return this._extension;
+    },
+
+    /**
+     * @return {Array} Names of all attributes that are in the object
+     */
+    getAttributes : function() {
+      return this._attributes;
     },
 
     /**

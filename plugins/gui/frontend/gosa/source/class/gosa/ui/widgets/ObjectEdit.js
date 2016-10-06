@@ -113,7 +113,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         }, this);
       }
 
-      var context = new gosa.engine.Context(template, tabPage, templateObj.extension);
+      var context = new gosa.engine.Context(template, tabPage, templateObj.extension, templateObj.attributes);
       this._contexts.push(context);
       this._tabView.add(context.getRootWidget());
 
