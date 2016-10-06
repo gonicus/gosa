@@ -10,13 +10,15 @@ qx.Class.define("gosa.engine.Context", {
    * @param template {Object} A widget template as a object (i.e. already parsed from json)
    * @param rootWidget {qx.ui.core.Widget} The container widget where the template widgets will be added to
    * @param extension {String} Name of the extension this context creates widgets for (e.g. "PosixUser")
-   * @param attributes {Array} Names of all attributes that are in the object
+   * @param attributes {Array ? undefined} Names of all attributes that are in the object
    */
   construct : function(template, rootWidget, extension, attributes) {
     this.base(arguments);
     qx.core.Assert.assertObject(template);
     qx.core.Assert.assertQxWidget(rootWidget);
-    qx.core.Assert.assertArray(attributes);
+    if (attributes) {
+      qx.core.Assert.assertArray(attributes);
+    }
 
     if (extension !== undefined && extension !== null) {
       qx.core.Assert.assertString(extension);
@@ -25,7 +27,7 @@ qx.Class.define("gosa.engine.Context", {
     this._template = template;
     this._rootWidget = rootWidget;
     this._extension = extension;
-    this._attributes = attributes;
+    this._attributes = attributes === undefined ? [] : attributes;
     this._actionMenuEntries = {};
     this._widgetRegistry = new gosa.engine.WidgetRegistry();
     this._buddyRegistry = new gosa.engine.WidgetRegistry();
