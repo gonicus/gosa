@@ -876,6 +876,7 @@ class CacheCheck:
         self.function = function
         self.memoized = {}
         self.kwd_mark = object()     # sentinel for separating args from kwargs
+        self.log = logging.getLogger(__name__)
 
     def __get__(self, instance, cls=None):
         self._instance = instance
@@ -889,10 +890,10 @@ class CacheCheck:
             if base is not None:
                 key += "."+base
             res = self.memoized[key]
-            print("cache HIT %s" % key)
+            self.log.debug("cache HIT %s" % key)
             return res
         except KeyError:
-            print("cache MISS %s" % key)
+            self.log.debug("cache MISS %s" % key)
             self.memoized[key] = self.function(self._instance, user, topic, acls, options, base)
             return self.memoized[key]
 
