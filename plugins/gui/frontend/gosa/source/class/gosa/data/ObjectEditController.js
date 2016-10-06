@@ -466,9 +466,9 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
       if (!event.getData().getUserData("initial")) {
         this.setModified(true);
+        var attr = event.getTarget().getAttribute();
+        this._obj.setAttribute(attr, event.getData());
       }
-      var attr = event.getTarget().getAttribute();
-      this._obj.setAttribute(attr, event.getData());
     },
 
     /**
