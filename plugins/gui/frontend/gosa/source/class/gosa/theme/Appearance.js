@@ -349,7 +349,22 @@ qx.Theme.define("gosa.theme.Appearance",
           scale: true
         }
       }
-    }
+    },
+    "tree-view": "tabview-page",
+    "tree-view/search-field": {
+      include: "textfield",
+      alias: "textfield",
 
+      style: function() {
+        return {
+          marginTop: 8,
+          width: 200
+        }
+      }
+    },
+    "tree-view/delete-button": "icon-menu-button",
+    "tree-view/action-menu-button": "toolbar-menubutton",
+    "tree-view/filter-menu-button": "toolbar-menubutton",
+    "tree-view/create-menu-button": "toolbar-menubutton"
   }
 });
