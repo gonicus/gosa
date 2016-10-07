@@ -9,37 +9,32 @@ qx.Class.define("gosa.test.data.TemplateRegistryTest",
 
       this.assertFunction(registry.addTemplate);
 
-      this.assertNull(registry.getTemplates("foobar"));
+      this.assertArrayEquals([], registry.getTemplates("foobar"));
 
-      registry.addTemplate("myExtension", "template1", "{}");
+      registry.addTemplate("myExtension", "{}");
       var templates = registry.getTemplates("myExtension");
-      this.assertMap(templates);
-      this.assertKeyInMap("template1", templates);
-      this.assertObject(templates.template1);
+      this.assertArray(templates);
+      this.assertTrue(templates.length === 1);
+      this.assertObject(templates[0]);
 
-      registry.addTemplate("myExtension", "template2", "{}");
+      registry.addTemplate("myExtension", "{}");
       templates = registry.getTemplates("myExtension");
-      this.assertMap(templates);
-      this.assertKeyInMap("template1", templates);
-      this.assertObject(templates.template1);
-      this.assertKeyInMap("template2", templates);
-      this.assertObject(templates.template2);
+      this.assertArray(templates);
+      this.assertTrue(templates.length === 2);
+      this.assertObject(templates[0]);
+      this.assertObject(templates[1]);
     },
 
     testAddMultipleTemplatesAtOnce : function() {
       var registry = gosa.data.TemplateRegistry.getInstance();
 
       registry.assertFunction(registry.addTemplates);
-      registry.addTemplates("myMultipleExtension", {
-        "template1" : "{}",
-        "template2" : "{}"
-      });
+      registry.addTemplates("myMultipleExtension", ["{}", "{}"]);
       templates = registry.getTemplates("myMultipleExtension");
-      this.assertMap(templates);
-      this.assertKeyInMap("template1", templates);
-      this.assertObject(templates.template1);
-      this.assertKeyInMap("template2", templates);
-      this.assertObject(templates.template2);
+      this.assertArray(templates);
+      this.assertTrue(templates.length === 2);
+      this.assertObject(templates[0]);
+      this.assertObject(templates[1]);
     }
   }
 });
