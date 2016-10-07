@@ -206,7 +206,6 @@ qx.Class.define("gosa.Application",
 
           // retrieve possible commands/methods
           rpc.cA(function(result, error) {
-            console.log("result: %O, error: %O", result, error);
             if (error) {
               (new gosa.ui.dialogs.Error(this.tr("Unable to receive commands."))).open();
             }
@@ -300,6 +299,7 @@ qx.Class.define("gosa.Application",
                           templateMap[gosa.util.Template.getDialogName(template)] = template;
                         });
 
+                        console.log("%s %O", name, templateMap);
                         gosa.Cache.gui_dialogs[name] = templateMap;
                         return(true);
                       }

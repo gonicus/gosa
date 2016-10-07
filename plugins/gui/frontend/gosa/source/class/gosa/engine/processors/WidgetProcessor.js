@@ -39,7 +39,7 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
      * Checks if the widget should be generated.
      *
      * @param node {Object}
-     * @return Boolean
+     * @return {Boolean}
      */
     _shallGenerateWidget : function(node) {
       var modelPath = this._getValue(node, "modelPath") || this._getValue(node, "buddyModelPath");
