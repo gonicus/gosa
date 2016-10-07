@@ -56,6 +56,19 @@ qx.Class.define("gosa.data.TemplateRegistry", {
         return this._registry[extension];
       }
       return [];
+    },
+
+    /**
+     * Checks if the given extension has at least one registered template.
+     *
+     * @param extension {String} Name of the extension
+     * @return {Boolean}
+     */
+    hasTemplate : function(extension) {
+      qx.core.Assert.assertString(extension);
+
+      var value = this._registry[extension];
+      return qx.lang.Type.isArray(value) && value.length > 0;
     }
   },
 

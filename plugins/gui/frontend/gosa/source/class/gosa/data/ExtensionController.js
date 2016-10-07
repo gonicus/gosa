@@ -108,7 +108,7 @@ qx.Class.define("gosa.data.ExtensionController", {
         if (this._obj.extensionDeps.hasOwnProperty(ext)) {
           item = this._obj.extensionDeps[ext];
           if (qx.lang.Array.contains(item, extension) && item && qx.lang.Array.contains(activeExts, ext) &&
-            gosa.Cache.gui_templates[ext] && gosa.Cache.gui_templates[ext].length > 0) {
+            gosa.data.TemplateRegistry.getInstance().hasTemplate(ext)) {
             dependencies.push(ext);
           }
         }

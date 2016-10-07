@@ -35,6 +35,16 @@ qx.Class.define("gosa.test.data.TemplateRegistryTest",
       this.assertTrue(templates.length === 2);
       this.assertObject(templates[0]);
       this.assertObject(templates[1]);
+    },
+
+    testHasTemplate : function() {
+      var registry = gosa.data.TemplateRegistry.getInstance();
+
+      registry.assertFunction(registry.hasTemplate);
+      this.assertFalse(registry.hasTemplate("unkownExtension"));
+
+      registry.addTemplate("myExistingExtension", "{}");
+      this.assertTrue(registry.hasTemplate("myExistingExtension"));
     }
   }
 });

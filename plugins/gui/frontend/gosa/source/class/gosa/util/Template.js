@@ -16,20 +16,6 @@ qx.Class.define("gosa.util.Template", {
     },
 
     /**
-     * Finds the gui templates for the given object name.
-     *
-     * @param objectName {String} The objectName (e.g. "PosixUser")
-     * @param templates {Array | null} Array of all templates connected to the object name of null if nothing found
-     */
-    getTemplates : function(objectName) {
-      if (!gosa.Cache.gui_templates.hasOwnProperty(objectName)) {
-        qx.log.Logger.error("No template found for '" + objectName + "'.");
-        return null;
-      }
-      return gosa.Cache.gui_templates[objectName];
-    },
-
-    /**
      * Gives an array of maps with a template and other information.
      *
      * @param objectName {String} The objectName (e.g. "PosixUser")
@@ -41,18 +27,14 @@ qx.Class.define("gosa.util.Template", {
       qx.core.Assert.assertString(objectName);
       qx.core.Assert.assertString(baseType);
 
-      var self = gosa.util.Template;
-      var result = [];
-
-      self.getTemplates(objectName).forEach(function(template) {
-        result.push({
+      return gosa.data.TemplateRegistry.getInstance().getTemplates(objectName).map(function(template) {
+        return {
           extension : objectName,
           attributes : attributes,
           isBaseType : objectName === baseType,
-          template : self.compileTemplate(template)
-        });
+          template : template
+        };
       });
-      return result;
     },
 
     /**

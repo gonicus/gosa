@@ -299,7 +299,6 @@ qx.Class.define("gosa.Application",
                           templateMap[gosa.util.Template.getDialogName(template)] = template;
                         });
 
-                        console.log("%s %O", name, templateMap);
                         gosa.Cache.gui_dialogs[name] = templateMap;
                         return(true);
                       }
@@ -333,7 +332,7 @@ qx.Class.define("gosa.Application",
                         return(false);
                       }else{
                         this.__checkForActionsInUIDefs(templates, name);
-                        gosa.Cache.gui_templates[name] = templates;
+                        gosa.data.TemplateRegistry.getInstance().addTemplates(name, templates);
 
                         // populate cache
                         templates.forEach(function(template) {
