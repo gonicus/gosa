@@ -5,35 +5,19 @@ qx.Class.define("gosa.test.engine.WidgetRegistryTest",
   members :
   {
     testAddAndGetWidget : function() {
-      var registry = gosa.engine.WidgetRegistry.getInstance();
+      var registry = new gosa.engine.WidgetRegistry();
 
       // no entry
-      this.assertArrayEquals([], registry.getWidgetsByName("foo"));
+      this.assertUndefined(registry.getMap().foo);
 
       // one entry
       var widget = new qx.ui.basic.Label();
       registry.addWidget("foo", widget);
-      this.assertArrayEquals([widget], registry.getWidgetsByName("foo"));
-
-      // two entries
-      var widget2 = new qx.ui.basic.Label();
-      registry.addWidget("foo", widget2);
-      this.assertArrayEquals([widget, widget2], registry.getWidgetsByName("foo"));
-
-      var widget3 = new qx.ui.basic.Label();
-      registry.removeWidget(widget3);
-      registry.removeWidgetsByName("bar");
-      this.assertArrayEquals([widget, widget2], registry.getWidgetsByName("foo"));
-
-      // removing one widget
-      registry.removeWidget(widget);
-      this.assertArrayEquals([widget2], registry.getWidgetsByName("foo"));
+      this.assertEquals([widget, registry.getMap().foo);
 
       // removing all widgets
-      registry.addWidget("foo", widget);
-      registry.addWidget("foo", widget3);
-      registry.removeWidgetsByName("foo");
-      this.assertArrayEquals([], registry.getWidgetsByName("foo"));
+      registry.removeAndDisposeAllWidgets();
+      this.assertObjectEquals({}, registry.getMap());
     }
   }
 });

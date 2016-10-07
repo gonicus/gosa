@@ -7,8 +7,6 @@ qx.Class.define("gosa.test.engine.ProcessorFactoryTest",
     testProcessorFactory : function() {
       var factory = gosa.engine.ProcessorFactory;
 
-      this.assertNull(factory.getProcessor());
-
       var json = JSON.parse('{"type" : "widget"}');
       this.assertInstance(factory.getProcessor(json), gosa.engine.processors.WidgetProcessor);
 

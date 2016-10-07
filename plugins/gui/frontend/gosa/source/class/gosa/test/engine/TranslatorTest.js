@@ -4,19 +4,8 @@ qx.Class.define("gosa.test.engine.TranslatorTest",
 
   members :
   {
-    __instance : null,
-
-    setUp : function() {
-      this.__instance = new gosa.engine.Translator();
-    },
-
-    tearDown : function() {
-      this.__instance.dispose();
-      this.__instance = null;
-    },
-
     testTranslateJson : function() {
-      var trans = this.__instance;
+      var trans = gosa.engine.Translator.getInstance();
 
       // no translation
       this.assertEquals("", trans.translateJson(""));

@@ -35,28 +35,29 @@ qx.Class.define("gosa.test.engine.processors.WidgetProcessorTest",
         widget.dispose();
       });
 
-      var formProcessor = new gosa.engine.processors.FormProcessor();
-      var formJson = {
-        type : "form",
-        symbol : "testWidgetForm",
-        renderer : "qx.ui.form.renderer.Single"
-      };
-      formProcessor.process(formJson);
-      formProcessor.dispose();
-      formProcessor = null;
+      // form processor is currently not used
+      // var formProcessor = new gosa.engine.processors.FormProcessor();
+      // var formJson = {
+      //   type : "form",
+      //   symbol : "testWidgetForm",
+      //   renderer : "qx.ui.form.renderer.Single"
+      // };
+      // formProcessor.process(formJson);
+      // formProcessor.dispose();
+      // formProcessor = null;
 
-      json = {
-        "form": "@testWidgetFormWidget"
-      };
-      this.__processor.process(json, container);
+      // json = {
+      //   "form": "@testWidgetFormWidget"
+      // };
+      // this.__processor.process(json, container);
 
-      this.assertEquals(1, container.getChildren().length);
-      this.assertInstance(container.getChildren()[0], qx.ui.groupbox.GroupBox);
+      // this.assertEquals(1, container.getChildren().length);
+      // this.assertInstance(container.getChildren()[0], qx.ui.groupbox.GroupBox);
 
-      var child = container.getChildren()[0];
-      this.assertEquals(2, child.getChildren().length);
-      this.assertInstance(child.getChildren()[0], qx.ui.form.renderer.Single);
-      this.assertInstance(child.getChildren()[1], qx.ui.container.Composite);
+      // var child = container.getChildren()[0];
+      // this.assertEquals(2, child.getChildren().length);
+      // this.assertInstance(child.getChildren()[0], qx.ui.form.renderer.Single);
+      // this.assertInstance(child.getChildren()[1], qx.ui.container.Composite);
 
       // nested
       container.removeAll().forEach(function(widget) {
