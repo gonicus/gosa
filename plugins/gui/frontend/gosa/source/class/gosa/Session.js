@@ -75,6 +75,11 @@ qx.Class.define("gosa.Session",
       check: "String",
       nullable: true,
       event: "_changedDn"
+    },
+    "commands" : {
+      init : null,
+      check : "Array",
+      nullable : true
     }
   },
 

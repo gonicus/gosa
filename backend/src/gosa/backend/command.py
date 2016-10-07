@@ -16,7 +16,7 @@ are available for users. It works together with the
 :class:`clacks.common.components.registry.PluginRegistry` and inspects
 all loaded plugins for methods marked with the
 :meth:`clacks.common.components.command.Command` decorator. All available
-information like *method path*, *command name*, 
+information like *method path*, *command name*,
 *documentation* and *signature* are recorded and are available for users
 via the :meth:`clacks.agent.command.CommandRegistry.dispatch` method
 (or better with the several proxies) and the CLI.
@@ -92,6 +92,22 @@ class CommandRegistry(Plugin):
         ``Return``: a string representing the LDAP base
         """
         return self.env.base
+
+    @Command(needsUser=True, __help__=N_("List all methods that are allowed for the given user."))
+    def getAllowedMethods(self, user):
+        """
+        Lists the all methods that are available in the domain and are allowed for the user.
+
+        ``Return``: list with methods names
+        """
+        res = []
+        acl = PluginRegistry.getInstance("ACLResolver")
+
+        for name, info in self.commands.items():
+            if acl.check(user, "%s.%s.%s" % (self.env.domain, "command", name), "x"):
+                res.append(name)
+
+        return res
 
     @Command(__help__=N_("List available methods " +
         "that are registered on the bus."))

@@ -7,15 +7,15 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import unittest
 import pytest
+from unittest import mock, TestCase
 from gosa.backend.command import *
 from gosa.common.event import EventMaker
 from gosa.common.events import ZopeEventConsumer
 from tests.GosaTestCase import slow
 
 @slow
-class CommandRegistryTestCase(unittest.TestCase):
+class CommandRegistryTestCase(TestCase):
 
     def setUp(self):
         super(CommandRegistryTestCase, self).setUp()
@@ -37,8 +37,20 @@ class CommandRegistryTestCase(unittest.TestCase):
         # assert 'setUserPassword' in res
         # assert res['setUserPassword']['doc'] == 'Setzt ein neues Benutzerpasswort'
 
+    def test_getAllowedMethods(self):
+        mocked_resolver = mock.MagicMock()
+        mocked_resolver.check.return_value = True
+        with mock.patch.dict("gosa.backend.command.PluginRegistry.modules", {'ACLResolver': mocked_resolver}):
+            res = self.reg.getAllowedMethods("testUser")
+            assert len(res) > 0
+            assert 'setUserPassword' in res
+
+            mocked_resolver.check.return_value = False
+            res = self.reg.getAllowedMethods("testUser")
+            assert len(res) == 0
+
     def test_shutdown(self):
-        with unittest.mock.patch.object(PluginRegistry.getInstance('HTTPService'),'stop') as m:
+        with mock.patch.object(PluginRegistry.getInstance('HTTPService'),'stop') as m:
             assert self.reg.shutdown() is True
             assert m.called is True
 
@@ -76,10 +88,10 @@ class CommandRegistryTestCase(unittest.TestCase):
         )
         data_str = '<Event xmlns="http://www.gonicus.de/Events"><ObjectChanged><ModificationTime>20150101000000Z</ModificationTime><ChangeType>modify</ChangeType></ObjectChanged></Event>'
 
-        mocked_resolver = unittest.mock.MagicMock()
+        mocked_resolver = mock.MagicMock()
         mocked_resolver.check.return_value = False
-        with unittest.mock.patch.dict("gosa.backend.command.PluginRegistry.modules", {'ACLResolver': mocked_resolver}),\
-                unittest.mock.patch("gosa.backend.command.SseHandler.send_message") as mocked_sse:
+        with mock.patch.dict("gosa.backend.command.PluginRegistry.modules", {'ACLResolver': mocked_resolver}),\
+                mock.patch("gosa.backend.command.SseHandler.send_message") as mocked_sse:
 
             with pytest.raises(EventNotAuthorized):
                 self.reg.sendEvent('admin', data)
@@ -91,7 +103,7 @@ class CommandRegistryTestCase(unittest.TestCase):
                 self.reg.sendEvent('admin', e.Event(e.ObjectChanged()))
 
             # add listener
-            handle_event = unittest.mock.MagicMock()
+            handle_event = mock.MagicMock()
 
             ZopeEventConsumer(event_type='ObjectChanged', callback=handle_event.process)
             self.reg.sendEvent('admin', backendChangeData)

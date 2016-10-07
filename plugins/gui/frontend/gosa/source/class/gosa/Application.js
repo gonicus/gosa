@@ -204,6 +204,17 @@ qx.Class.define("gosa.Application",
         } else {
           gosa.Session.getInstance().setUser(userid);
 
+          // retrieve possible commands/methods
+          rpc.cA(function(result, error) {
+            console.log("result: %O, error: %O", result, error);
+            if (error) {
+              (new gosa.ui.dialogs.Error(this.tr("Unable to receive commands."))).open();
+            }
+            else {
+              gosa.Session.getInstance().setCommands(result);
+            }
+          }, this, "getAllowedMethods");
+
           // This list contains all loading jobs that need to be
           // processed until the gui gets visible again.
           var queue = [];
