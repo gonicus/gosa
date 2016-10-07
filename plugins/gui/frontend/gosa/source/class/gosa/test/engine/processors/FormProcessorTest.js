@@ -4,7 +4,7 @@ qx.Class.define("gosa.test.engine.processors.FormProcessorTest",
 
   members :
   {
-    __processor : null,
+    __processor : null
 
     // NOTE: As the form processor is currently not used, this test is ignored.
 

@@ -13,11 +13,11 @@ qx.Class.define("gosa.test.engine.WidgetRegistryTest",
       // one entry
       var widget = new qx.ui.basic.Label();
       registry.addWidget("foo", widget);
-      this.assertEquals([widget, registry.getMap().foo);
+      this.assertEquals(widget, registry.getMap().foo);
 
       // removing all widgets
       registry.removeAndDisposeAllWidgets();
-      this.assertObjectEquals({}, registry.getMap());
+      this.assertUndefined(registry.getMap().foo);
     }
   }
 });
