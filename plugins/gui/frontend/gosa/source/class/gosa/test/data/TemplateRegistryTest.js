@@ -45,6 +45,39 @@ qx.Class.define("gosa.test.data.TemplateRegistryTest",
 
       registry.addTemplate("myExistingExtension", "{}");
       this.assertTrue(registry.hasTemplate("myExistingExtension"));
+    },
+
+    testAddDialogTemplate : function() {
+      var registry = gosa.data.TemplateRegistry.getInstance();
+
+      registry.assertFunction(registry.addDialogTemplate);
+      registry.assertFunction(registry.getDialogTemplate);
+
+      registry.assertNull(registry.getDialogTemplate("unkownExtension", "unkownTemplate"));
+
+      registry.addDialogTemplate("myExtension", "dialog1", "{}");
+      this.assertObject(registry.getDialogTemplate("myExtension", "dialog1"));
+
+      registry.addDialogTemplate("myExtension", "dialog2", "{}");
+      this.assertObject(registry.getDialogTemplate("myExtension", "dialog1"));
+      this.assertObject(registry.getDialogTemplate("myExtension", "dialog2"));
+
+      this.assertNull(registry.getDialogTemplateByName("unkownTemplate"));
+      this.assertObject(registry.getDialogTemplateByName("dialog2"));
+    },
+
+    testAddMultipleDialogTemplates : function() {
+      var registry = gosa.data.TemplateRegistry.getInstance();
+      registry.assertFunction(registry.addDialogTemplates);
+
+      registry.assertNull(registry.getDialogTemplate("unkownExtension", "unkownTemplate"));
+
+      registry.addDialogTemplates("myMultipleExtension", {
+        "dialogMulti1" : "{}",
+        "dialogMulti2" : "{}"
+      });
+      this.assertObject(registry.getDialogTemplate("myMultipleExtension", "dialogMulti1"));
+      this.assertObject(registry.getDialogTemplate("myMultipleExtension", "dialogMulti2"));
     }
   }
 });

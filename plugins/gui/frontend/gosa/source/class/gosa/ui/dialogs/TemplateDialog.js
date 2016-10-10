@@ -25,8 +25,8 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
    * @param template {String} The unparsed dialog template
    */
   construct : function(template) {
-    qx.core.Assert.assertString(template);
-    this._parsedTemplate = gosa.util.Template.compileTemplate(template);
+    qx.core.Assert.assertObject(template);
+    this._parsedTemplate = template;
 
     this.base(arguments, this._getWindowTitle());
     this.setAutoDispose(true);

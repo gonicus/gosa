@@ -58,40 +58,39 @@ qx.Class.define("gosa.util.Template", {
      * Some templates have information hidden inside them, e.g. the category title or extension names.
      * This function extracts the information and writes them to the gosa.Cache object.
      *
-     * @param name {String} Name of the extension/template
-     * @param template {String} The unparsed template as a json string
+     * @param name {String} Name of the extension
      */
-    fillTemplateCache : function(name, template) {
+    fillTemplateCache : function(name) {
       qx.core.Assert.assertString(name);
-      qx.core.Assert.assertString(template);
-      var json = gosa.util.Template.compileTemplate(template);
-      qx.core.Assert.assertObject(json, "Template could not be properly parsed.");
 
-      // category title
-      gosa.Cache.object_categories[name] = name;
-      if (json.hasOwnProperty("type") && json.type === "widget" &&
-          json.hasOwnProperty("properties") && (typeof json.properties === "object") &&
-          json.properties.hasOwnProperty("categoryTitle") && (typeof json.properties.categoryTitle === "string")) {
-        gosa.Cache.object_categories[name] = json.properties.categoryTitle;
-      }
+      gosa.data.TemplateRegistry.getInstance().getTemplates(name).forEach(function(tmpl) {
 
-      // extension config (translated name, icon)
-      if (!gosa.Cache.extensionConfig.hasOwnProperty(name) && json.extensions && json.extensions.tabConfig) {
-        var result = {};
-        var tabConfig = json.extensions.tabConfig;
-
-        // extension title
-        if (tabConfig.title) {
-          result.title = tabConfig.title;
+        // category title
+        gosa.Cache.objectCategories[name] = name;
+        if (tmpl.hasOwnProperty("type") && tmpl.type === "widget" &&
+            tmpl.hasOwnProperty("properties") && (typeof tmpl.properties === "object") &&
+            tmpl.properties.hasOwnProperty("categoryTitle") && (typeof tmpl.properties.categoryTitle === "string")) {
+          gosa.Cache.objectCategories[name] = tmpl.properties.categoryTitle;
         }
 
-        // extension icon
-        if (tabConfig.icon && json.extensions.resources) {
-          var iconSource = json.extensions.resources[tabConfig.icon];
-          result.icon = gosa.engine.ResourceManager.convertResource(iconSource);
+        // extension config (translated name, icon)
+        if (!gosa.Cache.extensionConfig.hasOwnProperty(name) && tmpl.extensions && tmpl.extensions.tabConfig) {
+          var result = {};
+          var tabConfig = tmpl.extensions.tabConfig;
+
+          // extension title
+          if (tabConfig.title) {
+            result.title = tabConfig.title;
+          }
+
+          // extension icon
+          if (tabConfig.icon && tmpl.extensions.resources) {
+            var iconSource = tmpl.extensions.resources[tabConfig.icon];
+            result.icon = gosa.engine.ResourceManager.convertResource(iconSource);
+          }
+          gosa.Cache.extensionConfig[name] = result;
         }
-        gosa.Cache.extensionConfig[name] = result;
-      }
+      });
     }
   }
 });

@@ -60,23 +60,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       }
 
       // find dialog template
-      var template;
-      var dialogs = gosa.Cache.gui_dialogs;
-      for (var extensionName in dialogs) {
-        if (dialogs.hasOwnProperty(extensionName)) {
-          for (var dialogName in dialogs[extensionName]) {
-            if (dialogs[extensionName].hasOwnProperty(dialogName)) {
-              if (dialogName === name) {
-                template = dialogs[extensionName][dialogName];
-                break;
-              }
-            }
-          }
-          if (template) {
-            break;
-          }
-        }
-      }
+      var template = gosa.data.TemplateRegistry.getInstance().getDialogTemplateByName(name);
       if (template) {
         return new gosa.ui.dialogs.TemplateDialog(template);
       }

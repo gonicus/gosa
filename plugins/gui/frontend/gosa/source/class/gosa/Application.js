@@ -60,12 +60,12 @@ qx.Class.define("gosa.Application",
         qx.dev.Profile;  // jshint ignore:line
 
         // support native logging capabilities, e.g. Firebug for Firefox
-        qx.log.appender.Native;
+        qx.log.appender.Native;  // jshint ignore:line
         // support additional cross-browser console. Press F7 to toggle visibility
-        qx.log.appender.Console;
+        qx.log.appender.Console;  // jshint ignore:line
 
         // Include debug object to enable disposer level debugging
-        qx.dev.Debug;
+        qx.dev.Debug;  // jshint ignore:line
       }
 
       /*
@@ -173,7 +173,7 @@ qx.Class.define("gosa.Application",
       doc.add(pluginView, {left: 3, right: 3, top: 52, bottom: 4});
 
       // Hide Splash - initialized by index.html
-      if (qx.core.Environment.get("qx.debug") || !window.applicationCache || window.location.protocol.indexOf("https") == 0) {
+      if (qx.core.Environment.get("qx.debug") || !window.applicationCache || window.location.protocol.indexOf("https") === 0) {
         this.hideSplash();
       }
 
@@ -220,10 +220,10 @@ qx.Class.define("gosa.Application",
 
           // Add a translation prefetch job.
           var translation = {};
-          translation['message'] = this.tr("Loading translation");
-          translation['context'] = this;
-          translation['params'] = ["getTemplateI18N", locale];
-          translation['func'] = function(result, error){
+          translation.message = this.tr("Loading translation");
+          translation.context = this;
+          translation.params = ["getTemplateI18N", locale];
+          translation.func = function(result, error){
               if (error) {
                 var d = new gosa.ui.dialogs.Error(this.tr("Fetching translations failed."));
                 d.open();
@@ -242,10 +242,10 @@ qx.Class.define("gosa.Application",
 
           // Fetch base
           var get_base = {};
-          get_base['message'] = this.tr("Loading base");
-          get_base['context'] = this;
-          get_base['params'] = ["getBase"];
-          get_base['func'] = function(result, error){
+          get_base.message = this.tr("Loading base");
+          get_base.context = this;
+          get_base.params = ["getBase"];
+          get_base.func = function(result, error){
               if (error) {
                 var d = new gosa.ui.dialogs.Error(this.tr("Fetching base failed."));
                 d.open();
@@ -279,10 +279,10 @@ qx.Class.define("gosa.Application",
 
                 var addFunc = function(name){
                     var data = {};
-                    data['message'] = that.tr("Loading %1 dialog template", name);
-                    data['context'] = this;
-                    data['params'] = ["getGuiDialogs", name];
-                    data['func'] = function(templates, error){
+                    data.message = that.tr("Loading %1 dialog template", name);
+                    data.context = this;
+                    data.params = ["getGuiDialogs", name];
+                    data.func = function(templates, error){
                       if(error){
                         var d = new gosa.ui.dialogs.Error(this.tr("Fetching dialog templates failed."));
                         d.open();
@@ -299,7 +299,7 @@ qx.Class.define("gosa.Application",
                           templateMap[gosa.util.Template.getDialogName(template)] = template;
                         });
 
-                        gosa.Cache.gui_dialogs[name] = templateMap;
+                        gosa.data.TemplateRegistry.getInstance().addDialogTemplates(name, templateMap);
                         return(true);
                       }
                     };
@@ -330,15 +330,11 @@ qx.Class.define("gosa.Application",
                             gosa.Session.getInstance().logout();
                           }, this);
                         return(false);
-                      }else{
+                      }
+                      else {
                         this.__checkForActionsInUIDefs(templates, name);
                         gosa.data.TemplateRegistry.getInstance().addTemplates(name, templates);
-
-                        // populate cache
-                        templates.forEach(function(template) {
-                          gosa.util.Template.fillTemplateCache(name, template);
-                        });
-
+                        gosa.util.Template.fillTemplateCache(name);
                         return(true);
                       }
                     };
@@ -423,9 +419,9 @@ qx.Class.define("gosa.Application",
       var action = url.split(gosa.Config.actionDelimiter)[0];
       var found = false;
       for(var id in this.__actions){
-        if(this.__actions[id]['action'] == action){
+        if(this.__actions[id].action == action){
           var act = this.__actions[id];
-          act['func'].apply(act['context'], [action, url.split(gosa.Config.actionDelimiter), url, act['userData']]);
+          act.func.apply(act.context, [action, url.split(gosa.Config.actionDelimiter), url, act.userData]);
           found = true;
         }
       }
@@ -447,7 +443,7 @@ qx.Class.define("gosa.Application",
           if(error){
             new gosa.ui.dialogs.Error(error.message).open();
           }else{
-            gosa.ui.Renderer.executeAction(userData['dialog'], userData['target'], obj, null);
+            gosa.ui.Renderer.executeAction(userData.dialog, userData.target, obj, null);
           }
         }, this, oid);
     },
@@ -474,18 +470,18 @@ qx.Class.define("gosa.Application",
     /* Process a single loading queue entry.
      * */
     __triggerQueue: function(item, data, dialog){
-      dialog.setLabel(item['message']);
+      dialog.setLabel(item.message);
       var callback = function(result, error){
 
           // Call the original callback method
-          if(item['func'].apply(item['context'], [result, error])){
+          if(item.func.apply(item.context, [result, error])){
 
             // .. and trigger the queue processor.
             this.__handleQueue(data, dialog);
           }
         };
 
-      var params = [callback, this].concat(item['params']);
+      var params = [callback, this].concat(item.params);
       var rpc = gosa.io.Rpc.getInstance();
       rpc.cA.apply(rpc, params);
     },
@@ -509,10 +505,9 @@ qx.Class.define("gosa.Application",
     {
       // Hide Splash - initialized by index.html
       var splash = document.getElementById("splash");
-      if (splash != null) {
+      if (splash !== null || splash !== undefined) {
         splash.style.visibility = 'hidden';
       }
     }
-
   }
 });

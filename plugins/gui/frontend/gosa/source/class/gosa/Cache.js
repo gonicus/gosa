@@ -17,10 +17,7 @@ qx.Class.define("gosa.Cache", {
   type: "static",
 
   statics: {
-    gui_dialogs: {},
-    object_categories: {},
-    widget_mapping: null,
-
+    objectCategories: {},
     extensionConfig : {}
   }
 });

@@ -7,10 +7,12 @@ qx.Class.define("gosa.data.TemplateRegistry", {
 
   construct : function() {
     this._registry = {};
+    this._dialogRegistry = {};
   },
 
   members : {
     _registry : null,
+    _dialogRegistry : null,
 
     /**
      * Adds a template to the registry.
@@ -69,10 +71,82 @@ qx.Class.define("gosa.data.TemplateRegistry", {
 
       var value = this._registry[extension];
       return qx.lang.Type.isArray(value) && value.length > 0;
+    },
+
+    /**
+     * Adds a dialog template to the registry. Existing keys will be overridden.
+     *
+     * @param extension {String} Name of the extension to which the template belongs
+     * @param templateName {String} Unique name of the template
+     * @param template {String} The unparsed template as a valid json string
+     */
+    addDialogTemplate : function(extension, templateName, template) {
+      qx.core.Assert.assertString(extension);
+      qx.core.Assert.assertString(templateName);
+      qx.core.Assert.assertString(template);
+
+      var reg = this._dialogRegistry;
+      if (!reg.hasOwnProperty(extension)) {
+        reg[extension] = {};
+      }
+      reg[extension][templateName] = gosa.util.Template.compileTemplate(template);
+    },
+
+    /**
+     * Adds multiple dialog templates to the registry. Existing keys will be overridden.
+     *
+     * @param extension {String} Name of the extension
+     * @param templateMap {Map} Hash map with keys being template names and the values the unparsed, valid json templates
+     */
+    addDialogTemplates : function(extension, templateMap) {
+      qx.core.Assert.assertString(extension);
+      qx.core.Assert.assertMap(templateMap);
+
+      for (var templateName in templateMap) {
+        if (templateMap.hasOwnProperty(templateName)) {
+          this.addDialogTemplate(extension, templateName, templateMap[templateName]);
+        }
+      }
+    },
+
+    /**
+     * Find the stated dialog template.
+     *
+     * @param extension {String} Name of the extension
+     * @param templateName {String} Name of the template
+     * @return {Object | null} The parsed template or null if not found
+     */
+    getDialogTemplate : function(extension, templateName) {
+      qx.core.Assert.assertString(extension);
+
+      var reg = this._dialogRegistry;
+      if (reg.hasOwnProperty(extension) && reg[extension].hasOwnProperty(templateName)) {
+        return reg[extension][templateName];
+      }
+      return null;
+    },
+
+    /**
+     * Searches for a template by its name, independent from extensions.
+     *
+     * @param templateName {String} Name by whiche the template was saved
+     * @return {Object | null} The first found template or null if nothing found
+     */
+    getDialogTemplateByName : function(templateName) {
+      qx.core.Assert.assertString(templateName);
+
+      var reg = this._dialogRegistry;
+      for (var extension in reg) {
+        if (reg.hasOwnProperty(extension) && reg[extension].hasOwnProperty(templateName)) {
+          return reg[extension][templateName];
+        }
+      }
+      return null;
     }
   },
 
   destruct : function() {
     this._registry = null;
+    this._dialogRegistry = null;
   }
 });
