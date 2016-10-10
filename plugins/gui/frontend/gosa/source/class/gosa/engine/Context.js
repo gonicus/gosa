@@ -9,25 +9,25 @@ qx.Class.define("gosa.engine.Context", {
   /**
    * @param template {Object} A widget template as a object (i.e. already parsed from json)
    * @param rootWidget {qx.ui.core.Widget} The container widget where the template widgets will be added to
-   * @param extension {String} Name of the extension this context creates widgets for (e.g. "PosixUser")
-   * @param attributes {Array ? undefined} Names of all attributes that are in the object
+   * @param extension {String ? undefined} Name of the extension this context creates widgets for (e.g. "PosixUser")
+   * @param controller {gosa.data.ObjectEditController ? undefined} Main controller for {@link gosa.ui.widgets.ObjectEdit}
    */
-  construct : function(template, rootWidget, extension, attributes) {
+  construct : function(template, rootWidget, extension, controller) {
     this.base(arguments);
     qx.core.Assert.assertObject(template);
     qx.core.Assert.assertQxWidget(rootWidget);
-    if (attributes) {
-      qx.core.Assert.assertArray(attributes);
-    }
 
     if (extension !== undefined && extension !== null) {
       qx.core.Assert.assertString(extension);
+    }
+    if (controller) {
+      qx.core.Assert.assertInstance(controller, gosa.data.ObjectEditController);
+      this._controller = controller;
     }
 
     this._template = template;
     this._rootWidget = rootWidget;
     this._extension = extension;
-    this._attributes = attributes === undefined ? [] : attributes;
     this._actionMenuEntries = {};
     this._widgetRegistry = new gosa.engine.WidgetRegistry();
     this._buddyRegistry = new gosa.engine.WidgetRegistry();
@@ -51,7 +51,7 @@ qx.Class.define("gosa.engine.Context", {
     _template : null,
     _rootWidget : null,
     _extension : null,
-    _attributes : null,
+    _controller : null,
     _widgetRegistry : null,
     _buddyRegistry : null,
     _resourceManager : null,
@@ -73,7 +73,7 @@ qx.Class.define("gosa.engine.Context", {
      * @return {Array} Names of all attributes that are in the object
      */
     getAttributes : function() {
-      return this._attributes;
+      return this._controller.getAttributes();
     },
 
     /**
@@ -147,6 +147,7 @@ qx.Class.define("gosa.engine.Context", {
 
   destruct : function() {
     this._actionMenuEntries = null;
+    this._controller = null;
     this._disposeObjects(
       "_processor",
       "_rootWidget",

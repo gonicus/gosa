@@ -181,6 +181,20 @@ qx.Class.define("gosa.data.ObjectEditController", {
     },
 
     /**
+     * @return {String | null} The base type of the object; null if unkown
+     */
+    getBaseType : function() {
+      return this._obj.baseType || null;
+    },
+
+    /**
+     * @return {Array | null} List of all attributes of the object
+     */
+    getAttributes : function() {
+      return qx.lang.Type.isArray(this._obj.attributes) ? this._obj.attributes : null;
+    },
+
+    /**
      * Called when the event {@link gosa.proxy.Object#closing} is sent.
      */
     _onObjectClosing : function(event) {

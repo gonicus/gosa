@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -23,7 +23,7 @@ qx.Class.define("gosa.ui.dialogs.ChangePasswordDialog", {
   {
     this.base(arguments, this.tr("Change password..."), gosa.Config.getImagePath("status/dialog-password.png", 22));
     this._object = object;
-    
+
     // Show Subject/Message pane
     var form = new qx.ui.form.Form();
     this._form = form;
@@ -63,7 +63,7 @@ qx.Class.define("gosa.ui.dialogs.ChangePasswordDialog", {
     form.add(method, this.tr("Encryption"), null, "method");
     form.add(pwd1, this.tr("New password"), null, "pwd1");
     form.add(pwd2, this.tr("New password (repeated)"), null, "pwd2");
-    
+
     var la = new gosa.ui.form.renderer.Single(form);
     la.getLayout().setColumnAlign(0, "left", "middle");
     this.addElement(la);
@@ -127,7 +127,7 @@ qx.Class.define("gosa.ui.dialogs.ChangePasswordDialog", {
       if (this._pwd1.getValue() == this._pwd2.getValue()) {
         this._info.setValue("");
         this._info.exclude();
-        this._ok.setEnabled(this._pwd1.getValue() == ""?false:true);
+        this._ok.setEnabled(this._pwd1.getValue() === ""?false:true);
       } else {
         this._info.setValue("<span style='color:red'>" + this.tr("Passwords do not match!") + "</span>");
         this._info.show();
@@ -148,8 +148,8 @@ qx.Class.define("gosa.ui.dialogs.ChangePasswordDialog", {
           } else {
             this.close();
             new gosa.ui.dialogs.Info(this.tr("Password has been changed successfully.")).open();
-          } 
-          
+          }
+
         }, this, this._model.get("method"), this._model.get("pwd1"));
       }
     },
@@ -157,7 +157,7 @@ qx.Class.define("gosa.ui.dialogs.ChangePasswordDialog", {
     /*************************************************************
     Created: 20060120
     Author:  Steve Moitozo <god at zilla dot us>
-    Description: This is a quick and dirty password quality meter 
+    Description: This is a quick and dirty password quality meter
                      written in JavaScript
     License: MIT License (see below)
     =================================
@@ -180,7 +180,7 @@ qx.Class.define("gosa.ui.dialogs.ChangePasswordDialog", {
                          calculation to make it usable for qooxdoo widgets.
     ---------------------------------------------------------------
     Copyright (c) 2006 Steve Moitozo <god at zilla dot us>
-    
+
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
     files (the "Software"), to deal in the Software without
@@ -189,11 +189,11 @@ qx.Class.define("gosa.ui.dialogs.ChangePasswordDialog", {
     sell copies of the Software, and to permit persons to whom the
     Software is furnished to do so, subject to the following
     conditions:
-    
+
     The above copyright notice and this permission notice shall
     be included in all copies or substantial portions of the
     Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
     KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
@@ -203,14 +203,14 @@ qx.Class.define("gosa.ui.dialogs.ChangePasswordDialog", {
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
     OR OTHER DEALINGS IN THE SOFTWARE.
     ---------------------------------------------------------------
-     
+
     ************************************************************ */
     getPasswordScore : function (passwd)
     {
       var score = 0;
 
       // PASSWORD LENGTH
-      if (passwd.length==0 || !passwd.length)      // length 0
+      if (passwd.length === 0 || !passwd.length)      // length 0
       {
           score = -1;
       }

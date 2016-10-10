@@ -20,8 +20,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
   extend: qx.ui.container.Composite,
 
   /**
-   * @param templates {Array} List of hash maps in the shape {extension: <name>, template: <template>}; each appears
-   *   in its own tab
+   * @param templates {Array} List of hash maps in the shape {extension : <extension name>, template : <parsed template>}
    */
   construct: function(templates) {
     this.base(arguments);
@@ -31,7 +30,6 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     this._contexts = [];
 
     this.setLayout(new qx.ui.layout.VBox());
-    this._initWidgets();
   },
 
   events : {
@@ -99,11 +97,10 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     addTab : function(templateObj) {
-      var template = templateObj.template;
       var tabPage = new qx.ui.tabview.Page();
       tabPage.setLayout(new qx.ui.layout.VBox());
 
-      if (!templateObj.isBaseType) {
+      if (templateObj.extension !== this.getController().getBaseType()) {
         tabPage.setShowCloseButton(true);
 
         var closeButton = tabPage.getButton();
@@ -113,7 +110,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         }, this);
       }
 
-      var context = new gosa.engine.Context(template, tabPage, templateObj.extension, templateObj.attributes);
+      var context = new gosa.engine.Context(templateObj.template, tabPage, templateObj.extension, this.getController());
       this._contexts.push(context);
       this._tabView.add(context.getRootWidget());
 
@@ -180,8 +177,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         value.addListener("changeModified", this._updateOkButtonEnabled, this);
         value.addListener("changeValid", this._updateOkButtonEnabled, this);
 
-        this._createRetractMenu();
-        this._createExtendMenu();
+        this._initWidgets();
       }
     },
 
@@ -195,6 +191,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       this._createTabPages();
       this._createToolmenu();
       this._createButtons();
+      this._createRetractMenu();
+      this._createExtendMenu();
     },
 
     _createTabView : function() {

@@ -19,19 +19,14 @@ qx.Class.define("gosa.util.Template", {
      * Gives an array of maps with a template and other information.
      *
      * @param objectName {String} The objectName (e.g. "PosixUser")
-     * @param baseType {String} The base type of the original object
-     * @param attributes {Array ? undefined} Names of all attributes that are in the object
      * @return {Array} An (maybe empty) array of hash maps
      */
-    getTemplateObjects : function(objectName, baseType, attributes) {
+    getTemplateObjects : function(objectName) {
       qx.core.Assert.assertString(objectName);
-      qx.core.Assert.assertString(baseType);
 
       return gosa.data.TemplateRegistry.getInstance().getTemplates(objectName).map(function(template) {
         return {
           extension : objectName,
-          attributes : attributes,
-          isBaseType : objectName === baseType,
           template : template
         };
       });

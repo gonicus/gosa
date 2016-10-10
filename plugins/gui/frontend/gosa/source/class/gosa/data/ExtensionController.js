@@ -166,7 +166,10 @@ qx.Class.define("gosa.data.ExtensionController", {
         else {
           this._obj.refreshMetaInformation(function() {});
           this._obj.refreshAttributeInformation(function () {
-            this._widgetController.addExtensionTabs(gosa.util.Template.getTemplateObjects(extension, this._obj.baseType));
+            this._widgetController.addExtensionTabs(
+              gosa.data.TemplateRegistry.getInstance().getTemplates(extension),
+              this._widgetController
+            );
             this._widgetController.setModified(true);
 
             if (callback) {

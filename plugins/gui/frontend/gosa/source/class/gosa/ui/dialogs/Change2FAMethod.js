@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -23,7 +23,7 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
   {
     this.base(arguments, this.tr("Change 2FA method..."), gosa.Config.getImagePath("status/dialog-password.png", 22));
     this._object = object;
-    
+
     // Show Subject/Message pane
     var form = new qx.ui.form.Form();
     this._form = form;
@@ -153,7 +153,7 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
               var data = qx.lang.Json.parse(result);
               var dialog = new gosa.ui.dialogs.U2FInfo();
               dialog.show();
-              u2f.register(data.registerRequests[0]['appId'], data.registerRequests, data.authenticateRequests, function(deviceResponse) {
+              u2f.register(data.registerRequests[0].appId, data.registerRequests, data.authenticateRequests, function(deviceResponse) {
                 dialog.close();
                 if (deviceResponse.errorCode) {
                   this._showInfo(null, this.tr("Device responded with error '%1': %2", deviceResponse.errorCode, gosa.Tools.getU2FErrorMessage(deviceResponse.errorCode)));
@@ -162,7 +162,7 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
                 }
               }.bind(this));
             } catch (e) {
-              console.error(e)
+              console.error(e);
             }
 
           }
