@@ -62,7 +62,7 @@ qx.Class.define("gosa.util.Template", {
      */
     getDialogRpc : function(dialogName) {
       qx.core.Assert.assertString(dialogName);
-      var template = gosa.data.TemplateRegistry.getInstance().getDialogTemplateByName(dialogName);
+      var template = gosa.data.TemplateRegistry.getInstance().getDialogTemplate(dialogName);
 
       if (!template || !qx.lang.Type.isObject(template.properties) || !template.properties.dialogName) {
         return [];

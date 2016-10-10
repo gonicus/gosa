@@ -299,7 +299,7 @@ qx.Class.define("gosa.Application",
                           templateMap[gosa.util.Template.getDialogName(template)] = template;
                         });
 
-                        gosa.data.TemplateRegistry.getInstance().addDialogTemplates(name, templateMap);
+                        gosa.data.TemplateRegistry.getInstance().addDialogTemplates(templateMap);
                         return(true);
                       }
                     };

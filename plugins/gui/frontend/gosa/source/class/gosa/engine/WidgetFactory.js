@@ -60,7 +60,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       }
 
       // find dialog template
-      var template = gosa.data.TemplateRegistry.getInstance().getDialogTemplateByName(name);
+      var template = gosa.data.TemplateRegistry.getInstance().getDialogTemplate(name);
       if (template) {
         return new gosa.ui.dialogs.TemplateDialog(template);
       }

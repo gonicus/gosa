@@ -53,31 +53,28 @@ qx.Class.define("gosa.test.data.TemplateRegistryTest",
       registry.assertFunction(registry.addDialogTemplate);
       registry.assertFunction(registry.getDialogTemplate);
 
-      registry.assertNull(registry.getDialogTemplate("unkownExtension", "unkownTemplate"));
+      registry.assertNull(registry.getDialogTemplate("unkownTemplate"));
 
-      registry.addDialogTemplate("myExtension", "dialog1", "{}");
-      this.assertObject(registry.getDialogTemplate("myExtension", "dialog1"));
+      registry.addDialogTemplate("dialog1", "{}");
+      this.assertObject(registry.getDialogTemplate("dialog1"));
 
-      registry.addDialogTemplate("myExtension", "dialog2", "{}");
-      this.assertObject(registry.getDialogTemplate("myExtension", "dialog1"));
-      this.assertObject(registry.getDialogTemplate("myExtension", "dialog2"));
-
-      this.assertNull(registry.getDialogTemplateByName("unkownTemplate"));
-      this.assertObject(registry.getDialogTemplateByName("dialog2"));
+      registry.addDialogTemplate("dialog2", "{}");
+      this.assertObject(registry.getDialogTemplate("dialog1"));
+      this.assertObject(registry.getDialogTemplate("dialog2"));
     },
 
     testAddMultipleDialogTemplates : function() {
       var registry = gosa.data.TemplateRegistry.getInstance();
       registry.assertFunction(registry.addDialogTemplates);
 
-      registry.assertNull(registry.getDialogTemplate("unkownExtension", "unkownTemplate"));
+      registry.assertNull(registry.getDialogTemplate("unkownTemplate"));
 
-      registry.addDialogTemplates("myMultipleExtension", {
+      registry.addDialogTemplates({
         "dialogMulti1" : "{}",
         "dialogMulti2" : "{}"
       });
-      this.assertObject(registry.getDialogTemplate("myMultipleExtension", "dialogMulti1"));
-      this.assertObject(registry.getDialogTemplate("myMultipleExtension", "dialogMulti2"));
+      this.assertObject(registry.getDialogTemplate("dialogMulti1"));
+      this.assertObject(registry.getDialogTemplate("dialogMulti2"));
     }
   }
 });
