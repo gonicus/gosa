@@ -53,6 +53,7 @@ qx.Class.define("gosa.view.Tree",
 
     parent : null,
     _rpc : null,
+    _tableData : null,
 
     _createChildControlImpl : function(id, hash) {
 
@@ -143,7 +144,7 @@ qx.Class.define("gosa.view.Tree",
 
         case "table":
           // Create the table
-          var tableModel = this._tableModel = new qx.ui.table.model.Filtered();
+          var tableModel = this._tableModel = new qx.ui.table.model.Simple();
           tableModel.setColumns([ "-", this.tr("Name"), this.tr("Description"), this.tr("DN"), this.tr("UUID")],
                                 ['type', 'title', 'description', 'dn', 'uuid']);
           var customModel = {
@@ -270,27 +271,35 @@ qx.Class.define("gosa.view.Tree",
 
     __refreshTable : function() {
       var sel = this.getChildControl("tree").getSelection();
-      this.getChildControl("create-menu-button").setEnabled(sel.length > 0);
-      this.getChildControl("filter-menu-button").setEnabled(sel.length > 0);
-
-      var done = [];
-      var tableModel = this.getChildControl("table").getTableModel();
-      tableModel.setData([]);
-
-      sel.forEach(function(item) {
-        item.load(function() {
-          var children = item.getChildren().concat(item.getLeafs());
-          children.forEach(function(child) {
-            if(!qx.lang.Array.contains(done, child)){
-              tableModel.addRowsAsMapArray([child.getTableRow()]);
-              done.push(child);
-            }
-          }, this);
-        })
-      }, this);
-
       if (sel.length > 0) {
+        this.getChildControl("create-menu-button").setEnabled(true);
+        this.getChildControl("filter-menu-button").setEnabled(true);
+
+        var done = [];
+        var tableModel = this.getChildControl("table").getTableModel();
+        if (!this._tableData) {
+          this._tableData = new qx.data.Array();
+        } else {
+          this._tableData.removeAll();
+        }
+
+        var item = sel.getItem(0);
+        item.load(function() {
+            var children = item.getChildren().concat(item.getLeafs());
+            children.forEach(function(child) {
+              if(!qx.lang.Array.contains(done, child)){
+                this._tableData.push(child.getTableRow());
+                done.push(child);
+              }
+            }, this);
+          tableModel.setDataAsMapArray(this._tableData.toArray());
+        }, this);
+
         this.__updateMenus();
+
+      } else {
+        this.getChildControl("create-menu-button").setEnabled(false);
+        this.getChildControl("filter-menu-button").setEnabled(false);
       }
     },
 
@@ -331,15 +340,20 @@ qx.Class.define("gosa.view.Tree",
         }
         all++;
       }, this);
-      this._tableModel.resetHiddenRows();
+      var filtered = this._tableData;
+
       if (types.length > 0 && types.length < all) {
-        this._tableModel.addNotRegex("(" + types.join("|") + ")", "type", true);
+        filtered = filtered.filter(function(row) {
+          return qx.lang.Array.contains(types, row.type);
+        });
       }
-      var searchValue = this.getChildControl("searchField").getValue();
-      if (searchValue.length > 2) {
-        this._tableModel.addNotRegex(".*"+searchValue+".*", "title", true);
+      var searchValue = this.getChildControl("search-field").getValue();
+      if (searchValue && searchValue.length > 2) {
+        filtered = filtered.filter(function(row) {
+          return qx.lang.String.contains(row.title, searchValue);
+        });
       }
-      this._tableModel.applyFilters();
+      this._tableModel.setDataAsMapArray(filtered.toArray());
     }
   },
 
