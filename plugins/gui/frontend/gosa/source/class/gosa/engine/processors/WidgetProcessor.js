@@ -42,8 +42,21 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
      * @return {Boolean}
      */
     _shallGenerateWidget : function(node) {
+      // check if attribute is in object description so it can at least be read
       var modelPath = this._getValue(node, "modelPath") || this._getValue(node, "buddyModelPath");
-      return !modelPath || qx.lang.Array.contains(this._context.getAttributes(), modelPath);
+      if (modelPath && !qx.lang.Array.contains(this._context.getAttributes(), modelPath)) {
+        return false;
+      }
+
+      // check rpc permission for dialogs
+      if (qx.lang.Type.isObject(node.properties) && qx.lang.Type.isString(node.properties.dialog)) {
+        var sessionObj = gosa.Session.getInstance();
+        if (!gosa.util.Template.getDialogRpc(node.properties.dialog).every(sessionObj.isCommandAllowed, sessionObj)) {
+          return false;
+        }
+      }
+
+      return true;
     },
 
     _createAndAddWidget : function(node, target) {

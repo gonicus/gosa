@@ -85,6 +85,23 @@ qx.Class.define("gosa.Session",
 
   members: {
 
+    /**
+     * Checks if the user has permission to execute the given command.
+     *
+     * @param {String}
+     * @return {Boolean}
+     */
+    isCommandAllowed : function(command) {
+      qx.core.Assert.assertString(command);
+      qx.core.Assert.assertArray(this.getCommands());
+
+      var splitted = command.split("(");
+      if (splitted.length > 0) {
+        command = splitted[0];
+      }
+      return qx.lang.Array.contains(this.getCommands(), command);
+    },
+
     _objectEvent: function(e){
 
       // Skip events that are not for us

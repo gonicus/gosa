@@ -55,6 +55,38 @@ qx.Class.define("gosa.util.Template", {
     },
 
     /**
+     * Find all rpc calls that are made from within the dialog.
+     *
+     * @param dialogName {String} The dialog/template name; parsed template will be searched automatically
+     * @return {Array} An (maybe empty) array of all rpc calls found in the dialog template
+     */
+    getDialogRpc : function(dialogName) {
+      qx.core.Assert.assertString(dialogName);
+      var template = gosa.data.TemplateRegistry.getInstance().getDialogTemplateByName(dialogName);
+
+      if (!template || !qx.lang.Type.isObject(template.properties) || !template.properties.dialogName) {
+        return [];
+      }
+
+      var result = [];
+      var rec = function(node) {
+        if (!qx.lang.Type.isObject(node)) {
+          return;
+        }
+        if (qx.lang.Type.isObject(node.extensions) && qx.lang.Type.isObject(node.extensions.guiProperties) &&
+            !!node.extensions.guiProperties.callObjectMethod) {
+          result.push(node.extensions.guiProperties.callObjectMethod);
+        }
+        if (qx.lang.Type.isArray(node.children)) {
+          node.children.forEach(rec);
+        }
+      };
+
+      rec(template);
+      return result;
+    },
+
+    /**
      * Some templates have information hidden inside them, e.g. the category title or extension names.
      * This function extracts the information and writes them to the gosa.Cache object.
      *
