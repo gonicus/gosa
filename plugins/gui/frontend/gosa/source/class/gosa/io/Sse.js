@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -17,7 +17,7 @@
 */
 
 /**
- *
+ * SSE: Server-sent events (receives information from the server/backend)
  * */
 qx.Class.define("gosa.io.Sse", {
 
@@ -96,11 +96,11 @@ qx.Class.define("gosa.io.Sse", {
      * */
     _handleObjectChangeMessage : function(info) {
       if(info['changeType'] == "update"){
-        this.fireDataEvent("objectModified", info); 
+        this.fireDataEvent("objectModified", info);
       }else if(info['changeType'] == "remove"){
-        this.fireDataEvent("objectRemoved", info); 
+        this.fireDataEvent("objectRemoved", info);
       }else if(info['changeType'] == "create"){
-        this.fireDataEvent("objectCreated", info); 
+        this.fireDataEvent("objectCreated", info);
       }else{
         this.error("unhandled sse event: " + info['changeType']);
       }
