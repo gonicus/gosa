@@ -27,10 +27,25 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
   statics: {
     classes: null,
 
-    openWorkflow: function(c_callback, c_context, dn){
-      this.__openObject("workflow", c_callback, c_context, dn);
+    /**
+     * Wrapper for {this.__openObject} to open a workflow object
+     *
+     * @param c_callback {Function} callback to call when workflow has been opened
+     * @param c_context {Object} context for callback
+     * @param workflowId {String} id of the workflow
+     */
+    openWorkflow: function(c_callback, c_context, workflowId){
+      this.__openObject("workflow", c_callback, c_context, workflowId);
     },
 
+    /**
+     * Wrapper for {this.__openObject} to open a object
+     *
+     * @param c_callback {Function} callback to call when object has been opened
+     * @param c_context {Object} context for callback
+     * @param dn {String} DN of the object
+     * @param type {String} type of the object
+     */
     openObject: function(c_callback, c_context, dn, type){
       this.__openObject("object", c_callback, c_context, dn, type);
     },
