@@ -30,7 +30,7 @@ qx.Class.define("gosa.test.data.TemplateRegistryTest",
 
       registry.assertFunction(registry.addTemplates);
       registry.addTemplates("myMultipleExtension", ["{}", "{}"]);
-      templates = registry.getTemplates("myMultipleExtension");
+      var templates = registry.getTemplates("myMultipleExtension");
       this.assertArray(templates);
       this.assertTrue(templates.length === 2);
       this.assertObject(templates[0]);
