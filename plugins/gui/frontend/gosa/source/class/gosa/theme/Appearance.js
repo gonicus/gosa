@@ -365,6 +365,31 @@ qx.Theme.define("gosa.theme.Appearance",
     "tree-view/delete-button": "icon-menu-button",
     "tree-view/action-menu-button": "toolbar-menubutton",
     "tree-view/filter-menu-button": "toolbar-menubutton",
-    "tree-view/create-menu-button": "toolbar-menubutton"
+    "tree-view/create-menu-button": "toolbar-menubutton",
+
+    "gosa-workflow-item": {
+      include: "atom",
+      alias: "atom",
+
+      style: function() {
+        return {
+          center: true,
+          iconPosition: "top",
+          width: 200,
+          icon: "@FontAwesome/f0c3",
+          iconSize: 88,
+          decorator: "gosa-workflow-item",
+          margin: 5,
+          padding: [15, 5]
+        }
+      }
+    },
+    "gosa-workflow-item/label": {
+      style: function() {
+        return {
+          font : "Title"
+        };
+      }
+    }
   }
 });

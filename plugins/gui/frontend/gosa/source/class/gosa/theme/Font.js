@@ -35,6 +35,15 @@ qx.Theme.define("gosa.theme.Font",
         decoration: "underline",
         family : [ "Lucida Grande", "Tahoma", "Verdana", "Bitstream Vera Sans", "Liberation Sans" ]
     },
+
+    "Title": {
+      size : 18,
+      family : ["Lucida Grande", "DejaVu Sans", "Verdana", "sans-serif"],
+      color: "font",
+      bold: true,
+      lineHeight: 1.8
+    },
+
     "FontAwesome": {
       size: 40,
       lineHeight: 1,

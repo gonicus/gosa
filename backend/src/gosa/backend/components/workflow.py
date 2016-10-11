@@ -76,13 +76,13 @@ class Workflow:
 
         find = objectify.ObjectPath("Workflow.Templates")
         for template in find(self._xml_root[0]).getchildren():
-            translation = template[:-2] + "locale"
-            translation_path = os.path.join(self._path, self.env, "i18n", locale, translation)
+            translation = template.text[:-5]
+            translation_path = os.path.join(self._path, self.uuid, "i18n", translation, "%s.json" % locale)
             if os.path.isfile(translation_path):
                 with open(translation_path, "r") as ftpl:
-                    translations[template] = ftpl.read()
+                    translations[template.text] = ftpl.read()
             else:
-                translations[template] = None
+                translations[template.text] = None
 
         return translations
 

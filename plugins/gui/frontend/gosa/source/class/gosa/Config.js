@@ -47,6 +47,17 @@ qx.Class.define("gosa.Config", {
         }
 
         return "gosa/images/" + size + "/" + icon;
+    },
+
+    getLocale : function() {
+      if (!gosa.Config.locale) {
+        gosa.Config.locale = qx.bom.client.Locale.getLocale();
+        var variant = qx.bom.client.Locale.getVariant();
+        if (gosa.Config.locale && variant) {
+          gosa.Config.locale = gosa.Config.locale + "-" + variant;
+        }
+      }
+      return gosa.Config.locale;
     }
   }
 });

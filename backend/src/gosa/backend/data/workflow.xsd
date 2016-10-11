@@ -12,6 +12,7 @@
       <element name="Description" type="string" maxOccurs="1" minOccurs="1"></element>
       <element name="DisplayName" type="string" maxOccurs="1" minOccurs="0"></element>
       <element name="Icon" type="string" maxOccurs="1" minOccurs="0"></element>
+      <element name="Script" type="string" maxOccurs="1" minOccurs="1"></element>
       <element name="Templates" maxOccurs="1" minOccurs="0">
         <complexType>
           <sequence>
