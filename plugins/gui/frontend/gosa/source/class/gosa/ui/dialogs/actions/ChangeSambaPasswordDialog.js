@@ -1,13 +1,13 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2012 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
@@ -15,88 +15,101 @@
 /*
 #asset(gosa/*)
 */
-qx.Class.define("gosa.ui.dialogs.ChangeSambaPasswordDialog", {
+qx.Class.define("gosa.ui.dialogs.actions.ChangeSambaPasswordDialog", {
 
-  extend: gosa.ui.dialogs.Dialog,
+  extend: gosa.ui.dialogs.actions.Base,
 
-  construct: function(object)
-  {
-    this.base(arguments, this.tr("Change password..."), gosa.Config.getImagePath("status/dialog-password.png", 22));
-    this._object = object;
-    
-    // Show Subject/Message pane
-    var form = new qx.ui.form.Form();
-    this._form = form;
+  construct: function(actionController) {
+    this.base(arguments, actionController, this.tr("Change password..."),
+      gosa.Config.getImagePath("status/dialog-password.png", 22));
 
-    // Add the form items
-    var pwd1 = new qx.ui.form.PasswordField();
-    pwd1.setRequired(true);
-    pwd1.setWidth(200);
-
-    var pwd2 = new qx.ui.form.PasswordField();
-    pwd2.setRequired(true);
-    pwd2.setWidth(200);
-
-    form.add(pwd1, this.tr("New password"), null, "pwd1");
-    form.add(pwd2, this.tr("New password (repeated)"), null, "pwd2");
-    
-    var la = new gosa.ui.form.renderer.Single(form);
-    la.getLayout().setColumnAlign(0, "left", "middle");
-    this.addElement(la);
-    var controller = new qx.data.controller.Form(null, form);
-
-    // Add password indicator
-    this._passwordIndicator = new qx.ui.indicator.ProgressBar();
-    this._passwordIndicator.setDecorator(null);
-    this._passwordIndicator.setHeight(5);
-    this._passwordIndicator.setBackgroundColor("background-selected-disabled");
-    this.addElement(this._passwordIndicator);
-
-    // Add status label
-    this._info = new qx.ui.basic.Label();
-    this._info.setRich(true);
-    this._info.exclude();
-    this.addElement(this._info);
-    this.getLayout().setAlignX("center");
-
-    // Wire status label
-    pwd1.addListener("keyup", this.updateStatus, this);
-    pwd2.addListener("keyup", this.updateStatus, this);
-    this._pwd1 = pwd1;
-    this._pwd2 = pwd2;
-
-    this._model = controller.createModel();
-
-    var ok = gosa.ui.base.Buttons.getButton(this.tr("Set password"), "status/dialog-password.png");
-    ok.addState("default");
-    ok.addListener("execute", this.setPassword, this);
-    ok.setEnabled(false);
-    this._ok = ok;
-
-    var cancel = gosa.ui.base.Buttons.getCancelButton();
-    cancel.addState("default");
-    cancel.addListener("execute", this.close, this);
-
-    this.addButton(ok);
-    this.addButton(cancel);
-
-    this.setFocusOrder([pwd1, pwd2, ok]);
+    this._initWidgets();
   },
 
   members : {
+    _form : null,
+    _passwordIndicator : null,
+    _info : null,
+    _pwd1 : null,
+    _pwd2 : null,
+    _model : null,
+    _ok : null,
 
-    updateStatus : function()
-    {
+    _initWidgets : function() {
+      // Show Subject/Message pane
+      var form = new qx.ui.form.Form();
+      this._form = form;
+
+      // Add the form items
+      var pwd1 = new qx.ui.form.PasswordField();
+      pwd1.setRequired(true);
+      pwd1.setWidth(200);
+
+      var pwd2 = new qx.ui.form.PasswordField();
+      pwd2.setRequired(true);
+      pwd2.setWidth(200);
+
+      form.add(pwd1, this.tr("New password"), null, "pwd1");
+      form.add(pwd2, this.tr("New password (repeated)"), null, "pwd2");
+
+      var la = new gosa.ui.form.renderer.Single(form);
+      la.getLayout().setColumnAlign(0, "left", "middle");
+      this.addElement(la);
+      var controller = new qx.data.controller.Form(null, form);
+
+      // Add password indicator
+      this._passwordIndicator = new qx.ui.indicator.ProgressBar();
+      this._passwordIndicator.setDecorator(null);
+      this._passwordIndicator.setHeight(5);
+      this._passwordIndicator.setBackgroundColor("background-selected-disabled");
+      this.addElement(this._passwordIndicator);
+
+      // Add status label
+      this._info = new qx.ui.basic.Label();
+      this._info.setRich(true);
+      this._info.exclude();
+      this.addElement(this._info);
+      this.getLayout().setAlignX("center");
+
+      // Wire status label
+      pwd1.addListener("keyup", this._updateStatus, this);
+      pwd2.addListener("keyup", this._updateStatus, this);
+      this._pwd1 = pwd1;
+      this._pwd2 = pwd2;
+
+      this._model = controller.createModel();
+
+      var ok = gosa.ui.base.Buttons.getButton(this.tr("Set password"), "status/dialog-password.png");
+      ok.addState("default");
+      ok.addListener("execute", this._setPassword, this);
+      ok.setEnabled(false);
+      this._ok = ok;
+
+      var cancel = gosa.ui.base.Buttons.getCancelButton();
+      cancel.addState("default");
+      cancel.addListener("execute", this.close, this);
+
+      this.addButton(ok);
+      this.addButton(cancel);
+
+      this.setFocusOrder([pwd1, pwd2, ok]);
+    },
+
+    _updateStatus : function() {
       // Set password strength
       var score = this.getPasswordScore(this._pwd1.getValue());
       this._passwordIndicator.setValue(score);
+
       if (score < 25) {
         this._passwordIndicator.getChildControl("progress").setBackgroundColor("red");
-      } else if (score < 50) {
+      }
+      else if (score < 50) {
         this._passwordIndicator.getChildControl("progress").setBackgroundColor("orange");
-      } else if (score < 75) {
+      }
+      else if (score < 75) {
         this._passwordIndicator.getChildControl("progress").setBackgroundColor("yellow");
-      } else {
+      }
+      else {
         this._passwordIndicator.getChildControl("progress").setBackgroundColor("green");
       }
 
@@ -104,36 +117,35 @@ qx.Class.define("gosa.ui.dialogs.ChangeSambaPasswordDialog", {
         this._info.setValue("");
         this._info.exclude();
         this._ok.setEnabled(this._pwd1.getValue() == ""?false:true);
-      } else {
+      }
+      else {
         this._info.setValue("<span style='color:red'>" + this.tr("Passwords do not match!") + "</span>");
         this._info.show();
         this._ok.setEnabled(false);
       }
     },
 
-    setPassword : function()
-    {
+    _setPassword : function() {
       if (this._form.validate()) {
         if (this._model.get("pwd1") != this._model.get("pwd2")) {
             return;
         }
 
-        this._object.changeSambaPassword(function(response, error){
+        this._actionController.setSambaPassword(function(response, error){
           if (error) {
             new gosa.ui.dialogs.Error(error.message).open();
           } else {
             this.close();
             new gosa.ui.dialogs.Info(this.tr("Password has been changed successfully.")).open();
-          } 
-          
-        }, this,this._model.get("pwd1"));
+          }
+        }, this, this._model.get("pwd1"));
       }
     },
 
     /*************************************************************
     Created: 20060120
     Author:  Steve Moitozo <god at zilla dot us>
-    Description: This is a quick and dirty password quality meter 
+    Description: This is a quick and dirty password quality meter
                      written in JavaScript
     License: MIT License (see below)
     =================================
@@ -156,7 +168,7 @@ qx.Class.define("gosa.ui.dialogs.ChangeSambaPasswordDialog", {
                          calculation to make it usable for qooxdoo widgets.
     ---------------------------------------------------------------
     Copyright (c) 2006 Steve Moitozo <god at zilla dot us>
-    
+
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
     files (the "Software"), to deal in the Software without
@@ -165,11 +177,11 @@ qx.Class.define("gosa.ui.dialogs.ChangeSambaPasswordDialog", {
     sell copies of the Software, and to permit persons to whom the
     Software is furnished to do so, subject to the following
     conditions:
-    
+
     The above copyright notice and this permission notice shall
     be included in all copies or substantial portions of the
     Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
     KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
@@ -179,7 +191,7 @@ qx.Class.define("gosa.ui.dialogs.ChangeSambaPasswordDialog", {
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
     OR OTHER DEALINGS IN THE SOFTWARE.
     ---------------------------------------------------------------
-     
+
     ************************************************************ */
     getPasswordScore : function (passwd)
     {
@@ -268,7 +280,9 @@ qx.Class.define("gosa.ui.dialogs.ChangeSambaPasswordDialog", {
 
       return Math.floor(score * 100 / 46);
     }
+  },
 
+  destruct : function() {
+    this._disposeObjects("_form", "_passwordIndicator", "_info", "_pwd1", "_pwd2", "_model", "_ok");
   }
-
 });

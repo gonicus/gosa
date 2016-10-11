@@ -50,6 +50,19 @@ qx.Class.define("gosa.data.ActionController", {
     },
 
     /**
+     * Sets a new samba password.
+     *
+     * @param callback {Function} Callback function for the backend response (takes two possible args: result and error)
+     * @param context {Object ? null} Optional context for the callback function
+     * @param password {String} The password to save (not encoded)
+     */
+    setSambaPassword : function(callback, context, password) {
+      qx.core.Assert.assertFunction(callback);
+      qx.core.Assert.assertString(password);
+      this._obj.changeSambaPassword(callback, context, password);
+    },
+
+    /**
      * Requests the current two-factor authentification method from the backend.
      *
      * @param callback {Function} Callback function with the possible args 'result' and 'error'
