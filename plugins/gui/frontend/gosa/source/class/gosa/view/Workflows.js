@@ -76,13 +76,14 @@ qx.Class.define("gosa.view.Workflows",
         });
         list.add(item);
         item.addListener("execute", function(ev) {
-          this.startWorkflow(item.getId());
+          this.startWorkflow(item);
         }, this);
       }, this);
     },
 
-    startWorkflow: function(id) {
+    startWorkflow: function(workflowItem) {
       var win = null;
+      console.log(workflowItem);
       gosa.proxy.ObjectFactory.openWorkflow(function(workflow, error) {
         if (error) {
           this.error(error);
@@ -91,10 +92,10 @@ qx.Class.define("gosa.view.Workflows",
             // TODO: handle errors
             var templates = [];
             for (var name in _templates) {
-              if (templates.hasOwnProperty(name)) {
+              if (_templates.hasOwnProperty(name)) {
                 templates.push({
                   extension: name,
-                  template: templates[name]
+                  template: _templates[name]
                 });
               }
             }
@@ -132,13 +133,13 @@ qx.Class.define("gosa.view.Workflows",
                 var controller = new gosa.data.ObjectEditController(workflow, w);
                 w.setController(controller);
 
-                this.fireDataEvent("loadingComplete", {id: workflow.id});
+                this.fireDataEvent("loadingComplete", {id: workflowItem.getId()});
 
               }, this, workflow, templates, translations);
             }, this, gosa.Config.getLocale());
           }, this);
         }
-      }, this, id);
+      }, this, workflowItem.getId());
     },
 
     _createChildControlImpl: function(id) {
