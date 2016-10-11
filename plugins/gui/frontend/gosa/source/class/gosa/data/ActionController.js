@@ -87,6 +87,21 @@ qx.Class.define("gosa.data.ActionController", {
         qx.core.Assert.assertString(data);
       }
       this._obj.finishU2FRegistration(callback, context, data);
+    },
+
+    /**
+     * Sends a message to the object.
+     *
+     * @param callback {Function} Callback function for the backend result/error
+     * @param context {Object ? undefined} Optional context for the callback function
+     * @param subject {String} Subject of the message
+     * @param message {String} The actual message
+     */
+    sendMessage : function(callback, context, subject, message) {
+      qx.core.Assert.assertFunction(callback);
+      qx.core.Assert.assertString(subject);
+      qx.core.Assert.assertString(message);
+      this._obj.notify(callback, context, subject, message);
     }
   }
 });
