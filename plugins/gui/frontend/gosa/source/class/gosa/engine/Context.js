@@ -57,6 +57,17 @@ qx.Class.define("gosa.engine.Context", {
     _resourceManager : null,
     _actionMenuEntries : null,
     _appeared : false,
+    _actionController : null,
+
+    /**
+     * @return {gosa.data.ActionController} The action controller for this context (each has its own)
+     */
+    getActionController : function() {
+      if (!this._actionController) {
+        this._actionController = new gosa.data.ActionController(this._controller);
+      }
+      return this._actionController;
+    },
 
     /**
      * @return {gosa.ui.widgets.Widget} The root widget container for this template
@@ -149,6 +160,7 @@ qx.Class.define("gosa.engine.Context", {
     this._actionMenuEntries = null;
     this._controller = null;
     this._disposeObjects(
+      "_actionController",
       "_processor",
       "_rootWidget",
       "_widgetRegistry",

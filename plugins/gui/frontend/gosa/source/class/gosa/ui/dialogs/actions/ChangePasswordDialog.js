@@ -11,103 +11,97 @@
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
+qx.Class.define("gosa.ui.dialogs.actions.ChangePasswordDialog", {
 
-/*
-#asset(gosa/*)
-*/
-qx.Class.define("gosa.ui.dialogs.ChangePasswordDialog", {
+  extend: gosa.ui.dialogs.actions.Base,
 
-  extend: gosa.ui.dialogs.Dialog,
+  construct: function(actionController) {
+    this.base(arguments, actionController, this.tr("Change password..."), gosa.Config.getImagePath("status/dialog-password.png", 22));
 
-  construct: function(object)
-  {
-    this.base(arguments, this.tr("Change password..."), gosa.Config.getImagePath("status/dialog-password.png", 22));
-    this._object = object;
+    this._initWidgets();
+  },
 
-    // Show Subject/Message pane
-    var form = new qx.ui.form.Form();
-    this._form = form;
+  members : {
 
-    var current = null;
-    if(object.getPasswordMethod().getLength()){
-      current = object.getPasswordMethod().toArray()[0];
-    }
+    _initWidgets : function() {
+      var form = this._form = new qx.ui.form.Form();
 
-    var method = new qx.ui.form.SelectBox();
-    var rpc = gosa.io.Rpc.getInstance();
-    rpc.cA(function(result, error){
-        if(error){
+      // current password method
+      var current = this._actionController.getPasswordMethod();
+
+      var method = new qx.ui.form.SelectBox();
+      gosa.io.Rpc.getInstance().cA(function(result, error) {
+        if (error) {
           new gosa.ui.dialogs.Error(error.message).open();
           this.close();
-        }else{
-          for(var item in result){
+        }
+        else {
+          for (var item in result) {
             var tempItem = new qx.ui.form.ListItem(result[item], null, result[item]);
             method.add(tempItem);
 
-            if(current == result[item]){
+            if (current == result[item]) {
               method.setSelection([tempItem]);
             }
           }
         }
       }, this, "listPasswordMethods");
 
-    // Add the form items
-    var pwd1 = new qx.ui.form.PasswordField();
-    pwd1.setRequired(true);
-    pwd1.setWidth(200);
+      // Add the form items
+      var pwd1 = new qx.ui.form.PasswordField();
+      pwd1.setRequired(true);
+      pwd1.setWidth(200);
 
-    var pwd2 = new qx.ui.form.PasswordField();
-    pwd2.setRequired(true);
-    pwd2.setWidth(200);
+      var pwd2 = new qx.ui.form.PasswordField();
+      pwd2.setRequired(true);
+      pwd2.setWidth(200);
 
-    form.add(method, this.tr("Encryption"), null, "method");
-    form.add(pwd1, this.tr("New password"), null, "pwd1");
-    form.add(pwd2, this.tr("New password (repeated)"), null, "pwd2");
+      form.add(method, this.tr("Encryption"), null, "method");
+      form.add(pwd1, this.tr("New password"), null, "pwd1");
+      form.add(pwd2, this.tr("New password (repeated)"), null, "pwd2");
 
-    var la = new gosa.ui.form.renderer.Single(form);
-    la.getLayout().setColumnAlign(0, "left", "middle");
-    this.addElement(la);
-    var controller = new qx.data.controller.Form(null, form);
+      var la = new gosa.ui.form.renderer.Single(form);
+      la.getLayout().setColumnAlign(0, "left", "middle");
+      this.addElement(la);
+      var controller = new qx.data.controller.Form(null, form);
 
-    // Add password indicator
-    this._passwordIndicator = new qx.ui.indicator.ProgressBar();
-    this._passwordIndicator.setDecorator(null);
-    this._passwordIndicator.setHeight(5);
-    this._passwordIndicator.setBackgroundColor("background-selected-disabled");
-    this.addElement(this._passwordIndicator);
+      // Add password indicator
+      this._passwordIndicator = new qx.ui.indicator.ProgressBar();
+      this._passwordIndicator.setDecorator(null);
+      this._passwordIndicator.setHeight(5);
+      this._passwordIndicator.setBackgroundColor("background-selected-disabled");
+      this.addElement(this._passwordIndicator);
 
-    // Add status label
-    this._info = new qx.ui.basic.Label();
-    this._info.setRich(true);
-    this._info.exclude();
-    this.addElement(this._info);
-    this.getLayout().setAlignX("center");
+      // Add status label
+      this._info = new qx.ui.basic.Label();
+      this._info.setRich(true);
+      this._info.exclude();
+      this.addElement(this._info);
+      this.getLayout().setAlignX("center");
 
-    // Wire status label
-    pwd1.addListener("keyup", this.updateStatus, this);
-    pwd2.addListener("keyup", this.updateStatus, this);
-    this._pwd1 = pwd1;
-    this._pwd2 = pwd2;
+      // Wire status label
+      pwd1.addListener("keyup", this.updateStatus, this);
+      pwd2.addListener("keyup", this.updateStatus, this);
+      this._pwd1 = pwd1;
+      this._pwd2 = pwd2;
 
-    this._model = controller.createModel();
+      this._model = controller.createModel();
 
-    var ok = gosa.ui.base.Buttons.getButton(this.tr("Set password"), "status/dialog-password.png");
-    ok.addState("default");
-    ok.addListener("execute", this.setPassword, this);
-    ok.setEnabled(false);
-    this._ok = ok;
+      var ok = gosa.ui.base.Buttons.getButton(this.tr("Set password"), "status/dialog-password.png");
+      ok.addState("default");
+      ok.addListener("execute", this.setPassword, this);
+      ok.setEnabled(false);
+      this._ok = ok;
 
-    var cancel = gosa.ui.base.Buttons.getCancelButton();
-    cancel.addState("default");
-    cancel.addListener("execute", this.close, this);
+      var cancel = gosa.ui.base.Buttons.getCancelButton();
+      cancel.addState("default");
+      cancel.addListener("execute", this.close, this);
 
-    this.addButton(ok);
-    this.addButton(cancel);
+      this.addButton(ok);
+      this.addButton(cancel);
 
-    this.setFocusOrder([pwd1, pwd2, ok]);
-  },
-
-  members : {
+      this.setFocusOrder([pwd1, pwd2, ok]);
+    },
 
     updateStatus : function()
     {
@@ -142,14 +136,13 @@ qx.Class.define("gosa.ui.dialogs.ChangePasswordDialog", {
             return;
         }
 
-        this._object.changePasswordMethod(function(response, error){
+        this._actionController.setPassword(function(response, error) {
           if (error) {
             new gosa.ui.dialogs.Error(error.message).open();
           } else {
             this.close();
             new gosa.ui.dialogs.Info(this.tr("Password has been changed successfully.")).open();
           }
-
         }, this, this._model.get("method"), this._model.get("pwd1"));
       }
     },

@@ -26,11 +26,11 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       // TODO: shortcuts, conditions, target
       if (data.hasOwnProperty("dialog")) {
         button.addListener("execute", function() {
-          var clazz = qx.Class.getByName("gosa.ui.dialogs." + data.dialog);
+          var clazz = qx.Class.getByName("gosa.ui.dialogs.actions." + data.dialog);
           if (!clazz) {
             qx.core.Assert.fail("Cannot find class for dialog '" + data.dialog + "'");
           }
-          var dialog = new clazz();
+          var dialog = new clazz(context.getActionController());
           dialog.setAutoDispose(true);
           dialog.open();
         });

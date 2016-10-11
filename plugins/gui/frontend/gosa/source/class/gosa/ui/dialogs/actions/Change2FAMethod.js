@@ -14,45 +14,56 @@
 
 /**
 * @ignore(u2f.register)
+* Dialog for changing the two-factor authentification.
 */
-qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
+qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
 
-  extend: gosa.ui.dialogs.Dialog,
+  extend: gosa.ui.dialogs.actions.Base,
 
-  construct: function(object)
-  {
-    this.base(arguments, this.tr("Change 2FA method..."), gosa.Config.getImagePath("status/dialog-password.png", 22));
-    this._object = object;
+  construct: function(actionController) {
+    this.base(arguments, actionController, this.tr("Change 2FA method..."), gosa.Config.getImagePath("status/dialog-password.png", 22));
+    this._initWidgets();
+  },
 
-    // Show Subject/Message pane
-    var form = new qx.ui.form.Form();
-    this._form = form;
+  members : {
+    _ok : null,
+    _cancel : null,
+    _current: null,
+    _pwd : null,
+    _method : null,
+    _qrCodeField : null,
 
-    var method = this._method = new qx.ui.form.SelectBox();
-    method.setWidth(200);
+    _initWidgets : function() {
+      // Show Subject/Message pane
+      var form = new qx.ui.form.Form();
+      this._form = form;
 
-    object.getTwoFactorMethod(function(response, error) {
-      this._current = response;
-      // show password field if the user wants to change the 2FA method
-      method.addListener("changeSelection", function(e) {
-        var selected = e.getData()[0].getModel();
-        if (this._current === null || this._current === selected) {
-          // if we have no 2FA activated at the moment we do not need to check the user pwd
-          this._pwd.exclude();
-          this._pwd.setRequired(false);
-        } else {
-          this._pwd.show();
-          this._pwd.setRequired(true);
-        }
+      var method = this._method = new qx.ui.form.SelectBox();
+      method.setWidth(200);
+
+      this._actionController.getTwoFactorMethod(function(response, error) {
+        this._current = response;
+        // show password field if the user wants to change the 2FA method
+        method.addListener("changeSelection", function(e) {
+          var selected = e.getData()[0].getModel();
+          if (this._current === null || this._current === selected) {
+            // if we have no 2FA activated at the moment we do not need to check the user pwd
+            this._pwd.exclude();
+            this._pwd.setRequired(false);
+          } else {
+            this._pwd.show();
+            this._pwd.setRequired(true);
+          }
+        }, this);
       }, this);
-    }, this);
 
-    var rpc = gosa.io.Rpc.getInstance();
-    rpc.cA(function(result, error){
-        if(error){
+      var rpc = gosa.io.Rpc.getInstance();
+      rpc.cA(function(result, error) {
+        if (error) {
           new gosa.ui.dialogs.Error(error.message).open();
           this.close();
-        }else{
+        }
+        else {
           for (var item in result) {
             var label = result[item];
             if (!label) {
@@ -68,64 +79,56 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
         }
       }, this, "getAvailable2FAMethods");
 
-    // Add the form items
-    var pwd = this._pwd = new qx.ui.form.PasswordField();
-    pwd.setWidth(200);
+      // Add the form items
+      var pwd = this._pwd = new qx.ui.form.PasswordField();
+      pwd.setWidth(200);
 
-    form.add(method, this.tr("Select method"), null, "method");
-    form.add(pwd, this.tr("Verify with password"), null, "pwd");
+      form.add(method, this.tr("Select method"), null, "method");
+      form.add(pwd, this.tr("Verify with password"), null, "pwd");
 
-    var la = new gosa.ui.form.renderer.Single(form);
-    la.getLayout().setColumnAlign(0, "left", "middle");
-    this.addElement(la);
-    var controller = new qx.data.controller.Form(null, form);
+      var la = new gosa.ui.form.renderer.Single(form);
+      la.getLayout().setColumnAlign(0, "left", "middle");
+      this.addElement(la);
+      var controller = new qx.data.controller.Form(null, form);
 
-    // Add status label
-    this._info = new gosa.ui.basic.StatusLabel();
-    this._info.exclude();
-    this.addElement(this._info);
-    this.getLayout().setAlignX("center");
+      // Add status label
+      this._info = new gosa.ui.basic.StatusLabel();
+      this._info.exclude();
+      this.addElement(this._info);
+      this.getLayout().setAlignX("center");
 
-    // QR-Code field
-    this._qrCodeField = new qx.ui.container.Composite(new qx.ui.layout.VBox());
-    this._qrCodeField.exclude();
-    this.addElement(this._qrCodeField);
+      // QR-Code field
+      this._qrCodeField = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+      this._qrCodeField.exclude();
+      this.addElement(this._qrCodeField);
 
-    this._model = controller.createModel();
+      this._model = controller.createModel();
 
-    var ok = this._ok = gosa.ui.base.Buttons.getButton(this.tr("Change method"), "status/dialog-password.png");
-    ok.addState("default");
-    ok.addListener("execute", this.setMethod, this);
+      var ok = this._ok = gosa.ui.base.Buttons.getButton(this.tr("Change method"), "status/dialog-password.png");
+      ok.addState("default");
+      ok.addListener("execute", this._setMethod, this);
 
-    var cancel = this._cancel = gosa.ui.base.Buttons.getCancelButton();
-    cancel.addState("default");
-    cancel.addListener("execute", this.close, this);
+      var cancel = this._cancel = gosa.ui.base.Buttons.getCancelButton();
+      cancel.addState("default");
+      cancel.addListener("execute", this.close, this);
 
-    this.addButton(ok);
-    this.addButton(cancel);
+      this.addButton(ok);
+      this.addButton(cancel);
 
-    this.setFocusOrder([method, pwd, ok]);
+      this.setFocusOrder([method, pwd, ok]);
 
-  },
+    },
 
-  members : {
-    _ok : null,
-    _cancel : null,
-    _current: null,
-    _pwd : null,
-    _method : null,
-    _qrCodeField : null,
-
-    setMethod : function() {
+    _setMethod : function() {
       if (this._form.validate()) {
         var method = this._method.getSelection()[0].getModel();
         if (method !== this._current) {
           if (this._current === null) {
             // no confirmation required
-            this._object.changeTwoFactorMethod(this._handleMethodChangeResponse, this, method);
+            this._actionController.setTwoFactorMethod(this._handleMethodChangeResponse, this, method);
           } else {
             var pwd = this._pwd.getValue();
-            this._object.changeTwoFactorMethod(this._handleMethodChangeResponse, this, method, pwd);
+            this._actionController.setTwoFactorMethod(this._handleMethodChangeResponse, this, method, pwd);
           }
         }
         else {
@@ -158,7 +161,7 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
                 if (deviceResponse.errorCode) {
                   this._showInfo(null, this.tr("Device responded with error '%1': %2", deviceResponse.errorCode, gosa.Tools.getU2FErrorMessage(deviceResponse.errorCode)));
                 } else {
-                  this._object.finishU2FRegistration(this._handleMethodChangeResponse, this, qx.lang.Json.stringify(deviceResponse));
+                  this._actionController.finishU2FRegistration(this._handleMethodChangeResponse, this, qx.lang.Json.stringify(deviceResponse));
                 }
               }.bind(this));
             } catch (e) {
@@ -172,8 +175,6 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
         }
       }
     },
-
-
 
     _showQrCode : function(data) {
       this._qrCodeField.removeAll();
@@ -201,5 +202,4 @@ qx.Class.define("gosa.ui.dialogs.Change2FAMethod", {
   destruct: function() {
     this._disposeObjects("_pwd", "_method", "_qrCodeField", "_ok", "_cancel");
   }
-
 });

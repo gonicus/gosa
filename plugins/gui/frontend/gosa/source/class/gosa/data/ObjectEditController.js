@@ -120,6 +120,15 @@ qx.Class.define("gosa.data.ObjectEditController", {
     },
 
     /**
+     * Exposes the object (model of the controller). Thee shall not use it in views...
+     *
+     * @return {gosa.proxy.Object | null}
+     */
+    getObject : function() {
+      return this._obj;
+    },
+
+    /**
      * Returns all extensions which are currently active on the object.
      *
      * @return {Array} List of extension names (strings); might be empty

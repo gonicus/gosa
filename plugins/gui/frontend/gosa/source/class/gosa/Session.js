@@ -88,7 +88,7 @@ qx.Class.define("gosa.Session",
     /**
      * Checks if the user has permission to execute the given command.
      *
-     * @param {String}
+     * @param command {String}
      * @return {Boolean}
      */
     isCommandAllowed : function(command) {
