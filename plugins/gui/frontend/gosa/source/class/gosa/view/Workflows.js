@@ -91,6 +91,8 @@ qx.Class.define("gosa.view.Workflows",
           workflow.get_templates(function(_templates, error) {
             // TODO: handle errors
             var templates = [];
+
+            // TODO: compile template
             for (var name in _templates) {
               if (_templates.hasOwnProperty(name)) {
                 templates.push({
