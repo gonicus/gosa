@@ -200,6 +200,9 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangePasswordDialog", {
     ************************************************************ */
     getPasswordScore : function (passwd)
     {
+      if (passwd === null) {
+        passwd = "";
+      }
       var score = 0;
 
       // PASSWORD LENGTH

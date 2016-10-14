@@ -20,7 +20,14 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       qx.core.Assert.assertKeyInMap("name", data, "Action configuration must have the key 'name'");
       qx.core.Assert.assertKeyInMap("text", data, "Action configuration must have the key 'text'");
 
-      var button = new qx.ui.menu.Button(data.text, context.getResourceManager().getResource(data.icon));
+      // shortcut
+      var command = null;
+      if (data.hasOwnProperty("shortcut")) {
+        command = new qx.ui.command.Command(data.shortcut);
+      }
+
+      // button creation
+      var button = new qx.ui.menu.Button(data.text, context.getResourceManager().getResource(data.icon), command);
       button.setAppearance("icon-menu-button");
 
       // TODO: shortcuts, conditions, target, acl
