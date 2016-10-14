@@ -18,6 +18,39 @@ qx.Class.define("gosa.data.ActionController", {
     _obj : null,
 
     /**
+     * Returns the dn of the object.
+     *
+     * @return {String | null}
+     */
+    getDn : function() {
+      return this._obj.dn;
+    },
+
+    /**
+     * Returns the uuid of the object.
+     *
+     * @return {String | null}
+     */
+    getUuid : function() {
+      return this._obj.uuid;
+    },
+
+    /**
+     * Returns the value of the attribute of the object.
+     *
+     * @param attributeName {String} Name of the desired attribute
+     * @return {qx.data.Array | null}
+     */
+    getAttributeValue : function(attributeName) {
+      qx.core.Assert.assertString(attributeName);
+
+      if (qx.Class.hasProperty(this._obj.constructor, attributeName)) {
+        return this._obj.get(attributeName);
+      }
+      return null;
+    },
+
+    /**
      * Find the current password method saved in the object.
      *
      * @return {String | null} The current password method

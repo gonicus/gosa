@@ -23,7 +23,16 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       var button = new qx.ui.menu.Button(data.text, context.getResourceManager().getResource(data.icon));
       button.setAppearance("icon-menu-button");
 
-      // TODO: shortcuts, conditions, target
+      // TODO: shortcuts, conditions, target, acl
+
+      // condition
+      if (data.hasOwnProperty("condition")) {
+        button.addListenerOnce("appear", function() {
+          this._checkCondition(data.condition, context, button.setEnabled, button);
+        }, this);
+      }
+
+      // listener to open dialog
       if (data.hasOwnProperty("dialog")) {
         button.addListener("execute", function() {
           var clazz = qx.Class.getByName("gosa.ui.dialogs.actions." + data.dialog);
@@ -37,6 +46,80 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       }
 
       context.addActionMenuEntry(data.name, button);
+    },
+
+    /**
+     * Check if the given condition is satisfied.
+     *
+     * @param condition {String} Complete condition string as saved in the template
+     * @param context {gosa.engine.Context}
+     * @param callback {Function} Called when the condition is checked, only parameter is a Boolean showing whether the
+     *   condition is satisfied or not
+     * @param callbackContext {Object ? null} Optional context for the callback function
+     */
+    _checkCondition : function(condition, context, callback, callbackContext) {
+      qx.core.Assert.assertString(condition);
+      qx.core.Assert.assertFunction(callback);
+
+      // get configuration for condition rpc
+      var parser = /^(!)?([^(]*)(\((.*)\))?$/;
+      var parsed = parser.exec(condition);
+      var name = parsed[2];
+      var negated = parsed[1] === "!";
+      var result = false;
+
+      // conditions with arguments are rpc; all others are attributes of the object
+      if (parsed[4]) {  // has arguments
+        // method call
+
+        // build arguments for rpc call
+        var args = [];
+        parsed[4].split(",").forEach(function(arg) {
+          if (arg === "dn") {
+            args.push(context.getActionController().getDn());
+          }
+          else if (arg === "uuid") {
+            args.push(context.getActionController().getUuid());
+          }
+          else if (arg[0] === '"' || arg[0] === "'") {  // argument is a static string
+            args.push(arg.replace(/^["']/, "").replace(/["']$/, ""));
+          }
+          else {  // attributes of object
+            var value = context.getAttributeValue(arg);
+            args.push(value && value.getLenth() > 0 ? value.getItem(0) : null);
+          }
+        });
+
+        // invoke rpc
+        var rpc = gosa.io.Rpc.getInstance();
+        rpc.cA.apply(rpc, [function(result, error) {
+          if (error) {
+            new gosa.ui.dialogs.Error(error.message).open();
+          }
+          else {
+            // negation
+            if (negated) {
+              result = !result;
+            }
+
+            callback.call(callbackContext, result);
+          }
+        }, this, name].concat(args));
+      }
+      else {
+        // object attribute
+        var value = context.getActionController().getAttributeValue(name);
+        if (value.getLength() > 0) {
+          result = !!value.getItem(0);
+        }
+
+        // negation
+        if (negated) {
+          result = !result;
+        }
+
+        callback.call(callbackContext, result);
+      }
     }
   },
 
