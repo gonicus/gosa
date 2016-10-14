@@ -23,10 +23,14 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
 
   /**
    * @param template {String} The unparsed dialog template
+   * @param controller {gosa.data.ObjectEditController}
    */
-  construct : function(template) {
+  construct : function(template, controller) {
     qx.core.Assert.assertObject(template);
+    qx.core.Assert.assertInstance(controller, gosa.data.ObjectEditController);
+
     this._parsedTemplate = template;
+    this.setController(controller);
 
     this.base(arguments, this._getWindowTitle());
     this.setAutoDispose(true);
@@ -66,7 +70,7 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
     _addWidgets : function() {
       var container = new qx.ui.container.Composite(new qx.ui.layout.VBox());
       this.addElement(container, {flex : 1});
-      new gosa.engine.Context(this._parsedTemplate, container);
+      new gosa.engine.Context(this._parsedTemplate, container, undefined, this.getController());
     }
   }
 });

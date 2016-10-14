@@ -45,10 +45,15 @@ qx.Class.define("gosa.engine.WidgetFactory", {
      * {@link gosa.ui.dialogs}. If that is not found, it looks into the transferred cache of dialog templates.
      *
      * @param name {String} Name of the dialog class/template
+     * @param controller {gosa.data.ObjectEditController ? null} Optional object controller
      * @return {gosa.ui.dialogs.Dialog | null} The (unopened) dialog widget
      */
-    createDialog : function(name) {
+    createDialog : function(name, controller) {
       qx.core.Assert.assertString(name);
+      if (controller) {
+        qx.core.Assert.assertInstance(controller, gosa.data.ObjectEditController);
+      }
+
       var clazzName = name.substring(0, 1).toUpperCase() + name.substring(1);
       var clazz = qx.Class.getByName("gosa.ui.dialogs." + clazzName);
 
@@ -62,7 +67,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       // find dialog template
       var template = gosa.data.TemplateRegistry.getInstance().getDialogTemplate(name);
       if (template) {
-        return new gosa.ui.dialogs.TemplateDialog(template);
+        return new gosa.ui.dialogs.TemplateDialog(template, controller);
       }
       return null;
     }
