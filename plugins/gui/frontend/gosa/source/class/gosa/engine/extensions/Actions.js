@@ -48,8 +48,17 @@ qx.Class.define("gosa.engine.extensions.Actions", {
           }
           var dialog = new clazz(context.getActionController());
           dialog.setAutoDispose(true);
+
+          if (data.hasOwnProperty("icon")) {
+            dialog.setIcon(context.getResourceManager().getResource(data.icon));
+          }
           dialog.open();
         });
+      }
+
+      // listener to invoke target
+      if (data.hasOwnProperty("target")) {
+        this._addExecuteTargetListener(data.target, button, context);
       }
 
       context.addActionMenuEntry(data.name, button);
@@ -127,6 +136,56 @@ qx.Class.define("gosa.engine.extensions.Actions", {
 
         callback.call(callbackContext, result);
       }
+    },
+
+    /**
+     * Executes a given method (aka target) on the object.
+     *
+     * @param target {String} The unparsed target string as it apperas in the template
+     * @param button {qx.ui.menu.Button} Button on which the listener shall be added
+     * @param context {gosa.engine.Context}
+     */
+    _addExecuteTargetListener : function(target, button, context) {
+      qx.core.Assert.assertString(target);
+      qx.core.Assert.assertInstance(button, qx.ui.menu.Button);
+
+      var parser = /^([^(]+)\((.*)\)$/;
+      var parsed = parser.exec(target);
+      var methodName = parsed[1];
+      var params = parsed[2];
+      var args = [];
+
+      // create argument list
+      if (qx.lang.Type.isString(params) && params !== "") {
+        params = params.split(",");
+        var paramParser = /%\(([^)]+)\)s/;
+
+        params.forEach(function(param) {
+          var match = paramParser.exec(param);
+          if (match) {
+            var data = context.getActionController().getProperty(match[1]);
+            if (qx.lang.Type.isArray(data)) {
+              args.push(param.replace(match[0], data[0]));
+            }
+            else {
+              args.push(param.replace(match[0], data));
+            }
+          }
+        });
+      }
+
+      // listener for invoking the target
+      button.addListener("execute", function() {
+        args.unshift(methodName, function(result, error) {
+          if (error) {
+            new gosa.ui.dialogs.Error(error.message).open();
+          }
+          else {
+            qx.log.Logger.info("Call of method '" + methodName + "' was successful and returned '" + result + "'");
+          }
+        });
+        context.getActionController().callMethod.apply(context.getActionController(), args);
+      }, this);
     }
   },
 

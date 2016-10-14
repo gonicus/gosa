@@ -51,6 +51,31 @@ qx.Class.define("gosa.data.ActionController", {
     },
 
     /**
+     * Returns the value of a property of the object.
+     *
+     * @param property {String} Name of the desired property
+     * @return {Var | null} The value of the property; null if not found
+     */
+    getProperty : function(property) {
+      qx.core.Assert.assertString(property);
+      var result = this._obj[property];
+      return result === undefined ? null : result;
+    },
+
+    /**
+     * Calls the given method on the object.
+     *
+     * @param methodName {String} Name of the method
+     * @param callback {Function} Callback function with the parameters result and error
+     * @param context {Object ? null} Optional context for the callback function
+     */
+    callMethod : function(methodName, callback, context) {
+      qx.core.Assert.assertString(methodName);
+      qx.core.Assert.assertFunction(callback);
+      this._obj.callMethod.apply(this._obj, arguments);
+    },
+
+    /**
      * Find the current password method saved in the object.
      *
      * @return {String | null} The current password method
