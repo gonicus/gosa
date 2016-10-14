@@ -403,11 +403,5 @@
                 }]
             }]
         }]
-    }, {
-        "class": "qx.ui.core.Widget",
-        "properties" : {
-            "width": 20,
-            "height": 40
-        }
     }]
 }

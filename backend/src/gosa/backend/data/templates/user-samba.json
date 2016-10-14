@@ -25,10 +25,6 @@
             "icon": "favicon"
         }
     },
-    "properties": {
-        "width": 726,
-        "height": 627
-    },
     "children": [{
         "class": "gosa.ui.widgets.GroupBox",
         "layout": "qx.ui.layout.VBox",
@@ -562,11 +558,5 @@
                 "dialog": "sambaUserWorkStations"
             }
         }]
-    }, {
-        "class": "qx.ui.core.Widget",
-        "properties": {
-          "width": 20,
-          "height": 40
-        }
     }]
 }

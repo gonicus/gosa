@@ -200,7 +200,8 @@
                 "flex": 1
             },
             "properties": {
-                "multivalue": true
+                "multivalue": true,
+                "maxHeight": 280
             },
             "extensions": {
                 "guiProperties": {

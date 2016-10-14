@@ -192,11 +192,5 @@
                 "toolTipText": "tr('Specifies the maximum number of days the password is valid.')"
             }
         }]
-    }, {
-        "class": "qx.ui.core.Widget",
-        "properties": {
-            "width": 20,
-            "height": 40
-        }
     }]
 }
