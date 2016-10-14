@@ -26,6 +26,10 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangeSambaPasswordDialog", {
     this._initWidgets();
   },
 
+  statics : {
+    RPC_CALLS : ["setSambaPassword"]
+  },
+
   members : {
     _form : null,
     _passwordIndicator : null,

@@ -24,6 +24,10 @@ qx.Class.define("gosa.ui.dialogs.actions.SendMessageDialog", {
     this._initWidgets();
   },
 
+  statics : {
+    RPC_CALLS : ["notifyUser"]
+  },
+
   members : {
     _ok : null,
     _form : null,

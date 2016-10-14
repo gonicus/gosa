@@ -11,8 +11,47 @@ qx.Class.define("gosa.engine.extensions.Actions", {
     process : function(data, target, context) {
       qx.core.Assert.assertArray(data, "Actions configuration must be an array");
       data.forEach(function(action) {
-        this._processAction(action, target, context);
+        if (this._isActionAllowed(action)) {  // actions without permission are not shown
+          this._processAction(action, target, context);
+        }
       }, this);
+    },
+
+    /**
+     * Checks if the user has the permission to execute the action.
+     *
+     * @param action {Map} The action node
+     * @return {Boolean}
+     */
+    _isActionAllowed : function(action) {
+      qx.core.Assert.assertMap(action);
+      qx.core.Assert.assertTrue(action.hasOwnProperty("dialog") || action.hasOwnProperty("target"));
+
+      // check target
+      if (action.hasOwnProperty("target")) {
+        qx.core.Assert.assertString(action.target);
+        var methodName = /^([^(]+)\((.*)\)$/.exec(action.target)[1];
+        qx.core.Assert.assertString(methodName);
+        qx.core.Assert.assertFalse(methodName === "");
+
+        if (!gosa.Session.getInstance().isCommandAllowed(methodName)) {
+          return false;
+        }
+      }
+
+      // check dialog
+      if (action.hasOwnProperty("dialog")) {
+        qx.core.Assert.assertString(action.dialog);
+        var rpc = gosa.util.Template.getDialogRpc(action.dialog);
+        var clazz = gosa.ui.dialogs.actions[action.dialog];
+        var rpcList = clazz.RPC_CALLS;
+        var session = gosa.Session.getInstance();
+
+        // user must be allowed to enhance each rpc
+        return rpcList.every(session.isCommandAllowed, session);
+      }
+
+      return true;
     },
 
     _processAction : function(data, target, context) {
@@ -29,8 +68,6 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       // button creation
       var button = new qx.ui.menu.Button(data.text, context.getResourceManager().getResource(data.icon), command);
       button.setAppearance("icon-menu-button");
-
-      // TODO: shortcuts, conditions, target, acl
 
       // condition
       if (data.hasOwnProperty("condition")) {

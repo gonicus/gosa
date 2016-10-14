@@ -21,6 +21,10 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangePasswordDialog", {
     this._initWidgets();
   },
 
+  statics : {
+    RPC_CALLS : ["listPasswordMethods", "setUserPassword"]
+  },
+
   members : {
 
     _initWidgets : function() {

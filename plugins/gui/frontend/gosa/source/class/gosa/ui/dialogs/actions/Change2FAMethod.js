@@ -20,6 +20,15 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
 
   extend: gosa.ui.dialogs.actions.Base,
 
+  statics : {
+    RPC_CALLS : [
+      "setTwoFactorMethod",
+      "getTwoFactorMethod",
+      "getAvailable2FAMethods",
+      "completeU2FRegistration"
+    ]
+  },
+
   construct: function(actionController) {
     this.base(arguments, actionController, this.tr("Change 2FA method..."), gosa.Config.getImagePath("status/dialog-password.png", 22));
     this._initWidgets();
