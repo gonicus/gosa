@@ -191,8 +191,9 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       this._createTabPages();
       this._createToolmenu();
       this._createButtons();
-      this._createRetractMenu();
       this._createExtendMenu();
+      this._createRetractMenu();
+      this._createActionButtons();
     },
 
     _createTabView : function() {
@@ -208,8 +209,6 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _createToolmenu : function() {
       this._toolMenu = new qx.ui.menu.Menu();
       this._tabView.getChildControl("bar").setMenu(this._toolMenu);
-
-      this._createActionButtons();
     },
 
     _createActionButtons : function() {
@@ -234,9 +233,15 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       }
       sorted.sort();
 
+      // create action menu
+      var actionMenu = new qx.ui.menu.Menu();
+      var actionButton = new qx.ui.menu.Button(this.tr("Action"), gosa.Config.getImagePath("actions/actions.png", 22),
+        null, actionMenu);
+      this._toolMenu.add(actionButton);
+
       // add menu entries to widget
       sorted.forEach(function(key) {
-        this._toolMenu.add(allActionEntries[key]);
+        actionMenu.add(allActionEntries[key]);
       }, this);
     },
 
