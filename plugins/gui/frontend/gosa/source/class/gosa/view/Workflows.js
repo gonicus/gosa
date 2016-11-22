@@ -83,7 +83,6 @@ qx.Class.define("gosa.view.Workflows",
 
     startWorkflow: function(workflowItem) {
       var win = null;
-      console.log(workflowItem);
       gosa.proxy.ObjectFactory.openWorkflow(function(workflow, error) {
         if (error) {
           this.error(error);
@@ -92,18 +91,21 @@ qx.Class.define("gosa.view.Workflows",
             // TODO: handle errors
             var templates = [];
 
-            // TODO: compile template
-            for (var name in _templates) {
-              if (_templates.hasOwnProperty(name)) {
-                templates.push({
-                  extension: name,
-                  template: _templates[name]
-                });
-              }
-            }
-
             workflow.get_translations(function(translations, error) {
               // TODO: handle errors
+
+              for (var name in _templates) {
+                if (_templates.hasOwnProperty(name)) {
+                  var templateObj = {
+                    extension: name,
+                    template: gosa.util.Template.compileTemplate(_templates[name])
+                  };
+                  if (translations.hasOwnProperty(name)) {
+                    templateObj.translation = qx.lang.Json.parse(translations[name]);
+                  }
+                  templates.push(templateObj);
+                }
+              }
 
               // Build widget and place it into a window
               gosa.engine.WidgetFactory.createWorkflowWidget(function(w){
