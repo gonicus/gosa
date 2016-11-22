@@ -65,9 +65,12 @@ class Workflow:
         templates = {}
 
         find = objectify.ObjectPath("Workflow.Templates")
-        for template in find(self._xml_root[0]).getchildren():
+        for idx, template in enumerate(find(self._xml_root[0]).getchildren()):
             with open(os.path.join(self._path, self.uuid, "templates", template.text), "r") as ftpl:
-                templates[template.text] = ftpl.read()
+                templates[template.text] = {
+                    "index": idx,
+                    "content": ftpl.read()
+                }
 
         return templates
 
