@@ -469,7 +469,7 @@ class ObjectProxy(object):
         for e in res['extensions'].keys():
             ei[e] = self.get_extension_dependencies(e)
         res['extension_deps'] = ei
-        res['extension_methods'] = {};
+        res['extension_methods'] = {}
         for method in self.__method_type_map:
             if self.__method_type_map[method] not in res['extension_methods']:
                 res['extension_methods'][self.__method_type_map[method]] = []

@@ -27,6 +27,18 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
-    "title-bar" : {}
+    "title-bar" : {},
+
+    "gosa-workflow-item": {
+      style: {
+        width: 1,
+        radius: 10,
+        color: "icon-color",
+        startColorPosition: 0,
+        endColorPosition: 100,
+        startColor: "#FFFFFF",
+        endColor: "#DDDDDD"
+      }
+    }
   }
 });

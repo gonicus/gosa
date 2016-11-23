@@ -23,12 +23,37 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       addTemplates(obj.baseType);
 
       // extensions
-      var extensions = obj.extensionTypes;
-      for (var ext in extensions) {
-        if (extensions.hasOwnProperty(ext) && extensions[ext]) {
-          addTemplates(ext);
+      if ("extensionTypes" in obj) {
+        var extensions = obj.extensionTypes;
+        for (var ext in extensions) {
+          if (extensions.hasOwnProperty(ext) && extensions[ext]) {
+            addTemplates(ext);
+          }
         }
       }
+
+      // generate widget
+      var widget = new gosa.ui.widgets.ObjectEdit(templates);
+
+      // invoke callback
+      if (context) {
+        callback = qx.lang.Function.bind(callback, context);
+      }
+      callback(widget);
+    },
+
+    /**
+     * Create a new widget for the given workflow and invoke the callback afterwards.
+     *
+     * @param callback {Function} Called after the widget is created; only argument is the widget
+     * @param context {Object ? null} Context for the callback function
+     * @param workflow {gosa.proxy.Object} The workflows.* workflow for which the widget shall be created
+     * @param templates {Array} array of templates for the workflow
+     * @param translations {Map} translations for the templates
+     */
+    createWorkflowWidget : function(callback, context, obj, templates, translations) {
+      qx.core.Assert.assertFunction(callback);
+      qx.core.Assert.assertInstance(obj, gosa.proxy.Object);
 
       // generate widget
       var widget = new gosa.ui.widgets.ObjectEdit(templates);

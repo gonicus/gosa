@@ -65,9 +65,12 @@ class Workflow:
         templates = {}
 
         find = objectify.ObjectPath("Workflow.Templates")
-        for template in find(self._xml_root[0]).getchildren():
+        for idx, template in enumerate(find(self._xml_root[0]).getchildren()):
             with open(os.path.join(self._path, self.uuid, "templates", template.text), "r") as ftpl:
-                templates[template.text] = ftpl.read()
+                templates[template.text] = {
+                    "index": idx,
+                    "content": ftpl.read()
+                }
 
         return templates
 
@@ -76,13 +79,13 @@ class Workflow:
 
         find = objectify.ObjectPath("Workflow.Templates")
         for template in find(self._xml_root[0]).getchildren():
-            translation = template[:-2] + "locale"
-            translation_path = os.path.join(self._path, self.env, "i18n", locale, translation)
+            translation = template.text[:-5]
+            translation_path = os.path.join(self._path, self.uuid, "i18n", translation, "%s.json" % locale)
             if os.path.isfile(translation_path):
                 with open(translation_path, "r") as ftpl:
-                    translations[template] = ftpl.read()
+                    translations[template.text] = ftpl.read()
             else:
-                translations[template] = None
+                translations[template.text] = None
 
         return translations
 
@@ -135,10 +138,6 @@ class Workflow:
             for method in dispatcher.getMethods():
                 env[method] = make_dispatch(method)
 
-            print("-----------")
-            print(env)
-            print(script)
-            print("-----------")
             exec(script, env)
 
         except Exception as e:

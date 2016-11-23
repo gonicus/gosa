@@ -382,7 +382,7 @@ class JSONRPCObjectMapper(Plugin):
             'dn': obj.dn if hasattr(obj, 'dn') else None,
             'uuid': obj.uuid if hasattr(obj, 'uuid') else None,
             'object': obj,
-            'methods': methods,
+            'methods': list(set(methods)),
             'properties': properties
         }
 
