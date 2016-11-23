@@ -92,20 +92,24 @@ qx.Class.define("gosa.view.Workflows",
               this.error(error);
             } else {
               var templates = new qx.data.Array(_templates.length);
-              console.log(_templates);
-              for (var name in _templates) {
-                if (_templates.hasOwnProperty(name)) {
-                  templates.insertAt(parseInt(_templates[name]['index']), {
-                    extension : name,
-                    template  : gosa.util.Template.compileTemplate(_templates[name]['content'])
-                  });
-                }
-              }
 
               workflow.get_translations(function(translations, error) {
                 if (error) {
                   this.error(error);
                 } else {
+                  var localeManager = qx.locale.Manager.getInstance();
+                  for (var name in _templates) {
+                    if (translations.hasOwnProperty(name)) {
+                      // add translations to make them available before the template gets compiled
+                      localeManager.addTranslation(gosa.Config.getLocale(), qx.lang.Json.parse(translations[name]));
+                    }
+                    if (_templates.hasOwnProperty(name)) {
+                      templates.insertAt(parseInt(_templates[name]['index']), {
+                        extension : name,
+                        template  : gosa.util.Template.compileTemplate(_templates[name]['content'])
+                      });
+                    }
+                  }
 
                   // Build widget and place it into a window
                   gosa.engine.WidgetFactory.createWorkflowWidget(function(w) {
