@@ -33,6 +33,11 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
       event: "modelChanged",
       nullable: true,
       init: null
+    },
+
+    sortBy: {
+      check: ["key", "value"],
+      nullable: true
     }
   },
 
@@ -160,7 +165,6 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
           return value;
         };
       }
-
       if(data.classname != "qx.data.Array"){
         var items = [];
 
@@ -191,7 +195,15 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
             items.push(item);
           }
         }
-
+        if (this.getSortBy() === "key") {
+          items.sort(function(a,b) {
+            return a.getKey().localeCompare(b.getKey());
+          });
+        } else if (this.getSortBy() === "value") {
+          items.sort(function(a,b) {
+            return a.getValue().localeCompare(b.getValue());
+          });
+        }
         this.setModel(new qx.data.Array(items));
         this._model_initialized = true;
       }

@@ -214,7 +214,8 @@
                     "column": 1
                 },
                 "properties": {
-                    "tabIndex": 4
+                    "tabIndex": 4,
+                    "sortBy": "value"
                 }
             }, {
                 "class": "qx.ui.core.Widget",
