@@ -20,7 +20,7 @@ qx.Class.define("gosa.ui.Header", {
     this.base(arguments);
     this.setLayout(new qx.ui.layout.Canvas());
 
-    this._createChildControl("logo");
+    this._createChildControl("sandwich");
     this._createChildControl("label");
     this._createChildControl("logout");
   }, 
@@ -52,10 +52,15 @@ qx.Class.define("gosa.ui.Header", {
           this.add(control, {top:0, bottom:0, right: 10});
           break;
 
-        case "logo":
-          control = new qx.ui.basic.Atom();
-          this.add(control, {top:0, left:0, bottom: 0, right: 0});
+        case "sandwich":
+          control = new qx.ui.form.Button();
+          control.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Menu")));
+          var menu = this.__getSandwichMenu();
+          menu.setOpener(control);
+          control.addListener("execute", menu.open, menu);
+          this.add(control, {top:0, left:0, bottom: 0});
           break;
+
 
         case "label":
           control = new qx.ui.basic.Label("");
@@ -79,6 +84,16 @@ qx.Class.define("gosa.ui.Header", {
       }
 
       return control || this.base(arguments, id);
+    },
+
+    __getSandwichMenu: function() {
+      var menu = new qx.ui.menu.Menu();
+      var changePw = new qx.ui.menu.Button(this.tr("Change my password"));
+      changePw.addListener("execute", function() {
+
+      }, this);
+      menu.add(changePw);
+      return menu;
     },
 
     _applyLoggedInName: function(value){
