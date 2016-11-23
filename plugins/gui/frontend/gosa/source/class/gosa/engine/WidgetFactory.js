@@ -23,7 +23,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       addTemplates(obj.baseType);
 
       // extensions
-      if (obj.hasOwnProperty("extensionTypes")) {
+      if ("extensionTypes" in obj) {
         var extensions = obj.extensionTypes;
         for (var ext in extensions) {
           if (extensions.hasOwnProperty(ext) && extensions[ext]) {
