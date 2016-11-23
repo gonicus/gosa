@@ -138,10 +138,6 @@ class Workflow:
             for method in dispatcher.getMethods():
                 env[method] = make_dispatch(method)
 
-            print("-----------")
-            print(env)
-            print(script)
-            print("-----------")
             exec(script, env)
 
         except Exception as e:
