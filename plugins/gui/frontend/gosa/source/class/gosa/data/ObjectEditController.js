@@ -231,7 +231,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
      * Invoke rpc to continue editing while the timeout for automatic closing is running.
      */
     continueEditing : function() {
-      gosa.io.Rpc.getInstance().cA(function() {}, null, "continueObjectEditing", this._obj.instance_uuid);
+      gosa.io.Rpc.getInstance().cA("continueObjectEditing", this._obj.instance_uuid);
     },
 
     /**

@@ -67,26 +67,25 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
       }, this);
 
       var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA(function(result, error) {
-        if (error) {
-          new gosa.ui.dialogs.Error(error.message).open();
-          this.close();
-        }
-        else {
-          for (var item in result) {
-            var label = result[item];
-            if (!label) {
-              label = this.tr("Disabled");
-            }
-            var tempItem = new qx.ui.form.ListItem(label, null, result[item]);
-            method.add(tempItem);
+      rpc.cA("getAvailable2FAMethods")
+      .then(function(result) {
+        for (var item in result) {
+          var label = result[item];
+          if (!label) {
+            label = this.tr("Disabled");
+          }
+          var tempItem = new qx.ui.form.ListItem(label, null, result[item]);
+          method.add(tempItem);
 
-            if(this._current == result[item]){
-              method.setSelection([tempItem]);
-            }
+          if(this._current == result[item]){
+            method.setSelection([tempItem]);
           }
         }
-      }, this, "getAvailable2FAMethods");
+      }, this)
+      .catch(function(error) {
+        new gosa.ui.dialogs.Error(error.message).open();
+        this.close();
+      }, this);
 
       // Add the form items
       var pwd = this._pwd = new qx.ui.form.PasswordField();

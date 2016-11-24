@@ -152,7 +152,8 @@ qx.Class.define("gosa.data.model.TreeResultItem",
         if (this.getParent()) {
 
           // We're looking for entries on the current base
-          rpc.cA(function(data){
+          rpc.cA("search", this.getDn(), "children", null, {secondary: false, 'adjusted-dn': true, actions: true})
+          .then(function(data) {
             var newc = new qx.data.Array();
             for(var id in data){
               if (data.hasOwnProperty(id)) {
@@ -171,43 +172,37 @@ qx.Class.define("gosa.data.model.TreeResultItem",
               func.apply(ctx);
             }
             this.setLoading(false);
-
-          }, this, "search", this.getDn(), "children", null, {secondary: false, 'adjusted-dn': true, actions: true});
+          }, this);
 
         } else {
           // We're added uppon the root
           // Fetch all available domains
-          rpc.cA(function(data) {
-
-            var queue = 0;
-            data.forEach(function(entry) {
-              // Count startet job and once the last has finished sort the elements
-              queue ++;
-              rpc.cA(function(result) {
-                queue --;
-
-                // Add the resolved element to the child list
-                if(result.length == 1){
-                  var item = this.parseItemForResult(result[0]);
-                  this.getChildren().push(item);
-
-                  // Sort on last resolved domain element
-                  if(queue === 0){
-                    this.sortElements();
-
-                    // Stop loading throbber
-                    this.setLoading(false);
-
-                    if(func) {
-                      func.apply(ctx);
-                    }
-                  }
-                } else {
-                  this.error("could not resolve tree element '" + entry + "'!");
-                }
-              }, this, "search", entry, "base", null, {secondary: false, 'adjusted-dn': true, actions: true});
+          rpc.cA("getEntryPoints").then(function(entries) {
+            return qx.Promise.map(entries, function(entry) {
+              return rpc.cA("search", entry, "base", null, {
+                secondary : false,
+                'adjusted-dn' : true,
+                actions : true
+              }, this);
             }, this);
-          }, this, "getEntryPoints");
+          }, this)
+          .then(function(results) {
+            results.forEach(function(result) {
+              var item = this.parseItemForResult(result[0]);
+              this.getChildren().push(item);
+            }, this);
+            this.sortElements();
+
+            // Stop loading throbber
+            this.setLoading(false);
+
+            if(func) {
+              func.apply(ctx);
+            }
+          }, this)
+          .catch(function(error) {
+            this.error("could not resolve tree element '" + error + "'!");
+          }, this);
         }
       }
     },

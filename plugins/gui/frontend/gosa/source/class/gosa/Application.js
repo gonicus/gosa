@@ -192,168 +192,112 @@ qx.Class.define("gosa.Application",
 
       // Enforce login
       var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA(function(userid, error) {
-        if (error) {
-          loadingDialog.close();
-          var d = new gosa.ui.dialogs.Error(this.tr("Insufficient permission!"));
-          d.open();
-          d.addListener("close", function(){
-              loadingDialog.open();
-              gosa.Session.getInstance().logout();
-            }, this);
-        } else {
+      rpc.cA("getSessionUser").then(function(userid) {
+
+        return new qx.Promise(function(resolve, reject) {
+          var jobCounter = 0;
+          var allJobsStarted = false;
           gosa.Session.getInstance().setUser(userid);
 
+          function done() {
+            jobCounter--;
+            if (jobCounter === 0 && allJobsStarted) {
+              resolve();
+            }
+          }
+
           // retrieve possible commands/methods
-          rpc.cA(function(result, error) {
-            if (error) {
-              (new gosa.ui.dialogs.Error(this.tr("Unable to receive commands."))).open();
-            }
-            else {
-              gosa.Session.getInstance().setCommands(result);
-            }
-          }, this, "getAllowedMethods");
+          jobCounter++;
+          rpc.cA("getAllowedMethods").then(function(result) {
+            gosa.Session.getInstance().setCommands(result);
+            done();
+          }).catch(function() {
+            (new gosa.ui.dialogs.Error(this.tr("Unable to receive commands."))).open();
+            done();
+          }, this);
 
-          // This list contains all loading jobs that need to be
-          // processed until the gui gets visible again.
-          var queue = [];
-
-          // Add a translation prefetch job.
-          var translation = {};
-          translation.message = this.tr("Loading translation");
-          translation.context = this;
-          translation.params = ["getTemplateI18N", locale];
-          translation.func = function(result, error){
-              if (error) {
-                var d = new gosa.ui.dialogs.Error(this.tr("Fetching translations failed."));
-                d.open();
-                d.addListener("close", function(){
-                    loadingDialog.open();
-                    gosa.Session.getInstance().logout();
-                  }, this);
-                return(false);
-              } else {
-                var lm = qx.locale.Manager.getInstance();
-                lm.addTranslation(qx.locale.Manager.getInstance().getLocale(), result);
-                return(true);
-              }
-            };
-          queue.push(translation);
+          // load translation
+          jobCounter++;
+          loadingDialog.setLabel(this.tr("Loading translation"));
+          rpc.cA("getTemplateI18N", locale)
+          .then(function(result) {
+            qx.locale.Manager.getInstance().addTranslation(qx.locale.Manager.getInstance().getLocale(), result);
+            done();
+          })
+          .catch(function() {
+            this.__handleRpcError(loadingDialog, this.tr("Fetching translations failed."));
+            done();
+          }, this);
 
           // Fetch base
-          var get_base = {};
-          get_base.message = this.tr("Loading base");
-          get_base.context = this;
-          get_base.params = ["getBase"];
-          get_base.func = function(result, error){
-              if (error) {
-                var d = new gosa.ui.dialogs.Error(this.tr("Fetching base failed."));
-                d.open();
-                d.addListener("close", function(){
-                    loadingDialog.open();
-                    gosa.Session.getInstance().logout();
-                  }, this);
-                return(false);
-              } else {
-                gosa.Session.getInstance().setBase(result);
-                return(true);
-              }
-            };
-          queue.push(get_base);
+          jobCounter++;
+          loadingDialog.setLabel(this.tr("Loading base"));
+          rpc.cA("getBase")
+          .then(function(result) {
+            gosa.Session.getInstance().setBase(result);
+            done();
+          })
+          .catch(function() {
+            this.__handleRpcError(loadingDialog, this.tr("Fetching base failed."));
+            done();
+          }, this);
 
           // Add prefetching of the gui templates - one job per object-type.
 
           // Request a list of all available object-types to be able
           // to prefetch their gui-templates.
-          var that = this;
-          rpc.cA(function(result, error){
+          rpc.cA("getAvailableObjectNames")
+          .then(function(result) {
+            var promises = [];
+            result.forEach(function(name) {
+              jobCounter++;
+              loadingDialog.setLabel(this.tr("Loading %1 templates", name));
+              promises.push(rpc.cA("getGuiDialogs", name)
+              .then(function(dialogs) {
+                this.__checkForActionsInUIDefs(dialogs, name);
 
-              if(error){
-                var d = new gosa.ui.dialogs.Error(this.tr("Fetching object description failed."));
-                d.open();
-                d.addListener("close", function(){
-                    loadingDialog.open();
-                    gosa.Session.getInstance().logout();
-                  }, this);
-              }else{
+                var dialogMap = {};
+                dialogs.forEach(function(dialog) {
+                  dialogMap[gosa.util.Template.getDialogName(dialog)] = dialog;
+                });
 
-                var addFunc = function(name){
-                    var data = {};
-                    data.message = that.tr("Loading %1 dialog template", name);
-                    data.context = this;
-                    data.params = ["getGuiDialogs", name];
-                    data.func = function(templates, error){
-                      if(error){
-                        var d = new gosa.ui.dialogs.Error(this.tr("Fetching dialog templates failed."));
-                        d.open();
-                        d.addListener("close", function(){
-                            loadingDialog.open();
-                            gosa.Session.getInstance().logout();
-                          }, this);
-                        return(false);
-                      }else{
-                        this.__checkForActionsInUIDefs(templates, name);
+                gosa.data.TemplateRegistry.getInstance().addDialogTemplates(dialogMap);
+                done();
+              }, this)
+              .catch(function() {
+                this.__handleRpcError(loadingDialog, this.tr("Fetching dialog templates failed."));
+                done();
+              }, this));
 
-                        var templateMap = {};
-                        templates.forEach(function(template) {
-                          templateMap[gosa.util.Template.getDialogName(template)] = template;
-                        });
+              jobCounter++;
+              promises.push(rpc.cA("getGuiTemplates", name)
+              .then(function(templates) {
+                this.__checkForActionsInUIDefs(templates, name);
+                gosa.data.TemplateRegistry.getInstance().addTemplates(name, templates);
+                gosa.util.Template.fillTemplateCache(name);
+                done();
+              }, this)
+              .catch(function() {
+                this.__handleRpcError(loadingDialog, this.tr("Fetching templates failed."));
+                done();
+              }, this));
+              allJobsStarted = true;
+              return qx.Promise.all(promises);
+            }, this);
+          }, this)
+          .catch(qx.lang.Function.curry(this.__handleRpcError, loadingDialog, this.tr("Fetching object description failed.")));
+        }, this);
+      }, this)
+      .then(function() {
+        // all rpcs done
+        this.getRoot().setBlockerColor("#000000");
+        this.getRoot().setBlockerOpacity(0.5);
+        loadingDialog.close();
+        this.search.updateFocus();
 
-                        gosa.data.TemplateRegistry.getInstance().addDialogTemplates(templateMap);
-                        return(true);
-                      }
-                    };
-                    return(data);
-                  };
-
-                // Append a queue entry for each kind of object.
-                for(var item in result){
-                  queue.push(addFunc.apply(this, [result[item]]));
-                }
-
-                // This method creates a loading-queue entry
-                // which loads the gui-templates for the given
-                // object type
-                // (This needs to a closure, due to the fact that
-                // 'item' will change in the loop...)
-                var addFunc2 = function(name){
-                    var data = {};
-                    data.message = that.tr("Loading %1 template", name);
-                    data.context = this;
-                    data.params = ["getGuiTemplates", name];
-                    data.func = function(templates, error){
-                      if(error){
-                        var d = new gosa.ui.dialogs.Error(this.tr("Fetching templates failed."));
-                        d.open();
-                        d.addListener("close", function(){
-                            loadingDialog.open();
-                            gosa.Session.getInstance().logout();
-                          }, this);
-                        return(false);
-                      }
-                      else {
-                        this.__checkForActionsInUIDefs(templates, name);
-                        gosa.data.TemplateRegistry.getInstance().addTemplates(name, templates);
-                        gosa.util.Template.fillTemplateCache(name);
-                        return(true);
-                      }
-                    };
-                    return(data);
-                  };
-
-                // Append a queue entry for each kind of object.
-                for(item in result){
-                  queue.push(addFunc2.apply(this, [result[item]]));
-                }
-
-                // Start the queue processing now
-                this.__handleQueue(queue, loadingDialog);
-              }
-
-            }, this, "getAvailableObjectNames");
-
-        }
-      }, this, "getSessionUser");
+        // Handle URL actions
+        this.__handleUrl(this._history.getState());
+      }, this);
     },
 
 
@@ -439,51 +383,12 @@ qx.Class.define("gosa.Application",
      */
     __handleUiDefinedAction: function(action, parsed, url, userData){
       var oid = parsed[1];
-      gosa.proxy.ObjectFactory.openObject(function(obj, error){
-          if(error){
-            new gosa.ui.dialogs.Error(error.message).open();
-          }else{
-            gosa.ui.Renderer.executeAction(userData.dialog, userData.target, obj, null);
-          }
-        }, this, oid);
-    },
-
-
-    /* Handles the loading queue and hides the gui untill
-     * all jobs are processed.
-     * */
-    __handleQueue: function(data, dialog){
-      if(data.length){
-        var item = data.pop();
-        this.__triggerQueue(item, data, dialog);
-      }else{
-        this.getRoot().setBlockerColor("#000000");
-        this.getRoot().setBlockerOpacity(0.5);
-        dialog.close();
-        this.search.updateFocus();
-
-        // Handle URL actions
-        this.__handleUrl(this._history.getState());
-      }
-    },
-
-    /* Process a single loading queue entry.
-     * */
-    __triggerQueue: function(item, data, dialog){
-      dialog.setLabel(item.message);
-      var callback = function(result, error){
-
-          // Call the original callback method
-          if(item.func.apply(item.context, [result, error])){
-
-            // .. and trigger the queue processor.
-            this.__handleQueue(data, dialog);
-          }
-        };
-
-      var params = [callback, this].concat(item.params);
-      var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA.apply(rpc, params);
+      gosa.proxy.ObjectFactory.openObject(oid).then(function(obj) {
+        gosa.ui.Renderer.executeAction(userData.dialog, userData.target, obj, null);
+      })
+      .catch(function(error) {
+        new gosa.ui.dialogs.Error(error.message).open();
+      });
     },
 
     /**
@@ -508,6 +413,15 @@ qx.Class.define("gosa.Application",
       if (splash !== null || splash !== undefined) {
         splash.style.visibility = 'hidden';
       }
+    },
+
+    __handleRpcError: function(loadingDialog, message) {
+      var d = new gosa.ui.dialogs.Error(message);
+      d.open();
+      d.addListener("close", function(){
+        loadingDialog.open();
+        gosa.Session.getInstance().logout();
+      }, this);
     }
   }
 });

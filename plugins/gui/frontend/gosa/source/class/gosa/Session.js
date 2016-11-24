@@ -121,22 +121,22 @@ qx.Class.define("gosa.Session",
     _changedUser: function(name){
       if(name !== null){
         var rpc = gosa.io.Rpc.getInstance();
-        rpc.cA(function(result, error){
-            if(error){
-              // var d = new gosa.ui.dialogs.Error(new qx.ui.core.Widget().tr("Failed to fetch current user information."));
-              var d = new gosa.ui.dialogs.Error(error.message);
-              d.open();
-              d.addListener("close", function(){
-                  gosa.Session.getInstance().logout();
-                }, this);
-            }else{
-              this.setSn(result['sn']);
-              this.setCn(result['cn']);
-              this.setGivenName(result['givenName']);
-              this.setDn(result['dn']);
-              this.setUuid(result['uuid']);
-            }
-          }, this, "getUserDetails");
+        rpc.cA("getUserDetails")
+        .then(function(result) {
+          this.setSn(result['sn']);
+          this.setCn(result['cn']);
+          this.setGivenName(result['givenName']);
+          this.setDn(result['dn']);
+          this.setUuid(result['uuid']);
+        }, this)
+        .catch(function(error) {
+          // var d = new gosa.ui.dialogs.Error(new qx.ui.core.Widget().tr("Failed to fetch current user information."));
+          var d = new gosa.ui.dialogs.Error(error.message);
+          d.open();
+          d.addListener("close", function(){
+            gosa.Session.getInstance().logout();
+          }, this);
+        });
       }else{
         this.setSn(null);
         this.setCn(null);
@@ -148,10 +148,10 @@ qx.Class.define("gosa.Session",
 
     logout: function(){
       var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA(function(result, error){
+      rpc.cA("logout").then(function() {
         this.setUser(null);
         document.location.reload();
-      }, this, "logout");
+      }, this);
     }
   }
 });

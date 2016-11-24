@@ -41,16 +41,14 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
     /**
      * Wrapper for {this.__openObject} to open a object
      *
-     * @param c_callback {Function} callback to call when object has been opened
-     * @param c_context {Object} context for callback
      * @param dn {String} DN of the object
      * @param type {String} type of the object
      */
-    openObject: function(c_callback, c_context, dn, type){
-      this.__openObject("object", c_callback, c_context, dn, type);
+    openObject: function(dn, type){
+      this.__openObject("object", dn, type);
     },
 
-    __openObject: function(object_type, c_callback, c_context, dn, type){
+    __openObject: function(object_type, dn, type){
 
       // Initialize class-cache
       if(!gosa.proxy.ObjectFactory.classes){
@@ -59,69 +57,52 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
 
       // Add an event listener
       var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA(function(userData, error){
+      return rpc.cA("openObject", object_type, dn, type)
+      .then(function(userData) {
+        // Extract required user information out of the '__jsonclass__' result object.
+        var jDefs = userData["__jsonclass__"][1];
+        var uuid = jDefs[1];
+        var methods = jDefs[4];
+        var attributes = jDefs[5];
+        var baseType = null;
+        var extensionTypes = null;
+        var extensionDeps = null;
 
-        // Abort on errors
-        if(error){
-          c_callback.apply(c_context, [null, error]);
-        }else{
+        var locale = gosa.Config.getLocale();
 
-          // Extract required user information out of the '__jsonclass__' result object.
-          var jDefs = userData["__jsonclass__"][1];
-          var uuid = jDefs[1];
-          var methods = jDefs[4];
-          var attributes = jDefs[5];
-          var baseType = null;
-          var extensionTypes = null;
-          var extensionDeps = null;
+        if (object_type === "object") {
+          // Load object info - base type, extension types
+          return rpc.cA("dispatchObjectMethod", uuid, "get_object_info", locale)
+          .then(function(data) {
+            baseType = data['base'];
+            extensionTypes = data['extensions'];
+            extensionDeps = data['extension_deps'];
 
-          var locale = gosa.Config.getLocale();
+            return rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true)
+            .then(function(_attribute_data) {
+              // Call the result handling method, we had defined earlier above.
+              var className = this.__createClass(object_type, data, methods, attributes, _attribute_data, locale);
+              return new gosa.proxy.ObjectFactory.classes[className](userData);
+            }, this);
+          }, this);
 
-          if (object_type === "object") {
-            // Load object info - base type, extension types
-            rpc.cA(function(data, error) {
-              if (error) {
-                c_callback.apply(c_context, [null, error]);
-              }
-              else {
-                baseType = data['base'];
-                extensionTypes = data['extensions'];
-                extensionDeps = data['extension_deps'];
+        } else if (object_type === "workflow") {
+          rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true)
+          .then(function(_attribute_data) {
 
-                rpc.cA(function(_attribute_data, error) {
-                  if (error) {
-                    c_callback.apply(c_context, [null, error]);
-                  }
-                  else {
-                    // Call the result handling method, we had defined earlier above.
-                    var className = this.__createClass(object_type, data, methods, attributes, _attribute_data, locale);
-                    c_callback.apply(c_context, [new gosa.proxy.ObjectFactory.classes[className](userData)]);
-                  }
-                }, this, "dispatchObjectMethod", uuid, "get_attributes", true);
+            var data = {
+              className : "workflows."+uuid,
+              id : uuid,
+              base : "Workflow."+uuid,
+              extensions: null,
+              extensionDeps: null
+            };
+            var className = this.__createClass(object_type, data, methods, attributes, _attribute_data, locale);
+            return new gosa.proxy.ObjectFactory.classes[className](userData);
 
-              }
-            }, this, "dispatchObjectMethod", uuid, "get_object_info", locale);
-          } else if (object_type === "workflow") {
-
-            rpc.cA(function(_attribute_data, error) {
-              if (error) {
-                c_callback.apply(c_context, [null, error]);
-              }
-              else {
-                var data = {
-                  className : "workflows."+uuid,
-                  id : uuid,
-                  base : "Workflow."+uuid,
-                  extensions: null,
-                  extensionDeps: null
-                };
-                var className = this.__createClass(object_type, data, methods, attributes, _attribute_data, locale);
-                c_callback.apply(c_context, [new gosa.proxy.ObjectFactory.classes[className](userData)]);
-              }
-            }, this, "dispatchObjectMethod", uuid, "get_attributes", true);
-          }
+          }, this);
         }
-      }, this, "openObject", object_type, dn, type);
+      }, this);
     },
 
     __createClass: function(object_type, data, methods, attributes, attribute_data, locale) {

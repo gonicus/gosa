@@ -109,7 +109,6 @@ qx.Class.define("gosa.view.Search",
     this.sf = sf;
 
     // Bind search result model
-    var that = this;
     var deltas = {'hour': 60*60, 'day': 60*60*24 , 'week': 60*60*24*7, 'month': 2678400, 'year': 31536000};
     this.resultList.setDelegate({
         createItem: function(){
@@ -117,24 +116,24 @@ qx.Class.define("gosa.view.Search",
           var item = new gosa.ui.SearchListItem();
           item.addListener("edit", function(e){
               item.setIsLoading(true);
-              that.openObject(e.getData().getDn());
-              that.addListenerOnce("loadingComplete", function(e){
+              this.openObject(e.getData().getDn());
+              this.addListenerOnce("loadingComplete", function(e){
                   if(e.getData().dn == item.getDn()){
                     item.setIsLoading(false);
                   }
-                }, that);
+                }, this);
             }, this);
 
           item.addListener("remove", function(e){
               var dialog = new gosa.ui.dialogs.RemoveObject(e.getData().getDn());
               dialog.addListener("remove", function(){
-                  that.removeObject(item.getUuid());
+                  this.removeObject(item.getUuid());
                 }, this);
               dialog.open();
 
             }, this);
           return(item);
-        },
+        }.bind(this),
 
         bindItem : function(controller, item, id) {
           controller.bindProperty("title", "title", null, item, id);
@@ -149,20 +148,20 @@ qx.Class.define("gosa.view.Search",
         filter : function(data) {
           var show = true;
 
-          if (that.__selection.secondary != "enabled") {
+          if (this.__selection.secondary != "enabled") {
             show = data.getSecondary() === false;
           }
 
-          if (show && that.__selection.category !== 'all' && that.__selection.category != data.getType()) {
+          if (show && this.__selection.category !== 'all' && this.__selection.category != data.getType()) {
             show = false;
           }
 
-          if (show && that.__selection["mod-time"] !== 'all') {
-            show = data.getLastChanged().toTimeStamp() > (that.__now - deltas[that.__selection["mod-time"]]);
+          if (show && this.__selection["mod-time"] !== 'all') {
+            show = data.getLastChanged().toTimeStamp() > (this.__now - deltas[this.__selection["mod-time"]]);
           }
 
           return show;
-        }
+        }.bind(this)
       });
 
     this.resultList.getPane().getRowConfig().setDefaultItemSize(80);
@@ -298,25 +297,23 @@ qx.Class.define("gosa.view.Search",
       var startTime = new Date().getTime();
 
       // Try ordinary search
-      rpc.cA(function(result, error){
+      rpc.cA("search", base, "sub", query, this.__default_selection)
+      .then(function(result) {
+        var endTime = new Date().getTime();
 
-          if(error){
-            var d = new gosa.ui.dialogs.Error(this.tr("Insufficient permission!"));
-            d.open();
-          }else{
-            var endTime = new Date().getTime();
+        // Memorize old query and display results
+        if(!noListUpdate){
+          this.showSearchResults(result, endTime - startTime, false, query);
+          this._old_query = query;
+        }
 
-            // Memorize old query and display results
-            if(!noListUpdate){
-              this.showSearchResults(result, endTime - startTime, false, query);
-              this._old_query = query;
-            }
-
-            if (callback) {
-              callback.apply(this, [result, endTime - startTime]);
-            }
-          }
-        }, this, "search", base, "sub", query, this.__default_selection);
+        if (callback) {
+          callback.apply(this, [result, endTime - startTime]);
+        }
+      }, this).catch(function() {
+        var d = new gosa.ui.dialogs.Error(this.tr("Insufficient permission!"));
+        d.open();
+      });
     },
 
     showSearchResults : function(items, duration, fuzzy, query) {
@@ -429,33 +426,21 @@ qx.Class.define("gosa.view.Search",
 
     /* Removes the object given by its uuid
      * */
-    removeObject: function(uuid, callback, context) {
-      var rpc = gosa.io.Rpc.getInstance();
-      if (!callback) {
-        callback = function(result, error) {
-          if(error) {
-            new gosa.ui.dialogs.Error(this.tr("Cannot remove entry!")).open();
-            this.error("cannot remove entry: " + error);
-          }
-        }
-      }
-      rpc.cA(callback.bind(context), this, "removeObject", "object", uuid);
+    removeObject: function(uuid) {
+      gosa.io.Rpc.getInstance().cA("removeObject", "object", uuid)
+      .then(callback, context)
+      .catch(function(error) {
+        new gosa.ui.dialogs.Error(this.tr("Cannot remove entry!")).open();
+        this.error("cannot remove entry: " + error);
+      }, this);
     },
 
     /* Open the object given by its uuid/dn
      * */
     openObject : function(dn, type) {
       var win = null;
-
-      gosa.proxy.ObjectFactory.openObject(function(obj, error){
-
-        // Check for errors
-        if(error){
-          new gosa.ui.dialogs.Error(error.message).open();
-          this.fireDataEvent("loadingComplete", {dn: dn});
-          return;
-        }
-
+      gosa.proxy.ObjectFactory.openObject(dn, type)
+      .then(function(obj) {
         // Build widget and place it into a window
         gosa.engine.WidgetFactory.createWidget(function(w){
           var doc = qx.core.Init.getApplication().getRoot();
@@ -489,7 +474,11 @@ qx.Class.define("gosa.view.Search",
           this.fireDataEvent("loadingComplete", {dn: dn});
 
         }, this, obj);
-      }, this, dn, type);
+      }, this)
+      .catch(function(error) {
+        new gosa.ui.dialogs.Error(error.message).open();
+        this.fireDataEvent("loadingComplete", {dn: dn});
+      }, this);
     },
 
 

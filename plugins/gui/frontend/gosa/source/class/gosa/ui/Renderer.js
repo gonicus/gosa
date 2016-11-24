@@ -283,7 +283,8 @@ qx.Class.define("gosa.ui.Renderer",
       id = gosa.io.Sse.getInstance().addListener("changeConnected", function(e) {
         if (e.getData() === true) {
           var rpc = gosa.io.Rpc.getInstance();
-          rpc.cA(function(result, error) {
+          rpc.cA("checkObjectRef", obj.instance_uuid)
+          .then(function(result) {
             if (result === false) {
               new gosa.ui.dialogs.Info(this.tr("This object has been closed by the backend!")).open();
               if (this._closingHint) {
@@ -292,7 +293,7 @@ qx.Class.define("gosa.ui.Renderer",
               }
               this.fireEvent("done");
             }
-          }, this ,"checkObjectRef", obj.instance_uuid);
+          }, this);
         }
       }, widget);
       widget.__bindings.push({id: id, widget: gosa.io.Sse.getInstance()});
@@ -320,8 +321,7 @@ qx.Class.define("gosa.ui.Renderer",
               // tell the backend that the user wants to continue to edit the object
               var rpc = gosa.io.Rpc.getInstance();
               if (this._object && !this._object.isDisposed()) {
-                rpc.cA(function(result, error) {
-                }, this, "continueObjectEditing", this._object.instance_uuid);
+                rpc.cA("continueObjectEditing", this._object.instance_uuid);
               } else {
                 this._closingHint.close();
               }
@@ -1148,20 +1148,17 @@ qx.Class.define("gosa.ui.Renderer",
           // Now execute the method with its arguments and let the callback
           // set the button state
           eb.setEnabled(false);
-          eb.addListener("appear", function(){
+          eb.addListener("appear", function() {
             var rpc = gosa.io.Rpc.getInstance();
-            rpc.cA.apply(rpc, [function(result, error){
-
-                if(error){
-                  new gosa.ui.dialogs.Error(error.message).open();
-                  eb.setEnabled(false);
-                }else{
-                  result = (state[1] == "!") ? !result : result;
-                  eb.setEnabled(result);
-                }
-              }, this, method].concat(args));
-            }, this);
-
+            rpc.cA.apply(rpc, args)
+            .then(function(result) {
+              result = (state[1] == "!") ? !result : result;
+              eb.setEnabled(result);
+            }).catch(function(error) {
+              new gosa.ui.dialogs.Error(error.message).open();
+              eb.setEnabled(false);
+            });
+          });
         } else {
 
           // Calculate attribute based condition

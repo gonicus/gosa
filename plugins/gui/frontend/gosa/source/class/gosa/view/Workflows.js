@@ -47,20 +47,17 @@ qx.Class.define("gosa.view.Workflows",
      * @private
      */
     __reload: function() {
-      this._rpc.cA(function(result, error) {
-        if (error) {
-
-        } else {
-          var data = new qx.data.Array();
-          for (var id in result) {
-            var item = result[id];
-            item.id = id;
-            data.push(item);
-            this.__updateList(data);
-          }
+      this._rpc.cA("getWorkflows").then(function(result) {
+        var data = new qx.data.Array();
+        for (var id in result) {
+          var item = result[id];
+          item.id = id;
+          data.push(item);
+          this.__updateList(data);
         }
-
-      }, this, "getWorkflows");
+      }, this).catch(function(error) {
+        new gosa.ui.dialogs.Error(error.message).open();
+      });
     },
 
     __updateList: function(data) {

@@ -204,23 +204,22 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
         }
       }
 
-      if(unknown_values.length){
-        rpc.cA(function(result, error){
-          if(error){
-            new gosa.ui.dialogs.Error(error.message).open();
-            return;
-          }else{
-            for(var value in result['map']){
-              var data = result['result'][result['map'][value]];
-              if(data){
-                data['__identifier__'] = value;
-                this._resolvedNames[value] = data;
-              }
+      if (unknown_values.length) {
+        rpc.cA("getObjectDetails", this.getExtension(), this.getAttribute(), unknown_values, this._columnIDs)
+        .then(function(result) {
+          for(var value in result['map']){
+            var data = result['result'][result['map'][value]];
+            if(data){
+              data['__identifier__'] = value;
+              this._resolvedNames[value] = data;
             }
-            this.__updateVisibleText();
           }
-        }, this, "getObjectDetails", this.getExtension(), this.getAttribute(), unknown_values, this._columnIDs);
-      }else{
+          this.__updateVisibleText();
+        }, this)
+        .catch(function(error) {
+          new gosa.ui.dialogs.Error(error.message).open();
+        });
+      } else {
         this.__updateVisibleText();
       }
     },

@@ -234,38 +234,36 @@ qx.Class.define("gosa.view.Tree",
       var selection = this.getChildControl("tree").getSelection().getItem(0);
       if (selection) {
         // load object types
-        this._rpc.cA(function(result, error) {
-          if (error) {
-            new gosa.ui.dialogs.Error(error.message).open();
-          }
-          else {
-            this.getChildControl("create-menu").removeAll();
-            this.getChildControl("filter-menu").removeAll();
-            var visibleTypes = {};
-            this._tableModel.getData().forEach(function(item) {
-              visibleTypes[item[0]] = true;
-            });
-            Object.getOwnPropertyNames(result).sort().forEach(function(name) {
-              var allowed = result[name];
-              if (allowed.includes("c")) {
-                var icon = gosa.util.Icons.getIconByType(name, 22);
-                var button = new qx.ui.menu.Button(name, icon);
-                button.setAppearance("icon-menu-button");
-                button.setUserData("type", name);
-                this.getChildControl("create-menu").add(button);
-                button.addListener("execute", this._onCreateObject, this);
-              }
-              if (visibleTypes[name] && allowed.includes("r")) {
-                //var icon = gosa.util.Icons.getIconByType(name, 22);
-                var button = new qx.ui.menu.CheckBox(name);
-                //button.setAppearance("icon-menu-button");
-                button.setUserData("type", name);
-                this.getChildControl("filter-menu").add(button);
-                button.addListener("execute", this._applyFilter, this);
-              }
-            }, this);
-          }
-        }, this, "getAllowedSubElementsForObjectWithActions", selection.getType());
+        this._rpc.cA("getAllowedSubElementsForObjectWithActions", selection.getType())
+        .then(function(result) {
+          this.getChildControl("create-menu").removeAll();
+          this.getChildControl("filter-menu").removeAll();
+          var visibleTypes = {};
+          this._tableModel.getData().forEach(function(item) {
+            visibleTypes[item[0]] = true;
+          });
+          Object.getOwnPropertyNames(result).sort().forEach(function(name) {
+            var allowed = result[name];
+            if (allowed.includes("c")) {
+              var icon = gosa.util.Icons.getIconByType(name, 22);
+              var button = new qx.ui.menu.Button(name, icon);
+              button.setAppearance("icon-menu-button");
+              button.setUserData("type", name);
+              this.getChildControl("create-menu").add(button);
+              button.addListener("execute", this._onCreateObject, this);
+            }
+            if (visibleTypes[name] && allowed.includes("r")) {
+              //var icon = gosa.util.Icons.getIconByType(name, 22);
+              var button = new qx.ui.menu.CheckBox(name);
+              //button.setAppearance("icon-menu-button");
+              button.setUserData("type", name);
+              this.getChildControl("filter-menu").add(button);
+              button.addListener("execute", this._applyFilter, this);
+            }
+          }, this);
+        }, this).catch(function(error) {
+          new gosa.ui.dialogs.Error(error.message).open();
+        });
       }
     },
 
