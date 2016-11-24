@@ -183,7 +183,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
                 secondary : false,
                 'adjusted-dn' : true,
                 actions : true
-              }, this);
+              });
             }, this);
           }, this)
           .then(function(results) {

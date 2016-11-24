@@ -245,19 +245,19 @@ qx.Class.define("gosa.io.Rpc", {
         // Do a simple GET
         return new qx.Promise(function(resolve, reject) {
           var req = new qx.io.request.Xhr(this.getUrl());
-          req.addListener("success", function(e) {
+          req.addListener("success", function() {
             resolve(qx.bom.Cookie.get("_xsrf"));
-          }, this);
+          });
           req.addListener("fail", function(e) {
             reject(e.toString());
-          }, this);
+          });
           req.send();
         }, this).then(function(xsrf) {
           this.__xsrf = xsrf;
           return this.__promiseCallAsync(argx).catch(function(error) {
             return this.__handleRpcError(argx, error);
           }, this);
-        }).catch(function(error) {
+        }, this).catch(function(error) {
           var d = new gosa.ui.dialogs.RpcError(error.toString());
           d.show();
         });

@@ -30,12 +30,11 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
     /**
      * Wrapper for {this.__openObject} to open a workflow object
      *
-     * @param c_callback {Function} callback to call when workflow has been opened
-     * @param c_context {Object} context for callback
      * @param workflowId {String} id of the workflow
+     * @return {qx.Promise}
      */
-    openWorkflow: function(c_callback, c_context, workflowId){
-      this.__openObject("workflow", c_callback, c_context, workflowId);
+    openWorkflow: function(workflowId){
+      return this.__openObject("workflow", workflowId);
     },
 
     /**
@@ -43,9 +42,10 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
      *
      * @param dn {String} DN of the object
      * @param type {String} type of the object
+     * @return {qx.Promise}
      */
     openObject: function(dn, type){
-      this.__openObject("object", dn, type);
+      return this.__openObject("object", dn, type);
     },
 
     __openObject: function(object_type, dn, type){
@@ -57,7 +57,7 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
 
       // Add an event listener
       var rpc = gosa.io.Rpc.getInstance();
-      return rpc.cA("openObject", object_type, dn, type)
+      return rpc.cA("openObject", object_type, dn, type).bind(this)
       .then(function(userData) {
         // Extract required user information out of the '__jsonclass__' result object.
         var jDefs = userData["__jsonclass__"][1];
@@ -72,22 +72,20 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
 
         if (object_type === "object") {
           // Load object info - base type, extension types
-          return rpc.cA("dispatchObjectMethod", uuid, "get_object_info", locale)
-          .then(function(data) {
-            baseType = data['base'];
-            extensionTypes = data['extensions'];
-            extensionDeps = data['extension_deps'];
+          return qx.Promise.all([
+            rpc.cA("dispatchObjectMethod", uuid, "get_object_info", locale),
+            rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true)
+          ]).bind(this).spread(function(info, _attribute_data) {
+            baseType = info['base'];
+            extensionTypes = info['extensions'];
+            extensionDeps = info['extension_deps'];
 
-            return rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true)
-            .then(function(_attribute_data) {
-              // Call the result handling method, we had defined earlier above.
-              var className = this.__createClass(object_type, data, methods, attributes, _attribute_data, locale);
-              return new gosa.proxy.ObjectFactory.classes[className](userData);
-            }, this);
-          }, this);
+            var className = this.__createClass(object_type, info, methods, attributes, _attribute_data, locale);
+            return new gosa.proxy.ObjectFactory.classes[className](userData);
+          });
 
         } else if (object_type === "workflow") {
-          rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true)
+          return rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true).bind(this)
           .then(function(_attribute_data) {
 
             var data = {
@@ -99,7 +97,6 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
             };
             var className = this.__createClass(object_type, data, methods, attributes, _attribute_data, locale);
             return new gosa.proxy.ObjectFactory.classes[className](userData);
-
           }, this);
         }
       }, this);
