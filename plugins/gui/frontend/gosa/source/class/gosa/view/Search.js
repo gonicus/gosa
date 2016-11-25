@@ -433,38 +433,42 @@ qx.Class.define("gosa.view.Search",
       return gosa.proxy.ObjectFactory.openObject(dn, type)
       .then(function(obj) {
         // Build widget and place it into a window
-        gosa.engine.WidgetFactory.createWidget(function(w){
-          var doc = qx.core.Init.getApplication().getRoot();
-          win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
-          win.set({
-            width : 800,
-            layout : new qx.ui.layout.Canvas(),
-            showMinimize : false,
-            showClose : false
-          });
-          win.add(w, {edge: 0});
-          win.addListenerOnce("resize", function() {
-            win.center();
-            (new qx.util.DeferredCall(win.center, win)).schedule();
-          }, this);
-          win.open();
+        return qx.Promise.all([
+          obj,
+          gosa.engine.WidgetFactory.createWidget(obj)
+        ]);
+      }, this)
+      .spread(function(obj, w) {
+        var doc = qx.core.Init.getApplication().getRoot();
+        win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
+        win.set({
+          width : 800,
+          layout : new qx.ui.layout.Canvas(),
+          showMinimize : false,
+          showClose : false
+        });
+        win.add(w, {edge: 0});
+        win.addListenerOnce("resize", function() {
+          win.center();
+          (new qx.util.DeferredCall(win.center, win)).schedule();
+        }, this);
+        win.open();
 
-          w.addListener("close", function() {
-            controller.dispose();
-            w.dispose();
-            doc.remove(win);
-            win.destroy();
-          });
+        w.addListener("close", function() {
+          controller.dispose();
+          w.dispose();
+          doc.remove(win);
+          win.destroy();
+        });
 
-          // Position window as requested
-          doc.add(win);
+        // Position window as requested
+        doc.add(win);
 
-          var controller = new gosa.data.ObjectEditController(obj, w);
-          w.setController(controller);
+        var controller = new gosa.data.ObjectEditController(obj, w);
+        w.setController(controller);
 
-          this.fireDataEvent("loadingComplete", {dn: dn});
+        this.fireDataEvent("loadingComplete", {dn: dn});
 
-        }, this, obj);
       }, this)
       .catch(function(error) {
         new gosa.ui.dialogs.Error(error.message).open();

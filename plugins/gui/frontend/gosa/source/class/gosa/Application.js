@@ -385,7 +385,8 @@ qx.Class.define("gosa.Application",
     },
 
 
-    /* This is an URL action-handler that performs ui-actions.
+    /**
+     * This is an URL action-handler that performs ui-actions.
      * UI-actions are actions that are defined in the ui-templates
      * of an object.
      * E.g. the Change_password action of the User object will
