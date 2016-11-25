@@ -309,7 +309,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       }
     },
 
-    /* Apply collected gui properties to this widet
+    /* Apply collected gui properties to this widget
      * */
     _applyGuiProperties: function(props){
       if(!props){
@@ -319,33 +319,32 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       // Call a remote method to get the widgets value
       if(props.callObjectMethod && props.callObjectMethod){
         this.setValue(new qx.data.Array([this.tr("Pending...")]));
-        try{
-          this.addListener('appear', function(){
-            var method_signature = props.callObjectMethod;
-            var splitter = /([^(]+)\(([^)]*)\)/;
-            var info = splitter.exec(method_signature);
-            var _args = info[2].split(",");
-            var args = [];
-            for (var i= 0; i<_args.length; i++) {
-                var tmp = _args[i].trim();
-                if (tmp == "%locale") {
-                    args.push(gosa.Tools.getLocale());
-                } else {
-                    args.push(tmp);
-                }
+        this.addListener('appear', function(){
+          var method_signature = props.callObjectMethod;
+          var splitter = /([^(]+)\(([^)]*)\)/;
+          var info = splitter.exec(method_signature);
+          var _args = info[2].split(",");
+          var args = [];
+          for (var i= 0; i<_args.length; i++) {
+            var tmp = _args[i].trim();
+            if (tmp == "%locale") {
+              args.push(gosa.Tools.getLocale());
+            } else {
+              args.push(tmp);
             }
+          }
 
-            var controller = this._getController();
-            controller.callObjectMethod(info[1], [
-              function(result, error) {
-                this.setValue(new qx.data.Array([result]));
-              },
-              this].concat(args));
+          var controller = this._getController();
+          controller.callObjectMethod(info[1], args)
+          .then(function(result) {
+            this.setValue(new qx.data.Array([result]));
+          }, this)
+          .catch(function(error) {
+            this.error("failed to call method '" + props["callObjectMethod"]["string"] + "'");
+            this.error(error);
+            this.setValue(new qx.data.Array([this.tr("Failed...")]));
           }, this);
-        }catch(e){
-          this.error("failed to call method '" + props["callObjectMethod"]["string"] + "'");
-          this.setValue(new qx.data.Array([this.tr("Failed...")]));
-        }
+        }, this);
       }
 
       if(props["placeholderText"] && props["placeholderText"]["string"]){

@@ -69,11 +69,9 @@ qx.Class.define("gosa.data.ObjectEditController", {
     closeObject : function() {
       if (this._obj && !this._obj.isDisposed() && !this._obj.isClosed()) {
         this._obj.setUiBound(false);
-        this._obj.close(function(result, error) {
-          // no result expected
-          if (error) {
-            new gosa.ui.dialogs.Error(error.message).open();
-          }
+        this._obj.close()
+        .catch(function(error) {
+          new gosa.ui.dialogs.Error(error.message).open();
         });
       }
     },
@@ -91,18 +89,15 @@ qx.Class.define("gosa.data.ObjectEditController", {
       }
 
       this._obj.setUiBound(false);
-      this._obj.commit(function(result, error) {
-        if (error) {
-          this.error(error);
-          this.error(error.message);
-          this.error(error.topic);
-          this.error(error.code);
-          this.error(error.details);
-          new gosa.ui.dialogs.Error(error.message).open();
-        }
-        else {
-          this.closeObject();
-        }
+      this._obj.commit()
+      .then(this.closeObject, this)
+      .catch(function(error) {
+        this.error(error);
+        this.error(error.message);
+        this.error(error.topic);
+        this.error(error.code);
+        this.error(error.details);
+        new gosa.ui.dialogs.Error(error.message).open();
       }, this);
     },
 
@@ -116,7 +111,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
       qx.core.Assert.assertString(methodName);
       qx.core.Assert.assertFunction(this._obj[methodName]);
 
-      this._obj[methodName].apply(this._obj, args);
+      return this._obj[methodName].apply(this._obj, args);
     },
 
     /**
