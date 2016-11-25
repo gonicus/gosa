@@ -224,7 +224,8 @@ qx.Class.define("gosa.Application",
             qx.locale.Manager.getInstance().addTranslation(qx.locale.Manager.getInstance().getLocale(), result);
             done();
           }, this)
-          .catch(function() {
+          .catch(function(error) {
+            this.error(error);
             this.__handleRpcError(loadingDialog, this.tr("Fetching translations failed."));
             done();
           }, this);
@@ -237,7 +238,8 @@ qx.Class.define("gosa.Application",
             gosa.Session.getInstance().setBase(result);
             done();
           }, this)
-          .catch(function() {
+          .catch(function(error) {
+            this.error(error);
             this.__handleRpcError(loadingDialog, this.tr("Fetching base failed."));
             done();
           }, this);
@@ -262,7 +264,11 @@ qx.Class.define("gosa.Application",
             allJobsStarted = true;
             return qx.Promise.all([names, qx.Promise.all(dialogPromises), qx.Promise.all(templatePromises)]);
           }, this)
-          .catch(qx.lang.Function.curry(this.__handleRpcError, loadingDialog, this.tr("Fetching object description failed.")))
+          .catch(function(error) {
+            this.error(error);
+            this.__handleRpcError(loadingDialog, this.tr("Fetching object description failed."));
+            done();
+          }, this)
           .spread(function(names, dialogs, templates) {
             names.forEach(function(name, index) {
               this.__checkForActionsInUIDefs(dialogs[index], name);
@@ -299,6 +305,7 @@ qx.Class.define("gosa.Application",
       }, this)
       .catch(function(error) {
         // getSessionUser failed
+        this.error(error);
         this.__handleRpcError(loadingDialog, error.toString());
       }, this);
     },
