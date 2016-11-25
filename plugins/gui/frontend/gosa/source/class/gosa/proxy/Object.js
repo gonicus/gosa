@@ -164,17 +164,17 @@ qx.Class.define("gosa.proxy.Object", {
 
         var rpc = gosa.io.Rpc.getInstance();
         var rpc_value = null;
-        if(this.attribute_data[name].multivalue){
+        if (this.attribute_data[name].multivalue) {
           rpc_value = value.toArray();
-        } else{
+        } else {
           if(value.getLength()){
             rpc_value = value.toArray()[0];
           }
         }
-        rpc.cA("setObjectProperty", this.instance_uuid, name, rpc_value)
+        rpc.cA("setObjectProperty", this.instance_uuid, name, rpc_value).bind(this)
         .then(function() {
           this.fireDataEvent("propertyUpdateOnServer", {success: true, error: null, property: name});
-        }, this)
+        })
         .catch(function(error) {
           this.fireDataEvent("propertyUpdateOnServer", {success: false, error: error, property: name});
         }, this);

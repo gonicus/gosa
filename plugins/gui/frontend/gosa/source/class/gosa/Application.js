@@ -211,10 +211,10 @@ qx.Class.define("gosa.Application",
           rpc.cA("getAllowedMethods").then(function(result) {
             gosa.Session.getInstance().setCommands(result);
             done();
-          }).catch(function() {
-            (new gosa.ui.dialogs.Error(this.tr("Unable to receive commands."))).open();
+          }, function() {
+            (new gosa.ui.dialogs.Error(qx.locale.Manager.tr("Unable to receive commands."))).open();
             done();
-          }, this);
+          });
 
           // load translation
           jobCounter++;
@@ -223,7 +223,7 @@ qx.Class.define("gosa.Application",
           .then(function(result) {
             qx.locale.Manager.getInstance().addTranslation(qx.locale.Manager.getInstance().getLocale(), result);
             done();
-          })
+          }, this)
           .catch(function() {
             this.__handleRpcError(loadingDialog, this.tr("Fetching translations failed."));
             done();
@@ -236,7 +236,7 @@ qx.Class.define("gosa.Application",
           .then(function(result) {
             gosa.Session.getInstance().setBase(result);
             done();
-          })
+          }, this)
           .catch(function() {
             this.__handleRpcError(loadingDialog, this.tr("Fetching base failed."));
             done();
@@ -248,44 +248,43 @@ qx.Class.define("gosa.Application",
           // to prefetch their gui-templates.
           rpc.cA("getAvailableObjectNames")
           .then(function(result) {
-            var promises = [];
+            var dialogPromises = [];
+            var templatePromises = [];
+            var names = [];
+            jobCounter++;
             result.forEach(function(name) {
-              jobCounter++;
               loadingDialog.setLabel(this.tr("Loading %1 templates", name));
-              promises.push(rpc.cA("getGuiDialogs", name)
-              .then(function(dialogs) {
-                this.__checkForActionsInUIDefs(dialogs, name);
-
-                var dialogMap = {};
-                dialogs.forEach(function(dialog) {
-                  dialogMap[gosa.util.Template.getDialogName(dialog)] = dialog;
-                });
-
-                gosa.data.TemplateRegistry.getInstance().addDialogTemplates(dialogMap);
-                done();
-              }, this)
-              .catch(function() {
-                this.__handleRpcError(loadingDialog, this.tr("Fetching dialog templates failed."));
-                done();
-              }, this));
-
-              jobCounter++;
-              promises.push(rpc.cA("getGuiTemplates", name)
-              .then(function(templates) {
-                this.__checkForActionsInUIDefs(templates, name);
-                gosa.data.TemplateRegistry.getInstance().addTemplates(name, templates);
-                gosa.util.Template.fillTemplateCache(name);
-                done();
-              }, this)
-              .catch(function() {
-                this.__handleRpcError(loadingDialog, this.tr("Fetching templates failed."));
-                done();
-              }, this));
-              allJobsStarted = true;
-              return qx.Promise.all(promises);
+              dialogPromises.push(rpc.cA("getGuiDialogs", name));
+              templatePromises.push(rpc.cA("getGuiTemplates", name));
+              names.push(name);
             }, this);
+
+            allJobsStarted = true;
+            return qx.Promise.all([names, qx.Promise.all(dialogPromises), qx.Promise.all(templatePromises)]);
           }, this)
-          .catch(qx.lang.Function.curry(this.__handleRpcError, loadingDialog, this.tr("Fetching object description failed.")));
+          .catch(qx.lang.Function.curry(this.__handleRpcError, loadingDialog, this.tr("Fetching object description failed.")))
+          .spread(function(names, dialogs, templates) {
+            names.forEach(function(name, index) {
+              this.__checkForActionsInUIDefs(dialogs[index], name);
+
+              var dialogMap = {};
+              dialogs[index].forEach(function(dialog) {
+                dialogMap[gosa.util.Template.getDialogName(dialog)] = dialog;
+              });
+
+              gosa.data.TemplateRegistry.getInstance().addDialogTemplates(dialogMap);
+
+              this.__checkForActionsInUIDefs(templates[index], name);
+              gosa.data.TemplateRegistry.getInstance().addTemplates(name, templates[index]);
+              gosa.util.Template.fillTemplateCache(name);
+            }, this);
+            done();
+          }, this)
+          .catch(function(error) {
+            this.error(error);
+            this.__handleRpcError(loadingDialog, this.tr("Fetching templates failed."));
+            done();
+          }, this);
         }, this);
       }, this)
       .then(function() {
@@ -297,6 +296,10 @@ qx.Class.define("gosa.Application",
 
         // Handle URL actions
         this.__handleUrl(this._history.getState());
+      }, this)
+      .catch(function(error) {
+        // getSessionUser failed
+        this.__handleRpcError(loadingDialog, error.toString());
       }, this);
     },
 

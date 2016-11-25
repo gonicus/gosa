@@ -79,8 +79,7 @@ qx.Class.define("gosa.io.Rpc", {
             }
           }
           return data;
-        }, this)
-        .catch(function() {
+        }, function() {
           if(!old_error.message){
             old_error.message = old_error.text;
           }
@@ -144,7 +143,7 @@ qx.Class.define("gosa.io.Rpc", {
       this.debug("started next rpc job '" + argx[0] + "'");
       return new qx.Promise(function(resolve, reject) {
         if (this.isBlockRpcs()) {
-          this.addListenerOnce("blockRpcs", function() {
+          this.addListenerOnce("changeBlockRpcs", function() {
             this.__executeCallAsync(argx, resolve, reject);
           })
         } else {
@@ -190,17 +189,19 @@ qx.Class.define("gosa.io.Rpc", {
 
         var dialog = new gosa.ui.dialogs.LoginDialog();
         dialog.open();
-        dialog.addListener("login", function(e){
+        return new qx.Promise(function(resolve, reject) {
+          dialog.addListener("login", function(e) {
 
-          // Query for the users Real Name
-          gosa.Session.getInstance().setUser(e.getData()['user']);
+            // Query for the users Real Name
+            gosa.Session.getInstance().setUser(e.getData()['user']);
 
-          // Re-connect SSE
-          var messaging = gosa.io.Sse.getInstance();
-          messaging.reconnect();
+            // Re-connect SSE
+            var messaging = gosa.io.Sse.getInstance();
+            messaging.reconnect();
 
-          // retry the call
-          return this.__promiseCallAsync(argx);
+            // retry the call
+            resolve(this.__promiseCallAsync(argx));
+          }, this);
         }, this);
 
         // Catch potential errors here.
@@ -214,7 +215,7 @@ qx.Class.define("gosa.io.Rpc", {
         var d = new gosa.ui.dialogs.RpcError(msg);
         return new qx.Promise(function(resolve, reject) {
           d.addListener("retry", function(){
-            this.__promiseCallAsync(argx).then(resolve).catch(reject);
+            this.__promiseCallAsync(argx).then(resolve, reject);
           }, this);
           d.open();
         }, this);
@@ -254,15 +255,15 @@ qx.Class.define("gosa.io.Rpc", {
           req.send();
         }, this).then(function(xsrf) {
           this.__xsrf = xsrf;
-          return this.__promiseCallAsync(argx).catch(function(error) {
+          return this.__promiseCallAsync(argx).then(null, function(error) {
             return this.__handleRpcError(argx, error);
           }, this);
-        }, this).catch(function(error) {
+        }).catch(function(error) {
           var d = new gosa.ui.dialogs.RpcError(error.toString());
           d.show();
         });
       } else {
-        return this.__promiseCallAsync(argx).catch(function(error) {
+        return this.__promiseCallAsync(argx).then(null, function(error) {
           return this.__handleRpcError(argx, error);
         }, this);
       }

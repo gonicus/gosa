@@ -167,16 +167,16 @@ qx.Class.define("gosa.view.Search",
     this.resultList.getPane().getRowConfig().setDefaultItemSize(80);
 
     // Establish a timer that handles search updates
-    var timer = qx.util.TimerManager.getInstance();
-    this.sf.addListener("focusin", function() {
-      if (!this._timer) {
-        this._timer = timer.start(this._search_queue_handler, 500, this, null, 2000);
-      }
-    }, this);
-    this.sf.addListener("focusout", function() {
-      timer.stop(this._timer);
-      this._timer = null;
-    }, this);
+    // var timer = qx.util.TimerManager.getInstance();
+    // this.sf.addListener("focusin", function() {
+    //   if (!this._timer) {
+    //     this._timer = timer.start(this._search_queue_handler, 500, this, null, 2000);
+    //   }
+    // }, this);
+    // this.sf.addListener("focusout", function() {
+    //   timer.stop(this._timer);
+    //   this._timer = null;
+    // }, this);
 
     // Focus search field
     this.sf.addListener("appear", this.updateFocus, this);
@@ -185,7 +185,7 @@ qx.Class.define("gosa.view.Search",
     this._modifiedObjects = [];
     this._currentResult = [];
 
-    // Listen for object changes comming from the backend
+    // Listen for object changes coming from the backend
     gosa.io.Sse.getInstance().addListener("objectModified", this._handleObjectEvent, this);
     gosa.io.Sse.getInstance().addListener("objectCreated", this._handleObjectEvent, this);
     gosa.io.Sse.getInstance().addListener("objectRemoved", this._handleObjectEvent, this);
@@ -256,7 +256,7 @@ qx.Class.define("gosa.view.Search",
     _handle_key_event : function(e) {
       // Push the search to the search queue
       if (this.sf.getValue().length > 2) {
-        this._sq.push(this.sf.getValue());
+        this.doSearchE();
       }
     },
 
@@ -267,53 +267,45 @@ qx.Class.define("gosa.view.Search",
       this.resultList.refresh();
     },
 
-    doSearchE : function(e, callback, noListUpdate) {
-      this._sq.push(this.sf.getValue());
-      this.doSearch(e, callback, noListUpdate);
-    },
+    doSearchE : qx.util.Function.debounce(function(noListUpdate) {
+      return this.doSearch(noListUpdate);
+    }, 100, false),
 
-    doSearch : function(e, callback, noListUpdate) {
+    doSearch : function(noListUpdate) {
+      return new qx.Promise(function(resolve, reject) {
 
-      // Remove all entries from the queue and keep the newest
-      var query = "";
-      while (true) {
-         var _query = this._sq.shift();
-         if (!_query) {
-           break;
-         }
-         query = _query;
-      }
+        // Remove all entries from the queue and keep the newest
+        var query = this.sf.getValue();
 
-      // Don't search for nothing or not changed values
-      if (!noListUpdate && (query === "" || this._old_query === query)) {
-        if (callback) {
-          callback.apply(this, [ [] ]);
-        }
-        return;
-      }
-
-      var rpc = gosa.io.Rpc.getInstance();
-      var base = gosa.Session.getInstance().getBase();
-      var startTime = new Date().getTime();
-
-      // Try ordinary search
-      rpc.cA("search", base, "sub", query, this.__default_selection)
-      .then(function(result) {
-        var endTime = new Date().getTime();
-
-        // Memorize old query and display results
-        if(!noListUpdate){
-          this.showSearchResults(result, endTime - startTime, false, query);
-          this._old_query = query;
+        // Don't search for nothing or not changed values
+        if (!noListUpdate && (query === "" || this._old_query === query)) {
+          resolve([]);
+          return;
         }
 
-        if (callback) {
-          callback.apply(this, [result, endTime - startTime]);
-        }
-      }, this).catch(function() {
-        var d = new gosa.ui.dialogs.Error(this.tr("Insufficient permission!"));
-        d.open();
-      });
+        var rpc = gosa.io.Rpc.getInstance();
+        var base = gosa.Session.getInstance().getBase();
+        var startTime = new Date().getTime();
+
+        // Try ordinary search
+        return rpc.cA("search", base, "sub", query, this.__default_selection)
+        .then(function(result) {
+          var endTime = new Date().getTime();
+
+          // Memorize old query and display results
+          if(!noListUpdate) {
+            this.showSearchResults(result, endTime - startTime, false, query);
+            this._old_query = query;
+          }
+
+          resolve([result, endTime - startTime]);
+        }, this)
+        .catch(function(error) {
+          this.error(error);
+          var d = new gosa.ui.dialogs.Error(this.tr("Insufficient permission!"));
+          d.open();
+        });
+      }, this);
     },
 
     showSearchResults : function(items, duration, fuzzy, query) {
@@ -355,7 +347,7 @@ qx.Class.define("gosa.view.Search",
 
         // Update categories
         if (!_categories[items[i].tag]) {
-            _categories[items[i].tag] = this['tr'](gosa.Cache.objectCategories[items[i].tag]);  // jshint ignore:line
+            _categories[items[i].tag] = this.tr(gosa.Cache.objectCategories[items[i].tag]);  // jshint ignore:line
         }
       }
 
