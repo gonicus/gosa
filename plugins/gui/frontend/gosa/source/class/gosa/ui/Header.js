@@ -18,11 +18,10 @@ qx.Class.define("gosa.ui.Header", {
 
   construct: function() {
     this.base(arguments);
-    this.setLayout(new qx.ui.layout.Canvas());
+    this.setLayout(new qx.ui.layout.HBox());
 
     this._createChildControl("sandwich");
-    this._createChildControl("label");
-    this._createChildControl("logout");
+    this._createChildControl("windows");
   }, 
 
   properties: {
@@ -42,15 +41,12 @@ qx.Class.define("gosa.ui.Header", {
   },
 
   members: {
+    _listController: null,
+    _logout: null,
 
     _createChildControlImpl: function(id) {
       var control;
       switch(id) {
-
-        case "container":
-          control = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
-          this.add(control, {top:0, bottom:0, right: 10});
-          break;
 
         case "sandwich":
           control = new qx.ui.form.Button();
@@ -58,32 +54,45 @@ qx.Class.define("gosa.ui.Header", {
           var menu = this.__getSandwichMenu();
           menu.setOpener(control);
           control.addListener("execute", menu.open, menu);
-          this.add(control, {top:0, left:0, bottom: 0});
+          this.add(control);
           break;
 
-
-        case "label":
-          control = new qx.ui.basic.Label("");
-          control.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Edit your profile")));
-          control.setRich(true);
-          this.getChildControl("container").add(control);
-
-          control.addListener("click", function(){
-            document.location.href = gosa.Tools.createActionUrl('openObject', gosa.Session.getInstance().getUuid());
-          }, this);
-          break;
-
-        case "logout":
-          control = new qx.ui.basic.Image();
-          control.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Logout")));
-          control.addListener("click", function(){
-            gosa.Session.getInstance().logout();
-          }, this);
-          this.getChildControl("container").add(control);
+        case "windows":
+          control = new qx.ui.form.List(true);
+          control.set({
+            decorator: null,
+            selectionMode: "single"
+          });
+          control.addListener("changeSelection", this._onChangeSelection, this);
+          this.add(control, {flex: 1});
+          this._listController = new qx.data.controller.List(null, control);
+          this._listController.setDelegate(this.__getWindowDelegate());
+          this._listController.setModel(gosa.data.WindowController.getInstance().getWindows());
           break;
       }
 
       return control || this.base(arguments, id);
+    },
+
+    __getWindowDelegate: function() {
+      return {
+
+        createItem: function() {
+          return new gosa.ui.form.WindowListItem();
+        },
+
+        bindItem: function(controller, item, index) {
+          controller.bindProperty("[1]", "model", null, item, index);
+          controller.bindProperty("[0]", "window", null, item, index);
+        }
+      }
+    },
+
+    _onChangeSelection: function(ev) {
+      var selection = ev.getData();
+      if (selection.length > 0) {
+        selection[0].getWindow().setActive(true);
+      }
     },
 
     __getSandwichMenu: function() {
@@ -93,15 +102,51 @@ qx.Class.define("gosa.ui.Header", {
 
       }, this);
       menu.add(changePw);
+
+      var edit = new qx.ui.menu.Button(this.tr("Edit my profile"));
+      edit.addListener("execute", function(){
+        document.location.href = gosa.Tools.createActionUrl('openObject', gosa.Session.getInstance().getUuid());
+      }, this);
+      menu.add(edit);
+
+
+      var logout = this._logout = new qx.ui.menu.Button(this.tr("Logout"), "@FontAwesome/f08b");
+      logout.getChildControl("icon").set({
+        width: 22,
+        scale: true
+      });
+      logout.addListener("execute", function(){
+        gosa.Session.getInstance().logout();
+      }, this);
+      menu.add(logout);
+
       return menu;
     },
 
     _applyLoggedInName: function(value){
       if(value === null){
-        this.getChildControl("label").setValue("");
+        this._logout.setLabel(this.tr("Logout"));
       }else{
-        this.getChildControl("label").setValue("<b>" + this.tr("Logged in:") + "</b> " + value);
+        this._logout.setLabel(this.tr("Logout") + ": " + value);
       }
+    },
+
+    /*
+    *****************************************************************************
+       DESTRUCTOR
+    *****************************************************************************
+    */
+    destruct : function() {
+      this._disposeObjects("_logout");
     }
+  },
+
+  /*
+  *****************************************************************************
+     DESTRUCTOR
+  *****************************************************************************
+  */
+  destruct : function() {
+    this._disposeObjects("_listController");
   }
 });

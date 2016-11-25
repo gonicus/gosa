@@ -448,6 +448,7 @@ qx.Class.define("gosa.view.Search",
           showClose : false
         });
         win.add(w, {edge: 0});
+        gosa.data.WindowController.getInstance().addWindow(win, obj);
         win.addListenerOnce("resize", function() {
           win.center();
           (new qx.util.DeferredCall(win.center, win)).schedule();
@@ -455,6 +456,7 @@ qx.Class.define("gosa.view.Search",
         win.open();
 
         w.addListener("close", function() {
+          gosa.data.WindowController.getInstance().removeWindow(win);
           controller.dispose();
           w.dispose();
           doc.remove(win);

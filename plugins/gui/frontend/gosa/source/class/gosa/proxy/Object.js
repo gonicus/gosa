@@ -50,6 +50,23 @@ qx.Class.define("gosa.proxy.Object", {
     uiBound: {
       check: "Boolean",
       init: false
+    },
+
+    /**
+     * Title to identify this object, usually the first part of the DN
+     */
+    $$title: {
+      check: "String",
+      init: "",
+      event: "changedTitle"
+    },
+
+    /**
+     * Optional Icon to identify this object (used in the upper toolbar that shows the open objects)
+     */
+    $$icon: {
+      check: "String",
+      nullable: true
     }
   },
 

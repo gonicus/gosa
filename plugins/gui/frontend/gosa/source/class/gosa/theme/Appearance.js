@@ -244,31 +244,11 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    "title-bar/label": {
-      include: "label",
-      alias : "label",
-
-      style : function()
-      {
+    "title-bar/windows": {
+      style: function() {
         return {
-          alignY : "middle",
-          cursor: "pointer"
-        };
-      }
-    },
-    "title-bar/logout": {
-      include: "image",
-      alias : "image",
-
-      style : function()
-      {
-        return {
-          source: "@FontAwesome/f08b", // sign-out
-          alignY : "middle",
-          cursor: "pointer",
-          width: 22,
-          scale: true
-        };
+          backgroundColor: "transparent"
+        }
       }
     },
 
@@ -412,6 +392,20 @@ qx.Theme.define("gosa.theme.Appearance",
         return {
           width: 35,
           scale: true
+        }
+      }
+    },
+
+    "gosa-listitem-window": {
+      include: "listitem",
+      alias: "listitem",
+
+      style: function() {
+        return {
+          decorator: "gosa-listitem-window",
+          width: 150,
+          allowGrowX: false,
+          allowShrinkX: false
         }
       }
     }

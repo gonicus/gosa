@@ -85,7 +85,7 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
           });
 
         } else if (object_type === "workflow") {
-          return rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true).bind(this)
+          return rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true)
           .then(function(_attribute_data) {
 
             var data = {
