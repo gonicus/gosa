@@ -6,63 +6,52 @@ qx.Class.define("gosa.engine.WidgetFactory", {
     /**
      * Create a new widget for the given object and invoke the callback afterwards.
      *
-     * @param callback {Function} Called after the widget is created; only argument is the widget
-     * @param context {Object ? null} Context for the callback function
      * @param obj {gosa.proxy.Object} The objects.* object for which the widget shall be created
      */
-    createWidget : function(callback, context, obj) {
-      qx.core.Assert.assertFunction(callback);
+    createWidget : function(obj) {
       qx.core.Assert.assertInstance(obj, gosa.proxy.Object);
 
-      // collect templates
-      var templates = [];
-      var addTemplates = function(name) {
-        qx.lang.Array.append(templates, gosa.util.Template.getTemplateObjects(name, obj.baseType));
-      };
+      return new qx.Promise(function(resolve, reject) {
+        // collect templates
+        var templates = [];
+        var addTemplates = function(name) {
+          qx.lang.Array.append(templates, gosa.util.Template.getTemplateObjects(name, obj.baseType));
+        };
 
-      addTemplates(obj.baseType);
+        addTemplates(obj.baseType);
 
-      // extensions
-      if ("extensionTypes" in obj) {
-        var extensions = obj.extensionTypes;
-        for (var ext in extensions) {
-          if (extensions.hasOwnProperty(ext) && extensions[ext]) {
-            addTemplates(ext);
+        // extensions
+        if ("extensionTypes" in obj) {
+          var extensions = obj.extensionTypes;
+          for (var ext in extensions) {
+            if (extensions.hasOwnProperty(ext) && extensions[ext]) {
+              addTemplates(ext);
+            }
           }
         }
-      }
 
-      // generate widget
-      var widget = new gosa.ui.widgets.ObjectEdit(templates);
+        // generate widget
+        var widget = new gosa.ui.widgets.ObjectEdit(templates);
 
-      // invoke callback
-      if (context) {
-        callback = qx.lang.Function.bind(callback, context);
-      }
-      callback(widget);
+        resolve(widget);
+      }, this);
     },
 
     /**
      * Create a new widget for the given workflow and invoke the callback afterwards.
      *
-     * @param callback {Function} Called after the widget is created; only argument is the widget
-     * @param context {Object ? null} Context for the callback function
      * @param workflow {gosa.proxy.Object} The workflows.* workflow for which the widget shall be created
      * @param templates {Array} array of templates for the workflow
      * @param translations {Map} translations for the templates
      */
-    createWorkflowWidget : function(callback, context, obj, templates, translations) {
-      qx.core.Assert.assertFunction(callback);
-      qx.core.Assert.assertInstance(obj, gosa.proxy.Object);
+    createWorkflowWidget : function(workflow, templates, translations) {
+      qx.core.Assert.assertInstance(workflow, gosa.proxy.Object);
 
-      // generate widget
-      var widget = new gosa.ui.widgets.ObjectEdit(templates);
-
-      // invoke callback
-      if (context) {
-        callback = qx.lang.Function.bind(callback, context);
-      }
-      callback(widget);
+      return new qx.Promise(function(resolve) {
+        // generate widget
+        var widget = new gosa.ui.widgets.ObjectEdit(templates);
+        resolve(widget);
+      }, this);
     },
 
     /**

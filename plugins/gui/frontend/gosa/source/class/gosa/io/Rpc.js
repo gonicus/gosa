@@ -47,34 +47,45 @@ qx.Class.define("gosa.io.Rpc", {
     {
       check : "Function",
       nullable : true
+    },
+
+    /**
+     * Block all RPC-Promised from beeing fullfilled, e.g to allow a login to succeed before
+     * executing the RPC
+     */
+    blockRpcs: {
+      check: "Boolean",
+      init: false,
+      event: "changeBlockRpcs"
     }
   },
 
   statics: {
 
-    /* Resolve an error code to an translated text.
-     * */
-    resolveError: function(old_error, func, ctx){
+    /**
+     * Resolve an error code to an translated text.
+     */
+    resolveError: function(old_error){
       var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA(function(data, error){
-          if(error){
-            if(!old_error.message){
-              old_error.message = old_error.text;
+      return new qx.Promise(function(resolve) {
+        rpc.cA("getError", old_error.field, gosa.Tools.getLocale())
+        .then(function(data) {
+          // The default error message attribute is 'message'
+          // so fill it with the incoming message
+          data.message = data.text;
+          if("details" in data){
+            for(var item in data.details){
+              data.message += " - " + data.details[item]['detail'];
             }
-            func.apply(ctx, [old_error]);
-          }else{
-
-            // The default error message attribute is 'message'
-            // so fill it with the incoming message
-            data.message = data.text;
-            if("details" in data){
-              for(var item in data.details){
-                data.message += " - " + data.details[item]['detail'];
-              }
-            }
-            func.apply(ctx, [data]);
           }
-        }, rpc, "getError", old_error.field, gosa.Tools.getLocale());
+          return data;
+        }, function() {
+          if(!old_error.message){
+            old_error.message = old_error.text;
+          }
+          return old_error;
+        });
+      }, this);
     }
   },
 
@@ -122,33 +133,106 @@ qx.Class.define("gosa.io.Rpc", {
       return req;
     },
 
-    /* We use a queue to process incoming RPC requests to ensure that we can
-     * act on errors accordingly. E.g for error 401 we send a login request
-     * first and then re-queue the current remote-procedure-call again.
-     * */
-    process_queue: function(){
-      if(!this.running){
-        if(this.queue.length){
-          this.running = true;
-          var item = this.queue.pop();
-          this.debug("started next rpc job '" + item['arguments'][0] + "' (queued: " + this.queue.length + ")");
+    /**
+     * Create a {qx.Promise} for the RPC call
+     * @param argx {Array} arguments for the RPC call
+     * @returns {qx.Promise}
+     * @private
+     */
+    __promiseCallAsync: function(argx) {
+      this.debug("started next rpc job '" + argx[0] + "'");
+      return new qx.Promise(function(resolve, reject) {
+        if (this.isBlockRpcs()) {
+          this.addListenerOnce("changeBlockRpcs", function() {
+            this.__executeCallAsync(argx, resolve, reject);
+          })
+        } else {
+          this.__executeCallAsync(argx, resolve, reject);
+        }
+      }, this);
+    },
 
-          if (!this.__xsrf) {
-            // Do a simple GET
-            var req = new qx.io.request.Xhr(this.getUrl());
-            req.addListener("success", function(e) {
-              this.__xsrf = qx.bom.Cookie.get("_xsrf");
-              this.callAsync.apply(this, [item['callback']].concat(item['arguments']));
-            }, this);
-            req.addListener("fail", function(e) {
-              var d = new gosa.ui.dialogs.RpcError(e.toString());
-              d.show();
-            }, this);
-            req.send();
+    /**
+     * Execute the RPC call
+     * @param argx {Array} arguments for the call
+     * @param resolve {Function} qx.Promise resolve function
+     * @param reject {Function} qx.Promise reject function
+     * @private
+     */
+    __executeCallAsync : function(argx, resolve, reject) {
+      this.callAsync.apply(this, [
+        function(result, error) {
+          if (error) {
+            this.debug("rpc job failed '" + argx[0] + "'");
+            reject(error);
           }
           else {
-            this.callAsync.apply(this, [item['callback']].concat(item['arguments']));
+            this.debug("rpc job finished '" + argx[0] + "'");
+            resolve(result);
           }
+        }.bind(this)
+      ].concat(argx));
+    },
+
+    /**
+     * Handle rpc errors and re-trigger the RPC oif necessary
+     * @param argx {Array} the arguments from the errored RPC
+     * @param error {Error}
+     * @returns {*}
+     * @private
+     */
+    __handleRpcError: function(argx, error) {
+      if(error && error.code == 401) {
+        this.setBlockRpcs(true);
+
+        gosa.Session.getInstance().setUser(null);
+
+        var dialog = new gosa.ui.dialogs.LoginDialog();
+        dialog.open();
+        return new qx.Promise(function(resolve, reject) {
+          dialog.addListener("login", function(e) {
+
+            // Query for the users Real Name
+            gosa.Session.getInstance().setUser(e.getData()['user']);
+
+            // Re-connect SSE
+            var messaging = gosa.io.Sse.getInstance();
+            messaging.reconnect();
+
+            // retry the call
+            resolve(this.__promiseCallAsync(argx));
+          }, this);
+        }, this);
+
+        // Catch potential errors here.
+      } else if(error && error.code != 500 && (error.code >= 400 || error.code == 0)){
+
+        var msg = error.message;
+        if(error.code == 0){
+          msg = new qx.ui.core.Widget().tr("Communication with the backend failed!");
+        }
+
+        var d = new gosa.ui.dialogs.RpcError(msg);
+        return new qx.Promise(function(resolve, reject) {
+          d.addListener("retry", function(){
+            this.__promiseCallAsync(argx).then(resolve, reject);
+          }, this);
+          d.open();
+        }, this);
+      } else if (error && argx[0] != "get_error") {
+        // Parse additional information out of the error.message string.
+        error.field = null;
+
+        // Check for "<field> error-message" formats
+        if(error.message.match(/<[a-zA-Z0-9\-_ ]*>/)){
+
+          error.field = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){
+            return(arguments[1]);
+          });
+          error.message = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){
+            return(arguments[2]);
+          });
+          return gosa.io.Rpc.resolveError(error, this);
         }
       }
     },
@@ -156,106 +240,33 @@ qx.Class.define("gosa.io.Rpc", {
     /* This method pushes a new request into the rpc-queue and then
      * triggers queue-processing.
      * */
-    cA : function(func, context) {
-
-      // Create argument list
-      var argx = Array.prototype.slice.call(arguments, 2);
-
-      // Create queue object
-      var call = {};
-      call['arguments'] = argx;
-      call['context'] = context;
-
-      // This is the method that gets called when the rpc request has finished
-      var cl = this;
-      call['callback'] = function(result, error){
-
-        // Permission denied - show login screen to allow to log in.
-        if(error && error.code == 401){
-          gosa.Session.getInstance().setUser(null);
-
-          var dialog = new gosa.ui.dialogs.LoginDialog();
-          dialog.open();
-          dialog.addListener("login", function(e){
-
-            // Query for the users Real Name
-            gosa.Session.getInstance().setUser(e.getData()['user']);
-
-            cl.queue.push(call);
-            cl.running = false;
-            cl.process_queue();
-
-            // Re-connect SSE
-            var messaging = gosa.io.Sse.getInstance();
-            messaging.reconnect();
-          }, cl);
-
-          // Catch potential errors here.
-        }else if(error && error.code != 500 && (error.code >= 400 || error.code == 0)){
-
-          var msg = error.message;
-          if(error.code == 0){
-            msg = new qx.ui.core.Widget().tr("Communication with the backend failed!");
-          }
-
-          var d = new gosa.ui.dialogs.RpcError(msg);
-          d.addListener("retry", function(){
-            cl.queue.push(call);
-            cl.running = false;
-            cl.process_queue();
+    cA : function() {
+      var argx = Array.prototype.slice.call(arguments, 0);
+      if (!this.__xsrf) {
+        // Do a simple GET
+        return new qx.Promise(function(resolve, reject) {
+          var req = new qx.io.request.Xhr(this.getUrl());
+          req.addListener("success", function() {
+            resolve(qx.bom.Cookie.get("_xsrf"));
+          });
+          req.addListener("fail", function(e) {
+            reject(e.toString());
+          });
+          req.send();
+        }, this).then(function(xsrf) {
+          this.__xsrf = xsrf;
+          return this.__promiseCallAsync(argx).then(null, function(error) {
+            return this.__handleRpcError(argx, error);
           }, this);
-          d.open();
-
-        }else{
-
-
-          var func_done = function(){
-            // Everything went fine, now call the callback method with the result.
-            cl.running = false;
-            cl.debug("rpc job finished '" + call['arguments'] + "' (queue: " + cl.queue.length + ")");
-            func.apply(call['context'], [result, error]);
-
-            // Start next rpc-job
-            cl.process_queue();
-          };
-
-
-          // Parse additional information out of the error.message string.
-          if(error && call['arguments'][0] != "get_error"){
-
-            error.field = null;
-
-            // Check for "<field> error-message" formats
-            if(error.message.match(/<[a-zA-Z0-9\-_ ]*>/)){
-
-              error.field = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){
-                  return(arguments[1]);
-                });
-              error.message = error.message.replace(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/, function(){
-                  return(arguments[2]);
-                });
-
-              // Set processor to finished and then fetch the translated error message
-              cl.running = false;
-
-              gosa.io.Rpc.resolveError(error, function(error_obj){
-                  error = error_obj;
-                  func_done();
-                }, this);
-              cl.process_queue();
-
-            }else{
-              func_done();
-            }
-          }else{
-            func_done();
-          }
-        }
-      };
-
-      // Insert the job into the job-queue and trigger processing.
-      this.queue.unshift(call);
-      this.process_queue();
+        }).catch(function(error) {
+          var d = new gosa.ui.dialogs.RpcError(error.toString());
+          d.show();
+        });
+      } else {
+        return this.__promiseCallAsync(argx).then(null, function(error) {
+          return this.__handleRpcError(argx, error);
+        }, this);
+      }
     },
 
     /**
@@ -400,7 +411,7 @@ qx.Class.define("gosa.io.Rpc", {
 
       var makeException = function(origin, code, message)
       {
-        var ex = new Object();
+        var ex = new Error();
 
         if (protocol == "qx1")
         {

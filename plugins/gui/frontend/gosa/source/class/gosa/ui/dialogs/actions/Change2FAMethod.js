@@ -67,26 +67,25 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
       }, this);
 
       var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA(function(result, error) {
-        if (error) {
-          new gosa.ui.dialogs.Error(error.message).open();
-          this.close();
-        }
-        else {
-          for (var item in result) {
-            var label = result[item];
-            if (!label) {
-              label = this.tr("Disabled");
-            }
-            var tempItem = new qx.ui.form.ListItem(label, null, result[item]);
-            method.add(tempItem);
+      rpc.cA("getAvailable2FAMethods")
+      .then(function(result) {
+        for (var item in result) {
+          var label = result[item];
+          if (!label) {
+            label = this.tr("Disabled");
+          }
+          var tempItem = new qx.ui.form.ListItem(label, null, result[item]);
+          method.add(tempItem);
 
-            if(this._current == result[item]){
-              method.setSelection([tempItem]);
-            }
+          if(this._current == result[item]){
+            method.setSelection([tempItem]);
           }
         }
-      }, this, "getAvailable2FAMethods");
+      }, this)
+      .catch(function(error) {
+        new gosa.ui.dialogs.Error(error.message).open();
+        this.close();
+      }, this);
 
       // Add the form items
       var pwd = this._pwd = new qx.ui.form.PasswordField();
@@ -134,10 +133,10 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
         if (method !== this._current) {
           if (this._current === null) {
             // no confirmation required
-            this._actionController.setTwoFactorMethod(this._handleMethodChangeResponse, this, method);
+            this._actionController.setTwoFactorMethod(method).then(this._handleMethodChangeResponse);
           } else {
             var pwd = this._pwd.getValue();
-            this._actionController.setTwoFactorMethod(this._handleMethodChangeResponse, this, method, pwd);
+            this._actionController.setTwoFactorMethod(method, pwd).then(this._handleMethodChangeResponse);
           }
         }
         else {
@@ -170,7 +169,7 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
                 if (deviceResponse.errorCode) {
                   this._showInfo(null, this.tr("Device responded with error '%1': %2", deviceResponse.errorCode, gosa.Tools.getU2FErrorMessage(deviceResponse.errorCode)));
                 } else {
-                  this._actionController.finishU2FRegistration(this._handleMethodChangeResponse, this, qx.lang.Json.stringify(deviceResponse));
+                  this._actionController.finishU2FRegistration(qx.lang.Json.stringify(deviceResponse)).then(this._handleMethodChangeResponse);
                 }
               }.bind(this));
             } catch (e) {

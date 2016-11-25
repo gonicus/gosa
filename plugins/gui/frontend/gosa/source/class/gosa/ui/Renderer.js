@@ -283,7 +283,8 @@ qx.Class.define("gosa.ui.Renderer",
       id = gosa.io.Sse.getInstance().addListener("changeConnected", function(e) {
         if (e.getData() === true) {
           var rpc = gosa.io.Rpc.getInstance();
-          rpc.cA(function(result, error) {
+          rpc.cA("checkObjectRef", obj.instance_uuid)
+          .then(function(result) {
             if (result === false) {
               new gosa.ui.dialogs.Info(this.tr("This object has been closed by the backend!")).open();
               if (this._closingHint) {
@@ -292,7 +293,7 @@ qx.Class.define("gosa.ui.Renderer",
               }
               this.fireEvent("done");
             }
-          }, this ,"checkObjectRef", obj.instance_uuid);
+          }, this);
         }
       }, widget);
       widget.__bindings.push({id: id, widget: gosa.io.Sse.getInstance()});
@@ -320,8 +321,7 @@ qx.Class.define("gosa.ui.Renderer",
               // tell the backend that the user wants to continue to edit the object
               var rpc = gosa.io.Rpc.getInstance();
               if (this._object && !this._object.isDisposed()) {
-                rpc.cA(function(result, error) {
-                }, this, "continueObjectEditing", this._object.instance_uuid);
+                rpc.cA("continueObjectEditing", this._object.instance_uuid);
               } else {
                 this._closingHint.close();
               }
@@ -655,156 +655,156 @@ qx.Class.define("gosa.ui.Renderer",
           dialog.center();
           dialog.addListener("merge", function(e){
 
-              // Disable the dialog while merging
-              dialog.setEnabled(false);
+            // Disable the dialog while merging
+            dialog.setEnabled(false);
 
-              // Create a dict containing all property values we have to update.
-              // (Update means alls property values that differ from the current server state)
-              var keep = {};
-              var res = e.getData();
-              for(var name in res['attrs']){
-                if(res['attrs'][name]){
-                  var widgetName = this._mapping['rbindings'][name];
+            // Create a dict containing all property values we have to update.
+            // (Update means alls property values that differ from the current server state)
+            var keep = {};
+            var res = e.getData();
+            for (var name in res['attrs']) {
+              if (res['attrs'][name]) {
+                var widgetName = this._mapping['rbindings'][name];
 
-                  // If there is no widget with the given name, then we
-                  // just have to set an empty value for the property.
-                  if(this._widgets[widgetName]){
-                    keep[name] = this._widgets[widgetName].getValue().copy();
-                  }else{
-                    keep[name] = new qx.data.Array();
+                // If there is no widget with the given name, then we
+                // just have to set an empty value for the property.
+                if (this._widgets[widgetName]) {
+                  keep[name] = this._widgets[widgetName].getValue().copy();
+                }
+                else {
+                  keep[name] = new qx.data.Array();
+                }
+              }
+            }
+
+            // Reload the object (Opens a new object on the server side).
+            this._object.reload(function() {
+              // Get extension details from the server.
+              return this._object.get_extension_types();
+            }, this)
+            .then(function(result) {
+              // Create a queue which later extends or retracts
+              // addons step by step.
+              // Without queue, we cannot handle multiple retractions or extensions
+              // due to the fact all they would be executed all once.
+              // --
+              // Once the Queue has finished it updates the widget values (see variable 'keep').
+              var updated = 0;
+              var queue = [];
+              var that = this;
+              var handleQueue = function() {
+                if (queue.length) {
+                  var f = queue.pop();
+                  f();
+                }
+                else {
+
+                  // Update widget values
+                  for (var name in keep) {
+                    var widgetName = that._mapping['rbindings'][name];
+                    if (that._widgets[widgetName]) {
+                      that._widgets[widgetName].setValue(keep[name]);
+                      that._widgets[widgetName].setModified(true);
+                      that._widgets[widgetName].enforceUpdateOnServer();
+                    }
+                  }
+
+                  // Reload the "values"-list for dropdown-boxes, selectboxes etc.
+                  if (updated) {
+                    that._object.refreshAttributeInformation(null, null, true);
+                  }
+
+                  dialog.close();
+                }
+              }
+
+              // Check which extensions have to be added and removed.
+              // (Compares current extension state with server state)
+              var to_extend = [];
+              var to_retract = [];
+              for (var ext in result) {
+
+                // Active on server but not in client.
+                if (result[ext] && !this._extension_to_page[ext]) {
+
+                  // Create the tab according to backend status
+                  this._createTabsForExtension(ext);
+                  updated++;
+
+                  // We do not want to take over the backend status
+                  // -> retract the extension again
+                  if (res['ext'][ext]) {
+                    to_retract.push(ext);
+                  }
+                }
+                else if (!result[ext] && this._extension_to_page[ext]) {
+
+                  // Remove the tab according to backend status
+                  this._removeTabsForExtension(ext);
+
+                  // We do not want to take over the backend status
+                  // -> extend the extension again
+                  if (res['ext'][ext]) {
+                    to_extend.push(ext);
                   }
                 }
               }
 
-              // Reload the object (Opens a new object on the server side).
-              this._object.reload(function(result, error){
-
-                // Get extension details from the server.
-                this._object.get_extension_types(function(result, error){
-
-                  // Create a queue which later extends or retracts
-                  // addons step by step.
-                  // Without queue, we cannot handle multiple retractions or extensions
-                  // due to the fact all they would be executed all once.
-                  // --
-                  // Once the Queue has finished it updates the widget values (see variable 'keep').
-                  var updated = 0;
-                  var queue = [];
-                  var that = this;
-                  var handleQueue = function(){
-                    if(queue.length){
-                      var f = queue.pop();
-                      f();
-                    }else{
-
-                      // Update widget values
-                      for(var name in keep){
-                        var widgetName = that._mapping['rbindings'][name];
-                        if(that._widgets[widgetName]){
-                          that._widgets[widgetName].setValue(keep[name]);
-                          that._widgets[widgetName].setModified(true);
-                          that._widgets[widgetName].enforceUpdateOnServer();
-                        }
-                      }
-
-                      // Reload the "values"-list for dropdown-boxes, selectboxes etc.
-                      if(updated){
-                        that._object.refreshAttributeInformation(null, null, true);
-                      }
-
-                      dialog.close();
+              // Create a list containing all extensions in correct order,
+              // to allow retraction or extending without dependency problems.
+              var order = [];
+              var that = this;
+              var resolveDep = function(name) {
+                if (that._object.extensionDeps[name].length) {
+                  for (var item in that._object.extensionDeps[name]) {
+                    var tmp = that._object.extensionDeps[name][item];
+                    if (qx.lang.Array.contains(to_retract, tmp) && that._extension_to_page[name]) {
+                      to_retract.push(name);
                     }
+                    resolveDep(tmp);
                   }
+                }
+                if (!qx.lang.Array.contains(order, name)) {
+                  order.push(name);
+                }
+              }
+              for (var item in this._object.extensionDeps) {
+                resolveDep(item);
+              }
 
-                  // Check which extensions have to be added and removed.
-                  // (Compares current extension state with server state)
-                  var to_extend = [];
-                  var to_retract = [];
-                  for(var ext in result){
+              // Helper method which inserts a 'retraction' to the queue.
+              var del = function(ext) {
+                queue.push(function() {
+                  that._retractObjectFrom(ext, handleQueue);
+                });
+              }
 
-                    // Active on server but not in client.
-                    if(result[ext] && !this._extension_to_page[ext]){
+              // Helper method which inserts a 'extension' to the queue.
+              var add = function(ext) {
+                queue.push(function() {
+                  that._extendObjectWith(ext, handleQueue);
+                });
+              }
 
-                      // Create the tab according to backend status
-                      this._createTabsForExtension(ext);
-                      updated ++;
+              // Add the missing extensions to the queue.
+              order = order.reverse();
+              for (var item in order) {
+                if (qx.lang.Array.contains(to_extend, order[item])) {
+                  add(order[item]);
+                }
+              }
 
-                      // We do not want to take over the backend status
-                      // -> retract the extension again
-                      if(res['ext'][ext]){
-                        to_retract.push(ext);
-                      }
-                    }else if(!result[ext] && this._extension_to_page[ext]){
+              // Add the missing retractions to the queue.
+              order = order.reverse();
+              for (var item in order) {
+                if (qx.lang.Array.contains(to_retract, order[item])) {
+                  del(order[item]);
+                }
+              }
 
-                      // Remove the tab according to backend status
-                      this._removeTabsForExtension(ext);
-
-                      // We do not want to take over the backend status
-                      // -> extend the extension again
-                      if(res['ext'][ext]){
-                        to_extend.push(ext);
-                      }
-                    }
-                  }
-
-                  // Create a list containing all extensions in correct order,
-                  // to allow retraction or extending without dependency problems.
-                  var order = [];
-                  var that = this;
-                  var resolveDep = function(name){
-                    if(that._object.extensionDeps[name].length){
-                      for(var item in that._object.extensionDeps[name]){
-                        var tmp = that._object.extensionDeps[name][item];
-                        if(qx.lang.Array.contains(to_retract, tmp) && that._extension_to_page[name]){
-                          to_retract.push(name);
-                        }
-                        resolveDep(tmp);
-                      }
-                    }
-                    if(!qx.lang.Array.contains(order, name)){
-                      order.push(name);
-                    }
-                  }
-                  for(var item in this._object.extensionDeps){
-                    resolveDep(item);
-                  }
-
-                  // Helper method which inserts a 'retraction' to the queue.
-                  var del = function(ext){
-                    queue.push(function(){
-                      that._retractObjectFrom(ext, handleQueue);
-                    });
-                  }
-
-                  // Helper method which inserts a 'extension' to the queue.
-                  var add = function(ext){
-                    queue.push(function(){
-                      that._extendObjectWith(ext, handleQueue);
-                    });
-                  }
-
-                  // Add the missing extensions to the queue.
-                  order = order.reverse();
-                  for(var item in order){
-                    if(qx.lang.Array.contains(to_extend, order[item])){
-                      add(order[item]);
-                    }
-                  }
-
-                  // Add the missing retractions to the queue.
-                  order = order.reverse();
-                  for(var item in order){
-                    if(qx.lang.Array.contains(to_retract, order[item])){
-                      del(order[item]);
-                    }
-                  }
-
-                  // Process the queue
-                  handleQueue();
-
-                }, this);
-
-              }, this);
+              // Process the queue
+              handleQueue();
+            }, this);
             }, this);
         }; break;
 
@@ -1120,12 +1120,12 @@ qx.Class.define("gosa.ui.Renderer",
         if (state[4] != undefined){
           var method = state[2];
 
-          // Collect agruments that have to be passed to the method call.
+          // Collect arguments that have to be passed to the method call.
           var attrs = state[4].split(",");
           var args = [];
 
-          for(var item in attrs){
-        	var value;
+          for(var item in attrs) {
+        	  var value;
             if(attrs[item] == "dn" || attrs[item] == "uuid"){
               value = this._object[attrs[item]];
             }else{
@@ -1145,23 +1145,19 @@ qx.Class.define("gosa.ui.Renderer",
             args.push(value);
           }
 
-          // Now execute the method with its arguments and let the callback
-          // set the button state
+          // Now execute the method with its arguments and set the button state
           eb.setEnabled(false);
-          eb.addListener("appear", function(){
+          eb.addListener("appear", function() {
             var rpc = gosa.io.Rpc.getInstance();
-            rpc.cA.apply(rpc, [function(result, error){
-
-                if(error){
-                  new gosa.ui.dialogs.Error(error.message).open();
-                  eb.setEnabled(false);
-                }else{
-                  result = (state[1] == "!") ? !result : result;
-                  eb.setEnabled(result);
-                }
-              }, this, method].concat(args));
-            }, this);
-
+            rpc.cA.apply(rpc, args)
+            .then(function(result) {
+              result = (state[1] == "!") ? !result : result;
+              eb.setEnabled(result);
+            }).catch(function(error) {
+              new gosa.ui.dialogs.Error(error.message).open();
+              eb.setEnabled(false);
+            });
+          });
         } else {
 
           // Calculate attribute based condition
@@ -1450,20 +1446,24 @@ qx.Class.define("gosa.ui.Renderer",
      * Afterwards - create the visual part of the tabs.
      * */
     _extendObjectWith : function(extension, callback) {
-      this._object.extend(function(result, error) {
-        if (error) {
-          this.error(error.message);
-        } else {
-          this._object.refreshMetaInformation(this._updateToolMenu, this);
-          this._object.refreshAttributeInformation(function(){
-              this._createTabsForExtension(extension);
-              if (callback) {
-                callback();
-              }
-              this.setModified(true);
-            }, this);
+      this._object.extend(extension)
+      .then(function() {
+        return this._object.refreshMetaInformation(extension);
+      }, this)
+      .then(function() {
+        this._updateToolMenu();
+        return this._object.refreshAttributeInformation();
+      }, this)
+      .then(function() {
+        this._createTabsForExtension(extension);
+        if (callback) {
+          callback();
         }
-      }, this, extension);
+        this.setModified(true);
+      }, this)
+      .catch(function(error) {
+        this.error(error.message);
+      }, this);
     },
 
     /* Extend the object with the given extension

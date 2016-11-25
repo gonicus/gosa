@@ -237,50 +237,43 @@ qx.Theme.define("gosa.theme.Appearance",
     "title-bar": {
       style: function()  {
         return {
-          textColor: "header-text"
+          textColor: "header-text",
+          backgroundColor : "#303030",
+          height: 48
         }
       }
     },
 
-    "title-bar/logo": {
-      include: "atom",
-      alias : "atom",
+    "title-bar/windows": {
+      style: function() {
+        return {
+          backgroundColor: "transparent"
+        }
+      }
+    },
+
+    "title-bar/sandwich": {
+      include: "button",
+      alias : "button",
 
       style : function()
       {
         return {
-          backgroundColor : "#303030",
-          height: 48,
-          padding: 5,
-          icon: "gosa/themes/default/logo.svg"
+          icon: "@FontAwesome/f0c9", // bars
+          decorator: null,
+          show : "icon",
+          center: true
         };
       }
     },
-    "title-bar/label": {
-      include: "label",
-      alias : "label",
-
-      style : function()
-      {
-        return {
-          alignY : "middle",
-          cursor: "pointer"
-        };
-      }
-    },
-    "title-bar/logout": {
+    "title-bar/sandwich/icon": {
       include: "image",
       alias : "image",
-
-      style : function()
-      {
+      style: function() {
         return {
-          source: "@FontAwesome/f08b", // sign-out
-          alignY : "middle",
-          cursor: "pointer",
-          width: 22,
+          width: 35,
           scale: true
-        };
+        }
       }
     },
 
@@ -389,6 +382,31 @@ qx.Theme.define("gosa.theme.Appearance",
         return {
           font : "Title"
         };
+      }
+    },
+
+    "gosa-tabview-page": "tabview-page",
+    "gosa-tabview-page/button/icon": {
+      include: "tabview-page/button/icon",
+      style: function() {
+        return {
+          width: 35,
+          scale: true
+        }
+      }
+    },
+
+    "gosa-listitem-window": {
+      include: "listitem",
+      alias: "listitem",
+
+      style: function() {
+        return {
+          decorator: "gosa-listitem-window",
+          width: 150,
+          allowGrowX: false,
+          allowShrinkX: false
+        }
       }
     }
   }

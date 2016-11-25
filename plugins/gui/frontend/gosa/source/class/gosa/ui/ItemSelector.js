@@ -39,9 +39,10 @@ qx.Class.define("gosa.ui.ItemSelector", {
     table.setPreferenceTableName(extension + ":" + attribute + "Edit");
 
     var rpc = gosa.io.Rpc.getInstance();
-    rpc.cA(function(result, error){
-        tableModel.setDataAsMapArray(result, true, false);
-      },this, "searchForObjectDetails", extension, attribute, "", column_keys, current_values);
+    rpc.cA("searchForObjectDetails", extension, attribute, "", column_keys, current_values)
+    .then(function(result) {
+      tableModel.setDataAsMapArray(result, true, false);
+    }, this);
 
     // Add button static button line for the moment
     var paneLayout = new qx.ui.layout.HBox().set({

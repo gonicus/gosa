@@ -39,6 +39,15 @@ qx.Theme.define("gosa.theme.Decoration",
         startColor: "#FFFFFF",
         endColor: "#DDDDDD"
       }
+    },
+
+    "gosa-listitem-window": {
+      style: {
+        width: [0, 1, 0, 1],
+        innerWidth: [0, 1, 0, 1],
+        color: "#202020",
+        innerColor: "#404040"
+      }
     }
   }
 });

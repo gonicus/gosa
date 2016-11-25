@@ -50,6 +50,23 @@ qx.Class.define("gosa.proxy.Object", {
     uiBound: {
       check: "Boolean",
       init: false
+    },
+
+    /**
+     * Title to identify this object, usually the first part of the DN
+     */
+    $$title: {
+      check: "String",
+      init: "",
+      event: "changedTitle"
+    },
+
+    /**
+     * Optional Icon to identify this object (used in the upper toolbar that shows the open objects)
+     */
+    $$icon: {
+      check: "String",
+      nullable: true
     }
   },
 
@@ -162,71 +179,71 @@ qx.Class.define("gosa.proxy.Object", {
           return;
         }
 
-        var that = this;
         var rpc = gosa.io.Rpc.getInstance();
         var rpc_value = null;
-        if(this.attribute_data[name].multivalue){
+        if (this.attribute_data[name].multivalue) {
           rpc_value = value.toArray();
-        }else{
+        } else {
           if(value.getLength()){
             rpc_value = value.toArray()[0];
           }
         }
-
-        rpc.cA(function(result, error) {
-          that.fireDataEvent("propertyUpdateOnServer", {success: !error, error: error, property: name});
-        }, this ,"setObjectProperty", this.instance_uuid, name, rpc_value);
+        rpc.cA("setObjectProperty", this.instance_uuid, name, rpc_value).bind(this)
+        .then(function() {
+          this.fireDataEvent("propertyUpdateOnServer", {success: true, error: null, property: name});
+        })
+        .catch(function(error) {
+          this.fireDataEvent("propertyUpdateOnServer", {success: false, error: error, property: name});
+        }, this);
       }
     },
 
-    /* Closes the current object
-     * */
-    close : function(func, context){
+    /**
+     * Closes the current object
+     * @returns {qx.Promise}
+     */
+    close : function(){
 
       // Skip events now.
       this.skipEvents = true;
 
       this.isClosed = true;
       this.dispose();
-      var rpc = gosa.io.Rpc.getInstance();
-      var args = ["closeObject", this.instance_uuid];
-      rpc.cA.apply(rpc, [function(result, error){
-        if(func){
-          func.apply(context, [result, error]);
-        }
-      }, this].concat(args));
+      return gosa.io.Rpc.getInstance().cA("closeObject", this.instance_uuid);
     },
 
-    /* If this object is bound to a gui, then send a merge event to that
-      * gui, it will then handle merging.
-      * */
+    /**
+     * If this object is bound to a gui, then send a merge event to that
+     * gui, it will then handle merging.
+     */
     mergeChanges: function(){
-      var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA(function(data, error){
-          this.fireDataEvent("foundDifferencesDuringReload", data);
-        }, this, "diffObject", this.instance_uuid);
+      return gosa.io.Rpc.getInstance().cA("diffObject", this.instance_uuid)
+      .then(qx.lang.Function.curry(this.fireDataEvent, "foundDifferencesDuringReload"), this);
     },
 
-    /* Reload attribute values from the backend
-     * */
-    reload: function(cb, ctx){
+    /**
+     *  Reload attribute values from the backend
+     * @returns {qx.Promise}
+     */
+    reload: function(){
       if(this.is_reloading){
         return;
       }
       this.is_reloading = true;
       var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA(function(data, error){
-        if(!error){
-          this._setAttributes(data);
-          this.is_reloading = false;
-        }
-        cb.apply(ctx, [data, error]);
-      }, this, "reloadObject", this.instance_uuid);
+      return rpc.cA("reloadObject", this.instance_uuid).then(function(data) {
+        this._setAttributes(data);
+        this.is_reloading = false;
+      }, this);
     },
 
-    /* Updates attribute values by fetching them from the server.
-     * */
-    refreshAttributeInformation: function(cb, ctx, skipValueUpdate){
+    /**
+     * Updates attribute values by fetching them from the server.
+     *
+     * @param skipValueUpdate {Boolean}
+     * @returns {qx.Promise}
+     */
+    refreshAttributeInformation: function(skipValueUpdate){
 
       if(!skipValueUpdate){
         skipValueUpdate = false;
@@ -245,93 +262,93 @@ qx.Class.define("gosa.proxy.Object", {
         };
 
       var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA(function(data, context, error){
-        if(!error){
-          for(var item in data.value){
+      return rpc.cA("dispatchObjectMethod", this.instance_uuid, "get_attribute_values")
+      .then(function(data) {
+        for (var item in data.value) {
 
-            if(data.values[item]){
-              var attr = this.attribute_data;
-              if (attr[item]) {
-                attr[item].values = data.values[item];
-              }
-              this.fireDataEvent("updatedAttributeValues", {item: item, values: data.values[item]});
+          if (data.values[item]) {
+            var attr = this.attribute_data;
+            if (attr[item]) {
+              attr[item].values = data.values[item];
             }
+            this.fireDataEvent("updatedAttributeValues", {
+              item   : item,
+              values : data.values[item]
+            });
+          }
 
-            // Do not update the property-value
-            if(!skipValueUpdate){
-              var value = null;
-              if(data.value[item] === null){
-                var attrData = this.attribute_data[item];
-                if (attrData.mandatory && attrData.values && attrData.values.length > 0) {
-                  value = [attrData.values[0]];
-                  this.setAttribute(item, new qx.data.Array(value));
-                }
-                else {
-                  value = [];
-                }
-              }else{
-                if(!(this.attribute_data[item].multivalue)){
-                  value = [data.value[item]];
-                }else{
-                  value = data.value[item];
-                }
+          // Do not update the property-value
+          if (!skipValueUpdate) {
+            var value = null;
+            if (data.value[item] === null) {
+              var attrData = this.attribute_data[item];
+              if (attrData.mandatory && attrData.values && attrData.values.length > 0) {
+                value = [attrData.values[0]];
+                this.setAttribute(item, new qx.data.Array(value));
               }
-
-              // Update modified attributes but skip RPC requests ...
-              if(!compare(this.get(item).toArray(), value)){
-
-                // Skip RPC actions for this set
-                this.initialized = false;
-                this.set(item, new qx.data.Array(value));
-                this.initialized = true;
+              else {
+                value = [];
               }
             }
+            else {
+              if (!(this.attribute_data[item].multivalue)) {
+                value = [data.value[item]];
+              }
+              else {
+                value = data.value[item];
+              }
+            }
+
+            // Update modified attributes but skip RPC requests ...
+            if (!compare(this.get(item).toArray(), value)) {
+
+              // Skip RPC actions for this set
+              this.initialized = false;
+              this.set(item, new qx.data.Array(value));
+              this.initialized = true;
+            }
           }
-          if(cb){
-            cb.apply(ctx);
-          }
-        }else{
-          this.error(error);
         }
-      }, this, "dispatchObjectMethod", this.instance_uuid, "get_attribute_values");
+      }, this);
     },
 
-    /* Reloads the current extension status.
-     * */
-    refreshMetaInformation : function(cb, ctx)
+    /**
+     * Reloads the current extension status.
+     * @returns {qx.Promise}
+     */
+    refreshMetaInformation : function()
     {
       var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA(function(data, context, error){
-        if(!error){
-          this.baseType = data.base;
-          this.extensionTypes = data.extensions;
-          cb.apply(ctx);
-        }else{
-          this.error(error);
-        }
-      }, this, "dispatchObjectMethod", this.instance_uuid, "get_object_info", this.locale);
+      return rpc.cA("dispatchObjectMethod", this.instance_uuid, "get_object_info", this.locale)
+      .then(function(data) {
+        this.baseType = data.base;
+        this.extensionTypes = data.extensions;
+      }, this);
     },
 
-    /* Wrapper method for object calls
-     * */
-    callMethod: function(method, func, context){
+    /**
+     * Wrapper method for object calls
+     *
+     * @param method {String} name of the method to call
+     * @returns {qx.Promise}
+     */
+    callMethod: function(method){
 
       // Skip events while saving
-      if(method == "commit" || method == "remove"){
+      if(method === "commit" || method === "remove"){
         this.skipEvents = true;
       }
 
       var rpc = gosa.io.Rpc.getInstance();
-      var args = ["dispatchObjectMethod", this.instance_uuid, method].concat(Array.prototype.slice.call(arguments, 3));
-      rpc.cA.apply(rpc, [function(result, error){
-          if(func){
-            func.apply(context, [result, error]);
-            if(method in ["remove"]){
-              this.close();
-              this.skipEvents = false;
-            }
-          }
-        }, this].concat(args));
+      var args = ["dispatchObjectMethod", this.instance_uuid, method].concat(Array.prototype.slice.call(arguments, 1));
+      return rpc.cA.apply(rpc, args)
+      .then(function(result) {
+        if (method === "remove") {
+          this.close();
+          this.skipEvents = false;
+        }
+        return result;
+      }, this);
     }
   }
 });

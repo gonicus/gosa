@@ -140,14 +140,13 @@ qx.Class.define("gosa.ui.table.Table",
 
       // Save settings back to the user model
       if(gosa.Session.getInstance().getUser() && !this.comparePreferences(prefs, this.__lastPreferences)){
-        var rpc = gosa.io.Rpc.getInstance();
-        rpc.cA(function(result, error){
-            if(error){
-              new gosa.ui.dialogs.Error(error.message).open();
-            }else{
-              gosa.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
-            }
-          }, this, "saveUserPreferences", this.__preferenceName, prefs);
+        gosa.io.Rpc.getInstance().cA("saveUserPreferences", this.__preferenceName, prefs)
+        .then(function() {
+          gosa.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
+        }, this)
+        .catch(function(error) {
+          new gosa.ui.dialogs.Error(error.message).open();
+        });
       }
       this.__lastPreferences = prefs;
     },
@@ -220,20 +219,18 @@ qx.Class.define("gosa.ui.table.Table",
 
       /* Load preferences from cache if they were load before.
        * */
-      if(this.__preferenceName in gosa.ui.table.Table.tablePreferences){
+      if (this.__preferenceName in gosa.ui.table.Table.tablePreferences) {
         loadPrefs.apply(this, [gosa.ui.table.Table.tablePreferences[this.__preferenceName]]);
-      }else{
-
+      } else {
         // Check the user model for table preferences 
-        var rpc = gosa.io.Rpc.getInstance();
-        rpc.cA(function(prefs, error){
-            if(error){
-              new gosa.ui.dialogs.Error(error.message).open();
-            }else{
-              gosa.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
-              loadPrefs.apply(this, [prefs]);
-            }
-          }, this, "loadUserPreferences", gosa.Session.getInstance().getUser(), this.__preferenceName);
+        gosa.io.Rpc.getInstance().cA("loadUserPreferences", gosa.Session.getInstance().getUser(), this.__preferenceName)
+        .then(function(prefs) {
+          gosa.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
+          loadPrefs.apply(this, [prefs]);
+        }, this)
+        .catch(function(error) {
+          new gosa.ui.dialogs.Error(error.message).open();
+        });
       }
     },
 
