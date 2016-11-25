@@ -167,7 +167,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
           result = !result;
         }
 
-        return result;
+        return qx.Promise.resolve(result);
       }
     },
 
@@ -209,15 +209,14 @@ qx.Class.define("gosa.engine.extensions.Actions", {
 
       // listener for invoking the target
       button.addListener("execute", function() {
-        args.unshift(methodName, function(result, error) {
-          if (error) {
-            new gosa.ui.dialogs.Error(error.message).open();
-          }
-          else {
-            qx.log.Logger.info("Call of method '" + methodName + "' was successful and returned '" + result + "'");
-          }
+        args.unshift(methodName);
+        context.getActionController().callMethod.apply(context.getActionController(), args)
+        .then(function() {
+          qx.log.Logger.info("Call of method '" + methodName + "' was successful and returned '" + result + "'");
+        })
+        .catch(function(error) {
+          new gosa.ui.dialogs.Error(error.message).open();
         });
-        context.getActionController().callMethod.apply(context.getActionController(), args);
       }, this);
     }
   },

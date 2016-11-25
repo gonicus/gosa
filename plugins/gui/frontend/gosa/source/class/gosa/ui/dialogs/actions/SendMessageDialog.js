@@ -85,13 +85,13 @@ qx.Class.define("gosa.ui.dialogs.actions.SendMessageDialog", {
 
     _send : function() {
       if (this._form.validate()) {
-        this._actionController.sendMessage(function(response, error) {
-          if (error) {
-            new gosa.ui.dialogs.Error(error.message).open();
-          } else {
-            this.close();
-          }
-        }, this, this._model.get("subject"), this._model.get("message"));
+        this._actionController.sendMessage(this._model.get("subject"), this._model.get("message"))
+        .then(function() {
+          this.close();
+        }, this)
+        .catch(function(error) {
+          new gosa.ui.dialogs.Error(error.message).open();
+        }, this);
       }
     }
   },

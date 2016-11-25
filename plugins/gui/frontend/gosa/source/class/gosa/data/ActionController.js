@@ -66,10 +66,11 @@ qx.Class.define("gosa.data.ActionController", {
      * Calls the given method on the object.
      *
      * @param methodName {String} Name of the method
+     * @return {qx.Promise}
      */
     callMethod : function(methodNamet) {
       qx.core.Assert.assertString(methodName);
-      this._obj.callMethod.apply(this._obj, arguments);
+      return this._obj.callMethod.apply(this._obj, arguments);
     },
 
     /**
@@ -94,28 +95,31 @@ qx.Class.define("gosa.data.ActionController", {
      *
      * @param method {String} The method to store the password (e.g. "MD5")
      * @param password {String} The password to save (not encoded)
+     * @return {qx.Promise}
      */
     setPassword : function(method, password) {
       qx.core.Assert.assertString(method);
       qx.core.Assert.assertString(password);
-      this._obj.changePasswordMethod(method, password);
+      return this._obj.changePasswordMethod(method, password);
     },
 
     /**
      * Sets a new samba password.
      *
      * @param password {String} The password to save (not encoded)
+     * @return {qx.Promise}
      */
     setSambaPassword : function(password) {
       qx.core.Assert.assertString(password);
-      this._obj.changeSambaPassword(password);
+      return this._obj.changeSambaPassword(password);
     },
 
     /**
      * Requests the current two-factor authentification method from the backend.
+     * @return {qx.Promise}
      */
     getTwoFactorMethod : function() {
-      this._obj.getTwoFactorMethod();
+      return this._obj.getTwoFactorMethod();
     },
 
     /**
@@ -123,22 +127,24 @@ qx.Class.define("gosa.data.ActionController", {
      *
      * @param method {String} The method that shall be setPassword
      * @param password {String ? null} Optional password (only needed when two-factor was set before)
+     * @return {qx.Promise}
      */
     setTwoFactorMethod : function(method, password) {
       qx.core.Assert.assertString(method);
-      this._obj.changeTwoFactorMethod(method, password);
+      return this._obj.changeTwoFactorMethod(method, password);
     },
 
     /**
      * Finished the two-factor registration process.
      *
      * @param data {String ? undefined} Optional data; depends on the actual method
+     * @return {qx.Promise}
      */
     finishU2FRegistration : function(data) {
       if (data) {
         qx.core.Assert.assertString(data);
       }
-      this._obj.finishU2FRegistration(data);
+      return this._obj.finishU2FRegistration(data);
     },
 
     /**
@@ -146,11 +152,12 @@ qx.Class.define("gosa.data.ActionController", {
      *
      * @param subject {String} Subject of the message
      * @param message {String} The actual message
+     * @return {qx.Promise}
      */
     sendMessage : function(subject, message) {
       qx.core.Assert.assertString(subject);
       qx.core.Assert.assertString(message);
-      this._obj.notify(subject, message);
+      return this._obj.notify(subject, message);
     }
   }
 });

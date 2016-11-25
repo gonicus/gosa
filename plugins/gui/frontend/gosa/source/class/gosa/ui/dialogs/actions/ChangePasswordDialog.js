@@ -139,14 +139,14 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangePasswordDialog", {
             return;
         }
 
-        this._actionController.setPassword(function(response, error) {
-          if (error) {
-            new gosa.ui.dialogs.Error(error.message).open();
-          } else {
-            this.close();
-            new gosa.ui.dialogs.Info(this.tr("Password has been changed successfully.")).open();
-          }
-        }, this, this._model.get("method"), this._model.get("pwd1"));
+        this._actionController.setPassword(this._model.get("method"), this._model.get("pwd1"))
+        .then(function() {
+          this.close();
+          new gosa.ui.dialogs.Info(this.tr("Password has been changed successfully.")).open();
+        }, this)
+        .catch(function(error) {
+          new gosa.ui.dialogs.Error(error.message).open();
+        });
       }
     },
 
