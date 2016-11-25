@@ -1120,12 +1120,12 @@ qx.Class.define("gosa.ui.Renderer",
         if (state[4] != undefined){
           var method = state[2];
 
-          // Collect agruments that have to be passed to the method call.
+          // Collect arguments that have to be passed to the method call.
           var attrs = state[4].split(",");
           var args = [];
 
-          for(var item in attrs){
-        	var value;
+          for(var item in attrs) {
+        	  var value;
             if(attrs[item] == "dn" || attrs[item] == "uuid"){
               value = this._object[attrs[item]];
             }else{

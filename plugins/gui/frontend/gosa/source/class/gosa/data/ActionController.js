@@ -68,7 +68,7 @@ qx.Class.define("gosa.data.ActionController", {
      * @param methodName {String} Name of the method
      * @return {qx.Promise}
      */
-    callMethod : function(methodNamet) {
+    callMethod : function(methodName) {
       qx.core.Assert.assertString(methodName);
       return this._obj.callMethod.apply(this._obj, arguments);
     },

@@ -42,7 +42,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       // check dialog
       if (action.hasOwnProperty("dialog")) {
         qx.core.Assert.assertString(action.dialog);
-        var rpc = gosa.util.Template.getDialogRpc(action.dialog);
+        gosa.util.Template.getDialogRpc(action.dialog);
         var clazz = gosa.ui.dialogs.actions[action.dialog];
         var rpcList = clazz.RPC_CALLS;
         var session = gosa.Session.getInstance();
@@ -211,7 +211,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       button.addListener("execute", function() {
         args.unshift(methodName);
         context.getActionController().callMethod.apply(context.getActionController(), args)
-        .then(function() {
+        .then(function(result) {
           qx.log.Logger.info("Call of method '" + methodName + "' was successful and returned '" + result + "'");
         })
         .catch(function(error) {

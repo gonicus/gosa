@@ -347,7 +347,7 @@ qx.Class.define("gosa.view.Search",
 
         // Update categories
         if (!_categories[items[i].tag]) {
-            _categories[items[i].tag] = this.tr(gosa.Cache.objectCategories[items[i].tag]);  // jshint ignore:line
+            _categories[items[i].tag] = this["tr"](gosa.Cache.objectCategories[items[i].tag]);  // jshint ignore:line
         }
       }
 
@@ -419,8 +419,7 @@ qx.Class.define("gosa.view.Search",
     /* Removes the object given by its uuid
      * */
     removeObject: function(uuid) {
-      gosa.io.Rpc.getInstance().cA("removeObject", "object", uuid)
-      .then(callback, context)
+      return gosa.io.Rpc.getInstance().cA("removeObject", "object", uuid)
       .catch(function(error) {
         new gosa.ui.dialogs.Error(this.tr("Cannot remove entry!")).open();
         this.error("cannot remove entry: " + error);
@@ -431,7 +430,7 @@ qx.Class.define("gosa.view.Search",
      * */
     openObject : function(dn, type) {
       var win = null;
-      gosa.proxy.ObjectFactory.openObject(dn, type)
+      return gosa.proxy.ObjectFactory.openObject(dn, type)
       .then(function(obj) {
         // Build widget and place it into a window
         gosa.engine.WidgetFactory.createWidget(function(w){
