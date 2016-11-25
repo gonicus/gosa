@@ -154,63 +154,67 @@ qx.Class.define("gosa.data.ExtensionController", {
       }, this);
     },
 
-    _addExtensionToObject : function(extension, callback) {
+    /**
+     * Adds (aka enables) the extension to the object.
+     *
+     * @param extension {String} Name of the extension, e.g. "UserSamba"
+     * @returns {qx.Promise}
+     */
+    _addExtensionToObject : function(extension) {
       qx.core.Assert.assertString(extension);
 
-      this._obj.extend(function (result, error) {
-        if (error) {
-          new gosa.ui.dialogs.Error(
-            qx.lang.String.format(this.tr("Failed to extend the %1 extension: %2"), [extension, error.message])).open();
-          this.error(error.message);
-        }
-        else {
-          this._obj.refreshMetaInformation(function() {});
-          this._obj.refreshAttributeInformation(function () {
-            this._widgetController.addExtensionTabs(
-              gosa.data.TemplateRegistry.getInstance().getTemplates(extension),
-              this._widgetController
-            );
-            this._widgetController.setModified(true);
-
-            if (callback) {
-              qx.core.Assert.assertFunction(callback);
-              callback();
-            }
-          }, this);
-        }
-      }, this, extension);
+      return this._obj.extend(extension)
+      .then(function () {
+        return qx.Promise.all([
+          this._obj.refreshMetaInformation(),
+          this._obj.refreshAttributeInformation()
+        ]);
+      }, this)
+      .then(function() {
+        var templateObjects = [];
+        gosa.data.TemplateRegistry.getInstance().getTemplates(extension).forEach(function(template) {
+          templateObjects.push({
+            extension: extension,
+            template: template
+          })
+        });
+        this._widgetController.addExtensionTabs(templateObjects);
+        this._widgetController.setModified(true);
+      }, this)
+      .catch(function(error) {
+        new gosa.ui.dialogs.Error(
+        qx.lang.String.format(this.tr("Failed to extend the %1 extension: %2"), [extension, error.message])).open();
+        this.error(error.message);
+      }, this);
     },
 
     /**
      * Removes (aka disables) the extension from the object. Dependent extensions will also be removed.
      *
      * @param extension {String} Name of the extension, e.g. "UserSamba"
-     * @param callback {Function ? null} Optional callback to invoke once the extension has been retracted
+     * @return {qx.Promise}
      */
-    _removeExtensionFromObject : function(extension, callback) {
+    _removeExtensionFromObject : function(extension) {
       qx.core.Assert.assertString(extension);
 
-      this._obj.retract(function(result, error) {
-        if (error) {
-          new gosa.ui.dialogs.Error(
-            qx.lang.String.format(this.tr("Failed to retract the %1 extension: %2"),
-            [extension, error.message])
-          ).open();
-          this.error(error.message);
-        }
-        else {
-          this._obj.refreshMetaInformation(function() {});
-          this._obj.refreshAttributeInformation(function () {
-            this._widgetController.removeExtensionTab(extension);
-            this._widgetController.setModified(true);
-
-            if (callback) {
-              qx.core.Assert.assertFunction(callback);
-              callback();
-            }
-          }, this);
-        }
-      }, this, extension);
+      return this._obj.retract(extension)
+      .then(function() {
+        return qx.Promise.all([
+          this._obj.refreshMetaInformation(),
+          this._obj.refreshAttributeInformation()
+        ]);
+      }, this)
+      .then(function() {
+        this._widgetController.removeExtensionTab(extension);
+        this._widgetController.setModified(true);
+      }, this)
+      .catch(function(error) {
+        new gosa.ui.dialogs.Error(
+        qx.lang.String.format(this.tr("Failed to retract the %1 extension: %2"),
+        [extension, error.message])
+        ).open();
+        this.error(error.message);
+      }, this);
     }
   },
 

@@ -72,7 +72,9 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       // condition
       if (data.hasOwnProperty("condition")) {
         button.addListenerOnce("appear", function() {
-          this._checkCondition(data.condition, context, button.setEnabled, button);
+          this._checkCondition(data.condition, context).then(function(result) {
+            button.setEnabled(result);
+          });
         }, this);
       }
 
@@ -106,13 +108,9 @@ qx.Class.define("gosa.engine.extensions.Actions", {
      *
      * @param condition {String} Complete condition string as saved in the template
      * @param context {gosa.engine.Context}
-     * @param callback {Function} Called when the condition is checked, only parameter is a Boolean showing whether the
-     *   condition is satisfied or not
-     * @param callbackContext {Object ? null} Optional context for the callback function
      */
-    _checkCondition : function(condition, context, callback, callbackContext) {
+    _checkCondition : function(condition, context) {
       qx.core.Assert.assertString(condition);
-      qx.core.Assert.assertFunction(callback);
 
       // get configuration for condition rpc
       var parser = /^(!)?([^(]*)(\((.*)\))?$/;
@@ -145,19 +143,17 @@ qx.Class.define("gosa.engine.extensions.Actions", {
 
         // invoke rpc
         var rpc = gosa.io.Rpc.getInstance();
-        rpc.cA.apply(rpc, [function(result, error) {
-          if (error) {
-            new gosa.ui.dialogs.Error(error.message).open();
+        return rpc.cA.apply(rpc, [name].concat(args))
+        .then(function(result) {
+          // negation
+          if (negated) {
+            result = !result;
           }
-          else {
-            // negation
-            if (negated) {
-              result = !result;
-            }
-
-            callback.call(callbackContext, result);
-          }
-        }, this, name].concat(args));
+          return result;
+        }, this)
+        .catch(function(error) {
+          new gosa.ui.dialogs.Error(error.message).open();
+        });
       }
       else {
         // object attribute
@@ -171,7 +167,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
           result = !result;
         }
 
-        callback.call(callbackContext, result);
+        return result;
       }
     },
 
