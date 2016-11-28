@@ -143,6 +143,7 @@ qx.Class.define("gosa.io.Rpc", {
       this.debug("started next rpc job '" + argx[0] + "'");
       return new qx.Promise(function(resolve, reject) {
         if (this.isBlockRpcs()) {
+          this.debug("RPCs are currently blocked: listening for unblock event");
           this.addListenerOnce("changeBlockRpcs", function() {
             this.__executeCallAsync(argx, resolve, reject);
           })
@@ -186,6 +187,7 @@ qx.Class.define("gosa.io.Rpc", {
         this.setBlockRpcs(true);
 
         gosa.Session.getInstance().setUser(null);
+        this.debug("RPC "+argx[0]+" failed: authorization error");
 
         var dialog = new gosa.ui.dialogs.LoginDialog();
         dialog.open();
@@ -200,7 +202,9 @@ qx.Class.define("gosa.io.Rpc", {
             messaging.reconnect();
 
             // retry the call
-            resolve(this.__promiseCallAsync(argx));
+            this.debug("retrying RPC "+argx[0]+" after successful authorization");
+            this.__promiseCallAsync(argx).then(resolve, reject);
+            this.setBlockRpcs(false);
           }, this);
         }, this);
 
@@ -255,7 +259,7 @@ qx.Class.define("gosa.io.Rpc", {
           req.send();
         }, this).then(function(xsrf) {
           this.__xsrf = xsrf;
-          return this.__promiseCallAsync(argx).then(null, function(error) {
+          return this.__promiseCallAsync(argx).catch(function(error) {
             return this.__handleRpcError(argx, error);
           }, this);
         }).catch(function(error) {
@@ -263,7 +267,7 @@ qx.Class.define("gosa.io.Rpc", {
           d.show();
         });
       } else {
-        return this.__promiseCallAsync(argx).then(null, function(error) {
+        return this.__promiseCallAsync(argx).catch(function(error) {
           return this.__handleRpcError(argx, error);
         }, this);
       }
