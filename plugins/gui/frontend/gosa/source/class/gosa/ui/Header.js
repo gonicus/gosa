@@ -82,7 +82,7 @@ qx.Class.define("gosa.ui.Header", {
         },
 
         bindItem: function(controller, item, index) {
-          controller.bindProperty("[1]", "model", null, item, index);
+          controller.bindProperty("[1]", "object", null, item, index);
           controller.bindProperty("[0]", "window", null, item, index);
         }
       }

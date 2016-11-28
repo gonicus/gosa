@@ -403,9 +403,22 @@ qx.Theme.define("gosa.theme.Appearance",
       style: function() {
         return {
           decorator: "gosa-listitem-window",
-          width: 150,
+          width: 180,
+          gap: 8,
+          center: true,
           allowGrowX: false,
           allowShrinkX: false
+        }
+      }
+    },
+    "gosa-listitem-window/icon": {
+      include: "listitem/icon",
+
+      style: function() {
+        return {
+          width: 35,
+          height: 35,
+          scale: true
         }
       }
     }

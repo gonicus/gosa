@@ -238,6 +238,37 @@ class RPCMethods(Plugin):
 
         return result
 
+    @Command(needsUser=True, __help__=N_("Return object information like: title and icon"))
+    def getObjectSearchItem(self, user, dn):
+        """
+        This method returns the search result for one specific object.
+        It is used to gain some useful information about the object like title and icon.
+
+        :param dn: string - Object DN
+        :return: dict
+        """
+        # Start the query and bring the result in a usable form
+        index = PluginRegistry.getInstance("ObjectIndex")
+
+        item = index.find(user, {'dn': dn})
+        if len(item) == 1:
+            item = item[0]
+        else:
+            return
+
+        entry = {'tag': item['_type']}
+        for k, v in self.__search_aid['mapping'][item['_type']].items():
+            if k:
+                if v in item and item[v]:
+                    if v == "dn":
+                        entry[k] = item[v]
+                    else:
+                        entry[k] = item[v][0]
+                else:
+                    entry[k] = self.__build_value(v, item)
+
+        return entry
+
     @Command(__help__=N_("Resolves object information"))
     def getObjectDetails(self, extension, attribute, names, attributes):
         """

@@ -166,18 +166,6 @@ qx.Class.define("gosa.view.Search",
 
     this.resultList.getPane().getRowConfig().setDefaultItemSize(80);
 
-    // Establish a timer that handles search updates
-    // var timer = qx.util.TimerManager.getInstance();
-    // this.sf.addListener("focusin", function() {
-    //   if (!this._timer) {
-    //     this._timer = timer.start(this._search_queue_handler, 500, this, null, 2000);
-    //   }
-    // }, this);
-    // this.sf.addListener("focusout", function() {
-    //   timer.stop(this._timer);
-    //   this._timer = null;
-    // }, this);
-
     // Focus search field
     this.sf.addListener("appear", this.updateFocus, this);
     this._removedObjects = [];
@@ -237,20 +225,6 @@ qx.Class.define("gosa.view.Search",
       setTimeout(function() {
           _self.sf.focus();
         });
-    },
-
-    _search_queue_handler : function() {
-      if (this._sq.length === 0 || this._working) {
-        return;
-      }
-
-      // Lock us
-      this._working = true;
-
-      // Do search and lock ourselves
-      this.doSearch(null, function() {
-        this._working = false;
-      });
     },
 
     _handle_key_event : function(e) {
