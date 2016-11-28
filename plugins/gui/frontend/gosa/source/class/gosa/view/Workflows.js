@@ -107,39 +107,43 @@ qx.Class.define("gosa.view.Workflows",
         }
 
         // Build widget and place it into a window
-        gosa.engine.WidgetFactory.createWorkflowWidget(function(w) {
-          var doc = qx.core.Init.getApplication().getRoot();
-          win = new qx.ui.window.Window(this.tr("Workflow"));
-          win.set({
-            width        : 800,
-            layout       : new qx.ui.layout.Canvas(),
-            showMinimize : false,
-            showClose    : false
-          });
-          win.add(w, {edge : 0});
-          win.addListenerOnce("resize", function() {
-            win.center();
-            (new qx.util.DeferredCall(win.center, win)).schedule();
-          }, this);
-          win.open();
-
-          w.addListener("close", function() {
-            controller.dispose();
-            w.dispose();
-            doc.remove(win);
-            win.destroy();
-          });
-
-          // Position window as requested
-          doc.add(win);
-
-          var controller = new gosa.data.ObjectEditController(workflow, w);
-          w.setController(controller);
-
-          this.fireDataEvent("loadingComplete", {id : workflowItem.getId()});
-        }, this, workflow, templates, translations)
+        return qx.Promise.all([
+          workflow,
+          gosa.engine.WidgetFactory.createWorkflowWidget(workflow, templates, translations)
+        ]);
       }, this)
-      .catch(this.error);
+      .spread(function(workflow, widget) {
+        var doc = qx.core.Init.getApplication().getRoot();
+        win = new qx.ui.window.Window(this.tr("Workflow"));
+        win.set({
+          width        : 800,
+          layout       : new qx.ui.layout.Canvas(),
+          showMinimize : false,
+          showClose    : false
+        });
+        win.add(widget, {edge : 0});
+        win.addListenerOnce("resize", function() {
+          win.center();
+          (new qx.util.DeferredCall(win.center, win)).schedule();
+        }, this);
+        win.open();
+
+        widget.addListener("close", function() {
+          controller.dispose();
+          widget.dispose();
+          doc.remove(win);
+          win.destroy();
+        });
+
+        // Position window as requested
+        doc.add(win);
+
+        var controller = new gosa.data.ObjectEditController(workflow, widget);
+        widget.setController(controller);
+
+        this.fireDataEvent("loadingComplete", {id : workflowItem.getId()});
+      }, this)
+      .catch(this.error, this);
     },
 
     _createChildControlImpl: function(id) {

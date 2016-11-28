@@ -51,7 +51,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
         // generate widget
         var widget = new gosa.ui.widgets.ObjectEdit(templates);
         resolve(widget);
-      }, this);
+      });
     },
 
     /**
