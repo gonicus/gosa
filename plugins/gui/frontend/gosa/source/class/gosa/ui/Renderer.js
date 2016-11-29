@@ -1144,6 +1144,7 @@ qx.Class.define("gosa.ui.Renderer",
             }
             args.push(value);
           }
+          args.unshift(method);
 
           // Now execute the method with its arguments and set the button state
           eb.setEnabled(false);
@@ -1154,7 +1155,7 @@ qx.Class.define("gosa.ui.Renderer",
               result = (state[1] == "!") ? !result : result;
               eb.setEnabled(result);
             }).catch(function(error) {
-              new gosa.ui.dialogs.Error(error.message).open();
+              new gosa.ui.dialogs.Error(error).open();
               eb.setEnabled(false);
             });
           });
