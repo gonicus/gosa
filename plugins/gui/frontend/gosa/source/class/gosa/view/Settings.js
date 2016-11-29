@@ -25,7 +25,7 @@ qx.Class.define("gosa.view.Settings",
   construct : function()
   {
     // Call super class and configure ourselfs
-    this.base(arguments, "", "@FontAwesome/wrench");
+    this.base(arguments, "", "@Ligature/gear");
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.VBox(5));
   }

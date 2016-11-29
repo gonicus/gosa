@@ -19,27 +19,27 @@ qx.Class.define("gosa.util.Icons", {
   statics: {
 
     iconMappings: {
-      'organizationalunit': '@FontAwesome/f114', // folder-o
-      'root': '@FontAwesome/sitemap',
-      'organization': '@FontAwesome/f275', //'industry',
-      'domaincomponent': '@FontAwesome/globe',
-      'country': '@FontAwesome/globe',
-      'user': '@FontAwesome/user',
-      'aclrole': '@FontAwesome/f21b', // user-secret
-      'posixgroup': '@FontAwesome/f0c0', // users
-      'sambadomain': '@FontAwesome/f233', // server
-      'device': '@FontAwesome/f108', // desktop
-      'locality': '@FontAwesome/f041', // map-marker
-      'domain': '@FontAwesome/f08e' // external-link
+      'organizationalunit': '@Ligature/building',
+      'root': '@Ligature/sitemap',
+      'organization': '@Ligature/building',
+      'domaincomponent': '@Ligature/globe',
+      'country': '@Ligature/globe',
+      'user': '@Ligature/user',
+      'aclrole': '@Ligature/key',
+      'posixgroup': '@Ligature/group',
+      'sambadomain': '@Ligature/server',
+      'device': '@Ligature/pc',
+      'locality': '@Ligature/location',
+      'domain': '@Ligature/link'
       //'sambamachineaccount': '@FontAwesome/'
 
     },
 
     iconActionMappings: {
-      'c': '@FontAwesome/f196', // plus
-      'r': '@FontAwesome/f06e', // eye
-      'w': '@FontAwesome/f044', // pencil
-      'd': '@FontAwesome/f014'  // trash
+      'c': '@Ligature/add',
+      'r': '@Ligature/view',
+      'w': '@Ligature/write',
+      'd': '@Ligature/delete'
     },
 
     getIconByAction: function(action) {

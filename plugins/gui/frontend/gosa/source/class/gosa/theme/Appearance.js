@@ -259,7 +259,7 @@ qx.Theme.define("gosa.theme.Appearance",
       style : function()
       {
         return {
-          icon: "@FontAwesome/f0c9", // bars
+          icon: "@Ligature/menu",
           decorator: null,
           show : "icon",
           center: true
@@ -369,7 +369,7 @@ qx.Theme.define("gosa.theme.Appearance",
           center: true,
           iconPosition: "top",
           width: 200,
-          icon: "@FontAwesome/f0c3",
+          icon: "@Ligature/app",
           iconSize: 88,
           decorator: "gosa-workflow-item",
           margin: 5,

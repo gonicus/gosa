@@ -110,7 +110,7 @@ qx.Class.define("gosa.ui.Header", {
       menu.add(edit);
 
 
-      var logout = this._logout = new qx.ui.menu.Button(this.tr("Logout"), "@FontAwesome/f08b");
+      var logout = this._logout = new qx.ui.menu.Button(this.tr("Logout"), "@Ligature/logout");
       logout.getChildControl("icon").set({
         width: 22,
         scale: true

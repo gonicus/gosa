@@ -27,4 +27,4 @@ class UserPhotoRenderer(ResultRenderer):
         if os.path.exists(os.path.join(cache_path, data['_uuid'], "jpegPhoto", "0", "64.jpg")):
             return "/images/%s/jpegPhoto/0/64.jpg?c=%s" % (data['_uuid'], data["_last_changed"])
 
-        return "@FontAwesome/user"
+        return "@Ligature/user"

@@ -230,6 +230,12 @@
             "prefix": [ "${RESPATH}" ],
             "alias" : "FontAwesome",
             "size" : 40
+          },
+          "${RESPATH}/gosa/fonts/LigatureSymbols-2.11.ttf" :
+          {
+            "prefix": [ "${RESPATH}" ],
+            "alias" : "Ligature",
+            "size" : 40
           }
         }
       }

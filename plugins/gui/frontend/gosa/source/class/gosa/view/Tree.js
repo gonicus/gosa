@@ -25,7 +25,7 @@ qx.Class.define("gosa.view.Tree",
   construct : function(parent)
   {
     // Call super class and configure ourselfs
-    this.base(arguments, "", "@FontAwesome/sitemap");
+    this.base(arguments, "", "@Ligature/sitemap");
     this.parent = parent;
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.Canvas());
@@ -132,7 +132,7 @@ qx.Class.define("gosa.view.Tree",
           break;
         
         case "delete-button":
-          control = new qx.ui.menu.Button(this.tr("Delete"), "@FontAwesome/trash");
+          control = new qx.ui.menu.Button(this.tr("Delete"), "@Ligature/trash");
           control.setEnabled(false);
           control.addListener("execute", this._onDeleteObject, this);
           break;
@@ -197,7 +197,7 @@ qx.Class.define("gosa.view.Tree",
           if (model.getType()) {
             return gosa.util.Icons.getIconByType(model.getType(), 22);
           }
-          return "@FontAwesome/pencil";
+          return "@Ligature/pencil";
         } else {
           return "@FontAwesome/spinner";
         }

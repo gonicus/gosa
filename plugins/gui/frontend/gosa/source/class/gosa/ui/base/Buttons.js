@@ -45,11 +45,11 @@ qx.Class.define("gosa.ui.base.Buttons", {
     },
 
     getOkButton : function() {
-      return gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("OK"), "@FontAwesome/f00c"); // check
+      return gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("OK"), "@Ligature/check");
     },
 
     getCancelButton : function() {
-      return gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("Cancel"), "@FontAwesome/f05e"); // ban
+      return gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("Cancel"), "@Ligature/ban");
     }
   }
 });

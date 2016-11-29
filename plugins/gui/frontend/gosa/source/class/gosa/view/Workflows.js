@@ -25,7 +25,7 @@ qx.Class.define("gosa.view.Workflows",
   construct : function()
   {
     // Call super class and configure ourselfs
-    this.base(arguments, "", "@FontAwesome/f0c3");
+    this.base(arguments, "", "@Ligature/app");
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.VBox(5));
     this._rpc = gosa.io.Rpc.getInstance();

@@ -60,6 +60,23 @@ qx.Theme.define("gosa.theme.Font",
           ]
         }
       ]
+    },
+
+    "Ligature": {
+      size: 40,
+      lineHeight: 1,
+      comparisonString : "\uf1e3\uf1f7\uf11b\uf19d",
+      family: ["Ligature"],
+      sources: [
+        {
+          family: "Ligature",
+          source: [
+            "gosa/fonts/LigatureSymbols-2.11.eot",
+            "gosa/fonts/LigatureSymbols-2.11.woff",
+            "gosa/fonts/LigatureSymbols-2.11.ttf"
+          ]
+        }
+      ]
     }
   }
 });
