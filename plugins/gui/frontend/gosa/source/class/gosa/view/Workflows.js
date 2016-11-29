@@ -113,7 +113,7 @@ qx.Class.define("gosa.view.Workflows",
         ]);
       }, this)
       .spread(function(workflow, widget) {
-        var doc = qx.core.Init.getApplication().getRoot();
+        var doc = gosa.ui.window.Desktop.getInstance();
         win = new qx.ui.window.Window(this.tr("Workflow"));
         win.set({
           width        : 800,
@@ -122,6 +122,7 @@ qx.Class.define("gosa.view.Workflows",
           showClose    : false
         });
         win.add(widget, {edge : 0});
+        gosa.data.WindowController.getInstance().addWindow(win, workflowItem);
         win.addListenerOnce("resize", function() {
           win.center();
           (new qx.util.DeferredCall(win.center, win)).schedule();
@@ -129,6 +130,7 @@ qx.Class.define("gosa.view.Workflows",
         win.open();
 
         widget.addListener("close", function() {
+          gosa.data.WindowController.getInstance().removeWindow(win);
           controller.dispose();
           widget.dispose();
           doc.remove(win);

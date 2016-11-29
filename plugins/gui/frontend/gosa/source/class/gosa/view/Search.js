@@ -18,9 +18,9 @@
 
 ************************************************************************ */
 
-qx.Class.define("gosa.view.Search",
-{
+qx.Class.define("gosa.view.Search", {
   extend : qx.ui.tabview.Page,
+  type: "singleton",
 
   construct : function()
   {
@@ -49,6 +49,16 @@ qx.Class.define("gosa.view.Search",
     searchHeader.setLayout(searchLayout);
 
     var sf = new qx.ui.form.TextField('');
+    var headerSearch = gosa.ui.Header.getInstance().getChildControl("search");
+    this.addListener("appear", function() {
+      headerSearch.hide();
+    }, this);
+    this.addListener("disappear", function() {
+      headerSearch.show();
+    }, this);
+    sf.addListener("changeValue", function(ev) {
+      headerSearch.setValue(ev.getData());
+    }, this);
     sf.setPlaceholder(this.tr("Please enter your search..."));
     this.addListener("resize", function() {
       sf.setWidth(parseInt(this.getBounds().width / 2));
@@ -413,7 +423,7 @@ qx.Class.define("gosa.view.Search",
         ]);
       }, this)
       .spread(function(obj, w) {
-        var doc = qx.core.Init.getApplication().getRoot();
+        var doc = gosa.ui.window.Desktop.getInstance();
         win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
         win.set({
           width : 800,

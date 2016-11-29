@@ -13,8 +13,8 @@
 ======================================================================== */
 
 qx.Class.define("gosa.ui.Header", {
-
   extend: qx.ui.container.Composite,
+  type: "singleton",
 
   construct: function() {
     this.base(arguments);
@@ -68,6 +68,22 @@ qx.Class.define("gosa.ui.Header", {
           this._listController = new qx.data.controller.List(null, control);
           this._listController.setDelegate(this.__getWindowDelegate());
           this._listController.setModel(gosa.data.WindowController.getInstance().getWindows());
+          break;
+
+        case "search":
+          var button = new qx.ui.basic.Image("@Ligature/search");
+          button.set({
+            width: 35,
+            height: 35,
+            scale: true,
+            margin: [6, 0]
+          });
+          this.add(button);
+          control = new qx.ui.form.TextField('');
+          control.setPlaceholder(this.tr("Please enter your search..."));
+          control.bind("visibility", button, "visibility");
+          control.hide();
+          this.add(control);
           break;
       }
 

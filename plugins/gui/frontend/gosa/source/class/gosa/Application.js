@@ -40,6 +40,9 @@ qx.Class.define("gosa.Application",
     settings: null,
 
     __actions: null,
+    __desktop: null,
+
+
 
     /**
      * This method contains the initial application code and gets called
@@ -149,15 +152,18 @@ qx.Class.define("gosa.Application",
 
       var pluginView = new qx.ui.tabview.TabView();
       pluginView.setBarPosition("left");
+      var desktop = gosa.ui.window.Desktop.getInstance();
+      desktop.add(pluginView, {edge: 0});
+
 
       // Create application header and toolbar
       //
-      var header = new gosa.ui.Header();
+      var header = gosa.ui.Header.getInstance();
       doc.add(header, {left: 0, right: 0, top: 0});
       gosa.Session.getInstance().bind("cn", header, "loggedInName");
 
       //TODO: remove static view registration later on
-      var search = this.search = new gosa.view.Search(this);
+      var search = this.search = gosa.view.Search.getInstance();
       var tree = this.tree = new gosa.view.Tree(this);
       var work = this.work = new gosa.view.Workflows(this);
       var settings = this.settings = new gosa.view.Settings(this);
@@ -170,7 +176,7 @@ qx.Class.define("gosa.Application",
       var messaging = gosa.io.Sse.getInstance();
       messaging.reconnect();
 
-      doc.add(pluginView, {left: 3, right: 3, top: 52, bottom: 4});
+      doc.add(desktop, {left: 3, right: 3, top: 52, bottom: 4});
 
       // Hide Splash - initialized by index.html
       if (qx.core.Environment.get("qx.debug") || !window.applicationCache || window.location.protocol.indexOf("https") === 0) {
