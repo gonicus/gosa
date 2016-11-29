@@ -18,11 +18,18 @@ qx.Theme.define("gosa.theme.Color",
 
   colors :
   {
-      'mandatory' : '#FFFFE0',
-      'header-bar' : 'black',
-      'header-text' : 'white',
-      'error-text': '#8A0808',
-      'disabled-text': '#CCCCCC',
-      'icon-color': '#666666'
+    'mandatory' : '#FFFFE0',
+    'header-bar' : 'black',
+    'header-text' : 'white',
+    'error-text': '#8A0808',
+    'disabled-text': '#CCCCCC',
+    'icon-color': '#666666',
+
+    'blue': '#083D77',
+    'greyblue': '#648381',
+    //  'wheat': '#F6D8AE',
+    // 'yellow': '#F4D35E',
+    'green': '#455A44',
+    'red': '#371F19'
   }
 });

@@ -197,7 +197,7 @@ qx.Theme.define("gosa.theme.Appearance",
     "search-list-item/description" : {
       style : function() {
         return {
-          textColor : "black"
+          textColor : "text"
         };
       }
     },

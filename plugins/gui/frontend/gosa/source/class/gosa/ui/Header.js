@@ -107,7 +107,9 @@ qx.Class.define("gosa.ui.Header", {
     _onChangeSelection: function(ev) {
       var selection = ev.getData();
       if (selection.length > 0) {
-        selection[0].getWindow().setActive(true);
+        var win = selection[0].getWindow();
+        win.show();
+        win.setActive(true);
       }
     },
 

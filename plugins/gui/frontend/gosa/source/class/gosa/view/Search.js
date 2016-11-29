@@ -428,7 +428,7 @@ qx.Class.define("gosa.view.Search", {
         win.set({
           width : 800,
           layout : new qx.ui.layout.Canvas(),
-          showMinimize : false,
+          showMinimize : true,
           showClose : false
         });
         win.add(w, {edge: 0});
