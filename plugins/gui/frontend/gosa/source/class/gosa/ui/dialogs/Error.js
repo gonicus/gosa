@@ -19,9 +19,14 @@ qx.Class.define("gosa.ui.dialogs.Error", {
 
   extend: gosa.ui.dialogs.Dialog,
 
-  construct: function(msg)
+  construct: function(error)
   {
-    this.base(arguments, this.tr("Error"), gosa.Config.getImagePath("status/dialog-error.png", 22));
+    var title = this.tr("Error");
+    var msg = error;
+    if (error instanceof Error) {
+      msg = error.message;
+    }
+    this.base(arguments, title, gosa.Config.getImagePath("status/dialog-error.png", 22));
     
     var message = new qx.ui.basic.Label(msg);
     this.addElement(message);

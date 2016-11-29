@@ -72,10 +72,6 @@ class JsonRpcHandler(HSTSRequestHandler):
     @coroutine
     def post(self):
         try:
-            # Check if we're globally locked currently
-            if GlobalLock.exists("scan_index"):
-                raise FilterException(C.make_error('INDEXING', "base"))
-
             resp = self.process(self.request.body)
         except ValueError as e:
             self.clear()
@@ -85,6 +81,17 @@ class JsonRpcHandler(HSTSRequestHandler):
             self.clear()
             self.set_status(e.status_code) 
             self.finish(e.log_message)
+            raise e
+        except FilterException as e:
+            self.clear()
+            self.set_status(500)
+            error = dict(
+                name='JSONRPCError',
+                code=100,
+                message=str(e),
+                error=str(e)
+            )
+            self.finish(dumps(dict(result=None, error=error, id=None)))
             raise e
         else:
             if isinstance(resp['result'], Future):
@@ -122,6 +129,20 @@ class JsonRpcHandler(HSTSRequestHandler):
             raise tornado.web.HTTPError(403, "Bad method name %s: must not start with _" % method)
         if not isinstance(params, list) and not isinstance(params, dict):
             raise ValueError(C.make_error("PARAMETER_LIST_OR_DICT"))
+
+        if method == 'getError':
+            # errors can occur before or during login so we have to allow this method without authentication
+            self.log.debug("calling method %s(%s)" % (method, params))
+
+            if isinstance(params, dict):
+                result = self.dispatcher.call(method, **params)
+            else:
+                result = self.dispatcher.call(method, *params)
+            return dict(result=result, error=None, id=jid)
+
+        # Check if we're globally locked currently
+        if GlobalLock.exists("scan_index"):
+            raise FilterException(C.make_error('INDEXING', "base"))
 
         cls = self.__class__
 

@@ -147,7 +147,8 @@ qx.Class.define("gosa.Session",
 
     logout: function(){
       var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA("logout").then(function() {
+      return rpc.cA("logout")
+      .then(function() {
         this.setUser(null);
         document.location.reload();
       }, this);

@@ -67,7 +67,7 @@ qx.Class.define("gosa.io.Rpc", {
      */
     resolveError: function(old_error){
       var rpc = gosa.io.Rpc.getInstance();
-      return new qx.Promise(function(resolve) {
+      return new qx.Promise(function(resolve, reject) {
         rpc.cA("getError", old_error.field, gosa.Tools.getLocale())
         .then(function(data) {
           // The default error message attribute is 'message'
@@ -78,12 +78,12 @@ qx.Class.define("gosa.io.Rpc", {
               data.message += " - " + data.details[item]['detail'];
             }
           }
-          return data;
+          reject(new Error(data.message));
         }, function() {
           if(!old_error.message){
             old_error.message = old_error.text;
           }
-          return old_error;
+          reject(new Error(old_error.message));
         });
       }, this);
     }
@@ -223,7 +223,7 @@ qx.Class.define("gosa.io.Rpc", {
           }, this);
           d.open();
         }, this);
-      } else if (error && argx[0] != "get_error") {
+      } else if (error && argx[0] != "getError") {
         // Parse additional information out of the error.message string.
         error.field = null;
 
@@ -257,15 +257,17 @@ qx.Class.define("gosa.io.Rpc", {
             reject(e.toString());
           });
           req.send();
-        }, this).then(function(xsrf) {
+        }, this)
+        .catch(function(error) {
+          var d = new gosa.ui.dialogs.RpcError(error.toString());
+          d.show();
+        })
+        .then(function(xsrf) {
           this.__xsrf = xsrf;
           return this.__promiseCallAsync(argx).catch(function(error) {
             return this.__handleRpcError(argx, error);
           }, this);
-        }).catch(function(error) {
-          var d = new gosa.ui.dialogs.RpcError(error.toString());
-          d.show();
-        });
+        })
       } else {
         return this.__promiseCallAsync(argx).catch(function(error) {
           return this.__handleRpcError(argx, error);
