@@ -21,6 +21,7 @@
 qx.Class.define("gosa.view.Workflows",
 {
   extend : qx.ui.tabview.Page,
+  type: "singleton",
 
   construct : function()
   {

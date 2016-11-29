@@ -21,12 +21,12 @@
 qx.Class.define("gosa.view.Tree",
 {
   extend : qx.ui.tabview.Page,
+  type: "singleton",
 
-  construct : function(parent)
+  construct : function()
   {
     // Call super class and configure ourselfs
     this.base(arguments, "", "@Ligature/sitemap");
-    this.parent = parent;
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.Canvas());
     this.addListenerOnce("appear", this.load, this);
@@ -51,7 +51,6 @@ qx.Class.define("gosa.view.Tree",
 
   members : {
 
-    parent : null,
     _rpc : null,
     _tableData : null,
 
@@ -156,7 +155,7 @@ qx.Class.define("gosa.view.Tree",
           this.getChildControl("listcontainer").add(table, {flex: 1});
           table.addListener('dblclick', function(){
             table.getSelectionModel().iterateSelection(function(index) {
-              this.parent.search.openObject(tableModel.getRowData(index)[3]);
+              gosa.view.Search.getInstance().openObject(tableModel.getRowData(index)[3]);
             }, this);
           }, this);
 
@@ -319,13 +318,13 @@ qx.Class.define("gosa.view.Tree",
 
       // get currently selected dn in tree
       var selection = this.getChildControl("tree").getSelection();
-      this.parent.search.openObject(selection.getItem(0).getDn(), button.getUserData("type"));
+      gosa.view.Search.getInstance().openObject(selection.getItem(0).getDn(), button.getUserData("type"));
     },
 
     _onDeleteObject : function() {
       // get currently selected dn in tree
       this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
-        this.parent.search.removeObject(this.getChildControl("table").getTableModel().getRowData(index)[5]);
+        gosa.view.Search.getInstance().removeObject(this.getChildControl("table").getTableModel().getRowData(index)[5]);
       }, this);
     },
 

@@ -34,15 +34,8 @@ qx.Class.define("gosa.Application",
 
   members :
   {
-    search: null,
-    tree: null,
-    work: null,
-    settings: null,
-
     __actions: null,
     __desktop: null,
-
-
 
     /**
      * This method contains the initial application code and gets called
@@ -162,11 +155,10 @@ qx.Class.define("gosa.Application",
       doc.add(header, {left: 0, right: 0, top: 0});
       gosa.Session.getInstance().bind("cn", header, "loggedInName");
 
-      //TODO: remove static view registration later on
-      var search = this.search = gosa.view.Search.getInstance();
-      var tree = this.tree = new gosa.view.Tree(this);
-      var work = this.work = new gosa.view.Workflows(this);
-      var settings = this.settings = new gosa.view.Settings(this);
+      var search = gosa.view.Search.getInstance();
+      var tree = gosa.view.Tree.getInstance();
+      var work = gosa.view.Workflows.getInstance();
+      var settings = gosa.view.Settings.getInstance();
       pluginView.add(search);
       pluginView.add(tree);
       pluginView.add(work);
@@ -304,7 +296,7 @@ qx.Class.define("gosa.Application",
         this.getRoot().setBlockerColor("#000000");
         this.getRoot().setBlockerOpacity(0.5);
         loadingDialog.close();
-        this.search.updateFocus();
+        gosa.view.Search.getInstance().updateFocus();
 
         // Handle URL actions
         this.__handleUrl(this._history.getState());

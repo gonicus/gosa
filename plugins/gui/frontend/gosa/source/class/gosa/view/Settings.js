@@ -21,6 +21,7 @@
 qx.Class.define("gosa.view.Settings",
 {
   extend : qx.ui.tabview.Page,
+  type: "singleton",
 
   construct : function()
   {
