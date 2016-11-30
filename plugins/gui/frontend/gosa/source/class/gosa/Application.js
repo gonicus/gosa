@@ -28,6 +28,21 @@ qx.Class.define("gosa.Application",
 
   /*
   *****************************************************************************
+     STATICS
+  *****************************************************************************
+  */
+  statics : {
+    instance: null,
+
+    showPage: function(name) {
+      if (this.instance) {
+        this.instance.showPage(name);
+      }
+    }
+  },
+
+  /*
+  *****************************************************************************
      MEMBERS
   *****************************************************************************
   */
@@ -36,6 +51,16 @@ qx.Class.define("gosa.Application",
   {
     __actions: null,
     __desktop: null,
+    __tabView: null,
+
+    showPage: function(name) {
+      var pageInstance = gosa.view[qx.lang.String.firstUp(name)] ? gosa.view[qx.lang.String.firstUp(name)].getInstance() : null;
+      if (pageInstance) {
+        this.__tabView.setSelection([pageInstance]);
+      } else {
+        this.error(this.tr("Page %1 not found", name));
+      }
+    },
 
     /**
      * This method contains the initial application code and gets called
@@ -47,6 +72,7 @@ qx.Class.define("gosa.Application",
     {
       // Call super class
       this.base(arguments);
+      this.self(arguments).instance = this;
 
       this.__actions = [];
 
@@ -143,7 +169,7 @@ qx.Class.define("gosa.Application",
 
       /* Add base gui elements */
 
-      var pluginView = new qx.ui.tabview.TabView();
+      var pluginView = this.__tabView = new qx.ui.tabview.TabView();
       pluginView.setBarPosition("left");
       var desktop = gosa.ui.window.Desktop.getInstance();
       desktop.add(pluginView, {edge: 0});

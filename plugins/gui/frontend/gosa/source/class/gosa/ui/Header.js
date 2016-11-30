@@ -71,12 +71,17 @@ qx.Class.define("gosa.ui.Header", {
           break;
 
         case "search":
-          var button = new qx.ui.basic.Image("@Ligature/search");
+          var command = new qx.ui.command.Command("enter");
+          var button = new qx.ui.form.Button("", "@Ligature/search", command);
           button.set({
+            show: "icon",
+            center: true,
+            decorator: null
+          });
+          button.getChildControl("icon").set({
             width: 35,
             height: 35,
-            scale: true,
-            margin: [6, 0]
+            scale: true
           });
           this.add(button);
           control = new qx.ui.form.TextField('');
@@ -84,6 +89,16 @@ qx.Class.define("gosa.ui.Header", {
           control.bind("visibility", button, "visibility");
           control.hide();
           this.add(control);
+          new qx.util.DeferredCall(function() {
+            var searchView = gosa.view.Search.getInstance();
+            button.addListener("execute", function() {
+              gosa.Application.showPage("search");
+              searchView.doSearch();
+            }, this);
+            control.addListener("changeValue", function(ev) {
+              searchView.searchField.setValue(ev.getData());
+            }, this);
+          }, this).schedule();
           break;
       }
 
