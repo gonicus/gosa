@@ -1707,7 +1707,7 @@ qx.Class.define("gosa.ui.Renderer",
 
       // Process each tab of the current extension
       var ui_definition = this.getUiDefinition_();
-      for (var tab=0; tab<ui_definition[extension].length; tab++) {
+      for (var tab=0, l=ui_definition[extension].length; tab<l; tab++) {
         var info = this.__createTabContent(extension, qx.xml.Document.fromString(ui_definition[extension][tab]).childNodes, false);
         this._tabContainer.add(info['page'], {flex: 1});
       }
