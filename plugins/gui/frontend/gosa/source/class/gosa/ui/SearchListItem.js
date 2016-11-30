@@ -119,12 +119,10 @@ qx.Class.define("gosa.ui.SearchListItem", {
      * spinner accordingly
      * */
     _applyIsLoading: function(value){
-      if(value){
-        this.getChildControl("throbber-pane").show();
-        this.getChildControl("throbber").start();
-      }else{
-        this.getChildControl("throbber").stop();
-        this.getChildControl("throbber-pane").exclude();
+      if (value) {
+        this.getChildControl("throbber").show();
+      } else {
+        this.getChildControl("throbber").exclude();
       }
     },
 
@@ -224,24 +222,10 @@ qx.Class.define("gosa.ui.SearchListItem", {
         
         case "throbber":
           // Append the throbber
-          control = getThrobber({color: "#FFF", alpha: 1});
-          this.addListenerOnce("appear", function(){
-            control.appendTo(this.getChildControl("throbber-placeholder").getContentElement().getDomElement());
-          }, this);
-          break;
-        
-        case "throbber-pane":
-          control = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-          control.setAnonymous(true);
-          control.exclude();
+          control = new gosa.ui.Throbber();
           this._add(control, {top: 0, left:0, right: 0, bottom: 0});
           break;
-        
-        case "throbber-placeholder":
-          control = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-          this._add(control, {left: 16, top: 16});
-          break;
-        
+
         case "icon":
           control = new qx.ui.basic.Image();
           this.bind("icon", control, "source", {

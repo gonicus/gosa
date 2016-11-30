@@ -71,13 +71,7 @@ qx.Class.define("gosa.view.Search", {
 
     this.add(searchHeader);
 
-    this._spinner = new qx.ui.basic.Atom(null, "@Ligature/sync");
-    this._spinner.set({
-      textColor: "blue",
-      opacity: 0.5,
-      show: "icon",
-      center: true
-    });
+    this._spinner = new gosa.ui.Throbber();
     this._spinner.exclude();
     this.add(this._spinner, {flex: 1});
 
@@ -128,17 +122,15 @@ qx.Class.define("gosa.view.Search", {
     // Bind search result model
     var deltas = {'hour': 60*60, 'day': 60*60*24 , 'week': 60*60*24*7, 'month': 2678400, 'year': 31536000};
     this.resultList.setDelegate({
-        createItem: function(){
+        createItem: function() {
 
           var item = new gosa.ui.SearchListItem();
           item.addListener("edit", function(e){
               item.setIsLoading(true);
-              this.openObject(e.getData().getDn());
-              this.addListenerOnce("loadingComplete", function(e){
-                  if(e.getData().dn == item.getDn()){
-                    item.setIsLoading(false);
-                  }
-                }, this);
+              this.openObject(e.getData().getDn())
+              .finally(function() {
+                item.setIsLoading(false);
+              });
             }, this);
 
           item.addListener("remove", function(e){
@@ -194,10 +186,6 @@ qx.Class.define("gosa.view.Search", {
     gosa.io.Sse.getInstance().addListener("objectModified", this._handleObjectEvent, this);
     gosa.io.Sse.getInstance().addListener("objectCreated", this._handleObjectEvent, this);
     gosa.io.Sse.getInstance().addListener("objectRemoved", this._handleObjectEvent, this);
-  },
-
-  events: {
-    "loadingComplete" : "qx.event.type.Data"
   },
 
   /*
@@ -261,24 +249,7 @@ qx.Class.define("gosa.view.Search", {
     showSpinner: function() {
       this.searchResult.hide();
       this.searchInfo.hide();
-      var spinner = this._spinner;
-      spinner.show();
-      if (!spinner.getBounds()) {
-        this._spinner.addListenerOnce("appear", this.showSpinner, this);
-        return;
-      }
-      qx.bom.element.Animation.animate(spinner.getContentElement().getDomElement(), {
-        "duration": 500,
-        "keep": 100,
-        "keyFrames": {
-          0 : {"transform": "rotate(0deg)"},
-          100 : {"transform": "rotate(359deg)"}
-        },
-          "origin": "50% 50%",
-        "repeat": "infinite",
-        "timing": "linear",
-        "alternate": false
-      });
+      this._spinner.show();
     },
 
     hideSpinner: function() {
@@ -491,13 +462,9 @@ qx.Class.define("gosa.view.Search", {
 
         var controller = new gosa.data.ObjectEditController(obj, w);
         w.setController(controller);
-
-        this.fireDataEvent("loadingComplete", {dn: dn});
-
       }, this)
       .catch(function(error) {
         new gosa.ui.dialogs.Error(error.message).open();
-        this.fireDataEvent("loadingComplete", {dn: dn});
       }, this);
     },
 

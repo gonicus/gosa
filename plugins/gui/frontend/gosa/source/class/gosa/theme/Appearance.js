@@ -414,6 +414,7 @@ qx.Theme.define("gosa.theme.Appearance",
       style: function() {
         return {
           width: 22,
+          height: 22,
           scale: true
         }
       }
@@ -443,6 +444,17 @@ qx.Theme.define("gosa.theme.Appearance",
           height: 35,
           scale: true
         }
+      }
+    },
+
+    "gosa-spinner": {
+      style: function() {
+        return {
+          textColor: "blue",
+          opacity: 0.5,
+          show: "icon",
+          center: true
+        };
       }
     }
   }

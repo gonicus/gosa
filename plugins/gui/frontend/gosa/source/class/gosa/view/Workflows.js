@@ -143,8 +143,6 @@ qx.Class.define("gosa.view.Workflows",
 
         var controller = new gosa.data.ObjectEditController(workflow, widget);
         widget.setController(controller);
-
-        this.fireDataEvent("loadingComplete", {id : workflowItem.getId()});
       }, this)
       .catch(this.error, this);
     },
