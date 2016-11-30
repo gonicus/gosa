@@ -74,7 +74,8 @@ class WorkflowRegistry(Plugin):
                 res[id] = dict(
                     name=workflow["display_name"],
                     description=workflow["description"],
-                    icon=workflow["icon"]
+                    icon=workflow["icon"],
+                    category=workflow['category']
                 )
 
         return res
@@ -121,13 +122,20 @@ class WorkflowRegistry(Plugin):
         except:
             pass
 
+        category = None
+        try:
+            category = objectify.ObjectPath("Workflow.Category")(root)[0].text
+        except:
+            pass
+
         id = objectify.ObjectPath("Workflow.Id")(root)[0].text
         entry = dict(
-          id=id,
-          file_path=wf_path,
-          display_name=objectify.ObjectPath("Workflow.DisplayName")(root)[0].text,
-          description=description,
-          icon=icon
+            id=id,
+            file_path=wf_path,
+            display_name=objectify.ObjectPath("Workflow.DisplayName")(root)[0].text,
+            description=description,
+            icon=icon,
+            category=category
         )
 
         self._workflows[id] = entry

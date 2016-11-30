@@ -243,7 +243,7 @@ qx.Class.define("gosa.io.Rpc", {
 
     /* This method pushes a new request into the rpc-queue and then
      * triggers queue-processing.
-     * */
+     */
     cA : function() {
       var argx = Array.prototype.slice.call(arguments, 0);
       if (!this.__xsrf) {

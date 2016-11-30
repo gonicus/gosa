@@ -30,6 +30,7 @@ qx.Class.define("gosa.view.Workflows",
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.VBox(5));
     this._rpc = gosa.io.Rpc.getInstance();
+    this._createChildControl("list");
 
     this.addListener("appear", this.__reload, this);
   },
@@ -48,36 +49,21 @@ qx.Class.define("gosa.view.Workflows",
      * @private
      */
     __reload: function() {
+      this._marshaler = new qx.data.marshal.Json();
       this._rpc.cA("getWorkflows").then(function(result) {
         var data = new qx.data.Array();
         for (var id in result) {
           var item = result[id];
           item.id = id;
-          data.push(item);
-          this.__updateList(data);
+          this._marshaler.toClass(item, true);
+          data.push(this._marshaler.toModel(item, true));
         }
+        this._listController.setModel(data);
       }, this)
       .catch(function(error) {
+        this.error(error);
         new gosa.ui.dialogs.Error(error.message).open();
       });
-    },
-
-    __updateList: function(data) {
-      var list = this.getChildControl("list");
-      list.removeAll();
-      data.forEach(function(dataItem) {
-        var item = new gosa.ui.form.WorkflowItem();
-        item.set({
-          label: dataItem.name,
-          icon: dataItem.icon || "@FontAwesome/f0c3",
-          description: dataItem.description,
-          id: dataItem.id
-        });
-        list.add(item);
-        item.addListener("execute", function(ev) {
-          this.startWorkflow(item);
-        }, this);
-      }, this);
     },
 
     startWorkflow: function(workflowItem) {
@@ -115,6 +101,7 @@ qx.Class.define("gosa.view.Workflows",
         ]);
       }, this)
       .spread(function(workflow, widget) {
+        console.log(workflow);
         var doc = gosa.ui.window.Desktop.getInstance();
         win = new qx.ui.window.Window(this.tr("Workflow"));
         win.set({
@@ -157,13 +144,43 @@ qx.Class.define("gosa.view.Workflows",
       switch(id) {
 
         case "list":
-          control = new qx.ui.container.Composite(new qx.ui.layout.Flow());
-          this.add(control);
+          control = new qx.ui.container.Composite(new gosa.ui.layout.Flow());
+          this._listController = new gosa.data.controller.EnhancedList(null, control, "name");
+          this._listController.setDelegate(this._getListDelegate());
+          this.add(control, {flex: 1});
           break;
       }
 
       return control || this.base(arguments, id);
-    }
+    },
 
+    _getListDelegate: function() {
+      return {
+        createItem: function() {
+          return new gosa.ui.form.WorkflowItem();
+        },
+
+        configureItem: function(item) {
+          item.addListener("execute", function() {
+            this.startWorkflow(item);
+          }, this);
+        }.bind(this),
+
+        bindItem: function(controller, item , index) {
+          controller.bindProperty("name", "label", null, item, index);
+          controller.bindProperty("icon", "icon", {
+            converter: function(value) {
+              return value || "@Ligature/app"
+            }
+          }, item, index);
+          controller.bindProperty("description", "description", null, item, index);
+          controller.bindProperty("id", "id", null, item, index);
+        },
+
+        group: function(item) {
+          return item.getCategory();
+        }
+      }
+    }
   }
 });

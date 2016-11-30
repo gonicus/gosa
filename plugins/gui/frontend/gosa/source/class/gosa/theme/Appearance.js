@@ -380,12 +380,26 @@ qx.Theme.define("gosa.theme.Appearance",
       style: function() {
         return {
           center: true,
-          iconPosition: "top",
-          width: 200,
+          iconPosition: "left",
+          show: "both",
           icon: "@Ligature/app",
-          iconSize: 88,
-          decorator: "gosa-workflow-item",
+          // iconSize: 64,
           margin: 5,
+          padding: [15, 5]
+        }
+      }
+    },
+    "gosa-workflow-category": {
+      include: "atom",
+      alias: "atom",
+
+      style: function() {
+        return {
+          show: "label",
+          height: 50,
+          font: "Title",
+          textColor: "font",
+          backgroundColor: "#EEE",
           padding: [15, 5]
         }
       }

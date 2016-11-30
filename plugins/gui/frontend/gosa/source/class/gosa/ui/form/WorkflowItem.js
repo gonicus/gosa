@@ -17,7 +17,7 @@
 */
 qx.Class.define("gosa.ui.form.WorkflowItem", {
 
-  extend : qx.ui.form.Button,
+  extend : qx.ui.form.ListItem,
   
   construct : function() {
     this.base(arguments);
@@ -55,11 +55,31 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
       check: "Boolean",
       init: false,
       apply: "_applyLoading"
+    },
+
+    /**
+     * How this list item should behave like group or normal ListItem
+     */
+    listItemType: {
+      check: ['group', 'item'],
+      init: 'item',
+      apply: '_applyListItemType'
     }
   },
     
   members : {
+    // property apply
+    _applyListItemType: function(value) {
+      if (value === "group") {
+        this.setLayoutProperties({lineBreak: true, stretch: true, newLine: true});
+        this.setAppearance("gosa-workflow-category");
+      } else {
+        this.setLayoutProperties({});
+        this.setAppearance("gosa-workflow-item");
+      }
+    },
 
+    // property apply
     _applyLoading: function(value) {
       if (value) {
         this.getChildControl("throbber").show();
@@ -108,8 +128,11 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
 
     // property apply
     _applyIconSize: function(size) {
-      this.getChildControl("icon").setWidth(size);
-      this.getChildControl("icon").setHeight(size);
+      this.getChildControl("icon").set({
+        width: size,
+        height: size,
+        scale: true
+      });
     }
   }
 });
