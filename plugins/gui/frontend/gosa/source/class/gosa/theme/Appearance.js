@@ -408,6 +408,16 @@ qx.Theme.define("gosa.theme.Appearance",
         }
       }
     },
+    "edit-tabview-page" : "tabview-page",
+    "edit-tabview-page/button/icon": {
+      include: "tabview-page/button/icon",
+      style: function() {
+        return {
+          width: 22,
+          scale: true
+        }
+      }
+    },
 
     "gosa-listitem-window": {
       include: "listitem",

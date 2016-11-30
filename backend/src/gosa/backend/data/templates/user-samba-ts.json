@@ -10,7 +10,7 @@
     },
     "extensions": {
         "resources": {
-            "favicon": "images/user-samba.png"
+            "favicon": "@Ligature/windows"
         },
         "tabConfig": {
             "title": "tr('Samba terminal server')",

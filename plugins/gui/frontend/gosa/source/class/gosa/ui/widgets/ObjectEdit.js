@@ -98,6 +98,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
     addTab : function(templateObj) {
       var tabPage = new qx.ui.tabview.Page();
+      tabPage.setAppearance("edit-tabview-page");
       tabPage.setLayout(new qx.ui.layout.VBox());
 
       if (templateObj.extension !== this.getController().getBaseType()) {
@@ -235,8 +236,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
       // create action menu
       var actionMenu = new qx.ui.menu.Menu();
-      var actionButton = new qx.ui.menu.Button(this.tr("Action"), gosa.Config.getImagePath("actions/actions.png", 22),
-        null, actionMenu);
+      var actionButton = new qx.ui.menu.Button(this.tr("Action"), "@Ligature/magic", null, actionMenu);
+      actionButton.setAppearance("icon-menu-button");
       this._toolMenu.add(actionButton);
 
       // add menu entries to widget
@@ -247,16 +248,16 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
     _createRetractMenu : function() {
       this._retractMenu = new qx.ui.menu.Menu();
-      this._retractButton = new qx.ui.menu.Button(this.tr("Retract"), gosa.Config.getImagePath("actions/retract.png", 22),
-        null, this._retractMenu);
+      this._retractButton = new qx.ui.menu.Button(this.tr("Retract"), "@Ligature/minus", null, this._retractMenu);
+      this._retractButton.setAppearance("icon-menu-button");
       this._toolMenu.add(this._retractButton);
       this._updateRetractMenu();
     },
 
     _createExtendMenu : function() {
       this._extendMenu = new qx.ui.menu.Menu();
-      this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), gosa.Config.getImagePath("actions/extend.png", 22),
-        null, this._extendMenu);
+      this._extendButton = new qx.ui.menu.Button(this.tr("Extend"), "@Ligature/plus", null, this._extendMenu);
+      this._extendButton.setAppearance("icon-menu-button");
       this._toolMenu.add(this._extendButton);
       this._updateExtendMenu();
     },
@@ -294,6 +295,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         if (config.icon) {
           // button = new qx.ui.menu.Button(ext, gosa.Config.getImagePath(config.icon, 22));
           button = new qx.ui.menu.Button(config.title, config.icon);
+          button.setAppearance("icon-menu-button");
         }
         else {
           button = new qx.ui.menu.Button(config.title);
@@ -344,6 +346,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
           var button;
           if (config.icon) {
             button = new qx.ui.menu.Button(config.title, config.icon);
+            button.setAppearance("icon-menu-button");
           }
           else {
             button = new qx.ui.menu.Button(config.title);

@@ -14,7 +14,7 @@
             "icon": "favicon"
         },
         "resources": {
-            "favicon": "images/user.png",
+            "favicon": "@Ligature/user",
             "actionChangePassword": "@Ligature/key",
             "actionLockAccount": "@Ligature/lock",
             "actionUnlockAccount": "@Ligature/unlock",
