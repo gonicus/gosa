@@ -459,9 +459,10 @@ qx.Theme.define("gosa.theme.Appearance",
     "gosa-spinner": {
       style: function() {
         return {
-          textColor: "blue",
+          textColor: "icon-color",
           opacity: 0.5,
           show: "icon",
+          size: 30,
           center: true
         };
       }

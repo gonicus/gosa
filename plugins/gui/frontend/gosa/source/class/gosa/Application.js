@@ -184,11 +184,11 @@ qx.Class.define("gosa.Application",
       var search = gosa.view.Search.getInstance();
       var tree = gosa.view.Tree.getInstance();
       var work = gosa.view.Workflows.getInstance();
-      var settings = gosa.view.Settings.getInstance();
+      // var settings = gosa.view.Settings.getInstance();
       pluginView.add(search);
       pluginView.add(tree);
       pluginView.add(work);
-      pluginView.add(settings);
+      // pluginView.add(settings);
 
       // Initialize SSE messaging
       var messaging = gosa.io.Sse.getInstance();
