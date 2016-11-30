@@ -11,7 +11,7 @@
     "extensions": {
         "resources": {
             "favicon": "images/user-samba.png",
-            "actionChangeSambaPassword": "images/password.png"
+            "actionChangeSambaPassword": "@Ligature/key"
         },
         "actions": [{
             "name": "actionChangeSambaPassword",

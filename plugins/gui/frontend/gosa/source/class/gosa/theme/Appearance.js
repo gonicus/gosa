@@ -341,7 +341,7 @@ qx.Theme.define("gosa.theme.Appearance",
 
       style: function() {
         return {
-          icon   : "@FontAwesome/f013",
+          icon   : "@Ligature/gear",
           margin : 4
         }
       }

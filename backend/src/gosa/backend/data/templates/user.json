@@ -15,11 +15,11 @@
         },
         "resources": {
             "favicon": "images/user.png",
-            "actionChangePassword": "@FontAwesome/f084",
-            "actionLockAccount": "@FontAwesome/f023",
-            "actionUnlockAccount": "@FontAwesome/f09c",
-            "actionSendMessage": "@FontAwesome/f27b",
-            "actionChange2FAMethod": "@FontAwesome/f21b"
+            "actionChangePassword": "@Ligature/key",
+            "actionLockAccount": "@Ligature/lock",
+            "actionUnlockAccount": "@Ligature/unlock",
+            "actionSendMessage": "@Ligature/notify",
+            "actionChange2FAMethod": "@Ligature/umbrella"
         },
         "actions": [{
             "name": "actionChangePassword",
