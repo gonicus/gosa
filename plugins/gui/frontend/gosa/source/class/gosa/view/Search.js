@@ -48,16 +48,13 @@ qx.Class.define("gosa.view.Search", {
     var searchLayout = new qx.ui.layout.HBox(10);
     searchHeader.setLayout(searchLayout);
 
-    var sf = new qx.ui.form.TextField('');
+    var sf = this.searchField = new qx.ui.form.TextField('');
     var headerSearch = gosa.ui.Header.getInstance().getChildControl("search");
     this.addListener("appear", function() {
       headerSearch.hide();
     }, this);
     this.addListener("disappear", function() {
       headerSearch.show();
-    }, this);
-    sf.addListener("changeValue", function(ev) {
-      headerSearch.setValue(ev.getData());
     }, this);
     sf.setPlaceholder(this.tr("Please enter your search..."));
     this.addListener("resize", function() {
@@ -73,6 +70,16 @@ qx.Class.define("gosa.view.Search", {
     searchLayout.setAlignX("center");
 
     this.add(searchHeader);
+
+    this._spinner = new qx.ui.basic.Atom(null, "@Ligature/sync");
+    this._spinner.set({
+      textColor: "blue",
+      opacity: 0.5,
+      show: "icon",
+      center: true
+    });
+    this._spinner.exclude();
+    this.add(this._spinner, {flex: 1});
 
     // Create search info (hidden)
     this.searchInfo = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
@@ -251,6 +258,34 @@ qx.Class.define("gosa.view.Search", {
       this.resultList.refresh();
     },
 
+    showSpinner: function() {
+      this.searchResult.hide();
+      this.searchInfo.hide();
+      var spinner = this._spinner;
+      spinner.show();
+      if (!spinner.getBounds()) {
+        this._spinner.addListenerOnce("appear", this.showSpinner, this);
+        return;
+      }
+      qx.bom.element.Animation.animate(spinner.getContentElement().getDomElement(), {
+        "duration": 500,
+        "keep": 100,
+        "keyFrames": {
+          0 : {"transform": "rotate(0deg)"},
+          100 : {"transform": "rotate(359deg)"}
+        },
+          "origin": "50% 50%",
+        "repeat": "infinite",
+        "timing": "linear",
+        "alternate": false
+      });
+    },
+
+    hideSpinner: function() {
+      this._spinner.exclude();
+      this.searchInfo.show();
+    },
+
     doSearchE : qx.util.Function.debounce(function(noListUpdate) {
       return this.doSearch(noListUpdate);
     }, 100, false),
@@ -266,6 +301,7 @@ qx.Class.define("gosa.view.Search", {
           resolve([]);
           return;
         }
+        this.showSpinner();
 
         var rpc = gosa.io.Rpc.getInstance();
         var base = gosa.Session.getInstance().getBase();
@@ -288,7 +324,10 @@ qx.Class.define("gosa.view.Search", {
           this.error(error);
           var d = new gosa.ui.dialogs.Error(this.tr("Insufficient permission!"));
           d.open();
-        });
+        }, this);
+      }, this)
+      .then(function() {
+        this.hideSpinner();
       }, this);
     },
 
