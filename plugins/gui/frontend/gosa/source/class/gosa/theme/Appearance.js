@@ -390,6 +390,15 @@ qx.Theme.define("gosa.theme.Appearance",
         }
       }
     },
+    "gosa-workflow-item/throbber": {
+      include: "gosa-throbber",
+
+      style: function() {
+        return {
+          textColor: "icon-color"
+        };
+      }
+    },
     "gosa-workflow-item/label": {
       style: function() {
         return {

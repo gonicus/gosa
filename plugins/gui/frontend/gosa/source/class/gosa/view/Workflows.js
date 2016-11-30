@@ -81,6 +81,7 @@ qx.Class.define("gosa.view.Workflows",
     },
 
     startWorkflow: function(workflowItem) {
+      workflowItem.setLoading(true);
       var win = null;
       gosa.proxy.ObjectFactory.openWorkflow(workflowItem.getId())
       .then(function(workflow) {
@@ -144,7 +145,10 @@ qx.Class.define("gosa.view.Workflows",
         var controller = new gosa.data.ObjectEditController(workflow, widget);
         widget.setController(controller);
       }, this)
-      .catch(this.error, this);
+      .catch(this.error, this)
+      .finally(function() {
+        workflowItem.setLoading(false);
+      });
     },
 
     _createChildControlImpl: function(id) {

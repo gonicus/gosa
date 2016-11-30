@@ -47,11 +47,26 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
       check: "Number",
       themeable: true,
       init: 40,
-      apply: "_applyIconSize"
+      apply: "_applyIconSize",
+      event: "changeIconSize"
+    },
+
+    loading: {
+      check: "Boolean",
+      init: false,
+      apply: "_applyLoading"
     }
   },
     
   members : {
+
+    _applyLoading: function(value) {
+      if (value) {
+        this.getChildControl("throbber").show();
+      } else {
+        this.getChildControl("throbber").exclude();
+      }
+    },
 
     // overridden
     _createChildControlImpl: function(id) {
@@ -59,13 +74,29 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
 
       switch(id) {
 
-        case "description":
-          control = new qx.ui.basic.Label();
+        case "label":
+          control = new qx.ui.basic.Label(this.getLabel());
           control.setAnonymous(true);
-          control.setRich(true);
-          control.setWrap(true);
+          control.setRich(this.getRich());
+          control.setSelectable(this.getSelectable());
           this._addAt(control, 2);
+          if (this.getLabel() == null || this.getShow() === "icon") {
+            control.exclude();
+          }
           break;
+
+        case "throbber":
+          control = new gosa.ui.Throbber();
+          this.bind("iconSize", control, "size");
+          control.exclude();
+          control.bind("visibility", this.getChildControl("icon"), "visibility", {
+            converter: function(value) {
+              return ['hidden', 'excluded'].indexOf(value) >= 0 ? 'visible' : 'excluded';
+            }
+          });
+          this._addAt(control, 1);
+          break;
+
       }
 
       return control || this.base(arguments, id);
