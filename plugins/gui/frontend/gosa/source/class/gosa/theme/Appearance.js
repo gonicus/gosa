@@ -368,6 +368,7 @@ qx.Theme.define("gosa.theme.Appearance",
         }
       }
     },
+    "tree-view/splitpane": "splitpane",
     "tree-view/delete-button": "icon-menu-button",
     "tree-view/action-menu-button": "toolbar-menubutton",
     "tree-view/filter-menu-button": "toolbar-menubutton",

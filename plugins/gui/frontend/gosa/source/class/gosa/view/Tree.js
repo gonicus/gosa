@@ -76,7 +76,7 @@ qx.Class.define("gosa.view.Tree",
 
         case "splitpane":
           control = new qx.ui.splitpane.Pane("horizontal");
-          this.add(control, {top: 0, bottom: 0, left:0, right: 0});
+          this.add(control, { edge: 0 });
           break;
 
         // Create the action-bar for the list panel
