@@ -34,6 +34,7 @@ from gosa.backend import __version__ as VERSION
 from gosa.backend.lock import GlobalLock
 from gosa.backend.utils.ldap import check_auth
 from gosa.backend.exceptions import FilterException
+import hashlib
 
 
 # Register the errors handled  by us
@@ -225,6 +226,10 @@ class JsonRpcHandler(HSTSRequestHandler):
         if cls.__session[sid]['auth_state'] != AUTH_SUCCESS:
             raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
+        cached_method = method[0:2] == "**"
+        if cached_method:
+            method = method[2:]
+            hash = params.pop(0)
         # Try to call method with dispatcher
         if not self.dispatcher.hasMethod(method):
             text = "No such method '%s'" % method
@@ -288,7 +293,14 @@ class JsonRpcHandler(HSTSRequestHandler):
             return dict(result=None, error=error_value, id=jid)
 
         self.log.debug("returning call [%s]: %s / %s" % (jid, result, None))
-
+        if cached_method:
+            response_hash = hashlib.md5(repr(result).encode('utf-8')).hexdigest()
+            if hash == response_hash:
+                # cache hit
+                result = dict(hash="###%s###" % response_hash)
+            else:
+                # cache miss
+                result = dict(hash="###%s###" % response_hash, response=result)
         return dict(result=result, error=None, id=jid)
 
     def authenticate(self, user=None, password=None):

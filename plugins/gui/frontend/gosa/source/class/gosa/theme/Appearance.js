@@ -383,7 +383,7 @@ qx.Theme.define("gosa.theme.Appearance",
           iconPosition: "left",
           show: "both",
           icon: "@Ligature/app",
-          // iconSize: 64,
+          iconSize: 30,
           margin: 5,
           padding: [15, 5]
         }

@@ -35,6 +35,8 @@ qx.Class.define("gosa.io.Rpc", {
 
     this.converter.push(gosa.io.types.Timestamp);
     this.converter.push(gosa.io.types.Binary);
+
+    this.__cacheHashRegex = new RegExp('^###([^#]+)###(.*)');
   },
 
   properties: {
@@ -94,6 +96,7 @@ qx.Class.define("gosa.io.Rpc", {
     converter: [],
     running: false,
     __xsrf : null,
+    __cacheHashRegex: null,
 
 
     /* Enables an anonymous method to use the this context.
@@ -161,6 +164,18 @@ qx.Class.define("gosa.io.Rpc", {
      * @private
      */
     __executeCallAsync : function(argx, resolve, reject) {
+      var cachedCall = argx[0].startsWith("**");
+      var cachedResult = null;
+      if (cachedCall) {
+        var cacheParams = argx.join(",");
+        cachedResult = this.getCachedResponse(cacheParams);
+        if (cachedResult) {
+          // we do have the response in a cache -> add hash as second parameter after the method name
+          qx.lang.Array.insertAt(argx, cachedResult.hash, 1);
+        } else {
+          qx.lang.Array.insertAt(argx, "0", 1);
+        }
+      }
       this.callAsync.apply(this, [
         function(result, error) {
           if (error) {
@@ -168,7 +183,24 @@ qx.Class.define("gosa.io.Rpc", {
             reject(error);
           }
           else {
-            this.debug("rpc job finished '" + argx[0] + "'");
+            var cacheStatus = "not used";
+            if (cachedCall) {
+              // cached call
+              if (result.hash) {
+                if (cachedResult && result.hash === cachedResult.hash) {
+                  // cache hit, use the cached response
+                  cacheStatus = "HIT";
+                  result = cachedResult.response;
+                }
+                else {
+                  // file has changed, save the response in cache
+                  cacheStatus = "MISS";
+                  this.setCachedResponse(cacheParams, result);
+                  result = result.response;
+                }
+              }
+            }
+            this.debug("rpc job finished '" + argx[0] + "', cache: "+cacheStatus);
             resolve(result);
           }
         }.bind(this)
@@ -599,6 +631,26 @@ qx.Class.define("gosa.io.Rpc", {
       {
         return req;
       }
+    },
+
+    /**
+     * Retrieves the cached repsonse from an old RPC call
+     *
+     * @param paramString {String} concatenated parameters of the RPC call
+     * @returns {String} RPC call result
+     */
+    getCachedResponse: function(paramString) {
+      return qx.bom.Storage.getLocal().getItem(paramString);
+    },
+
+    /**
+     * Saves an RPC-Call result in the {qx.bom.Storage}
+     *
+     * @param paramString {String} concatenated parameters of the RPC call
+     * @param response {String} RPC call result
+     */
+    setCachedResponse: function(paramString, result) {
+      qx.bom.Storage.getLocal().setItem(paramString, result);
     }
   }
 });

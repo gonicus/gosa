@@ -22,8 +22,8 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
   construct : function() {
     this.base(arguments);
 
-    var icon = this.getChildControl("icon");
-    icon.setScale(true);
+    // var icon = this.getChildControl("icon");
+    // icon.setScale(true);
   },
     
   properties : {
@@ -130,7 +130,7 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
     _applyIconSize: function(size) {
       this.getChildControl("icon").set({
         width: size,
-        height: size,
+        // height: size,
         scale: true
       });
     }

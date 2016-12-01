@@ -280,8 +280,8 @@ qx.Class.define("gosa.Application",
             jobCounter++;
             result.forEach(function(name) {
               loadingDialog.setLabel(this.tr("Loading %1 templates", name));
-              dialogPromises.push(rpc.cA("getGuiDialogs", name));
-              templatePromises.push(rpc.cA("getGuiTemplates", name));
+              dialogPromises.push(rpc.cA("**getGuiDialogs", name));
+              templatePromises.push(rpc.cA("**getGuiTemplates", name));
               names.push(name);
             }, this);
 
