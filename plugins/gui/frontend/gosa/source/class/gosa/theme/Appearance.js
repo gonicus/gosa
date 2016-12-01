@@ -369,6 +369,7 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
     "tree-view/splitpane": "splitpane",
+    "tree-view/table": "table",
     "tree-view/delete-button": "icon-menu-button",
     "tree-view/action-menu-button": "toolbar-menubutton",
     "tree-view/filter-menu-button": "toolbar-menubutton",
@@ -384,6 +385,7 @@ qx.Theme.define("gosa.theme.Appearance",
           iconSize: 40,
           allowGrowX: false,
           backgroundColor: states.hovered ? "hovered" : "transparent",
+          cursor: states.hovered ? "pointer" : "default",
           margin: 5,
           padding: 10
         }
