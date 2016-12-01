@@ -44,6 +44,14 @@ qx.Theme.define("gosa.theme.Font",
       lineHeight: 1.8
     },
 
+    "Subtitle": {
+      size : 14,
+      family : ["Lucida Grande", "DejaVu Sans", "Verdana", "sans-serif"],
+      color: "font",
+      bold: true,
+      lineHeight: 1.4
+    },
+
     "FontAwesome": {
       size: 40,
       lineHeight: 1,

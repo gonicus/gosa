@@ -101,7 +101,6 @@ qx.Class.define("gosa.view.Workflows",
         ]);
       }, this)
       .spread(function(workflow, widget) {
-        console.log(workflow);
         var doc = gosa.ui.window.Desktop.getInstance();
         win = new qx.ui.window.Window(this.tr("Workflow"));
         win.set({
@@ -161,7 +160,7 @@ qx.Class.define("gosa.view.Workflows",
         },
 
         configureItem: function(item) {
-          item.addListener("execute", function() {
+          item.addListener("tap", function() {
             this.startWorkflow(item);
           }, this);
         }.bind(this),
@@ -175,6 +174,11 @@ qx.Class.define("gosa.view.Workflows",
           }, item, index);
           controller.bindProperty("description", "description", null, item, index);
           controller.bindProperty("id", "id", null, item, index);
+          if (index === 0) {
+            item.addState("first");
+          } else {
+            item.removeState("first");
+          }
         },
 
         group: function(item) {

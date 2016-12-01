@@ -66,7 +66,7 @@ qx.Class.define("gosa.ui.Throbber", {
       }
       if (!this.__handle || this.__handle.isEnded()) {
         this.__handle = qx.bom.element.Animation.animate(this.getContentElement().getDomElement(), {
-          "duration"  : 500,
+          "duration"  : 1000,
           "keep"      : 100,
           "keyFrames" : {
             0   : {"transform" : "rotate(0deg)"},

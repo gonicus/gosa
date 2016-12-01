@@ -23,6 +23,7 @@ qx.Theme.define("gosa.theme.Color",
     'header-text' : 'white',
     'error-text': '#8A0808',
     'disabled-text': '#CCCCCC',
+    'hovered': '#DDD',
     'icon-color': '#666666'
   }
 });

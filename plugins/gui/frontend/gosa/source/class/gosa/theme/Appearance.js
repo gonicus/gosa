@@ -374,18 +374,25 @@ qx.Theme.define("gosa.theme.Appearance",
     "tree-view/create-menu-button": "toolbar-menubutton",
 
     "gosa-workflow-item": {
-      include: "atom",
-      alias: "atom",
 
-      style: function() {
+      style: function(states) {
+        console.log(states);
         return {
-          center: true,
-          iconPosition: "left",
           show: "both",
           icon: "@Ligature/app",
-          iconSize: 30,
+          iconSize: 40,
+          allowGrowX: false,
+          backgroundColor: states.hovered ? "hovered" : "transparent",
           margin: 5,
-          padding: [15, 5]
+          padding: 10
+        }
+      }
+    },
+    "gosa-workflow-item/content": {
+      style: function() {
+        return {
+          marginLeft: 10,
+          width: 250
         }
       }
     },
@@ -393,14 +400,13 @@ qx.Theme.define("gosa.theme.Appearance",
       include: "atom",
       alias: "atom",
 
-      style: function() {
+      style: function(states) {
         return {
           show: "label",
-          height: 50,
           font: "Title",
           textColor: "font",
-          backgroundColor: "#EEE",
-          padding: [15, 5]
+          decorator: states.first ? null : "gosa-workflow-category",
+          marginTop: 10
         }
       }
     },
@@ -416,7 +422,7 @@ qx.Theme.define("gosa.theme.Appearance",
     "gosa-workflow-item/label": {
       style: function() {
         return {
-          font : "Title"
+          font : "Subtitle"
         };
       }
     },

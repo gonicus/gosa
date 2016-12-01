@@ -46,6 +46,12 @@ qx.Theme.define("gosa.theme.Decoration",
         width: [0, 1, 0, 1],
         color: ["#606060", "#606060", "#A0A0A0", "#A0A0A0"]
       }
+    },
+    "gosa-workflow-category": {
+      style: {
+        width: [1, 0 , 0, 0],
+        color: "font"
+      }
     }
   }
 });

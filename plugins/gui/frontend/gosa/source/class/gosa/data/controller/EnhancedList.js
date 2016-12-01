@@ -520,6 +520,11 @@ qx.Class.define("gosa.data.controller.EnhancedList", {
       switch (config.type) {
         case "group":
           item.setLabel(this.__groupLookupTable[config.index]);
+          if (config.index === 0) {
+            item.addState("first");
+          } else {
+            item.removeState("first");
+          }
           break;
 
         default:
