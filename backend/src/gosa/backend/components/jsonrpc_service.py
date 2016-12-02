@@ -297,10 +297,10 @@ class JsonRpcHandler(HSTSRequestHandler):
             response_hash = hashlib.md5(repr(result).encode('utf-8')).hexdigest()
             if hash == response_hash:
                 # cache hit
-                result = dict(hash="###%s###" % response_hash)
+                result = dict(hash=response_hash)
             else:
                 # cache miss
-                result = dict(hash="###%s###" % response_hash, response=result)
+                result = dict(hash=response_hash, response=result)
         return dict(result=result, error=None, id=jid)
 
     def authenticate(self, user=None, password=None):
