@@ -53,10 +53,7 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
       if (t &&
           t.properties && typeof t.properties === "object" &&
           t.properties.windowTitle && typeof t.properties.windowTitle === "string") {
-            var windowTitle = t.properties.windowTitle;
-            delete t.properties.windowTitle;
-            delete t.properties.dialogName;
-            return windowTitle;
+            return t.properties.windowTitle;
           }
       qx.core.Assert.fail("Cannot find valid window title in dialog template");
     },
