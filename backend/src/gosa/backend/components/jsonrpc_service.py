@@ -187,7 +187,7 @@ class JsonRpcHandler(HSTSRequestHandler):
                     del cls.__session[sid]
 
                 self.log.error("login failed for user '%s'" % user)
-                raise tornado.web.HTTPError(401, "Login failed")
+                result['state'] = AUTH_FAILED
 
             return dict(result=result, error=None, id=jid)
 
