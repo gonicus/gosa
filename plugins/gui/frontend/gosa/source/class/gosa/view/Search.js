@@ -154,6 +154,8 @@ qx.Class.define("gosa.view.Search", {
           controller.bindProperty("", "model", null, item, id);
         },
 
+      sort: this.__sortByRelevance,
+
         filter : function(data) {
           var show = true;
 
@@ -262,44 +264,44 @@ qx.Class.define("gosa.view.Search", {
     }, 100, false),
 
     doSearch : function(noListUpdate) {
-      return new qx.Promise(function(resolve, reject) {
+      var query = this.sf.getValue();
 
-        // Remove all entries from the queue and keep the newest
-        var query = this.sf.getValue();
-
-        // Don't search for nothing or not changed values
-        if (!noListUpdate && (query === "" || this._old_query === query)) {
-          resolve([]);
-          return;
-        }
+      // Don't search for nothing or not changed values
+      if (!noListUpdate && (query === "" || this._old_query === query)) {
+        return qx.Promise.resolve([]);
+      }
+      if (!noListUpdate) {
         this.showSpinner();
+      }
 
-        var rpc = gosa.io.Rpc.getInstance();
-        var base = gosa.Session.getInstance().getBase();
-        var startTime = new Date().getTime();
+      var rpc = gosa.io.Rpc.getInstance();
+      var base = gosa.Session.getInstance().getBase();
+      var startTime = new Date().getTime();
 
-        // Try ordinary search
-        return rpc.cA("search", base, "sub", query, this.__default_selection)
-        .then(function(result) {
-          var endTime = new Date().getTime();
+      // Try ordinary search
+      return rpc.cA("search", base, "sub", query, this.__default_selection)
+      .then(function(result) {
+        var endTime = new Date().getTime();
 
-          // Memorize old query and display results
-          if(!noListUpdate) {
-            this.showSearchResults(result, endTime - startTime, false, query);
-            this._old_query = query;
-          }
+        // Memorize old query and display results
+        if(!noListUpdate) {
+          this.showSearchResults(result, endTime - startTime, false, query);
+          this._old_query = query;
+        }
 
-          resolve([result, endTime - startTime]);
-        }, this)
-        .catch(function(error) {
-          this.error(error);
-          var d = new gosa.ui.dialogs.Error(this.tr("Insufficient permission!"));
-          d.open();
-        }, this);
+        return result;
       }, this)
-      .then(function() {
-        this.hideSpinner();
+      .catch(function(error) {
+        this.error(error);
+        var d = new gosa.ui.dialogs.Error(error);
+        d.open();
+      }, this)
+      .finally(function() {
+        if (!noListUpdate) {
+          this.hideSpinner();
+        }
       }, this);
+
     },
 
     showSearchResults : function(items, duration, fuzzy, query) {
@@ -394,13 +396,7 @@ qx.Class.define("gosa.view.Search", {
     },
 
     __sortByRelevance: function(a, b){
-      if (a.getRelevance() == b.getRelevance()) {
-        return 0;
-      }
-      if (a.getRelevance() < b.getRelevance()) {
-        return -1;
-      }
-      return 1;
+      return (a.getRelevance() - b.getRelevance());
     },
 
     /**
@@ -471,19 +467,11 @@ qx.Class.define("gosa.view.Search", {
     },
 
     /**
-     * Refresh a search item
-     * @param dn {String} DN of the object
-     */
-    refreshSearchItem: function(dn, widget) {
-
-    },
-
-    /**
-     *  Act on backend events related to object modifications
+     * Act on backend events related to object modifications
      * and remove, update or add list item of the result list.
      *
      */
-    _handleObjectEvent: function(e){
+    _handleObjectEvent: function(e) {
 
       // Keep track of each event uuid we receive
       var data = e.getData();
@@ -503,7 +491,7 @@ qx.Class.define("gosa.view.Search", {
 
       // Once an event was catched, start a new query, but do not show
       // the result in the list, instead just return it.
-      this.doSearchE(null, function(result){
+      this.doSearch(true).then(function(result) {
 
           // Check for differences between the currently active result-set
           // and the fetched one.
@@ -572,7 +560,7 @@ qx.Class.define("gosa.view.Search", {
             this.updateFilter();
             qx.lang.Array.remove(this._createdObjects, added[i]);
           }
-        }, true);
+        }, this);
     },
 
 
