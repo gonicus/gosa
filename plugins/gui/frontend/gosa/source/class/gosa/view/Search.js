@@ -403,8 +403,9 @@ qx.Class.define("gosa.view.Search", {
       return 1;
     },
 
-    /* Highlights query strings in the given string
-     * */
+    /**
+     *  Highlights query strings in the given string
+     */
     _highlight : function(string, query) {
         var reg = new RegExp('(' + qx.lang.String.escapeRegexpChars(query) + ')', "ig");
         return string.replace(reg, "<b>$1</b>");
@@ -420,8 +421,9 @@ qx.Class.define("gosa.view.Search", {
       }, this);
     },
 
-    /* Open the object given by its uuid/dn
-     * */
+    /**
+     * Open the object given by its uuid/dn
+     */
     openObject : function(dn, type) {
       var win = null;
       return gosa.proxy.ObjectFactory.openObject(dn, type)
@@ -468,14 +470,19 @@ qx.Class.define("gosa.view.Search", {
       }, this);
     },
 
+    /**
+     * Refresh a search item
+     * @param dn {String} DN of the object
+     */
+    refreshSearchItem: function(dn, widget) {
 
-    /* Act on object modification events
-     * */
+    },
 
-    /* Act on backend events related to object modifications
+    /**
+     *  Act on backend events related to object modifications
      * and remove, update or add list item of the result list.
      *
-     * */
+     */
     _handleObjectEvent: function(e){
 
       // Keep track of each event uuid we receive
@@ -569,9 +576,10 @@ qx.Class.define("gosa.view.Search", {
     },
 
 
-    /* Update the given result-list item of the search-result-list
+    /**
+     *  Update the given result-list item of the search-result-list
      * and reload the model.
-     * */
+     */
     __updateEntry: function(entry){
 
       // Locate the search result item in the search result model
@@ -597,8 +605,9 @@ qx.Class.define("gosa.view.Search", {
     },
 
 
-    /* Adds a new entry to the search result-model
-     * */
+    /**
+     *  Adds a new entry to the search result-model
+     */
     __addEntry: function(entry){
 
       // Add the given result-item to the list
@@ -618,9 +627,10 @@ qx.Class.define("gosa.view.Search", {
     },
 
 
-    /* Removes the given search-result entry from the result-list
+    /**
+     * Removes the given search-result entry from the result-list
      * and updates the model.
-     * */
+     */
     __removeEntry: function(entry){
 
       // Locate the model entry with the given uuid
@@ -645,8 +655,9 @@ qx.Class.define("gosa.view.Search", {
     },
 
 
-    /* Returns the model item for a given uuid
-     * */
+    /**
+     *  Returns the model item for a given uuid
+     */
     __getModelEntryForUUID: function(uuid){
       var model = this.resultList.getModel();
       for(var i=0; i<model.getLength();i++){
@@ -658,25 +669,27 @@ qx.Class.define("gosa.view.Search", {
     },
 
 
-    /* Fades out the given search-result entry and finally
+    /**
+     * Fades out the given search-result entry and finally
      * removes it.
-     * */
+     */
     __fadeOut: function(entry){
       this.__removeEntry(entry);
     },
 
 
-    /* Adds the given search result entry to the list
+    /**
+     *  Adds the given search result entry to the list
      * and then starts a fade-in transition for it.
-     * */
+     */
     __fadeIn: function(entry){
       this.__addEntry(entry);
     },
 
 
-    /* Updates the properties of an 'gosa.data.model.SearchResultItem' using
+    /** Updates the properties of an 'gosa.data.model.SearchResultItem' using
      * the given search-result-entry.
-     * */
+     */
     __fillSearchListItem: function(item, entry){
 
       // Set the uuid first, this triggers a reset on the widget side.
