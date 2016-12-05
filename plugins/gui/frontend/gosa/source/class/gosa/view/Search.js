@@ -154,7 +154,7 @@ qx.Class.define("gosa.view.Search", {
           controller.bindProperty("", "model", null, item, id);
         },
 
-      sort: this.__sortByRelevance,
+        sorter: this.__sortByRelevance,
 
         filter : function(data) {
           var show = true;
@@ -241,11 +241,13 @@ qx.Class.define("gosa.view.Search", {
       }
     },
 
-    updateFilter : function(e) {
+    updateFilter : function() {
       var d = new Date();
       this.__selection = this.searchAid.getSelection();
+
       this.__now = d.getTime() / 1000 + d.getTimezoneOffset() * 60;
       this.resultList.refresh();
+      this.__updateResultInfo(this.resultList.getPane().getRowConfig().getItemCount());
     },
 
     showSpinner: function() {
@@ -304,6 +306,14 @@ qx.Class.define("gosa.view.Search", {
 
     },
 
+    __updateResultInfo: function(count) {
+      if (this.__fuzzy) {
+        this.sii.setValue(this.trn("%1 fuzzy result", "%1 fuzzy results", count, count) + " / " + this.tr("no exact matches") + " (" + this.trn("%1 second", "%1 seconds", this.__duration, this.__duration) + ")");
+      } else {
+        this.sii.setValue(this.trn("%1 result", "%1 results", count, count) + " (" + this.trn("%1 second", "%1 seconds", this.__duration, this.__duration) + ")");
+      }
+    },
+
     showSearchResults : function(items, duration, fuzzy, query) {
       var i = items.length;
 
@@ -318,13 +328,9 @@ qx.Class.define("gosa.view.Search", {
       } else {
           this.searchResult.show();
       }
-
-      var d = Math.round(duration / 10) / 100;
-      if (fuzzy) {
-          this.sii.setValue(this.trn("%1 fuzzy result", "%1 fuzzy results", i, i) + " / " + this.tr("no exact matches") + " (" + this.trn("%1 second", "%1 seconds", d, d) + ")");
-      } else {
-          this.sii.setValue(this.trn("%1 result", "%1 results", i, i) + " (" + this.trn("%1 second", "%1 seconds", d, d) + ")");
-      }
+      this.__duration = Math.round(duration / 10) / 100;
+      this.__fuzzy = fuzzy;
+      this.__updateResultInfo(i);
 
       var model = [];
       var _categories = {};
@@ -335,15 +341,54 @@ qx.Class.define("gosa.view.Search", {
         this.__selection = tmp;
       }
 
-
+      var secondaryCount = 0;
+      var modifiedCounters = {
+        "hour" : 0,
+        "day": 0,
+        "week": 0,
+        "month": 0,
+        "year": 0
+      };
       for (i = 0; i<items.length; i++) {
         var item = new gosa.data.model.SearchResultItem();
         item = this.__fillSearchListItem(item, items[i]);
         model.push(item);
 
+        var modifiedDelta = this.__now - item.getLastChanged().toTimeStamp();
+        if (modifiedDelta <= 3600) {
+          modifiedCounters.hour++;
+          modifiedCounters.day++;
+          modifiedCounters.week++;
+          modifiedCounters.month++;
+          modifiedCounters.year++;
+        } else if (modifiedDelta <= 3600*24) {
+          modifiedCounters.day++;
+          modifiedCounters.week++;
+          modifiedCounters.month++;
+          modifiedCounters.year++;
+        } else if (modifiedDelta <= 3600*24*7) {
+          modifiedCounters.week++;
+          modifiedCounters.month++;
+          modifiedCounters.year++;
+        } else if (modifiedDelta <= 3600*24*7*31) {
+          modifiedCounters.month++;
+          modifiedCounters.year++;
+        } else if (modifiedDelta <= 3600*24*7*365) {
+          modifiedCounters.year++;
+        }
+
         // Update categories
         if (!_categories[items[i].tag]) {
-            _categories[items[i].tag] = this["tr"](gosa.Cache.objectCategories[items[i].tag]);  // jshint ignore:line
+            _categories[items[i].tag] = {
+              name: this["tr"](gosa.Cache.objectCategories[items[i].tag]),
+              count: 1
+            };  // jshint ignore:line
+        } else {
+          _categories[items[i].tag].count++;
+        }
+
+        if (items[i].secondary === true) {
+          secondaryCount++;
         }
       }
 
@@ -351,14 +396,18 @@ qx.Class.define("gosa.view.Search", {
       this._categories = _categories;
 
       // Pseudo sort categories
-      var categories = {"all" : this.tr("All")};
+      var categories = {"all" : {
+        name : this.tr("All"),
+        count: items.length
+      }
+      };
       tmp = [];
       for (i in _categories) {
         tmp.push([i, _categories[i]]);
       }
       tmp.sort(function(a, b) {
-        a = a[1];
-        b = b[1];
+        a = a[1].name;
+        b = b[1].name;
         return a < b ? -1 : (a > b ? 1 : 0);
       });
       for (i = 0; i<tmp.length; i++) {
@@ -367,7 +416,6 @@ qx.Class.define("gosa.view.Search", {
 
       // Update model
       var data = new qx.data.Array(model);
-      data.sort(this.__sortByRelevance);
       this.resultList.setModel(data);
 
       // Update categories
@@ -380,17 +428,17 @@ qx.Class.define("gosa.view.Search", {
             categories, this.__selection.category);
 
         this.searchAid.addFilter(this.tr("Secondary search"), "secondary", {
-            "enabled": this.tr("Enabled"),
-            "disabled": this.tr("Disabled")
+            "enabled": { name: this.tr("Enabled"), count: items.length },
+            "disabled": { name: this.tr("Disabled"), count: (items.length - secondaryCount) }
         }, this.__selection.secondary);
 
         this.searchAid.addFilter(this.tr("Last modification"), "mod-time", {
-            "all": this.tr("All"),
-            "hour": this.tr("Last hour"),
-            "day": this.tr("Last 24 hours"),
-            "week": this.tr("Last week"),
-            "month": this.tr("Last month"),
-            "year": this.tr("Last year")
+            "all": { name: this.tr("All"), count: items.length },
+            "hour": { name: this.tr("Last hour"), count: modifiedCounters.hour },
+            "day": { name: this.tr("Last 24 hours"), count: modifiedCounters.day },
+            "week": { name: this.tr("Last week"), count: modifiedCounters.week },
+            "month": { name: this.tr("Last month"), count: modifiedCounters.month },
+            "year": { name: this.tr("Last year"), count: modifiedCounters.year }
         }, this.__selection['mod-time']);
       }
     },
@@ -604,7 +652,6 @@ qx.Class.define("gosa.view.Search", {
       var item = new gosa.data.model.SearchResultItem();
       item = this.__fillSearchListItem(item, entry);
       model.push(item);
-      model.sort(this.__sortByRelevance);
       this.resultList.setModel(model);
 
       // Also add this result-item to the current result set,

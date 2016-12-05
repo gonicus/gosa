@@ -155,15 +155,18 @@ qx.Class.define("gosa.ui.SearchListItem", {
     },
 
     _applyIcon: function(value){
-      this._showChildControl("icon");
       var widget = this.getChildControl("icon");
-      if(widget && value){
-        widget.setSource(value);
+      if (value) {
+        new qx.util.DeferredCall(function() {
+          widget.setSource(value);
+        }, this).schedule();
+        this._showChildControl("icon");
+      } else {
+        this._excludeChildControl("icon");
       }
     },
 
     _applyDescription: function(value){
-      this._showChildControl("description");
       var widget = this.getChildControl("description");
       if(widget){
         widget.setValue(value);
@@ -171,7 +174,6 @@ qx.Class.define("gosa.ui.SearchListItem", {
     },
 
     _applyDn: function(value){
-      this._showChildControl("dn");
       var widget = this.getChildControl("dn");
       if(widget){
         widget.setValue(value);
@@ -228,30 +230,12 @@ qx.Class.define("gosa.ui.SearchListItem", {
 
         case "icon":
           control = new qx.ui.basic.Image();
-          this.bind("icon", control, "source", {
-            converter: function(data, model, source, target) {
-              if (data) {
-                if (data.indexOf("/") === 0 || data.indexOf("@") === 0) {
-                  return data;
-                } else {
-                  return gosa.Config.getImagePath("objects/" + data, 64);
-                }
-              } else {
-                return gosa.Config.getImagePath("objects/" + "null.png", 64);
-              }
-            }
-          });
-          control.setAnonymous(true); 
-
-          var container = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-          container.add(control, {top: 0, left:0, right:0, bottom:0});
-
-          this.getChildControl("container").add(container, {row: 0, column: 0, rowSpan: 3});
+          control.setAnonymous(true);
+          this.getChildControl("container").add(control, {row: 0, column: 0, rowSpan: 3});
           break;
 
         case "title":
           control = new qx.ui.basic.Label("");
-          this.bind("title", control, "value");
           this.getChildControl("container").add(control, {row: 0, column: 1});
           control.addListener("click", function(){
               this.fireDataEvent("edit", this.getModel());
@@ -261,7 +245,6 @@ qx.Class.define("gosa.ui.SearchListItem", {
 
         case "dn":
           control = new qx.ui.basic.Label("");
-          this.bind("dn", control, "value");
           this.getChildControl("container").add(control, {row: 1, column: 1});
           control.setAnonymous(true); 
           control.setSelectable(true);
@@ -270,7 +253,6 @@ qx.Class.define("gosa.ui.SearchListItem", {
 
         case "description":
           control = new qx.ui.basic.Label("");
-          this.bind("description", control, "value");
           control.setAnonymous(true); 
           this.getChildControl("container").add(control, {row: 2, column: 1});
           control.setRich(true);
