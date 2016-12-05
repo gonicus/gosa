@@ -281,7 +281,11 @@ qx.Class.define("gosa.view.Search", {
       var startTime = new Date().getTime();
 
       // Try ordinary search
-      return rpc.cA("search", base, "sub", query, this.__default_selection)
+      new qx.util.DeferredCall(this.dispose, this).schedule();
+      if (this.__searchPromise) {
+        this.__searchPromise.cancel();
+      }
+      return this.__searchPromise = rpc.cA("search", base, "sub", query, this.__default_selection)
       .then(function(result) {
         var endTime = new Date().getTime();
 
@@ -299,7 +303,7 @@ qx.Class.define("gosa.view.Search", {
         d.open();
       }, this)
       .finally(function() {
-        if (!noListUpdate) {
+        if (!noListUpdate && !this.isDisposed()) {
           this.hideSpinner();
         }
       }, this);
@@ -539,7 +543,10 @@ qx.Class.define("gosa.view.Search", {
 
       // Once an event was catched, start a new query, but do not show
       // the result in the list, instead just return it.
-      this.doSearch(true).then(function(result) {
+      if (this.__searchPromise) {
+        this.__searchPromise.cancel();
+      }
+      this.__searchPromise = this.doSearch(true).then(function(result) {
 
           // Check for differences between the currently active result-set
           // and the fetched one.
@@ -743,5 +750,17 @@ qx.Class.define("gosa.view.Search", {
       item.setIcon(icon);
       return(item);
     }
+  },
+
+  /*
+  *****************************************************************************
+     DESTRUCTOR
+  *****************************************************************************
+  */
+  destruct : function() {
+   if (this.__searchPromise) {
+     this.__searchPromise.cancel();
+     this.__searchPromise = null;
+   }
   }
 });
