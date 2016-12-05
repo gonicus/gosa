@@ -378,7 +378,6 @@ qx.Theme.define("gosa.theme.Appearance",
     "gosa-workflow-item": {
 
       style: function(states) {
-        console.log(states);
         return {
           show: "both",
           icon: "@Ligature/app",
