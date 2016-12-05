@@ -281,7 +281,6 @@ qx.Class.define("gosa.view.Search", {
       var startTime = new Date().getTime();
 
       // Try ordinary search
-      new qx.util.DeferredCall(this.dispose, this).schedule();
       if (this.__searchPromise) {
         this.__searchPromise.cancel();
       }
