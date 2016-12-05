@@ -151,6 +151,8 @@ qx.Class.define("gosa.view.Tree",
               return new qx.ui.table.columnmodel.Resize(obj);
             }
           };
+          // Add the context menu mixin to the Table class
+          qx.Class.include(qx.ui.table.Table, qx.ui.table.MTableContextMenu);
           var table = new qx.ui.table.Table(tableModel, customModel);
           this.getChildControl("listcontainer").add(table, {flex: 1});
           table.addListener('dblclick', function(){
@@ -170,6 +172,10 @@ qx.Class.define("gosa.view.Tree",
             }
           }, this);
 
+          table.setContextMenuHandler(0, this._contextMenuHandlerRow, this);
+          table.setContextMenuHandler(1, this._contextMenuHandlerRow, this);
+          table.setContextMenuHandler(2, this._contextMenuHandlerRow, this);
+
           table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
           var tcm = table.getTableColumnModel();
           var resizeBehavior = tcm.getBehavior();
@@ -187,6 +193,42 @@ qx.Class.define("gosa.view.Tree",
       }
 
       return control || this.base(arguments, id, hash);
+    },
+
+    /**
+     * Context menu handler for a right-click in a row.
+     *
+     * @param col {Integer}
+     *   The number of the column in which the right click was issued.
+     *
+     * @param row {Integer}
+     *   The number of the row in which the right click was issued
+     *
+     * @param table {qx.ui.table.Table}
+     *   The table in which the right click was issued
+     *
+     * @param dataModel {qx.ui.table.model.Simple}
+     *   Complete data model of the table
+     *
+     * @param contextMenu {qx.ui.menu.Menu}
+     *   Menu in which buttons can be added to implement this context menu.
+     */
+    _contextMenuHandlerRow: function(col,
+                                     row,
+                                     table,
+                                     dataModel,
+                                     contextMenu) {
+      var actionButton = new qx.ui.menu.Button(this.tr("Action"));
+      actionButton.setMenu(this.getChildControl("action-menu"));
+      contextMenu.add(actionButton);
+      var createButton = new qx.ui.menu.Button(this.tr("Create"));
+      createButton.setMenu(this.getChildControl("create-menu"));
+      contextMenu.add(createButton);
+      var filterButton = new qx.ui.menu.Button(this.tr("Show"));
+      filterButton.setMenu(this.getChildControl("filter-menu"));
+      contextMenu.add(filterButton);
+
+      return true;
     },
 
     __applyTreeDelegate : function(tree) {
