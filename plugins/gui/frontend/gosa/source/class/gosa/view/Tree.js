@@ -415,7 +415,8 @@ qx.Class.define("gosa.view.Tree", {
           threshold: 0.4,
           tokenize: true,
           keys: [
-            "title"
+            "title",
+            "description"
           ]
         };
         var fuse = new Fuse(filtered.toArray(), options);
