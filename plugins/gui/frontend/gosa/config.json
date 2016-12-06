@@ -132,6 +132,9 @@
         },
         {
           "uri" : "resource/gosa/js/u2f-api.js"
+        },
+        {
+          "uri" : "resource/gosa/js/Fuse.js"
         }
       ],
       "copy-files" :
@@ -181,6 +184,9 @@
         },
         {
           "uri" : "resource/gosa/js/u2f-api.js"
+        },
+        {
+          "uri" : "resource/gosa/js/Fuse.js"
         }
       ]
     },

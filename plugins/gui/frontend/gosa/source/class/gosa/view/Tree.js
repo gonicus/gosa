@@ -12,14 +12,10 @@
 
 ======================================================================== */
 
-/* ************************************************************************
-
-#asset(gosa/*)
-
-************************************************************************ */
-
-qx.Class.define("gosa.view.Tree",
-{
+/**
+* @ignore(Fuse)
+*/
+qx.Class.define("gosa.view.Tree", {
   extend : qx.ui.tabview.Page,
   type: "singleton",
 
@@ -414,11 +410,21 @@ qx.Class.define("gosa.view.Tree",
       }
       var searchValue = this.getChildControl("search-field").getValue();
       if (searchValue && searchValue.length > 2) {
-        filtered = filtered.filter(function(row) {
-          return qx.lang.String.contains(row.title, searchValue);
-        });
+        var options = {
+          shouldSort: true,
+          threshold: 0.4,
+          tokenize: true,
+          keys: [
+            "title"
+          ]
+        };
+        var fuse = new Fuse(filtered.toArray(), options);
+        filtered = fuse.search(searchValue);
+        this._tableModel.setDataAsMapArray(filtered);
+      } else {
+        this._tableModel.setDataAsMapArray(filtered.toArray());
       }
-      this._tableModel.setDataAsMapArray(filtered.toArray());
+
     }
   },
 
