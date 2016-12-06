@@ -137,7 +137,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
           }
           else {  // attributes of object
             var value = context.getAttributeValue(arg);
-            args.push(value && value.getLenth() > 0 ? value.getItem(0) : null);
+            args.push(value && value.getLength() > 0 ? value.getItem(0) : null);
           }
         });
 
