@@ -15,7 +15,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
         // collect templates
         var templates = [];
         var addTemplates = function(name) {
-          qx.lang.Array.append(templates, gosa.util.Template.getTemplateObjects(name, obj.baseType));
+          qx.lang.Array.append(templates, gosa.util.Template.getTemplateObjects(name));
         };
 
         addTemplates(obj.baseType);
