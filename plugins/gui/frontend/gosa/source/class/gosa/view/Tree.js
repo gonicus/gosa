@@ -31,6 +31,7 @@ qx.Class.define("gosa.view.Tree",
     this.setLayout(new qx.ui.layout.Canvas());
     this.addListenerOnce("appear", this.load, this);
     this._rpc = gosa.io.Rpc.getInstance();
+    this._objectRights = {};
 
     gosa.io.Sse.getInstance().addListener("objectRemoved", this.__reloadTree, this);
     gosa.io.Sse.getInstance().addListener("objectCreated", this.__reloadTree, this);
@@ -50,7 +51,7 @@ qx.Class.define("gosa.view.Tree",
   },
 
   members : {
-
+    _objectRights : null,
     _rpc : null,
     _tableData : null,
 
@@ -130,6 +131,12 @@ qx.Class.define("gosa.view.Tree",
           control = new qx.ui.menu.Menu();
           break;
         
+        case "open-button":
+          control = new qx.ui.menu.Button(this.tr("Open"), "@Ligature/view");
+          control.setEnabled(false);
+          control.addListener("execute", this._onOpenObject, this);
+          break;
+
         case "delete-button":
           control = new qx.ui.menu.Button(this.tr("Delete"), "@Ligature/trash");
           control.setEnabled(false);
@@ -137,7 +144,8 @@ qx.Class.define("gosa.view.Tree",
           break;
         
         case "action-menu":
-          control = new qx.ui.menu.Menu();          
+          control = new qx.ui.menu.Menu();
+          control.add(this.getChildControl("open-button"));
           control.add(this.getChildControl("delete-button"));
           break;
 
@@ -161,22 +169,13 @@ qx.Class.define("gosa.view.Tree",
             }, this);
           }, this);
 
-          table.getSelectionModel().addListener("changeSelection", function() {
-            if (table.getSelectionModel().getSelectedCount() > 0) {
-              table.getSelectionModel().iterateSelection(function(index) {
-                var selection = tableModel.getRowData(index);
-                this.getChildControl("delete-button").setEnabled(qx.lang.Array.contains(selection[4], "d"));
-              }, this);
-            } else {
-              this.getChildControl("delete-button").setEnabled(false);
-            }
-          }, this);
+          table.getSelectionModel().addListener("changeSelection", this._onChangeSelection, this);
 
           table.setContextMenuHandler(0, this._contextMenuHandlerRow, this);
           table.setContextMenuHandler(1, this._contextMenuHandlerRow, this);
           table.setContextMenuHandler(2, this._contextMenuHandlerRow, this);
 
-          table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
+          table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
           var tcm = table.getTableColumnModel();
           var resizeBehavior = tcm.getBehavior();
           resizeBehavior.setWidth(0, 25);
@@ -231,6 +230,25 @@ qx.Class.define("gosa.view.Tree",
       return true;
     },
 
+    _onChangeSelection: function(ev) {
+      var selectionModel = ev.getTarget();
+
+      if (selectionModel.getSelectedCount() > 0) {
+        var canOpen = true;
+        var canDelete = true;
+        selectionModel.iterateSelection(function(index) {
+          var selection = this._tableModel.getRowData(index);
+          canOpen = canOpen && qx.lang.Array.contains(this._objectRights[selection[0]], "r");
+          canDelete = canDelete && qx.lang.Array.contains(this._objectRights[selection[0]], "d");
+        }, this);
+        this.getChildControl("open-button").setEnabled(canOpen);
+        this.getChildControl("delete-button").setEnabled(canDelete);
+      } else {
+        this.getChildControl("open-button").setEnabled(false);
+        this.getChildControl("delete-button").setEnabled(false);
+      }
+    },
+
     __applyTreeDelegate : function(tree) {
       // Special delegation handling
       var iconConverter = function(data, model) {
@@ -277,6 +295,7 @@ qx.Class.define("gosa.view.Tree",
         // load object types
         this._rpc.cA("getAllowedSubElementsForObjectWithActions", selection.getType())
         .then(function(result) {
+          this._objectRights = result;
           this.getChildControl("create-menu").removeAll();
           this.getChildControl("filter-menu").removeAll();
           var visibleTypes = {};
@@ -366,7 +385,14 @@ qx.Class.define("gosa.view.Tree",
     _onDeleteObject : function() {
       // get currently selected dn in tree
       this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
-        gosa.view.Search.getInstance().removeObject(this.getChildControl("table").getTableModel().getRowData(index)[5]);
+        gosa.view.Search.getInstance().removeObject(this._tableModel.getRowData(index)[3]);
+      }, this);
+    },
+
+    _onOpenObject : function() {
+      // get currently selected dn in tree
+      this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
+        gosa.view.Search.getInstance().openObject(this._tableModel.getRowData(index)[3]);
       }, this);
     },
 
