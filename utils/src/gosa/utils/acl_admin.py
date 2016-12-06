@@ -452,6 +452,7 @@ class ACLAdmin(object):
         # Check if we've to add the Acl-extension
         ext_types = obj.get_extension_types()
         if not "Acl" in ext_types:
+            self.proxy.closeObject(str(obj))
             print("the given object does not support Acls")
             return
        
@@ -465,6 +466,7 @@ class ACLAdmin(object):
         asets.append(acl_entry)
         obj.AclSets = asets
         obj.commit()
+        self.proxy.closeObject(str(obj))
 
     @helpDecorator(_("Adds a new acl entry to an existing role"), _("add roleacl [with-role|with-actions] <dn> <priority> [rolename|<scope> <topic> <acls> [options]]"))
     def add_roleacl(self, args):
@@ -505,6 +507,8 @@ class ACLAdmin(object):
             obj.commit()
         except:
             print("The given DN seems not to be an acl-role!")
+        finally:
+            self.proxy.closeObject(str(obj))
 
 
     @helpDecorator(_("Adds a new role"), _("add role <base> <rolename>"))
@@ -531,6 +535,7 @@ class ACLAdmin(object):
 
         obj.name = rolename
         obj.commit()
+        self.proxy.closeObject(str(obj))
 
     @helpDecorator(_("Removes all acl entries from a role"), _("remove roleacl <DN>"))
     def remove_roleacls(self, args):
@@ -546,6 +551,7 @@ class ACLAdmin(object):
 
         obj.AclRoles = []
         obj.commit()
+        self.proxy.closeObject(str(obj))
 
     @helpDecorator(_("Removes all acl entries for a given base"), _("remove roleacl <BASE>"))
     def remove_acls(self, args):
@@ -569,17 +575,20 @@ class ACLAdmin(object):
         # Check if we've to add the Acl-extension
         ext_types = obj.get_extension_types()
         if not "Acl" in ext_types:
+            self.proxy.closeObject(str(obj))
             print("the given object does not support Acls")
             return
        
         # Add Acl-extension on demand
         if not ext_types["Acl"]:
+            self.proxy.closeObject(str(obj))
             print("the acl-extension is not activated for the given object!")
             return
 
         # Retract the acl extension
         obj.retract("Acl")
         obj.commit()
+        self.proxy.closeObject(str(obj))
 
 
     @helpDecorator(_("Removes a role"), _("remove role <DN>"))
@@ -601,6 +610,7 @@ class ACLAdmin(object):
         #    return
 
         obj.remove()
+        self.proxy.closeObject(str(obj))
 
     @helpDecorator(_("List all defined acls"))
     def list(self, args):
