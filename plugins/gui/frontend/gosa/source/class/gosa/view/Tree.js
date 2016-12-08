@@ -78,7 +78,7 @@ qx.Class.define("gosa.view.Tree", {
 
         // Create the action-bar for the list panel
         case "listcontainer":
-          control = new qx.ui.container.Composite(new qx.ui.layout.VBox(5));
+          control = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
           control.add(this.getChildControl("toolbar"));
           this.getChildControl("splitpane").add(control, 2);
           break;
@@ -158,12 +158,8 @@ qx.Class.define("gosa.view.Tree", {
           // Add the context menu mixin to the Table class
           qx.Class.include(qx.ui.table.Table, qx.ui.table.MTableContextMenu);
           var table = new qx.ui.table.Table(tableModel, customModel);
-          this.getChildControl("listcontainer").add(table, {flex: 1});
-          table.addListener('dblclick', function(){
-            table.getSelectionModel().iterateSelection(function(index) {
-              gosa.ui.controller.Objects.getInstance().openObject(tableModel.getRowData(index)[3]);
-            }, this);
-          }, this);
+          this.getChildControl("listcontainer").add(table, {edge: 5});
+          table.addListener('dblclick', this._onOpenObject, this);
 
           table.getSelectionModel().addListener("changeSelection", this._onChangeSelection, this);
 
@@ -183,6 +179,13 @@ qx.Class.define("gosa.view.Tree", {
           tcm.setDataCellRenderer(0, new gosa.ui.table.cellrenderer.ImageByType());
 
           control = table;
+          break;
+
+        case "spinner":
+          control = new gosa.ui.Throbber();
+          control.exclude();
+          control.setZIndex(10000);
+          this.getChildControl("listcontainer").add(control, {edge: 5});
           break;
 
       }
@@ -387,9 +390,18 @@ qx.Class.define("gosa.view.Tree", {
 
     _onOpenObject : function() {
       // get currently selected dn in tree
-      this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
-        gosa.ui.controller.Objects.getInstance().openObject(this._tableModel.getRowData(index)[3]);
-      }, this);
+      var selection = this.getChildControl("table").getSelectionModel();
+      if (selection.getSelectedCount() > 0) {
+        this.getChildControl("spinner").show();
+        var promises = [];
+        selection.iterateSelection(function(index) {
+          var row = this._tableModel.getRowData(index);
+          promises.push(gosa.ui.controller.Objects.getInstance().openObject(row[3]));
+        }, this);
+        qx.Promise.all(promises).finally(function() {
+          this.getChildControl("spinner").exclude();
+        }, this);
+      }
     },
 
     _applyFilter : function() {
