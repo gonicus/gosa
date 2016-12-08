@@ -73,13 +73,17 @@ qx.Class.define("gosa.view.Tree", {
 
         case "splitpane":
           control = new qx.ui.splitpane.Pane("horizontal");
-          this.add(control, { edge: 0 });
+          this.add(control, {edge : 0});
           break;
 
-        // Create the action-bar for the list panel
+      // Create the action-bar for the list panel
         case "listcontainer":
           control = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-          control.add(this.getChildControl("toolbar"));
+          control.add(this.getChildControl("toolbar"), {
+            top   : 0,
+            left  : 0,
+            right : 0
+          });
           this.getChildControl("splitpane").add(control, 2);
           break;
 
@@ -95,17 +99,17 @@ qx.Class.define("gosa.view.Tree", {
           control.add(menuPart2);
           control.add(menuPart);
           break;
-        
+
         case "create-menu-button":
           control = new qx.ui.toolbar.MenuButton(this.tr("Create"));
           control.setMenu(this.getChildControl("create-menu"));
           break;
-        
+
         case "filter-menu-button":
           control = new qx.ui.toolbar.MenuButton(this.tr("Show"));
           control.setMenu(this.getChildControl("filter-menu"));
           break;
-        
+
         case "action-menu-button":
           control = new qx.ui.toolbar.MenuButton(this.tr("Action"));
           control.setMenu(this.getChildControl("action-menu"));
@@ -113,8 +117,8 @@ qx.Class.define("gosa.view.Tree", {
 
         case "search-field":
           control = new qx.ui.form.TextField().set({
-            placeholder: this.tr("Search .."),
-            liveUpdate : true
+            placeholder : this.tr("Search .."),
+            liveUpdate  : true
           });
           control.addListener("changeValue", this._applyFilter, this);
           break;
@@ -126,7 +130,7 @@ qx.Class.define("gosa.view.Tree", {
         case "filter-menu":
           control = new qx.ui.menu.Menu();
           break;
-        
+
         case "open-button":
           control = new qx.ui.menu.Button(this.tr("Open"), "@Ligature/view");
           control.setEnabled(false);
@@ -138,7 +142,7 @@ qx.Class.define("gosa.view.Tree", {
           control.setEnabled(false);
           control.addListener("execute", this._onDeleteObject, this);
           break;
-        
+
         case "action-menu":
           control = new qx.ui.menu.Menu();
           control.add(this.getChildControl("open-button"));
@@ -148,17 +152,33 @@ qx.Class.define("gosa.view.Tree", {
         case "table":
           // Create the table
           var tableModel = this._tableModel = new qx.ui.table.model.Simple();
-          tableModel.setColumns([ "-", this.tr("Name"), this.tr("Description"), this.tr("DN"), this.tr("UUID")],
-                                ['type', 'title', 'description', 'dn', 'uuid']);
+          tableModel.setColumns(["-", this.tr("Name"), this.tr("Description"), this.tr("DN"), this.tr("UUID")], [
+            'type',
+            'title',
+            'description',
+            'dn',
+            'uuid'
+          ]);
           var customModel = {
-            tableColumnModel : function(obj){
+            tableColumnModel : function(obj) {
               return new qx.ui.table.columnmodel.Resize(obj);
             }
           };
           // Add the context menu mixin to the Table class
           qx.Class.include(qx.ui.table.Table, qx.ui.table.MTableContextMenu);
           var table = new qx.ui.table.Table(tableModel, customModel);
-          this.getChildControl("listcontainer").add(table, {edge: 5});
+          var toolbar = this.getChildControl("toolbar");
+          var getToolbarHeight = function() {
+            var bounds = toolbar.getBounds();
+            if (!bounds) {
+              toolbar.addListenerOnce("appear", getToolbarHeight);
+              return false;
+            }
+            table.setLayoutProperties({top: bounds.height, left: 0, bottom: 0, right: 0});
+            return true;
+          };
+          this.getChildControl("listcontainer").add(table, {edge: 0});
+          getToolbarHeight();
           table.addListener('dblclick', this._onOpenObject, this);
 
           table.getSelectionModel().addListener("changeSelection", this._onChangeSelection, this);
@@ -183,9 +203,9 @@ qx.Class.define("gosa.view.Tree", {
 
         case "spinner":
           control = new gosa.ui.Throbber();
+          control.addState("blocking");
           control.exclude();
-          control.setZIndex(10000);
-          this.getChildControl("listcontainer").add(control, {edge: 5});
+          this.getChildControl("listcontainer").add(control, {edge: 0});
           break;
 
       }

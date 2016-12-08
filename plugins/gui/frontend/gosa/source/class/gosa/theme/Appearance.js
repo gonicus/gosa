@@ -480,12 +480,14 @@ qx.Theme.define("gosa.theme.Appearance",
     },
 
     "gosa-spinner": {
-      style: function() {
+      style: function(states) {
         return {
           textColor: "icon-color",
-          opacity: 0.5,
+          backgroundColor: states.blocking ? "rgba(0,0,0,0.1)" : "transparent",
+          opacity : 0.5,
           show: "icon",
           size: 30,
+          zIndex: 10000,
           center: true
         };
       }
