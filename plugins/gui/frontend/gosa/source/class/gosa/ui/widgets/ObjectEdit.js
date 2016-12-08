@@ -99,21 +99,31 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     addTab : function(templateObj) {
       var tabPage = new qx.ui.tabview.Page();
       tabPage.setAppearance("edit-tabview-page");
-      tabPage.setLayout(new qx.ui.layout.VBox());
+      tabPage.setLayout(new qx.ui.layout.Grow());
+
+      // add a scroll container around the content
+      var scroll = new qx.ui.container.Scroll();
+      var desktopBounds = gosa.ui.controller.Objects.getInstance().getDesktop().getBounds();
+      scroll.setMaxHeight(desktopBounds.height - 100);
+      tabPage.add(scroll);
+      var tabContent = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+      scroll.add(tabContent);
 
       if (templateObj.extension !== this.getController().getBaseType()) {
         tabPage.setShowCloseButton(true);
 
         var closeButton = tabPage.getButton();
         closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
-        closeButton.addListener("close", function(event) {
+        closeButton.addListener("close", function() {
           this.getController().removeExtension(templateObj.extension);
         }, this);
       }
 
-      var context = new gosa.engine.Context(templateObj.template, tabPage, templateObj.extension, this.getController());
+      var context = new gosa.engine.Context(templateObj.template, tabContent, templateObj.extension, this.getController());
       this._contexts.push(context);
-      this._tabView.add(context.getRootWidget());
+      this._tabView.add(tabPage);
+
+      tabContent.bind("height", scroll, "height");
 
       // remove existing listeners on the tab page to prevent automatic closing
       var manager = qx.event.Registration.getManager(tabPage);

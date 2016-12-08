@@ -53,15 +53,18 @@ qx.Class.define("gosa.ui.controller.Objects", {
       }, this)
       .spread(function(obj, w) {
         win = new qx.ui.window.Window(qx.locale.Manager.tr("Object") + ": " + obj.dn);
+        var bounds = this._desktop.getBounds();
         win.set({
           width : 800,
           layout : new qx.ui.layout.Canvas(),
           showMinimize : true,
-          showClose : false
+          showClose : false,
+          maxHeight: bounds.height - 10,
+          allowGrowY: true
         });
         win.add(w, {edge: 0});
         this._windowController.addWindow(win, obj);
-        win.addListenerOnce("resize", function() {
+        win.addListenerOnce("resize", function(ev) {
           (new qx.util.DeferredCall(win.center, win)).schedule();
         }, this);
         win.open();
