@@ -230,9 +230,9 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
     // property apply
     _applyIconSize: function(size) {
       this.getChildControl("icon").set({
+        scale: true,
         width: size,
-        // height: size,
-        scale: true
+        height: size
       });
     }
   }

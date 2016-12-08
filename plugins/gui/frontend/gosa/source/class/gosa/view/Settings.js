@@ -29,5 +29,16 @@ qx.Class.define("gosa.view.Settings",
     this.base(arguments, "", "@Ligature/gear");
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.VBox(5));
+  },
+  /*
+   *****************************************************************************
+   PROPERTIES
+   *****************************************************************************
+   */
+  properties : {
+    appearance: {
+      refine: true,
+      init: "gosa-tabview-page"
+    }
   }
 });

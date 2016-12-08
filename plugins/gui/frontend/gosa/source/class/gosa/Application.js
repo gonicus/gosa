@@ -171,7 +171,7 @@ qx.Class.define("gosa.Application",
 
       var pluginView = this.__tabView = new qx.ui.tabview.TabView();
       pluginView.setBarPosition("left");
-      var desktop = gosa.ui.window.Desktop.getInstance();
+      var desktop = gosa.ui.controller.Objects.getInstance().getDesktop();
       desktop.add(pluginView, {edge: 0});
 
 

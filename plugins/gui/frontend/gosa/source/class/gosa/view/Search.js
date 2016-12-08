@@ -127,7 +127,7 @@ qx.Class.define("gosa.view.Search", {
           var item = new gosa.ui.SearchListItem();
           item.addListener("edit", function(e){
               item.setIsLoading(true);
-              this.openObject(e.getData().getDn())
+              gosa.ui.controller.Objects.getInstance().openObject(e.getData().getDn())
               .finally(function() {
                 item.setIsLoading(false);
               });
@@ -465,55 +465,6 @@ qx.Class.define("gosa.view.Search", {
       .catch(function(error) {
         new gosa.ui.dialogs.Error(this.tr("Cannot remove entry!")).open();
         this.error("cannot remove entry: " + error);
-      }, this);
-    },
-
-    /**
-     * Open the object given by its uuid/dn
-     */
-    openObject : function(dn, type) {
-      var win = null;
-      return gosa.proxy.ObjectFactory.openObject(dn, type)
-      .then(function(obj) {
-        // Build widget and place it into a window
-        return qx.Promise.all([
-          obj,
-          gosa.engine.WidgetFactory.createWidget(obj)
-        ]);
-      }, this)
-      .spread(function(obj, w) {
-        var doc = gosa.ui.window.Desktop.getInstance();
-        win = new qx.ui.window.Window(this.tr("Object") + ": " + obj.dn);
-        win.set({
-          width : 800,
-          layout : new qx.ui.layout.Canvas(),
-          showMinimize : true,
-          showClose : false
-        });
-        win.add(w, {edge: 0});
-        gosa.data.WindowController.getInstance().addWindow(win, obj);
-        win.addListenerOnce("resize", function() {
-          win.center();
-          (new qx.util.DeferredCall(win.center, win)).schedule();
-        }, this);
-        win.open();
-
-        w.addListener("close", function() {
-          gosa.data.WindowController.getInstance().removeWindow(win);
-          controller.dispose();
-          w.dispose();
-          doc.remove(win);
-          win.destroy();
-        });
-
-        // Position window as requested
-        doc.add(win);
-
-        var controller = new gosa.data.ObjectEditController(obj, w);
-        w.setController(controller);
-      }, this)
-      .catch(function(error) {
-        new gosa.ui.dialogs.Error(error.message).open();
       }, this);
     },
 

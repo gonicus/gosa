@@ -356,7 +356,7 @@ qx.Theme.define("gosa.theme.Appearance",
         }
       }
     },
-    "tree-view": "tabview-page",
+    "tree-view": "gosa-tabview-page",
     "tree-view/search-field": {
       include: "textfield",
       alias: "textfield",

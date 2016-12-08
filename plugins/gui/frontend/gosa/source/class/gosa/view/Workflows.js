@@ -34,6 +34,17 @@ qx.Class.define("gosa.view.Workflows",
 
     this.addListener("appear", this.__reload, this);
   },
+  /*
+   *****************************************************************************
+   PROPERTIES
+   *****************************************************************************
+   */
+  properties : {
+    appearance: {
+      refine: true,
+      init: "gosa-tabview-page"
+    }
+  },
 
   /*
   *****************************************************************************
@@ -66,77 +77,6 @@ qx.Class.define("gosa.view.Workflows",
       });
     },
 
-    startWorkflow: function(workflowItem) {
-      workflowItem.setLoading(true);
-      var win = null;
-      gosa.proxy.ObjectFactory.openWorkflow(workflowItem.getId())
-      .then(function(workflow) {
-        return qx.Promise.all([
-          workflow,
-          workflow.get_templates(),
-          workflow.get_translations(gosa.Config.getLocale())
-        ]);
-      }, this)
-      .spread(function(workflow, _templates, translations) {
-        var templates = new qx.data.Array(_templates.length);
-
-        var localeManager = qx.locale.Manager.getInstance();
-        for (var name in _templates) {
-          if (translations.hasOwnProperty(name)) {
-            // add translations to make them available before the template gets compiled
-            localeManager.addTranslation(gosa.Config.getLocale(), qx.lang.Json.parse(translations[name]));
-          }
-          if (_templates.hasOwnProperty(name)) {
-            templates.insertAt(parseInt(_templates[name]['index']), {
-              extension : name,
-              template  : gosa.util.Template.compileTemplate(_templates[name]['content'])
-            });
-          }
-        }
-
-        // Build widget and place it into a window
-        return qx.Promise.all([
-          workflow,
-          gosa.engine.WidgetFactory.createWorkflowWidget(workflow, templates, translations)
-        ]);
-      }, this)
-      .spread(function(workflow, widget) {
-        var doc = gosa.ui.window.Desktop.getInstance();
-        win = new qx.ui.window.Window(this.tr("Workflow"));
-        win.set({
-          width        : 800,
-          layout       : new qx.ui.layout.Canvas(),
-          showMinimize : false,
-          showClose    : false
-        });
-        win.add(widget, {edge : 0});
-        gosa.data.WindowController.getInstance().addWindow(win, workflowItem);
-        win.addListenerOnce("resize", function() {
-          win.center();
-          (new qx.util.DeferredCall(win.center, win)).schedule();
-        }, this);
-        win.open();
-
-        widget.addListener("close", function() {
-          gosa.data.WindowController.getInstance().removeWindow(win);
-          controller.dispose();
-          widget.dispose();
-          doc.remove(win);
-          win.destroy();
-        });
-
-        // Position window as requested
-        doc.add(win);
-
-        var controller = new gosa.data.ObjectEditController(workflow, widget);
-        widget.setController(controller);
-      }, this)
-      .catch(this.error, this)
-      .finally(function() {
-        workflowItem.setLoading(false);
-      });
-    },
-
     _createChildControlImpl: function(id) {
       var control;
 
@@ -161,9 +101,9 @@ qx.Class.define("gosa.view.Workflows",
 
         configureItem: function(item) {
           item.addListener("tap", function() {
-            this.startWorkflow(item);
-          }, this);
-        }.bind(this),
+            gosa.ui.controller.Objects.getInstance().startWorkflow(item);
+          });
+        },
 
         bindItem: function(controller, item , index) {
           controller.bindProperty("name", "label", null, item, index);

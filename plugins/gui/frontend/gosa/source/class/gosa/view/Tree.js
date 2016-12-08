@@ -161,7 +161,7 @@ qx.Class.define("gosa.view.Tree", {
           this.getChildControl("listcontainer").add(table, {flex: 1});
           table.addListener('dblclick', function(){
             table.getSelectionModel().iterateSelection(function(index) {
-              gosa.view.Search.getInstance().openObject(tableModel.getRowData(index)[3]);
+              gosa.ui.controller.Objects.getInstance().openObject(tableModel.getRowData(index)[3]);
             }, this);
           }, this);
 
@@ -375,20 +375,20 @@ qx.Class.define("gosa.view.Tree", {
 
       // get currently selected dn in tree
       var selection = this.getChildControl("tree").getSelection();
-      gosa.view.Search.getInstance().openObject(selection.getItem(0).getDn(), button.getUserData("type"));
+      gosa.ui.controller.Objects.getInstance().openObject(selection.getItem(0).getDn(), button.getUserData("type"));
     },
 
     _onDeleteObject : function() {
       // get currently selected dn in tree
       this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
-        gosa.view.Search.getInstance().removeObject(this._tableModel.getRowData(index)[3]);
+        gosa.ui.controller.Objects.getInstance().removeObject(this._tableModel.getRowData(index)[3]);
       }, this);
     },
 
     _onOpenObject : function() {
       // get currently selected dn in tree
       this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
-        gosa.view.Search.getInstance().openObject(this._tableModel.getRowData(index)[3]);
+        gosa.ui.controller.Objects.getInstance().openObject(this._tableModel.getRowData(index)[3]);
       }, this);
     },
 
