@@ -2,9 +2,6 @@
     "type": "widget",
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.Canvas",
-    "layoutConfig": {
-        "spacing": 5
-    },
     "extensions": {
         "resources": {
             "favicon": "images/locality.png"
