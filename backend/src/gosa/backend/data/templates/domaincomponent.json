@@ -2,9 +2,6 @@
     "type": "widget",
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.Canvas",
-    "layoutConfig": {
-        "spacing": 5
-    },
     "extensions": {
         "resources": {
             "favicon": "images/domaincomponent.png"
@@ -35,6 +32,15 @@
         }, {
             "class": "gosa.ui.widgets.QLineEditWidget",
             "modelPath": "dc"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "description",
+            "properties": {
+                "text": "tr('Description')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "description"
         }]
     }]
 }
