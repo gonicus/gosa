@@ -77,6 +77,10 @@ qx.Class.define("gosa.ui.controller.Objects", {
           win.destroy();
         }, this);
 
+        w.addListener("timeoutClose", function() {
+          this._windowController.removeWindow(win);
+        }, this);
+
         // Position window as requested
         this._desktop.add(win);
 
@@ -125,11 +129,14 @@ qx.Class.define("gosa.ui.controller.Objects", {
       }, this)
       .spread(function(workflow, widget) {
         win = new qx.ui.window.Window(qx.locale.Manager.tr("Workflow"));
+        var bounds = this._desktop.getBounds();
         win.set({
           width        : 800,
           layout       : new qx.ui.layout.Canvas(),
           showMinimize : false,
-          showClose    : false
+          showClose    : false,
+          maxHeight: bounds.height - 10,
+          allowGrowY: true
         });
         win.add(widget, {edge : 0});
         this._windowController.addWindow(win, workflowItem);

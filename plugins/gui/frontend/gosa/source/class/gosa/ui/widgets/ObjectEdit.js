@@ -40,6 +40,11 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     "close" : "qx.event.type.Event",
 
     /**
+     * Fired when the edited object gets closed by the backend due to an inactivity timeout
+     */
+    "timeoutClose": "qx.event.type.Event",
+
+    /**
      * Fired when a context was added. Data is the context object (of type {@link gosa.engine.Context}).
      */
     "contextAdded": "qx.event.type.Data"
@@ -145,10 +150,13 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     onClosing : function(dn, minutes) {
       qx.core.Assert.assertPositiveInteger(minutes);
 
+      // cleanup old dialogs
+      this.closeClosingDialog();
+
       this._closingDialog = new gosa.ui.dialogs.ClosingObject(dn, minutes * 60);
 
       this._closingDialog.addListener("closeObject", function() {
-        this.onClosingAborted();
+        this.closeClosingDialog();
         this.getController().closeObject();
         this._close();
       }, this);
@@ -160,9 +168,9 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     /**
-     * Call when the automatic closing process is aborted.
+     * Closes the closing dialog if there is one.
      */
-    onClosingAborted: function () {
+    closeClosingDialog : function () {
       if (this._closingDialog) {
         this._closingDialog.close();
         this._closingDialog = null;
@@ -173,9 +181,10 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
      * Call when the object was closed due to inactivity.
      */
     onClosed : function() {
-      this.onClosingAborted();
+      this.closeClosingDialog();
       new gosa.ui.dialogs.Info(this.tr("This object has been closed due to inactivity!")).open();
       this._getParentWindow().close();  // don't fire close event
+      this.fireEvent("timeoutClose"); // fire special close event (needed to let the WindowController know whats going on)
     },
 
     _applyController : function(value, old) {
@@ -444,6 +453,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _close : function() {
+      this.closeClosingDialog();
       this._getParentWindow().close();
       this.fireEvent("close");
     },

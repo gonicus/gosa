@@ -214,7 +214,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
           this._widget.onClosing(this._obj.dn, parseInt(data.minutes));
           break;
         case "closing_aborted":
-          this._widget.onClosingAborted();
+          this._widget.closeClosingDialog();
           break;
         case "closed":
           this._widget.onClosed();
