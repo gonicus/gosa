@@ -84,7 +84,8 @@ setup(
         'paho-mqtt',
         'pyotp',
         'pyqrcode',
-        'python-u2flib-server'
+        'python-u2flib-server',
+        'pycountry'
         ],
 
     entry_points = """

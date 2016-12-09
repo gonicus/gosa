@@ -545,7 +545,7 @@ class Object(object):
             if not base_type:
                 raise ObjectException(C.make_error('OBJECT_MODE_BASE_AVAILABLE', mode=self._mode))
 
-            if self.__class__.__name__ not in self._objectFactory.getAllowedSubElementsForObject(base_type):
+            if self.__class__.__name__ not in self._objectFactory.getAllowedSubElementsForObject(base_type, includeInvisible=True):
                 raise ObjectException(C.make_error('OBJECT_NOT_SUB_FOR',
                     ext=self.__class__.__name__,
                     base=base_type))

@@ -298,7 +298,7 @@ class ObjectFactory(object):
 
         return res
 
-    def getAllowedSubElementsForObject(self, objectType):
+    def getAllowedSubElementsForObject(self, objectType, includeInvisible=False):
         """
         Returns a list of objects that can be stored as sub-objects for the given object.
         """
@@ -316,6 +316,8 @@ class ObjectFactory(object):
                 if attr.text in self.__object_types and self.__object_types[attr.text]['base']:
                     if self.__object_types[attr.text]['invisible']:
                         # look deeper
+                        if includeInvisible:
+                            res.append(attr.text)
                         res.extend(self.getAllowedSubElementsForObject(attr.text))
                     else:
                         res.append(attr.text)

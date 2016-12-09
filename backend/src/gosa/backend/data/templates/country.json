@@ -30,8 +30,20 @@
                 "text": "tr('Name')"
             }
         }, {
+            "class": "gosa.ui.widgets.QComboBoxWidget",
+            "modelPath": "c",
+            "properties": {
+                "sortBy": "value"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "description",
+            "properties": {
+                "text": "tr('Description')"
+            }
+        }, {
             "class": "gosa.ui.widgets.QLineEditWidget",
-            "modelPath": "c"
+            "modelPath": "description"
         }]
     }]
 }

@@ -460,6 +460,9 @@ class JSONRPCObjectMapper(Plugin):
 
         for ref, item in list(self.__stack.items()):
             uuid = item['object']['uuid']
+            if uuid is None:
+                # new items without uuid do not need to be closed by timeout
+                continue
             last_interaction_time = item['last_interaction'] if 'last_interaction' in item else item['created']
             if last_interaction_time < ten_minutes_ago:
                 if 'mark_for_deletion' in item:

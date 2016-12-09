@@ -27,11 +27,20 @@
             "class": "gosa.ui.widgets.QLabelWidget",
             "buddyModelPath": "l",
             "properties": {
-                "text": "tr('Name')"
+                "text": "tr('Locality name')"
             }
         }, {
             "class": "gosa.ui.widgets.QLineEditWidget",
             "modelPath": "l"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "description",
+            "properties": {
+                "text": "tr('Description')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "description"
         }]
     }]
 }

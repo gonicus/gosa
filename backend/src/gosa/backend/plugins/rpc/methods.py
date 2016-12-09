@@ -254,7 +254,10 @@ class RPCMethods(Plugin):
         if len(item) == 1:
             item = item[0]
         else:
-            return
+            return None
+
+        if item['_type'] not in self.__search_aid['mapping']:
+            return None
 
         entry = {'tag': item['_type']}
         for k, v in self.__search_aid['mapping'][item['_type']].items():

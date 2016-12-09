@@ -16,9 +16,9 @@
     <Attributes>
       <Attribute>
         <Name>c</Name>
-        <Description>Country name</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>false</MultiValue>
+        <Description>Country ISO code</Description>
+        <Type>String</Type>
+        <Values populate="getCountryList"/>
         <Mandatory>true</Mandatory>
       </Attribute>
       <Attribute>

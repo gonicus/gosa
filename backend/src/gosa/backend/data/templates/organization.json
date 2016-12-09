@@ -27,7 +27,7 @@
             "class": "gosa.ui.widgets.QLabelWidget",
             "buddyModelPath": "o",
             "properties": {
-                "text": "tr('Name')"
+                "text": "tr('Organization name')"
             }
         }, {
             "class": "gosa.ui.widgets.QLineEditWidget",
