@@ -53,6 +53,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
 
       // Add the form items
       var password = this._password = new qx.ui.form.PasswordField();
+      password.setLiveUpdate(true);
       password.setRequired(true);
       password.setWidth(200);
 
