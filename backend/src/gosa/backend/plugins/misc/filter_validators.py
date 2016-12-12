@@ -43,6 +43,9 @@ class IsExistingDN(ElementComparator):
         errors = []
         index = PluginRegistry.getInstance("ObjectIndex")
         for dn in value:
+            if dn not in all_props[key]['value']:
+                # do not check existing values
+                continue
             if not len(index.search({'dn': dn}, {'dn': 1})):
                 errors.append(dict(index=value.index(dn),
                     detail=N_("DN '%(dn)s' does not exist"),
