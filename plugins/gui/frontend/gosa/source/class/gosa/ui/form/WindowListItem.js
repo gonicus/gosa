@@ -38,6 +38,10 @@ qx.Class.define("gosa.ui.form.WindowListItem", {
         if (object instanceof gosa.ui.form.WorkflowItem) {
           object.bind("label", this, "label");
           object.bind("icon", this, "icon");
+        } else if (!object.uuid) {
+          // new object
+          this.setLabel(object.baseType+"*");
+          this.setIcon(gosa.util.Icons.getIconByType(object.baseType, 22));
         } else {
           // we need to break out of the property apply chain to allow promises to be used
           // otherwise we get a warning about a created but not returned promise
