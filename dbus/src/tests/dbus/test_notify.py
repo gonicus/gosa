@@ -22,8 +22,11 @@ class NotifyTestCase(TestCase):
         assert notify.send("title", "message", None) == RETURN_ABORTED
         assert notify.send("title", "message", "unknown_session") == RETURN_ABORTED
 
-        res = notify.send("Title", "Message", "unix:abstract=/tmp/dbus-4G8ZUWpvcY")
-        m_service.return_value.Notify.assert_called_with("Gosa Client", 0, "", "Title", "Message", [], {}, 5000)
+        with mock.patch("gosa.dbus.notify.dbus.connection.Connection._new_for_bus") as m_bus:
+            m_bus.return_value = mock.MagicMock()
+
+            notify.send("Title", "Message", "unix:abstract=/tmp/dbus-4G8ZUWpvcY")
+            m_service.return_value.Notify.assert_called_with("Gosa Client", 0, "", "Title", "Message", [], {}, 5000)
 
         del notify
 
