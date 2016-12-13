@@ -332,9 +332,9 @@ qx.Class.define("gosa.view.Tree", {
               button.addListener("execute", this._onCreateObject, this);
             }
             if (visibleTypes[name] && allowed.includes("r")) {
-              //var icon = gosa.util.Icons.getIconByType(name, 22);
               var button = new qx.ui.menu.CheckBox(name);
-              //button.setAppearance("icon-menu-button");
+              // initially they are all selected
+              button.setValue(true);
               button.setUserData("type", name);
               this.getChildControl("filter-menu").add(button);
               button.addListener("execute", this._applyFilter, this);
