@@ -238,6 +238,7 @@ class ACLSet(list):
 
         # Sort Acl items by id
         self.sort(key=lambda item: (item.priority * 1))
+        PluginRegistry.getInstance("ACLResolver").check.cache_clear()
 
     def __str__(self):
         return self.repr_self()
@@ -897,6 +898,9 @@ class CacheCheck:
             self.memoized[key] = self.function(self._instance, user, topic, acls, options, base)
             return self.memoized[key]
 
+    def cache_clear(self):
+        self.memoized = {}
+
 
 @implementer(IInterfaceHandler)
 class ACLResolver(Plugin):
@@ -1171,6 +1175,7 @@ class ACLResolver(Plugin):
         """
         if not self.aclset_exists_by_base(acl.base):
             self.acl_sets.append(acl)
+            self.check.cache_clear()
         else:
             for item in acl:
                 self.add_acl_to_set(acl.base, item)
@@ -1191,7 +1196,7 @@ class ACLResolver(Plugin):
         else:
             aclset = self.get_aclset_by_base(base)
             aclset.add(acl)
-
+            self.check.cache_clear()
         return True
 
     def add_acl_to_role(self, rolename, acl):
@@ -1213,7 +1218,7 @@ class ACLResolver(Plugin):
             raise ACLException(C.make_error("ROLE_NOT_FOUND", role=rolename))
         else:
             self.acl_roles[rolename].add(acl)
-
+            self.check.cache_clear()
         return True
 
     def add_acl_role(self, role):
@@ -1227,6 +1232,7 @@ class ACLResolver(Plugin):
         ============== =============
         """
         self.acl_roles[role.name] = role
+        self.check.cache_clear()
 
     @CacheCheck
     def check(self, user, topic, acls, options=None, base=None):
@@ -1422,6 +1428,7 @@ class ACLResolver(Plugin):
         # Send a message if there were no ACLSets for the given base
         if  not found:
             raise ACLException(C.make_error("ACL_NOT_FOUND_ON_BASE", base=base))
+        self.check.cache_clear()
 
     def remove_role(self, name):
         """
@@ -1448,6 +1455,7 @@ class ACLResolver(Plugin):
                 raise ACLException(C.make_error("ROLE_IN_USE", role=name))
             else:
                 del(self.acl_roles[name])
+                self.check.cache_clear()
                 return True
         else:
             raise ACLException(C.make_error("ROLE_NOT_FOUND", role=name))
@@ -1469,6 +1477,7 @@ class ACLResolver(Plugin):
         for aclset in self.acl_sets:
             if aclset.base == base:
                 aclset.add(acl)
+                self.check.cache_clear()
 
     def remove_acls_for_user(self, user):
         """
@@ -1497,6 +1506,7 @@ class ACLResolver(Plugin):
         """
         for aclset in self.acl_sets:
             aclset.remove_acls_for_user(user)
+            self.check.cache_clear()
 
     def _get_base(self, base, bases):
         c = []
@@ -1599,7 +1609,7 @@ class ACLResolver(Plugin):
                                             ))
 
                                     for entry in entries:
-                                        if self.check(user, "%s.objects.%s" % (self.env.base, entries['_type']), "rs", entry['dn']):
+                                        if self.check(user, "%s.objects.%s" % (self.env.base, entries['_type']), "rs", None, entry['dn']):
                                             # Ok. Seems to be a candidate. Check for [P]?SUB/RESET
                                             s_base = self._get_base(entry['dn'], sub_bases.keys())
                                             if s_base:
@@ -1619,7 +1629,7 @@ class ACLResolver(Plugin):
         if user in self.admins:
             return check
 
-        result = [x for x in check if self.check(user, topic, x, base=base)]
+        result = [x for x in check if self.check(user, topic, x, None, base=base)]
         return result
 
     @Command(needsUser=True, __help__=N_("List allowed Actions for the given object type."))
@@ -1657,7 +1667,7 @@ class ACLResolver(Plugin):
             if base == aclset.base or base is None:
 
                 # Check permissions
-                if not self.check(user, '%s.acl' % self.env.domain, 'r', aclset.base):
+                if not self.check(user, '%s.acl' % self.env.domain, 'r', None, aclset.base):
                     print("ACCESS DENIED: User: %s, topic: %s.acl, base: %s" % (user, self.env.domain, aclset.base))
                     continue
 
@@ -1733,7 +1743,7 @@ class ACLResolver(Plugin):
                 if acl.id == acl_id:
 
                     # Check permissions
-                    if not self.check(user, '%s.acl' % self.env.domain, 'w', aclset.base):
+                    if not self.check(user, '%s.acl' % self.env.domain, 'w', None, aclset.base):
                         raise ACLException(C.make_error('PERMISSION_REMOVE', target=acl_id))
 
                     # Remove the acl from the set.
@@ -1742,7 +1752,7 @@ class ACLResolver(Plugin):
                     # We've removed the last acl for this base,  remove the aclset.
                     if len(aclset) == 0:
                         self.remove_aclset_by_base(aclset.base)
-
+                    self.check.cache_clear()
                     return True
 
         # Nothing removed
@@ -1780,7 +1790,7 @@ class ACLResolver(Plugin):
         """
 
         # Check permissions
-        if not self.check(user, '%s.acl' % self.env.domain, 'w', base):
+        if not self.check(user, '%s.acl' % self.env.domain, 'w', None, base):
             raise ACLException(C.make_error('PERMISSION_CREATE', target=base))
 
         # Validate the given scope
@@ -1895,7 +1905,7 @@ class ACLResolver(Plugin):
                 if _acl.id == acl_id:
 
                     # Check permissions
-                    if not self.check(user, '%s.acl' % self.env.domain, 'w', _aclset.base):
+                    if not self.check(user, '%s.acl' % self.env.domain, 'w', None, _aclset.base):
                         raise ACLException(C.make_error("PERMISSION_UPDATE", target=_aclset.base))
 
                     acl = _acl
@@ -1925,6 +1935,7 @@ class ACLResolver(Plugin):
 
         if scope:
             acl.set_scope(scope_int)
+        self.check.cache_clear()
 
     @Command(needsUser=True, __help__=N_("List defined roles."))
     def getACLRoles(self, user):
@@ -1938,7 +1949,7 @@ class ACLResolver(Plugin):
         """
 
         # Check permissions
-        if not self.check(user, '%s.acl' % self.env.domain, 'r', self.base):
+        if not self.check(user, '%s.acl' % self.env.domain, 'r', None, self.base):
             raise ACLException(C.make_error("PERMISSION_ACCESS", target=self.base))
 
         acl_scope_map = {ACL.ONE: 'one', ACL.SUB: 'sub', ACL.PSUB: 'psub', ACL.RESET: 'reset'}
@@ -1983,7 +1994,7 @@ class ACLResolver(Plugin):
         """
 
         # Check permissions
-        if not self.check(user, '%s.acl' % self.env.domain, 'w', self.base):
+        if not self.check(user, '%s.acl' % self.env.domain, 'w', None, self.base):
             raise ACLException(C.make_error('PERMISSION_CREATE', target=self.base))
 
         # Validate the rolename
@@ -2027,7 +2038,7 @@ class ACLResolver(Plugin):
         """
 
         # Check permissions
-        if not self.check(user, '%s.acl' % self.env.domain, 'w', self.base):
+        if not self.check(user, '%s.acl' % self.env.domain, 'w', None, self.base):
             raise ACLException(C.make_error("PERMISSION_CREATE", target=self.base))
 
         # Check if the given rolename exists
@@ -2109,7 +2120,7 @@ class ACLResolver(Plugin):
         """
 
         # Check permissions
-        if not self.check(user, '%s.acl' % self.env.domain, 'w', self.base):
+        if not self.check(user, '%s.acl' % self.env.domain, 'w', None, self.base):
             raise ACLException(C.make_error("PERMISSION_UPDATE", target=self.base))
 
         # Validate the priority
@@ -2177,7 +2188,7 @@ class ACLResolver(Plugin):
             # Update the scope value.
             if scope:
                 acl.set_scope(scope_int)
-
+            self.check.cache_clear()
         else:
             raise ACLException(C.make_error("ACL_NOT_FOUND"))
 
@@ -2197,7 +2208,7 @@ class ACLResolver(Plugin):
         """
 
         # Check permissions
-        if not self.check(user, '%s.acl' % self.env.domain, 'w', self.base):
+        if not self.check(user, '%s.acl' % self.env.domain, 'w', None, self.base):
             raise ACLException(C.make_error("PERMISSION_REMOVE", target=self.base))
 
         # Try to find role-acl with the given ID.
@@ -2205,6 +2216,7 @@ class ACLResolver(Plugin):
             for _acl in self.acl_roles[_aclrole]:
                 if _acl.id == role_id:
                     self.acl_roles[_aclrole].remove(_acl)
+                    self.check.cache_clear()
                     return
 
         raise ACLException(C.make_error("ROLE_NOT_FOUND", role=role_id))
@@ -2222,7 +2234,7 @@ class ACLResolver(Plugin):
         """
 
         # Check permissions
-        if not self.check(user, '%s.acl' % self.env.domain, 'w', self.base):
+        if not self.check(user, '%s.acl' % self.env.domain, 'w', None, self.base):
             raise ACLException(C.make_error("PERMISSION_REMOVE", target=self.base))
 
         # Try to find role-acl with the given ID.
