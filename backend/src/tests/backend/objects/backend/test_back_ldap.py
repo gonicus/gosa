@@ -266,7 +266,7 @@ class LdapBackendTestCase(TestCase):
             args, kwargs = mm.call_args_list[0]
             assert args[0] == 'dn'
             assert (ldap.MOD_DELETE, 'uid', ["1"]) in args[1]
-            assert (ldap.MOD_ADD, 'uid', ["2"]) in args[1]
+            assert (ldap.MOD_ADD, 'uid', [b"2"]) in args[1]
             assert len(args[1]) == 2
 
     def test__check_res(self):

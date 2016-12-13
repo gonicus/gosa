@@ -455,9 +455,6 @@ class LDAP(ObjectBackend):
         old_value = res[0][1][attr][0]
         new_value = bytes(str(int(old_value) + 1),  'ascii')
 
-        print(type(old_value))
-        print(type(new_value))
-
         # Remove old, add new
         mod_attrs = [
                 (ldap.MOD_DELETE, attr, [old_value]),

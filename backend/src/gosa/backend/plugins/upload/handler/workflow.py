@@ -25,27 +25,36 @@ class WorkflowUploadHandler(IUploadFileHandler):
 
     def handle_upload(self, file):
         self.log.debug("uploaded workflow file received %s" % file.name)
+        print("extracting %s" % file.name)
+        print(os.path.exists(file.name))
+        print(file)
         self.extract(file.name)
         
     def extract(self, fn):
-        with ZipFile(fn) as workflow_zip:
-            if workflow_zip.testzip():
-                self.log.error("bad workflow zip uploaded")
-                return
-    
-            env = Environment.getInstance()
-            schema = etree.XMLSchema(file=resource_filename("gosa.backend", "data/workflow.xsd"))
-            parser = objectify.makeparser(schema=schema)
-    
-            try:
-                with workflow_zip.open('workflow.xml') as dsc:
-                    root = objectify.fromstring(dsc.read(), parser)
-                    id = objectify.ObjectPath("Workflow.Id")(root)[0].text
-    
-                    target = os.path.join(env.config.get("core.workflow_path", "/var/lib/gosa/workflows"), id)
-                    workflow_zip.extractall(target)
+        try:
+            with ZipFile(fn) as workflow_zip:
 
-                    WorkflowRegistry.get_instance().refresh()
-    
-            except KeyError:
-                self.log.error("bad workflow zip uploaded - no workflow.xml present")
+                if workflow_zip.testzip():
+                    print("bad workfflow file")
+                    self.log.error("bad workflow zip uploaded")
+                    return
+
+                env = Environment.getInstance()
+                schema = etree.XMLSchema(file=resource_filename("gosa.backend", "data/workflow.xsd"))
+                parser = objectify.makeparser(schema=schema)
+
+                try:
+                    with workflow_zip.open('workflow.xml') as dsc:
+                        root = objectify.fromstring(dsc.read(), parser)
+                        id = objectify.ObjectPath("Workflow.Id")(root)[0].text
+
+                        target = os.path.join(env.config.get("core.workflow_path", "/var/lib/gosa/workflows"), id)
+                        workflow_zip.extractall(target)
+
+                        WorkflowRegistry.get_instance().refresh()
+
+                except KeyError:
+                    self.log.error("bad workflow zip uploaded - no workflow.xml present")
+        except Exception as e:
+            print(e)
+            raise e

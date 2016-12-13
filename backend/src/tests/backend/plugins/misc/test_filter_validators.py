@@ -29,12 +29,15 @@ class FilterValidatorTests(unittest.TestCase):
 
         # start the tests
         filter = IsExistingDN()
-        (res, errors) = filter.process(None, None, ["test"])
+        props = { 'test': {
+            'value': ['test']
+        }}
+        (res, errors) = filter.process(props, 'test', ["test"])
         assert res is False
         assert len(errors) == 1
 
         mockedRegistry.return_value.search.return_value = [1]
-        (res, errors) = filter.process(None, None, ["test"])
+        (res, errors) = filter.process(props, 'test', ["test"])
         assert res is True
         assert len(errors) == 0
 

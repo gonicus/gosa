@@ -51,7 +51,7 @@ class UploadHandlerTestCase(RemoteTestCase):
     def test_upload(self):
         self.login()
         manager = PluginRegistry.getInstance("UploadManager")
-        fpath = os.path.join(os.path.dirname(__file__), 'test.jpg')
+        fpath = os.path.join(os.path.dirname(__file__), 'create_user.zip')
 
         with open(fpath, "rb") as f:
             m = MultipartEncoder(
@@ -96,6 +96,7 @@ class UploadHandlerTestCase(RemoteTestCase):
             response = self.fetch(path, method="POST", body=data, headers={
                 'Content-Type': m.content_type
             })
+            print(response)
             assert response.code == 200
             # path should have been removed by successfully unsigning it
             assert manager.unregisterUploadPath(uuid) is False

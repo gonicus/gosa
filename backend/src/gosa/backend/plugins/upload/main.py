@@ -116,6 +116,7 @@ class UploadHandler(HSTSRequestHandler):
         if self.temp_file is not None:
             self.temp_file.seek(0)
             self.upload_handler.handle_upload(self.temp_file)
+            print("1")
 
             # cleanup
             PluginRegistry.getInstance("UploadManager").unregisterUploadPath(uuid)
