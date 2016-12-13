@@ -72,31 +72,31 @@ class ObjectBackendTestCase(unittest.TestCase):
 
     def test_getObjectTemplates(self):
         res = self.obj.getObjectTemplates('User')
-        assert res[0][0:3] == '<ui'
+        assert res[0][0:3] == '{\n '
 
     def test_getObjectDialogs(self):
         res = self.obj.getObjectDialogs('User')
         assert res == []
 
         res = self.obj.getObjectDialogs('SambaUser')
-        assert res[0][0:3] == '<ui'
+        assert res[0][0:3] == '{\n '
 
     def test_getObjectTemplateNames(self):
         with pytest.raises(KeyError):
             self.obj.getObjectTemplateNames('Unknown')
 
         res = self.obj.getObjectTemplateNames('User')
-        assert 'user.ui' in res
-        assert 'user-organizational.ui' in res
+        assert 'user.json' in res
+        assert 'user-organizational.json' in res
 
     def test_getObjectDialogNames(self):
         with pytest.raises(KeyError):
             self.obj.getObjectDialogNames('Unknown')
 
         res = self.obj.getObjectDialogNames('SambaUser')
-        assert 'sambaLogonHours.ui' in res
-        assert 'sambaUserWorkstations.ui' in res
-        assert 'sambaDomainInfo.ui' in res
+        assert 'sambaLogonHours.json' in res
+        assert 'sambaUserWorkstations.json' in res
+        assert 'sambaDomainInfo.json' in res
 
     def test_getObjectSearchAid(self):
         with pytest.raises(KeyError):
@@ -121,7 +121,7 @@ class ObjectBackendTestCase(unittest.TestCase):
         with pytest.raises(TypeError):
             self.obj.getAllowedSubElementsForObject('SambaUser')
 
-        res = self.obj.getAllowedSubElementsForObject('Domain')
+        res = self.obj.getAllowedSubElementsForObject('Domain', True)
         assert 'PeopleContainer' in res
         assert 'GroupContainer' in res
         assert 'OrganizationalUnit' in res
@@ -188,11 +188,11 @@ class ObjectBackendTestCase(unittest.TestCase):
     def test_getNamedI18N(self):
         assert self.obj.getNamedI18N(None) == {}
 
-        res = self.obj.getNamedI18N(['user.ui'], 'de')
+        res = self.obj.getNamedI18N(['user.json'], 'de')
         assert res['User'] == 'Benutzer'
         assert res['Title'] == 'Titel'
 
-        res = self.obj.getNamedI18N(['user.ui'], 'de-DE')
+        res = self.obj.getNamedI18N(['user.json'], 'de-DE')
         assert res['User'] == 'Benutzer'
         assert res['Title'] == 'Titel'
 

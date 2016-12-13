@@ -46,14 +46,14 @@ class ObjectTestCase(TestCase):
     def test_getTemplate(self):
         obj = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
         res = obj.getTemplate()
-        assert res[0][0:3] == "<ui"
+        assert res[0][0:3] == "{\n "
 
     def test_getNamedTemplate(self):
         assert Object.getNamedTemplate({}, []) == []
 
         obj = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
         res = Object.getNamedTemplate(obj.env, obj._templates)
-        assert res[0][0:3] == "<ui"
+        assert res[0][0:3] == "{\n "
 
         with mock.patch('os.path.exists', return_value=False):
             assert Object.getNamedTemplate(obj.env, obj._templates) is None

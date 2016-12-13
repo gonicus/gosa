@@ -11,6 +11,7 @@ import pytest
 from unittest import mock, TestCase
 from gosa.backend.plugins.rpc.methods import GOsaException
 import gosa
+from gosa.common.gjson import loads
 from tests.GosaTestCase import slow
 
 
@@ -37,7 +38,7 @@ class RpcMethodsTestCase(TestCase):
             self.rpc.getGuiTemplates('UnknownType')
 
         res = self.rpc.getGuiTemplates('User')
-        assert res[0][0:3] == "<ui"
+        assert len(res) == 2
 
     def test_getGuiDialogs(self):
 
@@ -45,7 +46,8 @@ class RpcMethodsTestCase(TestCase):
             self.rpc.getGuiDialogs('UnknownType')
 
         res = self.rpc.getGuiDialogs('SambaUser')
-        assert res[0][0:3] == "<ui"
+        assert len(res) == 3
+
 
     def test_getTemplateI18N(self):
 

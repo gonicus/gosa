@@ -158,8 +158,8 @@ class ObjectProxyTestCase(TestCase):
     def test_get_templates(self):
         user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net')
         res = user.get_templates()
-        assert res['PosixUser'][0][0:3] == "<ui"
-        assert res['User'][0][0:3] == "<ui"
+        assert res['PosixUser'][0][0:3] == "{\n "
+        assert res['User'][0][0:3] == "{\n "
         assert res['Acl'] is None
 
     def test_get_attribute_values(self):

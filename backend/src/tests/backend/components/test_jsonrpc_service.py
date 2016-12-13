@@ -38,7 +38,8 @@ class JsonRpcHandlerTestCase(RemoteTestCase):
         # failed login
         with unittest.mock.patch.object(JsonRpcHandler, 'authenticate', return_value=False) as m:
             response = self.login()
-            assert response.code == 401
+            json = loads(response.body)
+            assert json['result']['state'] == AUTH_FAILED
 
         # successfull login
         with unittest.mock.patch.object(JsonRpcHandler, 'authenticate', return_value='cn=System Administrator,ou=people,dc=example,'
