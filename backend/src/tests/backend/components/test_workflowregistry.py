@@ -8,6 +8,8 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import pytest
+import os
+import shutil
 from unittest import TestCase, mock
 from gosa.backend.components.workflowregistry import *
 
@@ -16,7 +18,12 @@ class WorkflowRegistryTestCase(TestCase):
 
     def setUp(self):
         super(WorkflowRegistryTestCase, self).setUp()
+        # cleanup workflows from other tests
+        path = Environment.getInstance().config.get("core.workflow_path", "/tmp/workflows")
+        shutil.rmtree(path)
+        os.mkdir(path)
         self.reg = WorkflowRegistry.get_instance()
+        self.reg.refresh()
 
     def test_singleton(self):
         with pytest.raises(Exception):
