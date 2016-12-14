@@ -39,7 +39,7 @@ script:
     # setup GOsa, install deps...
     - ./setup.py develop
     # finally run the tests, with running dbus
-
+    - python2 generate.py -sI test-source
     - dbus-launch ./setup.py test --addopts="--runslow"
 after_success:
     # send test coverage results to coveralls.io
