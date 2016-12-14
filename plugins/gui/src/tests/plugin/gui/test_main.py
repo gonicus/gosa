@@ -29,5 +29,5 @@ class GuiPluginTestCase(AsyncHTTPTestCase):
         return Application([('/(?P<path>.*)?', GuiPlugin)])
 
     def test_get(self):
-        response = self.fetch("/index.html")
+        response = self.fetch("/gosa/source/index.html")
         assert response.code == 200
