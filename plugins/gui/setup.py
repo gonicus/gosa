@@ -82,4 +82,5 @@ setup(
 )
 
 if sys.argv[1] == "test":
-    os.system('cd gosa && grunt coveralls && mv coverage/coveralls.json ../../../')
+    os.system('cd frontend/gosa && ./node_modules/grunt/bin/grunt')
+    os.system('mv ./frontend/gosa/coverage/coveralls.json ../../')
