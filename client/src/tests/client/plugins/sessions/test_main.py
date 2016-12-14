@@ -7,7 +7,6 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import subprocess
-import dbusmock
 import time
 from unittest import mock
 from gosa.client.plugins.sessions.main import *
