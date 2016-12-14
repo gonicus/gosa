@@ -27,6 +27,9 @@ install:
     - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev # needed to compile dbus-python
     - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python
     #- pip install -e git+https://github.com/bochecha/pygobject.git@pip-install#egg=pygobject
+before_script:
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
 script:
     # build the gui, to be able to test it if gets served
     - cd plugins/gui/frontend/gosa/
@@ -35,6 +38,7 @@ script:
     # setup GOsa, install deps...
     - ./setup.py develop
     # finally run the tests, with running dbus
+
     - dbus-launch ./setup.py test --addopts="--runslow"
 after_success:
     # send test coverage results to coveralls.io
