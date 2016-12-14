@@ -33,6 +33,7 @@ before_script:
 script:
     # build the gui, to be able to test it if gets served
     - cd plugins/gui/frontend/gosa/
+    - npm install
     - python2 generate.py -sI build
     - cd ../../../../
     # setup GOsa, install deps...
