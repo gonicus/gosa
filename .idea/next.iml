@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/backend/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/common/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/plugins/gui/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/shell/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/client/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/dbus/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/plugins/goto/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/utils/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/plugins/gui/frontend/gosa/source/class" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/plugins/gui/frontend/qooxdoo/framework/source/class" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/plugins/gui/frontend/qooxdoo/framework/source/resource" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/plugins/gui/frontend/gosa/source/resource" type="java-resource" />
+      <excludeFolder url="file://$MODULE_DIR$/.chrome" />
+      <excludeFolder url="file://$MODULE_DIR$/.eggs" />
+      <excludeFolder url="file://$MODULE_DIR$/.env.debug" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/.eggs" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/htmlcov" />
+      <excludeFolder url="file://$MODULE_DIR$/client/.eggs" />
+      <excludeFolder url="file://$MODULE_DIR$/client/htmlcov" />
+      <excludeFolder url="file://$MODULE_DIR$/common/.eggs" />
+      <excludeFolder url="file://$MODULE_DIR$/common/htmlcov" />
+      <excludeFolder url="file://$MODULE_DIR$/dbus/.eggs" />
+      <excludeFolder url="file://$MODULE_DIR$/dbus/htmlcov" />
+      <excludeFolder url="file://$MODULE_DIR$/htmlcov" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/goto/.eggs" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/goto/htmlcov" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/gui/.eggs" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/gui/frontend/gosa/build" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/gui/frontend/gosa/cache" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/gui/frontend/gosa/source/script" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/gui/frontend/gosa/test" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/gui/htmlcov" />
+      <excludeFolder url="file://$MODULE_DIR$/shell/.eggs" />
+      <excludeFolder url="file://$MODULE_DIR$/shell/htmlcov" />
+      <excludeFolder url="file://$MODULE_DIR$/utils/.eggs" />
+      <excludeFolder url="file://$MODULE_DIR$/utils/htmlcov" />
+    </content>
+    <orderEntry type="jdk" jdkName="Python 3.5.2 virtualenv at ~/develop/gosa3/next/.env" jdkType="Python SDK" />
+    <orderEntry type="library" name="qooxdoo" level="project" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="TemplatesService">
+    <option name="TEMPLATE_FOLDERS">
+      <list>
+        <option value="$MODULE_DIR$/backend/src/gosa/backend/data/templates" />
+      </list>
+    </option>
+  </component>
+  <component name="TestRunnerService">
+    <option name="projectConfiguration" value="py.test" />
+    <option name="PROJECT_TEST_RUNNER" value="py.test" />
+  </component>
+</module>
