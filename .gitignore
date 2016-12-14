@@ -30,8 +30,5 @@ htmlcov/
 # dotenv
 .env
 
-# intellij project
-.idea
-
 # GUI related auto login
 LocalConfig.js
