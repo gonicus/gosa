@@ -38,4 +38,4 @@ script:
     - dbus-launch ./setup.py test --addopts="--runslow"
 after_success:
     # send test coverage results to coveralls.io
-    - coveralls
+    - coveralls --merge=coveralls.json

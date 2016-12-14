@@ -86,6 +86,7 @@ module.exports = function(config) {
       reporters: [
         // reporters not supporting the `file` property
         { type: 'lcovonly' },
+        { type: 'json' },
         { type: 'text-summary' }
       ]
     },

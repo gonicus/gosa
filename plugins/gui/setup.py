@@ -10,6 +10,7 @@
 
 from setuptools import setup, find_packages
 import os
+import sys
 import platform
 
 try:
@@ -79,3 +80,6 @@ setup(
         /(?P<path>.*)? = gosa.plugin.gui.main:GuiPlugin
     """,
 )
+
+if sys.argv[1] == "test":
+    os.system('cd gosa && grunt coveralls && mv coverage/coveralls.json ../../../')
