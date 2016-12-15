@@ -81,7 +81,7 @@
     "build" :
     {
       "desc"    : "create build version of current application",
-      "extend"  : ["parts-config"],
+
       "run" :
       [
         "build-resources",
@@ -116,11 +116,6 @@
 
     "build-script":
     {
-      "config-warnings" : {
-        "exclude": [
-          "*"
-        ]
-      },
       "include": ["${APPLICATION}.ui.widgets.*", "${APPLICATION}.ui.dialogs.*", "${APPLICATION}.engine.extensions.*", "qx.*"],
       "exclude" :
       [
@@ -173,14 +168,10 @@
       }
     },
 
-    "source": {
-      "extend"  : ["parts-config"]
-    },
-
     "source-script":
     {
       "include": ["${APPLICATION}.ui.widgets.*", "${APPLICATION}.LocalConfig", "${APPLICATION}.ui.dialogs.*",
-        "${APPLICATION}.engine.extensions.*", "qx.io.PartLoader"],
+        "${APPLICATION}.engine.extensions.*", "${APPLICATION}.plugins.*"],
 
       "variants" :
       {
@@ -205,27 +196,6 @@
           "uri" : "resource/gosa/js/Fuse.js"
         }
       ]
-    },
-    "parts-config":
-    {
-      "packages" :
-      {
-        "separate-loader"  : true,
-        "i18n-as-parts"    : true,
-        "parts"  :
-        {
-          "boot"     :
-          {
-            "include" : ["${QXTHEME}", "${APPLICATION}.Application", "${APPLICATION}.theme.*", "${APPLICATION}.ui.widgets.*",
-              "${APPLICATION}.LocalConfig", "${APPLICATION}.ui.dialogs.*", "${APPLICATION}.engine.extensions.*", "qx.io.PartLoader", "qx.*"]
-          }
-        },
-
-        "sizes" :
-        {
-          "min-package" : 10
-        }
-      }
     },
 
     "profile" :
