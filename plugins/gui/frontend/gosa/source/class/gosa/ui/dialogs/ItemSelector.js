@@ -16,7 +16,7 @@
 #asset(gosa/*)
 */
 
-qx.Class.define("gosa.ui.ItemSelector", {
+qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
   extend: gosa.ui.dialogs.Dialog,
 

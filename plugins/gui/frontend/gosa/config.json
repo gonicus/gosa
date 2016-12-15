@@ -81,7 +81,7 @@
     "build" :
     {
       "desc"    : "create build version of current application",
-
+      "extend"  : ["parts-config"],
       "run" :
       [
         "build-resources",
@@ -121,7 +121,7 @@
           "*"
         ]
       },
-      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*", "gosa.engine.extensions.*", "qx.*"],
+      "include": ["${APPLICATION}.ui.widgets.*", "${APPLICATION}.ui.dialogs.*", "${APPLICATION}.engine.extensions.*", "qx.*"],
       "exclude" :
       [
         "qx.test.*",
@@ -173,9 +173,14 @@
       }
     },
 
+    "source": {
+      "extend"  : ["parts-config"]
+    },
+
     "source-script":
     {
-      "include": ["gosa.ui.widgets.*", "gosa.LocalConfig", "gosa.ui.dialogs.*", "gosa.engine.extensions.*"],
+      "include": ["${APPLICATION}.ui.widgets.*", "${APPLICATION}.LocalConfig", "${APPLICATION}.ui.dialogs.*",
+        "${APPLICATION}.engine.extensions.*", "qx.io.PartLoader"],
 
       "variants" :
       {
@@ -201,10 +206,31 @@
         }
       ]
     },
+    "parts-config":
+    {
+      "packages" :
+      {
+        "separate-loader"  : true,
+        "i18n-as-parts"    : true,
+        "parts"  :
+        {
+          "boot"     :
+          {
+            "include" : ["${QXTHEME}", "${APPLICATION}.Application", "${APPLICATION}.theme.*", "${APPLICATION}.ui.widgets.*",
+              "${APPLICATION}.LocalConfig", "${APPLICATION}.ui.dialogs.*", "${APPLICATION}.engine.extensions.*", "qx.io.PartLoader", "qx.*"]
+          }
+        },
+
+        "sizes" :
+        {
+          "min-package" : 10
+        }
+      }
+    },
 
     "profile" :
     {
-        "desc" : "generate profling source",
+        "desc" : "generate profiling source",
         "extend" : [ "source" ],
         "environment" :
         {

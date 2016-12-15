@@ -166,7 +166,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
           }else{
 
             // Open a new selection dialog.
-            var d = new gosa.ui.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
+            var d = new gosa.ui.dialogs.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
               this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames, true);
             d.addListener("selected", function(e){
               if(e.getData().length){

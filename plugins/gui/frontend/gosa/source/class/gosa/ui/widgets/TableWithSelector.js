@@ -100,7 +100,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       // Add new group membership
       this._table.addListener("dblclick", function(){
 
-          var d = new gosa.ui.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
+          var d = new gosa.ui.dialogs.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
           this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
 
           d.addListener("selected", function(e){
