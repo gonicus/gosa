@@ -116,7 +116,18 @@
 
     "build-script":
     {
-      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*", "gosa.engine.extensions.*"],
+      "config-warnings" : {
+        "exclude": [
+          "*"
+        ]
+      },
+      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*", "gosa.engine.extensions.*", "qx.*"],
+      "exclude" :
+      [
+        "qx.test.*",
+        "qx.dev.unit.*",
+        "qx.dev.FakeServer"  // as this depends on qx.dev.unit classes
+      ],
 
       "variants" :
       {
