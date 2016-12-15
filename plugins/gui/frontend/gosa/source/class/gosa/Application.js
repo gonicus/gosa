@@ -182,10 +182,12 @@ qx.Class.define("gosa.Application",
       gosa.Session.getInstance().bind("cn", header, "loggedInName");
 
       var search = gosa.view.Search.getInstance();
+      var dashboard = gosa.view.Dashboard.getInstance();
       var tree = gosa.view.Tree.getInstance();
       var work = gosa.view.Workflows.getInstance();
       // var settings = gosa.view.Settings.getInstance();
       pluginView.add(search);
+      pluginView.add(dashboard);
       pluginView.add(tree);
       pluginView.add(work);
       // pluginView.add(settings);

@@ -116,13 +116,7 @@
 
     "build-script":
     {
-      "include": ["${APPLICATION}.ui.widgets.*", "${APPLICATION}.ui.dialogs.*", "${APPLICATION}.engine.extensions.*", "qx.*"],
-      "exclude" :
-      [
-        "qx.test.*",
-        "qx.dev.unit.*",
-        "qx.dev.FakeServer"  // as this depends on qx.dev.unit classes
-      ],
+      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*", "gosa.engine.extensions.*"],
 
       "variants" :
       {
@@ -170,8 +164,7 @@
 
     "source-script":
     {
-      "include": ["${APPLICATION}.ui.widgets.*", "${APPLICATION}.LocalConfig", "${APPLICATION}.ui.dialogs.*",
-        "${APPLICATION}.engine.extensions.*", "${APPLICATION}.plugins.*"],
+      "include": ["gosa.ui.widgets.*", "gosa.LocalConfig", "gosa.ui.dialogs.*", "gosa.engine.extensions.*", "gosa.plugins.*"],
 
       "variants" :
       {
