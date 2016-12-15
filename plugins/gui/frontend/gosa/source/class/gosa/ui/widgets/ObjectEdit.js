@@ -207,13 +207,17 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _initWidgets : function() {
-      this._createTabView();
-      this._createTabPages();
-      this._createToolmenu();
+      if (this._templates.length === 0) {
+        this.add(new qx.ui.basic.Label(this.tr("There is currently no template defined for this kind of object. You have to add one in order to be able to create a new object")));
+      } else {
+        this._createTabView();
+        this._createTabPages();
+        this._createToolmenu();
+        this._createExtendMenu();
+        this._createRetractMenu();
+        this._createActionButtons();
+      }
       this._createButtons();
-      this._createExtendMenu();
-      this._createRetractMenu();
-      this._createActionButtons();
     },
 
     _createTabView : function() {
