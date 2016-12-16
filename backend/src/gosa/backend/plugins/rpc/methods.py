@@ -501,13 +501,33 @@ class RPCMethods(Plugin):
 
             query = and_(ObjectInfoIndex._last_modified >= td, query)
 
+        order_by = None
+        if 'order-by' in fltr:
+            is_desc = 'order' in fltr and fltr['order'] == 'desc'
+            order_by = "_last_changed"
+            if fltr['order-by'] == "last-changed":
+                order_by = "_last_modified"
+            order_by = getattr(ObjectInfoIndex, order_by)
+            if is_desc:
+                query.desc()
+            else:
+                query.asc()
+
         # Perform primary query and get collect the results
         squery = []
         these = dict([(x, 1) for x in self.__search_aid['used_attrs']])
         these.update(dict(dn=1, _type=1, _uuid=1, _last_changed=1))
         these = list(these.keys())
 
-        for item in self.__session.query(ObjectInfoIndex).filter(query):
+        if 'limit' in fltr:
+            if order_by is not None:
+                query_result = self.__session.query(ObjectInfoIndex).filter(query).order_by(order_by).limit(fltr['limit'])
+            else:
+                query_result = self.__session.query(ObjectInfoIndex).filter(query).limit(fltr['limit'])
+        else:
+            query_result = self.__session.query(ObjectInfoIndex).filter(query)
+
+        for item in query_result:
             self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr), these=these, actions=actions)
 
             # Collect information for secondary search?

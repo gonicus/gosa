@@ -13,20 +13,19 @@
 ======================================================================== */
 
 /**
-* Interface for all plugins that can be loaded via qx.io.PartLoader
+* The activities plugin appearance definition
 */
-qx.Interface.define("gosa.plugins.IPlugin", {
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-  members : {
-
-    /**
-     * Creates the widget and adds it to the given parent
-     * @parent {qx.ui.core.Widget}
-     */
-    draw: function() { }
+qx.Theme.define("gosa.plugins.activities.Appearance", {
+  
+  appearances: {
+    "gosa-plugins-actitivies-item": "search-list-item",
+    "gosa-plugins-actitivies-item/icon": {
+      style: function() {
+        return {
+          width: 30,
+          scale: true
+        }
+      }
+    }
   }
 });

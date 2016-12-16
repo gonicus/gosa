@@ -491,6 +491,22 @@ qx.Theme.define("gosa.theme.Appearance",
           center: true
         };
       }
+    },
+
+    "gosa-dashboard-widget": {
+      style: function() {
+        return {
+          minHeight: 200,
+          minWidth: 300
+        }
+      }
+    },
+    "gosa-dashboard-widget/title": {
+      style: function() {
+        return {
+          font: "Subtitle"
+        }
+      }
     }
   }
 });

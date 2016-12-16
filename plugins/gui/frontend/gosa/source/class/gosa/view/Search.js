@@ -679,7 +679,8 @@ qx.Class.define("gosa.view.Search", {
     },
 
 
-    /** Updates the properties of an 'gosa.data.model.SearchResultItem' using
+    /**
+     * Updates the properties of an 'gosa.data.model.SearchResultItem' using
      * the given search-result-entry.
      */
     __fillSearchListItem: function(item, entry){

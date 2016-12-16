@@ -26,7 +26,7 @@ qx.Class.define("gosa.view.Dashboard", {
     this.__layout = new qx.ui.layout.Grid();
     this._setLayout(this.__layout);
 
-    this.draw();
+    this.addListenerOnce("appear", this.draw, this);
   },
 
   /*
@@ -37,11 +37,14 @@ qx.Class.define("gosa.view.Dashboard", {
   statics : {
     __registry: {},
 
-    registerWidget: function(name, widgetClass) {
+    registerWidget: function(name, widgetClass, options) {
       qx.core.Assert.assertString(name);
       qx.core.Assert.assertTrue(qx.Interface.classImplements(widgetClass, gosa.plugins.IPlugin),
       widgetClass+" does not implement the gosa.plugins.IPlugin interface");
-      this.__registry[name] = widgetClass;
+      this.__registry[name] = {
+        clazz: widgetClass,
+        options: options
+      };
     },
 
     getWidgetRegistry: function() {
@@ -77,11 +80,25 @@ qx.Class.define("gosa.view.Dashboard", {
     draw: function() {
       var row=0;
       var col=0;
+      for (var i=0; i<this.getColumns(); i++) {
+        this.__layout.setColumnFlex(i, 1);
+      }
       var maxColumns = this.getColumns();
       var registry = this.self(arguments).getWidgetRegistry();
       for(var name in registry) {
         if (registry.hasOwnProperty(name)) {
-          var widget = new registry[name]();
+          var widget = new registry[name].clazz();
+          var options = registry[name].options;
+          if (options && options['theme']) {
+            for (var key in options['theme']) {
+              if (key === "meta") {
+                qx.Theme.patch(gosa.theme.Theme, options['theme'][key]);
+              } else {
+                qx.Theme.patch(gosa.theme[qx.lang.String.firstUp(key)], options['theme'][key]);
+              }
+            }
+
+          }
           widget.draw();
           this._add(widget, {row: row, column: col});
           col++;
