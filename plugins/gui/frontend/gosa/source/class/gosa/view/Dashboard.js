@@ -92,27 +92,11 @@ qx.Class.define("gosa.view.Dashboard", {
       gosa.io.Rpc.getInstance().cA("loadUserPreferences", "dashboard")
       .then(function(result) {
         if (!result.length) {
-          result = [
-            {
-              widget: "Activities",
-              layoutProperties: {
-                row: 0,
-                column: 0
-              }
-            },
-            {
-              widget: "Activities",
-              layoutProperties: {
-                row: 0,
-                column: 1
-              },
-              settings: {
-                backgroundColor: "#DDDDDD"
-              }
-            }
-          ];
+          // default dashboard
+          result = [{"widget":"Activities","layoutProperties":{"column":0,"row":1},"settings":{}},{"widget":"Activities","layoutProperties":{"column":1,"row":1},"settings":{"backgroundColor":"#DDDDDD"}},{"widget":"Search","layoutProperties":{"column":0,"colSpan":2,"row":0},"settings":{"margin":10}}];
         }
         if (result.length) {
+          console.log(result);
           this.__settings = result;
           var maxColumns = this.getColumns();
           var registry = gosa.view.Dashboard.getWidgetRegistry();
