@@ -25,6 +25,7 @@ qx.Class.define("gosa.view.Dashboard", {
     this.base(arguments, "", "@Ligature/dashboard");
     this.__layout = new qx.ui.layout.Grid(5, 5);
     this._setLayout(this.__layout);
+    this.__patchedThemes = {};
 
     this.addListenerOnce("appear", this.draw, this);
   },
@@ -78,6 +79,7 @@ qx.Class.define("gosa.view.Dashboard", {
   members : {
     __layout: null,
     __settings: null,
+    __patchedThemes : null,
 
     draw: function() {
       var row=0;
@@ -120,21 +122,22 @@ qx.Class.define("gosa.view.Dashboard", {
               this.warn("%s dashboard widget not registered", entry.widget);
             }
             else {
-              var widget = new registry[widgetName].clazz();
-              if (entry.settings) {
-                widget.configure(entry.settings);
-              }
               var options = registry[widgetName].options;
-              if (options && options['theme']) {
+              if (options && options['theme'] && !this.__patchedThemes[widgetName]) {
                 for (var key in options['theme']) {
                   if (key === "meta") {
                     qx.Theme.patch(gosa.theme.Theme, options['theme'][key]);
                   }
                   else {
+                    console.log("patching theme "+options['theme'][key]);
                     qx.Theme.patch(gosa.theme[qx.lang.String.firstUp(key)], options['theme'][key]);
                   }
                 }
-
+                this.__patchedThemes[widgetName] = true;
+              }
+              var widget = new registry[widgetName].clazz();
+              if (entry.settings) {
+                widget.configure(entry.settings);
               }
               widget.draw();
               this._add(widget, entry.layoutProperties);

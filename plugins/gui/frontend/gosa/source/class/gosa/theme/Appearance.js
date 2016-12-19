@@ -496,7 +496,6 @@ qx.Theme.define("gosa.theme.Appearance",
     "gosa-dashboard-widget": {
       style: function() {
         return {
-          minHeight: 200,
           minWidth: 300
         }
       }
