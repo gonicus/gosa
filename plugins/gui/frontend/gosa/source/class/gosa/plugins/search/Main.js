@@ -68,9 +68,6 @@ qx.Class.define("gosa.plugins.search.Main", {
         case "search-field":
           control = new qx.ui.form.TextField('');
           control.setPlaceholder(this.tr("Please enter your search..."));
-          this.addListener("resize", function() {
-            control.setWidth(parseInt(this.getBounds().width / 2));
-          }, this);
           this._add(control, {flex: 1});
           break;
 

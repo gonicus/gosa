@@ -93,7 +93,7 @@ qx.Class.define("gosa.view.Dashboard", {
       .then(function(result) {
         if (!result.length) {
           // default dashboard
-          result = [{"widget":"Activities","layoutProperties":{"column":0,"row":1},"settings":{}},{"widget":"Activities","layoutProperties":{"column":1,"row":1},"settings":{"backgroundColor":"#DDDDDD"}},{"widget":"Search","layoutProperties":{"column":0,"colSpan":2,"row":0},"settings":{"margin":10}}];
+          result = [{"widget":"Activities","layoutProperties":{"column":0,"row":1},"settings":{}},{"widget":"Activities","layoutProperties":{"column":1,"row":1},"settings":{"backgroundColor":"#DDDDDD"}},{"widget":"Search","layoutProperties":{"column":0,"colSpan":2,"row":0},"settings":{}}];
         }
         if (result.length) {
           this.__settings = result;

@@ -496,7 +496,8 @@ qx.Theme.define("gosa.theme.Appearance",
     "gosa-dashboard-widget": {
       style: function() {
         return {
-          minWidth: 300
+          padding: 10,
+          decorator: "gosa-dashboard-widget"
         }
       }
     },
