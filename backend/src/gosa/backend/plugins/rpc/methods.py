@@ -159,7 +159,7 @@ class RPCMethods(Plugin):
 
         return True
 
-    @Command(__help__=N_("Load user preferences"))
+    @Command(__help__=N_("Load user preferences"), needsUser=True)
     def loadUserPreferences(self, userid, name):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'_type': 'User', 'uid': userid}, {'dn': 1})
