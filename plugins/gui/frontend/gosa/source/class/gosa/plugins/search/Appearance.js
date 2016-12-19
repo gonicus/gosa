@@ -29,23 +29,11 @@ qx.Theme.define("gosa.plugins.search.Appearance", {
         }
       }
     },
-    "gosa-dashboard-widget-search/search-button": {
-      include: "atom",
-      alias: "atom",
-
-      style: function() {
-        return {
-          show: "label",
-          center: true,
-          decorator: null
-        }
-      }
-    },
     "gosa-dashboard-widget-search/search-button/icon": {
       style: function() {
         return {
-          width: 25,
-          height: 25,
+          width: 22,
+          height: 22,
           scale: true
         }
       }

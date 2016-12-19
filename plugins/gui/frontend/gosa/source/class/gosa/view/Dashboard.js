@@ -126,10 +126,11 @@ qx.Class.define("gosa.view.Dashboard", {
               if (options && options['theme'] && !this.__patchedThemes[widgetName]) {
                 for (var key in options['theme']) {
                   if (key === "meta") {
+                    this.debug("patching meta theme "+options['theme'][key]);
                     qx.Theme.patch(gosa.theme.Theme, options['theme'][key]);
                   }
                   else {
-                    console.log("patching theme "+options['theme'][key]);
+                    this.debug("patching theme "+options['theme'][key]);
                     qx.Theme.patch(gosa.theme[qx.lang.String.firstUp(key)], options['theme'][key]);
                   }
                 }
