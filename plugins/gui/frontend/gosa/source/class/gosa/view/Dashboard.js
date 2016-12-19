@@ -96,7 +96,6 @@ qx.Class.define("gosa.view.Dashboard", {
           result = [{"widget":"Activities","layoutProperties":{"column":0,"row":1},"settings":{}},{"widget":"Activities","layoutProperties":{"column":1,"row":1},"settings":{"backgroundColor":"#DDDDDD"}},{"widget":"Search","layoutProperties":{"column":0,"colSpan":2,"row":0},"settings":{"margin":10}}];
         }
         if (result.length) {
-          console.log(result);
           this.__settings = result;
           var maxColumns = this.getColumns();
           var registry = gosa.view.Dashboard.getWidgetRegistry();
