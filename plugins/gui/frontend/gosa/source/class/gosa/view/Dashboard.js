@@ -76,6 +76,7 @@ qx.Class.define("gosa.view.Dashboard", {
   */
   members : {
     __layout: null,
+    __settings: null,
 
     draw: function() {
       var row=0;
@@ -83,52 +84,60 @@ qx.Class.define("gosa.view.Dashboard", {
       for (var i=0; i<this.getColumns(); i++) {
         this.__layout.setColumnFlex(i, 1);
       }
-      var settings = [
-        {
-          widget: "Activities",
-          layoutProperties: {
-            row: 0,
-            column: 0
-          }
-        }, {
-          widget: "Activities",
-          layoutProperties: {
-            row: 0,
-            column: 1
-          }
-        }
-      ];
-      var maxColumns = this.getColumns();
-      var registry = this.self(arguments).getWidgetRegistry();
-      settings.forEach(function(entry) {
-        var widgetName = entry.widget.toLowerCase();
-        if (!registry[widgetName]) {
-          this.warn("%s dashboard widget not registered", entry.widget);
-        } else {
-          var widget = new registry[widgetName].clazz();
-          if (entry.settings) {
-            widget.configure(entry.settings);
-          }
-          var options = registry[widgetName].options;
-          if (options && options['theme']) {
-            for (var key in options['theme']) {
-              if (key === "meta") {
-                qx.Theme.patch(gosa.theme.Theme, options['theme'][key]);
-              } else {
-                qx.Theme.patch(gosa.theme[qx.lang.String.firstUp(key)], options['theme'][key]);
+
+      // load dashboard settings from backend
+      gosa.io.Rpc.getInstance().cA("loadUserPreferences", "dashboard")
+      .then(function(result) {
+        if (result) {
+          this.__settings = result;
+          var maxColumns = this.getColumns();
+          var registry = gosa.view.Dashboard.getWidgetRegistry();
+          this.__settings.forEach(function(entry) {
+            var widgetName = entry.widget.toLowerCase();
+            if (!registry[widgetName]) {
+              this.warn("%s dashboard widget not registered", entry.widget);
+            }
+            else {
+              var widget = new registry[widgetName].clazz();
+              if (entry.settings) {
+                widget.configure(entry.settings);
+              }
+              var options = registry[widgetName].options;
+              if (options && options['theme']) {
+                for (var key in options['theme']) {
+                  if (key === "meta") {
+                    qx.Theme.patch(gosa.theme.Theme, options['theme'][key]);
+                  }
+                  else {
+                    qx.Theme.patch(gosa.theme[qx.lang.String.firstUp(key)], options['theme'][key]);
+                  }
+                }
+
+              }
+              widget.draw();
+              this._add(widget, entry.layoutProperties);
+              col++;
+              if (col >= maxColumns) {
+                col = 0;
+                row++;
               }
             }
-
-          }
-          widget.draw();
-          this._add(widget, entry.layoutProperties);
-          col++;
-          if (col >= maxColumns) {
-            col=0;
-            row++;
-          }
+          }, this);
         }
       }, this);
+    },
+
+    /**
+     * Save the current dashboard settings to the backend
+     */
+    save: function() {
+      // Save settings back to the user model
+      if(gosa.Session.getInstance().getUser()){
+        gosa.io.Rpc.getInstance().cA("saveUserPreferences", "dashboard", this.__settings)
+        .catch(function(error) {
+          new gosa.ui.dialogs.Error(error.message).open();
+        });
+      }
     }
   },
 
@@ -138,6 +147,7 @@ qx.Class.define("gosa.view.Dashboard", {
   *****************************************************************************
   */
   destruct : function() {
+    this.save();
     this.__layout = null;
   }
 });
