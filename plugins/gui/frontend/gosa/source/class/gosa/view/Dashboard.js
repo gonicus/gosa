@@ -23,7 +23,7 @@ qx.Class.define("gosa.view.Dashboard", {
   {
     // Call super class and configure ourselfs
     this.base(arguments, "", "@Ligature/dashboard");
-    this.__layout = new qx.ui.layout.Grid();
+    this.__layout = new qx.ui.layout.Grid(5, 5);
     this._setLayout(this.__layout);
 
     this.addListenerOnce("appear", this.draw, this);
@@ -83,12 +83,33 @@ qx.Class.define("gosa.view.Dashboard", {
       for (var i=0; i<this.getColumns(); i++) {
         this.__layout.setColumnFlex(i, 1);
       }
+      var settings = [
+        {
+          widget: "Activities",
+          layoutProperties: {
+            row: 0,
+            column: 0
+          }
+        }, {
+          widget: "Activities",
+          layoutProperties: {
+            row: 0,
+            column: 1
+          }
+        }
+      ];
       var maxColumns = this.getColumns();
       var registry = this.self(arguments).getWidgetRegistry();
-      for(var name in registry) {
-        if (registry.hasOwnProperty(name)) {
-          var widget = new registry[name].clazz();
-          var options = registry[name].options;
+      settings.forEach(function(entry) {
+        var widgetName = entry.widget.toLowerCase();
+        if (!registry[widgetName]) {
+          this.warn("%s dashboard widget not registered", entry.widget);
+        } else {
+          var widget = new registry[widgetName].clazz();
+          if (entry.settings) {
+            widget.configure(entry.settings);
+          }
+          var options = registry[widgetName].options;
           if (options && options['theme']) {
             for (var key in options['theme']) {
               if (key === "meta") {
@@ -100,14 +121,14 @@ qx.Class.define("gosa.view.Dashboard", {
 
           }
           widget.draw();
-          this._add(widget, {row: row, column: col});
+          this._add(widget, entry.layoutProperties);
           col++;
           if (col >= maxColumns) {
             col=0;
             row++;
           }
         }
-      }
+      }, this);
     }
   },
 

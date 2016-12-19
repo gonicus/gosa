@@ -24,9 +24,14 @@ qx.Interface.define("gosa.plugins.IPlugin", {
   members : {
 
     /**
-     * Creates the widget and adds it to the given parent
-     * @parent {qx.ui.core.Widget}
+     * Create the widget
      */
-    draw: function() { }
+    draw: function() { },
+
+    /**
+     * Configure the widget
+     * @param properties {Map} Key/value map of properties
+     */
+    configure: function(properties) {}
   }
 });

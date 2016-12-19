@@ -70,6 +70,11 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
       } else {
         control.exclude();
       }
+    },
+
+    // can be overridden by subclasses for more sophisticated configurations
+    configure: function(properties) {
+      this.set(properties);
     }
   }
 });
