@@ -37,11 +37,12 @@ qx.Class.define("gosa.view.Dashboard", {
   statics : {
     __registry: {},
 
-    registerWidget: function(name, widgetClass, options) {
-      qx.core.Assert.assertString(name);
+    registerWidget: function(widgetClass, options) {
       qx.core.Assert.assertTrue(qx.Interface.classImplements(widgetClass, gosa.plugins.IPlugin),
-      widgetClass+" does not implement the gosa.plugins.IPlugin interface");
-      this.__registry[name] = {
+                                widgetClass+" does not implement the gosa.plugins.IPlugin interface");
+      qx.core.Assert.assertString(widgetClass.NAME, widgetClass+" has no static NAME constant");
+
+      this.__registry[widgetClass.NAME.toLowerCase()] = {
         clazz: widgetClass,
         options: options
       };
@@ -88,7 +89,28 @@ qx.Class.define("gosa.view.Dashboard", {
       // load dashboard settings from backend
       gosa.io.Rpc.getInstance().cA("loadUserPreferences", "dashboard")
       .then(function(result) {
-        if (result) {
+        if (!result.length) {
+          result = [
+            {
+              widget: "Activities",
+              layoutProperties: {
+                row: 0,
+                column: 0
+              }
+            },
+            {
+              widget: "Activities",
+              layoutProperties: {
+                row: 0,
+                column: 1
+              },
+              settings: {
+                backgroundColor: "#DDDDDD"
+              }
+            }
+          ];
+        }
+        if (result.length) {
           this.__settings = result;
           var maxColumns = this.getColumns();
           var registry = gosa.view.Dashboard.getWidgetRegistry();
@@ -132,8 +154,17 @@ qx.Class.define("gosa.view.Dashboard", {
      */
     save: function() {
       // Save settings back to the user model
-      if(gosa.Session.getInstance().getUser()){
-        gosa.io.Rpc.getInstance().cA("saveUserPreferences", "dashboard", this.__settings)
+      if(gosa.Session.getInstance().getUser()) {
+        // collect information
+        var settings = [];
+        this.getChildren().forEach(function(widget) {
+          settings.push({
+            widget: widget.constructor.NAME,
+            layoutProperties: widget.getLayoutProperties(),
+            settings: widget.getConfiguration()
+          })
+        }, this);
+        gosa.io.Rpc.getInstance().cA("saveUserPreferences", "dashboard", settings)
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error.message).open();
         });
@@ -147,7 +178,6 @@ qx.Class.define("gosa.view.Dashboard", {
   *****************************************************************************
   */
   destruct : function() {
-    this.save();
     this.__layout = null;
   }
 });

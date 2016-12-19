@@ -19,9 +19,19 @@ qx.Class.define("gosa.plugins.activities.Main", {
   extend : gosa.plugins.AbstractDashboardWidget,
 
   construct : function() {
-    this.base(arguments, this.tr("Recently changed items"));
+    this.base(arguments);
+    this.getChildControl("title").setValue(this.tr("Recently changed items"));
     this._setLayout(new qx.ui.layout.VBox());
     this._model = new gosa.data.model.SearchResult();
+  },
+
+  /*
+  *****************************************************************************
+     STATICS
+  *****************************************************************************
+  */
+  statics : {
+    NAME: "Activities"
   },
 
   /*
@@ -30,6 +40,10 @@ qx.Class.define("gosa.plugins.activities.Main", {
    *****************************************************************************
    */
   properties : {
+    appearance: {
+      refine: true,
+      init: "gosa-dashboard-widget-activities"
+    },
     /**
      * Maximum number of items to show
      */
@@ -128,7 +142,7 @@ qx.Class.define("gosa.plugins.activities.Main", {
   },
 
   defer: function () {
-    gosa.view.Dashboard.registerWidget("activities", gosa.plugins.activities.Main, {
+    gosa.view.Dashboard.registerWidget(gosa.plugins.activities.Main, {
       theme: {
         appearance : gosa.plugins.activities.Appearance
       }

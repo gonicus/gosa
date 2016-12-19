@@ -16,6 +16,19 @@
 * Interface for all plugins that can be loaded via qx.io.PartLoader
 */
 qx.Interface.define("gosa.plugins.IPlugin", {
+
+  /*
+  *****************************************************************************
+     STATICS
+  *****************************************************************************
+  */
+  statics : {
+    /**
+     * Unique name of the widget
+     */
+    NAME: ""
+  },
+
   /*
   *****************************************************************************
      MEMBERS
@@ -32,6 +45,11 @@ qx.Interface.define("gosa.plugins.IPlugin", {
      * Configure the widget
      * @param properties {Map} Key/value map of properties
      */
-    configure: function(properties) {}
+    configure: function(properties) {},
+
+    /**
+     * Returns the widgets configuration settings, which usually is the Map of user defined properties
+     */
+    getConfiguration: function() {}
   }
 });

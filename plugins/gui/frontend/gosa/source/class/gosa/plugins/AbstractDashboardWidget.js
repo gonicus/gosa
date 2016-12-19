@@ -19,24 +19,11 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
   extend : qx.ui.core.Widget,
   implement: gosa.plugins.IPlugin,
   type: "abstract",
-
-  construct : function(title) {
-    this.base(arguments);
-    if (title) {
-      this.setTitle(title);
-    }
-  },
     
   properties : {
     appearance: {
       refine: true,
       init: "gosa-dashboard-widget"
-    },
-
-    title: {
-      check: "String",
-      nullable: true,
-      apply: "_applyTitle"
     }
   },
     
@@ -75,6 +62,24 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
     // can be overridden by subclasses for more sophisticated configurations
     configure: function(properties) {
       this.set(properties);
+    },
+
+    /**
+     * Return the user defined properties as Map
+     * @return {Map}
+     */
+    getConfiguration: function() {
+      var config = {};
+      Object.getOwnPropertyNames(this).forEach(function(prop) {
+        if (prop.substring(0, 7) === "$$user_") {
+          var name = prop.substring(7);
+          // user defined property value found, check if it is != its init value
+          if (qx.util.PropertyUtil.getInitValue(this, name) !== this[prop]) {
+            config[name] = this[prop];
+          }
+        }
+      }, this);
+      return config;
     }
   }
 });

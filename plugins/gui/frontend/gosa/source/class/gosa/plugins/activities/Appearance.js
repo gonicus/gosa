@@ -18,6 +18,19 @@
 qx.Theme.define("gosa.plugins.activities.Appearance", {
   
   appearances: {
+    "gosa-dashboard-widget-activities": "gosa-dashboard-widget",
+    "gosa-dashboard-widget-activities/list": {
+      include: "list",
+      alias: "list",
+
+      style: function() {
+        return {
+          backgroundColor: "transparent",
+          decorator: null
+        }
+      }
+    },
+
     "gosa-plugins-actitivies-item": "search-list-item",
     "gosa-plugins-actitivies-item/icon": {
       style: function() {
