@@ -3,7 +3,7 @@ profile = False
 base = dc=example,dc=net
 domain = net.example
 id = fff0c8ad-d26b-4b6d-8e8e-75e054614dd9
-workflow_path = ./workflows
+workflow_path = /tmp/workflows
 
 [http]
 host = localhost
@@ -21,11 +21,11 @@ pool-size = 10
 database = postgresql://admin:secret@localhost:5432/gosa
 
 [backend-json]
-database-file = ./gosa.json
+database-file = /tmp/gosa.json
 
 [user]
-image-path = ./images
-2fa-store = ./2fa
+image-path = /tmp/images
+2fa-store = /tmp/2fa
 
 [backend]
 admins = admin
@@ -38,7 +38,7 @@ key = FIAYj6kqb273a0UoZl4MPz1WTs8E9iHw
 host = localhost
 
 [dbus]
-script-path = ./shell.d
+script-path = /tmp/shell.d
 
 [gui]
 debug = true
