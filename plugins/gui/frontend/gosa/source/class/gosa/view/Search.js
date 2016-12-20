@@ -49,13 +49,6 @@ qx.Class.define("gosa.view.Search", {
     searchHeader.setLayout(searchLayout);
 
     var sf = this.searchField = new qx.ui.form.TextField('');
-    var headerSearch = gosa.ui.Header.getInstance().getChildControl("search");
-    this.addListener("appear", function() {
-      headerSearch.hide();
-    }, this);
-    this.addListener("disappear", function() {
-      headerSearch.show();
-    }, this);
     sf.setPlaceholder(this.tr("Please enter your search..."));
     this.addListener("resize", function() {
       sf.setWidth(parseInt(this.getBounds().width / 2));

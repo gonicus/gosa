@@ -276,19 +276,6 @@ qx.Theme.define("gosa.theme.Appearance",
         }
       }
     },
-    "title-bar/search": {
-      include: "textfield",
-      alias: "textfield",
-
-      style : function()
-      {
-        return {
-          margin: 10,
-          textColor: "font",
-          minWidth: 300
-        };
-      }
-    },
 
     "statusLabel": {
       include: "label",
