@@ -28,6 +28,7 @@ qx.Class.define("gosa.Config", {
 
     AUTH_OTP_REQUIRED: 2,
     AUTH_U2F_REQUIRED: 3,
+    AUTH_LOCKED: 98,
     AUTH_FAILED: 99,
     AUTH_SUCCESS: 100,
 
