@@ -227,10 +227,12 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       } else {
         this._createTabView();
         this._createTabPages();
-        this._createToolmenu();
-        this._createExtendMenu();
-        this._createRetractMenu();
-        this._createActionButtons();
+        if (!this.isWorkflow()) {
+          this._createToolmenu();
+          this._createExtendMenu();
+          this._createRetractMenu();
+          this._createActionButtons();
+        }
       }
       this._createButtons();
     },
@@ -463,7 +465,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _onBack: function() {
       var pos = this._tabView.indexOf(this._tabView.getSelection()[0])-1;
       var pages = this._tabView.getSelectables(true);
-      if (pos > 0) {
+      if (pos >= 0) {
         var lastPage = pages[pos];
         this._tabView.setSelection([lastPage]);
       }
