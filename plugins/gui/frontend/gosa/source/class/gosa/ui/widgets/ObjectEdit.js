@@ -21,11 +21,17 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
   /**
    * @param templates {Array} List of hash maps in the shape {extension : <extension name>, template : <parsed template>}
+   * @param asWorkflow {Boolean} use workflow mode: start with the first template and activate the next template once the last one is
+   * filled with valid values
    */
-  construct: function(templates) {
+  construct: function(templates, asWorkflow) {
     this.base(arguments);
     qx.core.Assert.assertArray(templates);
     this._templates = templates;
+
+    if (asWorkflow === true) {
+      this.setWorkflow(true);
+    }
 
     this._contexts = [];
 
@@ -55,6 +61,11 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       check : "gosa.data.ObjectEditController",
       init : null,
       apply : "_applyController"
+    },
+
+    workflow: {
+      check: "Boolean",
+      init: false
     }
   },
 
@@ -126,6 +137,10 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
       var context = new gosa.engine.Context(templateObj.template, tabContent, templateObj.extension, this.getController());
       this._contexts.push(context);
+      if (this.isWorkflow() && this._tabView.getChildren().length > 0) {
+        // disable all tabs but the first one
+        tabPage.setEnabled(false);
+      }
       this._tabView.add(tabPage);
 
       tabContent.bind("height", scroll, "height");
@@ -228,6 +243,10 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
     _createTabPages : function() {
       this._templates.forEach(this.addTab, this);
+      if (this.isWorkflow()) {
+        // add listener to page changes
+        this._tabView.addListener("changeSelection", this._onTabChanged, this);
+      }
     },
 
     _createToolmenu : function() {
@@ -403,8 +422,65 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       this._buttonPane.setMarginTop(11);
 
       this.add(this._buttonPane);
-      this._createOkButton();
-      this._createCancelButton();
+      if (this.isWorkflow()) {
+        this._createCancelButton();
+        this._buttonPane.add(new qx.ui.core.Spacer());
+        this._okButton = gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("Next"), "@Ligature/right");
+        this._okButton.set({
+          enabled: false,
+          tabIndex : 30000
+        });
+        this._okButton.addListener("execute", this._onNext, this);
+        this._backButton = gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("Back"), "@Ligature/left");
+        this._backButton.addListener("execute", this._onBack, this);
+        this._backButton.set({
+          enabled: false,
+          tabIndex : 30000
+        });
+        this._buttonPane.add(this._backButton);
+        this._buttonPane.add(this._okButton);
+      } else {
+        this._createOkButton();
+        this._createCancelButton();
+      }
+    },
+
+    _onNext: function() {
+      var nextPos = this._tabView.indexOf(this._tabView.getSelection()[0])+1;
+      var pages = this._tabView.getSelectables(true);
+      if (nextPos >= pages.length) {
+        this._onOk();
+        return;
+      }
+      var nextPage = pages[nextPos];
+      nextPage.setEnabled(true);
+      this._tabView.setSelection([nextPage]);
+      this.getController()._updateValidity();
+      this._updateOkButtonEnabled();
+      this._backButton.setEnabled(true);
+    },
+
+    _onBack: function() {
+      var pos = this._tabView.indexOf(this._tabView.getSelection()[0])-1;
+      var pages = this._tabView.getSelectables(true);
+      if (pos > 0) {
+        var lastPage = pages[pos];
+        this._tabView.setSelection([lastPage]);
+      }
+    },
+
+    _onTabChanged: function() {
+      var pos = this._tabView.indexOf(this._tabView.getSelection()[0]);
+      var pages = this._tabView.getSelectables(true);
+      this._backButton.setEnabled(pos > 0);
+      if (pos === pages.length-1) {
+        // last item
+        this._okButton.setLabel(this.tr("OK"));
+        this._okButton.setIcon("@Ligature/check");
+      } else {
+        this._okButton.setLabel(this.tr("Next"));
+        this._okButton.setIcon("@Ligature/right");
+      }
     },
 
     _createOkButton : function() {

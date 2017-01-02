@@ -402,6 +402,9 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     },
 
     _applyMandatory: function(value){
+      if (value) {
+        this.setBackgroundColor("mandatory");
+      }
     },
 
     _applyValid : function(value) {

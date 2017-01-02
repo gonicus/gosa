@@ -49,7 +49,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
 
       return new qx.Promise(function(resolve) {
         // generate widget
-        var widget = new gosa.ui.widgets.ObjectEdit(templates);
+        var widget = new gosa.ui.widgets.ObjectEdit(templates, true);
         resolve(widget);
       });
     },

@@ -93,6 +93,9 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
      * */
     _markAsRequired: function(widget){
       widget.setBackgroundColor("mandatory");
+      if (widget.getValue() === "") {
+        this.setValid(false);
+      }
     },
 
 
@@ -249,17 +252,12 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       if(!(id in this._widgetContainer)){
         var w = this._createWidget(id);
 
-        // Mark widget as required
-        if(this.getMandatory()){
-          this._markAsRequired(w);
-        }
-
         var c = new gosa.ui.widgets.MultiEditContainer(w);
         this._widgetContainer[id] = c;
         c.addListener("add", function(){
           this._skipUpdates = true;
           this.getValue().push(this._default_value);
-          this._skipUpdates = true;
+          this._skipUpdates = false;
           this._generateGui();
         }, this);
         c.addListener("delete", function(){
