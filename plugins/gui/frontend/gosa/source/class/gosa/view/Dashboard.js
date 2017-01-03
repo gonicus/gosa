@@ -208,9 +208,7 @@ qx.Class.define("gosa.view.Dashboard", {
       var col=0;
       console.log(this.getChildControl("board").getChildren().length);
       if (!skipCleanup && this.getChildControl("board").getChildren().length > 0) {
-        this.getChildControl("board").getChildren().forEach(function(child) {
-          child.destroy();
-        }, this);
+        this.getChildControl("board").removeAll();
         // re-build in next animation frame
         qx.bom.AnimationFrame.request(qx.lang.Function.curry(this.refresh, true), this);
         return;
