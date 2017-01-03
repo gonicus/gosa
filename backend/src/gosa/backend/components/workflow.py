@@ -172,6 +172,11 @@ class Workflow:
         if not name in self._get_attributes():
             raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
 
+        # Validate value
+        attribute = self._get_attributes()[name]
+        if attribute['mandatory'] and value is None:
+            raise AttributeError(C.make_error('ATTRIBUTE_MANDATORY', name))
+
         self.__attribute[name] = value
 
     def _get_data(self):
