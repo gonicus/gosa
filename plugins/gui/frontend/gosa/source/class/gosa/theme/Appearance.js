@@ -494,6 +494,16 @@ qx.Theme.define("gosa.theme.Appearance",
           font: "Subtitle"
         }
       }
+    },
+    "gosa-dashboard-edit-button": {
+      style: function() {
+        return {
+          iconPosition: "top",
+          margin: 10,
+          padding: 10,
+          width: 100
+        }
+      }
     }
   }
 });

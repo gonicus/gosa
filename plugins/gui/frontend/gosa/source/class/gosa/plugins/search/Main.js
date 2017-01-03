@@ -20,7 +20,7 @@ qx.Class.define("gosa.plugins.search.Main", {
 
   construct : function() {
     this.base(arguments);
-    this._setLayout(new qx.ui.layout.HBox());
+    this.getChildControl("container").setLayout(new qx.ui.layout.HBox());
   },
 
   /*
@@ -68,13 +68,13 @@ qx.Class.define("gosa.plugins.search.Main", {
         case "search-field":
           control = new qx.ui.form.TextField('');
           control.setPlaceholder(this.tr("Please enter your search..."));
-          this._add(control, {flex: 1});
+          this.getChildControl("container").add(control, {flex: 1});
           break;
 
         case "search-button":
           var command = new qx.ui.command.Command("enter");
           control = new qx.ui.form.Button(this.tr("Search"), "@Ligature/search", command);
-          this._add(control);
+          this.getChildControl("container").add(control);
           break;
       }
 

@@ -21,7 +21,7 @@ qx.Class.define("gosa.plugins.activities.Main", {
   construct : function() {
     this.base(arguments);
     this.getChildControl("title").setValue(this.tr("Recently changed items"));
-    this._setLayout(new qx.ui.layout.VBox());
+    this.getChildControl("container").setLayout(new qx.ui.layout.VBox());
     this._model = new gosa.data.model.SearchResult();
   },
 

@@ -23,11 +23,15 @@ qx.Class.define("gosa.view.Dashboard", {
   {
     // Call super class and configure ourselfs
     this.base(arguments, "", "@Ligature/dashboard");
+    this._setLayout(new qx.ui.layout.VBox());
     this.__layout = new qx.ui.layout.Grid(5, 5);
-    this._setLayout(this.__layout);
     this.__patchedThemes = {};
 
     this.addListenerOnce("appear", this.draw, this);
+
+    this.addListener("longtap", function() {
+      this.setEditMode(true);
+    }, this);
   },
 
   /*
@@ -68,6 +72,22 @@ qx.Class.define("gosa.view.Dashboard", {
     columns : {
       check: "Number",
       init: 2
+    },
+
+    editMode: {
+      check: "Boolean",
+      init: false,
+      event: "changeEditMode",
+      apply: "_applyEditMode"
+    },
+
+    /**
+     * Flag to determine modifications during editing mode
+     */
+    modified: {
+      check: "Boolean",
+      init: false,
+      event: "changeModified"
     }
   },
 
@@ -80,10 +100,91 @@ qx.Class.define("gosa.view.Dashboard", {
     __layout: null,
     __settings: null,
     __patchedThemes : null,
+    __toolbarButtons: null,
+
+    // property apply
+    _applyEditMode: function(value) {
+      if (value) {
+        this.getChildControl("toolbar").show();
+      } else {
+        this.getChildControl("toolbar").exclude()
+      }
+    },
+
+    // overridden
+    _createChildControlImpl: function(id) {
+      var control;
+
+      switch(id) {
+
+        case "toolbar":
+          control = new qx.ui.container.Composite(new qx.ui.layout.HBox(5, "center"));
+          control.exclude();
+          this.__fillToolbar(control);
+          this._addAt(control, 0);
+          break;
+
+        case "board":
+          control = new qx.ui.container.Composite(this.__layout);
+          this._addAt(control, 1);
+          break;
+      }
+
+      return control || this.base(arguments, id);
+    },
+
+    __fillToolbar: function(toolbar) {
+      this.__toolbarButtons = {};
+
+      // add button
+      var widget = new qx.ui.form.Button(this.tr("Add"), "@Ligature/plus");
+      widget.setEnabled(false);
+      widget.setAppearance("gosa-dashboard-edit-button");
+      widget.addListener("execute", function() {
+
+      }, this);
+      toolbar.add(widget);
+      this.__toolbarButtons["add"] = widget;
+
+      // delete button
+      var widget = new qx.ui.form.Button(this.tr("Delete"), "@Ligature/trash");
+      widget.setDroppable(true);
+      widget.setEnabled(false);
+      widget.setAppearance("gosa-dashboard-edit-button");
+      widget.addListener("drop", function(ev) {
+        var target = ev.getRelatedTarget();
+        target.destroy();
+        this.setModified(true);
+      }, this);
+      toolbar.add(widget);
+      this.__toolbarButtons["delete"] = widget;
+
+      // abort editing
+      widget = new qx.ui.form.Button(this.tr("Abort"), "@Ligature/undo");
+      widget.setAppearance("gosa-dashboard-edit-button");
+      widget.addListener("execute", function() {
+        this.setEditMode(false);
+        this.refresh();
+      }, this);
+      toolbar.add(widget);
+      this.__toolbarButtons["cancel"] = widget;
+
+      // finish editing
+      widget = new qx.ui.form.Button(this.tr("Save"), "@Ligature/check");
+      widget.setEnabled(false);
+      this.addListener("changeModified", function(ev) {
+        widget.setEnabled(ev.getData() === true);
+      }, this);
+      widget.setAppearance("gosa-dashboard-edit-button");
+      widget.addListener("execute", function() {
+        this.setEditMode(false);
+        this.save();
+      }, this);
+      toolbar.add(widget);
+      this.__toolbarButtons["save"] = widget;
+    },
 
     draw: function() {
-      var row=0;
-      var col=0;
       for (var i=0; i<this.getColumns(); i++) {
         this.__layout.setColumnFlex(i, 1);
       }
@@ -97,43 +198,70 @@ qx.Class.define("gosa.view.Dashboard", {
         }
         if (result.length) {
           this.__settings = result;
-          var maxColumns = this.getColumns();
-          var registry = gosa.view.Dashboard.getWidgetRegistry();
-          this.__settings.forEach(function(entry) {
-            var widgetName = entry.widget.toLowerCase();
-            if (!registry[widgetName]) {
-              this.warn("%s dashboard widget not registered", entry.widget);
-            }
-            else {
-              var options = registry[widgetName].options;
-              if (options && options['theme'] && !this.__patchedThemes[widgetName]) {
-                for (var key in options['theme']) {
-                  if (key === "meta") {
-                    this.debug("patching meta theme "+options['theme'][key]);
-                    qx.Theme.patch(gosa.theme.Theme, options['theme'][key]);
-                  }
-                  else {
-                    this.debug("patching theme "+options['theme'][key]);
-                    qx.Theme.patch(gosa.theme[qx.lang.String.firstUp(key)], options['theme'][key]);
-                  }
-                }
-                this.__patchedThemes[widgetName] = true;
-              }
-              var widget = new registry[widgetName].clazz();
-              if (entry.settings) {
-                widget.configure(entry.settings);
-              }
-              widget.draw();
-              this._add(widget, entry.layoutProperties);
-              col++;
-              if (col >= maxColumns) {
-                col = 0;
-                row++;
-              }
-            }
-          }, this);
+          this.refresh();
         }
       }, this);
+    },
+
+    refresh: function(skipCleanup) {
+      var row=0;
+      var col=0;
+      console.log(this.getChildControl("board").getChildren().length);
+      if (!skipCleanup && this.getChildControl("board").getChildren().length > 0) {
+        this.getChildControl("board").getChildren().forEach(function(child) {
+          child.destroy();
+        }, this);
+        // re-build in next animation frame
+        qx.bom.AnimationFrame.request(qx.lang.Function.curry(this.refresh, true), this);
+        return;
+      }
+
+      var maxColumns = this.getColumns();
+      var registry = gosa.view.Dashboard.getWidgetRegistry();
+      this.__settings.forEach(function(entry) {
+        var widgetName = entry.widget.toLowerCase();
+        if (!registry[widgetName]) {
+          this.warn("%s dashboard widget not registered", entry.widget);
+        }
+        else {
+          var options = registry[widgetName].options;
+          if (options && options['theme'] && !this.__patchedThemes[widgetName]) {
+            for (var key in options['theme']) {
+              if (key === "meta") {
+                this.debug("patching meta theme "+options['theme'][key]);
+                qx.Theme.patch(gosa.theme.Theme, options['theme'][key]);
+              }
+              else {
+                this.debug("patching theme "+options['theme'][key]);
+                qx.Theme.patch(gosa.theme[qx.lang.String.firstUp(key)], options['theme'][key]);
+              }
+            }
+            this.__patchedThemes[widgetName] = true;
+          }
+          var widget = new registry[widgetName].clazz();
+          if (entry.settings) {
+            widget.configure(entry.settings);
+          }
+          widget.draw();
+          this.bind("editMode", widget, "editMode");
+          widget.addListener("dragstart", this._onDragStart, this);
+          widget.addListener("dragend", this._onDragEnd, this);
+          this.getChildControl("board").add(widget, entry.layoutProperties);
+          col++;
+          if (col >= maxColumns) {
+            col = 0;
+            row++;
+          }
+        }
+      }, this);
+    },
+
+    _onDragStart: function() {
+      this.__toolbarButtons['delete'].setEnabled(true);
+    },
+
+    _onDragEnd: function() {
+      this.__toolbarButtons['delete'].setEnabled(false);
     },
 
     /**
@@ -144,7 +272,7 @@ qx.Class.define("gosa.view.Dashboard", {
       if(gosa.Session.getInstance().getUser()) {
         // collect information
         var settings = [];
-        this.getChildren().forEach(function(widget) {
+        this.getChildControl("board").getChildren().forEach(function(widget) {
           settings.push({
             widget: widget.constructor.NAME,
             layoutProperties: widget.getLayoutProperties(),
@@ -166,5 +294,9 @@ qx.Class.define("gosa.view.Dashboard", {
   */
   destruct : function() {
     this.__layout = null;
+    Object.getOwnPropertyNames(this.__toolbarButtons).forEach(function(name) {
+      this.__toolbarButtons[name].dispose();
+    }, this);
+    this.__toolbarButtons = null;
   }
 });

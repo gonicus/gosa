@@ -19,11 +19,36 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
   extend : qx.ui.core.Widget,
   implement: gosa.plugins.IPlugin,
   type: "abstract",
+
+  /*
+  *****************************************************************************
+     CONSTRUCTOR
+  *****************************************************************************
+  */
+  construct : function() {
+    this.base(arguments);
+    this._setLayout(new qx.ui.layout.Canvas());
+  },
+
+  /*
+  *****************************************************************************
+     EVENTS
+  *****************************************************************************
+  */
+  events : {
+    "delete": "qx.event.type.Event"
+  },
     
   properties : {
     appearance: {
       refine: true,
       init: "gosa-dashboard-widget"
+    },
+
+    editMode: {
+      check: "Boolean",
+      init: false,
+      apply: "_applyEditMode"
     }
   },
     
@@ -34,18 +59,38 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
 
       switch(id) {
 
+        case "container":
+          control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+          this._add(control, { edge: 0 });
+          break;
+
         case "title":
           control = new qx.ui.basic.Label();
-          this._add(control);
+          this.getChildControl("container").add(control);
           break;
 
         case "content":
           control = new qx.ui.container.Composite(new qx.ui.layout.Grow());
-          this._add(control);
+          this.getChildControl("container").add(control);
           break;
+
       }
 
       return control || this.base(arguments, id);
+    },
+
+    // property apply
+    _applyEditMode: function(value) {
+      this.setDraggable(value);
+      if (value) {
+        this.addListener("dragstart", this.__onDragStart, this);
+      } else {
+        this.removeListener("dragstart", this.__onDragStart, this);
+      }
+    },
+
+    __onDragStart: function(e) {
+      e.addAction("move");
     },
 
     // property apply
