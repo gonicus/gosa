@@ -46,6 +46,21 @@ qx.Class.define("gosa.engine.Context", {
     "widgetsCreated" : "qx.event.type.Data"
   },
 
+  /*
+  *****************************************************************************
+     PROPERTIES
+  *****************************************************************************
+  */
+  properties : {
+    /**
+     * Cumulated validity state of all widgets in this context
+     */
+    valid: {
+      check: "Boolean",
+      init: true
+    }
+  },
+
   members : {
     _processor : null,
     _template : null,

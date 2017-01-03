@@ -395,7 +395,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     focus:  function(){
     },
 
-    _applyValue: function(value) {
+    _applyValue: function(value, oldValue) {
     },
 
     _applyMultivalue: function(value){
@@ -408,6 +408,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     },
 
     _applyValid : function(value) {
+      console.trace(value);
       if (value) {
         this.removeState("invalid");
       }

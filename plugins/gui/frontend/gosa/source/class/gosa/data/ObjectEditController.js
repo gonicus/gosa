@@ -509,14 +509,15 @@ qx.Class.define("gosa.data.ObjectEditController", {
         }
       }
       else if (!data.success && data.error) {
-        if (data.error.code === "ATTRIBUTE_CHECK_FAILED" || data.error.code === "ATTRIBUTE_MANDATORY") {
+        var error = data.error.getData();
+        if (error.code === "ATTRIBUTE_CHECK_FAILED" || error.code === "ATTRIBUTE_MANDATORY") {
           if (widget) {
-            widget.setInvalidMessage(data.error.message);
+            widget.setInvalidMessage(error.message);
             widget.setValid(false);
           }
         }
         else {
-          new gosa.ui.dialogs.Error(data.error.message).open();
+          new gosa.ui.dialogs.Error(error.message).open();
         }
       }
       this._updateValidity();
@@ -537,6 +538,20 @@ qx.Class.define("gosa.data.ObjectEditController", {
       this.setValid(this._validatingWidgets.every(function(widget) {
         return widget.isValid();
       }));
+    },
+
+    checkValidity : function(context) {
+      var valid = true;
+      if (context) {
+        var contextWidgets = context.getWidgetRegistry().getMap();
+        for (var modelPath in contextWidgets) {
+          if (contextWidgets.hasOwnProperty(modelPath)) {
+            var widget = contextWidgets[modelPath];
+            valid = valid && (this._validatingWidgets.indexOf(widget) === -1 || widget.isValid());
+          }
+        }
+      }
+      return valid;
     },
 
     /**

@@ -93,7 +93,17 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
      * */
     _markAsRequired: function(widget){
       widget.setBackgroundColor("mandatory");
-      if (widget.getValue() === "") {
+      if (widget.getValue && widget.getValue() === "" || widget.isSelectionEmpty && widget.isSelectionEmpty()) {
+        // add listener for initial value
+        if (widget.getValue) {
+          widget.addListenerOnce("changeValue", function(ev) {
+            this.setValid(ev.getData() !== "");
+          }, this);
+        } else {
+          widget.addListenerOnce("changeSelection", function(ev) {
+            this.setValid(!widget.isSelectionEmpty());
+          }, this);
+        }
         this.setValid(false);
       }
     },

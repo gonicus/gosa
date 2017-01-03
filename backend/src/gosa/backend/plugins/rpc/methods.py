@@ -34,7 +34,8 @@ C.register_codes(dict(
     INVALID_SEARCH_SCOPE=N_("Invalid scope '%(scope)s' [SUB, BASE, ONE, CHILDREN]"),
     INVALID_SEARCH_DATE=N_("Invalid date specification '%(date)s' [hour, day, week, month, year, all]"),
     UNKNOWN_USER=N_("Unknown user '%(target)s'"),
-    BACKEND_PARAMETER_MISSING=N_("Backend parameter for '%(extension)s.%(attribute)s' is missing")))
+    BACKEND_PARAMETER_MISSING=N_("Backend parameter for '%(extension)s.%(attribute)s' is missing"),
+    UNKNOWN_EXTENSION=N_("Unknown extension '%(target)s'")))
 
 
 class GOsaException(Exception):
@@ -130,12 +131,12 @@ class RPCMethods(Plugin):
                 'uuid': res[0]['_uuid'],
                 'cn': res[0]['cn'][0]})
 
-    @Command(__help__=N_("Checks whether the given extension is already activated for the current object"), needsUser=True)
-    def extensionExists(self, userid, dn, etype):
+    @Command(__help__=N_("Checks whether the given extension is already activated for the current object"))
+    def extensionExists(self, dn, etype):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'_type': 'User', 'dn': dn}, {'_extensions': 1})
         if len(res) == 0:
-            raise GOsaException(C.make_error("UNKNOWN_USER", target=userid))
+            raise GOsaException(C.make_error("UNKNOWN_EXTENSION", target=etype))
         return etype in res[0]['_extensions'] if '_extensions' in res[0] else False
 
     @Command(__help__=N_("Save user preferences"), needsUser=True)

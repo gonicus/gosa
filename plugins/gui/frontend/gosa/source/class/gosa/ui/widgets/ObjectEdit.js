@@ -141,6 +141,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         // disable all tabs but the first one
         tabPage.setEnabled(false);
       }
+      tabPage.setUserData("context", context);
       this._tabView.add(tabPage);
 
       tabContent.bind("height", scroll, "height");
@@ -216,9 +217,13 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       }
     },
 
-    _updateOkButtonEnabled : function() {
+    _updateOkButtonEnabled : function(context) {
       var c = this.getController();
-      this._okButton.setEnabled(c.isModified() && c.isValid());
+      if (context && context instanceof gosa.engine.Context) {
+        this._okButton.setEnabled(c.isModified() && c.checkValidity(context));
+      } else {
+        this._okButton.setEnabled(c.isModified() && c.isValid());
+      }
     },
 
     _initWidgets : function() {
@@ -227,12 +232,12 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       } else {
         this._createTabView();
         this._createTabPages();
+        this._createToolmenu();
         if (!this.isWorkflow()) {
-          this._createToolmenu();
           this._createExtendMenu();
           this._createRetractMenu();
-          this._createActionButtons();
         }
+        this._createActionButtons();
       }
       this._createButtons();
     },
@@ -457,8 +462,6 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       var nextPage = pages[nextPos];
       nextPage.setEnabled(true);
       this._tabView.setSelection([nextPage]);
-      this.getController()._updateValidity();
-      this._updateOkButtonEnabled();
       this._backButton.setEnabled(true);
     },
 
@@ -475,6 +478,10 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       var pos = this._tabView.indexOf(this._tabView.getSelection()[0]);
       var pages = this._tabView.getSelectables(true);
       this._backButton.setEnabled(pos > 0);
+      new qx.util.DeferredCall(function() {
+        this.getController()._updateValidity();
+        this._updateOkButtonEnabled(this._tabView.getSelection()[0].getUserData("context"));
+      }, this). schedule();
       if (pos === pages.length-1) {
         // last item
         this._okButton.setLabel(this.tr("OK"));

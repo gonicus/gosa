@@ -80,12 +80,12 @@ qx.Class.define("gosa.io.Rpc", {
               data.message += " - " + data.details[item]['detail'];
             }
           }
-          reject(new Error(data.message));
+          reject(new gosa.core.RpcError(data));
         }, function() {
           if(!old_error.message){
             old_error.message = old_error.text;
           }
-          reject(new Error(old_error.message));
+          reject(new gosa.core.RpcError(old_error));
         });
       }, this);
     }
