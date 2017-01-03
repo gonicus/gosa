@@ -46,6 +46,7 @@ qx.Class.define("gosa.view.Dashboard", {
       qx.core.Assert.assertTrue(qx.Interface.classImplements(widgetClass, gosa.plugins.IPlugin),
                                 widgetClass+" does not implement the gosa.plugins.IPlugin interface");
       qx.core.Assert.assertString(widgetClass.NAME, widgetClass+" has no static NAME constant");
+      qx.core.Assert.assertString(options.name, "No 'name' property found in options");
 
       this.__registry[widgetClass.NAME.toLowerCase()] = {
         clazz: widgetClass,
@@ -133,12 +134,27 @@ qx.Class.define("gosa.view.Dashboard", {
       return control || this.base(arguments, id);
     },
 
+    /**
+     * Add buttons to the toolbar for the editing mode
+     * @param toolbar {qx.ui.container.Composite} the toolbar
+     */
     __fillToolbar: function(toolbar) {
       this.__toolbarButtons = {};
 
+      // widget creation menu
+      var menu = new qx.ui.menu.Menu();
+      var registry = gosa.view.Dashboard.getWidgetRegistry();
+      Object.getOwnPropertyNames(registry).forEach(function(name) {
+        var entry = registry[name];
+        var button = new qx.ui.menu.Button(entry.options.name);
+        button.setUserData("widget", name);
+        menu.add(button);
+        button.addListener("execute", this._createWidget, this);
+      }, this);
+
+
       // add button
-      var widget = new qx.ui.form.Button(this.tr("Add"), "@Ligature/plus");
-      widget.setEnabled(false);
+      var widget = new qx.ui.form.MenuButton(this.tr("Add"), "@Ligature/plus", menu);
       widget.setAppearance("gosa-dashboard-edit-button");
       widget.addListener("execute", function() {
 
@@ -164,6 +180,7 @@ qx.Class.define("gosa.view.Dashboard", {
       widget.setAppearance("gosa-dashboard-edit-button");
       widget.addListener("execute", function() {
         this.setEditMode(false);
+        this.__toolbarButtons['save'].setEnabled(false);
         this.refresh();
       }, this);
       toolbar.add(widget);
@@ -184,6 +201,43 @@ qx.Class.define("gosa.view.Dashboard", {
       this.__toolbarButtons["save"] = widget;
     },
 
+    /**
+     * Add a widget to the dashboard, triggered by the 'execute' event from an entry in the 'add' menu
+     */
+    _createWidget: function(ev) {
+      var button = ev.getTarget();
+      var widget = button.getUserData("widget");
+      var entry = {
+        widget: widget
+      };
+      // find empty space in grid
+
+      for(var row=0, l = this.__layout.getRowCount(); row < l; row++) {
+        for(var col=0, k = this.__layout.getColumnCount(); col < k; col++) {
+          var widget = this.__layout.getCellWidget(row, col);
+          if (!widget) {
+            // empty cell
+            entry.layoutProperties = {
+              row: row,
+              column: col
+            };
+            this.__addWidget(entry);
+            return;
+          }
+        }
+      }
+      // add at the end
+      entry.layoutProperties = {
+        row: row,
+        column: 0
+      };
+      this.__addWidget(entry);
+      this.setModified(true);
+    },
+
+    /**
+     * Loads the dashboard settings from the backend and creates it.
+     */
     draw: function() {
       for (var i=0; i<this.getColumns(); i++) {
         this.__layout.setColumnFlex(i, 1);
@@ -203,55 +257,55 @@ qx.Class.define("gosa.view.Dashboard", {
       }, this);
     },
 
+    /**
+     * Refresh the dashboard. Removes all existing widgets (if there are any) and create new ones accoring to the current
+     * configuration.
+     *
+     * @param skipCleanup {Boolean?} if true skip the cleanup step before re-creating
+     */
     refresh: function(skipCleanup) {
-      var row=0;
-      var col=0;
-      console.log(this.getChildControl("board").getChildren().length);
       if (!skipCleanup && this.getChildControl("board").getChildren().length > 0) {
         this.getChildControl("board").removeAll();
         // re-build in next animation frame
         qx.bom.AnimationFrame.request(qx.lang.Function.curry(this.refresh, true), this);
         return;
       }
+      this.__settings.forEach(this.__addWidget, this);
+    },
 
-      var maxColumns = this.getColumns();
+    __addWidget: function(entry) {
       var registry = gosa.view.Dashboard.getWidgetRegistry();
-      this.__settings.forEach(function(entry) {
-        var widgetName = entry.widget.toLowerCase();
-        if (!registry[widgetName]) {
-          this.warn("%s dashboard widget not registered", entry.widget);
-        }
-        else {
-          var options = registry[widgetName].options;
-          if (options && options['theme'] && !this.__patchedThemes[widgetName]) {
-            for (var key in options['theme']) {
-              if (key === "meta") {
-                this.debug("patching meta theme "+options['theme'][key]);
-                qx.Theme.patch(gosa.theme.Theme, options['theme'][key]);
-              }
-              else {
-                this.debug("patching theme "+options['theme'][key]);
-                qx.Theme.patch(gosa.theme[qx.lang.String.firstUp(key)], options['theme'][key]);
-              }
+      var widgetName = entry.widget.toLowerCase();
+      if (!registry[widgetName]) {
+        this.warn("%s dashboard widget not registered", entry.widget);
+      }
+      else {
+
+        var options = registry[widgetName].options;
+        if (options && options['theme'] && !this.__patchedThemes[widgetName]) {
+          for (var key in options['theme']) {
+            if (key === "meta") {
+              this.debug("patching meta theme " + options['theme'][key]);
+              qx.Theme.patch(gosa.theme.Theme, options['theme'][key]);
             }
-            this.__patchedThemes[widgetName] = true;
+            else {
+              this.debug("patching theme " + options['theme'][key]);
+              qx.Theme.patch(gosa.theme[qx.lang.String.firstUp(key)], options['theme'][key]);
+            }
           }
-          var widget = new registry[widgetName].clazz();
-          if (entry.settings) {
-            widget.configure(entry.settings);
-          }
-          widget.draw();
-          this.bind("editMode", widget, "editMode");
-          widget.addListener("dragstart", this._onDragStart, this);
-          widget.addListener("dragend", this._onDragEnd, this);
-          this.getChildControl("board").add(widget, entry.layoutProperties);
-          col++;
-          if (col >= maxColumns) {
-            col = 0;
-            row++;
-          }
+          this.__patchedThemes[widgetName] = true;
         }
-      }, this);
+        var widget = new registry[widgetName].clazz();
+        if (entry.settings) {
+          widget.configure(entry.settings);
+        }
+        widget.draw();
+        this.bind("editMode", widget, "editMode");
+        widget.addListener("dragstart", this._onDragStart, this);
+        widget.addListener("dragend", this._onDragEnd, this);
+        this.getChildControl("board").add(widget, entry.layoutProperties);
+        return widget;
+      }
     },
 
     _onDragStart: function() {
@@ -278,6 +332,9 @@ qx.Class.define("gosa.view.Dashboard", {
           })
         }, this);
         gosa.io.Rpc.getInstance().cA("saveUserPreferences", "dashboard", settings)
+        .then(function() {
+          this.__toolbarButtons['save'].setEnabled(false);
+        }, this)
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error.message).open();
         });

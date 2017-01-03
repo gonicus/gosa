@@ -143,6 +143,7 @@ qx.Class.define("gosa.plugins.activities.Main", {
 
   defer: function () {
     gosa.view.Dashboard.registerWidget(gosa.plugins.activities.Main, {
+      name: qx.locale.Manager.tr("Activities"),
       theme: {
         appearance : gosa.plugins.activities.Appearance
       }
