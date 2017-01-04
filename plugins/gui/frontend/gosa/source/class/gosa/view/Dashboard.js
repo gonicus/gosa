@@ -89,6 +89,12 @@ qx.Class.define("gosa.view.Dashboard", {
       check: "Boolean",
       init: false,
       event: "changeModified"
+    },
+
+    selectedWidget: {
+      check: "gosa.plugins.AbstractDashboardWidget",
+      nullable: true,
+      apply: "_applySelectedWidget"
     }
   },
 
@@ -107,8 +113,32 @@ qx.Class.define("gosa.view.Dashboard", {
     _applyEditMode: function(value) {
       if (value) {
         this.getChildControl("toolbar").show();
+        this.getChildControl("board").getChildren().forEach(function(child) {
+          child.addListener("tap", this._onTap, this);
+        }, this);
       } else {
-        this.getChildControl("toolbar").exclude()
+        this.getChildControl("toolbar").exclude();
+        this.getChildControl("board").getChildren().forEach(function(child) {
+          child.removeListener("tap", this._onTap, this);
+        }, this);
+      }
+    },
+
+    _onTap: function(ev) {
+      if (ev.getCurrentTarget() instanceof gosa.plugins.AbstractDashboardWidget) {
+        this.setSelectedWidget(ev.getCurrentTarget());
+      } else {
+        this.setSelectedWidget(null);
+      }
+    },
+
+    _applySelectedWidget: function(value, old) {
+      if (old) {
+        old.removeState("selected");
+      }
+      if (value) {
+        value.addState("selected");
+        this.__toolbarButtons['delete'].setEnabled(true);
       }
     },
 
@@ -167,10 +197,13 @@ qx.Class.define("gosa.view.Dashboard", {
       widget.setDroppable(true);
       widget.setEnabled(false);
       widget.setAppearance("gosa-dashboard-edit-button");
+      widget.addListener("tap", function() {
+        if (this.getSelectedWidget()) {
+          this.__deleteWidget(this.getSelectedWidget());
+        }
+      }, this);
       widget.addListener("drop", function(ev) {
-        var target = ev.getRelatedTarget();
-        target.destroy();
-        this.setModified(true);
+        this.__deleteWidget(ev.getRelatedTarget());
       }, this);
       widget.addListener("dragover", function(ev) {
         var spec = {
@@ -233,6 +266,11 @@ qx.Class.define("gosa.view.Dashboard", {
       }, this);
       toolbar.add(widget);
       this.__toolbarButtons["save"] = widget;
+    },
+
+    __deleteWidget: function(widget) {
+      widget.destroy();
+      this.setModified(true);
     },
 
     /**

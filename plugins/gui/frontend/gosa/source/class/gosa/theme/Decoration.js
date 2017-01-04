@@ -64,6 +64,12 @@ qx.Theme.define("gosa.theme.Decoration",
         width: 2,
         color: "#000"
       }
+    },
+    "gosa-dashboard-widget-selected": {
+      style: {
+        width: 2,
+        color: "#00405e"
+      }
     }
   }
 });

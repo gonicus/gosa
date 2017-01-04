@@ -482,13 +482,17 @@ qx.Theme.define("gosa.theme.Appearance",
 
     "gosa-dashboard-widget": {
       style: function(states) {
+        var op = 1.0;
         var dc = "gosa-dashboard-widget";
-        if (states.edit) {
+        if (states.selected) {
+          dc += "-selected";
+        } else if (states.edit) {
           dc += "-edit";
+          op = 0.5;
         }
         return {
           padding: 10,
-          opacity: states.edit ? 0.5 : 1.0,
+          opacity: op,
           decorator: dc
         }
       }
