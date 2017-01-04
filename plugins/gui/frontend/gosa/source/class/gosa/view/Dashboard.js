@@ -115,12 +115,16 @@ qx.Class.define("gosa.view.Dashboard", {
         this.getChildControl("toolbar").show();
         this.getChildControl("board").addListener("tap", this._onTap, this);
         this.getChildControl("board").getChildren().forEach(function(child) {
-          child.addListener("tap", this._onTap, this);
+          if (child instanceof gosa.plugins.AbstractDashboardWidget) {
+            child.addListener("tap", this._onTap, this);
+          }
         }, this);
       } else {
         this.getChildControl("toolbar").exclude();
         this.getChildControl("board").getChildren().forEach(function(child) {
-          child.removeListener("tap", this._onTap, this);
+          if (child instanceof gosa.plugins.AbstractDashboardWidget) {
+            child.removeListener("tap", this._onTap, this);
+          }
         }, this);
         this.getChildControl("board").removeListener("tap", this._onTap, this);
         this.setSelectedWidget(null);
