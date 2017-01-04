@@ -307,6 +307,7 @@ qx.Class.define("gosa.view.Dashboard", {
     _createWidget: function(ev) {
       var button = ev.getTarget();
       var widget = button.getUserData("widget");
+      var widgetData = gosa.view.Dashboard.getWidgetRegistry()[widget];
       var entry = {
         widget: widget
       };
@@ -345,6 +346,7 @@ qx.Class.define("gosa.view.Dashboard", {
           column : 0
         };
       }
+      entry.layoutProperties.colSpan = widgetData.options.defaultColspan;
       this.__addWidget(entry);
       this.setModified(true);
     },
@@ -353,7 +355,11 @@ qx.Class.define("gosa.view.Dashboard", {
      * Loads the dashboard settings from the backend and creates it.
      */
     draw: function() {
-      for (var i=0; i<this.getColumns(); i++) {
+
+      var board = this.getChildControl("board");
+      // pre-filling with spacers to have a 12-col grid
+      for(var i=0; i<12; i++) {
+        board.add(new qx.ui.core.Spacer(), {row: 0, column: i});
         this.__layout.setColumnFlex(i, 1);
       }
 
@@ -362,13 +368,13 @@ qx.Class.define("gosa.view.Dashboard", {
       .then(function(result) {
         if (result.length) {
           this.__settings = result;
-          this.refresh();
+          this.refresh(true);
         }
       }, this);
     },
 
     /**
-     * Refresh the dashboard. Removes all existing widgets (if there are any) and create new ones accoring to the current
+     * Refresh the dashboard. Removes all existing widgets (if there are any) and create new ones according to the current
      * configuration.
      *
      * @param skipCleanup {Boolean?} if true skip the cleanup step before re-creating
@@ -420,6 +426,13 @@ qx.Class.define("gosa.view.Dashboard", {
         if (this.isEditMode()) {
           widget.addListener("tap", this._onTap, this);
           this.setSelectedWidget(widget);
+        }
+        // remove spacers if there are any
+        for(var c=entry.layoutProperties.column, l = c + entry.layoutProperties.colSpan||1; c<l; c++) {
+          var currentWidget = this.__layout.getCellWidget(entry.layoutProperties.row, c);
+          if (currentWidget instanceof qx.ui.core.Spacer) {
+            currentWidget.destroy();
+          }
         }
         this.getChildControl("board").add(widget, entry.layoutProperties);
         return widget;

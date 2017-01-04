@@ -104,7 +104,8 @@ qx.Class.define("gosa.plugins.search.Main", {
       name: qx.locale.Manager.tr("Search"),
       theme: {
         appearance : gosa.plugins.search.Appearance
-      }
+      },
+      defaultColspan: 12
     });
   }
 });
