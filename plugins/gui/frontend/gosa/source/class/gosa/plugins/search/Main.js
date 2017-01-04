@@ -105,7 +105,7 @@ qx.Class.define("gosa.plugins.search.Main", {
       theme: {
         appearance : gosa.plugins.search.Appearance
       },
-      defaultColspan: 12
+      defaultColspan: 6
     });
   }
 });

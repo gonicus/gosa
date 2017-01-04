@@ -25,6 +25,7 @@ qx.Class.define("gosa.view.Dashboard", {
     this.base(arguments, "", "@Ligature/dashboard");
     this._setLayout(new qx.ui.layout.VBox());
     this.__layout = new qx.ui.layout.Grid(5, 5);
+    this.__columns = 6;
     this.__patchedThemes = {};
 
     this.addListenerOnce("appear", this.draw, this);
@@ -41,6 +42,7 @@ qx.Class.define("gosa.view.Dashboard", {
   */
   statics : {
     __registry: {},
+    __columns: null,
 
     registerWidget: function(widgetClass, options) {
       qx.core.Assert.assertTrue(qx.Interface.classImplements(widgetClass, gosa.plugins.IPlugin),
@@ -315,6 +317,10 @@ qx.Class.define("gosa.view.Dashboard", {
       var placed = false;
       for(var row=0, l = this.__layout.getRowCount(); row < l; row++) {
         for(var col=0, k = this.__layout.getColumnCount(); col < k; col++) {
+          if (col + widgetData.options.defaultColspan > this.__columns) {
+            // not enough space in this row
+            break;
+          }
           var widget = this.__layout.getCellWidget(row, col);
           if (widget instanceof qx.ui.core.Spacer) {
             // replace spacer
@@ -358,7 +364,7 @@ qx.Class.define("gosa.view.Dashboard", {
 
       var board = this.getChildControl("board");
       // pre-filling with spacers to have a 12-col grid
-      for(var i=0; i<12; i++) {
+      for(var i=0; i<this.__columns; i++) {
         board.add(new qx.ui.core.Spacer(), {row: 0, column: i});
         this.__layout.setColumnFlex(i, 1);
       }
@@ -428,7 +434,8 @@ qx.Class.define("gosa.view.Dashboard", {
           this.setSelectedWidget(widget);
         }
         // remove spacers if there are any
-        for(var c=entry.layoutProperties.column, l = c + entry.layoutProperties.colSpan||1; c<l; c++) {
+        var colspan = entry.layoutProperties.colSpan||1;
+        for(var c=entry.layoutProperties.column, l = c + colspan; c<l; c++) {
           var currentWidget = this.__layout.getCellWidget(entry.layoutProperties.row, c);
           if (currentWidget instanceof qx.ui.core.Spacer) {
             currentWidget.destroy();
