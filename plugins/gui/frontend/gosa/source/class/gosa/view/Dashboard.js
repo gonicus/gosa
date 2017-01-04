@@ -150,8 +150,10 @@ qx.Class.define("gosa.view.Dashboard", {
       if (value) {
         value.addState("selected");
         this.__toolbarButtons['delete'].setEnabled(true);
+        this.__toolbarButtons['edit'].setEnabled(true);
       } else {
         this.__toolbarButtons['delete'].setEnabled(false);
+        this.__toolbarButtons['edit'].setEnabled(false);
       }
     },
 
@@ -205,8 +207,26 @@ qx.Class.define("gosa.view.Dashboard", {
       toolbar.add(widget);
       this.__toolbarButtons["add"] = widget;
 
+      // edit button
+      widget = new qx.ui.form.Button(this.tr("Edit"), "@Ligature/gear");
+      widget.setDroppable(true);
+      widget.setEnabled(false);
+      widget.setAppearance("gosa-dashboard-edit-button");
+      widget.addListener("tap", function() {
+        if (this.getSelectedWidget()) {
+          // open edit dialog
+          var dialog = new gosa.ui.dialogs.EditDashboardWidget(this.getSelectedWidget());
+          dialog.addListenerOnce("modified", function() {
+            this.setModified(true);
+          }, this);
+          dialog.open();
+        }
+      }, this);
+      toolbar.add(widget);
+      this.__toolbarButtons["edit"] = widget;
+
       // delete button
-      var widget = new qx.ui.form.Button(this.tr("Delete"), "@Ligature/trash");
+      widget = new qx.ui.form.Button(this.tr("Delete"), "@Ligature/trash");
       widget.setDroppable(true);
       widget.setEnabled(false);
       widget.setAppearance("gosa-dashboard-edit-button");
