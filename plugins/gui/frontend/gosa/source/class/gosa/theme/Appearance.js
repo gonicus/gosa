@@ -481,10 +481,15 @@ qx.Theme.define("gosa.theme.Appearance",
     },
 
     "gosa-dashboard-widget": {
-      style: function() {
+      style: function(states) {
+        var dc = "gosa-dashboard-widget";
+        if (states.edit) {
+          dc += "-edit";
+        }
         return {
           padding: 10,
-          decorator: "gosa-dashboard-widget"
+          opacity: states.edit ? 0.5 : 1.0,
+          decorator: dc
         }
       }
     },

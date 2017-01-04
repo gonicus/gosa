@@ -58,6 +58,12 @@ qx.Theme.define("gosa.theme.Decoration",
         width: 1,
         color: "#EEE"
       }
+    },
+    "gosa-dashboard-widget-edit": {
+      style: {
+        width: 2,
+        color: "#000"
+      }
     }
   }
 });

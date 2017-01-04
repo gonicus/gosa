@@ -82,10 +82,13 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
     // property apply
     _applyEditMode: function(value) {
       this.setDraggable(value);
+      this.getChildControl("container").setEnabled(!value);
       if (value) {
         this.addListener("dragstart", this.__onDragStart, this);
+        this.addState("edit");
       } else {
         this.removeListener("dragstart", this.__onDragStart, this);
+        this.removeState("edit");
       }
     },
 

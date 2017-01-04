@@ -172,6 +172,38 @@ qx.Class.define("gosa.view.Dashboard", {
         target.destroy();
         this.setModified(true);
       }, this);
+      widget.addListener("dragover", function(ev) {
+        var spec = {
+          duration: 200,
+          timing: "ease-in-out",
+          keep: 100,
+          keyFrames : {
+            0: {
+              scale : [ "1", "1" ]
+            },
+            100: {
+              scale : [ "1.2", "1.2" ]
+            }
+          }
+        };
+        qx.bom.element.Animation.animate(ev.getTarget().getContentElement().getDomElement(), spec);
+      }, this);
+      widget.addListener("dragleave", function(ev) {
+        var spec = {
+          duration: 200,
+          timing: "ease-in-out",
+          keep: 100,
+          keyFrames : {
+            0: {
+              scale : [ "1.2", "1.2" ]
+            },
+            100: {
+              scale : [ "1", "1" ]
+            }
+          }
+        };
+        qx.bom.element.Animation.animate(ev.getTarget().getContentElement().getDomElement(), spec);
+      }, this);
       toolbar.add(widget);
       this.__toolbarButtons["delete"] = widget;
 
@@ -181,6 +213,7 @@ qx.Class.define("gosa.view.Dashboard", {
       widget.addListener("execute", function() {
         this.setEditMode(false);
         this.__toolbarButtons['save'].setEnabled(false);
+        console.log(this.__toolbarButtons['save'].isEnabled());
         this.refresh();
       }, this);
       toolbar.add(widget);
@@ -190,7 +223,8 @@ qx.Class.define("gosa.view.Dashboard", {
       widget = new qx.ui.form.Button(this.tr("Save"), "@Ligature/check");
       widget.setEnabled(false);
       this.addListener("changeModified", function(ev) {
-        widget.setEnabled(ev.getData() === true);
+        this.__toolbarButtons['save'].setEnabled(ev.getData() === true);
+        console.log(this.__toolbarButtons['save'].isEnabled());
       }, this);
       widget.setAppearance("gosa-dashboard-edit-button");
       widget.addListener("execute", function() {
@@ -309,6 +343,23 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     _onDragStart: function() {
+      var spec = {
+        duration: 400,
+        timing: "ease-in-out",
+        keep: 100,
+        keyFrames : {
+          0: {
+            scale : [ "1", "1" ]
+          },
+          50: {
+            scale : [ "1.2", "1.2" ]
+          },
+          100: {
+            scale : [ "1", "1" ]
+          }
+        }
+      };
+      qx.bom.element.Animation.animate(this.__toolbarButtons['delete'].getContentElement().getDomElement(), spec);
       this.__toolbarButtons['delete'].setEnabled(true);
     },
 
@@ -334,6 +385,7 @@ qx.Class.define("gosa.view.Dashboard", {
         gosa.io.Rpc.getInstance().cA("saveUserPreferences", "dashboard", settings)
         .then(function() {
           this.__toolbarButtons['save'].setEnabled(false);
+          this.__settings = settings;
         }, this)
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error.message).open();
