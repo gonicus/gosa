@@ -113,6 +113,7 @@ qx.Class.define("gosa.view.Dashboard", {
     _applyEditMode: function(value) {
       if (value) {
         this.getChildControl("toolbar").show();
+        this.getChildControl("board").addListener("tap", this._onTap, this);
         this.getChildControl("board").getChildren().forEach(function(child) {
           child.addListener("tap", this._onTap, this);
         }, this);
@@ -121,12 +122,16 @@ qx.Class.define("gosa.view.Dashboard", {
         this.getChildControl("board").getChildren().forEach(function(child) {
           child.removeListener("tap", this._onTap, this);
         }, this);
+        this.getChildControl("board").removeListener("tap", this._onTap, this);
+        this.setSelectedWidget(null);
+        this.setModified(false);
       }
     },
 
     _onTap: function(ev) {
       if (ev.getCurrentTarget() instanceof gosa.plugins.AbstractDashboardWidget) {
         this.setSelectedWidget(ev.getCurrentTarget());
+        ev.stopPropagation();
       } else {
         this.setSelectedWidget(null);
       }
@@ -139,6 +144,8 @@ qx.Class.define("gosa.view.Dashboard", {
       if (value) {
         value.addState("selected");
         this.__toolbarButtons['delete'].setEnabled(true);
+      } else {
+        this.__toolbarButtons['delete'].setEnabled(false);
       }
     },
 
@@ -253,7 +260,7 @@ qx.Class.define("gosa.view.Dashboard", {
 
       // finish editing
       widget = new qx.ui.form.Button(this.tr("Save"), "@Ligature/check");
-      widget.setEnabled(false);
+      widget.setEnabled(this.isModified());
       this.addListener("changeModified", function(ev) {
         this.__toolbarButtons['save'].setEnabled(ev.getData() === true);
       }, this);
@@ -262,13 +269,22 @@ qx.Class.define("gosa.view.Dashboard", {
         this.setEditMode(false);
         this.save();
       }, this);
+      widget.addListener("changeEnabled", function(ev) {
+        console.trace("Save button enabled: "+ev.getData());
+      }, this);
       toolbar.add(widget);
       this.__toolbarButtons["save"] = widget;
     },
 
     __deleteWidget: function(widget) {
+      var layoutProps = widget.getLayoutProperties();
       widget.destroy();
       this.setModified(true);
+      // add spacer as replacement
+      this.getChildControl("board").add(new qx.ui.core.Spacer(), layoutProps);
+      if (this.getSelectedWidget() === widget) {
+        this.setSelectedWidget(null);
+      }
     },
 
     /**
@@ -281,26 +297,40 @@ qx.Class.define("gosa.view.Dashboard", {
         widget: widget
       };
       // find empty space in grid
-
+      var placed = false;
       for(var row=0, l = this.__layout.getRowCount(); row < l; row++) {
         for(var col=0, k = this.__layout.getColumnCount(); col < k; col++) {
           var widget = this.__layout.getCellWidget(row, col);
-          if (!widget) {
+          if (widget instanceof qx.ui.core.Spacer) {
+            // replace spacer
+            entry.layoutProperties = widget.getLayoutProperties();
+            widget.destroy();
+            // break the outer loop
+            placed = true;
+            break;
+          }
+          else if (!widget) {
             // empty cell
             entry.layoutProperties = {
               row: row,
               column: col
             };
-            this.__addWidget(entry);
-            return;
+            // break the outer loop
+            placed = true;
+            break;
           }
         }
+        if (placed) {
+          break;
+        }
       }
-      // add at the end
-      entry.layoutProperties = {
-        row: row,
-        column: 0
-      };
+      if (!placed) {
+        // add at the end
+        entry.layoutProperties = {
+          row    : row,
+          column : 0
+        };
+      }
       this.__addWidget(entry);
       this.setModified(true);
     },
@@ -346,11 +376,15 @@ qx.Class.define("gosa.view.Dashboard", {
     __addWidget: function(entry) {
       var registry = gosa.view.Dashboard.getWidgetRegistry();
       var widgetName = entry.widget.toLowerCase();
-      if (!registry[widgetName]) {
+      if (widgetName === "qx.ui.core.spacer") {
+        var widget = new qx.ui.core.Spacer();
+        this.getChildControl("board").add(widget, entry.layoutProperties);
+        return widget;
+      }
+      else if (!registry[widgetName]) {
         this.warn("%s dashboard widget not registered", entry.widget);
       }
       else {
-
         var options = registry[widgetName].options;
         if (options && options['theme'] && !this.__patchedThemes[widgetName]) {
           for (var key in options['theme']) {
@@ -373,6 +407,10 @@ qx.Class.define("gosa.view.Dashboard", {
         this.bind("editMode", widget, "editMode");
         widget.addListener("dragstart", this._onDragStart, this);
         widget.addListener("dragend", this._onDragEnd, this);
+        if (this.isEditMode()) {
+          widget.addListener("tap", this._onTap, this);
+          this.setSelectedWidget(widget);
+        }
         this.getChildControl("board").add(widget, entry.layoutProperties);
         return widget;
       }
@@ -412,11 +450,18 @@ qx.Class.define("gosa.view.Dashboard", {
         // collect information
         var settings = [];
         this.getChildControl("board").getChildren().forEach(function(widget) {
-          settings.push({
-            widget: widget.constructor.NAME,
-            layoutProperties: widget.getLayoutProperties(),
-            settings: widget.getConfiguration()
-          })
+          if (widget instanceof qx.ui.core.Spacer) {
+            settings.push({
+              widget           : "qx.ui.core.Spacer",
+              layoutProperties : widget.getLayoutProperties()
+            })
+          } else {
+            settings.push({
+              widget           : widget.constructor.NAME,
+              layoutProperties : widget.getLayoutProperties(),
+              settings         : widget.getConfiguration()
+            })
+          }
         }, this);
         gosa.io.Rpc.getInstance().cA("saveUserPreferences", "dashboard", settings)
         .then(function() {
