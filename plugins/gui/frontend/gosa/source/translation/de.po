@@ -96,7 +96,7 @@ msgstr "Kommunikation mit dem Server ist fehlgeschlagen!"
 
 #: gosa/plugins/activities/Main.js:23
 msgid "Recently changed items"
-msgstr ""
+msgstr "Letzte Änderungen"
 
 #: gosa/plugins/activities/Main.js:146
 msgid "Activities"
