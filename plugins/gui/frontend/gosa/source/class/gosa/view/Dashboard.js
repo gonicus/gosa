@@ -246,7 +246,6 @@ qx.Class.define("gosa.view.Dashboard", {
       widget.addListener("execute", function() {
         this.setEditMode(false);
         this.__toolbarButtons['save'].setEnabled(false);
-        console.log(this.__toolbarButtons['save'].isEnabled());
         this.refresh();
       }, this);
       toolbar.add(widget);
@@ -257,7 +256,6 @@ qx.Class.define("gosa.view.Dashboard", {
       widget.setEnabled(false);
       this.addListener("changeModified", function(ev) {
         this.__toolbarButtons['save'].setEnabled(ev.getData() === true);
-        console.log(this.__toolbarButtons['save'].isEnabled());
       }, this);
       widget.setAppearance("gosa-dashboard-edit-button");
       widget.addListener("execute", function() {
