@@ -257,8 +257,7 @@ qx.Class.define("gosa.view.Dashboard", {
       widget.setAppearance("gosa-dashboard-edit-button");
       widget.addListener("execute", function() {
         this.getChildControl("board").removeAll();
-        this.save();
-        this.setEditMode(false);
+        this.setModified(true);
       }, this);
       toolbar.add(widget);
       this.__toolbarButtons["clear"] = widget;
