@@ -352,7 +352,7 @@ qx.Class.define("gosa.view.Dashboard", {
           column : 0
         };
       }
-      entry.layoutProperties.colSpan = widgetData.options.defaultColspan;
+      entry.layoutProperties.colSpan = widgetData.options.defaultColspan || 3;
       this.__addWidget(entry);
       this.setModified(true);
     },
