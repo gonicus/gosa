@@ -251,12 +251,23 @@ qx.Class.define("gosa.view.Dashboard", {
       toolbar.add(widget);
       this.__toolbarButtons["delete"] = widget;
 
+
+      // clear dashboard
+      widget = new qx.ui.form.Button(this.tr("Clear"), "@Ligature/clear");
+      widget.setAppearance("gosa-dashboard-edit-button");
+      widget.addListener("execute", function() {
+        this.getChildControl("board").removeAll();
+        this.save();
+        this.setEditMode(false);
+      }, this);
+      toolbar.add(widget);
+      this.__toolbarButtons["clear"] = widget;
+
       // abort editing
       widget = new qx.ui.form.Button(this.tr("Abort"), "@Ligature/undo");
       widget.setAppearance("gosa-dashboard-edit-button");
       widget.addListener("execute", function() {
         this.setEditMode(false);
-        this.__toolbarButtons['save'].setEnabled(false);
         this.refresh();
       }, this);
       toolbar.add(widget);
@@ -350,10 +361,6 @@ qx.Class.define("gosa.view.Dashboard", {
       // load dashboard settings from backend
       gosa.io.Rpc.getInstance().cA("loadUserPreferences", "dashboard")
       .then(function(result) {
-        if (!result.length) {
-          // default dashboard
-          result = [{"widget":"Activities","layoutProperties":{"column":0,"row":1},"settings":{}},{"widget":"Activities","layoutProperties":{"column":1,"row":1},"settings":{"backgroundColor":"#DDDDDD"}},{"widget":"Search","layoutProperties":{"column":0,"colSpan":2,"row":0},"settings":{}}];
-        }
         if (result.length) {
           this.__settings = result;
           this.refresh();
