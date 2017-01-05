@@ -13,7 +13,7 @@
 ======================================================================== */
 
 /**
- *
+ * Customizable Dashboard view
  */
 qx.Class.define("gosa.view.Dashboard", {
   extend : qx.ui.tabview.Page,
