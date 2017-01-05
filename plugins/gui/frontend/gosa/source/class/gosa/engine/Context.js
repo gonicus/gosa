@@ -1,3 +1,17 @@
+/*========================================================================
+
+   This file is part of the GOsa project -  http://gosa-project.org
+
+   Copyright:
+      (C) 2010-2017 GONICUS GmbH, Germany, http://www.gonicus.de
+
+   License:
+      LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
+
+   See the LICENSE file in the project's top-level directory for details.
+
+======================================================================== */
+
 /**
  * A 'context' is a container for the widgets of a template and different utilities, e.g. widget registries for the
  * widgets and buddies. It also creates the neccessary widets using a widget processor (see
