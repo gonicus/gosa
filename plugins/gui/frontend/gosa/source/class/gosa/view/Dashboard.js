@@ -43,22 +43,67 @@ qx.Class.define("gosa.view.Dashboard", {
   */
   statics : {
     __registry: {},
+    __parts: {},
+    __loadedParts: {},
     __columns: null,
 
+    /**
+     * Register a loaded dashboard widget for usage
+     *
+     * @param widgetClass {Class} Main widget class
+     * @param options {Map} additional configuration options
+     */
     registerWidget: function(widgetClass, options) {
       qx.core.Assert.assertTrue(qx.Interface.classImplements(widgetClass, gosa.plugins.IPlugin),
                                 widgetClass+" does not implement the gosa.plugins.IPlugin interface");
-      qx.core.Assert.assertString(widgetClass.NAME, widgetClass+" has no static NAME constant");
-      qx.core.Assert.assertString(options.name, "No 'name' property found in options");
+      qx.core.Assert.assertString(widgetClass.ID, widgetClass+" has no static ID constant");
+      qx.core.Assert.assertString(options.displayName, "No 'displayName' property found in options");
 
-      this.__registry[widgetClass.NAME.toLowerCase()] = {
+      var entry = {
         clazz: widgetClass,
         options: options
       };
+
+      var Env = qx.core.Environment;
+      var sourceKey = gosa.util.Reflection.getPackageName(widgetClass)+".source";
+
+      var sourceEnv = Env.get(sourceKey);
+      if (!sourceEnv) {
+        Env.add(sourceKey, "builtin");
+      }
+
+      var idParts = widgetClass.ID.split(":");
+
+      if (idParts[0] === "part") {
+        // plugin loaded from part
+        this.__loadedParts[idParts[1]] = widgetClass.ID;
+        delete this.__parts[idParts[1]];
+      }
+
+      this.__registry[widgetClass.ID] = entry;
     },
 
     getWidgetRegistry: function() {
       return this.__registry;
+    },
+
+    /**
+     * Register an (unloaded) part that provides a dashboard widget
+     * @param part {qx.ui.part.Part}
+     */
+    registerPart: function(part) {
+      // generate the widget name from the part name
+      var widgetName = qx.lang.String.firstUp(part.getName().replace("gosa.plugins.",""));
+      qx.core.Environment.add(part.getName()+".source", "part");
+      this.__parts[part.getName()] = widgetName;
+    },
+
+    getPartRegistry: function() {
+      return this.__parts;
+    },
+
+    getLoadedPartWidgetId: function(part) {
+      return this.__loadedParts[part];
     }
   },
 
@@ -192,12 +237,21 @@ qx.Class.define("gosa.view.Dashboard", {
       var registry = gosa.view.Dashboard.getWidgetRegistry();
       Object.getOwnPropertyNames(registry).forEach(function(name) {
         var entry = registry[name];
-        var button = new qx.ui.menu.Button(entry.options.name);
+        var button = new qx.ui.menu.Button(entry.options.displayName);
         button.setUserData("widget", name);
         menu.add(button);
         button.addListener("execute", this._createWidget, this);
       }, this);
 
+      // add the unloaded parts (loaded parts are alredy in the registry
+      var parts = gosa.view.Dashboard.getPartRegistry();
+      Object.getOwnPropertyNames(parts).forEach(function(name) {
+        var displayName = parts[name];
+        var button = new qx.ui.menu.Button(displayName);
+        button.setUserData("part", name);
+        menu.add(button);
+        button.addListener("execute", this._loadPart, this);
+      }, this);
 
       // add button
       var widget = new qx.ui.form.MenuButton(this.tr("Add"), "@Ligature/plus", menu);
@@ -306,9 +360,6 @@ qx.Class.define("gosa.view.Dashboard", {
         this.setEditMode(false);
         this.save();
       }, this);
-      widget.addListener("changeEnabled", function(ev) {
-        console.trace("Save button enabled: "+ev.getData());
-      }, this);
       toolbar.add(widget);
       this.__toolbarButtons["save"] = widget;
     },
@@ -328,11 +379,16 @@ qx.Class.define("gosa.view.Dashboard", {
      * Add a widget to the dashboard, triggered by the 'execute' event from an entry in the 'add' menu
      */
     _createWidget: function(ev) {
-      var button = ev.getTarget();
-      var widget = button.getUserData("widget");
-      var widgetData = gosa.view.Dashboard.getWidgetRegistry()[widget];
+      var widgetName = "";
+      if (qx.lang.Type.isString(ev)) {
+        widgetName = ev.toLowerCase();
+      } else {
+        var button = ev.getTarget();
+        widgetName = button.getUserData("widget");
+      }
+      var widgetData = gosa.view.Dashboard.getWidgetRegistry()[widgetName];
       var entry = {
-        widget: widget
+        widget: widgetName
       };
       // find empty space in grid
       var placed = false;
@@ -379,6 +435,23 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     /**
+     * Load a widget plugin part and create the widget afterwards
+     * @param ev {Event} execute event from button
+     */
+    _loadPart: function(ev) {
+      var button = ev.getTarget();
+      var partName = button.getUserData("part");
+      var part = qx.io.PartLoader.getInstance().getPart(partName);
+      if (part.getReadyState() === "initialized") {
+        // load part
+        qx.Part.require(partName, function() {
+          // part is loaded
+          this._createWidget(gosa.view.Dashboard.getLoadedPartWidgetId(partName));
+        }, this);
+      }
+    },
+
+    /**
      * Loads the dashboard settings from the backend and creates it.
      */
     draw: function() {
@@ -395,9 +468,32 @@ qx.Class.define("gosa.view.Dashboard", {
       .then(function(result) {
         if (result.length) {
           this.__settings = result;
-          this.refresh(true);
+          var partsToLoad = this.__extractPartsToLoad(result);
+          if (partsToLoad.length > 0) {
+            qx.Part.require(partsToLoad, function() {
+              this.refresh(true);
+            }, this);
+          } else {
+            this.refresh(true);
+          }
         }
       }, this);
+    },
+
+    __extractPartsToLoad: function(settings) {
+      var partsToLoad = [];
+      var loader = qx.io.PartLoader.getInstance();
+      settings.forEach(function(widgetEntry) {
+        var idParts = widgetEntry.widget.split(":");
+        if (idParts[0] === "part") {
+          //check if part is already loaded
+          var part = loader.getPart(idParts[1]);
+          if (part.getReadyState() === "initialized") {
+            partsToLoad.push(idParts[1]);
+          }
+        }
+      }, this);
+      return partsToLoad;
     },
 
     /**
@@ -418,14 +514,14 @@ qx.Class.define("gosa.view.Dashboard", {
 
     __addWidget: function(entry) {
       var registry = gosa.view.Dashboard.getWidgetRegistry();
-      var widgetName = entry.widget.toLowerCase();
-      if (widgetName === "qx.ui.core.spacer") {
+      var widgetName = entry.widget;
+      if (widgetName === "qx.ui.core.Spacer") {
         var widget = new qx.ui.core.Spacer();
         this.getChildControl("board").add(widget, entry.layoutProperties);
         return widget;
       }
       else if (!registry[widgetName]) {
-        this.warn("%s dashboard widget not registered", entry.widget);
+        this.warn(entry.widget+" dashboard widget not registered");
       }
       else {
         var options = registry[widgetName].options;
@@ -508,7 +604,8 @@ qx.Class.define("gosa.view.Dashboard", {
             })
           } else {
             settings.push({
-              widget           : widget.constructor.NAME,
+              widget           : widget.constructor.ID,
+              source           : qx.core.Environment.get(gosa.util.Reflection.getPackageName(widget)+".source"),
               layoutProperties : widget.getLayoutProperties(),
               settings         : widget.getConfiguration()
             })
@@ -537,5 +634,15 @@ qx.Class.define("gosa.view.Dashboard", {
       this.__toolbarButtons[name].dispose();
     }, this);
     this.__toolbarButtons = null;
+  },
+
+  defer: function(statics) {
+    // load available plugin-parts
+    var parts = qx.io.PartLoader.getInstance().getParts();
+    Object.getOwnPropertyNames(parts).forEach(function(partName) {
+      if (partName.startsWith("gosa.plugins.")) {
+        statics.registerPart(parts[partName]);
+      }
+    }, this);
   }
 });

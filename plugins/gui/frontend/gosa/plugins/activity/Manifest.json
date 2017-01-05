@@ -1,0 +1,34 @@
+{
+  "info" : 
+  {
+    "name" : "activity",
+
+    "summary" : "GoSA last activity dashboard plugin",
+    "description" : "This plugin add a dashboard widget that shows the last changed object as a list.",
+    
+    "homepage" : "http://gosa-project.org/",
+
+    "license" : "LGPL 2.1",
+    "authors" :
+    [
+      {
+        "name" : "GONICUS GmbH",
+        "email" : "info@gonicus.de"
+      }
+    ],
+
+    "version" : "3.0",
+    "qooxdoo-versions": ["5.1"]
+  },
+  
+  "provides" : 
+  {
+    "namespace"   : "gosa.plugins.activity",
+    "encoding"    : "utf-8",
+    "class"       : "source/class",
+    "resource"    : "source/resource",
+    "translation" : "source/translation",
+    "type"        : "contribution"
+  }
+}
+

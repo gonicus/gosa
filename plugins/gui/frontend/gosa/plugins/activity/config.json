@@ -1,0 +1,45 @@
+{
+  "name"    : "activity",
+
+  "include" :
+  [
+    {
+      "path" : "${QOOXDOO_PATH}/tool/data/config/application.json"
+    }
+  ],
+
+  "export" :
+  [
+    "build",
+    "clean",
+    "distclean",
+    "dependencies",
+    "fix",
+    "info",
+    "translation"
+  ],
+
+  "let" :
+  {
+    "APPLICATION"  : "gosa.plugins.activity",
+    "APPLICATION_MAIN_CLASS" : "${APPLICATION}.Main",
+    "QOOXDOO_PATH" : "../../../qooxdoo",
+    "LOCALES"      : [ "en", "de" ],
+    "CACHE"        : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
+    "ROOT"         : "."
+  },
+
+  "config-warnings" : {
+    "job-shadowing": [ "common" ]
+  },
+
+  "jobs": {
+    "common": {
+      "=include" : [ "=${APPLICATION}.*" ],
+      "lint-check": { "allowed-globals": [ "gosa" ] },
+      "environment" : {
+        "gosa.plugins.activity.source" : "external"
+      }
+    }
+  }
+}

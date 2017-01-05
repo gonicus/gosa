@@ -60,6 +60,12 @@
 
   "jobs" :
   {
+    "common": {
+      // configure part loading
+      "extend": [
+        "parts-config"
+      ]
+    },
 
     "source-destruct" :
     {
@@ -209,14 +215,27 @@
     {
       "library" :
       [
-        {
-          "manifest" : "../uploadmgr/Manifest.json"
-        },
-        {
-          "manifest" : "../capture/Manifest.json"
-        }
+        { "manifest" : "../uploadmgr/Manifest.json" },
+        { "manifest" : "../capture/Manifest.json" },
+        { "manifest" : "plugins/activity/Manifest.json" }
       ]
     },
+
+    "parts-config":
+    {
+      "packages" :
+      {
+        "parts"  :
+        {
+          "boot"                  : { "include" : [
+            "${QXTHEME}", "gosa.Application", "gosa.ui.widgets.*", "gosa.engine.*",
+            "gosa.ui.dialogs.*", "gosa.plugins.search.*", "gosa.LocalConfig"
+          ] },
+          "gosa.plugins.activity"       : { "include" : [ "gosa.plugins.activity.Main" ] }
+        }
+      }
+    },
+
     "make-font-map" :
     {
       "desc" : "Build a font mapping from glyphname to unicode id",

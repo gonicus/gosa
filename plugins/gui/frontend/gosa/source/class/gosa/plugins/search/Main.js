@@ -29,7 +29,10 @@ qx.Class.define("gosa.plugins.search.Main", {
   *****************************************************************************
   */
   statics : {
-    NAME: "Search"
+    /**
+     * Unique ID to identify this widget
+     */
+    ID: "Search"
   },
 
   /*
@@ -101,7 +104,7 @@ qx.Class.define("gosa.plugins.search.Main", {
 
   defer: function () {
     gosa.view.Dashboard.registerWidget(gosa.plugins.search.Main, {
-      name: qx.locale.Manager.tr("Search"),
+      displayName: qx.locale.Manager.tr("Search"),
       theme: {
         appearance : gosa.plugins.search.Appearance
       },
