@@ -32,7 +32,7 @@ qx.Class.define("gosa.plugins.search.Main", {
     /**
      * Unique ID to identify this widget
      */
-    ID: "Search"
+    ID: "gosa.plugins.search"
   },
 
   /*

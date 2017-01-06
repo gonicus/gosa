@@ -44,7 +44,6 @@ qx.Class.define("gosa.view.Dashboard", {
   statics : {
     __registry: {},
     __parts: {},
-    __loadedParts: {},
     __columns: null,
 
     /**
@@ -72,12 +71,9 @@ qx.Class.define("gosa.view.Dashboard", {
         Env.add(sourceKey, "builtin");
       }
 
-      var idParts = widgetClass.ID.split(":");
-
-      if (idParts[0] === "part") {
+      if (sourceEnv === "part") {
         // plugin loaded from part
-        this.__loadedParts[idParts[1]] = widgetClass.ID;
-        delete this.__parts[idParts[1]];
+        delete this.__parts[widgetClass.ID];
       }
 
       this.__registry[widgetClass.ID] = entry;
@@ -100,10 +96,6 @@ qx.Class.define("gosa.view.Dashboard", {
 
     getPartRegistry: function() {
       return this.__parts;
-    },
-
-    getLoadedPartWidgetId: function(part) {
-      return this.__loadedParts[part];
     }
   },
 
@@ -446,7 +438,7 @@ qx.Class.define("gosa.view.Dashboard", {
         // load part
         qx.Part.require(partName, function() {
           // part is loaded
-          this._createWidget(gosa.view.Dashboard.getLoadedPartWidgetId(partName));
+          this._createWidget(partName);
         }, this);
       }
     },
@@ -484,12 +476,11 @@ qx.Class.define("gosa.view.Dashboard", {
       var partsToLoad = [];
       var loader = qx.io.PartLoader.getInstance();
       settings.forEach(function(widgetEntry) {
-        var idParts = widgetEntry.widget.split(":");
-        if (idParts[0] === "part") {
+        if (widgetEntry.source === "part") {
           //check if part is already loaded
-          var part = loader.getPart(idParts[1]);
+          var part = loader.getPart(widgetEntry.widget);
           if (part.getReadyState() === "initialized") {
-            partsToLoad.push(idParts[1]);
+            partsToLoad.push(widgetEntry.widget);
           }
         }
       }, this);

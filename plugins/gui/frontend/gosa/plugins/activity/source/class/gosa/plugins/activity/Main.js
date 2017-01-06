@@ -32,18 +32,9 @@ qx.Class.define("gosa.plugins.activity.Main", {
   */
   statics : {
     /**
-     * Global identifier of this widget must be in format
-     * <pre>type:name</pre>
-     *   Where 'type' is one of source, ext
-     *   and 'name' consist of any word character and '_'.
-     *
-     *   'type' determines from where this widget can be loaded
-     *   <ul>
-     *     <li>source: this widget is included in the main projects sources</li>
-     *     <li>ext: this widget has been loaded from an external source (as part or via user upload)</li>
-     *   </ul>
+     * Global unique identifier of this widget, it is recommended to use the package name as ID.
      */
-    ID: "ext:dashboard_plugin_activity"
+    ID: "gosa.plugins.activity"
   },
 
   /*
