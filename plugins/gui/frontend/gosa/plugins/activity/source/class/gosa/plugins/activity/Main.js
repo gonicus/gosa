@@ -22,19 +22,7 @@ qx.Class.define("gosa.plugins.activity.Main", {
     this.base(arguments);
     this.getChildControl("title").setValue(this.tr("Recently changed items"));
     this.getChildControl("container").setLayout(new qx.ui.layout.VBox());
-    this._model = new gosa.data.model.SearchResult();
-  },
-
-  /*
-  *****************************************************************************
-     STATICS
-  *****************************************************************************
-  */
-  statics : {
-    /**
-     * Global unique identifier of this widget, it is recommended to use the package name as ID.
-     */
-    ID: "gosa.plugins.activity"
+    this._model = new gosa.plugins.activity.model.SearchResult();
   },
 
   /*

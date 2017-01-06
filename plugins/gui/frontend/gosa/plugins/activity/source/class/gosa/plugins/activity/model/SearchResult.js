@@ -15,7 +15,7 @@
 /**
  * Search result model
  */
-qx.Class.define("gosa.data.model.SearchResult", {
+qx.Class.define("gosa.plugins.activity.model.SearchResult", {
   extend : qx.core.Object,
   include: qx.ui.form.MModelProperty,
 

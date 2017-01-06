@@ -64,7 +64,10 @@
       // configure part loading
       "extend": [
         "parts-config"
-      ]
+      ],
+      "lint-check": {
+        "ignore-environment-nonlit-key": true
+      }
     },
 
     "source-destruct" :
@@ -122,7 +125,7 @@
 
     "build-script":
     {
-      "include": ["gosa.ui.widgets.*", "gosa.ui.dialogs.*", "gosa.engine.extensions.*"],
+      "include": ["gosa.ui.widgets.*", "gosa.LocalConfig", "gosa.ui.dialogs.*", "gosa.engine.extensions.*", "gosa.plugins.*"],
 
       "variants" :
       {
@@ -145,7 +148,7 @@
       ],
       "copy-files" :
       {
-	"files"     : [ "resource/gosa/js/throbber.js" ],
+	  "files"     : [ "resource/gosa/js/throbber.js" ],
         "source" : "source",
         "target"  : "build"
       },

@@ -30,16 +30,34 @@
   },
 
   "config-warnings" : {
-    "job-shadowing": [ "common" ]
+    "job-shadowing": [ "common", "build" ]
   },
 
   "jobs": {
     "common": {
-      "=include" : [ "=${APPLICATION}.*" ],
+      "=include" : [ "${APPLICATION}.*" ],
+      "=exclude" : [ "qx.*" ],
       "lint-check": { "allowed-globals": [ "gosa" ] },
       "environment" : {
         "gosa.plugins.activity.source" : "external"
       }
+    },
+
+    "build" :
+    {
+      "desc"    : "create build version of current application",
+
+      "run" :
+      [
+        "build-resources",
+        "build-script",
+        "build-files",
+        "build-zip"
+      ]
+    },
+
+    "build-zip": {
+
     }
   }
 }

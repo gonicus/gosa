@@ -55,7 +55,6 @@ qx.Class.define("gosa.view.Dashboard", {
     registerWidget: function(widgetClass, options) {
       qx.core.Assert.assertTrue(qx.Interface.classImplements(widgetClass, gosa.plugins.IPlugin),
                                 widgetClass+" does not implement the gosa.plugins.IPlugin interface");
-      qx.core.Assert.assertString(widgetClass.ID, widgetClass+" has no static ID constant");
       qx.core.Assert.assertString(options.displayName, "No 'displayName' property found in options");
 
       var entry = {
@@ -63,8 +62,10 @@ qx.Class.define("gosa.view.Dashboard", {
         options: options
       };
 
+      var packageName = gosa.util.Reflection.getPackageName(widgetClass);
+
       var Env = qx.core.Environment;
-      var sourceKey = gosa.util.Reflection.getPackageName(widgetClass)+".source";
+      var sourceKey = packageName+".source";
 
       var sourceEnv = Env.get(sourceKey);
       if (!sourceEnv) {
@@ -73,10 +74,10 @@ qx.Class.define("gosa.view.Dashboard", {
 
       if (sourceEnv === "part") {
         // plugin loaded from part
-        delete this.__parts[widgetClass.ID];
+        delete this.__parts[packageName];
       }
 
-      this.__registry[widgetClass.ID] = entry;
+      this.__registry[packageName] = entry;
     },
 
     getWidgetRegistry: function() {
@@ -248,9 +249,14 @@ qx.Class.define("gosa.view.Dashboard", {
       // add button
       var widget = new qx.ui.form.MenuButton(this.tr("Add"), "@Ligature/plus", menu);
       widget.setAppearance("gosa-dashboard-edit-button");
-      widget.addListener("execute", function() {
-
+      widget.addListener("appear", function() {
+        var element =
+        this.getContentElement().getDomElement();
+        element.ondrop     = gosa.util.DragDropHelper.getInstance().onHtml5Drop.bind(gosa.util.DragDropHelper.getInstance());
+        element.ondragover = function() { return false; };
+        element.ondragover = function() { return false; };
       }, this);
+      gosa.util.DragDropHelper.getInstance().addListener("loaded", this._onExternalLoad, this);
       toolbar.add(widget);
       this.__toolbarButtons["add"] = widget;
 
@@ -444,6 +450,14 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     /**
+     * Handle 'loaded' events from {gosa.util.DragDropHelper} to add uploaded widgets
+     * @param ev {qx.event.type.Data} data event with widgets package name as payload
+     */
+    _onExternalLoad: function(ev) {
+      this._createWidget(ev.getData());
+    },
+
+    /**
      * Loads the dashboard settings from the backend and creates it.
      */
     draw: function() {
@@ -506,8 +520,9 @@ qx.Class.define("gosa.view.Dashboard", {
     __addWidget: function(entry) {
       var registry = gosa.view.Dashboard.getWidgetRegistry();
       var widgetName = entry.widget;
+      var widget;
       if (widgetName === "qx.ui.core.Spacer") {
-        var widget = new qx.ui.core.Spacer();
+        widget = new qx.ui.core.Spacer();
         this.getChildControl("board").add(widget, entry.layoutProperties);
         return widget;
       }
@@ -518,18 +533,21 @@ qx.Class.define("gosa.view.Dashboard", {
         var options = registry[widgetName].options;
         if (options && options['theme'] && !this.__patchedThemes[widgetName]) {
           for (var key in options['theme']) {
-            if (key === "meta") {
-              this.debug("patching meta theme " + options['theme'][key]);
-              qx.Theme.patch(gosa.theme.Theme, options['theme'][key]);
-            }
-            else {
-              this.debug("patching theme " + options['theme'][key]);
-              qx.Theme.patch(gosa.theme[qx.lang.String.firstUp(key)], options['theme'][key]);
+            if (options['theme'].hasOwnProperty(key)) {
+              if (key === "meta") {
+                this.debug("patching meta theme " + options['theme'][key]);
+                qx.Theme.patch(gosa.theme.Theme, options['theme'][key]);
+              }
+              else {
+                this.debug("patching theme " + options['theme'][key]);
+                qx.Theme.patch(gosa.theme[qx.lang.String.firstUp(key)], options['theme'][key]);
+              }
             }
           }
           this.__patchedThemes[widgetName] = true;
         }
-        var widget = new registry[widgetName].clazz();
+        //noinspection JSPotentiallyInvalidConstructorUsage
+        widget = new registry[widgetName].clazz();
         if (entry.settings) {
           widget.configure(entry.settings);
         }
@@ -594,9 +612,11 @@ qx.Class.define("gosa.view.Dashboard", {
               layoutProperties : widget.getLayoutProperties()
             })
           } else {
+            var packageName = gosa.util.Reflection.getPackageName(widget);
+            var sourceKey = packageName+".source";
             settings.push({
-              widget           : widget.constructor.ID,
-              source           : qx.core.Environment.get(gosa.util.Reflection.getPackageName(widget)+".source"),
+              widget           : packageName,
+              source           : qx.core.Environment.get(sourceKey),
               layoutProperties : widget.getLayoutProperties(),
               settings         : widget.getConfiguration()
             })
