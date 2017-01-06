@@ -43,6 +43,10 @@ qx.Class.define("gosa.util.DragDropHelper", {
           var filereader = new FileReader();
           filereader.onload = qx.lang.Function.curry(this._onJsFileLoaded, file).bind(this);
           filereader.readAsBinaryString(file);
+        } else if (file.type === "application/zip") {
+          var filereader = new FileReader();
+          filereader.onload = qx.lang.Function.curry(this._onZipFileLoaded, file).bind(this);
+          filereader.readAsBinaryString(file);
         } else {
           this.error("Unhandled file type "+file.type+" for file "+file.name+". Skipping upload!");
         }
@@ -62,6 +66,26 @@ qx.Class.define("gosa.util.DragDropHelper", {
       qx.core.Environment.add(packageName+".source", "external");
       qx.lang.Function.globalEval(ev.target.result);
       this.fireDataEvent("loaded", packageName);
+    },
+
+    /**
+     * Handle 'onload' events from {FileReader} for zip files
+     * @param file {File}
+     * @param ev {ProgressEvent}
+     */
+    _onZipFileLoaded: function(file, ev) {
+      // register temporary upload path
+      gosa.io.Rpc.getInstance().cA("registerUploadPath", "widgets")
+      .then(function(result) {
+        var path = result[1];
+        var uploadMgr = new gosa.util.UploadMgr(path);
+        uploadMgr.addListener("completeUpload", function() {
+          // load from backend
+          // this.fireDataEvent("loaded", packageName);
+          console.log("file uploaded");
+        }, this);
+        uploadMgr.uploadFile(file);
+      }, this)
     }
   }
 });

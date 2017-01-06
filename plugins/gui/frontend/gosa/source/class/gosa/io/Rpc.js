@@ -136,6 +136,14 @@ qx.Class.define("gosa.io.Rpc", {
     },
 
     /**
+     * Return the XSRF Token for the current session
+     * @return {String}
+     */
+    getXsrfToken: function() {
+      return this.__xsrf;
+    },
+
+    /**
      * Create a {qx.Promise} for the RPC call
      * @param argx {Array} arguments for the RPC call
      * @returns {qx.Promise}

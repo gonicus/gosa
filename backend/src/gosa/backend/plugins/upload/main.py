@@ -11,7 +11,6 @@
 from uuid import uuid4
 import logging
 import datetime
-import tempfile
 
 import pkg_resources
 from gosa.common import Environment
@@ -22,6 +21,7 @@ from gosa.common.handler import IInterfaceHandler
 from gosa.common.hsts_request_handler import HSTSRequestHandler
 from gosa.common.utils import N_
 from tornado import web
+from tornadostreamform.multipart_streamer import MultiPartStreamer
 from zope.interface import implementer
 
 
@@ -86,6 +86,7 @@ class UploadHandler(HSTSRequestHandler):
     path = None
     temp_file = None
     upload_handler = None
+    ps = None
 
     def prepare(self):
         uuid = self.request.uri[len('/uploads/'):]
@@ -106,28 +107,31 @@ class UploadHandler(HSTSRequestHandler):
         if self.upload_handler is None:
             raise web.HTTPError(status_code=501, reason="No upload handler registered for type '%s'" % path_settings['type'])
         else:
-            self.temp_file = tempfile.NamedTemporaryFile(prefix=uuid)
+            try:
+                total = int(self.request.headers.get("Content-Length", "0"))
+            except KeyError:
+                total = 0
+            self.ps = MultiPartStreamer(total)
 
     def data_received(self, chunk):
-        if self.temp_file is not None:
-            self.temp_file.write(chunk)
+        self.ps.data_received(chunk)
 
     def post(self, uuid):
-        if self.temp_file is not None:
-            self.temp_file.seek(0)
-            self.upload_handler.handle_upload(self.temp_file)
-            print("1")
+        try:
+            self.ps.data_complete() # You MUST call this to close the incoming stream.
+            # Here can use self.ps to access the fields and the corresponding ``StreamedPart`` objects.
+            self.upload_handler.handle_upload(self.ps.get_parts_by_name('file')[0], self.request)
 
             # cleanup
             PluginRegistry.getInstance("UploadManager").unregisterUploadPath(uuid)
-            self.temp_file.close()
-            self.temp_file = None
             self.upload_handler = None
 
-            self.write("Uploaded!")
-        self.finish()
+        finally:
+            # When ready, don't forget to release resources.
+            self.ps.release_parts()
+            self.finish() # And of course, you MUST call finish()
 
 
 class IUploadFileHandler(object):
-    def handle_upload(self, file):  # pragma: nocover
+    def handle_upload(self, file, request):  # pragma: nocover
         raise NotImplementedError()

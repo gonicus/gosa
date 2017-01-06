@@ -85,7 +85,8 @@ setup(
         'pyotp',
         'pyqrcode',
         'python-u2flib-server',
-        'pycountry'
+        'pycountry',
+        'tornadostreamform'
         ],
 
     entry_points = """

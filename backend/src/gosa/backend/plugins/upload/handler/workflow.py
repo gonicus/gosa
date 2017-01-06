@@ -23,7 +23,7 @@ class WorkflowUploadHandler(IUploadFileHandler):
         self.log = logging.getLogger(__name__)
         self.log.info("initializing workflow upload handler")
 
-    def handle_upload(self, file):
+    def handle_upload(self, file, request):
         self.log.debug("uploaded workflow file received %s" % file.name)
         self.extract(file.name)
         

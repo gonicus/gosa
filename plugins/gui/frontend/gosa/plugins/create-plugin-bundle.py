@@ -11,11 +11,11 @@ if os.path.exists(path):
         # add scripts
         for root, dirs, files in os.walk(os.path.join(path, 'script')):
             for f in files:
-                archive.write(os.path.join(root, f), f)
+                archive.write(os.path.join(root, f), os.path.join(app_name, f))
 
         # add resources
         for root, dirs, files in os.walk(os.path.join(path, 'resource')):
             for f in files:
-                archive.write(os.path.join(root, f), os.path.join(root.replace(path, "", 1), f))
+                archive.write(os.path.join(root, f), os.path.join(root.replace(path, app_name, 1), f))
 
 print("%s written" % archive_path)
