@@ -58,8 +58,17 @@
       [
         "build-resources",
         "build-script",
-        "build-files"
+        "build-files",
+        "build-package"
       ]
+    },
+
+    "build-package": {
+      "desc"  : "Bundles the generated build in a single compresses archive",
+
+      "shell": {
+        "command": "../create-plugin-bundle.py ${APPLICATION} ${BUILD_PATH}"
+      }
     }
   }
 }
