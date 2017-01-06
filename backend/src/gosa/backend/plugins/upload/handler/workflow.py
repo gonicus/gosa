@@ -25,9 +25,6 @@ class WorkflowUploadHandler(IUploadFileHandler):
 
     def handle_upload(self, file):
         self.log.debug("uploaded workflow file received %s" % file.name)
-        print("extracting %s" % file.name)
-        print(os.path.exists(file.name))
-        print(file)
         self.extract(file.name)
         
     def extract(self, fn):
@@ -35,7 +32,6 @@ class WorkflowUploadHandler(IUploadFileHandler):
             with ZipFile(fn) as workflow_zip:
 
                 if workflow_zip.testzip():
-                    print("bad workfflow file")
                     self.log.error("bad workflow zip uploaded")
                     return
 
