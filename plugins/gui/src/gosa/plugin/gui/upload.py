@@ -22,7 +22,6 @@ class WidgetUploadHandler(IUploadFileHandler):
 
     def extract(self, fn, real_name):
         try:
-            shutil.copyfile(fn, os.path.join(frontend_path, "gosa", "uploads", "widgets", real_name))
 
             with ZipFile(fn, 'r') as widget_zip:
 
