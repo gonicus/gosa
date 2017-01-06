@@ -30,7 +30,7 @@
   },
 
   "config-warnings" : {
-    "job-shadowing": [ "common", "build" ]
+    "job-shadowing": [ "common", "build", "build-script" ]
   },
 
   "jobs": {
@@ -40,6 +40,13 @@
       "lint-check": { "allowed-globals": [ "gosa" ] },
       "environment" : {
         "gosa.plugins.activity.source" : "external"
+      },
+      "compile-options" :
+      {
+        "paths"  :
+        {
+          "loader-template": "../plugin.loader.tmpl.js"
+        }
       }
     },
 
@@ -51,13 +58,8 @@
       [
         "build-resources",
         "build-script",
-        "build-files",
-        "build-zip"
+        "build-files"
       ]
-    },
-
-    "build-zip": {
-
     }
   }
 }
