@@ -23,7 +23,7 @@ qx.Class.define("gosa.view.Dashboard", {
   construct : function()
   {
     // Call super class and configure ourselfs
-    this.base(arguments, "", "@Ligature/dashboard");
+    this.base(arguments, "", "@Ligature/tile");
     this._setLayout(new qx.ui.layout.VBox());
     this.__layout = new qx.ui.layout.Grid(5, 5);
     this.__columns = 6;
@@ -243,7 +243,8 @@ qx.Class.define("gosa.view.Dashboard", {
 
       // widget creation menu
       var menu = this._createMenu = new qx.ui.menu.Menu();
-      var uploadButton = new com.zenesis.qx.upload.UploadMenuButton(this.tr("Upload"));
+      var uploadButton = new com.zenesis.qx.upload.UploadMenuButton(this.tr("Upload"), "@Ligature/upload");
+      uploadButton.setAppearance("icon-menu-button");
 
       gosa.io.Rpc.getInstance().cA("registerUploadPath", "widgets")
       .then(function(result) {
@@ -251,11 +252,13 @@ qx.Class.define("gosa.view.Dashboard", {
         var uploader = new gosa.util.UploadMgr(uploadButton, path);
       }, this);
       menu.add(uploadButton);
+      menu.add(new qx.ui.menu.Separator());
 
       var registry = gosa.view.Dashboard.getWidgetRegistry();
       Object.getOwnPropertyNames(registry).forEach(function(name) {
         var entry = registry[name];
-        var button = new qx.ui.menu.Button(entry.options.displayName);
+        var button = new qx.ui.menu.Button(entry.options.displayName, entry.options.icon);
+        button.setAppearance("icon-menu-button");
         button.setUserData("widget", name);
         menu.add(button);
         button.addListener("execute", this._createWidget, this);
@@ -463,7 +466,7 @@ qx.Class.define("gosa.view.Dashboard", {
       };
       // find empty space in grid
       var placed = false;
-      for(var row=0, l = this.__layout.getRowCount(); row < l; row++) {
+      for(var row=1, l = this.__layout.getRowCount(); row < l; row++) {
         for(var col=0, k = this.__layout.getColumnCount(); col < k; col++) {
           if (col + widgetData.options.defaultColspan > this.__columns) {
             // not enough space in this row
@@ -550,16 +553,22 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     /**
-     * Loads the dashboard settings from the backend and creates it.
+     * pre-filling with spacers to have a 12-col grid
      */
-    draw: function() {
-
+    __addFirstSpacerRow: function() {
       var board = this.getChildControl("board");
-      // pre-filling with spacers to have a 12-col grid
       for(var i=0; i<this.__columns; i++) {
         board.add(new qx.ui.core.Spacer(), {row: 0, column: i});
         this.__layout.setColumnFlex(i, 1);
       }
+    },
+
+    /**
+     * Loads the dashboard settings from the backend and creates it.
+     */
+    draw: function() {
+      var board = this.getChildControl("board");
+      this.__addFirstSpacerRow();
 
       // load dashboard settings from backend
       gosa.io.Rpc.getInstance().cA("loadUserPreferences", "dashboard")
@@ -624,6 +633,7 @@ qx.Class.define("gosa.view.Dashboard", {
         this.getChildControl("board").removeAll();
         // re-build in next animation frame
         qx.bom.AnimationFrame.request(qx.lang.Function.curry(this.refresh, true), this);
+        this.__addFirstSpacerRow();
         return;
       }
       if (this.__settings) {
@@ -721,6 +731,10 @@ qx.Class.define("gosa.view.Dashboard", {
         var settings = [];
         this.getChildControl("board").getChildren().forEach(function(widget) {
           if (widget instanceof qx.ui.core.Spacer) {
+            if (widget.getLayoutProperties().row === 0) {
+              // do not save the first spacer row
+              return;
+            }
             settings.push({
               widget           : "qx.ui.core.Spacer",
               layoutProperties : widget.getLayoutProperties()

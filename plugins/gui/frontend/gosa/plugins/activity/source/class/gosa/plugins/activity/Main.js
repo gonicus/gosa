@@ -135,6 +135,7 @@ qx.Class.define("gosa.plugins.activity.Main", {
   defer: function () {
     gosa.view.Dashboard.registerWidget(gosa.plugins.activity.Main, {
       displayName: qx.locale.Manager.tr("Activities"),
+      icon: "@Ligature/exchange",
       theme: {
         appearance : gosa.plugins.activity.Appearance
       },
