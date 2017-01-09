@@ -277,6 +277,18 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
+    "title-bar/edit-mode": {
+      include: "title-bar/sandwich",
+      alias: "title-bar/sandwich",
+
+      style: function() {
+        return {
+          icon : "@Ligature/gear"
+        }
+      }
+    },
+    "title-bar/edit-mode/icon": "title-bar/sandwich/icon",
+
     "statusLabel": {
       include: "label",
 

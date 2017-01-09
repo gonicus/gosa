@@ -29,7 +29,20 @@ qx.Class.define("gosa.view.Dashboard", {
     this.__columns = 6;
     this.__patchedThemes = {};
 
-    this.addListenerOnce("appear", this.draw, this);
+    this.addListener("appear", function() {
+      if (!this.__drawn) {
+        this.draw();
+      }
+      var header = gosa.ui.Header.getInstance();
+      header.getChildControl("edit-mode").show();
+      header.addListener("changeEditMode", function() {
+        this.toggleEditMode();
+      }, this);
+    }, this);
+
+    this.addListener("disappear", function() {
+      gosa.ui.Header.getInstance().getChildControl("edit-mode").exclude();
+    }, this);
 
     this.addListener("longtap", function() {
       this.setEditMode(true);
@@ -46,6 +59,7 @@ qx.Class.define("gosa.view.Dashboard", {
     __registry: {},
     __parts: {},
     __columns: null,
+    __drawn: null,
 
     /**
      * Register a loaded dashboard widget for usage
@@ -577,6 +591,7 @@ qx.Class.define("gosa.view.Dashboard", {
             done();
           }
         }
+        this.__drawn = true;
       }, this);
     },
 

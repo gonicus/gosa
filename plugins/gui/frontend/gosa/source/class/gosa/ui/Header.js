@@ -22,7 +22,16 @@ qx.Class.define("gosa.ui.Header", {
 
     this._createChildControl("sandwich");
     this._createChildControl("windows");
-  }, 
+  },
+
+  /*
+  *****************************************************************************
+     EVENTS
+  *****************************************************************************
+  */
+  events : {
+    "changeEditMode": "qx.event.type.Event"
+  },
 
   properties: {
 
@@ -68,6 +77,14 @@ qx.Class.define("gosa.ui.Header", {
           this._listController = new qx.data.controller.List(null, control);
           this._listController.setDelegate(this.__getWindowDelegate());
           this._listController.setModel(gosa.data.WindowController.getInstance().getWindows());
+          break;
+
+        case "edit-mode":
+          control = new qx.ui.form.Button(null, "@Ligature/gear");
+          this.add(control);
+          control.addListener("execute", function() {
+            this.fireEvent("changeEditMode");
+          }, this);
           break;
 
       }
