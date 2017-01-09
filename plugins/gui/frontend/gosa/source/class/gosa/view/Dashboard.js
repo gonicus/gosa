@@ -263,12 +263,46 @@ qx.Class.define("gosa.view.Dashboard", {
       // add button
       var widget = new qx.ui.form.MenuButton(this.tr("Add"), "@Ligature/plus", menu);
       widget.setAppearance("gosa-dashboard-edit-button");
-      widget.addListener("appear", function() {
-        var element =
-        this.getContentElement().getDomElement();
-        element.ondrop     = gosa.util.DragDropHelper.getInstance().onHtml5Drop.bind(gosa.util.DragDropHelper.getInstance());
-        element.ondragover = function() { return false; };
-        element.ondragover = function() { return false; };
+      widget.addListener("appear", function(ev) {
+        var element = ev.getTarget().getContentElement().getDomElement();
+        element.ondrop = function(e) {
+          gosa.util.DragDropHelper.getInstance().onHtml5Drop.call(gosa.util.DragDropHelper.getInstance(), e);
+          element.ondragleave();
+        };
+        element.ondragleave = function() {
+          var spec = {
+            duration: 200,
+            timing: "ease-in-out",
+            keep: 100,
+            keyFrames : {
+              0: {
+                scale : "1.2"
+              },
+              100: {
+                scale : "1"
+              }
+            }
+          };
+          qx.bom.element.Animation.animate(element, spec);
+          return false;
+        };
+        element.ondragover = function() {
+          var spec = {
+            duration: 200,
+            timing: "ease-in-out",
+            keep: 100,
+            keyFrames : {
+              0: {
+                scale : "1"
+              },
+              100: {
+                scale : "1.2"
+              }
+            }
+          };
+          qx.bom.element.Animation.animate(element, spec);
+          return false;
+        };
       }, this);
       gosa.util.DragDropHelper.getInstance().addListener("loaded", this._onExternalLoad, this);
       toolbar.add(widget);
@@ -312,10 +346,10 @@ qx.Class.define("gosa.view.Dashboard", {
           keep: 100,
           keyFrames : {
             0: {
-              scale : [ "1", "1" ]
+              scale : "1"
             },
             100: {
-              scale : [ "1.2", "1.2" ]
+              scale : "1.2"
             }
           }
         };
@@ -328,10 +362,10 @@ qx.Class.define("gosa.view.Dashboard", {
           keep: 100,
           keyFrames : {
             0: {
-              scale : [ "1.2", "1.2" ]
+              scale : "1.2"
             },
             100: {
-              scale : [ "1", "1" ]
+              scale : "1"
             }
           }
         };
@@ -566,7 +600,9 @@ qx.Class.define("gosa.view.Dashboard", {
         qx.bom.AnimationFrame.request(qx.lang.Function.curry(this.refresh, true), this);
         return;
       }
-      this.__settings.forEach(this.__addWidget, this);
+      if (this.__settings) {
+        this.__settings.forEach(this.__addWidget, this);
+      }
     },
 
     __addWidget: function(entry) {
