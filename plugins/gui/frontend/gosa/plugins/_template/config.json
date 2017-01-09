@@ -30,7 +30,8 @@
   },
 
   "config-warnings" : {
-    "job-shadowing": [ "common", "build", "build-script" ]
+    "job-shadowing": [ "common", "build", "build-script" ],
+    "exclude": ["*"]
   },
 
   "jobs": {
