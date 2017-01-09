@@ -229,6 +229,15 @@ qx.Class.define("gosa.view.Dashboard", {
 
       // widget creation menu
       var menu = this._createMenu = new qx.ui.menu.Menu();
+      var uploadButton = new com.zenesis.qx.upload.UploadMenuButton(this.tr("Upload"));
+
+      gosa.io.Rpc.getInstance().cA("registerUploadPath", "widgets")
+      .then(function(result) {
+        var path = result[1];
+        var uploader = new gosa.util.UploadMgr(uploadButton, path);
+      }, this);
+      menu.add(uploadButton);
+
       var registry = gosa.view.Dashboard.getWidgetRegistry();
       Object.getOwnPropertyNames(registry).forEach(function(name) {
         var entry = registry[name];
@@ -252,11 +261,13 @@ qx.Class.define("gosa.view.Dashboard", {
       gosa.io.Rpc.getInstance().cA("getDashboardWidgets")
       .then(function(widgets) {
         widgets.forEach(function(widget) {
-          var displayName = widget.info.name;
-          var button = new qx.ui.menu.Button(displayName);
-          button.setUserData("namespace", widget.provides.namespace);
-          menu.add(button);
-          button.addListener("execute", this._loadFromBackend, this);
+          if (!this.self(arguments).getWidgetRegistry()[widget.provides.namespace]) {
+            var displayName = widget.info.name;
+            var button = new qx.ui.menu.Button(displayName);
+            button.setUserData("namespace", widget.provides.namespace);
+            menu.add(button);
+            button.addListener("execute", this._loadFromBackend, this);
+          }
         }, this);
       }, this);
 

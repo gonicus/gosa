@@ -78,12 +78,7 @@ qx.Class.define("gosa.util.DragDropHelper", {
       gosa.io.Rpc.getInstance().cA("registerUploadPath", "widgets")
       .then(function(result) {
         var path = result[1];
-        var uploadMgr = new gosa.util.UploadMgr(path);
-        uploadMgr.addListener("completeUpload", function() {
-          // load from backend
-          // this.fireDataEvent("loaded", packageName);
-          console.log("file uploaded");
-        }, this);
+        var uploadMgr = new gosa.util.UploadMgr(null, path);
         uploadMgr.uploadFile(file);
       }, this)
     }

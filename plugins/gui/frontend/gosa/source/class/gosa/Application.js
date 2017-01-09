@@ -74,6 +74,9 @@ qx.Class.define("gosa.Application",
       this.base(arguments);
       this.self(arguments).instance = this;
 
+      // patch handler for xsrf
+      qx.Class.patch(com.zenesis.qx.upload.XhrHandler, gosa.upload.MXhrHandler);
+
       this.__actions = [];
 
       // Enable logging in debug variant

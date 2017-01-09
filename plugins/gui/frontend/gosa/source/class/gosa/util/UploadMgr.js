@@ -17,12 +17,6 @@
 */
 qx.Class.define("gosa.util.UploadMgr", {
   extend : com.zenesis.qx.upload.UploadMgr,
-  
-  construct : function(uploadUrl) {
-    this.base(arguments, null, uploadUrl);
-    // patch handler for xsrf
-    qx.Class.patch(com.zenesis.qx.upload.XhrHandler, gosa.upload.MXhrHandler);
-  },
     
   members : {
     __lastId : 0,
