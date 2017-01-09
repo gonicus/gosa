@@ -38,7 +38,8 @@ qx.Class.define("gosa.io.Sse", {
     "objectRemoved": "qx.event.type.Data",
     "objectCreated": "qx.event.type.Data",
     "objectModified": "qx.event.type.Data",
-    "objectClosing": "qx.event.type.Data"
+    "objectClosing": "qx.event.type.Data",
+    "pluginUpdate": "qx.event.type.Data"
   },
 
   properties: {
@@ -74,6 +75,10 @@ qx.Class.define("gosa.io.Sse", {
       this.__eventSource.addEventListener("objectCloseAnnouncement", function (e) {
         var message = qx.lang.Json.parse(e.data);
         that._handleObjectCloseAnnouncement(message);
+      }, false);
+      this.__eventSource.addEventListener("pluginUpdate", function (e) {
+        var message = qx.lang.Json.parse(e.data);
+        that.fireDataEvent("pluginUpdate", message['namespace']);
       }, false);
       this.__eventSource.onerror = function (e) {
         var readyState = e.currentTarget.readyState;

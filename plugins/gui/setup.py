@@ -27,6 +27,10 @@ for path, dirs, files in os.walk("frontend/gosa/build"):
     for f in files:
         data_files.append(os.path.join(path[14:], f))
 
+for path, dirs, files in os.walk("src/gosa/plugins/gui/data"):
+    for f in files:
+        data_files.append(os.path.join(path[14:], f))
+
 setup(
     name = "gosa-plugin-gui",
     version = "3.0",

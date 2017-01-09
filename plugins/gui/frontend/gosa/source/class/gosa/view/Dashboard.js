@@ -34,6 +34,7 @@ qx.Class.define("gosa.view.Dashboard", {
     this.addListener("longtap", function() {
       this.setEditMode(true);
     }, this);
+    gosa.io.Sse.getInstance().addListener("pluginUpdate", this._onPluginUpdate, this);
   },
 
   /*
@@ -149,6 +150,7 @@ qx.Class.define("gosa.view.Dashboard", {
     __settings: null,
     __patchedThemes : null,
     __toolbarButtons: null,
+    _createMenu : null,
 
     // property apply
     _applyEditMode: function(value) {
@@ -226,7 +228,7 @@ qx.Class.define("gosa.view.Dashboard", {
       this.__toolbarButtons = {};
 
       // widget creation menu
-      var menu = new qx.ui.menu.Menu();
+      var menu = this._createMenu = new qx.ui.menu.Menu();
       var registry = gosa.view.Dashboard.getWidgetRegistry();
       Object.getOwnPropertyNames(registry).forEach(function(name) {
         var entry = registry[name];
@@ -518,8 +520,6 @@ qx.Class.define("gosa.view.Dashboard", {
             qx.Part.require(pluginsToLoad.parts, function() {
               done();
             }, this);
-          } else {
-            done();
           }
           if (pluginsToLoad.scripts.length > 0) {
             var loader = new qx.util.DynamicScriptLoader(pluginsToLoad.scripts);
@@ -683,6 +683,31 @@ qx.Class.define("gosa.view.Dashboard", {
           new gosa.ui.dialogs.Error(error.message).open();
         });
       }
+    },
+
+    /**
+     * Handle pluginUpdate events from backend, reload the dashboard widget information
+     */
+    _onPluginUpdate: function() {
+      // delete all upload widgets buttons (they have 'namespace' userData)
+      this._createMenu.getChildren().forEach(function(button) {
+        if (button.getUserData("namespace")) {
+          button.destroy();
+        }
+      }, this);
+
+      // add the uploaded widgets which can be downloaded from the backend
+      gosa.io.Rpc.getInstance().cA("getDashboardWidgets")
+      .then(function(widgets) {
+        widgets.forEach(function(widget) {
+          var displayName = widget.info.name;
+          var button = new qx.ui.menu.Button(displayName);
+          button.setUserData("namespace", widget.provides.namespace);
+          this._createMenu.add(button);
+          button.addListener("execute", this._loadFromBackend, this);
+        }, this);
+      }, this);
+
     }
   },
 
@@ -697,6 +722,8 @@ qx.Class.define("gosa.view.Dashboard", {
       this.__toolbarButtons[name].dispose();
     }, this);
     this.__toolbarButtons = null;
+    gosa.io.Sse.getInstance().removeListener("pluginUpdate", this._onPluginUpdate, this);
+    this._disposeObjects("_createMenu");
   },
 
   defer: function(statics) {

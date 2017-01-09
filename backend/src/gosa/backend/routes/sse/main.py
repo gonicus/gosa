@@ -133,6 +133,15 @@ class SseHandler(HSTSRequestHandler):
         }, topic="objectChange", channel=channel)
 
     @classmethod
+    def _handlePluginUpdate(cls, data, channel):
+        print(data)
+        data = data.PluginUpdate
+
+        SseHandler.send_message({
+            "namespace": data.Namespace.text
+        }, topic="pluginUpdate", channel=channel)
+
+    @classmethod
     def _handleNotification(cls, data, channel):
         data = data.Notification
 
