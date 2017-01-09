@@ -261,7 +261,7 @@ qx.Class.define("gosa.view.Dashboard", {
       gosa.io.Rpc.getInstance().cA("getDashboardWidgets")
       .then(function(widgets) {
         widgets.forEach(function(widget) {
-          if (!this.self(arguments).getWidgetRegistry()[widget.provides.namespace]) {
+          if (!gosa.view.Dashboard.getWidgetRegistry()[widget.provides.namespace]) {
             var displayName = widget.info.name;
             var button = new qx.ui.menu.Button(displayName);
             button.setUserData("namespace", widget.provides.namespace);
