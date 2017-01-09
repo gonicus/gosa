@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import stat
 
 plugin_name = input("Plugin Name: ")
 author_name = input("Author Name: ")
@@ -11,8 +12,6 @@ os.mkdir(name_lower)
 for root, dirs, files in os.walk('_template'):
     for file in files:
         with open(os.path.join(root, file), 'r') as f:
-            print(root)
-            print(file)
             content = f.read()
             content = content.replace("###NAME###", plugin_name)
             content = content.replace("###NAME_LOWER###", name_lower)
@@ -27,4 +26,6 @@ for root, dirs, files in os.walk('_template'):
             with open(os.path.join(target_path, file), 'w') as wf:
                 wf.write(content)
 
+# make generate.py executable
+os.chmod(os.path.join(name_lower, "generate.py"), stat.S_IRWXU | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH)
 print("%s plugin has been created." % plugin_name)
