@@ -236,7 +236,7 @@ qx.Class.define("gosa.view.Dashboard", {
         button.addListener("execute", this._createWidget, this);
       }, this);
 
-      // add the unloaded parts (loaded parts are alredy in the registry
+      // add the unloaded parts (loaded parts are already in the registry
       var parts = gosa.view.Dashboard.getPartRegistry();
       Object.getOwnPropertyNames(parts).forEach(function(name) {
         var displayName = parts[name];
@@ -244,6 +244,18 @@ qx.Class.define("gosa.view.Dashboard", {
         button.setUserData("part", name);
         menu.add(button);
         button.addListener("execute", this._loadPart, this);
+      }, this);
+
+      // add the uploaded widgets which can be downloaded from the backend
+      gosa.io.Rpc.getInstance().cA("getDashboardWidgets")
+      .then(function(widgets) {
+        widgets.forEach(function(widget) {
+          var displayName = widget.info.name;
+          var button = new qx.ui.menu.Button(displayName);
+          button.setUserData("namespace", widget.provides.namespace);
+          menu.add(button);
+          button.addListener("execute", this._loadFromBackend, this);
+        }, this);
       }, this);
 
       // add button
@@ -450,6 +462,25 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     /**
+     * Load uploaded widget from backend
+     * @param ev {Event} with widgets namespace as payload
+     */
+    _loadFromBackend: function(ev) {
+      var button = ev.getTarget();
+      var namespace = button.getUserData("namespace");
+      qx.core.Environment.add(namespace+".source", "external");
+      var loader = new qx.util.DynamicScriptLoader(['/gosa/uploads/widgets/'+namespace+'/'+namespace+".js"]);
+      loader.addListenerOnce("ready", function() {
+        this._createWidget(namespace);
+      }, this);
+      loader.addListener('failed',function(e){
+        var data = e.getData();
+        this.error("failed to load "+data.script);
+      });
+      loader.start();
+    },
+
+    /**
      * Handle 'loaded' events from {gosa.util.DragDropHelper} to add uploaded widgets
      * @param ev {qx.event.type.Data} data event with widgets package name as payload
      */
@@ -474,20 +505,39 @@ qx.Class.define("gosa.view.Dashboard", {
       .then(function(result) {
         if (result.length) {
           this.__settings = result;
-          var partsToLoad = this.__extractPartsToLoad(result);
-          if (partsToLoad.length > 0) {
-            qx.Part.require(partsToLoad, function() {
+          var pluginsToLoad = this.__extractPluginsToLoad(result);
+          var partsLoaded = pluginsToLoad.parts.length === 0;
+          var scriptsLoaded = pluginsToLoad.scripts.length === 0;
+
+          var done = function() {
+            if (partsLoaded && scriptsLoaded) {
               this.refresh(true);
+            }
+          }.bind(this);
+          if (pluginsToLoad.parts.length > 0) {
+            qx.Part.require(pluginsToLoad.parts, function() {
+              done();
             }, this);
           } else {
-            this.refresh(true);
+            done();
+          }
+          if (pluginsToLoad.scripts.length > 0) {
+            var loader = new qx.util.DynamicScriptLoader(pluginsToLoad.scripts);
+            loader.addListenerOnce("ready", function() {
+              scriptsLoaded = true;
+              done();
+            }, this);
+            loader.start();
+          } else {
+            done();
           }
         }
       }, this);
     },
 
-    __extractPartsToLoad: function(settings) {
+    __extractPluginsToLoad: function(settings) {
       var partsToLoad = [];
+      var scriptsToLoad = [];
       var loader = qx.io.PartLoader.getInstance();
       settings.forEach(function(widgetEntry) {
         if (widgetEntry.source === "part") {
@@ -496,9 +546,11 @@ qx.Class.define("gosa.view.Dashboard", {
           if (part.getReadyState() === "initialized") {
             partsToLoad.push(widgetEntry.widget);
           }
+        } else if (widgetEntry.source === "external") {
+          scriptsToLoad.push('/gosa/uploads/widgets/'+widgetEntry.widget+"/"+widgetEntry.widget+".js");
         }
       }, this);
-      return partsToLoad;
+      return {parts: partsToLoad, scripts: scriptsToLoad};
     },
 
     /**
