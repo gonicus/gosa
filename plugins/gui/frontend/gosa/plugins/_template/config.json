@@ -1,0 +1,74 @@
+{
+  "name"    : "###NAME###",
+
+  "include" :
+  [
+    {
+      "path" : "${QOOXDOO_PATH}/tool/data/config/application.json"
+    }
+  ],
+
+  "export" :
+  [
+    "build",
+    "clean",
+    "distclean",
+    "dependencies",
+    "fix",
+    "info",
+    "translation"
+  ],
+
+  "let" :
+  {
+    "APPLICATION"  : "gosa.plugins.###NAME_LOWER###",
+    "APPLICATION_MAIN_CLASS" : "${APPLICATION}.Main",
+    "QOOXDOO_PATH" : "../../../qooxdoo",
+    "LOCALES"      : [ "en", "de" ],
+    "CACHE"        : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
+    "ROOT"         : "."
+  },
+
+  "config-warnings" : {
+    "job-shadowing": [ "common", "build", "build-script" ]
+  },
+
+  "jobs": {
+    "common": {
+      "=include" : [ "${APPLICATION}.*" ],
+      "=exclude" : [ "qx.*" ],
+      "lint-check": { "allowed-globals": [ "gosa" ] },
+      "environment" : {
+        "gosa.plugins.activity.source" : "external"
+      },
+      "compile-options" :
+      {
+        "paths"  :
+        {
+          "loader-template": "../plugin.loader.tmpl.js"
+        }
+      }
+    },
+
+    "build" :
+    {
+      "desc"    : "create build version of current application",
+
+      "run" :
+      [
+        "build-resources",
+        "build-script",
+        "build-files",
+        "build-package"
+      ]
+    },
+
+    "build-package": {
+      "desc"  : "Bundles the generated build in a single compresses archive",
+
+      "shell": {
+        "command": "../create-plugin-bundle.py ${APPLICATION} ${BUILD_PATH}"
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "info" : 
+  {
+    "name" : "###NAME###",
+
+    "summary" : "GoSA dashboard plugin",
+    "description" : "",
+    
+    "homepage" : "http://gosa-project.org/",
+
+    "license" : "LGPL 2.1",
+    "authors" :
+    [
+      {
+        "name" : "###AUTHOR###",
+        "email" : "###EMAIL###"
+      }
+    ],
+
+    "version" : "3.0",
+    "qooxdoo-versions": ["5.1"]
+  },
+  
+  "provides" : 
+  {
+    "namespace"   : "gosa.plugins.###NAME_LOWER###",
+    "encoding"    : "utf-8",
+    "class"       : "source/class",
+    "resource"    : "source/resource",
+    "translation" : "source/translation",
+    "type"        : "contribution"
+  }
+}
+
