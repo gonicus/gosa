@@ -67,7 +67,7 @@
       "desc"  : "Bundles the generated build in a single compresses archive",
 
       "shell": {
-        "command": "../create-plugin-bundle.py ${APPLICATION} ${BUILD_PATH}"
+        "command": "../make-plugin-bundle.py ${APPLICATION} ${BUILD_PATH}"
       }
     }
   }
