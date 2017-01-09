@@ -12,13 +12,24 @@ for (var k in envinfo) {
     qx.$$environment[k] = envinfo[k];
   }
 }
+var package = envinfo['qx.application'].split(".");
+package.pop();
+package = package.join(".");
+var baseDir = '../uploads/widgets/'+package+'/';
 
 if (!qx.$$libraries) qx.$$libraries = {};
 var libinfo = %{Libinfo};
 for (var k in libinfo) {
   // do not replace existing definitions
   if (!qx.$$libraries[k]) {
-    qx.$$libraries[k] = libinfo[k];
+    if (k === package) {
+      qx.$$libraries[k] = {
+        sourceUri: baseDir+libinfo[k].sourceUri,
+        resourceUri: baseDir+libinfo[k].resourceUri
+      };
+    } else {
+      qx.$$libraries[k] = libinfo[k];
+    }
   }
 }
 

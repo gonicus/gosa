@@ -1,7 +1,7 @@
 {
   "info" : 
   {
-    "name" : "activity",
+    "name" : "Activities",
 
     "summary" : "GoSA last activity dashboard plugin",
     "description" : "This plugin add a dashboard widget that shows the last changed object as a list.",
