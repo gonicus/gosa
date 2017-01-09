@@ -8,6 +8,9 @@ path = sys.argv[2]
 archive_path = os.path.join(path, "%s.zip" % app_name)
 if os.path.exists(path):
     with zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED) as archive:
+        # add manifest
+        archive.write(os.path.join(path, "..", "Manifest.json"), os.path.join(app_name, "Manifest.json"))
+
         # add scripts
         for root, dirs, files in os.walk(os.path.join(path, 'script')):
             for f in files:

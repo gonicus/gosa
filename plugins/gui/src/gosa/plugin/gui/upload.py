@@ -1,6 +1,5 @@
 import os
 import logging
-import shutil
 from zipfile import ZipFile
 from gosa.backend.plugins.upload.main import IUploadFileHandler
 from gosa.common import Environment

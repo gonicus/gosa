@@ -81,6 +81,9 @@ setup(
 
         [gosa.upload_handler]
         widgets = gosa.plugin.gui.upload:WidgetUploadHandler
+
+        [gosa.plugin]
+        rpc = gosa.plugin.gui.main:RpcPlugin
     """,
 )
 
