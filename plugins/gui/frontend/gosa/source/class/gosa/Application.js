@@ -156,7 +156,7 @@ qx.Class.define("gosa.Application",
 
       // Base settings
       var locale = gosa.Tools.getLocale();
-      // qx.io.PartLoader.require([locale]);
+      qx.io.PartLoader.require([locale]);
 
 
       // Document is the application root

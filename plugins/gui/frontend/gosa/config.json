@@ -235,7 +235,8 @@
     {
       "packages" :
       {
-//        "i18n-as-parts"    : true,
+        "separate-loader"  : true,
+        "i18n-as-parts"    : true,
         "parts"  :
         {
           "boot"                  : { "include" : [
