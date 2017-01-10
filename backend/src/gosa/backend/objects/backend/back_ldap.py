@@ -452,18 +452,15 @@ class LDAP(ObjectBackend):
             min = self.env.config.get("pool.min-%s" % attr, 1000)
             if min:
                 mod_attrs = [
-                    ('objectClass', [fltr, "organizationalUnit"]),
-                    (ldap.MOD_ADD, "ou", "idmap")
-                    (ldap.MOD_ADD, attr, min)
+                    ('objectClass', [bytes(fltr, 'ascii'), b"organizationalUnit"]),
+                    ("ou", [b"idmap"]),
+                    ("uidNumber", bytes(str(min), 'ascii')),
+                    ("gidNumber", bytes(str(min), 'ascii'))
                     ]
-                rdn = ldap.dn.explode_dn(self.lh.get_base(), flags=ldap.DN_FORMAT_LDAPV3)[0]
-                dn = ldap.dn.dn2str(["ou=idmap"] + rdn)
-                self.con.add_s(dn, mod_attrs)
+                self.con.add_s("ou=idmap,%s" % self.lh.get_base(), mod_attrs)
 
                 # Load the new entry
                 res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, "(objectClass=%s)" % fltr, [attr])
-
-            raise EntryNotFound(C.make_error("NO_POOL_ID"))
 
         if len(res) != 1:
             raise EntryNotFound(C.make_error("MULTIPLE_ID_POOLS"))
