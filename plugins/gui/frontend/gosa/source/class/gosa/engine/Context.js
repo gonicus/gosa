@@ -99,10 +99,17 @@ qx.Class.define("gosa.engine.Context", {
     },
 
     /**
-     * @return {gosa.ui.widgets.Widget} The root widget container for this template
+     * @return {qx.ui.tabview.Page} The root widget container for this template
      */
     getRootWidget : function() {
-      return this._rootWidget;
+
+      var parent = this._rootWidget;
+      do {
+        if (parent instanceof qx.ui.tabview.Page) {
+          return parent;
+        }
+        parent = parent.getLayoutParent();
+      } while (parent);
     },
 
     getExtension : function() {
