@@ -40,7 +40,9 @@
       "build",
       "build-script",
       "source-script",
-      "libraries"
+      "libraries",
+      "common",
+      "source"
     ]
   },
 
@@ -61,10 +63,6 @@
   "jobs" :
   {
     "common": {
-      // configure part loading
-      "extend": [
-        "parts-config"
-      ],
       "lint-check": {
         "ignore-environment-nonlit-key": true
       }
@@ -89,6 +87,10 @@
 
     "build" :
     {
+      // configure part loading
+      "extend": [
+        "parts-config"
+      ],
       "desc"    : "create build version of current application",
 
       "run" :
@@ -170,6 +172,12 @@
         }
       }
     },
+    "source": {
+      // configure part loading
+      "extend": [
+        "parts-config"
+      ]
+    },
 
     "source-script":
     {
@@ -219,8 +227,7 @@
       "library" :
       [
         { "manifest" : "../uploadmgr/Manifest.json" },
-        { "manifest" : "../capture/Manifest.json" },
-//        { "manifest" : "plugins/activity/Manifest.json" }
+        { "manifest" : "../capture/Manifest.json" }
       ]
     },
 
@@ -228,13 +235,13 @@
     {
       "packages" :
       {
+//        "i18n-as-parts"    : true,
         "parts"  :
         {
           "boot"                  : { "include" : [
             "${QXTHEME}", "gosa.Application", "gosa.ui.widgets.*", "gosa.engine.*",
             "gosa.ui.dialogs.*", "gosa.plugins.search.*", "gosa.LocalConfig"
-          ] },
-//          "gosa.plugins.activity"       : { "include" : [ "gosa.plugins.activity.Main" ] }
+          ] }
         }
       }
     },
