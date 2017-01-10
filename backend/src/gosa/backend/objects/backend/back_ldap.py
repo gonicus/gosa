@@ -442,24 +442,50 @@ class LDAP(ObjectBackend):
         return sorted(dn_list, key=len)
 
     def get_next_id(self, attr):
-        fltr = self.env.config.get("backend-ldap.pool-filter", "(objectClass=sambaUnixIdPool)")
-        res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr, [attr])
+        fltr = self.env.config.get("pool.attribute", "sambaUnixIdPool")
+        res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, "(objectClass=%s)" % fltr, [attr])
 
         if not res:
+
+            # If we've a configuration entry for the requested attribute,
+            # just create it on the fly
+            min = self.env.config.get("pool.min-%s" % attr, 1000)
+            if min:
+                mod_attrs = [
+                    ('objectClass', [fltr, "organizationalUnit"]),
+                    (ldap.MOD_ADD, "ou", "idmap")
+                    (ldap.MOD_ADD, attr, min)
+                    ]
+                rdn = ldap.dn.explode_dn(self.lh.get_base(), flags=ldap.DN_FORMAT_LDAPV3)[0]
+                dn = ldap.dn.dn2str(["ou=idmap"] + rdn)
+                self.con.add_s(dn, mod_attrs)
+
+                # Load the new entry
+                res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, "(objectClass=%s)" % fltr, [attr])
+
             raise EntryNotFound(C.make_error("NO_POOL_ID"))
 
         if len(res) != 1:
             raise EntryNotFound(C.make_error("MULTIPLE_ID_POOLS"))
 
         # Current value
-        old_value = res[0][1][attr][0]
-        new_value = bytes(str(int(old_value) + 1),  'ascii')
+        if attr in res[0][1]:
+          old_value = res[0][1][attr][0]
+          new_value = bytes(str(int(old_value) + 1),  'ascii')
 
-        # Remove old, add new
-        mod_attrs = [
-                (ldap.MOD_DELETE, attr, [old_value]),
-                (ldap.MOD_ADD, attr, [new_value]),
+          # Remove old, add new
+          mod_attrs = [
+                  (ldap.MOD_DELETE, attr, [old_value]),
+                  (ldap.MOD_ADD, attr, [new_value]),
                 ]
+
+        else:
+            new_value = self.env.config.get("pool.min-%s" % attr, 1000)
+
+            # Add new
+            mod_attrs = [
+                (ldap.MOD_ADD, attr, [new_value]),
+            ]
 
         self.con.modify_s(res[0][0], mod_attrs)
 
