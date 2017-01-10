@@ -6,6 +6,9 @@ qx.$$start = new Date();
 
 if (!qx.$$environment) qx.$$environment = {};
 var envinfo = %{EnvSettings};
+var packageName = envinfo['APPLICATION'];
+var uploadPath = envinfo[packageName+".uploadPath"];
+delete envinfo['APPLICATION'];
 for (var k in envinfo) {
   // do not replace existing definitions
   if (!qx.$$environment[k]) {
@@ -18,10 +21,10 @@ var libinfo = %{Libinfo};
 for (var k in libinfo) {
   // do not replace existing definitions
   if (!qx.$$libraries[k]) {
-    if (k === package) {
+    if (k === packageName) {
       qx.$$libraries[k] = {
-        sourceUri: envinfo['gosa.plugins.uploadPath']+libinfo[k].sourceUri,
-        resourceUri: envinfo['gosa.plugins.uploadPath']+libinfo[k].resourceUri
+        sourceUri: uploadPath+libinfo[k].sourceUri,
+        resourceUri: uploadPath+libinfo[k].resourceUri
       };
     } else {
       qx.$$libraries[k] = libinfo[k];

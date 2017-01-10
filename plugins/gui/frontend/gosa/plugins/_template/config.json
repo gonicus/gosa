@@ -40,8 +40,9 @@
       "=exclude" : [ "qx.*" ],
       "lint-check": { "allowed-globals": [ "gosa" ] },
       "environment" : {
-        "gosa.plugins.activity.source" : "external",
-        "gosa.plugins.uploadPath" : "../uploads/widgets/${APPLICATION}/"
+        "APPLICATION" : "${APPLICATION}",
+        "${APPLICATION}.source" : "external",
+        "${APPLICATION}.uploadPath" : "../uploads/widgets/${APPLICATION}/"
       },
       "compile-options" :
       {
