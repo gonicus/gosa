@@ -6,26 +6,25 @@ qx.$$start = new Date();
 
 if (!qx.$$environment) qx.$$environment = {};
 var envinfo = %{EnvSettings};
+var packageName = envinfo['APPLICATION'];
+var uploadPath = envinfo[packageName+".uploadPath"];
+delete envinfo['APPLICATION'];
 for (var k in envinfo) {
   // do not replace existing definitions
   if (!qx.$$environment[k]) {
     qx.$$environment[k] = envinfo[k];
   }
 }
-var package = envinfo['qx.application'].split(".");
-package.pop();
-package = package.join(".");
-var baseDir = '../uploads/widgets/'+package+'/';
 
 if (!qx.$$libraries) qx.$$libraries = {};
 var libinfo = %{Libinfo};
 for (var k in libinfo) {
   // do not replace existing definitions
   if (!qx.$$libraries[k]) {
-    if (k === package) {
+    if (k === packageName) {
       qx.$$libraries[k] = {
-        sourceUri: baseDir+libinfo[k].sourceUri,
-        resourceUri: baseDir+libinfo[k].resourceUri
+        sourceUri: uploadPath+libinfo[k].sourceUri,
+        resourceUri: uploadPath+libinfo[k].resourceUri
       };
     } else {
       qx.$$libraries[k] = libinfo[k];

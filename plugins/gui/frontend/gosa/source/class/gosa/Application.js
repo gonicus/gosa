@@ -215,7 +215,7 @@ qx.Class.define("gosa.Application",
 
       // Register openObject action to allow to open object using urls
       this.addUrlAction("openObject", function(action, urlParts){
-          search.openObject(urlParts[1]);
+        gosa.ui.controller.Objects.getInstance().openObject(urlParts[1]);
         }, this);
 
 
