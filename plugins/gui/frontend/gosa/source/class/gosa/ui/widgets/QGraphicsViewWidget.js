@@ -138,18 +138,18 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
 
   destruct : function(){
 
+    // Remove all listeners and then set our values to null.
+    qx.event.Registration.removeAllListeners(this.__cap_win);
+    qx.event.Registration.removeAllListeners(this._removePicture);
+    qx.event.Registration.removeAllListeners(this._capturePicture);
+    qx.event.Registration.removeAllListeners(this);
+
     this.setBuddyOf(null);
     this.setGuiProperties(null);
     this.setValues(null);
     this.setBlockedBy(null);
     this.setValue(null);
     this._defaultImage = null;
-
-    // Remove all listeners and then set our values to null.
-    qx.event.Registration.removeAllListeners(this.__cap_win);
-    qx.event.Registration.removeAllListeners(this._removePicture);
-    qx.event.Registration.removeAllListeners(this._capturePicture);
-    qx.event.Registration.removeAllListeners(this);
 
     this._disposeObjects("_changePicture", "_removePicture", "_widget", "_capturePicture");
   },
