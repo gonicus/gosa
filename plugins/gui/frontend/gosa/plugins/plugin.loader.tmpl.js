@@ -12,10 +12,6 @@ for (var k in envinfo) {
     qx.$$environment[k] = envinfo[k];
   }
 }
-var package = envinfo['qx.application'].split(".");
-package.pop();
-package = package.join(".");
-var baseDir = '../uploads/widgets/'+package+'/';
 
 if (!qx.$$libraries) qx.$$libraries = {};
 var libinfo = %{Libinfo};
@@ -24,8 +20,8 @@ for (var k in libinfo) {
   if (!qx.$$libraries[k]) {
     if (k === package) {
       qx.$$libraries[k] = {
-        sourceUri: baseDir+libinfo[k].sourceUri,
-        resourceUri: baseDir+libinfo[k].resourceUri
+        sourceUri: envinfo['gosa.plugins.uploadPath']+libinfo[k].sourceUri,
+        resourceUri: envinfo['gosa.plugins.uploadPath']+libinfo[k].resourceUri
       };
     } else {
       qx.$$libraries[k] = libinfo[k];
