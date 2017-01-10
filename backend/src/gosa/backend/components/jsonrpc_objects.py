@@ -56,6 +56,7 @@ class JSONRPCObjectMapper(Plugin):
     _target_ = 'core'
     _priority_ = 70
     __stack = None
+    __inactivity_timeout = 10  # Number of minutes after which the object close announement is sent
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -63,7 +64,7 @@ class JSONRPCObjectMapper(Plugin):
 
     def serve(self):
         sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
-        sched.add_interval_job(self.__gc, minutes=10, tag='_internal', jobstore="ram")
+        sched.add_interval_job(self.__gc, minutes=self.__inactivity_timeout, tag='_internal', jobstore="ram")
 
     @Command(__help__=N_("List available object OIDs"))
     def listObjectOIDs(self):
@@ -453,7 +454,7 @@ class JSONRPCObjectMapper(Plugin):
 
     def __gc(self):
         self.env.log.debug("running garbage collector on object store")
-        ten_minutes_ago = datetime.datetime.now() - datetime.timedelta(minutes=10)
+        ten_minutes_ago = datetime.datetime.now() - datetime.timedelta(minutes=self.__inactivity_timeout)
         e = EventMaker()
         command = PluginRegistry.getInstance("CommandRegistry")
         sched = PluginRegistry.getInstance("SchedulerService").getScheduler()

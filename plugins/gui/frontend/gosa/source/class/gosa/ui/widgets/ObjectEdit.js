@@ -201,12 +201,14 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       new gosa.ui.dialogs.Info(this.tr("This object has been closed due to inactivity!")).open();
       this._getParentWindow().close();  // don't fire close event
       this.fireEvent("timeoutClose"); // fire special close event (needed to let the WindowController know whats going on)
+      this.dispose();
     },
 
     _applyController : function(value, old) {
       if (old) {
         old.removeListener("changeModified", this._updateOkButtonEnabled, this);
         old.removeListener("changeValid", this._updateOkButtonEnabled, this);
+        old.dispose();
       }
 
       if (value) {

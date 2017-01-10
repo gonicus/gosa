@@ -91,6 +91,11 @@ qx.Class.define("gosa.proxy.Object", {
       return(this.isDisposed() || this._closed);
     },
 
+    setClosed : function(value) {
+      qx.core.Assert.assertBoolean(value);
+      this._closed = value;
+    },
+
     _objectClosingEvent: function(e) {
       // Skip event processing while committing, removing, etc
       if(this.skipEvents){

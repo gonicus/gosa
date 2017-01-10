@@ -32,3 +32,6 @@ htmlcov/
 
 # GUI related auto login
 LocalConfig.js
+
+# IntellJ
+.idea/

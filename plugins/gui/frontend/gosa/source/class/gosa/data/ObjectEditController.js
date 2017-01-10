@@ -231,6 +231,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
           this._widget.closeClosingDialog();
           break;
         case "closed":
+          this._obj.setClosed(true);
           this._widget.onClosed();
           break;
       }

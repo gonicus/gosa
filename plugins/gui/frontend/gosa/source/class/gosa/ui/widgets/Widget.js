@@ -408,7 +408,6 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     },
 
     _applyValid : function(value) {
-      console.trace(value);
       if (value) {
         this.removeState("invalid");
       }

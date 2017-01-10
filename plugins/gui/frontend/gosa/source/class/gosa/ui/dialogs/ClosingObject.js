@@ -42,21 +42,9 @@ qx.Class.define("gosa.ui.dialogs.ClosingObject", {
     message.setWrap(true);
     this.addElement(message);
 
-    var ok = gosa.ui.base.Buttons.getOkButton();
-    ok.setLabel(this.tr("Continue"));
-    this.addButton(ok);
 
-    var cancel = gosa.ui.base.Buttons.getCancelButton();
-    cancel.setLabel(this.tr("Close"));
-    this.addButton(cancel);
-    ok.addListener("click", function(){
-        this.fireEvent("continue");
-        this.close();
-      }, this);
-    cancel.addListener("click", function() {
-      this.fireEvent("closeObject");
-      this.close();
-    }, this);
+    this.__createOkButton();
+    this.__createCancelButton();
   },
 
   events: {
@@ -66,7 +54,29 @@ qx.Class.define("gosa.ui.dialogs.ClosingObject", {
 
   members: {
     _timer : null,
-    _message : null
+    _message : null,
+
+    __createOkButton : function() {
+      var ok = gosa.ui.base.Buttons.getOkButton();
+      ok.setLabel(this.tr("Continue"));
+      this.addButton(ok);
+
+      ok.addListener("click", function(){
+        this.fireEvent("continue");
+        this.close();
+      }, this);
+    },
+
+    __createCancelButton : function() {
+      var cancel = gosa.ui.base.Buttons.getCancelButton();
+      cancel.setLabel(this.tr("Close"));
+      this.addButton(cancel);
+
+      cancel.addListener("click", function() {
+        this.fireEvent("closeObject");
+        this.close();
+      }, this);
+    }
   },
 
   destruct: function() {
