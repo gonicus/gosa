@@ -7,7 +7,8 @@ Quickstart
             build-essential python-dev cython libusb-1.0-0-dev libudev-dev
  - Ubuntu: virtualenv --python=python3 --system-site-packages .env
    Fedora: virtualenv-3.5 --system-site-packages .env
- - launch "./run --devel"
+ - Initialize the repository "./run --init"
+ - Start the service using "./run --devel"
 
 SSL - selfsigned
 ================

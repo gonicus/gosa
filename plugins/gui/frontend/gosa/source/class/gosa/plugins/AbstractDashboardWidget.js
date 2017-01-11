@@ -75,7 +75,7 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
 
         case "content":
           control = new qx.ui.container.Composite(new qx.ui.layout.Grow());
-          this.getChildControl("container").add(control);
+          this.getChildControl("container").add(control, {flex: 1});
           break;
 
       }
@@ -90,17 +90,11 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
       if (value) {
         this.addListener("dragstart", this.__onDragStart, this);
         this.addState("edit");
-        this.set({
-          resizableBottom: true,
-          resizableRight: true
-        });
+        this.setResizable([false, true, true, true]);
       } else {
         this.removeListener("dragstart", this.__onDragStart, this);
         this.removeState("edit");
-        this.set({
-          resizableBottom: false,
-          resizableRight: false
-        });
+        this.setResizable(false);
       }
     },
 

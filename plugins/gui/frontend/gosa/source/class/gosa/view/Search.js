@@ -375,10 +375,12 @@ qx.Class.define("gosa.view.Search", {
 
         // Update categories
         if (!_categories[items[i].tag]) {
+          if (gosa.Cache.objectCategories[items[i].tag]) {
             _categories[items[i].tag] = {
               name: this["tr"](gosa.Cache.objectCategories[items[i].tag]),
               count: 1
             };  // jshint ignore:line
+          }
         } else {
           _categories[items[i].tag].count++;
         }

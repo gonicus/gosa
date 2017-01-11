@@ -144,11 +144,11 @@ qx.Class.define("gosa.data.ExtensionController", {
         var queue = [];
 
         dependencies.forEach(function(dependency) {
-          queue.push([this._addExtensionToObject, this, [dependency]]);
+          queue.push(this._addExtensionToObject(dependency));
         }, this);
 
-        queue.push([this._addExtensionToObject, this, [extension]]);
-        gosa.Tools.serialize(queue);
+        queue.push(this._addExtensionToObject(extension));
+        return qx.Promise.all(queue, this);
       }, this);
     },
 
@@ -160,11 +160,11 @@ qx.Class.define("gosa.data.ExtensionController", {
         var queue = [];
 
         dependencies.forEach(function(dependency) {
-          queue.push([this._removeExtensionFromObject, this, [dependency]]);
+          queue.push(this._removeExtensionFromObject(dependency));
         }, this);
 
-        queue.push([this._removeExtensionFromObject, this, [extension]]);
-        gosa.Tools.serialize(queue);
+        queue.push(this._removeExtensionFromObject(extension));
+        return qx.Promise.all(queue, this);
       }, this);
     },
 

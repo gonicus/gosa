@@ -8,6 +8,16 @@ abort() {
 
 trap 'abort' SIGINT
 
+if ! command -v docker &> /dev/null; then
+    echo "Can't find the docker binary. Please make sure it is installed."
+    exit 9
+fi
+
+if ! docker info &> /dev/null; then
+    echo "Make sure your docker daemon is running and you're permitted to access it."
+    exit 9
+fi
+
 if [ ! -d .env ]; then
     if command -v virtualenv-3.5 >/dev/null 2>&1; then
        virtualenv-3.5 --system-site-packages .env
@@ -29,7 +39,7 @@ if [[ $? -ne 4 ]]; then
     exit 1
 fi
 
-PARSED=`getopt --options dr --longoptions devel,reset,stop,update,config: --name "$0" -- "$@"`
+PARSED=`getopt --options dr --longoptions devel,reset,stop,update,init,config: --name "$0" -- "$@"`
 if [[ $? -ne 0 ]]; then
 echo "HELP"
     exit 2
@@ -51,7 +61,7 @@ while true; do
             config=$2
             shift 2
             ;;
-        --update)
+        --update|--init)
             update=1
             shift
             ;;
@@ -109,6 +119,11 @@ if [[ $reset -eq 1 ]]; then
     if [[ $cid != "" ]]; then
         docker rm $cid
     fi
+fi
+
+if ! command -v gosa &> /dev/null; then
+    echo "Please run './gosa --init' first."
+    exit 8
 fi
 
 # Run in devel mode
