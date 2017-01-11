@@ -3,7 +3,7 @@
 config="example"
 
 abort() {
-    echo "Stopped GOsa process. 'gosa-next' container is keept running. Use 'gosa --stop' to stop it."
+    echo "Stopped GOsa process. 'gosa-next' container is keept running. Use 'run --stop' to stop it."
 }
 
 trap 'abort' SIGINT
