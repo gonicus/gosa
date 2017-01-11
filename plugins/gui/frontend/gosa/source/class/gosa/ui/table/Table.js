@@ -223,7 +223,7 @@ qx.Class.define("gosa.ui.table.Table",
         loadPrefs.apply(this, [gosa.ui.table.Table.tablePreferences[this.__preferenceName]]);
       } else {
         // Check the user model for table preferences 
-        gosa.io.Rpc.getInstance().cA("loadUserPreferences", gosa.Session.getInstance().getUser(), this.__preferenceName)
+        gosa.io.Rpc.getInstance().cA("loadUserPreferences", this.__preferenceName)
         .then(function(prefs) {
           gosa.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
           loadPrefs.apply(this, [prefs]);
