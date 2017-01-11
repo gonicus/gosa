@@ -10,10 +10,7 @@ var packageName = envinfo['APPLICATION'];
 var uploadPath = envinfo[packageName+".uploadPath"];
 delete envinfo['APPLICATION'];
 for (var k in envinfo) {
-  // do not replace existing definitions
-  if (!qx.$$environment[k]) {
-    qx.$$environment[k] = envinfo[k];
-  }
+  qx.core.Environment.add(k, envinfo[k]);
 }
 
 if (!qx.$$libraries) qx.$$libraries = {};

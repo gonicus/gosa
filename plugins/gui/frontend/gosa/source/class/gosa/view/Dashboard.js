@@ -40,6 +40,8 @@ qx.Class.define("gosa.view.Dashboard", {
       }, this);
     }, this);
 
+    this.getChildControl("board").addListener("resize", this._onGridResize, this);
+
     this.addListener("disappear", function() {
       gosa.ui.Header.getInstance().getChildControl("edit-mode").exclude();
     }, this);
@@ -195,6 +197,18 @@ qx.Class.define("gosa.view.Dashboard", {
         ev.stopPropagation();
       } else {
         this.setSelectedWidget(null);
+      }
+    },
+
+    /**
+     * Recalculate grid column width/row height
+     */
+    _onGridResize: function() {
+      var bounds = this.getChildControl("board").getBounds();
+      var columnSize = Math.floor((bounds.width / this.__columns) - this.__layout.getSpacingX());
+      // apply size to columns
+      for (var i=0, l = this.__layout.getColumnCount(); i < l; i++) {
+        this.__layout.setColumnWidth(i, columnSize);
       }
     },
 
@@ -532,7 +546,6 @@ qx.Class.define("gosa.view.Dashboard", {
     _loadFromBackend: function(ev) {
       var button = ev.getTarget();
       var namespace = button.getUserData("namespace");
-      qx.core.Environment.add(namespace+".source", "external");
       var loader = new qx.util.DynamicScriptLoader(['/gosa/uploads/widgets/'+namespace+'/'+namespace+".js"]);
       loader.addListenerOnce("ready", function() {
         this._createWidget(namespace);
@@ -683,6 +696,9 @@ qx.Class.define("gosa.view.Dashboard", {
           widget.addListener("tap", this._onTap, this);
           this.setSelectedWidget(widget);
         }
+        widget.addListener("layoutChanged", function(ev) {
+          this.__toolbarButtons['save'].setEnabled((ev.getData() === true));
+        }, this);
         // remove spacers if there are any
         var colspan = entry.layoutProperties.colSpan||1;
         for(var c=entry.layoutProperties.column, l = c + colspan; c<l; c++) {

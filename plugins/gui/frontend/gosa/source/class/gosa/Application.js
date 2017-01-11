@@ -154,6 +154,11 @@ qx.Class.define("gosa.Application",
         }, 0, this, null, 2000);
       }
 
+      // Base settings
+      var locale = gosa.Tools.getLocale();
+      qx.io.PartLoader.require([locale]);
+
+
       // Document is the application root
       var doc = this.getRoot();
       doc.setDecorator("background");
@@ -205,9 +210,6 @@ qx.Class.define("gosa.Application",
       if (qx.core.Environment.get("qx.debug") || !window.applicationCache || window.location.protocol.indexOf("https") === 0) {
         this.hideSplash();
       }
-
-      // Base settings
-      var locale = gosa.Tools.getLocale();
 
       // Back button and bookmark support
       this._history = qx.bom.History.getInstance();
