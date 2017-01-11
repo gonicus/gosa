@@ -3,14 +3,11 @@ TODO: make a real file out of this
 Quickstart
 ==========
 
- - docker run -d -p 389:389 -p 1883:1883 -p 5432:5432 --name gosa-next cpollmeier/gosa3:devel
  - install python3-gunicorn, python3-gevent, python3-setproctitle, python3-pyldap, python3-unidecode, python3-psycop2 packages
             build-essential python-dev cython libusb-1.0-0-dev libudev-dev
  - Ubuntu: virtualenv --python=python3 --system-site-packages .env
    Fedora: virtualenv-3.5 --system-site-packages .env
- - source .env/bin/activate
- - ./setup.py develop
- - gosa --config example
+ - launch "./run --devel"
 
 SSL - selfsigned
 ================

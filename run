@@ -1,0 +1,125 @@
+#!/bin/bash
+abort() {
+    echo "Stopped GOsa process. 'gosa-next' container is keept running. Use 'run --stop' to stop it."
+}
+
+trap 'abort' SIGINT
+
+if [ ! -d .env ]; then
+    if command -v virtualenv-3.5 >/dev/null 2>&1; then
+       virtualenv-3.5 --system-site-packages .env
+    elif command -v virtualenv >/dev/null 2>&1; then
+       virtualenv --python=python3 --system-site-packages .env
+    else
+       echo "No 'virtualenv' for python3 found. Please install a package providing it for your system."
+       exit 10
+    fi
+fi
+
+if [[ $VIRTUAL_ENV = "" ]]; then
+    source .env/bin/activate
+fi
+
+getopt --test > /dev/null
+if [[ $? -ne 4 ]]; then
+    echo "`getopt --test` failed - aborting"
+    exit 1
+fi
+
+PARSED=`getopt --options dr --longoptions devel,reset,stop,update --name "$0" -- "$@"`
+if [[ $? -ne 0 ]]; then
+echo "HELP"
+    exit 2
+fi
+
+eval set -- "$PARSED"
+
+while true; do
+    case "$1" in
+        -r|--reset)
+            reset=1
+            shift
+            ;;
+        --stop)
+            reset=1
+            shift
+            ;;
+        --update)
+            update=1
+            shift
+            ;;
+        -d|--devel)
+            devel=1
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Error"
+            exit 3
+            ;;
+    esac
+done
+
+
+# Stop container?
+if [[ $stop -eq 1 ]]; then
+    cid=$(docker ps -f name=gosa-next --quiet)
+    if [[ $cid != "" ]]; then
+        docker stop $cid
+    fi
+    exit 0
+fi
+
+# Update?
+if [[ $update -eq 1 ]]; then
+    git pull
+    git submodule update --init
+
+    ./setup.py develop
+    (cd ./plugins/gui/frontend/gosa/ && python2 ./generate.py source)
+    for i in ./plugins/gui/frontend/gosa/plugins/*; do
+        if [ -d $i ] && [[ $i != *"_template"* ]]; then
+            (cd $i && python2 ./generate.py build)
+        fi
+    done
+fi
+
+# Reset docker environment?
+if [[ $reset -eq 1 ]]; then
+
+    # If there's one running - abort it
+    cid=$(docker ps -f name=gosa-next --quiet)
+    if [[ $cid != "" ]]; then
+        echo "Stopping currently running 'gosa-next' container..."
+        docker stop $cid &> /dev/null
+    fi
+
+    # Delete old one
+    cid=$(docker ps -f name=gosa-next --all --quiet)
+    if [[ $cid != "" ]]; then
+        docker rm $cid
+    fi
+fi
+
+# Run in devel mode
+if [[ $devel -eq 1 ]]; then
+    cid=$(docker ps -f name=gosa-next --quiet)
+    if [[ $cid = "" ]]; then
+        cid=$(docker ps -f name=gosa-next --all --quiet)
+        if [[ $cid = "" ]]; then
+            echo "Creating 'gosa-next' docker container - this may take some time..."
+            docker run -d -p 389:389 -p 1883:1883 -p 5432:5432 --name gosa-next cpollmeier/gosa3:devel
+        else
+            echo "Starting 'gosa-next' docker container..."
+            docker start $cid
+        fi
+    fi
+
+    echo "Running GOsa - press Ctrl+C to stop"
+    gosa --config example
+else
+    echo "Currently only --devel is supported"
+fi
