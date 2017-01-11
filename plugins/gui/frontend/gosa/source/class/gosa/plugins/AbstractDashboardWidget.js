@@ -19,6 +19,7 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
   extend : qx.ui.core.Widget,
   implement: gosa.plugins.IPlugin,
   type: "abstract",
+  include: gosa.ui.core.MGridResizable,
 
   /*
   *****************************************************************************
@@ -28,6 +29,9 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
   construct : function() {
     this.base(arguments);
     this._setLayout(new qx.ui.layout.Canvas());
+    this.set({
+      resizable: false
+    })
   },
 
   /*
@@ -86,9 +90,17 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
       if (value) {
         this.addListener("dragstart", this.__onDragStart, this);
         this.addState("edit");
+        this.set({
+          resizableBottom: true,
+          resizableRight: true
+        });
       } else {
         this.removeListener("dragstart", this.__onDragStart, this);
         this.removeState("edit");
+        this.set({
+          resizableBottom: false,
+          resizableRight: false
+        });
       }
     },
 
