@@ -135,23 +135,6 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
     },
 
     /**
-     * @param event {qx.event.type.Data}
-     */
-    __onMerge : function(event) {
-      var attributes = event.getData().attributes;
-
-      for (var attributeName in attributes) {
-        if (attributes.hasOwnProperty(attributeName)) {
-          if (!attributes[attributeName]) {  // change value to remote one
-            var widget = this.__controller.getWidgetByAttributeName(attributeName);
-            widget.setValue(this.__modifiedValues[attributeName]);
-          }
-          this.__modifiedValues[attributeName] = null;
-        }
-      }
-    },
-
-    /**
      * Creates an array with the corresponding merge widgets.
      *
      * @param widget {gosa.ui.widget.Widget} Existing widget for the attribute
@@ -192,6 +175,26 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
         remoteWidget : remoteWidget,
         label : buddy ? buddy.getValue().getItem(0) : null
       };
+    },
+
+    /**
+     * @param event {qx.event.type.Data}
+     */
+    __onMerge : function(event) {
+      var attributes = event.getData().attributes;
+
+      for (var attributeName in attributes) {
+        if (attributes.hasOwnProperty(attributeName)) {
+          if (!attributes[attributeName]) {  // change value to remote one
+            var widget = this.__controller.getWidgetByAttributeName(attributeName);
+            widget.setValue(this.__modifiedValues[attributeName]);
+          }
+          else {
+            this.__controller.setModified(true);
+          }
+          this.__modifiedValues[attributeName] = null;
+        }
+      }
     }
   },
 
