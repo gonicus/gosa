@@ -133,10 +133,10 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
         if (method !== this._current) {
           if (this._current === null) {
             // no confirmation required
-            this._actionController.setTwoFactorMethod(method).then(this._handleMethodChangeResponse);
+            this._actionController.setTwoFactorMethod(method).then(this._handleMethodChangeResponse, this);
           } else {
             var pwd = this._pwd.getValue();
-            this._actionController.setTwoFactorMethod(method, pwd).then(this._handleMethodChangeResponse);
+            this._actionController.setTwoFactorMethod(method, pwd).then(this._handleMethodChangeResponse, this);
           }
         }
         else {
@@ -169,7 +169,7 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
                 if (deviceResponse.errorCode) {
                   this._showInfo(null, this.tr("Device responded with error '%1': %2", deviceResponse.errorCode, gosa.Tools.getU2FErrorMessage(deviceResponse.errorCode)));
                 } else {
-                  this._actionController.finishU2FRegistration(qx.lang.Json.stringify(deviceResponse)).then(this._handleMethodChangeResponse);
+                  this._actionController.finishU2FRegistration(qx.lang.Json.stringify(deviceResponse)).then(this._handleMethodChangeResponse, this);
                 }
               }.bind(this));
             } catch (e) {
