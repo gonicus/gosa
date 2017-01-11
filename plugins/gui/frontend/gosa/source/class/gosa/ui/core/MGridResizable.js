@@ -252,8 +252,24 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
       {
         diff = Math.max(range.left, Math.min(range.right, e.getDocumentLeft())) - this.__resizeLeft;
         colDiff = Math.round(diff/start.columnWidth);
+
+        if (resizeActive & this.RESIZE_RIGHT) {
+          // check if new colspan does not overlap existing widgets
+          if (colDiff > 0) {
+            var layout = this.getLayoutParent().getLayout();
+            var startCol = props.column+props.colSpan;
+            for (var c=1; c <= colDiff; c++) {
+              var widget = layout.getCellWidget(props.row, c+startCol);
+              if (widget) {
+                // existing widget -> do not resize
+                colDiff = c-1;
+              }
+            }
+          }
+        }
+
         // snap to column
-        diff = colDiff * (start.columnWidth + this.__resizeRange.spacingX) + this.__resizeRange.spacingX;
+        diff = colDiff * (start.columnWidth + this.__resizeRange.spacingX) + (colDiff ? this.__resizeRange.spacingX : 0);
 
         if (resizeActive & this.RESIZE_LEFT) {
           width -= diff;
@@ -267,13 +283,19 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
           width = hint.maxWidth;
         }
 
-        if (resizeActive & this.RESIZE_LEFT) {
-          left += start.width - width;
+        if (colDiff) {
+          if (resizeActive & this.RESIZE_LEFT) {
+            left += start.width - width;
+            props.column += colDiff;
+            props.colSpan = Math.min(this.__resizeRange.columns, props.colSpan - colDiff);
+          }
+          else {
+            props.colSpan = Math.min(this.__resizeRange.columns, props.colSpan + colDiff);
+          }
         }
       }
 
-      props.colSpan = Math.min(this.__resizeRange.columns, props.colSpan + colDiff);
-      props.rowSpan = Math.min(this.__resizeRange.rows, Math.ceil(height/start.rowHeight));
+      // props.rowSpan = Math.min(this.__resizeRange.rows, Math.ceil(height/start.rowHeight));
 
       return {
         // left and top of the visible widget
@@ -490,16 +512,14 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
       var startProps = this.__resizeStart.layoutProperties;
       var endProps = bounds.layoutProperties;
 
-      if (startProps.colSpan !== endProps.colSpan || startProps.rowSpan !== endProps.rowSpan) {
+      if (startProps.colSpan !== endProps.colSpan || startProps.rowSpan !== endProps.rowSpan || this.getHeight() !== bounds.height) {
         // layout has changed
         this.fireDataEvent("layoutChanged", true);
       }
 
       // Sync with widget
-      console.log(this.__resizeStart);
-      console.log(bounds);
-      console.log(endProps);
       this.setLayoutProperties(endProps);
+      this.setHeight(bounds.height);
 
       // Clear mode
       this.__resizeActive = 0;
