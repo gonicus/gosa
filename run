@@ -1,4 +1,7 @@
 #!/bin/bash
+
+config="example"
+
 abort() {
     echo "Stopped GOsa process. 'gosa-next' container is keept running. Use 'run --stop' to stop it."
 }
@@ -43,6 +46,10 @@ while true; do
         --stop)
             reset=1
             shift
+            ;;
+        --config)
+            config=$2
+            shift 2
             ;;
         --update)
             update=1
@@ -119,7 +126,7 @@ if [[ $devel -eq 1 ]]; then
     fi
 
     echo "Running GOsa - press Ctrl+C to stop"
-    gosa --config example
+    gosa --config $config
 else
     echo "Currently only --devel is supported"
 fi
