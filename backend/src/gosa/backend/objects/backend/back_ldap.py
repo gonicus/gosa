@@ -449,18 +449,35 @@ class LDAP(ObjectBackend):
 
             # If we've a configuration entry for the requested attribute,
             # just create it on the fly
-            min = self.env.config.get("pool.min-%s" % attr, 1000)
-            if min:
-                mod_attrs = [
-                    ('objectClass', [bytes(fltr, 'ascii'), b"organizationalUnit"]),
-                    ("ou", [b"idmap"]),
-                    ("uidNumber", bytes(str(min), 'ascii')),
-                    ("gidNumber", bytes(str(min), 'ascii'))
-                    ]
-                self.con.add_s("ou=idmap,%s" % self.lh.get_base(), mod_attrs)
+            minUidNumber = int(self.env.config.get("pool.min-uidNumber", 1000))
+            minGidNumber = int(self.env.config.get("pool.min-gidNumber", 1000))
 
-                # Load the new entry
-                res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, "(objectClass=%s)" % fltr, [attr])
+            # Check for the highest available ones
+            entries = self.con.search_s(
+                self.lh.get_base(),
+                ldap.SCOPE_SUBTREE,
+                "(|(objectClass=posixAccount)(objectClass=posixGroup))",
+                ["uidNumber", "gidNumber"])
+            for dn, attrs in entries:
+                if 'uidNumber' in attrs:
+                    num = int(attrs['uidNumber'][0])
+                    if num > minUidNumber:
+                        minUidNumber = num
+                if 'gidNumber' in attrs:
+                    num = int(attrs['gidNumber'][0])
+                    if num > minGidNumber:
+                        minGidNumber = num
+
+            mod_attrs = [
+                ('objectClass', [bytes(fltr, 'ascii'), b"organizationalUnit"]),
+                ("ou", [b"idmap"]),
+                ("uidNumber", bytes(str(minUidNumber), 'ascii')),
+                ("gidNumber", bytes(str(minGidNumber), 'ascii'))
+                ]
+            self.con.add_s("ou=idmap,%s" % self.lh.get_base(), mod_attrs)
+
+            # Load the new entry
+            res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, "(objectClass=%s)" % fltr, [attr])
 
         if len(res) != 1:
             raise EntryNotFound(C.make_error("MULTIPLE_ID_POOLS"))
@@ -536,4 +553,4 @@ class LDAP(ObjectBackend):
         return bytes(value.strftime("%Y%m%d%H%M%SZ"), 'ascii')
 
     def _convert_to_binary(self, value):
-        return value.get();
+        return value.get()
