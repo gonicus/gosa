@@ -8,7 +8,7 @@ abort() {
 
 trap 'abort' SIGINT
 
-if ! command docker &> /dev/null; then
+if ! command -v docker &> /dev/null; then
     echo "Can't find the docker binary. Please make sure it is installed."
     exit 9
 fi
@@ -121,7 +121,7 @@ if [[ $reset -eq 1 ]]; then
     fi
 fi
 
-if ! command gosa &> /dev/null; then
+if ! command -v gosa &> /dev/null; then
     echo "Please run './gosa --init' first."
     exit 8
 fi
