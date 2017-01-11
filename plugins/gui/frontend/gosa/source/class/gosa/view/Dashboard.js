@@ -241,7 +241,7 @@ qx.Class.define("gosa.view.Dashboard", {
 
         case "board":
           control = new qx.ui.container.Composite(this.__layout);
-          this._addAt(control, 1);
+          this._addAt(control, 1, {flex: 1});
           break;
       }
 

@@ -444,7 +444,7 @@ qx.Class.define("gosa.Application",
     },
 
     __handleRpcError: function(loadingDialog, error) {
-      var d = new gosa.ui.dialogs.Error(error);
+      var d = new gosa.ui.dialogs.Error(error.getData().message);
       d.open();
       d.addListener("close", function(){
         loadingDialog.open();

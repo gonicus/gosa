@@ -334,6 +334,21 @@ class ObjectIndex(Plugin):
             else:
                 self.insert(obj)
 
+        # send the event to the clients
+        e = EventMaker()
+        ev = e.Event(e.ObjectChanged(
+            e.UUID(obj.uuid),
+            e.DN(obj.dn),
+            e.ModificationTime(_last_changed.strftime("%Y%m%d%H%M%SZ")),
+            e.ChangeType("update")
+        ))
+        event = "<?xml version='1.0'?>\n%s" % etree.tostring(ev, pretty_print=True).decode('utf-8')
+
+        # Validate event
+        xml = objectify.fromstring(event, PluginRegistry.getEventParser())
+
+        SseHandler.notify(xml, channel="broadcast")
+
     def _post_process_by_timer(self):
         self._post_process_job = None
         self.post_process()

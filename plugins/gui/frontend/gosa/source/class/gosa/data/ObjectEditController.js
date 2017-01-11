@@ -33,12 +33,14 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._changeValueListeners = {};
     this._validatingWidgets = [];
     this._connectedAttributes = [];
+    this._modifiedValues = {};
     this._extensionController = new gosa.data.ExtensionController(obj, this);
 
     this._addListenersToAllContexts();
     this._setUpWidgets();
 
     this._widget.addListener("contextAdded", this._onContextAdded, this);
+    obj.addListener("foundDifferencesDuringReload", this.__onFoundDifferenceDuringReload, this);
 
     this._obj.setUiBound(true);
     this._initialized = true;
@@ -79,6 +81,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
     _connectedAttributes : null,
     _globalObjectListenersSet : false,
     _extensionController : null,
+    _modifiedValues : null,
 
     closeObject : function() {
       if (this._obj && !this._obj.isDisposed() && !this._obj.isClosed()) {
@@ -575,11 +578,140 @@ qx.Class.define("gosa.data.ObjectEditController", {
     _onContextAdded : function(event) {
       this._addListenerToContext(event.getData());
       this._setUpWidgets();
+    },
+
+    /**
+     * @param event {qx.event.type.Data}
+     */
+    __onFoundDifferenceDuringReload : function(event) {
+      this.__processChanges(event.getData().attributes.changed);
+    },
+
+    /**
+     * Processes backend changes.
+     *
+     * @param changes {Map} Hash map with changes to the model (key is attribute name, value is the new value)
+     */
+    __processChanges : function(changes) {
+      qx.core.Assert.assertMap(changes);
+
+      var widget, newVal;
+      var allMergeWidgetConfigs = [];
+
+      for (var attributeName in changes) {
+        if (changes.hasOwnProperty(attributeName)) {
+          newVal = new qx.data.Array(qx.lang.Type.isArray(changes[attributeName]) ? changes[attributeName] : [changes[attributeName]]);
+          widget = this.__getWidgetByAttributeName(attributeName);
+
+          if (widget) {
+            this._modifiedValues[attributeName] = newVal;
+            var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
+            allMergeWidgetConfigs.push(mergeWidgets);
+          }
+          else {
+            this._obj.set(attributeName, newVal);
+          }
+        }
+      }
+
+      if (allMergeWidgetConfigs.length > 0) {
+        this.__createMergeDialog(allMergeWidgetConfigs);
+      }
+    },
+
+    /**
+     * @param mergeConfiguration {Array}
+     */
+    __createMergeDialog : function(mergeConfiguration) {
+      qx.core.Assert.assertArray(mergeConfiguration);
+
+      var dialog = new gosa.ui.dialogs.MergeDialog(mergeConfiguration);
+      dialog.addListenerOnce("merge", this.__onMerge, this);
+      dialog.open();
+      dialog.center();
+    },
+
+    /**
+     * @param event {qx.event.type.Data}
+     */
+    __onMerge : function(event) {
+      var attributes = event.getData().attributes;
+
+      for (var attributeName in attributes) {
+        if (attributes.hasOwnProperty(attributeName)) {
+          if (!attributes[attributeName]) {  // change value to remote one
+            var widget = this.__getWidgetByAttributeName(attributeName);
+            widget.setValue(this._modifiedValues[attributeName]);
+          }
+          this._modifiedValues[attributeName] = null;
+        }
+      }
+    },
+
+    /**
+     * Creates an array with the corresponding merge widgets.
+     *
+     * @param widget {gosa.ui.widget.Widget} Existing widget for the attribute
+     * @param attributeName {String}
+     * @param remoteValue {qx.data.Array} The value that shall be merged with the current one
+     * @return {Map} Hash maps with the keys 'localWidget', 'remoteWidget', 'label', 'attributeName'
+     */
+    __getMergeWidgetConfiguration : function(widget, attributeName, remoteValue) {
+      qx.core.Assert.assertInstance(widget, gosa.ui.widgets.Widget);
+      qx.core.Assert.assertString(attributeName);
+      qx.core.Assert.assertInstance(remoteValue, qx.data.Array);
+
+      var widgetClass = widget.constructor;
+      var buddy = this.__findBuddy(attributeName);
+
+      return {
+        attributeName : attributeName,
+        localWidget : widgetClass.getMergeWidget(widget.getValue()),
+        remoteWidget : widgetClass.getMergeWidget(remoteValue),
+        label : buddy ? buddy.getValue().getItem(0) : null
+      };
+    },
+
+    /**
+     * @param attributeName {String}
+     * @return {qx.ui.core.Widget | null} Existing attribute for the attribute name
+     */
+    __getWidgetByAttributeName : function(attributeName) {
+      qx.core.Assert.assertString(attributeName);
+      var contexts = this._widget.getContexts();
+      var map;
+
+      for (var i=0; i < contexts.length; i++) {
+        map = contexts[i].getWidgetRegistry().getMap();
+        if (map.hasOwnProperty(attributeName)) {
+          return map[attributeName];
+        }
+      }
+      return null;
+    },
+
+    /**
+     * @param attributeName {String}
+     * @return {gosa.ui.widgets.QLabelWidget | null}
+     */
+    __findBuddy : function(attributeName) {
+      qx.core.Assert.assertString(attributeName);
+      var contexts = this._widget.getContexts();
+      var map;
+
+      for (var i=0; i < contexts.length; i++) {
+        map = contexts[i].getBuddyRegistry().getMap();
+        if (map[attributeName]) {
+          return map[attributeName];
+        }
+      }
+      return null;
     }
   },
 
   destruct : function() {
     this._obj.removeListener("closing", this._onObjectClosing, this);
+    this._obj.removeListener("foundDifferencesDuringReload", this.__onFoundDifferenceDuringReload, this);
     this._widget.removeListener("contextAdded", this._onContextAdded, this);
 
     if (this._obj && !this._obj.isDisposed()) {
@@ -596,5 +728,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._changeValueListeners = null;
     this._validatingWidgets = null;
     this._connectedAttributes = null;
+    this._modifiedValues = null;
   }
 });
