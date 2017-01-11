@@ -98,7 +98,7 @@ qx.Class.define("gosa.data.ExtensionController", {
       var dependencies = this._obj.extensionDeps[extension] ? qx.lang.Array.clone(this._obj.extensionDeps[extension]) : [];
 
       dependencies = dependencies.filter(function(ext) {
-        return !this._obj.extensionTypes[ext];
+        return !this.__obj.extensionTypes[ext];
       }, this);
 
       if (dependencies.length > 0) {
@@ -180,8 +180,8 @@ qx.Class.define("gosa.data.ExtensionController", {
       return this._obj.extend(extension)
       .then(function () {
         return qx.Promise.all([
-          this._obj.refreshMetaInformation(),
-          this._obj.refreshAttributeInformation()
+          this.__obj.refreshMetaInformation(),
+          this.__obj.refreshAttributeInformation()
         ]);
       }, this)
       .then(function() {
@@ -214,8 +214,8 @@ qx.Class.define("gosa.data.ExtensionController", {
       return this._obj.retract(extension)
       .then(function() {
         return qx.Promise.all([
-          this._obj.refreshMetaInformation(),
-          this._obj.refreshAttributeInformation()
+          this.__obj.refreshMetaInformation(),
+          this.__obj.refreshAttributeInformation()
         ]);
       }, this)
       .then(function() {
