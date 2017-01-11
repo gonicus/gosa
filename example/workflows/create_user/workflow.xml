@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Workflow xmlns="http://www.gonicus.de/Workflows" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Workflows workflow.xsd ">
+
+  <Id>create_user</Id>
+  <Description>Workflow to create a user with the most common information</Description>
+  <DisplayName>Create user</DisplayName>
+  <Icon>@FontAwesome/_529</Icon>
+  <Category>User management</Category>
+  <Templates>
+    <Template>user.json</Template>
+    <Template>user-organizational.json</Template>
+    <Template>user-posix.json</Template>
+    <Template>user-samba.json</Template>
+  </Templates>
+
+  <Attributes>
+    <Attribute>
+      <Name>sn</Name>
+      <Description>This is the X.500 surname attribute, which contains the family name of a person.</Description>
+      <Mandatory>true</Mandatory>
+      <Type>UnicodeString</Type>
+    </Attribute>
+
+   <Attribute>
+        <Name>givenName</Name>
+        <Description>The givenName attribute is used to hold the part of a person's name which is not their surname nor middle name.</Description>
+        <Type>UnicodeString</Type>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+
+    <Attribute>
+      <Name>cn</Name>
+      <Description>This is the X.500 commonName attribute, which contains a name of an object. If the object corresponds to a person, it is typically the person's full name.</Description>
+      <Type>UnicodeString</Type>
+      <DependsOn>
+        <Attribute>sn</Attribute>
+        <Attribute>givenName</Attribute>
+      </DependsOn>
+      <OutFilter>
+        <FilterChain>
+          <FilterEntry>
+            <Filter>
+              <Name>Clear</Name>
+            </Filter>
+          </FilterEntry>
+          <FilterEntry>
+            <Filter>
+              <Name>ConcatString</Name>
+              <Param>%(givenName)s %(sn)s</Param>
+              <Param>left</Param>
+            </Filter>
+          </FilterEntry>
+        </FilterChain>
+      </OutFilter>
+      <MultiValue>false</MultiValue>
+      <ReadOnly>true</ReadOnly>
+    </Attribute>
+
+    <Attribute>
+      <Name>uid</Name>
+      <Description>The Userid attribute type specifies a computer system login name.</Description>
+      <Type>String</Type>
+      <Mandatory>true</Mandatory>
+      <OutFilter>
+        <FilterChain>
+          <FilterEntry>
+            <Filter>
+              <Name>SetBackends</Name>
+              <Param>NULL</Param>
+              <Param>LDAP</Param>
+            </Filter>
+          </FilterEntry>
+        </FilterChain>
+      </OutFilter>
+    </Attribute>
+
+    <Attribute>
+      <Name>homePhone</Name>
+      <Description>homePhone</Description>
+      <Type>String</Type>
+    </Attribute>
+
+    <Attribute>
+      <Name>gender</Name>
+      <Description>Gender of the user</Description>
+      <Type>String</Type>
+      <Values>
+        <Value key="F">female</Value>
+        <Value key="M">male</Value>
+      </Values>
+    </Attribute>
+
+    <Attribute>
+      <Name>dateOfBirth</Name>
+      <Description>Birthday of the user</Description>
+      <Type>Timestamp</Type>
+      <InFilter>
+        <FilterChain>
+          <FilterEntry>
+            <Filter>
+              <Name>StringToDatetime</Name>
+              <Param>%%Y-%%m-%%d</Param>
+            </Filter>
+          </FilterEntry>
+        </FilterChain>
+      </InFilter>
+      <OutFilter>
+        <FilterChain>
+          <FilterEntry>
+            <Filter>
+              <Name>DatetimeToString</Name>
+              <Param>%%Y-%%m-%%d</Param>
+            </Filter>
+          </FilterEntry>
+        </FilterChain>
+      </OutFilter>
+    </Attribute>
+
+    <Attribute>
+      <Name>mail</Name>
+      <Description>RFC1274: RFC822 Mailbox</Description>
+      <Type>String</Type>
+      <MultiValue>true</MultiValue>
+    </Attribute>
+
+    <Attribute>
+        <Name>homeDirectory</Name>
+        <Description>The absolute path to the home directory</Description>
+        <Type>String</Type>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      
+  </Attributes>
+
+</Workflow>
