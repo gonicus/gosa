@@ -37,27 +37,30 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
     __obj : null,
     __controller : null,
     __modifiedValues : null,
+    __widgetConfigurations : null,
 
     /**
      * @param event {qx.event.type.Data}
      */
     onFoundDifferenceDuringReload : function(event) {
+      this.__widgetConfigurations = [];
       this.__processChanges(event.getData().attributes.changed);
-      // this.__processRemoved(event.getData().attributes.removed);
-      // this.__processAdded(event.getData().attributes.added);
+      this.__processRemoved(event.getData().attributes.removed);
+      this.__processAdded(event.getData().attributes.added);
+
+      if (this.__widgetConfigurations.length > 0) {
+        this.__createMergeDialog(this.__widgetConfigurations);
+      }
+      this.__widgetConfigurations = null;
     },
 
     /**
-     * Processes backend changes.
-     *
      * @param changes {Map} Hash map with changes to the model (key is attribute name, value is the new value)
      */
     __processChanges : function(changes) {
       qx.core.Assert.assertMap(changes);
 
       var widget, newVal;
-      var allMergeWidgetConfigs = [];
-
       for (var attributeName in changes) {
         if (changes.hasOwnProperty(attributeName)) {
           newVal = new qx.data.Array(qx.lang.Type.isArray(changes[attributeName]) ? changes[attributeName] : [changes[attributeName]]);
@@ -66,17 +69,57 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
           if (widget) {
             this.__modifiedValues[attributeName] = newVal;
             var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
-            allMergeWidgetConfigs.push(mergeWidgets);
+            this.__widgetConfigurations.push(mergeWidgets);
           }
           else {
             this.__obj.set(attributeName, newVal);
           }
         }
       }
+    },
 
-      if (allMergeWidgetConfigs.length > 0) {
-        this.__createMergeDialog(allMergeWidgetConfigs);
+    /**
+     * @param Added {Map} Hash map with new attribute values to the model (key is attribute name, value is the new value)
+     */
+    __processAdded : function(added) {
+      qx.core.Assert.assertMap(added);
+
+      var widget, newVal;
+      for (var attributeName in added) {
+        if (added.hasOwnProperty(attributeName)) {
+          newVal = new qx.data.Array(qx.lang.Type.isArray(added[attributeName]) ? added[attributeName] : [added[attributeName]]);
+          widget = this.__controller.getWidgetByAttributeName(attributeName);
+
+          if (widget) {
+            this.__modifiedValues[attributeName] = newVal;
+            var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
+            this.__widgetConfigurations.push(mergeWidgets);
+          }
+          else {
+            this.__obj.set(attributeName, newVal);
+          }
+        }
       }
+    },
+
+    /**
+     * @param removed {Array} List of names of the attributes that are removed
+     */
+    __processRemoved : function(removed) {
+      qx.core.Assert.assertArray(removed);
+      removed.forEach(function(attributeName) {
+        var widget = this.__controller.getWidgetByAttributeName(attributeName);
+        var newVal = new qx.data.Array();
+
+        if (widget) {
+          this.__modifiedValues[attributeName] = newVal;
+          var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
+          this.__widgetConfigurations.push(mergeWidgets);
+        }
+        else {
+          this.__obj.set(attributeName, newVal);
+        }
+      }, this);
     },
 
     /**
@@ -124,10 +167,29 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
       var widgetClass = widget.constructor;
       var buddy = this.__controller.getBuddyByAttributeName(attributeName);
 
+      var localWidget;
+      var localValue = widget.getValue();
+      if (localValue.getLength() === 0 || localValue.getItem(0) === "") {
+        localWidget = new qx.ui.basic.Label("<i>" + qx.locale.Manager.tr("removed") + "<i>");
+        localWidget.setRich(true);
+      }
+      else {
+        localWidget = widgetClass.getMergeWidget(widget.getValue())
+      }
+
+      var remoteWidget;
+      if (remoteValue.getLength() === 0) {
+        remoteWidget = new qx.ui.basic.Label("<i>" + qx.locale.Manager.tr("removed") + "<i>");
+        remoteWidget.setRich(true);
+      }
+      else {
+        remoteWidget = widgetClass.getMergeWidget(remoteValue);
+      }
+
       return {
         attributeName : attributeName,
-        localWidget : widgetClass.getMergeWidget(widget.getValue()),
-        remoteWidget : widgetClass.getMergeWidget(remoteValue),
+        localWidget : localWidget ,
+        remoteWidget : remoteWidget,
         label : buddy ? buddy.getValue().getItem(0) : null
       };
     }
@@ -137,5 +199,6 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
     this.__obj = null;
     this.__controller = null;
     this.__modifiedValues = null;
+    this.__widgetConfigurations = null;
   }
 });

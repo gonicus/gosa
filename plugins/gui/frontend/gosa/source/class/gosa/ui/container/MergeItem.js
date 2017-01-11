@@ -18,24 +18,7 @@ qx.Class.define("gosa.ui.container.MergeItem", {
 	construct: function(widget){
 		this.base(arguments);
 		this._setLayout(new qx.ui.layout.HBox());
-		this.__widget = widget;
 		this._add(widget, {flex: 1});
     this.setDecorator("white-box");
-	},
-
-  members : {
-
-	  __widget : null,
-
-    /**
-     * @return {var} The value of the inner widget (i.e. the first one)
-     */
-	  getInnerValue : function() {
-      return this.__widget.getChildren()[0].getValue();
-    }
-  },
-
-  destruct : function() {
-	  this._disposeObjects("__widget");
-  }
+	}
 });
