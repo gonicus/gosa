@@ -20,8 +20,9 @@ qx.Class.define("gosa.ui.Header", {
     this.base(arguments);
     this.setLayout(new qx.ui.layout.HBox());
 
-    this._createChildControl("sandwich");
+    this._createChildControl("logo");
     this._createChildControl("windows");
+    this._createChildControl("user");
   },
 
   /*
@@ -43,24 +44,35 @@ qx.Class.define("gosa.ui.Header", {
     loggedInName: {
       init: "",
       check: "String",
-      event: "_changedLoggedInName",
+      event: "_changeLoggedInName",
       nullable: true,
       apply: "_applyLoggedInName"
+    },
+
+    imageURL: {
+      init: "",
+      check: "String",
+      event: "_changeImageURL",
+      nullable: true,
+      apply: "_applyImageURL"
     }
   },
 
   members: {
     _listController: null,
-    _logout: null,
 
     _createChildControlImpl: function(id) {
       var control;
       switch(id) {
 
-        case "sandwich":
-          control = new qx.ui.form.Button();
-          control.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Menu")));
-          var menu = this.__getSandwichMenu();
+        case "logo":
+          control = new qx.ui.basic.Atom("GOsa", "gosa/images/logo.svg");
+          this.add(control);
+          break;
+
+        case "user":
+          control = new qx.ui.form.Button(this.tr("Menu"));
+          var menu = this.__getMenu();
           menu.setOpener(control);
           control.addListener("execute", menu.open, menu);
           this.add(control);
@@ -115,7 +127,7 @@ qx.Class.define("gosa.ui.Header", {
       }
     },
 
-    __getSandwichMenu: function() {
+    __getMenu: function() {
       var menu = new qx.ui.menu.Menu();
       var changePw = new qx.ui.menu.Button(this.tr("Change my password"));
       changePw.addListener("execute", function() {
@@ -130,7 +142,7 @@ qx.Class.define("gosa.ui.Header", {
       menu.add(edit);
 
 
-      var logout = this._logout = new qx.ui.menu.Button(this.tr("Logout"), "@Ligature/logout");
+      var logout = new qx.ui.menu.Button(this.tr("Logout"), "@Ligature/logout");
       logout.getChildControl("icon").set({
         width: 22,
         scale: true
@@ -145,19 +157,19 @@ qx.Class.define("gosa.ui.Header", {
 
     _applyLoggedInName: function(value){
       if(value === null){
-        this._logout.setLabel(this.tr("Logout"));
+        this.getChildControl("user").setLabel(this.tr("Menu"));
       }else{
-        this._logout.setLabel(this.tr("Logout") + ": " + value);
+        this.getChildControl("user").setLabel(value);
       }
     },
 
-    /*
-    *****************************************************************************
-       DESTRUCTOR
-    *****************************************************************************
-    */
-    destruct : function() {
-      this._disposeObjects("_logout");
+    _applyImageURL: function(value) {
+      if (value === "" || value === null) {
+        this.getChildControl("user").resetIcon();
+      }
+      else {
+        this.getChildControl("user").setIcon(value);
+      }
     }
   },
 

@@ -188,6 +188,7 @@ qx.Class.define("gosa.Application",
       var header = gosa.ui.Header.getInstance();
       doc.add(header, {left: 0, right: 0, top: 0});
       gosa.Session.getInstance().bind("cn", header, "loggedInName");
+      gosa.Session.getInstance().bind("imageURL", header, "imageURL");
 
       var search = gosa.view.Search.getInstance();
       var dashboard = gosa.view.Dashboard.getInstance();
@@ -204,7 +205,7 @@ qx.Class.define("gosa.Application",
       var messaging = gosa.io.Sse.getInstance();
       messaging.reconnect();
 
-      doc.add(desktop, {left: 3, right: 3, top: 52, bottom: 4});
+      doc.add(desktop, {left: 3, right: 3, top: 43, bottom: 4});
 
       // Hide Splash - initialized by index.html
       if (qx.core.Environment.get("qx.debug") || !window.applicationCache || window.location.protocol.indexOf("https") === 0) {

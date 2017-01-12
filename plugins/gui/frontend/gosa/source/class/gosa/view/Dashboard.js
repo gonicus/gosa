@@ -25,7 +25,7 @@ qx.Class.define("gosa.view.Dashboard", {
     // Call super class and configure ourselfs
     this.base(arguments, "", "@Ligature/tile");
     this._setLayout(new qx.ui.layout.VBox());
-    this.__layout = new qx.ui.layout.Grid(5, 5);
+    this.__gridLayout = new qx.ui.layout.Grid(5, 5);
     this.__columns = 6;
     this.__patchedThemes = {};
 
@@ -33,13 +33,8 @@ qx.Class.define("gosa.view.Dashboard", {
       if (!this.__drawn) {
         this.draw();
       }
-      var header = gosa.ui.Header.getInstance();
-      header.getChildControl("edit-mode").show();
-      header.addListener("changeEditMode", function() {
-        this.toggleEditMode();
-      }, this);
     }, this);
-
+    this.getChildControl("edit-mode");
     this.getChildControl("board").addListener("resize", this._onGridResize, this);
 
     this.addListener("disappear", function() {
@@ -125,7 +120,7 @@ qx.Class.define("gosa.view.Dashboard", {
   properties : {
     appearance: {
       refine: true,
-      init: "gosa-tabview-page"
+      init: "gosa-tabview-page-dashboard"
     },
 
     columns : {
@@ -162,7 +157,7 @@ qx.Class.define("gosa.view.Dashboard", {
   *****************************************************************************
   */
   members : {
-    __layout: null,
+    __gridLayout : null,
     __settings: null,
     __patchedThemes : null,
     __toolbarButtons: null,
@@ -205,10 +200,10 @@ qx.Class.define("gosa.view.Dashboard", {
      */
     _onGridResize: function() {
       var bounds = this.getChildControl("board").getBounds();
-      var columnSize = Math.floor((bounds.width / this.__columns) - this.__layout.getSpacingX());
+      var columnSize = Math.floor((bounds.width / this.__columns) - this.__gridLayout.getSpacingX());
       // apply size to columns
-      for (var i=0, l = this.__layout.getColumnCount(); i < l; i++) {
-        this.__layout.setColumnWidth(i, columnSize);
+      for (var i=0, l = this.__gridLayout.getColumnCount(); i < l; i++) {
+        this.__gridLayout.setColumnWidth(i, columnSize);
       }
     },
 
@@ -232,15 +227,29 @@ qx.Class.define("gosa.view.Dashboard", {
 
       switch(id) {
 
+        case "header":
+          control = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+          this._addAt(control, 0);
+          break;
+
+        case "edit-mode":
+          control = new qx.ui.form.Button(null, "@Ligature/gear");
+          control.setZIndex(1000);
+          this.getChildControl("header").add(control, {top: 0, right: 0});
+          control.addListener("execute", function() {
+            this.toggleEditMode();
+          }, this);
+          break;
+
         case "toolbar":
           control = new qx.ui.container.Composite(new qx.ui.layout.HBox(5, "center"));
           control.exclude();
           this.__fillToolbar(control);
-          this._addAt(control, 0);
+          this.getChildControl("header").add(control, {edge: 0});
           break;
 
         case "board":
-          control = new qx.ui.container.Composite(this.__layout);
+          control = new qx.ui.container.Composite(this.__gridLayout);
           this._addAt(control, 1, {flex: 1});
           break;
       }
@@ -480,13 +489,13 @@ qx.Class.define("gosa.view.Dashboard", {
       };
       // find empty space in grid
       var placed = false;
-      for(var row=1, l = this.__layout.getRowCount(); row < l; row++) {
-        for(var col=0, k = this.__layout.getColumnCount(); col < k; col++) {
+      for(var row=1, l = this.__gridLayout.getRowCount(); row < l; row++) {
+        for(var col=0, k = this.__gridLayout.getColumnCount(); col < k; col++) {
           if (col + widgetData.options.defaultColspan > this.__columns) {
             // not enough space in this row
             break;
           }
-          var widget = this.__layout.getCellWidget(row, col);
+          var widget = this.__gridLayout.getCellWidget(row, col);
           if (widget instanceof qx.ui.core.Spacer) {
             // replace spacer
             entry.layoutProperties = widget.getLayoutProperties();
@@ -572,7 +581,7 @@ qx.Class.define("gosa.view.Dashboard", {
       var board = this.getChildControl("board");
       for(var i=0; i<this.__columns; i++) {
         board.add(new qx.ui.core.Spacer(), {row: 0, column: i});
-        this.__layout.setColumnFlex(i, 1);
+        this.__gridLayout.setColumnFlex(i, 1);
       }
     },
 
@@ -702,7 +711,7 @@ qx.Class.define("gosa.view.Dashboard", {
         // remove spacers if there are any
         var colspan = entry.layoutProperties.colSpan||1;
         for(var c=entry.layoutProperties.column, l = c + colspan; c<l; c++) {
-          var currentWidget = this.__layout.getCellWidget(entry.layoutProperties.row, c);
+          var currentWidget = this.__gridLayout.getCellWidget(entry.layoutProperties.row, c);
           if (currentWidget instanceof qx.ui.core.Spacer) {
             currentWidget.destroy();
           }
@@ -809,7 +818,7 @@ qx.Class.define("gosa.view.Dashboard", {
   *****************************************************************************
   */
   destruct : function() {
-    this.__layout = null;
+    this.__gridLayout = null;
     Object.getOwnPropertyNames(this.__toolbarButtons).forEach(function(name) {
       this.__toolbarButtons[name].dispose();
     }, this);

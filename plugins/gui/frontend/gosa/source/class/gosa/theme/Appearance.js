@@ -33,6 +33,15 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
+    "tabview" : {
+      style : function()
+      {
+        return {
+          contentPadding: 0
+        };
+      }
+    },
+
     "tabview-page/button/label" : {
       alias : "label",
 
@@ -47,7 +56,7 @@ qx.Theme.define("gosa.theme.Appearance",
 
       style : function(states) {
         return {
-          textColor : states.focused | states.checked ? "header-bar" : "icon-color"
+          textColor : states.focused || states.checked ? "header-bar" : "icon-color"
         };
       }
     },
@@ -239,7 +248,26 @@ qx.Theme.define("gosa.theme.Appearance",
         return {
           textColor: "header-text",
           backgroundColor : "#303030",
-          height: 48
+          height: 40
+        }
+      }
+    },
+
+    "title-bar/logo": {
+      style: function() {
+        return {
+          gap : 3,
+          paddingLeft: 5,
+          paddingRight: 10,
+          font : "Logo"
+        }
+      }
+    },
+
+    "title-bar/logo/icon": {
+      style: function() {
+        return {
+          paddingTop: 3
         }
       }
     },
@@ -252,42 +280,68 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    "title-bar/sandwich": {
+    "title-bar/user": {
       include: "button",
       alias : "button",
 
-      style : function()
+      style : function(states)
       {
         return {
-          icon: "@Ligature/menu",
+          gap : 10,
           decorator: null,
-          show : "icon",
-          center: true
+          center: true,
+          backgroundColor : states.hovered ? "rgba(255,255,255,0.1)" : "transparent"
         };
       }
     },
-    "title-bar/sandwich/icon": {
+
+    "title-bar/user/icon": {
       include: "image",
       alias : "image",
       style: function() {
         return {
-          width: 35,
+          width: 32,
+          height: 32,
           scale: true
         }
       }
     },
 
-    "title-bar/edit-mode": {
-      include: "title-bar/sandwich",
-      alias: "title-bar/sandwich",
+    "gosa-tabview-page-dashboard" : "gosa-tabview-page",
+    "gosa-tabview-page-dashboard/edit-mode": {
+      include: "button",
+      alias: "button",
 
-      style: function() {
+      style: function(states) {
         return {
-          icon : "@Ligature/gear"
+          decorator: states.hovered ? "gosa-dashboard-edit-hover" : null,
+          icon : "@Ligature/gear",
+          allowGrowX: false,
+          alignX: "right",
+          padding: [3, 3, 10, 10]
         }
       }
     },
-    "title-bar/edit-mode/icon": "title-bar/sandwich/icon",
+    "gosa-tabview-page-dashboard/edit-mode/icon": {
+      include: "image",
+      alias : "image",
+      style: function() {
+        return {
+          width: 22,
+          scale: true
+        }
+      }
+    },
+    "gosa-tabview-page-dashboard/board": {
+      style: function() {
+        return {
+          padding: [0, 16]
+        }
+      }
+    },
+
+    "gosa-tabview-page-workflows": "gosa-tabview-page",
+    "gosa-tabview-page-workflows/list": "gosa-tabview-page-dashboard/board",
 
     "statusLabel": {
       include: "label",
@@ -315,7 +369,7 @@ qx.Theme.define("gosa.theme.Appearance",
           width: 22,
           height: 22,
           scale: true,
-          textColor: states.selected | states.focused ? '#FFFFFF' : 'icon-color'
+          textColor: states.selected || states.focused ? '#FFFFFF' : 'icon-color'
         }
       }
     },
@@ -329,7 +383,7 @@ qx.Theme.define("gosa.theme.Appearance",
           width: 22,
           height: 22,
           scale: true,
-          textColor: states.selected | states.focused ? '#FFFFFF' : 'icon-color'
+          textColor: states.selected || states.focused ? '#FFFFFF' : 'icon-color'
         }
       }
     },
@@ -471,8 +525,8 @@ qx.Theme.define("gosa.theme.Appearance",
 
       style: function() {
         return {
-          width: 35,
-          height: 35,
+          width: 32,
+          height: 32,
           scale: true
         }
       }

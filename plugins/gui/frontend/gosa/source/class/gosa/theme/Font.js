@@ -85,6 +85,20 @@ qx.Theme.define("gosa.theme.Font",
           ]
         }
       ]
+    },
+
+    "Logo": {
+      size: 32,
+      lineHeight: 1,
+      family: ["Abel"],
+      sources: [
+        {
+          family: "Abel",
+          source: [
+            "gosa/fonts/Abel-Regular.ttf"
+          ]
+        }
+      ]
     }
   }
 });

@@ -121,7 +121,13 @@ class RPCMethods(Plugin):
     @Command(__help__=N_("Returns details about the currently logged in user"), needsUser=True)
     def getUserDetails(self, userid):
         index = PluginRegistry.getInstance("ObjectIndex")
-        res = index.search({'_type': 'User', 'uid': userid}, {'sn': 1, 'givenName': 1, 'cn': 1, 'dn': 1, '_uuid': 1})
+        res = index.search({'_type': 'User', 'uid': userid}, {'sn': 1, 'givenName': 1, 'cn': 1, 'dn': 1, '_uuid': 1, '_last_changed': 1})
+
+        cache_path = self.env.config.get('user.image-path', default="/var/lib/gosa/images")
+        icon = "@Ligature/user"
+        if os.path.exists(os.path.join(cache_path, res[0]['_uuid'], "jpegPhoto", "0", "64.jpg")):
+            icon = "/images/%s/jpegPhoto/0/64.jpg?c=%s" % (res[0]['_uuid'], res[0]["_last_changed"])
+
         if len(res) == 0:
             raise GOsaException(C.make_error("UNKNOWN_USER", target=userid))
 
@@ -129,6 +135,7 @@ class RPCMethods(Plugin):
                 'givenName': res[0]['givenName'][0],
                 'dn': res[0]['dn'],
                 'uuid': res[0]['_uuid'],
+                'icon': icon,
                 'cn': res[0]['cn'][0]})
 
     @Command(__help__=N_("Checks whether the given extension is already activated for the current object"))

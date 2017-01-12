@@ -90,7 +90,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
     closeObject : function() {
       if (this._obj && !this._obj.isDisposed() && !this._obj.isClosed()) {
         this._obj.setUiBound(false);
-        this._obj.close()
+        return this._obj.close()
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error.message).open();
         });
@@ -109,16 +109,28 @@ qx.Class.define("gosa.data.ObjectEditController", {
         return;
       }
 
-      this._obj.setUiBound(false);
-      this._obj.commit()
-      .then(this.closeObject, this)
-      .catch(function(error) {
-        this.error(error);
-        this.error(error.message);
-        this.error(error.topic);
-        this.error(error.code);
-        this.error(error.details);
-        new gosa.ui.dialogs.Error(error.message).open();
+      return this._obj.commit()
+      .catch(function(exc) {
+        var error = exc.getData();
+        var widget = null;
+        this.setValid(false);
+        if (error.topic) {
+          // create all extension tabs until widget has been found
+          var widgetBuddyTuple = this._findWidgets(error.topic, true);
+          if (widgetBuddyTuple) {
+            widget = widgetBuddyTuple.widget;
+            // open tab with widget
+            this._widget.openTab(widgetBuddyTuple.context);
+          }
+        }
+        if (widget) {
+          this.__showWidgetError(widget, error);
+          throw exc;
+        }
+      }, this)
+      .then(function() {
+        this._obj.setUiBound(false);
+        return this.closeObject();
       }, this);
     },
 
@@ -406,9 +418,10 @@ qx.Class.define("gosa.data.ObjectEditController", {
      * Finds the widget and its buddy label for the given name (model path).
      *
      * @param name {String} The name/model path of the widgets
-     * @return {Object | null} An object in the shape of {widget: <widget>, buddy: <buddy widget>} or null
+     * @param createWidgets {Boolean?} if true widgets for context will be created if necessary
+     * @return {Object | null} An object in the shape of {widget: <widget>, buddy: <buddy widget>, context: <context>} or null
      */
-    _findWidgets : function(name) {
+    _findWidgets : function(name, createWidgets) {
       qx.core.Assert.assertString(name);
 
       var context;
@@ -416,12 +429,16 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
       for (var i = 0; i < contexts.length; i++) {
         context = contexts[i];
+        if (createWidgets === true && !context.isAppeared()) {
+          context._createWidgets();
+        }
         var widgets = context.getWidgetRegistry().getMap();
         for (var modelPath in widgets) {
           if (widgets.hasOwnProperty(modelPath) && modelPath === name) {
             return {
               widget : widgets[modelPath],
-              buddy : context.getBuddyRegistry().getMap()[modelPath]
+              buddy : context.getBuddyRegistry().getMap()[modelPath],
+              context : context
             };
           }
         }
@@ -567,18 +584,20 @@ qx.Class.define("gosa.data.ObjectEditController", {
         }
       }
       else if (!data.success && data.error) {
-        var error = data.error.getData();
-        if (error.code === "ATTRIBUTE_CHECK_FAILED" || error.code === "ATTRIBUTE_MANDATORY") {
-          if (widget) {
-            widget.setInvalidMessage(error.message);
-            widget.setValid(false);
-          }
-        }
-        else {
-          new gosa.ui.dialogs.Error(error.message).open();
-        }
+        this.__showWidgetError(widget, data.error.getData());
       }
       this._updateValidity();
+    },
+
+    __showWidgetError: function(widget, error) {
+      if (error.code === "ATTRIBUTE_CHECK_FAILED" || error.code === "ATTRIBUTE_MANDATORY") {
+        if (widget) {
+          widget.setError(error);
+        }
+      }
+      else {
+        new gosa.ui.dialogs.Error(error.message).open();
+      }
     },
 
     _cleanupChangeValueListeners : function() {
@@ -598,6 +617,12 @@ qx.Class.define("gosa.data.ObjectEditController", {
       }));
     },
 
+    /**
+     * Check the widgets validity for the given context
+     *
+     * @param context {gosa.engine.Context}
+     * @return {boolean}
+     */
     checkValidity : function(context) {
       var valid = true;
       if (context) {

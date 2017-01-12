@@ -46,40 +46,53 @@ qx.Class.define("gosa.Session",
       nullable: true,
       event: "_changedUUID"
     },
+
     "base": {
       init : "",
       check: "String",
       nullable: true,
       event: "_changedBase"
     },
+
     "sn": {
       init : "",
       check: "String",
       nullable: true,
       event: "_changedSn"
     },
+
     "givenName": {
       init : "",
       check: "String",
       nullable: true,
       event: "_changedGivenName"
     },
+
     "cn": {
       init : "",
       check: "String",
       nullable: true,
       event: "_changedCn"
     },
+
     "dn": {
       init : "",
       check: "String",
       nullable: true,
       event: "_changedDn"
     },
+
     "commands" : {
       init : null,
       check : "Array",
       nullable : true
+    },
+
+    "imageURL" : {
+      init : "",
+      check: "String",
+      nullable: true,
+      event: "_changedImageURL"
     }
   },
 
@@ -128,6 +141,7 @@ qx.Class.define("gosa.Session",
           this.setGivenName(result['givenName']);
           this.setDn(result['dn']);
           this.setUuid(result['uuid']);
+          this.setImageURL(result['icon']);
         }, function(error) {
           // var d = new gosa.ui.dialogs.Error(new qx.ui.core.Widget().tr("Failed to fetch current user information."));
           var d = new gosa.ui.dialogs.Error(error.message);

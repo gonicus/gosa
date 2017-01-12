@@ -42,7 +42,7 @@ qx.Class.define("gosa.view.Workflows",
   properties : {
     appearance: {
       refine: true,
-      init: "gosa-tabview-page"
+      init: "gosa-tabview-page-workflows"
     }
   },
 
