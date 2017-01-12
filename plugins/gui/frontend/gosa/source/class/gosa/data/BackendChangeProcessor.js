@@ -38,6 +38,7 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
     __controller : null,
     __modifiedValues : null,
     __widgetConfigurations : null,
+    __mergeDialog : null,
 
     /**
      * @param event {qx.event.type.Data}
@@ -128,7 +129,11 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
     __createMergeDialog : function(mergeConfiguration) {
       qx.core.Assert.assertArray(mergeConfiguration);
 
-      var dialog = new gosa.ui.dialogs.MergeDialog(mergeConfiguration);
+      if (this.__mergeDialog) {
+        this.__mergeDialog.close();
+      }
+
+      var dialog = this.__mergeDialog = new gosa.ui.dialogs.MergeDialog(mergeConfiguration);
       dialog.addListenerOnce("merge", this.__onMerge, this);
       dialog.open();
       dialog.center();
@@ -195,6 +200,8 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
           this.__modifiedValues[attributeName] = null;
         }
       }
+
+      this.__mergeDialog = null;
     }
   },
 
@@ -203,5 +210,6 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
     this.__controller = null;
     this.__modifiedValues = null;
     this.__widgetConfigurations = null;
+    this.__mergeDialog = null;
   }
 });
