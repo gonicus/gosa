@@ -33,6 +33,15 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
+    "tabview" : {
+      style : function()
+      {
+        return {
+          contentPadding: 0
+        };
+      }
+    },
+
     "tabview-page/button/label" : {
       alias : "label",
 
@@ -297,6 +306,42 @@ qx.Theme.define("gosa.theme.Appearance",
         }
       }
     },
+
+    "gosa-tabview-page-dashboard" : "gosa-tabview-page",
+    "gosa-tabview-page-dashboard/edit-mode": {
+      include: "button",
+      alias: "button",
+
+      style: function(states) {
+        return {
+          decorator: states.hovered ? "gosa-dashboard-edit-hover" : null,
+          icon : "@Ligature/gear",
+          allowGrowX: false,
+          alignX: "right",
+          padding: [3, 3, 10, 10]
+        }
+      }
+    },
+    "gosa-tabview-page-dashboard/edit-mode/icon": {
+      include: "image",
+      alias : "image",
+      style: function() {
+        return {
+          width: 22,
+          scale: true
+        }
+      }
+    },
+    "gosa-tabview-page-dashboard/board": {
+      style: function() {
+        return {
+          padding: [0, 16]
+        }
+      }
+    },
+
+    "gosa-tabview-page-workflows": "gosa-tabview-page",
+    "gosa-tabview-page-workflows/list": "gosa-tabview-page-dashboard/board",
 
     "statusLabel": {
       include: "label",

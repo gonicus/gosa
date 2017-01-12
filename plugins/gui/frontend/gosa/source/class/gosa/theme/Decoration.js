@@ -70,6 +70,12 @@ qx.Theme.define("gosa.theme.Decoration",
         width: 2,
         color: "#00405e"
       }
+    },
+    "gosa-dashboard-edit-hover": {
+      style: {
+        radiusBottomLeft: 22,
+        backgroundColor: "#DDD"
+      }
     }
   }
 });
