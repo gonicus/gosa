@@ -98,7 +98,7 @@ qx.Class.define("gosa.data.ExtensionController", {
       var dependencies = this._obj.extensionDeps[extension] ? qx.lang.Array.clone(this._obj.extensionDeps[extension]) : [];
 
       dependencies = dependencies.filter(function(ext) {
-        return !this.__obj.extensionTypes[ext];
+        return !this._obj.extensionTypes[ext];
       }, this);
 
       if (dependencies.length > 0) {
