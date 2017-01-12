@@ -37,10 +37,6 @@ qx.Class.define("gosa.view.Dashboard", {
     this.getChildControl("edit-mode");
     this.getChildControl("board").addListener("resize", this._onGridResize, this);
 
-    this.addListener("disappear", function() {
-      gosa.ui.Header.getInstance().getChildControl("edit-mode").exclude();
-    }, this);
-
     this.addListener("longtap", function() {
       this.setEditMode(true);
     }, this);
