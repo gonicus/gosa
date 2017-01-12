@@ -267,7 +267,7 @@ qx.Theme.define("gosa.theme.Appearance",
     "title-bar/logo/icon": {
       style: function() {
         return {
-          paddingTop: 4
+          paddingTop: 3
         }
       }
     },
