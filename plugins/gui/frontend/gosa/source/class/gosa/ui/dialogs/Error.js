@@ -11,23 +11,21 @@
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
-
-/*
-#asset(gosa/*)
-*/
 qx.Class.define("gosa.ui.dialogs.Error", {
 
   extend: gosa.ui.dialogs.Dialog,
 
-  construct: function(error)
-  {
+  construct: function(error) {
     var title = this.tr("Error");
     var msg = error;
-    if (error instanceof Error) {
+    if (error instanceof gosa.core.RpcError) {
+      msg = error.getData().message;
+    }
+    else if (error instanceof Error) {
       msg = error.message;
     }
     this.base(arguments, title, gosa.Config.getImagePath("status/dialog-error.png", 22));
-    
+
     var message = new qx.ui.basic.Label(msg);
     this.addElement(message);
 
@@ -35,5 +33,4 @@ qx.Class.define("gosa.ui.dialogs.Error", {
     ok.addListener("execute", this.close, this);
     this.addButton(ok);
   }
-
 });

@@ -50,7 +50,8 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
       var method = this._method = new qx.ui.form.SelectBox();
       method.setWidth(200);
 
-      this._actionController.getTwoFactorMethod(function(response, error) {
+      this._actionController.getTwoFactorMethod()
+      .then(function(response) {
         this._current = response;
         // show password field if the user wants to change the 2FA method
         method.addListener("changeSelection", function(e) {
@@ -133,10 +134,18 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
         if (method !== this._current) {
           if (this._current === null) {
             // no confirmation required
-            this._actionController.setTwoFactorMethod(method).then(this._handleMethodChangeResponse, this);
+            this._actionController.setTwoFactorMethod(method)
+            .then(this._handleMethodChangeResponse, this)
+            .catch(function(exc) {
+              this._showInfo(null, exc.getData().message);
+            }, this);
           } else {
             var pwd = this._pwd.getValue();
-            this._actionController.setTwoFactorMethod(method, pwd).then(this._handleMethodChangeResponse, this);
+            this._actionController.setTwoFactorMethod(method, pwd)
+            .then(this._handleMethodChangeResponse, this)
+            .catch(function(exc) {
+              this._showInfo(null, exc.getData().message);
+            }, this);
           }
         }
         else {

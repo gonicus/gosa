@@ -172,10 +172,12 @@ qx.Class.define("gosa.engine.Context", {
     },
 
     _createWidgets : function() {
-      this._processor.process(this._template, this._rootWidget);
-      this._connectBuddies();
-      this._appeared = true;
-      this.fireDataEvent("widgetsCreated", this);
+      if (!this._appeared) { // widgets might have been created by the ObjectEditController in case of error
+        this._processor.process(this._template, this._rootWidget);
+        this._connectBuddies();
+        this._appeared = true;
+        this.fireDataEvent("widgetsCreated", this);
+      }
     },
 
     _connectBuddies : function() {

@@ -33,14 +33,18 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._changeValueListeners = {};
     this._validatingWidgets = [];
     this._connectedAttributes = [];
-    this._modifiedValues = {};
     this._extensionController = new gosa.data.ExtensionController(obj, this);
+    this._backendChangeProcessor = new gosa.data.BackendChangeProcessor(obj, this);
 
     this._addListenersToAllContexts();
     this._setUpWidgets();
 
     this._widget.addListener("contextAdded", this._onContextAdded, this);
-    obj.addListener("foundDifferencesDuringReload", this.__onFoundDifferenceDuringReload, this);
+    obj.addListener(
+      "foundDifferencesDuringReload",
+      this._backendChangeProcessor.onFoundDifferenceDuringReload,
+      this._backendChangeProcessor
+    );
 
     this._obj.setUiBound(true);
     this._initialized = true;
@@ -81,12 +85,12 @@ qx.Class.define("gosa.data.ObjectEditController", {
     _connectedAttributes : null,
     _globalObjectListenersSet : false,
     _extensionController : null,
-    _modifiedValues : null,
+    _backendChangeProcessor : null,
 
     closeObject : function() {
       if (this._obj && !this._obj.isDisposed() && !this._obj.isClosed()) {
         this._obj.setUiBound(false);
-        this._obj.close()
+        return this._obj.close()
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error.message).open();
         });
@@ -105,16 +109,28 @@ qx.Class.define("gosa.data.ObjectEditController", {
         return;
       }
 
-      this._obj.setUiBound(false);
-      this._obj.commit()
-      .then(this.closeObject, this)
-      .catch(function(error) {
-        this.error(error);
-        this.error(error.message);
-        this.error(error.topic);
-        this.error(error.code);
-        this.error(error.details);
-        new gosa.ui.dialogs.Error(error.message).open();
+      return this._obj.commit()
+      .catch(function(exc) {
+        var error = exc.getData();
+        var widget = null;
+        this.setValid(false);
+        if (error.topic) {
+          // create all extension tabs until widget has been found
+          var widgetBuddyTuple = this._findWidgets(error.topic, true);
+          if (widgetBuddyTuple) {
+            widget = widgetBuddyTuple.widget;
+            // open tab with widget
+            this._widget.openTab(widgetBuddyTuple.context);
+          }
+        }
+        if (widget) {
+          this.__showWidgetError(widget, error);
+          throw exc;
+        }
+      }, this)
+      .then(function() {
+        this._obj.setUiBound(false);
+        return this.closeObject();
       }, this);
     },
 
@@ -213,6 +229,42 @@ qx.Class.define("gosa.data.ObjectEditController", {
      */
     getAttributes : function() {
       return qx.lang.Type.isArray(this._obj.attributes) ? this._obj.attributes : null;
+    },
+
+    /**
+     * @param attributeName {String}
+     * @return {qx.ui.core.Widget | null} Existing attribute for the attribute name
+     */
+    getWidgetByAttributeName : function(attributeName) {
+      qx.core.Assert.assertString(attributeName);
+      var contexts = this._widget.getContexts();
+      var map;
+
+      for (var i=0; i < contexts.length; i++) {
+        map = contexts[i].getWidgetRegistry().getMap();
+        if (map.hasOwnProperty(attributeName)) {
+          return map[attributeName];
+        }
+      }
+      return null;
+    },
+
+    /**
+     * @param attributeName {String}
+     * @return {gosa.ui.widgets.QLabelWidget | null}
+     */
+    getBuddyByAttributeName : function(attributeName) {
+      qx.core.Assert.assertString(attributeName);
+      var contexts = this._widget.getContexts();
+      var map;
+
+      for (var i=0; i < contexts.length; i++) {
+        map = contexts[i].getBuddyRegistry().getMap();
+        if (map[attributeName]) {
+          return map[attributeName];
+        }
+      }
+      return null;
     },
 
     /**
@@ -366,9 +418,10 @@ qx.Class.define("gosa.data.ObjectEditController", {
      * Finds the widget and its buddy label for the given name (model path).
      *
      * @param name {String} The name/model path of the widgets
-     * @return {Object | null} An object in the shape of {widget: <widget>, buddy: <buddy widget>} or null
+     * @param createWidgets {Boolean?} if true widgets for context will be created if necessary
+     * @return {Object | null} An object in the shape of {widget: <widget>, buddy: <buddy widget>, context: <context>} or null
      */
-    _findWidgets : function(name) {
+    _findWidgets : function(name, createWidgets) {
       qx.core.Assert.assertString(name);
 
       var context;
@@ -376,12 +429,16 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
       for (var i = 0; i < contexts.length; i++) {
         context = contexts[i];
+        if (createWidgets === true && !context.isAppeared()) {
+          context._createWidgets();
+        }
         var widgets = context.getWidgetRegistry().getMap();
         for (var modelPath in widgets) {
           if (widgets.hasOwnProperty(modelPath) && modelPath === name) {
             return {
               widget : widgets[modelPath],
-              buddy : context.getBuddyRegistry().getMap()[modelPath]
+              buddy : context.getBuddyRegistry().getMap()[modelPath],
+              context : context
             };
           }
         }
@@ -527,18 +584,20 @@ qx.Class.define("gosa.data.ObjectEditController", {
         }
       }
       else if (!data.success && data.error) {
-        var error = data.error.getData();
-        if (error.code === "ATTRIBUTE_CHECK_FAILED" || error.code === "ATTRIBUTE_MANDATORY") {
-          if (widget) {
-            widget.setInvalidMessage(error.message);
-            widget.setValid(false);
-          }
-        }
-        else {
-          new gosa.ui.dialogs.Error(error.message).open();
-        }
+        this.__showWidgetError(widget, data.error.getData());
       }
       this._updateValidity();
+    },
+
+    __showWidgetError: function(widget, error) {
+      if (error.code === "ATTRIBUTE_CHECK_FAILED" || error.code === "ATTRIBUTE_MANDATORY") {
+        if (widget) {
+          widget.setError(error);
+        }
+      }
+      else {
+        new gosa.ui.dialogs.Error(error.message).open();
+      }
     },
 
     _cleanupChangeValueListeners : function() {
@@ -558,6 +617,12 @@ qx.Class.define("gosa.data.ObjectEditController", {
       }));
     },
 
+    /**
+     * Check the widgets validity for the given context
+     *
+     * @param context {gosa.engine.Context}
+     * @return {boolean}
+     */
     checkValidity : function(context) {
       var valid = true;
       if (context) {
@@ -578,140 +643,16 @@ qx.Class.define("gosa.data.ObjectEditController", {
     _onContextAdded : function(event) {
       this._addListenerToContext(event.getData());
       this._setUpWidgets();
-    },
-
-    /**
-     * @param event {qx.event.type.Data}
-     */
-    __onFoundDifferenceDuringReload : function(event) {
-      this.__processChanges(event.getData().attributes.changed);
-    },
-
-    /**
-     * Processes backend changes.
-     *
-     * @param changes {Map} Hash map with changes to the model (key is attribute name, value is the new value)
-     */
-    __processChanges : function(changes) {
-      qx.core.Assert.assertMap(changes);
-
-      var widget, newVal;
-      var allMergeWidgetConfigs = [];
-
-      for (var attributeName in changes) {
-        if (changes.hasOwnProperty(attributeName)) {
-          newVal = new qx.data.Array(qx.lang.Type.isArray(changes[attributeName]) ? changes[attributeName] : [changes[attributeName]]);
-          widget = this.__getWidgetByAttributeName(attributeName);
-
-          if (widget) {
-            this._modifiedValues[attributeName] = newVal;
-            var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
-            allMergeWidgetConfigs.push(mergeWidgets);
-          }
-          else {
-            this._obj.set(attributeName, newVal);
-          }
-        }
-      }
-
-      if (allMergeWidgetConfigs.length > 0) {
-        this.__createMergeDialog(allMergeWidgetConfigs);
-      }
-    },
-
-    /**
-     * @param mergeConfiguration {Array}
-     */
-    __createMergeDialog : function(mergeConfiguration) {
-      qx.core.Assert.assertArray(mergeConfiguration);
-
-      var dialog = new gosa.ui.dialogs.MergeDialog(mergeConfiguration);
-      dialog.addListenerOnce("merge", this.__onMerge, this);
-      dialog.open();
-      dialog.center();
-    },
-
-    /**
-     * @param event {qx.event.type.Data}
-     */
-    __onMerge : function(event) {
-      var attributes = event.getData().attributes;
-
-      for (var attributeName in attributes) {
-        if (attributes.hasOwnProperty(attributeName)) {
-          if (!attributes[attributeName]) {  // change value to remote one
-            var widget = this.__getWidgetByAttributeName(attributeName);
-            widget.setValue(this._modifiedValues[attributeName]);
-          }
-          this._modifiedValues[attributeName] = null;
-        }
-      }
-    },
-
-    /**
-     * Creates an array with the corresponding merge widgets.
-     *
-     * @param widget {gosa.ui.widget.Widget} Existing widget for the attribute
-     * @param attributeName {String}
-     * @param remoteValue {qx.data.Array} The value that shall be merged with the current one
-     * @return {Map} Hash maps with the keys 'localWidget', 'remoteWidget', 'label', 'attributeName'
-     */
-    __getMergeWidgetConfiguration : function(widget, attributeName, remoteValue) {
-      qx.core.Assert.assertInstance(widget, gosa.ui.widgets.Widget);
-      qx.core.Assert.assertString(attributeName);
-      qx.core.Assert.assertInstance(remoteValue, qx.data.Array);
-
-      var widgetClass = widget.constructor;
-      var buddy = this.__findBuddy(attributeName);
-
-      return {
-        attributeName : attributeName,
-        localWidget : widgetClass.getMergeWidget(widget.getValue()),
-        remoteWidget : widgetClass.getMergeWidget(remoteValue),
-        label : buddy ? buddy.getValue().getItem(0) : null
-      };
-    },
-
-    /**
-     * @param attributeName {String}
-     * @return {qx.ui.core.Widget | null} Existing attribute for the attribute name
-     */
-    __getWidgetByAttributeName : function(attributeName) {
-      qx.core.Assert.assertString(attributeName);
-      var contexts = this._widget.getContexts();
-      var map;
-
-      for (var i=0; i < contexts.length; i++) {
-        map = contexts[i].getWidgetRegistry().getMap();
-        if (map.hasOwnProperty(attributeName)) {
-          return map[attributeName];
-        }
-      }
-      return null;
-    },
-
-    /**
-     * @param attributeName {String}
-     * @return {gosa.ui.widgets.QLabelWidget | null}
-     */
-    __findBuddy : function(attributeName) {
-      qx.core.Assert.assertString(attributeName);
-      var contexts = this._widget.getContexts();
-      var map;
-
-      for (var i=0; i < contexts.length; i++) {
-        map = contexts[i].getBuddyRegistry().getMap();
-        if (map[attributeName]) {
-          return map[attributeName];
-        }
-      }
-      return null;
     }
   },
 
   destruct : function() {
     this._obj.removeListener("closing", this._onObjectClosing, this);
-    this._obj.removeListener("foundDifferencesDuringReload", this.__onFoundDifferenceDuringReload, this);
+    this._obj.removeListener(
+      "foundDifferencesDuringReload",
+      this._backendChangeProcessor.onFoundDifferenceDuringReload,
+      this._backendChangeProcessor
+    );
     this._widget.removeListener("contextAdded", this._onContextAdded, this);
 
     if (this._obj && !this._obj.isDisposed()) {
@@ -721,13 +662,12 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._cleanupChangeValueListeners();
     this.closeObject();
 
-    this._disposeObjects("_extensionController");
+    this._disposeObjects("_backendChangeProcessor", "_extensionController");
 
     this._obj = null;
     this._widget = null;
     this._changeValueListeners = null;
     this._validatingWidgets = null;
     this._connectedAttributes = null;
-    this._modifiedValues = null;
   }
 });

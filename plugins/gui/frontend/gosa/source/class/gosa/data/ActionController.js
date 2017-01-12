@@ -144,7 +144,9 @@ qx.Class.define("gosa.data.ActionController", {
      * @return {qx.Promise}
      */
     setTwoFactorMethod : function(method, password) {
-      qx.core.Assert.assertString(method);
+      if (method) {
+        qx.core.Assert.assertString(method);
+      }
       return this._obj.changeTwoFactorMethod(method, password);
     },
 
