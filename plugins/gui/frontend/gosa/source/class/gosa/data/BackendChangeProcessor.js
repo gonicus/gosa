@@ -31,6 +31,8 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
     this.__obj = object;
     this.__controller = controller;
     this.__modifiedValues = {};
+
+    this.__obj.addListener("closing", this.__onObjectClosing, this);
    },
 
   members : {
@@ -225,10 +227,23 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
       }
 
       this.__mergeDialog = null;
+    },
+
+    /**
+     * @param event {qx.event.type.Data}
+     */
+    __onObjectClosing : function(event) {
+      if (event.getData().state === "closed" && this.__mergeDialog) {
+        this.__mergeDialog.close();
+        this.__mergeDialog = null;
+      }
     }
   },
 
   destruct : function() {
+    if (this.__obj && !this.__obj.isDisposed()) {
+      this.__obj.removeListener("closing", this.__onObjectClosing, this);
+    }
     this.__obj = null;
     this.__controller = null;
     this.__modifiedValues = null;
