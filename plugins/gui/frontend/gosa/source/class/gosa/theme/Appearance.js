@@ -56,7 +56,7 @@ qx.Theme.define("gosa.theme.Appearance",
 
       style : function(states) {
         return {
-          textColor : states.focused | states.checked ? "header-bar" : "icon-color"
+          textColor : states.focused || states.checked ? "header-bar" : "icon-color"
         };
       }
     },
@@ -369,7 +369,7 @@ qx.Theme.define("gosa.theme.Appearance",
           width: 22,
           height: 22,
           scale: true,
-          textColor: states.selected | states.focused ? '#FFFFFF' : 'icon-color'
+          textColor: states.selected || states.focused ? '#FFFFFF' : 'icon-color'
         }
       }
     },
@@ -383,7 +383,7 @@ qx.Theme.define("gosa.theme.Appearance",
           width: 22,
           height: 22,
           scale: true,
-          textColor: states.selected | states.focused ? '#FFFFFF' : 'icon-color'
+          textColor: states.selected || states.focused ? '#FFFFFF' : 'icon-color'
         }
       }
     },
@@ -525,8 +525,8 @@ qx.Theme.define("gosa.theme.Appearance",
 
       style: function() {
         return {
-          width: 35,
-          height: 35,
+          width: 32,
+          height: 32,
           scale: true
         }
       }
