@@ -180,8 +180,8 @@ qx.Class.define("gosa.data.ExtensionController", {
       return this._obj.extend(extension)
       .then(function () {
         return qx.Promise.all([
-          this.__obj.refreshMetaInformation(),
-          this.__obj.refreshAttributeInformation()
+          this._obj.refreshMetaInformation(),
+          this._obj.refreshAttributeInformation()
         ]);
       }, this)
       .then(function() {
@@ -214,8 +214,8 @@ qx.Class.define("gosa.data.ExtensionController", {
       return this._obj.retract(extension)
       .then(function() {
         return qx.Promise.all([
-          this.__obj.refreshMetaInformation(),
-          this.__obj.refreshAttributeInformation()
+          this._obj.refreshMetaInformation(),
+          this._obj.refreshAttributeInformation()
         ]);
       }, this)
       .then(function() {
