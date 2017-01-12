@@ -90,7 +90,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
     closeObject : function() {
       if (this._obj && !this._obj.isDisposed() && !this._obj.isClosed()) {
         this._obj.setUiBound(false);
-        this._obj.close()
+        return this._obj.close()
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error.message).open();
         });
