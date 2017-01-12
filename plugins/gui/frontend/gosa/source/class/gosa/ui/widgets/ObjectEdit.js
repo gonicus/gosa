@@ -95,7 +95,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     /**
      * Removes and disposes a tab page from the tab view. It removes only the widget and nothing from the object.
      *
-     * @param tabPage {qx.ui.tabview.TabPage}
+     * @param tabPage {qx.ui.tabview.Page}
      */
     removeTab : function(tabPage) {
       qx.core.Assert.assertNotUndefined(tabPage);
@@ -476,6 +476,20 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       }
     },
 
+    /**
+     * Open a TabView page for the given context
+     *
+     * @param context {gosa.engine.Context}
+     */
+    openTab: function(context) {
+      this._tabView.getSelectables(true).some(function(page) {
+        if (page.getUserData("context") === context) {
+          this._tabView.setSelection([page]);
+          return true;
+        }
+      }, this);
+    },
+
     _onTabChanged: function() {
       var pos = this._tabView.indexOf(this._tabView.getSelection()[0]);
       var pages = this._tabView.getSelectables(true);
@@ -529,8 +543,11 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _onOk : function() {
-      this.getController().saveObject();
-      this._close();
+      this.getController().saveObject()
+      .then(this._close, this)
+      .catch(function(exc) {
+        // do nothing as the error has already been handled
+      });
     },
 
     _onCancel : function() {

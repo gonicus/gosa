@@ -427,15 +427,18 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       }, this);
     },
 
-    /* Resets error messages
-     * */
+    /**
+     * Resets error messages
+     */
     resetErrorMessage: function(){
       this.setInvalidMessage("");
       this.setValid(true);
     },
 
-    /* Parses an incoming error-object and then sets the error message.
-     * */
+    /**
+     * Parses an incoming error-object and then sets the error message.
+     * @param error_object {Error}
+     */
     setError: function(error_object){
       var message = error_object.text;
       if(error_object.details){
@@ -447,7 +450,10 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       }
     },
 
-    /* Sets an error message for the widget given by id.
+    /**
+     * Sets an error message for the widget given by id.
+     * @param message {String}
+     * @param id {Number} widget id
      */
     setErrorMessage: function(message, id){
       this.setInvalidMessage(message);
