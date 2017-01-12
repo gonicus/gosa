@@ -188,6 +188,7 @@ qx.Class.define("gosa.Application",
       var header = gosa.ui.Header.getInstance();
       doc.add(header, {left: 0, right: 0, top: 0});
       gosa.Session.getInstance().bind("cn", header, "loggedInName");
+      gosa.Session.getInstance().bind("imageURL", header, "imageURL");
 
       var search = gosa.view.Search.getInstance();
       var dashboard = gosa.view.Dashboard.getInstance();
