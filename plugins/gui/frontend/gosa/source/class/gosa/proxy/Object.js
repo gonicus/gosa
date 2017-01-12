@@ -67,6 +67,14 @@ qx.Class.define("gosa.proxy.Object", {
     $$icon: {
       check: "String",
       nullable: true
+    },
+
+    /**
+     * Must be true if the object shall write updates to the backend.
+     */
+    writeAttributeUpdates : {
+      check : "Boolean",
+      init : true
     }
   },
 
@@ -177,7 +185,7 @@ qx.Class.define("gosa.proxy.Object", {
     /* Setter method for object values
      * */
     setAttribute: function(name, value){
-      if(this.initialized){
+      if (this.initialized && this.isWriteAttributeUpdates()) {
 
         // Do nothing..
         if (value === null || value === undefined) {

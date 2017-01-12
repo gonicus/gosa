@@ -44,15 +44,29 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
      * @param event {qx.event.type.Data}
      */
     onFoundDifferenceDuringReload : function(event) {
+      var data = event.getData();
       this.__widgetConfigurations = [];
-      this.__processChanges(event.getData().attributes.changed);
-      this.__processRemoved(event.getData().attributes.removed);
-      this.__processAdded(event.getData().attributes.added);
+
+      this.__processChanges(data.attributes.changed);
+      this.__processRemoved(data.attributes.removed);
+      this.__processAdded(data.attributes.added);
 
       if (this.__widgetConfigurations.length > 0) {
-        this.__createMergeDialog(this.__widgetConfigurations);
+        this.__createMergeDialog(this.__widgetConfigurations, data.attributes.blocked_by);
       }
       this.__widgetConfigurations = null;
+    },
+
+    /**
+     * @param attributeName {String}
+     * @param value {var}
+     */
+    __setAttributeValue : function(attributeName, value) {
+      qx.core.Assert.assertString(attributeName);
+
+      this.__obj.setWriteAttributeUpdates(false);
+      this.__obj.set(attributeName, value);
+      this.__obj.setWriteAttributeUpdates(true);
     },
 
     /**
@@ -73,7 +87,7 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
             this.__widgetConfigurations.push(mergeWidgets);
           }
           else {
-            this.__obj.set(attributeName, newVal);
+            this.__setAttributeValue(attributeName, newVal);
           }
         }
       }
@@ -97,7 +111,7 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
             this.__widgetConfigurations.push(mergeWidgets);
           }
           else {
-            this.__obj.set(attributeName, newVal);
+            this.__setAttributeValue(attributeName, newVal);
           }
         }
       }
@@ -118,22 +132,24 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
           this.__widgetConfigurations.push(mergeWidgets);
         }
         else {
-          this.__obj.set(attributeName, newVal);
+          this.__setAttributeValue(attributeName, newVal);
         }
       }, this);
     },
 
     /**
      * @param mergeConfiguration {Array}
+     * @param block {Object}
      */
-    __createMergeDialog : function(mergeConfiguration) {
+    __createMergeDialog : function(mergeConfiguration, block) {
       qx.core.Assert.assertArray(mergeConfiguration);
+      qx.core.Assert.assertObject(block);
 
       if (this.__mergeDialog) {
         this.__mergeDialog.close();
       }
 
-      var dialog = this.__mergeDialog = new gosa.ui.dialogs.MergeDialog(mergeConfiguration);
+      var dialog = this.__mergeDialog = new gosa.ui.dialogs.MergeDialog(mergeConfiguration, undefined, block);
       dialog.addListenerOnce("merge", this.__onMerge, this);
       dialog.open();
       dialog.center();
@@ -187,12 +203,19 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
      */
     __onMerge : function(event) {
       var attributes = event.getData().attributes;
+      var val;
 
       for (var attributeName in attributes) {
         if (attributes.hasOwnProperty(attributeName)) {
           if (!attributes[attributeName]) {  // change value to remote one
             var widget = this.__controller.getWidgetByAttributeName(attributeName);
-            widget.setValue(this.__modifiedValues[attributeName]);
+            val = this.__modifiedValues[attributeName];
+            if (val instanceof qx.data.Array && val.getLength() === 0) {
+              widget.getValue().removeAll();
+            }
+            else {
+              widget.setValue(val);
+            }
           }
           else {
             this.__controller.setModified(true);

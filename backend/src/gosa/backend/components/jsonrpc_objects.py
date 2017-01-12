@@ -271,7 +271,7 @@ class JSONRPCObjectMapper(Plugin):
         ##
         ## Generate delta
         ##
-        delta = {'attributes': {'added': {}, 'removed': [], 'changed': {}}, 'extensions': {'added': [], 'removed': []}}
+        delta = {'attributes': {'added': {}, 'removed': [], 'changed': {}, 'blocked_by': {}}, 'extensions': {'added': [], 'removed': []}}
 
         # Compare extension list
         crnt_extensions = set(current_obj.get_object_info()['extensions'].items())
@@ -283,18 +283,27 @@ class JSONRPCObjectMapper(Plugin):
                 delta['extensions']['removed'].append(_e)
 
         # Compare attribute contents
-        crnt_attributes = dict(filter(lambda x: x[1], current_obj.get_attribute_values()['value'].items()))
-        cche_attributes = dict(filter(lambda x: x[1], cache_obj.get_attribute_values()['value'].items()))
+        crnt_attributes = dict(filter(lambda x: x[1] is not None, current_obj.get_attribute_values()['value'].items()))
+        cche_attributes = dict(filter(lambda x: x[1] is not None, cache_obj.get_attribute_values()['value'].items()))
+        all_attributes = []
         for _k, _v in crnt_attributes.items():
             if _k in cche_attributes:
                 if _v != cche_attributes[_k]:
                     delta['attributes']['changed'][_k] = _v
+                    all_attributes.append(_k)
             else:
                 delta['attributes']['added'][_k] = _v
+                all_attributes.append(_k)
 
         for _k, _v in cche_attributes.items():
             if not _k in crnt_attributes:
                 delta['attributes']['removed'].append(_k)
+                all_attributes.append(_k)
+
+        # Find blocking dependencies between attributes
+        details = current_obj.get_attributes(detail=True)
+        for attribute_name in all_attributes:
+            delta['attributes']['blocked_by'][attribute_name] = list(map(lambda x: x['name'], details[attribute_name]['blocked_by']))
 
         return delta
 
