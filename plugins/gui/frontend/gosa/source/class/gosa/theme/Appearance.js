@@ -579,6 +579,134 @@ qx.Theme.define("gosa.theme.Appearance",
           width: 100
         }
       }
+    },
+
+    // - FLAT - do not insert anything behind this marker -----------------------------------------------------
+
+    "button" : {
+      style: function(states) {
+        var styles = {
+          decorator : "button-normal",
+          textColor : "white",
+          padding : [6, 12],
+          font : "default"
+        };
+
+        if (states.disabled) {
+          styles.opacity = 0.45;
+        }
+        else if (states.hovered || states.focused || states.pressed) {
+          styles.decorator = states.pressed ? "button-normal-pressed" : "button-normal-focused";
+        }
+
+        return styles;
+      }
+    },
+
+    "button-default" : {
+      include : "button",
+      style: function(states) {
+        var styles = {};
+        if (states.hovered || states.focused || states.pressed) {
+          styles.decorator = states.pressed ? "button-default-pressed" : "button-default-focused";
+        }
+        return styles;
+      }
+    },
+
+    "button-primary" : {
+      include : "button",
+      style: function(states) {
+        var styles = {};
+        if (states.hovered || states.focused || states.pressed) {
+          styles.decorator = states.pressed ? "button-primary-pressed" : "button-primary-focused";
+        }
+        return styles;
+      }
+    },
+
+    "button-success" : {
+      include : "button",
+      style: function(states) {
+        var styles = {};
+        if (states.hovered || states.focused || states.pressed) {
+          styles.decorator = states.pressed ? "button-success-pressed" : "button-success-focused";
+        }
+        return styles;
+      }
+    },
+
+    "button-info" : {
+      include : "button",
+      style: function(states) {
+        var styles = {};
+        if (states.hovered || states.focused || states.pressed) {
+          styles.decorator = states.pressed ? "button-info-pressed" : "button-info-focused";
+        }
+        return styles;
+      }
+    },
+
+    "button-warning" : {
+      include : "button",
+      style: function(states) {
+        var styles = {};
+        if (states.hovered || states.focused || states.pressed) {
+          styles.decorator = states.pressed ? "button-warning-pressed" : "button-warning-focused";
+        }
+        return styles;
+      }
+    },
+
+    "button-danger" : {
+      include : "button",
+      style: function(states) {
+        var styles = {};
+        if (states.hovered || states.focused || states.pressed) {
+          styles.decorator = states.pressed ? "button-danger-pressed" : "button-danger-focused";
+        }
+        return styles;
+      }
+    },
+
+    "textfield" :
+    {
+      style : function(states)
+      {
+        var decorator;
+
+        var focused = !!states.focused;
+        var invalid = !!states.invalid;
+        var disabled = !!states.disabled;
+
+        if (focused && invalid && !disabled) {
+          decorator = "textfield-invalid";
+        } else if (focused && !invalid && !disabled) {
+          decorator = "textfield-focused";
+        } else if (disabled) {
+          decorator = "textfield-disabled";
+        } else if (!focused && invalid && !disabled) {
+          decorator = "textfield-invalid";
+        } else {
+          decorator = "textfield-normal";
+        }
+
+        var textColor;
+        if (states.disabled) {
+          decorator = "textfield-disabled";
+          textColor = "darkgray-dark";
+        } else if (states.showingPlaceholder) {
+          textColor = "lightgray-dark";
+        } else {
+          textColor = "darkgray-dark";
+        }
+
+        return {
+          decorator : decorator,
+          padding : [ 6, 12 ],
+          textColor : textColor
+        };
+      }
     }
   }
 });

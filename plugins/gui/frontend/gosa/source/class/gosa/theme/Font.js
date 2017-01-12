@@ -21,35 +21,67 @@ qx.Theme.define("gosa.theme.Font",
     "underline" :
     {
       size : 12,
-      family : ["Lucida Grande", "DejaVu Sans", "Verdana", "sans-serif"],
       color: "font",
       lineHeight: 1.8,
-      decoration: "underline"
+      decoration: "underline",
+      family: ['Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+      sources: [
+        {
+          family: "Open Sans",
+          source: [
+            "gosa/fonts/OpenSans-Regular.ttf"
+          ]
+        }
+      ]
     },
 
     "SearchResultTitle" : {
-        size : 13,
-        lineHeight : 1.4,
-        bold: true,
-        color: "blue",
-        decoration: "underline",
-        family : [ "Lucida Grande", "Tahoma", "Verdana", "Bitstream Vera Sans", "Liberation Sans" ]
+      size : 13,
+      lineHeight : 1.4,
+      bold: true,
+      color: "blue",
+      decoration: "underline",
+      family: ['Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+      sources: [
+        {
+          family: "Open Sans",
+          source: [
+            "gosa/fonts/OpenSans-Bold.ttf"
+          ]
+        }
+      ]
     },
 
     "Title": {
       size : 18,
-      family : ["Lucida Grande", "DejaVu Sans", "Verdana", "sans-serif"],
       color: "font",
       bold: true,
-      lineHeight: 1.8
+      lineHeight: 1.8,
+      family: ['Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+      sources: [
+        {
+          family: "Open Sans",
+          source: [
+            "gosa/fonts/OpenSans-Bold.ttf"
+          ]
+        }
+      ]
     },
 
     "Subtitle": {
       size : 14,
-      family : ["Lucida Grande", "DejaVu Sans", "Verdana", "sans-serif"],
       color: "font",
       bold: true,
-      lineHeight: 1.4
+      lineHeight: 1.4,
+      family: ['Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+      sources: [
+        {
+          family: "Open Sans",
+          source: [
+            "gosa/fonts/OpenSans-Bold.ttf"
+          ]
+        }
+      ]
     },
 
     "FontAwesome": {
@@ -96,6 +128,48 @@ qx.Theme.define("gosa.theme.Font",
           family: "Abel",
           source: [
             "gosa/fonts/Abel-Regular.ttf"
+          ]
+        }
+      ]
+    },
+
+    // - FLAT - do not insert anything behind this marker -----------------------------------------------------
+
+    "default": {
+      size: 12,
+      family: ['Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+      sources: [
+        {
+          family: "Open Sans",
+          source: [
+            "gosa/fonts/OpenSans-Regular.ttf"
+          ]
+        }
+      ]
+    },
+
+    "small" : {
+      size: 10,
+      family: ['Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+      sources: [
+        {
+          family: "Open Sans",
+          source: [
+            "gosa/fonts/OpenSans-Regular.ttf"
+          ]
+        }
+      ]
+    },
+
+    "bold" : {
+      size: 12,
+      bold: true,
+      family: ['Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+      sources: [
+        {
+          family: "Open Sans",
+          source: [
+            "gosa/fonts/OpenSans-Bold.ttf"
           ]
         }
       ]

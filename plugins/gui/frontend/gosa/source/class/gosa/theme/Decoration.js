@@ -76,6 +76,202 @@ qx.Theme.define("gosa.theme.Decoration",
         radiusBottomLeft: 22,
         backgroundColor: "#DDD"
       }
+    },
+
+    // - FLAT - do not insert anything behind this marker -----------------------------------------------------
+
+    "button-normal": {
+      style: {
+        radius : 4,
+        backgroundColor : "mediumgray-dark",
+        color : "mediumgray-dark",
+        width : 1
+      }
+    },
+
+    "button-normal-focused": {
+      include : "button-normal",
+      style: {
+        backgroundColor : "mediumgray-light",
+        color : "mediumgray-light"
+      }
+    },
+
+    "button-normal-pressed": {
+      include : "button-normal-focused",
+      style: {
+        backgroundColor  : "mediumgray-light",
+        color            : "mediumgray-light",
+        inset            : true,
+        shadowLength     : [0, 1],
+        shadowBlurRadius : 2,
+        shadowColor      : "rgba(0, 0, 0, 0.125)"
+      }
+    },
+
+    "button-default": {
+      include : "button-normal",
+      style: {
+        backgroundColor : "white"
+      }
+    },
+
+    "button-default-focused": {
+      include : "button-normal-focused"
+    },
+
+    "button-default-pressed": {
+      include : "button-normal-pressed"
+    },
+
+    "button-primary": {
+      include : "button-normal",
+      style: {
+        backgroundColor : "aqua-dark",
+        color : "aqua-dark"
+      }
+    },
+
+    "button-primary-focused": {
+      include : "button-primary",
+      style: {
+        backgroundColor : "aqua-light",
+        color : "aqua-light"
+      }
+    },
+
+    "button-primary-pressed": {
+      include : "button-normal-focused",
+      style: {
+        backgroundColor : "aqua-light",
+        color : "aqua-light"
+      }
+    },
+
+    "button-success": {
+      include : "button-normal",
+      style: {
+        backgroundColor : "grass-dark",
+        color : "grass-dark"
+      }
+    },
+
+    "button-success-focused": {
+      include : "button-success",
+      style: {
+        backgroundColor : "grass-light",
+        color : "grass-light"
+      }
+    },
+
+    "button-success-pressed": {
+      include : "button-normal-focused",
+      style: {
+        backgroundColor : "grass-light",
+        color : "grass-light"
+      }
+    },
+
+    "button-info": {
+      include : "button-normal",
+      style: {
+        backgroundColor : "mint-dark",
+        color : "mint-dark"
+      }
+    },
+
+    "button-info-focused": {
+      include : "button-info",
+      style: {
+        backgroundColor : "mint-light",
+        color : "mint-light"
+      }
+    },
+
+    "button-info-pressed": {
+      include : "button-normal-focused",
+      style: {
+        backgroundColor : "mint-light",
+        color : "mint-light"
+      }
+    },
+
+    "button-warning": {
+      include : "button-normal",
+      style: {
+        backgroundColor : "mint-dark",
+        color : "mint-dark"
+      }
+    },
+
+    "button-warning-focused": {
+      include : "button-warning",
+      style: {
+        backgroundColor : "mint-light",
+        color : "mint-light"
+      }
+    },
+
+    "button-warning-pressed": {
+      include : "button-normal-focused",
+      style: {
+        backgroundColor : "mint-light",
+        color : "mint-light"
+      }
+    },
+
+    "button-danger": {
+      include : "button-normal",
+      style: {
+        backgroundColor : "grapefruit-dark",
+        color : "grapefruit-dark"
+      }
+    },
+
+    "button-danger-focused": {
+      include : "button-warning",
+      style: {
+        backgroundColor : "grapefruit-light",
+        color : "grapefruit-light"
+      }
+    },
+
+    "button-danger-pressed": {
+      include : "button-normal-focused",
+      style: {
+        backgroundColor : "grapefruit-light",
+        color : "grapefruit-light"
+      }
+    },
+
+    "textfield-normal" : {
+      style: {
+        backgroundColor : "white",
+        color : "mediumgray-dark",
+        radius : 4,
+        width : 1
+      }
+    },
+
+    "textfield-disabled" : {
+      include : "textfield-normal",
+      style: {
+        backgroundColor : "lightgray-dark"
+      }
+    },
+
+    "textfield-invalid" : {
+      include : "textfield-normal",
+      style: {
+        color : "grapefruit-dark"
+      }
+    },
+
+    "textfield-focused" : {
+      include : "textfield-normal",
+      style: {
+        color : "aqua-dark"
+      }
     }
   }
 });
