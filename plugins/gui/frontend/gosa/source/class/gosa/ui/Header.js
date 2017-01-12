@@ -91,14 +91,6 @@ qx.Class.define("gosa.ui.Header", {
           this._listController.setModel(gosa.data.WindowController.getInstance().getWindows());
           break;
 
-        case "edit-mode":
-          control = new qx.ui.form.Button(null, "@Ligature/gear");
-          this.add(control);
-          control.addListener("execute", function() {
-            this.fireEvent("changeEditMode");
-          }, this);
-          break;
-
       }
 
       return control || this.base(arguments, id);
@@ -131,6 +123,19 @@ qx.Class.define("gosa.ui.Header", {
       var menu = new qx.ui.menu.Menu();
       var changePw = new qx.ui.menu.Button(this.tr("Change my password"));
       changePw.addListener("execute", function() {
+        gosa.proxy.ObjectFactory.openObject(gosa.Session.getInstance().getDn())
+        .then(function(obj) {
+          var controller = new gosa.data.ActionController(obj);
+          var dialog = new gosa.ui.dialogs.actions.ChangePasswordDialog(controller);
+          dialog.addListener("close", function() {
+            return obj.close();
+          }, this);
+          dialog.open();
+          return null;
+        }, this)
+        .catch(function(exc) {
+          (new gosa.ui.dialogs.Error(exc)).open();
+        }, this);
 
       }, this);
       menu.add(changePw);

@@ -20,12 +20,18 @@ qx.Class.define("gosa.data.ActionController", {
   extend : qx.core.Object,
 
   /**
-   * @param objectEditController {gosa.data.ObjectEditController}
+   * @param object {gosa.data.ObjectEditController|gosa.proxy.Object}
    */
-  construct : function(objectEditController) {
+  construct : function(object) {
     this.base(arguments);
-    qx.core.Assert.assertInstance(objectEditController, gosa.data.ObjectEditController);
-    this._obj = objectEditController.getObject();
+
+    if (object instanceof gosa.proxy.Object) {
+      this._obj = object;
+    } else if (object instanceof gosa.data.ObjectEditController) {
+      this._obj = object.getObject();
+    } else {
+      throw new Error("Expected value to be instanceof 'gosa.data.ObjectEditController' or 'gosa.proxy.Object' but found ", object, "!");
+    }
   },
 
   members : {

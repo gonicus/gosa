@@ -31,12 +31,11 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangePasswordDialog", {
     _initWidgets : function() {
       var form = this._form = new qx.ui.form.Form();
 
-      // current password method
-      var current = this._actionController.getPasswordMethod();
-
       var method = new qx.ui.form.SelectBox();
-      gosa.io.Rpc.getInstance().cA("listPasswordMethods")
-      .then(function(result) {
+
+      // current password method
+      qx.Promise.all([this._actionController.getPasswordMethod(), gosa.io.Rpc.getInstance().cA("listPasswordMethods")], this)
+      .spread(function(current, result) {
         for (var item in result) {
           var tempItem = new qx.ui.form.ListItem(result[item], null, result[item]);
           method.add(tempItem);
@@ -49,62 +48,63 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangePasswordDialog", {
       .catch(function(error) {
         new gosa.ui.dialogs.Error(error.message).open();
         this.close();
+      }, this)
+      .finally(function() {
+        // Add the form items
+        var pwd1 = new qx.ui.form.PasswordField();
+        pwd1.setRequired(true);
+        pwd1.setWidth(200);
+
+        var pwd2 = new qx.ui.form.PasswordField();
+        pwd2.setRequired(true);
+        pwd2.setWidth(200);
+
+        form.add(method, this.tr("Encryption"), null, "method");
+        form.add(pwd1, this.tr("New password"), null, "pwd1");
+        form.add(pwd2, this.tr("New password (repeated)"), null, "pwd2");
+
+        var la = new gosa.ui.form.renderer.Single(form);
+        la.getLayout().setColumnAlign(0, "left", "middle");
+        this.addElement(la);
+        var controller = new qx.data.controller.Form(null, form);
+
+        // Add password indicator
+        this._passwordIndicator = new qx.ui.indicator.ProgressBar();
+        this._passwordIndicator.setDecorator(null);
+        this._passwordIndicator.setHeight(5);
+        this._passwordIndicator.setBackgroundColor("background-selected-disabled");
+        this.addElement(this._passwordIndicator);
+
+        // Add status label
+        this._info = new qx.ui.basic.Label();
+        this._info.setRich(true);
+        this._info.exclude();
+        this.addElement(this._info);
+        this.getLayout().setAlignX("center");
+
+        // Wire status label
+        pwd1.addListener("keyup", this.updateStatus, this);
+        pwd2.addListener("keyup", this.updateStatus, this);
+        this._pwd1 = pwd1;
+        this._pwd2 = pwd2;
+
+        this._model = controller.createModel();
+
+        var ok = gosa.ui.base.Buttons.getButton(this.tr("Set password"), "status/dialog-password.png");
+        ok.addState("default");
+        ok.addListener("execute", this.setPassword, this);
+        ok.setEnabled(false);
+        this._ok = ok;
+
+        var cancel = gosa.ui.base.Buttons.getCancelButton();
+        cancel.addState("default");
+        cancel.addListener("execute", this.close, this);
+
+        this.addButton(ok);
+        this.addButton(cancel);
+
+        this.setFocusOrder([pwd1, pwd2, ok]);
       }, this);
-
-      // Add the form items
-      var pwd1 = new qx.ui.form.PasswordField();
-      pwd1.setRequired(true);
-      pwd1.setWidth(200);
-
-      var pwd2 = new qx.ui.form.PasswordField();
-      pwd2.setRequired(true);
-      pwd2.setWidth(200);
-
-      form.add(method, this.tr("Encryption"), null, "method");
-      form.add(pwd1, this.tr("New password"), null, "pwd1");
-      form.add(pwd2, this.tr("New password (repeated)"), null, "pwd2");
-
-      var la = new gosa.ui.form.renderer.Single(form);
-      la.getLayout().setColumnAlign(0, "left", "middle");
-      this.addElement(la);
-      var controller = new qx.data.controller.Form(null, form);
-
-      // Add password indicator
-      this._passwordIndicator = new qx.ui.indicator.ProgressBar();
-      this._passwordIndicator.setDecorator(null);
-      this._passwordIndicator.setHeight(5);
-      this._passwordIndicator.setBackgroundColor("background-selected-disabled");
-      this.addElement(this._passwordIndicator);
-
-      // Add status label
-      this._info = new qx.ui.basic.Label();
-      this._info.setRich(true);
-      this._info.exclude();
-      this.addElement(this._info);
-      this.getLayout().setAlignX("center");
-
-      // Wire status label
-      pwd1.addListener("keyup", this.updateStatus, this);
-      pwd2.addListener("keyup", this.updateStatus, this);
-      this._pwd1 = pwd1;
-      this._pwd2 = pwd2;
-
-      this._model = controller.createModel();
-
-      var ok = gosa.ui.base.Buttons.getButton(this.tr("Set password"), "status/dialog-password.png");
-      ok.addState("default");
-      ok.addListener("execute", this.setPassword, this);
-      ok.setEnabled(false);
-      this._ok = ok;
-
-      var cancel = gosa.ui.base.Buttons.getCancelButton();
-      cancel.addState("default");
-      cancel.addListener("execute", this.close, this);
-
-      this.addButton(ok);
-      this.addButton(cancel);
-
-      this.setFocusOrder([pwd1, pwd2, ok]);
     },
 
     updateStatus : function()

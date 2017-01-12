@@ -18,7 +18,9 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
 
   extend: gosa.ui.dialogs.Dialog,
 
-  construct: function(mods, exts, relations, ext_dependencies, order) {
+  include : [gosa.data.MBidirectionalBinding],
+
+  construct: function(mods, exts, blocks, ext_dependencies, order) {
     this.base(arguments, this.tr("Merge required"), gosa.Config.getImagePath("status/dialog-information.png", 22));
     this.set({
       resizable : true,
@@ -33,6 +35,7 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
     layout.setColumnFlex(3, 2);
     var changesPane = new qx.ui.container.Composite(layout);
 
+    var mergeWidgets = this.__mergeWidgets = {};
     var row = 0;
     var itemId = 0;
     var callOnce = [];
@@ -68,6 +71,11 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
       items[name] = [left, right];
       group.add(left);
       group.add(right);
+
+      mergeWidgets[name] = {
+        local : left,
+        remote : right
+      };
 
       // Add the elements to the grid layout
       var translateString = desc;
@@ -122,10 +130,6 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
       group.add(left);
       group.add(right);
 
-      if (relations['buddyTexts'][desc]) {
-        desc = relations['buddyTexts'][desc];
-      }
-
       // Add the selectors to the grid
       changesPane.add(new qx.ui.basic.Label(that["tr"](desc)).set({rich: true}), {row: row, column: 0});  // jshint ignore:line
       changesPane.add(left, {row: row, column: 1});
@@ -147,25 +151,6 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
                 state = !enabled && left.getValue() || enabled && right.getValue();
                 extList[ename][0].setEnabled(state);
                 extList[ename][1].setEnabled(state);
-              }
-            }
-          }
-        }
-
-        // Enable/disable property switches
-        state = left.getValue();
-        if (enabled) {
-          state = !state;
-        }
-        if (relations['widgets'][name]) {
-          for (var citem in relations['widgets'][name]) {
-            tmp = relations['widgets'][name][citem];
-            if (relations['bindings'][tmp]) {
-              var item = relations['bindings'][tmp];
-              if (items[item]) {
-                for (var i in items[item]) {
-                  items[item][i].setEnabled(state);
-                }
               }
             }
           }
@@ -193,6 +178,8 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
     mods.forEach(function(item) {
       createSelector(item.attributeName, item.label, item.localWidget, item.remoteWidget);
     });
+
+    this.__handleBlocks(blocks);
 
     // Ensure that the selectors are valid.
     for (var fid in callOnce) {
@@ -228,5 +215,43 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
 
   events: {
     "merge" : "qx.event.type.Data"
+  },
+
+  members : {
+
+    __mergeWidgets : null,
+
+    /**
+     * @param blocks {Object}
+     */
+    __handleBlocks : function(blocks) {
+      qx.core.Assert.assertObject(blocks);
+
+      for (var attributeName in blocks) {
+        if (blocks.hasOwnProperty(attributeName)) {
+          blocks[attributeName].forEach(qx.lang.Function.curry(this.__bindWidgets, attributeName), this);
+        }
+      }
+    },
+
+    /**
+     * @param attributeName {String}
+     * @param blockName {String}
+     */
+    __bindWidgets : function(attributeName, blockName) {
+      qx.core.Assert.assertString(attributeName);
+      qx.core.Assert.assertString(blockName);
+
+      var map = this.__mergeWidgets;
+      if (!map[attributeName] || !map[blockName]) {
+        return;
+      }
+      this.addBidirectionalBinding(map[attributeName].local, "value", map[blockName].local, "value");
+      this.addBidirectionalBinding(map[attributeName].remote, "value", map[blockName].remote, "value");
+    }
+  },
+
+  destruct : function() {
+    this.__mergeWidgets = null;
   }
 });

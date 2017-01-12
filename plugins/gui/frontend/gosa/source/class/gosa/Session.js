@@ -156,6 +156,7 @@ qx.Class.define("gosa.Session",
         this.setGivenName(null);
         this.setDn(null);
         this.setUuid(null);
+        this.setImageURL(null);
       }
     },
 
