@@ -75,7 +75,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
           layout : new qx.ui.layout.Canvas(),
           showMinimize : true,
           showClose : false,
-          maxHeight: bounds.height - 10,
+          maxHeight: bounds.height,
           allowGrowY: true
         });
         win.add(w, {edge: 0});
@@ -151,7 +151,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
           layout       : new qx.ui.layout.Canvas(),
           showMinimize : false,
           showClose    : false,
-          maxHeight: bounds.height - 10,
+          maxHeight: bounds.height,
           allowGrowY: true
         });
         win.add(widget, {edge : 0});
