@@ -372,6 +372,20 @@ qx.Theme.define("gosa.theme.Decoration",
         radius : 4,
         backgroundColor : "#f2838f"
       }
+    },
+    "gosa-droppable": {
+      style : {
+        width: 1,
+        color: "mediumgray-light"
+      }
+    },
+
+    "gosa-droppable-hovered": {
+      style : {
+        width: 2,
+        color: "mediumgray-light",
+        backgroundColor: "mediumgray-dark"
+      }
     }
   }
 });
