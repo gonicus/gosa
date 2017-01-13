@@ -175,7 +175,7 @@ qx.Class.define("gosa.view.Dashboard", {
         }, this);
 
         // add dropboxes to empty cells + one additional row
-        for (row=0, lr = grid.getRowCount()+1; row < lr; row++) {
+        for (row=1, lr = grid.getRowCount()+1; row < lr; row++) {
           for (column=0, lc = grid.getColumnCount(); column < lc; column++) {
             widget = grid.getCellWidget(row, column);
             if (widget instanceof qx.ui.core.Spacer) {
@@ -200,14 +200,11 @@ qx.Class.define("gosa.view.Dashboard", {
         this.setModified(false);
 
         // remove the grid dropboxes
-        for (row=0, lr = grid.getRowCount()+1; row < lr; row++) {
+        for (row=1, lr = grid.getRowCount()+1; row < lr; row++) {
           for (column=0, lc = grid.getColumnCount(); column < lc; column++) {
             widget = grid.getCellWidget(row, column);
-            if (widget) {
+            if (widget instanceof gosa.ui.core.GridCellDropbox) {
               widget.destroy();
-            }
-            if (gosa.ui.core.GridCellDropbox && row === 0) {
-              board.add(new qx.ui.core.Spacer(), {row: row, column: column});
             }
           }
         }
