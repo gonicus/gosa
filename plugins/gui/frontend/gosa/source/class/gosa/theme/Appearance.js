@@ -601,8 +601,17 @@ qx.Theme.define("gosa.theme.Appearance",
     {
       style : function(states)
       {
+        var decorator = "window";
+
+        if (states.maximized) {
+          decorator = "window-maximized";
+        }
+        else if (!states.active) {
+          decorator = "window-inactive";
+        }
+
         return {
-          decorator : states.active ? "window" : "window-inactive",
+          decorator : decorator,
           contentPadding : [ 10, 10, 10, 10 ],
           margin : states.maximized ? 0 : [0, 5, 5, 0]
         };

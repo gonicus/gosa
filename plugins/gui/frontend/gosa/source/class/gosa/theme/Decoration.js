@@ -330,6 +330,14 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
+    "window-maximized" : {
+      include : "window",
+      style : {
+        radius : 0,
+        shadowColor      : undefined
+      }
+    },
+
     "window-captionbar-inactive" :
     {
       style : {
