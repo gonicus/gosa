@@ -44,7 +44,7 @@ qx.Theme.define("gosa.theme.Decoration",
     "gosa-listitem-window": {
       style: {
         width: [0, 1, 0, 1],
-        color: ["#606060", "#606060", "#A0A0A0", "#A0A0A0"]
+        color: "rgba(255, 255, 255, 0.2)"
       }
     },
     "gosa-workflow-category": {
