@@ -27,8 +27,7 @@ qx.Class.define("gosa.ui.dialogs.RetractDependencies", {
     qx.core.Assert.assertString(extension);
     qx.core.Assert.assertArray(dependencies);
 
-    this.base(arguments, this.trn("Dependent extension", "Dependent extensions", dependencies.length),
-      gosa.Config.getImagePath("status/dialog-warning.png", 22));
+    this.base(arguments, this.trn("Dependent extension", "Dependent extensions", dependencies.length));
 
     this.setWidth(400);
     this.setAutoDispose(true);
@@ -43,7 +42,16 @@ qx.Class.define("gosa.ui.dialogs.RetractDependencies", {
     "ok": "qx.event.type.Event"
   },
 
+  properties : {
+    //overridden
+    appearance : {
+      refine : true,
+      init : "window-warning"
+    }
+  },
+
   members : {
+    _buttonAppearance : "button-warning",
     _extension : "",
     _dependencies : null,
     _numberOfNames : 0,
@@ -105,10 +113,12 @@ qx.Class.define("gosa.ui.dialogs.RetractDependencies", {
 
     _createAndAddButtons : function() {
       var ok = gosa.ui.base.Buttons.getOkButton();
+      ok.setAppearance(this._buttonAppearance);
       ok.addListener("execute", this._onOkExecute, this);
       this.addButton(ok);
 
       var cancel = gosa.ui.base.Buttons.getCancelButton();
+      cancel.setAppearance(this._buttonAppearance);
       cancel.addListener("execute", this.close, this);
       this.addButton(cancel);
     },

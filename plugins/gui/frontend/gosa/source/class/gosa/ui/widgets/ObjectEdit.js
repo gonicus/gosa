@@ -568,10 +568,12 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
     _createConfirmDialog : function() {
       var dialog = new gosa.ui.dialogs.Dialog(this.tr("Unsaved changes"));
+      dialog.setAppearance("window-warning");
       dialog.setAutoDispose(true);
       dialog.addElement(new qx.ui.basic.Label(this.tr("There are unsaved changes. Are you sure to really abort?")));
 
-      var okButton = new qx.ui.form.Button(this.tr("Ok"));
+      var okButton = new qx.ui.form.Button(this.tr("Yes"), "@Ligature/trash");
+      okButton.setAppearance("button-warning");
       okButton.addListener("execute", function() {
         dialog.close();
         if (this.getController()) {
@@ -581,7 +583,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       }, this);
       dialog.addButton(okButton);
 
-      var cancelButton = new qx.ui.form.Button(this.tr("Cancel"));
+      var cancelButton = new qx.ui.form.Button(this.tr("No"), "@Ligature/undo");
+      cancelButton.setAppearance("button-warning");
       cancelButton.addListener("execute", dialog.close, dialog);
       dialog.addButton(cancelButton);
 

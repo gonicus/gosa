@@ -585,6 +585,103 @@ qx.Theme.define("gosa.theme.Appearance",
 
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
+    "root" :
+    {
+      style : function(states)
+      {
+        return {
+          backgroundColor : "lightgray-light",
+          textColor       : "darkgray-dark",
+          font            : "default"
+        };
+      }
+    },
+
+    "window" :
+    {
+      style : function(states)
+      {
+        return {
+          decorator : states.active ? "window" : "window-inactive",
+          contentPadding : [ 10, 10, 10, 10 ],
+          margin : states.maximized ? 0 : [0, 5, 5, 0]
+        };
+      }
+    },
+
+    "window/captionbar" :
+    {
+      style : function(states)
+      {
+        return {
+          decorator : (states.active ? "window-captionbar-active" :
+            "window-captionbar-inactive"),
+          textColor : states.active ? "darkgray-dark" : "darkgray-light",
+          padding : 10
+        };
+      }
+    },
+
+    "window/title" : {
+      style : function(states) {
+        return {
+          font : "bold"
+        };
+      }
+    },
+
+    "window-warning" :
+    {
+      include : "window",
+      style : function()
+      {
+        return {
+          decorator : "window-warning",
+          textColor : "#8a6d3b"
+        };
+      }
+    },
+
+    "window-warning/captionbar" :
+    {
+      include : "window/captionbar",
+      style : function()
+      {
+        return {
+          decorator : "window-warning-captionbar-active",
+          textColor : "#8a6d3b"
+        };
+      }
+    },
+
+    "window-warning/title" : "window/title",
+
+    "window-error" :
+    {
+      include : "window",
+      style : function()
+      {
+        return {
+          decorator : "window-error",
+          textColor : "#a94442"
+        };
+      }
+    },
+
+    "window-error/captionbar" :
+    {
+      include : "window/captionbar",
+      style : function()
+      {
+        return {
+          decorator : "window-error-captionbar-active",
+          textColor : "#a94442"
+        };
+      }
+    },
+
+    "window-error/title" : "window/title",
+
     "button" : {
       style: function(states) {
         var styles = {
@@ -693,6 +790,15 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
+    "button-warning/icon" : {
+      style: function() {
+        return {
+          width : 22,
+          scale : true
+        };
+      }
+    },
+
     "button-danger" : {
       include : "button",
       style: function(states) {
@@ -706,6 +812,10 @@ qx.Theme.define("gosa.theme.Appearance",
         return styles;
       }
     },
+
+    "button-danger/icon" : "button-warning/icon",
+    "button-info/icon" : "button-warning/icon",
+    "button-normal/icon" : "button-warning/icon",
 
     "textfield" :
     {
@@ -794,6 +904,57 @@ qx.Theme.define("gosa.theme.Appearance",
           textColor : states.disabled ? "darkgray-light" : "white",
           backgroundColor : states.selected ? "darkgray-light" : undefined,
           padding   : [ 5, 20 ]
+        };
+      }
+    },
+
+    "scrollbar/button" : {
+      include : "button-default",
+
+      style : function(states) {
+        var icon;
+        if (states.left) {
+          icon = "@Ligature/left";
+        }
+        else if (states.right) {
+          icon = "@Ligature/right";
+        }
+        else if (states.up) {
+          icon = "@Ligature/up";
+        }
+        else {
+          icon = "@Ligature/down";
+        }
+
+        if (states.left || states.right) {
+          var paddingLeft = states.left ? 3 : 4;
+          return {
+            padding : [3, 0, 3, paddingLeft],
+            icon    : icon,
+            width   : 15,
+            height  : 14,
+            margin  : 0
+          };
+        }
+        else {
+
+          return {
+            padding : 3,
+            icon    : icon,
+            width   : 14,
+            height  : 15,
+            margin  : 0
+          };
+        }
+      }
+    },
+
+    "scrollbar/button/icon" : {
+      style : function(states)
+      {
+        return {
+          width : 10,
+          scale : true
         };
       }
     }

@@ -21,14 +21,22 @@ qx.Class.define("gosa.ui.dialogs.Warning", {
 
   construct: function(msg)
   {
-    this.base(arguments, this.tr("Warning"), gosa.Config.getImagePath("status/dialog-warning.png", 22));
+    this.base(arguments, this.tr("Warning"));
     
     var message = new qx.ui.basic.Label(msg);
     this.addElement(message);
 
     var ok = gosa.ui.base.Buttons.getOkButton();
+    ok.setAppearance("button-warning");
     ok.addListener("execute", this.close, this);
     this.addButton(ok);
-  }
+  },
 
+  properties : {
+    //overridden
+    appearance : {
+      refine : true,
+      init : "window-warning"
+    }
+  }
 });

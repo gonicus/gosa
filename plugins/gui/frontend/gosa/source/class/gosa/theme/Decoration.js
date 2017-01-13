@@ -207,24 +207,24 @@ qx.Theme.define("gosa.theme.Decoration",
     "button-warning": {
       include : "button-normal",
       style: {
-        backgroundColor : "mint-dark",
-        color : "mint-dark"
+        backgroundColor : "sunflower-dark",
+        color : "sunflower-dark"
       }
     },
 
     "button-warning-focused": {
       include : "button-warning",
       style: {
-        backgroundColor : "mint-light",
-        color : "mint-light"
+        backgroundColor : "sunflower-light",
+        color : "sunflower-light"
       }
     },
 
     "button-warning-pressed": {
       include : "button-normal-focused",
       style: {
-        backgroundColor : "mint-light",
-        color : "mint-light"
+        backgroundColor : "sunflower-light",
+        color : "sunflower-light"
       }
     },
 
@@ -310,6 +310,67 @@ qx.Theme.define("gosa.theme.Decoration",
       include : "menu-separator",
       style: {
         colorTop    : "darkgray-dark"
+      }
+    },
+
+    "window-captionbar-active" :
+    {
+      style : {
+        backgroundColor : "white"
+      }
+    },
+
+    "window" : {
+      style : {
+        radius : 4,
+        backgroundColor : "white",
+        shadowLength     : [0, 0],
+        shadowBlurRadius : 5,
+        shadowColor      : "rgba(0, 0, 0, 0.4)"
+      }
+    },
+
+    "window-captionbar-inactive" :
+    {
+      style : {
+        backgroundColor : "lightgray-light"
+      }
+    },
+
+    "window-inactive" : {
+      include : "window",
+      style : {
+        radius : 4,
+        backgroundColor : "lightgray-light",
+        shadowBlurRadius : 2
+      }
+    },
+
+    "window-warning-captionbar-active" :
+    {
+      style : {
+        backgroundColor : "#ffdd87"
+      }
+    },
+
+    "window-warning" : {
+      style : {
+        radius : 4,
+        backgroundColor : "#ffdd87"
+      }
+    },
+
+    "window-error-captionbar-active" :
+    {
+      style : {
+        backgroundColor : "#f2838f"
+      }
+    },
+
+    "window-error" : {
+      style : {
+        radius : 4,
+        backgroundColor : "#f2838f"
       }
     }
   }

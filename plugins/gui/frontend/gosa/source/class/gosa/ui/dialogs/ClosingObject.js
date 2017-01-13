@@ -22,7 +22,7 @@ qx.Class.define("gosa.ui.dialogs.ClosingObject", {
 
   construct: function(dn, timeout)
   {
-    this.base(arguments, this.tr("Object: %1", dn), gosa.Config.getImagePath("status/dialog-information.png", 22));
+    this.base(arguments, this.tr("Object: %1", dn));
     this.setAutoDispose(true);
 
     var closingCountdownEnd = Date.now() + timeout*1000;
@@ -47,6 +47,14 @@ qx.Class.define("gosa.ui.dialogs.ClosingObject", {
     this.__createCancelButton();
   },
 
+  properties : {
+    //overridden
+    appearance : {
+      refine : true,
+      init : "window-warning"
+    }
+  },
+
   events: {
     "closeObject": "qx.event.type.Event",
     "continue": "qx.event.type.Event"
@@ -58,6 +66,7 @@ qx.Class.define("gosa.ui.dialogs.ClosingObject", {
 
     __createOkButton : function() {
       var ok = gosa.ui.base.Buttons.getOkButton();
+      ok.setAppearance("button-warning");
       ok.setLabel(this.tr("Continue"));
       this.addButton(ok);
 
@@ -69,6 +78,7 @@ qx.Class.define("gosa.ui.dialogs.ClosingObject", {
 
     __createCancelButton : function() {
       var cancel = gosa.ui.base.Buttons.getCancelButton();
+      cancel.setAppearance("button-warning");
       cancel.setLabel(this.tr("Close"));
       this.addButton(cancel);
 

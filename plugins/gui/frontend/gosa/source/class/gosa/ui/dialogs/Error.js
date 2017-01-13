@@ -24,13 +24,22 @@ qx.Class.define("gosa.ui.dialogs.Error", {
     else if (error instanceof Error) {
       msg = error.message;
     }
-    this.base(arguments, title, gosa.Config.getImagePath("status/dialog-error.png", 22));
+    this.base(arguments, title);
 
     var message = new qx.ui.basic.Label(msg);
     this.addElement(message);
 
     var ok = gosa.ui.base.Buttons.getOkButton();
+    ok.setAppearance("button-danger");
     ok.addListener("execute", this.close, this);
     this.addButton(ok);
+  },
+
+  properties : {
+    //overridden
+    appearance : {
+      refine : true,
+      init : "window-error"
+    }
   }
 });

@@ -21,7 +21,7 @@ qx.Class.define("gosa.ui.dialogs.Info", {
 
   construct: function(msg)
   {
-    this.base(arguments, this.tr("Info"), gosa.Config.getImagePath("status/dialog-information.png", 22));
+    this.base(arguments, this.tr("Info"));
     
     var message = new qx.ui.basic.Label(msg);
     this.addElement(message);
@@ -30,5 +30,4 @@ qx.Class.define("gosa.ui.dialogs.Info", {
     ok.addListener("execute", this.close, this);
     this.addButton(ok);
   }
-
 });

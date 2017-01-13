@@ -19,7 +19,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
   extend: gosa.ui.dialogs.Dialog,
 
   construct: function(widget) {
-    this.base(arguments, this.tr("Edit dashboard widget"), "@Ligature/gear");
+    this.base(arguments, this.tr("Edit dashboard widget"));
 
     // form
     var form = new qx.ui.form.Form();

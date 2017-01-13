@@ -19,7 +19,17 @@
 qx.Class.define("gosa.ui.dialogs.ExtendDependencies", {
   extend : gosa.ui.dialogs.RetractDependencies,
 
+  properties : {
+    //overridden
+    appearance : {
+      refine : true,
+      init : "window"
+    }
+  },
+
   members : {
+    _buttonAppearance : "button",
+
     _getListMessage : function() {
       return this.trn(
         "To extend the object by the <b>%1</b> extension, the following additional extension is required: %2",
