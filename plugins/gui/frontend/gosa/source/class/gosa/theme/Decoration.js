@@ -384,14 +384,16 @@ qx.Theme.define("gosa.theme.Decoration",
     "gosa-droppable": {
       style : {
         width: 1,
-        color: "mediumgray-light"
+        style: "dashed",
+        color: "mediumgray-dark"
       }
     },
 
     "gosa-droppable-hovered": {
+      include: "gosa-droppable",
+
       style : {
-        width: 2,
-        color: "mediumgray-light",
+        style: "solid",
         backgroundColor: "mediumgray-dark"
       }
     }
