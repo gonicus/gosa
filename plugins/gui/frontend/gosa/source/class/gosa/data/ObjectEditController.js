@@ -394,11 +394,10 @@ qx.Class.define("gosa.data.ObjectEditController", {
         var widgets = context.getWidgetRegistry().getMap();
         var widget, listenerId;
         for (var modelPath in widgets) {
-          if (qx.lang.Array.contains(this._connectedAttributes, modelPath)) {
-            continue;
-          }
-
           if (widgets.hasOwnProperty(modelPath)) {
+            if (qx.lang.Array.contains(this._connectedAttributes, modelPath)) {
+              continue;
+            }
             widget = widgets[modelPath];
             listenerId = widget.addListener("changeValue", this._onChangeWidgetValue, this);
             widget[listenerId] = this._currentWidget;
@@ -580,7 +579,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
       if (data.success) {
         if (widget) {
-          widget.setValid(true);
+          widget.resetErrorMessage();
         }
       }
       else if (!data.success && data.error) {
