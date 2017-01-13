@@ -24,15 +24,31 @@ qx.Class.define("gosa.ui.controller.Objects", {
 
     this._desktop = new qx.ui.window.Desktop();
     this._windowController = gosa.data.WindowController.getInstance();
-  },
-    
-  properties : {
-    
+
+    this.__root = qx.core.Init.getApplication().getRoot();
+    this.__root.addListener("resize", this._onRootResize, this);
+    this._onRootResize();
   },
     
   members : {
     _desktop: null,
     _windowController: null,
+    __windowWidth : null,
+    __root: null,
+
+    _onRootResize: function() {
+      var rootBounds = this.__root.getBounds();
+      var newWidth = Math.max(850, Math.round(rootBounds.width/1.5));
+      if (newWidth !== this.__windowWidth) {
+        this._windowController.getWindows().forEach(function(tuple) {
+          var window = tuple.getItem(0);
+          if (!window.isMaximized()) {
+            window.setWidth(newWidth);
+          }
+        }, this);
+      }
+      this.__windowWidth = newWidth;
+    },
 
     getDesktop: function() {
       return this._desktop;
@@ -55,7 +71,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
         win = new qx.ui.window.Window(qx.locale.Manager.tr("Object") + ": " + obj.dn);
         var bounds = this._desktop.getBounds();
         win.set({
-          width : 800,
+          width : this.__windowWidth,
           layout : new qx.ui.layout.Canvas(),
           showMinimize : true,
           showClose : false,
@@ -131,7 +147,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
         win = new qx.ui.window.Window(qx.locale.Manager.tr("Workflow"));
         var bounds = this._desktop.getBounds();
         win.set({
-          width        : 800,
+          width        : this.__windowWidth,
           layout       : new qx.ui.layout.Canvas(),
           showMinimize : false,
           showClose    : false,
@@ -174,5 +190,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
   destruct : function() {
     this._desktop = null;
     this._windowController = null;
+    this.__root.removeListener("resize", this._onRootResize, this);
+    this.__root = null;
   }
 });
