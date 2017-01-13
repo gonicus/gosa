@@ -247,7 +247,8 @@ qx.Theme.define("gosa.theme.Appearance",
       style: function()  {
         return {
           textColor: "header-text",
-          backgroundColor : "#303030",
+          //backgroundColor : "darkgray-dark",
+          backgroundColor : "bittersweet-dark",
           height: 40
         }
       }
@@ -705,6 +706,57 @@ qx.Theme.define("gosa.theme.Appearance",
           decorator : decorator,
           padding : [ 6, 12 ],
           textColor : textColor
+        };
+      }
+    },
+
+    "menu" :
+    {
+      style : function(states)
+      {
+        var result =
+        {
+          decorator : "menu",
+          spacingX : 6,
+          spacingY : 0,
+          padding : [4, 0, 4, 0],
+          iconColumnWidth : 16,
+          arrowColumnWidth : 4,
+          placementModeY : states.submenu || states.contextmenu ? "best-fit" : "keep-align"
+        };
+
+        if (states.submenu)
+        {
+          result.position = "right-top";
+          result.offset = [-2, -3];
+        }
+
+        return result;
+      }
+    },
+
+    "menu-separator" :
+    {
+      style : function(states)
+      {
+        return {
+          height : 0,
+          decorator : "menu-separator",
+          margin    : [ 4, 2 ]
+        };
+      }
+    },
+
+    "menu-button" :
+    {
+      alias : "atom",
+
+      style : function(states)
+      {
+        return {
+          textColor : states.disabled ? "darkgray-light" : "white",
+          backgroundColor : states.selected ? "darkgray-light" : undefined,
+          padding   : [ 5, 20 ]
         };
       }
     }

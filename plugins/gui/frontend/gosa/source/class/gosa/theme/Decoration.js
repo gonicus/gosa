@@ -272,6 +272,20 @@ qx.Theme.define("gosa.theme.Decoration",
       style: {
         color : "aqua-dark"
       }
+    },
+
+    "menu" : {
+      style: {
+        backgroundColor : "darkgray-dark",
+        radius : 4
+      }
+    },
+
+    "menu-separator" : {
+      style: {
+        widthTop    : 1,
+        colorTop    : "darkgray-light"
+      }
     }
   }
 });

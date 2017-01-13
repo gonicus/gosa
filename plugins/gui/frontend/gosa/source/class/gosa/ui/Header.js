@@ -146,6 +146,7 @@ qx.Class.define("gosa.ui.Header", {
       }, this);
       menu.add(edit);
 
+      menu.add(new qx.ui.menu.Separator());
 
       var logout = new qx.ui.menu.Button(this.tr("Logout"), "@Ligature/logout");
       logout.getChildControl("icon").set({
