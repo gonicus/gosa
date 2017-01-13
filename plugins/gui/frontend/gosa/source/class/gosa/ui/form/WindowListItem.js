@@ -31,7 +31,8 @@ qx.Class.define("gosa.ui.form.WindowListItem", {
 
     window: {
       check: "qx.ui.window.Window",
-      nullable: true
+      nullable: true,
+      apply: "_applyWindow"
     },
 
     object: {
@@ -47,6 +48,30 @@ qx.Class.define("gosa.ui.form.WindowListItem", {
   *****************************************************************************
   */
   members : {
+
+    /**
+     * Updates the selection of the "windows" childControl in {@link gosa.ui.Header} to this
+     * listitem if the bound window gets active.
+     *
+     * @param ev {Event}
+     */
+    _onChangeActive: function(ev) {
+      if (ev.getData() === true) {
+        gosa.ui.Header.getInstance().getChildControl("windows").setSelection([this]);
+      }
+    },
+
+    // property apply
+    _applyWindow: function(value, old) {
+      if (old) {
+        old.removeListener("changeActive", this._onChangeActive, this);
+      }
+      if (value) {
+        value.addListener("changeActive", this._onChangeActive, this);
+      }
+    },
+
+    // property apply
     _applyObject: function(object) {
       if (object) {
         if (object instanceof gosa.ui.form.WorkflowItem) {
