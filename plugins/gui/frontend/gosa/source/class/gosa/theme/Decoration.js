@@ -109,6 +109,13 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
+    "button-link": {
+      include : "button-normal",
+      style: {
+        backgroundColor : undefined
+      }
+    },
+
     "button-default": {
       include : "button-normal",
       style: {

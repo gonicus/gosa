@@ -282,8 +282,8 @@ qx.Theme.define("gosa.theme.Appearance",
     },
 
     "title-bar/user": {
-      include: "button",
-      alias : "button",
+      include: "button-normal",
+      alias : "button-normal",
 
       style : function(states)
       {
@@ -291,7 +291,7 @@ qx.Theme.define("gosa.theme.Appearance",
           gap : 10,
           decorator: null,
           center: true,
-          backgroundColor : states.hovered ? "rgba(255,255,255,0.1)" : "transparent"
+          backgroundColor : states.hovered ? "bittersweet-light" : "transparent"
         };
       }
     },
@@ -587,8 +587,8 @@ qx.Theme.define("gosa.theme.Appearance",
     "button" : {
       style: function(states) {
         var styles = {
-          decorator : "button-normal",
-          textColor : "white",
+          decorator : "button-default",
+          textColor : "darkgray-dark",
           padding : [6, 12],
           font : "default"
         };
@@ -597,6 +597,22 @@ qx.Theme.define("gosa.theme.Appearance",
           styles.opacity = 0.45;
         }
         else if (states.hovered || states.focused || states.pressed) {
+          styles.decorator = states.pressed ? "button-default-pressed" : "button-default-focused";
+        }
+
+        return styles;
+      }
+    },
+
+    "button-normal" : {
+      include : "button",
+      style: function(states) {
+        var styles = {
+          decorator : "button-normal",
+          textColor : "white"
+        };
+
+        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
           styles.decorator = states.pressed ? "button-normal-pressed" : "button-normal-focused";
         }
 
@@ -604,22 +620,29 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    "button-default" : {
+    "button-link" : {
       include : "button",
       style: function(states) {
-        var styles = {};
-        if (states.hovered || states.focused || states.pressed) {
-          styles.decorator = states.pressed ? "button-default-pressed" : "button-default-focused";
+        var styles = {
+          decorator : "button-link"
+        };
+        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
+          styles.decorator = states.pressed ? "button-normal-pressed" : "button-normal-focused";
         }
         return styles;
       }
     },
 
+    "button-default" : "button",
+
     "button-primary" : {
       include : "button",
       style: function(states) {
-        var styles = {};
-        if (states.hovered || states.focused || states.pressed) {
+        var styles = {
+          textColor : "white",
+          decorator : "button-primary"
+        };
+        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
           styles.decorator = states.pressed ? "button-primary-pressed" : "button-primary-focused";
         }
         return styles;
@@ -629,8 +652,11 @@ qx.Theme.define("gosa.theme.Appearance",
     "button-success" : {
       include : "button",
       style: function(states) {
-        var styles = {};
-        if (states.hovered || states.focused || states.pressed) {
+        var styles = {
+          textColor : "white",
+          decorator : "button-success"
+        };
+        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
           styles.decorator = states.pressed ? "button-success-pressed" : "button-success-focused";
         }
         return styles;
@@ -640,8 +666,11 @@ qx.Theme.define("gosa.theme.Appearance",
     "button-info" : {
       include : "button",
       style: function(states) {
-        var styles = {};
-        if (states.hovered || states.focused || states.pressed) {
+        var styles = {
+          textColor : "white",
+          decorator : "button-info"
+        };
+        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
           styles.decorator = states.pressed ? "button-info-pressed" : "button-info-focused";
         }
         return styles;
@@ -651,8 +680,11 @@ qx.Theme.define("gosa.theme.Appearance",
     "button-warning" : {
       include : "button",
       style: function(states) {
-        var styles = {};
-        if (states.hovered || states.focused || states.pressed) {
+        var styles = {
+          textColor : "white",
+          decorator : "button-warning"
+        };
+        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
           styles.decorator = states.pressed ? "button-warning-pressed" : "button-warning-focused";
         }
         return styles;
@@ -662,8 +694,11 @@ qx.Theme.define("gosa.theme.Appearance",
     "button-danger" : {
       include : "button",
       style: function(states) {
-        var styles = {};
-        if (states.hovered || states.focused || states.pressed) {
+        var styles = {
+          textColor : "white",
+          decorator : "button-danger"
+        };
+        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
           styles.decorator = states.pressed ? "button-danger-pressed" : "button-danger-focused";
         }
         return styles;

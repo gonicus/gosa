@@ -156,8 +156,164 @@ qx.Class.define("gosa.Application",
 
       // Base settings
       var locale = gosa.Tools.getLocale();
-      qx.io.PartLoader.require([locale]);
+      qx.io.PartLoader.require([locale], function() {
+        // Open the loading dialog which shows the loading status.
+        var loadingDialog = new gosa.ui.dialogs.Loading();
+        loadingDialog.setWidth(360);
+        loadingDialog.open();
 
+        /* Add base gui elements */
+
+        var pluginView = this.__tabView = new qx.ui.tabview.TabView();
+        pluginView.setBarPosition("left");
+        var desktop = gosa.ui.controller.Objects.getInstance().getDesktop();
+        desktop.add(pluginView, {edge: 0});
+
+
+        // Create application header and toolbar
+        //
+        var header = gosa.ui.Header.getInstance();
+        doc.add(header, {left: 0, right: 0, top: 0});
+        gosa.Session.getInstance().bind("cn", header, "loggedInName");
+        gosa.Session.getInstance().bind("imageURL", header, "imageURL");
+
+        var search = gosa.view.Search.getInstance();
+        var dashboard = gosa.view.Dashboard.getInstance();
+        var tree = gosa.view.Tree.getInstance();
+        var work = gosa.view.Workflows.getInstance();
+        // var settings = gosa.view.Settings.getInstance();
+        pluginView.add(search);
+        pluginView.add(dashboard);
+        pluginView.add(tree);
+        pluginView.add(work);
+        // pluginView.add(settings);
+
+        // Initialize SSE messaging
+        var messaging = gosa.io.Sse.getInstance();
+        messaging.reconnect();
+
+        doc.add(desktop, {left: 3, right: 3, top: 48, bottom: 4});
+
+        // Hide Splash - initialized by index.html
+        if (qx.core.Environment.get("qx.debug") || !window.applicationCache || window.location.protocol.indexOf("https") === 0) {
+          this.hideSplash();
+        }
+
+        // Back button and bookmark support
+        this._history = qx.bom.History.getInstance();
+        this._history.addListener("changeState", function(e){this.__handleUrl(e.getData());}, this);
+
+        // Register openObject action to allow to open object using urls
+        this.addUrlAction("openObject", function(action, urlParts){
+          gosa.ui.controller.Objects.getInstance().openObject(urlParts[1]);
+        }, this);
+
+
+        // Enforce login
+        var rpc = gosa.io.Rpc.getInstance();
+        rpc.cA("getSessionUser").then(function(userid) {
+
+          gosa.Session.getInstance().setUser(userid);
+
+          var promises = [];
+
+          // retrieve possible commands/methods
+          promises.push(
+          rpc.cA("getAllowedMethods").then(function(result) {
+            gosa.Session.getInstance().setCommands(result);
+          }, function() {
+            (new gosa.ui.dialogs.Error(qx.locale.Manager.tr("Unable to receive commands."))).open();
+          })
+          );
+
+          // load translation
+          loadingDialog.setLabel(this.tr("Loading translation"));
+          promises.push(
+          rpc.cA("getTemplateI18N", locale)
+          .then(function(result) {
+            qx.locale.Manager.getInstance().addTranslation(qx.locale.Manager.getInstance().getLocale(), result);
+          }, this)
+          .catch(function(error) {
+            this.error(error);
+            this.__handleRpcError(loadingDialog, this.tr("Fetching translations failed."));
+          }, this)
+          );
+
+          // Fetch base
+          loadingDialog.setLabel(this.tr("Loading base"));
+          promises.push(
+          rpc.cA("getBase")
+          .then(function(result) {
+            gosa.Session.getInstance().setBase(result);
+          }, this)
+          .catch(function(error) {
+            this.error(error);
+            this.__handleRpcError(loadingDialog, this.tr("Fetching base failed."));
+          }, this)
+          );
+
+          // Add prefetching of the gui templates - one job per object-type.
+
+          // Request a list of all available object-types to be able
+          // to prefetch their gui-templates.
+          promises.push(
+          rpc.cA("getAvailableObjectNames")
+          .then(function(result) {
+            var dialogPromises = [];
+            var templatePromises = [];
+            var names = [];
+            result.forEach(function(name) {
+              loadingDialog.setLabel(this.tr("Loading %1 templates", name));
+              dialogPromises.push(rpc.cA("**getGuiDialogs", name));
+              templatePromises.push(rpc.cA("**getGuiTemplates", name));
+              names.push(name);
+            }, this);
+            return qx.Promise.all([names, qx.Promise.all(dialogPromises), qx.Promise.all(templatePromises)]);
+          }, this)
+          .catch(function(error) {
+            this.error(error);
+            this.__handleRpcError(loadingDialog, this.tr("Fetching object description failed."));
+          }, this)
+          .spread(function(names, dialogs, templates) {
+            names.forEach(function(name, index) {
+              this.__checkForActionsInUIDefs(dialogs[index], name);
+
+              var dialogMap = {};
+              dialogs[index].forEach(function(dialog) {
+                dialogMap[gosa.util.Template.getDialogName(dialog)] = dialog;
+              });
+
+              gosa.data.TemplateRegistry.getInstance().addDialogTemplates(dialogMap);
+
+              this.__checkForActionsInUIDefs(templates[index], name);
+              gosa.data.TemplateRegistry.getInstance().addTemplates(name, templates[index]);
+              gosa.util.Template.fillTemplateCache(name);
+            }, this);
+          }, this)
+          .catch(function(error) {
+            this.error(error);
+            this.__handleRpcError(loadingDialog, this.tr("Fetching templates failed."));
+          }, this)
+          );
+          return qx.Promise.all(promises);
+        }, this)
+        // }, this)
+        .then(function() {
+          // all rpcs done
+          this.getRoot().setBlockerColor("#000000");
+          this.getRoot().setBlockerOpacity(0.5);
+          loadingDialog.close();
+          gosa.view.Search.getInstance().updateFocus();
+
+          // Handle URL actions
+          this.__handleUrl(this._history.getState());
+        }, this)
+        .catch(function(error) {
+          // getSessionUser failed
+          this.error(error);
+          this.__handleRpcError(loadingDialog, error);
+        }, this);
+      }, this);
 
       // Document is the application root
       var doc = this.getRoot();
@@ -169,163 +325,6 @@ qx.Class.define("gosa.Application",
       // tab-templates, translations etc.
       doc.setBlockerColor("#F8F8F8");
       doc.setBlockerOpacity(1);
-
-      // Open the loading dialog which shows the loading status.
-      var loadingDialog = new gosa.ui.dialogs.Loading();
-      loadingDialog.setWidth(360);
-      loadingDialog.open();
-
-      /* Add base gui elements */
-
-      var pluginView = this.__tabView = new qx.ui.tabview.TabView();
-      pluginView.setBarPosition("left");
-      var desktop = gosa.ui.controller.Objects.getInstance().getDesktop();
-      desktop.add(pluginView, {edge: 0});
-
-
-      // Create application header and toolbar
-      //
-      var header = gosa.ui.Header.getInstance();
-      doc.add(header, {left: 0, right: 0, top: 0});
-      gosa.Session.getInstance().bind("cn", header, "loggedInName");
-      gosa.Session.getInstance().bind("imageURL", header, "imageURL");
-
-      var search = gosa.view.Search.getInstance();
-      var dashboard = gosa.view.Dashboard.getInstance();
-      var tree = gosa.view.Tree.getInstance();
-      var work = gosa.view.Workflows.getInstance();
-      // var settings = gosa.view.Settings.getInstance();
-      pluginView.add(search);
-      pluginView.add(dashboard);
-      pluginView.add(tree);
-      pluginView.add(work);
-      // pluginView.add(settings);
-
-      // Initialize SSE messaging
-      var messaging = gosa.io.Sse.getInstance();
-      messaging.reconnect();
-
-      doc.add(desktop, {left: 3, right: 3, top: 48, bottom: 4});
-
-      // Hide Splash - initialized by index.html
-      if (qx.core.Environment.get("qx.debug") || !window.applicationCache || window.location.protocol.indexOf("https") === 0) {
-        this.hideSplash();
-      }
-
-      // Back button and bookmark support
-      this._history = qx.bom.History.getInstance();
-      this._history.addListener("changeState", function(e){this.__handleUrl(e.getData());}, this);
-
-      // Register openObject action to allow to open object using urls
-      this.addUrlAction("openObject", function(action, urlParts){
-        gosa.ui.controller.Objects.getInstance().openObject(urlParts[1]);
-        }, this);
-
-
-      // Enforce login
-      var rpc = gosa.io.Rpc.getInstance();
-      rpc.cA("getSessionUser").then(function(userid) {
-
-          gosa.Session.getInstance().setUser(userid);
-
-          var promises = [];
-
-          // retrieve possible commands/methods
-          promises.push(
-            rpc.cA("getAllowedMethods").then(function(result) {
-              gosa.Session.getInstance().setCommands(result);
-            }, function() {
-              (new gosa.ui.dialogs.Error(qx.locale.Manager.tr("Unable to receive commands."))).open();
-            })
-          );
-
-          // load translation
-          loadingDialog.setLabel(this.tr("Loading translation"));
-          promises.push(
-            rpc.cA("getTemplateI18N", locale)
-            .then(function(result) {
-              qx.locale.Manager.getInstance().addTranslation(qx.locale.Manager.getInstance().getLocale(), result);
-            }, this)
-            .catch(function(error) {
-              this.error(error);
-              this.__handleRpcError(loadingDialog, this.tr("Fetching translations failed."));
-            }, this)
-          );
-
-          // Fetch base
-          loadingDialog.setLabel(this.tr("Loading base"));
-          promises.push(
-            rpc.cA("getBase")
-            .then(function(result) {
-              gosa.Session.getInstance().setBase(result);
-            }, this)
-            .catch(function(error) {
-              this.error(error);
-              this.__handleRpcError(loadingDialog, this.tr("Fetching base failed."));
-            }, this)
-          );
-
-          // Add prefetching of the gui templates - one job per object-type.
-
-          // Request a list of all available object-types to be able
-          // to prefetch their gui-templates.
-          promises.push(
-            rpc.cA("getAvailableObjectNames")
-            .then(function(result) {
-              var dialogPromises = [];
-              var templatePromises = [];
-              var names = [];
-              result.forEach(function(name) {
-                loadingDialog.setLabel(this.tr("Loading %1 templates", name));
-                dialogPromises.push(rpc.cA("**getGuiDialogs", name));
-                templatePromises.push(rpc.cA("**getGuiTemplates", name));
-                names.push(name);
-              }, this);
-              return qx.Promise.all([names, qx.Promise.all(dialogPromises), qx.Promise.all(templatePromises)]);
-            }, this)
-            .catch(function(error) {
-              this.error(error);
-              this.__handleRpcError(loadingDialog, this.tr("Fetching object description failed."));
-            }, this)
-            .spread(function(names, dialogs, templates) {
-              names.forEach(function(name, index) {
-                this.__checkForActionsInUIDefs(dialogs[index], name);
-
-                var dialogMap = {};
-                dialogs[index].forEach(function(dialog) {
-                  dialogMap[gosa.util.Template.getDialogName(dialog)] = dialog;
-                });
-
-                gosa.data.TemplateRegistry.getInstance().addDialogTemplates(dialogMap);
-
-                this.__checkForActionsInUIDefs(templates[index], name);
-                gosa.data.TemplateRegistry.getInstance().addTemplates(name, templates[index]);
-                gosa.util.Template.fillTemplateCache(name);
-              }, this);
-            }, this)
-            .catch(function(error) {
-              this.error(error);
-              this.__handleRpcError(loadingDialog, this.tr("Fetching templates failed."));
-            }, this)
-          );
-          return qx.Promise.all(promises);
-        }, this)
-      // }, this)
-      .then(function() {
-        // all rpcs done
-        this.getRoot().setBlockerColor("#000000");
-        this.getRoot().setBlockerOpacity(0.5);
-        loadingDialog.close();
-        gosa.view.Search.getInstance().updateFocus();
-
-        // Handle URL actions
-        this.__handleUrl(this._history.getState());
-      }, this)
-      .catch(function(error) {
-        // getSessionUser failed
-        this.error(error);
-        this.__handleRpcError(loadingDialog, error);
-      }, this);
     },
 
 

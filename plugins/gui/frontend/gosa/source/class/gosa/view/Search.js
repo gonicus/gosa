@@ -56,6 +56,7 @@ qx.Class.define("gosa.view.Search", {
     searchHeader.add(sf);
 
     var sb = new qx.ui.form.Button(this.tr("Search"));
+    sb.setAppearance("button-primary");
     searchHeader.add(sb);
     searchHeader.setPadding(20);
     searchHeader.setPaddingBottom(0);
