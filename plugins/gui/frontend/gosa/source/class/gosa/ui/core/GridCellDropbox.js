@@ -54,8 +54,16 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
   *****************************************************************************
   */
   members : {
-    _onDragOver: function() {
-      this.addState("hovered");
+    _onDragOver: function(ev) {
+      var source = ev.getRelatedTarget();
+      var colspan = source.getLayoutProperties().colSpan||1;
+      var endCol = colspan + this.getLayoutProperties().column;
+      // do not drop when there is not enough space in the layout
+      if (endCol > this.getLayoutParent().getLayout().getColumnCount()) {
+        ev.preventDefault();
+      } else {
+        this.addState("hovered");
+      }
     },
     _onDragLeave: function() {
       this.removeState("hovered");
