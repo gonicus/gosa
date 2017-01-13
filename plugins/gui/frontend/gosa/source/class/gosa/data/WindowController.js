@@ -46,13 +46,6 @@ qx.Class.define("gosa.data.WindowController", {
     },
 
     removeWindow: function(window) {
-      var index = this.__findEntryByWindow(window);
-      if (index >= 0) {
-        this.__windows.removeAt(index);
-      }
-    },
-
-    __findEntryByWindow: function(window) {
       var index = -1;
       this.__windows.some(function(tuple, idx) {
         if (tuple.getItem(0) === window) {
@@ -60,7 +53,9 @@ qx.Class.define("gosa.data.WindowController", {
           return true;
         }
       }, this);
-      return index;
+      if (index >= 0) {
+        this.__windows.removeAt(index);
+      }
     }
   },
 
