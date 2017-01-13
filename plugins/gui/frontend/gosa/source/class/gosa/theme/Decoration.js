@@ -112,7 +112,8 @@ qx.Theme.define("gosa.theme.Decoration",
     "button-link": {
       include : "button-normal",
       style: {
-        backgroundColor : undefined
+        color : "transparent",
+        backgroundColor : "transparent"
       }
     },
 

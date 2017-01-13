@@ -74,13 +74,13 @@ qx.Class.define("gosa.view.Search", {
     this.searchInfo.hide();
     this.searchInfo.setPadding(20);
     var sil = new qx.ui.basic.Label(this.tr("Search"));
-    sil.setTextColor("red");
+    sil.setTextColor("bittersweet-dark");
     sil.setFont(qx.bom.Font.fromString("20px Sans Serif"));
     sil.setWidth(barWidth);
     this.searchInfo.add(sil);
 
     this.sii = new qx.ui.basic.Label();
-    this.sii.setTextColor("gray");
+    this.sii.setTextColor("darkgray-light");
     this.sii.setAlignY("bottom");
     this.searchInfo.add(this.sii);
 

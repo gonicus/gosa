@@ -201,8 +201,14 @@ qx.Class.define("gosa.ui.SearchListItem", {
         case "toolbar":
           // create and add Part 3 to the toolbar
           control = new qx.ui.container.Composite(new qx.ui.layout.HBox(0));
-          var Button1 = new qx.ui.toolbar.Button(null, "@Ligature/edit");
-          var Button2 = new qx.ui.toolbar.Button(null, "@Ligature/trash");
+          var Button1 = new qx.ui.form.Button(null, "@Ligature/edit");
+          Button1.getChildControl("icon").set({width: 22, scale: true});
+          Button1.setAppearance("button-link");
+          Button1.setAllowGrowY(false);
+          var Button2 = new qx.ui.form.Button(null, "@Ligature/trash");
+          Button2.setAppearance("button-link");
+          Button2.setAllowGrowY(false);
+          Button2.getChildControl("icon").set({width: 22, scale: true});
           control.add(Button1);
           control.add(Button2);
           control.setAllowGrowY(false);

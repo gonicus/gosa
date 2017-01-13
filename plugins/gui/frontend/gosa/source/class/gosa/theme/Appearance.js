@@ -110,7 +110,7 @@ qx.Theme.define("gosa.theme.Appearance",
         }
 
         return {
-          textColor : "red",
+          textColor : "bittersweet-dark",
           font      : weight
         };
       }
@@ -187,7 +187,7 @@ qx.Theme.define("gosa.theme.Appearance",
     "search-list-item/dn" : {
       style : function() {
         return {
-          textColor : "green",
+          textColor : "#006442",
           cursor    : "default"
         };
       }
@@ -196,7 +196,7 @@ qx.Theme.define("gosa.theme.Appearance",
     "search-list-item/title" : {
       style : function() {
         return {
-          textColor : "blue",
+          textColor : "#1F4788",
           cursor    : "pointer",
           font      : "SearchResultTitle"
         };
@@ -206,7 +206,7 @@ qx.Theme.define("gosa.theme.Appearance",
     "search-list-item/description" : {
       style : function() {
         return {
-          textColor : "text"
+          textColor : "darkgray-dark"
         };
       }
     },
@@ -223,7 +223,7 @@ qx.Theme.define("gosa.theme.Appearance",
           padding[2] -= 2;
         }
 
-        var backgroundColor = states.hovered ? 'light-background' : undefined;
+        var backgroundColor = states.hovered ? 'lightgray-light' : undefined;
 
         return {
           padding         : padding,
