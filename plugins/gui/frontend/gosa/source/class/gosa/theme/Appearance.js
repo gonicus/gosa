@@ -966,6 +966,14 @@ qx.Theme.define("gosa.theme.Appearance",
           scale : true
         };
       }
+    },
+    "gosa-droppable": {
+      style: function(states) {
+        return {
+          decorator: states.hovered ? "gosa-droppable-hovered" : "gosa-droppable"
+        }
+      }
     }
   }
 });
+

@@ -161,6 +161,10 @@ qx.Class.define("gosa.view.Dashboard", {
 
     // property apply
     _applyEditMode: function(value) {
+      var grid = this.__gridLayout;
+      var board = this.getChildControl("board");
+      var row, column, widget, lr, lc;
+
       if (value) {
         this.getChildControl("toolbar").show();
         this.getChildControl("board").addListener("tap", this._onTap, this);
@@ -169,6 +173,21 @@ qx.Class.define("gosa.view.Dashboard", {
             child.addListener("tap", this._onTap, this);
           }
         }, this);
+
+        // add dropboxes to empty cells + one additional row
+        for (row=1, lr = grid.getRowCount()+1; row < lr; row++) {
+          for (column=0, lc = grid.getColumnCount(); column < lc; column++) {
+            widget = grid.getCellWidget(row, column);
+            if (widget instanceof qx.ui.core.Spacer) {
+              widget.destroy();
+              widget = null;
+            }
+            if (!widget) {
+              board.add(new gosa.ui.core.GridCellDropbox(), {row: row, column: column});
+            }
+          }
+        }
+        qx.event.message.Bus.subscribe("gosa.dashboard.drop", this._onMove, this);
       } else {
         this.getChildControl("toolbar").exclude();
         this.getChildControl("board").getChildren().forEach(function(child) {
@@ -179,7 +198,47 @@ qx.Class.define("gosa.view.Dashboard", {
         this.getChildControl("board").removeListener("tap", this._onTap, this);
         this.setSelectedWidget(null);
         this.setModified(false);
+
+        // remove the grid dropboxes
+        for (row=1, lr = grid.getRowCount()+1; row < lr; row++) {
+          for (column=0, lc = grid.getColumnCount(); column < lc; column++) {
+            widget = grid.getCellWidget(row, column);
+            if (widget instanceof gosa.ui.core.GridCellDropbox) {
+              widget.destroy();
+            }
+          }
+        }
+        qx.event.message.Bus.unsubscribe("gosa.dashboard.drop", this._onMove, this);
       }
+    },
+
+    _onMove: function(ev) {
+      var data = ev.getData();
+      var oldProps = qx.lang.Object.clone(data.widget.getLayoutProperties());
+      var col;
+
+      // free space
+      for (col=data.props.column, l=data.props.column+oldProps.colSpan||1; col<l; col++) {
+        var old = this.__gridLayout.getCellWidget(data.props.row, col);
+        if (old && old !== data.widget) {
+          old.destroy();
+        }
+      }
+
+      data.widget.setLayoutProperties({row: data.props.row, column: data.props.column, colSpan: oldProps.colSpan, rowSpan: oldProps.rowSpan});
+
+      // add placeholders on old widgets place
+      var board = this.getChildControl("board");
+      for (col=oldProps.column, l=oldProps.column+oldProps.colSpan||1; col<l; col++) {
+        var cur = this.__gridLayout.getCellWidget(oldProps.row, col);
+        if (!cur) {
+          board.add(new gosa.ui.core.GridCellDropbox(), {
+            row    : oldProps.row,
+            column : col
+          });
+        }
+      }
+      this.setModified(true);
     },
 
     _onTap: function(ev) {
