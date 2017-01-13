@@ -68,6 +68,7 @@ qx.Class.define("gosa.ui.Throbber", {
         this.__handle = qx.bom.element.Animation.animate(this.getChildControl("icon").getContentElement().getDomElement(), {
           "duration"  : 1000,
           "keep"      : 100,
+          "steps"      : 8,
           "keyFrames" : {
             0   : {"transform" : "rotate(0deg)"},
             100 : {"transform" : "rotate(359deg)"}

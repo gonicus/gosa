@@ -284,7 +284,10 @@ qx.Theme.define("gosa.theme.Decoration",
     "menu" : {
       style: {
         backgroundColor : "darkgray-dark",
-        radius : 4
+        radius : 4,
+        shadowLength     : [0, 6],
+        shadowBlurRadius : 12,
+        shadowColor      : "rgba(0, 0, 0, 0.175)"
       }
     },
 
@@ -292,6 +295,20 @@ qx.Theme.define("gosa.theme.Decoration",
       style: {
         widthTop    : 1,
         colorTop    : "darkgray-light"
+      }
+    },
+
+    "menu-default" : {
+      include : "menu",
+      style: {
+        backgroundColor : "white"
+      }
+    },
+
+    "menu-default-separator" : {
+      include : "menu-separator",
+      style: {
+        colorTop    : "darkgray-dark"
       }
     }
   }

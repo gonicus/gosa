@@ -510,8 +510,9 @@ qx.Theme.define("gosa.theme.Appearance",
       include: "listitem",
       alias: "listitem",
 
-      style: function() {
+      style: function(states) {
         return {
+          backgroundColor : states.selected ? "bittersweet-light" : undefined,
           decorator: "gosa-listitem-window",
           width: 180,
           gap: 8,
@@ -590,6 +591,7 @@ qx.Theme.define("gosa.theme.Appearance",
           decorator : "button-default",
           textColor : "darkgray-dark",
           padding : [6, 12],
+          opacity : undefined,
           font : "default"
         };
 
