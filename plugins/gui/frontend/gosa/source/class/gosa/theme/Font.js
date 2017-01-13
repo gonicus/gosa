@@ -136,7 +136,7 @@ qx.Theme.define("gosa.theme.Font",
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
     "default": {
-      size: 12,
+      size: 14,
       family: ['Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
       sources: [
         {
@@ -149,7 +149,7 @@ qx.Theme.define("gosa.theme.Font",
     },
 
     "small" : {
-      size: 10,
+      size: 12,
       family: ['Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
       sources: [
         {
@@ -162,7 +162,7 @@ qx.Theme.define("gosa.theme.Font",
     },
 
     "bold" : {
-      size: 12,
+      size: 14,
       bold: true,
       family: ['Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
       sources: [
