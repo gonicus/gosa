@@ -47,7 +47,7 @@ qx.Theme.define("gosa.theme.Appearance",
 
       style : function(states) {
         return {
-          font : states.focused ? 'underline' : 'default'
+          textColor : "darkgray-dark"
         };
       }
     },
@@ -1084,13 +1084,42 @@ qx.Theme.define("gosa.theme.Appearance",
         }
 
         decorator += states.checked ? "-checked" : "";
-        decorator += states.invalid && !states.disabled ? "-invalid" : "";
+        if (!states.disabled) {
+          decorator += states.invalid && !states.disabled ? "-invalid" : "";
+        }
 
         return {
           textColor : "white",
           decorator : decorator,
           width : 16,
           scale : true
+        };
+      }
+    },
+
+    //HIER
+    "selectbox" : {
+      alias : "atom",
+
+      style : function(states)
+      {
+        var decorator = "selectbox-field";
+        var padding  = [ 6, 12 ];
+
+        if (states.disabled) {
+          decorator = "selectbox-field-disabled";
+        }
+        else if (states.focused || states.pressed) {
+          decorator = "selectbox-field-focused";
+        }
+
+        if (states.invalid && !states.disabled) {
+          decorator += "-invalid";
+        }
+
+        return {
+          decorator : decorator,
+          padding : padding
         };
       }
     }

@@ -415,6 +415,22 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
+    "checkbox-disabled" : {
+      style : {
+        width : 1,
+        color : "mediumgray-light",
+        backgroundColor : "white"
+      }
+    },
+
+    "checkbox-disabled-checked" : {
+      style : {
+        width : 1,
+        color : "mediumgray-dark",
+        backgroundColor : "mediumgray-dark"
+      }
+    },
+
     "checkbox-hovered" : {
       include : "checkbox",
       style : {
@@ -458,6 +474,43 @@ qx.Theme.define("gosa.theme.Decoration",
       style : {
         color : "grapefruit-light",
         backgroundColor : "grapefruit-light"
+      }
+    },
+
+    "selectbox-field" : {
+      style: {
+        backgroundColor : "white",
+        color : "mediumgray-dark",
+        radius : 4,
+        width : 1
+      }
+    },
+
+    "selectbox-field-invalid" : {
+      include : "selectbox-field",
+      style: {
+        color : "grapefruit-dark"
+      }
+    },
+
+    "selectbox-field-disabled" : {
+      include : "selectbox-field",
+      style: {
+        backgroundColor : "lightgray-dark"
+      }
+    },
+
+    "selectbox-field-focused" : {
+      include : "selectbox-field",
+      style: {
+        color : "aqua-dark"
+      }
+    },
+
+    "selectbox-field-focused-invalid" : {
+      include : "selectbox-field-focused",
+      style: {
+        color : "grapefruit-dark"
       }
     }
 
