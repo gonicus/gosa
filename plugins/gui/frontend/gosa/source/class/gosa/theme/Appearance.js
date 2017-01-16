@@ -513,6 +513,7 @@ qx.Theme.define("gosa.theme.Appearance",
       style: function(states) {
         return {
           backgroundColor : states.selected ? "bittersweet-light" : undefined,
+          textColor : "white",
           decorator: "gosa-listitem-window",
           width: 180,
           gap: 8,
@@ -1124,6 +1125,26 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
+    //HIER
+    "selectbox/list" : {
+      alias : "list",
+      style : function()
+      {
+        return {
+        };
+      }
+    },
+
+    "selectbox/popup" : {
+      style : function(states)
+      {
+        return {
+          decorator : "popup",
+          backgroundColor : "white"
+        };
+      }
+    },
+
     "tabview-page" : {
       alias : "widget",
       include : "widget",
@@ -1131,6 +1152,21 @@ qx.Theme.define("gosa.theme.Appearance",
       style : function() {
         return {
           padding : 8
+        };
+      }
+    },
+
+    "listitem" :
+    {
+      alias : "atom",
+
+      style : function(states)
+      {
+        return {
+          padding   : [5, 20],
+          textColor : states.selected ? "white" : "darkgray-dark",
+          decorator : states.selected ? "listitem-selected" : "listitem",
+          opacity : states.drag ? 0.5 : undefined
         };
       }
     }

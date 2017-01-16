@@ -299,6 +299,18 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
+    "popup" : {
+      style: {
+        backgroundColor : "white",
+        width :1,
+        color : "mediumgray-dark",
+        radius : [0, 0, 0, 4],
+        shadowLength     : [0, 6],
+        shadowBlurRadius : 12,
+        shadowColor      : "rgba(0, 0, 0, 0.175)"
+      }
+    },
+
     "menu" : {
       style: {
         backgroundColor : "darkgray-dark",
@@ -512,7 +524,25 @@ qx.Theme.define("gosa.theme.Decoration",
       style: {
         color : "grapefruit-dark"
       }
-    }
+    },
+
+    "listitem" :
+    {
+      style: {
+        color : "mediumgray-light",
+        width : [0, 0, 1, 0],
+        backgroundColor : "transparent"
+      }
+    },
+
+    "listitem-selected" :
+    {
+      style: {
+        color : "aqua-light",
+        width : [0, 0, 1, 0],
+        backgroundColor : "aqua-light"
+      }
+    },
 
     // Do NOT place any decorations here, that are not FLAT theme related. Put them above
     // the marker above.
