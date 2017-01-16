@@ -912,7 +912,7 @@ qx.Theme.define("gosa.theme.Appearance",
         var textColor;
         if (states.disabled) {
           decorator = "textfield-disabled";
-          textColor = "darkgray-dark";
+          textColor = "mediumgray-dark";
         } else if (states.showingPlaceholder) {
           textColor = "lightgray-dark";
         } else {
@@ -1125,7 +1125,6 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    //HIER
     "selectbox/list" : {
       alias : "list",
       style : function()
@@ -1169,8 +1168,95 @@ qx.Theme.define("gosa.theme.Appearance",
           opacity : states.drag ? 0.5 : undefined
         };
       }
-    }
+    },
 
+    //HIER
+
+     "spinner" :
+    {
+      style : function(states)
+      {
+        var decorator;
+
+        var focused = !!states.focused;
+        var invalid = !!states.invalid;
+        var disabled = !!states.disabled;
+
+        if (focused && invalid && !disabled) {
+          decorator = "textfield-invalid";
+        } else if (focused && !invalid && !disabled) {
+          decorator = "textfield-focused";
+        } else if (disabled) {
+          decorator = "textfield-disabled";
+        } else if (!focused && invalid && !disabled) {
+          decorator = "textfield-invalid";
+        } else {
+          decorator = "textfield-normal";
+        }
+
+        return {
+          decorator : decorator
+        };
+      }
+    },
+
+    "spinner/textfield" :
+    {
+      style : function(states)
+      {
+        return {
+          padding: [5, 10],
+          textColor: states.disabled ? "mediumgray-dark" : "darkgray-dark"
+        };
+      }
+    },
+
+    "spinner/upbutton" :
+    {
+      style : function(states)
+      {
+        var decorator = "spinner-button";
+
+        if (states.disabed) {
+          decorator = undefined;
+        }
+        else if (states.focused) {
+          decorator = "spinner-button-focused";
+        }
+
+        return {
+          textColor : states.disabled ? "lightgray-dark" : "darkgray-light",
+          padding : [0, 4, 0, 4],
+          backgroundColor : states.hovered ? "mediumgray-light" : "transparent",
+          decorator : decorator,
+          icon : "@Ligature/up",
+          margin : 0
+        };
+      }
+    },
+
+    "spinner/upbutton/icon" :
+    {
+      style : function() {
+        return {
+          height : 10,
+          scale : true
+        };
+      }
+    },
+
+    "spinner/downbutton" :
+    {
+      include : "spinner/upbutton",
+      style : function(states)
+      {
+        return {
+          icon : "@Ligature/down"
+        };
+      }
+    },
+
+    "spinner/downbutton/icon" : "spinner/upbutton/icon"
 
     // Do NOT place any appearances here, that are not FLAT theme related. Put them above
     // the marker above.

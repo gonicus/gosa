@@ -281,7 +281,8 @@ qx.Theme.define("gosa.theme.Decoration",
     "textfield-disabled" : {
       include : "textfield-normal",
       style: {
-        backgroundColor : "lightgray-dark"
+        backgroundColor : "lightgray-dark",
+        color : "lightgray-dark"
       }
     },
 
@@ -508,7 +509,8 @@ qx.Theme.define("gosa.theme.Decoration",
     "selectbox-field-disabled" : {
       include : "selectbox-field",
       style: {
-        backgroundColor : "lightgray-dark"
+        backgroundColor : "lightgray-dark",
+        color : "lightgray-dark"
       }
     },
 
@@ -543,6 +545,22 @@ qx.Theme.define("gosa.theme.Decoration",
         backgroundColor : "aqua-light"
       }
     },
+
+    "spinner-button" :
+    {
+      style: {
+        color : "mediumgray-dark",
+        width : [0, 0, 0, 1]
+      }
+    },
+
+    "spinner-button-focused" :
+    {
+      style: {
+        color : "aqua-light",
+        width : [0, 0, 0, 1]
+      }
+    }
 
     // Do NOT place any decorations here, that are not FLAT theme related. Put them above
     // the marker above.

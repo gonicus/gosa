@@ -24,6 +24,7 @@ qx.Theme.define("gosa.theme.Color",
     'disabled-text': '#CCCCCC',
     'hovered': '#DDD',
     'icon-color': '#666666',
+    'border-separator' : 'mediumgray-light',
 
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
     'white' : '#FFF',
