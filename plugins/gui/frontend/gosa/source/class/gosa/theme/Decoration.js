@@ -78,6 +78,23 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
+    "gosa-droppable": {
+      style : {
+        width: 1,
+        style: "dashed",
+        color: "mediumgray-dark"
+      }
+    },
+
+    "gosa-droppable-hovered": {
+      include: "gosa-droppable",
+
+      style : {
+        style: "solid",
+        backgroundColor: "mediumgray-dark"
+      }
+    },
+
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
     "button-normal": {
@@ -282,6 +299,18 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
+    "popup" : {
+      style: {
+        backgroundColor : "white",
+        width :1,
+        color : "mediumgray-dark",
+        radius : [0, 0, 0, 4],
+        shadowLength     : [0, 6],
+        shadowBlurRadius : 12,
+        shadowColor      : "rgba(0, 0, 0, 0.175)"
+      }
+    },
+
     "menu" : {
       style: {
         backgroundColor : "darkgray-dark",
@@ -381,21 +410,141 @@ qx.Theme.define("gosa.theme.Decoration",
         backgroundColor : "#f2838f"
       }
     },
-    "gosa-droppable": {
+
+    "checkbox" : {
       style : {
-        width: 1,
-        style: "dashed",
-        color: "mediumgray-dark"
+        width : 1,
+        color : "mediumgray-dark",
+        backgroundColor : "white"
       }
     },
 
-    "gosa-droppable-hovered": {
-      include: "gosa-droppable",
-
+    "checkbox-checked" : {
       style : {
-        style: "solid",
-        backgroundColor: "mediumgray-dark"
+        width : 1,
+        color : "aqua-dark",
+        backgroundColor : "aqua-dark"
       }
-    }
+    },
+
+    "checkbox-disabled" : {
+      style : {
+        width : 1,
+        color : "mediumgray-light",
+        backgroundColor : "white"
+      }
+    },
+
+    "checkbox-disabled-checked" : {
+      style : {
+        width : 1,
+        color : "mediumgray-dark",
+        backgroundColor : "mediumgray-dark"
+      }
+    },
+
+    "checkbox-hovered" : {
+      include : "checkbox",
+      style : {
+        color : "aqua-light"
+      }
+    },
+
+    "checkbox-hovered-checked" : {
+      include : "checkbox",
+      style : {
+        color : "aqua-light",
+        backgroundColor : "aqua-light"
+      }
+    },
+
+    "checkbox-invalid" : {
+      style : {
+        width : 1,
+        color : "grapefruit-dark",
+        backgroundColor : "white"
+      }
+    },
+
+    "checkbox-checked-invalid" : {
+      style : {
+        width : 1,
+        color : "grapefruit-dark",
+        backgroundColor : "grapefruit-dark"
+      }
+    },
+
+    "checkbox-hovered-invalid" : {
+      include : "checkbox",
+      style : {
+        color : "grapefruit-light"
+      }
+    },
+
+    "checkbox-hovered-checked-invalid" : {
+      include : "checkbox",
+      style : {
+        color : "grapefruit-light",
+        backgroundColor : "grapefruit-light"
+      }
+    },
+
+    "selectbox-field" : {
+      style: {
+        backgroundColor : "white",
+        color : "mediumgray-dark",
+        radius : 4,
+        width : 1
+      }
+    },
+
+    "selectbox-field-invalid" : {
+      include : "selectbox-field",
+      style: {
+        color : "grapefruit-dark"
+      }
+    },
+
+    "selectbox-field-disabled" : {
+      include : "selectbox-field",
+      style: {
+        backgroundColor : "lightgray-dark"
+      }
+    },
+
+    "selectbox-field-focused" : {
+      include : "selectbox-field",
+      style: {
+        color : "aqua-dark"
+      }
+    },
+
+    "selectbox-field-focused-invalid" : {
+      include : "selectbox-field-focused",
+      style: {
+        color : "grapefruit-dark"
+      }
+    },
+
+    "listitem" :
+    {
+      style: {
+        color : "mediumgray-light",
+        width : [0, 0, 1, 0],
+        backgroundColor : "transparent"
+      }
+    },
+
+    "listitem-selected" :
+    {
+      style: {
+        color : "aqua-light",
+        width : [0, 0, 1, 0],
+        backgroundColor : "aqua-light"
+      }
+    },
+
+    // Do NOT place any decorations here, that are not FLAT theme related. Put them above
+    // the marker above.
   }
 });

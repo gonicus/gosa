@@ -92,7 +92,6 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     /* Mark the given widget as required
      * */
     _markAsRequired: function(widget){
-      widget.setBackgroundColor("mandatory");
       if (widget.getValue && widget.getValue() === "" || widget.isSelectionEmpty && widget.isSelectionEmpty()) {
         // add listener for initial value
         if (widget.getValue) {

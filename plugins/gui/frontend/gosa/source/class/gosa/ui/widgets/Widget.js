@@ -309,6 +309,10 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       }
     },
 
+    // property apply
+    _applyMandatory : function() {
+    },
+
     /* Apply collected gui properties to this widget
      * */
     _applyGuiProperties: function(props){
@@ -399,12 +403,6 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     },
 
     _applyMultivalue: function(value){
-    },
-
-    _applyMandatory: function(value){
-      if (value) {
-        this.setBackgroundColor("mandatory");
-      }
     },
 
     _applyValid : function(value) {
