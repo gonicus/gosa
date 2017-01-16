@@ -1122,6 +1122,17 @@ qx.Theme.define("gosa.theme.Appearance",
           padding : padding
         };
       }
+    },
+
+    "tabview-page" : {
+      alias : "widget",
+      include : "widget",
+
+      style : function() {
+        return {
+          padding : 8
+        };
+      }
     }
 
 
