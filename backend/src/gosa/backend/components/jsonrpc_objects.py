@@ -296,6 +296,9 @@ class JSONRPCObjectMapper(Plugin):
                 all_attributes.append(_k)
 
         for _k, _v in cche_attributes.items():
+            # Don't add the individual attributes of extensions that are removed anyway
+            if current_obj.get_extension_off_attribute(_k) in delta['extensions']['removed']:
+                continue
             if not _k in crnt_attributes:
                 delta['attributes']['removed'].append(_k)
                 all_attributes.append(_k)

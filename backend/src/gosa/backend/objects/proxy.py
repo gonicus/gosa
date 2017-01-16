@@ -309,6 +309,11 @@ class ObjectProxy(object):
             if ext in self.__extensions and self.__extensions[ext]:
                 self.__extensions[ext].set_foreign_value(attr, cur)
 
+    def get_extension_off_attribute(self, attribute_name):
+        if attribute_name in self.__attribute_map:
+            return self.__attribute_map[attribute_name]['base']
+        return
+
     def get_extension_dependencies(self, extension):
         required = []
         oTypes = self.__factory.getObjectTypes()
@@ -487,10 +492,10 @@ class ObjectProxy(object):
             raise ProxyException(C.make_error('OBJECT_EXTENSION_NOT_ALLOWED', extension=extension))
 
         # Is this extension already active?
-        if self.__extensions[extension] is not None:
-            raise ProxyException(C.make_error('OBJECT_EXTENSION_DEFINED', extension=extension))
+        # if self.__extensions[extension] is not None:
+        #     raise ProxyException(C.make_error('OBJECT_EXTENSION_DEFINED', extension=extension))
 
-        # Ensure that all precondition for this extension are fullfilled
+        # Ensure that all precondition for this extension are fulfilled
         oTypes = self.__factory.getObjectTypes()
         for r_ext in oTypes[extension]['requires']:
             if not r_ext in self.__extensions or self.__extensions[r_ext] is None:

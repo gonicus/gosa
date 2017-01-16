@@ -38,6 +38,38 @@ qx.Class.define("gosa.data.ExtensionController", {
     _widgetController : null,
 
     /**
+     * Returns all extensions of the object in an order that prevents dependency faults.
+     *
+     * @return {Array} List of extension names (Strings); might be empty
+     */
+    getOrderedExtensions : function() {
+      var result = [];
+      var deps = this._obj.extensionDeps;
+
+      var resolveDep = function(name) {
+        var currentDeps = deps[name];
+        if (currentDeps.length > 0) {
+          for (var ext in currentDeps) {
+            if (currentDeps.hasOwnProperty(ext)) {
+              resolveDep(currentDeps[ext]);
+            }
+          }
+        }
+        if (!qx.lang.Array.contains(result, name)) {
+          result.push(name);
+        }
+      };
+
+      for (var ext in deps) {
+        if (deps.hasOwnProperty(ext)) {
+          resolveDep(ext);
+        }
+      }
+
+      return result;
+    },
+
+    /**
      * Returns a list of extensions that the object can be extended by.
      *
      * @return {Array} List of extension names (as strings); might be empty
@@ -75,26 +107,31 @@ qx.Class.define("gosa.data.ExtensionController", {
      * Removes the extension from the object in that its tab page(s) won't be shown any more.
      *
      * @param extension {String} Name of the extension (e.g. "SambaUser")
+     * @param modify {Boolean ? true} If the object shall be tagged as modified
      */
-    removeExtension : function(extension) {
+    removeExtension : function(extension, modify) {
       qx.core.Assert.assertString(extension);
-      this._checkExtensionDependenciesRetract(extension);
+      this._checkExtensionDependenciesRetract(extension, modify);
     },
 
     /**
      * Adds the stated extension to the object.
      *
      * @param extension {String}
+     * @param modify {Boolean ? true} If the object shall be tagged as modified
      */
-    addExtension : function(extension) {
+    addExtension : function(extension, modify) {
       qx.core.Assert.assertString(extension);
-      this._checkExtensionDependenciesExtend(extension);
+      this._checkExtensionDependenciesExtend(extension, modify);
     },
 
     /**
      * Check dependencies of extension and possibly raise dialog which asks if to add other dependent extensions.
+     *
+     * @param extension {String}
+     * @param modify {Boolean ? true} If the object shall be tagged as modified
      */
-    _checkExtensionDependenciesExtend : function(extension) {
+    _checkExtensionDependenciesExtend : function(extension, modify) {
       var dependencies = this._obj.extensionDeps[extension] ? qx.lang.Array.clone(this._obj.extensionDeps[extension]) : [];
 
       dependencies = dependencies.filter(function(ext) {
@@ -105,14 +142,17 @@ qx.Class.define("gosa.data.ExtensionController", {
         this._createExtendDependencyDialog(extension, dependencies);
       }
       else {
-        this._addExtensionToObject(extension);
+        this._addExtensionToObject(extension, modify);
       }
     },
 
     /**
      * Check dependencies of extension and possibly raise dailog which asks if to remove the other extensions.
+     *
+     * @param extension {String}
+     * @param modify {Boolean ? true} If the object shall be tagged as modified
      */
-    _checkExtensionDependenciesRetract : function(extension) {
+    _checkExtensionDependenciesRetract : function(extension, modify) {
       var activeExts = this._widgetController.getActiveExtensions();
 
       // find dependencies
@@ -132,7 +172,7 @@ qx.Class.define("gosa.data.ExtensionController", {
         this._createRetractDependencyDialog(extension, dependencies);
       }
       else {
-        this._removeExtensionFromObject(extension);
+        this._removeExtensionFromObject(extension, modify);
       }
     },
 
@@ -172,9 +212,13 @@ qx.Class.define("gosa.data.ExtensionController", {
      * Adds (aka enables) the extension to the object.
      *
      * @param extension {String} Name of the extension, e.g. "UserSamba"
+     * @param modify {Boolean ? true} If the object shall be tagged as modified
      * @returns {qx.Promise}
      */
-    _addExtensionToObject : function(extension) {
+    _addExtensionToObject : function(extension, modify) {
+      if (modify !== false) {
+        modify = true;
+      }
       qx.core.Assert.assertString(extension);
 
       return this._obj.extend(extension)
@@ -193,12 +237,14 @@ qx.Class.define("gosa.data.ExtensionController", {
           })
         });
         this._widgetController.addExtensionTabs(templateObjects);
-        this._widgetController.setModified(true);
+        if (modify) {
+          this._widgetController.setModified(true);
+        }
       }, this)
       .catch(function(error) {
         new gosa.ui.dialogs.Error(
-        qx.lang.String.format(this.tr("Failed to extend the %1 extension: %2"), [extension, error.message])).open();
-        this.error(error.message);
+        qx.lang.String.format(this.tr("Failed to extend the %1 extension: %2"), [extension, error.getData().message])).open();
+        this.error(error);
       }, this);
     },
 
@@ -206,9 +252,13 @@ qx.Class.define("gosa.data.ExtensionController", {
      * Removes (aka disables) the extension from the object. Dependent extensions will also be removed.
      *
      * @param extension {String} Name of the extension, e.g. "UserSamba"
+     * @param modify {Boolean ? true} If the object shall be tagged as modified
      * @return {qx.Promise}
      */
-    _removeExtensionFromObject : function(extension) {
+    _removeExtensionFromObject : function(extension, modify) {
+      if (modify !== false) {
+        modify = true;
+      }
       qx.core.Assert.assertString(extension);
 
       return this._obj.retract(extension)
@@ -220,14 +270,16 @@ qx.Class.define("gosa.data.ExtensionController", {
       }, this)
       .then(function() {
         this._widgetController.removeExtensionTab(extension);
-        this._widgetController.setModified(true);
+        if (modify) {
+          this._widgetController.setModified(true);
+        }
       }, this)
       .catch(function(error) {
         new gosa.ui.dialogs.Error(
         qx.lang.String.format(this.tr("Failed to retract the %1 extension: %2"),
-        [extension, error.message])
+        [extension, error.getData().message])
         ).open();
-        this.error(error.message);
+        this.error(error);
       }, this);
     }
   },

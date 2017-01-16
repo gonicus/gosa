@@ -166,9 +166,6 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
 
     // Add extension actions in correct order
     for (id in order) {
-      if (qx.lang.Array.contains(exts['added'], order[id])) {
-        createExtension(order[id], true);
-      }
       if (qx.lang.Array.contains(exts['removed'], order[id])) {
         createExtension(order[id], false);
       }
