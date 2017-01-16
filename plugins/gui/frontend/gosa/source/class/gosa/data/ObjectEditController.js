@@ -157,6 +157,13 @@ qx.Class.define("gosa.data.ObjectEditController", {
     },
 
     /**
+     * @return {Array}
+     */
+    getOrderedExtensions : function() {
+      return this._extensionController.getOrderedExtensions();
+    },
+
+    /**
      * Returns all extensions which are currently active on the object.
      *
      * @return {Array} List of extension names (strings); might be empty
@@ -174,23 +181,37 @@ qx.Class.define("gosa.data.ObjectEditController", {
     },
 
     /**
+     * @param name {String} Extension name
+     * @return {gosa.engine.Context | null}
+     */
+    getContextByExtensionName : function(name) {
+      qx.core.Assert.assertString(name);
+
+      return this._widget.getContexts().find(function(context) {
+        return context.getExtension() === name;
+      });
+    },
+
+    /**
      * Removes the extension from the object in that its tab page(s) won't be shown any more.
      *
      * @param extension {String} Name of the extension (e.g. "SambaUser")
+     * @param modify {Boolean ? true} If the object shall be tagged as modified
      */
-    removeExtension : function(extension) {
+    removeExtension : function(extension, modify) {
       qx.core.Assert.assertString(extension);
-      this._extensionController.removeExtension(extension);
+      this._extensionController.removeExtension(extension, modify);
     },
 
     /**
      * Adds the stated extension to the object.
      *
      * @param extension {String}
+     * @param modify {Boolean ? true} If the object shall be tagged as modified
      */
-    addExtension : function(extension) {
+    addExtension : function(extension, modify) {
       qx.core.Assert.assertString(extension);
-      this._extensionController.addExtension(extension);
+      this._extensionController.addExtension(extension, modify);
 
       this._widget.getContexts().forEach(function(context) {
         if (context.getExtension() === extension) {
@@ -324,9 +345,35 @@ qx.Class.define("gosa.data.ObjectEditController", {
      */
     addExtensionTabs : function(templateObjects) {
       qx.core.Assert.assertArray(templateObjects);
-      templateObjects.forEach(function(templateObject) {
-        this._widget.addTab(templateObject);
-      }, this);
+
+      var extensions = templateObjects.map(function(tmpl) {
+        return tmpl.extension;
+      });
+
+      var contexts = this._widget.getContexts().filter(function(context) {
+        return qx.lang.Array.contains(extensions, context.getExtension());
+      });
+
+      if (contexts.length) {
+        contexts.forEach(function (context) {
+          var map = context.getWidgetRegistry().getMap();
+          var widget;
+
+          for (var key in map) {
+            if (map.hasOwnProperty(key)) {
+              widget = map[key];
+              if (widget.isEnabled() && !widget.isBlocked()) {
+                widget.enforceUpdateOnServer();
+              }
+            }
+          }
+        });
+      }
+      else {
+        templateObjects.forEach(function(templateObject) {
+          this._widget.addTab(templateObject);
+        }, this);
+      }
     },
 
     _addListenersToAllContexts : function() {

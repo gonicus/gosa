@@ -52,9 +52,14 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
       this.__processChanges(data.attributes.changed);
       this.__processRemoved(data.attributes.removed);
       this.__processAdded(data.attributes.added);
+      this.__processExtensions(data.extensions);
 
-      if (this.__widgetConfigurations.length > 0) {
-        this.__createMergeDialog(this.__widgetConfigurations, data.attributes.blocked_by);
+      if (this.__widgetConfigurations.length > 0 || this.__hasExtensions(data)) {
+        this.__createMergeDialog(
+          this.__widgetConfigurations,
+          data.attributes.blocked_by,
+          data.extensions
+        );
       }
       this.__widgetConfigurations = null;
     },
@@ -69,6 +74,41 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
       this.__obj.setWriteAttributeUpdates(false);
       this.__obj.set(attributeName, value);
       this.__obj.setWriteAttributeUpdates(true);
+    },
+
+    /**
+     * @param data {Object}
+     */
+    __hasExtensions : function(data) {
+      return data.extensions.removed.length > 0;
+    },
+
+    /**
+     * @param data {Object}
+     */
+    __processExtensions : function(data) {
+      qx.core.Assert.assertMap(data);
+
+      var activeExtensions = this.__controller.getActiveExtensions();
+
+      data.added.forEach(function(ext) {
+        if (!qx.lang.Array.contains(activeExtensions, ext)) {
+          this.__controller.addExtension(ext, false);
+        }
+      }, this);
+
+      var removed = [];
+      data.removed.forEach(function(ext) {
+        if (qx.lang.Array.contains(activeExtensions, ext)) {
+          var context = this.__controller.getContextByExtensionName(ext);
+          if (context && !context.isAppeared()) {
+            this.__controller.removeExtension(ext, false);
+            removed.push(ext);
+          }
+        }
+      }, this);
+
+      qx.lang.Array.exclude(data.removed, removed);
     },
 
     /**
@@ -142,8 +182,9 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
     /**
      * @param mergeConfiguration {Array}
      * @param block {Object}
+     * @param extensionsData {Object}
      */
-    __createMergeDialog : function(mergeConfiguration, block) {
+    __createMergeDialog : function(mergeConfiguration, block, extensionsData) {
       qx.core.Assert.assertArray(mergeConfiguration);
       qx.core.Assert.assertObject(block);
 
@@ -151,7 +192,13 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
         this.__mergeDialog.close();
       }
 
-      var dialog = this.__mergeDialog = new gosa.ui.dialogs.MergeDialog(mergeConfiguration, undefined, block);
+      var dialog = this.__mergeDialog = new gosa.ui.dialogs.MergeDialog(
+        mergeConfiguration,
+        extensionsData,
+        block,
+        this.__obj.extensionsDeps,
+        this.__controller.getOrderedExtensions()
+      );
       dialog.addListenerOnce("merge", this.__onMerge, this);
       dialog.open();
       dialog.center();
@@ -204,9 +251,16 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
      * @param event {qx.event.type.Data}
      */
     __onMerge : function(event) {
-      var attributes = event.getData().attributes;
-      var val;
+      var data = event.getData();
 
+      this.__mergeAttributes(data.attributes);
+      this.__mergeExtensions(data.ext);
+
+      this.__mergeDialog = null;
+    },
+
+    __mergeAttributes : function(attributes) {
+      var val;
       for (var attributeName in attributes) {
         if (attributes.hasOwnProperty(attributeName)) {
           if (!attributes[attributeName]) {  // change value to remote one
@@ -225,8 +279,38 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
           this.__modifiedValues[attributeName] = null;
         }
       }
+    },
 
-      this.__mergeDialog = null;
+    /**
+     * @param extensions {Object}
+     */
+    __mergeExtensions : function(extensions) {
+      qx.core.Assert.assertMap(extensions);
+      var activeExtensions = this.__controller.getActiveExtensions();
+
+      for (var ext in extensions) {
+        if (extensions.hasOwnProperty(ext)) {
+          this.__handleExtension(ext, extensions[ext], activeExtensions);
+        }
+      }
+    },
+
+    /**
+     * @param extension {String} Name of the extension
+     * @param takeLocal {Boolean} If the local state shall be used
+     * @param activeExtensions {Array} Names of currently active extensions
+     */
+    __handleExtension : function(extension, takeLocal, activeExtensions) {
+      qx.core.Assert.assertString(extension);
+      qx.core.Assert.assertBoolean(takeLocal);
+      qx.core.Assert.assertArray(activeExtensions);
+
+      if (takeLocal) {
+        this.__controller.addExtension(extension);
+      }
+      else if (!takeLocal && qx.lang.Array.contains(activeExtensions, extension)) {
+        this.__controller.removeExtension(extension, false);
+      }
     },
 
     /**

@@ -2,9 +2,6 @@
     "type": "widget",
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.Canvas",
-    "addOptions": {
-        "edge" : 0
-    },
     "extensions": {
         "resources": {
             "favicon": "images/trustaccount.png"
