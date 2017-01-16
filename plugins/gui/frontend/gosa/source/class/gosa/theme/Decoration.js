@@ -78,6 +78,23 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
+    "gosa-droppable": {
+      style : {
+        width: 1,
+        style: "dashed",
+        color: "mediumgray-dark"
+      }
+    },
+
+    "gosa-droppable-hovered": {
+      include: "gosa-droppable",
+
+      style : {
+        style: "solid",
+        backgroundColor: "mediumgray-dark"
+      }
+    },
+
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
     "button-normal": {
@@ -381,21 +398,70 @@ qx.Theme.define("gosa.theme.Decoration",
         backgroundColor : "#f2838f"
       }
     },
-    "gosa-droppable": {
+
+    "checkbox" : {
       style : {
-        width: 1,
-        style: "dashed",
-        color: "mediumgray-dark"
+        width : 1,
+        color : "mediumgray-dark",
+        backgroundColor : "white"
       }
     },
 
-    "gosa-droppable-hovered": {
-      include: "gosa-droppable",
-
+    "checkbox-checked" : {
       style : {
-        style: "solid",
-        backgroundColor: "mediumgray-dark"
+        width : 1,
+        color : "aqua-dark",
+        backgroundColor : "aqua-dark"
+      }
+    },
+
+    "checkbox-hovered" : {
+      include : "checkbox",
+      style : {
+        color : "aqua-light"
+      }
+    },
+
+    "checkbox-hovered-checked" : {
+      include : "checkbox",
+      style : {
+        color : "aqua-light",
+        backgroundColor : "aqua-light"
+      }
+    },
+
+    "checkbox-invalid" : {
+      style : {
+        width : 1,
+        color : "grapefruit-dark",
+        backgroundColor : "white"
+      }
+    },
+
+    "checkbox-checked-invalid" : {
+      style : {
+        width : 1,
+        color : "grapefruit-dark",
+        backgroundColor : "grapefruit-dark"
+      }
+    },
+
+    "checkbox-hovered-invalid" : {
+      include : "checkbox",
+      style : {
+        color : "grapefruit-light"
+      }
+    },
+
+    "checkbox-hovered-checked-invalid" : {
+      include : "checkbox",
+      style : {
+        color : "grapefruit-light",
+        backgroundColor : "grapefruit-light"
       }
     }
+
+    // Do NOT place any decorations here, that are not FLAT theme related. Put them above
+    // the marker above.
   }
 });

@@ -18,7 +18,6 @@ qx.Theme.define("gosa.theme.Color",
 
   colors :
   {
-    'mandatory' : '#FFFFE0',
     'header-bar' : 'black',
     'header-text' : 'white',
     'error-text': '#8A0808',

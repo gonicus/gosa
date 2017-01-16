@@ -21,12 +21,20 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
 
   construct : function()
   {
-    this.base(arguments, this.tr("Login"));
+    this.base(arguments, "GOsa");
     this.__initLoginForm();
     this.__initOtpForm();
 
     var controller = new qx.data.controller.Form(null, this._form);
     this._model = controller.createModel();
+  },
+
+  properties : {
+    //overridden
+    appearance: {
+      refine: true,
+      init: "login-dialog"
+    }
   },
 
   events: {

@@ -323,7 +323,7 @@ qx.Class.define("gosa.Application",
 
       // Block the gui while we are loading gui elements like
       // tab-templates, translations etc.
-      doc.setBlockerColor("#F8F8F8");
+      doc.setBlockerColor("lightgray-dark");
       doc.setBlockerOpacity(1);
     },
 
