@@ -54,18 +54,18 @@ qx.Class.define("gosa.ui.widgets.MultiEditContainer", {
     // Build up the buttons and a container which will later contain
     // the real-widget and the buttons.
     this.__container = new qx.ui.container.Composite(new qx.ui.layout.HBox(0));
-    this.__addButton = new qx.ui.form.Button(null, gosa.Config.getImagePath("actions/attribute-add.png", "22")).set({
+    this.__addButton = new qx.ui.form.Button(null, "@Ligature/edit/22").set({
       "padding": 2,
       "margin": 0
       });
     this.__addButton.setFocusable(false);
-    this.__addButton.setAppearance("attribute-button");
+    this.__addButton.setAppearance("button-link");
     this.__addButton.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Add value")));
-    this.__delButton = new qx.ui.form.Button(null, gosa.Config.getImagePath("actions/attribute-remove.png", "22")).set({
+    this.__delButton = new qx.ui.form.Button(null, "@Ligature/remove/22").set({
       "padding": 2,
       "margin": 0
       });
-    this.__delButton.setAppearance("attribute-button");
+    this.__delButton.setAppearance("button-link");
     this.__delButton.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove value")));
     this.__delButton.setFocusable(false);
 

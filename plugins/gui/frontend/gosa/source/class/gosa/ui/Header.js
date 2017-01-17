@@ -121,7 +121,7 @@ qx.Class.define("gosa.ui.Header", {
 
     __getMenu: function() {
       var menu = new qx.ui.menu.Menu();
-      var changePw = new qx.ui.menu.Button(this.tr("Change my password"));
+      var changePw = new qx.ui.menu.Button(this.tr("Change my password"), "@Ligature/key/22");
       changePw.addListener("execute", function() {
         gosa.proxy.ObjectFactory.openObject(gosa.Session.getInstance().getDn())
         .then(function(obj) {
@@ -140,7 +140,7 @@ qx.Class.define("gosa.ui.Header", {
       }, this);
       menu.add(changePw);
 
-      var edit = new qx.ui.menu.Button(this.tr("Edit my profile"));
+      var edit = new qx.ui.menu.Button(this.tr("Edit my profile"), "@Ligature/edit/22");
       edit.addListener("execute", function(){
         document.location.href = gosa.Tools.createActionUrl('openObject', gosa.Session.getInstance().getUuid());
       }, this);
