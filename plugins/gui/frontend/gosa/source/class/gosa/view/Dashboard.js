@@ -215,7 +215,7 @@ qx.Class.define("gosa.view.Dashboard", {
     _onMove: function(ev) {
       var data = ev.getData();
       var oldProps = qx.lang.Object.clone(data.widget.getLayoutProperties());
-      var col;
+      var col, l;
 
       // free space
       for (col=data.props.column, l=data.props.column+oldProps.colSpan||1; col<l; col++) {
@@ -799,6 +799,7 @@ qx.Class.define("gosa.view.Dashboard", {
 
     _onDragEnd: function() {
       this.__toolbarButtons['delete'].setEnabled(false);
+      gosa.ui.core.GridCellDropbox.setStartBuddy(null);
     },
 
     /**
