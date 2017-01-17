@@ -105,55 +105,6 @@ qx.Class.define("gosa.Application",
       //  navigator.registerProtocolHandler('web+gosa', reg_path + '#%s', this.tr('GOsa protocol handler'));
       //}
 
-      // If there're offline capabilities available, connect if we're fully
-      // cached, only.
-      if (window.applicationCache) {
-        var appCache = window.applicationCache;
-        var connecting = false;
-        var updateAvailable = false;
-        var that = this;
-
-        appCache.addEventListener('cached', function() {
-          connecting = true;
-          that.hideSplash();
-        }, false);
-
-        appCache.addEventListener('noupdate', function() {
-          connecting = true;
-          that.hideSplash();
-        }, false);
-
-        appCache.addEventListener('updateready', function() {
-          updateAvailable = true;
-          that.showUpdateHint();
-        }, false);
-
-        if (window.applicationReady && !connecting) {
-          this.hideSplash();
-        }
-
-        if (window.updateAvailable || updateAvailable) {
-          this.showUpdateHint();
-        }
-
-        // Start a fallback to check if the user has disabled the cache
-        var timer = qx.util.TimerManager.getInstance();
-        timer.start(function(userData, timerId)
-        {
-          try {
-            if (appCache.status == appCache.UNCACHED) {
-              appCache.update();
-            }
-          } catch(err) {
-            if (err.name == "NS_ERROR_DOM_SECURITY_ERR" ||
-                err.name == "NS_ERROR_DOM_INVALID_STATE_ERR" ||
-                err.message == "INVALID_STATE_ERR") {
-              this.hideSplash();
-            }
-          }
-        }, 0, this, null, 2000);
-      }
-
       // Base settings
       var locale = gosa.Tools.getLocale();
       qx.io.PartLoader.require([locale], function() {
