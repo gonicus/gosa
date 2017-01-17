@@ -52,7 +52,7 @@
             },
             "children": [{
                 "class": "gosa.ui.widgets.QLabelWidget",
-                "buddyModelPath": "CtxWFHomeDirEdit",
+                "buddyModelPath": "CtxWFHomeDir",
                 "addOptions": {
                     "row": 1,
                     "column": 0
