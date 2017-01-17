@@ -24,12 +24,12 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
     this.base(arguments, this.tr("Merge required"));
     this.set({
       resizable : true,
-      width : 800,
+      width : 700,
       height : 500,
       autoDispose : true
     });
 
-    var layout = new qx.ui.layout.Grid(15);
+    var layout = new qx.ui.layout.Grid(15, 15);
     layout.setColumnFlex(1, 1);
     layout.setColumnFlex(2, 2);
     layout.setColumnFlex(3, 2);
@@ -51,8 +51,6 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
     var createSelector = function(name, desc, choice1, choice2) {
       if (firstAttr) {
         row ++;
-        layout.setRowHeight(row, 20);
-        row ++;
         firstAttr = false;
         changesPane.add(new qx.ui.basic.Label(that.tr("Attribute")).set({font: 'bold'}), {row:row, column:0});
         changesPane.add(new qx.ui.basic.Label(that.tr("Local")).set({font: 'bold'}), {row:row, column:1});
@@ -66,8 +64,6 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
       var group = new qx.ui.form.RadioGroup();
       var left = new gosa.ui.container.MergeItem(choice1);
       var right = new gosa.ui.container.MergeItem(choice2);
-      left.setAppearance("mergeButton");
-      right.setAppearance("mergeButton");
       items[name] = [left, right];
       group.add(left);
       group.add(right);
@@ -82,7 +78,8 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
       if (typeof translateString === "string") {
         translateString = that["tr"](desc);
       }
-      changesPane.add(new qx.ui.basic.Label(translateString).set({rich: true}), {row: row, column: 0});  // jshint ignore:line
+      changesPane.add(new qx.ui.basic.Label(translateString).set({rich: true, alignY:'middle'}), {row: row, column: 0});  // jshint
+      // ignore:line
       changesPane.add(left, {row: row, column: 1});
       changesPane.add(right, {row: row, column: 2});
 
@@ -185,6 +182,7 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
 
     // Add Elements into a scroll area
     var ok = gosa.ui.base.Buttons.getOkButton();
+    ok.setAppearance("button-primary");
     var scroller = new qx.ui.container.Scroll();
     scroller.add(changesPane);
     this.addElement(new qx.ui.basic.Label(this.tr("The object has been updated while you were modifying it. Please determine to keep your local or the server version of the item. You can achieve this by marking the appropriate one.")).set({rich:true, wrap:true}), {flex:1});
