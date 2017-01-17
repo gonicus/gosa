@@ -23,7 +23,7 @@ qx.Class.define("gosa.view.Dashboard", {
   construct : function()
   {
     // Call super class and configure ourselfs
-    this.base(arguments, "", "@Ligature/tile");
+    this.base(arguments, "", "@Ligature/dashboard");
     this._setLayout(new qx.ui.layout.VBox());
     this.__gridLayout = new qx.ui.layout.Grid(5, 5);
     this.__columns = 6;

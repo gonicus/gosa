@@ -436,6 +436,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         this._buttonPane.add(new qx.ui.core.Spacer());
         this._okButton = gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("Next"), "@Ligature/right");
         this._okButton.set({
+          appearance : "button-primary",
           enabled: false,
           tabIndex : 30000
         });
@@ -511,6 +512,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _createOkButton : function() {
       var button = this._okButton = gosa.ui.base.Buttons.getOkButton();
       button.set({
+        appearance : "button-primary",
         enabled : false,
         tabIndex : 30000
       });

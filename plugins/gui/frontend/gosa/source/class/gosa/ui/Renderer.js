@@ -1584,7 +1584,8 @@ qx.Class.define("gosa.ui.Renderer",
         var l = new qx.ui.layout.HBox();
         l.setAlignX("right");
         var c = new qx.ui.container.Composite(l);
-        var b = gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("OK"), "actions/dialog-ok.png");
+        var b = gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("OK"), "@Ligature/check");
+        b.setAppearance("button-primary");
         c.add(b);
         b.addListener("execute", dialog.close, dialog);
         dialog.add(c);
