@@ -113,7 +113,7 @@ qx.Class.define("gosa.ui.dialogs.RetractDependencies", {
 
     _createAndAddButtons : function() {
       var ok = gosa.ui.base.Buttons.getOkButton();
-      ok.setAppearance(this._buttonAppearance);
+      ok.setAppearance("button-primary");
       ok.addListener("execute", this._onOkExecute, this);
       this.addButton(ok);
 

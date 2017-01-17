@@ -17,8 +17,28 @@ qx.Class.define("gosa.ui.container.MergeItem", {
 
 	construct: function(widget){
 		this.base(arguments);
-		this._setLayout(new qx.ui.layout.HBox());
+		this._setLayout(new qx.ui.layout.HBox(10));
 		this._add(widget, {flex: 1});
-    this.setDecorator("white-box");
+
+		this.getChildControl("icon").setAlignY("middle");
+	},
+
+  properties : {
+	  //overridden
+		appearance : {
+			refine : true,
+			init : "merge-button"
+    }
+  },
+
+	members : {
+		// overridden
+    /**
+     * @lint ignoreReferenceField(_forwardStates)
+     */
+    _forwardStates :
+    {
+      checked : true
+    }
 	}
 });

@@ -17,19 +17,22 @@ qx.Theme.define("gosa.theme.Appearance",
   extend : qx.theme.indigo.Appearance,
 
   appearances : {
-    "mergeButton" : {
+    "merge-button" : {
       style : function(states) {
-        var style = {};
-        style['backgroundColor'] = null;
-        style['icon'] = null;
-        style['padding'] = 4;
-        style['paddingLeft'] = 22;
-        if (states['checked']) {
-          style['paddingLeft'] = 0;
-          style['backgroundColor'] = '#EDEDED';
-          style['icon'] = 'gosa/images/22/actions/dialog-ok-apply.png';
-        }
-        return (style);
+        return {
+          backgroundColor : states.checked ? 'lightgray-dark' : 'white',
+          icon : states.checked ? "@Ligature/check/22" : "@Ligature/ban/22",
+          padding : 10,
+          maxWidth : 300
+        };
+      }
+    },
+
+    "merge-button/icon" : {
+      style : function(states) {
+        return {
+          textColor : states.checked ? "grass-dark" : "mediumgray-light"
+        };
       }
     },
 
