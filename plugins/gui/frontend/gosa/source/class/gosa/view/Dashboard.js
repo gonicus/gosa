@@ -730,9 +730,10 @@ qx.Class.define("gosa.view.Dashboard", {
       var registry = gosa.view.Dashboard.getWidgetRegistry();
       var widgetName = entry.widget;
       var widget;
+      var board = this.getChildControl("board");
       if (widgetName === "qx.ui.core.Spacer") {
         widget = new qx.ui.core.Spacer();
-        this.getChildControl("board").add(widget, entry.layoutProperties);
+        board.add(widget, entry.layoutProperties);
         return widget;
       }
       else if (!registry[widgetName]) {
@@ -770,6 +771,20 @@ qx.Class.define("gosa.view.Dashboard", {
         }
         widget.addListener("layoutChanged", function(ev) {
           this.__toolbarButtons['save'].setEnabled((ev.getData() === true));
+          if (ev.getData() === true) {
+            // add placeholders to empty cells
+            for (var row = 0, lr = this.__gridLayout.getRowCount(); row < lr; row++) {
+              for (var col = 0, lc = this.__gridLayout.getColumnCount(); col < lc; col++) {
+                var widget = this.__gridLayout.getCellWidget(row, col);
+                if (!widget) {
+                  board.add(new gosa.ui.core.GridCellDropbox(), {
+                    row    : row,
+                    column : col
+                  });
+                }
+              }
+            }
+          }
         }, this);
         // remove spacers if there are any
         var colspan = entry.layoutProperties.colSpan||1;
@@ -779,7 +794,7 @@ qx.Class.define("gosa.view.Dashboard", {
             currentWidget.destroy();
           }
         }
-        this.getChildControl("board").add(widget, entry.layoutProperties);
+        board.add(widget, entry.layoutProperties);
         return widget;
       }
     },
@@ -874,7 +889,7 @@ qx.Class.define("gosa.view.Dashboard", {
         }
         // the dragged widget has not been moved around -> add it ti the old place
         this.__removeDraggedWidget();
-        widget.setLayoutProperties(this.__draggedWidgetsLayoutProperties);
+        widget.setLayoutProperties(props);
       }
 
       this.__dragPointerOffsetX = 0;
@@ -894,6 +909,10 @@ qx.Class.define("gosa.view.Dashboard", {
           this.__draggedWidget.setUserData("removeHeight", null);
         }
         qx.core.Init.getApplication().getRoot().remove(this.__draggedWidget);
+        // cleanup canvas layout properties from dragging
+        delete this.__draggedWidget.getLayoutProperties().top;
+        delete this.__draggedWidget.getLayoutProperties().left;
+
         this.getChildControl("board").add(this.__draggedWidget);
         var spec = {
           duration: 100,
