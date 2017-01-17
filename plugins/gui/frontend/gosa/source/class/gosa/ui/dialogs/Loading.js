@@ -25,7 +25,7 @@ qx.Class.define("gosa.ui.dialogs.Loading",
     this.resetMinWidth();
     this._buttonPane.exclude();
 
-    var label = new qx.ui.basic.Label(this.tr("Initializing") + "...");
+    var label = new qx.ui.basic.Atom(this.tr("Initializing") + "...", "@Ligature/time/22");
     label.setPadding([10, 28]);
     this.add(label);
 

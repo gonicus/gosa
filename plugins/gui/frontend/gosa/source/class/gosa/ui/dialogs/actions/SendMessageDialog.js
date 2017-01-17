@@ -20,7 +20,7 @@ qx.Class.define("gosa.ui.dialogs.actions.SendMessageDialog", {
   extend: gosa.ui.dialogs.actions.Base,
 
   construct: function(actionController) {
-    this.base(arguments, actionController, this.tr("Send message..."));
+    this.base(arguments, actionController, this.tr("Send message"));
     this._initWidgets();
   },
 
@@ -63,8 +63,9 @@ qx.Class.define("gosa.ui.dialogs.actions.SendMessageDialog", {
       var controller = new qx.data.controller.Form(null, form);
       this._model = controller.createModel();
 
-      var ok = gosa.ui.base.Buttons.getButton(this.tr("Send"), "actions/message-send.png");
+      var ok = gosa.ui.base.Buttons.getButton(this.tr("Send"), "@Ligature/notify/22");
       ok.addState("default");
+      ok.setAppearance("button-primary");
       ok.addListener("execute", this._send, this);
       ok.setEnabled(false);
       this._ok = ok;

@@ -54,11 +54,14 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
     var okButton;
     if (single) {
-       okButton = new qx.ui.form.Button(this.tr("Choose"), gosa.Config.getImagePath("actions/dialog-ok.png", 22));
+       okButton = new qx.ui.form.Button(this.tr("OK"), "@Ligature/check/22");
     } else {
-       okButton = new qx.ui.form.Button(this.tr("Add"), gosa.Config.getImagePath("actions/list-add.png", 22));
+       okButton = new qx.ui.form.Button(this.tr("Add"), "@Ligature/plus/22");
     }
-    var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), gosa.Config.getImagePath("actions/dialog-cancel.png", 22));
+
+    okButton.setAppearance("button-primary");
+
+    var cancelButton = new qx.ui.form.Button(this.tr("Cancel"), "@Ligature/ban/22");
     buttonPane.add(okButton);
     buttonPane.add(cancelButton);
 

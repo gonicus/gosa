@@ -94,7 +94,6 @@ qx.Class.define("gosa.ui.Renderer",
 
         if (gosa.ui.dialogs[dialog]) {
           var dialogW = new gosa.ui.dialogs[dialog](object);
-          dialogW.setIcon(icon);
           dialogW.show();
         }
       }
@@ -1387,8 +1386,7 @@ qx.Class.define("gosa.ui.Renderer",
 
         // Ask user to enable the remaining dependencies
         if (needed.length != 0) {
-          var dlg = new gosa.ui.dialogs.Dialog(this.trn("Dependent extension", "Dependent extensions", needed.length),
-                  gosa.Config.getImagePath("status/dialog-warning.png", 22));
+          var dlg = new gosa.ui.dialogs.Dialog(this.trn("Dependent extension", "Dependent extensions", needed.length));
           dlg.setWidth(400);
 
           var lst = "<ul>";
@@ -1485,8 +1483,7 @@ qx.Class.define("gosa.ui.Renderer",
 
         // Ask user to enable the remaining dependencies
         if (needed.length != 0) {
-          var dlg = new gosa.ui.dialogs.Dialog(this.trn("Missing extension", "Missing extensions", needed.length),
-                  gosa.Config.getImagePath("status/dialog-warning.png", 22));
+          var dlg = new gosa.ui.dialogs.Dialog(this.trn("Missing extension", "Missing extensions", needed.length));
           dlg.setWidth(400);
 
           // Collect a list of all items that have to be extended too
@@ -1584,7 +1581,8 @@ qx.Class.define("gosa.ui.Renderer",
         var l = new qx.ui.layout.HBox();
         l.setAlignX("right");
         var c = new qx.ui.container.Composite(l);
-        var b = gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("OK"), "actions/dialog-ok.png");
+        var b = gosa.ui.base.Buttons.getButton(qx.locale.Manager.tr("OK"), "@Ligature/check");
+        b.setAppearance("button-primary");
         c.add(b);
         b.addListener("execute", dialog.close, dialog);
         dialog.add(c);

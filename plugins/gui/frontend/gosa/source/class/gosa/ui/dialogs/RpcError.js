@@ -22,7 +22,7 @@ qx.Class.define("gosa.ui.dialogs.RpcError", {
 
   construct: function(msg)
   {
-    this.base(arguments, this.tr("Error"), gosa.Config.getImagePath("status/dialog-error.png", 22));
+    this.base(arguments, this.tr("Error"));
 
     var message = new qx.ui.basic.Label(msg);
     this.addElement(message);

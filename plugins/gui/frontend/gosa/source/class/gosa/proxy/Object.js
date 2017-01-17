@@ -322,6 +322,7 @@ qx.Class.define("gosa.proxy.Object", {
             }
           }
         }
+        return null;
       }, this);
     },
 

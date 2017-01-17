@@ -74,7 +74,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
       var info = this._info = new qx.ui.basic.Label();
       info.setRich(true);
       info.exclude();
-      this.addElement(info);
+      this.addAt(info, 0);
       this.getLayout().setAlignX("center");
 
       var login = this._login = gosa.ui.base.Buttons.getButton(this.tr("Login"));
@@ -161,8 +161,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
           this._uid.exclude();
           this._password.exclude();
           this._key.show();
-          this._info.setValue( this.tr("Two factor authentification:"));
-          this._info.show();
+          this._key.focus();
           this._mode = "verify";
           break;
 

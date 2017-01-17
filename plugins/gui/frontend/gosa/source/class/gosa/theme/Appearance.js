@@ -390,8 +390,8 @@ qx.Theme.define("gosa.theme.Appearance",
     },
 
     "slidebar/button-menu": {
-      include: "menubutton",
-      alias: "menubutton",
+      include: "button-link",
+      alias: "button-link",
 
       style: function() {
         return {

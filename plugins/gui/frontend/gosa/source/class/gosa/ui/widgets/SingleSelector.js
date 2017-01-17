@@ -123,10 +123,10 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
       // Update buttons
       if(this._actionBtn){
         if(this.getValue().getLength()){
-          this._actionBtn.setIcon(gosa.Config.getImagePath("actions/attribute-remove.png", "22"));
+          this._actionBtn.setIcon("@Ligature/delete/22");
           this._actionBtn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove value")));
         }else{
-          this._actionBtn.setIcon(gosa.Config.getImagePath("actions/attribute-choose.png", "22"));
+          this._actionBtn.setIcon("@Ligature/folder/22");
           this._actionBtn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Choose value")));
         }
       }
@@ -139,11 +139,11 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
       this._widget = new qx.ui.form.TextField();
       this._widget.setReadOnly(true);
 
-      this._actionBtn = new qx.ui.form.Button(null, gosa.Config.getImagePath("actions/attribute-choose.png", "22")).set({
+      this._actionBtn = new qx.ui.form.Button(null, "@Ligature/folder/22").set({
             "padding": 2,
             "margin": 0
             });
-      this._actionBtn.setAppearance("attribute-button");
+      this._actionBtn.setAppearance("button-link");
       this._actionBtn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Choose value")));
       this._actionBtn.setFocusable(false);
 

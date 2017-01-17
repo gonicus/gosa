@@ -21,7 +21,7 @@ qx.Class.define("gosa.ui.dialogs.U2FInfo", {
 
   construct: function()
   {
-    this.base(arguments, this.tr("Performing U2F action"), gosa.Config.getImagePath("status/dialog-information.png", 22));
+    this.base(arguments, this.tr("Performing U2F action"));
     
     var message = new qx.ui.basic.Label(this.tr("Please touch the flashing U2F device now."));
     this.addElement(message);
