@@ -1,0 +1,64 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.VBox",
+    "addOptions": {
+        "flex": 1
+    },
+    "layoutConfig": {
+        "spacing": 5
+    },
+    "extensions": {
+        "resources": {
+            "favicon": "@Ligature/link"
+        },
+        "tabConfig": {
+            "title": "tr('Domain')",
+            "icon": "favicon"
+        }
+    },
+    "children": [{
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.Flow",
+        "properties": {
+            "legend": "tr('Organizational information')"
+        },
+        "children": [{
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "dc",
+            "properties": {
+                "text": "tr('Domain component')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "dc"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "ou",
+            "properties": {
+                "text": "tr('Organizational unit')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "ou"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "manager",
+            "properties": {
+                "text": "tr('Manager')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QTableWidgetWidget",
+            "modelPath": "manager",
+            "extensions": {
+                "guiProperties": {
+                    "editTitle": "tr('Choose a manager')",
+                    "columns": {
+                        "cn": "tr('Name')",
+                        "uid": "tr('Login ID')"
+                    }
+                }
+            }
+        }]
+    }]
+}
