@@ -8,7 +8,7 @@
             <Template>domain.json</Template>
         </Templates>
 		<BackendParameters>
-			<Backend objectClasses="domain" RDN="d">LDAP</Backend>
+			<Backend objectClasses="domain" RDN="dc">LDAP</Backend>
 		</BackendParameters>
     <Backend>LDAP</Backend>
 
@@ -28,25 +28,11 @@
         <Mandatory>true</Mandatory>
       </Attribute>
       <Attribute>
-        <Name>ou</Name>
-        <Description>Organizational unit</Description>
+        <Name>o</Name>
+        <Description>Organization name</Description>
         <Type>UnicodeString</Type>
         <MultiValue>false</MultiValue>
         <Mandatory>false</Mandatory>
-      </Attribute>
-      <Attribute>
-        <Name>manager</Name>
-        <Description>The dn of the manager</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
-        <Validators>
-          <Condition>
-            <Name>ObjectWithPropertyExists</Name>
-            <Param>User</Param>
-            <Param>dn</Param>
-          </Condition>
-        </Validators>
       </Attribute>
     </Attributes>
     <Container>
@@ -63,8 +49,24 @@
       <Type>OrganizationalRoleContainer</Type>
       <Type>AclRole</Type>
       <Type>SystemsContainer</Type>
-		</Container>
-		<BaseObject>true</BaseObject>
+    </Container>
+    <BaseObject>true</BaseObject>
+
+    <Find>
+      <Aspect>
+        <Tag>Domain</Tag>
+        <Keyword>Domain</Keyword>
+        <Search>dc</Search>
+        <Search>ou</Search>
+        <Search>description</Search>
+        <Result>
+          <Map>
+            <Source>dc</Source>
+            <Destination>title</Destination>
+          </Map>
+        </Result>
+      </Aspect>
+    </Find>
 	</Object>
 </Objects>
 
