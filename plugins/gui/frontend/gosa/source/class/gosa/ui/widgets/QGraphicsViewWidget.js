@@ -60,8 +60,7 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
       alignX : "center"
     });
     var buttonPane = new qx.ui.container.Composite(paneLayout);
-    var cap_button = new qx.ui.form.Button(null,
-            gosa.Config.getImagePath("actions/attribute-capture.png", 22));
+    var cap_button = new qx.ui.form.Button(null, "@Ligature/camera/22");
     cap_button.setWidth(64);
     cap_button.addListener('execute', function() {
         var data = this.__cap.getImageData('jpeg').split(/,(.+)?/)[1];
@@ -75,13 +74,10 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
     this.__cap_win.add(buttonPane);
 
     // Create context menu buttons
-    this._changePicture = new qx.ui.menu.Button(this.tr("Upload new image"),
-            gosa.Config.getImagePath("actions/attribute-choose.png", 22));
-    this._capturePicture = new qx.ui.menu.Button(this.tr("Capture"),
-            gosa.Config.getImagePath("actions/attribute-capture.png", 22));
+    this._changePicture = new qx.ui.menu.Button(this.tr("Upload new image"), "@Ligature/folder/22");
+    this._capturePicture = new qx.ui.menu.Button(this.tr("Capture"), "@Ligature/camera/22");
     this._capturePicture.setEnabled(this.__cap.isSupported());
-    this._removePicture = new qx.ui.menu.Button(this.tr("Remove image"),
-            gosa.Config.getImagePath("actions/attribute-remove.png", 22));
+    this._removePicture = new qx.ui.menu.Button(this.tr("Remove image"), "@Ligature/remove/22");
     this._removePicture.setEnabled(false);
 
     // Establish image upload handling
