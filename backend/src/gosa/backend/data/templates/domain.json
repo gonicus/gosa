@@ -34,31 +34,22 @@
             "modelPath": "dc"
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "ou",
+            "buddyModelPath": "description",
             "properties": {
-                "text": "tr('Organizational unit')"
+                "text": "tr('Description')"
             }
         }, {
             "class": "gosa.ui.widgets.QLineEditWidget",
-            "modelPath": "ou"
+            "modelPath": "description"
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "manager",
+            "buddyModelPath": "o",
             "properties": {
-                "text": "tr('Manager')"
+                "text": "tr('Organization name')"
             }
         }, {
-            "class": "gosa.ui.widgets.QTableWidgetWidget",
-            "modelPath": "manager",
-            "extensions": {
-                "guiProperties": {
-                    "editTitle": "tr('Choose a manager')",
-                    "columns": {
-                        "cn": "tr('Name')",
-                        "uid": "tr('Login ID')"
-                    }
-                }
-            }
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "o"
         }]
     }]
 }
