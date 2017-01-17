@@ -220,6 +220,7 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
       var props = qx.lang.Object.clone(start.layoutProperties);
       var diff;
       var colDiff = 0;
+      var removeWidgets = [];
 
       if (
       (resizeActive & this.RESIZE_TOP) ||
@@ -253,16 +254,22 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
         diff = Math.max(range.left, Math.min(range.right, e.getDocumentLeft())) - this.__resizeLeft;
         colDiff = Math.round(diff/start.columnWidth);
 
+
+
         if (resizeActive & this.RESIZE_RIGHT) {
           // check if new colspan does not overlap existing widgets
           if (colDiff > 0) {
             var layout = this.getLayoutParent().getLayout();
             var startCol = props.column+props.colSpan;
-            for (var c=1; c <= colDiff; c++) {
+            for (var c=0; c < colDiff; c++) {
               var widget = layout.getCellWidget(props.row, c+startCol);
               if (widget) {
-                // existing widget -> do not resize
-                colDiff = c-1;
+                if (!(widget instanceof gosa.ui.core.GridCellDropbox)) {
+                  // existing widget -> do not resize
+                  colDiff = c - 1;
+                } else {
+                  removeWidgets.push(widget);
+                }
               }
             }
           }
@@ -308,7 +315,8 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
         // dimensions of the visible widget
         width : width,
         height : height,
-        layoutProperties: props
+        layoutProperties: props,
+        removeWidgets: removeWidgets
       };
     },
 
@@ -512,10 +520,9 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
       var startProps = this.__resizeStart.layoutProperties;
       var endProps = bounds.layoutProperties;
 
-      if (startProps.colSpan !== endProps.colSpan || startProps.rowSpan !== endProps.rowSpan || this.getHeight() !== bounds.height) {
-        // layout has changed
-        this.fireDataEvent("layoutChanged", true);
-      }
+      bounds.removeWidgets.forEach(function(widget) {
+        widget.destroy();
+      }, this);
 
       // Sync with widget
       this.setLayoutProperties(endProps);
@@ -535,6 +542,11 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
       this.releaseCapture();
 
       e.stopPropagation();
+
+      if (startProps.colSpan !== endProps.colSpan || startProps.rowSpan !== endProps.rowSpan || this.getHeight() !== bounds.height) {
+        // layout has changed
+        this.fireDataEvent("layoutChanged", true);
+      }
     },
 
 

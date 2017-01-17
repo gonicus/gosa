@@ -1259,7 +1259,23 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    "spinner/downbutton/icon" : "spinner/upbutton/icon"
+    "spinner/downbutton/icon" : "spinner/upbutton/icon",
+
+    "tooltip" :
+    {
+      include : "popup",
+
+      style : function(states)
+      {
+        return {
+          decorator : "tooltip",
+          backgroundColor : "darkgray-dark",
+          textColor : "white",
+          padding : [ 6, 10 ],
+          offset : [ 15, 5, 5, 5 ]
+        };
+      }
+    }
 
     // Do NOT place any appearances here, that are not FLAT theme related. Put them above
     // the marker above.
