@@ -17,7 +17,7 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangePasswordDialog", {
   extend: gosa.ui.dialogs.actions.Base,
 
   construct: function(actionController) {
-    this.base(arguments, actionController, this.tr("Change password..."), gosa.Config.getImagePath("status/dialog-password.png", 22));
+    this.base(arguments, actionController, this.tr("Change password..."));
 
     this._initWidgets();
   },

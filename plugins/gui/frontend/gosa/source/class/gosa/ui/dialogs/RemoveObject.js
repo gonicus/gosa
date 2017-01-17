@@ -21,7 +21,7 @@ qx.Class.define("gosa.ui.dialogs.RemoveObject", {
 
   construct: function(dn)
   {
-    this.base(arguments, this.tr("Remove object"), gosa.Config.getImagePath("status/dialog-error.png", 22));
+    this.base(arguments, this.tr("Remove object"));
 
     this.setWidth(400);
 

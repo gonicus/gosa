@@ -21,7 +21,7 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
   include : [gosa.data.MBidirectionalBinding],
 
   construct: function(mods, exts, blocks, ext_dependencies, order) {
-    this.base(arguments, this.tr("Merge required"), gosa.Config.getImagePath("status/dialog-information.png", 22));
+    this.base(arguments, this.tr("Merge required"));
     this.set({
       resizable : true,
       width : 800,

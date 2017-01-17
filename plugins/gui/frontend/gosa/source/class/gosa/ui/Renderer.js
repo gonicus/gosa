@@ -1387,8 +1387,7 @@ qx.Class.define("gosa.ui.Renderer",
 
         // Ask user to enable the remaining dependencies
         if (needed.length != 0) {
-          var dlg = new gosa.ui.dialogs.Dialog(this.trn("Dependent extension", "Dependent extensions", needed.length),
-                  gosa.Config.getImagePath("status/dialog-warning.png", 22));
+          var dlg = new gosa.ui.dialogs.Dialog(this.trn("Dependent extension", "Dependent extensions", needed.length));
           dlg.setWidth(400);
 
           var lst = "<ul>";
@@ -1485,8 +1484,7 @@ qx.Class.define("gosa.ui.Renderer",
 
         // Ask user to enable the remaining dependencies
         if (needed.length != 0) {
-          var dlg = new gosa.ui.dialogs.Dialog(this.trn("Missing extension", "Missing extensions", needed.length),
-                  gosa.Config.getImagePath("status/dialog-warning.png", 22));
+          var dlg = new gosa.ui.dialogs.Dialog(this.trn("Missing extension", "Missing extensions", needed.length));
           dlg.setWidth(400);
 
           // Collect a list of all items that have to be extended too

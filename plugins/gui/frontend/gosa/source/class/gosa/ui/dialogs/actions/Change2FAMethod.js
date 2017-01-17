@@ -30,7 +30,7 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
   },
 
   construct: function(actionController) {
-    this.base(arguments, actionController, this.tr("Change 2FA method..."), gosa.Config.getImagePath("status/dialog-password.png", 22));
+    this.base(arguments, actionController, this.tr("Change 2FA method..."));
     this._initWidgets();
   },
 
