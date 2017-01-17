@@ -159,7 +159,6 @@ qx.Class.define("gosa.Application",
       qx.io.PartLoader.require([locale], function() {
         // Open the loading dialog which shows the loading status.
         var loadingDialog = new gosa.ui.dialogs.Loading();
-        loadingDialog.setWidth(360);
         loadingDialog.open();
 
         /* Add base gui elements */
@@ -227,7 +226,6 @@ qx.Class.define("gosa.Application",
           );
 
           // load translation
-          loadingDialog.setLabel(this.tr("Loading translation"));
           promises.push(
           rpc.cA("getTemplateI18N", locale)
           .then(function(result) {
@@ -240,7 +238,6 @@ qx.Class.define("gosa.Application",
           );
 
           // Fetch base
-          loadingDialog.setLabel(this.tr("Loading base"));
           promises.push(
           rpc.cA("getBase")
           .then(function(result) {
@@ -263,7 +260,6 @@ qx.Class.define("gosa.Application",
             var templatePromises = [];
             var names = [];
             result.forEach(function(name) {
-              loadingDialog.setLabel(this.tr("Loading %1 templates", name));
               dialogPromises.push(rpc.cA("**getGuiDialogs", name));
               templatePromises.push(rpc.cA("**getGuiTemplates", name));
               names.push(name);

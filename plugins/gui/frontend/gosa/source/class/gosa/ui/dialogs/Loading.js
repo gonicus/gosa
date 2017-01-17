@@ -18,18 +18,18 @@ qx.Class.define("gosa.ui.dialogs.Loading",
 
   construct : function()
   {
-    this.base(arguments, "GOsa - " + this.tr("Initializing") + "...");
-    this.label = new qx.ui.basic.Label();
-    this.add(this.label);
+    this.base(arguments);
+    this.getChildControl("captionbar").exclude();
+    this.getChildControl("title").exclude();
+    this.resetMinHeight();
+    this.resetMinWidth();
+    this._buttonPane.exclude();
+
+    var label = new qx.ui.basic.Label(this.tr("Initializing") + "...");
+    label.setPadding([10, 28]);
+    this.add(label);
 
     this.addListenerOnce("resize", this.center, this);
-  },
-
-  members: {
-    label: null,
-    setLabel: function(action){
-      this.label.setValue(action);
-    }
   }
 });
 
