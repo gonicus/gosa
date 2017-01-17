@@ -799,6 +799,7 @@ qx.Class.define("gosa.view.Dashboard", {
 
     _onDragEnd: function() {
       this.__toolbarButtons['delete'].setEnabled(false);
+      gosa.ui.core.GridCellDropbox.setStartBuddy(null);
     },
 
     /**
