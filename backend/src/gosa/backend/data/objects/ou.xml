@@ -4,6 +4,9 @@
     <Name>OrganizationalUnit</Name>
     <DisplayName>Organizational unit</DisplayName>
     <Description>Organizational unit</Description>
+    <Templates>
+      <Template>organizational-unit.json</Template>
+    </Templates>
     <BackendParameters>
       <Backend objectClasses="organizationalUnit" RDN="ou">LDAP</Backend>
     </BackendParameters>

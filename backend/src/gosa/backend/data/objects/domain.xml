@@ -4,6 +4,9 @@
 		<Name>Domain</Name>
 		<DisplayName>Domain</DisplayName>
 		<Description>A domain</Description>
+        <Templates>
+            <Template>domain.json</Template>
+        </Templates>
 		<BackendParameters>
 			<Backend objectClasses="domain" RDN="d">LDAP</Backend>
 		</BackendParameters>

@@ -158,6 +158,10 @@ qx.Class.define("gosa.view.Dashboard", {
     __patchedThemes : null,
     __toolbarButtons: null,
     _createMenu : null,
+    __draggedWidget: null,
+    __dragPointerOffsetX: null,
+    __dragPointerOffsetY: null,
+    __draggedWidgetsLayoutProperties: null,
 
     // property apply
     _applyEditMode: function(value) {
@@ -223,6 +227,10 @@ qx.Class.define("gosa.view.Dashboard", {
         if (old && old !== data.widget) {
           old.destroy();
         }
+      }
+
+      if (data.widget === this.__draggedWidget) {
+        this.__removeDraggedWidget();
       }
 
       data.widget.setLayoutProperties({row: data.props.row, column: data.props.column, colSpan: oldProps.colSpan, rowSpan: oldProps.rowSpan});
@@ -776,7 +784,7 @@ qx.Class.define("gosa.view.Dashboard", {
       }
     },
 
-    _onDragStart: function() {
+    _onDragStart: function(ev) {
       var spec = {
         duration: 400,
         timing: "ease-in-out",
@@ -795,11 +803,114 @@ qx.Class.define("gosa.view.Dashboard", {
       };
       qx.bom.element.Animation.animate(this.__toolbarButtons['delete'].getContentElement().getDomElement(), spec);
       this.__toolbarButtons['delete'].setEnabled(true);
+
+
+      var board = this.getChildControl("board");
+      // 1. extract dragged widget from current layout and add it to the root canvas
+      var widget = this.__draggedWidget = ev.getCurrentTarget();
+      var props = this.__draggedWidgetsLayoutProperties = qx.lang.Object.clone(widget.getLayoutProperties());
+      var bounds = widget.getBounds();
+      board.remove(widget);
+      var root = qx.core.Init.getApplication().getRoot();
+      // check if widgets width/height are set if not do that temporarily
+      if (!widget.getWidth()) {
+        widget.setWidth(bounds.width);
+        widget.setUserData("removeWidth", true);
+      }
+      if (!widget.getHeight()) {
+        widget.setHeight(bounds.height);
+        widget.setUserData("removeHeight", true);
+      }
+      spec = {
+        duration: 100,
+        timing: "ease-out",
+        keep: 100,
+        keyFrames : {
+          0: {
+            scale : "1"
+          },
+          100: {
+            scale : "0.5"
+          }
+        }
+      };
+      qx.bom.element.Animation.animate(widget.getContentElement().getDomElement(), spec);
+
+      // as the scaled widgets dimensions are bisected and the widget is centered in the free space
+      // we must use 1/4 as offset
+      this.__dragPointerOffsetX = Math.round(bounds.width/4);
+      this.__dragPointerOffsetY = Math.round(bounds.height/4);
+      root.add(widget, {top: ev.getDocumentTop()-this.__dragPointerOffsetY, left: ev.getDocumentLeft()-this.__dragPointerOffsetX});
+
+      // 2. replace the dragged widgets space with GridCellDropboxes
+      for (var col=props.column, l=col + props.colSpan||1; col < l; col++) {
+        board.add(new gosa.ui.core.GridCellDropbox(), {row: props.row, column: col});
+      }
+
+      // 3. bind dragged widgets position to the mouse position
+      widget.addListener("drag", this._onDrag, this);
+    },
+
+    _onDrag: function(ev) {
+      this.__draggedWidget.setLayoutProperties({
+        top: ev.getDocumentTop()-this.__dragPointerOffsetY,
+        left: ev.getDocumentLeft()-this.__dragPointerOffsetX
+      });
     },
 
     _onDragEnd: function() {
       this.__toolbarButtons['delete'].setEnabled(false);
       gosa.ui.core.GridCellDropbox.setStartBuddy(null);
+      if (this.__draggedWidget) {
+        var widget = this.__draggedWidget;
+        var board = this.getChildControl("board");
+        var props = this.__draggedWidgetsLayoutProperties;
+        // remove the GridCellDropboxes
+        for (var col=props.column, l=col + props.colSpan||1; col < l; col++) {
+          var placeholder = this.__gridLayout.getCellWidget(props.row, col);
+          if (placeholder instanceof gosa.ui.core.GridCellDropbox) {
+            placeholder.destroy();
+          }
+        }
+        // the dragged widget has not been moved around -> add it ti the old place
+        this.__removeDraggedWidget();
+        widget.setLayoutProperties(this.__draggedWidgetsLayoutProperties);
+      }
+
+      this.__dragPointerOffsetX = 0;
+      this.__dragPointerOffsetY = 0;
+      this.__draggedWidgetsLayoutProperties = null;
+    },
+
+    __removeDraggedWidget: function() {
+      if (this.__draggedWidget) {
+        this.__draggedWidget.removeListener("drag", this._onDrag, this);
+        if (this.__draggedWidget.getUserData("removeWidth")) {
+          this.__draggedWidget.resetWidth();
+          this.__draggedWidget.setUserData("removeWidth", null);
+        }
+        if (this.__draggedWidget.getUserData("removeHeight")) {
+          this.__draggedWidget.resetHeight();
+          this.__draggedWidget.setUserData("removeHeight", null);
+        }
+        qx.core.Init.getApplication().getRoot().remove(this.__draggedWidget);
+        this.getChildControl("board").add(this.__draggedWidget);
+        var spec = {
+          duration: 100,
+          timing: "ease-in",
+          keep: 100,
+          keyFrames : {
+            0: {
+              scale : "0.5"
+            },
+            100: {
+              scale : "1.0"
+            }
+          }
+        };
+        qx.bom.element.Animation.animate(this.__draggedWidget.getContentElement().getDomElement(), spec);
+        this.__draggedWidget = null;
+      }
     },
 
     /**
