@@ -27,6 +27,7 @@ qx.Class.define("gosa.ui.dialogs.Info", {
     this.addElement(message);
 
     var ok = gosa.ui.base.Buttons.getOkButton();
+    ok.setAppearance("button-primary");
     ok.addListener("execute", this.close, this);
     this.addButton(ok);
   }
