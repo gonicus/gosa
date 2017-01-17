@@ -1,0 +1,256 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.VBox",
+    "addOptions": {
+        "flex": 1
+    },
+    "layoutConfig": {
+        "spacing": 5
+    },
+    "extensions": {
+        "resources": {
+            "favicon": "@Ligature/building"
+        },
+        "tabConfig": {
+            "title": "tr('Organizational')",
+            "icon": "favicon"
+        }
+    },
+    "children": [{
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.Flow",
+        "properties": {
+            "legend": "tr('Organizational information')"
+        },
+        "children": [{
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "ou",
+            "properties": {
+                "text": "tr('Unit')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "ou",
+            "properties": {
+                "tabIndex": 5
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "manager",
+            "properties": {
+                "text": "tr('Manager')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QTableWidgetWidget",
+            "modelPath": "manager",
+            "extensions": {
+                "guiProperties": {
+                    "editTitle": "tr('Choose a manager')",
+                    "columns": {
+                        "cn": "tr('Name')",
+                        "uid": "tr('Login ID')"
+                    }
+                }
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "description",
+            "properties": {
+                "text": "tr('Description')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "description"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "businessCategory",
+            "properties": {
+                "text": "tr('Business category')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "businessCategory"
+        }]
+    }, {
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.Grid",
+        "properties": {
+            "legend": "tr('Contact information')"
+        },
+        "layoutConfig": {
+            "spacing": 5
+        },
+        "extensions": {
+            "layoutOptions": {
+                "columnFlex": {
+                    "column": [0, 2],
+                    "flex": 1
+                }
+            }
+        },
+        "children": [{
+            "class": "qx.ui.container.Composite",
+            "layout": "qx.ui.layout.Grid",
+            "layoutConfig": {
+                "spacing": 5
+            },
+            "extensions": {
+                "layoutOptions": {
+                    "columnFlex": {
+                        "column": [0, 1],
+                        "flex": 1
+                    }
+                }
+            },
+            "addOptions": {
+                "row": 0,
+                "column": 0
+            },
+            "children": [{
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "telephoneNumber",
+                "addOptions": {
+                    "row": 0,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Phone')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "telephoneNumber",
+                "addOptions": {
+                    "row": 0,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 8
+                }
+            }, {
+                "class": "qx.ui.core.Widget",
+                "addOptions": {
+                    "row": 1,
+                    "column": 1
+                },
+                "properties": {
+                    "width": 20,
+                    "height": 5
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "facsimileTelephoneNumber",
+                "addOptions": {
+                    "row": 2,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Fax')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "facsimileTelephoneNumber",
+                "addOptions": {
+                    "row": 2,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 11
+                }
+            }]
+        }, {
+            "class": "qx.ui.core.Widget",
+            "addOptions": {
+                "row": 0,
+                "column": 1
+            },
+            "properties": {
+                "width": 10,
+                "height": 20
+            }
+        }, {
+            "class": "qx.ui.container.Composite",
+            "layout": "qx.ui.layout.Grid",
+            "addOptions": {
+                "row": 0,
+                "column": 2
+            },
+            "layoutConfig": {
+                "spacing": 5
+            },
+            "extensions": {
+                "layoutOptions": {
+                    "columnFlex": {
+                        "column": [0, 1],
+                        "flex": 1
+                    }
+                }
+            },
+            "children": [{
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "l",
+                "addOptions": {
+                    "row": 0,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Location')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "l",
+                "addOptions": {
+                    "row": 0,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 12
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "st",
+                "addOptions": {
+                    "row": 1,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('State')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLineEditWidget",
+                "modelPath": "st",
+                "addOptions": {
+                    "row": 1,
+                    "column": 1
+                },
+                "properties": {
+                    "tabIndex": 13
+                }
+            }, {
+                "class": "gosa.ui.widgets.QLabelWidget",
+                "buddyModelPath": "postalAddress",
+                "addOptions": {
+                    "row": 2,
+                    "column": 0
+                },
+                "properties": {
+                    "text": "tr('Address')"
+                }
+            }, {
+                "class": "gosa.ui.widgets.QPlainTextEditWidget",
+                "modelPath": "postalAddress",
+                "addOptions": {
+                    "row": 2,
+                    "column": 1
+                },
+                "properties": {
+                    "minWidth": 0,
+                    "minHeight": 60,
+                    "maxWidth": 16777215,
+                    "maxHeight": 120,
+                    "tabIndex": 14
+                }
+            }]
+        }]
+    }]
+}
