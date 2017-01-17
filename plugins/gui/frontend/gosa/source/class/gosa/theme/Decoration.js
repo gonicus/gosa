@@ -560,7 +560,17 @@ qx.Theme.define("gosa.theme.Decoration",
         color : "aqua-light",
         width : [0, 0, 0, 1]
       }
-    }
+    },
+
+    "tooltip" : {
+      style: {
+        radius : 4,
+        width : 1,
+        shadowLength : [0, 6],
+        shadowBlurRadius : 12,
+        shadowColor : "rgba(0, 0, 0, 0.175)"
+      }
+    },
 
     // Do NOT place any decorations here, that are not FLAT theme related. Put them above
     // the marker above.
