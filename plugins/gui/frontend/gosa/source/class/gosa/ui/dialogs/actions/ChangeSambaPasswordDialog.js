@@ -20,7 +20,7 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangeSambaPasswordDialog", {
   extend: gosa.ui.dialogs.actions.Base,
 
   construct: function(actionController) {
-    this.base(arguments, actionController, this.tr("Change password..."));
+    this.base(arguments, actionController, this.tr("Change password"));
 
     this._initWidgets();
   },
@@ -82,8 +82,9 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangeSambaPasswordDialog", {
 
       this._model = controller.createModel();
 
-      var ok = gosa.ui.base.Buttons.getButton(this.tr("Set password"), "status/dialog-password.png");
+      var ok = gosa.ui.base.Buttons.getButton(this.tr("Set password"), "@Ligature/key/22");
       ok.addState("default");
+      ok.setAppearance("button-primary");
       ok.addListener("execute", this._setPassword, this);
       ok.setEnabled(false);
       this._ok = ok;

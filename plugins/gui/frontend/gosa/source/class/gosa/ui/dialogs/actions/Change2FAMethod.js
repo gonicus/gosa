@@ -30,7 +30,7 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
   },
 
   construct: function(actionController) {
-    this.base(arguments, actionController, this.tr("Change 2FA method..."));
+    this.base(arguments, actionController, this.tr("Change 2FA method"));
     this._initWidgets();
   },
 
@@ -113,7 +113,8 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
 
       this._model = controller.createModel();
 
-      var ok = this._ok = gosa.ui.base.Buttons.getButton(this.tr("Change method"), "status/dialog-password.png");
+      var ok = this._ok = gosa.ui.base.Buttons.getButton(this.tr("Change method"), "@Ligature/umbrella/22");
+      ok.setAppearance("button-primary");
       ok.addState("default");
       ok.addListener("execute", this._setMethod, this);
 

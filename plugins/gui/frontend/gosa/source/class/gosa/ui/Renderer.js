@@ -94,7 +94,6 @@ qx.Class.define("gosa.ui.Renderer",
 
         if (gosa.ui.dialogs[dialog]) {
           var dialogW = new gosa.ui.dialogs[dialog](object);
-          dialogW.setIcon(icon);
           dialogW.show();
         }
       }

@@ -101,10 +101,6 @@ qx.Class.define("gosa.engine.extensions.Actions", {
           }
           var dialog = new clazz(context.getActionController());
           dialog.setAutoDispose(true);
-
-          if (data.hasOwnProperty("icon")) {
-            dialog.setIcon(context.getResourceManager().getResource(data.icon));
-          }
           dialog.open();
         });
       }
