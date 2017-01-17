@@ -4,6 +4,9 @@
 		<Name>SambaDomain</Name>
 		<Description>Samba domain</Description>
 		<DisplayName>Samba domain</DisplayName>
+        <Templates>
+            <Template>samba-domain.json</Template>
+        </Templates>
 		<BackendParameters>
 			<Backend objectClasses="sambaDomain" RDN="sambaDomainName">LDAP</Backend>
 		</BackendParameters>

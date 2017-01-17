@@ -34,15 +34,6 @@
             "modelPath": "dc"
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "description",
-            "properties": {
-                "text": "tr('Description')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLineEditWidget",
-            "modelPath": "description"
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
             "buddyModelPath": "o",
             "properties": {
                 "text": "tr('Organization name')"
@@ -50,6 +41,18 @@
         }, {
             "class": "gosa.ui.widgets.QLineEditWidget",
             "modelPath": "o"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "description",
+            "properties": {
+                "text": "tr('Description')"
+            },
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "description"
         }]
     }]
 }

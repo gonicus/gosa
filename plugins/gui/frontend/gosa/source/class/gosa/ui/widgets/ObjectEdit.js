@@ -231,9 +231,6 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _initWidgets : function() {
       if (this._templates.length === 0) {
         this.add(new qx.ui.basic.Label(this.tr("There is currently no template defined for this kind of object. You have to add one in order to be able to create a new object")));
-        if (console.debug) {
-          console.debug("Attributes of the object for which no template could be found: %O (%O)", this.getController().getAttributes(), this.getController().getObject());
-        }
       } else {
         this._createTabView();
         this._createTabPages();

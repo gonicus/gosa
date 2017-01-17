@@ -46,7 +46,7 @@ qx.Class.define("gosa.ui.widgets.QSpinBoxWidget", {
 
     minimum: {
       check : "Number",
-      init : 0,
+      init : -1,
       event: "changeMinimum"
     }
   },
