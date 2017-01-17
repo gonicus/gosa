@@ -2,18 +2,21 @@
     "type": "widget",
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.Canvas",
-    "extensions": {
-        "resources": {
-            "favicon": "images/country.png"
-        }
-    },
     "properties": {
-        "windowTitle": "tr('Country')",
         "categoryTitle": "tr('Country')"
+    },
+    "extensions": {
+        "tabConfig": {
+            "title": "tr('Country')",
+            "icon": "favicon"
+        },
+        "resources": {
+            "favicon": "@Ligature/globe"
+        }
     },
     "children": [{
         "class": "gosa.ui.widgets.GroupBox",
-        "layout": "qx.ui.layout.HBox",
+        "layout": "qx.ui.layout.VBox",
         "layoutConfig": {
             "spacing": 5
         },
