@@ -650,7 +650,7 @@ qx.Class.define("gosa.view.Dashboard", {
       // load dashboard settings from backend
       gosa.io.Rpc.getInstance().cA("loadUserPreferences", "dashboard")
       .then(function(result) {
-        if (result.length) {
+        if (result && result.length) {
           this.__settings = result;
           var pluginsToLoad = this.__extractPluginsToLoad(result);
           var partsLoaded = pluginsToLoad.parts.length === 0;
