@@ -219,6 +219,9 @@ qx.Class.define("gosa.view.Search", {
     __selection: null,
     __default_selection: null,
     __now: null,
+    __searchPromise : null,
+    __fuzzy: null,
+    __duration: null,
 
 
     updateFocus: function(){

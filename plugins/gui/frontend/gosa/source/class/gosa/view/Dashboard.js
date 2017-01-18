@@ -178,6 +178,7 @@ qx.Class.define("gosa.view.Dashboard", {
     __dragPointerOffsetX: null,
     __dragPointerOffsetY: null,
     __draggedWidgetsLayoutProperties: null,
+    __columns: null,
 
     /**
      * Apply dragover/-leave listeners to the dashboard to recognize File uploads via Drag&Drop
@@ -445,7 +446,7 @@ qx.Class.define("gosa.view.Dashboard", {
       gosa.io.Rpc.getInstance().cA("registerUploadPath", "widgets")
       .then(function(result) {
         var path = result[1];
-        var uploader = new gosa.util.UploadMgr(uploadButton, path);
+        new gosa.util.UploadMgr(uploadButton, path);
       }, this);
       menu.add(uploadButton);
       menu.add(new qx.ui.menu.Separator());
@@ -762,7 +763,6 @@ qx.Class.define("gosa.view.Dashboard", {
      * Loads the dashboard settings from the backend and creates it.
      */
     draw: function() {
-      var board = this.getChildControl("board");
       this.__addFirstSpacerRow();
 
       // load dashboard settings from backend
@@ -1004,7 +1004,6 @@ qx.Class.define("gosa.view.Dashboard", {
       gosa.ui.core.GridCellDropbox.setStartBuddy(null);
       if (this.__draggedWidget) {
         var widget = this.__draggedWidget;
-        var board = this.getChildControl("board");
         var props = this.__draggedWidgetsLayoutProperties;
         // remove the GridCellDropboxes
         for (var col=props.column, l=col + props.colSpan||1; col < l; col++) {

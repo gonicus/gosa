@@ -44,8 +44,9 @@ qx.Class.define("gosa.util.UploadMgr", {
       file.setUploadWidget(new com.zenesis.qx.upload.UploadButton());
 
       this.getUploadHandler()._addFile(file);
-      if (this.getAutoUpload())
+      if (this.getAutoUpload()) {
         this.getUploadHandler().beginUploads();
+      }
     }
   }
 });
