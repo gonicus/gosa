@@ -846,37 +846,43 @@ qx.Class.define("gosa.view.Dashboard", {
         }
         board.add(widget, entry.layoutProperties);
 
-        // check last two rows it the last one is not empty we have to add another spacer line
-        // if the last two rows are empty we can remove one spacer line
-        var lastLine = this.__gridLayout.getRowCount()-1;
-        var empty = true;
-        for (c=0, l=this.__gridLayout.getColumnCount(); c < l; c++) {
-          currentWidget = this.__gridLayout.getCellWidget(lastLine, c);
-          if (!(currentWidget instanceof qx.ui.core.Spacer || currentWidget instanceof gosa.ui.core.GridCellDropbox)) {
-            empty = false;
-            break;
-          }
-        }
-        if (!empty) {
-          // add another line
-          for (c=0, l=this.__gridLayout.getColumnCount(); c < l; c++) {
-            board.add(new gosa.ui.core.GridCellDropbox(), {row: lastLine+1, column: c});
-          }
-        } else {
-          // check 2nd last row
-          lastLine--;
-          for (c=0, l=this.__gridLayout.getColumnCount(); c < l; c++) {
+        if (this.isEditMode()) {
+          // check last two rows it the last one is not empty we have to add another spacer line
+          // if the last two rows are empty we can remove one spacer line
+          var lastLine = this.__gridLayout.getRowCount() - 1;
+          var empty = true;
+          for (c = 0, l = this.__gridLayout.getColumnCount(); c < l; c++) {
             currentWidget = this.__gridLayout.getCellWidget(lastLine, c);
             if (!(currentWidget instanceof qx.ui.core.Spacer || currentWidget instanceof gosa.ui.core.GridCellDropbox)) {
               empty = false;
               break;
             }
           }
-          if (empty === true) {
-            // remove the last line
-            for (c=0, l=this.__gridLayout.getColumnCount(); c < l; c++) {
-              currentWidget = this.__gridLayout.getCellWidget(lastLine+1, c);
-              currentWidget.destroy();
+          if (!empty) {
+            // add another line
+            for (c = 0, l = this.__gridLayout.getColumnCount(); c < l; c++) {
+              board.add(new gosa.ui.core.GridCellDropbox(), {
+                row    : lastLine + 1,
+                column : c
+              });
+            }
+          }
+          else {
+            // check 2nd last row
+            lastLine--;
+            for (c = 0, l = this.__gridLayout.getColumnCount(); c < l; c++) {
+              currentWidget = this.__gridLayout.getCellWidget(lastLine, c);
+              if (!(currentWidget instanceof qx.ui.core.Spacer || currentWidget instanceof gosa.ui.core.GridCellDropbox)) {
+                empty = false;
+                break;
+              }
+            }
+            if (empty === true) {
+              // remove the last line
+              for (c = 0, l = this.__gridLayout.getColumnCount(); c < l; c++) {
+                currentWidget = this.__gridLayout.getCellWidget(lastLine + 1, c);
+                currentWidget.destroy();
+              }
             }
           }
         }
@@ -988,12 +994,7 @@ qx.Class.define("gosa.view.Dashboard", {
             // do not save the first spacer row
             return;
           }
-          if (widget instanceof qx.ui.core.Spacer) {
-            settings.push({
-              widget           : "qx.ui.core.Spacer",
-              layoutProperties : widget.getLayoutProperties()
-            })
-          } else {
+          if (!(widget instanceof gosa.ui.core.GridCellDropbox) && !(widget instanceof qx.ui.core.Spacer)) {
             var packageName = gosa.util.Reflection.getPackageName(widget);
             var sourceKey = packageName+".source";
             settings.push({
