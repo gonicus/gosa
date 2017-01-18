@@ -577,6 +577,8 @@ qx.Theme.define("gosa.theme.Decoration",
       style :
       {
         backgroundColor : "lightgray-light",
+        color : "lightgray-dark",
+        width : 1,
         radius : 4
       }
     },

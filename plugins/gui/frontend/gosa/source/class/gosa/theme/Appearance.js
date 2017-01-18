@@ -1338,7 +1338,7 @@ qx.Theme.define("gosa.theme.Appearance",
         return {
           width : states.horizontal ? 3 : undefined,
           height : states.vertical ? 3 : undefined,
-          padding : 5,
+          padding : 3,
           backgroundColor : "white"
         };
       }
