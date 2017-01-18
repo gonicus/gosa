@@ -343,6 +343,14 @@ qx.Theme.define("gosa.theme.Appearance",
         }
       }
     },
+    "gosa-tabview-page-dashboard/upload-dropbox": {
+      style: function() {
+        return {
+          backgroundColor: "rgba(255,255,255,0.8)",
+          zIndex: 100000
+        }
+      }
+    },
 
     "gosa-tabview-page-workflows": "gosa-tabview-page",
     "gosa-tabview-page-workflows/list": "gosa-tabview-page-dashboard/board",

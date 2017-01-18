@@ -213,10 +213,8 @@ qx.Class.define("gosa.view.Dashboard", {
     // property apply
     _applyUploadMode: function(value) {
       if (value === true) {
-        this.getChildControl("toolbar").exclude();
         this.getChildControl("upload-dropbox").show();
       } else {
-        this.getChildControl("toolbar").show();
         this.getChildControl("upload-dropbox").exclude();
       }
     },
@@ -376,11 +374,25 @@ qx.Class.define("gosa.view.Dashboard", {
 
         case "upload-dropbox":
           control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
-          var dropBox = new qx.ui.basic.Atom(this.tr("Drop file here to add it to the available widgets."), "@Ligature/upload/64");
-          dropBox.addListener("appear", this.__setUploadTarget, this);
+          var dropBox = new qx.ui.basic.Atom(this.tr("Drop file here to add it to the available widgets."), "@Ligature/upload/128");
+          dropBox.set({
+            allowGrowY: false
+          });
+          control.addListener("appear", function() {
+            var element = control.getContentElement().getDomElement();
+            element.ondrop = function(e) {
+              gosa.util.DragDropHelper.getInstance().onHtml5Drop.call(gosa.util.DragDropHelper.getInstance(), e);
+              this.setUploadMode(false);
+              return false;
+            }.bind(this);
+
+            element.ondragover = function(ev) {
+              ev.preventDefault();
+            };
+          }, this);
           control.add(dropBox);
           control.exclude();
-          this.getChildControl("header").add(control, {edge: 0});
+          qx.core.Init.getApplication().getRoot().add(control, {edge: 0});
           break;
 
         case "board":
@@ -547,23 +559,34 @@ qx.Class.define("gosa.view.Dashboard", {
       this.__toolbarButtons["save"] = widget;
     },
 
-    __setUploadTarget: function(ev) {
-      var element = ev.getTarget().getContentElement().getDomElement();
+    __setUploadTarget: function() {
+      var highlightElement = null;
+      var element = null;
+      if (!(arguments[0] instanceof qx.event.type.Event)) {
+        highlightElement = arguments[0].getContentElement().getDomElement();
+        element = arguments[1].getTarget().getContentElement().getDomElement();
+      } else {
+        element = arguments[0].getTarget().getContentElement().getDomElement();
+        highlightElement = element;
+      }
+
       element.ondrop = function(e) {
         gosa.util.DragDropHelper.getInstance().onHtml5Drop.call(gosa.util.DragDropHelper.getInstance(), e);
-        element.ondragexit();
+        highlightElement.ondragexit();
         this.setUploadMode(false);
+        return false;
       }.bind(this);
-      element.ondragexit = function(ev) {
-        if (ev) {
-          ev.dataTransfer.effectAllowed = "none";
-        }
-        qx.bom.element.Animation.animate(element, gosa.util.AnimationSpecs.UNHIGHLIGHT_DROP_TARGET);
+
+      element.ondragover = function(ev) {
+        ev.preventDefault();
+      };
+
+      highlightElement.ondragexit = function() {
+        qx.bom.element.Animation.animate(highlightElement, gosa.util.AnimationSpecs.UNHIGHLIGHT_DROP_TARGET);
         return false;
       };
-      element.ondragenter = function(ev) {
-        ev.dataTransfer.effectAllowed = "copy";
-        qx.bom.element.Animation.animate(element, gosa.util.AnimationSpecs.HIGHLIGHT_DROP_TARGET);
+      highlightElement.ondragenter = function() {
+        qx.bom.element.Animation.animate(highlightElement, gosa.util.AnimationSpecs.HIGHLIGHT_DROP_TARGET);
         return false;
       };
     },
