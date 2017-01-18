@@ -229,6 +229,7 @@ qx.Class.define("gosa.view.Dashboard", {
 
       if (value) {
         this.getChildControl("toolbar").show();
+        this.getChildControl("empty-info").exclude();
         this.getChildControl("board").addListener("tap", this._onTap, this);
         this.getChildControl("board").getChildren().forEach(function(child) {
           if (child instanceof gosa.plugins.AbstractDashboardWidget) {
@@ -386,6 +387,22 @@ qx.Class.define("gosa.view.Dashboard", {
           control = new qx.ui.container.Composite(this.__gridLayout);
           this._addAt(control, 1, {flex: 1});
           break;
+
+        case "empty-info":
+          var label = new qx.ui.basic.Label(this.tr("The dashboard is empty. To add widgets please activate the edit mode by clicking the settings button in the upper right corner"));
+          control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
+          control.add(label);
+          control.exclude();
+          control.addListener("changeVisibility", function(ev) {
+            if (ev.getData() === "visible") {
+              this.getChildControl("board").exclude();
+            } else {
+              this.getChildControl("board").show();
+            }
+          }, this);
+          this._addAt(control, 2, {flex: 1});
+          break;
+
       }
 
       return control || this.base(arguments, id);
@@ -707,7 +724,7 @@ qx.Class.define("gosa.view.Dashboard", {
       // load dashboard settings from backend
       gosa.io.Rpc.getInstance().cA("loadUserPreferences", "dashboard")
       .then(function(result) {
-        if (result && result.length) {
+        if (result) {
           this.__settings = result;
           var pluginsToLoad = this.__extractPluginsToLoad(result);
           var partsLoaded = pluginsToLoad.parts.length === 0;
@@ -770,8 +787,11 @@ qx.Class.define("gosa.view.Dashboard", {
         this.__addFirstSpacerRow();
         return;
       }
-      if (this.__settings) {
+      if (this.__settings && this.__settings.length > 0) {
+        this.getChildControl("empty-info").exclude();
         this.__settings.forEach(this.__addWidget, this);
+      } else {
+        this.getChildControl("empty-info").show();
       }
     },
 
