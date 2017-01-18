@@ -35,6 +35,32 @@ qx.Class.define("gosa.ui.dialogs.Error", {
     this.addButton(ok);
   },
 
+  /*
+  *****************************************************************************
+     STATICS
+  *****************************************************************************
+  */
+  statics : {
+
+    /**
+     * Convenience function to show an error, can be used to show Promise rejections.
+     *
+     * <pre>
+     *   .catch(gosa.ui.dialogs.Error.show)
+     * </pre>
+     *
+     * @param error {Error} Promise rejection exception
+     * @return {gosa.ui.dialogs.Error} The opened dialog
+     */
+    show: function(error) {
+      qx.log.Logger.error(error);
+      var dialog = new gosa.ui.dialogs.Error(error);
+      dialog.open();
+      return dialog;
+    }
+
+  },
+
   properties : {
     //overridden
     appearance : {

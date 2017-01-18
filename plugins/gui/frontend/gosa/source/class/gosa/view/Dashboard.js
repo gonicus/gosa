@@ -35,7 +35,13 @@ qx.Class.define("gosa.view.Dashboard", {
       }
     }, this);
     this.getChildControl("edit-mode");
-    this.getChildControl("board").addListener("resize", this._onGridResize, this);
+    var board = this.getChildControl("board");
+    board.addListener("resize", this._onGridResize, this);
+    if (board.getBounds()) {
+      this._onGridResize();
+    } else {
+      board.addListenerOnce("appear", this._onGridResize, this);
+    }
 
     this.addListener("longtap", function() {
       this.setEditMode(true);
@@ -262,12 +268,16 @@ qx.Class.define("gosa.view.Dashboard", {
      * Recalculate grid column width/row height
      */
     _onGridResize: function() {
-      var bounds = this.getChildControl("board").getBounds();
-      var columnSize = Math.floor((bounds.width / this.__columns) - this.__gridLayout.getSpacingX());
-      // apply size to columns
-      for (var i=0, l = this.__gridLayout.getColumnCount(); i < l; i++) {
-        this.__gridLayout.setColumnWidth(i, columnSize);
-      }
+      // var bounds = this.getChildControl("board").getBounds();
+      // console.log(bounds.width);
+      // var totalSpacing = (this.__columns-1) * this.__gridLayout.getSpacingX();
+      // console.log(totalSpacing);
+      // var columnSize = Math.floor((bounds.width - totalSpacing) / this.__columns);
+      // console.log(columnSize);
+      // // apply size to columns
+      // for (var i=0, l = this.__gridLayout.getColumnCount(); i < l; i++) {
+      //   this.__gridLayout.setColumnWidth(i, columnSize);
+      // }
     },
 
     _applySelectedWidget: function(value, old) {
@@ -638,12 +648,14 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     /**
-     * pre-filling with spacers to have a 12-col grid
+     * pre-filling with spacers to have a x-col grid
      */
     __addFirstSpacerRow: function() {
       var board = this.getChildControl("board");
       for(var i=0; i<this.__columns; i++) {
-        board.add(new qx.ui.core.Spacer(), {row: 0, column: i});
+        var spacer = new gosa.ui.core.GridCellDropbox();
+        spacer.addState("invisible");
+        board.add(spacer, {row: 0, column: i});
         this.__gridLayout.setColumnFlex(i, 1);
       }
     },
@@ -941,11 +953,11 @@ qx.Class.define("gosa.view.Dashboard", {
         // collect information
         var settings = [];
         this.getChildControl("board").getChildren().forEach(function(widget) {
+          if (widget.getLayoutProperties().row === 0) {
+            // do not save the first spacer row
+            return;
+          }
           if (widget instanceof qx.ui.core.Spacer) {
-            if (widget.getLayoutProperties().row === 0) {
-              // do not save the first spacer row
-              return;
-            }
             settings.push({
               widget           : "qx.ui.core.Spacer",
               layoutProperties : widget.getLayoutProperties()
