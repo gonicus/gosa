@@ -63,7 +63,6 @@ qx.Class.define("gosa.view.Tree", {
           root.load();  // Required to auto fetch children
 
           control = new qx.ui.tree.VirtualTree(root, "title", "children");
-          control.setMinWidth(260);
           control.setSelectionMode("single");
           this.__applyTreeDelegate(control);
           this.getChildControl("splitpane").add(control, 1);
@@ -88,16 +87,15 @@ qx.Class.define("gosa.view.Tree", {
           break;
 
         case "toolbar":
-          control = new qx.ui.toolbar.ToolBar();
-          var menuPart = new qx.ui.toolbar.Part();
-          var menuPart2 = new qx.ui.toolbar.Part();
-          menuPart.add(this.getChildControl("action-menu-button"));
-          menuPart.add(this.getChildControl("create-menu-button"));
-          menuPart.add(this.getChildControl("filter-menu-button"));
-          menuPart2.add(this.getChildControl("search-field"));
+          control = new qx.ui.container.Composite(new qx.ui.layout.HBox(16));
+          control.add(this.getChildControl("search-field"), {flex: 1});
 
-          control.add(menuPart2);
-          control.add(menuPart);
+          var buttons = new qx.ui.toolbar.Part();
+          buttons.add(this.getChildControl("action-menu-button"));
+          buttons.add(this.getChildControl("create-menu-button"));
+          buttons.add(this.getChildControl("filter-menu-button"));
+
+          control.add(buttons);
           break;
 
         case "create-menu-button":
@@ -112,14 +110,17 @@ qx.Class.define("gosa.view.Tree", {
 
         case "action-menu-button":
           control = new qx.ui.toolbar.MenuButton(this.tr("Action"));
+          control.setEnabled(false);
           control.setMenu(this.getChildControl("action-menu"));
           break;
 
         case "search-field":
           control = new qx.ui.form.TextField().set({
             placeholder : this.tr("Search .."),
-            liveUpdate  : true
+            liveUpdate : true,
+            allowGrowX : true
           });
+          control.setEnabled(false);
           control.addListener("changeValue", this._applyFilter, this);
           break;
 
@@ -132,7 +133,7 @@ qx.Class.define("gosa.view.Tree", {
           break;
 
         case "open-button":
-          control = new qx.ui.menu.Button(this.tr("Open"), "@Ligature/view");
+          control = new qx.ui.menu.Button(this.tr("Edit"), "@Ligature/edit");
           control.setEnabled(false);
           control.addListener("execute", this._onOpenObject, this);
           break;
@@ -242,7 +243,7 @@ qx.Class.define("gosa.view.Tree", {
       var createButton = new qx.ui.menu.Button(this.tr("Create"));
       createButton.setMenu(this.getChildControl("create-menu"));
       contextMenu.add(createButton);
-      var filterButton = new qx.ui.menu.Button(this.tr("Show"));
+      var filterButton = new qx.ui.menu.Button(this.tr("Filter"));
       filterButton.setMenu(this.getChildControl("filter-menu"));
       contextMenu.add(filterButton);
 
@@ -260,9 +261,11 @@ qx.Class.define("gosa.view.Tree", {
           canOpen = canOpen && qx.lang.Array.contains(this._objectRights[selection[0]], "r");
           canDelete = canDelete && qx.lang.Array.contains(this._objectRights[selection[0]], "d");
         }, this);
+        this.getChildControl("action-menu-button").setEnabled(canOpen && canDelete);
         this.getChildControl("open-button").setEnabled(canOpen);
         this.getChildControl("delete-button").setEnabled(canDelete);
       } else {
+        this.getChildControl("action-menu-button").setEnabled(false);
         this.getChildControl("open-button").setEnabled(false);
         this.getChildControl("delete-button").setEnabled(false);
       }
@@ -370,11 +373,13 @@ qx.Class.define("gosa.view.Tree", {
               }
             }, this);
           tableModel.setDataAsMapArray(this._tableData.toArray());
+          this.getChildControl("search-field").setEnabled(!!this._tableData.length);
         }, this);
 
         this.__updateMenus();
 
       } else {
+        this.getChildControl("search-field").setEnabled(false);
         this.getChildControl("create-menu-button").setEnabled(false);
         this.getChildControl("filter-menu-button").setEnabled(false);
       }
