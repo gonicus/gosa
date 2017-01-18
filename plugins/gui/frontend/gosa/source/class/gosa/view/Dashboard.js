@@ -500,6 +500,7 @@ qx.Class.define("gosa.view.Dashboard", {
       }, this);
       widget.addListener("drop", function(ev) {
         this.__deleteWidget(ev.getRelatedTarget());
+        this.__draggedWidget = null;
       }, this);
       widget.addListener("dragover", function(ev) {
         qx.bom.element.Animation.animate(ev.getTarget().getContentElement().getDomElement(), gosa.util.AnimationSpecs.HIGHLIGHT_DROP_TARGET);
@@ -571,8 +572,18 @@ qx.Class.define("gosa.view.Dashboard", {
       var layoutProps = widget.getLayoutProperties();
       widget.destroy();
       this.setModified(true);
+      var board = this.getChildControl("board");
       // add spacer as replacement
-      this.getChildControl("board").add(new qx.ui.core.Spacer(), layoutProps);
+      for(var col=layoutProps.column, l=col+layoutProps.colSpan||1; col < l; col++) {
+        var current = this.__gridLayout.getCellWidget(layoutProps.row, col);
+        if (!current) {
+          board.add(new gosa.ui.core.GridCellDropbox(), {
+            row    : layoutProps.row,
+            column : col
+          });
+        }
+      }
+
       if (this.getSelectedWidget() === widget) {
         this.setSelectedWidget(null);
       }
