@@ -359,7 +359,17 @@ qx.Class.define("gosa.view.Dashboard", {
         case "edit-mode":
           control = new qx.ui.form.Button(null, "@Ligature/gear");
           control.setZIndex(1000);
-          this.getChildControl("header").add(control, {top: 0, right: 0});
+          var bounds = this.getBounds();
+          if (bounds) {
+            control.setUserBounds(bounds.width-30, 0, 30, 30);
+            this.add(control);
+          } else {
+            this.addListenerOnce("appear", function() {
+              var bounds = this.getBounds();
+              control.setUserBounds(bounds.width-30, 0, 30, 30);
+              this.add(control);
+            }, this);
+          }
           control.addListener("execute", function() {
             this.toggleEditMode();
           }, this);
