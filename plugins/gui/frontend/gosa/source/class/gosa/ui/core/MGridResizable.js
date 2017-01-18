@@ -254,8 +254,6 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
         diff = Math.max(range.left, Math.min(range.right, e.getDocumentLeft())) - this.__resizeLeft;
         colDiff = Math.round(diff/start.columnWidth);
 
-
-
         if (resizeActive & this.RESIZE_RIGHT) {
           // check if new colspan does not overlap existing widgets
           if (colDiff > 0) {
@@ -276,7 +274,7 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
         }
 
         // snap to column
-        diff = colDiff * (start.columnWidth + this.__resizeRange.spacingX) + (colDiff ? this.__resizeRange.spacingX : 0);
+        diff = colDiff * (start.columnWidth + this.__resizeRange.spacingX);
 
         if (resizeActive & this.RESIZE_LEFT) {
           width -= diff;
@@ -471,8 +469,8 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
       var layoutProperties = this.getLayoutProperties();
       var colspan = layoutProperties.colSpan || 1;
       var rowspan = layoutProperties.rowSpan || 1;
-      var columnWidth = Math.round(bounds.width / colspan) - (colspan-1) * this.__resizeRange.spacingX;
-      var rowHeight = Math.round(bounds.height / rowspan - (rowspan-1) * this.__resizeRange.spacingY);
+      var columnWidth = Math.floor((bounds.width - (colspan-1) * this.__resizeRange.spacingX) / colspan);
+      var rowHeight = Math.floor((bounds.height - (rowspan-1) * this.__resizeRange.spacingY)/ rowspan);
 
       this.__resizeStart = {
         top : location.top,
