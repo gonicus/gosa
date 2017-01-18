@@ -52,7 +52,6 @@ qx.Class.define("gosa.ui.widgets.QTableWidgetWidget", {
       }
 
       widget.addListener("changeValue", function(e){
-        e.getData().setUserData("initial", true);
         this.fireDataEvent("changeValue", e.getData());
       }, this);
 

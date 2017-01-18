@@ -123,7 +123,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
       // Update buttons
       if(this._actionBtn){
         if(this.getValue().getLength()){
-          this._actionBtn.setIcon("@Ligature/delete/22");
+          this._actionBtn.setIcon("@Ligature/trash/22");
           this._actionBtn.setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove value")));
         }else{
           this._actionBtn.setIcon("@Ligature/folder/22");
@@ -225,7 +225,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
     },
 
 
-    /* Apply porperties that were defined in the ui-tempalte.
+    /* Apply properties that were defined in the ui template.
      *
      * Collect column names here.
      * */

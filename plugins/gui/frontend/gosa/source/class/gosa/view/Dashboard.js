@@ -213,10 +213,8 @@ qx.Class.define("gosa.view.Dashboard", {
     // property apply
     _applyUploadMode: function(value) {
       if (value === true) {
-        this.getChildControl("toolbar").exclude();
         this.getChildControl("upload-dropbox").show();
       } else {
-        this.getChildControl("toolbar").show();
         this.getChildControl("upload-dropbox").exclude();
       }
     },
@@ -229,6 +227,7 @@ qx.Class.define("gosa.view.Dashboard", {
 
       if (value) {
         this.getChildControl("toolbar").show();
+        this.getChildControl("empty-info").exclude();
         this.getChildControl("board").addListener("tap", this._onTap, this);
         this.getChildControl("board").getChildren().forEach(function(child) {
           if (child instanceof gosa.plugins.AbstractDashboardWidget) {
@@ -375,17 +374,47 @@ qx.Class.define("gosa.view.Dashboard", {
 
         case "upload-dropbox":
           control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
-          var dropBox = new qx.ui.basic.Atom(this.tr("Drop file here to add it to the available widgets."), "@Ligature/upload/64");
-          dropBox.addListener("appear", this.__setUploadTarget, this);
+          var dropBox = new qx.ui.basic.Atom(this.tr("Drop file here to add it to the available widgets."), "@Ligature/upload/128");
+          dropBox.set({
+            allowGrowY: false
+          });
+          control.addListener("appear", function() {
+            var element = control.getContentElement().getDomElement();
+            element.ondrop = function(e) {
+              gosa.util.DragDropHelper.getInstance().onHtml5Drop.call(gosa.util.DragDropHelper.getInstance(), e);
+              this.setUploadMode(false);
+              return false;
+            }.bind(this);
+
+            element.ondragover = function(ev) {
+              ev.preventDefault();
+            };
+          }, this);
           control.add(dropBox);
           control.exclude();
-          this.getChildControl("header").add(control, {edge: 0});
+          qx.core.Init.getApplication().getRoot().add(control, {edge: 0});
           break;
 
         case "board":
           control = new qx.ui.container.Composite(this.__gridLayout);
           this._addAt(control, 1, {flex: 1});
           break;
+
+        case "empty-info":
+          var label = new qx.ui.basic.Label(this.tr("The dashboard is empty. To add widgets please activate the edit mode by clicking the settings button in the upper right corner"));
+          control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
+          control.add(label);
+          control.exclude();
+          control.addListener("changeVisibility", function(ev) {
+            if (ev.getData() === "visible") {
+              this.getChildControl("board").exclude();
+            } else {
+              this.getChildControl("board").show();
+            }
+          }, this);
+          this._addAt(control, 2, {flex: 1});
+          break;
+
       }
 
       return control || this.base(arguments, id);
@@ -483,6 +512,7 @@ qx.Class.define("gosa.view.Dashboard", {
       }, this);
       widget.addListener("drop", function(ev) {
         this.__deleteWidget(ev.getRelatedTarget());
+        this.__draggedWidget = null;
       }, this);
       widget.addListener("dragover", function(ev) {
         qx.bom.element.Animation.animate(ev.getTarget().getContentElement().getDomElement(), gosa.util.AnimationSpecs.HIGHLIGHT_DROP_TARGET);
@@ -529,23 +559,34 @@ qx.Class.define("gosa.view.Dashboard", {
       this.__toolbarButtons["save"] = widget;
     },
 
-    __setUploadTarget: function(ev) {
-      var element = ev.getTarget().getContentElement().getDomElement();
+    __setUploadTarget: function() {
+      var highlightElement = null;
+      var element = null;
+      if (!(arguments[0] instanceof qx.event.type.Event)) {
+        highlightElement = arguments[0].getContentElement().getDomElement();
+        element = arguments[1].getTarget().getContentElement().getDomElement();
+      } else {
+        element = arguments[0].getTarget().getContentElement().getDomElement();
+        highlightElement = element;
+      }
+
       element.ondrop = function(e) {
         gosa.util.DragDropHelper.getInstance().onHtml5Drop.call(gosa.util.DragDropHelper.getInstance(), e);
-        element.ondragexit();
+        highlightElement.ondragexit();
         this.setUploadMode(false);
+        return false;
       }.bind(this);
-      element.ondragexit = function(ev) {
-        if (ev) {
-          ev.dataTransfer.effectAllowed = "none";
-        }
-        qx.bom.element.Animation.animate(element, gosa.util.AnimationSpecs.UNHIGHLIGHT_DROP_TARGET);
+
+      element.ondragover = function(ev) {
+        ev.preventDefault();
+      };
+
+      highlightElement.ondragexit = function() {
+        qx.bom.element.Animation.animate(highlightElement, gosa.util.AnimationSpecs.UNHIGHLIGHT_DROP_TARGET);
         return false;
       };
-      element.ondragenter = function(ev) {
-        ev.dataTransfer.effectAllowed = "copy";
-        qx.bom.element.Animation.animate(element, gosa.util.AnimationSpecs.HIGHLIGHT_DROP_TARGET);
+      highlightElement.ondragenter = function() {
+        qx.bom.element.Animation.animate(highlightElement, gosa.util.AnimationSpecs.HIGHLIGHT_DROP_TARGET);
         return false;
       };
     },
@@ -554,8 +595,18 @@ qx.Class.define("gosa.view.Dashboard", {
       var layoutProps = widget.getLayoutProperties();
       widget.destroy();
       this.setModified(true);
+      var board = this.getChildControl("board");
       // add spacer as replacement
-      this.getChildControl("board").add(new qx.ui.core.Spacer(), layoutProps);
+      for(var col=layoutProps.column, l=col+layoutProps.colSpan||1; col < l; col++) {
+        var current = this.__gridLayout.getCellWidget(layoutProps.row, col);
+        if (!current) {
+          board.add(new gosa.ui.core.GridCellDropbox(), {
+            row    : layoutProps.row,
+            column : col
+          });
+        }
+      }
+
       if (this.getSelectedWidget() === widget) {
         this.setSelectedWidget(null);
       }
@@ -707,7 +758,7 @@ qx.Class.define("gosa.view.Dashboard", {
       // load dashboard settings from backend
       gosa.io.Rpc.getInstance().cA("loadUserPreferences", "dashboard")
       .then(function(result) {
-        if (result && result.length) {
+        if (result) {
           this.__settings = result;
           var pluginsToLoad = this.__extractPluginsToLoad(result);
           var partsLoaded = pluginsToLoad.parts.length === 0;
@@ -770,8 +821,11 @@ qx.Class.define("gosa.view.Dashboard", {
         this.__addFirstSpacerRow();
         return;
       }
-      if (this.__settings) {
+      if (this.__settings && this.__settings.length > 0) {
+        this.getChildControl("empty-info").exclude();
         this.__settings.forEach(this.__addWidget, this);
+      } else {
+        this.getChildControl("empty-info").show();
       }
     },
 
