@@ -95,8 +95,9 @@ qx.Class.define("gosa.plugins.activity.Main", {
         configureItem: function(item) {
           item.set({
             appearance: "gosa-plugins-actitivies-item"
-          })
-        },
+          });
+          this.getChildControl("container").bind("enabled", item.getChildControl("dn"), "selectable");
+        }.bind(this),
 
         bindItem : function(controller, item, id) {
           controller.bindProperty("title", "title", null, item, id);
