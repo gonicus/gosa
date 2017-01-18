@@ -149,7 +149,8 @@ qx.Class.define("gosa.Session",
           d.addListener("close", function(){
             gosa.Session.getInstance().logout();
           }, this);
-        });
+        })
+        .catch(gosa.ui.dialogs.Error.show);
       } else {
         this.setSn(null);
         this.setCn(null);

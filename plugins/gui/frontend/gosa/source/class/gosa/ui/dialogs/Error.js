@@ -35,6 +35,20 @@ qx.Class.define("gosa.ui.dialogs.Error", {
     this.addButton(ok);
   },
 
+  /*
+  *****************************************************************************
+     STATICS
+  *****************************************************************************
+  */
+  statics : {
+    show: function(error) {
+      qx.log.Logger.error(error);
+      var dialog = new gosa.ui.dialogs.Error(error);
+      dialog.open();
+      return dialog;
+    }
+  },
+
   properties : {
     //overridden
     appearance : {
