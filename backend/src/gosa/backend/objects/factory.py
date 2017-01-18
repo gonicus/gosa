@@ -98,7 +98,7 @@ def load(attr, element, default=None):
 
 class ObjectFactory(object):
     """
-    This class reads object defintions and generates python-meta classes
+    This class reads object definitions and generates python-meta classes
     for each object, which can then be instantiated using
     :meth:`gosa.backend.objects.factory.ObjectFactory.getObject`.
     """
