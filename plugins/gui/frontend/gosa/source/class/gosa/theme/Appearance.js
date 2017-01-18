@@ -1359,7 +1359,7 @@ qx.Theme.define("gosa.theme.Appearance",
         } else if (states.hovered && (states.pressed || states.checked)) {
           backgroundColor = "mediumgray-light";
         } else if (states.pressed || states.checked) {
-          decorator = "mediumgray-dark";
+          backgroundColor = "mediumgray-dark";
         }
 
         return {
