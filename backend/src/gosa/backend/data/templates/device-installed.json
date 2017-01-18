@@ -1,0 +1,154 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.VBox",
+    "addOptions": {
+        "flex": 1
+    },
+    "layoutConfig": {
+        "spacing": 5
+    },
+    "extensions": {
+        "resources": {
+            "favicon": "@Ligature/pc"
+        },
+        "tabConfig": {
+            "title": "tr('Installed Device')",
+            "icon": "favicon"
+        }
+    },
+    "children": [{
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.Flow",
+        "properties": {
+            "legend": "tr('Installation')"
+        },
+        "children": [{
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "installTemplateDN",
+            "properties": {
+                "text": "tr('Template DN')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "installTemplateDN"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "installNTPServer",
+            "properties": {
+                "text": "tr('NTP Server')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "installNTPServer",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "installRootEnabled",
+            "properties": {
+                "text": "tr('Root enabled')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "installRootEnabled"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "installRootPasswordHash",
+            "properties": {
+                "text": "tr('Root password hash')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "installRootPasswordHash",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "installKeyboardlayout",
+            "properties": {
+                "text": "tr('Keyboard layout')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "installKeyboardlayout"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "installSystemLocale",
+            "properties": {
+                "text": "tr('System locale')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "installSystemLocale",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "installTimezone",
+            "properties": {
+                "text": "tr('Timezone')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "installTimezone"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "installMirrorDN",
+            "properties": {
+                "text": "tr('Mirror DN')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "installMirrorDN",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "installTimeUTC",
+            "properties": {
+                "text": "tr('Time UTC')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "installTimeUTC"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "installMirrorPoolDN",
+            "properties": {
+                "text": "tr('Mirror pool DN')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "installMirrorPoolDN",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "installRecipeDN",
+            "properties": {
+                "text": "tr('Recipe DN')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "installRecipeDN"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "installRelease",
+            "properties": {
+                "text": "tr('Release')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "installRelease",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }]
+    }]
+}

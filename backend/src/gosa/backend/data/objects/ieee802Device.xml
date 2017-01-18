@@ -7,6 +7,9 @@
     <BackendParameters>
       <Backend objectClasses="ieee802Device">LDAP</Backend>
     </BackendParameters>
+    <Templates>
+      <Template>device-ieee802.json</Template>
+    </Templates>
     <Backend>LDAP</Backend>
     <Attributes>
       <Attribute>

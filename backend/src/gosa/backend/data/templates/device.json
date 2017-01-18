@@ -1,0 +1,112 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.VBox",
+    "addOptions": {
+        "flex": 1
+    },
+    "layoutConfig": {
+        "spacing": 5
+    },
+    "extensions": {
+        "resources": {
+            "favicon": "@Ligature/pc"
+        },
+        "tabConfig": {
+            "title": "tr('Device')",
+            "icon": "favicon"
+        }
+    },
+    "children": [{
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.Flow",
+        "properties": {
+            "legend": "tr('Organizational information')"
+        },
+        "children": [{
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "cn",
+            "properties": {
+                "text": "tr('Common Name')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "cn"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "description",
+            "properties": {
+                "text": "tr('Description')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "description",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "serialNumber",
+            "properties": {
+                "text": "tr('Serial number')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "serialNumber"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "seeAlso",
+            "properties": {
+                "text": "tr('See also')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "seeAlso",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "owner",
+            "properties": {
+                "text": "tr('Owner')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "owner"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "ou",
+            "properties": {
+                "text": "tr('Organizational unit')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "ou",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "o",
+            "properties": {
+                "text": "tr('Organization')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "o"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "l",
+            "properties": {
+                "text": "tr('Location')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "l",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }]
+    }]
+}
