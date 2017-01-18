@@ -145,7 +145,7 @@ qx.Class.define("gosa.ui.table.Table",
           gosa.ui.table.Table.tablePreferences[this.__preferenceName] = prefs;
         }, this)
         .catch(function(error) {
-          new gosa.ui.dialogs.Error(error.message).open();
+          new gosa.ui.dialogs.Error(error).open();
         });
       }
       this.__lastPreferences = prefs;
@@ -229,7 +229,7 @@ qx.Class.define("gosa.ui.table.Table",
           loadPrefs.apply(this, [prefs]);
         }, this)
         .catch(function(error) {
-          new gosa.ui.dialogs.Error(error.message).open();
+          new gosa.ui.dialogs.Error(error).open();
         });
       }
     },

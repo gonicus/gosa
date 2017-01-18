@@ -139,7 +139,7 @@ qx.Class.define("gosa.proxy.Object", {
           if(!this.isUiBound()){
             this.reload(function(result, error){
               if(error){
-                new gosa.ui.dialogs.Error(error.message).open();
+                new gosa.ui.dialogs.Error(error).open();
               }
             }, this);
           }else{

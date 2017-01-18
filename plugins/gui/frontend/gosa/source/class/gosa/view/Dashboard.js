@@ -979,7 +979,7 @@ qx.Class.define("gosa.view.Dashboard", {
           this.__settings = settings;
         }, this)
         .catch(function(error) {
-          new gosa.ui.dialogs.Error(error.message).open();
+          new gosa.ui.dialogs.Error(error).open();
         });
       }
     },

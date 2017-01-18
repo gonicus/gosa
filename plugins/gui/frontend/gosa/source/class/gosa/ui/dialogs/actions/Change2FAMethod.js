@@ -84,7 +84,7 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
         }
       }, this)
       .catch(function(error) {
-        new gosa.ui.dialogs.Error(error.message).open();
+        new gosa.ui.dialogs.Error(error).open();
         this.close();
       }, this);
 

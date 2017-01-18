@@ -362,7 +362,7 @@ qx.Class.define("gosa.Application",
         gosa.ui.Renderer.executeAction(userData.dialog, userData.target, obj, null);
       })
       .catch(function(error) {
-        new gosa.ui.dialogs.Error(error.message).open();
+        new gosa.ui.dialogs.Error(error).open();
       });
     },
 

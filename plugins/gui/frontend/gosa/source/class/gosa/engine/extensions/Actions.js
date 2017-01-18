@@ -162,7 +162,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
           return result;
         }, this)
         .catch(function(error) {
-          new gosa.ui.dialogs.Error(error.message).open();
+          new gosa.ui.dialogs.Error(error).open();
         });
       }
       else {
@@ -225,7 +225,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
           qx.log.Logger.info("Call of method '" + methodName + "' was successful and returned '" + result + "'");
         })
         .catch(function(error) {
-          new gosa.ui.dialogs.Error(error.message).open();
+          new gosa.ui.dialogs.Error(error).open();
         });
       }, this);
     }

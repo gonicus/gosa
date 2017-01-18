@@ -341,7 +341,7 @@ qx.Class.define("gosa.view.Tree", {
             }
           }, this);
         }, this).catch(function(error) {
-          new gosa.ui.dialogs.Error(error.message).open();
+          new gosa.ui.dialogs.Error(error).open();
         });
       }
     },
