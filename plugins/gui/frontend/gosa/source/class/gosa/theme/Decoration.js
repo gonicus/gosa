@@ -570,7 +570,17 @@ qx.Theme.define("gosa.theme.Decoration",
         shadowBlurRadius : 12,
         shadowColor : "rgba(0, 0, 0, 0.175)"
       }
+    },
+
+    "toolbar" :
+    {
+      style :
+      {
+        backgroundColor : "lightgray-light",
+        radius : 4
+      }
     }
+
 
     // Do NOT place any decorations here, that are not FLAT theme related. Put them above
     // the marker above.

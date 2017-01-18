@@ -403,6 +403,7 @@ qx.Theme.define("gosa.theme.Appearance",
         }
       }
     },
+
     "slidebar/button-menu/icon": {
       include: "image",
 
@@ -413,25 +414,43 @@ qx.Theme.define("gosa.theme.Appearance",
         }
       }
     },
+
     "tree-view": "gosa-tabview-page",
     "tree-view/search-field": {
-      include: "textfield",
-      alias: "textfield",
-
+      include : "textfield",
+      alias : "textfield",
       style: function() {
         return {
-          marginTop: 8,
-          width: 200
-        }
+          margin : [8, 0]
+        };
       }
     },
     "tree-view/splitpane": "splitpane",
-    "tree-view/table": "table",
+    "tree-view/tree": "virtual-tree",
     "tree-view/delete-button": "icon-menu-button",
     "tree-view/open-button": "icon-menu-button",
     "tree-view/action-menu-button": "toolbar-menubutton",
     "tree-view/filter-menu-button": "toolbar-menubutton",
     "tree-view/create-menu-button": "toolbar-menubutton",
+
+    "tree-view/table": {
+      include : "table",
+      alias : "table",
+      style: function() {
+        return {
+          marginTop : 56
+        };
+      }
+    },
+
+    "tree-view/toolbar": {
+      style: function() {
+        return {
+          decorator : "toolbar",
+          padding : [0, 20]
+        }
+      }
+    },
 
     "gosa-workflow-item": {
 
@@ -1101,7 +1120,6 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    //HIER
     "selectbox" : {
       alias : "atom",
 
@@ -1275,7 +1293,106 @@ qx.Theme.define("gosa.theme.Appearance",
           offset : [ 15, 5, 5, 5 ]
         };
       }
+    },
+
+    "virtual-tree" : {
+      include : "tree",
+      alias : "tree",
+
+      style : function() {
+        return {
+          padding : 1,
+          minWidth : 260
+        };
+      }
+    },
+
+    "splitpane/splitter" :
+    {
+      style : function(states)
+      {
+        return {
+          width : states.horizontal ? 3 : undefined,
+          height : states.vertical ? 3 : undefined,
+          padding : 5,
+          backgroundColor : "white"
+        };
+      }
+    },
+
+    "splitpane/slider" :
+    {
+      style : function(states)
+      {
+        return {
+          width : states.horizontal ? 3 : undefined,
+          height : states.vertical ? 3 : undefined,
+          backgroundColor : "white"
+        };
+      }
+    },
+
+    "toolbar/part" : {},
+    "toolbar/part/container" : {},
+    "toolbar/part/handle" : {},
+
+    "toolbar-button" :
+    {
+      alias : "atom",
+
+      style : function(states)
+      {
+        var backgroundColor = "transparent";
+        var textColor = "darkgray-dark";
+
+        if (states.disabled) {
+          textColor = "lightgray-dark";
+        } else if (states.hovered && !states.pressed && !states.checked) {
+          backgroundColor = "lightgray-dark";
+        } else if (states.hovered && (states.pressed || states.checked)) {
+          backgroundColor = "mediumgray-light";
+        } else if (states.pressed || states.checked) {
+          decorator = "mediumgray-dark";
+        }
+
+        return {
+          cursor  : states.disabled ? undefined : "pointer",
+          backgroundColor : backgroundColor,
+          textColor : textColor,
+          padding: [3, 10]
+        };
+      }
+    },
+
+    "toolbar-menubutton/arrow" :
+    {
+      alias : "image",
+      include : "image",
+
+      style : function(states)
+      {
+        return {
+          source : "@Ligature/dropdown/12",
+          cursor : states.disabled ? undefined : "pointer",
+          marginLeft: 2
+        };
+      }
+    },
+
+    "menu-checkbox" :
+    {
+      alias : "menu-button",
+      include : "menu-button",
+
+      style : function(states)
+      {
+        return {
+          icon : !states.checked ? undefined : "@Ligature/check/16",
+          textColor : "lightgray-light"
+        };
+      }
     }
+
 
     // Do NOT place any appearances here, that are not FLAT theme related. Put them above
     // the marker above.
