@@ -22,7 +22,12 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
      */
     IGNORED_PROPERTIES : [
       "categoryTitle"
-    ]
+    ],
+
+    CONSTANTS : {
+      CONST_SPACING_X : 15,
+      CONST_SPACING_Y : 5
+    }
   },
 
   members : {
@@ -126,10 +131,23 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
         var instance = new clazz();
 
         var layoutConfig = this._getValue(node, "layoutConfig");
+        this.__substituteConstants(layoutConfig);
         if (layoutConfig) {
           instance.set(layoutConfig);
         }
         target.setLayout(instance);
+      }
+    },
+
+    __substituteConstants : function(data) {
+      var consts = this.self(arguments).CONSTANTS;
+
+      if (qx.lang.Type.isObject(data)) {
+        for (var key in data) {
+          if (data.hasOwnProperty(key) && consts.hasOwnProperty(data[key])) {
+            data[key] = consts[data[key]];
+          }
+        }
       }
     },
 
