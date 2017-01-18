@@ -26,19 +26,41 @@ qx.Class.define("gosa.engine.extensions.LayoutOptions", {
       qx.core.Assert.assertObject(data);
       qx.core.Assert.assertQxWidget(target);
 
-      if (data.hasOwnProperty("columnFlex")) {
-        var flexConfig = data.columnFlex;
-        qx.core.Assert.assertKeyInMap("column", flexConfig);
-        qx.core.Assert.assertKeyInMap("flex", flexConfig);
+      this.__processColumnFlex(data, target);
+      this.__processColumnWidth(data, target);
+    },
 
-        // one or several columns?
-        if (typeof flexConfig.column === "object") {
-          for (var i=0; i < flexConfig.column.length; i++) {
-            target.getLayout().setColumnFlex(flexConfig.column[i], flexConfig.flex);
-          }
+    __processColumnFlex : function(data, target) {
+      if (!data.hasOwnProperty("columnFlex")) {
+        return;
+      }
+
+      var flexConfig = data.columnFlex;
+      qx.core.Assert.assertKeyInMap("column", flexConfig);
+      qx.core.Assert.assertKeyInMap("flex", flexConfig);
+
+      // one or several columns?
+      if (typeof flexConfig.column === "object") {
+        for (var i = 0; i < flexConfig.column.length; i++) {
+          target.getLayout().setColumnFlex(flexConfig.column[i], flexConfig.flex);
         }
-        else {
-          target.getLayout().setColumnFlex(flexConfig.column, flexConfig.flex);
+      }
+      else {
+        target.getLayout().setColumnFlex(flexConfig.column, flexConfig.flex);
+      }
+    },
+
+    __processColumnWidth : function(data, target) {
+      if (!data.hasOwnProperty("columnWidth")) {
+        return;
+      }
+
+      var widths = data["columnWidth"];
+      qx.core.Assert.assertArray(widths);
+
+      for (var i=0; i < widths.length; i++) {
+        if (widths[i] !== undefined && widths[i] !== null) {
+          target.getLayout().setColumnWidth(i, widths[i]);
         }
       }
     }
