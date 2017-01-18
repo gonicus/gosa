@@ -39,8 +39,12 @@ qx.Class.define("gosa.view.Dashboard", {
     board.addListener("resize", this._onGridResize, this);
     if (board.getBounds()) {
       this._onGridResize();
+      this._applyDragListeners();
     } else {
-      board.addListenerOnce("appear", this._onGridResize, this);
+      board.addListenerOnce("appear", function() {
+        this._onGridResize();
+        this._applyDragListeners();
+      }, this);
     }
 
     this.addListener("longtap", function() {
@@ -137,6 +141,12 @@ qx.Class.define("gosa.view.Dashboard", {
       apply: "_applyEditMode"
     },
 
+    uploadMode: {
+      check: "Boolean",
+      init: false,
+      apply: "_applyUploadMode"
+    },
+
     /**
      * Flag to determine modifications during editing mode
      */
@@ -168,6 +178,48 @@ qx.Class.define("gosa.view.Dashboard", {
     __dragPointerOffsetX: null,
     __dragPointerOffsetY: null,
     __draggedWidgetsLayoutProperties: null,
+
+    /**
+     * Apply dragover/-leave listeners to the dashboard to recognize File uploads via Drag&Drop
+     */
+    _applyDragListeners: function() {
+      var element = this.getContentElement().getDomElement();
+      element.ondragexit = function() {
+        this.setUploadMode(false);
+      }.bind(this);
+
+      element.ondragenter = function(ev) {
+        if (ev.dataTransfer && ev.dataTransfer.items.length > 0) {
+          // we have something to drop
+          this.setUploadMode(true);
+          ev.dataTransfer.effectAllowed = "none";
+          ev.preventDefault();
+        }
+      }.bind(this);
+
+      element.ondragover = function(ev) {
+        ev.preventDefault();
+      };
+
+      element.ondragend = function() {
+        this.setUploadMode(false);
+      }.bind(this);
+
+      element.ondrop = function(ev) {
+        ev.preventDefault();
+      };
+    },
+
+    // property apply
+    _applyUploadMode: function(value) {
+      if (value === true) {
+        this.getChildControl("toolbar").exclude();
+        this.getChildControl("upload-dropbox").show();
+      } else {
+        this.getChildControl("toolbar").show();
+        this.getChildControl("upload-dropbox").exclude();
+      }
+    },
 
     // property apply
     _applyEditMode: function(value) {
@@ -321,6 +373,15 @@ qx.Class.define("gosa.view.Dashboard", {
           this.getChildControl("header").add(control, {edge: 0});
           break;
 
+        case "upload-dropbox":
+          control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
+          var dropBox = new qx.ui.basic.Atom(this.tr("Drop file here to add it to the available widgets."), "@Ligature/upload/64");
+          dropBox.addListener("appear", this.__setUploadTarget, this);
+          control.add(dropBox);
+          control.exclude();
+          this.getChildControl("header").add(control, {edge: 0});
+          break;
+
         case "board":
           control = new qx.ui.container.Composite(this.__gridLayout);
           this._addAt(control, 1, {flex: 1});
@@ -387,47 +448,7 @@ qx.Class.define("gosa.view.Dashboard", {
       // add button
       var widget = new qx.ui.form.MenuButton(this.tr("Add"), "@Ligature/plus", menu);
       widget.setAppearance("gosa-dashboard-edit-button");
-      widget.addListener("appear", function(ev) {
-        var element = ev.getTarget().getContentElement().getDomElement();
-        element.ondrop = function(e) {
-          gosa.util.DragDropHelper.getInstance().onHtml5Drop.call(gosa.util.DragDropHelper.getInstance(), e);
-          element.ondragleave();
-        };
-        element.ondragleave = function() {
-          var spec = {
-            duration: 200,
-            timing: "ease-in-out",
-            keep: 100,
-            keyFrames : {
-              0: {
-                scale : "1.2"
-              },
-              100: {
-                scale : "1"
-              }
-            }
-          };
-          qx.bom.element.Animation.animate(element, spec);
-          return false;
-        };
-        element.ondragover = function() {
-          var spec = {
-            duration: 200,
-            timing: "ease-in-out",
-            keep: 100,
-            keyFrames : {
-              0: {
-                scale : "1"
-              },
-              100: {
-                scale : "1.2"
-              }
-            }
-          };
-          qx.bom.element.Animation.animate(element, spec);
-          return false;
-        };
-      }, this);
+      widget.addListener("appear", this.__setUploadTarget, this);
       gosa.util.DragDropHelper.getInstance().addListener("loaded", this._onExternalLoad, this);
       toolbar.add(widget);
       this.__toolbarButtons["add"] = widget;
@@ -464,36 +485,10 @@ qx.Class.define("gosa.view.Dashboard", {
         this.__deleteWidget(ev.getRelatedTarget());
       }, this);
       widget.addListener("dragover", function(ev) {
-        var spec = {
-          duration: 200,
-          timing: "ease-in-out",
-          keep: 100,
-          keyFrames : {
-            0: {
-              scale : "1"
-            },
-            100: {
-              scale : "1.2"
-            }
-          }
-        };
-        qx.bom.element.Animation.animate(ev.getTarget().getContentElement().getDomElement(), spec);
+        qx.bom.element.Animation.animate(ev.getTarget().getContentElement().getDomElement(), gosa.util.AnimationSpecs.HIGHLIGHT_DROP_TARGET);
       }, this);
       widget.addListener("dragleave", function(ev) {
-        var spec = {
-          duration: 200,
-          timing: "ease-in-out",
-          keep: 100,
-          keyFrames : {
-            0: {
-              scale : "1.2"
-            },
-            100: {
-              scale : "1"
-            }
-          }
-        };
-        qx.bom.element.Animation.animate(ev.getTarget().getContentElement().getDomElement(), spec);
+        qx.bom.element.Animation.animate(ev.getTarget().getContentElement().getDomElement(), gosa.util.AnimationSpecs.UNHIGHLIGHT_DROP_TARGET);
       }, this);
       toolbar.add(widget);
       this.__toolbarButtons["delete"] = widget;
@@ -534,6 +529,27 @@ qx.Class.define("gosa.view.Dashboard", {
       this.__toolbarButtons["save"] = widget;
     },
 
+    __setUploadTarget: function(ev) {
+      var element = ev.getTarget().getContentElement().getDomElement();
+      element.ondrop = function(e) {
+        gosa.util.DragDropHelper.getInstance().onHtml5Drop.call(gosa.util.DragDropHelper.getInstance(), e);
+        element.ondragexit();
+        this.setUploadMode(false);
+      }.bind(this);
+      element.ondragexit = function(ev) {
+        if (ev) {
+          ev.dataTransfer.effectAllowed = "none";
+        }
+        qx.bom.element.Animation.animate(element, gosa.util.AnimationSpecs.UNHIGHLIGHT_DROP_TARGET);
+        return false;
+      };
+      element.ondragenter = function(ev) {
+        ev.dataTransfer.effectAllowed = "copy";
+        qx.bom.element.Animation.animate(element, gosa.util.AnimationSpecs.HIGHLIGHT_DROP_TARGET);
+        return false;
+      };
+    },
+
     __deleteWidget: function(widget) {
       var layoutProps = widget.getLayoutProperties();
       widget.destroy();
@@ -561,18 +577,39 @@ qx.Class.define("gosa.view.Dashboard", {
         widget: widgetName
       };
       // find empty space in grid
+      var widgetColspan = widgetData.options.defaultColspan||3;
       var placed = false;
       for(var row=1, l = this.__gridLayout.getRowCount(); row < l; row++) {
         for(var col=0, k = this.__gridLayout.getColumnCount(); col < k; col++) {
-          if (col + widgetData.options.defaultColspan > this.__columns) {
+
+          if (col + widgetColspan > this.__columns) {
             // not enough space in this row
             break;
           }
           var widget = this.__gridLayout.getCellWidget(row, col);
-          if (widget instanceof qx.ui.core.Spacer) {
+          if (widget instanceof qx.ui.core.Spacer || widget instanceof gosa.ui.core.GridCellDropbox) {
+            var spacers = [widget];
+            var blocked = false;
+            // check if there are only spacers or nothing in the cells this widgets needs
+            for (var widgetCol=col+1, wcl=widgetCol-1+widgetColspan; widgetCol < wcl; widgetCol++) {
+              var followingWidget = this.__gridLayout.getCellWidget(row, widgetCol);
+              if (followingWidget instanceof qx.ui.core.Spacer || followingWidget instanceof gosa.ui.core.GridCellDropbox) {
+                spacers.push(followingWidget);
+              } else if (widget) {
+                blocked = true;
+                break;
+              }
+            }
+            if (blocked) {
+              // not enough space in this row
+              break;
+            }
             // replace spacer
             entry.layoutProperties = widget.getLayoutProperties();
-            widget.destroy();
+            spacers.forEach(function(w) {
+              w.destroy();
+            });
+
             // break the outer loop
             placed = true;
             break;
@@ -800,35 +837,55 @@ qx.Class.define("gosa.view.Dashboard", {
         }, this);
         // remove spacers if there are any
         var colspan = entry.layoutProperties.colSpan||1;
-        for(var c=entry.layoutProperties.column, l = c + colspan; c<l; c++) {
-          var currentWidget = this.__gridLayout.getCellWidget(entry.layoutProperties.row, c);
-          if (currentWidget instanceof qx.ui.core.Spacer) {
+        var c, l, currentWidget;
+        for(c=entry.layoutProperties.column, l = c + colspan; c<l; c++) {
+          currentWidget = this.__gridLayout.getCellWidget(entry.layoutProperties.row, c);
+          if (currentWidget instanceof qx.ui.core.Spacer || currentWidget instanceof gosa.ui.core.GridCellDropbox) {
             currentWidget.destroy();
           }
         }
         board.add(widget, entry.layoutProperties);
+
+        // check last two rows it the last one is not empty we have to add another spacer line
+        // if the last two rows are empty we can remove one spacer line
+        var lastLine = this.__gridLayout.getRowCount()-1;
+        var empty = true;
+        for (c=0, l=this.__gridLayout.getColumnCount(); c < l; c++) {
+          currentWidget = this.__gridLayout.getCellWidget(lastLine, c);
+          if (!(currentWidget instanceof qx.ui.core.Spacer || currentWidget instanceof gosa.ui.core.GridCellDropbox)) {
+            empty = false;
+            break;
+          }
+        }
+        if (!empty) {
+          // add another line
+          for (c=0, l=this.__gridLayout.getColumnCount(); c < l; c++) {
+            board.add(new gosa.ui.core.GridCellDropbox(), {row: lastLine+1, column: c});
+          }
+        } else {
+          // check 2nd last row
+          lastLine--;
+          for (c=0, l=this.__gridLayout.getColumnCount(); c < l; c++) {
+            currentWidget = this.__gridLayout.getCellWidget(lastLine, c);
+            if (!(currentWidget instanceof qx.ui.core.Spacer || currentWidget instanceof gosa.ui.core.GridCellDropbox)) {
+              empty = false;
+              break;
+            }
+          }
+          if (empty === true) {
+            // remove the last line
+            for (c=0, l=this.__gridLayout.getColumnCount(); c < l; c++) {
+              currentWidget = this.__gridLayout.getCellWidget(lastLine+1, c);
+              currentWidget.destroy();
+            }
+          }
+        }
         return widget;
       }
     },
 
     _onDragStart: function(ev) {
-      var spec = {
-        duration: 400,
-        timing: "ease-in-out",
-        keep: 100,
-        keyFrames : {
-          0: {
-            scale : [ "1", "1" ]
-          },
-          50: {
-            scale : [ "1.2", "1.2" ]
-          },
-          100: {
-            scale : [ "1", "1" ]
-          }
-        }
-      };
-      qx.bom.element.Animation.animate(this.__toolbarButtons['delete'].getContentElement().getDomElement(), spec);
+      qx.bom.element.Animation.animate(this.__toolbarButtons['delete'].getContentElement().getDomElement(), gosa.util.AnimationSpecs.HIGHLIGHT_DROP_TARGET_BLINK);
       this.__toolbarButtons['delete'].setEnabled(true);
 
 
@@ -848,20 +905,7 @@ qx.Class.define("gosa.view.Dashboard", {
         widget.setHeight(bounds.height);
         widget.setUserData("removeHeight", true);
       }
-      spec = {
-        duration: 100,
-        timing: "ease-out",
-        keep: 100,
-        keyFrames : {
-          0: {
-            scale : "1"
-          },
-          100: {
-            scale : "0.5"
-          }
-        }
-      };
-      qx.bom.element.Animation.animate(widget.getContentElement().getDomElement(), spec);
+      qx.bom.element.Animation.animate(widget.getContentElement().getDomElement(), gosa.util.AnimationSpecs.SCALE_DRAGGED_ITEM);
 
       // as the scaled widgets dimensions are bisected and the widget is centered in the free space
       // we must use 1/4 as offset
@@ -926,20 +970,7 @@ qx.Class.define("gosa.view.Dashboard", {
         delete this.__draggedWidget.getLayoutProperties().left;
 
         this.getChildControl("board").add(this.__draggedWidget);
-        var spec = {
-          duration: 100,
-          timing: "ease-in",
-          keep: 100,
-          keyFrames : {
-            0: {
-              scale : "0.5"
-            },
-            100: {
-              scale : "1.0"
-            }
-          }
-        };
-        qx.bom.element.Animation.animate(this.__draggedWidget.getContentElement().getDomElement(), spec);
+        qx.bom.element.Animation.animate(this.__draggedWidget.getContentElement().getDomElement(), gosa.util.AnimationSpecs.UNSCALE_DRAGGED_ITEM);
         this.__draggedWidget = null;
       }
     },
