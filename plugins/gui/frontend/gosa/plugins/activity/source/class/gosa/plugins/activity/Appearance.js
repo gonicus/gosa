@@ -36,6 +36,7 @@ qx.Theme.define("gosa.plugins.activity.Appearance", {
       style: function() {
         return {
           width: 30,
+          height: 30,
           scale: true
         }
       }
