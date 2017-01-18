@@ -1,12 +1,9 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.VBox",
+    "layout": "qx.ui.layout.Flow",
     "addOptions": {
         "flex": 1
-    },
-    "layoutConfig": {
-        "spacing": 5
     },
     "extensions": {
         "resources": {
@@ -18,182 +15,227 @@
         }
     },
     "children": [{
-        "class": "gosa.ui.widgets.GroupBox",
-        "layout": "qx.ui.layout.Flow",
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaDomainName",
         "properties": {
-            "legend": "tr('TODO')"
+            "text": "tr('Windows NT domain')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLineEditWidget",
+        "modelPath": "sambaDomainName"
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaSID",
+        "properties": {
+            "text": "tr('Security ID')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLineEditWidget",
+        "modelPath": "sambaSID"
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaAlgorithmicRidBase",
+        "properties": {
+            "text": "tr('Algorithmic RID base')",
+            "toolTipText": "tr('Base at which the samba RID generation algorithm should operate')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaAlgorithmicRidBase",
+        "properties": {
+            "toolTipText": "tr('Base at which the samba RID generation algorithm should operate')"
         },
-        "children": [{
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaDomainName",
-            "properties": {
-                "text": "tr('Windows NT domain')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLineEditWidget",
-            "modelPath": "sambaDomainName"
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaSID",
-            "properties": {
-                "text": "tr('Security ID')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLineEditWidget",
-            "modelPath": "sambaSID"
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaAlgorithmicRidBase",
-            "properties": {
-                "text": "tr('Base at which the samba RID generation algorithm should operate')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaAlgorithmicRidBase",
-            "addOptions": {
-                "lineBreak": true
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaNextUserRid",
-            "properties": {
-                "text": "tr('Next NT rid to give our for users')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaNextUserRid",
-            "addOptions": {
-                "lineBreak": true
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaMinPwdLength",
-            "properties": {
-                "text": "tr('Minimal password length (default: 5)')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaMinPwdLength",
-            "addOptions": {
-                "lineBreak": true
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaPwdHistoryLength",
-            "properties": {
-                "text": "tr('Length of Password History Entries (default: 0 => off)')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaPwdHistoryLength",
-            "addOptions": {
-                "lineBreak": true
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaLogonToChgPwd",
-            "properties": {
-                "text": "tr('Force Users to logon for password change (default: 0 => off, 2 => on)')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaLogonToChgPwd",
-            "addOptions": {
-                "lineBreak": true
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaMaxPwdAge",
-            "properties": {
-                "text": "tr('Maximum password age, in seconds (default: -1 => never expire passwords)')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaMaxPwdAge",
-            "addOptions": {
-                "lineBreak": true
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaMinPwdAge",
-            "properties": {
-                "text": "tr('Minimum password age, in seconds (default: 0 => allow immediate password change)')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaMinPwdAge",
-            "addOptions": {
-                "lineBreak": true
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaLockoutDuration",
-            "properties": {
-                "text": "tr('Lockout duration in minutes (default: 30, -1 => forever)')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaLockoutDuration",
-            "addOptions": {
-                "lineBreak": true
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaLockoutObservationWindow",
-            "properties": {
-                "text": "tr('Reset time after lockout in minutes (default: 30)')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaLockoutObservationWindow",
-            "addOptions": {
-                "lineBreak": true
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaLockoutThreshold",
-            "properties": {
-                "text": "tr('Lockout users after bad logon attempts (default: 0 => off)')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaLockoutThreshold",
-            "addOptions": {
-                "lineBreak": true
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaForceLogoff",
-            "properties": {
-                "text": "tr('Disconnect Users outside logon hours (default: -1 => off, 0 => on)')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaForceLogoff",
-            "addOptions": {
-                "lineBreak": true
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaRefuseMachinePwdChange",
-            "properties": {
-                "text": "tr('Allow Machine Password changes (default: 0 => off)')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaRefuseMachinePwdChange",
-            "addOptions": {
-                "lineBreak": true
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "sambaNextRid",
-            "properties": {
-                "text": "tr('Next NT rid to give out for anything')"
-            }
-        }, {
-            "class": "gosa.ui.widgets.QSpinBoxWidget",
-            "modelPath": "sambaNextRid"
-        }]
+        "addOptions": {
+            "lineBreak": true
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaNextUserRid",
+        "properties": {
+            "text": "tr('Next user RID')",
+            "toolTipText": "tr('Next NT rid to give our for users')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaNextUserRid",
+        "properties": {
+            "toolTipText": "tr('Next NT rid to give our for users')"
+        },
+        "addOptions": {
+            "lineBreak": true
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaMinPwdLength",
+        "properties": {
+            "text": "tr('Minimum password length')",
+            "toolTipText": "tr('Minimal password length (default: 5)')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaMinPwdLength",
+        "properties": {
+            "toolTipText": "tr('Minimal password length (default: 5)')"
+        },
+        "addOptions": {
+            "lineBreak": true
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaPwdHistoryLength",
+        "properties": {
+            "text": "tr('Password history length')",
+            "toolTipText": "tr('Length of Password History Entries (default: 0 => off)')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaPwdHistoryLength",
+        "properties": {
+            "toolTipText": "tr('Length of Password History Entries (default: 0 => off)')"
+        },
+        "addOptions": {
+            "lineBreak": true
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaLogonToChgPwd",
+        "properties": {
+            "text": "tr('Force logon for password change')",
+            "toolTipText": "tr('Force Users to logon for password change (default: 0 => off, 2 => on)')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaLogonToChgPwd",
+        "properties": {
+            "toolTipText": "tr('Force Users to logon for password change (default: 0 => off, 2 => on)')"
+        },
+        "addOptions": {
+            "lineBreak": true
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaMaxPwdAge",
+        "properties": {
+            "text": "tr('Maximum password age')",
+            "toolTipText": "tr('Maximum password age, in seconds (default: -1 => never expire passwords)')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaMaxPwdAge",
+        "properties": {
+            "toolTipText": "tr('Maximum password age, in seconds (default: -1 => never expire passwords)')"
+        },
+        "addOptions": {
+            "lineBreak": true
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaMinPwdAge",
+        "properties": {
+            "text": "tr('Minimum password age')",
+            "toolTipText": "tr('Minimum password age, in seconds (default: 0 => allow immediate password change)')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaMinPwdAge",
+        "properties": {
+            "toolTipText": "tr('Minimum password age, in seconds (default: 0 => allow immediate password change)')"
+        },
+        "addOptions": {
+            "lineBreak": true
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaLockoutDuration",
+        "properties": {
+            "text": "tr('Lockout duration')",
+            "toolTipText": "tr('Lockout duration in minutes (default: 30, -1 => forever)')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaLockoutDuration",
+        "properties": {
+            "toolTipText": "tr('Lockout duration in minutes (default: 30, -1 => forever)')"
+        },
+        "addOptions": {
+            "lineBreak": true
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaLockoutObservationWindow",
+        "properties": {
+            "text": "tr('Lockout observation window')",
+            "toolTipText": "tr('Reset time after lockout in minutes (default: 30)')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaLockoutObservationWindow",
+        "properties": {
+            "toolTipText": "tr('Reset time after lockout in minutes (default: 30)')"
+        },
+        "addOptions": {
+            "lineBreak": true
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaLockoutThreshold",
+        "properties": {
+            "text": "tr('Lockout threshold')",
+            "toolTipText": "tr('Lockout users after bad logon attempts (default: 0 => off)')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaLockoutThreshold",
+        "properties": {
+            "toolTipText": "tr('Lockout users after bad logon attempts (default: 0 => off)')"
+        },
+        "addOptions": {
+            "lineBreak": true
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaForceLogoff",
+        "properties": {
+            "text": "tr('Force log off')",
+            "toolTipText": "tr('Disconnect Users outside logon hours (default: -1 => off, 0 => on)')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaForceLogoff",
+        "properties": {
+            "toolTipText": "tr('Disconnect Users outside logon hours (default: -1 => off, 0 => on)')"
+        },
+        "addOptions": {
+            "lineBreak": true
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaRefuseMachinePwdChange",
+        "properties": {
+            "text": "tr('Refuse machine password change')",
+            "toolTipText": "tr('Allow Machine Password changes (default: 0 => off)')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaRefuseMachinePwdChange",
+        "properties": {
+            "toolTipText": "tr('Allow Machine Password changes (default: 0 => off)')"
+        },
+        "addOptions": {
+            "lineBreak": true
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "sambaNextRid",
+        "properties": {
+            "text": "tr('Next RID')",
+            "toolTipText": "tr('Next NT rid to give out for anything')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QSpinBoxWidget",
+        "modelPath": "sambaNextRid",
+        "properties": {
+            "toolTipText": "tr('Next NT rid to give out for anything')"
+        }
     }]
 }
