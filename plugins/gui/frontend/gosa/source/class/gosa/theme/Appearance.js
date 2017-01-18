@@ -311,7 +311,16 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    "gosa-tabview-page-dashboard" : "gosa-tabview-page",
+    "gosa-tabview-page-dashboard" : {
+      include: "gosa-tabview-page",
+      alias: "gosa-tabview-page",
+
+      style: function() {
+        return {
+          paddingTop: 16
+        }
+      }
+    },
     "gosa-tabview-page-dashboard/edit-mode": {
       include: "button",
       alias: "button",
