@@ -68,7 +68,7 @@
         "extensions": {
             "layoutOptions": {
                 "columnFlex": {
-                    "column": [1, 3],
+                    "column": 2,
                     "flex": 1
                 }
             }
@@ -79,7 +79,6 @@
             "addOptions": {
                 "row": 0,
                 "column": 0,
-                "colSpan": 2,
                 "rowSpan": 6
             },
             "properties": {
@@ -92,7 +91,7 @@
             "buddyModelPath": "uid",
             "addOptions": {
                 "row": 0,
-                "column": 2
+                "column": 1
             },
             "properties": {
                 "text": "tr('Login &ID')"
@@ -102,7 +101,7 @@
             "modelPath": "uid",
             "addOptions": {
                 "row": 0,
-                "column": 3
+                "column": 2
             },
             "properties": {
                 "tabIndex": 1
@@ -111,7 +110,7 @@
             "class": "qx.ui.core.Widget",
             "addOptions": {
                 "row": 1,
-                "column": 2,
+                "column": 1,
                 "colSpan": 2
             },
             "properties" : {
@@ -123,7 +122,7 @@
             "buddyModelPath": "sn",
             "addOptions": {
                 "row": 2,
-                "column": 2
+                "column": 1
             },
             "properties": {
                 "text": "tr('Surname')"
@@ -133,7 +132,7 @@
             "modelPath": "sn",
             "addOptions": {
                 "row": 2,
-                "column": 3
+                "column": 2
             },
             "properties": {
                 "tabIndex": 2
@@ -143,7 +142,7 @@
             "buddyModelPath": "givenName",
             "addOptions": {
                 "row": 3,
-                "column": 2
+                "column": 1
             },
             "properties": {
                 "text": "tr('Given name')"
@@ -153,7 +152,7 @@
             "modelPath": "givenName",
             "addOptions": {
                 "row": 3,
-                "column": 3
+                "column": 2
             },
             "properties": {
                 "tabIndex": 3
@@ -163,7 +162,7 @@
             "addOptions": {
                 "row": 4,
                 "column": 2,
-                "colSpan": 2
+                "colSpan": 1
             },
             "properties" : {
                 "width": 20,
@@ -174,7 +173,7 @@
             "buddyModelPath": "preferredLanguage",
             "addOptions": {
                 "row": 5,
-                "column": 2
+                "column": 1
             },
             "properties": {
                 "text": "tr('Preferred language')"
@@ -184,7 +183,7 @@
             "modelPath": "preferredLanguage",
             "addOptions": {
                 "row": 5,
-                "column": 3
+                "column": 2
             },
             "properties": {
                 "tabIndex": 4,

@@ -27,7 +27,6 @@ qx.Class.define("gosa.engine.extensions.LayoutOptions", {
       qx.core.Assert.assertQxWidget(target);
 
       this.__processColumnFlex(data, target);
-      this.__processColumnWidth(data, target);
     },
 
     __processColumnFlex : function(data, target) {
@@ -47,21 +46,6 @@ qx.Class.define("gosa.engine.extensions.LayoutOptions", {
       }
       else {
         target.getLayout().setColumnFlex(flexConfig.column, flexConfig.flex);
-      }
-    },
-
-    __processColumnWidth : function(data, target) {
-      if (!data.hasOwnProperty("columnWidth")) {
-        return;
-      }
-
-      var widths = data["columnWidth"];
-      qx.core.Assert.assertArray(widths);
-
-      for (var i=0; i < widths.length; i++) {
-        if (widths[i] !== undefined && widths[i] !== null) {
-          target.getLayout().setColumnWidth(i, widths[i]);
-        }
       }
     }
   },
