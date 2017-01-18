@@ -315,6 +315,13 @@ qx.Class.define("gosa.view.Tree", {
     __updateMenus : function() {
       var selection = this.getChildControl("tree").getSelection().getItem(0);
       if (selection) {
+        if (selection.getType() === "root") {
+          // nothing can be added to root element, skip RPC and clear everything
+          this._objectRights = [];
+          this.getChildControl("create-menu").removeAll();
+          this.getChildControl("filter-menu").removeAll();
+          return;
+        }
         // load object types
         this._rpc.cA("getAllowedSubElementsForObjectWithActions", selection.getType())
         .then(function(result) {

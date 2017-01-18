@@ -60,14 +60,17 @@ qx.Mixin.define("gosa.upload.MXhrHandler", {
         "Referer": document.location.href,
         "User-Agent": navigator.userAgent
       };
-      if (document.location.origin)
+      if (document.location.origin) {
         DEFAULT_HEADERS.Origin = document.location.origin;
-      for (var key in DEFAULT_HEADERS)
+      }
+      for (var key in DEFAULT_HEADERS) {
         headerLength += DEFAULT_HEADERS[key].length + 1;
+      }
 
       var xhr = new XMLHttpRequest();
-      if (com.zenesis.qx.upload.XhrHandler.isWithCredentials())
+      if (com.zenesis.qx.upload.XhrHandler.isWithCredentials()) {
         xhr.withCredentials = true;
+      }
 
       var self = this;
 
@@ -97,8 +100,9 @@ qx.Mixin.define("gosa.upload.MXhrHandler", {
         // build query string
         var action = this._getUploader().getUploadUrl();
         var params = this._getMergedParams(file);
-        for (var name in params)
+        for (var name in params) {
           fd.append(name, encodeURIComponent(params[name]));
+        }
         fd.append("file", file.getBrowserObject());
 
         xhr.open("POST", action, true);

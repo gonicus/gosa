@@ -42,7 +42,8 @@
       "source-script",
       "libraries",
       "common",
-      "source"
+      "source",
+      "lint"
     ]
   },
 
@@ -66,6 +67,10 @@
       "lint-check": {
         "ignore-environment-nonlit-key": true
       }
+    },
+
+    "lint": {
+      "extend": ["common"]
     },
 
     "source-destruct" :
