@@ -433,12 +433,22 @@ qx.Theme.define("gosa.theme.Appearance",
     "tree-view/filter-menu-button": "toolbar-menubutton",
     "tree-view/create-menu-button": "toolbar-menubutton",
 
+    "tree-view/listcontainer": {
+      style: function() {
+        return {
+          backgroundColor : "lightgray-light",
+          decorator : "panel"
+        };
+      }
+    },
+
     "tree-view/table": {
       include : "table",
       alias : "table",
       style: function() {
         return {
-          marginTop : 56
+          decorator : "table",
+          margin : [52, 6, 6, 6]
         };
       }
     },
@@ -446,7 +456,6 @@ qx.Theme.define("gosa.theme.Appearance",
     "tree-view/toolbar": {
       style: function() {
         return {
-          decorator : "toolbar",
           padding : [0, 20]
         }
       }
@@ -1398,8 +1407,46 @@ qx.Theme.define("gosa.theme.Appearance",
           textColor : "lightgray-light"
         };
       }
-    }
+    },
 
+    "table-scroller/header": {
+      style : function() {
+        return {
+          decorator : "table-header"
+        };
+      }
+    },
+
+    "table-header-cell" :
+    {
+      alias : "atom",
+
+      style : function(states)
+      {
+        return {
+          decorator : states.first ? "table-header-cell-first" : "table-header-cell",
+          minWidth: 13,
+          font : "bold",
+          cursor : states.disabled ? undefined : "pointer",
+          padding : 8,
+          sortIcon : states.sorted ?
+            (
+              states.sortedAscending ? "@Ligature/down/12" : "@Ligature/up/12"
+            ) : undefined
+        };
+      }
+    },
+
+    "table-header-cell/sort-icon" :
+    {
+      style : function()
+      {
+        return {
+          alignY : "middle",
+          alignX : "right"
+        };
+      }
+    }
 
     // Do NOT place any appearances here, that are not FLAT theme related. Put them above
     // the marker above.

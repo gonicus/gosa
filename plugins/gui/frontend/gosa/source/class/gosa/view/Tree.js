@@ -75,7 +75,6 @@ qx.Class.define("gosa.view.Tree", {
           this.add(control, {edge : 0});
           break;
 
-      // Create the action-bar for the list panel
         case "listcontainer":
           control = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
           control.add(this.getChildControl("toolbar"), {
@@ -153,7 +152,7 @@ qx.Class.define("gosa.view.Tree", {
         case "table":
           // Create the table
           var tableModel = this._tableModel = new qx.ui.table.model.Simple();
-          tableModel.setColumns(["-", this.tr("Name"), this.tr("Description"), this.tr("DN"), this.tr("UUID")], [
+          tableModel.setColumns(["", this.tr("Name"), this.tr("Description"), this.tr("DN"), this.tr("UUID")], [
             'type',
             'title',
             'description',
@@ -168,6 +167,8 @@ qx.Class.define("gosa.view.Tree", {
           // Add the context menu mixin to the Table class
           qx.Class.include(qx.ui.table.Table, qx.ui.table.MTableContextMenu);
           var table = new qx.ui.table.Table(tableModel, customModel);
+          table.setColumnVisibilityButtonVisible(false);
+          table.setRowHeight(30);
           var toolbar = this.getChildControl("toolbar");
           var getToolbarHeight = function() {
             var bounds = toolbar.getBounds();
@@ -191,13 +192,13 @@ qx.Class.define("gosa.view.Tree", {
           table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
           var tcm = table.getTableColumnModel();
           var resizeBehavior = tcm.getBehavior();
-          resizeBehavior.setWidth(0, 25);
+          resizeBehavior.setWidth(0, 32);
           resizeBehavior.setWidth(1, "1*");
           resizeBehavior.setWidth(2, "1*");
           resizeBehavior.setWidth(3, "1*");
           tcm.setColumnVisible(3, false);
           tcm.setColumnVisible(4, false);
-          tcm.setDataCellRenderer(0, new gosa.ui.table.cellrenderer.ImageByType());
+          tcm.setDataCellRenderer(0, new gosa.ui.table.cellrenderer.ImageByType(22, 22));
 
           control = table;
           break;

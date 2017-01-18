@@ -572,15 +572,51 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
-    "toolbar" :
+    "panel" :
     {
       style :
       {
         backgroundColor : "lightgray-light",
         radius : 4
       }
-    }
+    },
 
+    "table" :
+    {
+      style :
+      {
+        backgroundColor : "white",
+        color : "mediumgray-dark",
+        width : 1,
+        radius : [0, 0, 4, 4]
+      }
+    },
+
+    "table-header" :
+    {
+      style :
+      {
+        widthBottom : 2,
+        color : "lightgray-dark"
+      }
+    },
+
+    "table-header-cell" :
+    {
+      style :
+      {
+        widthRight : 1,
+        color : "lightgray-dark"
+      }
+    },
+
+    "table-header-cell-first" :
+    {
+      include : "table-header-cell",
+      style : {
+        widthLeft : 1
+      }
+    }
 
     // Do NOT place any decorations here, that are not FLAT theme related. Put them above
     // the marker above.
