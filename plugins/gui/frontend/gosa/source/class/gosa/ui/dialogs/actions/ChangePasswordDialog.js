@@ -46,7 +46,7 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangePasswordDialog", {
         }
       }, this)
       .catch(function(error) {
-        new gosa.ui.dialogs.Error(error.message).open();
+        new gosa.ui.dialogs.Error(error).open();
         this.close();
       }, this)
       .finally(function() {

@@ -91,7 +91,7 @@ qx.Class.define("gosa.ui.dialogs.actions.SendMessageDialog", {
           this.close();
         }, this)
         .catch(function(error) {
-          new gosa.ui.dialogs.Error(error.message).open();
+          new gosa.ui.dialogs.Error(error).open();
         }, this);
       }
     }

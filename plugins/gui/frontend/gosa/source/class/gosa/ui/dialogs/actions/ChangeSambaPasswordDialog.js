@@ -141,7 +141,7 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangeSambaPasswordDialog", {
           new gosa.ui.dialogs.Info(this.tr("Password has been changed successfully.")).open();
         }, this)
         .catch(function(error) {
-          new gosa.ui.dialogs.Error(error.message).open();
+          new gosa.ui.dialogs.Error(error).open();
         });
       }
     },

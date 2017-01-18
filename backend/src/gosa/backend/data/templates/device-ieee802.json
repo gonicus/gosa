@@ -1,0 +1,30 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.VBox",
+    "addOptions": {
+        "flex": 1
+    },
+    "layoutConfig": {
+        "spacing": 5
+    },
+    "extensions": {
+        "resources": {
+            "favicon": "@Ligature/pc"
+        },
+        "tabConfig": {
+            "title": "tr('IEEE 802 device')",
+            "icon": "favicon"
+        }
+    },
+    "children": [{
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "buddyModelPath": "macAddress",
+        "properties": {
+            "text": "tr('MAC address')"
+        }
+    }, {
+        "class": "gosa.ui.widgets.QLineEditWidget",
+        "modelPath": "macAddress"
+    }]
+}

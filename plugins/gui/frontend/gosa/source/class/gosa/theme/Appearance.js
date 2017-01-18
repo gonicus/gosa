@@ -608,8 +608,15 @@ qx.Theme.define("gosa.theme.Appearance",
 
     "gosa-droppable": {
       style: function(states) {
+        var dc = states.hovered ? "gosa-droppable-hovered" : "gosa-droppable";
+        var height = null;
+        if (states.invisible) {
+          dc = null;
+          height = 0;
+        }
         return {
-          decorator: states.hovered ? "gosa-droppable-hovered" : "gosa-droppable"
+          decorator: dc,
+          height: height
         }
       }
     },

@@ -73,7 +73,7 @@ qx.Class.define("gosa.view.Workflows",
       }, this)
       .catch(function(error) {
         this.error(error);
-        new gosa.ui.dialogs.Error(error.message).open();
+        new gosa.ui.dialogs.Error(error).open();
       });
     },
 

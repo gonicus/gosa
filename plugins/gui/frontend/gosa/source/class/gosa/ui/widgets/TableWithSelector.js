@@ -205,7 +205,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
           this.__updateDataModel();
         }, this)
         .catch(function(error) {
-          new gosa.ui.dialogs.Error(error.message).open();
+          new gosa.ui.dialogs.Error(error).open();
         });
       }else{
         this.__updateDataModel();

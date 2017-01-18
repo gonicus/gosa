@@ -119,7 +119,7 @@ qx.Class.define("gosa.ui.Renderer",
 
         params.unshift(method, function(result, error) {
           if (error) {
-            new gosa.ui.dialogs.Error(error.message).open();
+            new gosa.ui.dialogs.Error(error).open();
           } else {
             object.debug("call method " + target + " on object returned with: " + result);
           }
@@ -819,7 +819,7 @@ qx.Class.define("gosa.ui.Renderer",
                 this._tabContainer.setSelection([this._widget_to_page[name]]);
                 this.setError(name, data['error']);
               }else{
-                new gosa.ui.dialogs.Error(data['error'].message).open();
+                new gosa.ui.dialogs.Error(data['error']).open();
               }
             }
           }; break;
@@ -943,12 +943,12 @@ qx.Class.define("gosa.ui.Renderer",
               this.error(error.topic);
               this.error(error.code);
               this.error(error.details);
-              new gosa.ui.dialogs.Error(error.message).open();
+              new gosa.ui.dialogs.Error(error).open();
             }
           }else{
             this._object.close(function(result, error){
               if(error){
-                new gosa.ui.dialogs.Error(error.message).open();
+                new gosa.ui.dialogs.Error(error).open();
               }else{
                 this.fireEvent("done");
               }
@@ -977,7 +977,7 @@ qx.Class.define("gosa.ui.Renderer",
       if (this._object) {
         this._object.close(function(result, error) {
           if (error) {
-            new gosa.ui.dialogs.Error(error.message).open();
+            new gosa.ui.dialogs.Error(error).open();
           }
         }, this);
       }

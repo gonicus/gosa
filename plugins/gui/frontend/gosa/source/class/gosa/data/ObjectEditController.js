@@ -92,7 +92,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
         this._obj.setUiBound(false);
         return this._obj.close()
         .catch(function(error) {
-          new gosa.ui.dialogs.Error(error.message).open();
+          new gosa.ui.dialogs.Error(error).open();
         });
       }
     },
@@ -642,7 +642,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
         }
       }
       else {
-        new gosa.ui.dialogs.Error(error.message).open();
+        new gosa.ui.dialogs.Error(error).open();
       }
     },
 

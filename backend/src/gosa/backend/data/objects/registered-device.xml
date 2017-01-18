@@ -7,6 +7,9 @@
 		<BackendParameters>
 			<Backend objectClasses="registeredDevice">LDAP</Backend>
 		</BackendParameters>
+		<Templates>
+			<Template>device-registered.json</Template>
+		</Templates>
 		<Backend>LDAP</Backend>
 		<Attributes>
 			<Attribute>
@@ -85,7 +88,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>deviceUUID</Name>
-				<Description>This attribute keeps a unique indentifier for a device that should be
+				<Description>This attribute keeps a unique identifier for a device that should be
 					registered to the GOsa services. It is used as a unique key to find
 					the relationship of the registered device to other information like
 					inventory, received events and logging data.

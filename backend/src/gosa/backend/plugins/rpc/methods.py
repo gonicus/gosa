@@ -123,13 +123,13 @@ class RPCMethods(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({'_type': 'User', 'uid': userid}, {'sn': 1, 'givenName': 1, 'cn': 1, 'dn': 1, '_uuid': 1, '_last_changed': 1})
 
+        if len(res) == 0:
+            raise GOsaException(C.make_error("UNKNOWN_USER", target=userid))
+
         cache_path = self.env.config.get('user.image-path', default="/var/lib/gosa/images")
         icon = "@Ligature/user"
         if os.path.exists(os.path.join(cache_path, res[0]['_uuid'], "jpegPhoto", "0", "64.jpg")):
             icon = "/images/%s/jpegPhoto/0/64.jpg?c=%s" % (res[0]['_uuid'], res[0]["_last_changed"])
-
-        if len(res) == 0:
-            raise GOsaException(C.make_error("UNKNOWN_USER", target=userid))
 
         return({'sn': res[0]['sn'][0],
                 'givenName': res[0]['givenName'][0],

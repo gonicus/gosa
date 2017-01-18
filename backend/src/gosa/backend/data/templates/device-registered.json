@@ -1,0 +1,246 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.VBox",
+    "addOptions": {
+        "flex": 1
+    },
+    "layoutConfig": {
+        "spacing": 5
+    },
+    "extensions": {
+        "resources": {
+            "favicon": "@Ligature/pc"
+        },
+        "tabConfig": {
+            "title": "tr('Registered device')",
+            "icon": "favicon"
+        }
+    },
+    "children": [{
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.Flow",
+        "properties": {
+            "legend": "tr('Generic')"
+        },
+        "children": [{
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "manager",
+            "properties": {
+                "text": "tr('DN of manager')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QTableWidgetWidget",
+            "modelPath": "manager",
+            "extensions": {
+                "guiProperties": {
+                    "editTitle": "tr('Choose a manager')",
+                    "columns": {
+                        "cn": "tr('Name')",
+                        "uid": "tr('Login ID')"
+                    }
+                }
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "deviceKey",
+            "properties": {
+                "text": "tr('Device key')",
+                "toolTipText": "tr('This attribute keeps the encrypted (initial) device secret')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "deviceKey",
+            "properties": {
+                "toolTipText": "tr('This attribute keeps the encrypted (initial) device secret')"
+            },
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "deviceStatus",
+            "properties": {
+                "text": "tr('Device status')",
+                "toolTipText": "tr('The deviceStatus attribute represents several states a system can represent. Note that this is the current status - i.e. no history of states is recordable this way. The attribute is mostly used to quickly determine the state without reading system logs. ')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "deviceStatus",
+            "properties": {
+                "toolTipText": "tr('The deviceStatus attribute represents several states a system can represent. Note that this is the current status - i.e. no history of states is recordable this way. The attribute is mostly used to quickly determine the state without reading system logs. ')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "deviceType",
+            "properties": {
+                "text": "tr('Device type')",
+                "toolTipText": "tr('To order systems, you can mark a system i.e. as a server')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "deviceType",
+            "properties": {
+                "toolTipText": "tr('To order systems, you can mark a system i.e. as a server')"
+            },
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "deviceUUID",
+            "properties": {
+                "text": "tr('Device UUID')",
+                "toolTipText": "tr('This attribute keeps a unique identifier for a device that should be registered to the GOsa services. It is used as a unique key to find the relationship of the registered device to other information like inventory, received events and logging data.')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "deviceUUID",
+            "properties": {
+                "toolTipText": "tr('This attribute keeps a unique identifier for a device that should be registered to the GOsa services. It is used as a unique key to find the relationship of the registered device to other information like inventory, received events and logging data.')"
+            }
+        }]
+    }, {
+        "class": "gosa.ui.widgets.GroupBox",
+        "layout": "qx.ui.layout.Flow",
+        "properties": {
+            "legend": "tr('States')"
+        },
+        "children": [{
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_Online",
+            "properties": {
+                "text": "tr('Online')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_Online"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_Offline",
+            "properties": {
+                "text": "tr('Offline')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_Offline",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_UpdateAvailable",
+            "properties": {
+                "text": "tr('Update available')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_UpdateAvailable"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_UpdateInProgress",
+            "properties": {
+                "text": "tr('Update in progress')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_UpdateInProgress",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_InventoryInProgress",
+            "properties": {
+                "text": "tr('Inventory in progress')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_InventoryInProgress"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_ConfigurationInProgress",
+            "properties": {
+                "text": "tr('Configuration in progress')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_ConfigurationInProgress",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_InstallationInProgress",
+            "properties": {
+                "text": "tr('Installation in progress')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_InstallationInProgress"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_VirtualMachineCreationInProgress",
+            "properties": {
+                "text": "tr('VM creation in progress')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_VirtualMachineCreationInProgress",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_Warning",
+            "properties": {
+                "text": "tr('Warning')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_Warning"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_Error",
+            "properties": {
+                "text": "tr('Error')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_Error",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_SystemHasActiveUserSessions",
+            "properties": {
+                "text": "tr('Active user session')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_SystemHasActiveUserSessions"
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_SystemActivated",
+            "properties": {
+                "text": "tr('System activated')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_SystemActivated",
+            "addOptions": {
+                "lineBreak": true
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "status_SystemLocked",
+            "properties": {
+                "text": "tr('System locked')"
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "status_SystemLocked"
+        }]
+    }]
+}

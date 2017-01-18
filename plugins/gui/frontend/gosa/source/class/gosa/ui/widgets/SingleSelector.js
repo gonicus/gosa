@@ -217,7 +217,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
           this.__updateVisibleText();
         }, this)
         .catch(function(error) {
-          new gosa.ui.dialogs.Error(error.message).open();
+          new gosa.ui.dialogs.Error(error).open();
         });
       } else {
         this.__updateVisibleText();

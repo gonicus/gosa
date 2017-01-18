@@ -4,6 +4,9 @@
     <Name>Device</Name>
     <Description>Device</Description>
     <DisplayName>Device</DisplayName>
+    <Templates>
+      <Template>device.json</Template>
+    </Templates>
     <BackendParameters>
       <Backend objectClasses="device" RDN="cn">LDAP</Backend>
     </BackendParameters>

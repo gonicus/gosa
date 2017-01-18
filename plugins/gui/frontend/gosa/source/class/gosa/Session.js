@@ -144,12 +144,13 @@ qx.Class.define("gosa.Session",
           this.setImageURL(result['icon']);
         }, function(error) {
           // var d = new gosa.ui.dialogs.Error(new qx.ui.core.Widget().tr("Failed to fetch current user information."));
-          var d = new gosa.ui.dialogs.Error(error.message);
+          var d = new gosa.ui.dialogs.Error(error);
           d.open();
           d.addListener("close", function(){
             gosa.Session.getInstance().logout();
           }, this);
-        });
+        })
+        .catch(gosa.ui.dialogs.Error.show);
       } else {
         this.setSn(null);
         this.setCn(null);

@@ -79,6 +79,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _okButton : null,
     _extendMenu : null,
     _retractMenu : null,
+    _actionMenu : null,
     _extendButton : null,
     _retractButton : null,
     _closingDialog : null,
@@ -235,11 +236,6 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         this._createTabView();
         this._createTabPages();
         this._createToolmenu();
-        if (!this.isWorkflow()) {
-          this._createExtendMenu();
-          this._createRetractMenu();
-        }
-        this._createActionButtons();
       }
       this._createButtons();
     },
@@ -261,6 +257,13 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _createToolmenu : function() {
       this._toolMenu = new qx.ui.menu.Menu();
       this._tabView.getChildControl("bar").setMenu(this._toolMenu);
+
+      if (!this.isWorkflow()) {
+        this._createExtendMenu();
+        this._createRetractMenu();
+      }
+      this._createActionButtons();
+      this.__updateToolMenuButtonVisibility();
     },
 
     _createActionButtons : function() {
@@ -286,7 +289,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       sorted.sort();
 
       // create action menu
-      var actionMenu = new qx.ui.menu.Menu();
+      var actionMenu = this._actionMenu = new qx.ui.menu.Menu();
       var actionButton = new qx.ui.menu.Button(this.tr("Action"), "@Ligature/magic", null, actionMenu);
       actionButton.setAppearance("icon-menu-button");
       this._toolMenu.add(actionButton);
@@ -295,6 +298,13 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       sorted.forEach(function(key) {
         actionMenu.add(allActionEntries[key]);
       }, this);
+
+      if (actionMenu.getChildren().length > 0) {
+        actionButton.show();
+      }
+      else {
+        actionButton.exclude();
+      }
     },
 
     _createRetractMenu : function() {
@@ -357,6 +367,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         button.addListener("execute", function() {
           this.getController().addExtension(ext);
         }, this);
+
+        this.__updateToolMenuButtonVisibility();
       }, this);
 
       // switch visibility
@@ -409,6 +421,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
             this.getController().removeExtension(ext);
           }, this);
         }
+
+        this.__updateToolMenuButtonVisibility();
       }, this);
 
       // switch visibility
@@ -417,6 +431,20 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       }
       else {
         this._retractButton.exclude();
+      }
+    },
+
+    __updateToolMenuButtonVisibility : function() {
+      if (!this._extendMenu || !this._retractMenu || !this._actionMenu) {
+        return;
+      }
+
+      // show button only if any submenu has at least one entry
+      if (this._retractMenu.getChildren().length || this._extendMenu.getChildren().length || this._actionMenu.getChildren().length) {
+        this._tabView.getChildControl("bar").setMenu(this._toolMenu);
+      }
+      else {
+        this._tabView.getChildControl("bar").resetMenu();
       }
     },
 
@@ -603,6 +631,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       "_okButton",
       "_extendMenu",
       "_retractMenu",
+      "_actionMenu",
       "_extendButton",
       "_retractButton",
       "_toolMenu",
