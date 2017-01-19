@@ -786,7 +786,6 @@ qx.Class.define("gosa.view.Dashboard", {
           var scriptsLoaded = pluginsToLoad.scripts.length === 0;
 
           var done = function() {
-            console.log("checking parts: "+partsLoaded+", scripts: "+scriptsLoaded);
             if (partsLoaded && scriptsLoaded) {
               this.refresh(true);
             }
@@ -853,7 +852,6 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     __addWidget: function(entry) {
-      console.log(entry);
       var registry = gosa.view.Dashboard.getWidgetRegistry();
       var widgetName = entry.widget;
       var widget;
