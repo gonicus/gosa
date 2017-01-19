@@ -524,7 +524,11 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
 
       // Sync with widget
       this.setLayoutProperties(endProps);
-      this.setHeight(bounds.height);
+      var heightChanged = false;
+      if (this.getHeight() !== bounds.height) {
+        this.setHeight(bounds.height);
+        heightChanged = true;
+      }
 
       // Clear mode
       this.__resizeActive = 0;
@@ -541,7 +545,7 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
 
       e.stopPropagation();
 
-      if (startProps.colSpan !== endProps.colSpan || startProps.rowSpan !== endProps.rowSpan || this.getHeight() !== bounds.height) {
+      if (startProps.colSpan !== endProps.colSpan || startProps.rowSpan !== endProps.rowSpan || heightChanged) {
         // layout has changed
         this.fireDataEvent("layoutChanged", true);
       }
