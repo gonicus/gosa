@@ -18,6 +18,17 @@
 qx.Theme.define("gosa.plugins.yql.Appearance", {
 
   appearances: {
-    "gosa-dashboard-widget-yql": "gosa-dashboard-widget"
+    "gosa-dashboard-widget-yql": "gosa-dashboard-widget",
+    "gosa-dashboard-widget-yql/list": {
+      include : "list",
+      alias   : "list",
+
+      style : function() {
+        return {
+          backgroundColor : "transparent",
+          decorator       : null
+        }
+      }
+    }
   }
 });
