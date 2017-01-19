@@ -814,7 +814,8 @@ qx.Theme.define("gosa.theme.Appearance",
           textColor : "darkgray-dark",
           padding : [6, 12],
           opacity : undefined,
-          font : "default"
+          font : "default",
+          center : true
         };
 
         if (states.disabled) {
