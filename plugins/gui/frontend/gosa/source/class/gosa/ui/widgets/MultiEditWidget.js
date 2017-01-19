@@ -76,6 +76,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       var w = this._getWidget(id);
       w.setInvalidMessage(message);
       w.setValid(false);
+      this.setValid(false);
     },
 
 
@@ -86,6 +87,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
         this._getWidget(i).resetInvalidMessage();
         this._getWidget(i).setValid(true);
       }
+      this.setValid(true);
     },
 
 
