@@ -1,7 +1,7 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Canvas",
+    "layout": "qx.ui.layout.VBox",
     "extensions": {
         "tabConfig": {
             "title": "tr('Organization')",
@@ -15,35 +15,54 @@
         "categoryTitle": "tr('Organization')"
     },
     "children": [{
-        "class": "gosa.ui.widgets.GroupBox",
-        "layout": "qx.ui.layout.VBox",
+        "class": "qx.ui.container.Composite",
+        "layout": "qx.ui.layout.Grid",
         "layoutConfig": {
-            "spacing": 5
+            "spacingX": "CONST_SPACING_X",
+            "spacingY": "CONST_SPACING_Y"
         },
-        "addOptions": {
-            "edge": 0
-        },
-        "properties": {
-            "legend": "tr('Generic')"
+        "extensions": {
+            "layoutOptions": {
+                "columnFlex": {
+                    "column": 1,
+                    "flex": 1
+                }
+            }
         },
         "children": [{
             "class": "gosa.ui.widgets.QLabelWidget",
             "buddyModelPath": "o",
             "properties": {
                 "text": "tr('Organization name')"
+            },
+            "addOptions": {
+                "row": 0,
+                "column": 0
             }
         }, {
             "class": "gosa.ui.widgets.QLineEditWidget",
-            "modelPath": "o"
+            "modelPath": "o",
+            "addOptions": {
+                "row": 0,
+                "column": 1
+            }
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",
             "buddyModelPath": "description",
             "properties": {
                 "text": "tr('Description')"
+            },
+            "addOptions": {
+                "row": 1,
+                "column": 0
             }
         }, {
             "class": "gosa.ui.widgets.QLineEditWidget",
-            "modelPath": "description"
+            "modelPath": "description",
+            "addOptions": {
+                "row": 1,
+                "column": 1
+            }
         }]
     }]
 }

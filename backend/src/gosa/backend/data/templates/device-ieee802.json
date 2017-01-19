@@ -5,9 +5,6 @@
     "addOptions": {
         "flex": 1
     },
-    "layoutConfig": {
-        "spacing": 5
-    },
     "extensions": {
         "resources": {
             "favicon": "@Ligature/pc"
@@ -18,13 +15,37 @@
         }
     },
     "children": [{
-        "class": "gosa.ui.widgets.QLabelWidget",
-        "buddyModelPath": "macAddress",
-        "properties": {
-            "text": "tr('MAC address')"
-        }
-    }, {
-        "class": "gosa.ui.widgets.QLineEditWidget",
-        "modelPath": "macAddress"
+        "class": "qx.ui.container.Composite",
+        "layout": "qx.ui.layout.Grid",
+        "layoutConfig": {
+            "spacingX": "CONST_SPACING_X",
+            "spacingY": "CONST_SPACING_Y"
+        },
+        "extensions": {
+            "layoutOptions": {
+                "columnFlex": {
+                    "column": 1,
+                    "flex": 1
+                }
+            }
+        },
+        "children": [{
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "macAddress",
+            "properties": {
+                "text": "tr('MAC address')"
+            },
+            "addOptions": {
+                "row": 0,
+                "column": 0
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "macAddress",
+            "addOptions": {
+                "row": 0,
+                "column": 1
+            }
+        }]
     }]
 }

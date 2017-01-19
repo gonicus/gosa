@@ -1,46 +1,71 @@
 {
     "type": "widget",
     "class": "qx.ui.container.Composite",
-    "layout": "qx.ui.layout.Canvas",
-    "extensions": {
-        "resources": {
-            "favicon": "images/domaincomponent.png"
-        }
-    },
+    "layout": "qx.ui.layout.VBox",
     "properties": {
-        "windowTitle": "tr('Domain Component')",
         "categoryTitle": "tr('DomainComponent')"
+    },
+    "extensions": {
+        "tabConfig": {
+            "title": "tr('Domain Component')",
+            "icon": "favicon"
+        },
+        "resources": {
+            "favicon": "@Ligature/globe"
+        }
     },
     "children": [{
         "class": "gosa.ui.widgets.GroupBox",
-        "layout": "qx.ui.layout.HBox",
-        "layoutConfig": {
-            "spacing": 5
-        },
-        "addOptions": {
-            "edge": 0
-        },
+        "layout": "qx.ui.layout.Grid",
         "properties": {
             "legend": "tr('Generic')"
+        },
+        "layoutConfig": {
+            "spacingX": "CONST_SPACING_X",
+            "spacingY": "CONST_SPACING_Y"
+        },
+        "extensions": {
+            "layoutOptions": {
+                "columnFlex": {
+                    "column": 1,
+                    "flex": 1
+                }
+            }
         },
         "children": [{
             "class": "gosa.ui.widgets.QLabelWidget",
             "buddyModelPath": "dc",
             "properties": {
                 "text": "tr('Name')"
+            },
+            "addOptions": {
+                "row": 0,
+                "column": 0
             }
         }, {
             "class": "gosa.ui.widgets.QLineEditWidget",
-            "modelPath": "dc"
+            "modelPath": "dc",
+            "addOptions": {
+                "row": 0,
+                "column": 1
+            }
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",
             "buddyModelPath": "description",
             "properties": {
                 "text": "tr('Description')"
+            },
+            "addOptions": {
+                "row": 1,
+                "column": 0
             }
         }, {
             "class": "gosa.ui.widgets.QLineEditWidget",
-            "modelPath": "description"
+            "modelPath": "description",
+            "addOptions": {
+                "row": 1,
+                "column": 1
+            }
         }]
     }]
 }
