@@ -44,6 +44,10 @@
       "common",
       "source",
       "lint"
+    ],
+    "exclude" :
+    [
+      "qx.test.*"
     ]
   },
 
@@ -132,7 +136,8 @@
 
     "build-script":
     {
-      "include": ["gosa.ui.widgets.*", "gosa.LocalConfig", "gosa.ui.dialogs.*", "gosa.engine.extensions.*", "gosa.plugins.*"],
+      "include": ["gosa.ui.widgets.*", "gosa.LocalConfig", "gosa.ui.dialogs.*", "gosa.engine.extensions.*", "gosa.plugins.*", "qx.*"],
+      "exclude": ["qx.test.*"],
 
       "variants" :
       {
@@ -186,7 +191,8 @@
 
     "source-script":
     {
-      "include": ["gosa.ui.widgets.*", "gosa.LocalConfig", "gosa.ui.dialogs.*", "gosa.engine.extensions.*", "gosa.plugins.*"],
+      "include": ["gosa.ui.widgets.*", "gosa.LocalConfig", "gosa.ui.dialogs.*", "gosa.engine.extensions.*", "gosa.plugins.*", "qx.*"],
+      "exclude": ["qx.test.*"],
 
       "variants" :
       {
@@ -244,9 +250,10 @@
         "i18n-as-parts"    : true,
         "parts"  :
         {
-          "boot"                  : { "include" : [
+          "boot"                  : {
+            "include" : [
             "${QXTHEME}", "gosa.Application", "gosa.ui.widgets.*", "gosa.engine.*",
-            "gosa.ui.dialogs.*", "gosa.plugins.search.*", "gosa.LocalConfig"
+            "gosa.ui.dialogs.*", "gosa.plugins.search.*", "gosa.LocalConfig", "qx.*"
           ] }
         }
       }

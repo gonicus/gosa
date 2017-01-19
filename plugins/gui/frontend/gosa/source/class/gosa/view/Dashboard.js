@@ -103,6 +103,17 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     /**
+     *
+     * @param widget {gosa.plugins.AbstractDashboardWidget} dashboard widget instance
+     * @returns {Map} the registered widget options
+     */
+    getWidgetOptions: function(widget) {
+      var packageName = gosa.util.Reflection.getPackageName(widget);
+      var entry = this.__registry[packageName];
+      return entry ? entry.options : {};
+    },
+
+    /**
      * Register an (unloaded) part that provides a dashboard widget
      * @param part {qx.ui.part.Part}
      */
@@ -781,6 +792,7 @@ qx.Class.define("gosa.view.Dashboard", {
           }.bind(this);
           if (pluginsToLoad.parts.length > 0) {
             qx.Part.require(pluginsToLoad.parts, function() {
+              partsLoaded = true;
               done();
             }, this);
           }

@@ -25,6 +25,11 @@ qx.Theme.define("gosa.theme.Color",
     'hovered': '#DDD',
     'icon-color': '#666666',
     'border-separator' : 'mediumgray-light',
+    "highlight" : "#3D72C9", // bright blue
+
+    "background-selected" : "aqua-dark",
+    "table-focus-indicator" : "transparent",
+    "table-row-background-focused-selected" : "aqua-dark",
 
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
     'white' : '#FFF',

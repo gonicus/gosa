@@ -23,6 +23,7 @@ qx.Class.define("gosa.view.Tree", {
   {
     // Call super class and configure ourselfs
     this.base(arguments, "", "@Ligature/sitemap");
+    this._createChildControl("bread-crumb");
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.Canvas());
     this.addListenerOnce("appear", this.load, this);
@@ -56,14 +57,21 @@ qx.Class.define("gosa.view.Tree", {
       var control = null;
 
       switch(id) {
+        case "bread-crumb":
+          control = new gosa.ui.BreadCrumb();
+          control.addListener("selected", function(ev) {
+            this.getChildControl("tree").getSelection().setItem(0, ev.getData());
+          }, this);
+          this.add(control, {top : 0, left: 0, right: 0});
+          break;
 
         case "tree":
           var root = new gosa.data.model.TreeResultItem(this.tr("Root"));
           root.setType("root");     // Required to show the icon
-          root.load();  // Required to auto fetch children
+          root.load();
 
           control = new qx.ui.tree.VirtualTree(root, "title", "children");
-          control.setSelectionMode("single");
+          control.setSelectionMode("one");
           this.__applyTreeDelegate(control);
           this.getChildControl("splitpane").add(control, 1);
           // Act on tree selection to automatically update the list
@@ -72,16 +80,12 @@ qx.Class.define("gosa.view.Tree", {
 
         case "splitpane":
           control = new qx.ui.splitpane.Pane("horizontal");
-          this.add(control, {edge : 0});
+          this.add(control, {top : 46, left: 0, right: 0, bottom: 0});
           break;
 
         case "listcontainer":
           control = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-          control.add(this.getChildControl("toolbar"), {
-            top   : 0,
-            left  : 0,
-            right : 0
-          });
+          control.add(this.getChildControl("toolbar"), { top   : 0, left  : 0, right : 0 });
           this.getChildControl("splitpane").add(control, 2);
           break;
 
@@ -259,8 +263,8 @@ qx.Class.define("gosa.view.Tree", {
         var canDelete = true;
         selectionModel.iterateSelection(function(index) {
           var selection = this._tableModel.getRowData(index);
-          canOpen = canOpen && qx.lang.Array.contains(this._objectRights[selection[0]], "r");
-          canDelete = canDelete && qx.lang.Array.contains(this._objectRights[selection[0]], "d");
+          canOpen = canOpen && qx.lang.Array.contains(this._objectRights[selection[0]] || [], "r");
+          canDelete = canDelete && qx.lang.Array.contains(this._objectRights[selection[0]] || [], "d");
         }, this);
         this.getChildControl("action-menu-button").setEnabled(canOpen && canDelete);
         this.getChildControl("open-button").setEnabled(canOpen);
@@ -309,7 +313,8 @@ qx.Class.define("gosa.view.Tree", {
       tree.addListener("updatedItems", this.__refreshTable, this);
       this.getChildControl("listcontainer");
       this.getChildControl("table");
-      this.__refreshTable();
+
+     this.__refreshTable();
     },
 
     __updateMenus : function() {
@@ -317,7 +322,7 @@ qx.Class.define("gosa.view.Tree", {
       if (selection) {
         if (selection.getType() === "root") {
           // nothing can be added to root element, skip RPC and clear everything
-          this._objectRights = [];
+          this._objectRights = {};
           this.getChildControl("create-menu").removeAll();
           this.getChildControl("filter-menu").removeAll();
           return;
@@ -357,8 +362,25 @@ qx.Class.define("gosa.view.Tree", {
       }
     },
 
+    __updateBreadCrumb : function(selection)
+    {
+      var item = selection.getItem(0);
+
+      // Collect all parents
+      var crumbs = [];
+      do {
+        crumbs.unshift(item);
+        item = item.getParent();
+      } while (item);
+
+
+      this.getChildControl("bread-crumb").setPath(crumbs);
+    },
+
     __refreshTable : function() {
       var sel = this.getChildControl("tree").getSelection();
+      this.__updateBreadCrumb(sel);
+
       if (sel.length > 0) {
         this.getChildControl("create-menu-button").setEnabled(true);
         this.getChildControl("filter-menu-button").setEnabled(true);
@@ -417,7 +439,10 @@ qx.Class.define("gosa.view.Tree", {
     _onDeleteObject : function() {
       // get currently selected dn in tree
       this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
-        gosa.ui.controller.Objects.getInstance().removeObject(this._tableModel.getRowData(index)[3]);
+        var row = this._tableModel.getRowData(index);
+        if (qx.lang.Array.contains(this._objectRights[row[0]] || [], "d")) {
+          gosa.ui.controller.Objects.getInstance().removeObject(row[3]);
+        }
       }, this);
     },
 
@@ -429,7 +454,9 @@ qx.Class.define("gosa.view.Tree", {
         var promises = [];
         selection.iterateSelection(function(index) {
           var row = this._tableModel.getRowData(index);
-          promises.push(gosa.ui.controller.Objects.getInstance().openObject(row[3]));
+          if (qx.lang.Array.contains(this._objectRights[row[0]] || [], "r")) {
+            promises.push(gosa.ui.controller.Objects.getInstance().openObject(row[3]));
+          }
         }, this);
         qx.Promise.all(promises).finally(function() {
           this.getChildControl("spinner").exclude();

@@ -266,8 +266,6 @@ qx.Class.define("gosa.Application",
       var doc = this.getRoot();
       doc.setDecorator("background");
 
-      /* Prepare screen for loading */
-
       // Block the gui while we are loading gui elements like
       // tab-templates, translations etc.
       doc.setBlockerColor("lightgray-dark");

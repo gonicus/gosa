@@ -1,0 +1,34 @@
+{
+  "info" : 
+  {
+    "name" : "YQL",
+
+    "summary" : "GoSA dashboard plugin",
+    "description" : "Show data retrieved from YQL service, like e.g. RSS-feeds",
+    
+    "homepage" : "http://gosa-project.org/",
+
+    "license" : "LGPL 2.1",
+    "authors" :
+    [
+      {
+        "name" : "Gonicus GmbH",
+        "email" : "info@gonicus.de"
+      }
+    ],
+
+    "version" : "3.0",
+    "qooxdoo-versions": ["5.1"]
+  },
+  
+  "provides" : 
+  {
+    "namespace"   : "gosa.plugins.yql",
+    "encoding"    : "utf-8",
+    "class"       : "source/class",
+    "resource"    : "source/resource",
+    "translation" : "source/translation",
+    "type"        : "contribution"
+  }
+}
+
