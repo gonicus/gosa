@@ -263,8 +263,8 @@ qx.Class.define("gosa.view.Tree", {
         var canDelete = true;
         selectionModel.iterateSelection(function(index) {
           var selection = this._tableModel.getRowData(index);
-          canOpen = canOpen && qx.lang.Array.contains(this._objectRights[selection[0]], "r");
-          canDelete = canDelete && qx.lang.Array.contains(this._objectRights[selection[0]], "d");
+          canOpen = canOpen && qx.lang.Array.contains(this._objectRights[selection[0]] || [], "r");
+          canDelete = canDelete && qx.lang.Array.contains(this._objectRights[selection[0]] || [], "d");
         }, this);
         this.getChildControl("action-menu-button").setEnabled(canOpen && canDelete);
         this.getChildControl("open-button").setEnabled(canOpen);
@@ -322,7 +322,7 @@ qx.Class.define("gosa.view.Tree", {
       if (selection) {
         if (selection.getType() === "root") {
           // nothing can be added to root element, skip RPC and clear everything
-          this._objectRights = [];
+          this._objectRights = {};
           this.getChildControl("create-menu").removeAll();
           this.getChildControl("filter-menu").removeAll();
           return;
@@ -439,7 +439,10 @@ qx.Class.define("gosa.view.Tree", {
     _onDeleteObject : function() {
       // get currently selected dn in tree
       this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
-        gosa.ui.controller.Objects.getInstance().removeObject(this._tableModel.getRowData(index)[3]);
+        var row = this._tableModel.getRowData(index);
+        if (qx.lang.Array.contains(this._objectRights[row[0]] || [], "d")) {
+          gosa.ui.controller.Objects.getInstance().removeObject(row[3]);
+        }
       }, this);
     },
 
@@ -451,7 +454,9 @@ qx.Class.define("gosa.view.Tree", {
         var promises = [];
         selection.iterateSelection(function(index) {
           var row = this._tableModel.getRowData(index);
-          promises.push(gosa.ui.controller.Objects.getInstance().openObject(row[3]));
+          if (qx.lang.Array.contains(this._objectRights[row[0]] || [], "r")) {
+            promises.push(gosa.ui.controller.Objects.getInstance().openObject(row[3]));
+          }
         }, this);
         qx.Promise.all(promises).finally(function() {
           this.getChildControl("spinner").exclude();
