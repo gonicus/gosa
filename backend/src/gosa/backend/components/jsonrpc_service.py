@@ -221,7 +221,7 @@ class JsonRpcHandler(HSTSRequestHandler):
                     cls.__session[sid]['auth_state'] = AUTH_SUCCESS
                     return dict(result={'state': AUTH_SUCCESS}, error=None, id=jid)
                 else:
-                    raise tornado.web.HTTPError(401, "Login failed")
+                    return dict(result={'state': AUTH_FAILED}, error=None, id=jid)
 
         if cls.__session[sid]['auth_state'] != AUTH_SUCCESS:
             raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")

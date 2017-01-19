@@ -112,6 +112,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
       var key = this._key = new qx.ui.form.TextField();
       key.setWidth(200);
       key.exclude();
+      this.getFocusOrder().push(key);
 
       this._form.add(key, this.tr("OTP-Passkey"), null, "key");
     },
@@ -138,9 +139,9 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
           this._password.setEnabled(false);
           this._uid.setEnabled(false);
           this._login.setEnabled(false);
+          this._key.setEnabled(false);
 
-          var timer = qx.util.TimerManager.getInstance();
-          timer.start(function(userData, timerId) {
+          qx.event.Timer.once(function() {
             this._uid.focus();
             this._uid.setValue("");
             this._password.setValue("");
@@ -149,7 +150,9 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
             this._login.setEnabled(true);
             this._info.setValue("");
             this._info.exclude();
-          }, 0, this, null, 4000);
+            this._key.setValue("");
+            this._key.setEnabled(true);
+          }, this, 4000);
           break;
 
         case gosa.Config.AUTH_SUCCESS:
