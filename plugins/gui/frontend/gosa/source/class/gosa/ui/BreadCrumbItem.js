@@ -15,8 +15,9 @@
 qx.Class.define("gosa.ui.BreadCrumbItem", {
   extend: qx.ui.core.Widget,
 
-  construct: function() {
+  construct: function(callback, context) {
     this.base(arguments);
+    this._callback = callback.bind(context);
     this._setLayout(new qx.ui.layout.HBox());
 
     this._createChildControl("atom");
@@ -24,6 +25,11 @@ qx.Class.define("gosa.ui.BreadCrumbItem", {
     this._add(this._arrowContainer);
     this._createChildControl("arrow");
     this._createChildControl("arrow-inner");
+
+    // Add listeners
+    this.addListener("pointerover", this._onPointerOver);
+    this.addListener("pointerout", this._onPointerOut);
+    this.addListener("pointerup", this._onPointerUp);
   },
 
   properties: {
@@ -33,29 +39,62 @@ qx.Class.define("gosa.ui.BreadCrumbItem", {
       init: "bread-crumb-item"
     },
 
-    label : {
+    model : {
       init: null,
-      check: "String",
-      event : "changeLabel",
-      nullable: true
+      apply: "_applyModel"
     },
 
-    icon : {
+    preceding : {
       init: null,
-      check: "String",
-      event : "changeIcon",
+      check: "gosa.ui.BreadCrumbItem",
       nullable: true
     }
   },
 
   members: {
+    _callback : null,
+
     // overidden
     /**
      * @lint ignoreReferenceField(_forwardStates)
      */
     _forwardStates : {
       last : true,
-      forelast : true
+      forelast : true,
+      hovered : true
+    },
+
+    _applyModel : function(value)
+    {
+      if (value) {
+        this.getChildControl("atom").set({
+          label : value.getTitle(),
+          icon : gosa.util.Icons.getIconByType(value.getType(), 16)
+        });
+      }
+    },
+
+    _onPointerOver : function(e)
+    {
+      this.addState("hovered");
+
+      if (this.getPreceding()) {
+        this.getPreceding().addState("nextpressed");
+      }
+    },
+
+    _onPointerOut : function(e)
+    {
+      this.removeState("hovered");
+
+      if (this.getPreceding()) {
+        this.getPreceding().removeState("nextpressed");
+      }
+    },
+
+    _onPointerUp : function()
+    {
+      this._callback(this.getModel());
     },
 
     // overidden
@@ -67,8 +106,6 @@ qx.Class.define("gosa.ui.BreadCrumbItem", {
       {
         case "atom":
           control = new qx.ui.basic.Atom();
-          this.bind("label", control, "label");
-          this.bind("icon", control, "icon");
           this._add(control);
           break;
 
@@ -90,5 +127,6 @@ qx.Class.define("gosa.ui.BreadCrumbItem", {
   destruct : function()
   {
     this._disposeObjects("_arrowContainer");
+    this._callback = null;
   }
 });

@@ -20,6 +20,10 @@ qx.Class.define("gosa.ui.BreadCrumb", {
     this._setLayout(new qx.ui.layout.HBox());
   },
 
+  events : {
+    "selected" : "qx.event.type.Data"
+  },
+
   properties: {
     //overridden
     appearance: {
@@ -36,10 +40,15 @@ qx.Class.define("gosa.ui.BreadCrumb", {
   },
 
   members: {
+    _itemSelected : function(data)
+    {
+      this.fireDataEvent("selected", data);
+    },
 
     _applyPath : function(data) {
       var children = this._getChildren();
       var item;
+      var precedingItem;
 
       for (var i=0; i<data.length; i++) {
         if (!!children[i]) {
@@ -47,24 +56,28 @@ qx.Class.define("gosa.ui.BreadCrumb", {
           item.show();
         }
         else {
-          item = new gosa.ui.BreadCrumbItem();
+          item = new gosa.ui.BreadCrumbItem(this._itemSelected, this);
           this._add(item);
         }
 
-        item.set({
-          label : data[i][1],
-          icon : data[i][0]
-        });
+        item.setModel(data[i]);
 
         item.removeState("forelast");
         item.removeState("last");
+
+        if (precedingItem)  {
+          item.setPreceding(precedingItem);
+        }
+
+        precedingItem = item;
       }
 
       if (data.length) {
+        children = this._getChildren();
         if (data.length > 1) {
-          this._getChildren()[data.length - 2].addState("forelast");
+          children[data.length - 2].addState("forelast");
         }
-        this._getChildren()[data.length - 1].addState("last");
+        children[data.length - 1].addState("last");
       }
 
       for (i=data.length;i<children.length; i++) {

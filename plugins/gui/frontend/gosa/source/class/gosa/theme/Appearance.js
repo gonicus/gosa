@@ -1485,7 +1485,8 @@ qx.Theme.define("gosa.theme.Appearance",
         return {
           padding : 0,
           margin : 0,
-          backgroundColor : states.forelast  || states.last ? "transparent" : "aqua-dark"
+          backgroundColor : states.forelast  || states.last ? "transparent" : (
+            states.nextpressed ? "aqua-light" : "aqua-dark")
         };
       }
     },
@@ -1496,10 +1497,19 @@ qx.Theme.define("gosa.theme.Appearance",
       alias : "atom",
       style : function(states)
       {
+        var background = "aqua-dark";
+
+        if (states.last) {
+          background = "transparent";
+        }
+        else if (states.hovered) {
+          background = "aqua-light";
+        }
+
         return {
           paddingLeft : 6,
           paddingRight : 6,
-          backgroundColor : states.last ? "transparent" : "aqua-dark",
+          backgroundColor : background,
           textColor : states.last ? "darkgray-dark" : "white"
         };
       }
@@ -1536,7 +1546,8 @@ qx.Theme.define("gosa.theme.Appearance",
         return {
           height : 0,
           width : 0,
-          decorator : states.last ? undefined : "bread-crumb-item-arrow-inner"
+          decorator : states.last ? undefined : (
+          states.hovered ? "bread-crumb-item-arrow-inner-pressed" : "bread-crumb-item-arrow-inner" )
         };
       }
     }

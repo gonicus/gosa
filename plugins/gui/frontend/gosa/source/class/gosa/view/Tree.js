@@ -59,6 +59,9 @@ qx.Class.define("gosa.view.Tree", {
       switch(id) {
         case "bread-crumb":
           control = new gosa.ui.BreadCrumb();
+          control.addListener("selected", function(ev) {
+            this.getChildControl("tree").getSelection().setItem(0, ev.getData());
+          }, this);
           this.add(control, {top : 0, left: 0, right: 0});
           break;
 
@@ -366,7 +369,7 @@ qx.Class.define("gosa.view.Tree", {
       // Collect all parents
       var crumbs = [];
       do {
-        crumbs.unshift([gosa.util.Icons.getIconByType(item.getType(), 16), item.getTitle()]);
+        crumbs.unshift(item);
         item = item.getParent();
       } while (item);
 
