@@ -576,7 +576,6 @@ qx.Theme.define("gosa.theme.Decoration",
     {
       style :
       {
-        backgroundColor : "lightgray-light",
         color : "lightgray-dark",
         width : 1,
         radius : 4
@@ -623,6 +622,8 @@ qx.Theme.define("gosa.theme.Decoration",
     "bread-crumb" :
     {
       style : {
+        width : 1,
+        color : "lightgray-dark",
         radius : 4
       }
     },

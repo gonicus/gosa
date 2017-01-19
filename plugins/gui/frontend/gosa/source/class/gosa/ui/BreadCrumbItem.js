@@ -50,6 +50,9 @@ qx.Class.define("gosa.ui.BreadCrumbItem", {
 
   members: {
     // overidden
+    /**
+     * @lint ignoreReferenceField(_forwardStates)
+     */
     _forwardStates : {
       last : true,
       forelast : true

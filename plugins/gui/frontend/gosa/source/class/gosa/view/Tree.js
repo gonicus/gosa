@@ -59,7 +59,6 @@ qx.Class.define("gosa.view.Tree", {
       switch(id) {
         case "bread-crumb":
           control = new gosa.ui.BreadCrumb();
-          control.setPath([["@Ligature/home/22", "Home"], ["@Ligature/magic/22", "Magic"], ["@Ligature/time/22", "Momentan"]]);
           this.add(control, {top : 0, left: 0, right: 0});
           break;
 
@@ -360,8 +359,25 @@ qx.Class.define("gosa.view.Tree", {
       }
     },
 
+    __updateBreadCrumb : function(selection)
+    {
+      var item = selection.getItem(0);
+
+      // Collect all parents
+      var crumbs = [];
+      do {
+        crumbs.unshift([gosa.util.Icons.getIconByType(item.getType(), 16), item.getTitle()]);
+        item = item.getParent();
+      } while (item);
+
+
+      this.getChildControl("bread-crumb").setPath(crumbs);
+    },
+
     __refreshTable : function() {
       var sel = this.getChildControl("tree").getSelection();
+      this.__updateBreadCrumb(sel);
+
       if (sel.length > 0) {
         this.getChildControl("create-menu-button").setEnabled(true);
         this.getChildControl("filter-menu-button").setEnabled(true);

@@ -454,7 +454,6 @@ qx.Theme.define("gosa.theme.Appearance",
     "tree-view/listcontainer": {
       style: function() {
         return {
-          backgroundColor : "lightgray-light",
           decorator : "panel"
         };
       }
@@ -1472,6 +1471,7 @@ qx.Theme.define("gosa.theme.Appearance",
       style : function(states)
       {
         return {
+          minHeight : 38,
           backgroundColor : "lightgray-dark",
           decorator : "bread-crumb"
         };
@@ -1501,6 +1501,18 @@ qx.Theme.define("gosa.theme.Appearance",
           paddingRight : 6,
           backgroundColor : states.last ? "transparent" : "aqua-dark",
           textColor : states.last ? "darkgray-dark" : "white"
+        };
+      }
+    },
+
+    "bread-crumb-item/atom/icon" :
+    {
+      style : function(states)
+      {
+        return {
+          width : 22,
+          height : 22,
+          scale : true
         };
       }
     },
