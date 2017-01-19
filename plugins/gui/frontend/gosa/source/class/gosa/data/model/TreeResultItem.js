@@ -137,15 +137,18 @@ qx.Class.define("gosa.data.model.TreeResultItem",
     },
 
     load: function(func, ctx){
+      // If currently loading, delay ready
+      if (this.isLoading()) {
+        this.addListenerOnce("changeLoaded", func, ctx);
+      }
 
       // If not done yet, resolve the child elements of this container
-      if (this.isLoaded()) {
+      else if (this.isLoaded()) {
         if (func) {
           func.apply(ctx);
         }
       } else {
 
-        this.setLoaded(true);
         this.setLoading(true);
 
         var rpc = gosa.io.Rpc.getInstance();
@@ -168,6 +171,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
             }
             this.setChildren(newc);
             this.sortElements();
+            this.setLoaded(true);
             if(func){
               func.apply(ctx);
             }
@@ -194,6 +198,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
             this.sortElements();
 
             // Stop loading throbber
+            this.setLoaded(true);
             this.setLoading(false);
 
             if(func) {

@@ -266,13 +266,6 @@ qx.Class.define("gosa.Application",
       var doc = this.getRoot();
       doc.setDecorator("background");
 
-      //TEST
-      //var crumb = new gosa.ui.BreadCrumb();
-      //crumb.setPath([["@Ligature/home/22", "Home"], ["@Ligature/magic/22", "Magic"], ["@Ligature/time/22", "Momentan"]]);
-      //doc.add(crumb, {top:0, left:0});
-
-      /* Prepare screen for loading */
-
       // Block the gui while we are loading gui elements like
       // tab-templates, translations etc.
       doc.setBlockerColor("lightgray-dark");

@@ -618,6 +618,36 @@ qx.Theme.define("gosa.theme.Decoration",
       style : {
         widthLeft : 1
       }
+    },
+
+    "bread-crumb" :
+    {
+      style : {
+        radius : 4
+      }
+    },
+
+    "bread-crumb-item-last" :
+    {
+      style : {
+        backgroundColor : "transparent"
+      }
+    },
+
+    "bread-crumb-item-arrow" :
+    {
+      style : {
+        width : [18, 0, 18, 11],
+        color : ["transparent", "rgba(0, 0, 0, 0.15)", "transparent", "rgba(0, 0, 0, 0.15)"]
+      }
+    },
+
+    "bread-crumb-item-arrow-inner" :
+    {
+      style : {
+        width : [18, 0, 18, 11],
+        color : ["transparent", "aqua-dark", "transparent", "aqua-dark"]
+      }
     }
 
     // Do NOT place any decorations here, that are not FLAT theme related. Put them above

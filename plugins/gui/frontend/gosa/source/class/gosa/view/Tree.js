@@ -23,6 +23,7 @@ qx.Class.define("gosa.view.Tree", {
   {
     // Call super class and configure ourselfs
     this.base(arguments, "", "@Ligature/sitemap");
+    this._createChildControl("bread-crumb");
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.Canvas());
     this.addListenerOnce("appear", this.load, this);
@@ -56,14 +57,19 @@ qx.Class.define("gosa.view.Tree", {
       var control = null;
 
       switch(id) {
+        case "bread-crumb":
+          control = new gosa.ui.BreadCrumb();
+          control.setPath([["@Ligature/home/22", "Home"], ["@Ligature/magic/22", "Magic"], ["@Ligature/time/22", "Momentan"]]);
+          this.add(control, {top : 0, left: 0, right: 0});
+          break;
 
         case "tree":
           var root = new gosa.data.model.TreeResultItem(this.tr("Root"));
           root.setType("root");     // Required to show the icon
-          root.load();  // Required to auto fetch children
+          root.load();
 
           control = new qx.ui.tree.VirtualTree(root, "title", "children");
-          control.setSelectionMode("single");
+          control.setSelectionMode("one");
           this.__applyTreeDelegate(control);
           this.getChildControl("splitpane").add(control, 1);
           // Act on tree selection to automatically update the list
@@ -72,16 +78,12 @@ qx.Class.define("gosa.view.Tree", {
 
         case "splitpane":
           control = new qx.ui.splitpane.Pane("horizontal");
-          this.add(control, {edge : 0});
+          this.add(control, {top : 46, left: 0, right: 0, bottom: 0});
           break;
 
         case "listcontainer":
           control = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-          control.add(this.getChildControl("toolbar"), {
-            top   : 0,
-            left  : 0,
-            right : 0
-          });
+          control.add(this.getChildControl("toolbar"), { top   : 0, left  : 0, right : 0 });
           this.getChildControl("splitpane").add(control, 2);
           break;
 
@@ -309,7 +311,6 @@ qx.Class.define("gosa.view.Tree", {
       tree.addListener("updatedItems", this.__refreshTable, this);
       this.getChildControl("listcontainer");
       this.getChildControl("table");
-      this.__refreshTable();
     },
 
     __updateMenus : function() {
