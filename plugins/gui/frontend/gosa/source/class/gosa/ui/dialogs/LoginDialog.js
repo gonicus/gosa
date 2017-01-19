@@ -136,6 +136,22 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
         case gosa.Config.AUTH_FAILED:
           this._info.setValue('<span style="color:red">' + this.tr("Invalid login...") + '</span>');
           this._info.show();
+          this._uid.focus();
+          this._uid.setValue("");
+          this._password.setValue("");
+
+          var timer = qx.util.TimerManager.getInstance();
+          timer.start(function(userData, timerId) {
+            this._info.setValue("");
+            this._info.exclude();
+          }, 0, this, null, 4000);
+          break;
+
+        case gosa.Config.AUTH_LOCKED:
+          time = new qx.util.format.DateFormat('HH:MM');
+          lease = time.format(new Date(parseInt(result.seconds)*1000));
+          this._info.setValue('<span style="color:red">' + this.tr("Your login is locked at least until %1", lease) + '</span>');
+          this._info.show();
           this._password.setEnabled(false);
           this._uid.setEnabled(false);
           this._login.setEnabled(false);
