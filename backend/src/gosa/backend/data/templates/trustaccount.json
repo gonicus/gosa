@@ -11,15 +11,12 @@
             "icon": "favicon"
         }
     },
-    "properties": {
-        "height": 388,
-        "width": 512
-    },
     "children": [{
         "class": "gosa.ui.widgets.GroupBox",
-        "layout": "qx.ui.layout.VBox",
+        "layout": "qx.ui.layout.Grid",
         "layoutConfig": {
-            "spacing": 5
+            "spacingX": "CONST_SPACING_X",
+            "spacingY": "CONST_SPACING_Y"
         },
         "addOptions": {
             "edge": 0
@@ -27,33 +24,41 @@
         "properties": {
             "legend": "tr('Trust settings')"
         },
-        "children": [{
-            "class": "qx.ui.container.Composite",
-            "layout": "qx.ui.layout.HBox",
-            "layoutConfig": {
-                "spacing": 5
-            },
-            "addOptions": {
-                "flex": 1
-            },
-            "children": [{
-                "class": "gosa.ui.widgets.QLabelWidget",
-                "buddyModelPath": "trustModel",
-                "properties": {
-                    "text": "tr('Mode')"
-                }
-            }, {
-                "class": "gosa.ui.widgets.QComboBoxWidget",
-                "modelPath": "trustModel",
-                "addOptions": {
+        "extensions": {
+            "layoutOptions": {
+                "columnFlex": {
+                    "column": 1,
                     "flex": 1
                 }
-            }]
+            }
+        },
+        "children": [{
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "trustModel",
+            "properties": {
+                "text": "tr('Mode')"
+            },
+            "addOptions": {
+                "row": 0,
+                "column": 0
+            }
+        }, {
+            "class": "gosa.ui.widgets.QComboBoxWidget",
+            "modelPath": "trustModel",
+            "addOptions": {
+                "row": 0,
+                "column": 1
+            }
         }, {
             "class": "gosa.ui.widgets.QTableWidgetWidget",
             "modelPath": "accessTo",
             "properties": {
                 "multivalue": true
+            },
+            "addOptions": {
+                "row": 1,
+                "column": 0,
+                "colSpan": 2
             },
             "extensions": {
                 "guiProperties": {
