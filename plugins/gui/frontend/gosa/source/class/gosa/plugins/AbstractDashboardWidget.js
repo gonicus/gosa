@@ -127,6 +127,9 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
       Object.getOwnPropertyNames(this).forEach(function(prop) {
         if (prop.substring(0, 7) === "$$user_") {
           var name = prop.substring(7);
+          if (name.startsWith("resizable")) {
+            return;
+          }
           // user defined property value found, check if it is != its init value
           if (qx.util.PropertyUtil.getInitValue(this, name) !== this[prop]) {
             config[name] = this[prop];

@@ -30,6 +30,27 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
     form.add(spinner, this.tr("Colspan"), null, "colSpan");
     form.add(new qx.ui.form.TextField(widget.getBackgroundColor()), this.tr("Background color"), null, "backgroundColor");
 
+    var properties = [];
+
+    var options = gosa.view.Dashboard.getWidgetOptions(widget);
+    if (options.settings) {
+      Object.getOwnPropertyNames(options.settings.types).forEach(function(propertyName) {
+        var type = options.settings.types[propertyName];
+        properties.push(propertyName);
+        switch (type) {
+          case "Json":
+            form.add(new qx.ui.form.TextArea(qx.lang.Json.stringify(widget.get(propertyName))), propertyName, null, propertyName);
+            break;
+          case "String":
+            form.add(new qx.ui.form.TextArea(widget.get(propertyName)), propertyName, null, propertyName);
+            break;
+          case "Number":
+            form.add(new qx.ui.form.Spinner(widget.get(propertyName)), propertyName, null, propertyName);
+            break;
+        }
+      }, this);
+    }
+
     // buttons
     var saveButton = gosa.ui.base.Buttons.getOkButton();
     this.addButton(saveButton);
@@ -48,6 +69,10 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
         props.colSpan = model.getColSpan();
         widget.setLayoutProperties(props);
         widget.setBackgroundColor(model.getBackgroundColor());
+        properties.forEach(function(prop) {
+          console.log(prop+": "+model.get(prop));
+          widget.set(prop, model.get(prop));
+        });
         this.fireEvent("modified");
         this.close();
       }

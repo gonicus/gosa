@@ -1,0 +1,77 @@
+{
+  "name"    : "YQL",
+
+  "include" :
+  [
+    {
+      "path" : "${QOOXDOO_PATH}/tool/data/config/application.json"
+    }
+  ],
+
+  "export" :
+  [
+    "build",
+    "clean",
+    "distclean",
+    "dependencies",
+    "fix",
+    "info",
+    "translation"
+  ],
+
+  "let" :
+  {
+    "APPLICATION"  : "gosa.plugins.yql",
+    "APPLICATION_MAIN_CLASS" : "${APPLICATION}.Main",
+    "QOOXDOO_PATH" : "../../../qooxdoo",
+    "LOCALES"      : [ "en", "de" ],
+    "CACHE"        : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
+    "ROOT"         : "."
+  },
+
+  "config-warnings" : {
+    "job-shadowing": [ "common", "build", "build-script" ],
+    "exclude": ["*"]
+  },
+
+  "jobs": {
+    "common": {
+      "=include" : [ "${APPLICATION}.*" ],
+      "=exclude" : [ "qx.*" ],
+      "lint-check": { "allowed-globals": [ "gosa" ] },
+      "environment" : {
+        "APPLICATION" : "${APPLICATION}",
+        "${APPLICATION}.source" : "external",
+        "${APPLICATION}.uploadPath" : "../uploads/widgets/${APPLICATION}/"
+      },
+      "compile-options" :
+      {
+        "paths"  :
+        {
+          "loader-template": "../plugin.loader.tmpl.js"
+        }
+      }
+    },
+
+    "build" :
+    {
+      "desc"    : "create build version of current application",
+
+      "run" :
+      [
+        "build-resources",
+        "build-script",
+        "build-files",
+        "build-package"
+      ]
+    },
+
+    "build-package": {
+      "desc"  : "Bundles the generated build in a single compresses archive",
+
+      "shell": {
+        "command": "../make-plugin-bundle.py ${APPLICATION} ${BUILD_PATH}"
+      }
+    }
+  }
+}
