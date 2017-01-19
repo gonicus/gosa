@@ -311,6 +311,8 @@ qx.Class.define("gosa.view.Tree", {
       tree.addListener("updatedItems", this.__refreshTable, this);
       this.getChildControl("listcontainer");
       this.getChildControl("table");
+
+     this.__refreshTable();
     },
 
     __updateMenus : function() {

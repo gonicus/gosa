@@ -139,7 +139,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
     load: function(func, ctx){
       // If currently loading, delay ready
       if (this.isLoading()) {
-        this.addListenerOnce("changeLoaded", func, ctx);
+        this.addListenerOnce("changeLoading", func, ctx);
       }
 
       // If not done yet, resolve the child elements of this container
