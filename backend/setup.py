@@ -102,6 +102,7 @@ setup(
         /mqtt/acl = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoAclHandler
         /mqtt/superuser = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoSuperuserHandler
         /uploads/(?P<uuid>.*)? = gosa.backend.plugins.upload.main:UploadHandler
+        /workflow/(?P<path>.*)? = gosa.backend.routes.static.main:WorkflowHandler
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
