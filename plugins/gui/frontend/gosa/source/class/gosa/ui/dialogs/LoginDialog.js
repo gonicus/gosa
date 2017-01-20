@@ -24,6 +24,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
     this.base(arguments, "GOsa");
     this.__initLoginForm();
     this.__initOtpForm();
+    this.setFocusOrder([this._uid, this._password, this._login, this._key, this._login]);
 
     var controller = new qx.data.controller.Form(null, this._form);
     this._model = controller.createModel();
@@ -99,8 +100,6 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
         }
       }, this);
 
-      this.setFocusOrder([uid, password, login]);
-
       // Automatically fill in username and password if wanted
       if(gosa.LocalConfig && gosa.LocalConfig.autologin){
         uid.setValue(gosa.LocalConfig.user);
@@ -113,7 +112,6 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
       var key = this._key = new qx.ui.form.TextField();
       key.setWidth(200);
       key.exclude();
-      this.getFocusOrder().push(key);
 
       this._form.add(key, this.tr("OTP-Passkey"), null, "key");
     },
