@@ -99,37 +99,31 @@
             }
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "installRootEnabled",
-            "properties": {
-                "text": "tr('Root enabled')"
-            },
-            "addOptions": {
-                "row": 4,
-                "column": 0
-            }
-        }, {
-            "class": "gosa.ui.widgets.QCheckBoxWidget",
-            "modelPath": "installRootEnabled",
-            "addOptions": {
-                "row": 4,
-                "column": 1
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
             "buddyModelPath": "installRootPasswordHash",
             "properties": {
                 "text": "tr('Root password hash')"
             },
             "addOptions": {
-                "row": 5,
+                "row": 4,
                 "column": 0
             }
         }, {
             "class": "gosa.ui.widgets.QLineEditWidget",
             "modelPath": "installRootPasswordHash",
             "addOptions": {
-                "row": 5,
+                "row": 4,
                 "column": 1
+            }
+        }, {
+            "class": "gosa.ui.widgets.QCheckBoxWidget",
+            "modelPath": "installRootEnabled",
+            "properties": {
+                "label": "tr('Root enabled')"
+            },
+            "addOptions": {
+                "row": 5,
+                "column": 0,
+                "colSpan": 2
             }
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",

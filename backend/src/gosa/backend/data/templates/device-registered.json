@@ -160,231 +160,140 @@
         "extensions": {
             "layoutOptions": {
                 "columnFlex": {
-                    "column":[1, 3],
+                    "column":[0, 1],
                     "flex": 1
                 }
             }
         },
         "children": [{
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_Error",
-            "properties": {
-                "text": "tr('Error')"
-            },
-            "addOptions": {
-                "row": 0,
-                "column": 1
-            }
-        }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_Error",
+            "properties": {
+                "label": "tr('Error')"
+            },
             "addOptions": {
                 "row": 0,
                 "column": 0
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_Warning",
-            "properties": {
-                "text": "tr('Warning')"
-            },
-            "addOptions": {
-                "row": 1,
-                "column": 1
             }
         }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_Warning",
+            "properties": {
+                "label": "tr('Warning')"
+            },
             "addOptions": {
                 "row": 1,
                 "column": 0
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_Online",
-            "properties": {
-                "text": "tr('Online')"
-            },
-            "addOptions": {
-                "row": 2,
-                "column": 1
             }
         }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_Online",
+            "properties": {
+                "label": "tr('Online')"
+            },
             "addOptions": {
                 "row": 2,
                 "column": 0
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_Offline",
-            "properties": {
-                "text": "tr('Offline')"
-            },
-            "addOptions": {
-                "row": 3,
-                "column": 1
             }
         }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_Offline",
+            "properties": {
+                "label": "tr('Offline')"
+            },
             "addOptions": {
                 "row": 3,
                 "column": 0
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_SystemHasActiveUserSessions",
-            "properties": {
-                "text": "tr('Active user session')"
-            },
-            "addOptions": {
-                "row": 4,
-                "column": 1
             }
         }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_SystemHasActiveUserSessions",
+            "properties": {
+                "label": "tr('Active user session')"
+            },
             "addOptions": {
                 "row": 4,
                 "column": 0
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_SystemActivated",
-            "properties": {
-                "text": "tr('System activated')"
-            },
-            "addOptions": {
-                "row": 5,
-                "column": 1
             }
         }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_SystemActivated",
+            "properties": {
+                "label": "tr('System activated')"
+            },
             "addOptions": {
                 "row": 5,
                 "column": 0
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_SystemLocked",
-            "properties": {
-                "text": "tr('System locked')"
-            },
-            "addOptions": {
-                "row": 6,
-                "column": 1
             }
         }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_SystemLocked",
+            "properties": {
+                "label": "tr('System locked')"
+            },
             "addOptions": {
                 "row": 6,
                 "column": 0
             }
         }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_UpdateAvailable",
-            "properties": {
-                "text": "tr('Update available')"
-            },
-            "addOptions": {
-                "row": 0,
-                "column": 3
-            }
-        }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_UpdateAvailable",
-            "addOptions": {
-                "row": 0,
-                "column": 2
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_UpdateInProgress",
             "properties": {
-                "text": "tr('Update in progress')"
+                "label": "tr('Update available')"
             },
             "addOptions": {
-                "row": 1,
-                "column": 3
+                "row": 0,
+                "column": 1
             }
         }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_UpdateInProgress",
-            "addOptions": {
-                "row": 1,
-                "column": 2
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_InventoryInProgress",
             "properties": {
-                "text": "tr('Inventory in progress')"
+                "label": "tr('Update in progress')"
             },
             "addOptions": {
-                "row": 2,
-                "column": 3
+                "row": 1,
+                "column": 1
             }
         }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_InventoryInProgress",
-            "addOptions": {
-                "row": 2,
-                "column": 2
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_ConfigurationInProgress",
             "properties": {
-                "text": "tr('Configuration in progress')"
+                "label": "tr('Inventory in progress')"
             },
             "addOptions": {
-                "row": 3,
-                "column": 3
+                "row": 2,
+                "column": 1
             }
         }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_ConfigurationInProgress",
-            "addOptions": {
-                "row": 3,
-                "column": 2
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_InstallationInProgress",
             "properties": {
-                "text": "tr('Installation in progress')"
+                "label": "tr('Configuration in progress')"
             },
             "addOptions": {
-                "row": 4,
-                "column": 3
+                "row": 3,
+                "column": 1
             }
         }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_InstallationInProgress",
-            "addOptions": {
-                "row": 4,
-                "column": 2
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "status_VirtualMachineCreationInProgress",
             "properties": {
-                "text": "tr('VM creation in progress')"
+                "label": "tr('Installation in progress')"
             },
             "addOptions": {
-                "row": 5,
-                "column": 3
+                "row": 4,
+                "column": 1
             }
         }, {
             "class": "gosa.ui.widgets.QCheckBoxWidget",
             "modelPath": "status_VirtualMachineCreationInProgress",
+            "properties": {
+                "label": "tr('VM creation in progress')"
+            },
             "addOptions": {
                 "row": 5,
-                "column": 2
+                "column": 1
             }
         }]
     }]
