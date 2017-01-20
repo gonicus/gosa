@@ -76,7 +76,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
       var info = this._info = new qx.ui.basic.Label();
       info.setRich(true);
       info.exclude();
-      this.addAt(info, 0);
+      this.addAt(info, 1);
       this.getLayout().setAlignX("center");
 
       var login = this._login = gosa.ui.base.Buttons.getButton(this.tr("Login"));
@@ -130,7 +130,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
         return;
       }
 
-      var lockForm = function(hint, time, doCountdown) {
+      var lockForm = function(hint, time) {
         var message = hint;
         this._info.setTextColor("red");
         this._info.show();
@@ -140,17 +140,6 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
         this._key.setEnabled(false);
 
         var timer = null;
-
-        if (doCountdown === true) {
-          var end = Date.now() + time;
-          message += "<br/>" + this.tr("Your login is locked for %1 seconds", lease);
-          timer = qx.util.TimerManager.getInstance().start(function() {
-            lease = Math.round((end-Date.now())/1000);
-            this._info.setValue(hint + "<br/>" + this.tr("Your login is locked for %1 seconds", lease));
-          }, 1000, this);
-        }
-        this._info.setValue(message);
-
         qx.event.Timer.once(function() {
           this._uid.focus();
           this._uid.setValue("");
@@ -168,6 +157,8 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
             timer = null;
           }
         }, this, time || 4000);
+
+        this._info.setValue(message);
       }.bind(this);
 
       var state = parseInt(result.state);
@@ -179,7 +170,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
         case gosa.Config.AUTH_LOCKED:
           var lockTime = parseInt(result.seconds);
           var lease = Math.ceil(lockTime-Date.now()/1000);
-          lockForm(this.tr("Invalid login..."), lease*1000, true);
+          lockForm(this.tr("Invalid login..."), lease*1000);
           break;
 
         case gosa.Config.AUTH_SUCCESS:

@@ -74,10 +74,12 @@ qx.Class.define("gosa.engine.WidgetFactory", {
      *
      * @param name {String} Name of the dialog class/template
      * @param controller {gosa.data.ObjectEditController ? null} Optional object controller
+     * @param extension {String} Name of the extension that the dialgo is created in
      * @return {gosa.ui.dialogs.Dialog | null} The (unopened) dialog widget
      */
-    createDialog : function(name, controller) {
+    createDialog : function(name, controller, extension) {
       qx.core.Assert.assertString(name);
+      qx.core.Assert.assertString(extension);
       if (controller) {
         qx.core.Assert.assertInstance(controller, gosa.data.ObjectEditController);
       }
@@ -95,7 +97,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       // find dialog template
       var template = gosa.data.TemplateRegistry.getInstance().getDialogTemplate(name);
       if (template) {
-        return new gosa.ui.dialogs.TemplateDialog(template, controller);
+        return new gosa.ui.dialogs.TemplateDialog(template, controller, extension);
       }
       return null;
     }

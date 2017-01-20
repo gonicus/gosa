@@ -10,7 +10,7 @@
   },
   "extensions": {
     "resources": {
-      "favicon": "images/samba-ws.png"
+      "favicon": "@Ligature/windows"
     },
     "tabConfig": {
       "title": "tr('Windows Workstation')",
