@@ -104,6 +104,22 @@ class JsonRpcHandler(HSTSRequestHandler):
             self.write(dumps(resp))
             self.set_header("Content-Type", "application/json")
 
+    def get_lock_result(self, user):
+        cls = self.__class__
+        if user in cls.__dos_manager:
+            # time to wait until login is allowed again
+            login_stats = cls.__dos_manager[user]
+            ttw = pow(4, login_stats['count'])
+            ttw += login_stats['timestamp']
+            print("%s > %s == %s" % (ttw, time.time(), ttw > time.time()))
+            if ttw > time.time():
+                self.log.info("login for user '%s' is locked. Login from host %s" % (user, self.request.remote_ip))
+                return {
+                    'state': AUTH_LOCKED,
+                    'seconds': int(ttw)
+                }
+        return None
+
     def process(self, data):
         """
         Process an incoming JSONRPC request and dispatch it thru the
@@ -161,23 +177,16 @@ class JsonRpcHandler(HSTSRequestHandler):
             result = {
                 'state': AUTH_FAILED
             }
+            print(cls.__dos_manager)
+            lock_result = self.get_lock_result(user)
+            if lock_result is not None:
+                return dict(result=lock_result, error=None, id=jid)
+
             dn = self.authenticate(user, password)
             if dn is not False:
+                # user and password matches so delete the user from observer list
                 if user in cls.__dos_manager:
-                    # time to wait until login is allowed again
-                    login_stats = cls.__dos_manager[user]
-                    ttw = pow(4, login_stats['count'])
-                    ttw += login_stats['timestamp']
-                    if ttw > time.time():
-                        self.log.info("login for user '%s' is locked. Login from host %s" % (user, self.request.remote_ip))
-                        result = {
-                            'state': AUTH_LOCKED,
-                            'seconds': int(ttw)
-                        }
-                        return dict(result=result, error=None, id=jid)
-                    else:
-                        # user and password matches so delete the user from observer list
-                        del cls.__dos_manager[user]
+                    del cls.__dos_manager[user]
 
                 cls.__session[sid] = {
                     'user': user,
@@ -218,10 +227,13 @@ class JsonRpcHandler(HSTSRequestHandler):
                     cls.__dos_manager[user] = login_stats
                 else:
                     cls.__dos_manager[user] = {
-                        'count' : 1,
-                        'timestamp' : time.time(),
-                        'ip' : self.request.remote_ip
+                        'count': 1,
+                        'timestamp': time.time(),
+                        'ip': self.request.remote_ip
                     }
+                lock_result = self.get_lock_result(user)
+                if lock_result is not None:
+                    return dict(result=lock_result, error=None, id=jid)
 
             return dict(result=result, error=None, id=jid)
 
