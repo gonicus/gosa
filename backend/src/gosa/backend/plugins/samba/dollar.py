@@ -18,12 +18,31 @@ class SambaDollarFilterOut(ElementFilter):
         super(SambaDollarFilterOut, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        if len(valDict[key]['value']) and type(valDict[key]['value'][0]) == str:
-            valDict[key]['value'][0] = valDict[key]['value'][0].rstrip("$") + "$"
-        else:
-            raise ValueError(C.make_error("TYPE_UNKNOWN", self.__class__.__name__, type=type(valDict[key]['value'])))
+
+        found = False
+
+        entry = valDict[key]
+        val = self.__get_value(entry)
+        if val:
+            entry['value'][0] = val
+            found = True
+        elif 'depends_on' in entry:
+            for dep in entry['depends_on']:
+                val = self.__get_value(valDict[dep])
+                if val:
+                    entry['value'].append(val)
+                    found = True
+                    break
+
+        if not found:
+            raise ValueError(C.make_error("TYPE_UNKNOWN", self.__class__.__name__, type=type(entry['value'])))
 
         return key, valDict
+
+    def __get_value(self, entry):
+        value_entry = entry['value']
+        if len(value_entry) and type(value_entry[0]) == str:
+            return value_entry[0].rstrip("$") + "$"
 
 
 class SambaDollarFilterIn(ElementFilter):
