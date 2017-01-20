@@ -148,8 +148,8 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
           break;
 
         case gosa.Config.AUTH_LOCKED:
-          time = new qx.util.format.DateFormat('HH:MM');
-          lease = time.format(new Date(parseInt(result.seconds)*1000));
+          var time = new qx.util.format.DateFormat('HH:MM');
+          var lease = time.format(new Date(parseInt(result.seconds)*1000));
           this._info.setValue('<span style="color:red">' + this.tr("Your login is locked at least until %1", lease) + '</span>');
           this._info.show();
           this._password.setEnabled(false);

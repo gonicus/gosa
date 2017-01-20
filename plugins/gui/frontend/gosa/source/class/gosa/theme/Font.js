@@ -84,24 +84,6 @@ qx.Theme.define("gosa.theme.Font",
       ]
     },
 
-    "FontAwesome": {
-      size: 40,
-      lineHeight: 1,
-      comparisonString : "\uf1e3\uf1f7\uf11b\uf19d",
-      family: ["FontAwesome"],
-      sources: [
-        {
-          family: "FontAwesome",
-          source: [
-            "gosa/fonts/fontawesome-webfont.eot",
-            "gosa/fonts/fontawesome-webfont.woff2",
-            "gosa/fonts/fontawesome-webfont.woff",
-            "gosa/fonts/fontawesome-webfont.ttf"
-          ]
-        }
-      ]
-    },
-
     "Ligature": {
       size: 40,
       lineHeight: 1,
