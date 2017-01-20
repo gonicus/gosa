@@ -9,7 +9,8 @@ from gosa.common.gjson import loads
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.hsts_request_handler import HSTSStaticFileHandler
 from gosa.common.utils import N_
-from gosa.plugin.gui import frontend_path
+
+frontend_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', '..', 'frontend'))
 
 
 class GuiPlugin(HSTSStaticFileHandler):

@@ -8,7 +8,8 @@ from gosa.backend.plugins.upload.main import IUploadFileHandler
 from gosa.backend.routes.sse.main import SseHandler
 from gosa.common import Environment
 from gosa.common.event import EventMaker
-from gosa.plugin.gui import frontend_path
+
+frontend_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', '..', 'frontend'))
 
 
 class WidgetUploadHandler(IUploadFileHandler):
