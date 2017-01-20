@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
   <Object>
-    <Name>organizationalRole</Name>
-    <DisplayName>organizationalRole</DisplayName>
+    <Name>OrganizationalRole</Name>
+    <DisplayName>Organizational role</DisplayName>
     <Description>RFC2256: an organizational role</Description>
     <Backend>LDAP</Backend>
     <BackendParameters>

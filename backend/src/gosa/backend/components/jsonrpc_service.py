@@ -21,6 +21,7 @@ import uuid
 import traceback
 import logging
 import tornado.web
+import time
 from gosa.backend.objects import ObjectProxy
 from gosa.common.hsts_request_handler import HSTSRequestHandler
 from tornado.gen import coroutine
@@ -57,6 +58,8 @@ class JsonRpcHandler(HSTSRequestHandler):
 
     # Simple authentication saver
     __session = {}
+    # denial service for some time after login fails to often
+    __dos_manager = {}
 
     def initialize(self):
         self.dispatcher = PluginRegistry.getInstance('CommandRegistry')
@@ -160,6 +163,22 @@ class JsonRpcHandler(HSTSRequestHandler):
             }
             dn = self.authenticate(user, password)
             if dn is not False:
+                if user in cls.__dos_manager:
+                    # time to wait until login is allowed again
+                    login_stats = cls.__dos_manager[user]
+                    ttw = pow(4, login_stats['count'])
+                    ttw += login_stats['timestamp']
+                    if ttw > time.time():
+                        self.log.info("login for user '%s' is locked. Login from host %s" % (user, self.request.remote_ip))
+                        result = {
+                            'state': AUTH_LOCKED,
+                            'seconds': int(ttw)
+                        }
+                        return dict(result=result, error=None, id=jid)
+                    else:
+                        # user and password matches so delete the user from observer list
+                        del cls.__dos_manager[user]
+
                 cls.__session[sid] = {
                     'user': user,
                     'dn': dn,
@@ -188,6 +207,21 @@ class JsonRpcHandler(HSTSRequestHandler):
 
                 self.log.error("login failed for user '%s'" % user)
                 result['state'] = AUTH_FAILED
+
+                # log login tries
+                if user in cls.__dos_manager:
+                    login_stats = cls.__dos_manager[user]
+                    # stop counting after 6 tries to avoid "infinity" lock, the user is locked for more than an hour
+                    if login_stats['count'] < 6:
+                        login_stats['count'] += 1
+                    login_stats['timestamp'] = time.time()
+                    cls.__dos_manager[user] = login_stats
+                else:
+                    cls.__dos_manager[user] = {
+                        'count' : 1,
+                        'timestamp' : time.time(),
+                        'ip' : self.request.remote_ip
+                    }
 
             return dict(result=result, error=None, id=jid)
 
@@ -221,7 +255,7 @@ class JsonRpcHandler(HSTSRequestHandler):
                     cls.__session[sid]['auth_state'] = AUTH_SUCCESS
                     return dict(result={'state': AUTH_SUCCESS}, error=None, id=jid)
                 else:
-                    raise tornado.web.HTTPError(401, "Login failed")
+                    return dict(result={'state': AUTH_FAILED}, error=None, id=jid)
 
         if cls.__session[sid]['auth_state'] != AUTH_SUCCESS:
             raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
