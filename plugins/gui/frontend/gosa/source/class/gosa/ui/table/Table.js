@@ -38,6 +38,8 @@ qx.Class.define("gosa.ui.table.Table",
     this.base(arguments, tableModel, customModel);
     var rowRenderer = new gosa.ui.table.RowRendererColoredRow();
     this.setDataRowRenderer(rowRenderer);
+    this.setColumnVisibilityButtonVisible(false);
+    this.setRowHeight(30);
 
     // Add additional key 
     this.addListener('keyup', function(e){

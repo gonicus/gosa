@@ -120,7 +120,8 @@
                 "edge": 0
             },
             "properties": {
-                "multivalue": true
+                "multivalue": true,
+                "height" : 350
             },
             "extensions": {
                 "guiProperties": {
