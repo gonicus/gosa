@@ -237,13 +237,18 @@ class ObjectProxy(object):
         elif 'container' in object_types[current_base]:
             for sub_base in object_types[current_base]['container']:
                 if sub_base not in checked and 'container' in object_types[sub_base]:
-                    if new_base not in object_types[sub_base]['container']:
-                        checked.append(sub_base)
-                        self.find_dn_for_object(new_base, sub_base, dn, checked)
-                    else:
+                    checked.append(sub_base)
+                    if new_base in object_types[sub_base]['container']:
                         self.__log.debug("found DN '%s,%s' for base '%s'" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn,
                                                                              new_base))
                         return "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
+                    else:
+                        new_dn = dn
+                        if 'FixedRDN' in object_types[sub_base]['backend_attrs']:
+                            new_dn = "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
+                        result = self.find_dn_for_object(new_base, sub_base, new_dn, checked)
+                        if result is not None:
+                            return result
 
     def create_missing_containers(self, new_dn, base_dn, base_type):
         if new_dn == base_dn:
