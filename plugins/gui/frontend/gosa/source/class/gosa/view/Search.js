@@ -44,22 +44,37 @@ qx.Class.define("gosa.view.Search", {
     this.setLayout(new qx.ui.layout.VBox(5));
 
     // Create search field / button
-    var searchHeader = new qx.ui.container.Composite();
+    var searchHeader = this._searchHeader = new qx.ui.container.Composite();
     var searchLayout = new qx.ui.layout.HBox(10);
     searchHeader.setLayout(searchLayout);
 
     var sf = this.searchField = new qx.ui.form.TextField('');
     sf.setPlaceholder(this.tr("Please enter your search..."));
     this.addListener("resize", function() {
-      sf.setWidth(parseInt(this.getBounds().width / 2));
+      var newWidth = parseInt(this.getBounds().width / 2);
+      sf.setWidth(newWidth);
+      searchHeader.setUserBounds(0, 35, this.getBounds().width, 34);
+
+      if (this._alreadyVisible && this._delta) {
+        this._delta = parseInt(this.getBounds().height / 3)
+        qx.bom.element.Animation.animate(this._searchHeader.getContentElement().getDomElement(), {
+          duration: 0, keep: 100, keyFrames: { 0: { "translate": ["0px", "0px"] }, 100: { "translate" : ["0px", this._delta + "px"]}}
+        });
+      }
     }, this);
     searchHeader.add(sf);
+
+    searchHeader.addListenerOnce("appear", function() {
+      this._alreadyVisible = true;
+      this._delta = parseInt(this.getBounds().height / 3)
+      qx.bom.element.Animation.animate(this._searchHeader.getContentElement().getDomElement(), {
+        duration: 0, keep: 100, keyFrames: { 0: { "translate": ["0px", "0px"] }, 100: { "translate" : ["0px", this._delta + "px"]}}
+      });
+    }, this);
 
     var sb = new qx.ui.form.Button(this.tr("Search"));
     sb.setAppearance("button-primary");
     searchHeader.add(sb);
-    searchHeader.setPadding(20);
-    searchHeader.setPaddingBottom(0);
 
     searchLayout.setAlignX("center");
 
@@ -67,11 +82,13 @@ qx.Class.define("gosa.view.Search", {
 
     this._spinner = new gosa.ui.Throbber();
     this._spinner.exclude();
+    this._spinner.setMarginTop(200);
     this.add(this._spinner, {flex: 1});
 
     // Create search info (hidden)
     this.searchInfo = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
     this.searchInfo.hide();
+    this.searchInfo.setMarginTop(70);
     this.searchInfo.setPadding(20);
     var sil = new qx.ui.basic.Label(this.tr("Search"));
     sil.setTextColor("bittersweet-dark");
@@ -207,6 +224,8 @@ qx.Class.define("gosa.view.Search", {
     // The timestamp of the last event that triggered a list reload
     _lastUpdateReload: null,
 
+    _alreadyVisible : false,
+    _delta : 0,
     _sq : null,
     _timer : null,
     _working : false,
@@ -235,6 +254,25 @@ qx.Class.define("gosa.view.Search", {
       // Push the search to the search queue
       if (this.sf.getValue().length > 2) {
         this.doSearchE();
+
+        if (this._delta) {
+          ah = qx.bom.element.Animation.animate(this._searchHeader.getContentElement().getDomElement(), {
+            timing : "ease-in-out",
+            duration : 250,
+            keep : 100,
+            keyFrames : {
+              0 : {
+                "translate" : ["0px", this._delta + "px"]
+              },
+              100 : {
+                "translate" : ["0px", "0px"]
+              }
+            }
+          });
+  
+          this._delta = 0;
+        }
+
       }
     },
 
