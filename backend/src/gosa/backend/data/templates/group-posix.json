@@ -7,7 +7,7 @@
     },
     "extensions": {
         "resources": {
-            "favicon": "images/group-posix.png"
+            "favicon": "@Ligature/group"
         },
         "tabConfig": {
             "title": "tr('POSIX')",
