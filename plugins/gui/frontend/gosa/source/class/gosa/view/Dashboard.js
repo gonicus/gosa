@@ -27,6 +27,7 @@ qx.Class.define("gosa.view.Dashboard", {
     this._setLayout(new qx.ui.layout.VBox());
     this.__gridLayout = new qx.ui.layout.Grid(5, 5);
     this.__columns = 6;
+    this.__rows = 12;
     this.__patchedThemes = {};
 
     this.addListener("appear", function() {
@@ -36,13 +37,10 @@ qx.Class.define("gosa.view.Dashboard", {
     }, this);
     this.getChildControl("edit-mode");
     var board = this.getChildControl("board");
-    board.addListener("resize", this._onGridResize, this);
     if (board.getBounds()) {
-      this._onGridResize();
       this._applyDragListeners();
     } else {
       board.addListenerOnce("appear", function() {
-        this._onGridResize();
         this._applyDragListeners();
       }, this);
     }
@@ -114,6 +112,7 @@ qx.Class.define("gosa.view.Dashboard", {
     __dragPointerOffsetY: null,
     __draggedWidgetsLayoutProperties: null,
     __columns: null,
+    __rows: null,
 
     /**
      * Apply dragover/-leave listeners to the dashboard to recognize File uploads via Drag&Drop
@@ -170,9 +169,12 @@ qx.Class.define("gosa.view.Dashboard", {
             child.addListener("tap", this._onTap, this);
           }
         }, this);
-
+        var rowHeight = 60;
         // add dropboxes to empty cells + one additional row
-        for (row=1, lr = grid.getRowCount()+1; row < lr; row++) {
+        for (row=1, lr = this.__rows; row < lr; row++) {
+          grid.setRowHeight(row, rowHeight);
+          grid.setRowMinHeight(row, rowHeight);
+          grid.setRowMaxHeight(row, rowHeight);
           for (column=0, lc = grid.getColumnCount(); column < lc; column++) {
             widget = grid.getCellWidget(row, column);
             if (widget instanceof qx.ui.core.Spacer) {
@@ -197,7 +199,7 @@ qx.Class.define("gosa.view.Dashboard", {
         this.setModified(false);
 
         // remove the grid dropboxes
-        for (row=1, lr = grid.getRowCount()+1; row < lr; row++) {
+        for (row=1, lr = this.__rows; row < lr; row++) {
           for (column=0, lc = grid.getColumnCount(); column < lc; column++) {
             widget = grid.getCellWidget(row, column);
             if (widget instanceof gosa.ui.core.GridCellDropbox) {
@@ -212,13 +214,15 @@ qx.Class.define("gosa.view.Dashboard", {
     _onMove: function(ev) {
       var data = ev.getData();
       var oldProps = qx.lang.Object.clone(data.widget.getLayoutProperties());
-      var col, l;
+      var col, l, row, lr;
 
       // free space
-      for (col=data.props.column, l=data.props.column+oldProps.colSpan||1; col<l; col++) {
-        var old = this.__gridLayout.getCellWidget(data.props.row, col);
-        if (old && old !== data.widget) {
-          old.destroy();
+      for (row=data.props.row, lr=row + oldProps.rowSpan||1; row < lr; row++) {
+        for (col = data.props.column, l = col + oldProps.colSpan || 1; col < l; col++) {
+          var old = this.__gridLayout.getCellWidget(row, col);
+          if (old && old !== data.widget) {
+            old.destroy();
+          }
         }
       }
 
@@ -230,13 +234,15 @@ qx.Class.define("gosa.view.Dashboard", {
 
       // add placeholders on old widgets place
       var board = this.getChildControl("board");
-      for (col=oldProps.column, l=oldProps.column+oldProps.colSpan||1; col<l; col++) {
-        var cur = this.__gridLayout.getCellWidget(oldProps.row, col);
-        if (!cur) {
-          board.add(new gosa.ui.core.GridCellDropbox(), {
-            row    : oldProps.row,
-            column : col
-          });
+      for (row=oldProps.row, lr=row + oldProps.rowSpan||1; row < lr; row++) {
+        for (col = oldProps.column, l = oldProps.column + oldProps.colSpan || 1; col < l; col++) {
+          var cur = this.__gridLayout.getCellWidget(row, col);
+          if (!cur) {
+            board.add(new gosa.ui.core.GridCellDropbox(), {
+              row    : oldProps.row,
+              column : col
+            });
+          }
         }
       }
       this.setModified(true);
@@ -249,22 +255,6 @@ qx.Class.define("gosa.view.Dashboard", {
       } else {
         this.setSelectedWidget(null);
       }
-    },
-
-    /**
-     * Recalculate grid column width/row height
-     */
-    _onGridResize: function() {
-      // var bounds = this.getChildControl("board").getBounds();
-      // console.log(bounds.width);
-      // var totalSpacing = (this.__columns-1) * this.__gridLayout.getSpacingX();
-      // console.log(totalSpacing);
-      // var columnSize = Math.floor((bounds.width - totalSpacing) / this.__columns);
-      // console.log(columnSize);
-      // // apply size to columns
-      // for (var i=0, l = this.__gridLayout.getColumnCount(); i < l; i++) {
-      //   this.__gridLayout.setColumnWidth(i, columnSize);
-      // }
     },
 
     _applySelectedWidget: function(value, old) {
@@ -563,6 +553,15 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     /**
+     * Check wether this widget can be replaces, which means its either empty aor a placeholder
+     * @param widget {qx.ui.core.Widget|null}
+     * @return {boolean}
+     */
+    __isFree: function(widget) {
+      return (!widget || widget instanceof qx.ui.core.Spacer || widget instanceof gosa.ui.core.GridCellDropbox);
+    },
+
+    /**
      * Add a widget to the dashboard, triggered by the 'execute' event from an entry in the 'add' menu
      */
     _createWidget: function(ev) {
@@ -579,6 +578,7 @@ qx.Class.define("gosa.view.Dashboard", {
       };
       // find empty space in grid
       var widgetColspan = widgetData.options.defaultColspan||3;
+      var widgetRowspan = widgetData.options.defaultRowspan||1;
       var placed = false;
       for(var row=1, l = this.__gridLayout.getRowCount(); row < l; row++) {
         for(var col=0, k = this.__gridLayout.getColumnCount(); col < k; col++) {
@@ -588,17 +588,22 @@ qx.Class.define("gosa.view.Dashboard", {
             break;
           }
           var widget = this.__gridLayout.getCellWidget(row, col);
-          if (widget instanceof qx.ui.core.Spacer || widget instanceof gosa.ui.core.GridCellDropbox) {
+          if (this.__isFree(widget)) {
             var spacers = [widget];
             var blocked = false;
             // check if there are only spacers or nothing in the cells this widgets needs
-            for (var widgetCol=col+1, wcl=widgetCol-1+widgetColspan; widgetCol < wcl; widgetCol++) {
-              var followingWidget = this.__gridLayout.getCellWidget(row, widgetCol);
-              if (followingWidget instanceof qx.ui.core.Spacer || followingWidget instanceof gosa.ui.core.GridCellDropbox) {
-                spacers.push(followingWidget);
-              } else if (widget) {
-                blocked = true;
-                break;
+            for (var widgetRow=row, wcr=widgetRow+widgetRowspan; widgetRow < wcr; widgetRow++) {
+              for (var widgetCol = col, wcl = widgetCol + widgetColspan; widgetCol < wcl; widgetCol++) {
+                var followingWidget = this.__gridLayout.getCellWidget(widgetRow, widgetCol);
+                if (this.__isFree(followingWidget)) {
+                  if (followingWidget) {
+                    spacers.push(followingWidget);
+                  }
+                }
+                else if (widget) {
+                  blocked = true;
+                  break;
+                }
               }
             }
             if (blocked) {
@@ -637,7 +642,8 @@ qx.Class.define("gosa.view.Dashboard", {
           column : 0
         };
       }
-      entry.layoutProperties.colSpan = widgetData.options.defaultColspan || 3;
+      entry.layoutProperties.colSpan = widgetColspan;
+      entry.layoutProperties.rowSpan = widgetRowspan;
       this.__addWidget(entry);
       this.setModified(true);
     },
@@ -806,11 +812,14 @@ qx.Class.define("gosa.view.Dashboard", {
         }, this);
         // remove spacers if there are any
         var colspan = entry.layoutProperties.colSpan||1;
-        var c, l, currentWidget;
-        for(c=entry.layoutProperties.column, l = c + colspan; c<l; c++) {
-          currentWidget = this.__gridLayout.getCellWidget(entry.layoutProperties.row, c);
-          if (currentWidget instanceof qx.ui.core.Spacer || currentWidget instanceof gosa.ui.core.GridCellDropbox) {
-            currentWidget.destroy();
+        var rowspan = entry.layoutProperties.rowSpan||1;
+        var c, l, r, lr, currentWidget;
+        for(r=entry.layoutProperties.row, lr = r + rowspan; r<lr; r++) {
+          for (c = entry.layoutProperties.column, l = c + colspan; c < l; c++) {
+            currentWidget = this.__gridLayout.getCellWidget(r, c);
+            if (currentWidget instanceof qx.ui.core.Spacer || currentWidget instanceof gosa.ui.core.GridCellDropbox) {
+              currentWidget.destroy();
+            }
           }
         }
         board.add(widget, entry.layoutProperties);
@@ -889,8 +898,13 @@ qx.Class.define("gosa.view.Dashboard", {
       root.add(widget, {top: ev.getDocumentTop()-this.__dragPointerOffsetY, left: ev.getDocumentLeft()-this.__dragPointerOffsetX});
 
       // 2. replace the dragged widgets space with GridCellDropboxes
-      for (var col=props.column, l=col + props.colSpan||1; col < l; col++) {
-        board.add(new gosa.ui.core.GridCellDropbox(), {row: props.row, column: col});
+      for (var row=props.row, lr=row + props.rowSpan||1; row < lr; row++) {
+        for (var col = props.column, l = col + props.colSpan || 1; col < l; col++) {
+          board.add(new gosa.ui.core.GridCellDropbox(), {
+            row    : row,
+            column : col
+          });
+        }
       }
 
       // 3. bind dragged widgets position to the mouse position
@@ -910,11 +924,14 @@ qx.Class.define("gosa.view.Dashboard", {
       if (this.__draggedWidget) {
         var widget = this.__draggedWidget;
         var props = this.__draggedWidgetsLayoutProperties;
+        console.log(props);
         // remove the GridCellDropboxes
-        for (var col=props.column, l=col + props.colSpan||1; col < l; col++) {
-          var placeholder = this.__gridLayout.getCellWidget(props.row, col);
-          if (placeholder instanceof gosa.ui.core.GridCellDropbox) {
-            placeholder.destroy();
+        for (var row=props.row, lr=row + props.rowSpan||1; row < lr; row++) {
+          for (var col = props.column, l = col + props.colSpan || 1; col < l; col++) {
+            var placeholder = this.__gridLayout.getCellWidget(row, col);
+            if (placeholder instanceof gosa.ui.core.GridCellDropbox) {
+              placeholder.destroy();
+            }
           }
         }
         // the dragged widget has not been moved around -> add it ti the old place

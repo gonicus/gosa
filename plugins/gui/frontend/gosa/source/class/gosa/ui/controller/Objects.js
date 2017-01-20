@@ -78,6 +78,11 @@ qx.Class.define("gosa.ui.controller.Objects", {
           maxHeight: bounds.height,
           allowGrowY: true
         });
+
+        if (bounds.width < 1024 || bounds.height < 768) {
+          win.maximize();
+        }
+
         win.add(w, {edge: 0});
         this._windowController.addWindow(win, obj);
         win.addListenerOnce("resize", function(ev) {

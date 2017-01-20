@@ -127,6 +127,7 @@ qx.Class.define("gosa.plugins.yql.Main", {
     gosa.data.DashboardController.registerWidget(gosa.plugins.yql.Main, {
       displayName: qx.locale.Manager.tr("YQL"),
       defaultColspan: 3,
+      defaultRowspan: 5,
       theme: {
         appearance : gosa.plugins.yql.Appearance
       },

@@ -140,7 +140,8 @@ qx.Class.define("gosa.plugins.activity.Main", {
       theme: {
         appearance : gosa.plugins.activity.Appearance
       },
-      defaultColspan: 3
+      defaultColspan: 3,
+      defaultRowspan: 5
     });
   }
 });

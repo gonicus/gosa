@@ -90,7 +90,7 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
       if (value) {
         this.addListener("dragstart", this.__onDragStart, this);
         this.addState("edit");
-        this.setResizable([false, true, true, true]);
+        this.setResizable(true);
       } else {
         this.removeListener("dragstart", this.__onDragStart, this);
         this.removeState("edit");

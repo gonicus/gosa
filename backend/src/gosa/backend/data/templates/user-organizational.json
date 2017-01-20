@@ -10,7 +10,7 @@
     },
     "extensions": {
         "resources": {
-            "favicon": "images/orga.png"
+            "favicon": "@Ligature/building"
         },
         "tabConfig": {
             "title": "tr('Organizational')",

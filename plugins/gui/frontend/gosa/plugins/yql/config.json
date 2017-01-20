@@ -70,7 +70,7 @@
       "desc"  : "Bundles the generated build in a single compresses archive",
 
       "shell": {
-        "command": "../make-plugin-bundle.py ${APPLICATION} ${BUILD_PATH}"
+        "command": "../make.py plugin-bundle ${APPLICATION} ${BUILD_PATH}"
       }
     }
   }

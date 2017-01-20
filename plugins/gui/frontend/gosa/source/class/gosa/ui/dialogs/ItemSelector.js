@@ -31,6 +31,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     var tableModel = new qx.ui.table.model.Simple();
     tableModel.setColumns(column_names, column_keys);
     var table = new gosa.ui.table.Table(tableModel);
+    table.setDecorator("table");
     table.setStatusBarVisible(false);
     if (!single) {
       table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
@@ -91,5 +92,10 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
         this.fireDataEvent("selected", list);
         this.close();
       }
-   }
+   },
+
+  destruct : function()
+  {
+    this._disposeObjects("__tableModel", "__table");
+  }
 });

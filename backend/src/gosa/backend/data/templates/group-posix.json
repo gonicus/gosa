@@ -7,7 +7,7 @@
     },
     "extensions": {
         "resources": {
-            "favicon": "images/group-posix.png"
+            "favicon": "@Ligature/group"
         },
         "tabConfig": {
             "title": "tr('POSIX')",
@@ -120,7 +120,8 @@
                 "edge": 0
             },
             "properties": {
-                "multivalue": true
+                "multivalue": true,
+                "height" : 350
             },
             "extensions": {
                 "guiProperties": {
