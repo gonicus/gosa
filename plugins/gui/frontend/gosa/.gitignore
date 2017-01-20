@@ -9,3 +9,4 @@
 /source/index.html
 /uploads/widgets/
 /node_modules/
+**/cache
