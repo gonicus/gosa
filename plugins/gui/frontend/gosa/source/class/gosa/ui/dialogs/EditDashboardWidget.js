@@ -32,7 +32,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
 
     var properties = [];
 
-    var options = gosa.view.Dashboard.getWidgetOptions(widget);
+    var options = gosa.data.DashboardController.getWidgetOptions(widget);
     if (options.settings) {
       Object.getOwnPropertyNames(options.settings.types).forEach(function(propertyName) {
         var type = options.settings.types[propertyName];

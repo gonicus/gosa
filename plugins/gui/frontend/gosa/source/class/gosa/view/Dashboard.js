@@ -55,82 +55,6 @@ qx.Class.define("gosa.view.Dashboard", {
 
   /*
   *****************************************************************************
-     STATICS
-  *****************************************************************************
-  */
-  statics : {
-    __registry: {},
-    __parts: {},
-    __columns: null,
-    __drawn: null,
-
-    /**
-     * Register a loaded dashboard widget for usage
-     *
-     * @param widgetClass {Class} Main widget class
-     * @param options {Map} additional configuration options
-     */
-    registerWidget: function(widgetClass, options) {
-      qx.core.Assert.assertTrue(qx.Interface.classImplements(widgetClass, gosa.plugins.IPlugin),
-                                widgetClass+" does not implement the gosa.plugins.IPlugin interface");
-      qx.core.Assert.assertString(options.displayName, "No 'displayName' property found in options");
-
-      var entry = {
-        clazz: widgetClass,
-        options: options
-      };
-
-      var packageName = gosa.util.Reflection.getPackageName(widgetClass);
-
-      var Env = qx.core.Environment;
-      var sourceKey = packageName+".source";
-
-      var sourceEnv = Env.get(sourceKey);
-      if (!sourceEnv) {
-        Env.add(sourceKey, "builtin");
-      }
-
-      if (sourceEnv === "part") {
-        // plugin loaded from part
-        delete this.__parts[packageName];
-      }
-
-      this.__registry[packageName] = entry;
-    },
-
-    getWidgetRegistry: function() {
-      return this.__registry;
-    },
-
-    /**
-     *
-     * @param widget {gosa.plugins.AbstractDashboardWidget} dashboard widget instance
-     * @returns {Map} the registered widget options
-     */
-    getWidgetOptions: function(widget) {
-      var packageName = gosa.util.Reflection.getPackageName(widget);
-      var entry = this.__registry[packageName];
-      return entry ? entry.options : {};
-    },
-
-    /**
-     * Register an (unloaded) part that provides a dashboard widget
-     * @param part {qx.ui.part.Part}
-     */
-    registerPart: function(part) {
-      // generate the widget name from the part name
-      var widgetName = qx.lang.String.firstUp(part.getName().replace("gosa.plugins.",""));
-      qx.core.Environment.add(part.getName()+".source", "part");
-      this.__parts[part.getName()] = widgetName;
-    },
-
-    getPartRegistry: function() {
-      return this.__parts;
-    }
-  },
-
-  /*
-  *****************************************************************************
      PROPERTIES
   *****************************************************************************
   */
@@ -462,7 +386,7 @@ qx.Class.define("gosa.view.Dashboard", {
       menu.add(uploadButton);
       menu.add(new qx.ui.menu.Separator());
 
-      var registry = gosa.view.Dashboard.getWidgetRegistry();
+      var registry = gosa.data.DashboardController.getWidgetRegistry();
       Object.getOwnPropertyNames(registry).forEach(function(name) {
         var entry = registry[name];
         var button = new qx.ui.menu.Button(entry.options.displayName, entry.options.icon);
@@ -473,25 +397,29 @@ qx.Class.define("gosa.view.Dashboard", {
       }, this);
 
       // add the unloaded parts (loaded parts are already in the registry
-      var parts = gosa.view.Dashboard.getPartRegistry();
+      var parts = gosa.data.DashboardController.getPartRegistry();
       Object.getOwnPropertyNames(parts).forEach(function(name) {
         var displayName = parts[name];
         var button = new qx.ui.menu.Button(displayName);
         button.setUserData("part", name);
         menu.add(button);
-        button.addListener("execute", this._loadPart, this);
+        button.addListener("execute", function() {
+          gosa.data.DashboardController.getInstance().loadFromPart(name).then(this._createWidget, this);
+        }, this);
       }, this);
 
       // add the uploaded widgets which can be downloaded from the backend
       gosa.io.Rpc.getInstance().cA("getDashboardWidgets")
       .then(function(widgets) {
         widgets.forEach(function(widget) {
-          if (!gosa.view.Dashboard.getWidgetRegistry()[widget.provides.namespace]) {
+          if (!gosa.data.DashboardController.getWidgetRegistry()[widget.provides.namespace]) {
             var displayName = widget.info.name;
             var button = new qx.ui.menu.Button(displayName);
             button.setUserData("namespace", widget.provides.namespace);
             menu.add(button);
-            button.addListener("execute", this._loadFromBackend, this);
+            button.addListener("execute", function() {
+              gosa.data.DashboardController.getInstance().loadFromBackend(widget.provides.namespace).then(this._createWidget, this);
+            }, this);
           }
         }, this);
       }, this);
@@ -645,7 +573,7 @@ qx.Class.define("gosa.view.Dashboard", {
         var button = ev.getTarget();
         widgetName = button.getUserData("widget");
       }
-      var widgetData = gosa.view.Dashboard.getWidgetRegistry()[widgetName];
+      var widgetData = gosa.data.DashboardController.getWidgetRegistry()[widgetName];
       var entry = {
         widget: widgetName
       };
@@ -712,41 +640,6 @@ qx.Class.define("gosa.view.Dashboard", {
       entry.layoutProperties.colSpan = widgetData.options.defaultColspan || 3;
       this.__addWidget(entry);
       this.setModified(true);
-    },
-
-    /**
-     * Load a widget plugin part and create the widget afterwards
-     * @param ev {Event} execute event from button
-     */
-    _loadPart: function(ev) {
-      var button = ev.getTarget();
-      var partName = button.getUserData("part");
-      var part = qx.io.PartLoader.getInstance().getPart(partName);
-      if (part.getReadyState() === "initialized") {
-        // load part
-        qx.Part.require(partName, function() {
-          // part is loaded
-          this._createWidget(partName);
-        }, this);
-      }
-    },
-
-    /**
-     * Load uploaded widget from backend
-     * @param ev {Event} with widgets namespace as payload
-     */
-    _loadFromBackend: function(ev) {
-      var button = ev.getTarget();
-      var namespace = button.getUserData("namespace");
-      var loader = new qx.util.DynamicScriptLoader(['/gosa/uploads/widgets/'+namespace+'/'+namespace+".js"]);
-      loader.addListenerOnce("ready", function() {
-        this._createWidget(namespace);
-      }, this);
-      loader.addListener('failed',function(e){
-        var data = e.getData();
-        this.error("failed to load "+data.script);
-      });
-      loader.start();
     },
 
     /**
@@ -852,7 +745,7 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     __addWidget: function(entry) {
-      var registry = gosa.view.Dashboard.getWidgetRegistry();
+      var registry = gosa.data.DashboardController.getWidgetRegistry();
       var widgetName = entry.widget;
       var widget;
       var board = this.getChildControl("board");
