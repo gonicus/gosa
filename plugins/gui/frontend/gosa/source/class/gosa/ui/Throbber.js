@@ -19,7 +19,7 @@ qx.Class.define("gosa.ui.Throbber", {
   extend : qx.ui.basic.Atom,
   
   construct : function(icon) {
-    this.base(arguments, null, icon || "@FontAwesome/spinner");
+    this.base(arguments, null, icon || "@Ligature/adjust");
 
     this.addListener("appear", this.startAnimation, this);
     this.addListener("disappear", this.stopAnimation, this);

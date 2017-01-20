@@ -273,12 +273,6 @@
       {
         "fonts" :
         {
-          "${RESPATH}/gosa/fonts/fontawesome-webfont.ttf" :
-          {
-            "prefix": [ "${RESPATH}" ],
-            "alias" : "FontAwesome",
-            "size" : 40
-          },
           "${RESPATH}/gosa/fonts/LigatureSymbols-2.11.ttf" :
           {
             "prefix": [ "${RESPATH}" ],

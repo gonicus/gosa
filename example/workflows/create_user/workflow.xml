@@ -5,7 +5,7 @@
   <Id>create_user</Id>
   <Description>Workflow to create a user with the most common information</Description>
   <DisplayName>Create user</DisplayName>
-  <Icon>@FontAwesome/_529</Icon>
+  <Icon>create_user.png</Icon>
   <Category>User management</Category>
   <Templates>
     <Template>user.json</Template>

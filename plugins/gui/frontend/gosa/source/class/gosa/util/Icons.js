@@ -30,8 +30,8 @@ qx.Class.define("gosa.util.Icons", {
       'sambadomain': '@Ligature/server',
       'device': '@Ligature/pc',
       'locality': '@Ligature/location',
-      'domain': '@Ligature/link'
-      //'sambamachineaccount': '@FontAwesome/'
+      'domain': '@Ligature/link',
+      'sambamachineaccount': '@Ligature/windows'
 
     },
 

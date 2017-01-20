@@ -24,6 +24,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
     this.base(arguments, "GOsa");
     this.__initLoginForm();
     this.__initOtpForm();
+    this.setFocusOrder([this._uid, this._password, this._login, this._key, this._login]);
 
     var controller = new qx.data.controller.Form(null, this._form);
     this._model = controller.createModel();
@@ -48,6 +49,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
     _info: null,
     _key: null,
     _mode: "login",
+    __timeFormat: null,
 
     __initLoginForm: function() {
       // Show Subject/Message pane
@@ -98,8 +100,6 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
         }
       }, this);
 
-      this.setFocusOrder([uid, password, login]);
-
       // Automatically fill in username and password if wanted
       if(gosa.LocalConfig && gosa.LocalConfig.autologin){
         uid.setValue(gosa.LocalConfig.user);
@@ -112,7 +112,6 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
       var key = this._key = new qx.ui.form.TextField();
       key.setWidth(200);
       key.exclude();
-      this.getFocusOrder().push(key);
 
       this._form.add(key, this.tr("OTP-Passkey"), null, "key");
     },
@@ -131,44 +130,56 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
         return;
       }
 
-      var state = parseInt(result.state);
-      switch (state) {
-        case gosa.Config.AUTH_FAILED:
-          this._info.setValue('<span style="color:red">' + this.tr("Invalid login...") + '</span>');
-          this._info.show();
+      var lockForm = function(hint, time, doCountdown) {
+        var message = hint;
+        this._info.setTextColor("red");
+        this._info.show();
+        this._password.setEnabled(false);
+        this._uid.setEnabled(false);
+        this._login.setEnabled(false);
+        this._key.setEnabled(false);
+
+        var timer = null;
+
+        if (doCountdown === true) {
+          var end = Date.now() + time;
+          message += "<br/>" + this.tr("Your login is locked for %1 seconds", lease);
+          timer = qx.util.TimerManager.getInstance().start(function() {
+            lease = Math.round((end-Date.now())/1000);
+            this._info.setValue(hint + "<br/>" + this.tr("Your login is locked for %1 seconds", lease));
+          }, 1000, this);
+        }
+        this._info.setValue(message);
+
+        qx.event.Timer.once(function() {
           this._uid.focus();
           this._uid.setValue("");
           this._password.setValue("");
+          this._password.setEnabled(true);
+          this._uid.setEnabled(true);
+          this._login.setEnabled(true);
+          this._info.setValue("");
+          this._info.resetTextColor();
+          this._info.exclude();
+          this._key.setValue("");
+          this._key.setEnabled(true);
+          if (timer) {
+            qx.util.TimerManager.getInstance().stop(timer);
+            timer = null;
+          }
+        }, this, time || 4000);
+      }.bind(this);
 
-          var timer = qx.util.TimerManager.getInstance();
-          timer.start(function(userData, timerId) {
-            this._info.setValue("");
-            this._info.exclude();
-          }, 0, this, null, 4000);
+      var state = parseInt(result.state);
+      switch (state) {
+        case gosa.Config.AUTH_FAILED:
+          lockForm(this.tr("Invalid login..."));
           break;
 
         case gosa.Config.AUTH_LOCKED:
-          time = new qx.util.format.DateFormat('HH:MM');
-          lease = time.format(new Date(parseInt(result.seconds)*1000));
-          this._info.setValue('<span style="color:red">' + this.tr("Your login is locked at least until %1", lease) + '</span>');
-          this._info.show();
-          this._password.setEnabled(false);
-          this._uid.setEnabled(false);
-          this._login.setEnabled(false);
-          this._key.setEnabled(false);
-
-          qx.event.Timer.once(function() {
-            this._uid.focus();
-            this._uid.setValue("");
-            this._password.setValue("");
-            this._password.setEnabled(true);
-            this._uid.setEnabled(true);
-            this._login.setEnabled(true);
-            this._info.setValue("");
-            this._info.exclude();
-            this._key.setValue("");
-            this._key.setEnabled(true);
-          }, this, 4000);
+          var lockTime = parseInt(result.seconds);
+          var lease = Math.ceil(lockTime-Date.now()/1000);
+          lockForm(this.tr("Invalid login..."), lease*1000, true);
           break;
 
         case gosa.Config.AUTH_SUCCESS:

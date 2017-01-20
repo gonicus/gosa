@@ -38,11 +38,14 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
     },
 
     id: {
-      check: "String"
+      init : null,
+      check: "String",
+      apply: "_applyId"
     },
 
     icon: {
       check: "String",
+      init: null,
       themeable: true,
       nullable: true,
       apply: "_applyIcon",
@@ -65,7 +68,7 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
     iconSize: {
       check: "Number",
       themeable: true,
-      init: 40,
+      init: 64,
       apply: "_applyIconSize",
       event: "changeIconSize"
     },
@@ -111,6 +114,13 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
       this.removeState("hovered");
     },
 
+    // property apply
+    _applyId : function()
+    {
+      if (this.getIcon()) {
+        this._applyIcon(this.getIcon());
+      }
+    },
 
     // property apply
     _applyListItemType: function(value) {
@@ -201,8 +211,13 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
     // property apply
     _applyIcon: function(value) {
       var control = this.getChildControl("icon");
-      if (value) {
-        control.setSource(value);
+      if (value && this.getId()) {
+        if (value.startsWith("@")) {
+          control.setSource(value);
+        }
+        else {
+          control.setSource("/workflow/" + this.getId() + "/" + value);
+        }
         control.show();
       } else {
         control.hide();

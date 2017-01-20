@@ -94,6 +94,12 @@ class WorkflowRegistry(Plugin):
         else:
             raise WorkflowException(C.make_error('WORKFLOW_PERMISSION_DELETE', id=id))
 
+    def exists(self, id):
+        """
+        Test if the workflow with the given ID exists.
+        """
+        return id in self._workflows
+
     def get_workflow(self, id):
         """
         Creates a workflow object with the given id or None if that does not exist.

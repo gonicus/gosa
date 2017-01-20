@@ -285,7 +285,7 @@ qx.Class.define("gosa.view.Tree", {
           }
           return "@Ligature/pencil";
         } else {
-          return "@FontAwesome/spinner";
+          return "@Ligature/adjust";
         }
       };
 

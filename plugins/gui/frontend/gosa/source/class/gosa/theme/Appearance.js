@@ -484,7 +484,7 @@ qx.Theme.define("gosa.theme.Appearance",
         return {
           show: "both",
           icon: "@Ligature/app",
-          iconSize: 40,
+          iconSize: 64,
           allowGrowX: false,
           backgroundColor: states.hovered ? "hovered" : "transparent",
           cursor: states.hovered ? "pointer" : "default",

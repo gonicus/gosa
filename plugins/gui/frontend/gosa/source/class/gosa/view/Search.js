@@ -256,7 +256,7 @@ qx.Class.define("gosa.view.Search", {
         this.doSearchE();
 
         if (this._delta) {
-          ah = qx.bom.element.Animation.animate(this._searchHeader.getContentElement().getDomElement(), {
+          qx.bom.element.Animation.animate(this._searchHeader.getContentElement().getDomElement(), {
             timing : "ease-in-out",
             duration : 250,
             keep : 100,
