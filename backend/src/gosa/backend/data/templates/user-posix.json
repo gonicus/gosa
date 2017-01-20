@@ -10,7 +10,7 @@
     },
     "extensions": {
         "resources": {
-            "favicon": "@FontAwesome/linux"
+            "favicon": "images/user.png"
         },
         "tabConfig": {
             "title": "tr('POSIX')",
