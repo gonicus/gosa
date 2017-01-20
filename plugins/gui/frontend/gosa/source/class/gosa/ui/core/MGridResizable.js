@@ -220,7 +220,9 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
       var props = qx.lang.Object.clone(start.layoutProperties);
       var diff;
       var colDiff = 0;
+      var rowDiff = 0;
       var removeWidgets = [];
+      var layout, blocked, r, l, c, widget;
 
       if (
       (resizeActive & this.RESIZE_TOP) ||
@@ -228,6 +230,36 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
       )
       {
         diff = Math.max(range.top, Math.min(range.bottom, e.getDocumentTop())) - this.__resizeTop;
+        rowDiff = Math.round(diff/start.rowHeight);
+
+        // check if new rowspan does not overlap existing widgets
+        if (rowDiff > 0) {
+          layout = this.getLayoutParent().getLayout();
+          var startRow = props.row+props.rowSpan;
+          blocked = false;
+          for (r=0; r < rowDiff; r++) {
+            for (c=0, l = props.colSpan||1; c < l; c++) {
+              widget = layout.getCellWidget(r + startRow, c + props.column);
+              if (widget) {
+                if (!(widget instanceof gosa.ui.core.GridCellDropbox)) {
+                  // existing widget -> do not resize
+                  rowDiff = r - 1;
+                  blocked = true;
+                  break;
+                }
+                else {
+                  removeWidgets.push(widget);
+                }
+              }
+            }
+            if (blocked) {
+              break;
+            }
+          }
+        }
+
+        // snap to row
+        diff = rowDiff * (start.rowHeight + this.__resizeRange.spacingY);
 
         if (resizeActive & this.RESIZE_TOP) {
           height -= diff;
@@ -241,8 +273,15 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
           height = hint.maxHeight;
         }
 
-        if (resizeActive & this.RESIZE_TOP) {
-          top += start.height - height;
+        if (rowDiff) {
+          if (resizeActive & this.RESIZE_TOP) {
+            top += start.height - height;
+            props.row += rowDiff;
+            props.rowSpan = Math.max(1, props.rowSpan - rowDiff);
+          }
+          else {
+            props.rowSpan = props.rowSpan + rowDiff;
+          }
         }
       }
 
@@ -257,17 +296,26 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
         if (resizeActive & this.RESIZE_RIGHT) {
           // check if new colspan does not overlap existing widgets
           if (colDiff > 0) {
-            var layout = this.getLayoutParent().getLayout();
+            layout = this.getLayoutParent().getLayout();
             var startCol = props.column+props.colSpan;
-            for (var c=0; c < colDiff; c++) {
-              var widget = layout.getCellWidget(props.row, c+startCol);
-              if (widget) {
-                if (!(widget instanceof gosa.ui.core.GridCellDropbox)) {
-                  // existing widget -> do not resize
-                  colDiff = c - 1;
-                } else {
-                  removeWidgets.push(widget);
+            blocked = false;
+            for (c=0; c < colDiff; c++) {
+              for (r=0, l = props.rowSpan||1; r < l; r++) {
+                widget = layout.getCellWidget(r + props.row, c + startCol);
+                if (widget) {
+                  if (!(widget instanceof gosa.ui.core.GridCellDropbox)) {
+                    // existing widget -> do not resize
+                    colDiff = c - 1;
+                    blocked = true;
+                    break;
+                  }
+                  else {
+                    removeWidgets.push(widget);
+                  }
                 }
+              }
+              if (blocked) {
+                break;
               }
             }
           }
@@ -524,11 +572,6 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
 
       // Sync with widget
       this.setLayoutProperties(endProps);
-      var heightChanged = false;
-      if (this.getHeight() !== bounds.height) {
-        this.setHeight(bounds.height);
-        heightChanged = true;
-      }
 
       // Clear mode
       this.__resizeActive = 0;
@@ -545,7 +588,7 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
 
       e.stopPropagation();
 
-      if (startProps.colSpan !== endProps.colSpan || startProps.rowSpan !== endProps.rowSpan || heightChanged) {
+      if (startProps.colSpan !== endProps.colSpan || startProps.rowSpan !== endProps.rowSpan) {
         // layout has changed
         this.fireDataEvent("layoutChanged", true);
       }

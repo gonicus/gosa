@@ -57,6 +57,9 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
   statics : {
     __startBuddy: null,
 
+    /**
+     * Global start buddy
+     */
     setStartBuddy: function(start) {
       if (this.__startBuddy === start) {
         return;
@@ -136,24 +139,23 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
     _onDragOver: function(ev) {
       var source = ev.getRelatedTarget();
       var colspan = source.getLayoutProperties().colSpan||1;
+      var rowspan = source.getLayoutProperties().rowSpan||1;
       var endCol = colspan + this.getLayoutProperties().column;
-      if (colspan > 1) {
+      if (colspan > 1 || rowspan > 1) {
+        var area = this.getFreeArea(colspan, rowspan);
+        if (!area) {
+          // free area not big enough
+          ev.preventDefault();
+          this.resetHovered();
+          gosa.ui.core.GridCellDropbox.setStartBuddy(null);
+          return;
+        }
+        var start = area.shift();
         // check + mark area if there is enough space
         if (!this.getStartBuddy()) {
-          var area = this.getFreeArea(colspan);
-          if (area.length < colspan) {
-            // free area not big enough
-            ev.preventDefault();
-            this.resetHovered();
-            gosa.ui.core.GridCellDropbox.setStartBuddy(null);
-          } else {
-            var start = area.shift();
-            this.__setNewStartBuddy(start, area);
-          }
+          this.__setNewStartBuddy(start, area);
         } else {
           // check if current start buddy is still relevant
-          var area = this.getFreeArea(colspan);
-          var start = area.shift();
           if (start !== this.getStartBuddy()) {
             // new start Buddy
             // clear the old one
@@ -181,37 +183,49 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
       start.setHovered(true);
     },
 
-    getFreeArea: function(colspan) {
+    getFreeArea: function(colspan, rowspan) {
       var area = new qx.data.Array();
-      var col, l;
-      if (colspan == 1) {
+      var col, l, row, lr;
+      if (colspan === 1 && rowspan === 1) {
         area.push(this);
+        return area;
       } else {
         var props = this.getLayoutProperties();
-        var endCol = colspan + props.column;
-        area.push(this);
-        // get the last free cell in this row
-        for (col=props.column+1, l=Math.min(this.__gridLayout.getColumnCount(), endCol); col < l; col++) {
-          var widget = this.__gridLayout.getCellWidget(props.row, col);
-          if (!(widget instanceof gosa.ui.core.GridCellDropbox)) {
-            break;
-          } else {
-            area.push(widget);
-          }
-        }
-        if (area.length < colspan) {
-          // check cells before
-          for (col=props.column-1, l=col-Math.max(0, colspan - area.length); col > l; col--) {
-            var widget = this.__gridLayout.getCellWidget(props.row, col);
-            if (!(widget instanceof gosa.ui.core.GridCellDropbox)) {
-              break;
-            } else {
-              area.unshift(widget);
+        var grid = this.__gridLayout;
+        var columns = grid.getColumnCount();
+
+        var possibleArea = {
+          startCol: Math.max(0, props.column - colspan),
+          endCol: Math.min(columns, props.column + colspan),
+          startRow: Math.max(0, props.row - rowspan),
+          endRow: props.row + rowspan
+        };
+
+        var colPointer = columns < (props.column + colspan) ? columns - colspan : props.column;
+        var rowPointer = props.row;
+
+        var checkArea = function(rowStart, colStart) {
+          var widgets = new qx.data.Array();
+          // collect free cells
+          for (row = rowStart, lr = possibleArea.endRow; row < lr; row++) {
+            for (col = colStart, l = possibleArea.endCol; col < l; col++) {
+              var widget = grid.getCellWidget(row, col);
+              if (!(widget instanceof gosa.ui.core.GridCellDropbox)) {
+                return {row: row, column: col};
+              } else {
+                widgets.push(widget);
+              }
             }
           }
+          return widgets;
+        };
+
+        var result = checkArea(rowPointer, colPointer);
+        if (qx.lang.Type.isArray(result)) {
+          return result;
         }
       }
-      return area
+      return false;
     },
 
     _onDragLeave: function() {
