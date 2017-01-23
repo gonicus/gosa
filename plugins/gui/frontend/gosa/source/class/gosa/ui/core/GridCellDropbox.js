@@ -56,6 +56,7 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
   */
   statics : {
     __startBuddy: null,
+    __possibleStartBuddies: null,
 
     /**
      * Global start buddy
@@ -73,6 +74,63 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
         this.__startBuddy.getBuddyArea().removeAll();
       }
       this.__startBuddy = start;
+    },
+
+    /**
+     * Calculates the possible start cells of free areas
+     * @param source {gosa.plugins.AbstractDashboardWidget}
+     * @return {Array} array with start cells of free areas encoded as 'row|column' strings
+     */
+    getPossibleStartBuddies: function(source) {
+      if (!this.__possibleStartBuddies) {
+        var grid = gosa.view.Dashboard.getInstance().getChildControl("board").getLayout();
+        var sourceProps = source.getLayoutProperties();
+        var colspan = sourceProps.colSpan || 1;
+        var rowspan = sourceProps.rowSpan || 1;
+
+        var startCells = [];
+
+        var isStartCell = function(cellWidget, row, col) {
+          if (!cellWidget || cellWidget === source || cellWidget instanceof gosa.ui.core.GridCellDropbox) {
+            if (colspan === 1 && rowspan === 1) {
+              return true;
+            }
+            else if ((col + colspan) > grid.getColumnCount()) {
+              // no enough columns
+              return false;
+            }
+            else {
+              // check for free space
+              for (var r = row, lr = row + rowspan; r < lr; r++) {
+                for (var c = 0, lc = col + colspan; c < lc; c++) {
+                  var widget = grid.getCellWidget(r, c);
+                  if (widget && widget !== source && !(widget instanceof gosa.ui.core.GridCellDropbox)) {
+                    return false;
+                  }
+                }
+              }
+            }
+            return true;
+          } else {
+            return false;
+          }
+        }.bind(this);
+
+        for (var row = 1, lr = grid.getRowCount(); row < lr; row++) {
+          for (var col = 0, lc = grid.getColumnCount(); col < lc; col++) {
+            var cellWidget = grid.getCellWidget(row, col);
+            if (isStartCell(cellWidget, row, col)) {
+              startCells.push(row + "|" + col);
+            }
+          }
+        }
+        this.__possibleStartBuddies = startCells;
+      }
+      return this.__possibleStartBuddies;
+    },
+
+    resetPossibleStartBuddies: function() {
+      this.__possibleStartBuddies = null;
     }
   },
 
@@ -138,11 +196,15 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
 
     _onDragOver: function(ev) {
       var source = ev.getRelatedTarget();
-      var colspan = source.getLayoutProperties().colSpan||1;
-      var rowspan = source.getLayoutProperties().rowSpan||1;
-      var endCol = colspan + this.getLayoutProperties().column;
+      var startBuddies = gosa.ui.core.GridCellDropbox.getPossibleStartBuddies(source);
+      var sourceProps = source.getLayoutProperties();
+      var colspan = sourceProps.colSpan||1;
+      var rowspan = sourceProps.rowSpan||1;
+
+      var myProps = this.getLayoutProperties();
+      var endCol = colspan + myProps.column;
       if (colspan > 1 || rowspan > 1) {
-        var area = this.getFreeArea(colspan, rowspan);
+        var area = this.getFreeArea(colspan, rowspan, startBuddies);
         if (!area) {
           // free area not big enough
           ev.preventDefault();
@@ -153,21 +215,20 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
         var start = area.shift();
         // check + mark area if there is enough space
         if (!this.getStartBuddy()) {
+          this.debug("new start cell "+start.getLayoutProperties().row+"/"+start.getLayoutProperties().column);
           this.__setNewStartBuddy(start, area);
         } else {
           // check if current start buddy is still relevant
           if (start !== this.getStartBuddy()) {
+            this.debug("replacing start cell old: "+this.getStartBuddy().getLayoutProperties().row+"/"+
+                       this.getStartBuddy().getLayoutProperties().column+", new: "+start.getLayoutProperties().row+"/"+start.getLayoutProperties().column);
             // new start Buddy
-            // clear the old one
-            var oldStart = this.getStartBuddy();
-            oldStart.setHovered(false);
-            oldStart.getBuddyArea().removeAll();
             this.__setNewStartBuddy(start, area);
           } else {
             start.setHovered(true);
           }
         }
-      } else if (endCol > this.__gridLayout.getColumnCount()) {
+      } else if (endCol >= this.__gridLayout.getColumnCount()) {
         ev.preventDefault();
       } else {
         this.setHovered(true);
@@ -175,6 +236,16 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
     },
 
     __setNewStartBuddy: function(start, area) {
+      // clear the old one
+      var oldStart = this.getStartBuddy();
+      if (oldStart) {
+        oldStart.setHovered(false);
+        oldStart.getBuddyArea().forEach(function(widget) {
+          widget.resetStartBuddy();
+        }, this);
+        oldStart.getBuddyArea().removeAll();
+      }
+
       gosa.ui.core.GridCellDropbox.setStartBuddy(start);
       start.setBuddyArea(area);
       area.forEach(function(areaWidget) {
@@ -183,8 +254,8 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
       start.setHovered(true);
     },
 
-    getFreeArea: function(colspan, rowspan) {
-      var area = new qx.data.Array();
+    getFreeArea: function(colspan, rowspan, startBuddies) {
+
       var col, l, row, lr;
       if (colspan === 1 && rowspan === 1) {
         area.push(this);
@@ -192,37 +263,57 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
       } else {
         var props = this.getLayoutProperties();
         var grid = this.__gridLayout;
-        var columns = grid.getColumnCount();
 
-        var possibleArea = {
-          startCol: Math.max(0, props.column - colspan),
-          endCol: Math.min(columns, props.column + colspan),
-          startRow: Math.max(0, props.row - rowspan),
-          endRow: props.row + rowspan
-        };
+        if (startBuddies.length === 0) {
+          return false;
+        }
 
-        var colPointer = columns < (props.column + colspan) ? columns - colspan : props.column;
-        var rowPointer = props.row;
-
-        var checkArea = function(rowStart, colStart) {
-          var widgets = new qx.data.Array();
-          // collect free cells
-          for (row = rowStart, lr = possibleArea.endRow; row < lr; row++) {
-            for (col = colStart, l = possibleArea.endCol; col < l; col++) {
+        var getArea = function(sr, sc) {
+          var area = new qx.data.Array();
+          // this cell is a start cell for a free area
+          for (row = sr, lr = row + rowspan; row < lr; row++) {
+            for (col = sc, l = col + colspan; col < l; col++) {
               var widget = grid.getCellWidget(row, col);
-              if (!(widget instanceof gosa.ui.core.GridCellDropbox)) {
-                return {row: row, column: col};
-              } else {
-                widgets.push(widget);
+              if (widget instanceof gosa.ui.core.GridCellDropbox) {
+                area.push(widget);
+              } else if (widget) {
+                this.error("this cell ("+row+"/"+col+") should be free but is is not => start cell ("+sr+"/"+sc+") is invalid");
+                return false;
               }
             }
           }
-          return widgets;
-        };
+          return area;
+        }.bind(this);
 
-        var result = checkArea(rowPointer, colPointer);
-        if (qx.lang.Type.isArray(result)) {
-          return result;
+        if (startBuddies.indexOf(props.row+"|"+props.column) >= 0) {
+          return getArea(props.row, props.column);
+        } else {
+          // find the next start cell
+          var rowPointer = props.row;
+          var colPointer = props.column;
+          var endRow = Math.max(1, rowPointer - rowspan);
+          var endCol = Math.max(0, colPointer - colspan);
+
+          // console.log("RowPointer: %d, (>%d), ColPointer: %d (>%d)", rowPointer, endRow, colPointer, endCol);
+          while (rowPointer >= endRow && colPointer >= endCol) {
+            // console.log("checking on pointer row: %d, column: %d", rowPointer, colPointer);
+            if (startBuddies.indexOf(rowPointer+"|"+colPointer) >= 0) {
+              // console.log("1 found area starting from %d/%d", rowPointer, colPointer);
+              return getArea(rowPointer, colPointer);
+            } else {
+              // go one row up and start from props.column to colPointer -1
+              var currentRow = rowPointer;
+              for (var cc = props.column; cc >= endCol; cc--) {
+                // console.log("ROW check row: %d, column: %d", currentRow, cc);
+                if (startBuddies.indexOf(currentRow + "|" + cc) >= 0) {
+                  // console.log("2 found area starting from %d/%d", currentRow, cc);
+                  return getArea(currentRow, cc);
+                }
+              }
+              // nothing found, move the pointers
+              rowPointer--;
+            }
+          }
         }
       }
       return false;

@@ -31,7 +31,9 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
     this._setLayout(new qx.ui.layout.Canvas());
     this.set({
       resizable: false
-    })
+    });
+    this.setDroppable(true);
+    this.addListener("dragover", this._onDragOver, this);
   },
 
   /*
@@ -100,6 +102,11 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
 
     __onDragStart: function(e) {
       e.addAction("move");
+    },
+
+    _onDragOver: function(e) {
+      gosa.ui.core.GridCellDropbox.setStartBuddy(null);
+      e.preventDefault();
     },
 
     // property apply

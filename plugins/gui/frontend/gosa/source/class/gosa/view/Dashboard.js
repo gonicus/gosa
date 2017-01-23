@@ -876,6 +876,7 @@ qx.Class.define("gosa.view.Dashboard", {
       var board = this.getChildControl("board");
       // 1. extract dragged widget from current layout and add it to the root canvas
       var widget = this.__draggedWidget = ev.getCurrentTarget();
+      widget.setDroppable(false);
       var props = this.__draggedWidgetsLayoutProperties = qx.lang.Object.clone(widget.getLayoutProperties());
       var bounds = widget.getBounds();
       board.remove(widget);
@@ -893,8 +894,8 @@ qx.Class.define("gosa.view.Dashboard", {
 
       // as the scaled widgets dimensions are bisected and the widget is centered in the free space
       // we must use 1/4 as offset
-      this.__dragPointerOffsetX = Math.round(bounds.width/4);
-      this.__dragPointerOffsetY = Math.round(bounds.height/4);
+      this.__dragPointerOffsetX = Math.round(bounds.width/4) - 30;
+      this.__dragPointerOffsetY = Math.round(bounds.height/4) - 30;
       root.add(widget, {top: ev.getDocumentTop()-this.__dragPointerOffsetY, left: ev.getDocumentLeft()-this.__dragPointerOffsetX});
 
       // 2. replace the dragged widgets space with GridCellDropboxes
@@ -924,7 +925,6 @@ qx.Class.define("gosa.view.Dashboard", {
       if (this.__draggedWidget) {
         var widget = this.__draggedWidget;
         var props = this.__draggedWidgetsLayoutProperties;
-        console.log(props);
         // remove the GridCellDropboxes
         for (var row=props.row, lr=row + props.rowSpan||1; row < lr; row++) {
           for (var col = props.column, l = col + props.colSpan || 1; col < l; col++) {
@@ -946,6 +946,7 @@ qx.Class.define("gosa.view.Dashboard", {
 
     __removeDraggedWidget: function() {
       if (this.__draggedWidget) {
+        this.__draggedWidget.setDroppable(true);
         this.__draggedWidget.removeListener("drag", this._onDrag, this);
         if (this.__draggedWidget.getUserData("removeWidth")) {
           this.__draggedWidget.resetWidth();
