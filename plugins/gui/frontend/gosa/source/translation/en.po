@@ -15,43 +15,31 @@ msgstr ""
 msgid "Page %1 not found"
 msgstr ""
 
-#: gosa/Application.js:238
+#: gosa/Application.js:175
 msgid "Unable to receive commands."
 msgstr ""
 
-#: gosa/Application.js:243
-msgid "Loading translation"
-msgstr ""
-
-#: gosa/Application.js:251
+#: gosa/Application.js:187
 msgid "Fetching translations failed."
 msgstr ""
 
-#: gosa/Application.js:256
-msgid "Loading base"
-msgstr ""
-
-#: gosa/Application.js:264
+#: gosa/Application.js:199
 msgid "Fetching base failed."
 msgstr ""
 
-#: gosa/Application.js:279
-msgid "Loading %1 templates"
-msgstr ""
-
-#: gosa/Application.js:288
+#: gosa/Application.js:222
 msgid "Fetching object description failed."
 msgstr ""
 
-#: gosa/Application.js:308
+#: gosa/Application.js:242
 msgid "Fetching templates failed."
 msgstr ""
 
-#: gosa/Application.js:428
+#: gosa/Application.js:372
 msgid "There is a new version of this application available."
 msgstr ""
 
-#: gosa/Application.js:429
+#: gosa/Application.js:373
 msgid "Do you want to reload in order to activate it?"
 msgstr ""
 
@@ -75,16 +63,24 @@ msgstr ""
 msgid "Timeout reached before request could be satisfied"
 msgstr ""
 
-#: gosa/ui/Renderer.js:612 gosa/data/BackendChangeProcessor.js:179
-#: gosa/data/BackendChangeProcessor.js:188
+#: gosa/ui/Renderer.js:611 gosa/data/BackendChangeProcessor.js:226
+#: gosa/data/BackendChangeProcessor.js:235
 msgid "removed"
 msgstr ""
 
-#: gosa/data/ExtensionController.js:200
+#: gosa/data/DashboardController.js:121
+msgid "Error loading part '%1'"
+msgstr ""
+
+#: gosa/data/DashboardController.js:146
+msgid "Error loading widget '%1'"
+msgstr ""
+
+#: gosa/data/ExtensionController.js:246
 msgid "Failed to extend the %1 extension: %2"
 msgstr ""
 
-#: gosa/ui/Renderer.js:1329 gosa/data/ExtensionController.js:227
+#: gosa/ui/Renderer.js:1328 gosa/data/ExtensionController.js:279
 msgid "Failed to retract the %1 extension: %2"
 msgstr ""
 
@@ -100,9 +96,17 @@ msgstr ""
 msgid "Please enter your search..."
 msgstr ""
 
-#: gosa/view/Search.js:58 gosa/view/Search.js:75
+#: gosa/view/Search.js:75 gosa/view/Search.js:93
 #: gosa/plugins/search/Main.js:67 gosa/plugins/search/Main.js:95
 msgid "Search"
+msgstr ""
+
+#: gosa/plugins/workflowstarter/Main.js:102
+msgid "Workflow starter"
+msgstr ""
+
+#: gosa/ui/controller/Objects.js:152 gosa/plugins/workflowstarter/Main.js:114
+msgid "Workflow"
 msgstr ""
 
 #: gosa/ui/Header.js:74 gosa/ui/Header.js:166
@@ -121,42 +125,42 @@ msgstr ""
 msgid "Logout"
 msgstr ""
 
-#: gosa/ui/Renderer.js:289
+#: gosa/ui/Renderer.js:288
 msgid "This object has been closed by the backend!"
 msgstr ""
 
-#: gosa/ui/Renderer.js:303
+#: gosa/ui/Renderer.js:302
 msgid "This object does not exist anymore!"
 msgstr ""
 
-#: gosa/ui/widgets/ObjectEdit.js:201 gosa/ui/Renderer.js:337
+#: gosa/ui/widgets/ObjectEdit.js:202 gosa/ui/Renderer.js:336
 msgid "This object has been closed due to inactivity!"
 msgstr ""
 
-#: gosa/ui/Renderer.js:588
+#: gosa/ui/Renderer.js:587
 msgid "empty"
 msgstr ""
 
-#: gosa/ui/widgets/ObjectEdit.js:310 gosa/ui/Renderer.js:1283
+#: gosa/ui/widgets/ObjectEdit.js:320 gosa/ui/Renderer.js:1282
 msgid "Extend"
 msgstr ""
 
-#: gosa/ui/widgets/ObjectEdit.js:302 gosa/ui/Renderer.js:1289
+#: gosa/ui/widgets/ObjectEdit.js:312 gosa/ui/Renderer.js:1288
 msgid "Retract"
 msgstr ""
 
-#: gosa/ui/widgets/ObjectEdit.js:290 gosa/view/Tree.js:114
-#: gosa/view/Tree.js:239 gosa/ui/Renderer.js:1295
+#: gosa/ui/widgets/ObjectEdit.js:293 gosa/view/Tree.js:115
+#: gosa/view/Tree.js:245 gosa/ui/Renderer.js:1294
 msgid "Action"
 msgstr ""
 
-#: gosa/ui/Renderer.js:1390 gosa/ui/dialogs/RetractDependencies.js:30
+#: gosa/ui/Renderer.js:1389 gosa/ui/dialogs/RetractDependencies.js:30
 msgid "Dependent extension"
 msgid_plural "Dependent extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: gosa/ui/Renderer.js:1406 gosa/ui/dialogs/RetractDependencies.js:92
+#: gosa/ui/Renderer.js:1404 gosa/ui/dialogs/RetractDependencies.js:100
 msgid ""
 "To retract the <b>%1</b> extension from this object, the following "
 "additional extension needs to be removed: %2"
@@ -166,19 +170,19 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: gosa/ui/Renderer.js:1409 gosa/ui/dialogs/RetractDependencies.js:100
+#: gosa/ui/Renderer.js:1407 gosa/ui/dialogs/RetractDependencies.js:108
 msgid "Do you want the dependent extension to be removed?"
 msgid_plural "Do you want the dependent extensions to be removed?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: gosa/ui/Renderer.js:1488
+#: gosa/ui/Renderer.js:1486
 msgid "Missing extension"
 msgid_plural "Missing extensions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: gosa/ui/Renderer.js:1506 gosa/ui/dialogs/ExtendDependencies.js:25
+#: gosa/ui/Renderer.js:1503 gosa/ui/dialogs/ExtendDependencies.js:35
 msgid ""
 "To extend the object by the <b>%1</b> extension, the following additional "
 "extension is required: %2"
@@ -188,32 +192,27 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: gosa/ui/Renderer.js:1509 gosa/ui/dialogs/ExtendDependencies.js:33
+#: gosa/ui/Renderer.js:1506 gosa/ui/dialogs/ExtendDependencies.js:43
 msgid "Do you want the missing extension to be added?"
 msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: gosa/ui/widgets/ObjectEdit.js:503 gosa/ui/Renderer.js:1587
-#: gosa/ui/base/Buttons.js:48
+#: gosa/ui/widgets/ObjectEdit.js:532 gosa/ui/Renderer.js:1584
+#: gosa/ui/base/Buttons.js:48 gosa/ui/dialogs/ItemSelector.js:58
 msgid "OK"
 msgstr ""
 
-#: gosa/ui/widgets/ObjectEdit.js:132 gosa/ui/Renderer.js:1654
+#: gosa/ui/widgets/ObjectEdit.js:133 gosa/ui/Renderer.js:1652
 msgid "Remove extension"
 msgstr ""
 
-#: gosa/ui/widgets/ObjectEdit.js:584 gosa/ui/base/Buttons.js:52
-#: gosa/ui/dialogs/ItemSelector.js:61
+#: gosa/ui/base/Buttons.js:52 gosa/ui/dialogs/ItemSelector.js:65
 msgid "Cancel"
 msgstr ""
 
-#: gosa/ui/controller/Objects.js:55
+#: gosa/ui/controller/Objects.js:71
 msgid "Object"
-msgstr ""
-
-#: gosa/ui/controller/Objects.js:131
-msgid "Workflow"
 msgstr ""
 
 #: gosa/ui/dialogs/ClosingObject.js:25
@@ -225,12 +224,12 @@ msgid ""
 "This object will be closed in %1 seconds if you don't continue editing!"
 msgstr ""
 
-#: gosa/ui/dialogs/ClosingObject.js:61
+#: gosa/ui/dialogs/ClosingObject.js:70
 msgid "Continue"
 msgstr ""
 
-#: gosa/ui/dialogs/actions/Change2FAMethod.js:168
-#: gosa/ui/dialogs/ClosingObject.js:72
+#: gosa/ui/dialogs/actions/Change2FAMethod.js:169
+#: gosa/ui/dialogs/ClosingObject.js:82
 msgid "Close"
 msgstr ""
 
@@ -238,15 +237,11 @@ msgstr ""
 msgid "Edit dashboard widget"
 msgstr ""
 
-#: gosa/ui/dialogs/EditDashboardWidget.js:30
-msgid "Colspan"
-msgstr ""
-
-#: gosa/ui/dialogs/EditDashboardWidget.js:31
+#: gosa/ui/dialogs/EditDashboardWidget.js:28
 msgid "Background color"
 msgstr ""
 
-#: gosa/ui/dialogs/Error.js:19 gosa/ui/dialogs/RpcError.js:25
+#: gosa/ui/dialogs/RpcError.js:25 gosa/ui/dialogs/Error.js:19
 msgid "Error"
 msgstr ""
 
@@ -254,44 +249,37 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: gosa/ui/dialogs/ItemSelector.js:57
-msgid "Choose"
-msgstr ""
-
-#: gosa/view/Dashboard.js:311 gosa/ui/dialogs/ItemSelector.js:59
+#: gosa/view/Dashboard.js:418 gosa/ui/dialogs/ItemSelector.js:60
+#: gosa/ui/widgets/QTableWidgetWidget.js:120
 msgid "Add"
 msgstr ""
 
-#: gosa/ui/dialogs/Loading.js:21
+#: gosa/ui/dialogs/Loading.js:28
 msgid "Initializing"
 msgstr ""
 
-#: gosa/ui/dialogs/LoginDialog.js:24 gosa/ui/dialogs/LoginDialog.js:72
-msgid "Login"
-msgstr ""
-
-#: gosa/ui/dialogs/LoginDialog.js:60
+#: gosa/ui/dialogs/LoginDialog.js:70
 msgid "Login ID"
 msgstr ""
 
-#: gosa/ui/dialogs/LoginDialog.js:61
+#: gosa/ui/dialogs/LoginDialog.js:71
 msgid "Password"
 msgstr ""
 
-#: gosa/ui/dialogs/LoginDialog.js:108
+#: gosa/ui/dialogs/LoginDialog.js:82
+msgid "Login"
+msgstr ""
+
+#: gosa/ui/dialogs/LoginDialog.js:116
 msgid "OTP-Passkey"
 msgstr ""
 
-#: gosa/ui/dialogs/LoginDialog.js:128
+#: gosa/ui/dialogs/LoginDialog.js:167 gosa/ui/dialogs/LoginDialog.js:173
 msgid "Invalid login..."
 msgstr ""
 
-#: gosa/ui/dialogs/LoginDialog.js:156
-msgid "Two factor authentification:"
-msgstr ""
-
-#: gosa/ui/dialogs/actions/Change2FAMethod.js:179
-#: gosa/ui/dialogs/LoginDialog.js:169
+#: gosa/ui/dialogs/actions/Change2FAMethod.js:180
+#: gosa/ui/dialogs/LoginDialog.js:197
 msgid "Device responded with error '%1': %2"
 msgstr ""
 
@@ -299,23 +287,23 @@ msgstr ""
 msgid "Merge required"
 msgstr ""
 
-#: gosa/ui/dialogs/MergeDialog.js:57
+#: gosa/ui/dialogs/MergeDialog.js:55
 msgid "Attribute"
 msgstr ""
 
-#: gosa/ui/dialogs/MergeDialog.js:58 gosa/ui/dialogs/MergeDialog.js:106
+#: gosa/ui/dialogs/MergeDialog.js:56 gosa/ui/dialogs/MergeDialog.js:103
 msgid "Local"
 msgstr ""
 
-#: gosa/ui/dialogs/MergeDialog.js:59 gosa/ui/dialogs/MergeDialog.js:107
+#: gosa/ui/dialogs/MergeDialog.js:57 gosa/ui/dialogs/MergeDialog.js:104
 msgid "Server"
 msgstr ""
 
-#: gosa/ui/dialogs/MergeDialog.js:105
+#: gosa/ui/dialogs/MergeDialog.js:102
 msgid "Extension"
 msgstr ""
 
-#: gosa/ui/dialogs/MergeDialog.js:193
+#: gosa/ui/dialogs/MergeDialog.js:188
 msgid ""
 "The object has been updated while you were modifying it. Please determine to"
 " keep your local or the server version of the item. You can achieve this by "
@@ -351,10 +339,10 @@ msgid "Warning"
 msgstr ""
 
 #: gosa/ui/dialogs/actions/Change2FAMethod.js:33
-msgid "Change 2FA method..."
+msgid "Change 2FA method"
 msgstr ""
 
-#: gosa/ui/dialogs/actions/Change2FAMethod.js:76 gosa/view/Search.js:430
+#: gosa/view/Search.js:472 gosa/ui/dialogs/actions/Change2FAMethod.js:76
 msgid "Disabled"
 msgstr ""
 
@@ -370,42 +358,42 @@ msgstr ""
 msgid "Change method"
 msgstr ""
 
-#: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:23
 #: gosa/ui/dialogs/actions/ChangePasswordDialog.js:20
-msgid "Change password..."
+#: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:23
+msgid "Change password"
 msgstr ""
 
 #: gosa/ui/dialogs/actions/ChangePasswordDialog.js:62
 msgid "Encryption"
 msgstr ""
 
-#: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:56
 #: gosa/ui/dialogs/actions/ChangePasswordDialog.js:63
+#: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:55
 msgid "New password"
 msgstr ""
 
-#: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:57
 #: gosa/ui/dialogs/actions/ChangePasswordDialog.js:64
+#: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:56
 msgid "New password (repeated)"
 msgstr ""
 
-#: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:86
 #: gosa/ui/dialogs/actions/ChangePasswordDialog.js:93
+#: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:85
 msgid "Set password"
 msgstr ""
 
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:131
 #: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:126
-#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:130
 msgid "Passwords do not match!"
 msgstr ""
 
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:147
 #: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:141
-#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:146
 msgid "Password has been changed successfully."
 msgstr ""
 
 #: gosa/ui/dialogs/actions/SendMessageDialog.js:23
-msgid "Send message..."
+msgid "Send message"
 msgstr ""
 
 #: gosa/ui/dialogs/actions/SendMessageDialog.js:57
@@ -429,46 +417,54 @@ msgstr ""
 msgid "Remove value"
 msgstr ""
 
-#: gosa/ui/widgets/ObjectEdit.js:233
+#: gosa/ui/widgets/ObjectEdit.js:234
 msgid ""
 "There is currently no template defined for this kind of object. You have to "
 "add one in order to be able to create a new object"
 msgstr ""
 
-#: gosa/ui/widgets/ObjectEdit.js:437 gosa/ui/widgets/ObjectEdit.js:506
+#: gosa/ui/widgets/ObjectEdit.js:465 gosa/ui/widgets/ObjectEdit.js:535
 msgid "Next"
 msgstr ""
 
-#: gosa/ui/widgets/ObjectEdit.js:443
+#: gosa/ui/widgets/ObjectEdit.js:472
 msgid "Back"
 msgstr ""
 
-#: gosa/ui/widgets/ObjectEdit.js:570
+#: gosa/ui/widgets/ObjectEdit.js:600
 msgid "Unsaved changes"
 msgstr ""
 
-#: gosa/ui/widgets/ObjectEdit.js:572
+#: gosa/ui/widgets/ObjectEdit.js:603
 msgid "There are unsaved changes. Are you sure to really abort?"
 msgstr ""
 
-#: gosa/ui/widgets/ObjectEdit.js:574
-msgid "Ok"
+#: gosa/ui/widgets/ObjectEdit.js:605
+msgid "Yes"
+msgstr ""
+
+#: gosa/ui/widgets/ObjectEdit.js:616
+msgid "No"
 msgstr ""
 
 #: gosa/ui/widgets/QGraphicsViewWidget.js:46
 msgid "Image capture"
 msgstr ""
 
-#: gosa/ui/widgets/QGraphicsViewWidget.js:78
+#: gosa/ui/widgets/QGraphicsViewWidget.js:77
 msgid "Upload new image"
 msgstr ""
 
-#: gosa/ui/widgets/QGraphicsViewWidget.js:80
+#: gosa/ui/widgets/QGraphicsViewWidget.js:78
 msgid "Capture"
 msgstr ""
 
-#: gosa/ui/widgets/QGraphicsViewWidget.js:83
+#: gosa/ui/widgets/QGraphicsViewWidget.js:80
 msgid "Remove image"
+msgstr ""
+
+#: gosa/ui/widgets/QTableWidgetWidget.js:126
+msgid "Remove"
 msgstr ""
 
 #: gosa/ui/widgets/SambaLogonHoursWidget.js:31
@@ -483,138 +479,148 @@ msgstr ""
 msgid "Choose value"
 msgstr ""
 
-#: gosa/ui/widgets/Widget.js:321
+#: gosa/ui/widgets/Widget.js:325
 msgid "Pending..."
 msgstr ""
 
-#: gosa/ui/widgets/Widget.js:345
+#: gosa/ui/widgets/Widget.js:349
 msgid "Failed..."
 msgstr ""
 
-#: gosa/view/Dashboard.js:265
+#: gosa/view/Dashboard.js:313
+msgid "Drop file here to add it to the available widgets."
+msgstr ""
+
+#: gosa/view/Dashboard.js:340
+msgid ""
+"The dashboard is empty. To add widgets please activate the edit mode by "
+"clicking the settings button in the upper right corner"
+msgstr ""
+
+#: gosa/view/Dashboard.js:368
 msgid "Upload"
 msgstr ""
 
-#: gosa/view/Dashboard.js:359
+#: gosa/view/Tree.js:139 gosa/view/Dashboard.js:426
 msgid "Edit"
 msgstr ""
 
-#: gosa/view/Tree.js:141 gosa/view/Dashboard.js:377
+#: gosa/view/Tree.js:145 gosa/view/Dashboard.js:444
 msgid "Delete"
 msgstr ""
 
-#: gosa/view/Dashboard.js:426
+#: gosa/view/Dashboard.js:468
 msgid "Clear"
 msgstr ""
 
-#: gosa/view/Dashboard.js:436
+#: gosa/view/Dashboard.js:478
 msgid "Abort"
 msgstr ""
 
-#: gosa/view/Dashboard.js:446
+#: gosa/view/Dashboard.js:488
 msgid "Save"
 msgstr ""
 
-#: gosa/view/Search.js:307
+#: gosa/view/Search.js:349
 msgid "%1 fuzzy result"
 msgid_plural "%1 fuzzy results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: gosa/view/Search.js:307 gosa/view/Search.js:309
+#: gosa/view/Search.js:349 gosa/view/Search.js:351
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: gosa/view/Search.js:307
+#: gosa/view/Search.js:349
 msgid "no exact matches"
 msgstr ""
 
-#: gosa/view/Search.js:309
+#: gosa/view/Search.js:351
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: gosa/view/Search.js:398 gosa/view/Search.js:434
+#: gosa/view/Search.js:440 gosa/view/Search.js:476
 msgid "All"
 msgstr ""
 
-#: gosa/view/Search.js:425
+#: gosa/view/Search.js:467
 msgid "Category"
 msgstr ""
 
-#: gosa/view/Search.js:428
+#: gosa/view/Search.js:470
 msgid "Secondary search"
 msgstr ""
 
-#: gosa/view/Search.js:429
+#: gosa/view/Search.js:471
 msgid "Enabled"
 msgstr ""
 
-#: gosa/view/Search.js:433
+#: gosa/view/Search.js:475
 msgid "Last modification"
 msgstr ""
 
-#: gosa/view/Search.js:435
+#: gosa/view/Search.js:477
 msgid "Last hour"
 msgstr ""
 
-#: gosa/view/Search.js:436
+#: gosa/view/Search.js:478
 msgid "Last 24 hours"
 msgstr ""
 
-#: gosa/view/Search.js:437
+#: gosa/view/Search.js:479
 msgid "Last week"
 msgstr ""
 
-#: gosa/view/Search.js:438
+#: gosa/view/Search.js:480
 msgid "Last month"
 msgstr ""
 
-#: gosa/view/Search.js:439
+#: gosa/view/Search.js:481
 msgid "Last year"
 msgstr ""
 
-#: gosa/view/Search.js:461
+#: gosa/view/Search.js:503
 msgid "Cannot remove entry!"
 msgstr ""
 
-#: gosa/view/Tree.js:61
+#: gosa/view/Tree.js:69
 msgid "Root"
 msgstr ""
 
-#: gosa/view/Tree.js:104 gosa/view/Tree.js:242
+#: gosa/view/Tree.js:105 gosa/view/Tree.js:248
 msgid "Create"
 msgstr ""
 
-#: gosa/view/Tree.js:109 gosa/view/Tree.js:245
+#: gosa/view/Tree.js:110
 msgid "Show"
 msgstr ""
 
-#: gosa/view/Tree.js:120
+#: gosa/view/Tree.js:122
 msgid "Search .."
 msgstr ""
 
-#: gosa/view/Tree.js:135
-msgid "Open"
-msgstr ""
-
-#: gosa/view/Tree.js:155
+#: gosa/view/Tree.js:159
 msgid "DN"
 msgstr ""
 
-#: gosa/view/Tree.js:155
+#: gosa/view/Tree.js:159
 msgid "Description"
 msgstr ""
 
-#: gosa/view/Tree.js:155
+#: gosa/view/Tree.js:159
 msgid "Name"
 msgstr ""
 
-#: gosa/view/Tree.js:155
+#: gosa/view/Tree.js:159
 msgid "UUID"
+msgstr ""
+
+#: gosa/view/Tree.js:251
+msgid "Filter"
 msgstr ""
 
 #~ msgid "Actions"
@@ -645,6 +651,30 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Cannot load user details. Insufficient permissions!"
+#~ msgstr ""
+
+#~ msgid "Loading translation"
+#~ msgstr ""
+
+#~ msgid "Loading base"
+#~ msgstr ""
+
+#~ msgid "Loading %1 templates"
+#~ msgstr ""
+
+#~ msgid "Colspan"
+#~ msgstr ""
+
+#~ msgid "Choose"
+#~ msgstr ""
+
+#~ msgid "Two factor authentification:"
+#~ msgstr ""
+
+#~ msgid "Change 2FA method..."
+#~ msgstr ""
+
+#~ msgid "Change password..."
 #~ msgstr ""
 
 #~ msgid "Communication with the backend failed! Is the service running?"
@@ -683,6 +713,12 @@ msgstr ""
 #~ msgid "Logged in:"
 #~ msgstr ""
 
+#~ msgid "Ok"
+#~ msgstr ""
+
+#~ msgid "Open"
+#~ msgstr ""
+
 #~ msgid "Pending ..."
 #~ msgstr ""
 
@@ -690,6 +726,9 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Retry"
+#~ msgstr ""
+
+#~ msgid "Send message..."
 #~ msgstr ""
 
 #~ msgid "The object was out of date and has been refreshed!"

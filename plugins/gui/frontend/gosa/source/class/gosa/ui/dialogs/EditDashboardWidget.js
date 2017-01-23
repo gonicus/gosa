@@ -32,12 +32,19 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
 
     var options = gosa.data.DashboardController.getWidgetOptions(widget);
     if (options.settings) {
-      Object.getOwnPropertyNames(options.settings.types).forEach(function(propertyName) {
-        var typeSettings = options.settings.types[propertyName];
-        var type;
+      Object.getOwnPropertyNames(options.settings.properties).forEach(function(propertyName) {
+        var typeSettings = options.settings.properties[propertyName];
+        var type, title = propertyName;
         properties.push(propertyName);
         if (qx.lang.Type.isObject(typeSettings)) {
           type = typeSettings.type;
+          if (typeSettings.title) {
+            title = typeSettings.title;
+            if (title.translate) {
+              // trigger the translation
+              title = title.translate();
+            }
+          }
         } else {
           type = typeSettings;
         }
@@ -89,10 +96,10 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
             formItem = selectBox;
             break;
         }
-        if (options.settings.mandatory && options.settings.mandatory.indexOf(propertyName)) {
+        if (options.settings.mandatory && options.settings.mandatory.indexOf(propertyName) >= 0) {
           formItem.setRequired(true);
         }
-        form.add(formItem, propertyName, null, propertyName);
+        form.add(formItem, title, null, propertyName);
       }, this);
     }
 
