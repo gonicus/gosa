@@ -689,7 +689,6 @@ qx.Theme.define("gosa.theme.Appearance",
     "gosa-table-widget/control-bar" : {
       style : function() {
         return {
-          backgroundColor : "lightgray-dark",
           decorator : "control-bar"
         };
       }
