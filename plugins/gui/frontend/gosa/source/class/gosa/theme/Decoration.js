@@ -679,7 +679,7 @@ qx.Theme.define("gosa.theme.Decoration",
     {
       include : "scroll-knob",
       style : {
-        backgroundColor : "mediumgray-light",
+        backgroundColor : "mediumgray-light"
       }
     },
 
@@ -687,7 +687,7 @@ qx.Theme.define("gosa.theme.Decoration",
     {
       include : "scroll-knob",
       style : {
-        backgroundColor : "mediumgray-light",
+        backgroundColor : "mediumgray-light"
       }
     }
 
