@@ -934,7 +934,7 @@ qx.Class.define("gosa.view.Dashboard", {
             }
           }
         }
-        // the dragged widget has not been moved around -> add it ti the old place
+        // the dragged widget has not been moved around -> add it to the old place
         this.__removeDraggedWidget();
         widget.setLayoutProperties(props);
       }
