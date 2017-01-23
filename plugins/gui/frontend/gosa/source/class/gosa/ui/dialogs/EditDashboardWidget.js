@@ -96,7 +96,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
             formItem = selectBox;
             break;
         }
-        if (options.settings.mandatory && options.settings.mandatory.indexOf(propertyName)) {
+        if (options.settings.mandatory && options.settings.mandatory.indexOf(propertyName) >= 0) {
           formItem.setRequired(true);
         }
         form.add(formItem, title, null, propertyName);
