@@ -657,6 +657,14 @@ qx.Theme.define("gosa.theme.Decoration",
       style : {
         color : ["transparent", "aqua-light", "transparent", "aqua-light"]
       }
+    },
+
+    "control-bar" :
+    {
+      style : {
+        color : "mediumgray-light",
+        width : [0, 1, 1, 1]
+      }
     }
 
     // Do NOT place any decorations here, that are not FLAT theme related. Put them above

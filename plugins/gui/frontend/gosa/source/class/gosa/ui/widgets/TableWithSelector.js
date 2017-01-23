@@ -33,26 +33,11 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     }, this);
   },
 
-  destruct: function(){
-
-    // Remove all listeners and then set our values to null.
-    qx.event.Registration.removeAllListeners(this);
-
-    this.setBuddyOf(null);
-    this.setGuiProperties(null);
-    this.setValues(null);
-    this.setValue(null);
-    this.setBlockedBy(null);
-
-    this._disposeObjects("_table", "_actionBtn", "_widget", "_tableModel");
-
-    this._tableData = null;
-    this._columnNames = null;
-    this._editTitle = null;
-    this._columnIDs = null;
-    this._firstColumn = null;
-    this._resolvedNames = null;
-    this._errorRows = null;
+  properties : {
+    hasSelection : {
+      init : false,
+      event : "changeHasSelection"
+    }
   },
 
   members: {
@@ -92,48 +77,50 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       this._table = new gosa.ui.table.Table(this._tableModel);
       this._table.setStatusBarVisible(false);
       this._table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
+      this._table.getSelectionModel().addListener("changeSelection", function() {
+        this.setHasSelection(!!this._table.getSelectionModel().getSelectedCount());
+      }, this);
       this.contents.add(this._table, {top:0 , bottom:0, right: 0, left:0});
       this._table.setPreferenceTableName(this.getExtension() + ":" + this.getAttribute());
       this.bind("valid", this._table, "valid");
       this.bind("invalidMessage", this._table, "invalidMessage");
 
-      // Add new group membership
-      this._table.addListener("dblclick", function(){
+      // Listeners
+      this._table.addListener("edit", this.openSelector, this);
+      this._table.addListener("remove", this.removeSelection, this);
+    },
 
-          var d = new gosa.ui.dialogs.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
-          this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
+    openSelector :  function() {
+      var d = new gosa.ui.dialogs.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
+      this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
 
-          d.addListener("selected", function(e){
-              if(e.getData().length){
-                this.setValue(this.getValue().concat(e.getData()));
-                this.fireDataEvent("changeValue", this.getValue().copy());
-              }
-            }, this);
-
-          d.open();
-
-          //this.fireDataEvent("changeValue", new qx.data.Array(this.getValue().toArray()));
-        }, this);
-
-      // Add a remove listener
-      this._table.addListener("remove", function(e){
-        var that = this;
-        var value = this.getValue().toArray();
-        var updated = false;
-        this._table.getSelectionModel().iterateSelection(function(index) {
-            var selected = that._tableModel.getRowData(index);
-            if(selected){
-              updated = true;
-              qx.lang.Array.remove(value, selected['__identifier__']);
-            }
-          });
-        if(updated){
-          this.setValue(new qx.data.Array(value));
+      d.addListener("selected", function(e){
+        if(e.getData().length){
+          this.setValue(this.getValue().concat(e.getData()));
           this.fireDataEvent("changeValue", this.getValue().copy());
         }
       }, this);
+
+      d.open();
     },
 
+    removeSelection : function(){
+      var value = this.getValue().toArray();
+      var updated = false;
+
+      this._table.getSelectionModel().iterateSelection(function(index) {
+        var selected = this._tableModel.getRowData(index);
+        if(selected){
+          updated = true;
+          qx.lang.Array.remove(value, selected['__identifier__']);
+        }
+      }.bind(this));
+
+      if(updated){
+        this.setValue(new qx.data.Array(value));
+        this.fireDataEvent("changeValue", this.getValue().copy());
+      }
+    },
 
     /* Update the table model and try to resolve missing values.
      * */
@@ -263,5 +250,27 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       }
       this._firstColumn = first;
     }
+  },
+
+  destruct: function(){
+
+    // Remove all listeners and then set our values to null.
+    qx.event.Registration.removeAllListeners(this);
+
+    this.setBuddyOf(null);
+    this.setGuiProperties(null);
+    this.setValues(null);
+    this.setValue(null);
+    this.setBlockedBy(null);
+
+    this._disposeObjects("_table", "_actionBtn", "_widget", "_tableModel");
+
+    this._tableData = null;
+    this._columnNames = null;
+    this._editTitle = null;
+    this._columnIDs = null;
+    this._firstColumn = null;
+    this._resolvedNames = null;
+    this._errorRows = null;
   }
 });

@@ -79,7 +79,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
           allowGrowY: true
         });
 
-        if (bounds.width < 1024 || bounds.height < 768) {
+        if (bounds.width < 1024 || bounds.height < 720) {
           win.maximize();
         }
 

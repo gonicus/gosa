@@ -125,7 +125,7 @@
             },
             "extensions": {
                 "guiProperties": {
-                    "editTitle": "tr('Edit members')",
+                    "editTitle": "tr('Add members')",
                     "columns": {
                         "sn": "tr('Name')",
                         "givenName": "tr('Given name')",

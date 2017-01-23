@@ -21,9 +21,9 @@ qx.Theme.define("gosa.theme.Appearance",
       style : function(states) {
         return {
           backgroundColor : states.checked ? 'lightgray-dark' : 'white',
-          icon : states.checked ? "@Ligature/check/22" : "@Ligature/ban/22",
-          padding : 10,
-          maxWidth : 300
+          icon            : states.checked ? "@Ligature/check/22" : "@Ligature/ban/22",
+          padding         : 10,
+          maxWidth        : 300
         };
       }
     },
@@ -37,10 +37,9 @@ qx.Theme.define("gosa.theme.Appearance",
     },
 
     "tabview" : {
-      style : function()
-      {
+      style : function() {
         return {
-          contentPadding: 0
+          contentPadding : 0
         };
       }
     },
@@ -134,8 +133,7 @@ qx.Theme.define("gosa.theme.Appearance",
     "attribute-button-frame" : {
       alias : "atom",
 
-      style : function(states)
-      {
+      style : function(states) {
         var decorator;
 
         if (!states.disabled) {
@@ -237,135 +235,133 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    "search-list-item/throbber-pane": {
-      style: function() {
+    "search-list-item/throbber-pane" : {
+      style : function() {
         return {
-          backgroundColor: '#000000',
-          opacity: 0.2
+          backgroundColor : '#000000',
+          opacity         : 0.2
         }
       }
     },
 
-    "title-bar": {
-      style: function()  {
+    "title-bar" : {
+      style : function() {
         return {
-          textColor: "header-text",
-          //backgroundColor : "darkgray-dark",
+          textColor       : "header-text", //backgroundColor : "darkgray-dark",
           backgroundColor : "bittersweet-dark",
-          height: 40
+          height          : 40
         }
       }
     },
 
-    "title-bar/logo": {
-      style: function() {
+    "title-bar/logo" : {
+      style : function() {
         return {
-          gap : 3,
-          paddingLeft: 5,
-          paddingRight: 10,
-          font : "Logo"
+          gap          : 3,
+          paddingLeft  : 5,
+          paddingRight : 10,
+          font         : "Logo"
         }
       }
     },
 
-    "title-bar/logo/icon": {
-      style: function() {
+    "title-bar/logo/icon" : {
+      style : function() {
         return {
-          paddingTop: 3
+          paddingTop : 3
         }
       }
     },
 
-    "title-bar/windows": {
-      style: function() {
+    "title-bar/windows" : {
+      style : function() {
         return {
-          backgroundColor: "transparent"
+          backgroundColor : "transparent"
         }
       }
     },
 
-    "title-bar/user": {
-      include: "button-normal",
-      alias : "button-normal",
+    "title-bar/user" : {
+      include : "button-normal",
+      alias   : "button-normal",
 
-      style : function(states)
-      {
+      style : function(states) {
         return {
-          gap : 10,
-          decorator: null,
-          center: true,
+          gap             : 10,
+          decorator       : null,
+          center          : true,
           backgroundColor : states.hovered ? "bittersweet-light" : "transparent"
         };
       }
     },
 
-    "title-bar/user/icon": {
-      include: "image",
-      alias : "image",
-      style: function() {
+    "title-bar/user/icon" : {
+      include : "image",
+      alias   : "image",
+      style   : function() {
         return {
-          width: 32,
-          height: 32,
-          scale: true
+          width  : 32,
+          height : 32,
+          scale  : true
         }
       }
     },
 
-    "gosa-tabview-page-dashboard" : {
-      include: "gosa-tabview-page",
-      alias: "gosa-tabview-page",
+    "gosa-tabview-page-dashboard"                : {
+      include : "gosa-tabview-page",
+      alias   : "gosa-tabview-page",
 
-      style: function() {
+      style : function() {
         return {
-          paddingTop: 16
+          paddingTop : 16
         }
       }
     },
-    "gosa-tabview-page-dashboard/edit-mode": {
-      include: "button",
-      alias: "button",
+    "gosa-tabview-page-dashboard/edit-mode"      : {
+      include : "button",
+      alias   : "button",
 
-      style: function(states) {
+      style : function(states) {
         return {
-          decorator: states.hovered ? "gosa-dashboard-edit-hover" : null,
-          icon : "@Ligature/gear",
-          allowGrowX: false,
-          alignX: "right",
-          padding: [3, 3, 10, 10]
+          decorator  : states.hovered ? "gosa-dashboard-edit-hover" : null,
+          icon       : "@Ligature/gear",
+          allowGrowX : false,
+          alignX     : "right",
+          padding    : [3, 3, 10, 10]
         }
       }
     },
-    "gosa-tabview-page-dashboard/edit-mode/icon": {
-      include: "image",
-      alias : "image",
-      style: function() {
+    "gosa-tabview-page-dashboard/edit-mode/icon" : {
+      include : "image",
+      alias   : "image",
+      style   : function() {
         return {
-          width: 22,
-          scale: true
+          width : 22,
+          scale : true
         }
       }
     },
-    "gosa-tabview-page-dashboard/board": {
-      style: function() {
+    "gosa-tabview-page-dashboard/board"          : {
+      style : function() {
         return {
-          padding: [0, 16]
+          padding : [0, 16]
         }
       }
     },
-    "gosa-tabview-page-dashboard/upload-dropbox": {
-      style: function() {
+    "gosa-tabview-page-dashboard/upload-dropbox" : {
+      style : function() {
         return {
-          backgroundColor: "rgba(255,255,255,0.8)",
-          zIndex: 100000
+          backgroundColor : "rgba(255,255,255,0.8)",
+          zIndex          : 100000
         }
       }
     },
 
-    "gosa-tabview-page-workflows": "gosa-tabview-page",
-    "gosa-tabview-page-workflows/list": "gosa-tabview-page-dashboard/board",
+    "gosa-tabview-page-workflows"      : "gosa-tabview-page",
+    "gosa-tabview-page-workflows/list" : "gosa-tabview-page-dashboard/board",
 
-    "statusLabel": {
-      include: "label",
+    "statusLabel"           : {
+      include : "label",
 
       style : function(states) {
 
@@ -375,45 +371,45 @@ qx.Theme.define("gosa.theme.Appearance",
         }
 
         return {
-          textColor: tc
+          textColor : tc
         };
       }
     },
-    "icon-menu-button": "menu-button",
-    "icon-menu-button/icon": {
-      include: "menu-button/icon",
-      alias: "menu-button/icon",
+    "icon-menu-button"      : "menu-button",
+    "icon-menu-button/icon" : {
+      include : "menu-button/icon",
+      alias   : "menu-button/icon",
 
-      style: function(states) {
+      style : function(states) {
 
-        return  {
-          width: 22,
-          height: 22,
-          scale: true,
-          textColor: 'white'
-        }
-      }
-    },
-
-    "virtual-tree-folder/icon": {
-      include: "image",
-      alias: "image",
-
-      style: function(states) {
         return {
-          width: 22,
-          height: 22,
-          scale: true,
-          textColor: states.selected || states.focused ? '#FFFFFF' : 'icon-color'
+          width     : 22,
+          height    : 22,
+          scale     : true,
+          textColor : 'white'
         }
       }
     },
 
-    "slidebar/button-menu": {
-      include: "button-link",
-      alias: "button-link",
+    "virtual-tree-folder/icon" : {
+      include : "image",
+      alias   : "image",
 
-      style: function() {
+      style : function(states) {
+        return {
+          width     : 22,
+          height    : 22,
+          scale     : true,
+          textColor : states.selected || states.focused ? '#FFFFFF' : 'icon-color'
+        }
+      }
+    },
+
+    "slidebar/button-menu" : {
+      include : "button-link",
+      alias   : "button-link",
+
+      style : function() {
         return {
           icon   : "@Ligature/gear",
           margin : 4
@@ -421,219 +417,220 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    "slidebar/button-menu/icon": {
-      include: "image",
+    "slidebar/button-menu/icon" : {
+      include : "image",
 
-      style: function() {
+      style : function() {
         return {
-          width: 22,
-          scale: true
+          width : 22,
+          scale : true
         }
       }
     },
 
-    "tree-view": "gosa-tabview-page",
-    "tree-view/bread-crumb": "bread-crumb",
-    "tree-view/search-field": {
+    "tree-view"                    : "gosa-tabview-page",
+    "tree-view/bread-crumb"        : "bread-crumb",
+    "tree-view/search-field"       : {
       include : "textfield",
-      alias : "textfield",
-      style: function() {
+      alias   : "textfield",
+      style   : function() {
         return {
           margin : [8, 0]
         };
       }
     },
-    "tree-view/splitpane": "splitpane",
-    "tree-view/tree": "virtual-tree",
-    "tree-view/delete-button": "icon-menu-button",
-    "tree-view/open-button": "icon-menu-button",
-    "tree-view/action-menu-button": "toolbar-menubutton",
-    "tree-view/filter-menu-button": "toolbar-menubutton",
-    "tree-view/create-menu-button": "toolbar-menubutton",
+    "tree-view/splitpane"          : "splitpane",
+    "tree-view/tree"               : "virtual-tree",
+    "tree-view/delete-button"      : "icon-menu-button",
+    "tree-view/open-button"        : "icon-menu-button",
+    "tree-view/action-menu-button" : "toolbar-menubutton",
+    "tree-view/filter-menu-button" : "toolbar-menubutton",
+    "tree-view/create-menu-button" : "toolbar-menubutton",
 
-    "tree-view/listcontainer": {
-      style: function() {
+    "tree-view/listcontainer" : {
+      style : function() {
         return {
           decorator : "panel"
         };
       }
     },
 
-    "tree-view/table": {
+    "tree-view/table" : {
       include : "table",
-      alias : "table",
-      style: function() {
+      alias   : "table",
+      style   : function() {
         return {
           decorator : "table",
-          margin : [48, 6, 6, 6]
+          margin    : [48, 6, 6, 6]
         };
       }
     },
 
-    "tree-view/toolbar": {
-      style: function() {
+    "tree-view/toolbar" : {
+      style : function() {
         return {
           padding : [0, 20]
         }
       }
     },
 
-    "gosa-workflow-item": {
+    "gosa-workflow-item"          : {
 
-      style: function(states) {
+      style : function(states) {
         return {
-          show: "both",
-          icon: "@Ligature/app",
-          iconSize: 64,
-          allowGrowX: false,
-          backgroundColor: states.hovered ? "hovered" : "transparent",
-          cursor: states.hovered ? "pointer" : "default",
-          margin: 5,
-          padding: 10
+          show            : "both",
+          icon            : "@Ligature/app",
+          iconSize        : 64,
+          allowGrowX      : false,
+          backgroundColor : states.hovered ? "hovered" : "transparent",
+          cursor          : states.hovered ? "pointer" : "default",
+          margin          : 5,
+          padding         : 10
         }
       }
     },
-    "gosa-workflow-item/content": {
-      style: function() {
+    "gosa-workflow-item/content"  : {
+      style : function() {
         return {
-          marginLeft: 10,
-          width: 250
+          marginLeft : 10,
+          width      : 250
         }
       }
     },
-    "gosa-workflow-category": {
-      include: "atom",
-      alias: "atom",
+    "gosa-workflow-category"      : {
+      include : "atom",
+      alias   : "atom",
 
-      style: function(states) {
+      style : function(states) {
         return {
-          show: "label",
-          font: "Title",
-          textColor: "font",
-          decorator: states.first ? null : "gosa-workflow-category",
-          marginTop: 10
+          show      : "label",
+          font      : "Title",
+          textColor : "font",
+          decorator : states.first ? null : "gosa-workflow-category",
+          marginTop : 10
         }
       }
     },
-    "gosa-workflow-item/throbber": {
-      include: "gosa-throbber",
+    "gosa-workflow-item/throbber" : {
+      include : "gosa-throbber",
 
-      style: function() {
+      style : function() {
         return {
-          textColor: "icon-color"
+          textColor : "icon-color"
         };
       }
     },
-    "gosa-workflow-item/label": {
-      style: function() {
+    "gosa-workflow-item/label"    : {
+      style : function() {
         return {
           font : "Subtitle"
         };
       }
     },
 
-    "gosa-tabview-page": "tabview-page",
-    "gosa-tabview-page/button/icon": {
-      include: "tabview-page/button/icon",
-      style: function() {
+    "gosa-tabview-page"             : "tabview-page",
+    "gosa-tabview-page/button/icon" : {
+      include : "tabview-page/button/icon",
+      style   : function() {
         return {
-          width: 35,
-          scale: true
+          width : 35,
+          scale : true
         }
       }
     },
-    "edit-tabview-page" : "tabview-page",
-    "edit-tabview-page/button/icon": {
-      include: "tabview-page/button/icon",
-      style: function() {
+    "edit-tabview-page"             : "tabview-page",
+    "edit-tabview-page/button/icon" : {
+      include : "tabview-page/button/icon",
+      style   : function() {
         return {
-          width: 22,
-          height: 22,
-          scale: true
+          width  : 22,
+          height : 22,
+          scale  : true
         }
       }
     },
 
-    "gosa-listitem-window": {
-      include: "listitem",
-      alias: "listitem",
+    "gosa-listitem-window"      : {
+      include : "listitem",
+      alias   : "listitem",
 
-      style: function(states) {
+      style : function(states) {
         return {
           backgroundColor : states.selected ? "bittersweet-light" : undefined,
-          textColor : "white",
-          decorator: "gosa-listitem-window",
-          width: 180,
-          gap: 8,
-          center: true,
-          allowGrowX: false,
-          allowShrinkX: false
+          textColor       : "white",
+          decorator       : "gosa-listitem-window",
+          width           : 180,
+          gap             : 8,
+          center          : true,
+          allowGrowX      : false,
+          allowShrinkX    : false
         }
       }
     },
-    "gosa-listitem-window/icon": {
-      include: "listitem/icon",
+    "gosa-listitem-window/icon" : {
+      include : "listitem/icon",
 
-      style: function() {
+      style : function() {
         return {
-          width: 32,
-          height: 32,
-          scale: true
+          width  : 32,
+          height : 32,
+          scale  : true
         }
       }
     },
 
-    "gosa-spinner": {
-      style: function(states) {
+    "gosa-spinner" : {
+      style : function(states) {
         return {
-          textColor: "icon-color",
-          backgroundColor: states.blocking ? "rgba(0,0,0,0.1)" : "transparent",
-          opacity : 0.5,
-          show: "icon",
-          size: 30,
-          zIndex: 10000,
-          center: true
+          textColor       : "icon-color",
+          backgroundColor : states.blocking ? "rgba(0,0,0,0.1)" : "transparent",
+          opacity         : 0.5,
+          show            : "icon",
+          size            : 30,
+          zIndex          : 10000,
+          center          : true
         };
       }
     },
 
-    "gosa-dashboard-widget": {
-      style: function(states) {
+    "gosa-dashboard-widget"       : {
+      style : function(states) {
         var op = 1.0;
         var dc = "gosa-dashboard-widget";
         if (states.selected) {
           dc += "-selected";
-        } else if (states.edit) {
+        }
+        else if (states.edit) {
           dc += "-edit";
           op = 0.5;
         }
         return {
-          padding: 10,
-          opacity: op,
-          decorator: dc
+          padding   : 10,
+          opacity   : op,
+          decorator : dc
         }
       }
     },
-    "gosa-dashboard-widget/title": {
-      style: function() {
+    "gosa-dashboard-widget/title" : {
+      style : function() {
         return {
-          font: "Subtitle"
+          font : "Subtitle"
         }
       }
     },
-    "gosa-dashboard-edit-button": {
-      style: function() {
+    "gosa-dashboard-edit-button"  : {
+      style : function() {
         return {
-          iconPosition: "top",
-          margin: 10,
-          padding: 10,
-          width: 100
+          iconPosition : "top",
+          margin       : 10,
+          padding      : 10,
+          width        : 100
         }
       }
     },
 
-    "gosa-droppable": {
-      style: function(states) {
+    "gosa-droppable" : {
+      style : function(states) {
         var dc = states.hovered ? "gosa-droppable-hovered" : "gosa-droppable";
         var height = null;
         if (states.invisible) {
@@ -641,19 +638,19 @@ qx.Theme.define("gosa.theme.Appearance",
           height = 0;
         }
         return {
-          decorator: dc,
-          height: height
+          decorator : dc,
+          height    : height
         }
       }
     },
 
     "login-dialog" : {
       include : "window",
-      alias : "window",
-      style : function() {
+      alias   : "window",
+      style   : function() {
         return {
-          contentPadding: 20,
-          icon : "gosa/images/logo.svg"
+          contentPadding : 20,
+          icon           : "gosa/images/logo.svg"
         };
       }
     },
@@ -661,10 +658,10 @@ qx.Theme.define("gosa.theme.Appearance",
     "login-dialog/captionbar" : {
       style : function() {
         return {
-          padding : [4, 0, 4, 4],
-          textColor : "white",
+          padding         : [4, 0, 4, 4],
+          textColor       : "white",
           backgroundColor : "bittersweet-dark",
-          height : 40
+          height          : 40
         };
       }
     },
@@ -673,7 +670,7 @@ qx.Theme.define("gosa.theme.Appearance",
       style : function() {
         return {
           paddingLeft : 4,
-          font : "Logo"
+          font        : "Logo"
         };
       }
     },
@@ -681,11 +678,25 @@ qx.Theme.define("gosa.theme.Appearance",
     "login-dialog/icon" : {
       style : function() {
         return {
-          scale : true,
+          scale  : true,
           height : 35
         };
       }
     },
+
+    "gosa-table-widget" : {},
+
+    "gosa-table-widget/control-bar" : {
+      style : function() {
+        return {
+          backgroundColor : "lightgray-dark",
+          decorator : "control-bar"
+        };
+      }
+    },
+
+    "gosa-table-widget/add-button" : "button-link",
+    "gosa-table-widget/remove-button" : "button-link",
 
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
@@ -821,7 +832,7 @@ qx.Theme.define("gosa.theme.Appearance",
         if (states.disabled) {
           styles.opacity = 0.45;
         }
-        else if (states.hovered || states.focused || states.pressed) {
+        else if (states.hovered || states.pressed) {
           styles.decorator = states.pressed ? "button-default-pressed" : "button-default-focused";
         }
 
@@ -837,7 +848,7 @@ qx.Theme.define("gosa.theme.Appearance",
           textColor : "white"
         };
 
-        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
+        if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-normal-pressed" : "button-normal-focused";
         }
 
@@ -851,7 +862,7 @@ qx.Theme.define("gosa.theme.Appearance",
         var styles = {
           decorator : "button-link"
         };
-        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
+        if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-normal-pressed" : "button-normal-focused";
         }
         return styles;
@@ -867,7 +878,7 @@ qx.Theme.define("gosa.theme.Appearance",
           textColor : "white",
           decorator : "button-primary"
         };
-        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
+        if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-primary-pressed" : "button-primary-focused";
         }
         return styles;
@@ -881,7 +892,7 @@ qx.Theme.define("gosa.theme.Appearance",
           textColor : "white",
           decorator : "button-success"
         };
-        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
+        if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-success-pressed" : "button-success-focused";
         }
         return styles;
@@ -895,7 +906,7 @@ qx.Theme.define("gosa.theme.Appearance",
           textColor : "white",
           decorator : "button-info"
         };
-        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
+        if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-info-pressed" : "button-info-focused";
         }
         return styles;
@@ -909,7 +920,7 @@ qx.Theme.define("gosa.theme.Appearance",
           textColor : "white",
           decorator : "button-warning"
         };
-        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
+        if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-warning-pressed" : "button-warning-focused";
         }
         return styles;
@@ -932,7 +943,7 @@ qx.Theme.define("gosa.theme.Appearance",
           textColor : "white",
           decorator : "button-danger"
         };
-        if (!states.disabled && (states.hovered || states.focused || states.pressed)) {
+        if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-danger-pressed" : "button-danger-focused";
         }
         return styles;
@@ -1225,9 +1236,7 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    //HIER
-
-     "spinner" :
+    "spinner" :
     {
       style : function(states)
       {

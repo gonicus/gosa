@@ -29,6 +29,7 @@ qx.Theme.define("gosa.theme.Color",
 
     "background-selected" : "aqua-dark",
     "table-focus-indicator" : "transparent",
+    "table-row-background-selected" : "aqua-dark",
     "table-row-background-focused-selected" : "aqua-dark",
 
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
