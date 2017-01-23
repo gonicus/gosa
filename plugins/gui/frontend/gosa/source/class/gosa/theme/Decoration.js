@@ -665,6 +665,30 @@ qx.Theme.define("gosa.theme.Decoration",
         color : "mediumgray-light",
         width : [0, 1, 1, 1]
       }
+    },
+
+    "scroll-knob" :
+    {
+      style : {
+        backgroundColor : "mediumgray-dark",
+        radius: 50
+      }
+    },
+
+    "scroll-knob-hovered" :
+    {
+      include : "scroll-knob",
+      style : {
+        backgroundColor : "mediumgray-light",
+      }
+    },
+
+    "scroll-knob-pressed" :
+    {
+      include : "scroll-knob",
+      style : {
+        backgroundColor : "mediumgray-light",
+      }
     }
 
     // Do NOT place any decorations here, that are not FLAT theme related. Put them above

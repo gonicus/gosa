@@ -1068,53 +1068,51 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    "scrollbar/button" : {
-      include : "button-default",
-
-      style : function(states) {
-        var icon;
-        if (states.left) {
-          icon = "@Ligature/left";
-        }
-        else if (states.right) {
-          icon = "@Ligature/right";
-        }
-        else if (states.up) {
-          icon = "@Ligature/up";
-        }
-        else {
-          icon = "@Ligature/down";
-        }
-
-        if (states.left || states.right) {
-          var paddingLeft = states.left ? 3 : 4;
-          return {
-            padding : [3, 0, 3, paddingLeft],
-            icon    : icon,
-            width   : 15,
-            height  : 14,
-            margin  : 0
-          };
-        }
-        else {
-
-          return {
-            padding : 3,
-            icon    : icon,
-            width   : 14,
-            height  : 15,
-            margin  : 0
-          };
-        }
+    "scrollbar" :
+    {
+      style : function()
+      {
+        return {
+          backgroundColor : "lightgray-light"
+        };
       }
     },
 
-    "scrollbar/button/icon" : {
+    "scrollbar/slider/knob" :
+    {
       style : function(states)
       {
+        var decorator = "scroll-knob";
+
+        if (!states.disabled) {
+          if (states.hovered && !states.pressed && !states.checked) {
+            decorator = "scroll-knob-hovered";
+          } else if (states.hovered && (states.pressed || states.checked)) {
+            decorator = "scroll-knob-pressed";
+          } else if (states.pressed || states.checked) {
+            decorator = "scroll-knob-pressed";
+          }
+        }
+
         return {
-          width : 10,
-          scale : true
+          height : 8,
+          width : 8,
+          cursor : states.disabled ? undefined : "pointer",
+          decorator : decorator,
+          minHeight : states.horizontal ? undefined : 9,
+          minWidth : states.horizontal ? 9 : undefined
+        };
+      }
+    },
+
+    "scrollbar/button" : {
+      style : function()
+      {
+        return {
+          width : 0,
+          height : 0,
+          icon    : undefined,
+          margin  : 0
         };
       }
     },
