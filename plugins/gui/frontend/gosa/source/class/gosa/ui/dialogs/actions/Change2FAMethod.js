@@ -56,6 +56,7 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
         // show password field if the user wants to change the 2FA method
         method.addListener("changeSelection", function(e) {
           var selected = e.getData()[0].getModel();
+          this._ok.setEnabled(this._current !== selected);
           if (this._current === null || this._current === selected) {
             // if we have no 2FA activated at the moment we do not need to check the user pwd
             this._pwd.exclude();
