@@ -114,7 +114,7 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
 
       this._model = controller.createModel();
 
-      var ok = this._ok = gosa.ui.base.Buttons.getButton(this.tr("Change method"), "@Ligature/umbrella/22");
+      var ok = this._ok = gosa.ui.base.Buttons.getButton(this.tr("Change method"));
       ok.setAppearance("button-primary");
       ok.addState("default");
       ok.addListener("execute", this._setMethod, this);
@@ -167,7 +167,7 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
             this._showQrCode(result);
             this._showInfo(result);
             this._ok.exclude();
-            this._cancel.setLabel(this.tr("Close"));
+            this._cancel.setLabel(this.tr("OK"));
           } else if (result === "true") {
             this.close();
           } else {
@@ -197,9 +197,24 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
 
     _showQrCode : function(data) {
       this._qrCodeField.removeAll();
+
       if (data) {
-        this._qrCodeField.add(new gosa.ui.QrCode(data, 316));
+        this._qrCodeField.add(new qx.ui.basic.Label(this.tr("Please scan the QR code with your mobile device or enter the code to your authentication application.")).set({
+          rich : true,
+          wrap : true,
+          maxWidth : 350,
+          marginBottom : 24
+        }));
+        this._qrCodeField.add(new qx.ui.basic.Label(this.tr("Code: <b>") + data.split("=")[1] + "</b>").set({
+          marginBottom:24,
+          rich: true
+        }));
+        this._qrCodeField.add(new gosa.ui.QrCode(data, 316).set({allowGrowX: false, alignX: "center"}));
         this._qrCodeField.show();
+        this._method.exclude();
+
+        qx.ui.core.queue.Manager.flush();
+        this.center();
       } else {
         this._qrCodeField.exclude();
       }
