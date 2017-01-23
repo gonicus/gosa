@@ -12,7 +12,7 @@
 
 ======================================================================== */
 
-qx.Class.define("gosa.ui.BreadCrumbItem", {
+qx.Class.define("gosa.ui.indicator.BreadCrumbItem", {
   extend: qx.ui.core.Widget,
 
   construct: function(callback, context) {
@@ -46,7 +46,7 @@ qx.Class.define("gosa.ui.BreadCrumbItem", {
 
     preceding : {
       init: null,
-      check: "gosa.ui.BreadCrumbItem",
+      check: "gosa.ui.indicator.BreadCrumbItem",
       nullable: true
     }
   },

@@ -68,15 +68,9 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangePasswordDialog", {
         this.addElement(la);
         var controller = new qx.data.controller.Form(null, form);
 
-        // Add password indicator
-        this._passwordIndicator = new qx.ui.indicator.ProgressBar();
-        this._passwordIndicator.setDecorator(null);
-        this._passwordIndicator.setHeight(5);
-        this._passwordIndicator.setBackgroundColor("background-selected-disabled");
-        this.addElement(this._passwordIndicator);
-
         // Add status label
-        this._info = new qx.ui.basic.Label();
+        this._info = new qx.ui.basic.Label(this.tr("Password quality") + ": " + this.tr("very weak"));
+        this._info.setMargin(14);
         this._info.setRich(true);
         this._info.exclude();
         this.addElement(this._info);
@@ -110,26 +104,27 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangePasswordDialog", {
 
     updateStatus : function()
     {
-      // Set password strength
-      var score = this.getPasswordScore(this._pwd1.getValue());
-      this._passwordIndicator.setValue(score);
-      if (score < 25) {
-        this._passwordIndicator.getChildControl("progress").setBackgroundColor("red");
-      } else if (score < 50) {
-        this._passwordIndicator.getChildControl("progress").setBackgroundColor("orange");
-      } else if (score < 75) {
-        this._passwordIndicator.getChildControl("progress").setBackgroundColor("yellow");
-      } else {
-        this._passwordIndicator.getChildControl("progress").setBackgroundColor("green");
-      }
+      this._info.show();
 
       if (this._pwd1.getValue() == this._pwd2.getValue()) {
-        this._info.setValue("");
-        this._info.exclude();
+        var beginning = this.tr("Password quality") + ": ";
+
+        // Set password strength
+        var score = this.getPasswordScore(this._pwd1.getValue());
+
+        if (score < 25) {
+          this._info.setValue("<span style='color:#DA4453'>" + beginning + this.tr("very weak") + "</span>");
+        } else if (score < 50) {
+          this._info.setValue("<span style='color:#ED5565'>" + beginning + this.tr("weak") + "</span>");
+        } else if (score < 75) {
+          this._info.setValue("<span style='color:#F6BB42'>" + beginning + this.tr("good") + "</span>");
+        } else {
+          this._info.setValue("<span style='color:#8CC152'>" + beginning + this.tr("very good") + "</span>");
+        }
+
         this._ok.setEnabled(this._pwd1.getValue() === ""?false:true);
       } else {
         this._info.setValue("<span style='color:red'>" + this.tr("Passwords do not match!") + "</span>");
-        this._info.show();
         this._ok.setEnabled(false);
       }
     },

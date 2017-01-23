@@ -58,7 +58,7 @@ qx.Class.define("gosa.view.Tree", {
 
       switch(id) {
         case "bread-crumb":
-          control = new gosa.ui.BreadCrumb();
+          control = new gosa.ui.indicator.BreadCrumb();
           control.addListener("selected", function(ev) {
             this.getChildControl("tree").getSelection().setItem(0, ev.getData());
           }, this);

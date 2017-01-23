@@ -12,7 +12,7 @@
 
 ======================================================================== */
 
-qx.Class.define("gosa.ui.BreadCrumb", {
+qx.Class.define("gosa.ui.indicator.BreadCrumb", {
   extend: qx.ui.core.Widget,
 
   construct: function() {
@@ -56,7 +56,7 @@ qx.Class.define("gosa.ui.BreadCrumb", {
           item.show();
         }
         else {
-          item = new gosa.ui.BreadCrumbItem(this._itemSelected, this);
+          item = new gosa.ui.indicator.BreadCrumbItem(this._itemSelected, this);
           this._add(item);
         }
 
