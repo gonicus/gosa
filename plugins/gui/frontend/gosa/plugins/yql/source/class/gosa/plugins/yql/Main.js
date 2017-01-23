@@ -133,9 +133,15 @@ qx.Class.define("gosa.plugins.yql.Main", {
       },
       settings: {
         mandatory: ["query"],
-        types: {
-          query: "String",
-          refreshRate: "Number"
+        properties: {
+          query: {
+            type: "String",
+            title: qx.locale.Manager.tr("YQL query")
+          },
+          refreshRate: {
+            type: "Number",
+            title: qx.locale.Manager.tr("Refresh rate")
+          }
         }
       }
     });

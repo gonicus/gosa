@@ -10,3 +10,15 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: gosa/plugins/yql/Main.js:128
+msgid "YQL"
+msgstr ""
+
+#: gosa/plugins/yql/Main.js:139
+msgid "YQL query"
+msgstr "YQL Anfrage"
+
+#: gosa/plugins/yql/Main.js:143
+msgid "Refresh rate"
+msgstr "Aktualisierungsrate"

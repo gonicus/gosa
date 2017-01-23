@@ -537,13 +537,15 @@ qx.Class.define("gosa.view.Dashboard", {
       this.setModified(true);
       var board = this.getChildControl("board");
       // add spacer as replacement
-      for(var col=layoutProps.column, l=col+layoutProps.colSpan||1; col < l; col++) {
-        var current = this.__gridLayout.getCellWidget(layoutProps.row, col);
-        if (!current) {
-          board.add(new gosa.ui.core.GridCellDropbox(), {
-            row    : layoutProps.row,
-            column : col
-          });
+      for(var row=layoutProps.row, lr=row+layoutProps.rowSpan||1; row < lr; row++) {
+        for (var col = layoutProps.column, l = col + layoutProps.colSpan || 1; col < l; col++) {
+          var current = this.__gridLayout.getCellWidget(row, col);
+          if (!current) {
+            board.add(new gosa.ui.core.GridCellDropbox(), {
+              row    : row,
+              column : col
+            });
+          }
         }
       }
 
@@ -644,8 +646,14 @@ qx.Class.define("gosa.view.Dashboard", {
       }
       entry.layoutProperties.colSpan = widgetColspan;
       entry.layoutProperties.rowSpan = widgetRowspan;
-      this.__addWidget(entry);
+      widget = this.__addWidget(entry);
       this.setModified(true);
+
+      // check for mandatory properties, open edit dialog then
+      if (widgetData.options.settings && widgetData.options.settings.mandatory && widgetData.options.settings.mandatory.length) {
+        var dialog = new gosa.ui.dialogs.EditDashboardWidget(widget);
+        dialog.open();
+      }
     },
 
     /**
