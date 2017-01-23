@@ -34,6 +34,7 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
     });
     this.setDroppable(true);
     this.addListener("dragover", this._onDragOver, this);
+    this.__options = gosa.data.DashboardController.getWidgetOptions(this);
   },
 
   /*
@@ -59,6 +60,8 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
   },
     
   members : {
+    __options: null,
+
     // overridden
     _createChildControlImpl: function(id) {
       var control;
@@ -67,6 +70,7 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
 
         case "container":
           control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+          control.setAnonymous(true);
           this._add(control, { edge: 0 });
           break;
 
@@ -92,7 +96,11 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
       if (value) {
         this.addListener("dragstart", this.__onDragStart, this);
         this.addState("edit");
-        this.setResizable(true);
+        if (this.__options.resizable === false) {
+          this.setResizable(false);
+        } else {
+          this.setResizable(true);
+        }
       } else {
         this.removeListener("dragstart", this.__onDragStart, this);
         this.removeState("edit");

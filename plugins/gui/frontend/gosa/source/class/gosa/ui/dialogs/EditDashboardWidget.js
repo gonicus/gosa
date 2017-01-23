@@ -23,31 +23,76 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
 
     // form
     var form = new qx.ui.form.Form();
-    var props = widget.getLayoutProperties();
 
     // add the form items
-    var spinner = new qx.ui.form.Spinner(1, props.colSpan, 6);
-    form.add(spinner, this.tr("Colspan"), null, "colSpan");
     form.add(new qx.ui.form.TextField(widget.getBackgroundColor()), this.tr("Background color"), null, "backgroundColor");
 
     var properties = [];
+    var selectionValues = {};
 
     var options = gosa.data.DashboardController.getWidgetOptions(widget);
     if (options.settings) {
       Object.getOwnPropertyNames(options.settings.types).forEach(function(propertyName) {
-        var type = options.settings.types[propertyName];
+        var typeSettings = options.settings.types[propertyName];
+        var type;
         properties.push(propertyName);
+        if (qx.lang.Type.isObject(typeSettings)) {
+          type = typeSettings.type;
+        } else {
+          type = typeSettings;
+        }
+        var formItem;
         switch (type) {
           case "Json":
-            form.add(new qx.ui.form.TextArea(qx.lang.Json.stringify(widget.get(propertyName))), propertyName, null, propertyName);
+            formItem = new qx.ui.form.TextArea(qx.lang.Json.stringify(widget.get(propertyName)));
             break;
           case "String":
-            form.add(new qx.ui.form.TextArea(widget.get(propertyName)), propertyName, null, propertyName);
+            formItem = new qx.ui.form.TextArea(widget.get(propertyName));
             break;
           case "Number":
-            form.add(new qx.ui.form.Spinner(widget.get(propertyName)), propertyName, null, propertyName);
+            formItem = new qx.ui.form.Spinner(widget.get(propertyName));
+            break;
+          case "selection":
+            var selectBox = new qx.ui.form.SelectBox();
+            if (!options.settings.mandatory || options.settings.mandatory.indexOf(propertyName) === -1) {
+              selectBox.add(new qx.ui.form.ListItem("-"));
+            }
+            var currentValue = widget.get(propertyName);
+
+            if (typeSettings.provider === "RPC" && typeSettings.method) {
+              // retrieve data from rpc
+              gosa.io.Rpc.getInstance().cA(typeSettings.method).then(function(result) {
+                for (var key in result) {
+                  if (result.hasOwnProperty(key)) {
+                    var item = new qx.ui.form.ListItem(result[key][typeSettings.value]);
+                    var keyValue = typeSettings.key === "KEY" ? key : result[key][typeSettings.key];
+                    item.setUserData("key", keyValue);
+                    if (typeSettings.icon) {
+                      item.setIcon(result[key][typeSettings.icon])
+                    }
+                    selectBox.add(item);
+                    if (keyValue === currentValue) {
+                      selectBox.setSelection([item]);
+                    }
+                  }
+                }
+              }, this);
+            }
+            selectBox.addListener("changeSelection", function() {
+              if (selectBox.getSelection().length) {
+                var selectedValue = selectBox.getSelection()[0].getUserData("key");
+                if (selectedValue) {
+                  selectionValues[propertyName] = selectedValue;
+                }
+              }
+            }, this);
+            formItem = selectBox;
             break;
         }
+        if (options.settings.mandatory && options.settings.mandatory.indexOf(propertyName)) {
+          formItem.setRequired(true);
+        }
+        form.add(formItem, propertyName, null, propertyName);
       }, this);
     }
 
@@ -66,12 +111,10 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
     // serialization and reset /////////
     saveButton.addListener("execute", function() {
       if (form.validate()) {
-        props.colSpan = model.getColSpan();
-        widget.setLayoutProperties(props);
-        widget.setBackgroundColor(model.getBackgroundColor());
+        widget.setBackgroundColor(model.getBackgroundColor()||null);
         properties.forEach(function(prop) {
-          console.log(prop+": "+model.get(prop));
-          widget.set(prop, model.get(prop));
+          var value = selectionValues[prop] || model.get(prop);
+          widget.set(prop, value);
         });
         this.fireEvent("modified");
         this.close();

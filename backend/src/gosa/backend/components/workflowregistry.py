@@ -21,7 +21,8 @@ from pkg_resources import resource_filename
 C.register_codes(dict(
     WORKFLOW_DIR_ERROR=N_("Workflow directory '%(path)s' does not exist"),
     WORKFLOW_PERMISSION_DELETE=N_("No permission to delete workflow '%(id)s'"),
-    WORKFLOW_DELETE_ERROR=N_("Error removing workflow '%(id)s': %(error)s")
+    WORKFLOW_DELETE_ERROR=N_("Error removing workflow '%(id)s': %(error)s"),
+    WORKFLOW_NOT_FOUND=N_("Workflow '%(id)s' does not exist")
 ))
 
 
@@ -79,6 +80,28 @@ class WorkflowRegistry(Plugin):
                 )
 
         return res
+
+    @Command(needsUser=True, __help__=N_("Get workflow information"))
+    def getWorkflowDetails(self, user, id):
+        """
+        Returns information about one workflow.
+        """
+
+        if id in self._workflows:
+            aclresolver = PluginRegistry.getInstance("ACLResolver")
+            topic = "%s.workflows.%s" % (self.env.domain, id)
+            if not user or aclresolver.check(user, topic, "r", base=self.env.base):
+                workflow = self._workflows[id]
+                return dict(
+                    name=workflow["display_name"],
+                    description=workflow["description"],
+                    icon=workflow["icon"],
+                    category=workflow['category']
+                )
+        else:
+            raise WorkflowException(C.make_error('WORKFLOW_NOT_FOUND', id=id))
+
+        return None
 
     @Command(needsUser=True, __help__=N_("Remove a workflow from the list of available workflows"))
     def removeWorkflow(self, user, id):

@@ -23,6 +23,7 @@
     "profiling",
     "profile",
     "source",
+    "source-hybrid",
     "source-all",
     "source-destruct",
     "source-hybrid",
@@ -40,6 +41,7 @@
       "build",
       "build-script",
       "source-script",
+      "source-hybrid",
       "libraries",
       "common",
       "source",
@@ -189,6 +191,12 @@
       ]
     },
 
+    "source-hybrid": {
+      "extend": [
+        "parts-config"
+      ]
+    },
+
     "source-script":
     {
       "include": ["gosa.ui.widgets.*", "gosa.LocalConfig", "gosa.ui.dialogs.*", "gosa.engine.extensions.*", "gosa.plugins.*", "qx.*"],
@@ -253,7 +261,7 @@
           "boot"                  : {
             "include" : [
             "${QXTHEME}", "gosa.Application", "gosa.ui.widgets.*", "gosa.engine.*",
-            "gosa.ui.dialogs.*", "gosa.plugins.search.*", "gosa.LocalConfig", "qx.*"
+            "gosa.ui.dialogs.*", "gosa.plugins.search.*", "gosa.plugins.workflowstarter.*", "gosa.LocalConfig", "qx.*"
           ] }
         }
       }

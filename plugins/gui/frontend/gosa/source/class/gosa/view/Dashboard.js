@@ -922,6 +922,7 @@ qx.Class.define("gosa.view.Dashboard", {
     _onDragEnd: function() {
       this.__toolbarButtons['delete'].setEnabled(false);
       gosa.ui.core.GridCellDropbox.setStartBuddy(null);
+      gosa.ui.core.GridCellDropbox.resetPossibleStartBuddies();
       if (this.__draggedWidget) {
         var widget = this.__draggedWidget;
         var props = this.__draggedWidgetsLayoutProperties;
@@ -942,6 +943,7 @@ qx.Class.define("gosa.view.Dashboard", {
       this.__dragPointerOffsetX = 0;
       this.__dragPointerOffsetY = 0;
       this.__draggedWidgetsLayoutProperties = null;
+
     },
 
     __removeDraggedWidget: function() {

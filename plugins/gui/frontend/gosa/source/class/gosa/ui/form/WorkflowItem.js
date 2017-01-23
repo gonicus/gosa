@@ -22,7 +22,7 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
   
   construct : function() {
     this.base(arguments);
-    var layout = new qx.ui.layout.HBox();
+    var layout = new qx.ui.layout.HBox(0, "center");
     layout.setAlignY("middle");
     this._setLayout(layout);
 
@@ -86,6 +86,13 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
       apply: "_applyShow"
     },
 
+    iconPosition: {
+      check: ["left", "top"],
+      init: "left",
+      themeable: true,
+      apply: "_applyIconPosition"
+    },
+
     /**
      * This is a dummy property to let this be usable as a selectbox listitem.
      */
@@ -142,6 +149,26 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
       }
     },
 
+    // property apply
+    _applyIconPosition: function(value, old) {
+      var icon = this.getChildControl("icon");
+      var throbber = this.getChildControl("throbber");
+      if (old === "left") {
+        this._remove(icon);
+        this._remove(throbber);
+      } else {
+        this.getChildControl("content").remove(icon);
+        this.getChildControl("content").remove(throbber);
+      }
+      if (value === "left") {
+        this._addAt(icon, 0);
+        this._addAt(throbber, 1);
+      } else {
+        this.getChildControl("content").addAt(icon, 0);
+        this.getChildControl("content").addAt(throbber, 1);
+      }
+    },
+
     // overridden
     _createChildControlImpl: function(id) {
       var control;
@@ -163,7 +190,7 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
           control = new qx.ui.basic.Label(this.getLabel());
           control.setRich(this.getRich());
           control.setAnonymous(true);
-          this.getChildControl("content").addAt(control, 0);
+          this.getChildControl("content").addAt(control, 2);
           if (this.getLabel() == null) {
             control.exclude();
           }
@@ -174,8 +201,8 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
           control.setAnonymous(true);
           control.setRich(true);
           control.setWrap(true);
-          this.getChildControl("content").addAt(control, 1);
-          if (this.getDescription() == null) {
+          this.getChildControl("content").addAt(control, 3);
+          if (!this.getDescription()) {
             control.exclude();
           }
           break;

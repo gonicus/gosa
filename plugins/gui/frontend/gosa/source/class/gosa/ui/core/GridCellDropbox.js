@@ -258,8 +258,7 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
 
       var col, l, row, lr;
       if (colspan === 1 && rowspan === 1) {
-        area.push(this);
-        return area;
+        return new qx.data.Array(this);
       } else {
         var props = this.getLayoutProperties();
         var grid = this.__gridLayout;
