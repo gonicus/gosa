@@ -591,7 +591,7 @@ qx.Theme.define("gosa.theme.Appearance",
       }
     },
 
-    "gosa-dashboard-widget"       : {
+    "gosa-dashboard-widget" : {
       style : function(states) {
         var dc = "gosa-dashboard-widget";
         if (states.selected) {

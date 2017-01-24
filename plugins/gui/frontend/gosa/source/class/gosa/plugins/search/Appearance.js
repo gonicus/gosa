@@ -18,7 +18,11 @@
 qx.Theme.define("gosa.plugins.search.Appearance", {
   
   appearances: {
-    "gosa-dashboard-widget-search": "gosa-dashboard-widget",
+    "gosa-dashboard-widget-search": {
+      alias : "gosa-dashboard-widget",
+      include : "gosa-dashboard-widget"
+    },
+
     "gosa-dashboard-widget-search/search-field": {
       include: "textfield",
       alias: "textfield",
@@ -29,12 +33,14 @@ qx.Theme.define("gosa.plugins.search.Appearance", {
         }
       }
     },
-    "gosa-dashboard-widget-search/search-button/icon": {
+
+    "gosa-dashboard-widget-search/search-button" : {
+      include : "button-primary",
+      alias : "button-primary",
+ 
       style: function() {
         return {
-          width: 22,
-          height: 22,
-          scale: true
+          backgroundColor: "red"
         }
       }
     }

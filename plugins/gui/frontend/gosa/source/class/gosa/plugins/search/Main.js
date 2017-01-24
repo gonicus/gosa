@@ -64,7 +64,7 @@ qx.Class.define("gosa.plugins.search.Main", {
 
         case "search-button":
           var command = new qx.ui.command.Command("enter");
-          control = new qx.ui.form.Button(this.tr("Search"), "@Ligature/search", command);
+          control = new qx.ui.form.Button(this.tr("Search"), "@Ligature/search/22", command);
           this.getChildControl("container").add(control);
           break;
       }
