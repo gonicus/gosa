@@ -29,6 +29,7 @@ qx.Class.define("gosa.view.Dashboard", {
     this.__gridLayout = new qx.ui.layout.Grid(5, 5);
     this.__columns = 6;
     this.__rows = 12;
+    this.__rowHeight = 60;
     this.__patchedThemes = {};
 
     this.addListener("appear", function() {
@@ -74,6 +75,7 @@ qx.Class.define("gosa.view.Dashboard", {
     __draggedWidgetsLayoutProperties: null,
     __columns: null,
     __rows: null,
+    __rowHeight: null,
 
     // property apply
     _applyEditMode: function(value) {
@@ -90,12 +92,8 @@ qx.Class.define("gosa.view.Dashboard", {
           }
         }, this);
 
-        var rowHeight = 60;
         // add dropboxes to empty cells + one additional row
         for (row=1, lr = this.__rows; row < lr; row++) {
-          grid.setRowHeight(row, rowHeight);
-          grid.setRowMinHeight(row, rowHeight);
-          grid.setRowMaxHeight(row, rowHeight);
           for (column=0, lc = grid.getColumnCount(); column < lc; column++) {
             widget = grid.getCellWidget(row, column);
             if (widget instanceof qx.ui.core.Spacer) {
@@ -582,6 +580,12 @@ qx.Class.define("gosa.view.Dashboard", {
         spacer.addState("invisible");
         board.add(spacer, {row: 0, column: i});
         this.__gridLayout.setColumnFlex(i, 1);
+      }
+      // set row heights
+      for (var row=1; row < this.__rows; row++) {
+        this.__gridLayout.setRowHeight(row, this.__rowHeight);
+        this.__gridLayout.setRowMinHeight(row, this.__rowHeight);
+        this.__gridLayout.setRowMaxHeight(row, this.__rowHeight);
       }
     },
 
