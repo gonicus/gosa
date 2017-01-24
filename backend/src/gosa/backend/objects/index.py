@@ -796,7 +796,7 @@ class ObjectIndex(Plugin):
         _args = __make_filter(node)
 
         if use_extension and use_key_value:
-            args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid == ExtensionIndex.uuid]
+            args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid, ObjectInfoIndex.uuid == ExtensionIndex.uuid]
             args += _args
             return and_(*args)
 

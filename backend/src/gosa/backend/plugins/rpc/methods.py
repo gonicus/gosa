@@ -212,10 +212,10 @@ class RPCMethods(Plugin):
         if not "dn" in attrs:
             attrs.update({'dn': 1})
 
-        # Start the query and brind the result in a usable form
+        # Start the query and format the result
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({
-            'or_': {'_type': otype, '_extensions': otype},
+            'or_': {'_type': otype, 'extension': otype},
             oattr: '%{}%'.format(fltr) if len(fltr) > 0 else '%'
             }, attrs)
         result = []
