@@ -58,7 +58,17 @@ qx.Theme.define("gosa.plugins.workflowstarter.Appearance", {
       style: function() {
         return {
           alignY: "middle",
-          alignX: "center"
+          alignX: "center",
+          font: "bold"
+        }
+      }
+    },
+    "gosa-dashboard-widget-workflowstarter/workflow-item/description": {
+      style: function() {
+        return {
+          alignY: "middle",
+          alignX: "center",
+          font: "Small"
         }
       }
     }

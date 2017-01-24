@@ -357,6 +357,7 @@ qx.Theme.define("gosa.theme.Appearance",
 
     "gosa-tabview-page-workflows"      : "gosa-tabview-page",
     "gosa-tabview-page-workflows/list" : "gosa-tabview-page-dashboard/board",
+    "gosa-tabview-page-workflows/edit-mode": "gosa-tabview-page-dashboard/edit-mode",
 
     "statusLabel"           : {
       include : "label",
@@ -475,15 +476,21 @@ qx.Theme.define("gosa.theme.Appearance",
     "gosa-workflow-item"          : {
 
       style : function(states) {
+        var dc = null;
+        if (states.selected) {
+          dc = "gosa-workflow-item-selected";
+        } else if (states.hovered) {
+          dc = "gosa-workflow-item-hovered";
+        }
         return {
           show            : "both",
           icon            : "@Ligature/app",
           iconSize        : 64,
           allowGrowX      : false,
-          backgroundColor : states.hovered ? "hovered" : "transparent",
           cursor          : states.hovered ? "pointer" : "default",
           margin          : 5,
-          padding         : 10
+          padding         : 10,
+          decorator       : dc
         }
       }
     },

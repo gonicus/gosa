@@ -18,7 +18,7 @@
  */
 qx.Class.define("gosa.view.Dashboard", {
   extend : qx.ui.tabview.Page,
-  include: gosa.upload.MDragUpload,
+  include: [gosa.upload.MDragUpload, gosa.ui.MEditableView],
   type: "singleton",
 
   construct : function()
@@ -58,28 +58,6 @@ qx.Class.define("gosa.view.Dashboard", {
     columns : {
       check: "Number",
       init: 2
-    },
-
-    editMode: {
-      check: "Boolean",
-      init: false,
-      event: "changeEditMode",
-      apply: "_applyEditMode"
-    },
-
-    /**
-     * Flag to determine modifications during editing mode
-     */
-    modified: {
-      check: "Boolean",
-      init: false,
-      event: "changeModified"
-    },
-
-    selectedWidget: {
-      check: "gosa.plugins.AbstractDashboardWidget",
-      nullable: true,
-      apply: "_applySelectedWidget"
     }
   },
 
@@ -108,7 +86,6 @@ qx.Class.define("gosa.view.Dashboard", {
       var row, column, widget, lr, lc;
 
       if (value) {
-        this.getChildControl("toolbar").show();
         this.getChildControl("empty-info").exclude();
         this.getChildControl("board").addListener("tap", this._onTap, this);
         this.getChildControl("board").getChildren().forEach(function(child) {
@@ -136,15 +113,12 @@ qx.Class.define("gosa.view.Dashboard", {
         }
         qx.event.message.Bus.subscribe("gosa.dashboard.drop", this._onMove, this);
       } else {
-        this.getChildControl("toolbar").exclude();
         this.getChildControl("board").getChildren().forEach(function(child) {
           if (child instanceof gosa.plugins.AbstractDashboardWidget) {
             child.removeListener("tap", this._onTap, this);
           }
         }, this);
         this.getChildControl("board").removeListener("tap", this._onTap, this);
-        this.setSelectedWidget(null);
-        this.setModified(false);
 
         // remove the grid dropboxes
         for (row=1, lr = this.__rows; row < lr; row++) {
@@ -205,12 +179,8 @@ qx.Class.define("gosa.view.Dashboard", {
       }
     },
 
-    _applySelectedWidget: function(value, old) {
-      if (old) {
-        old.removeState("selected");
-      }
+    _applySelectedWidget: function(value) {
       if (value) {
-        value.addState("selected");
         this.__toolbarButtons['delete'].setEnabled(true);
         this.__toolbarButtons['edit'].setEnabled(true);
       } else {
@@ -224,37 +194,6 @@ qx.Class.define("gosa.view.Dashboard", {
       var control;
 
       switch(id) {
-
-        case "header":
-          control = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-          this._addAt(control, 0);
-          break;
-
-        case "edit-mode":
-          control = new qx.ui.form.Button(null, "@Ligature/gear");
-          control.setZIndex(1000);
-          var bounds = this.getBounds();
-          if (bounds) {
-            control.setUserBounds(bounds.width - 35, 0, 35, 35);
-            this.add(control);
-          } else {
-            this.addListenerOnce("appear", function() {
-              var bounds = this.getBounds();
-              control.setUserBounds(bounds.width - 35, 0, 35, 35);
-              this.add(control);
-            }, this);
-          }
-          control.addListener("execute", function() {
-            this.toggleEditMode();
-          }, this);
-          break;
-
-        case "toolbar":
-          control = new qx.ui.container.Composite(new qx.ui.layout.HBox(5, "center"));
-          control.exclude();
-          this.__fillToolbar(control);
-          this.getChildControl("header").add(control, {edge: 0});
-          break;
 
         case "upload-dropbox":
           control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
@@ -299,6 +238,10 @@ qx.Class.define("gosa.view.Dashboard", {
           this._addAt(control, 2, {flex: 1});
           break;
 
+      }
+
+      if (this._createMixinChildControlImpl && !control) {
+        control = this._createMixinChildControlImpl(id);
       }
 
       return control || this.base(arguments, id);

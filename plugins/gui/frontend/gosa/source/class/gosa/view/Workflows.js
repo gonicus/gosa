@@ -20,7 +20,7 @@
 
 qx.Class.define("gosa.view.Workflows", {
   extend : qx.ui.tabview.Page,
-  include: gosa.upload.MDragUpload,
+  include: [gosa.upload.MDragUpload, gosa.ui.MEditableView],
   type: "singleton",
 
   construct : function()
@@ -31,6 +31,7 @@ qx.Class.define("gosa.view.Workflows", {
     this.setLayout(new qx.ui.layout.VBox(5));
     this._rpc = gosa.io.Rpc.getInstance();
     this._createChildControl("list");
+    this._createChildControl("edit-mode");
 
     this.addListener("appear", this.__reload, this);
     gosa.io.Sse.getInstance().addListener("workflowUpdate", this.__reload, this);
@@ -53,7 +54,7 @@ qx.Class.define("gosa.view.Workflows", {
   *****************************************************************************
   */
   members : {
-
+    __toolbarButtons: null,
     _listController : null,
 
     /**
@@ -135,6 +136,9 @@ qx.Class.define("gosa.view.Workflows", {
           this._addAt(control, 2, {flex: 1});
           break;
       }
+      if (this._createMixinChildControlImpl && !control) {
+        control = this._createMixinChildControlImpl(id);
+      }
 
       return control || this.base(arguments, id);
     },
@@ -146,10 +150,8 @@ qx.Class.define("gosa.view.Workflows", {
         },
 
         configureItem: function(item) {
-          item.addListener("tap", function() {
-            gosa.ui.controller.Objects.getInstance().startWorkflow(item);
-          });
-        },
+          item.addListener("tap", this._onTap, this);
+        }.bind(this),
 
         bindItem: function(controller, item , index) {
           controller.bindProperty("name", "label", null, item, index);
@@ -171,6 +173,79 @@ qx.Class.define("gosa.view.Workflows", {
           return item.getCategory();
         }
       }
+    },
+
+    // property apply
+    _applyEditMode: function(value) {
+      if (value === true) {
+        this.getChildControl("empty-info").exclude();
+      }
+    },
+
+    _onTap: function(ev) {
+      if (this.isEditMode()) {
+        if (ev.getCurrentTarget() instanceof gosa.ui.form.WorkflowItem) {
+          this.setSelectedWidget(ev.getCurrentTarget());
+          ev.stopPropagation();
+        }
+        else {
+          this.setSelectedWidget(null);
+        }
+      } else {
+        gosa.ui.controller.Objects.getInstance().startWorkflow(ev.getCurrentTarget());
+      }
+    },
+
+    _applySelectedWidget: function(value) {
+      if (value) {
+        this.__toolbarButtons['delete'].setEnabled(true);
+      } else {
+        this.__toolbarButtons['delete'].setEnabled(false);
+      }
+    },
+
+    /**
+     * Add buttons to the toolbar for the editing mode
+     * @param toolbar {qx.ui.container.Composite} the toolbar
+     */
+    __fillToolbar: function(toolbar) {
+      this.__toolbarButtons = {};
+
+      var uploadButton = new com.zenesis.qx.upload.UploadButton(this.tr("Upload"), "@Ligature/upload");
+      uploadButton.setAppearance("gosa-dashboard-edit-button");
+
+      gosa.io.Rpc.getInstance().cA("registerUploadPath", "workflow")
+      .then(function(result) {
+        var path = result[1];
+        new gosa.util.UploadMgr(uploadButton, path);
+      }, this);
+
+      // add button
+      toolbar.add(uploadButton);
+      this.__toolbarButtons["upload"] = uploadButton;
+
+      // delete button
+      var widget = new qx.ui.form.Button(this.tr("Delete"), "@Ligature/trash");
+      widget.setDroppable(true);
+      widget.setEnabled(false);
+      widget.setAppearance("gosa-dashboard-edit-button");
+      widget.addListener("tap", function() {
+        if (this.getSelectedWidget()) {
+          this.__deleteWorkflow(this.getSelectedWidget());
+        }
+      }, this);
+      widget.addListener("drop", function(ev) {
+        this.__deleteWidget(ev.getRelatedTarget());
+        this.__draggedWidget = null;
+      }, this);
+      widget.addListener("dragover", function(ev) {
+        qx.bom.element.Animation.animate(ev.getTarget().getContentElement().getDomElement(), gosa.util.AnimationSpecs.HIGHLIGHT_DROP_TARGET);
+      }, this);
+      widget.addListener("dragleave", function(ev) {
+        qx.bom.element.Animation.animate(ev.getTarget().getContentElement().getDomElement(), gosa.util.AnimationSpecs.UNHIGHLIGHT_DROP_TARGET);
+      }, this);
+      toolbar.add(widget);
+      this.__toolbarButtons["delete"] = widget;
     }
   },
 
