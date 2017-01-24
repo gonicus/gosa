@@ -105,12 +105,13 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
 
     // buttons
     var saveButton = gosa.ui.base.Buttons.getOkButton();
+    saveButton.setAppearance("button-primary");
     this.addButton(saveButton);
     var cancelButton = gosa.ui.base.Buttons.getCancelButton();
     this.addButton(cancelButton);
 
     // create the view
-    this.addElement(new qx.ui.form.renderer.Single(form));
+    this.addElement(new gosa.ui.form.renderer.Single(form));
 
     var controller = new qx.data.controller.Form(null, form);
     var model = controller.createModel();
