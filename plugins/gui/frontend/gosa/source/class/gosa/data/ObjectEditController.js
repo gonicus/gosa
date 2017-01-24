@@ -389,6 +389,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
     _setUpWidgets : function() {
       this._connectModelWithWidget();
       this._addModifyListeners();
+      this._setInitialCompleteAllWidgets();
     },
 
     _connectModelWithWidget : function() {
@@ -458,6 +459,24 @@ qx.Class.define("gosa.data.ObjectEditController", {
           }
         }
       }, this);
+    },
+
+    _setInitialCompleteAllWidgets : function() {
+      this._widget.getContexts().forEach(function(context) {
+        var map = context.getWidgetRegistry().getMap();
+        for (var key in map) {
+          if (map.hasOwnProperty(key) && map[key] instanceof gosa.ui.widgets.Widget) {
+            map[key].setInitComplete(true);
+          }
+        }
+
+        map = context.getBuddyRegistry().getMap();
+        for (key in map) {
+          if (map.hasOwnProperty(key) && map[key] instanceof gosa.ui.widgets.Widget) {
+            map[key].setInitComplete(true);
+          }
+        }
+      });
     },
 
     /**

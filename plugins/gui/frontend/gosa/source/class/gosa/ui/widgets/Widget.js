@@ -417,7 +417,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     _applyTabStopIndex: function(value){
     },
 
-    _initComplete: function(){
+    _initComplete: function() {
       this.getChildren().forEach(function(child) {
         if (child instanceof gosa.ui.widgets.Widget) {
           child.setInitComplete(this.getInitComplete());

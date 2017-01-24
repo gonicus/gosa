@@ -20,11 +20,11 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
     this.base(arguments);
 
     this.addListenerOnce("initCompleteChanged", function(){
-        if(this._use_default && !this.isBlocked()){
-            this.addState("modified");
-            this._propertyUpdater();
-        }
-      }, this);
+      if(this._use_default && !this.isBlocked()){
+        this.addState("modified");
+        this._propertyUpdater();
+      }
+    }, this);
   },
 
   properties: {
