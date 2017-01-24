@@ -29,15 +29,17 @@ qx.Theme.define("gosa.theme.Decoration",
 
     "title-bar" : {},
 
-    "gosa-workflow-item": {
+    "gosa-workflow-item-hovered": {
       style: {
-        width: 1,
-        radius: 10,
-        color: "icon-color",
-        startColorPosition: 0,
-        endColorPosition: 100,
-        startColor: "#FFFFFF",
-        endColor: "#DDDDDD"
+        backgroundColor: "hovered"
+      }
+    },
+
+    "gosa-workflow-item-selected": {
+      include: "gosa-workflow-item-hovered",
+      style: {
+        width: 2,
+        color: "aqua-light"
       }
     },
 
@@ -77,10 +79,7 @@ qx.Theme.define("gosa.theme.Decoration",
     },
 
     "gosa-dashboard-widget-selected": {
-      style: {
-        width: 2,
-        color: "aqua-dark"
-      }
+      include: "gosa-workflow-item-selected"
     },
 
     "gosa-dashboard-edit-hover": {
