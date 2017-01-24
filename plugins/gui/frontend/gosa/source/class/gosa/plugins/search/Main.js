@@ -69,8 +69,6 @@ qx.Class.define("gosa.plugins.search.Main", {
           break;
       }
 
-
-
       return control || this.base(arguments, id);
     },
 

@@ -98,7 +98,6 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
   },
 
   defer: function () {
-    console.log("registering workflow starter widget");
     gosa.data.DashboardController.registerWidget(gosa.plugins.workflowstarter.Main, {
       displayName: qx.locale.Manager.tr("Workflow starter"),
       icon: "@Ligature/magic",
