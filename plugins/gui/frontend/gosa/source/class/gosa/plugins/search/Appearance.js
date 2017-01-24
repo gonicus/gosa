@@ -34,16 +34,6 @@ qx.Theme.define("gosa.plugins.search.Appearance", {
       }
     },
 
-    "gosa-dashboard-widget-search/search-button" : {
-      include : "button-primary",
-      alias : "button-primary",
- 
-      style: function() {
-        return {
-          decorator : undefined,
-          backgroundColor: "red"
-        }
-      }
-    }
+    "gosa-dashboard-widget-search/search-button" : "button-primary"
   }
 });
