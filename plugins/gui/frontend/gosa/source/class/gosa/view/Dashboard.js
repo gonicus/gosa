@@ -904,6 +904,7 @@ qx.Class.define("gosa.view.Dashboard", {
         .then(function() {
           this.__toolbarButtons['save'].setEnabled(false);
           this.__settings = settings;
+          this.refresh(true);
         }, this)
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error).open();
