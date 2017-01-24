@@ -40,6 +40,7 @@ qx.Theme.define("gosa.plugins.search.Appearance", {
  
       style: function() {
         return {
+          decorator : undefined,
           backgroundColor: "red"
         }
       }

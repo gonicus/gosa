@@ -224,7 +224,7 @@ qx.Class.define("gosa.view.Dashboard", {
           break;
 
         case "empty-info":
-          var label = new qx.ui.basic.Label(this.tr("The dashboard is empty. To add widgets please activate the edit mode by clicking the settings button in the upper right corner"));
+          var label = new qx.ui.basic.Label(this.tr("The dashboard is empty. To add widgets please activate the edit mode by clicking the settings button in the upper right corner."));
           control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
           control.add(label);
           control.exclude();
@@ -256,8 +256,7 @@ qx.Class.define("gosa.view.Dashboard", {
 
       // widget creation menu
       var menu = this._createMenu = new qx.ui.menu.Menu();
-      var uploadButton = new com.zenesis.qx.upload.UploadMenuButton(this.tr("Upload"), "@Ligature/upload");
-      uploadButton.setAppearance("icon-menu-button");
+      var uploadButton = new com.zenesis.qx.upload.UploadMenuButton(this.tr("Upload"), "@Ligature/upload/22");
 
       gosa.io.Rpc.getInstance().cA("registerUploadPath", "widget")
       .then(function(result) {
@@ -270,8 +269,7 @@ qx.Class.define("gosa.view.Dashboard", {
       var registry = gosa.data.DashboardController.getWidgetRegistry();
       Object.getOwnPropertyNames(registry).forEach(function(name) {
         var entry = registry[name];
-        var button = new qx.ui.menu.Button(entry.options.displayName, entry.options.icon);
-        button.setAppearance("icon-menu-button");
+        var button = new qx.ui.menu.Button(entry.options.displayName, entry.options.icon + "/22");
         button.setUserData("widget", name);
         menu.add(button);
         button.addListener("execute", this._createWidget, this);
@@ -306,18 +304,18 @@ qx.Class.define("gosa.view.Dashboard", {
       }, this);
 
       // add button
-      var widget = new qx.ui.form.MenuButton(this.tr("Add"), "@Ligature/plus", menu);
-      widget.setAppearance("gosa-dashboard-edit-button");
+      var widget = new qx.ui.form.MenuButton(this.tr("Add"), "@Ligature/plus/22", menu);
+      widget.setAppearance("button-link");
       widget.addListener("appear", this.__setUploadTarget, this);
       gosa.util.DragDropHelper.getInstance().addListener("loaded", this._onExternalLoad, this);
       toolbar.add(widget);
       this.__toolbarButtons["add"] = widget;
 
       // edit button
-      widget = new qx.ui.form.Button(this.tr("Edit"), "@Ligature/gear");
+      widget = new qx.ui.form.Button(this.tr("Edit"), "@Ligature/gear/22");
       widget.setDroppable(true);
       widget.setEnabled(false);
-      widget.setAppearance("gosa-dashboard-edit-button");
+      widget.setAppearance("button-link");
       widget.addListener("tap", function() {
         if (this.getSelectedWidget()) {
           // open edit dialog
@@ -332,10 +330,10 @@ qx.Class.define("gosa.view.Dashboard", {
       this.__toolbarButtons["edit"] = widget;
 
       // delete button
-      widget = new qx.ui.form.Button(this.tr("Delete"), "@Ligature/trash");
+      widget = new qx.ui.form.Button(this.tr("Delete"), "@Ligature/trash/22");
       widget.setDroppable(true);
       widget.setEnabled(false);
-      widget.setAppearance("gosa-dashboard-edit-button");
+      widget.setAppearance("button-link");
       widget.addListener("tap", function() {
         if (this.getSelectedWidget()) {
           this.__deleteWidget(this.getSelectedWidget());
@@ -356,8 +354,8 @@ qx.Class.define("gosa.view.Dashboard", {
 
 
       // clear dashboard
-      widget = new qx.ui.form.Button(this.tr("Clear"), "@Ligature/clear");
-      widget.setAppearance("gosa-dashboard-edit-button");
+      widget = new qx.ui.form.Button(this.tr("Clear"), "@Ligature/clear/22");
+      widget.setAppearance("button-link");
       widget.addListener("execute", function() {
         this.getChildControl("board").removeAll();
         this.setModified(true);
@@ -366,8 +364,8 @@ qx.Class.define("gosa.view.Dashboard", {
       this.__toolbarButtons["clear"] = widget;
 
       // abort editing
-      widget = new qx.ui.form.Button(this.tr("Abort"), "@Ligature/undo");
-      widget.setAppearance("gosa-dashboard-edit-button");
+      widget = new qx.ui.form.Button(this.tr("Abort"), "@Ligature/ban/22");
+      widget.setAppearance("button-link");
       widget.addListener("execute", function() {
         this.setEditMode(false);
         this.refresh();
@@ -376,12 +374,12 @@ qx.Class.define("gosa.view.Dashboard", {
       this.__toolbarButtons["cancel"] = widget;
 
       // finish editing
-      widget = new qx.ui.form.Button(this.tr("Save"), "@Ligature/check");
+      widget = new qx.ui.form.Button(this.tr("Save"), "@Ligature/check/22");
       widget.setEnabled(this.isModified());
       this.addListener("changeModified", function(ev) {
         this.__toolbarButtons['save'].setEnabled(ev.getData() === true);
       }, this);
-      widget.setAppearance("gosa-dashboard-edit-button");
+      widget.setAppearance("button-link");
       widget.addListener("execute", function() {
         this.setEditMode(false);
         this.save();
