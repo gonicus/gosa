@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events">
+    <complexType name="WorkflowUpdate">
+    	<annotation>
+    		<documentation>
+    			The WorkflowUpdate event gets fired when a new workflow has been uploaded to the backend
+    		</documentation>
+    	</annotation>
+        <all>
+    		<element name="Id" type="string" maxOccurs="1" minOccurs="1"/>
+    	</all>
+    </complexType>
+    <element name="WorkflowUpdate" type="e:WorkflowUpdate"/>
+</schema>

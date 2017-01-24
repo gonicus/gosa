@@ -861,6 +861,7 @@ class ObjectFactory(object):
                 mandatory = bool(load(prop, "Mandatory", False))
                 multivalue = bool(load(prop, "MultiValue", False))
                 case_sensitive = bool(load(prop, "CaseSensitive", False))
+                auto = bool(load(prop, "Auto", False))
 
                 # Foreign attributes do not need any filters, validation or block settings
                 # All this is done by its primary backend.
@@ -947,7 +948,8 @@ class ObjectFactory(object):
                     'readonly': readonly,
                     'case_sensitive': case_sensitive,
                     'multivalue': multivalue,
-                    'blocked_by': blocked_by}
+                    'blocked_by': blocked_by,
+                    'auto': auto}
 
         # Validate the properties 'depends_on' and 'blocked_by' lists
         for pname in props:

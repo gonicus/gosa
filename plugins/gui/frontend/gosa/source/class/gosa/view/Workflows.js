@@ -18,9 +18,9 @@
 
 ************************************************************************ */
 
-qx.Class.define("gosa.view.Workflows",
-{
+qx.Class.define("gosa.view.Workflows", {
   extend : qx.ui.tabview.Page,
+  include: gosa.upload.MDragUpload,
   type: "singleton",
 
   construct : function()
@@ -33,6 +33,7 @@ qx.Class.define("gosa.view.Workflows",
     this._createChildControl("list");
 
     this.addListener("appear", this.__reload, this);
+    gosa.io.Sse.getInstance().addListener("workflowUpdate", this.__reload, this);
   },
   /*
    *****************************************************************************
@@ -64,12 +65,19 @@ qx.Class.define("gosa.view.Workflows",
       this._rpc.cA("getWorkflows").then(function(result) {
         var data = new qx.data.Array();
         for (var id in result) {
-          var item = result[id];
-          item.id = id;
-          this._marshaler.toClass(item, true);
-          data.push(this._marshaler.toModel(item, true));
+          if (result.hasOwnProperty(id)) {
+            var item = result[id];
+            item.id = id;
+            this._marshaler.toClass(item, true);
+            data.push(this._marshaler.toModel(item, true));
+          }
         }
         this._listController.setModel(data);
+        if (data.length) {
+          this.getChildControl("empty-info").exclude();
+        } else {
+          this.getChildControl("empty-info").show();
+        }
       }, this)
       .catch(function(error) {
         this.error(error);
@@ -87,6 +95,44 @@ qx.Class.define("gosa.view.Workflows",
           this._listController = new gosa.data.controller.EnhancedList(null, control, "name");
           this._listController.setDelegate(this._getListDelegate());
           this.add(control, {flex: 1});
+          break;
+
+        case "upload-dropbox":
+          control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
+          var dropBox = new qx.ui.basic.Atom(this.tr("Drop file here to add it to the available workflows."), "@Ligature/upload/128");
+          dropBox.set({
+            allowGrowY: false
+          });
+          control.addListener("appear", function() {
+            var element = control.getContentElement().getDomElement();
+            element.ondrop = function(e) {
+              gosa.util.DragDropHelper.getInstance().onHtml5Drop.call(gosa.util.DragDropHelper.getInstance(), e, "workflow");
+              this.setUploadMode(false);
+              return false;
+            }.bind(this);
+
+            element.ondragover = function(ev) {
+              ev.preventDefault();
+            };
+          }, this);
+          control.add(dropBox);
+          control.exclude();
+          qx.core.Init.getApplication().getRoot().add(control, {edge: 0});
+          break;
+
+        case "empty-info":
+          var label = new qx.ui.basic.Label(this.tr("Please add a workflow dragging a workflow zip file into this window"));
+          control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
+          control.add(label);
+          control.exclude();
+          control.addListener("changeVisibility", function(ev) {
+            if (ev.getData() === "visible") {
+              this.getChildControl("list").exclude();
+            } else {
+              this.getChildControl("list").show();
+            }
+          }, this);
+          this._addAt(control, 2, {flex: 1});
           break;
       }
 
@@ -126,5 +172,14 @@ qx.Class.define("gosa.view.Workflows",
         }
       }
     }
+  },
+
+  /*
+  *****************************************************************************
+     DESTRUCTOR
+  *****************************************************************************
+  */
+  destruct : function() {
+    gosa.io.Sse.getInstance().removeListener("workflowUpdate", this.__reload, this);
   }
 });

@@ -11,7 +11,6 @@
 from setuptools import setup, find_packages
 import os
 import sys
-import platform
 
 try:
     from babel.messages import frontend as babel
@@ -27,6 +26,7 @@ for path, dirs, files in os.walk("frontend/gosa/build"):
     for f in files:
         data_files.append(os.path.join(path[14:], f))
 
+# noinspection PyRedeclaration
 for path, dirs, files in os.walk("src/gosa/plugins/gui/data"):
     for f in files:
         data_files.append(os.path.join(path[14:], f))
@@ -84,7 +84,7 @@ setup(
         /(?P<path>.*)? = gosa.plugin.gui.main:GuiPlugin
 
         [gosa.upload_handler]
-        widgets = gosa.plugin.gui.upload:WidgetUploadHandler
+        widget = gosa.plugin.gui.upload:WidgetUploadHandler
 
         [gosa.plugin]
         rpc = gosa.plugin.gui.main:RpcPlugin

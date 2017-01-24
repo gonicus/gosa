@@ -82,6 +82,7 @@
       <element name="ReadOnly" type="boolean" maxOccurs="1" minOccurs="0"></element>
       <element name="Mandatory" type="boolean" maxOccurs="1" minOccurs="0"></element>
       <element name="Unique" type="boolean" maxOccurs="1" minOccurs="0"></element>
+      <element name="Auto" type="boolean" maxOccurs="1" minOccurs="0"></element>
       <element name="BlockedBy" maxOccurs="1" minOccurs="0">
         <complexType>
           <sequence>

@@ -374,7 +374,8 @@ class ObjectProxy(object):
                     'readonly': readonly,
                     'values': self.__property_map[attr]['values'],
                     'multivalue': self.__property_map[attr]['multivalue'],
-                    'type': self.__property_map[attr]['type']}
+                    'type': self.__property_map[attr]['type'],
+                    'auto': self.__property_map[attr]['auto']}
 
             return res
 
