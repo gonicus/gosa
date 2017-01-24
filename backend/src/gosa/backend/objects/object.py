@@ -39,6 +39,10 @@ C.register_codes(dict(
     ATTRIBUTE_BLOCKED_BY=N_("Attribute is blocked by %(source)s==%(value)s"),
     ATTRIBUTE_READ_ONLY=N_("Attribute '%(topic)s' is read only"),
     ATTRIBUTE_MANDATORY=N_("Attribute '%(topic)s' is mandatory"),
+    ATTRIBUTE_AUTO_NO_FILTER_OR_DEPENDS=N_("Attribute '%(topic)s' is tagged to be auto-generated but has neither an "
+                                           "output filter nor a dependency"),
+    ATTRIBUTE_TOO_MANY_DEPENDS=N_("Attribute '%(topic)s' is tagged to be auto-generated too many denendencies and no "
+                                  "output filter"),
     ATTRIBUTE_INVALID_CONSTANT=N_("Value is invalid - expected one of %(elements)s"),
     ATTRIBUTE_INVALID_LIST=N_("Value is invalid - expected a list"),
     ATTRIBUTE_INVALID=N_("Value is invalid - expected value of type '%(type)s'"),
@@ -550,7 +554,7 @@ class Object(object):
                     ext=self.__class__.__name__,
                     base=base_type))
 
-        # Transfer values form other commit processes into ourselfes
+        # Transfer values form other commit processes into ourselves
         for key in self.attributesInSaveOrder:
             if props[key]['foreign'] and key in propsFromOtherExtensions:
                 props[key]['value'] = propsFromOtherExtensions[key]['value']
@@ -578,7 +582,7 @@ class Object(object):
 
             # Process each and every out-filter with a clean set of input values,
             #  to avoid that return-values overwrite themselves.
-            if len(props[key]['out_filter']):
+            if len(props[key]['out_filter']) and not props[key]['auto']:
 
                 self.log.debug(" found %s out-filter for %s" % (str(len(props[key]['out_filter'])), key,))
                 for out_f in props[key]['out_filter']:
@@ -604,7 +608,7 @@ class Object(object):
         for key in self.attributesInSaveOrder:
             props[key]['commit_status'] = props[key]['status']
 
-            # Transfer values form other commit processes into ourselfes
+            # Transfer values form other commit processes into ourselves
             if props[key]['foreign'] and key in propsFromOtherExtensions:
                 props[key]['value'] = propsFromOtherExtensions[key]['value']
 
@@ -637,7 +641,7 @@ class Object(object):
                 continue
 
             # Do not save untouched values
-            if not props[key]['commit_status'] & STATUS_CHANGED:
+            if not props[key]['auto'] and not props[key]['commit_status'] & STATUS_CHANGED:
                 continue
 
             # Get the new value for the property and execute the out-filter
@@ -650,6 +654,15 @@ class Object(object):
                 self.log.debug(" found %s out-filter for %s" % (str(len(props[key]['out_filter'])), key,))
                 for out_f in props[key]['out_filter']:
                     self.__processFilter(out_f, key, props)
+                    props[key]['commit_status'] = STATUS_CHANGED
+
+            elif props[key]['auto']:
+                if not props[key]['depends_on']:
+                    raise ObjectException(C.make_error('ATTRIBUTE_AUTO_NO_FILTER_OR_DEPENDS', key))
+                elif len(props[key]['depends_on']) > 1:
+                    raise ObjectException(C.make_error('ATTRIBUTE_TOO_MANY_DEPENDS', key))
+                else:
+                    props[key]['value'] = copy.deepcopy(props[props[key]['depends_on'][0]]['value'])
 
         # Collect properties by backend
         for prop_key in self.attributesInSaveOrder:

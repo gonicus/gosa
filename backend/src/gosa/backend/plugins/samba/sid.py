@@ -87,7 +87,7 @@ class GenerateSambaSid(ElementFilter):
     def process(self, obj, key, valDict, method, number, domain, group_type=0):
 
         if number == "None":
-            raise SambaException(C.make_error("ATTRIBUTE_NOT_FOUND", "gidNumber"))
+            raise SambaException(C.make_error("ATTRIBUTE_NOT_FOUND", "uidNumber|gidNumber"))
 
         if domain == "None":
             raise SambaException(C.make_error("ATTRIBUTE_NOT_FOUND", "sambaDomainName"))
