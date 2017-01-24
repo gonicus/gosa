@@ -222,7 +222,7 @@ qx.Class.define("gosa.view.Workflows", {
       this.__toolbarButtons = {};
 
       var uploadButton = new com.zenesis.qx.upload.UploadButton(this.tr("Upload"), "@Ligature/upload");
-      uploadButton.setAppearance("gosa-dashboard-edit-button");
+      uploadButton.setAppearance("button-link");
 
       gosa.io.Rpc.getInstance().cA("registerUploadPath", "workflow")
       .then(function(result) {
@@ -238,7 +238,7 @@ qx.Class.define("gosa.view.Workflows", {
       var widget = new qx.ui.form.Button(this.tr("Delete"), "@Ligature/trash");
       widget.setDroppable(true);
       widget.setEnabled(false);
-      widget.setAppearance("gosa-dashboard-edit-button");
+      widget.setAppearance("button-link");
       widget.addListener("tap", function() {
         if (this.getSelectedWidget()) {
           this.__deleteWorkflow(this.getSelectedWidget());
