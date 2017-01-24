@@ -159,7 +159,7 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
       if (!frame)
       {
         frame = this.__resizeFrame = new qx.ui.core.Widget();
-        frame.setAppearance("resize-frame");
+        frame.setAppearance("dashboard-resize-frame");
         frame.exclude();
 
         qx.core.Init.getApplication().getRoot().add(frame);

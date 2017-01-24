@@ -47,34 +47,46 @@ qx.Theme.define("gosa.theme.Decoration",
         color: "rgba(255, 255, 255, 0.2)"
       }
     },
+
     "gosa-workflow-category": {
       style: {
         width: [1, 0 , 0, 0],
         color: "font"
       }
     },
+
     "gosa-dashboard-widget": {
       style: {
         width: 1,
-        color: "#EEE"
+        color: "lightgray-dark"
       }
     },
+
     "gosa-dashboard-widget-edit": {
       style: {
-        width: 2,
-        color: "#000"
+        width: 1,
+        color: "darkgray-light"
       }
     },
+
+    "gosa-dashboard-widget-resize": {
+      style: {
+        width: 2,
+        color: "aqua-light"
+      }
+    },
+
     "gosa-dashboard-widget-selected": {
       style: {
         width: 2,
-        color: "#00405e"
+        color: "aqua-dark"
       }
     },
+
     "gosa-dashboard-edit-hover": {
       style: {
         radiusBottomLeft: 22,
-        backgroundColor: "#DDD"
+        backgroundColor: "mediumgray-light"
       }
     },
 

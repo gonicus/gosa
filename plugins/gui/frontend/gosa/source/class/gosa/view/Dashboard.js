@@ -169,6 +169,7 @@ qx.Class.define("gosa.view.Dashboard", {
             child.addListener("tap", this._onTap, this);
           }
         }, this);
+
         var rowHeight = 60;
         // add dropboxes to empty cells + one additional row
         for (row=1, lr = this.__rows; row < lr; row++) {
@@ -287,12 +288,12 @@ qx.Class.define("gosa.view.Dashboard", {
           control.setZIndex(1000);
           var bounds = this.getBounds();
           if (bounds) {
-            control.setUserBounds(bounds.width-30, 0, 30, 30);
+            control.setUserBounds(bounds.width - 35, 0, 35, 35);
             this.add(control);
           } else {
             this.addListenerOnce("appear", function() {
               var bounds = this.getBounds();
-              control.setUserBounds(bounds.width-30, 0, 30, 30);
+              control.setUserBounds(bounds.width - 35, 0, 35, 35);
               this.add(control);
             }, this);
           }
@@ -818,6 +819,7 @@ qx.Class.define("gosa.view.Dashboard", {
             }
           }
         }, this);
+
         // remove spacers if there are any
         var colspan = entry.layoutProperties.colSpan||1;
         var rowspan = entry.layoutProperties.rowSpan||1;

@@ -62,6 +62,16 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
   members : {
     __options: null,
 
+    // overidden
+    /**
+     * @lint ignoreReferenceField(_forwardStates)
+     */
+    _forwardStates : {
+      disabled : true,
+      pressed : true,
+      hovered : true
+    },
+
     // overridden
     _createChildControlImpl: function(id) {
       var control;
@@ -93,6 +103,7 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
     _applyEditMode: function(value) {
       this.setDraggable(value);
       this.getChildControl("container").setEnabled(!value);
+
       if (value) {
         this.addListener("dragstart", this.__onDragStart, this);
         this.addState("edit");

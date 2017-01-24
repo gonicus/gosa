@@ -325,9 +325,7 @@ qx.Theme.define("gosa.theme.Appearance",
         return {
           decorator  : states.hovered ? "gosa-dashboard-edit-hover" : null,
           icon       : "@Ligature/gear",
-          allowGrowX : false,
-          alignX     : "right",
-          padding    : [3, 3, 10, 10]
+          padding    : [0, 0, 5, 5]
         }
       }
     },
@@ -595,22 +593,20 @@ qx.Theme.define("gosa.theme.Appearance",
 
     "gosa-dashboard-widget"       : {
       style : function(states) {
-        var op = 1.0;
         var dc = "gosa-dashboard-widget";
         if (states.selected) {
           dc += "-selected";
         }
         else if (states.edit) {
           dc += "-edit";
-          op = 0.5;
         }
         return {
           padding   : 10,
-          opacity   : op,
           decorator : dc
         }
       }
     },
+
     "gosa-dashboard-widget/title" : {
       style : function() {
         return {
@@ -618,6 +614,7 @@ qx.Theme.define("gosa.theme.Appearance",
         }
       }
     },
+
     "gosa-dashboard-edit-button"  : {
       style : function() {
         return {
@@ -696,6 +693,16 @@ qx.Theme.define("gosa.theme.Appearance",
 
     "gosa-table-widget/add-button" : "button-link",
     "gosa-table-widget/remove-button" : "button-link",
+
+    "dashboard-resize-frame" :
+    {
+      style : function(states)
+      {
+        return {
+          decorator : "gosa-dashboard-widget-resize"
+        };
+      }
+    },
 
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
