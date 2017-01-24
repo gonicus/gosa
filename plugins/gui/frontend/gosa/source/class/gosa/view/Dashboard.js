@@ -355,8 +355,19 @@ qx.Class.define("gosa.view.Dashboard", {
       widget = new qx.ui.form.Button(this.tr("Clear"), "@Ligature/clear");
       widget.setAppearance("gosa-dashboard-edit-button");
       widget.addListener("execute", function() {
-        this.getChildControl("board").removeAll();
-        this.setModified(true);
+        var changed = false;
+        var rows = this.__gridLayout.getRowCount();
+        var columns = this.__gridLayout.getColumnCount();
+        for (var row=1; row < rows; row++) {
+          for (var col=0; col < columns; col++) {
+            var widget = this.__gridLayout.getCellWidget(row, col);
+            if (widget && !(widget instanceof gosa.ui.core.GridCellDropbox)) {
+              this.__deleteWidget(widget);
+              changed = true;
+            }
+          }
+        }
+        this.setModified(changed);
       }, this);
       toolbar.add(widget);
       this.__toolbarButtons["clear"] = widget;
