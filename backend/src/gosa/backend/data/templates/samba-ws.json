@@ -24,9 +24,6 @@
       "spacingX": "CONST_SPACING_X",
       "spacingY": "CONST_SPACING_Y"
     },
-    "properties": {
-      "legend": "tr('Generic')"
-    },
     "extensions": {
       "layoutOptions": {
         "columnFlex": {

@@ -83,7 +83,7 @@ qx.Class.define("gosa.io.Sse", {
       }, false);
       this.__eventSource.addEventListener("workflowUpdate", function (e) {
         var message = qx.lang.Json.parse(e.data);
-        that.fireDataEvent("workflowUpdate", message['id']);
+        that.fireDataEvent("workflowUpdate", message);
       }, false);
       this.__eventSource.onerror = function (e) {
         var readyState = e.currentTarget.readyState;

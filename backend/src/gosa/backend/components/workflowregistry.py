@@ -8,6 +8,9 @@
 # See the LICENSE file in the project's top-level directory for details.
 import os
 import shutil
+
+from gosa.backend.routes.sse.main import SseHandler
+from gosa.common.event import EventMaker
 from gosa.common import Environment
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.components import Plugin, PluginRegistry
@@ -114,6 +117,16 @@ class WorkflowRegistry(Plugin):
                 raise WorkflowException(C.make_error('WORKFLOW_DELETE_ERROR', id=id, error=str(e)))
 
             self._update_map()
+            # send the event to the clients
+            e = EventMaker()
+
+            ev = e.Event(e.WorkflowUpdate(
+                e.Id(id),
+                e.ChangeType("remove")
+            ))
+            event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
+            SseHandler.notify(event_object, channel="broadcast")
+
         else:
             raise WorkflowException(C.make_error('WORKFLOW_PERMISSION_DELETE', id=id))
 

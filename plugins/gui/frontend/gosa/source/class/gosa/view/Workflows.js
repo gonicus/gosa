@@ -31,7 +31,6 @@ qx.Class.define("gosa.view.Workflows", {
     this.setLayout(new qx.ui.layout.VBox(5));
     this._rpc = gosa.io.Rpc.getInstance();
     this._createChildControl("list");
-    this._createChildControl("edit-mode");
 
     this.addListener("appear", this.__reload, this);
     gosa.io.Sse.getInstance().addListener("workflowUpdate", this.__reload, this);
@@ -84,6 +83,17 @@ qx.Class.define("gosa.view.Workflows", {
         this.error(error);
         new gosa.ui.dialogs.Error(error).open();
       });
+    },
+
+    __deleteWorkflow: function(item) {
+      gosa.io.Rpc.getInstance().cA("removeWorkflow", item.getId())
+      .then(function() {
+        this.setSelectedWidget(null);
+      }, this)
+      .catch(function(error) {
+        this.error(error.getData().message);
+        gosa.ui.dialogs.Error.show(error);
+      }, this);
     },
 
     _createChildControlImpl: function(id) {

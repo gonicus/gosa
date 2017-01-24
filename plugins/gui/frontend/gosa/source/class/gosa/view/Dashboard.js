@@ -36,11 +36,7 @@ qx.Class.define("gosa.view.Dashboard", {
         this.draw();
       }
     }, this);
-    this.getChildControl("edit-mode");
 
-    this.addListener("longtap", function() {
-      this.setEditMode(true);
-    }, this);
     gosa.io.Sse.getInstance().addListener("pluginUpdate", this._onPluginUpdate, this);
   },
 
@@ -357,8 +353,19 @@ qx.Class.define("gosa.view.Dashboard", {
       widget = new qx.ui.form.Button(this.tr("Clear"), "@Ligature/clear/22");
       widget.setAppearance("button-link");
       widget.addListener("execute", function() {
-        this.getChildControl("board").removeAll();
-        this.setModified(true);
+        var changed = false;
+        var rows = this.__gridLayout.getRowCount();
+        var columns = this.__gridLayout.getColumnCount();
+        for (var row=1; row < rows; row++) {
+          for (var col=0; col < columns; col++) {
+            var widget = this.__gridLayout.getCellWidget(row, col);
+            if (widget && !(widget instanceof gosa.ui.core.GridCellDropbox)) {
+              this.__deleteWidget(widget);
+              changed = true;
+            }
+          }
+        }
+        this.setModified(changed);
       }, this);
       toolbar.add(widget);
       this.__toolbarButtons["clear"] = widget;
@@ -895,6 +902,7 @@ qx.Class.define("gosa.view.Dashboard", {
         .then(function() {
           this.__toolbarButtons['save'].setEnabled(false);
           this.__settings = settings;
+          this.refresh(true);
         }, this)
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error).open();
