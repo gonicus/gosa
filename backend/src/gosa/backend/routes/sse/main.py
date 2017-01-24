@@ -18,6 +18,7 @@ from gosa.common.hsts_request_handler import HSTSRequestHandler
 from tornado import web
 
 
+# noinspection PyTypeChecker
 class SseHandler(HSTSRequestHandler):
     """
     Server sent event handler based on tornado
@@ -134,12 +135,20 @@ class SseHandler(HSTSRequestHandler):
 
     @classmethod
     def _handlePluginUpdate(cls, data, channel):
-        print(data)
         data = data.PluginUpdate
 
         SseHandler.send_message({
             "namespace": data.Namespace.text
         }, topic="pluginUpdate", channel=channel)
+
+    @classmethod
+    def _handleWorkflowUpdate(cls, data, channel):
+        data = data.WorkflowUpdate
+
+        SseHandler.send_message({
+            "Id": data.Id.text
+        }, topic="workflowUpdate", channel=channel)
+
 
     @classmethod
     def _handleNotification(cls, data, channel):

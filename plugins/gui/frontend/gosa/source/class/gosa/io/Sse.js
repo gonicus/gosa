@@ -39,7 +39,8 @@ qx.Class.define("gosa.io.Sse", {
     "objectCreated": "qx.event.type.Data",
     "objectModified": "qx.event.type.Data",
     "objectClosing": "qx.event.type.Data",
-    "pluginUpdate": "qx.event.type.Data"
+    "pluginUpdate": "qx.event.type.Data",
+    "workflowUpdate": "qx.event.type.Data"
   },
 
   properties: {
@@ -79,6 +80,10 @@ qx.Class.define("gosa.io.Sse", {
       this.__eventSource.addEventListener("pluginUpdate", function (e) {
         var message = qx.lang.Json.parse(e.data);
         that.fireDataEvent("pluginUpdate", message['namespace']);
+      }, false);
+      this.__eventSource.addEventListener("workflowUpdate", function (e) {
+        var message = qx.lang.Json.parse(e.data);
+        that.fireDataEvent("workflowUpdate", message['id']);
       }, false);
       this.__eventSource.onerror = function (e) {
         var readyState = e.currentTarget.readyState;
@@ -128,17 +133,16 @@ qx.Class.define("gosa.io.Sse", {
         }
       }
       if (info['title']) {
-        title = "<center><b>" + info['title'] + "</b></center>";
+        title = '<div style="text-align: center;"><b>' + info['title'] + '</b></div>';
       }
 
       if (gosa.Config.notifications && gosa.Config.notifications.checkPermission() == 0) {
         var data = qx.util.Base64.encode("<div style='padding:5px'><img src='" + icon + "' align='left'><span style='font-family: arial, verdana, sans-serif;'>" + title + info['body'] + "</span></div>");
         var notification = gosa.Config.notifications.createHTMLNotification("data:text/html;charset=utf-8;base64," + data);
         notification.show();
-        var timer = qx.util.TimerManager.getInstance();
-        timer.start(function(userData, timerId){
+        qx.event.Timer.once(function() {
           notification.cancel();
-        }, 0, this, null, timeout);
+        }, this, timeout);
 
       } else {
 
@@ -154,13 +158,12 @@ qx.Class.define("gosa.io.Sse", {
             opacity : 0.8,
             rich : true
         });
-        popup.addListener("click", function(e){ this.closePopup(popup); }, this);
+        popup.addListener("click", function(){ this.closePopup(popup); }, this);
         this.showPopup(popup);
 
-        var timer = qx.util.TimerManager.getInstance();
-        timer.start(function(userData, timerId){
+        qx.event.Timer.once(function() {
           this.closePopup(popup);
-        }, 0, this, null, timeout);
+        }, this, timeout);
 
       }
     },
@@ -190,19 +193,6 @@ qx.Class.define("gosa.io.Sse", {
       //TODO: take care about multiple popups at one time (positioning)
       var doc = qx.core.Init.getApplication().getRoot();
       doc.add(popup, {right: 15, bottom: 15});
-    },
-
-    wordwrap : function(str, width, brk, cut) {
-      brk = brk || '\n';
-      width = width || 75;
-      cut = cut || false;
-
-      if (!str) { return str; }
-
-      var regex = '.{1,' +width+ '}(\\s|$)' + (cut ? '|.{' +width+ '}|.+$' : '|\\S+?(\\s|$)');
-
-      return str.match( RegExp(regex, 'g') ).join( brk );
     }
   }
-
 });
