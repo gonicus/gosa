@@ -36,11 +36,7 @@ qx.Class.define("gosa.view.Dashboard", {
         this.draw();
       }
     }, this);
-    this.getChildControl("edit-mode");
 
-    this.addListener("longtap", function() {
-      this.setEditMode(true);
-    }, this);
     gosa.io.Sse.getInstance().addListener("pluginUpdate", this._onPluginUpdate, this);
   },
 

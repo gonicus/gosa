@@ -8,6 +8,7 @@
     	</annotation>
         <all>
     		<element name="Id" type="string" maxOccurs="1" minOccurs="1"/>
+			<element name="ChangeType" type="string" maxOccurs="1" minOccurs="1"/>
     	</all>
     </complexType>
     <element name="WorkflowUpdate" type="e:WorkflowUpdate"/>

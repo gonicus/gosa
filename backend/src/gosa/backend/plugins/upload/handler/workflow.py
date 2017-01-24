@@ -57,7 +57,8 @@ class WorkflowUploadHandler(IUploadFileHandler):
                         e = EventMaker()
 
                         ev = e.Event(e.WorkflowUpdate(
-                            e.Id(id)
+                            e.Id(id),
+                            e.ChangeType("create")
                         ))
                         event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
                         SseHandler.notify(event_object, channel="broadcast")
