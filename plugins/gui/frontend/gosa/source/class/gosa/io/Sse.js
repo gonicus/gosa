@@ -133,7 +133,7 @@ qx.Class.define("gosa.io.Sse", {
         }
       }
       if (info['title']) {
-        title = "<div style="text-align: center;"><b>" + info['title'] + "</b></div>";
+        title = '<div style="text-align: center;"><b>' + info['title'] + '</b></div>';
       }
 
       if (gosa.Config.notifications && gosa.Config.notifications.checkPermission() == 0) {
