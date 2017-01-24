@@ -18,6 +18,7 @@
  */
 qx.Class.define("gosa.view.Dashboard", {
   extend : qx.ui.tabview.Page,
+  include: gosa.upload.MDragUpload,
   type: "singleton",
 
   construct : function()
@@ -36,14 +37,6 @@ qx.Class.define("gosa.view.Dashboard", {
       }
     }, this);
     this.getChildControl("edit-mode");
-    var board = this.getChildControl("board");
-    if (board.getBounds()) {
-      this._applyDragListeners();
-    } else {
-      board.addListenerOnce("appear", function() {
-        this._applyDragListeners();
-      }, this);
-    }
 
     this.addListener("longtap", function() {
       this.setEditMode(true);
@@ -72,12 +65,6 @@ qx.Class.define("gosa.view.Dashboard", {
       init: false,
       event: "changeEditMode",
       apply: "_applyEditMode"
-    },
-
-    uploadMode: {
-      check: "Boolean",
-      init: false,
-      apply: "_applyUploadMode"
     },
 
     /**
@@ -113,46 +100,6 @@ qx.Class.define("gosa.view.Dashboard", {
     __draggedWidgetsLayoutProperties: null,
     __columns: null,
     __rows: null,
-
-    /**
-     * Apply dragover/-leave listeners to the dashboard to recognize File uploads via Drag&Drop
-     */
-    _applyDragListeners: function() {
-      var element = this.getContentElement().getDomElement();
-      element.ondragexit = function() {
-        this.setUploadMode(false);
-      }.bind(this);
-
-      element.ondragenter = function(ev) {
-        if (ev.dataTransfer && ev.dataTransfer.items.length > 0) {
-          // we have something to drop
-          this.setUploadMode(true);
-          ev.dataTransfer.effectAllowed = "none";
-          ev.preventDefault();
-        }
-      }.bind(this);
-
-      element.ondragover = function(ev) {
-        ev.preventDefault();
-      };
-
-      element.ondragend = function() {
-        this.setUploadMode(false);
-      }.bind(this);
-
-      element.ondrop = function(ev) {
-        ev.preventDefault();
-      };
-    },
-
-    // property apply
-    _applyUploadMode: function(value) {
-      if (value === true) {
-        this.getChildControl("upload-dropbox").show();
-      } else {
-        this.getChildControl("upload-dropbox").exclude();
-      }
-    },
 
     // property apply
     _applyEditMode: function(value) {
@@ -368,7 +315,7 @@ qx.Class.define("gosa.view.Dashboard", {
       var uploadButton = new com.zenesis.qx.upload.UploadMenuButton(this.tr("Upload"), "@Ligature/upload");
       uploadButton.setAppearance("icon-menu-button");
 
-      gosa.io.Rpc.getInstance().cA("registerUploadPath", "widgets")
+      gosa.io.Rpc.getInstance().cA("registerUploadPath", "widget")
       .then(function(result) {
         var path = result[1];
         new gosa.util.UploadMgr(uploadButton, path);

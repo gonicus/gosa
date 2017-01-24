@@ -9,6 +9,9 @@
 import logging
 import os
 from zipfile import ZipFile
+
+from gosa.backend.routes.sse.main import SseHandler
+from gosa.common.event import EventMaker
 from lxml import objectify, etree
 from pkg_resources import resource_filename
 from gosa.backend.plugins.upload.main import IUploadFileHandler
@@ -24,10 +27,11 @@ class WorkflowUploadHandler(IUploadFileHandler):
         self.log.info("initializing workflow upload handler")
 
     def handle_upload(self, file, request):
-        self.log.debug("uploaded workflow file received %s" % file.name)
-        self.extract(file.name)
+        filename = request.headers.get('X-File-Name')
+        self.log.debug("uploaded workflow file received %s" % filename)
+        self.extract(file.f_out.name, filename)
         
-    def extract(self, fn):
+    def extract(self, fn, real_name):
         try:
             with ZipFile(fn) as workflow_zip:
 
@@ -48,6 +52,15 @@ class WorkflowUploadHandler(IUploadFileHandler):
                         workflow_zip.extractall(target)
 
                         WorkflowRegistry.get_instance().refresh()
+
+                        # send the event to the clients
+                        e = EventMaker()
+
+                        ev = e.Event(e.WorkflowUpdate(
+                            e.Id(id)
+                        ))
+                        event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
+                        SseHandler.notify(event_object, channel="broadcast")
 
                 except KeyError:
                     self.log.error("bad workflow zip uploaded - no workflow.xml present")
