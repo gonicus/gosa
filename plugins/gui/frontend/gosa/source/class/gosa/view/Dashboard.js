@@ -543,12 +543,24 @@ qx.Class.define("gosa.view.Dashboard", {
       entry.layoutProperties.colSpan = widgetColspan;
       entry.layoutProperties.rowSpan = widgetRowspan;
       widget = this.__addWidget(entry);
-      this.setModified(true);
 
       // check for mandatory properties, open edit dialog then
       if (widgetData.options.settings && widgetData.options.settings.mandatory && widgetData.options.settings.mandatory.length) {
         var dialog = new gosa.ui.dialogs.EditDashboardWidget(widget);
+        var settingsModified = false;
+        dialog.addListenerOnce("modified", function() {
+          this.setModified(true);
+          settingsModified = true;
+        }, this);
+        dialog.addListenerOnce("close", function() {
+          if (!settingsModified) {
+            // user aborted the edit dialog without changing anything -> remove the widget
+            this.__deleteWidget(widget);
+          }
+        }, this);
         dialog.open();
+      } else {
+        this.setModified(true);
       }
     },
 
