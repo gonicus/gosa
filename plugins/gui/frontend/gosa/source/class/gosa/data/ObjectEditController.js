@@ -389,7 +389,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
     _setUpWidgets : function() {
       this._connectModelWithWidget();
       this._addModifyListeners();
-      this._setInitialCompleteAllWidgets();
     },
 
     _connectModelWithWidget : function() {
@@ -459,24 +458,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
           }
         }
       }, this);
-    },
-
-    _setInitialCompleteAllWidgets : function() {
-      this._widget.getContexts().forEach(function(context) {
-        var map = context.getWidgetRegistry().getMap();
-        for (var key in map) {
-          if (map.hasOwnProperty(key) && map[key] instanceof gosa.ui.widgets.Widget) {
-            map[key].setInitComplete(true);
-          }
-        }
-
-        map = context.getBuddyRegistry().getMap();
-        for (key in map) {
-          if (map.hasOwnProperty(key) && map[key] instanceof gosa.ui.widgets.Widget) {
-            map[key].setInitComplete(true);
-          }
-        }
-      });
     },
 
     /**
@@ -554,12 +535,37 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
 
       if (attribute.hasOwnProperty("blocked_by")) {
-        this._handleBlockedBy(attribute.blocked_by);
+        var cw = this._currentWidget;
+        var cd = this._currentBuddy;
+        this._handleBlockedBy(attribute.blocked_by, function() {
+          this.__initCompleteWidget(cw);
+          this.__initCompleteWidget(cd);
+        }, this);
+      }
+      else {
+        this.__initCompleteWidget(this._currentWidget);
+        this.__initCompleteWidget(this._currentBuddy);
       }
     },
 
-    _handleBlockedBy : function(value) {
+    __initCompleteWidget : function(widget) {
+      if (!widget) {
+        return;
+      }
+
+      qx.core.Assert.assertInstance(widget, gosa.ui.widgets.Widget);
+      (new qx.util.DeferredCall(function() {
+        if (!widget.isDisposed()) {
+          widget.setInitComplete(true);
+        }
+      })).schedule();
+    },
+
+    _handleBlockedBy : function(value, callback, context) {
       if (value.length === 0) {
+        if (callback) {
+          callback.call(context);
+        }
         return;
       }
       var allWidgets = [];
@@ -567,7 +573,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
       var currentWidget = this._currentWidget;
 
       var listenerCallback = function() {
-        var block = allWidgets.every(function(item) {
+        var block = allWidgets.some(function(item) {
           var value = item.widget.getValue();
           if (value instanceof qx.data.Array && value.getLength() > 0) {
             value = value.getItem(0);
@@ -590,6 +596,10 @@ qx.Class.define("gosa.data.ObjectEditController", {
           if (currentWidget) {
             currentWidget.unblock();
           }
+        }
+
+        if (callback) {
+          callback.call(context);
         }
       };
 
