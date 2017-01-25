@@ -329,16 +329,6 @@ qx.Theme.define("gosa.theme.Appearance",
         }
       }
     },
-    "gosa-tabview-page-dashboard/edit-mode/icon" : {
-      include : "image",
-      alias   : "image",
-      style   : function() {
-        return {
-          width : 22,
-          scale : true
-        }
-      }
-    },
     "gosa-tabview-page-dashboard/board"          : {
       style : function() {
         return {

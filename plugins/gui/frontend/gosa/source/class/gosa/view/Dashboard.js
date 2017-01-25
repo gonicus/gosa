@@ -208,7 +208,6 @@ qx.Class.define("gosa.view.Dashboard", {
           }, this);
           this._addAt(control, 2, {flex: 1});
           break;
-
       }
 
       if (!control) {
