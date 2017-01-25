@@ -705,7 +705,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
         for (var modelPath in contextWidgets) {
           if (contextWidgets.hasOwnProperty(modelPath)) {
             var widget = contextWidgets[modelPath];
-            valid = valid && (this._validatingWidgets.indexOf(widget) === -1 || widget.isValid());
+            valid = valid && (this._validatingWidgets.indexOf(widget) === -1 || widget.isValid() || widget.isBlocked());
           }
         }
       }
