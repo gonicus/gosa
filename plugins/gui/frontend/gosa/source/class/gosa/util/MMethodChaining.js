@@ -14,10 +14,10 @@
 
 //noinspection JSUnusedGlobalSymbols
 /**
- * This Mixin allows method hooks which can be called before ot after a method.
+ * This Mixin allows method hooks which can be called before or after a method.
  * This is a possible way circumvent the problem that mixin cannot override methods of
- *  the including classes, instead one can add an "after" hook for the method.
- *  The caveheat is that the main class method has to be augmented with calls to the hook processor.
+ * the including classes, instead one can add an "after" hook for the method.
+ * The downside is that the main class method has to be augmented with calls to the hook processor.
  *
  *  <h3>Example</h3>
  *  Adding child controls by Mixins:
@@ -82,7 +82,7 @@ qx.Mixin.define("gosa.util.MMethodChaining", {
     /**
      * Removes a method hook by the given id
      * @param id {String} Hook id
-     * @return {boolean} True if the hook has been deleted successfully
+     * @return {Boolean} True if the hook has been deleted successfully
      */
     removeHook: function(id) {
       var parts = id.split("|");
@@ -99,6 +99,8 @@ qx.Mixin.define("gosa.util.MMethodChaining", {
      * and returns that value. This behaviour is useful to allow child controls to be created by Mixins.
      * You can add an "after" hook to the main classes "_createChildControlImpl" method and once one of the
      * processed hooks returns a child control, the processor stops and returns that one.
+     *
+     * @return {var|null}
      */
     processHooks: function() {
       if (!this.__hooks || !this.__hooks[arguments[0]][arguments[1]]) {
