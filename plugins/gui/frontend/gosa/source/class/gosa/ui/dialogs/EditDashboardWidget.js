@@ -119,7 +119,11 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
     // serialization and reset /////////
     saveButton.addListener("execute", function() {
       if (form.validate()) {
-        widget.setBackgroundColor(model.getBackgroundColor()||null);
+        if (model.getBackgroundColor()) {
+          widget.setBackgroundColor(model.getBackgroundColor());
+        } else {
+          widget.resetBackgroundColor();
+        }
         properties.forEach(function(prop) {
           var value = selectionValues[prop] || model.get(prop);
           widget.set(prop, value);
