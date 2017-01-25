@@ -20,13 +20,15 @@
 
 qx.Class.define("gosa.view.Workflows", {
   extend : qx.ui.tabview.Page,
-  include: [gosa.upload.MDragUpload, gosa.ui.MEditableView],
+  include: [gosa.upload.MDragUpload, gosa.ui.MEditableView, gosa.util.MMethodChaining],
   type: "singleton",
 
   construct : function()
   {
     // Call super class and configure ourselfs
     this.base(arguments, "", "@Ligature/magic");
+    this.setUploadType("workflow");
+    this.setUploadHint(this.tr("Drop file here to add it to the available workflows."));
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.VBox(5));
     this._rpc = gosa.io.Rpc.getInstance();
@@ -108,29 +110,6 @@ qx.Class.define("gosa.view.Workflows", {
           this.add(control, {flex: 1});
           break;
 
-        case "upload-dropbox":
-          control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
-          var dropBox = new qx.ui.basic.Atom(this.tr("Drop file here to add it to the available workflows."), "@Ligature/upload/128");
-          dropBox.set({
-            allowGrowY: false
-          });
-          control.addListener("appear", function() {
-            var element = control.getContentElement().getDomElement();
-            element.ondrop = function(e) {
-              gosa.util.DragDropHelper.getInstance().onHtml5Drop.call(gosa.util.DragDropHelper.getInstance(), e, "workflow");
-              this.setUploadMode(false);
-              return false;
-            }.bind(this);
-
-            element.ondragover = function(ev) {
-              ev.preventDefault();
-            };
-          }, this);
-          control.add(dropBox);
-          control.exclude();
-          qx.core.Init.getApplication().getRoot().add(control, {edge: 0});
-          break;
-
         case "empty-info":
           var label = new qx.ui.basic.Label(this.tr("Please add a workflow dragging a workflow zip file into this window"));
           control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
@@ -146,11 +125,20 @@ qx.Class.define("gosa.view.Workflows", {
           this._addAt(control, 2, {flex: 1});
           break;
       }
-      if (this._createMixinChildControlImpl && !control) {
-        control = this._createMixinChildControlImpl(id);
+      if (!control) {
+        control = this.processHooks("after", "_createChildControlImpl", id);
       }
 
       return control || this.base(arguments, id);
+    },
+
+    // property apply
+    _applyUploadMode: function(value) {
+      if (value)  {
+        this.getChildControl("list").exclude();
+      } else {
+        this.getChildControl("list").show();
+      }
     },
 
     _getListDelegate: function() {

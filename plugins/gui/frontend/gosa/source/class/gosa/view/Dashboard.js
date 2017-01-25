@@ -14,17 +14,17 @@
 
 /**
  * Customizable Dashboard view
- * 
  */
 qx.Class.define("gosa.view.Dashboard", {
   extend : qx.ui.tabview.Page,
-  include: [gosa.upload.MDragUpload, gosa.ui.MEditableView],
+  include: [gosa.upload.MDragUpload, gosa.ui.MEditableView, gosa.util.MMethodChaining],
   type: "singleton",
 
   construct : function()
   {
     // Call super class and configure ourselfs
     this.base(arguments, "", "@Ligature/dashboard");
+    this.setUploadHint(this.tr("Drop file here to add it to the available widgets."));
     this._setLayout(new qx.ui.layout.VBox());
     this.__gridLayout = new qx.ui.layout.Grid(5, 5);
     this.__columns = 6;
@@ -189,29 +189,6 @@ qx.Class.define("gosa.view.Dashboard", {
 
       switch(id) {
 
-        case "upload-dropbox":
-          control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
-          var dropBox = new qx.ui.basic.Atom(this.tr("Drop file here to add it to the available widgets."), "@Ligature/upload/128");
-          dropBox.set({
-            allowGrowY: false
-          });
-          control.addListener("appear", function() {
-            var element = control.getContentElement().getDomElement();
-            element.ondrop = function(e) {
-              gosa.util.DragDropHelper.getInstance().onHtml5Drop.call(gosa.util.DragDropHelper.getInstance(), e);
-              this.setUploadMode(false);
-              return false;
-            }.bind(this);
-
-            element.ondragover = function(ev) {
-              ev.preventDefault();
-            };
-          }, this);
-          control.add(dropBox);
-          control.exclude();
-          qx.core.Init.getApplication().getRoot().add(control, {edge: 0});
-          break;
-
         case "board":
           control = new qx.ui.container.Composite(this.__gridLayout);
           this._addAt(control, 1, {flex: 1});
@@ -234,8 +211,8 @@ qx.Class.define("gosa.view.Dashboard", {
 
       }
 
-      if (this._createMixinChildControlImpl && !control) {
-        control = this._createMixinChildControlImpl(id);
+      if (!control) {
+        control = this.processHooks("after", "_createChildControlImpl", id);
       }
 
       return control || this.base(arguments, id);

@@ -13,7 +13,8 @@
 ======================================================================== */
 
 /**
- * Adds an button to the widgets upper right corner which can toggle an edit mode
+ * Adds an button to the widgets upper right corner which can toggle an edit mode.
+ * Including classes must also include the {gosa.util.MMethodChaining} mixin.
 */
 qx.Mixin.define("gosa.ui.MEditableView", {
 
@@ -23,7 +24,8 @@ qx.Mixin.define("gosa.ui.MEditableView", {
   *****************************************************************************
   */
   construct : function() {
-    this._createChildControl("edit-mode");
+    this.addHook("after", "_createChildControlImpl", this._createMEditableViewChildControlImpl, this);
+    this._createMEditableViewChildControlImpl("edit-mode");
     this.addListener("longtap", function() {
       this.setEditMode(true);
     }, this);
@@ -67,7 +69,7 @@ qx.Mixin.define("gosa.ui.MEditableView", {
   members : {
 
     // overridden
-    _createMixinChildControlImpl: function(id) {
+    _createMEditableViewChildControlImpl: function(id) {
       var control;
 
       switch(id) {
