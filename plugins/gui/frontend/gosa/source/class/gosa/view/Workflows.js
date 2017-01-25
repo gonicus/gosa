@@ -19,8 +19,8 @@
 ************************************************************************ */
 
 qx.Class.define("gosa.view.Workflows", {
-  extend : qx.ui.tabview.Page,
-  include: [gosa.upload.MDragUpload, gosa.ui.MEditableView, gosa.util.MMethodChaining],
+  extend : gosa.view.AbstractEditableView,
+  include: [gosa.upload.MDragUpload, gosa.util.MMethodChaining],
   type: "singleton",
 
   construct : function()
@@ -202,11 +202,8 @@ qx.Class.define("gosa.view.Workflows", {
       }
     },
 
-    /**
-     * Add buttons to the toolbar for the editing mode
-     * @param toolbar {qx.ui.container.Composite} the toolbar
-     */
-    __fillToolbar: function(toolbar) {
+    // overridden
+    _fillToolbar: function(toolbar) {
       this.__toolbarButtons = {};
 
       var uploadButton = new com.zenesis.qx.upload.UploadButton(this.tr("Upload"), "@Ligature/upload");

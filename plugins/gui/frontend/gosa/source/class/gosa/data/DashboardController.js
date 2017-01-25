@@ -148,5 +148,15 @@ qx.Class.define("gosa.data.DashboardController", {
         loader.start();
       }, this);
     }
+  },
+
+  defer: function(statics) {
+    // load available plugin-parts
+    var parts = qx.io.PartLoader.getInstance().getParts();
+    Object.getOwnPropertyNames(parts).forEach(function(partName) {
+      if (partName.startsWith("gosa.plugins.")) {
+        statics.registerPart(parts[partName]);
+      }
+    }, this);
   }
 });

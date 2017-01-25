@@ -16,8 +16,8 @@
  * Customizable Dashboard view
  */
 qx.Class.define("gosa.view.Dashboard", {
-  extend : qx.ui.tabview.Page,
-  include: [gosa.upload.MDragUpload, gosa.ui.MEditableView, gosa.util.MMethodChaining],
+  extend : gosa.view.AbstractEditableView,
+  include: [gosa.upload.MDragUpload, gosa.util.MMethodChaining],
   type: "singleton",
 
   construct : function()
@@ -217,11 +217,8 @@ qx.Class.define("gosa.view.Dashboard", {
       return control || this.base(arguments, id);
     },
 
-    /**
-     * Add buttons to the toolbar for the editing mode
-     * @param toolbar {qx.ui.container.Composite} the toolbar
-     */
-    __fillToolbar: function(toolbar) {
+    // overridden
+    _fillToolbar: function(toolbar) {
       this.__toolbarButtons = {};
 
       // widget creation menu
@@ -906,15 +903,5 @@ qx.Class.define("gosa.view.Dashboard", {
     this.__toolbarButtons = null;
     gosa.io.Sse.getInstance().removeListener("pluginUpdate", this._onPluginUpdate, this);
     this._disposeObjects("_createMenu");
-  },
-
-  defer: function(statics) {
-    // load available plugin-parts
-    var parts = qx.io.PartLoader.getInstance().getParts();
-    Object.getOwnPropertyNames(parts).forEach(function(partName) {
-      if (partName.startsWith("gosa.plugins.")) {
-        statics.registerPart(parts[partName]);
-      }
-    }, this);
   }
 });

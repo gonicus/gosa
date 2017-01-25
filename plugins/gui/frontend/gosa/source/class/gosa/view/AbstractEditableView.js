@@ -1,30 +1,33 @@
 /*========================================================================
 
    This file is part of the GOsa project -  http://gosa-project.org
-  
+
    Copyright:
       (C) 2010-2017 GONICUS GmbH, Germany, http://www.gonicus.de
-  
+
    License:
       LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
-  
+
    See the LICENSE file in the project's top-level directory for details.
 
 ======================================================================== */
 
-/**
- * Adds an button to the widgets upper right corner which can toggle an edit mode.
- * Including classes must also include the {gosa.util.MMethodChaining} mixin.
-*/
-qx.Mixin.define("gosa.ui.MEditableView", {
+/* ************************************************************************
 
+#asset(gosa/*)
+
+************************************************************************ */
+
+qx.Class.define("gosa.view.AbstractEditableView", {
+  extend : qx.ui.tabview.Page,
+  type: "abstract",
   /*
-  *****************************************************************************
-     CONSTRUCTOR
-  *****************************************************************************
-  */
-  construct : function() {
-    this.addHook("after", "_createChildControlImpl", this._createMEditableViewChildControlImpl, this);
+   *****************************************************************************
+   CONSTRUCTOR
+   *****************************************************************************
+   */
+  construct : function(label, icon) {
+    this.base(arguments, label, icon);
     this._createChildControl("edit-mode");
     this.addListener("longtap", function() {
       this.setEditMode(true);
@@ -32,10 +35,10 @@ qx.Mixin.define("gosa.ui.MEditableView", {
   },
 
   /*
-  *****************************************************************************
-     PROPERTIES
-  *****************************************************************************
-  */
+   *****************************************************************************
+   PROPERTIES
+   *****************************************************************************
+   */
   properties : {
 
     editMode: {
@@ -62,14 +65,14 @@ qx.Mixin.define("gosa.ui.MEditableView", {
   },
 
   /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
+   *****************************************************************************
+   MEMBERS
+   *****************************************************************************
+   */
   members : {
 
     // overridden
-    _createMEditableViewChildControlImpl: function(id) {
+    _createChildControlImpl: function(id) {
       var control;
 
       switch(id) {
@@ -82,9 +85,7 @@ qx.Mixin.define("gosa.ui.MEditableView", {
         case "toolbar":
           control = new qx.ui.container.Composite(new qx.ui.layout.HBox(5, "center"));
           control.exclude();
-          if (this.__fillToolbar) {
-            this.__fillToolbar(control);
-          }
+          this._fillToolbar(control);
           this.getChildControl("header").add(control, {edge: 0});
           break;
 
@@ -108,8 +109,14 @@ qx.Mixin.define("gosa.ui.MEditableView", {
           break;
       }
 
-      return control;
+      return control || this.base(arguments, id);
     },
+
+    /**
+     * Can be overridden by inheriting classes to fill the toolbar acording to their needs
+     * @param toolbar {qx.ui.container.Composite} "toolbar" child control
+     */
+    _fillToolbar: function(toolbar) {},
 
     // property apply
     __applyEditMode: function(value, old) {
