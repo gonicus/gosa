@@ -28,6 +28,8 @@ Testing
  - ./setup.py test --addopts="-x --runslow"
  # verbose output
  - ./setup.py test --addopts="-v --runslow" or - ./setup.py test --addopts="-vv --runslow"
+ # run a single test
+ - ./setup.py test --addopts="--runslow src/tests/backend/components/test_jsonrpc_service.py::JsonRpcHandlerTestCase::test_login"
 
 **Hint**
 For debugging tests in PyCharm/Idea coverage must be turned of. Just comment out the `addopts` property on pytest.ini
