@@ -348,8 +348,20 @@ qx.Class.define("gosa.view.Dashboard", {
       widget = new qx.ui.form.Button(this.tr("Abort"), "@Ligature/ban/22");
       widget.setAppearance("button-link");
       widget.addListener("execute", function() {
-        this.setEditMode(false);
-        this.refresh();
+        if (this.isModified()) {
+          // get user confirmation to skip changes
+          var dialog = new gosa.ui.dialogs.Confirmation(this.tr("Unsaved changes"), this.tr("Do you want to discard those changes?"), "warning");
+          dialog.addListenerOnce("confirmed", function(ev) {
+            if (ev.getData() === true) {
+              this.setEditMode(false);
+              this.refresh();
+            }
+          }, this);
+          dialog.open();
+        } else {
+          this.setEditMode(false);
+          this.refresh();
+        }
       }, this);
       toolbar.add(widget);
       this.__toolbarButtons["cancel"] = widget;
