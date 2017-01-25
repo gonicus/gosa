@@ -173,8 +173,9 @@ qx.Class.define("gosa.view.Workflows", {
       }
     },
 
-    // property apply
+    // overridden
     _applyEditMode: function(value) {
+      this.base(arguments, value);
       if (value === true) {
         this.getChildControl("empty-info").exclude();
       }
@@ -194,7 +195,9 @@ qx.Class.define("gosa.view.Workflows", {
       }
     },
 
+    // overridden
     _applySelectedWidget: function(value) {
+      this.base(arguments, value);
       if (value) {
         this.__toolbarButtons['delete'].setEnabled(true);
       } else {

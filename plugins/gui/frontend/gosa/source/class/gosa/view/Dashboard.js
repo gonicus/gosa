@@ -77,8 +77,9 @@ qx.Class.define("gosa.view.Dashboard", {
     __rows: null,
     __rowHeight: null,
 
-    // property apply
+    // overridden
     _applyEditMode: function(value) {
+      this.base(arguments, value);
       var grid = this.__gridLayout;
       var board = this.getChildControl("board");
       var row, column, widget, lr, lc;
@@ -173,7 +174,9 @@ qx.Class.define("gosa.view.Dashboard", {
       }
     },
 
+    // overridden
     _applySelectedWidget: function(value) {
+      this.base(arguments, value);
       if (value) {
         this.__toolbarButtons['delete'].setEnabled(true);
         this.__toolbarButtons['edit'].setEnabled(true);

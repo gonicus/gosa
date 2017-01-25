@@ -45,7 +45,7 @@ qx.Class.define("gosa.view.AbstractEditableView", {
       check: "Boolean",
       init: false,
       event: "changeEditMode",
-      apply: "__applyEditMode"
+      apply: "_applyEditMode"
     },
 
     /**
@@ -60,7 +60,7 @@ qx.Class.define("gosa.view.AbstractEditableView", {
     selectedWidget: {
       check: "qx.ui.core.Widget",
       nullable: true,
-      apply: "__applySelectedWidget"
+      apply: "_applySelectedWidget"
     }
   },
 
@@ -119,7 +119,7 @@ qx.Class.define("gosa.view.AbstractEditableView", {
     _fillToolbar: function(toolbar) {},
 
     // property apply
-    __applyEditMode: function(value, old) {
+    _applyEditMode: function(value) {
       if (value) {
         this.getChildControl("toolbar").show();
       } else {
@@ -127,23 +127,15 @@ qx.Class.define("gosa.view.AbstractEditableView", {
         this.setSelectedWidget(null);
         this.setModified(false);
       }
-      if (this._applyEditMode) {
-        // call apply method from including class
-        this._applyEditMode(value, old);
-      }
     },
 
     // property apply
-    __applySelectedWidget: function(value, old) {
+    _applySelectedWidget: function(value, old) {
       if (old) {
         old.removeState("selected");
       }
       if (value) {
         value.addState("selected");
-      }
-      if (this._applySelectedWidget) {
-        // call apply method from including class
-        this._applySelectedWidget(value, old);
       }
     }
   }

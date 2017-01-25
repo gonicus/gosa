@@ -111,8 +111,8 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
       if (value) {
         this.addListener("dragstart", this.__onDragStart, this);
         this.addState("edit");
-        if (this.__options.resizable === false) {
-          this.setResizable(false);
+        if (this.__options.hasOwnProperty("resizable")) {
+          this.setResizable(this.__options.resizable);
         } else {
           this.setResizable(true);
         }
