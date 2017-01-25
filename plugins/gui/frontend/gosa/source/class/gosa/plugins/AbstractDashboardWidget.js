@@ -33,6 +33,9 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
       resizable: false
     });
     this.setDroppable(true);
+    // do not store these properties in the backend
+    // please not that these string are treated as wildcards e.g. matching resizable*
+    this.__doNotStoreProps = ["resizable", "droppable"];
     this.addListener("dragover", this._onDragOver, this);
     this.__options = gosa.data.DashboardController.getWidgetOptions(this);
   },
@@ -61,6 +64,7 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
     
   members : {
     __options: null,
+    __doNotStoreProps: null,
 
     // overidden
     /**
@@ -153,7 +157,12 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
       Object.getOwnPropertyNames(this).forEach(function(prop) {
         if (prop.substring(0, 7) === "$$user_") {
           var name = prop.substring(7);
-          if (name.startsWith("resizable")) {
+          if (this.__doNotStoreProps.indexOf(name) !== -1) {
+            return;
+          }
+          if (!!this.__doNotStoreProps.find(function(item) {
+            return name.startsWith(item);
+          }, this)) {
             return;
           }
           // user defined property value found, check if it is != its init value
