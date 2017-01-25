@@ -104,7 +104,22 @@ qx.Class.define("gosa.view.AbstractEditableView", {
             }, this);
           }
           control.addListener("execute", function() {
-            this.toggleEditMode();
+            if (this.isModified() && this.isEditMode()) {
+              // get user confirmation to skip changes
+              var dialog = new gosa.ui.dialogs.Confirmation(this.tr("Unsaved changes"), this.tr("Do you want to discard those changes?"), "warning");
+              dialog.addListenerOnce("confirmed", function(ev) {
+                if (ev.getData() === true) {
+                  this.setEditMode(false);
+                  this.refresh();
+                }
+              }, this);
+              dialog.open();
+            } else {
+              if (this.isEditMode()) {
+                this.refresh();
+              }
+              this.toggleEditMode();
+            }
           }, this);
           break;
       }
