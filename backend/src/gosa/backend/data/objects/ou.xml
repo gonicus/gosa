@@ -68,20 +68,6 @@
         <MultiValue>false</MultiValue>
         <Mandatory>false</Mandatory>
       </Attribute>
-      <Attribute>
-        <Name>manager</Name>
-        <Description></Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
-        <Validators>
-          <Condition>
-            <Name>ObjectWithPropertyExists</Name>
-            <Param>User</Param>
-            <Param>dn</Param>
-          </Condition>
-        </Validators>
-      </Attribute>
     </Attributes>
     <Container>
       <Type>PeopleContainer</Type>
@@ -102,7 +88,6 @@
         <Keyword>Unit</Keyword>
         <Keyword>Organization</Keyword>
         <Search>ou</Search>
-        <Resolve filter="DN">manager</Resolve>
         <Result>
           <Map>
             <Source>ou</Source>

@@ -57,29 +57,20 @@
             }
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "manager",
+            "buddyModelPath": "businessCategory",
             "properties": {
-                "text": "tr('Manager')"
+                "text": "tr('Business category')"
             },
             "addOptions": {
-                "row": 1,
-                "column": 0
+                "row": 0,
+                "column": 2
             }
         }, {
-            "class": "gosa.ui.widgets.QTableWidgetWidget",
-            "modelPath": "manager",
-            "extensions": {
-                "guiProperties": {
-                    "editTitle": "tr('Choose a manager')",
-                    "columns": {
-                        "cn": "tr('Name')",
-                        "uid": "tr('Login ID')"
-                    }
-                }
-            },
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "businessCategory",
             "addOptions": {
-                "row": 1,
-                "column": 1
+                "row": 0,
+                "column": 3
             }
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",
@@ -88,32 +79,16 @@
                 "text": "tr('Description')"
             },
             "addOptions": {
-                "row": 0,
-                "column": 2
+                "row": 1,
+                "column": 0
             }
         }, {
             "class": "gosa.ui.widgets.QLineEditWidget",
             "modelPath": "description",
             "addOptions": {
-                "row": 0,
-                "column": 3
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "businessCategory",
-            "properties": {
-                "text": "tr('Business category')"
-            },
-            "addOptions": {
                 "row": 1,
-                "column": 2
-            }
-        }, {
-            "class": "gosa.ui.widgets.QLineEditWidget",
-            "modelPath": "businessCategory",
-            "addOptions": {
-                "row": 1,
-                "column": 3
+                "column": 1,
+                "colSpan": 3
             }
         }]
     }, {
