@@ -688,7 +688,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
     _updateValidity : function() {
       this.setValid(this._validatingWidgets.every(function(widget) {
-        return widget.isValid();
+        return widget.isValid() || widget.isBlocked();
       }));
     },
 
