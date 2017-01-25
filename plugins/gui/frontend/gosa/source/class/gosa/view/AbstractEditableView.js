@@ -32,6 +32,8 @@ qx.Class.define("gosa.view.AbstractEditableView", {
     this.addListener("longtap", function() {
       this.setEditMode(true);
     }, this);
+
+    this.addListener("resize", this._onResize, this);
   },
 
   /*
@@ -71,6 +73,14 @@ qx.Class.define("gosa.view.AbstractEditableView", {
    */
   members : {
 
+    _onResize : function() {
+      var bounds = this.getBounds();
+      var editControl = this.getChildControl("edit-mode");
+      if (bounds) {
+        editControl.setUserBounds(bounds.width - 35, 0, 35, 35);
+      }
+    },
+
     // overridden
     _createChildControlImpl: function(id) {
       var control;
@@ -92,17 +102,6 @@ qx.Class.define("gosa.view.AbstractEditableView", {
         case "edit-mode":
           control = new qx.ui.form.Button(null, "@Ligature/gear/22");
           control.setZIndex(1000);
-          var bounds = this.getBounds();
-          if (bounds) {
-            control.setUserBounds(bounds.width - 35, 0, 35, 35);
-            this.add(control);
-          } else {
-            this.addListenerOnce("appear", function() {
-              var bounds = this.getBounds();
-              control.setUserBounds(bounds.width - 35, 0, 35, 35);
-              this.add(control);
-            }, this);
-          }
           control.addListener("execute", function() {
             if (this.isModified() && this.isEditMode()) {
               // get user confirmation to skip changes
@@ -121,6 +120,8 @@ qx.Class.define("gosa.view.AbstractEditableView", {
               this.toggleEditMode();
             }
           }, this);
+
+          this.add(control);
           break;
       }
 
@@ -137,8 +138,10 @@ qx.Class.define("gosa.view.AbstractEditableView", {
     _applyEditMode: function(value) {
       if (value) {
         this.getChildControl("toolbar").show();
+        this.getChildControl("edit-mode").exclude();
       } else {
         this.getChildControl("toolbar").exclude();
+        this.getChildControl("edit-mode").show();
         this.setSelectedWidget(null);
         this.setModified(false);
       }
