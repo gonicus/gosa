@@ -25,7 +25,7 @@ qx.Mixin.define("gosa.ui.MEditableView", {
   */
   construct : function() {
     this.addHook("after", "_createChildControlImpl", this._createMEditableViewChildControlImpl, this);
-    this._createMEditableViewChildControlImpl("edit-mode");
+    this._createChildControl("edit-mode");
     this.addListener("longtap", function() {
       this.setEditMode(true);
     }, this);
@@ -89,16 +89,16 @@ qx.Mixin.define("gosa.ui.MEditableView", {
           break;
 
         case "edit-mode":
-          control = new qx.ui.form.Button(null, "@Ligature/gear");
+          control = new qx.ui.form.Button(null, "@Ligature/gear/22");
           control.setZIndex(1000);
           var bounds = this.getBounds();
           if (bounds) {
-            control.setUserBounds(bounds.width-30, 0, 30, 30);
+            control.setUserBounds(bounds.width - 35, 0, 35, 35);
             this.add(control);
           } else {
             this.addListenerOnce("appear", function() {
               var bounds = this.getBounds();
-              control.setUserBounds(bounds.width-30, 0, 30, 30);
+              control.setUserBounds(bounds.width - 35, 0, 35, 35);
               this.add(control);
             }, this);
           }
