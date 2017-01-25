@@ -194,10 +194,10 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "search-list-item/title": {
-      style: function() {
+      style: function(states) {
         return {
           textColor: "#1F4788",
-          cursor: "pointer",
+          cursor: states.disabled ? undefined : "pointer",
           font: "SearchResultTitle"
         };
       }
@@ -223,10 +223,11 @@ qx.Theme.define("gosa.theme.Appearance", {
           padding[2] -= 2;
         }
 
-        var backgroundColor = states.hovered ? 'lightgray-light' : undefined;
+        var backgroundColor = states.hovered && !states.disabled ? 'lightgray-light' : undefined;
 
         return {
           padding: padding,
+          opacity: states.disabled ? 0.5 : 1,
           marginBottom: 10,
           backgroundColor: backgroundColor,
           decorator: states.lead ? "lead-item" : states.dragover ? "dragover" : undefined
