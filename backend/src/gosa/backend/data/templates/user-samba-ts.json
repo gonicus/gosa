@@ -238,7 +238,7 @@
             }
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",
-            "buddyModelPath": "CtxShadow",
+            "buddyModelPath": "Ctx_shadow",
             "addOptions": {
                 "row": 0,
                 "column": 2
@@ -248,7 +248,7 @@
             }
         }, {
             "class": "gosa.ui.widgets.QComboBoxWidget",
-            "modelPath": "CtxShadow",
+            "modelPath": "Ctx_shadow",
             "addOptions": {
                 "row": 0,
                 "column": 3
