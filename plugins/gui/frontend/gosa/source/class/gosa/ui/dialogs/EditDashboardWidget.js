@@ -26,10 +26,6 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
 
     // form
     var form = this.__form = new qx.ui.form.Form();
-    // add the form items
-    this.addFormItem(new qx.ui.form.TextField(widget.getBackgroundColor()), this.tr("Background color"), this.validationWrapper("color", false), "backgroundColor");
-    this.__initialValues.backgroundColor = widget.getBackgroundColor() || "";
-
     var options = gosa.data.DashboardController.getWidgetOptions(widget);
     if (options.settings) {
       Object.getOwnPropertyNames(options.settings.properties).forEach(function(propertyName) {

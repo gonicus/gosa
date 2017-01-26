@@ -183,6 +183,7 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
 
         case "content":
           control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+          control.setAnonymous(true);
           this._addAt(control, 2);
           break;
 

@@ -23,9 +23,17 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
     var layout = new qx.ui.layout.Atom();
     layout.setCenter(true);
     this.getChildControl("content").setLayout(layout);
-    this.getChildControl("content").addListener("tap", function() {
-      gosa.ui.controller.Objects.getInstance().startWorkflow(this.getChildControl("workflow-item"));
+    this.addListener("tap", function() {
+      if (this.getChildControl("content").isEnabled()) {
+        gosa.ui.controller.Objects.getInstance().startWorkflow(this.getChildControl("workflow-item"));
+      }
     }, this);
+
+    // Add listeners
+    this.addListener("pointerover", this._onPointerOver);
+    this.addListener("pointerout", this._onPointerOut);
+    this.addListener("pointerdown", this._onPointerDown);
+    this.addListener("pointerup", this._onPointerUp);
   },
 
   /*
@@ -58,6 +66,117 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
   members : {
     _listController: null,
 
+    /*
+    ---------------------------------------------------------------------------
+      EVENT LISTENERS
+    ---------------------------------------------------------------------------
+    */
+
+    /**
+     * Listener method for "pointerover" event
+     * <ul>
+     * <li>Adds state "hovered"</li>
+     * <li>Removes "abandoned" and adds "pressed" state (if "abandoned" state is set)</li>
+     * </ul>
+     *
+     * @param e {Event} Mouse event
+     */
+    _onPointerOver : function(e)
+    {
+      if (!this.isEnabled() || e.getTarget() !== this) {
+        return;
+      }
+
+      if (this.hasState("abandoned"))
+      {
+        this.removeState("abandoned");
+        this.addState("pressed");
+      }
+
+      this.addState("hovered");
+    },
+
+    /**
+     * Listener method for "pointerout" event
+     * <ul>
+     * <li>Removes "hovered" state</li>
+     * <li>Adds "abandoned" and removes "pressed" state (if "pressed" state is set)</li>
+     * </ul>
+     *
+     * @param e {Event} Mouse event
+     */
+    _onPointerOut : function(e)
+    {
+      if (!this.isEnabled() || e.getTarget() !== this) {
+        return;
+      }
+
+      this.removeState("hovered");
+
+      if (this.hasState("pressed"))
+      {
+        this.removeState("pressed");
+        this.addState("abandoned");
+      }
+    },
+
+    /**
+     * Listener method for "pointerdown" event
+     * <ul>
+     * <li>Removes "abandoned" state</li>
+     * <li>Adds "pressed" state</li>
+     * </ul>
+     *
+     * @param e {Event} Mouse event
+     */
+    _onPointerDown : function(e)
+    {
+      if (!e.isLeftPressed()) {
+        return;
+      }
+
+      e.stopPropagation();
+
+      // Activate capturing if the button get a pointerout while
+      // the button is pressed.
+      this.capture();
+
+      this.removeState("abandoned");
+      this.addState("pressed");
+    },
+
+     /**
+     * Listener method for "pointerup" event
+     * <ul>
+     * <li>Removes "pressed" state (if set)</li>
+     * <li>Removes "abandoned" state (if set)</li>
+     * <li>Adds "hovered" state (if "abandoned" state is not set)</li>
+     *</ul>
+     *
+     * @param e {Event} Mouse event
+     */
+    _onPointerUp : function(e)
+    {
+      this.releaseCapture();
+
+      // We must remove the states before executing the command
+      // because in cases were the window lost the focus while
+      // executing we get the capture phase back (mouseout).
+      var hasPressed = this.hasState("pressed");
+      var hasAbandoned = this.hasState("abandoned");
+
+      if (hasPressed) {
+        this.removeState("pressed");
+      }
+
+      if (hasAbandoned) {
+        this.removeState("abandoned");
+      }
+
+      e.stopPropagation();
+    },
+
+
     // overridden
     _createChildControlImpl: function(id) {
       var control;
@@ -69,6 +188,8 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
           this.bind("workflow", control, "id");
           control.getChildControl("content").getLayout().setAlignX("center");
           this.getChildControl("content").add(control);
+          this.getChildControl("content").setAnonymous(true);
+          control.setAnonymous(true);
           break;
 
       }

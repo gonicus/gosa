@@ -22,17 +22,10 @@ qx.Theme.define("gosa.plugins.workflowstarter.Appearance", {
       include: "gosa-dashboard-widget",
       alias: "gosa-dashboard-widget",
 
-      style: function() {
-        return {
-          padding: 0
-        }
-      }
-    },
-
-    "gosa-dashboard-widget-workflowstarter/content": {
       style: function(states) {
         return {
-          backgroundColor: states.hovered ? "rgba(0, 0, 0, 0.1)" : "transparent"
+          padding: 0,
+          backgroundColor: states.edit ? "transparent" : (states.hovered ? "rgba(0, 0, 0, 0.1)" : "transparent")
         }
       }
     },

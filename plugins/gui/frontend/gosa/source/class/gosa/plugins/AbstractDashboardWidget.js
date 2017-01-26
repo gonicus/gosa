@@ -73,6 +73,7 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
     _forwardStates : {
       disabled : true,
       pressed : true,
+      edit : true,
       hovered : true
     },
 
