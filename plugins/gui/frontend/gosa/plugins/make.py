@@ -3,9 +3,8 @@ import subprocess
 import sys
 import os
 import stat
+import argparse
 from zipfile import ZipFile, ZIP_DEFLATED
-
-job = sys.argv[1]
 
 
 def build():
@@ -60,9 +59,7 @@ def create_plugin():
     print("%s plugin has been created." % plugin_name)
 
 
-def make_plugin_bundle():
-    app_name = sys.argv[2]
-    path = sys.argv[3]
+def make_plugin_bundle(app_name, path):
     archive_path = os.path.join(path, "%s.zip" % app_name)
     if os.path.exists(path):
         with ZipFile(archive_path, 'w', ZIP_DEFLATED) as archive:
@@ -81,14 +78,32 @@ def make_plugin_bundle():
 
     print("%s written" % archive_path)
 
-if job == "build":
-    build()
-elif job == "deploy":
-    build()
-    deploy()
-elif job == "create-plugin":
-    create_plugin()
-elif job == "bundle-plugin":
-    make_plugin_bundle()
-else:
-    print("Unknown job: %s" % job)
+
+if __name__ == "__main__":
+
+    commands = {
+        "build": build,
+        "deploy": [build, deploy],
+        "create-plugin": create_plugin,
+        "bundle-plugin": make_plugin_bundle
+    }
+    parser = argparse.ArgumentParser(prog="make.py", usage="make.py [task]",
+                                     description="Plugin building helper.")
+
+    parser.add_argument('task', type=str, help='task (%s)' % ", ".join(commands.keys()), nargs='?')
+    options, unknown = parser.parse_known_args()
+
+    if options.task is None:
+        parser.print_help()
+
+    elif options.task not in commands:
+        print("action '%s' is not available" % options.task)
+        parser.print_help()
+
+    else:
+        # run command
+        if isinstance(commands[options.task], list):
+            for task in commands[options.task]:
+                task(*sys.argv[2:])
+        else:
+            commands[options.task](*sys.argv[2:])
