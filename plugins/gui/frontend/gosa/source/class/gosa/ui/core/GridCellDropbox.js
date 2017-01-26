@@ -128,7 +128,6 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
             }
           }
         }
-        console.log(startCells);
         this.__possibleStartBuddies = startCells;
       }
       return this.__possibleStartBuddies;

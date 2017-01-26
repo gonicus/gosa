@@ -34,6 +34,8 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
     this.addListener("pointerout", this._onPointerOut);
     this.addListener("pointerdown", this._onPointerDown);
     this.addListener("pointerup", this._onPointerUp);
+
+    this.addListener("layoutChanged", this._onLayoutChanged, this);
   },
 
   /*
@@ -71,6 +73,21 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
       EVENT LISTENERS
     ---------------------------------------------------------------------------
     */
+
+    _onLayoutChanged: function() {
+      var props = this.getLayoutProperties();
+      var control = this.getChildControl("workflow-item");
+      console.log(props);
+      if (props.colSpan === 2) {
+        // wide mode => show description and icon on left position
+        control.getChildControl("description").show();
+        control.setIconPosition("left");
+      } else if (props.colSpan === 1) {
+        // small mode => no description and icon on top
+        control.getChildControl("description").exclude();
+        control.setIconPosition("top");
+      }
+    },
 
     /**
      * Listener method for "pointerover" event
@@ -202,8 +219,9 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
       gosa.io.Rpc.getInstance().cA("getWorkflowDetails", value)
       .then(function(workflowDetails) {
         item.setLabel(workflowDetails.name);
-        // item.setDescription(workflowDetails.description);
+        item.setDescription(workflowDetails.description);
         item.setIcon(workflowDetails.icon);
+        this._onLayoutChanged();
       }, this)
       .catch(function(error) {
         this.error(error);
@@ -224,7 +242,8 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
       icon: "@Ligature/magic",
       defaultColspan: 1,
       defaultRowspan: 2,
-      resizable: false,
+      maxColspan: 2,
+      resizable: [false, true, false, false],
       theme: {
         appearance : gosa.plugins.workflowstarter.Appearance
       },

@@ -12,6 +12,7 @@
 
 ======================================================================== */
 
+//noinspection JSUnusedGlobalSymbols
 /**
  * Customizable Dashboard view
  */
@@ -711,19 +712,17 @@ qx.Class.define("gosa.view.Dashboard", {
           widget.addListener("tap", this._onTap, this);
           this.setSelectedWidget(widget);
         }
-        widget.addListener("layoutChanged", function(ev) {
-          this.__toolbarButtons['save'].setEnabled((ev.getData() === true));
-          if (ev.getData() === true) {
-            // add placeholders to empty cells
-            for (var row = 0, lr = this.__gridLayout.getRowCount(); row < lr; row++) {
-              for (var col = 0, lc = this.__gridLayout.getColumnCount(); col < lc; col++) {
-                var widget = this.__gridLayout.getCellWidget(row, col);
-                if (!widget) {
-                  board.add(new gosa.ui.core.GridCellDropbox(), {
-                    row    : row,
-                    column : col
-                  });
-                }
+        widget.addListener("layoutChanged", function() {
+          this.__toolbarButtons['save'].setEnabled(true);
+          // add placeholders to empty cells
+          for (var row = 0, lr = this.__gridLayout.getRowCount(); row < lr; row++) {
+            for (var col = 0, lc = this.__gridLayout.getColumnCount(); col < lc; col++) {
+              var widget = this.__gridLayout.getCellWidget(row, col);
+              if (!widget) {
+                board.add(new gosa.ui.core.GridCellDropbox(), {
+                  row    : row,
+                  column : col
+                });
               }
             }
           }

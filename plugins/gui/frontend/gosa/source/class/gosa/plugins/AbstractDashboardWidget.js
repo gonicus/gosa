@@ -38,6 +38,19 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
     this.__doNotStoreProps = ["resizable", "droppable"];
     this.addListener("dragover", this._onDragOver, this);
     this.__options = gosa.data.DashboardController.getWidgetOptions(this);
+
+    if (this.__options.maxRowspan) {
+      this.setMaxRowSpan(parseInt(this.__options.maxRowspan));
+    }
+    if (this.__options.maxColspan) {
+      this.setMaxColSpan(parseInt(this.__options.maxColspan));
+    }
+    if (this.__options.minRowspan) {
+      this.setMinRowSpan(parseInt(this.__options.minRowspan));
+    }
+    if (this.__options.minColspan) {
+      this.setMinColSpan(parseInt(this.__options.minColspan));
+    }
   },
 
   /*
