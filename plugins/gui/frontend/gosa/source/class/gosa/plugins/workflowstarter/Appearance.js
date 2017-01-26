@@ -29,11 +29,19 @@ qx.Theme.define("gosa.plugins.workflowstarter.Appearance", {
       }
     },
 
+    "gosa-dashboard-widget-workflowstarter/content": {
+      style: function(states) {
+        return {
+          backgroundColor: states.hovered ? "rgba(0, 0, 0, 0.1)" : "transparent"
+        }
+      }
+    },
+
     "gosa-dashboard-widget-workflowstarter/workflow-item": {
       include: "gosa-workflow-item",
       alias: "gosa-workflow-item",
 
-      style: function() {
+      style: function(states) {
         return {
           iconPosition: "top",
           iconSize: 44,
@@ -59,7 +67,7 @@ qx.Theme.define("gosa.plugins.workflowstarter.Appearance", {
         return {
           alignY: "middle",
           alignX: "center",
-          font: "bold"
+          paddingTop: 8
         }
       }
     },

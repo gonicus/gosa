@@ -193,6 +193,14 @@ qx.Theme.define("gosa.theme.Appearance", {
       }
     },
 
+    "search-list-item/toolbar": {
+      style: function(states) {
+        return {
+          opacity : states.disabled ? 0 : 1
+        };
+      }
+    },
+
     "search-list-item/title": {
       style: function(states) {
         return {
