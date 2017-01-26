@@ -24,7 +24,7 @@ qx.Class.define("gosa.engine.Context", {
    * @param template {Object} A widget template as a object (i.e. already parsed from json)
    * @param rootWidget {qx.ui.core.Widget} The container widget where the template widgets will be added to
    * @param extension {String ? undefined} Name of the extension this context creates widgets for (e.g. "PosixUser")
-   * @param controller {gosa.data.ObjectEditController ? undefined} Main controller for {@link gosa.ui.widgets.ObjectEdit}
+   * @param controller {gosa.data.controller.ObjectEdit ? undefined} Main controller for {@link gosa.ui.widgets.ObjectEdit}
    */
   construct : function(template, rootWidget, extension, controller) {
     this.base(arguments);
@@ -35,7 +35,7 @@ qx.Class.define("gosa.engine.Context", {
       qx.core.Assert.assertString(extension);
     }
     if (controller) {
-      qx.core.Assert.assertInstance(controller, gosa.data.ObjectEditController);
+      qx.core.Assert.assertInstance(controller, gosa.data.controller.ObjectEdit);
       this._controller = controller;
     }
 
@@ -169,7 +169,7 @@ qx.Class.define("gosa.engine.Context", {
     },
 
     _createWidgets : function() {
-      if (!this._appeared) { // widgets might have been created by the ObjectEditController in case of error
+      if (!this._appeared) { // widgets might have been created by the ObjectEdit controller in case of error
         this._processor.process(this._template, this._rootWidget);
         this._connectBuddies();
         this._appeared = true;

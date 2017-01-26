@@ -22,12 +22,12 @@ qx.Class.define("gosa.data.ExtensionController", {
 
   /**
    * @param obj {gosa.proxy.Object}
-   * @param widgetController {gosa.data.ObjectEditController}
+   * @param widgetController {gosa.data.controller.ObjectEdit}
    */
   construct : function(obj, widgetController) {
     this.base(arguments);
     qx.core.Assert.assertInstance(obj, gosa.proxy.Object);
-    qx.core.Assert.assertInstance(widgetController, gosa.data.ObjectEditController);
+    qx.core.Assert.assertInstance(widgetController, gosa.data.controller.ObjectEdit);
 
     this.__object = obj;
     this.__widgetController = widgetController;

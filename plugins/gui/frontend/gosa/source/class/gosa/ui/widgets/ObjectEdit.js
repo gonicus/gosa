@@ -53,7 +53,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
   properties : {
     controller : {
-      check : "gosa.data.ObjectEditController",
+      check : "gosa.data.controller.ObjectEdit",
       init : null,
       apply : "_applyController"
     }

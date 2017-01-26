@@ -105,7 +105,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
         // Position window as requested
         this._desktop.add(win);
 
-        var controller = new gosa.data.ObjectEditController(obj, w);
+        var controller = new gosa.data.controller.ObjectEdit(obj, w);
         w.setController(controller);
       }, this)
       .catch(function(error) {
