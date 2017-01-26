@@ -50,6 +50,8 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._initialized = true;
     this.fireEvent("initialized");
 
+    this._extensionController.checkForMissingExtensions();
+
     obj.addListener("closing", this._onObjectClosing, this);
   },
 

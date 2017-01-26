@@ -21,9 +21,11 @@ qx.Class.define("gosa.ui.dialogs.Confirmation", {
   construct: function(title, msg, type)
   {
     this.base(arguments, title);
-    
-    var message = new qx.ui.basic.Label(msg);
-    this.addElement(message);
+
+    if (msg) {
+      var message = new qx.ui.basic.Label(msg);
+      this.addElement(message);
+    }
 
     var buttonAppearance = "button-primary";
 
@@ -32,7 +34,7 @@ qx.Class.define("gosa.ui.dialogs.Confirmation", {
       buttonAppearance = "button-warning";
     }
 
-    var ok = gosa.ui.base.Buttons.getOkButton();
+    var ok = this._okButton = gosa.ui.base.Buttons.getOkButton();
     ok.setAppearance(buttonAppearance);
     ok.setLabel(this.tr("Yes"));
     ok.addListener("execute", function() {
@@ -41,7 +43,7 @@ qx.Class.define("gosa.ui.dialogs.Confirmation", {
     }, this);
     this.addButton(ok);
 
-    var cancel = gosa.ui.base.Buttons.getCancelButton();
+    var cancel = this._cancelButton = gosa.ui.base.Buttons.getCancelButton();
     cancel.setAppearance(buttonAppearance);
     cancel.setLabel(this.tr("No"));
     this.addButton(cancel);
@@ -59,5 +61,14 @@ qx.Class.define("gosa.ui.dialogs.Confirmation", {
   */
   events: {
     "confirmed": "qx.event.type.Data"
+  },
+
+  members : {
+    _okButton : null,
+    _cancelButton : null
+  },
+
+  destruct : function() {
+    this._disposeObjects("_okButton", "cancelButton");
   }
 });

@@ -125,6 +125,123 @@ qx.Class.define("gosa.data.ExtensionController", {
       this._checkExtensionDependenciesExtend(extension, modify);
     },
 
+    getMissingDependencies : function(extension) {
+      var dependencies = this._obj.extensionDeps[extension]
+        ? qx.lang.Array.clone(this._obj.extensionDeps[extension])
+        : [];
+
+      dependencies = dependencies.filter(function(ext) {
+        return !this._obj.extensionTypes[ext];
+      }, this);
+      return dependencies;
+    },
+
+    /**
+     * @return {Object} Key: name of extension with missing dependencies, value: array of dependent extension names (in
+     *   no particular order)
+     */
+    getAllMissingExtensions : function() {
+      var missingExts = {};
+      this.getCurrentExtensions().forEach(function(extName) {
+        missingExts[extName] = this.getMissingDependencies(extName);
+      }, this);
+      return missingExts;
+    },
+
+    /**
+     * @return {Array} Unique names of extensions
+     */
+    getAllMissingExtensionsAsArray : function() {
+      return qx.lang.Array.unique([].concat.apply([], Object.values(this.getAllMissingExtensions())));
+    },
+
+    checkForMissingExtensions : function() {
+      if (this.getAllMissingExtensionsAsArray().length) {
+        var dialog = new gosa.ui.dialogs.AddDependentExtensions(this.getAllMissingExtensions());
+        dialog.addListenerOnce("confirmed", this.__onMissingExtensionsDialogConfirm, this);
+        dialog.open();
+      }
+    },
+
+    /**
+     * @return {Array} Names of extensions that are currently active
+     */
+    getCurrentExtensions : function() {
+      var result = [];
+      var exts = this._obj.extensionTypes;
+
+      for (var extName in exts) {
+        if (exts.hasOwnProperty(extName) && exts[extName] && !qx.lang.Array.contains(result, extName)) {
+          result.push(extName);
+        }
+      }
+      return result;
+    },
+
+    /**
+     * @param event {qx.event.type.Data}
+     */
+    __onMissingExtensionsDialogConfirm : function(event) {
+      if (event.getData()) {
+        this.__addMissingExtensions();
+      }
+      else {
+        this.__retractExtensionsWithBrokenDependencies();
+      }
+    },
+
+    __addMissingExtensions : function() {
+      var sortedExtensions = this.__sortExtensions(this.getAllMissingExtensionsAsArray());
+      this.__addExtensions(sortedExtensions);
+    },
+
+    __retractExtensionsWithBrokenDependencies : function() {
+      var allExtensions = Object.keys(this.getAllMissingExtensions());
+      var sortedExtensions = this.__sortExtensions(allExtensions).reverse();
+      this.__retractExtensions(sortedExtensions);
+    },
+
+    /**
+     * @param extensions {Array} Unique list of extension names
+     */
+    __addExtensions : function(extensions) {
+      qx.core.Assert.assertArray(extensions);
+      var queue = [];
+
+      extensions.forEach(function(dependency) {
+        queue.push(this._addExtensionToObject(dependency));
+      }, this);
+      qx.Promise.all(queue, this);
+    },
+
+    /**
+     * @param extensions {Array} Unique list of extension names
+     */
+    __retractExtensions : function(extensions) {
+      qx.core.Assert.assertArray(extensions);
+      var queue = [];
+
+      extensions.forEach(function(dependency) {
+        queue.push(this._removeExtensionFromObject(dependency));
+      }, this);
+      qx.Promise.all(queue, this);
+    },
+
+    /**
+     * Sorts the given extensions such that extending them in the final order will not cause dependency faults. Thus,
+     * the list must be reversed for retraction.
+     * @param extensions {Array}
+     */
+    __sortExtensions : function(extensions) {
+      qx.core.Assert.assertArray(extensions);
+
+      var ordered = this.getOrderedExtensions();
+      extensions.sort(function(a, b) {
+        return ordered.indexOf(a) - ordered.indexOf(b);
+      });
+      return extensions;
+    },
+
     /**
      * Check dependencies of extension and possibly raise dialog which asks if to add other dependent extensions.
      *
@@ -132,12 +249,7 @@ qx.Class.define("gosa.data.ExtensionController", {
      * @param modify {Boolean ? true} If the object shall be tagged as modified
      */
     _checkExtensionDependenciesExtend : function(extension, modify) {
-      var dependencies = this._obj.extensionDeps[extension] ? qx.lang.Array.clone(this._obj.extensionDeps[extension]) : [];
-
-      dependencies = dependencies.filter(function(ext) {
-        return !this._obj.extensionTypes[ext];
-      }, this);
-
+      var dependencies = this.getMissingDependencies(extension);
       if (dependencies.length > 0) {
         this._createExtendDependencyDialog(extension, dependencies);
       }
@@ -181,14 +293,7 @@ qx.Class.define("gosa.data.ExtensionController", {
       dialog.show();
 
       dialog.addListenerOnce("ok", function() {
-        var queue = [];
-
-        dependencies.forEach(function(dependency) {
-          queue.push(this._addExtensionToObject(dependency));
-        }, this);
-
-        queue.push(this._addExtensionToObject(extension));
-        return qx.Promise.all(queue, this);
+        this.__addExtensions(dependencies.concat(extension));
       }, this);
     },
 
@@ -197,14 +302,7 @@ qx.Class.define("gosa.data.ExtensionController", {
       dialog.show();
 
       dialog.addListenerOnce("ok", function() {
-        var queue = [];
-
-        dependencies.forEach(function(dependency) {
-          queue.push(this._removeExtensionFromObject(dependency));
-        }, this);
-
-        queue.push(this._removeExtensionFromObject(extension));
-        return qx.Promise.all(queue, this);
+        this.__retractExtensions(dependencies.concat(extension));
       }, this);
     },
 
