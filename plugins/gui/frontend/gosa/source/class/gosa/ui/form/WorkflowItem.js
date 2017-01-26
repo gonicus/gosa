@@ -20,13 +20,15 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
   implement : [qx.ui.form.IModel],
   include: [qx.ui.form.MModelProperty],
   
-  construct : function() {
+  construct : function(skipHover) {
     this.base(arguments);
     var layout = new qx.ui.layout.HBox(0);
     this._setLayout(layout);
 
-    this.addListener("mouseover", this._onMouseOver, this);
-    this.addListener("mouseout", this._onMouseOut, this);
+    if (!skipHover) {
+      this.addListener("mouseover", this._onMouseOver, this);
+      this.addListener("mouseout", this._onMouseOut, this);
+    }
   },
     
   properties : {

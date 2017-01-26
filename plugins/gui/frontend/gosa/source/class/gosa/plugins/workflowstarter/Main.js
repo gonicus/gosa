@@ -65,6 +65,10 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
   members : {
     _listController: null,
 
+    _forwardStates: {
+      hovered: false
+    },
+
     /*
     ---------------------------------------------------------------------------
       EVENT LISTENERS
@@ -197,7 +201,7 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
       switch(id) {
 
         case "workflow-item":
-          control = new gosa.ui.form.WorkflowItem();
+          control = new gosa.ui.form.WorkflowItem(true);
           this.bind("workflow", control, "id");
           var layout = new qx.ui.layout.Atom();
           layout.setCenter(true);
