@@ -63,7 +63,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
 
       return new qx.Promise(function(resolve) {
         // generate widget
-        var widget = new gosa.ui.widgets.ObjectEdit(templates, true);
+        var widget = new gosa.ui.widgets.WorkflowWizard(templates);
         resolve(widget);
       });
     },
