@@ -34,6 +34,7 @@ qx.Class.define("gosa.view.AbstractEditableView", {
     }, this);
 
     this.addListener("resize", this._onResize, this);
+    this.addListener("appear", this._onResize, this);
   },
 
   /*
