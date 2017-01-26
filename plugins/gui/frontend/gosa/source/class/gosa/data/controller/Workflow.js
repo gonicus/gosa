@@ -15,7 +15,7 @@
 /**
  * Controller for the {@link gosa.ui.widget.WorkflowWizard} widget; connects it to the model.
  */
-qx.Class.define("gosa.data.WorkflowController", {
+qx.Class.define("gosa.data.controller.Workflow", {
 
   extend : qx.core.Object,
 

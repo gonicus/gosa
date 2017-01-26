@@ -24,6 +24,7 @@ database-file = /tmp/gosa.json
 
 [backend]
 admins = admin
+index = true
 
 [user]
 image-path = /tmp/images

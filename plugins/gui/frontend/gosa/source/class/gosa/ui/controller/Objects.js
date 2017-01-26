@@ -177,7 +177,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
         // Position window as requested
         this._desktop.add(win);
 
-        var controller = new gosa.data.WorkflowController(workflow, widget);
+        var controller = new gosa.data.controller.Workflow(workflow, widget);
         widget.setController(controller);
       }, this)
       .catch(this.error, this)

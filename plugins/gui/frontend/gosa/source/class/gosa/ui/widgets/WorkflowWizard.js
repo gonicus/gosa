@@ -30,7 +30,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
   properties : {
     controller : {
-      check : "gosa.data.WorkflowController",
+      check : "gosa.data.controller.Workflow",
       init : null
     }
   }
