@@ -97,13 +97,14 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
                     data.push(entry);
                   }
                 }
+                var selectionModel = qx.data.marshal.Json.createModel(data.toArray());
+                selectionController.setModel(selectionModel);
               }, this);
             } else if (typeSettings.provider === "custom" && typeSettings.options) {
               data.append(typeSettings.options);
+              var selectionModel = qx.data.marshal.Json.createModel(data.toArray());
+              selectionController.setModel(selectionModel);
             }
-
-            var selectionModel = qx.data.marshal.Json.createModel(data.toArray());
-            selectionController.setModel(selectionModel);
 
             selectBox.addListener("changeSelection", function() {
               if (selectBox.getModelSelection().length) {
