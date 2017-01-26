@@ -17,13 +17,13 @@ qx.Theme.define("gosa.plugins.separator.Decoration", {
     "gosa-dashboard-widget-separator-top": {
       style: {
         width: [1, 0, 0, 0],
-        color: "black"
+        color: "lightgray-dark"
       }
     },
     "gosa-dashboard-widget-separator-bottom": {
       style: {
         width: [0, 0, 1, 0],
-        color: "black"
+        color: "lightgray-dark"
       }
     }
   }
