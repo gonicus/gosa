@@ -35,7 +35,8 @@ qx.Theme.define("gosa.plugins.separator.Appearance", {
     "gosa-dashboard-widget-separator/title": {
       style: function() {
         return {
-          alignY: "middle"
+          alignY: "bottom",
+          padding: 4
         }
       }
     }
