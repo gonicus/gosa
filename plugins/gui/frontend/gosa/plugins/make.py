@@ -6,15 +6,34 @@ import stat
 import argparse
 from zipfile import ZipFile, ZIP_DEFLATED
 
+separator = "----------------------------------------------------------------------------"
+
+
+def print_task_header(name):
+    print("\n%s" % separator)
+    print("    Executing: %s task\n" % name)
+
+
+def print_task_log(msg):
+    print("    - %s" % msg)
+
+
+def print_task_footer(name):
+    print("\n>>> Done: %s task" % name)
+    print(separator)
+
 
 def build():
+    print_task_header("build")
     for file in os.listdir("."):
         if os.path.isdir(file) and not file.startswith("_template"):
             # generate plugin
             subprocess.call("cd %s && ./generate.py build" % file, shell=True)
+    print_task_footer("build")
 
 
 def deploy():
+    print_task_header("deploy")
     for file in os.listdir("."):
         if os.path.isdir(file) and not file.startswith("_template"):
             # find zipfile
@@ -22,17 +41,21 @@ def deploy():
                 if subfile.endswith(".zip"):
                     with ZipFile(os.path.join(file, "build", subfile), 'r') as zip:
                         if zip.testzip():
-                            print("bad widget zip")
+                            print_task_log("ERROR: bad widget zip")
                             return
                         # extract filename from zip
-                        zip.extractall(os.path.join("..", "uploads", "widgets"))
+                        target_dir = os.path.join("..", "uploads", "widgets")
+                        print_task_log("SUCCESS: deployed '%s' plugin to '%s'" % (".".join(subfile.split(".")[0:-1]), target_dir))
+                        zip.extractall(target_dir)
+
+    print_task_footer("deploy")
 
 
 def create_plugin():
-
-    plugin_name = input("Plugin Name: ")
-    author_name = input("Author Name: ")
-    author_email = input("Author Email: ")
+    print_task_header("create-plugin")
+    plugin_name = input("    Plugin Name: ")
+    author_name = input("    Author Name: ")
+    author_email = input("    Author Email: ")
 
     # copy files + replace content
     name_lower = plugin_name.lower()
@@ -56,10 +79,12 @@ def create_plugin():
 
     # make generate.py executable
     os.chmod(os.path.join(name_lower, "generate.py"), stat.S_IRWXU | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH)
-    print("%s plugin has been created." % plugin_name)
+    print_task_log("%s plugin has been created." % plugin_name)
+    print_task_footer("create-plugin")
 
 
 def make_plugin_bundle(app_name, path):
+    print_task_header("bundle-plugin")
     archive_path = os.path.join(path, "%s.zip" % app_name)
     if os.path.exists(path):
         with ZipFile(archive_path, 'w', ZIP_DEFLATED) as archive:
@@ -76,7 +101,8 @@ def make_plugin_bundle(app_name, path):
                 for f in files:
                     archive.write(os.path.join(root, f), os.path.join(root.replace(path, app_name, 1), f))
 
-    print("%s written" % archive_path)
+    print_task_log("%s written" % archive_path)
+    print_task_footer("bundle-plugin")
 
 
 if __name__ == "__main__":
