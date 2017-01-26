@@ -77,7 +77,7 @@ qx.Class.define("gosa.view.AbstractEditableView", {
       var bounds = this.getBounds();
       var editControl = this.getChildControl("edit-mode");
       if (bounds) {
-        editControl.setUserBounds(bounds.width - 35, 0, 35, 35);
+        editControl.setUserBounds(bounds.width - 28, 0, 28, 28);
       }
     },
 

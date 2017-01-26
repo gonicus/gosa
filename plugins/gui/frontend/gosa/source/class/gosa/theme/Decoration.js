@@ -79,7 +79,7 @@ qx.Theme.define("gosa.theme.Decoration",
     },
 
     "gosa-dashboard-widget-selected": {
-      include: "gosa-workflow-item-selected"
+      include: "gosa-dashboard-widget-resize"
     },
 
     "gosa-dashboard-edit-hover": {
