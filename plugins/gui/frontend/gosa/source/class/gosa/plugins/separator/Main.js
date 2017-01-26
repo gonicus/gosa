@@ -97,7 +97,7 @@ qx.Class.define("gosa.plugins.separator.Main", {
   defer: function () {
     gosa.data.DashboardController.registerWidget(gosa.plugins.separator.Main, {
       displayName: qx.locale.Manager.tr("Separator"),
-      icon: "@Ligature/underline",
+      icon: "@Ligature/minus",
       resizable: [false, true, false, true],
       theme: {
         appearance : gosa.plugins.separator.Appearance,
@@ -116,8 +116,6 @@ qx.Class.define("gosa.plugins.separator.Main", {
             provider: "custom",
             defaultValue: "Title",
             options: [
-              { data: "Title", label: qx.locale.Manager.tr("Title") },
-              { data: "Subtitle", label: qx.locale.Manager.tr("Subtitle") },
               { data: "default", label: qx.locale.Manager.tr("Normal") },
               { data: "bold", label: qx.locale.Manager.tr("Bold") }
             ],

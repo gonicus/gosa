@@ -28,12 +28,12 @@ qx.Class.define("gosa.view.AbstractEditableView", {
    */
   construct : function(label, icon) {
     this.base(arguments, label, icon);
-    this._createChildControl("edit-mode");
     this.addListener("longtap", function() {
       this.setEditMode(true);
     }, this);
 
     this.addListener("resize", this._onResize, this);
+    this.addListener("appear", this._onResize, this);
   },
 
   /*
