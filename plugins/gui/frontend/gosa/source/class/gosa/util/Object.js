@@ -18,13 +18,17 @@ qx.Class.define("gosa.util.Object", {
   statics : {
 
     /**
-     * Iterates over a javascript object/map and call the callback function on each iteration.
+     * Iterates over a javascript object/map and call the callback function on each iteration. Does nothing if the
+     * object is null or undefined.
      *
-     * @param object {Object}
+     * @param object {Object ? null}
      * @param callback {Function} Function that is invoked with the parameters key and value
      * @param context {Object ? null} Optional context for the callback
      */
     iterate: function(object, callback, context) {
+      if (!object) {
+        return;
+      }
       qx.core.Assert.assertMap(object);
       qx.core.Assert.assertFunction(callback);
 
