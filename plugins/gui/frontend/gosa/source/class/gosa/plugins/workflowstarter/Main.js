@@ -20,9 +20,6 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
 
   construct : function() {
     this.base(arguments);
-    var layout = new qx.ui.layout.Atom();
-    layout.setCenter(true);
-    this.getChildControl("content").setLayout(layout);
     this.addListener("tap", function() {
       if (this.getChildControl("content").isEnabled()) {
         gosa.ui.controller.Objects.getInstance().startWorkflow(this.getChildControl("workflow-item"));
@@ -77,7 +74,6 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
     _onLayoutChanged: function() {
       var props = this.getLayoutProperties();
       var control = this.getChildControl("workflow-item");
-      console.log(props);
       if (props.colSpan === 2) {
         // wide mode => show description and icon on left position
         control.getChildControl("description").show();
@@ -203,9 +199,12 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
         case "workflow-item":
           control = new gosa.ui.form.WorkflowItem();
           this.bind("workflow", control, "id");
-          control.getChildControl("content").getLayout().setAlignX("center");
+          var layout = new qx.ui.layout.Atom();
+          layout.setCenter(true);
+          this.getChildControl("content").setLayout(layout);
           this.getChildControl("content").add(control);
           this.getChildControl("content").setAnonymous(true);
+          console.log(control);
           control.setAnonymous(true);
           break;
 

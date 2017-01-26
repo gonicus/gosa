@@ -113,6 +113,7 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
 
         case "content":
           control = new qx.ui.container.Composite(new qx.ui.layout.Grow());
+          control.setAllowGrowX(true);
           this.getChildControl("container").add(control, {flex: 1});
           break;
 

@@ -23,7 +23,6 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
   construct : function() {
     this.base(arguments);
     var layout = new qx.ui.layout.HBox(0);
-    layout.setAlignY("middle");
     this._setLayout(layout);
 
     this.addListener("mouseover", this._onMouseOver, this);

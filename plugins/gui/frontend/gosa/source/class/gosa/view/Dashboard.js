@@ -567,12 +567,25 @@ qx.Class.define("gosa.view.Dashboard", {
      * pre-filling with spacers to have a x-col grid
      */
     __addFirstSpacerRow: function() {
+
       var board = this.getChildControl("board");
+      var bounds = board.getBounds();
+      if (!bounds) {
+        board.addListenerOnce("appear", this.__addFirstSpacerRow, this);
+        return;
+      }
+      // calculate column width
+      var padding = board.getPaddingLeft() + board.getPaddingRight();
+      var columnWidth = Math.floor((bounds.width - padding - ((this.__columns - 1) * this.__gridLayout.getSpacingX())) / this.__columns);
+
       for(var i=0; i<this.__columns; i++) {
         var spacer = new gosa.ui.core.GridCellDropbox();
         spacer.addState("invisible");
         board.add(spacer, {row: 0, column: i});
-        this.__gridLayout.setColumnFlex(i, 1);
+        // this.__gridLayout.setColumnFlex(i, 1);
+        this.__gridLayout.setColumnWidth(i, columnWidth);
+        this.__gridLayout.setColumnMinWidth(i, columnWidth);
+        this.__gridLayout.setColumnMaxWidth(i, columnWidth);
       }
       // set row heights
       for (var row=1; row < this.__rows; row++) {
