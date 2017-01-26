@@ -102,7 +102,7 @@ msgid "Please enter your search..."
 msgstr "Bitte geben Sie den Suchtext ein..."
 
 #: gosa/view/Search.js:75 gosa/view/Search.js:93
-#: gosa/plugins/search/Main.js:67 gosa/plugins/search/Main.js:95
+#: gosa/plugins/search/Main.js:67 gosa/plugins/search/Main.js:93
 msgid "Search"
 msgstr "Suche"
 
@@ -211,6 +211,7 @@ msgid_plural "Do you want the missing extensions to be added?"
 msgstr[0] "Soll die fehlende Erweiterung hinzugefügt werden?"
 msgstr[1] "Sollen die fehlenden Erweiterungen hinzugefügt werden?"
 
+#: gosa/ui/dialogs/actions/Change2FAMethod.js:170
 #: gosa/ui/widgets/ObjectEdit.js:532 gosa/ui/Renderer.js:1584
 #: gosa/ui/base/Buttons.js:48 gosa/ui/dialogs/ItemSelector.js:58
 msgid "OK"
@@ -243,20 +244,37 @@ msgstr ""
 msgid "Continue"
 msgstr "Weiter"
 
-#: gosa/ui/dialogs/actions/Change2FAMethod.js:169
 #: gosa/ui/dialogs/ClosingObject.js:82
 msgid "Close"
 msgstr "Schliessen"
+
+#: gosa/ui/widgets/ObjectEdit.js:605 gosa/ui/dialogs/Confirmation.js:37
+msgid "Yes"
+msgstr "Ja"
+
+#: gosa/ui/widgets/ObjectEdit.js:616 gosa/ui/dialogs/Confirmation.js:46
+msgid "No"
+msgstr "Nein"
 
 #: gosa/ui/dialogs/EditDashboardWidget.js:22
 msgid "Edit dashboard widget"
 msgstr "Dashboard widget bearbeiten"
 
-#: gosa/ui/dialogs/EditDashboardWidget.js:28
+#: gosa/ui/dialogs/EditDashboardWidget.js:30
 msgid "Background color"
 msgstr "Hintergrundfarbe"
 
-#: gosa/ui/dialogs/RpcError.js:25 gosa/ui/dialogs/Error.js:19
+#: gosa/ui/widgets/ObjectEdit.js:600 gosa/view/AbstractEditableView.js:108
+#: gosa/ui/dialogs/EditDashboardWidget.js:135 gosa/view/Dashboard.js:353
+msgid "Unsaved changes"
+msgstr "Ungespeicherte Änderungen"
+
+#: gosa/view/AbstractEditableView.js:108
+#: gosa/ui/dialogs/EditDashboardWidget.js:135 gosa/view/Dashboard.js:353
+msgid "Do you want to discard those changes?"
+msgstr ""
+
+#: gosa/ui/dialogs/Error.js:19 gosa/ui/dialogs/RpcError.js:25
 msgid "Error"
 msgstr "Fehler"
 
@@ -264,7 +282,7 @@ msgstr "Fehler"
 msgid "Info"
 msgstr "Information"
 
-#: gosa/view/Dashboard.js:418 gosa/ui/dialogs/ItemSelector.js:60
+#: gosa/view/Dashboard.js:277 gosa/ui/dialogs/ItemSelector.js:60
 #: gosa/ui/widgets/QTableWidgetWidget.js:120
 msgid "Add"
 msgstr "Hinzufügen"
@@ -293,7 +311,7 @@ msgstr "OTP-Code"
 msgid "Invalid login..."
 msgstr "Ungültige Anmeldung..."
 
-#: gosa/ui/dialogs/actions/Change2FAMethod.js:180
+#: gosa/ui/dialogs/actions/Change2FAMethod.js:181
 #: gosa/ui/dialogs/LoginDialog.js:197
 msgid "Device responded with error '%1': %2"
 msgstr ""
@@ -362,24 +380,34 @@ msgstr "Achtung"
 msgid "Change 2FA method"
 msgstr "2FA Methode ändern"
 
-#: gosa/view/Search.js:472 gosa/ui/dialogs/actions/Change2FAMethod.js:76
+#: gosa/ui/dialogs/actions/Change2FAMethod.js:77 gosa/view/Search.js:472
 msgid "Disabled"
 msgstr "Deaktiviert"
 
-#: gosa/ui/dialogs/actions/Change2FAMethod.js:95
+#: gosa/ui/dialogs/actions/Change2FAMethod.js:96
 msgid "Select method"
 msgstr "Methode auswählen"
 
-#: gosa/ui/dialogs/actions/Change2FAMethod.js:96
+#: gosa/ui/dialogs/actions/Change2FAMethod.js:97
 msgid "Verify with password"
 msgstr "Mit Passwort verifizieren"
 
-#: gosa/ui/dialogs/actions/Change2FAMethod.js:116
+#: gosa/ui/dialogs/actions/Change2FAMethod.js:117
 msgid "Change method"
 msgstr "Methode ändern"
 
-#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:20
+#: gosa/ui/dialogs/actions/Change2FAMethod.js:202
+msgid ""
+"Please scan the QR code with your mobile device or enter the code to your "
+"authentication application."
+msgstr ""
+
+#: gosa/ui/dialogs/actions/Change2FAMethod.js:208
+msgid "Code: <b>"
+msgstr ""
+
 #: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:23
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:20
 msgid "Change password"
 msgstr ""
 
@@ -387,28 +415,50 @@ msgstr ""
 msgid "Encryption"
 msgstr "Verschlüsselung"
 
-#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:63
 #: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:55
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:63
 msgid "New password"
 msgstr "Neues Passwort"
 
-#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:64
 #: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:56
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:64
 msgid "New password (repeated)"
 msgstr "Neues Passwort (wiederholt)"
 
-#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:93
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:72
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:110
+msgid "Password quality"
+msgstr ""
+
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:72
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:116
+msgid "very weak"
+msgstr ""
+
 #: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:85
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:87
 msgid "Set password"
 msgstr "Passwort setzen"
 
-#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:131
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:118
+msgid "weak"
+msgstr ""
+
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:120
+msgid "good"
+msgstr ""
+
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:122
+msgid "very good"
+msgstr ""
+
 #: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:126
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:127
 msgid "Passwords do not match!"
 msgstr "Passwörter stimmen nicht überein!"
 
-#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:147
 #: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:141
+#: gosa/ui/dialogs/actions/ChangePasswordDialog.js:142
 msgid "Password has been changed successfully."
 msgstr "Das Passwort wurde erfolgreich geändert."
 
@@ -451,21 +501,9 @@ msgstr "Weiter"
 msgid "Back"
 msgstr "Zurück"
 
-#: gosa/ui/widgets/ObjectEdit.js:600
-msgid "Unsaved changes"
-msgstr "Ungespeicherte Änderungen"
-
 #: gosa/ui/widgets/ObjectEdit.js:603
 msgid "There are unsaved changes. Are you sure to really abort?"
 msgstr "Es gibt ungespeicherte Änderungen. Möchten Sie wirklich abbrechen?"
-
-#: gosa/ui/widgets/ObjectEdit.js:605
-msgid "Yes"
-msgstr "Ja"
-
-#: gosa/ui/widgets/ObjectEdit.js:616
-msgid "No"
-msgstr "Nein"
 
 #: gosa/ui/widgets/QGraphicsViewWidget.js:46
 msgid "Image capture"
@@ -507,37 +545,40 @@ msgstr "Anstehend..."
 msgid "Failed..."
 msgstr "Fehlgeschlagen..."
 
-#: gosa/view/Dashboard.js:313
+#: gosa/view/Dashboard.js:27
 msgid "Drop file here to add it to the available widgets."
 msgstr ""
 
-#: gosa/view/Dashboard.js:340
+#: gosa/view/Dashboard.js:201
 msgid ""
 "The dashboard is empty. To add widgets please activate the edit mode by "
-"clicking the settings button in the upper right corner"
+"clicking the settings button in the upper right corner."
 msgstr ""
+"Das Dashboard ist leer. Zum Hinzufügen, betätigen Sie die Einstellungs-"
+"Schaltfläche in der oberen rechten Ecke um in den Bearbeiten-Modus zu "
+"wechseln."
 
-#: gosa/view/Dashboard.js:368
+#: gosa/view/Workflows.js:212 gosa/view/Dashboard.js:229
 msgid "Upload"
 msgstr "Hochladen"
 
-#: gosa/view/Tree.js:139 gosa/view/Dashboard.js:426
+#: gosa/view/Tree.js:139 gosa/view/Dashboard.js:285
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: gosa/view/Tree.js:145 gosa/view/Dashboard.js:444
+#: gosa/view/Tree.js:145 gosa/view/Workflows.js:226 gosa/view/Dashboard.js:303
 msgid "Delete"
 msgstr "Löschen"
 
-#: gosa/view/Dashboard.js:468
+#: gosa/view/Dashboard.js:327
 msgid "Clear"
 msgstr "Leeren"
 
-#: gosa/view/Dashboard.js:478
+#: gosa/view/Workflows.js:249 gosa/view/Dashboard.js:348
 msgid "Abort"
 msgstr "Abbrechen"
 
-#: gosa/view/Dashboard.js:488
+#: gosa/view/Dashboard.js:370
 msgid "Save"
 msgstr "Speichern"
 
@@ -643,23 +684,13 @@ msgstr "UUID"
 msgid "Filter"
 msgstr ""
 
-#~ msgid "Loading translation"
-#~ msgstr "Lade Übersetzung"
+#: gosa/view/Workflows.js:31
+msgid "Drop file here to add it to the available workflows."
+msgstr ""
 
-#~ msgid "Loading base"
-#~ msgstr "Lade Basis"
-
-#~ msgid "Loading %1 templates"
-#~ msgstr "Beziehe %1 Vorlagen."
-
-#~ msgid "Colspan"
-#~ msgstr ""
-
-#~ msgid "Choose"
-#~ msgstr "Auswählen"
-
-#~ msgid "Two factor authentification:"
-#~ msgstr "Zwei Faktor Authentifizierung:"
+#: gosa/view/Workflows.js:114
+msgid "Please add a workflow dragging a workflow zip file into this window"
+msgstr ""
 
 #~ msgid "Change 2FA method..."
 #~ msgstr ""
@@ -667,11 +698,29 @@ msgstr ""
 #~ msgid "Change password..."
 #~ msgstr "Passwort ändern..."
 
-#~ msgid "Send message..."
-#~ msgstr "Nachricht senden..."
+#~ msgid "Choose"
+#~ msgstr "Auswählen"
+
+#~ msgid "Colspan"
+#~ msgstr ""
+
+#~ msgid "Loading %1 templates"
+#~ msgstr "Beziehe %1 Vorlagen."
+
+#~ msgid "Loading base"
+#~ msgstr "Lade Basis"
+
+#~ msgid "Loading translation"
+#~ msgstr "Lade Übersetzung"
 
 #~ msgid "Ok"
 #~ msgstr "Ok"
 
 #~ msgid "Open"
 #~ msgstr "Öffnen"
+
+#~ msgid "Send message..."
+#~ msgstr "Nachricht senden..."
+
+#~ msgid "Two factor authentification:"
+#~ msgstr "Zwei Faktor Authentifizierung:"

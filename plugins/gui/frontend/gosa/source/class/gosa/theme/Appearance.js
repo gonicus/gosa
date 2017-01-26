@@ -193,6 +193,14 @@ qx.Theme.define("gosa.theme.Appearance", {
       }
     },
 
+    "search-list-item/toolbar": {
+      style: function(states) {
+        return {
+          opacity : states.disabled ? 0 : 1
+        };
+      }
+    },
+
     "search-list-item/title": {
       style: function(states) {
         return {
@@ -313,7 +321,7 @@ qx.Theme.define("gosa.theme.Appearance", {
 
       style: function() {
         return {
-          paddingTop: 16
+          paddingTop: 8
         }
       }
     },
@@ -322,8 +330,7 @@ qx.Theme.define("gosa.theme.Appearance", {
       style: function() {
         return {
           decorator : "panel",
-          backgroundColor: "lightgray-dark",
-          margin : [0, 16, 8, 16]
+          backgroundColor: "lightgray-dark"
         }
       }
     },
@@ -334,7 +341,7 @@ qx.Theme.define("gosa.theme.Appearance", {
 
       style: function(states) {
         return {
-          decorator: states.hovered ? "gosa-dashboard-edit-hover" : null,
+          decorator: states.hovered ? "gosa-dashboard-edit-hover" : undefined,
           icon: "@Ligature/gear",
           padding: [0, 0, 5, 5]
         }

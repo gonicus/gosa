@@ -199,6 +199,10 @@ qx.Class.define("gosa.view.Dashboard", {
 
         case "empty-info":
           var label = new qx.ui.basic.Label(this.tr("The dashboard is empty. To add widgets please activate the edit mode by clicking the settings button in the upper right corner."));
+          label.setRich(true);
+          label.setTextAlign("center");
+          label.setPadding(32);
+          label.setWrap(true);
           control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
           control.add(label);
           control.exclude();
