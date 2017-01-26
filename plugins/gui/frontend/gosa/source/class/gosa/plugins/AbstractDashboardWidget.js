@@ -77,6 +77,10 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
       hovered : true
     },
 
+    isEditable: function() {
+      return !!this.__options.settings;
+    },
+
     // overridden
     _createChildControlImpl: function(id) {
       var control;

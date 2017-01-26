@@ -179,7 +179,7 @@ qx.Class.define("gosa.view.Dashboard", {
       this.base(arguments, value, old);
       if (value) {
         this.__toolbarButtons['delete'].setEnabled(true);
-        this.__toolbarButtons['edit'].setEnabled(true);
+        this.__toolbarButtons['edit'].setEnabled(value.isEditable());
       } else {
         this.__toolbarButtons['delete'].setEnabled(false);
         this.__toolbarButtons['edit'].setEnabled(false);
@@ -535,7 +535,7 @@ qx.Class.define("gosa.view.Dashboard", {
       widget = this.__addWidget(entry);
 
       // check for mandatory properties, open edit dialog then
-      if (widgetData.options.settings && widgetData.options.settings.mandatory && widgetData.options.settings.mandatory.length) {
+      if (widgetData.options.requiresConfiguration === true || (widgetData.options.settings && widgetData.options.settings.mandatory && widgetData.options.settings.mandatory.length)) {
         var dialog = new gosa.ui.dialogs.EditDashboardWidget(widget);
         var settingsModified = false;
         dialog.addListenerOnce("modified", function() {
