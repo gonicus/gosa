@@ -196,8 +196,8 @@ qx.Class.define("gosa.view.Workflows", {
     },
 
     // overridden
-    _applySelectedWidget: function(value) {
-      this.base(arguments, value);
+    _applySelectedWidget: function(value, old) {
+      this.base(arguments, value, old);
       if (value) {
         this.__toolbarButtons['delete'].setEnabled(true);
       } else {

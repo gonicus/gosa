@@ -175,8 +175,8 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     // overridden
-    _applySelectedWidget: function(value) {
-      this.base(arguments, value);
+    _applySelectedWidget: function(value, old) {
+      this.base(arguments, value, old);
       if (value) {
         this.__toolbarButtons['delete'].setEnabled(true);
         this.__toolbarButtons['edit'].setEnabled(true);
