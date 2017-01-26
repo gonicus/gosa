@@ -28,6 +28,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
     var form = this.__form = new qx.ui.form.Form();
     // add the form items
     this.addFormItem(new qx.ui.form.TextField(widget.getBackgroundColor()), this.tr("Background color"), this.validationWrapper("color", false), "backgroundColor");
+    this.__initialValues.backgroundColor = widget.getBackgroundColor() || "";
 
     var options = gosa.data.DashboardController.getWidgetOptions(widget);
     if (options.settings) {
@@ -130,6 +131,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
         if (this.isModified()) {
           Object.getOwnPropertyNames(this.__initialValues).forEach(function(prop) {
             var value = this.__selectionValues[prop] || this.__model.get(prop);
+            console.log("setting %s to %s", prop, value);
             widget.set(prop, value);
           }, this);
           this.fireEvent("modified");
