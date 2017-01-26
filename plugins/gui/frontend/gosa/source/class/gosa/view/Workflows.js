@@ -244,6 +244,15 @@ qx.Class.define("gosa.view.Workflows", {
       }, this);
       toolbar.add(widget);
       this.__toolbarButtons["delete"] = widget;
+
+      // abort editing
+      widget = new qx.ui.form.Button(this.tr("Abort"), "@Ligature/ban/22");
+      widget.setAppearance("button-link");
+      widget.addListener("execute", function() {
+        this.toggleEditMode();
+      }, this);
+      toolbar.add(widget);
+      this.__toolbarButtons["cancel"] = widget;
     }
   },
 
