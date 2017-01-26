@@ -261,7 +261,8 @@
           "boot"                  : {
             "include" : [
             "${QXTHEME}", "gosa.Application", "gosa.ui.widgets.*", "gosa.engine.*",
-            "gosa.ui.dialogs.*", "gosa.plugins.search.*", "gosa.plugins.workflowstarter.*", "gosa.LocalConfig", "qx.*"
+            "gosa.ui.dialogs.*", "gosa.plugins.search.*", "gosa.plugins.workflowstarter.*",
+            "gosa.plugins.separator.*", "gosa.LocalConfig", "qx.*"
           ] }
         }
       }

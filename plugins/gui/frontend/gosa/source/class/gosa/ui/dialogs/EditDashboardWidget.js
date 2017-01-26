@@ -23,9 +23,12 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
 
     this.__selectionValues = {};
     this.__initialValues = {};
+    var initForm = {};
 
     // form
     var form = this.__form = new qx.ui.form.Form();
+
+    // add the form items
     var options = gosa.data.DashboardController.getWidgetOptions(widget);
     if (options.settings) {
       Object.getOwnPropertyNames(options.settings.properties).forEach(function(propertyName) {
@@ -46,45 +49,66 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
           type = typeSettings.toLowerCase();
         }
         var formItem, value = widget.get(propertyName);
-        this.__initialValues[propertyName] = value === null ? "" : value;
+        if (!value && typeSettings.defaultValue) {
+          value = typeSettings.defaultValue;
+        }
+
         var validator = null;
         switch (type) {
+
           case "json":
-            formItem = new qx.ui.form.TextArea(qx.lang.Json.stringify(value));
+            value = qx.lang.Json.stringify(value);
+            formItem = new qx.ui.form.TextArea();
             validator = this.validationWrapper("string", mandatory);
             break;
+
           case "number":
-            formItem = new qx.ui.form.Spinner(value);
+            formItem = new qx.ui.form.Spinner();
             validator = this.validationWrapper(type, mandatory);
             break;
+
           case "selection":
             var selectBox = new qx.ui.form.SelectBox();
-            if (!options.settings.mandatory || options.settings.mandatory.indexOf(propertyName) === -1) {
-              selectBox.add(new qx.ui.form.ListItem("-"));
+            var selectionController = new qx.data.controller.List(null, selectBox);
+            selectionController.setDelegate({
+              bindItem: function(controller, item, index) {
+                controller.bindProperty("label", "label", null, item, index);
+                controller.bindProperty("data", "model", null, item, index);
+                controller.bindProperty("icon", "icon", null, item, index);
+              }
+            });
+            var data = new qx.data.Array();
+
+            if (!typeSettings.defaultValue && (!options.settings.mandatory || options.settings.mandatory.indexOf(propertyName) === -1)) {
+              data.push({label: "-", data: null});
             }
 
             if (typeSettings.provider === "RPC" && typeSettings.method) {
               // retrieve data from rpc
               gosa.io.Rpc.getInstance().cA(typeSettings.method).then(function(result) {
+
                 for (var key in result) {
                   if (result.hasOwnProperty(key)) {
-                    var item = new qx.ui.form.ListItem(result[key][typeSettings.value]);
                     var keyValue = typeSettings.key === "KEY" ? key : result[key][typeSettings.key];
-                    item.setUserData("key", keyValue);
+                    var entry = { data: keyValue, label: result[key][typeSettings.value]};
                     if (typeSettings.icon) {
-                      item.setIcon(result[key][typeSettings.icon])
+                      entry.icon = result[key][typeSettings.icon]
                     }
-                    selectBox.add(item);
-                    if (keyValue === value) {
-                      selectBox.setSelection([item]);
-                    }
+                    data.push(entry);
                   }
                 }
+                var selectionModel = qx.data.marshal.Json.createModel(data.toArray());
+                selectionController.setModel(selectionModel);
               }, this);
+            } else if (typeSettings.provider === "custom" && typeSettings.options) {
+              data.append(typeSettings.options);
+              var selectionModel = qx.data.marshal.Json.createModel(data.toArray());
+              selectionController.setModel(selectionModel);
             }
+
             selectBox.addListener("changeSelection", function() {
-              if (selectBox.getSelection().length) {
-                var selectedValue = selectBox.getSelection()[0].getUserData("key");
+              if (selectBox.getModelSelection().length) {
+                var selectedValue = selectBox.getModelSelection().getItem(0);
                 if (selectedValue) {
                   this.__selectionValues[propertyName] = selectedValue;
                 }
@@ -95,7 +119,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
 
           default:
             // default (used for e.g. string type)
-            formItem = new qx.ui.form.TextArea(value);
+            formItem = new qx.ui.form.TextArea();
             validator = this.validationWrapper(type, mandatory);
             break;
         }
@@ -103,8 +127,21 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
           formItem.setRequired(true);
         }
         this.addFormItem(formItem, title, validator, propertyName);
+        this.__initialValues[propertyName] = value === null ? "" : value;
+        if (value !== null) {
+          initForm[propertyName] = value;
+        }
       }, this);
     }
+
+    // create the view
+    this.addElement(new gosa.ui.form.renderer.Single(form));
+
+    var controller = new qx.data.controller.Form(null, form);
+    var model = this.__model = controller.createModel();
+
+    // fill the model with initial values
+    model.set(initForm);
 
     // buttons
     var saveButton = gosa.ui.base.Buttons.getOkButton();
@@ -114,11 +151,6 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
     var cancelButton = gosa.ui.base.Buttons.getCancelButton();
     this.addButton(cancelButton);
 
-    // create the view
-    this.addElement(new gosa.ui.form.renderer.Single(form));
-
-    var controller = new qx.data.controller.Form(null, form);
-    this.__model = controller.createModel();
     this.bind("savable", saveButton, "enabled");
 
     // serialization and reset /////////
@@ -127,7 +159,6 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
         if (this.isModified()) {
           Object.getOwnPropertyNames(this.__initialValues).forEach(function(prop) {
             var value = this.__selectionValues[prop] || this.__model.get(prop);
-            console.log("setting %s to %s", prop, value);
             widget.set(prop, value);
           }, this);
           this.fireEvent("modified");

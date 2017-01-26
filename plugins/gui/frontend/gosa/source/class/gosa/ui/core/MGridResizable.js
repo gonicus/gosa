@@ -111,6 +111,30 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
     {
       check : "Boolean",
       init : true
+    },
+
+    /** minimum allowed row span */
+    minRowSpan: {
+      check: "Number",
+      init: 1
+    },
+
+    /** minimum allowed column span */
+    minColSpan: {
+      check: "Number",
+      init: 1
+    },
+
+    /** maximum allowed row span */
+    maxRowSpan: {
+      check: "Number",
+      init: 0
+    },
+
+    /** maximum allowed column span */
+    maxColSpan: {
+      check: "Number",
+      init: 0
     }
   },
 
@@ -224,13 +248,19 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
       var removeWidgets = [];
       var layout, blocked, r, l, c, widget;
 
-      if (
-      (resizeActive & this.RESIZE_TOP) ||
-      (resizeActive & this.RESIZE_BOTTOM)
-      )
-      {
+      if ((resizeActive & this.RESIZE_TOP) || (resizeActive & this.RESIZE_BOTTOM)) {
         diff = Math.max(range.top, Math.min(range.bottom, e.getDocumentTop())) - this.__resizeTop;
         rowDiff = Math.round(diff/start.rowHeight);
+
+        // check maximum values
+        if (this.getMaxRowSpan() && rowDiff > 0 && this.getMaxRowSpan() < (props.rowSpan + rowDiff)) {
+          rowDiff = this.getMaxRowSpan() - props.rowSpan;
+        }
+
+        // check minimum values
+        if (this.getMinRowSpan() && rowDiff < 0 && this.getMinRowSpan() > (props.rowSpan + rowDiff)) {
+          rowDiff = props.rowSpan - this.getMinRowSpan();
+        }
 
         // check if new rowspan does not overlap existing widgets
         if ((rowDiff > 0 && (resizeActive & this.RESIZE_BOTTOM)) || (rowDiff < 0 && (resizeActive & this.RESIZE_TOP))) {
@@ -290,13 +320,19 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
         }
       }
 
-      if (
-      (resizeActive & this.RESIZE_LEFT) ||
-      (resizeActive & this.RESIZE_RIGHT)
-      )
-      {
+      if ((resizeActive & this.RESIZE_LEFT) || (resizeActive & this.RESIZE_RIGHT)) {
         diff = Math.max(range.left, Math.min(range.right, e.getDocumentLeft())) - this.__resizeLeft;
         colDiff = Math.round(diff/start.columnWidth);
+
+        // check maximum values
+        if (this.getMaxColSpan() && colDiff > 0 && this.getMaxColSpan() < (props.colSpan + colDiff)) {
+          colDiff = this.getMaxColSpan() - props.colSpan;
+        }
+
+        // check minimum values
+        if (this.getMinColSpan() && colDiff < 0 && this.getMinColSpan() > (props.colSpan + colDiff)) {
+          colDiff = props.colSpan - this.getMinColSpan();
+        }
 
         // check if new colspan does not overlap existing widgets
         if ((colDiff > 0 && (resizeActive & this.RESIZE_RIGHT)) || (colDiff < 0 && (resizeActive & this.RESIZE_LEFT))) {
@@ -597,17 +633,15 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
 
       if (startProps.colSpan !== endProps.colSpan || startProps.rowSpan !== endProps.rowSpan) {
         // layout has changed
-        this.fireDataEvent("layoutChanged", true);
+        this.fireDataEvent("layoutChanged", endProps);
       }
     },
 
 
     /**
      * Event listener for <code>losecapture</code> event.
-     *
-     * @param e {qx.event.type.Event} Lose capture event
      */
-    __onResizeLoseCapture : function(e)
+    __onResizeLoseCapture : function()
     {
       // Check for active resize
       if (!this.__resizeActive) {
