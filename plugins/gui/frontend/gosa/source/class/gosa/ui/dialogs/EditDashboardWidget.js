@@ -27,16 +27,18 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
     // form
     var form = this.__form = new qx.ui.form.Form();
     // add the form items
-    this.addFormItem(new qx.ui.form.TextField(widget.getBackgroundColor()), this.tr("Background color"), null, "backgroundColor");
+    this.addFormItem(new qx.ui.form.TextField(widget.getBackgroundColor()), this.tr("Background color"), this.validationWrapper("color", false), "backgroundColor");
+    this.__initialValues.backgroundColor = widget.getBackgroundColor() || "";
 
     var options = gosa.data.DashboardController.getWidgetOptions(widget);
     if (options.settings) {
       Object.getOwnPropertyNames(options.settings.properties).forEach(function(propertyName) {
         var typeSettings = options.settings.properties[propertyName];
         var type, title = propertyName;
+        var mandatory = (options.settings.mandatory && options.settings.mandatory.indexOf(propertyName) >= 0);
         
         if (qx.lang.Type.isObject(typeSettings)) {
-          type = typeSettings.type;
+          type = typeSettings.type.toLowerCase();
           if (typeSettings.title) {
             title = typeSettings.title;
             if (title.translate) {
@@ -45,19 +47,19 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
             }
           }
         } else {
-          type = typeSettings;
+          type = typeSettings.toLowerCase();
         }
         var formItem, value = widget.get(propertyName);
         this.__initialValues[propertyName] = value === null ? "" : value;
+        var validator = null;
         switch (type) {
-          case "Json":
+          case "json":
             formItem = new qx.ui.form.TextArea(qx.lang.Json.stringify(value));
+            validator = this.validationWrapper("string", mandatory);
             break;
-          case "String":
-            formItem = new qx.ui.form.TextArea(value);
-            break;
-          case "Number":
+          case "number":
             formItem = new qx.ui.form.Spinner(value);
+            validator = this.validationWrapper(type, mandatory);
             break;
           case "selection":
             var selectBox = new qx.ui.form.SelectBox();
@@ -94,11 +96,17 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
             }, this);
             formItem = selectBox;
             break;
+
+          default:
+            // default (used for e.g. string type)
+            formItem = new qx.ui.form.TextArea(value);
+            validator = this.validationWrapper(type, mandatory);
+            break;
         }
-        if (options.settings.mandatory && options.settings.mandatory.indexOf(propertyName) >= 0) {
+        if (mandatory) {
           formItem.setRequired(true);
         }
-        this.addFormItem(formItem, title, null, propertyName);
+        this.addFormItem(formItem, title, validator, propertyName);
       }, this);
     }
 
@@ -115,7 +123,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
 
     var controller = new qx.data.controller.Form(null, form);
     this.__model = controller.createModel();
-    this.bind("modified", saveButton, "enabled");
+    this.bind("savable", saveButton, "enabled");
 
     // serialization and reset /////////
     saveButton.addListener("execute", function() {
@@ -123,6 +131,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
         if (this.isModified()) {
           Object.getOwnPropertyNames(this.__initialValues).forEach(function(prop) {
             var value = this.__selectionValues[prop] || this.__model.get(prop);
+            console.log("setting %s to %s", prop, value);
             widget.set(prop, value);
           }, this);
           this.fireEvent("modified");
@@ -166,7 +175,17 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
     modified: {
       check: "Boolean",
       init: false,
-      event: "changeModified"
+      event: "changeModified",
+      apply: "_checkSavability"
+    },
+
+    /**
+     * Determines if this form can be save (is modified and valid)
+     */
+    savable: {
+      check: "Boolean",
+      init: false,
+      event: "changeSavable"
     }
   },
 
@@ -180,6 +199,26 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
     __selectionValues: null,
     __model: null,
     __form: null,
+
+    validationWrapper: function(type, mandatory, errorMessage) {
+      var checkFunction = "check"+qx.lang.String.firstUp(type);
+      if (qx.util.Validate[checkFunction]) {
+        if (mandatory === true) {
+          // use normal validator (also check empty values)
+          return function(value) {
+            qx.util.Validate[checkFunction](value, null, errorMessage);
+          }
+        } else {
+          // use do not validate empty values
+          return function(value) {
+            if (value !== null && value !== undefined && value !== "") {
+              qx.util.Validate[checkFunction](value, null, errorMessage);
+            }
+          }
+        }
+      }
+      return null;
+    },
     
     addFormItem: function(item, label, validator, name) {
       item.setUserData("property", name);
@@ -190,6 +229,10 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
         item.setLiveUpdate(true);
         item.addListener("changeValue", this.checkModification, this);
       }
+    },
+
+    _checkSavability: function() {
+      this.setSavable(this.isModified() && this.__form.validate());
     },
 
     /**
@@ -207,6 +250,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
       } else {
         value = item.getValue();
       }
+      this._checkSavability();
       this.setModified(value != this.__initialValues[prop]);
     }
   },
