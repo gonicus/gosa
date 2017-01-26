@@ -22,7 +22,7 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
   
   construct : function() {
     this.base(arguments);
-    var layout = new qx.ui.layout.HBox(0, "center");
+    var layout = new qx.ui.layout.HBox(0);
     layout.setAlignY("middle");
     this._setLayout(layout);
 
@@ -134,9 +134,11 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
       if (value === "group") {
         this.setLayoutProperties({lineBreak: true, stretch: true, newLine: true});
         this.setAppearance("gosa-workflow-category");
+        this.setEnabled(false);
       } else {
         this.setLayoutProperties({});
         this.setAppearance("gosa-workflow-item");
+        this.setEnabled(true);
       }
     },
 
@@ -183,6 +185,7 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
 
         case "content":
           control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+          control.setAnonymous(true);
           this._addAt(control, 2);
           break;
 

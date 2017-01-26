@@ -90,8 +90,12 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
 
         var startCells = [];
 
+        var isEmptyCell = function(widget) {
+          return (!widget || widget === source || widget instanceof gosa.ui.core.GridCellDropbox);
+        };
+
         var isStartCell = function(cellWidget, row, col) {
-          if (!cellWidget || cellWidget === source || cellWidget instanceof gosa.ui.core.GridCellDropbox) {
+          if (isEmptyCell(cellWidget)) {
             if (colspan === 1 && rowspan === 1) {
               return true;
             }
@@ -102,9 +106,9 @@ qx.Class.define("gosa.ui.core.GridCellDropbox", {
             else {
               // check for free space
               for (var r = row, lr = row + rowspan; r < lr; r++) {
-                for (var c = 0, lc = col + colspan; c < lc; c++) {
+                for (var c = col, lc = col + colspan; c < lc; c++) {
                   var widget = grid.getCellWidget(r, c);
-                  if (widget && widget !== source && !(widget instanceof gosa.ui.core.GridCellDropbox)) {
+                  if (!isEmptyCell(widget)) {
                     return false;
                   }
                 }

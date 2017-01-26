@@ -12,6 +12,7 @@
 
 ======================================================================== */
 
+//noinspection JSUnusedGlobalSymbols
 /**
  * Customizable Dashboard view
  */
@@ -175,11 +176,11 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     // overridden
-    _applySelectedWidget: function(value) {
-      this.base(arguments, value);
+    _applySelectedWidget: function(value, old) {
+      this.base(arguments, value, old);
       if (value) {
         this.__toolbarButtons['delete'].setEnabled(true);
-        this.__toolbarButtons['edit'].setEnabled(true);
+        this.__toolbarButtons['edit'].setEnabled(value.isEditable());
       } else {
         this.__toolbarButtons['delete'].setEnabled(false);
         this.__toolbarButtons['edit'].setEnabled(false);
@@ -199,6 +200,10 @@ qx.Class.define("gosa.view.Dashboard", {
 
         case "empty-info":
           var label = new qx.ui.basic.Label(this.tr("The dashboard is empty. To add widgets please activate the edit mode by clicking the settings button in the upper right corner."));
+          label.setRich(true);
+          label.setTextAlign("center");
+          label.setPadding(32);
+          label.setWrap(true);
           control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
           control.add(label);
           control.exclude();
@@ -531,7 +536,7 @@ qx.Class.define("gosa.view.Dashboard", {
       widget = this.__addWidget(entry);
 
       // check for mandatory properties, open edit dialog then
-      if (widgetData.options.settings && widgetData.options.settings.mandatory && widgetData.options.settings.mandatory.length) {
+      if (widgetData.options.requiresConfiguration === true || (widgetData.options.settings && widgetData.options.settings.mandatory && widgetData.options.settings.mandatory.length)) {
         var dialog = new gosa.ui.dialogs.EditDashboardWidget(widget);
         var settingsModified = false;
         dialog.addListenerOnce("modified", function() {
@@ -707,19 +712,17 @@ qx.Class.define("gosa.view.Dashboard", {
           widget.addListener("tap", this._onTap, this);
           this.setSelectedWidget(widget);
         }
-        widget.addListener("layoutChanged", function(ev) {
-          this.__toolbarButtons['save'].setEnabled((ev.getData() === true));
-          if (ev.getData() === true) {
-            // add placeholders to empty cells
-            for (var row = 0, lr = this.__gridLayout.getRowCount(); row < lr; row++) {
-              for (var col = 0, lc = this.__gridLayout.getColumnCount(); col < lc; col++) {
-                var widget = this.__gridLayout.getCellWidget(row, col);
-                if (!widget) {
-                  board.add(new gosa.ui.core.GridCellDropbox(), {
-                    row    : row,
-                    column : col
-                  });
-                }
+        widget.addListener("layoutChanged", function() {
+          this.__toolbarButtons['save'].setEnabled(true);
+          // add placeholders to empty cells
+          for (var row = 0, lr = this.__gridLayout.getRowCount(); row < lr; row++) {
+            for (var col = 0, lc = this.__gridLayout.getColumnCount(); col < lc; col++) {
+              var widget = this.__gridLayout.getCellWidget(row, col);
+              if (!widget) {
+                board.add(new gosa.ui.core.GridCellDropbox(), {
+                  row    : row,
+                  column : col
+                });
               }
             }
           }

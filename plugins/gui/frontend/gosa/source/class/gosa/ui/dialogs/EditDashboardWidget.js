@@ -21,23 +21,23 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
   construct: function(widget) {
     this.base(arguments, this.tr("Edit dashboard widget"));
 
+    this.__selectionValues = {};
+    this.__initialValues = {};
+    var initForm = {};
+
     // form
-    var form = new qx.ui.form.Form();
+    var form = this.__form = new qx.ui.form.Form();
 
     // add the form items
-    form.add(new qx.ui.form.TextField(widget.getBackgroundColor()), this.tr("Background color"), null, "backgroundColor");
-
-    var properties = [];
-    var selectionValues = {};
-
     var options = gosa.data.DashboardController.getWidgetOptions(widget);
     if (options.settings) {
       Object.getOwnPropertyNames(options.settings.properties).forEach(function(propertyName) {
         var typeSettings = options.settings.properties[propertyName];
         var type, title = propertyName;
-        properties.push(propertyName);
+        var mandatory = (options.settings.mandatory && options.settings.mandatory.indexOf(propertyName) >= 0);
+        
         if (qx.lang.Type.isObject(typeSettings)) {
-          type = typeSettings.type;
+          type = typeSettings.type.toLowerCase();
           if (typeSettings.title) {
             title = typeSettings.title;
             if (title.translate) {
@@ -46,95 +46,140 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
             }
           }
         } else {
-          type = typeSettings;
+          type = typeSettings.toLowerCase();
         }
-        var formItem;
+        var formItem, value = widget.get(propertyName);
+        if (!value && typeSettings.defaultValue) {
+          value = typeSettings.defaultValue;
+        }
+
+        var validator = null;
         switch (type) {
-          case "Json":
-            formItem = new qx.ui.form.TextArea(qx.lang.Json.stringify(widget.get(propertyName)));
+
+          case "json":
+            value = qx.lang.Json.stringify(value);
+            formItem = new qx.ui.form.TextArea();
+            validator = this.validationWrapper("string", mandatory);
             break;
-          case "String":
-            formItem = new qx.ui.form.TextArea(widget.get(propertyName));
+
+          case "number":
+            formItem = new qx.ui.form.Spinner();
+            validator = this.validationWrapper(type, mandatory);
             break;
-          case "Number":
-            formItem = new qx.ui.form.Spinner(widget.get(propertyName));
-            break;
+
           case "selection":
             var selectBox = new qx.ui.form.SelectBox();
-            if (!options.settings.mandatory || options.settings.mandatory.indexOf(propertyName) === -1) {
-              selectBox.add(new qx.ui.form.ListItem("-"));
+            var selectionController = new qx.data.controller.List(null, selectBox);
+            selectionController.setDelegate({
+              bindItem: function(controller, item, index) {
+                controller.bindProperty("label", "label", null, item, index);
+                controller.bindProperty("data", "model", null, item, index);
+                controller.bindProperty("icon", "icon", null, item, index);
+              }
+            });
+            var data = new qx.data.Array();
+
+            if (!typeSettings.defaultValue && (!options.settings.mandatory || options.settings.mandatory.indexOf(propertyName) === -1)) {
+              data.push({label: "-", data: null});
             }
-            var currentValue = widget.get(propertyName);
 
             if (typeSettings.provider === "RPC" && typeSettings.method) {
               // retrieve data from rpc
               gosa.io.Rpc.getInstance().cA(typeSettings.method).then(function(result) {
+
                 for (var key in result) {
                   if (result.hasOwnProperty(key)) {
-                    var item = new qx.ui.form.ListItem(result[key][typeSettings.value]);
                     var keyValue = typeSettings.key === "KEY" ? key : result[key][typeSettings.key];
-                    item.setUserData("key", keyValue);
+                    var entry = { data: keyValue, label: result[key][typeSettings.value]};
                     if (typeSettings.icon) {
-                      item.setIcon(result[key][typeSettings.icon])
+                      entry.icon = result[key][typeSettings.icon]
                     }
-                    selectBox.add(item);
-                    if (keyValue === currentValue) {
-                      selectBox.setSelection([item]);
-                    }
+                    data.push(entry);
                   }
                 }
+                var selectionModel = qx.data.marshal.Json.createModel(data.toArray());
+                selectionController.setModel(selectionModel);
               }, this);
+            } else if (typeSettings.provider === "custom" && typeSettings.options) {
+              data.append(typeSettings.options);
+              var selectionModel = qx.data.marshal.Json.createModel(data.toArray());
+              selectionController.setModel(selectionModel);
             }
+
             selectBox.addListener("changeSelection", function() {
-              if (selectBox.getSelection().length) {
-                var selectedValue = selectBox.getSelection()[0].getUserData("key");
+              if (selectBox.getModelSelection().length) {
+                var selectedValue = selectBox.getModelSelection().getItem(0);
                 if (selectedValue) {
-                  selectionValues[propertyName] = selectedValue;
+                  this.__selectionValues[propertyName] = selectedValue;
                 }
               }
             }, this);
             formItem = selectBox;
             break;
+
+          default:
+            // default (used for e.g. string type)
+            formItem = new qx.ui.form.TextArea();
+            validator = this.validationWrapper(type, mandatory);
+            break;
         }
-        if (options.settings.mandatory && options.settings.mandatory.indexOf(propertyName) >= 0) {
+        if (mandatory) {
           formItem.setRequired(true);
         }
-        form.add(formItem, title, null, propertyName);
+        this.addFormItem(formItem, title, validator, propertyName);
+        this.__initialValues[propertyName] = value === null ? "" : value;
+        if (value !== null) {
+          initForm[propertyName] = value;
+        }
       }, this);
     }
-
-    // buttons
-    var saveButton = gosa.ui.base.Buttons.getOkButton();
-    saveButton.setAppearance("button-primary");
-    this.addButton(saveButton);
-    var cancelButton = gosa.ui.base.Buttons.getCancelButton();
-    this.addButton(cancelButton);
 
     // create the view
     this.addElement(new gosa.ui.form.renderer.Single(form));
 
     var controller = new qx.data.controller.Form(null, form);
-    var model = controller.createModel();
+    var model = this.__model = controller.createModel();
+
+    // fill the model with initial values
+    model.set(initForm);
+
+    // buttons
+    var saveButton = gosa.ui.base.Buttons.getOkButton();
+    saveButton.setAppearance("button-primary");
+    saveButton.setEnabled(false);
+    this.addButton(saveButton);
+    var cancelButton = gosa.ui.base.Buttons.getCancelButton();
+    this.addButton(cancelButton);
+
+    this.bind("savable", saveButton, "enabled");
 
     // serialization and reset /////////
     saveButton.addListener("execute", function() {
       if (form.validate()) {
-        if (model.getBackgroundColor()) {
-          widget.setBackgroundColor(model.getBackgroundColor());
-        } else {
-          widget.resetBackgroundColor();
+        if (this.isModified()) {
+          Object.getOwnPropertyNames(this.__initialValues).forEach(function(prop) {
+            var value = this.__selectionValues[prop] || this.__model.get(prop);
+            widget.set(prop, value);
+          }, this);
+          this.fireEvent("modified");
         }
-        properties.forEach(function(prop) {
-          var value = selectionValues[prop] || model.get(prop);
-          widget.set(prop, value);
-        });
-        this.fireEvent("modified");
         this.close();
       }
     }, this);
     cancelButton.addListener("execute", function() {
-      form.reset();
-      this.close();
+      if (this.isModified()) {
+        var dialog = new gosa.ui.dialogs.Confirmation(this.tr("Unsaved changes"), this.tr("Do you want to discard those changes?"), "warning");
+        dialog.addListenerOnce("confirmed", function(ev) {
+          if (ev.getData() === true) {
+            form.reset();
+            this.close();
+          }
+        }, this);
+        dialog.open();
+      } else {
+        form.reset();
+        this.close();
+      }
     }, this);
 
   },
@@ -146,6 +191,104 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
   */
   events : {
     "modified": "qx.event.type.Event"
+  },
+
+  /*
+  *****************************************************************************
+     PROPERTIES
+  *****************************************************************************
+  */
+  properties : {
+    modified: {
+      check: "Boolean",
+      init: false,
+      event: "changeModified",
+      apply: "_checkSavability"
+    },
+
+    /**
+     * Determines if this form can be save (is modified and valid)
+     */
+    savable: {
+      check: "Boolean",
+      init: false,
+      event: "changeSavable"
+    }
+  },
+
+  /*
+  *****************************************************************************
+     MEMBERS
+  *****************************************************************************
+  */
+  members : {
+    __initialValues: null,
+    __selectionValues: null,
+    __model: null,
+    __form: null,
+
+    validationWrapper: function(type, mandatory, errorMessage) {
+      var checkFunction = "check"+qx.lang.String.firstUp(type);
+      if (qx.util.Validate[checkFunction]) {
+        if (mandatory === true) {
+          // use normal validator (also check empty values)
+          return function(value) {
+            qx.util.Validate[checkFunction](value, null, errorMessage);
+          }
+        } else {
+          // use do not validate empty values
+          return function(value) {
+            if (value !== null && value !== undefined && value !== "") {
+              qx.util.Validate[checkFunction](value, null, errorMessage);
+            }
+          }
+        }
+      }
+      return null;
+    },
+    
+    addFormItem: function(item, label, validator, name) {
+      item.setUserData("property", name);
+      this.__form.add(item, label, validator, name);
+      if (item instanceof qx.ui.form.SelectBox) {
+        item.addListener("changeSelection", this.checkModification, this);
+      } else {
+        item.setLiveUpdate(true);
+        item.addListener("changeValue", this.checkModification, this);
+      }
+    },
+
+    _checkSavability: function() {
+      this.setSavable(this.isModified() && this.__form.validate());
+    },
+
+    /**
+     * Check form for modifications
+     * @return {Boolean} true if something has been modified
+     */
+    checkModification: function(ev) {
+      var item = ev.getTarget();
+      var prop = item.getUserData("property");
+      var value = null;
+      if (item instanceof qx.ui.form.SelectBox) {
+        if (item.getSelection().length) {
+          value = item.getSelection()[0].getUserData("key");
+        }
+      } else {
+        value = item.getValue();
+      }
+      this._checkSavability();
+      this.setModified(value != this.__initialValues[prop]);
+    }
+  },
+
+  /*
+  *****************************************************************************
+     DESTRUCTOR
+  *****************************************************************************
+  */
+  destruct : function() {
+    this._disposeObjects("__initialValues", "__selectionValues", "__model", "__form");
   }
 
 });

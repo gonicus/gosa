@@ -52,8 +52,8 @@ qx.Theme.define("gosa.theme.Decoration",
 
     "gosa-workflow-category": {
       style: {
-        width: [1, 0 , 0, 0],
-        color: "font"
+        widthBottom: 1,
+        color: "lightgray-dark"
       }
     },
 
@@ -79,7 +79,7 @@ qx.Theme.define("gosa.theme.Decoration",
     },
 
     "gosa-dashboard-widget-selected": {
-      include: "gosa-workflow-item-selected"
+      include: "gosa-dashboard-widget-resize"
     },
 
     "gosa-dashboard-edit-hover": {

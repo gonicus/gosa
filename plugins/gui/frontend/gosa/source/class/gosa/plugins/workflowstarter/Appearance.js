@@ -22,9 +22,10 @@ qx.Theme.define("gosa.plugins.workflowstarter.Appearance", {
       include: "gosa-dashboard-widget",
       alias: "gosa-dashboard-widget",
 
-      style: function() {
+      style: function(states) {
         return {
-          padding: 0
+          padding: 0,
+          backgroundColor: states.edit ? "transparent" : (states.hovered ? "rgba(0, 0, 0, 0.1)" : "transparent")
         }
       }
     },
@@ -36,7 +37,6 @@ qx.Theme.define("gosa.plugins.workflowstarter.Appearance", {
       style: function() {
         return {
           iconPosition: "top",
-          iconSize: 44,
           allowGrowX: true,
           allowGrowY: true,
           padding: 0,
@@ -59,7 +59,15 @@ qx.Theme.define("gosa.plugins.workflowstarter.Appearance", {
         return {
           alignY: "middle",
           alignX: "center",
-          font: "bold"
+          paddingTop: 8
+        }
+      }
+    },
+    "gosa-dashboard-widget-workflowstarter/workflow-item/icon": {
+      style: function() {
+        return {
+          alignY: "middle",
+          alignX: "center"
         }
       }
     },
@@ -68,7 +76,7 @@ qx.Theme.define("gosa.plugins.workflowstarter.Appearance", {
         return {
           alignY: "middle",
           alignX: "center",
-          font: "Small"
+          font: "small"
         }
       }
     }
