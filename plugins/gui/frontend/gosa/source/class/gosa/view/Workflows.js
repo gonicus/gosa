@@ -111,7 +111,7 @@ qx.Class.define("gosa.view.Workflows", {
           break;
 
         case "empty-info":
-          var label = new qx.ui.basic.Label(this.tr("Please add a workflow dragging a workflow zip file into this window"));
+          var label = new qx.ui.basic.Label(this.tr("Please add a workflow dragging a workflow archive into this window."));
           control = new qx.ui.container.Composite(new qx.ui.layout.Atom().set({center: true}));
           control.add(label);
           control.exclude();
@@ -209,7 +209,7 @@ qx.Class.define("gosa.view.Workflows", {
     _fillToolbar: function(toolbar) {
       this.__toolbarButtons = {};
 
-      var uploadButton = new com.zenesis.qx.upload.UploadButton(this.tr("Upload"), "@Ligature/upload");
+      var uploadButton = new com.zenesis.qx.upload.UploadButton(this.tr("Upload"), "@Ligature/upload/22");
       uploadButton.setAppearance("button-link");
 
       gosa.io.Rpc.getInstance().cA("registerUploadPath", "workflow")
@@ -223,7 +223,7 @@ qx.Class.define("gosa.view.Workflows", {
       this.__toolbarButtons["upload"] = uploadButton;
 
       // delete button
-      var widget = new qx.ui.form.Button(this.tr("Delete"), "@Ligature/trash");
+      var widget = new qx.ui.form.Button(this.tr("Delete"), "@Ligature/trash/22");
       widget.setDroppable(true);
       widget.setEnabled(false);
       widget.setAppearance("button-link");

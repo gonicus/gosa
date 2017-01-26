@@ -52,8 +52,8 @@ qx.Theme.define("gosa.theme.Decoration",
 
     "gosa-workflow-category": {
       style: {
-        width: [1, 0 , 0, 0],
-        color: "font"
+        widthBottom: 1,
+        color: "lightgray-dark"
       }
     },
 

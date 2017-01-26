@@ -365,6 +365,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "gosa-tabview-page-workflows": "gosa-tabview-page",
+    "gosa-tabview-page-workflows/toolbar": "gosa-tabview-page-dashboard/toolbar",
     "gosa-tabview-page-workflows/list": "gosa-tabview-page-dashboard/board",
     "gosa-tabview-page-workflows/edit-mode": "gosa-tabview-page-dashboard/edit-mode",
 
@@ -506,6 +507,7 @@ qx.Theme.define("gosa.theme.Appearance", {
         }
       }
     },
+
     "gosa-workflow-item/content": {
       style: function() {
         return {
@@ -514,6 +516,7 @@ qx.Theme.define("gosa.theme.Appearance", {
         }
       }
     },
+
     "gosa-workflow-category": {
       include: "atom",
       alias: "atom",
@@ -521,13 +524,24 @@ qx.Theme.define("gosa.theme.Appearance", {
       style: function(states) {
         return {
           show: "label",
-          font: "Title",
-          textColor: "font",
-          decorator: states.first ? null : "gosa-workflow-category",
-          marginTop: 10
+          font: "bold",
+          textColor: "darkgray-dark",
+          allowGrowX: true,
+          decorator: "gosa-workflow-category",
+          padding: 4,
+          marginBottom: 6
         }
       }
     },
+
+    "gosa-workflow-category/label": {
+      style: function() {
+        return {
+          textColor: "darkgray-dark"
+        }
+      }
+    },
+
     "gosa-workflow-item/throbber": {
       include: "gosa-throbber",
 
@@ -537,6 +551,7 @@ qx.Theme.define("gosa.theme.Appearance", {
         };
       }
     },
+
     "gosa-workflow-item/label": {
       style: function() {
         return {
@@ -555,6 +570,7 @@ qx.Theme.define("gosa.theme.Appearance", {
         }
       }
     },
+
     "edit-tabview-page": "tabview-page",
     "edit-tabview-page/button/icon": {
       include: "tabview-page/button/icon",
