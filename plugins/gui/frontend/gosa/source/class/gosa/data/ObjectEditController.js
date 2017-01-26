@@ -33,6 +33,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._changeValueListeners = {};
     this._validatingWidgets = [];
     this._connectedAttributes = [];
+    this.__extensionFinder = new gosa.data.ExtensionFinder(obj);
     this._extensionController = new gosa.data.ExtensionController(obj, this);
     this._backendChangeProcessor = new gosa.data.BackendChangeProcessor(obj, this);
 
@@ -88,6 +89,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
     _globalObjectListenersSet : false,
     _extensionController : null,
     _backendChangeProcessor : null,
+    __extensionFinder : null,
 
     closeObject : function() {
       if (this._obj && !this._obj.isDisposed() && !this._obj.isClosed()) {
@@ -131,7 +133,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
         }
       }, this)
       .then(function() {
-        this._obj.setUiBound(false);
+        this.__object.setUiBound(false);
         return this.closeObject();
       }, this);
     },
@@ -150,19 +152,20 @@ qx.Class.define("gosa.data.ObjectEditController", {
     },
 
     /**
-     * Exposes the object (model of the controller). Thee shall not use it in views...
-     *
-     * @return {gosa.proxy.Object | null}
+     * @return {gosa.data.ExtensionFinder}
      */
-    getObject : function() {
-      return this._obj;
+    getExtensionFinder : function() {
+      return this.__extensionFinder;
     },
 
     /**
-     * @return {Array}
+     * @return {gosa.data.ActionController}
      */
-    getOrderedExtensions : function() {
-      return this._extensionController.getOrderedExtensions();
+    getActionController : function() {
+      if (!this._actionController) {
+        this._actionController =  new gosa.data.ActionController(this._obj);
+      }
+      return this._actionController;
     },
 
     /**
@@ -220,24 +223,6 @@ qx.Class.define("gosa.data.ObjectEditController", {
           console.log(context);
         }
       });
-    },
-
-    /**
-     * Returns a list of extensions that the object can be extended by.
-     *
-     * @return {Array} List of extension names (as strings); might be empty
-     */
-    getExtendableExtensions : function() {
-      return this._extensionController.getExtendableExtensions();
-    },
-
-    /**
-     * Returns a list of extensions that can be retracted from the object.
-     *
-     * @return {Array} List of extension names (as strings); might be empty
-     */
-    getRetractableExtensions : function() {
-      return this._extensionController.getRetractableExtensions();
     },
 
     /**
@@ -739,7 +724,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
     this._cleanupChangeValueListeners();
     this.closeObject();
 
-    this._disposeObjects("_backendChangeProcessor", "_extensionController");
+    this._disposeObjects("__extensionFinder", "_backendChangeProcessor", "_extensionController");
 
     this._obj = null;
     this._widget = null;

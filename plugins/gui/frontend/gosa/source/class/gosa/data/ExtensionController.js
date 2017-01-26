@@ -29,79 +29,15 @@ qx.Class.define("gosa.data.ExtensionController", {
     qx.core.Assert.assertInstance(obj, gosa.proxy.Object);
     qx.core.Assert.assertInstance(widgetController, gosa.data.ObjectEditController);
 
-    this._obj = obj;
-    this._widgetController = widgetController;
+    this.__object = obj;
+    this.__widgetController = widgetController;
+    this.__extensionFinder = this.__widgetController.getExtensionFinder();
   },
 
   members : {
-    _obj : null,
-    _widgetController : null,
-
-    /**
-     * Returns all extensions of the object in an order that prevents dependency faults.
-     *
-     * @return {Array} List of extension names (Strings); might be empty
-     */
-    getOrderedExtensions : function() {
-      var result = [];
-      var deps = this._obj.extensionDeps;
-
-      var resolveDep = function(name) {
-        var currentDeps = deps[name];
-        if (currentDeps.length > 0) {
-          for (var ext in currentDeps) {
-            if (currentDeps.hasOwnProperty(ext)) {
-              resolveDep(currentDeps[ext]);
-            }
-          }
-        }
-        if (!qx.lang.Array.contains(result, name)) {
-          result.push(name);
-        }
-      };
-
-      for (var ext in deps) {
-        if (deps.hasOwnProperty(ext)) {
-          resolveDep(ext);
-        }
-      }
-
-      return result;
-    },
-
-    /**
-     * Returns a list of extensions that the object can be extended by.
-     *
-     * @return {Array} List of extension names (as strings); might be empty
-     */
-    getExtendableExtensions : function() {
-      var result = [];
-      var exts = this._obj.extensionTypes;
-
-      for (var ext in exts) {
-        if (exts.hasOwnProperty(ext) && !exts[ext]) {
-          result.push(ext);
-        }
-      }
-      return result;
-    },
-
-    /**
-     * Returns a list of extensions that can be retracted from the object.
-     *
-     * @return {Array} List of extension names (as strings); might be empty
-     */
-    getRetractableExtensions : function() {
-      var result = [];
-      var exts = this._obj.extensionTypes;
-
-      for (var ext in exts) {
-        if (exts.hasOwnProperty(ext) && exts[ext]) {
-          result.push(ext);
-        }
-      }
-      return result;
-    },
+    __object : null,
+    __widgetController : null,
+    __extensionFinder : null,
 
     /**
      * Removes the extension from the object in that its tab page(s) won't be shown any more.
@@ -125,57 +61,12 @@ qx.Class.define("gosa.data.ExtensionController", {
       this._checkExtensionDependenciesExtend(extension, modify);
     },
 
-    getMissingDependencies : function(extension) {
-      var dependencies = this._obj.extensionDeps[extension]
-        ? qx.lang.Array.clone(this._obj.extensionDeps[extension])
-        : [];
-
-      dependencies = dependencies.filter(function(ext) {
-        return !this._obj.extensionTypes[ext];
-      }, this);
-      return dependencies;
-    },
-
-    /**
-     * @return {Object} Key: name of extension with missing dependencies, value: array of dependent extension names (in
-     *   no particular order)
-     */
-    getAllMissingExtensions : function() {
-      var missingExts = {};
-      this.getCurrentExtensions().forEach(function(extName) {
-        missingExts[extName] = this.getMissingDependencies(extName);
-      }, this);
-      return missingExts;
-    },
-
-    /**
-     * @return {Array} Unique names of extensions
-     */
-    getAllMissingExtensionsAsArray : function() {
-      return qx.lang.Array.unique([].concat.apply([], Object.values(this.getAllMissingExtensions())));
-    },
-
     checkForMissingExtensions : function() {
-      if (this.getAllMissingExtensionsAsArray().length) {
-        var dialog = new gosa.ui.dialogs.AddDependentExtensions(this.getAllMissingExtensions());
+      if (this.__extensionFinder.getAllMissingExtensionsAsArray().length) {
+        var dialog = new gosa.ui.dialogs.AddDependentExtensions(this.__extensionFinder.getAllMissingExtensions());
         dialog.addListenerOnce("confirmed", this.__onMissingExtensionsDialogConfirm, this);
         dialog.open();
       }
-    },
-
-    /**
-     * @return {Array} Names of extensions that are currently active
-     */
-    getCurrentExtensions : function() {
-      var result = [];
-      var exts = this._obj.extensionTypes;
-
-      for (var extName in exts) {
-        if (exts.hasOwnProperty(extName) && exts[extName] && !qx.lang.Array.contains(result, extName)) {
-          result.push(extName);
-        }
-      }
-      return result;
     },
 
     /**
@@ -191,12 +82,12 @@ qx.Class.define("gosa.data.ExtensionController", {
     },
 
     __addMissingExtensions : function() {
-      var sortedExtensions = this.__sortExtensions(this.getAllMissingExtensionsAsArray());
+      var sortedExtensions = this.__sortExtensions(this.__extensionFinder.getAllMissingExtensionsAsArray());
       this.__addExtensions(sortedExtensions);
     },
 
     __retractExtensionsWithBrokenDependencies : function() {
-      var allExtensions = Object.keys(this.getAllMissingExtensions());
+      var allExtensions = Object.keys(this.__extensionFinder.getAllMissingExtensions());
       var sortedExtensions = this.__sortExtensions(allExtensions).reverse();
       this.__retractExtensions(sortedExtensions);
     },
@@ -235,7 +126,7 @@ qx.Class.define("gosa.data.ExtensionController", {
     __sortExtensions : function(extensions) {
       qx.core.Assert.assertArray(extensions);
 
-      var ordered = this.getOrderedExtensions();
+      var ordered = this.__extensionFinder.getOrderedExtensions();
       extensions.sort(function(a, b) {
         return ordered.indexOf(a) - ordered.indexOf(b);
       });
@@ -249,7 +140,7 @@ qx.Class.define("gosa.data.ExtensionController", {
      * @param modify {Boolean ? true} If the object shall be tagged as modified
      */
     _checkExtensionDependenciesExtend : function(extension, modify) {
-      var dependencies = this.getMissingDependencies(extension);
+      var dependencies = this.__extensionFinder.getMissingDependencies(extension);
       if (dependencies.length > 0) {
         this._createExtendDependencyDialog(extension, dependencies);
       }
@@ -265,14 +156,14 @@ qx.Class.define("gosa.data.ExtensionController", {
      * @param modify {Boolean ? true} If the object shall be tagged as modified
      */
     _checkExtensionDependenciesRetract : function(extension, modify) {
-      var activeExts = this._widgetController.getActiveExtensions();
+      var activeExts = this.__widgetController.getActiveExtensions();
 
       // find dependencies
       var dependencies = [];
       var item;
-      for (var ext in this._obj.extensionDeps) {
-        if (this._obj.extensionDeps.hasOwnProperty(ext)) {
-          item = this._obj.extensionDeps[ext];
+      for (var ext in this.__object.extensionDeps) {
+        if (this.__object.extensionDeps.hasOwnProperty(ext)) {
+          item = this.__object.extensionDeps[ext];
           if (qx.lang.Array.contains(item, extension) && item && qx.lang.Array.contains(activeExts, ext) &&
             gosa.data.TemplateRegistry.getInstance().hasTemplate(ext)) {
             dependencies.push(ext);
@@ -319,11 +210,11 @@ qx.Class.define("gosa.data.ExtensionController", {
       }
       qx.core.Assert.assertString(extension);
 
-      return this._obj.extend(extension)
+      return this.__object.extend(extension)
       .then(function () {
         return qx.Promise.all([
-          this._obj.refreshMetaInformation(),
-          this._obj.refreshAttributeInformation()
+          this.__object.refreshMetaInformation(),
+          this.__object.refreshAttributeInformation()
         ]);
       }, this)
       .then(function() {
@@ -334,9 +225,9 @@ qx.Class.define("gosa.data.ExtensionController", {
             template: template
           })
         });
-        this._widgetController.addExtensionTabs(templateObjects);
+        this.__widgetController.addExtensionTabs(templateObjects);
         if (modify) {
-          this._widgetController.setModified(true);
+          this.__widgetController.setModified(true);
         }
       }, this)
       .catch(function(error) {
@@ -359,23 +250,23 @@ qx.Class.define("gosa.data.ExtensionController", {
       }
       qx.core.Assert.assertString(extension);
 
-      return this._obj.retract(extension)
+      return this.__object.retract(extension)
       .then(function() {
         return qx.Promise.all([
-          this._obj.refreshMetaInformation(),
-          this._obj.refreshAttributeInformation()
+          this.__object.refreshMetaInformation(),
+          this.__object.refreshAttributeInformation()
         ]);
       }, this)
       .then(function() {
-        this._widgetController.removeExtensionTab(extension);
+        this.__widgetController.removeExtensionTab(extension);
         if (modify) {
-          this._widgetController.setModified(true);
+          this.__widgetController.setModified(true);
         }
       }, this)
       .catch(function(error) {
         new gosa.ui.dialogs.Error(
-        qx.lang.String.format(this.tr("Failed to retract the %1 extension: %2"),
-        [extension, error.getData().message])
+          qx.lang.String.format(this.tr("Failed to retract the %1 extension: %2"),
+          [extension, error.getData().message])
         ).open();
         this.error(error);
       }, this);
@@ -383,7 +274,8 @@ qx.Class.define("gosa.data.ExtensionController", {
   },
 
   destruct : function() {
-    this._obj = null;
-    this._widgetController = null;
+    this.__object = null;
+    this.__widgetController = null;
+    this.__extensionFinder = null;
   }
 });

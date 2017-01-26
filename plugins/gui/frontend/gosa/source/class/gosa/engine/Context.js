@@ -92,10 +92,7 @@ qx.Class.define("gosa.engine.Context", {
      * @return {gosa.data.ActionController} The action controller for this context (each has its own)
      */
     getActionController : function() {
-      if (!this._actionController) {
-        this._actionController = new gosa.data.ActionController(this._controller);
-      }
-      return this._actionController;
+      return this._controller.getActionController();
     },
 
     /**

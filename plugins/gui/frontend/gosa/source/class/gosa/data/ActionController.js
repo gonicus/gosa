@@ -20,22 +20,16 @@ qx.Class.define("gosa.data.ActionController", {
   extend : qx.core.Object,
 
   /**
-   * @param object {gosa.data.ObjectEditController|gosa.proxy.Object}
+   * @param object {gosa.proxy.Object}
    */
   construct : function(object) {
     this.base(arguments);
-
-    if (object instanceof gosa.proxy.Object) {
-      this._obj = object;
-    } else if (object instanceof gosa.data.ObjectEditController) {
-      this._obj = object.getObject();
-    } else {
-      throw new Error("Expected value to be instanceof 'gosa.data.ObjectEditController' or 'gosa.proxy.Object' but found ", object, "!");
-    }
+    qx.core.Assert.assertInstance(object, gosa.proxy.Object);
+    this.__object = object;
   },
 
   members : {
-    _obj : null,
+    __object : null,
 
     /**
      * Returns the dn of the object.
@@ -43,7 +37,7 @@ qx.Class.define("gosa.data.ActionController", {
      * @return {String | null}
      */
     getDn : function() {
-      return this._obj.dn;
+      return this.__object.dn;
     },
 
     /**
@@ -52,7 +46,7 @@ qx.Class.define("gosa.data.ActionController", {
      * @return {String | null}
      */
     getUuid : function() {
-      return this._obj.uuid;
+      return this.__object.uuid;
     },
 
     /**
@@ -64,8 +58,8 @@ qx.Class.define("gosa.data.ActionController", {
     getAttributeValue : function(attributeName) {
       qx.core.Assert.assertString(attributeName);
 
-      if (qx.Class.hasProperty(this._obj.constructor, attributeName)) {
-        return this._obj.get(attributeName);
+      if (qx.Class.hasProperty(this.__object.constructor, attributeName)) {
+        return this.__object.get(attributeName);
       }
       return null;
     },
@@ -78,7 +72,7 @@ qx.Class.define("gosa.data.ActionController", {
      */
     getProperty : function(property) {
       qx.core.Assert.assertString(property);
-      var result = this._obj[property];
+      var result = this.__object[property];
       return result === undefined ? null : result;
     },
 
@@ -90,7 +84,7 @@ qx.Class.define("gosa.data.ActionController", {
      */
     callMethod : function(methodName) {
       qx.core.Assert.assertString(methodName);
-      return this._obj.callMethod.apply(this._obj, arguments);
+      return this.__object.callMethod.apply(this.__object, arguments);
     },
 
     /**
@@ -99,11 +93,11 @@ qx.Class.define("gosa.data.ActionController", {
      * @return {String | null} The current password method
      */
     getPasswordMethod : function() {
-      if (!this._obj) {
+      if (!this.__object) {
         return null;
       }
 
-      var methods = this._obj.getPasswordMethod();
+      var methods = this.__object.getPasswordMethod();
       if (methods.getLength() > 0) {
         return methods.getItem(0);
       }
@@ -120,7 +114,7 @@ qx.Class.define("gosa.data.ActionController", {
     setPassword : function(method, password) {
       qx.core.Assert.assertString(method);
       qx.core.Assert.assertString(password);
-      return this._obj.changePasswordMethod(method, password);
+      return this.__object.changePasswordMethod(method, password);
     },
 
     /**
@@ -131,7 +125,7 @@ qx.Class.define("gosa.data.ActionController", {
      */
     setSambaPassword : function(password) {
       qx.core.Assert.assertString(password);
-      return this._obj.changeSambaPassword(password);
+      return this.__object.changeSambaPassword(password);
     },
 
     /**
@@ -139,7 +133,7 @@ qx.Class.define("gosa.data.ActionController", {
      * @return {qx.Promise}
      */
     getTwoFactorMethod : function() {
-      return this._obj.getTwoFactorMethod();
+      return this.__object.getTwoFactorMethod();
     },
 
     /**
@@ -153,7 +147,7 @@ qx.Class.define("gosa.data.ActionController", {
       if (method) {
         qx.core.Assert.assertString(method);
       }
-      return this._obj.changeTwoFactorMethod(method, password);
+      return this.__object.changeTwoFactorMethod(method, password);
     },
 
     /**
@@ -166,7 +160,7 @@ qx.Class.define("gosa.data.ActionController", {
       if (data) {
         qx.core.Assert.assertString(data);
       }
-      return this._obj.finishU2FRegistration(data);
+      return this.__object.finishU2FRegistration(data);
     },
 
     /**
@@ -179,7 +173,7 @@ qx.Class.define("gosa.data.ActionController", {
     sendMessage : function(subject, message) {
       qx.core.Assert.assertString(subject);
       qx.core.Assert.assertString(message);
-      return this._obj.notify(subject, message);
+      return this.__object.notify(subject, message);
     }
   }
 });

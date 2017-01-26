@@ -343,7 +343,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       });
 
       // create new menu entries
-      this.getController().getExtendableExtensions().forEach(function(ext) {
+      var extFinder = this.getController().getExtensionFinder();
+      extFinder.getAddableExtensions().forEach(function(ext) {
 
         var config = gosa.Cache.extensionConfig[ext];
         if (!config) {
@@ -396,8 +397,9 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
       // create new menu entries
       var actExts = this.getController().getActiveExtensions();
+      var extFinder = this.getController().getExtensionFinder();
 
-      this.getController().getRetractableExtensions().forEach(function(ext) {
+      extFinder.getRetractableExtensions().forEach(function(ext) {
         if (qx.lang.Array.contains(actExts, ext)) {
           var config = gosa.Cache.extensionConfig[ext];
           if (!config) {

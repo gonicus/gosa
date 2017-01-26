@@ -197,7 +197,7 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
         extensionsData,
         block,
         this.__obj.extensionsDeps,
-        this.__controller.getOrderedExtensions()
+        this.__controller.getExtensionFinder().getOrderedExtensions()
       );
       dialog.addListenerOnce("merge", this.__onMerge, this);
       dialog.open();
