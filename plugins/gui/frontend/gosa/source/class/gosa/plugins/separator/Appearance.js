@@ -18,7 +18,11 @@ qx.Theme.define("gosa.plugins.separator.Appearance", {
     "gosa-dashboard-widget-separator": {
       style: function(states) {
         var dc = null;
-        if (states.bordertop) {
+
+        if (states.edit) {
+          dc = states.selected ? "gosa-dashboard-widget-resize" : "gosa-dashboard-widget-edit";
+        }
+        else if (states.bordertop) {
           dc = "gosa-dashboard-widget-separator-top";
         } else if (states.borderbottom) {
           dc = "gosa-dashboard-widget-separator-bottom";
