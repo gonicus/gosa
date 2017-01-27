@@ -142,8 +142,6 @@ qx.Class.define("gosa.plugins.yql.ListItem", {
     _applyIcon : function(value)
     {
       var icon = this.getChildControl("icon");
-      console.log("applyIcon");
-      console.log(value);
       if (icon) {
         icon.setSource(value);
         icon.show();
