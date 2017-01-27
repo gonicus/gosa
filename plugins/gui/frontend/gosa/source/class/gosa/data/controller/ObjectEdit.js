@@ -15,7 +15,7 @@
 /**
  * Controller for the {@link gosa.ui.widget.ObjectEdit} widget; connects it to the model.
  */
-qx.Class.define("gosa.data.ObjectEditController", {
+qx.Class.define("gosa.data.controller.ObjectEdit", {
 
   extend : qx.core.Object,
 

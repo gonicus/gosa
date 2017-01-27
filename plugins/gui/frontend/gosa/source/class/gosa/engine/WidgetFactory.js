@@ -63,7 +63,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
 
       return new qx.Promise(function(resolve) {
         // generate widget
-        var widget = new gosa.ui.widgets.ObjectEdit(templates, true);
+        var widget = new gosa.ui.widgets.WorkflowWizard(templates);
         resolve(widget);
       });
     },
@@ -73,7 +73,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
      * {@link gosa.ui.dialogs}. If that is not found, it looks into the transferred cache of dialog templates.
      *
      * @param name {String} Name of the dialog class/template
-     * @param controller {gosa.data.ObjectEditController ? null} Optional object controller
+     * @param controller {gosa.data.controller.ObjectEdit ? null} Optional object controller
      * @param extension {String} Name of the extension that the dialgo is created in
      * @return {gosa.ui.dialogs.Dialog | null} The (unopened) dialog widget
      */
@@ -81,7 +81,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       qx.core.Assert.assertString(name);
       qx.core.Assert.assertString(extension);
       if (controller) {
-        qx.core.Assert.assertInstance(controller, gosa.data.ObjectEditController);
+        qx.core.Assert.assertInstance(controller, gosa.data.controller.ObjectEdit);
       }
 
       var clazzName = name.substring(0, 1).toUpperCase() + name.substring(1);
