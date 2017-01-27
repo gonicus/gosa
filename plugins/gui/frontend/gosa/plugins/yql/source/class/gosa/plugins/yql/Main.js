@@ -76,6 +76,17 @@ qx.Class.define("gosa.plugins.yql.Main", {
 
         case "list":
           control = new qx.ui.list.List();
+          control.setDelegate({
+            createItem: function() {
+              return new gosa.plugins.yql.ListItem();
+            },
+
+            bindItem: function(controller, item, index) {
+              controller.bindDefaultProperties(item, index);
+              controller.bindProperty("link", "link", null, item, index);
+              controller.bindProperty("description", "description", null, item, index);
+            }
+          });
           control.setLabelPath("title");
           this.getChildControl("content").add(control);
           break;

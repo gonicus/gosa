@@ -29,6 +29,31 @@ qx.Theme.define("gosa.plugins.yql.Appearance", {
           decorator       : null
         }
       }
+    },
+
+    "yql-listitem": {
+      style: function() {
+        return {
+          decorator: "listitem",
+          padding: [5, 0]
+        }
+      }
+    },
+
+    "yql-listitem/label": {
+      style: function() {
+        return {
+          font: "bold"
+        }
+      }
+    },
+
+    "yql-listitem/description": {
+      style: function() {
+        return {
+          font: "small"
+        }
+      }
     }
   }
 });
