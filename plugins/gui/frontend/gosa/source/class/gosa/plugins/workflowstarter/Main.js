@@ -208,7 +208,6 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
           this.getChildControl("content").setLayout(layout);
           this.getChildControl("content").add(control);
           this.getChildControl("content").setAnonymous(true);
-          console.log(control);
           control.setAnonymous(true);
           break;
 
