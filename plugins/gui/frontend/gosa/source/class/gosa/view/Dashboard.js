@@ -605,7 +605,7 @@ qx.Class.define("gosa.view.Dashboard", {
       // load dashboard settings from backend
       gosa.io.Rpc.getInstance().cA("loadUserPreferences", "dashboard")
       .then(function(result) {
-        this.setDashboardConfiguration(result);
+        this.__setDashboardConfiguration(result);
         this.__drawn = true;
       }, this);
     },
@@ -878,14 +878,25 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     /**
-     * Set the dashboard configuration
+     * Set the dashboard configuration. Only working in edit mode.
+     *
      * @param settings {Map|String} new settings as JSON-String or Map
      */
     setDashboardConfiguration: function(settings) {
-      if (settings) {
+      if (this.isEditMode()) {
         if (qx.lang.Type.isString(settings)) {
           settings = qx.lang.Json.parse(settings);
         }
+        this.__setDashboardConfiguration(settings);
+      }
+    },
+
+    /**
+     * Set the dashboard configuration
+     * @param settings {Map} new settings
+     */
+    __setDashboardConfiguration: function(settings) {
+      if (settings) {
         this.__settings = settings;
         var pluginsToLoad = this.__extractPluginsToLoad(settings);
         var partsLoaded = pluginsToLoad.parts.length === 0;
