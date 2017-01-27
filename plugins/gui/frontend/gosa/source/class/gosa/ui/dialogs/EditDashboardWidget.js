@@ -63,7 +63,9 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
             break;
 
           case "number":
-            formItem = new qx.ui.form.Spinner();
+            var min = typeSettings.hasOwnProperty("minValue") ? typeSettings.minValue : null;
+            var max = typeSettings.hasOwnProperty("maxValue") ? typeSettings.maxValue : null;
+            formItem = new qx.ui.form.Spinner(min, value, max);
             validator = this.validationWrapper(type, mandatory);
             break;
 
@@ -253,7 +255,9 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
       if (item instanceof qx.ui.form.SelectBox) {
         item.addListener("changeSelection", this.checkModification, this);
       } else {
-        item.setLiveUpdate(true);
+        if (item.setLiveUpdate) {
+          item.setLiveUpdate(true);
+        }
         item.addListener("changeValue", this.checkModification, this);
       }
     },
