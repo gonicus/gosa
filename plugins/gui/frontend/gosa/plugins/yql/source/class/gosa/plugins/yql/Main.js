@@ -140,7 +140,9 @@ qx.Class.define("gosa.plugins.yql.Main", {
           },
           refreshRate: {
             type: "Number",
-            title: qx.locale.Manager.tr("Refresh rate")
+            title: qx.locale.Manager.tr("Refresh rate"),
+            minValue: 0,
+            maxValue: 86400 // one day (in seconds)
           }
         }
       }
