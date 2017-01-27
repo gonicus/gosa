@@ -32,9 +32,10 @@ qx.Theme.define("gosa.plugins.yql.Appearance", {
     },
 
     "yql-listitem": {
-      style: function() {
+      style: function(states) {
         return {
           decorator: "listitem",
+          backgroundColor: states.hovered ? "hovered" : "transparent",
           padding: [5, 0]
         }
       }
@@ -44,6 +45,19 @@ qx.Theme.define("gosa.plugins.yql.Appearance", {
       style: function() {
         return {
           font: "bold"
+        }
+      }
+    },
+
+    "yql-listitem/icon": {
+      style: function() {
+        return {
+          width: 30,
+          height: 30,
+          scale: true,
+          marginRight: 10,
+          alignY: "middle",
+          alignX: "center"
         }
       }
     },

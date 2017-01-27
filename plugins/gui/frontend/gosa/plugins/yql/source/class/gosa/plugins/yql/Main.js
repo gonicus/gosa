@@ -20,6 +20,12 @@ qx.Class.define("gosa.plugins.yql.Main", {
 
   construct : function() {
     this.base(arguments);
+
+    this.setMapping({
+      title: "title",
+      description: "description",
+      link: "link"
+    })
   },
 
   /*
@@ -41,7 +47,7 @@ qx.Class.define("gosa.plugins.yql.Main", {
 
     mapping: {
       check: "Object",
-      init: {},
+      nullable: true,
       transform: "string2json"
     },
 
@@ -82,12 +88,22 @@ qx.Class.define("gosa.plugins.yql.Main", {
             },
 
             bindItem: function(controller, item, index) {
-              controller.bindDefaultProperties(item, index);
-              controller.bindProperty("link", "link", null, item, index);
-              controller.bindProperty("description", "description", null, item, index);
-            }
+              var mapping = this.getMapping() || {};
+              if (mapping.title) {
+                controller.bindProperty(mapping.title, "label", null, item, index);
+              }
+              if (mapping.link) {
+                controller.bindProperty(mapping.link, "link", null, item, index);
+              }
+              if (mapping.description) {
+                controller.bindProperty(mapping.description, "description", null, item, index);
+              }
+              if (mapping.icon) {
+                controller.bindProperty(mapping.icon, "icon", null, item, index);
+              }
+              controller.bindProperty("", "model", null, item, index);
+            }.bind(this)
           });
-          control.setLabelPath("title");
           this.getChildControl("content").add(control);
           break;
       }
@@ -109,8 +125,12 @@ qx.Class.define("gosa.plugins.yql.Main", {
           this.__store = new qx.data.store.Yql(value, this.__getDelegate());
           this.__store.bind("model", this.getChildControl("list"), "model");
           this.__createTimer();
-          this.__timer.addListener("interval", this.__store.reload, this);
+          this.__timer.addListener("interval", this.__store.reload, this.__store);
+        } else {
+          this.__store.setUrl(value);
         }
+      } else {
+        this.__timer.stop();
       }
     },
 
@@ -123,12 +143,15 @@ qx.Class.define("gosa.plugins.yql.Main", {
           }
         });
       }
+      if (!this.__timer.isEnabled()) {
+        this.__timer.start();
+      }
     },
 
     __getDelegate: function() {
       return {
         manipulateData: function(data) {
-          return data.query.results.item;
+          return data.query.results.item || data.query.results.entry;
         }
       }
     }
@@ -149,6 +172,10 @@ qx.Class.define("gosa.plugins.yql.Main", {
           query: {
             type: "String",
             title: qx.locale.Manager.tr("YQL query")
+          },
+          mapping: {
+            type: "Json",
+            title: qx.locale.Manager.tr("Field mapping")
           },
           refreshRate: {
             type: "Number",

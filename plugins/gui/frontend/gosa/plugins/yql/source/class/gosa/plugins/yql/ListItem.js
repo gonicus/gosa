@@ -31,8 +31,11 @@ qx.Class.define("gosa.plugins.yql.ListItem", {
       this.setModel(model);
     }
 
-    this._setLayout(new qx.ui.layout.VBox());
+    this._setLayout(new qx.ui.layout.HBox());
     this.addListener("tap", this._onTap, this);
+
+    this.addListener("pointerover", this._onPointerOver, this);
+    this.addListener("pointerout", this._onPointerOut, this);
   },
     
   /*
@@ -61,6 +64,15 @@ qx.Class.define("gosa.plugins.yql.ListItem", {
     link: {
       check: "String",
       nullable: true
+    },
+
+    /** Any URI String supported by qx.ui.basic.Image to display an icon */
+    icon :
+    {
+      check : "String",
+      apply : "_applyIcon",
+      nullable : true,
+      themeable : true
     }
   },
 
@@ -72,7 +84,8 @@ qx.Class.define("gosa.plugins.yql.ListItem", {
   members : {
 
     _forwardStates: {
-      selected: false
+      selected: false,
+      hovered : true
     },
 
     // overridden
@@ -81,11 +94,27 @@ qx.Class.define("gosa.plugins.yql.ListItem", {
 
       switch(id) {
 
+        case "icon":
+          control = new qx.ui.basic.Image(this.getIcon());
+          control.setAnonymous(true);
+          this._addAt(control, 0);
+          if (this.getIcon() == null) {
+            control.exclude();
+          }
+          break;
+
+        case "content":
+          control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+          control.setAnonymous(true);
+          control.setAllowGrowX(false);
+          this._addAt(control, 1, {flex: 1});
+          break;
+
         case "label":
           control = new qx.ui.basic.Label(this.getLabel());
           control.setRich(true);
           control.setSelectable(false);
-          this._addAt(control, 0);
+          this.getChildControl("content").addAt(control, 0);
           if (this.getLabel() === null) {
             control.exclude();
           }
@@ -102,11 +131,26 @@ qx.Class.define("gosa.plugins.yql.ListItem", {
             wrap: true,
             selectable: false
           });
-          this._addAt(control, 1);
+          this.getChildControl("content").addAt(control, 1);
           break;
       }
 
       return control || this.base(arguments, id);
+    },
+
+    // property apply
+    _applyIcon : function(value)
+    {
+      var icon = this.getChildControl("icon");
+      console.log("applyIcon");
+      console.log(value);
+      if (icon) {
+        icon.setSource(value);
+        icon.show();
+      }
+      else {
+        icon.exclude();
+      }
     },
 
     // property apply
@@ -136,6 +180,26 @@ qx.Class.define("gosa.plugins.yql.ListItem", {
       if (this.getLink()) {
         window.open(this.getLink(), "_blank");
       }
+    },
+
+    /**
+     * Event handler for the pointer over event.
+     */
+    _onPointerOver : function() {
+      this.addState("hovered");
+    },
+
+
+    /**
+     * Event handler for the pointer out event.
+     */
+    _onPointerOut : function() {
+      this.removeState("hovered");
     }
+  },
+
+  destruct : function() {
+    this.removeListener("pointerover", this._onPointerOver, this);
+    this.removeListener("pointerout", this._onPointerOut, this);
   }
 });
