@@ -93,7 +93,7 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
 
       data.added.forEach(function(ext) {
         if (!qx.lang.Array.contains(activeExtensions, ext)) {
-          this.__controller.addExtension(ext, false);
+          this.__controller.getExtensionController().addExtensionSilently(ext);
         }
       }, this);
 
@@ -102,7 +102,7 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
         if (qx.lang.Array.contains(activeExtensions, ext)) {
           var context = this.__controller.getContextByExtensionName(ext);
           if (context && !context.isAppeared()) {
-            this.__controller.removeExtension(ext, false);
+            this.__controller.getExtensionController().removeExtension(ext, false);
             removed.push(ext);
           }
         }
@@ -306,10 +306,10 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
       qx.core.Assert.assertArray(activeExtensions);
 
       if (takeLocal) {
-        this.__controller.addExtension(extension);
+        this.__controller.getExtensionController().addExtensionSilently(extension);
       }
       else if (!takeLocal && qx.lang.Array.contains(activeExtensions, extension)) {
-        this.__controller.removeExtension(extension, false);
+        this.__controller.getExtensionController().removeExtension(extension, false);
       }
     },
 

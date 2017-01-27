@@ -809,7 +809,9 @@ class ObjectProxy(object):
 
             # Populate the base uuid to the extensions
             if extension.uuid and extension.uuid != self.__base.uuid:
-                raise ProxyException(C.make_error('OBJECT_UUID_MISMATCH', b_uuid=self.__base.uuid, e_uuid=extension.uuid))
+                raise ProxyException(C.make_error('OBJECT_UUID_MISMATCH',
+                                                  b_uuid=self.__base.uuid,
+                                                  e_uuid=extension.uuid))
             if not extension.uuid:
                 extension.uuid = self.__base.uuid
             extension.dn = self.__base.dn

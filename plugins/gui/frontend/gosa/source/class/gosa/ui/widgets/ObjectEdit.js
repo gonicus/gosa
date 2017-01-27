@@ -132,7 +132,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         var closeButton = tabPage.getButton();
         closeButton.getChildControl("close-button").setToolTip(new qx.ui.tooltip.ToolTip(this.tr("Remove extension")));
         closeButton.addListener("close", function() {
-          this.getController().removeExtension(templateObj.extension);
+          this.getController().getExtensionController().removeExtension(templateObj.extension);
         }, this);
       }
 
@@ -366,7 +366,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         this._extendMenu.add(button);
 
         button.addListener("execute", function() {
-          this.getController().addExtension(ext);
+          this.getController().getExtensionController().addExtension(ext);
         }, this);
 
         this.__updateToolMenuButtonVisibility();
@@ -420,7 +420,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
           this._retractMenu.add(button);
 
           button.addListener("execute", function() {
-            this.getController().removeExtension(ext);
+            this.getController().getExtensionController().removeExtension(ext);
           }, this);
         }
 
@@ -578,6 +578,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       this.getController().saveObject()
       .then(this._close, this)
       .catch(function(exc) {
+        throw exc;
         // do nothing as the error has already been handled
       });
     },

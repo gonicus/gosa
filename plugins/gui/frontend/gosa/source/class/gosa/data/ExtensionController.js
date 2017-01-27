@@ -47,7 +47,28 @@ qx.Class.define("gosa.data.ExtensionController", {
      */
     removeExtension : function(extension, modify) {
       qx.core.Assert.assertString(extension);
-      this._checkExtensionDependenciesRetract(extension, modify);
+
+      var activeExts = this.__widgetController.getActiveExtensions();
+
+      // find dependencies
+      var dependencies = [];
+      var item;
+      for (var ext in this.__object.extensionDeps) {
+        if (this.__object.extensionDeps.hasOwnProperty(ext)) {
+          item = this.__object.extensionDeps[ext];
+          if (qx.lang.Array.contains(item, extension) && item && qx.lang.Array.contains(activeExts, ext) &&
+            gosa.data.TemplateRegistry.getInstance().hasTemplate(ext)) {
+            dependencies.push(ext);
+          }
+        }
+      }
+
+      if (dependencies.length > 0) {
+        this._createRetractDependencyDialog(extension, dependencies);
+      }
+      else {
+        this.__removeExtensionFromObject(extension, modify);
+      }
     },
 
     /**
@@ -58,7 +79,31 @@ qx.Class.define("gosa.data.ExtensionController", {
      */
     addExtension : function(extension, modify) {
       qx.core.Assert.assertString(extension);
-      this._checkExtensionDependenciesExtend(extension, modify);
+
+      var dependencies = this.__extensionFinder.getMissingDependencies(extension);
+      if (modify && dependencies.length > 0) {
+        this._createExtendDependencyDialog(extension, dependencies);
+      }
+      else {
+        this.__addExtensionToObject(extension, modify);
+      }
+    },
+
+    /**
+     * Adds the given extension and its necessary dependencies without asking the user.
+     *
+     * @param extension {String}
+     */
+    addExtensionSilently : function(extension) {
+      qx.core.Assert.assertString(extension);
+
+      var dependencies = this.__extensionFinder.getMissingDependencies(extension);
+      if (dependencies.length) {
+        this.__addExtensions(this.__sortExtensions(dependencies).concat(extension));
+      }
+      else {
+        this.__addExtensionToObject(extension, false);
+      }
     },
 
     checkForMissingExtensions : function() {
@@ -100,7 +145,7 @@ qx.Class.define("gosa.data.ExtensionController", {
       var queue = [];
 
       extensions.forEach(function(dependency) {
-        queue.push(this._addExtensionToObject(dependency));
+        queue.push(this.__addExtensionToObject(dependency));
       }, this);
       qx.Promise.all(queue, this);
     },
@@ -113,7 +158,7 @@ qx.Class.define("gosa.data.ExtensionController", {
       var queue = [];
 
       extensions.forEach(function(dependency) {
-        queue.push(this._removeExtensionFromObject(dependency));
+        queue.push(this.__removeExtensionFromObject(dependency));
       }, this);
       qx.Promise.all(queue, this);
     },
@@ -131,52 +176,6 @@ qx.Class.define("gosa.data.ExtensionController", {
         return ordered.indexOf(a) - ordered.indexOf(b);
       });
       return extensions;
-    },
-
-    /**
-     * Check dependencies of extension and possibly raise dialog which asks if to add other dependent extensions.
-     *
-     * @param extension {String}
-     * @param modify {Boolean ? true} If the object shall be tagged as modified
-     */
-    _checkExtensionDependenciesExtend : function(extension, modify) {
-      var dependencies = this.__extensionFinder.getMissingDependencies(extension);
-      if (dependencies.length > 0) {
-        this._createExtendDependencyDialog(extension, dependencies);
-      }
-      else {
-        this._addExtensionToObject(extension, modify);
-      }
-    },
-
-    /**
-     * Check dependencies of extension and possibly raise dailog which asks if to remove the other extensions.
-     *
-     * @param extension {String}
-     * @param modify {Boolean ? true} If the object shall be tagged as modified
-     */
-    _checkExtensionDependenciesRetract : function(extension, modify) {
-      var activeExts = this.__widgetController.getActiveExtensions();
-
-      // find dependencies
-      var dependencies = [];
-      var item;
-      for (var ext in this.__object.extensionDeps) {
-        if (this.__object.extensionDeps.hasOwnProperty(ext)) {
-          item = this.__object.extensionDeps[ext];
-          if (qx.lang.Array.contains(item, extension) && item && qx.lang.Array.contains(activeExts, ext) &&
-            gosa.data.TemplateRegistry.getInstance().hasTemplate(ext)) {
-            dependencies.push(ext);
-          }
-        }
-      }
-
-      if (dependencies.length > 0) {
-        this._createRetractDependencyDialog(extension, dependencies);
-      }
-      else {
-        this._removeExtensionFromObject(extension, modify);
-      }
     },
 
     _createExtendDependencyDialog : function(extension, dependencies) {
@@ -202,9 +201,9 @@ qx.Class.define("gosa.data.ExtensionController", {
      *
      * @param extension {String} Name of the extension, e.g. "UserSamba"
      * @param modify {Boolean ? true} If the object shall be tagged as modified
-     * @returns {qx.Promise}
+     * @return {qx.Promise}
      */
-    _addExtensionToObject : function(extension, modify) {
+    __addExtensionToObject : function(extension, modify) {
       if (modify !== false) {
         modify = true;
       }
@@ -244,7 +243,7 @@ qx.Class.define("gosa.data.ExtensionController", {
      * @param modify {Boolean ? true} If the object shall be tagged as modified
      * @return {qx.Promise}
      */
-    _removeExtensionFromObject : function(extension, modify) {
+    __removeExtensionFromObject : function(extension, modify) {
       if (modify !== false) {
         modify = true;
       }

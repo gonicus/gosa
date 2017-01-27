@@ -28,13 +28,13 @@ qx.Class.define("gosa.data.ObjectEditController", {
     qx.core.Assert.assertInstance(obj, gosa.proxy.Object);
     qx.core.Assert.assertInstance(widget, gosa.ui.widgets.ObjectEdit);
 
-    this._obj = obj;
+    this.__object = obj;
     this._widget = widget;
     this._changeValueListeners = {};
     this._validatingWidgets = [];
     this._connectedAttributes = [];
     this.__extensionFinder = new gosa.data.ExtensionFinder(obj);
-    this._extensionController = new gosa.data.ExtensionController(obj, this);
+    this.__extensionController = new gosa.data.ExtensionController(obj, this);
     this._backendChangeProcessor = new gosa.data.BackendChangeProcessor(obj, this);
 
     this._addListenersToAllContexts();
@@ -47,11 +47,11 @@ qx.Class.define("gosa.data.ObjectEditController", {
       this._backendChangeProcessor
     );
 
-    this._obj.setUiBound(true);
+    this.__object.setUiBound(true);
     this._initialized = true;
     this.fireEvent("initialized");
 
-    this._extensionController.checkForMissingExtensions();
+    this.__extensionController.checkForMissingExtensions();
 
     obj.addListener("closing", this._onObjectClosing, this);
   },
@@ -78,7 +78,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
   },
 
   members : {
-    _obj : null,
+    __object : null,
     _widget : null,
     _changeValueListeners : null,
     _currentWidget : null,
@@ -87,14 +87,14 @@ qx.Class.define("gosa.data.ObjectEditController", {
     _validatingWidgets : null,
     _connectedAttributes : null,
     _globalObjectListenersSet : false,
-    _extensionController : null,
+    __extensionController : null,
     _backendChangeProcessor : null,
     __extensionFinder : null,
 
     closeObject : function() {
-      if (this._obj && !this._obj.isDisposed() && !this._obj.isClosed()) {
-        this._obj.setUiBound(false);
-        return this._obj.close()
+      if (this.__object && !this.__object.isDisposed() && !this.__object.isClosed()) {
+        this.__object.setUiBound(false);
+        return this.__object.close()
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error).open();
         });
@@ -103,7 +103,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
 
     saveObject : function() {
       if (!this.isModified()) {
-        this._obj.setUiBound(false);
+        this.__object.setUiBound(false);
         this.closeObject();
         return;
       }
@@ -113,7 +113,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
         return;
       }
 
-      return this._obj.commit()
+      return this.__object.commit()
       .catch(function(exc) {
         var error = exc.getData();
         var widget = null;
@@ -146,9 +146,16 @@ qx.Class.define("gosa.data.ObjectEditController", {
      */
     callObjectMethod : function(methodName, args) {
       qx.core.Assert.assertString(methodName);
-      qx.core.Assert.assertFunction(this._obj[methodName]);
+      qx.core.Assert.assertFunction(this.__object[methodName]);
 
-      return this._obj[methodName].apply(this._obj, args);
+      return this.__object[methodName].apply(this.__object, args);
+    },
+
+    /**
+     * @return {gosa.data.ExtensionController}
+     */
+    getExtensionController : function() {
+      return this.__extensionController;
     },
 
     /**
@@ -163,7 +170,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
      */
     getActionController : function() {
       if (!this._actionController) {
-        this._actionController =  new gosa.data.ActionController(this._obj);
+        this._actionController =  new gosa.data.ActionController(this.__object);
       }
       return this._actionController;
     },
@@ -175,7 +182,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
      */
     getActiveExtensions : function() {
       var result = [];
-      var allExts = this._obj.extensionTypes;
+      var allExts = this.__object.extensionTypes;
 
       for (var ext in allExts) {
         if (allExts.hasOwnProperty(ext) && allExts[ext]) {
@@ -198,45 +205,17 @@ qx.Class.define("gosa.data.ObjectEditController", {
     },
 
     /**
-     * Removes the extension from the object in that its tab page(s) won't be shown any more.
-     *
-     * @param extension {String} Name of the extension (e.g. "SambaUser")
-     * @param modify {Boolean ? true} If the object shall be tagged as modified
-     */
-    removeExtension : function(extension, modify) {
-      qx.core.Assert.assertString(extension);
-      this._extensionController.removeExtension(extension, modify);
-    },
-
-    /**
-     * Adds the stated extension to the object.
-     *
-     * @param extension {String}
-     * @param modify {Boolean ? true} If the object shall be tagged as modified
-     */
-    addExtension : function(extension, modify) {
-      qx.core.Assert.assertString(extension);
-      this._extensionController.addExtension(extension, modify);
-
-      this._widget.getContexts().forEach(function(context) {
-        if (context.getExtension() === extension) {
-          console.log(context);
-        }
-      });
-    },
-
-    /**
      * @return {String | null} The base type of the object; null if unkown
      */
     getBaseType : function() {
-      return this._obj.baseType || null;
+      return this.__object.baseType || null;
     },
 
     /**
      * @return {Array | null} List of all attributes of the object
      */
     getAttributes : function() {
-      return qx.lang.Type.isArray(this._obj.attributes) ? this._obj.attributes : null;
+      return qx.lang.Type.isArray(this.__object.attributes) ? this.__object.attributes : null;
     },
 
     /**
@@ -282,19 +261,19 @@ qx.Class.define("gosa.data.ObjectEditController", {
       var data = event.getData();
 
       // TODO: How can this happen?
-      if (data.uuid !== this._obj.uuid) {
+      if (data.uuid !== this.__object.uuid) {
         return;
       }
 
       switch (data.state) {
         case "closing":
-          this._widget.onClosing(this._obj.dn, parseInt(data.minutes));
+          this._widget.onClosing(this.__object.dn, parseInt(data.minutes));
           break;
         case "closing_aborted":
           this._widget.closeClosingDialog();
           break;
         case "closed":
-          this._obj.setClosed(true);
+          this.__object.setClosed(true);
           this._widget.onClosed();
           break;
       }
@@ -304,7 +283,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
      * Invoke rpc to continue editing while the timeout for automatic closing is running.
      */
     continueEditing : function() {
-      gosa.io.Rpc.getInstance().cA("continueObjectEditing", this._obj.instance_uuid);
+      gosa.io.Rpc.getInstance().cA("continueObjectEditing", this.__object.instance_uuid);
     },
 
     /**
@@ -379,7 +358,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
     },
 
     _connectModelWithWidget : function() {
-      var o = this._obj;
+      var o = this.__object;
       var widgets, attribute;
 
       for (var name in o.attribute_data) {
@@ -622,7 +601,7 @@ qx.Class.define("gosa.data.ObjectEditController", {
       if (!event.getData().getUserData("initial")) {
         this.setModified(true);
         var attr = event.getTarget().getAttribute();
-        this._obj.setAttribute(attr, event.getData());
+        this.__object.setAttribute(attr, event.getData());
       }
     },
 
@@ -709,24 +688,24 @@ qx.Class.define("gosa.data.ObjectEditController", {
   },
 
   destruct : function() {
-    this._obj.removeListener("closing", this._onObjectClosing, this);
-    this._obj.removeListener(
+    this.__object.removeListener("closing", this._onObjectClosing, this);
+    this.__object.removeListener(
       "foundDifferencesDuringReload",
       this._backendChangeProcessor.onFoundDifferenceDuringReload,
       this._backendChangeProcessor
     );
     this._widget.removeListener("contextAdded", this._onContextAdded, this);
 
-    if (this._obj && !this._obj.isDisposed()) {
-      this._obj.removeListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
+    if (this.__object && !this.__object.isDisposed()) {
+      this.__object.removeListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
     }
 
     this._cleanupChangeValueListeners();
     this.closeObject();
 
-    this._disposeObjects("__extensionFinder", "_backendChangeProcessor", "_extensionController");
+    this._disposeObjects("__extensionFinder", "_backendChangeProcessor", "__extensionController");
 
-    this._obj = null;
+    this.__object = null;
     this._widget = null;
     this._changeValueListeners = null;
     this._validatingWidgets = null;
