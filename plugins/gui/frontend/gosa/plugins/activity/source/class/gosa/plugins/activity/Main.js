@@ -156,6 +156,17 @@ qx.Class.define("gosa.plugins.activity.Main", {
     }
   },
 
+  /*
+   *****************************************************************************
+   DESTRUCTOR
+   *****************************************************************************
+   */
+  destruct : function() {
+    gosa.io.Sse.getInstance().removeListener("objectModified", this.refreshModel, this);
+    gosa.io.Sse.getInstance().removeListener("objectCreated", this.refreshModel, this);
+    gosa.io.Sse.getInstance().removeListener("objectRemoved", this.refreshModel, this);
+  },
+
   defer: function () {
     gosa.data.DashboardController.registerWidget(gosa.plugins.activity.Main, {
       displayName: qx.locale.Manager.tr("Activities"),
