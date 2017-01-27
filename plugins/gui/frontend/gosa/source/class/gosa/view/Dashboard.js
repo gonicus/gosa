@@ -268,7 +268,8 @@ qx.Class.define("gosa.view.Dashboard", {
         widgets.forEach(function(widget) {
           if (!gosa.data.DashboardController.getWidgetRegistry()[widget.provides.namespace]) {
             var displayName = widget.info.name;
-            var button = new qx.ui.menu.Button(displayName);
+            var icon = widget.info.icon ? widget.info.icon+"/22" : null;
+            var button = new qx.ui.menu.Button(displayName, icon);
             button.setUserData("namespace", widget.provides.namespace);
             menu.add(button);
             button.addListener("execute", function() {
@@ -604,34 +605,7 @@ qx.Class.define("gosa.view.Dashboard", {
       // load dashboard settings from backend
       gosa.io.Rpc.getInstance().cA("loadUserPreferences", "dashboard")
       .then(function(result) {
-        if (result) {
-          this.__settings = result;
-          var pluginsToLoad = this.__extractPluginsToLoad(result);
-          var partsLoaded = pluginsToLoad.parts.length === 0;
-          var scriptsLoaded = pluginsToLoad.scripts.length === 0;
-
-          var done = function() {
-            if (partsLoaded && scriptsLoaded) {
-              this.refresh(true);
-            }
-          }.bind(this);
-          if (pluginsToLoad.parts.length > 0) {
-            qx.Part.require(pluginsToLoad.parts, function() {
-              partsLoaded = true;
-              done();
-            }, this);
-          }
-          if (pluginsToLoad.scripts.length > 0) {
-            var loader = new qx.util.DynamicScriptLoader(pluginsToLoad.scripts);
-            loader.addListenerOnce("ready", function() {
-              scriptsLoaded = true;
-              done();
-            }, this);
-            loader.start();
-          } else {
-            done();
-          }
-        }
+        this.setDashboardConfiguration(result);
         this.__drawn = true;
       }, this);
     },
@@ -892,6 +866,55 @@ qx.Class.define("gosa.view.Dashboard", {
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error).open();
         });
+      }
+    },
+
+    /**
+     * Return the current dashboard configuration
+     * @return {Map}
+     */
+    getDashboardConfiguration: function() {
+      return this.__settings;
+    },
+
+    /**
+     * Set the dashboard configuration
+     * @param settings {Map|String} new settings as JSON-String or Map
+     */
+    setDashboardConfiguration: function(settings) {
+      if (settings) {
+        if (qx.lang.Type.isString(settings)) {
+          settings = qx.lang.Json.parse(settings);
+        }
+        this.__settings = settings;
+        var pluginsToLoad = this.__extractPluginsToLoad(settings);
+        var partsLoaded = pluginsToLoad.parts.length === 0;
+        var scriptsLoaded = pluginsToLoad.scripts.length === 0;
+
+        var done = function() {
+          if (partsLoaded && scriptsLoaded) {
+            if (this.isEditMode()) {
+              this.setModified(true);
+            }
+            this.refresh(true);
+          }
+        }.bind(this);
+        if (pluginsToLoad.parts.length > 0) {
+          qx.Part.require(pluginsToLoad.parts, function() {
+            partsLoaded = true;
+            done();
+          }, this);
+        }
+        if (pluginsToLoad.scripts.length > 0) {
+          var loader = new qx.util.DynamicScriptLoader(pluginsToLoad.scripts);
+          loader.addListenerOnce("ready", function() {
+            scriptsLoaded = true;
+            done();
+          }, this);
+          loader.start();
+        } else {
+          done();
+        }
       }
     },
 
