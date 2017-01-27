@@ -23,6 +23,17 @@ qx.Class.define("gosa.plugins.activity.Main", {
     this.getChildControl("title").setValue(this.tr("Recently changed items"));
     this.getChildControl("container").setLayout(new qx.ui.layout.VBox());
     this._model = new gosa.plugins.activity.model.SearchResult();
+
+    // Listen for object changes coming from the backend
+    gosa.io.Sse.getInstance().addListener("objectModified", this.refreshModel, this);
+    gosa.io.Sse.getInstance().addListener("objectCreated", this.refreshModel, this);
+    gosa.io.Sse.getInstance().addListener("objectRemoved", this.refreshModel, this);
+
+    this.addListener("appear", function() {
+      if (this.__updateQueued === true) {
+        this.refreshModel();
+      }
+    }, this);
   },
 
   /*
@@ -51,6 +62,7 @@ qx.Class.define("gosa.plugins.activity.Main", {
    */
   members : {
     _listController: null,
+    __updateQueued: null,
 
     // overridden
     _createChildControlImpl: function(id) {
@@ -110,26 +122,37 @@ qx.Class.define("gosa.plugins.activity.Main", {
         },
 
         sorter : function(a, b) {
-          return (a.getLastChanged().toTimeStamp() - b.getLastChanged().toTimeStamp());
+          return (b.getLastChanged().toTimeStamp() - a.getLastChanged().toTimeStamp());
         }
       }
     },
 
     draw: function() {
       this._model.bind("model", this.getChildControl("list"), "model");
+      this.refreshModel();
+    },
 
-      gosa.io.Rpc.getInstance().cA("search", gosa.Session.getInstance().getBase(), "sub", null, {
-        'fallback'  : true,
-        'order-by'  : "last-changed",
-        'order'     : "desc",
-        'limit'     : this.getMaxItems()
-      })
-      .then(this._model.updateModel, this._model)
-      .catch(function(error) {
-        this.error(error);
-        var d = new gosa.ui.dialogs.Error(error);
-        d.open();
-      }, this);
+    refreshModel: function() {
+      if (this.isSeeable()) {
+        gosa.io.Rpc.getInstance().cA("search", gosa.Session.getInstance().getBase(), "sub", null, {
+          'fallback' : true,
+          'order-by' : "last-changed",
+          'order' : "desc",
+          'limit' : this.getMaxItems(),
+          'secondary' : false
+        })
+        .then(this._model.updateModel, this._model)
+        .catch(function(error) {
+          this.error(error);
+          var d = new gosa.ui.dialogs.Error(error);
+          d.open();
+        }, this)
+        .finally(function() {
+          this.__updateQueued = false;
+        }, this);
+      } else {
+        this.__updateQueued = true;
+      }
     }
   },
 
