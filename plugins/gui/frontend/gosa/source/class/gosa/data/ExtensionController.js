@@ -48,21 +48,7 @@ qx.Class.define("gosa.data.ExtensionController", {
     removeExtension : function(extension, modify) {
       qx.core.Assert.assertString(extension);
 
-      var activeExts = this.__widgetController.getActiveExtensions();
-
-      // find dependencies
-      var dependencies = [];
-      var item;
-      for (var ext in this.__object.extensionDeps) {
-        if (this.__object.extensionDeps.hasOwnProperty(ext)) {
-          item = this.__object.extensionDeps[ext];
-          if (qx.lang.Array.contains(item, extension) && item && qx.lang.Array.contains(activeExts, ext) &&
-            gosa.data.TemplateRegistry.getInstance().hasTemplate(ext)) {
-            dependencies.push(ext);
-          }
-        }
-      }
-
+      var dependencies = this.__extensionFinder.getExistingDependencies(extension);
       if (dependencies.length > 0) {
         this._createRetractDependencyDialog(extension, dependencies);
       }

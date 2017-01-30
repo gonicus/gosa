@@ -105,9 +105,45 @@ qx.Class.define("gosa.data.ExtensionFinder", {
     },
 
     /**
+     * Finds all extensions that are dependent the stated one and that are currently in the object.
+     *
+     * @param extension {String} Name of the extension to find dependencies for
+     * @return {Array} List of extension names (might be empty)
+     */
+    getExistingDependencies : function(extension) {
+      return this.__getAllExtensionsDependentOn(extension).filter(this.isActiveExtension, this);
+    },
+
+    /**
+     * Checks if the given extension is currently attached to the object.
+     *
+     * @param extension {String} Name of the extension
+     * @returns {Boolean} If the extension is attached
+     */
+    isActiveExtension : function(extension) {
+      return !!this.__object.extensionTypes[extension];
+    },
+
+    /**
+     * Finds all extensions that are dependent on the stated extension.
+     *
+     * @param extension {String} Name of the extension
+     * @return {Array} Unique list of extension names, might be empty
+     */
+    __getAllExtensionsDependentOn : function(extension) {
+      var result = [];
+      gosa.util.Object.iterate(this.__object.extensionDeps, function(extName, value) {
+        if (qx.lang.Array.contains(value, extension) && !qx.lang.Array.contains(result, extName)) {
+          result.push(extName);
+        }
+      });
+      return result;
+    },
+
+    /**
      * Finds all extensions that should be in the object, but are not.
      *
-     * @param extension {String} Nme of the extension to find dependencies for
+     * @param extension {String} Name of the extension to find dependencies for
      * @return {Array} A list of extension dependency names that are not attached to the object at the moment
      */
     getMissingDependencies : function(extension) {

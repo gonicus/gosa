@@ -47,6 +47,7 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
      */
     onFoundDifferenceDuringReload : function(event) {
       var data = event.getData();
+      debugger;
       this.__widgetConfigurations = [];
 
       this.__processChanges(data.attributes.changed);
@@ -89,26 +90,54 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
     __processExtensions : function(data) {
       qx.core.Assert.assertMap(data);
 
-      var activeExtensions = this.__controller.getActiveExtensions();
+      this.__processAddedExtensions(data.add);
+      this.__processRetractedExtensions(data.removed);
+    },
 
-      data.added.forEach(function(ext) {
-        if (!qx.lang.Array.contains(activeExtensions, ext)) {
-          this.__controller.getExtensionController().addExtensionSilently(ext);
-        }
-      }, this);
+    /**
+     * @param addedExtensions {Array}
+     */
+    __processAddedExtensions: function(addedExtensions) {
+      qx.core.Assert.assertArray(addedExtensions);
+      addedExtensions.forEach(this.__addExtensionIfMissing, this);
+    },
 
+    /**
+     * @param extension {String}
+     */
+    __addExtensionIfMissing : function(extension) {
+      qx.core.Assert.assertString(extension);
+      if (!this.__controller.getExtensionFinder().isActiveExtension(extension)) {
+        this.__controller.getExtensionController().addExtensionSilently(extension);
+      }
+    },
+
+    /**
+     * @param retractedExtensions {Array}
+     */
+    __processRetractedExtensions : function(retractedExtensions) {
       var removed = [];
-      data.removed.forEach(function(ext) {
-        if (qx.lang.Array.contains(activeExtensions, ext)) {
-          var context = this.__controller.getContextByExtensionName(ext);
-          if (context && !context.isAppeared()) {
-            this.__controller.getExtensionController().removeExtension(ext, false);
-            removed.push(ext);
-          }
+      retractedExtensions.forEach(function(extensionName) {
+        if (this.__retractExtensionIfExists(extensionName)) {
+          removed.push(extensionName);
         }
       }, this);
+      qx.lang.Array.exclude(retractedExtensions, removed);
+    },
 
-      qx.lang.Array.exclude(data.removed, removed);
+    /**
+     * @param extension {String}
+     * @return {Boolean} If the extension was retracted
+     */
+    __retractExtensionIfExists : function(extension) {
+      qx.core.Assert.assertString(extension);
+
+      if (this.__controller.getExtensionFinder().isActiveExtension(extension)
+          && this.__controller.isExtensionAppeared(extension)) {
+        this.__controller.getExtensionController().removeExtension(extension, false);
+        return true;
+      }
+      return false;
     },
 
     /**
@@ -120,7 +149,9 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
       var widget, newVal;
       for (var attributeName in changes) {
         if (changes.hasOwnProperty(attributeName)) {
-          newVal = new qx.data.Array(qx.lang.Type.isArray(changes[attributeName]) ? changes[attributeName] : [changes[attributeName]]);
+          newVal = new qx.data.Array(qx.lang.Type.isArray(changes[attributeName])
+            ? changes[attributeName]
+            : [changes[attributeName]]);
           widget = this.__controller.getWidgetByAttributeName(attributeName);
 
           if (widget) {
@@ -136,7 +167,7 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
     },
 
     /**
-     * @param Added {Map} Hash map with new attribute values to the model (key is attribute name, value is the new value)
+     * @param added {Map} Hash map with new attribute values to the model (key is attribute name, value is the new value)
      */
     __processAdded : function(added) {
       qx.core.Assert.assertMap(added);

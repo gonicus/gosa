@@ -20,7 +20,7 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
 
   include : [gosa.data.MBidirectionalBinding],
 
-  construct: function(mods, exts, blocks, ext_dependencies, order) {
+  construct: function(mods, exts, blocks, extDependencies, order) {
     this.base(arguments, this.tr("Merge required"));
     this.set({
       resizable : true,
@@ -141,13 +141,13 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
         var tmp, state;
 
         // Disable all extension according to their dependencies
-        for (var ename in ext_dependencies) {
-          for (tmp in ext_dependencies[ename]) {
-            if (ext_dependencies[ename][tmp] === name) {
-              if (ename in extList) {
+        for (var extName in extDependencies) {
+          for (tmp in extDependencies[extName]) {
+            if (extDependencies[extName][tmp] === name) {
+              if (extName in extList) {
                 state = !enabled && left.getValue() || enabled && right.getValue();
-                extList[ename][0].setEnabled(state);
-                extList[ename][1].setEnabled(state);
+                extList[extName][0].setEnabled(state);
+                extList[extName][1].setEnabled(state);
               }
             }
           }
