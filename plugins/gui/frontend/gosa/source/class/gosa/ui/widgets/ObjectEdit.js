@@ -241,6 +241,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       this._tabView.getChildControl("bar").setMenu(this._toolMenu);
 
       this._createActionButtons();
+      this._createRetractMenu();
+      this._createExtendMenu();
       this.__updateToolMenuButtonVisibility();
     },
 
