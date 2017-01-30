@@ -22,9 +22,8 @@ qx.Class.define("gosa.Session",
 
     this.base(arguments);
 
-    //TODO: go SSE, maybe use Bus
-    //gosa.io.WebSocket.getInstance().addListener("objectModified", this._objectEvent, this);
-    //gosa.io.WebSocket.getInstance().addListener("objectRemoved", this._objectEvent, this);
+    gosa.io.Sse.getInstance().addListener("objectModified", this._objectEvent, this);
+    gosa.io.Sse.getInstance().addListener("objectRemoved", this._objectEvent, this);
   },
 
   properties: {
@@ -169,5 +168,15 @@ qx.Class.define("gosa.Session",
         document.location.reload();
       }, this);
     }
+  },
+
+  /*
+  *****************************************************************************
+     DESTRUCTOR
+  *****************************************************************************
+  */
+  destruct : function() {
+    gosa.io.Sse.getInstance().removeListener("objectModified", this._objectEvent, this);
+    gosa.io.Sse.getInstance().removeListener("objectRemoved", this._objectEvent, this);
   }
 });
