@@ -84,7 +84,6 @@ qx.Class.define("gosa.ui.Header", {
             decorator: null,
             selectionMode: "single"
           });
-          control.addListener("changeSelection", this._onChangeSelection, this);
           this.add(control, {flex: 1});
           this._listController = new qx.data.controller.List(null, control);
           this._listController.setDelegate(this.__getWindowDelegate());
@@ -106,16 +105,8 @@ qx.Class.define("gosa.ui.Header", {
         bindItem: function(controller, item, index) {
           controller.bindProperty("[1]", "object", null, item, index);
           controller.bindProperty("[0]", "window", null, item, index);
+          controller.bindProperty("[0].active", "selected", null, item, index);
         }
-      }
-    },
-
-    _onChangeSelection: function(ev) {
-      var selection = ev.getData();
-      if (selection.length > 0) {
-        var win = selection[0].getWindow();
-        win.show();
-        win.setActive(true);
       }
     },
 

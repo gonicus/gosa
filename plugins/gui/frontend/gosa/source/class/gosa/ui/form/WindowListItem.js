@@ -19,6 +19,19 @@ qx.Class.define("gosa.ui.form.WindowListItem", {
 
   /*
   *****************************************************************************
+     CONSTRUCTOR
+  *****************************************************************************
+  */
+  construct : function(label, icon, model) {
+    this.base(arguments, label, icon, model);
+
+    this.addListener("tap", function() {
+      this.getWindow().setActive(true);
+    }, this);
+  },
+
+  /*
+  *****************************************************************************
      PROPERTIES
   *****************************************************************************
   */
@@ -38,6 +51,12 @@ qx.Class.define("gosa.ui.form.WindowListItem", {
       check: "Object",
       nullable: true,
       apply: "_applyObject"
+    },
+
+    selected: {
+      check: "Boolean",
+      init: false,
+      apply: "_applySelected"
     }
   },
 
@@ -47,6 +66,17 @@ qx.Class.define("gosa.ui.form.WindowListItem", {
   *****************************************************************************
   */
   members : {
+
+    // property apply
+    _applySelected: function(value) {
+      if (value) {
+        this.addState("selected");
+      } else {
+        this.removeState("selected");
+      }
+    },
+
+    // property apply
     _applyObject: function(object) {
       if (object) {
         if (object instanceof gosa.ui.form.WorkflowItem) {
