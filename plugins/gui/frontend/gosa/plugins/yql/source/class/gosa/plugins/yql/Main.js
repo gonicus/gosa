@@ -169,6 +169,10 @@ qx.Class.define("gosa.plugins.yql.Main", {
       settings: {
         mandatory: ["query"],
         properties: {
+          title: {
+            type: "String",
+            title: qx.locale.Manager.tr("Title")
+          },
           query: {
             type: "String",
             title: qx.locale.Manager.tr("YQL query")
