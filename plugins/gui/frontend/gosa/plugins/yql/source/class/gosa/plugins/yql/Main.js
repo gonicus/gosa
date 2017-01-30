@@ -175,7 +175,8 @@ qx.Class.define("gosa.plugins.yql.Main", {
           },
           query: {
             type: "String",
-            title: qx.locale.Manager.tr("YQL query")
+            title: qx.locale.Manager.tr("YQL query"),
+            multiline: true
           },
           mapping: {
             type: "Json",
