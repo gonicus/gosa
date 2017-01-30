@@ -626,12 +626,11 @@ class Object(object):
 
                 # Adapt status from dependent properties.
                 for propname in props[key]['depends_on']:
-                    if props[key]['value'] != props[key]['orig_value']:
-                        old = props[key]['commit_status']
-                        props[key]['commit_status'] |= props[propname]['status'] & STATUS_CHANGED
-                        props[key]['commit_status'] |= props[propname]['commit_status'] & STATUS_CHANGED
-                        if props[key]['commit_status'] != old:
-                            required = True
+                    old = props[key]['commit_status']
+                    props[key]['commit_status'] |= props[propname]['status'] & STATUS_CHANGED
+                    props[key]['commit_status'] |= props[propname]['commit_status'] & STATUS_CHANGED
+                    if props[key]['commit_status'] != old:
+                        required = True
 
         # Collect values by store and process the property filters
         collectedAttrs = {}
@@ -642,7 +641,7 @@ class Object(object):
                 continue
 
             # Do not save untouched values
-            if not props[key]['auto'] and not props[key]['commit_status'] & STATUS_CHANGED:
+            if not props[key]['auto'] and not props[key]['commit_status'] & STATUS_CHANGED and not props[key]['value'] != props[key]['orig_value']:
                 continue
 
             # Get the new value for the property and execute the out-filter

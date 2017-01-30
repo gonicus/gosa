@@ -502,10 +502,12 @@ class ObjectProxy(object):
         #     raise ProxyException(C.make_error('OBJECT_EXTENSION_DEFINED', extension=extension))
 
         # Ensure that all precondition for this extension are fulfilled
-        oTypes = self.__factory.getObjectTypes()
-        for r_ext in oTypes[extension]['requires']:
-            if not r_ext in self.__extensions or self.__extensions[r_ext] is None:
-                raise ProxyException(C.make_error('OBJECT_EXTENSION_DEPENDS', extension=extension, missing=r_ext))
+        object_types = self.__factory.getObjectTypes()
+        for required_extension in object_types[extension]['requires']:
+            if not required_extension in self.__extensions or self.__extensions[required_extension] is None:
+                raise ProxyException(C.make_error('OBJECT_EXTENSION_DEPENDS',
+                                                  extension=extension,
+                                                  missing=required_extension))
 
         # Check Acls
         # Required is the 'c' (create) right for the extension on the current object.
@@ -521,7 +523,12 @@ class ObjectProxy(object):
             self.__extensions[extension] = self.__retractions[extension]
             del self.__retractions[extension]
         else:
-            self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid, mode="extend")
+            mode = "extend"
+            current_object = ObjectProxy(self.dn)
+            if current_object.__extensions[extension]:
+                mode = "update"
+
+            self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid, mode=mode)
             self.__extensions[extension].parent = self
             self.__extensions[extension]._owner = self.__current_user
 
@@ -805,17 +812,17 @@ class ObjectProxy(object):
 
         # Handle commits
         save_props = self.__base.commit()
-        for extension in [ext for ext in self.__extensions.values() if ext]:
-
-            # Populate the base uuid to the extensions
-            if extension.uuid and extension.uuid != self.__base.uuid:
-                raise ProxyException(C.make_error('OBJECT_UUID_MISMATCH',
-                                                  b_uuid=self.__base.uuid,
-                                                  e_uuid=extension.uuid))
-            if not extension.uuid:
-                extension.uuid = self.__base.uuid
-            extension.dn = self.__base.dn
-            save_props.update(extension.commit(save_props))
+        for extension in self.__extensions.values():
+            if extension:
+                # Populate the base uuid to the extensions
+                if extension.uuid and extension.uuid != self.__base.uuid:
+                    raise ProxyException(C.make_error('OBJECT_UUID_MISMATCH',
+                                                      b_uuid=self.__base.uuid,
+                                                      e_uuid=extension.uuid))
+                if not extension.uuid:
+                    extension.uuid = self.__base.uuid
+                extension.dn = self.__base.dn
+                save_props.update(extension.commit(save_props))
 
         # Skip further actions if we're in create mode
         if self.__base_mode == "create":
