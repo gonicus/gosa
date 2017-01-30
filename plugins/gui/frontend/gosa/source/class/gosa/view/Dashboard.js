@@ -32,14 +32,37 @@ qx.Class.define("gosa.view.Dashboard", {
     this.__rows = 12;
     this.__rowHeight = 60;
     this.__patchedThemes = {};
+    this.__desktopWidthOffset = 0;
 
     this.addListener("appear", function() {
       if (!this.__drawn) {
         this.draw();
       }
+      var bounds = this.getBounds();
+      this.__desktopWidthOffset = this.__desktopBounds.width - bounds.width;
     }, this);
 
     gosa.io.Sse.getInstance().addListener("pluginUpdate", this._onPluginUpdate, this);
+
+    // as we are using fixed widths here we cannot rely on the bounds of this widget
+    // instead we relate our width calculation to the surrounding desktop
+    var desktop = gosa.ui.controller.Objects.getInstance().getDesktop();
+    desktop.addListener("resize", this._onGridResize, this);
+    this.__desktopBounds = desktop.getBounds();
+    if (!this.__desktopBounds) {
+      desktop.addListenerOnce("appear", function() {
+        this.__desktopBounds = desktop.getBounds();
+      }, this);
+    }
+  },
+
+  /*
+  *****************************************************************************
+     EVENTS
+  *****************************************************************************
+  */
+  events : {
+    "cellWidthChanged": "qx.event.type.Data"
   },
 
   /*
@@ -77,6 +100,7 @@ qx.Class.define("gosa.view.Dashboard", {
     __columns: null,
     __rows: null,
     __rowHeight: null,
+    __desktopWidthOffset: null,
 
     // overridden
     _applyEditMode: function(value) {
@@ -583,7 +607,6 @@ qx.Class.define("gosa.view.Dashboard", {
         var spacer = new gosa.ui.core.GridCellDropbox();
         spacer.addState("invisible");
         board.add(spacer, {row: 0, column: i});
-        // this.__gridLayout.setColumnFlex(i, 1);
         this.__gridLayout.setColumnWidth(i, columnWidth);
         this.__gridLayout.setColumnMinWidth(i, columnWidth);
         this.__gridLayout.setColumnMaxWidth(i, columnWidth);
@@ -593,6 +616,23 @@ qx.Class.define("gosa.view.Dashboard", {
         this.__gridLayout.setRowHeight(row, this.__rowHeight);
         this.__gridLayout.setRowMinHeight(row, this.__rowHeight);
         this.__gridLayout.setRowMaxHeight(row, this.__rowHeight);
+      }
+    },
+
+    _onGridResize: function(ev) {
+      var board = this.getChildControl("board");
+      var availableWidth = ev.getData().width - this.__desktopWidthOffset;
+      // calculate column width
+      var padding = board.getPaddingLeft() + board.getPaddingRight();
+      var columnWidth = Math.floor((availableWidth - padding - ((this.__columns - 1) * this.__gridLayout.getSpacingX())) / this.__columns);
+
+      if (columnWidth !== this.__gridLayout.getColumnWidth(0)) {
+        for (var i = 0; i < this.__columns; i++) {
+          this.__gridLayout.setColumnWidth(i, columnWidth);
+          this.__gridLayout.setColumnMinWidth(i, columnWidth);
+          this.__gridLayout.setColumnMaxWidth(i, columnWidth);
+        }
+        this.fireDataEvent("cellWidthChanged", columnWidth);
       }
     },
 

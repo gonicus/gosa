@@ -39,8 +39,7 @@ qx.Theme.define("gosa.plugins.workflowstarter.Appearance", {
       style: function() {
         return {
           marginLeft: 10,
-          marginRight: 10,
-          maxWidth: 250
+          marginRight: 10
         }
       }
     }

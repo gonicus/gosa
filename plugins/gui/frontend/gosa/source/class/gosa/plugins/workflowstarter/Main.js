@@ -33,6 +33,8 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
     this.addListener("pointerup", this._onPointerUp);
 
     this.addListener("layoutChanged", this._onLayoutChanged, this);
+
+    gosa.view.Dashboard.getInstance().addListener("cellWidthChanged", this.__updateDescriptionWidth, this);
   },
 
   /*
@@ -64,6 +66,7 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
    */
   members : {
     _listController: null,
+    __grid: null,
 
     _forwardStates: {
       hovered: false
@@ -76,6 +79,10 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
     */
 
     _onLayoutChanged: function() {
+      if (!this.__grid) {
+        this.__grid = this.getLayoutParent().getLayout();
+      }
+      this.__updateDescriptionWidth();
       var props = this.getLayoutProperties();
       var control = this.getChildControl("workflow-item");
       if (props.colSpan === 2) {
@@ -87,6 +94,21 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
         control.getChildControl("description").exclude();
         control.setIconPosition("top");
       }
+      // cellHeight
+      var rowSpan = props.rowSpan||1;
+      var cellHeight = this.__grid.getRowHeight(props.row) * rowSpan + this.__grid.getSpacingY() * (rowSpan - 1);
+      this.setMaxHeight(cellHeight);
+    },
+
+    __updateDescriptionWidth: function() {
+      if (!this.__grid) {
+        this.__grid = this.getLayoutParent().getLayout();
+      }
+      var control = this.getChildControl("workflow-item").getChildControl("description");
+      var props = this.getLayoutProperties();
+      var colSpan = props.colSpan || 1;
+      var cellWidth = this.__grid.getColumnWidth(props.column) * colSpan + this.__grid.getSpacingX() * (colSpan -1);
+      control.setMaxWidth(cellWidth - 105);
     },
 
     /**
@@ -236,6 +258,16 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
 
     draw: function() {}
 
+  },
+
+  /*
+  *****************************************************************************
+     DESTRUCTOR
+  *****************************************************************************
+  */
+  destruct : function() {
+    this.__grid = null;
+    gosa.view.Dashboard.getInstance().removeListener("cellWidthChanged", this.__updateDescriptionWidth, this);
   },
 
   defer: function () {
