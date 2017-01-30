@@ -16,7 +16,7 @@ qx.Mixin.define("gosa.ui.dialogs.MController", {
 
   properties : {
     controller : {
-      check : "gosa.data.ObjectEditController",
+      check : "gosa.data.controller.ObjectEdit",
       init : null,
       event : "changeController"
     }

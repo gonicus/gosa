@@ -11,16 +11,16 @@ import re
 import os
 import datetime
 import shlex
-import time
 import gosa.backend.objects.renderer
 from json import loads, dumps
+
+from sqlalchemy import desc
 from zope.interface import implementer
 from gosa.common import Environment
 from gosa.common.components import Command
 from gosa.common.components import Plugin
 from gosa.common.utils import N_
 from gosa.common.components import PluginRegistry
-from gosa.common.components.jsonrpc_utils import Binary
 from gosa.backend.objects import ObjectProxy
 from gosa.backend.objects.factory import ObjectFactory
 from gosa.common.handler import IInterfaceHandler
@@ -515,11 +515,7 @@ class RPCMethods(Plugin):
             order_by = "_last_changed"
             if fltr['order-by'] == "last-changed":
                 order_by = "_last_modified"
-            order_by = getattr(ObjectInfoIndex, order_by)
-            if is_desc:
-                query.desc()
-            else:
-                query.asc()
+            order_by = desc(getattr(ObjectInfoIndex, order_by)) if is_desc else getattr(ObjectInfoIndex, order_by)
 
         # Perform primary query and get collect the results
         squery = []

@@ -183,7 +183,7 @@ qx.Class.define("gosa.view.Tree", {
             table.setLayoutProperties({top: bounds.height, left: 0, bottom: 0, right: 0});
             return true;
           };
-          this.getChildControl("listcontainer").add(table, {edge: 0});
+          this.getChildControl("listcontainer").add(table, {top: 42, bottom: 0, left: 0, right: 0});
           getToolbarHeight();
           table.addListener('dblclick', this._onOpenObject, this);
 

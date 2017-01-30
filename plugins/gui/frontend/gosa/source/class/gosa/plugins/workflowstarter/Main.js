@@ -20,9 +20,6 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
 
   construct : function() {
     this.base(arguments);
-    var layout = new qx.ui.layout.Atom();
-    layout.setCenter(true);
-    this.getChildControl("content").setLayout(layout);
     this.addListener("tap", function() {
       if (this.getChildControl("content").isEnabled()) {
         gosa.ui.controller.Objects.getInstance().startWorkflow(this.getChildControl("workflow-item"));
@@ -36,6 +33,8 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
     this.addListener("pointerup", this._onPointerUp);
 
     this.addListener("layoutChanged", this._onLayoutChanged, this);
+
+    gosa.view.Dashboard.getInstance().addListener("cellWidthChanged", this.__updateDescriptionWidth, this);
   },
 
   /*
@@ -67,6 +66,11 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
    */
   members : {
     _listController: null,
+    __grid: null,
+
+    _forwardStates: {
+      hovered: false
+    },
 
     /*
     ---------------------------------------------------------------------------
@@ -75,9 +79,12 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
     */
 
     _onLayoutChanged: function() {
+      if (!this.__grid) {
+        this.__grid = this.getLayoutParent().getLayout();
+      }
+      this.__updateDescriptionWidth();
       var props = this.getLayoutProperties();
       var control = this.getChildControl("workflow-item");
-      console.log(props);
       if (props.colSpan === 2) {
         // wide mode => show description and icon on left position
         control.getChildControl("description").show();
@@ -87,6 +94,21 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
         control.getChildControl("description").exclude();
         control.setIconPosition("top");
       }
+      // cellHeight
+      var rowSpan = props.rowSpan||1;
+      var cellHeight = this.__grid.getRowHeight(props.row) * rowSpan + this.__grid.getSpacingY() * (rowSpan - 1);
+      this.setMaxHeight(cellHeight);
+    },
+
+    __updateDescriptionWidth: function() {
+      if (!this.__grid) {
+        this.__grid = this.getLayoutParent().getLayout();
+      }
+      var control = this.getChildControl("workflow-item").getChildControl("description");
+      var props = this.getLayoutProperties();
+      var colSpan = props.colSpan || 1;
+      var cellWidth = this.__grid.getColumnWidth(props.column) * colSpan + this.__grid.getSpacingX() * (colSpan -1);
+      control.setMaxWidth(cellWidth - 105);
     },
 
     /**
@@ -201,9 +223,11 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
       switch(id) {
 
         case "workflow-item":
-          control = new gosa.ui.form.WorkflowItem();
+          control = new gosa.ui.form.WorkflowItem(true);
           this.bind("workflow", control, "id");
-          control.getChildControl("content").getLayout().setAlignX("center");
+          var layout = new qx.ui.layout.Atom();
+          layout.setCenter(true);
+          this.getChildControl("content").setLayout(layout);
           this.getChildControl("content").add(control);
           this.getChildControl("content").setAnonymous(true);
           control.setAnonymous(true);
@@ -234,6 +258,16 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
 
     draw: function() {}
 
+  },
+
+  /*
+  *****************************************************************************
+     DESTRUCTOR
+  *****************************************************************************
+  */
+  destruct : function() {
+    this.__grid = null;
+    gosa.view.Dashboard.getInstance().removeListener("cellWidthChanged", this.__updateDescriptionWidth, this);
   },
 
   defer: function () {

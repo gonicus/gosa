@@ -72,7 +72,13 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
       check: "Boolean",
       init: false,
       apply: "_applyEditMode"
-    }
+    },
+
+    title: {
+      check: "String",
+      nullable: true,
+      apply: "_applyTitle"
+    },
   },
     
   members : {
@@ -108,12 +114,13 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
 
         case "title":
           control = new qx.ui.basic.Label();
-          this.getChildControl("container").add(control);
+          this.getChildControl("container").addAt(control, 0);
           break;
 
         case "content":
           control = new qx.ui.container.Composite(new qx.ui.layout.Grow());
-          this.getChildControl("container").add(control, {flex: 1});
+          control.setAllowGrowX(true);
+          this.getChildControl("container").addAt(control, 1, {flex: 1});
           break;
 
       }

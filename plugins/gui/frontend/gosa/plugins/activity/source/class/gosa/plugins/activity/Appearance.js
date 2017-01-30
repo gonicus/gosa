@@ -31,12 +31,18 @@ qx.Theme.define("gosa.plugins.activity.Appearance", {
       }
     },
 
-    "gosa-plugins-actitivies-item": "search-list-item",
+    "gosa-plugins-actitivies-item": {
+      include: "search-list-item",
+      alias: "search-list-item"
+    },
     "gosa-plugins-actitivies-item/icon": {
       style: function() {
         return {
           width: 30,
           height: 30,
+          marginRight: 10,
+          alignY: "middle",
+          alignX: "center",
           scale: true
         }
       }

@@ -34,6 +34,13 @@ Testing
 **Hint**
 For debugging tests in PyCharm/Idea coverage must be turned of. Just comment out the `addopts` property on pytest.ini
 
+SQL Alchemy
+===========
+
+SQL ausgeben für ein bestimmtes query_result:
+from sqlalchemy.dialects import postgresql
+print(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+
 DBus access
 ===========
 

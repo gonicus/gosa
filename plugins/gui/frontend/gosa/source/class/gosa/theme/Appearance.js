@@ -472,7 +472,7 @@ qx.Theme.define("gosa.theme.Appearance", {
       style: function() {
         return {
           decorator: "table",
-          margin: [48, 6, 6, 6]
+          margin: 6
         };
       }
     },

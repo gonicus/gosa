@@ -31,52 +31,15 @@ qx.Theme.define("gosa.plugins.workflowstarter.Appearance", {
     },
 
     "gosa-dashboard-widget-workflowstarter/workflow-item": {
-      include: "gosa-workflow-item",
-      alias: "gosa-workflow-item",
-
-      style: function() {
-        return {
-          iconPosition: "top",
-          allowGrowX: true,
-          allowGrowY: true,
-          padding: 0,
-          margin: 0,
-          cursor: "default",
-          backgroundColor: "transparent"
-        }
-      }
+      include : "gosa-workflow-item",
+      alias : "gosa-workflow-item"
     },
+
     "gosa-dashboard-widget-workflowstarter/workflow-item/content": {
       style: function() {
         return {
           marginLeft: 10,
-          alignX: "center"
-        }
-      }
-    },
-    "gosa-dashboard-widget-workflowstarter/workflow-item/label": {
-      style: function() {
-        return {
-          alignY: "middle",
-          alignX: "center",
-          paddingTop: 8
-        }
-      }
-    },
-    "gosa-dashboard-widget-workflowstarter/workflow-item/icon": {
-      style: function() {
-        return {
-          alignY: "middle",
-          alignX: "center"
-        }
-      }
-    },
-    "gosa-dashboard-widget-workflowstarter/workflow-item/description": {
-      style: function() {
-        return {
-          alignY: "middle",
-          alignX: "center",
-          font: "small"
+          marginRight: 10
         }
       }
     }

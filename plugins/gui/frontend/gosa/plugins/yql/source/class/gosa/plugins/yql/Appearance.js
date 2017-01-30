@@ -29,6 +29,45 @@ qx.Theme.define("gosa.plugins.yql.Appearance", {
           decorator       : null
         }
       }
+    },
+
+    "yql-listitem": {
+      style: function(states) {
+        return {
+          decorator: "listitem",
+          backgroundColor: states.hovered ? "hovered" : "transparent",
+          padding: [5, 0]
+        }
+      }
+    },
+
+    "yql-listitem/label": {
+      style: function() {
+        return {
+          font: "bold"
+        }
+      }
+    },
+
+    "yql-listitem/icon": {
+      style: function() {
+        return {
+          width: 30,
+          height: 30,
+          scale: true,
+          marginRight: 10,
+          alignY: "middle",
+          alignX: "center"
+        }
+      }
+    },
+
+    "yql-listitem/description": {
+      style: function() {
+        return {
+          font: "small"
+        }
+      }
     }
   }
 });

@@ -21,13 +21,13 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
 
   /**
    * @param object {gosa.proxy.Object}
-   * @param controller {gosa.data.ObjectEditController}
+   * @param controller {gosa.data.controller.ObjectEdit}
    */
   construct : function(object, controller) {
     this.base(arguments);
 
     qx.core.Assert.assertInstance(object, gosa.proxy.Object);
-    qx.core.Assert.assertInstance(controller, gosa.data.ObjectEditController);
+    qx.core.Assert.assertInstance(controller, gosa.data.controller.ObjectEdit);
     this.__obj = object;
     this.__controller = controller;
     this.__modifiedValues = {};

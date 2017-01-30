@@ -302,12 +302,6 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
           height += diff;
         }
 
-        if (height < hint.minHeight) {
-          height = hint.minHeight;
-        } else if (height > hint.maxHeight) {
-          height = hint.maxHeight;
-        }
-
         if (rowDiff) {
           if (resizeActive & this.RESIZE_TOP) {
             top += start.height - height;
@@ -371,12 +365,6 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
           width -= diff;
         } else {
           width += diff;
-        }
-
-        if (width < hint.minWidth) {
-          width = hint.minWidth;
-        } else if (width > hint.maxWidth) {
-          width = hint.maxWidth;
         }
 
         if (colDiff) {

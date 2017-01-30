@@ -20,14 +20,15 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
   implement : [qx.ui.form.IModel],
   include: [qx.ui.form.MModelProperty],
   
-  construct : function() {
+  construct : function(skipHover) {
     this.base(arguments);
     var layout = new qx.ui.layout.HBox(0);
-    layout.setAlignY("middle");
     this._setLayout(layout);
 
-    this.addListener("mouseover", this._onMouseOver, this);
-    this.addListener("mouseout", this._onMouseOut, this);
+    if (!skipHover) {
+      this.addListener("mouseover", this._onMouseOver, this);
+      this.addListener("mouseout", this._onMouseOut, this);
+    }
   },
     
   properties : {
@@ -183,6 +184,18 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
           this._addAt(control, 0);
           break;
 
+        case "throbber":
+          control = new gosa.ui.Throbber();
+          this.bind("iconSize", control, "size");
+          control.exclude();
+          control.bind("visibility", this.getChildControl("icon"), "visibility", {
+            converter: function(value) {
+              return ['hidden', 'excluded'].indexOf(value) >= 0 ? 'visible' : 'excluded';
+            }
+          });
+          this._addAt(control, 1);
+          break;
+
         case "content":
           control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
           control.setAnonymous(true);
@@ -208,18 +221,6 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
           if (!this.getDescription()) {
             control.exclude();
           }
-          break;
-
-        case "throbber":
-          control = new gosa.ui.Throbber();
-          this.bind("iconSize", control, "size");
-          control.exclude();
-          control.bind("visibility", this.getChildControl("icon"), "visibility", {
-            converter: function(value) {
-              return ['hidden', 'excluded'].indexOf(value) >= 0 ? 'visible' : 'excluded';
-            }
-          });
-          this._addAt(control, 1);
           break;
 
       }

@@ -29,17 +29,20 @@ qx.Class.define("gosa.ui.dialogs.RpcError", {
 
     var ok = gosa.ui.base.Buttons.getOkButton();
     ok.addListener("execute", this.close, this);
-    this.addButton(ok);
+    ok.setAppearance("button-danger");
 
-    // var retry = gosa.ui.base.Buttons.getButton(this.tr("Retry"), "actions/dialog-retry.png");
-    // retry.addListener("execute", function(){
-    //     this.close();
-    //     this.fireEvent("retry");
-    // }, this);
-    // this.addButton(retry);
+    this.addButton(ok);
   },
 
   events: {
     "retry" : "qx.event.type.Event"
+  },
+
+  properties : {
+    //overridden
+    appearance : {
+      refine : true,
+      init : "window-error"
+    }
   }
 });

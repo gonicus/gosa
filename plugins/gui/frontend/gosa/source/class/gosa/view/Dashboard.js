@@ -32,14 +32,37 @@ qx.Class.define("gosa.view.Dashboard", {
     this.__rows = 12;
     this.__rowHeight = 60;
     this.__patchedThemes = {};
+    this.__desktopWidthOffset = 0;
 
     this.addListener("appear", function() {
       if (!this.__drawn) {
         this.draw();
       }
+      var bounds = this.getBounds();
+      this.__desktopWidthOffset = this.__desktopBounds.width - bounds.width;
     }, this);
 
     gosa.io.Sse.getInstance().addListener("pluginUpdate", this._onPluginUpdate, this);
+
+    // as we are using fixed widths here we cannot rely on the bounds of this widget
+    // instead we relate our width calculation to the surrounding desktop
+    var desktop = gosa.ui.controller.Objects.getInstance().getDesktop();
+    desktop.addListener("resize", this._onGridResize, this);
+    this.__desktopBounds = desktop.getBounds();
+    if (!this.__desktopBounds) {
+      desktop.addListenerOnce("appear", function() {
+        this.__desktopBounds = desktop.getBounds();
+      }, this);
+    }
+  },
+
+  /*
+  *****************************************************************************
+     EVENTS
+  *****************************************************************************
+  */
+  events : {
+    "cellWidthChanged": "qx.event.type.Data"
   },
 
   /*
@@ -77,6 +100,7 @@ qx.Class.define("gosa.view.Dashboard", {
     __columns: null,
     __rows: null,
     __rowHeight: null,
+    __desktopWidthOffset: null,
 
     // overridden
     _applyEditMode: function(value) {
@@ -268,7 +292,8 @@ qx.Class.define("gosa.view.Dashboard", {
         widgets.forEach(function(widget) {
           if (!gosa.data.DashboardController.getWidgetRegistry()[widget.provides.namespace]) {
             var displayName = widget.info.name;
-            var button = new qx.ui.menu.Button(displayName);
+            var icon = widget.info.icon ? widget.info.icon+"/22" : null;
+            var button = new qx.ui.menu.Button(displayName, icon);
             button.setUserData("namespace", widget.provides.namespace);
             menu.add(button);
             button.addListener("execute", function() {
@@ -567,18 +592,47 @@ qx.Class.define("gosa.view.Dashboard", {
      * pre-filling with spacers to have a x-col grid
      */
     __addFirstSpacerRow: function() {
+
       var board = this.getChildControl("board");
+      var bounds = board.getBounds();
+      if (!bounds) {
+        board.addListenerOnce("appear", this.__addFirstSpacerRow, this);
+        return;
+      }
+      // calculate column width
+      var padding = board.getPaddingLeft() + board.getPaddingRight();
+      var columnWidth = Math.floor((bounds.width - padding - ((this.__columns - 1) * this.__gridLayout.getSpacingX())) / this.__columns);
+
       for(var i=0; i<this.__columns; i++) {
         var spacer = new gosa.ui.core.GridCellDropbox();
         spacer.addState("invisible");
         board.add(spacer, {row: 0, column: i});
-        this.__gridLayout.setColumnFlex(i, 1);
+        this.__gridLayout.setColumnWidth(i, columnWidth);
+        this.__gridLayout.setColumnMinWidth(i, columnWidth);
+        this.__gridLayout.setColumnMaxWidth(i, columnWidth);
       }
       // set row heights
       for (var row=1; row < this.__rows; row++) {
         this.__gridLayout.setRowHeight(row, this.__rowHeight);
         this.__gridLayout.setRowMinHeight(row, this.__rowHeight);
         this.__gridLayout.setRowMaxHeight(row, this.__rowHeight);
+      }
+    },
+
+    _onGridResize: function(ev) {
+      var board = this.getChildControl("board");
+      var availableWidth = ev.getData().width - this.__desktopWidthOffset;
+      // calculate column width
+      var padding = board.getPaddingLeft() + board.getPaddingRight();
+      var columnWidth = Math.floor((availableWidth - padding - ((this.__columns - 1) * this.__gridLayout.getSpacingX())) / this.__columns);
+
+      if (columnWidth !== this.__gridLayout.getColumnWidth(0)) {
+        for (var i = 0; i < this.__columns; i++) {
+          this.__gridLayout.setColumnWidth(i, columnWidth);
+          this.__gridLayout.setColumnMinWidth(i, columnWidth);
+          this.__gridLayout.setColumnMaxWidth(i, columnWidth);
+        }
+        this.fireDataEvent("cellWidthChanged", columnWidth);
       }
     },
 
@@ -591,34 +645,7 @@ qx.Class.define("gosa.view.Dashboard", {
       // load dashboard settings from backend
       gosa.io.Rpc.getInstance().cA("loadUserPreferences", "dashboard")
       .then(function(result) {
-        if (result) {
-          this.__settings = result;
-          var pluginsToLoad = this.__extractPluginsToLoad(result);
-          var partsLoaded = pluginsToLoad.parts.length === 0;
-          var scriptsLoaded = pluginsToLoad.scripts.length === 0;
-
-          var done = function() {
-            if (partsLoaded && scriptsLoaded) {
-              this.refresh(true);
-            }
-          }.bind(this);
-          if (pluginsToLoad.parts.length > 0) {
-            qx.Part.require(pluginsToLoad.parts, function() {
-              partsLoaded = true;
-              done();
-            }, this);
-          }
-          if (pluginsToLoad.scripts.length > 0) {
-            var loader = new qx.util.DynamicScriptLoader(pluginsToLoad.scripts);
-            loader.addListenerOnce("ready", function() {
-              scriptsLoaded = true;
-              done();
-            }, this);
-            loader.start();
-          } else {
-            done();
-          }
-        }
+        this.__setDashboardConfiguration(result);
         this.__drawn = true;
       }, this);
     },
@@ -879,6 +906,66 @@ qx.Class.define("gosa.view.Dashboard", {
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error).open();
         });
+      }
+    },
+
+    /**
+     * Return the current dashboard configuration
+     * @return {Map}
+     */
+    getDashboardConfiguration: function() {
+      return this.__settings;
+    },
+
+    /**
+     * Set the dashboard configuration. Only working in edit mode.
+     *
+     * @param settings {Map|String} new settings as JSON-String or Map
+     */
+    setDashboardConfiguration: function(settings) {
+      if (this.isEditMode()) {
+        if (qx.lang.Type.isString(settings)) {
+          settings = qx.lang.Json.parse(settings);
+        }
+        this.__setDashboardConfiguration(settings);
+      }
+    },
+
+    /**
+     * Set the dashboard configuration
+     * @param settings {Map} new settings
+     */
+    __setDashboardConfiguration: function(settings) {
+      if (settings) {
+        this.__settings = settings;
+        var pluginsToLoad = this.__extractPluginsToLoad(settings);
+        var partsLoaded = pluginsToLoad.parts.length === 0;
+        var scriptsLoaded = pluginsToLoad.scripts.length === 0;
+
+        var done = function() {
+          if (partsLoaded && scriptsLoaded) {
+            if (this.isEditMode()) {
+              this.setModified(true);
+            }
+            this.refresh(true);
+          }
+        }.bind(this);
+        if (pluginsToLoad.parts.length > 0) {
+          qx.Part.require(pluginsToLoad.parts, function() {
+            partsLoaded = true;
+            done();
+          }, this);
+        }
+        if (pluginsToLoad.scripts.length > 0) {
+          var loader = new qx.util.DynamicScriptLoader(pluginsToLoad.scripts);
+          loader.addListenerOnce("ready", function() {
+            scriptsLoaded = true;
+            done();
+          }, this);
+          loader.start();
+        } else {
+          done();
+        }
       }
     },
 

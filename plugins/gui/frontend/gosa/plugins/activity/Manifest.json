@@ -18,7 +18,8 @@
     ],
 
     "version" : "3.0",
-    "qooxdoo-versions": ["5.1"]
+    "qooxdoo-versions": ["5.1"],
+    "icon": "@Ligature/exchange"
   },
   
   "provides" : 

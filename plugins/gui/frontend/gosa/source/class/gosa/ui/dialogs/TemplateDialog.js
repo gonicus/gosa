@@ -23,12 +23,12 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
 
   /**
    * @param template {String} The unparsed dialog template
-   * @param controller {gosa.data.ObjectEditController}
+   * @param controller {gosa.data.controller.ObjectEdit}
    * @param extension {String}
    */
   construct : function(template, controller, extension) {
     qx.core.Assert.assertObject(template);
-    qx.core.Assert.assertInstance(controller, gosa.data.ObjectEditController);
+    qx.core.Assert.assertInstance(controller, gosa.data.controller.ObjectEdit);
     qx.core.Assert.assertString(extension);
 
     this._parsedTemplate = template;
