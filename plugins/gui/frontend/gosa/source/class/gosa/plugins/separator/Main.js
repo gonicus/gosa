@@ -34,12 +34,6 @@ qx.Class.define("gosa.plugins.separator.Main", {
       init: "gosa-dashboard-widget-separator"
     },
 
-    title: {
-      check: "String",
-      nullable: true,
-      apply: "_applyTitle"
-    },
-
     borderPosition: {
       check: ["top", "bottom", "none"],
       init: "none",
@@ -55,17 +49,6 @@ qx.Class.define("gosa.plugins.separator.Main", {
   members : {
 
     // property apply
-    _applyTitle: function(value) {
-      var control = this.getChildControl("title");
-      if (value) {
-        control.setValue(value);
-        control.show();
-      } else {
-        control.exclude();
-      }
-    },
-
-    // property apply
     _applyBorderPosition: function(value, old) {
       if (old !== "none") {
         this.removeState("border"+old);
@@ -75,23 +58,9 @@ qx.Class.define("gosa.plugins.separator.Main", {
       }
     },
 
-    // overridden
-    _createChildControlImpl: function(id) {
-      var control;
-
-      switch(id) {
-
-        case "title":
-          control = new qx.ui.basic.Label();
-          this.getChildControl("container").add(control, {flex: 1});
-          break;
-
-      }
-
-      return control || this.base(arguments, id);
-    },
-
-    draw: function() {}
+    draw: function() {
+      this.getChildControl("title").setLayoutProperties({flex: 1});
+    }
   },
 
   defer: function () {

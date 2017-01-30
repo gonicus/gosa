@@ -37,6 +37,7 @@
       "column" : 4
     },
     "settings" : {
+      "title": "Heise News:",
       "query" : " select title, description, link from feed where url='https://www.heise.de/newsticker/heise.rdf' limit 25",
       "mapping" : {
         "description" : "description",
@@ -55,6 +56,7 @@
       "column" : 2
     },
     "settings" : {
+      "title": "Git commit log:",
       "refreshRate" : 60,
       "query" : "select title, link.href, author.name, thumbnail.url from atom where url='https://github.com/gonicus/gosa/commits/master.atom' limit 10",
       "mapping" : {

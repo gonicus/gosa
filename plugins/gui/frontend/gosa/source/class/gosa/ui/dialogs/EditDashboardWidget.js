@@ -121,7 +121,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
 
           default:
             // default (used for e.g. string type)
-            formItem = new qx.ui.form.TextArea();
+            formItem = typeSettings.multiline === true ? new qx.ui.form.TextArea() : new qx.ui.form.TextField();
             validator = this.validationWrapper(type, mandatory);
             break;
         }
