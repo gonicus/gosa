@@ -22,12 +22,11 @@ import traceback
 import logging
 import tornado.web
 import time
-from gosa.backend.objects import ObjectProxy
 from gosa.common.hsts_request_handler import HSTSRequestHandler
 from tornado.gen import coroutine
 from gosa.common.gjson import loads, dumps
 from gosa.common.utils import f_print, N_
-from gosa.common.error import GosaErrorHandler as C, GosaException
+from gosa.common.error import GosaErrorHandler as C
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry, JSONRPCException
 from gosa.common.components.auth import *
@@ -150,8 +149,8 @@ class JsonRpcHandler(HSTSRequestHandler):
         if not isinstance(params, list) and not isinstance(params, dict):
             raise ValueError(C.make_error("PARAMETER_LIST_OR_DICT"))
 
-        if method == 'getError':
-            # errors can occur before or during login so we have to allow this method without authentication
+        if method in ['getError', 'listRecoveryQuestions']:
+            # these RPCs are allowed event without being logged in
             self.log.debug("calling method %s(%s)" % (method, params))
 
             if isinstance(params, dict):
@@ -273,6 +272,7 @@ class JsonRpcHandler(HSTSRequestHandler):
             raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
         cached_method = method[0:2] == "**"
+        hash = None
         if cached_method:
             method = method[2:]
             hash = params.pop(0)

@@ -254,6 +254,42 @@ class PasswordManager(Plugin):
         """
         return list(self.list_methods().keys())
 
+    @Command(__help__=N_("List all password recovery questions"))
+    def listRecoveryQuestions(self):
+        """
+        Returns a list with all available and translated password recovery questions
+        """
+        questions = [
+            N_("Which phone number from your childhood do you remember best (e.g. 058123456)?"),
+            N_("What is the name of your oldest cousin (e.g. Luise Miller)?"),
+            N_("What are the second names or nicknames of all your children (e.g. Max, Sam, and Lisa)?"),
+            N_("Who was your best friend in childhood (e.g. Robert Danilo)?"),
+            N_("What is your favorite book (author and title) (e.g. Donald Knuth, The Art of Programming)?"),
+            N_("What is your favorite quote / proverb / aphorism (e.g. the pen is mightier than the sword)?"),
+            N_("Who was your favorite teacher (e.g. Anna Webber)?"),
+            N_("Who is your favorite historical person (e.g. Henry Dunant)?"),
+            N_("Where did you spend the most wonderful holidays of your childhood (e.g. Paradise Island)?"),
+            N_("What is your favorite historical event (e.g. the industrial revolution)?"),
+            N_("What is your favorite literary figure (e.g. William Tell)?"),
+            N_("Which person do you admire the most (e.g. Nelson Mandela)?"),
+            N_("What model was your first car or bicycle (e.g. Fiat Panda)?"),
+            N_("Which famous, no longer living person would you like to meet (e.g. Leonardo da Vinci)?"),
+            N_("Who is your favorite actor, musician or painter (e.g. Pablo Picasso)?"),
+            N_("What was your favorite stuffed animal (e.g. teddy)?"),
+            N_("Where were you at New Year 2000 (e.g. Moulin Rouge)?"),
+            N_("What are the last two words on page 32 of your favorite book (e.g. went out)?"),
+        ]
+        return questions
+
+    @Command(__help_=N_("Request a password reset"))
+    def requestPasswordReset(self, uid, recovery_question_data):
+        """
+        Request a password reset if the submitted password recovery answers match the stored ones for the given user
+        :param uid: user id
+        :param recovery_question_data: map of array index => answer
+        :return: Boolean
+        """
+
     def detect_method_by_hash(self, hash_value):
         """
         Tries to find a password-method that is responsible for this kind of hashes
