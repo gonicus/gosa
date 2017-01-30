@@ -205,17 +205,6 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     },
 
     /**
-     * Checks if an extension is not only present in the object, but also if the tab for it has appeared.
-     *
-     * @param extensionName {String}
-     * @return {Boolean}
-     */
-    isExtensionAppeared : function(extensionName) {
-      var context = this.__controller.getContextByExtensionName(extension);
-      return context && !context.isAppeared();
-    },
-
-    /**
      * @return {String | null} The base type of the object; null if unkown
      */
     getBaseType : function() {

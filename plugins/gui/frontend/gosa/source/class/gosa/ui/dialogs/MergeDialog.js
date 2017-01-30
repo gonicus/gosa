@@ -20,7 +20,10 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
 
   include : [gosa.data.MBidirectionalBinding],
 
-  construct: function(mods, exts, blocks, extDependencies, order) {
+  construct: function(mods, exts, blocks, extDependencies, order, activeExtensions) {
+    console.log(activeExtensions);
+    qx.core.Assert.assertArray(activeExtensions);
+
     this.base(arguments, this.tr("Merge required"));
     this.set({
       resizable : true,
@@ -148,6 +151,10 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
                 state = !enabled && left.getValue() || enabled && right.getValue();
                 extList[extName][0].setEnabled(state);
                 extList[extName][1].setEnabled(state);
+              }
+              else if (qx.lang.Array.contains(activeExtensions, extName)) {
+                // add extension as merge widget as if it was deleted on the server
+                createExtension(extName, false);
               }
             }
           }

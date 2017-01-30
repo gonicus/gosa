@@ -58,6 +58,26 @@ qx.Class.define("gosa.data.ExtensionController", {
     },
 
     /**
+     * Retracts the extension if it is in the object, its widgets are not initialized and there are no other extensions
+     * on the object that need this extension.
+     *
+     * @param extensionName {String}
+     * @return {Boolean} If the extension was retracted
+     */
+    retractIfNotAppearedAndIndependent : function(extensionName) {
+      qx.core.Assert.assertString(extensionName);
+
+      if (this.__extensionFinder.getExistingDependencies(extensionName).length === 0
+        && this.__extensionFinder.isActiveExtension(extensionName)
+        && !this.__isExtensionAppeared(extensionName)) {
+
+        this.removeExtension(extensionName, false);
+        return true;
+      }
+      return false;
+    },
+
+    /**
      * Adds the stated extension to the object.
      *
      * @param extension {String}
@@ -97,6 +117,17 @@ qx.Class.define("gosa.data.ExtensionController", {
         dialog.addListenerOnce("confirmed", this.__onMissingExtensionsDialogConfirm, this);
         dialog.open();
       }
+    },
+
+    /**
+     * Checks if an extension is not only present in the object, but also if the tab for it has appeared.
+     *
+     * @param extensionName {String}
+     * @return {Boolean}
+     */
+    __isExtensionAppeared : function(extensionName) {
+      var context = this.__widgetController.getContextByExtensionName(extensionName);
+      return context && !context.isAppeared();
     },
 
     /**

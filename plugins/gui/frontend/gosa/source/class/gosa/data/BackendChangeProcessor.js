@@ -47,7 +47,6 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
      */
     onFoundDifferenceDuringReload : function(event) {
       var data = event.getData();
-      debugger;
       this.__widgetConfigurations = [];
 
       this.__processChanges(data.attributes.changed);
@@ -98,8 +97,9 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
      * @param addedExtensions {Array}
      */
     __processAddedExtensions: function(addedExtensions) {
-      qx.core.Assert.assertArray(addedExtensions);
-      addedExtensions.forEach(this.__addExtensionIfMissing, this);
+      if (qx.lang.Type.isArray(addedExtensions)) {
+        addedExtensions.forEach(this.__addExtensionIfMissing, this);
+      }
     },
 
     /**
@@ -116,28 +116,16 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
      * @param retractedExtensions {Array}
      */
     __processRetractedExtensions : function(retractedExtensions) {
+      if (!qx.lang.Type.isArray(retractedExtensions)) {
+        return;
+      }
       var removed = [];
       retractedExtensions.forEach(function(extensionName) {
-        if (this.__retractExtensionIfExists(extensionName)) {
+        if (this.__controller.getExtensionController().retractIfNotAppearedAndIndependent(extensionName)) {
           removed.push(extensionName);
         }
       }, this);
       qx.lang.Array.exclude(retractedExtensions, removed);
-    },
-
-    /**
-     * @param extension {String}
-     * @return {Boolean} If the extension was retracted
-     */
-    __retractExtensionIfExists : function(extension) {
-      qx.core.Assert.assertString(extension);
-
-      if (this.__controller.getExtensionFinder().isActiveExtension(extension)
-          && this.__controller.isExtensionAppeared(extension)) {
-        this.__controller.getExtensionController().removeExtension(extension, false);
-        return true;
-      }
-      return false;
     },
 
     /**
@@ -149,7 +137,8 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
       var widget, newVal;
       for (var attributeName in changes) {
         if (changes.hasOwnProperty(attributeName)) {
-          newVal = new qx.data.Array(qx.lang.Type.isArray(changes[attributeName])
+          newVal = new qx.data.Array(
+            qx.lang.Type.isArray(changes[attributeName])
             ? changes[attributeName]
             : [changes[attributeName]]);
           widget = this.__controller.getWidgetByAttributeName(attributeName);
@@ -227,8 +216,9 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
         mergeConfiguration,
         extensionsData,
         block,
-        this.__obj.extensionsDeps,
-        this.__controller.getExtensionFinder().getOrderedExtensions()
+        this.__obj.extensionDeps,
+        this.__controller.getExtensionFinder().getOrderedExtensions(),
+        this.__controller.getActiveExtensions()
       );
       dialog.addListenerOnce("merge", this.__onMerge, this);
       dialog.open();
