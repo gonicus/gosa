@@ -75,17 +75,16 @@ qx.Class.define("gosa.data.ExtensionController", {
      * Adds the stated extension to the object.
      *
      * @param extension {String}
-     * @param modify {Boolean ? true} If the object shall be tagged as modified
      */
-    addExtension : function(extension, modify) {
+    addExtension : function(extension) {
       qx.core.Assert.assertString(extension);
 
       var dependencies = this.__extensionFinder.getMissingDependencies(extension);
-      if (modify && dependencies.length > 0) {
+      if (dependencies.length > 0) {
         this._createExtendDependencyDialog(extension, dependencies);
       }
       else {
-        this.__addExtensionToObject(extension, modify);
+        this.__addExtensionToObject(extension, true);
       }
     },
 
