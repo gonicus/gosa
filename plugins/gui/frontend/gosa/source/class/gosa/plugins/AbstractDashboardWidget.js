@@ -78,7 +78,7 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
       check: "String",
       nullable: true,
       apply: "_applyTitle"
-    },
+    }
   },
     
   members : {
