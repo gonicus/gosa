@@ -6,11 +6,13 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import uuid
 
 import pkg_resources
 import logging
 from gosa.common.components import Plugin
 from gosa.common.components.command import Command
+from gosa.common.gjson import loads, dumps
 from gosa.common.utils import N_
 from zope.interface import implementer
 from gosa.common.handler import IInterfaceHandler
@@ -27,7 +29,10 @@ C.register_codes(dict(
     PASSWORD_UNKNOWN_HASH=N_("No password method to generate hash of type '%(type)s' available"),
     PASSWORD_INVALID_HASH=N_("Invalid hash type for password method '%(method)s'"),
     PASSWORD_NO_ATTRIBUTE=N_("Object has no 'userPassword' attribute"),
-    PASSWORD_NOT_AVAILABLE=N_("No password to lock.")))
+    PASSWORD_NOT_AVAILABLE=N_("No password to lock."),
+    UID_UNKNOWN=N_("User ID '%(target)s' is unknown."),
+    PASSWORD_RECOVERY_IMPOSSIBLE=N_("The password recovery process cannot be started for this user, because of invalid ot missing data")
+))
 
 
 class PasswordException(Exception):
@@ -290,10 +295,58 @@ class PasswordManager(Plugin):
         :param data: optional data required by the current step
         :return: *
         """
-        if step == "start":
-            # check for existing uid and status of the users password settings
-            pass
 
+        # check for existing uid and status of the users password settings
+        index = PluginRegistry.getInstance("ObjectIndex")
+        res = index.search({'uid': uid, '_type': 'User'}, {'dn': 1})
+        if len(res) == 0:
+            raise PasswordException(C.make_error("UID_UNKNOWN", target=uid))
+        dn = res[0]['dn']
+        user = ObjectProxy(dn)
+        if user.mail is None:
+            raise PasswordException(C.make_error("PASSWORD_RECOVERY_IMPOSSIBLE"))
+
+        recovery_state = loads(user.passwordRecoveryState) if user.passwordRecoveryState is not None else {}
+
+        if step == "start":
+            # start process by generating an unique password recovery link for this user and sending it to him via mail
+
+            if 'uuid' not in recovery_state:
+                # generate a new id
+                recovery_state['sent_counter'] = 0
+                recovery_state['uuid'] = str(uuid.uuid4())
+
+            print(recovery_state)
+            # send the link to the user
+            content = N_("Please open this link to continue your password recovery process.")+":"
+            gui = PluginRegistry.getInstance("HTTPService").get_gui_uri()
+            print(recovery_state['uuid'])
+            content += "\n\n%s?pwruid=%s&uid=%s\n\n" % ("/".join(gui), recovery_state['uuid'], uid)
+
+            mail = PluginRegistry.getInstance("Mail")
+            mail.send(user.mail, N_("Password recovery link"), content)
+            recovery_state["sent_counter"] += 1
+
+            user.passwordRecoveryState = dumps(recovery_state)
+            user.commit()
+            return True
+
+        elif step == "get_questions":
+            # return the indices of the questions the user has answered
+            if 'uuid' not in recovery_state:
+                # recovery process has not been started
+                raise PasswordException(C.make_error("PASSWORD_RECOVERY_IMPOSSIBLE"))
+            # TODO retrieve real values from user
+            return [0, 3, 9]
+
+        elif step == "check_answers":
+            # TODO encrypt an check the answers
+            return False
+
+        elif step == "change_password":
+            user.changePassword(data)
+            user.commit()
+            return True
 
     def detect_method_by_hash(self, hash_value):
         """
@@ -307,7 +360,7 @@ class PasswordManager(Plugin):
 
     def get_method_by_method_type(self, method_type):
         """
-        Returns the passwod-method that is responsible for the given hashing-method,
+        Returns the password-method that is responsible for the given hashing-method,
         e.g. get_method_by_method_type('crypt/blowfish')
         """
         methods = self.list_methods()

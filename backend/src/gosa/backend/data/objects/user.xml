@@ -611,6 +611,18 @@
         <ReadOnly>true</ReadOnly>
         <Mandatory>true</Mandatory>
       </Attribute>
+      <Attribute>
+        <Name>passwordRecoveryState</Name>
+        <Description>If the user has successfully started a password recovery process this attribute shows the current state for
+          this process.</Description>
+        <Type>AnyType</Type>
+        <Backend>JSON</Backend>
+      </Attribute>
+      <Attribute>
+        <Name>passwordRecoveryHash</Name>
+        <Description>This hash contains the chosen password recovery questions and answers</Description>
+        <Type>String</Type>
+      </Attribute>
     </Attributes>
     <BaseObject>true</BaseObject>
 
