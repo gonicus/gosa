@@ -26,7 +26,7 @@ class GosaErrorHandler(Plugin):
     _errors = {}
     _error_regex = re.compile("^<([^>]+)>.*$")
 
-    @Command(needsUser=True, __help__=N_("Get the error message assigned to a specific ID."))
+    @Command(needsUser=True, noLoginRequired=True, __help__=N_("Get the error message assigned to a specific ID."))
     def getError(self, user, _id, locale=None, trace=False, keep=False):
         res = None
         if _id in GosaErrorHandler._errors:

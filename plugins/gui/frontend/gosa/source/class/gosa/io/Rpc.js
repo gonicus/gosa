@@ -38,7 +38,9 @@ qx.Class.define("gosa.io.Rpc", {
     this.__cacheHashRegex = new RegExp('^###([^#]+)###(.*)');
 
     // these RPCs are always allowed, even when all others are blocked
-    this.__allowedRPCs = ["listRecoveryQuestions"];
+    this.cA("getNoLoginMethods").then(function(res) {
+      this.__allowedRPCs = res;
+    }, this);
   },
 
   properties: {

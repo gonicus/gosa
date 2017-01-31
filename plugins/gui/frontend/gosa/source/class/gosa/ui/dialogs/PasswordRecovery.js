@@ -20,9 +20,21 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
      CONSTRUCTOR
   *****************************************************************************
   */
-  construct : function() {
+  construct : function(step) {
     this.base(arguments, this.tr("Password recovery"));
-    this.__initForm();
+
+    this._currentStep = step || "start";
+
+    this._form = new qx.ui.form.Form();
+
+    if (this._currentStep==="start") {
+      this.__initStart();
+    } else if (this._currentStep==="questions") {
+      this.__initQuestions();
+    }
+    this.addElement(new gosa.ui.form.renderer.Single(this._form, false));
+
+    this.__initButtons();
   },
 
   /*
@@ -31,31 +43,34 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
   *****************************************************************************
   */
   members : {
+    _form: null,
+    _ok: null,
+    _abort: null,
     __questions: null,
+    _currentStep : null,
 
-    __initForm: function() {
-      // Show Subject/Message pane
-      var form = new qx.ui.form.Form();
-      this._form = form;
-
+    __initStart: function() {
       // Add the form items
       var uid = this._uid = new qx.ui.form.TextField();
       uid.setRequired(true);
       uid.setWidth(200);
 
       // Add the form items
-      form.add(uid, this.tr("Login ID"), null, "uid");
+      this._form.add(uid, this.tr("Login ID"), null, "uid");
+    },
+
+    __initQuestions: function() {
 
       // add the three selection/answer fields
       var selectBoxes = [];
       for (var i=1; i <= 3; i++) {
         var select = new qx.ui.form.SelectBox();
         select.setWidth(600);
-        form.add(select, this.tr("Question %1", i), null, "question_"+i);
+        this._form.add(select, this.tr("Question %1", i), null, "question_"+i);
         selectBoxes.push(select);
 
         var answer = new qx.ui.form.TextField();
-        form.add(answer, this.tr("Answer %1", i), null, "question_"+i);
+        this._form.add(answer, this.tr("Answer %1", i), null, "question_"+i);
       }
 
       gosa.io.Rpc.getInstance().cA("listRecoveryQuestions")
@@ -75,26 +90,51 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
         }, this);
 
       }, this);
-
-      this.addElement(new gosa.ui.form.renderer.Single(form, false));
-
-      var login = this._login = gosa.ui.base.Buttons.getButton(this.tr("Reset password"));
-      this.addButton(login);
-
     },
 
-    // overridden
-    _createChildControlImpl: function(id) {
-      var control;
+    /**
+     * Handle OK button press
+     */
+    _onOk: function() {
+      if (this._form.validate()) {
+        switch (this._currentStep) {
+          case "start":
+            // check if username exists
+            gosa.io.Rpc.getInstance().cA("requestPasswordReset", this._currentStep)
+            .then(function() {
+              // everything went fine => show the user further instructions
 
-      switch(id) {
-        case "username":
-          control = new qx.ui.form.TextField();
-
-          break;
+            }, this)
+            .catch(gosa.ui.dialogs.Error.show, this);
+            break;
+        }
       }
+    },
 
-      return control || this.base(arguments, id);
+    /**
+     * Handle abort button press
+     */
+    _onAbort: function() {
+      this.close();
+    },
+
+    __initButtons: function() {
+      this._ok= gosa.ui.base.Buttons.getButton(this.tr("Start new password request"));
+      this.addButton(this._ok);
+      this._ok.addListener("execute", this._onOk, this);
+
+      this._abort = gosa.ui.base.Buttons.getButton(this.tr("Abort"));
+      this.addButton(this._abort);
+      this._abort.addListener("execute", this._onAbort, this);
     }
+  },
+
+  /*
+  *****************************************************************************
+     DESTRUCTOR
+  *****************************************************************************
+  */
+  destruct : function() {
+    this._disposeObjects("_ok", "_abort", "_form");
   }
 });

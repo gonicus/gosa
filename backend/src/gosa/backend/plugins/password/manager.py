@@ -254,7 +254,7 @@ class PasswordManager(Plugin):
         """
         return list(self.list_methods().keys())
 
-    @Command(__help__=N_("List all password recovery questions"))
+    @Command(noLoginRequired=True, __help__=N_("List all password recovery questions"))
     def listRecoveryQuestions(self):
         """
         Returns a list with all available and translated password recovery questions
@@ -281,14 +281,19 @@ class PasswordManager(Plugin):
         ]
         return questions
 
-    @Command(__help_=N_("Request a password reset"))
-    def requestPasswordReset(self, uid, recovery_question_data):
+    @Command(noLoginRequired=True, __help__=N_("Request a password reset"))
+    def requestPasswordReset(self, uid, step, data=None):
         """
         Request a password reset if the submitted password recovery answers match the stored ones for the given user
         :param uid: user id
-        :param recovery_question_data: map of array index => answer
-        :return: Boolean
+        :param step: 'start' to trigger the password reset process by sending an email with activation link to the user
+        :param data: optional data required by the current step
+        :return: *
         """
+        if step == "start":
+            # check for existing uid and status of the users password settings
+            pass
+
 
     def detect_method_by_hash(self, hash_value):
         """

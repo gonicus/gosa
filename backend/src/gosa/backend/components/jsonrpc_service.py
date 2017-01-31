@@ -34,6 +34,7 @@ from gosa.backend import __version__ as VERSION
 from gosa.backend.lock import GlobalLock
 from gosa.backend.utils.ldap import check_auth
 from gosa.backend.exceptions import FilterException
+from gosa.common.components.command import no_login_commands
 import hashlib
 
 
@@ -149,7 +150,7 @@ class JsonRpcHandler(HSTSRequestHandler):
         if not isinstance(params, list) and not isinstance(params, dict):
             raise ValueError(C.make_error("PARAMETER_LIST_OR_DICT"))
 
-        if method in ['getError', 'listRecoveryQuestions']:
+        if method in no_login_commands:
             # these RPCs are allowed event without being logged in
             self.log.debug("calling method %s(%s)" % (method, params))
 
