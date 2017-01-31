@@ -39,7 +39,6 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
      * @param stepIndex {Integer} First step is 0 (so must be an integer >= 0)
      */
     showStep : function(stepIndex) {
-      qx.core.Assert.assertPositiveInteger(stepIndex);
       var stack = this.getChildControl("stack");
 
       if (!stack[stepIndex]) {
@@ -49,14 +48,19 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     },
 
     /**
-     * @param stepIndex {Integer} >= 0
+     * @param stepIndex {Integer}
      */
     __createAndAddStepWidget : function(stepIndex) {
-      qx.core.Assert.assertPositiveInteger(stepIndex);
       qx.core.Assert.assertUndefined(this.getChildControl("stack").getChildren()[stepIndex]);
 
-      var w = new qx.ui.basic.Label("" + stepIndex);
-      this.getChildControl("stack").addAt(w, stepIndex);
+      var container = this.__createNewStepContainer();
+      this.__controller.createContextForIndex(stepIndex, container);
+      this.getChildControl("stack").addAt(container, stepIndex);
+      container.fireEvent("appear");  // for some reason, appear is not automatically fired on the container
+    },
+
+    __createNewStepContainer : function() {
+      return new qx.ui.container.Composite(new qx.ui.layout.VBox());
     },
 
     // overridden

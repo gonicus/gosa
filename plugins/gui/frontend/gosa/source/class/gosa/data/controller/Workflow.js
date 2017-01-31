@@ -26,13 +26,11 @@ qx.Class.define("gosa.data.controller.Workflow", {
    */
   construct : function(workflowObject, widget, templates) {
     this.base(arguments);
-    qx.core.Assert.assertInstance(workflowObject, gosa.proxy.Object);
-    qx.core.Assert.assertInstance(widget, gosa.ui.widgets.WorkflowWizard);
-    qx.core.Assert.assertArray(templates);
 
     this.__workflowObject = workflowObject;
     this.__widget = widget;
     this.__stepsConfig = [];
+    this.__contexts = [];
     this.__fillStepsConfiguration(templates);
 
     this.__widget.setController(this);
@@ -62,6 +60,34 @@ qx.Class.define("gosa.data.controller.Workflow", {
     __stepsConfig : null,
 
     /**
+     * @type {Array} Holds the {@link gosa.engine.Context} for each step index
+     */
+    __contexts : null,
+
+    /**
+      * @return {Array | null} List of all attributes of the object
+    */
+    getAttributes : function() {
+      return qx.lang.Type.isArray(this.__workflowObject.attributes) ? this.__workflowObject.attributes : null;
+    },
+
+    /**
+     * Creates a context (and therefore the widgets) for the given index.
+     *
+     * @param stepIndex {Integer}
+     * @param rootWidget {qx.ui.container.Composite} Where the widgets of the template should go in
+     */
+    createContextForIndex : function(stepIndex, rootWidget) {
+      qx.core.Assert.assertUndefined(this.__contexts[stepIndex]);
+      this.__contexts[stepIndex] = new gosa.engine.Context(
+        this.__stepsConfig[stepIndex].template,
+        rootWidget,
+        undefined,
+        this
+      );
+    },
+
+    /**
      * @param templates {Array}
      */
     __fillStepsConfiguration : function(templates) {
@@ -72,22 +98,17 @@ qx.Class.define("gosa.data.controller.Workflow", {
      * @param config {Object}
      */
     __fillStepInformation : function(config) {
-      qx.core.Assert.assertMap(config);
-      qx.core.Assert.assertKeyInMap("extension", config);
-      qx.core.Assert.assertKeyInMap("template", config);
-      qx.core.Assert.assertString(config.extension);
-      qx.core.Assert.assertObject(config.template);
-
       this.__stepsConfig.push({
         id : config.extension,
         template : config.template,
-        name : gosa.util.Template.getValueAtPath(config.template, ["extensions", "tabConfig", "title"]),
-        description : gosa.util.Template.getValueAtPath(config.template, ["extensions", "description"])
+        name : gosa.util.Template.getValueAtPath(config.template, ["name"]),
+        description : gosa.util.Template.getValueAtPath(config.template, ["description"])
       });
     }
   },
 
   destruct : function() {
+    this._disposeObjects("__contexts");
     this.__workflowObject = null;
     this.__widget = null;
     this.__stepsConfig = null;

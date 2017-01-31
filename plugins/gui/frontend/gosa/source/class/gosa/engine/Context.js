@@ -24,7 +24,7 @@ qx.Class.define("gosa.engine.Context", {
    * @param template {Object} A widget template as a object (i.e. already parsed from json)
    * @param rootWidget {qx.ui.core.Widget} The container widget where the template widgets will be added to
    * @param extension {String ? undefined} Name of the extension this context creates widgets for (e.g. "PosixUser")
-   * @param controller {gosa.data.controller.ObjectEdit ? undefined} Main controller for {@link gosa.ui.widgets.ObjectEdit}
+   * @param controller {gosa.data.controller.ObjectEdit | gosa.data.controller.Workflow ? undefined} Controller for widget
    */
   construct : function(template, rootWidget, extension, controller) {
     this.base(arguments);
@@ -35,7 +35,6 @@ qx.Class.define("gosa.engine.Context", {
       qx.core.Assert.assertString(extension);
     }
     if (controller) {
-      qx.core.Assert.assertInstance(controller, gosa.data.controller.ObjectEdit);
       this._controller = controller;
     }
 
