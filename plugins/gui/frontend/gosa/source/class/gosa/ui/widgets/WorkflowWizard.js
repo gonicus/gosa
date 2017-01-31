@@ -19,19 +19,67 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
   extend: qx.ui.container.Composite,
 
-  /**
-   * @param templates {Array} List of hash maps in the shape {extension : <extension name>, template : <parsed template>}
-   * @param asWorkflow {Boolean} use workflow mode: start with the first template and activate the next template once the last one is
-   * filled with valid values
-   */
-  construct: function(templates) {
+  construct: function() {
     this.base(arguments);
+    this.setLayout(new qx.ui.layout.HBox());
   },
 
-  properties : {
-    controller : {
-      check : "gosa.data.controller.Workflow",
-      init : null
+  members : {
+    /**
+     * @type {gosa.data.controller.Workflow | null}
+     */
+    __controller : null,
+
+    setController : function(controllerObject) {
+      this.__controller = controllerObject;
+      this.getChildControl("sidebar");
+    },
+
+    /**
+     * @param stepIndex {Integer} First step is 0 (so must be an integer >= 0)
+     */
+    showStep : function(stepIndex) {
+      qx.core.Assert.assertPositiveInteger(stepIndex);
+      var stack = this.getChildControl("stack");
+
+      if (!stack[stepIndex]) {
+        this.__createAndAddStepWidget(stepIndex);
+      }
+      stack.setSelection([stack.getChildren()[stepIndex]]);
+    },
+
+    /**
+     * @param stepIndex {Integer} >= 0
+     */
+    __createAndAddStepWidget : function(stepIndex) {
+      qx.core.Assert.assertPositiveInteger(stepIndex);
+      qx.core.Assert.assertUndefined(this.getChildControl("stack").getChildren()[stepIndex]);
+
+      var w = new qx.ui.basic.Label("" + stepIndex);
+      this.getChildControl("stack").addAt(w, stepIndex);
+    },
+
+    // overridden
+    _createChildControlImpl : function(id) {
+      var control;
+
+      switch(id) {
+        case "sidebar":
+          control = new qx.ui.basic.Label("TODO: sidebar");
+          this.add(control);
+          break;
+
+        case "stack":
+          control = new qx.ui.container.Stack();
+          this.add(control);
+          break;
+      }
+
+      return control || this.base(arguments, id);
     }
+  },
+
+  destruct : function() {
+    this.__controller = null;
   }
 });

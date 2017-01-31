@@ -52,20 +52,18 @@ qx.Class.define("gosa.engine.WidgetFactory", {
     },
 
     /**
-     * Create a new widget for the given workflow and invoke the callback afterwards.
+     * Create a new widget for the given workflow.
      *
      * @param workflow {gosa.proxy.Object} The workflows.* workflow for which the widget shall be created
      * @param templates {Array} array of templates for the workflow
-     * @param translations {Map} translations for the templates
      */
-    createWorkflowWidget : function(workflow, templates, translations) {
+    createWorkflowWidget : function(workflow, templates) {
       qx.core.Assert.assertInstance(workflow, gosa.proxy.Object);
+      qx.core.Assert.assertArray(templates);
 
-      return new qx.Promise(function(resolve) {
-        // generate widget
-        var widget = new gosa.ui.widgets.WorkflowWizard(templates);
-        resolve(widget);
-      });
+      var widget = new gosa.ui.widgets.WorkflowWizard(templates);
+      new gosa.data.controller.Workflow(workflow, widget, templates);
+      return widget;
     },
 
     /**

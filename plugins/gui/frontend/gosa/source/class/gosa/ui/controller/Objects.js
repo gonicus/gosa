@@ -141,14 +141,9 @@ qx.Class.define("gosa.ui.controller.Objects", {
             });
           }
         }
-
-        // Build widget and place it into a window
-        return qx.Promise.all([
-          workflow,
-          gosa.engine.WidgetFactory.createWorkflowWidget(workflow, templates, translations)
-        ]);
+        return qx.Promise.all([workflow, templates]);
       }, this)
-      .spread(function(workflow, widget) {
+      .spread(function(workflow, templates) {
         win = new qx.ui.window.Window(qx.locale.Manager.tr("Workflow"));
         var bounds = this._desktop.getBounds();
         win.set({
@@ -159,6 +154,9 @@ qx.Class.define("gosa.ui.controller.Objects", {
           maxHeight: bounds.height,
           allowGrowY: true
         });
+
+        var widget = gosa.engine.WidgetFactory.createWorkflowWidget(workflow, templates);
+
         win.add(widget, {edge : 0});
         this._windowController.addWindow(win, workflowItem);
         win.addListenerOnce("resize", function() {
@@ -176,9 +174,6 @@ qx.Class.define("gosa.ui.controller.Objects", {
 
         // Position window as requested
         this._desktop.add(win);
-
-        var controller = new gosa.data.controller.Workflow(workflow, widget);
-        widget.setController(controller);
       }, this)
       .catch(this.error, this)
       .finally(function() {

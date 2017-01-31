@@ -132,6 +132,26 @@ qx.Class.define("gosa.util.Template", {
           gosa.Cache.extensionConfig[name] = result;
         }
       });
+    },
+
+    /**
+     * Tries to return the value of the specified path, if the path exists.
+     *
+     * @param template {Object} Compiled template
+     * @param path {Array} List of property names in order (e.g. ["children", 1, "modelPath"]
+     * @return {*} The value found at the path; undefined if invalid path (null would be a valid value)
+     */
+    getValueAtPath : function(template, path) {
+      if (!qx.lang.Type.isArray(path)) {
+        return;  // invalid path
+      }
+      if (path.length === 0) {
+        return template;
+      }
+      if (!qx.lang.Type.isObject(template) && !qx.lang.Type.isArray(template)) {
+        return;  // invalid path as template has no children
+      }
+      return gosa.util.Template.getValueAtPath(template[path.shift()], path);
     }
   }
 });
