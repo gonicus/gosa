@@ -15,7 +15,7 @@
 /**
 * Controller for the dashboard widgets.
 */
-qx.Class.define("gosa.data.DashboardController", {
+qx.Class.define("gosa.data.controller.Dashboard", {
   extend : qx.core.Object,
   type: "singleton",
 

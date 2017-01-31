@@ -37,7 +37,7 @@ qx.Class.define("gosa.plugins.AbstractDashboardWidget", {
     // please not that these string are treated as wildcards e.g. matching resizable*
     this.__doNotStoreProps = ["resizable", "droppable"];
     this.addListener("dragover", this._onDragOver, this);
-    this.__options = gosa.data.DashboardController.getWidgetOptions(this);
+    this.__options = gosa.data.controller.Dashboard.getWidgetOptions(this);
 
     if (this.__options.maxRowspan) {
       this.setMaxRowSpan(parseInt(this.__options.maxRowspan));

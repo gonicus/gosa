@@ -29,7 +29,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
     var form = this.__form = new qx.ui.form.Form();
 
     // add the form items
-    var options = gosa.data.DashboardController.getWidgetOptions(widget);
+    var options = gosa.data.controller.Dashboard.getWidgetOptions(widget);
     if (options.settings) {
       Object.getOwnPropertyNames(options.settings.properties).forEach(function(propertyName) {
         var typeSettings = options.settings.properties[propertyName];

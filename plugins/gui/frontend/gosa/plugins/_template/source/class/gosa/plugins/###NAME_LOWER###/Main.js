@@ -47,7 +47,7 @@ qx.Class.define("gosa.plugins.###NAME_LOWER###.Main", {
   },
 
   defer: function () {
-    gosa.data.DashboardController.registerWidget(gosa.plugins.###NAME_LOWER###.Main, {
+    gosa.data.controller.Dashboard.registerWidget(gosa.plugins.###NAME_LOWER###.Main, {
       displayName: qx.locale.Manager.tr("###NAME###"),
       defaultColspan: 3,
       defaultRowspan: 1,

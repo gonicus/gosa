@@ -89,7 +89,7 @@ qx.Class.define("gosa.plugins.search.Main", {
   },
 
   defer: function () {
-    gosa.data.DashboardController.registerWidget(gosa.plugins.search.Main, {
+    gosa.data.controller.Dashboard.registerWidget(gosa.plugins.search.Main, {
       displayName: qx.locale.Manager.tr("Search"),
       icon: "@Ligature/search",
       resizable: [false, true, false, true],

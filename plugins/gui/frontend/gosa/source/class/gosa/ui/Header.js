@@ -87,7 +87,7 @@ qx.Class.define("gosa.ui.Header", {
           this.add(control, {flex: 1});
           this._listController = new qx.data.controller.List(null, control);
           this._listController.setDelegate(this.__getWindowDelegate());
-          this._listController.setModel(gosa.data.WindowController.getInstance().getWindows());
+          this._listController.setModel(gosa.data.controller.Window.getInstance().getWindows());
           break;
 
       }
@@ -116,7 +116,7 @@ qx.Class.define("gosa.ui.Header", {
       changePw.addListener("execute", function() {
         gosa.proxy.ObjectFactory.openObject(gosa.Session.getInstance().getDn())
         .then(function(obj) {
-          var controller = new gosa.data.ActionController(obj);
+          var controller = new gosa.data.controller.Actions(obj);
           var dialog = new gosa.ui.dialogs.actions.ChangePasswordDialog(controller);
           dialog.addListener("close", function() {
             return obj.close();

@@ -15,7 +15,7 @@
 /**
  * Processes backend changes of an object.
  */
-qx.Class.define("gosa.data.BackendChangeProcessor", {
+qx.Class.define("gosa.data.controller.BackendChanges", {
 
   extend : qx.core.Object,
 

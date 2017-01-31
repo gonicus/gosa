@@ -14,7 +14,7 @@
 /**
  * Helps to find/manage dependencies of extensions.
  */
-qx.Class.define("gosa.data.ExtensionFinder", {
+qx.Class.define("gosa.data.util.ExtensionFinder", {
 
   extend : qx.core.Object,
 

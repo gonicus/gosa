@@ -64,7 +64,7 @@ qx.Class.define("gosa.plugins.separator.Main", {
   },
 
   defer: function () {
-    gosa.data.DashboardController.registerWidget(gosa.plugins.separator.Main, {
+    gosa.data.controller.Dashboard.registerWidget(gosa.plugins.separator.Main, {
       displayName: qx.locale.Manager.tr("Separator"),
       icon: "@Ligature/minus",
       resizable: [false, true, false, true],

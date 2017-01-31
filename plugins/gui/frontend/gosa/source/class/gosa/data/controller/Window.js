@@ -15,7 +15,7 @@
 /**
  * Simple controller that holds an array of all currently opened windows
  */
-qx.Class.define("gosa.data.WindowController", {
+qx.Class.define("gosa.data.controller.Window", {
   extend: qx.core.Object,
   type: "singleton",
 

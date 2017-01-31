@@ -168,7 +168,7 @@ qx.Class.define("gosa.plugins.activity.Main", {
   },
 
   defer: function () {
-    gosa.data.DashboardController.registerWidget(gosa.plugins.activity.Main, {
+    gosa.data.controller.Dashboard.registerWidget(gosa.plugins.activity.Main, {
       displayName: qx.locale.Manager.tr("Activities"),
       icon: "@Ligature/exchange",
       theme: {

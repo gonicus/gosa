@@ -18,7 +18,7 @@ qx.Class.define("gosa.ui.dialogs.MergeDialog", {
 
   extend: gosa.ui.dialogs.Dialog,
 
-  include : [gosa.data.MBidirectionalBinding],
+  include : [gosa.data.util.MBidirectionalBinding],
 
   construct: function(mods, exts, blocks, extDependencies, order) {
     this.base(arguments, this.tr("Merge required"));

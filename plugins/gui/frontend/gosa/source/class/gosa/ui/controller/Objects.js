@@ -23,7 +23,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
     this.base(arguments);
 
     this._desktop = new qx.ui.window.Desktop();
-    this._windowController = gosa.data.WindowController.getInstance();
+    this._windowController = gosa.data.controller.Window.getInstance();
 
     this.__root = qx.core.Init.getApplication().getRoot();
     this.__root.addListener("resize", this._onRootResize, this);

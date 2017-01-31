@@ -15,7 +15,7 @@
 /**
  * Mixin that allows bidirectional bindings between to properties.
  */
-qx.Mixin.define("gosa.data.MBidirectionalBinding", {
+qx.Mixin.define("gosa.data.util.MBidirectionalBinding", {
 
   members : {
     __bidirectionalBindings : null,

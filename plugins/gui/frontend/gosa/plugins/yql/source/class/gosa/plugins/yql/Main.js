@@ -158,7 +158,7 @@ qx.Class.define("gosa.plugins.yql.Main", {
   },
 
   defer: function () {
-    gosa.data.DashboardController.registerWidget(gosa.plugins.yql.Main, {
+    gosa.data.controller.Dashboard.registerWidget(gosa.plugins.yql.Main, {
       displayName: qx.locale.Manager.tr("YQL"),
       icon: "@Ligature/yahoo",
       defaultColspan: 3,

@@ -265,7 +265,7 @@ qx.Class.define("gosa.view.Dashboard", {
       menu.add(uploadButton);
       menu.add(new qx.ui.menu.Separator());
 
-      var registry = gosa.data.DashboardController.getWidgetRegistry();
+      var registry = gosa.data.controller.Dashboard.getWidgetRegistry();
       Object.getOwnPropertyNames(registry).forEach(function(name) {
         var entry = registry[name];
         var button = new qx.ui.menu.Button(entry.options.displayName, entry.options.icon + "/22");
@@ -275,14 +275,14 @@ qx.Class.define("gosa.view.Dashboard", {
       }, this);
 
       // add the unloaded parts (loaded parts are already in the registry
-      var parts = gosa.data.DashboardController.getPartRegistry();
+      var parts = gosa.data.controller.Dashboard.getPartRegistry();
       Object.getOwnPropertyNames(parts).forEach(function(name) {
         var displayName = parts[name];
         var button = new qx.ui.menu.Button(displayName);
         button.setUserData("part", name);
         menu.add(button);
         button.addListener("execute", function() {
-          gosa.data.DashboardController.getInstance().loadFromPart(name).then(this._createWidget, this);
+          gosa.data.controller.Dashboard.getInstance().loadFromPart(name).then(this._createWidget, this);
         }, this);
       }, this);
 
@@ -290,14 +290,14 @@ qx.Class.define("gosa.view.Dashboard", {
       gosa.io.Rpc.getInstance().cA("getDashboardWidgets")
       .then(function(widgets) {
         widgets.forEach(function(widget) {
-          if (!gosa.data.DashboardController.getWidgetRegistry()[widget.provides.namespace]) {
+          if (!gosa.data.controller.Dashboard.getWidgetRegistry()[widget.provides.namespace]) {
             var displayName = widget.info.name;
             var icon = widget.info.icon ? widget.info.icon+"/22" : null;
             var button = new qx.ui.menu.Button(displayName, icon);
             button.setUserData("namespace", widget.provides.namespace);
             menu.add(button);
             button.addListener("execute", function() {
-              gosa.data.DashboardController.getInstance().loadFromBackend(widget.provides.namespace).then(this._createWidget, this);
+              gosa.data.controller.Dashboard.getInstance().loadFromBackend(widget.provides.namespace).then(this._createWidget, this);
             }, this);
           }
         }, this);
@@ -486,7 +486,7 @@ qx.Class.define("gosa.view.Dashboard", {
         var button = ev.getTarget();
         widgetName = button.getUserData("widget");
       }
-      var widgetData = gosa.data.DashboardController.getWidgetRegistry()[widgetName];
+      var widgetData = gosa.data.controller.Dashboard.getWidgetRegistry()[widgetName];
       var entry = {
         widget: widgetName
       };
@@ -697,7 +697,7 @@ qx.Class.define("gosa.view.Dashboard", {
     },
 
     __addWidget: function(entry) {
-      var registry = gosa.data.DashboardController.getWidgetRegistry();
+      var registry = gosa.data.controller.Dashboard.getWidgetRegistry();
       var widgetName = entry.widget;
       var widget;
       var board = this.getChildControl("board");

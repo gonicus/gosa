@@ -15,7 +15,7 @@
 /**
  * Controller for adding and removing extensions to/from an object.
  */
-qx.Class.define("gosa.data.ExtensionController", {
+qx.Class.define("gosa.data.controller.Extensions", {
 
   extend : qx.core.Object,
   include : [qx.locale.MTranslation],

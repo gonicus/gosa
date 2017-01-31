@@ -15,7 +15,7 @@
 /**
  * Controller for actions that can be done on the object (e.g. change password).
  */
-qx.Class.define("gosa.data.ActionController", {
+qx.Class.define("gosa.data.controller.Actions", {
 
   extend : qx.core.Object,
 

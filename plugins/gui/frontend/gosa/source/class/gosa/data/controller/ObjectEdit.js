@@ -33,9 +33,9 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     this._changeValueListeners = {};
     this._validatingWidgets = [];
     this._connectedAttributes = [];
-    this.__extensionFinder = new gosa.data.ExtensionFinder(obj);
-    this.__extensionController = new gosa.data.ExtensionController(obj, this);
-    this._backendChangeProcessor = new gosa.data.BackendChangeProcessor(obj, this);
+    this.__extensionFinder = new gosa.data.util.ExtensionFinder(obj);
+    this.__extensionController = new gosa.data.controller.Extensions(obj, this);
+    this.__backendChangeController = new gosa.data.controller.BackendChanges(obj, this);
 
     this._addListenersToAllContexts();
     this._setUpWidgets();
@@ -43,8 +43,8 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     this._widget.addListener("contextAdded", this._onContextAdded, this);
     obj.addListener(
       "foundDifferencesDuringReload",
-      this._backendChangeProcessor.onFoundDifferenceDuringReload,
-      this._backendChangeProcessor
+      this.__backendChangeController.onFoundDifferenceDuringReload,
+      this.__backendChangeController
     );
 
     this.__object.setUiBound(true);
@@ -88,7 +88,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     _connectedAttributes : null,
     _globalObjectListenersSet : false,
     __extensionController : null,
-    _backendChangeProcessor : null,
+    __backendChangeController : null,
     __extensionFinder : null,
 
     closeWidgetAndObject : function() {
@@ -157,25 +157,25 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     },
 
     /**
-     * @return {gosa.data.ExtensionController}
+     * @return {gosa.data.controller.Extensions}
      */
     getExtensionController : function() {
       return this.__extensionController;
     },
 
     /**
-     * @return {gosa.data.ExtensionFinder}
+     * @return {gosa.data.util.ExtensionFinder}
      */
     getExtensionFinder : function() {
       return this.__extensionFinder;
     },
 
     /**
-     * @return {gosa.data.ActionController}
+     * @return {gosa.data.controller.Actions}
      */
     getActionController : function() {
       if (!this._actionController) {
-        this._actionController =  new gosa.data.ActionController(this.__object);
+        this._actionController =  new gosa.data.controller.Actions(this.__object);
       }
       return this._actionController;
     },
@@ -696,8 +696,8 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     this.__object.removeListener("closing", this._onObjectClosing, this);
     this.__object.removeListener(
       "foundDifferencesDuringReload",
-      this._backendChangeProcessor.onFoundDifferenceDuringReload,
-      this._backendChangeProcessor
+      this.__backendChangeController.onFoundDifferenceDuringReload,
+      this.__backendChangeController
     );
     this._widget.removeListener("contextAdded", this._onContextAdded, this);
 
@@ -708,7 +708,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     this._cleanupChangeValueListeners();
     this.closeObject();
 
-    this._disposeObjects("__extensionFinder", "_backendChangeProcessor", "__extensionController");
+    this._disposeObjects("__extensionFinder", "__backendChangeController", "__extensionController");
 
     this.__object = null;
     this._widget = null;
