@@ -91,6 +91,11 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     _backendChangeProcessor : null,
     __extensionFinder : null,
 
+    closeWidgetAndObject : function() {
+      this._widget.close();
+      this.closeObject();
+    },
+
     closeObject : function() {
       if (this.__object && !this.__object.isDisposed() && !this.__object.isClosed()) {
         this.__object.setUiBound(false);

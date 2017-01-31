@@ -54,7 +54,12 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
       this.__processAdded(data.attributes.added);
       this.__processExtensions(data.extensions);
 
-      if (this.__widgetConfigurations.length > 0 || this.__hasExtensions(data)) {
+      if (data.extensions.removed.length > 0) {
+        // differences cannot be merged
+        this.__createUnableToMergeDialog();
+        this.__controller.closeWidgetAndObject();
+      }
+      else if (this.__widgetConfigurations.length > 0 || this.__hasExtensions(data)) {
         this.__createMergeDialog(
           this.__widgetConfigurations,
           data.attributes.blocked_by,
@@ -121,7 +126,8 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
       }
       var removed = [];
       retractedExtensions.forEach(function(extensionName) {
-        if (this.__controller.getExtensionController().retractIfNotAppearedAndIndependent(extensionName)) {
+        var isRemoved = this.__controller.getExtensionController().retractIfNotAppearedAndIndependent(extensionName);
+        if (isRemoved) {
           removed.push(extensionName);
         }
       }, this);
@@ -217,12 +223,18 @@ qx.Class.define("gosa.data.BackendChangeProcessor", {
         extensionsData,
         block,
         this.__obj.extensionDeps,
-        this.__controller.getExtensionFinder().getOrderedExtensions(),
-        this.__controller.getActiveExtensions()
+        this.__controller.getExtensionFinder().getOrderedExtensions()
       );
       dialog.addListenerOnce("merge", this.__onMerge, this);
       dialog.open();
       dialog.center();
+    },
+
+    __createUnableToMergeDialog : function() {
+      var msg = qx.locale.Manager.tr("While you were modifying the object, it has been updated in a manner which makes it impossible to merge the changes. Therefore, the object has been closed. Sorry.");
+      var dialog = new gosa.ui.dialogs.Info(msg);
+      dialog.setAutoDispose(true);
+      dialog.open();
     },
 
     /**

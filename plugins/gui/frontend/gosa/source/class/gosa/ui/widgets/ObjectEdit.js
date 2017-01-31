@@ -481,6 +481,15 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       }, this);
     },
 
+    /**
+     * Closes the widget.
+     */
+    close : function() {
+      this.closeClosingDialog();
+      this._getParentWindow().close();
+      this.fireEvent("close");
+    },
+
     _onTabChanged: function() {
       var pos = this._tabView.indexOf(this._tabView.getSelection()[0]);
       var pages = this._tabView.getSelectables(true);
