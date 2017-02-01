@@ -34,7 +34,7 @@ qx.Class.define("gosa.data.controller.Workflow", {
     this.__fillStepsConfiguration(templates);
 
     this.__widget.setController(this);
-    this.__widget.showStep(0);
+    this.__showStep(0);
 
     this.__widget.addListenerOnce("close", this.dispose, this);
   },
@@ -65,6 +65,11 @@ qx.Class.define("gosa.data.controller.Workflow", {
      * @type {Array} Holds the {@link gosa.engine.Context} for each step index
      */
     __contexts : null,
+
+    /**
+     * @type {Integer} Index of the current step
+     */
+    __currentStep : 0,
 
     /**
       * @return {Array | null} List of all attributes of the object
@@ -103,6 +108,21 @@ qx.Class.define("gosa.data.controller.Workflow", {
       this.__workflowObject.close();
       this.__widget.close();
       this.dispose();
+    },
+
+    nextStep : function() {
+      this.__showStep(this.__currentStep + 1);
+    },
+
+    previousStep : function() {
+      this.__showStep(this.__currentStep - 1);
+    },
+
+    __showStep : function(index) {
+      qx.core.Assert.assertInRange(index, 0, this.__stepsConfig.length - 1,
+        qx.locale.Manager.tr("Workflow step index out of bounds %1", index));
+      this.__widget.showStep(index);
+      this.__currentStep = index;
     },
 
     /**

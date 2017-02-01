@@ -51,7 +51,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     showStep : function(stepIndex) {
       var stack = this.getChildControl("stack");
 
-      if (!stack[stepIndex]) {
+      if (!stack.getChildren()[stepIndex]) {
         this.__createStepWidget(stepIndex);
       }
       stack.setSelection([stack.getChildren()[stepIndex]]);
@@ -99,6 +99,8 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
     __createButtons : function() {
       this.getChildControl("cancel-button");
+      this.getChildControl("previous-button");
+      this.getChildControl("next-button");
     },
 
     // overridden
@@ -107,7 +109,9 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
       switch (id) {
         case "form-container":
-          control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+          var layout = new qx.ui.layout.VBox();
+          layout.setAlignX("right");
+          control = new qx.ui.container.Composite(layout);
           this.add(control);
           break;
 
@@ -129,6 +133,18 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
         case "cancel-button":
           control = new qx.ui.form.Button(this.tr("Cancel"));
           control.addListener("execute", this.__controller.cancel, this.__controller);
+          this.getChildControl("button-group").add(control);
+          break;
+
+        case "next-button":
+          control = new qx.ui.form.Button(this.tr("Next"));
+          control.addListener("execute", this.__controller.nextStep, this.__controller);
+          this.getChildControl("button-group").add(control);
+          break;
+
+        case "previous-button":
+          control = new qx.ui.form.Button(this.tr("Previous"));
+          control.addListener("execute", this.__controller.previousStep, this.__controller);
           this.getChildControl("button-group").add(control);
           break;
       }
