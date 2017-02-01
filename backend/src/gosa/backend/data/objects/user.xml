@@ -141,6 +141,22 @@
         </CommandParameters>
       </Method>
 
+      <Method>
+        <Name>changePasswordRecoveryAnswers</Name>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>data</Name>
+            <Type>UnicodeString</Type>
+            <Default/>
+          </MethodParameter>
+        </MethodParameters>
+        <Command>setPasswordRecoveryAnswers</Command>
+        <CommandParameters>
+          <Value>dn</Value>
+          <Value>data</Value>
+        </CommandParameters>
+      </Method>
+
     </Methods>
 
     <Attributes>
@@ -621,7 +637,8 @@
       <Attribute>
         <Name>passwordRecoveryHash</Name>
         <Description>This hash contains the chosen password recovery questions and answers</Description>
-        <Type>String</Type>
+        <Type>AnyType</Type>
+        <Backend>JSON</Backend>
       </Attribute>
     </Attributes>
     <BaseObject>true</BaseObject>

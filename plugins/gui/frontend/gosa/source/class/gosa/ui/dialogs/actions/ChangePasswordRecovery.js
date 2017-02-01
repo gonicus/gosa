@@ -20,8 +20,12 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangePasswordRecovery", {
      CONSTRUCTOR
   *****************************************************************************
   */
-  construct : function(step, data) {
+  construct : function(actionController) {
     this.base(arguments, "edit_answers");
+
+    this._actionController = actionController;
+
+    // TODO: retrieve amount of questions from user policy
   },
 
   /*
@@ -45,9 +49,18 @@ qx.Class.define("gosa.ui.dialogs.actions.ChangePasswordRecovery", {
      */
     _onOk: function() {
       if (this._form.validate()) {
+        var model = this._controller.createModel();
         // save
-        var model = this._form.getModel();
-
+        var result = {};
+        for (var i=1; i <= this.getTotalQuestions(); i++) {
+          var question = model["getQuestion"+i]();
+          result[this._questions.indexOf(question)] = model["getAnswer"+i]();
+        }
+        this._actionController.changePasswordRecoveryAnswers(qx.lang.Json.stringify(result))
+        .then(function() {
+          this.close();
+        }, this)
+        .catch(gosa.ui.dialogs.Error.show);
       }
     }
   }
