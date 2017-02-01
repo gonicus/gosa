@@ -1281,7 +1281,7 @@ qx.Theme.define("gosa.theme.Appearance", {
       style: function(states) {
         var decorator = "spinner-button";
 
-        if (states.disabed) {
+        if (states.disabled) {
           decorator = undefined;
         }
         else if (states.focused) {
