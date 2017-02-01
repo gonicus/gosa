@@ -447,7 +447,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       for (var i = 0; i < contexts.length; i++) {
         context = contexts[i];
         if (createWidgets === true && !context.isAppeared()) {
-          context._createWidgets();
+          context.createWidgets();
         }
         var widgets = context.getWidgetRegistry().getMap();
         for (var modelPath in widgets) {

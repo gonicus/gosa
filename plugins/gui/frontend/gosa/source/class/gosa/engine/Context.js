@@ -47,8 +47,7 @@ qx.Class.define("gosa.engine.Context", {
     this._resourceManager = new gosa.engine.ResourceManager();
     this._processor = gosa.engine.ProcessorFactory.getProcessor(this._template, this);
 
-    this._processor.processFirstLevelExtensions(this._template, this._rootWidget);
-    rootWidget.addListenerOnce("appear", this._createWidgets, this);
+    this.__initWidgets();
   },
 
   events : {
@@ -88,7 +87,7 @@ qx.Class.define("gosa.engine.Context", {
     _actionController : null,
 
     /**
-     * @return {gosa.data.ActionController} The action controller for this context (each has its own)
+     * @return {gosa.data.controller.Actions} The action controller for this context (each has its own)
      */
     getActionController : function() {
       return this._controller.getActionController();
@@ -167,26 +166,34 @@ qx.Class.define("gosa.engine.Context", {
       this._actionMenuEntries[name] = button;
     },
 
-    _createWidgets : function() {
+    createWidgets : function() {
       if (!this._appeared) { // widgets might have been created by the ObjectEdit controller in case of error
         this._processor.process(this._template, this._rootWidget);
-        this._connectBuddies();
+        this.__connectBuddies();
         this._appeared = true;
         this.fireDataEvent("widgetsCreated", this);
       }
     },
 
-    _connectBuddies : function() {
+    __initWidgets : function() {
+      this._processor.processFirstLevelExtensions(this._template, this._rootWidget);
+      if (this._rootWidget.isVisible()) {
+        this.createWidgets();
+      }
+      else {
+        this._rootWidget.addListenerOnce("appear", this.createWidgets, this);
+      }
+    },
+
+    __connectBuddies : function() {
       var buddyMap = this._buddyRegistry.getMap();
       var widgetMap = this._widgetRegistry.getMap();
 
-      for (var modelPath in buddyMap) {
-        if (buddyMap.hasOwnProperty(modelPath)) {
-          if (widgetMap.hasOwnProperty(modelPath)) {
-            buddyMap[modelPath].setBuddy(widgetMap[modelPath]);
-          }
+      gosa.util.Object.iterate(buddyMap, function(modelPath, buddy) {
+        if (widgetMap[modelPath]) {
+          buddy.setBuddy(widgetMap[modelPath]);
         }
-      }
+      });
     }
   },
 

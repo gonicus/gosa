@@ -56,7 +56,6 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       var container = this.__createNewStepContainer();
       this.__controller.createContextForIndex(stepIndex, container);
       this.getChildControl("stack").addAt(container, stepIndex);
-      container.fireEvent("appear");  // for some reason, appear is not automatically fired on the container
     },
 
     __createNewStepContainer : function() {
