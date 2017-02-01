@@ -72,7 +72,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
      *
      * @param name {String} Name of the dialog class/template
      * @param controller {gosa.data.controller.ObjectEdit ? null} Optional object controller
-     * @param extension {String} Name of the extension that the dialgo is created in
+     * @param extension {String} Name of the extension that the dialog is created in
      * @return {gosa.ui.dialogs.Dialog | null} The (unopened) dialog widget
      */
     createDialog : function(name, controller, extension) {

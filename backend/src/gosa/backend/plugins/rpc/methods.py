@@ -188,7 +188,7 @@ class RPCMethods(Plugin):
         return None
 
     @Command(needsUser=True, __help__=N_("Search for object information"))
-    def searchForObjectDetails(self, user, extension, attribute, fltr, attributes, skip_values):
+    def searchForObjectDetails(self, user, extension, attribute, search_filter, attributes, skip_values):
         """
         Search selectable items valid for the attribute "extension.attribute".
 
@@ -197,37 +197,47 @@ class RPCMethods(Plugin):
 
         # Extract the the required information about the object
         # relation out of the BackendParameters for the given extension.
-        of = ObjectFactory.getInstance()
-        be_data = of.getObjectBackendParameters(extension, attribute)
+        object_factory = ObjectFactory.getInstance()
+        be_data = object_factory.getObjectBackendParameters(extension, attribute)
         if not be_data:
             raise GOsaException(C.make_error("BACKEND_PARAMETER_MISSING", extension=extension, attribute=attribute))
 
         # Collection basic information
-        otype, oattr, foreignMatchAttr, matchAttr = be_data[attribute] #@UnusedVariable
+        object_type, object_attribute, _, _ = be_data[attribute]
 
         # Create a list of attributes that will be requested
-        if oattr not in attributes:
-            attributes.append(oattr)
+        if object_attribute not in attributes:
+            attributes.append(object_attribute)
         attrs = dict([(x, 1) for x in attributes])
         if not "dn" in attrs:
             attrs.update({'dn': 1})
 
         # Start the query and format the result
         index = PluginRegistry.getInstance("ObjectIndex")
-        res = index.search({
-            'or_': {'_type': otype, 'extension': otype},
-            oattr: '%{}%'.format(fltr) if len(fltr) > 0 else '%'
+        search_result = index.search({
+                            'or_': {
+                                '_type': object_type,
+                                'extension': object_type
+                            },
+                            object_attribute: '%{}%'.format(search_filter) if len(search_filter) > 0 else '%'
+                        }, attrs)
+
+        if not search_result:
+            search_result = index.search({
+                '_type': object_type,
+                object_attribute: '%{}%'.format(search_filter) if len(search_filter) > 0 else '%'
             }, attrs)
+
         result = []
 
         # Do we have read permissions for the requested attribute
         env = Environment.getInstance()
-        topic = "%s.objects.%s" % (env.domain, otype)
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
+        topic = "%s.objects.%s" % (env.domain, object_type)
+        acl_resolver = PluginRegistry.getInstance("ACLResolver")
 
-        for entry in res:
+        for entry in search_result:
 
-            if not aclresolver.check(user, topic, "s", base=entry['dn']):
+            if not acl_resolver.check(user, topic, "s", base=entry['dn']):
                 continue
 
             item = {}
@@ -236,7 +246,7 @@ class RPCMethods(Plugin):
                     item[attr] = entry[attr] if attr == "dn" else entry[attr][0]
                 else:
                     item[attr] = ""
-            item['__identifier__'] = item[oattr]
+            item['__identifier__'] = item[object_attribute]
 
             # Skip values that are in the skip list
             if skip_values and item['__identifier__'] in skip_values:

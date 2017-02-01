@@ -1,889 +1,892 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
-	<Object>
-		<Name>SambaUser</Name>
-		<Description>A samba extension for a POSIX user</Description>
-		<DisplayName>Samba</DisplayName>
-		<Templates>
-			<Template>user-samba.json</Template>
-			<Template>user-samba-ts.json</Template>
-		</Templates>
-		<Dialogs>
-			<Dialog>sambaLogonHours.json</Dialog>
-			<Dialog>sambaUserWorkstations.json</Dialog>
-			<Dialog>sambaDomainInfo.json</Dialog>
-		</Dialogs>
-		<BackendParameters>
-			<Backend sambaPrimaryGroupSID="SambaGroup:sambaSID" objectClasses="sambaSamAccount">LDAP</Backend>
-      <Backend sambaUserWorkstations="SambaMachineAccount:uid,">ObjectHandler</Backend>
-		</BackendParameters>
-    <Backend>LDAP</Backend>
+         xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
+    <Object>
+        <Name>SambaUser</Name>
+        <Description>A samba extension for a POSIX user</Description>
+        <DisplayName>Samba</DisplayName>
+        <Templates>
+            <Template>user-samba.json</Template>
+            <Template>user-samba-ts.json</Template>
+        </Templates>
+        <Dialogs>
+            <Dialog>sambaLogonHours.json</Dialog>
+            <Dialog>sambaUserWorkstations.json</Dialog>
+            <Dialog>sambaDomainInfo.json</Dialog>
+        </Dialogs>
+        <BackendParameters>
+            <Backend sambaPrimaryGroupSID="SambaGroup:sambaSID" objectClasses="sambaSamAccount">LDAP</Backend>
+            <Backend sambaUserWorkstations="SambaMachineAccount:uid,">ObjectHandler</Backend>
+        </BackendParameters>
+        <Backend>LDAP</Backend>
 
-    <Methods>
-      <Method>
-        <Name>getSambaDomainInformation</Name>
-        <MethodParameters>
-          <MethodParameter>
-            <Name>locale</Name>
-            <Type>UnicodeString</Type>
-            <Default>C</Default>
-          </MethodParameter>
-        </MethodParameters>
-        <Command>getSambaDomainInformation</Command>
-        <CommandParameters>
-          <Value>__self__</Value>
-          <Value>locale</Value>
-        </CommandParameters>
-      </Method>
-      <Method>
-        <Name>changeSambaPassword</Name>
-        <MethodParameters>
-          <MethodParameter>
-            <Name>password</Name>
-            <Type>UnicodeString</Type>
-            <Default></Default>
-          </MethodParameter>
-        </MethodParameters>
-        <Command>setSambaPassword</Command>
-        <CommandParameters>
-          <Value>dn</Value>
-          <Value>password</Value>
-        </CommandParameters>
-      </Method>
-    </Methods>
+        <Methods>
+            <Method>
+                <Name>getSambaDomainInformation</Name>
+                <MethodParameters>
+                    <MethodParameter>
+                        <Name>locale</Name>
+                        <Type>UnicodeString</Type>
+                        <Default>C</Default>
+                    </MethodParameter>
+                </MethodParameters>
+                <Command>getSambaDomainInformation</Command>
+                <CommandParameters>
+                    <Value>__self__</Value>
+                    <Value>locale</Value>
+                </CommandParameters>
+            </Method>
+            <Method>
+                <Name>changeSambaPassword</Name>
+                <MethodParameters>
+                    <MethodParameter>
+                        <Name>password</Name>
+                        <Type>UnicodeString</Type>
+                        <Default></Default>
+                    </MethodParameter>
+                </MethodParameters>
+                <Command>setSambaPassword</Command>
+                <CommandParameters>
+                    <Value>dn</Value>
+                    <Value>password</Value>
+                </CommandParameters>
+            </Method>
+        </Methods>
 
-		<Attributes>
-			<ForeignAttribute>
-				<Name>uid</Name>
-			</ForeignAttribute>
-			<ForeignAttribute>
-				<Name>uidNumber</Name>
-			</ForeignAttribute>
-			<ForeignAttribute>
-				<Name>displayName</Name>
-			</ForeignAttribute>
+        <Attributes>
+            <ForeignAttribute>
+                <Name>uid</Name>
+            </ForeignAttribute>
+            <ForeignAttribute>
+                <Name>uidNumber</Name>
+            </ForeignAttribute>
+            <ForeignAttribute>
+                <Name>displayName</Name>
+            </ForeignAttribute>
 
-			<Attribute>
-				<Name>sambaSID</Name>
-				<Description>Security ID</Description>
-				<Type>String</Type>
-				<OutFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>GenerateSambaSid</Name>
-								<Param>user</Param>
-								<Param>%(uidNumber)s</Param>
-								<Param>%(sambaDomainName)s</Param>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
-				<ReadOnly>true</ReadOnly>
-				<DependsOn>
-					<Attribute>sambaDomainName</Attribute>
-					<Attribute>uidNumber</Attribute>
-				</DependsOn>
-			</Attribute>
+            <Attribute>
+                <Name>sambaSID</Name>
+                <Description>Security ID</Description>
+                <Type>String</Type>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>GenerateSambaSid</Name>
+                                <Param>user</Param>
+                                <Param>%(uidNumber)s</Param>
+                                <Param>%(sambaDomainName)s</Param>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
+                <ReadOnly>true</ReadOnly>
+                <DependsOn>
+                    <Attribute>sambaDomainName</Attribute>
+                    <Attribute>uidNumber</Attribute>
+                </DependsOn>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaLMPassword</Name>
-				<Description>LanManager Password</Description>
-				<Type>String</Type>
-			</Attribute>
+            <Attribute>
+                <Name>sambaLMPassword</Name>
+                <Description>LanManager Password</Description>
+                <Type>String</Type>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaNTPassword</Name>
-				<Description>MD4 hash of the unicode password</Description>
-				<Type>String</Type>
-			</Attribute>
+            <Attribute>
+                <Name>sambaNTPassword</Name>
+                <Description>MD4 hash of the unicode password</Description>
+                <Type>String</Type>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaPwdLastSet</Name>
-				<Description>Timestamp of the last password update</Description>
-				<Type>Timestamp</Type>
-				<BackendType>Integer</BackendType>
-				<InFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>IntegerToDatetime</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
-				<OutFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>DatetimeToInteger</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
-				<ReadOnly>true</ReadOnly>
-			</Attribute>
+            <Attribute>
+                <Name>sambaPwdLastSet</Name>
+                <Description>Timestamp of the last password update</Description>
+                <Type>Timestamp</Type>
+                <BackendType>Integer</BackendType>
+                <InFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>IntegerToDatetime</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </InFilter>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>DatetimeToInteger</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
+                <ReadOnly>true</ReadOnly>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaLogonTime</Name>
-				<Description>Timestamp of last logon</Description>
-				<Type>Timestamp</Type>
-				<BackendType>Integer</BackendType>
-				<InFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>IntegerToDatetime</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
-				<OutFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>DatetimeToInteger</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
-				<ReadOnly>true</ReadOnly>
-			</Attribute>
+            <Attribute>
+                <Name>sambaLogonTime</Name>
+                <Description>Timestamp of last logon</Description>
+                <Type>Timestamp</Type>
+                <BackendType>Integer</BackendType>
+                <InFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>IntegerToDatetime</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </InFilter>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>DatetimeToInteger</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
+                <ReadOnly>true</ReadOnly>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaLogoffTime</Name>
-				<Description>Timestamp of last logoff</Description>
-				<Type>Timestamp</Type>
-				<BackendType>Integer</BackendType>
-				<InFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>IntegerToDatetime</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
-				<OutFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>DatetimeToInteger</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
-				<ReadOnly>true</ReadOnly>
-			</Attribute>
+            <Attribute>
+                <Name>sambaLogoffTime</Name>
+                <Description>Timestamp of last logoff</Description>
+                <Type>Timestamp</Type>
+                <BackendType>Integer</BackendType>
+                <InFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>IntegerToDatetime</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </InFilter>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>DatetimeToInteger</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
+                <ReadOnly>true</ReadOnly>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaKickoffTime</Name>
-				<Description>Timestamp of when the user will be logged off automatically</Description>
-				<Type>Timestamp</Type>
-				<BackendType>Integer</BackendType>
-				<InFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>IntegerToDatetime</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
-				<OutFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>DatetimeToInteger</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
-			</Attribute>
+            <Attribute>
+                <Name>sambaKickoffTime</Name>
+                <Description>Timestamp of when the user will be logged off automatically</Description>
+                <Type>Timestamp</Type>
+                <BackendType>Integer</BackendType>
+                <InFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>IntegerToDatetime</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </InFilter>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>DatetimeToInteger</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaPwdCanChange</Name>
-				<Description>Timestamp of when the user is allowed to update the password</Description>
-				<Type>Timestamp</Type>
-				<BackendType>Integer</BackendType>
-				<InFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>IntegerToDatetime</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
-				<OutFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>DatetimeToInteger</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
-			</Attribute>
+            <Attribute>
+                <Name>sambaPwdCanChange</Name>
+                <Description>Timestamp of when the user is allowed to update the password</Description>
+                <Type>Timestamp</Type>
+                <BackendType>Integer</BackendType>
+                <InFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>IntegerToDatetime</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </InFilter>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>DatetimeToInteger</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaPwdMustChange</Name>
-				<Description>Timestamp of when the password will expire</Description>
-				<Type>Timestamp</Type>
-				<BackendType>Integer</BackendType>
-				<InFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>IntegerToDatetime</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
-				<OutFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>DatetimeToInteger</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
-			</Attribute>
+            <Attribute>
+                <Name>sambaPwdMustChange</Name>
+                <Description>Timestamp of when the password will expire</Description>
+                <Type>Timestamp</Type>
+                <BackendType>Integer</BackendType>
+                <InFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>IntegerToDatetime</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </InFilter>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>DatetimeToInteger</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaHomePath</Name>
-				<Description>Home directory UNC path</Description>
-				<Type>String</Type>
-				<Validators>
-					<Condition>
-						<Name>RegEx</Name>
-						<Param>\\\\([^\\]*\\)*[^\\]</Param>
-					</Condition>
-				</Validators>
-			</Attribute>
+            <Attribute>
+                <Name>sambaHomePath</Name>
+                <Description>Home directory UNC path</Description>
+                <Type>String</Type>
+                <Validators>
+                    <Condition>
+                        <Name>RegEx</Name>
+                        <Param>\\\\([^\\]*\\)*[^\\]</Param>
+                    </Condition>
+                </Validators>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaHomeDrive</Name>
-				<Description>Driver letter of home directory mapping</Description>
-				<Type>String</Type>
-				<Values populate="getSambaDriveLetters" />
-			</Attribute>
+            <Attribute>
+                <Name>sambaHomeDrive</Name>
+                <Description>Driver letter of home directory mapping</Description>
+                <Type>String</Type>
+                <Values populate="getSambaDriveLetters"/>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaLogonScript</Name>
-				<Description>Logon script path</Description>
-				<Type>UnicodeString</Type>
-			</Attribute>
+            <Attribute>
+                <Name>sambaLogonScript</Name>
+                <Description>Logon script path</Description>
+                <Type>UnicodeString</Type>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaProfilePath</Name>
-				<Description>Roaming profile path</Description>
-				<Type>UnicodeString</Type>
-			</Attribute>
+            <Attribute>
+                <Name>sambaProfilePath</Name>
+                <Description>Roaming profile path</Description>
+                <Type>UnicodeString</Type>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaUserWorkstations</Name>
-				<Description>List of user workstations the user is allowed to logon to</Description>
-				<Type>UnicodeString</Type>
-				<BackendType>String</BackendType>
-        <MultiValue>true</MultiValue>
-				<InFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>SplitString</Name>
-								<Param>,</Param>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
-				<OutFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>JoinArray</Name>
-								<Param>,</Param>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
-			</Attribute>
+            <Attribute>
+                <Name>sambaUserWorkstations</Name>
+                <Description>List of user workstations the user is allowed to logon to</Description>
+                <Type>UnicodeString</Type>
+                <BackendType>String</BackendType>
+                <MultiValue>true</MultiValue>
+                <InFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>SplitString</Name>
+                                <Param>,</Param>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </InFilter>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>JoinArray</Name>
+                                <Param>,</Param>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaPrimaryGroupSID</Name>
-				<Description>Primary Group Security ID</Description>
-				<Type>UnicodeString</Type>
-			</Attribute>
+            <Attribute>
+                <Name>sambaPrimaryGroupSID</Name>
+                <Description>Primary Group Security ID</Description>
+                <Type>UnicodeString</Type>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaDomainName</Name>
-				<Description>Windows NT domain to which the user belongs</Description>
-				<Type>UnicodeString</Type>
-				<Mandatory>true</Mandatory>
-				<Values populate="getSambaDomainNames" />
-			</Attribute>
+            <Attribute>
+                <Name>sambaDomainName</Name>
+                <Description>Windows NT domain to which the user belongs</Description>
+                <Type>UnicodeString</Type>
+                <Mandatory>true</Mandatory>
+                <Values populate="getSambaDomainNames"/>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaBadPasswordCount</Name>
-				<Description>Bad password attempt count</Description>
-				<Type>Integer</Type>
-				<ReadOnly>true</ReadOnly>
-			</Attribute>
+            <Attribute>
+                <Name>sambaBadPasswordCount</Name>
+                <Description>Bad password attempt count</Description>
+                <Type>Integer</Type>
+                <ReadOnly>true</ReadOnly>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaBadPasswordTime</Name>
-				<Description>Time of the last bad password attempt</Description>
-				<Type>Timestamp</Type>
-				<BackendType>Integer</BackendType>
-				<InFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>IntegerToDatetime</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
-				<OutFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>DatetimeToInteger</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
-				<ReadOnly>true</ReadOnly>
-			</Attribute>
+            <Attribute>
+                <Name>sambaBadPasswordTime</Name>
+                <Description>Time of the last bad password attempt</Description>
+                <Type>Timestamp</Type>
+                <BackendType>Integer</BackendType>
+                <InFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>IntegerToDatetime</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </InFilter>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>DatetimeToInteger</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
+                <ReadOnly>true</ReadOnly>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaPasswordHistory</Name>
-				<Description>Concatenated MD5 hashes of the salted NT passwords used on this account</Description>
-				<Type>UnicodeString</Type>
-			</Attribute>
+            <Attribute>
+                <Name>sambaPasswordHistory</Name>
+                <Description>Concatenated MD5 hashes of the salted NT passwords used on this account</Description>
+                <Type>UnicodeString</Type>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaMungedDial</Name>
-				<Description>Base64 encoded user parameter string</Description>
-				<Type>UnicodeString</Type>
-				<DependsOn>
-					<Attribute>oldStorageBehavior</Attribute>
-					<Attribute>CtxCallback</Attribute>
-					<Attribute>CtxCallbackNumber</Attribute>
-					<Attribute>CtxCfgFlags1</Attribute>
-					<Attribute>CtxCfgPresent</Attribute>
-					<Attribute>CtxInitialProgram</Attribute>
-					<Attribute>CtxKeyboardLayout</Attribute>
-					<Attribute>CtxMaxConnectionTime</Attribute>
-					<Attribute>CtxMaxDisconnectionTime</Attribute>
-					<Attribute>CtxMaxIdleTime</Attribute>
-					<Attribute>CtxMinEncryptionLevel</Attribute>
-					<Attribute>CtxNWLogonServer</Attribute>
-					<Attribute>CtxShadow</Attribute>
-					<Attribute>CtxWFHomeDir</Attribute>
-					<Attribute>CtxWFHomeDirDrive</Attribute>
-					<Attribute>CtxWFProfilePath</Attribute>
-					<Attribute>CtxWorkDirectory</Attribute>
-					<Attribute>Ctx_flag_brokenConn</Attribute>
-					<Attribute>Ctx_flag_connectClientDrives</Attribute>
-					<Attribute>Ctx_flag_connectClientPrinters</Attribute>
-					<Attribute>Ctx_flag_defaultPrinter</Attribute>
-					<Attribute>Ctx_flag_inheritMode</Attribute>
-					<Attribute>Ctx_flag_reConn</Attribute>
-					<Attribute>Ctx_shadow</Attribute>
-					<Attribute>Ctx_flag_tsLogin</Attribute>
-				</DependsOn>
-				<InFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>SambaMungedDialIn</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
-				<OutFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>SambaMungedDialOut</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
-			</Attribute>
+            <Attribute>
+                <Name>sambaMungedDial</Name>
+                <Description>Base64 encoded user parameter string</Description>
+                <Type>UnicodeString</Type>
+                <DependsOn>
+                    <Attribute>oldStorageBehavior</Attribute>
+                    <Attribute>CtxCallback</Attribute>
+                    <Attribute>CtxCallbackNumber</Attribute>
+                    <Attribute>CtxCfgFlags1</Attribute>
+                    <Attribute>CtxCfgPresent</Attribute>
+                    <Attribute>CtxInitialProgram</Attribute>
+                    <Attribute>CtxKeyboardLayout</Attribute>
+                    <Attribute>CtxMaxConnectionTime</Attribute>
+                    <Attribute>CtxMaxDisconnectionTime</Attribute>
+                    <Attribute>CtxMaxIdleTime</Attribute>
+                    <Attribute>CtxMinEncryptionLevel</Attribute>
+                    <Attribute>CtxNWLogonServer</Attribute>
+                    <Attribute>CtxShadow</Attribute>
+                    <Attribute>CtxWFHomeDir</Attribute>
+                    <Attribute>CtxWFHomeDirDrive</Attribute>
+                    <Attribute>CtxWFProfilePath</Attribute>
+                    <Attribute>CtxWorkDirectory</Attribute>
+                    <Attribute>Ctx_flag_brokenConn</Attribute>
+                    <Attribute>Ctx_flag_connectClientDrives</Attribute>
+                    <Attribute>Ctx_flag_connectClientPrinters</Attribute>
+                    <Attribute>Ctx_flag_defaultPrinter</Attribute>
+                    <Attribute>Ctx_flag_inheritMode</Attribute>
+                    <Attribute>Ctx_flag_reConn</Attribute>
+                    <Attribute>Ctx_shadow</Attribute>
+                    <Attribute>Ctx_flag_tsLogin</Attribute>
+                </DependsOn>
+                <InFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>SambaMungedDialIn</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </InFilter>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>SambaMungedDialOut</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaAcctFlags</Name>
-				<Description>Account Flags</Description>
-				<Type>UnicodeString</Type>
-				<DependsOn>
-					<Attribute>acct_accountDisabled</Attribute>
-					<Attribute>acct_homeDirectoryRequired</Attribute>
-					<Attribute>acct_interDomainTrust</Attribute>
-					<Attribute>acct_isAutoLocked</Attribute>
-					<Attribute>acct_MNSLogonAccount</Attribute>
-					<Attribute>acct_passwordNotRequired</Attribute>
-					<Attribute>acct_serverTrustAccount</Attribute>
-					<Attribute>acct_temporaryDuplicateAccount</Attribute>
-					<Attribute>acct_normalUserAccount</Attribute>
-					<Attribute>acct_workstationTrustAccount</Attribute>
-					<Attribute>acct_passwordDoesNotExpire</Attribute>
-				</DependsOn>
-				<ReadOnly>true</ReadOnly>
-				<InFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>SambaAcctFlagsIn</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
-				<OutFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>SambaAcctFlagsOut</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
-			</Attribute>
+            <Attribute>
+                <Name>sambaAcctFlags</Name>
+                <Description>Account Flags</Description>
+                <Type>UnicodeString</Type>
+                <DependsOn>
+                    <Attribute>acct_accountDisabled</Attribute>
+                    <Attribute>acct_homeDirectoryRequired</Attribute>
+                    <Attribute>acct_interDomainTrust</Attribute>
+                    <Attribute>acct_isAutoLocked</Attribute>
+                    <Attribute>acct_MNSLogonAccount</Attribute>
+                    <Attribute>acct_passwordNotRequired</Attribute>
+                    <Attribute>acct_serverTrustAccount</Attribute>
+                    <Attribute>acct_temporaryDuplicateAccount</Attribute>
+                    <Attribute>acct_normalUserAccount</Attribute>
+                    <Attribute>acct_workstationTrustAccount</Attribute>
+                    <Attribute>acct_passwordDoesNotExpire</Attribute>
+                </DependsOn>
+                <ReadOnly>true</ReadOnly>
+                <InFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>SambaAcctFlagsIn</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </InFilter>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>SambaAcctFlagsOut</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
+            </Attribute>
 
-			<Attribute>
-				<Name>sambaLogonHours</Name>
-				<Description>Logon Hours</Description>
-				<Type>SambaLogonHours</Type>
-				<BackendType>UnicodeString</BackendType>
-				<Default>FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF</Default>
-			</Attribute>
+            <Attribute>
+                <Name>sambaLogonHours</Name>
+                <Description>Logon Hours</Description>
+                <Type>SambaLogonHours</Type>
+                <BackendType>UnicodeString</BackendType>
+                <Default>FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF</Default>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxKeyboardLayout</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>String</Type>
-				<Default></Default>
-				<Mandatory>true</Mandatory>
-        <BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-        </BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxKeyboardLayout</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>String</Type>
+                <Default></Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxInitialProgram</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>UnicodeString</Type>
-				<Default></Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-          <Attribute value="true">Ctx_flag_inheritMode</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxInitialProgram</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>UnicodeString</Type>
+                <Default></Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                    <Attribute value="true">Ctx_flag_inheritMode</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxCallback</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>String</Type>
-				<Default></Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxCallback</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>String</Type>
+                <Default></Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxShadow</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>String</Type>
-				<Default>01000000</Default>
-				<ReadOnly>true</ReadOnly>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxShadow</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>String</Type>
+                <Default>01000000</Default>
+                <ReadOnly>true</ReadOnly>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxWFProfilePath</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>UnicodeString</Type>
-				<Default></Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxWFProfilePath</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>UnicodeString</Type>
+                <Default></Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>oldStorageBehavior</Name>
-				<Description>There seems to be an old and a new storage method for the sambaMungedDial attribute, this flag just shows the whether the processes values was in the old or in the new style. Saved will always be done in the new way.</Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<ReadOnly>true</ReadOnly>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>oldStorageBehavior</Name>
+                <Description>There seems to be an old and a new storage method for the sambaMungedDial attribute, this
+                    flag just shows the whether the processes values was in the old or in the new style. Saved will
+                    always be done in the new way.
+                </Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <ReadOnly>true</ReadOnly>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-			<Attribute>
-				<Name>Ctx_flag_connectClientPrinters</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>true</Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>Ctx_flag_connectClientPrinters</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>true</Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxWFHomeDirDrive</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>UnicodeString</Type>
-				<Default></Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-				<Values populate="getSambaDriveLetters" />
-			</Attribute>
+            <Attribute>
+                <Name>CtxWFHomeDirDrive</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>UnicodeString</Type>
+                <Default></Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+                <Values populate="getSambaDriveLetters"/>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxMaxIdleTime</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Integer</Type>
-				<Default>0</Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxMaxIdleTime</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Integer</Type>
+                <Default>0</Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>Ctx_flag_brokenConn</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-				<Values>
-					<Value key="0">disconnect</Value>
-					<Value key="1">reset</Value>
-				</Values>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>Ctx_flag_brokenConn</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+                <Values>
+                    <Value key="0">disconnect</Value>
+                    <Value key="1">reset</Value>
+                </Values>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxCfgPresent</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>String</Type>
-				<Default>551e0bb0</Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxCfgPresent</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>String</Type>
+                <Default>551e0bb0</Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxWFHomeDir</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>UnicodeString</Type>
-				<Default></Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxWFHomeDir</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>UnicodeString</Type>
+                <Default></Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>Ctx_flag_connectClientDrives</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>true</Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>Ctx_flag_connectClientDrives</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>true</Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxWorkDirectory</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>UnicodeString</Type>
-				<Default></Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-          <Attribute value="true">Ctx_flag_inheritMode</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxWorkDirectory</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>UnicodeString</Type>
+                <Default></Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                    <Attribute value="true">Ctx_flag_inheritMode</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxNWLogonServer</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>UnicodeString</Type>
-				<Default></Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxNWLogonServer</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>UnicodeString</Type>
+                <Default></Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxMaxConnectionTime</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Integer</Type>
-				<Default>0</Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxMaxConnectionTime</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Integer</Type>
+                <Default>0</Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxMinEncryptionLevel</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Integer</Type>
-				<Default>0</Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxMinEncryptionLevel</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Integer</Type>
+                <Default>0</Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxCallbackNumber</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>UnicodeString</Type>
-				<Default></Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxCallbackNumber</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>UnicodeString</Type>
+                <Default></Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxCfgFlags1</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>String</Type>
-				<Default>00e00010</Default>
-				<ReadOnly>true</ReadOnly>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxCfgFlags1</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>String</Type>
+                <Default>00e00010</Default>
+                <ReadOnly>true</ReadOnly>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>Ctx_flag_reConn</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-				<Values>
-					<Value key="0">from any client</Value>
-					<Value key="1">from previous client only</Value>
-				</Values>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>Ctx_flag_reConn</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+                <Values>
+                    <Value key="0">from any client</Value>
+                    <Value key="1">from previous client only</Value>
+                </Values>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>Ctx_flag_defaultPrinter</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>true</Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>Ctx_flag_defaultPrinter</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>true</Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>CtxMaxDisconnectionTime</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Integer</Type>
-				<Default>0</Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>CtxMaxDisconnectionTime</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Integer</Type>
+                <Default>0</Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>Ctx_shadow</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Integer</Type>
-				<Default>1</Default>
-				<Mandatory>true</Mandatory>
-				<Values>
-					<Value key="0">disabled</Value>
-					<Value key="1">input on, notify on</Value>
-					<Value key="2">input on, notify off</Value>
-					<Value key="3">input off, notify on</Value>
-					<Value key="4">input off, notify off</Value>					
-				</Values>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>Ctx_shadow</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Integer</Type>
+                <Default>1</Default>
+                <Mandatory>true</Mandatory>
+                <Values>
+                    <Value key="0">disabled</Value>
+                    <Value key="1">input on, notify on</Value>
+                    <Value key="2">input on, notify off</Value>
+                    <Value key="3">input off, notify on</Value>
+                    <Value key="4">input off, notify off</Value>
+                </Values>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>Ctx_flag_inheritMode</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>true</Default>
-				<Mandatory>true</Mandatory>
-				<BlockedBy>
-          <Attribute value="false">Ctx_flag_tsLogin</Attribute>
-				</BlockedBy>
-			</Attribute>
+            <Attribute>
+                <Name>Ctx_flag_inheritMode</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>true</Default>
+                <Mandatory>true</Mandatory>
+                <BlockedBy>
+                    <Attribute value="false">Ctx_flag_tsLogin</Attribute>
+                </BlockedBy>
+            </Attribute>
 
-			<Attribute>
-				<Name>Ctx_flag_tsLogin</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>Ctx_flag_tsLogin</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-			<Attribute>
-				<Name>acct_accountDisabled</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>acct_accountDisabled</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-			<Attribute>
-				<Name>acct_interDomainTrust</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>acct_interDomainTrust</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-			<Attribute>
-				<Name>acct_homeDirectoryRequired</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>acct_homeDirectoryRequired</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-			<Attribute>
-				<Name>acct_MNSLogonAccount</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>acct_MNSLogonAccount</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-			<Attribute>
-				<Name>acct_isAutoLocked</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>acct_isAutoLocked</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-			<Attribute>
-				<Name>acct_passwordNotRequired</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>acct_passwordNotRequired</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-			<Attribute>
-				<Name>acct_serverTrustAccount</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>acct_serverTrustAccount</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-			<Attribute>
-				<Name>acct_normalUserAccount</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>true</Default>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>acct_normalUserAccount</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>true</Default>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-			<Attribute>
-				<Name>acct_temporaryDuplicateAccount</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>acct_temporaryDuplicateAccount</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-			<Attribute>
-				<Name>acct_workstationTrustAccount</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>acct_workstationTrustAccount</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-			<Attribute>
-				<Name>acct_passwordDoesNotExpire</Name>
-				<Description></Description>
-				<Backend>NULL</Backend>
-				<Type>Boolean</Type>
-				<Default>false</Default>
-				<Mandatory>true</Mandatory>
-			</Attribute>
+            <Attribute>
+                <Name>acct_passwordDoesNotExpire</Name>
+                <Description></Description>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Mandatory>true</Mandatory>
+            </Attribute>
 
-		</Attributes>
-		<Extends>
-			<Value>User</Value>
-		</Extends>
-		<BaseObject>false</BaseObject>
-		<RequiresExtension>
-			<Extension>PosixUser</Extension>
-		</RequiresExtension>
-	</Object>
+        </Attributes>
+        <Extends>
+            <Value>User</Value>
+        </Extends>
+        <BaseObject>false</BaseObject>
+        <RequiresExtension>
+            <Extension>PosixUser</Extension>
+        </RequiresExtension>
+    </Object>
 </Objects>
 
 

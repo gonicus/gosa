@@ -158,32 +158,39 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
 
           // There is already a value, remove it
           var value = this.getValue();
-          if(value.getLength()){
+          if (value.getLength()) {
             value.removeAll();
             this._applyValue(value);
             this.fireDataEvent("changeValue", this.getValue().copy());
-
-          }else{
-
-            // Open a new selection dialog.
-            var d = new gosa.ui.dialogs.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
-              this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames, true);
-            d.addListener("selected", function(e){
-              if(e.getData().length){
-                this.getValue().removeAll();
-                this.getValue().push(e.getData()[0]);
-                this.fireDataEvent("changeValue", this.getValue().copy());
-                this.__resolveMissingValues();
-              }
-            }, this);
-
-            d.open();
+          }
+          else {
+            this.__openSelectionDialog();
           }
         }, this);
-
-      return;
     },
 
+    __openSelectionDialog : function() {
+      var d = new gosa.ui.dialogs.ItemSelector(
+        this['tr'](this._editTitle),
+        this.getValue().toArray(),
+        this.getExtension(),
+        this.getAttribute(),
+        this._columnIDs,
+        this._columnNames,
+        true
+      );
+
+      d.addListener("selected", function(e){
+        if (e.getData().length) {
+          this.getValue().removeAll();
+          this.getValue().push(e.getData()[0]);
+          this.fireDataEvent("changeValue", this.getValue().copy());
+          this.__resolveMissingValues();
+        }
+      }, this);
+
+      d.open();
+    },
 
     /* Resolve missing value information
      * */
