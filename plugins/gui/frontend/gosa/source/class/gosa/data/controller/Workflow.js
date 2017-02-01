@@ -72,6 +72,20 @@ qx.Class.define("gosa.data.controller.Workflow", {
     },
 
     /**
+     * Summons the data necessary for the side (navigation) bar of the wizard.
+     *
+     * @return {Array} Objects with "name" and "description"; has the correct order for steps
+     */
+    getSideBarData : function() {
+      return this.__stepsConfig.map(function(item) {
+        return {
+          name : item.name,
+          description : item.description
+        };
+      });
+    },
+
+    /**
      * Creates a context (and therefore the widgets) for the given index.
      *
      * @param stepIndex {Integer}
@@ -79,12 +93,8 @@ qx.Class.define("gosa.data.controller.Workflow", {
      */
     createContextForIndex : function(stepIndex, rootWidget) {
       qx.core.Assert.assertUndefined(this.__contexts[stepIndex]);
-      this.__contexts[stepIndex] = new gosa.engine.Context(
-        this.__stepsConfig[stepIndex].template,
-        rootWidget,
-        undefined,
-        this
-      );
+      this.__contexts[stepIndex] = new gosa.engine.Context(this.__stepsConfig[stepIndex].template, rootWidget,
+        undefined, this);
     },
 
     /**

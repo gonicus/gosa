@@ -32,7 +32,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
     setController : function(controllerObject) {
       this.__controller = controllerObject;
-      this.getChildControl("sidebar");
+      this.__fillSideBar(this.__controller.getSideBarData());
     },
 
     /**
@@ -42,7 +42,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       var stack = this.getChildControl("stack");
 
       if (!stack[stepIndex]) {
-        this.__createAndAddStepWidget(stepIndex);
+        this.__createStepWidget(stepIndex);
       }
       stack.setSelection([stack.getChildren()[stepIndex]]);
     },
@@ -50,7 +50,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     /**
      * @param stepIndex {Integer}
      */
-    __createAndAddStepWidget : function(stepIndex) {
+    __createStepWidget : function(stepIndex) {
       qx.core.Assert.assertUndefined(this.getChildControl("stack").getChildren()[stepIndex]);
 
       var container = this.__createNewStepContainer();
@@ -62,13 +62,38 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       return new qx.ui.container.Composite(new qx.ui.layout.VBox());
     },
 
+    /**
+     * @param sideBarData {Array}
+     */
+    __fillSideBar : function(sideBarData) {
+      sideBarData.forEach(function(item, index) {
+        this.__createSideBarItem(index, item.name, item.description);
+      }, this);
+    },
+
+    /**
+     * @param index {Integer}
+     * @param name {String}
+     * @param description {String ? undefined}
+     */
+    __createSideBarItem : function(index, name, description) {
+      var label = new qx.ui.basic.Label("<strong>" + (index + 1) + ". " + name + "</strong>");
+      label.setRich(true);
+      this.getChildControl("sidebar").add(label);
+
+      if (description) {
+        label = new qx.ui.basic.Label(description);
+        this.getChildControl("sidebar").add(label);
+      }
+    },
+
     // overridden
     _createChildControlImpl : function(id) {
       var control;
 
-      switch(id) {
+      switch (id) {
         case "sidebar":
-          control = new qx.ui.basic.Label("TODO: sidebar");
+          control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
           this.add(control);
           break;
 
