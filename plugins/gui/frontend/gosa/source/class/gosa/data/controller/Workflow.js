@@ -104,7 +104,12 @@ qx.Class.define("gosa.data.controller.Workflow", {
         undefined, this);
     },
 
-    cancel : function() {
+    saveAndClose : function() {
+      console.warn("TODO: save workflow");
+      this.close();
+    },
+
+    close : function() {
       this.__workflowObject.close();
       this.__widget.close();
       this.dispose();
@@ -124,12 +129,13 @@ qx.Class.define("gosa.data.controller.Workflow", {
       this.__widget.showStep(index);
       this.__currentStep = index;
 
-      this.__updateButtonsEnabled();
+      this.__updateButtons();
     },
 
-    __updateButtonsEnabled : function() {
+    __updateButtons : function() {
       this.__widget.getChildControl("previous-button").setEnabled(this.__currentStep > 0);
       this.__widget.getChildControl("next-button").setEnabled(this.__currentStep < this.__stepsConfig.length - 1);
+      this.__widget.setShowSaveButton(this.__currentStep === this.__stepsConfig.length - 1);
     },
 
     /**

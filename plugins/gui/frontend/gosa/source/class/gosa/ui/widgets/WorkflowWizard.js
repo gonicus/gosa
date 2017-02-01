@@ -28,6 +28,18 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     "close" : "qx.event.type.Event"
   },
 
+  properties : {
+
+    /**
+     * Show the save button in favor of the next button.
+     */
+    showSaveButton : {
+      check : "Boolean",
+      init : false,
+      apply : "_applyShowSaveButton"
+    }
+  },
+
   members : {
     /**
      * @type {gosa.data.controller.Workflow | null}
@@ -97,6 +109,11 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       }
     },
 
+    _applyShowSaveButton : function(value) {
+      this.getChildControl("save-button").setVisibility(value ? "visible" : "excluded");
+      this.getChildControl("next-button").setVisibility(value ? "excluded" : "visible");
+    },
+
     __createButtons : function() {
       this.getChildControl("cancel-button");
       this.getChildControl("previous-button");
@@ -132,7 +149,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
         case "cancel-button":
           control = new qx.ui.form.Button(this.tr("Cancel"));
-          control.addListener("execute", this.__controller.cancel, this.__controller);
+          control.addListener("execute", this.__controller.close, this.__controller);
           this.getChildControl("button-group").add(control);
           break;
 
@@ -145,6 +162,12 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
         case "previous-button":
           control = new qx.ui.form.Button(this.tr("Previous"));
           control.addListener("execute", this.__controller.previousStep, this.__controller);
+          this.getChildControl("button-group").add(control);
+          break;
+
+        case "save-button":
+          control = new qx.ui.form.Button(this.tr("Save & Close"));
+          control.addListener("execute", this.__controller.saveAndClose, this.__controller);
           this.getChildControl("button-group").add(control);
           break;
       }
