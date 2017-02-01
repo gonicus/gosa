@@ -123,6 +123,13 @@ qx.Class.define("gosa.data.controller.Workflow", {
         qx.locale.Manager.tr("Workflow step index out of bounds %1", index));
       this.__widget.showStep(index);
       this.__currentStep = index;
+
+      this.__updateButtonsEnabled();
+    },
+
+    __updateButtonsEnabled : function() {
+      this.__widget.getChildControl("previous-button").setEnabled(this.__currentStep > 0);
+      this.__widget.getChildControl("next-button").setEnabled(this.__currentStep < this.__stepsConfig.length - 1);
     },
 
     /**
