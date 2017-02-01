@@ -166,8 +166,6 @@ qx.Class.define("gosa.ui.controller.Objects", {
 
         widget.addListener("close", function() {
           this._windowController.removeWindow(win);
-          controller.dispose();
-          widget.dispose();
           this._desktop.remove(win);
           win.destroy();
         }, this);

@@ -35,6 +35,8 @@ qx.Class.define("gosa.data.controller.Workflow", {
 
     this.__widget.setController(this);
     this.__widget.showStep(0);
+
+    this.__widget.addListenerOnce("close", this.dispose, this);
   },
 
   members : {
@@ -97,6 +99,12 @@ qx.Class.define("gosa.data.controller.Workflow", {
         undefined, this);
     },
 
+    cancel : function() {
+      this.__workflowObject.close();
+      this.__widget.close();
+      this.dispose();
+    },
+
     /**
      * @param templates {Array}
      */
@@ -118,7 +126,7 @@ qx.Class.define("gosa.data.controller.Workflow", {
   },
 
   destruct : function() {
-    this._disposeObjects("__contexts");
+    this._disposeArray("__contexts");
     this.__workflowObject = null;
     this.__widget = null;
     this.__stepsConfig = null;

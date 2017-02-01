@@ -36,7 +36,7 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
 
     process : function(node, target) {
       if (this._getValue(node, "class")) {
-        if (this._shallGenerateWidget(node)) {
+        if (this.__shouldGenerateWidget(node)) {
           var widget = this._createAndAddWidget(node, target);
           this._firstLevelExtensionsProcessed = false;
           this._createAndAddChildren(node, widget);
@@ -60,7 +60,7 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
      * @param node {Object}
      * @return {Boolean}
      */
-    _shallGenerateWidget : function(node) {
+    __shouldGenerateWidget : function(node) {
       // check if attribute is in object description so it can at least be read
       var modelPath = this._getValue(node, "modelPath") || this._getValue(node, "buddyModelPath");
       if (modelPath && !qx.lang.Array.contains(this._context.getAttributes(), modelPath)) {

@@ -24,6 +24,10 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     this.setLayout(new qx.ui.layout.HBox());
   },
 
+  events : {
+    "close" : "qx.event.type.Event"
+  },
+
   members : {
     /**
      * @type {gosa.data.controller.Workflow | null}
@@ -33,6 +37,12 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     setController : function(controllerObject) {
       this.__controller = controllerObject;
       this.__fillSideBar(this.__controller.getSideBarData());
+      this.__createButtons();
+    },
+
+    close : function() {
+      this.fireEvent("close");
+      this.destroy();
     },
 
     /**
@@ -87,11 +97,20 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       }
     },
 
+    __createButtons : function() {
+      this.getChildControl("cancel-button");
+    },
+
     // overridden
     _createChildControlImpl : function(id) {
       var control;
 
       switch (id) {
+        case "form-container":
+          control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+          this.add(control);
+          break;
+
         case "sidebar":
           control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
           this.add(control);
@@ -99,7 +118,18 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
         case "stack":
           control = new qx.ui.container.Stack();
-          this.add(control);
+          this.getChildControl("form-container").addAt(control, 0);
+          break;
+
+        case "button-group":
+          control = new qx.ui.container.Composite(new qx.ui.layout.HBox());
+          this.getChildControl("form-container").addAt(control, 1);
+          break;
+
+        case "cancel-button":
+          control = new qx.ui.form.Button(this.tr("Cancel"));
+          control.addListener("execute", this.__controller.cancel, this.__controller);
+          this.getChildControl("button-group").add(control);
           break;
       }
 

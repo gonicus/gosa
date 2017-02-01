@@ -63,6 +63,6 @@ qx.Class.define("gosa.engine.WidgetRegistry", {
 
   destruct : function() {
     this.removeAndDisposeAllWidgets();
-    this._disposeObjects("_registry");
+    this._registry = null;
   }
 });
