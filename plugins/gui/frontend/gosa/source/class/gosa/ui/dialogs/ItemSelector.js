@@ -34,7 +34,6 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     // init table model
     gosa.io.Rpc.getInstance().cA("searchForObjectDetails", extension, attribute, "", column_keys, current_values)
       .then(function(result) {
-        console.log(result);
         this.__tableModel.setDataAsMapArray(result, true, false);
       }, this);
   },
