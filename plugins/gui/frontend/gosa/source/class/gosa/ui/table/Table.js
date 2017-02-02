@@ -79,7 +79,8 @@ qx.Class.define("gosa.ui.table.Table",
 
   destruct : function()
   {
-    this.__lastPreferences = this.__defaultPreferences = this.__recurrentSeconds = null;
+    this.__lastPreferences = null;
+    this.__defaultPreferences = null;
     this.__timer = null;
   },
 
@@ -104,9 +105,9 @@ qx.Class.define("gosa.ui.table.Table",
     },
     
 
-    /*! \brief  Collects table preferences like sorting direction
-     *           and visible columns and save these information back to
-     *           current user model.
+    /**
+     * Collects table preferences like sorting direction and visible columns and save these information back to current
+     * user model.
      */
     saveUserPreferences: function()
     {
@@ -129,7 +130,7 @@ qx.Class.define("gosa.ui.table.Table",
           id |= 1;
         }
 
-        // Get colum sort state.
+        // Get column sort state.
         if(this.getTableModel().getSortColumnIndex() == i){
           if(this.getTableModel().isSortAscending()){
             id |= 2;
@@ -252,4 +253,3 @@ qx.Class.define("gosa.ui.table.Table",
     }
   }
 });
-// vim:tabstop=2:expandtab:shiftwidth=2

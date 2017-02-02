@@ -116,26 +116,19 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
         }
       }.bind(this));
 
-      if(updated){
+      if (updated) {
         this.setValue(new qx.data.Array(value));
         this.fireDataEvent("changeValue", this.getValue().copy());
       }
     },
 
-    /* Update the table model and try to resolve missing values.
-     * */
-    _updatedTableData: function(data){
+    _updatedTableData: function(){
       this.__updateDataModel();
       this.__resolveMissingValues();
     },
 
-
-    /* Applies a new value for this widget
-     * */
     _applyValue: function(value){
-
-      // This happens when this widgets gets destroyed - all properties will be set to null.
-      if(value === null){
+      if (value === null) {
         return;
       }
 
@@ -156,7 +149,6 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
         this._initially_send_update = false;
       }
       this._initially_set = true;
-
     },
 
 
@@ -199,33 +191,27 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       }
     },
 
-
-    /* Set the visible content of the table.
-     * */
     __updateDataModel: function(){
-      if(!this._table){
+      if (!this._table) {
         return;
       }
       this._tableData = [];
-      var values = this.getValue().toArray();
-      for(var i=0; i<values.length; i++ ){
+
+      this.getValue().toArray().forEach(function(value) {
         var row_data = {};
-        if(values[i] in this._resolvedNames){
-          row_data = this._resolvedNames[values[i]];
-        }else{
-          row_data[this._firstColumn] = values[i];
+        if (value in this._resolvedNames) {
+          row_data = this._resolvedNames[value];
+        }
+        else {
+          row_data[this._firstColumn] = value;
         }
         this._tableData.push(row_data);
-      }
+      }, this);
+
       this._tableModel.setDataAsMapArray(this._tableData, true, false);
       this._table.sort();
     },
 
-
-    /* Apply porperties that were defined in the ui-tempalte.
-     *
-     * Collect column names here.
-     * */
     _applyGuiProperties: function(props){
 
       // This happens when this widgets gets destroyed - all properties will be set to null.
@@ -241,10 +227,12 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       var first = null;
       if('columns' in props){
         for(var col in props['columns']){
-          this._columnNames.push(this['tr'](props['columns'][col]));
-          this._columnIDs.push(col);
-          if(!first){
-            first = col;
+          if (props['columns'].hasOwnProperty(col)) {
+            this._columnNames.push(this['tr'](props['columns'][col]));
+            this._columnIDs.push(col);
+            if (!first) {
+              first = col;
+            }
           }
         }
       }
