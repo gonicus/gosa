@@ -164,7 +164,6 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
             target.set(property, transformedProperties[property]);
           }
           else {
-            qx.log.Logger.warn('Property: ' + property + ' not available on target widget: ' + target.basename);
             target[property] = transformedProperties[property];
           }
         }

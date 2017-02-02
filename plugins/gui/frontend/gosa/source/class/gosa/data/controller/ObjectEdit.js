@@ -294,8 +294,12 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
 
     __setUpTemporaryContext : function(context) {
       gosa.util.Object.iterate(context.getWidgetRegistry().getMap(), function(attributeName, widget) {
-        this.__connectModelWithWidget(attributeName, this.__object.attribute_data[attributeName], widget,
+        this.__connectModelWithWidget(
+          attributeName,
+          this.__object.attribute_data[attributeName],
+          widget,
           context.getBuddyRegistry().getMap()[attributeName]);
+        this.__addModifyListeners(attributeName, widget, true);
       }, this);
     },
 
@@ -305,7 +309,6 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     _onObjectClosing : function(event) {
       var data = event.getData();
 
-      // TODO: How can this happen?
       if (data.uuid !== this.__object.uuid) {
         return;
       }
@@ -399,7 +402,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
 
     __setUpWidgets : function() {
       this.__connectModelWithWidgets();
-      this._addModifyListeners();
+      this.__addModifyListenersForAllContexts();
     },
 
     __connectModelWithWidgets : function() {
@@ -433,40 +436,39 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       return null;
     },
 
-    __connectModelWithWidget : function(name, attribute, currentWidget, currentBuddy) {
-      if (qx.lang.Array.contains(this._connectedAttributes, name)) {
+    __connectModelWithWidget : function(attributeName, attribute, currentWidget, currentBuddy) {
+      if (qx.lang.Array.contains(this._connectedAttributes, attributeName)) {
         return;
       }
 
       this._handleProperties(attribute, currentWidget, currentBuddy);
-      currentWidget.setValue(this.__object.get(name));
+      currentWidget.setValue(this.__object.get(attributeName));
 
       // binding from widget to model
-      currentWidget.bind("value", this.__object, name);
+      currentWidget.bind("value", this.__object, attributeName);
     },
 
-    _addModifyListeners : function() {
+    __addModifyListenersForAllContexts : function() {
       this._widget.getContexts().forEach(function(context) {
-        var widgets = context.getWidgetRegistry().getMap();
-        var widget, listenerId;
-        for (var modelPath in widgets) {
-          if (widgets.hasOwnProperty(modelPath)) {
-            if (qx.lang.Array.contains(this._connectedAttributes, modelPath)) {
-              continue;
-            }
-            widget = widgets[modelPath];
-            listenerId = widget.addListener("changeValue", this._onChangeWidgetValue, this);
-            widget[listenerId] = widget;
-
-            // check validity
-            if (widget instanceof gosa.ui.widgets.Widget) {
-              this._validatingWidgets.push(widget);
-            }
-
-            this._connectedAttributes.push(modelPath);
-          }
-        }
+        gosa.util.Object.iterate(context.getWidgetRegistry().getMap(), this.__addModifyListeners, this);
       }, this);
+    },
+
+    __addModifyListeners : function(modelPath, widget, temporary) {
+      if (qx.lang.Array.contains(this._connectedAttributes, modelPath)) {
+        return;
+      }
+      var listenerId = widget.addListener("changeValue", this._onChangeWidgetValue, this);
+      widget[listenerId] = widget;
+
+      // check validity
+      if (widget instanceof gosa.ui.widgets.Widget) {
+        this._validatingWidgets.push(widget);
+      }
+
+      if (!temporary) {
+        this._connectedAttributes.push(modelPath);
+      }
     },
 
     /**
