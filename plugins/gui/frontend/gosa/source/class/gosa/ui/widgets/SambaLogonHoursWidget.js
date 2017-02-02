@@ -21,61 +21,9 @@ qx.Class.define("gosa.ui.widgets.SambaLogonHoursWidget", {
     this.base(arguments);
     this.contents.setLayout(new qx.ui.layout.Canvas());
 
-    // Create a pane with a grid layout to place all the checkboxes
-    var grid_l = new qx.ui.layout.Grid();
-    var pane = new qx.ui.container.Composite(grid_l);
-    grid_l.setRowAlign(0, "center", "middle");
-    grid_l.setRowAlign(1, "center", "middle");
-    grid_l.setRowAlign(2, "center", "middle");
-    this.contents.add(pane);
-    pane.add(new qx.ui.basic.Label(this.tr("Hour")), {row: 0, column: 2, colSpan: 23});
-
-    // Create the checkboxes and the controls
-    var togglers = [];
-    for(var d=0; d < 7; d++){
-
-      // Center elements in the grid
-      grid_l.setRowAlign(d + 2, "center", "middle");
-
-      // Add a day-name label in front of each row
-      var rtb = new qx.ui.form.ToggleButton(qx.locale.Date.getDayName("wide", d));
-      rtb.setAppearance("button-link");
-      pane.add(rtb, {row: d + 2, column: 0});
-
-      // Add one checkbox per hour
-      for(var h=0; h < 24; h++){
-        var t = new qx.ui.form.CheckBox();
-        t.setAllowGrowX(true);
-        t.setCenter(true);
-        pane.add(t, {row:d + 2, column: h + 1});
-        togglers.push(t);
-        t.addListener("changeValue", this.__updateValue, this);
-
-        if (d === 0) {
-          t.setBackgroundColor("rgba(255, 10, 10, " + (h % 2 ? 0.15 : 0.1) + ")");
-        }
-        else {
-          t.setBackgroundColor("rgba(100, 100, 100, " + (h % 2 ? 0.1 : 0.0) + ")");
-        }
-      }
-
-      // Bind toggler
-      for(var x=0; x<24; x++){
-        rtb.bind("value", togglers[x + (d * 24)], "value");
-      }
-    }
-
-    // Add toggle-column button
-    for(var h=0; h < 24; h++){
-      var tb = new qx.ui.form.ToggleButton(h.toString());
-      tb.setAppearance("button-link");
-      pane.add(tb, {row: 1 , column: h + 1});
-      for(var x=0; x< 7; x++){
-        tb.bind("value", togglers[ (x * 24) + h], "value");
-      }
-    }
-    this.contents.add(pane, {left:10, top: 10});
-    this.togglers = togglers;
+    this.__createPane();
+    this.__createCheckBoxes();
+    this.__createDayButtons();
   },
 
   statics: {
@@ -95,9 +43,71 @@ qx.Class.define("gosa.ui.widgets.SambaLogonHoursWidget", {
   },    
 
   members: {
-    togglers: null,
-    _property_timer: null,
+    __togglers: null,
+    __propertyTimer: null,
+    __pane : null,
+    __gridLayout : null,
 
+    __createPane : function() {
+      this.__gridLayout = new qx.ui.layout.Grid();
+      this.__pane = new qx.ui.container.Composite(this.__gridLayout);
+
+      this.__gridLayout.setRowAlign(0, "center", "middle");
+      this.__gridLayout.setRowAlign(1, "center", "middle");
+      this.__gridLayout.setRowAlign(2, "center", "middle");
+
+      this.contents.add(this.__pane);
+      this.__pane.add(new qx.ui.basic.Label(this.tr("Hour")), {row: 0, column: 2, colSpan: 23});
+      this.contents.add(this.__pane, {left: 10, top: 10});
+    },
+
+    __createCheckBoxes : function() {
+      this.__togglers = [];
+      for (var d = 0; d < 7; d++) {
+
+        // Center elements in the grid
+        this.__gridLayout.setRowAlign(d + 2, "center", "middle");
+
+        // Add a day-name label in front of each row
+        var toggleButton = new qx.ui.form.ToggleButton(qx.locale.Date.getDayName("wide", d));
+        toggleButton.setAppearance("button-link");
+        this.__pane.add(toggleButton, {row: d + 2, column: 0});
+
+        // Add one checkbox per hour
+        for (var h = 0; h < 24; h++) {
+          var checkBox = new qx.ui.form.CheckBox();
+          checkBox.setAllowGrowX(true);
+          checkBox.setCenter(true);
+          this.__pane.add(checkBox, {row: d + 2, column: h + 1});
+          this.__togglers.push(checkBox);
+          checkBox.addListener("changeValue", this.__updateValue, this);
+
+          if (d === 0) {
+            checkBox.setBackgroundColor("rgba(255, 10, 10, " + (h % 2 ? 0.15 : 0.1) + ")");
+          }
+          else {
+            checkBox.setBackgroundColor("rgba(100, 100, 100, " + (h % 2 ? 0.1 : 0.0) + ")");
+          }
+        }
+
+        // Bind toggler
+        for (var x = 0; x < 24; x++) {
+          toggleButton.bind("value", this.__togglers[x + (d * 24)], "value");
+        }
+      }
+    },
+
+    __createDayButtons : function() {
+      for (var h = 0; h < 24; h++) {
+        var toggleButton = new qx.ui.form.ToggleButton(h.toString());
+        toggleButton.setAppearance("button-link");
+        this.__pane.add(toggleButton, {row: 1, column: h + 1});
+
+        for (var x = 0; x < 7; x++) {
+          toggleButton.bind("value", this.__togglers[(x * 24) + h], "value");
+        }
+      }
+    },
 
     /* This method updates the value-property and sends the "changeValue" 
      * event after a period of time, to tell the object-proxy that values have changed.
@@ -108,13 +118,13 @@ qx.Class.define("gosa.ui.widgets.SambaLogonHoursWidget", {
     _propertyUpdaterTimed: function(new_data){
 
       var timer = qx.util.TimerManager.getInstance();
-      if(this._property_timer != null){
-        timer.stop(this._property_timer);
-        this._property_timer = null;
+      if(this.__propertyTimer != null){
+        timer.stop(this.__propertyTimer);
+        this.__propertyTimer = null;
       }
-      this._property_timer = timer.start(function(){
-          timer.stop(this._property_timer);
-          this._property_timer = null;
+      this.__propertyTimer = timer.start(function(){
+          timer.stop(this.__propertyTimer);
+          this.__propertyTimer = null;
           this.fireDataEvent("changeValue", new_data);
         }, null, this, null, 1000);
     },
@@ -129,7 +139,7 @@ qx.Class.define("gosa.ui.widgets.SambaLogonHoursWidget", {
       var bits = "";
       for(var day=0; day < 7; day++){
         for(var hour=0; hour< 24; hour ++){
-          bits += this.togglers[(day*24)+hour].getValue() ? "1" : "0";
+          bits += this.__togglers[(day*24)+hour].getValue() ? "1" : "0";
         }
       }
       var new_data = new qx.data.Array([bits]);
@@ -142,10 +152,15 @@ qx.Class.define("gosa.ui.widgets.SambaLogonHoursWidget", {
       if(!this.isDisposed() && value.getLength()){
         for(var day=0; day < 7; day++){
           for(var hour=0; hour< 24; hour ++){
-            this.togglers[(day*24)+hour].setValue(value.getItem(0)[(day * 24) + hour] == 1);
+            this.__togglers[(day*24)+hour].setValue(value.getItem(0)[(day * 24) + hour] == 1);
           }
         }
       }
     }
+  },
+
+  destruct : function() {
+    this.__gridLayout = null;
+    this._disposeObjects("_pane");
   }
 });
