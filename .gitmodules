@@ -1,6 +1,6 @@
 [submodule "plugins/gui/frontend/qooxdoo"]
 	path = plugins/gui/frontend/qooxdoo
-	url = git@github.com:gonicus/qooxdoo.git
+	url = https://github.com/gonicus/qooxdoo.git
 [submodule "plugins/gui/frontend/capture"]
 	path = plugins/gui/frontend/capture
 	url = https://github.com/cajus/capture.git

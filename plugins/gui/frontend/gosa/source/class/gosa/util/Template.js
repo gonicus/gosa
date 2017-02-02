@@ -139,7 +139,7 @@ qx.Class.define("gosa.util.Template", {
      *
      * @param template {Object} Compiled template
      * @param path {Array} List of property names in order (e.g. ["children", 1, "modelPath"]
-     * @return {*} The value found at the path; undefined if invalid path (null would be a valid value)
+     * @return {var} The value found at the path; undefined if invalid path (null would be a valid value)
      */
     getValueAtPath : function(template, path) {
       if (!qx.lang.Type.isArray(path)) {

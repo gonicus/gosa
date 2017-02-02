@@ -29,6 +29,12 @@
             "condition": "!isLocked",
             "shortcut": "Ctrl+P"
         }, {
+            "name": "actionSetupPasswordRecovery",
+            "dialog": "ChangePasswordRecovery",
+            "text": "tr('Setup password recovery')",
+            "icon": "actionChange2FAMethod",
+            "condition": "!isLocked"
+        }, {
             "name": "actionLock",
             "target": "lock()",
             "text": "tr('Lock account')",

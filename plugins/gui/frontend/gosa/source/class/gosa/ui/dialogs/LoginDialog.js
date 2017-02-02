@@ -72,11 +72,24 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
 
       this.addElement(new gosa.ui.form.renderer.Single(form, false));
 
+      // password recovery link
+      var recovery = new qx.ui.basic.Label(this.tr("Forgot password?"));
+      recovery.set({
+        padding: [10, 0],
+        textColor: "highlight",
+        cursor: "pointer"
+      });
+      recovery.addListener("tap", function() {
+        var dialog = new gosa.ui.dialogs.PasswordRecovery();
+        dialog.open();
+      }, this);
+      this.addAt(recovery, 1);
+
       // Add status label
       var info = this._info = new qx.ui.basic.Label();
       info.setRich(true);
       info.exclude();
-      this.addAt(info, 1);
+      this.addAt(info, 2);
       this.getLayout().setAlignX("center");
 
       var login = this._login = gosa.ui.base.Buttons.getButton(this.tr("Login"));

@@ -22,12 +22,11 @@ import traceback
 import logging
 import tornado.web
 import time
-from gosa.backend.objects import ObjectProxy
 from gosa.common.hsts_request_handler import HSTSRequestHandler
 from tornado.gen import coroutine
 from gosa.common.gjson import loads, dumps
 from gosa.common.utils import f_print, N_
-from gosa.common.error import GosaErrorHandler as C, GosaException
+from gosa.common.error import GosaErrorHandler as C
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry, JSONRPCException
 from gosa.common.components.auth import *
@@ -35,6 +34,7 @@ from gosa.backend import __version__ as VERSION
 from gosa.backend.lock import GlobalLock
 from gosa.backend.utils.ldap import check_auth
 from gosa.backend.exceptions import FilterException
+from gosa.common.components.command import no_login_commands
 import hashlib
 
 
@@ -150,19 +150,13 @@ class JsonRpcHandler(HSTSRequestHandler):
         if not isinstance(params, list) and not isinstance(params, dict):
             raise ValueError(C.make_error("PARAMETER_LIST_OR_DICT"))
 
-        if method == 'getError':
-            # errors can occur before or during login so we have to allow this method without authentication
-            self.log.debug("calling method %s(%s)" % (method, params))
-
-            if isinstance(params, dict):
-                result = self.dispatcher.call(method, **params)
-            else:
-                result = self.dispatcher.call(method, *params)
-            return dict(result=result, error=None, id=jid)
-
         # Check if we're globally locked currently
         if GlobalLock.exists("scan_index"):
             raise FilterException(C.make_error('INDEXING', "base"))
+
+        # execute command if it is allowed without login
+        if method in no_login_commands:
+            return self.dispatch(method, params, jid)
 
         cls = self.__class__
 
@@ -177,7 +171,7 @@ class JsonRpcHandler(HSTSRequestHandler):
             result = {
                 'state': AUTH_FAILED
             }
-            print(cls.__dos_manager)
+
             lock_result = self.get_lock_result(user)
             if lock_result is not None:
                 return dict(result=lock_result, error=None, id=jid)
@@ -272,10 +266,14 @@ class JsonRpcHandler(HSTSRequestHandler):
         if cls.__session[sid]['auth_state'] != AUTH_SUCCESS:
             raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
+        return self.dispatch(method, params, jid)
+
+    def dispatch(self, method, params, jid):
         cached_method = method[0:2] == "**"
+        hash_value = None
         if cached_method:
             method = method[2:]
-            hash = params.pop(0)
+            hash_value = params.pop(0)
         # Try to call method with dispatcher
         if not self.dispatcher.hasMethod(method):
             text = "No such method '%s'" % method
@@ -341,7 +339,7 @@ class JsonRpcHandler(HSTSRequestHandler):
         self.log.debug("returning call [%s]: %s / %s" % (jid, result, None))
         if cached_method:
             response_hash = hashlib.md5(repr(result).encode('utf-8')).hexdigest()
-            if hash == response_hash:
+            if hash_value == response_hash:
                 # cache hit
                 result = dict(hash=response_hash)
             else:

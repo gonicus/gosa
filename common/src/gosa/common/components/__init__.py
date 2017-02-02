@@ -10,6 +10,7 @@
 __import__('pkg_resources').declare_namespace(__name__)
 from gosa.common.components.objects import ObjectRegistry
 from gosa.common.components.command import Command
+from gosa.common.components.command import no_login_commands
 from gosa.common.components.command import CommandInvalid
 from gosa.common.components.command import CommandNotAuthorized
 from gosa.common.components.jsonrpc_proxy import JSONRPCException

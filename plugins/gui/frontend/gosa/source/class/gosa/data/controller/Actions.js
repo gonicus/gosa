@@ -18,6 +18,7 @@
 qx.Class.define("gosa.data.controller.Actions", {
 
   extend : qx.core.Object,
+  implement: gosa.data.controller.IAction,
 
   /**
    * @param object {gosa.proxy.Object}
@@ -30,6 +31,11 @@ qx.Class.define("gosa.data.controller.Actions", {
 
   members : {
     __object : null,
+
+    // overridden
+    allowMethodSelection: function() {
+      return true;
+    },
 
     /**
      * Returns the dn of the object.
@@ -115,6 +121,16 @@ qx.Class.define("gosa.data.controller.Actions", {
       qx.core.Assert.assertString(method);
       qx.core.Assert.assertString(password);
       return this.__object.changePasswordMethod(method, password);
+    },
+
+    /**
+     * Change the password recovery answers.
+     *
+     * @param data {String} stringified json map (Answer index (key) => Answer (value))
+     * @return {qx.Promise}
+     */
+    changePasswordRecoveryAnswers: function(data) {
+      return this.__object.changePasswordRecoveryAnswers(data);
     },
 
     /**

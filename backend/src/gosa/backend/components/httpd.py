@@ -21,6 +21,7 @@ import ssl
 import tornado.wsgi
 import tornado.web
 import pkg_resources
+import socket
 from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
 from zope.interface import implementer
@@ -135,6 +136,13 @@ class HTTPService(object):
         self.thread.start()
 
         self.log.info("now serving on %s://%s:%s" % (self.scheme, self.host, self.port))
+
+    def get_gui_uri(self):
+        """ Returns the gui URI as a tuple of base URI and relative path"""
+        default = "index.html"
+        if self.env.config.get("gui.debug", "false") == "true":  # pragma: nocover
+            default = "gosa/source/index.html"
+        return "%s://%s:%s" %(self.scheme, socket.gethostname(), self.port), default
 
     def start(self):
         IOLoop.configure('tornado.platform.asyncio.AsyncIOLoop')

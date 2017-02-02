@@ -53,7 +53,7 @@ class PasswordMethod(object):  # pragma: nocover
 
     def is_responsible_for_password_hash(self, password_hash):
         """
-        Checks whether this class is responsible for this kind of password hashes of not.
+        Checks whether this class is responsible for this kind of password hashes or not.
         """
         raise NotImplementedError(C.make_error('NOT_IMPLEMENTED', method="is_responsible_for_password_hash"))
 
@@ -62,3 +62,9 @@ class PasswordMethod(object):  # pragma: nocover
         Generates a password hash for the given password and method
         """
         raise NotImplementedError(C.make_error('NOT_IMPLEMENTED', method="generate_password_hash"))
+
+    def compare_hash(self, new_password, complete_hash):
+        """
+        Checks whether the given new_password is the same as the encrypted one
+        """
+        raise NotImplementedError(C.make_error('NOT_IMPLEMENTED', method="compare_hash"))

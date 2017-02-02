@@ -121,6 +121,7 @@ setup(
         password = gosa.backend.plugins.password.manager:PasswordManager
         uploads = gosa.backend.plugins.upload.main:UploadManager
         two_factor = gosa.backend.plugins.two_factor.main:TwoFactorAuthManager
+        mail = gosa.backend.plugins.mail.main:Mail
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP

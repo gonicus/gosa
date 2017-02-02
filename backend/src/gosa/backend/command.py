@@ -39,7 +39,7 @@ from pkg_resources import resource_filename #@UnresolvedImport
 from threading import Event
 from inspect import getargspec, getmembers, ismethod
 from zope.interface import implementer
-from gosa.common.components import PluginRegistry, ObjectRegistry, Command
+from gosa.common.components import PluginRegistry, ObjectRegistry, Command, no_login_commands
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.utils import stripNs, N_
@@ -109,8 +109,7 @@ class CommandRegistry(Plugin):
 
         return res
 
-    @Command(__help__=N_("List available methods " +
-        "that are registered on the bus."))
+    @Command(__help__=N_("List available methods that are registered on the bus."))
     def getMethods(self, locale=None):
         """
         Lists the all methods that are available in the domain.
@@ -139,6 +138,10 @@ class CommandRegistry(Plugin):
                 res[name]['doc'] = t.gettext(info['doc'])
 
         return res
+
+    @Command(noLoginRequired=True, __help__=N_("List available methods that are allowed without login."))
+    def getNoLoginMethods(self):
+        return no_login_commands
 
     @Command(__help__=N_("Shut down the service."))
     def shutdown(self, force=False):

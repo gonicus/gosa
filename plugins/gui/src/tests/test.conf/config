@@ -7,6 +7,9 @@ host = localhost
 port = 8000
 sslpemfile = /etc/gosa/host.pem
 
+[gui]
+debug = true
+
 [ldap]
 url = ldap://127.0.0.1/dc=example,dc=net
 bind-dn = cn=ldapadmin,dc=example,dc=net
