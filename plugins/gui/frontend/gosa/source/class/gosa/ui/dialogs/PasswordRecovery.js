@@ -79,13 +79,18 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
     _currentStep : null,
     _answerModelPaths: null,
     _controller: null,
+    _formRenderer: null,
 
     _createFormRenderer: function() {
-      if (this._currentStep === "questions") {
-        return new gosa.ui.form.renderer.LabelAbove(this._form, false);
-      } else {
-        return new gosa.ui.form.renderer.Single(this._form, false);
+      if (!this._formRenderer) {
+        if (this._currentStep === "questions") {
+          this._formRenderer = new gosa.ui.form.renderer.LabelAbove(this._form, false);
+        }
+        else {
+          this._formRenderer = new gosa.ui.form.renderer.Single(this._form, false);
+        }
       }
+      return this._formRenderer;
     },
 
     __initStart: function() {
@@ -168,9 +173,12 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
         switch (this._currentStep) {
           case "start":
             // check if username exists
-            gosa.io.Rpc.getInstance().cA("requestPasswordReset", this._uid.getValue(), null, this._currentStep)
+            gosa.io.Rpc.getInstance().cA("requestPasswordReset", this._uid.getValue(), this._currentStep)
             .then(function() {
-              this.showInfo(this.tr("An e-mail has been send to your account. Please follow the instructions in this mail."));
+              this.showInfo(this.tr("An e-mail has been send to your account. Please follow the instructions in this mail. You can close this window now."));
+              this._formRenderer.exclude();
+              this._buttonPane.exclude();
+              this.center();
             }, this)
             .catch(this.__handleRpcError, this);
             break;
@@ -185,8 +193,8 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
               if (result === true) {
                 // open change password dialog
                 var actionController = new gosa.data.RecoveryActionController(this._data.uid, this._data.uuid);
-                actionController.addListener("changeResult", function(result) {
-                  if (result === true) {
+                actionController.addListener("changeSuccessful", function(ev) {
+                  if (ev.getData() === true) {
                     this.close();
                   } else {
                     // do not close this dialog, error
@@ -194,9 +202,11 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
                 }, this);
                 var dialog = new gosa.ui.dialogs.actions.ChangePasswordDialog(actionController);
                 dialog.open();
+                this.hideInfo();
               } else {
                 // at least one answer must have been wrong
                 this.showError(this.tr("At least one answer is wrong, please try again. You can reload this window to receive other questions."));
+                this.center();
               }
             }, this)
             .catch(this.__handleRpcError, this);
