@@ -9,6 +9,7 @@ cache:
   pip: true
   directories:
     - plugins/gui/frontend/gosa/build
+    - /home/travis/virtualenv
 before_install:
     - sudo cp test_conf/org.gosa.conf /etc/dbus-1/system.d/
     - ls -la /etc/dbus-1/system.d/
