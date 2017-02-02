@@ -24,7 +24,7 @@ qx.Class.define("gosa.util.UploadMgr", {
     /**
      * Allocates a unique ID
      *
-     * @returns {Number}
+     * @return {Number}
      */
     _getUniqueFileId: function() {
       return ++this.__lastId;

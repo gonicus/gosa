@@ -238,9 +238,9 @@ class SambaGuiMethods(Plugin):
             days = int((attrs['sambaPwdCanChange'] - time_now) / (60*60*24))
             hours = int(((attrs['sambaPwdCanChange'] - time_now) / (60*60)) % 24)
             minutes = int(((attrs['sambaPwdCanChange'] - time_now) / (60)) % 60)
-            attrs['sambaPwdCanChange'] = " " + days    + " " + trn(N_("day"), N_("days"), days)
-            attrs['sambaPwdCanChange']+= " " + hours   + " " + trn(N_("hour"), N_("hours"), hours)
-            attrs['sambaPwdCanChange']+= " " + minutes + " " + trn(N_("minute"), N_("minutes"), minutes)
+            attrs['sambaPwdCanChange'] = " " + str(days)    + " " + trn(N_("day"), N_("days"), days)
+            attrs['sambaPwdCanChange']+= " " + str(hours)   + " " + trn(N_("hour"), N_("hours"), hours)
+            attrs['sambaPwdCanChange']+= " " + str(minutes) + " " + trn(N_("minute"), N_("minutes"), minutes)
 
         res = "\n<div style='overflow: auto;'>" + \
             "\n<table style='width:100%;'>" + \

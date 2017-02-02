@@ -71,7 +71,7 @@ qx.Class.define("gosa.data.controller.Dashboard", {
     /**
      *
      * @param widget {gosa.plugins.AbstractDashboardWidget} dashboard widget instance
-     * @returns {Map} the registered widget options
+     * @return {Map} the registered widget options
      */
     getWidgetOptions: function(widget) {
       var packageName = gosa.util.Reflection.getPackageName(widget);
