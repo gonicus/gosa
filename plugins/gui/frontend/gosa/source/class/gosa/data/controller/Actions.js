@@ -18,7 +18,7 @@
 qx.Class.define("gosa.data.controller.Actions", {
 
   extend : qx.core.Object,
-  implement: gosa.data.IActionController,
+  implement: gosa.data.controller.IAction,
 
   /**
    * @param object {gosa.proxy.Object}

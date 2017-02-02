@@ -192,7 +192,7 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
             .then(function(result) {
               if (result === true) {
                 // open change password dialog
-                var actionController = new gosa.data.RecoveryActionController(this._data.uid, this._data.uuid);
+                var actionController = new gosa.data.controller.RecoveryAction(this._data.uid, this._data.uuid);
                 actionController.addListener("changeSuccessful", function(ev) {
                   if (ev.getData() === true) {
                     this.close();

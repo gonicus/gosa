@@ -21,13 +21,13 @@ qx.Class.define("gosa.ui.dialogs.actions.Base", {
   extend: gosa.ui.dialogs.Dialog,
 
   /**
-   * @param actionController {gosa.data.IActionController}
+   * @param actionController {gosa.data.controller.IAction}
    * @param caption {String}
    * @param icon {String}
    */
   construct: function(actionController, caption, icon) {
     this.base(arguments, caption, icon);
-    qx.core.Assert.assertInterface(actionController, gosa.data.IActionController);
+    qx.core.Assert.assertInterface(actionController, gosa.data.controller.IAction);
     this._actionController = actionController;
   },
 
