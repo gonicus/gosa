@@ -38,7 +38,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     this.__backendChangeController = new gosa.data.controller.BackendChanges(obj, this);
 
     this._addListenersToAllContexts();
-    this._setUpWidgets();
+    this.__setUpWidgets();
 
     this._widget.addListener("contextAdded", this._onContextAdded, this);
     obj.addListener(
@@ -81,8 +81,6 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     __object : null,
     _widget : null,
     _changeValueListeners : null,
-    _currentWidget : null,
-    _currentBuddy : null,
     _initialized : false,
     _validatingWidgets : null,
     _connectedAttributes : null,
@@ -129,7 +127,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
           if (widgetBuddyTuple) {
             widget = widgetBuddyTuple.widget;
             // open tab with widget
-            this._widget.openTab(widgetBuddyTuple.context);
+            this.__widget.openTab(widgetBuddyTuple.context);
           }
         }
         if (widget) {
@@ -305,7 +303,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       });
 
       contexts.forEach(function(context) {
-        this._widget.removeTab(context.getRootWidget());
+        this.__widget.removeTab(context.getRootWidget());
       }, this);
     },
 
@@ -342,7 +340,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       }
       else {
         templateObjects.forEach(function(templateObject) {
-          this._widget.addTab(templateObject);
+          this.__widget.addTab(templateObject);
         }, this);
       }
     },
@@ -353,58 +351,56 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
 
     _addListenerToContext : function(context) {
       if (!context.isAppeared()) {
-        context.addListenerOnce("widgetsCreated", this._setUpWidgets, this);
+        context.addListenerOnce("widgetsCreated", this.__setUpWidgets, this);
       }
     },
 
-    _setUpWidgets : function() {
-      this._connectModelWithWidget();
+    __setUpWidgets : function() {
+      this.__connectModelWithWidgets();
       this._addModifyListeners();
     },
 
-    _connectModelWithWidget : function() {
-      var o = this.__object;
-      var widgets, attribute;
-
-      for (var name in o.attribute_data) {
-        if (o.attribute_data.hasOwnProperty(name)) {
-
-          if (qx.lang.Array.contains(this._connectedAttributes, name)) {
-            continue;
-          }
-
-          attribute = o.attribute_data[name];
-          widgets = this._findWidgets(name);
-          if (widgets === null) {
-            continue;
-          }
-
-          if (widgets.hasOwnProperty("widget") && widgets.widget instanceof qx.ui.core.Widget) {
-            this._currentWidget = widgets.widget;
-          }
-          else {
-            this._currentWidget = null;
-          }
-
-          if (widgets.hasOwnProperty("buddy") && widgets.buddy instanceof qx.ui.core.Widget) {
-            this._currentBuddy = widgets.buddy;
-          }
-          else {
-            this._currentBuddy = null;
-          }
-
-          this._handleProperties(attribute);
-          this._currentWidget.setValue(o.get(name));
-
-          // binding from widget to model
-          this._currentWidget.bind("value", o, name);
-        }
-      }
+    __connectModelWithWidgets : function() {
+      gosa.util.Object.iterate(this.__object.attribute_data, this.__connectModelWithWidget, this);
 
       if (!this._globalObjectListenersSet) {
-        o.addListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
+        this.__object.addListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
         this._globalObjectListenersSet = true;
       }
+    },
+
+    __getWidgetFrom: function(findWidgetMap) {
+      if (findWidgetMap.hasOwnProperty("widget") && findWidgetMap.widget instanceof qx.ui.core.Widget) {
+        return findWidgetMap.widget;
+      }
+      return null;
+    },
+
+    __getBuddyFrom: function(findWidgetMap) {
+      if (findWidgetMap.hasOwnProperty("buddy") && findWidgetMap.buddy instanceof qx.ui.core.Widget) {
+        return findWidgetMap.buddy;
+      }
+      return null;
+    },
+
+    __connectModelWithWidget : function(name, attribute) {
+      if (qx.lang.Array.contains(this._connectedAttributes, name)) {
+        return;
+      }
+
+      var widgets = this._findWidgets(name);
+      if (widgets === null) {
+        return;
+      }
+
+      var currentWidget = this.__getWidgetFrom(widgets);
+      var currentBuddy = this.__getBuddyFrom(widgets);
+
+      this._handleProperties(attribute, currentWidget, currentBuddy);
+      currentWidget.setValue(this.__object.get(name));
+
+      // binding from widget to model
+      currentWidget.bind("value", this.__object, name);
     },
 
     _addModifyListeners : function() {
@@ -418,7 +414,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
             }
             widget = widgets[modelPath];
             listenerId = widget.addListener("changeValue", this._onChangeWidgetValue, this);
-            widget[listenerId] = this._currentWidget;
+            widget[listenerId] = widget;
 
             // check validity
             if (widget instanceof gosa.ui.widgets.Widget) {
@@ -463,59 +459,58 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       return null;
     },
 
-    /**
-     * @param attribute {Object}
-     */
-    _handleProperties : function(attribute) {
-      var setValue = {};
+    __getSetMapFor : function(attribute) {
+      var setMap = {};
 
-      if (attribute.hasOwnProperty("mandatory")) {
-        setValue.mandatory = !!attribute.mandatory;
+      if (attribute["mandatory"]) {
+        setMap.mandatory = !!attribute.mandatory;
       }
-      if (attribute.hasOwnProperty("readonly")) {
-        setValue.readOnly = !!attribute.readonly;
+      if (attribute["readonly"]) {
+        setMap.readOnly = !!attribute.readonly;
       }
-      if (attribute.hasOwnProperty("multivalue")) {
-        setValue.multivalue = !!attribute.multivalue;
+      if (attribute["multivalue"]) {
+        setMap.multivalue = !!attribute.multivalue;
       }
-      if (attribute.hasOwnProperty("default")) {
-        setValue.defaultValue = attribute["default"];
+      if (attribute["default"]) {
+        setMap.defaultValue = attribute["default"];
       }
-      if (attribute.hasOwnProperty("type")) {
-        setValue.type = attribute.type;
+      if (attribute["type"]) {
+        setMap.type = attribute.type;
       }
-      if (attribute.hasOwnProperty("case_sensitive")) {
-        setValue.caseSensitive = attribute.case_sensitive;
+      if (attribute["case_sensitive"]) {
+        setMap.caseSensitive = attribute.case_sensitive;
       }
-      if (attribute.hasOwnProperty("unique")) {
-        setValue.unique = attribute.unique;
+      if (attribute["unique"]) {
+        setMap.unique = attribute.unique;
       }
-      if (attribute.hasOwnProperty("depends_on")) {
-        setValue.dependsOn = attribute.depends_on;
+      if (attribute["depends_on"]) {
+        setMap.dependsOn = attribute.depends_on;
       }
-      if (attribute.hasOwnProperty("values")) {
-        setValue.values = attribute.values;
+      if (attribute["values"]) {
+        setMap.values = attribute.values;
       }
+      return setMap;
+    },
 
-      if (this._currentWidget) {
-        this._currentWidget.set(setValue);
-      }
-      if (this._currentBuddy) {
-        this._currentBuddy.set(setValue);
-      }
+    _handleProperties : function(attribute, currentWidget, currentBuddy) {
+      var setMap = this.__getSetMapFor(attribute);
 
+      if (currentWidget) {
+        currentWidget.set(setMap);
+      }
+      if (currentBuddy) {
+        currentBuddy.set(setMap);
+      }
 
       if (attribute.hasOwnProperty("blocked_by")) {
-        var cw = this._currentWidget;
-        var cd = this._currentBuddy;
-        this._handleBlockedBy(attribute.blocked_by, function() {
-          this.__initCompleteWidget(cw);
-          this.__initCompleteWidget(cd);
+        this._handleBlockedBy(attribute.blocked_by, currentWidget, currentBuddy, function() {
+          this.__initCompleteWidget(currentWidget);
+          this.__initCompleteWidget(currentBuddy);
         }, this);
       }
       else {
-        this.__initCompleteWidget(this._currentWidget);
-        this.__initCompleteWidget(this._currentBuddy);
+        this.__initCompleteWidget(currentWidget);
+        this.__initCompleteWidget(currentBuddy);
       }
     },
 
@@ -532,7 +527,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       })).schedule();
     },
 
-    _handleBlockedBy : function(value, callback, context) {
+    _handleBlockedBy : function(value, currentWidget, currentBuddy, callback, context) {
       if (value.length === 0) {
         if (callback) {
           callback.call(context);
@@ -540,8 +535,6 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
         return;
       }
       var allWidgets = [];
-      var currentBuddy = this._currentBuddy;
-      var currentWidget = this._currentWidget;
 
       var listenerCallback = function() {
         var block = allWidgets.some(function(item) {
@@ -688,7 +681,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
      */
     _onContextAdded : function(event) {
       this._addListenerToContext(event.getData());
-      this._setUpWidgets();
+      this.__setUpWidgets();
     }
   },
 
