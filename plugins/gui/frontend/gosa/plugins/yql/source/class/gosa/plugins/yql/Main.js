@@ -121,14 +121,14 @@ qx.Class.define("gosa.plugins.yql.Main", {
     // property apply
     _applyQuery: function(value) {
       if (value) {
-        if (!this.__store) {
-          this.__store = new qx.data.store.Yql(value, this.__getDelegate());
-          this.__store.bind("model", this.getChildControl("list"), "model");
-          this.__createTimer();
-          this.__timer.addListener("interval", this.__store.reload, this.__store);
-        } else {
-          this.__store.setUrl(value);
+        if (this.__store) {
+          this.__timer.removeListener("interval", this.__store.reload, this.__store);
+          this.__store.dispose();
         }
+        this.__store = new qx.data.store.Yql(value, this.__getDelegate());
+        this.__store.bind("model", this.getChildControl("list"), "model");
+        this.__createTimer();
+        this.__timer.addListener("interval", this.__store.reload, this.__store);
       } else {
         this.__timer.stop();
       }

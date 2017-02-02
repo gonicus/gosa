@@ -170,15 +170,15 @@ qx.Class.define("gosa.view.Search", {
         filter : function(data) {
           var show = true;
 
-          if (this.__selection.secondary != "enabled") {
+          if (this.__selection.secondary && this.__selection.secondary !== "enabled") {
             show = data.getSecondary() === false;
           }
 
-          if (show && this.__selection.category !== 'all' && this.__selection.category != data.getType()) {
+          if (show && this.__selection.category && this.__selection.category !== 'all' && this.__selection.category != data.getType()) {
             show = false;
           }
 
-          if (show && this.__selection["mod-time"] !== 'all') {
+          if (show && this.__selection["mod-time"] && this.__selection["mod-time"] !== 'all') {
             show = data.getLastChanged().toTimeStamp() > (this.__now - deltas[this.__selection["mod-time"]]);
           }
 
@@ -353,6 +353,7 @@ qx.Class.define("gosa.view.Search", {
     },
 
     showSearchResults : function(items, duration, fuzzy, query) {
+      console.log("showSearchResults");
       var i = items.length;
 
       this._currentResult = items;
@@ -461,9 +462,10 @@ qx.Class.define("gosa.view.Search", {
       // Update categories
       if (this.searchAid.hasFilter()) {
         this.searchAid.updateFilter("category", categories);
+        console.log("updating search aid filter");
 
       } else {
-
+        console.log("add search aid filter");
         this.searchAid.addFilter(this.tr("Category"), "category",
             categories, this.__selection.category);
 
@@ -481,6 +483,7 @@ qx.Class.define("gosa.view.Search", {
             "year": { name: this.tr("Last year"), count: modifiedCounters.year }
         }, this.__selection['mod-time']);
       }
+      console.log(this.searchAid);
     },
 
     __sortByRelevance: function(a, b){
@@ -629,7 +632,7 @@ qx.Class.define("gosa.view.Search", {
       for(i=0; i<this._currentResult.length; i++){
         if(this._currentResult[i].uuid == entry.uuid){
           this._currentResult[i] = entry;
-          return;
+          break;
         }
       }
     },
@@ -652,7 +655,6 @@ qx.Class.define("gosa.view.Search", {
       // else we would add the item the the result-list
       // again and again and ...
       this._currentResult.push(entry);
-      return;
     },
 
 
@@ -677,10 +679,9 @@ qx.Class.define("gosa.view.Search", {
       for(i=0; i<this._currentResult.length; i++){
         if(this._currentResult[i].uuid == entry.uuid){
           qx.lang.Array.remove(this._currentResult, this._currentResult[i]);
-          return;
+          break;
         }
       }
-      return;
     },
 
 
