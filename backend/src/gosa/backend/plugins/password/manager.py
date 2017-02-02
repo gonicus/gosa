@@ -7,7 +7,6 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import random
-import crypt
 
 import pkg_resources
 import logging
@@ -228,7 +227,7 @@ class PasswordManager(Plugin):
         Set a new password for a user
         """
 
-        # Do we have read permissions for the requested attribute
+        # Do we have write permissions for the requested attribute
         env = Environment.getInstance()
         topic = "%s.objects.%s.attributes.%s" % (env.domain, "User", "userPassword")
         aclresolver = PluginRegistry.getInstance("ACLResolver")
@@ -376,7 +375,7 @@ class PasswordManager(Plugin):
 
         elif step == "get_questions":
             # check correct state
-            if recovery_state['state'] != 'started':
+            if recovery_state['state'] is None:
                 raise PasswordException(C.make_error("PASSWORD_RECOVERY_IMPOSSIBLE"))
 
             # return the indices of the questions the user has answered
@@ -386,7 +385,7 @@ class PasswordManager(Plugin):
 
         elif step == "check_answers":
             # check correct state
-            if recovery_state['state'] != 'started':
+            if recovery_state['state'] is None:
                 raise PasswordException(C.make_error("PASSWORD_RECOVERY_IMPOSSIBLE"))
 
             data = loads(data)
@@ -419,7 +418,8 @@ class PasswordManager(Plugin):
             if recovery_state['state'] != 'verified':
                 raise PasswordException(C.make_error("PASSWORD_RECOVERY_IMPOSSIBLE"))
 
-            user.changePassword(data)
+            self.setUserPassword(uid, user.dn, data)
+
             user.passwordRecoveryState = None
             user.commit()
             return True

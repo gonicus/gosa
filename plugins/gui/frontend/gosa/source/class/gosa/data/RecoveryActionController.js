@@ -20,7 +20,7 @@ qx.Class.define("gosa.data.RecoveryActionController", {
   extend : qx.core.Object,
   implement: gosa.data.IActionController,
 
-  construct : function(uuid, uid) {
+  construct : function(uid, uuid) {
     this.base(arguments);
     this._uuid = uuid;
     this._uid = uid;
