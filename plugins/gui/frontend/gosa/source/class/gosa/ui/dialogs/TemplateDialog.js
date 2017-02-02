@@ -71,7 +71,9 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
     _addWidgets : function() {
       var container = new qx.ui.container.Composite(new qx.ui.layout.VBox());
       this.addElement(container, {flex : 1});
-      new gosa.engine.Context(this._parsedTemplate, container, this._extension, this.getController());
+
+      var context = new gosa.engine.Context(this._parsedTemplate, container, this._extension, this.getController());
+      this.getController().handleTemporaryContext(context);
     }
   }
 });

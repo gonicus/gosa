@@ -40,7 +40,6 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     this._addListenersToAllContexts();
     this.__setUpWidgets();
 
-    this._widget.addListener("contextAdded", this._onContextAdded, this);
     obj.addListener(
       "foundDifferencesDuringReload",
       this.__backendChangeController.onFoundDifferenceDuringReload,
@@ -257,6 +256,49 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       return null;
     },
 
+    addContext : function(context) {
+      this._addListenerToContext(context);
+      this.__setUpWidgets();
+    },
+
+    handleTemporaryContext : function(context) {
+      if (context.isAppeared()) {
+        this.__setUpTemporaryContext(context);
+      }
+      else {
+        context.addListenerOnce("widgetsCreated", function() {
+          this.__setUpTemporaryContext(context);
+        }, this);
+      }
+    },
+
+    /**
+     * Check the widgets validity for the given context
+     *
+     * @param context {gosa.engine.Context}
+     * @return {boolean}
+     */
+    checkValidity : function(context) {
+      var valid = true;
+      if (context) {
+        var contextWidgets = context.getWidgetRegistry().getMap();
+        for (var modelPath in contextWidgets) {
+          if (contextWidgets.hasOwnProperty(modelPath)) {
+            var widget = contextWidgets[modelPath];
+            valid = valid && (this._validatingWidgets.indexOf(widget) === -1 || widget.isValid() || widget.isBlocked());
+          }
+        }
+      }
+      return valid;
+    },
+
+    __setUpTemporaryContext : function(context) {
+      gosa.util.Object.iterate(context.getWidgetRegistry().getMap(), function(attributeName, widget) {
+        this.__connectModelWithWidget(attributeName, this.__object.attribute_data[attributeName], widget,
+          context.getBuddyRegistry().getMap()[attributeName]);
+      }, this);
+    },
+
     /**
      * Called when the event {@link gosa.proxy.Object#closing} is sent.
      */
@@ -361,7 +403,15 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     },
 
     __connectModelWithWidgets : function() {
-      gosa.util.Object.iterate(this.__object.attribute_data, this.__connectModelWithWidget, this);
+      gosa.util.Object.iterate(this.__object.attribute_data, function(attributeName, attribute) {
+        var widgets = this._findWidgets(name);
+        if (widgets === null) {
+          return;
+        }
+
+        this.__connectModelWithWidget(attributeName, attribute, this.__getWidgetFrom(widgets),
+          this.__getBuddyFrom(widgets));
+      }, this);
 
       if (!this._globalObjectListenersSet) {
         this.__object.addListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);
@@ -383,18 +433,10 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       return null;
     },
 
-    __connectModelWithWidget : function(name, attribute) {
+    __connectModelWithWidget : function(name, attribute, currentWidget, currentBuddy) {
       if (qx.lang.Array.contains(this._connectedAttributes, name)) {
         return;
       }
-
-      var widgets = this._findWidgets(name);
-      if (widgets === null) {
-        return;
-      }
-
-      var currentWidget = this.__getWidgetFrom(widgets);
-      var currentBuddy = this.__getBuddyFrom(widgets);
 
       this._handleProperties(attribute, currentWidget, currentBuddy);
       currentWidget.setValue(this.__object.get(name));
@@ -654,34 +696,6 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       this.setValid(this._validatingWidgets.every(function(widget) {
         return widget.isValid() || widget.isBlocked();
       }));
-    },
-
-    /**
-     * Check the widgets validity for the given context
-     *
-     * @param context {gosa.engine.Context}
-     * @return {boolean}
-     */
-    checkValidity : function(context) {
-      var valid = true;
-      if (context) {
-        var contextWidgets = context.getWidgetRegistry().getMap();
-        for (var modelPath in contextWidgets) {
-          if (contextWidgets.hasOwnProperty(modelPath)) {
-            var widget = contextWidgets[modelPath];
-            valid = valid && (this._validatingWidgets.indexOf(widget) === -1 || widget.isValid() || widget.isBlocked());
-          }
-        }
-      }
-      return valid;
-    },
-
-    /**
-     * @param event {qx.event.type.Data}
-     */
-    _onContextAdded : function(event) {
-      this._addListenerToContext(event.getData());
-      this.__setUpWidgets();
     }
   },
 
@@ -692,7 +706,6 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       this.__backendChangeController.onFoundDifferenceDuringReload,
       this.__backendChangeController
     );
-    this._widget.removeListener("contextAdded", this._onContextAdded, this);
 
     if (this.__object && !this.__object.isDisposed()) {
       this.__object.removeListener("propertyUpdateOnServer", this._onPropertyUpdateOnServer, this);

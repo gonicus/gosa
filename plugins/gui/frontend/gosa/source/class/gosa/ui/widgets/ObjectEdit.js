@@ -141,7 +141,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
       this._updateExtensionMenus();
 
-      this.fireDataEvent("contextAdded", context);
+      this.getController().addContext(context);
     },
 
     /**
