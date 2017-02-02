@@ -9,6 +9,7 @@ cache:
   pip: true
   directories:
     - plugins/gui/frontend/gosa/build
+    - plugins/gui/frontend/gosa/node_modules
     - /home/travis/virtualenv
     - /tmp/qx5.1
 before_install:
