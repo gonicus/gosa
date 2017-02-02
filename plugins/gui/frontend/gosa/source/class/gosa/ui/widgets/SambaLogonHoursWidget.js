@@ -22,7 +22,7 @@ qx.Class.define("gosa.ui.widgets.SambaLogonHoursWidget", {
     this.contents.setLayout(new qx.ui.layout.Canvas());
 
     // Create a pane with a grid layout to place all the checkboxes
-    var grid_l = new qx.ui.layout.Grid(2, 2);
+    var grid_l = new qx.ui.layout.Grid();
     var pane = new qx.ui.container.Composite(grid_l);
     grid_l.setRowAlign(0, "center", "middle");
     grid_l.setRowAlign(1, "center", "middle");
@@ -35,36 +35,43 @@ qx.Class.define("gosa.ui.widgets.SambaLogonHoursWidget", {
     for(var d=0; d < 7; d++){
 
       // Center elements in the grid
-      grid_l.setRowAlign(d+3, "center", "middle");
+      grid_l.setRowAlign(d + 2, "center", "middle");
 
       // Add a day-name label in front of each row
-      pane.add(new qx.ui.basic.Label(qx.locale.Date.getDayName("wide", d)), {row: d + 3, column: 0});
+      var rtb = new qx.ui.form.ToggleButton(qx.locale.Date.getDayName("wide", d));
+      rtb.setAppearance("button-link");
+      pane.add(rtb, {row: d + 2, column: 0});
 
       // Add one checkbox per hour
       for(var h=0; h < 24; h++){
         var t = new qx.ui.form.CheckBox();
-        pane.add(t, {row:d + 3, column: h + 1});
+        t.setAllowGrowX(true);
+        t.setCenter(true);
+        pane.add(t, {row:d + 2, column: h + 1});
         togglers.push(t);
         t.addListener("changeValue", this.__updateValue, this);
+
+        if (d === 0) {
+          t.setBackgroundColor("rgba(255, 10, 10, " + (h % 2 ? 0.15 : 0.1) + ")");
+        }
+        else {
+          t.setBackgroundColor("rgba(100, 100, 100, " + (h % 2 ? 0.1 : 0.0) + ")");
+        }
       }
 
-      // Add a toggle-row button
-      var c = new qx.ui.form.ToggleButton("+/-");
-      c.setBackgroundColor("gray");
-      pane.add(c, {row: d + 3, column: 25});
+      // Bind toggler
       for(var x=0; x<24; x++){
-        c.bind("value", togglers[x + (d * 24)], "value");
+        rtb.bind("value", togglers[x + (d * 24)], "value");
       }
     }
 
     // Add toggle-column button
     for(var h=0; h < 24; h++){
-      var c = new qx.ui.form.ToggleButton("+/-");
-      c.setBackgroundColor("gray");
-      pane.add(new qx.ui.basic.Label(h.toString()), {row: 1 , column: h + 1});
-      pane.add(c, {row: 2 , column: h + 1});
+      var tb = new qx.ui.form.ToggleButton(h.toString());
+      tb.setAppearance("button-link");
+      pane.add(tb, {row: 1 , column: h + 1});
       for(var x=0; x< 7; x++){
-        c.bind("value", togglers[ (x * 24) + h], "value");
+        tb.bind("value", togglers[ (x * 24) + h], "value");
       }
     }
     this.contents.add(pane, {left:10, top: 10});
