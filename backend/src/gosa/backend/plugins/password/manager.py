@@ -7,7 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import random
-
+import uuid as Uuid
 import pkg_resources
 import logging
 from gosa.common.components import Plugin
@@ -358,7 +358,7 @@ class PasswordManager(Plugin):
             if 'uuid' not in recovery_state:
                 # generate a new id
                 recovery_state['sent_counter'] = 0
-                recovery_state['uuid'] = str(uuid.uuid4())
+                recovery_state['uuid'] = str(Uuid.uuid4())
                 recovery_state['state'] = 'started'
 
             # send the link to the user
