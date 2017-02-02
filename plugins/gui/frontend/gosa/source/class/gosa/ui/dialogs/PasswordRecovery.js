@@ -47,6 +47,7 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
 
     this.addElement(this._createFormRenderer());
     this._controller = new qx.data.controller.Form(null, this._form);
+    this._form.getValidationManager().setValidator(this.__validateForm.bind(this));
   },
 
   /*
@@ -107,7 +108,7 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
 
     __initQuestions: function() {
       // add the selection/answer fields
-      var selectBoxes = [];
+      var selectBoxes = this._selectBoxes = [];
       var selectionControllers = new qx.data.Array();
 
       if (this._currentStep==="edit_answers" ) {
@@ -123,7 +124,8 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
 
           var answer = new qx.ui.form.TextField();
           answer.setRequired(true);
-          this._form.add(answer, this.tr("Answer %1", i), null, "answer"+i);
+          answer.setInvalidMessage(this.tr("Invalid answer."));
+          this._form.add(answer, this.tr("Answer %1", i), qx.lang.Function.curry(this.__validateAnswer.bind(this), i-1), "answer"+i);
         }
 
         gosa.io.Rpc.getInstance().cA("listRecoveryQuestions")
@@ -156,6 +158,47 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
         }, this)
         .catch(this.__handleRpcError, this);
       }
+    },
+
+    /**
+     * Validate the complete form
+     */
+    __validateForm: function() {
+      // check for duplicate questions
+      var selectedQuestions = [];
+      this._selectBoxes.forEach(function(box) {
+        var question = box.getModelSelection().getItem(0);
+        if (selectedQuestions.indexOf(question) >= 0) {
+          box.setValid(false);
+          box.setInvalidMessage(this.tr("Please avoid duplicate questions."))
+        } else {
+          selectedQuestions.push(question);
+        }
+      }, this);
+    },
+
+    /**
+     * Validate an answer field
+     * @param idx {Number} answer index
+     * @param value {String} current field content
+     * @return {Boolean} True if the answer is valid
+     */
+    __validateAnswer: function(idx, value) {
+      if (!value) {
+        return false;
+      }
+      var cleanedValue = value.replace(/[\W]+/gi, "");
+      if (cleanedValue.length === 0) {
+        return false;
+      }
+
+      // check that the user did not use the given example
+      var question = this._selectBoxes[idx].getModelSelection().getItem(0);
+      var example = question.match(/.+\((.+)\)\s*\??$/);
+      if (!example || example.length < 2) {
+        return true;
+      }
+      return (example[1].replace(/[\W]+/gi, "").indexOf(cleanedValue) === -1);
     },
 
     __handleRpcError: function(error) {
