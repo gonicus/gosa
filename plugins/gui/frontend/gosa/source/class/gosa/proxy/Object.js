@@ -220,7 +220,7 @@ qx.Class.define("gosa.proxy.Object", {
       // Skip events now.
       this.skipEvents = true;
 
-      this.isClosed = true;
+      this.setClosed(true);
       this.dispose();
       return gosa.io.Rpc.getInstance().cA("closeObject", this.instance_uuid);
     },
