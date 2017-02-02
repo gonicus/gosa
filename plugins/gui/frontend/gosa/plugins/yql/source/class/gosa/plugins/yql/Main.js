@@ -122,6 +122,7 @@ qx.Class.define("gosa.plugins.yql.Main", {
     _applyQuery: function(value) {
       if (value) {
         if (this.__store) {
+          this.__timer.removeListener("interval", this.__store.reload, this.__store);
           this.__store.dispose();
         }
         this.__store = new qx.data.store.Yql(value, this.__getDelegate());
