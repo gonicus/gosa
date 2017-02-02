@@ -213,7 +213,7 @@ qx.Class.define("gosa.proxy.Object", {
 
     /**
      * Closes the current object
-     * @returns {qx.Promise}
+     * @return {qx.Promise}
      */
     close : function(){
 
@@ -236,7 +236,7 @@ qx.Class.define("gosa.proxy.Object", {
 
     /**
      *  Reload attribute values from the backend
-     * @returns {qx.Promise}
+     * @return {qx.Promise}
      */
     reload: function(){
       if(this.is_reloading){
@@ -254,7 +254,7 @@ qx.Class.define("gosa.proxy.Object", {
      * Updates attribute values by fetching them from the server.
      *
      * @param skipValueUpdate {Boolean}
-     * @returns {qx.Promise}
+     * @return {qx.Promise}
      */
     refreshAttributeInformation: function(skipValueUpdate){
 
@@ -328,7 +328,7 @@ qx.Class.define("gosa.proxy.Object", {
 
     /**
      * Reloads the current extension status.
-     * @returns {qx.Promise}
+     * @return {qx.Promise}
      */
     refreshMetaInformation : function()
     {
@@ -344,7 +344,7 @@ qx.Class.define("gosa.proxy.Object", {
      * Wrapper method for object calls
      *
      * @param method {String} name of the method to call
-     * @returns {qx.Promise}
+     * @return {qx.Promise}
      */
     callMethod: function(method){
 

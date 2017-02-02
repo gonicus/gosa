@@ -154,7 +154,7 @@ qx.Class.define("gosa.io.Rpc", {
     /**
      * Create a {qx.Promise} for the RPC call
      * @param argx {Array} arguments for the RPC call
-     * @returns {qx.Promise}
+     * @return {qx.Promise}
      * @private
      */
     __promiseCallAsync: function(argx) {
@@ -226,7 +226,7 @@ qx.Class.define("gosa.io.Rpc", {
      * Handle rpc errors and re-trigger the RPC oif necessary
      * @param argx {Array} the arguments from the errored RPC
      * @param error {Error}
-     * @returns {*}
+     * @return {*}
      * @private
      */
     __handleRpcError: function(argx, error) {
@@ -648,7 +648,7 @@ qx.Class.define("gosa.io.Rpc", {
      * Retrieves the cached repsonse from an old RPC call
      *
      * @param paramString {String} concatenated parameters of the RPC call
-     * @returns {String} RPC call result
+     * @return {String} RPC call result
      */
     getCachedResponse: function(paramString) {
       return qx.bom.Storage.getLocal().getItem(paramString);

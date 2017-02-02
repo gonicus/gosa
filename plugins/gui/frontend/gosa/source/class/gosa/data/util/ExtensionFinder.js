@@ -118,7 +118,7 @@ qx.Class.define("gosa.data.util.ExtensionFinder", {
      * Checks if the given extension is currently attached to the object.
      *
      * @param extension {String} Name of the extension
-     * @returns {Boolean} If the extension is attached
+     * @return {Boolean} If the extension is attached
      */
     isActiveExtension : function(extension) {
       return !!this.__object.extensionTypes[extension];
