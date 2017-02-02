@@ -404,7 +404,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
 
     __connectModelWithWidgets : function() {
       gosa.util.Object.iterate(this.__object.attribute_data, function(attributeName, attribute) {
-        var widgets = this._findWidgets(name);
+        var widgets = this._findWidgets(attributeName);
         if (widgets === null) {
           return;
         }

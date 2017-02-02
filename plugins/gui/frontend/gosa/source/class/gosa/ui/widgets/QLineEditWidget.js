@@ -16,10 +16,6 @@ qx.Class.define("gosa.ui.widgets.QLineEditWidget", {
 
   extend: gosa.ui.widgets.MultiEditWidget,
 
-  construct: function(){
-    this.base(arguments);
-  },
-
   properties: {
 
     /* Tells the widget how to display its contents
