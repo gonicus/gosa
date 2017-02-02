@@ -57,7 +57,7 @@ class JSONRPCObjectMapper(Plugin):
     _target_ = 'core'
     _priority_ = 70
     __stack = None
-    __inactivity_timeout = 10  # Number of minutes after which the object close announement is sent
+    __inactivity_timeout = 10  # Number of minutes after which the object close announcement is sent
 
     def __init__(self):
         self.env = Environment.getInstance()

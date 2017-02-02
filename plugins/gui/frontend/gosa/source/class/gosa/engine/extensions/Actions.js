@@ -102,6 +102,8 @@ qx.Class.define("gosa.engine.extensions.Actions", {
           var dialog = new clazz(context.getActionController());
           dialog.setAutoDispose(true);
           dialog.open();
+
+          context.addDialog(dialog);
         });
       }
 

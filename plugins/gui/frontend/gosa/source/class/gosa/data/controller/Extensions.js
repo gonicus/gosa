@@ -116,6 +116,7 @@ qx.Class.define("gosa.data.controller.Extensions", {
         var dialog = new gosa.ui.dialogs.AddDependentExtensions(this.__extensionFinder.getAllMissingExtensions());
         dialog.addListenerOnce("confirmed", this.__onMissingExtensionsDialogConfirm, this);
         dialog.open();
+        this.__widgetController.addDialog(dialog);
       }
     },
 
@@ -196,6 +197,7 @@ qx.Class.define("gosa.data.controller.Extensions", {
 
     _createExtendDependencyDialog : function(extension, dependencies) {
       var dialog = new gosa.ui.dialogs.ExtendDependencies(extension, dependencies);
+      this.__widgetController.addDialog(dialog);
       dialog.show();
 
       dialog.addListenerOnce("ok", function() {
@@ -205,6 +207,7 @@ qx.Class.define("gosa.data.controller.Extensions", {
 
     _createRetractDependencyDialog : function(extension, dependencies) {
       var dialog = new gosa.ui.dialogs.RetractDependencies(extension, dependencies);
+      this.__widgetController.addDialog(dialog);
       dialog.show();
 
       dialog.addListenerOnce("ok", function() {

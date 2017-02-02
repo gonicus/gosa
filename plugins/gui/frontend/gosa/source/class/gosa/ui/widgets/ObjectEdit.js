@@ -29,6 +29,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     this._templates = templates;
 
     this._contexts = [];
+    this.__openDialogs = [];
 
     this.setLayout(new qx.ui.layout.VBox());
   },
@@ -72,7 +73,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _actionMenu : null,
     _extendButton : null,
     _retractButton : null,
-    _closingDialog : null,
+    __openDialogs : null,
 
     /**
      * Retrieve all contexts this widget is showing.
@@ -151,40 +152,44 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
      * @param minutes {Integer} Timeout until the object is automatically closed
      */
     onClosing : function(dn, minutes) {
-      qx.core.Assert.assertPositiveInteger(minutes);
-
-      // cleanup old dialogs
-      this.closeClosingDialog();
-
-      this._closingDialog = new gosa.ui.dialogs.ClosingObject(dn, minutes * 60);
-
-      this._closingDialog.addListener("closeObject", function() {
-        this.closeClosingDialog();
+      var closingDialog = new gosa.ui.dialogs.ClosingObject(dn, minutes * 60);
+      closingDialog.addListener("closeObject", function() {
+        this.closeOpenDialogs();
         this.getController().closeObject();
         this._close();
       }, this);
-
-      // keep open
-      this._closingDialog.addListener("continue", this.getController().continueEditing, this.getController());
-
-      this._closingDialog.open();
+      closingDialog.addListener("continue", this.getController().continueEditing, this.getController());
+      closingDialog.open();
+      this.addDialog(closingDialog);
     },
 
     /**
      * Closes the closing dialog if there is one.
      */
-    closeClosingDialog : function () {
-      if (this._closingDialog) {
-        this._closingDialog.close();
-        this._closingDialog = null;
-      }
+    closeOpenDialogs : function () {
+      this.__openDialogs.forEach(function(dialog) {
+        if (!dialog.isDisposed()) {
+          dialog.close();
+          if (!dialog.isDisposed()) {
+            dialog.dispose();
+          }
+        }
+      });
+      this.__openDialogs = [];
+    },
+
+    /**
+     * Add an existing dialog object to have it automatically closed when the object is closed.
+     */
+    addDialog : function(dialog) {
+      this.__openDialogs.push(dialog);
     },
 
     /**
      * Call when the object was closed due to inactivity.
      */
     onClosed : function() {
-      this.closeClosingDialog();
+      this.closeOpenDialogs();
       new gosa.ui.dialogs.Info(this.tr("This object has been closed due to inactivity!")).open();
       this._getParentWindow().close();  // don't fire close event
       this.fireEvent("timeoutClose"); // fire special close event (needed to let the WindowController know whats going on)
@@ -422,7 +427,9 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       }
 
       // show button only if any submenu has at least one entry
-      if (this._retractMenu.getChildren().length || this._extendMenu.getChildren().length || this._actionMenu.getChildren().length) {
+      if (this._retractMenu.getChildren().length
+          || this._extendMenu.getChildren().length
+          || this._actionMenu.getChildren().length) {
         this._tabView.getChildControl("bar").setMenu(this._toolMenu);
       }
       else {
@@ -485,7 +492,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
      * Closes the widget.
      */
     close : function() {
-      this.closeClosingDialog();
+      this.closeOpenDialogs();
       this._getParentWindow().close();
       this.fireEvent("close");
     },
@@ -563,7 +570,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _close : function() {
-      this.closeClosingDialog();
+      this.closeOpenDialogs();
       this._getParentWindow().close();
       this.fireEvent("close");
     },
@@ -573,6 +580,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       dialog.setAppearance("window-warning");
       dialog.setAutoDispose(true);
       dialog.addElement(new qx.ui.basic.Label(this.tr("There are unsaved changes. Are you sure to really abort?")));
+      this.addDialog(dialog);
 
       var okButton = new qx.ui.form.Button(this.tr("Yes"), "@Ligature/trash");
       okButton.setAppearance("button-warning");
@@ -597,9 +605,9 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
   destruct : function() {
     this.resetController();
     this._templates = null;
+    this.__openDialogs = null;
     qx.util.DisposeUtil.disposeArray("_contexts");
     this._disposeObjects(
-      "_closingDialog",
       "_okButton",
       "_extendMenu",
       "_retractMenu",

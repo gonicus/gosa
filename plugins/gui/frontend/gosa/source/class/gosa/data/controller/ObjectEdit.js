@@ -154,6 +154,13 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     },
 
     /**
+     * Forward to {@link gosa.ui.widgets.ObjectEdit#addDialog}.
+     */
+    addDialog : function(dialog) {
+      this._widget.addDialog(dialog);
+    },
+
+    /**
      * @return {gosa.data.controller.Extensions}
      */
     getExtensionController : function() {
@@ -318,7 +325,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
           this._widget.onClosing(this.__object.dn, parseInt(data.minutes));
           break;
         case "closing_aborted":
-          this._widget.closeClosingDialog();
+          this._widget.closeOpenDialogs();
           break;
         case "closed":
           this.__object.setClosed(true);

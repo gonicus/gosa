@@ -85,19 +85,25 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       var clazzName = name.substring(0, 1).toUpperCase() + name.substring(1);
       var clazz = qx.Class.getByName("gosa.ui.dialogs." + clazzName);
 
+      var dialog = null;
+
       // directly known class
       if (clazz) {
-        var dialog = new clazz();
+        dialog = new clazz();
         dialog.setAutoDispose(true);
-        return dialog;
+      }
+      else {
+        // find dialog template
+        var template = gosa.data.TemplateRegistry.getInstance().getDialogTemplate(name);
+        if (template) {
+          dialog = new gosa.ui.dialogs.TemplateDialog(template, controller, extension);
+        }
       }
 
-      // find dialog template
-      var template = gosa.data.TemplateRegistry.getInstance().getDialogTemplate(name);
-      if (template) {
-        return new gosa.ui.dialogs.TemplateDialog(template, controller, extension);
+      if (controller) {
+        controller.addDialog(dialog);
       }
-      return null;
+      return dialog;
     }
   }
 });
