@@ -285,6 +285,13 @@ qx.Class.define("gosa.Application",
       doc.setBlockerOpacity(1);
     },
 
+    /**
+     * Overloaded close method, closes open objects
+     */
+    close : function() {
+      // close all open objects, before the application unloads
+      gosa.ui.controller.Objects.getInstance().closeAllObjects();
+    },
 
     /* Registers a new UI-handler for the given 'action'.
      * Once the action was passed via that browsers address

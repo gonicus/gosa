@@ -28,6 +28,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
     this.__root = qx.core.Init.getApplication().getRoot();
     this.__root.addListener("resize", this._onRootResize, this);
     this._onRootResize();
+    this.__openObjects = {};
   },
     
   members : {
@@ -35,6 +36,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
     _windowController: null,
     __windowWidth : null,
     __root: null,
+    __openObjects: null,
 
     _onRootResize: function() {
       var rootBounds = this.__root.getBounds();
@@ -61,6 +63,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
       var win = null;
       return gosa.proxy.ObjectFactory.openObject(dn, type)
       .then(function(obj) {
+        this.__openObjects[dn] = obj;
         // Build widget and place it into a window
         return qx.Promise.all([
           obj,
@@ -96,6 +99,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
           w.dispose();
           this._desktop.remove(win);
           win.destroy();
+          delete this.__openObjects[dn];
         }, this);
 
         w.addListener("timeoutClose", function() {
@@ -119,6 +123,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
       var win = null;
       gosa.proxy.ObjectFactory.openWorkflow(workflowItem.getId())
       .then(function(workflow) {
+        this.__openObjects[workflowItem.getId()] = workflow;
         return qx.Promise.all([
           workflow,
           workflow.get_templates(),
@@ -168,6 +173,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
           this._windowController.removeWindow(win);
           this._desktop.remove(win);
           win.destroy();
+          delete this.__openObjects[workflowItem.getId()];
         }, this);
 
         // Position window as requested
@@ -177,6 +183,20 @@ qx.Class.define("gosa.ui.controller.Objects", {
       .finally(function() {
         workflowItem.setLoading(false);
       });
+    },
+
+    /**
+     * Close all opened objects
+     * @return {qx.Promise}
+     */
+    closeAllObjects: function() {
+      var promises = [];
+      for (var id in this.__openObjects) {
+        if (this.__openObjects.hasOwnProperty(id)) {
+          promises.push(this.__openObjects[id].close());
+        }
+      }
+      return qx.Promise.all(promises);
     }
   },
 
