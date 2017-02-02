@@ -31,7 +31,8 @@ C.register_codes(dict(
     PASSWORD_NO_ATTRIBUTE=N_("Object has no 'userPassword' attribute"),
     PASSWORD_NOT_AVAILABLE=N_("No password to lock."),
     UID_UNKNOWN=N_("User ID '%(target)s' is unknown."),
-    PASSWORD_RECOVERY_IMPOSSIBLE=N_("The password recovery process cannot be started for this user, because of invalid ot missing data")
+    PASSWORD_RECOVERY_IMPOSSIBLE=N_("The password recovery process cannot be started for this user, because of invalid ot missing data"),
+    PASSWORD_RECOVERY_STATE_ERROR=N_("This step of the password recovery process cannot be executed at the current state")
 ))
 
 
@@ -349,7 +350,7 @@ class PasswordManager(Plugin):
             # check uuid
             if 'uuid' not in recovery_state or recovery_state['uuid'] != uuid:
                 # recovery process has not been started
-                raise PasswordException(C.make_error("PASSWORD_RECOVERY_IMPOSSIBLE"))
+                raise PasswordException(C.make_error("PASSWORD_RECOVERY_STATE_ERROR"))
 
         if step == "start":
             # start process by generating an unique password recovery link for this user and sending it to him via mail
@@ -376,7 +377,7 @@ class PasswordManager(Plugin):
         elif step == "get_questions":
             # check correct state
             if recovery_state['state'] is None:
-                raise PasswordException(C.make_error("PASSWORD_RECOVERY_IMPOSSIBLE"))
+                raise PasswordException(C.make_error("PASSWORD_RECOVERY_STATE_ERROR"))
 
             # return the indices of the questions the user has answered
             recovery_hashes = loads(user.passwordRecoveryHash)
@@ -386,7 +387,7 @@ class PasswordManager(Plugin):
         elif step == "check_answers":
             # check correct state
             if recovery_state['state'] is None:
-                raise PasswordException(C.make_error("PASSWORD_RECOVERY_IMPOSSIBLE"))
+                raise PasswordException(C.make_error("PASSWORD_RECOVERY_STATE_ERROR"))
 
             data = loads(data)
             recovery_hashes = loads(user.passwordRecoveryHash)
@@ -416,7 +417,7 @@ class PasswordManager(Plugin):
         elif step == "change_password":
             # check correct state
             if recovery_state['state'] != 'verified':
-                raise PasswordException(C.make_error("PASSWORD_RECOVERY_IMPOSSIBLE"))
+                raise PasswordException(C.make_error("PASSWORD_RECOVERY_STATE_ERROR"))
 
             self.setUserPassword(uid, user.dn, data)
 

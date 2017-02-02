@@ -29,11 +29,22 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
     this._form = new qx.ui.form.Form();
     this.__initButtons();
 
+    this._info = new qx.ui.basic.Label();
+    this._info.set({
+      rich: true,
+      wrap: true,
+      padding: 10
+    });
+    this._info.exclude();
+    this.addElement(this._info);
+
     if (this._currentStep==="start") {
       this.__initStart();
     } else if (this._currentStep==="questions" || this._currentStep==="edit_answers") {
       this.__initQuestions();
     }
+
+
     this.addElement(this._createFormRenderer());
     this._controller = new qx.data.controller.Form(null, this._form);
   },
@@ -60,6 +71,7 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
   *****************************************************************************
   */
   members : {
+    _info: null,
     _form: null,
     _ok: null,
     _abort: null,
@@ -95,6 +107,7 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
 
       if (this._currentStep==="edit_answers" ) {
         this._ok.setLabel(this.tr("Save"));
+        this.showInfo(this.tr("Please select %1 different questions and answer them.", this.getTotalQuestions()));
 
         for (var i=1; i <= this.getTotalQuestions(); i++) {
           var select = new qx.ui.form.SelectBox();
@@ -117,9 +130,10 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
             selectionControllers.getItem(idx).setModel(new qx.data.Array(this._questions));
           }, this);
         }, this)
-        .catch(gosa.ui.dialogs.Error.show, this);
+        .catch(this.__handleRpcError, this);
       } else {
         this._ok.setLabel(this.tr("Send"));
+        this.showInfo(this.tr("Please answer your recovery questions to proceed."));
 
         qx.Promise.all([
           gosa.io.Rpc.getInstance().cA("requestPasswordReset", this._data.uid, "get_questions", this._data.uuid),
@@ -135,8 +149,14 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
           }
           this.center();
         }, this)
-        .catch(gosa.ui.dialogs.Error.show, this);
+        .catch(this.__handleRpcError, this);
       }
+    },
+
+    __handleRpcError: function(error) {
+      this.error(error);
+      this.showError(error.getData().message);
+      this._ok.setEnabled(false);
     },
 
     /**
@@ -150,10 +170,9 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
             // check if username exists
             gosa.io.Rpc.getInstance().cA("requestPasswordReset", this._uid.getValue(), null, this._currentStep)
             .then(function() {
-              // TODO show the user further instructions
-              console.log("all fine");
+              this.showInfo(this.tr("An e-mail has been send to your account. Please follow the instructions in this mail."));
             }, this)
-            .catch(gosa.ui.dialogs.Error.show, this);
+            .catch(this.__handleRpcError, this);
             break;
 
           case "questions":
@@ -161,20 +180,26 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
             this._selectedQuestions.forEach(function(idx) {
               result[idx] = model.get("answer"+idx);
             }, this);
-            console.log(result);
             gosa.io.Rpc.getInstance().cA("requestPasswordReset", this._data.uid, "check_answers", this._data.uuid, qx.lang.Json.stringify(result))
             .then(function(result) {
               if (result === true) {
                 // open change password dialog
                 var actionController = new gosa.data.RecoveryActionController(this._data.uid, this._data.uuid);
+                actionController.addListener("changeResult", function(result) {
+                  if (result === true) {
+                    this.close();
+                  } else {
+                    // do not close this dialog, error
+                  }
+                }, this);
                 var dialog = new gosa.ui.dialogs.actions.ChangePasswordDialog(actionController);
                 dialog.open();
               } else {
                 // at least one answer must have been wrong
-
+                this.showError(this.tr("At least one answer is wrong, please try again. You can reload this window to receive other questions."));
               }
             }, this)
-            .catch(gosa.ui.dialogs.Error.show, this);
+            .catch(this.__handleRpcError, this);
             break;
         }
       }
@@ -195,6 +220,22 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
       this._abort = gosa.ui.base.Buttons.getButton(this.tr("Abort"));
       this.addButton(this._abort);
       this._abort.addListener("execute", this._onAbort, this);
+    },
+
+    showError: function(message) {
+      this._info.show();
+      this._info.setTextColor("error-text");
+      this._info.setValue(message);
+    },
+
+    showInfo: function(message) {
+      this._info.show();
+      this._info.setTextColor("aqua-dark");
+      this._info.setValue(message);
+    },
+
+    hideInfo: function() {
+      this._info.exclude();
     }
   },
 
@@ -204,6 +245,6 @@ qx.Class.define("gosa.ui.dialogs.PasswordRecovery", {
   *****************************************************************************
   */
   destruct : function() {
-    this._disposeObjects("_ok", "_abort", "_form", "_controller");
+    this._disposeObjects("_ok", "_abort", "_form", "_controller", "_info");
   }
 });

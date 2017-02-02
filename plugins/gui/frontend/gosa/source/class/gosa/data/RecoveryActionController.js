@@ -26,6 +26,15 @@ qx.Class.define("gosa.data.RecoveryActionController", {
     this._uid = uid;
   },
 
+  /*
+  *****************************************************************************
+     EVENTS
+  *****************************************************************************
+  */
+  events : {
+    "changeSuccessful": "qx.event.type.Data"
+  },
+
   members : {
 
     // overridden
@@ -51,6 +60,13 @@ qx.Class.define("gosa.data.RecoveryActionController", {
     setPassword : function(password) {
       qx.core.Assert.assertString(password);
       return gosa.io.Rpc.getInstance().cA("requestPasswordReset", this._uid, "change_password", this._uuid, password)
+      .then(function(result) {
+        this.fireDataEvent("changeSuccessful", result);
+      }, this)
+      .catch(function(error) {
+        gosa.ui.dialogs.Error.show(error);
+        this.fireDataEvent("changeSuccessful", false);
+      }, this)
     }
   }
 });
