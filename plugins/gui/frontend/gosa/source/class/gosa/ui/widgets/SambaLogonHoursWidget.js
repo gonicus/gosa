@@ -44,7 +44,6 @@ qx.Class.define("gosa.ui.widgets.SambaLogonHoursWidget", {
 
   members: {
     __togglers: null,
-    __propertyTimer: null,
     __pane : null,
     __gridLayout : null,
 
@@ -109,50 +108,29 @@ qx.Class.define("gosa.ui.widgets.SambaLogonHoursWidget", {
       }
     },
 
-    /* This method updates the value-property and sends the "changeValue" 
-     * event after a period of time, to tell the object-proxy that values have changed.
-     *
-     * This is a method which can be used as listener for value updates.
-     * See "_createWidget" for details.
-     * */
-    _propertyUpdaterTimed: function(new_data){
-
-      var timer = qx.util.TimerManager.getInstance();
-      if(this.__propertyTimer != null){
-        timer.stop(this.__propertyTimer);
-        this.__propertyTimer = null;
-      }
-      this.__propertyTimer = timer.start(function(){
-          timer.stop(this.__propertyTimer);
-          this.__propertyTimer = null;
-          this.fireDataEvent("changeValue", new_data);
-        }, null, this, null, 1000);
-    },
-
-
-    /* Send a value-update to the object
-     * */
+    /**
+     * Send a value-update to the object
+     */
     __updateValue: function(){
-      if(!this.getInitComplete()){
+      if (!this.getInitComplete()){
         return;
       }
       var bits = "";
-      for(var day=0; day < 7; day++){
-        for(var hour=0; hour< 24; hour ++){
-          bits += this.__togglers[(day*24)+hour].getValue() ? "1" : "0";
+      for (var day=0; day < 7; day++) {
+        for (var hour=0; hour < 24; hour ++) {
+          bits += this.__togglers[(day * 24) + hour].getValue() ? "1" : "0";
         }
       }
-      var new_data = new qx.data.Array([bits]);
-      this._propertyUpdaterTimed(new_data);
+      this.fireDataEvent("changedValue", new qx.data.Array([bits]));
     },
 
-    /* Process incoming values
-     * */
     _applyValue: function(value){
-      if(!this.isDisposed() && value.getLength()){
-        for(var day=0; day < 7; day++){
-          for(var hour=0; hour< 24; hour ++){
-            this.__togglers[(day*24)+hour].setValue(value.getItem(0)[(day * 24) + hour] == 1);
+      if (!this.isDisposed() && value.getLength()) {
+        var bits = value.getItem(0);
+
+        for (var day=0; day < 7; day++) {
+          for (var hour=0; hour < 24; hour++) {
+            this.__togglers[(day * 24) + hour].setValue(bits[(day * 24) + hour] == 1);
           }
         }
       }
@@ -161,6 +139,6 @@ qx.Class.define("gosa.ui.widgets.SambaLogonHoursWidget", {
 
   destruct : function() {
     this.__gridLayout = null;
-    this._disposeObjects("_pane");
+    this._disposeObjects("__pane");
   }
 });
