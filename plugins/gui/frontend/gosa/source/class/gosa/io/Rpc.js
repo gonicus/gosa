@@ -36,6 +36,11 @@ qx.Class.define("gosa.io.Rpc", {
     this.converter.push(gosa.io.types.Binary);
 
     this.__cacheHashRegex = new RegExp('^###([^#]+)###(.*)');
+
+    // these RPCs are always allowed, even when all others are blocked
+    this.cA("getNoLoginMethods").then(function(res) {
+      this.__allowedRPCs = res;
+    }, this);
   },
 
   properties: {
@@ -75,8 +80,10 @@ qx.Class.define("gosa.io.Rpc", {
           // so fill it with the incoming message
           data.message = data.text;
           if("details" in data){
-            for(var item in data.details){
-              data.message += " - " + data.details[item]['detail'];
+            for(var item in data.details) {
+              if (data.details.hasOwnProperty(item)) {
+                data.message += " - " + data.details[item]['detail'];
+              }
             }
           }
           reject(new gosa.core.RpcError(data));
@@ -96,6 +103,7 @@ qx.Class.define("gosa.io.Rpc", {
     running: false,
     __xsrf : null,
     __cacheHashRegex: null,
+    __allowedRPCs: null,
 
 
     /* Enables an anonymous method to use the this context.
@@ -152,7 +160,7 @@ qx.Class.define("gosa.io.Rpc", {
     __promiseCallAsync: function(argx) {
       this.debug("started next rpc job '" + argx[0] + "'");
       return new qx.Promise(function(resolve, reject) {
-        if (this.isBlockRpcs()) {
+        if (this.isBlockRpcs() && this.__allowedRPCs.indexOf(argx[0]) === -1) {
           this.debug("RPCs are currently blocked: listening for unblock event");
           this.addListenerOnce("changeBlockRpcs", function() {
             this.__executeCallAsync(argx, resolve, reject);
@@ -302,7 +310,7 @@ qx.Class.define("gosa.io.Rpc", {
           return this.__promiseCallAsync(argx).catch(function(error) {
             return this.__handleRpcError(argx, error);
           }, this);
-        })
+        }, this)
       } else {
         return this.__promiseCallAsync(argx).catch(function(error) {
           return this.__handleRpcError(argx, error);
@@ -482,7 +490,7 @@ qx.Class.define("gosa.io.Rpc", {
             handleRequestFinished("failed", eventTarget);
           });
 
-      req.addListener("timeout", function(evt)
+      req.addListener("timeout", function()
           {
             this.debug("TIMEOUT OCCURRED");
             ex = makeException(qx.io.remote.Rpc.origin.local,
@@ -492,7 +500,7 @@ qx.Class.define("gosa.io.Rpc", {
             handleRequestFinished("timeout", eventTarget);
           });
 
-      req.addListener("aborted", function(evt)
+      req.addListener("aborted", function()
           {
             ex = makeException(qx.io.remote.Rpc.origin.local,
               qx.io.remote.Rpc.localError.abort,
@@ -650,7 +658,7 @@ qx.Class.define("gosa.io.Rpc", {
      * Saves an RPC-Call result in the {qx.bom.Storage}
      *
      * @param paramString {String} concatenated parameters of the RPC call
-     * @param response {String} RPC call result
+     * @param result {String} RPC call result
      */
     setCachedResponse: function(paramString, result) {
       qx.bom.Storage.getLocal().setItem(paramString, result);

@@ -56,7 +56,7 @@ qx.Class.define("gosa.view.Search", {
       searchHeader.setUserBounds(0, 35, this.getBounds().width, 34);
 
       if (this._alreadyVisible && this._delta) {
-        this._delta = parseInt(this.getBounds().height / 3)
+        this._delta = parseInt(this.getBounds().height / 3) - 35;
         qx.bom.element.Animation.animate(this._searchHeader.getContentElement().getDomElement(), {
           duration: 0, keep: 100, keyFrames: { 0: { "translate": ["0px", "0px"] }, 100: { "translate" : ["0px", this._delta + "px"]}}
         });
@@ -66,7 +66,7 @@ qx.Class.define("gosa.view.Search", {
 
     searchHeader.addListenerOnce("appear", function() {
       this._alreadyVisible = true;
-      this._delta = parseInt(this.getBounds().height / 3)
+      this._delta = parseInt(this.getBounds().height / 3) - 35;
       qx.bom.element.Animation.animate(this._searchHeader.getContentElement().getDomElement(), {
         duration: 0, keep: 100, keyFrames: { 0: { "translate": ["0px", "0px"] }, 100: { "translate" : ["0px", this._delta + "px"]}}
       });

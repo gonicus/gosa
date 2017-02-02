@@ -1,5 +1,6 @@
 import os
 
+from gosa.common.components import PluginRegistry
 from zope.interface import implementer
 
 from gosa.common import Environment
@@ -17,12 +18,10 @@ class GuiPlugin(HSTSStaticFileHandler):
 
     def initialize(self):
         env = Environment.getInstance()
-        default = "index.html"
+        default = PluginRegistry.getInstance('HTTPService').get_gui_uri()[1]
         path = frontend_path
 
-        if env.config.get("gui.debug", "false") == "true":  # pragma: nocover
-            default = "gosa/source/index.html"
-        else:
+        if env.config.get("gui.debug", "false") == "false":  # pragma: nocover
             path = os.path.join(frontend_path, 'gosa', 'build')
 
         super(GuiPlugin, self).initialize(path, default)

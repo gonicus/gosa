@@ -103,3 +103,10 @@ class PasswordMethodCrypt(PasswordMethod):
         See PasswordMethod Interface for details
         """
         return "{%s}%s" % (self.hash_name, crypt.crypt(new_password, crypt.mksalt(getattr(crypt, "METHOD_" + method) if method else None)))
+
+    def compare_hash(self, new_password, complete_hash):
+        """
+        See PasswordMethod Interface for details
+        """
+        old = re.sub('^{[^}]+}!?', '', complete_hash)
+        return crypt.crypt(new_password, old) == old

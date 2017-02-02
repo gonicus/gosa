@@ -138,10 +138,6 @@ qx.Class.define("gosa.Application",
         pluginView.add(work);
         // pluginView.add(settings);
 
-        // Initialize SSE messaging
-        var messaging = gosa.io.Sse.getInstance();
-        messaging.reconnect();
-
         doc.add(desktop, {left: 3, right: 3, top: 48, bottom: 4});
 
         // Hide Splash - initialized by index.html
@@ -158,6 +154,23 @@ qx.Class.define("gosa.Application",
           gosa.ui.controller.Objects.getInstance().openObject(urlParts[1]);
         }, this);
 
+        var req = qx.util.Uri.parseUri(window.location.href);
+        if (req.queryKey.pwruid) {
+          // password recovery request -> open dialog
+          var dialog = new gosa.ui.dialogs.PasswordRecovery("questions", {
+            'uuid': req.queryKey.pwruid,
+            'uid': req.queryKey.uid
+          });
+          dialog.addListener("close", function() {
+            window.location.href = window.location.href.split("?")[0];
+          }, this);
+          dialog.open();
+          return;
+        }
+
+        // Initialize SSE messaging
+        var messaging = gosa.io.Sse.getInstance();
+        messaging.reconnect();
 
         // Enforce login
         var rpc = gosa.io.Rpc.getInstance();

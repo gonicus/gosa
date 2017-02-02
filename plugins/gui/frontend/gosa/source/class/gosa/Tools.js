@@ -71,7 +71,6 @@ qx.Class.define("gosa.Tools", {
      *
      * @see https://developers.yubico.com/U2F/Libraries/Client_error_codes.html
      * @param code {Number} error code
-     * @private
      */
     getU2FErrorMessage: function(code) {
       switch(code) {

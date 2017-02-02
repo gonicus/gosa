@@ -12,6 +12,8 @@ NORMAL = 1
 FIRSTRESULT = 2
 CUMULATIVE = 4
 
+no_login_commands = []
+
 
 def Command(**d_kwargs):
     """
@@ -22,12 +24,14 @@ def Command(**d_kwargs):
       >>> def hello():
       ...
 
-    ========== ============
-    Parameter  Description
-    ========== ============
-    needsUser  indicates if the decorated function needs a user parameter
-    type       describes the function type
-    ========== ============
+    ==========      ============
+    Parameter       Description
+    ==========      ============
+    needsUser       indicates if the decorated function needs a user parameter
+    needsSession    indicates if the decorated function needs a session parameter
+    noLoginRequired indicates if the decorated command can be called via RPC without being logged in
+    type            describes the function type
+    ==========      ============
 
     Function types can be:
 
@@ -52,6 +56,8 @@ def Command(**d_kwargs):
         setattr(f, 'isCommand', True)
         for k in d_kwargs:
             setattr(f, k, d_kwargs[k])
+            if k == "noLoginRequired" and d_kwargs[k] is True:
+                no_login_commands.append(f.__name__)
 
         # Tweak docstrings
         doc = getattr(f, '__doc__')
