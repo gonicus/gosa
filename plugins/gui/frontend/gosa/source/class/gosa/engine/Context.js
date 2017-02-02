@@ -177,12 +177,7 @@ qx.Class.define("gosa.engine.Context", {
 
     __initWidgets : function() {
       this._processor.processFirstLevelExtensions(this._template, this._rootWidget);
-      if (this._rootWidget.isVisible()) {
-        this.createWidgets();
-      }
-      else {
-        this._rootWidget.addListenerOnce("appear", this.createWidgets, this);
-      }
+      this._rootWidget.addListenerOnce("appear", this.createWidgets, this);
     },
 
     __connectBuddies : function() {
