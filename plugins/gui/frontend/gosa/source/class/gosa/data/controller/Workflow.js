@@ -37,6 +37,12 @@ qx.Class.define("gosa.data.controller.Workflow", {
     this.__showStep(0);
 
     this.__widget.addListenerOnce("close", this.dispose, this);
+
+    gosa.io.Rpc.getInstance().cA("generateUid", "{%sn}-{%prename}", {"sn": "Doe", "prename": "John"})
+      .then(function(result) {
+        console.log(result);
+      }
+    );
   },
 
   members : {

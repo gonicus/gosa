@@ -122,6 +122,7 @@ setup(
         uploads = gosa.backend.plugins.upload.main:UploadManager
         two_factor = gosa.backend.plugins.two_factor.main:TwoFactorAuthManager
         mail = gosa.backend.plugins.mail.main:Mail
+        user = gosa.backend.plugins.user.main:User
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
