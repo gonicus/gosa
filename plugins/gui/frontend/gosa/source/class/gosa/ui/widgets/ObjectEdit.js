@@ -74,6 +74,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     _extendButton : null,
     _retractButton : null,
     __openDialogs : null,
+    __closingDialog : null,
 
     /**
      * Retrieve all contexts this widget is showing.
@@ -152,7 +153,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
      * @param minutes {Integer} Timeout until the object is automatically closed
      */
     onClosing : function(dn, minutes) {
-      var closingDialog = new gosa.ui.dialogs.ClosingObject(dn, minutes * 60);
+      var closingDialog = this.__closingDialog = new gosa.ui.dialogs.ClosingObject(dn, minutes * 60);
       closingDialog.addListener("closeObject", function() {
         this.closeOpenDialogs();
         this.getController().closeObject();
@@ -161,6 +162,13 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       closingDialog.addListener("continue", this.getController().continueEditing, this.getController());
       closingDialog.open();
       this.addDialog(closingDialog);
+    },
+
+    closeCloseDialog : function() {
+      if (this.__closingDialog) {
+        this.__closingDialog.destroy();
+        this.__closingDialog = null;
+      }
     },
 
     /**
@@ -616,7 +624,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       "_retractButton",
       "_toolMenu",
       "_buttonPane",
-      "_tabView"
+      "_tabView",
+      "__closingDialog"
     );
   }
 });
