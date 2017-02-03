@@ -130,7 +130,7 @@ def CLASS(v):  # pragma: nocover
 
 
 def list_classes(uri):  # pragma: nocover
-    subschemasubentry_dn, schema = ldap.schema.urlfetch(uri)
+    subschemasubentry_dn, schema = ldap.schema.urlfetch(uri.encode('ascii'))
     schema_reverse = ldap.schema.SubSchema(schema.ldap_entry())
 
     ocs = ldap.schema.SCHEMA_CLASS_MAPPING['objectclasses']
@@ -314,6 +314,7 @@ def dump_class(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
 
     # Build attribute set
     attrs = []
+    syntax = None
     for mua in oco.must:
         attr = resolve_attribute(schema, mua)
         syntax = attr['syntax']
@@ -321,36 +322,37 @@ def dump_class(uri, oc, outfile=None, extend=None, rdn=None, contains=None):
         if skip(syntax):
             continue
 
-    values = gen_values(syntax)
-    values += gen_validators(syntax)
-    values += gen_index(syntax)
+        values = gen_values(syntax)
+        values += gen_validators(syntax)
+        values += gen_index(syntax)
 
-    attrs.append(
-           e.Attribute(
-               e.Name(attr['name']),
-               e.Description(attr['desc']),
-               e.Type(attr['type']),
-               e.MultiValue("true" if attr['multivalue'] else "false"),
-               e.Mandatory("true"),
-               *values))
+        attrs.append(
+               e.Attribute(
+                   e.Name(attr['name']),
+                   e.Description(attr['desc']),
+                   e.Type(attr['type']),
+                   e.MultiValue("true" if attr['multivalue'] else "false"),
+                   e.Mandatory("true"),
+                   *values))
 
     for mua in oco.may:
         attr = resolve_attribute(schema, mua)
         syntax = attr['syntax']
         if skip(syntax):
             continue
-    values = gen_values(syntax)
-    values += gen_validators(syntax)
-    values += gen_index(syntax)
-    attrs.append(
-           e.Attribute(
-               e.Name(attr['name']),
-               e.Description(attr['desc']),
-               e.Type(attr['type']),
-               e.MultiValue("true" if attr['multivalue'] else "false"),
-               e.Mandatory("false"),
-               *values))
 
+        values = gen_values(syntax)
+        values += gen_validators(syntax)
+        values += gen_index(syntax)
+        attrs.append(
+               e.Attribute(
+                   e.Name(attr['name']),
+                   e.Description(attr['desc']),
+                   e.Type(attr['type']),
+                   e.MultiValue("true" if attr['multivalue'] else "false"),
+                   e.Mandatory("false"),
+                   *values))
+    
     more.append(e.Attributes(*attrs))
 
     # Add container
