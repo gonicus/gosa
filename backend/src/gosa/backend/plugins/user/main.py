@@ -10,6 +10,7 @@
 from gosa.backend.plugins.misc.transliterate import Transliterate
 from gosa.common.components import Command
 from gosa.common.components import Plugin
+from gosa.common.components import PluginRegistry
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.utils import N_
 from zope.interface import implementer
@@ -21,75 +22,83 @@ import random
 class User(Plugin):
     _priority_ = 0
     _target_ = "core"
-    __last_id = 0
-
-    def __init__(self):
-        self.__parser = re.compile(
-            '(\{?%([a-z0-9]+)(\[(([0-9]+)(\-([0-9]+))?)\])?\}?)',
-            re.IGNORECASE)
-        self.__id_parser = re.compile(
-            '\{id(#|:)([0-9])+\}',
-            re.IGNORECASE)
-        self.__transliterator = Transliterate()
 
     @Command(__help__=N_('Generates a uid'))
-    def generateId(self, format_string, data):
-        substituted_string = self.__substitute_attributes(
-            format_string,
-            self.__parser.findall(format_string),
-            data)
-        return self.__substitute_id_annotations(
-            substituted_string,
-            self.__id_parser.findall(substituted_string))
+    def generateUid(self, format_string, data):
+        result = [format_string]
+        result = self.__generate_attributes(result, data)
+        result = self.__generate_ids(result)
 
-    def __substitute_attributes(self, format_string, results, data):
-        for result in results:
-            format_string = self.__substitute_attribute(result, data, format_string)
-        return format_string
+        # remove any uid that already exists
+        return list(filter(lambda x: not self.uid_exists(x), result))
 
-    def __substitute_attribute(self, result, data, format_string):
-        attribute_name = result[1]
-        start_index = result[4]
-        end_index = result[6]
+    def uid_exists(self, uid):
+        results = PluginRegistry.getInstance("ObjectIndex").search({'uid': uid}, {'dn': 1})
+        return bool(len(results))
 
-        return self.__parser.sub(
-            self.__get_substitution(
-                data,
-                attribute_name,
-                start_index,
-                end_index),
-            format_string,
-            count=1)
+    def __generate_attributes(self, result, data):
+        parser = re.compile('(\{?%([a-z0-9]+)(\[(([0-9]+)(\-([0-9]+))?)\])?\}?)', re.IGNORECASE)
+        matches = parser.findall(result[0])
+        transliterator = Transliterate()
 
-    def __get_substitution(self, data, attribute_name, start_index, end_index):
-        if end_index:
-            substitution = self.__get_attribute_value(data, attribute_name)[int(start_index):int(end_index)]
-        elif start_index:
-            substitution = self.__get_attribute_value(data, attribute_name)[int(start_index)]
-        else:
-            substitution = self.__get_attribute_value(data, attribute_name)
-        return substitution
+        for match in matches:
+            value = transliterator.transliterate(data[match[1].lower()]).lower()
+            lower_index = match[4]
+            upper_index = match[6]
+            new_result = []
 
-    def __get_attribute_value(self, data, attribute_name):
-        return self.__transliterator.transliterate(data[attribute_name])
+            for string in result:
+                # both indexes given
+                if upper_index:
+                    lower_index = int(lower_index)
+                    upper_index = int(upper_index)
 
-    def __substitute_id_annotations(self, format_string, results):
-        for result in results:
-            format_string = self.__substitute_id(format_string, result)
-        return format_string
+                    for j in range(lower_index, upper_index):
+                        new_result.append(parser.sub(value[lower_index:j+1], string, count=1))
 
-    def __substitute_id(self, format_string, result):
-        take_next_id = result[0] == ':'
-        take_random_id = result[0] == '#'
-        n = int(result[1])
-        substitution = None
+                # just lower index given - take char at index
+                elif lower_index:
+                    lower_index = int(lower_index)
+                    new_result.append(parser.sub(value[lower_index], string, count=1))
 
-        if take_next_id:
-            self.__last_id += 1
-            substitution = str(self.__last_id).rjust(n, '0')
-        if take_random_id:
-            substitution = str(random.randrange(10**(n-1), 10**n))
+                # no index given - take whole value
+                else:
+                    new_result.append(parser.sub(value, string, count=1))
 
-        if substitution:
-            format_string = self.__id_parser.sub(substitution, format_string, count=1)
-        return format_string
+            result = new_result
+        return result
+
+    def __generate_ids(self, result):
+        id_parser = re.compile('\{id(#|:|!)([0-9])+\}', re.IGNORECASE)
+        for i, string in enumerate(result):
+            matches = id_parser.findall(string)
+
+            for match in matches:
+                n = int(match[1])
+
+                # random
+                if match[0] == '#':
+                    while True:
+                        r = str(random.randrange(10**(n-1), 10**n))
+                        if not self.uid_exists(id_parser.sub(r, string, count=1)):
+                            break
+                    result[i] = id_parser.sub(r, string, count=1)
+
+                # next free id
+                elif match[0] == ':':
+                    id_count = 0
+                    while self.uid_exists(id_parser.sub(str(id_count).rjust(n, '0'), string, count=1)):
+                        id_count += 1
+                    result[i] = id_parser.sub(str(id_count).rjust(n, '0'), string, count=1)
+
+                # use next free id, but only if uid without the id already exists
+                elif match[0] == '!':
+                    if not self.uid_exists(id_parser.sub('', string, count=1)):
+                        result[i] = id_parser.sub('', string, count=1)
+                    else:
+                        id_count = 1
+                        while self.uid_exists(id_parser.sub(str(id_count).rjust(n, '0'), string, count=1)):
+                            id_count += 1
+                        result[i] = id_parser.sub(str(id_count).rjust(n, '0'), string, count=1)
+
+        return result
