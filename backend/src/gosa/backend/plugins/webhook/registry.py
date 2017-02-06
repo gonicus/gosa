@@ -95,11 +95,9 @@ class WebhookReceiver(HSTSRequestHandler):
         self.sender = self.request.headers.get('HTTP_X_HUB_SENDER')
         self.signature = self.request.headers.get('HTTP_X_HUB_SIGNATURE')
 
-    def get(self, path):
-        """Allow the clients to get the XSRF cookie"""
-        # trigger the token generation
-        self._xsrf = self.xsrf_token
-        self.write("")
+    # disable xsrf feature
+    def check_xsrf_cookie(self):
+        pass
 
     def post(self, path):
         data = self.request.body

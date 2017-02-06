@@ -46,11 +46,6 @@ def monitor(path, modifier, token, webhook_target, initially_failed=False):
     ts = None
     ct = None
 
-    # get the xsrf token
-    session = requests.session()
-    r = session.get(webhook_target)
-    xsrf = r.cookies['_xsrf']
-
     try:
         with open(path, encoding='utf-8', errors='ignore') as f:
 
@@ -105,10 +100,9 @@ def monitor(path, modifier, token, webhook_target, initially_failed=False):
 
                         headers = {
                             'HTTP_X_HUB_SENDER': 'backend-monitor',
-                            'HTTP_X_HUB_SIGNATURE': get_signature(token, payload),
-                            'X-Xsrftoken': xsrf
+                            'HTTP_X_HUB_SIGNATURE': get_signature(token, payload)
                         }
-                        session.post(webhook_target, data=payload, headers=headers)
+                        requests.post(webhook_target, data=payload, headers=headers)
 
                     dn = ts = ct = None
 
