@@ -60,6 +60,13 @@ class WebhookRegistry(Plugin):
             module = entry.load()
             self.__handlers[entry.name] = module()
 
+        # override for development mode
+        monitor_key = self.env.config.get("webhooks.ldap_monitor_token")
+        if monitor_key:
+            if 'application/vnd.gosa.event+xml' not in self.__hooks:
+                self.__hooks['application/vnd.gosa.event+xml'] = {}
+            self.__hooks['application/vnd.gosa.event+xml']['backend-monitor'] = monitor_key
+
     def stop(self):
         settings_file = self.env.config.get("webhooks.registry-store", "/var/lib/gosa/webhooks")
         with open(settings_file, 'w') as f:
