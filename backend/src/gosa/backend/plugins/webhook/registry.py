@@ -157,7 +157,7 @@ class WebhookReceiver(HSTSRequestHandler):
 
 
 class WebhookEventReceiver(object):
-    """ Webhook handler for gosa events"""
+    """ Webhook handler for gosa events (Content-Type: application/vnd.gosa.event+xml) """
 
     def handleRequest(self, request):
         # read and validate event
