@@ -249,8 +249,6 @@ class LdapBackendTestCase(TestCase):
             }, None)
 
     def test_get_next_id(self):
-        with pytest.raises(EntryNotFound):
-            self.ldap.get_next_id('uid')
 
         with mock.patch.object(self.ldap.con, 'search_s') as ms, \
                 pytest.raises(EntryNotFound):
