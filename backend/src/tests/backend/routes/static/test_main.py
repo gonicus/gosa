@@ -19,7 +19,7 @@ class StaticHandlerTestCase(AsyncHTTPTestCase):
         return Application([('/static/(?P<path>.*)?', StaticHandler), ('/images/(?P<path>.*)?', ImageHandler)])
 
     def test_get(self):
-        response = self.fetch("/static/default/user.ui")
+        response = self.fetch("/static/user.json")
         assert response.code == 200
 
         path = Environment.getInstance().config.get("user.image-path", "/tmp/images")
