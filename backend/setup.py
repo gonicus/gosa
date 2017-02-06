@@ -217,6 +217,9 @@ setup(
         [gosa.upload_handler]
         workflow = gosa.backend.plugins.upload.handler.workflow:WorkflowUploadHandler
 
+        [gosa.webhook_handler]
+        application/vnd.gosa.event+xml = gosa.backend.plugins.webhook.registry:WebhookEventReceiver
+
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt
     """,

@@ -99,6 +99,7 @@ def monitor(path, modifier, token, webhook_target, initially_failed=False):
                         payload = etree.tostring(update)
 
                         headers = {
+                            'Content-Type': 'application/vnd.gosa.event+xml',
                             'HTTP_X_HUB_SENDER': 'backend-monitor',
                             'HTTP_X_HUB_SIGNATURE': get_signature(token, payload)
                         }
