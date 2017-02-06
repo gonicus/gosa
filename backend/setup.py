@@ -158,6 +158,8 @@ setup(
         setbackends = gosa.backend.objects.filter.basic:SetBackends
         setvalue = gosa.backend.objects.filter.basic:SetValue
         clear = gosa.backend.objects.filter.basic:Clear
+        integertobool = gosa.backend.objects.filter.basic:IntegerToBoolean
+        booltointeger = gosa.backend.objects.filter.basic:BooleanToInteger
         integertodatetime = gosa.backend.objects.filter.basic:IntegerToDatetime
         datetimetointeger = gosa.backend.objects.filter.basic:DatetimeToInteger
         stringtodatetime = gosa.backend.objects.filter.basic:StringToDatetime

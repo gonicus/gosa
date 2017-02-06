@@ -28,9 +28,29 @@
       <Attribute>
         <Name>zarafaQuotaOverride</Name>
         <Description>ZARAFA: Override child quota</Description>
-        <Type>Integer</Type>
+        <Type>Boolean</Type>
+        <Default>false</Default>
         <MultiValue>false</MultiValue>
         <Mandatory>false</Mandatory>
+        <BackendType>Integer</BackendType>
+        <InFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>IntegerToBoolean</Name>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </InFilter>
+        <OutFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>BooleanToInteger</Name>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </OutFilter>
       </Attribute>
       <Attribute>
         <Name>zarafaQuotaWarn</Name>
@@ -39,7 +59,7 @@
         <MultiValue>false</MultiValue>
         <Mandatory>false</Mandatory>
         <BlockedBy>
-          <Attribute value="0">zarafaQuotaOverride</Attribute>
+          <Attribute value="false">zarafaQuotaOverride</Attribute>
         </BlockedBy>
       </Attribute>
       <Attribute>
@@ -49,7 +69,7 @@
         <MultiValue>false</MultiValue>
         <Mandatory>false</Mandatory>
         <BlockedBy>
-          <Attribute value="0">zarafaQuotaOverride</Attribute>
+          <Attribute value="false">zarafaQuotaOverride</Attribute>
         </BlockedBy>
       </Attribute>
       <Attribute>
@@ -66,7 +86,7 @@
         <MultiValue>false</MultiValue>
         <Mandatory>false</Mandatory>
         <BlockedBy>
-          <Attribute value="0">zarafaQuotaOverride</Attribute>
+          <Attribute value="false">zarafaQuotaOverride</Attribute>
         </BlockedBy>
       </Attribute>
       <Attribute>

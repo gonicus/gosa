@@ -192,3 +192,47 @@ class DatetimeToString(ElementFilter):
         valDict[key]['value'] = list(map(lambda x: x.strftime(fmt), valDict[key]['value']))
         valDict[key]['backend_type'] = 'String'
         return key, valDict
+
+
+class IntegerToBoolean(ElementFilter):
+    """
+    Converts an integer object into a boolean object..
+
+    e.g.:
+    >>> <FilterEntry>
+    >>>  <Filter>
+    >>>   <Name>IntegerToBoolean</Name>
+    >>>  </Filter>
+    >>> </FilterEntry>
+    >>>  ...
+    """
+
+    def __init__(self, obj):
+        super(IntegerToBoolean, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        valDict[key]['value'] = list(map(lambda x: bool(x), valDict[key]['value']))
+        valDict[key]['backend_type'] = 'Boolean'
+        return key, valDict
+
+
+class BooleanToInteger(ElementFilter):
+    """
+    Converts a boolean object into an integer value ...
+
+    e.g.:
+    >>> <FilterEntry>
+    >>>  <Filter>
+    >>>   <Name>BooleanToInteger</Name>
+    >>>  </Filter>
+    >>> </FilterEntry>
+    >>>  ...
+    """
+
+    def __init__(self, obj):
+        super(BooleanToInteger, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        valDict[key]['value'] = list(map(lambda x: int(x), valDict[key]['value']))
+        valDict[key]['backend_type'] = 'Integer'
+        return key, valDict
