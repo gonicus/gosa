@@ -169,6 +169,8 @@ setup(
         sambaacctflagsout = gosa.backend.plugins.samba.flags:SambaAcctFlagsOut
         sambamungedialin = gosa.backend.plugins.samba.munged:SambaMungedDialIn
         sambamungedialout = gosa.backend.plugins.samba.munged:SambaMungedDialOut
+        mailmodein = gosa.backend.plugins.mail.mode:MailDeliveryModeIn
+        mailmodeout = gosa.backend.plugins.mail.mode:MailDeliveryModeOut
         detectsambadomainnamefromsid = gosa.backend.plugins.samba.sid:DetectSambaDomainFromSID
         generatesambasid = gosa.backend.plugins.samba.sid:GenerateSambaSid
         posixgetnextid = gosa.backend.plugins.posix.filters:GetNextID
@@ -192,6 +194,7 @@ setup(
         equals = gosa.backend.objects.comparator.basic:Equals
         greater = gosa.backend.objects.comparator.basic:Greater
         smaller = gosa.backend.objects.comparator.basic:Smaller
+        isvalidmailaddress = gosa.backend.plugins.mail.filter_validators:IsValidMailAddress
         isvalidhostname = gosa.backend.plugins.misc.filter_validators:IsValidHostName
         isexistingdn = gosa.backend.plugins.misc.filter_validators:IsExistingDN
         objectwithpropertyexists = gosa.backend.plugins.misc.filter_validators:ObjectWithPropertyExists

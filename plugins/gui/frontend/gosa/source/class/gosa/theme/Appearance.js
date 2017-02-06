@@ -1530,7 +1530,57 @@ qx.Theme.define("gosa.theme.Appearance", {
           states.hovered ? "bread-crumb-item-arrow-inner-pressed" : "bread-crumb-item-arrow-inner" )
         };
       }
+    },
+
+    "datechooser" :
+    {
+      style : function(states)
+      {
+        return {
+          backgroundColor : "white",
+          decorator : "popup",
+          minWidth: 220
+        };
+      }
+    },
+
+    "datechooser/navigation-bar" :
+    {
+      style : function(states)
+      {
+        return {
+          backgroundColor : undefined,
+          textColor : states.disabled ? "text-disabled" : states.invalid ? "invalid" : undefined,
+          padding : [4, 10]
+        };
+      }
+    },
+
+
+    "datechooser/button" :
+    {
+      style : function(states)
+      {
+        var result = {
+          show   : "icon",
+          cursor : states.disabled ? undefined : "pointer"
+        };
+
+        if (states.lastYear) {
+          result.icon = qx.theme.simple.Image.URLS["arrow-rewind"];
+        } else if (states.lastMonth) {
+          result.icon = qx.theme.simple.Image.URLS["arrow-left"];
+        } else if (states.nextYear) {
+          result.icon = qx.theme.simple.Image.URLS["arrow-forward"];
+        } else if (states.nextMonth) {
+          result.icon = qx.theme.simple.Image.URLS["arrow-right"];
+        }
+
+        return result;
+      }
     }
+
+
 
     // Do NOT place any appearances here, that are not FLAT theme related. Put them above
     // the marker above.
