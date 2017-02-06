@@ -93,3 +93,7 @@ class BackendError(Exception):
 
 class ProxyError(Exception):
     pass
+
+
+class WebhookException(Exception):
+    pass

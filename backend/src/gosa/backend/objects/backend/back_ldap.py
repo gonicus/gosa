@@ -494,7 +494,7 @@ class LDAP(ObjectBackend):
                 ]
 
         else:
-            new_value = self.env.config.get("pool.min-%s" % attr, 1000)
+            new_value = bytes(str(self.env.config.get("pool.min-%s" % attr, 1000)), 'ascii')
 
             # Add new
             mod_attrs = [
