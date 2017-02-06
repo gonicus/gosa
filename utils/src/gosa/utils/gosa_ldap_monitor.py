@@ -8,14 +8,15 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
+import hmac
 import os
 from time import sleep
 from datetime import datetime
+import requests
 from lxml import etree
 from base64 import b64decode
 from gosa.common import Environment
 from gosa.common.event import EventMaker
-from gosa.common.components.mqtt_handler import MQTTHandler
 
 
 def tail(path, initially_failed=False):
@@ -34,11 +35,21 @@ def tail(path, initially_failed=False):
         yield line.strip()
 
 
-def monitor(path, modifier, proxy, initially_failed=False):
+def get_signature(token, payload):
+    signature_hash = hmac.new(token, msg=payload, digestmod="sha512")
+    return 'sha1=' + signature_hash.hexdigest()
+
+
+def monitor(path, modifier, token, webhook_target, initially_failed=False):
     # Initialize dn, timestamp and change type.
     dn = None
     ts = None
     ct = None
+
+    # get the xsrf token
+    session = requests.session()
+    r = session.get(webhook_target)
+    xsrf = r.cookies['_xsrf']
 
     try:
         with open(path, encoding='utf-8', errors='ignore') as f:
@@ -72,7 +83,6 @@ def monitor(path, modifier, proxy, initially_failed=False):
                 # just reset the DN, because we don't need
                 # to propagate this change.
                 if line.startswith("modifiersName:"):
-                    print("%s == %s" % (line[14:].lower(), modifier.lower()))
                     if line[14:].lower() == modifier.lower():
                         dn = None
                     continue
@@ -91,8 +101,14 @@ def monitor(path, modifier, proxy, initially_failed=False):
                                 e.ChangeType(ct)
                             )
                         )
+                        payload = etree.tostring(update)
 
-                        proxy.send_event(update, topic="%s/events" % Environment.getInstance().domain)
+                        headers = {
+                            'HTTP_X_HUB_SENDER': 'backend-monitor',
+                            'HTTP_X_HUB_SIGNATURE': get_signature(token, payload),
+                            'X-Xsrftoken': xsrf
+                        }
+                        session.post(webhook_target, data=payload, headers=headers)
 
                     dn = ts = ct = None
 
@@ -106,10 +122,13 @@ def main():  # pragma: nocover
 
     # Load configuration
     path = config.get('backend-monitor.audit-log', default='/var/lib/gosa/ldap-audit.log')
+    webhook_target = config.get('backend-monitor.webhook-target', default='http://localhost:8000/hooks')
+    token = bytes(config.get('backend-monitor.webhook-token'), 'ascii')
     modifier = config.get('backend-monitor.modifier')
 
-    # Connect to MQTT BUS
-    proxy = MQTTHandler()
+    if token is None:
+        print("Error: no webhook token found")
+        return
 
     # Main loop
     initially_failed = False
@@ -135,7 +154,7 @@ def main():  # pragma: nocover
             continue
 
         # Listen for changes
-        monitor(path, modifier, proxy, initially_failed)
+        monitor(path, modifier, token, webhook_target, initially_failed)
 
 
 if __name__ == "__main__":  # pragma: nocover

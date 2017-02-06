@@ -103,6 +103,7 @@ setup(
         /mqtt/superuser = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoSuperuserHandler
         /uploads/(?P<uuid>.*)? = gosa.backend.plugins.upload.main:UploadHandler
         /workflow/(?P<path>.*)? = gosa.backend.routes.static.main:WorkflowHandler
+        /hooks(?P<path>.*)? = gosa.backend.plugins.webhook.registry:WebhookReceiver
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
@@ -123,6 +124,7 @@ setup(
         two_factor = gosa.backend.plugins.two_factor.main:TwoFactorAuthManager
         mail = gosa.backend.plugins.mail.main:Mail
         user = gosa.backend.plugins.user.main:User
+        webhook_registry = gosa.backend.plugins.webhook.registry:WebhookRegistry
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
