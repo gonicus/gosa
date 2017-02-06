@@ -126,7 +126,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
           if (widgetBuddyTuple) {
             widget = widgetBuddyTuple.widget;
             // open tab with widget
-            this.__widget.openTab(widgetBuddyTuple.context);
+            this._widget.openTab(widgetBuddyTuple.context);
           }
         }
         if (widget) {
@@ -356,7 +356,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       });
 
       contexts.forEach(function(context) {
-        this.__widget.removeTab(context.getRootWidget());
+        this._widget.removeTab(context.getRootWidget());
       }, this);
     },
 
@@ -393,7 +393,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       }
       else {
         templateObjects.forEach(function(templateObject) {
-          this.__widget.addTab(templateObject);
+          this._widget.addTab(templateObject);
         }, this);
       }
     },

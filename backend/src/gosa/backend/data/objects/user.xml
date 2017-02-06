@@ -332,12 +332,6 @@
         <Type>UnicodeString</Type>
       </Attribute>
       <Attribute>
-        <Name>mail</Name>
-        <Description>RFC1274: RFC822 Mailbox</Description>
-        <Type>String</Type>
-        <MultiValue>true</MultiValue>
-      </Attribute>
-      <Attribute>
         <Name>manager</Name>
         <Description>The Manager attribute type specifies the manager of an object represented by an entry.</Description>
         <Type>UnicodeString</Type>

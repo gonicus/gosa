@@ -103,6 +103,7 @@ setup(
         /mqtt/superuser = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoSuperuserHandler
         /uploads/(?P<uuid>.*)? = gosa.backend.plugins.upload.main:UploadHandler
         /workflow/(?P<path>.*)? = gosa.backend.routes.static.main:WorkflowHandler
+        /hooks(?P<path>.*)? = gosa.backend.plugins.webhook.registry:WebhookReceiver
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
@@ -123,6 +124,7 @@ setup(
         two_factor = gosa.backend.plugins.two_factor.main:TwoFactorAuthManager
         mail = gosa.backend.plugins.mail.main:Mail
         user = gosa.backend.plugins.user.main:User
+        webhook_registry = gosa.backend.plugins.webhook.registry:WebhookRegistry
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
@@ -156,6 +158,8 @@ setup(
         setbackends = gosa.backend.objects.filter.basic:SetBackends
         setvalue = gosa.backend.objects.filter.basic:SetValue
         clear = gosa.backend.objects.filter.basic:Clear
+        integertobool = gosa.backend.objects.filter.basic:IntegerToBoolean
+        booltointeger = gosa.backend.objects.filter.basic:BooleanToInteger
         integertodatetime = gosa.backend.objects.filter.basic:IntegerToDatetime
         datetimetointeger = gosa.backend.objects.filter.basic:DatetimeToInteger
         stringtodatetime = gosa.backend.objects.filter.basic:StringToDatetime
@@ -167,6 +171,8 @@ setup(
         sambaacctflagsout = gosa.backend.plugins.samba.flags:SambaAcctFlagsOut
         sambamungedialin = gosa.backend.plugins.samba.munged:SambaMungedDialIn
         sambamungedialout = gosa.backend.plugins.samba.munged:SambaMungedDialOut
+        mailmodein = gosa.backend.plugins.mail.mode:MailDeliveryModeIn
+        mailmodeout = gosa.backend.plugins.mail.mode:MailDeliveryModeOut
         detectsambadomainnamefromsid = gosa.backend.plugins.samba.sid:DetectSambaDomainFromSID
         generatesambasid = gosa.backend.plugins.samba.sid:GenerateSambaSid
         posixgetnextid = gosa.backend.plugins.posix.filters:GetNextID
@@ -190,6 +196,7 @@ setup(
         equals = gosa.backend.objects.comparator.basic:Equals
         greater = gosa.backend.objects.comparator.basic:Greater
         smaller = gosa.backend.objects.comparator.basic:Smaller
+        isvalidmailaddress = gosa.backend.plugins.mail.filter_validators:IsValidMailAddress
         isvalidhostname = gosa.backend.plugins.misc.filter_validators:IsValidHostName
         isexistingdn = gosa.backend.plugins.misc.filter_validators:IsExistingDN
         objectwithpropertyexists = gosa.backend.plugins.misc.filter_validators:ObjectWithPropertyExists
@@ -214,6 +221,9 @@ setup(
 
         [gosa.upload_handler]
         workflow = gosa.backend.plugins.upload.handler.workflow:WorkflowUploadHandler
+
+        [gosa.webhook_handler]
+        application/vnd.gosa.event+xml = gosa.backend.plugins.webhook.registry:WebhookEventReceiver
 
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt

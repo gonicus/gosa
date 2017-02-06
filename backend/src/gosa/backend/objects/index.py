@@ -28,7 +28,6 @@ import time
 import itertools
 
 from gosa.backend.routes.sse.main import SseHandler
-from gosa.common.events import MqttEventConsumer
 from zope.interface import implementer
 from gosa.common import Environment
 from gosa.common.utils import N_
@@ -235,9 +234,6 @@ class ObjectIndex(Plugin):
                                  mapping=mapping,
                                  resolve=resolve,
                                  aliases=aliases)
-
-        # Add event processor
-        MqttEventConsumer(callback=self.__backend_change_processor, event_type="BackendChange")
 
     def stop(self):
         zope.event.subscribers.remove(self.__handle_events)
@@ -491,8 +487,10 @@ class ObjectIndex(Plugin):
         return self._indexed
 
     def __handle_events(self, event):
+        if isinstance(event, objectify.ObjectifiedElement):
+            self.__backend_change_processor(event)
 
-        if isinstance(event, ObjectChanged):
+        elif isinstance(event, ObjectChanged):
             change_type = None
             _uuid = event.uuid
             _dn = None
