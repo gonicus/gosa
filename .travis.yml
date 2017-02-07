@@ -26,7 +26,7 @@ before_install:
     - sudo cp ./test_conf/config /etc/gosa/
     - ls -la /tmp/
 install:
-    - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev python3-gi # needed to compile dbus-python
+    - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev # needed to compile dbus-python
     - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw
     - pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.21.1
 before_script:
@@ -36,7 +36,7 @@ script:
     # build the gui, to be able to test it if gets served
     - cd plugins/gui/frontend/gosa/
     - npm install
-    - python2 generate.py -sI build
+    - python2 generate.py -sI source
     - python2 generate.py -sI test-source
     - cd ../../../../
     # setup GOsa, install deps...
