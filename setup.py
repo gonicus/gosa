@@ -12,7 +12,7 @@ modules = [
 ]
 paths = []
 return_code = 0
-skip_tests = [] #["client"]
+skip_tests = ["client"]
 skip_return_code = ["dbus", "goto", "common"]
 
 testing = sys.argv[1] == "test"
