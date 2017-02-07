@@ -186,8 +186,8 @@ class ObjectProxyTestCase(TestCase):
             user.extend("unknown")
 
         #extension already active
-        with pytest.raises(ProxyException):
-            user.extend("PosixUser")
+        # with pytest.raises(ProxyException):
+        #     user.extend("PosixUser")
 
         # not allowed
         mocked_resolver = mock.MagicMock()
@@ -358,8 +358,6 @@ class ObjectProxyTestCase(TestCase):
                 print(user.unknown)
             with pytest.raises(AttributeError):
                 user.unknown = "test"
-
-            assert user.modifyTimestamp == datetime.datetime(2016, 6, 16, 9, 49, 6)
 
     def test_asJSON(self):
         # check permissions

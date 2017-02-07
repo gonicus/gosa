@@ -289,9 +289,13 @@ class JsonRpcHandler(HSTSRequestHandler):
 
         try:
             self.log.debug("calling method %s(%s)" % (method, params))
-            user = self.get_secure_cookie('REMOTE_USER').decode('ascii')
-            sid = self.get_secure_cookie('REMOTE_SESSION').decode('ascii')
+            user = self.get_secure_cookie('REMOTE_USER').decode('ascii') if self.get_secure_cookie('REMOTE_USER') else None
+            sid = self.get_secure_cookie('REMOTE_SESSION').decode('ascii') if self.get_secure_cookie('REMOTE_SESSION') else None
             self.log.debug("received call [%s] for %s (SID=%s): %s(%s)" % (jid, user, sid, method, params))
+
+            if user is None and method in no_login_commands:
+                # allow execution without user
+                user = self.dispatcher
 
             if isinstance(params, dict):
                 result = self.dispatcher.dispatch(user, sid, method, **params)

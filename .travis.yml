@@ -14,8 +14,6 @@ cache:
     - /tmp/qx5.1
 before_install:
     - sudo cp test_conf/org.gosa.conf /etc/dbus-1/system.d/
-    - ls -la /etc/dbus-1/system.d/
-    - ls -la /etc/init.d/
     - sudo service dbus reload
     - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
     - docker pull cpollmeier/gosa3:devel # download docker container
@@ -26,10 +24,12 @@ before_install:
     - sudo mkdir /tmp/workflows
     - sudo mkdir /etc/gosa
     - sudo cp ./test_conf/config /etc/gosa/
+    - sudo chown travis:travis /tmp/workflows
 install:
     - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev # needed to compile dbus-python
-    - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw
-    #- pip install -e git+https://github.com/bochecha/pygobject.git@pip-install#egg=pygobject
+    - sudo apt-get install -qq python-gi gir1.2-gtk-3.0 ibus gir1.2-appindicator3-0.1 gir1.2-notify-0.7 gir1.2-glib-2.0
+    - pip3 install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure
+    - pip3 install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.21.1
 before_script:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
@@ -37,7 +37,7 @@ script:
     # build the gui, to be able to test it if gets served
     - cd plugins/gui/frontend/gosa/
     - npm install
-    - python2 generate.py -sI build
+    - python2 generate.py -sI source
     - python2 generate.py -sI test-source
     - cd ../../../../
     # setup GOsa, install deps...

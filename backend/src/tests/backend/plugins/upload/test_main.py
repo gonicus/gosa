@@ -55,7 +55,7 @@ class UploadHandlerTestCase(RemoteTestCase):
 
         with open(fpath, "rb") as f:
             m = MultipartEncoder(
-                fields={'field0': ('test.jpg', f, 'text/plain')}
+                fields={'file': ('create_user.zip', f, 'text/plain')}
             )
             data = m.to_string()
 
@@ -94,9 +94,9 @@ class UploadHandlerTestCase(RemoteTestCase):
             # finally a working example
             uuid, path = manager.registerUploadPath("admin", self.session_id, "workflow")
             response = self.fetch(path, method="POST", body=data, headers={
-                'Content-Type': m.content_type
+                'Content-Type': m.content_type,
+                'X-File-Name': 'create_user.zip'
             })
-            print(response)
             assert response.code == 200
             # path should have been removed by successfully unsigning it
             assert manager.unregisterUploadPath(uuid) is False

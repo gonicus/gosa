@@ -45,6 +45,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
   members: {
     _uid : null,
     _password: null,
+    _recovery: null,
     _login: null,
     _info: null,
     _key: null,
@@ -72,25 +73,27 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
 
       this.addElement(new gosa.ui.form.renderer.Single(form, false));
 
-      // password recovery link
-      var recovery = new qx.ui.basic.Label(this.tr("Forgot password?"));
-      recovery.set({
-        padding: [10, 0],
-        textColor: "highlight",
-        cursor: "pointer"
-      });
-      recovery.addListener("tap", function() {
-        var dialog = new gosa.ui.dialogs.PasswordRecovery();
-        dialog.open();
-      }, this);
-      this.addAt(recovery, 1);
-
       // Add status label
       var info = this._info = new qx.ui.basic.Label();
       info.setRich(true);
       info.exclude();
       this.addAt(info, 2);
       this.getLayout().setAlignX("center");
+
+      // password recovery link
+      var recovery = this._recovery = new qx.ui.basic.Label(this.tr("Forgot password?"));
+      recovery.set({
+        padding: [10, 0],
+        textColor: "highlight",
+        cursor: "pointer"
+      });
+      recovery.exclude();
+      recovery.addListener("tap", function() {
+        var dialog = new gosa.ui.dialogs.PasswordRecovery();
+        dialog.open();
+      }, this);
+      this._buttonPane.addAt(recovery, 0);
+
 
       var login = this._login = gosa.ui.base.Buttons.getButton(this.tr("Login"));
       this.addButton(login);
@@ -178,12 +181,14 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
       switch (state) {
         case gosa.Config.AUTH_FAILED:
           lockForm(this.tr("Invalid login..."));
+          this._recovery.show();
           break;
 
         case gosa.Config.AUTH_LOCKED:
           var lockTime = parseInt(result.seconds);
           var lease = Math.ceil(lockTime-Date.now()/1000);
           lockForm(this.tr("Invalid login..."), lease*1000);
+          this._recovery.show();
           break;
 
         case gosa.Config.AUTH_SUCCESS:
@@ -220,7 +225,7 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
   },
 
   destruct : function() {
-    this._disposeObjects("_uid", "_password", "_login", "_info", "_key");
+    this._disposeObjects("_uid", "_password", "_login", "_info", "_key", "_recovery");
   }
 });
 

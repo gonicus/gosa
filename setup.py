@@ -12,6 +12,7 @@ modules = [
 ]
 paths = []
 return_code = 0
+skip_return_code = ["dbus", "goto"]
 
 # fix for multiple addopts parameters
 for idx, arg in enumerate(sys.argv):
@@ -20,12 +21,16 @@ for idx, arg in enumerate(sys.argv):
 
 for module in modules:
     paths.append("%s/" % module)
-    return_code = max(return_code, os.system("cd %s && ./setup.py %s" % (module, " ".join(sys.argv[1:]))) >> 8)
+    module_return_code = os.system("cd %s && ./setup.py %s" % (module, " ".join(sys.argv[1:])))
+    if module not in skip_return_code:
+        return_code = max(return_code, module_return_code >> 8)
 
 for root, dirs, files in os.walk("plugins"):
     if "setup.py" in files:
-        os.system("cd %s && ./setup.py %s" % (root, " ".join(sys.argv[1:])))
+        plugin_return_code = os.system("cd %s && ./setup.py %s" % (root, " ".join(sys.argv[1:])))
         paths.append("%s/" % root)
+        if root.split(os.path.sep)[-1:] not in skip_return_code:
+            return_code = max(return_code, plugin_return_code >> 8)
 
 if sys.argv[1] == "test":  # and return_code == 0:
     # check if coverage exists for path
@@ -34,4 +39,4 @@ if sys.argv[1] == "test":  # and return_code == 0:
     os.system("coverage report -m")
     os.system("coverage html -d htmlcov")
 
-#sys.exit(return_code)
+sys.exit(return_code)

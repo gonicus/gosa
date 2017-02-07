@@ -12,8 +12,8 @@ import dbusmock
 import subprocess
 import pytest
 import dbus
+from gosa.common.network import Monitor, NM_STATE_DISCONNECTED, NM_STATE_CONNECTED_GLOBAL, NM_STATE_CONNECTED_SITE
 try:
-    from gosa.common.network import Monitor, NM_STATE_DISCONNECTED, NM_STATE_CONNECTED_GLOBAL, NM_STATE_CONNECTED_SITE
     from gi.repository import GLib
     has_glib = True
 except ImportError:

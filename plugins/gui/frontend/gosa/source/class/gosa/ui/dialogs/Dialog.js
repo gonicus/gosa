@@ -38,12 +38,17 @@ qx.Class.define("gosa.ui.dialogs.Dialog",
 
     // Build button pane
     var paneLayout = new qx.ui.layout.HBox().set({
-      spacing: 4,
-      alignX : "right"
+      spacing: 4
     });
     this._buttonPane = new qx.ui.container.Composite(paneLayout).set({
       paddingTop: 11
     });
+    var flex = new qx.ui.core.Widget().set({
+      allowGrowX: true,
+      height: 1,
+      width: 1
+    });
+    this._buttonPane.add(flex, {flex: 1});
     this.add(this._buttonPane);
   },
 

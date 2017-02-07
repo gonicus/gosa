@@ -157,18 +157,8 @@ class ObjectIndexTestCase(TestCase):
         assert 'cn=Frank Reich,ou=people,dc=example,dc=net' in res[0]['dn']
 
     def test_backend_change_processor(self):
-        env = Environment.getInstance()
 
         e = EventMaker()
-
-        class MessageMock:
-            def __init__(self, s_id, topic, message):
-                self.sender_id = s_id
-                self.topic = topic
-                self.payload = dumps({
-                    'sender_id': None,
-                    'content': message
-                })
 
         def send_change(dn, type, mod_time, new_dn=None):
             if dn is not None:
@@ -192,14 +182,14 @@ class ObjectIndexTestCase(TestCase):
                     e.ChangeType(type)
                 ))
 
-            m_message = MessageMock(None, '%s/events' % env.domain, etree.tostring(event).decode('utf-8'))
-            for client in BaseClient.get_clients():
-                client.on_message(None, None, m_message)
+            xml = objectify.fromstring(etree.tostring(event), PluginRegistry.getEventParser())
+            zope.event.notify(xml)
 
         index = PluginRegistry.getInstance("ObjectIndex")
         with mock.patch.object(index, "insert") as m_insert,\
                 mock.patch.object(index, "update") as m_update, \
-                mock.patch.object(index, "remove_by_uuid") as m_remove_by_uuid:
+                mock.patch.object(index, "remove_by_uuid") as m_remove_by_uuid, \
+                mock.patch.object(index, "remove") as m_remove:
             send_change(None, "modify", "20150101000000Z")
             assert not m_update.called
             assert not m_insert.called
@@ -216,23 +206,26 @@ class ObjectIndexTestCase(TestCase):
             assert not m_insert.called
             assert not m_remove_by_uuid.called
 
-            send_change("cn=Peter Lustig,ou=people,dc=example,dc=net", "delete", "20150101000000Z")
-            assert m_remove_by_uuid.called
+            send_change("cn=Frank Reich,ou=people,dc=example,dc=net", "delete", "20150101000000Z")
+            assert not m_remove_by_uuid.called
+            assert m_remove.called
             m_remove_by_uuid.reset_mock()
 
             send_change("cn=Frank Reich,ou=people,dc=example,dc=net", "add", "20150101000000Z")
             assert m_insert.called
             m_insert.reset_mock()
 
-            with mock.patch.object(index, "_get_object", return_value=mock.MagicMock()):
+            mocked_object = mock.MagicMock()
+            mocked_object.uuid = "fakeuuid"
+            mocked_object.dn = "cn=Frank Reich,ou=people,dc=example,dc=net"
+            with mock.patch.object(index, "_get_object", return_value=mocked_object):
                 send_change("cn=Frank Reich,ou=people,dc=example,dc=net", "moddn", "20150101000000Z", new_dn="cn=Frank Räich,ou=people,"
                                                                                                              "dc=example,dc=net")
                 assert m_update.called
 
     def test_serve(self):
         with mock.patch("gosa.backend.objects.index.ObjectIndex.isSchemaUpdated", return_value=True),\
-                mock.patch("gosa.backend.objects.index.Environment.getInstance") as m_env, \
-                mock.patch("gosa.backend.objects.index.MqttEventConsumer"):
+                mock.patch("gosa.backend.objects.index.Environment.getInstance") as m_env:
             m_session = m_env.return_value.getDatabaseSession.return_value
             m_session.query.return_value.one_or_none.return_value = None
             index = ObjectIndex()
