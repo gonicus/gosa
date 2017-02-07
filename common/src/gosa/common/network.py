@@ -14,7 +14,7 @@ try:
     from gosa.common.components.dbus_runner import DBusRunner
 except ImportError:
     print("Please install the python dbus module.")
-    sys.exit(1)
+    sys.exit()
 
 from logging import getLogger
 

@@ -17,7 +17,7 @@ try:
 
 except ImportError:
     print("Please install the python dbus module.")
-    sys.exit(1)
+    sys.exit()
 import time
 from threading import Thread
 from dbus.mainloop.glib import DBusGMainLoop
