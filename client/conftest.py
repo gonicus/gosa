@@ -2,7 +2,11 @@ import pytest
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry
 import os
-from gosa.common.components.dbus_runner import DBusRunner
+try:
+    from gosa.common.components.dbus_runner import DBusRunner
+    has_dbus = True
+except ImportError:
+    has_dbus = False
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -12,9 +16,10 @@ def use_test_config(request):
     Environment.noargs = True
     env = Environment.getInstance()
 
-    # Enable DBus runner
-    dr = DBusRunner()
-    dr.start()
+    if has_dbus:
+        # Enable DBus runner
+        dr = DBusRunner()
+        dr.start()
 
     PluginRegistry(component='gosa.client.module')  # @UnusedVariable
     env.active = True
@@ -31,6 +36,7 @@ def use_test_config(request):
             t.join(2)
 
         PluginRegistry.shutdown()
-        dr.stop()
+        if has_dbus:
+            dr.stop()
 
     request.addfinalizer(shutdown)
