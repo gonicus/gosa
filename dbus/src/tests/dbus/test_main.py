@@ -8,9 +8,14 @@
 # See the LICENSE file in the project's top-level directory for details.
 import pytest
 from unittest import TestCase, mock
-import gosa.dbus.main
+try:
+    import gosa.dbus.main
+    has_glib = True
+except ImportError:
+    has_glib = False
 
 
+@pytest.mark.skipif(has_glib is False, reason="requires gi package")
 class MainTestCase(TestCase):
 
     def test_main(self):
