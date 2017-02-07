@@ -236,7 +236,8 @@ class ObjectIndex(Plugin):
                                  aliases=aliases)
 
     def stop(self):
-        zope.event.subscribers.remove(self.__handle_events)
+        if self.__handle_events in zope.event.subscribers:
+            zope.event.subscribers.remove(self.__handle_events)
 
     def __backend_change_processor(self, data):
         """
@@ -347,7 +348,6 @@ class ObjectIndex(Plugin):
 
         e = EventMaker()
         if obj:
-            print(obj)
             ev = e.Event(e.ObjectChanged(
                 e.UUID(obj.uuid),
                 e.DN(obj.dn),

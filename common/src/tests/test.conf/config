@@ -4,7 +4,7 @@ base = dc=example,dc=net
 
 [http]
 host = localhost
-port = 8000
+port = 8000N
 sslpemfile = /etc/gosa/host.pem
 
 #[ldap]

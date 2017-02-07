@@ -20,8 +20,11 @@ class WorkflowRegistryTestCase(TestCase):
         super(WorkflowRegistryTestCase, self).setUp()
         # cleanup workflows from other tests
         path = Environment.getInstance().config.get("core.workflow_path", "/tmp/workflows")
-        shutil.rmtree(path)
-        os.mkdir(path)
+        try:
+            shutil.rmtree(path)
+            os.mkdir(path)
+        except:
+            pass
         self.reg = WorkflowRegistry.get_instance()
         self.reg.refresh()
 
