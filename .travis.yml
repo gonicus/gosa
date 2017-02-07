@@ -27,7 +27,7 @@ before_install:
     - ls -la /tmp/
 install:
     - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev # needed to compile dbus-python
-    - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw
+    - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw hid
     - pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.21.1
 before_script:
     - export DISPLAY=:99.0
