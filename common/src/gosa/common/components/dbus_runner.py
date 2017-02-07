@@ -11,13 +11,8 @@ import sys
 
 from gosa.common import Environment
 
-try:
-    import dbus
-    from gi.repository import GLib
-
-except ImportError:
-    print("Please install the python dbus module.")
-    sys.exit()
+import dbus
+from gi.repository import GLib
 import time
 from threading import Thread
 from dbus.mainloop.glib import DBusGMainLoop

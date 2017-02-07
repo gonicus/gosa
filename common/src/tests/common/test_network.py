@@ -12,8 +12,8 @@ import dbusmock
 import subprocess
 import pytest
 import dbus
-from gosa.common.network import Monitor, NM_STATE_DISCONNECTED, NM_STATE_CONNECTED_GLOBAL, NM_STATE_CONNECTED_SITE
 try:
+    from gosa.common.network import Monitor, NM_STATE_DISCONNECTED, NM_STATE_CONNECTED_GLOBAL, NM_STATE_CONNECTED_SITE
     from gi.repository import GLib
     has_glib = True
 except ImportError:
@@ -100,7 +100,7 @@ class MonitorTestCase(dbusmock.DBusTestCase):
     #     assert not monitor.is_online()
     #     callback.assert_called_with(False)
 
-
+@pytest.mark.skipif(has_glib is False, reason="requires gi package")
 class MonitorWithoutDbusTestCase(TestCase):
 
     def test_init(self):
