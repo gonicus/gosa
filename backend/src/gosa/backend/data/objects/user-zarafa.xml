@@ -28,10 +28,8 @@
       <Attribute>
         <Name>zarafaQuotaOverride</Name>
         <Description>ZARAFA: Override child quota</Description>
-        <Type>Boolean</Type>
         <Default>false</Default>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
+        <Type>Boolean</Type>
         <BackendType>Integer</BackendType>
         <InFilter>
             <FilterChain>
@@ -56,8 +54,13 @@
         <Name>zarafaQuotaWarn</Name>
         <Description>ZARAFA: Warning quota size in MB</Description>
         <Type>Integer</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
+        <Validators>
+          <Condition>
+            <Name>Smaller</Name>
+            <Param>zarafaQuotaSoft</Param>
+            <Param>zarafaQuotaHard</Param>
+          </Condition>
+        </Validators>
         <BlockedBy>
           <Attribute value="false">zarafaQuotaOverride</Attribute>
         </BlockedBy>
@@ -66,8 +69,27 @@
         <Name>zarafaQuotaSoft</Name>
         <Description>ZARAFA: Soft quota size in MB</Description>
         <Type>Integer</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
+        <Validators>
+          <Condition>
+            <Name>Greater</Name>
+            <Param>zarafaQuotaWarn</Param>
+          </Condition>
+        </Validators>
+        <BlockedBy>
+          <Attribute value="false">zarafaQuotaOverride</Attribute>
+        </BlockedBy>
+      </Attribute>
+      <Attribute>
+        <Name>zarafaQuotaHard</Name>
+        <Description>ZARAFA: Hard quota size in MB</Description>
+        <Type>Integer</Type>
+        <Validators>
+          <Condition>
+            <Name>Greater</Name>
+            <Param>zarafaQuotaSoft</Param>
+            <Param>zarafaQuotaWarn</Param>
+          </Condition>
+        </Validators>
         <BlockedBy>
           <Attribute value="false">zarafaQuotaOverride</Attribute>
         </BlockedBy>
@@ -76,39 +98,79 @@
         <Name>zarafaSendAsPrivilege</Name>
         <Description>ZARAFA: Users may directly send email as this user</Description>
         <Type>UnicodeString</Type>
+        <Validators>
+          <Condition>
+            <Name>ObjectWithPropertyExists</Name>
+            <Param>ZarafaUser</Param>
+            <Param>dn</Param>
+          </Condition>
+        </Validators>
+        <References>
+          <Reference>
+            <Object>ZarafaUser</Object>
+            <Attribute>dn</Attribute>
+          </Reference>
+        </References>
         <MultiValue>true</MultiValue>
-        <Mandatory>false</Mandatory>
-      </Attribute>
-      <Attribute>
-        <Name>zarafaQuotaHard</Name>
-        <Description>ZARAFA: Hard quota size in MB</Description>
-        <Type>Integer</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
-        <BlockedBy>
-          <Attribute value="false">zarafaQuotaOverride</Attribute>
-        </BlockedBy>
       </Attribute>
       <Attribute>
         <Name>zarafaAdmin</Name>
         <Description>ZARAFA: Administrator of zarafa</Description>
-        <Type>Integer</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
+        <Type>Boolean</Type>
+        <BackendType>Integer</BackendType>
+        <InFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>IntegerToBoolean</Name>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </InFilter>
+        <OutFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>BooleanToInteger</Name>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </OutFilter>
       </Attribute>
       <Attribute>
         <Name>zarafaSharedStoreOnly</Name>
         <Description>ZARAFA: is store a shared store</Description>
-        <Type>Integer</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
+        <Type>Boolean</Type>
+        <BackendType>Integer</BackendType>
+        <InFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>IntegerToBoolean</Name>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </InFilter>
+        <OutFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>BooleanToInteger</Name>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </OutFilter>
       </Attribute>
       <Attribute>
         <Name>zarafaResourceType</Name>
         <Description>ZARAFA: for shared stores, resource is type Room or Equipment</Description>
         <Type>UnicodeString</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
+        <Values>
+          <Value key="0"></Value>
+          <Value key="user">User</Value>
+          <Value key="room">Room</Value>
+          <Value key="equipment">Equipment</Value>
+        </Values>
       </Attribute>
       <Attribute>
         <Name>zarafaResourceCapacity</Name>
@@ -116,6 +178,10 @@
         <Type>Integer</Type>
         <MultiValue>false</MultiValue>
         <Mandatory>false</Mandatory>
+        <BlockedBy>
+          <Attribute value="user">zarafaResourceType</Attribute>
+          <Attribute value="equipment">zarafaResourceType</Attribute>
+        </BlockedBy>
       </Attribute>
       <Attribute>
         <Name>zarafaAccount</Name>
@@ -127,23 +193,47 @@
       <Attribute>
         <Name>zarafaHidden</Name>
         <Description>ZARAFA: This object should be hidden from address book</Description>
-        <Type>Integer</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
+        <Type>Boolean</Type>
+        <BackendType>Integer</BackendType>
+        <InFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>IntegerToBoolean</Name>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </InFilter>
+        <OutFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>BooleanToInteger</Name>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </OutFilter>
       </Attribute>
       <Attribute>
-        <Name>zarafaAliases</Name>
-        <Description>ZARAFA: All other email addresses for this user</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>true</MultiValue>
-        <Mandatory>false</Mandatory>
+        <Name>enablePop3</Name>
+        <Backend>NULL</Backend>
+        <Type>Boolean</Type>
+        <Default>false</Default>
+        <Mandatory>true</Mandatory>
       </Attribute>
       <Attribute>
-        <Name>zarafaUserServer</Name>
-        <Description>ZARAFA: Home server for the user</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
+        <Name>enableImap</Name>
+        <Backend>NULL</Backend>
+        <Type>Boolean</Type>
+        <Default>false</Default>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>enableZPush</Name>
+        <Backend>NULL</Backend>
+        <Type>Boolean</Type>
+        <Default>false</Default>
+        <Mandatory>true</Mandatory>
       </Attribute>
       <Attribute>
         <Name>zarafaEnabledFeatures</Name>
@@ -151,44 +241,91 @@
         <Type>UnicodeString</Type>
         <MultiValue>true</MultiValue>
         <Mandatory>false</Mandatory>
-        <Validators>
-          <Condition>
-            <Name>RegEx</Name>
-            <Param>^[a-zA-Z0-9"()+,./? -]+$</Param>
-          </Condition>
-        </Validators>
+        <Auto>true</Auto>
+        <ReadOnly>true</ReadOnly>
+        <DependsOn>
+          <Attribute>enablePop3</Attribute>
+          <Attribute>enableImap</Attribute>
+          <Attribute>enableZPush</Attribute>
+        </DependsOn>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>ZarafaEnabledFeaturesIn</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>ZarafaEnabledFeaturesOut</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
       </Attribute>
       <Attribute>
         <Name>zarafaDisabledFeatures</Name>
         <Description>ZARAFA: This user has these features explicitly disabled</Description>
         <Type>UnicodeString</Type>
         <MultiValue>true</MultiValue>
-        <Mandatory>false</Mandatory>
-        <Validators>
-          <Condition>
-            <Name>RegEx</Name>
-            <Param>^[a-zA-Z0-9"()+,./? -]+$</Param>
-          </Condition>
-        </Validators>
+        <Auto>true</Auto>
+        <DependsOn>
+          <Attribute>enablePop3</Attribute>
+          <Attribute>enableImap</Attribute>
+          <Attribute>enableZPush</Attribute>
+        </DependsOn>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>ZarafaDisabledFeaturesOut</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+        <ReadOnly>true</ReadOnly>
       </Attribute>
       <Attribute>
         <Name>zarafaUserArchiveServers</Name>
         <Description>ZARAFA: List of server names that contain an archive store for the user</Description>
         <Type>UnicodeString</Type>
         <MultiValue>true</MultiValue>
-        <Mandatory>false</Mandatory>
-      </Attribute>
-      <Attribute>
-        <Name>zarafaUserArchiveCouplings</Name>
-        <Description>ZARAFA: List of username:foldername pairs that specify many-to-one archive locations</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>true</MultiValue>
-        <Mandatory>false</Mandatory>
+        <Validators>
+          <Condition>
+            <Name>ObjectWithPropertyExists</Name>
+            <Param>ZarafaServer</Param>
+            <Param>goZarafaArchiveServer</Param>
+            <Param>1</Param>
+          </Condition>
+        </Validators>
       </Attribute>
       <Attribute>
         <Name>mail</Name>
         <Description>RFC1274: RFC822 Mailbox</Description>
-        <Type>String</Type>
+        <Type>UnicodeString</Type>
+        <BackendType>String</BackendType>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>PunycodeToUnicode</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>UnicodeToPunycode</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
         <MultiValue>false</MultiValue>
         <Mandatory>true</Mandatory>
         <Validators>
@@ -202,11 +339,12 @@
         <Name>gosaMailServer</Name>
         <Description>Specify users main mail server</Description>
         <Type>String</Type>
-        <MultiValue>false</MultiValue>
         <Mandatory>true</Mandatory>
         <Validators>
           <Condition>
-            <Name>IsValidHostName</Name>
+            <Name>ObjectWithPropertyExists</Name>
+            <Param>ZarafaServer</Param>
+            <Param>dn</Param>
           </Condition>
         </Validators>
       </Attribute>
@@ -308,6 +446,24 @@
         <Name>gosaMailAlternateAddress</Name>
         <Description>Additional mail addresses where the user is reachable</Description>
         <Type>String</Type>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>PunycodeToUnicode</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>UnicodeToPunycode</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
         <MultiValue>true</MultiValue>
         <Mandatory>false</Mandatory>
         <Validators>
@@ -320,7 +476,26 @@
       <Attribute>
         <Name>gosaMailForwardingAddress</Name>
         <Description>Addresses where to forward mail to</Description>
-        <Type>String</Type>
+        <Type>UnicodeString</Type>
+        <BackendType>String</BackendType>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>PunycodeToUnicode</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>UnicodeToPunycode</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
         <MultiValue>true</MultiValue>
         <Mandatory>false</Mandatory>
         <Validators>
@@ -336,6 +511,9 @@
         <Type>UnicodeString</Type>
         <MultiValue>true</MultiValue>
         <Mandatory>false</Mandatory>
+        <BlockedBy>
+          <Attribute value="false">inVacation</Attribute>
+        </BlockedBy>
       </Attribute>
       <Attribute>
         <Name>gosaVacationStart</Name>
@@ -362,6 +540,9 @@
                 </FilterEntry>
             </FilterChain>
         </OutFilter>
+        <BlockedBy>
+          <Attribute value="false">inVacation</Attribute>
+        </BlockedBy>
       </Attribute>
       <Attribute>
         <Name>gosaVacationStop</Name>
@@ -388,6 +569,9 @@
                 </FilterEntry>
             </FilterChain>
         </OutFilter>
+        <BlockedBy>
+          <Attribute value="false">inVacation</Attribute>
+        </BlockedBy>
       </Attribute>
       <Attribute>
         <Name>goZarafaDisplayName</Name>
@@ -420,5 +604,21 @@
     <Extends>
       <Value>User</Value>
     </Extends>
+    <Find>
+      <Aspect>
+        <Tag>User</Tag>
+        <Keyword>Mail</Keyword>
+        <Keyword>Groupware</Keyword>
+        <Keyword>Zarafa</Keyword>
+        <Search>mil</Search>
+        <Resolve filter="DN">manager</Resolve>
+        <Result>
+          <Map>
+            <Source>mail</Source>
+            <Destination>title</Destination>
+          </Map>
+        </Result>
+      </Aspect>
+    </Find>
   </Object>
 </Objects>

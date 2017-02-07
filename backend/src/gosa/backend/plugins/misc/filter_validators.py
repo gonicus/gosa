@@ -77,12 +77,10 @@ class ObjectWithPropertyExists(ElementComparator):
     Checks if an object with the given property exists.
     """
 
-    def process(self, all_props, key, value, objectType, attribute):
-
+    def process(self, all_props, key, value, objectType, attribute, comp=None):
         errors = []
         index = PluginRegistry.getInstance("ObjectIndex")
         for val in value:
-            #query = or_(ObjectInfoIndex._type == objectType, and_(ObjectInfoIndex.uuid == ExtensionIndex.uuid, ExtensionIndex.extension == objectType))
             query = {'or_': {'_type': objectType, 'extension': objectType}, attribute: val}
             if not len(index.search(query, {'dn': 1})):
                 errors.append(dict(index=value.index(val),

@@ -246,3 +246,47 @@ class StringToTime(ElementFilter):
         if type(valDict[key]['value'] is not None):
             valDict[key]['value'] = list(map(lambda x: datetime.datetime.strptime(x, fmt), valDict[key]['value']))
         return key, valDict
+
+
+class PunycodeToUnicode(ElementFilter):
+    """
+    Converts a punycode object into a unicode object..
+
+    e.g.:
+    >>> <FilterEntry>
+    >>>  <Filter>
+    >>>   <Name>PunycodeToUnicode</Name>
+    >>>  </Filter>
+    >>> </FilterEntry>
+    >>>  ...
+    """
+
+    def __init__(self, obj):
+        super(PunycodeToUnicode, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        valDict[key]['value'] = list(map(lambda x: x.decode('punycode'), valDict[key]['value']))
+        valDict[key]['backend_type'] = 'UnicodeString'
+        return key, valDict
+
+
+class UnicodeToPunycode(ElementFilter):
+    """
+    Converts an unicode object into a punycode value ...
+
+    e.g.:
+    >>> <FilterEntry>
+    >>>  <Filter>
+    >>>   <Name>UnicodeToPunycode</Name>
+    >>>  </Filter>
+    >>> </FilterEntry>
+    >>>  ...
+    """
+
+    def __init__(self, obj):
+        super(UnicodeToPunycode, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        valDict[key]['value'] = list(map(lambda x: x.encode('punycode'), valDict[key]['value']))
+        valDict[key]['backend_type'] = 'String'
+        return key, valDict

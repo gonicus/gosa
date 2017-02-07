@@ -68,7 +68,12 @@ class Greater(ElementComparator):
         cnt = 0
         match = int(match)
         for item in value:
-            item = int(item)
+            # Number or attribute?
+            if item.isdigit():
+                item = int(item)
+            else:
+                item = int(all_props[item]["value"][0])
+
             if not (item > match):
                 errors.append(dict(index=cnt,
                     detail=N_("item needs to be greater than %(compare)s"),
@@ -100,7 +105,13 @@ class Smaller(ElementComparator):
         match = int(match)
         cnt = 0
         for item in value:
-            item = int(item)
+
+            # Number or attribute?
+            if item.isdigit():
+                item = int(item)
+            else:
+                item = int(all_props[item]["value"][0])
+
             if not (item < match):
                 errors.append(dict(index=cnt,
                     detail=N_("item needs to be smaller than %(compare)s"),

@@ -154,6 +154,8 @@ setup(
         stringToDate = gosa.backend.objects.filter.strings:StringToDate
         dateToString = gosa.backend.objects.filter.strings:DateToString
         timeToString = gosa.backend.objects.filter.strings:TimeToString
+        punycodein = gosa.backend.objects.filter.strings:PunycodeToUnicode
+        punycodeout = gosa.backend.objects.filter.strings:UnicodeToPunycode
         target = gosa.backend.objects.filter.basic:Target
         setbackends = gosa.backend.objects.filter.basic:SetBackends
         setvalue = gosa.backend.objects.filter.basic:SetValue
@@ -173,6 +175,9 @@ setup(
         sambamungedialout = gosa.backend.plugins.samba.munged:SambaMungedDialOut
         mailmodein = gosa.backend.plugins.mail.mode:MailDeliveryModeIn
         mailmodeout = gosa.backend.plugins.mail.mode:MailDeliveryModeOut
+        zarafafeaturesin = gosa.backend.plugins.zarafa.main:ZarafaEnabledFeaturesIn
+        zarafafeaturesout = gosa.backend.plugins.zarafa.main:ZarafaEnabledFeaturesOut
+        zarafafeaturesdis = gosa.backend.plugins.zarafa.main:ZarafaDisabledFeaturesOut
         detectsambadomainnamefromsid = gosa.backend.plugins.samba.sid:DetectSambaDomainFromSID
         generatesambasid = gosa.backend.plugins.samba.sid:GenerateSambaSid
         posixgetnextid = gosa.backend.plugins.posix.filters:GetNextID
@@ -196,6 +201,8 @@ setup(
         equals = gosa.backend.objects.comparator.basic:Equals
         greater = gosa.backend.objects.comparator.basic:Greater
         smaller = gosa.backend.objects.comparator.basic:Smaller
+#        isvalidzmailsrv = gosa.backend.plugins.zarafa.main:IsValidZarafaMailServer
+#        isvalidzarchivesrv = gosa.backend.plugins.zarafa.main:IsValidZarafaArchiveServer
         isvalidmailaddress = gosa.backend.plugins.mail.filter_validators:IsValidMailAddress
         isvalidhostname = gosa.backend.plugins.misc.filter_validators:IsValidHostName
         isexistingdn = gosa.backend.plugins.misc.filter_validators:IsExistingDN
