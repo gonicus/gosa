@@ -24,13 +24,16 @@ for module in modules:
     module_return_code = os.system("cd %s && ./setup.py %s" % (module, " ".join(sys.argv[1:])))
     if module not in skip_return_code:
         return_code = max(return_code, module_return_code >> 8)
+    print("%s returned %s (ignored: %s): %s" % (module, module_return_code, module in skip_return_code, return_code))
 
 for root, dirs, files in os.walk("plugins"):
     if "setup.py" in files:
         plugin_return_code = os.system("cd %s && ./setup.py %s" % (root, " ".join(sys.argv[1:])))
         paths.append("%s/" % root)
-        if root.split(os.path.sep)[-1:] not in skip_return_code:
+        plugin = root.split(os.path.sep)[-1:]
+        if plugin not in skip_return_code:
             return_code = max(return_code, plugin_return_code >> 8)
+        print("%s returned %s (ignored: %s): %s" % (plugin, plugin_return_code, plugin in skip_return_code, return_code))
 
 if sys.argv[1] == "test":  # and return_code == 0:
     # check if coverage exists for path
