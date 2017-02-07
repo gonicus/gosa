@@ -7,8 +7,15 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import dbus
-from gosa.common.components.dbus_runner import DBusRunner
+import sys
+
+try:
+    import dbus
+    from gosa.common.components.dbus_runner import DBusRunner
+except ImportError:
+    print("Please install the python dbus module.")
+    sys.exit(1)
+
 from logging import getLogger
 
 
