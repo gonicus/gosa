@@ -653,8 +653,10 @@ class Object(object):
 
                 self.log.debug(" found %s out-filter for %s" % (str(len(props[key]['out_filter'])), key,))
                 for out_f in props[key]['out_filter']:
+                    old_value = props[key]['value']
                     self.__processFilter(out_f, key, props)
-                    props[key]['commit_status'] = STATUS_CHANGED
+                    if old_value != props[key]['value']:
+                        props[key]['commit_status'] = STATUS_CHANGED
 
             elif props[key]['auto']:
                 if not props[key]['depends_on']:

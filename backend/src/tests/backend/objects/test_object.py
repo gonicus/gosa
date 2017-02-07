@@ -116,7 +116,7 @@ class ObjectTestCase(TestCase):
             obj.unknown = "Test"
         # multivalue (no list)
         with pytest.raises(TypeError):
-            obj.mail = "test@tester.de"
+            obj.telephoneNumber = "0123456789"
         # validation error
         with pytest.raises(ValueError):
             obj.telephoneNumber = ["wrong"]

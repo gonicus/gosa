@@ -69,9 +69,9 @@ class RpcMethodsTestCase(TestCase):
     def test_extensionExists(self):
 
         with pytest.raises(GOsaException):
-            self.rpc.extensionExists('admin', 'cn=Frank Reich,ou=people,dc=example,dc=de', 'PosixUser')
+            self.rpc.extensionExists('cn=Frank Reich,ou=people,dc=example,dc=de', 'PosixUser')
 
-        assert self.rpc.extensionExists('admin', 'cn=Frank Reich,ou=people,dc=example,dc=net', 'PosixUser') is True
+        assert self.rpc.extensionExists('cn=Frank Reich,ou=people,dc=example,dc=net', 'PosixUser') is True
 
     def test_saveUserPreferences(self):
         with pytest.raises(GOsaException):
@@ -114,12 +114,9 @@ class RpcMethodsTestCase(TestCase):
 
         with mock.patch.dict("gosa.backend.plugins.rpc.methods.PluginRegistry.modules", {'ACLResolver': mockedResolver}):
             res = self.rpc.searchForObjectDetails('admin', 'User', 'manager', '', ['uid'], None)
-            assert len(res) == 2
-            uids = [res[0]['uid'], res[1]['uid']]
-            assert 'freich' in uids
-            assert 'admin' in uids
+            assert len(res) == 1
+            assert 'freich' in res[0]['uid']
             assert 'dn' in res[0]
-            assert 'dn' in res[1]
 
         with mock.patch.dict("gosa.backend.plugins.rpc.methods.PluginRegistry.modules", {'ACLResolver': mockedResolver}):
             res = self.rpc.searchForObjectDetails('admin', 'User', 'manager', '', ['uid'], ['cn=System Administrator,ou=people,dc=example,dc=net'])
@@ -171,7 +168,7 @@ class RpcMethodsTestCase(TestCase):
         assert res[0]['title'] == "freich" or res[0]['title'] == "Frank Reich"
         assert res[1]['title'] == "freich" or res[1]['title'] == "Frank Reich"
 
-        res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich', fltr={'mod-time': 'day'})
+        res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich', fltr={'mod-time': 'hour'})
         assert len(res) == 0
 
         res = self.rpc.search('admin', 'dc=example,dc=net', 'ONE', 'freich')
