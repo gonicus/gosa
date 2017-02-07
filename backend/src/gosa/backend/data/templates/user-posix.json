@@ -184,7 +184,7 @@
         "class": "gosa.ui.widgets.GroupBox",
         "layout": "qx.ui.layout.VBox",
         "properties": {
-            "legend": "tr('Group mempership')"
+            "legend": "tr('Group membership')"
         },
         "children": [{
             "class": "gosa.ui.widgets.QTableWidgetWidget",
