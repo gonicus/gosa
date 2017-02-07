@@ -27,6 +27,7 @@ before_install:
     - sudo chown travis:travis /tmp/workflows
 install:
     - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev # needed to compile dbus-python
+    - sudo apt-get install -qq python-gi gir1.2-gtk-3.0 ibus gir1.2-appindicator3-0.1 gir1.2-notify-0.7 gir1.2-glib-2.0
     - pip3 install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure
     - pip3 install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.21.1
 before_script:
