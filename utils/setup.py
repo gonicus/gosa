@@ -9,8 +9,6 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 from setuptools import setup, find_packages
-import os
-import platform
 
 try:
     from babel.messages import frontend as babel
@@ -47,7 +45,7 @@ setup(
     include_package_data = False,
     zip_safe = False,
 
-    setup_requires = ['babel', 'pytest-runner' ],
+    setup_requires = ['babel', 'pytest-runner', 'hidraw-pure'],
     install_requires = ['gosa.common'],
     tests_require=[
         'pytest',
