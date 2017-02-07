@@ -24,7 +24,7 @@ before_install:
     - sudo mkdir /tmp/workflows
     - sudo mkdir /etc/gosa
     - sudo cp ./test_conf/config /etc/gosa/
-    - chown travis:travis /tmp/workflows
+    - sudo chown travis:travis /tmp/workflows
 install:
     - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev # needed to compile dbus-python
     - pip3 install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure
