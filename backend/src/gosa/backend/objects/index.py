@@ -253,6 +253,7 @@ class ObjectIndex(Plugin):
         change_type = data.ChangeType.text
         _uuid = data.UUID.text if hasattr(data, 'UUID') else None
         _last_changed = datetime.datetime.strptime(data.ModificationTime.text, "%Y%m%d%H%M%SZ")
+        obj = None
 
         if not _uuid and not dn:
             return
@@ -307,7 +308,14 @@ class ObjectIndex(Plugin):
         if change_type == "delete":
             self.log.info("object has changed in backend: indexing %s" % dn)
             self.log.warning("external delete might not take care about references")
-            self.remove_by_uuid(_uuid)
+            if _uuid is not None:
+                self.remove_by_uuid(_uuid)
+            else:
+                obj = self._get_object(dn)
+                if not obj:
+                    return
+
+                self.remove(obj)
 
         # Move
         if change_type in ['modrdn', 'moddn']:
@@ -331,13 +339,29 @@ class ObjectIndex(Plugin):
                 self.insert(obj)
 
         # send the event to the clients
+        event_change_type = "update"
+        if change_type == "add":
+            event_change_type = "create"
+        elif change_type == "delete":
+            event_change_type = "remove"
+
         e = EventMaker()
-        ev = e.Event(e.ObjectChanged(
-            e.UUID(obj.uuid),
-            e.DN(obj.dn),
-            e.ModificationTime(_last_changed.strftime("%Y%m%d%H%M%SZ")),
-            e.ChangeType("update")
-        ))
+        if obj:
+            print(obj)
+            ev = e.Event(e.ObjectChanged(
+                e.UUID(obj.uuid),
+                e.DN(obj.dn),
+                e.ModificationTime(_last_changed.strftime("%Y%m%d%H%M%SZ")),
+                e.ChangeType(event_change_type)
+            ))
+        else:
+            ev = e.Event(e.ObjectChanged(
+                e.UUID(_uuid),
+                e.DN(dn),
+                e.ModificationTime(_last_changed.strftime("%Y%m%d%H%M%SZ")),
+                e.ChangeType(event_change_type)
+            ))
+
         event = "<?xml version='1.0'?>\n%s" % etree.tostring(ev, pretty_print=True).decode('utf-8')
 
         # Validate event

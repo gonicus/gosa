@@ -10,7 +10,7 @@
 import unittest.mock
 from tornado.web import Application
 from gosa.common.gjson import dumps, loads
-from gosa.backend.components.jsonrpc_service import JsonRpcHandler, AUTH_SUCCESS, AUTH_FAILED
+from gosa.backend.components.jsonrpc_service import JsonRpcHandler, AUTH_SUCCESS, AUTH_FAILED, AUTH_LOCKED
 from gosa.common.components import PluginRegistry
 from tests.GosaTestCase import slow
 from tests.RemoteTestCase import RemoteTestCase
@@ -35,13 +35,7 @@ class JsonRpcHandlerTestCase(RemoteTestCase):
         self.patcher.stop()
 
     def test_login(self):
-        # failed login
-        with unittest.mock.patch.object(JsonRpcHandler, 'authenticate', return_value=False) as m:
-            response = self.login()
-            json = loads(response.body)
-            assert json['result']['state'] == AUTH_FAILED
-
-        # successfull login
+        # successful login
         with unittest.mock.patch.object(JsonRpcHandler, 'authenticate', return_value='cn=System Administrator,ou=people,dc=example,'
                                                                                      'dc=net') as m:
             response = self.login()
@@ -50,6 +44,15 @@ class JsonRpcHandlerTestCase(RemoteTestCase):
             assert json['result']['state'] == AUTH_SUCCESS
             assert json['error'] is None
             assert json['id'] == 0
+
+        # failed login
+        with unittest.mock.patch.object(JsonRpcHandler, 'authenticate', return_value=False) as m:
+            response = self.login()
+            json = loads(response.body)
+            assert json['result']['state'] == AUTH_LOCKED
+
+            # reset lock
+            JsonRpcHandler._JsonRpcHandler__dos_manager = {}
 
     def test_bad_method_name(self):
         # fetch the xsrf cookie

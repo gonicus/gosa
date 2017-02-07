@@ -97,7 +97,6 @@ class UploadHandlerTestCase(RemoteTestCase):
                 'Content-Type': m.content_type,
                 'X-File-Name': 'create_user.zip'
             })
-            print(response)
             assert response.code == 200
             # path should have been removed by successfully unsigning it
             assert manager.unregisterUploadPath(uuid) is False

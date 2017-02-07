@@ -173,7 +173,7 @@ class ObjectBackendTestCase(unittest.TestCase):
         assert res['sn']['base'] == 'User'
         assert res['uid']['base'] == 'User'
         assert res['givenName']['base'] == 'User'
-        assert res['givenName']['secondary'] == ['PosixUser']
+        assert 'PosixUser' in res['givenName']['secondary']
         assert res['sambaPwdMustChange']['base'] == 'SambaUser'
         assert res['uidNumber']['base'] == 'PosixUser'
         assert res['shadowWarning']['base'] == 'ShadowUser'
