@@ -14,8 +14,6 @@ cache:
     - /tmp/qx5.1
 before_install:
     - sudo cp test_conf/org.gosa.conf /etc/dbus-1/system.d/
-    - ls -la /etc/dbus-1/system.d/
-    - ls -la /etc/init.d/
     - sudo service dbus reload
     - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
     - docker pull cpollmeier/gosa3:devel # download docker container
@@ -26,10 +24,11 @@ before_install:
     - sudo mkdir /tmp/workflows
     - sudo mkdir /etc/gosa
     - sudo cp ./test_conf/config /etc/gosa/
+    - ls -la /tmp/
 install:
-    - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev # needed to compile dbus-python
+    - sudo apt-get install libdbus-1-dev libdbus-glib-1-dev python3-gi # needed to compile dbus-python
     - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw
-    #- pip install -e git+https://github.com/bochecha/pygobject.git@pip-install#egg=pygobject
+    - pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.21.1
 before_script:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
