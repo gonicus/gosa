@@ -12,7 +12,7 @@ modules = [
 ]
 paths = []
 return_code = 0
-skip_return_code = ["dbus", "goto"]
+skip_return_code = ["dbus", "goto", "common"]
 
 # fix for multiple addopts parameters
 for idx, arg in enumerate(sys.argv):
