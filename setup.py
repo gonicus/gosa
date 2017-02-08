@@ -15,6 +15,16 @@ return_code = 0
 skip_tests = ["client"]
 skip_return_code = ["dbus", "goto", "common"]
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 testing = sys.argv[1] == "test"
 
 # fix for multiple addopts parameters
@@ -49,4 +59,8 @@ if testing:  # and return_code == 0:
     os.system("coverage report -m")
     os.system("coverage html -d htmlcov")
 
+if return_code == 0:
+    print(bcolors.OKGREEN + "Test run successful" + bcolors.ENDC)
+else:
+    print(bcolors.WARNING + "Test run failed" + bcolors.ENDC)
 sys.exit(return_code)

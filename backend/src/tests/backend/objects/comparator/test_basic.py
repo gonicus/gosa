@@ -40,17 +40,6 @@ class BasicComparatorTests(unittest.TestCase):
 
     def test_greater(self):
         comp = Greater()
-        (result, errors) = comp.process(None, None, [5, 6], 3)
-        assert result == True
-        assert len(errors) == 0
-
-        (result, errors) = comp.process(None, None, [5, 1], 3)
-        assert result == False
-        assert len(errors) == 1
-
-        (result, errors) = comp.process(None, None, [1, 2], 3)
-        assert result == False
-        assert len(errors) == 1
 
         # test string numbers
         (result, errors) = comp.process(None, None, ["5", "6"], "3")
@@ -67,17 +56,6 @@ class BasicComparatorTests(unittest.TestCase):
 
     def test_smaller(self):
         comp = Smaller()
-        (result, errors) = comp.process(None, None, [5, 6], 13)
-        assert result == True
-        assert len(errors) == 0
-
-        (result, errors) = comp.process(None, None, [5, 1], 3)
-        assert result == False
-        assert len(errors) == 1
-
-        (result, errors) = comp.process(None, None, [5, 6], 3)
-        assert result == False
-        assert len(errors) == 1
 
         (result, errors) = comp.process(None, None, ["5", "6"], "13")
         assert result == True
