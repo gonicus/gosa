@@ -12,7 +12,7 @@ import pkg_resources
 import logging
 from gosa.common.components import Plugin
 from gosa.common.components.command import Command
-from gosa.common.gjson import loads, dumps
+from gosa.common.gjson import loads
 from gosa.common.utils import N_
 from zope.interface import implementer
 from gosa.common.handler import IInterfaceHandler
@@ -284,7 +284,7 @@ class PasswordManager(Plugin):
             print("%s encrypted with %s as index %s => %s" % (self.clean_string(answer), method, idx, data[idx]))
 
         # Set the password and commit the changes
-        user.passwordRecoveryHash = dumps(data)
+        user.passwordRecoveryHash = data
         user.commit()
 
     @Command(__help__=N_("List all password hashing-methods"))
@@ -344,7 +344,7 @@ class PasswordManager(Plugin):
         if user.mail is None:
             raise PasswordException(C.make_error("PASSWORD_RECOVERY_IMPOSSIBLE"))
 
-        recovery_state = loads(user.passwordRecoveryState) if user.passwordRecoveryState is not None else {}
+        recovery_state = user.passwordRecoveryState if user.passwordRecoveryState is not None else {}
 
         if step != "start":
             # check uuid
@@ -370,7 +370,7 @@ class PasswordManager(Plugin):
             mail.send(user.mail, N_("Password recovery link"), content)
             recovery_state["sent_counter"] += 1
 
-            user.passwordRecoveryState = dumps(recovery_state)
+            user.passwordRecoveryState = recovery_state
             user.commit()
             return True
 
@@ -380,9 +380,8 @@ class PasswordManager(Plugin):
                 raise PasswordException(C.make_error("PASSWORD_RECOVERY_STATE_ERROR"))
 
             # return the indices of the questions the user has answered
-            recovery_hashes = loads(user.passwordRecoveryHash)
             # TODO retrieve minimum amount of correct answers from user policy object
-            return random.sample(recovery_hashes.keys(), 3)
+            return random.sample(user.passwordRecoveryHash.keys(), 3)
 
         elif step == "check_answers":
             # check correct state
@@ -390,7 +389,7 @@ class PasswordManager(Plugin):
                 raise PasswordException(C.make_error("PASSWORD_RECOVERY_STATE_ERROR"))
 
             data = loads(data)
-            recovery_hashes = loads(user.passwordRecoveryHash)
+            recovery_hashes = user.passwordRecoveryHash
             correct_answers = 0
             for idx, answer in data.items():
                 if idx not in recovery_hashes:
@@ -408,7 +407,6 @@ class PasswordManager(Plugin):
             # TODO retrieve minimum amount of correct answers from user policy object
             if correct_answers >= 3:
                 recovery_state['state'] = 'verified'
-                user.passwordRecoveryState = dumps(recovery_state)
                 user.commit()
                 return True
             else:

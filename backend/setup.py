@@ -193,6 +193,8 @@ setup(
         password_lock = gosa.backend.plugins.password.filter.detect_locking:DetectAccountLockStatus
         addbackend = gosa.backend.objects.filter.basic:AddBackend
         securecontext = gosa.backend.plugins.two_factor.filter.detect_security:DetectSecureContext
+        stringtojson = gosa.backend.objects.filter.strings:StringToJson
+        jsontostring = gosa.backend.objects.filter.strings:JsonToString
 
         [gosa.object.comparator]
         like = gosa.backend.objects.comparator.strings:Like
