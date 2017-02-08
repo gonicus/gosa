@@ -12,6 +12,9 @@ Stores jobs in a database table using SQLAlchemy.
 """
 import pickle
 import logging
+import time
+
+import sqlalchemy
 
 from gosa.common.components.scheduler.jobstores.base import JobStore
 from gosa.common.components.scheduler.job import Job, JOB_WAITING, JOB_ERROR
@@ -65,7 +68,15 @@ class SQLAlchemyJobStore(JobStore):
             Column('job_type', String(1024), nullable=False),
             Column('callback', String(1024), nullable=True))
 
-        self.jobs_t.create(self.engine, True)
+        created = False
+        retries = 0
+        while created is False and retries < 5:
+            try:
+                self.jobs_t.create(self.engine, True)
+                created = True
+            except sqlalchemy.exc.OperationalError:
+                retries += 1
+                time.sleep(5)
 
     def add_job(self, job):
         job_dict = job.__getstate__()

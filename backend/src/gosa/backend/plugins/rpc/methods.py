@@ -12,7 +12,6 @@ import os
 import datetime
 import shlex
 import gosa.backend.objects.renderer
-from json import loads, dumps
 
 from sqlalchemy import desc
 from zope.interface import implementer
@@ -154,15 +153,10 @@ class RPCMethods(Plugin):
             raise GOsaException(C.make_error("UNKNOWN_USER", target=userid))
 
         user = ObjectProxy(res[0]['dn'])
-        prefs = user.guiPreferences
+        if user.guiPreferences is None:
+            user.guiPreferences = {}
 
-        if not prefs:
-            prefs = {}
-        else:
-            prefs = loads(prefs)
-
-        prefs[name] = value
-        user.guiPreferences = dumps(prefs)
+        user.guiPreferences[name] = value
         user.commit()
 
         return True
@@ -175,17 +169,13 @@ class RPCMethods(Plugin):
             raise GOsaException(C.make_error("UNKNOWN_USER", target=userid))
 
         user = ObjectProxy(res[0]['dn'])
-        prefs = user.guiPreferences
 
-        if not prefs:
-            prefs = {}
+        if not user.guiPreferences:
+            return None
+        elif name in user.guiPreferences:
+            return user.guiPreferences[name]
         else:
-            prefs = loads(prefs)
-
-        if name in prefs:
-            return prefs[name]
-
-        return None
+            return None
 
     @Command(needsUser=True, __help__=N_("Search for object information"))
     def searchForObjectDetails(self, user, extension, attribute, search_filter, attributes, skip_values):

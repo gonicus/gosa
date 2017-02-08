@@ -11,6 +11,9 @@ import re
 from gosa.backend.objects.filter import ElementFilter
 import datetime
 
+from gosa.common.gjson import loads, dumps
+
+
 class SplitString(ElementFilter):
     """
     splits a string by the given separator
@@ -291,4 +294,48 @@ class UnicodeToIdna(ElementFilter):
     def process(self, obj, key, valDict):
         valDict[key]['value'] = list(map(lambda x: x.encode('idna'), valDict[key]['value']))
         valDict[key]['backend_type'] = 'String'
+        return key, valDict
+
+
+class StringToJson(ElementFilter):
+    """
+    Parses a string with the json parser.
+
+    e.g.:
+    >>> <FilterEntry>
+    >>>  <Filter>
+    >>>   <Name>StringToJson</Name>
+    >>>  </Filter>
+    >>> </FilterEntry>
+    >>>  ...
+    """
+
+    def __init__(self, obj):
+        super(StringToJson, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        if type(valDict[key]['value'] is not None):
+            valDict[key]['value'] = list(map(lambda x: loads(x), valDict[key]['value']))
+        return key, valDict
+
+
+class JsonToString(ElementFilter):
+    """
+    Serializes an object to a json string.
+
+    e.g.:
+    >>> <FilterEntry>
+    >>>  <Filter>
+    >>>   <Name>JsonToString</Name>
+    >>>  </Filter>
+    >>> </FilterEntry>
+    >>>  ...
+    """
+
+    def __init__(self, obj):
+        super(JsonToString, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        if type(valDict[key]['value'] is not None):
+            valDict[key]['value'] = list(map(lambda x: dumps(x), valDict[key]['value']))
         return key, valDict

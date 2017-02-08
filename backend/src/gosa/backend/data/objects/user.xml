@@ -165,6 +165,24 @@
         <Description>The Audio attribute type allows the storing of sounds in the Directory. The attribute uses a u-law encoded sound file as used by the "play" utility on a Sun 4. This is an interim format</Description>
         <Type>AnyType</Type>
         <Backend>JSON</Backend>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>StringToJson</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>JsonToString</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
       </Attribute>
       <Attribute>
         <Name>audio</Name>
@@ -627,12 +645,48 @@
           this process.</Description>
         <Type>AnyType</Type>
         <Backend>JSON</Backend>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>StringToJson</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>JsonToString</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
       </Attribute>
       <Attribute>
         <Name>passwordRecoveryHash</Name>
         <Description>This hash contains the chosen password recovery questions and answers</Description>
         <Type>AnyType</Type>
         <Backend>JSON</Backend>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>StringToJson</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>JsonToString</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
       </Attribute>
     </Attributes>
     <BaseObject>true</BaseObject>

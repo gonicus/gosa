@@ -78,7 +78,7 @@ class RpcMethodsTestCase(TestCase):
             self.rpc.saveUserPreferences('unkown', 'description', 'test')
 
         with mock.patch('gosa.backend.plugins.rpc.methods.ObjectProxy') as m:
-            m.return_value.guiPreferences = "{}"
+            m.return_value.guiPreferences = {}
             self.rpc.saveUserPreferences('admin', 'description', 'test')
             assert m.return_value.commit.called
 
@@ -92,7 +92,7 @@ class RpcMethodsTestCase(TestCase):
             self.rpc.loadUserPreferences('unkown', 'description')
 
         with mock.patch('gosa.backend.plugins.rpc.methods.ObjectProxy') as m:
-            m.return_value.guiPreferences = '{"description": "test"}'
+            m.return_value.guiPreferences = {"description": "test"}
             assert self.rpc.loadUserPreferences('admin', 'description') == "test"
             m.return_value.guiPreferences = ''
             assert self.rpc.loadUserPreferences('admin', 'description') is None
