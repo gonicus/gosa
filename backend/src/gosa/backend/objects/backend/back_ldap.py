@@ -213,8 +213,6 @@ class LDAP(ObjectBackend):
         for key in data.keys():
             mod_attrs.append((ldap.MOD_DELETE, key, None))
 
-        print(dn)
-        print(mod_attrs)
         self.con.modify_s(dn, mod_attrs)
 
         # Clear identify cache, else we will receive old values from self.identifyObject
