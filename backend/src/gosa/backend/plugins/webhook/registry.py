@@ -14,7 +14,7 @@ import os
 import pkg_resources
 import zope
 from lxml import objectify
-from requests import HTTPError
+from tornado.web import HTTPError
 
 from zope.interface import implementer
 import hmac
@@ -58,7 +58,7 @@ class WebhookRegistry(Plugin):
         # load registered handlers
         for entry in pkg_resources.iter_entry_points("gosa.webhook_handler"):
             module = entry.load()
-            self.__handlers[entry.name] = module()
+            self.register_handler(entry.name, module())
 
         # override for development mode
         monitor_key = self.env.config.get("webhooks.ldap_monitor_token")
@@ -67,10 +67,16 @@ class WebhookRegistry(Plugin):
                 self.__hooks['application/vnd.gosa.event+xml'] = {}
             self.__hooks['application/vnd.gosa.event+xml']['backend-monitor'] = monitor_key
 
+    def register_handler(self, content_type, handler):
+        self.__handlers[content_type] = handler
+
     def stop(self):
         settings_file = self.env.config.get("webhooks.registry-store", "/var/lib/gosa/webhooks")
         with open(settings_file, 'w') as f:
             f.write(dumps(self.__hooks))
+
+        for clazz in self.__handlers.values():
+            del clazz
 
     def get_webhook_url(self):
         return "%s/hooks/" % PluginRegistry.getInstance("HTTPService").get_gui_uri()[0]
@@ -90,7 +96,7 @@ class WebhookRegistry(Plugin):
             self.__hooks[content_type] = {}
 
         if sender_name not in self.__hooks[content_type]:
-            self.__hooks[content_type] = bytes(uuid.uuid4(), 'ascii')
+            self.__hooks[content_type][sender_name] = str(uuid.uuid4())
 
         return self.get_webhook_url(), self.__hooks[content_type][sender_name]
 
@@ -100,6 +106,10 @@ class WebhookRegistry(Plugin):
             del self.__hooks[content_type][sender_name]
 
     def get_token(self, content_type, sender_name):
+        print(self.__hooks)
+        if content_type is None or sender_name is None:
+            return None
+
         if content_type not in self.__hooks or sender_name not in self.__hooks[content_type]:
             return None
         else:
@@ -138,6 +148,8 @@ class WebhookReceiver(HSTSRequestHandler):
 
         registry = PluginRegistry.getInstance("WebhookRegistry")
         # verify content
+        print(content_type)
+        print(self.sender)
         token = registry.get_token(content_type, self.sender)
         # no token, not allowed
         if token is None:
@@ -153,11 +165,15 @@ class WebhookReceiver(HSTSRequestHandler):
         # forward to the registered handler
         handler = registry.get_handler(content_type)
         if handler is None:
+            # usually this code is unreachable because if there is no registered handler, there is no token
             raise HTTPError(401)
 
-        handler.handleRequest(self.request)
+        handler.handle_request(self.request)
 
     def _verify_signature(self, payload_body, token):
+        if self.signature is None:
+            return False
+
         h = hmac.new(token, msg=payload_body, digestmod="sha512")
         signature = 'sha1=' + h.hexdigest()
         return hmac.compare_digest(self.signature, signature)
@@ -166,7 +182,7 @@ class WebhookReceiver(HSTSRequestHandler):
 class WebhookEventReceiver(object):
     """ Webhook handler for gosa events (Content-Type: application/vnd.gosa.event+xml) """
 
-    def handleRequest(self, request):
+    def handle_request(self, request):
         # read and validate event
         xml = objectify.fromstring(request.body, PluginRegistry.getEventParser())
         # forward incoming event to internal event bus
