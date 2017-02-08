@@ -15,15 +15,7 @@ return_code = 0
 skip_tests = ["client"]
 skip_return_code = ["dbus", "goto", "common"]
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+failed_modules = {}
 
 testing = sys.argv[1] == "test"
 
@@ -39,6 +31,11 @@ for module in modules:
     module_return_code = os.system("cd %s && ./setup.py %s" % (module, " ".join(sys.argv[1:])))
     if module not in skip_return_code:
         return_code = max(return_code, module_return_code >> 8)
+    if module_return_code > 0:
+        failed_modules[module] = {
+            "code": module_return_code,
+            "type": "module"
+        }
     print("%s returned %s (ignored: %s): %s" % (module, module_return_code, module in skip_return_code, return_code))
 
 for root, dirs, files in os.walk("plugins"):
@@ -50,6 +47,11 @@ for root, dirs, files in os.walk("plugins"):
         paths.append("%s/" % root)
         if plugin not in skip_return_code:
             return_code = max(return_code, plugin_return_code >> 8)
+        if plugin_return_code > 0:
+            failed_modules[module] = {
+                "code": plugin_return_code,
+                "type": "plugin"
+            }
         print("%s returned %s (ignored: %s): %s" % (plugin, plugin_return_code, plugin in skip_return_code, return_code))
 
 if testing:  # and return_code == 0:
@@ -60,7 +62,10 @@ if testing:  # and return_code == 0:
     os.system("coverage html -d htmlcov")
 
 if return_code == 0:
-    print(bcolors.OKGREEN + "Test run successful" + bcolors.ENDC)
+    print(sys.argv[1] + " run successful")
 else:
-    print(bcolors.WARNING + "Test run failed" + bcolors.ENDC)
+    print(sys.argv[1] + " run failed with error code " + str(return_code))
+    print("Failed parts:")
+    for name in failed_modules:
+        print("  >>> %s '%s' failed with error code %s" % (failed_modules[name]['type'], name, str(failed_modules[name]['code'])))
 sys.exit(return_code)

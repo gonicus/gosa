@@ -69,7 +69,7 @@ class Greater(ElementComparator):
         match = int(match)
         for item in value:
             # Number or attribute?
-            if item.isdigit():
+            if isinstance(item, int) or item.isdigit():
                 item = int(item)
             else:
                 item = int(all_props[item]["value"][0])
@@ -93,7 +93,7 @@ class Smaller(ElementComparator):
     =========== ==================
     Key         Description
     =========== ==================
-    match       The value we match againt.
+    match       The value we match against.
     =========== ==================
     """
 
@@ -107,7 +107,7 @@ class Smaller(ElementComparator):
         for item in value:
 
             # Number or attribute?
-            if item.isdigit():
+            if isinstance(item, int) or item.isdigit():
                 item = int(item)
             else:
                 item = int(all_props[item]["value"][0])
