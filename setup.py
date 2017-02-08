@@ -17,7 +17,8 @@ skip_return_code = ["dbus", "goto", "common"]
 
 failed_modules = {}
 
-testing = sys.argv[1] == "test"
+task = sys.argv[1]
+testing = task == "test"
 
 # fix for multiple addopts parameters
 for idx, arg in enumerate(sys.argv):
@@ -40,7 +41,7 @@ for module in modules:
 
 for root, dirs, files in os.walk("plugins"):
     if "setup.py" in files:
-        plugin = root.split(os.path.sep)[-1:]
+        plugin = root.split(os.path.sep)[-1:][0]
         if testing and plugin in skip_tests:
             continue
         plugin_return_code = os.system("cd %s && ./setup.py %s" % (root, " ".join(sys.argv[1:])))
@@ -48,7 +49,7 @@ for root, dirs, files in os.walk("plugins"):
         if plugin not in skip_return_code:
             return_code = max(return_code, plugin_return_code >> 8)
         if plugin_return_code > 0:
-            failed_modules[module] = {
+            failed_modules[plugin] = {
                 "code": plugin_return_code,
                 "type": "plugin"
             }
@@ -62,9 +63,9 @@ if testing:  # and return_code == 0:
     os.system("coverage html -d htmlcov")
 
 if return_code == 0:
-    print(sys.argv[1] + " run successful")
+    print(task + " run successful")
 else:
-    print(sys.argv[1] + " run failed with error code " + str(return_code))
+    print(task + " run failed with error code " + str(return_code))
     print("Failed parts:")
     for name in failed_modules:
         print("  >>> %s '%s' failed with error code %s" % (failed_modules[name]['type'], name, str(failed_modules[name]['code'])))
