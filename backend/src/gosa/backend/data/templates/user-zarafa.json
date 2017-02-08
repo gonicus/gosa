@@ -35,18 +35,6 @@
             },
             "children": [
                 {
-                    "class": "gosa.ui.widgets.QCheckBoxWidget",
-                    "modelPath": "zarafaAccount",
-                    "addOptions": {
-                        "column": 0,
-                        "row": 0,
-                        "colSpan": 2
-                    },
-                    "properties": {
-                        "label": "tr('Visible')"
-                    }
-                },
-                {
                     "class": "gosa.ui.widgets.QLabelWidget",
                     "buddyModelPath": "mail",
                     "properties": {
@@ -54,7 +42,7 @@
                     },
                     "addOptions": {
                         "column": 0,
-                        "row": 1
+                        "row": 0
                     }
                 },
                 {
@@ -62,7 +50,19 @@
                     "modelPath": "mail",
                     "addOptions": {
                         "column": 1,
-                        "row": 1
+                        "row": 0
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QCheckBoxWidget",
+                    "modelPath": "zarafaAccount",
+                    "addOptions": {
+                        "column": 0,
+                        "row": 1,
+                        "colSpan": 2
+                    },
+                    "properties": {
+                        "label": "tr('Visible')"
                     }
                 },
                 {
@@ -126,11 +126,14 @@
             "children": [
                 {
                     "class": "gosa.ui.widgets.QCheckBoxWidget",
-                    "modelPath": "tr('Vacation settings active')",
+                    "modelPath": "inVacation",
                     "addOptions": {
                         "column": 0,
                         "row": 0,
                         "colSpan": 2
+                    },
+                    "properties": {
+                        "label": "tr('Vacation settings active')"
                     }
                 },
                 {

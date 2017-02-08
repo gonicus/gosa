@@ -179,11 +179,11 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
           for (var k in data) {
             var item = new gosa.data.model.SelectBoxItem();
             item.setKey(convert(k));
-            if (data[k]['value']) {
+            if (data[k] && data[k]['value']) {
               item.setValue(data[k]['value']);
               item.setIcon(data[k]['icon']);
             } else {
-              item.setValue(data[k]);
+              item.setValue(data[k] || "");
             }
             items.push(item);
           }

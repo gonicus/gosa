@@ -312,7 +312,7 @@
           <FilterChain>
             <FilterEntry>
               <Filter>
-                <Name>PunycodeToUnicode</Name>
+                <Name>IdnaToUnicode</Name>
               </Filter>
             </FilterEntry>
           </FilterChain>
@@ -321,7 +321,7 @@
           <FilterChain>
             <FilterEntry>
               <Filter>
-                <Name>UnicodeToPunycode</Name>
+                <Name>UnicodeToIdna</Name>
               </Filter>
             </FilterEntry>
           </FilterChain>
@@ -450,7 +450,7 @@
           <FilterChain>
             <FilterEntry>
               <Filter>
-                <Name>PunycodeToUnicode</Name>
+                <Name>IdnaToUnicode</Name>
               </Filter>
             </FilterEntry>
           </FilterChain>
@@ -459,7 +459,7 @@
           <FilterChain>
             <FilterEntry>
               <Filter>
-                <Name>UnicodeToPunycode</Name>
+                <Name>UnicodeToIdna</Name>
               </Filter>
             </FilterEntry>
           </FilterChain>
@@ -482,7 +482,7 @@
           <FilterChain>
             <FilterEntry>
               <Filter>
-                <Name>PunycodeToUnicode</Name>
+                <Name>IdnaToUnicode</Name>
               </Filter>
             </FilterEntry>
           </FilterChain>
@@ -491,7 +491,7 @@
           <FilterChain>
             <FilterEntry>
               <Filter>
-                <Name>UnicodeToPunycode</Name>
+                <Name>UnicodeToIdna</Name>
               </Filter>
             </FilterEntry>
           </FilterChain>
@@ -509,8 +509,6 @@
         <Name>gosaVacationMessage</Name>
         <Description>Text to display in case of vacation</Description>
         <Type>UnicodeString</Type>
-        <MultiValue>true</MultiValue>
-        <Mandatory>false</Mandatory>
         <BlockedBy>
           <Attribute value="false">inVacation</Attribute>
         </BlockedBy>

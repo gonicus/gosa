@@ -154,8 +154,8 @@ setup(
         stringToDate = gosa.backend.objects.filter.strings:StringToDate
         dateToString = gosa.backend.objects.filter.strings:DateToString
         timeToString = gosa.backend.objects.filter.strings:TimeToString
-        punycodein = gosa.backend.objects.filter.strings:PunycodeToUnicode
-        punycodeout = gosa.backend.objects.filter.strings:UnicodeToPunycode
+        idnain = gosa.backend.objects.filter.strings:IdnaToUnicode
+        idnaout = gosa.backend.objects.filter.strings:UnicodeToIdna
         target = gosa.backend.objects.filter.basic:Target
         setbackends = gosa.backend.objects.filter.basic:SetBackends
         setvalue = gosa.backend.objects.filter.basic:SetValue

@@ -248,45 +248,47 @@ class StringToTime(ElementFilter):
         return key, valDict
 
 
-class PunycodeToUnicode(ElementFilter):
+class IdnaToUnicode(ElementFilter):
     """
-    Converts a punycode object into a unicode object..
+    Converts a idna object into a unicode object..
 
     e.g.:
     >>> <FilterEntry>
     >>>  <Filter>
-    >>>   <Name>PunycodeToUnicode</Name>
+    >>>   <Name>IdnaToUnicode</Name>
     >>>  </Filter>
     >>> </FilterEntry>
     >>>  ...
     """
 
     def __init__(self, obj):
-        super(PunycodeToUnicode, self).__init__(obj)
+        super(IdnaToUnicode, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        valDict[key]['value'] = list(map(lambda x: x.decode('punycode'), valDict[key]['value']))
+        print("-----")
+        print(valDict[key]['value'])
+        valDict[key]['value'] = list(map(lambda x: x.encode('ascii').decode('idna'), valDict[key]['value']))
         valDict[key]['backend_type'] = 'UnicodeString'
         return key, valDict
 
 
-class UnicodeToPunycode(ElementFilter):
+class UnicodeToIdna(ElementFilter):
     """
-    Converts an unicode object into a punycode value ...
+    Converts an unicode object into a idna value ...
 
     e.g.:
     >>> <FilterEntry>
     >>>  <Filter>
-    >>>   <Name>UnicodeToPunycode</Name>
+    >>>   <Name>UnicodeToIdna</Name>
     >>>  </Filter>
     >>> </FilterEntry>
     >>>  ...
     """
 
     def __init__(self, obj):
-        super(UnicodeToPunycode, self).__init__(obj)
+        super(UnicodeToIdna, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        valDict[key]['value'] = list(map(lambda x: x.encode('punycode'), valDict[key]['value']))
+        valDict[key]['value'] = list(map(lambda x: x.encode('idna'), valDict[key]['value']))
         valDict[key]['backend_type'] = 'String'
         return key, valDict
