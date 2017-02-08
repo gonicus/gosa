@@ -355,9 +355,6 @@
         <Type>Boolean</Type>
         <Default>false</Default>
         <Mandatory>true</Mandatory>
-        <BlockedBy>
-          <Attribute value="true">customSieveScript</Attribute>
-        </BlockedBy>
       </Attribute>
       <Attribute>
         <Name>activateSpamFilter</Name>
@@ -366,9 +363,6 @@
         <Type>Boolean</Type>
         <Default>false</Default>
         <Mandatory>true</Mandatory>
-        <BlockedBy>
-          <Attribute value="true">customSieveScript</Attribute>
-        </BlockedBy>
       </Attribute>
       <Attribute>
         <Name>mailSizeFilter</Name>
@@ -377,9 +371,6 @@
         <Type>Boolean</Type>
         <Default>false</Default>
         <Mandatory>true</Mandatory>
-        <BlockedBy>
-          <Attribute value="true">customSieveScript</Attribute>
-        </BlockedBy>
       </Attribute>
       <Attribute>
         <Name>localDelivery</Name>
@@ -388,9 +379,6 @@
         <Type>Boolean</Type>
         <Default>false</Default>
         <Mandatory>true</Mandatory>
-        <BlockedBy>
-          <Attribute value="true">customSieveScript</Attribute>
-        </BlockedBy>
       </Attribute>
       <Attribute>
         <Name>skipOwnMailbox</Name>
@@ -399,9 +387,6 @@
         <Type>Boolean</Type>
         <Default>false</Default>
         <Mandatory>true</Mandatory>
-        <BlockedBy>
-          <Attribute value="true">customSieveScript</Attribute>
-        </BlockedBy>
       </Attribute>
       <Attribute>
         <Name>customSieveScript</Name>
