@@ -28,7 +28,7 @@ class ZarafaDisabledFeaturesOut(ElementFilter):
         alist = {'enablePop3' : 'pop3', 'enableZPush': 'zpush', 'enableImap': 'imap'}
 
         # Build up a list of values to encode.
-        for entry, _key in alist:
+        for entry, _key in alist.items():
             if not len(valDict[entry]['value']):
                 raise AttributeError(C.make_error('ATTRIBUTE_MANDATORY', entry))
             else:
@@ -52,10 +52,10 @@ class ZarafaEnabledFeaturesOut(ElementFilter):
         valDict[key]['value'] = []
 
         # Create a list with all relevant attributes.
-        alist = ['enablePop3', 'enableZPush', 'enableImap']
+        alist = {'enablePop3' : 'pop3', 'enableZPush': 'zpush', 'enableImap': 'imap'}
 
         # Build up a list of values to encode.
-        for entry, _key in alist:
+        for entry, _key in alist.items():
             if not len(valDict[entry]['value']):
                 raise AttributeError(C.make_error('ATTRIBUTE_MANDATORY', entry))
             else:

@@ -8,7 +8,7 @@
       <Template>user-zarafa.json</Template>
     </Templates>
     <BackendParameters>
-      <Backend objectClasses="zarafa-user,gosaMailAccount,goZarafaAddon">LDAP</Backend>
+      <Backend objectClasses="zarafa-user,gosaMailAccount,goZarafaAddons">LDAP</Backend>
     </BackendParameters>
     <Backend>LDAP</Backend>
     <BaseObject>false</BaseObject>

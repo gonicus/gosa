@@ -343,7 +343,7 @@
                 },
                 {
                     "class": "gosa.ui.widgets.QCheckBoxWidget",
-                    "modelPath": "zarafaEnablePop",
+                    "modelPath": "enablePop3",
                     "properties": {
                         "label": "tr('Enable POP3')"
                     },
@@ -355,7 +355,7 @@
                 },
                 {
                     "class": "gosa.ui.widgets.QCheckBoxWidget",
-                    "modelPath": "zarafaEnableImap",
+                    "modelPath": "enableImap",
                     "properties": {
                         "label": "tr('Enable IMAP')"
                     },
@@ -367,7 +367,7 @@
                 },
                 {
                     "class": "gosa.ui.widgets.QCheckBoxWidget",
-                    "modelPath": "zarafaEnableZpush",
+                    "modelPath": "enableZPush",
                     "properties": {
                         "label": "tr('Enable Z-Push')"
                     },
