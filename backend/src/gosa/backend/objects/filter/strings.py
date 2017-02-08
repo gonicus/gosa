@@ -268,8 +268,6 @@ class IdnaToUnicode(ElementFilter):
         super(IdnaToUnicode, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        print("-----")
-        print(valDict[key]['value'])
         valDict[key]['value'] = list(map(lambda x: x.encode('ascii').decode('idna'), valDict[key]['value']))
         valDict[key]['backend_type'] = 'UnicodeString'
         return key, valDict
