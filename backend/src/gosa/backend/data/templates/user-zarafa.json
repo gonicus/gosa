@@ -438,7 +438,7 @@
                 },
                 {
                     "class": "gosa.ui.widgets.QLabelWidget",
-                    "buddyModelPath": "zarafaUserServer",
+                    "buddyModelPath": "gosaMailServer",
                     "properties": {
                         "text": "tr('User server')"
                     },
@@ -448,12 +448,11 @@
                     }
                 },
                 {
-                    "class": "gosa.ui.widgets.QTableWidgetWidget",
-                    "modelPath": "zarafaUserServer",
+                    "class": "gosa.ui.widgets.QComboBoxWidget",
+                    "modelPath": "gosaMailServer",
                     "addOptions": {
                         "column": 2,
-                        "row": 1,
-                        "rowSpan": 4
+                        "row": 1
                     }
                 },
                 {

@@ -80,7 +80,4 @@ class MailDeliveryModeIn(ElementFilter):
             valDict['customSieveScript']['value'] = ["C" in value]
             valDict['customSieveScript']['skip_save'] = True
 
-        print("--------------------------------")
-        print(valDict)
-
         return key, valDict

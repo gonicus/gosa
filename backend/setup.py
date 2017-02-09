@@ -125,6 +125,7 @@ setup(
         mail = gosa.backend.plugins.mail.main:Mail
         user = gosa.backend.plugins.user.main:User
         webhook_registry = gosa.backend.plugins.webhook.registry:WebhookRegistry
+        zarafa = gosa.backend.plugins.zarafa.methods:ZarafaRPCMethods
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
