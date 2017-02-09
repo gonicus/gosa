@@ -24,7 +24,7 @@ class ZarafaRPCMethods(Plugin):
     @Command(__help__=N_("Returns a list with all selectable zarafa mail servers"))
     def getZarafaMailServers(self):
         index = PluginRegistry.getInstance("ObjectIndex")
-        res = index.search({'_type': 'ZarafaServer', 'cn': '%'},
-            {'cn': 1})
+        res = index.search({'extension': 'ZarafaServer', 'zarafaAccount': 'True'},
+            {'cn': 1, 'zarafaAccount': 1})
 
         return list(set([x['cn'][0] for x in res]))

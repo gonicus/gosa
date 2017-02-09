@@ -187,9 +187,26 @@
       <Attribute>
         <Name>zarafaAccount</Name>
         <Description>ZARAFA: entry is a part of zarafa</Description>
-        <Type>Integer</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
+        <Type>Boolean</Type>
+        <BackendType>Integer</BackendType>
+        <InFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>IntegerToBoolean</Name>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </InFilter>
+        <OutFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>BooleanToInteger</Name>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </OutFilter>
       </Attribute>
       <Attribute>
         <Name>zarafaHidden</Name>
@@ -298,7 +315,7 @@
         <Validators>
           <Condition>
             <Name>ObjectWithPropertyExists</Name>
-            <Param>ZarafaServer</Param>
+            <Param>Device</Param>
             <Param>goZarafaArchiveServer</Param>
             <Param>1</Param>
           </Condition>
@@ -332,7 +349,6 @@
         <Validators>
           <Condition>
             <Name>IsValidMailAddress</Name>
-            <Param>mail</Param>
           </Condition>
         </Validators>
       </Attribute>
@@ -344,7 +360,7 @@
         <Validators>
           <Condition>
             <Name>ObjectWithPropertyExists</Name>
-            <Param>ZarafaServer</Param>
+            <Param>Device</Param>
             <Param>dn</Param>
           </Condition>
         </Validators>
@@ -456,7 +472,6 @@
         <Validators>
           <Condition>
             <Name>IsValidMailAddress</Name>
-            <Param>gosaMailAlternateAddress</Param>
           </Condition>
         </Validators>
       </Attribute>
@@ -488,7 +503,6 @@
         <Validators>
           <Condition>
             <Name>IsValidMailAddress</Name>
-            <Param>gosaMailForwardingAddress</Param>
           </Condition>
         </Validators>
       </Attribute>
