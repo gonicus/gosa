@@ -353,7 +353,6 @@ qx.Class.define("gosa.view.Search", {
     },
 
     showSearchResults : function(items, duration, fuzzy, query) {
-      console.log("showSearchResults");
       var i = items.length;
 
       this._currentResult = items;
@@ -462,10 +461,8 @@ qx.Class.define("gosa.view.Search", {
       // Update categories
       if (this.searchAid.hasFilter()) {
         this.searchAid.updateFilter("category", categories);
-        console.log("updating search aid filter");
 
       } else {
-        console.log("add search aid filter");
         this.searchAid.addFilter(this.tr("Category"), "category",
             categories, this.__selection.category);
 
@@ -483,7 +480,6 @@ qx.Class.define("gosa.view.Search", {
             "year": { name: this.tr("Last year"), count: modifiedCounters.year }
         }, this.__selection['mod-time']);
       }
-      console.log(this.searchAid);
     },
 
     __sortByRelevance: function(a, b){
@@ -527,10 +523,6 @@ qx.Class.define("gosa.view.Search", {
         this._modifiedObjects.push(data.uuid);
       }
 
-      //console.log("ADD: ", this._createdObjects);
-      //console.log("DEL: ", this._removedObjects);
-      //console.log("MOD: ", this._modifiedObjects);
-
       // Once an event was catched, start a new query, but do not show
       // the result in the list, instead just return it.
       if (this.__searchPromise) {
@@ -564,10 +556,6 @@ qx.Class.define("gosa.view.Search", {
           added = qx.lang.Array.exclude(qx.lang.Array.clone(uuids), current_uuids);
           stillthere = qx.lang.Array.exclude(current_uuids, added);
           stillthere = qx.lang.Array.exclude(stillthere, removed);
-
-          //console.log("added", added);
-          //console.log("removed", removed);
-          //console.log("stillthere", stillthere);
 
           // Walk through collected "remove-event" uuids and check if they were in our list
           // before, but are now gone. If so, then fade it out.
