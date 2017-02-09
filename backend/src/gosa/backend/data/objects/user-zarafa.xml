@@ -165,6 +165,7 @@
         <Name>zarafaResourceType</Name>
         <Description>ZARAFA: for shared stores, resource is type Room or Equipment</Description>
         <Type>UnicodeString</Type>
+        <Mandatory>true</Mandatory>
         <Values>
           <Value key="0"></Value>
           <Value key="user">User</Value>
