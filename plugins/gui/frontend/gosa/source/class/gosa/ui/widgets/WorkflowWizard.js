@@ -75,13 +75,9 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     __createStepWidget : function(stepIndex) {
       qx.core.Assert.assertUndefined(this.getChildControl("stack").getChildren()[stepIndex]);
 
-      var container = this.__createNewStepContainer();
+      var container = new qx.ui.container.Composite(new qx.ui.layout.VBox());
       this.__controller.createContextForIndex(stepIndex, container);
       this.getChildControl("stack").addAt(container, stepIndex);
-    },
-
-    __createNewStepContainer : function() {
-      return new qx.ui.container.Composite(new qx.ui.layout.VBox());
     },
 
     /**

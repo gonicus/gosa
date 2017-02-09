@@ -106,8 +106,11 @@ qx.Class.define("gosa.data.controller.Workflow", {
      */
     createContextForIndex : function(stepIndex, rootWidget) {
       qx.core.Assert.assertUndefined(this.__contexts[stepIndex]);
-      this.__contexts[stepIndex] = new gosa.engine.Context(this.__stepsConfig[stepIndex].template, rootWidget,
-        undefined, this);
+      this.__contexts[stepIndex] = new gosa.engine.Context(
+                                      this.__stepsConfig[stepIndex].template,
+                                      rootWidget,
+                                      undefined,
+                                      this);
     },
 
     saveAndClose : function() {
