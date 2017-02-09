@@ -54,22 +54,31 @@
                     }
                 },
                 {
-                    "class": "gosa.ui.widgets.QCheckBoxWidget",
-                    "modelPath": "zarafaAccount",
-                    "addOptions": {
-                        "column": 0,
-                        "row": 1,
-                        "colSpan": 2
-                    },
-                    "properties": {
-                        "label": "tr('Visible')"
-                    }
-                },
-                {
                     "class": "gosa.ui.widgets.QLabelWidget",
                     "buddyModelPath": "gosaMailAlternateAddress",
                     "properties": {
                         "text": "tr('Alternate address')"
+                    },
+                    "addOptions": {
+                        "column": 0,
+                        "row": 1,
+                        "colSpan": 2
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QLineEditWidget",
+                    "modelPath": "gosaMailAlternateAddress",
+                    "addOptions": {
+                        "column": 0,
+                        "row": 2,
+                        "colSpan": 2
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "gosaMailServer",
+                    "properties": {
+                        "text": "tr('User server')"
                     },
                     "addOptions": {
                         "column": 2,
@@ -77,8 +86,8 @@
                     }
                 },
                 {
-                    "class": "gosa.ui.widgets.QLineEditWidget",
-                    "modelPath": "gosaMailAlternateAddress",
+                    "class": "gosa.ui.widgets.QComboBoxWidget",
+                    "modelPath": "gosaMailServer",
                     "addOptions": {
                         "column": 3,
                         "row": 0
@@ -92,15 +101,17 @@
                     },
                     "addOptions": {
                         "column": 2,
-                        "row": 1
+                        "row": 1,
+                        "colSpan": 2
                     }
                 },
                 {
                     "class": "gosa.ui.widgets.QLineEditWidget",
                     "modelPath": "gosaMailForwardingAddress",
                     "addOptions": {
-                        "column": 3,
-                        "row": 1
+                        "column": 2,
+                        "row": 2,
+                        "colSpan": 2
                     }
                 }
             ]
@@ -299,12 +310,23 @@
             "extensions": {
                 "layoutOptions": {
                     "columnFlex": {
-                        "column": [1, 2],
+                        "column": [0, 2],
                         "flex": 1
                     }
                 }
             },
             "children": [
+                {
+                    "class": "gosa.ui.widgets.QCheckBoxWidget",
+                    "modelPath": "zarafaAccount",
+                    "addOptions": {
+                        "column": 0,
+                        "row": 0
+                    },
+                    "properties": {
+                        "label": "tr('Visible')"
+                    }
+                },
                 {
                     "class": "gosa.ui.widgets.QCheckBoxWidget",
                     "buddyModelPath": "zarafaAdmin",
@@ -313,8 +335,7 @@
                     },
                     "addOptions": {
                         "column": 0,
-                        "row": 0,
-                        "colSpan": 2
+                        "row": 1
                     }
                 },
                 {
@@ -325,8 +346,7 @@
                     },
                     "addOptions": {
                         "column": 0,
-                        "row": 1,
-                        "colSpan": 2
+                        "row": 2
                     }
                 },
                 {
@@ -337,82 +357,7 @@
                     },
                     "addOptions": {
                         "column": 0,
-                        "row": 2,
-                        "colSpan": 2
-                    }
-                },
-                {
-                    "class": "gosa.ui.widgets.QCheckBoxWidget",
-                    "modelPath": "enablePop3",
-                    "properties": {
-                        "label": "tr('Enable POP3')"
-                    },
-                    "addOptions": {
-                        "column": 0,
-                        "row": 3,
-                        "colSpan": 2
-                    }
-                },
-                {
-                    "class": "gosa.ui.widgets.QCheckBoxWidget",
-                    "modelPath": "enableImap",
-                    "properties": {
-                        "label": "tr('Enable IMAP')"
-                    },
-                    "addOptions": {
-                        "column": 0,
-                        "row": 4,
-                        "colSpan": 2
-                    }
-                },
-                {
-                    "class": "gosa.ui.widgets.QCheckBoxWidget",
-                    "modelPath": "enableZPush",
-                    "properties": {
-                        "label": "tr('Enable Z-Push')"
-                    },
-                    "addOptions": {
-                        "column": 0,
-                        "row": 5,
-                        "colSpan": 2
-                    }
-                },
-                {
-                    "class": "gosa.ui.widgets.QLabelWidget",
-                    "buddyModelPath": "zarafaResourceType",
-                    "properties": {
-                        "text": "tr('Zarafa resource type')"
-                    },
-                    "addOptions": {
-                        "column": 0,
-                        "row": 6
-                    }
-                },
-                {
-                    "class": "gosa.ui.widgets.QComboBoxWidget",
-                    "modelPath": "zarafaResourceType",
-                    "addOptions": {
-                        "column": 1,
-                        "row": 6
-                    }
-                },
-                {
-                    "class": "gosa.ui.widgets.QLabelWidget",
-                    "buddyModelPath": "zarafaResourceCapacity",
-                    "properties": {
-                        "text": "tr('Resource capacity')"
-                    },
-                    "addOptions": {
-                        "column": 0,
-                        "row": 7
-                    }
-                },
-                {
-                    "class": "gosa.ui.widgets.QSpinBoxWidget",
-                    "modelPath": "zarafaResourceCapacity",
-                    "addOptions": {
-                        "column": 1,
-                        "row": 7
+                        "row": 3
                     }
                 },
                 {
@@ -423,8 +368,7 @@
                     },
                     "addOptions": {
                         "column": 0,
-                        "row": 8,
-                        "colSpan": 2
+                        "row": 5
                     }
                 },
                 {
@@ -432,27 +376,84 @@
                     "modelPath": "zarafaUserArchiveServers",
                     "addOptions": {
                         "column": 0,
-                        "row": 9,
+                        "row": 6
+                    },
+                    "properties": {
+                        "maxHeight": 200
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QCheckBoxWidget",
+                    "modelPath": "enablePop3",
+                    "properties": {
+                        "label": "tr('Enable POP3')"
+                    },
+                    "addOptions": {
+                        "column": 1,
+                        "row": 0,
+                        "colSpan": 2
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QCheckBoxWidget",
+                    "modelPath": "enableImap",
+                    "properties": {
+                        "label": "tr('Enable IMAP')"
+                    },
+                    "addOptions": {
+                        "column": 1,
+                        "row": 1,
+                        "colSpan": 2
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QCheckBoxWidget",
+                    "modelPath": "enableZPush",
+                    "properties": {
+                        "label": "tr('Enable Z-Push')"
+                    },
+                    "addOptions": {
+                        "column": 1,
+                        "row": 2,
                         "colSpan": 2
                     }
                 },
                 {
                     "class": "gosa.ui.widgets.QLabelWidget",
-                    "buddyModelPath": "gosaMailServer",
+                    "buddyModelPath": "zarafaResourceType",
                     "properties": {
-                        "text": "tr('User server')"
+                        "text": "tr('Zarafa resource type')"
                     },
                     "addOptions": {
-                        "column": 2,
-                        "row": 0
+                        "column": 1,
+                        "row": 3
                     }
                 },
                 {
                     "class": "gosa.ui.widgets.QComboBoxWidget",
-                    "modelPath": "gosaMailServer",
+                    "modelPath": "zarafaResourceType",
                     "addOptions": {
                         "column": 2,
-                        "row": 1
+                        "row": 3
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "buddyModelPath": "zarafaResourceCapacity",
+                    "properties": {
+                        "text": "tr('Resource capacity')"
+                    },
+                    "addOptions": {
+                        "column": 1,
+                        "row": 4
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QSpinBoxWidget",
+                    "modelPath": "zarafaResourceCapacity",
+                    "addOptions": {
+                        "column": 2,
+                        "row": 4
                     }
                 },
                 {
@@ -462,16 +463,20 @@
                         "text": "tr('Send-as privilege')"
                     },
                     "addOptions": {
-                        "column": 2,
-                        "row": 8
+                        "column": 1,
+                        "row": 5
                     }
                 },
                 {
                     "class": "gosa.ui.widgets.QTableWidgetWidget",
                     "modelPath": "zarafaSendAsPrivilege",
                     "addOptions": {
-                        "column": 2,
-                        "row": 9
+                        "column": 1,
+                        "row": 6,
+                        "colSpan": 2
+                    },
+                    "properties": {
+                        "maxHeight": 200
                     }
                 }
             ]
