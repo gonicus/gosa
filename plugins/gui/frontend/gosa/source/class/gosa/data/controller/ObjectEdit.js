@@ -53,6 +53,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     this.__extensionController.checkForMissingExtensions();
 
     obj.addListener("closing", this._onObjectClosing, this);
+    obj.addListener("remove", this.__onObjectRemove, this);
   },
 
   events : {
@@ -138,6 +139,14 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
         this.__object.setUiBound(false);
         return this.closeObject();
       }, this);
+    },
+
+    __onObjectRemove : function() {
+      this._widget.close();
+
+      var dialog = new gosa.ui.dialogs.Info(qx.locale.Manager.tr("The object was automatically closed because it was removed in the backend."));
+      dialog.setAutoDispose(true);
+      dialog.open();
     },
 
     /**
@@ -709,6 +718,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
   },
 
   destruct : function() {
+    this.__object.removeListener("remove", this.__onObjectRemove, this);
     this.__object.removeListener("closing", this._onObjectClosing, this);
     this.__object.removeListener(
       "foundDifferencesDuringReload",
