@@ -9,6 +9,7 @@
 
 import re
 import difflib
+from urllib.parse import urlparse
 from gosa.common.utils import N_
 from gosa.backend.objects.comparator import ElementComparator
 
@@ -65,6 +66,28 @@ class RegEx(ElementComparator):
                 return False, errors
             cnt += 1
         return True, errors
+
+
+class IsValidURL(ElementComparator):
+    """
+    Object property validator which checks if a given property is a valid URL.
+    """
+
+    def process(self, all_props, key, value, match):
+
+        errors = []
+
+        # All items of value have to match.
+        cnt = 0
+        for item in value:
+            spec = urlparse(item)
+
+            if not spec.scheme in ["http", "https"]:
+                errors.append(dict(index=cnt, detail=N_("invalid HTTP URL")))
+                return False, errors
+            cnt += 1
+        return True, errors
+
 
 
 class stringLength(ElementComparator):

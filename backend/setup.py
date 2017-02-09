@@ -200,6 +200,7 @@ setup(
         [gosa.object.comparator]
         like = gosa.backend.objects.comparator.strings:Like
         regex = gosa.backend.objects.comparator.strings:RegEx
+        validurl = gosa.backend.objects.comparator.strings:IsValidURL
         stringlength = gosa.backend.objects.comparator.strings:stringLength
         equals = gosa.backend.objects.comparator.basic:Equals
         greater = gosa.backend.objects.comparator.basic:Greater
