@@ -67,7 +67,8 @@ C.register_codes(dict(
     PERMISSION_REMOVE=N_("No permission to remove '%(target)s'"),
     PERMISSION_CREATE=N_("No permission to create '%(target)s'"),
     PERMISSION_ACCESS=N_("No permission to access '%(topic)s' on '%(target)s'"),
-    OBJECT_UUID_MISMATCH=N_("UUID of base (%(b_uuid)s) and extension (%(e_uuid)s) differ")
+    OBJECT_UUID_MISMATCH=N_("UUID of base (%(b_uuid)s) and extension (%(e_uuid)s) differ"),
+    MOVE_TARGET_INVALID=N_("moving object '%(target)s' from '%(old_dn)s' to '%(new_dn)s' failed: no valid container found")
     ))
 
 
@@ -584,11 +585,13 @@ class ObjectProxy(object):
         """
         # find the right container in the new base
         old_dn = self.__base.dn
-        new_base = self.find_dn_for_object(self.__base_type, self.__factory.identifyObject(new_base)[0], new_base, checked=[])
+        real_new_base = self.find_dn_for_object(self.__base_type, self.__factory.identifyObject(new_base)[0], new_base, checked=[])
 
-        if new_base is None:
+        if real_new_base is None:
             self.__log.error("moving object '%s' from '%s' to '%s' failed: no valid container found" % (self.__base.uuid, old_dn, new_base))
-            return False
+            raise ProxyException(C.make_error('MOVE_TARGET_INVALID', target=self.__base.uuid, old_dn=old_dn, new_dn=new_base))
+        else:
+            new_base = real_new_base
 
         # Check ACLs
         # to move an object we need the 'w' (write) right< on the virtual attribute base,

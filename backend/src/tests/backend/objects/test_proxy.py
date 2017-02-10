@@ -60,6 +60,13 @@ class ObjectProxyTestCase(TestCase):
             except Exception as e:
                 print(str(e))
 
+            try:
+                new_domain = ObjectProxy("cn=Test User,dc=example,dc=net")
+                new_domain.remove(True)
+                new_domain.commit()
+            except Exception:
+                pass
+
     def test_init(self):
         with pytest.raises(ProxyException),\
                 mock.patch('gosa.backend.objects.proxy.is_uuid', return_value=True):
@@ -251,36 +258,36 @@ class ObjectProxyTestCase(TestCase):
         with mock.patch.dict("gosa.backend.objects.proxy.PluginRegistry.modules", {'ACLResolver': mocked_resolver}):
             user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net', None, 'admin')
             with pytest.raises(ACLException):
-                user.move('new_base')
+                user.move('dc=test,dc=example,dc=net')
 
             with pytest.raises(ACLException):
-                user.move('new_base')
+                user.move('dc=test,dc=example,dc=net')
 
             with pytest.raises(ACLException):
-                user.move('new_base')
+                user.move('dc=test,dc=example,dc=net')
 
         test_dn = "cn=Test User,ou=people,dc=test,dc=example,dc=net"
-        moved_dn = "cn=Test User,ou=roles,dc=test,dc=example,dc=net"
+        moved_dn = "cn=Test User,ou=people,dc=example,dc=net"
 
         people = ObjectProxy('ou=people,dc=test,dc=example,dc=net')
+        # target not allowed
+        with pytest.raises(ProxyException):
+            people.move('ou=roles,dc=test,dc=example,dc=net', True)
+
         # non-recursive with children -> error
         with pytest.raises(ProxyException):
-            people.move('ou=roles,dc=test,dc=example,dc=net')
+            people.move('dc=example,dc=net')
 
         # recursive
         user = ObjectProxy(test_dn)
-        assert user.move('ou=roles,dc=test,dc=example,dc=net', True) is True
+        assert user.move('dc=example,dc=net', True) is True
         user.commit()
         assert user.dn == moved_dn
 
         # move back, non-recursive
-        assert user.move('ou=people,dc=test,dc=example,dc=net') is True
+        assert user.move('dc=test,dc=example,dc=net') is True
         user.commit()
         assert user.dn == test_dn
-
-        # non-recursive, wrong container, fails at the moment
-        # roles = ObjectProxy('ou=roles,dc=test,dc=example,dc=net')
-        # assert roles.move('ou=people,dc=test,dc=example,dc=net') is False
 
     def test_remove(self):
         # check permissions
