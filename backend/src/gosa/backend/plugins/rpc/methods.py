@@ -352,6 +352,24 @@ class RPCMethods(Plugin):
         for number in range(ord(start), ord(stop) + 1):
             yield chr(number)
 
+    @Command(needsUser=True, __help__=N_("Returns a list of all containers"))
+    def getContainerTree(self, user, base, object_type=None):
+        types = []
+        for container in self.containers:
+            types.append(ObjectInfoIndex._type == container)
+
+        query = and_(getattr(ObjectInfoIndex, "_parent_dn") == base, or_(*types))
+        query_result = self.__session.query(ObjectInfoIndex).filter(query)
+        res = {}
+        factory = ObjectFactory.getInstance()
+        for item in query_result:
+            self.__update_res(res, item, user, 1)
+            if object_type is not None and item.dn in res:
+                # check if object_type is allowed in this container
+                res[item.dn]['allowed_move_target'] = object_type in factory.getAllowedSubElementsForObject(res[item.dn]['tag'],
+                                                                                                            includeInvisible=False)
+        return res
+
     @Command(needsUser=True, __help__=N_("Filter for indexed attributes and return the matches."))
     def search(self, user, base, scope, qstring, fltr=None):
         """
@@ -432,7 +450,7 @@ class RPCMethods(Plugin):
         queries = []
         for typ in self.__search_aid['attrs'].keys():
 
-            # Only filter for cateogry if desired
+            # Only filter for category if desired
             if not ("all" == fltr['category'] or typ == fltr['category']):
                 continue
 

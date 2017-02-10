@@ -111,6 +111,26 @@ qx.Class.define("gosa.data.controller.Actions", {
     },
 
     /**
+     * Getter for the internal object.
+     *
+     * @return {gosa.proxy.Object}
+     */
+    getObject: function() {
+      return this.__object;
+    },
+
+    /**
+     * Move the object to a new DN
+     *
+     * @param newDn {String} new dn the object should be moved to
+     * @return {qx.Promise}
+     */
+    move: function(newDn) {
+      qx.core.Assert.assertString(newDn);
+      return this.__object.move(newDn);
+    },
+
+    /**
      * Set the new password.
      *
      * @param method {String} The method to store the password (e.g. "MD5")

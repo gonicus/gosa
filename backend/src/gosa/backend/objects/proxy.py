@@ -232,23 +232,24 @@ class ObjectProxy(object):
         """
         object_types = self.__factory.getObjectTypes()
 
-        if new_base in object_types[current_base]['container']:
-            return dn
-        elif 'container' in object_types[current_base]:
-            for sub_base in object_types[current_base]['container']:
-                if sub_base not in checked and 'container' in object_types[sub_base]:
-                    checked.append(sub_base)
-                    if new_base in object_types[sub_base]['container']:
-                        self.__log.debug("found DN '%s,%s' for base '%s'" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn,
-                                                                             new_base))
-                        return "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
-                    else:
-                        new_dn = dn
-                        if 'FixedRDN' in object_types[sub_base]['backend_attrs']:
-                            new_dn = "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
-                        result = self.find_dn_for_object(new_base, sub_base, new_dn, checked)
-                        if result is not None:
-                            return result
+        if 'container' in object_types[current_base]:
+            if new_base in object_types[current_base]['container']:
+                return dn
+            else:
+                for sub_base in object_types[current_base]['container']:
+                    if sub_base not in checked and 'container' in object_types[sub_base]:
+                        checked.append(sub_base)
+                        if new_base in object_types[sub_base]['container']:
+                            self.__log.debug("found DN '%s,%s' for base '%s'" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn,
+                                                                                 new_base))
+                            return "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
+                        else:
+                            new_dn = dn
+                            if 'FixedRDN' in object_types[sub_base]['backend_attrs']:
+                                new_dn = "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
+                            result = self.find_dn_for_object(new_base, sub_base, new_dn, checked)
+                            if result is not None:
+                                return result
 
     def create_missing_containers(self, new_dn, base_dn, base_type):
         if new_dn == base_dn:
@@ -581,9 +582,16 @@ class ObjectProxy(object):
         """
         Moves the currently proxied object to another base
         """
+        # find the right container in the new base
+        old_dn = self.__base.dn
+        new_base = self.find_dn_for_object(self.__base_type, self.__factory.identifyObject(new_base)[0], new_base, checked=[])
+
+        if new_base is None:
+            self.__log.error("moving object '%s' from '%s' to '%s' failed: no valid container found" % (self.__base.uuid, old_dn, new_base))
+            return False
 
         # Check ACLs
-        # to move an object we need the 'w' (write) right on the virtual attribute base,
+        # to move an object we need the 'w' (write) right< on the virtual attribute base,
         # the d (delete) right for the complete source object and at least the c (create)
         # right on the target base.
         if self.__current_user is not None:
@@ -698,13 +706,13 @@ class ObjectProxy(object):
 
         try:
             self.__base.move(new_base)
-            zope.event.notify(ObjectChanged("post object move", self.__base, dn=new_base))
+            zope.event.notify(ObjectChanged("post object move", self.__base, dn=self.__base.dn))
             return True
 
         except Exception as e:
             from traceback import print_exc
             print_exc()
-            self.__log.error("moving object '%s' from '%s' to '%s' failed: %s" % (self.__base.uuid, self.__base.dn, new_base, str(e)))
+            self.__log.error("moving object '%s' from '%s' to '%s' failed: %s" % (self.__base.uuid, old_dn, new_base, str(e)))
             return False
 
     def can_host(self, typ):

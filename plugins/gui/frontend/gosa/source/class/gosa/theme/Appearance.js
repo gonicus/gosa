@@ -737,6 +737,28 @@ qx.Theme.define("gosa.theme.Appearance", {
       }
     },
 
+    "tree-folder" :
+    {
+      style : function(states)
+      {
+        var backgroundColor;
+        if (states.selected) {
+          backgroundColor = "background-selected";
+          if (states.disabled) {
+            backgroundColor += "-disabled";
+          }
+        }
+        return {
+          textColor: states.disabled ? "disabled-text" : null,
+          padding : [2, 8, 2, 5],
+          icon : states.opened ? "icon/16/places/folder-open.png" : "icon/16/places/folder.png",
+          backgroundColor : backgroundColor,
+          iconOpened : "icon/16/places/folder-open.png",
+          opacity : states.drag ? 0.5 : undefined
+        };
+      }
+    },
+
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
     "root": {

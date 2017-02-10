@@ -394,7 +394,7 @@ qx.Class.define("gosa.view.Tree", {
         }
 
         var item = sel.getItem(0);
-        item.load(function() {
+        item.load().then(function() {
             var children = item.getChildren().concat(item.getLeafs());
             children.forEach(function(child) {
               if(!qx.lang.Array.contains(done, child)){

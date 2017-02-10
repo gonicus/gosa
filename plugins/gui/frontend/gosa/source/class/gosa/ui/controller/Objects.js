@@ -72,6 +72,9 @@ qx.Class.define("gosa.ui.controller.Objects", {
       }, this)
       .spread(function(obj, w) {
         win = new qx.ui.window.Window(qx.locale.Manager.tr("Object") + ": " + obj.dn);
+        obj.addListener("moved", function(ev) {
+          win.setCaption(ev.getData());
+        }, this);
         var bounds = this._desktop.getBounds();
         win.set({
           width : this.__windowWidth,

@@ -24,6 +24,7 @@ qx.Class.define("gosa.proxy.Object", {
     this._listeners = new qx.data.Array();
     this._listeners.push(gosa.io.Sse.getInstance().addListener("objectModified", this._objectEvent, this));
     this._listeners.push(gosa.io.Sse.getInstance().addListener("objectRemoved", this._objectEvent, this));
+    this._listeners.push(gosa.io.Sse.getInstance().addListener("objectMoved", this._objectEvent, this));
     this._listeners.push(gosa.io.Sse.getInstance().addListener("objectClosing", this._objectClosingEvent, this));
   },
 
@@ -82,6 +83,7 @@ qx.Class.define("gosa.proxy.Object", {
     "foundDifferencesDuringReload": "qx.event.type.Data",
     "propertyUpdateOnServer": "qx.event.type.Data",
     "updatedAttributeValues": "qx.event.type.Data",
+    "moved": "qx.event.type.Data",
     "removed": "qx.event.type.Event",
     "closing": "qx.event.type.Data"
   },
@@ -131,18 +133,17 @@ qx.Class.define("gosa.proxy.Object", {
       }
 
       // Act on the event type
-      if(data.changeType == "remove"){
+      if(data.changeType == "remove") {
         this.fireEvent("removed");
-      }else if(data.changeType == "update"){
+      } else if (data.changeType == "move") {
+        this.reload();
+        this.fireDataEvent("moved", data.dn);
+      } else if(data.changeType == "update"){
         if(!this.is_reloading){
 
           if(!this.isUiBound()){
-            this.reload(function(result, error){
-              if(error){
-                new gosa.ui.dialogs.Error(error).open();
-              }
-            }, this);
-          }else{
+            this.reload();
+          } else {
             this.mergeChanges();
           }
         }
@@ -244,10 +245,12 @@ qx.Class.define("gosa.proxy.Object", {
       }
       this.is_reloading = true;
       var rpc = gosa.io.Rpc.getInstance();
-      return rpc.cA("reloadObject", this.instance_uuid).then(function(data) {
+      return rpc.cA("reloadObject", this.instance_uuid)
+      .then(function(data) {
         this._setAttributes(data);
         this.is_reloading = false;
-      }, this);
+      }, this)
+      .catch(gosa.ui.dialogs.Error.show, this);
     },
 
     /**

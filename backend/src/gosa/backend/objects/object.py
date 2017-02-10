@@ -1235,7 +1235,7 @@ class Object(object):
 
     def move(self, new_base):
         """
-        Moves this object - and eventually it's containements.
+        Moves this object - and eventually it's containments.
         """
         #pylint: disable=E1101
         if not self._base_object:
