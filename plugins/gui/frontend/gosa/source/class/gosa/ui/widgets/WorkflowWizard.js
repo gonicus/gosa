@@ -68,6 +68,22 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       return this.__contexts;
     },
 
+    validate : function() {
+      var valid = this.__contexts.every(function(context) {
+        var widgetMap = context.getWidgetRegistry().getMap();
+        for (var attributeName in widgetMap) {
+          if (widgetMap.hasOwnProperty(attributeName) &&
+              !widgetMap[attributeName].isValid() &&
+              !widgetMap[attributeName].isBlocked()) {
+            return false;
+          }
+        }
+        return true;
+      }, this);
+
+      this.getChildControl("next-button").setEnabled(valid);
+    },
+
     __nextStep : function() {
       this.__showStep(this.__currentStep + 1);
     },
@@ -86,7 +102,10 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       }
       stack.setSelection([stack.getChildren()[index]]);
 
-      stack.getChildren()[index].addListenerOnce("appear", this.__modelWidgetConnector.connectAll, this.__modelWidgetConnector);
+      stack.getChildren()[index].addListenerOnce("appear", function() {
+        this.__modelWidgetConnector.connectAll();
+        this.validate();
+      }, this);
       this.__currentStep = index;
 
       this.__updateButtons();

@@ -442,7 +442,6 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       var listenerId = widget.addListener("changeValue", this._onChangeWidgetValue, this);
       widget[listenerId] = widget;
 
-      // check validity
       if (widget instanceof gosa.ui.widgets.Widget) {
         this._validatingWidgets.push(widget);
       }
