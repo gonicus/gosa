@@ -55,8 +55,6 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
 
     obj.addListener("closing", this._onObjectClosing, this);
     obj.addListener("remove", this.__onObjectRemove, this);
-
-    this.bind("modified", this.__object, "$$modified");
   },
 
   events : {
@@ -92,6 +90,10 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     __backendChangeController : null,
     __extensionFinder : null,
     __modelWidgetConnector : null,
+
+    getObject: function() {
+      return this.__object;
+    },
 
     closeWidgetAndObject : function() {
       this._widget.close();

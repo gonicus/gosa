@@ -263,6 +263,29 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       var allActionEntries = {};
       var actionEntries, key;
 
+      var command = new qx.ui.command.Command("Ctrl+M");
+
+      // button creation
+      var button = new qx.ui.menu.Button(this.tr('Move object...'), "@Ligature/move", command);
+      button.setAppearance("icon-menu-button");
+
+      // disable when modified
+      this.getController().bind("modified", button, "enabled", {
+        converter: function(value) {
+          return !value;
+        }
+      });
+      var actionController = new gosa.data.controller.Actions(this.getController().getObject());
+
+      // listener to open dialog
+      button.addListener("execute", function() {
+        var dialog = new gosa.ui.dialogs.actions.MoveObjectDialog(actionController);
+        dialog.setAutoDispose(true);
+        dialog.open();
+      });
+
+      allActionEntries["actionMoveObject"] = button;
+
       // collect action menu entries
       this._contexts.forEach(function(context) {
         actionEntries = context.getActions();
