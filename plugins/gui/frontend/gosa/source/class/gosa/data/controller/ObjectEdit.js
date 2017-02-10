@@ -54,7 +54,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     this.__extensionController.checkForMissingExtensions();
 
     obj.addListener("closing", this._onObjectClosing, this);
-    obj.addListener("remove", this.__onObjectRemove, this);
+    obj.addListener("removed", this.__onObjectRemove, this);
   },
 
   events : {
@@ -551,7 +551,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
   },
 
   destruct : function() {
-    this.__object.removeListener("remove", this.__onObjectRemove, this);
+    this.__object.removeListener("removed", this.__onObjectRemove, this);
     this.__object.removeListener("closing", this._onObjectClosing, this);
     this.__object.removeListener(
       "foundDifferencesDuringReload",

@@ -61,8 +61,9 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       qx.core.Assert.assertInstance(workflow, gosa.proxy.Object);
       qx.core.Assert.assertArray(templates);
 
-      var widget = new gosa.ui.widgets.WorkflowWizard(templates);
-      new gosa.data.controller.Workflow(workflow, widget, templates);
+      var controller = new gosa.data.controller.Workflow(workflow);
+      var widget = new gosa.ui.widgets.WorkflowWizard(workflow, controller, templates);
+      controller.setWidget(widget);
       return widget;
     },
 

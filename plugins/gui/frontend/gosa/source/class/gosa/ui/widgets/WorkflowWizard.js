@@ -19,81 +19,111 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
   extend: qx.ui.container.Composite,
 
-  construct: function() {
+  /**
+   * @param workflowObject {gosa.proxy.Object}
+   * @param controller {gosa.data.controller.Workflow}
+   * @param templates {Array}
+   */
+  construct: function(workflowObject, controller, templates) {
     this.base(arguments);
     this.setLayout(new qx.ui.layout.HBox());
+
+    qx.core.Assert.assertArray(templates);
+    qx.core.Assert.assertInstance(controller, gosa.data.controller.Workflow);
+    qx.core.Assert.assertInstance(workflowObject, gosa.proxy.Object);
+
+    this.__stepsConfig = [];
+    this.__contexts = [];
+    this.__controller = controller;
+    this.__modelWidgetConnector = new gosa.data.ModelWidgetConnector(workflowObject, this);
+
+    this.__fillStepsConfiguration(templates);
+    this.__fillSideBar();
+    this.__createButtons();
+    this.__showStep(0);
   },
 
   events : {
     "close" : "qx.event.type.Event"
   },
 
-  properties : {
-
-    /**
-     * Show the save button in favor of the next button.
-     */
-    showSaveButton : {
-      check : "Boolean",
-      init : false,
-      apply : "_applyShowSaveButton"
-    }
-  },
-
   members : {
-    /**
-     * @type {gosa.data.controller.Workflow | null}
-     */
     __controller : null,
-
-    setController : function(controllerObject) {
-      this.__controller = controllerObject;
-      this.__fillSideBar(this.__controller.getSideBarData());
-      this.__createButtons();
-    },
-
-    close : function() {
-      this.fireEvent("close");
-      this.destroy();
-    },
+    __contexts : null,
+    __currentStep : 0,
+    __modelWidgetConnector : null,
 
     /**
-     * @param stepIndex {Integer} First step is 0 (so must be an integer >= 0)
+     * @type {Array} Holds information for the single steps. The order is in which to show the steps. There is one
+     * element for each step. Each element is an object with the following attributes:
+     *
+     * id          : a string identifying the step (e.g. "user-shadow")
+     * name        : (human-readable) name of the step
+     * description : a short text describing the step
+     * template    : the compiled template
      */
-    showStep : function(stepIndex) {
+    __stepsConfig : null,
+
+    getContexts : function() {
+      return this.__contexts;
+    },
+
+    __nextStep : function() {
+      this.__showStep(this.__currentStep + 1);
+    },
+
+    __previousStep : function() {
+      this.__showStep(this.__currentStep - 1);
+    },
+
+    __showStep : function(index) {
+      qx.core.Assert.assertInRange(index, 0, this.__stepsConfig.length - 1,
+                                   qx.locale.Manager.tr("Workflow step index out of bounds %1", index));
+
       var stack = this.getChildControl("stack");
-
-      if (!stack.getChildren()[stepIndex]) {
-        this.__createStepWidget(stepIndex);
+      if (!stack.getChildren()[index]) {
+        this.__createStepWidget(index);
       }
-      stack.setSelection([stack.getChildren()[stepIndex]]);
+      stack.setSelection([stack.getChildren()[index]]);
+      this.__modelWidgetConnector.connectAll();
+      this.__currentStep = index;
+
+      this.__updateButtons();
     },
 
-    /**
-     * @param stepIndex {Integer}
-     */
+    __updateButtons : function() {
+      this.getChildControl("previous-button").setEnabled(this.__currentStep > 0);
+      this.getChildControl("next-button").setEnabled(this.__currentStep < this.__stepsConfig.length - 1);
+      this.__showSaveButton(this.__currentStep === this.__stepsConfig.length - 1);
+    },
+
     __createStepWidget : function(stepIndex) {
       qx.core.Assert.assertUndefined(this.getChildControl("stack").getChildren()[stepIndex]);
 
       var container = new qx.ui.container.Composite(new qx.ui.layout.VBox());
-      this.__controller.createContextForIndex(stepIndex, container);
+      qx.core.Assert.assertUndefined(this.__contexts[stepIndex]);
+      this.__contexts[stepIndex] = new gosa.engine.Context(this.__stepsConfig[stepIndex].template,
+                                                           container, undefined, this.__controller);
       this.getChildControl("stack").addAt(container, stepIndex);
     },
 
-    /**
-     * @param sideBarData {Array}
-     */
-    __fillSideBar : function(sideBarData) {
-      sideBarData.forEach(function(item, index) {
-        this.__createSideBarItem(index, item.name, item.description);
+    __fillStepsConfiguration : function(templates) {
+      templates.forEach(function(config) {
+        this.__stepsConfig.push({
+          id          : config.extension,
+          template    : config.template,
+          name        : gosa.util.Template.getValueAtPath(config.template, ["name"]),
+          description : gosa.util.Template.getValueAtPath(config.template, ["description"])
+        });
       }, this);
     },
 
-    /**
-     * @param index {Integer}
-     * @param name {String}
-     * @param description {String ? undefined}
-     */
+    __fillSideBar : function() {
+      this.__stepsConfig.forEach(function(item, index) {
+        this.__createSideBarItem(index, item.name, item.description);
+      }, this)
+    },
+
     __createSideBarItem : function(index, name, description) {
       var label = new qx.ui.basic.Label("<strong>" + (index + 1) + ". " + name + "</strong>");
       label.setRich(true);
@@ -105,9 +135,9 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       }
     },
 
-    _applyShowSaveButton : function(value) {
-      this.getChildControl("save-button").setVisibility(value ? "visible" : "excluded");
-      this.getChildControl("next-button").setVisibility(value ? "excluded" : "visible");
+    __showSaveButton : function(shallShow) {
+      this.getChildControl("save-button").setVisibility(shallShow ? "visible" : "excluded");
+      this.getChildControl("next-button").setVisibility(shallShow ? "excluded" : "visible");
     },
 
     __createButtons : function() {
@@ -151,13 +181,13 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
         case "next-button":
           control = new qx.ui.form.Button(this.tr("Next"));
-          control.addListener("execute", this.__controller.nextStep, this.__controller);
+          control.addListener("execute", this.__nextStep, this);
           this.getChildControl("button-group").add(control);
           break;
 
         case "previous-button":
           control = new qx.ui.form.Button(this.tr("Previous"));
-          control.addListener("execute", this.__controller.previousStep, this.__controller);
+          control.addListener("execute", this.__previousStep, this);
           this.getChildControl("button-group").add(control);
           break;
 
@@ -173,6 +203,9 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
   },
 
   destruct : function() {
+    this._disposeArray("__contexts");
+    this._disposeObjects("__modelWidgetConnector");
     this.__controller = null;
+    this.__stepsConfig = null;
   }
 });

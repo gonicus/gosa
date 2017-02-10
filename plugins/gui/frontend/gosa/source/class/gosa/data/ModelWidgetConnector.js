@@ -18,21 +18,12 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
 
   extend : qx.core.Object,
 
-  /**
-   * @param object {gosa.proxy.Object}
-   * @param widget {gosa.ui.widgets.ObjectEdit}
-   */
   construct : function(object, widget) {
     this.base(arguments);
-
-    qx.core.Assert.assertInstance(object, gosa.proxy.Object);
-    qx.core.Assert.assertInstance(widget, gosa.ui.widgets.ObjectEdit);
 
     this.__object = object;
     this.__widget = widget;
     this.__boundAttributes = [];
-
-    this.connectAll();
   },
 
   events : {
