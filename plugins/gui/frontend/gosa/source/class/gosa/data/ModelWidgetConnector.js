@@ -61,7 +61,8 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
           return;
         }
 
-        this.__connect(attributeName, config, widgets.widget, widgets.buddy);
+        this.connect(attributeName, config, widgets.widget, widgets.buddy);
+        this.__boundAttributes.push(attributeName);
       }, this);
 
       if (!this.__initialized) {
@@ -70,7 +71,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
       }
     },
 
-    __connect : function(attributeName, config, widget, buddy) {
+    connect : function(attributeName, config, widget, buddy) {
       this.__handleProperties(config, widget, buddy);
 
       if (config.hasOwnProperty("blocked_by")) {

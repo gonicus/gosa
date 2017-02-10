@@ -311,14 +311,10 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     },
 
     __setUpTemporaryContext : function(context) {
-      // gosa.util.Object.iterate(context.getWidgetRegistry().getMap(), function(attributeName, widget) {
-      //   this.__connectModelWithWidget(
-      //     attributeName,
-      //     this.__object.attribute_data[attributeName],
-      //     widget,
-      //     context.getBuddyRegistry().getMap()[attributeName]);
-      //   this.__addModifyListeners(attributeName, widget, true);
-      // }, this);
+      gosa.util.Object.iterate(context.getWidgetRegistry().getMap(), function(attributeName, widget) {
+        this.__modelWidgetConnector.connect(attributeName, this.__object.attribute_data[attributeName], widget);
+        this.__addModifyListeners(attributeName, widget, true);
+      }, this);
     },
 
     /**
