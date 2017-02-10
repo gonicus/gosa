@@ -11,6 +11,9 @@ import re
 import os
 import datetime
 import shlex
+
+from sqlalchemy.orm import aliased
+
 import gosa.backend.objects.renderer
 
 from sqlalchemy import desc
@@ -26,6 +29,7 @@ from gosa.common.handler import IInterfaceHandler
 from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects.index import ObjectInfoIndex, KeyValueIndex
 from sqlalchemy import and_, or_, func
+from sqlalchemy.inspection import inspect
 
 
 # Register the errors handled  by us
@@ -355,16 +359,25 @@ class RPCMethods(Plugin):
     @Command(needsUser=True, __help__=N_("Returns a list of all containers"))
     def getContainerTree(self, user, base, object_type=None):
         types = []
+        table = inspect(ObjectInfoIndex)
+        o2 = aliased(ObjectInfoIndex)
         for container in self.containers:
-            types.append(ObjectInfoIndex._type == container)
+            types.append(getattr(ObjectInfoIndex, "_type") == container)
 
         query = and_(getattr(ObjectInfoIndex, "_parent_dn") == base, or_(*types))
-        query_result = self.__session.query(ObjectInfoIndex).filter(query)
+
+        query_result = self.__session.query(ObjectInfoIndex, func.count(getattr(o2, "_parent_dn"))) \
+            .outerjoin(o2, and_(getattr(o2, "_invisible").is_(False), getattr(o2, "_parent_dn") == getattr(ObjectInfoIndex, "dn"))) \
+            .filter(query) \
+            .group_by(*table.c)
+
         res = {}
         factory = ObjectFactory.getInstance()
-        for item in query_result:
+        for item, children in query_result:
             self.__update_res(res, item, user, 1)
+
             if object_type is not None and item.dn in res:
+                res[item.dn]['hasChildren'] = children > 0
                 # check if object_type is allowed in this container
                 res[item.dn]['allowed_move_target'] = object_type in factory.getAllowedSubElementsForObject(res[item.dn]['tag'],
                                                                                                             includeInvisible=False)

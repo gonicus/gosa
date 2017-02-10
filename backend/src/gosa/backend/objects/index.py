@@ -39,7 +39,7 @@ from gosa.backend.exceptions import FilterException, IndexException, ProxyExcept
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, Integer, Sequence, DateTime, ForeignKey, or_, and_, not_, func
+from sqlalchemy import Column, String, Integer, Boolean, Sequence, DateTime, ForeignKey, or_, and_, not_, func
 
 Base = declarative_base()
 
@@ -95,12 +95,13 @@ class ObjectInfoIndex(Base):
     _adjusted_parent_dn = Column(String)
     _type = Column(String(64))
     _last_modified = Column(DateTime)
+    _invisible = Column(Boolean)
     properties = relationship("KeyValueIndex", order_by=KeyValueIndex.key)
     extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension)
 
     def __repr__(self):  # pragma: nocover
-       return "<ObjectInfoIndex(uuid='%s', dn='%s', _parent_dn='%s', _adjusted_parent_dn='%s', _type='%s', _last_modified='%s')>" % (
-                            self.uuid, self.dn, self._parent_dn, self._adjusted_parent_dn, self._type, self._last_modified)
+       return "<ObjectInfoIndex(uuid='%s', dn='%s', _parent_dn='%s', _adjusted_parent_dn='%s', _type='%s', _last_modified='%s', _invisible='%s')>" % (
+                            self.uuid, self.dn, self._parent_dn, self._adjusted_parent_dn, self._type, self._last_modified, self._invisible)
 
 class IndexScanFinished():  # pragma: nocover
     pass
@@ -609,7 +610,8 @@ class ObjectIndex(Plugin):
             dn=data["dn"],
             _type=data["_type"],
             _parent_dn=data["_parent_dn"],
-            _adjusted_parent_dn=data["_adjusted_parent_dn"]
+            _adjusted_parent_dn=data["_adjusted_parent_dn"],
+            _invisible=data["_invisible"]
         )
 
         if '_last_changed' in data:

@@ -979,6 +979,8 @@ class ObjectProxy(object):
         #TODO: only_indexed!?
         atypes = self.__factory.getAttributeTypes()
 
+        object_types = self.__factory.getObjectTypes()
+
         # Check permissions
         topic = "%s.objects.%s" % (self.__env.domain, self.__base_type)
         if self.__current_user is not None and not self.__acl_resolver.check(self.__current_user, topic, "r", base=self.dn):
@@ -989,7 +991,8 @@ class ObjectProxy(object):
         res = {'dn': self.__base.dn, '_type': self.__base.__class__.__name__,
                '_parent_dn': self.get_parent_dn(self.__base.dn),
                '_adjusted_parent_dn': self.get_adjusted_parent_dn(self.__base.dn),
-               '_uuid': self.__base.uuid}
+               '_uuid': self.__base.uuid,
+               '_invisible': object_types[self.__base.__class__.__name__]['invisible']}
 
         # Create non object pseudo attributes
         if self.__base.modifyTimestamp:
