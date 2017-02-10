@@ -85,7 +85,8 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
         this.__createStepWidget(index);
       }
       stack.setSelection([stack.getChildren()[index]]);
-      this.__modelWidgetConnector.connectAll();
+
+      stack.getChildren()[index].addListenerOnce("appear", this.__modelWidgetConnector.connectAll, this.__modelWidgetConnector);
       this.__currentStep = index;
 
       this.__updateButtons();
