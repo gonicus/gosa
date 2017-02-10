@@ -19,43 +19,50 @@
             "actionLockAccount": "@Ligature/lock",
             "actionUnlockAccount": "@Ligature/unlock",
             "actionSendMessage": "@Ligature/notify",
-            "actionChange2FAMethod": "@Ligature/umbrella"
+            "actionChange2FAMethod": "@Ligature/umbrella",
+            "actionMoveObject": "@Ligature/move"
         },
         "actions": [{
-            "name": "actionChangePassword",
-            "dialog": "ChangePasswordDialog",
-            "text": "tr('Change password...')",
-            "icon": "actionChangePassword",
-            "condition": "!isLocked",
-            "shortcut": "Ctrl+P"
-        }, {
-            "name": "actionSetupPasswordRecovery",
-            "dialog": "ChangePasswordRecovery",
-            "text": "tr('Setup password recovery')",
-            "icon": "actionChange2FAMethod",
-            "condition": "!isLocked"
-        }, {
-            "name": "actionLock",
-            "target": "lock()",
-            "text": "tr('Lock account')",
-            "icon": "actionLockAccount",
-            "condition": "accountLockable(dn)"
-       }, {
-            "name": "actionUnlock",
-            "target": "unlock()",
-            "text": "tr('Unlock account')",
-            "icon": "actionUnlockAccount",
-            "condition": "accountUnlockable(dn)"
-       }, {
-            "name": "actionSendMessageDialog",
-            "dialog": "SendMessageDialog",
-            "text": "tr('Send message...')",
-            "icon": "actionSendMessage"
-       }, {
-            "name": "actionChange2FAMethod",
-            "dialog": "Change2FAMethod",
-            "text": "tr('Change 2FA method...')",
-            "icon": "actionChange2FAMethod"
+                "name": "actionMoveObject",
+                "dialog": "MoveObjectDialog",
+                "text": "tr('Move object...')",
+                "icon": "actionMoveObject",
+                "shortcut": "Ctrl+M"
+            }, {
+                "name": "actionChangePassword",
+                "dialog": "ChangePasswordDialog",
+                "text": "tr('Change password...')",
+                "icon": "actionChangePassword",
+                "condition": "!isLocked",
+                "shortcut": "Ctrl+P"
+            }, {
+                "name": "actionSetupPasswordRecovery",
+                "dialog": "ChangePasswordRecovery",
+                "text": "tr('Setup password recovery')",
+                "icon": "actionChange2FAMethod",
+                "condition": "!isLocked"
+            }, {
+                "name": "actionLock",
+                "target": "lock()",
+                "text": "tr('Lock account')",
+                "icon": "actionLockAccount",
+                "condition": "accountLockable(dn)"
+           }, {
+                "name": "actionUnlock",
+                "target": "unlock()",
+                "text": "tr('Unlock account')",
+                "icon": "actionUnlockAccount",
+                "condition": "accountUnlockable(dn)"
+           }, {
+                "name": "actionSendMessageDialog",
+                "dialog": "SendMessageDialog",
+                "text": "tr('Send message...')",
+                "icon": "actionSendMessage"
+           }, {
+                "name": "actionChange2FAMethod",
+                "dialog": "Change2FAMethod",
+                "text": "tr('Change 2FA method...')",
+                "icon": "actionChange2FAMethod"
         }]
     },
     "properties": {

@@ -39,6 +39,7 @@ qx.Class.define("gosa.io.Sse", {
     "objectCreated": "qx.event.type.Data",
     "objectModified": "qx.event.type.Data",
     "objectClosing": "qx.event.type.Data",
+    "objectMoved": "qx.event.type.Data",
     "pluginUpdate": "qx.event.type.Data",
     "workflowUpdate": "qx.event.type.Data"
   },
@@ -107,10 +108,12 @@ qx.Class.define("gosa.io.Sse", {
     _handleObjectChangeMessage : function(info) {
       if(info['changeType'] == "update"){
         this.fireDataEvent("objectModified", info);
-      }else if(info['changeType'] == "remove"){
+      } else if(info['changeType'] == "remove") {
         this.fireDataEvent("objectRemoved", info);
-      }else if(info['changeType'] == "create"){
+      } else if(info['changeType'] == "create") {
         this.fireDataEvent("objectCreated", info);
+      } else if(info['changeType'] == "move") {
+        this.fireDataEvent("objectMoved", info);
       }else{
         this.error("unhandled sse event: " + info['changeType']);
       }

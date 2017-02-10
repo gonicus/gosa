@@ -106,7 +106,6 @@ class WebhookRegistry(Plugin):
             del self.__hooks[content_type][sender_name]
 
     def get_token(self, content_type, sender_name):
-        print(self.__hooks)
         if content_type is None or sender_name is None:
             return None
 
@@ -148,8 +147,6 @@ class WebhookReceiver(HSTSRequestHandler):
 
         registry = PluginRegistry.getInstance("WebhookRegistry")
         # verify content
-        print(content_type)
-        print(self.sender)
         token = registry.get_token(content_type, self.sender)
         # no token, not allowed
         if token is None:

@@ -39,6 +39,18 @@ qx.Class.define("gosa.data.model.TreeResultItem",
 
   properties : {
 
+    moveTargetFor: {
+      check: "String",
+      nullable: true,
+      event: "changeMoveTargetFor"
+    },
+
+    moveTarget: {
+      check: "Boolean",
+      init: false,
+      event: "changeMoveTarget"
+    },
+
     container : {
       check : "Boolean",
       event : "changeContainer",
@@ -128,88 +140,97 @@ qx.Class.define("gosa.data.model.TreeResultItem",
       }
     },
 
-    reload : function(callback, context) {
+    reload : function() {
       this.setLoaded(false);
       this.setLoading(false);
       this.getChildren().removeAll();
       this.getLeafs().removeAll();
-      this.load(callback, context);
+      return this.load();
     },
 
-    load: function(func, ctx){
-      // If currently loading, delay ready
-      if (this.isLoading()) {
-        this.addListenerOnce("changeLoading", func, ctx);
-      }
+    load: function() {
 
-      // If not done yet, resolve the child elements of this container
-      else if (this.isLoaded()) {
-        if (func) {
-          func.apply(ctx);
+      return new qx.Promise(function(resolve, reject) {
+        // If currently loading, delay ready
+        if (this.isLoading()) {
+          this.addListenerOnce("changeLoading", resolve, this);
         }
-      } else {
 
-        this.setLoading(true);
+        // If not done yet, resolve the child elements of this container
+        else if (this.isLoaded()) {
+          resolve();
+        }
+        else {
 
-        var rpc = gosa.io.Rpc.getInstance();
-        if (this.getParent()) {
+          this.setLoading(true);
 
-          // We're looking for entries on the current base
-          rpc.cA("search", this.getDn(), "children", null, {secondary: false, 'adjusted-dn': true, actions: true})
-          .then(function(data) {
-            var newc = new qx.data.Array();
-            for(var id in data){
-              if (data.hasOwnProperty(id)) {
-                var item = this.parseItemForResult(data[id]);
-                if (item.isContainer()) {
-                  newc.push(item);
-                }
-                else {
-                  this.getLeafs().push(item);
-                }
-              }
+          var rpc = gosa.io.Rpc.getInstance();
+          if (this.getParent()) {
+            var promise = null;
+            // We're looking for entries on the current base
+            if (this.getMoveTargetFor() !== null) {
+              promise = rpc.cA("getContainerTree", this.getDn(), this.getMoveTargetFor());
             }
-            this.setChildren(newc);
-            this.sortElements();
-            this.setLoaded(true);
-            if(func){
-              func.apply(ctx);
-            }
-            this.setLoading(false);
-          }, this);
-
-        } else {
-          // We're added uppon the root
-          // Fetch all available domains
-          rpc.cA("getEntryPoints").then(function(entries) {
-            return qx.Promise.map(entries, function(entry) {
-              return rpc.cA("search", entry, "base", null, {
+            else {
+              promise = rpc.cA("search", this.getDn(), "children", null, {
                 secondary : false,
                 'adjusted-dn' : true,
                 actions : true
-              });
-            }, this);
-          }, this)
-          .then(function(results) {
-            results.forEach(function(result) {
-              var item = this.parseItemForResult(result[0]);
-              this.getChildren().push(item);
-            }, this);
-            this.sortElements();
-
-            // Stop loading throbber
-            this.setLoaded(true);
-            this.setLoading(false);
-
-            if(func) {
-              func.apply(ctx);
+              })
             }
-          }, this)
-          .catch(function(error) {
-            this.error("could not resolve tree element '" + error + "'!");
-          }, this);
+            return promise.then(function(data) {
+              var newc = new qx.data.Array();
+              for (var id in data) {
+                if (data.hasOwnProperty(id)) {
+                  var item = this.parseItemForResult(data[id]);
+                  if (item.isContainer()) {
+                    newc.push(item);
+                  }
+                  else {
+                    this.getLeafs().push(item);
+                  }
+                }
+              }
+              this.setChildren(newc);
+              this.sortElements();
+              this.setLoaded(true);
+              resolve();
+              this.setLoading(false);
+            }, this)
+            .catch(reject);
+          }
+          else {
+            // We're added upon the root
+            // Fetch all available domains
+            return rpc.cA("getEntryPoints").then(function(entries) {
+              return qx.Promise.map(entries, function(entry) {
+                return rpc.cA("search", entry, "base", null, {
+                  secondary : false,
+                  'adjusted-dn' : true,
+                  actions : true
+                });
+              }, this);
+            }, this)
+            .then(function(results) {
+              results.forEach(function(result) {
+                var item = this.parseItemForResult(result[0]);
+                this.getChildren().push(item);
+              }, this);
+              this.sortElements();
+
+              // Stop loading throbber
+              this.setLoaded(true);
+              this.setLoading(false);
+
+              resolve()
+            }, this)
+            .catch(function(error) {
+              this.error("could not resolve tree element '" + error + "'!");
+              reject();
+            }, this);
+          }
         }
-      }
+      }, this);
     },
 
     /**
@@ -239,6 +260,12 @@ qx.Class.define("gosa.data.model.TreeResultItem",
           type: result['tag'],
           uuid: result['uuid']
         });
+      if (this.getMoveTargetFor() !== null) {
+        if ('allowed_move_target' in result) {
+          item.setMoveTarget(result['allowed_move_target']);
+        }
+        this.bind("moveTargetFor", item, "moveTargetFor");
+      }
 
       // Add a dummy object if we know that this container has children.
       if(result['hasChildren']){
