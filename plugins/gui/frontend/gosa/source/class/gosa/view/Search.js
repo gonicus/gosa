@@ -199,6 +199,7 @@ qx.Class.define("gosa.view.Search", {
     gosa.io.Sse.getInstance().addListener("objectModified", this._handleObjectEvent, this);
     gosa.io.Sse.getInstance().addListener("objectCreated", this._handleObjectEvent, this);
     gosa.io.Sse.getInstance().addListener("objectRemoved", this._handleObjectEvent, this);
+    gosa.io.Sse.getInstance().addListener("objectMoved", this._handleObjectEvent, this);
   },
 
   /*
@@ -519,7 +520,7 @@ qx.Class.define("gosa.view.Search", {
       if(data.changeType == "create"){
         this._createdObjects.push(data.uuid);
       }
-      if(data.changeType == "update"){
+      if(data.changeType == "update" || data.changeType == "move") {
         this._modifiedObjects.push(data.uuid);
       }
 

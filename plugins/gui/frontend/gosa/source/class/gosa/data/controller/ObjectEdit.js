@@ -91,6 +91,10 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     __extensionFinder : null,
     __modelWidgetConnector : null,
 
+    getObject: function() {
+      return this.__object;
+    },
+
     closeWidgetAndObject : function() {
       this._widget.close();
       this.closeObject();

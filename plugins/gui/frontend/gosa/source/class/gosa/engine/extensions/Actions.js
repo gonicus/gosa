@@ -170,8 +170,12 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       else {
         // object attribute
         var value = context.getActionController().getAttributeValue(name);
-        if (value.getLength() > 0) {
-          result = !!value.getItem(0);
+        if (qx.lang.Type.isArray(value)) {
+          if (value.getLength() > 0) {
+            result = !!value.getItem(0);
+          }
+        } else {
+          result = !!value;
         }
 
         // negation

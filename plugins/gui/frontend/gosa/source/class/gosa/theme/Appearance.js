@@ -454,6 +454,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     "tree-view/tree": "virtual-tree",
     "tree-view/delete-button": "icon-menu-button",
     "tree-view/open-button": "icon-menu-button",
+    "tree-view/move-button": "icon-menu-button",
     "tree-view/action-menu-button": "toolbar-menubutton",
     "tree-view/filter-menu-button": "toolbar-menubutton",
     "tree-view/create-menu-button": "toolbar-menubutton",

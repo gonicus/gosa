@@ -147,9 +147,16 @@ qx.Class.define("gosa.view.Tree", {
           control.addListener("execute", this._onDeleteObject, this);
           break;
 
+        case "move-button":
+          control = new qx.ui.menu.Button(this.tr("Move"), "@Ligature/move");
+          control.setEnabled(false);
+          control.addListener("execute", this._onMoveObject, this);
+          break;
+
         case "action-menu":
           control = new qx.ui.menu.Menu();
           control.add(this.getChildControl("open-button"));
+          control.add(this.getChildControl("move-button"));
           control.add(this.getChildControl("delete-button"));
           break;
 
@@ -268,10 +275,12 @@ qx.Class.define("gosa.view.Tree", {
         }, this);
         this.getChildControl("action-menu-button").setEnabled(canOpen && canDelete);
         this.getChildControl("open-button").setEnabled(canOpen);
+        this.getChildControl("move-button").setEnabled(canOpen);
         this.getChildControl("delete-button").setEnabled(canDelete);
       } else {
         this.getChildControl("action-menu-button").setEnabled(false);
         this.getChildControl("open-button").setEnabled(false);
+        this.getChildControl("move-button").setEnabled(false);
         this.getChildControl("delete-button").setEnabled(false);
       }
     },
@@ -434,6 +443,27 @@ qx.Class.define("gosa.view.Tree", {
       // get currently selected dn in tree
       var selection = this.getChildControl("tree").getSelection();
       gosa.ui.controller.Objects.getInstance().openObject(selection.getItem(0).getDn(), button.getUserData("type"));
+    },
+
+    _onMoveObject : function(ev) {
+      var button = ev.getTarget();
+
+      // get currently selected dn in tree
+      var selection = this.getChildControl("table").getSelectionModel();
+
+      if (selection.getSelectedCount() === 1) {
+        selection.iterateSelection(function(index) {
+          var row = this._tableModel.getRowData(index);
+          if (qx.lang.Array.contains(this._objectRights[row[0]] || [], "w")) {
+            gosa.proxy.ObjectFactory.openObject(row[3])
+            .then(function(object) {
+              var dialog = new gosa.ui.dialogs.actions.MoveObjectDialog(new gosa.data.controller.Actions(object));
+              dialog.setAutoDispose(true);
+              dialog.open();
+            }, this);
+          }
+        }, this);
+      }
     },
 
     _onDeleteObject : function() {

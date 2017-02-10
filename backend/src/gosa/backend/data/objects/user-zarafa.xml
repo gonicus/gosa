@@ -360,8 +360,8 @@
         <Validators>
           <Condition>
             <Name>ObjectWithPropertyExists</Name>
-            <Param>Device</Param>
-            <Param>dn</Param>
+            <Param>ZarafaServer</Param>
+            <Param>cn</Param>
           </Condition>
         </Validators>
 	<Values populate="getZarafaMailServers"/>
