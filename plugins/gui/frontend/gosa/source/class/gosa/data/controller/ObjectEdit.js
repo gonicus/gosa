@@ -55,6 +55,8 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
 
     obj.addListener("closing", this._onObjectClosing, this);
     obj.addListener("remove", this.__onObjectRemove, this);
+
+    this.bind("modified", this.__object, "$$modified");
   },
 
   events : {

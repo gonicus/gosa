@@ -27,6 +27,7 @@
                 "dialog": "MoveObjectDialog",
                 "text": "tr('Move object...')",
                 "icon": "actionMoveObject",
+                "condition": "!$$modified",
                 "shortcut": "Ctrl+M"
             }, {
                 "name": "actionChangePassword",

@@ -76,6 +76,11 @@ qx.Class.define("gosa.proxy.Object", {
     writeAttributeUpdates : {
       check : "Boolean",
       init : true
+    },
+
+    $$modified: {
+      check: "Boolean",
+      init: false
     }
   },
 
