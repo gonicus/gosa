@@ -10,3 +10,4 @@
 /uploads/widgets/
 /node_modules/
 **/cache
+!/source/class/gosa/data/cache/*
