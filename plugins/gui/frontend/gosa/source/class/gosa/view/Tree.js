@@ -30,9 +30,11 @@ qx.Class.define("gosa.view.Tree", {
     this._rpc = gosa.io.Rpc.getInstance();
     this._objectRights = {};
 
-    gosa.io.Sse.getInstance().addListener("objectRemoved", this.__reloadTree, this);
-    gosa.io.Sse.getInstance().addListener("objectCreated", this.__reloadTree, this);
-    gosa.io.Sse.getInstance().addListener("objectModified", this.__reloadTree, this);
+    this.__debouncedReload = qx.util.Function.debounce(this.__reloadTree, 500, true);
+    gosa.io.Sse.getInstance().addListener("objectRemoved", this.__debouncedReload, this);
+    gosa.io.Sse.getInstance().addListener("objectCreated", this.__debouncedReload, this);
+    gosa.io.Sse.getInstance().addListener("objectModified", this.__debouncedReload, this);
+    gosa.io.Sse.getInstance().addListener("objectMoved", this.__debouncedReload, this);
   },
 
   /*
@@ -51,6 +53,7 @@ qx.Class.define("gosa.view.Tree", {
     _objectRights : null,
     _rpc : null,
     _tableData : null,
+    __debouncedReload: null,
 
     _createChildControlImpl : function(id, hash) {
 
@@ -319,7 +322,6 @@ qx.Class.define("gosa.view.Tree", {
 
       // Create the Tree
       var tree = this.getChildControl("tree");
-      tree.addListener("updatedItems", this.__refreshTable, this);
       this.getChildControl("listcontainer");
       this.getChildControl("table");
 
@@ -425,8 +427,10 @@ qx.Class.define("gosa.view.Tree", {
     },
 
     __reloadTree : function() {
-      var queue = this.getChildControl("tree").getSelection().length;
-      this.getChildControl("tree").getSelection().forEach(function(sel) {
+      var selection = this.getChildControl("tree").getSelection();
+      var queue = selection.length;
+
+      selection.forEach(function(sel) {
         sel.addListenerOnce("updatedItems", function() {
           queue--;
           if (queue === 0) {
@@ -434,6 +438,19 @@ qx.Class.define("gosa.view.Tree", {
           }
         }, this);
         sel.reload();
+      }, this);
+
+      // mark all other visible TreeResultItems as not loaded to trigger a reload on open
+      var openNodes = this.getChildControl("tree").getOpenNodes();
+      openNodes.forEach(function(node) {
+        node.getChildren().forEach(function(child) {
+          if (qx.lang.Array.contains(openNodes, child)) {
+            // mark currently opened nodes for reload on next opening
+            child.setLoaded(false);
+          } else {
+            child.unload();
+          }
+        }, this);
       }, this);
     },
 
@@ -446,7 +463,6 @@ qx.Class.define("gosa.view.Tree", {
     },
 
     _onMoveObject : function(ev) {
-      var button = ev.getTarget();
 
       // get currently selected dn in tree
       var selection = this.getChildControl("table").getSelectionModel();
@@ -534,8 +550,11 @@ qx.Class.define("gosa.view.Tree", {
   destruct : function() {
     this._rpc = null;
 
-    gosa.io.Sse.getInstance().removeListener("objectRemoved", this.__reloadTree, this);
-    gosa.io.Sse.getInstance().removeListener("objectCreated", this.__reloadTree, this);
-    gosa.io.Sse.getInstance().removeListener("objectModified", this.__reloadTree, this);
+    gosa.io.Sse.getInstance().removeListener("objectRemoved", this.__debouncedReload, this);
+    gosa.io.Sse.getInstance().removeListener("objectCreated", this.__debouncedReload, this);
+    gosa.io.Sse.getInstance().removeListener("objectModified", this.__debouncedReload, this);
+    gosa.io.Sse.getInstance().removeListener("objectMoved", this.__debouncedReload, this);
+
+    this.__debouncedReload = null;
   }
 });

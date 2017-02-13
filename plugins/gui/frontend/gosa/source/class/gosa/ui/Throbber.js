@@ -27,6 +27,43 @@ qx.Class.define("gosa.ui.Throbber", {
 
   /*
   *****************************************************************************
+     STATICS
+  *****************************************************************************
+  */
+  statics : {
+    animate: function(iconWidget, icon) {
+      qx.core.Assert.assertInstance(iconWidget, qx.ui.basic.Image);
+
+      if (icon) {
+        iconWidget.setUserData("oldIcon", iconWidget.getSource());
+        iconWidget.setSource(icon);
+      }
+      return qx.bom.element.Animation.animate(iconWidget.getContentElement().getDomElement(), {
+        "duration"  : 1000,
+        "keep"      : 100,
+        "keyFrames" : {
+          0   : {"transform" : "rotate(0deg)"},
+          100 : {"transform" : "rotate(359deg)"}
+        },
+        "origin"    : "50% 50%",
+        "repeat"    : "infinite",
+        "timing"    : "linear",
+        "alternate" : false
+      });
+    },
+
+    stopAnimation: function(iconWidget, handle) {
+      qx.core.Assert.assertInstance(iconWidget, qx.ui.basic.Image);
+      handle.pause();
+      if (iconWidget.getUserData("oldIcon")) {
+        iconWidget.setSource(iconWidget.getUserData("oldIcon"));
+        iconWidget.setUserData("oldIcon", null);
+      }
+    }
+  },
+
+  /*
+  *****************************************************************************
      PROPERTIES
   *****************************************************************************
   */

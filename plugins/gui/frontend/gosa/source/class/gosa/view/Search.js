@@ -196,10 +196,11 @@ qx.Class.define("gosa.view.Search", {
     this._currentResult = [];
 
     // Listen for object changes coming from the backend
-    gosa.io.Sse.getInstance().addListener("objectModified", this._handleObjectEvent, this);
-    gosa.io.Sse.getInstance().addListener("objectCreated", this._handleObjectEvent, this);
-    gosa.io.Sse.getInstance().addListener("objectRemoved", this._handleObjectEvent, this);
-    gosa.io.Sse.getInstance().addListener("objectMoved", this._handleObjectEvent, this);
+    this.__debouncedReload = qx.util.Function.debounce(this._handleObjectEvent, 500, true);
+    gosa.io.Sse.getInstance().addListener("objectModified", this.__debouncedReload, this);
+    gosa.io.Sse.getInstance().addListener("objectCreated", this.__debouncedReload, this);
+    gosa.io.Sse.getInstance().addListener("objectRemoved", this.__debouncedReload, this);
+    gosa.io.Sse.getInstance().addListener("objectMoved", this.__debouncedReload, this);
   },
 
   /*
@@ -242,6 +243,7 @@ qx.Class.define("gosa.view.Search", {
     __searchPromise : null,
     __fuzzy: null,
     __duration: null,
+    __debouncedReload: null,
 
 
     updateFocus: function(){
@@ -511,6 +513,10 @@ qx.Class.define("gosa.view.Search", {
      *
      */
     _handleObjectEvent: function(e) {
+      if (!this._old_query || this._old_query.trim() === "") {
+        // nothing searched yet, skip the update
+        return;
+      }
 
       // Keep track of each event uuid we receive
       var data = e.getData();
@@ -736,9 +742,14 @@ qx.Class.define("gosa.view.Search", {
   *****************************************************************************
   */
   destruct : function() {
-   if (this.__searchPromise) {
-     this.__searchPromise.cancel();
-     this.__searchPromise = null;
-   }
+    if (this.__searchPromise) {
+      this.__searchPromise.cancel();
+      this.__searchPromise = null;
+    }
+    var sse = gosa.io.Sse.getInstance();
+    sse.removeListener("objectModified", this.__debouncedReload, this);
+    sse.removeListener("objectCreated", this.__debouncedReload, this);
+    sse.removeListener("objectRemoved", this.__debouncedReload, this);
+    sse.removeListener("objectMoved", this.__debouncedReload, this);
   }
 });

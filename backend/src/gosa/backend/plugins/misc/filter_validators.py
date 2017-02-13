@@ -43,7 +43,11 @@ class IsExistingDN(ElementComparator):
         errors = []
         index = PluginRegistry.getInstance("ObjectIndex")
         for dn in value:
-            if dn not in all_props[key]['value']:
+            # do not check dn's that are currently being moved to
+            if index.is_currently_moving(dn, move_target=True):
+                continue
+
+            if dn in all_props[key]['value']:
                 # do not check existing values
                 continue
             if not len(index.search({'dn': dn}, {'dn': 1})):

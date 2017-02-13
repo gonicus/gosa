@@ -115,7 +115,7 @@ qx.Class.define("gosa.ui.dialogs.actions.MoveObjectDialog", {
         this._traverseTree(root, result, tree);
       }, this);
 
-      var ok = gosa.ui.base.Buttons.getButton(this.tr("Move"));
+      var ok = gosa.ui.base.Buttons.getButton(this.tr("Move"), "@Ligature/move");
       ok.addState("default");
       ok.setEnabled(false);
       ok.setAppearance("button-primary");
@@ -135,11 +135,17 @@ qx.Class.define("gosa.ui.dialogs.actions.MoveObjectDialog", {
      * Move to the selected items DN
      */
     _doMove: function() {
+      // show spinner in button
+      var icon = this._ok.getChildControl("icon");
+      var handle = gosa.ui.Throbber.animate(icon);
       var item = this.__tree.getSelection().getItem(0);
       this._actionController.move(item.getDn()).then(function() {
         this.close();
       }, this)
-      .catch(gosa.ui.dialogs.Error.show);
+      .catch(gosa.ui.dialogs.Error.show)
+      .finally(function() {
+        gosa.ui.Throbber.stopAnimation(icon, handle);
+      });
     },
 
     __applyTreeDelegate : function(tree) {

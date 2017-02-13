@@ -135,16 +135,21 @@ qx.Class.define("gosa.data.model.TreeResultItem",
     _onOpen : function(value){
 
       if(!this.isLoaded() && value){
-        //this.getChildren().removeAll();
+        // this.getChildren().removeAll();
+        // this.getLeafs().removeAll();
         this.load();
       }
     },
 
-    reload : function() {
+    unload: function() {
       this.setLoaded(false);
       this.setLoading(false);
       this.getChildren().removeAll();
       this.getLeafs().removeAll();
+    },
+
+    reload : function() {
+      this.unload();
       return this.load();
     },
 
@@ -180,6 +185,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
             }
             return promise.then(function(data) {
               var newc = new qx.data.Array();
+              var newl = new qx.data.Array();
               for (var id in data) {
                 if (data.hasOwnProperty(id)) {
                   var item = this.parseItemForResult(data[id]);
@@ -187,11 +193,12 @@ qx.Class.define("gosa.data.model.TreeResultItem",
                     newc.push(item);
                   }
                   else {
-                    this.getLeafs().push(item);
+                    newl.push(item);
                   }
                 }
               }
               this.setChildren(newc);
+              this.setLeafs(newl);
               this.sortElements();
               this.setLoaded(true);
               resolve();
@@ -212,12 +219,14 @@ qx.Class.define("gosa.data.model.TreeResultItem",
               }, this);
             }, this)
             .then(function(results) {
+              var newc = new qx.data.Array();
               results.forEach(function(result) {
                 var item = this.parseItemForResult(result[0]);
-                this.getChildren().push(item);
+                newc.push(item);
               }, this);
               this.sortElements();
 
+              this.setChildren(newc);
               // Stop loading throbber
               this.setLoaded(true);
               this.setLoading(false);

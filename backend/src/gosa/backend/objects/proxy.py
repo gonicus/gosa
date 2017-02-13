@@ -625,10 +625,11 @@ class ObjectProxy(object):
                     self.__current_user, self.__base.dn, topic_user, "c", new_base))
                 raise ACLException(C.make_error('PERMISSION_MOVE', source=self.__base.dn, target=new_base))
 
-        zope.event.notify(ObjectChanged("pre object move", self.__base))
+        zope.event.notify(ObjectChanged("pre object move", self.__base, dn=dn2str([str2dn(self.__base.dn)[0]]) + "," + new_base))
+
+        old_base = self.__base.dn
 
         if recursive:
-            old_base = self.__base.dn
 
             try:
                 child_new_base = dn2str([str2dn(self.__base.dn)[0]]) + "," + new_base
@@ -693,7 +694,7 @@ class ObjectProxy(object):
                     obj.parent = self
                     obj.simulate_move(cdn)
 
-                zope.event.notify(ObjectChanged("post object move", self.__base, dn=new_base))
+                zope.event.notify(ObjectChanged("post object move", self.__base, dn=new_base, orig_dn=old_base))
                 return True
 
             except Exception as e:
@@ -709,7 +710,7 @@ class ObjectProxy(object):
 
         try:
             self.__base.move(new_base)
-            zope.event.notify(ObjectChanged("post object move", self.__base, dn=self.__base.dn))
+            zope.event.notify(ObjectChanged("post object move", self.__base, dn=self.__base.dn, orig_dn=old_base))
             return True
 
         except Exception as e:

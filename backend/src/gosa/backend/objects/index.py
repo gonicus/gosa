@@ -125,6 +125,7 @@ class ObjectIndex(Plugin):
     _post_process_job = None
     importing = False
     to_be_updated = []
+    currently_moving = {}
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -239,6 +240,14 @@ class ObjectIndex(Plugin):
     def stop(self):
         if self.__handle_events in zope.event.subscribers:
             zope.event.subscribers.remove(self.__handle_events)
+
+    def is_currently_moving(self, dn, move_target=False):
+        if move_target:
+            # check for value (the new dn after movement)
+            return dn in self.currently_moving.values()
+        else:
+            # check for key (the old dn before the movement)
+            return dn in self.currently_moving.keys()
 
     def __backend_change_processor(self, data):
         """
@@ -537,12 +546,18 @@ class ObjectIndex(Plugin):
                 self.remove_by_uuid(_uuid)
                 change_type = "remove"
 
+            if event.reason == "pre object move":
+                self.log.debug("starting object movement from %s to %s" % (_dn, event.dn))
+                self.currently_moving[_dn] = event.dn
+
             if event.reason == "post object move":
                 self.log.debug("updating object index for %s" % _uuid)
                 obj = ObjectProxy(event.dn)
                 self.update(obj)
                 _dn = obj.dn
                 change_type = "move"
+                if event.orig_dn in self.currently_moving:
+                    del self.currently_moving[event.orig_dn]
 
             if event.reason == "post object create":
                 self.log.debug("creating object index for %s" % _uuid)
