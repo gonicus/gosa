@@ -96,6 +96,7 @@ class ObjectProxy(object):
     __property_map = None
     __foreign_attrs = None
     __all_method_names = None
+    __search_aid = None
 
     def __init__(self, _id, what=None, user=None, session_id=None):
         self.__env = Environment.getInstance()
@@ -220,6 +221,7 @@ class ObjectProxy(object):
         self.dn = self.__base.dn
 
         self.populate_to_foreign_properties()
+        self.__search_aid = PluginRegistry.getInstance("ObjectIndex").get_search_aid()
 
     def find_dn_for_object(self, new_base, current_base, dn="", checked=[]):
         """
@@ -1003,11 +1005,12 @@ class ObjectProxy(object):
 
         props = self.__property_map
         for propname in self.__property_map:
-
-            # Use the object-type conversion method to get valid item string-representations.
-            prop_value = props[propname]['value']
-            if props[propname]['type'] != "Binary":
-                res[propname] = atypes[props[propname]['type']].convert_to("UnicodeString", prop_value)
+            # only index attributes that are required for searching
+            if propname in self.__search_aid['used_attrs']:
+                # Use the object-type conversion method to get valid item string-representations.
+                prop_value = props[propname]['value']
+                if props[propname]['type'] != "Binary":
+                    res[propname] = atypes[props[propname]['type']].convert_to("UnicodeString", prop_value)
 
         return res
 
@@ -1051,21 +1054,22 @@ class ObjectProxy(object):
 
         props = self.__property_map
         for propname in self.__property_map:
+            # only index attributes that are required for searching
+            if propname in self.__search_aid['used_attrs']:
+                # Use the object-type conversion method to get valid item string-representations.
+                # This does not work for boolean values, due to the fact that xml requires
+                # lowercase (true/false)
+                prop_value = props[propname]['value']
+                if props[propname]['type'] == "Boolean":
+                    attrs[propname] = map(lambda x: 'true' if x == True else 'false', prop_value)
 
-            # Use the object-type conversion method to get valid item string-representations.
-            # This does not work for boolean values, due to the fact that xml requires
-            # lowercase (true/false)
-            prop_value = props[propname]['value']
-            if props[propname]['type'] == "Boolean":
-                attrs[propname] = map(lambda x: 'true' if x == True else 'false', prop_value)
+                # Skip binary ones
+                elif props[propname]['type'] == "Binary":
+                    attrs[propname] = map(lambda x: x.encode(), prop_value)
 
-            # Skip binary ones
-            elif props[propname]['type'] == "Binary":
-                attrs[propname] = map(lambda x: x.encode(), prop_value)
-
-            # Make remaining values unicode
-            else:
-                attrs[propname] = atypes[props[propname]['type']].convert_to("UnicodeString", prop_value)
+                # Make remaining values unicode
+                else:
+                    attrs[propname] = atypes[props[propname]['type']].convert_to("UnicodeString", prop_value)
 
         # Build a xml represention of the collected properties
         for key in attrs:
