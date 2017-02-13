@@ -32,12 +32,12 @@ class FilterValidatorTests(unittest.TestCase):
         props = { 'test': {
             'value': ['test']
         }}
-        (res, errors) = filter.process(props, 'test', ["test"])
+        (res, errors) = filter.process(props, 'test', ["test1"])
         assert res is False
         assert len(errors) == 1
 
         mockedRegistry.return_value.search.return_value = [1]
-        (res, errors) = filter.process(props, 'test', ["test"])
+        (res, errors) = filter.process(props, 'test', ["test1"])
         assert res is True
         assert len(errors) == 0
 
