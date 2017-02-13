@@ -36,6 +36,16 @@ C.register_codes(dict(
     ))
 
 
+class TornadoAccessLoggingFilter(logging.Filter):
+    ''' Enable tornados access log only in debug mode '''
+    def __init__(self, name='TornadoAccessLoggingFilter'):
+        logging.Filter.__init__(self, name)
+        self.is_debug = Environment.getInstance().config.get("logger_gosa.level", "INFO").upper() == "DEBUG"
+
+    def filter(self, record):
+        return self.is_debug
+
+
 @implementer(IInterfaceHandler)
 class HTTPService(object):
     """
@@ -123,6 +133,9 @@ class HTTPService(object):
                 apps.append((entry.name, module, {"hsts": self.ssl}))
             else:
                 self.log.error("Registering '%s' as HTTP service denied: no subclass of HSTSRequestHandler or HSTSStaticFileHandler" % module)
+
+        # setup tornado's access logger
+        logging.getLogger("tornado.access").addFilter(TornadoAccessLoggingFilter())
 
         application = tornado.web.Application(apps,
                                               cookie_secret=self.env.config.get('http.cookie-secret', default="TecloigJink4"),
