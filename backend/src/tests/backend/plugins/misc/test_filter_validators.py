@@ -26,6 +26,7 @@ class FilterValidatorTests(unittest.TestCase):
     def test_IsExistingDN(self, mockedRegistry):
         # mockup ObjectIndex.search
         mockedRegistry.return_value.search.return_value = []
+        mockedRegistry.return_value.is_currently_moving.return_value = False
 
         # start the tests
         filter = IsExistingDN()
@@ -38,6 +39,13 @@ class FilterValidatorTests(unittest.TestCase):
 
         mockedRegistry.return_value.search.return_value = [1]
         (res, errors) = filter.process(props, 'test', ["test1"])
+
+        assert res is True
+        assert len(errors) == 0
+
+        mockedRegistry.return_value.is_currently_moving.return_value = True
+        mockedRegistry.return_value.search.return_value = []
+        res, errors = filter.process(props, 'test', ["test1"])
         assert res is True
         assert len(errors) == 0
 
