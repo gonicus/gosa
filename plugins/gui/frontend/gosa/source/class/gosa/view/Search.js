@@ -464,7 +464,18 @@ qx.Class.define("gosa.view.Search", {
       // Update categories
       if (this.searchAid.hasFilter()) {
         this.searchAid.updateFilter("category", categories);
-
+        this.searchAid.updateFilter("secondary", {
+          "enabled": { name: this.tr("Enabled"), count: items.length },
+          "disabled": { name: this.tr("Disabled"), count: (items.length - secondaryCount) }
+        });
+        this.searchAid.updateFilter("mod-time", {
+          "all": { name: this.tr("All"), count: items.length },
+          "hour": { name: this.tr("Last hour"), count: modifiedCounters.hour },
+          "day": { name: this.tr("Last 24 hours"), count: modifiedCounters.day },
+          "week": { name: this.tr("Last week"), count: modifiedCounters.week },
+          "month": { name: this.tr("Last month"), count: modifiedCounters.month },
+          "year": { name: this.tr("Last year"), count: modifiedCounters.year }
+        });
       } else {
         this.searchAid.addFilter(this.tr("Category"), "category",
             categories, this.__selection.category);
