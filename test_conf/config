@@ -29,6 +29,7 @@ image-path = /tmp/images
 
 [backend]
 admins = admin
+index = false
 
 [jsonrpc]
 url = http://localhost:8000/rpc
