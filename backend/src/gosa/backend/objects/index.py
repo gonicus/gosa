@@ -126,6 +126,7 @@ class ObjectIndex(Plugin):
     importing = False
     to_be_updated = []
     currently_moving = {}
+    __search_aid = {}
 
     def __init__(self):
         self.env = Environment.getInstance()
