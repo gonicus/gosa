@@ -7,7 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-from unittest import mock, TestCase
+from unittest import mock
 from tests.GosaTestCase import *
 from gosa.backend.objects.backend.back_object import *
 
@@ -22,7 +22,6 @@ class ObjectBackendTestCase(TestCase):
 
     @slow
     def test_load(self):
-        super(ObjectBackendTestCase, self).setUp()
         res = self.back.load('78475884-c7f2-1035-8262-f535be14d43a',
                              {
                                  'groupMembership': {
@@ -32,9 +31,7 @@ class ObjectBackendTestCase(TestCase):
                                  }
                              },
                              {'groupMembership': 'PosixGroup:cn,memberUid=uid'})
-
         assert 'groupMembership' in res
-        super(ObjectBackendTestCase, self).tearDown()
 
     def test_extend(self):
         #just a wrapper for the update method
@@ -65,7 +62,6 @@ class ObjectBackendTestCase(TestCase):
     # TODO: must be completed
     @slow
     def test_update(self):
-        super(ObjectBackendTestCase, self).setUp()
 
         with pytest.raises(BackendError):
             self.back.update('78475884-c7f2-1035-8262-f535be14d43a',
@@ -127,5 +123,3 @@ class ObjectBackendTestCase(TestCase):
                                  },
                                  {'groupMembership': 'PosixGroup:cn,memberUid=uid'})
                 assert m.return_value.commit.called
-
-        super(ObjectBackendTestCase, self).tearDown()

@@ -49,7 +49,6 @@ from gosa.common.utils import is_uuid, N_
 from gosa.common.components import PluginRegistry
 from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.exceptions import ACLException, ProxyException
-from gosa.common.components.jsonrpc_utils import Binary
 from io import StringIO
 
 # Register the errors handled  by us
@@ -223,7 +222,7 @@ class ObjectProxy(object):
         self.populate_to_foreign_properties()
         self.__search_aid = PluginRegistry.getInstance("ObjectIndex").get_search_aid()
 
-    def find_dn_for_object(self, new_base, current_base, dn="", checked=[]):
+    def find_dn_for_object(self, new_base, current_base, dn="", checked=None):
         """
         Traverse through the object_types to find the container, which holds objects of type *base* and return that containers
         DN
@@ -231,8 +230,11 @@ class ObjectProxy(object):
         :param new_base: object type to be created
         :param current_base: object type the new object should be created in
         :param dn: base DN suffix
+        :param checked: for internal use in recursive calls
         :return: DN of found container
         """
+        if checked is None:
+            checked = []
         object_types = self.__factory.getObjectTypes()
 
         if 'container' in object_types[current_base]:
@@ -264,7 +266,9 @@ class ObjectProxy(object):
                 container = ObjectProxy(dn, base)
                 container.commit()
 
-    def get_missing_containers(self, new_dn, base_dn, base_type, result=[]):
+    def get_missing_containers(self, new_dn, base_dn, base_type, result=None):
+        if result is None:
+            result = []
         if new_dn == base_dn:
             return result
         self.__log.debug("collect missing containers for new object '%s' starting from '%s' (%s)" % (new_dn, base_dn, base_type))
@@ -528,8 +532,7 @@ class ObjectProxy(object):
             del self.__retractions[extension]
         else:
             mode = "extend"
-            current_object = ObjectProxy(self.dn)
-            if current_object.__extensions[extension]:
+            if self.__extensions[extension]:
                 mode = "update"
 
             self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid, mode=mode)
@@ -840,7 +843,9 @@ class ObjectProxy(object):
 
         # Skip further actions if we're in create mode
         if self.__base_mode == "create":
-            pass
+            # update values
+            self.dn = self.__base.dn
+            self.uuid = self.__base.uuid
 
         # Did the commit result in a move?
         elif self.dn != self.__base.dn:

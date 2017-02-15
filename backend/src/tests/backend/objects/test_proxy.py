@@ -7,8 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-import datetime
-from unittest import mock, TestCase
+from unittest import mock
 
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 from tests.GosaTestCase import *
@@ -17,24 +16,10 @@ from lxml import objectify
 
 
 @slow
-class ObjectProxyTestCase(TestCase):
-    __test_dn = None
+class ObjectProxyTestCase(GosaTestCase):
 
-    def __create_test_data(self):
-        """
-        Insert new data just for testing purposes
-        """
-        try:
-            new_domain = ObjectProxy("dc=test,dc=example,dc=net")
-            new_domain.remove(True)
-            new_domain.commit()
-        except:
-            pass
-
-        new_domain = ObjectProxy("dc=example,dc=net", "DomainComponent")
-        new_domain.dc = "test"
-        new_domain.description = "Domain for testing purposes"
-        new_domain.commit()
+    def _create_test_data(self):
+        super(ObjectProxyTestCase, self)._create_test_data()
 
         # new ou's
         ou = ObjectProxy("dc=test,dc=example,dc=net", "OrganizationalRoleContainer")
@@ -47,25 +32,14 @@ class ObjectProxyTestCase(TestCase):
         user.sn = "User"
         user.commit()
 
-        self.__test_dn = "dc=test,dc=example,dc=net"
-
     def tearDown(self):
         super(ObjectProxyTestCase, self).tearDown()
-        if self.__test_dn is not None:
-            try:
-                new_domain = ObjectProxy("dc=test,dc=example,dc=net")
-                new_domain.remove(True)
-                new_domain.commit()
-                self.__test_dn = None
-            except Exception as e:
-                print(str(e))
-
-            try:
-                new_domain = ObjectProxy("cn=Test User,dc=example,dc=net")
-                new_domain.remove(True)
-                new_domain.commit()
-            except Exception:
-                pass
+        try:
+            new_domain = ObjectProxy("cn=Test User,dc=example,dc=net")
+            new_domain.remove(True)
+            new_domain.commit()
+        except Exception:
+            pass
 
     def test_init(self):
         with pytest.raises(ProxyException),\
@@ -246,7 +220,7 @@ class ObjectProxyTestCase(TestCase):
 
     def test_move(self):
         # initialize some test data
-        self.__create_test_data()
+        self._create_test_data()
 
         # check permissions
         mocked_resolver = mock.MagicMock()
@@ -400,7 +374,7 @@ class ObjectProxyTestCase(TestCase):
         assert res.DN == 'cn=Frank Reich,ou=people,dc=example,dc=net'
 
     def test_get_missing_containers(self):
-        self.__create_test_data()
+        self._create_test_data()
 
         # create some object to have access to the method
         proxy = ObjectProxy('dc=example,dc=net')

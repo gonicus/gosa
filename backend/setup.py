@@ -10,7 +10,6 @@
 
 from setuptools import setup, find_packages
 import os
-import platform
 
 try:
     from babel.messages import frontend as babel
@@ -126,6 +125,7 @@ setup(
         user = gosa.backend.plugins.user.main:User
         webhook_registry = gosa.backend.plugins.webhook.registry:WebhookRegistry
         zarafa = gosa.backend.plugins.zarafa.methods:ZarafaRPCMethods
+        foreman = gosa.backend.plugins.foreman.main:Foreman
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
@@ -235,6 +235,7 @@ setup(
 
         [gosa.webhook_handler]
         application/vnd.gosa.event+xml = gosa.backend.plugins.webhook.registry:WebhookEventReceiver
+        application/vnd.acme.hostevent+json = gosa.backend.plugins.foreman.main:ForemanWebhookReceiver
 
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt
