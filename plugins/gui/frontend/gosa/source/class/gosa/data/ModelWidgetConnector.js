@@ -79,7 +79,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
       widget.setValue(this.__object.get(attributeName));
       widget.addListener("changeValue", function(event) {
         this.__object.set(attributeName, event.getData());
-        this.__widget.validate();
+        this.__widget.getController().checkValidity();
       }, this);
     },
 
