@@ -15,6 +15,7 @@ from unittest import TestCase, mock
 from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application
 
+from gosa.common.utils import is_uuid
 from tests.RemoteTestCase import RemoteTestCase
 from gosa.backend.exceptions import ProxyException
 from gosa.backend.plugins.webhook.registry import WebhookReceiver
@@ -195,8 +196,8 @@ class ForemanWebhookTestCase(RemoteTestCase):
             'HTTP_X_HUB_SENDER': 'test-webhook',
             'HTTP_X_HUB_SIGNATURE': signature
         }
-        AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
-
+        response = AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
+        assert is_uuid(response.body.decode('utf-8'))
 
         # check if the host has been created
         device = ObjectProxy("cn=new-foreman-host,ou=devices,dc=example,dc=net")

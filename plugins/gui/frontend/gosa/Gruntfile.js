@@ -4,19 +4,18 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
-    banner: '/*========================================================================\n'+
-            '\n'+
-            '   This file is part of the GOsa project -  http://gosa-project.org\n'+
-            '\n'+
-            '   Copyright:\n'+
-            '      (C) 2010-<%= grunt.template.today("yyyy") %> GONICUS GmbH, Germany, http://www.gonicus.de\n'+
-            '\n'+
-            '   License:\n'+
-            '      LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html\n'+
-            '\n'+
-            '   See the LICENSE file in the project\'s top-level directory for details.\n'+
-            '\n'+
-            '======================================================================== */\n',
+    banner: '/*\n'+
+            ' *\n'+
+            ' * This file is part of the GOsa project -  http://gosa-project.org\n'+
+            ' *\n'+
+            ' * Copyright:\n'+
+            ' *  (C) 2010-<%= grunt.template.today("yyyy") %> GONICUS GmbH, Germany, http://www.gonicus.de\n'+
+            ' *\n'+
+            ' * License:\n'+
+            ' *  LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html\n'+
+            ' *\n'+
+            ' * See the LICENSE file in the project\'s top-level directory for details.\n'+
+            ' */\n',
 
     coveralls: {
       options: {
