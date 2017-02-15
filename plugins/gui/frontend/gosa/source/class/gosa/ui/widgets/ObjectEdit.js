@@ -528,24 +528,6 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       this.fireEvent("close");
     },
 
-    _onTabChanged: function() {
-      var pos = this._tabView.indexOf(this._tabView.getSelection()[0]);
-      var pages = this._tabView.getSelectables(true);
-      this._backButton.setEnabled(pos > 0);
-      new qx.util.DeferredCall(function() {
-        this.getController()._updateValidity();
-        this._updateOkButtonEnabled(this._tabView.getSelection()[0].getUserData("context"));
-      }, this). schedule();
-      if (pos === pages.length-1) {
-        // last item
-        this._okButton.setLabel(this.tr("OK"));
-        this._okButton.setIcon("@Ligature/check");
-      } else {
-        this._okButton.setLabel(this.tr("Next"));
-        this._okButton.setIcon("@Ligature/right");
-      }
-    },
-
     _createOkButton : function() {
       var button = this._okButton = gosa.ui.base.Buttons.getOkButton();
       button.set({
