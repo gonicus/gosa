@@ -9,6 +9,8 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import logging
+import uuid
+
 import requests
 from sqlalchemy import and_
 
@@ -151,13 +153,20 @@ class Foreman(Plugin):
 class ForemanWebhookReceiver(object):
     """ Webhook handler for foreman events (Content-Type: application/vnd.acme.hostevent+json) """
 
-    def handle_request(self, request):
+    def handle_request(self, request_handler):
         foreman = PluginRegistry.getInstance("Foreman")
-        data = loads(request.body)
-        print(data)
+        data = loads(request_handler.request.body)
 
         if data['action'] == "create":
-            foreman.addHost(foreman, data['hostname'], data['parameters'])
+            device = foreman.addHost(foreman, data['hostname'], data['parameters'])
+            gosa_client_otp = str(uuid.uuid4())
+
+            # TODO: save OTP for gosa-client provisioning
+            #device.extend("foremanHost")
+            #device.otp = gosa_client_otp
+
+            request_handler.write(gosa_client_otp)
+
         elif data['action'] == "delete":
             foreman.removeHost(foreman, data['hostname'], data['parameters'])
 

@@ -165,7 +165,7 @@ class WebhookReceiver(HSTSRequestHandler):
             # usually this code is unreachable because if there is no registered handler, there is no token
             raise HTTPError(401)
 
-        handler.handle_request(self.request)
+        handler.handle_request(self)
 
     def _verify_signature(self, payload_body, token):
         if self.signature is None:
@@ -179,8 +179,8 @@ class WebhookReceiver(HSTSRequestHandler):
 class WebhookEventReceiver(object):
     """ Webhook handler for gosa events (Content-Type: application/vnd.gosa.event+xml) """
 
-    def handle_request(self, request):
+    def handle_request(self, requestHandler):
         # read and validate event
-        xml = objectify.fromstring(request.body, PluginRegistry.getEventParser())
+        xml = objectify.fromstring(requestHandler.request.body, PluginRegistry.getEventParser())
         # forward incoming event to internal event bus
         zope.event.notify(xml)
