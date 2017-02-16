@@ -48,6 +48,15 @@ qx.Class.define("gosa.data.SettingsRegistry", {
     __handlers: {},
     __listeners: {},
 
+    load: function() {
+      gosa.io.Rpc.getInstance().cA("getSettingHandlers").bind(this)
+      .then(function(result) {
+        Object.getOwnPropertyNames(result).forEach(function(handlerPath) {
+          this.registerHandler(new gosa.data.settings.Handler(handlerPath, result[handlerPath]));
+        }, this);
+      });
+    },
+
     /**
      * Get a config setting value
      * @return {var} the current value of this setting

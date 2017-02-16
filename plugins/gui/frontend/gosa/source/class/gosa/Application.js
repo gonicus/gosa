@@ -187,8 +187,8 @@ qx.Class.define("gosa.Application",
           })
           );
 
-          // register the config-file settings handler
-          gosa.data.SettingsRegistry.registerHandler(new gosa.data.settings.ConfigHandler("gosa.settings"));
+          // load the setting handler information from backend
+          gosa.data.SettingsRegistry.load();
 
           // load translation
           promises.push(

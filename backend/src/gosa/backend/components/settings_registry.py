@@ -91,22 +91,31 @@ class SettingsRegistry(Plugin):
         handler, param, handler_path = self.__get_path_infos(path)
         return handler.get(param)
 
-    @Command(needsUser=True, __help__=N_("Get setting value"))
+    @Command(needsUser=True, __help__=N_("Returns information about the allowed settings in a path"))
     def getItemInfos(self, user, path):
         if path not in self.__handlers:
             self.__log.debug("no registered settings handler found for path %s", path)
             return {}
-
         handler = self.__handlers[path]
-        all_items = handler.get_item_infos()
+        return self.__filter_items(user, path, handler.get_item_infos())
 
+    @Command(needsUser=True, __help__=N_("Returns information about the registered setting handlers"))
+    def getSettingHandlers(self, user):
+        res = {}
+        for handler_path, handler in self.__handlers.items():
+            handler_items = self.__filter_items(user, handler_path, handler.get_item_infos())
+            if len(handler_items) > 0:
+                res[handler_path] = handler_items
+
+        return res
+
+    def __filter_items(self, user, path, all_items):
         items = {}
         # filter out items the user cannot access
         for item_path in all_items:
             topic = "%s.settings.%s.%s" % (self.env.domain, path, item_path)
             if self._acl.check(user, topic, "r"):
                 items[item_path] = all_items[item_path]
-
         return items
 
 
