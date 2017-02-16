@@ -86,7 +86,7 @@ class WebhookRegistry(Plugin):
         topic = "%s.webhook.%s" % (self.env.domain, content_type)
         aclresolver = PluginRegistry.getInstance("ACLResolver")
         if not aclresolver.check(user, topic, "e"):
-            self.__log.debug("user '%s' has insufficient permissions to register webhook for content type %s" % (user, content_type))
+            self.log.debug("user '%s' has insufficient permissions to register webhook for content type %s" % (user, content_type))
             raise ACLException(C.make_error('PERMISSION_ACCESS', topic))
 
         if content_type not in self.__handlers:

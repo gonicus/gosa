@@ -126,6 +126,7 @@ setup(
         webhook_registry = gosa.backend.plugins.webhook.registry:WebhookRegistry
         zarafa = gosa.backend.plugins.zarafa.methods:ZarafaRPCMethods
         foreman = gosa.backend.plugins.foreman.main:Foreman
+        settings = gosa.backend.components.settings_registry:SettingsRegistry
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
@@ -236,6 +237,9 @@ setup(
         [gosa.webhook_handler]
         application/vnd.gosa.event+xml = gosa.backend.plugins.webhook.registry:WebhookEventReceiver
         application/vnd.acme.hostevent+json = gosa.backend.plugins.foreman.main:ForemanWebhookReceiver
+
+        [gosa.settings_handler]
+        gosa.settings = gosa.backend.components.settings_registry:SettingsHandler
 
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt
