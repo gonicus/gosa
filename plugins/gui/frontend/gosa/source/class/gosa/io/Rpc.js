@@ -224,7 +224,7 @@ qx.Class.define("gosa.io.Rpc", {
      * Handle rpc errors and re-trigger the RPC oif necessary
      * @param argx {Array} the arguments from the errored RPC
      * @param error {Error}
-     * @return {*}
+     * @return {var}
      * @private
      */
     __handleRpcError: function(argx, error) {
