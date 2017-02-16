@@ -187,6 +187,9 @@ qx.Class.define("gosa.Application",
           })
           );
 
+          // load the setting handler information from backend
+          gosa.data.SettingsRegistry.load();
+
           // load translation
           promises.push(
           rpc.cA("getTemplateI18N", locale)

@@ -29,6 +29,13 @@ module.exports = function(grunt) {
     karma: {
       unit : {
         configFile : 'karma.conf.js'
+      },
+      debug: {
+        configFile : 'karma.conf.js',
+        reporters: ['progress'],
+        client: {
+          captureConsole: true
+        }
       }
     },
     usebanner: {

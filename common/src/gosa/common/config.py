@@ -71,6 +71,7 @@ class Config(object):
                 }
             }
     __configKeys = None
+    __modified = False
 
     def __init__(self, config=None, noargs=False):
         if not config:
@@ -79,6 +80,9 @@ class Config(object):
         # Load default user name for config parsing
         self.__registry['core']['config'] = config
         self.__noargs = noargs
+        # settings can be changed via the GUI, in order to identify then
+        # we hold them additionally in an separate structure
+        self.__user_config = None
 
         # Load file configuration
         if not self.__noargs:
@@ -163,6 +167,41 @@ class Config(object):
 
         return default
 
+    def set(self, path, value):
+        """
+        *set* allows dot-separated changing of configuration settings.
+        These values are store in and read from a separate user-config file.
+
+        :param path: dot-separated path to the configuration option
+        :param value: the value to set
+        """
+        parts = path.split(".")
+        section = parts[0]
+        key = parts[1]
+        # change value in the registry
+        if section not in self.__registry:
+            self.__registry[section] = {}
+            self.__modified = True
+
+        if key in self.__registry[section] and self.__registry[section][key] != value:
+            self.__modified = True
+        self.__registry[section][key] = value
+
+        # change value in the user_registry (used to save this values in a separate config later
+        try:
+            self.__user_config.set(section, key, value)
+        except configparser.NoSectionError:
+            self.__user_config.add_section(section)
+            self.__user_config.set(section, key, value)
+
+    def save(self):
+        """ save the settings in the main config file """
+        if self.__modified is True:
+            main_config_file = os.path.join(self.get('core.config'), "user-config")
+            with open(main_config_file, 'w') as f:
+                self.__user_config.write(f)
+                self.__modified = False
+
     def __getCfgFiles(self, cdir):
         conf = re.compile(r"^[a-z0-9_.-]+\.conf$", re.IGNORECASE)
         try:
@@ -190,6 +229,18 @@ class Config(object):
             if not section in self.__registry:
                 self.__registry[section] = {}
             self.__registry[section].update(config.items(section))
+
+        self.__user_config = configparser.RawConfigParser()
+        # read the settings changed via gui client
+        if os.path.exists(os.path.join(configDir, "user-config")):
+            filesRead = self.__user_config.read(os.path.join(configDir, "user-config"))
+            if not filesRead:
+                raise ConfigNoFile("No usable GUI configuration file (%s/user-config) found!" % configDir)
+
+            for section in self.__user_config.sections():
+                if not section in self.__registry:
+                    self.__registry[section] = {}
+                self.__registry[section].update(self.__user_config.items(section))
 
         # Initialize the logging module on the fly
         try:
