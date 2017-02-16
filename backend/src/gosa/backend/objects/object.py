@@ -559,9 +559,6 @@ class Object(object):
             if props[key]['foreign'] and key in propsFromOtherExtensions:
                 props[key]['value'] = propsFromOtherExtensions[key]['value']
 
-            # Transfer status into commit status
-            props[key]['commit_status'] = props[key]['status']
-
         # Collect values by store and process the property filters
         for key in self.attributesInSaveOrder:
 
@@ -606,31 +603,9 @@ class Object(object):
 
         # Transfer status into commit status
         for key in self.attributesInSaveOrder:
-            props[key]['commit_status'] = props[key]['status']
-
             # Transfer values form other commit processes into ourselves
             if props[key]['foreign'] and key in propsFromOtherExtensions:
                 props[key]['value'] = propsFromOtherExtensions[key]['value']
-
-        # Adapt property states
-        # Run this once - If any state was adapted, then run again to ensure
-        # that all dependencies are processed.
-        first = True
-        _max = 5
-        required = False
-        while (first or required) and _max:
-            first = False
-            required = False
-            _max -= 1
-            for key in self.attributesInSaveOrder:
-
-                # Adapt status from dependent properties.
-                for propname in props[key]['depends_on']:
-                    old = props[key]['commit_status']
-                    props[key]['commit_status'] |= props[propname]['status'] & STATUS_CHANGED
-                    props[key]['commit_status'] |= props[propname]['commit_status'] & STATUS_CHANGED
-                    if props[key]['commit_status'] != old:
-                        required = True
 
         # Collect values by store and process the property filters
         collectedAttrs = {}
@@ -641,7 +616,7 @@ class Object(object):
                 continue
 
             # Do not save untouched values
-            if not props[key]['auto'] and not props[key]['commit_status'] & STATUS_CHANGED and not props[key]['value'] != props[key]['orig_value']:
+            if not props[key]['auto'] and not props[key]['value'] != props[key]['orig_value']:
                 continue
 
             # Get the new value for the property and execute the out-filter
@@ -653,10 +628,7 @@ class Object(object):
 
                 self.log.debug(" found %s out-filter for %s" % (str(len(props[key]['out_filter'])), key,))
                 for out_f in props[key]['out_filter']:
-                    old_value = props[key]['value']
                     self.__processFilter(out_f, key, props)
-                    if old_value != props[key]['value']:
-                        props[key]['commit_status'] = STATUS_CHANGED
 
             elif props[key]['auto']:
                 if not props[key]['depends_on']:
@@ -674,7 +646,7 @@ class Object(object):
                 continue
 
             # Do not save untouched values
-            if not props[prop_key]['commit_status'] & STATUS_CHANGED:
+            if not props[prop_key]['value'] != props[prop_key]['orig_value']:
                 continue
 
             collectedAttrs[prop_key] = props[prop_key]
