@@ -170,8 +170,6 @@ qx.Class.define("gosa.Application",
         var messaging = gosa.io.Sse.getInstance();
         messaging.reconnect();
 
-        var settings = gosa.data.SettingsRegistry.getInstance();
-
         // Enforce login
         var rpc = gosa.io.Rpc.getInstance();
         rpc.cA("getSessionUser").then(function(userid) {
@@ -188,6 +186,9 @@ qx.Class.define("gosa.Application",
             (new gosa.ui.dialogs.Error(qx.locale.Manager.tr("Unable to receive commands."))).open();
           })
           );
+
+          // register the config-file settings handler
+          gosa.data.SettingsRegistry.registerHandler(new gosa.data.settings.ConfigHandler("gosa.settings"));
 
           // load translation
           promises.push(

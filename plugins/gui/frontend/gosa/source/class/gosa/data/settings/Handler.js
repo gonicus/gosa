@@ -28,7 +28,7 @@ qx.Class.define("gosa.data.settings.Handler", {
     if (namespace) {
       this.setNamespace(namespace);
     }
-    this.__rpc = gosa.io.Rpc.getInstance();
+    this._rpc = gosa.io.Rpc.getInstance();
   },
 
   /*
@@ -40,6 +40,10 @@ qx.Class.define("gosa.data.settings.Handler", {
     namespace: {
       check: "String",
       init: ""
+    },
+    ready: {
+      check: "Boolean",
+      init: true
     }
   },
 
@@ -49,7 +53,8 @@ qx.Class.define("gosa.data.settings.Handler", {
    *****************************************************************************
    */
   members : {
-    __rpc: null,
+    _items: null,
+    _rpc: null,
     __registry : null,
 
     has: function(key) {
@@ -61,7 +66,7 @@ qx.Class.define("gosa.data.settings.Handler", {
       this.__registry[key] = value;
       if (!(value instanceof Object && qx.Class.implementsInterface(value, gosa.data.ISettingsRegistryHandler))) {
         // send to backend
-        this.__rpc.cA("changeSetting", this.getNamespace() + "." + key, value);
+        this._rpc.cA("changeSetting", this.getNamespace() + "." + key, value);
       }
       return true;
     },
@@ -78,7 +83,7 @@ qx.Class.define("gosa.data.settings.Handler", {
   *****************************************************************************
   */
   destruct : function() {
-    this.__rpc = null;
+    this._rpc = null;
     this._disposeObjects("__registry");
   }
 });

@@ -16,10 +16,11 @@
  * Example:
  *
  * <pre class="javascript">
- *   var registry = gosa.data.SettingsRegistry.getInstance();
+ *   // register a handler for a path
+ *   gosa.data.SettingsRegistry.registerHandler(new gosa.data.settings.ConfigHandler("gosa.settings"));
  *
  *   // set value
- *   registry.gosa.settings.index = false;
+ *   gosa.data.SettingsRegistry.set("gosa.settings.index", false);
  *
  *   // add listener
  *   gosa.data.SettingsRegistry.addListener("gosa.settings.index", "change", function(value, old) {
@@ -28,7 +29,10 @@
  *   }, this);
  *
  *   // change value -> listener gets called
- *   registry.gosa.settings.index = true;
+ *   gosa.data.SettingsRegistry.set("gosa.settings.index", true);
+ *
+ *   // get value
+ *   gosa.data.SettingsRegistry.get("gosa.settings.index");
  * </pre>
 */
 qx.Class.define("gosa.data.SettingsRegistry", {
@@ -45,58 +49,56 @@ qx.Class.define("gosa.data.SettingsRegistry", {
     __listeners: {},
 
     /**
-     * Returns the root settings handler
-     * @return {gosa.data.settings.Handler}
+     * Get a config setting value
+     * @return {var} the current value of this setting
      */
-    getInstance: function() {
-      if (!this.__instance) {
-        this.__instance = this.__createRegistryProxy(new gosa.data.settings.Handler(""));
+    get: function(path) {
+      var partsInfo = this.__getPathInfo(path);
+      if (partsInfo.handler) {
+        return partsInfo.handler.get(partsInfo.param);
+      } else {
+        return undefined;
       }
-      return this.__instance;
     },
 
-    __createRegistryProxy: function(proxiedObject) {
-      return new Proxy(proxiedObject, {
-        get: function(target, prop) {
-          if (prop === "getInstance") {
-            return target;
-          } else if (target[prop]) {
-            return target[prop];
-          } else if (target.has(prop)) {
-            return target.get(prop);
-          } else if (target.getNamespace() === prop) {
-            return undefined;
-          } else {
-            var newNamespace = target.getNamespace() ? target.getNamespace()+"."+prop : prop;
-            var newEntry = gosa.data.SettingsRegistry.registerHandler(newNamespace, new gosa.data.settings.Handler());
-            target.set(prop, newEntry);
-            return newEntry;
-          }
-        },
+    /**
+     * Set a config setting value
+     * @param path {String} path to setting
+     * @param value {var} value to set
+     * @return {Boolean} false if the setting does not exist
+     */
+    set: function(path, value) {
+      var partsInfo = this.__getPathInfo(path);
+      if (partsInfo.handler) {
+        partsInfo.handler.set(partsInfo.param, value);
+        return true;
+      } else {
+        return false;
+      }
+    },
 
-        set: function(target, prop, value) {
-          var oldValue = undefined;
-          if (target.has(prop)) {
-            oldValue = target.get(prop);
-          }
-          if (value !== oldValue) {
-            gosa.data.SettingsRegistry.notifyListeners(target, prop, "change", value, oldValue);
-          }
-          return target.set(prop, value);
-        }
-      })
+    __getPathInfo: function(path) {
+      var parts = path.split(".");
+      var param = path.pop();
+      while (parts.length > 0 && !this.__handlers[parts.join(".")]) {
+        param = parts.pop()+".".param;
+      }
+      return {
+        path: parts.join("."),
+        param: param,
+        handler: this.__handlers[parts.join(".")]
+      }
     },
 
     /**
      * Register a handler for a given path
-     * @param path {String} path e.g. 'gosa.settings.index'
      * @param handler {gosa.data.ISettingsRegistryHandler}
-     * @return {Proxy} the handler poxy object
-     * @throws {Error} when there is already a handler registeres on this path
+     * @throws {Error} when there is already a handler registered on this path
      */
-    registerHandler: function(path, handler) {
+    registerHandler: function(handler) {
       qx.core.Assert.assertInterface(handler, gosa.data.ISettingsRegistryHandler);
       var blockedBy = null;
+      var path = handler.getNamespace();
       Object.getOwnPropertyNames(this.__handlers).some(function(registeredPath) {
         if (path === registeredPath) {
           blockedBy = registeredPath;
@@ -107,8 +109,16 @@ qx.Class.define("gosa.data.SettingsRegistry", {
         throw new Error("There is already a handler registered in path "+blockedBy);
       } else {
         this.__handlers[path] = handler;
-        handler.setNamespace(path);
-        return this.__createRegistryProxy(handler);
+      }
+    },
+
+    /**
+     * Unregister a settings handler from its namespace path
+     * @param handler {gosa.data.ISettingsRegistryHandler}
+     */
+    unregisterHandler: function(handler) {
+      if (handler.getNamespace() in this.__handlers) {
+        delete this.__handlers[handler.getNamespace()];
       }
     },
 

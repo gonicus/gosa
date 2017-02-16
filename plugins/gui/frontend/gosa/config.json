@@ -71,8 +71,7 @@
   {
     "common": {
       "lint-check": {
-        "ignore-environment-nonlit-key": true,
-        "allowed-globals" : [ "Proxy" ]
+        "ignore-environment-nonlit-key": true
       }
     },
 

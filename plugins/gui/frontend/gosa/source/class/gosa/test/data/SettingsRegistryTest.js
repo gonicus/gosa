@@ -12,6 +12,7 @@
 
 qx.Class.define("gosa.test.data.SettingsRegistryTest", {
   extend : qx.dev.unit.TestCase,
+  include: qx.dev.unit.MMock,
 
   /*
   *****************************************************************************
@@ -21,18 +22,20 @@ qx.Class.define("gosa.test.data.SettingsRegistryTest", {
   members : {
 
     testSetData : function() {
-      var registry = gosa.data.SettingsRegistry.getInstance();
+      gosa.data.SettingsRegistry.registerHandler(new gosa.data.settings.ConfigHandler("gosa.settings"));
 
-      // this.assertUndefined(registry.gosa.settings.index);
-      registry.gosa.settings.index = false;
-      this.assertFalse(registry.gosa.settings.index);
+      // mock RPCs
+      this.sinon.stub(gosa.io.Rpc.getInstance(), "cA");
+
+      gosa.data.SettingsRegistry.set("gosa.settings.index", false);
+      this.assertFalse(gosa.data.SettingsRegistry.get("gosa.settings.index"));
 
       // add listener
       gosa.data.SettingsRegistry.addListener("gosa.settings.index", "change", function(value, old) {
         this.assertTrue(value);
         this.assertFalse(old);
       }, this);
-      registry.gosa.settings.index = true;
+      gosa.data.SettingsRegistry.set("gosa.settings.index", true);
     }
   }
 });
