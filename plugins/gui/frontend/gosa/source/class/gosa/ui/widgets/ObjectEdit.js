@@ -231,7 +231,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
         this.add(new qx.ui.basic.Label(this.tr("There is currently no template defined for this kind of object. You have to add one in order to be able to create a new object")));
       } else {
         this._createTabView();
-        this._createTabPages();
+        this._templates.forEach(this.addTab, this);
         this._createToolmenu();
       }
       this._createButtons();
@@ -241,10 +241,6 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       this._tabView = new gosa.ui.tabview.TabView();
       this._tabView.getChildControl("bar").setScrollStep(150);
       this.add(this._tabView, {flex : 1});
-    },
-
-    _createTabPages : function() {
-      this._templates.forEach(this.addTab, this);
     },
 
     _createToolmenu : function() {
@@ -358,7 +354,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
       // create new menu entries
       var extFinder = this.getController().getExtensionFinder();
-      extFinder.getAddableExtensions().forEach(function(ext) {
+      extFinder.getAddableExtensions().sort(this.__compareExtensionsByTranslatedName).forEach(function(ext) {
 
         var config = gosa.Cache.extensionConfig[ext];
         if (!config) {
@@ -413,7 +409,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       var actExts = this.getController().getActiveExtensions();
       var extFinder = this.getController().getExtensionFinder();
 
-      extFinder.getRetractableExtensions().forEach(function(ext) {
+      // create button for each extension
+      extFinder.getRetractableExtensions().sort(this.__compareExtensionsByTranslatedName).forEach(function(ext) {
         if (qx.lang.Array.contains(actExts, ext)) {
           var config = gosa.Cache.extensionConfig[ext];
           if (!config) {
@@ -448,6 +445,16 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       else {
         this._retractButton.exclude();
       }
+    },
+
+    __compareExtensionsByTranslatedName : function(extA, extB) {
+      var configA = gosa.Cache.extensionConfig[extA];
+      var configB = gosa.Cache.extensionConfig[extB];
+
+      if (!configA || !configB) {
+        return 0;
+      }
+      return configA.title < configB.title ? -1 : 1;
     },
 
     __updateToolMenuButtonVisibility : function() {
