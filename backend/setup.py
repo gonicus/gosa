@@ -240,6 +240,7 @@ setup(
 
         [gosa.settings_handler]
         gosa.settings = gosa.backend.components.settings_registry:SettingsHandler
+        gosa.webhooks = gosa.backend.plugins.webhook.registry:WebhookSettingsHandler
 
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt

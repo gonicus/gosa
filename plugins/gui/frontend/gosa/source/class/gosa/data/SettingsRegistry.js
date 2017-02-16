@@ -52,7 +52,13 @@ qx.Class.define("gosa.data.SettingsRegistry", {
       gosa.io.Rpc.getInstance().cA("getSettingHandlers").bind(this)
       .then(function(result) {
         Object.getOwnPropertyNames(result).forEach(function(handlerPath) {
-          this.registerHandler(new gosa.data.settings.Handler(handlerPath, result[handlerPath]));
+          if (!this.__handlers[handlerPath]) {
+            this.registerHandler(new gosa.data.settings.Handler(handlerPath, result[handlerPath]));
+          } else {
+            // existing handler for this path -> update infos
+            this.__handlers[handlerPath].setItemInfos(result[handlerPath]['items']);
+            this.__handlers[handlerPath].setConfiguration(result[handlerPath]['config']);
+          }
         }, this);
       });
     },

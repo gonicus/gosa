@@ -22,7 +22,7 @@ qx.Class.define("gosa.data.settings.Handler", {
    CONSTRUCTOR
    *****************************************************************************
    */
-  construct : function(namespace, infos) {
+  construct : function(namespace, config) {
     this.base(arguments);
     this.__registry = {};
     if (namespace) {
@@ -31,10 +31,13 @@ qx.Class.define("gosa.data.settings.Handler", {
     this._rpc = gosa.io.Rpc.getInstance();
 
     // initialize available configuration options
-    if (!infos) {
-      this._rpc.cA("getItemInfos", this.getNamespace()).then(this.setItemInfos, this)
-    } else {
-      this.setItemInfos(infos)
+    if (config) {
+      if (config.items) {
+        this.setItemInfos(config.items);
+      }
+      if (config.config) {
+        this.setConfiguration(config.config);
+      }
     }
   },
 
@@ -52,10 +55,28 @@ qx.Class.define("gosa.data.settings.Handler", {
       check: "Boolean",
       init: false
     },
+
+    readOnly: {
+      check: "Boolean",
+      init: false
+    },
+
+    /**
+     * The available  configuration settings (name, type, value, etc.)
+     */
     itemInfos: {
       check: "Object",
       init: null,
       apply: "_applyItemInfos"
+    },
+
+    /**
+     * General config settings for this Handler (e.g. readOnly setting)
+     */
+    configuration: {
+      check: "Object",
+      init: null,
+      apply: "_applyConfiguration"
     }
   },
 
@@ -70,6 +91,16 @@ qx.Class.define("gosa.data.settings.Handler", {
     __registry : null,
     __skipSending: null,
 
+    _applyConfiguration: function(value) {
+      Object.getOwnPropertyNames(value).forEach(function(entry) {
+        switch (entry) {
+          case "read_only":
+            this.setReadOnly(value[entry]);
+            break;
+        }
+      }, this);
+    },
+
     // property apply
     _applyItemInfos: function(value) {
       this.__skipSending = true;
@@ -80,11 +111,16 @@ qx.Class.define("gosa.data.settings.Handler", {
       this.__skipSending = false;
     },
 
+    refreshItemInfos: function() {
+      this._rpc.cA("getItemInfos", this.getNamespace()).then(this.setItemInfos, this)
+    },
+
     has: function(key) {
       return this.__registry.hasOwnProperty(key);
     },
 
     set: function(key, value) {
+      if (this.isReadOnly()) { return false; }
       if (!key) { return false; }
       if (this.__registry[key] !== value) {
         this.__registry[key] = value;

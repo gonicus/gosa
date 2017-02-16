@@ -52,6 +52,9 @@ class SettingsRegistry(Plugin):
     def register_handler(self, path, handler):
         self.__handlers[path] = handler
 
+    def get_handler(self, path):
+        return self.__handlers[path]
+
     def __get_path_infos(self, path):
         if path in self.__handlers:
             return self.__handlers[path], None, path
@@ -105,7 +108,10 @@ class SettingsRegistry(Plugin):
         for handler_path, handler in self.__handlers.items():
             handler_items = self.__filter_items(user, handler_path, handler.get_item_infos())
             if len(handler_items) > 0:
-                res[handler_path] = handler_items
+                res[handler_path] = {
+                    "config": handler.get_config(),
+                    "items": handler_items
+                }
 
         return res
 
@@ -134,6 +140,9 @@ class SettingsHandler(object):
 
     def get(self, path):
         return self.config.get(path)
+
+    def get_config(self):
+        return {}
 
     def get_item_infos(self):
         """
