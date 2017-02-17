@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import sys
+import platform
 import unittest, unittest.mock, pytest
 from gosa.common.config import *
 

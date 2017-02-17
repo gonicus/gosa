@@ -172,16 +172,25 @@ class ForemanClientTestCase(TestCase):
 
 
 class ForemanWebhookTestCase(RemoteTestCase):
+    registry = None
+    url = None
+    token = None
+
+    def setUp(self):
+        super(ForemanWebhookTestCase, self).setUp()
+        self.registry = PluginRegistry.getInstance("WebhookRegistry")
+        self.url, self.token = self.registry.registerWebhook("admin", "test-webhook", "application/vnd.acme.hostevent+json")
+
+    def tearDown(self):
+        super(ForemanWebhookTestCase, self).tearDown()
+        self.registry.unregisterWebhook("admin", "test-webhook", "application/vnd.acme.hostevent+json")
 
     def get_app(self):
         return Application([('/hooks(?P<path>.*)?', WebhookReceiver)], cookie_secret='TecloigJink4', xsrf_cookies=True)
 
     def test_request(self):
-        # register the hook
-        registry = PluginRegistry.getInstance("WebhookRegistry")
-        url, token = registry.registerWebhook("admin", "test-webhook", "application/vnd.acme.hostevent+json")
 
-        token = bytes(token, 'ascii')
+        token = bytes(self.token, 'ascii')
         payload = bytes(dumps({
             "action": "create",
             "hostname": "new-foreman-host",
@@ -214,8 +223,7 @@ class ForemanWebhookTestCase(RemoteTestCase):
         signature_hash = hmac.new(token, msg=payload, digestmod="sha512")
         signature = 'sha1=' + signature_hash.hexdigest()
         headers['HTTP_X_HUB_SIGNATURE'] = signature
-        response = AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
-        print(response)
+        AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
         with pytest.raises(ProxyException):
             ObjectProxy("cn=new-foreman-host,ou=devices,dc=example,dc=net")
 

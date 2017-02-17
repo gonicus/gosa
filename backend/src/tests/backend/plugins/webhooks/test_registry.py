@@ -31,6 +31,12 @@ class WebhookEventReceiverTestCase(RemoteTestCase):
     def get_app(self):
         return Application([('/hooks(?P<path>.*)?', WebhookReceiver)], cookie_secret='TecloigJink4', xsrf_cookies=True)
 
+    def tearDown(self):
+        super(WebhookEventReceiverTestCase, self).tearDown()
+        registry = PluginRegistry.getInstance("WebhookRegistry")
+        registry.unregisterWebhook("admin", "test-webhook", "application/vnd.gosa.test+plain")
+        registry.unregister_handler("application/vnd.gosa.test+plain")
+
     def test_registering(self):
         registry = PluginRegistry.getInstance("WebhookRegistry")
         hook = TestWebhook()
