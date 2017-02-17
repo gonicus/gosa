@@ -94,4 +94,6 @@ setup(
 if sys.argv[1] == "test":
     return_code = os.system('cd frontend/gosa && ./node_modules/grunt/bin/grunt')
     os.system('mv ./frontend/gosa/coverage/coveralls.json ../../')
-    sys.exit(return_code)
+    if return_code > 0:
+        # exit with error code
+        sys.exit(return_code >> 8)
