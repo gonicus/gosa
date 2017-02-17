@@ -258,7 +258,6 @@ class ObjectIndex(Plugin):
         We use it to update / create / delete existing index
         entries.
         """
-        ObjectIndex.importing = True
         data = data.BackendChange
         dn = data.DN.text if hasattr(data, 'DN') else None
         new_dn = data.NewDN.text if hasattr(data, 'NewDN') else None
