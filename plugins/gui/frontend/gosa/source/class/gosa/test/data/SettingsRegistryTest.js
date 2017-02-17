@@ -22,7 +22,7 @@ qx.Class.define("gosa.test.data.SettingsRegistryTest", {
   members : {
 
     testSetData : function() {
-      gosa.data.SettingsRegistry.registerHandler(new gosa.data.settings.ConfigHandler("gosa.settings"));
+      gosa.data.SettingsRegistry.registerHandler(new gosa.data.settings.Handler("gosa.settings"));
 
       // mock RPCs
       this.sinon.stub(gosa.io.Rpc.getInstance(), "cA");
