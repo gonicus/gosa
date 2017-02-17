@@ -141,6 +141,10 @@ class SettingsHandler(object):
     def get(self, path):
         return self.config.get(path)
 
+    def has(self, path):
+        parts = path.split(".")
+        return self.config.has_section(parts[0]) and self.config.has_option(parts[0], parts[1])
+
     def get_config(self):
         return {}
 

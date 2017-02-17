@@ -140,6 +140,12 @@ class WebhookSettingsHandler(object):
             self.__hooks[content_type] = {}
         self.__hooks[content_type][sender_name] = value
 
+    def has(self, path):
+        parts = path.split("###")
+        content_type = parts[0]
+        sender_name = parts[1]
+        return content_type in self.__hooks and sender_name in self.__hooks[content_type]
+
     def get(self, path):
         parts = path.split("###")
         content_type = parts[0]
