@@ -587,6 +587,9 @@ class Object(object):
 
         return props
 
+    def __is_equal(self, val1, val2):
+        return (val1 is None or val1 == []) and (val2 is None or val2 == []) or val1 == val2
+
     def commit(self, propsFromOtherExtensions=None):
         """
         Commits changes of an object to the corresponding backends.
@@ -613,10 +616,6 @@ class Object(object):
 
             # Skip foreign properties
             if props[key]['foreign']:
-                continue
-
-            # Do not save untouched values
-            if not props[key]['auto'] and not props[key]['value'] != props[key]['orig_value']:
                 continue
 
             # Get the new value for the property and execute the out-filter
@@ -646,7 +645,7 @@ class Object(object):
                 continue
 
             # Do not save untouched values
-            if not props[prop_key]['value'] != props[prop_key]['orig_value']:
+            if self.__is_equal(props[prop_key]['value'], props[prop_key]['orig_value']):
                 continue
 
             collectedAttrs[prop_key] = props[prop_key]
