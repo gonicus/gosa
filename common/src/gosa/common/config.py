@@ -32,7 +32,7 @@ If no configuration is present, the system will raise a
 """
 import os
 import re
-import platform
+import sys
 import configparser
 import logging
 import logging.config
@@ -156,6 +156,14 @@ class Config(object):
 
         ``Return``: value or default
         """
+        parts = path.split(".")
+        section = parts[0]
+        key = parts[1]
+
+        # override with user config if exists
+        if self.__user_config and self.__user_config.has_section(section) and self.__user_config.has_option(section, key):
+            return self.__user_config.get(section, key)
+
         tmp = self.__registry
         try:
             for pos in path.split("."):
@@ -175,28 +183,30 @@ class Config(object):
         :param path: dot-separated path to the configuration option
         :param value: the value to set
         """
+        if self.__user_config is None:
+            return
+
         parts = path.split(".")
         section = parts[0]
         key = parts[1]
-        # change value in the registry
-        if section not in self.__registry:
-            self.__registry[section] = {}
-            self.__modified = True
 
-        if key in self.__registry[section] and self.__registry[section][key] != value:
-            self.__modified = True
-        self.__registry[section][key] = value
-
-        # change value in the user_registry (used to save this values in a separate config later
+        # change value in the user_registry
         try:
-            self.__user_config.set(section, key, value)
+            if self.get(path) != value:
+                self.__user_config.set(section, key, value)
+            elif self.__user_config.get(section, key) != value:
+                # return to unchanged value -> do not override
+                self.__user_config.remove_option(section, key)
+                if len(self.__user_config.options(section)) == 0:
+                    self.__user_config.remove_section(section)
+
         except configparser.NoSectionError:
             self.__user_config.add_section(section)
             self.__user_config.set(section, key, value)
 
     def save(self):
         """ save the settings in the main config file """
-        if self.__modified is True:
+        if self.__modified is True and self.__user_config is not None:
             main_config_file = os.path.join(self.get('core.config'), "user-config")
             with open(main_config_file, 'w') as f:
                 self.__user_config.write(f)
@@ -230,17 +240,14 @@ class Config(object):
                 self.__registry[section] = {}
             self.__registry[section].update(config.items(section))
 
-        self.__user_config = configparser.RawConfigParser()
-        # read the settings changed via gui client
-        if os.path.exists(os.path.join(configDir, "user-config")):
-            filesRead = self.__user_config.read(os.path.join(configDir, "user-config"))
-            if not filesRead:
-                raise ConfigNoFile("No usable GUI configuration file (%s/user-config) found!" % configDir)
-
-            for section in self.__user_config.sections():
-                if not section in self.__registry:
-                    self.__registry[section] = {}
-                self.__registry[section].update(self.__user_config.items(section))
+        if not hasattr(sys, "_called_from_test") or getattr(sys, "_called_from_test") is False:
+            # do not use this in tests
+            self.__user_config = configparser.RawConfigParser()
+            # read the settings changed via gui client
+            if os.path.exists(os.path.join(configDir, "user-config")):
+                filesRead = self.__user_config.read(os.path.join(configDir, "user-config"))
+                if not filesRead:
+                    raise ConfigNoFile("No usable GUI configuration file (%s/user-config) found!" % configDir)
 
         # Initialize the logging module on the fly
         try:
