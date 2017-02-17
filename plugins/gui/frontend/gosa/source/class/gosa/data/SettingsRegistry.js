@@ -94,7 +94,8 @@ qx.Class.define("gosa.data.SettingsRegistry", {
 
     __getPathInfo: function(path) {
       var parts = path.split(".");
-      var param = path.pop();
+      var param = parts.pop();
+
       while (parts.length > 0 && !this.__handlers[parts.join(".")]) {
         param = parts.pop()+".".param;
       }
