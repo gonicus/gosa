@@ -27,4 +27,7 @@ class ZarafaRPCMethods(Plugin):
         res = index.search({'extension': 'ZarafaServer', 'zarafaAccount': 'True'},
             {'cn': 1, 'zarafaAccount': 1})
 
-        return list(set([x['cn'][0] for x in res]))
+        res = list(set([x['cn'][0] for x in res]))
+        res.sort()
+
+        return res
