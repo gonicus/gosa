@@ -18,11 +18,11 @@
         <Type>UnicodeString</Type>
         <MultiValue>false</MultiValue>
         <Mandatory>true</Mandatory>
-        <!--Validators>
+        <Validators>
           <Condition>
             <Name>IsValidHostName</Name>
           </Condition>
-        </Validators-->
+        </Validators>
       </Attribute>
       <Attribute>
         <Name>description</Name>
