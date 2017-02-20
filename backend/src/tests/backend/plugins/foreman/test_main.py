@@ -50,6 +50,7 @@ class ForemanTestCase(GosaTestCase):
         device = foreman.addHost("admin", "testhost", params={
             "mac": "00:00:00:00:00:01",
             "location_id": "loc1",
+            "ip": "192.168.0.1",
             "owner_id": "1"
         }, base=self._test_dn)
         assert device.dn == "cn=testhost,ou=devices,%s" % self._test_dn
@@ -64,6 +65,7 @@ class ForemanTestCase(GosaTestCase):
 
         device = foreman.addHost("admin", "testhost", params={
             "mac": "00:00:00:00:00:01",
+            "ip": "192.168.0.1",
             "location_id": "loc1",
             "owner_id": "1"
         }, base=self._test_dn)
@@ -83,12 +85,14 @@ class ForemanTestCase(GosaTestCase):
 
         m_get.return_value = MockResponse('{\
             "id": "testhost",\
+            "ip": "192.168.0.2",\
             "location_id": "testloc1"\
         }', 200)
 
         device = foreman.addHost("admin", "testhost", params={
             "mac": "00:00:00:00:00:01",
             "location_id": "loc1",
+            "ip": "192.168.0.1",
             "owner_id": "1"
         }, base=self._test_dn)
 
@@ -96,11 +100,13 @@ class ForemanTestCase(GosaTestCase):
 
         device = ObjectProxy(dn)
         assert device.l == "loc1"
+        assert device.ipHostNumber == "192.168.0.1"
 
         foreman.update_host(device.cn)
 
         device = ObjectProxy(dn)
         assert device.l == "testloc1"
+        assert device.ipHostNumber == "192.168.0.2"
 
 
 class ForemanClientTestCase(TestCase):
@@ -195,7 +201,8 @@ class ForemanWebhookTestCase(RemoteTestCase):
             "action": "create",
             "hostname": "new-foreman-host",
             "parameters": {
-                "mac": "00:00:00:00:00:01"
+                "mac": "00:00:00:00:00:01",
+                "ip": "192.168.0.1"
             }
         }), 'utf-8')
         signature_hash = hmac.new(token, msg=payload, digestmod="sha512")

@@ -10,7 +10,7 @@
 
 import logging
 import uuid
-
+import ipaddress
 import requests
 from sqlalchemy import and_
 
@@ -32,6 +32,7 @@ C.register_codes(dict(
     FOREMAN_UNKNOWN_TYPE=N_("Unknown object type '%(type)s'"),
     NO_MAC=N_("No MAC given to identify host '%(hostname)s'"),
     DEVICE_NOT_FOUND=N_("Cannot find device '%(hostname)s'"),
+    NO_FOREMAN_HOST=N_("This host is not managed by foreman"),
     MULTIPLE_DEVICES_FOUND=N_("(%devices)s found for hostname '%(hostname)s'")
 ))
 
@@ -101,7 +102,11 @@ class Foreman(Plugin):
             raise ForemanException(C.make_error("NO_MAC", hostname=hostname))
         mac = params['mac']
         obj = ObjectProxy(base, "Device")
+        # this is just a workaround to tag foreman hosts
+        # TODO: remove this after a special objectClass/extension has been defined
+        obj.description = "foreman-host"
         obj.extend("ieee802Device")
+        obj.extend("IpHost")
         obj.cn = hostname
         obj.macAddress = mac
         self.__update_host(obj, params)
@@ -111,6 +116,11 @@ class Foreman(Plugin):
     def removeHost(self, user, hostname, params=None):
         # find the host
         device = self.__get_host_object(hostname)
+        # TODO: replace this after a special objectClass/extension has been defined
+        if device.description != "foreman-host":
+            # do not delete hosts which have not been reported by foreman
+            self.log.debug("device '%s' is not foreman host, deletion skipped" % device.dn)
+            raise ForemanException(C.make_error('NO_FOREMAN_HOST'))
 
         if user != self:
             # check ACL
@@ -125,12 +135,24 @@ class Foreman(Plugin):
     def update_host(self, hostname):
         """Requests current values from the Foreman api and updates the device"""
         device = self.__get_host_object(hostname)
+        # TODO: replace this after a special objectClass/extension has been defined
+        if device.description != "foreman-host":
+            # do not delete hosts which have not been reported by foreman
+            self.log.debug("device '%s' is not foreman host, deletion skipped" % device.dn)
+            raise ForemanException(C.make_error('NO_FOREMAN_HOST'))
+
         new_data = self.client.get("hosts", id=hostname)
         self.__update_host(device, new_data)
 
     def __update_host(self, device, data):
         if 'location_id' in data:
             device.l = data['location_id']
+        if 'ip' in data:
+            try:
+                ipaddress.ip_address(data['ip'])
+                device.ipHostNumber = data['ip']
+            except ValueError:
+                pass
         device.commit()
 
     def __get_host_object(self, hostname):
