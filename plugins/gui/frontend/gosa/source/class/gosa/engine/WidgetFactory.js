@@ -53,11 +53,11 @@ qx.Class.define("gosa.engine.WidgetFactory", {
      * Create a new widget for the given workflow.
      *
      * @param workflow {gosa.proxy.Object} The workflows.* workflow for which the widget shall be created
-     * @param templates {Array} array of templates for the workflow
+     * @param templates {qx.data.Array} array of templates for the workflow
      */
     createWorkflowWidget : function(workflow, templates) {
       qx.core.Assert.assertInstance(workflow, gosa.proxy.Object);
-      qx.core.Assert.assertArray(templates);
+      qx.core.Assert.assertInstance(templates, qx.data.Array);
 
       var controller = new gosa.data.controller.Workflow(workflow);
       var widget = new gosa.ui.widgets.WorkflowWizard(workflow, controller, templates);
