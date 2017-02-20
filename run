@@ -140,22 +140,6 @@ if [[ $devel -eq 1 ]]; then
         fi
     fi
 
-    # TODO: remove this once the docker image got updated
-    echo "Copy the gosa-ldap-monitor into the docker container..."
-    if [[ $cid = "" ]]; then
-        cid=$(docker ps -f name=gosa-next --quiet)
-    fi
-    docker cp utils/src/gosa/utils/gosa_ldap_monitor.py $cid:/usr/bin/gosa-ldap-monitor
-    # check config
-    exists=$(docker exec $cid grep "webhook-target" /etc/gosa/config | wc -l)
-    if [[ $exists -eq 0 ]]; then
-        host=$(hostname --ip-address)
-        docker exec $cid sed -i "/\[backend-monitor\]/a webhook-target = http:\/\/$host:8000\/hooks\/\nwebhook-token = 9d6250c0-6413-4b1e-98d9-7b763472962a" /etc/gosa/config
-    fi
-    echo "Restart the gosa-ldap-monitor..."
-    docker exec $cid chmod +x /usr/bin/gosa-ldap-monitor
-    docker exec $cid pkill -f "python3 /usr/bin/gosa-ldap-monitor"
-
     echo "Running GOsa - press Ctrl+C to stop"
     gosa --config $config
 else
