@@ -79,16 +79,19 @@ qx.Class.define("gosa.ui.form.WebhookListItem", {
 
         case "label":
           control = new qx.ui.basic.Label();
+          control.setAnonymous(true);
           this._addAt(control, 0);
           break;
 
         case "content-type":
           control = new qx.ui.basic.Label();
+          control.setAnonymous(true);
           this._addAt(control, 1);
           break;
 
         case "expansion":
           control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+          control.setAnonymous(true);
           control.exclude();
           this._addAt(control, 2);
           break;

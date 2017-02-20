@@ -103,7 +103,7 @@ class WebhookRegistry(Plugin):
 
         return self.get_webhook_url(), self.settings.get(path)
 
-    @Command(needsUser=True, needsSession=True, __help__=N_("Unregisters a webhook"))
+    @Command(needsUser=True, __help__=N_("Unregisters a webhook"))
     def unregisterWebhook(self, user, sender_name, content_type):
         path = self.get_path(content_type, sender_name)
         if self.settings.has(path):

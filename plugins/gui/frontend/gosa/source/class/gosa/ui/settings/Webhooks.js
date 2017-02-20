@@ -26,8 +26,6 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
     this.base(arguments);
     this._setLayout(new qx.ui.layout.VBox());
 
-    this._createChildControl("title");
-
     this.addListenerOnce("appear", this.__initList, this);
   },
 
@@ -60,13 +58,34 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
           control = new qx.ui.form.List();
           this._add(control, {flex: 1});
           break;
+
+        case "control-bar":
+          control = new qx.ui.container.Composite(new qx.ui.layout.HBox());
+          this._add(control);
+          break;
+
+        case "add-button":
+          control = new qx.ui.form.Button(this.tr("Add"), "@Ligature/edit/22");
+          // control.addListener("execute", this.__widget.openSelector, this.__widget);
+          this.getChildControl("control-bar").add(control);
+          break;
+
+        case "remove-button":
+          control = new qx.ui.form.Button(this.tr("Remove"), "@Ligature/trash/22");
+          control.setEnabled(false);
+          control.addListener("execute", this._removeSelectedWebhook, this);
+          this.getChildControl("control-bar").add(control);
+          break;
       }
 
       return control || this.base(arguments, id);
     },
 
     __initList: function() {
+      this._createChildControl("title");
       var list = this.getChildControl("list");
+      this._createChildControl("add-button");
+      this._createChildControl("remove-button");
       var controller = this._listController = new qx.data.controller.List(null, list);
 
       controller.setDelegate({
@@ -84,21 +103,49 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
       });
 
       list.addListener("changeSelection", function() {
-        var selected = list.getSelection()[0].getModel();
+        var selection = list.getSelection();
+        this.getChildControl("remove-button").setEnabled(selection.length > 0);
+        var selected = selection.length > 0 ? selection[0].getModel() : null;
         controller.getModel().forEach(function(child) {
           child.setExpanded(child === selected);
         }, this);
       }, this);
 
+      this.__updateList();
+    },
+
+    __updateList: function() {
       var handler = gosa.data.SettingsRegistry.getHandlerForPath(gosa.ui.settings.Webhooks.NAMESPACE);
       var itemInfos = handler.getItemInfos();
       var values = new qx.data.Array();
       Object.getOwnPropertyNames(itemInfos).forEach(function(path) {
-
         var webhook = new gosa.core.Webhook(path, itemInfos[path]['value']);
         values.push(webhook);
       }, this);
-      controller.setModel(values);
+      this._listController.setModel(values);
+    },
+
+    /**
+     * Query current webhooks from backend
+     */
+    _refreshList: function() {
+      gosa.data.SettingsRegistry.refresh(gosa.ui.settings.Webhooks.NAMESPACE).then(this.__updateList, this);
+    },
+
+    _removeSelectedWebhook: function() {
+      var list = this.getChildControl("list");
+      var selected = list.getSelection()[0].getModel();
+      var dialog = new gosa.ui.dialogs.Confirmation(
+        this.tr("Remove webhook"),
+        this.tr("Are you sure that you want to delete this webhook? Please make sure that there are no services left using this webhook."),
+        "warning"
+      );
+      dialog.addListenerOnce("confirmed", function() {
+        gosa.io.Rpc.getInstance().cA("unregisterWebhook", selected.getName(), selected.getContentType())
+        .then(this._refreshList, this)
+        .catch(gosa.ui.dialogs.Error.show);
+      }, this);
+      dialog.open();
     }
   },
 

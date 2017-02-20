@@ -107,11 +107,10 @@ class SettingsRegistry(Plugin):
         res = {}
         for handler_path, handler in self.__handlers.items():
             handler_items = self.__filter_items(user, handler_path, handler.get_item_infos())
-            if len(handler_items) > 0:
-                res[handler_path] = {
-                    "config": handler.get_config(),
-                    "items": handler_items
-                }
+            res[handler_path] = {
+                "config": handler.get_config(),
+                "items": handler_items
+            }
 
         return res
 

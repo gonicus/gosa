@@ -64,6 +64,12 @@ qx.Class.define("gosa.data.SettingsRegistry", {
       });
     },
 
+    refresh: function(handlerPath) {
+      return gosa.io.Rpc.getInstance().cA("getItemInfos", handlerPath)
+      .then(this.__handlers[handlerPath].setItemInfos, this.__handlers[handlerPath])
+      .catch(gosa.ui.dialogs.Error.show);
+    },
+
     getHandlers: function() {
       var handlers = new qx.data.Array();
       Object.getOwnPropertyNames(this.__handlers).forEach(function(path) {
