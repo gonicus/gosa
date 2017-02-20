@@ -32,7 +32,7 @@ from gosa.common.utils import N_
 
 # Register the errors handled  by us
 C.register_codes(dict(
-    NO_REGISTERED_WEBHOOK_HANDLER=N_("No webhook handler for content type '%(topic)s' found")
+    NO_REGISTERED_WEBHOOK_HANDLER=N_("No webhook handler for mime type '%(topic)s' found")
 ))
 
 
@@ -63,12 +63,12 @@ class WebhookRegistry(Plugin):
             path = 'application/vnd.gosa.event+xml###backend-monitor'
             self.settings.set(path, monitor_key, temporary=True)
 
-    def register_handler(self, content_type, handler):
-        self.__handlers[content_type] = handler
+    def register_handler(self, mime_type, handler):
+        self.__handlers[mime_type] = handler
 
-    def unregister_handler(self, content_type):
-        if content_type in self.__handlers:
-            del self.__handlers[content_type]
+    def unregister_handler(self, mime_type):
+        if mime_type in self.__handlers:
+            del self.__handlers[mime_type]
 
     def stop(self):
         for clazz in self.__handlers.values():
@@ -78,55 +78,59 @@ class WebhookRegistry(Plugin):
         return "%s/hooks/" % PluginRegistry.getInstance("HTTPService").get_gui_uri()[0]
 
     @staticmethod
-    def get_path(content_type, sender_name):
-        return '%s%s%s' % (content_type, WebhookRegistry.path_separator, sender_name)
+    def get_path(mime_type, sender_name):
+        return '%s%s%s' % (mime_type, WebhookRegistry.path_separator, sender_name)
 
     @staticmethod
     def split_path(path):
         parts = path.split(WebhookRegistry.path_separator)
         return parts[0], parts[1]
 
-    @Command(needsUser=True, __help__=N_("Registers a webhook for a content type"))
-    def registerWebhook(self, user, sender_name, content_type):
-        topic = "%s.webhook.%s" % (self.env.domain, content_type)
+    @Command(needsUser=True, __help__=N_("Registers a webhook for a mime-type"))
+    def registerWebhook(self, user, sender_name, mime_type):
+        topic = "%s.webhook.%s" % (self.env.domain, mime_type)
         aclresolver = PluginRegistry.getInstance("ACLResolver")
         if not aclresolver.check(user, topic, "e"):
-            self.log.debug("user '%s' has insufficient permissions to register webhook for content type %s" % (user, content_type))
+            self.log.debug("user '%s' has insufficient permissions to register webhook for mime-type %s" % (user, mime_type))
             raise ACLException(C.make_error('PERMISSION_ACCESS', topic))
 
-        if content_type not in self.__handlers:
-            raise WebhookException(C.make_error('NO_REGISTERED_WEBHOOK_HANDLER', content_type))
+        if mime_type not in self.__handlers:
+            raise WebhookException(C.make_error('NO_REGISTERED_WEBHOOK_HANDLER', mime_type))
 
-        path = self.get_path(content_type, sender_name)
+        path = self.get_path(mime_type, sender_name)
         if not self.settings.has(path):
             self.settings.set(path, str(uuid.uuid4()))
 
         return self.get_webhook_url(), self.settings.get(path)
 
     @Command(needsUser=True, __help__=N_("Unregisters a webhook"))
-    def unregisterWebhook(self, user, sender_name, content_type):
-        path = self.get_path(content_type, sender_name)
+    def unregisterWebhook(self, user, sender_name, mime_type):
+        path = self.get_path(mime_type, sender_name)
         if self.settings.has(path):
             self.settings.set(path, None)
 
-    def get_token(self, content_type, sender_name):
-        if content_type is None or sender_name is None:
+    @Command(needsUser=True, __help__=N_("Shows all mime-types a webhook can be registered for"))
+    def getAvailableMimeTypes(self, user):
+        return list(self.__handlers.keys())
+
+    def get_token(self, mime_type, sender_name):
+        if mime_type is None or sender_name is None:
             return None
 
-        path = self.get_path(content_type, sender_name)
+        path = self.get_path(mime_type, sender_name)
         if self.settings.has(path):
             return self.settings.get(path)
         else:
             return None
 
-    def get_handler(self, content_type):
+    def get_handler(self, mime_type):
         """
-        Get the registered handler for the given content type
-        :param content_type:
+        Get the registered handler for the given mime type
+        :param mime_type:
         :return: found handler or none
         """
-        if content_type in self.__handlers:
-            return self.__handlers[content_type]
+        if mime_type in self.__handlers:
+            return self.__handlers[mime_type]
         return None
 
 
@@ -147,39 +151,39 @@ class WebhookSettingsHandler(object):
     def stop(self):
         settings_file = self.env.config.get("webhooks.registry-store", "/var/lib/gosa/webhooks")
         to_save = self.__hooks.copy()
-        for content_type, sender_name in self.__temporary:
-            if content_type in to_save and sender_name in to_save[content_type]:
-                del to_save[content_type][sender_name]
-                if len(to_save[content_type].keys()) == 0:
-                    del to_save[content_type]
+        for mime_type, sender_name in self.__temporary:
+            if mime_type in to_save and sender_name in to_save[mime_type]:
+                del to_save[mime_type][sender_name]
+                if len(to_save[mime_type].keys()) == 0:
+                    del to_save[mime_type]
 
         with open(settings_file, 'w') as f:
             f.write(dumps(to_save))
 
     def set(self, path, value, temporary=False):
-        content_type, sender_name = WebhookRegistry.split_path(path)
+        mime_type, sender_name = WebhookRegistry.split_path(path)
         if value is None:
             # delete webhook
-            if content_type in self.__hooks and sender_name in self.__hooks[content_type]:
-                del self.__hooks[content_type][sender_name]
-                if len(self.__hooks[content_type].keys()) == 0:
-                    del self.__hooks[content_type]
+            if mime_type in self.__hooks and sender_name in self.__hooks[mime_type]:
+                del self.__hooks[mime_type][sender_name]
+                if len(self.__hooks[mime_type].keys()) == 0:
+                    del self.__hooks[mime_type]
         else:
-            if content_type not in self.__hooks:
-                self.__hooks[content_type] = {}
+            if mime_type not in self.__hooks:
+                self.__hooks[mime_type] = {}
 
-            self.__hooks[content_type][sender_name] = value
+            self.__hooks[mime_type][sender_name] = value
             if temporary:
-                self.__temporary.append((content_type, sender_name))
+                self.__temporary.append((mime_type, sender_name))
 
     def has(self, path):
-        content_type, sender_name = WebhookRegistry.split_path(path)
-        return content_type in self.__hooks and sender_name in self.__hooks[content_type]
+        mime_type, sender_name = WebhookRegistry.split_path(path)
+        return mime_type in self.__hooks and sender_name in self.__hooks[mime_type]
 
     def get(self, path):
-        content_type, sender_name = WebhookRegistry.split_path(path)
-        if content_type in self.__hooks and sender_name in self.__hooks[content_type]:
-            return self.__hooks[content_type][sender_name]
+        mime_type, sender_name = WebhookRegistry.split_path(path)
+        if mime_type in self.__hooks and sender_name in self.__hooks[mime_type]:
+            return self.__hooks[mime_type][sender_name]
         else:
             return None
 
@@ -192,11 +196,11 @@ class WebhookSettingsHandler(object):
         :return dict:
         """
         infos = {}
-        for content_type in self.__hooks:
-            for sender_name in self.__hooks[content_type]:
-                infos[WebhookRegistry.get_path(content_type, sender_name)] = {
+        for mime_type in self.__hooks:
+            for sender_name in self.__hooks[mime_type]:
+                infos[WebhookRegistry.get_path(mime_type, sender_name)] = {
                     "type": "string",
-                    "value": self.__hooks[content_type][sender_name]
+                    "value": self.__hooks[mime_type][sender_name]
                 }
         return infos
 
@@ -204,7 +208,7 @@ class WebhookSettingsHandler(object):
 class WebhookReceiver(HSTSRequestHandler):
     """
     This is the global webhook receiver. It checks the validity of the incoming data and forwards
-    it to the registered handler for the received content type.
+    it to the registered handler for the received mime type.
     """
     signature = None
     sender = None
@@ -219,11 +223,11 @@ class WebhookReceiver(HSTSRequestHandler):
         pass
 
     def post(self, path):
-        content_type = self.request.headers.get('Content-Type')
+        mime_type = self.request.headers.get('Content-Type')
 
         registry = PluginRegistry.getInstance("WebhookRegistry")
         # verify content
-        token = registry.get_token(content_type, self.sender)
+        token = registry.get_token(mime_type, self.sender)
         # no token, not allowed
         if token is None:
             raise HTTPError(401)
@@ -236,7 +240,7 @@ class WebhookReceiver(HSTSRequestHandler):
             raise HTTPError(401)
 
         # forward to the registered handler
-        handler = registry.get_handler(content_type)
+        handler = registry.get_handler(mime_type)
         if handler is None:
             # usually this code is unreachable because if there is no registered handler, there is no token
             raise HTTPError(401)

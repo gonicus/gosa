@@ -66,7 +66,7 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
 
         case "add-button":
           control = new qx.ui.form.Button(this.tr("Add"), "@Ligature/edit/22");
-          // control.addListener("execute", this.__widget.openSelector, this.__widget);
+          control.addListener("execute", this._registerNewWebhook, this);
           this.getChildControl("control-bar").add(control);
           break;
 
@@ -96,7 +96,7 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
         bindItem: function(controller, item, index) {
           controller.bindProperty("", "model", null, item, index);
           controller.bindProperty("name", "label", null, item, index);
-          controller.bindProperty("contentType", "contentType", null, item, index);
+          controller.bindProperty("mimeType", "mimeType", null, item, index);
           controller.bindProperty("secret", "secret", null, item, index);
           controller.bindProperty("expanded", "expanded", null, item, index);
         }
@@ -130,6 +130,14 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
      */
     _refreshList: function() {
       gosa.data.SettingsRegistry.refresh(gosa.ui.settings.Webhooks.NAMESPACE).then(this.__updateList, this);
+    },
+
+    _registerNewWebhook: function() {
+      var dialog = new gosa.ui.dialogs.RegisterWebhook();
+      dialog.addListenerOnce("registered", function() {
+        this._refreshList();
+      }, this);
+      dialog.open();
     },
 
     _removeSelectedWebhook: function() {

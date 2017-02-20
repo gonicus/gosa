@@ -45,10 +45,10 @@ qx.Class.define("gosa.ui.form.WebhookListItem", {
       apply: "_applyLabel"
     },
 
-    contentType: {
+    mimeType: {
       check: "String",
       nullable: true,
-      apply: "_applyContentType"
+      apply: "_applyMimeType"
     },
 
     secret: {
@@ -83,7 +83,7 @@ qx.Class.define("gosa.ui.form.WebhookListItem", {
           this._addAt(control, 0);
           break;
 
-        case "content-type":
+        case "mime-type":
           control = new qx.ui.basic.Label();
           control.setAnonymous(true);
           this._addAt(control, 1);
@@ -115,8 +115,8 @@ qx.Class.define("gosa.ui.form.WebhookListItem", {
     },
 
     // property apply
-    _applyContentType: function(value) {
-      this.__handleValue(this.getChildControl("content-type"), value);
+    _applyMimeType: function(value) {
+      this.__handleValue(this.getChildControl("mime-type"), value);
     },
 
     // property apply

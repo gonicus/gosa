@@ -24,7 +24,7 @@ qx.Class.define("gosa.core.Webhook", {
   construct : function(path, value) {
     this.base(arguments);
     var parts = path.split("###");
-    this.setContentType(parts[0]);
+    this.setMimeType(parts[0]);
     this.setName(parts[1]);
     this.setSecret(value);
   },
@@ -40,10 +40,10 @@ qx.Class.define("gosa.core.Webhook", {
       init: "",
       event: "changeName"
     },
-    contentType: {
+    mimeType: {
       check: "String",
       init: "",
-      event: "changeContentType"
+      event: "changeMimeType"
     },
     secret: {
       check: "String",
