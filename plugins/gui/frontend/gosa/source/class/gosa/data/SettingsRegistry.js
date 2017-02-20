@@ -161,7 +161,6 @@ qx.Class.define("gosa.data.SettingsRegistry", {
     registerEditor: function(namespace, editor) {
       qx.core.Assert.assertString(namespace);
       qx.core.Assert.assertInstance(editor, qx.ui.core.Widget);
-      console.log("registering editor "+namespace);
       this.__editors[namespace] = editor;
     },
 
