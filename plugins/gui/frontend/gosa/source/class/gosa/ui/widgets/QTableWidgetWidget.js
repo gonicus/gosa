@@ -10,7 +10,8 @@
  * See the LICENSE file in the project's top-level directory for details.
  */
 
-/* This class is a qooxdoo-widget representation of the cure-QtableWidget.
+/**
+ * This class is a qooxdoo-widget representation of the cure-QtableWidget.
  *
  * Notice that this plugin can occur in two different forms.
  *
@@ -21,7 +22,7 @@
  *    This is used for the User's manager attribute or the SambaUser's
  *    primaryGroupSID
  *
- * */
+ */
 qx.Class.define("gosa.ui.widgets.QTableWidgetWidget", {
 
   extend: gosa.ui.widgets.Widget,
