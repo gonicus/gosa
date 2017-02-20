@@ -86,7 +86,7 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
       var list = this.getChildControl("list");
       this._createChildControl("add-button");
       this._createChildControl("remove-button");
-      var controller = this._listController = new qx.data.controller.List(null, list);
+      var controller = this._listController = new gosa.data.controller.EnhancedList(null, list);
 
       controller.setDelegate({
         createItem: function() {
@@ -96,9 +96,13 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
         bindItem: function(controller, item, index) {
           controller.bindProperty("", "model", null, item, index);
           controller.bindProperty("name", "label", null, item, index);
-          controller.bindProperty("mimeType", "mimeType", null, item, index);
+          // controller.bindProperty("mimeType", "mimeType", null, item, index);
           controller.bindProperty("secret", "secret", null, item, index);
           controller.bindProperty("expanded", "expanded", null, item, index);
+        },
+
+        group: function(item) {
+          return item.getMimeType()
         }
       });
 
@@ -149,7 +153,7 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
         "warning"
       );
       dialog.addListenerOnce("confirmed", function() {
-        gosa.io.Rpc.getInstance().cA("unregisterWebhook", selected.getName(), selected.getContentType())
+        gosa.io.Rpc.getInstance().cA("unregisterWebhook", selected.getName(), selected.getMimeType())
         .then(this._refreshList, this)
         .catch(gosa.ui.dialogs.Error.show);
       }, this);

@@ -644,7 +644,20 @@ qx.Theme.define("gosa.theme.Appearance", {
     "gosa-listitem-webhook/label": {
       style: function() {
         return {
-          font: "Subtitle"
+          font: "bold"
+        }
+      }
+    },
+    "gosa-listitem-webhook-group": {
+      include : "atom",
+      alias : "atom",
+
+      style : function() {
+        return {
+          font : "Subtitle",
+          textColor : "darkgray-dark",
+          padding : 4,
+          marginBottom : 6
         }
       }
     },

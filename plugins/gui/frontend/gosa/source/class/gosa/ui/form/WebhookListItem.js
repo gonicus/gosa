@@ -61,6 +61,14 @@ qx.Class.define("gosa.ui.form.WebhookListItem", {
       check: "Boolean",
       init: false,
       apply: "_applyExpanded"
+    },
+    /**
+     * How this list item should behave like group or normal ListItem
+     */
+    listItemType: {
+      check: ['group', 'item'],
+      init: 'item',
+      apply: '_applyListItemType'
     }
   },
 
@@ -127,6 +135,17 @@ qx.Class.define("gosa.ui.form.WebhookListItem", {
     // property apply
     _applySecret: function(value) {
       this.__handleValue(this.getChildControl("secret"), value);
+    },
+
+    // property apply
+    _applyListItemType: function(value) {
+      if (value === "group") {
+        this.setAppearance("gosa-listitem-webhook-group");
+        this.setEnabled(false);
+      } else {
+        this.setAppearance("gosa-listitem-webhook");
+        this.setEnabled(true);
+      }
     },
 
     __handleValue: function(control, value) {
