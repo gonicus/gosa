@@ -49,7 +49,8 @@ qx.Class.define("gosa.data.settings.Handler", {
   properties : {
     namespace: {
       check: "String",
-      init: ""
+      init: "",
+      event: "changeNamespace"
     },
     ready: {
       check: "Boolean",

@@ -47,6 +47,7 @@ qx.Class.define("gosa.data.SettingsRegistry", {
     __instance: null,
     __handlers: {},
     __listeners: {},
+    __editors: {},
 
     load: function() {
       gosa.io.Rpc.getInstance().cA("getSettingHandlers").bind(this)
@@ -61,6 +62,14 @@ qx.Class.define("gosa.data.SettingsRegistry", {
           }
         }, this);
       });
+    },
+
+    getHandlers: function() {
+      var handlers = new qx.data.Array();
+      Object.getOwnPropertyNames(this.__handlers).forEach(function(path) {
+        handlers.push(this.__handlers[path]);
+      }, this);
+      return handlers;
     },
 
     /**
@@ -136,6 +145,35 @@ qx.Class.define("gosa.data.SettingsRegistry", {
       if (handler.getNamespace() in this.__handlers) {
         delete this.__handlers[handler.getNamespace()];
       }
+    },
+
+    /**
+     * Register a editor page for a namespace
+     * @param namespace {String} namespace e.g. gosa.settings
+     * @param editor {qx.ui.core.Widget}
+     */
+    registerEditor: function(namespace, editor) {
+      qx.core.Assert.assertString(namespace);
+      qx.core.Assert.assertInstance(editor, qx.ui.core.Widget);
+      console.log("registering editor "+namespace);
+      this.__editors[namespace] = editor;
+    },
+
+    /**
+     * Unregister editor for this path
+     * @param namespace {String} namespace e.g. gosa.settings
+     */
+    unregisterEditor: function(namespace) {
+      delete this.__editors[namespace];
+    },
+
+    /**
+     * Returns the registers editor for this namespace
+     * @param namespace {String} namespace e.g. gosa.settings
+     * @return {qx.ui.core.Widget|null}
+     */
+    getEditor: function(namespace) {
+      return this.__editors[namespace];
     },
 
     /**

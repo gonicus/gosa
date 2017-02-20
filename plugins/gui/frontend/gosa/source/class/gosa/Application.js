@@ -129,12 +129,13 @@ qx.Class.define("gosa.Application",
         var dashboard = gosa.view.Dashboard.getInstance();
         var tree = gosa.view.Tree.getInstance();
         var work = gosa.view.Workflows.getInstance();
-        // var settings = gosa.view.Settings.getInstance();
+        var settings = gosa.view.Settings.getInstance();
+
         pluginView.add(search);
         pluginView.add(dashboard);
         pluginView.add(tree);
         pluginView.add(work);
-        // pluginView.add(settings);
+        pluginView.add(settings);
 
         doc.add(desktop, {left: 3, right: 3, top: 48, bottom: 4});
 
@@ -378,7 +379,8 @@ qx.Class.define("gosa.Application",
     __handleUiDefinedAction: function(action, parsed, url, userData){
       var oid = parsed[1];
       gosa.proxy.ObjectFactory.openObject(oid).then(function(obj) {
-        gosa.ui.Renderer.executeAction(userData.dialog, userData.target, obj, null);
+        gosa.engine.ExtensionManager.getInstance().handleExtension("actions", [userData], obj, null);
+        // gosa.ui.Renderer.executeAction(userData.dialog, userData.target, obj, null);
       })
       .catch(function(error) {
         new gosa.ui.dialogs.Error(error).open();

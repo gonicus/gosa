@@ -581,6 +581,35 @@ qx.Theme.define("gosa.theme.Appearance", {
         }
       }
     },
+    "settings-tabview-page": {
+      include: "gosa-tabview-page",
+      alias: "gosa-tabview-page",
+
+      style: function() {
+        return {
+          padding: 0
+        }
+      }
+    },
+    "settings-tabview-page/list": {
+      style: function() {
+        return {
+          width: 200,
+          groupItemHeight: 25,
+          margin: 0,
+          padding: 0,
+          height: null
+        }
+      }
+    },
+
+    "settings-tabview-page/content": {
+      style: function() {
+        return {
+          padding: 10
+        }
+      }
+    },
 
     "gosa-listitem-window": {
       include: "listitem",
@@ -607,6 +636,15 @@ qx.Theme.define("gosa.theme.Appearance", {
           width: 32,
           height: 32,
           scale: true
+        }
+      }
+    },
+
+    "gosa-listitem-webhook": "listitem",
+    "gosa-listitem-webhook/label": {
+      style: function() {
+        return {
+          font: "Subtitle"
         }
       }
     },
