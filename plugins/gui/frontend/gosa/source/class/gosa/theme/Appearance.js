@@ -643,10 +643,11 @@ qx.Theme.define("gosa.theme.Appearance", {
     "gosa-listitem-webhook": {
       include: "listitem",
       alias: "listitem",
-      style: function() {
+      style: function(states) {
         return {
           textColor: "darkgray-dark",
-          decorator: "listitem"
+          decorator: "listitem",
+          backgroundColor: states.selected ? "lightgray-light" : "transparent"
         }
       }
     },
