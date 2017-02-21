@@ -13,6 +13,7 @@ cache:
     - .env
     - /tmp/qx5.1
 before_install:
+    - sudo apt-get update
     - sudo cp test_conf/org.gosa.conf /etc/dbus-1/system.d/
     - sudo service dbus reload
     - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
