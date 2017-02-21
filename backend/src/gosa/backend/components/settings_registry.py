@@ -165,6 +165,10 @@ class SettingsHandler(object):
             "logger_gosa.level": {
                 "options": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
                 "title": N_("Log level")
+            },
+            "formatter_console.format": {
+                "type": "string",
+                "title": N_("Log format")
             }
         }
 

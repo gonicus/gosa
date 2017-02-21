@@ -208,6 +208,15 @@ class Config(object):
             # apply changed log level
             logging.getLogger("gosa").setLevel(getattr(logging, value))
 
+        elif path == "formatter_console.format":
+            try:
+                fmt = logging.Formatter(value)
+                hldr = logging.getLogger("gosa").handlers[0]
+                hldr.setFormatter(fmt)
+            except Exception as e:
+                logging.error(e)
+
+
     def save(self):
         """ save the settings in the main config file """
         if self.__user_config is not None:
