@@ -188,7 +188,7 @@ class WebhookSettingsHandler(object):
             return None
 
     def get_config(self):
-        return {"read_only": True}
+        return {"read_only": True, "name": N_("Webhooks")}
 
     def get_item_infos(self):
         """

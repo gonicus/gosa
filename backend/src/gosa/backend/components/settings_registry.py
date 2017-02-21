@@ -146,7 +146,7 @@ class SettingsHandler(object):
         return self.config.has_section(parts[0]) and self.config.has_option(parts[0], parts[1])
 
     def get_config(self):
-        return {}
+        return {"name": N_("Settings")}
 
     def get_item_infos(self):
         """

@@ -47,6 +47,12 @@ qx.Class.define("gosa.data.settings.Handler", {
    *****************************************************************************
    */
   properties : {
+    name: {
+      check: "String",
+      nullable: true,
+      event: "changeName"
+    },
+
     namespace: {
       check: "String",
       init: "",
@@ -97,6 +103,9 @@ qx.Class.define("gosa.data.settings.Handler", {
         switch (entry) {
           case "read_only":
             this.setReadOnly(value[entry]);
+            break;
+          case "name":
+            this.setName(value[entry]);
             break;
         }
       }, this);

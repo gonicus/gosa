@@ -70,22 +70,11 @@ qx.Class.define("gosa.view.Settings",
 
 
     __initEditorList: function(list) {
-      list.setLabelPath("namespace");
+      list.setLabelPath("name");
       list.setDelegate({
 
         configureItem: function(item) {
           item.setHeight(50);
-        },
-
-        bindItem: function(controller, item, index) {
-          controller.bindProperty("", "model", null, item, index);
-          controller.bindProperty("namespace", "label", {
-            converter: function(value) {
-              var parts = value.split(".");
-              parts.shift();
-              return qx.lang.String.firstUp(parts.join("."));
-            }
-          }, item, index);
         },
 
         sorter: function(a, b) {
