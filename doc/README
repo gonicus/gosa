@@ -1,0 +1,73 @@
+Building the documentation
+==========================
+
+For the following steps, please make sure that you've either entered the
+virtual environment where the GOsa classes are available or that you've
+installed the GOsa python packages globally.
+
+Make sure that you have python-sphinx and python-pygments installed. If
+you want to generate PDF documentation, you also need tetex and tetex-extra
+in order to get a proper build out.
+
+There are additional modules to be installed that are not part of
+distributions - usually. Please install them via 'pip' into your virtual
+environment:
+
+$ easy_install sphinxcontrib-spelling sphinxcontrib-email \
+      sphinxcontrib-programoutput sphinxcontrib-requirements \
+      pyenchant sphinx_rtd_theme
+
+For the command index, you need the custom **cindex** module from the
+contrib directory:
+
+$ cd contrib/sphinx-cindex-plugin && ./setup.py install
+
+-----------------------------------------------------------------------------
+
+For HTML based doumentaion, run:
+
+$ make html
+$ cd _build/html
+$ python -m SimpleHTTPServer 8080
+
+inside of the virutal python environment. The documentation is then ready
+to serve for you on port 8080 of your current machine.
+
+
+For LaTeX based (PDF) documentation, run:
+
+$ make latex
+$ cd _build/latex
+$ make all-pdf
+
+The resulting PDF file will be placed in the current directory.
+
+-----------------------------------------------------------------------------
+
+Marking TODO's:
+
+If you need to add documentation or remember about something during the
+process of writing, please mark the 'problem' like
+
+  .. requirement::
+     :status: todo
+ 
+        Short text describing the task
+
+so we can quickly locate these issues.
+
+-----------------------------------------------------------------------------
+
+Spell checking:
+
+In order to let sphinx check your wording after adding new documentation,
+please run
+
+$ sphinx-build -b spelling . _spell; less _spell/output.txt
+
+and inspect the output in order to find usual spelling errors.
+
+-----------------------------------------------------------------------------
+
+If you find errors or want to complete the documentation, feel free to
+contact the GOsa team.

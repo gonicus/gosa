@@ -24,14 +24,14 @@ def Command(**d_kwargs):
       >>> def hello():
       ...
 
-    ==========      ============
+    =============== ============
     Parameter       Description
-    ==========      ============
+    =============== ============
     needsUser       indicates if the decorated function needs a user parameter
     needsSession    indicates if the decorated function needs a session parameter
     noLoginRequired indicates if the decorated command can be called via RPC without being logged in
     type            describes the function type
-    ==========      ============
+    =============== ============
 
     Function types can be:
 
