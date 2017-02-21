@@ -24,18 +24,23 @@ qx.Class.define("gosa.test.data.SettingsRegistryTest", {
     testSetData : function() {
       gosa.data.SettingsRegistry.registerHandler(new gosa.data.settings.Handler("gosa.settings"));
 
+      // check default editor
+      var editor = gosa.data.SettingsRegistry.getEditor("gosa.settings");
+      this.assertInstance(editor, gosa.ui.settings.Editor);
+      this.assertEquals(editor.getNamespace(), "gosa.settings");
+
       // mock RPCs
       this.stub(gosa.io.Rpc.getInstance(), "cA");
 
-      gosa.data.SettingsRegistry.set("gosa.settings.index", false);
-      this.assertFalse(gosa.data.SettingsRegistry.get("gosa.settings.index"));
+      gosa.data.SettingsRegistry.set("gosa.settings.backend.index", false);
+      this.assertFalse(gosa.data.SettingsRegistry.get("gosa.settings.backend.index"));
 
       // add listener
-      gosa.data.SettingsRegistry.addListener("gosa.settings.index", "change", function(value, old) {
+      gosa.data.SettingsRegistry.addListener("gosa.settings.backend.index", "change", function(value, old) {
         this.assertTrue(value);
         this.assertFalse(old);
       }, this);
-      gosa.data.SettingsRegistry.set("gosa.settings.index", true);
+      gosa.data.SettingsRegistry.set("gosa.settings.backend.index", true);
     }
   }
 });
