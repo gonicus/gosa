@@ -57,6 +57,7 @@ qx.Class.define("gosa.ui.settings.Editor", {
   */
   members : {
     __handler: null,
+    __skipUpdates: null,
 
     // overridden
     _createChildControlImpl: function(id) {
@@ -93,6 +94,7 @@ qx.Class.define("gosa.ui.settings.Editor", {
     },
 
     _applyFilter: function() {
+      this.__skipUpdates = true;
       var filtered = this._tableData;
       var searchValue = this.getChildControl("filter").getValue();
       if (searchValue && searchValue.length > 2) {
@@ -109,6 +111,7 @@ qx.Class.define("gosa.ui.settings.Editor", {
       } else {
         this.getChildControl("table").getTableModel().setData(this._tableData);
       }
+      this.__skipUpdates = false;
     },
 
     // property apply
@@ -182,7 +185,7 @@ qx.Class.define("gosa.ui.settings.Editor", {
       // create event listener for data change event. this would normally
       // send the data back to the server etc.
       propertyEditor.getTableModel().addListener("dataChanged", function(event) {
-        if ( !(event instanceof qx.event.type.Data)) {
+        if ( !(event instanceof qx.event.type.Data) || this.__skipUpdates) {
           return;
         }
         var changedData = event.getData();
