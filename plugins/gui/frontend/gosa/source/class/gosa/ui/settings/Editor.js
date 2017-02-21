@@ -168,8 +168,6 @@ qx.Class.define("gosa.ui.settings.Editor", {
       // Get the table column model
       var tcm = propertyEditor.getTableColumnModel();
 
-      propertyEditor_tableModel.sortByColumn(0, true);
-
       // second column has the label
 
       // third column for editing the value and has special cell renderers
@@ -180,6 +178,7 @@ qx.Class.define("gosa.ui.settings.Editor", {
 
       // set data
       propertyEditor.getTableModel().setData(tableData);
+      propertyEditor_tableModel.sortByColumn(0, true);
 
       var model = propertyEditor.getTableModel();
       // create event listener for data change event. this would normally
