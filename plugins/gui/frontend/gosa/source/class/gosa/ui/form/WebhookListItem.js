@@ -101,7 +101,7 @@ qx.Class.define("gosa.ui.form.WebhookListItem", {
           var headers = '<ul><li><strong>Content-Type:</strong> <i>'+
                         this.getMimeType()+'</i></li><li><strong>HTTP_X_HUB_SENDER:</strong> <i>'+
                         this.getLabel()+'</i></li><li><strong>HTTP_X_HUB_SIGNATURE:</strong> '+
-                        this.tr("SHA2 hash of the content body encrypted with secret:")+' <i>'+this.getSecret()+'</i></li></ul>';
+                        this.tr("SHA-512 hash of the content body encrypted with secret:")+' <i>'+this.getSecret()+'</i></li></ul>';
           var msg = this.tr("Use the following headers when you POST data to %1", "<strong>"+gosa.ui.settings.Webhooks.URL+"</strong>");
           msg += headers;
           control = new qx.ui.basic.Label(msg).set({rich: true, wrap: true});
