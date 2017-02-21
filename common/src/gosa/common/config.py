@@ -254,6 +254,11 @@ class Config(object):
 
         # Initialize the logging module on the fly
         try:
+            if self.__user_config is not None:
+                for section in self.__user_config.sections():
+                    for option, value in self.__user_config.items(section):
+                        config.set(section, option, value)
+
             tmp = StringIO()
             config.write(tmp)
             tmp2 = StringIO(tmp.getvalue())
