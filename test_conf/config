@@ -94,6 +94,6 @@ datefmt=
 class=logging.Formatter
 
 [formatter_console]
-format=%(asctime)s %(levelname)s: %(module)s - %(message)s
+format=%(asctime)s %(levelname)s: %(name)s - %(message)s
 datefmt=
 class=logging.Formatter
