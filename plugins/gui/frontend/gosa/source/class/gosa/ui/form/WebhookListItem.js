@@ -47,8 +47,7 @@ qx.Class.define("gosa.ui.form.WebhookListItem", {
 
     mimeType: {
       check: "String",
-      nullable: true,
-      apply: "_applyMimeType"
+      nullable: true
     },
 
     secret: {
@@ -91,23 +90,22 @@ qx.Class.define("gosa.ui.form.WebhookListItem", {
           this._addAt(control, 0);
           break;
 
-        case "mime-type":
-          control = new qx.ui.basic.Label();
-          control.setAnonymous(true);
-          this._addAt(control, 1);
-          break;
-
         case "expansion":
-          control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+          control = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
           control.setAnonymous(true);
           control.exclude();
-          this._addAt(control, 2);
+          this._addAt(control, 2, {flex: 1});
           break;
 
-        case "secret":
-          control = new qx.ui.basic.Label();
-          control.setSelectable(true);
-          this.getChildControl("expansion").addAt(control, 0);
+        case "hint":
+          var headers = '<ul><li><strong>Content-Type:</strong> <i>'+
+                        this.getMimeType()+'</i></li><li><strong>HTTP_X_HUB_SENDER:</strong> <i>'+
+                        this.getLabel()+'</i></li><li><strong>HTTP_X_HUB_SIGNATURE:</strong> '+
+                        this.tr("SHA2 hash of the content body encrypted with secret:")+' <i>'+this.getSecret()+'</i></li></ul>';
+          var msg = this.tr("Use the following headers when you POST data to %1", "<strong>"+gosa.ui.settings.Webhooks.URL+"</strong>");
+          msg += headers;
+          control = new qx.ui.basic.Label(msg).set({rich: true, wrap: true});
+          this.getChildControl("expansion").add(control, {row: 0, column: 0});
           break;
       }
 
@@ -123,18 +121,15 @@ qx.Class.define("gosa.ui.form.WebhookListItem", {
     },
 
     // property apply
-    _applyMimeType: function(value) {
-      this.__handleValue(this.getChildControl("mime-type"), value);
-    },
-
-    // property apply
     _applyLabel: function(value) {
       this.__handleValue(this.getChildControl("label"), value);
     },
 
     // property apply
-    _applySecret: function(value) {
-      this.__handleValue(this.getChildControl("secret"), value);
+    _applySecret: function() {
+      if (!this.hasChildControl("hint")) {
+        this._createChildControl("hint");
+      }
     },
 
     // property apply

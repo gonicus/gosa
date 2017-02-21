@@ -35,7 +35,8 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
   *****************************************************************************
   */
   statics : {
-    NAMESPACE: "gosa.webhooks"
+    NAMESPACE: "gosa.webhooks",
+    URL: null
   },
 
   /*
@@ -82,40 +83,44 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
     },
 
     __initList: function() {
-      this._createChildControl("title");
-      var list = this.getChildControl("list");
-      this._createChildControl("add-button");
-      this._createChildControl("remove-button");
-      var controller = this._listController = new gosa.data.controller.EnhancedList(null, list);
+      gosa.io.Rpc.getInstance().cA("getWebhookUrl").then(function(result) {
+        gosa.ui.settings.Webhooks.URL = result;
+        this._createChildControl("title");
+        var list = this.getChildControl("list");
+        this._createChildControl("add-button");
+        this._createChildControl("remove-button");
+        var controller = this._listController = new gosa.data.controller.EnhancedList(null, list);
 
-      controller.setDelegate({
-        createItem: function() {
-          return new gosa.ui.form.WebhookListItem();
-        },
+        controller.setDelegate({
+          createItem: function() {
+            return new gosa.ui.form.WebhookListItem();
+          },
 
-        bindItem: function(controller, item, index) {
-          controller.bindProperty("", "model", null, item, index);
-          controller.bindProperty("name", "label", null, item, index);
-          // controller.bindProperty("mimeType", "mimeType", null, item, index);
-          controller.bindProperty("secret", "secret", null, item, index);
-          controller.bindProperty("expanded", "expanded", null, item, index);
-        },
+          bindItem: function(controller, item, index) {
+            controller.bindProperty("", "model", null, item, index);
+            controller.bindProperty("name", "label", null, item, index);
+            controller.bindProperty("mimeType", "mimeType", null, item, index);
+            controller.bindProperty("secret", "secret", null, item, index);
+            controller.bindProperty("expanded", "expanded", null, item, index);
+          },
 
-        group: function(item) {
-          return item.getMimeType()
-        }
-      });
+          group: function(item) {
+            return item.getMimeType()
+          }
+        });
 
-      list.addListener("changeSelection", function() {
-        var selection = list.getSelection();
-        this.getChildControl("remove-button").setEnabled(selection.length > 0);
-        var selected = selection.length > 0 ? selection[0].getModel() : null;
-        controller.getModel().forEach(function(child) {
-          child.setExpanded(child === selected);
+        list.addListener("changeSelection", function() {
+          var selection = list.getSelection();
+          this.getChildControl("remove-button").setEnabled(selection.length > 0);
+          var selected = selection.length > 0 ? selection[0].getModel() : null;
+          controller.getModel().forEach(function(child) {
+            child.setExpanded(child === selected);
+          }, this);
         }, this);
-      }, this);
 
-      this.__updateList();
+        this.__updateList();
+
+      }, this);
     },
 
     __updateList: function() {

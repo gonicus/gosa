@@ -640,7 +640,16 @@ qx.Theme.define("gosa.theme.Appearance", {
       }
     },
 
-    "gosa-listitem-webhook": "listitem",
+    "gosa-listitem-webhook": {
+      include: "listitem",
+      alias: "listitem",
+      style: function() {
+        return {
+          textColor: "darkgray-dark",
+          decorator: "listitem"
+        }
+      }
+    },
     "gosa-listitem-webhook/label": {
       style: function() {
         return {

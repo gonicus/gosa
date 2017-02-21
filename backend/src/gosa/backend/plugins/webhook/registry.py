@@ -74,7 +74,8 @@ class WebhookRegistry(Plugin):
         for clazz in self.__handlers.values():
             del clazz
 
-    def get_webhook_url(self):
+    @Command(__help__=N_("Get the webhook receiver URL"))
+    def getWebhookUrl(self):
         return "%s/hooks/" % PluginRegistry.getInstance("HTTPService").get_gui_uri()[0]
 
     @staticmethod
@@ -101,7 +102,7 @@ class WebhookRegistry(Plugin):
         if not self.settings.has(path):
             self.settings.set(path, str(uuid.uuid4()))
 
-        return self.get_webhook_url(), self.settings.get(path)
+        return self.getWebhookUrl(), self.settings.get(path)
 
     @Command(needsUser=True, __help__=N_("Unregisters a webhook"))
     def unregisterWebhook(self, user, sender_name, mime_type):
