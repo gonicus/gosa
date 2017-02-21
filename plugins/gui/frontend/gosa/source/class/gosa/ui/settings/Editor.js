@@ -26,6 +26,8 @@ qx.Class.define("gosa.ui.settings.Editor", {
     this._setLayout(new qx.ui.layout.VBox());
     this.setNamespace(namespace);
 
+    this._createChildControl("filter");
+
     this.addListenerOnce("appear", this.__initTable, this);
   },
 
@@ -63,7 +65,17 @@ qx.Class.define("gosa.ui.settings.Editor", {
       switch(id) {
         case "title":
           control = new qx.ui.basic.Label(this.tr("Editor"));
-          this._add(control);
+          this._addAt(control, 0);
+          break;
+
+        case "filter":
+          control = new qx.ui.form.TextField().set({
+            placeholder : this.tr("Search .."),
+            liveUpdate : true,
+            allowGrowX : true
+          });
+          control.addListener("changeValue", this._applyFilter, this);
+          this._addAt(control, 1);
           break;
 
         case "table":
@@ -73,11 +85,30 @@ qx.Class.define("gosa.ui.settings.Editor", {
             }
           };
           control = new qx.ui.table.Table(null, propertyEditor_resizeBehaviour);
-          this._add(control, {flex: 1});
+          this._addAt(control, 2, {flex: 1});
           break;
       }
 
       return control || this.base(arguments, id);
+    },
+
+    _applyFilter: function() {
+      var filtered = this._tableData;
+      var searchValue = this.getChildControl("filter").getValue();
+      if (searchValue && searchValue.length > 2) {
+        var options = {
+          shouldSort: true,
+          threshold: 0.4,
+          tokenize: true,
+          keys: ["0", "1"]
+        };
+        var fuse = new Fuse(filtered, options);
+        filtered = fuse.search(searchValue);
+        console.log(filtered);
+        this.getChildControl("table").getTableModel().setData(filtered);
+      } else {
+        this.getChildControl("table").getTableModel().setData(this._tableData);
+      }
     },
 
     // property apply
@@ -86,9 +117,8 @@ qx.Class.define("gosa.ui.settings.Editor", {
     },
 
     __initTable: function() {
-
       var itemInfos = this.__handler.getItemInfos();
-      var tableData = [];
+      var tableData = this._tableData = [];
       Object.getOwnPropertyNames(itemInfos).forEach(function(path) {
         var options = {};
         if (itemInfos[path].type) {
@@ -135,8 +165,6 @@ qx.Class.define("gosa.ui.settings.Editor", {
       // Get the table column model
       var tcm = propertyEditor.getTableColumnModel();
 
-      // first table columns is not visible, has the key
-      tcm.setColumnVisible(0, false);
       propertyEditor_tableModel.sortByColumn(0, true);
 
       // second column has the label
@@ -146,8 +174,6 @@ qx.Class.define("gosa.ui.settings.Editor", {
       propertyEditor_tableModel.setColumnEditable(2, true);
       tcm.setDataCellRenderer(2, propertyCellRendererFactory);
       tcm.setCellEditorFactory(2, propertyCellEditorFactory);
-
-      // fourth column is not visible, has the metadata
 
       // set data
       propertyEditor.getTableModel().setData(tableData);
