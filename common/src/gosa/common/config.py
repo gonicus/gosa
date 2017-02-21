@@ -136,7 +136,7 @@ class Config(object):
         """
         return self.__registry[section.lower()]
 
-    def get(self, path, default=None):
+    def get(self, path, default=None, use_user_config=True):
         """
         *get* allows dot-separated access to the configuration structure.
         If the desired value is not defined, you can specify a default
@@ -161,7 +161,8 @@ class Config(object):
         key = parts[1]
 
         # override with user config if exists
-        if self.__user_config and self.__user_config.has_section(section) and self.__user_config.has_option(section, key):
+        if use_user_config is True and self.__user_config and self.__user_config.has_section(section) and self.__user_config.has_option(\
+                section, key):
             return self.__user_config.get(section, key)
 
         tmp = self.__registry
@@ -192,7 +193,7 @@ class Config(object):
 
         # change value in the user_registry
         try:
-            if self.get(path) != value:
+            if self.get(path, use_user_config=False) != value:
                 self.__user_config.set(section, key, value)
             elif self.__user_config.get(section, key) != value:
                 # return to unchanged value -> do not override
