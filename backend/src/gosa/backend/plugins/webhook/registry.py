@@ -200,6 +200,7 @@ class WebhookSettingsHandler(object):
             for sender_name in self.__hooks[mime_type]:
                 infos[WebhookRegistry.get_path(mime_type, sender_name)] = {
                     "type": "string",
+                    "title": sender_name,
                     "value": self.__hooks[mime_type][sender_name]
                 }
         return infos

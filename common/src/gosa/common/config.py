@@ -204,13 +204,16 @@ class Config(object):
             self.__user_config.add_section(section)
             self.__user_config.set(section, key, value)
 
+        if path == "logger_gosa.level":
+            # apply changed log level
+            logging.getLogger("gosa").setLevel(getattr(logging, value))
+
     def save(self):
         """ save the settings in the main config file """
-        if self.__modified is True and self.__user_config is not None:
+        if self.__user_config is not None:
             main_config_file = os.path.join(self.get('core.config'), "user-config")
             with open(main_config_file, 'w') as f:
                 self.__user_config.write(f)
-                self.__modified = False
 
     def __getCfgFiles(self, cdir):
         conf = re.compile(r"^[a-z0-9_.-]+\.conf$", re.IGNORECASE)

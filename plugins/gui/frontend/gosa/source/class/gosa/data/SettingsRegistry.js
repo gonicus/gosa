@@ -178,6 +178,10 @@ qx.Class.define("gosa.data.SettingsRegistry", {
      * @return {qx.ui.core.Widget|null}
      */
     getEditor: function(namespace) {
+      if (!(namespace in this.__editors)) {
+        // register a default editor
+        this.__editors[namespace] = new gosa.ui.settings.Editor(namespace);
+      }
       return this.__editors[namespace];
     },
 

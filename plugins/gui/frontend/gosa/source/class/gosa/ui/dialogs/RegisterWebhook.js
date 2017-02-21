@@ -19,10 +19,6 @@ qx.Class.define("gosa.ui.dialogs.RegisterWebhook", {
   construct: function(widget) {
     this.base(arguments, this.tr("Register webhook"));
 
-    this.__selectionValues = {};
-    this.__initialValues = {};
-    var initForm = {};
-
     // form
     var form = this.__form = new qx.ui.form.Form();
     var mimeTypeField = new qx.ui.form.SelectBox();
@@ -40,12 +36,6 @@ qx.Class.define("gosa.ui.dialogs.RegisterWebhook", {
 
     // create the view
     this.addElement(new gosa.ui.form.renderer.Single(form));
-
-    var controller = new qx.data.controller.Form(null, form);
-    var model = controller.createModel();
-
-    // fill the model with initial values
-    model.set(initForm);
 
     // buttons
     var saveButton = gosa.ui.base.Buttons.getOkButton();
