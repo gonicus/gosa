@@ -24,9 +24,11 @@
         <Default>unknown</Default>
         <Values>
           <Value key="unknown">Unknown</Value>
+          <Value key="pending">Pending</Value>
           <Value key="install">Installing</Value>
           <Value key="deploy">Deploying</Value>
           <Value key="ready">Ready</Value>
+          <Value key="warning">Warning</Value>
           <Value key="error">Error</Value>
         </Values>
       </Attribute>
