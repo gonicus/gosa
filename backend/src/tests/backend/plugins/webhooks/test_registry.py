@@ -18,6 +18,7 @@ from gosa.common.event import EventMaker
 
 
 class TestWebhook(object):
+    type = "Test"
 
     def handle_request(self, request_handler):
         self.content(request_handler.request.body)
