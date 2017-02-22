@@ -12,7 +12,10 @@ and receiver for a simple phone status notification - that may be used
 for whatever you can imagine.
 
 First, you need to define an event description in XML-schema style and
-place it in ``clacks/common/data/events``::
+place it in ``clacks/common/data/events``:
+
+
+.. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
     <schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" 
@@ -67,7 +70,7 @@ that::
 
 This one will connect to the AMQP service and call the ``process`` callback
 if there's something interesting. Just start that one on one shell and
-open another one to send a signal using :meth:`clacks.agent.command.CommandRegistry.sendEvent`::
+open another one to send a signal using :meth:`gosa.backend.command.CommandRegistry.sendEvent`::
 
 	from clacks.common.components import AMQPServiceProxy
 	from clacks.common.event import EventMaker
