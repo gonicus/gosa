@@ -83,7 +83,9 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
     },
 
     __initList: function() {
-      gosa.io.Rpc.getInstance().cA("getWebhookUrl").then(function(result) {
+      var promises = [gosa.io.Rpc.getInstance().cA("getWebhookUrl"), gosa.io.Rpc.getInstance().cA("getAvailableMimeTypes")];
+
+      qx.Promise.all(promises).spread(function(result, types) {
         gosa.ui.settings.Webhooks.URL = result;
         this._createChildControl("title");
         var list = this.getChildControl("list");
@@ -105,7 +107,7 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
           },
 
           group: function(item) {
-            return item.getMimeType()
+            return types[item.getMimeType()];
           }
         });
 

@@ -58,7 +58,7 @@ webhook-token = 9d6250c0-6413-4b1e-98d9-7b763472962a
 ##############################################################################
 
 [loggers]
-keys=root,gosa
+keys=root,gosa,tornado
 
 [handlers]
 keys=syslog,console
@@ -77,6 +77,11 @@ level=INFO
 handlers=console
 qualname=gosa
 propagate=0
+
+[logger_tornado]
+level=WARNING
+handlers=console
+qualname=tornado
 
 [handler_console]
 class=StreamHandler

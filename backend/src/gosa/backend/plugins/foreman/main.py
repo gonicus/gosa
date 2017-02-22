@@ -175,6 +175,9 @@ class Foreman(Plugin):
 class ForemanWebhookReceiver(object):
     """ Webhook handler for foreman events (Content-Type: application/vnd.acme.hostevent+json) """
 
+    def __init__(self):
+        self.type = N_("Foreman host event")
+
     def handle_request(self, request_handler):
         foreman = PluginRegistry.getInstance("Foreman")
         data = loads(request_handler.request.body)
