@@ -1,0 +1,129 @@
+{
+  "layout": "qx.ui.layout.Grid", 
+  "children": [
+    {
+      "properties": {
+        "text": "cn"
+      }, 
+      "buddyModelPath": "cn", 
+      "class": "gosa.ui.widgets.QLabelWidget", 
+      "addOptions": {
+        "column": 0, 
+        "row": 0
+      }
+    }, 
+    {
+      "properties": {
+        "tabIndex": 1
+      }, 
+      "modelPath": "cn", 
+      "class": "gosa.ui.widgets.QLineEditWidget", 
+      "addOptions": {
+        "column": 1, 
+        "row": 0
+      }
+    }, 
+    {
+      "properties": {
+        "text": "description"
+      }, 
+      "buddyModelPath": "description", 
+      "class": "gosa.ui.widgets.QLabelWidget", 
+      "addOptions": {
+        "column": 0, 
+        "row": 1
+      }
+    }, 
+    {
+      "properties": {
+        "tabIndex": 2
+      }, 
+      "modelPath": "description", 
+      "class": "gosa.ui.widgets.QLineEditWidget", 
+      "addOptions": {
+        "column": 1, 
+        "row": 1
+      }
+    }, 
+    {
+      "properties": {
+        "text": "businessCategory"
+      }, 
+      "buddyModelPath": "businessCategory", 
+      "class": "gosa.ui.widgets.QLabelWidget", 
+      "addOptions": {
+        "column": 0, 
+        "row": 2
+      }
+    }, 
+    {
+      "properties": {
+        "tabIndex": 3
+      }, 
+      "modelPath": "businessCategory", 
+      "class": "gosa.ui.widgets.QLineEditWidget", 
+      "addOptions": {
+        "column": 1, 
+        "row": 2
+      }
+    }, 
+    {
+      "properties": {
+        "text": "o"
+      }, 
+      "buddyModelPath": "o", 
+      "class": "gosa.ui.widgets.QLabelWidget", 
+      "addOptions": {
+        "column": 0, 
+        "row": 3
+      }
+    }, 
+    {
+      "properties": {
+        "tabIndex": 4
+      }, 
+      "modelPath": "o", 
+      "class": "gosa.ui.widgets.QLineEditWidget", 
+      "addOptions": {
+        "column": 1, 
+        "row": 3
+      }
+    }, 
+    {
+      "properties": {
+        "text": "ou"
+      }, 
+      "buddyModelPath": "ou", 
+      "class": "gosa.ui.widgets.QLabelWidget", 
+      "addOptions": {
+        "column": 0, 
+        "row": 4
+      }
+    }, 
+    {
+      "properties": {
+        "tabIndex": 5
+      }, 
+      "modelPath": "ou", 
+      "class": "gosa.ui.widgets.QLineEditWidget", 
+      "addOptions": {
+        "column": 1, 
+        "row": 4
+      }
+    }
+  ], 
+  "type": "widget", 
+  "class": "qx.ui.container.Composite", 
+  "extensions": {
+    "resources": {
+      "favicon": "@Ligature/server"
+    },
+    "tabConfig": {
+      "title": "tr('Deployment group')",
+      "icon": "favicon"
+    }
+  },
+  "properties": {
+      "categoryTitle": "tr('Deployment')"
+  }
+}

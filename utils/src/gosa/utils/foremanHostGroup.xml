@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects">
+  <Object>
+    <Name>foremanHostGroup</Name>
+    <DisplayName>foremanHostGroup</DisplayName>
+    <Description>The foreman - this group is managed by foreman</Description>
+    <Backend>LDAP</Backend>
+    <BackendParameters>
+      <Backend objectClasses="foremanHostGroup" RDN="cn">LDAP</Backend>
+    </BackendParameters>
+    <BaseObject>true</BaseObject>
+  </Object>
+</Objects>
