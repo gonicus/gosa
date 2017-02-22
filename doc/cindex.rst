@@ -1,9 +1,9 @@
 .. _cindex:
 
-Agent command index
-===================
+Backend command index
+=====================
 
-.. cmdlist:: agent
+.. cmdlist:: backend
 
 
 
