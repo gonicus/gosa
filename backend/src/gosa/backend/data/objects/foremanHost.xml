@@ -5,7 +5,7 @@
     <DisplayName>Deployment</DisplayName>
     <Description>The foreman - this device is managed by foreman</Description>
     <Templates>
-      <Template>foremanHost.json</Template>
+      <Template>foreman-host.json</Template>
     </Templates>
     <BackendParameters>
       <Backend objectClasses="foremanHost">LDAP</Backend>
