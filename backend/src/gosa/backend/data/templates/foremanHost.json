@@ -1,0 +1,38 @@
+{
+  "layout": "qx.ui.layout.Grid", 
+  "children": [
+    {
+      "properties": {
+        "text": "status"
+      }, 
+      "buddyModelPath": "status", 
+      "class": "gosa.ui.widgets.QLabelWidget", 
+      "addOptions": {
+        "column": 0, 
+        "row": 0
+      }
+    }, 
+    {
+      "properties": {
+        "tabIndex": 1
+      }, 
+      "modelPath": "status", 
+      "class": "gosa.ui.widgets.QLineEditWidget", 
+      "addOptions": {
+        "column": 1, 
+        "row": 0
+      }
+    }
+  ], 
+  "type": "widget", 
+  "class": "qx.ui.container.Composite", 
+  "extensions": {
+    "resources": {
+        "favicon": "@Ligature/tag"
+    },
+    "tabConfig": {
+        "title": "tr('Deployment')",
+        "icon": "favicon"
+    }
+  }
+}

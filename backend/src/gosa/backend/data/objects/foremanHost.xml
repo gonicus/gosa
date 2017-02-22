@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects">
+  <Object>
+    <Name>foremanHost</Name>
+    <DisplayName>Deployment</DisplayName>
+    <Description>The foreman - this device is managed by foreman</Description>
+    <Templates>
+      <Template>foremanHost.json</Template>
+    </Templates>
+    <BackendParameters>
+      <Backend objectClasses="foremanHost">LDAP</Backend>
+      <Backend groupMembership="foremanHostGroup:cn,member=dn">ObjectHandler</Backend>
+    </BackendParameters>
+    <Backend>LDAP</Backend>
+    <BaseObject>false</BaseObject>
+    <Attributes>
+      <ForeignAttribute>
+        <Name>cn</Name>
+      </ForeignAttribute>
+      <Attribute>
+        <Name>status</Name>
+        <Description>The foreman - current device status</Description>
+        <Type>String</Type>
+        <Default>unknown</Default>
+        <Values>
+          <Value key="unknown">Unknown</Value>
+          <Value key="install">Installing</Value>
+          <Value key="deploy">Deploying</Value>
+          <Value key="ready">Ready</Value>
+          <Value key="error">Error</Value>
+        </Values>
+      </Attribute>
+      <Attribute>
+        <Name>groupMembership</Name>
+        <Description>Assigned host group</Description>
+        <Type>UnicodeString</Type>
+        <Backend>ObjectHandler</Backend>
+        <Validators>
+          <Condition>
+            <Name>ObjectWithPropertyExists</Name>
+            <Param>foremanHostGroup</Param>
+            <Param>cn</Param>
+          </Condition>
+        </Validators>
+      </Attribute>
+    </Attributes>
+    <Extends>
+      <Value>Device</Value>
+    </Extends>
+  </Object>
+</Objects>
