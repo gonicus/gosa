@@ -21,18 +21,21 @@ qx.Class.define("gosa.ui.dialogs.RegisterWebhook", {
 
     // form
     var form = this.__form = new qx.ui.form.Form();
-    var mimeTypeField = new qx.ui.form.SelectBox();
+    var mimeTypeField = new qx.ui.form.SelectBox().set({
+      width: 250
+    });
     gosa.io.Rpc.getInstance().cA("getAvailableMimeTypes").then(function(result) {
-      result.forEach(function(mimeType) {
-        var item = new qx.ui.form.ListItem(mimeType);
+      Object.getOwnPropertyNames(result).forEach(function(mimeType) {
+        var item = new qx.ui.form.ListItem(result[mimeType]);
+        item.setUserData("mimeType", mimeType);
         mimeTypeField.add(item);
       }, this);
     }, this);
 
-    form.add(mimeTypeField, this.tr("Mime-Type"), null, "mimeType");
+    form.add(mimeTypeField, this.tr("Type"), null, "type");
 
     var nameField = new qx.ui.form.TextField();
-    form.add(nameField, this.tr("Name"), null, "name");
+    form.add(nameField, this.tr("Sender name"), null, "name");
 
     // create the view
     this.addElement(new gosa.ui.form.renderer.Single(form));
@@ -47,7 +50,7 @@ qx.Class.define("gosa.ui.dialogs.RegisterWebhook", {
     // serialization and reset /////////
     saveButton.addListener("execute", function() {
       if (form.validate()) {
-        gosa.io.Rpc.getInstance().cA("registerWebhook", nameField.getValue(), mimeTypeField.getSelection()[0].getLabel())
+        gosa.io.Rpc.getInstance().cA("registerWebhook", nameField.getValue(), mimeTypeField.getSelection()[0].getUserData("mimeType"))
         .then(function(result) {
           this.fireDataEvent("registered", result);
           this.close();

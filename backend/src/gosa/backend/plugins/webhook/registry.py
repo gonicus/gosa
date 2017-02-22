@@ -64,7 +64,10 @@ class WebhookRegistry(Plugin):
             self.settings.set(path, monitor_key, temporary=True)
 
     def register_handler(self, mime_type, handler):
-        self.__handlers[mime_type] = handler
+        if not hasattr(handler, "type"):
+            self.log.error("Handler for mime-type %s has no type attribute. Skipping registration." % mime_type)
+        else:
+            self.__handlers[mime_type] = handler
 
     def unregister_handler(self, mime_type):
         if mime_type in self.__handlers:
@@ -112,7 +115,10 @@ class WebhookRegistry(Plugin):
 
     @Command(needsUser=True, __help__=N_("Shows all mime-types a webhook can be registered for"))
     def getAvailableMimeTypes(self, user):
-        return list(self.__handlers.keys())
+        types = {}
+        for mime_type, handler in self.__handlers.items():
+            types[mime_type] = handler.type
+        return types
 
     def get_token(self, mime_type, sender_name):
         if mime_type is None or sender_name is None:
@@ -260,6 +266,9 @@ class WebhookReceiver(HSTSRequestHandler):
 
 class WebhookEventReceiver(object):
     """ Webhook handler for gosa events (Content-Type: application/vnd.gosa.event+xml) """
+
+    def __init__(self):
+        self.type = N_("Gosa events")
 
     def handle_request(self, requestHandler):
         # read and validate event
