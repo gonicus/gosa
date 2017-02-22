@@ -26,6 +26,7 @@ qx.Class.define("gosa.ui.settings.Editor", {
     this._setLayout(new qx.ui.layout.VBox());
     this.setNamespace(namespace);
 
+    this._createChildControl("title");
     this._createChildControl("filter");
 
     this.addListenerOnce("appear", this.__initTable, this);
@@ -47,6 +48,11 @@ qx.Class.define("gosa.ui.settings.Editor", {
       check: "String",
       init: "",
       apply: "_applyNamespace"
+    },
+
+    appearance : {
+      refine : true,
+      init : "settings-editor"
     }
   },
 
@@ -65,7 +71,7 @@ qx.Class.define("gosa.ui.settings.Editor", {
 
       switch(id) {
         case "title":
-          control = new qx.ui.basic.Label(this.tr("Editor"));
+          control = new qx.ui.basic.Label(this.tr("Settings"));
           this._addAt(control, 0);
           break;
 
@@ -86,6 +92,10 @@ qx.Class.define("gosa.ui.settings.Editor", {
             }
           };
           control = new qx.ui.table.Table(null, propertyEditor_resizeBehaviour);
+          control.setColumnVisibilityButtonVisible(false);
+
+          // selection mode
+          control.setRowHeight(30);
           this._addAt(control, 2, {flex: 1});
           break;
       }
@@ -106,9 +116,9 @@ qx.Class.define("gosa.ui.settings.Editor", {
         };
         var fuse = new Fuse(filtered, options);
         filtered = fuse.search(searchValue);
-        console.log(filtered);
         this.getChildControl("table").getTableModel().setData(filtered);
-      } else {
+      }
+      else {
         this.getChildControl("table").getTableModel().setData(this._tableData);
       }
       this.__skipUpdates = false;
@@ -147,22 +157,13 @@ qx.Class.define("gosa.ui.settings.Editor", {
       propertyEditor_tableModel.setColumns(
       [
         this.tr('Path'),
-        this.tr('Title'),
+        this.tr('Description'),
         this.tr('Value')
       ]);
 
       var propertyEditor = this.getChildControl("table");
       propertyEditor.setTableModel(propertyEditor_tableModel);
 
-      // remove decor
-      propertyEditor.setDecorator(null);
-
-      // layout
-      propertyEditor.setColumnVisibilityButtonVisible(false);
-      propertyEditor.setKeepFirstVisibleRowComplete(true);
-      propertyEditor.setStatusBarVisible(false);
-
-      // selection mode
       propertyEditor.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
 
       // Get the table column model
@@ -315,13 +316,13 @@ qx.Class.define("gosa.ui.settings.Editor", {
             break;
 
           case "required":
-            validationFunc = function( newValue, oldValue )
-            {
-              if (! newValue)
-              {
+            validationFunc = function( newValue, oldValue ) {
+
+              if (! newValue) {
                 alert(this.tr("You need to supply a value here"));
                 return oldValue;
               }
+
               return newValue;
             };
             break;
