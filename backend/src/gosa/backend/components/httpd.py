@@ -8,10 +8,7 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 """
-The *HTTPService* and the *HTTPDispatcher* are responsible for exposing
-registered `WSGI <http://wsgi.org>`_ components to the world. While the
-*HTTPService* is just providing the raw HTTP service, the *HTTPDispatcher*
-is redirecting a path to a module.
+The *HTTPService* is responsible for exposing registered HTTP components to the world.
 
 -------
 """
