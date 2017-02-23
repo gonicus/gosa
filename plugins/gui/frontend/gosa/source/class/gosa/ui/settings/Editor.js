@@ -77,7 +77,7 @@ qx.Class.define("gosa.ui.settings.Editor", {
 
         case "filter":
           control = new qx.ui.form.TextField().set({
-            placeholder : this.tr("Search .."),
+            placeholder : this.tr("Search..."),
             liveUpdate : true,
             allowGrowX : true
           });
@@ -103,6 +103,9 @@ qx.Class.define("gosa.ui.settings.Editor", {
       return control || this.base(arguments, id);
     },
 
+    /**
+     * @ignore(Fuse)
+     */
     _applyFilter: function() {
       this.__skipUpdates = true;
       var filtered = this._tableData;

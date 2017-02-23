@@ -613,6 +613,42 @@ qx.Theme.define("gosa.theme.Appearance", {
       }
     },
 
+    "webhook-editor": {},
+
+    "webhook-editor/title": {
+      style: function() {
+        return {
+          padding: 8,
+          allowGrowX: true,
+          backgroundColor: "lightgray-dark"
+        };
+      }
+    },
+
+    "webhook-editor/table": {
+      include: "table",
+      alias: "table",
+      style: function() {
+        return {
+          decorator: "table",
+          margin: 6
+        };
+      }
+    },
+
+    "webhook-editor/delete-button": "icon-menu-button",
+    "webhook-editor/open-button": "icon-menu-button",
+    "webhook-editor/create-button": "icon-menu-button",
+    "webhook-editor/action-menu-button": "toolbar-menubutton",
+
+    "webhook-editor/toolbar": {
+      style: function() {
+        return {
+          margin: 8
+        }
+      }
+    },
+
     "settings-editor/title": {
       style: function() {
         return {

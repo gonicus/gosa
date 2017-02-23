@@ -143,7 +143,7 @@ class HTTPService(object):
         default = "index.html"
         if self.env.config.get("gui.debug", "false") == "true":  # pragma: nocover
             default = "gosa/source/index.html"
-        return "%s://%s:%s" % (self.scheme, socket.gethostname(), self.port), default
+        return "%s://%s:%s" % (self.scheme, socket.getfqdn(), self.port), default
 
     def start(self):
         IOLoop.configure('tornado.platform.asyncio.AsyncIOLoop')

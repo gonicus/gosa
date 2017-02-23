@@ -22,6 +22,8 @@ qx.Class.define("gosa.ui.dialogs.Info", {
     this.base(arguments, this.tr("Info"));
     
     var message = new qx.ui.basic.Label(msg);
+    message.setWrap(true);
+    message.setRich(true);
     this.addElement(message);
 
     var ok = gosa.ui.base.Buttons.getOkButton();

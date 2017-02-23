@@ -31,6 +31,7 @@ qx.Class.define("gosa.view.Settings",
     this._createChildControl("container");
     this.setLayout(new qx.ui.layout.Canvas());
   },
+
   /*
    *****************************************************************************
    PROPERTIES
