@@ -32,10 +32,22 @@ qx.Class.define("gosa.ui.dialogs.RegisterWebhook", {
       }, this);
     }, this);
 
-    form.add(mimeTypeField, this.tr("Type"), null, "type");
-
     var nameField = new qx.ui.form.TextField();
+    nameField.setValid(false);
+    nameField.setRequired(true);
+    nameField.setInvalidMessage(this.tr("Please enter a string containing ASCII letters and optional hyphens"));
+    nameField.setLiveUpdate(true);
+    nameField.addListener("changeValue", function(ev) {
+      var valid = !!ev.getData().match(/^[a-zA-Z-]+$/);
+      nameField.setValid(valid);
+      saveButton.setEnabled(valid && ev.getData().length > 0);
+    }, this);
+    nameField.addListenerOnce("appear", function(){
+      nameField.focus();
+    });
+
     form.add(nameField, this.tr("Sender name"), null, "name");
+    form.add(mimeTypeField, this.tr("Type"), null, "type");
 
     // create the view
     this.addElement(new gosa.ui.form.renderer.Single(form));
@@ -43,6 +55,7 @@ qx.Class.define("gosa.ui.dialogs.RegisterWebhook", {
     // buttons
     var saveButton = gosa.ui.base.Buttons.getOkButton();
     saveButton.setAppearance("button-primary");
+    saveButton.setEnabled(false);
     this.addButton(saveButton);
     var cancelButton = gosa.ui.base.Buttons.getCancelButton();
     this.addButton(cancelButton);
