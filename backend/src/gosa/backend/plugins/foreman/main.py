@@ -110,7 +110,7 @@ class Foreman(Plugin):
         obj = ObjectProxy(base, "Device")
         obj.extend("ieee802Device")
         obj.extend("IpHost")
-        obj.extend("foremanHost")
+        obj.extend("ForemanHost")
         obj.cn = hostname
         obj.macAddress = mac
         self.__update_host(obj, params)
@@ -120,7 +120,7 @@ class Foreman(Plugin):
     def removeHost(self, user, hostname, params=None):
         # find the host
         device = self.__get_host_object(hostname)
-        if not device.is_extended_by("foremanHost"):
+        if not device.is_extended_by("ForemanHost"):
             # do not delete hosts which have not been reported by foreman
             self.log.debug("device '%s' is not foreman host, deletion skipped" % device.dn)
             raise ForemanException(C.make_error('NO_FOREMAN_HOST'))
@@ -138,7 +138,7 @@ class Foreman(Plugin):
     def update_host(self, hostname):
         """Requests current values from the Foreman api and updates the device"""
         device = self.__get_host_object(hostname)
-        if not device.is_extended_by("foremanHost"):
+        if not device.is_extended_by("ForemanHost"):
             # do not delete hosts which have not been reported by foreman
             self.log.debug("device '%s' is not foreman host, deletion skipped" % device.dn)
             raise ForemanException(C.make_error('NO_FOREMAN_HOST'))
@@ -157,26 +157,6 @@ class Foreman(Plugin):
             except ValueError:
                 pass
 
-        # if 'hostgroup_name' in data:
-        #     # check if group exists (create if not)
-        #     index = PluginRegistry.getInstance("ObjectIndex")
-        #     res = index.search({'_type': 'PosixGroup', '_extensions': 'foremanHostGroup', 'cn': data['hostgroup_name']}, {'dn': 1})
-        #     if len(res) == 0:
-        #         # create new host group
-        #         group = ObjectProxy(device.get_adjusted_parent_dn(), "foremanHostGroup")
-        #         group.cn = data['hostgroup_name']
-        #         group.members.add(device.dn)
-        #         group.commit()
-        #     else:
-        #         # open group
-        #         group = ObjectProxy(res['dn'])
-        #         if device.dn not in group.members:
-        #             group.members.add(device.dn)
-        #             group.commit()
-        #
-        #     # add to group
-        #     device.groupMembership = data['hostgroup_name']
-
         foreman_status = data['global_status']
 
         if foreman_status == FM_STATUS_GLOBAL_OK:
@@ -194,6 +174,31 @@ class Foreman(Plugin):
             device.status = "error"
 
         device.commit()
+
+        if 'hostgroup_name' in data:
+            # check if group exists (create if not)
+            index = PluginRegistry.getInstance("ObjectIndex")
+            res = index.search({'_type': 'ForemanHostGroup', 'cn': data['hostgroup_name']}, {'dn': 1})
+
+            if len(res) == 0:
+                # create new host group
+                group = ObjectProxy(device.get_adjusted_parent_dn(), "ForemanHostGroup")
+                group.cn = data['hostgroup_name']
+
+                group.member.append(device.dn)
+                group.commit()
+            else:
+                # open group
+                group = ObjectProxy(res[0]['dn'])
+
+                if device.dn not in group.member:
+                    group.member.append(device.dn)
+                    group.commit()
+
+            # add to group
+            device = ObjectProxy(device.dn)
+            device.groupMembership = data['hostgroup_name']
+            device.commit()
 
     def __get_host_object(self, hostname):
         query = and_(ObjectInfoIndex.uuid == KeyValueIndex.uuid,

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Objects xmlns="http://www.gonicus.de/Objects">
   <Object>
-    <Name>foremanHost</Name>
+    <Name>ForemanHost</Name>
     <DisplayName>Deployment</DisplayName>
     <Description>The foreman - this device is managed by foreman</Description>
     <Templates>
@@ -9,7 +9,7 @@
     </Templates>
     <BackendParameters>
       <Backend objectClasses="foremanHost">LDAP</Backend>
-      <Backend groupMembership="foremanHostGroup:cn,member=dn">ObjectHandler</Backend>
+      <Backend groupMembership="ForemanHostGroup:cn,member=dn">ObjectHandler</Backend>
     </BackendParameters>
     <Backend>LDAP</Backend>
     <BaseObject>false</BaseObject>
@@ -40,7 +40,7 @@
         <Validators>
           <Condition>
             <Name>ObjectWithPropertyExists</Name>
-            <Param>foremanHostGroup</Param>
+            <Param>ForemanHostGroup</Param>
             <Param>cn</Param>
           </Condition>
         </Validators>
