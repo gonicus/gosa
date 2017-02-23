@@ -102,7 +102,7 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
           break;
 
         case "create-button":
-          control = new qx.ui.menu.Button(this.tr("New..."), "@Ligature/edit");
+          control = new qx.ui.menu.Button(this.tr("Create..."), "@Ligature/edit");
           control.addListener("execute", this._registerNewWebhook, this);
           break;
 
