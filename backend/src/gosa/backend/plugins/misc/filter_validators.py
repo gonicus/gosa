@@ -87,10 +87,12 @@ class ObjectWithPropertyExists(ElementComparator):
         for val in value:
             query = {'or_': {'_type': objectType, 'extension': objectType}, attribute: val}
             if not len(index.search(query, {'dn': 1})):
-                errors.append(dict(index=value.index(val),
-                    detail=N_("no '%(type)s' object with '%(attribute)s' property matching '%(value)s' found"),
-                    type=objectType,
-                    attribute=attribute,
-                    value=val))
+                query = {'_type': objectType, attribute: val}
+                if not len(index.search(query, {'dn': 1})):
+                    errors.append(dict(index=value.index(val),
+                        detail=N_("no '%(type)s' object with '%(attribute)s' property matching '%(value)s' found"),
+                        type=objectType,
+                        attribute=attribute,
+                        value=val))
 
         return len(errors) == 0, errors

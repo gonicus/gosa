@@ -8,7 +8,7 @@
 # See the LICENSE file in the project's top-level directory for details.
 import hmac
 from json import loads, dumps
-
+import logging
 import pytest
 from unittest import TestCase, mock
 
@@ -36,38 +36,59 @@ class MockResponse:
         return self.status_code == 200
 
 
+@mock.patch("gosa.backend.plugins.foreman.main.requests.get")
 class ForemanTestCase(GosaTestCase):
 
-    def test_addHost(self):
+    def tearDown(self):
+        logging.getLogger("gosa.backend.objects.index").setLevel(logging.INFO)
+        super(ForemanTestCase, self).tearDown()
+
+    def test_addHost(self, m_get):
         self._create_test_data()
         foreman = Foreman()
         foreman.serve()
+
+        m_get.return_value = MockResponse('{\
+            "status": 0,\
+            "status_label": "Build"\
+        }', 200)
 
         with pytest.raises(ForemanException):
             # no mac
             foreman.addHost("admin", "testhost", params={}, base=self._test_dn)
 
+        logging.getLogger("gosa.backend.objects.index").setLevel(logging.DEBUG)
         device = foreman.addHost("admin", "testhost", params={
             "mac": "00:00:00:00:00:01",
             "location_id": "loc1",
             "ip": "192.168.0.1",
-            "owner_id": "1"
+            "owner_id": "1",
+            "global_status": 0,
+            "global_status_label": "OK",
+            "hostgroup_name": "ubuntu-clients"
         }, base=self._test_dn)
         assert device.dn == "cn=testhost,ou=devices,%s" % self._test_dn
         assert device.macAddress == "00:00:00:00:00:01"
         assert device.l == "loc1"
 
-    def test_removeHost(self):
+    def test_removeHost(self, m_get):
 
         self._create_test_data()
         foreman = Foreman()
         foreman.serve()
 
+        m_get.return_value = MockResponse('{\
+            "status": 0,\
+            "status_label": "Build"\
+        }', 200)
+
         device = foreman.addHost("admin", "testhost", params={
             "mac": "00:00:00:00:00:01",
             "ip": "192.168.0.1",
             "location_id": "loc1",
-            "owner_id": "1"
+            "owner_id": "1",
+            "global_status": 0,
+            "global_status_label": "OK"
         }, base=self._test_dn)
 
         dn = device.dn
@@ -77,23 +98,23 @@ class ForemanTestCase(GosaTestCase):
         with pytest.raises(ProxyException):
             ObjectProxy(dn)
 
-    @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
     def test_update_host(self, m_get):
         self._create_test_data()
         foreman = Foreman()
         foreman.serve()
 
         m_get.return_value = MockResponse('{\
-            "id": "testhost",\
-            "ip": "192.168.0.2",\
-            "location_id": "testloc1"\
+            "status": 0,\
+            "status_label": "Build"\
         }', 200)
 
         device = foreman.addHost("admin", "testhost", params={
             "mac": "00:00:00:00:00:01",
             "location_id": "loc1",
             "ip": "192.168.0.1",
-            "owner_id": "1"
+            "owner_id": "1",
+            "global_status": 0,
+            "global_status_label": "OK"
         }, base=self._test_dn)
 
         dn = device.dn
@@ -101,12 +122,25 @@ class ForemanTestCase(GosaTestCase):
         device = ObjectProxy(dn)
         assert device.l == "loc1"
         assert device.ipHostNumber == "192.168.0.1"
+        assert device.status == "ready"
 
+        m_get.side_effect = [MockResponse('{\
+            "id": "testhost",\
+            "ip": "192.168.0.2",\
+            "location_id": "testloc1",\
+            "global_status": 0,\
+            "global_status_label": "OK"\
+        }', 200),
+        MockResponse('{\
+            "status": 1,\
+            "status_label": "Pending"\
+        }', 200)]
         foreman.update_host(device.cn)
 
         device = ObjectProxy(dn)
         assert device.l == "testloc1"
         assert device.ipHostNumber == "192.168.0.2"
+        assert device.status == "pending"
 
 
 class ForemanClientTestCase(TestCase):
@@ -185,16 +219,22 @@ class ForemanWebhookTestCase(RemoteTestCase):
     def setUp(self):
         super(ForemanWebhookTestCase, self).setUp()
         self.registry = PluginRegistry.getInstance("WebhookRegistry")
-        self.url, self.token = self.registry.registerWebhook("admin", "test-webhook", "application/vnd.acme.hostevent+json")
+        self.url, self.token = self.registry.registerWebhook("admin", "test-webhook", "application/vnd.foreman.hostevent+json")
 
     def tearDown(self):
         super(ForemanWebhookTestCase, self).tearDown()
-        self.registry.unregisterWebhook("admin", "test-webhook", "application/vnd.acme.hostevent+json")
+        self.registry.unregisterWebhook("admin", "test-webhook", "application/vnd.foreman.hostevent+json")
 
     def get_app(self):
         return Application([('/hooks(?P<path>.*)?', WebhookReceiver)], cookie_secret='TecloigJink4', xsrf_cookies=True)
 
-    def test_request(self):
+    @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
+    def test_request(self, m_get):
+
+        m_get.return_value = MockResponse('{\
+            "status": 0,\
+            "status_label": "Build"\
+        }', 200)
 
         token = bytes(self.token, 'ascii')
         payload = bytes(dumps({
@@ -202,13 +242,15 @@ class ForemanWebhookTestCase(RemoteTestCase):
             "hostname": "new-foreman-host",
             "parameters": {
                 "mac": "00:00:00:00:00:01",
-                "ip": "192.168.0.1"
+                "ip": "192.168.0.1",
+                "global_status": 0,
+                "global_status_label": "OK"
             }
         }), 'utf-8')
         signature_hash = hmac.new(token, msg=payload, digestmod="sha512")
         signature = 'sha1=' + signature_hash.hexdigest()
         headers = {
-            'Content-Type': 'application/vnd.acme.hostevent+json',
+            'Content-Type': 'application/vnd.foreman.hostevent+json',
             'HTTP_X_HUB_SENDER': 'test-webhook',
             'HTTP_X_HUB_SIGNATURE': signature
         }

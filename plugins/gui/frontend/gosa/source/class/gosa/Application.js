@@ -68,6 +68,9 @@ qx.Class.define("gosa.Application",
      */
     main : function()
     {
+      // Add the context menu mixin to the Table class
+      qx.Class.include(qx.ui.table.Table, qx.ui.table.MTableContextMenu);
+
       // Call super class
       this.base(arguments);
       this.self(arguments).instance = this;

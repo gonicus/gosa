@@ -120,7 +120,7 @@ qx.Class.define("gosa.view.Tree", {
 
         case "search-field":
           control = new qx.ui.form.TextField().set({
-            placeholder : this.tr("Search .."),
+            placeholder : this.tr("Search..."),
             liveUpdate : true,
             allowGrowX : true
           });
@@ -176,8 +176,7 @@ qx.Class.define("gosa.view.Tree", {
               return new qx.ui.table.columnmodel.Resize(obj);
             }
           };
-          // Add the context menu mixin to the Table class
-          qx.Class.include(qx.ui.table.Table, qx.ui.table.MTableContextMenu);
+
           var table = new qx.ui.table.Table(tableModel, customModel);
           table.setColumnVisibilityButtonVisible(false);
           table.setRowHeight(30);

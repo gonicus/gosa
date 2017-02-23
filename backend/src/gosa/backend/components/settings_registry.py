@@ -44,6 +44,7 @@ class SettingsRegistry(Plugin):
             self.register_handler(entry.name, module())
 
     def stop(self):
+        print("shutdown settings registry")
         # called from PluginRegistry.shutdown()
         for handler in self.__handlers.values():
             if getattr(handler, "stop"):
@@ -145,7 +146,7 @@ class SettingsHandler(object):
         return self.config.has_section(parts[0]) and self.config.has_option(parts[0], parts[1])
 
     def get_config(self):
-        return {}
+        return {"name": N_("Settings")}
 
     def get_item_infos(self):
         """
@@ -154,13 +155,20 @@ class SettingsHandler(object):
         """
         infos = {
             "backend.index": {
-                "type": "boolean"
+                "type": "boolean",
+                "title": N_("Indexing")
             },
             "gui.debug": {
-                "type": "boolean"
+                "type": "boolean",
+                "title": N_("Debug mode")
             },
             "logger_gosa.level": {
-                "type": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+                "options": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+                "title": N_("Log level")
+            },
+            "formatter_console.format": {
+                "type": "string",
+                "title": N_("Log format")
             }
         }
 

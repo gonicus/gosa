@@ -8,10 +8,7 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 """
-The *HTTPService* and the *HTTPDispatcher* are responsible for exposing
-registered `WSGI <http://wsgi.org>`_ components to the world. While the
-*HTTPService* is just providing the raw HTTP service, the *HTTPDispatcher*
-is redirecting a path to a module.
+The *HTTPService* is responsible for exposing registered HTTP components to the world.
 
 -------
 """
@@ -36,16 +33,6 @@ C.register_codes(dict(
     ))
 
 
-class TornadoAccessLoggingFilter(logging.Filter):
-    ''' Enable tornados access log only in debug mode '''
-    def __init__(self, name='TornadoAccessLoggingFilter'):
-        logging.Filter.__init__(self, name)
-        self.is_debug = Environment.getInstance().config.get("logger_gosa.level", "INFO").upper() == "DEBUG"
-
-    def filter(self, record):
-        return self.is_debug
-
-
 @implementer(IInterfaceHandler)
 class HTTPService(object):
     """
@@ -56,38 +43,37 @@ class HTTPService(object):
     ============== =============
     Key            Description
     ============== =============
-    url            AMQP URL to connect to the broker
-    id             User name to connect with
-    key            Password to connect with
-    command-worker Number of worker processes
+    host           hostname
+    port           port
+    ssl            SSL enabled (true/false)
+    ca-certs       path to cafile
+    cert-file      path to certificate
+    key-file       path to key
+    cookie-secret  key for signing cookies
     ============== =============
 
-    Example::
+    Example:
+
+    .. code-block:: ini
 
         [http]
         host = node1.intranet.gonicus.de
         port = 8080
-        sslpemfile = /etc/clacks/host.pem
+        ssl = true
+        cert-file = /etc/gosa/cert.pem
+        key-file = /etc/gosa/key.pem
 
-    If you want to create a clacks agent module that is going to export
+    If you want to create a gosa backend module that is going to export
     functionality (i.e. static content or some RPC functionality) you
-    can register such a component like this::
+    can register such a component by adding a ``[gosa.route]`` entry-point:
 
-        >>> from gosa.common.components import PluginRegistry
-        >>> class SomeTest(object):
-        ...    http_subtree = True
-        ...    path = '/test'
-        ...
-        ...    def __init__(self):
-        ...        # Get http service instance
-        ...        self.__http = PluginRegistry.getInstance('HTTPService')
-        ...
-        ...        # Register ourselves
-        ...        self.__http.register(self.path, self)
-        ...
+    .. code-block:: ini
 
-    When *SomeTest* is instantiated, it will register itself to the *HTTPService* -
-    and will be served when the *HTTPService* starts up.
+        [gosa.route]
+        /static/(?P<path>.*)? = gosa.backend.routes.static.main:StaticHandler
+
+    When the *HTTPService* starts up, *StaticHandler* will be automatically registered to serve
+    the route ``/static/*``.
     """
     _priority_ = 10
 
@@ -134,9 +120,6 @@ class HTTPService(object):
             else:
                 self.log.error("Registering '%s' as HTTP service denied: no subclass of HSTSRequestHandler or HSTSStaticFileHandler" % module)
 
-        # setup tornado's access logger
-        logging.getLogger("tornado.access").addFilter(TornadoAccessLoggingFilter())
-
         application = tornado.web.Application(apps,
                                               cookie_secret=self.env.config.get('http.cookie-secret', default="TecloigJink4"),
                                               xsrf_cookies=True)
@@ -151,11 +134,16 @@ class HTTPService(object):
         self.log.info("now serving on %s://%s:%s" % (self.scheme, self.host, self.port))
 
     def get_gui_uri(self):
-        """ Returns the gui URI as a tuple of base URI and relative path"""
+        """
+        Returns the gui URI as a tuple of base URI and relative path
+
+        :returns: tuple of (uri to GUI, relative uri to GUI)
+        :rtype: uri, string
+        """
         default = "index.html"
         if self.env.config.get("gui.debug", "false") == "true":  # pragma: nocover
             default = "gosa/source/index.html"
-        return "%s://%s:%s" %(self.scheme, socket.gethostname(), self.port), default
+        return "%s://%s:%s" % (self.scheme, socket.getfqdn(), self.port), default
 
     def start(self):
         IOLoop.configure('tornado.platform.asyncio.AsyncIOLoop')

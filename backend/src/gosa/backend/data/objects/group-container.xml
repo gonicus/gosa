@@ -15,6 +15,7 @@
 		<Container>
 			<Type>PosixGroup</Type>
 			<Type>GroupOfNames</Type>
+			<Type>ForemanHostGroup</Type>
 		</Container>
 	</Object>
 </Objects>

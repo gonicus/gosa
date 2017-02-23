@@ -548,6 +548,9 @@ class ObjectProxy(object):
         # Set initial values for foreign properties
         self.populate_to_foreign_properties(extension)
 
+    def is_extended_by(self, extension):
+        return self.__extensions[extension] is not None
+
     def retract(self, extension):
         """
         Retracts an extension from the current object

@@ -581,32 +581,104 @@ qx.Theme.define("gosa.theme.Appearance", {
         }
       }
     },
-    "settings-tabview-page": {
-      include: "gosa-tabview-page",
-      alias: "gosa-tabview-page",
 
+    "settings-view": "gosa-tabview-page",
+    "settings-view/splitpane": "splitpane",
+    "settings-view/list-title": {
       style: function() {
         return {
+          padding: [8, 20],
+          allowGrowX: true,
+          decorator: "panel-title"
+        };
+      }
+    },
+    "settings-view/list": {
+      include: "list",
+      alias: "list",
+      style: function() {
+        return {
+          decorator: "panel-body",
           padding: 0
-        }
+        };
       }
     },
-    "settings-tabview-page/list": {
+
+    "settings-view/content": {},
+    "settings-view/container": {
       style: function() {
         return {
-          width: 200,
-          groupItemHeight: 25,
-          margin: 0,
-          padding: 0,
-          height: null
+          decorator: "panel"
+        };
+      }
+    },
+
+    "webhook-editor": {},
+
+    "webhook-editor/title": {
+      style: function() {
+        return {
+          padding: [8, 20],
+          allowGrowX: true,
+          backgroundColor: "lightgray-dark"
+        };
+      }
+    },
+
+    "webhook-editor/table": {
+      include: "table",
+      alias: "table",
+      style: function() {
+        return {
+          decorator: "table",
+          margin: 6
+        };
+      }
+    },
+
+    "webhook-editor/delete-button": "icon-menu-button",
+    "webhook-editor/open-button": "icon-menu-button",
+    "webhook-editor/create-button": "icon-menu-button",
+    "webhook-editor/action-menu-button": "toolbar-menubutton",
+
+    "webhook-editor/toolbar": {
+      style: function() {
+        return {
+          margin: 8
         }
       }
     },
 
-    "settings-tabview-page/content": {
+    "settings-editor/title": {
       style: function() {
         return {
-          padding: 10
+          padding: [8, 20],
+          allowGrowX: true,
+          backgroundColor: "lightgray-dark"
+        };
+      }
+    },
+
+    "settings-editor": {
+    },
+
+    "settings-editor/table": {
+      include: "table",
+      alias: "table",
+      style: function() {
+        return {
+          decorator: "table",
+          margin: 6
+        };
+      }
+    },
+
+    "settings-editor/filter": {
+      include : "textfield",
+      alias : "textfield",
+      style: function() {
+        return {
+          margin: 8
         }
       }
     },
@@ -640,7 +712,17 @@ qx.Theme.define("gosa.theme.Appearance", {
       }
     },
 
-    "gosa-listitem-webhook": "listitem",
+    "gosa-listitem-webhook": {
+      include: "listitem",
+      alias: "listitem",
+      style: function(states) {
+        return {
+          textColor: "darkgray-dark",
+          decorator: "listitem",
+          backgroundColor: states.selected ? "lightgray-light" : "transparent"
+        }
+      }
+    },
     "gosa-listitem-webhook/label": {
       style: function() {
         return {
@@ -1651,8 +1733,6 @@ qx.Theme.define("gosa.theme.Appearance", {
         return result;
       }
     }
-
-
 
     // Do NOT place any appearances here, that are not FLAT theme related. Put them above
     // the marker above.

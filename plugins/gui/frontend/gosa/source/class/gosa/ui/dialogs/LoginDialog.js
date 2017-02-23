@@ -92,7 +92,6 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
       }, this);
       this._buttonPane.addAt(recovery, 0);
 
-
       var login = this._login = gosa.ui.base.Buttons.getButton(this.tr("Login"));
       this.addButton(login);
 

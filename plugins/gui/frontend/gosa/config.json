@@ -229,6 +229,24 @@
       ]
     },
 
+    "test-source" :
+    {
+      "desc"    : "create a test runner app for unit tests (source version) of the current library",
+
+      "extend" : ["testrunner::build-with-tests-source"],
+
+      "let" :
+      {
+        "TESTRUNNER_ORIGIN" : "iframe",
+        "TESTRUNNER_VIEW" : "testrunner.view.widget.Widget",
+        "TESTRUNNER_MAIN_CLASS" : "testrunner.GuiApplication",
+        "TESTRUNNER_ROOT" : "${QOOXDOO_PATH}/component/testrunner",
+        "TEST_INCLUDE"    : "${APPLICATION}.*",
+        "QXTHEME"         : "qx.theme.Modern",
+        "BUILD_PATH"      : "${ROOT}/test"
+      }
+    },
+
     "profile" :
     {
         "desc" : "generate profiling source",

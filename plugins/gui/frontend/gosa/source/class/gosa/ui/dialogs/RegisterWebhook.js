@@ -19,37 +19,43 @@ qx.Class.define("gosa.ui.dialogs.RegisterWebhook", {
   construct: function(widget) {
     this.base(arguments, this.tr("Register webhook"));
 
-    this.__selectionValues = {};
-    this.__initialValues = {};
-    var initForm = {};
-
     // form
     var form = this.__form = new qx.ui.form.Form();
-    var mimeTypeField = new qx.ui.form.SelectBox();
+    var mimeTypeField = new qx.ui.form.SelectBox().set({
+      width: 250
+    });
     gosa.io.Rpc.getInstance().cA("getAvailableMimeTypes").then(function(result) {
-      result.forEach(function(mimeType) {
-        var item = new qx.ui.form.ListItem(mimeType);
+      Object.getOwnPropertyNames(result).forEach(function(mimeType) {
+        var item = new qx.ui.form.ListItem(result[mimeType]);
+        item.setUserData("mimeType", mimeType);
         mimeTypeField.add(item);
       }, this);
     }, this);
 
-    form.add(mimeTypeField, this.tr("Mime-Type"), null, "mimeType");
-
     var nameField = new qx.ui.form.TextField();
-    form.add(nameField, this.tr("Name"), null, "name");
+    nameField.setValid(false);
+    nameField.setRequired(true);
+    nameField.setInvalidMessage(this.tr("Please enter a string containing ASCII letters and optional hyphens"));
+    nameField.setLiveUpdate(true);
+    nameField.addListener("changeValue", function(ev) {
+      var valid = !!ev.getData().match(/^[a-zA-Z-]+$/);
+      nameField.setValid(valid);
+      saveButton.setEnabled(valid && ev.getData().length > 0);
+    }, this);
+    nameField.addListenerOnce("appear", function(){
+      nameField.focus();
+    });
+
+    form.add(nameField, this.tr("Sender name"), null, "name");
+    form.add(mimeTypeField, this.tr("Type"), null, "type");
 
     // create the view
     this.addElement(new gosa.ui.form.renderer.Single(form));
 
-    var controller = new qx.data.controller.Form(null, form);
-    var model = controller.createModel();
-
-    // fill the model with initial values
-    model.set(initForm);
-
     // buttons
     var saveButton = gosa.ui.base.Buttons.getOkButton();
     saveButton.setAppearance("button-primary");
+    saveButton.setEnabled(false);
     this.addButton(saveButton);
     var cancelButton = gosa.ui.base.Buttons.getCancelButton();
     this.addButton(cancelButton);
@@ -57,7 +63,7 @@ qx.Class.define("gosa.ui.dialogs.RegisterWebhook", {
     // serialization and reset /////////
     saveButton.addListener("execute", function() {
       if (form.validate()) {
-        gosa.io.Rpc.getInstance().cA("registerWebhook", nameField.getValue(), mimeTypeField.getSelection()[0].getLabel())
+        gosa.io.Rpc.getInstance().cA("registerWebhook", nameField.getValue(), mimeTypeField.getSelection()[0].getUserData("mimeType"))
         .then(function(result) {
           this.fireDataEvent("registered", result);
           this.close();

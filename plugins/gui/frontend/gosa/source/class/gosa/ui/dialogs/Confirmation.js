@@ -21,7 +21,10 @@ qx.Class.define("gosa.ui.dialogs.Confirmation", {
     this.base(arguments, title);
 
     if (msg) {
-      var message = new qx.ui.basic.Label(msg);
+      var message = new qx.ui.basic.Label(msg).set({
+        rich : true,
+        wrap : true
+      });
       this.addElement(message);
     }
 

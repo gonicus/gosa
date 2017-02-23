@@ -136,7 +136,7 @@ class Config(object):
         """
         return self.__registry[section.lower()]
 
-    def get(self, path, default=None):
+    def get(self, path, default=None, use_user_config=True):
         """
         *get* allows dot-separated access to the configuration structure.
         If the desired value is not defined, you can specify a default
@@ -161,7 +161,8 @@ class Config(object):
         key = parts[1]
 
         # override with user config if exists
-        if self.__user_config and self.__user_config.has_section(section) and self.__user_config.has_option(section, key):
+        if use_user_config is True and self.__user_config and self.__user_config.has_section(section) and self.__user_config.has_option(\
+                section, key):
             return self.__user_config.get(section, key)
 
         tmp = self.__registry
@@ -192,7 +193,7 @@ class Config(object):
 
         # change value in the user_registry
         try:
-            if self.get(path) != value:
+            if self.get(path, use_user_config=False) != value:
                 self.__user_config.set(section, key, value)
             elif self.__user_config.get(section, key) != value:
                 # return to unchanged value -> do not override
@@ -204,13 +205,25 @@ class Config(object):
             self.__user_config.add_section(section)
             self.__user_config.set(section, key, value)
 
+        if path == "logger_gosa.level":
+            # apply changed log level
+            logging.getLogger("gosa").setLevel(getattr(logging, value))
+
+        elif path == "formatter_console.format":
+            try:
+                fmt = logging.Formatter(value)
+                hldr = logging.getLogger("gosa").handlers[0]
+                hldr.setFormatter(fmt)
+            except Exception as e:
+                logging.error(e)
+
+
     def save(self):
         """ save the settings in the main config file """
-        if self.__modified is True and self.__user_config is not None:
+        if self.__user_config is not None:
             main_config_file = os.path.join(self.get('core.config'), "user-config")
             with open(main_config_file, 'w') as f:
                 self.__user_config.write(f)
-                self.__modified = False
 
     def __getCfgFiles(self, cdir):
         conf = re.compile(r"^[a-z0-9_.-]+\.conf$", re.IGNORECASE)
@@ -251,6 +264,11 @@ class Config(object):
 
         # Initialize the logging module on the fly
         try:
+            if self.__user_config is not None:
+                for section in self.__user_config.sections():
+                    for option, value in self.__user_config.items(section):
+                        config.set(section, option, value)
+
             tmp = StringIO()
             config.write(tmp)
             tmp2 = StringIO(tmp.getvalue())

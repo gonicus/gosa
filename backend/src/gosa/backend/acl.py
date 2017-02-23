@@ -24,7 +24,7 @@ How an ACL assignment could look like
     ACLRole (test1)
      |-> ACLRoleEntry
      |-> ACLRoleEntry
-
+    
     ACLSet
      |-> ACL
      |-> ACL

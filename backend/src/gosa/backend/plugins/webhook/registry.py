@@ -64,7 +64,10 @@ class WebhookRegistry(Plugin):
             self.settings.set(path, monitor_key, temporary=True)
 
     def register_handler(self, mime_type, handler):
-        self.__handlers[mime_type] = handler
+        if not hasattr(handler, "type"):
+            self.log.error("Handler for mime-type %s has no type attribute. Skipping registration." % mime_type)
+        else:
+            self.__handlers[mime_type] = handler
 
     def unregister_handler(self, mime_type):
         if mime_type in self.__handlers:
@@ -74,7 +77,8 @@ class WebhookRegistry(Plugin):
         for clazz in self.__handlers.values():
             del clazz
 
-    def get_webhook_url(self):
+    @Command(__help__=N_("Get the webhook receiver URL"))
+    def getWebhookUrl(self):
         return "%s/hooks/" % PluginRegistry.getInstance("HTTPService").get_gui_uri()[0]
 
     @staticmethod
@@ -101,7 +105,7 @@ class WebhookRegistry(Plugin):
         if not self.settings.has(path):
             self.settings.set(path, str(uuid.uuid4()))
 
-        return self.get_webhook_url(), self.settings.get(path)
+        return self.getWebhookUrl(), self.settings.get(path)
 
     @Command(needsUser=True, __help__=N_("Unregisters a webhook"))
     def unregisterWebhook(self, user, sender_name, mime_type):
@@ -111,7 +115,10 @@ class WebhookRegistry(Plugin):
 
     @Command(needsUser=True, __help__=N_("Shows all mime-types a webhook can be registered for"))
     def getAvailableMimeTypes(self, user):
-        return list(self.__handlers.keys())
+        types = {}
+        for mime_type, handler in self.__handlers.items():
+            types[mime_type] = handler.type
+        return types
 
     def get_token(self, mime_type, sender_name):
         if mime_type is None or sender_name is None:
@@ -188,7 +195,7 @@ class WebhookSettingsHandler(object):
             return None
 
     def get_config(self):
-        return {"read_only": True}
+        return {"read_only": True, "name": N_("Webhooks")}
 
     def get_item_infos(self):
         """
@@ -200,6 +207,7 @@ class WebhookSettingsHandler(object):
             for sender_name in self.__hooks[mime_type]:
                 infos[WebhookRegistry.get_path(mime_type, sender_name)] = {
                     "type": "string",
+                    "title": sender_name,
                     "value": self.__hooks[mime_type][sender_name]
                 }
         return infos
@@ -258,6 +266,9 @@ class WebhookReceiver(HSTSRequestHandler):
 
 class WebhookEventReceiver(object):
     """ Webhook handler for gosa events (Content-Type: application/vnd.gosa.event+xml) """
+
+    def __init__(self):
+        self.type = N_("GOsa events")
 
     def handle_request(self, requestHandler):
         # read and validate event
