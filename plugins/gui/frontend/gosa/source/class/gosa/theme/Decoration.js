@@ -698,6 +698,25 @@ qx.Theme.define("gosa.theme.Decoration",
       style : {
         backgroundColor : "mediumgray-light"
       }
+    },
+
+    "panel-title" :
+    {
+      include : "panel",
+      style :
+      {
+        backgroundColor : "lightgray-dark",
+        radius : [4, 4, 0, 0]
+      }
+    },
+
+    "panel-body" :
+    {
+      include : "panel",
+      style :
+      {
+        radius : [0, 0, 4, 4]
+      }
     }
 
     // Do NOT place any decorations here, that are not FLAT theme related. Put them above

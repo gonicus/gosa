@@ -26,8 +26,10 @@ qx.Class.define("gosa.view.Settings",
     // Call super class and configure ourselfs
     this.base(arguments, "", "@Ligature/gear");
     this.getChildControl("button").getChildControl("label").exclude();
+    this._createChildControl("list-title");
     this._createChildControl("list");
-    this.setLayout(new qx.ui.layout.HBox());
+    this._createChildControl("container");
+    this.setLayout(new qx.ui.layout.Canvas());
   },
   /*
    *****************************************************************************
@@ -37,7 +39,7 @@ qx.Class.define("gosa.view.Settings",
   properties : {
     appearance: {
       refine: true,
-      init: "settings-tabview-page"
+      init: "settings-view"
     }
   },
 
@@ -55,13 +57,35 @@ qx.Class.define("gosa.view.Settings",
 
         case "list":
           control = new qx.ui.list.List(null);
+          control.setSelectionMode("one");
           this.__initEditorList(control);
-          this._addAt(control, 0);
+          this.getChildControl("list-content").add(control, {flex: 1});
+          break;
+
+        case "list-title":
+          control = new qx.ui.basic.Label(this.tr("Sections"));
+          this.getChildControl("list-content").add(control);
+          break;
+
+        case "container":
+          control = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+          control.add(this.getChildControl("content"), { edge: 0 });
+          this.getChildControl("splitpane").add(control, 2);
+          break;
+
+        case "splitpane":
+          control = new qx.ui.splitpane.Pane("horizontal");
+          this.add(control, {edge : 0});
           break;
 
         case "content":
           control = new qx.ui.container.Stack();
-          this._addAt(control, 1, {flex: 1});
+          this.getChildControl("splitpane").add(control, 2);
+          break;
+
+        case "list-content":
+          control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+          this.getChildControl("splitpane").add(control, 1);
           break;
       }
 
@@ -78,11 +102,7 @@ qx.Class.define("gosa.view.Settings",
         },
 
         sorter: function(a, b) {
-          return a.getNamespace().localeCompare(b.getNamespace());
-        },
-
-        group: function(item) {
-          return qx.lang.String.firstUp(item.getNamespace().split(".")[0]);
+          return a.getName().localeCompare(b.getName());
         }
       });
 

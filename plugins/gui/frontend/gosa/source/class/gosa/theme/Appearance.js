@@ -581,32 +581,68 @@ qx.Theme.define("gosa.theme.Appearance", {
         }
       }
     },
-    "settings-tabview-page": {
-      include: "gosa-tabview-page",
-      alias: "gosa-tabview-page",
 
+    "settings-view": "gosa-tabview-page",
+    "settings-view/splitpane": "splitpane",
+    "settings-view/list-title": {
       style: function() {
         return {
+          padding: 8,
+          allowGrowX: true,
+          decorator: "panel-title"
+        };
+      }
+    },
+    "settings-view/list": {
+      include: "list",
+      alias: "list",
+      style: function() {
+        return {
+          decorator: "panel-body",
           padding: 0
-        }
-      }
-    },
-    "settings-tabview-page/list": {
-      style: function() {
-        return {
-          width: 200,
-          groupItemHeight: 25,
-          margin: 0,
-          padding: 0,
-          height: null
-        }
+        };
       }
     },
 
-    "settings-tabview-page/content": {
+    "settings-view/content": {},
+    "settings-view/container": {
       style: function() {
         return {
-          padding: 10
+          decorator: "panel"
+        };
+      }
+    },
+
+    "settings-editor/title": {
+      style: function() {
+        return {
+          padding: 8,
+          allowGrowX: true,
+          backgroundColor: "lightgray-dark"
+        };
+      }
+    },
+
+    "settings-editor": {
+    },
+
+    "settings-editor/table": {
+      include: "table",
+      alias: "table",
+      style: function() {
+        return {
+          decorator: "table",
+          margin: 6
+        };
+      }
+    },
+
+    "settings-editor/filter": {
+      include : "textfield",
+      alias : "textfield",
+      style: function() {
+        return {
+          margin: 8
         }
       }
     },
@@ -1661,8 +1697,6 @@ qx.Theme.define("gosa.theme.Appearance", {
         return result;
       }
     }
-
-
 
     // Do NOT place any appearances here, that are not FLAT theme related. Put them above
     // the marker above.
