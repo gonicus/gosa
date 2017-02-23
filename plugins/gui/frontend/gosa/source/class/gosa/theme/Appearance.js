@@ -587,7 +587,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     "settings-view/list-title": {
       style: function() {
         return {
-          padding: 8,
+          padding: [8, 20],
           allowGrowX: true,
           decorator: "panel-title"
         };
@@ -618,7 +618,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     "webhook-editor/title": {
       style: function() {
         return {
-          padding: 8,
+          padding: [8, 20],
           allowGrowX: true,
           backgroundColor: "lightgray-dark"
         };
@@ -652,7 +652,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     "settings-editor/title": {
       style: function() {
         return {
-          padding: 8,
+          padding: [8, 20],
           allowGrowX: true,
           backgroundColor: "lightgray-dark"
         };

@@ -268,7 +268,7 @@ class WebhookEventReceiver(object):
     """ Webhook handler for gosa events (Content-Type: application/vnd.gosa.event+xml) """
 
     def __init__(self):
-        self.type = N_("Gosa events")
+        self.type = N_("GOsa events")
 
     def handle_request(self, requestHandler):
         # read and validate event
