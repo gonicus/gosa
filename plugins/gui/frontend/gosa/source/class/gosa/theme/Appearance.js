@@ -891,6 +891,17 @@ qx.Theme.define("gosa.theme.Appearance", {
       }
     },
 
+    "workflow-wizard" : {},
+    "workflow-wizard/next-button" : "button-primary",
+    "workflow-wizard/sidebar" : {
+      style: function(states) {
+        return {
+          maxWidth : 250,
+          decorator : "panel"
+        };
+      }
+    },
+
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
     "root": {
@@ -1019,10 +1030,12 @@ qx.Theme.define("gosa.theme.Appearance", {
     "button-normal": {
       include: "button",
       style: function(states) {
-        var styles = {
-          decorator: "button-normal",
-          textColor: "white"
-        };
+        var styles = {};
+
+        if (!states.disabled) {
+          styles.textColor = "white";
+          styles.decorator = "button-normal";
+        }
 
         if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-normal-pressed" : "button-normal-focused";
@@ -1050,10 +1063,13 @@ qx.Theme.define("gosa.theme.Appearance", {
     "button-primary": {
       include: "button",
       style: function(states) {
-        var styles = {
-          textColor: "white",
-          decorator: "button-primary"
-        };
+        var styles = {};
+
+        if (!states.disabled) {
+          styles.textColor = "white";
+          styles.decorator = "button-primary";
+        }
+
         if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-primary-pressed" : "button-primary-focused";
         }
@@ -1064,10 +1080,13 @@ qx.Theme.define("gosa.theme.Appearance", {
     "button-success": {
       include: "button",
       style: function(states) {
-        var styles = {
-          textColor: "white",
-          decorator: "button-success"
-        };
+        var styles = {};
+
+        if (!states.disabled) {
+          styles.textColor = "white";
+          styles.decorator = "button-success";
+        }
+
         if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-success-pressed" : "button-success-focused";
         }
@@ -1078,10 +1097,13 @@ qx.Theme.define("gosa.theme.Appearance", {
     "button-info": {
       include: "button",
       style: function(states) {
-        var styles = {
-          textColor: "white",
-          decorator: "button-info"
-        };
+        var styles = {};
+
+        if (!states.disabled) {
+          styles.textColor = "white";
+          styles.decorator = "button-info";
+        }
+
         if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-info-pressed" : "button-info-focused";
         }
@@ -1092,10 +1114,13 @@ qx.Theme.define("gosa.theme.Appearance", {
     "button-warning": {
       include: "button",
       style: function(states) {
-        var styles = {
-          textColor: "white",
-          decorator: "button-warning"
-        };
+        var styles = {};
+
+        if (!states.disabled) {
+          styles.textColor = "white";
+          styles.decorator = "button-warning";
+        }
+
         if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-warning-pressed" : "button-warning-focused";
         }
@@ -1115,10 +1140,13 @@ qx.Theme.define("gosa.theme.Appearance", {
     "button-danger": {
       include: "button",
       style: function(states) {
-        var styles = {
-          textColor: "white",
-          decorator: "button-danger"
-        };
+        var styles = {};
+
+        if (!states.disabled) {
+          styles.textColor = "white";
+          styles.decorator = "button-danger";
+        }
+
         if (!states.disabled && (states.hovered || states.pressed)) {
           styles.decorator = states.pressed ? "button-danger-pressed" : "button-danger-focused";
         }

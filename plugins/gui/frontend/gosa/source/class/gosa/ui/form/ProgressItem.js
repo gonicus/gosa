@@ -11,29 +11,25 @@
  */
 
 /**
-* Display a workflow item with icon, label and description
+* Element that is used to display the wizard progress.
 */
-qx.Class.define("gosa.ui.form.WorkflowItem", {
+qx.Class.define("gosa.ui.form.ProgressItem", {
   extend : qx.ui.core.Widget,
-  implement : [qx.ui.form.IModel],
-  include: [qx.ui.form.MModelProperty],
   
-  construct : function(skipHover) {
+  construct : function(index, title, description) {
     this.base(arguments);
-    var layout = new qx.ui.layout.HBox(0);
-    this._setLayout(layout);
+    this._setLayout(new qx.ui.layout.HBox());
 
-    if (!skipHover) {
-      this.addListener("mouseover", this._onMouseOver, this);
-      this.addListener("mouseout", this._onMouseOut, this);
-    }
+    this.setIndex(index);
+    this.setTitle(title);
+    this.setDescription(description);
   },
     
   properties : {
-
+    // overridden
     appearance: {
       refine: true,
-      init: "gosa-workflow-item"
+      init: "progress-item"
     },
 
     id: {

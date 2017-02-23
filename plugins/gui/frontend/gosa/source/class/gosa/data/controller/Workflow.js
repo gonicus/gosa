@@ -24,12 +24,6 @@ qx.Class.define("gosa.data.controller.Workflow", {
     this.base(arguments);
     qx.core.Assert.assertInstance(workflowObject, gosa.proxy.Object);
     this.__workflowObject = workflowObject;
-
-    gosa.io.Rpc.getInstance().cA("generateUid", "{%sn}-{%prename}", {"sn": "Doe", "prename": "John"})
-      .then(function(result) {
-        console.log(result);
-      }
-    );
   },
 
   members : {
