@@ -218,7 +218,7 @@ class Foreman(Plugin):
 
 
 class ForemanWebhookReceiver(object):
-    """ Webhook handler for foreman events (Content-Type: application/vnd.acme.hostevent+json) """
+    """ Webhook handler for foreman events (Content-Type: application/vnd.foreman.hostevent+json) """
 
     def __init__(self):
         self.type = N_("Foreman host event")
