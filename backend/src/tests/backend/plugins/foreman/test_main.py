@@ -8,7 +8,7 @@
 # See the LICENSE file in the project's top-level directory for details.
 import hmac
 from json import loads, dumps
-
+import logging
 import pytest
 from unittest import TestCase, mock
 
@@ -39,6 +39,10 @@ class MockResponse:
 @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
 class ForemanTestCase(GosaTestCase):
 
+    def tearDown(self):
+        logging.getLogger("gosa.backend.objects.index").setLevel(logging.INFO)
+        super(ForemanTestCase, self).tearDown()
+
     def test_addHost(self, m_get):
         self._create_test_data()
         foreman = Foreman()
@@ -53,6 +57,7 @@ class ForemanTestCase(GosaTestCase):
             # no mac
             foreman.addHost("admin", "testhost", params={}, base=self._test_dn)
 
+        logging.getLogger("gosa.backend.objects.index").setLevel(logging.DEBUG)
         device = foreman.addHost("admin", "testhost", params={
             "mac": "00:00:00:00:00:01",
             "location_id": "loc1",
@@ -214,11 +219,11 @@ class ForemanWebhookTestCase(RemoteTestCase):
     def setUp(self):
         super(ForemanWebhookTestCase, self).setUp()
         self.registry = PluginRegistry.getInstance("WebhookRegistry")
-        self.url, self.token = self.registry.registerWebhook("admin", "test-webhook", "application/vnd.acme.hostevent+json")
+        self.url, self.token = self.registry.registerWebhook("admin", "test-webhook", "application/vnd.foreman.hostevent+json")
 
     def tearDown(self):
         super(ForemanWebhookTestCase, self).tearDown()
-        self.registry.unregisterWebhook("admin", "test-webhook", "application/vnd.acme.hostevent+json")
+        self.registry.unregisterWebhook("admin", "test-webhook", "application/vnd.foreman.hostevent+json")
 
     def get_app(self):
         return Application([('/hooks(?P<path>.*)?', WebhookReceiver)], cookie_secret='TecloigJink4', xsrf_cookies=True)
@@ -245,7 +250,7 @@ class ForemanWebhookTestCase(RemoteTestCase):
         signature_hash = hmac.new(token, msg=payload, digestmod="sha512")
         signature = 'sha1=' + signature_hash.hexdigest()
         headers = {
-            'Content-Type': 'application/vnd.acme.hostevent+json',
+            'Content-Type': 'application/vnd.foreman.hostevent+json',
             'HTTP_X_HUB_SENDER': 'test-webhook',
             'HTTP_X_HUB_SIGNATURE': signature
         }

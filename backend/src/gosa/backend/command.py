@@ -13,12 +13,12 @@
 """
 The *CommandRegistry* is responsible for knowing what kind of commands
 are available for users. It works together with the
-:class:`clacks.common.components.registry.PluginRegistry` and inspects
+:class:`gosa.common.components.registry.PluginRegistry` and inspects
 all loaded plugins for methods marked with the
-:meth:`clacks.common.components.command.Command` decorator. All available
+:meth:`gosa.common.components.command.Command` decorator. All available
 information like *method path*, *command name*,
 *documentation* and *signature* are recorded and are available for users
-via the :meth:`clacks.agent.command.CommandRegistry.dispatch` method
+via the :meth:`gosa.backend.command.CommandRegistry.dispatch` method
 (or better with the several proxies) and the CLI.
 
 .. note::

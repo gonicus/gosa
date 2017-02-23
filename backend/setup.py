@@ -236,7 +236,7 @@ setup(
 
         [gosa.webhook_handler]
         application/vnd.gosa.event+xml = gosa.backend.plugins.webhook.registry:WebhookEventReceiver
-        application/vnd.acme.hostevent+json = gosa.backend.plugins.foreman.main:ForemanWebhookReceiver
+        application/vnd.foreman.hostevent+json = gosa.backend.plugins.foreman.main:ForemanWebhookReceiver
 
         [gosa.settings_handler]
         gosa.settings = gosa.backend.components.settings_registry:SettingsHandler
