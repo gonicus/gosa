@@ -245,7 +245,7 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
           control.setSource(value);
         }
         else {
-          control.setSource("/workflow/" + this.getId() + "/" + value);
+          control.setSource("/workflow/" + this.getId() + "/64/" + value);
         }
         control.show();
       } else {

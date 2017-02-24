@@ -79,7 +79,11 @@ qx.Class.define("gosa.ui.form.WindowListItem", {
       if (object) {
         if (object instanceof gosa.ui.form.WorkflowItem) {
           object.bind("label", this, "label");
-          object.bind("icon", this, "icon");
+          object.bind("icon", this, "icon", {
+            converter : function(value) {
+              return "/workflow/" + object.getId() + "/32/" + value;
+            }
+          });
         } else if (!object.uuid) {
           // new object
           this.setLabel(object.baseType+"*");

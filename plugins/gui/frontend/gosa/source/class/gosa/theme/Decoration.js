@@ -104,6 +104,19 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
+    "vertical-line" : {
+      style: {
+        widthRight: 1,
+        color: "mediumgray-light"
+      }
+    },
+
+    "indicator" : {
+      style: {
+        radius: 50
+      }
+    },
+
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
     "button-normal": {

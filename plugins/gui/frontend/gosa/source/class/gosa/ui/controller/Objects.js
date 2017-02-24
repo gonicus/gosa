@@ -150,7 +150,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
         return qx.Promise.all([workflow, templates]);
       }, this)
       .spread(function(workflow, templates) {
-        win = new qx.ui.window.Window(qx.locale.Manager.tr("Workflow"));
+        win = new qx.ui.window.Window(qx.locale.Manager.tr("Workflow") + " - " + workflowItem.getLabel());
         var bounds = this._desktop.getBounds();
         win.set({
           width        : this.__windowWidth,

@@ -15,7 +15,7 @@
  */
 qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
-  extend: qx.ui.container.Composite,
+  extend: qx.ui.core.Widget,
 
   /**
    * @param workflowObject {gosa.proxy.Object}
@@ -24,7 +24,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
    */
   construct: function(workflowObject, controller, templates) {
     this.base(arguments);
-    this.setLayout(new qx.ui.layout.HBox());
+    this._setLayout(new qx.ui.layout.HBox(18));
 
     qx.core.Assert.assertArray(templates);
     qx.core.Assert.assertInstance(controller, gosa.data.controller.Workflow);
@@ -43,6 +43,13 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
   events : {
     "close" : "qx.event.type.Event"
+  },
+
+  properties : {
+    appearance : {
+      refine : true,
+      init : "workflow-wizard"
+    }
   },
 
   members : {
@@ -106,6 +113,12 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       }, this);
       this.__currentStep = index;
 
+      var children = this.getChildControl("sidebar").getChildren();
+      for (var i=0, l=children.length; i<l; i++) {
+        children[i].setDone(i < index);
+        children[i].setActive(index === i);
+      }
+
       this.__updateButtons();
     },
 
@@ -137,20 +150,13 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     },
 
     __fillSideBar : function() {
+      var last;
       this.__stepsConfig.forEach(function(item, index) {
-        this.__createSideBarItem(index, item.name, item.description);
-      }, this)
-    },
+        var item = last = new gosa.ui.form.ProgressItem(index + 1, item.name, item.description);
+        this.getChildControl("sidebar").add(item);
+      }, this);
 
-    __createSideBarItem : function(index, name, description) {
-      var label = new qx.ui.basic.Label("<strong>" + (index + 1) + ". " + name + "</strong>");
-      label.setRich(true);
-      this.getChildControl("sidebar").add(label);
-
-      if (description) {
-        label = new qx.ui.basic.Label(description);
-        this.getChildControl("sidebar").add(label);
-      }
+      last.addState("last");
     },
 
     __showSaveButton : function(shallShow) {
@@ -173,21 +179,21 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
           var layout = new qx.ui.layout.VBox();
           layout.setAlignX("right");
           control = new qx.ui.container.Composite(layout);
-          this.add(control);
+          this._add(control, {flex: 1});
           break;
 
         case "sidebar":
           control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
-          this.add(control);
+          this._add(control);
           break;
 
         case "stack":
           control = new qx.ui.container.Stack();
-          this.getChildControl("form-container").addAt(control, 0);
+          this.getChildControl("form-container").addAt(control, 0, {flex: 1});
           break;
 
         case "button-group":
-          control = new qx.ui.container.Composite(new qx.ui.layout.HBox());
+          control = new qx.ui.container.Composite(new qx.ui.layout.HBox(8));
           this.getChildControl("form-container").addAt(control, 1);
           break;
 
@@ -195,6 +201,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
           control = new qx.ui.form.Button(this.tr("Cancel"));
           control.addListener("execute", this.__controller.close, this.__controller);
           this.getChildControl("button-group").add(control);
+          this.getChildControl("button-group").add(new qx.ui.core.Spacer(), {flex: 1});
           break;
 
         case "next-button":
