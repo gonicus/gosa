@@ -119,6 +119,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
       var children = this.getChildControl("sidebar").getChildren();
       for (var i=0, l=children.length; i<l; i++) {
+        children[i].setDone(i < index);
         children[i].setActive(index === i);
       }
 
