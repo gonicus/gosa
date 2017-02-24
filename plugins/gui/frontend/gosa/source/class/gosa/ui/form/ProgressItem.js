@@ -74,7 +74,8 @@ qx.Class.define("gosa.ui.form.ProgressItem", {
      */
     _forwardStates : {
       last : true,
-      active : true
+      active : true,
+      done : true
     },
 
     // property apply
@@ -133,7 +134,7 @@ qx.Class.define("gosa.ui.form.ProgressItem", {
           break;
 
         case "indicator":
-          control = new qx.ui.basic.Atom(null, "@Ligature/check/16");
+          control = new qx.ui.basic.Atom(null, "@Ligature/check/12");
           this.getChildControl("left-container").addAt(control, 0);
           break;
 

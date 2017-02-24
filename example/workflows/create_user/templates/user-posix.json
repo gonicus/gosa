@@ -1,4 +1,6 @@
 {
+    "name": "tr('UNIX settings')",
+    "description": "tr('Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.')",
     "type": "widget",
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.VBox",

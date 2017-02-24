@@ -1,4 +1,6 @@
 {
+    "name": "tr('Like Samba?')",
+    "description": "tr('Come and make a dance course with us...')",
     "type": "widget",
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.VBox",

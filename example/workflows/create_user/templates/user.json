@@ -1,4 +1,6 @@
 {
+    "name": "tr('A first step')",
+    "description": "tr('Provide basic user settings and do whatever is fun.')",
     "type": "widget",
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.VBox",
@@ -14,14 +16,8 @@
             "icon": "favicon"
         },
         "resources": {
-            "favicon": "images/user.png",
-            "actionChangePassword": "@FontAwesome/f084",
-            "actionLockAccount": "@FontAwesome/f023",
-            "actionUnlockAccount": "@FontAwesome/f09c",
-            "actionSendMessage": "@FontAwesome/f27b",
-            "actionChange2FAMethod": "@FontAwesome/f21b"
-        },
-        "actions": []
+            "favicon": "images/user.png"
+        }
     },
     "properties": {
         "width": 486,

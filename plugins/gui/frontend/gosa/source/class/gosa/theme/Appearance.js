@@ -930,11 +930,11 @@ qx.Theme.define("gosa.theme.Appearance", {
       style: function(states) {
         return {
           decorator : "indicator",
-          backgroundColor : states.active || states.done ? "aqua-light" : "mediumgray-light",
+          backgroundColor : (states.active || states.done) ? "aqua-light" : "mediumgray-light",
           textColor: "white",
           width : 24,
-          center : true,
-          padding : 3
+          height : 24,
+          center : true
         };
       }
     },

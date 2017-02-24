@@ -1,4 +1,6 @@
 {
+    "name": "tr('Organizational')",
+    "description": "tr('Provide organization user settings')",
     "type": "widget",
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.VBox",
