@@ -117,6 +117,11 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       }, this);
       this.__currentStep = index;
 
+      var children = this.getChildControl("sidebar").getChildren();
+      for (var i=0, l=children.length; i<l; i++) {
+        children[i].setActive(index === i);
+      }
+
       this.__updateButtons();
     },
 
@@ -148,10 +153,13 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     },
 
     __fillSideBar : function() {
+      var last;
       this.__stepsConfig.forEach(function(item, index) {
-        var item = new gosa.ui.form.ProgressItem(index, item.name, item.description);
+        var item = last = new gosa.ui.form.ProgressItem(index + 1, item.name, item.description);
         this.getChildControl("sidebar").add(item);
-      }, this)
+      }, this);
+
+      last.addState("last");
     },
 
     __showSaveButton : function(shallShow) {

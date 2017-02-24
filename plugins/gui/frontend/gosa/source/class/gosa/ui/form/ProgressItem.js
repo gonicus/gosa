@@ -23,6 +23,10 @@ qx.Class.define("gosa.ui.form.ProgressItem", {
     this.setIndex(index);
     this.setTitle(title);
     this.setDescription(description);
+    this._createChildControl("line");
+
+    this.initActive();
+    this.initDone();
   },
     
   properties : {
@@ -32,137 +36,88 @@ qx.Class.define("gosa.ui.form.ProgressItem", {
       init: "progress-item"
     },
 
-    id: {
+    index: {
+      init : null,
+      check: "Integer",
+      apply: "_applyIndex"
+    },
+
+    title: {
       init : null,
       check: "String",
-      apply: "_applyId"
-    },
-
-    icon: {
-      check: "String",
-      init: null,
-      themeable: true,
-      nullable: true,
-      apply: "_applyIcon",
-      event: "changeIcon"
-    },
-
-    label: {
-      check: "String",
-      nullable: true,
-      apply: "_applyText",
-      event: "changeLabel"
+      apply: "_applyTitle"
     },
 
     description: {
+      init : null,
       check: "String",
-      nullable: true,
-      apply: "_applyText"
+      apply: "_applyDescription"
     },
 
-    iconSize: {
-      check: "Number",
-      themeable: true,
-      init: 64,
-      apply: "_applyIconSize",
-      event: "changeIconSize"
-    },
-
-    loading: {
+    active: {
+      init : false,
       check: "Boolean",
-      init: false,
-      apply: "_applyLoading"
+      apply: "_applyActive"
     },
 
-    show: {
-      check: ["both", "icon", "label"],
-      init: "both",
-      themeable: true,
-      apply: "_applyShow"
-    },
-
-    iconPosition: {
-      check: ["left", "top"],
-      init: "left",
-      themeable: true,
-      apply: "_applyIconPosition"
-    },
-
-    /**
-     * This is a dummy property to let this be usable as a selectbox listitem.
-     */
-    rich      : {
-      check : "Boolean",
-      init  : false
-    },
-
-    /**
-     * How this list item should behave like group or normal ListItem
-     */
-    listItemType: {
-      check: ['group', 'item'],
-      init: 'item',
-      apply: '_applyListItemType'
+    done: {
+      init : false,
+      check: "Boolean",
+      apply: "_applyDone"
     }
   },
     
   members : {
-
-    _onMouseOver : function() {
-      this.addState("hovered");
-    },
-
-    _onMouseOut : function() {
-      this.removeState("hovered");
+    // overridden
+    /**
+     * @lint ignoreReferenceField(_forwardStates)
+     */
+    _forwardStates : {
+      last : true,
+      active : true
     },
 
     // property apply
-    _applyId : function()
+    _applyIndex : function(value)
     {
-      if (this.getIcon()) {
-        this._applyIcon(this.getIcon());
-      }
+      this.getChildControl("indicator").setLabel("" + value);
     },
 
     // property apply
-    _applyListItemType: function(value) {
-      if (value === "group") {
-        this.setLayoutProperties({lineBreak: true, stretch: true, newLine: true});
-        this.setAppearance("gosa-workflow-category");
-        this.setEnabled(false);
-      } else {
-        this.setLayoutProperties({});
-        this.setAppearance("gosa-workflow-item");
-        this.setEnabled(true);
-      }
+    _applyTitle : function(value)
+    {
+      this.getChildControl("title").setValue(value);
     },
 
     // property apply
-    _applyLoading: function(value) {
+    _applyDescription : function(value)
+    {
+      this.getChildControl("description").setValue(value);
+    },
+
+    // property apply
+    _applyDone : function(value)
+    {
       if (value) {
-        this.getChildControl("throbber").show();
-      } else {
-        this.getChildControl("throbber").exclude();
+        this.getChildControl("indicator").setShow("icon");
+        this.addState("done");
+      }
+      else {
+        this.getChildControl("indicator").setShow("label");
+        this.removeState("done");
       }
     },
 
     // property apply
-    _applyIconPosition: function(value, old) {
-      var icon = this.getChildControl("icon");
-      var throbber = this.getChildControl("throbber");
-      if (old === "left") {
-        this._remove(icon);
-        this._remove(throbber);
-      } else {
-        this.getChildControl("content").remove(icon);
-        this.getChildControl("content").remove(throbber);
+    _applyActive : function(value)
+    {
+      if (value) {
+        this.getChildControl("description").show();
+        this.addState("active");
       }
-      if (value === "left") {
-        this._addAt(icon, 0);
-        this._addAt(throbber, 1);
-      } else {
-        this.getChildControl("content").addAt(icon, 0);
-        this.getChildControl("content").addAt(throbber, 1);
+      else {
+        this.getChildControl("description").exclude();
+        this.removeState("active");
       }
     },
 
@@ -172,108 +127,40 @@ qx.Class.define("gosa.ui.form.ProgressItem", {
 
       switch(id) {
 
-        case "icon":
-          control = new qx.ui.basic.Image();
-          control.setAnonymous(true);
+        case "left-container":
+          control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
           this._addAt(control, 0);
           break;
 
-        case "throbber":
-          control = new gosa.ui.Throbber();
-          this.bind("iconSize", control, "size");
-          control.exclude();
-          control.bind("visibility", this.getChildControl("icon"), "visibility", {
-            converter: function(value) {
-              return ['hidden', 'excluded'].indexOf(value) >= 0 ? 'visible' : 'excluded';
-            }
-          });
-          this._addAt(control, 1);
+        case "indicator":
+          control = new qx.ui.basic.Atom(null, "@Ligature/check/16");
+          this.getChildControl("left-container").addAt(control, 0);
           break;
 
-        case "content":
+        case "line":
+          control = new qx.ui.core.Widget();
+          this.getChildControl("left-container").addAt(control, 1, {flex: 1});
+          break;
+
+        case "right-container":
           control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
-          control.setAnonymous(true);
-          this._addAt(control, 2);
+          this._addAt(control, 1, {flex: 1});
           break;
 
-        case "label":
-          control = new qx.ui.basic.Label(this.getLabel());
-          control.setRich(this.getRich());
-          control.setAnonymous(true);
-          this.getChildControl("content").addAt(control, 2);
-          if (this.getLabel() == null) {
-            control.exclude();
-          }
+        case "title":
+          control = new qx.ui.basic.Label();
+          this.getChildControl("right-container").addAt(control, 0);
           break;
 
         case "description":
-          control = new qx.ui.basic.Label(this.getDescription());
-          control.setAnonymous(true);
+          control = new qx.ui.basic.Label();
           control.setRich(true);
           control.setWrap(true);
-          this.getChildControl("content").addAt(control, 3);
-          if (!this.getDescription()) {
-            control.exclude();
-          }
+          this.getChildControl("right-container").addAt(control, 1, {flex: 1});
           break;
-
       }
 
       return control || this.base(arguments, id);
-    },
-
-    // property apply
-    _applyText: function(value, old, name) {
-      var control = this.getChildControl(name);
-      if (value) {
-        control.setValue(value);
-        control.show();
-      } else {
-        control.exclude();
-      }
-    },
-
-    // property apply
-    _applyIcon: function(value) {
-      var control = this.getChildControl("icon");
-      if (value && this.getId()) {
-        if (value.startsWith("@")) {
-          control.setSource(value);
-        }
-        else {
-          control.setSource("/workflow/" + this.getId() + "/64/" + value);
-        }
-        control.show();
-      } else {
-        control.hide();
-      }
-    },
-
-    // property apply
-    _applyShow: function(value) {
-      switch(value) {
-        case "both":
-          this.getChildControl("content").show();
-          this.getChildControl("icon").show();
-          break;
-        case "label":
-          this.getChildControl("content").show();
-          this.getChildControl("icon").exclude();
-          break;
-        case "icon":
-          this.getChildControl("content").exclude();
-          this.getChildControl("icon").show();
-          break;
-      }
-    },
-
-    // property apply
-    _applyIconSize: function(size) {
-      this.getChildControl("icon").set({
-        scale: true,
-        width: size,
-        height: size
-      });
     }
   }
 });

@@ -894,10 +894,65 @@ qx.Theme.define("gosa.theme.Appearance", {
     "workflow-wizard" : {},
     "workflow-wizard/next-button" : "button-primary",
     "workflow-wizard/sidebar" : {
-      style: function(states) {
+      style: function() {
+        return {
+          decorator : "panel",
+          padding : 8
+        };
+      }
+    },
+
+    "progress-item" : {},
+
+    "progress-item/right-container" : {
+      style: function() {
         return {
           maxWidth : 250,
-          decorator : "panel"
+          paddingLeft : 8
+        };
+      }
+    },
+
+    "progress-item/line" : {
+      style: function(states) {
+        return {
+          decorator : states.last ? undefined : "vertical-line",
+          marginTop : 8,
+          marginBottom : 8,
+          maxWidth : 12,
+          height : 30,
+          allowGrowY : true
+        };
+      }
+    },
+
+    "progress-item/indicator" : {
+      style: function(states) {
+        return {
+          decorator : "indicator",
+          backgroundColor : states.active || states.done ? "aqua-light" : "mediumgray-light",
+          textColor: "white",
+          width : 24,
+          center : true,
+          padding : 3
+        };
+      }
+    },
+
+    "progress-item/title" : {
+      style: function() {
+        return {
+          paddingTop: 2,
+          font : "bold"
+        };
+      }
+    },
+
+    "progress-item/description" : {
+      style: function() {
+        return {
+          paddingTop: 8,
+          paddingBottom: 12
         };
       }
     },
