@@ -22,7 +22,9 @@ qx.Class.define("gosa.ui.form.ProgressItem", {
 
     this.setIndex(index);
     this.setTitle(title);
-    this.setDescription(description);
+    if (description) {
+      this.setDescription(description);
+    }
     this._createChildControl("line");
 
     this.initActive();
