@@ -1,0 +1,47 @@
+{
+    "type": "widget",
+    "name": "tr('Confirmation')",
+    "description": "tr('Check all values that are going to be saved')",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.VBox",
+    "addOptions": {
+        "flex" : 1
+    },
+    "layoutConfig": {
+        "spacing": "CONST_SPACING_Y"
+    },
+    "children": [
+        {
+            "class": "qx.ui.groupbox.GroupBox",
+            "layout": "qx.ui.layout.Grid",
+            "properties": {
+                "legend": "tr('This data will be saved')"
+            },
+            "layoutConfig": {
+                "spacingX": "CONST_SPACING_X",
+                "spacingY": "CONST_SPACING_Y"
+            },
+            "extensions": {
+                "layoutOptions": {
+                    "columnFlex": {
+                        "column": 1,
+                        "flex": 1
+                    }
+                }
+            },
+            "children": [
+                {
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "addOptions": {
+                        "row": 0,
+                        "column": 0,
+                        "colSpan": 2
+                    },
+                    "properties": {
+                        "text": "TODO: overview"
+                    }
+                }
+            ]
+        }
+    ]
+}

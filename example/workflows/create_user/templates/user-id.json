@@ -1,6 +1,6 @@
 {
     "type": "widget",
-    "name": "tr('Name')",
+    "name": "tr('User id')",
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.VBox",
     "addOptions": {
@@ -14,7 +14,7 @@
             "class": "qx.ui.groupbox.GroupBox",
             "layout": "qx.ui.layout.Grid",
             "properties": {
-                "legend": "tr('Login information')"
+                "legend": "tr('Define user id')"
             },
             "layoutConfig": {
                 "spacingX": "CONST_SPACING_X",
@@ -31,40 +31,23 @@
             "children": [
               {
                   "class": "gosa.ui.widgets.QLabelWidget",
-                  "buddyModelPath": "sn",
+                  "buddyModelPath": "uid",
                   "addOptions": {
                       "row": 0,
                       "column": 0
                   },
                   "properties": {
-                      "text": "tr('Surname')"
+                      "text": "tr('Login ID')"
                   }
               }, {
                   "class": "gosa.ui.widgets.QLineEditWidget",
-                  "modelPath": "sn",
+                  "modelPath": "uid",
                   "addOptions": {
                       "row": 0,
-                      "column": 1
-                  }
-              }, {
-                  "class": "gosa.ui.widgets.QLabelWidget",
-                  "buddyModelPath": "givenName",
-                  "addOptions": {
-                      "row": 1,
-                      "column": 0
-                  },
-                  "properties": {
-                      "text": "tr('Given name')"
-                  }
-              }, {
-                  "class": "gosa.ui.widgets.QLineEditWidget",
-                  "modelPath": "givenName",
-                  "addOptions": {
-                      "row": 1,
                       "column": 1
                   }
               }
-           ]
+            ]
         }
     ]
 }
