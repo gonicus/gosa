@@ -7,7 +7,9 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.plugins.misc.transliterate import Transliterate
+from gosa.common import Environment
 from gosa.common.components import Command
 from gosa.common.components import Plugin
 from gosa.common.components import PluginRegistry
@@ -17,6 +19,9 @@ from zope.interface import implementer
 import re
 import random
 
+C.register_codes(dict(
+    CONFIG_NO_FORMAT_STRING=N_("Cannot find a format_string in the configuration"),
+    ))
 
 @implementer(IInterfaceHandler)
 class User(Plugin):
@@ -24,7 +29,15 @@ class User(Plugin):
     _target_ = "core"
 
     @Command(__help__=N_('Generates a uid'))
-    def generateUid(self, format_string, data):
+    def generateUid(self, data):
+
+        format_string = Environment.getInstance().config.get('core.idGenerator')
+        if not format_string:
+            raise EnvironmentError(C.make_error('CONFIG_NO_FORMAT_STRING'))
+        format_string = format_string.strip()
+        if format_string.startswith('"') and format_string.endswith('"'):
+            format_string = format_string[1:-1]
+
         result = [format_string]
         result = self.__generate_attributes(result, data)
         result = self.__generate_ids(result)
@@ -42,7 +55,7 @@ class User(Plugin):
         transliterator = Transliterate()
 
         for match in matches:
-            value = transliterator.transliterate(data[match[1].lower()]).lower()
+            value = transliterator.transliterate(data[match[1]])
             lower_index = match[4]
             upper_index = match[6]
             new_result = []

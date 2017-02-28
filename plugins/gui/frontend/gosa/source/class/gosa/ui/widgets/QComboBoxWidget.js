@@ -72,6 +72,9 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
       return(value);
     },
 
+    setWidgetValue : function(id, value) {
+      this._setWidgetValue(id, value);
+    },
 
     /* Set a new value for the widget given by id.
      * */

@@ -134,6 +134,36 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
       if (buddy) {
         buddy.set(setMap);
       }
+
+      // handle values_populate
+      if (config["values_populate"] && widget) {
+        this.__populateValues(widget, config["values_populate"]);
+        widget.addListener("appear", function() {
+          this.__populateValues(widget, config["values_populate"]);
+        }, this);
+      }
+    },
+
+    __populateValues : function(widget, rpcMethod) {
+      var data = {};
+      this.__object.attributes.forEach(function(attributeName) {
+        var arr = this.__object.get(attributeName);
+        if (arr instanceof qx.data.Array && arr.getLength() === 1) {
+          data[attributeName] = arr.getItem(0);
+        }
+      }, this);
+
+      var oldValue = widget.getValue() instanceof qx.data.Array && widget.getValue().getLength() > 0
+                     ? widget.getValue().getItem(0)
+                     : null;
+
+      // get suggested values from backend
+      gosa.io.Rpc.getInstance().cA(rpcMethod, data).then(function(suggestions) {
+        widget.setValues(suggestions);
+        if (oldValue && qx.lang.Array.contains(suggestions, oldValue)) {
+          widget.setWidgetValue(0, oldValue);
+        }
+      });
     },
 
     __findWidgets : function(name) {

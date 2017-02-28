@@ -109,6 +109,11 @@ class Workflow:
                             if attr.Name.text not in res:
                                 res[attr.Name.text] = {}
 
+                            values_populate = None
+                            if 'Values' in attr.__dict__:
+                                if attr.Name.text == 'uid' and 'populate' in attr.__dict__['Values'].attrib:
+                                    values_populate = attr.__dict__['Values'].attrib['populate']
+
                             res[attr.Name.text] = {
                                 'description': str(self._load(attr, "Description", "")),
                                 'type': attr.Type.text,
@@ -117,7 +122,8 @@ class Workflow:
                                 'mandatory': bool(self._load(attr, "Mandatory", False)),
                                 'readonly': bool(self._load(attr, "ReadOnly", False)),
                                 'case_sensitive': bool(self._load(attr, "CaseSensitive", False)),
-                                'unique': bool(self._load(attr, "Unique", False))
+                                'unique': bool(self._load(attr, "Unique", False)),
+                                'values_populate': values_populate
                             }
 
             self.__attribute_map = res
