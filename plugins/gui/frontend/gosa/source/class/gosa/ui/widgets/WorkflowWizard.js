@@ -101,6 +101,20 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       }
     },
 
+    __onCancel : function() {
+      var dialog = new gosa.ui.dialogs.Confirmation(
+        this.tr("Really abort?"),
+        this.tr("All entered data will be lost. Are you sure you want to abort?")
+      );
+      dialog.setAutoDispose(true);
+      dialog.addListenerOnce("confirmed", function(event) {
+        if (event.getData()) {
+          this.__controller.close();
+        }
+      }, this);
+      dialog.open();
+    },
+
     __nextStep : function() {
       this.__showStep(this.__currentStep + 1);
     },
@@ -211,7 +225,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
         case "cancel-button":
           control = new qx.ui.form.Button(this.tr("Cancel"));
-          control.addListener("execute", this.__controller.close, this.__controller);
+          control.addListener("execute", this.__onCancel, this);
           this.getChildControl("button-group").add(control);
           this.getChildControl("button-group").add(new qx.ui.core.Spacer(), {flex: 1});
           break;
