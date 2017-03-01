@@ -34,6 +34,8 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     this.__contexts = [];
     this.__controller = controller;
     this.__modelWidgetConnector = new gosa.data.ModelWidgetConnector(workflowObject, this);
+    this.__enterCommand = new qx.ui.command.Command("Enter");
+    this.__enterCommand.addListener("execute", this.__onEnterPress, this);
 
     this.__fillStepsConfiguration(templates);
     this.__fillSideBar();
@@ -57,6 +59,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     __contexts : null,
     __currentStep : 0,
     __modelWidgetConnector : null,
+    __enterCommand : null,
 
     /**
      * @type {Array} Holds information for the single steps. The order is in which to show the steps. There is one
@@ -87,6 +90,15 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       }, this);
 
       this.getChildControl("next-button").setEnabled(valid);
+    },
+
+    __onEnterPress : function() {
+      if (this.getChildControl("save-button").isVisible()) {
+        this.getChildControl("save-button").execute();
+      }
+      else if (this.getChildControl("next-button").isEnabled()) {
+        this.getChildControl("next-button").execute();
+      }
     },
 
     __nextStep : function() {
@@ -229,7 +241,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
   destruct : function() {
     this._disposeArray("__contexts");
-    this._disposeObjects("__modelWidgetConnector");
+    this._disposeObjects("__modelWidgetConnector", "__enterCommand");
     this.__controller = null;
     this.__stepsConfig = null;
   }
