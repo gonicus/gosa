@@ -141,12 +141,17 @@ qx.Class.define("gosa.ui.controller.Objects", {
             localeManager.addTranslation(gosa.Config.getLocale(), qx.lang.Json.parse(translations[name]));
           }
           if (_templates.hasOwnProperty(name)) {
-            templates.insertAt(parseInt(_templates[name]['index']), {
+            templates.push({
+              index     : parseInt(_templates[name]['index']),
               extension : name,
               template  : gosa.util.Template.compileTemplate(_templates[name]['content'])
             });
           }
         }
+        templates.sort(function(a, b) {
+          return a.index - b.index;
+        });
+
         return qx.Promise.all([workflow, templates]);
       }, this)
       .spread(function(workflow, templates) {
@@ -157,8 +162,8 @@ qx.Class.define("gosa.ui.controller.Objects", {
           layout       : new qx.ui.layout.Canvas(),
           showMinimize : false,
           showClose    : false,
-          maxHeight: bounds.height,
-          allowGrowY: true
+          maxHeight    : bounds.height,
+          allowGrowY   : true
         });
 
         var widget = gosa.engine.WidgetFactory.createWorkflowWidget(workflow, templates);
