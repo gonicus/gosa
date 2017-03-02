@@ -38,6 +38,13 @@ qx.Class.define("gosa.data.controller.Workflow", {
     __widget : null,
 
     /**
+     * @return {gosa.proxy.Object}
+     */
+    getObject : function() {
+      return this.__workflowObject;
+    },
+
+    /**
       * @param widget {gosa.ui.widgets.WorkflowWizard}
       */
     setWidget : function(widget) {

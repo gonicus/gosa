@@ -85,6 +85,13 @@ qx.Class.define("gosa.engine.Context", {
     _actionController : null,
 
     /**
+     * @return {gosa.proxy.Object}
+     */
+    getObject : function() {
+      return this._controller.getObject();
+    },
+
+    /**
      * Forward to {@link gosa.data.controller.ObjectEdit#addDialog}.
      */
     addDialog : function(dialog) {
