@@ -40,7 +40,7 @@
                       "text": "tr('Login ID')"
                   }
               }, {
-                  "class": "gosa.ui.widgets.QLineEditWidget",
+                  "class": "gosa.ui.widgets.QComboBoxWidget",
                   "modelPath": "uid",
                   "addOptions": {
                       "row": 0,

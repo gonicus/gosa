@@ -64,6 +64,29 @@
                       "row": 1,
                       "column": 1
                   }
+              },
+              {
+                  "class": "gosa.ui.widgets.QLabelWidget",
+                  "buddyModelPath": "parentDn",
+                  "addOptions": {
+                      "row": 2,
+                      "column": 0,
+                      "colSpan": 2
+                  },
+                  "properties": {
+                      "text": "tr('Where shall the new user be placed?')"
+                  }
+              }, {
+                  "class": "gosa.ui.widgets.QBaseSelectorWidget",
+                  "modelPath": "parentDn",
+                  "properties": {
+                      "objectType": "User"
+                  },
+                  "addOptions": {
+                      "row": 3,
+                      "column": 0,
+                      "colSpan": 2
+                  }
               }
             ]
         }

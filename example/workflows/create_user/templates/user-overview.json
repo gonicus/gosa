@@ -13,32 +13,43 @@
     "children": [
         {
             "class": "qx.ui.groupbox.GroupBox",
-            "layout": "qx.ui.layout.Grid",
+            "layout": "qx.ui.layout.VBox",
             "properties": {
                 "legend": "tr('This data will be saved')"
             },
             "layoutConfig": {
-                "spacingX": "CONST_SPACING_X",
-                "spacingY": "CONST_SPACING_Y"
-            },
-            "extensions": {
-                "layoutOptions": {
-                    "columnFlex": {
-                        "column": 1,
-                        "flex": 1
-                    }
-                }
+                "spacing": "CONST_SPACING_Y"
             },
             "children": [
                 {
-                    "class": "gosa.ui.widgets.QLabelWidget",
-                    "addOptions": {
-                        "row": 0,
-                        "column": 0,
-                        "colSpan": 2
-                    },
-                    "properties": {
-                        "text": "TODO: overview"
+                    "class": "gosa.ui.widgets.ValuesOverview",
+                    "extensions" : {
+                        "valueInjector" : [
+                            {
+                                "modelPath" : "sn",
+                                "label" : "tr('Surname')"
+                            },
+                            {
+                                "modelPath" : "givenName",
+                                "label" : "tr('Given name')"
+                            },
+                            {
+                                "modelPath" : "parentDn",
+                                "label" : "tr('Distinguished name (dn)')"
+                            },
+                            {
+                                "modelPath" : "uid",
+                                "label" : "tr('User ID')"
+                            },
+                            {
+                                "modelPath" : "homePhone",
+                                "label" : "tr('Telephone number')"
+                            },
+                            {
+                                "modelPath" : "mail",
+                                "label" : "tr('Email address')"
+                            }
+                        ]
                     }
                 }
             ]

@@ -9,12 +9,19 @@
   <Category>User management</Category>
   <Templates>
     <Template>user.json</Template>
+    <Template>user-id.json</Template>
     <Template>user-organizational.json</Template>
-    <Template>user-posix.json</Template>
-    <Template>user-samba.json</Template>
+    <Template>user-overview.json</Template>
   </Templates>
 
   <Attributes>
+    <Attribute>
+      <Name>parentDn</Name>
+      <Description>Dn of the parent container in which the new user shall be placed.</Description>
+      <Mandatory>true</Mandatory>
+      <Type>UnicodeString</Type>
+    </Attribute>
+
     <Attribute>
       <Name>sn</Name>
       <Description>This is the X.500 surname attribute, which contains the family name of a person.</Description>
@@ -62,6 +69,7 @@
       <Description>The Userid attribute type specifies a computer system login name.</Description>
       <Type>String</Type>
       <Mandatory>true</Mandatory>
+      <Values populate="generateUid"/>
       <OutFilter>
         <FilterChain>
           <FilterEntry>
@@ -82,55 +90,12 @@
     </Attribute>
 
     <Attribute>
-      <Name>gender</Name>
-      <Description>Gender of the user</Description>
-      <Type>String</Type>
-      <Values>
-        <Value key="F">female</Value>
-        <Value key="M">male</Value>
-      </Values>
-    </Attribute>
-
-    <Attribute>
-      <Name>dateOfBirth</Name>
-      <Description>Birthday of the user</Description>
-      <Type>Timestamp</Type>
-      <InFilter>
-        <FilterChain>
-          <FilterEntry>
-            <Filter>
-              <Name>StringToDatetime</Name>
-              <Param>%%Y-%%m-%%d</Param>
-            </Filter>
-          </FilterEntry>
-        </FilterChain>
-      </InFilter>
-      <OutFilter>
-        <FilterChain>
-          <FilterEntry>
-            <Filter>
-              <Name>DatetimeToString</Name>
-              <Param>%%Y-%%m-%%d</Param>
-            </Filter>
-          </FilterEntry>
-        </FilterChain>
-      </OutFilter>
-    </Attribute>
-
-    <Attribute>
       <Name>mail</Name>
       <Description>RFC1274: RFC822 Mailbox</Description>
       <Type>String</Type>
       <MultiValue>true</MultiValue>
     </Attribute>
 
-    <Attribute>
-        <Name>homeDirectory</Name>
-        <Description>The absolute path to the home directory</Description>
-        <Type>String</Type>
-        <Mandatory>true</Mandatory>
-      </Attribute>
-      
   </Attributes>
 
 </Workflow>
