@@ -488,28 +488,6 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       this._createCancelButton();
     },
 
-    _onNext: function() {
-      var nextPos = this._tabView.indexOf(this._tabView.getSelection()[0])+1;
-      var pages = this._tabView.getSelectables(true);
-      if (nextPos >= pages.length) {
-        this._onOk();
-        return;
-      }
-      var nextPage = pages[nextPos];
-      nextPage.setEnabled(true);
-      this._tabView.setSelection([nextPage]);
-      this._backButton.setEnabled(true);
-    },
-
-    _onBack: function() {
-      var pos = this._tabView.indexOf(this._tabView.getSelection()[0])-1;
-      var pages = this._tabView.getSelectables(true);
-      if (pos >= 0) {
-        var lastPage = pages[pos];
-        this._tabView.setSelection([lastPage]);
-      }
-    },
-
     /**
      * Open a TabView page for the given context
      *

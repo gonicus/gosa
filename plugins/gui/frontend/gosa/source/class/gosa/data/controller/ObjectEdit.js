@@ -35,6 +35,10 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     this.__extensionController = new gosa.data.controller.Extensions(obj, this);
     this.__backendChangeController = new gosa.data.controller.BackendChanges(obj, this);
     this.__modelWidgetConnector = new gosa.data.ModelWidgetConnector(this.__object, this._widget);
+    this.__modificationManager = new gosa.data.ModificationManager(this.__object);
+
+    this.__modificationManager.bind("modified", this, "modified");
+    this.__object.attributes.forEach(this.__modificationManager.registerAttribute, this.__modificationManager);
 
     this._addListenersToAllContexts();
     this.__setUpWidgets();
@@ -88,6 +92,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     __backendChangeController : null,
     __extensionFinder : null,
     __modelWidgetConnector : null,
+    __modificationManager : null,
 
     getObject: function() {
       return this.__object;
@@ -491,7 +496,6 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       qx.core.Assert.assertInstance(event, qx.event.type.Data);
 
       if (!event.getData().getUserData("initial")) {
-        this.setModified(true);
         var attr = event.getTarget().getAttribute();
         this.__object.setAttribute(attr, event.getData());
       }
@@ -571,7 +575,8 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       "__extensionFinder",
       "__backendChangeController",
       "__extensionController",
-      "__modelWidgetConnector"
+      "__modelWidgetConnector",
+      "__modificationManager"
     );
 
     this.__object = null;
