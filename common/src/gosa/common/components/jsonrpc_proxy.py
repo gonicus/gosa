@@ -68,6 +68,7 @@ class JSONObjectFactory(object):
                 (JSONObjectFactory, object),
                 JSONObjectFactory.__dict__.copy())(proxy, ref, dn, oid, methods, properties, data)
 
+
 class XSRFCookieProcessor(urllib2.HTTPCookieProcessor):
     """
     Extend the HTTPCookieProcessor by handling the XSRF Cookie from tornado
@@ -92,7 +93,7 @@ class XSRFCookieProcessor(urllib2.HTTPCookieProcessor):
         return response
 
     def has_token(self):
-        return not self.xsrf_token is None
+        return self.xsrf_token is not None
 
     https_request = http_request
     https_response = http_response
@@ -181,6 +182,9 @@ class JSONServiceProxy(object):
 
     def getProxy(self):
         return JSONServiceProxy(self.__serviceURL, None, self.__opener, self.__mode)
+
+    def apply_cookies(self, request):
+        return self.__cookieProcessor.http_request(request)
 
     def __call__(self, *args, **kwargs):
         if len(kwargs) > 0 and len(args) > 0:

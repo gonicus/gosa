@@ -81,10 +81,13 @@ def softspace(fn, newvalue):
         pass
     return oldvalue
 
+
 class SseClient(BaseSseClient):
     """ SseClient prints incoming SSE Events on the console"""
     def on_event(self, event):
-        print("Incoming SSE message:\n%s" % event)
+        print(event)
+        # print("Incoming SSE message:\n%s" % event)
+
 
 class MyConsole(code.InteractiveConsole):
     """ MyConsole Subclass of code.InteractiveConsole """
@@ -121,7 +124,7 @@ class MyConsole(code.InteractiveConsole):
             # Check for error member
             try:
                 err = e.error["error"]
-            except KeyError:
+            except Exception:
                 err = str(e)
             # Resolve error details if supplied
             error_id = C.get_error_id(err)
@@ -317,7 +320,6 @@ def main(argv=sys.argv):
     username = ''
     password = ''
     command = ''
-    debug = False
 
     if len(args) >= 1:
         service_uri = args[0]
@@ -342,11 +344,11 @@ def main(argv=sys.argv):
         print()
         sys.exit(1)
 
-    if debug:
-        # Connect to the SSE service and show incoming messages on console
-        sse_client = SseClient()
-        parsed_url = parseURL(service_uri)
-        sse_client.connect(format('%s://%s:%d/%s' % (parsed_url['scheme'], parsed_url['host'], parsed_url['port'], 'events')))
+    # Connect to the SSE service and show incoming messages on console
+    sse_client = SseClient()
+    parsed_url = parseURL(service_uri)
+    sse_client.connect(format('%s://%s:%d/%s' % (parsed_url['scheme'], parsed_url['host'], parsed_url['port'], 'events')),
+                       proxy=service.proxy)
 
     # Prepare to enter the interactive console.
     # Make the the GosaService instance available to the console via the
@@ -439,6 +441,7 @@ globals()['setTwoFactorMethod'] = service.twoFactorNotAllowed
                     pyconsole.interact("")
 
                 print(_("Closing session"))
+                sse_client.close()
                 service.proxy.logout()
                 letRun = 0
 
