@@ -304,7 +304,8 @@ class MainTestCase(TestCase):
                         mock.patch("gosa.shell.main.code.InteractiveInterpreter") as m_console:
                     assert main() == 0
                     m_console.return_value.runcode.assert_called_with("fake code")
-                    m_sse.return_value.connect.assert_called_with("http://localhost:8000/events")
+                    args, kwargs = m_sse.return_value.connect.call_args_list[0]
+                    assert args[0] == "http://localhost:8000/events"
 
                     m_console.return_value.runcode.side_effect = Exception("test error")
                     assert main() == 1
@@ -316,7 +317,8 @@ class MainTestCase(TestCase):
                     assert main([0, 1, 2, 3, 4, 5]) == 0
                     m_console.return_value.runcode.assert_called_with("\nimport sys, traceback\ntry:\n    fake command\nexcept:\n    "
                                                                       "traceback.print_exc()\n    sys.exit(1)\n")
-                    m_sse.return_value.connect.assert_called_with("http://localhost:8000/events")
+                    args, kwargs = m_sse.return_value.connect.call_args_list[0]
+                    assert args[0] == "http://localhost:8000/events"
 
                     m_console.return_value.runcode.side_effect = Exception("test error")
                     assert main([0, 1, 2, 3, 4, 5]) == 1
@@ -327,7 +329,8 @@ class MainTestCase(TestCase):
                     assert main() == 0
                     param = m_console.return_value.runcode.call_args[0][0]
                     assert param.startswith("\nimport readline\nimport rlcompleter")
-                    m_sse.return_value.connect.assert_called_with("http://localhost:8000/events")
+                    args, kwargs = m_sse.return_value.connect.call_args_list[0]
+                    assert args[0] == "http://localhost:8000/events"
 
                     m_console.reset_mock()
                     # simulate HTTPError 401

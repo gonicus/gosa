@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import unittest, pytest
+from unittest import mock
 from gosa.common.components.sse_client import *
 
 class SSEClientTestCase(unittest.TestCase):
@@ -8,11 +9,11 @@ class SSEClientTestCase(unittest.TestCase):
         e = Event()
         e.id = "TESTID"
         e.name = "TESTNAME"
-        e.data = """Test data\nin multiple\nlines"""
-        assert repr(e) == "Event\n  id: TESTID\n  name: TESTNAME\n  data:\n\tTest data\n\tin multiple\n\tlines"
+        e.data = { "test": "value" }
+        assert repr(e) == "Event\n  id: TESTID\n  name: TESTNAME\n  data:\n\t{'test': 'value'}"
 
-    @unittest.mock.patch("gosa.common.components.sse_client.logging")
-    @unittest.mock.patch("gosa.common.components.sse_client.httpclient")
+    @mock.patch("gosa.common.components.sse_client.logging")
+    @mock.patch("gosa.common.components.sse_client.httpclient")
     def test_BaseSseClient(self, httpclientMock, loggingMock):
         httpClient = unittest.mock.MagicMock()
         httpclientMock.AsyncHTTPClient.return_value = httpClient
@@ -30,8 +31,9 @@ class SSEClientTestCase(unittest.TestCase):
         assert client.client == httpClient
         
         return client
-    @unittest.mock.patch("gosa.common.components.sse_client.httpclient.HTTPRequest")
-    @unittest.mock.patch("gosa.common.components.sse_client.Thread")
+
+    @mock.patch("gosa.common.components.sse_client.GosaHTTPRequest")
+    @mock.patch("gosa.common.components.sse_client.Thread")
     def test_connect(self, threadMock, httpRequestMock):
         sseClient = self.test_BaseSseClient()
         
@@ -66,7 +68,7 @@ class SSEClientTestCase(unittest.TestCase):
         
         return sseClient
         
-    @unittest.mock.patch("gosa.common.components.sse_client.IOLoop")
+    @mock.patch("gosa.common.components.sse_client.IOLoop")
     def test_start(self, ioloopMock):
         instance = unittest.mock.MagicMock()
         ioloopMock.instance.return_value = instance
@@ -77,7 +79,7 @@ class SSEClientTestCase(unittest.TestCase):
         instance.start.assert_called_once_with()
         ioloopMock.instance.assert_called_once_with()
     
-    @unittest.mock.patch("gosa.common.components.sse_client.IOLoop")
+    @mock.patch("gosa.common.components.sse_client.IOLoop")
     def test_handle_request(self, ioloopMock):
         instance = unittest.mock.MagicMock()
         ioloopMock.instance.return_value = instance
