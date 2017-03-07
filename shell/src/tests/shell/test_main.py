@@ -47,10 +47,16 @@ class SoftspaceTestCase(TestCase):
 class SseClientTestCase(TestCase):
 
     def test_on_event(self):
-        client = SseClient()
+        class MockService():
+            proxy = None
+
+        class MockEvent():
+            name = 'fake event'
+
+        client = SseClient(MockService())
         with mock.patch("gosa.shell.main.print") as mp:
-            client.on_event("fake event")
-            mp.assert_called_with("Incoming SSE message:\nfake event")
+            client.on_event(MockEvent())
+            mp.assert_called_with("Unhandled incoming SSE message:\nfake event")
 
 
 class MyConsoleTestCase(TestCase):

@@ -94,7 +94,7 @@ class SseClient(BaseSseClient):
         if event.name == 'objectChange':
             self.__handle_object_change(event.data)
         else:
-            print("Unhandled incoming SSE message:\n%s" % event)
+            print("Unhandled incoming SSE message:\n%s" % event.name)
 
     def __handle_object_change(self, data):
         if data['changeType'] == 'update':  # change conflict
