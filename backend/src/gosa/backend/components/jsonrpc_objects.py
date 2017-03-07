@@ -265,8 +265,15 @@ class JSONRPCObjectMapper(Plugin):
         Opens a copy of the object given as ref and
         returns a diff - if any.
         """
-        if not ref in self.__stack:
-            return None
+        if ref not in self.__stack:
+            found = False
+            for r in self.__stack:
+                if self.__stack[r]['object']['uuid'] == ref:
+                    ref = r
+                    found = True
+                    break
+            if not found:
+                return None
 
         if not self.__check_user(ref, user):
             raise ValueError(C.make_error("NOT_OBJECT_OWNER"))

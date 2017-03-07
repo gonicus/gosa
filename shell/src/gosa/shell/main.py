@@ -66,6 +66,8 @@ from gosa.common.components.sse_client import BaseSseClient
 t = gettext.translation('messages', resource_filename("gosa.shell", "locale"), fallback=True)
 _ = t.gettext
 
+interactive_mode = False
+
 
 def softspace(fn, newvalue):
     """ Method copied from imported code """
@@ -84,8 +86,47 @@ def softspace(fn, newvalue):
 
 class SseClient(BaseSseClient):
     """ SseClient prints incoming SSE Events on the console"""
+    def __init__(self, service):
+        super().__init__()
+        self.proxy = service.proxy
+
     def on_event(self, event):
-        print("Incoming SSE message:\n%s" % event)
+        if event.name == 'objectChange':
+            self.__handle_object_change(event.data)
+        else:
+            print("Unhandled incoming SSE message:\n%s" % event)
+
+    def __handle_object_change(self, data):
+        if data['changeType'] == 'update':  # change conflict
+            if interactive_mode:
+                # print diff
+                diff = self.proxy.diffObject(data['uuid'])
+
+                print()
+                print(_('An open object has changed in the backend. You can either:'))
+                print(_('(1) Close the object and reopen it. All modified yet unsaved data will be lost.'))
+                print(_('(2) Save your changes. Everything changed in the backend meanwhile will be lost.'))
+                print()
+                print(_('Information about the modified object (attribute name -> new backend value)'))
+                print(_('dn=\'{}\', uuid=\'{}\''.format(data['dn'], data['uuid'])))
+                print()
+
+                def __print_changes(dict, headline):
+                    if dict:
+                        print(headline)
+                        for attr_name, value in dict.items():
+                            print('{}: {}'.format(attr_name, value))
+                        print()
+
+                __print_changes(diff['attributes']['changed'], _('CHANGED ATTRIBUTES:'))
+                __print_changes(diff['attributes']['added'], _('ADDED ATTRIBUTES:'))
+                __print_changes(diff['attributes']['removed'], _('REMOVED ATTRIBUTES:'))
+                __print_changes(diff['extensions']['added'], _('ADDED EXTENSIONS:'))
+                __print_changes(diff['extensions']['removed'], _('REMOVED EXTENSIONS:'))
+            else:
+                logging.warning(_('An object changed in the backend while it was opened. Your changes might override the changes. Ignoring, because not running in interactive mode.'))
+        else:
+            logging.warning(_('Unhandled objectChange event of change type') + ' ' + data['changeType'])
 
 
 class MyConsole(code.InteractiveConsole):
@@ -344,7 +385,7 @@ def main(argv=sys.argv):
         sys.exit(1)
 
     # Connect to the SSE service and show incoming messages on console
-    sse_client = SseClient()
+    sse_client = SseClient(service)
     parsed_url = parseURL(service_uri)
     sse_client.connect(format('%s://%s:%d/%s' % (parsed_url['scheme'], parsed_url['host'], parsed_url['port'], 'events')),
                        proxy=service.proxy)
@@ -423,6 +464,9 @@ globals()['setTwoFactorMethod'] = service.twoFactorNotAllowed
             return 1
     # Use interactive mode
     else:
+        global interactive_mode
+        interactive_mode = True
+
         letRun = 1
         pyconsole = None
         while(letRun):
