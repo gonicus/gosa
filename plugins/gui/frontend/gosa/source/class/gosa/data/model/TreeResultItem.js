@@ -220,6 +220,8 @@ qx.Class.define("gosa.data.model.TreeResultItem",
               var newc = new qx.data.Array();
               results.forEach(function(result) {
                 var item = this.parseItemForResult(result[0]);
+                rpc.cA("isContainerForObjectType", result[0]['dn'],
+                  this.getMoveTargetFor()).then(item.setMoveTarget, item);
                 newc.push(item);
               }, this);
               this.sortElements();

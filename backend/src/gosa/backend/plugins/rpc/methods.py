@@ -356,6 +356,14 @@ class RPCMethods(Plugin):
         for number in range(ord(start), ord(stop) + 1):
             yield chr(number)
 
+    @Command(needsUser=True, __help__=N_("Checks an object of the given type can be placed in the dn"))
+    def isContainerForObjectType(self, user, container_dn, object_type):
+        container_type_query = self.__session.query(getattr(ObjectInfoIndex, "_type")).filter(
+            getattr(ObjectInfoIndex, "dn") == container_dn).one()
+        container_type = container_type_query[0]
+        allowed = ObjectFactory.getInstance().getAllowedSubElementsForObject(container_type)
+        return object_type in allowed
+
     @Command(needsUser=True, __help__=N_("Returns a list of all containers"))
     def getContainerTree(self, user, base, object_type=None):
         types = []
