@@ -79,6 +79,12 @@ class Config(object):
 
         # Load default user name for config parsing
         self.__registry['core']['config'] = config
+
+        if os.path.exists(os.path.join('/var', 'lib', 'gosa')):
+            self.__registry['core']['user-config'] = os.path.join('/var', 'lib', 'gosa')
+        else:
+            self.__registry['core']['user-config'] = config
+
         self.__noargs = noargs
         # settings can be changed via the GUI, in order to identify then
         # we hold them additionally in an separate structure
@@ -221,7 +227,7 @@ class Config(object):
     def save(self):
         """ save the settings in the main config file """
         if self.__user_config is not None:
-            main_config_file = os.path.join(self.get('core.config'), "user-config")
+            main_config_file = os.path.join(self.get('core.user-config'), "user-config")
             with open(main_config_file, 'w') as f:
                 self.__user_config.write(f)
 
@@ -257,8 +263,8 @@ class Config(object):
             # do not use this in tests
             self.__user_config = configparser.RawConfigParser()
             # read the settings changed via gui client
-            if os.path.exists(os.path.join(configDir, "user-config")):
-                filesRead = self.__user_config.read(os.path.join(configDir, "user-config"))
+            if os.path.exists(os.path.join(self.get('core.user-config'), "user-config")):
+                filesRead = self.__user_config.read(os.path.join(self.get('core.user-config'), "user-config"))
                 if not filesRead:
                     raise ConfigNoFile("No usable GUI configuration file (%s/user-config) found!" % configDir)
 
