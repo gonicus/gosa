@@ -142,7 +142,6 @@ qx.Class.define("gosa.data.model.SearchResultItem", {
             // nothing to be highlighted
             return;
           }
-          console.log("highlighting "+prop+": "+currentValue);
           this.__highlighted.push(prop);
           this["set"+qx.lang.String.firstUp(prop)](currentValue.replace(this.getHighlight(), "<b>$1</b>"));
         }
