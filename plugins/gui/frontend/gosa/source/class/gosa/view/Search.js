@@ -145,8 +145,8 @@ qx.Class.define("gosa.view.Search", {
           item.addListener("remove", function(e){
               var dialog = new gosa.ui.dialogs.RemoveObject(e.getData().getDn());
               dialog.addListener("remove", function(){
-                  this.removeObject(item.getUuid());
-                }, this);
+                gosa.proxy.ObjectFactory.removeObject(item.getUuid());
+              });
               dialog.open();
 
             }, this);
@@ -504,16 +504,6 @@ qx.Class.define("gosa.view.Search", {
     _highlight : function(string, query) {
         var reg = new RegExp('(' + qx.lang.String.escapeRegexpChars(query) + ')', "ig");
         return string.replace(reg, "<b>$1</b>");
-    },
-
-    /* Removes the object given by its uuid
-     * */
-    removeObject: function(uuid) {
-      return gosa.io.Rpc.getInstance().cA("removeObject", "object", uuid)
-      .catch(function(error) {
-        new gosa.ui.dialogs.Error(this.tr("Cannot remove entry!")).open();
-        this.error("cannot remove entry: " + error);
-      }, this);
     },
 
     /**

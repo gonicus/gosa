@@ -484,7 +484,7 @@ qx.Class.define("gosa.view.Tree", {
       this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
         var row = this._tableModel.getRowData(index);
         if (qx.lang.Array.contains(this._objectRights[row[0]] || [], "d")) {
-          gosa.ui.controller.Objects.getInstance().removeObject(row[3]);
+          gosa.proxy.ObjectFactory.removeObject(row[3]);
         }
       }, this);
     },

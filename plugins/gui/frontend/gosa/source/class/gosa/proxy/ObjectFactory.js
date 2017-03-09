@@ -156,6 +156,17 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
       var def = {extend: gosa.proxy.Object, members: members, properties: properties};
       gosa.proxy.ObjectFactory.classes[className] = qx.Class.define(className, def);
       return className;
+    },
+
+    /**
+     * Removes the object given by its uuid
+    */
+    removeObject: function(uuid) {
+      return gosa.io.Rpc.getInstance().cA("removeObject", "object", uuid)
+      .catch(function(error) {
+        new gosa.ui.dialogs.Error(this.tr("Cannot remove entry!")).open();
+        this.error("cannot remove entry: " + error);
+      }, this);
     }
   }
 });

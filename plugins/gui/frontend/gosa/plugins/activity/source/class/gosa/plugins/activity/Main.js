@@ -96,7 +96,7 @@ qx.Class.define("gosa.plugins.activity.Main", {
           item.addListener("remove", function(e) {
             var dialog = new gosa.ui.dialogs.RemoveObject(e.getData().getDn());
             dialog.addListener("remove", function() {
-              gosa.ui.controller.Objects.getInstance().removeObject(item.getUuid());
+              gosa.proxy.ObjectFactory.removeObject(item.getUuid());
             }, this);
             dialog.open();
 
