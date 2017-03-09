@@ -112,17 +112,17 @@ qx.Class.define("gosa.ui.settings.Editor", {
       var searchValue = this.getChildControl("filter").getValue();
       if (searchValue && searchValue.length > 2) {
         var options = {
-          shouldSort: true,
+          shouldSort: false,
           threshold: 0.4,
           tokenize: true,
           keys: ["0", "1"]
         };
         var fuse = new Fuse(filtered, options);
         filtered = fuse.search(searchValue);
-        this.getChildControl("table").getTableModel().setData(filtered);
+        this.getChildControl("table").getTableModel().setData(filtered, false);
       }
       else {
-        this.getChildControl("table").getTableModel().setData(this._tableData);
+        this.getChildControl("table").getTableModel().setData(this._tableData, false);
       }
       this.__skipUpdates = false;
     },

@@ -526,7 +526,7 @@ qx.Class.define("gosa.view.Tree", {
       var searchValue = this.getChildControl("search-field").getValue();
       if (searchValue && searchValue.length > 2) {
         var options = {
-          shouldSort: true,
+          shouldSort: false,
           threshold: 0.4,
           tokenize: true,
           keys: [
@@ -536,9 +536,9 @@ qx.Class.define("gosa.view.Tree", {
         };
         var fuse = new Fuse(filtered.toArray(), options);
         filtered = fuse.search(searchValue);
-        this._tableModel.setDataAsMapArray(filtered);
+        this._tableModel.setDataAsMapArray(filtered, false, false);
       } else {
-        this._tableModel.setDataAsMapArray(filtered.toArray());
+        this._tableModel.setDataAsMapArray(filtered.toArray(), false, false);
       }
 
     }

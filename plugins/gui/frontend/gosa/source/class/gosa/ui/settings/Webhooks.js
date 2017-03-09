@@ -57,6 +57,8 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
   *****************************************************************************
   */
   members : {
+    _fullTableData: null,
+
     // overridden
     _createChildControlImpl: function(id) {
       var control;
@@ -125,7 +127,7 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
             liveUpdate : true,
             allowGrowX : true
           });
-          control.addListener("changeValue", this.__updateList, this);
+          control.addListener("changeValue", this.__doFilter, this);
           break;
       }
 
@@ -195,7 +197,7 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
      * @ignore(Fuse)
      */
     __updateList: function() {
-      var searchValue = this.getChildControl("search-field").getValue();
+
       var handler = gosa.data.SettingsRegistry.getHandlerForPath(gosa.ui.settings.Webhooks.NAMESPACE);
       var itemInfos = handler.getItemInfos();
       var tableData = this._tableData = [];
@@ -206,19 +208,30 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
         tableData.push([itemInfos[path].title, mimeType, format, itemInfos[path].value]);
       }, this);
 
+      this.getChildControl("table").getTableModel().setData(tableData, false);
+      this._fullTableData = tableData;
+      this.__doFilter();
+    },
+
+    __doFilter: function() {
+      var searchValue = this.getChildControl("search-field").getValue();
       if (searchValue && searchValue.length > 2) {
         var options = {
-          shouldSort: true,
+          shouldSort: false,
           threshold: 0.4,
           tokenize: true,
           keys: ["0", "1"]
         };
 
+        var tableData = this.getChildControl("table").getTableModel().getData();
         var fuse = new Fuse(tableData, options);
         tableData = fuse.search(searchValue);
+        this.getChildControl("table").getTableModel().setData(tableData, false);
+
+      } else {
+        this.getChildControl("table").getTableModel().setData(this._fullTableData, false);
       }
 
-      this.getChildControl("table").getTableModel().setData(tableData);
     },
 
     _onOpenObject : function()
