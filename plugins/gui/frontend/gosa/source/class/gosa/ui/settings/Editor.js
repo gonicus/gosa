@@ -293,7 +293,6 @@ qx.Class.define("gosa.ui.settings.Editor", {
                   {
                     return newValue;
                   }
-                  alert("You did not enter a valid email address");
                   return oldValue;
                 });
                 break;
@@ -309,7 +308,6 @@ qx.Class.define("gosa.ui.settings.Editor", {
               {
                 return newValue;
               }
-              alert(metaData['failMsg']);
               return oldValue;
             });
             break;
@@ -322,7 +320,6 @@ qx.Class.define("gosa.ui.settings.Editor", {
             validationFunc = function( newValue, oldValue ) {
 
               if (! newValue) {
-                alert(this.tr("You need to supply a value here"));
                 return oldValue;
               }
 
