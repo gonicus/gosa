@@ -349,14 +349,14 @@ qx.Class.define("gosa.view.Tree", {
             var allowed = result[name];
             if (allowed.includes("c")) {
               var icon = gosa.util.Icons.getIconByType(name, 22);
-              var button = new qx.ui.menu.Button(this.tr(name), icon);
+              var button = new qx.ui.menu.Button(this['tr'](name), icon);
               button.setAppearance("icon-menu-button");
               button.setUserData("type", name);
               this.getChildControl("create-menu").add(button);
               button.addListener("execute", this._onCreateObject, this);
             }
             if (visibleTypes[name] && allowed.includes("r")) {
-              var button = new qx.ui.menu.CheckBox(this.tr(name));
+              var button = new qx.ui.menu.CheckBox(this['tr'](name));
               // initially they are all selected
               button.setValue(true);
               button.setUserData("type", name);
