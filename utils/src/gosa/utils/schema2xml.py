@@ -229,7 +229,7 @@ def dump_ui(uri, oc, outfile=None, extend=None, rdn=None, contains=None):  # pra
             }
         },
         'children': children_must + children_may
-    };
+    }
 
     return json.dumps(template, indent=2)
 
