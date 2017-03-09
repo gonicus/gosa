@@ -15,14 +15,9 @@ qx.Class.define("gosa.ui.dialogs.Error", {
 
   construct: function(error) {
     var title = this.tr("Error");
-    var msg = error;
-    if (error instanceof gosa.core.RpcError) {
-      msg = error.getData().message;
-    }
-    else if (error instanceof Error) {
-      msg = error.message;
-    }
+
     this.base(arguments, title);
+    var msg = gosa.ui.dialogs.Error.getMessage(msg);
 
     var message = new qx.ui.basic.Label(msg);
     this.addElement(message);
@@ -55,8 +50,23 @@ qx.Class.define("gosa.ui.dialogs.Error", {
       var dialog = new gosa.ui.dialogs.Error(error);
       dialog.open();
       return dialog;
-    }
+    },
 
+    /**
+     * Extract the error message from the various error objects
+     * @param error {Error|gosa.core.RpcError|String} error object
+     * @return {String}
+     */
+    getMessage: function(error) {
+      var msg = error;
+      if (error instanceof gosa.core.RpcError) {
+        msg = error.getData().message;
+      }
+      else if (error instanceof Error) {
+        msg = error.message;
+      }
+      return msg;
+    }
   },
 
   properties : {

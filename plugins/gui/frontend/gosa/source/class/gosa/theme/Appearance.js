@@ -44,7 +44,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     "tabview-page/button/label": {
       alias: "label",
 
-      style: function(states) {
+      style: function() {
         return {
           textColor: "darkgray-dark"
         };
@@ -388,7 +388,7 @@ qx.Theme.define("gosa.theme.Appearance", {
       include: "menu-button/icon",
       alias: "menu-button/icon",
 
-      style: function(states) {
+      style: function() {
 
         return {
           width: 22,
@@ -520,7 +520,7 @@ qx.Theme.define("gosa.theme.Appearance", {
       include: "atom",
       alias: "atom",
 
-      style: function(states) {
+      style: function() {
         return {
           show: "label",
           font: "bold",
@@ -862,7 +862,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     "gosa-table-widget/remove-button": "button-link",
 
     "dashboard-resize-frame": {
-      style: function(states) {
+      style: function() {
         return {
           decorator: "gosa-dashboard-widget-resize"
         };
@@ -960,7 +960,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
     "root": {
-      style: function(states) {
+      style: function() {
         return {
           backgroundColor: "lightgray-light",
           textColor: "darkgray-dark",
@@ -999,7 +999,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "window/icon": {
-      style: function(states) {
+      style: function() {
         return {
           scale: true,
           width: 22,
@@ -1009,7 +1009,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "window/title": {
-      style: function(states) {
+      style: function() {
         return {
           font: "bold"
         };
@@ -1059,6 +1059,23 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "window-error/title": "window/title",
+
+    "gosa-dialog-register-webhook": "window",
+    "gosa-dialog-register-webhook/name-field": "textfield",
+    "gosa-dialog-register-webhook/mime-type": "selectbox",
+    "gosa-dialog-register-webhook/save-button": "button-primary",
+    "gosa-dialog-register-webhook/cancel-button": "button",
+    "gosa-dialog-register-webhook/error-message": {
+      include: "statusLabel",
+      alias: "statusLabel",
+
+      style: function() {
+        return {
+          padding : 10,
+          maxWidth: 350
+        }
+      }
+    },
 
     "button": {
       style: function(states) {
@@ -1279,7 +1296,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "menu-separator": {
-      style: function(states) {
+      style: function() {
         return {
           height: 0,
           decorator: "menu-separator",
@@ -1301,7 +1318,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "menu-button/label": {
-      style: function(states) {
+      style: function() {
         return {
           paddingRight: 6
         };
@@ -1309,7 +1326,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "menu-button/arrow": {
-      style: function(states) {
+      style: function() {
         return {
           source: "@Ligature/next",
           scale: true,
@@ -1443,7 +1460,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "selectbox/popup": {
-      style: function(states) {
+      style: function() {
         return {
           decorator: "popup",
           backgroundColor: "white"
@@ -1547,7 +1564,7 @@ qx.Theme.define("gosa.theme.Appearance", {
 
     "spinner/downbutton": {
       include: "spinner/upbutton",
-      style: function(states) {
+      style: function() {
         return {
           icon: "@Ligature/down"
         };
@@ -1559,7 +1576,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     "tooltip": {
       include: "popup",
 
-      style: function(states) {
+      style: function() {
         return {
           decorator: "tooltip",
           backgroundColor: "darkgray-dark",
@@ -1696,7 +1713,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "bread-crumb": {
-      style: function(states) {
+      style: function() {
         return {
           minHeight: 38,
           backgroundColor: "lightgray-dark",
@@ -1739,7 +1756,7 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "bread-crumb-item/atom/icon": {
-      style: function(states) {
+      style: function() {
         return {
           width: 22,
           height: 22,
@@ -1771,7 +1788,7 @@ qx.Theme.define("gosa.theme.Appearance", {
 
     "datechooser" :
     {
-      style : function(states)
+      style : function()
       {
         return {
           backgroundColor : "white",

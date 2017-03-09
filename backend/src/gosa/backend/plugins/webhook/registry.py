@@ -10,6 +10,7 @@
 import logging
 import uuid
 import os
+import re
 
 import pkg_resources
 import zope
@@ -32,7 +33,10 @@ from gosa.common.utils import N_
 
 # Register the errors handled  by us
 C.register_codes(dict(
-    NO_REGISTERED_WEBHOOK_HANDLER=N_("No webhook handler for mime type '%(topic)s' found")
+    NO_REGISTERED_WEBHOOK_HANDLER=N_("No webhook handler for mime type '%(topic)s' found"),
+    EXISTING_WEBHOOK_HANDLER=N_("There is already a webhook registered for mime-type '%(topic)s' with name '%(name)s'"),
+    INVALID_WEBHOOK_SENDER_NAME=N_("Invalid sender name syntax: only ASCII letters and optional hyphens are allowed"),
+    INVALID_WEBHOOK_MIME_TYPEE=N_("Invalid mime-type syntax: only alphanumeric, . (dot), + (plus) and / (slash) characters are allowed")
 ))
 
 
@@ -43,6 +47,9 @@ class WebhookRegistry(Plugin):
     __handlers = {}
     settings = None
     path_separator = '###'
+
+    name_check = re.compile("^[a-zA-Z\-]+$")
+    mime_type_check = re.compile("^[\w\.\+\/\-]+$")
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -98,12 +105,23 @@ class WebhookRegistry(Plugin):
             self.log.debug("user '%s' has insufficient permissions to register webhook for mime-type %s" % (user, mime_type))
             raise ACLException(C.make_error('PERMISSION_ACCESS', topic))
 
+        # check sender_name syntax
+        if not self.name_check.match(sender_name):
+            raise WebhookException(C.make_error('INVALID_WEBHOOK_SENDER_NAME'))
+
+        # check mime-type syntax
+        if not self.mime_type_check.match(mime_type):
+            raise WebhookException(C.make_error('INVALID_WEBHOOK_MIME_TYPE'))
+
+        # check for duplicates
         if mime_type not in self.__handlers:
             raise WebhookException(C.make_error('NO_REGISTERED_WEBHOOK_HANDLER', mime_type))
 
         path = self.get_path(mime_type, sender_name)
-        if not self.settings.has(path):
-            self.settings.set(path, str(uuid.uuid4()))
+        if self.settings.has(path):
+            raise WebhookException(C.make_error('EXISTING_WEBHOOK_HANDLER', mime_type, name=sender_name))
+
+        self.settings.set(path, str(uuid.uuid4()))
 
         return self.getWebhookUrl(), self.settings.get(path)
 
