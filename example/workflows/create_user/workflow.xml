@@ -37,34 +37,6 @@
       </Attribute>
 
     <Attribute>
-      <Name>cn</Name>
-      <Description>This is the X.500 commonName attribute, which contains a name of an object. If the object corresponds to a person, it is typically the person's full name.</Description>
-      <Type>UnicodeString</Type>
-      <DependsOn>
-        <Attribute>sn</Attribute>
-        <Attribute>givenName</Attribute>
-      </DependsOn>
-      <OutFilter>
-        <FilterChain>
-          <FilterEntry>
-            <Filter>
-              <Name>Clear</Name>
-            </Filter>
-          </FilterEntry>
-          <FilterEntry>
-            <Filter>
-              <Name>ConcatString</Name>
-              <Param>%(givenName)s %(sn)s</Param>
-              <Param>left</Param>
-            </Filter>
-          </FilterEntry>
-        </FilterChain>
-      </OutFilter>
-      <MultiValue>false</MultiValue>
-      <ReadOnly>true</ReadOnly>
-    </Attribute>
-
-    <Attribute>
       <Name>uid</Name>
       <Description>The Userid attribute type specifies a computer system login name.</Description>
       <Type>String</Type>
@@ -93,7 +65,29 @@
       <Name>mail</Name>
       <Description>RFC1274: RFC822 Mailbox</Description>
       <Type>String</Type>
-      <MultiValue>true</MultiValue>
+    </Attribute>
+
+    <Attribute>
+      <Name>zarafaResourceType</Name>
+      <Description>ZARAFA: for shared stores, resource is type Room or Equipment</Description>
+      <Type>UnicodeString</Type>
+      <Mandatory>true</Mandatory>
+      <Default>0</Default>
+    </Attribute>
+
+    <Attribute>
+      <Name>gosaMailServer</Name>
+      <Description>Specify users main mail server</Description>
+      <Type>String</Type>
+      <Mandatory>true</Mandatory>
+      <Values populate="getZarafaMailServers"/>
+      <Validators>
+        <Condition>
+          <Name>ObjectWithPropertyExists</Name>
+          <Param>ZarafaServer</Param>
+          <Param>cn</Param>
+        </Condition>
+      </Validators>
     </Attribute>
 
   </Attributes>

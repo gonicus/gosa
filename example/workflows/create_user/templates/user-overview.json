@@ -35,7 +35,7 @@
                             },
                             {
                                 "modelPath" : "parentDn",
-                                "label" : "tr('Distinguished name (dn)')"
+                                "label" : "tr('Parent DN')"
                             },
                             {
                                 "modelPath" : "uid",
