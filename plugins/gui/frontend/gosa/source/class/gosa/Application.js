@@ -326,26 +326,20 @@ qx.Class.define("gosa.Application",
 
       // Parse each template and create a
       for(var item_id in ui_defs){
-        var doc = new qx.xml.Document.fromString(ui_defs[item_id]);
-        var res = doc.firstChild.getElementsByTagName("action");
-        for(var i=0; i<res.length; i++){
-          var action = null;
-          var dialogName = null;
-          var target = null;
-          action = res[i].getAttribute("name").replace(/^action/, "");
-          var props = res[i].getElementsByTagName("property");
-          for(var e=0; e<props.length; e++){
-            if(props[e].nodeName == "property" && props[e].getAttribute("name") == "dialog"){
-              dialogName = props[e].getElementsByTagName("string")[0].firstChild.nodeValue;
-              break;
+        var template = qx.lang.Json.parse(ui_defs[item_id]);
+        if (template && template.extensions && template.extensions.actions) {
+          var res = template.extensions.actions;
+          for (var i = 0; i < res.length; i++) {
+            var action = res[i].name.replace(/^action/, "");
+            var dialogName = res[i].dialog;
+            var target = res[i].target;
+            if (action) {
+              this.addUrlAction(action, this.__handleUiDefinedAction, this, {
+                'dialog' : dialogName,
+                'object' : objectName,
+                'target' : target
+              });
             }
-            if(props[e].nodeName == "property" && props[e].getAttribute("name") == "target"){
-              target = props[e].getElementsByTagName("string")[0].firstChild.nodeValue;
-              break;
-            }
-          }
-          if(action){
-            this.addUrlAction(action, this.__handleUiDefinedAction, this, {'dialog': dialogName, 'object': objectName, 'target': target});
           }
         }
       }
