@@ -396,6 +396,7 @@ class JSONRPCObjectMapper(Plugin):
 
         # Make object instance and store it
         kwargs['user'] = user
+        kwargs['session_id'] = session_id
         obj = obj_type(*args, **kwargs)
 
         # Merge in methods that may be available later due to extending more addons

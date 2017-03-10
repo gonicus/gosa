@@ -23,13 +23,17 @@ class Workflow:
     _xml_root = None
     __attribute_map = None
     __attribute = None
+    __user = None
+    __session_id = None
 
-    def __init__(self, _id, what=None, user=None):
+    def __init__(self, _id, what=None, user=None, session_id=None):
         schema = etree.XMLSchema(file=resource_filename("gosa.backend", "data/workflow.xsd"))
         parser = objectify.makeparser(schema=schema)
         self.env = Environment.getInstance()
         self.uuid = _id
         self.dn = self.env.base
+        self.__user = user
+        self.__session_id = session_id
 
         self._path = self.env.config.get("core.workflow_path", "/var/lib/gosa/workflows")
         self._xml_root = objectify.parse(os.path.join(self._path, _id, "workflow.xml"), parser).getroot()
@@ -137,7 +141,7 @@ class Workflow:
 
             def make_dispatch(method):
                 def call(*args, **kwargs):
-                    return dispatcher.call(method, *args, **kwargs)
+                    return dispatcher.dispatch(self.__user, self.__session_id, method, *args, **kwargs)
                 return call
 
             # Add public calls

@@ -82,11 +82,8 @@ qx.Class.define("gosa.ui.widgets.QBaseSelectorWidget", {
     },
 
     __onSelectionChange : function() {
-      var selection = this.getChildControl("tree").getSelection();
-      this.getValue().removeAll();
-      if (selection.getLength()) {
-        this.getValue().push(selection.getItem(0).getDn());
-      }
+      var atomicValue = this.getChildControl("tree").getSelection().getItem(0).getDn();
+      this.setValue(new qx.data.Array([atomicValue]));
       this.__validate();
       this.fireDataEvent("changeValue", this.getValue());
     },

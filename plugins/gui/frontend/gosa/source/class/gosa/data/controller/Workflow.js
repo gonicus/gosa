@@ -60,8 +60,7 @@ qx.Class.define("gosa.data.controller.Workflow", {
     },
 
     saveAndClose : function() {
-      console.warn("TODO: save workflow");
-      this.close();
+      this.__workflowObject.commit().catch(gosa.ui.dialogs.Error.show, this).then(this.close, this);
     },
 
     close : function() {

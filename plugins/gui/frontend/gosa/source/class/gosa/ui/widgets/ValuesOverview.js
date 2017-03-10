@@ -52,13 +52,7 @@ qx.Class.define("gosa.ui.widgets.ValuesOverview", {
           qx.log.Logger.error("Value must be a qx.data.Array (label='" + config.label + "')");
           return;
         }
-        if (config.value.getLength() > 1) {
-          qx.log.Logger.error("Value for label '" + config.label + "' must have length <= 1, but is " +
-            config.value.getLength());
-          return;
-        }
-
-        var value = new qx.ui.basic.Label(config.value.getLength() === 1 ? config.value.getItem(0) : "");
+        var value = new qx.ui.basic.Label(this.__stringify(config.value));
         var label = new qx.ui.basic.Label(config.label);
 
         this._add(label, {
@@ -71,6 +65,24 @@ qx.Class.define("gosa.ui.widgets.ValuesOverview", {
         });
         row++;
       }, this);
+    },
+
+    __stringify : function(value) {
+      switch (value.getLength()) {
+        case 0:
+          return "";
+
+        case 1:
+          return value.getItem(0);
+
+        default:
+          var l = Math.min(3, value.getLength());
+          var s = value.slice(0, l).join(", ");
+          if (value.getLength() > l) {
+            s += "...";
+          }
+          return s;
+      }
     }
   }
 });
