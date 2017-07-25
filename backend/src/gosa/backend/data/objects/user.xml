@@ -162,7 +162,7 @@
     <Attributes>
       <Attribute>
         <Name>guiPreferences</Name>
-        <Description>The Audio attribute type allows the storing of sounds in the Directory. The attribute uses a u-law encoded sound file as used by the "play" utility on a Sun 4. This is an interim format</Description>
+        <Description>This attribute stores user specific settings for the GUI</Description>
         <Type>AnyType</Type>
         <Backend>JSON</Backend>
         <InFilter>
