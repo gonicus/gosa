@@ -35,7 +35,7 @@
           <MethodParameter>
             <Name>notify_title</Name>
             <Type>UnicodeString</Type>
-            <Default></Default>
+            <Default/>
           </MethodParameter>
           <MethodParameter>
             <Name>notify_message</Name>
@@ -63,7 +63,7 @@
           <MethodParameter>
             <Name>password</Name>
             <Type>UnicodeString</Type>
-            <Default></Default>
+            <Default/>
           </MethodParameter>
         </MethodParameters>
         <Command>setUserPassword</Command>
@@ -79,12 +79,12 @@
           <MethodParameter>
             <Name>password_method</Name>
             <Type>UnicodeString</Type>
-            <Default></Default>
+            <Default/>
           </MethodParameter>
           <MethodParameter>
             <Name>password</Name>
             <Type>UnicodeString</Type>
-            <Default></Default>
+            <Default/>
           </MethodParameter>
         </MethodParameters>
         <Command>setUserPasswordMethod</Command>
@@ -101,7 +101,7 @@
           <MethodParameter>
             <Name>two_FA_method</Name>
             <Type>UnicodeString</Type>
-            <Default></Default>
+            <Default/>
           </MethodParameter>
           <MethodParameter>
             <Name>user_password</Name>
@@ -123,7 +123,7 @@
           <MethodParameter>
             <Name>data</Name>
             <Type>UnicodeString</Type>
-            <Default></Default>
+            <Default/>
           </MethodParameter>
         </MethodParameters>
         <Command>completeU2FRegistration</Command>
