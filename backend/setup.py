@@ -133,6 +133,7 @@ setup(
         object_handler = gosa.backend.objects.backend.back_object:ObjectHandler
         null = gosa.backend.objects.backend.back_null:NULL
         json = gosa.backend.objects.backend.back_json:JSON
+        foreman = gosa.backend.objects.backend.back_foreman:Foreman
 
         [gosa.object.type]
         string = gosa.backend.objects.types.base:StringAttribute

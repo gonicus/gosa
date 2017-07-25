@@ -12,6 +12,8 @@ import logging
 import uuid
 import ipaddress
 import requests
+import zope
+from requests.auth import HTTPBasicAuth
 from sqlalchemy import and_
 
 from gosa.backend.objects import ObjectProxy
@@ -58,7 +60,10 @@ class ForemanClient(object):
         if id is not None:
             url += "/%s" % id
 
-        response = requests.get(url, headers=self.headers)
+        response = requests.get(url,
+                                headers=self.headers,
+                                verify=self.env.config.get("foreman.verify", "true") == "true",
+                                auth=HTTPBasicAuth(self.env.config.get("foreman.user"), self.env.config.get("foreman.password")))
         if response.ok:
             data = response.json()
             return data
@@ -67,10 +72,34 @@ class ForemanClient(object):
         else:
             response.raise_for_status()
 
+    def update_host_groups(self):
+        index = PluginRegistry.getInstance("ObjectIndex")
+        new_data = self.get("hostgroups")
+        for hostgroup_data in new_data["results"]:
+            # check if hostgroup already exists
+            res = index.search({'_type': 'ForemanHostGroup', 'cn': hostgroup_data['name']}, {'dn': 1})
+
+            if len(res) == 0:
+                # create new host group
+                group = ObjectProxy(self.env.base, "ForemanHostGroup")
+            else:
+                # open group
+                group = ObjectProxy(res[0]['dn'])
+
+            # update values
+            group.cn = hostgroup_data['name']
+            # TODO: needs to be replaced with an extra attribute for this purpose (_uuidAttribute in object definition needs to be
+            # changed too)
+            group.description = str(hostgroup_data['id'])
+            group.os = hostgroup_data["operatingsystem_name"]
+            group.domain = hostgroup_data["domain_name"]
+            group.environment = hostgroup_data["environment_name"]
+            group.commit()
+
 
 @implementer(IInterfaceHandler)
 class Foreman(Plugin):
-    _priority_ = 0
+    _priority_ = 99
     _target_ = "foreman"
     __session = None
     __acl_resolver = None
@@ -81,9 +110,20 @@ class Foreman(Plugin):
         self.log.info("initializing foreman plugin")
         self.client = ForemanClient()
 
+        # Listen for object events
+        zope.event.subscribers.append(self.__handle_events)
+
     def serve(self):
         # Load DB session
         self.__session = self.env.getDatabaseSession('backend-database')
+
+    def __handle_events(self, event):
+        """
+        React on object modifications to keep active ACLs up to date.
+        """
+        if event.__class__.__name__ == "IndexScanFinished":
+            self.log.info("index scan finished, triggered foreman sync")
+            self.client.update_host_groups()
 
     def __get_resolver(self):
         if self.__acl_resolver is None:
@@ -144,7 +184,7 @@ class Foreman(Plugin):
             raise ForemanException(C.make_error('NO_FOREMAN_HOST'))
 
         new_data = self.client.get("hosts", id=hostname)
-        self.__update_host(device, new_data)
+        self.__update_host(device, new_data["results"])
 
     def __update_host(self, device, data):
         if 'location_id' in data:
@@ -226,15 +266,12 @@ class ForemanWebhookReceiver(object):
     def handle_request(self, request_handler):
         foreman = PluginRegistry.getInstance("Foreman")
         data = loads(request_handler.request.body)
+        print("FOREMAN WEBHOOK: %s" % data)
 
         if data['action'] == "create":
             device = foreman.addHost(foreman, data['hostname'], data['parameters'])
-            gosa_client_otp = str(uuid.uuid4())
-
-            # TODO: save OTP for gosa-client provisioning
-            #device.otp = gosa_client_otp
-
-            request_handler.write(gosa_client_otp)
+            # send devices uuid as otp to foremans realm proxy
+            request_handler.write(device.uuid)
 
         elif data['action'] == "delete":
             foreman.removeHost(foreman, data['hostname'], data['parameters'])

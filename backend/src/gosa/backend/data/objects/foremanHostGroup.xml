@@ -11,6 +11,7 @@
     <BackendParameters>
       <Backend objectClasses="foremanHostGroup" RDN="cn">LDAP</Backend>
       <Backend member="ForemanHost:dn,">ObjectHandler</Backend>
+      <Backend type="hostgroups" _uuidAttribute="description">Foreman</Backend>
     </BackendParameters>
     <BaseObject>true</BaseObject>
     <Attributes>
@@ -26,11 +27,30 @@
         <Type>UnicodeString</Type>
       </Attribute>
       <Attribute>
+        <Name>os</Name>
+        <Backend>Foreman</Backend>
+        <Description>Operating system name</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>environment</Name>
+        <Backend>Foreman</Backend>
+        <Description>Environment name</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
+        <Name>domain</Name>
+        <Backend>Foreman</Backend>
+        <Description>Domain name</Description>
+        <Type>UnicodeString</Type>
+      </Attribute>
+      <Attribute>
         <Name>member</Name>
         <Description>RFC2256: member of a group</Description>
+        <Backend>Foreman</Backend>
         <Type>UnicodeString</Type>
         <MultiValue>true</MultiValue>
-        <Mandatory>true</Mandatory>
+        <Mandatory>false</Mandatory>
         <Validators>
           <Condition>
             <Name>ObjectWithPropertyExists</Name>

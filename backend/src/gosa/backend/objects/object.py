@@ -15,6 +15,8 @@ import copy
 import zope.event
 import pkg_resources
 import os
+
+from collections import OrderedDict
 from lxml import etree
 from lxml.builder import E
 from logging import getLogger
@@ -144,7 +146,7 @@ class Object(object):
         self.log.debug("new object instantiated '%s'" % type(self).__name__)
 
         # Group attributes by Backend
-        propsByBackend = {}
+        propsByBackend = OrderedDict()
         props = getattr(self, '__properties')
 
         self.myProperties = copy.deepcopy(props)
@@ -244,7 +246,16 @@ class Object(object):
         # And then assign the values to the properties.
         self.log.debug("object uuid: %s" % self.uuid)
 
-        for backend in self._propsByBackend:
+        # get ordered list of backends, load main backend first
+        if self._backend in self._propsByBackend:
+            backends = [self._backend]
+            for backend in self._propsByBackend:
+                if backend != self._backend:
+                    backends.append(backend)
+        else:
+            backends = self._propsByBackend.keys()
+
+        for backend in backends:
 
             try:
                 # Create a dictionary with all attributes we want to fetch
@@ -252,8 +263,19 @@ class Object(object):
                 info = dict([(k, self.myProperties[k]['backend_type']) for k in self._propsByBackend[backend]])
                 self.log.debug("loading attributes for backend '%s': %s" % (backend, str(info)))
                 be = ObjectBackendRegistry.getBackend(backend)
-                be_attrs = self._backendAttrs[backend] if backend in self._backendAttrs else None
-                attrs = be.load(self.uuid, info, be_attrs)
+                uuid = self.uuid
+                be_attrs = None
+                if backend in self._backendAttrs:
+                    be_attrs = self._backendAttrs[backend]
+
+                    if "_uuidAttribute" in be_attrs:
+                        value = self._getattr_(be_attrs['_uuidAttribute'])
+                        if value is None:
+                            raise ObjectException(C.make_error('READ_BACKEND_PROPERTIES', backend=backend))
+                        else:
+                            uuid = self._getattr_(be_attrs['_uuidAttribute'])
+
+                attrs = be.load(uuid, info, be_attrs)
 
             except ValueError as e:
                 raise ObjectException(C.make_error('READ_BACKEND_PROPERTIES', backend=backend))
