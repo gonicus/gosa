@@ -354,7 +354,7 @@
   <complexType name="BackendParameter">
     <simpleContent>
       <extension base="string">
-        <anyAttribute processContents="lax" />
+        <anyAttribute processContents="skip" />
       </extension>
     </simpleContent>
   </complexType>
