@@ -30,6 +30,7 @@ common_install_requires = [
     'lxml',
     'dnspython',
     'cryptography>=1.3',
+    'colorlog'
     ],
 
 setup(
