@@ -78,7 +78,7 @@ def monitor(path, modifier, token, webhook_target, initially_failed=False):
                 # just reset the DN, because we don't need
                 # to propagate this change.
                 if line.startswith("modifiersName:"):
-                    if line[14:].lower() == modifier.lower():
+                    if line[14:].lower() == modifier:
                         dn = None
                     continue
 
@@ -119,7 +119,7 @@ def main():  # pragma: nocover
     path = config.get('backend-monitor.audit-log', default='/var/lib/gosa/ldap-audit.log')
     webhook_target = config.get('backend-monitor.webhook-target', default='http://localhost:8000/hooks')
     token = bytes(config.get('backend-monitor.webhook-token'), 'ascii')
-    modifier = config.get('backend-monitor.modifier')
+    modifier = config.get('backend-monitor.modifier').lower()
 
     if token is None:
         print("Error: no webhook token found")
