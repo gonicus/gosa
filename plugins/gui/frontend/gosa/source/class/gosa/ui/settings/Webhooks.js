@@ -11,8 +11,9 @@
  */
 
 /**
-* Show and edit the registered webhooks.
-*/
+ * Show and edit the registered webhooks.
+ * @ignore(Fuse)
+ */
 qx.Class.define("gosa.ui.settings.Webhooks", {
   extend : qx.ui.core.Widget,
   type: "singleton",
@@ -193,9 +194,7 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
       contextMenu.add(deleteButton);
       return true;
     },
-    /**
-     * @ignore(Fuse)
-     */
+
     __updateList: function() {
 
       var handler = gosa.data.SettingsRegistry.getHandlerForPath(gosa.ui.settings.Webhooks.NAMESPACE);
