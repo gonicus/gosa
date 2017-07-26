@@ -78,7 +78,7 @@ def monitor(path, modifier, token, webhook_target, initially_failed=False):
                 # just reset the DN, because we don't need
                 # to propagate this change.
                 if line.startswith("modifiersName:"):
-                    if line[14:].lower() == modifier:
+                    if line[15:].lower() == modifier:
                         dn = None
                     continue
 
