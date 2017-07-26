@@ -48,7 +48,7 @@ ldap_monitor_token = 9d6250c0-6413-4b1e-98d9-7b763472962a
 ##############################################################################
 
 [loggers]
-keys=root,gosa
+keys=root,gosa,gosa.backend.acl
 
 [handlers]
 keys=syslog,console
@@ -66,6 +66,12 @@ level=DEBUG
 # Desired handler: syslog, console
 handlers=console
 qualname=gosa
+propagate=0
+
+[logger_gosa.backend.acl]
+level=INFO
+handlers=console
+qualname=gosa.backend.acl
 propagate=0
 
 [handler_console]
