@@ -98,7 +98,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_Online</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
@@ -106,7 +106,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_Offline</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
@@ -114,7 +114,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_UpdateAvailable</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
@@ -122,7 +122,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_UpdateInProgress</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
@@ -130,7 +130,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_InventoryInProgress</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
@@ -138,7 +138,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_ConfigurationInProgress</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
@@ -146,7 +146,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_InstallationInProgress</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
@@ -154,7 +154,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_VirtualMachineCreationInProgress</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
@@ -162,7 +162,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_Warning</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
@@ -170,7 +170,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_Error</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
@@ -178,7 +178,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_SystemHasActiveUserSessions</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
@@ -186,7 +186,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_SystemActivated</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
@@ -194,7 +194,7 @@
 			</Attribute>
 			<Attribute>
 				<Name>status_SystemLocked</Name>
-				<Description></Description>
+				<Description/>
 				<Backend>NULL</Backend>
 				<Type>Boolean</Type>
 				<Default>false</Default>
