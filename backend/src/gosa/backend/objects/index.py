@@ -500,8 +500,8 @@ class ObjectIndex(Plugin):
             self.post_process()
             self.log.info("index refresh finished")
 
-            zope.event.notify(IndexScanFinished())
             GlobalLock.release("scan_index")
+            zope.event.notify(IndexScanFinished())
 
     def post_process(self):
         ObjectIndex.importing = False
@@ -788,6 +788,21 @@ class ObjectIndex(Plugin):
                         res.append(or_(*__make_filter(value)))
                     elif key == "not_":
                         res.append(not_(*__make_filter(value)))
+                    elif 'not_in_' in value or 'in_' in value:
+                        if hasattr(ObjectInfoIndex, key):
+                            attr = getattr(ObjectInfoIndex, key)
+                            if 'not_in_' in value:
+                                res.append(~attr.in_(value['not_in_']))
+                            elif 'in_' in value:
+                                res.append(attr.in_(value['in_']))
+                        else:
+                            in_expr = None
+                            if 'not_in_' in value:
+                                in_expr = ~KeyValueIndex.value.in_(value['not_in_'])
+                            elif 'in_' in value:
+                                in_expr = KeyValueIndex.value.in_(value['in_'])
+                            res.append(and_(KeyValueIndex.key == key, in_expr))
+
                     else:
                         raise IndexException(C.make_error('NOT_SUPPORTED', "base", operator=key))
 
