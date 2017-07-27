@@ -198,7 +198,7 @@
             },
             "extensions": {
                 "guiProperties": {
-                    "editTitle": "tr('dit group membership')",
+                    "editTitle": "tr('Edit group membership')",
                     "columns": {
                         "cn": "tr('Name')",
                         "description": "tr('Description')"
