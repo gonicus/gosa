@@ -11,9 +11,12 @@
 The utility module is a collection of smaller functions that
 make the life of plugin programming easier.
 """
+import hashlib
+import random
 import re
 import os
 import datetime
+import string
 import time
 import tempfile
 import lxml
@@ -27,6 +30,8 @@ from tokenize import generate_tokens
 from token import STRING
 from io import StringIO
 from subprocess import Popen, PIPE
+
+from Crypto.Cipher import AES
 
 _is_uuid = re.compile(r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$')
 
@@ -370,3 +375,31 @@ except ImportError:
                 return stdout.strip().decode('utf-8')
 
             break
+
+
+def generate_random_key():
+    # Generate random client key
+    random.seed()
+    key = ''.join(random.Random().sample(string.ascii_letters + string.digits, 32))
+    salt = os.urandom(4)
+    h = hashlib.sha1(key.encode('ascii'))
+    h.update(salt)
+    return h, key, salt
+
+
+def encrypt_key(key, data):
+    """
+    Encrypt a data using key
+    """
+
+    # Calculate padding length
+    key_pad = AES.block_size - len(key) % AES.block_size
+    data_pad = AES.block_size - len(data) % AES.block_size
+
+    # Pad data PKCS12 style
+    if key_pad != AES.block_size:
+        key += chr(key_pad) * key_pad
+    if data_pad != AES.block_size:
+        data += chr(data_pad) * data_pad
+
+    return AES.new(key, AES.MODE_ECB).encrypt(data)

@@ -10,14 +10,20 @@
     <Backend>LDAP</Backend>
     <BackendParameters>
       <Backend objectClasses="foremanHostGroup" RDN="cn">LDAP</Backend>
-      <Backend member="ForemanHost:dn,">ObjectHandler</Backend>
-      <Backend type="hostgroups" _uuidAttribute="description">Foreman</Backend>
+      <Backend member="ForemanHost:cn,">ObjectHandler</Backend>
+      <Backend type="hostgroups" _uuidAttribute="foremanGroupId">Foreman</Backend>
     </BackendParameters>
     <BaseObject>true</BaseObject>
     <Attributes>
       <Attribute>
         <Name>cn</Name>
         <Description>Common Name</Description>
+        <Type>UnicodeString</Type>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>foremanGroupId</Name>
+        <Description>ID used in foreman to identify the hostGroup</Description>
         <Type>UnicodeString</Type>
         <Mandatory>true</Mandatory>
       </Attribute>
@@ -55,13 +61,13 @@
           <Condition>
             <Name>ObjectWithPropertyExists</Name>
             <Param>ForemanHost</Param>
-            <Param>dn</Param>
+            <Param>cn</Param>
           </Condition>
         </Validators>
         <References>
           <Reference>
-            <Object>*</Object>
-            <Attribute>dn</Attribute>
+            <Object>ForemanHost</Object>
+            <Attribute>cn</Attribute>
           </Reference>
         </References>
       </Attribute>

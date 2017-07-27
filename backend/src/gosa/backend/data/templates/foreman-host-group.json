@@ -1,5 +1,19 @@
 {
-  "layout": "qx.ui.layout.Grid", 
+  "type": "widget",
+  "class": "qx.ui.container.Composite",
+  "layout": "qx.ui.layout.Grid",
+  "extensions": {
+    "resources": {
+      "favicon": "@Ligature/server"
+    },
+    "tabConfig": {
+      "title": "tr('Deployment group')",
+      "icon": "favicon"
+    }
+  },
+  "properties": {
+    "categoryTitle": "tr('Deployment')"
+  },
   "children": [
     {
       "properties": {
@@ -110,20 +124,59 @@
         "column": 1, 
         "row": 4
       }
-    }
-  ], 
-  "type": "widget", 
-  "class": "qx.ui.container.Composite", 
-  "extensions": {
-    "resources": {
-      "favicon": "@Ligature/server"
     },
-    "tabConfig": {
-      "title": "tr('Deployment group')",
-      "icon": "favicon"
+    {
+      "properties": {
+        "text": "tr('operating system')"
+      },
+      "buddyModelPath": "os",
+      "class": "gosa.ui.widgets.QLabelWidget",
+      "addOptions": {
+        "column": 0,
+        "row": 5
+      }
+    },
+    {
+      "properties": {
+        "tabIndex": 2
+      },
+      "modelPath": "os",
+      "class": "gosa.ui.widgets.QLineEditWidget",
+      "addOptions": {
+        "column": 1,
+        "row": 5
+      }
+    },
+    {
+      "class": "gosa.ui.widgets.GroupBox",
+      "layout": "qx.ui.layout.Canvas",
+      "properties": {
+        "legend": "tr('Members')"
+      },
+      "addOptions": {
+        "column": 0,
+        "row": 6,
+        "colSpan": 2
+      },
+      "children": [{
+        "class": "gosa.ui.widgets.QTableWidgetWidget",
+        "modelPath": "member",
+        "addOptions": {
+          "edge": 0
+        },
+        "properties": {
+          "multivalue": true,
+          "height" : 350
+        },
+        "extensions": {
+          "guiProperties": {
+            "editTitle": "tr('Add members')",
+            "columns": {
+              "cn": "tr('Hostname')"
+            }
+          }
+        }
+      }]
     }
-  },
-  "properties": {
-      "categoryTitle": "tr('Deployment')"
-  }
+  ]
 }

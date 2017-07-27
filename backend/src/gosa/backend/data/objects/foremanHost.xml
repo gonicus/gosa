@@ -9,7 +9,7 @@
     </Templates>
     <BackendParameters>
       <Backend objectClasses="foremanHost">LDAP</Backend>
-      <Backend groupMembership="ForemanHostGroup:cn,member=dn">ObjectHandler</Backend>
+      <Backend groupMembership="ForemanHostGroup:cn,member=cn">ObjectHandler</Backend>
     </BackendParameters>
     <Backend>LDAP</Backend>
     <BaseObject>false</BaseObject>

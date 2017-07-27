@@ -8,10 +8,6 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import re
-import os
-import string
-import random
-import hashlib
 import datetime
 import logging
 from uuid import uuid4
@@ -30,7 +26,7 @@ from gosa.common.components.jsonrpc_proxy import JSONRPCException
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.event import EventMaker
 from gosa.common import Environment
-from gosa.common.utils import stripNs, N_
+from gosa.common.utils import stripNs, N_, encrypt_key, generate_random_key
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.mqtt_proxy import MQTTServiceProxy
@@ -38,7 +34,6 @@ from gosa.common.components import Plugin
 from gosa.common.components.command import Command
 from gosa.plugins.goto.in_out_filters import mapping
 from base64 import b64encode as encode
-from Crypto.Cipher import AES
 
 # Register the errors handled  by us
 C.register_codes(dict(
@@ -377,11 +372,7 @@ class ClientService(Plugin):
                 more_info.append(("owner", info["owner"]))
 
         # Generate random client key
-        random.seed()
-        key = ''.join(random.Random().sample(string.ascii_letters + string.digits, 32))
-        salt = os.urandom(4)
-        h = hashlib.sha1(key.encode('ascii'))
-        h.update(salt)
+        h, key, salt = generate_random_key()
 
         # Take a look at the directory to see if there's already a joined client with this uuid
         res = index.search({'_type': 'Device', 'macAddress': mac},
@@ -392,7 +383,7 @@ class ClientService(Plugin):
 
         # While the client is going to be joined, generate a random uuid and an encoded join key
         cn = str(uuid4())
-        device_key = self.__encrypt_key(device_uuid.replace("-", ""), cn + key)
+        device_key = encrypt_key(device_uuid.replace("-", ""), cn + key)
 
         # Resolve manager
         res = index.search({'_type': 'User', 'uid': user},
@@ -403,9 +394,6 @@ class ClientService(Plugin):
         manager = res[0]['dn']
 
         # Create new machine entry
-        # dn = ",".join([self.env.config.get("goto.machine-rdn", default="ou=systems"), self.env.base])
-        # container = ObjectProxy(dn, "DeviceContainer")
-        # container.commit()
         dn = ",".join([self.env.config.get("goto.machine-rdn", default="ou=devices,ou=systems"), self.env.base])
         record = ObjectProxy(dn, "Device")
         record.extend("RegisteredDevice")
@@ -418,32 +406,13 @@ class ClientService(Plugin):
         record.status_Offline = True
         record.macAddress = mac.encode("ascii", "ignore")
         record.userPassword = "{SSHA}" + encode(h.digest() + salt).decode()
-        for key, value in more_info:
-            setattr(record, key, value)
+        for k, value in more_info:
+            setattr(record, k, value)
 
         record.commit()
         self.log.info("UUID '%s' joined as %s" % (device_uuid, record.dn))
 
         return [key, cn]
-
-        return None
-
-    def __encrypt_key(self, key, data):
-        """
-        Encrypt a data using key
-        """
-
-        # Calculate padding length
-        key_pad = AES.block_size - len(key) % AES.block_size
-        data_pad = AES.block_size - len(data) % AES.block_size
-
-        # Pad data PKCS12 style
-        if key_pad != AES.block_size:
-            key += chr(key_pad) * key_pad
-        if data_pad != AES.block_size:
-            data += chr(data_pad) * data_pad
-
-        return AES.new(key, AES.MODE_ECB).encrypt(data)
 
     def __eventProcessor(self, topic, message):
         if message[0:1] == "{":
