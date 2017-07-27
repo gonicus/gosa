@@ -141,6 +141,9 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
      * */
     _setWidgetValue: function(id, value){
       try{
+        if (qx.Class.implementsInterface(value, gosa.io.types.IType)) {
+          value = value.toString();
+        }
         this._getWidget(id).setValue(value);
       }catch(e){
         this.error("failed to set widget value for " + this.getAttribute() + ". "+ e);

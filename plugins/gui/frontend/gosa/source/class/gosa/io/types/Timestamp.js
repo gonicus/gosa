@@ -12,8 +12,8 @@
 
 qx.Class.define("gosa.io.types.Timestamp", 
 {
-
   extend: qx.core.Object,
+  implement: gosa.io.types.IType,
 
   construct: function(date){
     this.base(arguments); 
@@ -52,6 +52,10 @@ qx.Class.define("gosa.io.types.Timestamp",
     toTimeStamp : function()
     {
       return(this._date_obj.getTime() / 1000)
+    },
+
+    toString: function() {
+      return this.get().toString();
     },
 
     toJSON: function(){

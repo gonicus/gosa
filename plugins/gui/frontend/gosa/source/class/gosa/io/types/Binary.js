@@ -13,6 +13,7 @@
 qx.Class.define("gosa.io.types.Binary", 
 {
   extend: qx.core.Object,
+  implement: gosa.io.types.IType,
 
   construct: function(data){
     this.base(arguments); 
@@ -39,6 +40,10 @@ qx.Class.define("gosa.io.types.Binary",
 
     get: function(){
       return(this._data);
+    },
+
+    toString: function() {
+      return this.get();
     },
 
     toJSON: function(){
