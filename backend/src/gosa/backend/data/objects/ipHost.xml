@@ -4,6 +4,9 @@
     <Name>IpHost</Name>
     <Description>IpHost</Description>
     <DisplayName>IpHost</DisplayName>
+    <Templates>
+      <Template>device-iphost.json</Template>
+    </Templates>
     <BackendParameters>
       <Backend objectClasses="ipHost">LDAP</Backend>
     </BackendParameters>

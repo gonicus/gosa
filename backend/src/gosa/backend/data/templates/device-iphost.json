@@ -1,0 +1,51 @@
+{
+    "type": "widget",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.VBox",
+    "addOptions": {
+        "flex": 1
+    },
+    "extensions": {
+        "resources": {
+            "favicon": "@Ligature/pc"
+        },
+        "tabConfig": {
+            "title": "tr('IP host')",
+            "icon": "favicon"
+        }
+    },
+    "children": [{
+        "class": "qx.ui.container.Composite",
+        "layout": "qx.ui.layout.Grid",
+        "layoutConfig": {
+            "spacingX": "CONST_SPACING_X",
+            "spacingY": "CONST_SPACING_Y"
+        },
+        "extensions": {
+            "layoutOptions": {
+                "columnFlex": {
+                    "column": 1,
+                    "flex": 1
+                }
+            }
+        },
+        "children": [{
+            "class": "gosa.ui.widgets.QLabelWidget",
+            "buddyModelPath": "ipHostNumber",
+            "properties": {
+                "text": "tr('IP address')"
+            },
+            "addOptions": {
+                "row": 0,
+                "column": 0
+            }
+        }, {
+            "class": "gosa.ui.widgets.QLineEditWidget",
+            "modelPath": "ipHostNumber",
+            "addOptions": {
+                "row": 0,
+                "column": 1
+            }
+        }]
+    }]
+}
