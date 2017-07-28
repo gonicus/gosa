@@ -13,11 +13,11 @@ qx.Class.define("gosa.ui.dialogs.Error", {
 
   extend: gosa.ui.dialogs.Dialog,
 
-  construct: function(error) {
+  construct: function(msg) {
     var title = this.tr("Error");
 
     this.base(arguments, title);
-    var msg = gosa.ui.dialogs.Error.getMessage(msg);
+    msg = gosa.ui.dialogs.Error.getMessage(msg);
 
     var message = new qx.ui.basic.Label(msg);
     this.addElement(message);
