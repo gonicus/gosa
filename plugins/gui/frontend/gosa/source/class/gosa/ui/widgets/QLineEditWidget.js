@@ -59,6 +59,10 @@ qx.Class.define("gosa.ui.widgets.QLineEditWidget", {
       this.focus();
     },
 
+    // overridden (bound to widgets readOnly attribute)
+    _applyReadOnly: function() {
+    },
+
     /* Creates an input-widget depending on the echo mode (normal/password)
      * and connects the update listeners
      * */
@@ -71,6 +75,7 @@ qx.Class.define("gosa.ui.widgets.QLineEditWidget", {
         w = new qx.ui.form.TextField();
         w.getContentElement().setAttribute("spellcheck", true);
       }
+      this.bind("readOnly", w, "readOnly");
       if(this.getPlaceholder()){
         w.setPlaceholder(this.getPlaceholder());
       }
