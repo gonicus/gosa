@@ -198,6 +198,10 @@ setup(
         securecontext = gosa.backend.plugins.two_factor.filter.detect_security:DetectSecureContext
         stringtojson = gosa.backend.objects.filter.strings:StringToJson
         jsontostring = gosa.backend.objects.filter.strings:JsonToString
+        foremanstatusin = gosa.backend.plugins.foreman.filter:ForemanStatusIn
+        foremanstatusout = gosa.backend.plugins.foreman.filter:ForemanStatusOut
+        foremanhostgroupin = gosa.backend.plugins.foreman.filter:ForemanHostGroupIn
+        foremanhostgroupout = gosa.backend.plugins.foreman.filter:ForemanHostGroupOut
 
         [gosa.object.comparator]
         like = gosa.backend.objects.comparator.strings:Like

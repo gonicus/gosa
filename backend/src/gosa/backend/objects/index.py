@@ -811,6 +811,9 @@ class ObjectIndex(Plugin):
                     # keys with the same name
                     exprs = []
                     for v in value:
+                        # convert integers because we need strings
+                        if isinstance(v, int):
+                            v = "%s" % v
                         if hasattr(ObjectInfoIndex, key):
                             if "%" in v:
                                 exprs.append(getattr(ObjectInfoIndex, key).like(v))
@@ -829,6 +832,10 @@ class ObjectIndex(Plugin):
                     res.append(or_(*exprs))
 
                 else:
+                    # convert integers because we need strings
+                    if isinstance(value, int):
+                        value = "%s" % value
+
                     if hasattr(ObjectInfoIndex, key):
                         if "%" in value:
                             res.append(getattr(ObjectInfoIndex, key).like(value))

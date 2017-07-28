@@ -11,7 +11,7 @@
     <BackendParameters>
       <Backend objectClasses="foremanHostGroup" RDN="cn">LDAP</Backend>
       <Backend member="ForemanHost:cn,">ObjectHandler</Backend>
-      <Backend type="hostgroups" _uuidAttribute="foremanGroupId">Foreman</Backend>
+      <Backend type="hostgroups" _uuidAttribute="foremanGroupId" mapping="name:cn,id:foremanGroupId">Foreman</Backend>
     </BackendParameters>
     <BaseObject>true</BaseObject>
     <Attributes>
@@ -33,22 +33,25 @@
         <Type>UnicodeString</Type>
       </Attribute>
       <Attribute>
-        <Name>os</Name>
+        <Name>operatingsystem_name</Name>
         <Backend>Foreman</Backend>
         <Description>Operating system name</Description>
         <Type>UnicodeString</Type>
+        <ReadOnly>true</ReadOnly>
       </Attribute>
       <Attribute>
-        <Name>environment</Name>
+        <Name>environment_name</Name>
         <Backend>Foreman</Backend>
         <Description>Environment name</Description>
         <Type>UnicodeString</Type>
+        <ReadOnly>true</ReadOnly>
       </Attribute>
       <Attribute>
-        <Name>domain</Name>
+        <Name>domain_name</Name>
         <Backend>Foreman</Backend>
         <Description>Domain name</Description>
         <Type>UnicodeString</Type>
+        <ReadOnly>true</ReadOnly>
       </Attribute>
       <Attribute>
         <Name>member</Name>
@@ -114,5 +117,22 @@
         </Validators>
       </Attribute>
     </Attributes>
+    <Find>
+    <Aspect>
+      <Tag>ForemanHostGroup</Tag>
+      <Keyword>ForemanGroup</Keyword>
+      <Keyword>ForemanMember</Keyword>
+      <Keyword>ForemanMembership</Keyword>
+      <Search>cn</Search>
+      <Search>description</Search>
+      <Resolve type="ForemanHost" filter="cn">member</Resolve>
+      <Result>
+        <Map>
+          <Source>cn</Source>
+          <Destination>title</Destination>
+        </Map>
+      </Result>
+    </Aspect>
+    </Find>
   </Object>
 </Objects>

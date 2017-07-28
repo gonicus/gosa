@@ -7,6 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import requests
+from requests import HTTPError
 from requests.auth import HTTPBasicAuth
 
 from gosa.backend.objects.backend import ObjectBackend
@@ -38,8 +39,6 @@ class Foreman(ObjectBackend):
         if response.ok:
             data = response.json()
             return data
-        elif response.status_code == 404:
-            raise ForemanException(C.make_error('FOREMAN_UNKNOWN_TYPE', type=type))
         else:
             response.raise_for_status()
 
@@ -52,8 +51,29 @@ class Foreman(ObjectBackend):
         :param back_attrs: backend configuration from object definition
         :return: results returned from foreman API
         """
-        data = self.__get(back_attrs['type'], id=uuid)
-        return data
+        mapping = self.extract_mapping(back_attrs)
+        try:
+            data = self.__get(back_attrs['type'], id=uuid)
+        except HTTPError as e:
+            # something when wrong
+            self.log.error("Error requesting foreman backend: %s" % e)
+            data = {}
+
+        res = {}
+        # map attributes
+        for source, target in mapping.items():
+            if source in data and data[source] is not None:
+                res[target] = [data[source]]
+
+        # attach other requested attributes to result set
+        for attr, type in info.items():
+            if attr in data and data[attr] is not None:
+                value = data[attr]
+                if isinstance(value, int) and 'String' in type:
+                    value = str(value)
+                res[attr] = [value]
+
+        return res
 
     def identify(self, dn, params, fixed_rdn=None):
         print("FOREMAN### identify: %s, " % (dn, params, fixed_rdn))
@@ -86,6 +106,7 @@ class Foreman(ObjectBackend):
         return None
 
     def update(self, uuid, data, params):
+        print("FOREMAN### update: '%s', '%s', '%s'" % (uuid, data, params))
         return True
 
     def is_uniq(self, attr, value):
@@ -101,3 +122,10 @@ class Foreman(ObjectBackend):
     def dn2uuid(self, dn):  # pragma: nocover
         return None
 
+    def extract_mapping(self, attrs):
+        result = {}
+        for key_value in attrs['mapping'].split(","):
+            key, value = key_value.split(":")
+            result[key] = value
+
+        return result

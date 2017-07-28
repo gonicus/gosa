@@ -41,13 +41,6 @@ C.register_codes(dict(
     MULTIPLE_HOSTGROUPS_FOUND=N_("(%groups)s found for group id '%(group_id)s'"),
 ))
 
-FM_STATUS_GLOBAL_OK = 0
-FM_STATUS_GLOBAL_WARNING = 1
-FM_STATUS_GLOBAL_ERROR = 2
-
-FM_STATUS_BUILD = 0
-FM_STATUS_BUILD_PENDING = 1
-
 
 class ForemanClient(object):
     """Client for the Foreman REST-API v2"""
@@ -93,10 +86,7 @@ class Foreman(Plugin):
         # some simple property mapping for data extraction
         self.props = {
             "hostgroup": {
-                "name": "cn",
-                "operatingsystem_name": "os",
-                "environment_name": "environment",
-                "domain_name": "domain"
+                "name": "cn"
             }
         }
 
@@ -176,32 +166,38 @@ class Foreman(Plugin):
             base = self.env.base
 
         device = ObjectProxy(base, "Device")
-        device.extend("ForemanHost")
-        device.cn = hostname
-        # commit now to get a uuid
-        device.commit()
+        try:
+            device.extend("ForemanHost")
+            device.cn = hostname
+            # commit now to get a uuid
+            device.commit()
 
-        # re-open to get a clean object
-        device = ObjectProxy(device.uuid)
+            # re-open to get a clean object
+            device = ObjectProxy(device.uuid)
 
-        # Generate random client key
-        h, key, salt = generate_random_key()
+            # Generate random client key
+            h, key, salt = generate_random_key()
 
-        # While the client is going to be joined, generate a random uuid and an encoded join key
-        cn = str(uuid.uuid4())
-        device_key = encrypt_key(device.uuid.replace("-", ""), cn + key)
+            # While the client is going to be joined, generate a random uuid and an encoded join key
+            cn = str(uuid.uuid4())
+            device_key = encrypt_key(device.uuid.replace("-", ""), cn + key)
 
-        device.extend("RegisteredDevice")
-        device.extend("simpleSecurityObject")
-        device.deviceUUID = cn
-        device.deviceKey = Binary(device_key)
-        # device.manager = manager
-        device.status_Offline = True
-        device.userPassword = "{SSHA}" + encode(h.digest() + salt).decode()
+            device.extend("RegisteredDevice")
+            device.extend("simpleSecurityObject")
+            device.deviceUUID = cn
+            device.deviceKey = Binary(device_key)
+            # device.manager = manager
+            device.status_Offline = True
+            device.userPassword = "{SSHA}" + encode(h.digest() + salt).decode()
 
-        device.commit()
+            device.commit()
+            return key
 
-        return key
+        except:
+            # remove created device again because something went wrong
+            self.remove_host(hostname)
+            raise
+
 
     def remove_host(self, hostname):
         # find the host
@@ -249,46 +245,41 @@ class Foreman(Plugin):
             except ValueError:
                 pass
 
-        if 'global_status' in data and data['global_status'] is not None:
-            foreman_status = data['global_status']
+        if 'uuid' in data and data['uuid'] is not None and device.is_extended_by("RegisteredDevice"):
+            # update the UUID of a joined client
+            device.deviceUUID = data['uuid']
 
-            if foreman_status == FM_STATUS_GLOBAL_OK:
-                # request build status from foreman
-                res = self.client.get("hosts/%s/status/build" % device.cn)
-                if res['status'] == FM_STATUS_BUILD:
-                    device.status = "ready"
-                if res['status'] == FM_STATUS_BUILD_PENDING:
-                    device.status = "pending"
+        if 'mac' in data and data['mac'] is not None:
+            try:
+                if not device.is_extended_by("ieee802Device"):
+                    device.extend("ieee802Device")
+                device.macAddress = data['mac']
+            except ValueError:
+                pass
 
-            elif foreman_status == FM_STATUS_GLOBAL_WARNING:
-                device.status = "warning"
-
-            elif foreman_status == FM_STATUS_GLOBAL_ERROR:
-                device.status = "error"
-
-        if 'hostgroup_name' in data and data['hostgroup_name'] is not None:
-            # check if group exists (create if not)
-            index = PluginRegistry.getInstance("ObjectIndex")
-            res = index.search({'_type': 'ForemanHostGroup', 'cn': data['hostgroup_name']}, {'dn': 1})
-
-            if len(res) == 0:
-                # create new host group
-                group = ObjectProxy(device.get_adjusted_parent_dn(), "ForemanHostGroup")
-                group.cn = data['hostgroup_name']
-
-                group.member.append(device.cn)
-                group.commit()
-            else:
-                # open group
-                group = ObjectProxy(res[0]['dn'])
-
-                if device.dn not in group.member:
-                    group.member.append(device.cn)
-                    group.commit()
-
-            # add to group
-            self.log.debug("adding foremanHost '%s' to group '%s'" % (device.cn, group.cn))
-            device.groupMembership = group.cn
+        # if 'hostgroup_name' in data and data['hostgroup_name'] is not None:
+        #     # check if group exists (create if not)
+        #     index = PluginRegistry.getInstance("ObjectIndex")
+        #     res = index.search({'_type': 'ForemanHostGroup', 'cn': data['hostgroup_name']}, {'dn': 1})
+        #
+        #     if len(res) == 0:
+        #         # create new host group
+        #         group = ObjectProxy(device.get_adjusted_parent_dn(), "ForemanHostGroup")
+        #         group.cn = data['hostgroup_name']
+        #
+        #         group.member.append(device.cn)
+        #         group.commit()
+        #     else:
+        #         # open group
+        #         group = ObjectProxy(res[0]['dn'])
+        #
+        #         if device.dn not in group.member:
+        #             group.member.append(device.cn)
+        #             group.commit()
+        #
+        #     # add to group
+        #     self.log.debug("adding foremanHost '%s' to group '%s'" % (device.cn, group.cn))
+        #     device.groupMembership = group.foremanGroupId
 
         self.log.debug("updating foreman host '%s'" % device.cn)
         device.commit()
@@ -339,7 +330,7 @@ class Foreman(Plugin):
         if isinstance(group, ObjectProxy):
             group_id = group.foremanGroupId
         else:
-            hostgroup = self.__get_hostgroup_object(group)
+            hostgroup = self.__get_hostgroup_object(group_id)
 
         if data is None:
             data = self.client.get("hostgroups", id=group_id)
@@ -349,6 +340,7 @@ class Foreman(Plugin):
         # update the simple values
         for key, value in self.props['hostgroup'].items():
             if key in data and data[key] is not None:
+                self.log.debug("set '%s'->'%s' to '%s' in hostgroup" % (key, value, data[key]))
                 setattr(hostgroup, value, data[key])
 
         self.log.debug("updating foreman hostgroup '%s'" % hostgroup.cn)
@@ -384,11 +376,6 @@ class ForemanRealmReceiver(object):
                 "randompassword": key
             }))
 
-            # update host with a delay of 5 seconds
-            timer = Timer(5.0, foreman.update_host, args=[data['hostname']])
-            timer.start()
-            self.env.threads.append(timer)
-
         elif data['action'] == "delete":
             foreman.remove_host(data['hostname'])
 
@@ -404,7 +391,7 @@ class ForemanHookReceiver(object):
     def handle_request(self, request_handler):
         foreman = PluginRegistry.getInstance("Foreman")
         data = loads(request_handler.request.body)
-        type = data['data'].keys()[0]
+        type = list(data['data'].keys())[0]
 
         # search for real data
         if len(data['data'][type].keys()) == 1 and type in data['data'][type]:
@@ -422,11 +409,11 @@ class ForemanHookReceiver(object):
             elif type == "host":
                 foreman.update_host(data['object'], data=payload_data)
 
-        elif data['event'] == "after_create":
+        elif data['event'] == "after_create" or data['event'] == "create":
             if type == "hostgroup":
                 foreman.update_hostgroup(data=payload_data)
             elif type == "host":
-                self.log.debug("after_create hook for host ignored, new hooks are registery by realm provider")
+                foreman.update_host(data['object'], data=payload_data)
 
         elif data['event'] == "after_destroy":
             if type == "hostgroup":
@@ -435,7 +422,7 @@ class ForemanHookReceiver(object):
                 foreman.remove_host(data['object'])
 
         else:
-            self.log.info("unhandles hook event '%s' received for '%s'" % (data['event'], type))
+            self.log.info("unhandled hook event '%s' received for '%s'" % (data['event'], type))
 
 
 class ForemanException(Exception):
