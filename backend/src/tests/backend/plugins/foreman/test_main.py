@@ -267,7 +267,7 @@ class ForemanHookTestCase(RemoteTestCase):
         if self._host_dn is not None:
             # cleanup
             foreman = Foreman()
-            foreman.server()
+            foreman.serve()
             foreman.remove_host(self._host_dn)
 
     def get_app(self):
