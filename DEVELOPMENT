@@ -4,7 +4,7 @@ Quickstart
 ==========
 
  - install python3-gunicorn, python3-gevent, python3-setproctitle, python3-pyldap, python3-unidecode, python3-psycop2 packages
-            build-essential python-dev cython libusb-1.0-0-dev libudev-dev, python3-pillow, python3-lxml
+            build-essential python-dev cython libusb-1.0-0-dev libudev-dev, python3-pillow, python3-lxml, libssl-dev
  - Ubuntu: virtualenv --python=python3 --system-site-packages .env
    Fedora: virtualenv-3.5 --system-site-packages .env
  - Initialize the repository "./run --init"

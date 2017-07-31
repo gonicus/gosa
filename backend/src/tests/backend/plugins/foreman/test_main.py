@@ -8,19 +8,18 @@
 # See the LICENSE file in the project's top-level directory for details.
 import hmac
 from json import loads, dumps
-import logging
 import pytest
 from unittest import TestCase, mock
 
 from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application, HTTPError
 
-from gosa.common.utils import is_uuid
 from tests.RemoteTestCase import RemoteTestCase
 from gosa.backend.exceptions import ProxyException
 from gosa.backend.plugins.webhook.registry import WebhookReceiver
 from tests.GosaTestCase import GosaTestCase
 from gosa.backend.plugins.foreman.main import *
+import ldap
 
 
 class MockResponse:
@@ -108,7 +107,6 @@ class ForemanTestCase(GosaTestCase):
         m_get.return_value = MockResponse('{\
             "name": "testhost",\
             "ip": "192.168.0.2",\
-            "location_id": "testloc1",\
             "global_status": 0,\
             "build_status": 1\
         }', 200)
@@ -116,7 +114,6 @@ class ForemanTestCase(GosaTestCase):
         foreman.update_host(device.cn)
 
         device = ObjectProxy(dn)
-        assert device.l == "testloc1"
         assert device.ipHostNumber == "192.168.0.2"
         assert device.status == "pending"
 
@@ -189,18 +186,18 @@ class ForemanClientTestCase(TestCase):
         assert res['fullname'] == "QA"
 
 
-class ForemanWebhookTestCase(RemoteTestCase):
+class ForemanRealmTestCase(RemoteTestCase):
     registry = None
     url = None
     token = None
 
     def setUp(self):
-        super(ForemanWebhookTestCase, self).setUp()
+        super(ForemanRealmTestCase, self).setUp()
         self.registry = PluginRegistry.getInstance("WebhookRegistry")
         self.url, self.token = self.registry.registerWebhook("admin", "test-webhook", "application/vnd.foreman.hostevent+json")
 
     def tearDown(self):
-        super(ForemanWebhookTestCase, self).tearDown()
+        super(ForemanRealmTestCase, self).tearDown()
         self.registry.unregisterWebhook("admin", "test-webhook", "application/vnd.foreman.hostevent+json")
 
     def get_app(self):
@@ -250,4 +247,137 @@ class ForemanWebhookTestCase(RemoteTestCase):
 
         with pytest.raises(ProxyException):
             ObjectProxy("cn=new-foreman-host,ou=devices,dc=example,dc=net")
+
+
+class ForemanHookTestCase(RemoteTestCase):
+    registry = None
+    url = None
+    token = None
+    _host_dn = None
+
+    def setUp(self):
+        super(ForemanHookTestCase, self).setUp()
+        self.registry = PluginRegistry.getInstance("WebhookRegistry")
+        self.url, self.token = self.registry.registerWebhook("admin", "test-webhook", "application/vnd.foreman.hookevent+json")
+
+    def tearDown(self):
+        super(ForemanHookTestCase, self).tearDown()
+        self.registry.unregisterWebhook("admin", "test-webhook", "application/vnd.foreman.hookevent+json")
+
+        if self._host_dn is not None:
+            # cleanup
+            foreman = Foreman()
+            foreman.server()
+            foreman.remove_host(self._host_dn)
+
+    def get_app(self):
+        return Application([('/hooks(?P<path>.*)?', WebhookReceiver)], cookie_secret='TecloigJink4', xsrf_cookies=True)
+
+    def _create_request(self, payload_data):
+        token = bytes(self.token, 'ascii')
+        payload = bytes(dumps(payload_data), 'utf-8')
+        signature_hash = hmac.new(token, msg=payload, digestmod="sha512")
+        signature = 'sha1=' + signature_hash.hexdigest()
+        headers = {
+            'Content-Type': 'application/vnd.foreman.hookevent+json',
+            'HTTP_X_HUB_SENDER': 'test-webhook',
+            'HTTP_X_HUB_SIGNATURE': signature
+        }
+        return headers, payload
+
+    @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
+    def test_host_request(self, m_get):
+
+        m_get.return_value = MockResponse('{\
+            "build_status": 0\
+        }', 200)
+
+        self._host_dn = "cn=new-foreman-host,ou=devices,dc=example,dc=net"
+        # create new host to update
+        foreman = Foreman()
+        foreman.serve()
+        foreman.add_host("new-foreman-host")
+
+        payload_data = {
+            "event": "after_commit",
+            "object": "new-foreman-host",
+            "data": {
+                "host": {
+                    "ip": "127.0.0.1",
+                    "mac": "00:00:00:00:00:01",
+                    "uuid": "597ae2f6-16a6-1027-98f4-d28b5365dc14"
+                }
+            }
+        }
+        headers, payload = self._create_request(payload_data)
+        AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
+
+        # check if the host has been updated
+        device = ObjectProxy(self._host_dn)
+        assert device.cn == "new-foreman-host"
+        assert device.ipHostNumber == payload_data["data"]["host"]["ip"]
+        assert device.macAddress == payload_data["data"]["host"]["mac"]
+        assert device.deviceUUID == payload_data["data"]["host"]["uuid"]
+
+        # delete the host
+        payload_data = {
+            "event": "after_destroy",
+            "object": "new-foreman-host",
+            "data": {"host": {
+                "name": "new-foreman-host"
+            }}
+        }
+        headers, payload = self._create_request(payload_data)
+        AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
+
+        with pytest.raises(ProxyException):
+            ObjectProxy("cn=new-foreman-host,ou=devices,dc=example,dc=net")
+
+        self._host_dn = None
+
+    @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
+    def test_hostgroup_request(self, m_get):
+
+        m_get.return_value = MockResponse('{\
+            "name": "Testgroup"\
+        }', 200)
+
+        self._host_dn = "cn=Testgroup,ou=groups,dc=example,dc=net"
+
+        payload_data = {
+            "event": "after_create",
+            "object": "Testgroup",
+            "data": {
+                "hostgroup": {
+                    "id": "999",
+                    "name": "Testgroup"
+                }
+            }
+        }
+        headers, payload = self._create_request(payload_data)
+        AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
+
+        # check if the host has been updated
+        device = ObjectProxy(self._host_dn)
+        assert device.cn == "Testgroup"
+        assert device.foremanGroupId == "999"
+
+        # delete the host
+        payload_data = {
+            "event": "after_destroy",
+            "object": "Testgroup",
+            "data": {
+                "hostgroup": {
+                    "id": "999",
+                    "name": "Testgroup"
+                }
+            }
+        }
+        headers, payload = self._create_request(payload_data)
+        AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
+
+        with pytest.raises(ldap.NO_SUCH_OBJECT):
+            ObjectProxy(self._host_dn)
+
+        self._host_dn = None
 

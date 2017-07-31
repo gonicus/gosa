@@ -11,14 +11,20 @@ from requests import HTTPError
 from requests.auth import HTTPBasicAuth
 
 from gosa.backend.objects.backend import ObjectBackend
-from gosa.backend.plugins.foreman.main import ForemanException
-from gosa.common.error import GosaErrorHandler as C
 from gosa.common import Environment
 from logging import getLogger
 
 
 class Foreman(ObjectBackend):
     headers = {'Accept': 'version=2,application/json'}
+
+    @classmethod
+    def set_modifier(cls, val):
+        cls.modifier = val
+
+    @classmethod
+    def get_modifier(cls):
+        return cls.modifier
 
     def __init__(self):
         # Initialize environment and logger
@@ -33,6 +39,18 @@ class Foreman(ObjectBackend):
             url += "/%s" % id
         
         response = requests.get(url,
+                                headers=self.headers,
+                                verify=self.env.config.get("foreman.verify", "true") == "true",
+                                auth=HTTPBasicAuth(self.env.config.get("foreman.user"), self.env.config.get("foreman.password")))
+        if response.ok:
+            data = response.json()
+            return data
+        else:
+            response.raise_for_status()
+
+    def __delete(self, type, id):
+        url = "%s/%s&%s" % (self.foreman_host, type, id)
+        response = requests.delete(url,
                                 headers=self.headers,
                                 verify=self.env.config.get("foreman.verify", "true") == "true",
                                 auth=HTTPBasicAuth(self.env.config.get("foreman.user"), self.env.config.get("foreman.password")))
@@ -89,6 +107,10 @@ class Foreman(ObjectBackend):
 
     def remove(self, uuid, data, params):
         print("FOREMAN### remove: %s, %s, %s" % (uuid, data, params))
+        if Foreman.modifier != "foreman":
+            self.__delete(params["type"], uuid)
+        else:
+            self.log.info("skipping deletion request as the change is coming from the foreman backend")
         return True
 
     def retract(self, uuid, data, params):

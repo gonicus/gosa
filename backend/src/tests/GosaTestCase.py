@@ -21,7 +21,8 @@ slow = pytest.mark.skipif(
 class GosaTestCase(TestCase):
     _test_dn = None
 
-    def _create_test_data(self):
+    @staticmethod
+    def create_test_data():
         """
         Insert new data just for testing purposes
         """
@@ -36,15 +37,23 @@ class GosaTestCase(TestCase):
         new_domain.dc = "test"
         new_domain.description = "Domain for testing purposes"
         new_domain.commit()
-        self._test_dn = "dc=test,dc=example,dc=net"
+        return "dc=test,dc=example,dc=net"
+
+    @staticmethod
+    def remove_test_data(dn):
+        if dn is not None:
+            new_domain = ObjectProxy(dn)
+            new_domain.remove(True)
+            new_domain.commit()
+
+    def _create_test_data(self):
+        self._test_dn = GosaTestCase.create_test_data()
 
     def tearDown(self):
         super(GosaTestCase, self).tearDown()
         if self._test_dn is not None:
             try:
-                new_domain = ObjectProxy("dc=test,dc=example,dc=net")
-                new_domain.remove(True)
-                new_domain.commit()
+                GosaTestCase.remove_test_data(self._test_dn)
                 self._test_dn = None
             except Exception as e:
                 print(str(e))

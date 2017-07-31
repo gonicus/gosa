@@ -11,9 +11,9 @@ import os
 from gosa.backend.utils.ldap import check_auth
 from gosa.common.components import Command
 from gosa.common.gjson import loads, dumps
-from u2flib_server.jsapi import DeviceRegistration
-from u2flib_server.u2f import (start_register, complete_register,
-                               start_authenticate, verify_authenticate)
+from u2flib_server.model import DeviceRegistration
+from u2flib_server.u2f import (begin_registration, complete_registration,
+                               begin_authentication, complete_authentication)
 from cryptography.hazmat.primitives.serialization import Encoding
 from pyotp import TOTP, random_base32
 from gosa.backend.exceptions import ACLException
@@ -143,7 +143,7 @@ class TwoFactorAuthManager(Plugin):
         user = ObjectProxy(object_dn)
         user_settings = self.__settings[user.uuid]
         data = loads(data)
-        binding, cert = complete_register(user_settings.pop('_u2f_enroll_'), data,
+        binding, cert = complete_registration(user_settings.pop('_u2f_enroll_'), data,
                                           [self.facet])
         devices = [DeviceRegistration.wrap(device)
                    for device in user_settings.get('_u2f_devices_', [])]
@@ -165,7 +165,7 @@ class TwoFactorAuthManager(Plugin):
         user_settings = self.__settings[user.uuid] if user.uuid in self.__settings else {}
         devices = [DeviceRegistration.wrap(device)
                    for device in user_settings.get('_u2f_devices_', [])]
-        challenge = start_authenticate(devices)
+        challenge = begin_authentication(self.app_id, devices)
         user_settings['_u2f_challenge_'] = challenge.json
         self.__save_settings()
         return challenge.json
@@ -184,13 +184,12 @@ class TwoFactorAuthManager(Plugin):
             return totp.verify(key)
 
         elif factor_method == "u2f":
-            devices = [DeviceRegistration.wrap(device)
-                       for device in user_settings.get('_u2f_devices_', [])]
 
             challenge = user_settings.pop('_u2f_challenge_')
             data = loads(key)
-            c, t = verify_authenticate(devices, challenge, data, [self.facet])
+            device, c, t = complete_authentication(challenge, data, [self.facet])
             return {
+                'keyHandle': device['keyHandle'],
                 'touch': t,
                 'counter': c
             }
@@ -237,7 +236,7 @@ class TwoFactorAuthManager(Plugin):
         user_settings = self.__settings[user.uuid]
         devices = [DeviceRegistration.wrap(device)
                    for device in user_settings.get('_u2f_devices_', [])]
-        enroll = start_register(self.app_id, devices)
+        enroll = begin_registration(self.app_id, devices)
         user_settings['_u2f_enroll_'] = enroll.json
         self.__save_settings()
         return enroll.json

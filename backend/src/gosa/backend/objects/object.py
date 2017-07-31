@@ -278,6 +278,9 @@ class Object(object):
                 attrs = be.load(uuid, info, be_attrs)
 
             except ValueError as e:
+                self.log.error(e)
+                import traceback
+                traceback.print_exc()
                 raise ObjectException(C.make_error('READ_BACKEND_PROPERTIES', backend=backend))
 
             # Assign fetched value to the properties.
@@ -1201,9 +1204,20 @@ class Object(object):
             self.remove_refs()
             self.remove_dn_refs()
 
+            uuid = self.uuid
+            be_config_attrs = None
+            if backend in self._backendAttrs:
+                be_config_attrs = self._backendAttrs[backend]
+
+                if "_uuidAttribute" in be_config_attrs:
+                    value = self._getattr_(be_config_attrs['_uuidAttribute'])
+                    if value is None:
+                        raise ObjectException(C.make_error('READ_BACKEND_PROPERTIES', backend=backend))
+                    else:
+                        uuid = self._getattr_(be_config_attrs['_uuidAttribute'])
+
             #pylint: disable=E1101
-            be.remove(self.uuid, remove_attrs, self._backendAttrs[backend] \
-                    if backend in self._backendAttrs else None)
+            be.remove(uuid, remove_attrs, be_config_attrs)
 
         zope.event.notify(ObjectChanged("post remove", obj))
 

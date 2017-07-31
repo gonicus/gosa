@@ -64,10 +64,11 @@ setup(
         'pylint',
         ],
     tests_require = [
-        'pytest',
+        'coverage',
         'pytest-cov',
         'coveralls',
-        'requests_toolbelt'
+        'requests_toolbelt',
+        'pytest',
     ],
     install_requires = [
         'tornado',
@@ -83,7 +84,7 @@ setup(
         'paho-mqtt',
         'pyotp',
         'pyqrcode',
-        'python-u2flib-server',
+        'python-u2flib-server>=5.0.0',
         'pycountry',
         'tornadostreamform'
         ],

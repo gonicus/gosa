@@ -30,6 +30,7 @@ from gosa.common.components import PluginRegistry
 from gosa.common.gjson import loads, dumps
 from gosa.common.components.jsonrpc_utils import Binary
 from base64 import b64encode as encode
+from gosa.backend.objects.backend.back_foreman import Foreman as ForemanBackend
 
 C.register_codes(dict(
     FOREMAN_UNKNOWN_TYPE=N_("Unknown object type '%(type)s'"),
@@ -66,6 +67,7 @@ class ForemanClient(object):
             return data
         else:
             response.raise_for_status()
+
 
 @implementer(IInterfaceHandler)
 class Foreman(Plugin):
@@ -237,8 +239,6 @@ class Foreman(Plugin):
         self.__update_host(device, data)
 
     def __update_host(self, device, data):
-        if 'location_id' in data and data['location_id'] is not None:
-            device.l = data['location_id']
 
         if 'ip' in data and data['ip'] is not None:
             try:
@@ -321,7 +321,7 @@ class Foreman(Plugin):
         """Requests current values from the Foreman api and updates the device"""
         if group is None:
             if 'id' in data:
-                group = data['id']
+                group = str(data['id'])
             else:
                 self.log.error("no group id given to update the hostgroup")
                 return
@@ -331,7 +331,12 @@ class Foreman(Plugin):
         if isinstance(group, ObjectProxy):
             group_id = group.foremanGroupId
         else:
-            hostgroup = self.__get_hostgroup_object(group_id)
+            try:
+                hostgroup = self.__get_hostgroup_object(group_id)
+            except EntryNotFound:
+                # create a new hostgroup
+                hostgroup = ObjectProxy(self.env.base, "ForemanHostGroup")
+                hostgroup.foremanGroupId = group_id
 
         if data is None:
             data = self.client.get("hostgroups", id=group_id)
@@ -378,7 +383,9 @@ class ForemanRealmReceiver(object):
             }))
 
         elif data['action'] == "delete":
+            ForemanBackend.modifier = "foreman"
             foreman.remove_host(data['hostname'])
+            ForemanBackend.modifier = None
 
 
 class ForemanHookReceiver(object):
@@ -404,13 +411,9 @@ class ForemanHookReceiver(object):
         print(type)
         print(payload_data)
 
-        if data['event'] == "after_commit" or data['event'] == "update":
-            if type == "hostgroup":
-                foreman.update_hostgroup(data=payload_data)
-            elif type == "host":
-                foreman.update_host(data['object'], data=payload_data)
+        ForemanBackend.modifier = "foreman"
 
-        elif data['event'] == "after_create" or data['event'] == "create":
+        if data['event'] == "after_commit" or data['event'] == "update" or data['event'] == "after_create" or data['event'] == "create":
             if type == "hostgroup":
                 foreman.update_hostgroup(data=payload_data)
             elif type == "host":
@@ -424,6 +427,8 @@ class ForemanHookReceiver(object):
 
         else:
             self.log.info("unhandled hook event '%s' received for '%s'" % (data['event'], type))
+
+        ForemanBackend.modifier = None
 
 
 class ForemanException(Exception):
