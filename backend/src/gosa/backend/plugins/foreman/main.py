@@ -90,12 +90,12 @@ class Foreman(Plugin):
             if not hasattr(sys, '_called_from_test'):
                 zope.event.subscribers.append(self.__handle_events)
 
-            # some simple property mapping for data extraction
-            self.props = {
-                "hostgroup": {
-                    "name": "cn"
-                }
+        # some simple property mapping for data extraction
+        self.props = {
+            "hostgroup": {
+                "name": "cn"
             }
+        }
 
     def serve(self):
         # Load DB session
