@@ -17,6 +17,7 @@ from logging import getLogger
 
 class Foreman(ObjectBackend):
     headers = {'Accept': 'version=2,application/json'}
+    modifier = None
 
     @classmethod
     def set_modifier(cls, val):
