@@ -13,7 +13,7 @@ import pytest
 from unittest import TestCase, mock
 
 from tornado.testing import AsyncHTTPTestCase
-from tornado.web import Application
+from tornado.web import Application, HTTPError
 
 from gosa.common.utils import is_uuid
 from tests.RemoteTestCase import RemoteTestCase
@@ -35,6 +35,9 @@ class MockResponse:
     def ok(self):
         return self.status_code == 200
 
+    def raise_for_status(self):
+        raise HTTPError(self.status_code)
+
 
 @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
 class ForemanTestCase(GosaTestCase):
@@ -43,7 +46,7 @@ class ForemanTestCase(GosaTestCase):
         logging.getLogger("gosa.backend.objects.index").setLevel(logging.INFO)
         super(ForemanTestCase, self).tearDown()
 
-    def test_addHost(self, m_get):
+    def test_add_host(self, m_get):
         self._create_test_data()
         foreman = Foreman()
         foreman.serve()
@@ -52,26 +55,18 @@ class ForemanTestCase(GosaTestCase):
             "status": 0,\
             "status_label": "Build"\
         }', 200)
-
-        with pytest.raises(ForemanException):
-            # no mac
-            foreman.addHost("admin", "testhost", params={}, base=self._test_dn)
 
         logging.getLogger("gosa.backend.objects.index").setLevel(logging.DEBUG)
-        device = foreman.addHost("admin", "testhost", params={
-            "mac": "00:00:00:00:00:01",
-            "location_id": "loc1",
-            "ip": "192.168.0.1",
-            "owner_id": "1",
-            "global_status": 0,
-            "global_status_label": "OK",
-            "hostgroup_name": "ubuntu-clients"
-        }, base=self._test_dn)
+        key = foreman.add_host("testhost", base=self._test_dn)
+        
+        device = ObjectProxy("cn=testhost,ou=devices,%s" % self._test_dn)
         assert device.dn == "cn=testhost,ou=devices,%s" % self._test_dn
-        assert device.macAddress == "00:00:00:00:00:01"
-        assert device.l == "loc1"
+        assert device.cn == "testhost"
+        assert device.userPassword[0:6] == "{SSHA}"
+        
+        device.remove()
 
-    def test_removeHost(self, m_get):
+    def test_remove_host(self, m_get):
 
         self._create_test_data()
         foreman = Foreman()
@@ -82,18 +77,12 @@ class ForemanTestCase(GosaTestCase):
             "status_label": "Build"\
         }', 200)
 
-        device = foreman.addHost("admin", "testhost", params={
-            "mac": "00:00:00:00:00:01",
-            "ip": "192.168.0.1",
-            "location_id": "loc1",
-            "owner_id": "1",
-            "global_status": 0,
-            "global_status_label": "OK"
-        }, base=self._test_dn)
+        foreman.add_host("testhost", base=self._test_dn)
 
+        device = ObjectProxy("cn=testhost,ou=devices,%s" % self._test_dn)
         dn = device.dn
 
-        foreman.removeHost("admin", device.cn)
+        foreman.remove_host(device.cn)
 
         with pytest.raises(ProxyException):
             ObjectProxy(dn)
@@ -101,6 +90,7 @@ class ForemanTestCase(GosaTestCase):
     def test_update_host(self, m_get):
         self._create_test_data()
         foreman = Foreman()
+        foreman.client = ForemanClient()
         foreman.serve()
 
         m_get.return_value = MockResponse('{\
@@ -108,33 +98,21 @@ class ForemanTestCase(GosaTestCase):
             "status_label": "Build"\
         }', 200)
 
-        device = foreman.addHost("admin", "testhost", params={
-            "mac": "00:00:00:00:00:01",
-            "location_id": "loc1",
-            "ip": "192.168.0.1",
-            "owner_id": "1",
-            "global_status": 0,
-            "global_status_label": "OK"
-        }, base=self._test_dn)
+        foreman.add_host("testhost", base=self._test_dn)
 
+        device = ObjectProxy("cn=testhost,ou=devices,%s" % self._test_dn)
         dn = device.dn
 
-        device = ObjectProxy(dn)
-        assert device.l == "loc1"
-        assert device.ipHostNumber == "192.168.0.1"
-        assert device.status == "ready"
+        assert device.cn == "testhost"
 
-        m_get.side_effect = [MockResponse('{\
-            "id": "testhost",\
+        m_get.return_value = MockResponse('{\
+            "name": "testhost",\
             "ip": "192.168.0.2",\
             "location_id": "testloc1",\
             "global_status": 0,\
-            "global_status_label": "OK"\
-        }', 200),
-        MockResponse('{\
-            "status": 1,\
-            "status_label": "Pending"\
-        }', 200)]
+            "build_status": 1\
+        }', 200)
+
         foreman.update_host(device.cn)
 
         device = ObjectProxy(dn)
@@ -150,7 +128,7 @@ class ForemanClientTestCase(TestCase):
         client = ForemanClient()
 
         m_get.return_value = MockResponse({}, 404)
-        with pytest.raises(ForemanException):
+        with pytest.raises(HTTPError):
             client.get("unknown")
 
         m_get.return_value = MockResponse('{\
@@ -240,12 +218,7 @@ class ForemanWebhookTestCase(RemoteTestCase):
         payload = bytes(dumps({
             "action": "create",
             "hostname": "new-foreman-host",
-            "parameters": {
-                "mac": "00:00:00:00:00:01",
-                "ip": "192.168.0.1",
-                "global_status": 0,
-                "global_status_label": "OK"
-            }
+            "parameters": {}
         }), 'utf-8')
         signature_hash = hmac.new(token, msg=payload, digestmod="sha512")
         signature = 'sha1=' + signature_hash.hexdigest()
@@ -255,24 +228,26 @@ class ForemanWebhookTestCase(RemoteTestCase):
             'HTTP_X_HUB_SIGNATURE': signature
         }
         response = AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
-        assert is_uuid(response.body.decode('utf-8'))
+
+        otp_response = loads(response.body)
+        assert "randompassword" in otp_response
+        assert otp_response["randompassword"] is not None
 
         # check if the host has been created
         device = ObjectProxy("cn=new-foreman-host,ou=devices,dc=example,dc=net")
-        assert device.macAddress == "00:00:00:00:00:01"
+        assert device.cn == "new-foreman-host"
 
         # delete the host
         payload = bytes(dumps({
             "action": "delete",
             "hostname": "new-foreman-host",
-            "parameters": {
-                "mac": "00:00:00:00:00:01"
-            }
+            "parameters": {}
         }), 'utf-8')
         signature_hash = hmac.new(token, msg=payload, digestmod="sha512")
         signature = 'sha1=' + signature_hash.hexdigest()
         headers['HTTP_X_HUB_SIGNATURE'] = signature
         AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
+
         with pytest.raises(ProxyException):
             ObjectProxy("cn=new-foreman-host,ou=devices,dc=example,dc=net")
 

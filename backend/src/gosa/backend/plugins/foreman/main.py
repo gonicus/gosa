@@ -10,7 +10,7 @@
 import logging
 import uuid
 import ipaddress
-from threading import Timer
+import sys
 
 import requests
 import zope
@@ -73,22 +73,27 @@ class Foreman(Plugin):
     _target_ = "foreman"
     __session = None
     __acl_resolver = None
+    client = None
 
     def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
-        self.log.info("initializing foreman plugin")
-        self.client = ForemanClient()
+        if self.env.config.get("foreman.host") is None:
+            self.log.warning("no foreman host configured")
+        else:
+            self.log.info("initializing foreman plugin")
+            self.client = ForemanClient()
 
-        # Listen for object events
-        zope.event.subscribers.append(self.__handle_events)
+            # Listen for object events
+            if not hasattr(sys, '_called_from_test'):
+                zope.event.subscribers.append(self.__handle_events)
 
-        # some simple property mapping for data extraction
-        self.props = {
-            "hostgroup": {
-                "name": "cn"
+            # some simple property mapping for data extraction
+            self.props = {
+                "hostgroup": {
+                    "name": "cn"
+                }
             }
-        }
 
     def serve(self):
         # Load DB session
@@ -198,7 +203,6 @@ class Foreman(Plugin):
             self.remove_host(hostname)
             raise
 
-
     def remove_host(self, hostname):
         # find the host
         try:
@@ -257,29 +261,26 @@ class Foreman(Plugin):
             except ValueError:
                 pass
 
-        # if 'hostgroup_name' in data and data['hostgroup_name'] is not None:
-        #     # check if group exists (create if not)
-        #     index = PluginRegistry.getInstance("ObjectIndex")
-        #     res = index.search({'_type': 'ForemanHostGroup', 'cn': data['hostgroup_name']}, {'dn': 1})
-        #
-        #     if len(res) == 0:
-        #         # create new host group
-        #         group = ObjectProxy(device.get_adjusted_parent_dn(), "ForemanHostGroup")
-        #         group.cn = data['hostgroup_name']
-        #
-        #         group.member.append(device.cn)
-        #         group.commit()
-        #     else:
-        #         # open group
-        #         group = ObjectProxy(res[0]['dn'])
-        #
-        #         if device.dn not in group.member:
-        #             group.member.append(device.cn)
-        #             group.commit()
-        #
-        #     # add to group
-        #     self.log.debug("adding foremanHost '%s' to group '%s'" % (device.cn, group.cn))
-        #     device.groupMembership = group.foremanGroupId
+        if 'hostgroup_id' in data and data['hostgroup_id'] is not None:
+            # check if group exists (create if not)
+            index = PluginRegistry.getInstance("ObjectIndex")
+            res = index.search({'_type': 'ForemanHostGroup', 'foremanGroupId': str(data['hostgroup_id'])}, {'dn': 1})
+
+            if len(res) == 0:
+                # create new host group
+                group = ObjectProxy(device.get_adjusted_parent_dn(), "ForemanHostGroup")
+                group.cn = data['hostgroup_name']
+                group.foremanGroupId = str(data['hostgroup_id'])
+
+                group.member.append(device.dn)
+                group.commit()
+            else:
+                # open group
+                group = ObjectProxy(res[0]['dn'])
+
+                if device.dn not in group.member:
+                    group.member.append(device.dn)
+                    group.commit()
 
         self.log.debug("updating foreman host '%s'" % device.cn)
         device.commit()

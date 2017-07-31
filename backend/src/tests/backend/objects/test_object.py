@@ -250,16 +250,11 @@ class ObjectTestCase(TestCase):
 
     def test_get_dn_references(self):
         object = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
-        res = object.get_dn_references()
-        assert len(res) == 2
-        assert 'member' in res[0]
-        assert 'member' in res[1]
-
         mocked_index = mock.MagicMock()
         mocked_index.search.return_value = [{'dn': 'dn1'}, {'dn': 'dn2'}]
         with mock.patch.dict(PluginRegistry.modules, {'ObjectIndex': mocked_index}):
             res = object.get_dn_references()
-            assert len(res) == 2
+            assert len(res) == 1
             assert 'member' in res[0]
             assert 'dn1' in res[0][1]
             assert 'dn2' in res[0][1]

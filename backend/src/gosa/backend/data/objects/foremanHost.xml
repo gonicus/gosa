@@ -10,13 +10,19 @@
     <BackendParameters>
       <Backend objectClasses="foremanHost">LDAP</Backend>
       <Backend type="hosts" _uuidAttribute="cn" mapping="name:cn,hostgroup_id:groupMembership">Foreman</Backend>
-      <Backend groupMembership="ForemanHostGroup:foremanGroupId,member=cn">ObjectHandler</Backend>
+      <Backend groupMembership="ForemanHostGroup:foremanGroupId,member=dn">ObjectHandler</Backend>
     </BackendParameters>
     <Backend>LDAP</Backend>
     <BaseObject>false</BaseObject>
     <Attributes>
       <ForeignAttribute>
         <Name>cn</Name>
+      </ForeignAttribute>
+      <ForeignAttribute>
+        <Name>ipHostNumber</Name>
+      </ForeignAttribute>
+      <ForeignAttribute>
+          <Name>macAddress</Name>
       </ForeignAttribute>
       <Attribute>
         <Name>status</Name>

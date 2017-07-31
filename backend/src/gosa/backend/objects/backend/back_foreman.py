@@ -88,21 +88,27 @@ class Foreman(ObjectBackend):
         return False
 
     def remove(self, uuid, data, params):
+        print("FOREMAN### remove: %s, %s, %s" % (uuid, data, params))
         return True
 
     def retract(self, uuid, data, params):
+        print("FOREMAN### retract: %s, %s, %s" % (uuid, data, params))
         pass
 
     def extend(self, uuid, data, params, foreign_keys):
+        print("FOREMAN### extend: %s, %s, %s, %s" % (uuid, data, params, foreign_keys))
         return None
 
     def move_extension(self, uuid, new_base):
+        print("FOREMAN### move_extension: %s, %s" % (uuid, new_base))
         pass
 
     def move(self, uuid, new_base):
+        print("FOREMAN### move: %s, %s" % (uuid, new_base))
         return True
 
     def create(self, base, data, params, foreign_keys=None):
+        print("FOREMAN### create: %s, %s, %s" % (base, data, params, foreign_keys))
         return None
 
     def update(self, uuid, data, params):
@@ -113,7 +119,7 @@ class Foreman(ObjectBackend):
         return False
 
     def query(self, base, scope, params, fixed_rdn=None):
-        print("FOREMAN### query: %s, " % (base, scope, params, fixed_rdn))
+        print("FOREMAN### query: %s, %s, %s, %s" % (base, scope, params, fixed_rdn))
         return []
 
     def uuid2dn(self, uuid):  # pragma: nocover

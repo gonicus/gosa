@@ -17,10 +17,10 @@ class LdapMonitorTestCase(TestCase):
     def test_main(self):
 
         lines = [
-            "dn:base",
-            "changetype:modify",
-            "modifiersName:other",
-            "modifyTimestamp:%s" % datetime.now().strftime("%Y%m%d%H%M%SZ"),
+            "dn: base",
+            "changetype: modify",
+            "modifiersName: other",
+            "modifyTimestamp: %s" % datetime.now().strftime("%Y%m%d%H%M%SZ"),
             ""
         ]
         env = Environment.getInstance()

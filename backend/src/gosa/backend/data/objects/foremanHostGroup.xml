@@ -10,7 +10,7 @@
     <Backend>LDAP</Backend>
     <BackendParameters>
       <Backend objectClasses="foremanHostGroup" RDN="cn">LDAP</Backend>
-      <Backend member="ForemanHost:cn,">ObjectHandler</Backend>
+      <Backend member="ForemanHost:foremanGroupId,">ObjectHandler</Backend>
       <Backend type="hostgroups" _uuidAttribute="foremanGroupId" mapping="name:cn,id:foremanGroupId">Foreman</Backend>
     </BackendParameters>
     <BaseObject>true</BaseObject>
@@ -56,21 +56,19 @@
       <Attribute>
         <Name>member</Name>
         <Description>RFC2256: member of a group</Description>
-        <Backend>Foreman</Backend>
         <Type>UnicodeString</Type>
         <MultiValue>true</MultiValue>
-        <Mandatory>false</Mandatory>
         <Validators>
           <Condition>
             <Name>ObjectWithPropertyExists</Name>
             <Param>ForemanHost</Param>
-            <Param>cn</Param>
+            <Param>dn</Param>
           </Condition>
         </Validators>
         <References>
           <Reference>
             <Object>ForemanHost</Object>
-            <Attribute>cn</Attribute>
+            <Attribute>groupMembership</Attribute>
           </Reference>
         </References>
       </Attribute>
