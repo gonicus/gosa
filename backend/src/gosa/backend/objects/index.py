@@ -18,6 +18,9 @@ local index database
 ----
 """
 import logging
+
+from sqlalchemy.dialects import postgresql
+
 from gosa.common.event import EventMaker
 from lxml import etree
 from lxml import objectify
@@ -922,6 +925,9 @@ class ObjectIndex(Plugin):
             return _res
 
         q = self.__session.query(ObjectInfoIndex).filter(*fltr)
+
+        self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(),compile_kwargs={"literal_binds": True})))
+
         for o in q.all():
             res.append(normalize(o, properties))
 

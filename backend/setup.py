@@ -158,9 +158,13 @@ setup(
         stringToDate = gosa.backend.objects.filter.strings:StringToDate
         dateToString = gosa.backend.objects.filter.strings:DateToString
         timeToString = gosa.backend.objects.filter.strings:TimeToString
+        integerToString = gosa.backend.objects.filter.strings:IntegerToString
+        stringToInteger = gosa.backend.objects.filter.strings:StringToInteger
         idnain = gosa.backend.objects.filter.strings:IdnaToUnicode
         idnaout = gosa.backend.objects.filter.strings:UnicodeToIdna
         target = gosa.backend.objects.filter.basic:Target
+        copyValueTo = gosa.backend.objects.filter.basic:CopyValueTo
+        copyValueFrom = gosa.backend.objects.filter.basic:CopyValueFrom
         setbackends = gosa.backend.objects.filter.basic:SetBackends
         setvalue = gosa.backend.objects.filter.basic:SetValue
         clear = gosa.backend.objects.filter.basic:Clear
@@ -201,8 +205,6 @@ setup(
         jsontostring = gosa.backend.objects.filter.strings:JsonToString
         foremanstatusin = gosa.backend.plugins.foreman.filter:ForemanStatusIn
         foremanstatusout = gosa.backend.plugins.foreman.filter:ForemanStatusOut
-        foremanhostgroupin = gosa.backend.plugins.foreman.filter:ForemanHostGroupIn
-        foremanhostgroupout = gosa.backend.plugins.foreman.filter:ForemanHostGroupOut
 
         [gosa.object.comparator]
         like = gosa.backend.objects.comparator.strings:Like

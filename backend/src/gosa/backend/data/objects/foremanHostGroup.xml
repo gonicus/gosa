@@ -11,15 +11,42 @@
     <BackendParameters>
       <Backend objectClasses="foremanHostGroup" RDN="cn">LDAP</Backend>
       <Backend member="ForemanHost:foremanGroupId,">ObjectHandler</Backend>
-      <Backend type="hostgroups" _uuidAttribute="foremanGroupId" mapping="name:cn,id:foremanGroupId">Foreman</Backend>
+      <Backend type="hostgroups" _uuidAttribute="foremanGroupId">Foreman</Backend>
     </BackendParameters>
     <BaseObject>true</BaseObject>
     <Attributes>
       <Attribute>
         <Name>cn</Name>
-        <Description>Common Name</Description>
         <Type>UnicodeString</Type>
+        <Description>Common Name</Description>
         <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>name</Name>
+        <Type>UnicodeString</Type>
+        <Backend>Foreman</Backend>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>Target</Name>
+                <Param>cn</Param>
+                <Param>in</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>Target</Name>
+                <Param>name</Param>
+                <Param>out</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
       </Attribute>
       <Attribute>
         <Name>foremanGroupId</Name>
@@ -71,6 +98,26 @@
             <Attribute>groupMembership</Attribute>
           </Reference>
         </References>
+      </Attribute>
+      <Attribute>
+        <Name>id</Name>
+        <Type>String</Type>
+        <BackendType>Integer</BackendType>
+        <Backend>Foreman</Backend>
+        <DependsOn>
+          <Attribute>foremanGroupId</Attribute>
+        </DependsOn>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>Target</Name>
+                <Param>foremanGroupId</Param>
+                <Param>in</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
       </Attribute>
       <Attribute>
         <Name>businessCategory</Name>

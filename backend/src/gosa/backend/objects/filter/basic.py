@@ -22,17 +22,81 @@ class Target(ElementFilter):
        <Filter>
         <Name>Target</Name>
         <Param>passwordMethod</Param>
+        <Param>in</Param>
        </Filter>
       </FilterEntry>
     """
     def __init__(self, obj):
         super(Target, self).__init__(obj)
 
-    def process(self, obj, key, valDict, new_key):
+    def process(self, obj, key, valDict, new_key, direction, keep=None):
+        """
+        Rename an attribute
+
+        :param obj: current object
+        :param key: attribute name this filter is defined for
+        :param valDict: complete attribute dictionary of this object
+        :param new_key: target attribute this attribute should be renames to
+        :param direction: [in|out] In or Out-Filter, to prevent the copied filters from beeing processed again in the renamed attribute
+        we need to now the direction and block the processing of filters after beeing copied
+        :param keep: do not delete the old attribute if True
+        :type keep: boolean
+        :return:
+        """
         if key != new_key:
             valDict[new_key] = valDict[key]
-            del(valDict[key])
+            copied_name = "copied_%s" % direction
+            valDict[new_key][copied_name] = True if copied_name not in valDict[new_key] or valDict[new_key][copied_name] is False else False
+            if direction == "in":
+                valDict[new_key]["copied_out"] = False
+            else:
+                valDict[new_key]["copied_in"] = False
+            if keep is None:
+                del(valDict[key])
+                obj.attributesInSaveOrder.remove(key)
         return new_key, valDict
+
+
+class CopyValueTo(ElementFilter):
+    """
+     This filter copies the value from this attribute to another attribute.
+     e.g.::
+
+       <FilterEntry>
+        <Filter>
+         <Name>CopyValueTo</Name>
+         <Param>cn</Param>
+        </Filter>
+       </FilterEntry>
+     """
+    def __init__(self, obj):
+        super(CopyValueTo, self).__init__(obj)
+
+    def process(self, obj, key, valDict, target_key):
+        if type(valDict[key]['value']) is not None and len(valDict[key]['value']):
+            valDict[target_key]['value'] = valDict[key]['value']
+        return key, valDict
+
+
+class CopyValueFrom(ElementFilter):
+    """
+     This filter copies the value from another attribute to this attribute
+     e.g.::
+
+       <FilterEntry>
+        <Filter>
+         <Name>CopyValueFrom</Name>
+         <Param>cn</Param>
+        </Filter>
+       </FilterEntry>
+     """
+    def __init__(self, obj):
+        super(CopyValueFrom, self).__init__(obj)
+
+    def process(self, obj, key, valDict, source_key):
+        if type(valDict[source_key]['value']) is not None and len(valDict[source_key]['value']):
+            valDict[key]['value'] = valDict[source_key]['value']
+        return key, valDict
 
 
 class SetBackends(ElementFilter):

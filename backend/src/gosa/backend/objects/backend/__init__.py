@@ -30,7 +30,14 @@ C.register_codes(dict(
     ENTRY_UUID_NOT_UNIQUE=N_("Entry '%(uuid)s' not unique"),
     ))
 
+"""
+Shared backend attributes:
+--------------------------
 
+* `_uuidAttribute`: change the attribute where the uuid is stored to identify the object in the backend
+                    (default is uuid, but e.g. the foreman backend needs another ID for the foremanHostGroup)
+
+"""
 class ObjectBackend(object):
 
     def dn2uuid(self, dn):  # pragma: nocover

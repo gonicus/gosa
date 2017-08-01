@@ -296,7 +296,14 @@ class Object(object):
 
         # Once we've loaded all properties from the backend, execute the
         # in-filters.
-        for key in self.myProperties:
+        for key in list(self.myProperties.keys()):
+            if key not in self.myProperties:
+                # property has been removed by an in-filter
+                continue
+
+            if 'copied_in' in self.myProperties[key] and self.myProperties[key]['copied_in'] is True:
+                # properties can be copied to other ones by Target filter -> do not execute the copied attributes filter again
+                continue
 
             # Skip loading in-filters for None values
             if self.myProperties[key]['value'] is None:
@@ -591,6 +598,10 @@ class Object(object):
             if props[key]['foreign']:
                 continue
 
+            if 'copied_out' in self.myProperties[key] and self.myProperties[key]['copied_out'] is True:
+                # properties can be copied to other ones by Target filter -> do not execute the copied attributes filter again
+                continue
+
             # Check if this attribute is blocked by another attribute and its value.
             is_blocked = False
             for bb in props[key]['blocked_by']:
@@ -643,8 +654,9 @@ class Object(object):
             if props[key]['foreign']:
                 continue
 
-            # Get the new value for the property and execute the out-filter
-            self.log.debug("changed: %s" % (key,))
+            if 'copied_out' in self.myProperties[key] and self.myProperties[key]['copied_out'] is True:
+                # properties can be copied to other ones by Target filter -> do not execute the copied attributes filter again
+                continue
 
             # Process each and every out-filter with a clean set of input values,
             #  to avoid that return-values overwrite themselves.
@@ -679,13 +691,15 @@ class Object(object):
         toStore = {}
         for prop_key in collectedAttrs:
 
+            self.log.debug("changed: %s" % prop_key)
+
             # Collect properties by backend
             for be in props[prop_key]['backend']:
 
                 if not be in toStore:
                     toStore[be] = {}
 
-                # Convert the properities type to the required format - if its not of the expected type.
+                # Convert the properties type to the required format - if its not of the expected type.
                 be_type = collectedAttrs[prop_key]['backend_type']
                 s_type = collectedAttrs[prop_key]['type']
 

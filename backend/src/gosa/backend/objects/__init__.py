@@ -372,7 +372,7 @@ Creating in and out filters
 Normally attributes are stored and read from the defined backend directly without any modification.
 If you want to manipulate the value before it gets saved or read, then you've to use in- and out-filters.
 
-This is usefull for values like passwords or value that have to be converted before they get saved.
+This is useful for values like passwords or values that have to be converted before they get saved.
 
 For example you can generate a hash out of a text-password instead of storing the password in clear-text.
 Or you could generate the cn (common name) for a user out of his sn and givenName, automatically.
@@ -493,8 +493,8 @@ You can also add conditions to your filters like shown below:
 If the value is smaller then 6 chars it will be cleared, if it is greater then 6 chars a string will be appended to the left.
 
 .. warning::
-    Once we've more operatros, filters and so on, we should generate better examples.
-    The following example does not work at the moment due to missing comperators.
+    Once we've more operators, filters and so on, we should generate better examples.
+    The following example does not work at the moment due to missing comparators.
 
 Another example could be to convert a list of flags into different boolean values, like this.
 

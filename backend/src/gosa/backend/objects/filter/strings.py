@@ -337,3 +337,47 @@ class JsonToString(ElementFilter):
         if type(valDict[key]['value'] is not None):
             valDict[key]['value'] = list(map(lambda x: dumps(x), valDict[key]['value']))
         return key, valDict
+
+
+class IntegerToString(ElementFilter):
+    """
+    Converts a integer into a string.
+
+    e.g.:
+    >>> <FilterEntry>
+    >>>  <Filter>
+    >>>   <Name>IntegerToString</Name>
+    >>>  </Filter>
+    >>> </FilterEntry>
+    >>>  ...
+
+    """
+    def __init__(self, obj):
+        super(IntegerToString, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        if type(valDict[key]['value'] is not None):
+            valDict[key]['value'] = [str(i) for i in valDict[key]['value']]
+        return key, valDict
+
+
+class StringToInteger(ElementFilter):
+    """
+    Converts a string into an integer.
+
+    e.g.:
+    >>> <FilterEntry>
+    >>>  <Filter>
+    >>>   <Name>StringToInteger</Name>
+    >>>  </Filter>
+    >>> </FilterEntry>
+    >>>  ...
+
+    """
+    def __init__(self, obj):
+        super(StringToInteger, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        if type(valDict[key]['value'] is not None):
+            valDict[key]['value'] = [int(i) for i in valDict[key]['value']]
+        return key, valDict

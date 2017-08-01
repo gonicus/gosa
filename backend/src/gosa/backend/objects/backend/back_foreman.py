@@ -18,6 +18,22 @@ from logging import getLogger
 
 from gosa.common.gjson import dumps
 
+"""
+Backend Attributes:
+-------------------
+
+* `type`: object type in foreman (e.g. hosts, hostgroups) 
+* `mapping`: maps foreman attribute names to GOsa attribute names
+
+.. code-block: xml
+    :caption: Example configuration for foreman host objects
+
+    <Backend type="hosts" _uuidAttribute="cn">Foreman</Backend>
+
+The Foreman backend needs to now the object type and the id to identify an object.
+These two settings are used to generate the API URL to access the object in foreman.
+In this example the URL for HTTP-requests would be <foreman-host>/api/hosts/<cn>.
+"""
 
 class Foreman(ObjectBackend):
     headers = {'Accept': 'version=2,application/json', 'Content-type': 'application/json'}
@@ -102,19 +118,19 @@ class Foreman(ObjectBackend):
         return res
 
     def identify(self, dn, params, fixed_rdn=None):
-        self.log.debug("FOREMAN### identify: %s, " % (dn, params, fixed_rdn))
+        self.log.debug("identify: %s, " % (dn, params, fixed_rdn))
         return False
 
     def identify_by_uuid(self, uuid, params):
-        self.log.debug("FOREMAN### identify_by_uuid: %s, " % (uuid, params))
+        self.log.debug("identify_by_uuid: %s, " % (uuid, params))
         return False
 
     def exists(self, misc):
-        self.log.debug("FOREMAN### exists: %s" % misc)
+        self.log.debug("exists: %s" % misc)
         return False
 
     def remove(self, uuid, data, params):
-        self.log.debug("FOREMAN### remove: %s, %s, %s" % (uuid, data, params))
+        self.log.debug("remove: %s, %s, %s" % (uuid, data, params))
         if Foreman.modifier != "foreman":
             self.__delete(params["type"], uuid)
         else:
@@ -122,27 +138,27 @@ class Foreman(ObjectBackend):
         return True
 
     def retract(self, uuid, data, params):
-        self.log.debug("FOREMAN### retract: %s, %s, %s" % (uuid, data, params))
+        self.log.debug("retract: %s, %s, %s" % (uuid, data, params))
         pass
 
     def extend(self, uuid, data, params, foreign_keys):
-        self.log.debug("FOREMAN### extend: %s, %s, %s, %s" % (uuid, data, params, foreign_keys))
+        self.log.debug("extend: %s, %s, %s, %s" % (uuid, data, params, foreign_keys))
         return None
 
     def move_extension(self, uuid, new_base):
-        self.log.debug("FOREMAN### move_extension: %s, %s" % (uuid, new_base))
+        self.log.debug("move_extension: %s, %s" % (uuid, new_base))
         pass
 
     def move(self, uuid, new_base):
-        self.log.debug("FOREMAN### move: %s, %s" % (uuid, new_base))
+        self.log.debug("move: %s, %s" % (uuid, new_base))
         return True
 
     def create(self, base, data, params, foreign_keys=None):
-        self.log.debug("FOREMAN### create: %s, %s, %s" % (base, data, params, foreign_keys))
+        self.log.debug("create: %s, %s, %s, %s" % (base, data, params, foreign_keys))
         return None
 
     def update(self, uuid, data, params):
-        self.log.debug("FOREMAN### update: '%s', '%s', '%s'" % (uuid, data, params))
+        self.log.debug("update: '%s', '%s', '%s'" % (uuid, data, params))
         # collect data
         type = params["type"][:-1]
         payload = {
@@ -168,7 +184,7 @@ class Foreman(ObjectBackend):
         return False
 
     def query(self, base, scope, params, fixed_rdn=None):
-        self.log.debug("FOREMAN### query: %s, %s, %s, %s" % (base, scope, params, fixed_rdn))
+        self.log.debug("query: %s, %s, %s, %s" % (base, scope, params, fixed_rdn))
         return []
 
     def uuid2dn(self, uuid):  # pragma: nocover
@@ -179,8 +195,9 @@ class Foreman(ObjectBackend):
 
     def extract_mapping(self, attrs):
         result = {}
-        for key_value in attrs['mapping'].split(","):
-            key, value = key_value.split(":")
-            result[key] = value
+        if 'mapping' in attrs:
+            for key_value in attrs['mapping'].split(","):
+                key, value = key_value.split(":")
+                result[key] = value
 
         return result

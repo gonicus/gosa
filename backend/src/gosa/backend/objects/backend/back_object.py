@@ -62,7 +62,7 @@ class ObjectHandler(ObjectBackend):
                 foreignObject, foreignAttr, foreignMatchAttr, matchAttr = mapping[targetAttr]
                 results = index.search({'uuid': uuid, matchAttr: "%"}, {matchAttr: 1})
                 if len(results):
-                    matchValue = results[0][matchAttr][0]
+                    matchValue = results[0][matchAttr]
                     xq = index.search({'_type': foreignObject, foreignMatchAttr: matchValue}, {foreignAttr: 1})
                     result[targetAttr] = list(itertools.chain.from_iterable([x[foreignAttr] for x in xq]))
 

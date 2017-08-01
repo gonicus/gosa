@@ -268,6 +268,9 @@ class Foreman(Plugin):
             except ValueError:
                 pass
 
+        self.log.debug("updating foreman host '%s'" % device.cn)
+        device.commit()
+
         if 'hostgroup_id' in data and data['hostgroup_id'] is not None:
             # check if group exists (create if not)
             index = PluginRegistry.getInstance("ObjectIndex")
@@ -288,9 +291,6 @@ class Foreman(Plugin):
                 if device.dn not in group.member:
                     group.member.append(device.dn)
                     group.commit()
-
-        self.log.debug("updating foreman host '%s'" % device.cn)
-        device.commit()
 
     def __get_host_object(self, hostname):
         query = and_(ObjectInfoIndex.uuid == KeyValueIndex.uuid,

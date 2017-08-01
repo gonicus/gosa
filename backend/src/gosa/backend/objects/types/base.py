@@ -70,6 +70,9 @@ class StringAttribute(AttributeType):
     def _convert_from_datetime(self, value):
         return list(map(lambda x: str(x), value))
 
+    def _convert_from_integer(self, value):
+        return list(map(lambda x: str(x), value))
+
     def fixup(self, value):
         return self._convert_to_string(value)
 
