@@ -6,6 +6,8 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+from threading import Thread
+
 import requests
 from requests import HTTPError
 from requests.auth import HTTPBasicAuth
@@ -14,9 +16,11 @@ from gosa.backend.objects.backend import ObjectBackend
 from gosa.common import Environment
 from logging import getLogger
 
+from gosa.common.gjson import dumps
+
 
 class Foreman(ObjectBackend):
-    headers = {'Accept': 'version=2,application/json'}
+    headers = {'Accept': 'version=2,application/json', 'Content-type': 'application/json'}
     modifier = None
 
     @classmethod
@@ -33,33 +37,36 @@ class Foreman(ObjectBackend):
         self.log = getLogger(__name__)
         self.foreman_host = self.env.config.get("foreman.host", "http://localhost/api")
 
-    def __get(self, type, id=None):
-
+    def __request(self, method_name, type, id=None, data=None):
         url = "%s/%s" % (self.foreman_host, type)
         if id is not None:
             url += "/%s" % id
-        
-        response = requests.get(url,
-                                headers=self.headers,
-                                verify=self.env.config.get("foreman.verify", "true") == "true",
-                                auth=HTTPBasicAuth(self.env.config.get("foreman.user"), self.env.config.get("foreman.password")))
+
+        method = getattr(requests, method_name)
+        data = dumps(data) if data is not None else None
+        self.log.debug("sending %s request with %s to %s" % (method_name, data, url))
+        response = method(url,
+                          headers=self.headers,
+                          verify=self.env.config.get("foreman.verify", "true") == "true",
+                          auth=HTTPBasicAuth(self.env.config.get("foreman.user"), self.env.config.get("foreman.password")),
+                          data=data)
         if response.ok:
             data = response.json()
             return data
         else:
             response.raise_for_status()
 
+    def __get(self, type, id=None):
+        return self.__request("get", type, id=id)
+
     def __delete(self, type, id):
-        url = "%s/%s&%s" % (self.foreman_host, type, id)
-        response = requests.delete(url,
-                                headers=self.headers,
-                                verify=self.env.config.get("foreman.verify", "true") == "true",
-                                auth=HTTPBasicAuth(self.env.config.get("foreman.user"), self.env.config.get("foreman.password")))
-        if response.ok:
-            data = response.json()
-            return data
-        else:
-            response.raise_for_status()
+        return self.__request("delete", type, id=id)
+
+    def __put(self, type, id, data):
+        return self.__request("put", type, id=id, data=data)
+
+    def __post(self, type, id, data):
+        return self.__request("post", type, id=id, data=data)
 
     def load(self, uuid, info, back_attrs=None):
         """
@@ -95,19 +102,19 @@ class Foreman(ObjectBackend):
         return res
 
     def identify(self, dn, params, fixed_rdn=None):
-        print("FOREMAN### identify: %s, " % (dn, params, fixed_rdn))
+        self.log.debug("FOREMAN### identify: %s, " % (dn, params, fixed_rdn))
         return False
 
     def identify_by_uuid(self, uuid, params):
-        print("FOREMAN### identify_by_uuid: %s, " % (uuid, params))
+        self.log.debug("FOREMAN### identify_by_uuid: %s, " % (uuid, params))
         return False
 
     def exists(self, misc):
-        print("FOREMAN### exists: %s" % misc)
+        self.log.debug("FOREMAN### exists: %s" % misc)
         return False
 
     def remove(self, uuid, data, params):
-        print("FOREMAN### remove: %s, %s, %s" % (uuid, data, params))
+        self.log.debug("FOREMAN### remove: %s, %s, %s" % (uuid, data, params))
         if Foreman.modifier != "foreman":
             self.__delete(params["type"], uuid)
         else:
@@ -115,34 +122,53 @@ class Foreman(ObjectBackend):
         return True
 
     def retract(self, uuid, data, params):
-        print("FOREMAN### retract: %s, %s, %s" % (uuid, data, params))
+        self.log.debug("FOREMAN### retract: %s, %s, %s" % (uuid, data, params))
         pass
 
     def extend(self, uuid, data, params, foreign_keys):
-        print("FOREMAN### extend: %s, %s, %s, %s" % (uuid, data, params, foreign_keys))
+        self.log.debug("FOREMAN### extend: %s, %s, %s, %s" % (uuid, data, params, foreign_keys))
         return None
 
     def move_extension(self, uuid, new_base):
-        print("FOREMAN### move_extension: %s, %s" % (uuid, new_base))
+        self.log.debug("FOREMAN### move_extension: %s, %s" % (uuid, new_base))
         pass
 
     def move(self, uuid, new_base):
-        print("FOREMAN### move: %s, %s" % (uuid, new_base))
+        self.log.debug("FOREMAN### move: %s, %s" % (uuid, new_base))
         return True
 
     def create(self, base, data, params, foreign_keys=None):
-        print("FOREMAN### create: %s, %s, %s" % (base, data, params, foreign_keys))
+        self.log.debug("FOREMAN### create: %s, %s, %s" % (base, data, params, foreign_keys))
         return None
 
     def update(self, uuid, data, params):
-        print("FOREMAN### update: '%s', '%s', '%s'" % (uuid, data, params))
-        return True
+        self.log.debug("FOREMAN### update: '%s', '%s', '%s'" % (uuid, data, params))
+        # collect data
+        type = params["type"][:-1]
+        payload = {
+            type: {}
+        }
+        for name, settings in data.items():
+            if len(settings["value"]):
+                payload[type][name] = settings["value"][0]
+
+        # finally send the update to foreman
+        self.log.debug("sending update '%s' to foreman" % payload)
+
+        def runner():
+            result = self.__put(params["type"], uuid, data=payload)
+            self.log.debug("Response: %s" % result)
+
+        # some changes (e.g. changing the hostgroup) trigger requests from foreman to gosa
+        # so we need to run this request in a non blocking thread
+        thread = Thread(target=runner)
+        thread.start()
 
     def is_uniq(self, attr, value):
         return False
 
     def query(self, base, scope, params, fixed_rdn=None):
-        print("FOREMAN### query: %s, %s, %s, %s" % (base, scope, params, fixed_rdn))
+        self.log.debug("FOREMAN### query: %s, %s, %s, %s" % (base, scope, params, fixed_rdn))
         return []
 
     def uuid2dn(self, uuid):  # pragma: nocover

@@ -172,13 +172,20 @@ class Foreman(Plugin):
         if base is None:
             base = self.env.base
 
-        device = ObjectProxy(base, "Device")
         try:
+            device = self.__get_host_object(hostname)
+            if not device.is_extended_by("ForemanHost"):
+                device.extend("ForemanHost")
+                device.cn = hostname
+
+        except EntryNotFound:
+            device = ObjectProxy(base, "Device")
             device.extend("ForemanHost")
             device.cn = hostname
             # commit now to get a uuid
             device.commit()
 
+        try:
             # re-open to get a clean object
             device = ObjectProxy(device.uuid)
 
@@ -202,7 +209,7 @@ class Foreman(Plugin):
 
         except:
             # remove created device again because something went wrong
-            self.remove_host(hostname)
+            # self.remove_host(hostname)
             raise
 
     def remove_host(self, hostname):
@@ -361,7 +368,11 @@ class Foreman(Plugin):
 
 
 class ForemanRealmReceiver(object):
-    """ Webhook handler for foreman realm events (Content-Type: application/vnd.foreman.hostevent+json) """
+    """
+    Webhook handler for foreman realm events (Content-Type: application/vnd.foreman.hostevent+json).
+    Foreman sends these events whenaver a new host is created with gosa-realm provider, or e.g. the hostgroup of an existing host
+    has been changed to a hostgroup with gosa-realm provider set.
+    """
 
     def __init__(self):
         self.type = N_("Foreman host event")
@@ -407,9 +418,6 @@ class ForemanHookReceiver(object):
             payload_data = data['data'][type][type]
         else:
             payload_data = data['data'][type]
-
-        print(type)
-        print(payload_data)
 
         ForemanBackend.modifier = "foreman"
 

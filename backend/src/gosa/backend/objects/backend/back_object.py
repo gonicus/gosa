@@ -109,7 +109,7 @@ class ObjectHandler(ObjectBackend):
             res = index.search({'uuid': uuid, matchAttr: "%"}, {matchAttr: 1})
             if len(res) == 0:
                 raise BackendError(C.make_error("SOURCE_OBJECT_NOT_FOUND", object=targetAttr))
-            matchValue = res[0][matchAttr][0]
+            matchValue = res[0][matchAttr]
 
             # Collect all objects that match the given value
             allvalues = data[targetAttr]['orig'] + data[targetAttr]['value']

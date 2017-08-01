@@ -106,7 +106,7 @@ class ForemanHostGroupIn(ElementFilter):
 
     def process(self, obj, key, valDict, glue=", "):
         if type(valDict[key]['value']) is not None and len(valDict[key]['value']):
-            valDict['groupMembership']['value'] = valDict[key]['value']
+            valDict['groupMembership']['value'] = [str(i) for i in valDict[key]['value']]
         return key, valDict
 
 
@@ -126,6 +126,6 @@ class ForemanHostGroupOut(ElementFilter):
         super(ForemanHostGroupOut, self).__init__(obj)
 
     def process(self, obj, key, valDict, glue=", "):
-        if type(valDict[key]['value']) is not None and len(valDict[key]['value']):
-            valDict['hostgroup_id']['value'] = valDict[key]['value']
+        if type(valDict['groupMembership']['value']) is not None and len(valDict['groupMembership']['value']):
+            valDict[key]['value'] = [int(i) for i in valDict['groupMembership']['value']]
         return key, valDict

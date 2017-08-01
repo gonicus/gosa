@@ -39,15 +39,6 @@
             </FilterEntry>
           </FilterChain>
         </InFilter>
-        <OutFilter>
-          <FilterChain>
-            <FilterEntry>
-              <Filter>
-                <Name>ForemanStatusOut</Name>
-              </Filter>
-            </FilterEntry>
-          </FilterChain>
-        </OutFilter>
         <Values>
           <Value key="unknown">Unknown</Value>
           <Value key="pending">Pending</Value>
@@ -92,7 +83,7 @@
       <Attribute>
         <Name>hostgroup_id</Name>
         <Description>ID of the hostgroup this host is part of</Description>
-        <Type>UnicodeString</Type>
+        <Type>Integer</Type>
         <Backend>Foreman</Backend>
         <DependsOn>
           <Attribute>groupMembership</Attribute>

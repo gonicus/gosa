@@ -744,16 +744,25 @@ class Object(object):
         if p_backend in toStore:
             beAttrs = self._backendAttrs[p_backend] if p_backend in self._backendAttrs else {}
             be = ObjectBackendRegistry.getBackend(p_backend)
+            uuid = self.uuid
+
+            if "_uuidAttribute" in beAttrs:
+                value = self._getattr_(beAttrs['_uuidAttribute'])
+                if value is None:
+                    raise ObjectException(C.make_error('READ_BACKEND_PROPERTIES', backend=p_backend))
+                else:
+                    uuid = self._getattr_(beAttrs['_uuidAttribute'])
+
             if self._mode == "create":
                 obj.uuid = be.create(self.dn, toStore[p_backend], self._backendAttrs[p_backend])
 
             elif self._mode == "extend":
-                be.extend(self.uuid, toStore[p_backend],
+                be.extend(uuid, toStore[p_backend],
                         self._backendAttrs[p_backend],
                         self.getForeignProperties())
 
             else:
-                be.update(self.uuid, toStore[p_backend], beAttrs)
+                be.update(uuid, toStore[p_backend], beAttrs)
 
             # Eventually the DN has changed
             if self._base_object:
@@ -783,12 +792,21 @@ class Object(object):
 
             be = ObjectBackendRegistry.getBackend(backend)
             beAttrs = self._backendAttrs[backend] if backend in self._backendAttrs else {}
+            uuid = self.uuid
+
+            if "_uuidAttribute" in beAttrs:
+                value = self._getattr_(beAttrs['_uuidAttribute'])
+                if value is None:
+                    raise ObjectException(C.make_error('READ_BACKEND_PROPERTIES', backend=p_backend))
+                else:
+                    uuid = self._getattr_(beAttrs['_uuidAttribute'])
+
             if self._mode == "create":
                 be.create(self.dn, data, beAttrs)
             elif self._mode == "extend":
-                be.extend(self.uuid, data, beAttrs, self.getForeignProperties())
+                be.extend(uuid, data, beAttrs, self.getForeignProperties())
             else:
-                be.update(self.uuid, data, beAttrs)
+                be.update(uuid, data, beAttrs)
 
         zope.event.notify(ObjectChanged("post %s" % self._mode, obj))
 
