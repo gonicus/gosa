@@ -339,7 +339,8 @@ class ForemanHookTestCase(RemoteTestCase):
     def test_hostgroup_request(self, m_get):
 
         m_get.return_value = MockResponse('{\
-            "name": "Testgroup"\
+            "name": "Testgroup", \
+            "id": 999\
         }', 200)
 
         self._host_dn = "cn=Testgroup,ou=groups,dc=example,dc=net"
