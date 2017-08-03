@@ -13,23 +13,11 @@ from unittest import mock
 import pytest
 from gosa.backend.objects.filter.basic import *
 
+
 class BasicFilterTests(unittest.TestCase):
 
-    def test_Target_keep(self):
-        filter = Target(None)
-        testDict = {
-            "attr1": {"value": [1]},
-            "attr2": {"value": [2]}
-        }
-        (new_key, newDict) = filter.process(None, "attr1", testDict, "attr3", "in", True)
-        assert newDict['attr3']['value'][0] == 1
-        assert newDict['attr2']['value'][0] == 2
-        assert newDict['attr3']['copied_in'] is True
-        assert newDict['attr3']['copied_out'] is False
-        assert 'attr1' in newDict
-
-    def test_Target(self):
-        filter = Target(None)
+    def test_Rename(self):
+        filter = Rename(None)
         testDict = {
             "attr1": {"value": [1]},
             "attr2": {"value": [2]}
@@ -37,11 +25,9 @@ class BasicFilterTests(unittest.TestCase):
         fakeObj = mock.MagicMock()
         fakeObj.attributesInSaveOrder = ["attr1", "attr2"]
 
-        (new_key, newDict) = filter.process(fakeObj, "attr1", testDict, "attr3", "out")
+        (new_key, newDict) = filter.process(fakeObj, "attr1", testDict, "attr3")
         assert newDict['attr3']['value'][0] == 1
         assert newDict['attr2']['value'][0] == 2
-        assert newDict['attr3']['copied_out'] is True
-        assert newDict['attr3']['copied_in'] is False
         assert 'attr1' not in newDict
         assert "attr1" not in fakeObj.attributesInSaveOrder
 

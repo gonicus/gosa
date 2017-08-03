@@ -22,7 +22,6 @@ class Rename(ElementFilter):
        <Filter>
         <Name>Rename</Name>
         <Param>passwordMethod</Param>
-        <Param>in</Param>
        </Filter>
       </FilterEntry>
     """
@@ -37,12 +36,12 @@ class Rename(ElementFilter):
         :param key: attribute name this filter is defined for
         :param valDict: complete attribute dictionary of this object
         :param new_key: target attribute this attribute should be renames to
-        :param direction: [in|out] In or Out-Filter, to prevent the copied filters from beeing processed again in the renamed attribute
-        we need to now the direction and block the processing of filters after beeing copied
         :return:
         """
         if key != new_key:
             valDict[new_key] = valDict[key]
+            del(valDict[key])
+            obj.attributesInSaveOrder.remove(key)
         return new_key, valDict
 
 
