@@ -13,23 +13,23 @@ import time
 import datetime
 
 
-class Target(ElementFilter):
+class Rename(ElementFilter):
     """
     This filter renames the attribute.
     e.g.::
 
       <FilterEntry>
        <Filter>
-        <Name>Target</Name>
+        <Name>Rename</Name>
         <Param>passwordMethod</Param>
         <Param>in</Param>
        </Filter>
       </FilterEntry>
     """
     def __init__(self, obj):
-        super(Target, self).__init__(obj)
+        super(Rename, self).__init__(obj)
 
-    def process(self, obj, key, valDict, new_key, direction, keep=None):
+    def process(self, obj, key, valDict, new_key):
         """
         Rename an attribute
 
@@ -39,21 +39,10 @@ class Target(ElementFilter):
         :param new_key: target attribute this attribute should be renames to
         :param direction: [in|out] In or Out-Filter, to prevent the copied filters from beeing processed again in the renamed attribute
         we need to now the direction and block the processing of filters after beeing copied
-        :param keep: do not delete the old attribute if True
-        :type keep: boolean
         :return:
         """
         if key != new_key:
             valDict[new_key] = valDict[key]
-            copied_name = "copied_%s" % direction
-            valDict[new_key][copied_name] = True if copied_name not in valDict[new_key] or valDict[new_key][copied_name] is False else False
-            if direction == "in":
-                valDict[new_key]["copied_out"] = False
-            else:
-                valDict[new_key]["copied_in"] = False
-            if keep is None:
-                del(valDict[key])
-                obj.attributesInSaveOrder.remove(key)
         return new_key, valDict
 
 

@@ -162,7 +162,7 @@ setup(
         stringToInteger = gosa.backend.objects.filter.strings:StringToInteger
         idnain = gosa.backend.objects.filter.strings:IdnaToUnicode
         idnaout = gosa.backend.objects.filter.strings:UnicodeToIdna
-        target = gosa.backend.objects.filter.basic:Target
+        rename = gosa.backend.objects.filter.basic:Rename
         copyValueTo = gosa.backend.objects.filter.basic:CopyValueTo
         copyValueFrom = gosa.backend.objects.filter.basic:CopyValueFrom
         setbackends = gosa.backend.objects.filter.basic:SetBackends

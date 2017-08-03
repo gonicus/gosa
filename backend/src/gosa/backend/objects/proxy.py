@@ -97,7 +97,7 @@ class ObjectProxy(object):
     __all_method_names = None
     __search_aid = None
 
-    def __init__(self, _id, what=None, user=None, session_id=None):
+    def __init__(self, _id, what=None, user=None, session_id=None, data=None):
         self.__env = Environment.getInstance()
         self.__log = getLogger(__name__)
         self.__factory = ObjectFactory.getInstance()
@@ -151,7 +151,8 @@ class ObjectProxy(object):
         all_extensions = object_types[base]['extended_by']
 
         # Load base object and extensions
-        self.__base = self.__factory.getObject(base, dn_or_base, mode=base_mode)
+        self.__base = self.__factory.getObject(base, dn_or_base, mode=base_mode, data=data[base] if data is not None and base in data else
+        None)
         self.__base._owner = self.__current_user
         self.__base._session_id = self.__current_session_id
         self.__base.parent = self
@@ -159,7 +160,9 @@ class ObjectProxy(object):
         self.__base_mode = base_mode
         for extension in extensions:
             self.__log.debug("loading %s extension for %s" % (extension, dn_or_base))
-            self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid)
+            self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid, data=data[extension] if data is not None
+                                                                                                                         and extension in
+                                                                                                                         data else None)
             self.__extensions[extension].dn = self.__base.dn
             self.__extensions[extension].parent = self
             self.__extensions[extension]._owner = self.__current_user
@@ -222,6 +225,26 @@ class ObjectProxy(object):
         self.populate_to_foreign_properties()
         self.__search_aid = PluginRegistry.getInstance("ObjectIndex").get_search_aid()
 
+    def apply_data(self, data):
+        """
+        Apply attribute values as if they were read from each backend.
+        If a backend receives data e.g. by hook events there is no need to query the backend again, the received data
+        can be used directly.
+
+        :param data: dict with {extension_name: { backend_name: { attribute_name: value, ...}, ...}, ...}
+        :type data: dict
+        """
+        for extension in data:
+            if self.__base_type == extension:
+                self.__base.apply_data(data[extension])
+            elif extension in self.__extensions:
+                if not self.is_extended_by(extension):
+                    self.extend(extension, data=data[extension])
+                else:
+                    self.__extensions[extension].apply_data(data[extension])
+            else:
+                self.log.warning("unknown extension '%s', skipping data" % extension)
+
     def find_dn_for_object(self, new_base, current_base, dn="", checked=None):
         """
         Traverse through the object_types to find the container, which holds objects of type *base* and return that containers
@@ -267,6 +290,8 @@ class ObjectProxy(object):
                 container.commit()
 
     def get_missing_containers(self, new_dn, base_dn, base_type, result=None):
+        if new_dn is None:
+            return []
         if result is None:
             result = []
         if new_dn == base_dn:
@@ -496,7 +521,7 @@ class ObjectProxy(object):
 
         return res
 
-    def extend(self, extension):
+    def extend(self, extension, data=None):
         """
         Extends the base-object with the given extension
         """
@@ -535,7 +560,7 @@ class ObjectProxy(object):
             if self.__extensions[extension]:
                 mode = "update"
 
-            self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid, mode=mode)
+            self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid, mode=mode, data=data)
             self.__extensions[extension].parent = self
             self.__extensions[extension]._owner = self.__current_user
 

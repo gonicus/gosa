@@ -43,7 +43,7 @@ C.register_codes(dict(
     ATTRIBUTE_MANDATORY=N_("Attribute '%(topic)s' is mandatory"),
     ATTRIBUTE_AUTO_NO_FILTER_OR_DEPENDS=N_("Attribute '%(topic)s' is tagged to be auto-generated but has neither an "
                                            "output filter nor a dependency"),
-    ATTRIBUTE_TOO_MANY_DEPENDS=N_("Attribute '%(topic)s' is tagged to be auto-generated too many denendencies and no "
+    ATTRIBUTE_TOO_MANY_DEPENDS=N_("Attribute '%(topic)s' is tagged to be auto-generated too many dependencies and no "
                                   "output filter"),
     ATTRIBUTE_INVALID_CONSTANT=N_("Value is invalid - expected one of %(elements)s"),
     ATTRIBUTE_INVALID_LIST=N_("Value is invalid - expected a list"),
@@ -60,7 +60,8 @@ C.register_codes(dict(
     FILTER_INVALID_KEY=N_("Invalid key '%(key)s' for filter '%(filter)s'"),
     FILTER_MISSING_KEY=N_("Missing key '%(key)s' after processing filter '%(filter)s'"),
     FILTER_NO_LIST=N_("Filter '%(filter)s' did not return a %(type)s value - a list was expected"),
-    ATTRIBUTE_DEPEND_LOOP=N_("Potential loop in attribute dependencies")
+    ATTRIBUTE_DEPEND_LOOP=N_("Potential loop in attribute dependencies"),
+    READ_BACKEND_UUID_VALUE=N_("Error reading value for '%(backend)s' backend UUID attribute '%(name)s'")
 ))
 
 
@@ -137,7 +138,7 @@ class Object(object):
             res[level].append(item)
         return res
 
-    def __init__(self, where=None, mode="update"):
+    def __init__(self, where=None, mode="update", data=None):
         self.env = Environment.getInstance()
 
         # Instantiate Backend-Registry
@@ -181,9 +182,10 @@ class Object(object):
                 if is_uuid(where):
                     raise ValueError(C.make_error('CREATE_NEEDS_BASE', "base", location=where))
                 self.orig_dn = self.dn = where
-
+                if data is not None:
+                    self.apply_data(data)
             else:
-                self._read(where)
+                self._read(where, data=data)
 
         # Set status to modified for attributes that do not have a value but are
         # mandatory and have a default.
@@ -215,7 +217,7 @@ class Object(object):
     def hasattr(self, attr):
         return attr in self.myProperties
 
-    def _read(self, where):
+    def _read(self, where, data=None):
         """
         This method tries to initialize a object instance by reading data
         from the defined backend.
@@ -258,24 +260,29 @@ class Object(object):
         for backend in backends:
 
             try:
-                # Create a dictionary with all attributes we want to fetch
-                # {attribute_name: type, name: type}
-                info = dict([(k, self.myProperties[k]['backend_type']) for k in self._propsByBackend[backend]])
-                self.log.debug("loading attributes for backend '%s': %s" % (backend, str(info)))
                 be = ObjectBackendRegistry.getBackend(backend)
-                uuid = self.uuid
-                be_attrs = None
-                if backend in self._backendAttrs:
-                    be_attrs = self._backendAttrs[backend]
+                attrs = None
+                if data is not None and backend in data:
+                    attrs = be.process_data(data[backend])
 
-                    if "_uuidAttribute" in be_attrs:
-                        value = self._getattr_(be_attrs['_uuidAttribute'])
-                        if value is None:
-                            raise ObjectException(C.make_error('READ_BACKEND_PROPERTIES', backend=backend))
-                        else:
-                            uuid = self._getattr_(be_attrs['_uuidAttribute'])
+                if attrs is None:
+                    # Create a dictionary with all attributes we want to fetch
+                    # {attribute_name: type, name: type}
+                    info = dict([(k, self.myProperties[k]['backend_type']) for k in self._propsByBackend[backend]])
+                    self.log.debug("loading attributes for backend '%s': %s" % (backend, str(info)))
+                    uuid = self.uuid
+                    be_attrs = None
+                    if backend in self._backendAttrs:
+                        be_attrs = self._backendAttrs[backend]
 
-                attrs = be.load(uuid, info, be_attrs)
+                        if "_uuidAttribute" in be_attrs:
+                            value = self._getattr_(be_attrs['_uuidAttribute'])
+                            if value is None:
+                                raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=backend, name=be_attrs['_uuidAttribute']))
+                            else:
+                                uuid = self._getattr_(be_attrs['_uuidAttribute'])
+
+                    attrs = be.load(uuid, info, be_attrs)
 
             except ValueError as e:
                 self.log.error(e)
@@ -296,13 +303,15 @@ class Object(object):
 
         # Once we've loaded all properties from the backend, execute the
         # in-filters.
+        self._process_in_filters()
+
+        # Convert the received type into the target type if not done already
+        self._convert_types()
+
+    def _process_in_filters(self):
         for key in list(self.myProperties.keys()):
             if key not in self.myProperties:
                 # property has been removed by an in-filter
-                continue
-
-            if 'copied_in' in self.myProperties[key] and self.myProperties[key]['copied_in'] is True:
-                # properties can be copied to other ones by Target filter -> do not execute the copied attributes filter again
                 continue
 
             # Skip loading in-filters for None values
@@ -318,7 +327,7 @@ class Object(object):
                 for in_f in self.myProperties[key]['in_filter']:
                     self.__processFilter(in_f, key, self.myProperties)
 
-        # Convert the received type into the target type if not done already
+    def _convert_types(self):
         #pylint: disable=E1101
         atypes = self._objectFactory.getAttributeTypes()
         for key in self.myProperties:
@@ -339,6 +348,35 @@ class Object(object):
 
             # Keep the initial value
             self.myProperties[key]['last_value'] = self.myProperties[key]['orig_value'] = copy.deepcopy(self.myProperties[key]['value'])
+
+    def apply_data(self, data):
+        """
+        This method tries to initialize a object instance with the given data using the same process as the ``_read``
+        method but without querying the backend but using the given data instead.
+
+        :param data: dict with { backend_name: {attribute_name: value}, ...}
+        """
+        for backend in data:
+            be = ObjectBackendRegistry.getBackend(backend)
+            attrs = be.process_data(data[backend])
+
+            if attrs is not None:
+                # Assign fetched value to the properties.
+                for key in self._propsByBackend[backend]:
+
+                    if key not in attrs:
+                        self.log.debug("attribute '%s' was not included in data" % key)
+                        continue
+
+                    # Keep original values, they may be overwritten in the in-filters.
+                    self.myProperties[key]['in_value'] = self.myProperties[key]['value'] = attrs[key]
+                    self.log.debug("%s: %s" % (key, self.myProperties[key]['value']))
+
+        # Once we've loaded all properties from the backend, execute the in-filters.
+        self._process_in_filters()
+
+        # Convert the received type into the target type if not done already
+        self._convert_types()
 
     def _delattr_(self, name):
         """
@@ -448,11 +486,13 @@ class Object(object):
 
                         if not len(new_value):
                             # nothing left to save
+                            self.log.error(error)
                             raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
                         else:
                             res, error = self.__processValidator(self.myProperties[name]['validator'], name, new_value, props_copy)
                             if not res:
                                 if len(error):
+                                    self.log.error(error)
                                     raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
                                 else:
                                     raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name))
@@ -598,10 +638,6 @@ class Object(object):
             if props[key]['foreign']:
                 continue
 
-            if 'copied_out' in self.myProperties[key] and self.myProperties[key]['copied_out'] is True:
-                # properties can be copied to other ones by Target filter -> do not execute the copied attributes filter again
-                continue
-
             # Check if this attribute is blocked by another attribute and its value.
             is_blocked = False
             for bb in props[key]['blocked_by']:
@@ -652,10 +688,6 @@ class Object(object):
 
             # Skip foreign properties
             if props[key]['foreign']:
-                continue
-
-            if 'copied_out' in self.myProperties[key] and self.myProperties[key]['copied_out'] is True:
-                # properties can be copied to other ones by Target filter -> do not execute the copied attributes filter again
                 continue
 
             # Process each and every out-filter with a clean set of input values,
@@ -763,7 +795,7 @@ class Object(object):
             if "_uuidAttribute" in beAttrs:
                 value = self._getattr_(beAttrs['_uuidAttribute'])
                 if value is None:
-                    raise ObjectException(C.make_error('READ_BACKEND_PROPERTIES', backend=p_backend))
+                    raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=p_backend, name=beAttrs['_uuidAttribute']))
                 else:
                     uuid = self._getattr_(beAttrs['_uuidAttribute'])
 
@@ -811,14 +843,15 @@ class Object(object):
             if "_uuidAttribute" in beAttrs:
                 value = self._getattr_(beAttrs['_uuidAttribute'])
                 if value is None:
-                    raise ObjectException(C.make_error('READ_BACKEND_PROPERTIES', backend=p_backend))
+                    if self._mode == "update":
+                        raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=p_backend, name=beAttrs['_uuidAttribute']))
                 else:
-                    uuid = self._getattr_(beAttrs['_uuidAttribute'])
+                    uuid = value
 
             if self._mode == "create":
                 be.create(self.dn, data, beAttrs)
             elif self._mode == "extend":
-                be.extend(uuid, data, beAttrs, self.getForeignProperties())
+                be.extend(self.uuid, data, beAttrs, self.getForeignProperties())
             else:
                 be.update(uuid, data, beAttrs)
 
@@ -977,7 +1010,7 @@ class Object(object):
                             key=pk, filter=fname, type=type(prop[pk]['value'])))
 
                 self.log.debug("  %s: [Filter]  %s(%s) called " % (lptr, fname,
-                    ", ".join(["\"" + x + "\"" for x in curline['params']])))
+                               ", ".join(["\"" + x + "\"" for x in args[3:]])))
 
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
@@ -1244,7 +1277,8 @@ class Object(object):
                 if "_uuidAttribute" in be_config_attrs:
                     value = self._getattr_(be_config_attrs['_uuidAttribute'])
                     if value is None:
-                        raise ObjectException(C.make_error('READ_BACKEND_PROPERTIES', backend=backend))
+                        raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=backend, name=be_config_attrs[
+                            '_uuidAttribute']))
                     else:
                         uuid = self._getattr_(be_config_attrs['_uuidAttribute'])
 

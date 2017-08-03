@@ -28,11 +28,13 @@ Backend Attributes:
 .. code-block: xml
     :caption: Example configuration for foreman host objects
 
-    <Backend type="hosts" _uuidAttribute="cn">Foreman</Backend>
+    <Backend type="hosts" _uuidAttribute="cn" _uuidSourceAttribute="name">Foreman</Backend>
 
 The Foreman backend needs to now the object type and the id to identify an object.
+``_uuidSourceAttribute`` is optional and specifies the attribute name where the ID value can be found
+in the foreman API response. If not specified the backend assumes that ``_uuidSourceAttribute == _uuidAttribute``.
 These two settings are used to generate the API URL to access the object in foreman.
-In this example the URL for HTTP-requests would be <foreman-host>/api/hosts/<cn>.
+In this example the URL for HTTP-requests would be <foreman-host>/api/hosts/<cn>. 
 """
 
 class Foreman(ObjectBackend):
@@ -81,48 +83,43 @@ class Foreman(ObjectBackend):
     def __put(self, type, id, data):
         return self.__request("put", type, id=id, data=data)
 
-    def __post(self, type, id, data):
+    def __post(self, type, id=None, data=None):
         return self.__request("post", type, id=id, data=data)
 
-    def load(self, uuid, info, back_attrs=None):
+    def load(self, uuid, info, back_attrs=None, data=None):
         """
         Loading attribute values from foreman API
 
         :param uuid: Unique identifier in foreman (usually the id)
         :param info: dict of all object attributes that are related to foreman {<name>: <type>}
         :param back_attrs: backend configuration from object definition
+        :param data: use this data instead of querying the backend
         :return: results returned from foreman API
         """
-        mapping = self.extract_mapping(back_attrs)
-        try:
-            data = self.__get(back_attrs['type'], id=uuid)
-        except HTTPError as e:
-            # something when wrong
-            self.log.error("Error requesting foreman backend: %s" % e)
-            data = {}
+        if data is None:
+            try:
+                data = self.__get(back_attrs['type'], id=uuid)
+            except HTTPError as e:
+                # something when wrong
+                self.log.error("Error requesting foreman backend: %s" % e)
+                data = {}
+        return self.process_data(data)
 
+    def process_data(self, data):
         res = {}
-        # map attributes
-        for source, target in mapping.items():
-            if source in data and data[source] is not None:
-                res[target] = [data[source]]
-
-        # attach other requested attributes to result set
-        for attr, type in info.items():
+        # attach requested attributes to result set
+        for attr, type in data.items():
             if attr in data and data[attr] is not None:
-                value = data[attr]
-                if isinstance(value, int) and 'String' in type:
-                    value = str(value)
-                res[attr] = [value]
+                res[attr] = [data[attr]]
 
         return res
 
     def identify(self, dn, params, fixed_rdn=None):
-        self.log.debug("identify: %s, " % (dn, params, fixed_rdn))
+        self.log.debug("identify: %s, %s, %s" % (dn, params, fixed_rdn))
         return False
 
     def identify_by_uuid(self, uuid, params):
-        self.log.debug("identify_by_uuid: %s, " % (uuid, params))
+        self.log.debug("identify_by_uuid: %s, %s" % (uuid, params))
         return False
 
     def exists(self, misc):
@@ -139,10 +136,32 @@ class Foreman(ObjectBackend):
 
     def retract(self, uuid, data, params):
         self.log.debug("retract: %s, %s, %s" % (uuid, data, params))
+        if Foreman.modifier != "foreman":
+            self.__delete(params["type"], uuid)
+        else:
+            self.log.info("skipping deletion request as the change is coming from the foreman backend")
         pass
 
     def extend(self, uuid, data, params, foreign_keys):
+        """ Called when a base object is extended with a foreman object (e.g. device->foremanHost)"""
         self.log.debug("extend: %s, %s, %s, %s" % (uuid, data, params, foreign_keys))
+        if Foreman.modifier != "foreman":
+            payload = self.__collect_data(data, params)
+
+            # finally send the update to foreman
+            self.log.debug("creating '%s' with '%s' to foreman" % (params["type"], payload))
+
+            def runner():
+                result = self.__post(params["type"], data=payload)
+                self.log.debug("Response: %s" % result)
+
+            # some changes (e.g. creating a host) trigger requests from foreman to gosa
+            # so we need to run this request in a non blocking thread
+            thread = Thread(target=runner)
+            thread.start()
+
+        else:
+            self.log.info("skipping extend request as the change is coming from the foreman backend")
         return None
 
     def move_extension(self, uuid, new_base):
@@ -159,28 +178,25 @@ class Foreman(ObjectBackend):
 
     def update(self, uuid, data, params):
         self.log.debug("update: '%s', '%s', '%s'" % (uuid, data, params))
-        # collect data
-        type = params["type"][:-1]
-        payload = {
-            type: {}
-        }
-        for name, settings in data.items():
-            if len(settings["value"]):
-                payload[type][name] = settings["value"][0]
+        if Foreman.modifier != "foreman":
+            payload = self.__collect_data(data, params)
 
-        # finally send the update to foreman
-        self.log.debug("sending update '%s' to foreman" % payload)
+            # finally send the update to foreman
+            self.log.debug("sending update '%s' to foreman" % payload)
 
-        def runner():
-            result = self.__put(params["type"], uuid, data=payload)
-            self.log.debug("Response: %s" % result)
+            def runner():
+                result = self.__put(params["type"], uuid, data=payload)
+                self.log.debug("Response: %s" % result)
 
-        # some changes (e.g. changing the hostgroup) trigger requests from foreman to gosa
-        # so we need to run this request in a non blocking thread
-        thread = Thread(target=runner)
-        thread.start()
+            # some changes (e.g. changing the hostgroup) trigger requests from foreman to gosa
+            # so we need to run this request in a non blocking thread
+            thread = Thread(target=runner)
+            thread.start()
+        else:
+            self.log.info("skipping update request as the change is coming from the foreman backend")
 
     def is_uniq(self, attr, value):
+        self.log.debug("is_uniq: %s, %s" % (attr, value))
         return False
 
     def query(self, base, scope, params, fixed_rdn=None):
@@ -193,7 +209,8 @@ class Foreman(ObjectBackend):
     def dn2uuid(self, dn):  # pragma: nocover
         return None
 
-    def extract_mapping(self, attrs):
+    @staticmethod
+    def extract_mapping(attrs):
         result = {}
         if 'mapping' in attrs:
             for key_value in attrs['mapping'].split(","):
@@ -201,3 +218,15 @@ class Foreman(ObjectBackend):
                 result[key] = value
 
         return result
+
+    def __collect_data(self, data, params):
+        # collect data
+        type = params["type"][:-1]
+        payload = {
+            type: {}
+        }
+        for name, settings in data.items():
+            if len(settings["value"]):
+                payload[type][name] = settings["value"][0]
+
+        return payload

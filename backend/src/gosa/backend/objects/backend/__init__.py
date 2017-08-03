@@ -64,6 +64,10 @@ class ObjectBackend(object):
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="load"))
 
+    def process_data(self, data):
+        """ Process incoming data to return a key/value dict as returney by the load method """
+        return None
+
     def move(self, uuid, new_base):  # pragma: nocover
         """
         Move object to new base.

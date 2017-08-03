@@ -91,6 +91,7 @@ class ObjectHandler(ObjectBackend):
         # Extract usable information out og the backend attributes
         mapping = self.extractBackAttrs(back_attrs)
         index = PluginRegistry.getInstance("ObjectIndex")
+        print("UUID: %s, data: %s, backend attrs: %s" % (uuid, data, back_attrs))
 
         # Ensure that we have a configuration for all attributes
         for attr in data.keys():

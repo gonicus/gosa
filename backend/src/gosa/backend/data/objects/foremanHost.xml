@@ -9,7 +9,7 @@
     </Templates>
     <BackendParameters>
       <Backend objectClasses="foremanHost">LDAP</Backend>
-      <Backend type="hosts" _uuidAttribute="cn">Foreman</Backend>
+      <Backend type="hosts" _uuidAttribute="cn" _uuidSourceAttribute="name">Foreman</Backend>
       <Backend groupMembership="ForemanHostGroup:foremanGroupId,member=dn">ObjectHandler</Backend>
     </BackendParameters>
     <Backend>LDAP</Backend>
@@ -23,6 +23,9 @@
       </ForeignAttribute>
       <ForeignAttribute>
           <Name>macAddress</Name>
+      </ForeignAttribute>
+      <ForeignAttribute>
+        <Name>deviceUUID</Name>
       </ForeignAttribute>
       <Attribute>
         <Name>status</Name>
@@ -114,6 +117,104 @@
             </FilterEntry>
           </FilterChain>
         </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>ip</Name>
+        <Description>IP address</Description>
+        <Type>String</Type>
+        <Backend>Foreman</Backend>
+        <DependsOn>
+          <Attribute>ipHostNumber</Attribute>
+        </DependsOn>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>CopyValueTo</Name>
+                <Param>ipHostNumber</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>CopyValueFrom</Name>
+                <Param>ipHostNumber</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>mac</Name>
+        <Description>MAC address</Description>
+        <Type>String</Type>
+        <Backend>Foreman</Backend>
+        <DependsOn>
+          <Attribute>macAddress</Attribute>
+        </DependsOn>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>CopyValueTo</Name>
+                <Param>macAddress</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>CopyValueFrom</Name>
+                <Param>macAddress</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>uuid</Name>
+        <Description>Device UUID</Description>
+        <Type>String</Type>
+        <Backend>Foreman</Backend>
+        <DependsOn>
+          <Attribute>deviceUUID</Attribute>
+        </DependsOn>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>CopyValueTo</Name>
+                <Param>deviceUUID</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>CopyValueFrom</Name>
+                <Param>deviceUUID</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>compute_resource_name</Name>
+        <Type>UnicodeString</Type>
+        <Backend>Foreman</Backend>
+      </Attribute>
+      <Attribute>
+        <Name>compute_resource_id</Name>
+        <Type>Integer</Type>
+        <Backend>Foreman</Backend>
+        <Values populate="getForemanComputeResources"/>
       </Attribute>
       <Attribute>
         <Name>name</Name>

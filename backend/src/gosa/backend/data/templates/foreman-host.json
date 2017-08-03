@@ -86,6 +86,36 @@
               }
             }
           }
+        },
+        {
+          "properties": {
+            "text": "tr('Compute resource')"
+          },
+          "buddyModelPath": "compute_resource_id",
+          "class": "gosa.ui.widgets.QLabelWidget",
+          "addOptions": {
+            "column": 2,
+            "row": 1
+          }
+        },
+        {
+          "class": "gosa.ui.widgets.QTableWidgetWidget",
+          "modelPath": "compute_resource_id",
+          "addOptions": {
+            "column": 3,
+            "row": 1
+          },
+          "properties": {
+            "multivalue": false
+          },
+          "extensions": {
+            "guiProperties": {
+              "editTitle": "tr('Change compute resource')",
+              "columns": {
+                "display_name": "tr('Compute name')"
+              }
+            }
+          }
         }
       ]
     }

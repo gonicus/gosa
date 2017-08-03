@@ -198,6 +198,31 @@ class DateAttribute(AttributeType):
         return list(map(lambda x: str(x.strftime("%Y-%m-%d")), value))
 
 
+class DateTimeAttribute(AttributeType):
+    __alias__ = "DateTime"
+
+    def _convert_to_date(self, value):
+        return value
+
+    def _convert_from_date(self, value):
+        return value
+
+    def is_valid_value(self, value):
+        return not len(value) or all(map(lambda x: type(x) == datetime.date, value))
+
+    def values_match(self, value1, value2):
+        return value1 == value2
+
+    def _convert_from_string(self, value):
+        return list(map(lambda x: datetime.strptime(x, "'%Y-%m-%dT%H:%M:%S.%fZ'"), value))
+
+    def _convert_to_string(self, value):
+        return list(map(lambda x: bytes(x.strftime("'%Y-%m-%dT%H:%M:%S.%fZ'"), 'utf-8'), value))
+
+    def _convert_to_unicodestring(self, value):
+        return list(map(lambda x: str(x.strftime("'%Y-%m-%dT%H:%M:%S.%fZ'")), value))
+
+
 class TimestampAttribute(AttributeType):
     __alias__ = "Timestamp"
 

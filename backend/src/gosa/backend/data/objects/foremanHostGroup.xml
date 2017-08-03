@@ -11,7 +11,7 @@
     <BackendParameters>
       <Backend objectClasses="foremanHostGroup" RDN="cn">LDAP</Backend>
       <Backend member="ForemanHost:foremanGroupId,">ObjectHandler</Backend>
-      <Backend type="hostgroups" _uuidAttribute="foremanGroupId">Foreman</Backend>
+      <Backend type="hostgroups" _uuidAttribute="foremanGroupId" _uuidSourceAttribute="id">Foreman</Backend>
     </BackendParameters>
     <BaseObject>true</BaseObject>
     <Attributes>
@@ -25,13 +25,15 @@
         <Name>name</Name>
         <Type>UnicodeString</Type>
         <Backend>Foreman</Backend>
+        <DependsOn>
+          <Attribute>cn</Attribute>
+        </DependsOn>
         <InFilter>
           <FilterChain>
             <FilterEntry>
               <Filter>
-                <Name>Target</Name>
+                <Name>CopyValueTo</Name>
                 <Param>cn</Param>
-                <Param>in</Param>
               </Filter>
             </FilterEntry>
           </FilterChain>
@@ -40,9 +42,8 @@
           <FilterChain>
             <FilterEntry>
               <Filter>
-                <Name>Target</Name>
-                <Param>name</Param>
-                <Param>out</Param>
+                <Name>CopyValueFrom</Name>
+                <Param>cn</Param>
               </Filter>
             </FilterEntry>
           </FilterChain>
@@ -111,9 +112,8 @@
           <FilterChain>
             <FilterEntry>
               <Filter>
-                <Name>Target</Name>
+                <Name>CopyValueTo</Name>
                 <Param>foremanGroupId</Param>
-                <Param>in</Param>
               </Filter>
             </FilterEntry>
           </FilterChain>

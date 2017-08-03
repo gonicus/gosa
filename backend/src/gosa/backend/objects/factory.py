@@ -1492,3 +1492,17 @@ class ObjectFactory(object):
                 return result
 
         return None
+
+    def getObjectNamesWithBackendSetting(self, backend_name, attribute_name, attribute_value):
+        """
+        Helper method to find object types with certain backend parameter settings.
+        e.g. find all objects with a special foreman backend type setting
+        """
+        res = []
+        for object_name in self.getObjectTypes().keys():
+            attrs = self.getObjectBackendProperties(object_name)
+            if backend_name in attrs and attribute_name in attrs[backend_name] and attrs[backend_name][attribute_name] == attribute_value:
+                res.append(object_name)
+
+        return res
+
