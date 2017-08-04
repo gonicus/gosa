@@ -76,7 +76,8 @@
             "row": 0
           },
           "properties": {
-            "multivalue": false
+            "multivalue": false,
+            "tabIndex": 2
           },
           "extensions": {
             "guiProperties": {
@@ -99,22 +100,15 @@
           }
         },
         {
-          "class": "gosa.ui.widgets.QTableWidgetWidget",
+          "class": "gosa.ui.widgets.QComboBoxWidget",
           "modelPath": "compute_resource_id",
           "addOptions": {
             "column": 3,
             "row": 1
           },
           "properties": {
-            "multivalue": false
-          },
-          "extensions": {
-            "guiProperties": {
-              "editTitle": "tr('Change compute resource')",
-              "columns": {
-                "display_name": "tr('Compute name')"
-              }
-            }
+            "tabIndex": 3,
+            "sortBy": "value"
           }
         }
       ]

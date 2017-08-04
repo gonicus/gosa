@@ -182,7 +182,9 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
             item.setKey(convert(k));
             if (data[k] && data[k]['value']) {
               item.setValue(data[k]['value']);
-              item.setIcon(data[k]['icon']);
+              if (data[k]['icon']) {
+                item.setIcon(data[k]['icon']);
+              }
             } else {
               item.setValue(data[k] || "");
             }
