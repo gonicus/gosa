@@ -11,8 +11,6 @@ import re
 from gosa.common.components import PluginRegistry
 from gosa.common.utils import N_
 from gosa.backend.objects.comparator import ElementComparator
-from gosa.backend.objects.index import ObjectInfoIndex, ExtensionIndex
-from sqlalchemy import or_, and_
 
 
 class IsValidHostName(ElementComparator):
@@ -85,6 +83,10 @@ class ObjectWithPropertyExists(ElementComparator):
         errors = []
         index = PluginRegistry.getInstance("ObjectIndex")
         for val in value:
+            if attribute == "dn" and val in index.currently_in_creation:
+                # this object has been created but is not in the DB yet
+                continue
+
             query = {'or_': {'_type': objectType, 'extension': objectType}, attribute: val}
             if not len(index.search(query, {'dn': 1})):
                 query = {'_type': objectType, attribute: val}

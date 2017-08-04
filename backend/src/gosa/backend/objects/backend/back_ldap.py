@@ -220,7 +220,7 @@ class LDAP(ObjectBackend):
             del self.__i_cache[dn]
             del self.__i_cache_ttl[dn]
 
-    def extend(self, uuid, data, params, foreign_keys):
+    def extend(self, uuid, data, params, foreign_keys, dn=None):
         dn = self.uuid2dn(uuid)
         return self.create(dn, data, params, foreign_keys)
 

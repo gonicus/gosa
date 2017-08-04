@@ -249,6 +249,7 @@ class ForemanRealmTestCase(RemoteTestCase):
             ObjectProxy("cn=new-foreman-host,ou=devices,dc=example,dc=net")
 
 
+@mock.patch("gosa.backend.objects.back_foreman.Foreman.__request")
 class ForemanHookTestCase(RemoteTestCase):
     registry = None
     url = None
@@ -336,7 +337,7 @@ class ForemanHookTestCase(RemoteTestCase):
         self._host_dn = None
 
     @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
-    def test_hostgroup_request(self, m_get):
+    def test_hostgroup_request(self, m_get, m_delete):
 
         m_get.return_value = MockResponse('{\
             "name": "Testgroup", \

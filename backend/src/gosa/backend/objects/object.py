@@ -17,8 +17,6 @@ import pkg_resources
 import os
 
 from collections import OrderedDict
-from lxml import etree
-from lxml.builder import E
 from logging import getLogger
 from zope.interface import Interface, implementer
 from gosa.common import Environment
@@ -144,7 +142,7 @@ class Object(object):
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
         self.log = getLogger(__name__)
-        self.log.debug("new object instantiated '%s'" % type(self).__name__)
+        self.log.debug("new object instantiated '%s' in mode '%s' (%s)" % (type(self).__name__, mode, where))
 
         # Group attributes by Backend
         propsByBackend = OrderedDict()
@@ -186,6 +184,10 @@ class Object(object):
                     self.apply_data(data)
             else:
                 self._read(where, data=data)
+
+        else:
+            if data is not None:
+                self.apply_data(data)
 
         # Set status to modified for attributes that do not have a value but are
         # mandatory and have a default.
@@ -308,8 +310,11 @@ class Object(object):
         # Convert the received type into the target type if not done already
         self._convert_types()
 
-    def _process_in_filters(self):
-        for key in list(self.myProperties.keys()):
+    def _process_in_filters(self, keys=None):
+        if keys is None:
+            keys = list(self.myProperties.keys())
+
+        for key in keys:
             if key not in self.myProperties:
                 # property has been removed by an in-filter
                 continue
@@ -327,10 +332,13 @@ class Object(object):
                 for in_f in self.myProperties[key]['in_filter']:
                     self.__processFilter(in_f, key, self.myProperties)
 
-    def _convert_types(self):
+    def _convert_types(self, keep=True, keys=None):
         #pylint: disable=E1101
         atypes = self._objectFactory.getAttributeTypes()
-        for key in self.myProperties:
+        if keys is None:
+            keys = list(self.myProperties.keys())
+
+        for key in keys:
 
             # Convert values from incoming backend-type to required type
             if self.myProperties[key]['value']:
@@ -347,7 +355,10 @@ class Object(object):
                         self.log.debug("converted '%s' from type '%s' to type '%s'!" % (key, be_type, a_type))
 
             # Keep the initial value
-            self.myProperties[key]['last_value'] = self.myProperties[key]['orig_value'] = copy.deepcopy(self.myProperties[key]['value'])
+            if keep is True:
+                self.myProperties[key]['last_value'] = self.myProperties[key]['orig_value'] = copy.deepcopy(self.myProperties[key]['value'])
+            else:
+                self.myProperties[key]['last_value'] = copy.deepcopy(self.myProperties[key]['value'])
 
     def apply_data(self, data):
         """
@@ -356,9 +367,11 @@ class Object(object):
 
         :param data: dict with { backend_name: {attribute_name: value}, ...}
         """
+        found = []
         for backend in data:
             be = ObjectBackendRegistry.getBackend(backend)
             attrs = be.process_data(data[backend])
+            self.log.debug("processing data '%s' through backend %s resulted in: %s" % (data, backend, attrs))
 
             if attrs is not None:
                 # Assign fetched value to the properties.
@@ -368,15 +381,16 @@ class Object(object):
                         self.log.debug("attribute '%s' was not included in data" % key)
                         continue
 
+                    found.append(key)
                     # Keep original values, they may be overwritten in the in-filters.
                     self.myProperties[key]['in_value'] = self.myProperties[key]['value'] = attrs[key]
                     self.log.debug("%s: %s" % (key, self.myProperties[key]['value']))
 
         # Once we've loaded all properties from the backend, execute the in-filters.
-        self._process_in_filters()
+        self._process_in_filters(keys=found)
 
         # Convert the received type into the target type if not done already
-        self._convert_types()
+        self._convert_types(keep=False, keys=found)
 
     def _delattr_(self, name):
         """
@@ -786,6 +800,8 @@ class Object(object):
         if self._mode in ["update"]:
             self.__execute_hook("PreModify")
 
+        index = PluginRegistry.getInstance("ObjectIndex")
+
         # First, take care about the primary backend...
         if p_backend in toStore:
             beAttrs = self._backendAttrs[p_backend] if p_backend in self._backendAttrs else {}
@@ -800,9 +816,11 @@ class Object(object):
                     uuid = self._getattr_(beAttrs['_uuidAttribute'])
 
             if self._mode == "create":
+                index.currently_in_creation.append(self.dn)
                 obj.uuid = be.create(self.dn, toStore[p_backend], self._backendAttrs[p_backend])
 
             elif self._mode == "extend":
+                index.currently_in_creation.append(self.dn)
                 be.extend(uuid, toStore[p_backend],
                         self._backendAttrs[p_backend],
                         self.getForeignProperties())
@@ -851,7 +869,7 @@ class Object(object):
             if self._mode == "create":
                 be.create(self.dn, data, beAttrs)
             elif self._mode == "extend":
-                be.extend(self.uuid, data, beAttrs, self.getForeignProperties())
+                be.extend(self.uuid, data, beAttrs, self.getForeignProperties(), dn=self.dn)
             else:
                 be.update(uuid, data, beAttrs)
 
@@ -862,6 +880,10 @@ class Object(object):
             self.__execute_hook("PostCreate")
         if self._mode in ["update"] and "PostModify":
             self.__execute_hook("PostModify")
+
+        # remove the creation marker again
+        if self.dn in index.currently_in_creation:
+            index.currently_in_creation.remove(self.dn)
 
         return props
 
@@ -1010,7 +1032,7 @@ class Object(object):
                             key=pk, filter=fname, type=type(prop[pk]['value'])))
 
                 self.log.debug("  %s: [Filter]  %s(%s) called " % (lptr, fname,
-                               ", ".join(["\"" + x + "\"" for x in args[3:]])))
+                               ", ".join(["\"" + x + "\"" for x in curline['params']])))
 
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
@@ -1086,8 +1108,7 @@ class Object(object):
         # Walk trough each line of the process list an replace placeholders.
         for line in fltr:
             if 'params' in fltr[line]:
-                fltr[line]['params'] = map(_placeHolder,
-                        fltr[line]['params'])
+                fltr[line]['params'] = list(map(_placeHolder, fltr[line]['params']))
         return fltr
 
     def get_object_type_by_dn(self, dn):

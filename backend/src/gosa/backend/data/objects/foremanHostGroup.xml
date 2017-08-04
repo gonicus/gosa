@@ -11,7 +11,7 @@
     <BackendParameters>
       <Backend objectClasses="foremanHostGroup" RDN="cn">LDAP</Backend>
       <Backend member="ForemanHost:foremanGroupId,">ObjectHandler</Backend>
-      <Backend type="hostgroups" _uuidAttribute="foremanGroupId" _uuidSourceAttribute="id">Foreman</Backend>
+      <Backend type="hostgroups" _uuidAttribute="foremanGroupId" _uuidSourceAttribute="id" setOnCreate="name">Foreman</Backend>
     </BackendParameters>
     <BaseObject>true</BaseObject>
     <Attributes>

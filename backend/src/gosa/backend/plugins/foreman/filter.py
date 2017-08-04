@@ -6,7 +6,7 @@ FM_STATUS_GLOBAL_ERROR = 2
 
 FM_STATUS_BUILD = 0
 FM_STATUS_BUILD_PENDING = 1
-
+FM_STATUS_BUILD_TOKEN_EXPIRED = 2
 
 class ForemanStatusIn(ElementFilter):
     """
@@ -37,6 +37,8 @@ class ForemanStatusIn(ElementFilter):
                 return "ready"
             elif build_status == FM_STATUS_BUILD_PENDING:
                 return "pending"
+            elif build_status == FM_STATUS_BUILD_TOKEN_EXPIRED:
+                return "token-expired"
             else:
                 return "ready"
 

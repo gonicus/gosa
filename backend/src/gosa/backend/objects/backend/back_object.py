@@ -9,6 +9,8 @@
 
 import re
 import itertools
+from logging import getLogger
+
 from gosa.common.components import PluginRegistry
 from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects.backend import ObjectBackend
@@ -46,6 +48,7 @@ class ObjectHandler(ObjectBackend):
         Take a look at the 'ObjectIndex' and its static variable 'importing' for details.
 
         """
+        self.log.debug("load(%s, %s, %s)" % ( uuid, info, back_attrs))
         result = {}
         if ObjectIndex.importing:
             ObjectIndex.to_be_updated.append(uuid)
@@ -68,8 +71,8 @@ class ObjectHandler(ObjectBackend):
 
         return result
 
-    def extend(self, uuid, data, params, foreign_keys):
-        return self.update(uuid, data, params)
+    def extend(self, uuid, data, params, foreign_keys, dn=None):
+        return self.update(uuid, data, params, dn=dn)
 
     def retract(self, uuid, data, params):
         # Set values to an emtpy state, to enforce property removal
@@ -80,7 +83,7 @@ class ObjectHandler(ObjectBackend):
     def remove(self, uuid, data, params):
         return self.retract(uuid, data, params)
 
-    def update(self, uuid, data, back_attrs):
+    def update(self, uuid, data, back_attrs, dn=None):
         """
         Write back changes collected for foreign objects relations.
 
@@ -91,7 +94,7 @@ class ObjectHandler(ObjectBackend):
         # Extract usable information out og the backend attributes
         mapping = self.extractBackAttrs(back_attrs)
         index = PluginRegistry.getInstance("ObjectIndex")
-        print("UUID: %s, data: %s, backend attrs: %s" % (uuid, data, back_attrs))
+        self.log.debug("update(%s, %s, %s)" % (uuid, data, back_attrs))
 
         # Ensure that we have a configuration for all attributes
         for attr in data.keys():
@@ -107,10 +110,14 @@ class ObjectHandler(ObjectBackend):
             # Get the matching attribute for the current object
             foreignObject, foreignAttr, foreignMatchAttr, matchAttr = mapping[targetAttr]
 
-            res = index.search({'uuid': uuid, matchAttr: "%"}, {matchAttr: 1})
-            if len(res) == 0:
-                raise BackendError(C.make_error("SOURCE_OBJECT_NOT_FOUND", object=targetAttr))
-            matchValue = res[0][matchAttr]
+            if matchAttr == "dn" and dn is not None:
+                matchValue = dn
+
+            else:
+                res = index.search({'uuid': uuid, matchAttr: "%"}, {matchAttr: 1})
+                if len(res) == 0:
+                    raise BackendError(C.make_error("SOURCE_OBJECT_NOT_FOUND", object=targetAttr))
+                matchValue = res[0][matchAttr]
 
             # Collect all objects that match the given value
             allvalues = data[targetAttr]['orig'] + data[targetAttr]['value']
@@ -146,7 +153,7 @@ class ObjectHandler(ObjectBackend):
                     object_mapping[item].commit()
 
     def __init__(self):  # pragma: nocover
-        pass
+        self.log = getLogger(__name__)
 
     def identify_by_uuid(self, uuid, params):  # pragma: nocover
         return False
@@ -167,6 +174,7 @@ class ObjectHandler(ObjectBackend):
         return False
 
     def create(self, base, data, params, foreign_keys=None):  # pragma: nocover
+        self.log.debug("create(%s, %s, %s, %s)" % (base, data, params, foreign_keys))
         return None
 
     def uuid2dn(self, uuid):  # pragma: nocover

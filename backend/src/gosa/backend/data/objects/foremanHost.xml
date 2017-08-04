@@ -50,6 +50,7 @@
           <Value key="ready">Ready</Value>
           <Value key="warning">Warning</Value>
           <Value key="error">Error</Value>
+          <Value key="token-expired">Token expired</Value>
         </Values>
         <DependsOn>
           <Attribute>build_status</Attribute>
@@ -68,6 +69,9 @@
             <Param>foremanGroupId</Param>
           </Condition>
         </Validators>
+        <DependsOn>
+          <Attribute>hostgroup_id</Attribute>
+        </DependsOn>
       </Attribute>
       <Attribute>
         <Name>build_status</Name>
@@ -89,9 +93,6 @@
         <Type>String</Type>
         <BackendType>Integer</BackendType>
         <Backend>Foreman</Backend>
-        <DependsOn>
-          <Attribute>groupMembership</Attribute>
-        </DependsOn>
         <InFilter>
           <FilterChain>
             <FilterEntry>

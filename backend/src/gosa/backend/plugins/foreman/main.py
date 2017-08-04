@@ -18,7 +18,6 @@ from requests.auth import HTTPBasicAuth
 from gosa.backend.objects import ObjectProxy, ObjectFactory
 from gosa.common import Environment
 from gosa.common.components import Plugin, Command
-from gosa.backend.exceptions import ACLException, EntryNotFound
 from gosa.common.handler import IInterfaceHandler
 from zope.interface import implementer
 from gosa.common.error import GosaErrorHandler as C
@@ -121,8 +120,12 @@ class Foreman(Plugin):
 
         for data in new_data["results"]:
             found_ids.append(str(data[uuid_attribute]))
+            self.log.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+            self.log.debug(">>> START creating new foreman object of type '%s' with id '%s'" % (object_type, data[uuid_attribute]))
             foreman_object = self.get_object(object_type, data[uuid_attribute], data=data)
             self.update_type(object_type, foreman_object, data, uuid_attribute)
+            self.log.debug("<<< DONE creating new foreman object of type '%s' with id '%s'" % (object_type, data[uuid_attribute]))
+            self.log.debug("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
         # delete not existing ones
         if len(found_ids):
@@ -163,19 +166,38 @@ class Foreman(Plugin):
         if len(res) == 0:
             if create is True:
                 # no object found -> create one
+                self.log.debug(">>> creating new %s" % object_type)
                 foreman_object = ObjectProxy(self.env.base, base_type)
-                if types["base"] is False:
-                    # no base object extend it
-                    for required_ext in types["requires"]:
-                        foreman_object.extend(required_ext)
-
-                    foreman_object.extend(object_type, data={"Foreman": data})
+                # if types["base"] is False:
+                #     # no base object extend it
+                #     for required_ext in types["requires"]:
+                #         foreman_object.extend(required_ext)
+                #
+                #     foreman_object.extend(object_type)
 
                 # set the identifier attribute
                 setattr(foreman_object, backend_attributes["Foreman"]["_uuidAttribute"], str(oid))
+
+                # # set all required attributes to make the object storeable
+                # if "setOnCreate" in backend_attributes["Foreman"]:
+                #     initial_data = {}
+                #     for attr_name in backend_attributes["Foreman"]["setOnCreate"].split(","):
+                #         if attr_name in data and data[attr_name] is not None:
+                #             initial_data[attr_name] = data[attr_name]
+                #
+                #     foreman_object.apply_data({
+                #         object_type: {
+                #             "Foreman": initial_data
+                #         }
+                #     })
+                # # save initially to have in in the db for relations
+                # foreman_object.commit()
+                #
+                # foreman_object = ObjectProxy(foreman_object.dn, data={object_type: {"Foreman": data}})
         else:
             # open existing object
-            foreman_object = ObjectProxy(res[0]["dn"])
+            self.log.debug(">>> open existing %s with DN: %s" % (object_type, res[0]["dn"]))
+            foreman_object = ObjectProxy(res[0]["dn"], data={object_type: {"Foreman": data}})
 
         return foreman_object
 
@@ -192,7 +214,7 @@ class Foreman(Plugin):
 
         update_data = {}
         for key, value in data.items():
-            if key == uuid_attribute:
+            if key == uuid_attribute and object.get_mode() != "create":
                 continue
             try:
                 # collect extensions etc.
@@ -212,8 +234,9 @@ class Foreman(Plugin):
                                  (key, object.uuid, object_type, value, e))
                 raise e
 
-        print(update_data)
+        self.log.debug(">>> applying data to '%s': %s" % (object_type, update_data))
         object.apply_data(update_data)
+        self.log.debug(">>> commiting '%s'" % object_type)
         object.commit()
 
     def remove_type(self, object_type, oid):
@@ -242,10 +265,13 @@ class Foreman(Plugin):
 
     @Command(__help__=N_("Get available foreman compute resources."))
     def getForemanComputeResources(self):
-        data = self.client.get("compute_resources")
         res = []
-        for entry in data["results"]:
-            res.append(entry["id"])
+        if self.client:
+            data = self.client.get("compute_resources")
+
+            if "results" in data:
+                for entry in data["results"]:
+                    res.append(entry["id"])
         return res
 
     def __get_resolver(self):
@@ -261,18 +287,17 @@ class Foreman(Plugin):
 
         ForemanBackend.modifier = "foreman"
 
-        try:
-            device = self.get_object("ForemanHost", hostname)
-            if not device.is_extended_by("ForemanHost"):
-                device.extend("ForemanHost")
-                device.cn = hostname
-
-        except EntryNotFound:
+        device = self.get_object("ForemanHost", hostname, create=False)
+        if device is None:
             device = ObjectProxy(base, "Device")
             device.extend("ForemanHost")
             device.cn = hostname
             # commit now to get a uuid
             device.commit()
+
+        elif not device.is_extended_by("ForemanHost"):
+            device.extend("ForemanHost")
+            device.cn = hostname
 
         try:
             # re-open to get a clean object
@@ -332,8 +357,8 @@ class ForemanRealmReceiver(object):
                 "randompassword": key
             }))
 
-        elif data['action'] == "delete":
-            foreman.remove_host(data['hostname'])
+        # elif data['action'] == "delete":
+            # foreman.remove_host(data['hostname'])
 
         ForemanBackend.modifier = None
 

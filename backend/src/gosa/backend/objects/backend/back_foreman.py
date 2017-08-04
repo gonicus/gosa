@@ -37,6 +37,7 @@ These two settings are used to generate the API URL to access the object in fore
 In this example the URL for HTTP-requests would be <foreman-host>/api/hosts/<cn>. 
 """
 
+
 class Foreman(ObjectBackend):
     headers = {'Accept': 'version=2,application/json', 'Content-type': 'application/json'}
     modifier = None
@@ -142,7 +143,7 @@ class Foreman(ObjectBackend):
             self.log.info("skipping deletion request as the change is coming from the foreman backend")
         pass
 
-    def extend(self, uuid, data, params, foreign_keys):
+    def extend(self, uuid, data, params, foreign_keys, dn=None):
         """ Called when a base object is extended with a foreman object (e.g. device->foremanHost)"""
         self.log.debug("extend: %s, %s, %s, %s" % (uuid, data, params, foreign_keys))
         if Foreman.modifier != "foreman":
@@ -195,8 +196,8 @@ class Foreman(ObjectBackend):
         else:
             self.log.info("skipping update request as the change is coming from the foreman backend")
 
-    def is_uniq(self, attr, value):
-        self.log.debug("is_uniq: %s, %s" % (attr, value))
+    def is_uniq(self, attr, value, at_type):
+        self.log.debug("is_uniq: %s, %s, %s" % (attr, value, at_type))
         return False
 
     def query(self, base, scope, params, fixed_rdn=None):

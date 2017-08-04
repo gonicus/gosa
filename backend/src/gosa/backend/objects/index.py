@@ -128,6 +128,7 @@ class ObjectIndex(Plugin):
     _post_process_job = None
     importing = False
     to_be_updated = []
+    currently_in_creation = []
     currently_moving = {}
     __search_aid = {}
 

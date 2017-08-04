@@ -236,14 +236,17 @@ class ObjectProxy(object):
         """
         for extension in data:
             if self.__base_type == extension:
+                self.__log.debug("applying data to base object %s" % extension)
                 self.__base.apply_data(data[extension])
             elif extension in self.__extensions:
                 if not self.is_extended_by(extension):
+                    self.__log.debug("applying data to new extension object %s" % extension)
                     self.extend(extension, data=data[extension])
                 else:
+                    self.__log.debug("applying data to existing extension object %s" % extension)
                     self.__extensions[extension].apply_data(data[extension])
             else:
-                self.log.warning("unknown extension '%s', skipping data" % extension)
+                self.__log.warning("unknown extension '%s', skipping data" % extension)
 
     def find_dn_for_object(self, new_base, current_base, dn="", checked=None):
         """
@@ -559,7 +562,8 @@ class ObjectProxy(object):
             mode = "extend"
             if self.__extensions[extension]:
                 mode = "update"
-
+            self.__log.debug("creating new extension '%s' in '%s' mode%s" % (extension, mode, " with initial data" if data is not None
+            else ""))
             self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid, mode=mode, data=data)
             self.__extensions[extension].parent = self
             self.__extensions[extension]._owner = self.__current_user
@@ -754,6 +758,9 @@ class ObjectProxy(object):
 
     def can_host(self, typ):
         return typ in self.__base._container_for
+
+    def get_mode(self):
+        return self.__base_mode
 
     def remove(self, recursive=False):
         """

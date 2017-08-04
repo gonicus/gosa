@@ -33,7 +33,7 @@ class NULL(ObjectBackend):
     def retract(self, uuid, data, params):  # pragma: nocover
         pass
 
-    def extend(self, uuid, data, params, foreign_keys):  # pragma: nocover
+    def extend(self, uuid, data, params, foreign_keys, dn=None):  # pragma: nocover
         return None
 
     def move_extension(self, uuid, new_base):  # pragma: nocover
@@ -48,7 +48,7 @@ class NULL(ObjectBackend):
     def update(self, uuid, data, params):  # pragma: nocover
         return True
 
-    def is_uniq(self, attr, value):  # pragma: nocover
+    def is_uniq(self, attr, value, at_type):  # pragma: nocover
         return False
 
     def query(self, base, scope, params, fixed_rdn=None):  # pragma: nocover

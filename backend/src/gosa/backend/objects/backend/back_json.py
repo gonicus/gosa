@@ -105,7 +105,7 @@ class JSON(ObjectBackend):
             del(json[item_uuid][params['type']])
         self.__save(json)
 
-    def extend(self, item_uuid, data, params, foreign_keys):
+    def extend(self, item_uuid, data, params, foreign_keys, dn=None):
         """
         Create an object extension
         """

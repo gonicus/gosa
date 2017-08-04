@@ -86,7 +86,7 @@ class ObjectBackend(object):
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", dn, method="create"))
 
-    def extend(self, uuid, data, params, foreign_keys):  # pragma: nocover
+    def extend(self, uuid, data, params, foreign_keys, dn=None):  # pragma: nocover
         """
         Create an extension to a base object with the given UUID.
         """
