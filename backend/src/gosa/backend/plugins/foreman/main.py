@@ -78,6 +78,7 @@ class Foreman(Plugin):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.factory = ObjectFactory.getInstance()
+        self.incoming_base = "%s,%s" % (self.env.config.get("foreman.incomingRdn", "ou=incoming"), self.env.base)
         if self.env.config.get("foreman.host") is None:
             self.log.warning("no foreman host configured")
         else:
@@ -98,10 +99,21 @@ class Foreman(Plugin):
         """
         if event.__class__.__name__ == "IndexScanFinished":
             self.log.info("index scan finished, triggered foreman sync")
+            # create incoming ou if not exists
+            index = PluginRegistry.getInstance("ObjectIndex")
+            res = index.search({'dn': self.incoming_base}, {'_type': 1})
+
+            if len(res) == 0:
+                ou = ObjectProxy(self.env.base, "IncomingDeviceContainer")
+                ou.commit()
+
             self._sync_type("ForemanHostGroup")
             self._sync_type("ForemanHost")
 
-    def _sync_type(self, object_type):
+            # read discovered hosts
+            self._sync_type("ForemanHost", "discovered_hosts")
+
+    def _sync_type(self, object_type, foreman_type=None):
         """ sync foreman objects, request data from foreman API and apply those values to the object """
         index = PluginRegistry.getInstance("ObjectIndex")
         backend_attributes = self.factory.getObjectBackendProperties(object_type)
@@ -110,7 +122,9 @@ class Foreman(Plugin):
             self.log.warning("no foreman backend attributes found for '%s' object" % object_type)
             return
 
-        foreman_type = backend_attributes["Foreman"]["type"]
+        if foreman_type is None:
+            foreman_type = backend_attributes["Foreman"]["type"]
+
         new_data = self.client.get(foreman_type)
         found_ids = []
         ForemanBackend.modifier = "foreman"
@@ -123,7 +137,14 @@ class Foreman(Plugin):
             self.log.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             self.log.debug(">>> START creating new foreman object of type '%s' with id '%s'" % (object_type, data[uuid_attribute]))
             foreman_object = self.get_object(object_type, data[uuid_attribute], data=data)
-            self.update_type(object_type, foreman_object, data, uuid_attribute)
+            if foreman_type == "discovered_hosts":
+                # add status to data
+                update_data = {}
+                extension = foreman_object.get_extension_off_attribute("status")
+                update_data[extension] = {"LDAP": {"status": "discovered"}}
+                self.update_type(object_type, foreman_object, data, uuid_attribute, update_data=update_data)
+            else:
+                self.update_type(object_type, foreman_object, data, uuid_attribute)
             self.log.debug("<<< DONE creating new foreman object of type '%s' with id '%s'" % (object_type, data[uuid_attribute]))
             self.log.debug("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
@@ -167,27 +188,44 @@ class Foreman(Plugin):
             if create is True:
                 # no object found -> create one
                 self.log.debug(">>> creating new %s" % object_type)
-                foreman_object = ObjectProxy(self.env.base, base_type)
+                base_dn = self.env.base
+                if object_type == "ForemanHost":
+                    base_dn = self.incoming_base
+                foreman_object = ObjectProxy(base_dn, base_type)
                 setattr(foreman_object, backend_attributes["Foreman"]["_uuidAttribute"], str(oid))
         else:
             # open existing object
             self.log.debug(">>> open existing %s with DN: %s" % (object_type, res[0]["dn"]))
-            foreman_object = ObjectProxy(res[0]["dn"], data={object_type: {"Foreman": data}})
+            foreman_object = ObjectProxy(res[0]["dn"], data={object_type: {"Foreman": data}} if data is not None else None)
 
         return foreman_object
 
-    def update_type(self, object_type, object, data, uuid_attribute=None):
+    def update_type(self, object_type, object, data, uuid_attribute=None, update_data=None):
         """ directly update the object attribute values """
         # now apply the values
 
         properties = self.factory.getObjectProperties(object_type)
+        backend_attributes = self.factory.getObjectBackendProperties(object_type)
+        mappings = ForemanBackend.extract_mapping(backend_attributes["Foreman"])
 
         if uuid_attribute is None:
-            backend_attributes = self.factory.getObjectBackendProperties(object_type)
+
             uuid_attribute = backend_attributes["Foreman"]["_uuidSourceAttribute"] \
                 if '_uuidSourceAttribute' in backend_attributes["Foreman"] else backend_attributes["Foreman"]["_uuidAttribute"]
 
-        update_data = {}
+        if update_data is None:
+            update_data = {}
+
+        def update(key, value):
+            # check if we need to extend the object before setting the property
+            extension = object.get_extension_off_attribute(key)
+            if extension not in update_data:
+                update_data[extension] = {}
+            for backend in properties[key]['backend']:
+                if backend not in update_data[extension]:
+                    update_data[extension][backend] = {}
+                update_data[extension][backend][key] = value
+
         for key, value in data.items():
             if key == uuid_attribute and object.get_mode() != "create":
                 continue
@@ -195,14 +233,9 @@ class Foreman(Plugin):
                 # collect extensions etc.
                 if hasattr(object, key) and key in properties:
                     if value is not None:
-                        # check if we need to extend the object before setting the property
-                        extension = object.get_extension_off_attribute(key)
-                        if extension not in update_data:
-                            update_data[extension] = {}
-                        for backend in properties[key]['backend']:
-                            if backend not in update_data[extension]:
-                                update_data[extension][backend] = {}
-                            update_data[extension][backend][key] = value
+                        update(key, value)
+                        if key in mappings:
+                            update(mappings[key], value)
 
             except Exception as e:
                 self.log.warning("error updating attribute '%s' of object %s (%s) with value '%s': '%s" %
@@ -258,7 +291,7 @@ class Foreman(Plugin):
 
         # create dn
         if base is None:
-            base = "%s,%s" % (self.env.config.get("foreman.incomingRdn", "ou=incoming"), self.env.base)
+            base = self.incoming_base
 
         ForemanBackend.modifier = "foreman"
 
@@ -270,13 +303,13 @@ class Foreman(Plugin):
             # commit now to get a uuid
             device.commit()
 
-        elif not device.is_extended_by("ForemanHost"):
-            device.extend("ForemanHost")
-            device.cn = hostname
+            # re-open to get a clean object
+            device = ObjectProxy(device.dn)
 
         try:
-            # re-open to get a clean object
-            device = ObjectProxy(device.uuid)
+
+            if not device.is_extended_by("ForemanHost"):
+                device.extend("ForemanHost")
 
             # Generate random client key
             h, key, salt = generate_random_key()
@@ -298,7 +331,7 @@ class Foreman(Plugin):
 
         except:
             # remove created device again because something went wrong
-            # self.remove_host(hostname)
+            # self.remove_type("ForemanHost", hostname)
             raise
 
         finally:
@@ -332,8 +365,8 @@ class ForemanRealmReceiver(object):
                 "randompassword": key
             }))
 
-        # elif data['action'] == "delete":
-            # foreman.remove_host(data['hostname'])
+        elif data['action'] == "delete":
+            foreman.remove_type("ForemanHost", data['hostname'])
 
         ForemanBackend.modifier = None
 
@@ -363,6 +396,7 @@ class ForemanHookReceiver(object):
         object_type = object_types[0] if len(object_types) else None
 
         backend_attributes = factory.getObjectBackendProperties(object_type) if object_type is not None else None
+        self.log.debug("Hookevent: '%s' for '%s'" % (data['event'], data['object']))
 
         uuid_attribute = None
         if "Foreman" in backend_attributes:

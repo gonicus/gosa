@@ -41,6 +41,7 @@
       <Value>GroupOfNames</Value>
       <Value>Locality</Value>
       <Value>DeviceContainer</Value>
+      <Value>IncomingDeviceContainer</Value>
       <Value>DomainComponentOrg</Value>
 		</Extends>
 	</Object>

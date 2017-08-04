@@ -61,6 +61,7 @@
       <Type>Country</Type>
       <Type>SambaDomain</Type>
       <Type>DeviceContainer</Type>
+      <Type>IncomingDeviceContainer</Type>
       <Type>OrganizationalRoleContainer</Type>
       <Type>AclRole</Type>
       <Type>SystemsContainer</Type>

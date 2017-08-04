@@ -392,6 +392,8 @@ class Object(object):
         # Convert the received type into the target type if not done already
         self._convert_types(keep=False, keys=found)
 
+        print("applied")
+
     def _delattr_(self, name):
         """
         Deleter method for properties.
@@ -737,7 +739,7 @@ class Object(object):
         toStore = {}
         for prop_key in collectedAttrs:
 
-            self.log.debug("changed: %s" % prop_key)
+            self.log.debug("changed: %s from '%s' to '%s'" % (prop_key, props[prop_key]['orig_value'], props[prop_key]['value']))
 
             # Collect properties by backend
             for be in props[prop_key]['backend']:
@@ -1301,7 +1303,7 @@ class Object(object):
                         raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=backend, name=be_config_attrs[
                             '_uuidAttribute']))
                     else:
-                        uuid = self._getattr_(be_config_attrs['_uuidAttribute'])
+                        uuid = value
 
             #pylint: disable=E1101
             be.remove(uuid, remove_attrs, be_config_attrs)
@@ -1411,9 +1413,19 @@ class Object(object):
             self.remove_refs()
             self.remove_dn_refs()
 
+            uuid = self.uuid
+            be_config_attrs = self._backendAttrs[backend]
+            if "_uuidAttribute" in be_config_attrs:
+                value = self._getattr_(be_config_attrs['_uuidAttribute'])
+                if value is None:
+                    raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=backend, name=be_config_attrs[
+                        '_uuidAttribute']))
+                else:
+                    uuid = value
+
             #pylint: disable=E1101
-            be.retract(self.uuid, remove_attrs, self._backendAttrs[backend] \
-                    if backend in self._backendAttrs else None)
+            be.retract(uuid, remove_attrs, self._backendAttrs[backend] \
+                       if backend in self._backendAttrs else None)
 
         zope.event.notify(ObjectChanged("post retract", obj))
 

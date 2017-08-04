@@ -9,7 +9,7 @@
     </Templates>
     <BackendParameters>
       <Backend objectClasses="foremanHost">LDAP</Backend>
-      <Backend type="hosts" _uuidAttribute="cn" _uuidSourceAttribute="name">Foreman</Backend>
+      <Backend type="hosts" _uuidAttribute="cn" _uuidSourceAttribute="name" mapping="mac:macAddress,ip:ipHostNumber,uuid:deviceUUID">Foreman</Backend>
       <Backend groupMembership="ForemanHostGroup:foremanGroupId,member=dn">ObjectHandler</Backend>
     </BackendParameters>
     <Backend>LDAP</Backend>
@@ -51,6 +51,7 @@
           <Value key="warning">Warning</Value>
           <Value key="error">Error</Value>
           <Value key="token-expired">Token expired</Value>
+          <Value key="discovered">Discovered</Value>
         </Values>
         <DependsOn>
           <Attribute>build_status</Attribute>

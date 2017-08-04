@@ -17,6 +17,11 @@ from gosa.common import Environment
 from logging import getLogger
 
 from gosa.common.gjson import dumps
+from gosa.backend.exceptions import ObjectException
+
+
+class ForemanObjectException(ObjectException):
+    pass
 
 """
 Backend Attributes:
@@ -71,9 +76,20 @@ class Foreman(ObjectBackend):
                           data=data)
         if response.ok:
             data = response.json()
+            # check for error
+            if "error" in data:
+                raise ForemanObjectException(", ".join(data["error"]["errors"]))
             return data
         else:
             response.raise_for_status()
+
+    def check_backend(self):
+        """ check if foreman backend is reachable """
+        try:
+            response = self.__request("get", "status")
+            return response["result"] == "ok"
+        except:
+            return False
 
     def __get(self, type, id=None):
         return self.__request("get", type, id=id)
@@ -106,15 +122,6 @@ class Foreman(ObjectBackend):
                 data = {}
         return self.process_data(data)
 
-    def process_data(self, data):
-        res = {}
-        # attach requested attributes to result set
-        for attr, type in data.items():
-            if attr in data and data[attr] is not None:
-                res[attr] = [data[attr]]
-
-        return res
-
     def identify(self, dn, params, fixed_rdn=None):
         self.log.debug("identify: %s, %s, %s" % (dn, params, fixed_rdn))
         return False
@@ -130,18 +137,26 @@ class Foreman(ObjectBackend):
     def remove(self, uuid, data, params):
         self.log.debug("remove: %s, %s, %s" % (uuid, data, params))
         if Foreman.modifier != "foreman":
-            self.__delete(params["type"], uuid)
+            try:
+                self.__delete(self.get_foreman_type(data, params), uuid)
+            except HTTPError as e:
+                if e.response.status_code == 404 and self.check_backend() is True:
+                    # foreman is up and running but responded with 404 -> nothing to delete
+                    self.log.debug("no foreman object found")
+                else:
+                    raise e
         else:
             self.log.info("skipping deletion request as the change is coming from the foreman backend")
         return True
 
     def retract(self, uuid, data, params):
-        self.log.debug("retract: %s, %s, %s" % (uuid, data, params))
-        if Foreman.modifier != "foreman":
-            self.__delete(params["type"], uuid)
+        self.remove(uuid, data, params)
+
+    def get_foreman_type(self, data, params):
+        if "status" in data and data["status"] == "discovered":
+            return "discovered_hosts"
         else:
-            self.log.info("skipping deletion request as the change is coming from the foreman backend")
-        pass
+            return params["type"]
 
     def extend(self, uuid, data, params, foreign_keys, dn=None):
         """ Called when a base object is extended with a foreman object (e.g. device->foremanHost)"""
@@ -153,7 +168,7 @@ class Foreman(ObjectBackend):
             self.log.debug("creating '%s' with '%s' to foreman" % (params["type"], payload))
 
             def runner():
-                result = self.__post(params["type"], data=payload)
+                result = self.__post(self.get_foreman_type(data, params), data=payload)
                 self.log.debug("Response: %s" % result)
 
             # some changes (e.g. creating a host) trigger requests from foreman to gosa
@@ -186,7 +201,7 @@ class Foreman(ObjectBackend):
             self.log.debug("sending update '%s' to foreman" % payload)
 
             def runner():
-                result = self.__put(params["type"], uuid, data=payload)
+                result = self.__put(self.get_foreman_type(data, params), uuid, data=payload)
                 self.log.debug("Response: %s" % result)
 
             # some changes (e.g. changing the hostgroup) trigger requests from foreman to gosa

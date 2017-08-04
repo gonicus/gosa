@@ -24,10 +24,11 @@ class ForemanStatusIn(ElementFilter):
         super(ForemanStatusIn, self).__init__(obj)
 
     def process(self, obj, key, valDict, glue=", "):
-        if type(valDict[key]['value']) is not None and len(valDict[key]['value']):
+        if type(valDict[key]['value']) is not None and len(valDict[key]['value']) and valDict[key]['value'][0] != "discovered":
             global_status = valDict['global_status']['value'][0] if len(valDict['global_status']['value']) else None
             build_status = valDict['build_status']['value'][0] if len(valDict['build_status']['value']) else None
-            valDict[key]['value'] = [ForemanStatusIn.convert(global_status, build_status)]
+            if global_status is not None or build_status is not None:
+                valDict[key]['value'] = [ForemanStatusIn.convert(global_status, build_status)]
         return key, valDict
 
     @staticmethod

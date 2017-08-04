@@ -66,7 +66,13 @@ class ObjectBackend(object):
 
     def process_data(self, data):
         """ Process incoming data to return a key/value dict as returney by the load method """
-        return None
+        res = {}
+        # attach requested attributes to result set
+        for attr, type in data.items():
+            if attr in data and data[attr] is not None:
+                res[attr] = [data[attr]]
+
+        return res
 
     def move(self, uuid, new_base):  # pragma: nocover
         """
