@@ -83,6 +83,7 @@ class Foreman(ObjectBackend):
                           data=data)
         if response.ok:
             data = response.json()
+            self.log.debug("response %s" % data)
             # check for error
             if "error" in data:
                 raise ForemanObjectException(", ".join(data["error"]["errors"]))

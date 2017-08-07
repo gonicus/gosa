@@ -37,7 +37,7 @@ class ObjectBackendTestCase(TestCase):
         #just a wrapper for the update method
         with mock.patch.object(self.back, 'update') as m:
             self.back.extend('uuid', 'data', 'params', 'foreign_keys')
-            m.assert_called_with('uuid', 'data', 'params')
+            m.assert_called_with('uuid', 'data', 'params', dn=None)
 
     def test_retract(self):
         #just a wrapper for the update method

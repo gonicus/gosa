@@ -110,19 +110,22 @@ class Foreman(Plugin):
         """
         if event.__class__.__name__ == "IndexScanFinished":
             self.log.info("index scan finished, triggered foreman sync")
-            # create incoming ou if not exists
-            index = PluginRegistry.getInstance("ObjectIndex")
-            res = index.search({'dn': self.incoming_base}, {'_type': 1})
-
-            if len(res) == 0:
-                ou = ObjectProxy(self.env.base, "IncomingDeviceContainer")
-                ou.commit()
+            self.create_container()
 
             self._sync_type("ForemanHostGroup")
             self._sync_type("ForemanHost")
 
             # read discovered hosts
             self._sync_type("ForemanHost", "discovered_hosts")
+
+    def create_container(self):
+        # create incoming ou if not exists
+        index = PluginRegistry.getInstance("ObjectIndex")
+        res = index.search({'dn': self.incoming_base}, {'_type': 1})
+
+        if len(res) == 0:
+            ou = ObjectProxy(self.env.base, "IncomingDeviceContainer")
+            ou.commit()
 
     def _sync_type(self, object_type, foreman_type=None):
         """ sync foreman objects, request data from foreman API and apply those values to the object """
@@ -401,15 +404,27 @@ class ForemanRealmReceiver(object):
         ForemanBackend.modifier = "foreman"
         if data['action'] == "create":
             # new client -> join it
-            key = foreman.add_host(data['hostname'])
+            try:
+                key = foreman.add_host(data['hostname'])
 
-            # send key as otp to foremans realm proxy
-            request_handler.finish(dumps({
-                "randompassword": key
-            }))
+                # send key as otp to foremans realm proxy
+                request_handler.finish(dumps({
+                    "randompassword": key
+                }))
+            except Exception as e:
+                request_handler.finish(dumps({
+                    "error": "%s" % e
+                }))
+                raise e
 
         elif data['action'] == "delete":
-            foreman.remove_type("ForemanHost", data['hostname'])
+            try:
+                foreman.remove_type("ForemanHost", data['hostname'])
+            except Exception as e:
+                request_handler.finish(dumps({
+                    "error": "%s" % e
+                }))
+                raise e
 
         ForemanBackend.modifier = None
 
@@ -477,6 +492,7 @@ class ForemanHookReceiver(object):
             foreman.update_type(object_type, foreman_object, payload_data, uuid_attribute, update_data=update_data)
 
         elif data['event'] == "after_destroy":
+            print("Payload: %s" % payload_data)
             foreman.remove_type(object_type, payload_data[uuid_attribute])
 
             # because foreman sends the after_commit event after the after_destroy event

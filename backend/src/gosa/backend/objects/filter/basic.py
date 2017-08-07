@@ -59,9 +59,15 @@ class CopyValueTo(ElementFilter):
      """
     def __init__(self, obj):
         super(CopyValueTo, self).__init__(obj)
+        import logging
+        self.log = logging.getLogger(__name__)
 
     def process(self, obj, key, valDict, target_key):
         if type(valDict[key]['value']) is not None and len(valDict[key]['value']):
+            # if valDict[target_key]['foreign']:
+            #     self.log.info("setting foreign attribute %s" % target_key)
+            #     setattr(obj, target_key, valDict[key]['value'][0])
+            # else:
             valDict[target_key]['value'] = valDict[key]['value']
         return key, valDict
 

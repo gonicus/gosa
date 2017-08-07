@@ -806,6 +806,7 @@ class ACLResolverTestCase(TestCase):
         with pytest.raises(ACLException):
             self.resolver.addACL("admin", "dc=example,dc=net", 0, ['admin', 'tester'], actions=actions, scope="sub", rolename="role1")
 
+        self.resolver.check.cache_clear()
         assert len(self.resolver.list_acls()) == 0
         self.resolver.addACL("admin", "dc=example,dc=net", 0, ['admin', 'tester'], actions=actions, scope="psub")
         assert len(self.resolver.list_acls()) == 1

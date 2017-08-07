@@ -28,7 +28,10 @@ class MockResponse:
         self.status_code = status_code
 
     def json(self):
-        return loads(self.json_data)
+        if isinstance(self.json_data, dict):
+            return self.json_data
+        else:
+            return loads(self.json_data)
 
     @property
     def ok(self):
@@ -38,83 +41,98 @@ class MockResponse:
         raise HTTPError(self.status_code)
 
 
+@mock.patch("gosa.backend.plugins.foreman.main.requests.post")
+@mock.patch("gosa.backend.plugins.foreman.main.requests.put")
+@mock.patch("gosa.backend.plugins.foreman.main.requests.delete")
 @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
 class ForemanTestCase(GosaTestCase):
+    foreman = None
+
+    def setUp(self):
+        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.DEBUG)
+        logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
+        logging.getLogger("gosa.backend.objects").info("SET UP")
+        super(ForemanTestCase, self).setUp()
+        self.foreman = Foreman()
+        self.foreman.serve()
+        self.foreman.create_container()
 
     def tearDown(self):
-        logging.getLogger("gosa.backend.objects.index").setLevel(logging.INFO)
+        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.INFO)
+        logging.getLogger("gosa.backend.objects").setLevel(logging.INFO)
+        logging.getLogger("gosa.backend.objects").info("tear down")
         super(ForemanTestCase, self).tearDown()
 
-    def test_add_host(self, m_get):
+    def test_add_host(self, m_get, m_del, m_put, m_post):
         self._create_test_data()
-        foreman = Foreman()
-        foreman.serve()
 
-        m_get.return_value = MockResponse('{\
-            "status": 0,\
-            "status_label": "Build"\
-        }', 200)
+        m_get.return_value = MockResponse({
+            "status": 0,
+            "status_label": "Build"
+        }, 200)
 
         logging.getLogger("gosa.backend.objects.index").setLevel(logging.DEBUG)
-        key = foreman.add_host("testhost", base=self._test_dn)
+        key = self.foreman.add_host("testhost", base=self._test_dn)
         
         device = ObjectProxy("cn=testhost,ou=devices,%s" % self._test_dn)
         assert device.dn == "cn=testhost,ou=devices,%s" % self._test_dn
         assert device.cn == "testhost"
         assert device.userPassword[0:6] == "{SSHA}"
+
+        m_del.return_value = MockResponse('{}', 200)
         
         device.remove()
 
-    def test_remove_host(self, m_get):
+    def test_remove_type(self, m_get, m_del, m_put, m_post):
 
         self._create_test_data()
-        foreman = Foreman()
-        foreman.serve()
 
-        m_get.return_value = MockResponse('{\
-            "status": 0,\
-            "status_label": "Build"\
-        }', 200)
+        m_get.return_value = MockResponse({
+            "status": 0,
+            "status_label": "Build"
+        }, 200)
 
-        foreman.add_host("testhost", base=self._test_dn)
+        self.foreman.add_host("testhost", base=self._test_dn)
 
         device = ObjectProxy("cn=testhost,ou=devices,%s" % self._test_dn)
         dn = device.dn
 
-        foreman.remove_host(device.cn)
+        m_del.return_value = MockResponse('{}', 200)
+        self.foreman.remove_type("ForemanHost", device.cn)
 
         with pytest.raises(ProxyException):
             ObjectProxy(dn)
 
-    def test_update_host(self, m_get):
+    def test_update_type(self, m_get, m_del, m_put, m_post):
         self._create_test_data()
         foreman = Foreman()
-        foreman.client = ForemanClient()
         foreman.serve()
+        self.foreman.client = ForemanClient()
 
-        m_get.return_value = MockResponse('{\
-            "status": 0,\
-            "status_label": "Build"\
-        }', 200)
-
-        foreman.add_host("testhost", base=self._test_dn)
+        m_get.return_value = MockResponse({
+            "name": "testhost"
+        }, 200)
+        self.foreman.add_host("testhost", base=self._test_dn)
 
         device = ObjectProxy("cn=testhost,ou=devices,%s" % self._test_dn)
         dn = device.dn
 
         assert device.cn == "testhost"
+        assert device.ip is None
 
-        m_get.return_value = MockResponse('{\
-            "name": "testhost",\
-            "ip": "192.168.0.2",\
-            "global_status": 0,\
-            "build_status": 1\
-        }', 200)
+        data = {
+            "name": "testhost",
+            "ip": "192.168.0.3",
+            "global_status": 0,
+            "build_status": 1
+        }
+        m_get.return_value = MockResponse(data, 200)
 
-        foreman.update_host(device.cn)
+        self.foreman.update_type("ForemanHost", device, data)
 
+        # opening the object calls the mocked m_get method
         device = ObjectProxy(dn)
-        assert device.ipHostNumber == "192.168.0.2"
+        assert device.ipHostNumber == "192.168.0.3"
         assert device.status == "pending"
 
 
@@ -231,7 +249,7 @@ class ForemanRealmTestCase(RemoteTestCase):
         assert otp_response["randompassword"] is not None
 
         # check if the host has been created
-        device = ObjectProxy("cn=new-foreman-host,ou=devices,dc=example,dc=net")
+        device = ObjectProxy("cn=new-foreman-host,ou=incoming,dc=example,dc=net")
         assert device.cn == "new-foreman-host"
 
         # delete the host
@@ -246,10 +264,9 @@ class ForemanRealmTestCase(RemoteTestCase):
         AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
 
         with pytest.raises(ProxyException):
-            ObjectProxy("cn=new-foreman-host,ou=devices,dc=example,dc=net")
+            ObjectProxy("cn=new-foreman-host,ou=incoming,dc=example,dc=net")
 
 
-@mock.patch("gosa.backend.objects.back_foreman.Foreman.__request")
 class ForemanHookTestCase(RemoteTestCase):
     registry = None
     url = None
@@ -293,7 +310,7 @@ class ForemanHookTestCase(RemoteTestCase):
             "build_status": 0\
         }', 200)
 
-        self._host_dn = "cn=new-foreman-host,ou=devices,dc=example,dc=net"
+        self._host_dn = "cn=new-foreman-host,ou=incoming,dc=example,dc=net"
         # create new host to update
         foreman = Foreman()
         foreman.serve()
@@ -304,38 +321,47 @@ class ForemanHookTestCase(RemoteTestCase):
             "object": "new-foreman-host",
             "data": {
                 "host": {
-                    "ip": "127.0.0.1",
-                    "mac": "00:00:00:00:00:01",
-                    "uuid": "597ae2f6-16a6-1027-98f4-d28b5365dc14"
+                    "host": {
+                        "name": "new-foreman-host",
+                        "ip": "127.0.0.1",
+                        "mac": "00:00:00:00:00:01",
+                        "uuid": "597ae2f6-16a6-1027-98f4-d28b5365dc14"
+                    }
                 }
             }
         }
+
         headers, payload = self._create_request(payload_data)
         AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
 
         # check if the host has been updated
         device = ObjectProxy(self._host_dn)
         assert device.cn == "new-foreman-host"
-        assert device.ipHostNumber == payload_data["data"]["host"]["ip"]
-        assert device.macAddress == payload_data["data"]["host"]["mac"]
-        assert device.deviceUUID == payload_data["data"]["host"]["uuid"]
+        assert device.ipHostNumber == payload_data["data"]["host"]["host"]["ip"]
+        assert device.macAddress == payload_data["data"]["host"]["host"]["mac"]
+        assert device.deviceUUID == payload_data["data"]["host"]["host"]["uuid"]
 
         # delete the host
         payload_data = {
             "event": "after_destroy",
             "object": "new-foreman-host",
-            "data": {"host": {
-                "name": "new-foreman-host"
-            }}
+            "data": {
+                "host": {
+                    "host": {
+                        "name": "new-foreman-host"
+                    }
+                }
+            }
         }
         headers, payload = self._create_request(payload_data)
         AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
 
         with pytest.raises(ProxyException):
-            ObjectProxy("cn=new-foreman-host,ou=devices,dc=example,dc=net")
+            ObjectProxy("cn=new-foreman-host,ou=incoming,dc=example,dc=net")
 
         self._host_dn = None
 
+    @mock.patch("gosa.backend.plugins.foreman.main.requests.delete")
     @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
     def test_hostgroup_request(self, m_get, m_delete):
 
@@ -351,8 +377,10 @@ class ForemanHookTestCase(RemoteTestCase):
             "object": "Testgroup",
             "data": {
                 "hostgroup": {
-                    "id": "999",
-                    "name": "Testgroup"
+                    "hostgroup": {
+                        "id": "999",
+                        "name": "Testgroup"
+                    }
                 }
             }
         }
@@ -362,7 +390,7 @@ class ForemanHookTestCase(RemoteTestCase):
         # check if the host has been updated
         device = ObjectProxy(self._host_dn)
         assert device.cn == "Testgroup"
-        assert device.foremanGroupId == "999"
+        assert device.foremanGroupId == 999
 
         # delete the host
         payload_data = {
@@ -370,8 +398,10 @@ class ForemanHookTestCase(RemoteTestCase):
             "object": "Testgroup",
             "data": {
                 "hostgroup": {
-                    "id": "999",
-                    "name": "Testgroup"
+                    "hostgroup": {
+                        "id": "999",
+                        "name": "Testgroup"
+                    }
                 }
             }
         }

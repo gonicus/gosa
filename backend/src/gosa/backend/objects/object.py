@@ -51,6 +51,7 @@ C.register_codes(dict(
     ATTRIBUTE_NOT_FOUND=N_("Attribute '%(topic)s' not found"),
     OBJECT_MODE_NOT_AVAILABLE=N_("Mode '%(mode)s' is not available for base objects"),
     OBJECT_MODE_BASE_AVAILABLE=N_("Mode '%(mode)s' is only available for base objects"),
+    OBJECT_NO_BASE_TYPE_FOR_DN=N_("'No base type found fir dn %(dn)s'"),
     OBJECT_NOT_SUB_FOR=N_("Object of type '%(ext)s' cannot be added as to the '%(base)s' container"),
     OBJECT_REMOVE_NON_BASE_OBJECT=N_("Cannot remove non base object"),
     OBJECT_MOVE_NON_BASE_OBJECT=N_("Cannot move non base object"),
@@ -259,6 +260,8 @@ class Object(object):
         else:
             backends = self._propsByBackend.keys()
 
+        changed_attributes = []
+
         for backend in backends:
 
             try:
@@ -266,6 +269,7 @@ class Object(object):
                 attrs = None
                 if data is not None and backend in data:
                     attrs = be.process_data(data[backend])
+                    changed_attributes += list(attrs.keys())
 
                 if attrs is None:
                     # Create a dictionary with all attributes we want to fetch
@@ -308,10 +312,11 @@ class Object(object):
 
         # Once we've loaded all properties from the backend, execute the
         # in-filters.
-        self._process_in_filters()
+        keys = changed_attributes if len(changed_attributes) > 0 else None
+        self._process_in_filters(keys=keys)
 
         # Convert the received type into the target type if not done already
-        self._convert_types()
+        self._convert_types(keys=keys, keep=False if keys is not None else True)
 
     def _process_in_filters(self, keys=None):
         if keys is None:
@@ -337,8 +342,6 @@ class Object(object):
 
     def get_backend_kwargs(self, be_attributes):
         kwargs = {}
-        if self._mode == "extend":
-            kwargs["dn"] = self.dn
 
         if "needs" in be_attributes:
             needed = {}
@@ -649,7 +652,7 @@ class Object(object):
         if self._base_object and self._mode == "create":
             base_type = self.get_object_type_by_dn(self.dn)
             if not base_type:
-                raise ObjectException(C.make_error('OBJECT_MODE_BASE_AVAILABLE', mode=self._mode))
+                raise ObjectException(C.make_error('OBJECT_NO_BASE_TYPE_FOR_DN', dn=self.dn))
 
             if self.__class__.__name__ not in self._objectFactory.getAllowedSubElementsForObject(base_type, includeInvisible=True):
                 raise ObjectException(C.make_error('OBJECT_NOT_SUB_FOR',
@@ -839,6 +842,7 @@ class Object(object):
 
             elif self._mode == "extend":
                 index.currently_in_creation.append(self.dn)
+                self.log.info("%s extend with data %s" % (self.dn, toStore[p_backend]))
                 be.extend(uuid, toStore[p_backend],
                           self._backendAttrs[p_backend],
                           self.getForeignProperties(),
@@ -890,6 +894,7 @@ class Object(object):
             if self._mode == "create":
                 be.create(self.dn, data, beAttrs, **kwargs)
             elif self._mode == "extend":
+                kwargs["dn"] = self.dn
                 be.extend(self.uuid, data, beAttrs, self.getForeignProperties(), **kwargs)
             else:
                 be.update(uuid, data, beAttrs, **kwargs)
@@ -1373,7 +1378,7 @@ class Object(object):
         # Move for primary backend
         be = ObjectBackendRegistry.getBackend(backends[0])
         uuid = self.uuid
-        be_config_attrs = self._backendAttrs[be]
+        be_config_attrs = self._backendAttrs[backends[0]]
         if "_uuidAttribute" in be_config_attrs:
             value = self._getattr_(be_config_attrs['_uuidAttribute'])
             if value is None:
@@ -1446,7 +1451,7 @@ class Object(object):
             self.remove_dn_refs()
 
             uuid = self.uuid
-            be_config_attrs = self._backendAttrs[backend]
+            be_config_attrs = self._backendAttrs[backend] if backend in self._backendAttrs else {}
             if "_uuidAttribute" in be_config_attrs:
                 value = self._getattr_(be_config_attrs['_uuidAttribute'])
                 if value is None:
