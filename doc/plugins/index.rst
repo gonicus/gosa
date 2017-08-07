@@ -5,8 +5,8 @@ This section contains documentation for available Clacks plugins. These may
 come as standalone plugins or may be included in the core Clacks modules.
 If you find missing plugins, please send patches to these documentation files.
 
-Agent plugins
--------------
+Backend plugins
+---------------
 
 .. toctree::
    :maxdepth: 2
@@ -18,6 +18,8 @@ Agent plugins
    backend/misc
    backend/samba
    backend/user
+   backend/foreman
+
 
 Client plugins
 --------------

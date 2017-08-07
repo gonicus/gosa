@@ -69,6 +69,16 @@ class ForemanClient(object):
 
 @implementer(IInterfaceHandler)
 class Foreman(Plugin):
+    """
+    The Foreman plugin takes care about syncing the required data between the foreman and GOsa.
+    Currently the following foreman objects are synced:
+
+    * ``hosts``, ``discovered_hosts`` as ``ForemanHost`` objects
+    * ``hostgroups`` as ``Foreman`` objects
+
+    This class is also used by the ForemanHook classes :py:class:`.ForemanHookReceiver` and :py:class:`.ForemanRealmReceiver` to execute the
+    required changes to the objects.
+    """
     _priority_ = 99
     _target_ = "foreman"
     __session = None
@@ -202,8 +212,35 @@ class Foreman(Plugin):
         return foreman_object
 
     def update_type(self, object_type, object, data, uuid_attribute=None, update_data=None):
-        """ directly update the object attribute values """
-        # now apply the values
+        """
+        Directly updates the objects attribute values. Generates a dict with structure:
+
+        .. code-block:: python
+
+            { "extension_name": {
+                    "backend_name": {
+                        "attribute_name": "attribute_value",
+                        ...
+                    },
+                    ...
+                },
+                ...
+            }
+
+        This data is directly applied to the object in the same way as if it has been requested from the related backend.
+        So all in-filters and type conversion are processed.
+
+        :param object_type: GOsa object name as defined in the object definitions (e.g. ForemanHost)
+        :type object_type: string
+        :param object: Object that should be updated
+        :type object: :py:class:`gosa.backend.objects.proxy.ObjectProxy`
+        :param data: key/values of attributes to update
+        :type data: dict
+        :param uuid_attribute: Name of the identifier attribute in the foreman backend (e.g. id)
+        :type uuid_attribute: string
+        :param update_data: additional data to be applied {<extension_name>: {<backend_name>: { <attribute_name>: <attribute_value>, ...}}}
+        :type update_data: dict
+        """
 
         properties = self.factory.getObjectProperties(object_type)
         backend_attributes = self.factory.getObjectBackendProperties(object_type)
