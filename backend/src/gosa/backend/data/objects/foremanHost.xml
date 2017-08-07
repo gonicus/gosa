@@ -9,7 +9,8 @@
     </Templates>
     <BackendParameters>
       <Backend objectClasses="foremanHost">LDAP</Backend>
-      <Backend type="hosts" _uuidAttribute="cn" _uuidSourceAttribute="name" mapping="mac:macAddress,ip:ipHostNumber,uuid:deviceUUID">Foreman</Backend>
+      <Backend type="hosts" _uuidAttribute="cn" _uuidSourceAttribute="name" mapping="mac:macAddress,ip:ipHostNumber,uuid:deviceUUID"
+               needs="status">Foreman</Backend>
       <Backend groupMembership="ForemanHostGroup:foremanGroupId,member=dn">ObjectHandler</Backend>
     </BackendParameters>
     <Backend>LDAP</Backend>

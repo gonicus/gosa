@@ -241,7 +241,12 @@ class ObjectProxy(object):
             elif extension in self.__extensions:
                 if not self.is_extended_by(extension):
                     self.__log.debug("applying data to new extension object %s" % extension)
-                    self.extend(extension, data=data[extension])
+                    if "common" in data[extension]:
+                        self.extend(extension)
+                        for key, value in data[extension]["common"].items():
+                            setattr(self, key, value)
+                    else:
+                        self.extend(extension, data=data[extension])
                 else:
                     self.__log.debug("applying data to existing extension object %s" % extension)
                     self.__extensions[extension].apply_data(data[extension])

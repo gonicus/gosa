@@ -61,7 +61,7 @@ class JSON(ObjectBackend):
         """
         open(self._file_path, "w").write(dumps(json, indent=2))
 
-    def load(self, item_uuid, info, back_attrs=None):
+    def load(self, item_uuid, info, back_attrs=None, needed=None):
         """
         Load object properties for the given uuid
         """
@@ -96,7 +96,7 @@ class JSON(ObjectBackend):
 
         return False
 
-    def retract(self, item_uuid, data, params):
+    def retract(self, item_uuid, data, params, needed=None):
         """
         Remove an object extension
         """
@@ -105,7 +105,7 @@ class JSON(ObjectBackend):
             del(json[item_uuid][params['type']])
         self.__save(json)
 
-    def extend(self, item_uuid, data, params, foreign_keys, dn=None):
+    def extend(self, item_uuid, data, params, foreign_keys, dn=None, needed=None):
         """
         Create an object extension
         """
@@ -173,7 +173,7 @@ class JSON(ObjectBackend):
                         found.append(json[uuid][obj]['dn'])
         return found
 
-    def create(self, base, data, params, foreign_keys=None):
+    def create(self, base, data, params, foreign_keys=None, needed=None):
         """
         Creates a new database entry
         """
@@ -228,7 +228,7 @@ class JSON(ObjectBackend):
 
         return ctime, mtime
 
-    def get_uniq_dn(self, rdns, base, data, FixedRDN):
+    def get_uniq_dn(self, rdns, base, data, FixedRDN, needed=None):
         """
         Tries to find an unused dn for the given properties
         """
@@ -248,7 +248,7 @@ class JSON(ObjectBackend):
 
         return None
 
-    def remove(self, item_uuid, data, params):
+    def remove(self, item_uuid, data, params, needed=None):
         """
         Removes the entry with the given uuid from the database
         """
@@ -259,7 +259,7 @@ class JSON(ObjectBackend):
             return True
         return False
 
-    def exists(self, misc):
+    def exists(self, misc, needed=None):
         """
         Check whether the given uuid or dn exists
         """
@@ -274,7 +274,7 @@ class JSON(ObjectBackend):
 
         return False
 
-    def is_uniq(self, attr, value, at_type):
+    def is_uniq(self, attr, value, at_type, needed=None):
         """
         Check whether the given attribute is not used yet.
         """
@@ -287,7 +287,7 @@ class JSON(ObjectBackend):
                     return False
         return True
 
-    def update(self, item_uuid, data, params):
+    def update(self, item_uuid, data, params, needed=None):
         """
         Update the given entry (by uuid) with a new set of values.
         """
@@ -312,7 +312,7 @@ class JSON(ObjectBackend):
         # Nothing to do here.
         return True
 
-    def move(self, item_uuid, new_base):
+    def move(self, item_uuid, new_base, needed=None):
         """
         Moves an entry to another base
         """

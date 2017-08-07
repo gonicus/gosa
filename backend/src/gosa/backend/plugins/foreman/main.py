@@ -7,6 +7,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import datetime
 import logging
 import uuid
 import sys
@@ -216,15 +217,20 @@ class Foreman(Plugin):
         if update_data is None:
             update_data = {}
 
-        def update(key, value):
+        def update(key, value, backend=None):
             # check if we need to extend the object before setting the property
             extension = object.get_extension_off_attribute(key)
             if extension not in update_data:
                 update_data[extension] = {}
-            for backend in properties[key]['backend']:
+            if backend is not None:
                 if backend not in update_data[extension]:
                     update_data[extension][backend] = {}
                 update_data[extension][backend][key] = value
+            else:
+                for backend_name in properties[key]['backend']:
+                    if backend_name not in update_data[extension]:
+                        update_data[extension][backend_name] = {}
+                    update_data[extension][backend_name][key] = value
 
         for key, value in data.items():
             if key == uuid_attribute and object.get_mode() != "create":
@@ -378,25 +384,46 @@ class ForemanHookReceiver(object):
         self.type = N_("Foreman hook event")
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
+        self.skip_next_event = {}
 
     def handle_request(self, request_handler):
         foreman = PluginRegistry.getInstance("Foreman")
         data = loads(request_handler.request.body)
-        type = list(data['data'].keys())[0]
+        print(data)
+
+        if data["event"] in self.skip_next_event and data["object"] in self.skip_next_event[data["event"]]:
+            self.skip_next_event[data["event"]].remove(data["object"])
+            self.log.info("skipped '%s' event for object: '%s'" % (data["event"], data["object"]))
+            return
+
+        data_keys = list(data['data'].keys())
+        if len(data_keys) == 1:
+            type = data_keys[0]
+        else:
+            # no type given -> skipping this event as other might come with more information
+            self.log.warning("skipping event '%s' for object '%s' as no type information is given in data: '%s'" % (data["event"],
+                                                                                                                  data["object"],
+                                                                                                                  data["data"]))
+            return
 
         # search for real data
-        if len(data['data'][type].keys()) == 1 and type in data['data'][type]:
+        if len(data['data'][type].keys()) == 1:
             # something like {data: 'host': {host: {...}}}
-            payload_data = data['data'][type][type]
+            #             or {data: 'discovered_host': {host: {...}}}
+            payload_data = data['data'][type][list(data['data'][type].keys())[0]]
         else:
             payload_data = data['data'][type]
 
         factory = ObjectFactory.getInstance()
+        foreman_type = type
+        if type == "discovered_host":
+            type = "host"
+
         object_types = factory.getObjectNamesWithBackendSetting("Foreman", "type", "%ss" % type)
         object_type = object_types[0] if len(object_types) else None
 
         backend_attributes = factory.getObjectBackendProperties(object_type) if object_type is not None else None
-        self.log.debug("Hookevent: '%s' for '%s'" % (data['event'], data['object']))
+        self.log.debug("Hookevent: '%s' for '%s' (%s)" % (data['event'], data['object'], object_type))
 
         uuid_attribute = None
         if "Foreman" in backend_attributes:
@@ -407,15 +434,37 @@ class ForemanHookReceiver(object):
 
         if data['event'] == "after_commit" or data['event'] == "update" or data['event'] == "after_create" or data['event'] == "create":
             foreman_object = foreman.get_object(object_type, payload_data[uuid_attribute])
-            foreman.update_type(object_type, foreman_object, payload_data, uuid_attribute)
+            update_data = {}
+            extension = foreman_object.get_extension_off_attribute("status")
+            update_data[extension] = {"LDAP": {"status": "discovered"}}
+            foreman.update_type(object_type, foreman_object, payload_data, uuid_attribute, update_data=update_data)
 
         elif data['event'] == "after_destroy":
             foreman.remove_type(object_type, payload_data[uuid_attribute])
+
+            # because foreman sends the after_commit event after the after_destroy event
+            # we need to skip this event, otherwise the host would be re-created
+            if "after_commit" not in self.skip_next_event:
+                self.skip_next_event["after_commit"] = [data['object']]
+            else:
+                self.skip_next_event["after_commit"].append(data['object'])
+
+            # add garbage collection for skip
+            sobj = PluginRegistry.getInstance("SchedulerService")
+            sobj.getScheduler().add_date_job(self.cleanup_event_skipper,
+                                             datetime.datetime.now() + datetime.timedelta(minutes=1),
+                                             args=("after_commit", data['object']),
+                                             tag='_internal', jobstore='ram')
 
         else:
             self.log.info("unhandled hook event '%s' received for '%s'" % (data['event'], type))
 
         ForemanBackend.modifier = None
+
+    def cleanup_event_skipper(self, event, id):
+        if event in self.skip_next_event and id in self.skip_next_event[event]:
+            self.log.warning("'%s' event for object '%s' has been marked for skipping but was never received. Removing the mark now" % (event, id))
+            self.skip_next_event[event].remove(id)
 
 
 class ForemanException(Exception):

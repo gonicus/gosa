@@ -21,7 +21,7 @@ from gosa.backend.objects import ObjectProxy
 
 class ObjectHandler(ObjectBackend):
 
-    def load(self, uuid, info, back_attrs=None):
+    def load(self, uuid, info, back_attrs=None, needed=None):
         """
         Load attributes for the given object-uuid.
 
@@ -71,19 +71,19 @@ class ObjectHandler(ObjectBackend):
 
         return result
 
-    def extend(self, uuid, data, params, foreign_keys, dn=None):
+    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None):
         return self.update(uuid, data, params, dn=dn)
 
-    def retract(self, uuid, data, params):
+    def retract(self, uuid, data, params, needed=None):
         # Set values to an emtpy state, to enforce property removal
         for prop in data:
             data[prop]["value"] = []
         return self.update(uuid, data, params)
 
-    def remove(self, uuid, data, params):
+    def remove(self, uuid, data, params, needed=None):
         return self.retract(uuid, data, params)
 
-    def update(self, uuid, data, back_attrs, dn=None):
+    def update(self, uuid, data, back_attrs, dn=None, needed=None):
         """
         Write back changes collected for foreign objects relations.
 
@@ -164,16 +164,16 @@ class ObjectHandler(ObjectBackend):
     def query(self, base, scope, params, fixed_rdn=None):  # pragma: nocover
         return []
 
-    def exists(self, misc):  # pragma: nocover
+    def exists(self, misc, needed=None):  # pragma: nocover
         return False
 
     def move_extension(self, uuid, new_base):  # pragma: nocover
         pass
 
-    def move(self, uuid, new_base):  # pragma: nocover
+    def move(self, uuid, new_base, needed=None):  # pragma: nocover
         return False
 
-    def create(self, base, data, params, foreign_keys=None):  # pragma: nocover
+    def create(self, base, data, params, foreign_keys=None, needed=None):  # pragma: nocover
         self.log.debug("create(%s, %s, %s, %s)" % (base, data, params, foreign_keys))
         return None
 

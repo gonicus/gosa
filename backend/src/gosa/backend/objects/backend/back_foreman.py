@@ -33,13 +33,20 @@ Backend Attributes:
 .. code-block: xml
     :caption: Example configuration for foreman host objects
 
-    <Backend type="hosts" _uuidAttribute="cn" _uuidSourceAttribute="name">Foreman</Backend>
+    <Backend type="hosts" _uuidAttribute="cn" _uuidSourceAttribute="name" needs="status">Foreman</Backend>
 
 The Foreman backend needs to now the object type and the id to identify an object.
 ``_uuidSourceAttribute`` is optional and specifies the attribute name where the ID value can be found
 in the foreman API response. If not specified the backend assumes that ``_uuidSourceAttribute == _uuidAttribute``.
 These two settings are used to generate the API URL to access the object in foreman.
-In this example the URL for HTTP-requests would be <foreman-host>/api/hosts/<cn>. 
+In this example the URL for HTTP-requests would be <foreman-host>/api/hosts/<cn>.
+
+``needs`` is optional and defines attribute names which values the backend needs to know to perform its task.
+
+*Example:*
+
+    The ForemanHost needs to know the value of the status attribute. If status="discovered" the backend needs to talk to the API
+    endpoint "discovered_hosts" instead of "hosts". 
 """
 
 
@@ -103,7 +110,7 @@ class Foreman(ObjectBackend):
     def __post(self, type, id=None, data=None):
         return self.__request("post", type, id=id, data=data)
 
-    def load(self, uuid, info, back_attrs=None, data=None):
+    def load(self, uuid, info, back_attrs=None, data=None, needed=None):
         """
         Loading attribute values from foreman API
 
@@ -111,11 +118,13 @@ class Foreman(ObjectBackend):
         :param info: dict of all object attributes that are related to foreman {<name>: <type>}
         :param back_attrs: backend configuration from object definition
         :param data: use this data instead of querying the backend
+        :param needed: optional dict with attribute_name: value needed by this backend
         :return: results returned from foreman API
         """
+        self.log.debug("load: %s, %s, %s, %s" % (uuid, info, back_attrs, data))
         if data is None:
             try:
-                data = self.__get(back_attrs['type'], id=uuid)
+                data = self.__get(self.get_foreman_type(needed, back_attrs), id=uuid)
             except HTTPError as e:
                 # something when wrong
                 self.log.error("Error requesting foreman backend: %s" % e)
@@ -130,15 +139,15 @@ class Foreman(ObjectBackend):
         self.log.debug("identify_by_uuid: %s, %s" % (uuid, params))
         return False
 
-    def exists(self, misc):
+    def exists(self, misc, needed=None):
         self.log.debug("exists: %s" % misc)
         return False
 
-    def remove(self, uuid, data, params):
+    def remove(self, uuid, data, params, needed=None):
         self.log.debug("remove: %s, %s, %s" % (uuid, data, params))
         if Foreman.modifier != "foreman":
             try:
-                self.__delete(self.get_foreman_type(data, params), uuid)
+                self.__delete(self.get_foreman_type(needed, params), uuid)
             except HTTPError as e:
                 if e.response.status_code == 404 and self.check_backend() is True:
                     # foreman is up and running but responded with 404 -> nothing to delete
@@ -149,16 +158,16 @@ class Foreman(ObjectBackend):
             self.log.info("skipping deletion request as the change is coming from the foreman backend")
         return True
 
-    def retract(self, uuid, data, params):
-        self.remove(uuid, data, params)
+    def retract(self, uuid, data, params, needed=None):
+        self.remove(uuid, data, params, needed=needed)
 
     def get_foreman_type(self, data, params):
-        if "status" in data and data["status"] == "discovered":
+        if data is not None and "status" in data and data["status"] == "discovered":
             return "discovered_hosts"
         else:
             return params["type"]
 
-    def extend(self, uuid, data, params, foreign_keys, dn=None):
+    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None):
         """ Called when a base object is extended with a foreman object (e.g. device->foremanHost)"""
         self.log.debug("extend: %s, %s, %s, %s" % (uuid, data, params, foreign_keys))
         if Foreman.modifier != "foreman":
@@ -168,7 +177,7 @@ class Foreman(ObjectBackend):
             self.log.debug("creating '%s' with '%s' to foreman" % (params["type"], payload))
 
             def runner():
-                result = self.__post(self.get_foreman_type(data, params), data=payload)
+                result = self.__post(self.get_foreman_type(needed, params), data=payload)
                 self.log.debug("Response: %s" % result)
 
             # some changes (e.g. creating a host) trigger requests from foreman to gosa
@@ -184,15 +193,15 @@ class Foreman(ObjectBackend):
         self.log.debug("move_extension: %s, %s" % (uuid, new_base))
         pass
 
-    def move(self, uuid, new_base):
+    def move(self, uuid, new_base, needed=None):
         self.log.debug("move: %s, %s" % (uuid, new_base))
         return True
 
-    def create(self, base, data, params, foreign_keys=None):
+    def create(self, base, data, params, foreign_keys=None, needed=None):
         self.log.debug("create: %s, %s, %s, %s" % (base, data, params, foreign_keys))
         return None
 
-    def update(self, uuid, data, params):
+    def update(self, uuid, data, params, needed=None):
         self.log.debug("update: '%s', '%s', '%s'" % (uuid, data, params))
         if Foreman.modifier != "foreman":
             payload = self.__collect_data(data, params)
@@ -201,7 +210,7 @@ class Foreman(ObjectBackend):
             self.log.debug("sending update '%s' to foreman" % payload)
 
             def runner():
-                result = self.__put(self.get_foreman_type(data, params), uuid, data=payload)
+                result = self.__put(self.get_foreman_type(needed, params), uuid, data=payload)
                 self.log.debug("Response: %s" % result)
 
             # some changes (e.g. changing the hostgroup) trigger requests from foreman to gosa

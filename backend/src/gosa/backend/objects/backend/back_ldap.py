@@ -52,7 +52,7 @@ class LDAP(ObjectBackend):
         if self.con:
             self.lh.free_connection(self.con)
 
-    def load(self, uuid, info, back_attrs=None):
+    def load(self, uuid, info, back_attrs=None, needed=None):
         keys = info.keys()
         fltr_tpl = "%s=%%s" % self.uuid_entry
         fltr = ldap.filter.filter_format(fltr_tpl, [uuid])
@@ -159,7 +159,7 @@ class LDAP(ObjectBackend):
                 [self.uuid_entry])
         return [x for x in dict(res).keys()]
 
-    def exists(self, misc):
+    def exists(self, misc, needed=None):
         if is_uuid(misc):
             fltr_tpl = "%s=%%s" % self.uuid_entry
             fltr = ldap.filter.filter_format(fltr_tpl, [misc])
@@ -180,7 +180,7 @@ class LDAP(ObjectBackend):
 
         return len(res) == 1
 
-    def remove(self, uuid, data, params):
+    def remove(self, uuid, data, params, needed=None):
         dn = self.uuid2dn(uuid)
 
         self.log.debug("removing entry '%s'" % dn)
@@ -199,7 +199,7 @@ class LDAP(ObjectBackend):
             return self.con.delete_s(dn)
         return None
 
-    def retract(self, uuid, data, params):
+    def retract(self, uuid, data, params, needed=None):
         # Remove defined data from the specified object
         dn = self.uuid2dn(uuid)
         mod_attrs = []
@@ -220,7 +220,7 @@ class LDAP(ObjectBackend):
             del self.__i_cache[dn]
             del self.__i_cache_ttl[dn]
 
-    def extend(self, uuid, data, params, foreign_keys, dn=None):
+    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None):
         dn = self.uuid2dn(uuid)
         return self.create(dn, data, params, foreign_keys)
 
@@ -228,13 +228,13 @@ class LDAP(ObjectBackend):
         # There is no need to handle this inside of the LDAP backend
         pass
 
-    def move(self, uuid, new_base):
+    def move(self, uuid, new_base, needed=None):
         dn = self.uuid2dn(uuid)
         self.log.debug("moving entry '%s' to new base '%s'" % (dn, new_base))
         rdn = ldap.dn.explode_dn(dn, flags=ldap.DN_FORMAT_LDAPV3)[0]
         return self.con.rename_s(dn, rdn, new_base)
 
-    def create(self, base, data, params, foreign_keys=None):
+    def create(self, base, data, params, foreign_keys=None, needed=None):
         mod_attrs = []
         self.log.debug("gathering modifications for entry on base '%s'" % base)
         for attr, entry in data.items():
@@ -297,7 +297,7 @@ class LDAP(ObjectBackend):
         # Return automatic uuid
         return self.dn2uuid(dn)
 
-    def update(self, uuid, data, params):
+    def update(self, uuid, data, params, needed=None):
 
         # Assemble a proper modlist
         dn = self.uuid2dn(uuid)

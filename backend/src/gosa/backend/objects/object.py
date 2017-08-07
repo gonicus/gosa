@@ -274,6 +274,7 @@ class Object(object):
                     self.log.debug("loading attributes for backend '%s': %s" % (backend, str(info)))
                     uuid = self.uuid
                     be_attrs = None
+                    kwargs = {}
                     if backend in self._backendAttrs:
                         be_attrs = self._backendAttrs[backend]
 
@@ -284,7 +285,9 @@ class Object(object):
                             else:
                                 uuid = self._getattr_(be_attrs['_uuidAttribute'])
 
-                    attrs = be.load(uuid, info, be_attrs)
+                        kwargs = self.get_backend_kwargs(be_attrs)
+
+                    attrs = be.load(uuid, info, be_attrs, **kwargs)
 
             except ValueError as e:
                 self.log.error(e)
@@ -331,6 +334,19 @@ class Object(object):
                 # Execute each in-filter
                 for in_f in self.myProperties[key]['in_filter']:
                     self.__processFilter(in_f, key, self.myProperties)
+
+    def get_backend_kwargs(self, be_attributes):
+        kwargs = {}
+        if self._mode == "extend":
+            kwargs["dn"] = self.dn
+
+        if "needs" in be_attributes:
+            needed = {}
+            for needed_attribute in be_attributes["needs"].split(","):
+                needed[needed_attribute] = self._getattr_(needed_attribute)
+            kwargs["needed"] = needed
+
+        return kwargs
 
     def _convert_types(self, keep=True, keys=None):
         #pylint: disable=E1101
@@ -391,8 +407,6 @@ class Object(object):
 
         # Convert the received type into the target type if not done already
         self._convert_types(keep=False, keys=found)
-
-        print("applied")
 
     def _delattr_(self, name):
         """
@@ -810,6 +824,8 @@ class Object(object):
             be = ObjectBackendRegistry.getBackend(p_backend)
             uuid = self.uuid
 
+            kwargs = self.get_backend_kwargs(beAttrs)
+
             if "_uuidAttribute" in beAttrs:
                 value = self._getattr_(beAttrs['_uuidAttribute'])
                 if value is None:
@@ -819,16 +835,17 @@ class Object(object):
 
             if self._mode == "create":
                 index.currently_in_creation.append(self.dn)
-                obj.uuid = be.create(self.dn, toStore[p_backend], self._backendAttrs[p_backend])
+                obj.uuid = be.create(self.dn, toStore[p_backend], self._backendAttrs[p_backend], **kwargs)
 
             elif self._mode == "extend":
                 index.currently_in_creation.append(self.dn)
                 be.extend(uuid, toStore[p_backend],
-                        self._backendAttrs[p_backend],
-                        self.getForeignProperties())
+                          self._backendAttrs[p_backend],
+                          self.getForeignProperties(),
+                          **kwargs)
 
             else:
-                be.update(uuid, toStore[p_backend], beAttrs)
+                be.update(uuid, toStore[p_backend], beAttrs, **kwargs)
 
             # Eventually the DN has changed
             if self._base_object:
@@ -860,6 +877,8 @@ class Object(object):
             beAttrs = self._backendAttrs[backend] if backend in self._backendAttrs else {}
             uuid = self.uuid
 
+            kwargs = self.get_backend_kwargs(beAttrs)
+
             if "_uuidAttribute" in beAttrs:
                 value = self._getattr_(beAttrs['_uuidAttribute'])
                 if value is None:
@@ -869,11 +888,11 @@ class Object(object):
                     uuid = value
 
             if self._mode == "create":
-                be.create(self.dn, data, beAttrs)
+                be.create(self.dn, data, beAttrs, **kwargs)
             elif self._mode == "extend":
-                be.extend(self.uuid, data, beAttrs, self.getForeignProperties(), dn=self.dn)
+                be.extend(self.uuid, data, beAttrs, self.getForeignProperties(), **kwargs)
             else:
-                be.update(uuid, data, beAttrs)
+                be.update(uuid, data, beAttrs, **kwargs)
 
         zope.event.notify(ObjectChanged("post %s" % self._mode, obj))
 
@@ -1294,6 +1313,7 @@ class Object(object):
 
             uuid = self.uuid
             be_config_attrs = None
+            kwargs = {}
             if backend in self._backendAttrs:
                 be_config_attrs = self._backendAttrs[backend]
 
@@ -1304,9 +1324,10 @@ class Object(object):
                             '_uuidAttribute']))
                     else:
                         uuid = value
+                kwargs = self.get_backend_kwargs(be_config_attrs)
 
             #pylint: disable=E1101
-            be.remove(uuid, remove_attrs, be_config_attrs)
+            be.remove(uuid, remove_attrs, be_config_attrs, **kwargs)
 
         zope.event.notify(ObjectChanged("post remove", obj))
 
@@ -1351,7 +1372,18 @@ class Object(object):
 
         # Move for primary backend
         be = ObjectBackendRegistry.getBackend(backends[0])
-        be.move(self.uuid, new_base)
+        uuid = self.uuid
+        be_config_attrs = self._backendAttrs[be]
+        if "_uuidAttribute" in be_config_attrs:
+            value = self._getattr_(be_config_attrs['_uuidAttribute'])
+            if value is None:
+                raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=be, name=be_config_attrs[
+                    '_uuidAttribute']))
+            else:
+                uuid = value
+
+        kwargs = self.get_backend_kwargs(be_config_attrs)
+        be.move(uuid, new_base, **kwargs)
 
         # Update the DN refs which have most probably changed
         p_backend = getattr(self, '_backend')
@@ -1423,9 +1455,10 @@ class Object(object):
                 else:
                     uuid = value
 
+            kwargs = self.get_backend_kwargs(be_config_attrs)
+
             #pylint: disable=E1101
-            be.retract(uuid, remove_attrs, self._backendAttrs[backend] \
-                       if backend in self._backendAttrs else None)
+            be.retract(uuid, remove_attrs, self._backendAttrs[backend] if backend in self._backendAttrs else None, **kwargs)
 
         zope.event.notify(ObjectChanged("post retract", obj))
 
