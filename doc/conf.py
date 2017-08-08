@@ -13,6 +13,7 @@
 
 import sys, os
 import sphinx_rtd_theme
+from datetime import datetime
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -43,7 +44,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'GOsa.next'
-copyright = u'2012, GONICUS GmbH'
+copyright = u'2012-%s, GONICUS GmbH' % datetime.now().year
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
