@@ -8,9 +8,12 @@
 # See the LICENSE file in the project's top-level directory for details.
 import hmac
 from json import loads, dumps
+
+import os
 import pytest
 from unittest import TestCase, mock
 
+import logging
 from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application, HTTPError
 
@@ -39,6 +42,37 @@ class MockResponse:
 
     def raise_for_status(self):
         raise HTTPError(self.status_code)
+
+
+class MockForeman:
+
+    def __init__(self):
+        self.base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data")
+        self.log = logging.getLogger(__name__)
+
+    def __respond(self, path):
+        rel = path[path.index("/api/")+5:]
+        if rel[0:3] == "v2/":
+            rel = rel[3:]
+        file = os.path.join(self.base_dir, "%s.json" % rel)
+        print("requested: %s" % file)
+        if os.path.exists(file):
+            with open(file) as f:
+                return MockResponse(f.read(), 200)
+
+        return MockResponse({}, 404)
+
+    def get(self, url, **kwargs):
+        return self.__respond(url)
+
+    def post(self, url, **kwargs):
+        return MockResponse({}, 200)
+
+    def put(self, url, **kwargs):
+        return MockResponse({}, 200)
+
+    def delete(self, url, **kwargs):
+        return MockResponse({}, 200)
 
 
 @mock.patch("gosa.backend.plugins.foreman.main.requests.post")
@@ -105,8 +139,6 @@ class ForemanTestCase(GosaTestCase):
 
     def test_update_type(self, m_get, m_del, m_put, m_post):
         self._create_test_data()
-        foreman = Foreman()
-        foreman.serve()
         self.foreman.client = ForemanClient()
 
         m_get.return_value = MockResponse({
@@ -134,6 +166,110 @@ class ForemanTestCase(GosaTestCase):
         device = ObjectProxy(dn)
         assert device.ipHostNumber == "192.168.0.3"
         assert device.status == "pending"
+
+
+@mock.patch("gosa.backend.plugins.foreman.main.requests.post")
+@mock.patch("gosa.backend.plugins.foreman.main.requests.put")
+@mock.patch("gosa.backend.plugins.foreman.main.requests.delete")
+@mock.patch("gosa.backend.plugins.foreman.main.requests.get")
+class ForemanSyncTestCase(GosaTestCase):
+
+    dns_to_delete = []
+    foreman = None
+    log = None
+
+    def setUp(self):
+        self.log = logging.getLogger(__name__)
+        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.DEBUG)
+        logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
+        super(ForemanSyncTestCase, self).setUp()
+        self.foreman = Foreman()
+        self.foreman.serve()
+        self.foreman.client = ForemanClient()
+        self.foreman.create_container()
+
+    def tearDown(self):
+        # remove them all
+        with mock.patch("gosa.backend.plugins.foreman.main.requests.delete") as m_del:
+            m_del.return_value = MockResponse({}, 200)
+
+            for dn in self.dns_to_delete:
+                try:
+                    self.log.info("deleting dn: %s" % dn)
+                    obj = ObjectProxy(dn)
+                    obj.remove()
+                except Exception as e:
+                    self.log.error("%s" % e)
+                    pass
+
+        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.INFO)
+        logging.getLogger("gosa.backend.objects").setLevel(logging.INFO)
+        super(ForemanSyncTestCase, self).tearDown()
+
+    def test_sync_type(self, m_get, m_del, m_put, m_post):
+        mocked_foreman = MockForeman()
+        m_get.side_effect = mocked_foreman.get
+        m_del.side_effect = mocked_foreman.delete
+        m_put.side_effect = mocked_foreman.put
+        m_post.side_effect = mocked_foreman.post
+
+        # check that there are not Objects yet
+        index = PluginRegistry.getInstance("ObjectIndex")
+        host_query = {
+            '_type': 'Device',
+            'cn': {
+                'in_': ['smitty.intranet.gonicus.de', 'gosa.test.intranet.gonicus.de']
+            },
+            'extension': 'ForemanHost'
+        }
+        hostgroup_query = {
+            '_type': 'ForemanHostGroup',
+            'cn': {
+                'in_': ['Bereitstellen von smitty.intranet.gonicus.de', 'VM', 'Test']
+            },
+        }
+        discovered_host_query = {
+            '_type': 'Device',
+            'extension': 'ForemanHost',
+            'status': 'discovered'
+        }
+        res = index.search(host_query, {'dn': 1})
+        assert len(res) == 0
+        res = index.search(hostgroup_query, {'dn': 1})
+        assert len(res) == 0
+        res = index.search(discovered_host_query, {'dn': 1})
+        assert len(res) == 0
+
+        self.foreman.sync_type("ForemanHostGroup")
+        logging.getLogger("gosa.backend.objects.index").info("waiting for index update")
+        logging.getLogger("gosa.backend.objects.index").info("checking index")
+        res = index.search(host_query, {'dn': 1})
+        assert len(res) == 0
+        res = index.search(hostgroup_query, {'dn': 1})
+        assert len(res) == 3
+        res = index.search(discovered_host_query, {'dn': 1})
+        assert len(res) == 0
+
+        self.foreman.sync_type("ForemanHost")
+        res = index.search(host_query, {'dn': 1})
+        assert len(res) == 2
+        res = index.search(hostgroup_query, {'dn': 1})
+        assert len(res) == 3
+        res = index.search(discovered_host_query, {'dn': 1})
+        assert len(res) == 0
+
+        self.foreman.sync_type("ForemanHost", "discovered_hosts")
+        res = index.search(host_query, {'dn': 1})
+        assert len(res) == 3
+        self.dns_to_delete = [x['dn'] for x in res]
+
+        res = index.search(hostgroup_query, {'dn': 1})
+        assert len(res) == 3
+        self.dns_to_delete += [x['dn'] for x in res]
+
+        res = index.search(discovered_host_query, {'dn': 1})
+        assert len(res) == 1
+        self.dns_to_delete += [x['dn'] for x in res]
 
 
 class ForemanClientTestCase(TestCase):

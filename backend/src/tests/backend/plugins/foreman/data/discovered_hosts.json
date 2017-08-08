@@ -1,0 +1,27 @@
+{
+  "total": 1,
+  "subtotal": 1,
+  "page": 1,
+  "per_page": 200,
+  "search": null,
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "ip": "10.6.67.1",
+      "mac": "00:26:2d:f1:6a:2c",
+      "last_report": "2017-08-07T07:50:39.489Z",
+      "subnet_id": 1,
+      "subnet_name": "Test LAN (10.6.64.0/22)",
+      "hardware_model_name": "43494JG",
+      "memory": 7845,
+      "disk_count": 2,
+      "disks_size": 489411,
+      "cpus": 1,
+      "name": "mac00262df16a2c",
+      "id": 28
+    }
+  ]
+}

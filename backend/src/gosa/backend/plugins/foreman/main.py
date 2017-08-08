@@ -112,11 +112,11 @@ class Foreman(Plugin):
             self.log.info("index scan finished, triggered foreman sync")
             self.create_container()
 
-            self._sync_type("ForemanHostGroup")
-            self._sync_type("ForemanHost")
+            self.sync_type("ForemanHostGroup")
+            self.sync_type("ForemanHost")
 
             # read discovered hosts
-            self._sync_type("ForemanHost", "discovered_hosts")
+            self.sync_type("ForemanHost", "discovered_hosts")
 
     def create_container(self):
         # create incoming ou if not exists
@@ -127,7 +127,7 @@ class Foreman(Plugin):
             ou = ObjectProxy(self.env.base, "IncomingDeviceContainer")
             ou.commit()
 
-    def _sync_type(self, object_type, foreman_type=None):
+    def sync_type(self, object_type, foreman_type=None):
         """ sync foreman objects, request data from foreman API and apply those values to the object """
         index = PluginRegistry.getInstance("ObjectIndex")
         backend_attributes = self.factory.getObjectBackendProperties(object_type)

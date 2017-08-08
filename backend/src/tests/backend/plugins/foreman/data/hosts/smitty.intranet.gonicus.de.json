@@ -1,0 +1,207 @@
+{
+  "ip": "10.6.66.30",
+  "ip6": null,
+  "environment_id": 1,
+  "environment_name": "production",
+  "last_report": null,
+  "mac": "00:00:00:00:00:01",
+  "realm_id": 1,
+  "realm_name": "TestGosa",
+  "sp_mac": null,
+  "sp_ip": null,
+  "sp_name": null,
+  "domain_id": 2,
+  "domain_name": "test.intranet.gonicus.de",
+  "architecture_id": 1,
+  "architecture_name": "x86_64",
+  "operatingsystem_id": 1,
+  "operatingsystem_name": "Ubuntu 16.04.2 LTS",
+  "subnet_id": 1,
+  "subnet_name": "Test LAN",
+  "subnet6_id": null,
+  "subnet6_name": null,
+  "sp_subnet_id": null,
+  "ptable_id": 82,
+  "ptable_name": "Preseed default",
+  "medium_id": 9,
+  "medium_name": "Local Ubuntu Mirror",
+  "pxe_loader": "PXELinux BIOS",
+  "build": false,
+  "comment": null,
+  "disk": null,
+  "installed_at": null,
+  "model_id": null,
+  "hostgroup_id": 2,
+  "owner_id": 13,
+  "owner_type": "User",
+  "enabled": true,
+  "managed": true,
+  "use_image": null,
+  "image_file": "",
+  "uuid": null,
+  "compute_resource_id": 1,
+  "compute_resource_name": "smitty",
+  "compute_profile_id": null,
+  "compute_profile_name": null,
+  "capabilities": [
+    "build",
+    "image"
+  ],
+  "provision_method": "build",
+  "certname": "gosa.test.intranet.gonicus.de",
+  "image_id": null,
+  "image_name": null,
+  "created_at": "2017-08-04T13:42:13.081Z",
+  "updated_at": "2017-08-04T13:42:13.081Z",
+  "last_compile": null,
+  "global_status": 0,
+  "global_status_label": "Warning",
+  "puppet_status": 0,
+  "model_name": null,
+  "configuration_status": 0,
+  "configuration_status_label": "No reports",
+  "build_status": 0,
+  "build_status_label": "Installed",
+  "name": "gosa.test.intranet.gonicus.de",
+  "id": 21,
+  "puppet_proxy_id": 1,
+  "puppet_proxy_name": "smitty.intranet.gonicus.de",
+  "puppet_ca_proxy_id": 1,
+  "puppet_ca_proxy_name": "smitty.intranet.gonicus.de",
+  "puppet_proxy": {
+    "name": "smitty.intranet.gonicus.de",
+    "id": 1,
+    "url": "https://smitty.intranet.gonicus.de:8443"
+  },
+  "puppet_ca_proxy": {
+    "name": "smitty.intranet.gonicus.de",
+    "id": 1,
+    "url": "https://smitty.intranet.gonicus.de:8443"
+  },
+  "hostgroup_name": "VM",
+  "hostgroup_title": "VM",
+  "parameters": [],
+  "all_parameters": [
+    {
+      "priority": 0,
+      "created_at": "2017-04-19T11:17:35.785Z",
+      "updated_at": "2017-04-19T11:17:35.785Z",
+      "id": 2,
+      "name": "timezone",
+      "value": "Europe/Berlin"
+    },
+    {
+      "priority": 0,
+      "created_at": "2017-04-19T11:17:57.832Z",
+      "updated_at": "2017-05-16T08:42:44.345Z",
+      "id": 4,
+      "name": "ntp-server",
+      "value": "smitty.test.intranet.gonicus.de"
+    },
+    {
+      "priority": 0,
+      "created_at": "2017-04-19T11:17:41.607Z",
+      "updated_at": "2017-04-19T11:17:41.607Z",
+      "id": 3,
+      "name": "lang",
+      "value": "de_DE"
+    },
+    {
+      "priority": 0,
+      "created_at": "2017-04-19T11:17:04.307Z",
+      "updated_at": "2017-04-19T11:17:04.307Z",
+      "id": 1,
+      "name": "enable-puppetlabs-pc1-repo",
+      "value": "true"
+    }
+  ],
+  "interfaces": [
+    {
+      "id": 27,
+      "name": "gosa.test.intranet.gonicus.de",
+      "ip": "10.6.66.30",
+      "ip6": null,
+      "mac": "00:00:00:00:00:01",
+      "identifier": null,
+      "primary": true,
+      "provision": true,
+      "type": "interface"
+    }
+  ],
+  "puppetclasses": [],
+  "config_groups": [],
+  "all_puppetclasses": [
+    {
+      "id": 2,
+      "name": "bash::shell",
+      "module_name": "bash"
+    },
+    {
+      "id": 10,
+      "name": "german::env",
+      "module_name": "german"
+    },
+    {
+      "id": 20,
+      "name": "gonicus::gsa",
+      "module_name": "gonicus"
+    },
+    {
+      "id": 18,
+      "name": "gonicus::ssl",
+      "module_name": "gonicus"
+    },
+    {
+      "id": 19,
+      "name": "ldap::client",
+      "module_name": "ldap"
+    },
+    {
+      "id": 12,
+      "name": "ntp::client",
+      "module_name": "ntp"
+    },
+    {
+      "id": 17,
+      "name": "puppet::agent",
+      "module_name": "puppet"
+    },
+    {
+      "id": 13,
+      "name": "sources::list",
+      "module_name": "sources"
+    },
+    {
+      "id": 16,
+      "name": "ssh::server",
+      "module_name": "ssh"
+    },
+    {
+      "id": 14,
+      "name": "vim::editor",
+      "module_name": "vim"
+    },
+    {
+      "id": 15,
+      "name": "vm::client",
+      "module_name": "vm"
+    }
+  ],
+  "permissions": {
+    "view_hosts": true,
+    "create_hosts": true,
+    "edit_hosts": true,
+    "destroy_hosts": true,
+    "build_hosts": true,
+    "power_hosts": true,
+    "console_hosts": true,
+    "ipmi_boot_hosts": true,
+    "puppetrun_hosts": true,
+    "view_discovered_hosts": true,
+    "submit_discovered_hosts": true,
+    "auto_provision_discovered_hosts": true,
+    "provision_discovered_hosts": true,
+    "edit_discovered_hosts": true,
+    "destroy_discovered_hosts": true
+  }
+}

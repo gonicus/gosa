@@ -1,0 +1,111 @@
+{
+  "subnet_id": 1,
+  "subnet_name": "Test LAN",
+  "operatingsystem_id": 1,
+  "operatingsystem_name": "Ubuntu 16.04.2 LTS",
+  "domain_id": 2,
+  "domain_name": "test.intranet.gonicus.de",
+  "environment_id": 1,
+  "environment_name": "production",
+  "compute_profile_id": null,
+  "compute_profile_name": null,
+  "ancestry": null,
+  "parent_id": null,
+  "parent_name": null,
+  "ptable_id": 82,
+  "ptable_name": "Preseed default",
+  "medium_id": 9,
+  "medium_name": "Local Ubuntu Mirror",
+  "architecture_id": 1,
+  "architecture_name": "x86_64",
+  "realm_id": 1,
+  "realm_name": "TestGosa",
+  "created_at": "2017-04-18T14:51:38.765Z",
+  "updated_at": "2017-07-26T13:37:13.414Z",
+  "id": 2,
+  "name": "VM",
+  "title": "VM",
+  "puppet_proxy_id": 1,
+  "puppet_proxy_name": "smitty.intranet.gonicus.de",
+  "puppet_ca_proxy_id": 1,
+  "puppet_ca_proxy_name": "smitty.intranet.gonicus.de",
+  "puppet_proxy": {
+    "name": "smitty.intranet.gonicus.de",
+    "id": 1,
+    "url": "https://smitty.intranet.gonicus.de:8443"
+  },
+  "puppet_ca_proxy": {
+    "name": "smitty.intranet.gonicus.de",
+    "id": 1,
+    "url": "https://smitty.intranet.gonicus.de:8443"
+  },
+  "template_combinations": [],
+  "puppetclasses": [],
+  "config_groups": [
+    {
+      "created_at": "2017-05-12T15:50:59.159Z",
+      "updated_at": "2017-05-12T15:50:59.159Z",
+      "id": 1,
+      "name": "base-vm",
+      "puppetclasses": [
+        {
+          "id": 2,
+          "name": "bash::shell",
+          "module_name": "bash"
+        },
+        {
+          "id": 10,
+          "name": "german::env",
+          "module_name": "german"
+        },
+        {
+          "id": 20,
+          "name": "gonicus::gsa",
+          "module_name": "gonicus"
+        },
+        {
+          "id": 18,
+          "name": "gonicus::ssl",
+          "module_name": "gonicus"
+        },
+        {
+          "id": 19,
+          "name": "ldap::client",
+          "module_name": "ldap"
+        },
+        {
+          "id": 12,
+          "name": "ntp::client",
+          "module_name": "ntp"
+        },
+        {
+          "id": 17,
+          "name": "puppet::agent",
+          "module_name": "puppet"
+        },
+        {
+          "id": 13,
+          "name": "sources::list",
+          "module_name": "sources"
+        },
+        {
+          "id": 16,
+          "name": "ssh::server",
+          "module_name": "ssh"
+        },
+        {
+          "id": 14,
+          "name": "vim::editor",
+          "module_name": "vim"
+        },
+        {
+          "id": 15,
+          "name": "vm::client",
+          "module_name": "vm"
+        }
+      ]
+    }
+  ],
+  "parameters": [],
+  "all_puppetclasses": {}
+}
