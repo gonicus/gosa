@@ -8,17 +8,22 @@ FM_STATUS_BUILD = 0
 FM_STATUS_BUILD_PENDING = 1
 FM_STATUS_BUILD_TOKEN_EXPIRED = 2
 
+
 class ForemanStatusIn(ElementFilter):
     """
     converts foreman host status from the values in build_status and global_status
 
     e.g.:
-    >>> <FilterEntry>
-    >>>  <Filter>
-    >>>   <Name>ForemanStatusIn</Name>
-    >>>  </Filter>
-    >>> </FilterEntry>
-    >>>  ...
+
+    .. code-block: xml
+
+        <FilterEntry>
+            <Filter>
+                <Name>ForemanStatusIn</Name>
+            </Filter>
+        </FilterEntry>
+        ...
+
     """
     def __init__(self, obj):
         super(ForemanStatusIn, self).__init__(obj)
@@ -27,7 +32,6 @@ class ForemanStatusIn(ElementFilter):
         if type(valDict[key]['value']) is not None and len(valDict[key]['value']) and valDict[key]['value'][0] != "discovered":
             global_status = valDict['global_status']['value'][0] if len(valDict['global_status']['value']) else None
             build_status = valDict['build_status']['value'][0] if len(valDict['build_status']['value']) else None
-            print("Global: %s, Build: %s" % (global_status, build_status))
             if global_status is not None or build_status is not None:
                 valDict[key]['value'] = [ForemanStatusIn.convert(global_status, build_status)]
         return key, valDict
@@ -58,12 +62,16 @@ class ForemanStatusOut(ElementFilter):
     Converts the objects status to foremans global_status and build_status
 
     e.g.:
-    >>> <FilterEntry>
-    >>>  <Filter>
-    >>>   <Name>ForemanStatusOut</Name>
-    >>>  </Filter>
-    >>> </FilterEntry>
-    >>>  ...
+
+    .. code-block: xml
+
+        <FilterEntry>
+            <Filter>
+                <Name>ForemanStatusOut</Name>
+            </Filter>
+        </FilterEntry>
+        ...
+
     """
     def __init__(self, obj):
         super(ForemanStatusOut, self).__init__(obj)
@@ -98,12 +106,16 @@ class ForemanHostGroupIn(ElementFilter):
     just maps the incoming foreman attribute hostgroup_id into the attribute groupMembership
 
     e.g.:
-    >>> <FilterEntry>
-    >>>  <Filter>
-    >>>   <Name>ForemanHostGroupIn</Name>
-    >>>  </Filter>
-    >>> </FilterEntry>
-    >>>  ...
+
+    .. code-block: xml
+
+        <FilterEntry>
+            <Filter>
+                <Name>ForemanHostGroupIn</Name>
+            </Filter>
+        </FilterEntry>
+        ...
+
     """
     def __init__(self, obj):
         super(ForemanHostGroupIn, self).__init__(obj)
@@ -119,12 +131,16 @@ class ForemanHostGroupOut(ElementFilter):
     just maps the groupMembership value to foremans attribute hostgroup_id
 
     e.g.:
-    >>> <FilterEntry>
-    >>>  <Filter>
-    >>>   <Name>ForemanHostGroupOut</Name>
-    >>>  </Filter>
-    >>> </FilterEntry>
-    >>>  ...
+
+    .. code-block: xml
+
+        <FilterEntry>
+            <Filter>
+                <Name>ForemanHostGroupOut</Name>
+            </Filter>
+        </FilterEntry>
+        ...
+
     """
     def __init__(self, obj):
         super(ForemanHostGroupOut, self).__init__(obj)
