@@ -102,6 +102,11 @@ qx.Class.define("gosa.ui.SearchListItem", {
       apply: "_applyIsLoading",
       event : "changeIsLoading",
       init : false
+    },
+
+    toolbarEnabled: {
+      check: "Boolean",
+      init: true
     }
   },
 
@@ -137,12 +142,16 @@ qx.Class.define("gosa.ui.SearchListItem", {
 
     _onMouseOver : function() {
       this.addState("hovered");
-      this.getChildControl("toolbar").show();
+      if (this.isToolbarEnabled()) {
+        this.getChildControl("toolbar").show();
+      }
     },
 
     _onMouseOut : function() {
       this.removeState("hovered");
-      this.getChildControl("toolbar").hide();
+      if (this.isToolbarEnabled()) {
+        this.getChildControl("toolbar").hide();
+      }
     },
 
     _applyTitle: function(value){
