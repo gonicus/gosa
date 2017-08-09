@@ -75,6 +75,7 @@ qx.Class.define("gosa.ui.form.WorkflowItem", {
     loading: {
       check: "Boolean",
       init: false,
+      event: "changeLoading",
       apply: "_applyLoading"
     },
 
