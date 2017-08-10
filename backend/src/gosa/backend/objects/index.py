@@ -773,11 +773,9 @@ class ObjectIndex(Plugin):
         return res
 
     def _make_filter(self, node):
-        use_key_value = False
         use_extension = False
 
         def __make_filter(n):
-            nonlocal use_key_value
             nonlocal use_extension
 
             res = []
@@ -827,11 +825,15 @@ class ObjectIndex(Plugin):
                             use_extension = True
                             exprs.append(ExtensionIndex.extension == v)
                         else:
-                            use_key_value = True
-                            if "%" in v:
-                                exprs.append(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(v)))
+                            if "%" in value:
+                                sub_query = self.__session.query(KeyValueIndex.uuid). \
+                                    filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(v))). \
+                                    subquery()
                             else:
-                                exprs.append(and_(KeyValueIndex.key == key, KeyValueIndex.value == v))
+                                sub_query = self.__session.query(KeyValueIndex.uuid). \
+                                    filter(and_(KeyValueIndex.key == key, KeyValueIndex.value == v)). \
+                                    subquery()
+                            res.append(ObjectInfoIndex.uuid.in_(sub_query))
 
                     res.append(or_(*exprs))
 
@@ -849,29 +851,24 @@ class ObjectIndex(Plugin):
                         use_extension = True
                         res.append(ExtensionIndex.extension == value)
                     else:
-                        use_key_value = True
                         if "%" in value:
-                            res.append(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(value)))
+                            sub_query = self.__session.query(KeyValueIndex.uuid).\
+                                filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(value))).\
+                                subquery()
                         else:
-                            res.append(and_(KeyValueIndex.key == key, KeyValueIndex.value == value))
+                            sub_query = self.__session.query(KeyValueIndex.uuid).\
+                                filter(and_(KeyValueIndex.key == key, KeyValueIndex.value == value)).\
+                                subquery()
+                        self.log.debug(str(sub_query))
+                        res.append(ObjectInfoIndex.uuid.in_(sub_query))
 
             return res
 
         # Add query information to be able to search various tables
         _args = __make_filter(node)
 
-        if use_extension and use_key_value:
-            args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid, ObjectInfoIndex.uuid == ExtensionIndex.uuid]
-            args += _args
-            return and_(*args)
-
         if use_extension:
             args = [ObjectInfoIndex.uuid == ExtensionIndex.uuid]
-            args += _args
-            return and_(*args)
-
-        if use_key_value:
-            args = [ObjectInfoIndex.uuid == KeyValueIndex.uuid]
             args += _args
             return and_(*args)
 
@@ -927,7 +924,7 @@ class ObjectIndex(Plugin):
 
         q = self.__session.query(ObjectInfoIndex).filter(*fltr)
 
-        self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(),compile_kwargs={"literal_binds": True})))
+        self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
 
         for o in q.all():
             res.append(normalize(o, properties))
