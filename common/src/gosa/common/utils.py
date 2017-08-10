@@ -403,3 +403,44 @@ def encrypt_key(key, data):
         data += chr(data_pad) * data_pad
 
     return AES.new(key, AES.MODE_ECB).encrypt(data)
+
+
+def cache_return(timeout_secs=0):
+    """
+    Caches method returns with a given timeout. Please not that this cache decorator expects the first
+    parameter of the called function to be the reference to *self*. So it will only work fot class methods.
+    """
+    timeout = datetime.timedelta(seconds=timeout_secs) if timeout_secs > 0 else None
+
+    def decorator(func):
+        memoized = {}
+        log = logging.getLogger("%s.CacheReturn" % __name__)
+
+        def wrapper(*args, **kwargs):
+            key = "%s.%s.%s(%s,%s)" % (
+                args[0].__class__.__module__,
+                args[0].__class__.__name__,
+                func.__name__,
+                ",".join(args[1:]),
+                ",".join(['%s=%s' % (k, str(v)) for (k, v) in kwargs.items()])
+            )
+            try:
+                res = memoized[key]
+                if timeout is not None:
+                    if datetime.datetime.now()-res["cached"] <= timeout:
+                        log.debug("cache HIT %s" % key)
+                        return res["data"]
+                    else:
+                        raise KeyError
+                else:
+                    return res["data"]
+            except KeyError:
+                log.debug("cache MISS %s" % key)
+                memoized[key] = {
+                    "data": func(*args, **kwargs),
+                    "cached": datetime.datetime.now()
+                }
+                return memoized[key]["data"]
+        return wrapper
+
+    return decorator

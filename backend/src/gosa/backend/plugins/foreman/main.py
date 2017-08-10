@@ -24,10 +24,9 @@ from gosa.common.components import Plugin, Command
 from gosa.common.handler import IInterfaceHandler
 from zope.interface import implementer
 from gosa.common.error import GosaErrorHandler as C
-from gosa.common.utils import N_, generate_random_key, encrypt_key
+from gosa.common.utils import N_, generate_random_key, cache_return
 from gosa.common.components import PluginRegistry
 from gosa.common.gjson import loads, dumps
-from gosa.common.components.jsonrpc_utils import Binary
 from base64 import b64encode as encode
 from gosa.backend.objects.backend.back_foreman import Foreman as ForemanBackend
 
@@ -321,13 +320,26 @@ class Foreman(Plugin):
 
     @Command(__help__=N_("Get available foreman compute resources."))
     def getForemanComputeResources(self):
+        return self.__get_key_values("compute_resources", value_format="{name} ({provider})")
+
+    @Command(__help__=N_("Get available foreman domains."))
+    def getForemanDomains(self):
+        return self.__get_key_values("domains")
+
+    @Command(__help__=N_("Get available foreman hostgroups."))
+    def getForemanHostgroups(self):
+        return self.__get_key_values("hostgroups")
+
+    @cache_return(timeout_secs=60)
+    def __get_key_values(self, type, key_name="id", value_format="{name}"):
         res = {}
         if self.client:
-            data = self.client.get("compute_resources")
+            data = self.client.get(type)
 
             if "results" in data:
                 for entry in data["results"]:
-                    res[entry["id"]] = {"value": "%s (%s)" % (entry["name"], entry["provider"])}
+                    res[entry[key_name]] = {"value": value_format.format(**entry)}
+        print("RESPONSE: %s" % res)
         return res
 
     @Command(needsUser=True, __help__=N_("Get discovered hosts."))
