@@ -10,8 +10,8 @@
 import json
 
 
-def dumps(obj):
-    return json.dumps(obj, cls=PObjectEncoder)
+def dumps(obj, **kwargs):
+    return json.dumps(obj, cls=PObjectEncoder, **kwargs)
 
 
 def loads(json_string):
