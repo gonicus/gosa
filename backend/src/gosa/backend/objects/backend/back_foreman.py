@@ -130,7 +130,7 @@ class Foreman(ObjectBackend):
                 # something when wrong
                 self.log.error("Error requesting foreman backend: %s" % e)
                 data = {}
-        return self.process_data(data)
+        return self.process_data(data, info)
 
     def identify(self, dn, params, fixed_rdn=None):
         self.log.debug("identify: %s, %s, %s" % (dn, params, fixed_rdn))

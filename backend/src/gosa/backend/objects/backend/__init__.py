@@ -64,12 +64,12 @@ class ObjectBackend(object):
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="load"))
 
-    def process_data(self, data):
+    def process_data(self, data, backend_props):
         """ Process incoming data to return a key/value dict as returney by the load method """
         res = {}
         # attach requested attributes to result set
         for attr, type in data.items():
-            if attr in data and data[attr] is not None:
+            if attr in data and data[attr] is not None and attr in backend_props:
                 res[attr] = [data[attr]]
 
         return res
