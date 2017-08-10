@@ -268,7 +268,7 @@ class Object(object):
                 be = ObjectBackendRegistry.getBackend(backend)
                 attrs = None
                 if data is not None and backend in data:
-                    attrs = be.process_data(data[backend])
+                    attrs = be.process_data(data[backend], self._propsByBackend[backend])
                     changed_attributes += list(attrs.keys())
 
                 if attrs is None:
@@ -389,7 +389,7 @@ class Object(object):
         found = []
         for backend in data:
             be = ObjectBackendRegistry.getBackend(backend)
-            attrs = be.process_data(data[backend])
+            attrs = be.process_data(data[backend], self._propsByBackend[backend])
             self.log.debug("processing data '%s' through backend %s resulted in: %s" % (data, backend, attrs))
 
             if attrs is not None:
