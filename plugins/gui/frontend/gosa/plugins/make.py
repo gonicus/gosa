@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 import subprocess
 import sys
 import os
@@ -28,7 +28,7 @@ def build():
     for file in os.listdir("."):
         if os.path.isdir(file) and not file.startswith("_template"):
             # generate plugin
-            subprocess.call("cd %s && ./generate.py build" % file, shell=True)
+            subprocess.call("cd %s && python2 ./generate.py build" % file, shell=True)
     print_task_footer("build")
 
 
