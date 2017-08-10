@@ -382,7 +382,7 @@ class RPCMethods(Plugin):
         res = {}
         factory = ObjectFactory.getInstance()
         for item, children in query_result:
-            self.__update_res(res, item, user, 1)
+            self.update_res(res, item, user, 1)
 
             if object_type is not None and item.dn in res:
                 res[item.dn]['hasChildren'] = children > 0
@@ -571,7 +571,7 @@ class RPCMethods(Plugin):
             query_result = self.__session.query(ObjectInfoIndex).filter(query)
 
         for item in query_result:
-            self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr), these=these, actions=actions)
+            self.update_res(res, item, user, self.__make_relevance(item, keywords, fltr), these=these, actions=actions)
 
             # Collect information for secondary search?
             if fltr['secondary'] != "enabled":
@@ -603,7 +603,7 @@ class RPCMethods(Plugin):
 
             # Execute query and update results
             for item in self.__session.query(ObjectInfoIndex).filter(query):
-                self.__update_res(res, item, user, self.__make_relevance(item, keywords, fltr, True), secondary=True, these=these, actions=actions)
+                self.update_res(res, item, user, self.__make_relevance(item, keywords, fltr, True), secondary=True, these=these, actions=actions)
 
         return list(res.values())
 
@@ -654,7 +654,7 @@ class RPCMethods(Plugin):
 
         return penalty
 
-    def __update_res(self, res, item, user=None, relevance=0, secondary=False, these=None, actions=False):
+    def update_res(self, res, item, user=None, relevance=0, secondary=False, these=None, actions=False):
     
         # Filter out what the current use is not allowed to see
         item = self.__filter_entry(user, item, these)
