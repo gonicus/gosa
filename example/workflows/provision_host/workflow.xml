@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ This file is part of the GOsa project -  http://gosa-project.org
+  ~
+  ~ Copyright:
+  ~    (C) 2010-2017 GONICUS GmbH, Germany, http://www.gonicus.de
+  ~
+  ~ License:
+  ~    LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
+  ~
+  ~ See the LICENSE file in the project's top-level directory for details.
+  -->
+
+<Workflow xmlns="http://www.gonicus.de/Workflows" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.gonicus.de/Workflows workflow.xsd ">
+
+    <Id>provision_host</Id>
+    <Description>Workflow to provision a discovered host</Description>
+    <DisplayName>Provision host</DisplayName>
+    <Category>Host management</Category>
+    <Templates>
+        <Template>host.json</Template>
+    </Templates>
+
+    <Attributes>
+        <Attribute>
+            <Name>parentDn</Name>
+            <Description>Dn of the parent container in which the host shall be placed.</Description>
+            <Type>UnicodeString</Type>
+        </Attribute>
+
+        <Attribute>
+            <Name>hostDn</Name>
+            <Description>DN of an existing host that should be provisioned</Description>
+            <Type>UnicodeString</Type>
+        </Attribute>
+
+        <Attribute>
+            <Name>hostname</Name>
+            <Mandatory>true</Mandatory>
+            <Description>Hostname without domain appendix.</Description>
+            <Type>UnicodeString</Type>
+            <Mandatory>true</Mandatory>
+        </Attribute>
+
+        <Attribute>
+            <Name>domain_id</Name>
+            <Description>Domain the host should be added to</Description>
+            <Type>Integer</Type>
+            <Values populate="getForemanDomains"/>
+        </Attribute>
+
+        <Attribute>
+            <Name>compute_resource_id</Name>
+            <Type>Integer</Type>
+            <Values populate="getForemanComputeResources"/>
+        </Attribute>
+
+        <Attribute>
+            <Name>groupMembership</Name>
+            <Description>Assigned host group</Description>
+            <Type>String</Type>
+            <Validators>
+                <Condition>
+                    <Name>ObjectWithPropertyExists</Name>
+                    <Param>ForemanHostGroup</Param>
+                    <Param>foremanGroupId</Param>
+                </Condition>
+            </Validators>
+        </Attribute>
+        <Attribute>
+            <Name>ip</Name>
+            <Description>IP address</Description>
+            <Type>String</Type>
+            <DependsOn>
+                <Attribute>ipHostNumber</Attribute>
+            </DependsOn>
+            <InFilter>
+                <FilterChain>
+                    <FilterEntry>
+                        <Filter>
+                            <Name>CopyValueTo</Name>
+                            <Param>ipHostNumber</Param>
+                        </Filter>
+                    </FilterEntry>
+                </FilterChain>
+            </InFilter>
+            <OutFilter>
+                <FilterChain>
+                    <FilterEntry>
+                        <Filter>
+                            <Name>CopyValueFrom</Name>
+                            <Param>ipHostNumber</Param>
+                        </Filter>
+                    </FilterEntry>
+                </FilterChain>
+            </OutFilter>
+        </Attribute>
+        <Attribute>
+            <Name>mac</Name>
+            <Description>MAC address</Description>
+            <Type>String</Type>
+        </Attribute>
+        <Attribute>
+            <Name>compute_resource_id</Name>
+            <Type>Integer</Type>
+            <Values populate="getForemanComputeResources"/>
+        </Attribute>
+    </Attributes>
+
+</Workflow>
