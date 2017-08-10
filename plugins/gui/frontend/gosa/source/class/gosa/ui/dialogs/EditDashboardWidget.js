@@ -82,6 +82,8 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
             if (!typeSettings.defaultValue && (!options.settings.mandatory || options.settings.mandatory.indexOf(propertyName) === -1)) {
               data.push({label: "-", data: null});
             }
+            var selectedIndex = -1;
+            var selectionModel;
 
             if (typeSettings.provider === "RPC" && typeSettings.method) {
               // retrieve data from rpc
@@ -94,24 +96,36 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
                     if (typeSettings.icon) {
                       entry.icon = result[key][typeSettings.icon]
                     }
+                    if (value === keyValue) {
+                      selectedIndex = data.length;
+                    }
                     data.push(entry);
                   }
                 }
-                var selectionModel = qx.data.marshal.Json.createModel(data.toArray());
+                selectionModel = qx.data.marshal.Json.createModel(data.toArray());
                 selectionController.setModel(selectionModel);
+                if (selectedIndex >= 0) {
+                  selectBox.getModelSelection().push(selectionModel.getItem(selectedIndex));
+                }
               }, this);
             } else if (typeSettings.provider === "custom" && typeSettings.options) {
               data.append(typeSettings.options);
-              var selectionModel = qx.data.marshal.Json.createModel(data.toArray());
+              // find current selection
+              data.some(function(entry, i) {
+                if (entry.data === value) {
+                  selectedIndex = i;
+                }
+              }, this);
+              selectionModel = qx.data.marshal.Json.createModel(data.toArray());
               selectionController.setModel(selectionModel);
+              if (selectedIndex >= 0) {
+                selectBox.getModelSelection().push(selectionModel.getItem(selectedIndex));
+              }
             }
 
             selectBox.addListener("changeSelection", function() {
               if (selectBox.getModelSelection().length) {
-                var selectedValue = selectBox.getModelSelection().getItem(0);
-                if (selectedValue) {
-                  this.__selectionValues[propertyName] = selectedValue;
-                }
+                this.__selectionValues[propertyName] = selectBox.getModelSelection().getItem(0);
               }
             }, this);
             formItem = selectBox;
@@ -158,7 +172,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
       if (form.validate()) {
         if (this.isModified()) {
           Object.getOwnPropertyNames(this.__initialValues).forEach(function(prop) {
-            var value = this.__selectionValues[prop] || this.__model.get(prop);
+            var value = prop in this.__selectionValues ? this.__selectionValues[prop] : this.__model.get(prop);
             widget.set(prop, value);
           }, this);
           this.fireEvent("modified");
@@ -280,6 +294,7 @@ qx.Class.define("gosa.ui.dialogs.EditDashboardWidget", {
         value = item.getValue();
       }
       this._checkSavability();
+      // noinspection EqualityComparisonWithCoercionJS
       this.setModified(value != this.__initialValues[prop]);
     }
   },
