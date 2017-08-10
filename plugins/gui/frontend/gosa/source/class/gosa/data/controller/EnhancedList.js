@@ -153,6 +153,7 @@ qx.Class.define("gosa.data.controller.EnhancedList", {
     __boundPropertiesReverse : null,
     __syncTargetSelection    : null,
     __syncModelSelection     : null,
+    __beforeGroupProperties  : null,
 
     /*
      ---------------------------------------------------------------------------
@@ -303,6 +304,12 @@ qx.Class.define("gosa.data.controller.EnhancedList", {
     _applyTarget : function(value, old) {
       // add a listener for the target change
       this._addChangeTargetListener(value, old);
+
+      if (value.getLayout && value.getLayout() instanceof qx.ui.layout.Flow) {
+        this.__beforeGroupProperties = { lineBreak: true }
+      } else {
+        this.__beforeGroupProperties = null;
+      }
 
       // if there was an old target
       if (old != undefined) {
@@ -471,6 +478,14 @@ qx.Class.define("gosa.data.controller.EnhancedList", {
       // set up the binding
       this._bindListItem(listItem, config);
       // add the ListItem to the target
+      if (this.__beforeGroupProperties && listItem.getListItemType && listItem.getListItemType() === "group") {
+        // change last item before the group item
+        var children = this.getTarget().getChildren();
+        if (children.length > 0) {
+          var lastChild = children[children.length - 1];
+          lastChild.setLayoutProperties(this.__beforeGroupProperties);
+        }
+      }
       this.getTarget().add(listItem);
     },
 
