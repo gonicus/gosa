@@ -17,16 +17,16 @@ msgstr ""
 
 #: gosa/plugins/objectlist/Main.js:203
 msgid "Title"
-msgstr ""
+msgstr "Titel"
 
 #: gosa/plugins/objectlist/Main.js:208
 msgid "Search query"
-msgstr ""
+msgstr "Suchanfrage"
 
 #: gosa/plugins/objectlist/Main.js:213
 msgid "Limit"
-msgstr ""
+msgstr "Limit"
 
 #: gosa/plugins/objectlist/Main.js:218
 msgid "Start workflow"
-msgstr ""
+msgstr "Starte Workflow"

@@ -22,7 +22,9 @@ qx.Class.define("gosa.plugins.objectlist.Main", {
     this.base(arguments);
 
     this.getChildControl("container").setLayout(new qx.ui.layout.VBox());
-    this._model = new gosa.plugins.activity.model.SearchResult();
+    this._model = new gosa.plugins.objectlist.model.SearchResult();
+
+    this.rpc = gosa.io.Rpc.getInstance();
 
     // Listen for object changes coming from the backend
     gosa.io.Sse.getInstance().addListener("objectModified", this.refreshModel, this);
@@ -146,24 +148,38 @@ qx.Class.define("gosa.plugins.objectlist.Main", {
 
     refreshModel: function() {
       if (this.isSeeable()) {
-        if (this.getQuery().length <= 2) {
+        var query = this.getQuery();
+        if (query.length <= 2) {
           // do not search
           this._model.updateModel([]);
         } else {
-          gosa.io.Rpc.getInstance().cA("search", gosa.Session.getInstance().getBase(), "sub", this.getQuery(), {
-            'fallback' : true,
-            'limit' : this.getMaxItems(),
-            'secondary' : false
-          })
-          .then(this._model.updateModel, this._model)
-          .catch(function(error) {
-            this.error(error);
-            var d = new gosa.ui.dialogs.Error(error);
-            d.open();
-          }, this)
-          .finally(function() {
-            this.__updateQueued = false;
-          }, this);
+          var args = [];
+          if (query.startsWith("RPC:")) {
+            var parts = query.split(":");
+            // skip the RPC part
+            parts.shift();
+            query = null;
+            args = parts;
+          } else {
+            // normal search query
+            args = ["search", gosa.Session.getInstance().getBase(), "sub", query, {
+              'fallback' : true,
+              'limit' : this.getMaxItems(),
+              'secondary' : false
+            }];
+          }
+          if (args.length > 0) {
+            this.rpc.cA.apply(this.rpc, args)
+            .then(this._model.updateModel, this._model)
+            .catch(function(error) {
+              this.error(error);
+              var d = new gosa.ui.dialogs.Error(error);
+              d.open();
+            }, this)
+            .finally(function() {
+              this.__updateQueued = false;
+            }, this);
+          }
         }
       } else {
         this.__updateQueued = true;
@@ -187,6 +203,7 @@ qx.Class.define("gosa.plugins.objectlist.Main", {
             title: qx.locale.Manager.tr("Title")
           },
           query: {
+            // simple search string or an an RPC (RPC:<command-name>:param1:param2:..)
             type: "String",
             title: qx.locale.Manager.tr("Search query"),
             multiline: true
