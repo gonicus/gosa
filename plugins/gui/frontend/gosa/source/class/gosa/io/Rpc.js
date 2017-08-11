@@ -234,8 +234,7 @@ qx.Class.define("gosa.io.Rpc", {
         gosa.Session.getInstance().setUser(null);
         this.debug("RPC "+argx[0]+" failed: authorization error");
 
-        var dialog = new gosa.ui.dialogs.LoginDialog();
-        dialog.open();
+        var dialog = gosa.ui.dialogs.LoginDialog.openInstance();
         return new qx.Promise(function(resolve, reject) {
           dialog.addListener("login", function(e) {
 

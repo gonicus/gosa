@@ -1,0 +1,202 @@
+{
+    "type": "widget",
+    "name": "tr('Host')",
+    "class": "qx.ui.container.Composite",
+    "layout": "qx.ui.layout.VBox",
+    "addOptions": {
+        "flex": 1
+    },
+    "layoutConfig": {
+        "spacing": "CONST_SPACING_Y"
+    },
+    "children": [
+        {
+            "class": "gosa.ui.widgets.GroupBox",
+            "layout": "qx.ui.layout.Grid",
+            "properties": {
+                "legend": "tr('Foreman host settings')"
+            },
+            "layoutConfig": {
+                "spacingX": "CONST_SPACING_X",
+                "spacingY": "CONST_SPACING_Y"
+            },
+            "extensions": {
+                "layoutOptions": {
+                    "columnFlex": {
+                        "column": 1,
+                        "flex": 1
+                    }
+                }
+            },
+            "children": [
+
+                {
+                    "properties": {
+                        "text": "tr('Domain')"
+                    },
+                    "buddyModelPath": "domain_id",
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "addOptions": {
+                        "column": 0,
+                        "row": 0
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QComboBoxWidget",
+                    "modelPath": "domain_id",
+                    "addOptions": {
+                        "column": 1,
+                        "row": 0
+                    },
+                    "properties": {
+                        "tabIndex": 1,
+                        "sortBy": "value"
+                    }
+                },
+
+                {
+                    "properties": {
+                        "text": "tr('Operating system')"
+                    },
+                    "buddyModelPath": "operatingsystem_id",
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "addOptions": {
+                        "column": 0,
+                        "row": 1
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QComboBoxWidget",
+                    "modelPath": "operatingsystem_id",
+                    "addOptions": {
+                        "column": 1,
+                        "row": 1
+                    },
+                    "properties": {
+                        "tabIndex": 2,
+                        "sortBy": "value"
+                    }
+                },
+
+                {
+                    "properties": {
+                        "text": "tr('Architecture')"
+                    },
+                    "buddyModelPath": "architecture_id",
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "addOptions": {
+                        "column": 0,
+                        "row": 2
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QComboBoxWidget",
+                    "modelPath": "architecture_id",
+                    "addOptions": {
+                        "column": 1,
+                        "row": 2
+                    },
+                    "properties": {
+                        "tabIndex": 3,
+                        "sortBy": "value"
+                    }
+                },
+
+                {
+                    "properties": {
+                        "text": "tr('Partition table')"
+                    },
+                    "buddyModelPath": "ptable_id",
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "addOptions": {
+                        "column": 0,
+                        "row": 3
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QComboBoxWidget",
+                    "modelPath": "ptable_id",
+                    "addOptions": {
+                        "column": 1,
+                        "row": 3
+                    },
+                    "properties": {
+                        "tabIndex": 4,
+                        "sortBy": "value"
+                    }
+                },
+
+                {
+                    "properties": {
+                        "text": "tr('Medium')"
+                    },
+                    "buddyModelPath": "medium_id",
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "addOptions": {
+                        "column": 0,
+                        "row": 4
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QComboBoxWidget",
+                    "modelPath": "medium_id",
+                    "addOptions": {
+                        "column": 1,
+                        "row": 4
+                    },
+                    "properties": {
+                        "tabIndex": 5,
+                        "sortBy": "value"
+                    }
+                },
+
+                {
+                    "properties": {
+                        "text": "tr('Root password')"
+                    },
+                    "buddyModelPath": "root_pass",
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "addOptions": {
+                        "column": 0,
+                        "row": 5
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QLineEditWidget",
+                    "modelPath": "root_pass",
+                    "addOptions": {
+                        "column": 1,
+                        "row": 5
+                    },
+                    "properties": {
+                        "tabIndex": 6,
+                        "echoMode": "password"
+                    }
+                },
+
+                {
+                    "properties": {
+                        "text": "tr('Parent dn')"
+                    },
+                    "buddyModelPath": "parentDn",
+                    "class": "gosa.ui.widgets.QLabelWidget",
+                    "addOptions": {
+                        "column": 0,
+                        "row": 6
+                    }
+                },
+                {
+                    "class": "gosa.ui.widgets.QLineEditWidget",
+                    "modelPath": "parentDn",
+                    "addOptions": {
+                        "column": 1,
+                        "row": 6
+                    },
+                    "properties": {
+                        "tabIndex": 7
+                    }
+                }
+            ]
+        }
+    ]
+}

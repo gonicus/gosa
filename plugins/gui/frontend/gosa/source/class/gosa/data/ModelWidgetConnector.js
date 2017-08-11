@@ -63,6 +63,14 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
     connect : function(attributeName, config, widget, buddy) {
       this.__handleProperties(config, widget, buddy);
 
+      // handle values_inherited from
+      if (config.hasOwnProperty("value_inherited_from") && widget && config["value_inherited_from"]) {
+        this.__inheritValue(attributeName, widget, config["value_inherited_from"]);
+        widget.addListener("appear", function() {
+          this.__inheritValue(attributeName, widget, config["value_inherited_from"]);
+        }, this);
+      }
+
       if (config.hasOwnProperty("blocked_by")) {
         this.__handleBlockedBy(config.blocked_by, widget, buddy, function() {
           this.__initCompleteWidget(widget);
@@ -110,6 +118,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
       }
       if (config["default"]) {
         setMap.defaultValue = config["default"];
+        setMap.placeholder = config["default"];
       }
       if (config["type"]) {
         setMap.type = config.type;
@@ -125,6 +134,9 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
       }
       if (config["values"]) {
         setMap.values = config.values;
+      }
+      if (config["value_inherited_from"]) {
+        setMap.valueInheritedFrom = config.value_inherited_from;
       }
 
       // set properties
@@ -144,6 +156,26 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
       }
     },
 
+    __inheritValue: function(attributeName, widget, config) {
+      var reference_value = null;
+      var arr = this.__object.get(config["reference_attribute"]);
+      if (arr instanceof qx.data.Array && arr.getLength() === 1) {
+        reference_value = arr.getItem(0);
+      }
+      if (reference_value !== null) {
+        gosa.io.Rpc.getInstance().cA("**" + config["rpc"], reference_value).then(function(values) {
+          if (values[attributeName]) {
+            if (widget.setWidgetValue) {
+              widget.setWidgetValue(0, values[attributeName]);
+            }
+            else {
+              widget.setValue(new qx.data.Array([values[attributeName]]));
+            }
+          }
+        }, this);
+      }
+    },
+
     __populateValues : function(widget, rpcMethod) {
       var data = {};
       this.__object.attributes.forEach(function(attributeName) {
@@ -158,7 +190,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
                      : null;
 
       // get suggested values from backend
-      gosa.io.Rpc.getInstance().cA(rpcMethod, data).then(function(suggestions) {
+      gosa.io.Rpc.getInstance().cA("**"+rpcMethod, data).then(function(suggestions) {
         widget.setValues(suggestions);
         if (oldValue && qx.lang.Array.contains(suggestions, oldValue)) {
           widget.setWidgetValue(0, oldValue);

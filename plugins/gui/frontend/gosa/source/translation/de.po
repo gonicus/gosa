@@ -156,11 +156,11 @@ msgstr ""
 
 #: gosa/plugins/workflowstarter/Main.js:273
 msgid "Workflow starter"
-msgstr "Workflow Starter"
+msgstr "Arbeitsablauf Starter"
 
 #: gosa/ui/controller/Objects.js:153 gosa/plugins/workflowstarter/Main.js:286
 msgid "Workflow"
-msgstr "Arbeitsfluss"
+msgstr "Arbeitsablauf"
 
 #: gosa/ui/Header.js:72 gosa/ui/Header.js:155
 msgid "Menu"
@@ -700,11 +700,11 @@ msgstr "Weiter"
 
 #: gosa/ui/widgets/WorkflowWizard.js:207
 msgid "Previous"
-msgstr ""
+msgstr "Zurück"
 
 #: gosa/ui/widgets/WorkflowWizard.js:213
 msgid "Save & Close"
-msgstr ""
+msgstr "Speichern & Schliessen"
 
 #: gosa/view/Dashboard.js:26
 msgid "Drop file here to add it to the available widgets."

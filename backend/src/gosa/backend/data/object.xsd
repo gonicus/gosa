@@ -101,6 +101,15 @@
       </element>
       <element name="CaseSensitive" type="boolean" maxOccurs="1" minOccurs="0"/>
       <element name="References" type="o:References" maxOccurs="1" minOccurs="0"/>
+      <element name="InheritFrom" minOccurs="0" maxOccurs="1">
+        <complexType>
+          <simpleContent>
+            <extension base="string">
+              <attribute name="relation" type="string"/>
+            </extension>
+          </simpleContent>
+        </complexType>
+      </element>
     </all>
   </complexType>
 

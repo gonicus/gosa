@@ -8,6 +8,15 @@ FM_STATUS_BUILD = 0
 FM_STATUS_BUILD_PENDING = 1
 FM_STATUS_BUILD_TOKEN_EXPIRED = 2
 
+mapping = {
+    "error": "status_Error",
+    "warning": "status_Warning",
+    "token-expired": "status_Warning",
+    "pending": "status_InstallationInProgress",
+    "ready": "status_Online",
+    "unknown": "status_Offline"
+}
+
 
 class ForemanStatusIn(ElementFilter):
     """
@@ -33,7 +42,15 @@ class ForemanStatusIn(ElementFilter):
             global_status = valDict['global_status']['value'][0] if len(valDict['global_status']['value']) else None
             build_status = valDict['build_status']['value'][0] if len(valDict['build_status']['value']) else None
             if global_status is not None or build_status is not None:
-                valDict[key]['value'] = [ForemanStatusIn.convert(global_status, build_status)]
+                status = ForemanStatusIn.convert(global_status, build_status)
+                valDict[key]['value'] = [status]
+
+                # write registered device states to
+                for state, foreign_attribute in mapping.items():
+                    if foreign_attribute in valDict:
+                        print("set %s to %s==%s" % (foreign_attribute, state, status))
+                        setattr(obj, foreign_attribute, state == status)
+
         return key, valDict
 
     @staticmethod

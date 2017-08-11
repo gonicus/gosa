@@ -89,7 +89,18 @@ class Foreman(ObjectBackend):
                 raise ForemanObjectException(", ".join(data["error"]["errors"]))
             return data
         else:
-            response.raise_for_status()
+            try:
+                data = response.json()
+            except Exception as e:
+                self.log.error("Error parsing json error response: %s" % response.text)
+                response.raise_for_status()
+            else:
+                # check for error
+                if "error" in data:
+                    self.log.debug("Received response with error: %s" % data["error"])
+                    raise ForemanObjectException(", ".join(data["error"]["errors"]) if "errors" in data["error"] else str(data["error"]))
+                else:
+                    response.raise_for_status()
 
     def check_backend(self):
         """ check if foreman backend is reachable """
@@ -172,13 +183,14 @@ class Foreman(ObjectBackend):
         """ Called when a base object is extended with a foreman object (e.g. device->foremanHost)"""
         self.log.debug("extend: %s, %s, %s, %s" % (uuid, data, params, foreign_keys))
         if Foreman.modifier != "foreman":
-            payload = self.__collect_data(data, params)
+            type = self.get_foreman_type(needed, params)
+            payload = self.__collect_data(data, params, type=type[:-1])
 
             # finally send the update to foreman
             self.log.debug("creating '%s' with '%s' to foreman" % (params["type"], payload))
 
             def runner():
-                result = self.__post(self.get_foreman_type(needed, params), data=payload)
+                result = self.__post(type, data=payload)
                 self.log.debug("Response: %s" % result)
 
             # some changes (e.g. creating a host) trigger requests from foreman to gosa
@@ -205,13 +217,14 @@ class Foreman(ObjectBackend):
     def update(self, uuid, data, params, needed=None):
         self.log.debug("update: '%s', '%s', '%s'" % (uuid, data, params))
         if Foreman.modifier != "foreman":
-            payload = self.__collect_data(data, params)
+            type = self.get_foreman_type(needed, params)
+            payload = self.__collect_data(data, params, type=type[:-1])
 
             # finally send the update to foreman
             self.log.debug("sending update '%s' to foreman" % payload)
 
             def runner():
-                result = self.__put(self.get_foreman_type(needed, params), uuid, data=payload)
+                result = self.__put(type, uuid, data=payload)
                 self.log.debug("Response: %s" % result)
 
             # some changes (e.g. changing the hostgroup) trigger requests from foreman to gosa
@@ -245,9 +258,10 @@ class Foreman(ObjectBackend):
 
         return result
 
-    def __collect_data(self, data, params):
+    def __collect_data(self, data, params, type=None):
         # collect data
-        type = params["type"][:-1]
+        if type is None:
+            type = params["type"][:-1]
         payload = {
             type: {}
         }

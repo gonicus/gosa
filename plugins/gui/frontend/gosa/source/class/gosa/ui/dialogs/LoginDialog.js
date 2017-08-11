@@ -49,6 +49,15 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
     _key: null,
     _mode: "login",
     __timeFormat: null,
+    __instance: null,
+
+    openInstance: function() {
+      if (this.__instance === null || this.__instance.isDisposed()) {
+        this.__instance = new gosa.ui.dialogs.LoginDialog();
+        this.__instance.open();
+      }
+      return this.__instance;
+    },
 
     __initLoginForm: function() {
       // Show Subject/Message pane

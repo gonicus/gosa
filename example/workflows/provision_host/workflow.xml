@@ -20,7 +20,9 @@
     <DisplayName>Provision host</DisplayName>
     <Category>Host management</Category>
     <Templates>
+        <Template>hostgroup.json</Template>
         <Template>host.json</Template>
+        <Template>network.json</Template>
     </Templates>
 
     <Attributes>
@@ -28,39 +30,22 @@
             <Name>parentDn</Name>
             <Description>Dn of the parent container in which the host shall be placed.</Description>
             <Type>UnicodeString</Type>
+            <Default>ou=devices,ou=systems,dc=example,dc=net</Default>
         </Attribute>
 
         <Attribute>
-            <Name>hostDn</Name>
-            <Description>DN of an existing host that should be provisioned</Description>
-            <Type>UnicodeString</Type>
-        </Attribute>
-
-        <Attribute>
-            <Name>hostname</Name>
+            <Name>cn</Name>
             <Mandatory>true</Mandatory>
             <Description>Hostname without domain appendix.</Description>
             <Type>UnicodeString</Type>
-            <Mandatory>true</Mandatory>
         </Attribute>
 
         <Attribute>
-            <Name>domain_id</Name>
-            <Description>Domain the host should be added to</Description>
-            <Type>Integer</Type>
-            <Values populate="getForemanDomains"/>
-        </Attribute>
-
-        <Attribute>
-            <Name>compute_resource_id</Name>
-            <Type>Integer</Type>
-            <Values populate="getForemanComputeResources"/>
-        </Attribute>
-
-        <Attribute>
-            <Name>groupMembership</Name>
+            <Name>hostgroup_id</Name>
             <Description>Assigned host group</Description>
             <Type>String</Type>
+            <Mandatory>true</Mandatory>
+            <Values populate="getForemanHostgroups"/>
             <Validators>
                 <Condition>
                     <Name>ObjectWithPropertyExists</Name>
@@ -69,43 +54,69 @@
                 </Condition>
             </Validators>
         </Attribute>
+
+        <Attribute>
+            <Name>compute_resource_id</Name>
+            <Type>Integer</Type>
+            <Values populate="getForemanComputeResources"/>
+        </Attribute>
+
+        <!-- START: inherited from hostgroup /-->
+
+        <Attribute>
+            <Name>domain_id</Name>
+            <Description>Domain the host should be added to</Description>
+            <Type>Integer</Type>
+            <Mandatory>true</Mandatory>
+            <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+            <Values populate="getForemanDomains"/>
+        </Attribute>
+
+        <Attribute>
+            <Name>operatingsystem_id</Name>
+            <Type>Integer</Type>
+            <Values populate="getForemanOperatingSystems"/>
+            <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+        </Attribute>
+
+        <Attribute>
+            <Name>architecture_id</Name>
+            <Type>Integer</Type>
+            <Values populate="getForemanArchitectures"/>
+            <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+        </Attribute>
+
+        <Attribute>
+            <Name>ptable_id</Name>
+            <Type>Integer</Type>
+            <Values populate="getForemanPartitionTables"/>
+            <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+        </Attribute>
+
+        <Attribute>
+            <Name>medium_id</Name>
+            <Type>Integer</Type>
+            <Values populate="getForemanMedia"/>
+            <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+        </Attribute>
+
+        <Attribute>
+            <Name>root_pass</Name>
+            <Type>UnicodeString</Type>
+            <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+        </Attribute>
+
+        <!-- END: inherited from hostgroup /-->
+
         <Attribute>
             <Name>ip</Name>
             <Description>IP address</Description>
             <Type>String</Type>
-            <DependsOn>
-                <Attribute>ipHostNumber</Attribute>
-            </DependsOn>
-            <InFilter>
-                <FilterChain>
-                    <FilterEntry>
-                        <Filter>
-                            <Name>CopyValueTo</Name>
-                            <Param>ipHostNumber</Param>
-                        </Filter>
-                    </FilterEntry>
-                </FilterChain>
-            </InFilter>
-            <OutFilter>
-                <FilterChain>
-                    <FilterEntry>
-                        <Filter>
-                            <Name>CopyValueFrom</Name>
-                            <Param>ipHostNumber</Param>
-                        </Filter>
-                    </FilterEntry>
-                </FilterChain>
-            </OutFilter>
         </Attribute>
         <Attribute>
             <Name>mac</Name>
             <Description>MAC address</Description>
             <Type>String</Type>
-        </Attribute>
-        <Attribute>
-            <Name>compute_resource_id</Name>
-            <Type>Integer</Type>
-            <Values populate="getForemanComputeResources"/>
         </Attribute>
     </Attributes>
 

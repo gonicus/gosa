@@ -237,6 +237,15 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       event: "initCompleteChanged",
       apply: "_initComplete",
       init: false
+    },
+
+    /**
+     * If set this value is inherited from another object (usually some kind of group)
+     * but can be overwritten. Hold a Map: {rpc: <rpc-call-name>, reference_attribute: <attribute-name-holding-reference-id>}
+     */
+    valueInheritedFrom : {
+      check : 'Object',
+      nullable: true
     }
   },
 

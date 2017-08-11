@@ -29,10 +29,11 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
      * Wrapper for {this.__openObject} to open a workflow object
      *
      * @param workflowId {String} id of the workflow
+     * @param reference_object_dn {String} dn of a reference object that should be used to prefill the workflow object
      * @return {qx.Promise}
      */
-    openWorkflow: function(workflowId){
-      return this.__openObject("workflow", workflowId);
+    openWorkflow: function(workflowId, reference_object_dn){
+      return this.__openObject("workflow", workflowId, reference_object_dn);
     },
 
     /**

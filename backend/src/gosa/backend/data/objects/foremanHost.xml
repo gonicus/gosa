@@ -25,9 +25,6 @@
       <ForeignAttribute>
           <Name>macAddress</Name>
       </ForeignAttribute>
-      <ForeignAttribute>
-        <Name>deviceUUID</Name>
-      </ForeignAttribute>
       <Attribute>
         <Name>status</Name>
         <Description>The foreman - current device status</Description>
@@ -179,46 +176,62 @@
           </FilterChain>
         </OutFilter>
       </Attribute>
-      <Attribute>
-        <Name>uuid</Name>
-        <Description>Device UUID</Description>
-        <Type>String</Type>
-        <Backend>Foreman</Backend>
-        <DependsOn>
-          <Attribute>deviceUUID</Attribute>
-        </DependsOn>
-        <InFilter>
-          <FilterChain>
-            <FilterEntry>
-              <Filter>
-                <Name>CopyValueTo</Name>
-                <Param>deviceUUID</Param>
-              </Filter>
-            </FilterEntry>
-          </FilterChain>
-        </InFilter>
-        <OutFilter>
-          <FilterChain>
-            <FilterEntry>
-              <Filter>
-                <Name>CopyValueFrom</Name>
-                <Param>deviceUUID</Param>
-              </Filter>
-            </FilterEntry>
-          </FilterChain>
-        </OutFilter>
-      </Attribute>
-      <Attribute>
-        <Name>compute_resource_name</Name>
-        <Type>UnicodeString</Type>
-        <Backend>Foreman</Backend>
-      </Attribute>
+
       <Attribute>
         <Name>compute_resource_id</Name>
         <Type>Integer</Type>
         <Backend>Foreman</Backend>
         <Values populate="getForemanComputeResources"/>
       </Attribute>
+
+      <Attribute>
+        <Name>domain_id</Name>
+        <Description>Domain the host should be added to</Description>
+        <Type>Integer</Type>
+        <Backend>Foreman</Backend>
+        <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+        <Values populate="getForemanDomains"/>
+      </Attribute>
+
+      <Attribute>
+        <Name>operatingsystem_id</Name>
+        <Type>Integer</Type>
+        <Backend>Foreman</Backend>
+        <Values populate="getForemanOperatingSystems"/>
+        <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+      </Attribute>
+
+      <Attribute>
+        <Name>architecture_id</Name>
+        <Type>Integer</Type>
+        <Backend>Foreman</Backend>
+        <Values populate="getForemanArchitectures"/>
+        <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+      </Attribute>
+
+      <Attribute>
+        <Name>ptable_id</Name>
+        <Type>Integer</Type>
+        <Backend>Foreman</Backend>
+        <Values populate="getForemanPartitionTables"/>
+        <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+      </Attribute>
+
+      <Attribute>
+        <Name>medium_id</Name>
+        <Type>Integer</Type>
+        <Backend>Foreman</Backend>
+        <Values populate="getForemanMedia"/>
+        <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+      </Attribute>
+
+      <Attribute>
+        <Name>root_pass</Name>
+        <Type>UnicodeString</Type>
+        <Backend>Foreman</Backend>
+        <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+      </Attribute>
+
       <Attribute>
         <Name>name</Name>
         <Type>UnicodeString</Type>

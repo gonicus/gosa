@@ -69,7 +69,7 @@ qx.Class.define("gosa.ui.widgets.QLineEditWidget", {
     _createWidget: function(){
       var w;
 
-      if(this.getEchoMode() == "password"){
+      if(this.getEchoMode() === "password"){
         w = new qx.ui.form.PasswordField();
       }else{
         w = new qx.ui.form.TextField();

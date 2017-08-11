@@ -102,12 +102,10 @@ qx.Class.define("gosa.plugins.objectlist.Main", {
           item.addListener("tap", function(e) {
             if (this.getStartWorkflow()) {
               var dn = e.getCurrentTarget().getModel().getDn();
-              console.log(dn);
-              // TODO: start workflow with dn as parameter
               var workflow = new gosa.ui.form.WorkflowItem(true);
               workflow.bind("loading", item, "isLoading");
               workflow.setId(this.getStartWorkflow());
-              gosa.ui.controller.Objects.getInstance().startWorkflow(workflow);
+              gosa.ui.controller.Objects.getInstance().startWorkflow(workflow, dn);
             }
           }, this);
           return (item);

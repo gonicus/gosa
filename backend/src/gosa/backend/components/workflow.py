@@ -1,10 +1,19 @@
 import os
 import sys
+import logging
 from lxml import objectify, etree
+from gosa.common.utils import N_
+from gosa.backend.objects import ObjectProxy
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry
 from gosa.common.error import GosaErrorHandler as C
 from pkg_resources import resource_filename
+
+
+# Register the errors handled  by us
+C.register_codes(dict(
+    WORKFLOW_SCRIPT_ERROR=N_("Error executing workflow script '%(topic)s'")
+))
 
 #TODO: exceptions
 #      attribute handling
@@ -25,6 +34,8 @@ class Workflow:
     __attribute = None
     __user = None
     __session_id = None
+    __reference_object = None
+    __log = None
 
     def __init__(self, _id, what=None, user=None, session_id=None):
         schema = etree.XMLSchema(file=resource_filename("gosa.backend", "data/workflow.xsd"))
@@ -34,11 +45,23 @@ class Workflow:
         self.dn = self.env.base
         self.__user = user
         self.__session_id = session_id
+        self.__log = logging.getLogger(__name__)
 
         self._path = self.env.config.get("core.workflow_path", "/var/lib/gosa/workflows")
         self._xml_root = objectify.parse(os.path.join(self._path, _id, "workflow.xml"), parser).getroot()
 
         self.__attribute = {key: None for key in self.get_attributes()}
+
+        if what is not None:
+            # load object and copy attribute values to workflow
+            try:
+                self.__reference_object = ObjectProxy(what)
+                for key in self.__attribute:
+                    if hasattr(self.__reference_object, key) and getattr(self.__reference_object, key) is not None:
+                        setattr(self, key, getattr(self.__reference_object, key))
+            except Exception as e:
+                # could not open the reference object
+                self.__log.error(e)
 
     def get_methods(self):
         return self.get_all_method_names()
@@ -55,11 +78,9 @@ class Workflow:
         return list(res.keys())
 
     def commit(self):
-        if self._has_mandatory_attributes_values():
-            with open(os.path.join(self._path, self.uuid, "workflow.py"), "r") as fscr:
-                return self._execute_embedded_script(fscr.read())
-
-        return False
+        self.check()
+        with open(os.path.join(self._path, self.uuid, "workflow.py"), "r") as fscr:
+            return self._execute_embedded_script(fscr.read())
 
     def get_id(self):
         find = objectify.ObjectPath("Workflow.Id")
@@ -114,20 +135,28 @@ class Workflow:
                                 res[attr.Name.text] = {}
 
                             values_populate = None
+                            value_inherited_from = None
                             if 'Values' in attr.__dict__:
-                                if attr.Name.text == 'uid' and 'populate' in attr.__dict__['Values'].attrib:
+                                if 'populate' in attr.__dict__['Values'].attrib:
                                     values_populate = attr.__dict__['Values'].attrib['populate']
+
+                            if 'InheritFrom' in attr.__dict__:
+                                value_inherited_from = {
+                                    "rpc": str(self._load(attr, "InheritFrom", "")),
+                                    "reference_attribute": attr.__dict__['InheritFrom'].attrib['relation']
+                                }
 
                             res[attr.Name.text] = {
                                 'description': str(self._load(attr, "Description", "")),
                                 'type': attr.Type.text,
-                                'default': bool(self._load(attr, "Default", None)),
+                                'default': str(self._load(attr, "Default", "")),
                                 'multivalue': bool(self._load(attr, "MultiValue", False)),
                                 'mandatory': bool(self._load(attr, "Mandatory", False)),
                                 'readonly': bool(self._load(attr, "ReadOnly", False)),
                                 'case_sensitive': bool(self._load(attr, "CaseSensitive", False)),
                                 'unique': bool(self._load(attr, "Unique", False)),
-                                'values_populate': values_populate
+                                'values_populate': values_populate,
+                                'value_inherited_from': value_inherited_from
                             }
 
             self.__attribute_map = res
@@ -148,6 +177,9 @@ class Workflow:
             for method in dispatcher.getMethods():
                 env[method] = make_dispatch(method)
 
+            # add reference object
+            env['reference_object'] = self.__reference_object
+
             exec(script, env)
 
         except Exception as e:
@@ -158,7 +190,7 @@ class Workflow:
             print(fname, "line", exc_tb.tb_lineno)
             print(exc_type)
             print(exc_obj)
-            return False
+            raise ScriptError(C.make_error('WORKFLOW_SCRIPT_ERROR', e))
 
         return True
 
@@ -195,15 +227,28 @@ class Workflow:
         """
         return self.__attribute
 
-    def _has_mandatory_attributes_values(self):
+    def check(self):
         """
-        Checks if all mandatory attributes have values. Returns true if check is ok or the id of the first mandatory
-        attribute that has no value.
+        Checks whether everything is fine with the workflow and its given values or not.
         """
+        props = self._get_attributes()
         data = self._get_data()
-        for key, value in self._get_attributes().items():
-            if value["mandatory"]:
-                if key not in data or data[key] is None or (isinstance(data[key], str) and data[key].strip() == ""):
-                    print("ERROR: The attribute '%s' is mandatory but has no value." % key)
-                    return False
-        return True
+        # Collect values by store and process the property filters
+        for key, prop in self._get_attributes().items():
+
+            # Check if this attribute is blocked by another attribute and its value.
+            is_blocked = False
+            # for bb in prop['blocked_by']:
+            #     if bb['value'] == data[bb['name']]:
+            #         is_blocked = True
+            #         break
+
+            # Check if all required attributes are set. (Skip blocked once, they cannot be set!)
+            if not is_blocked and prop['mandatory'] and data[key] is None or (isinstance(data[key], str) and data[key].strip() == ""):
+                raise AttributeError(C.make_error('ATTRIBUTE_MANDATORY', key))
+
+        return props
+
+
+class ScriptError(Exception):
+    pass

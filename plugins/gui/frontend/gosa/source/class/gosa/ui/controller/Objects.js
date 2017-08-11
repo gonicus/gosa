@@ -119,10 +119,10 @@ qx.Class.define("gosa.ui.controller.Objects", {
       }, this);
     },
 
-    startWorkflow: function(workflowItem) {
+    startWorkflow: function(workflowItem, reference_object_dn) {
       workflowItem.setLoading(true);
       var win = null;
-      gosa.proxy.ObjectFactory.openWorkflow(workflowItem.getId())
+      gosa.proxy.ObjectFactory.openWorkflow(workflowItem.getId(), reference_object_dn)
       .then(function(workflow) {
         this.__openObjects[workflowItem.getId()] = workflow;
         return qx.Promise.all([

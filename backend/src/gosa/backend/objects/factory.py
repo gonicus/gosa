@@ -926,6 +926,13 @@ class ObjectFactory(object):
                     else:
                         values = dvalues
 
+                value_inherited_from = None
+                if 'InheritFrom' in prop.__dict__:
+                    value_inherited_from = {
+                        "rpc": prop["InheritFrom"].text,
+                        "reference_attribute": prop.__dict__['InheritFrom'].attrib['relation']
+                    }
+
                 # Create a new property with the given information
                 props[prop['Name'].text] = {
                     'value': [],
@@ -949,7 +956,8 @@ class ObjectFactory(object):
                     'case_sensitive': case_sensitive,
                     'multivalue': multivalue,
                     'blocked_by': blocked_by,
-                    'auto': auto}
+                    'auto': auto,
+                    'value_inherited_from': value_inherited_from}
 
         # Validate the properties 'depends_on' and 'blocked_by' lists
         for pname in props:

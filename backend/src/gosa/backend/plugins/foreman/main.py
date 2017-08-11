@@ -318,17 +318,72 @@ class Foreman(Plugin):
 
         ForemanBackend.modifier = None
 
+    @Command(__help__=N_("Get details of a single foreman hostgroup."))
+    @cache_return(timeout_secs=60)
+    def getForemanHostgroup(self, id, attributes=None):
+        res = {}
+        if self.client:
+            data = self.client.get("hostgroups", id=id)
+            if isinstance(attributes, list) and len(attributes) > 0:
+                res = [data[x] for x in attributes if x in data]
+            else:
+                res = data
+        return res
+
     @Command(__help__=N_("Get available foreman compute resources."))
-    def getForemanComputeResources(self):
+    def getForemanComputeResources(self, *args):
+        """
+        Command for populating a list of foreman compute resource as dict.
+        Example:
+
+        .. code-block:: python
+
+            { <resource-id>: {"value": <resource-name>}}
+
+        """
         return self.__get_key_values("compute_resources", value_format="{name} ({provider})")
 
     @Command(__help__=N_("Get available foreman domains."))
-    def getForemanDomains(self):
+    def getForemanDomains(self, *args):
         return self.__get_key_values("domains")
 
     @Command(__help__=N_("Get available foreman hostgroups."))
-    def getForemanHostgroups(self):
+    def getForemanHostgroups(self, *args):
+        path = "hostgroups"
+        if len(args) and "hostgroup_id" in args[0] and args[0]["hostgroup_id"] is not None:
+            path += "/%s" % args[0]["hostgroup_id"]
         return self.__get_key_values("hostgroups")
+
+    @Command(__help__=N_("Get available foreman operating systems."))
+    def getForemanOperatingSystems(self, *args):
+        return self.__get_key_values("operatingsystems")
+
+    @Command(__help__=N_("Get available foreman architectures."))
+    def getForemanArchitectures(self, *args):
+        return self.__get_os_related_key_values("architectures", args[0] if len(args) else None)
+
+    @Command(__help__=N_("Get available foreman operating systems."))
+    def getForemanOperatingSystems(self, *args):
+        return self.__get_key_values("operatingsystems")
+
+    @Command(__help__=N_("Get available foreman partition tables."))
+    def getForemanPartitionTables(self, *args):
+        return self.__get_os_related_key_values("ptables", args[0] if len(args) else None)
+
+    @Command(__help__=N_("Get available foreman media."))
+    def getForemanMedia(self, *args):
+        return self.__get_os_related_key_values("media", args[0] if len(args) else None)
+
+    def __get_os_related_key_values(self, path, data=None):
+        if data is not None and "operatingsystem_id" in data and data["operatingsystem_id"] is not None:
+            path = "operatingsystems/%s/%s" % (data["operatingsystem_id"], path)
+        return self.__get_key_values(path)
+
+    @Command(__help__=N_("Get available foreman hostgroups."))
+    def getForemanDiscoveredHostId(self, name):
+        if self.client:
+            data = self.client.get("discovered_hosts", id=name)
+            return data["id"]
 
     @cache_return(timeout_secs=60)
     def __get_key_values(self, type, key_name="id", value_format="{name}"):
@@ -339,7 +394,6 @@ class Foreman(Plugin):
             if "results" in data:
                 for entry in data["results"]:
                     res[entry[key_name]] = {"value": value_format.format(**entry)}
-        print("RESPONSE: %s" % res)
         return res
 
     @Command(needsUser=True, __help__=N_("Get discovered hosts."))
