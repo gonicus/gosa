@@ -28,6 +28,15 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
     this._model = controller.createModel();
   },
 
+  /*
+  *****************************************************************************
+     STATICS
+  *****************************************************************************
+  */
+  statics : {
+    instance: null
+  },
+
   properties : {
     //overridden
     appearance: {
@@ -52,11 +61,11 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
     __instance: null,
 
     openInstance: function() {
-      if (this.__instance === null || this.__instance.isDisposed()) {
-        this.__instance = new gosa.ui.dialogs.LoginDialog();
-        this.__instance.open();
+      if (gosa.ui.dialogs.LoginDialog.instance === null || gosa.ui.dialogs.LoginDialog.instance.isDisposed()) {
+        gosa.ui.dialogs.LoginDialog.instance = new gosa.ui.dialogs.LoginDialog();
+        gosa.ui.dialogs.LoginDialog.instance.open();
       }
-      return this.__instance;
+      gosa.ui.dialogs.LoginDialog.instance;
     },
 
     __initLoginForm: function() {
