@@ -83,8 +83,8 @@ setup(
         'passlib',
         'paho-mqtt',
         'pyotp',
-        #'pyqrcode',
-        #'python-u2flib-server>=5.0.0',
+        'pyqrcode',
+        'python-u2flib-server>=5.0.0',
         'pycountry',
         'tornadostreamform'
         ],
