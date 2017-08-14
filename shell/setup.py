@@ -54,7 +54,7 @@ setup(
     zip_safe = False,
 
     setup_requires = ['pylint', 'babel', 'pytest-runner'],
-    install_requires = ['gosa.common', 'pycurl', 'qrcode', 'python-u2flib-host'],
+    install_requires = ['gosa.common', 'pycurl', 'pyqrcode', 'python-u2flib-host'],
     tests_require=[
         'pytest',
         'pytest-cov',

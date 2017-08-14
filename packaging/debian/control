@@ -44,7 +44,7 @@ Description: GOsa infrastructure service - client
 Package: gosa-cli
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, gosa-common, python3-pycurl,
- python3-u2flib-host, python3-qrcode
+ python3-u2flib-host, python3-pyqrcode
 Description: GOsa infrastructure service - shell
  Brief description is missing.
  .
@@ -62,7 +62,7 @@ Package: gosa-server
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, gosa-common, python3-tornado,
  python3-unidecode, python3-zope.event, python3-pil, python3-passlib,
- python3-psycopg2, python3-mqtt, python3-cryptography, python3-qrcode,
+ python3-psycopg2, python3-mqtt, python3-cryptography, python3-pyqrcode,
  python3-pycountry, python3-ldap, python3-u2flib-server,
  python3-tornadostreamform, adduser, supervisor
 Conflicts: gosa-client
