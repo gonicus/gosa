@@ -1,0 +1,3 @@
+usr/lib/python*/dist-packages/gosa/common
+usr/lib/python*/dist-packages/gosa.common-*.egg-info
+usr/lib/python*/dist-packages/gosa.common-*-nspkg.pth

@@ -1,0 +1,12 @@
+/var/log/gosa/agent.log {
+    daily
+    missingok
+    rotate 10
+    compress
+    delaycompress
+    notifempty
+    postrotate
+        invoke-rc.d rsyslog rotate > /dev/null
+    endscript
+    create 640 gosa adm
+}
