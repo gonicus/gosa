@@ -29,7 +29,7 @@ common_install_requires = [
     'sqlalchemy',
     'lxml',
     'dnspython',
-    'cryptography>=1.3',
+    'cryptography>=1.2',
     'colorlog'
     ],
 
