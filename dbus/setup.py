@@ -55,7 +55,7 @@ setup(
     },
 
     setup_requires = [
-        'python_dateutil',
+        #'python_dateutil', # broken
         'pytest-runner',
         #'dbus-python', # broken
         'pyinotify'
