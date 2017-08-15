@@ -1,0 +1,8 @@
+usr/bin/gosa-join usr/sbin
+usr/bin/gosa usr/sbin
+usr/lib/python*/dist-packages/gosa/backend
+usr/lib/python*/dist-packages/gosa.backend-*.egg-info
+usr/lib/python*/dist-packages/gosa.backend-*-nspkg.pth
+../rsyslog/gosa.conf /etc/rsyslog.d
+../supervisor/gosa.conf /etc/supervisor/conf.d
+../examples/config usr/share/doc/gosa/examples

@@ -1,0 +1,8 @@
+usr/lib/python*/dist-packages/gosa/utils
+usr/lib/python*/dist-packages/gosa.utils-*.egg-info
+usr/lib/python*/dist-packages/gosa.utils-*-nspkg.pth
+usr/bin/schema2xml
+usr/bin/gosa-ldap-monitor
+usr/bin/acl-admin
+usr/bin/update-i18n
+usr/bin/gosa-plugin-skel

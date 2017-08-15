@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # This file is part of the GOsa framework.
 #
 #  http://gosa-project.org
@@ -55,9 +55,9 @@ setup(
     },
 
     setup_requires = [
-        'python_dateutil',
+        #'python_dateutil', # broken
         'pytest-runner',
-        'dbus-python',
+        #'dbus-python', # broken
         'pyinotify'
         ],
 

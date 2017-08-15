@@ -1,0 +1,11 @@
+gosa.common gosa-common
+netaddr python-netaddr
+netifaces python-netifaces
+setproctitle python-setproctitle
+webob python-webob
+paste python-paste
+smbpasswd python-smbpasswd
+dumbnet python-dumbnet
+unidecode python-unidecode
+sqlalchemy python-sqlalchemy
+tornado python-tornado

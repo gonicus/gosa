@@ -1,0 +1,7 @@
+usr/bin/gosa-join usr/sbin
+usr/bin/gosa-client usr/sbin
+usr/lib/python*/dist-packages/gosa/client
+usr/lib/python*/dist-packages/gosa.client-*.egg-info
+usr/lib/python*/dist-packages/gosa.client-*-nspkg.pth
+../rsyslog/gosa-client.conf /etc/rsyslog.d
+../supervisor/gosa-client.conf /etc/supervisor/conf.d

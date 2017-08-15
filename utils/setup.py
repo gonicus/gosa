@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # This file is part of the GOsa framework.
 #
 #  http://gosa-project.org
@@ -45,7 +45,7 @@ setup(
     include_package_data = False,
     zip_safe = False,
 
-    setup_requires = ['babel', 'pytest-runner', 'hidraw-pure'],
+    setup_requires = ['babel', 'pytest-runner'],
     install_requires = ['gosa.common'],
     tests_require=[
         'pytest',

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+if [ "$1" = "purge" ] ; then
+    deluser --quiet --system gosa > /dev/null || true
+    delgroup --quiet --system gosa > /dev/null || true
+
+    for f in /var/run/gosa /etc/gosa; do
+        if [ -d "$f" ]; then
+            rmdir "$f" || { chown root:root "$f" && chmod 00700 "$f"; }
+        fi
+    done
+fi

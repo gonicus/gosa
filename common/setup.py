@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # This file is part of the GOsa framework.
 #
 #  http://gosa-project.org
@@ -28,7 +28,7 @@ common_install_requires = [
     'pyOpenSSL',
     'sqlalchemy',
     'lxml',
-    'dnspython',
+    #'dnspython', broken
     'cryptography>=1.3',
     'colorlog'
     ],

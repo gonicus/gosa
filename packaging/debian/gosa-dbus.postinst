@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+  configure)
+
+    # Ask the bus to reload the config file
+    if [ -x "/etc/init.d/dbus" ]; then
+      invoke-rc.d dbus force-reload || true
+    fi
+
+    mkdir /etc/gosa/shell.d
+  ;;
+  abort-upgrade|abort-remove|abort-deconfigure)
+  ;;
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 1
+  ;;
+esac
+
+#DEBHELPER#

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "purge" ] ; then
+        # Tell dbus to reload it's configuration files only, when we purge the
+        # package, i.e. when we remove its conffiles in /etc/dbus-1/system.d/
+        if [ -x /etc/init.d/dbus ]; then
+                invoke-rc.d dbus force-reload || true
+        fi
+fi
