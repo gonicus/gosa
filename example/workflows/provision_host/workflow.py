@@ -1,7 +1,7 @@
 
 # extract target location
-parent_dn = data['parentDn']
-del data['parentDn']
+parent_dn = data['parent_dn']
+del data['parent_dn']
 move = False
 move_successful = False
 

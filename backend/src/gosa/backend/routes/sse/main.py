@@ -146,9 +146,9 @@ class SseHandler(HSTSRequestHandler):
         data = data.WorkflowUpdate
 
         SseHandler.send_message({
-            "Id": data.Id.text
+            "Id": data.Id.text,
+            "ChangeType": data.ChangeType.text
         }, topic="workflowUpdate", channel=channel)
-
 
     @classmethod
     def _handleNotification(cls, data, channel):

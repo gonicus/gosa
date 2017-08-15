@@ -20,19 +20,29 @@
     <DisplayName>Provision host</DisplayName>
     <Category>Host management</Category>
     <Templates>
-        <Template>hostgroup.json</Template>
+        <Template>basic.json</Template>
         <Template>host.json</Template>
         <Template>network.json</Template>
     </Templates>
 
     <Attributes>
         <Attribute>
-            <Name>parentDn</Name>
+            <Name>reference_dn</Name>
+            <Description>Dn of the Device this workflow is editing.</Description>
+            <Type>UnicodeString</Type>
+            <!--<Mandatory>true</Mandatory>-->
+            <Values populate="getForemanDiscoveredHostsForSelection"/>
+            <IsReferenceDn>true</IsReferenceDn>
+        </Attribute>
+        <Attribute>
+            <Name>parent_dn</Name>
             <Description>Dn of the parent container in which the host shall be placed.</Description>
             <Type>UnicodeString</Type>
+            <Mandatory>true</Mandatory>
             <Default>ou=systems,dc=example,dc=net</Default>
             <Values>
                 <Value>ou=systems,dc=example,dc=net</Value>
+                <Value>ou=incoming,dc=example,dc=net</Value>
             </Values>
         </Attribute>
 

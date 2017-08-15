@@ -86,14 +86,14 @@ qx.Class.define("gosa.io.Sse", {
       }, false);
       this.__eventSource.onerror = function (e) {
         var readyState = e.currentTarget.readyState;
-        if (readyState != EventSource.OPEN) {
+        if (readyState !== EventSource.OPEN) {
           // Connection was closed.
           this.setConnected(false);
         }
       }.bind(this);
       this.__eventSource.onopen = function(e) {
         var readyState = e.currentTarget.readyState;
-        if (readyState == EventSource.OPEN) {
+        if (readyState === EventSource.OPEN) {
           // Connection was opened.
           this.setConnected(true);
         }
@@ -104,13 +104,13 @@ qx.Class.define("gosa.io.Sse", {
      * to inform other objects of the changes. E.g Lists.
      * */
     _handleObjectChangeMessage : function(info) {
-      if(info['changeType'] == "update"){
+      if(info['changeType'] === "update"){
         this.fireDataEvent("objectModified", info);
-      } else if(info['changeType'] == "remove") {
+      } else if(info['changeType'] === "remove") {
         this.fireDataEvent("objectRemoved", info);
-      } else if(info['changeType'] == "create") {
+      } else if(info['changeType'] === "create") {
         this.fireDataEvent("objectCreated", info);
-      } else if(info['changeType'] == "move") {
+      } else if(info['changeType'] === "move") {
         this.fireDataEvent("objectMoved", info);
       }else{
         this.error("unhandled sse event: " + info['changeType']);
@@ -125,9 +125,9 @@ qx.Class.define("gosa.io.Sse", {
         timeout = info['timeout'];
       }
       if (info['icon']) {
-        if (info['icon'] == "_no_icon_") {
+        if (info['icon'] === "_no_icon_") {
           icon = gosa.Config.getImagePath("status/dialog-information.png", 48);
-        } else if (info['icon'].substring(0, 7) == "base64:") {
+        } else if (info['icon'].substring(0, 7) === "base64:") {
           icon = "data:image/png;base64, " + info['icon'].substring(7);
         } else {
           icon = gosa.Config.getImagePath("status/" + info['icon'] + ".png", 48);
@@ -137,7 +137,7 @@ qx.Class.define("gosa.io.Sse", {
         title = '<div style="text-align: center;"><b>' + info['title'] + '</b></div>';
       }
 
-      if (gosa.Config.notifications && gosa.Config.notifications.checkPermission() == 0) {
+      if (gosa.Config.notifications && gosa.Config.notifications.checkPermission() === 0) {
         var data = qx.util.Base64.encode("<div style='padding:5px'><img src='" + icon + "' align='left'><span style='font-family: arial, verdana, sans-serif;'>" + title + info['body'] + "</span></div>");
         var notification = gosa.Config.notifications.createHTMLNotification("data:text/html;charset=utf-8;base64," + data);
         notification.show();

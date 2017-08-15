@@ -41,7 +41,6 @@ C.register_codes(dict(
 ))
 
 
-
 @implementer(IInterfaceHandler)
 class Foreman(Plugin):
     """
@@ -393,7 +392,24 @@ class Foreman(Plugin):
                     res[entry[key_name]] = {"value": value_format.format(**entry)}
         return res
 
-    @Command(needsUser=True, __help__=N_("Get discovered hosts."))
+    @Command(needsUser=True, __help__=N_("Get discovered hosts as search key(dn): value(cn) pairs."))
+    def getForemanDiscoveredHostsForSelection(self, *args):
+        index = PluginRegistry.getInstance("ObjectIndex")
+
+        res = index.search({
+            "_type": "Device",
+            "extension": "ForemanHost",
+            "status": "discovered"
+        }, {"dn": 1, "cn": 1})
+
+        selection_data = {}
+
+        for entry in res:
+            selection_data[entry["dn"]] = {"value": entry["cn"][0]}
+
+        return selection_data
+
+    @Command(needsUser=True, __help__=N_("Get discovered hosts as search result."))
     def getForemanDiscoveredHosts(self, user):
         methods = PluginRegistry.getInstance("RPCMethods")
 
@@ -515,6 +531,8 @@ class ForemanRealmReceiver(object):
         foreman = PluginRegistry.getInstance("Foreman")
         self.log.debug(request_handler.request.body)
         data = loads(request_handler.request.body)
+
+        # TODO disable hook logging to file
         with open("foreman-log.json", "a") as f:
             f.write("%s,\n" % dumps(data, indent=4, sort_keys=True))
 
@@ -560,6 +578,7 @@ class ForemanHookReceiver(object):
         data = loads(request_handler.request.body)
         self.log.debug(data)
 
+        # TODO disable hook logging to file
         with open("foreman-log.json", "a") as f:
             f.write("%s,\n" % dumps(data, indent=4, sort_keys=True))
 

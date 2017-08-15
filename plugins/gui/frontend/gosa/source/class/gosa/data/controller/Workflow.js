@@ -14,8 +14,8 @@
  * Controller for the {@link gosa.ui.widget.WorkflowWizard} widget; connects it to the model.
  */
 qx.Class.define("gosa.data.controller.Workflow", {
-
-  extend : qx.core.Object,
+  extend : gosa.data.controller.BaseObjectEdit,
+  implement: gosa.data.controller.IObject,
 
   /**
    * @param workflowObject {gosa.proxy.Object}
@@ -24,6 +24,16 @@ qx.Class.define("gosa.data.controller.Workflow", {
     this.base(arguments);
     qx.core.Assert.assertInstance(workflowObject, gosa.proxy.Object);
     this.__workflowObject = workflowObject;
+
+    this.__backendChangeController = new gosa.data.controller.BackendChanges(this.__workflowObject, this);
+
+    this.__workflowObject.addListener(
+      "foundDifferencesDuringReload",
+      this.__backendChangeController.onFoundDifferenceDuringReload,
+      this.__backendChangeController
+    );
+
+    this.__workflowObject.setUiBound(true);
   },
 
   members : {
@@ -31,11 +41,6 @@ qx.Class.define("gosa.data.controller.Workflow", {
      * @type {gosa.proxy.Object}
      */
     __workflowObject : null,
-
-    /**
-     * @type {gosa.ui.widgets.WorkflowWizard}
-     */
-    __widget : null,
 
     /**
      * @return {gosa.proxy.Object}
@@ -49,7 +54,7 @@ qx.Class.define("gosa.data.controller.Workflow", {
       */
     setWidget : function(widget) {
       qx.core.Assert.assertInstance(widget, gosa.ui.widgets.WorkflowWizard);
-      this.__widget = widget;
+      this._widget = widget;
     },
 
     /**
@@ -64,15 +69,44 @@ qx.Class.define("gosa.data.controller.Workflow", {
     },
 
     close : function() {
+      this.__workflowObject.setUiBound(false);
       this.__workflowObject.close();
-      this.__widget.fireEvent("close");
-      this.__widget.destroy();
+      this._widget.fireEvent("close");
+      this._widget.destroy();
       this.dispose();
+    },
+
+    // Interface methods
+    closeWidgetAndObject : function() {
+      this.close();
+    },
+
+    /**
+     * @return {gosa.data.util.ExtensionFinder}
+     */
+    getExtensionFinder : function() {
+      return null;
+    },
+
+    /**
+     * @return {gosa.data.controller.Extensions}
+     */
+    getExtensionController : function() {
+      return null;
     }
   },
 
   destruct : function() {
+    this.__workflowObject.removeListener(
+      "foundDifferencesDuringReload",
+      this.__backendChangeController.onFoundDifferenceDuringReload,
+      this.__backendChangeController
+    );
+
+    this._disposeObjects(
+      "__backendChangeController"
+    );
+
     this.__workflowObject = null;
-    this.__widget = null;
   }
 });

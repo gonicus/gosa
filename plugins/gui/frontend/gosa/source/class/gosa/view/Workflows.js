@@ -33,7 +33,7 @@ qx.Class.define("gosa.view.Workflows", {
     this._createChildControl("list");
 
     this.addListener("appear", this.__reload, this);
-    gosa.io.Sse.getInstance().addListener("workflowUpdate", this.__reload, this);
+    gosa.io.Sse.getInstance().addListener("workflowUpdate", this._onWorkflowUpdate, this);
   },
   /*
    *****************************************************************************
@@ -55,6 +55,13 @@ qx.Class.define("gosa.view.Workflows", {
   members : {
     __toolbarButtons: null,
     _listController : null,
+
+    _onWorkflowUpdate: function(ev) {
+      var type = ev.getData()["ChangeType"];
+      if (type === "create" || type === "remove") {
+        this.__reload();
+      }
+    },
 
     /**
      * Load the available Workflows and initialize the view
@@ -260,6 +267,6 @@ qx.Class.define("gosa.view.Workflows", {
   *****************************************************************************
   */
   destruct : function() {
-    gosa.io.Sse.getInstance().removeListener("workflowUpdate", this.__reload, this);
+    gosa.io.Sse.getInstance().removeListener("workflowUpdate", this._onWorkflowUpdate, this);
   }
 });

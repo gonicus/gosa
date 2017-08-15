@@ -1,6 +1,6 @@
 {
   "type": "widget",
-  "name": "tr('Host')",
+  "name": "tr('Basic settings')",
   "class": "qx.ui.container.Composite",
   "layout": "qx.ui.layout.VBox",
   "addOptions": {
@@ -28,9 +28,9 @@
       "children": [
         {
           "properties": {
-            "text": "tr('Domain')"
+            "text": "tr('Device')"
           },
-          "buddyModelPath": "domain_id",
+          "buddyModelPath": "reference_dn",
           "class": "gosa.ui.widgets.QLabelWidget",
           "addOptions": {
             "column": 0,
@@ -39,21 +39,20 @@
         },
         {
           "class": "gosa.ui.widgets.QComboBoxWidget",
-          "modelPath": "domain_id",
+          "modelPath": "reference_dn",
           "addOptions": {
             "column": 1,
             "row": 0
           },
           "properties": {
-            "tabIndex": 1,
-            "sortBy": "value"
+            "tabIndex": 1
           }
         },
         {
           "properties": {
-            "text": "tr('Operating system')"
+            "text": "tr('Host name')"
           },
-          "buddyModelPath": "operatingsystem_id",
+          "buddyModelPath": "cn",
           "class": "gosa.ui.widgets.QLabelWidget",
           "addOptions": {
             "column": 0,
@@ -61,22 +60,22 @@
           }
         },
         {
-          "class": "gosa.ui.widgets.QComboBoxWidget",
-          "modelPath": "operatingsystem_id",
+          "class": "gosa.ui.widgets.QLineEditWidget",
+          "modelPath": "cn",
           "addOptions": {
             "column": 1,
             "row": 1
           },
           "properties": {
-            "tabIndex": 2,
-            "sortBy": "value"
+            "tabIndex": 2
           }
         },
+
         {
           "properties": {
-            "text": "tr('Architecture')"
+            "text": "tr('Hostgroup membership')"
           },
-          "buddyModelPath": "architecture_id",
+          "buddyModelPath": "hostgroup_id",
           "class": "gosa.ui.widgets.QLabelWidget",
           "addOptions": {
             "column": 0,
@@ -85,7 +84,7 @@
         },
         {
           "class": "gosa.ui.widgets.QComboBoxWidget",
-          "modelPath": "architecture_id",
+          "modelPath": "hostgroup_id",
           "addOptions": {
             "column": 1,
             "row": 2
@@ -97,9 +96,9 @@
         },
         {
           "properties": {
-            "text": "tr('Partition table')"
+            "text": "tr('Compute resource')"
           },
-          "buddyModelPath": "ptable_id",
+          "buddyModelPath": "compute_resource_id",
           "class": "gosa.ui.widgets.QLabelWidget",
           "addOptions": {
             "column": 0,
@@ -108,7 +107,7 @@
         },
         {
           "class": "gosa.ui.widgets.QComboBoxWidget",
-          "modelPath": "ptable_id",
+          "modelPath": "compute_resource_id",
           "addOptions": {
             "column": 1,
             "row": 3
@@ -120,9 +119,9 @@
         },
         {
           "properties": {
-            "text": "tr('Medium')"
+            "text": "tr('Parent dn')"
           },
-          "buddyModelPath": "medium_id",
+          "buddyModelPath": "parent_dn",
           "class": "gosa.ui.widgets.QLabelWidget",
           "addOptions": {
             "column": 0,
@@ -131,37 +130,13 @@
         },
         {
           "class": "gosa.ui.widgets.QComboBoxWidget",
-          "modelPath": "medium_id",
+          "modelPath": "parent_dn",
           "addOptions": {
             "column": 1,
             "row": 4
           },
           "properties": {
-            "tabIndex": 5,
-            "sortBy": "value"
-          }
-        },
-        {
-          "properties": {
-            "text": "tr('Root password')"
-          },
-          "buddyModelPath": "root_pass",
-          "class": "gosa.ui.widgets.QLabelWidget",
-          "addOptions": {
-            "column": 0,
-            "row": 5
-          }
-        },
-        {
-          "class": "gosa.ui.widgets.QLineEditWidget",
-          "modelPath": "root_pass",
-          "addOptions": {
-            "column": 1,
-            "row": 5
-          },
-          "properties": {
-            "tabIndex": 6,
-            "echoMode": "password"
+            "tabIndex": 5
           }
         }
       ]

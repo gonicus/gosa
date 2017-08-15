@@ -25,10 +25,11 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
     this.base(arguments);
 
     qx.core.Assert.assertInstance(object, gosa.proxy.Object);
-    qx.core.Assert.assertInstance(controller, gosa.data.controller.ObjectEdit);
+    qx.core.Assert.assertInterface(controller, gosa.data.controller.IObject);
     this.__obj = object;
     this.__controller = controller;
     this.__modifiedValues = {};
+    this.__silentMode = this.__controller instanceof gosa.data.controller.Workflow;
 
     this.__obj.addListener("closing", this.__onObjectClosing, this);
    },
@@ -39,6 +40,7 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
     __modifiedValues : null,
     __widgetConfigurations : null,
     __mergeDialog : null,
+    __silentMode : false,
 
     /**
      * @param event {qx.event.type.Data}
@@ -58,11 +60,16 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
         this.__controller.closeWidgetAndObject();
       }
       else if (this.__widgetConfigurations.length > 0 || this.__hasExtensions(data)) {
-        this.__createMergeDialog(
-          this.__widgetConfigurations,
-          data.attributes.blocked_by,
-          data.extensions
-        );
+        if (this.__silentMode === false) {
+          this.__createMergeDialog(this.__widgetConfigurations, data.attributes.blocked_by, data.extensions);
+        } else {
+          // just update the widgets
+          for (var attrName in this.__modifiedValues) {
+            var widget = this.__controller.getWidgetByAttributeName(attrName);
+            widget.setValue(this.__modifiedValues[attrName]);
+            this.__setAttributeValue(attrName, this.__modifiedValues[attrName]);
+          }
+        }
       }
       this.__widgetConfigurations = null;
     },
@@ -110,7 +117,7 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
      */
     __addExtensionIfMissing : function(extension) {
       qx.core.Assert.assertString(extension);
-      if (!this.__controller.getExtensionFinder().isActiveExtension(extension)) {
+      if (this.__controller.getExtensionFinder() && !this.__controller.getExtensionFinder().isActiveExtension(extension)) {
         this.__controller.getExtensionController().addExtensionSilently(extension);
       }
     },
@@ -124,7 +131,7 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
       }
       var removed = [];
       retractedExtensions.forEach(function(extensionName) {
-        var isRemoved = this.__controller.getExtensionController().retractIfNotAppearedAndIndependent(extensionName);
+        var isRemoved = this.__controller.getExtensionController() && this.__controller.getExtensionController().retractIfNotAppearedAndIndependent(extensionName);
         if (isRemoved) {
           removed.push(extensionName);
         }
@@ -148,9 +155,13 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
           widget = this.__controller.getWidgetByAttributeName(attributeName);
 
           if (widget) {
-            this.__modifiedValues[attributeName] = newVal;
-            var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
-            this.__widgetConfigurations.push(mergeWidgets);
+            if (silentMode === true) {
+
+            } else {
+              this.__modifiedValues[attributeName] = newVal;
+              var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
+              this.__widgetConfigurations.push(mergeWidgets);
+            }
           }
           else {
             this.__setAttributeValue(attributeName, newVal);
@@ -221,7 +232,7 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
         extensionsData,
         block,
         this.__obj.extensionDeps,
-        this.__controller.getExtensionFinder().getOrderedExtensions()
+        this.__controller.getExtensionFinder() && this.__controller.getExtensionFinder().getOrderedExtensions()
       );
       dialog.addListenerOnce("merge", this.__onMerge, this);
       dialog.open();

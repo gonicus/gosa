@@ -1,7 +1,12 @@
 import os
 import sys
 import logging
+
+import datetime
 from lxml import objectify, etree
+
+from gosa.backend.routes.sse.main import SseHandler
+from gosa.common.event import EventMaker
 from gosa.common.utils import N_
 from gosa.backend.objects import ObjectProxy
 from gosa.common import Environment
@@ -36,6 +41,7 @@ class Workflow:
     __session_id = None
     __reference_object = None
     __log = None
+    __skip_refresh = False
 
     def __init__(self, _id, what=None, user=None, session_id=None):
         schema = etree.XMLSchema(file=resource_filename("gosa.backend", "data/workflow.xsd"))
@@ -56,9 +62,19 @@ class Workflow:
             # load object and copy attribute values to workflow
             try:
                 self.__reference_object = ObjectProxy(what)
+
+                self.__skip_refresh = True
+                # set the reference dn if possible
+                if 'reference_dn' in self.__attribute:
+                    setattr(self, 'reference_dn', what)
+
+                # copy all other available attribute values to workflow object
                 for key in self.__attribute:
                     if hasattr(self.__reference_object, key) and getattr(self.__reference_object, key) is not None:
                         setattr(self, key, getattr(self.__reference_object, key))
+
+                self.__skip_refresh = False
+
             except Exception as e:
                 # could not open the reference object
                 self.__log.error(e)
@@ -76,6 +92,64 @@ class Workflow:
             return res
 
         return list(res.keys())
+
+    def get_attribute_values(self):
+        """
+        Return a dictionary containing all property values.
+        """
+        res = {'value': {}, 'values': {}}
+        for item in self.__attribute_map:
+            res['value'][item] = getattr(self, item)
+            res['values'][item] = self.__attribute_map[item]['values']
+
+        return res
+
+    def __refresh_reference_object(self, new_dn, override=False):
+        attributes_changed = []
+        if not self.__reference_object:
+            if new_dn is None:
+                return
+
+            # initial setting
+            self.__reference_object = ObjectProxy(new_dn)
+        elif self.__reference_object.dn == new_dn:
+            # no change
+            return
+        elif new_dn is None:
+            # reset object
+            for key in self.__attribute:
+                if hasattr(self.__reference_object, key) and \
+                        getattr(self.__reference_object, key) is not None and \
+                        getattr(self, key) == getattr(self.__reference_object, key) and \
+                        self.__attribute[key]['mandatory'] is False:
+                    setattr(self, key, None)
+                    attributes_changed.append(key)
+
+            self.__reference_object = None
+            return
+        else:
+            self.__reference_object = ObjectProxy(new_dn)
+
+        # update all attribute values that are not set yet
+        if self.__reference_object is not None:
+            for key in self.__attribute:
+                if hasattr(self.__reference_object, key) and \
+                            getattr(self.__reference_object, key) is not None and \
+                            (getattr(self, key) is None or override is True):
+                    setattr(self, key, getattr(self.__reference_object, key))
+                    attributes_changed.append(key)
+
+        if len(attributes_changed) > 0:
+            # tell the GUI to reload the changes attributes
+            e = EventMaker()
+            ev = e.Event(e.ObjectChanged(
+                e.UUID(self.uuid),
+                e.DN(new_dn),
+                e.ModificationTime(datetime.datetime.now().strftime("%Y%m%d%H%M%SZ")),
+                e.ChangeType("update")
+            ))
+            event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
+            SseHandler.notify(event_object, channel="user.%s" % self.__user)
 
     def commit(self):
         self.check()
@@ -168,6 +242,7 @@ class Workflow:
                                 'multivalue': bool(self._load(attr, "MultiValue", False)),
                                 'mandatory': bool(self._load(attr, "Mandatory", False)),
                                 'readonly': bool(self._load(attr, "ReadOnly", False)),
+                                'is_reference_dn': bool(self._load(attr, "IsReferenceDn", False)),
                                 'case_sensitive': bool(self._load(attr, "CaseSensitive", False)),
                                 'unique': bool(self._load(attr, "Unique", False)),
                                 'values_populate': values_populate,
@@ -243,6 +318,9 @@ class Workflow:
             raise AttributeError(C.make_error('ATTRIBUTE_MANDATORY', name))
 
         self.__attribute[name] = value
+
+        if attribute['is_reference_dn'] and self.__skip_refresh is False:
+            self.__refresh_reference_object(value)
 
     def _get_data(self):
         """

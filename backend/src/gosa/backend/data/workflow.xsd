@@ -52,6 +52,7 @@
       <element name="MultiValue" type="boolean" maxOccurs="1" minOccurs="0"/>
       <element name="ReadOnly" type="boolean" maxOccurs="1" minOccurs="0"/>
       <element name="Mandatory" type="boolean" maxOccurs="1" minOccurs="0"/>
+      <element name="IsReferenceDn" type="boolean" maxOccurs="1" minOccurs="0"/>
       <element name="Unique" type="boolean" maxOccurs="1" minOccurs="0"/>
       <element name="BlockedBy" maxOccurs="1" minOccurs="0">
         <complexType>

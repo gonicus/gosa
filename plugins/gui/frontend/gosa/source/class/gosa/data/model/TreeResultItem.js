@@ -231,7 +231,8 @@ qx.Class.define("gosa.data.model.TreeResultItem",
               this.setLoaded(true);
               this.setLoading(false);
 
-              resolve()
+              resolve();
+              return null;
             }, this)
             .catch(function(error) {
               this.error("could not resolve tree element '" + error + "'!");

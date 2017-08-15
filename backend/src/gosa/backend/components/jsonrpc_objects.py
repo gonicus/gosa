@@ -11,6 +11,7 @@ import uuid
 import datetime
 from types import FunctionType
 
+from gosa.backend.components.workflow import Workflow
 from gosa.common.event import EventMaker
 from zope.interface import implementer
 from gosa.common.utils import N_
@@ -279,8 +280,15 @@ class JSONRPCObjectMapper(Plugin):
             raise ValueError(C.make_error("NOT_OBJECT_OWNER"))
 
         # Load current object
+        flip_comparison = False
         item = self.__stack[ref]
-        current_obj = ObjectProxy(item['object']['dn'])
+        if item['object']['oid'] == "workflow":
+            current_obj = Workflow(item["object"]["uuid"])
+            # for workflows the newly opened current_objects attributes values are always emtpy
+            # but the cached objects values might have changes so we flip the comparison
+            flip_comparison = True
+        else:
+            current_obj = ObjectProxy(item['object']['dn'])
 
         # Load cache object
         cache_obj = item['object']['object']
@@ -290,18 +298,24 @@ class JSONRPCObjectMapper(Plugin):
         ##
         delta = {'attributes': {'added': {}, 'removed': [], 'changed': {}, 'blocked_by': {}}, 'extensions': {'added': [], 'removed': []}}
 
-        # Compare extension list
-        crnt_extensions = set(current_obj.get_object_info()['extensions'].items())
-        cche_extensions = set(cache_obj.get_object_info()['extensions'].items())
-        for _e, _s in crnt_extensions - cche_extensions:
-            if _s:
-                delta['extensions']['added'].append(_e)
-            else:
-                delta['extensions']['removed'].append(_e)
+        if item['object']['oid'] == "object":
+            # Compare extension list
+            crnt_extensions = set(current_obj.get_object_info()['extensions'].items())
+            cche_extensions = set(cache_obj.get_object_info()['extensions'].items())
+            for _e, _s in crnt_extensions - cche_extensions:
+                if _s:
+                    delta['extensions']['added'].append(_e)
+                else:
+                    delta['extensions']['removed'].append(_e)
 
         # Compare attribute contents
-        crnt_attributes = dict(filter(lambda x: x[1] is not None, current_obj.get_attribute_values()['value'].items()))
-        cche_attributes = dict(filter(lambda x: x[1] is not None, cache_obj.get_attribute_values()['value'].items()))
+        if flip_comparison is True:
+            cche_attributes = dict(filter(lambda x: x[1] is not None, current_obj.get_attribute_values()['value'].items()))
+            crnt_attributes = dict(filter(lambda x: x[1] is not None, cache_obj.get_attribute_values()['value'].items()))
+        else:
+            crnt_attributes = dict(filter(lambda x: x[1] is not None, current_obj.get_attribute_values()['value'].items()))
+            cche_attributes = dict(filter(lambda x: x[1] is not None, cache_obj.get_attribute_values()['value'].items()))
+
         all_attributes = []
         for _k, _v in crnt_attributes.items():
             if _k in cche_attributes:
@@ -312,18 +326,19 @@ class JSONRPCObjectMapper(Plugin):
                 delta['attributes']['added'][_k] = _v
                 all_attributes.append(_k)
 
-        for _k, _v in cche_attributes.items():
-            # Don't add the individual attributes of extensions that are removed anyway
-            if current_obj.get_extension_off_attribute(_k) in delta['extensions']['removed']:
-                continue
-            if not _k in crnt_attributes:
-                delta['attributes']['removed'].append(_k)
-                all_attributes.append(_k)
+        if item['object']['oid'] == "object":
+            for _k, _v in cche_attributes.items():
+                # Don't add the individual attributes of extensions that are removed anyway
+                if current_obj.get_extension_off_attribute(_k) in delta['extensions']['removed']:
+                    continue
+                if not _k in crnt_attributes:
+                    delta['attributes']['removed'].append(_k)
+                    all_attributes.append(_k)
 
-        # Find blocking dependencies between attributes
-        details = current_obj.get_attributes(detail=True)
-        for attribute_name in all_attributes:
-            delta['attributes']['blocked_by'][attribute_name] = list(map(lambda x: x['name'], details[attribute_name]['blocked_by']))
+            # Find blocking dependencies between attributes
+            details = current_obj.get_attributes(detail=True)
+            for attribute_name in all_attributes:
+                delta['attributes']['blocked_by'][attribute_name] = list(map(lambda x: x['name'], details[attribute_name]['blocked_by']))
 
         return delta
 

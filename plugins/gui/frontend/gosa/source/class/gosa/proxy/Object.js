@@ -126,17 +126,17 @@ qx.Class.define("gosa.proxy.Object", {
 
       // Skip events that are not for us
       var data = e.getData();
-      if(data.uuid != this.uuid){
+      if(data.uuid !== this.uuid){
         return;
       }
 
       // Act on the event type
-      if(data.changeType == "remove") {
+      if(data.changeType === "remove") {
         this.fireEvent("removed");
-      } else if (data.changeType == "move") {
+      } else if (data.changeType === "move") {
         this.reload();
         this.fireDataEvent("moved", data.dn);
-      } else if(data.changeType == "update"){
+      } else if(data.changeType === "update"){
         if(!this.is_reloading){
 
           if(!this.isUiBound()){

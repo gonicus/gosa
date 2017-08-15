@@ -14,8 +14,8 @@
  * Controller for the {@link gosa.ui.widget.ObjectEdit} widget; connects it to the model.
  */
 qx.Class.define("gosa.data.controller.ObjectEdit", {
-
-  extend : qx.core.Object,
+  extend : gosa.data.controller.BaseObjectEdit,
+  implement: gosa.data.controller.IObject,
 
   /**
    * @param obj {gosa.proxy.Object}
@@ -66,23 +66,8 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     "initialized" : "qx.event.type.Event"
   },
 
-  properties : {
-    modified : {
-      check : "Boolean",
-      init : false,
-      event : "changeModified"
-    },
-
-    valid : {
-      check : "Boolean",
-      init : true,
-      event : "changeValid"
-    }
-  },
-
   members : {
     __object : null,
-    _widget : null,
     _changeValueListeners : null,
     _initialized : false,
     _validatingWidgets : null,
@@ -243,42 +228,6 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
      */
     getAttributes : function() {
       return qx.lang.Type.isArray(this.__object.attributes) ? this.__object.attributes : null;
-    },
-
-    /**
-     * @param attributeName {String}
-     * @return {qx.ui.core.Widget | null} Existing attribute for the attribute name
-     */
-    getWidgetByAttributeName : function(attributeName) {
-      qx.core.Assert.assertString(attributeName);
-      var contexts = this._widget.getContexts();
-      var map;
-
-      for (var i=0; i < contexts.length; i++) {
-        map = contexts[i].getWidgetRegistry().getMap();
-        if (map.hasOwnProperty(attributeName)) {
-          return map[attributeName];
-        }
-      }
-      return null;
-    },
-
-    /**
-     * @param attributeName {String}
-     * @return {gosa.ui.widgets.QLabelWidget | null}
-     */
-    getBuddyByAttributeName : function(attributeName) {
-      qx.core.Assert.assertString(attributeName);
-      var contexts = this._widget.getContexts();
-      var map;
-
-      for (var i=0; i < contexts.length; i++) {
-        map = contexts[i].getBuddyRegistry().getMap();
-        if (map[attributeName]) {
-          return map[attributeName];
-        }
-      }
-      return null;
     },
 
     addContext : function(context) {
@@ -580,7 +529,6 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     );
 
     this.__object = null;
-    this._widget = null;
     this._changeValueListeners = null;
     this._validatingWidgets = null;
     this._connectedAttributes = null;
