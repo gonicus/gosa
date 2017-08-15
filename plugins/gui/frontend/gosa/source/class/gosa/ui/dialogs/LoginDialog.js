@@ -40,6 +40,8 @@ qx.Class.define("gosa.ui.dialogs.LoginDialog",
       if (this.instance === null || this.instance.isDisposed()) {
         this.instance = new gosa.ui.dialogs.LoginDialog();
         this.instance.open();
+      } else if (this.instance && !this.instance.isActive()) {
+        this.instance.open();
       }
       return this.instance;
     }
