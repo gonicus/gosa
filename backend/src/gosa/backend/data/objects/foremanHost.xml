@@ -30,7 +30,6 @@
         <Description>The foreman - current device status</Description>
         <Type>String</Type>
         <Default>unknown</Default>
-        <ReadOnly>true</ReadOnly>
         <InFilter>
           <FilterChain>
             <FilterEntry>
@@ -261,6 +260,120 @@
         </OutFilter>
       </Attribute>
     </Attributes>
+    <Methods>
+      <Method>
+        <Name>bootFromDisk</Name>
+        <Command>bootHost</Command>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>device</Name>
+            <Type>UnicodeString</Type>
+            <Default>disk</Default>
+          </MethodParameter>
+        </MethodParameters>
+        <CommandParameters>
+          <Value>cn</Value>
+          <Value>device</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
+        <Name>bootFromPxe</Name>
+        <Command>bootHost</Command>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>device</Name>
+            <Type>UnicodeString</Type>
+            <Default>pxe</Default>
+          </MethodParameter>
+        </MethodParameters>
+        <CommandParameters>
+          <Value>cn</Value>
+          <Value>device</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
+        <Name>powerStart</Name>
+        <Command>powerHost</Command>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>action</Name>
+            <Type>UnicodeString</Type>
+            <Default>start</Default>
+          </MethodParameter>
+        </MethodParameters>
+        <CommandParameters>
+          <Value>cn</Value>
+          <Value>action</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
+        <Name>poweroff</Name>
+        <Command>powerHost</Command>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>action</Name>
+            <Type>UnicodeString</Type>
+            <Default>stop</Default>
+          </MethodParameter>
+        </MethodParameters>
+        <CommandParameters>
+          <Value>cn</Value>
+          <Value>action</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
+        <Name>powerOn</Name>
+        <Command>powerHost</Command>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>action</Name>
+            <Type>UnicodeString</Type>
+            <Default>start</Default>
+          </MethodParameter>
+        </MethodParameters>
+        <CommandParameters>
+          <Value>cn</Value>
+          <Value>action</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
+        <Name>reboot</Name>
+        <Command>powerHost</Command>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>action</Name>
+            <Type>UnicodeString</Type>
+            <Default>reboot</Default>
+          </MethodParameter>
+        </MethodParameters>
+        <CommandParameters>
+          <Value>cn</Value>
+          <Value>action</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
+        <Name>reset</Name>
+        <Command>powerHost</Command>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>action</Name>
+            <Type>UnicodeString</Type>
+            <Default>reset</Default>
+          </MethodParameter>
+        </MethodParameters>
+        <CommandParameters>
+          <Value>cn</Value>
+          <Value>action</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
+        <Name>runPuppet</Name>
+        <Command>powerHost</Command>
+        <CommandParameters>
+          <Value>cn</Value>
+        </CommandParameters>
+      </Method>
+    </Methods>
     <Extends>
       <Value>Device</Value>
     </Extends>

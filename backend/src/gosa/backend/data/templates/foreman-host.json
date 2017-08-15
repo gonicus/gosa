@@ -12,7 +12,44 @@
     "tabConfig": {
       "title": "tr('Deployment')",
       "icon": "favicon"
-    }
+    },
+    "actions": [
+      {
+        "name": "actionBootHostFromDisk",
+        "target": "bootFromDisk()",
+        "text": "tr('Boot host from disk')"
+      },
+      {
+        "name": "actionBootHostFromPxe",
+        "target": "bootFromPxe()",
+        "text": "tr('Boot host from PXE')"
+      },
+      {
+        "name": "actionPowerHostStart",
+        "target": "powerOn()",
+        "text": "tr('Power on host')"
+      },
+      {
+        "name": "actionPowerHostStop",
+        "target": "powerOff()",
+        "text": "tr('Power off host')"
+      },
+      {
+        "name": "actionPowerHostReboot",
+        "target": "reboot()",
+        "text": "tr('Reboot host')"
+      },
+      {
+        "name": "actionPowerHostReset",
+        "target": "reset()",
+        "text": "tr('Reset host')"
+      },
+      {
+        "name": "doPuppetRun",
+        "target": "runPuppet()",
+        "text": "tr('Run puppet agent')"
+      }
+    ]
   },
   "children": [
     {
