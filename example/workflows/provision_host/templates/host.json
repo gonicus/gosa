@@ -186,7 +186,7 @@
                     }
                 },
                 {
-                    "class": "gosa.ui.widgets.QLineEditWidget",
+                    "class": "gosa.ui.widgets.QBaseSelectorWidget",
                     "modelPath": "parentDn",
                     "addOptions": {
                         "column": 1,

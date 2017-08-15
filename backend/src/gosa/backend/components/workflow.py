@@ -136,9 +136,24 @@ class Workflow:
 
                             values_populate = None
                             value_inherited_from = None
+                            values = []
                             if 'Values' in attr.__dict__:
+                                avalues = []
+                                dvalues = {}
+
                                 if 'populate' in attr.__dict__['Values'].attrib:
                                     values_populate = attr.__dict__['Values'].attrib['populate']
+                                else:
+                                    for d in attr.__dict__['Values'].iterchildren():
+                                        if 'key' in d.attrib:
+                                            dvalues[d.attrib['key']] = d.text
+                                        else:
+                                            avalues.append(d.text)
+
+                                if avalues:
+                                    values = avalues
+                                else:
+                                    values = dvalues
 
                             if 'InheritFrom' in attr.__dict__:
                                 value_inherited_from = {
@@ -156,7 +171,8 @@ class Workflow:
                                 'case_sensitive': bool(self._load(attr, "CaseSensitive", False)),
                                 'unique': bool(self._load(attr, "Unique", False)),
                                 'values_populate': values_populate,
-                                'value_inherited_from': value_inherited_from
+                                'value_inherited_from': value_inherited_from,
+                                'values': values
                             }
 
             self.__attribute_map = res
@@ -165,6 +181,8 @@ class Workflow:
 
     def _execute_embedded_script(self, script):
         try:
+            log = logging.getLogger("%s.%s" % (__name__, self.uuid))
+            log.info("start executing workflow script")
             env = dict(data=self._get_data())
             dispatcher = PluginRegistry.getInstance('CommandRegistry')
 
@@ -180,7 +198,12 @@ class Workflow:
             # add reference object
             env['reference_object'] = self.__reference_object
 
+            # add logger
+            env['log'] = log
+
             exec(script, env)
+
+            log.info("finished executing workflow script")
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()

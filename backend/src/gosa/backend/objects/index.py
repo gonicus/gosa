@@ -389,6 +389,7 @@ class ObjectIndex(Plugin):
 
     def _get_object(self, dn):
         try:
+            print("get object for dn: %s" % dn)
             obj = ObjectProxy(dn)
 
         except ProxyException as e:

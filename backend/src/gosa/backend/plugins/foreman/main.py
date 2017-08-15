@@ -11,10 +11,10 @@ import datetime
 import logging
 import uuid
 import sys
-
-import requests
 import zope
-from requests.auth import HTTPBasicAuth
+import socket
+
+from requests import HTTPError
 from sqlalchemy import and_
 
 from gosa.backend.objects import ObjectProxy, ObjectFactory
@@ -28,7 +28,7 @@ from gosa.common.utils import N_, generate_random_key, cache_return
 from gosa.common.components import PluginRegistry
 from gosa.common.gjson import loads, dumps
 from base64 import b64encode as encode
-from gosa.backend.objects.backend.back_foreman import Foreman as ForemanBackend
+from gosa.backend.objects.backend.back_foreman import Foreman as ForemanBackend, ForemanClient
 
 C.register_codes(dict(
     FOREMAN_UNKNOWN_TYPE=N_("Unknown object type '%(type)s'"),
@@ -40,32 +40,6 @@ C.register_codes(dict(
     MULTIPLE_HOSTGROUPS_FOUND=N_("(%groups)s found for group id '%(group_id)s'"),
 ))
 
-
-class ForemanClient(object):
-    """Client for the Foreman REST-API v2"""
-    headers = {'Accept': 'version=2,application/json'}
-
-    def __init__(self):
-        self.env = Environment.getInstance()
-        self.log = logging.getLogger(__name__)
-        self.foreman_host = self.env.config.get("foreman.host", "http://localhost/api")
-
-    def get(self, type, id=None):
-
-        url = "%s/%s" % (self.foreman_host, type)
-        if id is not None:
-            url += "/%s" % id
-
-        self.log.debug("sending GET request to %s" % url)
-        response = requests.get(url,
-                                headers=self.headers,
-                                verify=self.env.config.get("foreman.verify", "true") == "true",
-                                auth=HTTPBasicAuth(self.env.config.get("foreman.user"), self.env.config.get("foreman.password")))
-        if response.ok:
-            data = response.json()
-            return data
-        else:
-            response.raise_for_status()
 
 
 @implementer(IInterfaceHandler)
@@ -96,6 +70,29 @@ class Foreman(Plugin):
         else:
             self.log.info("initializing foreman plugin")
             self.client = ForemanClient()
+
+            host = socket.getfqdn() if self.env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] else self.env.config.get("http.host", default="localhost")
+            ssl = self.env.config.get('http.ssl', default=None)
+            protocol = "https" if ssl and ssl.lower() in ['true', 'yes', 'on'] else "http"
+
+            payload = {
+                "common_parameter": {
+                    "name": "gosa-server",
+                    "value": "%s://%s:%s/api" % (protocol, host, self.env.config.get('http.port', default=8080))
+                }
+            }
+
+            # tell foreman our API url
+            try:
+                response = self.client.get("common_parameters", id="gosa-server")
+            except HTTPError as e:
+                if e.response.status_code == 404:
+                    # create parameter
+                    self.client.post("common_parameters", data=payload)
+            else:
+                if response["value"] != payload["common_parameter"]["value"]:
+                    # update parameter
+                    self.client.put("common_parameters", id="gosa-server", data=payload)
 
             # Listen for object events
             if not hasattr(sys, '_called_from_test'):
@@ -150,17 +147,17 @@ class Foreman(Plugin):
         for data in new_data["results"]:
             found_ids.append(str(data[uuid_attribute]))
             self.log.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-            self.log.debug(">>> START creating new foreman object of type '%s' with id '%s'" % (object_type, data[uuid_attribute]))
+            self.log.debug(">>> START syncing foreman object of type '%s' with id '%s'" % (object_type, data[uuid_attribute]))
             foreman_object = self.get_object(object_type, data[uuid_attribute], data=data)
             if foreman_type == "discovered_hosts":
                 # add status to data
-                update_data = {}
-                extension = foreman_object.get_extension_off_attribute("status")
-                update_data[extension] = {"LDAP": {"status": "discovered"}}
-                self.update_type(object_type, foreman_object, data, uuid_attribute, update_data=update_data)
+                if not foreman_object.is_extended_by("ForemanHost"):
+                    foreman_object.extend("ForemanHost")
+                foreman_object.status = "discovered"
+                self.update_type(object_type, foreman_object, data, uuid_attribute)
             else:
                 self.update_type(object_type, foreman_object, data, uuid_attribute)
-            self.log.debug("<<< DONE creating new foreman object of type '%s' with id '%s'" % (object_type, data[uuid_attribute]))
+            self.log.debug("<<< DONE syncing foreman object of type '%s' with id '%s'" % (object_type, data[uuid_attribute]))
             self.log.debug("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
         # delete not existing ones
@@ -416,6 +413,32 @@ class Foreman(Plugin):
 
         return list(res.values())
 
+    @Command(needsUser=True, __help__=N_("Force a Puppet agent run on the host"))
+    def doPuppetRun(self, user, host_id):
+        if self.client:
+            self.client.put("hosts/%s/puppetrun" % host_id)
+
+    @Command(needsUser=True, __help__=N_("Boot host from specified device"))
+    def bootHost(self, user, host_id, device):
+        """
+        :param user: user name
+        :param host_id: foreman host id
+        :param device: boot device, valid devices are disk, cdrom, pxe, bios
+        :return:
+        """
+        if self.client:
+            self.client.put("hosts/%s/puppetrun" % host_id, {"device": device})
+
+    @Command(needsUser=True, __help__=N_("Run a power operation on host"))
+    def powerHost(self, user, host_id, power_action):
+        """
+        :param user: user name
+        :param host_id: foreman host id
+        :param power_action: power action, valid actions are (on/start), (off/stop), (soft/reboot), (cycle/reset), (state/status)
+        """
+        if self.client:
+            self.client.put("hosts/%s/power" % host_id, {"power_action": power_action})
+
     def __get_resolver(self):
         if self.__acl_resolver is None:
             self.__acl_resolver = PluginRegistry.getInstance("ACLResolver")
@@ -431,6 +454,7 @@ class Foreman(Plugin):
 
         device = self.get_object("ForemanHost", hostname, create=False)
         if device is None:
+            self.log.debug("Realm request: creating new host with hostname: %s" % hostname)
             device = ObjectProxy(base, "Device")
             device.extend("ForemanHost")
             device.cn = hostname
@@ -439,6 +463,8 @@ class Foreman(Plugin):
 
             # re-open to get a clean object
             device = ObjectProxy(device.dn)
+        else:
+            self.log.debug("Realm request: use existing host with hostname: %s" % hostname)
 
         try:
 
@@ -454,6 +480,11 @@ class Foreman(Plugin):
             device.extend("simpleSecurityObject")
             device.deviceUUID = cn
             device.status_Offline = True
+
+            # reset discovered status
+            if device.status == "discovered":
+                device.status = "unknown"
+
             device.userPassword = "{SSHA}" + encode(h.digest() + salt).decode()
 
             device.commit()
@@ -492,7 +523,6 @@ class ForemanRealmReceiver(object):
             # new client -> join it
             try:
                 key = foreman.add_host(data['hostname'])
-                print(key)
 
                 # send key as otp to foremans realm proxy
                 request_handler.finish(dumps({
@@ -573,6 +603,7 @@ class ForemanHookReceiver(object):
                 if '_uuidSourceAttribute' in backend_attributes["Foreman"] else backend_attributes["Foreman"]["_uuidAttribute"]
 
         ForemanBackend.modifier = "foreman"
+        update_data = {}
 
         if data['event'] == "after_commit" or data['event'] == "update" or data['event'] == "after_create" or data['event'] == "create":
             host = None
@@ -587,29 +618,38 @@ class ForemanHookReceiver(object):
                 }, {"dn": 1})
 
                 if len(res):
+                    self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
                     host = ObjectProxy(res[0]["dn"])
+
+                    if foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
+                        host.status = "unknown"
 
             foreman_object = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None)
             if foreman_object and host:
-                # host is the formerly discovered host, which might have been changed in GOsa for provisioning
-                # so we want to use this one, foreman_object is the joined one, so copy the credentials from foreman_object to host
-                if host.is_extended_by("RegisteredObject"):
-                    host.extend("RegisteredDevice")
-                if host.is_extended_by("simpleSecurityObject"):
-                    host.extend("simpleSecurityObject")
-                host.deviceUUID = foreman_object.deviceUUID
-                host.userPassword = foreman_object.userPassword
-                host.cn = foreman_object.cn
+                if foreman_object != host:
+                    self.log.debug("using known host instead of creating a new one")
+                    # host is the formerly discovered host, which might have been changed in GOsa for provisioning
+                    # so we want to use this one, foreman_object is the joined one, so copy the credentials from foreman_object to host
+                    if host.is_extended_by("RegisteredDevice"):
+                        host.extend("RegisteredDevice")
+                    if host.is_extended_by("simpleSecurityObject"):
+                        host.extend("simpleSecurityObject")
+                    host.deviceUUID = foreman_object.deviceUUID
+                    host.userPassword = foreman_object.userPassword
+                    host.cn = foreman_object.cn
 
-                # now delete the formerly joined host
-                foreman_object.remove()
+                    # now delete the formerly joined host
+                    foreman_object.remove()
+                    foreman_object = host
+
+            elif foreman_object is None and host is not None:
                 foreman_object = host
 
-            update_data = {}
-
-            if foreman_type == "discovered_host":
-                extension = foreman_object.get_extension_off_attribute("status")
-                update_data[extension] = {"LDAP": {"status": "discovered"}}
+            elif foreman_type == "discovered_host":
+                self.log.debug("setting discovered state for %s" % payload_data[uuid_attribute])
+                if not foreman_object.is_extended_by("ForemanHost"):
+                    foreman_object.extend("ForemanHost")
+                foreman_object.status = "discovered"
 
             foreman.update_type(object_type, foreman_object, payload_data, uuid_attribute, update_data=update_data)
 

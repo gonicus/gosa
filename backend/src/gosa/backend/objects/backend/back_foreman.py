@@ -6,8 +6,9 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import json
 from threading import Thread
-
+import logging
 import requests
 from requests import HTTPError
 from requests.auth import HTTPBasicAuth
@@ -19,9 +20,6 @@ from logging import getLogger
 from gosa.common.gjson import dumps
 from gosa.backend.exceptions import ObjectException
 
-
-class ForemanObjectException(ObjectException):
-    pass
 
 """
 Backend Attributes:
@@ -51,7 +49,6 @@ In this example the URL for HTTP-requests would be <foreman-host>/api/hosts/<cn>
 
 
 class Foreman(ObjectBackend):
-    headers = {'Accept': 'version=2,application/json', 'Content-type': 'application/json'}
     modifier = None
 
     @classmethod
@@ -66,61 +63,7 @@ class Foreman(ObjectBackend):
         # Initialize environment and logger
         self.env = Environment.getInstance()
         self.log = getLogger(__name__)
-        self.foreman_host = self.env.config.get("foreman.host", "http://localhost/api")
-
-    def __request(self, method_name, type, id=None, data=None):
-        url = "%s/%s" % (self.foreman_host, type)
-        if id is not None:
-            url += "/%s" % id
-
-        method = getattr(requests, method_name)
-        data = dumps(data) if data is not None else None
-        self.log.debug("sending %s request with %s to %s" % (method_name, data, url))
-        response = method(url,
-                          headers=self.headers,
-                          verify=self.env.config.get("foreman.verify", "true") == "true",
-                          auth=HTTPBasicAuth(self.env.config.get("foreman.user"), self.env.config.get("foreman.password")),
-                          data=data)
-        if response.ok:
-            data = response.json()
-            self.log.debug("response %s" % data)
-            # check for error
-            if "error" in data:
-                raise ForemanObjectException(", ".join(data["error"]["errors"]))
-            return data
-        else:
-            try:
-                data = response.json()
-            except Exception as e:
-                self.log.error("Error parsing json error response: %s" % response.text)
-                response.raise_for_status()
-            else:
-                # check for error
-                if "error" in data:
-                    self.log.debug("Received response with error: %s" % data["error"])
-                    raise ForemanObjectException(", ".join(data["error"]["errors"]) if "errors" in data["error"] else str(data["error"]))
-                else:
-                    response.raise_for_status()
-
-    def check_backend(self):
-        """ check if foreman backend is reachable """
-        try:
-            response = self.__request("get", "status")
-            return response["result"] == "ok"
-        except:
-            return False
-
-    def __get(self, type, id=None):
-        return self.__request("get", type, id=id)
-
-    def __delete(self, type, id):
-        return self.__request("delete", type, id=id)
-
-    def __put(self, type, id, data):
-        return self.__request("put", type, id=id, data=data)
-
-    def __post(self, type, id=None, data=None):
-        return self.__request("post", type, id=id, data=data)
+        self.client = ForemanClient()
 
     def load(self, uuid, info, back_attrs=None, data=None, needed=None):
         """
@@ -136,7 +79,7 @@ class Foreman(ObjectBackend):
         self.log.debug("load: %s, %s, %s, %s" % (uuid, info, back_attrs, data))
         if data is None:
             try:
-                data = self.__get(self.get_foreman_type(needed, back_attrs), id=uuid)
+                data = self.client.get(self.get_foreman_type(needed, back_attrs), id=uuid)
             except HTTPError as e:
                 # something when wrong
                 self.log.error("Error requesting foreman backend: %s" % e)
@@ -158,14 +101,23 @@ class Foreman(ObjectBackend):
     def remove(self, uuid, data, params, needed=None):
         self.log.debug("remove: %s, %s, %s" % (uuid, data, params))
         if Foreman.modifier != "foreman":
-            try:
-                self.__delete(self.get_foreman_type(needed, params), uuid)
-            except HTTPError as e:
-                if e.response.status_code == 404 and self.check_backend() is True:
-                    # foreman is up and running but responded with 404 -> nothing to delete
-                    self.log.debug("no foreman object found")
-                else:
-                    raise e
+
+            def runner():
+                try:
+                    self.client.delete(self.get_foreman_type(needed, params), uuid)
+                except HTTPError as e:
+                    if e.response.status_code == 404 and self.client.check_backend() is True:
+                        # foreman is up and running but responded with 404 -> nothing to delete
+                        self.log.debug("no foreman object found")
+                    else:
+                        raise e
+
+
+            # some changes (e.g. creating a host) trigger requests from foreman to gosa
+            # so we need to run this request in a non blocking thread
+            thread = Thread(target=runner)
+            thread.start()
+
         else:
             self.log.info("skipping deletion request as the change is coming from the foreman backend")
         return True
@@ -190,7 +142,7 @@ class Foreman(ObjectBackend):
             self.log.debug("creating '%s' with '%s' to foreman" % (params["type"], payload))
 
             def runner():
-                result = self.__post(type, data=payload)
+                result = self.client.post(type, data=payload)
                 self.log.debug("Response: %s" % result)
 
             # some changes (e.g. creating a host) trigger requests from foreman to gosa
@@ -224,7 +176,7 @@ class Foreman(ObjectBackend):
             self.log.debug("sending update '%s' to foreman" % payload)
 
             def runner():
-                result = self.__put(type, uuid, data=payload)
+                result = self.client.put(type, uuid, data=payload)
                 self.log.debug("Response: %s" % result)
 
             # some changes (e.g. changing the hostgroup) trigger requests from foreman to gosa
@@ -270,3 +222,71 @@ class Foreman(ObjectBackend):
                 payload[type][name] = settings["value"][0]
 
         return payload
+
+
+class ForemanClient(object):
+    """Client for the Foreman REST-API v2"""
+    headers = {'Accept': 'version=2,application/json', 'Content-type': 'application/json'}
+
+    def __init__(self):
+        self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
+        self.foreman_host = self.env.config.get("foreman.host", "http://localhost/api/v2")
+
+    def __request(self, method_name, type, id=None, data=None):
+        url = "%s/%s" % (self.foreman_host, type)
+        if id is not None:
+            url += "/%s" % id
+
+        method = getattr(requests, method_name)
+        data = dumps(data) if data is not None else None
+        self.log.debug("sending %s request with %s to %s" % (method_name, data, url))
+        response = method(url,
+                          headers=self.headers,
+                          verify=self.env.config.get("foreman.verify", "true") == "true",
+                          auth=HTTPBasicAuth(self.env.config.get("foreman.user"), self.env.config.get("foreman.password")),
+                          data=data)
+        if response.ok:
+            data = response.json()
+            self.log.debug("response %s" % data)
+            # check for error
+            if "error" in data:
+                raise ForemanObjectException(", ".join(data["error"]["errors"]))
+            return data
+        else:
+            try:
+                data = response.json()
+            except json.decoder.JSONDecodeError as e:
+                self.log.error("Error parsing json error response: %s (%s)" % (response.text, e))
+                response.raise_for_status()
+            else:
+                # check for error
+                if "error" in data and response.status_code != 404:
+                    self.log.debug("Received response with error: %s" % data["error"])
+                    raise ForemanObjectException(", ".join(data["error"]["errors"]) if "errors" in data["error"] else str(data["error"]))
+                else:
+                    response.raise_for_status()
+
+    def check_backend(self):
+        """ check if foreman backend is reachable """
+        try:
+            response = self.__request("get", "status")
+            return response["result"] == "ok"
+        except:
+            return False
+
+    def get(self, type, id=None):
+        return self.__request("get", type, id=id)
+
+    def delete(self, type, id):
+        return self.__request("delete", type, id=id)
+
+    def put(self, type, id, data):
+        return self.__request("put", type, id=id, data=data)
+
+    def post(self, type, id=None, data=None):
+        return self.__request("post", type, id=id, data=data)
+
+
+class ForemanObjectException(ObjectException):
+    pass

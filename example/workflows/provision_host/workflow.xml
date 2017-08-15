@@ -30,7 +30,10 @@
             <Name>parentDn</Name>
             <Description>Dn of the parent container in which the host shall be placed.</Description>
             <Type>UnicodeString</Type>
-            <Default>ou=devices,ou=systems,dc=example,dc=net</Default>
+            <Default>ou=systems,dc=example,dc=net</Default>
+            <Values>
+                <Value>ou=systems,dc=example,dc=net</Value>
+            </Values>
         </Attribute>
 
         <Attribute>

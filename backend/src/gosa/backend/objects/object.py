@@ -283,11 +283,11 @@ class Object(object):
                         be_attrs = self._backendAttrs[backend]
 
                         if "_uuidAttribute" in be_attrs:
-                            value = self._getattr_(be_attrs['_uuidAttribute'])
+                            value = self._getattr_(be_attrs['_uuidAttribute'], "in_value")
                             if value is None:
                                 raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=backend, name=be_attrs['_uuidAttribute']))
                             else:
-                                uuid = self._getattr_(be_attrs['_uuidAttribute'])
+                                uuid = self._getattr_(be_attrs['_uuidAttribute'], "in_value")
 
                         kwargs = self.get_backend_kwargs(be_attrs)
 
@@ -555,7 +555,7 @@ class Object(object):
         else:
             raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
 
-    def _getattr_(self, name):
+    def _getattr_(self, name, value_property="value"):
         """
         The getter method object attributes.
 
@@ -569,10 +569,10 @@ class Object(object):
             # We can have single and multivalues, return the correct type here.
             value = None
             if self.myProperties[name]['multivalue']:
-                value = self.myProperties[name]['value']
+                value = self.myProperties[name][value_property]
             else:
-                if len(self.myProperties[name]['value']):
-                    value = self.myProperties[name]['value'][0]
+                if len(self.myProperties[name][value_property]):
+                    value = self.myProperties[name][value_property][0]
             return value
 
         # The requested property-name seems to be a method, return the method reference.
@@ -830,11 +830,11 @@ class Object(object):
             kwargs = self.get_backend_kwargs(beAttrs)
 
             if "_uuidAttribute" in beAttrs:
-                value = self._getattr_(beAttrs['_uuidAttribute'])
+                value = self._getattr_(beAttrs['_uuidAttribute'], "in_value")
                 if value is None:
                     raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=p_backend, name=beAttrs['_uuidAttribute']))
                 else:
-                    uuid = self._getattr_(beAttrs['_uuidAttribute'])
+                    uuid = self._getattr_(beAttrs['_uuidAttribute'], "in_value")
 
             if self._mode == "create":
                 index.currently_in_creation.append(self.dn)
@@ -884,7 +884,7 @@ class Object(object):
             kwargs = self.get_backend_kwargs(beAttrs)
 
             if "_uuidAttribute" in beAttrs:
-                value = self._getattr_(beAttrs['_uuidAttribute'])
+                value = self._getattr_(beAttrs['_uuidAttribute'], "in_value")
                 if value is None:
                     if self._mode == "update":
                         raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=p_backend, name=beAttrs['_uuidAttribute']))
@@ -1323,7 +1323,7 @@ class Object(object):
                 be_config_attrs = self._backendAttrs[backend]
 
                 if "_uuidAttribute" in be_config_attrs:
-                    value = self._getattr_(be_config_attrs['_uuidAttribute'])
+                    value = self._getattr_(be_config_attrs['_uuidAttribute'], "in_value")
                     if value is None:
                         raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=backend, name=be_config_attrs[
                             '_uuidAttribute']))
@@ -1380,7 +1380,7 @@ class Object(object):
         uuid = self.uuid
         be_config_attrs = self._backendAttrs[backends[0]]
         if "_uuidAttribute" in be_config_attrs:
-            value = self._getattr_(be_config_attrs['_uuidAttribute'])
+            value = self._getattr_(be_config_attrs['_uuidAttribute'], "in_value")
             if value is None:
                 raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=be, name=be_config_attrs[
                     '_uuidAttribute']))
@@ -1453,7 +1453,7 @@ class Object(object):
             uuid = self.uuid
             be_config_attrs = self._backendAttrs[backend] if backend in self._backendAttrs else {}
             if "_uuidAttribute" in be_config_attrs:
-                value = self._getattr_(be_config_attrs['_uuidAttribute'])
+                value = self._getattr_(be_config_attrs['_uuidAttribute'], "in_value")
                 if value is None:
                     raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=backend, name=be_config_attrs[
                         '_uuidAttribute']))
