@@ -45,6 +45,8 @@ def monitor(path, modifier, token, webhook_target, initially_failed=False):
     dn = None
     ts = None
     ct = None
+    newrdn = None
+    newsuperior = None
 
     try:
         with open(path, encoding='utf-8', errors='ignore') as f:
@@ -61,6 +63,14 @@ def monitor(path, modifier, token, webhook_target, initially_failed=False):
 
                 elif line.startswith("dn:"):
                     dn = line[4:]
+                    continue
+
+                elif line.startswith("newrdn:"):
+                    newrdn = line[8:]
+                    continue
+
+                elif line.startswith("newsuperior:"):
+                    newsuperior = line[13:]
                     continue
 
                 # Catch modifyTimestamp
@@ -89,13 +99,23 @@ def monitor(path, modifier, token, webhook_target, initially_failed=False):
                             ts = datetime.now().strftime("%Y%m%d%H%M%SZ")
 
                         e = EventMaker()
-                        update = e.Event(
-                            e.BackendChange(
-                                e.DN(dn),
-                                e.ModificationTime(ts),
-                                e.ChangeType(ct)
+                        if ct == "modrdn":
+                            update = e.Event(
+                                e.BackendChange(
+                                    e.DN(dn),
+                                    e.ModificationTime(ts),
+                                    e.ChangeType(ct),
+                                    e.NewDN("%s,%s" % (newrdn, newsuperior))
+                                )
                             )
-                        )
+                        else:
+                            update = e.Event(
+                                e.BackendChange(
+                                    e.DN(dn),
+                                    e.ModificationTime(ts),
+                                    e.ChangeType(ct)
+                                )
+                            )
                         payload = etree.tostring(update)
 
                         headers = {
