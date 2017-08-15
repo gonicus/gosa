@@ -315,7 +315,8 @@ class RPCMethods(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
 
         res = index.search({
-            'or_': {'_type': otype, '_extensions': otype, oattr: names}
+            'or_': {'_type': otype, '_extensions': otype},
+            oattr: names
             }, attrs)
 
         result = {}
