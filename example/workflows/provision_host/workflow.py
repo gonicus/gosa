@@ -5,19 +5,22 @@ del data['parent_dn']
 move = False
 move_successful = False
 
-if reference_object is None:
-    # create object
-    if parent_dn is None:
-        raise Exception("no parent dn defined")
-    obj = openObject('object', parent_dn, 'Device')
+if 'reference_dn' in data:
+    obj = openObject('object', data['reference_dn'])
     ref_uuid = obj['__jsonclass__'][1][1]
-else:
-    # open existing object
-    obj = openObject('object', reference_object.dn)
-    ref_uuid = obj['__jsonclass__'][1][1]
+    del data['reference_dn']
 
     if parent_dn is not None and dispatchObjectMethod(ref_uuid, "get_parent_dn") != parent_dn:
         move = True
+else:
+    # create object
+    if parent_dn is None:
+        raise Exception("no parent dn defined")
+
+    # create new object
+    obj = openObject('object', parent_dn, 'Device')
+
+ref_uuid = obj['__jsonclass__'][1][1]
 
 if move:
     log.info("moving to %s" % parent_dn)

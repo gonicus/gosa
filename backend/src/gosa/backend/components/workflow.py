@@ -270,9 +270,6 @@ class Workflow:
             for method in dispatcher.getMethods():
                 env[method] = make_dispatch(method)
 
-            # add reference object
-            env['reference_object'] = self.__reference_object
-
             # add logger
             env['log'] = log
 

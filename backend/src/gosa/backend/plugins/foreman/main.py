@@ -649,9 +649,9 @@ class ForemanHookReceiver(object):
                     self.log.debug("using known host instead of creating a new one")
                     # host is the formerly discovered host, which might have been changed in GOsa for provisioning
                     # so we want to use this one, foreman_object is the joined one, so copy the credentials from foreman_object to host
-                    if host.is_extended_by("RegisteredDevice"):
+                    if not host.is_extended_by("RegisteredDevice"):
                         host.extend("RegisteredDevice")
-                    if host.is_extended_by("simpleSecurityObject"):
+                    if not host.is_extended_by("simpleSecurityObject"):
                         host.extend("simpleSecurityObject")
                     host.deviceUUID = foreman_object.deviceUUID
                     host.userPassword = foreman_object.userPassword
