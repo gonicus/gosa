@@ -599,7 +599,7 @@ class ObjectProxy(object):
         oTypes = self.__factory.getObjectTypes()
         for ext in self.__extensions:
             if self.__extensions[ext]:
-                if extension in  oTypes[ext]['requires']:
+                if extension in oTypes[ext]['requires']:
                     raise ProxyException(C.make_error('OBJECT_EXTENSION_IN_USE', extension=extension, origin=ext))
 
         # Check Acls
@@ -627,7 +627,14 @@ class ObjectProxy(object):
         """
         # find the right container in the new base
         old_dn = self.__base.dn
-        real_new_base = self.find_dn_for_object(self.__base_type, self.__factory.identifyObject(new_base)[0], new_base, checked=[])
+        ident = self.__factory.identifyObject(new_base)
+        if ident is None or ident == (None, None):
+            self.__log.error("moving object '%s' from '%s' to '%s' failed: no valid container found" % (self.__base.uuid, old_dn, new_base))
+            raise ProxyException(C.make_error('MOVE_TARGET_INVALID', target=self.__base.uuid, old_dn=old_dn, new_dn=new_base))
+
+        base_type = ident[0]
+        base_dn = new_base
+        real_new_base = self.find_dn_for_object(self.__base_type, base_type, new_base, checked=[])
 
         if real_new_base is None:
             self.__log.error("moving object '%s' from '%s' to '%s' failed: no valid container found" % (self.__base.uuid, old_dn, new_base))
@@ -670,6 +677,8 @@ class ObjectProxy(object):
         zope.event.notify(ObjectChanged("pre object move", self.__base, dn=dn2str([str2dn(self.__base.dn)[0]]) + "," + new_base))
 
         old_base = self.__base.dn
+
+        self.create_missing_containers(real_new_base, base_dn, base_type)
 
         if recursive:
 
