@@ -99,7 +99,7 @@ def monitor(path, modifier, token, webhook_target, initially_failed=False):
                             ts = datetime.now().strftime("%Y%m%d%H%M%SZ")
 
                         e = EventMaker()
-                        if ct == "modrdn":
+                        if newrdn is not None and newsuperior is not None:
                             update = e.Event(
                                 e.BackendChange(
                                     e.DN(dn),
