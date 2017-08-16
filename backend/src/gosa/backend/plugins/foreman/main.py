@@ -74,28 +74,19 @@ class Foreman(Plugin):
             ssl = self.env.config.get('http.ssl', default=None)
             protocol = "https" if ssl and ssl.lower() in ['true', 'yes', 'on'] else "http"
 
-            payload = {
-                "common_parameter": {
-                    "name": "gosa-server",
-                    "value": "%s://%s:%s/api" % (protocol, host, self.env.config.get('http.port', default=8080))
-                }
-            }
-
-            # tell foreman our API url
-            try:
-                response = self.client.get("common_parameters", id="gosa-server")
-            except HTTPError as e:
-                if e.response.status_code == 404:
-                    # create parameter
-                    self.client.post("common_parameters", data=payload)
-            else:
-                if response["value"] != payload["common_parameter"]["value"]:
-                    # update parameter
-                    self.client.put("common_parameters", id="gosa-server", data=payload)
+            self.client.set_common_parameter("gosa-server", "%s://%s:%s/api" % (protocol, host, self.env.config.get('http.port', default=8080)))
+            mqtt_host = self.env.config.get('mqtt.host')
+            if mqtt_host is not None:
+                if mqtt_host == "localhost":
+                    mqtt_host = host
+                self.client.set_common_parameter("gosa-mqtt", "%s:%s" % (mqtt_host, self.env.config.get('mqtt.port', default=1883)))
 
             # Listen for object events
             if not hasattr(sys, '_called_from_test'):
                 zope.event.subscribers.append(self.__handle_events)
+
+    def init_client(self, url):
+        self.client = ForemanClient(url)
 
     def serve(self):
         # Load DB session
