@@ -155,13 +155,9 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
           widget = this.__controller.getWidgetByAttributeName(attributeName);
 
           if (widget) {
-            if (silentMode === true) {
-
-            } else {
-              this.__modifiedValues[attributeName] = newVal;
-              var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
-              this.__widgetConfigurations.push(mergeWidgets);
-            }
+            this.__modifiedValues[attributeName] = newVal;
+            var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
+            this.__widgetConfigurations.push(mergeWidgets);
           }
           else {
             this.__setAttributeValue(attributeName, newVal);
