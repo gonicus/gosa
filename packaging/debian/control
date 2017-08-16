@@ -14,7 +14,8 @@ Package: gosa-common
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python3-pkg-resources,
  python3-zope.interface, python3-openssl, python3-sqlalchemy, python3-lxml,
- python3-dnspython, python3-cryptography, python3-colorlog, python3-mqtt
+ python3-dnspython, python3-cryptography, python3-colorlog, python3-mqtt,
+ gosa-dbus
 Description: gosa infrastructure service - common files
  Brief description is missing.
  .
@@ -23,7 +24,7 @@ Description: gosa infrastructure service - common files
 Package: gosa-dbus
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, gosa-common, python3-dateutil,
- python3-inotify, python3-dbus, python3-setproctitle, supervisor, python3-pyinotify
+ python3-dbus, python3-setproctitle, supervisor, python3-pyinotify
 Description: GOsa infrastructure service - DBUS service provider
  Brief description is missing.
  .
@@ -34,7 +35,7 @@ Architecture: all
 Conflicts: gosa-server
 Depends: ${python:Depends}, ${misc:Depends}, gosa-common, python3-dateutil,
  python3-netifaces, python3-netaddr, python3-crypto, python3-zope.event,
- python3-setproctitle, adduser, supervisor, python3-babel
+ python3-setproctitle, adduser, supervisor, python3-babel, python3-tornado
 Suggests: gosa-dbus
 Description: GOsa infrastructure service - client
  Brief description is missing.
