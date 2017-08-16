@@ -13,7 +13,6 @@ import os
 import pytest
 from unittest import TestCase, mock
 
-import logging
 from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application, HTTPError
 
@@ -22,6 +21,7 @@ from gosa.backend.exceptions import ProxyException
 from gosa.backend.plugins.webhook.registry import WebhookReceiver
 from tests.GosaTestCase import GosaTestCase
 from gosa.backend.plugins.foreman.main import *
+from gosa.backend.objects.backend.back_foreman import *
 import ldap
 
 
@@ -412,7 +412,7 @@ class ForemanHookTestCase(RemoteTestCase):
     registry = None
     url = None
     token = None
-    _host_dn = None
+    _host_cn = None
 
     def setUp(self):
         super(ForemanHookTestCase, self).setUp()
@@ -423,11 +423,11 @@ class ForemanHookTestCase(RemoteTestCase):
         super(ForemanHookTestCase, self).tearDown()
         self.registry.unregisterWebhook("admin", "test-webhook", "application/vnd.foreman.hookevent+json")
 
-        if self._host_dn is not None:
+        if self._host_cn is not None:
             # cleanup
             foreman = Foreman()
             foreman.serve()
-            foreman.remove_host(self._host_dn)
+            foreman.remove_type("ForemanHost", self._host_cn)
 
     def get_app(self):
         return Application([('/hooks(?P<path>.*)?', WebhookReceiver)], cookie_secret='TecloigJink4', xsrf_cookies=True)
@@ -451,7 +451,8 @@ class ForemanHookTestCase(RemoteTestCase):
             "build_status": 0\
         }', 200)
 
-        self._host_dn = "cn=new-foreman-host,ou=incoming,dc=example,dc=net"
+        host_dn = "cn=new-foreman-host,ou=incoming,dc=example,dc=net"
+        self._host_cn = "new-foreman-host"
         # create new host to update
         foreman = Foreman()
         foreman.serve()
@@ -476,7 +477,7 @@ class ForemanHookTestCase(RemoteTestCase):
         AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
 
         # check if the host has been updated
-        device = ObjectProxy(self._host_dn)
+        device = ObjectProxy(host_dn)
         assert device.cn == "new-foreman-host"
         assert device.ipHostNumber == payload_data["data"]["host"]["host"]["ip"]
         assert device.macAddress == payload_data["data"]["host"]["host"]["mac"]
@@ -500,7 +501,7 @@ class ForemanHookTestCase(RemoteTestCase):
         with pytest.raises(ProxyException):
             ObjectProxy("cn=new-foreman-host,ou=incoming,dc=example,dc=net")
 
-        self._host_dn = None
+        self._host_cn = None
 
     @mock.patch("gosa.backend.objects.backend.back_foreman.requests.delete")
     @mock.patch("gosa.backend.objects.backend.back_foreman.requests.get")
