@@ -467,7 +467,6 @@ class ForemanHookTestCase(RemoteTestCase):
                         "name": "new-foreman-host",
                         "ip": "127.0.0.1",
                         "mac": "00:00:00:00:00:01",
-                        "uuid": "597ae2f6-16a6-1027-98f4-d28b5365dc14"
                     }
                 }
             }
@@ -481,7 +480,6 @@ class ForemanHookTestCase(RemoteTestCase):
         assert device.cn == "new-foreman-host"
         assert device.ipHostNumber == payload_data["data"]["host"]["host"]["ip"]
         assert device.macAddress == payload_data["data"]["host"]["host"]["mac"]
-        assert device.deviceUUID == payload_data["data"]["host"]["host"]["uuid"]
 
         # delete the host
         payload_data = {
