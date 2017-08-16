@@ -78,7 +78,7 @@ setup(
         'pyldap',
         'Pillow',
         'passlib',
-        'cryptography>=1.3',
+        'cryptography',
         'psycopg2',
         'passlib',
         'paho-mqtt',
