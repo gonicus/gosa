@@ -75,10 +75,10 @@ class MockForeman:
         return MockResponse({}, 200)
 
 
-@mock.patch("gosa.backend.plugins.foreman.main.requests.post")
-@mock.patch("gosa.backend.plugins.foreman.main.requests.put")
-@mock.patch("gosa.backend.plugins.foreman.main.requests.delete")
-@mock.patch("gosa.backend.plugins.foreman.main.requests.get")
+@mock.patch("gosa.backend.objects.backend.back_foreman.requests.post")
+@mock.patch("gosa.backend.objects.backend.back_foreman.requests.put")
+@mock.patch("gosa.backend.objects.backend.back_foreman.requests.delete")
+@mock.patch("gosa.backend.objects.backend.back_foreman.requests.get")
 class ForemanTestCase(GosaTestCase):
     foreman = None
 
@@ -88,6 +88,8 @@ class ForemanTestCase(GosaTestCase):
         logging.getLogger("gosa.backend.objects").info("SET UP")
         super(ForemanTestCase, self).setUp()
         self.foreman = Foreman()
+        # just use a fake url as the requests are mocked anyway
+        self.foreman.init_client("http://localhost:8000/api/v2")
         self.foreman.serve()
         self.foreman.create_container()
 
@@ -160,6 +162,8 @@ class ForemanTestCase(GosaTestCase):
         }
         m_get.return_value = MockResponse(data, 200)
 
+        logging.getLogger("gosa.backend.objects").info("------------------------START UPDATING TYPE---------------------------------------")
+
         self.foreman.update_type("ForemanHost", device, data)
 
         # opening the object calls the mocked m_get method
@@ -168,10 +172,10 @@ class ForemanTestCase(GosaTestCase):
         assert device.status == "pending"
 
 
-@mock.patch("gosa.backend.plugins.foreman.main.requests.post")
-@mock.patch("gosa.backend.plugins.foreman.main.requests.put")
-@mock.patch("gosa.backend.plugins.foreman.main.requests.delete")
-@mock.patch("gosa.backend.plugins.foreman.main.requests.get")
+@mock.patch("gosa.backend.objects.backend.back_foreman.requests.post")
+@mock.patch("gosa.backend.objects.backend.back_foreman.requests.put")
+@mock.patch("gosa.backend.objects.backend.back_foreman.requests.delete")
+@mock.patch("gosa.backend.objects.backend.back_foreman.requests.get")
 class ForemanSyncTestCase(GosaTestCase):
 
     dns_to_delete = []
@@ -184,13 +188,15 @@ class ForemanSyncTestCase(GosaTestCase):
         logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
         super(ForemanSyncTestCase, self).setUp()
         self.foreman = Foreman()
+        # just use a fake url as the requests are mocked anyway
+        self.foreman.init_client("http://localhost:8000/api/v2")
         self.foreman.serve()
         self.foreman.client = ForemanClient()
         self.foreman.create_container()
 
     def tearDown(self):
         # remove them all
-        with mock.patch("gosa.backend.plugins.foreman.main.requests.delete") as m_del:
+        with mock.patch("gosa.backend.objects.backend.back_foreman.requests.delete") as m_del:
             m_del.return_value = MockResponse({}, 200)
 
             for dn in self.dns_to_delete:
@@ -274,9 +280,9 @@ class ForemanSyncTestCase(GosaTestCase):
 
 class ForemanClientTestCase(TestCase):
 
-    @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
+    @mock.patch("gosa.backend.objects.backend.back_foreman.requests.get")
     def test_get(self, m_get):
-        client = ForemanClient()
+        client = ForemanClient("http://localhost:8000/api/v2")
 
         m_get.return_value = MockResponse({}, 404)
         with pytest.raises(HTTPError):
@@ -357,7 +363,7 @@ class ForemanRealmTestCase(RemoteTestCase):
     def get_app(self):
         return Application([('/hooks(?P<path>.*)?', WebhookReceiver)], cookie_secret='TecloigJink4', xsrf_cookies=True)
 
-    @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
+    @mock.patch("gosa.backend.objects.backend.back_foreman.requests.get")
     def test_request(self, m_get):
 
         m_get.return_value = MockResponse('{\
@@ -439,7 +445,7 @@ class ForemanHookTestCase(RemoteTestCase):
         }
         return headers, payload
 
-    @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
+    @mock.patch("gosa.backend.objects.backend.back_foreman.requests.get")
     def test_host_request(self, m_get):
 
         m_get.return_value = MockResponse('{\
@@ -497,8 +503,8 @@ class ForemanHookTestCase(RemoteTestCase):
 
         self._host_dn = None
 
-    @mock.patch("gosa.backend.plugins.foreman.main.requests.delete")
-    @mock.patch("gosa.backend.plugins.foreman.main.requests.get")
+    @mock.patch("gosa.backend.objects.backend.back_foreman.requests.delete")
+    @mock.patch("gosa.backend.objects.backend.back_foreman.requests.get")
     def test_hostgroup_request(self, m_get, m_delete):
 
         m_get.return_value = MockResponse('{\
