@@ -30,15 +30,6 @@
         <Description>The foreman - current device status</Description>
         <Type>String</Type>
         <Default>unknown</Default>
-        <InFilter>
-          <FilterChain>
-            <FilterEntry>
-              <Filter>
-                <Name>ForemanStatusIn</Name>
-              </Filter>
-            </FilterEntry>
-          </FilterChain>
-        </InFilter>
         <Values>
           <Value key="unknown">Unknown</Value>
           <Value key="pending">Pending</Value>
@@ -77,6 +68,15 @@
         <Type>Integer</Type>
         <Backend>Foreman</Backend>
         <ReadOnly>true</ReadOnly>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>ForemanStatusIn</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
       </Attribute>
       <Attribute>
         <Name>global_status</Name>
@@ -84,6 +84,15 @@
         <Type>Integer</Type>
         <Backend>Foreman</Backend>
         <ReadOnly>true</ReadOnly>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>ForemanStatusIn</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
       </Attribute>
       <Attribute>
         <Name>hostgroup_id</Name>

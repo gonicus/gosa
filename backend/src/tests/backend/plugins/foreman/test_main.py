@@ -188,10 +188,9 @@ class ForemanSyncTestCase(GosaTestCase):
         logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
         super(ForemanSyncTestCase, self).setUp()
         self.foreman = Foreman()
-        # just use a fake url as the requests are mocked anyway
-        self.foreman.init_client("http://localhost:8000/api/v2")
         self.foreman.serve()
-        self.foreman.client = ForemanClient()
+        # just use a fake url as the requests are mocked anyway
+        self.foreman.client = ForemanClient("http://localhost:8000/api/v2")
         self.foreman.create_container()
 
     def tearDown(self):
