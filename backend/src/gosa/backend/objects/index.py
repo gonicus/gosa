@@ -825,7 +825,7 @@ class ObjectIndex(Plugin):
                             use_extension = True
                             exprs.append(ExtensionIndex.extension == v)
                         else:
-                            if "%" in value:
+                            if "%" in v:
                                 sub_query = self.__session.query(KeyValueIndex.uuid). \
                                     filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(v))). \
                                     subquery()
