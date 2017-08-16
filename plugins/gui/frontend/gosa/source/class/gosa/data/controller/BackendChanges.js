@@ -51,7 +51,7 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
 
       this.__processChanges(data.attributes.changed);
       this.__processRemoved(data.attributes.removed);
-      this.__processAdded(data.attributes.added);
+      this.__processChanges(data.attributes.added);
       this.__processExtensions(data.extensions);
 
       if (data.extensions.removed.length > 0) {
@@ -140,7 +140,7 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
     },
 
     /**
-     * @param changes {Map} Hash map with changes to the model (key is attribute name, value is the new value)
+     * @param changes {Map} Hash map with changes/additions to the model (key is attribute name, value is the new value)
      */
     __processChanges : function(changes) {
       qx.core.Assert.assertMap(changes);
@@ -152,30 +152,6 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
             qx.lang.Type.isArray(changes[attributeName])
             ? changes[attributeName]
             : [changes[attributeName]]);
-          widget = this.__controller.getWidgetByAttributeName(attributeName);
-
-          if (widget) {
-            this.__modifiedValues[attributeName] = newVal;
-            var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
-            this.__widgetConfigurations.push(mergeWidgets);
-          }
-          else {
-            this.__setAttributeValue(attributeName, newVal);
-          }
-        }
-      }
-    },
-
-    /**
-     * @param added {Map} Hash map with new attribute values to the model (key is attribute name, value is the new value)
-     */
-    __processAdded : function(added) {
-      qx.core.Assert.assertMap(added);
-
-      var widget, newVal;
-      for (var attributeName in added) {
-        if (added.hasOwnProperty(attributeName)) {
-          newVal = new qx.data.Array(qx.lang.Type.isArray(added[attributeName]) ? added[attributeName] : [added[attributeName]]);
           widget = this.__controller.getWidgetByAttributeName(attributeName);
 
           if (widget) {
