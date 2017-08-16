@@ -228,10 +228,10 @@ class ForemanClient(object):
     """Client for the Foreman REST-API v2"""
     headers = {'Accept': 'version=2,application/json', 'Content-type': 'application/json'}
 
-    def __init__(self):
+    def __init__(self, url=None):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
-        self.foreman_host = self.env.config.get("foreman.host")
+        self.foreman_host = self.env.config.get("foreman.host") if url is None else url
 
     def __request(self, method_name, type, id=None, data=None):
         if self.foreman_host is None:
@@ -289,6 +289,24 @@ class ForemanClient(object):
 
     def post(self, type, id=None, data=None):
         return self.__request("post", type, id=id, data=data)
+
+    def set_common_parameter(self, name, value):
+        payload = {
+            "common_parameter": {
+                "name": name,
+                "value": value
+            }
+        }
+        try:
+            response = self.get("common_parameters", id=name)
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                # create parameter
+                self.post("common_parameters", data=payload)
+        else:
+            if response["value"] != payload["common_parameter"]["value"]:
+                # update parameter
+                self.put("common_parameters", id=name, data=payload)
 
 
 class ForemanObjectException(ObjectException):
