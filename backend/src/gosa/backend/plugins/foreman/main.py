@@ -14,7 +14,6 @@ import sys
 import zope
 import socket
 
-from requests import HTTPError
 from sqlalchemy import and_
 
 from gosa.backend.objects import ObjectProxy, ObjectFactory

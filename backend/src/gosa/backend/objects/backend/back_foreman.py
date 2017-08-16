@@ -304,7 +304,7 @@ class ForemanClient(object):
                 # create parameter
                 self.post("common_parameters", data=payload)
         else:
-            if response["value"] != payload["common_parameter"]["value"]:
+            if 'value' not in response or response["value"] != payload["common_parameter"]["value"]:
                 # update parameter
                 self.put("common_parameters", id=name, data=payload)
 

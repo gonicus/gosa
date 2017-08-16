@@ -16,11 +16,13 @@ from unittest import TestCase, mock
 from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application, HTTPError
 
+from gosa.backend.objects import ObjectProxy
+from gosa.common.components import PluginRegistry
 from tests.RemoteTestCase import RemoteTestCase
 from gosa.backend.exceptions import ProxyException
 from gosa.backend.plugins.webhook.registry import WebhookReceiver
 from tests.GosaTestCase import GosaTestCase
-from gosa.backend.plugins.foreman.main import *
+from gosa.backend.plugins.foreman.main import Foreman as ForemanPlugin
 from gosa.backend.objects.backend.back_foreman import *
 import ldap
 
@@ -87,7 +89,7 @@ class ForemanTestCase(GosaTestCase):
         logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
         logging.getLogger("gosa.backend.objects").info("SET UP")
         super(ForemanTestCase, self).setUp()
-        self.foreman = Foreman()
+        self.foreman = ForemanPlugin()
         # just use a fake url as the requests are mocked anyway
         self.foreman.init_client("http://localhost:8000/api/v2")
         self.foreman.serve()
@@ -187,7 +189,7 @@ class ForemanSyncTestCase(GosaTestCase):
         logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.DEBUG)
         logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
         super(ForemanSyncTestCase, self).setUp()
-        self.foreman = Foreman()
+        self.foreman = ForemanPlugin()
         self.foreman.serve()
         # just use a fake url as the requests are mocked anyway
         self.foreman.client = ForemanClient("http://localhost:8000/api/v2")
@@ -385,7 +387,7 @@ class ForemanRealmTestCase(RemoteTestCase):
         }
         response = AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
 
-        otp_response = loads(response.body)
+        otp_response = loads(response.body.decode("utf-8"))
         assert "randompassword" in otp_response
         assert otp_response["randompassword"] is not None
 
@@ -425,7 +427,7 @@ class ForemanHookTestCase(RemoteTestCase):
 
         if self._host_cn is not None:
             # cleanup
-            foreman = Foreman()
+            foreman = ForemanPlugin()
             foreman.serve()
             foreman.remove_type("ForemanHost", self._host_cn)
 
@@ -454,7 +456,7 @@ class ForemanHookTestCase(RemoteTestCase):
         host_dn = "cn=new-foreman-host,ou=incoming,dc=example,dc=net"
         self._host_cn = "new-foreman-host"
         # create new host to update
-        foreman = Foreman()
+        foreman = ForemanPlugin()
         foreman.serve()
         foreman.add_host("new-foreman-host")
 
@@ -518,7 +520,7 @@ class ForemanHookTestCase(RemoteTestCase):
             "data": {
                 "hostgroup": {
                     "hostgroup": {
-                        "id": "999",
+                        "id": 999,
                         "name": "Testgroup"
                     }
                 }
@@ -530,7 +532,7 @@ class ForemanHookTestCase(RemoteTestCase):
         # check if the host has been updated
         device = ObjectProxy(self._host_dn)
         assert device.cn == "Testgroup"
-        assert device.foremanGroupId == 999
+        assert device.foremanGroupId == "999"
 
         # delete the host
         payload_data = {
@@ -539,7 +541,7 @@ class ForemanHookTestCase(RemoteTestCase):
             "data": {
                 "hostgroup": {
                     "hostgroup": {
-                        "id": "999",
+                        "id": 999,
                         "name": "Testgroup"
                     }
                 }
