@@ -231,9 +231,12 @@ class ForemanClient(object):
     def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
-        self.foreman_host = self.env.config.get("foreman.host", "http://localhost/api/v2")
+        self.foreman_host = self.env.config.get("foreman.host")
 
     def __request(self, method_name, type, id=None, data=None):
+        if self.foreman_host is None:
+            return {}
+
         url = "%s/%s" % (self.foreman_host, type)
         if id is not None:
             url += "/%s" % id
