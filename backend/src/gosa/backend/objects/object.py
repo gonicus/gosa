@@ -12,6 +12,8 @@ The object base class.
 """
 
 import copy
+from lxml import objectify, etree
+
 import zope.event
 import pkg_resources
 import os
@@ -19,7 +21,11 @@ import os
 from collections import OrderedDict
 from logging import getLogger
 from zope.interface import Interface, implementer
+
+from gosa.backend.routes.sse.main import SseHandler
 from gosa.common import Environment
+from gosa.common.event import EventMaker
+from gosa.common.gjson import dumps
 from gosa.common.utils import N_, is_uuid
 from gosa.common.components import PluginRegistry
 from gosa.common.error import GosaErrorHandler as C
@@ -156,7 +162,7 @@ class Object(object):
         for key in self.myProperties:
 
             # Load dynamic dropdown-values
-            if self.myProperties[key]['values_populate']:
+            if self.myProperties[key]['values_populate'] and self.myProperties[key]['re_populate_on_update'] is False:
                 cr = PluginRegistry.getInstance('CommandRegistry')
                 values = cr.call(self.myProperties[key]['values_populate'])
                 if type(values).__name__ == "dict":
@@ -202,6 +208,8 @@ class Object(object):
                 if self.myProperties[key]['mandatory']:
                     self.myProperties[key]['status'] = STATUS_CHANGED
 
+        self.__update_population()
+
     def set_foreign_value(self, attr, original):
         self.myProperties[attr]['value'] = original['value']
         self.myProperties[attr]['in_value'] = original['in_value']
@@ -219,6 +227,50 @@ class Object(object):
 
     def hasattr(self, attr):
         return attr in self.myProperties
+
+    def __update_population(self):
+        # collect current attribute values
+        data = {}
+        for prop in self.myProperties.keys():
+            data[prop] = getattr(self, prop)
+
+        atypes = self._objectFactory.getAttributeTypes()
+
+        changes = {}
+
+        for key in self.myProperties:
+            if self.myProperties[key]['values_populate'] and self.myProperties[key]['re_populate_on_update'] is True:
+                cr = PluginRegistry.getInstance('CommandRegistry')
+                values = cr.call(self.myProperties[key]['values_populate'], data)
+                if type(values).__name__ == "dict":
+                    if self.myProperties[key]['values'] != values:
+                        changes[key] = values
+                    self.myProperties[key]['values'] = values
+                else:
+                    converted_values = atypes['String'].convert_to(self.myProperties[key]['type'], values)
+                    if self.myProperties[key]['values'] != converted_values:
+                        changes[key] = converted_values
+                    self.myProperties[key]['values'] = converted_values
+
+        if len(changes.keys()) and self._owner is not None:
+            e = EventMaker()
+            changed = list()
+            for key, values in changes.items():
+                change = e.Change(
+                    e.PropertyName(key),
+                    e.NewValues(dumps(values))
+                )
+                changed.append(change)
+
+            ev = e.Event(
+                e.ObjectPropertyValuesChanged(
+                    e.UUID(self.uuid),
+                    e.DN(self.dn),
+                    *changed
+                )
+            )
+            event_object = objectify.fromstring(etree.tostring(ev).decode('utf-8'))
+            SseHandler.notify(event_object, channel="user.%s" % self._owner)
 
     def _read(self, where, data=None):
         """
@@ -437,6 +489,8 @@ class Object(object):
                 self.myProperties[name]['status'] = STATUS_CHANGED
                 self.myProperties[name]['last_value'] = copy.deepcopy(self.myProperties[name]['value'])
                 self.myProperties[name]['value'] = []
+
+                self.__update_population()
         else:
             raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
 
@@ -543,6 +597,9 @@ class Object(object):
             # Assign the properties new value.
             self.myProperties[name]['value'] = new_value
             self.log.debug("updated property value of [%s|%s] %s:%s" % (type(self).__name__, self.uuid, name, new_value))
+
+            # update population
+            self.__update_population()
 
             # Update status if there's a change
             t = self.myProperties[name]['type']
@@ -828,6 +885,8 @@ class Object(object):
             uuid = self.uuid
 
             kwargs = self.get_backend_kwargs(beAttrs)
+            if self._owner is not None:
+                kwargs["user"] = self._owner
 
             if "_uuidAttribute" in beAttrs:
                 value = self._getattr_(beAttrs['_uuidAttribute'], "in_value")
@@ -882,6 +941,8 @@ class Object(object):
             uuid = self.uuid
 
             kwargs = self.get_backend_kwargs(beAttrs)
+            if self._owner is not None:
+                kwargs["user"] = self._owner
 
             if "_uuidAttribute" in beAttrs:
                 value = self._getattr_(beAttrs['_uuidAttribute'], "in_value")

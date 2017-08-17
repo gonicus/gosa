@@ -13,8 +13,10 @@ qx.Class.define("gosa.ui.dialogs.Error", {
 
   extend: gosa.ui.dialogs.Dialog,
 
-  construct: function(msg) {
-    var title = this.tr("Error");
+  construct: function(msg, title) {
+    if (!title) {
+      title = this.tr("Error");
+    }
 
     this.base(arguments, title);
     msg = gosa.ui.dialogs.Error.getMessage(msg);

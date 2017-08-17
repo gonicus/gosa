@@ -61,26 +61,48 @@
         <Type>UnicodeString</Type>
       </Attribute>
       <Attribute>
-        <Name>operatingsystem_name</Name>
+        <Name>domain_id</Name>
+        <Description>Domain the host should be added to</Description>
+        <Type>Integer</Type>
+        <Mandatory>true</Mandatory>
         <Backend>Foreman</Backend>
-        <Description>Operating system name</Description>
-        <Type>UnicodeString</Type>
-        <ReadOnly>true</ReadOnly>
+        <Values populate="getForemanDomains"/>
       </Attribute>
+
       <Attribute>
-        <Name>environment_name</Name>
+        <Name>operatingsystem_id</Name>
+        <Type>Integer</Type>
+        <Values populate="getForemanOperatingSystems" refresh-on-update="true"/>
         <Backend>Foreman</Backend>
-        <Description>Environment name</Description>
-        <Type>UnicodeString</Type>
-        <ReadOnly>true</ReadOnly>
       </Attribute>
+
       <Attribute>
-        <Name>domain_name</Name>
+        <Name>architecture_id</Name>
+        <Type>Integer</Type>
+        <Values populate="getForemanArchitectures" refresh-on-update="true"/>
         <Backend>Foreman</Backend>
-        <Description>Domain name</Description>
-        <Type>UnicodeString</Type>
-        <ReadOnly>true</ReadOnly>
       </Attribute>
+
+      <Attribute>
+        <Name>ptable_id</Name>
+        <Type>Integer</Type>
+        <Values populate="getForemanPartitionTables" refresh-on-update="true"/>
+        <Backend>Foreman</Backend>
+      </Attribute>
+
+      <Attribute>
+        <Name>medium_id</Name>
+        <Type>Integer</Type>
+        <Values populate="getForemanMedia" refresh-on-update="true"/>
+        <Backend>Foreman</Backend>
+      </Attribute>
+
+      <Attribute>
+        <Name>root_pass</Name>
+        <Type>UnicodeString</Type>
+        <Backend>Foreman</Backend>
+      </Attribute>
+
       <Attribute>
         <Name>member</Name>
         <Description>RFC2256: member of a group</Description>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ This file is part of the GOsa project -  http://gosa-project.org
+  ~
+  ~ Copyright:
+  ~    (C) 2010-2017 GONICUS GmbH, Germany, http://www.gonicus.de
+  ~
+  ~ License:
+  ~    LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
+  ~
+  ~ See the LICENSE file in the project's top-level directory for details.
+  -->
+
+<schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events">
+
+    <complexType name="BackendException">
+    	<annotation>
+    		<documentation>
+    		The BackendException event is fired if an asynchronous call to a GOsa backend has failed
+    		</documentation>
+    	</annotation>
+        <all>
+			<element name="BackendName" type="string" />
+			<element name="ErrorMessage" type="string" />
+			<element name="Operation" type="string" />
+    	</all>
+    </complexType>
+
+	<element name="BackendException" type="e:BackendException"/>
+</schema>

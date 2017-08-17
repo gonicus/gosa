@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ This file is part of the GOsa project -  http://gosa-project.org
+  ~
+  ~ Copyright:
+  ~    (C) 2010-2017 GONICUS GmbH, Germany, http://www.gonicus.de
+  ~
+  ~ License:
+  ~    LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
+  ~
+  ~ See the LICENSE file in the project's top-level directory for details.
+  -->
+
+<schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events">
+
+    <complexType name="ObjectPropertyValuesChanged">
+    	<annotation>
+    		<documentation>
+				The ObjectPropertyValuesChanged event is fired if the possible values of an property have changed
+    		</documentation>
+    	</annotation>
+		<sequence>
+			<element name="UUID" type="string" minOccurs="0"/>
+			<element name="DN" type="string" minOccurs="0"/>
+			<element name="Change" maxOccurs="unbounded">
+				<complexType>
+					<all>
+						<element name="PropertyName" type="string" />
+						<element name="NewValues" type="string" />
+					</all>
+				</complexType>
+			</element>
+    	</sequence>
+    </complexType>
+
+	<element name="ObjectPropertyValuesChanged" type="e:ObjectPropertyValuesChanged"/>
+</schema>

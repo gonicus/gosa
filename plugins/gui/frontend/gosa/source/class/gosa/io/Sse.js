@@ -39,7 +39,8 @@ qx.Class.define("gosa.io.Sse", {
     "objectClosing": "qx.event.type.Data",
     "objectMoved": "qx.event.type.Data",
     "pluginUpdate": "qx.event.type.Data",
-    "workflowUpdate": "qx.event.type.Data"
+    "workflowUpdate": "qx.event.type.Data",
+    "ObjectPropertyValuesChanged": "qx.event.type.Data"
   },
 
   properties: {
@@ -63,27 +64,47 @@ qx.Class.define("gosa.io.Sse", {
       var uri = window.location.protocol +"//" + window.location.host + gosa.Config.sse;
 
       this.__eventSource = new EventSource(uri);
-      var that = this;
+
       this.__eventSource.addEventListener("notification", function (e) {
         var message = qx.lang.Json.parse(e.data);
-        that._handleNotificationMessage(message);
-      }, false);
+        this._handleNotificationMessage(message);
+      }.bind(this), false);
+
       this.__eventSource.addEventListener("objectChange", function (e) {
         var message = qx.lang.Json.parse(e.data);
-        that._handleObjectChangeMessage(message);
-      }, false);
+        this._handleObjectChangeMessage(message);
+      }.bind(this), false);
+
       this.__eventSource.addEventListener("objectCloseAnnouncement", function (e) {
         var message = qx.lang.Json.parse(e.data);
-        that._handleObjectCloseAnnouncement(message);
-      }, false);
+        this._handleObjectCloseAnnouncement(message);
+      }.bind(this), false);
+
       this.__eventSource.addEventListener("pluginUpdate", function (e) {
         var message = qx.lang.Json.parse(e.data);
-        that.fireDataEvent("pluginUpdate", message['namespace']);
-      }, false);
+        this.fireDataEvent("pluginUpdate", message['namespace']);
+      }.bind(this), false);
+
       this.__eventSource.addEventListener("workflowUpdate", function (e) {
         var message = qx.lang.Json.parse(e.data);
-        that.fireDataEvent("workflowUpdate", message);
-      }, false);
+        this.fireDataEvent("workflowUpdate", message);
+      }.bind(this), false);
+
+      this.__eventSource.addEventListener("BackendException", function (e) {
+        var message = qx.lang.Json.parse(e.data);
+        var title = qx.locale.Manager.tr("%1 backend error", message.BackendName);
+        var error = qx.locale.Manager.tr("%1 operation failed", message.Operation)+" "+message.ErrorMessage;
+        // create error dialog to inform user
+        var dialog = new gosa.ui.dialogs.Error(error, title);
+        this.log.error(title+": "+error);
+        dialog.open();
+      }.bind(this), false);
+
+      this.__eventSource.addEventListener("ObjectPropertyValuesChanged", function (e) {
+        var message = qx.lang.Json.parse(e.data);
+        this.fireDataEvent(e.type, message);
+      }.bind(this), false);
+
       this.__eventSource.onerror = function (e) {
         var readyState = e.currentTarget.readyState;
         if (readyState !== EventSource.OPEN) {

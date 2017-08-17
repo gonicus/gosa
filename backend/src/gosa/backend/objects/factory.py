@@ -908,12 +908,15 @@ class ObjectFactory(object):
                 # Check for valid value list
                 values = []
                 values_populate = None
+                re_populate_on_update = False
                 if "Values" in prop.__dict__:
                     avalues = []
                     dvalues = {}
 
                     if 'populate' in prop.__dict__['Values'].attrib:
                         values_populate = prop.__dict__['Values'].attrib['populate']
+                        if 'refresh-on-update' in prop.__dict__['Values'].attrib:
+                            re_populate_on_update = prop.__dict__['Values'].attrib['refresh-on-update'].lower() == "true"
                     else:
                         for d in prop.__dict__['Values'].iterchildren():
                             if 'key' in d.attrib:
@@ -938,6 +941,7 @@ class ObjectFactory(object):
                     'value': [],
                     'values': values,
                     'values_populate': values_populate,
+                    're_populate_on_update': re_populate_on_update,
                     'status': STATUS_OK,
                     'depends_on': depends_on,
                     'type': syntax,

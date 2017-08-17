@@ -119,8 +119,46 @@ class SseHandler(HSTSRequestHandler):
     @classmethod
     def notify(cls, xml, channel='broadcast'):
         eventType = stripNs(xml.xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag)
-        func = getattr(cls, "_handle" + eventType)
-        func(xml, channel)
+        func = getattr(cls, "_handle" + eventType) if hasattr(cls, "_handle" + eventType) else None
+        if func is not None:
+            func(xml, channel)
+        else:
+            # default handling
+            root = getattr(xml, eventType)
+            message = cls.__traverse_node(root)
+
+            SseHandler.send_message(message, topic=eventType, channel=channel)
+
+    @classmethod
+    def _handleObjectPropertyValuesChanged(cls, data, channel):
+        data = data.ObjectPropertyValuesChanged
+
+        message = {
+            "UUID": data.UUID.text if hasattr(data, "UUID") else "",
+            "DN": data.DN.text if hasattr(data, "DN") else "",
+            "Change": []
+        }
+        for change in data.Change:
+            message["Change"].append({
+                "PropertyName": change.PropertyName.text,
+                "NewValues": change.NewValues.text
+            })
+
+        SseHandler.send_message(message, topic="ObjectPropertyValuesChanged", channel=channel)
+
+    @classmethod
+    def __traverse_node(cls, node):
+        res = {}
+        for n in node:
+            for child in n.iterchildren():
+                tag = stripNs(child.tag)
+                val = child.text if child.countchildren() == 0 else cls.__traverse_node(child)
+                if tag in res:
+                    if isinstance(res[tag], list):
+                        res[tag].append(val)
+                else:
+                    res[tag] = val
+        return res
 
     @classmethod
     def _handleObjectChanged(cls, data, channel):

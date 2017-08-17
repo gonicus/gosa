@@ -7,6 +7,7 @@ from lxml import objectify, etree
 
 from gosa.backend.routes.sse.main import SseHandler
 from gosa.common.event import EventMaker
+from gosa.common.gjson import dumps
 from gosa.common.utils import N_
 from gosa.backend.objects import ObjectProxy
 from gosa.common import Environment
@@ -210,6 +211,7 @@ class Workflow:
 
                             values_populate = None
                             value_inherited_from = None
+                            re_populate_on_update = False
                             values = []
                             if 'Values' in attr.__dict__:
                                 avalues = []
@@ -217,6 +219,8 @@ class Workflow:
 
                                 if 'populate' in attr.__dict__['Values'].attrib:
                                     values_populate = attr.__dict__['Values'].attrib['populate']
+                                    if 'refresh-on-update' in attr.__dict__['Values'].attrib:
+                                        re_populate_on_update = attr.__dict__['Values'].attrib['refresh-on-update'].lower() == "true"
                                 else:
                                     for d in attr.__dict__['Values'].iterchildren():
                                         if 'key' in d.attrib:
@@ -246,6 +250,7 @@ class Workflow:
                                 'case_sensitive': bool(self._load(attr, "CaseSensitive", False)),
                                 'unique': bool(self._load(attr, "Unique", False)),
                                 'values_populate': values_populate,
+                                're_populate_on_update': re_populate_on_update,
                                 'value_inherited_from': value_inherited_from,
                                 'values': values
                             }
@@ -314,10 +319,49 @@ class Workflow:
         if attribute['mandatory'] and value is None:
             raise AttributeError(C.make_error('ATTRIBUTE_MANDATORY', name))
 
+        changed = self.__attribute[name] != value
         self.__attribute[name] = value
 
         if attribute['is_reference_dn'] and self.__skip_refresh is False:
             self.__refresh_reference_object(value)
+
+        if changed is True:
+            self.__update_population()
+
+    def __update_population(self):
+        # collect current attribute values
+        data = {}
+        for prop in self._get_attributes():
+            data[prop] = getattr(self, prop)
+
+        changes = {}
+
+        for key in self.__attribute_map:
+            if self.__attribute_map[key]['values_populate'] and self.__attribute_map[key]['re_populate_on_update'] is True:
+                cr = PluginRegistry.getInstance('CommandRegistry')
+                values = cr.call(self.myProperties[key]['values_populate'], data)
+                if self.myProperties[key]['values'] != values:
+                    changes[key] = values
+                self.myProperties[key]['values'] = values
+
+        if len(changes.keys()) and self.__user is not None:
+            e = EventMaker()
+            changed = list()
+            for key, values in changes.items():
+                change = e.Change(
+                    e.PropertyName(key),
+                    e.NewValues(dumps(values))
+                )
+                changed.append(change)
+
+            ev = e.Event(
+                e.ObjectPropertyValuesChanged(
+                    e.UUID(self.uuid),
+                    *changed
+                )
+            )
+            event_object = objectify.fromstring(etree.tostring(ev).decode('utf-8'))
+            SseHandler.notify(event_object, channel="user.%s" % self.__user)
 
     def _get_data(self):
         """

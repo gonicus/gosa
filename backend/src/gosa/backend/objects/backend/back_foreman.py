@@ -7,11 +7,17 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import json
+from lxml import objectify, etree
 from threading import Thread
 import logging
 import requests
 from requests import HTTPError
 from requests.auth import HTTPBasicAuth
+
+from gosa.backend.routes.sse.main import SseHandler
+from gosa.common.event import EventMaker
+from gosa.common.utils import N_
+from gosa.common.error import GosaErrorHandler as C
 
 from gosa.backend.objects.backend import ObjectBackend
 from gosa.common import Environment
@@ -47,6 +53,12 @@ In this example the URL for HTTP-requests would be <foreman-host>/api/hosts/<cn>
     endpoint "discovered_hosts" instead of "hosts". 
 """
 
+# Register the errors handled  by us
+C.register_codes(dict(
+    FOREMAN_OBJECT_NOT_FOUND=N_("The requested foreman object does not exist: '%(topic)s'"),
+    FOREMAN_COMMUNICATION_ERROR=N_("Foreman communication error type: '%(topic)s'")
+))
+
 
 class Foreman(ObjectBackend):
     modifier = None
@@ -64,6 +76,7 @@ class Foreman(ObjectBackend):
         self.env = Environment.getInstance()
         self.log = getLogger(__name__)
         self.client = ForemanClient()
+        self.e = EventMaker()
 
     def load(self, uuid, info, back_attrs=None, data=None, needed=None):
         """
@@ -98,20 +111,16 @@ class Foreman(ObjectBackend):
         self.log.debug("exists: %s" % misc)
         return False
 
-    def remove(self, uuid, data, params, needed=None):
+    def remove(self, uuid, data, params, needed=None, user=None):
         self.log.debug("remove: %s, %s, %s" % (uuid, data, params))
         if Foreman.modifier != "foreman":
 
             def runner():
                 try:
                     self.client.delete(self.get_foreman_type(needed, params), uuid)
-                except HTTPError as e:
-                    if e.response.status_code == 404 and self.client.check_backend() is True:
-                        # foreman is up and running but responded with 404 -> nothing to delete
-                        self.log.debug("no foreman object found")
-                    else:
-                        raise e
-
+                except ForemanBackendException as ex:
+                    self.__error_notify_user(ex, user)
+                    raise ex
 
             # some changes (e.g. creating a host) trigger requests from foreman to gosa
             # so we need to run this request in a non blocking thread
@@ -122,8 +131,20 @@ class Foreman(ObjectBackend):
             self.log.info("skipping deletion request as the change is coming from the foreman backend")
         return True
 
-    def retract(self, uuid, data, params, needed=None):
-        self.remove(uuid, data, params, needed=needed)
+    def __error_notify_user(self, ex, user=None):
+        channel = "user.%s" if user is not None else "broadcast"
+        # report to clients
+        e = EventMaker()
+        ev = e.Event(e.BackendException(
+            e.BackendName("Foreman"),
+            e.ErrorMessage(ex.message),
+            e.Operation(ex.operation)
+        ))
+        event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
+        SseHandler.notify(event_object, channel=channel)
+
+    def retract(self, uuid, data, params, needed=None, user=None):
+        self.remove(uuid, data, params, needed=needed, user=user)
 
     def get_foreman_type(self, data, params):
         if data is not None and "status" in data and data["status"] == "discovered":
@@ -131,7 +152,7 @@ class Foreman(ObjectBackend):
         else:
             return params["type"]
 
-    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None):
+    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None, user=None):
         """ Called when a base object is extended with a foreman object (e.g. device->foremanHost)"""
         self.log.debug("extend: %s, %s, %s, %s" % (uuid, data, params, foreign_keys))
         if Foreman.modifier != "foreman":
@@ -142,8 +163,12 @@ class Foreman(ObjectBackend):
             self.log.debug("creating '%s' with '%s' to foreman" % (params["type"], payload))
 
             def runner():
-                result = self.client.post(type, data=payload)
-                self.log.debug("Response: %s" % result)
+                try:
+                    result = self.client.post(type, data=payload)
+                    self.log.debug("Response: %s" % result)
+                except ForemanBackendException as ex:
+                    self.__error_notify_user(ex, user)
+                    raise ex
 
             # some changes (e.g. creating a host) trigger requests from foreman to gosa
             # so we need to run this request in a non blocking thread
@@ -158,15 +183,15 @@ class Foreman(ObjectBackend):
         self.log.debug("move_extension: %s, %s" % (uuid, new_base))
         pass
 
-    def move(self, uuid, new_base, needed=None):
+    def move(self, uuid, new_base, needed=None, user=None):
         self.log.debug("move: %s, %s" % (uuid, new_base))
         return True
 
-    def create(self, base, data, params, foreign_keys=None, needed=None):
+    def create(self, base, data, params, foreign_keys=None, needed=None, user=None):
         self.log.debug("create: %s, %s, %s, %s" % (base, data, params, foreign_keys))
         return None
 
-    def update(self, uuid, data, params, needed=None):
+    def update(self, uuid, data, params, needed=None, user=None):
         self.log.debug("update: '%s', '%s', '%s'" % (uuid, data, params))
         if Foreman.modifier != "foreman":
             type = self.get_foreman_type(needed, params)
@@ -176,8 +201,12 @@ class Foreman(ObjectBackend):
             self.log.debug("sending update '%s' to foreman" % payload)
 
             def runner():
-                result = self.client.put(type, uuid, data=payload)
-                self.log.debug("Response: %s" % result)
+                try:
+                    result = self.client.put(type, uuid, data=payload)
+                    self.log.debug("Response: %s" % result)
+                except ForemanBackendException as ex:
+                    self.__error_notify_user(ex, user)
+                    raise ex
 
             # some changes (e.g. changing the hostgroup) trigger requests from foreman to gosa
             # so we need to run this request in a non blocking thread
@@ -254,21 +283,10 @@ class ForemanClient(object):
             self.log.debug("response %s" % data)
             # check for error
             if "error" in data:
-                raise ForemanObjectException(", ".join(data["error"]["errors"]))
+                raise ForemanBackendException(response, operation=method)
             return data
         else:
-            try:
-                data = response.json()
-            except json.decoder.JSONDecodeError as e:
-                self.log.error("Error parsing json error response: %s (%s)" % (response.text, e))
-                response.raise_for_status()
-            else:
-                # check for error
-                if "error" in data and response.status_code != 404:
-                    self.log.debug("Received response with error: %s" % data["error"])
-                    raise ForemanObjectException(", ".join(data["error"]["errors"]) if "errors" in data["error"] else str(data["error"]))
-                else:
-                    response.raise_for_status()
+            raise ForemanBackendException(response, operation=method)
 
     def check_backend(self):
         """ check if foreman backend is reachable """
@@ -309,5 +327,22 @@ class ForemanClient(object):
                 self.put("common_parameters", id=name, data=payload)
 
 
-class ForemanObjectException(ObjectException):
-    pass
+class ForemanBackendException(ObjectException):
+
+    def __init__(self, response=None, exception=None, operation=None):
+        self.exception = exception
+        self.response = response
+        self.operation = operation
+
+        if response.status_code == 404:
+            self.message = C.make_error('FOREMAN_OBJECT_NOT_FOUND', response.url)
+        else:
+            try:
+                data = response.json()
+            except json.decoder.JSONDecodeError as e:
+                self.message = C.make_error('FOREMAN_COMMUNICATION_ERROR', response.status_code)
+            else:
+                if "error" in data:
+                    self.message = ", ".join(data["error"]["errors"]) if "errors" in data["error"] else str(data["error"])
+                else:
+                    self.message = C.make_error('FOREMAN_COMMUNICATION_ERROR', response.status_code)

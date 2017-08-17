@@ -375,7 +375,7 @@ class ClientService(Plugin):
         h, key, salt = generate_random_key()
 
         # Take a look at the directory to see if there's already a joined client with this uuid
-        res = index.search({'_type': 'Device', 'macAddress': mac},
+        res = index.search({'_type': 'Device', 'macAddress': mac, 'extension': 'RegisteredDevice'},
                            {'_uuid': 1})
 
         if len(res):

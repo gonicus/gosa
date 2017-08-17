@@ -54,6 +54,8 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
         this.__boundAttributes.push(attributeName);
       }, this);
 
+      gosa.io.Sse.getInstance().addListener("ObjectPropertyValuesChanged", this._onValuesUpdate, this);
+
       if (!this.__initialized) {
         this.__initialized = true;
         this.fireEvent("initialized");
@@ -192,10 +194,32 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
       // get suggested values from backend
       gosa.io.Rpc.getInstance().cA("**"+rpcMethod, data).then(function(suggestions) {
         widget.setValues(suggestions);
-        if (oldValue && qx.lang.Array.contains(suggestions, oldValue)) {
+        if (oldValue && suggestions.hasOwnProperty(oldValue) || qx.lang.Type.isArray(suggestions) && qx.lang.Array.contains(suggestions, oldValue)) {
           widget.setWidgetValue(0, oldValue);
         }
       });
+    },
+
+    /**
+     * Backend notifies us that the values of an property have changed
+     * @param ev {Event}
+     * @protected
+     */
+    _onValuesUpdate: function(ev) {
+      var data = ev.getData();
+      if (this.__object.uuid === data.UUID || this.__object.dn === data.DN) {
+        data.Change.forEach(function(change) {
+          var widget = this.__findWidgets(change.PropertyName).widget;
+          var oldValue = widget.getValue() instanceof qx.data.Array && widget.getValue().getLength() > 0
+                          ? widget.getValue().getItem(0)
+                          : null;
+          var suggestions = qx.lang.Json.parse(change.NewValues);
+          widget.setValues(suggestions);
+          if (oldValue && suggestions.hasOwnProperty(oldValue) || qx.lang.Type.isArray(suggestions) && qx.lang.Array.contains(suggestions, oldValue)) {
+            widget.setWidgetValue(0, oldValue);
+          }
+        }, this);
+      }
     },
 
     __findWidgets : function(name) {
@@ -276,5 +300,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
   destruct : function() {
     this.__object = null;
     this.__widget = null;
+
+    gosa.io.Sse.getInstance().removeListener("ObjectPropertyValuesChanged", this._onValuesUpdate, this);
   }
 });
