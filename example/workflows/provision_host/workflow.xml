@@ -88,28 +88,28 @@
         <Attribute>
             <Name>operatingsystem_id</Name>
             <Type>Integer</Type>
-            <Values populate="getForemanOperatingSystems"/>
+            <Values populate="getForemanOperatingSystems" refresh-on-update="true"/>
             <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
         </Attribute>
 
         <Attribute>
             <Name>architecture_id</Name>
             <Type>Integer</Type>
-            <Values populate="getForemanArchitectures"/>
+            <Values populate="getForemanArchitectures" refresh-on-update="true"/>
             <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
         </Attribute>
 
         <Attribute>
             <Name>ptable_id</Name>
             <Type>Integer</Type>
-            <Values populate="getForemanPartitionTables"/>
+            <Values populate="getForemanPartitionTables" refresh-on-update="true"/>
             <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
         </Attribute>
 
         <Attribute>
             <Name>medium_id</Name>
             <Type>Integer</Type>
-            <Values populate="getForemanMedia"/>
+            <Values populate="getForemanMedia" refresh-on-update="true"/>
             <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
         </Attribute>
 

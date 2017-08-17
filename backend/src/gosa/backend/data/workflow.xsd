@@ -43,6 +43,7 @@
             <element name="Value" maxOccurs="unbounded" minOccurs="0" type="o:ValueWithKey"/>
           </sequence>
           <attribute name="populate" type="string" use="optional"/>
+          <attribute name="refresh-on-update" type="boolean" use="optional"/>
         </complexType>
       </element>
       <element name="Default" type="string" maxOccurs="1" minOccurs="0"/>
