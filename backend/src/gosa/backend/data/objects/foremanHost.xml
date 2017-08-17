@@ -205,7 +205,7 @@
         <Name>operatingsystem_id</Name>
         <Type>Integer</Type>
         <Backend>Foreman</Backend>
-        <Values populate="getForemanOperatingSystems"/>
+        <Values populate="getForemanOperatingSystems" refresh-on-update="true"/>
         <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
       </Attribute>
 
@@ -213,7 +213,7 @@
         <Name>architecture_id</Name>
         <Type>Integer</Type>
         <Backend>Foreman</Backend>
-        <Values populate="getForemanArchitectures"/>
+        <Values populate="getForemanArchitectures"/ refresh-on-update="true">
         <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
       </Attribute>
 
@@ -221,7 +221,7 @@
         <Name>ptable_id</Name>
         <Type>Integer</Type>
         <Backend>Foreman</Backend>
-        <Values populate="getForemanPartitionTables"/>
+        <Values populate="getForemanPartitionTables" refresh-on-update="true"/>
         <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
       </Attribute>
 
@@ -229,7 +229,7 @@
         <Name>medium_id</Name>
         <Type>Integer</Type>
         <Backend>Foreman</Backend>
-        <Values populate="getForemanMedia"/>
+        <Values populate="getForemanMedia" refresh-on-update="true"/>
         <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
       </Attribute>
 
