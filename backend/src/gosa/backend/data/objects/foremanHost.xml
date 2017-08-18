@@ -377,7 +377,7 @@
       </Method>
       <Method>
         <Name>runPuppet</Name>
-        <Command>powerHost</Command>
+        <Command>doPuppetRun</Command>
         <CommandParameters>
           <Value>cn</Value>
         </CommandParameters>

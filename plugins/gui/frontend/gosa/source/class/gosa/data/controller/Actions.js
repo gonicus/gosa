@@ -76,7 +76,12 @@ qx.Class.define("gosa.data.controller.Actions", {
      */
     getProperty : function(property) {
       qx.core.Assert.assertString(property);
-      var result = this.__object[property];
+      var result;
+      if (this.__object.hasOwnProperty(property)) {
+        result = this.__object[property];
+      } else {
+        result = this.__object.get(property);
+      }
       return result === undefined ? null : result;
     },
 
@@ -89,6 +94,16 @@ qx.Class.define("gosa.data.controller.Actions", {
     callMethod : function(methodName) {
       qx.core.Assert.assertString(methodName);
       return this.__object.callMethod.apply(this.__object, arguments);
+    },
+
+    /**
+     * Checks if the method is available on the object.
+     *
+     * @param methodName {String} Name of the Method
+     * @return {Boolean}
+     */
+    hasMethod : function(methodName) {
+      return qx.lang.Type.isFunction(this.__object[methodName]);
     },
 
     /**

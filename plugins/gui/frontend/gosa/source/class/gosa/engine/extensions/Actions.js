@@ -23,7 +23,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
     process : function(data, target, context) {
       qx.core.Assert.assertArray(data, "Actions configuration must be an array");
       data.forEach(function(action) {
-        if (this._isActionAllowed(action)) {  // actions without permission are not shown
+        if (this._isActionAllowed(action, context)) {  // actions without permission are not shown
           this._processAction(action, target, context);
         }
       }, this);
@@ -33,9 +33,10 @@ qx.Class.define("gosa.engine.extensions.Actions", {
      * Checks if the user has the permission to execute the action.
      *
      * @param action {Map} The action node
+     * @param context {gosa.engine.Context}
      * @return {Boolean}
      */
-    _isActionAllowed : function(action) {
+    _isActionAllowed : function(action, context) {
       qx.core.Assert.assertMap(action);
       qx.core.Assert.assertTrue(action.hasOwnProperty("dialog") || action.hasOwnProperty("target"));
 
@@ -46,7 +47,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
         qx.core.Assert.assertString(methodName);
         qx.core.Assert.assertFalse(methodName === "");
 
-        if (!gosa.Session.getInstance().isCommandAllowed(methodName)) {
+        if (!context.getActionController().hasMethod(methodName)) {
           return false;
         }
       }
@@ -206,16 +207,22 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       if (qx.lang.Type.isString(params) && params !== "") {
         params = params.split(",");
         var paramParser = /%\(([^)]+)\)s/;
+        var paramType = /\s*['"]([^'"]+)['"]\s*/;
 
         params.forEach(function(param) {
           var match = paramParser.exec(param);
           if (match) {
             var data = context.getActionController().getProperty(match[1]);
             if (qx.lang.Type.isArray(data)) {
-              args.push(param.replace(match[0], data[0]));
+              args.push(param.replace(match[0], data.getItem(0)));
             }
             else {
               args.push(param.replace(match[0], data));
+            }
+          } else {
+            var typeMatch = paramType.exec(param);
+            if (typeMatch) {
+              args.push(typeMatch[1]);
             }
           }
         });
