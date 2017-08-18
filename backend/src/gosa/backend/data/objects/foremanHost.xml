@@ -213,7 +213,7 @@
         <Name>architecture_id</Name>
         <Type>Integer</Type>
         <Backend>Foreman</Backend>
-        <Values populate="getForemanArchitectures"/ refresh-on-update="true">
+        <Values populate="getForemanArchitectures" refresh-on-update="true"/>
         <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
       </Attribute>
 
