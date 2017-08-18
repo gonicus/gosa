@@ -63,6 +63,7 @@ class Foreman(Plugin):
         self.log = logging.getLogger(__name__)
         self.factory = ObjectFactory.getInstance()
         self.incoming_base = "%s,%s" % (self.env.config.get("foreman.incoming-rdn", "ou=incoming"), self.env.base)
+        self.__marked_hosts = {}
         if self.env.config.get("foreman.host") is None:
             self.log.warning("no foreman host configured")
         else:
@@ -73,12 +74,14 @@ class Foreman(Plugin):
             ssl = self.env.config.get('http.ssl', default=None)
             protocol = "https" if ssl and ssl.lower() in ['true', 'yes', 'on'] else "http"
 
-            self.client.set_common_parameter("gosa-server", "%s://%s:%s/api" % (protocol, host, self.env.config.get('http.port', default=8080)))
+            self.gosa_server = "%s://%s:%s/api" % (protocol, host, self.env.config.get('http.port', default=8080))
+            self.mqtt_host = None
+
             mqtt_host = self.env.config.get('mqtt.host')
             if mqtt_host is not None:
                 if mqtt_host == "localhost":
                     mqtt_host = host
-                self.client.set_common_parameter("gosa-mqtt", "%s:%s" % (mqtt_host, self.env.config.get('mqtt.port', default=1883)))
+                self.mqtt_host = "%s:%s" % (mqtt_host, self.env.config.get('mqtt.port', default=1883))
 
             # Listen for object events
             if not hasattr(sys, '_called_from_test'):
@@ -90,6 +93,9 @@ class Foreman(Plugin):
     def serve(self):
         # Load DB session
         self.__session = self.env.getDatabaseSession('backend-database')
+
+        sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
+        sched.add_interval_job(self.flush_parameter_setting, seconds=10, tag='_internal', jobstore="ram")
 
     def __handle_events(self, event):
         """
@@ -430,8 +436,7 @@ class Foreman(Plugin):
 
     @Command(needsUser=True, __help__=N_("Force a Puppet agent run on the host"))
     def doPuppetRun(self, user, host_id):
-        if self.client:
-            self.client.put("hosts/%s/puppetrun" % host_id)
+        self.__run_host_command(host_id, "puppetrun", None)
 
     @Command(needsUser=True, __help__=N_("Boot host from specified device"))
     def bootHost(self, user, host_id, device):
@@ -441,8 +446,7 @@ class Foreman(Plugin):
         :param device: boot device, valid devices are disk, cdrom, pxe, bios
         :return:
         """
-        if self.client:
-            self.client.put("hosts/%s/puppetrun" % host_id, {"device": device})
+        self.__run_host_command(host_id, "boot", {"device": device})
 
     @Command(needsUser=True, __help__=N_("Run a power operation on host"))
     def powerHost(self, user, host_id, power_action):
@@ -451,8 +455,11 @@ class Foreman(Plugin):
         :param host_id: foreman host id
         :param power_action: power action, valid actions are (on/start), (off/stop), (soft/reboot), (cycle/reset), (state/status)
         """
+        self.__run_host_command(host_id, "power", {"power_action": power_action})
+
+    def __run_host_command(self, host_id, command, data):
         if self.client:
-            self.client.put("hosts/%s/power" % host_id, {"power_action": power_action})
+            self.client.put("hosts/%s" % host_id, command, data)
 
     def __get_resolver(self):
         if self.__acl_resolver is None:
@@ -503,6 +510,7 @@ class Foreman(Plugin):
             device.userPassword = "{SSHA}" + encode(h.digest() + salt).decode()
 
             device.commit()
+            self.mark_for_parameter_setting(hostname, {"status": "added"})
             return "%s|%s" % (key, cn)
 
         except:
@@ -512,6 +520,37 @@ class Foreman(Plugin):
 
         finally:
             ForemanBackend.modifier = None
+
+    def mark_for_parameter_setting(self, hostname, status):
+        """ mark this host to be parametrized later """
+        self.__marked_hosts[hostname] = status
+
+    def flush_parameter_setting(self, hostname=None):
+        id = None
+        if hostname in self.__marked_hosts and self.__marked_hosts[hostname]["use_id"] is not None:
+            id = self.__marked_hosts[hostname]["use_id"]
+        if hostname is not None:
+            self.__write_host_parameters(hostname, use_id=id)
+            if hostname in self.__marked_hosts:
+                del self.__marked_hosts[hostname]
+        else:
+            if len(self.__marked_hosts.keys()) == 0:
+                return
+
+            for hostname, status in self.__marked_hosts.items():
+                try:
+                    self.__write_host_parameters(hostname, use_id=status["use_id"] if "use_id" in status else None)
+                except:
+                    pass
+
+    def write_host_parameters(self, hostname, use_id=None):
+        self.log.debug("writing host parameters to %s" % hostname)
+        self.client.set_common_parameter("gosa-server", self.gosa_server, host=use_id if use_id is not None else hostname)
+        if self.mqtt_host is not None:
+            self.client.set_common_parameter("gosa-mqtt", self.mqtt_host, host=use_id if use_id is not None else hostname)
+
+        if hostname in self.__marked_hosts:
+            del self.__marked_hosts[hostname]
 
 
 class ForemanRealmReceiver(object):
@@ -622,6 +661,16 @@ class ForemanHookReceiver(object):
 
         ForemanBackend.modifier = "foreman"
         update_data = {}
+
+        if data['event'] in ["update", "create"] and foreman_type == "host":
+            try:
+                id = payload_data["id"] if "id" in payload_data else None
+                foreman.write_host_parameters(id if id is not None else data['object'])
+            except:
+                foreman.mark_for_parameter_setting(data['object'], {
+                    "status": "created",
+                    "use_id": id
+                })
 
         if data['event'] == "after_commit" or data['event'] == "update" or data['event'] == "after_create" or data['event'] == "create":
             host = None
