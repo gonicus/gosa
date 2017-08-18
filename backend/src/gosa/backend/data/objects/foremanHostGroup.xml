@@ -64,7 +64,6 @@
         <Name>domain_id</Name>
         <Description>Domain the host should be added to</Description>
         <Type>Integer</Type>
-        <Mandatory>true</Mandatory>
         <Backend>Foreman</Backend>
         <Values populate="getForemanDomains"/>
       </Attribute>
