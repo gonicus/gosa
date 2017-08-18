@@ -803,7 +803,8 @@ class ObjectIndex(Plugin):
                                 in_expr = ~KeyValueIndex.value.in_(value['not_in_'])
                             elif 'in_' in value:
                                 in_expr = KeyValueIndex.value.in_(value['in_'])
-                            res.append(and_(KeyValueIndex.key == key, in_expr))
+                            sub_query = self.__session.query(KeyValueIndex.uuid).filter(KeyValueIndex.key == key, in_expr).subquery()
+                            res.append(ObjectInfoIndex.uuid.in_(sub_query))
 
                     else:
                         raise IndexException(C.make_error('NOT_SUPPORTED', "base", operator=key))

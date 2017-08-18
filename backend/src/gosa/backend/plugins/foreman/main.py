@@ -149,15 +149,24 @@ class Foreman(Plugin):
             self.log.debug("<<< DONE syncing foreman object of type '%s' with id '%s'" % (object_type, data[uuid_attribute]))
             self.log.debug("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
+        types = self.factory.getObjectTypes()[object_type]
+        base_type = object_type if types["base"] is True else types["extends"][0]
+
         # delete not existing ones
+        query = {'_type': base_type}
+        if base_type != object_type:
+            query["extension"] = object_type
+
         if len(found_ids):
-            res = index.search({'_type': object_type, backend_attributes["Foreman"]["_uuidAttribute"]: {'not_in_': found_ids}}, {'dn': 1})
-        else:
-            res = index.search({'_type': object_type}, {'dn': 1})
+            query[backend_attributes["Foreman"]["_uuidAttribute"]] = {'not_in_': found_ids}
+        if foreman_type == "discovered_hosts":
+            query["status"] = "discovered"
+
+        res = index.search(query, {'dn': 1})
 
         for entry in res:
             foreman_object = ObjectProxy(entry['dn'])
-            self.log.debug("removing %s '%s'" % (object_type, foreman_object.dn))
+            self.log.debug("removing %s '%s'" % (base_type, foreman_object.dn))
             foreman_object.remove()
 
         ForemanBackend.modifier = None
