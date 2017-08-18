@@ -18,7 +18,7 @@
     <Id>provision_host</Id>
     <Description>Workflow to provision a discovered host</Description>
     <DisplayName>Provision host</DisplayName>
-    <Category>Host management</Category>
+    <Category>Device management</Category>
     <Templates>
         <Template>basic.json</Template>
         <Template>host.json</Template>
