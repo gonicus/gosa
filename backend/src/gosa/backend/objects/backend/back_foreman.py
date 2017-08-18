@@ -11,7 +11,6 @@ from lxml import objectify, etree
 from threading import Thread
 import logging
 import requests
-from requests import HTTPError
 from requests.auth import HTTPBasicAuth
 
 from gosa.backend.routes.sse.main import SseHandler
@@ -93,9 +92,9 @@ class Foreman(ObjectBackend):
         if data is None:
             try:
                 data = self.client.get(self.get_foreman_type(needed, back_attrs), id=uuid)
-            except HTTPError as e:
+            except ForemanBackendException as e:
                 # something when wrong
-                self.log.error("Error requesting foreman backend: %s" % e)
+                self.log.error("Error requesting foreman backend: %s" % e.message)
                 data = {}
         return self.process_data(data, info)
 
@@ -308,23 +307,25 @@ class ForemanClient(object):
     def post(self, type, id=None, data=None):
         return self.__request("post", type, id=id, data=data)
 
-    def set_common_parameter(self, name, value):
+    def set_common_parameter(self, name, value, host=None):
+        foreman_type = "common_parameter" if host is None else "parameter"
         payload = {
-            "common_parameter": {
+            foreman_type: {
                 "name": name,
                 "value": value
             }
         }
+        path = "common_parameters" if host is None else "hosts/%s/parameters" % host
         try:
-            response = self.get("common_parameters", id=name)
-        except HTTPError as e:
+            response = self.get(path, id=name)
+        except ForemanBackendException as e:
             if e.response.status_code == 404:
                 # create parameter
-                self.post("common_parameters", data=payload)
+                self.post(path, data=payload)
         else:
-            if 'value' not in response or response["value"] != payload["common_parameter"]["value"]:
+            if 'value' not in response or response["value"] != payload[foreman_type]["value"]:
                 # update parameter
-                self.put("common_parameters", id=name, data=payload)
+                self.put(path, id=name, data=payload)
 
 
 class ForemanBackendException(ObjectException):
@@ -343,6 +344,12 @@ class ForemanBackendException(ObjectException):
                 self.message = C.make_error('FOREMAN_COMMUNICATION_ERROR', response.status_code)
             else:
                 if "error" in data:
-                    self.message = ", ".join(data["error"]["errors"]) if "errors" in data["error"] else str(data["error"])
+                    if "message" in data["error"]:
+                        self.message = C.make_error('FOREMAN_COMMUNICATION_ERROR', data["error"]["message"])
+                    else:
+                        self.message = ", ".join(data["error"]["errors"]) if "errors" in data["error"] else str(data["error"])
                 else:
                     self.message = C.make_error('FOREMAN_COMMUNICATION_ERROR', response.status_code)
+
+    def __str__(self):
+        return self.message
