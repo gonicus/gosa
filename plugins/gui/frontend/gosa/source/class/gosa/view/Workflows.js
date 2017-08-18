@@ -174,6 +174,14 @@ qx.Class.define("gosa.view.Workflows", {
 
         group: function(item) {
           return item.getCategory();
+        },
+
+        sorter: function(a, b) {
+          if (a.getCategory() === b.getCategory()) {
+            return a.getName().localeCompare(b.getName());
+          } else {
+            return a.getCategory().localeCompare(b.getCategory());
+          }
         }
       }
     },
