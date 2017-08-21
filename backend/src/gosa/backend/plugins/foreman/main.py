@@ -74,7 +74,7 @@ class Foreman(Plugin):
             ssl = self.env.config.get('http.ssl', default=None)
             protocol = "https" if ssl and ssl.lower() in ['true', 'yes', 'on'] else "http"
 
-            self.gosa_server = "%s://%s:%s/api" % (protocol, host, self.env.config.get('http.port', default=8080))
+            self.gosa_server = "%s://%s:%s/rpc" % (protocol, host, self.env.config.get('http.port', default=8080))
             self.mqtt_host = None
 
             mqtt_host = self.env.config.get('mqtt.host')
@@ -294,6 +294,8 @@ class Foreman(Plugin):
         object.apply_data(update_data)
         self.log.debug(">>> commiting '%s'" % object_type)
         object.commit()
+        index = PluginRegistry.getInstance("ObjectIndex")
+        index.update(object)
 
     def remove_type(self, object_type, oid):
         ForemanBackend.modifier = "foreman"
@@ -548,6 +550,7 @@ class Foreman(Plugin):
         self.client.set_common_parameter("gosa-server", self.gosa_server, host=use_id if use_id is not None else hostname)
         if self.mqtt_host is not None:
             self.client.set_common_parameter("gosa-mqtt", self.mqtt_host, host=use_id if use_id is not None else hostname)
+        self.client.set_common_parameter("gosa-domain", self.env.domain, host=use_id if use_id is not None else hostname)
 
         if hostname in self.__marked_hosts:
             del self.__marked_hosts[hostname]
@@ -556,7 +559,7 @@ class Foreman(Plugin):
 class ForemanRealmReceiver(object):
     """
     Webhook handler for foreman realm events (Content-Type: application/vnd.foreman.hostevent+json).
-    Foreman sends these events whenaver a new host is created with gosa-realm provider, or e.g. the hostgroup of an existing host
+    Foreman sends these events whenever a new host is created with gosa-realm provider, or e.g. the hostgroup of an existing host
     has been changed to a hostgroup with gosa-realm provider set.
     """
 
