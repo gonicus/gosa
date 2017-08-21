@@ -90,6 +90,7 @@ class DBUSProxy(Plugin):
 
     # DBus proxy object
     gosa_dbus = None
+    watcher = None
 
     # Type map for signature checking
     _type_map = {
