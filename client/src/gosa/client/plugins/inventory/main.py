@@ -39,6 +39,8 @@ import re
 import logging
 from threading import Thread
 from lxml import etree
+from zope.interface import implementer
+
 from dbus import DBusException
 from io import StringIO
 from gosa.common import Environment
@@ -46,7 +48,10 @@ from gosa.common.components import PluginRegistry, Plugin
 from gosa.common.components.dbus_runner import DBusRunner
 from pkg_resources import resource_filename #@UnresolvedImport
 
+from gosa.common.handler import IInterfaceHandler
 
+
+@implementer(IInterfaceHandler)
 class Inventory(Plugin):
     """
     Utility class that contains methods needed to handle WakeOnLAN
@@ -55,12 +60,14 @@ class Inventory(Plugin):
     _target_ = 'inventory'
     bus = None
     gosa_dbus = None
+    _priority_ = 99
 
     def __init__(self):
         env = Environment.getInstance()
         self.env = env
         self.log = logging.getLogger(__name__)
 
+    def serve(self):
         # Register ourselfs for bus changes on org.gosa
         dr = DBusRunner.get_instance()
         self.bus = dr.get_system_bus()

@@ -101,28 +101,28 @@ class SseClient(BaseSseClient):
             if interactive_mode:
                 # print diff
                 diff = self.proxy.diffObject(data['uuid'])
+                if diff is not None:
+                    print()
+                    print(_('An open object has changed in the backend. You can either:'))
+                    print(_('(1) Close the object and reopen it. All modified yet unsaved data will be lost.'))
+                    print(_('(2) Save your changes. Everything changed in the backend meanwhile will be lost.'))
+                    print()
+                    print(_('Information about the modified object (attribute name -> new backend value)'))
+                    print(_('dn=\'{}\', uuid=\'{}\''.format(data['dn'], data['uuid'])))
+                    print()
 
-                print()
-                print(_('An open object has changed in the backend. You can either:'))
-                print(_('(1) Close the object and reopen it. All modified yet unsaved data will be lost.'))
-                print(_('(2) Save your changes. Everything changed in the backend meanwhile will be lost.'))
-                print()
-                print(_('Information about the modified object (attribute name -> new backend value)'))
-                print(_('dn=\'{}\', uuid=\'{}\''.format(data['dn'], data['uuid'])))
-                print()
+                    def __print_changes(dict, headline):
+                        if dict:
+                            print(headline)
+                            for attr_name, value in dict.items():
+                                print('{}: {}'.format(attr_name, value))
+                            print()
 
-                def __print_changes(dict, headline):
-                    if dict:
-                        print(headline)
-                        for attr_name, value in dict.items():
-                            print('{}: {}'.format(attr_name, value))
-                        print()
-
-                __print_changes(diff['attributes']['changed'], _('CHANGED ATTRIBUTES:'))
-                __print_changes(diff['attributes']['added'], _('ADDED ATTRIBUTES:'))
-                __print_changes(diff['attributes']['removed'], _('REMOVED ATTRIBUTES:'))
-                __print_changes(diff['extensions']['added'], _('ADDED EXTENSIONS:'))
-                __print_changes(diff['extensions']['removed'], _('REMOVED EXTENSIONS:'))
+                    __print_changes(diff['attributes']['changed'], _('CHANGED ATTRIBUTES:'))
+                    __print_changes(diff['attributes']['added'], _('ADDED ATTRIBUTES:'))
+                    __print_changes(diff['attributes']['removed'], _('REMOVED ATTRIBUTES:'))
+                    __print_changes(diff['extensions']['added'], _('ADDED EXTENSIONS:'))
+                    __print_changes(diff['extensions']['removed'], _('REMOVED EXTENSIONS:'))
             else:
                 logging.warning(_('An object changed in the backend while it was opened. Your changes might override the changes. Ignoring, because not running in interactive mode.'))
         else:
