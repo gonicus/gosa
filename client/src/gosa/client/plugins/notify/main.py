@@ -29,28 +29,35 @@ import os
 import logging
 import base64
 import hashlib
+
+from zope.interface import implementer
+
 from gosa.common import Environment
 from gosa.common.components.dbus_runner import DBusRunner
 from gosa.common.components import PluginRegistry, Plugin
+from gosa.common.handler import IInterfaceHandler
 
 
+@implementer(IInterfaceHandler)
 class Notify(Plugin):
     _target_ = 'notify'
     bus = None
     gosa_dbus = None
+    _priority_ = 99
 
     def __init__(self):
         env = Environment.getInstance()
         self.env = env
         self.log = logging.getLogger(__name__)
 
+        # Create icon cache directory
+        self.spool = self.env.config.get("client.spool", default="/var/spool/gosa")
+
+    def serve(self):
         # Register ourselfs for bus changes on org.gosa
         dr = DBusRunner.get_instance()
         self.bus = dr.get_system_bus()
         self.bus.watch_name_owner("org.gosa", self.__dbus_proxy_monitor)
-
-        # Create icon cache directory
-        self.spool = env.config.get("client.spool", default="/var/spool/gosa")
 
     def __dbus_proxy_monitor(self, bus_name):
         """

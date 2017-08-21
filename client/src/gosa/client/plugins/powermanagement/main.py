@@ -17,12 +17,17 @@ To. Do.
 """
 
 import logging
+
+from zope.interface import implementer
+
 from gosa.common.components import Plugin
 from gosa.common.components import PluginRegistry
 from gosa.common.components.dbus_runner import DBusRunner
 from gosa.common import Environment
+from gosa.common.handler import IInterfaceHandler
 
 
+@implementer(IInterfaceHandler)
 class PowerManagement(Plugin):
     """
     Utility class that contains methods needed to handle shutdown
@@ -32,12 +37,14 @@ class PowerManagement(Plugin):
 
     bus = None
     hal_dbus = None
+    _priority_ = 99
 
     def __init__(self):
         env = Environment.getInstance()
         self.env = env
         self.log = logging.getLogger(__name__)
 
+    def serve(self):
         # Register ourselfs for bus changes on org.freedesktop.login1
         dr = DBusRunner.get_instance()
         self.bus = dr.get_system_bus()
