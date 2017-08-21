@@ -111,10 +111,11 @@
                 "column": 2
             }
         }, {
-            "class": "gosa.ui.widgets.QLineEditWidget",
+            "class": "gosa.ui.widgets.QComboBoxWidget",
             "modelPath": "deviceType",
             "properties": {
-                "toolTipText": "tr('To order systems, you can mark a system i.e. as a server')"
+                "toolTipText": "tr('To order systems, you can mark a system i.e. as a server')",
+                "sortBy": "value"
             },
             "addOptions": {
                 "row": 0,
