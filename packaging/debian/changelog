@@ -1,3 +1,10 @@
+gosa (3.0-2) xenial; urgency=medium
+
+  * Add systemd units
+  * Fix postinst and config 
+
+ -- root <root@janet-garrido.test.intranet.gonicus.de>  Mon, 21 Aug 2017 14:27:29 +0200
+
 gosa (3.0-1) unstable; urgency=low
 
   * Initial release.

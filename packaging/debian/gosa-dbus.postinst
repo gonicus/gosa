@@ -10,7 +10,7 @@ case "$1" in
       invoke-rc.d dbus force-reload || true
     fi
 
-    mkdir /etc/gosa/shell.d
+    mkdir /etc/gosa/shell.d || /bin/true
   ;;
   abort-upgrade|abort-remove|abort-deconfigure)
   ;;

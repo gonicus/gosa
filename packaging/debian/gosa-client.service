@@ -1,0 +1,10 @@
+[Unit]
+Description=GOsa client
+
+[Service]
+ExecStart=/usr/sbin/gosa-client
+Restart=on-failure
+User=gosa
+
+[Install]
+WantedBy=multi-user.target

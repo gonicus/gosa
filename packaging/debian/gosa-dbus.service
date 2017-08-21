@@ -1,0 +1,9 @@
+[Unit]
+Description=GOsa DBUS agent
+
+[Service]
+ExecStart=/usr/sbin/gosa-dbus
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
