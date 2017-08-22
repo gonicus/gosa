@@ -384,10 +384,11 @@ class ObjectProxy(object):
                 attr_type = self.__attribute_type_map[attribute]
                 topic = "%s.objects.%s.attributes.%s" % (self.__env.domain, attr_type, attribute)
                 result = self.__acl_resolver.check(self.__current_user, topic, "r", base=self.dn)
-                if result:
-                    self.__log.debug("User %s is allowed to access property %s!" % (self.__current_user, topic))
-                else:
-                    self.__log.debug("User %s is NOT allowed to access property %s!" % (self.__current_user, topic))
+                if self.__current_user not in self.__acl_resolver.admins:
+                    if result:
+                        self.__log.debug("User %s is allowed to access property %s!" % (self.__current_user, topic))
+                    else:
+                        self.__log.debug("User %s is NOT allowed to access property %s!" % (self.__current_user, topic))
                 return result
 
             attrs = list(filter(lambda x: check_acl(self, x), self.__attributes))
