@@ -122,7 +122,7 @@ class Workflow:
                 if hasattr(self.__reference_object, key) and \
                         getattr(self.__reference_object, key) is not None and \
                         getattr(self, key) == getattr(self.__reference_object, key) and \
-                        self.__attribute[key]['mandatory'] is False:
+                        self.__attribute_map[key]['mandatory'] is False:
                     setattr(self, key, None)
                     attributes_changed.append(key)
 
@@ -339,10 +339,10 @@ class Workflow:
         for key in self.__attribute_map:
             if self.__attribute_map[key]['values_populate'] and self.__attribute_map[key]['re_populate_on_update'] is True:
                 cr = PluginRegistry.getInstance('CommandRegistry')
-                values = cr.call(self.myProperties[key]['values_populate'], data)
-                if self.myProperties[key]['values'] != values:
+                values = cr.call(self.__attribute_map[key]['values_populate'], data)
+                if self.__attribute_map[key]['values'] != values:
                     changes[key] = values
-                self.myProperties[key]['values'] = values
+                self.__attribute_map[key]['values'] = values
 
         if len(changes.keys()) and self.__user is not None:
             e = EventMaker()
