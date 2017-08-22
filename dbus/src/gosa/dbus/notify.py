@@ -203,7 +203,7 @@ class Notify(object):
         """
 
         # Prepare regular expressions to find processes for X sessions
-        prog = re.compile("(gnome-session|.*/gnome-session|x-session-manager|/bin/sh.*/usr/bin/startkde|.*/start_kdeinit)")
+        prog = re.compile("(gnome-session|.*/gnome-session|x-session-manager|/bin/sh.*/usr/bin/startkde|.*/start_kdeinit|/bin/sh.*/xfce4/xinitrc)")
 
         # Walk through process ids and search for processes owned by 'user'
         #  which represents a X Session.
@@ -213,7 +213,7 @@ class Notify(object):
 
             # Get the command line statement for the process and check if it represents
             #  an X Session.
-            cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'r').read()
+            cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'r', encoding="utf-8").read()
             if prog.match(cmdline) and (user == '*' or
                                                 user == pwd.getpwuid(os.stat(os.path.join('/proc', pid, 'cmdline')).st_uid).pw_name):
 
