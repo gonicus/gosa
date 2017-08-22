@@ -51,7 +51,7 @@ DBus access
   "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
  <busconfig>
 
-   <!-- Only user root can own the clacks dbus instance -->
+   <!-- Only user root can own the gosa dbus instance -->
    <policy user="root">
      <allow own="org.gosa"/>
    </policy>
