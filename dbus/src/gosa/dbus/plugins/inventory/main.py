@@ -85,7 +85,7 @@ class DBusInventoryHandler(dbus.service.Object, Plugin):
         # Add the ClientUUID and the encoded HardwareUUID to the result
         result = re.sub("%%CUUID%%", self.env.uuid, result)
         result = re.sub("%%HWUUID%%", self.hash_hardware_uuid(huuid).decode(), result)
-        result = re.sub("%%SCHEMALOC%%", resource_filename("gosa.dbus", "data/events/Inventory.xsd"), result)
+        result = re.sub("%%SCHEMALOC%%", resource_filename("gosa.plugins.goto", "data/events/Inventory.xsd"), result)
         result = re.sub("%%CHECKSUM%%", md5sum, result)
 
         return result

@@ -63,6 +63,7 @@ setup(
 
     install_requires = [
         'gosa.common',
+        'gosa.plugins.goto',
         'setproctitle'
         ],
     tests_require=[
