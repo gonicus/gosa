@@ -14,6 +14,8 @@ from uuid import uuid4
 from copy import copy
 from threading import Timer
 
+import zope
+
 from gosa.backend.objects import ObjectProxy
 from gosa.common.components.jsonrpc_utils import Binary
 from lxml import etree
@@ -105,14 +107,19 @@ class ClientService(Plugin):
         # Get registry - we need it later on
         self.__cr = PluginRegistry.getInstance("CommandRegistry")
 
-        # Start maintenance with a delay of 5 seconds
-        timer = Timer(5.0, self.__refresh)
-        timer.start()
-        self.env.threads.append(timer)
+        # Start maintenance when index scan is finished
+        zope.event.subscribers.append(self.__handle_events)
 
         # Register scheduler task to remove outdated clients
         sched = PluginRegistry.getInstance('SchedulerService').getScheduler()
         sched.add_interval_job(self.__gc, minutes=1, tag='_internal', jobstore="ram")
+
+    def __handle_events(self, event):
+        """
+        React on object modifications to keep active ACLs up to date.
+        """
+        if event.__class__.__name__ == "IndexScanFinished":
+            self.__refresh()
 
     def __refresh(self):
         # Initially check if we need to ask for client caps
