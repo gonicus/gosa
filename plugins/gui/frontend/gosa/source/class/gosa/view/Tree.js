@@ -395,21 +395,21 @@ qx.Class.define("gosa.view.Tree", {
 
         var done = [];
         var tableModel = this.getChildControl("table").getTableModel();
-        if (!this._tableData) {
-          this._tableData = new qx.data.Array();
-        } else {
-          this._tableData.removeAll();
-        }
 
         var item = sel.getItem(0);
         item.load().then(function() {
-            var children = item.getChildren().concat(item.getLeafs());
-            children.forEach(function(child) {
-              if(!qx.lang.Array.contains(done, child)){
-                this._tableData.push(child.getTableRow());
-                done.push(child);
-              }
-            }, this);
+          if (!this._tableData) {
+            this._tableData = new qx.data.Array();
+          } else {
+            this._tableData.removeAll();
+          }
+          var children = item.getChildren().concat(item.getLeafs());
+          children.forEach(function(child) {
+            if(!qx.lang.Array.contains(done, child)){
+              this._tableData.push(child.getTableRow());
+              done.push(child);
+            }
+          }, this);
           tableModel.setDataAsMapArray(this._tableData.toArray());
           this.getChildControl("search-field").setEnabled(!!this._tableData.length);
         }, this);

@@ -201,6 +201,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
               this.setLoaded(true);
               resolve();
               this.setLoading(false);
+              return null;
             }, this)
             .catch(reject);
           }
