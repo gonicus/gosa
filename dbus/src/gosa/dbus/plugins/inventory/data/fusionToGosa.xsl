@@ -1,13 +1,9 @@
 <xsl:stylesheet version="1.0"
-	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 	<xsl:output method="xml" indent="yes" encoding="UTF-8" />
 	<xsl:template match="/">
-		<Event  xmlns="http://www.gonicus.de/Events" 
-			xmlns:e="http://www.gonicus.de/Events"
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			xsi:schemaLocation="http://www.gonicus.de/Events %%SCHEMALOC%% ">
+		<Event xmlns="http://www.gonicus.de/Events">
 
 			<Inventory>
 				<Checksum>%%CHECKSUM%%</Checksum>
