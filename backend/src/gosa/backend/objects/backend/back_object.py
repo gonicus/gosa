@@ -71,19 +71,19 @@ class ObjectHandler(ObjectBackend):
 
         return result
 
-    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None):
+    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None, user=None):
         return self.update(uuid, data, params, dn=dn)
 
-    def retract(self, uuid, data, params, needed=None):
+    def retract(self, uuid, data, params, needed=None, user=None):
         # Set values to an emtpy state, to enforce property removal
         for prop in data:
             data[prop]["value"] = []
         return self.update(uuid, data, params)
 
-    def remove(self, uuid, data, params, needed=None):
+    def remove(self, uuid, data, params, needed=None, user=None):
         return self.retract(uuid, data, params)
 
-    def update(self, uuid, data, back_attrs, dn=None, needed=None):
+    def update(self, uuid, data, back_attrs, dn=None, needed=None, user=None):
         """
         Write back changes collected for foreign objects relations.
 
@@ -161,7 +161,7 @@ class ObjectHandler(ObjectBackend):
     def identify(self, dn, params, fixed_rdn=None):  # pragma: nocover
         return False
 
-    def query(self, base, scope, params, fixed_rdn=None):  # pragma: nocover
+    def query(self, base, scope, params, fixed_rdn=None, user=None):  # pragma: nocover
         return []
 
     def exists(self, misc, needed=None):  # pragma: nocover
@@ -170,10 +170,10 @@ class ObjectHandler(ObjectBackend):
     def move_extension(self, uuid, new_base):  # pragma: nocover
         pass
 
-    def move(self, uuid, new_base, needed=None):  # pragma: nocover
+    def move(self, uuid, new_base, needed=None, user=None):  # pragma: nocover
         return False
 
-    def create(self, base, data, params, foreign_keys=None, needed=None):  # pragma: nocover
+    def create(self, base, data, params, foreign_keys=None, needed=None, user=None):  # pragma: nocover
         self.log.debug("create(%s, %s, %s, %s)" % (base, data, params, foreign_keys))
         return None
 

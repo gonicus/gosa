@@ -180,7 +180,7 @@ class LDAP(ObjectBackend):
 
         return len(res) == 1
 
-    def remove(self, uuid, data, params, needed=None):
+    def remove(self, uuid, data, params, needed=None, user=None):
         dn = self.uuid2dn(uuid)
 
         self.log.debug("removing entry '%s'" % dn)
@@ -199,7 +199,7 @@ class LDAP(ObjectBackend):
             return self.con.delete_s(dn)
         return None
 
-    def retract(self, uuid, data, params, needed=None):
+    def retract(self, uuid, data, params, needed=None, user=None):
         # Remove defined data from the specified object
         dn = self.uuid2dn(uuid)
         mod_attrs = []
@@ -220,7 +220,7 @@ class LDAP(ObjectBackend):
             del self.__i_cache[dn]
             del self.__i_cache_ttl[dn]
 
-    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None):
+    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None, user=None):
         dn = self.uuid2dn(uuid)
         return self.create(dn, data, params, foreign_keys)
 
@@ -234,7 +234,7 @@ class LDAP(ObjectBackend):
         rdn = ldap.dn.explode_dn(dn, flags=ldap.DN_FORMAT_LDAPV3)[0]
         return self.con.rename_s(dn, rdn, new_base)
 
-    def create(self, base, data, params, foreign_keys=None, needed=None):
+    def create(self, base, data, params, foreign_keys=None, needed=None, user=None):
         mod_attrs = []
         self.log.debug("gathering modifications for entry on base '%s'" % base)
         for attr, entry in data.items():
@@ -297,7 +297,7 @@ class LDAP(ObjectBackend):
         # Return automatic uuid
         return self.dn2uuid(dn)
 
-    def update(self, uuid, data, params, needed=None):
+    def update(self, uuid, data, params, needed=None, user=None):
 
         # Assemble a proper modlist
         dn = self.uuid2dn(uuid)

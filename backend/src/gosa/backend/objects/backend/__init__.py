@@ -74,7 +74,7 @@ class ObjectBackend(object):
 
         return res
 
-    def move(self, uuid, new_base):  # pragma: nocover
+    def move(self, uuid, new_base, user=None):  # pragma: nocover
         """
         Move object to new base.
         """
@@ -86,19 +86,19 @@ class ObjectBackend(object):
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="move_extension"))
 
-    def create(self, dn, data, params, needed=None):  # pragma: nocover
+    def create(self, dn, data, params, needed=None, user=None):  # pragma: nocover
         """
         Create a new base object entry with the given DN.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", dn, method="create"))
 
-    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None):  # pragma: nocover
+    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None, user=None):  # pragma: nocover
         """
         Create an extension to a base object with the given UUID.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="extend"))
 
-    def update(self, uuid, data, params, needed=None):  # pragma: nocover
+    def update(self, uuid, data, params, needed=None, user=None):  # pragma: nocover
         """
         Update a base entry or an extension with the given UUID.
         """
@@ -110,13 +110,13 @@ class ObjectBackend(object):
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", method="exists"))
 
-    def remove(self, uuid, data, params, needed=None):  # pragma: nocover
+    def remove(self, uuid, data, params, needed=None, user=None):  # pragma: nocover
         """
         Remove base object specified by UUID.
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="remove"))
 
-    def retract(self, uuid, data, params, needed=None):  # pragma: nocover
+    def retract(self, uuid, data, params, needed=None, user=None):  # pragma: nocover
         """
         Retract extension from base object specified by UUID.
         """

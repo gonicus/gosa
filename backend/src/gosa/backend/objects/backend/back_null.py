@@ -27,25 +27,25 @@ class NULL(ObjectBackend):
     def exists(self, misc, needed=None):  # pragma: nocover
         return False
 
-    def remove(self, uuid, data, params, needed=None):  # pragma: nocover
+    def remove(self, uuid, data, params, needed=None, user=None):  # pragma: nocover
         return True
 
-    def retract(self, uuid, data, params, needed=None):  # pragma: nocover
+    def retract(self, uuid, data, params, needed=None, user=None):  # pragma: nocover
         pass
 
-    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None):  # pragma: nocover
+    def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None, user=None):  # pragma: nocover
         return None
 
     def move_extension(self, uuid, new_base):  # pragma: nocover
         pass
 
-    def move(self, uuid, new_base):  # pragma: nocover
+    def move(self, uuid, new_base, user=None):  # pragma: nocover
         return True
 
-    def create(self, base, data, params, foreign_keys=None, needed=None):  # pragma: nocover
+    def create(self, base, data, params, foreign_keys=None, needed=None, user=None):  # pragma: nocover
         return None
 
-    def update(self, uuid, data, params, needed=None):  # pragma: nocover
+    def update(self, uuid, data, params, needed=None, user=None):  # pragma: nocover
         return True
 
     def is_uniq(self, attr, value, at_type):  # pragma: nocover

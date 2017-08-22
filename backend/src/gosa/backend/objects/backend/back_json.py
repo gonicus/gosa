@@ -96,7 +96,7 @@ class JSON(ObjectBackend):
 
         return False
 
-    def retract(self, item_uuid, data, params, needed=None):
+    def retract(self, item_uuid, data, params, needed=None, user=None):
         """
         Remove an object extension
         """
@@ -105,7 +105,7 @@ class JSON(ObjectBackend):
             del(json[item_uuid][params['type']])
         self.__save(json)
 
-    def extend(self, item_uuid, data, params, foreign_keys, dn=None, needed=None):
+    def extend(self, item_uuid, data, params, foreign_keys, dn=None, needed=None, user=None):
         """
         Create an object extension
         """
@@ -173,7 +173,7 @@ class JSON(ObjectBackend):
                         found.append(json[uuid][obj]['dn'])
         return found
 
-    def create(self, base, data, params, foreign_keys=None, needed=None):
+    def create(self, base, data, params, foreign_keys=None, needed=None, user=None):
         """
         Creates a new database entry
         """
@@ -248,7 +248,7 @@ class JSON(ObjectBackend):
 
         return None
 
-    def remove(self, item_uuid, data, params, needed=None):
+    def remove(self, item_uuid, data, params, needed=None, user=None):
         """
         Removes the entry with the given uuid from the database
         """
@@ -287,7 +287,7 @@ class JSON(ObjectBackend):
                     return False
         return True
 
-    def update(self, item_uuid, data, params, needed=None):
+    def update(self, item_uuid, data, params, needed=None, user=None):
         """
         Update the given entry (by uuid) with a new set of values.
         """
@@ -312,7 +312,7 @@ class JSON(ObjectBackend):
         # Nothing to do here.
         return True
 
-    def move(self, item_uuid, new_base, needed=None):
+    def move(self, item_uuid, new_base, needed=None, user=None):
         """
         Moves an entry to another base
         """
