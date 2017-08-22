@@ -461,7 +461,7 @@ class Object(object):
         self._process_in_filters(keys=found)
 
         # Convert the received type into the target type if not done already
-        self._convert_types(keys=found)
+        self._convert_types(keys=found, keep=self._mode not in ["create", "extend"])
 
     def _delattr_(self, name):
         """
