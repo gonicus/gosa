@@ -1,3 +1,10 @@
+gosa (3.0-3) xenial; urgency=medium
+
+  * delay dbus access in client
+  * add client dependency: fusioninventory-agent
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Mon, 21 Aug 2017 16:31:29 +0200
+
 gosa (3.0-2) xenial; urgency=medium
 
   * Add systemd units

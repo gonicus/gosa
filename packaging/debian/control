@@ -35,7 +35,8 @@ Architecture: all
 Conflicts: gosa-server
 Depends: ${python:Depends}, ${misc:Depends}, gosa-common, python3-dateutil,
  python3-netifaces, python3-netaddr, python3-crypto, python3-zope.event,
- python3-setproctitle, adduser, supervisor, python3-babel, python3-tornado
+ python3-setproctitle, adduser, supervisor, python3-babel, python3-tornado,
+ fusioninventory-agent
 Suggests: gosa-dbus
 Description: GOsa infrastructure service - client
  Brief description is missing.

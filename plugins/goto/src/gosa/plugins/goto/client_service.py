@@ -422,7 +422,7 @@ class ClientService(Plugin):
             try:
                 data = etree.fromstring(message, PluginRegistry.getEventParser())
                 eventType = stripNs(data.xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag)
-                self.log.debug("Incoming MQTT event[%s]: '%s'" % (eventType, data))
+                self.log.debug("Incoming MQTT event[%s]: '%s'" % (eventType, message))
                 if hasattr(self, "_handle"+eventType):
                     func = getattr(self, "_handle" + eventType)
                     func(data)
