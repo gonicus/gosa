@@ -49,7 +49,7 @@ qx.Class.define("gosa.ui.widgets.QLineEditWidget", {
 
     _setEchoMode: function(){
       this._current_length = 0;
-      this.removeAll();
+      this.contents.removeAll();
       this._widgetContainer = [];
       this._generateGui();
     },
