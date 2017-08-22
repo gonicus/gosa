@@ -327,6 +327,12 @@ class Foreman(Plugin):
         res = {}
         if self.client:
             data = self.client.get("hostgroups", id=id)
+            parent_id = data["parent_id"]
+            while parent_id is not None:
+                pdata = self.client.get("hostgroups", id=parent_id)
+                data.update({k:v for k,v in pdata.items() if v})
+                parent_id = pdata["parent_id"]
+
             if isinstance(attributes, list) and len(attributes) > 0:
                 res = [data[x] for x in attributes if x in data]
             else:
@@ -355,7 +361,24 @@ class Foreman(Plugin):
         path = "hostgroups"
         if len(args) and "hostgroup_id" in args[0] and args[0]["hostgroup_id"] is not None:
             path += "/%s" % args[0]["hostgroup_id"]
-        return self.__get_key_values("hostgroups")
+        return self.__get_hostgroup_key_values(path)
+
+    @cache_return(timeout_secs=60)
+    def __get_hostgroup_key_values(self, path):
+        res = {}
+        if self.client:
+            data = self.client.get(path)
+
+            if "results" in data:
+                for entry in data["results"]:
+                    name = entry["name"]
+                    parent_id = entry["parent_id"]
+                    while parent_id is not None:
+                        pdata = self.client.get("hostgroups", id=parent_id)
+                        name = "%s/%s" % (pdata["name"], name)
+                        parent_id = pdata["parent_id"]
+                    res[entry["id"]] = {"value": name}
+        return res
 
     @Command(__help__=N_("Get available foreman operating systems."))
     def getForemanOperatingSystems(self, *args):
