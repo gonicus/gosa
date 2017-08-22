@@ -13,6 +13,8 @@ cache:
     - .env
     - /tmp/qx5.1
 before_install:
+    - echo $USER
+    - groups $USER
     - sudo apt-get update
     - sudo cp test_conf/org.gosa.conf /etc/dbus-1/system.d/
     - sudo service dbus reload
