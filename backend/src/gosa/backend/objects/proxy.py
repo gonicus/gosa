@@ -417,7 +417,8 @@ class ObjectProxy(object):
                     'values': self.__property_map[attr]['values'],
                     'multivalue': self.__property_map[attr]['multivalue'],
                     'type': self.__property_map[attr]['type'],
-                    'auto': self.__property_map[attr]['auto']}
+                    'auto': self.__property_map[attr]['auto'],
+                    'value_inherited_from': self.__property_map[attr]['value_inherited_from']}
 
             return res
 

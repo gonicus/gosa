@@ -243,9 +243,9 @@
       },
       {
         "properties": {
-          "text": "tr('Medium')"
+          "text": "tr('PXE loader')"
         },
-        "buddyModelPath": "medium_id",
+        "buddyModelPath": "pxe_loader",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
           "column": 2,
@@ -254,13 +254,35 @@
       },
       {
         "class": "gosa.ui.widgets.QComboBoxWidget",
-        "modelPath": "medium_id",
+        "modelPath": "pxe_loader",
         "addOptions": {
           "column": 3,
           "row": 4
         },
         "properties": {
-          "tabIndex": 10,
+          "tabIndex": 10
+        }
+      },
+      {
+        "properties": {
+          "text": "tr('Medium')"
+        },
+        "buddyModelPath": "medium_id",
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "addOptions": {
+          "column": 2,
+          "row": 5
+        }
+      },
+      {
+        "class": "gosa.ui.widgets.QComboBoxWidget",
+        "modelPath": "medium_id",
+        "addOptions": {
+          "column": 3,
+          "row": 5
+        },
+        "properties": {
+          "tabIndex": 11,
           "sortBy": "value"
         }
       },
@@ -272,7 +294,7 @@
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
           "column": 2,
-          "row": 5
+          "row": 6
         }
       },
       {
@@ -280,10 +302,10 @@
         "modelPath": "root_pass",
         "addOptions": {
           "column": 3,
-          "row": 5
+          "row": 6
         },
         "properties": {
-          "tabIndex": 11,
+          "tabIndex": 12,
           "echoMode": "password"
         }
       }

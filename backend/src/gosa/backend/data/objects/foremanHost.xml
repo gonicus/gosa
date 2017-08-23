@@ -210,6 +210,23 @@
       </Attribute>
 
       <Attribute>
+        <Name>pxe_loader</Name>
+        <Type>UnicodeString</Type>
+        <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
+        <Values>
+          <Value>PXELinux BIOS</Value>
+          <Value>PXELinux UEFI</Value>
+          <Value>Grub UEFI 64bit</Value>
+          <Value>Grub UEFI 32bit</Value>
+          <Value>Grub SecureBoot</Value>
+          <Value>Grub2 UEFI 64bit</Value>
+          <Value>Grub2 UEFI 32bit</Value>
+          <Value>Grub2 SecureBoot</Value>
+          <Value>None</Value>
+        </Values>
+      </Attribute>
+
+      <Attribute>
         <Name>architecture_id</Name>
         <Type>Integer</Type>
         <Backend>Foreman</Backend>
