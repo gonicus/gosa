@@ -41,9 +41,9 @@
     "children": [
       {
         "properties": {
-          "text": "tr('Name')"
+          "text": "tr('Parent')"
         },
-        "buddyModelPath": "cn",
+        "buddyModelPath": "parent_id",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
           "column": 0,
@@ -51,21 +51,22 @@
         }
       },
       {
-        "properties": {
-          "tabIndex": 1
-        },
-        "modelPath": "cn",
-        "class": "gosa.ui.widgets.QLineEditWidget",
+        "class": "gosa.ui.widgets.QComboBoxWidget",
+        "modelPath": "parent_id",
         "addOptions": {
           "column": 1,
           "row": 0
+        },
+        "properties": {
+          "tabIndex": 1,
+          "sortBy": "value"
         }
       },
       {
         "properties": {
-          "text": "tr('Description')"
+          "text": "tr('Name')"
         },
-        "buddyModelPath": "description",
+        "buddyModelPath": "cn",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
           "column": 0,
@@ -76,7 +77,7 @@
         "properties": {
           "tabIndex": 2
         },
-        "modelPath": "description",
+        "modelPath": "cn",
         "class": "gosa.ui.widgets.QLineEditWidget",
         "addOptions": {
           "column": 1,
@@ -85,9 +86,9 @@
       },
       {
         "properties": {
-          "text": "businessCategory"
+          "text": "tr('Description')"
         },
-        "buddyModelPath": "businessCategory",
+        "buddyModelPath": "description",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
           "column": 0,
@@ -98,7 +99,7 @@
         "properties": {
           "tabIndex": 3
         },
-        "modelPath": "businessCategory",
+        "modelPath": "description",
         "class": "gosa.ui.widgets.QLineEditWidget",
         "addOptions": {
           "column": 1,
@@ -107,9 +108,9 @@
       },
       {
         "properties": {
-          "text": "o"
+          "text": "businessCategory"
         },
-        "buddyModelPath": "o",
+        "buddyModelPath": "businessCategory",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
           "column": 0,
@@ -120,7 +121,7 @@
         "properties": {
           "tabIndex": 4
         },
-        "modelPath": "o",
+        "modelPath": "businessCategory",
         "class": "gosa.ui.widgets.QLineEditWidget",
         "addOptions": {
           "column": 1,
@@ -129,9 +130,9 @@
       },
       {
         "properties": {
-          "text": "ou"
+          "text": "o"
         },
-        "buddyModelPath": "ou",
+        "buddyModelPath": "o",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
           "column": 0,
@@ -142,11 +143,33 @@
         "properties": {
           "tabIndex": 5
         },
-        "modelPath": "ou",
+        "modelPath": "o",
         "class": "gosa.ui.widgets.QLineEditWidget",
         "addOptions": {
           "column": 1,
           "row": 4
+        }
+      },
+      {
+        "properties": {
+          "text": "ou"
+        },
+        "buddyModelPath": "ou",
+        "class": "gosa.ui.widgets.QLabelWidget",
+        "addOptions": {
+          "column": 0,
+          "row": 5
+        }
+      },
+      {
+        "properties": {
+          "tabIndex": 6
+        },
+        "modelPath": "ou",
+        "class": "gosa.ui.widgets.QLineEditWidget",
+        "addOptions": {
+          "column": 1,
+          "row": 5
         }
       },
       {
@@ -168,7 +191,7 @@
           "row": 0
         },
         "properties": {
-          "tabIndex": 6,
+          "tabIndex": 7,
           "sortBy": "value"
         }
       },
@@ -191,7 +214,7 @@
           "row": 1
         },
         "properties": {
-          "tabIndex": 7,
+          "tabIndex": 8,
           "sortBy": "value"
         }
       },
@@ -214,7 +237,7 @@
           "row": 2
         },
         "properties": {
-          "tabIndex": 8,
+          "tabIndex": 9,
           "sortBy": "value"
         }
       },
@@ -237,7 +260,7 @@
           "row": 3
         },
         "properties": {
-          "tabIndex": 9,
+          "tabIndex": 10,
           "sortBy": "value"
         }
       },
@@ -260,7 +283,7 @@
           "row": 4
         },
         "properties": {
-          "tabIndex": 10
+          "tabIndex": 11
         }
       },
       {
@@ -282,7 +305,7 @@
           "row": 5
         },
         "properties": {
-          "tabIndex": 11,
+          "tabIndex": 12,
           "sortBy": "value"
         }
       },
@@ -305,7 +328,7 @@
           "row": 6
         },
         "properties": {
-          "tabIndex": 12,
+          "tabIndex": 13,
           "echoMode": "password"
         }
       }
