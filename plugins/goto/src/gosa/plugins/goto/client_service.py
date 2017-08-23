@@ -28,7 +28,7 @@ from gosa.common.components.jsonrpc_proxy import JSONRPCException
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.event import EventMaker
 from gosa.common import Environment
-from gosa.common.utils import stripNs, N_, encrypt_key, generate_random_key
+from gosa.common.utils import stripNs, N_, encrypt_key, generate_random_key, is_uuid
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.mqtt_proxy import MQTTServiceProxy
@@ -130,6 +130,16 @@ class ClientService(Plugin):
     def stop(self):  # pragma: nocover
         pass
 
+    def get_client_uuid(self, name_or_uuid):
+        if is_uuid(name_or_uuid):
+            return name_or_uuid
+        else:
+            # hostname used
+            for uuid in self.__client:
+                if self.__client[uuid]["name"] == name_or_uuid:
+                    return uuid
+        return name_or_uuid
+
     @Command(__help__=N_("List available clients."))
     def getClients(self):
         """
@@ -159,6 +169,7 @@ class ClientService(Plugin):
 
         ``Return:`` varies
         """
+        client = self.get_client_uuid(client)
 
         # Bail out if the client is not available
         if not client in self.__client:
@@ -202,7 +213,7 @@ class ClientService(Plugin):
 
         ``Return:`` dict with network information
         """
-
+        client = self.get_client_uuid(client)
         if not client in self.__client:
             return []
 
@@ -216,6 +227,8 @@ class ClientService(Plugin):
 
         ``Return:`` dict of client methods
         """
+        client = self.get_client_uuid(client)
+
         if not client in self.__client:
             return []
         if not self.__client[client]['online']:
@@ -229,6 +242,7 @@ class ClientService(Plugin):
         TODO
         """
         if client:
+            client = self.get_client_uuid(client)
             return list(self.__user_session[client]) if client in self.__user_session else []
 
         return list(self.__user_session)
@@ -307,7 +321,7 @@ class ClientService(Plugin):
         """
         TODO
         """
-
+        device_uuid = self.get_client_uuid(device_uuid)
         index = PluginRegistry.getInstance("ObjectIndex")
 
         res = index.search({'_type': 'Device', 'deviceUUID': device_uuid},
@@ -323,7 +337,7 @@ class ClientService(Plugin):
         """
         TODO
         """
-
+        device_uuid = self.get_client_uuid(device_uuid)
         # Write to backend
         index = PluginRegistry.getInstance("ObjectIndex")
 
