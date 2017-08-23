@@ -124,11 +124,59 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       qx.core.Assert.assertString(condition);
 
       // get configuration for condition rpc
-      var parser = /^(!)?([^(]*)(\((.*)\))?$/;
+      var parser = /^(!)?([^(!=]*)(\((.*)\))?([!=]*)(.*)$/;
       var parsed = parser.exec(condition);
       var name = parsed[2];
       var negated = parsed[1] === "!";
-      var result = false;
+
+      var comparisonOperator = parsed[5];
+      var compareTo = parsed[6];
+      if (compareTo) {
+        if (compareTo[0] === "'" || compareTo[0] === "\"") {
+          compareTo = compareTo.replace(/^["']/, "").replace(/["']$/, "");
+        } else {
+          compareTo = context.getActionController().getAttributeValue(compareTo);
+          if (qx.lang.Type.isArray(compareTo)) {
+            if (compareTo.getLength() > 0) {
+              compareTo = compareTo.getItem(0);
+            }
+          }
+        }
+      }
+
+      function doCompare(value) {
+        var res = false;
+        if (compareTo && comparisonOperator) {
+          switch (comparisonOperator) {
+            case "!=":
+              return compareTo != value;
+            case "!==":
+              return compareTo !== value;
+            case "==":
+              return compareTo == value;
+            case "===":
+              return compareTo === value;
+            case "<=":
+              return compareTo <= value;
+            case ">=":
+              return compareTo >= value;
+          }
+        } else {
+          if (qx.lang.Type.isArray(value)) {
+            if (value.getLength() > 0) {
+              res = !!value.getItem(0);
+            }
+          } else {
+            res = !!value;
+          }
+
+          // negation
+          if (negated) {
+            res = !res;
+          }
+          return res;
+        }
+      }
 
       // conditions with arguments are rpc; all others are attributes of the object
       if (parsed[4]) {  // has arguments
@@ -156,11 +204,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
         var rpc = gosa.io.Rpc.getInstance();
         return rpc.cA.apply(rpc, [name].concat(args))
         .then(function(result) {
-          // negation
-          if (negated) {
-            result = !result;
-          }
-          return result;
+          return doCompare(result);
         }, this)
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error).open();
@@ -169,20 +213,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       else {
         // object attribute
         var value = context.getActionController().getAttributeValue(name);
-        if (qx.lang.Type.isArray(value)) {
-          if (value.getLength() > 0) {
-            result = !!value.getItem(0);
-          }
-        } else {
-          result = !!value;
-        }
-
-        // negation
-        if (negated) {
-          result = !result;
-        }
-
-        return qx.Promise.resolve(result);
+        return qx.Promise.resolve(doCompare(value));
       }
     },
 

@@ -118,7 +118,7 @@
         <InheritFrom relation="parent_id">getForemanHostgroup</InheritFrom>
       </Attribute>
 
-      <!--Attribute>
+      <Attribute>
         <Name>pxe_loader</Name>
         <Type>UnicodeString</Type>
         <Backend>Foreman</Backend>
@@ -134,7 +134,7 @@
           <Value>Grub2 SecureBoot</Value>
           <Value>None</Value>
         </Values>
-      </Attribute-->
+      </Attribute>
 
       <Attribute>
         <Name>member</Name>

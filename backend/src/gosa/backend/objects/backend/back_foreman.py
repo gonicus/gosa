@@ -118,7 +118,7 @@ class Foreman(ObjectBackend):
                 try:
                     self.client.delete(self.get_foreman_type(needed, params), uuid)
                 except ForemanBackendException as ex:
-                    self.__error_notify_user(ex, user)
+                    ForemanClient.error_notify_user(ex, user)
                     raise ex
 
             # some changes (e.g. creating a host) trigger requests from foreman to gosa
@@ -129,18 +129,6 @@ class Foreman(ObjectBackend):
         else:
             self.log.info("skipping deletion request as the change is coming from the foreman backend")
         return True
-
-    def __error_notify_user(self, ex, user=None):
-        channel = "user.%s" if user is not None else "broadcast"
-        # report to clients
-        e = EventMaker()
-        ev = e.Event(e.BackendException(
-            e.BackendName("Foreman"),
-            e.ErrorMessage(ex.message),
-            e.Operation(ex.operation)
-        ))
-        event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
-        SseHandler.notify(event_object, channel=channel)
 
     def retract(self, uuid, data, params, needed=None, user=None):
         self.remove(uuid, data, params, needed=needed, user=user)
@@ -166,7 +154,7 @@ class Foreman(ObjectBackend):
                     result = self.client.post(type, data=payload)
                     self.log.debug("Response: %s" % result)
                 except ForemanBackendException as ex:
-                    self.__error_notify_user(ex, user)
+                    ForemanClient.error_notify_user(ex, user)
                     raise ex
 
             # some changes (e.g. creating a host) trigger requests from foreman to gosa
@@ -204,7 +192,7 @@ class Foreman(ObjectBackend):
                     result = self.client.put(type, uuid, data=payload)
                     self.log.debug("Response: %s" % result)
                 except ForemanBackendException as ex:
-                    self.__error_notify_user(ex, user)
+                    ForemanClient.error_notify_user(ex, user)
                     raise ex
 
             # some changes (e.g. changing the hostgroup) trigger requests from foreman to gosa
@@ -282,10 +270,10 @@ class ForemanClient(object):
             self.log.debug("response %s" % data)
             # check for error
             if "error" in data:
-                raise ForemanBackendException(response, operation=method)
+                raise ForemanBackendException(response, method=method_name)
             return data
         else:
-            raise ForemanBackendException(response, operation=method)
+            raise ForemanBackendException(response, method=method_name)
 
     def check_backend(self):
         """ check if foreman backend is reachable """
@@ -327,13 +315,26 @@ class ForemanClient(object):
                 # update parameter
                 self.put(path, id=name, data=payload)
 
+    @classmethod
+    def error_notify_user(cls, ex, user=None):
+        channel = "user.%s" if user is not None else "broadcast"
+        # report to clients
+        e = EventMaker()
+        ev = e.Event(e.BackendException(
+            e.BackendName("Foreman"),
+            e.ErrorMessage(ex.message),
+            e.Operation(ex.operation)
+        ))
+        event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
+        SseHandler.notify(event_object, channel=channel)
+
 
 class ForemanBackendException(ObjectException):
 
-    def __init__(self, response=None, exception=None, operation=None):
+    def __init__(self, response=None, exception=None, method=None):
         self.exception = exception
         self.response = response
-        self.operation = operation
+        self.method = method if method is not None else ""
 
         if response.status_code == 404:
             self.message = C.make_error('FOREMAN_OBJECT_NOT_FOUND', response.url)

@@ -1,170 +1,363 @@
 {
-  "type": "widget",
-  "name": "tr('Host')",
-  "class": "qx.ui.container.Composite",
-  "layout": "qx.ui.layout.VBox",
-  "addOptions": {
-    "flex": 1
-  },
-  "layoutConfig": {
-    "spacing": "CONST_SPACING_Y"
-  },
-  "children": [
+  "ptable_id": 82,
+  "hostgroup_id": 6,
+  "all_puppetclasses": [
     {
-      "class": "gosa.ui.widgets.GroupBox",
-      "layout": "qx.ui.layout.Grid",
-      "layoutConfig": {
-        "spacingX": "CONST_SPACING_X",
-        "spacingY": "CONST_SPACING_Y"
-      },
-      "extensions": {
-        "layoutOptions": {
-          "columnFlex": {
-            "column": 1,
-            "flex": 1
-          }
-        }
-      },
-      "children": [
-        {
-          "properties": {
-            "text": "tr('Domain')"
-          },
-          "buddyModelPath": "domain_id",
-          "class": "gosa.ui.widgets.QLabelWidget",
-          "addOptions": {
-            "column": 0,
-            "row": 0
-          }
-        },
-        {
-          "class": "gosa.ui.widgets.QComboBoxWidget",
-          "modelPath": "domain_id",
-          "addOptions": {
-            "column": 1,
-            "row": 0
-          },
-          "properties": {
-            "tabIndex": 1,
-            "sortBy": "value"
-          }
-        },
-        {
-          "properties": {
-            "text": "tr('Operating system')"
-          },
-          "buddyModelPath": "operatingsystem_id",
-          "class": "gosa.ui.widgets.QLabelWidget",
-          "addOptions": {
-            "column": 0,
-            "row": 1
-          }
-        },
-        {
-          "class": "gosa.ui.widgets.QComboBoxWidget",
-          "modelPath": "operatingsystem_id",
-          "addOptions": {
-            "column": 1,
-            "row": 1
-          },
-          "properties": {
-            "tabIndex": 2,
-            "sortBy": "value"
-          }
-        },
-        {
-          "properties": {
-            "text": "tr('Architecture')"
-          },
-          "buddyModelPath": "architecture_id",
-          "class": "gosa.ui.widgets.QLabelWidget",
-          "addOptions": {
-            "column": 0,
-            "row": 2
-          }
-        },
-        {
-          "class": "gosa.ui.widgets.QComboBoxWidget",
-          "modelPath": "architecture_id",
-          "addOptions": {
-            "column": 1,
-            "row": 2
-          },
-          "properties": {
-            "tabIndex": 3,
-            "sortBy": "value"
-          }
-        },
-        {
-          "properties": {
-            "text": "tr('Partition table')"
-          },
-          "buddyModelPath": "ptable_id",
-          "class": "gosa.ui.widgets.QLabelWidget",
-          "addOptions": {
-            "column": 0,
-            "row": 3
-          }
-        },
-        {
-          "class": "gosa.ui.widgets.QComboBoxWidget",
-          "modelPath": "ptable_id",
-          "addOptions": {
-            "column": 1,
-            "row": 3
-          },
-          "properties": {
-            "tabIndex": 4,
-            "sortBy": "value"
-          }
-        },
-        {
-          "properties": {
-            "text": "tr('Medium')"
-          },
-          "buddyModelPath": "medium_id",
-          "class": "gosa.ui.widgets.QLabelWidget",
-          "addOptions": {
-            "column": 0,
-            "row": 4
-          }
-        },
-        {
-          "class": "gosa.ui.widgets.QComboBoxWidget",
-          "modelPath": "medium_id",
-          "addOptions": {
-            "column": 1,
-            "row": 4
-          },
-          "properties": {
-            "tabIndex": 5,
-            "sortBy": "value"
-          }
-        },
-        {
-          "properties": {
-            "text": "tr('Root password')"
-          },
-          "buddyModelPath": "root_pass",
-          "class": "gosa.ui.widgets.QLabelWidget",
-          "addOptions": {
-            "column": 0,
-            "row": 5
-          }
-        },
-        {
-          "class": "gosa.ui.widgets.QLineEditWidget",
-          "modelPath": "root_pass",
-          "addOptions": {
-            "column": 1,
-            "row": 5
-          },
-          "properties": {
-            "tabIndex": 6,
-            "echoMode": "password"
-          }
-        }
-      ]
+      "name": "bash::shell",
+      "module_name": "bash",
+      "id": 2
+    },
+    {
+      "name": "german::env",
+      "module_name": "german",
+      "id": 10
+    },
+    {
+      "name": "gonicus::gsa",
+      "module_name": "gonicus",
+      "id": 20
+    },
+    {
+      "name": "gonicus::ssl",
+      "module_name": "gonicus",
+      "id": 18
+    },
+    {
+      "name": "gosa::client",
+      "module_name": "gosa",
+      "id": 22
+    },
+    {
+      "name": "klingel::desktop",
+      "module_name": "klingel",
+      "id": 23
+    },
+    {
+      "name": "klingel::packages",
+      "module_name": "klingel",
+      "id": 24
+    },
+    {
+      "name": "ldap::client",
+      "module_name": "ldap",
+      "id": 19
+    },
+    {
+      "name": "ntp::client",
+      "module_name": "ntp",
+      "id": 12
+    },
+    {
+      "name": "puppet::agent",
+      "module_name": "puppet",
+      "id": 17
+    },
+    {
+      "name": "sources::list",
+      "module_name": "sources",
+      "id": 13
+    },
+    {
+      "name": "ssh::server",
+      "module_name": "ssh",
+      "id": 16
+    },
+    {
+      "name": "vim::editor",
+      "module_name": "vim",
+      "id": 14
+    },
+    {
+      "name": "vm::client",
+      "module_name": "vm",
+      "id": 15
     }
-  ]
+  ],
+  "puppet_ca_proxy": {
+    "name": "smitty.intranet.gonicus.de",
+    "id": 1,
+    "url": "https://smitty.intranet.gonicus.de:8443"
+  },
+  "puppet_status": 0,
+  "global_status": 0,
+  "updated_at": "2017-08-23T14:18:19.237Z",
+  "provision_method": "build",
+  "realm_name": "TestGosa",
+  "domain_id": 2,
+  "owner_type": "User",
+  "domain_name": "test.intranet.gonicus.de",
+  "puppet_proxy": {
+    "name": "smitty.intranet.gonicus.de",
+    "id": 1,
+    "url": "https://smitty.intranet.gonicus.de:8443"
+  },
+  "operatingsystem_name": "Ubuntu 16.04.3 LTS",
+  "pxe_loader": "PXELinux BIOS",
+  "compute_profile_name": null,
+  "subnet_name": "Test LAN",
+  "architecture_id": 2,
+  "environment_id": 1,
+  "sp_subnet_id": null,
+  "config_groups": [],
+  "capabilities": [
+    "build",
+    "image"
+  ],
+  "installed_at": null,
+  "disk": "",
+  "medium_name": "go-lts",
+  "sp_name": null,
+  "created_at": "2017-08-23T14:18:15.551Z",
+  "parameters": [
+    {
+      "name": "gosa-domain",
+      "id": 52,
+      "value": "[FILTERED]",
+      "updated_at": "2017-08-23T14:18:18.205Z",
+      "created_at": "2017-08-23T14:18:18.205Z",
+      "priority": 70
+    },
+    {
+      "name": "gosa-mqtt",
+      "id": 51,
+      "value": "[FILTERED]",
+      "updated_at": "2017-08-23T14:18:18.090Z",
+      "created_at": "2017-08-23T14:18:18.090Z",
+      "priority": 70
+    },
+    {
+      "name": "gosa-server",
+      "id": 50,
+      "value": "[FILTERED]",
+      "updated_at": "2017-08-23T14:18:17.967Z",
+      "created_at": "2017-08-23T14:18:17.967Z",
+      "priority": 70
+    }
+  ],
+  "configuration_status": 0,
+  "name": "dewey-lueders.test.intranet.gonicus.de",
+  "use_image": null,
+  "subnet6_id": null,
+  "last_report": "[FILTERED]",
+  "build_status_label": "Installed",
+  "configuration_status_label": "No reports",
+  "compute_resource_name": "smitty",
+  "environment_name": "production",
+  "subnet6_name": null,
+  "puppetclasses": [],
+  "sp_mac": null,
+  "puppet_proxy_name": "smitty.intranet.gonicus.de",
+  "image_id": null,
+  "ptable_name": "Preseed default",
+  "ip": "10.6.66.37",
+  "permissions": {
+    "create_hosts": true,
+    "console_hosts": true,
+    "edit_hosts": true,
+    "provision_discovered_hosts": true,
+    "submit_discovered_hosts": true,
+    "destroy_discovered_hosts": true,
+    "view_discovered_hosts": true,
+    "auto_provision_discovered_hosts": true,
+    "ipmi_boot_hosts": true,
+    "build_hosts": true,
+    "edit_discovered_hosts": true,
+    "view_hosts": true,
+    "puppetrun_hosts": true,
+    "destroy_hosts": true,
+    "power_hosts": true
+  },
+  "comment": "",
+  "build_status": 0,
+  "compute_profile_id": null,
+  "owner_id": 6,
+  "hostgroup_name": "XFCE",
+  "image_file": "",
+  "puppet_ca_proxy_name": "smitty.intranet.gonicus.de",
+  "image_name": null,
+  "managed": true,
+  "interfaces": [
+    {
+      "name": "dewey-lueders.test.intranet.gonicus.de",
+      "mac": "52:54:00:42:4d:37",
+      "id": 114,
+      "identifier": "",
+      "primary": true,
+      "type": "interface",
+      "provision": true,
+      "ip6": "",
+      "ip": "10.6.66.37"
+    }
+  ],
+  "realm_id": 1,
+  "mac": "52:54:00:42:4d:37",
+  "model_id": null,
+  "global_status_label": "Warning",
+  "last_compile": null,
+  "ip6": "",
+  "subnet_id": 1,
+  "all_parameters": [
+    {
+      "name": "gosa-domain",
+      "id": 52,
+      "value": "[FILTERED]",
+      "updated_at": "2017-08-23T14:18:18.205Z",
+      "created_at": "2017-08-23T14:18:18.205Z",
+      "priority": 70
+    },
+    {
+      "name": "gosa-mqtt",
+      "id": 51,
+      "value": "[FILTERED]",
+      "updated_at": "2017-08-23T14:18:18.090Z",
+      "created_at": "2017-08-23T14:18:18.090Z",
+      "priority": 70
+    },
+    {
+      "name": "gosa-server",
+      "id": 50,
+      "value": "[FILTERED]",
+      "updated_at": "2017-08-23T14:18:17.967Z",
+      "created_at": "2017-08-23T14:18:17.967Z",
+      "priority": 70
+    },
+    {
+      "name": "extra-packages",
+      "id": 40,
+      "value": "[FILTERED]",
+      "updated_at": "2017-08-22T13:09:58.534Z",
+      "created_at": "2017-08-22T13:09:58.534Z",
+      "priority": 60
+    },
+    {
+      "name": "time-zone",
+      "id": 2,
+      "value": "[FILTERED]",
+      "updated_at": "2017-08-16T14:23:47.527Z",
+      "created_at": "2017-04-19T11:17:35.785Z",
+      "priority": 0
+    },
+    {
+      "name": "ntp-server",
+      "id": 4,
+      "value": "[FILTERED]",
+      "updated_at": "2017-05-16T08:42:44.345Z",
+      "created_at": "2017-04-19T11:17:57.832Z",
+      "priority": 0
+    },
+    {
+      "name": "lang",
+      "id": 3,
+      "value": "[FILTERED]",
+      "updated_at": "2017-08-18T08:34:34.038Z",
+      "created_at": "2017-04-19T11:17:41.607Z",
+      "priority": 0
+    },
+    {
+      "name": "enable-puppetlabs-pc1-repo",
+      "id": 1,
+      "value": "[FILTERED]",
+      "updated_at": "2017-04-19T11:17:04.307Z",
+      "created_at": "2017-04-19T11:17:04.307Z",
+      "priority": 0
+    }
+  ],
+  "sp_ip": null,
+  "model_name": null,
+  "medium_id": 10,
+  "uuid": "c0e703d7-7bc6-4498-a02e-215de154a8c3",
+  "enabled": true,
+  "build": false,
+  "certname": "dewey-lueders.test.intranet.gonicus.de",
+  "puppet_proxy_id": 1,
+  "architecture_name": "i386",
+  "operatingsystem_id": 1,
+  "puppet_ca_proxy_id": 1,
+  "hostgroup_title": "VM/XFCE",
+  "compute_resource_id": 1,
+  "apiv": "v2",
+  ":host:": {
+    "build": false,
+    "certname": "dewey-lueders.test.intranet.gonicus.de",
+    "disk": "",
+    "global_status": 0,
+    "installed_at": null,
+    "last_report": "[FILTERED]",
+    "provision_method": "build",
+    "uuid": "c0e703d7-7bc6-4498-a02e-215de154a8c3",
+    "compute_profile_id": null,
+    "compute_profile_name": null,
+    "compute_resource_id": 1,
+    "compute_resource_name": "smitty",
+    "owner_id": 6,
+    "owner_type": "User",
+    "capabilities": [
+      "build",
+      "image"
+    ],
+    "comment": "",
+    "enabled": true,
+    "ip": "10.6.66.37",
+    "ip6": "",
+    "last_compile": null,
+    "mac": "52:54:00:42:4d:37",
+    "managed": true,
+    "name": "dewey-lueders.test.intranet.gonicus.de",
+    "pxe_loader": "PXELinux BIOS",
+    "architecture_id": 2,
+    "architecture_name": "i386",
+    "domain_id": 2,
+    "domain_name": "test.intranet.gonicus.de",
+    "environment_id": 1,
+    "environment_name": "production",
+    "hostgroup_id": 6,
+    "hostgroup_name": "XFCE",
+    "medium_id": 10,
+    "medium_name": "go-lts",
+    "model_id": null,
+    "model_name": null,
+    "operatingsystem_id": 1,
+    "operatingsystem_name": "Ubuntu 16.04.3 LTS",
+    "ptable_id": 82,
+    "ptable_name": "Preseed default",
+    "realm_id": 1,
+    "realm_name": "TestGosa",
+    "subnet_id": 1,
+    "subnet_name": "Test LAN",
+    "subnet6_id": null,
+    "subnet6_name": null,
+    "config_groups": [],
+    "interfaces": [
+      {
+        "name": "dewey-lueders.test.intranet.gonicus.de",
+        "mac": "52:54:00:42:4d:37",
+        "id": 114,
+        "identifier": "",
+        "primary": true,
+        "type": "interface",
+        "provision": true,
+        "ip6": "",
+        "ip": "10.6.66.37"
+      }
+    ],
+    "puppetclasses": [],
+    "image_id": null,
+    "image_name": null,
+    "image_file": "",
+    "use_image": null,
+    "puppet_proxy": {
+      "name": "smitty.intranet.gonicus.de",
+      "id": 1,
+      "url": "https://smitty.intranet.gonicus.de:8443"
+    },
+    "puppet_proxy_id": 1,
+    "puppet_proxy_name": "smitty.intranet.gonicus.de",
+    "puppet_ca_proxy": {
+      "name": "smitty.intranet.gonicus.de",
+      "id": 1,
+      "url": "https://smitty.intranet.gonicus.de:8443"
+    },
+    "puppet_ca_proxy_id": 1,
+    "puppet_ca_proxy_name": "smitty.intranet.gonicus.de"
+  }
 }

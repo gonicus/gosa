@@ -212,6 +212,7 @@
       <Attribute>
         <Name>pxe_loader</Name>
         <Type>UnicodeString</Type>
+        <Backend>Foreman</Backend>
         <InheritFrom relation="hostgroup_id">getForemanHostgroup</InheritFrom>
         <Values>
           <Value>PXELinux BIOS</Value>
@@ -399,6 +400,13 @@
           <Value>cn</Value>
         </CommandParameters>
       </Method>
+      <!--<Method>-->
+        <!--<Name>setBuild</Name>-->
+        <!--<Command>buildForemanHost</Command>-->
+        <!--<CommandParameters>-->
+          <!--<Value>dn</Value>-->
+        <!--</CommandParameters>-->
+      <!--</Method>-->
     </Methods>
     <Extends>
       <Value>Device</Value>

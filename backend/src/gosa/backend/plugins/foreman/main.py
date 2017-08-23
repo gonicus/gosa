@@ -11,6 +11,8 @@ import datetime
 import logging
 import uuid
 import sys
+from threading import Thread
+
 import zope
 import socket
 
@@ -27,7 +29,7 @@ from gosa.common.utils import N_, generate_random_key, cache_return
 from gosa.common.components import PluginRegistry
 from gosa.common.gjson import loads, dumps
 from base64 import b64encode as encode
-from gosa.backend.objects.backend.back_foreman import Foreman as ForemanBackend, ForemanClient
+from gosa.backend.objects.backend.back_foreman import Foreman as ForemanBackend, ForemanClient, ForemanBackendException
 
 C.register_codes(dict(
     FOREMAN_UNKNOWN_TYPE=N_("Unknown object type '%(type)s'"),
@@ -420,7 +422,7 @@ class Foreman(Plugin):
                     res[entry[key_name]] = {"value": value_format.format(**entry)}
         return res
 
-    @Command(needsUser=True, __help__=N_("Get discovered hosts as search key(dn): value(cn) pairs."))
+    @Command(__help__=N_("Get discovered hosts as search key(dn): value(cn) pairs."))
     def getForemanDiscoveredHostsForSelection(self, *args):
         index = PluginRegistry.getInstance("ObjectIndex")
 
@@ -428,6 +430,23 @@ class Foreman(Plugin):
             "_type": "Device",
             "extension": "ForemanHost",
             "status": "discovered"
+        }, {"dn": 1, "cn": 1})
+
+        selection_data = {}
+
+        for entry in res:
+            selection_data[entry["dn"]] = {"value": entry["cn"][0]}
+
+        return selection_data
+
+    @Command(__help__=N_("Get foreman hosts as search key(dn): value(cn) pairs."))
+    def getForemanHostsForSelection(self, *args):
+        index = PluginRegistry.getInstance("ObjectIndex")
+
+        res = index.search({
+            "_type": "Device",
+            "extension": "ForemanHost",
+            "not_": {"status": "discovered"}
         }, {"dn": 1, "cn": 1})
 
         selection_data = {}
@@ -479,6 +498,37 @@ class Foreman(Plugin):
         :param power_action: power action, valid actions are (on/start), (off/stop), (soft/reboot), (cycle/reset), (state/status)
         """
         self.__run_host_command(host_id, "power", {"power_action": power_action})
+
+    # @Command(needsUser=True, __help__=N_("Build a foreman host (Warning: deletes and re-creates the host in foreman, all reports are deleted too)."))
+    # def buildForemanHost(self, user, dn):
+    #     host = ObjectProxy(dn)
+    #     if host:
+    #         # get the current settings for the host
+    #         host_data = self.client.get("hosts", id=host.cn)
+    #
+    #         def runner():
+    #             try:
+    #                 # delete the host
+    #                 ForemanRealmReceiver.skip_next_event["delete"] = host.cn
+    #                 ForemanHookReceiver.skip_next_event["after_destroy"] = host.cn
+    #                 self.client.delete("hosts", id=host.cn)
+    #                 # ForemanHookReceiver.skip_next_event["after_create"] = host.cn
+    #                 # re-create the host
+    #                 for prop in ["id", "uuid", "permissions", "created_at", "updated_at", "build_status_label", "global_status_label", "build_status", "global_status"]:
+    #                     del host_data[prop]
+    #
+    #                 for prop in list(host_data):
+    #                     if host_data[prop] is None:
+    #                         del host_data[prop]
+    #
+    #                 print(host_data)
+    #                 self.client.post("hosts", data=host_data)
+    #             except ForemanBackendException as ex:
+    #                 ForemanClient.error_notify_user(ex, user)
+    #                 raise ex
+    #
+    #         thread = Thread(target=runner)
+    #         thread.start()
 
     def __run_host_command(self, host_id, command, data):
         if self.client:
@@ -583,6 +633,7 @@ class ForemanRealmReceiver(object):
     Foreman sends these events whenever a new host is created with gosa-realm provider, or e.g. the hostgroup of an existing host
     has been changed to a hostgroup with gosa-realm provider set.
     """
+    skip_next_event = {}
 
     def __init__(self):
         self.type = N_("Foreman host event")
@@ -593,6 +644,10 @@ class ForemanRealmReceiver(object):
         foreman = PluginRegistry.getInstance("Foreman")
         self.log.debug(request_handler.request.body)
         data = loads(request_handler.request.body)
+
+        if data["action"] in ForemanRealmReceiver.skip_next_event:
+            del ForemanRealmReceiver.skip_next_event[data["action"]]
+            return
 
         # TODO disable hook logging to file
         with open("foreman-log.json", "a") as f:
@@ -628,12 +683,12 @@ class ForemanRealmReceiver(object):
 
 class ForemanHookReceiver(object):
     """ Webhook handler for foreman realm events (Content-Type: application/vnd.foreman.hookevent+json) """
+    skip_next_event = {}
 
     def __init__(self):
         self.type = N_("Foreman hook event")
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
-        self.skip_next_event = {}
 
     def handle_request(self, request_handler):
         foreman = PluginRegistry.getInstance("Foreman")
@@ -644,8 +699,8 @@ class ForemanHookReceiver(object):
         with open("foreman-log.json", "a") as f:
             f.write("%s,\n" % dumps(data, indent=4, sort_keys=True))
 
-        if data["event"] in self.skip_next_event and data["object"] in self.skip_next_event[data["event"]]:
-            self.skip_next_event[data["event"]].remove(data["object"])
+        if data["event"] in ForemanHookReceiver.skip_next_event and data["object"] in ForemanHookReceiver.skip_next_event[data["event"]]:
+            ForemanHookReceiver.skip_next_event[data["event"]].remove(data["object"])
             self.log.info("skipped '%s' event for object: '%s'" % (data["event"], data["object"]))
             return
 
@@ -750,10 +805,10 @@ class ForemanHookReceiver(object):
 
             # because foreman sends the after_commit event after the after_destroy event
             # we need to skip this event, otherwise the host would be re-created
-            if "after_commit" not in self.skip_next_event:
-                self.skip_next_event["after_commit"] = [data['object']]
+            if "after_commit" not in ForemanHookReceiver.skip_next_event:
+                ForemanHookReceiver.skip_next_event["after_commit"] = [data['object']]
             else:
-                self.skip_next_event["after_commit"].append(data['object'])
+                ForemanHookReceiver.skip_next_event["after_commit"].append(data['object'])
 
             # add garbage collection for skip
             sobj = PluginRegistry.getInstance("SchedulerService")
@@ -768,9 +823,9 @@ class ForemanHookReceiver(object):
         ForemanBackend.modifier = None
 
     def cleanup_event_skipper(self, event, id):
-        if event in self.skip_next_event and id in self.skip_next_event[event]:
+        if event in ForemanHookReceiver.skip_next_event and id in ForemanHookReceiver.skip_next_event[event]:
             self.log.warning("'%s' event for object '%s' has been marked for skipping but was never received. Removing the mark now" % (event, id))
-            self.skip_next_event[event].remove(id)
+            ForemanHookReceiver.skip_next_event[event].remove(id)
 
 
 class ForemanException(Exception):

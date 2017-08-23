@@ -15,6 +15,12 @@
     },
     "actions": [
       {
+        "name": "actionBuildHost",
+        "target": "setBuild()",
+        "text": "tr('Build host')",
+        "condition": "status=='ready'"
+      },
+      {
         "name": "actionBootHostFromDisk",
         "target": "bootFromDisk()",
         "text": "tr('Boot host from disk')"
