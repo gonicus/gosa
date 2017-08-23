@@ -34,6 +34,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
     __widget : null,
     __boundAttributes : null,
     __initialized : false,
+    __vulid: null,
 
     /**
      * Connects all widgets that are initialized to their attributes in the object. Skips those that are already
@@ -54,7 +55,10 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
         this.__boundAttributes.push(attributeName);
       }, this);
 
-      gosa.io.Sse.getInstance().addListener("ObjectPropertyValuesChanged", this._onValuesUpdate, this);
+      if (this.__vulid) {
+        gosa.io.Sse.getInstance().removeListenerById(this.__vulid);
+      }
+      this.__vulid = gosa.io.Sse.getInstance().addListener("ObjectPropertyValuesChanged", this._onValuesUpdate, this);
 
       if (!this.__initialized) {
         this.__initialized = true;
@@ -301,6 +305,9 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
     this.__object = null;
     this.__widget = null;
 
-    gosa.io.Sse.getInstance().removeListener("ObjectPropertyValuesChanged", this._onValuesUpdate, this);
+    if (this.__vulid) {
+      gosa.io.Sse.getInstance().removeListenerById(this.__vulid);
+      this.__vulid = null;
+    }
   }
 });
