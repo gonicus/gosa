@@ -291,11 +291,9 @@ class Foreman(Plugin):
                 raise e
 
         self.log.debug(">>> applying data to '%s': %s" % (object_type, update_data))
-        object.apply_data(update_data)
+        object.apply_data(update_data, force_update=True)
         self.log.debug(">>> commiting '%s'" % object_type)
         object.commit()
-        index = PluginRegistry.getInstance("ObjectIndex")
-        index.update(object)
 
     def remove_type(self, object_type, oid):
         ForemanBackend.modifier = "foreman"
