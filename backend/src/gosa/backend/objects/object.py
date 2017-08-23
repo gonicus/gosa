@@ -143,7 +143,7 @@ class Object(object):
             res[level].append(item)
         return res
 
-    def __init__(self, where=None, mode="update", data=None):
+    def __init__(self, where=None, mode="update", data=None, force_update=False):
         self.env = Environment.getInstance()
 
         # Instantiate Backend-Registry
@@ -188,13 +188,13 @@ class Object(object):
                     raise ValueError(C.make_error('CREATE_NEEDS_BASE', "base", location=where))
                 self.orig_dn = self.dn = where
                 if data is not None:
-                    self.apply_data(data)
+                    self.apply_data(data, force_update=force_update)
             else:
                 self._read(where, data=data)
 
         else:
             if data is not None:
-                self.apply_data(data)
+                self.apply_data(data, force_update=force_update)
 
         # Set status to modified for attributes that do not have a value but are
         # mandatory and have a default.
@@ -431,7 +431,7 @@ class Object(object):
             else:
                 self.myProperties[key]['last_value'] = copy.deepcopy(self.myProperties[key]['value'])
 
-    def apply_data(self, data):
+    def apply_data(self, data, force_update=False):
         """
         This method tries to initialize a object instance with the given data using the same process as the ``_read``
         method but without querying the backend but using the given data instead.
@@ -461,7 +461,7 @@ class Object(object):
         self._process_in_filters(keys=found)
 
         # Convert the received type into the target type if not done already
-        self._convert_types(keys=found, keep=self._mode not in ["create", "extend"])
+        self._convert_types(keys=found, keep=self._mode not in ["create", "extend"] or force_update is False)
 
     def _delattr_(self, name):
         """

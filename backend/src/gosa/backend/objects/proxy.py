@@ -225,7 +225,7 @@ class ObjectProxy(object):
         self.populate_to_foreign_properties()
         self.__search_aid = PluginRegistry.getInstance("ObjectIndex").get_search_aid()
 
-    def apply_data(self, data):
+    def apply_data(self, data, force_update=False):
         """
         Apply attribute values as if they were read from each backend.
         If a backend receives data e.g. by hook events there is no need to query the backend again, the received data
@@ -237,7 +237,7 @@ class ObjectProxy(object):
         for extension in data:
             if self.__base_type == extension:
                 self.__log.debug("applying data to base object %s" % extension)
-                self.__base.apply_data(data[extension])
+                self.__base.apply_data(data[extension], force_update=force_update)
             elif extension in self.__extensions:
                 if not self.is_extended_by(extension):
                     self.__log.debug("applying data to new extension object %s" % extension)
@@ -246,10 +246,10 @@ class ObjectProxy(object):
                         for key, value in data[extension]["common"].items():
                             setattr(self, key, value)
                     else:
-                        self.extend(extension, data=data[extension])
+                        self.extend(extension, data=data[extension], force_update=force_update)
                 else:
                     self.__log.debug("applying data to existing extension object %s" % extension)
-                    self.__extensions[extension].apply_data(data[extension])
+                    self.__extensions[extension].apply_data(data[extension], force_update=force_update)
             else:
                 self.__log.warning("unknown extension '%s', skipping data" % extension)
 
@@ -530,7 +530,7 @@ class ObjectProxy(object):
 
         return res
 
-    def extend(self, extension, data=None):
+    def extend(self, extension, data=None, force_update=False):
         """
         Extends the base-object with the given extension
         """
@@ -570,7 +570,7 @@ class ObjectProxy(object):
                 mode = "update"
             self.__log.debug("creating new extension '%s' in '%s' mode%s" % (extension, mode, " with initial data" if data is not None
             else ""))
-            self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid, mode=mode, data=data)
+            self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid, mode=mode, data=data, force_update=force_update)
             self.__extensions[extension].parent = self
             self.__extensions[extension]._owner = self.__current_user
 
