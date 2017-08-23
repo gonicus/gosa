@@ -45,7 +45,10 @@ import getopt
 import socket
 import getpass
 import logging
+# noinspection PyUnresolvedReferences
 import readline #@UnusedImport
+# noinspection PyUnresolvedReferences
+import rlcompleter
 import gettext
 import textwrap
 import locale
@@ -426,17 +429,17 @@ atexit.register(readline.write_history_file, histfile)
 del os, histfile, readline, rlcompleter
 
 for i in gosa.getMethods().keys():
-    globals()[i] = getattr(gosa, i)
+    __builtins__[i] = getattr(gosa, i)
 """
     if service_uri[0:5] == "https":
         startup += """
 # override setTwoFactorMethod as we need the result to e.g. calculate QR-Code or setup U2F
-globals()['setTwoFactorMethod'] = service.setTwoFactorMethod
+__builtins__['setTwoFactorMethod'] = service.setTwoFactorMethod
 """
     else:
         startup += """
 # setTwoFactorMethod not allowed in non https environment
-globals()['setTwoFactorMethod'] = service.twoFactorNotAllowed
+__builtins__['setTwoFactorMethod'] = service.twoFactorNotAllowed
 """
 
     # Use script mode:
