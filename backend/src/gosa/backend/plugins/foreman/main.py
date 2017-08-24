@@ -499,37 +499,6 @@ class Foreman(Plugin):
         """
         self.__run_host_command(host_id, "power", {"power_action": power_action})
 
-    # @Command(needsUser=True, __help__=N_("Build a foreman host (Warning: deletes and re-creates the host in foreman, all reports are deleted too)."))
-    # def buildForemanHost(self, user, dn):
-    #     host = ObjectProxy(dn)
-    #     if host:
-    #         # get the current settings for the host
-    #         host_data = self.client.get("hosts", id=host.cn)
-    #
-    #         def runner():
-    #             try:
-    #                 # delete the host
-    #                 ForemanRealmReceiver.skip_next_event["delete"] = host.cn
-    #                 ForemanHookReceiver.skip_next_event["after_destroy"] = host.cn
-    #                 self.client.delete("hosts", id=host.cn)
-    #                 # ForemanHookReceiver.skip_next_event["after_create"] = host.cn
-    #                 # re-create the host
-    #                 for prop in ["id", "uuid", "permissions", "created_at", "updated_at", "build_status_label", "global_status_label", "build_status", "global_status"]:
-    #                     del host_data[prop]
-    #
-    #                 for prop in list(host_data):
-    #                     if host_data[prop] is None:
-    #                         del host_data[prop]
-    #
-    #                 print(host_data)
-    #                 self.client.post("hosts", data=host_data)
-    #             except ForemanBackendException as ex:
-    #                 ForemanClient.error_notify_user(ex, user)
-    #                 raise ex
-    #
-    #         thread = Thread(target=runner)
-    #         thread.start()
-
     def __run_host_command(self, host_id, command, data):
         if self.client:
             self.client.put("hosts/%s" % host_id, command, data)
