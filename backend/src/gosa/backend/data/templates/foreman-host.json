@@ -15,12 +15,6 @@
     },
     "actions": [
       {
-        "name": "actionBuildHost",
-        "target": "setBuild()",
-        "text": "tr('Build host')",
-        "condition": "status=='ready'"
-      },
-      {
         "name": "actionBootHostFromDisk",
         "target": "bootFromDisk()",
         "text": "tr('Boot host from disk')"
@@ -133,6 +127,28 @@
         },
         {
           "properties": {
+            "text": "tr('Build host')"
+          },
+          "buddyModelPath": "build",
+          "class": "gosa.ui.widgets.QLabelWidget",
+          "addOptions": {
+            "column": 0,
+            "row": 1
+          }
+        },
+        {
+          "class": "gosa.ui.widgets.QCheckBoxWidget",
+          "modelPath": "build",
+          "addOptions": {
+            "column": 1,
+            "row": 1
+          },
+          "properties": {
+            "tabIndex": 3
+          }
+        },
+        {
+          "properties": {
             "text": "tr('Compute resource')"
           },
           "buddyModelPath": "compute_resource_id",
@@ -150,7 +166,7 @@
             "row": 1
           },
           "properties": {
-            "tabIndex": 3,
+            "tabIndex": 4,
             "sortBy": "value"
           }
         }

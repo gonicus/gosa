@@ -259,6 +259,12 @@
       </Attribute>
 
       <Attribute>
+        <Name>build</Name>
+        <Type>Boolean</Type>
+        <Backend>Foreman</Backend>
+      </Attribute>
+
+      <Attribute>
         <Name>name</Name>
         <Type>UnicodeString</Type>
         <Backend>Foreman</Backend>
@@ -400,13 +406,6 @@
           <Value>cn</Value>
         </CommandParameters>
       </Method>
-      <!--<Method>-->
-        <!--<Name>setBuild</Name>-->
-        <!--<Command>buildForemanHost</Command>-->
-        <!--<CommandParameters>-->
-          <!--<Value>dn</Value>-->
-        <!--</CommandParameters>-->
-      <!--</Method>-->
     </Methods>
     <Extends>
       <Value>Device</Value>
