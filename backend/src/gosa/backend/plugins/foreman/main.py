@@ -499,6 +499,20 @@ class Foreman(Plugin):
         """
         self.__run_host_command(host_id, "power", {"power_action": power_action})
 
+    @Command(__help__=N_("Checks if a host supports power operations"))
+    def supportsPower(self, uuid, compute_resource_id):
+        return uuid is not None and compute_resource_id is not None
+
+    @Command(__help__=N_("Get a foreman setting by ID"))
+    def getForemanSetting(self, setting_id):
+        if self.client:
+            try:
+                data = self.client.get("settings", id=setting_id)
+                return data["value"]
+            except ForemanBackendException as e:
+                self.log.error("Error requesting foreman setting %s: %s" % (setting_id, e.message))
+                return None
+
     def __run_host_command(self, host_id, command, data):
         if self.client:
             self.client.put("hosts/%s" % host_id, command, data)

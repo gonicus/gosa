@@ -343,7 +343,7 @@ class ClientService(Plugin):
 
         res = index.search({'_type': 'Device', 'deviceUUID': device_uuid}, {'_uuid': 1})
         if len(res) != 1:
-            raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid))
+            raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid, status_code=404))
         device = ObjectProxy(res[0]['_uuid'])
         r = re.compile(r"([+-].)")
         for stat in r.findall(status):
@@ -570,7 +570,15 @@ class ClientService(Plugin):
             self.__client[client]['online'] = True
 
     def __set_client_offline(self, client, purge=False):
-        self.systemSetStatus(client, "-O+o")
+        try:
+            self.systemSetStatus(client, "-O+o")
+        except ValueError as e:
+            id = C.get_error_id(e)
+            error = C.getError(id, keep=True)
+            if error.status_code == 404:
+                pass
+            else:
+                raise e
 
         if client in self.__client:
             if purge:

@@ -15,39 +15,34 @@
     },
     "actions": [
       {
-        "name": "actionBootHostFromDisk",
-        "target": "bootFromDisk()",
-        "text": "tr('Boot host from disk')"
-      },
-      {
-        "name": "actionBootHostFromPxe",
-        "target": "bootFromPxe()",
-        "text": "tr('Boot host from PXE')"
-      },
-      {
         "name": "actionPowerHostStart",
         "target": "powerOn()",
-        "text": "tr('Power on host')"
+        "text": "tr('Power on host')",
+        "condition": "supportsPower(uuid,compute_resource_id)"
       },
       {
         "name": "actionPowerHostStop",
         "target": "powerOff()",
-        "text": "tr('Power off host')"
+        "text": "tr('Power off host')",
+        "condition": "supportsPower(uuid,compute_resource_id)"
       },
       {
         "name": "actionPowerHostReboot",
         "target": "reboot()",
-        "text": "tr('Reboot host')"
+        "text": "tr('Reboot host')",
+        "condition": "supportsPower(uuid,compute_resource_id)"
       },
       {
         "name": "actionPowerHostReset",
         "target": "reset()",
-        "text": "tr('Reset host')"
+        "text": "tr('Reset host')",
+        "condition": "supportsPower(uuid,compute_resource_id)"
       },
       {
         "name": "doPuppetRun",
         "target": "runPuppet()",
-        "text": "tr('Run puppet agent')"
+        "text": "tr('Run puppet')",
+        "condition": "getForemanSetting('puppetrun')"
       }
     ]
   },

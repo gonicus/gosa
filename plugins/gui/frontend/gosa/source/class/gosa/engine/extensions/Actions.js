@@ -178,27 +178,30 @@ qx.Class.define("gosa.engine.extensions.Actions", {
         }
       }
 
-      // conditions with arguments are rpc; all others are attributes of the object
-      if (parsed[4]) {  // has arguments
+      // conditions with (.*) are rpc; all others are attributes of the object
+      if (parsed[4] || parsed[3] === "()") {
         // method call
 
         // build arguments for rpc call
         var args = [];
-        parsed[4].split(",").forEach(function(arg) {
-          if (arg === "dn") {
-            args.push(context.getActionController().getDn());
-          }
-          else if (arg === "uuid") {
-            args.push(context.getActionController().getUuid());
-          }
-          else if (arg[0] === '"' || arg[0] === "'") {  // argument is a static string
-            args.push(arg.replace(/^["']/, "").replace(/["']$/, ""));
-          }
-          else {  // attributes of object
-            var value = context.getAttributeValue(arg);
-            args.push(value && value.getLength() > 0 ? value.getItem(0) : null);
-          }
-        });
+        if (parsed[4]) {  // has arguments
+          parsed[4].split(",").forEach(function(arg) {
+            arg = arg.trim();
+            if (arg === "dn") {
+              args.push(context.getActionController().getDn());
+            }
+            else if (arg === "uuid") {
+              args.push(context.getActionController().getUuid());
+            }
+            else if (arg[0] === '"' || arg[0] === "'") {  // argument is a static string
+              args.push(arg.replace(/^["']/, "").replace(/["']$/, ""));
+            }
+            else {  // attributes of object
+              var value = context.getActionController().getAttributeValue(arg);
+              args.push(value && value.getLength() > 0 ? value.getItem(0) : null);
+            }
+          });
+        }
 
         // invoke rpc
         var rpc = gosa.io.Rpc.getInstance();

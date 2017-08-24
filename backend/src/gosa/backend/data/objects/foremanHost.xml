@@ -9,7 +9,7 @@
     </Templates>
     <BackendParameters>
       <Backend objectClasses="foremanHost">LDAP</Backend>
-      <Backend type="hosts" _uuidAttribute="cn" _uuidSourceAttribute="name" mapping="mac:macAddress,ip:ipHostNumber,uuid:deviceUUID"
+      <Backend type="hosts" _uuidAttribute="cn" _uuidSourceAttribute="name" mapping="mac:macAddress,ip:ipHostNumber"
                needs="status">Foreman</Backend>
       <Backend groupMembership="ForemanHostGroup:foremanGroupId,member=dn">ObjectHandler</Backend>
     </BackendParameters>
@@ -24,6 +24,9 @@
       </ForeignAttribute>
       <ForeignAttribute>
           <Name>macAddress</Name>
+      </ForeignAttribute>
+      <ForeignAttribute>
+        <Name>macAddress</Name>
       </ForeignAttribute>
       <Attribute>
         <Name>status</Name>
@@ -265,6 +268,12 @@
       </Attribute>
 
       <Attribute>
+        <Name>uuid</Name>
+        <Type>UnicodeString</Type>
+        <Backend>Foreman</Backend>
+      </Attribute>
+
+      <Attribute>
         <Name>name</Name>
         <Type>UnicodeString</Type>
         <Backend>Foreman</Backend>
@@ -404,6 +413,28 @@
         <Command>doPuppetRun</Command>
         <CommandParameters>
           <Value>cn</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
+        <Name>puppetRunEnabled</Name>
+        <Command>getForemanSetting</Command>
+        <MethodParameters>
+          <MethodParameter>
+            <Name>settingId</Name>
+            <Type>UnicodeString</Type>
+            <Default>puppetrun</Default>
+          </MethodParameter>
+        </MethodParameters>
+        <CommandParameters>
+          <Value>settingId</Value>
+        </CommandParameters>
+      </Method>
+      <Method>
+        <Name>supportsPower</Name>
+        <Command>supportsPower</Command>
+        <CommandParameters>
+          <Value>uuid</Value>
+          <Value>compute_resource_id</Value>
         </CommandParameters>
       </Method>
     </Methods>
