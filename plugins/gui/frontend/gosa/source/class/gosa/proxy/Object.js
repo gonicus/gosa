@@ -24,6 +24,8 @@ qx.Class.define("gosa.proxy.Object", {
     this._listeners.push(gosa.io.Sse.getInstance().addListener("objectRemoved", this._objectEvent, this));
     this._listeners.push(gosa.io.Sse.getInstance().addListener("objectMoved", this._objectEvent, this));
     this._listeners.push(gosa.io.Sse.getInstance().addListener("objectClosing", this._objectClosingEvent, this));
+
+    this.debouncedMergeChanges = qx.util.Function.debounce(this.mergeChanges, 250, false);
   },
 
   destruct : function(){
@@ -142,7 +144,7 @@ qx.Class.define("gosa.proxy.Object", {
           if(!this.isUiBound()){
             this.reload();
           } else {
-            this.mergeChanges();
+            this.debouncedMergeChanges();
           }
         }
       }
