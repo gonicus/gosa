@@ -584,7 +584,7 @@ class ObjectIndex(Plugin):
             # send the event to the clients
             e = EventMaker()
 
-            if event.reason[0:4] == "post" and _uuid and _dn and change_type:
+            if event.reason[0:4] == "post" and _uuid and _dn and change_type and len(event.changed_props):
 
                 ev = e.Event(e.ObjectChanged(
                     e.UUID(_uuid),
@@ -592,10 +592,10 @@ class ObjectIndex(Plugin):
                     e.ModificationTime(_last_changed.strftime("%Y%m%d%H%M%SZ")),
                     e.ChangeType(change_type)
                 ))
-                event = "<?xml version='1.0'?>\n%s" % etree.tostring(ev, pretty_print=True).decode('utf-8')
+                event_string = "<?xml version='1.0'?>\n%s" % etree.tostring(ev, pretty_print=True).decode('utf-8')
 
                 # Validate event
-                xml = objectify.fromstring(event, PluginRegistry.getEventParser())
+                xml = objectify.fromstring(event_string, PluginRegistry.getEventParser())
 
                 SseHandler.notify(xml, channel="broadcast")
 
