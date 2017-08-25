@@ -84,7 +84,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
 
       // condition
       if (data.hasOwnProperty("condition")) {
-        button.addListenerOnce("appear", function() {
+        button.addListener("appear", function() {
           this._checkCondition(data.condition, context).then(function(result) {
             button.setEnabled(result);
           });
@@ -122,7 +122,51 @@ qx.Class.define("gosa.engine.extensions.Actions", {
      */
     _checkCondition : function(condition, context) {
       qx.core.Assert.assertString(condition);
+      var res;
+      var promises = [];
 
+      if (condition.indexOf("&&") >= 0) {
+        return new qx.Promise(function(resolve, reject) {
+          res = true;
+
+          condition.split("&&").forEach(function(part) {
+            promises.push(this._checkConditionPart(part.trim(), context));
+          }, this);
+
+          qx.Promise.all(promises).then(function(results) {
+            results.some(function(val) {
+              if (val === false) {
+                res = false;
+                resolve(false);
+              }
+            });
+            resolve(true);
+          }).catch(reject);
+        }, this);
+      } else if (condition.indexOf("||") >= 0) {
+        return new qx.Promise(function(resolve, reject) {
+          res = false;
+
+          condition.split("||").forEach(function(part) {
+            promises.push(this._checkConditionPart(part.trim(), context));
+          }, this);
+
+          qx.Promise.all(promises).then(function(results) {
+            results.some(function(val) {
+              if (val === true) {
+                res = true;
+                resolve(true);
+              }
+            });
+            resolve(false);
+          }).catch(reject);
+        }, this);
+      } else {
+        return this._checkConditionPart(condition, context);
+      }
+    },
+
+    _checkConditionPart: function(condition, context) {
       // get configuration for condition rpc
       var parser = /^(!)?([^(!=]*)(\((.*)\))?([!=]*)(.*)$/;
       var parsed = parser.exec(condition);
