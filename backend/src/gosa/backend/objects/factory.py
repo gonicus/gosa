@@ -1140,7 +1140,7 @@ class ObjectFactory(object):
                     raise FactoryException(C.make_error("FACTORY_INVALID_METHOD_DEPENDS", method=command, attribute=value))
 
             cr = PluginRegistry.getInstance('CommandRegistry')
-            self.log.info("Executed %s.%s which invoked %s(...)" % (klass.__name__, methodName, command))
+            self.log.info("Executed %s.%s which invoked %s(%s)" % (klass.__name__, methodName, command, parmList))
 
             # Do we need a user / session_id specification?
             if needsUser:
