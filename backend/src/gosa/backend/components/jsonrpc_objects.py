@@ -293,10 +293,12 @@ class JSONRPCObjectMapper(Plugin):
         # Load cache object
         cache_obj = item['object']['object']
 
+        apply_directly = {}
         ##
         ## Generate delta
         ##
-        delta = {'attributes': {'added': {}, 'removed': [], 'changed': {}, 'blocked_by': {}}, 'extensions': {'added': [], 'removed': []}}
+        delta = {'attributes': {'added': {}, 'removed': [], 'changed': {}, 'blocked_by': {}, 'merge_silently': []},
+                 'extensions': {'added': [], 'removed': []}}
 
         if item['object']['oid'] == "object":
             # Compare extension list
@@ -309,12 +311,15 @@ class JSONRPCObjectMapper(Plugin):
                     delta['extensions']['removed'].append(_e)
 
         # Compare attribute contents
+        current_attr_values = current_obj.get_attribute_values()
         if flip_comparison is True:
-            cche_attributes = dict(filter(lambda x: x[1] is not None, current_obj.get_attribute_values()['value'].items()))
+            cche_attributes = dict(filter(lambda x: x[1] is not None, current_attr_values['value'].items()))
             crnt_attributes = dict(filter(lambda x: x[1] is not None, cache_obj.get_attribute_values()['value'].items()))
         else:
-            crnt_attributes = dict(filter(lambda x: x[1] is not None, current_obj.get_attribute_values()['value'].items()))
+            crnt_attributes = dict(filter(lambda x: x[1] is not None, current_attr_values['value'].items()))
             cche_attributes = dict(filter(lambda x: x[1] is not None, cache_obj.get_attribute_values()['value'].items()))
+
+        saveable_attributes = dict(filter(lambda x: x[1] is not None, current_attr_values['saveable'].items()))
 
         all_attributes = []
         for _k, _v in crnt_attributes.items():
@@ -322,14 +327,16 @@ class JSONRPCObjectMapper(Plugin):
                 if _v != cche_attributes[_k]:
                     delta['attributes']['changed'][_k] = _v
                     all_attributes.append(_k)
+
             else:
                 delta['attributes']['added'][_k] = _v
                 all_attributes.append(_k)
 
         if item['object']['oid'] == "object":
             for _k, _v in cche_attributes.items():
+                extension = current_obj.get_extension_off_attribute(_k)
                 # Don't add the individual attributes of extensions that are removed anyway
-                if current_obj.get_extension_off_attribute(_k) in delta['extensions']['removed']:
+                if extension in delta['extensions']['removed']:
                     continue
                 if not _k in crnt_attributes:
                     delta['attributes']['removed'].append(_k)
@@ -339,6 +346,25 @@ class JSONRPCObjectMapper(Plugin):
             details = current_obj.get_attributes(detail=True)
             for attribute_name in all_attributes:
                 delta['attributes']['blocked_by'][attribute_name] = list(map(lambda x: x['name'], details[attribute_name]['blocked_by']))
+
+                # check for non-saveable attributes which can be merged silently
+                if attribute_name in saveable_attributes and saveable_attributes[attribute_name] is False:
+                    delta['attributes']['merge_silently'].append(attribute_name)
+
+                    # update currently opened object too (only changed cause extensions removal/adding can't be merged silently)
+                    if attribute_name in delta["attributes"]["changed"]:
+                        extension = current_obj.get_extension_off_attribute(attribute_name)
+                        if extension not in apply_directly:
+                            apply_directly[extension] = {}
+                        apply_directly[extension][attribute_name] = delta["attributes"]["changed"][attribute_name]
+                    elif attribute_name in delta["attributes"]["added"]:
+                        extension = current_obj.get_extension_off_attribute(attribute_name)
+                        if extension not in apply_directly:
+                            apply_directly[extension] = {}
+                        apply_directly[extension][attribute_name] = delta["attributes"]["added"][attribute_name]
+
+        if len(apply_directly.keys()):
+            cache_obj.apply_data(apply_directly, raw=False)
 
         return delta
 

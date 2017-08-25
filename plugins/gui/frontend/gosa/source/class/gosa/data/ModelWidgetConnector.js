@@ -171,12 +171,14 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
       if (reference_value !== null) {
         gosa.io.Rpc.getInstance().cA("**" + config["rpc"], reference_value).then(function(values) {
           if (values[attributeName]) {
+            this.__object.setWriteAttributeUpdates(false);
             if (widget.setWidgetValue) {
               widget.setWidgetValue(0, values[attributeName]);
             }
             else {
               widget.setValue(new qx.data.Array([values[attributeName]]));
             }
+            this.__object.setWriteAttributeUpdates(true);
           }
         }, this);
       }
@@ -199,9 +201,11 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
       gosa.io.Rpc.getInstance().cA("**"+rpcMethod, data).then(function(suggestions) {
         widget.setValues(suggestions);
         if (oldValue && suggestions.hasOwnProperty(oldValue) || qx.lang.Type.isArray(suggestions) && qx.lang.Array.contains(suggestions, oldValue)) {
+          this.__object.setWriteAttributeUpdates(false);
           widget.setWidgetValue(0, oldValue);
+          this.__object.setWriteAttributeUpdates(true);
         }
-      });
+      }, this);
     },
 
     /**
@@ -212,6 +216,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
     _onValuesUpdate: function(ev) {
       var data = ev.getData();
       if (this.__object.uuid === data.UUID || this.__object.dn === data.DN) {
+        this.__object.setWriteAttributeUpdates(false);
         data.Change.forEach(function(change) {
           var widget = this.__findWidgets(change.PropertyName).widget;
           var oldValue = widget.getValue() instanceof qx.data.Array && widget.getValue().getLength() > 0
@@ -223,6 +228,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
             widget.setWidgetValue(0, oldValue);
           }
         }, this);
+        this.__object.setWriteAttributeUpdates(true);
       }
     },
 

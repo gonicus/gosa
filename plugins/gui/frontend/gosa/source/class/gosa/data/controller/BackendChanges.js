@@ -49,9 +49,9 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
       var data = event.getData();
       this.__widgetConfigurations = [];
 
-      this.__processChanges(data.attributes.changed);
-      this.__processRemoved(data.attributes.removed);
-      this.__processChanges(data.attributes.added);
+      this.__processChanges(data.attributes.changed, data.attributes.merge_silently);
+      this.__processRemoved(data.attributes.removed, data.attributes.merge_silently);
+      this.__processChanges(data.attributes.added, data.attributes.merge_silently);
       this.__processExtensions(data.extensions);
 
       if (data.extensions.removed.length > 0) {
@@ -66,8 +66,10 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
           // just update the widgets
           for (var attrName in this.__modifiedValues) {
             var widget = this.__controller.getWidgetByAttributeName(attrName);
+            this.__obj.setWriteAttributeUpdates(false);
             widget.setValue(this.__modifiedValues[attrName]);
             this.__setAttributeValue(attrName, this.__modifiedValues[attrName]);
+
           }
         }
       }
@@ -142,7 +144,7 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
     /**
      * @param changes {Map} Hash map with changes/additions to the model (key is attribute name, value is the new value)
      */
-    __processChanges : function(changes) {
+    __processChanges : function(changes, silently) {
       qx.core.Assert.assertMap(changes);
 
       var widget, newVal;
@@ -155,9 +157,15 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
           widget = this.__controller.getWidgetByAttributeName(attributeName);
 
           if (widget) {
-            this.__modifiedValues[attributeName] = newVal;
-            var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
-            this.__widgetConfigurations.push(mergeWidgets);
+            if (silently && silently.indexOf(attributeName) >= 0) {
+              this.__obj.setWriteAttributeUpdates(false);
+              widget.setValue(newVal);
+              this.__setAttributeValue(attributeName, newVal);
+            } else {
+              this.__modifiedValues[attributeName] = newVal;
+              var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
+              this.__widgetConfigurations.push(mergeWidgets);
+            }
           }
           else {
             this.__setAttributeValue(attributeName, newVal);
@@ -169,10 +177,13 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
     /**
      * @param removed {Array} List of names of the attributes that are removed
      */
-    __processRemoved : function(removed) {
+    __processRemoved : function(removed, silently) {
       qx.core.Assert.assertArray(removed);
       removed.forEach(function(attributeName) {
-        var widget = this.__controller.getWidgetByAttributeName(attributeName);
+        var widget;
+        if (!silently || silently.indexOf(attributeName) === -1) {
+          widget = this.__controller.getWidgetByAttributeName(attributeName);
+        }
         var newVal = new qx.data.Array();
 
         if (widget) {

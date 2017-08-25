@@ -225,7 +225,7 @@ class ObjectProxy(object):
         self.populate_to_foreign_properties()
         self.__search_aid = PluginRegistry.getInstance("ObjectIndex").get_search_aid()
 
-    def apply_data(self, data, force_update=False):
+    def apply_data(self, data, force_update=False, raw=True):
         """
         Apply attribute values as if they were read from each backend.
         If a backend receives data e.g. by hook events there is no need to query the backend again, the received data
@@ -233,11 +233,16 @@ class ObjectProxy(object):
 
         :param data: dict with {extension_name: { backend_name: { attribute_name: value, ...}, ...}, ...}
         :type data: dict
+        :param force_update: force the object to mark the attributes as changed
+        :type force_update: boolean
+        :param raw: if true the values in data like they are read directly from the backend and therefore need the in-filters and type
+                    conversion applied, otherwise those are skipped
+        :type raw: boolean
         """
         for extension in data:
             if self.__base_type == extension:
                 self.__log.debug("applying data to base object %s" % extension)
-                self.__base.apply_data(data[extension], force_update=force_update)
+                self.__base.apply_data(data[extension], force_update=force_update, raw=raw)
             elif extension in self.__extensions:
                 if not self.is_extended_by(extension):
                     self.__log.debug("applying data to new extension object %s" % extension)
@@ -249,7 +254,7 @@ class ObjectProxy(object):
                         self.extend(extension, data=data[extension], force_update=force_update)
                 else:
                     self.__log.debug("applying data to existing extension object %s" % extension)
-                    self.__extensions[extension].apply_data(data[extension], force_update=force_update)
+                    self.__extensions[extension].apply_data(data[extension], force_update=force_update, raw=raw)
             else:
                 self.__log.warning("unknown extension '%s', skipping data" % extension)
 
@@ -502,16 +507,20 @@ class ObjectProxy(object):
         """
         Return a dictionary containing all property values.
         """
-        res = {'value': {}, 'values': {}}
+        res = {'value': {}, 'values': {}, 'saveable': {}}
         for item in self.get_attributes():
             if self.__base_type == self.__attribute_type_map[item]:
                 res['value'][item] = getattr(self, item)
+                res['saveable'][item] = self.__base.getProperties()[item]['readonly'] is False and \
+                                        ('skip_save' not in self.__base.getProperties()[item] or self.__base.getProperties()[item]['skip_save'] is False)
                 if self.__base.getProperties()[item]['values_populate']:
                     res['values'][item] = self.__base.getProperties()[item]['values']
             elif self.__extensions[self.__attribute_type_map[item]]:
                 res['value'][item] = getattr(self, item)
-                if self.__extensions[self.__attribute_type_map[item]].getProperties()[item]['values_populate']:
-                    res['values'][item] = self.__extensions[self.__attribute_type_map[item]].getProperties()[item]['values']
+                map = self.__extensions[self.__attribute_type_map[item]].getProperties()[item]
+                res['saveable'][item] = map['readonly'] is False and ('skip_save' not in map or map['skip_save'] is False)
+                if map['values_populate']:
+                    res['values'][item] = map['values']
 
         return res
 
@@ -936,7 +945,19 @@ class ObjectProxy(object):
 
             zope.event.notify(ObjectChanged("post object move", self.__base))
 
-        zope.event.notify(ObjectChanged("post object %s" % self.__base_mode, self.__base))
+        changed_props = []
+        if self.__base_mode == "update":
+            for name, settings in save_props.items():
+                if not self.__is_equal(settings['value'] , settings['orig_value']):
+                    print("%s changed from %s to %s" % (name, settings['orig_value'], settings['value']))
+                    changed_props.append(name)
+            # changed_props = [name for name, settings in save_props.items() if not self.__is_equal(settings['value'] , settings['orig_value'])]
+            # print(changed_props)
+
+        zope.event.notify(ObjectChanged("post object %s" % self.__base_mode, self.__base, changed_props=changed_props))
+
+    def __is_equal(self, val1, val2):
+        return (val1 is None or val1 == []) and (val2 is None or val2 == []) or val1 == val2
 
     def __getattr__(self, name):
 

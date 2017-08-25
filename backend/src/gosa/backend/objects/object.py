@@ -431,37 +431,52 @@ class Object(object):
             else:
                 self.myProperties[key]['last_value'] = copy.deepcopy(self.myProperties[key]['value'])
 
-    def apply_data(self, data, force_update=False):
+    def apply_data(self, data, force_update=False, raw=True):
         """
         This method tries to initialize a object instance with the given data using the same process as the ``_read``
         method but without querying the backend but using the given data instead.
 
         :param data: dict with { backend_name: {attribute_name: value}, ...}
+        :param force_update: force the object to mark the attributes as changed
+        :param raw: if true the values in data like they are read directly from the backend and therefore need the in-filters and type
+                    conversion applied, otherwise those are skipped
         """
         found = []
-        for backend in data:
-            be = ObjectBackendRegistry.getBackend(backend)
-            attrs = be.process_data(data[backend], self._propsByBackend[backend])
-            self.log.debug("processing data '%s' through backend %s resulted in: %s" % (data, backend, attrs))
+        keep = self._mode not in ["create", "extend"] or force_update is False
+        if raw is True:
+            for backend in data:
+                be = ObjectBackendRegistry.getBackend(backend)
+                attrs = be.process_data(data[backend], self._propsByBackend[backend])
+                self.log.debug("processing data '%s' through backend %s resulted in: %s" % (data, backend, attrs))
 
-            if attrs is not None:
-                # Assign fetched value to the properties.
-                for key in self._propsByBackend[backend]:
+                if attrs is not None:
+                    # Assign fetched value to the properties.
+                    for key in self._propsByBackend[backend]:
 
-                    if key not in attrs:
-                        self.log.debug("attribute '%s' was not included in data" % key)
-                        continue
+                        if key not in attrs:
+                            self.log.debug("attribute '%s' was not included in data" % key)
+                            continue
 
-                    found.append(key)
-                    # Keep original values, they may be overwritten in the in-filters.
-                    self.myProperties[key]['in_value'] = self.myProperties[key]['value'] = attrs[key]
-                    self.log.debug("%s: %s" % (key, self.myProperties[key]['value']))
+                        found.append(key)
+                        # Keep original values, they may be overwritten in the in-filters.
+                        self.myProperties[key]['in_value'] = self.myProperties[key]['value'] = attrs[key]
+                        self.log.debug("%s: %s" % (key, self.myProperties[key]['value']))
 
-        # Once we've loaded all properties from the backend, execute the in-filters.
-        self._process_in_filters(keys=found)
 
-        # Convert the received type into the target type if not done already
-        self._convert_types(keys=found, keep=self._mode not in ["create", "extend"] or force_update is False)
+            # Once we've loaded all properties from the backend, execute the in-filters.
+            self._process_in_filters(keys=found)
+
+            # Convert the received type into the target type if not done already
+            self._convert_types(keys=found, keep=keep)
+        else:
+            # just apply the values (this is usually used by object diffing, when there are changes in attributes which are
+            # readonly or marked as skip_save. These can be merged silently in opened objects. The diffObject Methods
+            # applies these values directly to the opened object
+            for key in data:
+                if key in self.myProperties:
+                    value = [data[key]] if data[key] is not None else []
+                    self.myProperties[key]['in_value'] = self.myProperties[key]['orig_value'] = self.myProperties[key]['value'] = value
+                    print("directly applying %s: %s" % (key, value))
 
     def _delattr_(self, name):
         """
@@ -1560,12 +1575,13 @@ class IAttributeChanged(Interface):  # pragma: nocover
 @implementer(IObjectChanged)
 class ObjectChanged(object):
 
-    def __init__(self, reason, obj=None, dn=None, uuid=None, orig_dn=None, o_type=None):
+    def __init__(self, reason, obj=None, dn=None, uuid=None, orig_dn=None, o_type=None, changed_props=None):
         self.reason = reason
         self.uuid = uuid or obj.uuid
         self.dn = dn or obj.dn
         self.orig_dn = orig_dn or obj.orig_dn
         self.o_type = o_type or obj.__class__.__name__
+        self.changed_props = changed_props if changed_props is not None else []
 
 @implementer(IAttributeChanged)
 class AttributeChanged(object):
