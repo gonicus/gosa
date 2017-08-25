@@ -31,6 +31,7 @@ class MockResponse:
     def __init__(self, json_data, status_code):
         self.json_data = json_data
         self.status_code = status_code
+        self.cookies = {}
 
     def json(self):
         if isinstance(self.json_data, dict):
