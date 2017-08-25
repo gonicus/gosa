@@ -37,12 +37,13 @@ class SseHandler(HSTSRequestHandler):
     _channels = {}
     _cache = []
     _cache_size = 200
+    log = logging.getLogger(__name__)
 
     def __init__(self, application, request, **kwargs):
         super(SseHandler, self).__init__(application, request, **kwargs)
         self.stream = request.connection.stream
         self._closed = False
-        self.log = logging.getLogger(__name__)
+
         self.channels = []
 
     def initialize(self):
@@ -72,7 +73,7 @@ class SseHandler(HSTSRequestHandler):
         """ Invoked for a new connection opened. """
         cls = self.__class__
 
-        self.log.info('Incoming connection %s to channels "%s"' % (self.connection_id, ', '.join(self.channels)))
+        SseHandler.log.info('Incoming connection %s to channels "%s"' % (self.connection_id, ', '.join(self.channels)))
         cls._connections[self.connection_id] = self
         # send something to the client to let it know that the connection has been established
         self.on_message("ping")
@@ -86,7 +87,7 @@ class SseHandler(HSTSRequestHandler):
 
         event_id = self.request.headers.get('Last-Event-ID', None)
         if event_id:
-            self.log.debug('Client %s last event ID: %s' % (self.connection_id, event_id))
+            SseHandler.log.debug('Client %s last event ID: %s' % (self.connection_id, event_id))
             i = 0
             for i, msg in enumerate(cls._cache):
                 if msg['id'] == event_id:
@@ -101,7 +102,7 @@ class SseHandler(HSTSRequestHandler):
         cls = self.__class__
 
         if self.connection_id in cls._connections:
-            self.log.info('Connection %s is closed' % self.connection_id)
+            SseHandler.log.info('Connection %s is closed' % self.connection_id)
             del cls._connections[self.connection_id]
 
         for channel in self.channels:
@@ -256,7 +257,7 @@ class SseHandler(HSTSRequestHandler):
         else:
             clients = cls._channels.get(channel, [])
 
-        logging.info('Sending %s "%s" in channel %s (session: %s) to %s clients' % (topic, msg, channel, session_id, len(clients)))
+        cls.log.info('Sending %s "%s" in channel %s (session: %s) to %s clients' % (topic, msg, channel, session_id, len(clients)))
         for client_id in clients:
             client = cls._connections[client_id]
             client.on_message(message)
