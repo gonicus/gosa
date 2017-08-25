@@ -76,8 +76,8 @@ qx.Class.define("gosa.ui.widgets.QTableWidgetWidget", {
       else {
         this.__createSingleValueWidget();
       }
-      this.__widget.addListener("changeValue", this.__onWidgetChangeValue, this);
       this.__bindAttributesToWidget();
+      this.__widget.addListener("changeValue", this.__onWidgetChangeValue, this);
       this.contents.add(this.__widget, {left: 0, right: 0, bottom: 37, top: 0});
     },
 

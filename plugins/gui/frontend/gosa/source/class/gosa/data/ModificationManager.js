@@ -119,7 +119,7 @@ qx.Class.define("gosa.data.ModificationManager", {
           attr = this.__watchedAttributes[attributeName];
           current = this.__object.get(attributeName);
 
-          if (attr.getLength() !== current.getLength() && !current.every(function(v) { return v === ""; })) {
+          if (attr.getLength() !== current.getLength() && !current.every(function(v) { return v === "" || v === null || v === undefined; })) {
             this.setModified(true);
             return;
           }

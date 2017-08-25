@@ -21,7 +21,8 @@ qx.Class.define("gosa.data.controller.BaseObjectEdit", {
     modified : {
       check : "Boolean",
       init : false,
-      event : "changeModified"
+      event : "changeModified",
+      apply: "_applyModified"
     },
 
     valid : {
@@ -33,6 +34,10 @@ qx.Class.define("gosa.data.controller.BaseObjectEdit", {
 
   members : {
    _widget: null,
+
+    _applyModified: function(value) {
+      console.trace(value);
+    },
 
     /**
      * @param attributeName {String}
