@@ -157,18 +157,22 @@ class MQTTClient(object):
 
     def __on_message(self, client, userdata, message):
         payload = loads(message.payload)
-        if self.__sender_id is not None and payload['sender_id'] == self.__sender_id:
-            # skip own messages
-            return
+        if isinstance(payload, dict) and "content" in payload:
+            content = payload["content"]
+            if self.__sender_id is not None and 'sender_id' in payload and payload['sender_id'] == self.__sender_id:
+                # skip own messages
+                return
+        else:
+            content = payload
 
         subs = self.get_subscriptions(message.topic)
         for sub in subs:
             if sub['sync'] is True:
                 self.log.debug("incoming message for synced topic %s" % message.topic)
-                self.__sync_message_queues[message.topic].put(payload['content'])
+                self.__sync_message_queues[message.topic].put(content)
             if 'callback' in sub and sub['callback'] is not None:
                 callback = sub['callback']
-                callback(message.topic, payload['content'])
+                callback(message.topic, content)
         if len(subs) == 0:
             self.log.warning("Incoming message for unhandled topic '%s'" % message.topic)
 
@@ -214,7 +218,11 @@ class MQTTClient(object):
         Set a Will to be sent to the broker. If the client disconnects without calling disconnect(),
         the broker will publish the message on its behalf.
         """
-        self.client.will_set(topic, dumps(message), qos, retain)
+        payload = {
+            "content": message,
+            "sender_id": self.__sender_id
+        }
+        self.client.will_set(topic, dumps(payload), qos, retain)
 
     def __on_publish(self, client, userdata, mid):
         if mid in self.__published_messages:
