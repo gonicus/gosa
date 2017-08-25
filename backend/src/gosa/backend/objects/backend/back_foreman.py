@@ -243,11 +243,18 @@ class Foreman(ObjectBackend):
 class ForemanClient(object):
     """Client for the Foreman REST-API v2"""
     headers = {'Accept': 'version=2,application/json', 'Content-type': 'application/json'}
+    __cookies = None
 
     def __init__(self, url=None):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.foreman_host = self.env.config.get("foreman.host") if url is None else url
+
+    def __authenticate(self, method, url, kwargs):
+        kwargs["auth"] = HTTPBasicAuth(self.env.config.get("foreman.user"), self.env.config.get("foreman.password"))
+        response = method(url, **kwargs)
+        self.__cookies = response.cookies
+        return response
 
     def __request(self, method_name, type, id=None, data=None):
         if self.foreman_host is None:
@@ -260,11 +267,21 @@ class ForemanClient(object):
         method = getattr(requests, method_name)
         data = dumps(data) if data is not None else None
         self.log.debug("sending %s request with %s to %s" % (method_name, data, url))
-        response = method(url,
-                          headers=self.headers,
-                          verify=self.env.config.get("foreman.verify", "true") == "true",
-                          auth=HTTPBasicAuth(self.env.config.get("foreman.user"), self.env.config.get("foreman.password")),
-                          data=data)
+        kwargs = {
+            "headers": self.headers,
+            "verify": self.env.config.get("foreman.verify", "true") == "true",
+            "data": data,
+            "cookies": self.__cookies
+        }
+        if self.__cookies is None:
+            response = self.__authenticate(method, url, kwargs)
+        else:
+            response = method(url, **kwargs)
+
+        if response.status_code == 401 and self.__cookies is not None:
+            # try to re-authenticate session might be timed out
+            response = self.__authenticate(method, url, kwargs)
+
         if response.ok:
             data = response.json()
             self.log.debug("response %s" % data)
@@ -295,7 +312,7 @@ class ForemanClient(object):
     def post(self, type, id=None, data=None):
         return self.__request("post", type, id=id, data=data)
 
-    def set_common_parameter(self, name, value, host=None):
+    def set_common_parameter(self, name, value, host=None, replace=True):
         foreman_type = "common_parameter" if host is None else "parameter"
         payload = {
             foreman_type: {
@@ -311,7 +328,7 @@ class ForemanClient(object):
                 # create parameter
                 self.post(path, data=payload)
         else:
-            if 'value' not in response or response["value"] != payload[foreman_type]["value"]:
+            if 'value' not in response or (response["value"] != payload[foreman_type]["value"] and replace is False):
                 # update parameter
                 self.put(path, id=name, data=payload)
 
