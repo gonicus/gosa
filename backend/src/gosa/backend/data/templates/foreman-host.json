@@ -7,7 +7,10 @@
   },
   "extensions": {
     "resources": {
-      "favicon": "@Ligature/tag"
+      "favicon": "@Ligature/pc",
+      "actionPowerHostStop": "@Ligature/off",
+      "actionPowerHostReboot": "@Ligature/refresh",
+      "actionPowerHostReset": "@Ligature/clear"
     },
     "tabConfig": {
       "title": "tr('Deployment')",
@@ -17,26 +20,15 @@
       {
         "name": "actionPowerHostStart",
         "target": "powerOn()",
-        "text": "tr('Power on host')",
-        "condition": "supportsPower(uuid,compute_resource_id)"
+        "text": "tr('Power on')",
+        "condition": "status_Offline && supportsPower(uuid,compute_resource_id)"
       },
       {
         "name": "actionPowerHostStop",
         "target": "powerOff()",
-        "text": "tr('Power off host')",
-        "condition": "supportsPower(uuid,compute_resource_id)"
-      },
-      {
-        "name": "actionPowerHostReboot",
-        "target": "reboot()",
-        "text": "tr('Reboot host')",
-        "condition": "supportsPower(uuid,compute_resource_id)"
-      },
-      {
-        "name": "actionPowerHostReset",
-        "target": "reset()",
-        "text": "tr('Reset host')",
-        "condition": "supportsPower(uuid,compute_resource_id)"
+        "icon": "actionPowerHostOff",
+        "text": "tr('Power off')",
+        "condition": "status_Online && supportsPower(uuid,compute_resource_id)"
       },
       {
         "name": "doPuppetRun",

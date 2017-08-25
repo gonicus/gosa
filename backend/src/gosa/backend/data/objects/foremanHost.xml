@@ -349,7 +349,7 @@
         </CommandParameters>
       </Method>
       <Method>
-        <Name>poweroff</Name>
+        <Name>powerOff</Name>
         <Command>powerHost</Command>
         <MethodParameters>
           <MethodParameter>
