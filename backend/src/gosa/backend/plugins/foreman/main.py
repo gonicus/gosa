@@ -11,7 +11,6 @@ import datetime
 import logging
 import uuid
 import sys
-from threading import Thread
 
 import zope
 import socket
@@ -586,27 +585,34 @@ class Foreman(Plugin):
         if hostname in self.__marked_hosts and self.__marked_hosts[hostname]["use_id"] is not None:
             id = self.__marked_hosts[hostname]["use_id"]
         if hostname is not None:
-            self.__write_host_parameters(hostname, use_id=id)
+            self.write_parameters(hostname, use_id=id)
             if hostname in self.__marked_hosts:
                 del self.__marked_hosts[hostname]
         else:
             if len(self.__marked_hosts.keys()) == 0:
                 return
 
-            for hostname, status in self.__marked_hosts.items():
+            for hostname in list(self.__marked_hosts):
                 try:
-                    self.__write_host_parameters(hostname, use_id=status["use_id"] if "use_id" in status else None)
+                    status = self.__marked_hosts[hostname]
+                    self.write_parameters(hostname, use_id=status["use_id"] if "use_id" in status else None)
                 except:
                     pass
 
-    def write_host_parameters(self, hostname, use_id=None):
+    def write_parameters(self, hostname=None, use_id=None):
+        """
+        Write foreman parameters either global if no hostname/use_id is given or as host parameter
+
+        :param hostname: host name (optional)
+        :param use_id: host ID (optional)
+        """
         self.log.debug("writing host parameters to %s" % hostname)
         self.client.set_common_parameter("gosa-server", self.gosa_server, host=use_id if use_id is not None else hostname)
         if self.mqtt_host is not None:
             self.client.set_common_parameter("gosa-mqtt", self.mqtt_host, host=use_id if use_id is not None else hostname)
         self.client.set_common_parameter("gosa-domain", self.env.domain, host=use_id if use_id is not None else hostname)
 
-        if hostname in self.__marked_hosts:
+        if hostname is not None and hostname in self.__marked_hosts:
             del self.__marked_hosts[hostname]
 
 
@@ -725,9 +731,9 @@ class ForemanHookReceiver(object):
         update_data = {}
 
         if data['event'] in ["update", "create"] and foreman_type == "host":
+            id = payload_data["id"] if "id" in payload_data else None
             try:
-                id = payload_data["id"] if "id" in payload_data else None
-                foreman.write_host_parameters(id if id is not None else data['object'])
+                foreman.write_parameters(id if id is not None else data['object'])
             except:
                 foreman.mark_for_parameter_setting(data['object'], {
                     "status": "created",
