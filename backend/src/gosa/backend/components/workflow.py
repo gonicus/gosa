@@ -98,10 +98,12 @@ class Workflow:
         """
         Return a dictionary containing all property values.
         """
-        res = {'value': {}, 'values': {}}
+        res = {'value': {}, 'values': {}, 'saveable': {}}
         for item in self.__attribute_map:
             res['value'][item] = getattr(self, item)
             res['values'][item] = self.__attribute_map[item]['values']
+            res['saveable'][item] = self.__attribute_map[item]['readonly'] is False and \
+                                    'skip_save' not in self.__attribute_map[item] or self.__attribute_map[item]['skip_save'] is False
 
         return res
 
