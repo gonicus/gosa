@@ -572,8 +572,8 @@ class ClientService(Plugin):
         try:
             self.systemSetStatus(client, "-O+o")
         except ValueError as e:
-            id = C.get_error_id(e)
-            error = C.getError(id, keep=True)
+            id = C.get_error_id(str(e))
+            error = C.getError(None, id, keep=True)
             if error.status_code == 404:
                 pass
             else:
