@@ -24,7 +24,17 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
   construct: function(templates) {
     this.base(arguments);
     qx.core.Assert.assertArray(templates);
-    this._templates = templates;
+
+    var base = templates[0].extension;
+    this._templates = templates.sort(function(a, b) {
+      if (a.extension === base) {
+        return -1;
+      } else if (b.extension === base) {
+        return 1;
+      } else {
+        return a.extension.localeCompare(b.extension);
+      }
+    });
 
     this._contexts = [];
     this.__openDialogs = [];
