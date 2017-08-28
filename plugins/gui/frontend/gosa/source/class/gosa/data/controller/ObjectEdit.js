@@ -40,6 +40,10 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     this.__modificationManager.bind("modified", this, "modified");
     this.__object.attributes.forEach(this.__modificationManager.registerAttribute, this.__modificationManager);
 
+    this.__backendChangeController.addListener("silentlyMerged", function(ev) {
+      ev.getData().forEach(this.__modificationManager.updateAttribute, this.__modificationManager);
+    }, this);
+
     this._addListenersToAllContexts();
     this.__setUpWidgets();
 

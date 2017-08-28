@@ -656,6 +656,17 @@ class Object(object):
         else:
             raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
 
+    def is_changed(self, attribute_name):
+        """
+        Return True if the attribute value has been changed
+        :param attribute_name: name of the attribute to check
+        :return: True if changed False of not
+        """
+        if attribute_name not in self.myProperties:
+            raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', attribute_name))
+        else:
+            return not self.__is_equal(self.myProperties[attribute_name]["value"], self.myProperties[attribute_name]["orig_value"])
+
     def getTemplate(self):
         """
         Return the template data - if any. Else None.

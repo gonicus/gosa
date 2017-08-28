@@ -80,6 +80,21 @@ qx.Class.define("gosa.data.ModificationManager", {
     },
 
     /**
+     * Sometimes Objects receive changes from backend which should not be treated as
+     * changes (silent merge). This method updates the comparison value in those cases
+     * @param attributeName {String}
+     */
+    updateAttribute : function(attributeName) {
+      if (!this.__watchedAttributes.hasOwnProperty(attributeName)) {
+        this.warn("Attribute '" + attributeName + "' is not being watched. Ignoring.");
+        return;
+      }
+      this.__watchedAttributes[attributeName] = this.__object.get(attributeName).copy();
+
+      this.__updateModified();
+    },
+
+    /**
      * Remove an attribute from observation.
      *
      * @param attributeName {String}

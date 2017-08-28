@@ -272,7 +272,6 @@
         <Type>Boolean</Type>
         <Backend>Foreman</Backend>
         <Description>Reboot host to start the build</Description>
-        <Default>false</Default>
         <BlockedBy>
           <Attribute value="false">build</Attribute>
           <Attribute value="null">compute_resource_id</Attribute>

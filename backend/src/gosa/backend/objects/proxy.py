@@ -949,13 +949,32 @@ class ObjectProxy(object):
         if self.__base_mode == "update":
             for name, settings in save_props.items():
                 if not self.__is_equal(settings['value'] , settings['orig_value']):
-                    self.__log.debug("%s changed from %s to %s" % (name, settings['orig_value'], settings['value']))
+                    self.__log.info("%s changed from %s to %s" % (name, settings['orig_value'], settings['value']))
                     changed_props.append(name)
 
         zope.event.notify(ObjectChanged("post object %s" % self.__base_mode, self.__base, changed_props=changed_props))
 
     def __is_equal(self, val1, val2):
         return (val1 is None or val1 == []) and (val2 is None or val2 == []) or val1 == val2
+
+    def is_changed(self, attribute_name):
+        """
+        Return True if the attribute value has been changed
+        :param attribute_name: name of the attribute to check
+        :return: True if changed False of not
+        """
+        # Valid attribute?
+        if attribute_name not in self.__attribute_map:
+            raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', attribute_name))
+        else:
+            # Load from primary object
+            base_object = self.__attribute_map[attribute_name]['base']
+            if self.__base_type == base_object:
+                return self.__base.is_changed(attribute_name)
+
+            # Check for extensions
+            if base_object in self.__extensions and self.__extensions[base_object]:
+                return self.__extensions[base_object].is_changed(attribute_name)
 
     def __getattr__(self, name):
 

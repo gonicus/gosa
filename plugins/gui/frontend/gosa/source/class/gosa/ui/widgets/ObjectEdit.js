@@ -183,15 +183,17 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
      * Closes the closing dialog if there is one.
      */
     closeOpenDialogs : function () {
-      this.__openDialogs.forEach(function(dialog) {
-        if (!dialog.isDisposed()) {
-          dialog.close();
+      if (this.__openDialogs) {
+        this.__openDialogs.forEach(function(dialog) {
           if (!dialog.isDisposed()) {
-            dialog.dispose();
+            dialog.close();
+            if (!dialog.isDisposed()) {
+              dialog.dispose();
+            }
           }
-        }
-      });
-      this.__openDialogs = [];
+        });
+        this.__openDialogs = [];
+      }
     },
 
     /**

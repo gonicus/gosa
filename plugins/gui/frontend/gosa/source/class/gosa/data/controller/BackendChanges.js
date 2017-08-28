@@ -34,6 +34,15 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
     this.__obj.addListener("closing", this.__onObjectClosing, this);
    },
 
+  /*
+  *****************************************************************************
+     EVENTS
+  *****************************************************************************
+  */
+  events : {
+    "silentlyMerged": "qx.event.type.Data"
+  },
+
   members : {
     __obj : null,
     __controller : null,
@@ -64,12 +73,16 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
           this.__createMergeDialog(this.__widgetConfigurations, data.attributes.blocked_by, data.extensions);
         } else {
           // just update the widgets
+          var attrs = [];
           for (var attrName in this.__modifiedValues) {
             var widget = this.__controller.getWidgetByAttributeName(attrName);
             this.__obj.setWriteAttributeUpdates(false);
             widget.setValue(this.__modifiedValues[attrName]);
             this.__setAttributeValue(attrName, this.__modifiedValues[attrName]);
-
+            attrs.push(attrName);
+          }
+          if (attrs.length > 0) {
+            this.fireDataEvent("silentlyMerged", attrs);
           }
         }
       }
@@ -148,6 +161,7 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
       qx.core.Assert.assertMap(changes);
 
       var widget, newVal;
+      var silentlyMerged = [];
       for (var attributeName in changes) {
         if (changes.hasOwnProperty(attributeName)) {
           newVal = new qx.data.Array(
@@ -161,6 +175,7 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
               this.__obj.setWriteAttributeUpdates(false);
               widget.setValue(newVal);
               this.__setAttributeValue(attributeName, newVal);
+              silentlyMerged.push(attributeName);
             } else {
               this.__modifiedValues[attributeName] = newVal;
               var mergeWidgets = this.__getMergeWidgetConfiguration(widget, attributeName, newVal);
@@ -168,9 +183,13 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
             }
           }
           else {
+            silentlyMerged.push(attributeName);
             this.__setAttributeValue(attributeName, newVal);
           }
         }
+      }
+      if (silentlyMerged.length > 0) {
+        this.fireDataEvent("silentlyMerged", silentlyMerged);
       }
     },
 

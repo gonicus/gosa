@@ -11,6 +11,7 @@ import datetime
 import logging
 import uuid
 import sys
+from lxml import objectify, etree
 
 import zope
 import socket
@@ -19,8 +20,10 @@ from sqlalchemy import and_
 
 from gosa.backend.objects import ObjectProxy, ObjectFactory
 from gosa.backend.objects.index import ObjectInfoIndex, ExtensionIndex, KeyValueIndex
+from gosa.backend.routes.sse.main import SseHandler
 from gosa.common import Environment
 from gosa.common.components import Plugin, Command
+from gosa.common.event import EventMaker
 from gosa.common.handler import IInterfaceHandler
 from zope.interface import implementer
 from gosa.common.error import GosaErrorHandler as C
@@ -786,7 +789,22 @@ class ForemanHookReceiver(object):
                     foreman_object.extend("ForemanHost")
                 foreman_object.status = "discovered"
 
+            if foreman_type == "host":
+                old_build_state = foreman_object.build
+
             foreman.update_type(object_type, foreman_object, payload_data, uuid_attribute, update_data=update_data)
+            if foreman_type == "host" and old_build_state is True and foreman_object.build is False and \
+                            foreman_object.status == "ready":
+                # send notification
+                e = EventMaker()
+                ev = e.Event(e.Notification(
+                    e.Title(N_("Host ready")),
+                    e.Body(N_("Host '%s' has been successfully build." % foreman_object.cn)),
+                    e.Icon("@Ligature/pc"),
+                    e.Timeout("10000")
+                ))
+                event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
+                SseHandler.notify(event_object)
 
         elif data['event'] == "after_destroy":
             # print("Payload: %s" % payload_data)
