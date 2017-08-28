@@ -949,10 +949,8 @@ class ObjectProxy(object):
         if self.__base_mode == "update":
             for name, settings in save_props.items():
                 if not self.__is_equal(settings['value'] , settings['orig_value']):
-                    print("%s changed from %s to %s" % (name, settings['orig_value'], settings['value']))
+                    self.__log.debug("%s changed from %s to %s" % (name, settings['orig_value'], settings['value']))
                     changed_props.append(name)
-            # changed_props = [name for name, settings in save_props.items() if not self.__is_equal(settings['value'] , settings['orig_value'])]
-            # print(changed_props)
 
         zope.event.notify(ObjectChanged("post object %s" % self.__base_mode, self.__base, changed_props=changed_props))
 
