@@ -32,6 +32,7 @@ class MockResponse:
         self.json_data = json_data
         self.status_code = status_code
         self.cookies = {}
+        self.url = None
 
     def json(self):
         if isinstance(self.json_data, dict):
@@ -287,7 +288,7 @@ class ForemanClientTestCase(TestCase):
         client = ForemanClient("http://localhost:8000/api/v2")
 
         m_get.return_value = MockResponse({}, 404)
-        with pytest.raises(HTTPError):
+        with pytest.raises(ForemanBackendException):
             client.get("unknown")
 
         m_get.return_value = MockResponse('{\
