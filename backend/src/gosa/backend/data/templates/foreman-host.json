@@ -136,6 +136,28 @@
         },
         {
           "properties": {
+            "text": "tr('Reboot')"
+          },
+          "buddyModelPath": "reboot",
+          "class": "gosa.ui.widgets.QLabelWidget",
+          "addOptions": {
+            "column": 0,
+            "row": 2
+          }
+        },
+        {
+          "class": "gosa.ui.widgets.QCheckBoxWidget",
+          "modelPath": "reboot",
+          "addOptions": {
+            "column": 1,
+            "row": 2
+          },
+          "properties": {
+            "tabIndex": 4
+          }
+        },
+        {
+          "properties": {
             "text": "tr('Compute resource')"
           },
           "buddyModelPath": "compute_resource_id",
@@ -153,7 +175,7 @@
             "row": 1
           },
           "properties": {
-            "tabIndex": 4,
+            "tabIndex": 5,
             "sortBy": "value"
           }
         }

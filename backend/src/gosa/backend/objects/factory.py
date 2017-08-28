@@ -975,7 +975,10 @@ class ObjectFactory(object):
 
                 # Convert the blocking condition to its expected value-type
                 syntax = props[bentry['name']]['type']
-                bentry['value'] = self.__attribute_type['String'].convert_to(syntax, [bentry['value']])[0]
+                if bentry['value'] == "null":
+                    bentry['value'] = None
+                else:
+                    bentry['value'] = self.__attribute_type['String'].convert_to(syntax, [bentry['value']])[0]
 
             # Depends on
             for dentry in props[pname]['depends_on']:

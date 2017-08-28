@@ -183,6 +183,14 @@ class Foreman(ObjectBackend):
         if Foreman.modifier != "foreman":
             type = self.get_foreman_type(needed, params)
             payload = self.__collect_data(data, params, type=type[:-1])
+            restart = False
+            # check special reboot attribute
+            if type == "hosts" and "reboot" in payload["host"]:
+                if "build" in payload["host"] and payload["host"]["build"] is True and payload["host"]["reboot"] is True:
+                    # restart host after commit
+                    restart = True
+
+                del payload["host"]["reboot"]
 
             # finally send the update to foreman
             self.log.debug("sending update '%s' to foreman" % payload)
@@ -191,6 +199,9 @@ class Foreman(ObjectBackend):
                 try:
                     result = self.client.put(type, uuid, data=payload)
                     self.log.debug("Response: %s" % result)
+                    if restart is True:
+                        self.log.info("Restarting host to trigger the build")
+                        self.client.put("hosts/%s" % uuid, "power", {"power_action": "reset"})
                 except ForemanBackendException as ex:
                     ForemanClient.error_notify_user(ex, user)
                     raise ex
