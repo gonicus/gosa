@@ -348,7 +348,8 @@ class JSONRPCObjectMapper(Plugin):
                 delta['attributes']['blocked_by'][attribute_name] = list(map(lambda x: x['name'], details[attribute_name]['blocked_by']))
 
                 # check for non-saveable attributes which can be merged silently
-                if attribute_name in saveable_attributes and saveable_attributes[attribute_name] is False:
+                if (attribute_name in saveable_attributes and saveable_attributes[attribute_name] is False) or \
+                   not cache_obj.is_changed(attribute_name):
                     delta['attributes']['merge_silently'].append(attribute_name)
 
                     # update currently opened object too (only changed cause extensions removal/adding can't be merged silently)
