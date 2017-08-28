@@ -476,7 +476,6 @@ class Object(object):
                 if key in self.myProperties:
                     value = [data[key]] if data[key] is not None else []
                     self.myProperties[key]['in_value'] = self.myProperties[key]['orig_value'] = self.myProperties[key]['value'] = value
-                    print("directly applying %s: %s" % (key, value))
 
     def _delattr_(self, name):
         """
