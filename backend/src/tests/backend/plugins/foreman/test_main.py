@@ -269,7 +269,7 @@ class ForemanSyncTestCase(GosaTestCase):
 
         self.foreman.sync_type("ForemanHost", "discovered_hosts")
         res = index.search(host_query, {'dn': 1})
-        assert len(res) == 3
+        assert len(res) == 2
         self.dns_to_delete = [x['dn'] for x in res]
 
         res = index.search(hostgroup_query, {'dn': 1})
