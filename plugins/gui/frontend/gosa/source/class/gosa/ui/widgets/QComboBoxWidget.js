@@ -36,6 +36,17 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
     sortBy: {
       check: ["key", "value"],
       nullable: true
+    },
+
+    virtual: {
+      check: "Boolean",
+      init: false
+    },
+
+    delegate: {
+      check: "Object",
+      init: {},
+      event: "changeDelegate"
     }
   },
 
@@ -67,7 +78,7 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
     _getWidgetValue: function(id){
       var value = null;
       if(this._getWidget(id).getSelection().length){
-        value = this._getWidget(id).getSelection()[0].getModel().getKey();
+        value = this._getWidget(id).getSelection().getItem(0).getKey();
       }
       return(value);
     },
@@ -82,49 +93,51 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
 
       // Find model item with appropriate key
       var w = this._getWidget(id);
-      for(var item in w.getChildren()){
-        if(w.getChildren()[item].getModel().getKey() == value){
-          w.setSelection([w.getChildren()[item]]);
-          break;
+      var modelItem = null;
+      w.getModel().some(function(item) {
+        if (item.getKey() == value) {
+          modelItem = item;
+          return true;
         }
-      }
+      });
+      w.getSelection().replace([modelItem]);
     },
 
 
     /* Creates an input-widget depending on the echo mode (normal/password)
      * and connects the update listeners
      * */
-    _createWidget: function(id){
+    _createWidget: function(id) {
+      var w = new qx.ui.form.VirtualSelectBox();
+      this.bind("delegate", w, "delegate");
+      w.set({
+        labelPath: "value",
+        iconPath: "icon"
+      });
 
-      var w = new qx.ui.form.SelectBox();
-      var controller = new qx.data.controller.List(null, w, "value");
-      this.bind("model", controller, "model");
+      if (this.getModel() !== null) {
+        w.setModel(this.getModel());
+      }
+      this.addListener("modelChanged", function() {
+        if (this.getModel() !== null) {
+          w.setModel(this.getModel());
+        }
+      }, this);
 
       if(this.getPlaceholder()){
         w.setPlaceholder(this.getPlaceholder());
       }
+      w.getSelection().addListener("change", function(){
 
-      // create the options for the icon
-      //var iconOptions = {
-      //  converter: function(value) {
-      //    return gosa.Config.getImagePath(value, 22);
-      //  }
-      //};
+        if(this.isMandatory() && this.getValue().getItem(id) === this._default_value && this._getWidgetValue(id)){
+          this._use_default = true;
+        }
 
-      //controller.setIconPath('icon');
-      //controller.setIconOptions(iconOptions);
-      w.addListener("changeSelection", function(e){
-
-
-          if(this.isMandatory() && this.getValue().getItem(id) == this._default_value && this._getWidgetValue(id)){
-            this._use_default = true;
-          }
-
-          if(this._model_initialized){
-            this.addState("modified");
-            this._propertyUpdater();
-          }
-        }, this);
+        if(this._model_initialized){
+          this.addState("modified");
+          this._propertyUpdater();
+        }
+      }, this);
 
       this.bind("valid", w, "valid");
       this.bind("invalidMessage", w, "invalidMessage");
@@ -141,22 +154,21 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
         return;
       }
 
-      var convert;
+      var convert, item, k;
 
-      if (this.getType() == "Integer") {
-        var that = this;
+      if (this.getType() === "Integer") {
         convert = function(value) {
           var res = parseInt(value);
-          if(res == NaN) {
-            that.error("failed to convert ComboBox value "+value+" to int ("+that.getExtension()+"."+that.getAttribute()+")");
+          if(isNaN(res)) {
+            this.error("failed to convert ComboBox value "+value+" to int ("+this.getExtension()+"."+this.getAttribute()+")");
             return(0);
           }
           else {
             return(res);
           }
-        };
+        }.bind(this);
       }
-      else if (this.getType() == "Boolean"){
+      else if (this.getType() === "Boolean"){
         convert = function(value) {
           return value.toLowerCase() === "true";
         };
@@ -166,19 +178,19 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
           return value;
         };
       }
-      if(data.classname != "qx.data.Array"){
+      if(data.classname !== "qx.data.Array"){
         var items = [];
 
         if(!this.getMandatory()){
-          var item = new gosa.data.model.SelectBoxItem();
+          item = new gosa.data.model.SelectBoxItem();
           item.setValue("");
           item.setKey(null);
           items.push(item);
         }
 
-        if (qx.Bootstrap.getClass(data) == "Object") {
-          for (var k in data) {
-            var item = new gosa.data.model.SelectBoxItem();
+        if (qx.Bootstrap.getClass(data) === "Object") {
+          for (k in data) {
+            item = new gosa.data.model.SelectBoxItem();
             item.setKey(convert(k));
             if (data[k] && data[k]['value']) {
               item.setValue(data[k]['value']);
@@ -191,22 +203,24 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
             items.push(item);
           }
         } else {
-          for (var k = 0; k < data.length; k++) {
-            var item = new gosa.data.model.SelectBoxItem();
+          for (k = 0; k < data.length; k++) {
+            item = new gosa.data.model.SelectBoxItem();
             item.setValue(data[k]);
             item.setKey(convert(data[k]));
             items.push(item);
           }
         }
+        var delegate = {};
         if (this.getSortBy() === "key") {
-          items.sort(function(a,b) {
+          delegate.sorter = function(a,b) {
             return a.getKey().localeCompare(b.getKey());
-          });
+          };
         } else if (this.getSortBy() === "value") {
-          items.sort(function(a,b) {
+          delegate.sorter = function(a,b) {
             return a.getValue().localeCompare(b.getValue());
-          });
+          };
         }
+        this.setDelegate(delegate);
         this.setModel(new qx.data.Array(items));
         this._model_initialized = true;
       }
@@ -216,7 +230,7 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
     id2item : function(values, selected) {
       if (values) {
         for (var i = 0; i<values.length; i++) {
-          if (values.getItem(i).getKey() == selected) {
+          if (values.getItem(i).getKey() === selected) {
             return values.getItem(i);
           }
         }
