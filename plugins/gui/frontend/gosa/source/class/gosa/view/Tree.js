@@ -318,7 +318,7 @@ qx.Class.define("gosa.view.Tree", {
     load : function(){
 
       // Create the Tree
-      var tree = this.getChildControl("tree");
+      this.getChildControl("tree");
       this.getChildControl("listcontainer");
       this.getChildControl("table");
 

@@ -41,6 +41,7 @@ qx.Class.define("gosa.data.controller.Workflow", {
      * @type {gosa.proxy.Object}
      */
     __workflowObject : null,
+    __backendChangeController : null,
 
     /**
      * @return {gosa.proxy.Object}
@@ -108,5 +109,6 @@ qx.Class.define("gosa.data.controller.Workflow", {
     );
 
     this.__workflowObject = null;
+    this.__backendChangeController = null;
   }
 });

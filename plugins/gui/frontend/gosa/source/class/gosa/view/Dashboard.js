@@ -99,6 +99,7 @@ qx.Class.define("gosa.view.Dashboard", {
     __rows: null,
     __rowHeight: null,
     __desktopWidthOffset: null,
+    __desktopBounds: null,
 
     // overridden
     _applyEditMode: function(value) {

@@ -66,6 +66,9 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
     _listController: null,
     __grid: null,
 
+    /**
+     * @lint ignoreReferenceField(_forwardStates)
+     */
     _forwardStates: {
       hovered: false
     },

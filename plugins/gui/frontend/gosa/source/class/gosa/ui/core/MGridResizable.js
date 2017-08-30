@@ -230,7 +230,6 @@ qx.Mixin.define("gosa.ui.core.MGridResizable",
       var resizeActive = this.__resizeActive;
 
       // Read size hint
-      var hint = this.getSizeHint();
       var range = this.__resizeRange;
 
       // Read original values
