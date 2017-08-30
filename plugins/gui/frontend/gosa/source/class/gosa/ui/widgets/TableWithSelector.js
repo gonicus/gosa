@@ -61,8 +61,9 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       this.setInvalidMessage(message);
     },
 
-    /* Resets error messages
-     * */
+    /**
+     * Resets error messages
+     */
     resetErrorMessage: function(){
       this.setInvalidMessage("");
       this.setValid(true);
@@ -150,8 +151,9 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     },
 
 
-    /* Resolve missing value information
-     * */
+    /**
+     * Resolve missing value information
+     */
     __resolveMissingValues: function(){
 
       var rpc = gosa.io.Rpc.getInstance();

@@ -66,9 +66,10 @@ qx.Class.define("gosa.ui.widgets.QCheckBoxWidget", {
 
   statics: { 
  
-    /* Create a readonly representation of this widget for the given value. 
-     * This is used while merging object properties. 
-     * */ 
+    /**
+     * Create a readonly representation of this widget for the given value.
+     * This is used while merging object properties.
+     */
     getMergeWidget: function(value){ 
       var w = new qx.ui.form.TextField(); 
       w.setReadOnly(true); 
@@ -83,17 +84,19 @@ qx.Class.define("gosa.ui.widgets.QCheckBoxWidget", {
 
     _chkBoxWidget: null,
 
-    /* Returns the widget values in a clean way,
+    /**
+     * Returns the widget values in a clean way,
      * to avoid saving null or empty values for an object
      * property.
-     * */
+     */
     getCleanValues: function()
     {
       return(new qx.data.Array([this._chkBoxWidget.getValue()]));
     },
 
-    /* Apply the tabstop index
-     * */
+    /**
+     * Apply the tabstop index
+     */
     _applyTabStopIndex: function(index){
       this._chkBoxWidget.setTabIndex(index);
     },
@@ -102,9 +105,10 @@ qx.Class.define("gosa.ui.widgets.QCheckBoxWidget", {
       this._chkBoxWidget.setLabel(this['tr'](value));
     },
 
-    /* Apply method for the value property.
+    /**
+     * Apply method for the value property.
      * This method will regenerate the gui.
-     * */
+     */
     _applyValue: function(value, old_value){
 
       // This happens when this widgets gets destroyed - all properties will be set to null.

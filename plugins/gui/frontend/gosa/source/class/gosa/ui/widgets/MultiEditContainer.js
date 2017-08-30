@@ -10,13 +10,14 @@
  * See the LICENSE file in the project's top-level directory for details.
  */
 
-/* This is the visible part of the multiedit widgets
+/**
+ * This is the visible part of the multiedit widgets
  * or in more detail it is just one line of an multi-edit widget.
  * If you've set more than one telehpone number, for example, then
  * each entry is represented by this widget.
  *
  * It is just a container for the real-widget with additional buttons (add/del)
- * */
+ */
 qx.Class.define("gosa.ui.widgets.MultiEditContainer", {
 
   extend: qx.ui.container.Composite,
@@ -93,8 +94,9 @@ qx.Class.define("gosa.ui.widgets.MultiEditContainer", {
     qx.event.Registration.removeAllListeners(this);
   },
 
-  /* Events we can fire up
-   * */
+  /**
+   * Events we can fire up
+   */
   events: {
     "add": "qx.event.type.Event",
     "delete": "qx.event.type.Event"
@@ -105,8 +107,9 @@ qx.Class.define("gosa.ui.widgets.MultiEditContainer", {
     __delButton: null,
     __container: null,
 
-    /* Applies the widget and puts it in the container to make it visible
-     * */
+    /**
+     * Applies the widget and puts it in the container to make it visible
+     */
     __applyWidget: function(w){
       var removed = this.__container.removeAll();
       removed.forEach(function(widget) {

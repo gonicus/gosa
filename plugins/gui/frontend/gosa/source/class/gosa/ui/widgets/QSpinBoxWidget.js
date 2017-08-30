@@ -20,9 +20,10 @@ qx.Class.define("gosa.ui.widgets.QSpinBoxWidget", {
 
   statics: {
     
-    /* Create a readonly representation of this widget for the given value.
+    /**
+     * Create a readonly representation of this widget for the given value.
      * This is used while merging object properties.
-     * */
+     */
     getMergeWidget: function(value){
       var container = new qx.ui.container.Composite(new qx.ui.layout.VBox());
       for(var i=0;i<value.getLength(); i++){
@@ -53,8 +54,9 @@ qx.Class.define("gosa.ui.widgets.QSpinBoxWidget", {
  
     _default_value: 0,
 
-    /* Apply collected gui properties to this widet
-     * */
+    /**
+     * Apply collected gui properties to this widet
+     */
     _applyGuiProperties: function(props){
 
       // This happens when this widgets gets destroyed - all properties will be set to null.

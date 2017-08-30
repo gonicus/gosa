@@ -47,9 +47,10 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
 
   statics: {
 
-    /* Create a readonly representation of this widget for the given value.
+    /**
+     * Create a readonly representation of this widget for the given value.
      * This is used while merging object properties.
-     * */
+     */
     getMergeWidget: function(value){
       var w = new qx.ui.form.TextField();
       w.setReadOnly(true);
@@ -68,8 +69,9 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
     _use_default: false,
 
 
-    /* Returns the value from the widget given by its id
-     * */
+    /**
+     * Returns the value from the widget given by its id
+     */
     _getWidgetValue: function(id){
       var value = null;
       if(this._getWidget(id).getSelection().length){
@@ -82,8 +84,9 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
       this._setWidgetValue(id, value);
     },
 
-    /* Set a new value for the widget given by id.
-     * */
+    /**
+     * Set a new value for the widget given by id.
+     */
     _setWidgetValue: function(id, value){
 
       // Find model item with appropriate key
@@ -140,8 +143,9 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
     },
 
 
-    /* Apply the widget values - fills the combobox selectables.
-     * */
+    /**
+     * Apply the widget values - fills the combobox selectables.
+     */
     _applyValues: function(data){
 
       // This happens when this widgets gets destroyed - all properties will be set to null.

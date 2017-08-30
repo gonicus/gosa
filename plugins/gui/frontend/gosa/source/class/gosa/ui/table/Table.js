@@ -88,15 +88,17 @@ qx.Class.define("gosa.ui.table.Table",
     __lastPreferences: null,
     __defaultPreferences: null,
     
-    /* Reset all row colors set by colorRow()
-     * */
+    /**
+     * Reset all row colors set by colorRow()
+     */
     resetRowColors: function(){
       this.getDataRowRenderer().colorRows = [];
       this.updateContent();
     },
 
-    /* Color all row matching the given criteria (whereAttribute==equals)
-     * */
+    /**
+     * Color all row matching the given criteria (whereAttribute==equals)
+     */
     colorRow: function(color, whereAttribute, equals){
       this.getDataRowRenderer().colorRows.push({color: color, where: whereAttribute, match: equals});
       this.updateContent();
@@ -218,8 +220,9 @@ qx.Class.define("gosa.ui.table.Table",
           this.__lastPreferences = prefs;
         };
 
-      /* Load preferences from cache if they were load before.
-       * */
+      /**
+       * Load preferences from cache if they were load before.
+       */
       if (this.__preferenceName in gosa.ui.table.Table.tablePreferences) {
         loadPrefs.apply(this, [gosa.ui.table.Table.tablePreferences[this.__preferenceName]]);
       } else {

@@ -121,9 +121,10 @@ qx.Class.define("gosa.io.Sse", {
       }.bind(this);
     },
 
-    /* Handle object change messages and fire up events
+    /**
+     * Handle object change messages and fire up events
      * to inform other objects of the changes. E.g Lists.
-     * */
+     */
     _handleObjectChangeMessage : function(info) {
       if(info['changeType'] === "update"){
         this.fireDataEvent("objectModified", info);

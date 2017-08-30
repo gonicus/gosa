@@ -10,17 +10,19 @@
  * See the LICENSE file in the project's top-level directory for details.
  */
 
-/* This group-box widget is derived from the qooxdoos original group-box,
+/**
+ * This group-box widget is derived from the qooxdoos original group-box,
  * it has the ability to hide itself, if all child elements are hidden.
- * */
+ */
 qx.Class.define("gosa.ui.widgets.ScrollArea", {
 
   extend: qx.ui.container.Scroll,
 
   properties: {
 
-    /* Whether the widget is a read only
-     * */
+    /**
+     * Whether the widget is a read only
+     */
     readOnly : {
       check : 'Boolean',
       apply: '_applyReadOnly',
@@ -62,9 +64,10 @@ qx.Class.define("gosa.ui.widgets.ScrollArea", {
       this.setEnabled(!bool);
     },
 
-    /* Check if all elements of this group-box are hidden, in this case
+    /**
+     * Check if all elements of this group-box are hidden, in this case
      * hide the group box too.
-     * */
+     */
     __check: function(){
       var disable = true;
       for(var i=0; i<this.__gosaChildList.length; i++){
@@ -83,11 +86,12 @@ qx.Class.define("gosa.ui.widgets.ScrollArea", {
     setLayout: function(layout) {
     },
 
-    /* Recursivly load all child elements of the given qooxdoo widget.
+    /**
+     * Recursivly load all child elements of the given qooxdoo widget.
      * Add a listener to all found gosa-widgets to receive events about their
      * visiblity status.
      * Returns all found gosaWidgets
-     * */
+     */
     loadChildrenList: function(current){
       var children = [];
       for(var i=0; i< current.length; i++){

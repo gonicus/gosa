@@ -10,12 +10,13 @@
  * See the LICENSE file in the project's top-level directory for details.
  */
 
-/* This is the base class for all input-widgets created by
+/**
+ * This is the base class for all input-widgets created by
  * the Renders class.
  *
  * It contains all necessary properties/methods and events to bind values,
  * set error messages, set placeholder...
- * */
+ */
 qx.Class.define("gosa.ui.widgets.Widget", {
 
   extend: qx.ui.container.Composite,
@@ -156,8 +157,9 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       init: 1
     },
 
-    /* The values to display as selectables in the dropdown box
-     * */
+    /**
+     * The values to display as selectables in the dropdown box
+     */
     values: {
       apply : "_applyValues",
       event: "_valuesChanged",
@@ -165,8 +167,9 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       init : null
     },
 
-    /* Whether the widget is a read only
-     * */
+    /**
+     * Whether the widget is a read only
+     */
     readOnly : {
       check : 'Boolean',
       apply: '_applyReadOnly',
@@ -174,8 +177,9 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       init: false
     },
 
-    /* Whether the widget is a multi-value input or not.
-     * */
+    /**
+     * Whether the widget is a multi-value input or not.
+     */
     multivalue : {
       check : 'Boolean',
       apply: '_applyMultivalue',
@@ -183,9 +187,10 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       init: false
     },
 
-    /* The value(s) for the widget.
+    /**
+     * The value(s) for the widget.
      * All values (each when not multivalue) are of type qx.data.Array.
-     * */
+     */
     value : {
       init : null,
       check : "qx.data.Array",
@@ -194,8 +199,9 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       apply: '_applyValue'
     },
 
-    /* Whether the field is required or not.
-     * */
+    /**
+     * Whether the field is required or not.
+     */
     required : {
       init : false,
       check : 'Boolean',
@@ -204,16 +210,18 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       apply: '_applyRequired'
     },
 
-    /* The placeholder to use.
-     * */
+    /**
+     * The placeholder to use.
+     */
     placeholder : {
       init : "",
       event: "_placeholderChanged",
       nullable: true
     },
 
-    /* The maximum length
-     * */
+    /**
+     * The maximum length
+     */
     maxLength : {
       init : null,
       check : "Integer",
@@ -221,17 +229,19 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       nullable: true
     },
 
-    /* Whether the widget was modified
-     * */
+    /**
+     * Whether the widget was modified
+     */
     modified : {
       init : false,
       event: "_modifiedChanged",
       check : "Boolean"
     },
 
-    /* Is set to true once the renderer has finished
+    /**
+     * Is set to true once the renderer has finished
      * preparing this widget
-     * */
+     */
     initComplete : {
       check : 'Boolean',
       event: "initCompleteChanged",
@@ -255,9 +265,10 @@ qx.Class.define("gosa.ui.widgets.Widget", {
 
   statics: {
 
-    /* Create a readonly representation of this widget for the given value.
+    /**
+     * Create a readonly representation of this widget for the given value.
      * This is used while merging object properties.
-     * */
+     */
     getMergeWidget: function(value){
       var w = new qx.ui.form.TextField();
       w.setReadOnly(true);
@@ -274,16 +285,18 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     contents: null,
     _default_value: null,
 
-    /* Enforce property update
-     * */
+    /**
+     * Enforce property update
+     */
     enforceUpdateOnServer: function(){
       this.fireDataEvent("changeValue", this.getCleanValues());
     },
 
-    /* Returns the widget values in a clean way,
+    /**
+     * Returns the widget values in a clean way,
      * to avoid saving null or empty values for an object
      * property.
-     * */
+     */
     getCleanValues: function()
     {
       var data = new qx.data.Array();
@@ -296,8 +309,9 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       return(data);
     },
 
-    /* Block the widget and disable modifications
-     * */
+    /**
+     * Block the widget and disable modifications
+     */
     block: function(){
       this.exclude();
       this.setBlocked(true);
@@ -306,8 +320,9 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       }
     },
 
-    /* Unblock the widget
-     * */
+    /**
+     * Unblock the widget
+     */
     unblock: function(){
       this.show();
       this.setBlocked(false);
@@ -320,8 +335,9 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     _applyMandatory : function() {
     },
 
-    /* Apply collected gui properties to this widget
-     * */
+    /**
+     * Apply collected gui properties to this widget
+     */
     _applyGuiProperties: function(props){
       if(!props){
         return;
@@ -401,8 +417,9 @@ qx.Class.define("gosa.ui.widgets.Widget", {
 
     _applyValues: function(){},
 
-    /* Apply method prototypes...
-     * */
+    /**
+     * Apply method prototypes...
+     */
     focus:  function(){
     },
 

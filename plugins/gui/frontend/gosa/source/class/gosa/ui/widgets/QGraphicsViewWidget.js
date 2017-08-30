@@ -149,9 +149,10 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
   },
 
   statics: {
-    /* Create a readonly representation of this widget for the given value.
+    /**
+     * Create a readonly representation of this widget for the given value.
      * This is used while merging object properties.
-     * */
+     */
     getMergeWidget: function(value){
       var w = new qx.ui.basic.Image();
       if(value.getLength()){
@@ -171,17 +172,19 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
     _widget: null,
     _defaultImage: null,
 
-    /* Returns the widget values in a clean way,
+    /**
+     * Returns the widget values in a clean way,
      * to avoid saving null or empty values for an object
      * property.
-     * */
+     */
     getCleanValues: function()
     {
       return(new qx.data.Array(this.getValue().toArray()));
     },
 
-    /* Apply method for the value property.
-     * */
+    /**
+     * Apply method for the value property.
+     */
     _applyValue: function(value, old_value){
 
       // This happens when this widgets gets destroyed - all properties will be set to null.

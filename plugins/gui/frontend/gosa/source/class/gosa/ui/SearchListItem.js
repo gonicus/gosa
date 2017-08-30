@@ -119,9 +119,10 @@ qx.Class.define("gosa.ui.SearchListItem", {
       this._onMouseOut();
     },
 
-    /* Applies the loading state and toggles the
+    /**
+     * Applies the loading state and toggles the
      * spinner accordingly
-     * */
+     */
     _applyIsLoading: function(value){
       if (value) {
         this.getChildControl("throbber").show();

@@ -16,9 +16,10 @@ qx.Class.define("gosa.ui.widgets.QDateTimeEditWidget", {
 
   statics: { 
  
-    /* Create a readonly representation of this widget for the given value. 
-     * This is used while merging object properties. 
-     * */ 
+    /**
+     * Create a readonly representation of this widget for the given value.
+     * This is used while merging object properties.
+     */
     getMergeWidget: function(value){ 
       var w = new gosa.ui.widgets.DateTimeField();
       w.setEnabled(false); 
@@ -31,8 +32,9 @@ qx.Class.define("gosa.ui.widgets.QDateTimeEditWidget", {
 
   members: {
  
-    /* Creates an input-widget and connects the update listeners
-     * */
+    /**
+     * Creates an input-widget and connects the update listeners
+     */
     _createWidget: function(){
       var w = new gosa.ui.widgets.DateTimeField();
 

@@ -73,15 +73,17 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
       this.setInvalidMessage(message);
     },
 
-    /* Resets error messages
-     * */
+    /**
+     * Resets error messages
+     */
     resetErrorMessage: function(){
       this.setInvalidMessage("");
       this.setValid(true);
     },
 
-    /* Applies the widget value and updates the visible text
-     * */
+    /**
+     * Applies the widget value and updates the visible text
+     */
     _applyValue: function(value){
 
       // This happens when this widgets gets destroyed - all properties will be set to null.
@@ -99,10 +101,11 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
       this._initially_set = true;
     },
 
-    /* Updates the visible text of the widgets.
+    /**
+     * Updates the visible text of the widgets.
      * If it cannot, eg. some values are still not fetched from the backend
      * then it enforces a rpc request to fetch those.
-     * */
+     */
     __updateVisibleText: function(){
       if(this._widget){
         if(this.getValue().getLength()){
@@ -131,8 +134,9 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
     },
 
 
-    /* Creates the gui element of this widget
-     * */
+    /**
+     * Creates the gui element of this widget
+     */
     _createGui: function(){
       this._widget = new qx.ui.form.TextField();
       this._widget.setReadOnly(true);
@@ -190,8 +194,9 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
       d.open();
     },
 
-    /* Resolve missing value information
-     * */
+    /**
+     * Resolve missing value information
+     */
     __resolveMissingValues: function(){
 
       var rpc = gosa.io.Rpc.getInstance();
@@ -230,10 +235,11 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
     },
 
 
-    /* Apply properties that were defined in the ui template.
+    /**
+     * Apply properties that were defined in the ui template.
      *
      * Collect column names here.
-     * */
+     */
     _applyGuiProperties: function(props){
 
       // This happens when this widgets gets destroyed - all properties will be set to null.

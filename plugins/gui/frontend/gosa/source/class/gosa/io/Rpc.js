@@ -104,9 +104,10 @@ qx.Class.define("gosa.io.Rpc", {
     __allowedRPCs: null,
 
 
-    /* Enables an anonymous method to use the this context.
+    /**
+     * Enables an anonymous method to use the this context.
      * This is used for parsing the incoming json.
-     * */
+     */
     _putMeIntoContext: function(func)
     {
       var self = this;
@@ -116,10 +117,11 @@ qx.Class.define("gosa.io.Rpc", {
       return(f);
     },
 
-    /* Parse the incoming json-data.
+    /**
+     * Parse the incoming json-data.
      * Transform transmitted objects (those with a __jsonclass__ tag)
      * into real objects.
-     * */
+     */
     _parseHook: function(key, value){
       if(value && typeof(value) == "object" && "__jsonclass__" in value){
         for(var converted_id in this.converter){

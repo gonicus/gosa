@@ -84,8 +84,9 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
       }
     },
 
-    /* Apply collected gui properties to this widget
-     * */
+    /**
+     * Apply collected gui properties to this widget
+     */
     _applyGuiProperties: function(props){
 
       // This happens when this widgets gets destroyed - all properties will be set to null.
@@ -117,8 +118,9 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
     },
 
 
-    /* Applies the mandatory state for this widget
-     * */
+    /**
+     * Applies the mandatory state for this widget
+     */
     _applyMandatory: function(mandatory){
       if (mandatory) {
         this.setValue(new qx.data.Array([this._text + " <span style='color:red'>*</span> "]));

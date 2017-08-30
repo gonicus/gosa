@@ -69,8 +69,9 @@ qx.Class.define("gosa.ui.widgets.LineWidget",
       }
     },
 
-    /* Apply collected gui properties to this widet
-     * */
+    /**
+     * Apply collected gui properties to this widet
+     */
     _applyGuiProperties: function(props){
 
       // This happens when this widgets gets destroyed - all properties will be set to null.

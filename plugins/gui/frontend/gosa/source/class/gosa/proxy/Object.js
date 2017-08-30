@@ -150,9 +150,10 @@ qx.Class.define("gosa.proxy.Object", {
       }
     },
 
-    /* Helper method that sets attribute values using the
+    /**
+     * Helper method that sets attribute values using the
      * json-rpc response
-     * */
+     */
     _setAttributes: function(data){
 
       // Initialize object values
@@ -183,8 +184,9 @@ qx.Class.define("gosa.proxy.Object", {
       this.initialized = true;
     },
 
-    /* Setter method for object values
-     * */
+    /**
+     * Setter method for object values
+     */
     setAttribute: function(name, value){
       if (this.initialized && this.isWriteAttributeUpdates()) {
 

@@ -40,9 +40,10 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
 
   statics: {
 
-    /* Create a readonly representation of this widget for the given value.
+    /**
+     * Create a readonly representation of this widget for the given value.
      * This is used while merging object properties.
-     * */
+     */
     getMergeWidget: function(value){
       var w = new qx.ui.form.TextField();
       w.setReadOnly(true);
@@ -68,8 +69,9 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       this._generateGui();
     },
 
-    /* Sets an error message for this widgets
-     * */
+    /**
+     * Sets an error message for this widgets
+     */
     setErrorMessage: function(message, id){
       var w = this._getWidget(id);
       w.setInvalidMessage(message);
@@ -78,8 +80,9 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* Resets the "invalidMessage" string for all widgets.
-     * */
+    /**
+     * Resets the "invalidMessage" string for all widgets.
+     */
     resetErrorMessage: function(){
       for(var i=0; i < this._current_length; i++){
         this._getWidget(i).resetInvalidMessage();
@@ -89,8 +92,9 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* Mark the given widget as required
-     * */
+    /**
+     * Mark the given widget as required
+     */
     _markAsRequired: function(widget){
       if (widget.getValue && widget.getValue() === "" || widget.isSelectionEmpty && widget.isSelectionEmpty()) {
         // add listener for initial value
@@ -108,8 +112,9 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* Returns the value from the widget given by its id
-     * */
+    /**
+     * Returns the value from the widget given by its id
+     */
     _getWidgetValue: function(id){
       return this._getWidget(id).getValue();
     },
@@ -129,16 +134,18 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* Returns the "real" widget (e.g. the qx.ui.form.TextField)
+    /**
+     * Returns the "real" widget (e.g. the qx.ui.form.TextField)
      * For the given id.
-     * */
+     */
     _getWidget: function(id){
       return(this._widgetContainer[id].getWidget());
     },
 
 
-    /* Set a new value for the widget given by id.
-     * */
+    /**
+     * Set a new value for the widget given by id.
+     */
     _setWidgetValue: function(id, value){
       try{
         if (qx.Class.implementsInterface(value, gosa.io.types.IType)) {
@@ -151,9 +158,10 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* Create the "real"-widget element.
+    /**
+     * Create the "real"-widget element.
      * and connect it to the update methods
-     * */
+     */
     _createWidget: function(){
       var w = new qx.ui.form.TextField();
       w.setLiveUpdate(true);
@@ -163,8 +171,9 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* Apply method for the value property.
-     * */
+    /**
+     * Apply method for the value property.
+     */
     _applyValue: function(value, old_value){
 
       // This happens when we destroy this widget
@@ -189,14 +198,16 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       }, this);
     },
 
-    /* This is the apply method for the multivalue-flag
-     * */
+    /**
+     * This is the apply method for the multivalue-flag
+     */
     _applyMultivalue: function(){
     },
 
 
-    /* Sets the "focus" to the first input widgets
-     * */
+    /**
+     * Sets the "focus" to the first input widgets
+     */
     focus: function(){
       if(this._widgetContainer.length){
         this._widgetContainer[0].getWidget().focus();
@@ -204,12 +215,13 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* This method updates the value-property and immediately
+    /**
+     * This method updates the value-property and immediately
      * sends the "changeValue" to tell the object-proxy that values have changed.
      *
      * This is a method which can be used as listener for value updates.
      * See "_createWidget" for details.
-     * */
+     */
     _propertyUpdater: function(){
       if(this._skipUpdates || !this.hasState("modified")){
         return;
@@ -227,12 +239,13 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* This method updates the value-property and sends the "changeValue"
+    /**
+     * This method updates the value-property and sends the "changeValue"
      * event after a period of time, to tell the object-proxy that values have changed.
      *
      * This is a method which can be used as listener for value updates.
      * See "_createWidget" for details.
-     * */
+     */
     _propertyUpdaterTimed: function(){
       if(this._skipUpdates){
         return;
@@ -256,10 +269,11 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* Add a new widget to the view-port.
+    /**
+     * Add a new widget to the view-port.
      * E.g. in multiedit this is used to show a new input line
      * after somebody clicked on the '+' button.
-     * */
+     */
     _addWidget: function(id){
       if(!(id in this._widgetContainer)){
         var w = this._createWidget(id);
@@ -294,10 +308,11 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
     },
 
 
-    /* Regenerates the view-port of this plugin.
+    /**
+     * Regenerates the view-port of this plugin.
      * It hides or shows only the required amount of widgets.
      * All not needed widgets will be excluded from the viewport.
-     * */
+     */
     _generateGui: function(){
 
       // Do not forward events for input modifications while regenerating the gui

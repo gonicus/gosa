@@ -26,9 +26,10 @@ qx.Class.define("gosa.ui.widgets.SambaLogonHoursWidget", {
 
   statics: {
     
-    /* Create a readonly representation of this widget for the given value.
+    /**
+     * Create a readonly representation of this widget for the given value.
      * This is used while merging object properties.
-     * */
+     */
     getMergeWidget: function(value){
       var container = new qx.ui.container.Composite(new qx.ui.layout.VBox());
       for(var i=0;i<value.getLength(); i++){
