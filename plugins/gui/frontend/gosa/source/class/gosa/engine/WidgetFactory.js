@@ -80,22 +80,31 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       if (controller) {
         qx.core.Assert.assertInstance(controller, gosa.data.controller.ObjectEdit);
       }
-
-      var clazzName = name.substring(0, 1).toUpperCase() + name.substring(1);
-      var clazz = qx.Class.getByName("gosa.ui.dialogs." + clazzName);
-
       var dialog = null;
+      if (name.startsWith("RPC:")) {
+        return gosa.io.Rpc.getInstance().cA(name.substring(4), controller.getObjectData())
+        .then(function(template) {
+          var templateString = qx.lang.Json.stringify(template);
+          console.log(templateString);
+          var compiledTemplate = gosa.util.Template.compileTemplate(templateString);
+          return qx.Promise.resolve(new gosa.ui.dialogs.TemplateDialog(compiledTemplate, controller, extension));
+        });
+      } else {
 
-      // directly known class
-      if (clazz) {
-        dialog = new clazz();
-        dialog.setAutoDispose(true);
-      }
-      else {
-        // find dialog template
-        var template = gosa.data.TemplateRegistry.getInstance().getDialogTemplate(name);
-        if (template) {
-          dialog = new gosa.ui.dialogs.TemplateDialog(template, controller, extension);
+        var clazzName = name.substring(0, 1).toUpperCase() + name.substring(1);
+        var clazz = qx.Class.getByName("gosa.ui.dialogs." + clazzName);
+
+        // directly known class
+        if (clazz) {
+          dialog = new clazz();
+          dialog.setAutoDispose(true);
+        }
+        else {
+          // find dialog template
+          var template = gosa.data.TemplateRegistry.getInstance().getDialogTemplate(name);
+          if (template) {
+            dialog = new gosa.ui.dialogs.TemplateDialog(template, controller, extension);
+          }
         }
       }
 

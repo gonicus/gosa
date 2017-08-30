@@ -128,6 +128,7 @@ setup(
         zarafa = gosa.backend.plugins.zarafa.methods:ZarafaRPCMethods
         foreman = gosa.backend.plugins.foreman.main:Foreman
         settings = gosa.backend.components.settings_registry:SettingsRegistry
+        cups = gosa.backend.plugins.cups.main:CupsClient
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
@@ -205,6 +206,7 @@ setup(
         jsontostring = gosa.backend.objects.filter.strings:JsonToString
         foremanstatusin = gosa.backend.plugins.foreman.filter:ForemanStatusIn
         foremanstatusout = gosa.backend.plugins.foreman.filter:ForemanStatusOut
+        GetMakeModelFromPPD = gosa.backend.plugins.cups.filter:GetMakeModelFromPPD
 
         [gosa.object.comparator]
         like = gosa.backend.objects.comparator.strings:Like

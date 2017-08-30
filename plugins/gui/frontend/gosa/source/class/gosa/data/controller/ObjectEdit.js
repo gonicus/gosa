@@ -87,6 +87,17 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       return this.__object;
     },
 
+    getObjectData: function() {
+      var data = {};
+      this.__object.attributes.forEach(function(attributeName) {
+        var arr = this.__object.get(attributeName);
+        if (arr instanceof qx.data.Array && arr.getLength() === 1) {
+          data[attributeName] = arr.getItem(0);
+        }
+      }, this);
+      return data;
+    },
+
     closeWidgetAndObject : function() {
       this._widget.close();
       this.closeObject();

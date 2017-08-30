@@ -1,0 +1,187 @@
+{
+  "layout": "qx.ui.layout.VBox",
+  "type": "widget",
+  "class": "qx.ui.container.Composite",
+  "addOptions": {
+    "flex" : 1
+  },
+  "layoutConfig": {
+    "spacing": "CONST_SPACING_Y"
+  },
+  "extensions": {
+    "resources": {
+      "favicon": "@Ligature/print"
+    },
+    "tabConfig": {
+      "title": "tr('Printer')",
+      "icon": "favicon"
+    }
+  },
+  "children": [
+    {
+      "layout": "qx.ui.layout.Grid",
+      "type": "widget",
+      "class": "qx.ui.container.Composite",
+      "layoutConfig": {
+        "spacingX": "CONST_SPACING_X",
+        "spacingY": "CONST_SPACING_Y"
+      },
+      "extensions": {
+        "layoutOptions": {
+          "columnFlex": {
+            "column": 1,
+            "flex": 1
+          }
+        }
+      },
+      "children": [
+        {
+          "buddyModelPath": "cn",
+          "addOptions": {
+            "row": 0,
+            "column": 0
+          },
+          "properties": {
+            "text": "tr('Name')"
+          },
+          "class": "gosa.ui.widgets.QLabelWidget"
+        },
+        {
+          "modelPath": "cn",
+          "addOptions": {
+            "row": 0,
+            "column": 1
+          },
+          "properties": {
+            "tabIndex": 1
+          },
+          "class": "gosa.ui.widgets.QLineEditWidget"
+        },
+        {
+          "buddyModelPath": "l",
+          "addOptions": {
+            "row": 1,
+            "column": 0
+          },
+          "properties": {
+            "text": "tr('Location')"
+          },
+          "class": "gosa.ui.widgets.QLabelWidget"
+        },
+        {
+          "modelPath": "l",
+          "addOptions": {
+            "row": 1,
+            "column": 1
+          },
+          "properties": {
+            "tabIndex": 2
+          },
+          "class": "gosa.ui.widgets.QLineEditWidget"
+        },
+        {
+          "buddyModelPath": "description",
+          "addOptions": {
+            "row": 2,
+            "column": 0
+          },
+          "properties": {
+            "text": "tr('Description')"
+          },
+          "class": "gosa.ui.widgets.QLabelWidget"
+        },
+        {
+          "modelPath": "description",
+          "addOptions": {
+            "row": 2,
+            "column": 1
+          },
+          "properties": {
+            "tabIndex": 3
+          },
+          "class": "gosa.ui.widgets.QLineEditWidget"
+        },
+        {
+          "buddyModelPath": "labeledURI",
+          "addOptions": {
+            "row": 3,
+            "column": 0
+          },
+          "properties": {
+            "text": "tr('Labeled URI')"
+          },
+          "class": "gosa.ui.widgets.QLabelWidget"
+        },
+        {
+          "modelPath": "labeledURI",
+          "addOptions": {
+            "row": 3,
+            "column": 1
+          },
+          "properties": {
+            "tabIndex": 4
+          },
+          "class": "gosa.ui.widgets.QLineEditWidget"
+        },
+        {
+          "buddyModelPath": "maker",
+          "addOptions": {
+            "row": 4,
+            "column": 0
+          },
+          "properties": {
+            "text": "tr('Manufacturer')"
+          },
+          "class": "gosa.ui.widgets.QLabelWidget"
+        },
+        {
+          "modelPath": "maker",
+          "addOptions": {
+            "row": 4,
+            "column": 1
+          },
+          "properties": {
+            "tabIndex": 5,
+            "sortBy": "value"
+          },
+          "class": "gosa.ui.widgets.QComboBoxWidget"
+        },
+        {
+          "buddyModelPath": "gotoPrinterPPD",
+          "addOptions": {
+            "row": 5,
+            "column": 0
+          },
+          "properties": {
+            "text": "tr('Model')"
+          },
+          "class": "gosa.ui.widgets.QLabelWidget"
+        },
+        {
+          "modelPath": "gotoPrinterPPD",
+          "addOptions": {
+            "row": 5,
+            "column": 1
+          },
+          "properties": {
+            "tabIndex": 6,
+            "sortBy": "value"
+          },
+          "class": "gosa.ui.widgets.QComboBoxWidget"
+        },
+        {
+          "class": "gosa.ui.widgets.QPushButtonWidget",
+          "addOptions": {
+            "row": 6,
+            "column": 0,
+            "colSpan": 2
+          },
+          "properties": {
+            "text": "tr('Configure')",
+            "dialog": "RPC:getConfigurePrinterTemplate"
+          }
+        }
+      ]
+    }
+  ]
+}

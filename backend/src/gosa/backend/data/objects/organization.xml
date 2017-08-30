@@ -204,8 +204,9 @@
       <Type>OrganizationalRoleContainer</Type>
       <Type>AclRole</Type>
       <Type>SystemsContainer</Type>
-		</Container>
-		<BaseObject>true</BaseObject>
+      <Type>PrinterContainer</Type>
+    </Container>
+      <BaseObject>true</BaseObject>
     <Find>
       <Aspect>
         <Tag>Organization</Tag>

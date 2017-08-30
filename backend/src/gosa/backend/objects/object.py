@@ -264,7 +264,7 @@ class Object(object):
 
             ev = e.Event(
                 e.ObjectPropertyValuesChanged(
-                    e.UUID(self.uuid),
+                    e.UUID(self.uuid if self.uuid is not None else ""),
                     e.DN(self.dn),
                     *changed
                 )
