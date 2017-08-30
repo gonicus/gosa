@@ -38,11 +38,6 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
       nullable: true
     },
 
-    virtual: {
-      check: "Boolean",
-      init: false
-    },
-
     delegate: {
       check: "Object",
       init: {},
