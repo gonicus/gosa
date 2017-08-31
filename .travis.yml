@@ -29,7 +29,7 @@ before_install:
     - sudo cp ./test_conf/config /etc/gosa/
     - sudo chown travis:travis /tmp/workflows
 install:
-    - sudo apt-get install python3-cups libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev # needed to compile dbus-python
+    - sudo apt-get install libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev # needed to compile dbus-python
     - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure
     - pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.21.1
 before_script:
