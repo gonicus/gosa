@@ -79,39 +79,72 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       }
 
       // button creation
-      var button = new qx.ui.menu.Button(data.text, context.getResourceManager().getResource(data.icon), command);
-      button.setAppearance("icon-menu-button");
+      var type = data.hasOwnProperty("type") ? data.type : "menu";
 
-      // condition
-      if (data.hasOwnProperty("condition")) {
-        button.addListener("appear", function() {
-          this._checkCondition(data.condition, context).then(function(result) {
-            button.setEnabled(result);
-          });
-        }, this);
-      }
+      switch(type) {
 
-      // listener to open dialog
-      if (data.hasOwnProperty("dialog")) {
-        button.addListener("execute", function() {
-          var clazz = qx.Class.getByName("gosa.ui.dialogs.actions." + data.dialog);
-          if (!clazz) {
-            qx.core.Assert.fail("Cannot find class for dialog '" + data.dialog + "'");
+        case "afterDialog":
+          // this action should ba called on the beforeClose event of an dialog
+          context.addAfterDialogAction(data.name, function(ev) {
+            // 1. collect data from dialog form
+            var values = {};
+            var dialogContext = ev.getTarget().getContext();
+            var widgetMap = dialogContext.getFreeWidgetRegistry().getMap();
+            Object.getOwnPropertyNames(widgetMap).forEach(function(key) {
+              var val = widgetMap[key].getValue();
+              values[key] = qx.lang.Type.isArray(val) ? val.getItem(0) : val;
+            });
+
+            var args = this.__createArgumentsList(data.target, context);
+            args.push(qx.lang.Json.stringify(values));
+
+            // 2. send data to command
+            context.getActionController().callMethod.apply(context.getActionController(), args)
+            .then(function(result) {
+              this.info(this, "Call of method '" + args[0] + "' was successful and returned '" + result + "'");
+            }, this)
+            .catch(function(error) {
+              new gosa.ui.dialogs.Error(error).open();
+            });
+          }, this);
+          break;
+
+        default:
+          var button = new qx.ui.menu.Button(data.text, context.getResourceManager().getResource(data.icon), command);
+          button.setAppearance("icon-menu-button");
+
+          // condition
+          if (data.hasOwnProperty("condition")) {
+            button.addListener("appear", function() {
+              this._checkCondition(data.condition, context).then(function(result) {
+                button.setEnabled(result);
+              });
+            }, this);
           }
-          var dialog = new clazz(context.getActionController());
-          dialog.setAutoDispose(true);
-          dialog.open();
 
-          context.addDialog(dialog);
-        });
+          // listener to open dialog
+          if (data.hasOwnProperty("dialog")) {
+            button.addListener("execute", function() {
+              var clazz = qx.Class.getByName("gosa.ui.dialogs.actions." + data.dialog);
+              if (!clazz) {
+                qx.core.Assert.fail("Cannot find class for dialog '" + data.dialog + "'");
+              }
+              var dialog = new clazz(context.getActionController());
+              dialog.setAutoDispose(true);
+              dialog.open();
+
+              context.addDialog(dialog);
+            });
+          }
+
+          // listener to invoke target
+          if (data.hasOwnProperty("target")) {
+            this._addExecuteTargetListener(data.target, button, context);
+          }
+
+          context.addActionMenuEntry(data.name, button);
+          break;
       }
-
-      // listener to invoke target
-      if (data.hasOwnProperty("target")) {
-        this._addExecuteTargetListener(data.target, button, context);
-      }
-
-      context.addActionMenuEntry(data.name, button);
     },
 
     /**
@@ -275,6 +308,21 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       qx.core.Assert.assertString(target);
       qx.core.Assert.assertInstance(button, qx.ui.menu.Button);
 
+      var args = this.__createArgumentsList(target, context);
+      // listener for invoking the target
+      button.addListener("execute", function() {
+
+        context.getActionController().callMethod.apply(context.getActionController(), args)
+        .then(function(result) {
+          qx.log.Logger.info("Call of method '" + methodName + "' was successful and returned '" + result + "'");
+        })
+        .catch(function(error) {
+          new gosa.ui.dialogs.Error(error).open();
+        });
+      }, this);
+    },
+
+    __createArgumentsList: function(target, context) {
       var parser = /^([^(]+)\((.*)\)$/;
       var parsed = parser.exec(target);
       var methodName = parsed[1];
@@ -305,18 +353,8 @@ qx.Class.define("gosa.engine.extensions.Actions", {
           }
         });
       }
-
-      // listener for invoking the target
-      button.addListener("execute", function() {
-        args.unshift(methodName);
-        context.getActionController().callMethod.apply(context.getActionController(), args)
-        .then(function(result) {
-          qx.log.Logger.info("Call of method '" + methodName + "' was successful and returned '" + result + "'");
-        })
-        .catch(function(error) {
-          new gosa.ui.dialogs.Error(error).open();
-        });
-      }, this);
+      args.unshift(methodName);
+      return args;
     }
   },
 

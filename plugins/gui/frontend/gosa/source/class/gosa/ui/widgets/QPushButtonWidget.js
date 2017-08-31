@@ -59,6 +59,14 @@ qx.Class.define("gosa.ui.widgets.QPushButtonWidget", {
       nullable : true,
       check : "String",
       apply : "_applyDialog"
+    },
+
+    /**
+     * Action to be called when the dialog gets closed
+     */
+    actionOnClose: {
+      nullable: true,
+      check: "String"
     }
   },
 
@@ -99,13 +107,16 @@ qx.Class.define("gosa.ui.widgets.QPushButtonWidget", {
       if (!this._dialogExecutionListener) {
         this._dialogExecutionListener = this._widget.addListener("execute", function() {
           var dialog = gosa.engine.WidgetFactory.createDialog(this.getDialog(), this._getController(), this.getExtension());
-          if (dialog instanceof qx.Promise) {
-            dialog.then(function(d) {
-              d.open();
-            });
-          } else {
-            dialog.open();
+          if (!(dialog instanceof qx.Promise)) {
+            dialog = qx.Promise.resolve(dialog);
           }
+          dialog.then(function(d) {
+            if (this.getActionOnClose()) {
+              var context = this._getController().getContextByExtensionName(this.getExtension());
+              d.addListenerOnce("beforeClose", context.getAfterDialogActionCallback(this.getActionOnClose()));
+            }
+            d.open();
+          }, this);
         }, this);
       }
     },

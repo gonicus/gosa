@@ -40,8 +40,10 @@ qx.Class.define("gosa.engine.Context", {
     this._rootWidget = rootWidget;
     this._extension = extension;
     this._actionMenuEntries = {};
+    this._afterDialogActions = {};
     this._widgetRegistry = new gosa.engine.WidgetRegistry();
     this._buddyRegistry = new gosa.engine.WidgetRegistry();
+    this._freeWidgetRegistry = new gosa.engine.WidgetRegistry();
     this._resourceManager = new gosa.engine.ResourceManager();
     this._processor = gosa.engine.ProcessorFactory.getProcessor(this._template, this);
 
@@ -79,10 +81,13 @@ qx.Class.define("gosa.engine.Context", {
     _controller : null,
     _widgetRegistry : null,
     _buddyRegistry : null,
+    // widget which are not bound to an object (identified by widgetName property)
+    _freeWidgetRegistry: null,
     _resourceManager : null,
     _actionMenuEntries : null,
     _appeared : false,
     _actionController : null,
+    _afterDialogActions : null,
 
     /**
      * @return {gosa.proxy.Object}
@@ -145,6 +150,14 @@ qx.Class.define("gosa.engine.Context", {
     },
 
     /**
+     * @return {gosa.engine.WidgetRegistry} The registry for widgets, that are not bound to a object via modelPath
+     *         (they are identified via widgetName property)
+     */
+    getFreeWidgetRegistry : function() {
+      return this._freeWidgetRegistry;
+    },
+
+    /**
      * @return {gosa.engine.ResourceManager} The manager for resources (e.g. images)
      */
     getResourceManager : function() {
@@ -156,6 +169,18 @@ qx.Class.define("gosa.engine.Context", {
      */
     getActions : function() {
       return this._actionMenuEntries;
+    },
+
+    /**
+     *
+     * @return {Map} Hash in the shape "name" -> {Function}
+     */
+    getAfterDialogActions: function() {
+      return this._afterDialogActions;
+    },
+
+    getAfterDialogActionCallback: function(actionName) {
+      return this._afterDialogActions[actionName];
     },
 
     isAppeared : function() {
@@ -176,6 +201,22 @@ qx.Class.define("gosa.engine.Context", {
         "There already is an action with the key '" + name + "'"
       );
       this._actionMenuEntries[name] = button;
+    },
+
+    /**
+     * Adds a action to be called after a dialog has been closed
+     * @param name
+     * @param callback
+     * @param context
+     */
+    addAfterDialogAction: function(name, callback, context) {
+      qx.core.Assert.assertString(name);
+      qx.core.Assert.assertFunction(callback);
+      qx.core.Assert.assertFalse(
+        this._afterDialogActions.hasOwnProperty(name),
+        "There already is an action with the key '" + name + "'"
+      );
+      this._afterDialogActions[name] = callback.bind(context || this);
     },
 
     createWidgets : function() {

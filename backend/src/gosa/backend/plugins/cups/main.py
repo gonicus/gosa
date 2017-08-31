@@ -1,12 +1,17 @@
+import hashlib
 import logging
 import pprint
 import cups
 import os
+import tempfile
 
 from zope.interface import implementer
+
+from gosa.backend.objects import ObjectProxy
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common import Environment
-from gosa.common.components import Plugin, Command
+from gosa.common.components import Plugin, Command, PluginRegistry
+from gosa.common.gjson import loads
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.utils import N_
 
@@ -15,7 +20,9 @@ conn = cups.Connection()
 pp = pprint.PrettyPrinter()
 
 C.register_codes(dict(
-    ERROR_GETTING_SERVER_PPD=N_("Server PPD file could not be retrieved: '%(type)s'")
+    ERROR_GETTING_SERVER_PPD=N_("Server PPD file could not be retrieved: '%(type)s'"),
+    OPTION_CONFLICT=N_("Setting option '%(option)s' to '%(value)s' caused %(conflicts)s"),
+    OPTION_NOT_FOUND=N_("Option '%(option)s' not found in PPD")
 ))
 
 # for name, data in conn.getPrinters().items():
@@ -48,6 +55,73 @@ class CupsClient(Plugin):
             self.__printer_list = res
         return self.__printer_list
 
+    @Command(needsObject=True, __help__=N_("Write settings to PPD file"))
+    def writePPD(self, object, printer_cn, ppd_file, data):
+        server_ppd = self.client.getServerPPD(ppd_file)
+        is_server_ppd = server_ppd is not None
+        if server_ppd:
+            ppd = cups.PPD(server_ppd)
+        else:
+            ppd = cups.PPD(ppd_file)
+
+        if isinstance(data, str):
+            data = loads(data)
+
+        # apply options
+        for option_name, value in data.items():
+            option = ppd.findOption(option_name)
+            if option is not None:
+                conflicts = ppd.markOption(option_name, value)
+                if conflicts > 0:
+                    raise PPDException(C.make_error('OPTION_CONFLICT', option=option_name, value=value, conflicts=conflicts))
+            else:
+                raise PPDException(C.make_error('OPTION_NOT_FOUND', option=option_name))
+
+        # calculate hash value for new PPD
+        dir = self.env.config.get("cups.spool", default="/tmp/spool")
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        try:
+            with open(temp_file.name, "w") as tf:
+                ppd.writeFd(tf.fileno())
+
+            with open(temp_file.name, "r") as tf:
+                result = tf.read()
+
+            hash = hashlib.md5(repr(result).encode('utf-8')).hexdigest()
+
+            new_file = os.path.join(dir, "%s.ppd" % hash)
+            if new_file == object.gotoPrinterPPD:
+                # nothing to to
+                return
+
+            index = PluginRegistry.getInstance("ObjectIndex")
+            if not is_server_ppd:
+                # check if anyone else is using a file with this hash value and delete the old file if not
+                res = index.search({"_type": "GotoPrinter", "gotoPrinterPPD": ppd_file, "not_": {"cn": printer_cn}}, {"dn": 1})
+                if len(res) == 0:
+                    # delete file
+                    os.unlink(ppd_file)
+
+            with open(new_file, "w") as f:
+                f.write(result)
+
+            if hasattr(object, "gotoPrinterPPD"):
+                # write new PPD link to printer object
+                object.gotoPrinterPPD = new_file
+
+            return True
+
+        except Exception as e:
+            self.log.error(str(e))
+            return False
+        finally:
+            os.unlink(temp_file.name)
+            if server_ppd is not None:
+                os.unlink(server_ppd)
+
     @Command(__help__=N_("Get a list of all available printer manufacturers"))
     def getPrinterManufacturers(self):
         return list(self.__get_printer_list().keys())
@@ -72,26 +146,26 @@ class CupsClient(Plugin):
     @Command(__help__=N_("Get a GUI template from a PPD file"))
     def getConfigurePrinterTemplate(self, data):
         """
-        Generates a GUI template from a PPD file. Please not that this is not the same template
-        syntax as the object/workflow templates.
+        Generates a GUI template from a PPD file.
         """
+        ppd_file = None
+        name = None
         # extract name from data
         if isinstance(data, str):
             name = data
         elif isinstance(data, dict):
-            name = data["gotoPrinterPPD"]
+            if "gotoPrinterPPD" in data and data["gotoPrinterPPD"] is not None:
+                ppd_file = data["gotoPrinterPPD"]
+            else:
+                name = data["serverPPD"]
         else:
             name = str(data)
 
         template = {
-            "layout": "qx.ui.layout.VBox",
             "type": "widget",
-            "class": "qx.ui.container.Composite",
+            "class": "gosa.ui.tabview.TabView",
             "addOptions": {
                 "flex": 1
-            },
-            "layoutConfig": {
-                "spacing": "CONST_SPACING_Y"
             },
             "properties": {
                 "width": 800,
@@ -101,11 +175,15 @@ class CupsClient(Plugin):
             },
             "children": []
         }
-        ppd_file = None
+
         try:
-            ppd_file = self.client.getServerPPD(name)
+            if ppd_file is None:
+                ppd_file = self.client.getServerPPD(name)
             ppd = cups.PPD(ppd_file)
             ppd.localize()
+            model_attr = ppd.findAttr("ModelName")
+            if model_attr:
+                template["properties"]["windowTitle"] = N_("Configure printer: %s" % model_attr.value)
             for group in ppd.optionGroups:
                 template["children"].append(self.__read_group(group))
             return template
@@ -120,10 +198,10 @@ class CupsClient(Plugin):
         col = 0
         tab = 1
         template = {
-            "class": "gosa.ui.widgets.GroupBox",
+            "class": "qx.ui.tabview.Page",
             "layout": "qx.ui.layout.Grid",
             "properties": {
-                "legend": group.text
+                "label": group.text
             },
             "layoutConfig": {
                 "spacingX": "CONST_SPACING_X",
@@ -141,7 +219,6 @@ class CupsClient(Plugin):
         }
         for option in group.options:
             label = {
-                "buddyModelPath": option.keyword,
                 "addOptions": {
                     "row": row,
                     "column": col
@@ -155,7 +232,7 @@ class CupsClient(Plugin):
             template["children"].append(label)
 
             widget = {
-                "modelPath": option.keyword,
+                "widgetName": option.keyword,
                 "addOptions": {
                     "row": row,
                     "column": col+1
@@ -164,14 +241,12 @@ class CupsClient(Plugin):
                     "tabIndex": tab,
                     "sortBy": "value",
                     "value": [option.defchoice],
-                    "values": []
+                    "values": {}
                 },
                 "class": "gosa.ui.widgets.QComboBoxWidget"
             }
             for choice in option.choices:
-                widget["properties"]["values"].append({
-                    choice["choice"]: {"value": choice["text"]}
-                })
+                widget["properties"]["values"][choice["choice"]] = {"value": choice["text"]}
 
             template["children"].append(widget)
             row += 1
@@ -198,6 +273,9 @@ class CupsClient(Plugin):
 
 
 class CupsException(Exception):
+    pass
+
+class PPDException(Exception):
     pass
 
 # ppd_file = conn.getPPD("uberdruck")

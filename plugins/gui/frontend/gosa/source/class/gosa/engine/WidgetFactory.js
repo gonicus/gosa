@@ -85,7 +85,6 @@ qx.Class.define("gosa.engine.WidgetFactory", {
         return gosa.io.Rpc.getInstance().cA(name.substring(4), controller.getObjectData())
         .then(function(template) {
           var templateString = qx.lang.Json.stringify(template);
-          console.log(templateString);
           var compiledTemplate = gosa.util.Template.compileTemplate(templateString);
           return qx.Promise.resolve(new gosa.ui.dialogs.TemplateDialog(compiledTemplate, controller, extension));
         });

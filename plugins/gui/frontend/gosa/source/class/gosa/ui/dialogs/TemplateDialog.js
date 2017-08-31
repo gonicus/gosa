@@ -49,6 +49,11 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
   members : {
     _parsedTemplate : null,
     _extension : null,
+    _context: null,
+
+    getContext: function() {
+      return this._context;
+    },
 
     _getWindowTitle : function() {
       var t = this._parsedTemplate;
@@ -70,8 +75,8 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
       var container = new qx.ui.container.Composite(new qx.ui.layout.VBox());
       this.addElement(container, {flex : 1});
 
-      var context = new gosa.engine.Context(this._parsedTemplate, container, this._extension, this.getController());
-      this.getController().handleTemporaryContext(context);
+      this._context = new gosa.engine.Context(this._parsedTemplate, container, this._extension, this.getController());
+      this.getController().handleTemporaryContext(this._context);
     }
   }
 });

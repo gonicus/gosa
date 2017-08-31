@@ -15,7 +15,13 @@
     "tabConfig": {
       "title": "tr('Printer')",
       "icon": "favicon"
-    }
+    },
+    "actions": [{
+      "name": "writePPD",
+      "target": "writePPD()",
+      "text": "writePPD",
+      "type": "afterDialog"
+    }]
   },
   "children": [
     {
@@ -147,7 +153,7 @@
           "class": "gosa.ui.widgets.QComboBoxWidget"
         },
         {
-          "buddyModelPath": "gotoPrinterPPD",
+          "buddyModelPath": "serverPPD",
           "addOptions": {
             "row": 5,
             "column": 0
@@ -158,7 +164,7 @@
           "class": "gosa.ui.widgets.QLabelWidget"
         },
         {
-          "modelPath": "gotoPrinterPPD",
+          "modelPath": "serverPPD",
           "addOptions": {
             "row": 5,
             "column": 1
@@ -178,7 +184,8 @@
           },
           "properties": {
             "text": "tr('Configure')",
-            "dialog": "RPC:getConfigurePrinterTemplate"
+            "dialog": "RPC:getConfigurePrinterTemplate",
+            "actionOnClose": "writePPD"
           }
         }
       ]

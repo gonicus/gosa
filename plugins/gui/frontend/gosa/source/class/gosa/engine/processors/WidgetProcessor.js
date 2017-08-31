@@ -29,8 +29,6 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
   },
 
   members : {
-    _context : null,
-    _firstLevelExtensionsProcessed : false,
 
     process : function(node, target) {
       if (this._getValue(node, "class")) {
@@ -42,13 +40,6 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
       }
       else if (this._getValue(node, "form")) {
         this._includeForm(node, target);
-      }
-    },
-
-    processFirstLevelExtensions : function(node, target) {
-      if (this._getValue(node, "class")) {
-        this._firstLevelExtensionsProcessed = true;
-        this._handleExtensions(node, target);
       }
     },
 
@@ -108,6 +99,12 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
       var buddyModelPath = this._getValue(node, "buddyModelPath");
       if (buddyModelPath) {
         this._context.getBuddyRegistry().addWidget(buddyModelPath, widget);
+      }
+
+      var widgetName = this._getValue(node, "widgetName");
+      if (widgetName) {
+        widget.setWidgetName(widgetName);
+        this._context.getFreeWidgetRegistry().addWidget(widgetName, widget);
       }
 
       return widget;

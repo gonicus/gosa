@@ -14,7 +14,7 @@ class GetMakeModelFromPPD(ElementFilter):
             <Filter>
                 <Name>GetMakeModelFromPPD</Name>
                 <param>make_attribute</param>
-                <param>model_attribute</param>
+                <param>server_ppd_attribute</param>
             </Filter>
         </FilterEntry>
         ...
@@ -23,15 +23,21 @@ class GetMakeModelFromPPD(ElementFilter):
     def __init__(self, obj):
         super(GetMakeModelFromPPD, self).__init__(obj)
 
-    def process(self, obj, key, valDict, make_attribute, model_attribute):
+    def process(self, obj, key, valDict, make_attribute=None, server_ppd_attribute=None, override=False):
         ppd_file = valDict[key]['value'][0] if len(valDict[key]['value']) else None
         if ppd_file is not None:
             cups = PluginRegistry.getInstance("CupsClient")
-            res = cups.get_attributes_from_ppd(ppd_file, ["Manufacturer", "ModelName"])
-            if make_attribute in valDict:
-                valDict[make_attribute] = res["Manufacturer"]
-            if model_attribute in valDict:
-                valDict[model_attribute] = res["ModelName"]
+            res = cups.get_attributes_from_ppd(ppd_file, ["Manufacturer",  "NickName"])
+            if make_attribute is not None and make_attribute in valDict:
+                if len(valDict[make_attribute]['value']) == 0 or override == "true":
+                    valDict[make_attribute]['value'] = [res["Manufacturer"]]
+
+            if server_ppd_attribute is not None and server_ppd_attribute in valDict:
+                for ppd, entry in cups.getPrinterModels(res["Manufacturer"]).items():
+                    if entry["value"] == res["NickName"]:
+                        if len(valDict[make_attribute]['value']) == 0 or override == "true":
+                            valDict[server_ppd_attribute]['value'] = [ppd]
+                        break
 
         return key, valDict
 

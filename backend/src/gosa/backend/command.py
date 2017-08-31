@@ -192,9 +192,9 @@ class CommandRegistry(Plugin):
         """
 
         # We pass 'self' as user, to skip acls checks.
-        return self.dispatch(self, None, func, *arg, **larg)
+        return self.dispatch(self, None, None, func, *arg, **larg)
 
-    def dispatch(self, user, session_id, func, *arg, **larg):
+    def dispatch(self, user, session_id, object, func, *arg, **larg):
         """
         The dispatch method will try to call the specified function and
         checks for user.
@@ -232,20 +232,24 @@ class CommandRegistry(Plugin):
         # Convert to list
         arg = list(arg)
 
-        # Check if call is interested in calling user ID, prepend it
-        if self.callNeedsUser(func):
-            if user != self:
-                arg.insert(0, user)
-            else:
-                arg.insert(0, None)
+        # Check if call is interested in the object it been called from
+        if self.callNeedsObject(func):
+            arg.insert(0, object)
+        else:
+            # Check if call is interested in calling user ID, prepend it
+            if self.callNeedsUser(func):
+                if user != self:
+                    arg.insert(0, user)
+                else:
+                    arg.insert(0, None)
 
-        # Check if call is interested in calling session ID, prepend it
-        if self.callNeedsSession(func):
-            index = 1 if self.callNeedsUser(func) else 0
-            if user != self:
-                arg.insert(index, session_id)
-            else:
-                arg.insert(index, None)
+            # Check if call is interested in calling session ID, prepend it
+            if self.callNeedsSession(func):
+                index = 1 if self.callNeedsUser(func) else 0
+                if user != self:
+                    arg.insert(index, session_id)
+                else:
+                    arg.insert(index, None)
 
         # Handle function type (additive, first match, regular)
         (clazz, method) = self.path2method(self.commands[func]['path'])
@@ -267,6 +271,15 @@ class CommandRegistry(Plugin):
         """
         return path.rsplit('.')
 
+    def __call_needs(self, func, name):
+        if not func in self.commands:
+            raise CommandInvalid(C.make_error("COMMAND_NOT_DEFINED", method=func))
+
+        (clazz, method) = self.path2method(self.commands[func]['path'])
+
+        method = PluginRegistry.modules[clazz].__getattribute__(method)
+        return getattr(method, name, False)
+
     def callNeedsUser(self, func):
         """
         Checks if the provided method requires a user parameter.
@@ -279,13 +292,7 @@ class CommandRegistry(Plugin):
 
         ``Return:`` success or failure
         """
-        if not func in self.commands:
-            raise CommandInvalid(C.make_error("COMMAND_NOT_DEFINED", method=func))
-
-        (clazz, method) = self.path2method(self.commands[func]['path'])
-
-        method = PluginRegistry.modules[clazz].__getattribute__(method)
-        return getattr(method, "needsUser", False)
+        return self.__call_needs(func, "needsUser")
 
     def callNeedsSession(self, func):
         """
@@ -299,13 +306,21 @@ class CommandRegistry(Plugin):
 
         ``Return:`` success or failure
         """
-        if not func in self.commands:
-            raise CommandInvalid(C.make_error("COMMAND_NOT_DEFINED", method=func))
+        return self.__call_needs(func, "needsSession")
 
-        (clazz, method) = self.path2method(self.commands[func]['path'])
+    def callNeedsObject(self, func):
+        """
+        Checks if the provided method requires an object parameter.
 
-        method = PluginRegistry.modules[clazz].__getattribute__(method)
-        return getattr(method, "needsSession", False)
+        ========== ============
+        Parameter  Description
+        ========== ============
+        func       method name
+        ========== ============
+
+        ``Return:`` success or failure
+        """
+        return self.__call_needs(func, "needsObject")
 
     def __del__(self):
         self.log.debug("shutting down command registry")

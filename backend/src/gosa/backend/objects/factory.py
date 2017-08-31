@@ -1019,7 +1019,8 @@ class ObjectFactory(object):
                 cr = PluginRegistry.getInstance('CommandRegistry')
                 methods[methodName] = {'ref': self.__create_class_method(klass, methodName, command, mParams, cParams,
                                                                          cr.callNeedsUser(command),
-                                                                         cr.callNeedsSession(command))}
+                                                                         cr.callNeedsSession(command),
+                                                                         cr.callNeedsObject(command))}
 
         # Build list of hooks
         if 'Hooks' in classr.__dict__:
@@ -1086,7 +1087,7 @@ class ObjectFactory(object):
 
         return funk
 
-    def __create_class_method(self, klass, methodName, command, mParams, cParams, needsUser=False, needsSession=False):
+    def __create_class_method(self, klass, methodName, command, mParams, cParams, needsUser=False, needsSession=False, needsObject=False):
         """
         Creates a new klass-method for the current objekt.
         """
@@ -1145,16 +1146,28 @@ class ObjectFactory(object):
             cr = PluginRegistry.getInstance('CommandRegistry')
             self.log.info("Executed %s.%s which invoked %s(%s)" % (klass.__name__, methodName, command, parmList))
 
-            # Do we need a user / session_id specification?
-            if needsUser:
-                if needsSession:
-                    return cr.dispatch(caller_object._owner, caller_object._session_id, command, *parmList)
-                else:
-                    return cr.dispatch(caller_object._owner, None, command, *parmList)
-            elif needsSession:
-                return cr.dispatch(cr, caller_object._session_id, command, *parmList)
+            if not needsSession and not needsUser and not needsObject:
+                return cr.call(command, *parmList)
 
-            return cr.call(command, *parmList)
+            # Do we need a user / session_id specification?
+            args = []
+            if needsUser:
+                args.append(caller_object._owner)
+            else:
+                args.append(cr)
+            if needsSession:
+                args.append(caller_object._session_id)
+            else:
+                args.append(None)
+            if needsObject:
+                args.append(caller_object)
+            else:
+                args.append(None)
+
+            args.append(command)
+            args.extend(parmList)
+            return cr.dispatch(*args)
+
         return funk
 
     def __build_filter(self, element, out=None):

@@ -270,7 +270,7 @@ class Workflow:
 
             def make_dispatch(method):
                 def call(*args, **kwargs):
-                    return dispatcher.dispatch(self.__user, self.__session_id, method, *args, **kwargs)
+                    return dispatcher.dispatch(self.__user, self.__session_id, self, method, *args, **kwargs)
                 return call
 
             # Add public calls

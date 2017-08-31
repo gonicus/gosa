@@ -298,9 +298,9 @@ class JsonRpcHandler(HSTSRequestHandler):
                 user = self.dispatcher
 
             if isinstance(params, dict):
-                result = self.dispatcher.dispatch(user, sid, method, **params)
+                result = self.dispatcher.dispatch(user, sid, None, method, **params)
             else:
-                result = self.dispatcher.dispatch(user, sid, method, *params)
+                result = self.dispatcher.dispatch(user, sid, None, method, *params)
 
         except JSONRPCException as e:
             exc_value = sys.exc_info()[1]

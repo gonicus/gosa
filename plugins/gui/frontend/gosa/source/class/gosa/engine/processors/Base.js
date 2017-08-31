@@ -23,6 +23,7 @@ qx.Class.define("gosa.engine.processors.Base", {
 
   members : {
     _context : null,
+    _firstLevelExtensionsProcessed : false,
 
     /**
      * Processes the template and generates widget, widget registry entries, extensions, etc.
@@ -66,10 +67,21 @@ qx.Class.define("gosa.engine.processors.Base", {
               value = properties[property];
               properties[property] = new qx.bom.Font(value[0], value[1]);
               break;
+            case "value":
+              properties[property] = new qx.data.Array(properties[property]);
+              break;
           }
         }
       }
       return properties;
+    },
+
+
+    processFirstLevelExtensions : function(node, target) {
+      if (this._getValue(node, "class")) {
+        this._firstLevelExtensionsProcessed = true;
+        this._handleExtensions(node, target);
+      }
     },
 
     _handleExtensions : function(node, target) {

@@ -92,35 +92,13 @@
                 <Values populate="getPrinterManufacturers"/>
             </Attribute>
             <Attribute>
-                <Name>model</Name>
+                <Name>serverPPD</Name>
                 <Backend>NULL</Backend>
                 <Type>UnicodeString</Type>
-
-                <OutFilter>
-                    <FilterChain>
-                        <FilterEntry>
-                            <Filter>
-                                <Name>CopyValueTo</Name>
-                                <Param>gotoPrinterPPD</Param>
-                            </Filter>
-                        </FilterEntry>
-                    </FilterChain>
-                </OutFilter>
-            </Attribute>
-            <Attribute>
-                <Name>gotoPrinterPPD</Name>
-                <Description>GOto - Gonicus Terminal Concept, PPD data</Description>
-                <Type>String</Type>
                 <Values populate="getPrinterModels" refresh-on-update="true"/>
                 <BlockedBy>
                     <Attribute value="null">maker</Attribute>
                 </BlockedBy>
-                <Validators>
-                    <Condition>
-                        <Name>RegEx</Name>
-                        <Param>^[\x00-\x7F]*$</Param>
-                    </Condition>
-                </Validators>
                 <InFilter>
                     <FilterChain>
                         <FilterEntry>
@@ -131,6 +109,29 @@
                         </FilterEntry>
                     </FilterChain>
                 </InFilter>
+            </Attribute>
+            <Attribute>
+                <Name>gotoPrinterPPD</Name>
+                <Description>GOto - Gonicus Terminal Concept, PPD data</Description>
+                <Type>String</Type>
+                <InFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>GetMakeModelFromPPD</Name>
+                                <Param>maker</Param>
+                                <Param>serverPPD</Param>
+                                <Param>true</Param>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </InFilter>
+                <Validators>
+                    <Condition>
+                        <Name>RegEx</Name>
+                        <Param>^[\x00-\x7F]*$</Param>
+                    </Condition>
+                </Validators>
             </Attribute>
 
             <Attribute>
@@ -160,6 +161,23 @@
                 </Validators>
             </Attribute>
         </Attributes>
+        <Methods>
+            <Method>
+                <Name>writePPD</Name>
+                <Command>writePPD</Command>
+                <MethodParameters>
+                    <MethodParameter>
+                        <Name>data</Name>
+                        <Type>UnicodeString</Type>
+                    </MethodParameter>
+                </MethodParameters>
+                <CommandParameters>
+                    <Value>cn</Value>
+                    <Value>serverPPD</Value>
+                    <Value>data</Value>
+                </CommandParameters>
+            </Method>
+        </Methods>
         <Find>
             <Aspect>
                 <Tag>GotoPrinter</Tag>
