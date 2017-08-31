@@ -128,11 +128,33 @@
             "tabIndex": 4
           },
           "class": "gosa.ui.widgets.QLineEditWidget"
-        },
+        }
+      ]
+    },
+    {
+      "layout": "qx.ui.layout.Grid",
+      "type": "widget",
+      "class": "gosa.ui.widgets.GroupBox",
+      "properties": {
+        "legend": "tr('Printer configuration')"
+      },
+      "layoutConfig": {
+        "spacingX": "CONST_SPACING_X",
+        "spacingY": "CONST_SPACING_Y"
+      },
+      "extensions": {
+        "layoutOptions": {
+          "columnFlex": {
+            "column": 1,
+            "flex": 1
+          }
+        }
+      },
+      "children": [
         {
           "buddyModelPath": "maker",
           "addOptions": {
-            "row": 4,
+            "row": 0,
             "column": 0
           },
           "properties": {
@@ -143,7 +165,7 @@
         {
           "modelPath": "maker",
           "addOptions": {
-            "row": 4,
+            "row": 0,
             "column": 1
           },
           "properties": {
@@ -155,7 +177,7 @@
         {
           "buddyModelPath": "serverPPD",
           "addOptions": {
-            "row": 5,
+            "row": 1,
             "column": 0
           },
           "properties": {
@@ -166,7 +188,7 @@
         {
           "modelPath": "serverPPD",
           "addOptions": {
-            "row": 5,
+            "row": 1,
             "column": 1
           },
           "properties": {
@@ -178,7 +200,7 @@
         {
           "class": "gosa.ui.widgets.QPushButtonWidget",
           "addOptions": {
-            "row": 6,
+            "row": 2,
             "column": 0,
             "colSpan": 2
           },
