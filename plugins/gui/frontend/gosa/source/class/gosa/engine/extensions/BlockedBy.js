@@ -34,10 +34,7 @@ qx.Class.define("gosa.engine.extensions.BlockedBy", {
       }, this);
 
       sourceWidget.addListener("changeValue", function(ev) {
-
         var v = gosa.ui.widgets.Widget.getSingleValue(ev.getData());
-        console.log(v);
-        console.log(value);
         target.setVisibility(v === value ? "excluded" : "visible");
       }, this);
     }
