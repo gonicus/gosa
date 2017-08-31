@@ -126,6 +126,15 @@
                         </FilterEntry>
                     </FilterChain>
                 </InFilter>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>DeleteOldFile</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
                 <Validators>
                     <Condition>
                         <Name>RegEx</Name>
@@ -174,6 +183,7 @@
                 <CommandParameters>
                     <Value>cn</Value>
                     <Value>serverPPD</Value>
+                    <Value>gotoPrinterPPD</Value>
                     <Value>data</Value>
                 </CommandParameters>
             </Method>

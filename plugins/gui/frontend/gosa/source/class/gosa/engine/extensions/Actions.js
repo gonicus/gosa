@@ -102,6 +102,12 @@ qx.Class.define("gosa.engine.extensions.Actions", {
             context.getActionController().callMethod.apply(context.getActionController(), args)
             .then(function(result) {
               this.info(this, "Call of method '" + args[0] + "' was successful and returned '" + result + "'");
+              // apply returned values to object
+              var obj = context.getObject();
+              Object.getOwnPropertyNames(result).forEach(function(attr) {
+                obj.set(attr, new qx.data.Array(result[attr]));
+              }, this);
+              return null;
             }, this)
             .catch(function(error) {
               new gosa.ui.dialogs.Error(error).open();

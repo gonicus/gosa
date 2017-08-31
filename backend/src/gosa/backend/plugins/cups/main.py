@@ -21,14 +21,10 @@ pp = pprint.PrettyPrinter()
 
 C.register_codes(dict(
     ERROR_GETTING_SERVER_PPD=N_("Server PPD file could not be retrieved: '%(type)s'"),
+    PPD_NOT_FOUND=N_("PPD file '%(ppd)s' not found"),
     OPTION_CONFLICT=N_("Setting option '%(option)s' to '%(value)s' caused %(conflicts)s"),
     OPTION_NOT_FOUND=N_("Option '%(option)s' not found in PPD")
 ))
-
-# for name, data in conn.getPrinters().items():
-#     print("Printer: %s"  % name)
-#     print("\tModel: %s" % data["printer-make-and-model"])
-#     print("\tLocation: %s" % data["printer-location"])
 
 
 @implementer(IInterfaceHandler)
@@ -55,14 +51,17 @@ class CupsClient(Plugin):
             self.__printer_list = res
         return self.__printer_list
 
-    @Command(needsObject=True, __help__=N_("Write settings to PPD file"))
-    def writePPD(self, object, printer_cn, ppd_file, data):
-        server_ppd = self.client.getServerPPD(ppd_file)
-        is_server_ppd = server_ppd is not None
-        if server_ppd:
+    @Command(__help__=N_("Write settings to PPD file"))
+    def writePPD(self, printer_cn, server_ppd_file, custom_ppd_file, data):
+        server_ppd = None
+        try:
+            server_ppd = self.client.getServerPPD(server_ppd_file)
+            is_server_ppd = True
             ppd = cups.PPD(server_ppd)
+        except:
+            is_server_ppd = False
         else:
-            ppd = cups.PPD(ppd_file)
+            ppd = cups.PPD(custom_ppd_file)
 
         if isinstance(data, str):
             data = loads(data)
@@ -91,32 +90,31 @@ class CupsClient(Plugin):
                 result = tf.read()
 
             hash = hashlib.md5(repr(result).encode('utf-8')).hexdigest()
+            index = PluginRegistry.getInstance("ObjectIndex")
 
             new_file = os.path.join(dir, "%s.ppd" % hash)
-            if new_file == object.gotoPrinterPPD:
+            if new_file == custom_ppd_file:
                 # nothing to to
-                return
+                return {}
 
-            index = PluginRegistry.getInstance("ObjectIndex")
             if not is_server_ppd:
                 # check if anyone else is using a file with this hash value and delete the old file if not
-                res = index.search({"_type": "GotoPrinter", "gotoPrinterPPD": ppd_file, "not_": {"cn": printer_cn}}, {"dn": 1})
+                query = {"_type": "GotoPrinter", "gotoPrinterPPD": custom_ppd_file}
+                if printer_cn is not None:
+                    query["not_"] = {"cn": printer_cn}
+                res = index.search(query, {"dn": 1})
                 if len(res) == 0:
                     # delete file
-                    os.unlink(ppd_file)
+                    os.unlink(custom_ppd_file)
 
             with open(new_file, "w") as f:
                 f.write(result)
 
-            if hasattr(object, "gotoPrinterPPD"):
-                # write new PPD link to printer object
-                object.gotoPrinterPPD = new_file
-
-            return True
+            return {"gotoPrinterPPD": [new_file]}
 
         except Exception as e:
             self.log.error(str(e))
-            return False
+            return {}
         finally:
             os.unlink(temp_file.name)
             if server_ppd is not None:
@@ -150,12 +148,14 @@ class CupsClient(Plugin):
         """
         ppd_file = None
         name = None
+        delete = True
         # extract name from data
         if isinstance(data, str):
             name = data
         elif isinstance(data, dict):
-            if "gotoPrinterPPD" in data and data["gotoPrinterPPD"] is not None:
+            if "gotoPrinterPPD" in data and data["gotoPrinterPPD"] is not None and os.path.exists(data["gotoPrinterPPD"]):
                 ppd_file = data["gotoPrinterPPD"]
+                delete = False
             else:
                 name = data["serverPPD"]
         else:
@@ -171,7 +171,8 @@ class CupsClient(Plugin):
                 "width": 800,
                 "height": 600,
                 "windowTitle": "tr('Configure printer')",
-                "dialogName": "configurePrinter"
+                "dialogName": "configurePrinter",
+                "cancelable": True
             },
             "children": []
         }
@@ -179,6 +180,8 @@ class CupsClient(Plugin):
         try:
             if ppd_file is None:
                 ppd_file = self.client.getServerPPD(name)
+            if not os.path.exists(ppd_file):
+                raise CupsException(C.make_error('PPD_NOT_FOUND', ppd=ppd_file))
             ppd = cups.PPD(ppd_file)
             ppd.localize()
             model_attr = ppd.findAttr("ModelName")
@@ -190,7 +193,7 @@ class CupsClient(Plugin):
         except cups.IPPError as e:
             raise CupsException(C.make_error('ERROR_GETTING_SERVER_PPD', str(e)))
         finally:
-            if ppd_file and os.access(ppd_file, os.F_OK):
+            if delete is True and ppd_file and os.access(ppd_file, os.F_OK):
                 os.unlink(ppd_file)
 
     def __read_group(self, group):
@@ -240,8 +243,8 @@ class CupsClient(Plugin):
                 "properties": {
                     "tabIndex": tab,
                     "sortBy": "value",
-                    "value": [option.defchoice],
-                    "values": {}
+                    "values": {},
+                    "value": [option.defchoice]
                 },
                 "class": "gosa.ui.widgets.QComboBoxWidget"
             }
@@ -252,8 +255,6 @@ class CupsClient(Plugin):
             row += 1
             tab += 1
 
-        # for subgroup in group.subgroups:
-        #     res["subgroups"] = self.__read_group(subgroup)
         return template
 
     def get_attributes_from_ppd(self, ppd_file, attributes):
@@ -267,7 +268,8 @@ class CupsClient(Plugin):
                     res[name] = attr.value
 
         except cups.IPPError as e:
-            raise CupsException(C.make_error('ERROR_GETTING_SERVER_PPD', str(e)))
+            self.log.error(str(e))
+
         finally:
             return res
 
@@ -275,40 +277,6 @@ class CupsClient(Plugin):
 class CupsException(Exception):
     pass
 
+
 class PPDException(Exception):
     pass
-
-# ppd_file = conn.getPPD("uberdruck")
-# # attrs = conn.getPrinterAttributes("unterdruck")
-#
-# try:
-#     for name, ppd in conn.getPPDs().items():
-#         print("Name %s: " % name)
-#         pp.pprint(ppd)
-
-    # ppd = cups.PPD(ppd_file)
-    # ppd.localize()
-    # slot = ppd.findOption("InputSlot")
-    # print(str(slot))
-    # pp.pprint(slot.choices)
-    # print(slot.defchoice)
-
-    # for attr in ppd.attributes:
-    #     print("%s/%s: %s" % (attr.name, attr.text, attr.value))
-    #
-    # for group in ppd.optionGroups:
-    #     print("-----------------------------")
-    #     print("Option group: %s/%s" % (group.name, group.text))
-    #     for option in group.options:
-    #         print("\toption %s/%s: %s (%s)" % (option.keyword, option.text, option.defchoice, option.choices))
-    #
-    #     for subgroup in group.subgroups:
-    #         print("\tOption group: %s/%s" % (subgroup.name, subgroup.text))
-
-    # with open(ppd_file) as f:
-    #     content = f.read()
-    #     print(content)
-#
-# finally:
-#     if ppd_file and os.access(ppd_file, os.F_OK):
-#         os.unlink(ppd_file)

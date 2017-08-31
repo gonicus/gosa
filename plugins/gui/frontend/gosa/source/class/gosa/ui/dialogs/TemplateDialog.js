@@ -33,7 +33,7 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
     this.setController(controller);
     this._extension = extension;
 
-    this.base(arguments, this._getWindowTitle());
+    this.base(arguments, this._getTemplateProperty("windowTitle"));
     this.setAutoDispose(true);
 
     this._addWidgets();
@@ -46,6 +46,15 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
     }, this);
   },
 
+  /*
+  *****************************************************************************
+     EVENTS
+  *****************************************************************************
+  */
+  events : {
+    "send": "qx.event.type.Event"
+  },
+
   members : {
     _parsedTemplate : null,
     _extension : null,
@@ -55,20 +64,30 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
       return this._context;
     },
 
-    _getWindowTitle : function() {
+    _getTemplateProperty: function(name, type) {
       var t = this._parsedTemplate;
       if (t &&
           t.properties && typeof t.properties === "object" &&
-          t.properties.windowTitle && typeof t.properties.windowTitle === "string") {
-            return t.properties.windowTitle;
-          }
-      qx.core.Assert.fail("Cannot find valid window title in dialog template");
+          t.properties[name] && typeof t.properties[name] === type || "string") {
+        return t.properties[name];
+      }
+      qx.core.Assert.fail("Cannot find valid "+name+" in dialog template");
     },
 
     _addButtons : function() {
+      if (this._getTemplateProperty("cancelable", "boolean") === true) {
+        var cancel = gosa.ui.base.Buttons.getCancelButton();
+        cancel.addListener("execute", this.close, this);
+        this.addButton(cancel);
+      }
       var ok = gosa.ui.base.Buttons.getOkButton();
-      ok.addListener("execute", this.close, this);
+      ok.addListener("execute", this._onOk, this);
       this.addButton(ok);
+    },
+
+    _onOk: function(ev) {
+      this.fireEvent("send");
+      this.close();
     },
 
     _addWidgets : function() {

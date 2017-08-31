@@ -113,7 +113,7 @@ qx.Class.define("gosa.ui.widgets.QPushButtonWidget", {
           dialog.then(function(d) {
             if (this.getActionOnClose()) {
               var context = this._getController().getContextByExtensionName(this.getExtension());
-              d.addListenerOnce("beforeClose", context.getAfterDialogActionCallback(this.getActionOnClose()));
+              d.addListenerOnce("send", context.getAfterDialogActionCallback(this.getActionOnClose()));
             }
             d.open();
           }, this);
