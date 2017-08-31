@@ -276,6 +276,13 @@ qx.Class.define("gosa.ui.widgets.Widget", {
         w.setValue(value.getItem(0) + "");
       }
       return(w);
+    },
+
+    getSingleValue: function(value) {
+      if (value instanceof qx.data.Array) {
+        value = value.getLength() > 0 ? value.getItem(0) : null;
+      }
+      return value;
     }
   },
 
@@ -307,6 +314,13 @@ qx.Class.define("gosa.ui.widgets.Widget", {
         }
       }
       return(data);
+    },
+
+    /**
+     * Returns the first value entry array is there is one
+     */
+    getSingleValue: function() {
+      return gosa.ui.widgets.Widget.getSingleValue(this.getValue());
     },
 
     /**

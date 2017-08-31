@@ -92,7 +92,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
             var widgetMap = dialogContext.getFreeWidgetRegistry().getMap();
             Object.getOwnPropertyNames(widgetMap).forEach(function(key) {
               var val = widgetMap[key].getValue();
-              values[key] = qx.lang.Type.isArray(val) ? val.getItem(0) : val;
+              values[key] = gosa.ui.widgets.Widget.getSingleValue(val);
             });
 
             var args = this.__createArgumentsList(data.target, context);
@@ -218,12 +218,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
         if (compareTo[0] === "'" || compareTo[0] === "\"") {
           compareTo = compareTo.replace(/^["']/, "").replace(/["']$/, "");
         } else {
-          compareTo = context.getActionController().getAttributeValue(compareTo);
-          if (qx.lang.Type.isArray(compareTo)) {
-            if (compareTo.getLength() > 0) {
-              compareTo = compareTo.getItem(0);
-            }
-          }
+          compareTo = gosa.ui.widgets.Widget.getSingleValue(context.getActionController().getAttributeValue(compareTo));
         }
       }
 
@@ -245,13 +240,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
               return compareTo >= value;
           }
         } else {
-          if (qx.lang.Type.isArray(value)) {
-            if (value.getLength() > 0) {
-              res = !!value.getItem(0);
-            }
-          } else {
-            res = !!value;
-          }
+          res = !!gosa.ui.widgets.Widget.getSingleValue(value);
 
           // negation
           if (negated) {
@@ -281,7 +270,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
             }
             else {  // attributes of object
               var value = context.getActionController().getAttributeValue(arg);
-              args.push(value && value.getLength() > 0 ? value.getItem(0) : null);
+              args.push(gosa.ui.widgets.Widget.getSingleValue(value));
             }
           });
         }
@@ -320,7 +309,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
 
         context.getActionController().callMethod.apply(context.getActionController(), args)
         .then(function(result) {
-          qx.log.Logger.info("Call of method '" + methodName + "' was successful and returned '" + result + "'");
+          qx.log.Logger.info("Call of method '" + args[0] + "' was successful and returned '" + result + "'");
         })
         .catch(function(error) {
           new gosa.ui.dialogs.Error(error).open();
@@ -344,13 +333,8 @@ qx.Class.define("gosa.engine.extensions.Actions", {
         params.forEach(function(param) {
           var match = paramParser.exec(param);
           if (match) {
-            var data = context.getActionController().getProperty(match[1]);
-            if (qx.lang.Type.isArray(data)) {
-              args.push(param.replace(match[0], data.getItem(0)));
-            }
-            else {
-              args.push(param.replace(match[0], data));
-            }
+            var data = gosa.ui.widgets.Widget.getSingleValue(context.getActionController().getProperty(match[1]));
+            args.push(param.replace(match[0], data));
           } else {
             var typeMatch = paramType.exec(param);
             if (typeMatch) {

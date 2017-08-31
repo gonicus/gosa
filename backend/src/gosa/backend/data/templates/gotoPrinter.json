@@ -186,6 +186,12 @@
             "text": "tr('Configure')",
             "dialog": "RPC:getConfigurePrinterTemplate",
             "actionOnClose": "writePPD"
+          },
+          "extensions": {
+            "blockedBy": {
+              "value": null,
+              "modelPath": "serverPPD"
+            }
           }
         }
       ]

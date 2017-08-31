@@ -257,10 +257,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
 
       var listenerCallback = function() {
         var block = allWidgets.some(function(item) {
-          var value = item.widget.getValue();
-          if (value instanceof qx.data.Array && value.getLength() > 0) {
-            value = value.getItem(0);
-          }
+          var value = item.widget.getSingleValue();
           return value === item.value;
         });
 
