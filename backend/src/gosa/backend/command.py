@@ -192,9 +192,9 @@ class CommandRegistry(Plugin):
         """
 
         # We pass 'self' as user, to skip acls checks.
-        return self.dispatch(self, None, None, func, *arg, **larg)
+        return self.dispatch(self, None, func, *arg, **larg)
 
-    def dispatch(self, user, session_id, object, func, *arg, **larg):
+    def dispatch(self, user, session_id, func, *arg, **larg):
         """
         The dispatch method will try to call the specified function and
         checks for user.
@@ -232,24 +232,20 @@ class CommandRegistry(Plugin):
         # Convert to list
         arg = list(arg)
 
-        # Check if call is interested in the object it been called from
-        if self.callNeedsObject(func):
-            arg.insert(0, object)
-        else:
-            # Check if call is interested in calling user ID, prepend it
-            if self.callNeedsUser(func):
-                if user != self:
-                    arg.insert(0, user)
-                else:
-                    arg.insert(0, None)
+        # Check if call is interested in calling user ID, prepend it
+        if self.callNeedsUser(func):
+            if user != self:
+                arg.insert(0, user)
+            else:
+                arg.insert(0, None)
 
-            # Check if call is interested in calling session ID, prepend it
-            if self.callNeedsSession(func):
-                index = 1 if self.callNeedsUser(func) else 0
-                if user != self:
-                    arg.insert(index, session_id)
-                else:
-                    arg.insert(index, None)
+        # Check if call is interested in calling session ID, prepend it
+        if self.callNeedsSession(func):
+            index = 1 if self.callNeedsUser(func) else 0
+            if user != self:
+                arg.insert(index, session_id)
+            else:
+                arg.insert(index, None)
 
         # Handle function type (additive, first match, regular)
         (clazz, method) = self.path2method(self.commands[func]['path'])
@@ -307,20 +303,6 @@ class CommandRegistry(Plugin):
         ``Return:`` success or failure
         """
         return self.__call_needs(func, "needsSession")
-
-    def callNeedsObject(self, func):
-        """
-        Checks if the provided method requires an object parameter.
-
-        ========== ============
-        Parameter  Description
-        ========== ============
-        func       method name
-        ========== ============
-
-        ``Return:`` success or failure
-        """
-        return self.__call_needs(func, "needsObject")
 
     def __del__(self):
         self.log.debug("shutting down command registry")

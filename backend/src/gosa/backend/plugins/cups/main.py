@@ -6,8 +6,6 @@ import os
 import tempfile
 
 from zope.interface import implementer
-
-from gosa.backend.objects import ObjectProxy
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common import Environment
 from gosa.common.components import Plugin, Command, PluginRegistry
