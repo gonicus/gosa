@@ -29,7 +29,9 @@ qx.Class.define("gosa.engine.extensions.BlockedBy", {
         this.error("No widget found for modelPath '" + modelPath + "'.");
         return;
       }
-      target.setVisibility(sourceWidget.getSingleValue() === value ? "excluded" : "visible");
+      sourceWidget.addListenerOnce("appear", function() {
+        target.setVisibility(sourceWidget.getSingleValue() === value ? "excluded" : "visible");
+      }, this);
 
       sourceWidget.addListener("changeValue", function(ev) {
 
