@@ -15,6 +15,8 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
   extend: gosa.ui.widgets.MultiEditWidget,
 
   construct: function(){
+    this.__delayedValues = {};
+
     this.base(arguments);
 
     this.addListenerOnce("initCompleteChanged", function(){
@@ -68,6 +70,8 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
     _default_value: null,
     _use_default: false,
 
+    __delayedValues: null,
+
 
     /**
      * Returns the value from the widget given by its id
@@ -88,6 +92,11 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
      * Set a new value for the widget given by id.
      */
     _setWidgetValue: function(id, value){
+      if (!this._model_initialized) {
+        // delay the setting
+        this.__delayedValues[id] = value;
+        return;
+      }
 
       // Find model item with appropriate key
       var w = this._getWidget(id);
@@ -222,6 +231,11 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
         this.setDelegate(delegate);
         this.setModel(new qx.data.Array(items));
         this._model_initialized = true;
+
+        Object.getOwnPropertyNames(this.__delayedValues).forEach(function(id) {
+          this._setWidgetValue(id, this.__delayedValues[id]);
+        }, this);
+        this.__delayedValues = {};
       }
     },
 
