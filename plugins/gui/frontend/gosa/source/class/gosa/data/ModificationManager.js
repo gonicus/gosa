@@ -128,6 +128,9 @@ qx.Class.define("gosa.data.ModificationManager", {
     },
 
     __updateModified : function() {
+      if (this.isDisposed()) {
+        return;
+      }
       var attr, current, i;
       for (var attributeName in this.__watchedAttributes) {
         if (this.__watchedAttributes.hasOwnProperty(attributeName)) {
