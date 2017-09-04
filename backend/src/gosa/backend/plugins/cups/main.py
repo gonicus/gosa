@@ -21,7 +21,8 @@ C.register_codes(dict(
     ERROR_GETTING_SERVER_PPD=N_("Server PPD file could not be retrieved: '%(type)s'"),
     PPD_NOT_FOUND=N_("PPD file '%(ppd)s' not found"),
     OPTION_CONFLICT=N_("Setting option '%(option)s' to '%(value)s' caused %(conflicts)s"),
-    OPTION_NOT_FOUND=N_("Option '%(option)s' not found in PPD")
+    OPTION_NOT_FOUND=N_("Option '%(option)s' not found in PPD"),
+    COULD_NOT_READ_SOURCE_PPD=N_("Could not read source PPD file")
 ))
 
 
@@ -56,10 +57,14 @@ class CupsClient(Plugin):
             server_ppd = self.client.getServerPPD(server_ppd_file)
             is_server_ppd = True
             ppd = cups.PPD(server_ppd)
-        except:
+        except Exception as e:
+            self.log.error(str(e))
             is_server_ppd = False
-        else:
-            ppd = cups.PPD(custom_ppd_file)
+
+            if custom_ppd_file is not None:
+                ppd = cups.PPD(custom_ppd_file)
+            else:
+                raise PPDException(C.make_error('COULD_NOT_READ_SOURCE_PPD'))
 
         if isinstance(data, str):
             data = loads(data)
@@ -172,6 +177,13 @@ class CupsClient(Plugin):
                 "dialogName": "configurePrinter",
                 "cancelable": True
             },
+            "extensions": {
+                "validator": {
+                    "target": "form",
+                    "name": "Constraints",
+                    "properties": {}
+                }
+            },
             "children": []
         }
 
@@ -185,6 +197,31 @@ class CupsClient(Plugin):
             model_attr = ppd.findAttr("ModelName")
             if model_attr:
                 template["properties"]["windowTitle"] = N_("Configure printer: %s" % model_attr.value)
+
+            constraints = {}
+            for constraint in ppd.constraints:
+                if constraint.option1 not in constraints:
+                    constraints[constraint.option1] = {}
+                choice1 = constraint.choice1 if constraint.choice1 is not None else "__choice__"
+                if choice1 not in constraints[constraint.option1]:
+                    constraints[constraint.option1][choice1] = []
+                option2 = ppd.findOption(constraint.option2)
+
+                # find choice
+                choice_title = constraint.choice2
+                for choice in option2.choices:
+                    if choice["choice"] == constraint.choice2:
+                        choice_title = choice["text"]
+
+                constraints[constraint.option1][choice1].append({
+                    "option": constraint.option2,
+                    "optionTitle": option2.text,
+                    "choice": constraint.choice2,
+                    "choiceTitle": choice_title
+                })
+
+            template["extensions"]["validator"]["properties"]["constraints"] = constraints
+
             for group in ppd.optionGroups:
                 template["children"].append(self.__read_group(group))
             return template
@@ -200,10 +237,18 @@ class CupsClient(Plugin):
         tab = 1
         template = {
             "class": "qx.ui.tabview.Page",
-            "layout": "qx.ui.layout.Grid",
+            "layout": "qx.ui.layout.Grow",
             "properties": {
                 "label": group.text
             },
+            "children": [{
+                "class": "qx.ui.container.Scroll",
+                "children": []
+            }]
+        }
+        scroll_container = {
+            "class": "qx.ui.container.Composite",
+            "layout": "qx.ui.layout.Grid",
             "layoutConfig": {
                 "spacingX": "CONST_SPACING_X",
                 "spacingY": "CONST_SPACING_Y"
@@ -218,6 +263,7 @@ class CupsClient(Plugin):
             },
             "children": []
         }
+        template["children"][0]["children"].append(scroll_container)
         for option in group.options:
             label = {
                 "addOptions": {
@@ -230,7 +276,7 @@ class CupsClient(Plugin):
                 "class": "gosa.ui.widgets.QLabelWidget"
             }
 
-            template["children"].append(label)
+            scroll_container["children"].append(label)
 
             widget = {
                 "widgetName": option.keyword,
@@ -242,14 +288,15 @@ class CupsClient(Plugin):
                     "tabIndex": tab,
                     "sortBy": "value",
                     "values": {},
-                    "value": [option.defchoice]
+                    "value": [option.defchoice],
+                    "multivalue": option.ui == cups.PPD_UI_PICKMANY
                 },
                 "class": "gosa.ui.widgets.QComboBoxWidget"
             }
             for choice in option.choices:
                 widget["properties"]["values"][choice["choice"]] = {"value": choice["text"]}
 
-            template["children"].append(widget)
+            scroll_container["children"].append(widget)
             row += 1
             tab += 1
 

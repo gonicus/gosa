@@ -48,8 +48,21 @@ qx.Class.define("gosa.engine.extensions.Validator", {
 
   members : {
 
-    process : function(data, target) {
-      if (target instanceof qx.ui.form.Form) {
+    process : function(data, target, context) {
+      if (data.hasOwnProperty("target") && data.target === "form") {
+        qx.core.Assert.assertKeyInMap("name", data);
+        // add to global validation manager
+        var clazz = qx.Class.getByName("gosa.engine.extensions.validators."+data.name);
+        if (clazz) {
+          var validator = new clazz();
+          if (data.hasOwnProperty("properties")) {
+            validator.set(data.properties);
+          }
+          context.setValidator(validator.validate);
+          context.getValidationManager().setContext(validator);
+        }
+      }
+      else if (target instanceof qx.ui.form.Form) {
         this._addFormValidator(data, target);
       }
       else if (target instanceof qx.ui.core.Widget) {

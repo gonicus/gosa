@@ -20,6 +20,7 @@
 qx.Class.define("gosa.ui.widgets.Widget", {
 
   extend: qx.ui.container.Composite,
+  implement: qx.ui.form.IForm,
 
   construct: function(){
     this.base(arguments);
@@ -56,14 +57,19 @@ qx.Class.define("gosa.ui.widgets.Widget", {
 
     valid: {
       check: "Boolean",
-      event: "_validChanged",
+      event: "changeValid",
       init: true,
       apply: "_applyValid"
     },
 
     invalidMessage: {
       check: "String",
-      event: "_invalidMessageChanged",
+      event: "changeInvalidMessage",
+      init: ""
+    },
+
+    requiredInvalidMessage: {
+      check: "String",
       init: ""
     },
 
@@ -206,7 +212,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       init : false,
       check : 'Boolean',
       nullable: false,
-      event: "_requiredChanged",
+      event: "changeRequired",
       apply: '_applyRequired'
     },
 

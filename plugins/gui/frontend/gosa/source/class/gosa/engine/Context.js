@@ -88,12 +88,32 @@ qx.Class.define("gosa.engine.Context", {
     _appeared : false,
     _actionController : null,
     _afterDialogActions : null,
+    _validationManager: null,
 
     /**
      * @return {gosa.proxy.Object}
      */
     getObject : function() {
       return this._controller.getObject();
+    },
+
+    /**
+     * Set a form validator
+     * @param validator
+     */
+    setValidator : function(validator) {
+      if (!this._validationManager) {
+        this._validationManager =  new qx.ui.form.validation.Manager();
+      }
+      this._validationManager.setValidator(validator);
+    },
+
+    /**
+     *
+     * @return {qx.ui.form.validation.Manager}
+     */
+    getValidationManager: function() {
+      return this._validationManager;
     },
 
     /**
@@ -223,6 +243,7 @@ qx.Class.define("gosa.engine.Context", {
       if (!this._appeared) { // widgets might have been created by the ObjectEdit controller in case of error
         this._processor.process(this._template, this._rootWidget);
         this.__connectBuddies();
+        this.__connectValidator();
         this._appeared = true;
         this.fireDataEvent("widgetsCreated", this);
       }
@@ -231,6 +252,20 @@ qx.Class.define("gosa.engine.Context", {
     __initWidgets : function() {
       this._processor.processFirstLevelExtensions(this._template, this._rootWidget);
       this._rootWidget.addListenerOnce("appear", this.createWidgets, this);
+    },
+
+    __connectValidator : function() {
+      if (this._validationManager) {
+        var widgetMap = qx.lang.Object.mergeWith(qx.lang.Object.clone(this._widgetRegistry.getMap()), this._freeWidgetRegistry.getMap());
+
+        gosa.util.Object.iterate(widgetMap, function(modelPath, widget) {
+          this._validationManager.add(widget);
+
+          widget.addListener("changeValue", function() {
+            this.setValid(this._validationManager.validate());
+          }, this);
+        }, this);
+      }
     },
 
     __connectBuddies : function() {
@@ -254,7 +289,8 @@ qx.Class.define("gosa.engine.Context", {
       "_rootWidget",
       "_widgetRegistry",
       "_buddyRegistry",
-      "_resourceManager"
+      "_resourceManager",
+      "_validationManager"
     );
   }
 });
