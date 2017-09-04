@@ -75,14 +75,16 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
     },
 
     _addButtons : function() {
+      var ok = gosa.ui.base.Buttons.getOkButton();
+      ok.addListener("execute", this._onOk, this);
+      this.addButton(ok);
+      this._context.bind("valid", ok, "enabled");
+
       if (this._getTemplateProperty("cancelable", "boolean") === true) {
         var cancel = gosa.ui.base.Buttons.getCancelButton();
         cancel.addListener("execute", this.close, this);
         this.addButton(cancel);
       }
-      var ok = gosa.ui.base.Buttons.getOkButton();
-      ok.addListener("execute", this._onOk, this);
-      this.addButton(ok);
     },
 
     _onOk: function(ev) {

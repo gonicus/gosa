@@ -69,6 +69,7 @@ qx.Class.define("gosa.engine.Context", {
      */
     valid: {
       check: "Boolean",
+      event: "changeValid",
       init: true
     }
   },
