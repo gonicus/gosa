@@ -1,3 +1,4 @@
+import functools
 import hashlib
 import logging
 import pprint
@@ -38,7 +39,10 @@ class CupsClient(Plugin):
         self.log = logging.getLogger(__name__)
 
     def serve(self):
-        self.client = cups.Connection()
+        try:
+            self.client = cups.Connection()
+        except RuntimeError as e:
+            self.log.error(str(e))
 
     def __get_printer_list(self):
         if self.__printer_list is None:
@@ -52,6 +56,9 @@ class CupsClient(Plugin):
 
     @Command(__help__=N_("Write settings to PPD file"))
     def writePPD(self, printer_cn, server_ppd_file, custom_ppd_file, data):
+        if self.client is None:
+            return
+
         server_ppd = None
         try:
             server_ppd = self.client.getServerPPD(server_ppd_file)
@@ -125,10 +132,14 @@ class CupsClient(Plugin):
 
     @Command(__help__=N_("Get a list of all available printer manufacturers"))
     def getPrinterManufacturers(self):
+        if self.client is None:
+            return
         return list(self.__get_printer_list().keys())
 
     @Command(__help__=N_("Get a list of all available printer models for one manufacturer"))
     def getPrinterModels(self, *args):
+        if self.client is None:
+            return
         printers = self.__get_printer_list()
         res = {}
         if len(args):
@@ -149,6 +160,8 @@ class CupsClient(Plugin):
         """
         Generates a GUI template from a PPD file.
         """
+        if self.client is None:
+            return
         ppd_file = None
         name = None
         delete = True
@@ -222,14 +235,27 @@ class CupsClient(Plugin):
 
             template["extensions"]["validator"]["properties"]["constraints"] = constraints
 
-            for group in ppd.optionGroups:
+            for group in sorted(ppd.optionGroups, key=functools.cmp_to_key(self.__compare_group)):
                 template["children"].append(self.__read_group(group))
+
             return template
         except cups.IPPError as e:
             raise CupsException(C.make_error('ERROR_GETTING_SERVER_PPD', str(e)))
         finally:
             if delete is True and ppd_file and os.access(ppd_file, os.F_OK):
                 os.unlink(ppd_file)
+
+    def __compare_group(self, group1, group2):
+        if group1.name == "General":
+            return -1
+        elif group2.name == "General":
+            return 1
+        elif group1.text < group2.text:
+            return -1
+        elif group1.text > group2.text:
+            return 1
+        else:
+            return 0
 
     def __read_group(self, group):
         row = 0
