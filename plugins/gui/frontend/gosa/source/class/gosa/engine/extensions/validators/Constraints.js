@@ -63,6 +63,12 @@ qx.Class.define("gosa.engine.extensions.validators.Constraints", {
         return true;
       }
       var valid = true;
+
+      // reset all widgets
+      widgets.forEach(function(w) {
+        w.setValid(true);
+      });
+
       Object.getOwnPropertyNames(constraints).forEach(function(name) {
         var widget = this.__getWidget(name, widgets);
         if (!widget) {
@@ -70,7 +76,6 @@ qx.Class.define("gosa.engine.extensions.validators.Constraints", {
         } else {
           // check if there is a constraint for the current selection
           var selection = gosa.ui.widgets.Widget.getSingleValue(widget.getValue());
-          this.debug("checking constraints for "+name+" selection "+selection);
           if (selection !== null && constraints[name].hasOwnProperty(selection)) {
             // check constraints
             constraints[name][selection].forEach(function(constraint) {
