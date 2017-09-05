@@ -100,7 +100,7 @@ qx.Class.define("gosa.engine.Context", {
 
     /**
      * Set a form validator
-     * @param validator
+     * @param validator {Function}
      */
     setValidator : function(validator) {
       if (!this._validationManager) {
@@ -226,9 +226,9 @@ qx.Class.define("gosa.engine.Context", {
 
     /**
      * Adds a action to be called after a dialog has been closed
-     * @param name
-     * @param callback
-     * @param context
+     * @param name {String}
+     * @param callback {Function}
+     * @param context {Object?}
      */
     addAfterDialogAction: function(name, callback, context) {
       qx.core.Assert.assertString(name);
