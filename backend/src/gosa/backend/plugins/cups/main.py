@@ -15,9 +15,6 @@ from gosa.common.gjson import loads
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.utils import N_
 
-conn = cups.Connection()
-
-pp = pprint.PrettyPrinter()
 
 C.register_codes(dict(
     ERROR_GETTING_SERVER_PPD=N_("Server PPD file could not be retrieved: '%(type)s'"),
