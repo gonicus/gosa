@@ -83,7 +83,7 @@ class CupsClient(Plugin):
 
         dir = self.env.config.get("cups.spool", default="/tmp/spool")
         for file in os.listdir(dir):
-            if os.path.isfile(os.path.join(dir, file)) and file.split(".")[:-1].lower() == "ppd":
+            if os.path.isfile(os.path.join(dir, file)) and file.split(".")[-1:][0].lower() == "ppd":
                 ppd_file = os.path.join(dir, file)
                 res = index.search({"_type": "GotoPrinter", "gotoPrinterPPD": ppd_file}, {"dn": 1})
                 if len(res) == 0 and os.path.getmtime(ppd_file) < time.time()-3600:
