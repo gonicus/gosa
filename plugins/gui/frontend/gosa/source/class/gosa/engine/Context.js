@@ -193,6 +193,7 @@ qx.Class.define("gosa.engine.Context", {
     },
 
     /**
+     * Returns all actions registered to be executed after a dialog has been closed via OK button
      *
      * @return {Map} Hash in the shape "name" -> {Function}
      */
@@ -200,10 +201,20 @@ qx.Class.define("gosa.engine.Context", {
       return this._afterDialogActions;
     },
 
+    /**
+     * Returns the callback that is registered to be executed for a certain action
+     * @param actionName {String}
+     * @return {Function}
+     */
     getAfterDialogActionCallback: function(actionName) {
       return this._afterDialogActions[actionName];
     },
 
+    /**
+     * Returns true if all widgets have been created.
+     *
+     * @return {Boolean}
+     */
     isAppeared : function() {
       return this._appeared;
     },
@@ -240,6 +251,9 @@ qx.Class.define("gosa.engine.Context", {
       this._afterDialogActions[name] = callback.bind(context || this);
     },
 
+    /**
+     * Create all widgets defined by the template
+     */
     createWidgets : function() {
       if (!this._appeared) { // widgets might have been created by the ObjectEdit controller in case of error
         this._processor.process(this._template, this._rootWidget);
