@@ -10,6 +10,10 @@
         </Templates>
         <BackendParameters>
             <Backend RDN="cn" objectClasses="gotoPrinter">LDAP</Backend>
+            <Backend gotoUserAdminPrinter="PosixUser:uid,gotoUserAdminPrinter=uid"
+                     gotoUserPrinter="PosixUser:uid,gotoUserPrinter=uid"
+                     gotoGroupAdminPrinter="PosixGroup:gidNumber,gotoGroupAdminPrinter=gidNumber"
+                     gotoGroupPrinter="PosixGroup:gidNumber,gotoGroupPrinter=gidNumber">ObjectHandler</Backend>
         </BackendParameters>
         <BaseObject>true</BaseObject>
         <Attributes>
@@ -38,18 +42,6 @@
                 </Validators>
             </Attribute>
             <Attribute>
-                <Name>gotoUserPrinter</Name>
-                <Description>GOto - keeps printers shown for this user</Description>
-                <Type>String</Type>
-                <Mandatory>false</Mandatory>
-                <Validators>
-                    <Condition>
-                        <Name>RegEx</Name>
-                        <Param>^[\x00-\x7F]*$</Param>
-                    </Condition>
-                </Validators>
-            </Attribute>
-            <Attribute>
                 <Name>macAddress</Name>
                 <Description>MAC address</Description>
                 <Type>String</Type>
@@ -66,18 +58,6 @@
                 <Description>RFC4519: descriptive information</Description>
                 <Type>UnicodeString</Type>
                 <Mandatory>false</Mandatory>
-            </Attribute>
-            <Attribute>
-                <Name>gotoUserAdminPrinter</Name>
-                <Description>GOto - keeps printers we are admin for</Description>
-                <Type>String</Type>
-                <Mandatory>false</Mandatory>
-                <Validators>
-                    <Condition>
-                        <Name>RegEx</Name>
-                        <Param>^[\x00-\x7F]*$</Param>
-                    </Condition>
-                </Validators>
             </Attribute>
             <Attribute>
                 <Name>labeledURI</Name>
@@ -142,7 +122,46 @@
                     </Condition>
                 </Validators>
             </Attribute>
-
+            <Attribute>
+                <Name>gotoUserAdminPrinter</Name>
+                <Description>GOto - keeps printers we are admin for</Description>
+                <Type>String</Type>
+                <Mandatory>false</Mandatory>
+                <MultiValue>true</MultiValue>
+                <Validators>
+                    <Condition>
+                        <Name>ObjectWithPropertyExists</Name>
+                        <Param>PosixUser</Param>
+                        <Param>uid</Param>
+                    </Condition>
+                </Validators>
+                <References>
+                    <Reference>
+                        <Object>PosixUser</Object>
+                        <Attribute>uid</Attribute>
+                    </Reference>
+                </References>
+            </Attribute>
+            <Attribute>
+                <Name>gotoUserPrinter</Name>
+                <Description>GOto - keeps printers shown for this user</Description>
+                <Type>String</Type>
+                <Mandatory>false</Mandatory>
+                <MultiValue>true</MultiValue>
+                <Validators>
+                    <Condition>
+                        <Name>ObjectWithPropertyExists</Name>
+                        <Param>PosixUser</Param>
+                        <Param>uid</Param>
+                    </Condition>
+                </Validators>
+                <References>
+                    <Reference>
+                        <Object>PosixUser</Object>
+                        <Attribute>uid</Attribute>
+                    </Reference>
+                </References>
+            </Attribute>
             <Attribute>
                 <Name>gotoGroupAdminPrinter</Name>
                 <Description>GOto - keeps printers we are admin for</Description>
@@ -151,10 +170,17 @@
                 <Mandatory>false</Mandatory>
                 <Validators>
                     <Condition>
-                        <Name>RegEx</Name>
-                        <Param>^[\x00-\x7F]*$</Param>
+                        <Name>ObjectWithPropertyExists</Name>
+                        <Param>PosixGroup</Param>
+                        <Param>gidNumber</Param>
                     </Condition>
                 </Validators>
+                <References>
+                    <Reference>
+                        <Object>PosixGroup</Object>
+                        <Attribute>gidNumber</Attribute>
+                    </Reference>
+                </References>
             </Attribute>
             <Attribute>
                 <Name>gotoGroupPrinter</Name>
@@ -164,10 +190,17 @@
                 <Mandatory>false</Mandatory>
                 <Validators>
                     <Condition>
-                        <Name>RegEx</Name>
-                        <Param>^[\x00-\x7F]*$</Param>
+                        <Name>ObjectWithPropertyExists</Name>
+                        <Param>PosixGroup</Param>
+                        <Param>gidNumber</Param>
                     </Condition>
                 </Validators>
+                <References>
+                    <Reference>
+                        <Object>PosixGroup</Object>
+                        <Attribute>gidNumber</Attribute>
+                    </Reference>
+                </References>
             </Attribute>
         </Attributes>
         <Methods>
