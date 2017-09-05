@@ -96,7 +96,6 @@ class CupsClient(Plugin):
 
     @Command(__help__=N_("Write settings to PPD file"))
     def writePPD(self, printer_cn, server_ppd_file, custom_ppd_file, data):
-        print("CN: %s, Server-PPD: %s, Local-PPD: %s" % (printer_cn, server_ppd_file, custom_ppd_file))
         if self.client is None:
             return
 
