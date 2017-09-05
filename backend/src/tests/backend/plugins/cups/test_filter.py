@@ -19,24 +19,35 @@ class FilterValidatorTests(unittest.TestCase):
         base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data")
 
         filter = GetMakeModelFromPPD(None)
-        (key, res) = filter.process(None, "ppd", {
-            "ppd": {"value": [os.path.join(base_dir, "test.ppd")]},
-            "maker": {"value": ["Epson"]},
-            "serverPPD": {"value": ["Some printer"]}
-        }, "maker", "serverPPD", "true")
+        cups_client = PluginRegistry.getInstance("CupsClient")
+        with mock.patch("gosa.backend.plugins.cups.filter.PluginRegistry.getInstance") as m_reg:
+            m_reg.return_value = cups_client
 
-        assert res["maker"]["value"][0] == "Ricoh"
-        assert res["serverPPD"]["value"][0] == "openprinting-ppds:0/ppd/openprinting/Ricoh/PS/Ricoh-MP_C2003_PS.ppd"
+            with mock.patch.object(cups_client, "getPrinterModels") as m_get:
+                m_get.return_value = {
+                    "openprinting-ppds:0/ppd/openprinting/Ricoh/PS/Ricoh-MP_C2003_PS.ppd": {
+                        "value": "Ricoh MP C2003 PS"
+                    }
+                }
 
-        # do not override
-        (key, res) = filter.process(None, "ppd", {
-            "ppd": {"value": [os.path.join(base_dir, "test.ppd")]},
-            "maker": {"value": ["Epson"]},
-            "serverPPD": {"value": ["Some printer"]}
-        }, "maker", "serverPPD")
+                (key, res) = filter.process(None, "ppd", {
+                    "ppd": {"value": [os.path.join(base_dir, "test.ppd")]},
+                    "maker": {"value": ["Epson"]},
+                    "serverPPD": {"value": ["Some printer"]}
+                }, "maker", "serverPPD", "true")
 
-        assert res["maker"]["value"][0] == "Epson"
-        assert res["serverPPD"]["value"][0] == "Some printer"
+                assert res["maker"]["value"][0] == "Ricoh"
+                assert res["serverPPD"]["value"][0] == "openprinting-ppds:0/ppd/openprinting/Ricoh/PS/Ricoh-MP_C2003_PS.ppd"
+
+                # do not override
+                (key, res) = filter.process(None, "ppd", {
+                    "ppd": {"value": [os.path.join(base_dir, "test.ppd")]},
+                    "maker": {"value": ["Epson"]},
+                    "serverPPD": {"value": ["Some printer"]}
+                }, "maker", "serverPPD")
+
+                assert res["maker"]["value"][0] == "Epson"
+                assert res["serverPPD"]["value"][0] == "Some printer"
 
     def test_DeleteOldFile(self):
         base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data")
