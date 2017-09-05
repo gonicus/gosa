@@ -36,7 +36,7 @@ class ObjectTestCase(TestCase):
         assert 'lock' in res
         assert 'unlock' in res
 
-    def test_listMethods(self):
+    def test_listMethods2(self):
         obj = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
         res = obj.listMethods()
         # just test if something is there
@@ -189,7 +189,9 @@ class ObjectTestCase(TestCase):
     def test_get_references(self):
         obj = ObjectFactory.getInstance().getObject('PosixUser', '78475884-c7f2-1035-8262-f535be14d43a')
         res = obj.get_references()
-        assert res[0] == ('memberUid', 'uid', 'freich', [], False)
+        for rel in res:
+            if rel[0] == "memberUid":
+                assert rel == ('memberUid', 'uid', 'freich', [], False)
 
     def test_update_refs(self):
         object = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
