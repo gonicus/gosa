@@ -6,6 +6,7 @@ import cups
 import os
 import tempfile
 
+import time
 from zope.interface import implementer
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common import Environment
@@ -40,7 +41,32 @@ class CupsClient(Plugin):
 
     def serve(self):
         try:
+            server = self.env.config.get("cups.server")
+            port = self.env.config.get("cups.port")
+            user = self.env.config.get("cups.user")
+            password = self.env.config.get("cups.password")
+            encryption_policy = getattr(cups, "HTTP_ENCRYPT_%s" % self.env.config.get("cups.encryption-policy",
+                                                                                      default="IF_REQUESTED").upper())
+            if server is not None:
+                cups.setServer(server)
+            if port is not None:
+                cups.setPort(int(port))
+            if user is not None:
+                cups.setUser(user)
+            if encryption_policy is not None:
+                cups.setEncryption(encryption_policy)
+
+            if password is not None:
+                def pw_callback(prompt):
+                    return password
+
+                cups.setPasswordCB(pw_callback)
+
             self.client = cups.Connection()
+
+            sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
+            sched.add_interval_job(self.__gc, minutes=60, tag='_internal', jobstore="ram")
+
         except RuntimeError as e:
             self.log.error(str(e))
 
@@ -54,8 +80,23 @@ class CupsClient(Plugin):
             self.__printer_list = res
         return self.__printer_list
 
+    def __gc(self):
+        """ garbage collection for unused temporary PPD files in spool directory """
+        index = PluginRegistry.getInstance("ObjectIndex")
+
+        dir = self.env.config.get("cups.spool", default="/tmp/spool")
+        for file in os.listdir(dir):
+            if os.path.isfile(os.path.join(dir, file)) and file.split(".")[:-1].lower() == "ppd":
+                ppd_file = os.path.join(dir, file)
+                res = index.search({"_type": "GotoPrinter", "gotoPrinterPPD": ppd_file}, {"dn": 1})
+                if len(res) == 0 and os.path.getmtime(ppd_file) < time.time()-3600:
+                    # no entry -> delete file if it has not been changed in the last hour
+                    self.log.debug("deleting obsolete PPD file: %s" % ppd_file)
+                    os.unlink(ppd_file)
+
     @Command(__help__=N_("Write settings to PPD file"))
     def writePPD(self, printer_cn, server_ppd_file, custom_ppd_file, data):
+        print("CN: %s, Server-PPD: %s, Local-PPD: %s" % (printer_cn, server_ppd_file, custom_ppd_file))
         if self.client is None:
             return
 
