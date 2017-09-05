@@ -22,10 +22,8 @@ class GetMakeModelFromPPD(ElementFilter):
         ...
 
     """
-    def __init__(self, obj):
-        super(GetMakeModelFromPPD, self).__init__(obj)
 
-    def process(self, obj, key, valDict, make_attribute=None, server_ppd_attribute=None, override=False):
+    def process(self, obj, key, valDict, make_attribute=None, server_ppd_attribute=None, override="false"):
         ppd_file = valDict[key]['value'][0] if len(valDict[key]['value']) else None
         if ppd_file is not None:
             cups = PluginRegistry.getInstance("CupsClient")
@@ -69,8 +67,6 @@ class DeleteOldFile(ElementFilter):
         </OutFilter>
 
     """
-    def __init__(self, obj):
-        super(DeleteOldFile, self).__init__(obj)
 
     def process(self, obj, key, valDict, *args):
         old_file = valDict[key]['orig_value'] if valDict[key]['orig_value'] != valDict[key]['value'] else None
@@ -80,7 +76,7 @@ class DeleteOldFile(ElementFilter):
                     # check if there is only one remaining link left to this file (the current object)
                     index = PluginRegistry.getInstance("ObjectIndex")
                     res = index.search({key: old_file}, {"dn": 1})
-                    if len(res) >= 1:
+                    if len(res) <= 1:
                         os.unlink(file)
 
         return key, valDict

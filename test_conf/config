@@ -53,6 +53,9 @@ modifier = cn=ldapadmin,dc=example,dc=net
 webhook-target = http://localhost:8000/hooks/
 webhook-token = 9d6250c0-6413-4b1e-98d9-7b763472962a
 
+[cups]
+spool = /tmp/spool
+
 ##############################################################################
 #                            Logger configuration                            #
 ##############################################################################

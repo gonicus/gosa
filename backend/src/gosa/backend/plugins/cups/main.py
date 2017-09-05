@@ -182,6 +182,7 @@ class CupsClient(Plugin):
             return
         printers = self.__get_printer_list()
         res = {}
+        manufacturer = None
         if len(args):
             if isinstance(args[0], dict):
                 manufacturer = args[0]["maker"]
