@@ -127,7 +127,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
 
       return this.__object.commit()
       .catch(function(exc) {
-        var error = exc.getData();
+        var error = exc.getData ? exc.getData() : exc;
         var widget = null;
         this.setValid(false);
         if (error.topic) {
@@ -141,6 +141,9 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
         }
         if (widget) {
           this.__showWidgetError(widget, error);
+          throw exc;
+        } else {
+          gosa.ui.dialogs.Error.show(exc);
           throw exc;
         }
       }, this)

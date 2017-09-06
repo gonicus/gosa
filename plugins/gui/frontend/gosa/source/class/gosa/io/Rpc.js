@@ -69,10 +69,17 @@ qx.Class.define("gosa.io.Rpc", {
     /**
      * Resolve an error code to an translated text.
      */
-    resolveError: function(old_error){
+    resolveError: function(old_error, reject) {
       var rpc = gosa.io.Rpc.getInstance();
-      return new qx.Promise(function(resolve, reject) {
+
+      var wrapper = function(resolve, reject) {
         rpc.cA("getError", old_error.field, gosa.Tools.getLocale())
+        .catch(function() {
+          if(!old_error.message){
+            old_error.message = old_error.text;
+          }
+          reject(new gosa.core.RpcError(old_error));
+        })
         .then(function(data) {
           // The default error message attribute is 'message'
           // so fill it with the incoming message
@@ -85,13 +92,14 @@ qx.Class.define("gosa.io.Rpc", {
             }
           }
           reject(new gosa.core.RpcError(data));
-        }, function() {
-          if(!old_error.message){
-            old_error.message = old_error.text;
-          }
-          reject(new gosa.core.RpcError(old_error));
         });
-      }, this);
+      };
+
+      if (reject) {
+        return qx.Promise.resolve(wrapper(reject));
+      } else {
+        return new qx.Promise(wrapper, this);
+      }
     }
   },
 
@@ -160,13 +168,15 @@ qx.Class.define("gosa.io.Rpc", {
     __promiseCallAsync: function(argx) {
       this.debug("started next rpc job '" + argx[0] + "'");
       return new qx.Promise(function(resolve, reject) {
+        var errorWrapper = qx.lang.Function.curry(this.__handleRpcError.bind(this), argx, reject);
+
         if (this.isBlockRpcs() && this.__allowedRPCs.indexOf(argx[0]) === -1) {
           this.debug("RPCs are currently blocked: listening for unblock event");
           this.addListenerOnce("changeBlockRpcs", function() {
-            this.__executeCallAsync(argx, resolve, reject);
+            this.__executeCallAsync(argx, resolve, errorWrapper);
           })
         } else {
-          this.__executeCallAsync(argx, resolve, reject);
+          this.__executeCallAsync(argx, resolve, errorWrapper);
         }
       }, this);
     },
@@ -229,7 +239,7 @@ qx.Class.define("gosa.io.Rpc", {
      * @return {var}
      * @private
      */
-    __handleRpcError: function(argx, error) {
+    __handleRpcError: function(argx, reject, error) {
       if(error && error.code == 401) {
         this.setBlockRpcs(true);
 
@@ -255,10 +265,10 @@ qx.Class.define("gosa.io.Rpc", {
         }, this);
 
         // Catch potential errors here.
-      } else if(error && error.code != 500 && (error.code >= 400 || error.code == 0)){
+      } else if(error && error.code !== 500 && (error.code >= 400 || error.code === 0)){
 
         var msg = error.message;
-        if(error.code == 0){
+        if(error.code === 0){
           msg = new qx.ui.core.Widget().tr("Communication with the backend failed!");
         }
 
@@ -269,7 +279,7 @@ qx.Class.define("gosa.io.Rpc", {
           }, this);
           d.open();
         }, this);
-      } else if (error && argx[0] != "getError") {
+      } else if (error && argx[0] !== "getError") {
         // Parse additional information out of the error.message string.
         error.field = null;
 
@@ -278,7 +288,9 @@ qx.Class.define("gosa.io.Rpc", {
         if (match) {
           error.field = match[1];
           error.message = match[2];
-          return gosa.io.Rpc.resolveError(error, this);
+          return gosa.io.Rpc.resolveError(error, this, reject);
+        } else {
+          reject(error);
         }
       }
     },
@@ -306,14 +318,10 @@ qx.Class.define("gosa.io.Rpc", {
         })
         .then(function(xsrf) {
           this.__xsrf = xsrf;
-          return this.__promiseCallAsync(argx).catch(function(error) {
-            return this.__handleRpcError(argx, error);
-          }, this);
+          return this.__promiseCallAsync(argx);
         }, this)
       } else {
-        return this.__promiseCallAsync(argx).catch(function(error) {
-          return this.__handleRpcError(argx, error);
-        }, this);
+        return this.__promiseCallAsync(argx);
       }
     },
 
