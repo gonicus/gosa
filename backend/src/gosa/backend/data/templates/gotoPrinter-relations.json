@@ -63,7 +63,10 @@
               "columns": {
                 "cn": "tr('Name')",
                 "description": "tr('Description')"
-              }
+              },
+              "droppable": true,
+              "draggable": true,
+              "dragDropType": "gosa/user"
             }
           }
         },
@@ -95,7 +98,10 @@
               "columns": {
                 "cn": "tr('Name')",
                 "description": "tr('Description')"
-              }
+              },
+              "droppable": true,
+              "draggable": true,
+              "dragDropType": "gosa/user"
             }
           }
         },
@@ -127,7 +133,10 @@
               "columns": {
                 "cn": "tr('Name')",
                 "description": "tr('Description')"
-              }
+              },
+              "droppable": true,
+              "draggable": true,
+              "dragDropType": "gosa/group"
             }
           }
         },
@@ -159,7 +168,10 @@
               "columns": {
                 "cn": "tr('Name')",
                 "description": "tr('Description')"
-              }
+              },
+              "droppable": true,
+              "draggable": true,
+              "dragDropType": "gosa/group"
             }
           }
         }
