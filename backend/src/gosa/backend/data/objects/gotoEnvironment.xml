@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects">
+    <Object>
+        <Name>GotoEnvironment</Name>
+        <DisplayName>GotoEnvironment</DisplayName>
+        <Description>GOto - contains environment settings (v2.7)</Description>
+        <Backend>LDAP</Backend>
+        <BaseObject>false</BaseObject>
+        <Templates>
+            <Template>gotoEnvironment.json</Template>
+        </Templates>
+        <Extends>
+            <Value>User</Value>
+            <Value>GroupOfNames</Value>
+        </Extends>
+        <BackendParameters>
+            <Backend RDN="cn" objectClasses="gotoEnvironment">LDAP</Backend>
+            <Backend gotoDefaultPrinter="GotoPrinter:cn,gotoDefaultPrinter=cn"
+                     gotoPrinters="GotoPrinter:cn,gotoUserPrinter=uid">ObjectHandler</Backend>
+        </BackendParameters>
+        <Attributes>
+            <Attribute>
+                <Name>gotoXResolution</Name>
+                <Description>GOto - Gonicus Terminal Concept, value xResolution.</Description>
+                <Type>String</Type>
+                <Values>
+                    <Value>800x600</Value>
+                    <Value>1024x768</Value>
+                    <Value>1280x960</Value>
+                    <Value>1600x1200</Value>
+                    <Value>1920x1080</Value>
+                </Values>
+            </Attribute>
+
+            <Attribute>
+                <Name>gotoLogonScript</Name>
+                <Description>GOto - specifies a LogonScript</Description>
+                <Type>UnicodeString</Type>
+                <MultiValue>true</MultiValue>
+            </Attribute>
+
+            <Attribute>
+                <Name>gotoDefaultLanguage</Name>
+                <Description>Defines the default language for a user</Description>
+                <Type>String</Type>
+                <Values populate="getLanguageList"/>
+            </Attribute>
+
+            <Attribute>
+                <Name>gotoDefaultPrinter</Name>
+                <Description>Defines a default printer a user owns</Description>
+                <Type>String</Type>
+                <Validators>
+                    <Condition>
+                        <Name>ObjectWithPropertyExists</Name>
+                        <Param>GotoPrinter</Param>
+                        <Param>cn</Param>
+                    </Condition>
+                </Validators>
+                <References>
+                    <Reference>
+                        <Object>GotoPrinter</Object>
+                        <Attribute>cn</Attribute>
+                    </Reference>
+                </References>
+            </Attribute>
+
+            <Attribute>
+                <Name>gotoPrinters</Name>
+                <Description>List of assigned printers</Description>
+                <Type>String</Type>
+                <Backend>ObjectHandler</Backend>
+                <MultiValue>true</MultiValue>
+                <Validators>
+                    <Condition>
+                        <Name>ObjectWithPropertyExists</Name>
+                        <Param>GotoPrinter</Param>
+                        <Param>cn</Param>
+                    </Condition>
+                </Validators>
+            </Attribute>
+
+            <Attribute>
+                <Name>gotoProfileServer</Name>
+                <Description>GOto - specifies the profile server</Description>
+                <Type>String</Type>
+                <MultiValue>false</MultiValue>
+                <Mandatory>false</Mandatory>
+                <Validators>
+                    <Condition>
+                        <Name>RegEx</Name>
+                        <Param>^[\x00-\x7F]*$</Param>
+                    </Condition>
+                </Validators>
+            </Attribute>
+            <Attribute>
+                <Name>gotoProfileFlags</Name>
+                <Description>GOto - Flags for Profile handling - C is for caching</Description>
+                <Type>String</Type>
+                <MultiValue>false</MultiValue>
+                <Mandatory>false</Mandatory>
+                <Validators>
+                    <Condition>
+                        <Name>RegEx</Name>
+                        <Param>^[\x00-\x7F]*$</Param>
+                    </Condition>
+                </Validators>
+            </Attribute>
+
+            <Attribute>
+                <Name>gotoShare</Name>
+                <Description>GOto - specifies a share</Description>
+                <Type>String</Type>
+                <MultiValue>true</MultiValue>
+                <Mandatory>false</Mandatory>
+                <Validators>
+                    <Condition>
+                        <Name>RegEx</Name>
+                        <Param>^[\x00-\x7F]*$</Param>
+                    </Condition>
+                </Validators>
+            </Attribute>
+
+            <Attribute>
+                <Name>gotoKioskProfile</Name>
+                <Description>GOto - specifies a kiosk profile</Description>
+                <Type>String</Type>
+                <MultiValue>true</MultiValue>
+                <Mandatory>false</Mandatory>
+                <Validators>
+                    <Condition>
+                        <Name>RegEx</Name>
+                        <Param>^[\x00-\x7F]*$</Param>
+                    </Condition>
+                </Validators>
+            </Attribute>
+            <Attribute>
+                <Name>gotoHotplugDevice</Name>
+                <Description>GOto - keeps hotplug devices</Description>
+                <Type>String</Type>
+                <MultiValue>true</MultiValue>
+                <Mandatory>false</Mandatory>
+                <Validators>
+                    <Condition>
+                        <Name>RegEx</Name>
+                        <Param>^[\x00-\x7F]*$</Param>
+                    </Condition>
+                </Validators>
+            </Attribute>
+            <Attribute>
+                <Name>gotoProfileQuota</Name>
+                <Description>GOto - save quota for home</Description>
+                <Type>String</Type>
+                <MultiValue>false</MultiValue>
+                <Mandatory>false</Mandatory>
+                <Validators>
+                    <Condition>
+                        <Name>RegEx</Name>
+                        <Param>^[\x00-\x7F]*$</Param>
+                    </Condition>
+                </Validators>
+            </Attribute>
+            <Attribute>
+                <Name>gotoHotplugDeviceDN</Name>
+                <Description>GOto - points to hotplug devices</Description>
+                <Type>UnicodeString</Type>
+                <MultiValue>true</MultiValue>
+                <Mandatory>false</Mandatory>
+                <Validators>
+                    <Condition>
+                        <Name>IsExistingDN</Name>
+                    </Condition>
+                </Validators>
+            </Attribute>
+        </Attributes>
+    </Object>
+</Objects>

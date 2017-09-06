@@ -1,0 +1,34 @@
+{
+  "type": "widget",
+  "layout": "qx.ui.layout.Grid",
+  "extensions": {
+    "tabConfig": {
+      "title": "gotoEnvironment"
+    }
+  },
+  "class": "qx.ui.container.Composite",
+  "children": [
+    {
+      "addOptions": {
+        "row": 0,
+        "column": 0
+      },
+      "buddyModelPath": "gotoLogonScript",
+      "properties": {
+        "text": "gotoLogonScript"
+      },
+      "class": "gosa.ui.widgets.QLabelWidget"
+    },
+    {
+      "modelPath": "gotoLogonScript",
+      "addOptions": {
+        "row": 0,
+        "column": 1
+      },
+      "properties": {
+        "tabIndex": 1
+      },
+      "class": "gosa.ui.widgets.QLineEditWidget"
+    }
+  ]
+}
