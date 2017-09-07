@@ -36,14 +36,7 @@
                 <Name>gotoLogonScript</Name>
                 <Description>GOto - specifies a LogonScript</Description>
                 <Type>UnicodeString</Type>
-                <MultiValue>true</MultiValue>
-            </Attribute>
-
-            <Attribute>
-                <Name>gotoDefaultLanguage</Name>
-                <Description>Defines the default language for a user</Description>
-                <Type>String</Type>
-                <Values populate="getLanguageList"/>
+                <MultiValue>false</MultiValue>
             </Attribute>
 
             <Attribute>

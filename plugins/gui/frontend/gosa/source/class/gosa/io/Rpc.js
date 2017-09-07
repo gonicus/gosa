@@ -69,16 +69,16 @@ qx.Class.define("gosa.io.Rpc", {
     /**
      * Resolve an error code to an translated text.
      */
-    resolveError: function(old_error, reject) {
+    resolveError: function(old_error) {
       var rpc = gosa.io.Rpc.getInstance();
 
-      var wrapper = function(resolve, reject) {
+      var wrapper = function(resolve, innerReject) {
         rpc.cA("getError", old_error.field, gosa.Tools.getLocale())
         .catch(function() {
           if(!old_error.message){
             old_error.message = old_error.text;
           }
-          reject(new gosa.core.RpcError(old_error));
+          innerReject(new gosa.core.RpcError(old_error));
         })
         .then(function(data) {
           // The default error message attribute is 'message'
@@ -91,15 +91,10 @@ qx.Class.define("gosa.io.Rpc", {
               }
             }
           }
-          reject(new gosa.core.RpcError(data));
+          innerReject(new gosa.core.RpcError(data));
         });
       };
-
-      if (reject) {
-        return qx.Promise.resolve(wrapper(reject));
-      } else {
-        return new qx.Promise(wrapper, this);
-      }
+      return new qx.Promise(wrapper, this);
     }
   },
 
@@ -288,7 +283,7 @@ qx.Class.define("gosa.io.Rpc", {
         if (match) {
           error.field = match[1];
           error.message = match[2];
-          return gosa.io.Rpc.resolveError(error, this, reject);
+          return gosa.io.Rpc.resolveError(error, this).catch(reject);
         } else {
           reject(error);
         }
