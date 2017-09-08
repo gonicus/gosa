@@ -43,6 +43,11 @@ qx.Class.define("gosa.ui.editor.Monaco", {
   *****************************************************************************
   */
   properties : {
+    appearance: {
+      refine: true,
+      init: "textfield"
+    },
+
     editor: {
       check: "Object",
       init: null,
@@ -107,9 +112,9 @@ qx.Class.define("gosa.ui.editor.Monaco", {
           value : this.getValue(),
           language : 'python',
           autoIndent: true,
-          acceptSuggestionOnEnter: "off"
+          folding: true
         }, this.getGuiProperties() || {});
-        console.log(config);
+
         var editor = monaco.editor.create(element, config);
         this.setEditor(editor);
 
@@ -122,6 +127,7 @@ qx.Class.define("gosa.ui.editor.Monaco", {
       if (!this.__lid) {
         this.__lid = qx.core.Init.getApplication().getRoot().addListener("keypress", this.__disableTab, this, true);
       }
+      gosa.ui.command.GroupManager.getInstance().block();
     },
 
     _onBlur: function() {
@@ -129,6 +135,7 @@ qx.Class.define("gosa.ui.editor.Monaco", {
         qx.core.Init.getApplication().getRoot().removeListenerById(this.__lid);
         this.__lid = null;
       }
+      gosa.ui.command.GroupManager.getInstance().unblock();
     },
 
 
@@ -149,9 +156,15 @@ qx.Class.define("gosa.ui.editor.Monaco", {
       }
     },
 
-    _applyValid: function() {
+    _applyValid: function(value) {
       if (this.__monaco) {
         this.__monaco.editor.setModelMarkers(this.getEditor().getModel(), '', []);
+      }
+      if (value) {
+        this.removeState("invalid");
+      }
+      else {
+        this.addState("invalid");
       }
     },
 

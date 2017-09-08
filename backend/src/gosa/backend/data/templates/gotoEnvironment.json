@@ -73,14 +73,14 @@
             "row": 2,
             "column": 0
           },
-          "buddyModelPath": "gotoLogonScript",
+          "buddyModelPath": "script",
           "properties": {
             "text": "tr('Logon script')"
           },
           "class": "gosa.ui.widgets.QLabelWidget"
         },
         {
-          "modelPath": "gotoLogonScript",
+          "modelPath": "script",
           "addOptions": {
             "row": 2,
             "column": 1
@@ -89,7 +89,7 @@
             "tabIndex": 3,
             "height": 300
           },
-          "class": "gosa.ui.widgets.QEditorWidget",
+          "class": "gosa.ui.widgets.EditorWidget",
           "extensions": {
             "guiProperties": {
               "minimap": {

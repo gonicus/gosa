@@ -15,18 +15,25 @@
  */
 qx.Class.define("gosa.engine.extensions.Actions", {
   extend : qx.core.Object,
-
   implement : [gosa.engine.extensions.IExtension],
 
   members : {
+    __commandGroup: null,
 
     process : function(data, target, context) {
       qx.core.Assert.assertArray(data, "Actions configuration must be an array");
+      var manager = gosa.ui.command.GroupManager.getInstance();
+      if (this.__commandGroup) {
+        manager.remove(this.__commandGroup);
+      }
+      this.__commandGroup = new qx.ui.command.Group();
       data.forEach(function(action) {
         if (this._isActionAllowed(action, context)) {  // actions without permission are not shown
           this._processAction(action, target, context);
         }
       }, this);
+      manager.add(this.__commandGroup);
+      manager.setActive(this.__commandGroup);
     },
 
     /**
@@ -76,6 +83,7 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       var command = null;
       if (data.hasOwnProperty("shortcut")) {
         command = new qx.ui.command.Command(data.shortcut);
+        this.__commandGroup.add(data.name, command);
       }
 
       // button creation
@@ -345,6 +353,19 @@ qx.Class.define("gosa.engine.extensions.Actions", {
       }
       args.unshift(methodName);
       return args;
+    }
+  },
+
+  /*
+  *****************************************************************************
+     DESTRUCTOR
+  *****************************************************************************
+  */
+  destruct : function() {
+    if (this.__commandGroup) {
+      gosa.ui.command.GroupManager.getInstance().remove(this.__commandGroup);
+      this._disposeObjects("__commandGroup");
+      this.__commandGroup = null;
     }
   },
 

@@ -16,7 +16,7 @@
  *
  * @ignore(require.*,monaco.*)
  */
-qx.Class.define("gosa.ui.widgets.QEditorWidget", {
+qx.Class.define("gosa.ui.widgets.EditorWidget", {
 
   extend: gosa.ui.widgets.MultiEditWidget,
 
