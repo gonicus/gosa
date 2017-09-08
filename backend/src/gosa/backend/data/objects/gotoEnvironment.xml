@@ -33,15 +33,75 @@
             </Attribute>
 
             <Attribute>
-                <Name>gotoLogonScript</Name>
-                <Description>GOto - specifies a LogonScript</Description>
+                <Name>script</Name>
                 <Type>UnicodeString</Type>
-                <MultiValue>false</MultiValue>
+                <MultiValue>true</MultiValue>
+                <Backend>NULL</Backend>
                 <Validators>
                     <Condition>
                         <Name>ScriptLint</Name>
                     </Condition>
                 </Validators>
+            </Attribute>
+
+            <Attribute>
+                <Name>scriptName</Name>
+                <Type>UnicodeString</Type>
+                <MultiValue>true</MultiValue>
+                <Backend>NULL</Backend>
+            </Attribute>
+
+            <Attribute>
+                <Name>scriptPriority</Name>
+                <Type>Integer</Type>
+                <MultiValue>true</MultiValue>
+                <Backend>NULL</Backend>
+            </Attribute>
+
+            <Attribute>
+                <Name>scriptLast</Name>
+                <Type>Boolean</Type>
+                <MultiValue>true</MultiValue>
+                <Backend>NULL</Backend>
+            </Attribute>
+
+            <Attribute>
+                <Name>scriptUserEditable</Name>
+                <Type>Boolean</Type>
+                <MultiValue>true</MultiValue>
+                <Backend>NULL</Backend>
+            </Attribute>
+
+            <Attribute>
+                <Name>gotoLogonScript</Name>
+                <Description>GOto - specifies a LogonScript</Description>
+                <Type>UnicodeString</Type>
+                <MultiValue>true</MultiValue>
+                <InFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>UnmarshalLogonScript</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </InFilter>
+                <OutFilter>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>MarshalLogonScript</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                </OutFilter>
+                <DependsOn>
+                    <Attribute>script</Attribute>
+                    <Attribute>scriptPriority</Attribute>
+                    <Attribute>scriptName</Attribute>
+                    <Attribute>scriptLast</Attribute>
+                    <Attribute>scriptUserEditable</Attribute>
+                </DependsOn>
             </Attribute>
 
             <Attribute>

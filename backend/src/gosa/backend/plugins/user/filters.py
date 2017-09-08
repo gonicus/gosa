@@ -6,7 +6,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
+import base64
 import os
 import shutil
 from PIL import Image
@@ -218,3 +218,52 @@ class GenerateDisplayName(ElementFilter):
             givenName = valDict["givenName"]['value'][0]
 
         return "%s %s" % (givenName, sn)
+
+
+class MarshalLogonScript(ElementFilter):
+    """
+    Create logon script entry from required attributes. Syntax is
+    scriptName|scriptLast_scriptUserEditable|scriptPriority|script(base64 encoded)
+    """
+
+    def process(self, obj, key, valDict):
+        valDict[key]["value"] = []
+        for index, script in enumerate(valDict["script"]["value"]):
+            valDict[key]["value"].append("%s|%s%s|%s|%s" % (
+                valDict["scriptName"]["value"][index] if len(valDict["scriptName"]["value"]) > index else "",
+                "O" if len(valDict["scriptUserEditable"]["value"]) > index and valDict["scriptUserEditable"]["value"][index] is True else "",
+                "L" if len(valDict["scriptLast"]["value"]) > index and valDict["scriptLast"]["value"][index] is True else "",
+                valDict["scriptPriority"]["value"][index] if len(valDict["scriptPriority"]["value"]) > index else "",
+                base64.b64encode(script.encode("utf-8")).decode()
+            ))
+
+        return key, valDict
+
+
+class UnmarshalLogonScript(ElementFilter):
+    """
+    Extract marshalled
+    scriptName|scriptLast_scriptUserEditable|scriptPriority|script(base64 encoded)
+    """
+
+    def process(self, obj, key, valDict):
+        # initialize values
+        for name in ["scriptName", "scriptLast", "scriptUserEditable", "scriptPriority", "script"]:
+            valDict[name]["value"] = []
+
+        for index, logon in enumerate(valDict[key]["value"]):
+            parts = logon.split("|")
+            if len(parts) == 4:
+                valDict["scriptName"]["value"].append(parts[0])
+                valDict["scriptLast"]["value"].append("L" in parts[1])
+                valDict["scriptUserEditable"]["value"].append("O" in parts[1])
+                if len(parts[2]):
+                    valDict["scriptPriority"]["value"].append(int(parts[2]))
+                else:
+                    valDict["scriptPriority"]["value"].append("")
+                if len(parts[3]):
+                    valDict["script"]["value"].append(base64.b64decode(parts[3]).decode())
+                else:
+                    valDict["script"]["value"].append("")
+
+        return key, valDict

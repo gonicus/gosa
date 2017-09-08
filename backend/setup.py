@@ -210,6 +210,8 @@ setup(
         foremanstatusout = gosa.backend.plugins.foreman.filter:ForemanStatusOut
         GetMakeModelFromPPD = gosa.backend.plugins.cups.filter:GetMakeModelFromPPD
         DeleteOldFile = gosa.backend.plugins.cups.filter:DeleteOldFile
+        MarshalLogonScript = gosa.backend.plugins.user.filters:MarshalLogonScript
+        UnmarshalLogonScript = gosa.backend.plugins.user.filters:UnmarshalLogonScript
 
         [gosa.object.comparator]
         like = gosa.backend.objects.comparator.strings:Like

@@ -97,7 +97,7 @@ class PyLint(ExecLint):
                 return True, errors
 
             try:
-                r = Run(['--errors-only', file], exit=False)
+                Run(['--errors-only', file], exit=False)
                 test = sys.stdout.getvalue()
                 for err in test.split('\n'):
                     #E:  5, 4: Undefined variable 'sdsd' (undefined-variable)
@@ -107,8 +107,8 @@ class PyLint(ExecLint):
                             "index": real_index,
                             "translatable": False,
                             "line": int(m.group(1)),
-                            "column":int(m.group(2)),
-                            "message": "%s (%s)" % (m.group(3), m.group(4)),
+                            "column": int(m.group(2)),
+                            "message": m.group(3),
                             "symbol": m.group(4)
                         })
 
