@@ -87,7 +87,8 @@ setup(
         'python-u2flib-server>=5.0.0',
         'pycountry',
         'tornadostreamform',
-        'pycups'
+        'pycups',
+        'sh'
         ],
 
     entry_points = """
@@ -229,6 +230,9 @@ setup(
         is_acl_set = gosa.backend.objects.comparator.acl_set:IsAclSet
         isvalidsambadomainname = gosa.backend.plugins.samba.domain:IsValidSambaDomainName
         checksambasidlist = gosa.backend.plugins.samba.sid:CheckSambaSIDList
+        scriptlint = gosa.backend.plugins.lint.main:ScriptLint
+        pylint = gosa.backend.plugins.lint.main:PyLint
+        shelllint = gosa.backend.plugins.lint.main:ShellLint
 
         [gosa.object.operator]
         and = gosa.backend.objects.operator.bool:And

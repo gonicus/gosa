@@ -51,12 +51,13 @@ qx.Class.define("gosa.ui.editor.Monaco", {
 
     valid: {
       check: "Boolean",
-      init: true
+      init: true,
+      apply: "_applyValid"
     },
 
     invalidMessage: {
-      check: "String",
-      init: ""
+      init: "",
+      apply: "_applyInvalidMessage"
     },
     guiProperties: {
       apply: "_applyGuiProperties",
@@ -73,9 +74,12 @@ qx.Class.define("gosa.ui.editor.Monaco", {
 
   members : {
     _skipApply: false,
+    __currentLanguage: null,
+    __currentLanguageVersion: null,
+    __monaco: null,
 
     __disableTab: function(ev) {
-      if (ev.getKeyIdentifier() === "Tab" || ev.getKeyIdentifier() === "Enter") {
+      if (ev.getKeyIdentifier() === "Tab") {
         ev.stopPropagation();
         ev.preventDefault();
       }
@@ -86,11 +90,15 @@ qx.Class.define("gosa.ui.editor.Monaco", {
       element.setAttribute("tabIndex", "-1");
 
       require(['vs/editor/editor.main'], function() {
+        this.__monaco = monaco;
 
         monaco.languages.setLanguageConfiguration('python', {
           onEnterRules: [
             {
-              action: { appendText: '\n' }
+              beforeText: /.*/,
+              action: {
+                appendText: '\n'
+              }
             }
           ]
         });
@@ -112,16 +120,38 @@ qx.Class.define("gosa.ui.editor.Monaco", {
 
     _onFocus: function() {
       if (!this.__lid) {
-        console.log(this.toHashCode()+" add key listener");
         this.__lid = qx.core.Init.getApplication().getRoot().addListener("keypress", this.__disableTab, this, true);
       }
     },
 
     _onBlur: function() {
       if (this.__lid) {
-        console.log(this.toHashCode()+" remove key listener");
         qx.core.Init.getApplication().getRoot().removeListenerById(this.__lid);
         this.__lid = null;
+      }
+    },
+
+
+    _applyInvalidMessage: function(value) {
+      if (qx.lang.Type.isArray(value)) {
+        var markers = [];
+        value.forEach(function(error) {
+          markers.push({
+            severity: monaco.Severity.Error,
+            startLineNumber: error.line,
+            startColumn: error.column,
+            endLineNumber: error.line,
+            endColumn: error.column+1,
+            message: error.message
+          });
+        }, this);
+        this.__monaco.editor.setModelMarkers(this.getEditor().getModel(), '', markers);
+      }
+    },
+
+    _applyValid: function() {
+      if (this.__monaco) {
+        this.__monaco.editor.setModelMarkers(this.getEditor().getModel(), '', []);
       }
     },
 
@@ -162,12 +192,23 @@ qx.Class.define("gosa.ui.editor.Monaco", {
           case "zsh":
           case "csh":
           case "bash":
+            this.__currentLanguage = "bash";
+            this.__currentLanguageVersion = null;
             return "bash";
-          case "python":
-          case "python2":
           case "python3":
+          case "python2":
+          case "python":
+            this.__currentLanguage = "python";
+            var versionMatch = /^python([\d]?)$/.exec(binary);
+            if (versionMatch) {
+              this.__currentLanguageVersion = parseInt(versionMatch[1]);
+            } else {
+              // default is python2
+              this.__currentLanguageVersion = 2;
+            }
             return "python";
           default:
+            this.__currentLanguageVersion = null;
             return binary;
         }
       } else {

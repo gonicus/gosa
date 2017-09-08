@@ -23,8 +23,7 @@ qx.Class.define("gosa.ui.widgets.QEditorWidget", {
   construct: function(){
     this.base(arguments);
 
-    // var monacoPath = "gosa/js/monaco-editor/"+(qx.core.Environment.get("qx.debug") ? "dev/vs" : "min/vs");
-    var monacoPath = "gosa/js/monaco-editor/min/vs";
+    var monacoPath = "gosa/js/monaco-editor/"+(qx.core.Environment.get("qx.debug") ? "dev/vs" : "min/vs");
     var dynLoader = new qx.util.DynamicScriptLoader([
       monacoPath+"/loader.js"
     ]);
@@ -75,6 +74,42 @@ qx.Class.define("gosa.ui.widgets.QEditorWidget", {
       if (this.__loaded) {
         this.base(arguments);
       }
+    },
+
+    /**
+     * Parses an incoming error-object and then sets the error message.
+     * @param error_object {Error}
+     */
+    setError: function(error_object){
+      var message = error_object.text;
+      if(error_object.details) {
+        // collect details for each widget
+        var detailsByIndex = {};
+        for(var i=0; i< error_object.details.length; i++) {
+          if (!detailsByIndex[error_object.details[i].index]) {
+            detailsByIndex[error_object.details[i].index] = [];
+          }
+          detailsByIndex[error_object.details[i].index].push(error_object.details[i]);
+
+        }
+        Object.getOwnPropertyNames(detailsByIndex).forEach(function(idx) {
+          this.setErrorMessage(detailsByIndex[idx], parseInt(idx));
+        }, this);
+
+      } else {
+        this.setErrorMessage(message, 0);
+      }
+    },
+
+
+    /**
+     * Sets an error message for this widgets
+     */
+    setErrorMessage: function(message, id){
+      var w = this._getWidget(id);
+      w.setInvalidMessage(message);
+      w.setValid(false);
+      this.setValid(false);
     },
 
     /* Creates an input-widget depending on the echo mode (normal/password)

@@ -49,7 +49,8 @@ class GosaErrorHandler(Plugin):
                 # Process details by translating detail text
                 if res['details']:
                     for detail in res['details']:
-                        detail['detail'] = t.gettext(detail['detail']) % detail
+                        if 'detail' in detail:
+                            detail['detail'] = t.gettext(detail['detail']) % detail
 
             # Fill keywords
             res['text'] = res['text'] % res['kwargs']

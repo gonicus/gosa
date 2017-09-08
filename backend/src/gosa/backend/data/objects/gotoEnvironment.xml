@@ -37,6 +37,11 @@
                 <Description>GOto - specifies a LogonScript</Description>
                 <Type>UnicodeString</Type>
                 <MultiValue>false</MultiValue>
+                <Validators>
+                    <Condition>
+                        <Name>ScriptLint</Name>
+                    </Condition>
+                </Validators>
             </Attribute>
 
             <Attribute>
