@@ -1,7 +1,14 @@
+# This file is part of the GOsa project.
+#
+#  http://gosa-project.org
+#
+# Copyright:
+#  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
+#
+# See the LICENSE file in the project's top-level directory for details.
 import functools
 import hashlib
 import logging
-import pprint
 import cups
 import os
 import tempfile
@@ -97,6 +104,9 @@ class CupsClient(Plugin):
             return
 
         server_ppd = None
+        dir = self.env.config.get("cups.spool", default="/tmp/spool")
+        if not os.path.exists(dir):
+            os.makedirs(dir)
         try:
             server_ppd = self.client.getServerPPD(server_ppd_file)
             is_server_ppd = True
@@ -106,7 +116,7 @@ class CupsClient(Plugin):
             is_server_ppd = False
 
             if custom_ppd_file is not None:
-                ppd = cups.PPD(custom_ppd_file)
+                ppd = cups.PPD(os.path.join(dir, custom_ppd_file))
             else:
                 raise PPDException(C.make_error('COULD_NOT_READ_SOURCE_PPD'))
 
@@ -124,9 +134,6 @@ class CupsClient(Plugin):
                 raise PPDException(C.make_error('OPTION_NOT_FOUND', option=option_name))
 
         # calculate hash value for new PPD
-        dir = self.env.config.get("cups.spool", default="/tmp/spool")
-        if not os.path.exists(dir):
-            os.makedirs(dir)
 
         temp_file = tempfile.NamedTemporaryFile(delete=False)
         try:
@@ -146,7 +153,7 @@ class CupsClient(Plugin):
 
             if not is_server_ppd:
                 # check if anyone else is using a file with this hash value and delete the old file if not
-                query = {"_type": "GotoPrinter", "gotoPrinterPPD": custom_ppd_file}
+                query = {"_type": "GotoPrinter", "gotoPrinterPPD": "%s.ppd" % hash}
                 if printer_cn is not None:
                     query["not_"] = {"cn": printer_cn}
                 res = index.search(query, {"dn": 1})
@@ -157,7 +164,7 @@ class CupsClient(Plugin):
             with open(new_file, "w") as f:
                 f.write(result)
 
-            return {"gotoPrinterPPD": [new_file]}
+            return {"gotoPrinterPPD": ["%s.ppd" % hash]}
 
         except Exception as e:
             self.log.error(str(e))

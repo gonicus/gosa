@@ -106,6 +106,7 @@ setup(
         /uploads/(?P<uuid>.*)? = gosa.backend.plugins.upload.main:UploadHandler
         /workflow/(?P<path>.*)? = gosa.backend.routes.static.main:WorkflowHandler
         /hooks(?P<path>.*)? = gosa.backend.plugins.webhook.registry:WebhookReceiver
+        /ppd(?P<path>.*)? = gosa.backend.plugins.cups.route:PPDHandler
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
