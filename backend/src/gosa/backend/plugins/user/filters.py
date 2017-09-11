@@ -260,7 +260,7 @@ class UnmarshalLogonScript(ElementFilter):
                 if len(parts[2]):
                     valDict["scriptPriority"]["value"].append(int(parts[2]))
                 else:
-                    valDict["scriptPriority"]["value"].append("")
+                    valDict["scriptPriority"]["value"].append(0)
                 if len(parts[3]):
                     valDict["script"]["value"].append(base64.b64decode(parts[3]).decode())
                 else:
