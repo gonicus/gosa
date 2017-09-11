@@ -18,8 +18,8 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
   extend: gosa.ui.widgets.Widget,
 
 
-  construct: function(){
-    this.base(arguments);
+  construct: function(valueIndex){
+    this.base(arguments, valueIndex);
     this.contents.setLayout(new qx.ui.layout.VBox(5));
     this.setDecorator("main");
 

@@ -22,7 +22,7 @@ qx.Class.define("gosa.ui.widgets.Widget", {
   extend: qx.ui.container.Composite,
   implement: qx.ui.form.IForm,
 
-  construct: function(){
+  construct: function(valueIndex){
     this.base(arguments);
     this.name = this.classname.replace(/^.*\./, "");
     this.addState("gosaWidget");
@@ -31,6 +31,9 @@ qx.Class.define("gosa.ui.widgets.Widget", {
     this.contents = new qx.ui.container.Composite();
     this.add(this.contents, {top:0, left:0, bottom:0, right:0});
     this.setFocusable(false);
+    if (valueIndex !== undefined && valueIndex !== null) {
+      this.setValueIndex(valueIndex);
+    }
     this.setValue(new qx.data.Array());
   },
 
@@ -205,6 +208,11 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       apply: '_applyValue'
     },
 
+    valueIndex : {
+      check : "Integer",
+      init: -1
+    },
+
     /**
      * Whether the field is required or not.
      */
@@ -284,9 +292,15 @@ qx.Class.define("gosa.ui.widgets.Widget", {
       return(w);
     },
 
-    getSingleValue: function(value) {
+    getSingleValue: function(value, valueIndex) {
       if (value instanceof qx.data.Array) {
-        value = value.getLength() > 0 ? value.getItem(0) : null;
+        if (valueIndex >= 0) {
+          if (value.getLength() > valueIndex) {
+            value = value.getItem(valueIndex);
+          }
+        } else {
+          value = value.getLength() > 0 ? value.getItem(0) : null;
+        }
       }
       return value;
     }
@@ -327,6 +341,17 @@ qx.Class.define("gosa.ui.widgets.Widget", {
      */
     getSingleValue: function() {
       return gosa.ui.widgets.Widget.getSingleValue(this.getValue());
+    },
+
+
+    setSingleValue: function(value) {
+      if (this.getValueIndex() >= 0) {
+          if (this.getValue().getLength() > this.getValueIndex()) {
+            this.getValue().setItem(this.getValueIndex(), value);
+          }
+      } else {
+        this.setValue(value);
+      }
     },
 
     /**

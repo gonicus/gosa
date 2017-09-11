@@ -30,12 +30,12 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
 
   members : {
 
-    process : function(node, target) {
+    process : function(node, target, valueIndex) {
       if (this._getValue(node, "class")) {
         if (this.__shouldGenerateWidget(node)) {
-          var widget = this._createAndAddWidget(node, target);
+          var widget = this._createAndAddWidget(node, target, valueIndex);
           this._firstLevelExtensionsProcessed = false;
-          this._createAndAddChildren(node, widget);
+          this._createAndAddChildren(node, widget, valueIndex);
         }
       }
       else if (this._getValue(node, "form")) {
@@ -67,11 +67,16 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
       return true;
     },
 
-    _createAndAddWidget : function(node, target) {
+    _createAndAddWidget : function(node, target, valueIndex) {
       var clazz = qx.Class.getByName(this._getValue(node, "class"));
       qx.core.Assert.assertNotUndefined(clazz, "Unknown class: '" + this._getValue(node, "class") + "'");
 
-      var widget = new clazz();
+      var widget;
+      if (qx.Class.isSubClassOf(clazz, gosa.ui.widgets.Widget)) {
+        widget = new clazz(valueIndex);
+      } else {
+        widget = new clazz();
+      }
       target.add(widget, this._getValue(node, "addOptions"));
 
       this._handleLayout(node, widget);
@@ -110,11 +115,11 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
       return widget;
     },
 
-    _createAndAddChildren : function(node, target) {
+    _createAndAddChildren : function(node, target, valueIndex) {
       var children = this._getValue(node, "children");
       if (children) {
         children.forEach(function(child) {
-          this.process(child, target);
+          this.process(child, target, valueIndex);
         }, this);
       }
     },

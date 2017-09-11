@@ -14,9 +14,9 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
 
   extend: gosa.ui.widgets.Widget,
 
-  construct: function(){
+  construct: function(valueIndex){
 
-    this.base(arguments);
+    this.base(arguments, valueIndex);
     this.contents.setLayout(new qx.ui.layout.Canvas());
     this.setDecorator("main");
     this._columnNames = [];
@@ -59,6 +59,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     _firstColumn: null,
     _resolvedNames: null,
     _errorRows: null,
+    _sortByColumn: null,
 
     /* Color the specific row red, if an error occurred!
      */
@@ -80,6 +81,9 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     _createGui: function(){
       this._tableModel = new qx.ui.table.model.Simple();
       this._tableModel.setColumns(this._columnNames, this._columnIDs);
+      if (this._sortByColumn) {
+        this._tableModel.sortByColumn(this._tableModel.getColumnIndexById(this._sortByColumn), true);
+      }
       this._table = new gosa.ui.table.Table(this._tableModel);
       this._table.setStatusBarVisible(false);
       this._table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
@@ -310,6 +314,9 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
         }
       }
       this._firstColumn = first;
+      if ("sortByColumn" in props) {
+        this._sortByColumn = props.sortByColumn;
+      }
     }
   },
 

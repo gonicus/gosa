@@ -24,7 +24,7 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
    * @param controller {gosa.data.controller.ObjectEdit}
    * @param extension {String}
    */
-  construct : function(template, controller, extension) {
+  construct : function(template, controller, extension, valueIndex) {
     qx.core.Assert.assertObject(template);
     qx.core.Assert.assertInstance(controller, gosa.data.controller.ObjectEdit);
     qx.core.Assert.assertString(extension);
@@ -32,6 +32,7 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
     this._parsedTemplate = template;
     this.setController(controller);
     this._extension = extension;
+    this._valueIndex = valueIndex;
 
     this.base(arguments, this._getTemplateProperty("windowTitle"));
     this.setAutoDispose(true);
@@ -59,6 +60,10 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
     _parsedTemplate : null,
     _extension : null,
     _context: null,
+    /**
+     * If this dialog edits a certain value of a multivalue attribute this is the index of the value
+     */
+    _valueIndex: null,
 
     getContext: function() {
       return this._context;
@@ -96,7 +101,7 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
       var container = new qx.ui.container.Composite(new qx.ui.layout.VBox());
       this.addElement(container, {flex : 1});
 
-      this._context = new gosa.engine.Context(this._parsedTemplate, container, this._extension, this.getController());
+      this._context = new gosa.engine.Context(this._parsedTemplate, container, this._extension, this.getController(), this._valueIndex);
       this.getController().handleTemporaryContext(this._context);
     }
   }

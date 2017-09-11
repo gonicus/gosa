@@ -22,7 +22,7 @@
             "flex": 1
           }
         }
-      },
+     },
       "children": [
         {
           "addOptions": {
@@ -73,27 +73,158 @@
             "row": 2,
             "column": 0
           },
-          "buddyModelPath": "script",
           "properties": {
             "text": "tr('Logon script')"
           },
           "class": "gosa.ui.widgets.QLabelWidget"
         },
         {
-          "modelPath": "script",
           "addOptions": {
             "row": 2,
             "column": 1
           },
           "properties": {
             "tabIndex": 3,
-            "height": 300
+            "height": 200,
+            "selectorType": "dialog",
+            "multivalue": true
           },
-          "class": "gosa.ui.widgets.EditorWidget",
+          "class": "gosa.ui.widgets.QTableWidgetWidget",
           "extensions": {
             "guiProperties": {
-              "minimap": {
-                "enabled": false
+              "editTitle": "tr('Edit printer user')",
+              "columns": {
+                "scriptName": "tr('Name')",
+                "scriptPriority": "tr('Priority')",
+                "scriptUserEditable": "tr('Editable')",
+                "scriptLast": "tr('Last')"
+              },
+              "sortByColumn": "scriptPriority",
+              "dialogTemplate": {
+                "type": "widget",
+                "layout": "qx.ui.layout.Grid",
+                "class": "qx.ui.container.Composite",
+                "properties": {
+                  "width": 800,
+                  "height": 500,
+                  "windowTitle": "tr('Logon script')",
+                  "dialogName": "editLogonScript"
+                },
+                "children": [
+                  {
+                    "addOptions": {
+                      "row": 0,
+                      "column": 0
+                    },
+                    "buddyModelPath": "scriptName",
+                    "properties": {
+                      "text": "tr('Name')"
+                    },
+                    "class": "gosa.ui.widgets.QLabelWidget"
+                  },
+                  {
+                    "modelPath": "scriptName",
+                    "addOptions": {
+                      "row": 0,
+                      "column": 1
+                    },
+                    "properties": {
+                      "tabIndex": 1,
+                      "multivalue": false
+                    },
+                    "class": "gosa.ui.widgets.QLineEditWidget"
+                  },
+                  {
+                    "addOptions": {
+                      "row": 0,
+                      "column": 2
+                    },
+                    "buddyModelPath": "scriptPriority",
+                    "properties": {
+                      "text": "tr('Priority')"
+                    },
+                    "class": "gosa.ui.widgets.QLabelWidget"
+                  },
+                  {
+                    "modelPath": "scriptPriority",
+                    "addOptions": {
+                      "row": 0,
+                      "column": 3
+                    },
+                    "properties": {
+                      "tabIndex": 2,
+                      "multivalue": false
+                    },
+                    "class": "gosa.ui.widgets.QSpinBoxWidget"
+                  },
+                  {
+                    "addOptions": {
+                      "row": 0,
+                      "column": 4
+                    },
+                    "buddyModelPath": "scriptUserEditable",
+                    "properties": {
+                      "text": "tr('Editable')"
+                    },
+                    "class": "gosa.ui.widgets.QLabelWidget"
+                  },
+                  {
+                    "modelPath": "scriptUserEditable",
+                    "addOptions": {
+                      "row": 0,
+                      "column": 5
+                    },
+                    "properties": {
+                      "tabIndex": 3,
+                      "multivalue": false
+                    },
+                    "class": "gosa.ui.widgets.QCheckBoxWidget"
+                  },
+                  {
+                    "addOptions": {
+                      "row": 0,
+                      "column": 6
+                    },
+                    "buddyModelPath": "scriptLast",
+                    "properties": {
+                      "text": "tr('Last script')"
+                    },
+                    "class": "gosa.ui.widgets.QLabelWidget"
+                  },
+                  {
+                    "modelPath": "scriptLast",
+                    "addOptions": {
+                      "row": 0,
+                      "column": 7
+                    },
+                    "properties": {
+                      "tabIndex": 3,
+                      "multivalue": false
+                    },
+                    "class": "gosa.ui.widgets.QCheckBoxWidget"
+                  },
+                  {
+                    "modelPath": "script",
+                    "addOptions": {
+                      "row": 1,
+                      "column": 0,
+                      "colSpan": 8
+                    },
+                    "properties": {
+                      "tabIndex": 4,
+                      "height": 300,
+                      "multivalue": false
+                    },
+                    "class": "gosa.ui.widgets.EditorWidget",
+                    "extensions": {
+                      "guiProperties": {
+                        "minimap": {
+                          "enabled": false
+                        }
+                      }
+                    }
+                  }
+                ]
               }
             }
           }

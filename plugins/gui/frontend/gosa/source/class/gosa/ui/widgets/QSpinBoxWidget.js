@@ -14,8 +14,8 @@ qx.Class.define("gosa.ui.widgets.QSpinBoxWidget", {
 
   extend: gosa.ui.widgets.MultiEditWidget,
 
-  construct: function(){
-    this.base(arguments);
+  construct: function(valueIndex){
+    this.base(arguments, valueIndex);
   },
 
   statics: {

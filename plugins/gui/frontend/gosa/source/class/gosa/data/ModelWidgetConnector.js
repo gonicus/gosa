@@ -193,9 +193,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
         }
       }, this);
 
-      var oldValue = widget.getValue() instanceof qx.data.Array && widget.getValue().getLength() > 0
-                     ? widget.getValue().getItem(0)
-                     : null;
+      var oldValue = widget.getSingleValue();
 
       // get suggested values from backend
       gosa.io.Rpc.getInstance().cA("**"+rpcMethod, data).then(function(suggestions) {
@@ -219,9 +217,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
         this.__object.setWriteAttributeUpdates(false);
         data.Change.forEach(function(change) {
           var widget = this.__findWidgets(change.PropertyName).widget;
-          var oldValue = widget.getValue() instanceof qx.data.Array && widget.getValue().getLength() > 0
-                          ? widget.getValue().getItem(0)
-                          : null;
+          var oldValue = widget.getSingleValue();
           var suggestions = qx.lang.Json.parse(change.NewValues);
           widget.setValues(suggestions);
           if (oldValue && suggestions.hasOwnProperty(oldValue) || qx.lang.Type.isArray(suggestions) && qx.lang.Array.contains(suggestions, oldValue)) {

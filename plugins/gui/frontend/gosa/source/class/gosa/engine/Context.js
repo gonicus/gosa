@@ -23,8 +23,9 @@ qx.Class.define("gosa.engine.Context", {
    * @param rootWidget {qx.ui.core.Widget} The container widget where the template widgets will be added to
    * @param extension {String ? undefined} Name of the extension this context creates widgets for (e.g. "PosixUser")
    * @param controller {gosa.data.controller.ObjectEdit | gosa.data.controller.Workflow ? undefined} Controller for widget
+   * @param valueIndex {Integer} If this context is related to a certain value of a multivalue attribute this is the index of the value
    */
-  construct : function(template, rootWidget, extension, controller) {
+  construct : function(template, rootWidget, extension, controller, valueIndex) {
     this.base(arguments);
     qx.core.Assert.assertObject(template);
     qx.core.Assert.assertQxWidget(rootWidget);
@@ -36,6 +37,7 @@ qx.Class.define("gosa.engine.Context", {
       this._controller = controller;
     }
 
+    this._valueIndex = valueIndex;
     this._template = template;
     this._rootWidget = rootWidget;
     this._extension = extension;
@@ -90,6 +92,7 @@ qx.Class.define("gosa.engine.Context", {
     _actionController : null,
     _afterDialogActions : null,
     _validationManager: null,
+    _valueIndex: null,
 
     /**
      * @return {gosa.proxy.Object}
@@ -256,7 +259,7 @@ qx.Class.define("gosa.engine.Context", {
      */
     createWidgets : function() {
       if (!this._appeared) { // widgets might have been created by the ObjectEdit controller in case of error
-        this._processor.process(this._template, this._rootWidget);
+        this._processor.process(this._template, this._rootWidget, this._valueIndex);
         this.__connectBuddies();
         this.__connectValidator();
         this._appeared = true;

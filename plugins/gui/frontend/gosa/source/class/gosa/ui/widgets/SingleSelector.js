@@ -14,9 +14,9 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
 
   extend: gosa.ui.widgets.Widget,
 
-  construct: function(){
+  construct: function(valueIndex){
 
-    this.base(arguments);
+    this.base(arguments, valueIndex);
     this.contents.setLayout(new qx.ui.layout.HBox(0));
     this._columnNames = [];
     this._columnIDs = [];

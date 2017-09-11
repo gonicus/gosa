@@ -13,7 +13,7 @@
 /**
  * This class is a qooxdoo-widget representation of the cure-QtableWidget.
  *
- * Notice that this plugin can occur in two different forms.
+ * Notice that this plugin can occur in different forms.
  *
  * 1. The first form is a table like widget as used on the PosixUser-tab
  *    It allows to select multiple values for a single property.
@@ -21,14 +21,16 @@
  *    normal TextField. It only allows to select a single value.
  *    This is used for the User's manager attribute or the SambaUser's
  *    primaryGroupSID
+ * 3. As a simple table to show a group of attribute values and open a dialog
+ *    to edit/add this group
  *
  */
 qx.Class.define("gosa.ui.widgets.QTableWidgetWidget", {
 
   extend: gosa.ui.widgets.Widget,
 
-  construct: function() {
-    this.base(arguments);
+  construct: function(valueIndex) {
+    this.base(arguments, valueIndex);
     this.contents.setLayout(new qx.ui.layout.Canvas());
     this.contents.add(new qx.ui.core.Spacer(1), {edge: 0});
 
@@ -52,6 +54,14 @@ qx.Class.define("gosa.ui.widgets.QTableWidgetWidget", {
     appearance : {
       refine : true,
       init : "gosa-table-widget"
+    },
+
+    /**
+     * Type of widget to open on add/edit
+     */
+    selectorType: {
+      check: ["selector", "dialog"],
+      init: "selector"
     }
   },
 
@@ -82,14 +92,25 @@ qx.Class.define("gosa.ui.widgets.QTableWidgetWidget", {
     },
 
     __createSingleValueWidget : function() {
+      if (this.getSelectorType() !== "selector") {
+        this.warn(this.getSelectorType()+" not implemented for singlevalue attributes");
+      }
       this.__widget = new gosa.ui.widgets.SingleSelector();
     },
 
     __createMultivalueWidget : function() {
-      this.__widget = new gosa.ui.widgets.TableWithSelector();
+      switch(this.getSelectorType()) {
+        case "dialog":
+          this.__widget = new gosa.ui.widgets.TableWithDialog();
+          break;
+
+        default:
+          this.__widget = new gosa.ui.widgets.TableWithSelector();
+          break;
+      }
+
       this._createChildControl("add-button");
       this._createChildControl("remove-button");
-      this.__widget.bind("hasSelection", this.getChildControl("remove-button"), "enabled");
     },
 
     __onWidgetChangeValue : function(event) {
@@ -125,6 +146,14 @@ qx.Class.define("gosa.ui.widgets.QTableWidgetWidget", {
         case "remove-button":
           control = new qx.ui.form.Button(this.tr("Remove"), "@Ligature/trash/22");
           control.addListener("execute", this.__widget.removeSelection, this.__widget);
+          this.getChildControl("control-bar").add(control);
+          break;
+
+        case "edit-button":
+          control = new qx.ui.form.Button(this.tr("Edit"), "@Ligature/edit/22");
+          control.addListener("execute", function() {
+            this._table.getSelectionModel().iterateSelection(this.openSelector.bind(this));
+          }, this.__widget);
           this.getChildControl("control-bar").add(control);
           break;
       }

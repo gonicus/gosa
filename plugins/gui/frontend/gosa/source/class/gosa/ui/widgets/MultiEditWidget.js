@@ -14,9 +14,9 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
 
   extend: gosa.ui.widgets.Widget,
 
-  construct: function(){
-    this._widgetContainer = [];
-    this.base(arguments);
+  construct: function(valueIndex){
+    this._widgetContainer = {};
+    this.base(arguments, valueIndex);
     this.contents.setLayout(new qx.ui.layout.VBox(5));
 
     // Generate the gui
@@ -128,7 +128,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       if (widget.getLayoutParent()) {
         widget.getLayoutParent().remove(widget);
         widget.dispose();
-        this._widgetContainer.splice(id, 1);
+        delete this._widgetContainer[id];
       }
       widget = null;
     },
@@ -148,7 +148,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
      */
     _setWidgetValue: function(id, value){
       try{
-        if (qx.Class.implementsInterface(value, gosa.io.types.IType)) {
+        if (value && qx.Class.implementsInterface(value, gosa.io.types.IType)) {
           value = value.toString();
         }
         this._getWidget(id).setValue(value);
@@ -183,8 +183,15 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
 
       // Ensure that at least one element is given.
       if(!value.getLength()){
+        if (this.getValueIndex() >= 0) {
+          // fill with empty values until valueIndex
+          while (value.getLength() < this.getValueIndex()) {
+            value.push(this._default_value);
+          }
+        }
         value.push(this._default_value);
       }
+      console.log(value);
       this._generateGui();
     },
 
@@ -192,7 +199,8 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       this.base(arguments, value, old, name);
 
       // forward valid state to "real" widget children
-      this._widgetContainer.forEach(function(multiEditContainer) {
+      Object.getOwnPropertyNames(this._widgetContainer).forEach(function(id) {
+        var multiEditContainer = this._widgetContainer[id];
         multiEditContainer.getWidget().setValid(value);
         multiEditContainer.getWidget().setInvalidMessage(this.getInvalidMessage());
       }, this);
@@ -209,7 +217,7 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
      * Sets the "focus" to the first input widgets
      */
     focus: function(){
-      if(this._widgetContainer.length){
+      if(Object.getOwnPropertyNames(this._widgetContainer).length){
         this._widgetContainer[0].getWidget().focus();
       }
     },
@@ -226,8 +234,12 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       if(this._skipUpdates || !this.hasState("modified")){
         return;
       }
-      for(var i=0; i< this._current_length; i++){
-        this.getValue().setItem(i, this._getWidgetValue(i));
+      if (this.getValueIndex() >= 0) {
+        this.getValue().setItem(this.getValueIndex(), this._getWidgetValue(this.getValueIndex()));
+      } else {
+        for (var i = 0; i < this._current_length; i++) {
+          this.getValue().setItem(i, this._getWidgetValue(i));
+        }
       }
       this.fireDataEvent("changeValue", this.getCleanValues());
       var timer = qx.util.TimerManager.getInstance();
@@ -280,20 +292,30 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
 
         var c = new gosa.ui.widgets.MultiEditContainer(w);
         this._widgetContainer[id] = c;
-        c.addListener("add", function(){
-          this._skipUpdates = true;
-          this.getValue().push(this._default_value);
-          this._skipUpdates = false;
-          this._generateGui();
-        }, this);
-        c.addListener("delete", function(){
-          this._skipUpdates = true;
-          this.getValue().splice(id, 1);
-          this._skipUpdates = false;
-          this._generateGui();
-          this.addState("modified");
-          this._propertyUpdater();
-        }, this);
+        if (this.getValueIndex() >= 0) {
+          c.setHasAdd(false);
+          c.setHasDelete(false);
+          console.log(id+" !== "+this.getValueIndex());
+          if (id !== this.getValueIndex()) {
+            // hide all other widgets
+            c.exclude();
+          }
+        } else {
+          c.addListener("add", function() {
+            this._skipUpdates = true;
+            this.getValue().push(this._default_value);
+            this._skipUpdates = false;
+            this._generateGui();
+          }, this);
+          c.addListener("delete", function() {
+            this._skipUpdates = true;
+            this.getValue().splice(id, 1);
+            this._skipUpdates = false;
+            this._generateGui();
+            this.addState("modified");
+            this._propertyUpdater();
+          }, this);
+        }
         this.contents.add(this._widgetContainer[id]);
       }
 
@@ -320,10 +342,15 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
 
       // Calculate length of visible widgets
       var length = this.getValue().getLength();
+      if (this.getValueIndex() >= 0) {
+        while (this.getValue().getLength() <= this.getValueIndex()) {
+          this.getValue().push(this._default_value);
+        }
+      }
       if(!length){
         this.getValue().push(this._default_value);
-        length = 1;
       }
+      length = this.getValue().getLength();
 
       // Ensure that we have exactly one line for single value elements
       if(!this.isMultivalue()){
@@ -354,8 +381,10 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       }
 
       // Remove all non-visible widgets
-      for(var l=length; l<last_length; l++){
-        this.__delWidget(l);
+      if (this.getValueIndex() === -1) {
+        for (var l = length; l < last_length; l++) {
+          this.__delWidget(l);
+        }
       }
 
       // Forward updates again

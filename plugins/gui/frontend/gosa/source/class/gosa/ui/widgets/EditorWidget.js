@@ -20,8 +20,8 @@ qx.Class.define("gosa.ui.widgets.EditorWidget", {
 
   extend: gosa.ui.widgets.MultiEditWidget,
 
-  construct: function(){
-    this.base(arguments);
+  construct: function(valueIndex){
+    this.base(arguments, valueIndex);
 
     var monacoPath = "gosa/js/monaco-editor/"+(qx.core.Environment.get("qx.debug") ? "dev/vs" : "min/vs");
     var dynLoader = new qx.util.DynamicScriptLoader([

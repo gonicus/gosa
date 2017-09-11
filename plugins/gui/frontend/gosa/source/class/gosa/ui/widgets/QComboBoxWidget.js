@@ -14,10 +14,10 @@ qx.Class.define("gosa.ui.widgets.QComboBoxWidget", {
 
   extend: gosa.ui.widgets.MultiEditWidget,
 
-  construct: function(){
+  construct: function(valueIndex){
     this.__delayedValues = {};
 
-    this.base(arguments);
+    this.base(arguments, valueIndex);
 
     this.addListenerOnce("initCompleteChanged", function(){
       if (this._use_default && !this.isBlocked()) {
