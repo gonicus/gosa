@@ -14,6 +14,8 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
 
   extend: gosa.ui.widgets.Widget,
 
+  include: gosa.ui.widgets.MDragDrop,
+
   construct: function(valueIndex){
 
     this.base(arguments, valueIndex);
@@ -37,11 +39,6 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     hasSelection : {
       init : false,
       event : "changeHasSelection"
-    },
-
-    dragDropType: {
-      check: "String",
-      init: "gosa/default"
     }
   },
 
@@ -84,7 +81,6 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       this._tableModel.setColumns(this._columnNames, this._columnIDs);
       if (this._sortByColumn) {
         new qx.util.DeferredCall(function() {
-          console.log(this._tableModel.getColumnIndexById(this._sortByColumn));
           this._tableModel.sortByColumn(this._tableModel.getColumnIndexById(this._sortByColumn), true);
         }, this).schedule();
       }
@@ -104,18 +100,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       this._table.addListener("remove", this.removeSelection, this);
 
       // drag&drop
-      if (this.isDraggable()) {
-        this.addListener("dragstart", this._onDragStartSelectRow, this);
-        this.addListener("droprequest", this._onDropRequest, this);
-        this.addListener("dragover", this._onDragOver, this);
-      }
-    },
-
-    _onDragStartSelectRow : function(e) {
-      e.addAction("move");
-      e.addAction("copy");
-
-      e.addType(this.getDragDropType());
+      this._initDrapDropListeners();
     },
 
     _onDropRequest: function(e) {
@@ -135,27 +120,6 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
         }
 
         e.addData(this.getDragDropType(), selection);
-      }
-    },
-
-    _onDrop: function(ev) {
-      if (ev.supportsType(this.getDragDropType())) {
-        var items = ev.getData(this.getDragDropType());
-        var values = this.getValue();
-        items.forEach(function(entry) {
-          if (!values.contains(entry)) {
-            values.push(entry);
-          }
-        });
-        if (items.length) {
-          this.fireDataEvent("changeValue", values.copy());
-        }
-      }
-    },
-
-    _onDragOver: function(e) {
-      if (!e.supportsType(this.getDragDropType())) {
-        e.preventDefault();
       }
     },
 
@@ -293,16 +257,9 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       if('editTitle' in props){
         this._editTitle = props['editTitle'];
       }
-      if('dragDropType' in props) {
-        this.setDragDropType(props.dragDropType);
-      }
-      if('droppable' in props && props.droppable === true) {
-        this.setDroppable(true);
-        this.addListener("drop", this._onDrop, this);
-      }
-      if('draggable' in props && props.draggable === true) {
-        this.setDraggable(true);
-      }
+
+      this._applyDragDropGuiProperties(props);
+
       this._columnNames = [];
       this._columnIDs = [];
       var first = null;

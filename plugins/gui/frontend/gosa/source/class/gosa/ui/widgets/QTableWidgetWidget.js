@@ -80,15 +80,17 @@ qx.Class.define("gosa.ui.widgets.QTableWidgetWidget", {
     },
 
     __createWidget : function() {
+      var bottom = 0;
       if (this.isMultivalue()) {
         this.__createMultivalueWidget();
+        bottom = 37;
       }
       else {
         this.__createSingleValueWidget();
       }
       this.__bindAttributesToWidget();
       this.__widget.addListener("changeValue", this.__onWidgetChangeValue, this);
-      this.contents.add(this.__widget, {left: 0, right: 0, bottom: 37, top: 0});
+      this.contents.add(this.__widget, {left: 0, right: 0, bottom: bottom, top: 0});
     },
 
     __createSingleValueWidget : function() {

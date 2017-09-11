@@ -14,6 +14,8 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
 
   extend: gosa.ui.widgets.Widget,
 
+  include: gosa.ui.widgets.MDragDrop,
+
   construct: function(valueIndex){
 
     this.base(arguments, valueIndex);
@@ -169,6 +171,25 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
             this.__openSelectionDialog();
           }
         }, this);
+
+     this._initDrapDropListeners();
+    },
+
+    _onDropRequest: function(e) {
+      var action = e.getCurrentAction();
+      var type = e.getCurrentType();
+
+      if (type === this.getDragDropType()) {
+
+        var value = this.getValue().getItem(0);
+
+        if (action === "move") {
+          this.getValue().removeAll();
+          this.__updateVisibleText();
+        }
+
+        e.addData(this.getDragDropType(), value);
+      }
     },
 
     __openSelectionDialog : function() {
@@ -192,6 +213,23 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
       }, this);
 
       d.open();
+    },
+
+    onDrop: function(ev) {
+      if (ev.supportsType(this.getDragDropType())) {
+        var items = ev.getData(this.getDragDropType());
+        var values = this.getValue();
+        values.removeAll();
+        items.forEach(function(entry) {
+          if (!values.contains(entry)) {
+            values.push(entry);
+          }
+        });
+        if (items.length) {
+          this.fireDataEvent("changeValue", values.copy());
+          this.__resolveMissingValues();
+        }
+      }
     },
 
     /**
@@ -263,6 +301,8 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
         }
       }
       this._firstColumn = first;
+
+      this._applyDragDropGuiProperties(props);
     }
   }
 });

@@ -2,8 +2,12 @@
   "type": "widget",
   "layout": "qx.ui.layout.Grow",
   "extensions": {
+    "resources": {
+      "favicon": "@Ligature/pc"
+    },
     "tabConfig": {
-      "title": "tr('Schreibtisch')"
+      "title": "tr('Desktop')",
+      "icon": "favicon"
     }
   },
   "class": "qx.ui.container.Composite",
@@ -229,7 +233,52 @@
             "tabIndex": 4,
             "multivalue": false
           },
-          "class": "gosa.ui.widgets.QTableWidgetWidget"
+          "class": "gosa.ui.widgets.QTableWidgetWidget",
+          "extensions": {
+            "guiProperties": {
+              "columns": {
+                "cn": "tr('Name')",
+                "description": "tr('Description')"
+              },
+              "droppable": true,
+              "dragDropType": "gosa/printer"
+            }
+          }
+        },
+        {
+          "addOptions": {
+            "row": 4,
+            "column": 0
+          },
+          "buddyModelPath": "gotoPrinters",
+          "properties": {
+            "text": "tr('Printer')"
+          },
+          "class": "gosa.ui.widgets.QLabelWidget"
+        },
+        {
+          "modelPath": "gotoPrinters",
+          "addOptions": {
+            "row": 4,
+            "column": 1
+          },
+          "properties": {
+            "tabIndex": 5,
+            "height": 400
+          },
+          "class": "gosa.ui.widgets.QTableWidgetWidget",
+          "extensions": {
+            "guiProperties": {
+              "editTitle": "tr('Edit printer user')",
+              "columns": {
+                "cn": "tr('Name')",
+                "description": "tr('Description')"
+              },
+              "draggable": true,
+              "dragDropActions": ["copy"],
+              "dragDropType": "gosa/printer"
+            }
+          }
         }
       ]
     }
