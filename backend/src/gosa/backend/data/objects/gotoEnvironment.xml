@@ -56,6 +56,7 @@
                 <Type>Integer</Type>
                 <MultiValue>true</MultiValue>
                 <Backend>NULL</Backend>
+                <Default>0</Default>
             </Attribute>
 
             <Attribute>
