@@ -31,6 +31,10 @@ qx.Class.define("gosa.ui.table.Table",
           return new qx.ui.table.columnmodel.Resize(obj);
         }
       };
+    } else if (!("tableColumnModel" in customModel)) {
+      customModel.tableColumnModel = function(obj) {
+        return new qx.ui.table.columnmodel.Resize(obj);
+      }
     }
 
     this.base(arguments, tableModel, customModel);

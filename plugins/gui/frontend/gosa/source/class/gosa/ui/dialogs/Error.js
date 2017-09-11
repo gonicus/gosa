@@ -64,7 +64,7 @@ qx.Class.define("gosa.ui.dialogs.Error", {
       if (error instanceof gosa.core.RpcError) {
         msg = error.getData().message;
       }
-      else if (error instanceof Error) {
+      else if (error.hasOwnProperty("message")) {
         msg = error.message;
       }
       return msg;

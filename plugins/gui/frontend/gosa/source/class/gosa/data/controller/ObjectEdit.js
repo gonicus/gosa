@@ -422,6 +422,21 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     },
 
     /**
+     * Cleanup all listeners related to that context
+     * @param context
+     */
+    cleanupContext: function(context) {
+      gosa.util.Object.iterate(context.getWidgetRegistry().getMap(), function(modelPath, widget, temporary) {
+        if (qx.lang.Array.contains(this._validatingWidgets, widget)) {
+          this._validatingWidgets.remove(widget);
+        }
+        if (qx.lang.Array.contains(this._connectedAttributes, modelPath)) {
+          this._connectedAttributes.remove(modelPath);
+        }
+      }, this);
+    },
+
+    /**
      * Finds the widget and its buddy label for the given name (model path).
      *
      * @param name {String} The name/model path of the widgets
@@ -488,7 +503,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
         }
       }
       else if (!data.success && data.error) {
-        this.__showWidgetError(widget, data.error.getData());
+        this.__showWidgetError(widget, data.error.getData ? data.error.getData() : data.error);
       }
       this._updateValidity();
     },

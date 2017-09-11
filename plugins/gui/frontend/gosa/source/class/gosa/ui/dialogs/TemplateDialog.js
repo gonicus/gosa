@@ -40,6 +40,8 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
     this._addWidgets();
     this._addButtons();
 
+    this.addListener("close", this._onClose, this);
+
     // necessary because contents are loaded on appear and it can only be centered with contents added
     this.addListenerOnce("resize", function() {
       this.center();
@@ -103,6 +105,19 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
 
       this._context = new gosa.engine.Context(this._parsedTemplate, container, this._extension, this.getController(), this._valueIndex);
       this.getController().handleTemporaryContext(this._context);
+    },
+
+    _onClose: function() {
+      this.getController().cleanupContext(this._context);
     }
+  },
+
+  /*
+  *****************************************************************************
+     DESTRUCTOR
+  *****************************************************************************
+  */
+  destruct : function() {
+    this._disposeObjects("_context");
   }
 });

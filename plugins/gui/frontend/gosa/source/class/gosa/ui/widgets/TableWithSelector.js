@@ -60,6 +60,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     _resolvedNames: null,
     _errorRows: null,
     _sortByColumn: null,
+    _initiallyHiddenColumns: null,
 
     /* Color the specific row red, if an error occurred!
      */
@@ -82,7 +83,10 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       this._tableModel = new qx.ui.table.model.Simple();
       this._tableModel.setColumns(this._columnNames, this._columnIDs);
       if (this._sortByColumn) {
-        this._tableModel.sortByColumn(this._tableModel.getColumnIndexById(this._sortByColumn), true);
+        new qx.util.DeferredCall(function() {
+          console.log(this._tableModel.getColumnIndexById(this._sortByColumn));
+          this._tableModel.sortByColumn(this._tableModel.getColumnIndexById(this._sortByColumn), true);
+        }, this).schedule();
       }
       this._table = new gosa.ui.table.Table(this._tableModel);
       this._table.setStatusBarVisible(false);

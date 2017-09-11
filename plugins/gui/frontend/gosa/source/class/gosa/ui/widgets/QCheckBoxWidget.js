@@ -29,8 +29,16 @@ qx.Class.define("gosa.ui.widgets.QCheckBoxWidget", {
      * */
     this._chkBoxWidget.addListener("appear", function(){
         this._chkBoxWidget.addListener("changeValue", function(){
-          this.getValue().removeAll();
-          this.getValue().push(this._chkBoxWidget.getValue());
+          if (this.getValueIndex() >= 0) {
+            if (this.getValue().getLength() === this.getValueIndex()) {
+              this.getValue().push(this._chkBoxWidget.getValue());
+            } else {
+              this.getValue().setItem(this.getValueIndex(), this._chkBoxWidget.getValue());
+            }
+          } else {
+            this.getValue().removeAll();
+            this.getValue().push(this._chkBoxWidget.getValue());
+          }
           this.fireDataEvent("changeValue", this.getValue().copy());
         }, this);
       }, this);
@@ -91,7 +99,11 @@ qx.Class.define("gosa.ui.widgets.QCheckBoxWidget", {
      */
     getCleanValues: function()
     {
-      return(new qx.data.Array([this._chkBoxWidget.getValue()]));
+      if (this.getValueIndex() >= 0) {
+        return this.getValue();
+      } else {
+        return (new qx.data.Array([this._chkBoxWidget.getValue()]));
+      }
     },
 
     /**
@@ -116,8 +128,9 @@ qx.Class.define("gosa.ui.widgets.QCheckBoxWidget", {
         return;
       }
 
-      if(value && value.length){
-        this._chkBoxWidget.setValue(value.getItem(0) == true);
+      if(value && value.length) {
+        var index = this.getValueIndex() >= 0 ? this.getValueIndex() : 0;
+        this._chkBoxWidget.setValue(value.getItem(index) === true);
       }
     },
 

@@ -51,19 +51,24 @@ qx.Class.define("gosa.ui.widgets.TableWithDialog", {
     },
 
     _createGui: function() {
+      this._columnNames.unshift("Index");
+      this._columnIDs.unshift("__identifier__");
       this.base(arguments);
       var tcm = this._table.getTableColumnModel();
+      new qx.util.DeferredCall(function() {
+        tcm.setColumnVisible(0, false);
+      }).schedule();
       var object = this._getController().getObject();
 
       this._columnIDs.forEach(function(attributeName, idx) {
-        if (object.attribute_data[attributeName].type === "Boolean") {
+        if (attributeName in object.attribute_data && object.attribute_data[attributeName].type === "Boolean") {
           tcm.setDataCellRenderer(idx, new qx.ui.table.cellrenderer.Boolean());
         }
       });
       this._table.removeListener("edit", this.openSelector, this);
       this._table.addListener("edit", function() {
         this._table.getSelectionModel().iterateSelection(function(row) {
-          this.openSelector(row);
+          this.openSelector(this._tableModel.getRowData(row)['__identifier__']);
         }, this);
       }, this);
     },
@@ -79,13 +84,16 @@ qx.Class.define("gosa.ui.widgets.TableWithDialog", {
       this._tableData = [];
       var object = this._getController().getObject();
       this._columnIDs.forEach(function(attributeName) {
-        var arr = object.get(attributeName);
-        arr.forEach(function(value, index) {
-          if (this._tableData.length <= index) {
-            this._tableData.push({});
-          }
-          this._tableData[index][attributeName] = object.attribute_data[attributeName].type === "Boolean" ? value === "true" : value;
-        }, this);
+        if (attributeName in object.attribute_data) {
+          var arr = object.get(attributeName);
+          arr.forEach(function(value, index) {
+            if (this._tableData.length <= index) {
+              this._tableData.push({});
+            }
+            this._tableData[index]["__identifier__"] = index;
+            this._tableData[index][attributeName] = value;
+          }, this);
+        }
       }, this);
       this._tableModel.setDataAsMapArray(this._tableData, true, false);
       this._table.sort();

@@ -191,7 +191,6 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
         }
         value.push(this._default_value);
       }
-      console.log(value);
       this._generateGui();
     },
 
@@ -295,7 +294,6 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
         if (this.getValueIndex() >= 0) {
           c.setHasAdd(false);
           c.setHasDelete(false);
-          console.log(id+" !== "+this.getValueIndex());
           if (id !== this.getValueIndex()) {
             // hide all other widgets
             c.exclude();
@@ -366,16 +364,20 @@ qx.Class.define("gosa.ui.widgets.MultiEditWidget", {
       for(var i=0; i<length; i++){
         this._addWidget(i);
         this._setWidgetValue(i, this.getValue().getItem(i));
-        if(length > 1){
-          this._widgetContainer[i].setHasDelete(true);
-          this._widgetContainer[i].setHasAdd(i == length -1);
-        }else{
-          if(this.isMultivalue()){
-            this._widgetContainer[i].setHasAdd(true);
-            this._widgetContainer[i].setHasDelete(false);
-          }else{
-            this._widgetContainer[i].setHasAdd(false);
-            this._widgetContainer[i].setHasDelete(false);
+        if (this.getValueIndex() === -1) {
+          if (length > 1) {
+            this._widgetContainer[i].setHasDelete(true);
+            this._widgetContainer[i].setHasAdd(i == length - 1);
+          }
+          else {
+            if (this.isMultivalue()) {
+              this._widgetContainer[i].setHasAdd(true);
+              this._widgetContainer[i].setHasDelete(false);
+            }
+            else {
+              this._widgetContainer[i].setHasAdd(false);
+              this._widgetContainer[i].setHasDelete(false);
+            }
           }
         }
       }
