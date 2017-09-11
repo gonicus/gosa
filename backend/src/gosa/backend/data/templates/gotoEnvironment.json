@@ -99,6 +99,7 @@
                 "scriptUserEditable": "tr('Editable')",
                 "scriptLast": "tr('Last')"
               },
+              "additionalAttributes": ["script"],
               "sortByColumn": "scriptPriority",
               "dialogTemplate": {
                 "type": "widget",

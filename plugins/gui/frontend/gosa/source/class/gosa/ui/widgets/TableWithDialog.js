@@ -36,6 +36,7 @@ qx.Class.define("gosa.ui.widgets.TableWithDialog", {
 
   members: {
     _dialogTemplate: null,
+    _additionalAttributes: null,
 
     // overridden
     _applyGuiProperties: function(props) {
@@ -47,6 +48,13 @@ qx.Class.define("gosa.ui.widgets.TableWithDialog", {
 
       if (props.hasOwnProperty("dialogTemplate")) {
         this._dialogTemplate = gosa.util.Template.compileTemplate(qx.lang.Json.stringify(props.dialogTemplate));
+      }
+
+      // check for additional attributes related to this dialog (we need to know those attributes to be able to delete the values)
+      // so this guiProperty contains all attribute names which are not shown in the table but must be also deleted id a table
+      // row gets removed
+      if (props.hasOwnProperty("additionalAttributes")) {
+        this._additionalAttributes = props.additionalAttributes;
       }
     },
 
@@ -97,6 +105,37 @@ qx.Class.define("gosa.ui.widgets.TableWithDialog", {
       }, this);
       this._tableModel.setDataAsMapArray(this._tableData, true, false);
       this._table.sort();
+    },
+
+    removeSelection : function(){
+      // var value = this.getValue().toArray();
+      var updated = false;
+
+      this._table.getSelectionModel().iterateSelection(function(index) {
+        var selected = this._tableModel.getRowData(index);
+        var object = this._getController().getObject();
+        if(selected){
+          function removeValue(name) {
+            if (name in object.attribute_data) {
+              var value = object.get(name);
+              value.removeAt(selected['__identifier__']);
+              object.setAttribute(name, value);
+            }
+          }
+          Object.getOwnPropertyNames(selected).forEach(removeValue, this);
+          if (this._additionalAttributes) {
+            this._additionalAttributes.forEach(removeValue, this);
+          }
+          updated = true;
+        }
+      }.bind(this));
+
+      if (updated) {
+        // this.setValue(new qx.data.Array(value));
+        // this.fireDataEvent("changeValue", this.getValue().copy());
+        this._table.getSelectionModel().resetSelection();
+        this._updatedTableData();
+      }
     },
 
     // overridden
