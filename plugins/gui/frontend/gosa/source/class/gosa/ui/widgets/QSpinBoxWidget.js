@@ -80,9 +80,6 @@ qx.Class.define("gosa.ui.widgets.QSpinBoxWidget", {
      * */
     _createWidget: function(){
       var w = new gosa.ui.form.Spinner();
-      if(this.getPlaceholder()){
-        w.setPlaceholder(this.getPlaceholder());
-      }
       w.addListener("changeValue", function(){
           this.addState("modified");
           this._propertyUpdater();
