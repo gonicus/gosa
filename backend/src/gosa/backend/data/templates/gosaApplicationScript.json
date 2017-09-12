@@ -1,0 +1,53 @@
+{
+  "layout": "qx.ui.layout.Grow",
+  "extensions": {
+    "resources": {
+      "favicon": "@Ligature/terminal"
+    },
+    "tabConfig": {
+      "title": "tr('Application script')",
+      "icon": "favicon"
+    }
+  },
+  "class": "qx.ui.container.Composite",
+  "type": "widget",
+  "children": [
+    {
+      "class": "qx.ui.container.Composite",
+      "layout": "qx.ui.layout.VBox",
+      "layoutConfig": {
+        "spacing": "CONST_SPACING_Y"
+      },
+      "children": [
+        {
+          "buddyModelPath": "gotoLogonScript",
+          "class": "gosa.ui.widgets.QLabelWidget",
+          "properties": {
+            "text": "tr('Script')"
+          }
+        },
+        {
+          "addOptions": {
+            "flex": 1
+          },
+          "modelPath": "gotoLogonScript",
+          "properties": {
+            "tabIndex": 1,
+            "height": 500
+          },
+          "class": "gosa.ui.widgets.EditorWidget",
+          "extensions": {
+            "guiProperties": {
+              "minimap": {
+                "enabled": false
+              },
+              "completionProviders": {
+                "gosa.data.editor.completion.Application": ["bash", "python"]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

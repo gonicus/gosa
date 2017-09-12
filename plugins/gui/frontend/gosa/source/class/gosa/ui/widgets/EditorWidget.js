@@ -69,11 +69,27 @@ qx.Class.define("gosa.ui.widgets.EditorWidget", {
   members: {
     _default_value: "",
     __loaded: false,
+    __completionProvider: null,
 
     _generateGui: function() {
       if (this.__loaded) {
         this.base(arguments);
       }
+    },
+
+    _applyGuiProperties: function(props) {
+      if (props.hasOwnProperty("completionProviders")) {
+        this.__completionProvider = {};
+        Object.getOwnPropertyNames(props.completionProviders).forEach(function(className) {
+          var clazz = qx.Class.getByName(className);
+          var provider = new clazz(this._getController().getObject());
+          props.completionProviders[className].forEach(function(lang) {
+            this.__completionProvider[lang] = provider.getProvider(lang);
+          }, this);
+        }, this);
+        delete props.completionProvider;
+      }
+      this.base(arguments, props);
     },
 
     /**
@@ -117,6 +133,7 @@ qx.Class.define("gosa.ui.widgets.EditorWidget", {
      * */
     _createWidget: function() {
       var w = new gosa.ui.editor.Monaco();
+      w.setCompletionProviders(this.__completionProvider);
 
       w.addListener("focusout", this._propertyUpdater, this);
       w.addListener("changeValue", this._propertyUpdaterTimed, this);

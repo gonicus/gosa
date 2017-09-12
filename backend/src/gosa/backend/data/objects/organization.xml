@@ -204,7 +204,7 @@
       <Type>OrganizationalRoleContainer</Type>
       <Type>AclRole</Type>
       <Type>SystemsContainer</Type>
-      <Type>PrinterContainer</Type>
+      <Type>ApplicationContainer</Type>
     </Container>
       <BaseObject>true</BaseObject>
     <Find>

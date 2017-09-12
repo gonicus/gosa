@@ -1,0 +1,234 @@
+{
+  "layout": "qx.ui.layout.Grow",
+  "extensions": {
+    "resources": {
+      "favicon": "@Ligature/app"
+    },
+    "tabConfig": {
+      "title": "tr('Application')",
+      "icon": "favicon"
+    }
+  },
+  "class": "qx.ui.container.Composite",
+  "type": "widget",
+  "children": [
+    {
+      "class": "qx.ui.container.Composite",
+      "layout": "qx.ui.layout.Grid",
+      "layoutConfig": {
+        "spacingX": "CONST_SPACING_X",
+        "spacingY": "CONST_SPACING_Y"
+      },
+      "extensions": {
+        "layoutOptions": {
+          "columnFlex": {
+            "column": 1,
+            "flex": 1
+          }
+        }
+      },
+      "children": [
+        {
+          "buddyModelPath": "cn",
+          "addOptions": {
+            "row": 0,
+            "column": 0
+          },
+          "class": "gosa.ui.widgets.QLabelWidget",
+          "properties": {
+            "text": "tr('Common name')"
+          }
+        },
+        {
+          "properties": {
+            "tabIndex": 1
+          },
+          "modelPath": "cn",
+          "addOptions": {
+            "row": 0,
+            "column": 1
+          },
+          "class": "gosa.ui.widgets.QLineEditWidget"
+        },
+        {
+          "buddyModelPath": "gosaApplicationExecute",
+          "addOptions": {
+            "row": 1,
+            "column": 0
+          },
+          "class": "gosa.ui.widgets.QLabelWidget",
+          "properties": {
+            "text": "tr('Executable path')"
+          }
+        },
+        {
+          "properties": {
+            "tabIndex": 2
+          },
+          "modelPath": "gosaApplicationExecute",
+          "addOptions": {
+            "row": 1,
+            "column": 1
+          },
+          "class": "gosa.ui.widgets.QLineEditWidget"
+        },
+        {
+          "buddyModelPath": "gosaApplicationName",
+          "addOptions": {
+            "row": 2,
+            "column": 0
+          },
+          "class": "gosa.ui.widgets.QLabelWidget",
+          "properties": {
+            "text": "tr('Application name')"
+          }
+        },
+        {
+          "properties": {
+            "tabIndex": 3
+          },
+          "modelPath": "gosaApplicationName",
+          "addOptions": {
+            "row": 2,
+            "column": 1
+          },
+          "class": "gosa.ui.widgets.QLineEditWidget"
+        },
+        {
+          "buddyModelPath": "gosaApplicationCategory",
+          "addOptions": {
+            "row": 3,
+            "column": 0
+          },
+          "class": "gosa.ui.widgets.QLabelWidget",
+          "properties": {
+            "text": "tr('Category')"
+          }
+        },
+        {
+          "properties": {
+            "tabIndex": 4
+          },
+          "modelPath": "gosaApplicationCategory",
+          "addOptions": {
+            "row": 3,
+            "column": 1
+          },
+          "class": "gosa.ui.widgets.QLineEditWidget"
+        },
+        {
+          "buddyModelPath": "description",
+          "addOptions": {
+            "row": 4,
+            "column": 0
+          },
+          "class": "gosa.ui.widgets.QLabelWidget",
+          "properties": {
+            "text": "tr('Description')"
+          }
+        },
+        {
+          "properties": {
+            "tabIndex": 5
+          },
+          "modelPath": "description",
+          "addOptions": {
+            "row": 4,
+            "column": 1
+          },
+          "class": "gosa.ui.widgets.QLineEditWidget"
+        },
+        {
+          "class": "qx.ui.container.Composite",
+          "layout": "qx.ui.layout.HBox",
+          "layoutConfig": {
+            "spacing": "CONST_SPACING_X"
+          },
+          "addOptions": {
+            "row": 5,
+            "column": 1
+          },
+          "children": [
+            {
+              "properties": {
+                "tabIndex": 6,
+                "label": "tr('Group only')"
+              },
+              "addOptions": {
+                "flex": 1
+              },
+              "modelPath": "execForGroupmembers",
+              "class": "gosa.ui.widgets.QCheckBoxWidget"
+            },
+            {
+              "properties": {
+                "tabIndex": 7,
+                "label": "tr('Overwrite config')"
+              },
+              "addOptions": {
+                "flex": 1
+              },
+              "modelPath": "overwriteConfig",
+              "class": "gosa.ui.widgets.QCheckBoxWidget"
+            },
+            {
+              "properties": {
+                "tabIndex": 8,
+                "label": "tr('In launchbar')"
+              },
+              "addOptions": {
+                "flex": 1
+              },
+              "modelPath": "placeOnKicker",
+              "class": "gosa.ui.widgets.QCheckBoxWidget"
+            },
+            {
+              "properties": {
+                "tabIndex": 9,
+                "label": "tr('On desktop')"
+              },
+              "addOptions": {
+                "flex": 1
+              },
+              "modelPath": "placeOnDesktop",
+              "class": "gosa.ui.widgets.QCheckBoxWidget"
+            },
+            {
+              "properties": {
+                "tabIndex": 10,
+                "label": "tr('In startmenu')"
+              },
+              "addOptions": {
+                "flex": 1
+              },
+              "modelPath": "placeInStartmenu",
+              "class": "gosa.ui.widgets.QCheckBoxWidget"
+            }
+          ]
+        },
+        {
+          "buddyModelPath": "gosaApplicationParameter",
+          "addOptions": {
+            "row": 6,
+            "column": 0
+          },
+          "class": "gosa.ui.widgets.QLabelWidget",
+          "properties": {
+            "text": "tr('Parameter')"
+          }
+        },
+        {
+          "properties": {
+            "tabIndex": 11
+          },
+          "modelPath": "gosaApplicationParameter",
+          "addOptions": {
+            "row": 6,
+            "column": 1
+          },
+          "class": "gosa.ui.widgets.KeyValueEditWidget"
+        }
+      ]
+    }
+  ]
+}

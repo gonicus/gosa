@@ -323,6 +323,17 @@ class Foreman(Plugin):
 
         ForemanBackend.modifier = None
 
+    @Command(__help__=N_("Get all available foreman LSB names"))
+    @cache_return(timeout_secs=60)
+    def getForemanLsbNames(self):
+        res = {}
+        if self.client:
+            data = self.client.get("operatingsystems")
+            if "results" in data:
+                for entry in data["results"]:
+                    res[entry["release_name"]] = {"value": entry["release_name"]}
+        return res
+
     @Command(__help__=N_("Get details of a single foreman hostgroup."))
     @cache_return(timeout_secs=60)
     def getForemanHostgroup(self, id, attributes=None):

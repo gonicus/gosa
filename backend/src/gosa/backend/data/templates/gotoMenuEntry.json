@@ -1,0 +1,78 @@
+{
+  "class": "qx.ui.container.Composite",
+  "children": [
+    {
+      "class": "gosa.ui.widgets.QLabelWidget",
+      "buddyModelPath": "cn",
+      "addOptions": {
+        "row": 0,
+        "column": 0
+      },
+      "properties": {
+        "text": "cn"
+      }
+    },
+    {
+      "class": "gosa.ui.widgets.QLineEditWidget",
+      "properties": {
+        "tabIndex": 1
+      },
+      "modelPath": "cn",
+      "addOptions": {
+        "row": 0,
+        "column": 1
+      }
+    },
+    {
+      "class": "gosa.ui.widgets.QLabelWidget",
+      "buddyModelPath": "gotoLsbName",
+      "addOptions": {
+        "row": 1,
+        "column": 0
+      },
+      "properties": {
+        "text": "gotoLsbName"
+      }
+    },
+    {
+      "class": "gosa.ui.widgets.QLineEditWidget",
+      "properties": {
+        "tabIndex": 2
+      },
+      "modelPath": "gotoLsbName",
+      "addOptions": {
+        "row": 1,
+        "column": 1
+      }
+    },
+    {
+      "class": "gosa.ui.widgets.QLabelWidget",
+      "buddyModelPath": "gotoMenu",
+      "addOptions": {
+        "row": 2,
+        "column": 0
+      },
+      "properties": {
+        "text": "gotoMenu"
+      }
+    },
+    {
+      "class": "gosa.ui.widgets.QLineEditWidget",
+      "properties": {
+        "tabIndex": 3
+      },
+      "modelPath": "gotoMenu",
+      "addOptions": {
+        "row": 2,
+        "column": 1
+      }
+    }
+  ],
+  "extensions": {
+    "tabConfig": {
+      "title": "gotoMenuEntry"
+    }
+  },
+  "type": "widget",
+  "layout": "qx.ui.layout.Grid"
+}

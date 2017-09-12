@@ -213,6 +213,8 @@ setup(
         DeleteOldFile = gosa.backend.plugins.cups.filter:DeleteOldFile
         MarshalLogonScript = gosa.backend.plugins.user.filters:MarshalLogonScript
         UnmarshalLogonScript = gosa.backend.plugins.user.filters:UnmarshalLogonScript
+        MarshalFlags = gosa.backend.objects.filter.flags:MarshalFlags
+        UnmarshalFlags = gosa.backend.objects.filter.flags:UnmarshalFlags
 
         [gosa.object.comparator]
         like = gosa.backend.objects.comparator.strings:Like

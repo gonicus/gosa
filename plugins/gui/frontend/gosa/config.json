@@ -139,7 +139,7 @@
     "build-script":
     {
       "include": ["gosa.ui.widgets.*", "gosa.LocalConfig", "gosa.ui.dialogs.*", "gosa.engine.extensions.*",
-        "gosa.plugins.*", "gosa.ui.settings.*", "qx.*"],
+        "gosa.plugins.*", "gosa.ui.settings.*", "qx.*", "gosa.data.editor.completion.*"],
       "exclude": ["qx.test.*"],
 
       "variants" :
@@ -201,7 +201,7 @@
     "source-script":
     {
       "include": ["gosa.ui.widgets.*", "gosa.LocalConfig", "gosa.ui.dialogs.*", "gosa.engine.extensions.*", "gosa.plugins.*",
-        "gosa.ui.settings.*", "qx.*"],
+        "gosa.ui.settings.*", "qx.*", "gosa.data.editor.completion.*"],
       "exclude": ["qx.test.*"],
 
       "variants" :
@@ -282,7 +282,7 @@
             "include" : [
             "${QXTHEME}", "gosa.Application", "gosa.ui.widgets.*", "gosa.engine.*",
             "gosa.ui.dialogs.*", "gosa.plugins.search.*", "gosa.plugins.workflowstarter.*",
-            "gosa.plugins.separator.*", "gosa.LocalConfig", "gosa.ui.settings.*", "qx.*"
+            "gosa.plugins.separator.*", "gosa.LocalConfig", "gosa.ui.settings.*", "qx.*", "gosa.data.editor.completion.*"
           ] }
         }
       }

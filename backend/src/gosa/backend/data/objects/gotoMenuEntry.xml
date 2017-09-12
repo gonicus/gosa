@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects">
+    <Object>
+        <Name>GotoMenuEntry</Name>
+        <DisplayName>GotoMenuEntry</DisplayName>
+        <Description>GOto - defines a menu entry (v2.7)</Description>
+        <Backend>LDAP</Backend>
+        <BaseObject>false</BaseObject>
+        <Templates>
+            <Template>gotoMenuEntry.json</Template>
+        </Templates>
+        <Attributes>
+            <Attribute>
+                <Name>cn</Name>
+                <Description>RFC4519: common name(s) for which the entity is known by</Description>
+                <Type>UnicodeString</Type>
+                <MultiValue>true</MultiValue>
+                <Mandatory>true</Mandatory>
+            </Attribute>
+            <Attribute>
+                <Name>gotoLsbName</Name>
+                <Description>Foreman release</Description>
+                <Type>UnicodeString</Type>
+                <MultiValue>false</MultiValue>
+                <Mandatory>true</Mandatory>
+                <Values populate="getForemanLsbNames"/>
+            </Attribute>
+            <Attribute>
+                <Name>gotoMenu</Name>
+                <Description>JSON encoded menu</Description>
+                <Type>UnicodeString</Type>
+                <MultiValue>false</MultiValue>
+                <Mandatory>false</Mandatory>
+            </Attribute>
+        </Attributes>
+        <Find>
+            <Aspect>
+                <Tag>GotoMenuEntry</Tag>
+                <Keyword>GotoMenuEntry</Keyword>
+                <Keyword>MenuEntry</Keyword>
+                <Search>cn</Search>
+                <Search>gotoLsbName</Search>
+                <Result>
+                    <Map>
+                        <Source>cn</Source>
+                        <Destination>title</Destination>
+                    </Map>
+                </Result>
+            </Aspect>
+        </Find>
+    </Object>
+</Objects>

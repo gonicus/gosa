@@ -74,6 +74,11 @@ qx.Class.define("gosa.ui.editor.Monaco", {
       check: "String",
       init: "null",
       apply: "_applyValue"
+    },
+    completionProviders: {
+      check: "Object",
+      init: null,
+      apply: "_applyCompletionProviders"
     }
   },
 
@@ -90,12 +95,22 @@ qx.Class.define("gosa.ui.editor.Monaco", {
       }
     },
 
+    _applyCompletionProviders: function(value) {
+      if (this.__monaco && value) {
+        Object.getOwnPropertyNames(value).forEach(function(lang) {
+          this.debug("registering completion provider for language: "+lang);
+          monaco.languages.registerCompletionItemProvider(lang, value[lang]);
+        }, this);
+      }
+    },
+
     _init: function() {
       var element = this.getContentElement().getDomElement();
       element.setAttribute("tabIndex", "-1");
 
       require(['vs/editor/editor.main'], function() {
         this.__monaco = monaco;
+        this._applyCompletionProviders(this.getCompletionProviders());
 
         monaco.languages.setLanguageConfiguration('python', {
           onEnterRules: [
