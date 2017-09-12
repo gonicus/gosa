@@ -15,6 +15,9 @@ import tempfile
 
 import time
 from zope.interface import implementer
+
+from gosa.backend.exceptions import EntryNotFound
+from gosa.backend.objects import ObjectProxy
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common import Environment
 from gosa.common.components import Plugin, Command, PluginRegistry
@@ -28,7 +31,8 @@ C.register_codes(dict(
     PPD_NOT_FOUND=N_("PPD file '%(ppd)s' not found"),
     OPTION_CONFLICT=N_("Setting option '%(option)s' to '%(value)s' caused %(conflicts)s"),
     OPTION_NOT_FOUND=N_("Option '%(option)s' not found in PPD"),
-    COULD_NOT_READ_SOURCE_PPD=N_("Could not read source PPD file")
+    COULD_NOT_READ_SOURCE_PPD=N_("Could not read source PPD file"),
+    USER_NOT_FOUND=N_("User '%(topic)s' not found")
 ))
 
 
@@ -199,6 +203,29 @@ class CupsClient(Plugin):
                     res[entry["ppd"]] = {"value": entry["model"]}
 
         return res
+
+    @Command(__help__=N_("Return all printer PPD files associated to a user"))
+    def getUserPPDs(self, user):
+        index = PluginRegistry.getInstance("ObjectIndex")
+        res = index.search({"_type": "User", "uid": user}, {"dn": 1})
+        if len(res) == 0:
+            raise EntryNotFound(C.make_error("USER_NOT_FOUND", topic=user))
+
+        object = ObjectProxy(res[0]["dn"])
+        printer_cns = []
+        if object.is_extended_by("GotoEnvironment"):
+            printer_cns.append(object.gotoPrinters)
+        if object.is_extended_by("PosixUser"):
+            for group_cn in object.groupMembership:
+                group = ObjectProxy(group_cn)
+                if group.is_extended_by("GotoEnvironment"):
+                    printer_cns.append(group.gotoPrinters)
+        # collect all PPDs
+        res = index.search({"_type": "GotoPrinter", "cn": {"in_": printer_cns}}, {"gotoPrinterPPD": 1})
+        ppds = []
+        for r in res:
+            ppds.append(r["gotoPrinterPPD"])
+        return ppds
 
     @Command(__help__=N_("Get a GUI template from a PPD file"))
     def getConfigurePrinterTemplate(self, data):
