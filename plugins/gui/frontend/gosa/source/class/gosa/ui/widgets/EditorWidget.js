@@ -78,6 +78,9 @@ qx.Class.define("gosa.ui.widgets.EditorWidget", {
     },
 
     _applyGuiProperties: function(props) {
+      if (!props) {
+        return;
+      }
       if (props.hasOwnProperty("completionProviders")) {
         this.__completionProvider = {};
         Object.getOwnPropertyNames(props.completionProviders).forEach(function(className) {
