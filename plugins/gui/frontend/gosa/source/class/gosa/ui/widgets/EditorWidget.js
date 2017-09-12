@@ -82,6 +82,7 @@ qx.Class.define("gosa.ui.widgets.EditorWidget", {
         return;
       }
       if (props.hasOwnProperty("completionProviders")) {
+        props = qx.lang.Object.clone(props);
         this.__completionProvider = {};
         Object.getOwnPropertyNames(props.completionProviders).forEach(function(className) {
           var clazz = qx.Class.getByName(className);

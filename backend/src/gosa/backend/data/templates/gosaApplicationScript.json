@@ -42,7 +42,7 @@
                 "enabled": false
               },
               "completionProviders": {
-                "gosa.data.editor.completion.Application": ["bash", "python"]
+                "gosa.data.editor.completion.Application": ["bash", "python", "plaintext"]
               }
             }
           }

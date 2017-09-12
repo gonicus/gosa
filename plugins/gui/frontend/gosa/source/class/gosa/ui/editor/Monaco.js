@@ -77,7 +77,7 @@ qx.Class.define("gosa.ui.editor.Monaco", {
     },
     completionProviders: {
       check: "Object",
-      init: null,
+      nullable: true,
       apply: "_applyCompletionProviders"
     }
   },

@@ -39,8 +39,9 @@ qx.Class.define("gosa.data.editor.completion.Application", {
     _language: null,
 
     getProvider: function(lang) {
-
+      // as monaco is currently not supporting bash those scripts were treated as plaintext
       switch (lang) {
+        case "plaintext":
         case "bash":
           return {
             triggerCharacters: ["$", "(", "#"],
@@ -83,9 +84,13 @@ qx.Class.define("gosa.data.editor.completion.Application", {
           });
           return res;
         }
-        var variableName = language === "bash" ? "$" + parts[0] : parts[0];
+        var variableName = parts[0];
         switch (language) {
+          case "plaintext":
           case "bash":
+            if (!lastWord.startsWith("$")) {
+              variableName = "$"+variableName;
+            }
             if (lastWord.startsWith("$(")) {
               variableName += ")";
             }
