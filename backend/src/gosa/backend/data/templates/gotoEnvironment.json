@@ -96,7 +96,7 @@
           "class": "gosa.ui.widgets.QTableWidgetWidget",
           "extensions": {
             "guiProperties": {
-              "editTitle": "tr('Edit printer user')",
+              "editTitle": "tr('Edit logon script')",
               "columns": {
                 "scriptName": "tr('Name')",
                 "scriptPriority": "tr('Priority')",
