@@ -113,7 +113,12 @@ qx.Class.define("gosa.ui.widgets.KeyValueEditWidget", {
     },
 
     _applyValid : function(value, old, name) {
-      this.base(arguments, value, old, name);
+      if (value) {
+        this.removeState("invalid");
+      }
+      else {
+        this.addState("invalid");
+      }
 
       // forward valid state to "real" widget children
       Object.getOwnPropertyNames(this._widgetContainer).forEach(function(id) {
