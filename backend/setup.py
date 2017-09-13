@@ -215,6 +215,8 @@ setup(
         UnmarshalLogonScript = gosa.backend.plugins.user.filters:UnmarshalLogonScript
         MarshalFlags = gosa.backend.objects.filter.flags:MarshalFlags
         UnmarshalFlags = gosa.backend.objects.filter.flags:UnmarshalFlags
+        CopyDNTo = gosa.backend.plugins.user.filters:CopyDNTo
+        CopyDNFrom = gosa.backend.plugins.user.filters:CopyDNFrom
 
         [gosa.object.comparator]
         like = gosa.backend.objects.comparator.strings:Like
@@ -238,6 +240,7 @@ setup(
         scriptlint = gosa.backend.plugins.lint.main:ScriptLint
         pylint = gosa.backend.plugins.lint.main:PyLint
         shelllint = gosa.backend.plugins.lint.main:ShellLint
+        MaxAllowedTypes = gosa.backend.plugins.misc.filter_validators:MaxAllowedTypes
 
         [gosa.object.operator]
         and = gosa.backend.objects.operator.bool:And

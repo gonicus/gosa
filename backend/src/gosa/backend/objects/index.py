@@ -51,7 +51,7 @@ C.register_codes(dict(
     OBJECT_EXISTS=N_("Object with UUID %(uuid)s already exists"),
     OBJECT_NOT_FOUND=N_("Cannot find object %(id)s"),
     INDEXING=N_("Index rebuild in progress - try again later"),
-    NOT_SUPPORTED=N_("Requested search operation %(operation)s is not supported"),
+    NOT_SUPPORTED=N_("Requested search operator %(operator)s is not supported"),
 ))
 
 

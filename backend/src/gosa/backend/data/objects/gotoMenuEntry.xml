@@ -5,18 +5,20 @@
         <DisplayName>GotoMenuEntry</DisplayName>
         <Description>GOto - defines a menu entry (v2.7)</Description>
         <Backend>LDAP</Backend>
+        <Extends>
+            <Value>GroupOfNames</Value>
+        </Extends>
+        <BackendParameters>
+            <Backend objectClasses="gotoMenuEntry" RDN="cn">LDAP</Backend>
+        </BackendParameters>
         <BaseObject>false</BaseObject>
         <Templates>
             <Template>gotoMenuEntry.json</Template>
         </Templates>
         <Attributes>
-            <Attribute>
+            <ForeignAttribute>
                 <Name>cn</Name>
-                <Description>RFC4519: common name(s) for which the entity is known by</Description>
-                <Type>UnicodeString</Type>
-                <MultiValue>true</MultiValue>
-                <Mandatory>true</Mandatory>
-            </Attribute>
+            </ForeignAttribute>
             <Attribute>
                 <Name>gotoLsbName</Name>
                 <Description>Foreman release</Description>

@@ -203,20 +203,20 @@ class RPCMethods(Plugin):
         if object_attribute not in attributes:
             attributes.append(object_attribute)
         attrs = dict([(x, 1) for x in attributes])
-        if not "dn" in attrs:
+        if "dn" not in attrs:
             attrs.update({'dn': 1})
 
         # Start the query and format the result
         index = PluginRegistry.getInstance("ObjectIndex")
-        search_result = index.search({
-                            'or_': {
-                                '_type': object_type,
-                                'extension': object_type
-                            },
-                            object_attribute: '%{}%'.format(search_filter) if len(search_filter) > 0 else '%'
-                        }, attrs)
+        query = {object_attribute: '%{}%'.format(search_filter) if len(search_filter) > 0 else '%'}
+        if object_type != "*":
+            query["or_"] = {
+                '_type': object_type,
+                'extension': object_type
+            }
+        search_result = index.search(query, attrs)
 
-        if not search_result:
+        if not search_result and object_type != "*":
             search_result = index.search({
                 '_type': object_type,
                 object_attribute: '%{}%'.format(search_filter) if len(search_filter) > 0 else '%'
@@ -237,7 +237,7 @@ class RPCMethods(Plugin):
             item = {}
             for attr in attributes:
                 if attr in entry and len(entry[attr]):
-                    item[attr] = entry[attr] if attr == "dn" else entry[attr][0]
+                    item[attr] = entry[attr] if attr in ["dn", "_type"] else entry[attr][0]
                 else:
                     item[attr] = ""
             item['__identifier__'] = item[object_attribute]

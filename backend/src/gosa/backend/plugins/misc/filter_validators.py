@@ -98,3 +98,25 @@ class ObjectWithPropertyExists(ElementComparator):
                         value=val))
 
         return len(errors) == 0, errors
+
+
+class MaxAllowedTypes(ElementComparator):
+    """
+    Validates the maximum number of allowed base types in a list if DNs.
+    """
+
+    def process(self, all_props, key, value, max_types):
+
+        errors = []
+        index = PluginRegistry.getInstance("ObjectIndex")
+        res = set()
+        for r in index.search({'dn': {'in_': value}}, {'_type': 1, 'dn': 1}):
+            res.add(r["_type"])
+
+        if len(res) > max_types:
+            errors.append(dict(index=0,
+                               detail=N_("Too many types '%(types)s'. Only '%(allowed)s' types allowed."),
+                               allowed=max_types,
+                               types=res))
+
+        return len(errors) == 0, errors

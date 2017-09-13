@@ -14,6 +14,7 @@ from PIL import ImageOps #@UnresolvedImport
 from gosa.common import Environment
 from gosa.backend.objects.filter import ElementFilter
 from gosa.backend.exceptions import ElementFilterException
+from gosa.common.components import PluginRegistry
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.utils import N_
 from io import BytesIO
@@ -265,5 +266,66 @@ class UnmarshalLogonScript(ElementFilter):
                     valDict["script"]["value"].append(base64.b64decode(parts[3]).decode())
                 else:
                     valDict["script"]["value"].append("")
+
+        return key, valDict
+
+
+class CopyDNTo(ElementFilter):
+    """
+    Filter all members by ``type`` and copy the value of their ``value_attribute`` to the ``target_attribute``.
+
+    .. code-block:: xml
+
+        <FilterEntry>
+            <Filter>
+                <Name>CopyDNTo</Name>
+                <Param>PosixUser</Param>    <!-- type               --/>
+                <Param>memberUid</Param>    <!-- target_attribute   --/>
+                <Param>uid</Param>          <!-- value_attribute    --/>
+            </Filter>
+        </FilterEntry>
+    """
+
+    def process(self, obj, key, valDict, type, target_attribute, value_attribute):
+        # initialize values
+        if len(valDict[key]["value"]) == 0:
+            # nothing to do
+            return key, valDict
+
+        index = PluginRegistry.getInstance("ObjectIndex")
+        for r in index.search({"or_": {"_type": type, "extension": type}, "dn": {"in_": valDict[key]["value"]}}, {value_attribute: 1}):
+            if r[value_attribute] not in valDict[target_attribute]["value"]:
+                valDict[target_attribute]["value"].append(r[value_attribute])
+
+        return key, valDict
+
+
+class CopyDNFrom(ElementFilter):
+    """
+    Filter all members in ``source_attribute`` by ``type`` and copy their DN to the ``key`` attribute.
+
+    .. code-block:: xml
+
+        <FilterEntry>
+            <Filter>
+                <Name>CopyDNFrom</Name>
+                <Param>PosixUser</Param>    <!-- type               --/>
+                <Param>memberUid</Param>    <!-- source_attribute   --/>
+                <Param>uid</Param>          <!-- value_attribute    --/>
+            </Filter>
+        </FilterEntry>
+    """
+
+    def process(self, obj, key, valDict, type, source_attribute, value_attribute):
+        # initialize values
+        if len(valDict[source_attribute]["value"]) == 0:
+            # nothing to do
+            return key, valDict
+
+        index = PluginRegistry.getInstance("ObjectIndex")
+        for r in index.search({"or_": {"_type": type, "extension": type}, value_attribute: {"in_": valDict[source_attribute]["value"]}},
+                              {"dn": 1}):
+            if r["dn"] not in valDict[key]["value"]:
+                valDict[key]["value"].append(r["dn"])
 
         return key, valDict

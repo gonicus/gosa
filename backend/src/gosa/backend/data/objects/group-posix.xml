@@ -8,8 +8,7 @@
     </Templates>
     <DisplayName>Posix group</DisplayName>
     <BackendParameters>
-      <Backend objectClasses="posixGroup,groupOfNames"
-        RDN="cn">LDAP</Backend>
+      <Backend objectClasses="posixGroup" RDN="cn">LDAP</Backend>
       <Backend memberUid="PosixUser:uid,">ObjectHandler</Backend>
     </BackendParameters>
     <Backend>LDAP</Backend>
@@ -66,24 +65,48 @@
           </Condition>
         </Validators>
       </Attribute>
-      <Attribute>
-        <Name>member</Name>
-        <Description>RFC2256: member of a group</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>true</MultiValue>
-        <Mandatory>true</Mandatory>
-        <Validators>
-          <Condition>
-            <Name>IsExistingDN</Name>
-          </Condition>
-        </Validators>
-        <References>
-          <Reference>
-            <Object>*</Object>
-            <Attribute>dn</Attribute>
-          </Reference>
-        </References>
-      </Attribute>
+      <!--<Attribute>-->
+        <!--<Name>member</Name>-->
+        <!--<Description>RFC2256: member of a group</Description>-->
+        <!--<Type>UnicodeString</Type>-->
+        <!--<MultiValue>true</MultiValue>-->
+        <!--<Mandatory>false</Mandatory>-->
+        <!--<Validators>-->
+          <!--<Condition>-->
+            <!--<Name>IsExistingDN</Name>-->
+          <!--</Condition>-->
+        <!--</Validators>-->
+        <!--<References>-->
+          <!--<Reference>-->
+            <!--<Object>*</Object>-->
+            <!--<Attribute>dn</Attribute>-->
+          <!--</Reference>-->
+        <!--</References>-->
+        <!--<InFilter>-->
+          <!--<FilterChain>-->
+            <!--<FilterEntry>-->
+              <!--<Filter>-->
+                <!--<Name>CopyDNTo</Name>-->
+                <!--<Param>PosixUser</Param>-->
+                <!--<Param>memberUid</Param>-->
+                <!--<Param>uid</Param>-->
+              <!--</Filter>-->
+            <!--</FilterEntry>-->
+          <!--</FilterChain>-->
+        <!--</InFilter>-->
+        <!--<OutFilter>-->
+          <!--<FilterChain>-->
+            <!--<FilterEntry>-->
+              <!--<Filter>-->
+                <!--<Name>CopyDNFrom</Name>-->
+                <!--<Param>PosixUser</Param>-->
+                <!--<Param>memberUid</Param>-->
+                <!--<Param>uid</Param>-->
+              <!--</Filter>-->
+            <!--</FilterEntry>-->
+          <!--</FilterChain>-->
+        <!--</OutFilter>-->
+      <!--</Attribute>-->
       <Attribute>
         <Name>autoGid</Name>
         <Default>true</Default>
