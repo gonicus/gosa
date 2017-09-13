@@ -108,15 +108,23 @@ class MaxAllowedTypes(ElementComparator):
     def process(self, all_props, key, value, max_types):
 
         errors = []
-        index = PluginRegistry.getInstance("ObjectIndex")
-        res = set()
-        for r in index.search({'dn': {'in_': value}}, {'_type': 1, 'dn': 1}):
-            res.add(r["_type"])
+        res = self.__get_types(value)
 
-        if len(res) > max_types:
+        if len(res) > int(max_types):
             errors.append(dict(index=0,
                                detail=N_("Too many types '%(types)s'. Only '%(allowed)s' types allowed."),
                                allowed=max_types,
                                types=res))
 
         return len(errors) == 0, errors
+
+    def get_gui_information(self, all_props, key, value, max_types):
+        return {"valueSetFilter": {"key": "_type", "maximum": int(max_types)}}
+
+    def __get_types(self, value):
+        index = PluginRegistry.getInstance("ObjectIndex")
+        res = set()
+        for r in index.search({'dn': {'in_': value}}, {'_type': 1, 'dn': 1}):
+            res.add(r["_type"])
+        return res
+

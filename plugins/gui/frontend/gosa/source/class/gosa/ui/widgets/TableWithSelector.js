@@ -58,6 +58,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     _errorRows: null,
     _sortByColumn: null,
     _initiallyHiddenColumns: null,
+    _modelFilter: null,
 
     /* Color the specific row red, if an error occurred!
      */
@@ -101,6 +102,25 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
 
       // drag&drop
       this._initDrapDropListeners();
+
+      // check if we have some table filters
+      var object = this._getController().getObject();
+
+      if (object.attribute_data[this.getAttribute()]["validator_information"]) {
+        Object.getOwnPropertyNames(object.attribute_data[this.getAttribute()]["validator_information"]).forEach(function(info) {
+          var settings = object.attribute_data[this.getAttribute()]["validator_information"][info];
+          if (info === "valueSetFilter") {
+            var filter = new gosa.data.filter.AllowedValues();
+            if (settings.hasOwnProperty("key")) {
+              filter.setPropertyName(settings.key);
+            }
+            if (settings.hasOwnProperty("maximum")) {
+              filter.setMaximum(settings.maximum);
+            }
+            this._modelFilter = filter;
+          }
+        }, this);
+      }
     },
 
     _onDropRequest: function(e) {
@@ -125,7 +145,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
 
     openSelector :  function() {
       var d = new gosa.ui.dialogs.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
-      this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames);
+      this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames, false, this._modelFilter);
 
       d.addListener("selected", function(e){
         if(e.getData().length){
@@ -242,6 +262,10 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
         }
         this._tableData.push(row_data);
       }, this);
+
+      if (this._modelFilter) {
+        this._modelFilter.warmup(this._tableData);
+      }
 
       this._tableModel.setDataAsMapArray(this._tableData, true, false);
       this._table.sort();

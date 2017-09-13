@@ -314,10 +314,10 @@ class RPCMethods(Plugin):
         # Start the query and bring the result in a usable form
         index = PluginRegistry.getInstance("ObjectIndex")
 
-        res = index.search({
-            'or_': {'_type': otype, '_extensions': otype},
-            oattr: names
-            }, attrs)
+        query = {oattr: names}
+        if otype != "*":
+            query["or_"] = {'_type': otype, '_extensions': otype}
+        res = index.search(query, attrs)
 
         result = {}
         mapping = {}
@@ -331,7 +331,7 @@ class RPCMethods(Plugin):
             item = {}
             for attr in attributes:
                 if attr in entry and len(entry[attr]):
-                    item[attr] = entry[attr] if attr == 'dn' else entry[attr][0]
+                    item[attr] = entry[attr] if attr in ['dn', '_type'] else entry[attr][0]
                 else:
                     item[attr] = ""
 

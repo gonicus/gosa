@@ -33,6 +33,10 @@ class ElementComparator(object):
     def process(self, *args, **kwargs):  # pragma: nocover
         raise NotImplementedError(C.make_error('NOT_IMPLEMENTED', method="process"))
 
+    def get_gui_information(self, *args, **kwargs):  # pragma: nocover
+        """ some information for GUIs to so some pre-validation """
+        return None
+
     def __copy__(self):  # pragma: nocover
         """
         Do not make copies of ourselves.

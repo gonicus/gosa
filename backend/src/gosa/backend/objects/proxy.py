@@ -411,6 +411,16 @@ class ObjectProxy(object):
                 if not readonly and not self.__acl_resolver.check(self.__current_user, topic, "w", base=self.dn):
                     readonly = True
 
+                validator_information = {}
+                # check if the validator have some hints for us
+                if self.__property_map[attr]["validator"] is not None:
+                    for id in self.__property_map[attr]["validator"]:
+                        entry = self.__property_map[attr]["validator"][id]
+                        if "condition" in entry:
+                            tmp = entry["condition"].get_gui_information(self.__property_map, attr, self.__property_map[attr]["value"], *entry["params"])
+                            if tmp is not None:
+                                validator_information.update(tmp)
+
                 res[attr] = {
                     'case_sensitive': self.__property_map[attr]['case_sensitive'],
                     'unique': self.__property_map[attr]['unique'],
@@ -423,7 +433,8 @@ class ObjectProxy(object):
                     'multivalue': self.__property_map[attr]['multivalue'],
                     'type': self.__property_map[attr]['type'],
                     'auto': self.__property_map[attr]['auto'],
-                    'value_inherited_from': self.__property_map[attr]['value_inherited_from']}
+                    'value_inherited_from': self.__property_map[attr]['value_inherited_from'],
+                    'validator_information': validator_information if len(validator_information.keys()) else None}
 
             return res
 

@@ -18,7 +18,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
   extend: gosa.ui.dialogs.Dialog,
 
-  construct: function(title, current_values, extension, attribute, column_keys, column_names, single) {
+  construct: function(title, current_values, extension, attribute, column_keys, column_names, single, modelFilter) {
     this.base(arguments);
     this.setCaption(title);
     this.setResizable(true, true, true, true);
@@ -32,6 +32,9 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     // init table model
     gosa.io.Rpc.getInstance().cA("searchForObjectDetails", extension, attribute, "", column_keys, current_values)
       .then(function(result) {
+        if (modelFilter) {
+          result = modelFilter.filter(result);
+        }
         this.__tableModel.setDataAsMapArray(result, true, false);
       }, this);
   },
