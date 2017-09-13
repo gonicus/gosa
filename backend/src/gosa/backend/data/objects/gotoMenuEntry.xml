@@ -8,6 +8,16 @@
         <Extends>
             <Value>GroupOfNames</Value>
         </Extends>
+        <ExtensionConditions>
+            <ExtensionCondition extension="GroupOfNames">
+                <Condition>
+                    <Name>HasMemberOfType</Name>
+                    <Param>PosixUser</Param>
+                    <Param>member</Param>
+                    <Param>dn</Param>
+                </Condition>
+            </ExtensionCondition>
+        </ExtensionConditions>
         <BackendParameters>
             <Backend objectClasses="gotoMenuEntry" RDN="cn">LDAP</Backend>
         </BackendParameters>

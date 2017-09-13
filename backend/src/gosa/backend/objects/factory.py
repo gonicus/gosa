@@ -542,6 +542,7 @@ class ObjectFactory(object):
     def load_object_types(self):
         types = {}
         extends = {}
+        extension_conditions = {}
 
         # First, find all base objects
         # -> for every base object -> ask the primary backend to identify [true/false]
@@ -563,6 +564,7 @@ class ObjectFactory(object):
                 'backend_attrs': backend_attrs,
                 'extended_by': [],
                 'requires': [],
+                'extension_conditions': {},
                 'methods': methods,
                 'base': is_base,
                 'invisible': bool(t_obj.StructuralInvisible) if "StructuralInvisible" in t_obj.__dict__ else False
@@ -581,10 +583,21 @@ class ObjectFactory(object):
             if "RequiresExtension" in t_obj.__dict__:
                 types[t_obj.Name.text]['requires'] = [v.text for v in t_obj.RequiresExtension.Extension]
 
+            if "ExtensionConditions" in t_obj.__dict__:
+                for ext_cond in t_obj.ExtensionConditions.ExtensionCondition:
+                    if ext_cond.attrib["extension"] not in extension_conditions:
+                        extension_conditions[ext_cond.attrib["extension"]] = {}
+                    extension_conditions[ext_cond.attrib["extension"]][t_obj.Name.text] = self.__build_filter(ext_cond)
+
         for name, ext in extends.items():
-            if not name in types:
+            if name not in types:
                 continue
             types[name]['extended_by'] = ext
+
+        for name, entry in extension_conditions.items():
+            if name not in types:
+                continue
+            types[name]['extension_conditions'] = entry
 
         self.__object_types = types
 
@@ -799,6 +812,7 @@ class ObjectFactory(object):
         setattr(klass, '_displayName', classr.DisplayName.text)
         setattr(klass, '_backendAttrs', back_attrs)
         setattr(klass, '_extends', extends)
+        setattr(klass, '_has_extension_conditions', "ExtensionConditions" in classr.__dict__)
         setattr(klass, '_base_object', base_object)
         setattr(klass, '_container_for', container)
 

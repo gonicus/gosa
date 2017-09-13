@@ -241,6 +241,7 @@ setup(
         pylint = gosa.backend.plugins.lint.main:PyLint
         shelllint = gosa.backend.plugins.lint.main:ShellLint
         MaxAllowedTypes = gosa.backend.plugins.misc.filter_validators:MaxAllowedTypes
+        HasMemberOfType = gosa.backend.plugins.misc.filter_validators:HasMemberOfType
 
         [gosa.object.operator]
         and = gosa.backend.objects.operator.bool:And

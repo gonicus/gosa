@@ -79,6 +79,8 @@ Container           A list of potential sub-objects this object can contain
 Extends             Another objects name that we can extend. E.g. PosixUser can extend a User object
 BaseObject          Defines this object as root object. E.g. User is a base object
 FixedRDN            A RDN. For objects that are bound to a specific name. E.g. PeopleContainer (ou=people)
+RequiresExtension   Defines a list of required extensions
+ExtensionConditions A condition that must be true to enable a certain extension (uses the same structure as the validators)
 =================== ===========================
 
 

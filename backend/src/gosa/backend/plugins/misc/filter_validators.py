@@ -128,3 +128,40 @@ class MaxAllowedTypes(ElementComparator):
             res.add(r["_type"])
         return res
 
+
+class HasMemberOfType(ElementComparator):
+    """
+    Checks if a member of a certain ``type`` existing in the value list of attribute ``attribute``
+
+    Can be used e.g. as extension condition to allow an extension only if a certein type is member of a *GroupOfNames*
+
+    .. code-block::
+
+            <ExtensionCondition extension="GroupOfNames">
+                <Condition>
+                    <Name>HasMemberOfType</Name>
+                    <Param>PosixUser</Param>
+                    <Param>member</Param>
+                    <Param>dn</Param>
+                </Condition>
+            </ExtensionCondition>
+
+    """
+
+    def process(self, all_props, key, value, type, attribute, attribute_content):
+        errors = []
+        if len(all_props[attribute]["value"]) == 0:
+            errors.append(dict(index=0,
+                               detail=N_("Object has no member of type '%(type)s'."),
+                               type=type))
+        else:
+            index = PluginRegistry.getInstance("ObjectIndex")
+            res = index.search({"or_": {"_type": type, "extension": type}, attribute_content: {"in_": all_props[attribute]["value"]}},
+                               {"dn": 1})
+            if len(res) == 0:
+                errors.append(dict(index=0,
+                                   detail=N_("Oject has no member of type '%(type)s'."),
+                                   type=type))
+
+        return len(errors) == 0, errors
+

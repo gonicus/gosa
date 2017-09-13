@@ -41,6 +41,21 @@
       <element name="FixedRDN" type="string" maxOccurs="1" minOccurs="0"/>
       <element name="StructuralInvisible" type="boolean" maxOccurs="1" minOccurs="0"/>
       <element name="RequiresExtension" type="o:RequiresExtension" maxOccurs="1" minOccurs="0"/>
+      <element name="ExtensionConditions" maxOccurs="1" minOccurs="0">
+        <complexType>
+          <sequence>
+            <element name="ExtensionCondition" maxOccurs="1" minOccurs="0">
+              <complexType>
+                <complexContent>
+                  <extension base="o:Validator">
+                    <attribute name="extension" type="string"/>
+                  </extension>
+                </complexContent>
+              </complexType>
+            </element>
+          </sequence>
+        </complexType>
+      </element>
       <element name="Find" type="o:Find" maxOccurs="1" minOccurs="0"/>
     </all>
   </complexType>

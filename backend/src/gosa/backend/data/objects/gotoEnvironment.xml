@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Objects xmlns="http://www.gonicus.de/Objects">
+<Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
     <Object>
         <Name>GotoEnvironment</Name>
         <DisplayName>GotoEnvironment</DisplayName>
@@ -9,10 +9,6 @@
         <Templates>
             <Template>gotoEnvironment.json</Template>
         </Templates>
-        <Extends>
-            <Value>User</Value>
-            <Value>GroupOfNames</Value>
-        </Extends>
         <BackendParameters>
             <Backend RDN="cn" objectClasses="gotoEnvironment">LDAP</Backend>
             <Backend gotoDefaultPrinter="GotoPrinter:cn,gotoDefaultPrinter=cn"
@@ -232,5 +228,19 @@
                 </Validators>
             </Attribute>
         </Attributes>
+        <Extends>
+            <Value>User</Value>
+            <Value>GroupOfNames</Value>
+        </Extends>
+        <ExtensionConditions>
+            <ExtensionCondition extension="GroupOfNames">
+                <Condition>
+                    <Name>HasMemberOfType</Name>
+                    <Param>PosixUser</Param>
+                    <Param>member</Param>
+                    <Param>dn</Param>
+                </Condition>
+            </ExtensionCondition>
+        </ExtensionConditions>
     </Object>
 </Objects>

@@ -37,6 +37,7 @@ This fragment will add the *PosixUser* extension to the object, while
 will list the available extension types for that specific object.
 
 """
+import copy
 import pkg_resources
 import re
 import time
@@ -67,7 +68,8 @@ C.register_codes(dict(
     PERMISSION_CREATE=N_("No permission to create '%(target)s'"),
     PERMISSION_ACCESS=N_("No permission to access '%(topic)s' on '%(target)s'"),
     OBJECT_UUID_MISMATCH=N_("UUID of base (%(b_uuid)s) and extension (%(e_uuid)s) differ"),
-    MOVE_TARGET_INVALID=N_("moving object '%(target)s' from '%(old_dn)s' to '%(new_dn)s' failed: no valid container found")
+    MOVE_TARGET_INVALID=N_("moving object '%(target)s' from '%(old_dn)s' to '%(new_dn)s' failed: no valid container found"),
+    OBJECT_EXTENSION_CONDITION_FAILED=N_("Extension '%(extension)s' condition not met")
     ))
 
 
@@ -571,6 +573,18 @@ class ObjectProxy(object):
                 raise ProxyException(C.make_error('OBJECT_EXTENSION_DEPENDS',
                                                   extension=extension,
                                                   missing=required_extension))
+
+        # check extension conditions
+        if extension in object_types[self.__base_type]['extension_conditions']:
+            # as the extension validators are always dependant from the base type we use only its properties here
+            # the values of self.__attribute_map might not be up to date
+            props_copy = copy.deepcopy(self.__base.myProperties)
+
+            res, error = Object.processValidator(object_types[self.__base_type]['extension_conditions'][extension], "extension", self.__base_type, props_copy)
+            if not res:
+                raise ProxyException(C.make_error('OBJECT_EXTENSION_CONDITION_FAILED',
+                                                  extension=extension,
+                                                  details=error))
 
         # Check Acls
         # Required is the 'c' (create) right for the extension on the current object.
@@ -1212,4 +1226,4 @@ class ObjectProxy(object):
 
 
 from .factory import ObjectFactory
-from .object import ObjectChanged
+from .object import ObjectChanged, Object
