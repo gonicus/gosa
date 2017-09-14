@@ -423,7 +423,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
 
     /**
      * Cleanup all listeners related to that context
-     * @param context
+     * @param context {gosa.engine.Context}
      */
     cleanupContext: function(context) {
       gosa.util.Object.iterate(context.getWidgetRegistry().getMap(), function(modelPath, widget, temporary) {
@@ -534,7 +534,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
           // find tab button
           var parent = context.getRootWidget();
           var button = parent.getButton();
-          button.setAppearance("button-danger");
+          button.setDecorator("button-invalid");
           var toolTip = button.getToolTip();
           if (!toolTip) {
             toolTip = new qx.ui.tooltip.ToolTip(error.detail);
@@ -563,7 +563,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     __resetExtensionError: function(context) {
       context.setValid(true);
       var button = context.getRootWidget().getButton();
-      button.setAppearance("button");
+      button.resetDecorator();
       button.resetToolTip();
       context.extensionListeners.forEach(function(entry) {
         entry[0].removeListenerById(entry[1]);

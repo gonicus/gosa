@@ -275,6 +275,13 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
+    "button-invalid": {
+      style: {
+        width: 1,
+        color : "grapefruit-dark"
+      }
+    },
+
     "button-danger-focused": {
       include : "button-warning",
       style: {
