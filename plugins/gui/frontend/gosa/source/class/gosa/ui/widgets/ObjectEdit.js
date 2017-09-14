@@ -218,13 +218,14 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       if (old) {
         old.removeListener("changeModified", this._updateOkButtonEnabled, this);
         old.removeListener("changeValid", this._updateOkButtonEnabled, this);
+        old.getExtensionFinder() && old.getExtensionFinder().removeListener("extensionsChanged", this._updateExtendMenu, this);
         old.dispose();
       }
 
       if (value) {
         value.addListener("changeModified", this._updateOkButtonEnabled, this);
         value.addListener("changeValid", this._updateOkButtonEnabled, this);
-
+        value.getExtensionFinder().addListener("extensionsChanged", this._updateExtendMenu, this);
         this._initWidgets();
       }
     },

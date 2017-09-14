@@ -9,7 +9,7 @@
             <Value>GroupOfNames</Value>
         </Extends>
         <ExtensionConditions>
-            <ExtensionCondition extension="GroupOfNames">
+            <ExtensionCondition extension="GroupOfNames" properties="member">
                 <Condition>
                     <Name>HasMemberOfType</Name>
                     <Param>PosixUser</Param>

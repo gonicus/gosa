@@ -38,14 +38,19 @@ will list the available extension types for that specific object.
 
 """
 import copy
+
+from datetime import datetime
 import pkg_resources
 import re
 import time
 import zope.event
-from lxml import etree
+from lxml import etree, objectify
 from ldap.dn import str2dn, dn2str
 from logging import getLogger
+
+from gosa.backend.routes.sse.main import SseHandler
 from gosa.common import Environment
+from gosa.common.event import EventMaker
 from gosa.common.utils import is_uuid, N_
 from gosa.common.components import PluginRegistry
 from gosa.common.error import GosaErrorHandler as C
@@ -98,6 +103,7 @@ class ObjectProxy(object):
     __foreign_attrs = None
     __all_method_names = None
     __search_aid = None
+    __attribute_change_hooks = None
 
     def __init__(self, _id, what=None, user=None, session_id=None, data=None):
         self.__env = Environment.getInstance()
@@ -118,6 +124,7 @@ class ObjectProxy(object):
         self.__property_map = {}
         self.__foreign_attrs = []
         self.__all_method_names = []
+        self.__attribute_change_hooks = {}
 
         # Do we have a uuid when opening?
         dn_or_base = _id
@@ -169,11 +176,11 @@ class ObjectProxy(object):
             self.__extensions[extension].parent = self
             self.__extensions[extension]._owner = self.__current_user
             self.__extensions[extension]._session_id = self.__current_session_id
-            self.__initial_extension_state[extension] = True
+            self.__initial_extension_state[extension] = {"active": True, "allowed": True}
         for extension in all_extensions:
             if extension not in self.__extensions:
                 self.__extensions[extension] = None
-                self.__initial_extension_state[extension] = False
+                self.__initial_extension_state[extension] = {"active": False, "allowed": True}
 
         # Collect all method names (also not available due to deactivated extension)
         for obj in [base] + all_extensions:
@@ -226,6 +233,21 @@ class ObjectProxy(object):
 
         self.populate_to_foreign_properties()
         self.__search_aid = PluginRegistry.getInstance("ObjectIndex").get_search_aid()
+
+        # build property change hooks from extension conditions
+        if self.__base.extension_conditions is not None:
+            for ext_name in self.__base.extension_conditions:
+                condition = self.__base.extension_conditions[ext_name]
+                self.revalidate_extension_condition(ext_name, skip_event=True)
+
+                if "properties" in condition:
+                    for prop in condition["properties"]:
+                        if prop not in self.__attribute_change_hooks:
+                            self.__attribute_change_hooks[prop] = []
+                        self.__attribute_change_hooks[prop].append({
+                            "hook": self.revalidate_extension_condition,
+                            "params": [ext_name]
+                        })
 
     def apply_data(self, data, force_update=False, raw=True):
         """
@@ -551,6 +573,7 @@ class ObjectProxy(object):
                 res['extension_methods'][self.__method_type_map[method]] = []
             res['extension_methods'][self.__method_type_map[method]].append(method)
 
+        res["extension_states"] = self.__initial_extension_state
         return res
 
     def extend(self, extension, data=None, force_update=False):
@@ -903,7 +926,7 @@ class ObjectProxy(object):
 
         # Handle retracts
         for idx in list(self.__retractions.keys()):
-            if self.__initial_extension_state[idx]:
+            if self.__initial_extension_state[idx]["active"]:
                 self.__retractions[idx].retract()
             del self.__retractions[idx]
 
@@ -1081,6 +1104,8 @@ class ObjectProxy(object):
             if self.__base_type == obj:
                 found = True
                 setattr(self.__base, name, value)
+                if name in self.__attribute_change_hooks and self.__base.is_changed(name):
+                    self.__execute_attribute_change_hook(name)
                 continue
 
             # Forward attribute modification to all extension that provide
@@ -1092,6 +1117,40 @@ class ObjectProxy(object):
 
         if not found:
             raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
+
+    def __execute_attribute_change_hook(self, name):
+        for hook in self.__attribute_change_hooks[name]:
+            hook["hook"](*hook["params"])
+
+    def revalidate_extension_condition(self, name, skip_event=False):
+        """
+
+        :param name: extension name
+        :param index: condition index
+        :param value: new property value that triggered the change
+        :return:
+        """
+        condition = self.__base.extension_conditions[name]
+
+        # check extension conditions
+        # as the extension validators are always dependant from the base type we use only its properties here
+        # the values of self.__attribute_map might not be up to date
+        props_copy = copy.deepcopy(self.__base.myProperties)
+
+        res, error = Object.processValidator(condition, "extension", self.__base_type, props_copy)
+        changed = self.__initial_extension_state[name]["allowed"] != res
+        self.__initial_extension_state[name]["allowed"] = res
+        if skip_event is False and changed is True:
+            e = EventMaker()
+            event = e.Event(e.ExtensionAllowed(
+                e.UUID(self.uuid),
+                e.DN(self.dn),
+                e.ModificationTime(datetime.now().strftime("%Y%m%d%H%M%SZ")),
+                e.ExtensionName(name),
+                e.Allowed(str(res))
+            ))
+            event_object = objectify.fromstring(etree.tostring(event, pretty_print=True).decode('utf-8'))
+            SseHandler.notify(event_object, channel="user.%s" % self.__current_user)
 
     def asJSON(self, only_indexed=False):
         """

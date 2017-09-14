@@ -40,7 +40,8 @@ qx.Class.define("gosa.io.Sse", {
     "objectMoved": "qx.event.type.Data",
     "pluginUpdate": "qx.event.type.Data",
     "workflowUpdate": "qx.event.type.Data",
-    "ObjectPropertyValuesChanged": "qx.event.type.Data"
+    "ObjectPropertyValuesChanged": "qx.event.type.Data",
+    "ExtensionAllowed": "qx.event.type.Data"
   },
 
   properties: {
@@ -100,10 +101,12 @@ qx.Class.define("gosa.io.Sse", {
         dialog.open();
       }.bind(this), false);
 
-      this.__eventSource.addEventListener("ObjectPropertyValuesChanged", function (e) {
-        var message = qx.lang.Json.parse(e.data);
-        this.fireDataEvent(e.type, message);
-      }.bind(this), false);
+      ["ObjectPropertyValuesChanged", "ExtensionAllowed"].forEach(function(eventName) {
+        this.__eventSource.addEventListener(eventName, function (e) {
+          var message = qx.lang.Json.parse(e.data);
+          this.fireDataEvent(e.type, message);
+        }.bind(this), false);
+      }, this);
 
       this.__eventSource.onerror = function (e) {
         var readyState = e.currentTarget.readyState;

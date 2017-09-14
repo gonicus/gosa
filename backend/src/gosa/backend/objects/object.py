@@ -621,7 +621,7 @@ class Object(object):
             t = self.myProperties[name]['type']
 
             #pylint: disable=E1101
-            if not self._objectFactory.getAttributeTypes()[t].values_match(self.myProperties[name]['value'], self.myProperties[name]['orig_value']):
+            if not self.__is_equal(self.myProperties[name]['value'], self.myProperties[name]['orig_value'], self.myProperties[name]['type']):
                 self.myProperties[name]['status'] = STATUS_CHANGED
                 self.myProperties[name]['last_value'] = current
 
@@ -666,8 +666,11 @@ class Object(object):
         """
         if attribute_name not in self.myProperties:
             raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', attribute_name))
+        elif self.myProperties[attribute_name]["status"] == STATUS_CHANGED:
+            return True
         else:
-            return not self.__is_equal(self.myProperties[attribute_name]["value"], self.myProperties[attribute_name]["orig_value"])
+            return not self.__is_equal(self.myProperties[attribute_name]["value"], self.myProperties[attribute_name]["orig_value"],
+                                       self.myProperties[attribute_name]['type'])
 
     def getTemplate(self):
         """
@@ -776,8 +779,9 @@ class Object(object):
 
         return props
 
-    def __is_equal(self, val1, val2):
-        return (val1 is None or val1 == []) and (val2 is None or val2 == []) or val1 == val2
+    def __is_equal(self, val1, val2, type=None):
+        return (val1 is None or val1 == []) and (val2 is None or val2 == []) or self._objectFactory.getAttributeTypes()[type].values_match(
+            val1, val2) if type is not None else val1 == val2
 
     def commit(self, propsFromOtherExtensions=None):
         """
@@ -831,7 +835,7 @@ class Object(object):
                 continue
 
             # Do not save untouched values
-            if self.__is_equal(props[prop_key]['value'], props[prop_key]['orig_value']):
+            if self.__is_equal(props[prop_key]['value'], props[prop_key]['orig_value'], props[prop_key]['type']):
                 continue
 
             collectedAttrs[prop_key] = props[prop_key]

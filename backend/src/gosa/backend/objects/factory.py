@@ -588,6 +588,9 @@ class ObjectFactory(object):
                     if ext_cond.attrib["extension"] not in extension_conditions:
                         extension_conditions[ext_cond.attrib["extension"]] = {}
                     extension_conditions[ext_cond.attrib["extension"]][t_obj.Name.text] = self.__build_filter(ext_cond)
+                    if "properties" in ext_cond.attrib:
+                        extension_conditions[ext_cond.attrib["extension"]][t_obj.Name.text]["properties"] = \
+                            [x.strip() for x in ext_cond.attrib["properties"].split(",") if len(x)]
 
         for name, ext in extends.items():
             if name not in types:
@@ -812,7 +815,8 @@ class ObjectFactory(object):
         setattr(klass, '_displayName', classr.DisplayName.text)
         setattr(klass, '_backendAttrs', back_attrs)
         setattr(klass, '_extends', extends)
-        setattr(klass, '_has_extension_conditions', "ExtensionConditions" in classr.__dict__)
+        setattr(klass, 'extension_conditions', self.__object_types[name]["extension_conditions"]
+                if name in self.__object_types and "extension_conditions" in self.__object_types[name] else None)
         setattr(klass, '_base_object', base_object)
         setattr(klass, '_container_for', container)
 

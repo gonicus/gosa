@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ This file is part of the GOsa project -  http://gosa-project.org
+  ~
+  ~ Copyright:
+  ~    (C) 2010-2017 GONICUS GmbH, Germany, http://www.gonicus.de
+  ~
+  ~ License:
+  ~    LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
+  ~
+  ~ See the LICENSE file in the project's top-level directory for details.
+  -->
+
+<schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:e="http://www.gonicus.de/Events">
+
+    <complexType name="ExtensionAllowed">
+        <annotation>
+            <documentation>
+                The ExtensionAllowed event is fired if an extension changes its allowed state.
+                Open objects can trigger this event by changing a relatec property value, e.g.
+                GroupOfNames has different extensions allowed dependent on its members types.
+            </documentation>
+        </annotation>
+        <all>
+            <element name="UUID" type="string" minOccurs="0"/>
+            <element name="DN" type="string" minOccurs="0"/>
+            <element name="ModificationTime" type="string"/>
+            <element name="ExtensionName" type="string"/>
+            <element name="Allowed" type="boolean"/>
+        </all>
+    </complexType>
+
+    <element name="ExtensionAllowed" type="e:ExtensionAllowed"/>
+</schema>

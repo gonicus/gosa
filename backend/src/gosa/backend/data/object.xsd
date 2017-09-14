@@ -48,7 +48,17 @@
               <complexType>
                 <complexContent>
                   <extension base="o:Validator">
-                    <attribute name="extension" type="string"/>
+                    <attribute name="extension" type="string" use="required">
+                      <annotation>
+                        <documentation xml:lang="en">The extension name this condition is related to</documentation>
+                      </annotation>
+                    </attribute>
+                    <attribute name="properties" type="string">
+                      <annotation>
+                        <documentation xml:lang="en">A list of comma-separated properties that should trigger a
+                          re-validation of the condition</documentation>
+                      </annotation>
+                    </attribute>
                   </extension>
                 </complexContent>
               </complexType>

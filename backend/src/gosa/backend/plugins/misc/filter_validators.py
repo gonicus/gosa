@@ -119,7 +119,7 @@ class MaxAllowedTypes(ElementComparator):
         return len(errors) == 0, errors
 
     def get_gui_information(self, all_props, key, value, max_types):
-        return {"valueSetFilter": {"key": "_type", "maximum": int(max_types)}}
+        return {"MaxAllowedTypes": {"key": "_type", "maximum": int(max_types)}}
 
     def __get_types(self, value):
         index = PluginRegistry.getInstance("ObjectIndex")
@@ -133,7 +133,7 @@ class HasMemberOfType(ElementComparator):
     """
     Checks if a member of a certain ``type`` existing in the value list of attribute ``attribute``
 
-    Can be used e.g. as extension condition to allow an extension only if a certein type is member of a *GroupOfNames*
+    Can be used e.g. as extension condition to allow an extension only if a certain type is member of a *GroupOfNames*
 
     .. code-block::
 
@@ -160,8 +160,11 @@ class HasMemberOfType(ElementComparator):
                                {"dn": 1})
             if len(res) == 0:
                 errors.append(dict(index=0,
-                                   detail=N_("Oject has no member of type '%(type)s'."),
+                                   detail=N_("Object has no member of type '%(type)s'."),
                                    type=type))
 
         return len(errors) == 0, errors
+
+    def get_gui_information(self, all_props, key, value, type, attribute, attribute_content):
+        return {"HasMemberOfType": {"listenToProperty": attribute, "type": type, "propertyContent": attribute_content}}
 

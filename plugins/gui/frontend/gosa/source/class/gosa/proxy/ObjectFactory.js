@@ -114,6 +114,7 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
         baseType: data['base'],
         extensionTypes: data['extensions'],
         extensionDeps: data['extension_deps'],
+        extensionStates: data['extension_states'],
         locale: locale
       };
       if (data['id']) {

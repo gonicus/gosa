@@ -109,7 +109,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       if (this.getAttribute() && object.attribute_data[this.getAttribute()]["validator_information"]) {
         Object.getOwnPropertyNames(object.attribute_data[this.getAttribute()]["validator_information"]).forEach(function(info) {
           var settings = object.attribute_data[this.getAttribute()]["validator_information"][info];
-          if (info === "valueSetFilter") {
+          if (info === "MaxAllowedTypes") {
             var filter = new gosa.data.filter.AllowedValues();
             if (settings.hasOwnProperty("key")) {
               filter.setPropertyName(settings.key);

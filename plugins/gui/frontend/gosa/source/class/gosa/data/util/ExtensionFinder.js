@@ -23,10 +23,37 @@ qx.Class.define("gosa.data.util.ExtensionFinder", {
     this.base(arguments);
     qx.core.Assert.assertInstance(object, gosa.proxy.Object);
     this.__object = object;
+
+    gosa.io.Sse.getInstance().addListener("ExtensionAllowed", this._onExtensionAllowed, this);
+  },
+
+  /*
+  *****************************************************************************
+     EVENTS
+  *****************************************************************************
+  */
+  events : {
+    "extensionsChanged": "qx.event.type.Event"
   },
 
   members : {
     __object : null,
+
+    /**
+     * Handles backend event that indicate if an extension is allowed or not
+     * @param ev {Event}
+     */
+    _onExtensionAllowed: function(ev) {
+      var data = ev.getData();
+      var states = this.__object.extensionStates;
+      if ((data.UUID && this.__object.uuid === data.UUID) || (data.DN && data.DN === this.__object.dn)) {
+        var valid = data.Allowed.toLowerCase() === "true";
+        if (states[data.ExtensionName].allowed !== valid) {
+          states[data.ExtensionName].allowed = valid;
+          this.fireEvent("extensionsChanged");
+        }
+      }
+    },
 
     /**
      * Returns all extensions of the object in an order that prevents dependency faults.
@@ -80,10 +107,10 @@ qx.Class.define("gosa.data.util.ExtensionFinder", {
     getAddableExtensions : function() {
       var result = [];
       gosa.util.Object.iterate(this.__object.extensionTypes, function(extName, value) {
-        if (!value) {
+        if (!value && this.__object.extensionStates[extName].allowed === true) {
           result.push(extName);
         }
-      });
+      }, this);
       return result;
     },
 
@@ -176,6 +203,7 @@ qx.Class.define("gosa.data.util.ExtensionFinder", {
   },
 
   destruct : function() {
+    gosa.io.Sse.getInstance().removeListener("ExtensionAllowed", this._onExtensionAllowed, this);
     this.__object = null;
   }
 });
