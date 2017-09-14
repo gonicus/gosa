@@ -503,20 +503,72 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
         }
       }
       else if (!data.success && data.error) {
-        this.__showWidgetError(widget, data.error.getData ? data.error.getData() : data.error);
+        this.__showWidgetError(widget, data.error.getData ? data.error.getData() : data.error, data.property);
       }
       this._updateValidity();
     },
 
-    __showWidgetError: function(widget, error) {
+    __showWidgetError: function(widget, error, property) {
       if (error.code === "ATTRIBUTE_CHECK_FAILED" || error.code === "ATTRIBUTE_MANDATORY") {
         if (widget) {
           widget.setError(error);
+        }
+        if (error.details) {
+          error.details.forEach(function(d) {
+            if (d.code === "OBJECT_EXTENSION_NOT_ALLOWED" && d.extension) {
+              this.__showExtensionError(d, widget, property);
+            }
+          }, this);
         }
       }
       else {
         new gosa.ui.dialogs.Error(error).open();
       }
+    },
+
+    __showExtensionError: function(error, relatedWidget, property) {
+      // find the right context
+      this._widget.getContexts().forEach(function(context) {
+        if (context.getExtension() === error.extension) {
+          context.setValid(false);
+          // find tab button
+          var parent = context.getRootWidget();
+          var button = parent.getButton();
+          button.setAppearance("button-danger");
+          var toolTip = button.getToolTip();
+          if (!toolTip) {
+            toolTip = new qx.ui.tooltip.ToolTip(error.detail);
+            button.setToolTip(toolTip);
+          } else {
+            toolTip.setLabel(error.detail);
+          }
+          toolTip.addState("invalid");
+
+          // connect to widgets validity
+          context.extensionListeners.push([relatedWidget, relatedWidget.addListener("changeValid", function(ev) {
+            if (ev.getData() === true) {
+              this.__resetExtensionError(context, property);
+            }
+          }, this)]);
+          context.extensionListeners.push([button, button.addListenerOnce("close", function() {
+            // re-send property value to backend to trigger a new validation
+            var object = context.getObject();
+            object.setAttribute(property, object.get(property));
+          }, this)]);
+
+        }
+      }, this);
+    },
+
+    __resetExtensionError: function(context) {
+      context.setValid(true);
+      var button = context.getRootWidget().getButton();
+      button.setAppearance("button");
+      button.resetToolTip();
+      context.extensionListeners.forEach(function(entry) {
+        entry[0].removeListenerById(entry[1]);
+      });
+      context.extensionListeners = [];
     },
 
     _cleanupChangeValueListeners : function() {

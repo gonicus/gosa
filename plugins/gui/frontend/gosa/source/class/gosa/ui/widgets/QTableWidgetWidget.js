@@ -71,12 +71,14 @@ qx.Class.define("gosa.ui.widgets.QTableWidgetWidget", {
 
     setErrorMessage: function(message, id){
       this.__widget.setErrorMessage(message, id);
+      this.setValid(false);
     },
 
     resetErrorMessage: function(){
       if (this.__widget) {
         this.__widget.resetErrorMessage();
       }
+      this.setValid(true);
     },
 
     __createWidget : function() {

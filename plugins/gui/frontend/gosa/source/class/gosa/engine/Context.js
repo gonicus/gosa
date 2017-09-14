@@ -36,7 +36,7 @@ qx.Class.define("gosa.engine.Context", {
     if (controller) {
       this._controller = controller;
     }
-
+    this.extensionListeners = [];
     this._valueIndex = valueIndex;
     this._template = template;
     this._rootWidget = rootWidget;
@@ -93,6 +93,8 @@ qx.Class.define("gosa.engine.Context", {
     _afterDialogActions : null,
     _validationManager: null,
     _valueIndex: null,
+    // set externally from ObjectEdit controller
+    extensionListeners: null,
 
     /**
      * @return {gosa.proxy.Object}

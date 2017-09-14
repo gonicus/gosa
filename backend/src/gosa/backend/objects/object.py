@@ -577,7 +577,7 @@ class Object(object):
 
                 props_copy = copy.deepcopy(self.myProperties)
 
-                res, error = Object.processValidator(self.myProperties[name]['validator'], name, new_value, props_copy)
+                res, error = self.processValidator(self.myProperties[name]['validator'], name, new_value, props_copy)
                 if not res:
                     if len(error):
                         # TODO: check if we really want the validators to manipulate the data?
@@ -592,7 +592,7 @@ class Object(object):
                             self.log.error(error)
                             raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
                         else:
-                            res, error = Object.processValidator(self.myProperties[name]['validator'], name, new_value, props_copy)
+                            res, error = self.processValidator(self.myProperties[name]['validator'], name, new_value, props_copy)
                             if not res:
                                 if len(error):
                                     self.log.error(error)
@@ -1020,8 +1020,7 @@ class Object(object):
     def getForeignProperties(self):
         return [x for x, y in self.myProperties.items() if y['foreign']]
 
-    @classmethod
-    def processValidator(cls, fltr, key, value, props_copy):
+    def processValidator(self, fltr, key, value, props_copy):
         """
         This method processes a given process-list (fltr) for a given property (prop).
         And return TRUE if the value matches the validator set and FALSE if
@@ -1034,8 +1033,8 @@ class Object(object):
 
         # Our filter result stack
         stack = list()
-        cls.log.debug(" validator started (%s)" % key)
-        cls.log.debug("  value: %s" % (value, ))
+        self.log.debug(" validator started (%s)" % key)
+        self.log.debug("  value: %s" % (value, ))
 
         # Process the list till we reach the end..
         lasterrmsg = ""
@@ -1051,14 +1050,14 @@ class Object(object):
             if 'condition' in curline:
 
                 # Build up argument list
-                args = [props_copy, key, value] + curline['params']
+                args = [props_copy, key, value] + [self if x == "#self#" else x for x in curline['params']]
 
                 # Process condition and keep results
                 fname = type(curline['condition']).__name__
                 v, errors = (curline['condition']).process(*args)
 
                 # Log what happend!
-                cls.log.debug("  %s: [Filter]  %s(%s) called and returned: %s" % (
+                self.log.debug("  %s: [Filter]  %s(%s) called and returned: %s" % (
                     lptr, fname, ", ".join(["\"" + x + "\"" for x in curline['params']]), v))
 
                 # Append the result to the stack.
@@ -1082,7 +1081,7 @@ class Object(object):
                     lasterrmsg = ""
 
                 # Log what happend!
-                cls.log.debug("  %s: [OPERATOR]  %s(%s, %s) called and returned: %s" % (
+                self.log.debug("  %s: [OPERATOR]  %s(%s, %s) called and returned: %s" % (
                     lptr, fname, v1, v2, res))
 
         # Attach last error message
@@ -1090,7 +1089,7 @@ class Object(object):
         if not res and lasterrmsg != "":
             errormsgs.append(lasterrmsg)
 
-        cls.log.debug(" <- VALIDATOR ENDED (%s)" % key)
+        self.log.debug(" <- VALIDATOR ENDED (%s)" % key)
         return res, errormsgs
 
     def __processFilter(self, fltr, key, prop):

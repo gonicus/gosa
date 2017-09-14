@@ -1576,10 +1576,10 @@ qx.Theme.define("gosa.theme.Appearance", {
     "tooltip": {
       include: "popup",
 
-      style: function() {
+      style: function(states) {
         return {
           decorator: "tooltip",
-          backgroundColor: "darkgray-dark",
+          backgroundColor: states.invalid ? "grapefruit-dark" : "darkgray-dark",
           textColor: "white",
           padding: [6, 10],
           offset: [15, 5, 5, 5]

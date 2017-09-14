@@ -8,6 +8,9 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import re
+
+import copy
+
 from gosa.common.components import PluginRegistry
 from gosa.common.utils import N_
 from gosa.backend.objects.comparator import ElementComparator
@@ -150,13 +153,17 @@ class HasMemberOfType(ElementComparator):
 
     def process(self, all_props, key, value, type, attribute, attribute_content):
         errors = []
-        if len(all_props[attribute]["value"]) == 0:
+        ext_name = value
+        if key == "extension":
+            # extension validation mode, use value from props
+            value = all_props[attribute]["value"]
+        if len(value) == 0:
             errors.append(dict(index=0,
                                detail=N_("Object has no member of type '%(type)s'."),
                                type=type))
         else:
             index = PluginRegistry.getInstance("ObjectIndex")
-            res = index.search({"or_": {"_type": type, "extension": type}, attribute_content: {"in_": all_props[attribute]["value"]}},
+            res = index.search({"or_": {"_type": type, "extension": type}, attribute_content: {"in_": value}},
                                {"dn": 1})
             if len(res) == 0:
                 errors.append(dict(index=0,
@@ -168,3 +175,24 @@ class HasMemberOfType(ElementComparator):
     def get_gui_information(self, all_props, key, value, type, attribute, attribute_content):
         return {"HasMemberOfType": {"listenToProperty": attribute, "type": type, "propertyContent": attribute_content}}
 
+
+class CheckExtensionConditions(ElementComparator):
+    """ check if all conditions of active extensions of an object are still valid """
+
+    def process(self, all_props, key, value, object):
+        errors = []
+
+        # collect all conditions that are related to this attribute key and whose extension is active
+        conditions = [(name, x) for name, x in object.extension_conditions.items()
+                      if key in x["properties"] and object.parent.is_extended_by(name)]
+
+        props_copy = copy.deepcopy(object.myProperties)
+        for extension_name, condition in conditions:
+            res, errs = object.processValidator(condition, key, value, props_copy)
+            if not res:
+                errors.append(dict(code='OBJECT_EXTENSION_NOT_ALLOWED',
+                                   detail=N_("Object is extended by '%(extension)s', which is not allowed. Reason: '%(error)s'"),
+                                   extension=extension_name,
+                                   error=", ".join([x["detail"] % x for x in errs])))
+
+        return len(errors) == 0, errors

@@ -38,17 +38,29 @@
           <ConditionOperator>
             <Operator>and</Operator>
             <LeftConditionChain>
-              <Condition>
-                <Name>IsExistingDN</Name>
-              </Condition>
+              <ConditionOperator>
+                <Operator>and</Operator>
+                <LeftConditionChain>
+                  <Condition>
+                    <Name>IsExistingDN</Name>
+                  </Condition>
+                </LeftConditionChain>
+                <RightConditionChain>
+                  <Condition>
+                    <Name>MaxAllowedTypes</Name>
+                    <Param>2</Param>
+                  </Condition>
+                </RightConditionChain>
+              </ConditionOperator>
             </LeftConditionChain>
             <RightConditionChain>
               <Condition>
-                <Name>MaxAllowedTypes</Name>
-                <Param>2</Param>
+                <Name>CheckExtensionConditions</Name>
+                <Param>#self#</Param>
               </Condition>
             </RightConditionChain>
           </ConditionOperator>
+
         </Validators>
         <References>
           <Reference>

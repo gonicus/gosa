@@ -63,7 +63,9 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     /* Color the specific row red, if an error occurred!
      */
     setErrorMessage: function(message, id){
-      this._table.colorRow('#F00', this._firstColumn, this._tableData[id][this._firstColumn]);
+      if (id) {
+        this._table.colorRow('#F00', this._firstColumn, this._tableData[id][this._firstColumn]);
+      }
       this.setValid(false);
       this.setInvalidMessage(message);
     },

@@ -603,7 +603,8 @@ class ObjectProxy(object):
             # the values of self.__attribute_map might not be up to date
             props_copy = copy.deepcopy(self.__base.myProperties)
 
-            res, error = Object.processValidator(object_types[self.__base_type]['extension_conditions'][extension], "extension", self.__base_type, props_copy)
+            res, error = self.__base.processValidator(object_types[self.__base_type]['extension_conditions'][extension], "extension",
+                                            self.__base_type, props_copy)
             if not res:
                 raise ProxyException(C.make_error('OBJECT_EXTENSION_CONDITION_FAILED',
                                                   extension=extension,
@@ -1137,14 +1138,14 @@ class ObjectProxy(object):
         # the values of self.__attribute_map might not be up to date
         props_copy = copy.deepcopy(self.__base.myProperties)
 
-        res, error = Object.processValidator(condition, "extension", self.__base_type, props_copy)
+        res, error = self.__base.processValidator(condition, "extension", self.__base_type, props_copy)
         changed = self.__initial_extension_state[name]["allowed"] != res
         self.__initial_extension_state[name]["allowed"] = res
         if skip_event is False and changed is True:
             e = EventMaker()
             event = e.Event(e.ExtensionAllowed(
-                e.UUID(self.uuid),
-                e.DN(self.dn),
+                e.UUID(self.uuid if self.uuid is not None else ""),
+                e.DN(self.dn if self.dn is not None else ""),
                 e.ModificationTime(datetime.now().strftime("%Y%m%d%H%M%SZ")),
                 e.ExtensionName(name),
                 e.Allowed(str(res))
