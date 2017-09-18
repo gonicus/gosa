@@ -262,7 +262,6 @@ qx.Class.define("gosa.Application",
           );
           return qx.Promise.all(promises);
         }, this)
-        // }, this)
         .then(function() {
           // all rpcs done
           this.getRoot().setBlockerColor("#000000");
