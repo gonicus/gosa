@@ -272,19 +272,7 @@ class LDAP(ObjectBackend):
                     mod_attrs.append((ldap.MOD_ADD, 'objectClass', ocs))
 
             if foreign_keys is None:
-                # Check if obligatory information for assembling the DN are
-                # provided
-                if not 'RDN' in params:
-                    raise RDNNotSpecified(C.make_error("RDN_NOT_SPECIFIED"))
-
-                # Build unique DN using maybe optional RDN parameters
-                rdns = [d.strip() for d in params['RDN'].split(",")]
-
-                FixedRDN = params['FixedRDN'] if 'FixedRDN' in params else None
-                dn = self.get_uniq_dn(rdns, base, data, FixedRDN)
-                if not dn:
-                    raise DNGeneratorError(C.make_error("NO_UNIQUE_DN", base=base, rdns=", ".join(rdns)))
-
+                dn = self.get_final_dn(base, data, params)
             else:
                 dn = base
 
@@ -305,6 +293,21 @@ class LDAP(ObjectBackend):
 
             # Return automatic uuid
             return self.dn2uuid(dn)
+
+    def get_final_dn(self, base_dn, data, backend_params):
+        # Check if obligatory information for assembling the DN are
+        # provided
+        if not 'RDN' in backend_params:
+            raise RDNNotSpecified(C.make_error("RDN_NOT_SPECIFIED"))
+
+        # Build unique DN using maybe optional RDN parameters
+        rdns = [d.strip() for d in backend_params['RDN'].split(",")]
+
+        FixedRDN = backend_params['FixedRDN'] if 'FixedRDN' in backend_params else None
+        dn = self.get_uniq_dn(rdns, base_dn, data, FixedRDN)
+        if not dn:
+            raise DNGeneratorError(C.make_error("NO_UNIQUE_DN", base=base_dn, rdns=", ".join(rdns)))
+        return dn
 
     def update(self, uuid, data, params, needed=None, user=None):
         with self.lock:
