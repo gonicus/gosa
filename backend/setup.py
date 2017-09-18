@@ -169,6 +169,8 @@ setup(
         rename = gosa.backend.objects.filter.basic:Rename
         copyValueTo = gosa.backend.objects.filter.basic:CopyValueTo
         copyValueFrom = gosa.backend.objects.filter.basic:CopyValueFrom
+        copyForeignValueTo = gosa.backend.objects.filter.basic:CopyForeignValueTo
+        copyForeignValueFrom = gosa.backend.objects.filter.basic:CopyForeignValueFrom
         setbackends = gosa.backend.objects.filter.basic:SetBackends
         setvalue = gosa.backend.objects.filter.basic:SetValue
         clear = gosa.backend.objects.filter.basic:Clear
@@ -217,6 +219,8 @@ setup(
         UnmarshalFlags = gosa.backend.objects.filter.flags:UnmarshalFlags
         CopyDNTo = gosa.backend.plugins.user.filters:CopyDNTo
         CopyDNFrom = gosa.backend.plugins.user.filters:CopyDNFrom
+        FilterOwnDn = gosa.backend.objects.filter.basic:FilterOwnDn
+        AddOwnDnIfEmpty = gosa.backend.objects.filter.basic:AddOwnDnIfEmpty
 
         [gosa.object.comparator]
         like = gosa.backend.objects.comparator.strings:Like

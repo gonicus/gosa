@@ -12,6 +12,8 @@ from gosa.backend.objects.factory import ObjectFactory
 import time
 import datetime
 
+from gosa.common.components import PluginRegistry
+
 
 class Rename(ElementFilter):
     """
@@ -64,11 +66,82 @@ class CopyValueTo(ElementFilter):
 
     def process(self, obj, key, valDict, target_key):
         if type(valDict[key]['value']) is not None and len(valDict[key]['value']):
-            # if valDict[target_key]['foreign']:
-            #     self.log.info("setting foreign attribute %s" % target_key)
-            #     setattr(obj, target_key, valDict[key]['value'][0])
-            # else:
             valDict[target_key]['value'] = valDict[key]['value']
+        return key, valDict
+
+
+class CopyForeignValueTo(ElementFilter):
+    """
+     This filter copies the value from a foreign objects attribute that is somehow related, to another attribute.
+     e.g.::
+
+    .. code-block:: xml
+
+        <FilterEntry>
+            <Filter>
+                <Name>CopyForeignValueTo</Name>
+                <Param>ForemanHostGroup</Param><!-- related object type -->
+                <Param>foremanGroupId</Param><!-- ID attribute of related object -->
+                <Param>dn</Param><!-- content that should be written to the target attribute -->
+                <Param>groupMembership</Param><!-- local target attribute the value should be copied to -->
+            </Filter>
+       </FilterEntry>
+     """
+
+    def process(self, obj, key, valDict, object_type, id_attribute, content_attribute, target_attribute):
+        index = PluginRegistry.getInstance("ObjectIndex")
+        valDict[target_attribute]['value'] = []
+        if type(valDict[key]['value']) is not None and len(valDict[key]['value']):
+            for val in valDict[key]['value']:
+                res = index.search({"or_": {"_type": object_type, 'extension': object_type}, id_attribute: val}, {content_attribute: 1})
+                if len(res):
+                    if isinstance(res[0][content_attribute], list):
+                        print("Extending %s" % res[0][content_attribute])
+                        valDict[target_attribute]['value'].extend(res[0][content_attribute])
+                    else:
+                        print("Appending %s" % res[0][content_attribute])
+                        valDict[target_attribute]['value'].append(res[0][content_attribute])
+
+        return key, valDict
+
+
+class CopyForeignValueFrom(ElementFilter):
+    """
+     This filter copies the value from a foreign objects attribute that is related by a source_attribute to the current
+     attribute
+     e.g.::
+
+    .. code-block:: xml
+
+        <FilterEntry>
+            <Filter>
+                <Name>CopyForeignValueFrom</Name>
+                <Param>ForemanHostGroup</Param><!-- related object type -->
+                <Param>foremanGroupId</Param><!-- ID attribute of related object -->
+                <Param>dn</Param><!-- type of content in the source attribute -->
+                <Param>groupMembership</Param><!-- local source attribute the value should be copied from -->
+            </Filter>
+        </FilterEntry>
+
+    You can read the parameters like:
+    I want to copy the ``foremanGroupId`` of a ``ForemanHostGroup``, which is identified by a ``dn`` in ``groupMembership``.
+
+     """
+
+    def process(self, obj, key, valDict, object_type, id_attribute, source_content, source_attribute):
+        index = PluginRegistry.getInstance("ObjectIndex")
+        valDict[key]['value'] = []
+        if type(valDict[source_attribute]['value']) is not None and len(valDict[source_attribute]['value']):
+            for val in valDict[source_attribute]['value']:
+                res = index.search({"or_": {"_type": object_type, 'extension': object_type}, source_content: val}, {id_attribute: 1})
+                if len(res) and res[0][id_attribute] is not None:
+                    if isinstance(res[0][id_attribute], list):
+                        print("Extending %s" % res[0][id_attribute])
+                        valDict[key]['value'].extend(res[0][id_attribute])
+                    else:
+                        print("Appending %s" % res[0][id_attribute])
+                        valDict[key]['value'].append(res[0][id_attribute])
+
         return key, valDict
 
 
@@ -95,7 +168,7 @@ class CopyValueFrom(ElementFilter):
 
 class SetBackends(ElementFilter):
     """
-    This filter allows to change the target backend of an attrbiute.
+    This filter allows to change the target backend of an attribute.
     It also allows to specify a various amount of backends, see example below.
     e.g.::
 
@@ -293,4 +366,21 @@ class BooleanToInteger(ElementFilter):
     def process(self, obj, key, valDict):
         valDict[key]['value'] = list(map(lambda x: int(x), valDict[key]['value']))
         valDict[key]['backend_type'] = 'Integer'
+        return key, valDict
+
+
+class FilterOwnDn(ElementFilter):
+    """ remove own DN from values"""
+
+    def process(self, obj, key, valDict):
+        valDict[key]['value'] = [x for x in valDict[key]['value'] if x != obj.get_final_dn()]
+        return key, valDict
+
+
+class AddOwnDnIfEmpty(ElementFilter):
+    """ add own DN to attribute if is has no values """
+
+    def process(self, obj, key, valDict):
+        if len(valDict[key]['value']) == 0:
+            valDict[key]['value'].append(obj.get_final_dn())
         return key, valDict
