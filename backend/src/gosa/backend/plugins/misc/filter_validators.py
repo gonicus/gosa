@@ -86,7 +86,7 @@ class ObjectWithPropertyExists(ElementComparator):
         errors = []
         index = PluginRegistry.getInstance("ObjectIndex")
         for val in value:
-            if attribute == "dn" and val in index.currently_in_creation:
+            if attribute == "dn" and val in [x.dn for x in index.currently_in_creation]:
                 # this object has been created but is not in the DB yet
                 continue
 
@@ -153,7 +153,7 @@ class HasMemberOfType(ElementComparator):
 
     def process(self, all_props, key, value, type, attribute, attribute_content):
         errors = []
-        ext_name = value
+
         if key == "extension":
             # extension validation mode, use value from props
             value = all_props[attribute]["value"]
@@ -166,6 +166,12 @@ class HasMemberOfType(ElementComparator):
             res = index.search({"or_": {"_type": type, "extension": type}, attribute_content: {"in_": value}},
                                {"dn": 1})
             if len(res) == 0:
+                if len(index.currently_in_creation) > 0:
+                    # check if the referenced object we are looking for is currently being created
+                    found_types = [x.__class__.__name__ for x in index.currently_in_creation if getattr(x, attribute_content) in value]
+                    if type in found_types:
+                        return True, errors
+
                 errors.append(dict(index=0,
                                    detail=N_("Object has no member of type '%(type)s'."),
                                    type=type))
@@ -181,6 +187,10 @@ class CheckExtensionConditions(ElementComparator):
 
     def process(self, all_props, key, value, object):
         errors = []
+
+        # special case for own dn in member -> skip validation
+        if key == "member" and object.dn in value:
+            return True, errors
 
         # collect all conditions that are related to this attribute key and whose extension is active
         conditions = [(name, x) for name, x in object.extension_conditions.items()
