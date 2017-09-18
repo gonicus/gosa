@@ -842,8 +842,6 @@ class ObjectIndex(Plugin):
                     # convert integers because we need strings
                     if isinstance(value, int):
                         value = "%s" % value
-                    if key is None:
-                        print(key)
                     if hasattr(ObjectInfoIndex, key):
                         if "%" in value:
                             res.append(getattr(ObjectInfoIndex, key).like(value))
