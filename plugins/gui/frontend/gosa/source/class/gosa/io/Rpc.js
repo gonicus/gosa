@@ -126,9 +126,9 @@ qx.Class.define("gosa.io.Rpc", {
      * into real objects.
      */
     _parseHook: function(key, value){
-      if(value && typeof(value) == "object" && "__jsonclass__" in value){
+      if(value && typeof(value) === "object" && "__jsonclass__" in value){
         for(var converted_id in this.converter){
-          if(this.converter[converted_id].tag == value['__jsonclass__']){
+          if(this.converter[converted_id].tag === value['__jsonclass__']){
             var converter = new this.converter[converted_id]();
             converter.fromJSON(value);
             return(converter);
@@ -163,13 +163,14 @@ qx.Class.define("gosa.io.Rpc", {
     __promiseCallAsync: function(argx) {
       this.debug("started next rpc job '" + argx[0] + "'");
       return new qx.Promise(function(resolve, reject) {
-        var errorWrapper = qx.lang.Function.curry(this.__handleRpcError.bind(this), argx, reject);
+        var errorWrapper = qx.lang.Function.curry(this.__handleRpcError.bind(this), argx, resolve, reject);
 
         if (this.isBlockRpcs() && this.__allowedRPCs.indexOf(argx[0]) === -1) {
           this.debug("RPCs are currently blocked: listening for unblock event");
           this.addListenerOnce("changeBlockRpcs", function() {
+            this.debug("RPCs unblocked executing queued RPC");
             this.__executeCallAsync(argx, resolve, errorWrapper);
-          })
+          }, this)
         } else {
           this.__executeCallAsync(argx, resolve, errorWrapper);
         }
@@ -234,29 +235,27 @@ qx.Class.define("gosa.io.Rpc", {
      * @return {var}
      * @private
      */
-    __handleRpcError: function(argx, reject, error) {
-      if(error && error.code == 401) {
+    __handleRpcError: function(argx, outerResolve, outerReject, error) {
+      if(error && error.code === 401) {
         this.setBlockRpcs(true);
 
         gosa.Session.getInstance().setUser(null);
         this.debug("RPC "+argx[0]+" failed: authorization error");
 
         var dialog = gosa.ui.dialogs.LoginDialog.openInstance();
-        return new qx.Promise(function(resolve, reject) {
-          dialog.addListener("login", function(e) {
+        dialog.addListener("login", function(e) {
 
-            // Query for the users Real Name
-            gosa.Session.getInstance().setUser(e.getData()['user']);
+          // Query for the users Real Name
+          gosa.Session.getInstance().setUser(e.getData()['user']);
 
-            // Re-connect SSE
-            var messaging = gosa.io.Sse.getInstance();
-            messaging.reconnect();
+          // Re-connect SSE
+          var messaging = gosa.io.Sse.getInstance();
+          messaging.reconnect();
 
-            // retry the call
-            this.debug("retrying RPC "+argx[0]+" after successful authorization");
-            this.__promiseCallAsync(argx).then(resolve, reject);
-            this.setBlockRpcs(false);
-          }, this);
+          // retry the call
+          this.debug("retrying RPC "+argx[0]+" after successful authorization");
+          this.__promiseCallAsync(argx).then(outerResolve).catch(outerReject);
+          this.setBlockRpcs(false);
         }, this);
 
         // Catch potential errors here.
@@ -271,7 +270,7 @@ qx.Class.define("gosa.io.Rpc", {
         return new qx.Promise(function(resolve, reject) {
           d.addListener("retry", function(){
             this.__promiseCallAsync(argx).then(resolve, reject);
-          }, this);
+          }, this).catch(outerReject);
           d.open();
         }, this);
       } else if (error && argx[0] !== "getError") {
@@ -283,9 +282,9 @@ qx.Class.define("gosa.io.Rpc", {
         if (match) {
           error.field = match[1];
           error.message = match[2];
-          return gosa.io.Rpc.resolveError(error, this).catch(reject);
+          return gosa.io.Rpc.resolveError(error, this).catch(outerReject);
         } else {
-          reject(error);
+          outerReject(error);
         }
       }
     },
@@ -342,7 +341,7 @@ qx.Class.define("gosa.io.Rpc", {
     _callInternal : function(args, callType, refreshSession)
     {
       var self = this;
-      var offset = (callType == 0 ? 0 : 1);
+      var offset = (callType === 0 ? 0 : 1);
       var whichMethod = (refreshSession ? "refreshSession" : args[offset]);
       var handler = args[0];
       var argsArray = [];
@@ -419,7 +418,7 @@ qx.Class.define("gosa.io.Rpc", {
 
       var addToStringToObject = function(obj)
       {
-        if (protocol == "qx1")
+        if (protocol === "qx1")
         {
           obj.toString = function()
           {
@@ -464,7 +463,7 @@ qx.Class.define("gosa.io.Rpc", {
       {
         var ex = new Error();
 
-        if (protocol == "qx1")
+        if (protocol === "qx1")
         {
           ex.origin = origin;
         }
@@ -547,7 +546,7 @@ qx.Class.define("gosa.io.Rpc", {
 
             id = response["id"];
 
-            if (id != this.getSequenceNumber())
+            if (id !== this.getSequenceNumber())
             {
               this.warn("Received id (" + id + ") does not match requested id " +
                   "(" + this.getSequenceNumber() + ")!");
@@ -557,7 +556,7 @@ qx.Class.define("gosa.io.Rpc", {
             var eventType = "completed";
             var exTest = response["error"];
 
-            if (exTest != null)
+            if (exTest !== null)
             {
               // There was an error
               result = null;
@@ -575,7 +574,7 @@ qx.Class.define("gosa.io.Rpc", {
               {
                 result = eval("(" + result + ")");
                 var newSuffix = qx.core.ServerSettings.serverPathSuffix;
-                if (self.__currentServerSuffix != newSuffix)
+                if (self.__currentServerSuffix !== newSuffix)
                 {
                   self.__previousServerSuffix = self.__currentServerSuffix;
                   self.__currentServerSuffix = newSuffix;
@@ -630,9 +629,9 @@ qx.Class.define("gosa.io.Rpc", {
       req.setParseJson(false);
       req.send();
 
-      if (callType == 0)
+      if (callType === 0)
       {
-        if (ex != null)
+        if (ex !== null)
         {
           var error = new Error(ex.toString());
           error.rpcdetails = ex;
