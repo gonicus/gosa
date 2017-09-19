@@ -251,6 +251,7 @@ Readonly        Yes         Marks the attribute as read only.
 Mandatory       Yes         Marks the attribute as mandatory.
 Unique          Yes         Marks the attribute as system-wide unique.
 Foreign         Yes         This Attribute is part of another object.
+References      Yes         This Attribute contains references to other object that need to be updates, when the referenced value changes
 =============== =========== ===========================
 
 Here is an explanation of the simple properties above, the complex properties like ``Validators``,
@@ -264,7 +265,7 @@ each modification of sn and givenName will mark the attribute cn as modified and
 to be saved again. (How sn and givenName are combined into the cn attribute will be described later
 when the in- and out-filters are described).
 
-With ``<Backend>`` you can specifiy another backend then defined in the ``<Object>s
+With ``<Backend>`` you can specify another backend then defined in the ``<Object>s
 <Backend>`` tag.
 
 The ``<Type>`` specifies which syntax this attribute has, here is the list of the default types:
@@ -283,6 +284,18 @@ To create a read only attribute add the tag ``<Readonly>`` and set it to true.
 
 If the attribute is required then you should add the ``<Mandatory>`` flag and set it
 to true.
+
+If the attribute contains references to other object, e.g a ``PosixGroup`` contains a list of ``uid`` values,
+you have to make sure that the reference does not get lost if a user uid gets changed. Just add
+
+.. code-block:: xml
+
+    <References>
+        <Reference>
+            <Object>PosixUser</Object>
+            <Attribute>uid</Attribute>
+        </Reference>
+    </References>
 
 
 Writing attribute validators
@@ -307,6 +320,11 @@ A simple single condition:
 
 This example uses the stringLength condition with a set of parameters to check the values length.
 Right now there is a very limited set of conditions available - but there will be more.
+
+.. hint::
+
+    You can add the object instance as parameter to the condition by using the reserved keyword ``#self#``
+    as parameter. e.g.``<Param>#self#</Param>``
 
 You can also define more complex validators like this (This example does not make much sense!):
 
@@ -703,6 +721,259 @@ or you can use it to refer to the method-parameters like this:
 You can use all the attribute names you have defined and additionally all the
 parameters of the method as placeholders.
 
+
+Relations between objects
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Objects can be related to each other, e.g. a ``PosixGroup`` contains a list of ``PosixUser`` objects.
+Usually this is defined by a list of foreign keys in a multi-valued attribute of the group.
+Those keys can either by a DN or an attribute value which is unique when you know the related objects type
+(e.g. the RDN).
+So in the backend the relation is store in the group, the related object does not store a relation to the group its in.
+
+In GOsa those relations are bi-directional by using a "virtual" attribute in the object, which contains the group relation.
+This attribute is filled at load time and not persisted in any way. This behaviour makes it possible to edit the
+relationship between the group and the user on both ends, e.g. removing the user by editing the group or
+removing the group by editing the user.
+
+Of course there are some things that need to be taken care of to keep those relations up-to-date. The main problem is
+that the attributes value of the related object might change. GOsa needs to update this change in the group attribute
+to keep the relation intact.
+
+.. code-block:: xml
+    :caption: Example for a PosixGroup related to PosixUsers
+
+     <BackendParameters>
+      ...
+      <Backend memberUid="PosixUser:uid,">ObjectHandler</Backend>
+    </BackendParameters>
+    ...
+    <Attribute>
+        <Name>memberUid</Name>
+        <Description>A list of member-uids</Description>
+        <Type>String</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+        <References>
+          <Reference>
+            <Object>PosixUser</Object>
+            <Attribute>uid</Attribute>
+          </Reference>
+        </References>
+        <Validators>
+          <Condition>
+            <Name>ObjectWithPropertyExists</Name>
+            <Param>PosixUser</Param>
+            <Param>uid</Param>
+          </Condition>
+        </Validators>
+    </Attribute>
+
+.. code-block:: xml
+    :caption: Example of a PosixUser related to a PosixGroup
+
+     <BackendParameters>
+      ...
+      <Backend groupMembership="PosixGroup:cn,memberUid=uid">ObjectHandler</Backend>
+    </BackendParameters>
+    ...
+    <Attribute>
+        <Name>groupMembership</Name>
+        <Description>A list on posix-group names this user is member of</Description>
+        <Type>String</Type>
+        <Backend>ObjectHandler</Backend>
+        <MultiValue>true</MultiValue>
+        <Validators>
+          <Condition>
+            <Name>ObjectWithPropertyExists</Name>
+            <Param>PosixGroup</Param>
+            <Param>cn</Param>
+          </Condition>
+        </Validators>
+    </Attribute>
+
+There are two important things that need to be defined and take care of different aspects of the relation.
+The most important thing (the relation itself) is defined in the backend parameters for the ``ObjectHandler``
+backend. The ``ÒbjectHandler``'s backend only purpose is to keep track of the informations about relations.
+
+So in the group definition we have ``memberUid="PosixUser:uid,"``. The attribute name ``memberUid`` defines
+the local attribute where the entries to the related objects can be found. The attributes value ``PosixUser:uid,``
+defines the content of the ``memberUid`` attribute. In this case it is a relation to the ``uid`` attribute of
+``PosixUser`` object.
+
+In the user definition we find the other side of the relation:
+``groupMembership="PosixGroup:cn,memberUid=uid"``. Again the attribute name defines the local attribute, where the
+entries to the related objects can be found. In the example the ``groupMembership`` attribute can have multiple
+relations to ``PosixGroup`` objects (as the user can be part of multiple groups at the same time). Please note that
+``groupMembership`` only purpose is to hold the references to the groups. It is the "virtual" attribute mentioned
+some lines above. The "virtual" behaviour is enabled by the ``<Backend>ObjectHandler</Backend>`` definition.
+And the attribute value defines the comma-separated, local and remote content of the related attributes.
+Which means in the local ``groupMembership`` we find a list of ``cn`` values of ``PosixGroup`` objects
+and in the remote ``memberUid`` attribute we find a list of ``uid`` values of ``PosixUser`` attributes.
+
+The last thing we need to take care of is the change of ``uid`` values of ``PosixUser`` objects.
+If we do not track those changes the group would contain references to not existing ``uid``'s.
+So the ``memberUid`` attribute needs to know when it has to update its references, this is defined
+by the ``References`` attribute:
+
+.. code-block:: xml
+
+    <References>
+        <Reference>
+            <Object>PosixUser</Object>
+            <Attribute>uid</Attribute>
+        </Reference>
+    </References>
+
+Is this case we tell GOsa to update the ``memberUid`` values, whenever a ``uid`` value of one of the entries changes.
+
+**Let the object know when it got removed from a group**
+
+In the example above, we used a "virtual" attribute to keep track of the object->group relation. As mentioned this
+attribute is non-persistent, as it only gets filled when you load an object. There might be use cases where you need
+to persist this relation end-point in a backend. In those cases the object needs to be informed when it got removed
+from or added to a group, in order to update its group attribute relation.
+
+As an example we can think of a group of ``ForemanHost``'s that are part of a ``ForemanHostGroup``.
+The ``ForemanHost`` needs to know its group relationship as that has to be persisted in the foreman backend.
+
+As both mentioned object are extensions of base objects (Device->ForemanHost, GroupOfNames->ForemanHostGroup)
+the definitions get a little bit more complicated.
+
+.. code-block:: xml
+    :caption: Excerpt from the GroupOfNames definition
+
+    <BackendParameters>
+      ...
+      <Backend member="*:dn,">ObjectHandler</Backend>
+    </BackendParameters>
+
+    <Attribute>
+        <Name>member</Name>
+        <Description>RFC2256: member of a group</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>true</Mandatory>
+        ...
+        <References>
+          <Reference>
+            <Object>*</Object>
+            <Attribute>dn</Attribute>
+          </Reference>
+        </References>
+        ...
+      </Attribute>
+
+The ``GroupOfNames`` member attribute contains a list of ``DN`` values of any type of object.
+
+.. code-block:: xml
+    :caption: Excerpt from the ForemanHost definition
+
+    <BackendParameters>
+        ...
+        <Backend groupMembership="GroupOfNames:dn,member=dn">ObjectHandler</Backend>
+    </BackendParameters>
+    ...
+    <Attribute>
+        <Name>groupMembership</Name>
+        <Description>Assigned host group</Description>
+        <Type>String</Type>
+        <Backend>ObjectHandler</Backend>
+        ...
+        <UpdateHooks>
+          <UpdateHook>
+            <Object>ForemanHostGroup</Object>
+            <Attribute>member</Attribute>
+          </UpdateHook>
+        </UpdateHooks>
+    </Attribute>
+
+So regarding our use case the ``groupMembership`` attribute needs to be informed about changes in the relation of
+its group membership to be able to forward those changes to the *foreman* backend. As we see the attribute
+is still "virtual" and not related to the *foreman* backend, we come to that later.
+To get the information about the change we define an ``UpdateHook``, which will be executed every time the
+content of the ``member`` attribute of a ``ForemanHostGroup`` has changed.
+
+.. NOTE::
+
+    To be precise: the ``member``attribute is actually defined in the base type
+    ``GroupOfNames`` of the extension ``ForemanHostGroup``. But we are not interested in changes
+    if the ``member`` attribute of ``GroupOfNames`` that are not extended by ``ForemanHostGroup``'s.
+
+So for now we have an updated ``groupMembership`` which contains a ``DN`` of a ``ForemanHostGroup`` (or
+is empty). The relations in the *foreman* backend need a ``foremanGroupId``:
+
+.. code-block: xml
+    :caption: Relevant parts of the ForemanHostGroup definition
+
+    <BaseObject>false</BaseObject>
+    ...
+    <Attribute>
+        <Name>foremanGroupId</Name>
+        <Description>ID used in foreman to identify the hostGroup</Description>
+        <Type>String</Type>
+        <Mandatory>true</Mandatory>
+    </Attribute>
+    ...
+    <Extends>
+        <Value>GroupOfNames</Value>
+    </Extends>
+
+We need to map the ``DN`` to a ``foremanGroupId`` and write that to the ``hostgroup_id`` attribute of the ``ForemanHost``.
+
+.. code-block:: xml
+    :caption: Excerpt from the ForemanHost definition
+
+
+    <Attribute>
+        <Name>hostgroup_id</Name>
+        <Description>ID of the hostgroup this host is part of</Description>
+        <Type>String</Type>
+        <BackendType>Integer</BackendType>
+        <Backend>Foreman</Backend>
+        <DependsOn>
+          <Attribute>groupMembership</Attribute>
+        </DependsOn>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>IntegerToString</Name>
+              </Filter>
+            </FilterEntry>
+            <FilterEntry>
+              <Filter>
+                <Name>CopyForeignValueTo</Name>
+                <Param>ForemanHostGroup</Param>
+                <Param>foremanGroupId</Param>
+                <Param>dn</Param>
+                <Param>groupMembership</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>CopyForeignValueFrom</Name>
+                <Param>ForemanHostGroup</Param>
+                <Param>foremanGroupId</Param>
+                <Param>dn</Param>
+                <Param>groupMembership</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+
+We use In- and Out-Filters in the ``hostgroup_id`` attribute to handle that. This attribute is written to / read from
+the *foreman* backend. When a ``ForemanHost`` object gets opened the in-filter chain converts the value from integer
+to string, retrieved the corresponding DN of the ``ForemanHostGroup`` with the given id and writes that value to
+the ``groupMembership``.
+
+The out-filter goes the other way around. When a ``ForemanHost`` object is saved it reads the DN from the ``groupMembership``
+attribute, converts is to the corresponding  ``hostgroup_id`` and sends that value to the *foreman* backend.
 
 """
 __import__('pkg_resources').declare_namespace(__name__)
