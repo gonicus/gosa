@@ -121,10 +121,11 @@ class CupsTestCase(GosaTestCase):
         assert "gotoPrinterPPD" in res
 
         # open the newly written PPD and check if the value has been set
-        ppd = cups.PPD(res["gotoPrinterPPD"][0])
+        dir = Environment.getInstance().config.get("cups.spool", default="/tmp/spool")
+        ppd = cups.PPD(os.path.join(dir, res["gotoPrinterPPD"][0]))
         option = ppd.findOption("PageSize")
         assert option.defchoice == "A4"
 
-        os.unlink(res["gotoPrinterPPD"][0])
+        os.unlink(os.path.join(dir, res["gotoPrinterPPD"][0]))
 
 

@@ -1,0 +1,34 @@
+{
+  "total": 3,
+  "subtotal": 3,
+  "page": 1,
+  "per_page": 200,
+  "search": null,
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "os_family": "Debian",
+      "created_at": "2017-04-18T14:07:08.039Z",
+      "updated_at": "2017-04-18T14:07:08.039Z",
+      "name": "Preseed custom LVM",
+      "id": 83
+    },
+    {
+      "os_family": "Debian",
+      "created_at": "2017-04-18T14:07:08.023Z",
+      "updated_at": "2017-04-18T14:07:08.023Z",
+      "name": "Preseed default",
+      "id": 82
+    },
+    {
+      "os_family": "Debian",
+      "created_at": "2017-08-16T13:56:31.232Z",
+      "updated_at": "2017-08-16T13:56:31.232Z",
+      "name": "Preseed LVM XFS",
+      "id": 97
+    }
+  ]
+}

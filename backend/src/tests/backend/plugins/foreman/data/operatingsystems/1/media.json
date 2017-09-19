@@ -1,0 +1,37 @@
+{
+  "total": 3,
+  "subtotal": 3,
+  "page": 1,
+  "per_page": 200,
+  "search": null,
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "path": "http://smitty.intranet.gonicus.de:9080/repos/ubuntu",
+      "os_family": "Debian",
+      "created_at": "2017-08-16T08:41:51.758Z",
+      "updated_at": "2017-08-16T14:09:59.573Z",
+      "id": 10,
+      "name": "go-lts"
+    },
+    {
+      "path": "http://mirror.intranet.gonicus.de/ubuntu",
+      "os_family": "Debian",
+      "created_at": "2017-04-19T11:58:01.653Z",
+      "updated_at": "2017-04-19T11:58:01.653Z",
+      "id": 9,
+      "name": "Local Ubuntu Mirror"
+    },
+    {
+      "path": "http://de.archive.ubuntu.com/ubuntu",
+      "os_family": "Debian",
+      "created_at": "2017-04-18T14:07:08.192Z",
+      "updated_at": "2017-04-19T11:16:00.887Z",
+      "id": 7,
+      "name": "Ubuntu mirror"
+    }
+  ]
+}

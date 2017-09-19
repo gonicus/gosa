@@ -232,7 +232,8 @@ class ForemanSyncTestCase(GosaTestCase):
             'extension': 'ForemanHost'
         }
         hostgroup_query = {
-            '_type': 'ForemanHostGroup',
+            '_type': 'GroupOfNames',
+            'extension': 'ForemanHostGroup',
             'cn': {
                 'in_': ['Bereitstellen von smitty.intranet.gonicus.de', 'VM', 'Test']
             },
@@ -274,11 +275,11 @@ class ForemanSyncTestCase(GosaTestCase):
 
         res = index.search(hostgroup_query, {'dn': 1})
         assert len(res) == 3
-        self.dns_to_delete += [x['dn'] for x in res]
+        self.dns_to_delete.extend([x['dn'] for x in res])
 
         res = index.search(discovered_host_query, {'dn': 1})
         assert len(res) == 1
-        self.dns_to_delete += [x['dn'] for x in res]
+        self.dns_to_delete.extend([x['dn'] for x in res])
 
 
 class ForemanClientTestCase(TestCase):
@@ -552,7 +553,7 @@ class ForemanHookTestCase(RemoteTestCase):
         headers, payload = self._create_request(payload_data)
         AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
 
-        with pytest.raises(ldap.NO_SUCH_OBJECT):
+        with pytest.raises(ProxyException):
             ObjectProxy(self._host_dn)
 
         self._host_dn = None

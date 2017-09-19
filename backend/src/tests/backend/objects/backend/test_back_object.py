@@ -107,7 +107,7 @@ class ObjectBackendTestCase(TestCase):
             real_index = PluginRegistry.getInstance('ObjectIndex')
 
             def search(query, attrs):
-                if '_type' in query and 'cn' in query:
+                if ('_type' in query or 'or_' in query and '_type' in query['or_']) and 'cn' in query:
                     return [{'dn': 'cn=freich,ou=groups,dc=example,dc=net'}]
                 else:
                     return real_index.search(query, attrs)
