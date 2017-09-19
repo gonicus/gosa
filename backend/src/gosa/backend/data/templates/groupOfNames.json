@@ -161,7 +161,8 @@
             "columns": {
               "_type": "tr('Type')",
               "dn": "tr('DN')"
-            }
+            },
+            "sortByColumn": "_type"
           }
         }
       }]

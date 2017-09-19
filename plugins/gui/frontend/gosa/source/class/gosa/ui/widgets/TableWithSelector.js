@@ -83,9 +83,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       this._tableModel = new qx.ui.table.model.Simple();
       this._tableModel.setColumns(this._columnNames, this._columnIDs);
       if (this._sortByColumn) {
-        new qx.util.DeferredCall(function() {
-          this._tableModel.sortByColumn(this._tableModel.getColumnIndexById(this._sortByColumn), true);
-        }, this).schedule();
+        this._tableModel.sortByColumn(this._tableModel.getColumnIndexById(this._sortByColumn), true);
       }
       this._table = new gosa.ui.table.Table(this._tableModel);
       this._table.setStatusBarVisible(false);
@@ -147,7 +145,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
 
     openSelector :  function() {
       var d = new gosa.ui.dialogs.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
-      this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames, false, this._modelFilter);
+      this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames, false, this._modelFilter, this._sortByColumn);
 
       d.addListener("selected", function(e){
         if(e.getData().length){

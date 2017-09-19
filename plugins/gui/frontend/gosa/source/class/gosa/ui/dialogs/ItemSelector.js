@@ -18,12 +18,13 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
   extend: gosa.ui.dialogs.Dialog,
 
-  construct: function(title, current_values, extension, attribute, column_keys, column_names, single, modelFilter) {
+  construct: function(title, current_values, extension, attribute, column_keys, column_names, single, modelFilter, sortByColumn) {
     this.base(arguments);
     this.setCaption(title);
     this.setResizable(true, true, true, true);
     this.setWidth(500);
     this.setLayout(new qx.ui.layout.VBox(0));
+    this._sortByColumn = sortByColumn;
 
     this.__isSingleSelection = !!single;
 
@@ -36,6 +37,9 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
           result = modelFilter.filter(result);
         }
         this.__tableModel.setDataAsMapArray(result, true, false);
+        if (this._sortByColumn) {
+         this.__tableModel.sortByColumn(this.__tableModel.getColumnIndexById(this._sortByColumn), true);
+        }
       }, this);
   },
 
@@ -47,6 +51,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     __table : null,
     __tableModel : null,
     __isSingleSelection : false,
+    _sortByColumn: null,
 
     __initWidgets : function(column_names, column_keys, extension, attribute) {
       this.__tableModel = new qx.ui.table.model.Simple();
