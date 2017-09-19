@@ -395,6 +395,41 @@ class ObjectFactory(object):
 
         return res
 
+    def getUpdateHooks(self, base_type):
+        res = {}
+        for element in self.__xml_defs.values():
+
+            # Get all <Attributes> tag and iterate through their children
+            find = objectify.ObjectPath("Object.Attributes")
+            if find.hasattr(element):
+                for attr in find(element).iterchildren():
+
+                    # Extract the objects name.
+                    obj = attr.getparent().getparent().Name.text
+
+                    # Extract reference information
+                    if load(attr, "UpdateHooks", None) is not None:
+                        for h in attr.UpdateHooks.iterchildren():
+                            if self.__object_types[h["Object"].text]["base"] is False:
+                                base_types = self.__object_types[h["Object"].text]["extends"]
+                                extension = h["Object"].text
+                            else:
+                                base_types = [h["Object"].text]
+                                extension = None
+
+                        if base_type in base_types:
+                                if not h["Attribute"].text in res:
+                                    res[h["Attribute"].text] = []
+                                for base_type in base_types:
+
+                                    res[h["Attribute"].text].append({
+                                        "notified_obj": obj,
+                                        "extension": extension,
+                                        "notified_obj_attribute": attr.Name.text
+                                    })
+
+        return res
+
     def __get_primary_class_for_foreign_attribute(self, attribute, obj):
         """
         Returns the primary class for a given primary attribute which belongs
@@ -433,7 +468,7 @@ class ObjectFactory(object):
                         if ext.text == baseclass:
                             # DEBUG CODE, remove once the sporadic startup error no such child: {http://www.gonicus.de/Objects}Attributes is solved
                             if "Attributes" not in item:
-                                print(item)
+                                print("No Attributes found in item: %s" % str(item))
                             for attr in item["Attributes"].iterchildren():
                                 if attr.tag == "{http://www.gonicus.de/Objects}Attribute" and attr["Name"] == attribute:
                                     return attr

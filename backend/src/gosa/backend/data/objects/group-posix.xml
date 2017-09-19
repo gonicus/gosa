@@ -30,7 +30,7 @@
       </Attribute>
       <Attribute>
         <Name>gidNumber</Name>
-        <Description>The primary group number  number</Description>
+        <Description>The primary group number number</Description>
         <Type>Integer</Type>
         <BlockedBy>
           <Attribute value="true">autoGid</Attribute>
@@ -65,48 +65,6 @@
           </Condition>
         </Validators>
       </Attribute>
-      <!--<Attribute>-->
-        <!--<Name>member</Name>-->
-        <!--<Description>RFC2256: member of a group</Description>-->
-        <!--<Type>UnicodeString</Type>-->
-        <!--<MultiValue>true</MultiValue>-->
-        <!--<Mandatory>false</Mandatory>-->
-        <!--<Validators>-->
-          <!--<Condition>-->
-            <!--<Name>IsExistingDN</Name>-->
-          <!--</Condition>-->
-        <!--</Validators>-->
-        <!--<References>-->
-          <!--<Reference>-->
-            <!--<Object>*</Object>-->
-            <!--<Attribute>dn</Attribute>-->
-          <!--</Reference>-->
-        <!--</References>-->
-        <!--<InFilter>-->
-          <!--<FilterChain>-->
-            <!--<FilterEntry>-->
-              <!--<Filter>-->
-                <!--<Name>CopyDNTo</Name>-->
-                <!--<Param>PosixUser</Param>-->
-                <!--<Param>memberUid</Param>-->
-                <!--<Param>uid</Param>-->
-              <!--</Filter>-->
-            <!--</FilterEntry>-->
-          <!--</FilterChain>-->
-        <!--</InFilter>-->
-        <!--<OutFilter>-->
-          <!--<FilterChain>-->
-            <!--<FilterEntry>-->
-              <!--<Filter>-->
-                <!--<Name>CopyDNFrom</Name>-->
-                <!--<Param>PosixUser</Param>-->
-                <!--<Param>memberUid</Param>-->
-                <!--<Param>uid</Param>-->
-              <!--</Filter>-->
-            <!--</FilterEntry>-->
-          <!--</FilterChain>-->
-        <!--</OutFilter>-->
-      <!--</Attribute>-->
       <Attribute>
         <Name>autoGid</Name>
         <Default>true</Default>
@@ -129,22 +87,22 @@
     <BaseObject>true</BaseObject>
 
     <Find>
-	<Aspect>
-		<Tag>PosixGroup</Tag>
-		<Keyword>Group</Keyword>
-		<Keyword>Member</Keyword>
-		<Keyword>Membership</Keyword>
-		<Search>cn</Search>
-		<Search>description</Search>
-		<Resolve type="User" filter="uid">memberUid</Resolve>
-		<Result>
-			<Map>
-				<Source>cn</Source>
-				<Destination>title</Destination>
-			</Map>
-		</Result>
-	</Aspect>
-</Find>
+      <Aspect>
+        <Tag>PosixGroup</Tag>
+        <Keyword>Group</Keyword>
+        <Keyword>Member</Keyword>
+        <Keyword>Membership</Keyword>
+        <Search>cn</Search>
+        <Search>description</Search>
+        <Resolve type="User" filter="uid">memberUid</Resolve>
+        <Result>
+          <Map>
+            <Source>cn</Source>
+            <Destination>title</Destination>
+          </Map>
+        </Result>
+      </Aspect>
+    </Find>
 
   </Object>
 </Objects>

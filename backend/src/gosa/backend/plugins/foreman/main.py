@@ -212,6 +212,9 @@ class Foreman(Plugin):
                 if object_type == "ForemanHost":
                     base_dn = self.incoming_base
                 foreman_object = ObjectProxy(base_dn, base_type)
+                uuid_extension = foreman_object.get_extension_off_attribute(backend_attributes["Foreman"]["_uuidAttribute"])
+                if base_type != uuid_extension and not foreman_object.is_extended_by(uuid_extension):
+                    foreman_object.extend(uuid_extension)
                 setattr(foreman_object, backend_attributes["Foreman"]["_uuidAttribute"], str(oid))
         else:
             # open existing object
@@ -254,6 +257,9 @@ class Foreman(Plugin):
         properties = self.factory.getObjectProperties(object_type)
         backend_attributes = self.factory.getObjectBackendProperties(object_type)
         mappings = ForemanBackend.extract_mapping(backend_attributes["Foreman"])
+        set_on_create = []
+        if "setoncreate" in backend_attributes["Foreman"]:
+            set_on_create = [x.split(":") for x in backend_attributes["Foreman"]["setoncreate"].split(",") if len(x)]
 
         if uuid_attribute is None:
 
@@ -262,6 +268,22 @@ class Foreman(Plugin):
 
         if update_data is None:
             update_data = {}
+
+        if object.get_mode() == "create":
+            for entry in set_on_create:
+                value = data[entry[0]] if entry[0] in data else None
+                if entry[0][0:5] == "self." and hasattr(object, entry[0][5:]):
+                    value = getattr(object, entry[0][5:])
+
+                if value is not None:
+                    current_value = getattr(object, entry[1])
+
+                    if current_value is None:
+                        self.log.info("setting %s to %s" % (entry[1], value))
+                        setattr(object, entry[1], value)
+                    elif isinstance(current_value, list) and len(current_value) == 0:
+                        self.log.info("setting %s to %s" % (entry[1], [value]))
+                        setattr(object, entry[1], [value])
 
         def update(key, value, backend=None):
             # check if we need to extend the object before setting the property

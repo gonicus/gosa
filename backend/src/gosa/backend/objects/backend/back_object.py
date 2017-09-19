@@ -66,9 +66,15 @@ class ObjectHandler(ObjectBackend):
                 results = index.search({'uuid': uuid, matchAttr: "%"}, {matchAttr: 1})
                 if len(results):
                     matchValue = results[0][matchAttr]
-                    xq = index.search({'_type': foreignObject, foreignMatchAttr: matchValue}, {foreignAttr: 1})
-                    result[targetAttr] = list(itertools.chain.from_iterable([x[foreignAttr] for x in xq]))
-
+                    query = {foreignMatchAttr: matchValue}
+                    if foreignObject != "*":
+                        query["or_"] = {'_type': foreignObject, 'extension': foreignObject}
+                    xq = index.search(query, {foreignAttr: 1})
+                    if foreignAttr == "dn":
+                        result[targetAttr] = [x[foreignAttr] for x in xq]
+                    else:
+                        result[targetAttr] = list(itertools.chain.from_iterable([x[foreignAttr] for x in xq]))
+        self.log.debug("load result %s" % result)
         return result
 
     def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None, user=None):
@@ -123,7 +129,10 @@ class ObjectHandler(ObjectBackend):
             allvalues = data[targetAttr]['orig'] + data[targetAttr]['value']
             object_mapping = {}
             for value in allvalues:
-                res = index.search({'_type': foreignObject, foreignAttr: value}, {'dn': 1})
+                query = {foreignAttr: value}
+                if foreignObject != "*":
+                    query["or_"] = {'_type': foreignObject, 'extension': foreignObject}
+                res = index.search(query, {'dn': 1})
                 if len(res) != 1:
                     raise EntryNotFound(C.make_error("NO_UNIQUE_ENTRY", object=foreignObject, attribute=foreignAttr, value=value))
                 else:
@@ -144,7 +153,8 @@ class ObjectHandler(ObjectBackend):
             for item in add:
                 if object_mapping[item]:
                     current_state = getattr(object_mapping[item], foreignMatchAttr)
-                    current_state.append(matchValue)
+                    if matchValue not in current_state:
+                        current_state.append(matchValue)
                     setattr(object_mapping[item], foreignMatchAttr, current_state)
 
             # Save changes

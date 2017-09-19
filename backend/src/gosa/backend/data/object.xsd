@@ -136,6 +136,20 @@
           </simpleContent>
         </complexType>
       </element>
+      <element name="UpdateHooks" minOccurs="0" maxOccurs="1">
+        <complexType>
+          <sequence>
+            <element name="UpdateHook" maxOccurs="unbounded" minOccurs="1">
+              <complexType>
+                <all>
+                  <element name="Object" maxOccurs="1" minOccurs="1"/>
+                  <element name="Attribute" maxOccurs="1" minOccurs="1"/>
+                </all>
+              </complexType>
+            </element>
+          </sequence>
+        </complexType>
+      </element>
     </all>
   </complexType>
 

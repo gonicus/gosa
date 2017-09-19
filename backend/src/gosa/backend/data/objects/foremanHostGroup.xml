@@ -10,56 +10,66 @@
     <Backend>LDAP</Backend>
     <BackendParameters>
       <Backend objectClasses="foremanHostGroup" RDN="cn">LDAP</Backend>
-      <Backend member="ForemanHost:foremanGroupId,">ObjectHandler</Backend>
-      <Backend type="hostgroups" _uuidAttribute="foremanGroupId" _uuidSourceAttribute="id" setOnCreate="name">Foreman</Backend>
+      <Backend type="hostgroups" _uuidAttribute="foremanGroupId" _uuidSourceAttribute="id"
+               setoncreate="name:cn">Foreman</Backend>
     </BackendParameters>
-    <BaseObject>true</BaseObject>
+    <BaseObject>false</BaseObject>
     <Attributes>
-      <Attribute>
+      <ForeignAttribute>
         <Name>cn</Name>
-        <Type>UnicodeString</Type>
-        <Description>Common Name</Description>
-        <Mandatory>true</Mandatory>
-      </Attribute>
+      </ForeignAttribute>
+      <ForeignAttribute>
+        <Name>member</Name>
+      </ForeignAttribute>
+      <ForeignAttribute>
+        <Name>description</Name>
+      </ForeignAttribute>
       <Attribute>
         <Name>name</Name>
         <Type>UnicodeString</Type>
         <Backend>Foreman</Backend>
-        <DependsOn>
-          <Attribute>cn</Attribute>
-        </DependsOn>
-        <InFilter>
-          <FilterChain>
-            <FilterEntry>
-              <Filter>
-                <Name>CopyValueTo</Name>
-                <Param>cn</Param>
-              </Filter>
-            </FilterEntry>
-          </FilterChain>
-        </InFilter>
-        <OutFilter>
-          <FilterChain>
-            <FilterEntry>
-              <Filter>
-                <Name>CopyValueFrom</Name>
-                <Param>cn</Param>
-              </Filter>
-            </FilterEntry>
-          </FilterChain>
-        </OutFilter>
       </Attribute>
       <Attribute>
         <Name>foremanGroupId</Name>
         <Description>ID used in foreman to identify the hostGroup</Description>
-        <Type>UnicodeString</Type>
+        <Type>String</Type>
         <Mandatory>true</Mandatory>
       </Attribute>
-      <Attribute>
-        <Name>description</Name>
-        <Description>Description</Description>
-        <Type>UnicodeString</Type>
-      </Attribute>
+
+      <!--<Attribute>-->
+        <!--<Name>hostMembers</Name>-->
+        <!--<Backend>ObjectHandler</Backend>-->
+        <!--<Type>UnicodeString</Type>-->
+        <!--<MultiValue>true</MultiValue>-->
+        <!--<InFilter>-->
+          <!--<FilterChain>-->
+            <!--<FilterEntry>-->
+              <!--<Filter>-->
+                <!--<Name>CopyMembersByTypeFrom</Name>-->
+                <!--<Param>ForemanHost</Param>-->
+                <!--<Param>dn</Param>-->
+              <!--</Filter>-->
+            <!--</FilterEntry>-->
+          <!--</FilterChain>-->
+        <!--</InFilter>-->
+        <!--<OutFilter>-->
+          <!--<FilterChain>-->
+            <!--<FilterEntry>-->
+              <!--<Filter>-->
+                <!--<Name>CopyMembersByTypeFrom</Name>-->
+                <!--<Param>ForemanHost</Param>-->
+                <!--<Param>dn</Param>-->
+              <!--</Filter>-->
+            <!--</FilterEntry>-->
+          <!--</FilterChain>-->
+        <!--</OutFilter>-->
+        <!--<References>-->
+          <!--<Reference>-->
+            <!--<Object>ForemanHost</Object>-->
+            <!--<Attribute>groupMembership</Attribute>-->
+          <!--</Reference>-->
+        <!--</References>-->
+      <!--</Attribute>-->
 
       <Attribute>
         <Name>parent_id</Name>
@@ -137,25 +147,6 @@
       </Attribute>
 
       <Attribute>
-        <Name>member</Name>
-        <Description>RFC2256: member of a group</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>true</MultiValue>
-        <Validators>
-          <Condition>
-            <Name>ObjectWithPropertyExists</Name>
-            <Param>ForemanHost</Param>
-            <Param>dn</Param>
-          </Condition>
-        </Validators>
-        <References>
-          <Reference>
-            <Object>ForemanHost</Object>
-            <Attribute>groupMembership</Attribute>
-          </Reference>
-        </References>
-      </Attribute>
-      <Attribute>
         <Name>id</Name>
         <Type>String</Type>
         <BackendType>Integer</BackendType>
@@ -167,6 +158,11 @@
           <FilterChain>
             <FilterEntry>
               <Filter>
+                <Name>IntegerToString</Name>
+              </Filter>
+            </FilterEntry>
+            <FilterEntry>
+              <Filter>
                 <Name>CopyValueTo</Name>
                 <Param>foremanGroupId</Param>
               </Filter>
@@ -174,65 +170,36 @@
           </FilterChain>
         </InFilter>
       </Attribute>
-      <Attribute>
-        <Name>businessCategory</Name>
-        <Description>RFC2256: business category</Description>
-        <Type>UnicodeString</Type>
-      </Attribute>
-      <Attribute>
-        <Name>o</Name>
-        <Description>RFC2256: organization this object belongs to</Description>
-        <Type>UnicodeString</Type>
-      </Attribute>
-      <Attribute>
-        <Name>owner</Name>
-        <Description>RFC2256: owner (of the object)</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>true</MultiValue>
-        <Mandatory>false</Mandatory>
-        <Validators>
-          <Condition>
-            <Name>ObjectWithPropertyExists</Name>
-            <Param>User</Param>
-            <Param>dn</Param>
-          </Condition>
-        </Validators>
-      </Attribute>
-      <Attribute>
-        <Name>ou</Name>
-        <Description>RFC2256: organizational unit this object belongs to</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>true</MultiValue>
-        <Mandatory>false</Mandatory>
-      </Attribute>
-      <Attribute>
-        <Name>seeAlso</Name>
-        <Description>RFC4519: DN of related object</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>true</MultiValue>
-        <Validators>
-          <Condition>
-            <Name>IsExistingDN</Name>
-          </Condition>
-        </Validators>
-      </Attribute>
     </Attributes>
     <Find>
-    <Aspect>
-      <Tag>ForemanHostGroup</Tag>
-      <Keyword>ForemanGroup</Keyword>
-      <Keyword>ForemanMember</Keyword>
-      <Keyword>ForemanMembership</Keyword>
-      <Search>cn</Search>
-      <Search>description</Search>
-      <Resolve type="ForemanHost" filter="cn">member</Resolve>
-      <Result>
-        <Map>
-          <Source>cn</Source>
-          <Destination>title</Destination>
-        </Map>
-      </Result>
-    </Aspect>
+      <Aspect>
+        <Tag>ForemanHostGroup</Tag>
+        <Keyword>ForemanGroup</Keyword>
+        <Keyword>ForemanMember</Keyword>
+        <Keyword>ForemanMembership</Keyword>
+        <Search>cn</Search>
+        <Search>description</Search>
+        <Resolve type="ForemanHost" filter="cn">member</Resolve>
+        <Result>
+          <Map>
+            <Source>cn</Source>
+            <Destination>title</Destination>
+          </Map>
+        </Result>
+      </Aspect>
     </Find>
+    <Extends>
+      <Value>GroupOfNames</Value>
+    </Extends>
+    <ExtensionConditions>
+      <ExtensionCondition extension="GroupOfNames" properties="member">
+        <Condition>
+          <Name>HasMemberOfType</Name>
+          <Param>ForemanHost</Param>
+          <Param>member</Param>
+          <Param>dn</Param>
+        </Condition>
+      </ExtensionCondition>
+    </ExtensionConditions>
   </Object>
 </Objects>

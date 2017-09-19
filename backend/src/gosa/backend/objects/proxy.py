@@ -48,6 +48,7 @@ from lxml import etree, objectify
 from ldap.dn import str2dn, dn2str
 from logging import getLogger
 
+from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 from gosa.backend.routes.sse.main import SseHandler
 from gosa.common import Environment
 from gosa.common.event import EventMaker
@@ -104,6 +105,7 @@ class ObjectProxy(object):
     __all_method_names = None
     __search_aid = None
     __attribute_change_hooks = None
+    __attribute_change_write_hooks = None
 
     def __init__(self, _id, what=None, user=None, session_id=None, data=None):
         self.__env = Environment.getInstance()
@@ -124,7 +126,10 @@ class ObjectProxy(object):
         self.__property_map = {}
         self.__foreign_attrs = []
         self.__all_method_names = []
+        # hooks that are triggered on every setattr
         self.__attribute_change_hooks = {}
+        # hooks that are triggered when the attribute change is committed
+        self.__attribute_change_write_hooks = {}
 
         # Do we have a uuid when opening?
         dn_or_base = _id
@@ -248,6 +253,9 @@ class ObjectProxy(object):
                             "hook": self.revalidate_extension_condition,
                             "params": [ext_name]
                         })
+
+        # build property change hooks from update_hooks
+        self.__attribute_change_write_hooks = self.__factory.getUpdateHooks(self.__base_type)
 
     def apply_data(self, data, force_update=False, raw=True):
         """
@@ -480,6 +488,14 @@ class ObjectProxy(object):
 
         return self.__method_map.keys()
 
+    def get_final_dn(self):
+        """
+        Returns the final DN of this object. If this object is creates the `dn` properties value is not the final one
+        but the parent DN. In these cases this method generates the future DN this obejct will get after it has been stored in LDAP
+        backend
+        """
+        self.__base.get_final_dn()
+
     def get_parent_dn(self, dn=None):
         if not dn:
             dn = self.__base.dn
@@ -597,8 +613,8 @@ class ObjectProxy(object):
                                                   extension=extension,
                                                   missing=required_extension))
 
-        # check extension conditions
-        if extension in object_types[self.__base_type]['extension_conditions']:
+        # check extension conditions (not in create mode, as conditions mostly do not verify in a new object)
+        if self.__base_mode != "create" and extension in object_types[self.__base_type]['extension_conditions']:
             # as the extension validators are always dependant from the base type we use only its properties here
             # the values of self.__attribute_map might not be up to date
             props_copy = copy.deepcopy(self.__base.myProperties)
@@ -632,6 +648,7 @@ class ObjectProxy(object):
             self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid, mode=mode, data=data, force_update=force_update)
             self.__extensions[extension].parent = self
             self.__extensions[extension]._owner = self.__current_user
+            self.__extensions[extension]._session_id = self.__current_session_id
 
         # Register the extensions methods
         object_types = self.__factory.getObjectTypes()
@@ -995,11 +1012,42 @@ class ObjectProxy(object):
             zope.event.notify(ObjectChanged("post object move", self.__base))
 
         changed_props = []
-        if self.__base_mode == "update":
-            for name, settings in save_props.items():
+
+        for name, settings in save_props.items():
+            if self.__base_mode == "update":
                 if not self.__is_equal(settings['value'] , settings['orig_value']):
                     self.__log.info("%s changed from %s to %s" % (name, settings['orig_value'], settings['value']))
                     changed_props.append(name)
+
+            # only react to real changes here
+            if name in self.__attribute_change_write_hooks and settings['status'] == STATUS_CHANGED:
+                for hook in self.__attribute_change_write_hooks[name]:
+                    if hook["extension"] is not None and not self.is_extended_by(hook["extension"]):
+                        self.__log.debug("skipping hook because object is not extended by %s" % hook["extension"])
+                        continue
+
+                    self.__log.debug("checking update hook for %s.%s" % (hook["notified_obj"], hook["notified_obj_attribute"]))
+                    # Calculate value that have to be removed/added
+                    remove = list(set(settings['orig_value']) - set(settings['value']))
+                    add = list(set(settings['value']) - set(settings['orig_value']))
+                    self.__log.debug("removing: %s" % remove)
+                    self.__log.debug("adding: %s" % add)
+
+                    if len(remove):
+                        res = index.search({"or_": {"_type": hook["notified_obj"], "extension": hook["notified_obj"]}, "dn": {"in_": remove}}, {"dn": 1})
+                        for x in res:
+                            obj = ObjectProxy(x["dn"])
+                            self.__log.debug("removing reference to %s from %s.%s" % (self.dn, obj.dn, hook["notified_obj_attribute"]))
+                            setattr(obj, hook["notified_obj_attribute"], None)
+                            obj.commit()
+
+                    if len(add):
+                        res = index.search({"or_": {"_type": hook["notified_obj"], "extension": hook["notified_obj"]}, "dn": {"in_": add}}, {"dn": 1})
+                        for x in res:
+                            obj = ObjectProxy(x["dn"])
+                            self.__log.debug("adding reference to %s to %s.%s" % (self.dn, obj.dn, hook["notified_obj_attribute"]))
+                            setattr(obj, hook["notified_obj_attribute"], self.dn)
+                            obj.commit()
 
         zope.event.notify(ObjectChanged("post object %s" % self.__base_mode, self.__base, changed_props=changed_props))
 
@@ -1286,4 +1334,4 @@ class ObjectProxy(object):
 
 
 from .factory import ObjectFactory
-from .object import ObjectChanged, Object
+from .object import ObjectChanged, Object, STATUS_CHANGED

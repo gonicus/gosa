@@ -99,6 +99,7 @@ class Object(object):
     parent = None
     _owner = None
     _session_id = None
+    _type = None
     attributesInSaveOrder = None
 
     def __saveOrder(self):
@@ -150,8 +151,6 @@ class Object(object):
         self._reg = ObjectBackendRegistry.getInstance()
         self.log = getLogger(__name__)
         self.log.debug("new object instantiated '%s' in mode '%s' (%s)" % (type(self).__name__, mode, where))
-        if Object.log is None:
-            Object.log = self.log
 
         # Group attributes by Backend
         propsByBackend = OrderedDict()
@@ -765,10 +764,6 @@ class Object(object):
                     is_blocked = True
                     break
 
-            # Check if all required attributes are set. (Skip blocked once, they cannot be set!)
-            if not is_blocked and props[key]['mandatory'] and not len(props[key]['value']):
-                raise ObjectException(C.make_error('ATTRIBUTE_MANDATORY', key))
-
             # Process each and every out-filter with a clean set of input values,
             #  to avoid that return-values overwrite themselves.
             if len(props[key]['out_filter']) and not props[key]['auto']:
@@ -777,11 +772,36 @@ class Object(object):
                 for out_f in props[key]['out_filter']:
                     self.__processFilter(out_f, key, props)
 
+            # Check if all required attributes are set. (Skip blocked ones, they cannot be set!)
+            if not is_blocked and props[key]['mandatory'] and not len(props[key]['value']):
+                raise ObjectException(C.make_error('ATTRIBUTE_MANDATORY', key))
+
         return props
 
     def __is_equal(self, val1, val2, type=None):
         return (val1 is None or val1 == []) and (val2 is None or val2 == []) or self._objectFactory.getAttributeTypes()[type].values_match(
             val1, val2) if type is not None else val1 == val2
+
+    def get_final_dn(self):
+        """
+        Returns the final DN of this object. If this object is creates the `dn` properties value is not the final one
+        but the parent DN. In these cases this method generates the future DN this object will get after it has been stored in LDAP
+        backend
+        """
+        base_object = self.parent if self.parent is not None else self
+        if self._mode != "create":
+            return base_object.dn
+        else:
+            be_params = self._backendAttrs["LDAP"]
+            be = ObjectBackendRegistry.getBackend("LDAP")
+            # collect data the backend needs for generate DN
+            data = {}
+            for prop_key in self.myProperties:
+                data[prop_key] = {'foreign': self.myProperties[prop_key]['foreign'],
+                                  'orig': self.myProperties[prop_key]['in_value'],
+                                  'value': self.myProperties[prop_key]['value'],
+                                  'type': self.myProperties[prop_key]['backend_type']}
+            return be.get_final_dn(self.dn, data, be_params)
 
     def commit(self, propsFromOtherExtensions=None):
         """
@@ -909,6 +929,9 @@ class Object(object):
 
         index = PluginRegistry.getInstance("ObjectIndex")
 
+        if self._mode in ["create", "extend"]:
+            index.currently_in_creation.append(self)
+
         # First, take care about the primary backend...
         if p_backend in toStore:
             beAttrs = self._backendAttrs[p_backend] if p_backend in self._backendAttrs else {}
@@ -927,11 +950,9 @@ class Object(object):
                     uuid = self._getattr_(beAttrs['_uuidAttribute'], "in_value")
 
             if self._mode == "create":
-                index.currently_in_creation.append(self.dn)
                 obj.uuid = be.create(self.dn, toStore[p_backend], self._backendAttrs[p_backend], **kwargs)
 
             elif self._mode == "extend":
-                index.currently_in_creation.append(self.dn)
                 self.log.info("%s extend with data %s" % (self.dn, toStore[p_backend]))
                 be.extend(uuid, toStore[p_backend],
                           self._backendAttrs[p_backend],
@@ -1000,8 +1021,8 @@ class Object(object):
             self.__execute_hook("PostModify")
 
         # remove the creation marker again
-        if self.dn in index.currently_in_creation:
-            index.currently_in_creation.remove(self.dn)
+        if self in index.currently_in_creation:
+            index.currently_in_creation.remove(self)
 
         return props
 
@@ -1020,7 +1041,7 @@ class Object(object):
     def getForeignProperties(self):
         return [x for x, y in self.myProperties.items() if y['foreign']]
 
-    def processValidator(self, fltr, key, value, props_copy):
+    def processValidator(self, fltr, key, value, props_copy, **kwargs):
         """
         This method processes a given process-list (fltr) for a given property (prop).
         And return TRUE if the value matches the validator set and FALSE if
@@ -1054,7 +1075,7 @@ class Object(object):
 
                 # Process condition and keep results
                 fname = type(curline['condition']).__name__
-                v, errors = (curline['condition']).process(*args)
+                v, errors = (curline['condition']).process(*args, **kwargs)
 
                 # Log what happend!
                 self.log.debug("  %s: [Filter]  %s(%s) called and returned: %s" % (
@@ -1328,6 +1349,7 @@ class Object(object):
         return res
 
     def update_dn_refs(self, new_dn):
+        """ updates references to a changed DN """
         for ref_attr, refs in self.get_dn_references():
             for ref in refs:
                 c_obj = ObjectProxy(ref)

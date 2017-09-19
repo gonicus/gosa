@@ -12,7 +12,7 @@
             <ExtensionCondition extension="GroupOfNames" properties="member">
                 <Condition>
                     <Name>HasMemberOfType</Name>
-                    <Param>PosixUser</Param>
+                    <Param>User</Param>
                     <Param>member</Param>
                     <Param>dn</Param>
                 </Condition>

@@ -68,6 +68,24 @@
             <Attribute>dn</Attribute>
           </Reference>
         </References>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>FilterOwnDn</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>AddOwnDnIfEmpty</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
       </Attribute>
       <Attribute>
         <Name>businessCategory</Name>

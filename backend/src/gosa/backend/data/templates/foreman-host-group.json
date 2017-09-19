@@ -66,7 +66,7 @@
         "properties": {
           "text": "tr('Name')"
         },
-        "buddyModelPath": "cn",
+        "buddyModelPath": "name",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
           "column": 0,
@@ -77,99 +77,11 @@
         "properties": {
           "tabIndex": 2
         },
-        "modelPath": "cn",
+        "modelPath": "name",
         "class": "gosa.ui.widgets.QLineEditWidget",
         "addOptions": {
           "column": 1,
           "row": 1
-        }
-      },
-      {
-        "properties": {
-          "text": "tr('Description')"
-        },
-        "buddyModelPath": "description",
-        "class": "gosa.ui.widgets.QLabelWidget",
-        "addOptions": {
-          "column": 0,
-          "row": 2
-        }
-      },
-      {
-        "properties": {
-          "tabIndex": 3
-        },
-        "modelPath": "description",
-        "class": "gosa.ui.widgets.QLineEditWidget",
-        "addOptions": {
-          "column": 1,
-          "row": 2
-        }
-      },
-      {
-        "properties": {
-          "text": "businessCategory"
-        },
-        "buddyModelPath": "businessCategory",
-        "class": "gosa.ui.widgets.QLabelWidget",
-        "addOptions": {
-          "column": 0,
-          "row": 3
-        }
-      },
-      {
-        "properties": {
-          "tabIndex": 4
-        },
-        "modelPath": "businessCategory",
-        "class": "gosa.ui.widgets.QLineEditWidget",
-        "addOptions": {
-          "column": 1,
-          "row": 3
-        }
-      },
-      {
-        "properties": {
-          "text": "o"
-        },
-        "buddyModelPath": "o",
-        "class": "gosa.ui.widgets.QLabelWidget",
-        "addOptions": {
-          "column": 0,
-          "row": 4
-        }
-      },
-      {
-        "properties": {
-          "tabIndex": 5
-        },
-        "modelPath": "o",
-        "class": "gosa.ui.widgets.QLineEditWidget",
-        "addOptions": {
-          "column": 1,
-          "row": 4
-        }
-      },
-      {
-        "properties": {
-          "text": "ou"
-        },
-        "buddyModelPath": "ou",
-        "class": "gosa.ui.widgets.QLabelWidget",
-        "addOptions": {
-          "column": 0,
-          "row": 5
-        }
-      },
-      {
-        "properties": {
-          "tabIndex": 6
-        },
-        "modelPath": "ou",
-        "class": "gosa.ui.widgets.QLineEditWidget",
-        "addOptions": {
-          "column": 1,
-          "row": 5
         }
       },
       {
@@ -179,19 +91,19 @@
         "buddyModelPath": "domain_id",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
-          "column": 2,
-          "row": 0
+          "column": 0,
+          "row": 2
         }
       },
       {
         "class": "gosa.ui.widgets.QComboBoxWidget",
         "modelPath": "domain_id",
         "addOptions": {
-          "column": 3,
-          "row": 0
+          "column": 1,
+          "row": 2
         },
         "properties": {
-          "tabIndex": 7,
+          "tabIndex": 3,
           "sortBy": "value"
         }
       },
@@ -202,19 +114,19 @@
         "buddyModelPath": "operatingsystem_id",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
-          "column": 2,
-          "row": 1
+          "column": 0,
+          "row": 3
         }
       },
       {
         "class": "gosa.ui.widgets.QComboBoxWidget",
         "modelPath": "operatingsystem_id",
         "addOptions": {
-          "column": 3,
-          "row": 1
+          "column": 1,
+          "row": 3
         },
         "properties": {
-          "tabIndex": 8,
+          "tabIndex": 4,
           "sortBy": "value"
         }
       },
@@ -225,19 +137,19 @@
         "buddyModelPath": "architecture_id",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
-          "column": 2,
-          "row": 2
+          "column": 0,
+          "row": 4
         }
       },
       {
         "class": "gosa.ui.widgets.QComboBoxWidget",
         "modelPath": "architecture_id",
         "addOptions": {
-          "column": 3,
-          "row": 2
+          "column": 1,
+          "row": 4
         },
         "properties": {
-          "tabIndex": 9,
+          "tabIndex": 5,
           "sortBy": "value"
         }
       },
@@ -248,19 +160,19 @@
         "buddyModelPath": "ptable_id",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
-          "column": 2,
-          "row": 3
+          "column": 0,
+          "row": 5
         }
       },
       {
         "class": "gosa.ui.widgets.QComboBoxWidget",
         "modelPath": "ptable_id",
         "addOptions": {
-          "column": 3,
-          "row": 3
+          "column": 1,
+          "row": 5
         },
         "properties": {
-          "tabIndex": 10,
+          "tabIndex": 6,
           "sortBy": "value"
         }
       },
@@ -271,19 +183,19 @@
         "buddyModelPath": "pxe_loader",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
-          "column": 2,
-          "row": 4
+          "column": 0,
+          "row": 6
         }
       },
       {
         "class": "gosa.ui.widgets.QComboBoxWidget",
         "modelPath": "pxe_loader",
         "addOptions": {
-          "column": 3,
-          "row": 4
+          "column": 1,
+          "row": 6
         },
         "properties": {
-          "tabIndex": 11
+          "tabIndex": 7
         }
       },
       {
@@ -293,19 +205,19 @@
         "buddyModelPath": "medium_id",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
-          "column": 2,
-          "row": 5
+          "column": 0,
+          "row": 7
         }
       },
       {
         "class": "gosa.ui.widgets.QComboBoxWidget",
         "modelPath": "medium_id",
         "addOptions": {
-          "column": 3,
-          "row": 5
+          "column": 1,
+          "row": 7
         },
         "properties": {
-          "tabIndex": 12,
+          "tabIndex": 8,
           "sortBy": "value"
         }
       },
@@ -316,51 +228,23 @@
         "buddyModelPath": "root_pass",
         "class": "gosa.ui.widgets.QLabelWidget",
         "addOptions": {
-          "column": 2,
-          "row": 6
+          "column": 0,
+          "row": 8
         }
       },
       {
         "class": "gosa.ui.widgets.QLineEditWidget",
         "modelPath": "root_pass",
         "addOptions": {
-          "column": 3,
-          "row": 6
+          "column": 1,
+          "row": 8
         },
         "properties": {
-          "tabIndex": 13,
+          "tabIndex": 9,
           "echoMode": "password"
         }
       }
-      ]},
-    {
-      "class": "gosa.ui.widgets.GroupBox",
-      "layout": "qx.ui.layout.Canvas",
-      "properties": {
-        "legend": "tr('Members')"
-      },
-      "addOptions": {
-        "flex": 1
-      },
-      "children": [{
-        "class": "gosa.ui.widgets.QTableWidgetWidget",
-        "modelPath": "member",
-        "addOptions": {
-          "edge": 0
-        },
-        "properties": {
-          "multivalue": true,
-          "height" : 350
-        },
-        "extensions": {
-          "guiProperties": {
-            "editTitle": "tr('Add members')",
-            "columns": {
-              "cn": "tr('Hostname')"
-            }
-          }
-        }
-      }]
+      ]
     }
   ]
 }

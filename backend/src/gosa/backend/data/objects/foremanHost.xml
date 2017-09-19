@@ -11,7 +11,7 @@
       <Backend objectClasses="foremanHost">LDAP</Backend>
       <Backend type="hosts" _uuidAttribute="cn" _uuidSourceAttribute="name" mapping="mac:macAddress,ip:ipHostNumber"
                needs="status">Foreman</Backend>
-      <Backend groupMembership="ForemanHostGroup:foremanGroupId,member=dn">ObjectHandler</Backend>
+      <Backend groupMembership="GroupOfNames:dn,member=dn">ObjectHandler</Backend>
     </BackendParameters>
     <Backend>LDAP</Backend>
     <BaseObject>false</BaseObject>
@@ -24,9 +24,6 @@
       </ForeignAttribute>
       <ForeignAttribute>
           <Name>macAddress</Name>
-      </ForeignAttribute>
-      <ForeignAttribute>
-        <Name>macAddress</Name>
       </ForeignAttribute>
       <Attribute>
         <Name>status</Name>
@@ -58,12 +55,15 @@
           <Condition>
             <Name>ObjectWithPropertyExists</Name>
             <Param>ForemanHostGroup</Param>
-            <Param>foremanGroupId</Param>
+            <Param>dn</Param>
           </Condition>
         </Validators>
-        <DependsOn>
-          <Attribute>hostgroup_id</Attribute>
-        </DependsOn>
+        <UpdateHooks>
+          <UpdateHook>
+            <Object>ForemanHostGroup</Object>
+            <Attribute>member</Attribute>
+          </UpdateHook>
+        </UpdateHooks>
       </Attribute>
       <Attribute>
         <Name>build_status</Name>
@@ -103,6 +103,9 @@
         <Type>String</Type>
         <BackendType>Integer</BackendType>
         <Backend>Foreman</Backend>
+        <DependsOn>
+          <Attribute>groupMembership</Attribute>
+        </DependsOn>
         <InFilter>
           <FilterChain>
             <FilterEntry>
@@ -112,7 +115,10 @@
             </FilterEntry>
             <FilterEntry>
               <Filter>
-                <Name>CopyValueTo</Name>
+                <Name>CopyForeignValueTo</Name>
+                <Param>ForemanHostGroup</Param>
+                <Param>foremanGroupId</Param>
+                <Param>dn</Param>
                 <Param>groupMembership</Param>
               </Filter>
             </FilterEntry>
@@ -122,7 +128,10 @@
           <FilterChain>
             <FilterEntry>
               <Filter>
-                <Name>CopyValueFrom</Name>
+                <Name>CopyForeignValueFrom</Name>
+                <Param>ForemanHostGroup</Param>
+                <Param>foremanGroupId</Param>
+                <Param>dn</Param>
                 <Param>groupMembership</Param>
               </Filter>
             </FilterEntry>

@@ -96,10 +96,8 @@ class CopyForeignValueTo(ElementFilter):
                 res = index.search({"or_": {"_type": object_type, 'extension': object_type}, id_attribute: val}, {content_attribute: 1})
                 if len(res):
                     if isinstance(res[0][content_attribute], list):
-                        print("Extending %s" % res[0][content_attribute])
                         valDict[target_attribute]['value'].extend(res[0][content_attribute])
                     else:
-                        print("Appending %s" % res[0][content_attribute])
                         valDict[target_attribute]['value'].append(res[0][content_attribute])
 
         return key, valDict
