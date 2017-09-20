@@ -125,7 +125,7 @@
       "disk": null,
       "installed_at": null,
       "model_id": 1,
-      "hostgroup_id": null,
+      "hostgroup_id": 2,
       "owner_id": null,
       "owner_type": null,
       "enabled": true,
@@ -169,8 +169,8 @@
         "id": 1,
         "url": "https://smitty.intranet.gonicus.de:8443"
       },
-      "hostgroup_name": null,
-      "hostgroup_title": null
+      "hostgroup_name": "VM",
+      "hostgroup_title": "VM"
     }
   ]
 }

@@ -71,8 +71,7 @@ class Foreman(Plugin):
         if self.env.config.get("foreman.host") is None:
             self.log.warning("no foreman host configured")
         else:
-            self.log.info("initializing foreman plugin")
-            self.client = ForemanClient()
+            self.init_client(self.env.config.get("foreman.host"))
 
             host = socket.getfqdn() if self.env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] else self.env.config.get("http.host", default="localhost")
             ssl = self.env.config.get('http.ssl', default=None)

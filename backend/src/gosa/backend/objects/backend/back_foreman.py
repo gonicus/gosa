@@ -247,7 +247,7 @@ class Foreman(ObjectBackend):
         for name, settings in data.items():
             if len(settings["value"]):
                 payload[type][name] = settings["value"][0]
-            elif len(settings["orig"]):
+            else:
                 # unset value
                 payload[type][name] = None
 

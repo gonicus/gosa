@@ -210,15 +210,12 @@ setup(
         stringtojson = gosa.backend.objects.filter.strings:StringToJson
         jsontostring = gosa.backend.objects.filter.strings:JsonToString
         foremanstatusin = gosa.backend.plugins.foreman.filter:ForemanStatusIn
-        foremanstatusout = gosa.backend.plugins.foreman.filter:ForemanStatusOut
         GetMakeModelFromPPD = gosa.backend.plugins.cups.filter:GetMakeModelFromPPD
         DeleteOldFile = gosa.backend.plugins.cups.filter:DeleteOldFile
         MarshalLogonScript = gosa.backend.plugins.user.filters:MarshalLogonScript
         UnmarshalLogonScript = gosa.backend.plugins.user.filters:UnmarshalLogonScript
         MarshalFlags = gosa.backend.objects.filter.flags:MarshalFlags
         UnmarshalFlags = gosa.backend.objects.filter.flags:UnmarshalFlags
-        CopyDNTo = gosa.backend.plugins.user.filters:CopyDNTo
-        CopyDNFrom = gosa.backend.plugins.user.filters:CopyDNFrom
         FilterOwnDn = gosa.backend.objects.filter.basic:FilterOwnDn
         AddOwnDnIfEmpty = gosa.backend.objects.filter.basic:AddOwnDnIfEmpty
 

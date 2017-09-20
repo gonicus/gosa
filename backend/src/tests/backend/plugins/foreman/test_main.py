@@ -24,7 +24,8 @@ from gosa.backend.plugins.webhook.registry import WebhookReceiver
 from tests.GosaTestCase import GosaTestCase
 from gosa.backend.plugins.foreman.main import Foreman as ForemanPlugin
 from gosa.backend.objects.backend.back_foreman import *
-import ldap
+from gosa.backend.objects.backend.registry import ObjectBackendRegistry
+import time
 
 
 class MockResponse:
@@ -55,11 +56,13 @@ class MockForeman:
         self.log = logging.getLogger(__name__)
 
     def __respond(self, path):
-        rel = path[path.index("/api/")+5:]
+        try:
+            rel = path[path.index("/api/")+5:]
+        except ValueError as e:
+            print(str(e))
         if rel[0:3] == "v2/":
             rel = rel[3:]
         file = os.path.join(self.base_dir, "%s.json" % rel)
-        print("requested: %s" % file)
         if os.path.exists(file):
             with open(file) as f:
                 return MockResponse(f.read(), 200)
@@ -73,6 +76,7 @@ class MockForeman:
         return MockResponse({}, 200)
 
     def put(self, url, **kwargs):
+        print("PUT: %s" % url)
         return MockResponse({}, 200)
 
     def delete(self, url, **kwargs):
@@ -192,12 +196,20 @@ class ForemanSyncTestCase(GosaTestCase):
         logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
         super(ForemanSyncTestCase, self).setUp()
         self.foreman = ForemanPlugin()
+        self.foreman.init_client("http://localhost:8000/api/v2")
         self.foreman.serve()
         # just use a fake url as the requests are mocked anyway
-        self.foreman.client = ForemanClient("http://localhost:8000/api/v2")
         self.foreman.create_container()
+        # activate backend by setting the host
+        backend = ObjectBackendRegistry.getBackend("Foreman")
+        backend.client.foreman_host = "http://localhost:8000/api/v2"
 
     def tearDown(self):
+        backend = ObjectBackendRegistry.getBackend("Foreman")
+        backend.client.foreman_host = None
+        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.INFO)
+        logging.getLogger("gosa.backend.objects").setLevel(logging.INFO)
+
         # remove them all
         with mock.patch("gosa.backend.objects.backend.back_foreman.requests.delete") as m_del:
             m_del.return_value = MockResponse({}, 200)
@@ -211,11 +223,10 @@ class ForemanSyncTestCase(GosaTestCase):
                     self.log.error("%s" % e)
                     pass
 
-        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.INFO)
-        logging.getLogger("gosa.backend.objects").setLevel(logging.INFO)
         super(ForemanSyncTestCase, self).tearDown()
 
     def test_sync_type(self, m_get, m_del, m_put, m_post):
+
         mocked_foreman = MockForeman()
         m_get.side_effect = mocked_foreman.get
         m_del.side_effect = mocked_foreman.delete
@@ -253,17 +264,20 @@ class ForemanSyncTestCase(GosaTestCase):
         self.foreman.sync_type("ForemanHostGroup")
         logging.getLogger("gosa.backend.objects.index").info("waiting for index update")
         logging.getLogger("gosa.backend.objects.index").info("checking index")
+        res = index.search(hostgroup_query, {'dn': 1})
+        self.dns_to_delete.extend([x['dn'] for x in res])
+        assert len(res) == 3
         res = index.search(host_query, {'dn': 1})
         assert len(res) == 0
-        res = index.search(hostgroup_query, {'dn': 1})
-        assert len(res) == 3
         res = index.search(discovered_host_query, {'dn': 1})
         assert len(res) == 0
 
         self.foreman.sync_type("ForemanHost")
         res = index.search(host_query, {'dn': 1})
+        self.dns_to_delete = [x['dn'] for x in res]
         assert len(res) == 2
         res = index.search(hostgroup_query, {'dn': 1})
+        self.dns_to_delete.extend([x['dn'] for x in res])
         assert len(res) == 3
         res = index.search(discovered_host_query, {'dn': 1})
         assert len(res) == 0
@@ -271,15 +285,63 @@ class ForemanSyncTestCase(GosaTestCase):
         self.foreman.sync_type("ForemanHost", "discovered_hosts")
         res = index.search(host_query, {'dn': 1})
         assert len(res) == 2
-        self.dns_to_delete = [x['dn'] for x in res]
+        host_dns = [x['dn'] for x in res]
+        self.dns_to_delete = host_dns
 
         res = index.search(hostgroup_query, {'dn': 1})
         assert len(res) == 3
-        self.dns_to_delete.extend([x['dn'] for x in res])
+        # delete the groups first
+        self.dns_to_delete = [x['dn'] for x in res] + self.dns_to_delete
 
         res = index.search(discovered_host_query, {'dn': 1})
         assert len(res) == 1
         self.dns_to_delete.extend([x['dn'] for x in res])
+
+        # testing relationships: delete host from group
+        group = ObjectProxy("cn=VM,ou=groups,dc=example,dc=net")
+        assert len(group.member) == 2
+        group.member = host_dns[0:1]
+        group.commit()
+
+        time.sleep(0.1)
+
+        # check if the change has been send to foreman
+        assert m_put.called is True
+        args, kwargs = m_put.call_args
+        data = loads(kwargs["data"])
+        assert "hostgroup_id" in data["host"]
+        assert data["host"]["hostgroup_id"] is None
+
+        m_put.reset_mock()
+
+        # add it back
+        group = ObjectProxy("cn=VM,ou=groups,dc=example,dc=net")
+        assert len(group.member) == 1
+        group.member.append(host_dns[1])
+        group.commit()
+
+        # as the mocked foreman backend still sends the original hostgroup_id, there is no change here
+        # and therefore nothing is changed to the backend
+
+        assert m_put.called is False
+        # args, kwargs = m_put.call_args
+        # data = loads(kwargs["data"])
+        # assert "hostgroup_id" in data["host"]
+        # assert data["host"]["hostgroup_id"] == "2"
+
+        # now delete from the host side
+        host = ObjectProxy(host_dns[1])
+        host.groupMembership = None
+        host.commit()
+
+        time.sleep(0.1)
+
+        assert m_put.called is True
+        args, kwargs = m_put.call_args
+        data = loads(kwargs["data"])
+        assert "hostgroup_id" in data["host"]
+        assert data["host"]["name"] == host.cn
+        assert data["host"]["hostgroup_id"] is None
 
 
 class ForemanClientTestCase(TestCase):

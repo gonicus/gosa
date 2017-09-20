@@ -6,14 +6,14 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
+import base64
 from unittest import mock, TestCase
 import pytest
 import shutil
 import datetime
 import os
 from gosa.backend.plugins.user.filters import GenerateDisplayName, ImageProcessor, LoadDisplayNameState, OperationalError, Environment, \
-    ElementFilterException
+    ElementFilterException, MarshalLogonScript, UnmarshalLogonScript
 from gosa.common.components.jsonrpc_utils import Binary
 
 
@@ -143,3 +143,61 @@ class UserFiltersTestCase(TestCase):
         testDict["autoDisplayName"]["value"] = [True]
         (key, valDict) = filter.process(None, None, testDict.copy())
         assert valDict['displayName']['value'][0] == "Givenname Surname"
+
+    def test_MarshalLogonScript(self):
+        filter = MarshalLogonScript(None)
+
+        testDict = {
+            "logonScript": {
+                "value": []
+            },
+            "script": {
+                "value": ["some script"]
+            },
+            "scriptName": {
+                "value": ["test"]
+            },
+            "scriptUserEditable": {
+                "value": [True]
+            },
+            "scriptLast": {
+                "value": [True]
+            },
+            "scriptPriority": {
+                "value": [1]
+            }
+        }
+
+        (key, valDict) = filter.process(None, "logonScript", testDict.copy())
+        assert valDict['logonScript']['value'][0] == "test|OL|1|%s" % base64.b64encode("some script".encode("utf-8")).decode()
+
+    def test_UnmarshalLogonScript(self):
+        filter = UnmarshalLogonScript(None)
+
+        testDict = {
+            "logonScript": {
+                "value": ["test|OL|1|%s" % base64.b64encode("some script".encode("utf-8")).decode() ]
+            },
+            "script": {
+                "value": []
+            },
+            "scriptName": {
+                "value": []
+            },
+            "scriptUserEditable": {
+                "value": []
+            },
+            "scriptLast": {
+                "value": []
+            },
+            "scriptPriority": {
+                "value": []
+            }
+        }
+
+        (key, valDict) = filter.process(None, "logonScript", testDict.copy())
+        assert valDict['script']['value'][0] == "some script"
+        assert valDict['scriptName']['value'][0] == "test"
+        assert valDict['scriptUserEditable']['value'][0] is True
+        assert valDict['scriptLast']['value'][0] is True
+        assert valDict['scriptPriority']['value'][0] == 1

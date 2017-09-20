@@ -6,6 +6,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import logging
 
 from gosa.backend.objects.filter import ElementFilter
 from gosa.backend.objects.factory import ObjectFactory
@@ -91,10 +92,12 @@ class CopyForeignValueTo(ElementFilter):
     def process(self, obj, key, valDict, object_type, id_attribute, content_attribute, target_attribute):
         index = PluginRegistry.getInstance("ObjectIndex")
         valDict[target_attribute]['value'] = []
+        log = logging.getLogger(__name__)
         if type(valDict[key]['value']) is not None and len(valDict[key]['value']):
             for val in valDict[key]['value']:
                 res = index.search({"or_": {"_type": object_type, 'extension': object_type}, id_attribute: val}, {content_attribute: 1})
                 if len(res):
+                    log.debug("adding %s to %s" % (res[0][content_attribute], target_attribute))
                     if isinstance(res[0][content_attribute], list):
                         valDict[target_attribute]['value'].extend(res[0][content_attribute])
                     else:
@@ -129,10 +132,12 @@ class CopyForeignValueFrom(ElementFilter):
     def process(self, obj, key, valDict, object_type, id_attribute, source_content, source_attribute):
         index = PluginRegistry.getInstance("ObjectIndex")
         valDict[key]['value'] = []
+        log = logging.getLogger(__name__)
         if type(valDict[source_attribute]['value']) is not None and len(valDict[source_attribute]['value']):
             for val in valDict[source_attribute]['value']:
                 res = index.search({"or_": {"_type": object_type, 'extension': object_type}, source_content: val}, {id_attribute: 1})
                 if len(res) and res[0][id_attribute] is not None:
+                    log.debug("adding %s from %s to %s" % (res[0][id_attribute], source_attribute, key))
                     if isinstance(res[0][id_attribute], list):
                         valDict[key]['value'].extend(res[0][id_attribute])
                     else:

@@ -58,3 +58,13 @@ class StringComparatorTests(unittest.TestCase):
         (result, errors) = comp.process(None, None, ["test", "test123"], 5, 15)
         assert result == False
         assert len(errors) == 1
+
+    def test_isValidURL(self):
+        comp = IsValidURL()
+        (result, errors) = comp.process(None, None, ["http://www.test.de", "test"])
+        assert result is False
+        assert len(errors) == 1
+
+        (result, errors) = comp.process(None, None, ["http://www.test.de", "https://test1.de"])
+        assert result is True
+        assert len(errors) == 0

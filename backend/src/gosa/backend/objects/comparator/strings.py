@@ -73,7 +73,7 @@ class IsValidURL(ElementComparator):
     Object property validator which checks if a given property is a valid URL.
     """
 
-    def process(self, all_props, key, value, match):
+    def process(self, all_props, key, value):
 
         errors = []
 
