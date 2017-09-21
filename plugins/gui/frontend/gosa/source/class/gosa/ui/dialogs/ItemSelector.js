@@ -18,7 +18,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
   extend: gosa.ui.dialogs.Dialog,
 
-  construct: function(title, current_values, extension, attribute, column_keys, column_names, single, modelFilter, sortByColumn) {
+  construct: function(title, current_values, extension, attribute, column_keys, column_names, single, modelFilter, sortByColumn, mode) {
     this.base(arguments);
     this.setCaption(title);
     this.setResizable(true, true, true, true);
@@ -30,8 +30,10 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
     this.__initWidgets(column_names, column_keys, extension, attribute);
 
+    this._detailsRpc = mode || "searchForObjectDetails";
+
     // init table model
-    gosa.io.Rpc.getInstance().cA("searchForObjectDetails", extension, attribute, "", column_keys, current_values)
+    gosa.io.Rpc.getInstance().cA(this._detailsRpc, extension, attribute, "", column_keys, current_values)
       .then(function(result) {
         if (modelFilter) {
           result = modelFilter.filter(result);
@@ -52,6 +54,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     __tableModel : null,
     __isSingleSelection : false,
     _sortByColumn: null,
+    _detailsRpc: null,
 
     __initWidgets : function(column_names, column_keys, extension, attribute) {
       this.__tableModel = new qx.ui.table.model.Simple();
@@ -97,7 +100,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     __onOk : function() {
         var list = [];
         this.__table.getSelectionModel().iterateSelection(function(index) {
-            list.push(this.__tableModel.getRowData(index)['__identifier__']);
+            list.push(this._detailsRpc === "searchForObjectDetails" ? this.__tableModel.getRowData(index)['__identifier__'] : this.__tableModel.getRowData(index));
           }, this);
         this.fireDataEvent("selected", list);
         this.close();

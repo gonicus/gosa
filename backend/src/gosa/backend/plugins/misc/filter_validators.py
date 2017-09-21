@@ -165,21 +165,42 @@ class HasMemberOfType(ElementComparator):
             index = PluginRegistry.getInstance("ObjectIndex")
             res = index.search({"or_": {"_type": type, "extension": type}, attribute_content: {"in_": value}},
                                {"dn": 1})
-            if len(res) == 0:
-                if len(index.currently_in_creation) > 0:
-                    # check if the referenced object we are looking for is currently being created
-                    found_types = [x.__class__.__name__ for x in index.currently_in_creation if getattr(x, attribute_content) in value]
-                    if type in found_types:
-                        return True, errors
+            if len(res) > 0:
+                return len(errors) == 0, errors
 
-                errors.append(dict(index=0,
-                                   detail=N_("Object has no member of type '%(type)s'."),
-                                   type=type))
+            if len(index.currently_in_creation) > 0:
+                # check if the referenced object we are looking for is currently being created
+                found_types = [x.__class__.__name__ for x in index.currently_in_creation if getattr(x, attribute_content) in value]
+                if type in found_types:
+                    return True, errors
+
+            if self.traverse_groups(value, type, attribute, attribute_content):
+                # found type in subgroup member
+                return True, errors
+
+            errors.append(dict(index=0,
+                               detail=N_("Object has no member of type '%(type)s'."),
+                               type=type))
 
         return len(errors) == 0, errors
 
     def get_gui_information(self, all_props, key, value, type, attribute, attribute_content):
         return {"HasMemberOfType": {"listenToProperty": attribute, "type": type, "propertyContent": attribute_content}}
+
+    def traverse_groups(self, value, type, attribute, attribute_content, group_type="GroupOfNames"):
+        """ do a BFS search in sub-groups for object type """
+        index = PluginRegistry.getInstance("ObjectIndex")
+        # check if the type can by found in a group
+        res = index.search({"_type": group_type, attribute_content: {"in_": value}},
+                           {attribute: 1})
+        sub_values = [x[attribute] for x in res]
+        res = index.search({"or_": {"_type": type, "extension": type}, attribute_content: {"in_": sub_values}},
+                           {"dn": 1})
+
+        if len(res) == 0 and len(sub_values):
+            return self.traverse_groups(sub_values, type, attribute, attribute_content, group_type)
+        else:
+            return True
 
 
 class CheckExtensionConditions(ElementComparator):

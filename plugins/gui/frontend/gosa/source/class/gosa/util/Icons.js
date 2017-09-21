@@ -37,7 +37,7 @@ qx.Class.define("gosa.util.Icons", {
       'c': '@Ligature/add',
       'r': '@Ligature/view',
       'w': '@Ligature/write',
-      'd': '@Ligature/delete'
+      'd': '@Ligature/trash'
     },
 
     getIconByAction: function(action) {

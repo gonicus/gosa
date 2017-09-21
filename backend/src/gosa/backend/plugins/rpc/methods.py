@@ -181,7 +181,7 @@ class RPCMethods(Plugin):
         else:
             return None
 
-    @Command(needsUser=True, __help__=N_("Search for object information"))
+    @Command(needsUser=True, __help__=N_("Search for related object information"))
     def searchForObjectDetails(self, user, extension, attribute, search_filter, attributes, skip_values):
         """
         Search selectable items valid for the attribute "extension.attribute".
@@ -198,9 +198,13 @@ class RPCMethods(Plugin):
 
         # Collection basic information
         object_type, object_attribute, _, _ = be_data[attribute]
+        return self.searchObjects(user, object_type, object_attribute, search_filter, attributes, skip_values)
+
+    @Command(needsUser=True, __help__=N_("Search for object information"))
+    def searchObjects(self, user, object_type, object_attribute, search_filter, attributes, skip_values):
 
         # Create a list of attributes that will be requested
-        if object_attribute not in attributes:
+        if object_attribute is not None and object_attribute not in attributes:
             attributes.append(object_attribute)
         attrs = dict([(x, 1) for x in attributes])
         if "dn" not in attrs:
@@ -208,7 +212,10 @@ class RPCMethods(Plugin):
 
         # Start the query and format the result
         index = PluginRegistry.getInstance("ObjectIndex")
-        query = {object_attribute: '%{}%'.format(search_filter) if len(search_filter) > 0 else '%'}
+        query = {}
+        if object_attribute is not None:
+            query[object_attribute] = '%{}%'.format(search_filter) if len(search_filter) > 0 else '%'
+
         if object_type != "*":
             query["or_"] = {
                 '_type': object_type,
@@ -217,10 +224,10 @@ class RPCMethods(Plugin):
         search_result = index.search(query, attrs)
 
         if not search_result and object_type != "*":
-            search_result = index.search({
-                '_type': object_type,
-                object_attribute: '%{}%'.format(search_filter) if len(search_filter) > 0 else '%'
-            }, attrs)
+            # re-search without join to extension table
+            del query["or_"]
+            query["_type"] = object_type
+            search_result = index.search(query, attrs)
 
         result = []
 
@@ -316,7 +323,7 @@ class RPCMethods(Plugin):
 
         query = {oattr: names}
         if otype != "*":
-            query["or_"] = {'_type': otype, '_extensions': otype}
+            query["or_"] = {'_type': otype, 'extension': otype}
         res = index.search(query, attrs)
 
         result = {}

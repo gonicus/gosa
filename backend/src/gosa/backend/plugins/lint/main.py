@@ -18,6 +18,7 @@ import sh
 import logging
 from pylint.lint import Run
 from gosa.backend.objects.comparator import ElementComparator
+from gosa.common.utils import N_
 
 
 class ScriptLint(ElementComparator):
@@ -26,11 +27,16 @@ class ScriptLint(ElementComparator):
     """
 
     def process(self, all_props, key, value):
+        errors = []
         if value is None or len(value) == 0:
             return True, []
 
         for index, val in enumerate(value):
-            shebang = val.split("\n")[0]
+            lines = val.split("\n")
+            if len(lines) == 0:
+                return len(errors) == 0, errors
+
+            shebang = lines[0]
             m = re.search("#!\/(usr\/)?bin\/([^\s]+)\s?(.+)?", shebang)
             if m:
                 binary = m.group(3) if m.group(2) == "env" else m.group(2)
@@ -43,6 +49,13 @@ class ScriptLint(ElementComparator):
                     return linter.process(all_props, key, [val], idx=index)
                 else:
                     logging.getLogger(__name__).warning("no linter found for %s" % binary)
+            else:
+                errors.append(dict(
+                    index=index,
+                    detail=N_("invalid shebang line")
+                ))
+
+        return len(errors) == 0, errors
 
 
 class ExecLint(ElementComparator):
