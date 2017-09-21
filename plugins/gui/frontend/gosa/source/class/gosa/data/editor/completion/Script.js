@@ -11,12 +11,23 @@
  */
 
 /**
- * Completion provider for Application scripts
+ * Completion provider for shell scripts. Only provides completion for shebang line
  *
  * @ignore(monaco.*)
  */
-qx.Class.define("gosa.data.editor.completion.Application", {
-  extend: gosa.data.editor.completion.Script,
+qx.Class.define("gosa.data.editor.completion.Script", {
+  extend: qx.core.Object,
+  implement: gosa.data.editor.completion.IProvider,
+
+  /*
+  *****************************************************************************
+     CONSTRUCTOR
+  *****************************************************************************
+  */
+  construct : function(object) {
+    this.base(arguments);
+    this._object = object;
+  },
 
   /*
   *****************************************************************************
@@ -24,30 +35,43 @@ qx.Class.define("gosa.data.editor.completion.Application", {
   *****************************************************************************
   */
   members : {
+    _object: null,
+    _language: null,
 
-    // overridden
     getProvider: function(lang) {
       // as monaco is currently not supporting bash those scripts were treated as plaintext
       switch (lang) {
         case "plaintext":
         case "bash":
           return {
-            triggerCharacters: ["$", "(", "#"],
+            triggerCharacters: ["#"],
             provideCompletionItems: this.provideCompletionItems.bind(this)
           };
 
         case "python":
           return {
-            triggerCharacters: ["'", '"', "#"],
+            triggerCharacters: ["#"],
             provideCompletionItems: this.provideCompletionItems.bind(this)
           };
       }
     },
 
-    // overridden
+    provideShebang: function(res) {
+      res.push({
+        label : "python",
+        insertText : "!/usr/bin/env python\n\n",
+        kind : monaco.languages.CompletionItemKind.Text
+      });
+      res.push({
+        label : "bash",
+        insertText : "!/bin/bash\n\n",
+        kind : monaco.languages.CompletionItemKind.Text
+      });
+      return res;
+    },
+
     provideCompletionItems: function(model, position) {
       var res = [];
-      var language = model.getModeId();
       var textUntilPosition = model.getValueInRange({
         startLineNumber : position.lineNumber,
         startColumn : 1,
@@ -60,35 +84,6 @@ qx.Class.define("gosa.data.editor.completion.Application", {
         // shebang suggestion
         return this.provideShebang(res);
       }
-
-      this._object.get("gosaApplicationParameter").forEach(function(entry) {
-        var parts = entry.split(":");
-        var variableName = parts[0];
-        switch (language) {
-          case "plaintext":
-          case "bash":
-            if (!lastWord.startsWith("$")) {
-              variableName = "$"+variableName;
-            }
-            if (lastWord.startsWith("$(")) {
-              variableName += ")";
-            }
-            break;
-
-          case "python":
-            if (lastWord.indexOf("os.environ") === -1) {
-              variableName = "os.environ['" + parts[0] + "']";
-            }
-            break;
-        }
-
-        res.push({
-          label : parts[0],
-          insertText : variableName,
-          kind : monaco.languages.CompletionItemKind.Property,
-          detail : parts[1]
-        })
-      });
       return res;
     }
   },

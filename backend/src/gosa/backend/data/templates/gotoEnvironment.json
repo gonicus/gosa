@@ -203,6 +203,9 @@
                       "guiProperties": {
                         "minimap": {
                           "enabled": false
+                        },
+                        "completionProviders": {
+                          "gosa.data.editor.completion.Script": ["bash", "python", "plaintext"]
                         }
                       }
                     }

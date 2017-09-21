@@ -206,7 +206,7 @@ qx.Class.define("gosa.ui.editor.Monaco", {
     },
 
     __checkContentLanguage: function(content) {
-      var firstLine = content || this.getEditor().getValue().split("\n")[0];
+      var firstLine = content || this.getEditor().getModel().getLineContent(1);
       monaco.editor.setModelLanguage(this.getEditor().getModel(), this.__detectLanguage(firstLine));
     },
 
@@ -237,6 +237,7 @@ qx.Class.define("gosa.ui.editor.Monaco", {
             return "python";
           default:
             this.__currentLanguageVersion = null;
+            this.__currentLanguage = null;
             return binary;
         }
       } else {
