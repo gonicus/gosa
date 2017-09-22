@@ -402,6 +402,21 @@ class JSONRPCObjectMapper(Plugin):
         obj.remove()
         return True
 
+    @Command(needsUser=True, needsSession=True, __help__=N_("Instantiate object identified by a combination of attribute/type"))
+    def openObjectByType(self, user, session_id, key, value, type, *args, **kwargs):
+        index = PluginRegistry.getInstance("ObjectIndex")
+        res = index.search({"or_": {"_type": type, "extension": type}, key: value}, {"dn": 1})
+        if len(res) == 0:
+            # might be not extended
+            res = index.search({"_type": type, key: value}, {"dn": 1})
+
+        if len(res) == 0:
+            raise Exception(C.make_error("OBJECT_NOT_FOUND", object=args[0],
+                                         id="%s(%s='%s')" % (type, key, value)))
+        args = list(args)
+        args.insert(0, res[0]["dn"])
+        return self.openObject(user, session_id, "object", *tuple(args), **kwargs)
+
     @Command(needsUser=True, needsSession=True, __help__=N_("Instantiate object and place it on stack"))
     def openObject(self, user, session_id, oid, *args, **kwargs):
         """

@@ -44,6 +44,12 @@
                 <Type>UnicodeString</Type>
                 <MultiValue>false</MultiValue>
                 <Mandatory>false</Mandatory>
+                <References>
+                    <Reference>
+                        <Object>GosaApplication</Object>
+                        <Attribute>cn</Attribute>
+                    </Reference>
+                </References>
             </Attribute>
         </Attributes>
         <Find>

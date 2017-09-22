@@ -26,11 +26,28 @@ qx.Class.define("gosa.ui.form.renderer.Single", {
     showDots: {
       check: "Boolean",
       init: true
-    }
+    },
 
+    controller: {
+      check: "qx.data.controller.Form",
+      nullable: true
+    },
+
+    headerAlign: {
+      check: ["left", "center", "right"],
+      init: "left"
+    }
   },
 
   members: {
+
+    getForm: function() {
+      return this._form;
+    },
+
+    getLayout: function() {
+      return this._getLayout();
+    },
 
     /**
      * Creates the label text for the given form item.
@@ -49,7 +66,23 @@ qx.Class.define("gosa.ui.form.renderer.Single", {
 
       // Create the label.
       return name + required;
+    },
+    /**
+     * Creates a header label for the form groups.
+     *
+     * @param title {String} Creates a header label.
+     * @return {qx.ui.basic.Label} The header for the form groups.
+     */
+    _createHeader : function(title) {
+      var header = new qx.ui.basic.Label(title);
+      // store labels for disposal
+      this._labels.push(header);
+      header.setFont("bold");
+      if (this._row !== 0) {
+        header.setMarginTop(10);
+      }
+      header.setAlignX(this.getHeaderAlign());
+      return header;
     }
-
   }
 });

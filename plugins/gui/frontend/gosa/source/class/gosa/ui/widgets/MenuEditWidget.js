@@ -18,13 +18,14 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
 
   construct : function() {
     this.base(arguments);
+
+    this.debouncedFireChangeValue = qx.util.Function.debounce(this.fireChangeValue.bind(this), 250);
+    this.__changeListeners = {};
     this.__draw();
-    this.__userDataKeys = [];
   },
 
 
   members : {
-    __userDataKeys: [],
     __root : null,
     _type: null,
     _attribute: null,
@@ -33,11 +34,12 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
     _columnIDs: null,
     _firstColumn: null,
     _sortByColumn: null,
+    __changeListeners: null,
 
     __draw : function() {
       this._createChildControl("toolbar");
 
-      this.__root = new qx.ui.tree.TreeFolder();
+      this.__root = new gosa.ui.tree.Folder();
       this.__root.setOpen(true);
       var tree = this.getChildControl("tree");
       tree.setRoot(this.__root);
@@ -61,7 +63,7 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
     __traverseJson: function(node) {
       if (node.hasOwnProperty("children")) {
         qx.core.Assert.assertKeyInMap("name", node);
-        var parent = new qx.ui.tree.TreeFolder(node.name);
+        var parent = this.__createItem("folder", node.name);
         parent.setOpen(true);
 
         node.children.forEach(function(childNode) {
@@ -69,12 +71,20 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
         }, this);
         return parent;
       } else {
-        var item = new qx.ui.tree.TreeFile(node.name);
+        var item = this.__createItem("app", node.name);
 
-        this.__userDataKeys.forEach(function(key) {
-          qx.core.Assert.assertKeyInMap(key, node);
-          item.setUserData(key, node[key]);
-        });
+        Object.getOwnPropertyNames(node).forEach(function(key) {
+          if (key === "gosaApplicationParameter") {
+            node.gosaApplicationParameter.forEach(function(entry) {
+              var parts = entry.split(":");
+              item.setParameter(parts[0], parts[1]);
+            });
+          } else {
+            if (node[key]) {
+              item.set(key, node[key]);
+            }
+          }
+        }, this);
 
         return item;
       }
@@ -94,19 +104,32 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
 
     __traverseTree: function(item) {
       var res = {name: item.getLabel()};
-      if (item instanceof qx.ui.tree.TreeFile) {
-        this.__userDataKeys.forEach(function (key) {
-          if (item.getUserData(key)) {
-            res[key] = item.getUserData(key);
-          }
-        });
-      } else if (item instanceof qx.ui.tree.TreeFolder) {
+      if (item instanceof gosa.ui.tree.Application) {
+        res = item.toJson();
+      } else if (item instanceof gosa.ui.tree.Folder) {
         res.children = [];
         item.getItems(false).forEach(function (child) {
           res.children.push(this.__traverseTree(child));
         }, this);
       }
       return res;
+    },
+    
+    __createItem: function(type, label) {
+      var item;
+      switch (type) {
+        case "folder":
+          item = new gosa.ui.tree.Folder(label);
+          break;
+        case "app":
+          item = new gosa.ui.tree.Application(label);
+          break;
+      }
+
+      if (!this.__changeListeners.hasOwnProperty(item.toHashCode())) {
+        this.__changeListeners[item.toHashCode()] = item.addListener("changedValue", this.debouncedFireChangeValue, this);
+      }
+      return item;
     },
 
     // overridden
@@ -115,13 +138,13 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
 
       switch (id) {
         case "container":
-          control = new qx.ui.container.Composite(new qx.ui.layout.HBox());
+          control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
           this.add(control, {edge: 1});
           break;
 
-        case "tree-container":
-          control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
-          this.getChildControl("container").add(control);
+        case "split-pane":
+          control = new qx.ui.splitpane.Pane();
+          this.getChildControl("container").addAt(control, 1, {flex: 1});
           break;
 
         case "tree":
@@ -131,13 +154,17 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
             hideRoot: true,
             selectionMode: "one"
           });
+          control.addListener("changeSelection", this._onTreeSelection, this);
 
-          this.getChildControl("tree-container").addAt(control, 1, {flex: 1});
+          this.getChildControl("split-pane").add(control, 1);
           break;
 
-        case "form":
-          control = new qx.ui.container.Composite(new qx.ui.layout.VBox());
-          this.getChildControl("container").add(control, {flex: 1});
+        case "form-container":
+          control = new qx.ui.container.Stack();
+          control.set({
+            padding: [gosa.engine.processors.WidgetProcessor.CONSTANTS.CONST_SPACING_Y, gosa.engine.processors.WidgetProcessor.CONSTANTS.CONST_SPACING_X]
+          });
+          this.getChildControl("split-pane").add(control, 2);
           break;
 
         case "toolbar":
@@ -150,7 +177,7 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
           part1.add(this.getChildControl("del-button"));
           control.add(part1);
 
-          this.getChildControl("tree-container").addAt(control, 0);
+          this.getChildControl("container").addAt(control, 0);
           break;
 
         case "add-app-button":
@@ -173,17 +200,105 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
       return control || this.base(arguments, id);
     },
 
+    /**
+     * Handle selection changes in the tree. Show the application editing form, if an application node
+     * has been selected, otherwise the name edit field for the folder.
+     */
+    _onTreeSelection: function() {
+      var current = this.getChildControl("tree").getSelection()[0];
+      if (current instanceof gosa.ui.tree.Folder) {
+        // show only name field
+        this._showFolderForm(current);
+      } else if (current instanceof gosa.ui.tree.Application) {
+        // show application menu entry form
+        this._showEntryForm(current);
+      }
+    },
+
+    /**
+     * Show the folder edit form for the current item.
+     * @param current {gosa.ui.tree.Folder}
+     */
+    _showFolderForm: function(current) {
+      var text;
+      if (!this._folderForm) {
+        var form = new qx.ui.form.Form();
+        text = new qx.ui.form.TextField(current.getLabel());
+        text.setLiveUpdate(true);
+        text.bind("value", current, "label");
+        form.add(text, this.tr("Name"), null, "label");
+        this._folderForm = new gosa.ui.form.renderer.Single(form, false);
+        this._folderForm.getLayout().setColumnMinWidth(0, 200);
+        this.getChildControl("form-container").add(this._folderForm);
+      } else {
+        this.getChildControl("form-container").setSelection([this._folderForm]);
+        text = this._folderForm.getForm().getItems()["label"];
+        text.removeAllBindings();
+        text.bind("value", current, "label");
+      }
+    },
+
+    _showEntryForm: function(current) {
+      if (this._entryForm) {
+        this._entryForm.destroy();
+      }
+      var form = new qx.ui.form.Form();
+
+      // name
+      var text = new qx.ui.form.TextField(current.getLabel());
+      text.setLiveUpdate(true);
+      text.bind("value", current, "label");
+      form.add(text, this.tr("Name"), null, "label");
+
+      // get parameters from gotoApplication
+      var keys = [];
+
+      gosa.proxy.ObjectFactory.openObjectByType(this._attribute, current.get(this._attribute), this._type)
+        .then(function(obj) {
+          var parameters = obj.get("gosaApplicationParameter");
+          if (parameters.length) {
+            form.addGroupHeader(this.tr("Application parameters"));
+            obj.get("gosaApplicationParameter").forEach(function (entry) {
+              var parts = entry.split(":");
+              keys.push(parts[0]);
+              var field = new qx.ui.form.TextField(current.getParameterValue(parts[0]));
+              field.setPlaceholder(parts[1]);
+              current.initParameter(parts[0], parts[1]);
+              field.setLiveUpdate(true);
+              field.addListener("changeValue", function (ev) {
+                current.setParameter(parts[0], ev.getData());
+              }, this);
+              form.add(field, parts[0], null, parts[0]);
+            }, this);
+            return obj.close();
+          }
+        }, this);
+
+      this._entryForm = new gosa.ui.form.renderer.Single(form, false);
+      this._entryForm.setHeaderAlign("center");
+      this._entryForm.getLayout().setColumnMinWidth(0, 200);
+      this.getChildControl("form-container").add(this._entryForm);
+      this.getChildControl("form-container").setSelection([this._entryForm]);
+
+    },
+
+    /**
+     * Adds a {@link gosa.ui.tree.Folder} to the tree.
+     */
     _onAddFolder: function() {
       // Ask user for name
       var d = new gosa.ui.dialogs.PromptTextDialog(this.tr("Enter name"), null, this.tr("Name"));
       d.addListener("ok", function(ev) {
-        var node = new qx.ui.tree.TreeFolder(ev.getData());
+        var node = this.__createItem("folder", ev.getData());
         this.insertNewNode(node);
         this.fireChangeValue();
       }, this);
       d.open();
     },
 
+    /**
+     * Adds a {@link gosa.ui.tree.Application}, which represents an application, to the tree.
+     */
     _onAddApp: function() {
       var d = new gosa.ui.dialogs.ItemSelector(
         this['tr'](this._editTitle),
@@ -203,8 +318,9 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
         if (data.length) {
 
           data.forEach(function(entry) {
-            var node = new qx.ui.tree.TreeFile(entry[this._firstColumn]);
-            node.setUserData(this._attribute, entry[this._attribute]);
+            var node = this.__createItem("app", entry[this._firstColumn]);
+            delete entry["__identifier__"];
+            node.set(entry);
             this.insertNewNode(node);
           }, this);
 
@@ -224,10 +340,10 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
     insertNewNode: function(node) {
       // add to tree after currently selected item
       var current = this.getChildControl("tree").getSelection()[0] || this.__root;
-      if (current instanceof qx.ui.tree.TreeFile) {
+      if (current instanceof gosa.ui.tree.Application) {
         // after
         current.getParent().addAfter(node, current);
-      } else if (current instanceof qx.ui.tree.TreeFolder) {
+      } else if (current instanceof gosa.ui.tree.Folder) {
         // inside
         current.add(node);
         current.setOpen(true);
@@ -237,6 +353,12 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
     _onDelete: function() {
       var current = this.getChildControl("tree").getSelection()[0];
       if (current && current !== this.__root) {
+        // delete all listeners
+        current.getItems().forEach(function(item) {
+          if (this.__changeListeners.hasOwnProperty(item.toHashCode())) {
+            item.removeListenerById(this.__changeListeners[item.toHashCode()]);
+          }
+        }, this);
         current.getParent().remove(current);
         this.fireChangeValue();
       }
@@ -255,7 +377,6 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
 
       if (props.hasOwnProperty("attribute")) {
         this._attribute = props.attribute;
-        this.__userDataKeys.push(props.attribute);
       }
 
       if (props.hasOwnProperty("editTitle")) {

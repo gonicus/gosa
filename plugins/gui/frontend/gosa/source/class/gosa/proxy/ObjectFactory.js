@@ -47,6 +47,16 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
       return this.__openObject("object", dn, type);
     },
 
+    openObjectByType: function(key, value, type) {
+      // Initialize class-cache
+      if(!gosa.proxy.ObjectFactory.classes){
+        gosa.proxy.ObjectFactory.classes = {};
+      }
+      return gosa.io.Rpc.getInstance().cA("openObjectByType", key, value, type).then(function(userData) {
+        return this.__createObject("object", userData);
+      }, this);
+    },
+
     __openObject: function(object_type, dn, type){
 
       // Initialize class-cache
@@ -55,26 +65,31 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
       }
 
       // Add an event listener
+      return gosa.io.Rpc.getInstance().cA("openObject", object_type, dn, type).then(function(userData) {
+        return this.__createObject(object_type, userData);
+      }, this);
+    },
+
+    __createObject: function(object_type, userData) {
       var rpc = gosa.io.Rpc.getInstance();
-      return rpc.cA("openObject", object_type, dn, type)
-      .then(function(userData) {
-        var jDefs = userData["__jsonclass__"][1];
-        var uuid = jDefs[1];
-        var locale = gosa.Config.getLocale();
-        if (object_type === "object") {
-          // Load object info - base type, extension types
-          return qx.Promise.all([
-            userData,
-            rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true),
-            rpc.cA("dispatchObjectMethod", uuid, "get_object_info", locale)
-          ]);
-        } else if (object_type === "workflow") {
-          return qx.Promise.all([
-            userData,
-            rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true)
-          ]);
-        }
-      })
+      var jDefs = userData["__jsonclass__"][1];
+      var uuid = jDefs[1];
+      var locale = gosa.Config.getLocale();
+      var promises = [];
+      if (object_type === "object") {
+        // Load object info - base type, extension types
+        promises = [
+          userData,
+          rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true),
+          rpc.cA("dispatchObjectMethod", uuid, "get_object_info", locale)
+        ];
+      } else if (object_type === "workflow") {
+        promises = [
+          userData,
+          rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true)
+        ];
+      }
+      return qx.Promise.all(promises)
       .spread(function(userData, _attribute_data, info) {
         // Extract required user information out of the '__jsonclass__' result object.
         var jDefs = userData["__jsonclass__"][1];
