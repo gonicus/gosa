@@ -48,6 +48,7 @@ import re
 import json
 import logging
 import ldap
+import html
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry
@@ -391,7 +392,16 @@ class ObjectFactory(object):
                                 if not attr.Name.text in res[obj]:
                                     res[obj][attr.Name.text] = []
 
-                                res[obj][attr.Name.text].append((ref.Object.text, ref.Attribute.text))
+                                mode = ref.attrib["mode"] if "mode" in ref.attrib else "replace"
+                                pattern = {
+                                    "identify": html.unescape(ref.attrib["identify-pattern"]) if "identify-pattern" in ref.attrib else None,
+                                    "replace": html.unescape(ref.attrib["replace-pattern"]) if "replace-pattern" in ref.attrib else None,
+                                    "delete": html.unescape(ref.attrib["delete-pattern"]) if "delete-pattern" in ref.attrib else None
+                                }
+                                if pattern["replace"] is None and pattern["identify"] is not None:
+                                    pattern["replace"] = pattern["identify"]
+
+                                res[obj][attr.Name.text].append((ref.Object.text, ref.Attribute.text, mode, pattern))
 
         return res
 
@@ -644,6 +654,9 @@ class ObjectFactory(object):
 
     def getObjectTypes(self):
         return self.__object_types
+
+    def isBaseType(self, type):
+        return self.__object_types[type]["base"]
 
     def identifyObject(self, dn):
         id_base = None

@@ -12,6 +12,8 @@ The object base class.
 """
 
 import copy
+
+import re
 from lxml import objectify, etree
 
 import zope.event
@@ -66,7 +68,8 @@ C.register_codes(dict(
     FILTER_MISSING_KEY=N_("Missing key '%(key)s' after processing filter '%(filter)s'"),
     FILTER_NO_LIST=N_("Filter '%(filter)s' did not return a %(type)s value - a list was expected"),
     ATTRIBUTE_DEPEND_LOOP=N_("Potential loop in attribute dependencies"),
-    READ_BACKEND_UUID_VALUE=N_("Error reading value for '%(backend)s' backend UUID attribute '%(name)s'")
+    READ_BACKEND_UUID_VALUE=N_("Error reading value for '%(backend)s' backend UUID attribute '%(name)s'"),
+    UNHANDLED_REFERENCE_MODE=N_("Unhandled reference mode: '%(mode)s'")
 ))
 
 
@@ -1266,11 +1269,19 @@ class Object(object):
 
             for ref_attribute, dsc in info.items():
                 for idsc in dsc:
+                    mode = idsc[2]
+                    pattern = idsc[3]
                     if self.myProperties[idsc[1]]['orig_value'] and len(self.myProperties[idsc[1]]['orig_value']):
                         oval = self.myProperties[idsc[1]]['orig_value'][0]
                     else:
                         oval = None
-                    dns = index.search({'_type': ref, ref_attribute: str(oval)}, {'dn': 1})
+                    query = {'_type': ref} if self._objectFactory.isBaseType(ref) else {'extension': ref}
+                    if mode == "inline":
+                        query[ref_attribute] = "%{}%".format(str(oval)) if pattern["identify"] is None else "%{}%".format(pattern["identify"].replace("###VALUE###", str(oval)))
+                    else:
+                        query[ref_attribute] = str(oval)
+
+                    dns = index.search(query, {'dn': 1})
                     if len(dns):
                         dns = [x['dn'] for x in dns]
                     res.append((
@@ -1278,12 +1289,15 @@ class Object(object):
                         idsc[1],
                         getattr(self, idsc[1]),
                         dns or [],
-                        self.myProperties[idsc[1]]['multivalue']))
+                        self.myProperties[idsc[1]]['multivalue'],
+                        mode,
+                        pattern)
+                    )
 
         return res
 
     def update_refs(self, data):
-        for ref_attr, self_attr, value, refs, multivalue in self.get_references(): #@UnusedVariable
+        for ref_attr, self_attr, value, refs, multivalue, mode, pattern in self.get_references(): #@UnusedVariable
 
             for ref in refs:
 
@@ -1292,46 +1306,98 @@ class Object(object):
                 if not self_attr in data:
                     continue
 
+                if mode == "inline" and multivalue is True:
+                    self.log.error("cannot replace multivalue attribute references inline")
+                    continue
+
                 # Load object and change value to the new one
                 c_obj = ObjectProxy(ref)
                 c_value = getattr(c_obj, ref_attr)
                 o_value = data[self_attr]['orig']
 
-                if type(c_value) == list:
+                if mode == "replace":
+                    if type(c_value) == list:
+                        if type(o_value) == list:
+                            c_value = list(filter(lambda x: x not in o_value, c_value))
+                        else:
+                            c_value = list(filter(lambda x: x != o_value, c_value))
+
+                        if multivalue:
+                            c_value.extend(data[self_attr]['value'])
+                        else:
+                            c_value.append(data[self_attr]['value'][0])
+
+                        setattr(c_obj, ref_attr, list(set(c_value)))
+
+                    else:
+                        setattr(c_obj, ref_attr, data[self_attr]['value'][0])
+
+                elif mode == "inline":
+                    replacements = []
+                    replacement = pattern["replace"].replace("###VALUE###", data[self_attr]['value'][0]) if pattern["replace"] is not None else data[self_attr]['value'][0]
+
                     if type(o_value) == list:
-                        c_value = list(filter(lambda x: x not in o_value, c_value))
+                        for o in o_value:
+                            replacements.append((pattern["replace"].replace("###VALUE###", o) if pattern["replace"] is not None else o, replacement))
                     else:
-                        c_value = list(filter(lambda x: x != o_value, c_value))
+                        replacements.append((pattern["replace"].replace("###VALUE###", o_value) if pattern["replace"] is not None else o_value, replacement))
 
-                    if multivalue:
-                        c_value.extend(data[self_attr]['value'])
+                    if type(c_value) == list:
+                        for i, c in enumerate(c_value):
+                            for r in replacements:
+                                c_value[i] = re.sub(r[0], r[1], c_value[i])
+
+                        setattr(c_obj, ref_attr, list(set(c_value)))
                     else:
-                        c_value.append(data[self_attr]['value'][0])
+                        for r in replacements:
+                            c_value = re.sub(r[0], r[1], c_value)
 
-                    setattr(c_obj, ref_attr, list(set(c_value)))
+                        setattr(c_obj, ref_attr, c_value)
 
                 else:
-                    setattr(c_obj, ref_attr, data[self_attr]['value'][0])
+                    raise ObjectException(C.make_error('UNHANDLED_REFERENCE_MODE', mode=mode))
 
                 c_obj.commit()
 
     def remove_refs(self):
-        for ref_attr, self_attr, value, refs, multivalue in self.get_references(): #@UnusedVariable
+        for ref_attr, self_attr, value, refs, multivalue, mode, pattern in self.get_references(): #@UnusedVariable
 
             for ref in refs:
                 c_obj = ObjectProxy(ref)
                 c_value = getattr(c_obj, ref_attr)
 
-                if type(c_value) == list:
-                    if type(value) == list:
-                        c_value = list(filter(lambda x: x not in value, c_value))
+                if mode == "replace":
+                    if type(c_value) == list:
+                        if type(value) == list:
+                            c_value = list(filter(lambda x: x not in value, c_value))
+                        else:
+                            c_value = list(filter(lambda x: x != value, c_value))
+
+                        setattr(c_obj, ref_attr, c_value)
+
                     else:
-                        c_value = list(filter(lambda x: x != value, c_value))
+                        setattr(c_obj, ref_attr, None)
+                elif mode == "inline":
+                    replacements = []
+                    if type(value) == list:
+                        for o in value:
+                            replacements.append((pattern["delete"].replace("###VALUE###", value) if pattern["delete"] is not None else value, ""))
+                    else:
+                        replacements.append((pattern["delete"].replace("###VALUE###", value) if pattern["delete"] is not None else value, ""))
 
-                    setattr(c_obj, ref_attr, c_value)
+                    if type(c_value) == list:
+                        for i, c in enumerate(c_value):
+                            for r in replacements:
+                                c_value[i] = re.sub(r[0], r[1], c_value[i])
 
+                        setattr(c_obj, ref_attr, list(set(c_value)))
+                    else:
+                        for r in replacements:
+                            c_value = re.sub(r[0], r[1], c_value)
+
+                        setattr(c_obj, ref_attr, c_value)
                 else:
-                    setattr(c_obj, ref_attr, None)
+                    raise ObjectException(C.make_error('UNHANDLED_REFERENCE_MODE', mode=mode))
 
                 c_obj.commit()
 

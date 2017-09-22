@@ -151,6 +151,7 @@
         </complexType>
       </element>
     </all>
+    <!-- python does not support assertions yet: assert test="if (MultiValue = 'true') then not(References/Reference[@mode='inline']) else true()"/-->
   </complexType>
 
   <simpleType name="AttributeTypes">
@@ -426,5 +427,36 @@
       <element name="Object" type="token"/>
       <element name="Attribute" type="token"/>
     </sequence>
+    <attribute name="mode" default="replace" use="optional">
+      <simpleType>
+        <restriction base="string">
+          <enumeration value="inline">
+            <annotation xml:lang="en">
+              <documentation>Replace the reference inside the content string. Note: inline mode does not work in multivalued attributes</documentation>
+            </annotation>
+          </enumeration>
+          <enumeration value="replace">
+              <annotation xml:lang="en">
+                <documentation>Replace the complete value</documentation>
+              </annotation>
+          </enumeration>
+        </restriction>
+      </simpleType>
+    </attribute>
+    <attribute name="identify-pattern" use="optional">
+      <annotation xml:lang="en">
+        <documentation>Optional search pattern to identify inline references (might contain ###VALUE### where the old value should be replaced with the new one). This content will be converted via html.unescape and NOT used as a regular expression.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="replace-pattern" use="optional">
+      <annotation xml:lang="en">
+        <documentation>Optional search pattern for inline replacement (must contain ###VALUE### where the old value should be replaced with the new one). This content will be converted via html.unescape and used as a regular expression.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="delete-pattern" use="optional">
+      <annotation xml:lang="en">
+        <documentation>Optional search pattern for inline deletion of the reference (must contain ###VALUE### where the old value should be replaced with the new one). This content will be converted via html.unescape and used as a regular expression.</documentation>
+      </annotation>
+    </attribute>
   </complexType>
 </schema>

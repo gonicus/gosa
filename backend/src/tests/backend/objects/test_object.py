@@ -7,7 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 
-from unittest import mock, TestCase
+from unittest import mock
 from gosa.backend.objects import ObjectFactory
 from tests.GosaTestCase import *
 from gosa.backend.objects.object import *
@@ -191,13 +191,14 @@ class ObjectTestCase(TestCase):
         res = obj.get_references()
         for rel in res:
             if rel[0] == "memberUid":
-                assert rel == ('memberUid', 'uid', 'freich', [], False)
+                assert rel == ('memberUid', 'uid', 'freich', [], False, "replace", {"identify": None, "replace": None, "delete": None})
 
     def test_update_refs(self):
         object = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
         with mock.patch.object(object, "get_references",
                                return_value=[('memberUid', 'uid', 'freich',
-                                             ['78475884-c7f2-1035-8262-f535be14d43a'], False)]) as m, \
+                                             ['78475884-c7f2-1035-8262-f535be14d43a'], False, "replace",
+                                              {"identify": None, "replace": None, "delete": None})]) as m, \
              mock.patch.object(object, "_delattr_"), \
              mock.patch("gosa.backend.objects.object.ObjectProxy") as c_obj:
 
@@ -228,11 +229,65 @@ class ObjectTestCase(TestCase):
             assert 'frank' in c_obj.return_value.memberUid
             assert 'more' in c_obj.return_value.memberUid
 
+    def test_update_inline_refs(self):
+        object = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
+        with mock.patch.object(object, "get_references",
+                               return_value=[('gotoMenu', 'cn', 'chrome',
+                                              ['78475884-c7f2-1035-8262-f535be14d43a'], False, "inline",
+                                              {
+                                                  "identify": "\"cn\":\"###VALUE###\"",
+                                                  "replace": "\"cn\":\"###VALUE###\"",
+                                                  "delete": ",{[^{]*\"cn\":\"###VALUE###\"[^}]*}|{[^{]*\"cn\":\"###VALUE###\"[^}]*},?"
+                                              })
+                                             ]) as m, \
+                mock.patch.object(object, "_delattr_"), \
+                mock.patch("gosa.backend.objects.object.ObjectProxy") as c_obj:
+
+            # update cn
+            c_obj.return_value.gotoMenu = '[{"name":"Browsers","children":[{"name":"Chrome browser","cn":"chrome","gosaApplicationParameter":["chrome.test:12345"]},{"name":"Firefox","cn":"firefox","gosaApplicationParameter":[]}]}]'
+            object.update_refs({'cn': {'value': ['chrome1'], 'orig': ['chrome']}})
+
+            assert c_obj.return_value.gotoMenu == '[{"name":"Browsers","children":[{"name":"Chrome browser","cn":"chrome1","gosaApplicationParameter":["chrome.test:12345"]},{"name":"Firefox","cn":"firefox","gosaApplicationParameter":[]}]}]'
+
+
+    def test_remove_inline_refs(self):
+        object = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
+        with mock.patch.object(object, "get_references",
+                               return_value=[('gotoMenu', 'cn', 'chrome',
+                                              ['78475884-c7f2-1035-8262-f535be14d43a'], False, "inline",
+                                              {
+                                                  "identify": "\"cn\":\"###VALUE###\"",
+                                                  "replace": "\"cn\":\"###VALUE###\"",
+                                                  "delete": ",{[^{]*\"cn\":\"###VALUE###\"[^}]*}|{[^{]*\"cn\":\"###VALUE###\"[^}]*},?"
+                                              })
+                                             ]) as m, \
+                 mock.patch.object(object, "_delattr_"), \
+                 mock.patch("gosa.backend.objects.object.ObjectProxy") as c_obj:
+
+            # delete first child
+            c_obj.return_value.gotoMenu = '[{"name":"Browsers","children":[{"name":"Chrome browser","cn":"chrome","gosaApplicationParameter":["chrome.test:12345"]},{"name":"Firefox","cn":"firefox","gosaApplicationParameter":[]}]}]'
+            object.remove_refs()
+
+            assert c_obj.return_value.gotoMenu == '[{"name":"Browsers","children":[{"name":"Firefox","cn":"firefox","gosaApplicationParameter":[]}]}]'
+
+            # delete middle child
+            c_obj.return_value.gotoMenu = '[{"name":"Browsers","children":[{"name":"Test browser","cn":"test","gosaApplicationParameter":[]},{"name":"Chrome browser","cn":"chrome","gosaApplicationParameter":["chrome.test:12345"]},{"name":"Firefox","cn":"firefox","gosaApplicationParameter":[]}]}]'
+            object.remove_refs()
+
+            assert c_obj.return_value.gotoMenu == '[{"name":"Browsers","children":[{"name":"Test browser","cn":"test","gosaApplicationParameter":[]},{"name":"Firefox","cn":"firefox","gosaApplicationParameter":[]}]}]'
+
+            # delete last child
+            c_obj.return_value.gotoMenu = '[{"name":"Browsers","children":[{"name":"Firefox","cn":"firefox","gosaApplicationParameter":[]},{"name":"Chrome browser","cn":"chrome","gosaApplicationParameter":["chrome.test:12345"]}]}]'
+            object.remove_refs()
+
+            assert c_obj.return_value.gotoMenu == '[{"name":"Browsers","children":[{"name":"Firefox","cn":"firefox","gosaApplicationParameter":[]}]}]'
+
     def test_remove_refs(self):
         object = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
         with mock.patch.object(object, "get_references",
                                return_value=[('memberUid', 'uid', 'freich',
-                                              ['78475884-c7f2-1035-8262-f535be14d43a'], False)]) as m, \
+                                              ['78475884-c7f2-1035-8262-f535be14d43a'], False, "replace",
+                                              {"identify": None, "replace": None, "delete": None})]) as m, \
                 mock.patch.object(object, "_delattr_"), \
                 mock.patch("gosa.backend.objects.object.ObjectProxy") as c_obj:
             c_obj.return_value.memberUid = 'Test'

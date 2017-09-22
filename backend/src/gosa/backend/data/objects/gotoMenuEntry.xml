@@ -45,7 +45,10 @@
                 <MultiValue>false</MultiValue>
                 <Mandatory>false</Mandatory>
                 <References>
-                    <Reference>
+                    <Reference mode="inline"
+                               identify-pattern="&#34;cn&#34;:&#34;###VALUE###&#34;"
+                               replace-pattern="&#34;cn&#34;:&#34;###VALUE###&#34;"
+                               delete-pattern=",{[^{]*&#34;cn&#34;:&#34;###VALUE###&#34;[^}]*}|{[^{]*&#34;cn&#34;:&#34;###VALUE###&#34;[^}]*},?">
                         <Object>GosaApplication</Object>
                         <Attribute>cn</Attribute>
                     </Reference>
