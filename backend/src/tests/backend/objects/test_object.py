@@ -222,7 +222,8 @@ class ObjectTestCase(TestCase):
 
             # multivalue
             m.return_value = [('memberUid', 'uid', 'freich',
-                               ['78475884-c7f2-1035-8262-f535be14d43a'], True)]
+                               ['78475884-c7f2-1035-8262-f535be14d43a'], True, "replace",
+                               {"identify": None, "replace": None, "delete": None})]
             c_obj.return_value.memberUid = ['Test']
             object.update_refs({'uid': {'value': ['frank', 'more'], 'orig': ['freich']}})
             assert 'Test' in c_obj.return_value.memberUid
@@ -300,7 +301,8 @@ class ObjectTestCase(TestCase):
             assert c_obj.return_value.memberUid == ['Test']
 
             m.return_value = [('memberUid', 'uid', ['freich'],
-                               ['78475884-c7f2-1035-8262-f535be14d43a'], True)]
+                               ['78475884-c7f2-1035-8262-f535be14d43a'], True, "replace",
+                               {"identify": None, "replace": None, "delete": None})]
             c_obj.return_value.memberUid = ['Test', 'freich']
             object.remove_refs()
             assert c_obj.return_value.memberUid == ['Test']
