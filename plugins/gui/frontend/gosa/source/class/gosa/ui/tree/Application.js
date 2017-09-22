@@ -14,6 +14,7 @@
  */
 qx.Class.define("gosa.ui.tree.Application", {
   extend: qx.ui.tree.TreeFile,
+  include: gosa.ui.widgets.MDragDrop,
 
   /*
   *****************************************************************************
@@ -25,6 +26,11 @@ qx.Class.define("gosa.ui.tree.Application", {
     this.base(arguments, label);
     this._parameters = {};
     this._initialParameterValues = {};
+    this._initDrapDropListeners();
+    this._applyDragDropGuiProperties({
+      dragDropType: "gosa/menuEntry",
+      draggable: true
+    });
   },
 
   /*
@@ -62,6 +68,11 @@ qx.Class.define("gosa.ui.tree.Application", {
       check: "Boolean",
       init: false,
       event: "changeModified"
+    },
+
+    draggable: {
+      refine: true,
+      init: true
     }
   },
 
@@ -73,6 +84,20 @@ qx.Class.define("gosa.ui.tree.Application", {
   members : {
     _parameters: null,
     _initialParameterValues: null,
+
+    _onDropRequest: function(ev) {
+      var action = ev.getCurrentAction();
+      var type = ev.getCurrentType();
+
+      if (type === this.getDragDropType()) {
+
+        if (action === "move") {
+          this.getParent().remove(this)
+        }
+
+        ev.addData(this.getDragDropType(), this);
+      }
+    },
 
     _applyName: function(value) {
       this.setLabel(value);

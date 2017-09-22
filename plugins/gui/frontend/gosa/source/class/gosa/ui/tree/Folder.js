@@ -11,6 +11,7 @@
  */
 qx.Class.define("gosa.ui.tree.Folder", {
   extend: qx.ui.tree.TreeFolder,
+  include: gosa.ui.widgets.MDragDrop,
 
   /*
   *****************************************************************************
@@ -20,6 +21,12 @@ qx.Class.define("gosa.ui.tree.Folder", {
   construct : function(label) {
     this._initialLabel = label;
     this.base(arguments, label);
+    this._initDrapDropListeners();
+    this._applyDragDropGuiProperties({
+      dragDropType: "gosa/menuEntry",
+      draggable: true,
+      droppable: true
+    });
   },
 
   /*
@@ -51,6 +58,27 @@ qx.Class.define("gosa.ui.tree.Folder", {
   */
   members : {
     _initialLabel: null,
+
+    _onDropRequest: function(ev) {
+      var action = ev.getCurrentAction();
+      var type = ev.getCurrentType();
+
+      if (type === this.getDragDropType()) {
+
+        if (action === "move") {
+          this.getParent().remove(this)
+        }
+
+        ev.addData(this.getDragDropType(), this);
+      }
+    },
+
+    onDrop: function(ev) {
+      if (ev.supportsType(this.getDragDropType())) {
+        var item = ev.getData(this.getDragDropType());
+        this.add(item);
+      }
+    },
 
     _applyLabel: function(value, old) {
       this.base(arguments, value, old);
