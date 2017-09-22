@@ -66,7 +66,7 @@ qx.Class.define("gosa.ui.tree.Folder", {
       if (type === this.getDragDropType()) {
 
         if (action === "move") {
-          this.getParent().remove(this)
+          this.getParent().remove(this);
         }
 
         ev.addData(this.getDragDropType(), this);
