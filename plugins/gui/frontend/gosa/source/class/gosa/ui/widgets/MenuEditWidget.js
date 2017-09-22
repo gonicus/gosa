@@ -238,6 +238,7 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
         this.getChildControl("form-container").setSelection([this._folderForm]);
         text = this._folderForm.getForm().getItems()["label"];
         text.removeAllBindings();
+        text.setValue(current.getLabel());
         text.bind("value", current, "label");
       }
     },
