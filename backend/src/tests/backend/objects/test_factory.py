@@ -155,10 +155,10 @@ class ObjectBackendTestCase(unittest.TestCase):
 
     def test_getReferences(self):
         res = self.obj.getReferences()
-        assert res['PosixGroup']['memberUid'] == [('PosixUser', 'uid')]
+        assert res['PosixGroup']['memberUid'] == [('PosixUser', 'uid', 'replace', {'identify': None, 'replace': None, 'delete': None})]
 
         res = self.obj.getReferences('PosixUser', 'uid')
-        assert res['PosixGroup']['memberUid'] == [('PosixUser', 'uid')]
+        assert res['PosixGroup']['memberUid'] == [('PosixUser', 'uid', 'replace', {'identify': None, 'replace': None, 'delete': None})]
 
     def test_get_attributes_by_object(self):
         with pytest.raises(TypeError):
