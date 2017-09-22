@@ -44,6 +44,11 @@
                 <Type>UnicodeString</Type>
                 <MultiValue>false</MultiValue>
                 <Mandatory>false</Mandatory>
+                <Validators>
+                  <Condition>
+                    <Name>IsValidJson</Name>
+                  </Condition>
+                </Validators>
                 <References>
                     <Reference mode="inline"
                                identify-pattern="&#34;cn&#34;:&#34;###VALUE###&#34;"

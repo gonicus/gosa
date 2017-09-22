@@ -10,6 +10,8 @@
 import re
 import difflib
 from urllib.parse import urlparse
+
+from gosa.common.gjson import loads
 from gosa.common.utils import N_
 from gosa.backend.objects.comparator import ElementComparator
 
@@ -125,3 +127,23 @@ class stringLength(ElementComparator):
                     count=maxSize))
                 return False, errors
         return True, errors
+
+
+class IsValidJson(ElementComparator):
+    """ Checks ig string contains a parseable JSON format """
+
+    def process(self, all_props, key, value):
+
+        errors = []
+
+        # Each item of value has to match the given length-rules
+        for idx, entry in enumerate(value):
+            try:
+                loads(entry)
+            except Exception as e:
+                errors.append(dict(index=idx,
+                                   detail=N_("value is no valid JSON string: '%(error)s'"),
+                                   error=str(e)))
+
+        return True, errors
+

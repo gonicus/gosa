@@ -52,10 +52,14 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
         this.__root.removeAll();
         if (value && value.length) {
           // create tree from json
-          var roots = qx.lang.Json.parse(gosa.ui.widgets.Widget.getSingleValue(value));
-          roots.forEach(function(node) {
-            this.__root.add(this.__traverseJson(node));
-          }, this);
+          try {
+            var roots = qx.lang.Json.parse(gosa.ui.widgets.Widget.getSingleValue(value));
+            roots.forEach(function (node) {
+              this.__root.add(this.__traverseJson(node));
+            }, this);
+          } catch (e) {
+            this.error("Error parsing value: ",e);
+          }
         }
       }
     },
