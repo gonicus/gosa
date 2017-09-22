@@ -29,8 +29,12 @@ qx.Class.define("gosa.util.Icons", {
       'device': '@Ligature/pc',
       'locality': '@Ligature/location',
       'domain': '@Ligature/link',
-      'sambamachineaccount': '@Ligature/computer'
-
+      'sambamachineaccount': '@Ligature/windows',
+      'groupofnames': '@Ligature/circle',
+      'gotoprinter': '@Ligature/print',
+      'gosaapplication': '@Ligature/app',
+      'incomingdevicecontainer': '@Ligature/building',
+      'organizationalrole': '@Ligature/building'
     },
 
     iconActionMappings: {
