@@ -3,8 +3,12 @@
   "class": "qx.ui.container.Composite",
   "layout": "qx.ui.layout.VBox",
   "extensions": {
+    "resources": {
+      "favicon": "@Ligature/circle"
+    },
     "tabConfig": {
-      "title": "tr('Group of names')"
+      "title": "tr('Group of names')",
+      "icon": "favicon"
     }
   },
   "children": [

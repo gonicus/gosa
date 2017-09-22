@@ -1,8 +1,12 @@
 {
   "class": "qx.ui.container.Composite",
   "extensions": {
+    "resources": {
+      "favicon": "@Ligature/menu"
+    },
     "tabConfig": {
-      "title": "tr('Menu entry')"
+      "title": "tr('Menu entry')",
+      "icon": "favicon"
     }
   },
   "type": "widget",
