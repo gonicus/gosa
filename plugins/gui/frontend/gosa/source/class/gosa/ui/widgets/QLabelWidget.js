@@ -35,9 +35,12 @@ qx.Class.define("gosa.ui.widgets.QLabelWidget",
     // Call super class
     this.contents.setLayout(new qx.ui.layout.Canvas());
     this._widget = new qx.ui.basic.Label();
-    this._widget.setRich(true);
-    this._widget.setAllowGrowX(true);
-    this._widget.setAllowGrowY(true);
+    this._widget.set({
+      rich: true,
+      allowGrowX: true,
+      allowGrowY: true,
+      marginTop: 5
+    });
     this._applyValue(this.getValue());
     this.contents.add(this._widget, {top:0, bottom:0, left:0, right: 0});
     this.removeState("gosaInput");
