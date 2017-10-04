@@ -89,8 +89,14 @@
             },
             "properties": {
                 "width": 200,
-                "height": 200,
-                "allowGrowX": false
+                "height": 200
+            },
+            "extensions": {
+                "guiProperties": {
+                    "maxWidth": 200,
+                    "maxHeight": 200,
+                    "scale": true
+                }
             }
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",

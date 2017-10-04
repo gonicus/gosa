@@ -206,6 +206,11 @@ qx.Class.define("gosa.ui.widgets.QGraphicsViewWidget", {
 
     focus: function(){
       this._widget.focus();
+    },
+
+    _applyGuiProperties: function(props) {
+      this.base(arguments, props);
+      this._widget.set(props);
     }
   }
 });
