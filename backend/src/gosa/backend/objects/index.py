@@ -584,7 +584,8 @@ class ObjectIndex(Plugin):
             # send the event to the clients
             e = EventMaker()
 
-            if event.reason[0:4] == "post" and _uuid and _dn and change_type and len(event.changed_props):
+            if event.reason[0:4] == "post" and _uuid and _dn and change_type and \
+                    (change_type != "update" or len(event.changed_props)):
 
                 ev = e.Event(e.ObjectChanged(
                     e.UUID(_uuid),
