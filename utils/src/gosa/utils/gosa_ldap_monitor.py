@@ -47,6 +47,7 @@ def monitor(path, modifier, token, webhook_target, initially_failed=False):
     ct = None
     newrdn = None
     newsuperior = None
+    meta = None
 
     try:
         with open(path, encoding='utf-8', errors='ignore') as f:
@@ -56,8 +57,11 @@ def monitor(path, modifier, token, webhook_target, initially_failed=False):
             # change administrative values.
             for line in tail(f, initially_failed):
 
+                if line.startswith("# "):
+                    if not line.startswith("# end "):
+                        meta = line.split(" ")[1:]
                 # Catch dn
-                if line.startswith("dn::"):
+                elif line.startswith("dn::"):
                     dn = b64decode(line[5:]).decode('utf-8')
                     continue
 
@@ -81,6 +85,8 @@ def monitor(path, modifier, token, webhook_target, initially_failed=False):
                 # Catch changetype
                 if line.startswith("changetype:"):
                     ct = line[12:]
+                    if ct == "delete" and len(meta) and meta[3].lower() == modifier:
+                        dn = None
                     continue
 
                 # Check modifiers name and if it's the
