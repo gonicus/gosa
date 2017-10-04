@@ -6,12 +6,13 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
+import logging
 import re
 import os
 import datetime
 import shlex
 
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import aliased
 
 import gosa.backend.objects.renderer
@@ -65,7 +66,7 @@ class RPCMethods(Plugin):
 
     def __init__(self):
         self.env = Environment.getInstance()
-
+        self.log = logging.getLogger(__name__)
         # Load container mapping from object Factory
         factory = ObjectFactory.getInstance()
         self.containers = []
@@ -432,10 +433,10 @@ class RPCMethods(Plugin):
                     if not self.__oi.fuzzy:
                         res.append(or_(
                             func.levenshtein(func.substring(subject, 0, 50), func.substring(kw, 0, 50)) < 3,
-                            subject.like("%" + kw.replace(r"%", "\%") + "%")
+                            subject.ilike("%" + kw.replace(r"%", "\%") + "%")
                         ))
                     else:
-                        res.append(subject.like("%" + kw.replace(r"%", "\%") + "%"))
+                        res.append(subject.ilike("%" + kw.replace(r"%", "\%") + "%"))
                 else:
                     res.append(subject == kw)
 
@@ -577,6 +578,8 @@ class RPCMethods(Plugin):
                 query_result = self.__session.query(ObjectInfoIndex).filter(query).limit(fltr['limit'])
         else:
             query_result = self.__session.query(ObjectInfoIndex).filter(query)
+
+        self.log.debug(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
 
         for item in query_result:
             self.update_res(res, item, user, self.__make_relevance(item, keywords, fltr), these=these, actions=actions)
