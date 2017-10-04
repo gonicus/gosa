@@ -26,11 +26,12 @@ qx.Class.define("gosa.ui.tree.Application", {
     this.base(arguments, label);
     this._parameters = {};
     this._initialParameterValues = {};
-    this._initDrapDropListeners();
     this._applyDragDropGuiProperties({
       dragDropType: "gosa/menuEntry",
-      draggable: true
+      draggable: true,
+      droppable: true
     });
+    this._initDragDropListeners();
   },
 
   /*
@@ -68,11 +69,6 @@ qx.Class.define("gosa.ui.tree.Application", {
       check: "Boolean",
       init: false,
       event: "changeModified"
-    },
-
-    draggable: {
-      refine: true,
-      init: true
     }
   },
 
@@ -99,6 +95,51 @@ qx.Class.define("gosa.ui.tree.Application", {
       }
     },
 
+    onDrop: function(ev) {
+      if (ev.supportsType(this.getDragDropType())) {
+        var item = ev.getData(this.getDragDropType());
+        if (item === this) {
+          // cannot drop on itself
+          return;
+        }
+        switch(this.getDecorator()) {
+          case "drop-after":
+            this.getParent().addAfter(item, this);
+            break;
+
+          default:
+            this.getParent().addBefore(item, this);
+            break;
+        }
+
+      }
+      this._onDragLeave();
+    },
+
+    onDragOver: function(e) {
+      if (!e.supportsType(this.getDragDropType()) || this === e.getDragTarget()) {
+        e.preventDefault();
+      } else {
+        this.addListener("pointermove", this._onDragMove, this);
+        this._onDragMove(e);
+      }
+    },
+
+    _onDragLeave: function() {
+      this.resetDecorator();
+      this.removeListener("pointermove", this._onDragMove, this);
+    },
+
+    _onDragMove: function(e) {
+      var bounds = this.getContentElement().getDomElement().getBoundingClientRect();
+      var middle = bounds.top + (bounds.bottom - bounds.top)/2;
+      if (e.getDocumentTop() >= middle) {
+        this.setDecorator("drop-after");
+      } else {
+        this.setDecorator("drop-before");
+      }
+    },
+
     _applyName: function(value) {
       this.setLabel(value);
     },
@@ -112,7 +153,7 @@ qx.Class.define("gosa.ui.tree.Application", {
     },
 
     /**
-     * Initialie parameter and save value as initial
+     * Initialize parameter and save value as initial
      * @param key {String}
      * @param initialValue {String}
      */

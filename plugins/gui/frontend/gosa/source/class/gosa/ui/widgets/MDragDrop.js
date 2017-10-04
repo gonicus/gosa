@@ -36,7 +36,7 @@ qx.Mixin.define("gosa.ui.widgets.MDragDrop", {
   members : {
     _dragDropActions: null,
 
-    _initDrapDropListeners: function() {
+    _initDragDropListeners: function() {
       // drag&drop
       if (this.isDraggable()) {
         this.addListener("dragstart", this._onDragStart, this);
@@ -44,6 +44,9 @@ qx.Mixin.define("gosa.ui.widgets.MDragDrop", {
       }
       if (this.isDroppable()) {
         this.addListener("dragover", this._onDragOver, this);
+        if (this._onDragLeave) {
+          this.addListener("dragleave", this._onDragLeave, this);
+        }
       }
     },
 
@@ -91,8 +94,12 @@ qx.Mixin.define("gosa.ui.widgets.MDragDrop", {
     },
 
     _onDragOver: function(e) {
-      if (!e.supportsType(this.getDragDropType())) {
-        e.preventDefault();
+      if (this.onDragOver) {
+        this.onDragOver(e);
+      } else {
+        if (!e.supportsType(this.getDragDropType())) {
+          e.preventDefault();
+        }
       }
     }
   }

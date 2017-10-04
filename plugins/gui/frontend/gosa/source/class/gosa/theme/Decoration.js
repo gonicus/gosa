@@ -117,6 +117,20 @@ qx.Theme.define("gosa.theme.Decoration",
       }
     },
 
+    "drop-before": {
+      style: {
+        width: [3, 0, 0, 0],
+        color: "lightgray-dark"
+      }
+    },
+
+    "drop-after": {
+      style: {
+        width: [0, 0, 3, 0],
+        color: "lightgray-dark"
+      }
+    },
+
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
     "button-normal": {

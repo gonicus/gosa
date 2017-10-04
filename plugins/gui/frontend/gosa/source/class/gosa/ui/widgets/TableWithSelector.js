@@ -101,7 +101,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       this._table.addListener("remove", this.removeSelection, this);
 
       // drag&drop
-      this._initDrapDropListeners();
+      this._initDragDropListeners();
 
       // check if we have some table filters
       var object = this._getController().getObject();

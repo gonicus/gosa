@@ -21,12 +21,12 @@ qx.Class.define("gosa.ui.tree.Folder", {
   construct : function(label) {
     this._initialLabel = label;
     this.base(arguments, label);
-    this._initDrapDropListeners();
     this._applyDragDropGuiProperties({
       dragDropType: "gosa/menuEntry",
       draggable: true,
       droppable: true
     });
+    this._initDragDropListeners();
   },
 
   /*

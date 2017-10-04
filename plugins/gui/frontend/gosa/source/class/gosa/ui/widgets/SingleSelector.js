@@ -172,7 +172,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
           }
         }, this);
 
-     this._initDrapDropListeners();
+     this._initDragDropListeners();
     },
 
     _onDropRequest: function(e) {
