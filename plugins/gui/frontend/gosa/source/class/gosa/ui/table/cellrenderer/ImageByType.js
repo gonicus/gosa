@@ -15,6 +15,27 @@ qx.Class.define("gosa.ui.table.cellrenderer.ImageByType", {
 
   members: {
     // overridden
+    _getContentHtml : function(cellInfo)
+    {
+      var content = "<div></div>";
+
+      // set image
+      if (this.__imageData.url) {
+        content = qx.bom.element.Decoration.create(
+          this.__imageData.url,
+          this.getRepeat(),
+          {
+            width: this.__imageData.width + "px",
+            height: this.__imageData.height + "px",
+            verticalAlign: "top",
+            position: "static"
+          });
+      };
+
+      return content;
+    },
+
+    // overridden
     _identifyImage : function(cellInfo)
     {
       var imageHints = this.base(arguments, cellInfo);
