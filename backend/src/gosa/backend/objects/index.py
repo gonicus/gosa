@@ -868,7 +868,12 @@ class ObjectIndex(Plugin):
         # Add query information to be able to search various tables
         _args = __make_filter(node)
 
-        return _args, use_extension
+        if use_extension:
+            args = [ObjectInfoIndex.uuid == ExtensionIndex.uuid]
+            args += _args
+            return and_(*args)
+
+        return _args
 
     def search(self, query, properties):
         """
@@ -886,7 +891,7 @@ class ObjectIndex(Plugin):
         ``Return``: List of dicts
         """
         res = []
-        fltr, use_extension = self._make_filter(query)
+        fltr = self._make_filter(query)
 
         def normalize(data, resultset=None):
             _res = {
@@ -918,10 +923,7 @@ class ObjectIndex(Plugin):
 
             return _res
 
-        if use_extension is True:
-            q = self.__session.query(ObjectInfoIndex).outerjoin(ObjectInfoIndex.extensions).filter(*fltr)
-        else:
-            q = self.__session.query(ObjectInfoIndex).filter(*fltr)
+        q = self.__session.query(ObjectInfoIndex).filter(*fltr)
 
         self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
 
