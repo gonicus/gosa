@@ -114,9 +114,7 @@ class RpcMethodsTestCase(TestCase):
 
         with mock.patch.dict("gosa.backend.plugins.rpc.methods.PluginRegistry.modules", {'ACLResolver': mockedResolver}):
             res = self.rpc.searchForObjectDetails('admin', 'User', 'manager', '', ['uid'], None)
-            assert len(res) == 1
-            assert 'freich' in res[0]['uid']
-            assert 'dn' in res[0]
+            assert len(res) == 2
 
         with mock.patch.dict("gosa.backend.plugins.rpc.methods.PluginRegistry.modules", {'ACLResolver': mockedResolver}):
             res = self.rpc.searchForObjectDetails('admin', 'User', 'manager', '', ['uid'], ['cn=System Administrator,ou=people,dc=example,dc=net'])

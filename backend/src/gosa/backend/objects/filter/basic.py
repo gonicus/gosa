@@ -91,11 +91,17 @@ class CopyForeignValueTo(ElementFilter):
 
     def process(self, obj, key, valDict, object_type, id_attribute, content_attribute, target_attribute):
         index = PluginRegistry.getInstance("ObjectIndex")
+        factory = ObjectFactory.getInstance()
         valDict[target_attribute]['value'] = []
         log = logging.getLogger(__name__)
         if type(valDict[key]['value']) is not None and len(valDict[key]['value']):
             for val in valDict[key]['value']:
-                res = index.search({"or_": {"_type": object_type, 'extension': object_type}, id_attribute: val}, {content_attribute: 1})
+                query = {id_attribute: val}
+                if factory.isBaseType(object_type):
+                    query["_type"] = object_type
+                else:
+                    query["extension"] = object_type
+                res = index.search(query, {content_attribute: 1})
                 if len(res):
                     log.debug("adding %s to %s" % (res[0][content_attribute], target_attribute))
                     if isinstance(res[0][content_attribute], list):
@@ -131,11 +137,17 @@ class CopyForeignValueFrom(ElementFilter):
 
     def process(self, obj, key, valDict, object_type, id_attribute, source_content, source_attribute):
         index = PluginRegistry.getInstance("ObjectIndex")
+        factory = ObjectFactory.getInstance()
         valDict[key]['value'] = []
         log = logging.getLogger(__name__)
         if type(valDict[source_attribute]['value']) is not None and len(valDict[source_attribute]['value']):
             for val in valDict[source_attribute]['value']:
-                res = index.search({"or_": {"_type": object_type, 'extension': object_type}, source_content: val}, {id_attribute: 1})
+                query = {id_attribute: val}
+                if factory.isBaseType(object_type):
+                    query["_type"] = object_type
+                else:
+                    query["extension"] = object_type
+                res = index.search(query, {id_attribute: 1})
                 if len(res) and res[0][id_attribute] is not None:
                     log.debug("adding %s from %s to %s" % (res[0][id_attribute], source_attribute, key))
                     if isinstance(res[0][id_attribute], list):

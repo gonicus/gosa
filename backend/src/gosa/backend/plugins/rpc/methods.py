@@ -214,21 +214,17 @@ class RPCMethods(Plugin):
         # Start the query and format the result
         index = PluginRegistry.getInstance("ObjectIndex")
         query = {}
+        object_factory = ObjectFactory.getInstance()
         if object_attribute is not None:
             query[object_attribute] = '%{}%'.format(search_filter) if len(search_filter) > 0 else '%'
 
         if object_type != "*":
-            query["or_"] = {
-                '_type': object_type,
-                'extension': object_type
-            }
-        search_result = index.search(query, attrs)
+            if object_factory.isBaseType(object_type):
+                query["_type"] = object_type
+            else:
+                query["extension"] = object_type
 
-        if not search_result and object_type != "*":
-            # re-search without join to extension table
-            del query["or_"]
-            query["_type"] = object_type
-            search_result = index.search(query, attrs)
+        search_result = index.search(query, attrs)
 
         result = []
 
@@ -324,7 +320,10 @@ class RPCMethods(Plugin):
 
         query = {oattr: names}
         if otype != "*":
-            query["or_"] = {'_type': otype, 'extension': otype}
+            if of.isBaseType(otype):
+                query["_type"] = otype
+            else:
+                query["extension"] = otype
         res = index.search(query, attrs)
 
         result = {}
@@ -579,7 +578,10 @@ class RPCMethods(Plugin):
         else:
             query_result = self.__session.query(ObjectInfoIndex).filter(query)
 
-        self.log.debug(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+        try:
+            self.log.debug(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+        except Exception:
+            pass
 
         for item in query_result:
             self.update_res(res, item, user, self.__make_relevance(item, keywords, fltr), these=these, actions=actions)

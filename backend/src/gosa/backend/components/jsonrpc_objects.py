@@ -19,8 +19,7 @@ from gosa.common import Environment
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import Command, PluginRegistry, ObjectRegistry, Plugin
-from gosa.backend.objects import ObjectProxy
-
+from gosa.backend.objects import ObjectProxy, ObjectFactory
 
 # Register the errors handled  by us
 C.register_codes(dict(
@@ -405,10 +404,12 @@ class JSONRPCObjectMapper(Plugin):
     @Command(needsUser=True, needsSession=True, __help__=N_("Instantiate object identified by a combination of attribute/type"))
     def openObjectByType(self, user, session_id, key, value, type, *args, **kwargs):
         index = PluginRegistry.getInstance("ObjectIndex")
-        res = index.search({"or_": {"_type": type, "extension": type}, key: value}, {"dn": 1})
-        if len(res) == 0:
-            # might be not extended
-            res = index.search({"_type": type, key: value}, {"dn": 1})
+        query = {key: value}
+        if ObjectFactory.getInstance().isBaseType(type):
+            query["_type"] = type
+        else:
+            query["extension"] = type
+        res = index.search(query, {"dn": 1})
 
         if len(res) == 0:
             raise Exception(C.make_error("OBJECT_NOT_FOUND", object=args[0],

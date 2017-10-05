@@ -16,7 +16,7 @@ from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects.backend import ObjectBackend
 from gosa.backend.exceptions import EntryNotFound, BackendError
 from gosa.backend.objects.index import ObjectIndex
-from gosa.backend.objects import ObjectProxy
+from gosa.backend.objects import ObjectProxy, ObjectFactory
 
 
 class ObjectHandler(ObjectBackend):
@@ -68,7 +68,10 @@ class ObjectHandler(ObjectBackend):
                     matchValue = results[0][matchAttr]
                     query = {foreignMatchAttr: matchValue}
                     if foreignObject != "*":
-                        query["or_"] = {'_type': foreignObject, 'extension': foreignObject}
+                        if ObjectFactory.getInstance().isBaseType(foreignObject):
+                            query["_type"] = foreignObject
+                        else:
+                            query["extension"] = foreignObject
                     xq = index.search(query, {foreignAttr: 1})
                     if foreignAttr == "dn":
                         result[targetAttr] = [x[foreignAttr] for x in xq]
@@ -100,6 +103,7 @@ class ObjectHandler(ObjectBackend):
         # Extract usable information out og the backend attributes
         mapping = self.extractBackAttrs(back_attrs)
         index = PluginRegistry.getInstance("ObjectIndex")
+        factory = ObjectFactory.getInstance()
         self.log.debug("update(%s, %s, %s)" % (uuid, data, back_attrs))
 
         # Ensure that we have a configuration for all attributes
@@ -131,7 +135,10 @@ class ObjectHandler(ObjectBackend):
             for value in allvalues:
                 query = {foreignAttr: value}
                 if foreignObject != "*":
-                    query["or_"] = {'_type': foreignObject, 'extension': foreignObject}
+                    if factory.isBaseType(foreignObject):
+                        query["_type"] = foreignObject
+                    else:
+                        query["extension"] = foreignObject
                 res = index.search(query, {'dn': 1})
                 if len(res) != 1:
                     raise EntryNotFound(C.make_error("NO_UNIQUE_ENTRY", object=foreignObject, attribute=foreignAttr, value=value))

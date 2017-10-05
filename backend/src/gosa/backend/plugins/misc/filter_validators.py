@@ -11,6 +11,7 @@ import re
 
 import copy
 
+from gosa.backend.objects import ObjectFactory
 from gosa.common.components import PluginRegistry
 from gosa.common.utils import N_
 from gosa.backend.objects.comparator import ElementComparator
@@ -163,8 +164,12 @@ class HasMemberOfType(ElementComparator):
                                type=type))
         else:
             index = PluginRegistry.getInstance("ObjectIndex")
-            res = index.search({"or_": {"_type": type, "extension": type}, attribute_content: {"in_": value}},
-                               {"dn": 1})
+            query = {attribute_content: {"in_": value}}
+            if ObjectFactory.getInstance().isBaseType(type):
+                query["_type"] = type
+            else:
+                query["extension"] = type
+            res = index.search(query, {"dn": 1})
             if len(res) > 0:
                 return len(errors) == 0, errors
 
@@ -194,8 +199,12 @@ class HasMemberOfType(ElementComparator):
         res = index.search({"_type": group_type, attribute_content: {"in_": value}},
                            {attribute: 1})
         sub_values = [x[attribute] for x in res]
-        res = index.search({"or_": {"_type": type, "extension": type}, attribute_content: {"in_": sub_values}},
-                           {"dn": 1})
+        query = {attribute_content: {"in_": sub_values}}
+        if ObjectFactory.getInstance().isBaseType(type):
+            query["_type"] = type
+        else:
+            query["extension"] = type
+        res = index.search(query, {"dn": 1})
 
         if len(res) == 0 and len(sub_values):
             return self.traverse_groups(sub_values, type, attribute, attribute_content, group_type)

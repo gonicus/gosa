@@ -1034,7 +1034,12 @@ class ObjectProxy(object):
                     self.__log.debug("adding: %s" % add)
 
                     if len(remove):
-                        res = index.search({"or_": {"_type": hook["notified_obj"], "extension": hook["notified_obj"]}, "dn": {"in_": remove}}, {"dn": 1})
+                        query = {"dn": {"in_": remove}}
+                        if self.__factory.isBaseType(hook["notified_obj"]):
+                            query["_type"] = hook["notified_obj"]
+                        else:
+                            query["extension"] = hook["notified_obj"]
+                        res = index.search(query, {"dn": 1})
                         for x in res:
                             obj = ObjectProxy(x["dn"])
                             self.__log.debug("removing reference to %s from %s.%s" % (self.dn, obj.dn, hook["notified_obj_attribute"]))
@@ -1042,7 +1047,12 @@ class ObjectProxy(object):
                             obj.commit()
 
                     if len(add):
-                        res = index.search({"or_": {"_type": hook["notified_obj"], "extension": hook["notified_obj"]}, "dn": {"in_": add}}, {"dn": 1})
+                        query = {"dn": {"in_": add}}
+                        if self.__factory.isBaseType(hook["notified_obj"]):
+                            query["_type"] = hook["notified_obj"]
+                        else:
+                            query["extension"] = hook["notified_obj"]
+                        res = index.search(query, {"dn": 1})
                         for x in res:
                             obj = ObjectProxy(x["dn"])
                             self.__log.debug("adding reference to %s to %s.%s" % (self.dn, obj.dn, hook["notified_obj_attribute"]))
