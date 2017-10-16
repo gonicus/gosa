@@ -39,9 +39,6 @@ class AnyType(AttributeType):
     def _convert_to_unicodestring(self, value):
         return list(map(lambda x: str(x), value))
 
-    def fixup(self, value):
-        return self._convert_to_string(value)
-
 
 class StringAttribute(AttributeType):
     __alias__ = "String"
