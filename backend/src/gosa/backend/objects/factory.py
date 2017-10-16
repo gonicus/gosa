@@ -476,9 +476,6 @@ class ObjectFactory(object):
                 if find.hasattr(item):
                     for ext in item["Extends"].iterchildren():
                         if ext.text == baseclass:
-                            # DEBUG CODE, remove once the sporadic startup error no such child: {http://www.gonicus.de/Objects}Attributes is solved
-                            if "Attributes" not in item:
-                                print("No Attributes found in item: %s" % str(item))
                             for attr in item["Attributes"].iterchildren():
                                 if attr.tag == "{http://www.gonicus.de/Objects}Attribute" and attr["Name"] == attribute:
                                     return attr
