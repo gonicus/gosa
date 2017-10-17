@@ -304,6 +304,7 @@ class ForemanClient(object):
                 raise ForemanBackendException(response, method=method_name)
             return data
         else:
+            self.log.error("%s request with %s to %s failed: %s" % (method_name, data, url, str(response)))
             raise ForemanBackendException(response, method=method_name)
 
     def check_backend(self):
@@ -349,6 +350,7 @@ class ForemanClient(object):
     @classmethod
     def error_notify_user(cls, ex, user=None):
         channel = "user.%s" if user is not None else "broadcast"
+        logging.getLogger(__name__).log.error("Foreman backend error: %s" % str(ex))
         # report to clients
         e = EventMaker()
         ev = e.Event(e.BackendException(
