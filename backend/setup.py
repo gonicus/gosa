@@ -88,7 +88,8 @@ setup(
         'pycountry',
         'tornadostreamform',
         'pycups',
-        'sh'
+        'sh',
+        'pylint'
         ],
 
     entry_points = """
