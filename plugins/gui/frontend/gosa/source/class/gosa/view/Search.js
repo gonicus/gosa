@@ -28,7 +28,7 @@ qx.Class.define("gosa.view.Search", {
     // Default search parameters
     this.__default_selection = this.__selection = {
         'fallback': true,
-        'secondary': "enabled",
+        'secondary': "disabled",
         'category': "all",
         'mod-time': "all"
     };
@@ -299,10 +299,12 @@ qx.Class.define("gosa.view.Search", {
 
     doSearchE : qx.util.Function.debounce(function(noListUpdate) {
       return this.doSearch(noListUpdate);
-    }, 100, false),
+    }, 200, false),
 
     doSearch : function(noListUpdate) {
+      console.time('search');
       var query = this.sf.getValue();
+      console.trace(noListUpdate+" "+this._old_query+", "+query);
 
       // Don't search for nothing or not changed values
       if (!noListUpdate && (query === "" || this._old_query === query)) {
@@ -320,14 +322,16 @@ qx.Class.define("gosa.view.Search", {
       if (this.__searchPromise) {
         this.__searchPromise.cancel();
       }
+      console.time('search RPC');
+      this._old_query = query;
       return this.__searchPromise = rpc.cA("search", base, "sub", query, this.__default_selection)
       .then(function(result) {
+        console.timeEnd('search RPC');
         var endTime = new Date().getTime();
 
         // Memorize old query and display results
         if(!noListUpdate) {
           this.showSearchResults(result, endTime - startTime, false, query);
-          this._old_query = query;
         }
 
         return result;
@@ -336,11 +340,13 @@ qx.Class.define("gosa.view.Search", {
         this.error(error);
         var d = new gosa.ui.dialogs.Error(error);
         d.open();
+        this._old_query = null;
       }, this)
       .finally(function() {
         if (!noListUpdate && !this.isDisposed()) {
           this.hideSpinner();
         }
+        console.timeEnd('search');
       }, this);
 
     },
