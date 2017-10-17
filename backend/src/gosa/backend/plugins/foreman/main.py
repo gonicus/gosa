@@ -97,8 +97,9 @@ class Foreman(Plugin):
         # Load DB session
         self.__session = self.env.getDatabaseSession('backend-database')
 
-        sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
-        sched.add_interval_job(self.flush_parameter_setting, seconds=10, tag='_internal', jobstore="ram")
+        if self.client:
+            sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
+            sched.add_interval_job(self.flush_parameter_setting, seconds=10, tag='_internal', jobstore="ram")
 
     def __handle_events(self, event):
         """
