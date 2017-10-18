@@ -21,7 +21,7 @@ from gosa.backend.objects import ObjectProxy
 from gosa.common import Environment
 from gosa.common.components import Plugin
 from gosa.common.components import PluginRegistry
-from gosa.common.utils import N_
+from gosa.common.utils import N_, is_uuid
 from gosa.common.error import GosaErrorHandler as C
 
 # Register the errors handled  by us
@@ -209,11 +209,17 @@ class TwoFactorAuthManager(Plugin):
         :rtype: string or None
         """
         if isinstance(user, str):
-            user = ObjectProxy(user)
-        if user.uuid in self.__settings:
-            if 'otp_secret' in self.__settings[user.uuid]:
+            if not is_uuid(user):
+                index = PluginRegistry.getInstance("ObjectIndex")
+                res = index.search({'dn': user}, {'_uuid': 1})
+                if len(res) == 1:
+                    user = res[0]['_uuid']
+        elif isinstance(user, ObjectProxy):
+            user = user.uuid
+        if user in self.__settings:
+            if 'otp_secret' in self.__settings[user]:
                 return "otp"
-            elif '_u2f_devices_' in self.__settings[user.uuid]:
+            elif '_u2f_devices_' in self.__settings[user]:
                 return "u2f"
 
         return None
