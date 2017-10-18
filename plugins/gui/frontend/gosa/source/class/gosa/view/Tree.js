@@ -164,6 +164,7 @@ qx.Class.define("gosa.view.Tree", {
         case "table":
           // Create the table
           var tableModel = this._tableModel = new qx.ui.table.model.Simple();
+          tableModel.setCaseSensitiveSorting(false);
           tableModel.setColumns(["", this.tr("Name"), this.tr("Description"), this.tr("DN"), this.tr("UUID")], [
             'type',
             'title',
