@@ -57,6 +57,7 @@ setup(
     install_requires = ['gosa.common', 'pycurl', 'pyqrcode', 'python-u2flib-host'],
     tests_require=[
         'pytest',
+        'coverage',
         'pytest-cov',
         'coveralls'
     ],
