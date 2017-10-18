@@ -68,7 +68,9 @@ qx.Mixin.define("gosa.util.MMethodChaining", {
           after: {}
         };
       }
-      this.assertKeyInMap(type, this.__hooks);
+      if (qx.core.Environment.get('qx.debug')) {
+        this.assertKeyInMap(type, this.__hooks);
+      }
       if (!this.__hooks[type][method]) {
         this.__hooks[type][method] = [[callback, context]];
       } else {
