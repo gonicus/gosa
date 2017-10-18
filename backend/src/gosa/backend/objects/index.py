@@ -196,7 +196,7 @@ class ObjectIndex(Plugin):
 
             sobj = PluginRegistry.getInstance("SchedulerService")
             sobj.getScheduler().add_date_job(finish,
-                                             datetime.datetime.now() + datetime.timedelta(seconds=5),
+                                             datetime.datetime.now() + datetime.timedelta(seconds=10),
                                              tag='_internal', jobstore='ram')
 
         # Extract search aid
