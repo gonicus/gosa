@@ -192,12 +192,11 @@ class ObjectIndex(Plugin):
                        tag='_internal', jobstore='ram')
         else:
             def finish():
-                print('index scan skipped -> trigger finished event')
                 zope.event.notify(IndexScanFinished())
 
             sobj = PluginRegistry.getInstance("SchedulerService")
             sobj.getScheduler().add_date_job(finish,
-                                             datetime.datetime.now() + datetime.timedelta(seconds=1),
+                                             datetime.datetime.now() + datetime.timedelta(seconds=5),
                                              tag='_internal', jobstore='ram')
 
         # Extract search aid
