@@ -143,7 +143,7 @@ class LDAPHandler(object):
             if get("ldap.tls", default="True").lower() == "true" and ldap.TLS_AVAIL and self.__url.urlscheme != "ldaps":
                 try:
                     conn.start_tls_s()
-                except ldap.PROTOCOL_ERROR as detail:
+                except (ldap.PROTOCOL_ERROR, ldap.CONNECT_ERROR) as detail:
                     self.log.debug("cannot use TLS, falling back to unencrypted session")
 
             try:
