@@ -97,8 +97,7 @@ class TwoFactorAuthManager(Plugin):
         # Do we have read permissions for the requested attribute
         self.__check_acl(user_name, object_dn, "r")
 
-        user = ObjectProxy(object_dn)
-        return self.get_method_from_user(user)
+        return self.get_method_from_user(object_dn)
 
     @Command(needsUser=True, __help__=N_("Enable two factor authentication for the given user"))
     def setTwoFactorMethod(self, user_name, object_dn, factor_method, user_password=None):
@@ -140,8 +139,8 @@ class TwoFactorAuthManager(Plugin):
         # Do we have write permissions for the requested attribute
         self.__check_acl(user_name, object_dn, "w")
 
-        user = ObjectProxy(object_dn)
-        user_settings = self.__settings[user.uuid]
+        uuid = self.__dn_to_uuid(object_dn)
+        user_settings = self.__settings[uuid]
         data = loads(data)
         binding, cert = complete_registration(user_settings.pop('_u2f_enroll_'), data,
                                           [self.facet])
@@ -161,8 +160,8 @@ class TwoFactorAuthManager(Plugin):
         # Do we have read permissions for the requested attribute
         self.__check_acl(user_name, object_dn, "r")
 
-        user = ObjectProxy(object_dn)
-        user_settings = self.__settings[user.uuid] if user.uuid in self.__settings else {}
+        uuid = self.__dn_to_uuid(object_dn)
+        user_settings = self.__settings[uuid] if uuid in self.__settings else {}
         devices = [DeviceRegistration.wrap(device)
                    for device in user_settings.get('_u2f_devices_', [])]
         challenge = begin_authentication(self.app_id, devices)
@@ -176,9 +175,9 @@ class TwoFactorAuthManager(Plugin):
         self.__check_acl(user_name, object_dn, "r")
 
         # Get the object for the given dn
-        user = ObjectProxy(object_dn)
-        factor_method = self.get_method_from_user(user)
-        user_settings = self.__settings[user.uuid] if user.uuid in self.__settings else {}
+        uuid = self.__dn_to_uuid(object_dn)
+        factor_method = self.get_method_from_user(uuid)
+        user_settings = self.__settings[uuid] if uuid in self.__settings else {}
         if factor_method == "otp":
             totp = TOTP(user_settings.get('otp_secret'))
             return totp.verify(key)
@@ -210,10 +209,7 @@ class TwoFactorAuthManager(Plugin):
         """
         if isinstance(user, str):
             if not is_uuid(user):
-                index = PluginRegistry.getInstance("ObjectIndex")
-                res = index.search({'dn': user}, {'_uuid': 1})
-                if len(res) == 1:
-                    user = res[0]['_uuid']
+                user = self.__dn_to_uuid(user)
         elif isinstance(user, ObjectProxy):
             user = user.uuid
         if user in self.__settings:
@@ -222,6 +218,13 @@ class TwoFactorAuthManager(Plugin):
             elif '_u2f_devices_' in self.__settings[user]:
                 return "u2f"
 
+        return None
+
+    def __dn_to_uuid(self, dn):
+        index = PluginRegistry.getInstance("ObjectIndex")
+        res = index.search({'dn': dn}, {'_uuid': 1})
+        if len(res) == 1:
+            return res[0]['_uuid']
         return None
 
     def __enable_otp(self, user):
