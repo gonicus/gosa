@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Objects xmlns="http://www.gonicus.de/Objects">
     <Object>
-        <Name>GotoMenuEntry</Name>
-        <DisplayName>GotoMenuEntry</DisplayName>
+        <Name>GotoMenu</Name>
+        <DisplayName>GotoMenu</DisplayName>
         <Description>GOto - defines a menu entry (v2.7)</Description>
         <Backend>LDAP</Backend>
         <Extends>
@@ -20,11 +20,11 @@
             </ExtensionCondition>
         </ExtensionConditions>
         <BackendParameters>
-            <Backend objectClasses="gotoMenuEntry" RDN="cn">LDAP</Backend>
+            <Backend objectClasses="gotoMenu" RDN="cn">LDAP</Backend>
         </BackendParameters>
         <BaseObject>false</BaseObject>
         <Templates>
-            <Template>gotoMenuEntry.json</Template>
+            <Template>GotoMenu.json</Template>
         </Templates>
         <Attributes>
             <ForeignAttribute>
@@ -62,8 +62,8 @@
         </Attributes>
         <Find>
             <Aspect>
-                <Tag>GotoMenuEntry</Tag>
-                <Keyword>GotoMenuEntry</Keyword>
+                <Tag>GotoMenu</Tag>
+                <Keyword>GotoMenu</Keyword>
                 <Keyword>MenuEntry</Keyword>
                 <Search>cn</Search>
                 <Search>gotoLsbName</Search>
