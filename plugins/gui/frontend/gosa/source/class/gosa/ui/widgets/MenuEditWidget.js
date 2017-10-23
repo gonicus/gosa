@@ -257,27 +257,29 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
 
       // get parameters from gotoApplication
       var keys = [];
+      var promise = this._attribute === "dn" ?
+        gosa.proxy.ObjectFactory.openObject(current.get(this._attribute)) :
+        gosa.proxy.ObjectFactory.openObjectByType(this._attribute, current.get(this._attribute), this._type);
 
-      gosa.proxy.ObjectFactory.openObjectByType(this._attribute, current.get(this._attribute), this._type)
-        .then(function(obj) {
-          var parameters = obj.get("gosaApplicationParameter");
-          if (parameters.length) {
-            form.addGroupHeader(this.tr("Application parameters"));
-            obj.get("gosaApplicationParameter").forEach(function (entry) {
-              var parts = entry.split(":");
-              keys.push(parts[0]);
-              var field = new qx.ui.form.TextField(current.getParameterValue(parts[0]));
-              field.setPlaceholder(parts[1]);
-              current.initParameter(parts[0], parts[1]);
-              field.setLiveUpdate(true);
-              field.addListener("changeValue", function (ev) {
-                current.setParameter(parts[0], ev.getData());
-              }, this);
-              form.add(field, parts[0], null, parts[0]);
+      promise.then(function(obj) {
+        var parameters = obj.get("gosaApplicationParameter");
+        if (parameters.length) {
+          form.addGroupHeader(this.tr("Application parameters"));
+          obj.get("gosaApplicationParameter").forEach(function (entry) {
+            var parts = entry.split(":");
+            keys.push(parts[0]);
+            var field = new qx.ui.form.TextField(current.getParameterValue(parts[0]));
+            field.setPlaceholder(parts[1]);
+            current.initParameter(parts[0], parts[1]);
+            field.setLiveUpdate(true);
+            field.addListener("changeValue", function (ev) {
+              current.setParameter(parts[0], ev.getData());
             }, this);
-            return obj.close();
-          }
-        }, this);
+            form.add(field, parts[0], null, parts[0]);
+          }, this);
+          return obj.close();
+        }
+      }, this);
 
       this._entryForm = new gosa.ui.form.renderer.Single(form, false);
       this._entryForm.setHeaderAlign("center");

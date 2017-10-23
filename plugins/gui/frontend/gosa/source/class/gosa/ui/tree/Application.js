@@ -60,6 +60,11 @@ qx.Class.define("gosa.ui.tree.Application", {
       nullable: true
     },
 
+    dn: {
+      check: "String",
+      nullable: true
+    },
+
     gosaApplicationName: {
       check: "String",
       nullable: true
@@ -203,7 +208,7 @@ qx.Class.define("gosa.ui.tree.Application", {
 
       return {
         name: this.getLabel(),
-        cn: this.getCn(),
+        dn: this.getDn(),
         gosaApplicationParameter: parameters
       }
     }
