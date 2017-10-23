@@ -434,6 +434,10 @@ class ObjectIndex(Plugin):
         cr = PluginRegistry.getInstance("CommandRegistry")
         GlobalLock.acquire("scan_index")
         ObjectIndex.importing = True
+        updated = 0
+        added = 0
+        existing = 0
+        removed = 0
 
         try:
             self._indexed = True
@@ -454,6 +458,15 @@ class ObjectIndex(Plugin):
 
             self.log.info("scanning for objects")
             res = resolve_children(self.env.base)
+            # count by type
+            counts = {}
+            for o in res.keys():
+                if res[o] not in counts:
+                    counts[res[o]] = 1
+                else:
+                    counts[res[o]] += 1
+
+            self.log.debug("Found objects: %s" % counts)
             res[self.env.base] = 'dummy'
 
             self.log.info("generating object index")
@@ -479,6 +492,7 @@ class ObjectIndex(Plugin):
 
                 # Entry is not in the database
                 if not last_modified:
+                    added += 1
                     self.insert(obj, True)
 
                 # Entry is in the database
@@ -486,10 +500,11 @@ class ObjectIndex(Plugin):
                     # OK: already there
                     if obj.modifyTimestamp == last_modified[0]:
                         self.log.debug("found up-to-date object index for %s" % obj.uuid)
-
+                        existing += 1
                     else:
                         self.log.debug("updating object index for %s" % obj.uuid)
                         self.update(obj)
+                        updated += 1
 
                 backend_objects.append(obj.uuid)
                 del obj
@@ -499,9 +514,11 @@ class ObjectIndex(Plugin):
                 uuid = uuid[0]
                 if uuid not in backend_objects:
                     self.remove_by_uuid(uuid)
+                    removed += 1
 
             t1 = time.time()
             self.log.info("processed %d objects in %ds" % (len(res), t1 - t0))
+            self.log.info("%s added, %s updated, %s removed, %s are up-to-date" % (added, updated, removed, existing))
 
         except Exception as e:
             self.log.critical("building the index failed: %s" % str(e))
