@@ -24,7 +24,7 @@
         </BackendParameters>
         <BaseObject>false</BaseObject>
         <Templates>
-            <Template>GotoMenu.json</Template>
+            <Template>gotoMenu.json</Template>
         </Templates>
         <Attributes>
             <ForeignAttribute>
