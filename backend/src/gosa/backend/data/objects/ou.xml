@@ -80,6 +80,7 @@
       <Type>Country</Type>
       <Type>SambaDomain</Type>
       <Type>AclRole</Type>
+      <Type>GosaApplication</Type>
     </Container>
     <BaseObject>true</BaseObject>
     <Find>

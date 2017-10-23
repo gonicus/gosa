@@ -65,7 +65,6 @@
       <Type>OrganizationalRoleContainer</Type>
       <Type>AclRole</Type>
       <Type>SystemsContainer</Type>
-      <Type>ApplicationContainer</Type>
     </Container>
     <BaseObject>true</BaseObject>
     <Find>
