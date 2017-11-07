@@ -288,13 +288,27 @@ qx.Class.define("gosa.view.Tree", {
 
     __applyTreeDelegate : function(tree) {
       // Special delegation handling
-      var iconConverter = function(data, model) {
+      var iconConverter = function(data, model, source, target) {
+        if (model.isDummy()) {
+          return null;
+        }
         if (!model.isLoading()) {
+          if (target.$$animationHandle) {
+            gosa.ui.Throbber.stopAnimation(target.getChildControl('icon'), target.$$animationHandle, true);
+            delete target.$$animationHandle;
+          }
           if (model.getType()) {
             return gosa.util.Icons.getIconByType(model.getType(), 22);
           }
           return "@Ligature/pencil";
         } else {
+          if (target.getChildControl('icon').getBounds()) {
+            target.$$animationHandle = gosa.ui.Throbber.animate(target.getChildControl('icon'));
+          } else {
+            target.getChildControl('icon').addListenerOnce('appear', function() {
+              target.$$animationHandle = gosa.ui.Throbber.animate(target.getChildControl('icon'));
+            }, this);
+          }
           return "@Ligature/adjust";
         }
       };

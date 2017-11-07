@@ -50,9 +50,13 @@ qx.Class.define("gosa.ui.Throbber", {
       });
     },
 
-    stopAnimation: function(iconWidget, handle) {
+    stopAnimation: function(iconWidget, handle, stop) {
       qx.core.Assert.assertInstance(iconWidget, qx.ui.basic.Image);
-      handle.pause();
+      if (stop) {
+        handle.stop();
+      } else {
+        handle.pause();
+      }
       if (iconWidget.getUserData("oldIcon")) {
         iconWidget.setSource(iconWidget.getUserData("oldIcon"));
         iconWidget.setUserData("oldIcon", null);

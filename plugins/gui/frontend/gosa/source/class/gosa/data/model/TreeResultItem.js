@@ -125,6 +125,10 @@ qx.Class.define("gosa.data.model.TreeResultItem",
       check : "String",
       event : "changeDescription",
       init : ""
+    },
+    dummy: {
+      check: "Boolean",
+      init: false
     }
   },
 
@@ -281,7 +285,9 @@ qx.Class.define("gosa.data.model.TreeResultItem",
       // Add a dummy object if we know that this container has children.
       if(result['hasChildren']){
         item.setHasChildren(true);
-        item.getChildren().push(new gosa.data.model.TreeResultItem("Dummy"));
+        var dummy = new gosa.data.model.TreeResultItem();
+        dummy.setDummy(true);
+        item.getChildren().push(dummy);
       }
 
       return(item);
