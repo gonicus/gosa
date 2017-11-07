@@ -93,9 +93,9 @@ class ObjectInfoIndex(Base):
     __tablename__ = 'obj-index'
 
     uuid = Column(String(36), primary_key=True)
-    dn = Column(String)
-    _parent_dn = Column(String)
-    _adjusted_parent_dn = Column(String)
+    dn = Column(String, index=True)
+    _parent_dn = Column(String, index=True)
+    _adjusted_parent_dn = Column(String, index=True)
     _type = Column(String(64))
     _last_modified = Column(DateTime)
     _invisible = Column(Boolean)
