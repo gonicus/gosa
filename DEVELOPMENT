@@ -14,6 +14,7 @@ Quickstart
 The non-docker way
 ==================
  - install postgres
+ - install the levenshtein function in postgres (CREATE EXTENSION fuzzystrmatch SCHEMA public;)
  - install cups server, mosquitto + auth-plugin and configure in gosa config file
  - create /var/lib/gosa + /var/lib/gosa/spool dirs
  - run gosa.utils.gosa_ldap_monitor as a service on the LDAP server (add webhook in gosa and configure the monitors config)
