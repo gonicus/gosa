@@ -35,6 +35,9 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
     _firstColumn: null,
     _sortByColumn: null,
     __changeListeners: null,
+    _queryFilterConfig: null,
+    _defaultQueryFilter: null,
+    _valueQueryFilter: null,
 
     __draw : function() {
       this._createChildControl("toolbar");
@@ -307,6 +310,21 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
      * Adds a {@link gosa.ui.tree.Application}, which represents an application, to the tree.
      */
     _onAddApp: function() {
+      var options = {};
+      if (this._queryFilterConfig) {
+        if (this._queryFilterConfig.valueFrom) {
+          // get value from current objects attribute
+          var object = this._getController().getObject();
+          var value = gosa.ui.widgets.Widget.getSingleValue(object.get(this._queryFilterConfig.valueFrom));
+          if (value) {
+            options.queryFilter = this._valueQueryFilter.replace("###VAL###", value);
+          }
+        }
+        if (!options.queryFilter && this._defaultQueryFilter) {
+          // use default filter
+          options.queryFilter = this._defaultQueryFilter;
+        }
+      }
       var d = new gosa.ui.dialogs.ItemSelector(
         this['tr'](this._editTitle),
         [],
@@ -317,7 +335,8 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
         false,
         null,
         this._sortByColumn,
-        "searchObjects"
+        "searchObjects",
+        options
       );
 
       d.addListener("selected", function(e){
@@ -388,6 +407,14 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
 
       if (props.hasOwnProperty("editTitle")) {
         this._editTitle = props.editTitle;
+      }
+
+      if (props.hasOwnProperty("queryFilter")) {
+        this._queryFilterConfig = props.queryFilter;
+        this._defaultQueryFilter = props.queryFilter.base+","+gosa.Session.getInstance().getBase();
+        if (props.queryFilter.hasOwnProperty("valueFrom") && props.queryFilter.hasOwnProperty("valueRDN")) {
+          this._valueQueryFilter = props.queryFilter.valueRDN+"=###VAL###,"+this._defaultQueryFilter;
+        }
       }
 
       this._columnNames = [];

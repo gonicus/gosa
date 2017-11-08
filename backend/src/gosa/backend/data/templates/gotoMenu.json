@@ -84,7 +84,12 @@
                 "gosaApplicationName": "tr('Name')",
                 "dn": "tr('Dn')"
               },
-              "sortByColumn": "gosaApplicationName"
+              "sortByColumn": "gosaApplicationName",
+              "queryFilter": {
+                "valueFrom": "gotoLsbName",
+                "valueRDN": "ou",
+                "base": "ou=apps"
+              }
             }
           }
         }

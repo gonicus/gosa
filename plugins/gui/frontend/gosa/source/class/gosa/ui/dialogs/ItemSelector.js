@@ -18,7 +18,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
   extend: gosa.ui.dialogs.Dialog,
 
-  construct: function(title, current_values, extension, attribute, column_keys, column_names, single, modelFilter, sortByColumn, mode) {
+  construct: function(title, current_values, extension, attribute, column_keys, column_names, single, modelFilter, sortByColumn, mode, options) {
     this.base(arguments);
     this.setCaption(title);
     this.setResizable(true, true, true, true);
@@ -32,8 +32,10 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
     this._detailsRpc = mode || "searchForObjectDetails";
 
+    var queryFilter = options && options.hasOwnProperty('queryFilter') ? options.queryFilter : "";
+
     // init table model
-    gosa.io.Rpc.getInstance().cA(this._detailsRpc, extension, attribute, "", column_keys, current_values)
+    gosa.io.Rpc.getInstance().cA(this._detailsRpc, extension, attribute, queryFilter, column_keys, current_values)
       .then(function(result) {
         if (modelFilter) {
           result = modelFilter.filter(result);
