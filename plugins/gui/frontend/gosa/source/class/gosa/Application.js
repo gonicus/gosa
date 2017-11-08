@@ -143,7 +143,7 @@ qx.Class.define("gosa.Application",
         doc.add(desktop, {left: 3, right: 3, top: 48, bottom: 4});
 
         // Hide Splash - initialized by index.html
-        if (qx.core.Environment.get("qx.debug") || !window.applicationCache || window.location.protocol.indexOf("https") === 0) {
+        if (qx.core.Environment.get("qx.debug") || window.applicationCache || window.location.protocol.indexOf("https") === 0) {
           this.hideSplash();
         }
 
