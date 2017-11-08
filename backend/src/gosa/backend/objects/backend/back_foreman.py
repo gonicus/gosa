@@ -350,7 +350,7 @@ class ForemanClient(object):
     @classmethod
     def error_notify_user(cls, ex, user=None):
         channel = "user.%s" if user is not None else "broadcast"
-        logging.getLogger(__name__).log.error("Foreman backend error: %s" % str(ex))
+        logging.getLogger(__name__).error("Foreman backend error: %s" % str(ex))
         # report to clients
         e = EventMaker()
         ev = e.Event(e.BackendException(
