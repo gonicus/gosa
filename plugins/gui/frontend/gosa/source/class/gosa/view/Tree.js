@@ -426,7 +426,11 @@ qx.Class.define("gosa.view.Tree", {
             }
           }, this);
           tableModel.setDataAsMapArray(this._tableData.toArray());
-          this.getChildControl("search-field").setEnabled(!!this._tableData.length);
+          var searchField = this.getChildControl("search-field");
+          searchField.setEnabled(!!this._tableData.length);
+          if (searchField.getValue() && searchField.isEnabled()) {
+            this._applyFilter();
+          }
         }, this);
 
         this.__updateMenus();
