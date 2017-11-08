@@ -13,7 +13,7 @@ import datetime
 import shlex
 
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import aliased, joinedload
 
 import gosa.backend.objects.renderer
 
@@ -572,11 +572,11 @@ class RPCMethods(Plugin):
 
         if 'limit' in fltr:
             if order_by is not None:
-                query_result = self.__session.query(ObjectInfoIndex).filter(query).order_by(order_by).limit(fltr['limit'])
+                query_result = self.__session.query(ObjectInfoIndex).options(joinedload(ObjectInfoIndex.properties)).filter(query).order_by(order_by).limit(fltr['limit'])
             else:
-                query_result = self.__session.query(ObjectInfoIndex).filter(query).limit(fltr['limit'])
+                query_result = self.__session.query(ObjectInfoIndex).options(joinedload(ObjectInfoIndex.properties)).filter(query).limit(fltr['limit'])
         else:
-            query_result = self.__session.query(ObjectInfoIndex).filter(query)
+            query_result = self.__session.query(ObjectInfoIndex).options(joinedload(ObjectInfoIndex.properties)).filter(query)
 
         try:
             self.log.debug(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
@@ -631,13 +631,14 @@ class RPCMethods(Plugin):
         """
         penalty = 1
 
-        # Prepare attribute set
-        values = []
-        for prop in item.properties:
-            values.append(prop.value)
-
         # Walk thru keywords
         if keywords:
+
+            # Prepare attribute set
+            values = []
+            for prop in item.properties:
+                values.append(prop.value)
+
             for keyword in keywords:
 
                 # No exact match
@@ -748,6 +749,7 @@ class RPCMethods(Plugin):
             return None
 
         attrs = self.__search_aid['mapping'][entry._type].values()
+        get_attrs = []
 
         for attr in attrs:
             if attr is not None and these is not None and attr not in these:
@@ -757,11 +759,16 @@ class RPCMethods(Plugin):
                 if hasattr(ObjectInfoIndex, attr):
                     ne[attr] = getattr(entry, attr)
                 else:
-                    kv = self.__index_props_to_key_value(entry.properties)
+                    get_attrs.append(attr)
+                    ne[attr] = None
 
-                    ne[attr] = kv[attr] if attr in kv else None
             else:
                 ne[attr] = None
+
+        if len(get_attrs):
+            kv = self.__index_props_to_key_value(entry.properties)
+            for attr in get_attrs:
+                ne[attr] = kv[attr] if attr in kv else None
 
         return ne
 
