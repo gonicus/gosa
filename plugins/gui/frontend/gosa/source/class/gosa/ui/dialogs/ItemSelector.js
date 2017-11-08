@@ -35,8 +35,13 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     var queryFilter = options && options.hasOwnProperty('queryFilter') ? options.queryFilter : "";
 
     // init table model
+    var throbber = new gosa.ui.Throbber();
+    throbber.addState("blocking");
+    this._tableContainer.add(throbber, {edge: 0});
+
     gosa.io.Rpc.getInstance().cA(this._detailsRpc, extension, attribute, queryFilter, column_keys, current_values)
       .then(function(result) {
+        throbber.destroy();
         if (modelFilter) {
           result = modelFilter.filter(result);
         }
@@ -54,11 +59,13 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
   members : {
     __table : null,
     __tableModel : null,
+    _tableContainer: null,
     __isSingleSelection : false,
     _sortByColumn: null,
     _detailsRpc: null,
 
     __initWidgets : function(column_names, column_keys, extension, attribute) {
+      this._tableContainer = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
       this.__tableModel = new qx.ui.table.model.Simple();
       this.__tableModel.setColumns(column_names, column_keys);
       this.__table = new gosa.ui.table.Table(this.__tableModel);
@@ -68,7 +75,8 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
         this.__table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
       }
       this.__table.addListener("dblclick", this.__onOk, this);
-      this.add(this.__table, {flex: 1});
+      this._tableContainer.add(this.__table, {edge: 0});
+      this.add(this._tableContainer, {flex: 1});
       this.__table.setPreferenceTableName(extension + ":" + attribute + "Edit");
 
 
@@ -111,6 +119,6 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
   destruct : function()
   {
-    this._disposeObjects("__tableModel", "__table");
+    this._disposeObjects("__tableModel", "__table", "_tableContainer");
   }
 });
