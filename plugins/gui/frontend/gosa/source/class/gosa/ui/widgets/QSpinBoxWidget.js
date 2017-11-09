@@ -51,8 +51,6 @@ qx.Class.define("gosa.ui.widgets.QSpinBoxWidget", {
   },
 
   members: {
- 
-    _default_value: 0,
 
     /**
      * Apply collected gui properties to this widet
@@ -67,11 +65,11 @@ qx.Class.define("gosa.ui.widgets.QSpinBoxWidget", {
       if(props["placeholderText"] && props["placeholderText"]["string"]){
         this.setPlaceholder(props["placeholderText"]["string"]);
       }
-      if(props["maximum"] && props["maximum"]["number"]){
-        this.setMaximum(parseInt(props["maximum"]["number"])) ;
+      if(props.hasOwnProperty("maximum") && props.maximum.hasOwnProperty("number")){
+        this.setMinimum(parseInt(props.maximum.number, 10));
       }
-      if(props["minimum"] && props["minimum"]["number"]){
-        this.setMinimum(parseInt(props["minimum"]["number"])) ;
+      if(props.hasOwnProperty("minimum") && props.minimum.hasOwnProperty("number")){
+        this.setMinimum(parseInt(props.minimum.number, 10));
       }
     },
 
@@ -80,10 +78,8 @@ qx.Class.define("gosa.ui.widgets.QSpinBoxWidget", {
      * */
     _createWidget: function(){
       var w = new gosa.ui.form.Spinner();
-      w.addListener("changeValue", function(){
-          this.addState("modified");
-          this._propertyUpdater();
-        }, this); 
+      w.addListener("changeValue", this._propertyUpdaterTimed, this);
+      w.addListener("focusout", this._propertyUpdater, this);
       this.bind("maximum", w, "maximum");
       this.bind("minimum", w, "minimum");
       w.bind("backgroundColor", w.getChildControl("textfield"), "backgroundColor");

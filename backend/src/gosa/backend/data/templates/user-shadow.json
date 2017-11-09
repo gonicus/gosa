@@ -99,6 +99,11 @@
             },
             "properties": {
                 "toolTipText": "tr('Specifies the number of days before the password expires that the user is warned.')"
+            },
+            "extensions": {
+                "guiProperties": {
+                    "minimum": {"number": 0}
+                }
             }
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",
@@ -120,6 +125,11 @@
             },
             "properties": {
                 "toolTipText": "tr('Specifies the number of days of inactivity allowed for the specified user.')"
+            },
+            "extensions": {
+                "guiProperties": {
+                    "minimum": {"number": 0}
+                }
             }
         }]
     }, {
@@ -149,7 +159,7 @@
             },
             "properties": {
                 "text": "tr('Minimum password age')",
-                "toolTipText": "tr('Specifices the minimum number of days required between password changes.')'"
+                "toolTipText": "tr('Specifices the minimum number of days required between password changes.')"
             }
         }, {
             "class": "gosa.ui.widgets.QSpinBoxWidget",
@@ -159,7 +169,12 @@
                 "column": 1
             },
             "properties": {
-                "toolTipText": "tr('Specifices the minimum number of days required between password changes.')'"
+                "toolTipText": "tr('Specifices the minimum number of days required between password changes.')"
+            },
+            "extensions": {
+                "guiProperties": {
+                    "minimum": {"number": 0}
+                }
             }
         }, {
             "class": "gosa.ui.widgets.QLabelWidget",
@@ -181,6 +196,11 @@
             },
             "properties": {
                 "toolTipText": "tr('Specifies the maximum number of days the password is valid.')"
+            },
+            "extensions": {
+                "guiProperties": {
+                    "minimum": {"number": 0}
+                }
             }
         }]
     }]

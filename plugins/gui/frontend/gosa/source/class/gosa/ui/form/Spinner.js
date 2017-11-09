@@ -151,6 +151,44 @@ qx.Class.define("gosa.ui.form.Spinner", {
         // otherwise, reset the last valid value
         this._applyValue(this.__lastValidValue_, undefined);
       }
-    }
+    },
+
+    _updateButtons : function() {
+      var upButton = this.getChildControl("upbutton");
+      var downButton = this.getChildControl("downbutton");
+      var value = this.getValue() || 0;
+
+      if (!this.getEnabled())
+      {
+        // If Spinner is disabled -> disable buttons
+        upButton.setEnabled(false);
+        downButton.setEnabled(false);
+      }
+      else
+      {
+        if (this.getWrap())
+        {
+          // If wraped -> always enable buttons
+          upButton.setEnabled(true);
+          downButton.setEnabled(true);
+        }
+        else
+        {
+          // check max value
+          if (value < this.getMaximum()) {
+            upButton.setEnabled(true);
+          } else {
+            upButton.setEnabled(false);
+          }
+
+          // check min value
+          if (value > this.getMinimum()) {
+            downButton.setEnabled(true);
+          } else {
+            downButton.setEnabled(false);
+          }
+        }
+      }
+    },
   }
 });
