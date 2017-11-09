@@ -271,6 +271,8 @@ qx.Class.define("gosa.Application",
 
           // Handle URL actions
           this.__handleUrl(this._history.getState());
+
+          gosa.io.Rpc.getInstance().setCollectCommands(false);
         }, this)
         .catch(function(error) {
           // getSessionUser failed

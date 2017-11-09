@@ -35,6 +35,12 @@ qx.Class.define("gosa.io.Rpc", {
 
     this.__cacheHashRegex = new RegExp('^###([^#]+)###(.*)');
 
+    // check if we should log RPCs
+    var req = qx.util.Uri.parseUri(window.location.href);
+    if (req.queryKey.collectCommands) {
+      this.setCollectCommands(true);
+    }
+
     // these RPCs are always allowed, even when all others are blocked
     this.cA("getNoLoginMethods").then(function(res) {
       this.__allowedRPCs = res;
@@ -61,6 +67,12 @@ qx.Class.define("gosa.io.Rpc", {
       check: "Boolean",
       init: false,
       event: "changeBlockRpcs"
+    },
+
+    collectCommands: {
+      check: "Boolean",
+      init: false,
+      apply: "_applyCollectCommands"
     }
   },
 
@@ -106,6 +118,19 @@ qx.Class.define("gosa.io.Rpc", {
     __cacheHashRegex: null,
     __allowedRPCs: null,
 
+    // array of RPC commands (usefull to get a list of all commands required during GUI loading, to create an ACL for that)
+    __collectedCommands: null,
+
+
+    _applyCollectCommands: function(value) {
+      if (value) {
+        // start collecting
+        this.__collectedCommands = {};
+      } else if (this.__collectedCommands) {
+        // stop collecting
+        console.log(Object.keys(this.__collectedCommands).join("|"));
+      }
+    },
 
     /**
      * Enables an anonymous method to use the this context.
@@ -162,6 +187,9 @@ qx.Class.define("gosa.io.Rpc", {
      */
     __promiseCallAsync: function(argx) {
       this.debug("started next rpc job '" + argx[0] + "'");
+      if (this.isCollectCommands()) {
+        this.__collectedCommands[argx[0]] = 1;
+      }
       return new qx.Promise(function(resolve, reject) {
         var errorWrapper = qx.lang.Function.curry(this.__handleRpcError.bind(this), argx, resolve, reject);
 
