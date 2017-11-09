@@ -304,7 +304,6 @@ qx.Class.define("gosa.view.Search", {
     doSearch : function(noListUpdate) {
       console.time('search');
       var query = this.sf.getValue();
-      console.trace(noListUpdate+" "+this._old_query+", "+query);
 
       // Don't search for nothing or not changed values
       if (!noListUpdate && (query === "" || this._old_query === query)) {
