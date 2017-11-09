@@ -222,7 +222,7 @@ class CommandRegistry(Plugin):
             raise CommandInvalid(C.make_error("COMMAND_NOT_DEFINED", method=func))
 
         # Check for permission (if user equals 'self' then this is an internal call)
-        if user != self:
+        if user != self and func not in self.getNoLoginMethods():
             chk_options = dict(zip(self.commands[func]['sig'], arg))
             chk_options.update(larg)
             acl = PluginRegistry.getInstance("ACLResolver")
