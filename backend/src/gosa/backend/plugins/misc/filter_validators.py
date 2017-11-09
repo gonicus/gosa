@@ -199,12 +199,14 @@ class HasMemberOfType(ElementComparator):
         res = index.search({"_type": group_type, attribute_content: {"in_": value}},
                            {attribute: 1})
         sub_values = [x[attribute] for x in res]
-        query = {attribute_content: {"in_": sub_values}}
-        if ObjectFactory.getInstance().isBaseType(type):
-            query["_type"] = type
-        else:
-            query["extension"] = type
-        res = index.search(query, {"dn": 1})
+        res = []
+        if len(sub_values):
+            query = {attribute_content: {"in_": sub_values}}
+            if ObjectFactory.getInstance().isBaseType(type):
+                query["_type"] = type
+            else:
+                query["extension"] = type
+            res = index.search(query, {"dn": 1})
 
         if len(res) == 0 and len(sub_values):
             return self.traverse_groups(sub_values, type, attribute, attribute_content, group_type)
