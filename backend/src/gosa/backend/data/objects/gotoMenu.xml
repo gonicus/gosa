@@ -67,6 +67,7 @@
                 <Keyword>MenuEntry</Keyword>
                 <Search>cn</Search>
                 <Search>gotoLsbName</Search>
+                <Search>gotoMenu</Search>
                 <Result>
                     <Map>
                         <Source>cn</Source>

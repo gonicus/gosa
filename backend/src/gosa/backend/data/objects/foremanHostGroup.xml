@@ -171,6 +171,15 @@
         </InFilter>
       </Attribute>
     </Attributes>
+    <Methods>
+      <Method>
+        <Name>getReleaseName</Name>
+        <Command>getForemanReleaseName</Command>
+        <CommandParameters>
+          <Value>operatingsystem_id</Value>
+        </CommandParameters>
+      </Method>
+    </Methods>
     <Find>
       <Aspect>
         <Tag>ForemanHostGroup</Tag>

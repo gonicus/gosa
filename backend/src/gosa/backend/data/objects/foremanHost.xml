@@ -463,6 +463,13 @@
           <Value>compute_resource_id</Value>
         </CommandParameters>
       </Method>
+      <Method>
+        <Name>getReleaseName</Name>
+        <Command>getForemanReleaseName</Command>
+        <CommandParameters>
+          <Value>operatingsystem_id</Value>
+        </CommandParameters>
+      </Method>
     </Methods>
     <Extends>
       <Value>Device</Value>

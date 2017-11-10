@@ -356,6 +356,14 @@ class Foreman(Plugin):
                     res[entry["release_name"]] = {"value": entry["release_name"]}
         return res
 
+    @Command(__help__=N_("Get release name of an operating system"))
+    @cache_return(timeout_secs=600)
+    def getForemanReleaseName(self, operatingsystem_id):
+        if self.client:
+            data = self.client.get("operatingsystems", id=operatingsystem_id)
+            return data["release_name"]
+        return None
+
     @Command(__help__=N_("Get details of a single foreman hostgroup."))
     @cache_return(timeout_secs=60)
     def getForemanHostgroup(self, id, attributes=None):

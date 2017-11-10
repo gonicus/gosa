@@ -40,7 +40,7 @@ class SessionKeeper(Plugin):
     _priority_ = 99
     _target_ = 'session'
     __sessions = {}
-    __callback = None
+    __callbacks = []
     active = False
 
     def __init__(self):
@@ -75,6 +75,9 @@ class SessionKeeper(Plugin):
             self.__bus.remove_signal_receiver(self.event_handler,
                 dbus_interface="org.freedesktop.login1.Manager")
 
+    def registerCallback(self, callback):
+        self.__callbacks.append(callback)
+
     def __handle_events(self, event):
         if isinstance(event, Resume):
             self.__update_sessions()
@@ -82,9 +85,9 @@ class SessionKeeper(Plugin):
     def event_handler(self, msg_string, dbus_message):
         self.__update_sessions()
 
-        if self.__callback:
+        for callback in self.__callbacks:
             #pylint: disable=E1102
-            self.__callback(dbus_message.get_member(), msg_string)
+            callback(dbus_message.get_member(), msg_string)
 
     def __update_sessions(self):
         obj = self.__bus.get_object("org.freedesktop.login1",

@@ -12,7 +12,6 @@ import datetime
 import logging
 from uuid import uuid4
 from copy import copy
-from threading import Timer
 
 import zope
 
@@ -25,6 +24,7 @@ from gosa.common.components.mqtt_handler import MQTTHandler
 from tornado import gen
 from zope.interface import implementer
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
+from gosa.common.gjson import loads, dumps
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.event import EventMaker
 from gosa.common import Environment
@@ -79,6 +79,8 @@ class ClientService(Plugin):
     __proxy = {}
     __user_session = {}
     __listeners = {}
+    entry_attributes = ['cn', 'description', 'gosaApplicationPriority', 'gosaApplicationName', 'gosaApplicationFlags', 'gosaApplicationExecute']
+    entry_map = {"gosaApplicationPriority": "prio", "description": "description"}
 
     def __init__(self):
         """
@@ -453,15 +455,131 @@ class ClientService(Plugin):
 
     def _handleUserSession(self, data):
         data = data.UserSession
+        id = str(data.Id)
         if hasattr(data.User, 'Name'):
-            self.__user_session[str(data.Id)] = list(map(str, data.User.Name))
-            self.systemSetStatus(str(data.Id), "+B")
+            users = list(map(str, data.User.Name))
+            if id in self.__user_sessions:
+                new_users = set.difference(users, self.__user_sessions[id])
+                if len(new_users):
+                    # configure users
+                    self.configureUsers(id, new_users)
+
+            self.__user_session[id] = users
+            self.systemSetStatus(id, "+B")
         else:
-            self.__user_session[str(data.Id)] = []
-            self.systemSetStatus(str(data.Id), "-B")
+            self.__user_session[id] = []
+            self.systemSetStatus(id, "-B")
 
         self.log.debug("updating client '%s' user session: %s" % (data.Id,
                 ','.join(self.__user_session[str(data.Id)])))
+
+    @Command(__help__="Remove later")
+    def configureUsers(self, client_id, users):
+        client = ObjectProxy(client_id)
+
+        if client.is_extended_by("GotoMenu"):
+            release = client.getReleaseName()
+        elif client.groupMembership is not None:
+            # get it from the group
+            print(client.groupMembership)
+            group = ObjectProxy(client.groupMembership)
+            release = group.getReleaseName()
+        else:
+            release = "xenial"
+
+        client_menu = None
+
+        if hasattr(client, "gotoMenu") and client.gotoMenu is not None:
+            client_menu = loads(client.gotoMenu)
+
+        index = PluginRegistry.getInstance("ObjectIndex")
+        # collect users DNs
+        query_result = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1, "uid": 1})
+        for entry in query_result:
+            menus = []
+            if client_menu is not None:
+                menus.append(client_menu)
+
+            # get all groups the user is member of which have a menu for the given release
+            query = {'_type': 'GroupOfNames', "member": entry["dn"], "extension": "GotoMenu"}
+
+            for res in index.search(query, {"gotoMenu": 1}):
+                # collect user menus
+                for m in res["gotoMenu"]:
+                    menus.append(loads(m))
+
+            if len(menus):
+                user_menu = None
+                for menu_entry in menus:
+                    if user_menu is None:
+                        user_menu = self.get_submenu(menu_entry)
+                    else:
+                        self.merge_submenu(user_menu, self.get_submenu(menu_entry))
+
+                # send to client
+                if user_menu is not None:
+                    self.log.debug("for user %s generated menu: %s" % (entry["uid"], user_menu))
+                    self.clientDispatch(client_id, "configureUserMenu", entry["uid"], user_menu)
+
+    def merge_submenu(self, menu1, menu2):
+        for cn, app in menu2.get('apps', {}).items():
+            if cn in menu1['apps']:
+                prio1 = int(menu1[cn].get('gosaApplicationPriority', '0'))
+                prio2 = int(menu2[cn].get('gosaApplicationPriority', '0'))
+                if prio2 >= prio1:
+                    menu1['apps'][cn] = app
+            else:
+                menu1['apps'][cn] = app
+
+        for menu_entry in menu2.get('menus', {}):
+            if menu_entry in menu1['menus']:
+                for cn, app in menu2['menus'][menu_entry].get('apps', {}).items():
+                    if cn in menu1['menus'][menu_entry]['apps']:
+                        prio1 = int(menu1['menus'][menu_entry]['apps'][cn].get('gosaApplicationPriority', '0'))
+                        prio2 = int(menu2['menus'][menu_entry]['apps'][cn].get('gosaApplicationPriority', '0'))
+                        if prio2 >= prio1:
+                            menu1['menus'][menu_entry]['apps'][cn] = app
+                    else:
+                        menu1['menus'][menu_entry]['apps'][cn] = app
+            else:
+                menu1['menus'][menu_entry] = menu2['menus'][menu_entry]
+
+            if 'menus' in menu2['menus'][menu_entry]:
+                if menu_entry in menu1['menus'] and 'menus' in menu1['menus'][menu_entry]:
+                    self.merge_submenu(menu1['menus'][menu_entry], menu2['menus'][menu_entry])
+                else:
+                    menu1['menus'][menu_entry]['menus'] = menu2['menus'][menu_entry]['menus']
+
+    def get_submenu(self, entries):
+        result = None
+        for entry in entries:
+            if result is None:
+                result = {'apps': []}
+
+            if 'children' in entry:
+                if not 'menus' in result:
+                    result['menus'] = {}
+                result['menus'][entry.get('name', N_('Unbekannt'))] = self.get_submenu(entry['children'])
+            else:
+                result['apps'].append(self.get_application(entry))
+
+        return result
+
+    def get_application(self, application):
+        result = None
+        if 'name' in application and 'dn' in application:
+            result = {'name': application.get('name')}
+            if 'gosaApplicationParameter' in application:
+                result['gosaApplicationParameter'] = application.get('gosaApplicationParameter')
+
+            application = ObjectProxy(application.get('dn'))
+            if application is not None:
+                for attribute in self.entry_attributes:
+                    if hasattr(application, attribute):
+                        attribute_name = self.entry_map.get(attribute, attribute)
+                        result[attribute_name] = getattr(application, attribute)
+
+        return result
 
     def _handleClientPing(self, data):
         data = data.ClientPing

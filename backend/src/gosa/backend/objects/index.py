@@ -950,6 +950,8 @@ class ObjectIndex(Plugin):
 
         q = self.__session.query(ObjectInfoIndex).filter(*fltr)
 
+        self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+
         for o in q.all():
             res.append(normalize(o, properties))
 
