@@ -11,7 +11,7 @@
  */
 qx.Class.define("gosa.ui.tree.Folder", {
   extend: qx.ui.tree.TreeFolder,
-  include: gosa.ui.widgets.MDragDrop,
+  include: [gosa.ui.widgets.MDragDrop, gosa.ui.tree.MMove],
 
   /*
   *****************************************************************************
@@ -70,13 +70,6 @@ qx.Class.define("gosa.ui.tree.Folder", {
         }
 
         ev.addData(this.getDragDropType(), this);
-      }
-    },
-
-    onDrop: function(ev) {
-      if (ev.supportsType(this.getDragDropType())) {
-        var item = ev.getData(this.getDragDropType());
-        this.add(item);
       }
     },
 

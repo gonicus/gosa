@@ -193,7 +193,7 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
           break;
 
         case "add-folder-button":
-          control = new qx.ui.toolbar.Button(this.tr("Add Folder"), "@Ligature/folder/22");
+          control = new qx.ui.toolbar.Button(this.tr("Add Category"), "@Ligature/folder/22");
           control.addListener("execute", this._onAddFolder, this);
           break;
 

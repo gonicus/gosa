@@ -189,6 +189,6 @@ qx.Class.define("gosa.ui.form.Spinner", {
           }
         }
       }
-    },
+    }
   }
 });
