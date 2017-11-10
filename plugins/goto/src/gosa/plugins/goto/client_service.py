@@ -481,11 +481,11 @@ class ClientService(Plugin):
             release = client.getReleaseName()
         elif client.groupMembership is not None:
             # get it from the group
-            print(client.groupMembership)
             group = ObjectProxy(client.groupMembership)
             release = group.getReleaseName()
         else:
-            release = "xenial"
+            self.log.error("no release found for client/user combination (%s/%s)" % client_id, users)
+            return
 
         client_menu = None
 
