@@ -473,7 +473,7 @@ class ClientService(Plugin):
         self.log.debug("updating client '%s' user session: %s" % (data.Id,
                 ','.join(self.__user_session[str(data.Id)])))
 
-    @Command(__help__="Remove later")
+    # @Command(__help__="Remove later")
     def configureUsers(self, client_id, users):
         client = ObjectProxy(client_id)
 
@@ -501,7 +501,7 @@ class ClientService(Plugin):
                 menus.append(client_menu)
 
             # get all groups the user is member of which have a menu for the given release
-            query = {'_type': 'GroupOfNames', "member": entry["dn"], "extension": "GotoMenu"}
+            query = {'_type': 'GroupOfNames', "member": entry["dn"], "extension": "GotoMenu", "gotoLsbName": release}
 
             for res in index.search(query, {"gotoMenu": 1}):
                 # collect user menus
