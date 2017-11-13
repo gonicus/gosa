@@ -11,7 +11,7 @@ else
     [ ! -d $BUILD_PATH/resource/gosa/js ] && mkdir -p $BUILD_PATH/resource/gosa/js
 
     sed "/BUILD::REMOVE::START/,/BUILD::REMOVE::END/d" \
-        template/index.html.in > source/index.html
+        template/index.html.in > $BUILD_PATH/index.html
     
     # Loop thru libs and optimize them
     for lib in source/resource/gosa/js/*js; do
