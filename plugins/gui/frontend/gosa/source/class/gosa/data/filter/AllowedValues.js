@@ -29,7 +29,7 @@ qx.Class.define("gosa.data.filter.AllowedValues", {
     },
 
     /**
-     * Maxmim allowed values
+     * Maximum allowed values
      */
     maximum: {
       check: "Integer",
@@ -58,6 +58,16 @@ qx.Class.define("gosa.data.filter.AllowedValues", {
         }
       }, this);
       this.__distinctValues = Object.getOwnPropertyNames(tmp);
+    },
+
+    /**
+     * Return additional search options for the backend search
+     * @returns {Map}
+     */
+    getSearchOptions: function() {
+      var res = {};
+      res[this.getPropertyName()] = this.__distinctValues;
+      return res;
     },
 
     filter: function(list) {

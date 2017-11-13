@@ -845,7 +845,7 @@ class ObjectIndex(Plugin):
                             v = "%s" % v
                         if hasattr(ObjectInfoIndex, key):
                             if "%" in v:
-                                exprs.append(getattr(ObjectInfoIndex, key).like(v))
+                                exprs.append(getattr(ObjectInfoIndex, key).ilike(v))
                             else:
                                 exprs.append(getattr(ObjectInfoIndex, key) == v)
                         elif key == "extension":
@@ -854,7 +854,7 @@ class ObjectIndex(Plugin):
                         else:
                             if "%" in v:
                                 sub_query = self.__session.query(KeyValueIndex.uuid). \
-                                    filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(v))). \
+                                    filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.ilike(v))). \
                                     subquery()
                             else:
                                 sub_query = self.__session.query(KeyValueIndex.uuid). \
@@ -870,7 +870,7 @@ class ObjectIndex(Plugin):
                         value = "%s" % value
                     if hasattr(ObjectInfoIndex, key):
                         if "%" in value:
-                            res.append(getattr(ObjectInfoIndex, key).like(value))
+                            res.append(getattr(ObjectInfoIndex, key).ilike(value))
                         else:
                             res.append(getattr(ObjectInfoIndex, key) == value)
                     elif key == "extension":
@@ -879,7 +879,7 @@ class ObjectIndex(Plugin):
                     else:
                         if "%" in value:
                             sub_query = self.__session.query(KeyValueIndex.uuid).\
-                                filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(value))).\
+                                filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.ilike(value))).\
                                 subquery()
                         else:
                             sub_query = self.__session.query(KeyValueIndex.uuid).\
@@ -900,7 +900,7 @@ class ObjectIndex(Plugin):
 
         return _args
 
-    def search(self, query, properties):
+    def search(self, query, properties, options=None):
         """
         Perform an index search
 
@@ -947,8 +947,13 @@ class ObjectIndex(Plugin):
                     _res.pop(key, None)
 
             return _res
+        if options is None:
+            options = {}
 
-        q = self.__session.query(ObjectInfoIndex).filter(*fltr)
+        if 'limit' in options:
+            q = self.__session.query(ObjectInfoIndex).filter(*fltr).limit(options['limit'])
+        else:
+            q = self.__session.query(ObjectInfoIndex).filter(*fltr)
 
         self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
 

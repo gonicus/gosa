@@ -32,24 +32,30 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
     this._detailsRpc = mode || "searchForObjectDetails";
 
-    var queryFilter = options && options.hasOwnProperty('queryFilter') ? options.queryFilter : "";
+    options = options || {};
+    var queryFilter =  "";
+    if (options.hasOwnProperty('queryFilter')) {
+      queryFilter = options.queryFilter;
+    } else {
+      options.limit = 100;
+    }
+    if (modelFilter) {
+      options.filter = modelFilter.getSearchOptions();
+    }
 
-    // init table model
-    var throbber = new gosa.ui.Throbber();
-    throbber.addState("blocking");
-    this._tableContainer.add(throbber, {edge: 0});
+    this._searchArgs = {
+      extension: extension,
+      attribute: attribute,
+      queryFilter: queryFilter,
+      columnKeys: column_keys,
+      currentValues: current_values,
+      options: options,
+      modelFilter: modelFilter
+    };
 
-    gosa.io.Rpc.getInstance().cA(this._detailsRpc, extension, attribute, queryFilter, column_keys, current_values)
-      .then(function(result) {
-        throbber.destroy();
-        if (modelFilter) {
-          result = modelFilter.filter(result);
-        }
-        this.__tableModel.setDataAsMapArray(result, true, false);
-        if (this._sortByColumn) {
-         this.__tableModel.sortByColumn(this.__tableModel.getColumnIndexById(this._sortByColumn), true);
-        }
-      }, this);
+    if (!options.skipInitialSearch) {
+      this._updateValues();
+    }
   },
 
   events: {
@@ -63,8 +69,49 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     __isSingleSelection : false,
     _sortByColumn: null,
     _detailsRpc: null,
+    _throbber: null,
+    _filter: null,
+
+
+    _updateValues: function(queryFilter) {
+      if (!queryFilter) {
+        queryFilter = this._searchArgs.queryFilter
+      }
+      if (!this._throbber) {
+        this._throbber = new gosa.ui.Throbber();
+        this._throbber.addState("blocking");
+        this._tableContainer.add(this._throbber, {edge: 0});
+      } else {
+        this._throbber.show();
+      }
+      gosa.io.Rpc.getInstance().cA(
+        this._detailsRpc,
+        this._searchArgs.extension,
+        this._searchArgs.attribute,
+        queryFilter,
+        this._searchArgs.columnKeys,
+        this._searchArgs.currentValues,
+        this._searchArgs.options)
+        .then(function (result) {
+          this._throbber.exclude();
+          if (this._searchArgs.modelFilter) {
+            result = this._searchArgs.modelFilter.filter(result);
+          }
+          this.__tableModel.setDataAsMapArray(result, true, false);
+          if (this._sortByColumn) {
+            this.__tableModel.sortByColumn(this.__tableModel.getColumnIndexById(this._sortByColumn), true);
+          }
+        }, this);
+    },
 
     __initWidgets : function(column_names, column_keys, extension, attribute) {
+      // search filter field
+      this._filter = new qx.ui.form.TextField().set({
+        placeholder : this.tr("Search..."),
+        liveUpdate : true,
+        allowGrowX : true
+      });
+      this._filter.addListener("changeValue", qx.util.Function.debounce(this._applyFilter, 250, false), this);
       this._tableContainer = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
       this.__tableModel = new qx.ui.table.model.Simple();
       this.__tableModel.setColumns(column_names, column_keys);
@@ -76,6 +123,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
       }
       this.__table.addListener("dblclick", this.__onOk, this);
       this._tableContainer.add(this.__table, {edge: 0});
+      this.add(this._filter);
       this.add(this._tableContainer, {flex: 1});
       this.__table.setPreferenceTableName(extension + ":" + attribute + "Edit");
 
@@ -107,6 +155,10 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
       okButton.addListener("execute", this.__onOk, this);
     },
 
+    _applyFilter: function() {
+      this._updateValues(this._filter.getValue());
+    },
+
     __onOk : function() {
         var list = [];
         this.__table.getSelectionModel().iterateSelection(function(index) {
@@ -119,6 +171,6 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
   destruct : function()
   {
-    this._disposeObjects("__tableModel", "__table", "_tableContainer");
+    this._disposeObjects("__tableModel", "__table", "_tableContainer", "_filter", "_throbber");
   }
 });

@@ -166,7 +166,8 @@
               "_type": "tr('Type')",
               "dn": "tr('DN')"
             },
-            "sortByColumn": "_type"
+            "sortByColumn": "_type",
+            "skipInitialSearch": true
           }
         }
       }]

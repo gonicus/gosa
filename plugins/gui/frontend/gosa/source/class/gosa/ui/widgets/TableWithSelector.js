@@ -24,6 +24,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     this._columnNames = [];
     this._tableData = [];
     this._resolvedNames = {};
+    this._selectorOptions = {};
 
     // Create the gui on demand
     this.addListener("initCompleteChanged", function(e){
@@ -59,6 +60,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     _sortByColumn: null,
     _initiallyHiddenColumns: null,
     _modelFilter: null,
+    _selectorOptions: null,
 
     /* Color the specific row red, if an error occurred!
      */
@@ -145,7 +147,8 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
 
     openSelector :  function() {
       var d = new gosa.ui.dialogs.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
-      this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames, false, this._modelFilter, this._sortByColumn);
+        this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames, false,
+        this._modelFilter, this._sortByColumn, null, this._selectorOptions);
 
       d.addListener("selected", function(e){
         if(e.getData().length){
@@ -301,6 +304,9 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       this._firstColumn = first;
       if ("sortByColumn" in props) {
         this._sortByColumn = props.sortByColumn;
+      }
+      if (props.hasOwnProperty("skipInitialSearch")) {
+        this._selectorOptions.skipInitialSearch = props.skipInitialSearch;
       }
     }
   },

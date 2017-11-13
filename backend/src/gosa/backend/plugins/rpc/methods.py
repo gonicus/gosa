@@ -183,7 +183,7 @@ class RPCMethods(Plugin):
             return None
 
     @Command(needsUser=True, __help__=N_("Search for related object information"))
-    def searchForObjectDetails(self, user, extension, attribute, search_filter, attributes, skip_values):
+    def searchForObjectDetails(self, user, extension, attribute, search_filter, attributes, skip_values, options=None):
         """
         Search selectable items valid for the attribute "extension.attribute".
 
@@ -199,10 +199,10 @@ class RPCMethods(Plugin):
 
         # Collection basic information
         object_type, object_attribute, _, _ = be_data[attribute]
-        return self.searchObjects(user, object_type, object_attribute, search_filter, attributes, skip_values)
+        return self.searchObjects(user, object_type, object_attribute, search_filter, attributes, skip_values, options)
 
     @Command(needsUser=True, __help__=N_("Search for object information"))
-    def searchObjects(self, user, object_type, object_attribute, search_filter, attributes, skip_values):
+    def searchObjects(self, user, object_type, object_attribute, search_filter, attributes, skip_values, options=None):
 
         # Create a list of attributes that will be requested
         if object_attribute is not None and object_attribute not in attributes:
@@ -223,8 +223,20 @@ class RPCMethods(Plugin):
                 query["_type"] = object_type
             else:
                 query["extension"] = object_type
+        if options is not None and 'filter' in options:
+            for key, values in options['filter'].items():
+                if key not in query:
+                    query[key] = values
+                else:
+                    if isinstance(query[key], list):
+                        query[key].append(values)
+                    else:
+                        query[key] = [query[key]]
+                        query[key].append(values)
 
-        search_result = index.search(query, attrs)
+            del options['filter']
+
+        search_result = index.search(query, attrs, options)
 
         result = []
 
