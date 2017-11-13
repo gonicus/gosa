@@ -127,7 +127,7 @@
                 "guiProperties": {
                     "editTitle": "tr('Add members')",
                     "columns": {
-                        "sn": "tr('Name')",
+                        "sn": "tr('Surname')",
                         "givenName": "tr('Given name')",
                         "uid": "tr('Login ID')"
                     }
