@@ -25,6 +25,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     this._tableData = [];
     this._resolvedNames = {};
     this._selectorOptions = {};
+    this.__listeners = [];
 
     // Create the gui on demand
     this.addListener("initCompleteChanged", function(e){
@@ -61,6 +62,8 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     _initiallyHiddenColumns: null,
     _modelFilter: null,
     _selectorOptions: null,
+    _contextMenuConfig: null,
+    __listeners: null,
 
     /* Color the specific row red, if an error occurred!
      */
@@ -88,6 +91,17 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
         this._tableModel.sortByColumn(this._tableModel.getColumnIndexById(this._sortByColumn), true);
       }
       this._table = new gosa.ui.table.Table(this._tableModel);
+      if (this._contextMenuConfig) {
+        for (var i = 0, l = this._columnIDs.length; i < l; i++) {
+          this._table.setContextMenuHandler(i, this._contextMenuHandlerRow, this);
+        }
+        if (this._contextMenuConfig.hasOwnProperty("marker")) {
+          // listen to object property changes
+          var object = this._getController().getObject();
+          var property = qx.util.PropertyUtil.getProperties(object.constructor)[this._contextMenuConfig.marker.ref];
+          this.__listeners.push([object, object.addListener(property.event, this._onMarkerPropertyChange, this)]);
+        }
+      }
       this._table.setStatusBarVisible(false);
       this._table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
       this._table.getSelectionModel().addListener("changeSelection", function() {
@@ -269,9 +283,91 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       if (this._modelFilter) {
         this._modelFilter.warmup(this._tableData);
       }
-
       this._tableModel.setDataAsMapArray(this._tableData, true, false);
       this._table.sort();
+    },
+
+    _contextMenuHandlerRow: function(col, row, table, dataModel, contextMenu) {
+      if (!this._contextMenuConfig) {
+        return;
+      }
+      var showMenu = false;
+      Object.getOwnPropertyNames(this._contextMenuConfig).forEach(function(type) {
+        var button;
+        switch (type) {
+          case "marker":
+            var conf = this._contextMenuConfig.marker;
+            button = new qx.ui.menu.Button(conf.title);
+            var refColumn = dataModel.getColumnIndexById(conf.columnId);
+            var currentValue = dataModel.getValue(refColumn, row);
+            var normalizedValue = this.__normalizeMarkerValue(currentValue);
+            var marked = normalizedValue !== currentValue;
+
+            var object = this._getController().getObject();
+            button.addListener("execute", function() {
+              if (marked) {
+                // unmark
+                object.set(conf.ref, new qx.data.Array());
+              } else {
+                // mark
+                object.set(conf.ref, new qx.data.Array([normalizedValue]));
+
+              }
+            }, this);
+            break;
+
+          default:
+            this.warn("unhandled menu entry type: ", type);
+            break;
+        }
+        if (button) {
+          contextMenu.add(button);
+          showMenu = true;
+        }
+      }, this);
+      return showMenu;
+    },
+
+    __normalizeMarkerValue: function(currentValue) {
+      var conf = this._contextMenuConfig.marker;
+      var normalizedValue = currentValue;
+      if (conf.hasOwnProperty("suffix") && currentValue.endsWith(conf.suffix)) {
+        normalizedValue = currentValue.substring(0, currentValue.length - conf.suffix.length);
+      }
+      if (conf.hasOwnProperty("prefix") && currentValue.startsWith(conf.prefix)) {
+        normalizedValue = normalizedValue.substring(conf.prefix.length);
+      }
+      return normalizedValue;
+    },
+
+    __markValue: function(value) {
+      var conf = this._contextMenuConfig.marker;
+      var newValue = value;
+      if (conf.suffix) {
+        newValue += conf.suffix;
+      }
+      if (conf.prefix) {
+        newValue = conf.prefix + newValue;
+      }
+      return newValue;
+    },
+
+    _onMarkerPropertyChange: function(ev) {
+      var conf = this._contextMenuConfig.marker;
+      var object = this._getController().getObject();
+      var value = gosa.ui.widgets.Widget.getSingleValue(object.get(conf.ref));
+      var refColumn = this._tableModel.getColumnIndexById(conf.columnId);
+      var data = this._tableModel.getData();
+      for (var row = 0, l = data.length; row < l; row++) {
+        var cellValue = data[row][refColumn];
+        var normalized = this.__normalizeMarkerValue(cellValue);
+        if (normalized === value) {
+          // mark this one
+          this._tableModel.setValue(refColumn, row, this.__markValue(normalized));
+        } else {
+          this._tableModel.setValue(refColumn, row, normalized);
+        }
+      }
     },
 
     _applyGuiProperties: function(props){
@@ -308,6 +404,9 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       if (props.hasOwnProperty("skipInitialSearch")) {
         this._selectorOptions.skipInitialSearch = props.skipInitialSearch;
       }
+      if (props.hasOwnProperty("contextMenu")) {
+        this._contextMenuConfig = props.contextMenu;
+      }
     }
   },
 
@@ -331,5 +430,9 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     this._firstColumn = null;
     this._resolvedNames = null;
     this._errorRows = null;
+    this.__listeners.forEach(function(entry) {
+      entry[0].removeListenerById(entry[1]);
+    });
+    this.__listeners = [];
   }
 });

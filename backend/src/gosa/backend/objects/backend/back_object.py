@@ -160,8 +160,13 @@ class ObjectHandler(ObjectBackend):
             for item in add:
                 if object_mapping[item]:
                     current_state = getattr(object_mapping[item], foreignMatchAttr)
-                    if matchValue not in current_state:
-                        current_state.append(matchValue)
+                    if type(matchValue) == list:
+                        for mv in matchValue:
+                            if mv not in current_state:
+                                current_state.append(mv)
+                    else:
+                        if matchValue not in current_state:
+                            current_state.append(matchValue)
                     setattr(object_mapping[item], foreignMatchAttr, current_state)
 
             # Save changes

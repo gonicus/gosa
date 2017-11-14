@@ -11,8 +11,7 @@
         </Templates>
         <BackendParameters>
             <Backend RDN="cn" objectClasses="gotoEnvironment">LDAP</Backend>
-            <Backend gotoDefaultPrinter="GotoPrinter:cn,gotoDefaultPrinter=cn"
-                     gotoPrinters="GotoPrinter:cn,gotoUserPrinter=uid">ObjectHandler</Backend>
+            <Backend gotoPrinters="GotoPrinter:dn,gotoGroupPrinter=dn">ObjectHandler</Backend>
         </BackendParameters>
         <Attributes>
             <Attribute>
@@ -52,7 +51,6 @@
                 <Type>Integer</Type>
                 <MultiValue>true</MultiValue>
                 <Backend>NULL</Backend>
-                <Default>0</Default>
             </Attribute>
 
             <Attribute>
@@ -130,7 +128,7 @@
                     <Condition>
                         <Name>ObjectWithPropertyExists</Name>
                         <Param>GotoPrinter</Param>
-                        <Param>cn</Param>
+                        <Param>dn</Param>
                     </Condition>
                 </Validators>
             </Attribute>
@@ -229,7 +227,7 @@
             </Attribute>
         </Attributes>
         <Extends>
-            <Value>User</Value>
+            <!--<Value>User</Value>-->
             <Value>GroupOfNames</Value>
         </Extends>
         <ExtensionConditions>

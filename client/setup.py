@@ -80,7 +80,8 @@ setup(
         'python_dateutil',
         'setproctitle',
         'pycrypto',
-        'paho-mqtt'
+        'paho-mqtt',
+        'pycups'
     ],
 
     entry_points = """
@@ -102,5 +103,6 @@ setup(
         session = gosa.client.plugins.sessions.main:SessionKeeper
         scheduler = gosa.client.scheduler:SchedulerService
         menu_config = gosa.client.configuration.menu:MenuConfiguration
+        printer_config = gosa.client.configuration.environment:PrinterConfiguration
     """
 )

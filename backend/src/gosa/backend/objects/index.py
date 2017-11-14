@@ -845,7 +845,10 @@ class ObjectIndex(Plugin):
                             v = "%s" % v
                         if hasattr(ObjectInfoIndex, key):
                             if "%" in v:
-                                exprs.append(getattr(ObjectInfoIndex, key).ilike(v))
+                                if v == "%":
+                                    exprs.append(getattr(ObjectInfoIndex, key).like(v))
+                                else:
+                                    exprs.append(getattr(ObjectInfoIndex, key).ilike(v))
                             else:
                                 exprs.append(getattr(ObjectInfoIndex, key) == v)
                         elif key == "extension":
@@ -853,9 +856,14 @@ class ObjectIndex(Plugin):
                             exprs.append(ExtensionIndex.extension == v)
                         else:
                             if "%" in v:
-                                sub_query = self.__session.query(KeyValueIndex.uuid). \
-                                    filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.ilike(v))). \
-                                    subquery()
+                                if v == "%":
+                                    sub_query = self.__session.query(KeyValueIndex.uuid). \
+                                        filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(v))). \
+                                        subquery()
+                                else:
+                                    sub_query = self.__session.query(KeyValueIndex.uuid). \
+                                        filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.ilike(v))). \
+                                        subquery()
                             else:
                                 sub_query = self.__session.query(KeyValueIndex.uuid). \
                                     filter(and_(KeyValueIndex.key == key, KeyValueIndex.value == v)). \
@@ -878,9 +886,14 @@ class ObjectIndex(Plugin):
                         res.append(ExtensionIndex.extension == value)
                     else:
                         if "%" in value:
-                            sub_query = self.__session.query(KeyValueIndex.uuid).\
-                                filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.ilike(value))).\
-                                subquery()
+                            if value == "%":
+                                sub_query = self.__session.query(KeyValueIndex.uuid).\
+                                    filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(value))).\
+                                    subquery()
+                            else:
+                                sub_query = self.__session.query(KeyValueIndex.uuid). \
+                                    filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.ilike(value))). \
+                                    subquery()
                         else:
                             sub_query = self.__session.query(KeyValueIndex.uuid).\
                                 filter(and_(KeyValueIndex.key == key, KeyValueIndex.value == value)).\

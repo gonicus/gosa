@@ -581,6 +581,33 @@ class ClientService(Plugin):
 
         return result
 
+    @Command(__help__="Remove me")
+    def configureClient(self, client_id):
+        """ Send system printer PPDs to client """
+        client = ObjectProxy(client_id)
+        printer_attributes = ["gotoPrinterPPD", "labeledURI", "cn", "l", "description"]
+        if client.groupMembership is not None:
+            # get it from the group
+            settings = {"printers": [], "defaultPrinter": None}
+            group = ObjectProxy(client.groupMembership)
+            if group.is_extended_by("GotoEnvironment") and len(group.gotoPrinters):
+                index = PluginRegistry.getInstance("ObjectIndex")
+                # get default printer
+                settings["defaultPrinter"] = group.gotoDefaultPrinter
+
+                # collect printer PPDs
+                query = {"_type": "GotoPrinter", "cn": {"in_": group.gotoPrinters}}
+                for res in index.search(query, {"dn": 1}):
+                    printer = ObjectProxy(res["dn"])
+                    p_conf = {}
+                    for attr in printer_attributes:
+                        p_conf[attr] = getattr(printer, attr)
+                    settings["printers"].append(p_conf)
+
+            if len(settings["printers"]):
+                self.log.debug("sending printer settings to client (%s): %s" % (client_id, settings))
+                self.clientDispatch(client_id, "configureHostPrinters", settings)
+
     def _handleClientPing(self, data):
         data = data.ClientPing
         client = data.Id.text
@@ -644,6 +671,9 @@ class ClientService(Plugin):
         client = data.Id.text
         self.log.info("client '%s' is joining us" % client)
         self.systemSetStatus(client, "+O-o")
+
+        # configure client
+        self.configureClient(client)
 
         # Assemble network information
         network = {}

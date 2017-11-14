@@ -51,11 +51,6 @@ class MenuConfiguration(Plugin):
         self.init_applications(user_menu)
         self.init_menu(user_menu)
 
-    @Command()
-    def configureUserPrinter(self, user, data):
-        """ configure a users printer configuration """
-        pass
-
     def init_applications(self, user_menu):
         app_dir = os.path.join(self.home_dir, self.local_applications)
         if not os.path.exists(app_dir):

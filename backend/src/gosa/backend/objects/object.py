@@ -53,7 +53,7 @@ C.register_codes(dict(
                                   "output filter"),
     ATTRIBUTE_INVALID_CONSTANT=N_("Value is invalid - expected one of %(elements)s"),
     ATTRIBUTE_INVALID_LIST=N_("Value is invalid - expected a list"),
-    ATTRIBUTE_INVALID=N_("Value is invalid - expected value of type '%(type)s'"),
+    ATTRIBUTE_INVALID=N_("Value for attribute '%(topic)s' is invalid - expected value of type '%(type)s'"),
     ATTRIBUTE_CHECK_FAILED=N_("Value is invalid (%(topic)s)"),
     ATTRIBUTE_NOT_UNIQUE=N_("Value is not unique (%(value)s)"),
     ATTRIBUTE_NOT_FOUND=N_("Attribute '%(topic)s' not found"),
@@ -1271,7 +1271,9 @@ class Object(object):
                 for idsc in dsc:
                     mode = idsc[2]
                     pattern = idsc[3]
-                    if self.myProperties[idsc[1]]['orig_value'] and len(self.myProperties[idsc[1]]['orig_value']):
+                    if idsc[1] == "dn":
+                        oval = self.dn
+                    elif self.myProperties[idsc[1]]['orig_value'] and len(self.myProperties[idsc[1]]['orig_value']):
                         oval = self.myProperties[idsc[1]]['orig_value'][0]
                     else:
                         oval = None
@@ -1289,7 +1291,7 @@ class Object(object):
                         idsc[1],
                         getattr(self, idsc[1]),
                         dns or [],
-                        self.myProperties[idsc[1]]['multivalue'],
+                        self.myProperties[idsc[1]]['multivalue'] if idsc[1] != "dn" else False,
                         mode,
                         pattern)
                     )

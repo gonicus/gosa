@@ -220,39 +220,6 @@
             "row": 3,
             "column": 0
           },
-          "buddyModelPath": "gotoDefaultPrinter",
-          "properties": {
-            "text": "tr('Default printer')"
-          },
-          "class": "gosa.ui.widgets.QLabelWidget"
-        },
-        {
-          "modelPath": "gotoDefaultPrinter",
-          "addOptions": {
-            "row": 3,
-            "column": 1
-          },
-          "properties": {
-            "tabIndex": 4,
-            "multivalue": false
-          },
-          "class": "gosa.ui.widgets.QTableWidgetWidget",
-          "extensions": {
-            "guiProperties": {
-              "columns": {
-                "cn": "tr('Name')",
-                "description": "tr('Description')"
-              },
-              "droppable": true,
-              "dragDropType": "gosa/printer"
-            }
-          }
-        },
-        {
-          "addOptions": {
-            "row": 4,
-            "column": 0
-          },
           "buddyModelPath": "gotoPrinters",
           "properties": {
             "text": "tr('Printer')"
@@ -262,7 +229,7 @@
         {
           "modelPath": "gotoPrinters",
           "addOptions": {
-            "row": 4,
+            "row": 3,
             "column": 1
           },
           "properties": {
@@ -279,7 +246,15 @@
               },
               "draggable": true,
               "dragDropActions": ["copy"],
-              "dragDropType": "gosa/printer"
+              "dragDropType": "gosa/printer",
+              "contextMenu": {
+                "marker": {
+                  "suffix": "*",
+                  "ref": "gotoDefaultPrinter",
+                  "columnId": "cn",
+                  "title": "tr('Default printer')"
+                }
+              }
             }
           }
         }

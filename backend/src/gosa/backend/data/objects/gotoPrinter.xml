@@ -13,8 +13,8 @@
             <Backend RDN="cn" objectClasses="gotoPrinter">LDAP</Backend>
             <Backend gotoUserAdminPrinter="PosixUser:uid,gotoUserAdminPrinter=uid"
                      gotoUserPrinter="PosixUser:uid,gotoUserPrinter=uid"
-                     gotoGroupAdminPrinter="PosixGroup:gidNumber,gotoGroupAdminPrinter=gidNumber"
-                     gotoGroupPrinter="PosixGroup:gidNumber,gotoGroupPrinter=gidNumber">ObjectHandler</Backend>
+                     gotoGroupAdminPrinter="GroupOfNames:dn,gotoGroupAdminPrinter=dn"
+                     gotoGroupPrinter="GroupOfNames:dn,gotoGroupPrinter=dn">ObjectHandler</Backend>
         </BackendParameters>
         <BaseObject>true</BaseObject>
         <Attributes>
@@ -172,14 +172,14 @@
                 <Validators>
                     <Condition>
                         <Name>ObjectWithPropertyExists</Name>
-                        <Param>PosixGroup</Param>
-                        <Param>gidNumber</Param>
+                        <Param>GroupOfNames</Param>
+                        <Param>dn</Param>
                     </Condition>
                 </Validators>
                 <References>
                     <Reference>
-                        <Object>PosixGroup</Object>
-                        <Attribute>gidNumber</Attribute>
+                        <Object>GroupOfNames</Object>
+                        <Attribute>dn</Attribute>
                     </Reference>
                 </References>
             </Attribute>
@@ -192,14 +192,14 @@
                 <Validators>
                     <Condition>
                         <Name>ObjectWithPropertyExists</Name>
-                        <Param>PosixGroup</Param>
-                        <Param>gidNumber</Param>
+                        <Param>GroupOfNames</Param>
+                        <Param>dn</Param>
                     </Condition>
                 </Validators>
                 <References>
                     <Reference>
-                        <Object>PosixGroup</Object>
-                        <Attribute>gidNumber</Attribute>
+                        <Object>GroupOfNames</Object>
+                        <Attribute>dn</Attribute>
                     </Reference>
                 </References>
             </Attribute>
