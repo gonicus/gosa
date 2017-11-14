@@ -110,6 +110,7 @@
         "build-script",
         "build-files",
         "build-manifest-file",
+        "build-customize",
         "build-ssl-index",
         "build-manifest-index"
       ]
@@ -133,6 +134,13 @@
     {
       "shell" : {
         "command" : "sed -i 's/^<html/<html manifest=\"cache.manifest\"/' build/index.html"
+      }
+    },
+
+    "build-customize" :
+    {
+      "shell" : {
+        "command" : "./customize build"
       }
     },
 
@@ -171,10 +179,6 @@
       "environment" :
       {
         "engine.name" : [ "gecko", "mshtml", "webkit", "opera" ]
-      },
-
-      "shell" : {
-        "command" : "./customize build"
       },
 
       "compile-options" :
