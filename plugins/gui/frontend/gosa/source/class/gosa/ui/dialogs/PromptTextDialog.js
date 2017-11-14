@@ -55,10 +55,13 @@ qx.Class.define("gosa.ui.dialogs.PromptTextDialog",
             required: true,
             width: 200
           });
+          control.addListenerOnce("appear", function() {
+            control.focus();
+          });
           break;
 
         case "ok-button":
-          control = gosa.ui.base.Buttons.getButton(this.tr("Ok"));
+          control = gosa.ui.base.Buttons.getButton(this.tr("Ok"), null, null, new qx.ui.command.Command("Enter"));
           control.addListener("execute", this._onOk, this);
           this.addButton(control);
           break;

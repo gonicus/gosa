@@ -72,6 +72,9 @@ qx.Mixin.define("gosa.ui.widgets.MDragDrop", {
       this._dragDropActions.forEach(e.addAction, e);
 
       e.addType(this.getDragDropType());
+      if (this._afterDragStart) {
+        this._afterDragStart(e);
+      }
     },
 
     _onDrop: function(ev) {

@@ -16,21 +16,21 @@ qx.Class.define("gosa.ui.base.Buttons", {
 
   statics: {
 
-    getButton : function(text, icon, tooltip) {
+    getButton : function(text, icon, tooltip, command) {
       var btn;
       if (icon) {
         if (icon.startsWith("@")) {
-          btn = new qx.ui.form.Button(text, icon);
+          btn = new qx.ui.form.Button(text, icon, command);
           btn.getChildControl("icon").set({
             height: 22,
             width: 22,
             scale: true
           })
         } else {
-          btn = new qx.ui.form.Button(text, gosa.Config.getImagePath(icon, 22));
+          btn = new qx.ui.form.Button(text, gosa.Config.getImagePath(icon, 22), command);
         }
       } else {
-        btn = new qx.ui.form.Button(text);
+        btn = new qx.ui.form.Button(text, null, command);
       }
       btn.addState("default");
 

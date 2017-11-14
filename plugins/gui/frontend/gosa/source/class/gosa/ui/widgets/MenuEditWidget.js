@@ -298,7 +298,7 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
     _onAddFolder: function() {
       // Ask user for name
       var d = new gosa.ui.dialogs.PromptTextDialog(this.tr("Enter name"), null, this.tr("Name"));
-      d.addListener("ok", function(ev) {
+      d.addListenerOnce("ok", function(ev) {
         var node = this.__createItem("folder", ev.getData());
         this.insertNewNode(node);
         this.fireChangeValue();
@@ -365,14 +365,34 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
 
     insertNewNode: function(node) {
       // add to tree after currently selected item
-      var current = this.getChildControl("tree").getSelection()[0] || this.__root;
-      if (current instanceof gosa.ui.tree.Application) {
-        // after
+      var current = this.getChildControl("tree").getSelection()[0];
+      if (!current) {
+        // append to root node
+        this.__root.add(node);
+        this.__root.setOpen(true);
+      } else if (node instanceof gosa.ui.tree.Folder) {
+        // folders only on root level -> always add after current
+        while (current instanceof gosa.ui.tree.Application) {
+          current = current.getParent();
+        }
         current.getParent().addAfter(node, current);
-      } else if (current instanceof gosa.ui.tree.Folder) {
-        // inside
-        current.add(node);
-        current.setOpen(true);
+      } else {
+        // add application
+        if (current instanceof gosa.ui.tree.Folder) {
+          // insert
+          current.add(node);
+          current.setOpen(true);
+        } else {
+          // append
+          current.getParent().addAfter(node, current);
+        }
+      }
+      // select the new node
+      var selection = this.getChildControl("tree").getSelection();
+      if (selection.length) {
+        selection[0] = node;
+      } else {
+        selection.push(node)
       }
     },
 
