@@ -15,6 +15,7 @@ from copy import copy
 
 import zope
 
+from gosa.backend.lock import GlobalLock
 from gosa.backend.objects import ObjectProxy
 from gosa.common.components.jsonrpc_utils import Binary
 from lxml import etree
@@ -339,6 +340,10 @@ class ClientService(Plugin):
         """
         TODO
         """
+        if GlobalLock.exists("scan_index"):
+            # do not update state during index, clients will be polled after index is done
+            return
+
         device_uuid = self.get_client_uuid(device_uuid)
         # Write to backend
         index = PluginRegistry.getInstance("ObjectIndex")
@@ -721,7 +726,7 @@ class ClientService(Plugin):
             self.systemSetStatus(client, "-O+o")
         except ValueError as e:
             id = C.get_error_id(str(e))
-            error = C.getError(None, id, keep=True)
+            error = C.getError(None, None, id, keep=True)
             if error.status_code == 404:
                 pass
             else:
