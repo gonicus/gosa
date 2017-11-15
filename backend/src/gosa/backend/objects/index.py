@@ -163,11 +163,14 @@ class ObjectIndex(Plugin):
         # If there is already a collection, check if there is a newer schema available
         schema = self.factory.getXMLObjectSchema(True)
         if self.isSchemaUpdated(schema):
-            self.__session.query(Schema).delete()
-            self.__session.query(KeyValueIndex).delete()
-            self.__session.query(ExtensionIndex).delete()
-            self.__session.query(ObjectInfoIndex).delete()
-            self.log.info('object definitions changed, dropped old object index')
+            if self.env.config.get("backend.index", "True").lower() == "true":
+                self.log.error("object definitions changed and the index needs to be re-created. Please enable the index in your config file!")
+            else:
+                self.__session.query(Schema).delete()
+                self.__session.query(KeyValueIndex).delete()
+                self.__session.query(ExtensionIndex).delete()
+                self.__session.query(ObjectInfoIndex).delete()
+                self.log.info('object definitions changed, dropped old object index')
 
         # Create the initial schema information if required
         if not self.__session.query(Schema).one_or_none():
