@@ -99,8 +99,8 @@ class ObjectInfoIndex(Base):
     _type = Column(String(64))
     _last_modified = Column(DateTime)
     _invisible = Column(Boolean)
-    properties = relationship("KeyValueIndex", order_by=KeyValueIndex.key, cascade="all, delete-orphan")
-    extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension, cascade="all, delete-orphan")
+    properties = relationship("KeyValueIndex", order_by=KeyValueIndex.key)
+    extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension)
 
     def __repr__(self):  # pragma: nocover
        return "<ObjectInfoIndex(uuid='%s', dn='%s', _parent_dn='%s', _adjusted_parent_dn='%s', _type='%s', _last_modified='%s', _invisible='%s')>" % (
@@ -736,6 +736,8 @@ class ObjectIndex(Plugin):
         self.log.debug("removing object index for %s" % uuid)
 
         if self.exists(uuid):
+            self.__session.query(KeyValueIndex).filter(KeyValueIndex.uuid == uuid).delete()
+            self.__session.query(ExtensionIndex).filter(ExtensionIndex.uuid == uuid).delete()
             self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == uuid).delete()
             self.__session.commit()
 
