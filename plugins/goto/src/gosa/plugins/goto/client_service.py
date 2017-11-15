@@ -347,7 +347,7 @@ class ClientService(Plugin):
             # do not update state during index, clients will be polled after index is done
             return
 
-        device = device = self.__open_device(device_uuid)
+        device = self.__open_device(device_uuid)
         r = re.compile(r"([+-].)")
         for stat in r.findall(status):
             if stat[1] not in mapping:
