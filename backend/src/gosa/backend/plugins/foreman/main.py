@@ -605,7 +605,6 @@ class Foreman(Plugin):
                 device.deviceUUID = cn
             else:
                 cn = device.deviceUUID
-            device.status_Offline = True
 
             # reset discovered status
             if device.status == "discovered":
