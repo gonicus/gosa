@@ -319,20 +319,23 @@ class ClientService(Plugin):
 
         return e.Event(e.Notification(*data))
 
-    @Command(__help__=N_("Set system status"))
-    def systemGetStatus(self, device_uuid):
-        """
-        TODO
-        """
+    def __open_device(self, device_uuid):
         device_uuid = self.get_client_uuid(device_uuid)
         index = PluginRegistry.getInstance("ObjectIndex")
 
         res = index.search({'_type': 'Device', 'deviceUUID': device_uuid},
                            {'_uuid': 1})
         if len(res) != 1:
-            raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid))
+            raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid, status_code=404))
 
-        device = ObjectProxy(res[0]['_uuid'])
+        return ObjectProxy(res[0]['_uuid'])
+
+    @Command(__help__=N_("Set system status"))
+    def systemGetStatus(self, device_uuid):
+        """
+        TODO
+        """
+        device = self.__open_device(device_uuid)
         return device.deviceStatus
 
     @Command(__help__=N_("Set system status"))
@@ -344,14 +347,7 @@ class ClientService(Plugin):
             # do not update state during index, clients will be polled after index is done
             return
 
-        device_uuid = self.get_client_uuid(device_uuid)
-        # Write to backend
-        index = PluginRegistry.getInstance("ObjectIndex")
-
-        res = index.search({'_type': 'Device', 'deviceUUID': device_uuid}, {'_uuid': 1})
-        if len(res) != 1:
-            raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid, status_code=404))
-        device = ObjectProxy(res[0]['_uuid'])
+        device = device = self.__open_device(device_uuid)
         r = re.compile(r"([+-].)")
         for stat in r.findall(status):
             if stat[1] not in mapping:
@@ -480,7 +476,7 @@ class ClientService(Plugin):
 
     # @Command(__help__="Remove later")
     def configureUsers(self, client_id, users):
-        client = ObjectProxy(client_id)
+        client = self.__open_device(client_id)
 
         if client.is_extended_by("GotoMenu"):
             release = client.getReleaseName()
@@ -589,7 +585,7 @@ class ClientService(Plugin):
     @Command(__help__="Remove me")
     def configureClient(self, client_id):
         """ Send system printer PPDs to client """
-        client = ObjectProxy(client_id)
+        client = self.__open_device(client_id)
         printer_attributes = ["gotoPrinterPPD", "labeledURI", "cn", "l", "description"]
         if client.groupMembership is not None:
             # get it from the group
