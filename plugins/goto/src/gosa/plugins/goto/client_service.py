@@ -672,9 +672,6 @@ class ClientService(Plugin):
         self.log.info("client '%s' is joining us" % client)
         self.systemSetStatus(client, "+O-o")
 
-        # configure client
-        self.configureClient(client)
-
         # Assemble network information
         network = {}
         for interface in data.NetworkInformation.NetworkDevice:
@@ -695,7 +692,10 @@ class ClientService(Plugin):
             'network': network
         }
 
-        self.__client[data.Id.text] = info
+        self.__client[client] = info
+
+        # configure client
+        self.configureClient(client)
 
         # Handle pending "P"repare actions for that client
         if "P" in self.systemGetStatus(client):
