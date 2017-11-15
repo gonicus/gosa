@@ -587,6 +587,7 @@ class ClientService(Plugin):
         """ Send system printer PPDs to client """
         client = self.__open_device(client_id)
         printer_attributes = ["gotoPrinterPPD", "labeledURI", "cn", "l", "description"]
+        self.log.debug("client '%s' is member of '%s'" % (client_id, client.groupMembership))
         if client.groupMembership is not None:
             # get it from the group
             settings = {"printers": [], "defaultPrinter": None}
@@ -608,6 +609,8 @@ class ClientService(Plugin):
             if len(settings["printers"]):
                 self.log.debug("sending printer settings to client (%s): %s" % (client_id, settings))
                 self.clientDispatch(client_id, "configureHostPrinters", settings)
+            else:
+                self.log.debug("no printers defined for client: %s" % client_id)
 
     def _handleClientPing(self, data):
         data = data.ClientPing
