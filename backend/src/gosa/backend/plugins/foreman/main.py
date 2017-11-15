@@ -606,9 +606,8 @@ class Foreman(Plugin):
             else:
                 cn = device.deviceUUID
 
-            # reset discovered status
-            if device.status == "discovered":
-                device.status = "unknown"
+            device.status = "pending"
+            device.status_InstallationInProgress = True
 
             device.userPassword = "{SSHA}" + encode(h.digest() + salt).decode()
 
