@@ -24,6 +24,8 @@
       <element name="Type" type="string"/>
       <element name="State" type="string" minOccurs="0"/>
       <element name="Progress" type="int" minOccurs="0"/>
+      <element name="Step" type="int" minOccurs="0"/>
+      <element name="TotalSteps" type="int" minOccurs="0"/>
     </all>
   </complexType>
 

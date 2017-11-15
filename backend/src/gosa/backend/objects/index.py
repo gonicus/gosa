@@ -131,6 +131,9 @@ class ObjectIndex(Plugin):
     currently_in_creation = []
     currently_moving = {}
     __search_aid = {}
+    last_notification = None
+    # notification period in seconds during indexing
+    notify_every = 1
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -427,6 +430,18 @@ class ObjectIndex(Plugin):
 
         return True
 
+    def notify_frontends(self, state, progress=None, step=None):
+        e = EventMaker()
+        ev = e.Event(e.BackendState(
+            e.Type("index"),
+            e.State(state),
+            e.Progress(str(progress)),
+            e.Step(str(step)),
+            e.TotalSteps(str(4))
+        ))
+        event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
+        SseHandler.notify(event_object, channel="broadcast")
+
     def sync_index(self):
         # Don't index if someone else is already doing it
         if GlobalLock.exists("scan_index"):
@@ -441,30 +456,12 @@ class ObjectIndex(Plugin):
         added = 0
         existing = 0
         removed = 0
-        e = EventMaker()
-
-        def notify_frontends(state, progress=-1):
-            if progress >= 0:
-                ev = e.Event(e.BackendState(
-                    e.Type("index"),
-                    e.State(state),
-                    e.Progress(str(progress))
-                ))
-            else:
-                ev = e.Event(e.BackendState(
-                    e.Type("index"),
-                    e.State(state)
-                ))
-            event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
-            SseHandler.notify(event_object, channel="broadcast")
 
         try:
             self._indexed = True
 
             t0 = time.time()
-            lastNotification = time.time()
-            # interval in seconds a frontend notification should be send
-            notifyEvery = 1
+            self.last_notification = time.time()
 
             def resolve_children(dn):
                 self.log.debug("found object '%s'" % dn)
@@ -475,11 +472,15 @@ class ObjectIndex(Plugin):
 
                 for chld in children.keys():
                     res = {**res, **resolve_children(chld)}
+                now = time.time()
+                if now - self.last_notification > self.notify_every:
+                    self.notify_frontends(N_("scanning for objects"), step=1)
+                    self.last_notification = now
 
                 return res
 
             self.log.info("scanning for objects")
-            notify_frontends(N_("scanning for objects"))
+            self.notify_frontends(N_("scanning for objects"), step=1)
             res = resolve_children(self.env.base)
             # count by type
             counts = {}
@@ -493,7 +494,7 @@ class ObjectIndex(Plugin):
             res[self.env.base] = 'dummy'
 
             self.log.info("generating object index")
-            notify_frontends(N_("Generating object index"))
+            self.notify_frontends(N_("Generating object index"))
 
             # Find new entries
             backend_objects = []
@@ -538,25 +539,27 @@ class ObjectIndex(Plugin):
                 del obj
 
                 now = time.time()
-                if now - lastNotification > notifyEvery:
-                    notify_frontends(N_("Processing object %s/%s" % (current, total)), round(100/total*current))
-                    lastNotification = now
+                if now - self.last_notification > self.notify_every:
+                    self.notify_frontends(N_("Processing object %s/%s" % (current, total)), round(100/total*current), step=2)
+                    self.last_notification = now
 
-            notify_frontends(N_("%s objects processed" % total), 100)
+            self.notify_frontends(N_("%s objects processed" % total), 100)
 
             # Remove entries that are in the index, but not in any other backends
-            uuids = self.__session.query(~ObjectInfoIndex.uuid.in_(backend_objects)).all()
-            total = len(uuids)
-            current = 0
-            for uuid in uuids:
-                current += 1
-                uuid = uuid[0]
-                self.remove_by_uuid(uuid)
-                removed += 1
-                now = time.time()
-                if now - lastNotification > notifyEvery:
-                    notify_frontends(N_("Deleting object %s/%s" % (current, total)), round(100/total*current))
-                    lastNotification = now
+            self.notify_frontends(N_("removing orphan objects from index"), step=3)
+            self.__remove_others(backend_objects)
+            # uuids = self.__session.query(~ObjectInfoIndex.uuid.in_(backend_objects)).all()
+            # total = len(uuids)
+            # current = 0
+            # for uuid in uuids:
+            #     current += 1
+            #     uuid = uuid[0]
+            #     self.remove_by_uuid(uuid)
+            #     removed += 1
+            #     now = time.time()
+            #     if now - lastNotification > notifyEvery:
+            #         notify_frontends(N_("Deleting object %s/%s" % (current, total)), round(100/total*current))
+            #         lastNotification = now
 
             t1 = time.time()
             self.log.info("processed %d objects in %ds" % (len(res), t1 - t0))
@@ -570,22 +573,29 @@ class ObjectIndex(Plugin):
         finally:
             self.post_process()
             self.log.info("index refresh finished")
-            notify_frontends(N_("Index refresh finished"), 100)
+            self.notify_frontends(N_("Index refresh finished"), 100)
 
             GlobalLock.release("scan_index")
             zope.event.notify(IndexScanFinished())
 
     def post_process(self):
         ObjectIndex.importing = False
+        self.last_notification = time.time()
+        current = 0
+        total = len(ObjectIndex.to_be_updated)
 
         # Some object may have queued themselves to be re-indexed, process them now.
-        self.log.info("need to refresh index for %d objects" % (len(ObjectIndex.to_be_updated)))
-        for uuid in ObjectIndex.to_be_updated:
-            dn = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == uuid).one_or_none()
-
+        self.log.info("need to refresh index for %d objects" % total)
+        for dn in self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid.in_(ObjectIndex.to_be_updated)).all():
+            current += 1
             if dn:
                 obj = ObjectProxy(dn[0])
                 self.update(obj)
+
+                now = time.time()
+                if now - self.last_notification > self.notify_every:
+                    self.notify_frontends(N_("refreshing object %s/%s" % (current, total)), round(100/total*current), step=4)
+                    self.last_notification = now
 
         ObjectIndex.to_be_updated = []
 
@@ -731,6 +741,14 @@ class ObjectIndex(Plugin):
 
     def remove(self, obj):
         self.remove_by_uuid(obj.uuid)
+
+    def __remove_others(self, uuids):
+        self.log.debug("removing a bunch of objects")
+
+        self.__session.query(KeyValueIndex).filter(~KeyValueIndex.uuid.in_(uuids)).delete(synchronize_session=False)
+        self.__session.query(ExtensionIndex).filter(~ExtensionIndex.uuid.in_(uuids)).delete(synchronize_session=False)
+        self.__session.query(ObjectInfoIndex).filter(~ObjectInfoIndex.uuid.in_(uuids)).delete(synchronize_session=False)
+        self.__session.commit()
 
     def remove_by_uuid(self, uuid):
         self.log.debug("removing object index for %s" % uuid)

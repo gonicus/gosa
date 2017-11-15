@@ -46,11 +46,22 @@ qx.Class.define("gosa.ui.dialogs.Loading",
           control = this.getChildControl("progress");
           control.show();
           control.setValue(parseInt(payload.Progress, 10));
+        } else {
+          this.getChildControl("progress").exclude();
         }
         if (payload.hasOwnProperty("State")) {
+          var state = payload.State;
           control = this.getChildControl("progress-info");
           control.show();
-          control.setValue(payload.State);
+          if (payload.hasOwnProperty("Step") && parseInt(payload.Step, 10)) {
+            if (payload.hasOwnProperty("TotalSteps") && parseInt(payload.TotalSteps, 10)) {
+              state = this.tr("Step %1 of %2", parseInt(payload.Step, 10), parseInt(payload.TotalSteps, 10));
+            } else {
+              state = this.tr("Step %1", parseInt(payload.Step, 10));
+            }
+            state += "<br/>" + payload.State;
+          }
+          control.setValue(state);
         }
       }
     },
@@ -69,7 +80,12 @@ qx.Class.define("gosa.ui.dialogs.Loading",
 
         case 'progress-info':
           control = new qx.ui.basic.Label();
-          control.setAlignX("center");
+          control.set({
+            rich: true,
+            wrap: true,
+            textAlign: "center",
+            allowGrowX: true
+          });
           this.addAt(control, 1);
           break;
 
