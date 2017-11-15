@@ -1025,12 +1025,13 @@ class ObjectIndex(Plugin):
             options = {}
 
         if 'limit' in options:
-            q = self.__session.query(ObjectInfoIndex).filter(*fltr).options(
-                joinedload(ObjectInfoIndex.properties).joinedload(ObjectInfoIndex.extensions)
-            ).limit(options['limit'])
+            q = self.__session.query(ObjectInfoIndex).filter(*fltr)\
+                .options(joinedload(ObjectInfoIndex.properties))\
+                .joinedload(joinedload(ObjectInfoIndex.extensions)).limit(options['limit'])
         else:
-            q = self.__session.query(ObjectInfoIndex).filter(*fltr).options(
-                joinedload(ObjectInfoIndex.properties).joinedload(ObjectInfoIndex.extensions))
+            q = self.__session.query(ObjectInfoIndex).filter(*fltr)\
+                .options(joinedload(ObjectInfoIndex.properties))\
+                .options(joinedload(ObjectInfoIndex.extensions))
 
         self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
 
