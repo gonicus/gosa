@@ -41,7 +41,7 @@ from gosa.backend.objects import ObjectFactory, ObjectProxy, ObjectChanged
 from gosa.backend.exceptions import FilterException, IndexException, ProxyException, ObjectException
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, joinedload
 from sqlalchemy import Column, String, Integer, Boolean, Sequence, DateTime, ForeignKey, or_, and_, not_, func
 
 Base = declarative_base()
@@ -1025,9 +1025,12 @@ class ObjectIndex(Plugin):
             options = {}
 
         if 'limit' in options:
-            q = self.__session.query(ObjectInfoIndex).filter(*fltr).limit(options['limit'])
+            q = self.__session.query(ObjectInfoIndex).filter(*fltr).options(
+                joinedload(ObjectInfoIndex.properties).joinedload(ObjectInfoIndex.extensions)
+            ).limit(options['limit'])
         else:
-            q = self.__session.query(ObjectInfoIndex).filter(*fltr)
+            q = self.__session.query(ObjectInfoIndex).filter(*fltr).options(
+                joinedload(ObjectInfoIndex.properties).joinedload(ObjectInfoIndex.extensions))
 
         self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
 
