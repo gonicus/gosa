@@ -142,7 +142,7 @@ class CopyForeignValueFrom(ElementFilter):
         log = logging.getLogger(__name__)
         if type(valDict[source_attribute]['value']) is not None and len(valDict[source_attribute]['value']):
             for val in valDict[source_attribute]['value']:
-                query = {id_attribute: val}
+                query = {source_content: val}
                 if factory.isBaseType(object_type):
                     query["_type"] = object_type
                 else:
