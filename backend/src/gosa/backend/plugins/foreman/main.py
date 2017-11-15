@@ -596,12 +596,15 @@ class Foreman(Plugin):
             h, key, salt = generate_random_key()
 
             # While the client is going to be joined, generate a random uuid and an encoded join key
-            cn = str(uuid.uuid4())
             if not device.is_extended_by("RegisteredDevice"):
                 device.extend("RegisteredDevice")
             if not device.is_extended_by("simpleSecurityObject"):
                 device.extend("simpleSecurityObject")
-            device.deviceUUID = cn
+            if device.deviceUUID is None:
+                cn = str(uuid.uuid4())
+                device.deviceUUID = cn
+            else:
+                cn = device.deviceUUID
             device.status_Offline = True
 
             # reset discovered status
