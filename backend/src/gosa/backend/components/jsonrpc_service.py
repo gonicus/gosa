@@ -150,13 +150,13 @@ class JsonRpcHandler(HSTSRequestHandler):
         if not isinstance(params, list) and not isinstance(params, dict):
             raise ValueError(C.make_error("PARAMETER_LIST_OR_DICT"))
 
-        # Check if we're globally locked currently
-        if GlobalLock.exists("scan_index"):
-            raise FilterException(C.make_error('INDEXING', "base"))
-
         # execute command if it is allowed without login
         if method in no_login_commands:
             return self.dispatch(method, params, jid)
+
+        # Check if we're globally locked currently
+        if GlobalLock.exists("scan_index"):
+            raise FilterException(C.make_error('INDEXING', "base"))
 
         cls = self.__class__
 
