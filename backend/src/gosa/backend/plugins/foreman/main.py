@@ -597,8 +597,10 @@ class Foreman(Plugin):
 
             # While the client is going to be joined, generate a random uuid and an encoded join key
             cn = str(uuid.uuid4())
-            device.extend("RegisteredDevice")
-            device.extend("simpleSecurityObject")
+            if not device.is_extended_by("RegisteredDevice"):
+                device.extend("RegisteredDevice")
+            if not device.is_extended_by("simpleSecurityObject"):
+                device.extend("simpleSecurityObject")
             device.deviceUUID = cn
             device.status_Offline = True
 
@@ -612,10 +614,11 @@ class Foreman(Plugin):
             self.mark_for_parameter_setting(hostname, {"status": "added"})
             return "%s|%s" % (key, cn)
 
-        except:
+        except Exception as e:
             # remove created device again because something went wrong
             # self.remove_type("ForemanHost", hostname)
-            raise
+            self.log.error(str(e))
+            raise e
 
         finally:
             ForemanBackend.modifier = None
