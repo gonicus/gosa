@@ -14,6 +14,7 @@ qx.Theme.define("gosa.theme.Appearance", {
   extend: qx.theme.indigo.Appearance,
 
   appearances: {
+    "window/progress": "progressbar",
     "merge-button": {
       style: function(states) {
         return {

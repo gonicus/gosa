@@ -99,8 +99,8 @@ class ObjectInfoIndex(Base):
     _type = Column(String(64))
     _last_modified = Column(DateTime)
     _invisible = Column(Boolean)
-    properties = relationship("KeyValueIndex", order_by=KeyValueIndex.key)
-    extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension)
+    properties = relationship("KeyValueIndex", order_by=KeyValueIndex.key, cascade="all, delete-orphan")
+    extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension, cascade="all, delete-orphan")
 
     def __repr__(self):  # pragma: nocover
        return "<ObjectInfoIndex(uuid='%s', dn='%s', _parent_dn='%s', _adjusted_parent_dn='%s', _type='%s', _last_modified='%s', _invisible='%s')>" % (
@@ -441,11 +441,30 @@ class ObjectIndex(Plugin):
         added = 0
         existing = 0
         removed = 0
+        e = EventMaker()
+
+        def notify_frontends(state, progress=-1):
+            if progress >= 0:
+                ev = e.Event(e.BackendState(
+                    e.Type("index"),
+                    e.State(state),
+                    e.Progress(str(progress))
+                ))
+            else:
+                ev = e.Event(e.BackendState(
+                    e.Type("index"),
+                    e.State(state)
+                ))
+            event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
+            SseHandler.notify(event_object, channel="broadcast")
 
         try:
             self._indexed = True
 
             t0 = time.time()
+            lastNotification = time.time()
+            # interval in seconds a frontend notification should be send
+            notifyEvery = 1
 
             def resolve_children(dn):
                 self.log.debug("found object '%s'" % dn)
@@ -460,6 +479,7 @@ class ObjectIndex(Plugin):
                 return res
 
             self.log.info("scanning for objects")
+            notify_frontends(N_("scanning for objects"))
             res = resolve_children(self.env.base)
             # count by type
             counts = {}
@@ -473,10 +493,15 @@ class ObjectIndex(Plugin):
             res[self.env.base] = 'dummy'
 
             self.log.info("generating object index")
+            notify_frontends(N_("Generating object index"))
 
             # Find new entries
             backend_objects = []
+            total = len(res)
+            current = 0
+
             for o in sorted(res.keys(), key=len):
+                current += 1
 
                 # Get object
                 try:
@@ -512,12 +537,26 @@ class ObjectIndex(Plugin):
                 backend_objects.append(obj.uuid)
                 del obj
 
+                now = time.time()
+                if now - lastNotification > notifyEvery:
+                    notify_frontends(N_("Processing object %s/%s" % (current, total)), round(100/total*current))
+                    lastNotification = now
+
+            notify_frontends(N_("%s objects processed" % total), 100)
+
             # Remove entries that are in the index, but not in any other backends
-            for uuid in self.__session.query(ObjectInfoIndex.uuid).all():
+            uuids = self.__session.query(~ObjectInfoIndex.uuid.in_(backend_objects)).all()
+            total = len(uuids)
+            current = 0
+            for uuid in uuids:
+                current += 1
                 uuid = uuid[0]
-                if uuid not in backend_objects:
-                    self.remove_by_uuid(uuid)
-                    removed += 1
+                self.remove_by_uuid(uuid)
+                removed += 1
+                now = time.time()
+                if now - lastNotification > notifyEvery:
+                    notify_frontends(N_("Deleting object %s/%s" % (current, total)), round(100/total*current))
+                    lastNotification = now
 
             t1 = time.time()
             self.log.info("processed %d objects in %ds" % (len(res), t1 - t0))
@@ -531,6 +570,7 @@ class ObjectIndex(Plugin):
         finally:
             self.post_process()
             self.log.info("index refresh finished")
+            notify_frontends(N_("Index refresh finished"), 100)
 
             GlobalLock.release("scan_index")
             zope.event.notify(IndexScanFinished())
@@ -696,8 +736,6 @@ class ObjectIndex(Plugin):
         self.log.debug("removing object index for %s" % uuid)
 
         if self.exists(uuid):
-            self.__session.query(KeyValueIndex).filter(KeyValueIndex.uuid == uuid).delete()
-            self.__session.query(ExtensionIndex).filter(ExtensionIndex.uuid == uuid).delete()
             self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == uuid).delete()
             self.__session.commit()
 

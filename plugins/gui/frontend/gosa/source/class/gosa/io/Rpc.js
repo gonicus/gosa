@@ -44,6 +44,8 @@ qx.Class.define("gosa.io.Rpc", {
     // these RPCs are always allowed, even when all others are blocked
     this.cA("getNoLoginMethods").then(function(res) {
       this.__allowedRPCs = res;
+    }, this).catch(function(error) {
+      return gosa.io.Rpc.resolveError(error, this);
     }, this);
   },
 

@@ -66,6 +66,11 @@ qx.Class.define("gosa.io.Sse", {
 
       this.__eventSource = new EventSource(uri);
 
+      this.__eventSource.addEventListener("BackendState", function (e) {
+        var message = qx.lang.Json.parse(e.data);
+        qx.event.message.Bus.dispatch(new qx.event.message.Message('gosa.backend.state', message));
+      }.bind(this), false);
+
       this.__eventSource.addEventListener("notification", function (e) {
         var message = qx.lang.Json.parse(e.data);
         this._handleNotificationMessage(message);

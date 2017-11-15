@@ -23,11 +23,75 @@ qx.Class.define("gosa.ui.dialogs.Loading",
     this.resetMinWidth();
     this._buttonPane.exclude();
 
-    var label = new qx.ui.basic.Atom(this.tr("Initializing") + "...", "@Ligature/time/22");
-    label.setPadding([10, 20]);
-    this.add(label);
+    this._createChildControl("loading-label");
 
     this.addListenerOnce("resize", this.center, this);
+
+    // subscribe to loading bus messages
+    qx.event.message.Bus.subscribe('gosa.backend.state', this._onLoadingMessage, this);
+  },
+
+  /*
+  *****************************************************************************
+     MEMBERS
+  *****************************************************************************
+  */
+  members: {
+    _onLoadingMessage: function(ev) {
+      var control;
+      var payload = ev.getData();
+      if (payload.Type === "index") {
+        this.getChildControl('loading-label').setLabel(this.tr("Indexing") + '...');
+        if (payload.hasOwnProperty("Progress")) {
+          control = this.getChildControl("progress");
+          control.show();
+          control.setValue(parseInt(payload.Progress, 10));
+        }
+        if (payload.hasOwnProperty("State")) {
+          control = this.getChildControl("progress-info");
+          control.show();
+          control.setValue(payload.State);
+        }
+      }
+    },
+
+    // overridden
+    _createChildControlImpl: function(id) {
+      var control;
+
+      switch(id) {
+        case 'loading-label':
+          control = new qx.ui.basic.Atom(this.tr("Initializing") + "...", "@Ligature/time/22");
+          control.setPadding([10, 20]);
+          control.setAlignX("center");
+          this.addAt(control, 0);
+          break;
+
+        case 'progress-info':
+          control = new qx.ui.basic.Label();
+          control.setAlignX("center");
+          this.addAt(control, 1);
+          break;
+
+        case 'progress':
+          control = new qx.ui.indicator.ProgressBar();
+          control.setAlignX("center");
+          control.exclude();
+          this.addAt(control, 2);
+          break;
+      }
+
+      return control || this.base(arguments, id);
+    }
+  },
+
+  /*
+  *****************************************************************************
+     DESTRUCTOR
+  *****************************************************************************
+  */
+  destruct: function () {
+    qx.event.message.Bus.unsubscribe('gosa.loading', this._onLoadingMessage, this);
   }
 });
 
