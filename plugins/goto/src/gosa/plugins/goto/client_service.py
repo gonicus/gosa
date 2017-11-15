@@ -593,14 +593,12 @@ class ClientService(Plugin):
             settings = {"printers": [], "defaultPrinter": None}
             group = ObjectProxy(client.groupMembership)
             if group.is_extended_by("GotoEnvironment") and len(group.gotoPrinters):
-                index = PluginRegistry.getInstance("ObjectIndex")
                 # get default printer
                 settings["defaultPrinter"] = group.gotoDefaultPrinter
 
                 # collect printer PPDs
-                query = {"_type": "GotoPrinter", "cn": {"in_": group.gotoPrinters}}
-                for res in index.search(query, {"dn": 1}):
-                    printer = ObjectProxy(res["dn"])
+                for printer_dn in group.gotoPrinters:
+                    printer = ObjectProxy(printer_dn)
                     p_conf = {}
                     for attr in printer_attributes:
                         p_conf[attr] = getattr(printer, attr)
