@@ -18,6 +18,8 @@ from setproctitle import setproctitle
 from gosa.backend import __version__ as VERSION
 from gosa.common import Environment
 from gosa.common.components import ObjectRegistry, PluginRegistry
+import warnings
+from sqlalchemy import exc as sa_exc
 
 
 def shutdown():
@@ -83,7 +85,9 @@ def main():
         exit(1)
 
     env.log.info("GOsa %s is starting up" % VERSION)
-    mainLoop(env)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=sa_exc.SAWarning)
+        mainLoop(env)
 
 
 if __name__ == '__main__':
