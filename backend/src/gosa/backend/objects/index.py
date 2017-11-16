@@ -67,7 +67,7 @@ class Schema(Base):
 class KeyValueIndex(Base):
     __tablename__ = 'kv-index'
 
-    id = Column(Integer, Sequence('kv_id_seq'), primary_key=True, nullable=False)
+    key_id = Column(Integer, Sequence('kv_id_seq'), primary_key=True, nullable=False)
     uuid = Column(String(36), ForeignKey('obj-index.uuid'))
     key = Column(String(64))
     value = Column(String)
@@ -80,7 +80,7 @@ class KeyValueIndex(Base):
 class ExtensionIndex(Base):
     __tablename__ = 'ext-index'
 
-    id = Column(Integer, Sequence('ei_id_seq'), primary_key=True, nullable=False)
+    ext_id = Column(Integer, Sequence('ei_id_seq'), primary_key=True, nullable=False)
     uuid = Column(String(36), ForeignKey('obj-index.uuid'))
     extension = Column(String(64))
 
@@ -1024,14 +1024,13 @@ class ObjectIndex(Plugin):
         if options is None:
             options = {}
 
+        q = self.__session.query(ObjectInfoIndex)\
+            .options(joinedload(ObjectInfoIndex.properties)) \
+            .options(joinedload(ObjectInfoIndex.extensions))\
+            .filter(*fltr)
+
         if 'limit' in options:
-            q = self.__session.query(ObjectInfoIndex).filter(*fltr)\
-                .options(joinedload(ObjectInfoIndex.properties))\
-                .joinedload(joinedload(ObjectInfoIndex.extensions)).limit(options['limit'])
-        else:
-            q = self.__session.query(ObjectInfoIndex).filter(*fltr)\
-                .options(joinedload(ObjectInfoIndex.properties))\
-                .options(joinedload(ObjectInfoIndex.extensions))
+            q.limit(options['limit'])
 
         self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
 
