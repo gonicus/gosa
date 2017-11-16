@@ -44,18 +44,6 @@ def main():
     # Init handler
     signal.signal(signal.SIGINT, signal_handler)
 
-    # Load modules
-    modules = {}
-    priority = {}
-    for entry in pkg_resources.iter_entry_points("gosa.client.join.module"):
-        mod = entry.load()
-        if mod.available():
-            priority[mod.__name__] = mod.priority
-            modules[mod.__name__] = mod
-
-    # Take the one with the highest priority
-    module = sorted(priority.items(), key=itemgetter(1))[0][0]
-
     # Try to load environment. If it doesn't work, evaluate
     # config file from command line and create a default one.
     try:
@@ -94,18 +82,32 @@ def main():
             print("Error: configuration directory %s is no directory!" % config_dir)
             exit(1)
 
-        # Read default config and write it back to config_file
-        config = open(resource_filename("gosa.client", "data/client.conf")).read()
-        if service:
-            config = re.sub(r"#url = %URL%", "url = %s" % service, config)
-        with open(config_file, "w") as f:
-            f.write(config)
+        if not os.path.exists(config_file):
+            # Read default config and write it back to config_file
+            config = open(resource_filename("gosa.client", "data/client.conf")).read()
+            if service:
+                config = re.sub(r"#url = %URL%", "url = %s" % service, config)
+            with open(config_file, "w") as f:
+                f.write(config)
 
         # Nothing important here yet, but lock us down
         os.chmod(config_file, 0o0600)
         env = Environment.getInstance()
 
+    # Load modules
+    modules = {}
+    priority = {}
+    for entry in pkg_resources.iter_entry_points("gosa.client.join.module"):
+        mod = entry.load()
+        if mod.available():
+            priority[mod.__name__] = mod.priority
+            modules[mod.__name__] = mod
+
+    # Take the one with the highest priority
+    module = sorted(priority.items(), key=itemgetter(1))[0][0]
+
     # Instanciate joiner and ask for help
+    print("joining with module %s" % module)
     joiner = modules[module]()
     if not joiner.test_login():
         joiner.join_dialog()

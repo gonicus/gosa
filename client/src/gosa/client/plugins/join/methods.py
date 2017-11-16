@@ -169,7 +169,6 @@ class join_method(object):
         url = self.env.config.get("jsonrpc.url", default=None)
         sys_id = self.env.config.get("core.id", default=None)
         key = self.env.config.get("jsonrpc.key", default=None)
-        print(url, sys_id, key)
         return (url, sys_id, key)
 
     def discover(self):
@@ -241,6 +240,8 @@ class join_method(object):
             parser.set("core", "id", self.svc_id)
             parser.set("jsonrpc", "key", self.key)
 
+            self.modify_config(parser)
+
             # Write back to file
             with open(config, "w") as f:
                 parser.write(f)
@@ -260,6 +261,14 @@ class join_method(object):
             return i_info[netifaces.AF_LINK][0]['addr']
 
         return None
+
+    def modify_config(self, parser):
+        """
+        This method can be used to modify the config file bafore it gets stored after a successfull join
+        :param parser: config parser
+        :type parser: ConfigParser.RawConfigParser
+        """
+        pass
 
     def show_error(self, error):  # pragma: nocover
         """

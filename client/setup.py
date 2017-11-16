@@ -91,6 +91,7 @@ setup(
 
         [gosa.client.join.module]
         join.cli = gosa.client.plugins.join.cli:Cli
+        join.otp = gosa.client.plugins.join.otp:Otp
 
         [gosa.client.module]
         command = gosa.client.command:ClientCommandRegistry
