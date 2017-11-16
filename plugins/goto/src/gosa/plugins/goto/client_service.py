@@ -417,6 +417,9 @@ class ClientService(Plugin):
             for k, value in more_info:
                 setattr(record, k, value)
             cn = record.deviceUUID
+            record.status_Online = False
+            record.status_Offline = True
+            record.status_InstallationInProgress = False
 
             record.commit()
             self.log.info("UUID '%s' joined as %s" % (device_uuid, record.dn))
