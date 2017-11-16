@@ -62,10 +62,10 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
             user.get_attributes.return_value = ['userPassword']
             with pytest.raises(PasswordException):
                 self.obj.lockAccountPassword("Test", "dn")
-            user.userPassword[0] = "{UNKNOWN}$0$md"
+            user.userPassword = ["{UNKNOWN}$0$md"]
             with pytest.raises(PasswordException):
                 self.obj.lockAccountPassword("Test", "dn")
-            user.userPassword[0] = "{CRYPT}uw8er0hjewofh"
+            user.userPassword = ["{CRYPT}uw8er0hjewofh"]
             self.obj.lockAccountPassword("Test", "dn")
             # account should be locked
             assert user.userPassword[0] == "{CRYPT}!uw8er0hjewofh"
@@ -94,10 +94,10 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
             user.get_attributes.return_value = ['userPassword']
             with pytest.raises(PasswordException):
                 self.obj.unlockAccountPassword("Test", "dn")
-            user.userPassword[0] = "{UNKNOWN}$0$md"
+            user.userPassword = ["{UNKNOWN}$0$md"]
             with pytest.raises(PasswordException):
                 self.obj.unlockAccountPassword("Test", "dn")
-            user.userPassword[0] = "{CRYPT}!uw8er0hjewofh"
+            user.userPassword = ["{CRYPT}!uw8er0hjewofh"]
             self.obj.unlockAccountPassword("Test", "dn")
             # account should be locked
             assert user.userPassword[0] == "{CRYPT}uw8er0hjewofh"
