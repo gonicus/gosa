@@ -401,11 +401,11 @@ class ClientService(Plugin):
         h, key, salt = generate_random_key()
 
         # Take a look at the directory to see if there's already a joined client with this uuid
-        res = index.search({'_type': 'Device', 'macAddress': mac, 'extension': 'RegisteredDevice'},
-                           {'_uuid': 1})
-
-        if len(res):
-            raise GOtoException(C.make_error("DEVICE_EXISTS", mac))
+        # res = index.search({'_type': 'Device', 'macAddress': mac, 'extension': 'RegisteredDevice'},
+        #                    {'_uuid': 1})
+        #
+        # if len(res):
+        #     raise GOtoException(C.make_error("DEVICE_EXISTS", mac))
 
         # While the client is going to be joined, generate a random uuid and an encoded join key
         cn = str(uuid4())
@@ -427,11 +427,13 @@ class ClientService(Plugin):
         record.extend("simpleSecurityObject")
         record.deviceUUID = cn
         record.deviceKey = Binary(device_key)
+        if record.is_extended_by("ForemanHost") and record.otp is not None:
+            record.otp = None
         record.cn = cn
         record.manager = manager
         record.status_Offline = True
         record.macAddress = mac.encode("ascii", "ignore")
-        record.userPassword = "{SSHA}" + encode(h.digest() + salt).decode()
+        record.userPassword = ["{SSHA}" + encode(h.digest() + salt).decode()]
         for k, value in more_info:
             setattr(record, k, value)
 
