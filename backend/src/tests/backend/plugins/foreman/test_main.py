@@ -121,7 +121,7 @@ class ForemanTestCase(GosaTestCase):
         device = ObjectProxy("cn=testhost,ou=devices,%s" % self._test_dn)
         assert device.dn == "cn=testhost,ou=devices,%s" % self._test_dn
         assert device.cn == "testhost"
-        assert device.userPassword[0:6] == "{SSHA}"
+        assert device.userPassword[0][0:6] == "{SSHA}"
 
         m_del.return_value = MockResponse('{}', 200)
         

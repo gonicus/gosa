@@ -823,6 +823,7 @@ class ForemanHookReceiver(object):
                         host.extend("simpleSecurityObject")
                     host.deviceUUID = foreman_object.deviceUUID
                     host.userPassword = foreman_object.userPassword
+                    host.otp = foreman_object.otp
                     host.cn = foreman_object.cn
 
                     # now delete the formerly joined host

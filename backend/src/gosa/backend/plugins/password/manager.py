@@ -85,16 +85,17 @@ class PasswordManager(Plugin):
         # Check if there is a userPasswort available and set
         if not "userPassword" in user.get_attributes():
             raise PasswordException(C.make_error("PASSWORD_NO_ATTRIBUTE"))
-        if not user.userPassword:
+        if not user.userPassword or len(user.userPassword) == 0:
             raise PasswordException(C.make_error("PASSWORD_NOT_AVAILABLE"))
 
         # Try to detect the responsible password method-class
-        pwd_o = self.detect_method_by_hash(user.userPassword)
-        if not pwd_o:
-            raise PasswordException(C.make_error("PASSWORD_METHOD_UNKNOWN"))
+        for index, pwd in enumerate(user.userPassword):
+            pwd_o = self.detect_method_by_hash(pwd)
+            if not pwd_o:
+                raise PasswordException(C.make_error("PASSWORD_METHOD_UNKNOWN"))
 
-        # Lock the hash and save it
-        user.userPassword = pwd_o.lock_account(user.userPassword)
+            # Lock the hash and save it
+            user.userPassword[index] = pwd_o.lock_account(pwd)
         user.commit()
 
     @Command(needsUser=True, __help__=N_("Unlocks the account password for the given DN"))
@@ -119,16 +120,17 @@ class PasswordManager(Plugin):
         # Check if there is a userPasswort available and set
         if not "userPassword" in user.get_attributes():
             raise PasswordException(C.make_error("PASSWORD_NO_ATTRIBUTE"))
-        if not user.userPassword:
+        if not user.userPassword or len(user.userPassword) == 0:
             raise PasswordException(C.make_error("PASSWORD_NOT_AVAILABLE"))
 
         # Try to detect the responsible password method-class
-        pwd_o = self.detect_method_by_hash(user.userPassword)
-        if not pwd_o:
-            raise PasswordException(C.make_error("PASSWORD_METHOD_UNKNOWN"))
+        for index, pwd in enumerate(user.userPassword):
+            pwd_o = self.detect_method_by_hash(pwd)
+            if not pwd_o:
+                raise PasswordException(C.make_error("PASSWORD_METHOD_UNKNOWN"))
 
-        # Unlock the hash and save it
-        user.userPassword = pwd_o.unlock_account(user.userPassword)
+            # Unlock the hash and save it
+            user.userPassword[index] = pwd_o.unlock_account(pwd)
         user.commit()
 
     @Command(needsUser=True, __help__=N_("Check whether the account can be locked or not"))
@@ -219,7 +221,7 @@ class PasswordManager(Plugin):
 
         # Set the password and commit the changes
         user = ObjectProxy(object_dn)
-        user.userPassword = pwd_str
+        user.userPassword = [pwd_str]
         user.commit()
 
     @Command(needsUser=True, __help__=N_("Sets a new password for a user"))
@@ -250,7 +252,7 @@ class PasswordManager(Plugin):
         pwd_str = pwd_o.generate_password_hash(password, method)
 
         # Set the password and commit the changes
-        user.userPassword = pwd_str
+        user.userPassword = [pwd_str]
         user.commit()
 
     @Command(needsUser=True, __help__=N_("Sets a new password recovery answers for a user"))

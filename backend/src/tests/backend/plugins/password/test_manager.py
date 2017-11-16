@@ -58,17 +58,17 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
             user = m.return_value
             with pytest.raises(PasswordException):
                 self.obj.lockAccountPassword("Test", "dn")
-            user.userPassword = None
+            user.userPassword = []
             user.get_attributes.return_value = ['userPassword']
             with pytest.raises(PasswordException):
                 self.obj.lockAccountPassword("Test", "dn")
-            user.userPassword = "{UNKNOWN}$0$md"
+            user.userPassword[0] = "{UNKNOWN}$0$md"
             with pytest.raises(PasswordException):
                 self.obj.lockAccountPassword("Test", "dn")
-            user.userPassword = "{CRYPT}uw8er0hjewofh"
+            user.userPassword[0] = "{CRYPT}uw8er0hjewofh"
             self.obj.lockAccountPassword("Test", "dn")
             # account should be locked
-            assert user.userPassword == "{CRYPT}!uw8er0hjewofh"
+            assert user.userPassword[0] == "{CRYPT}!uw8er0hjewofh"
             assert user.commit.called is True
 
     @unittest.mock.patch.object(Environment, "getInstance")
@@ -90,17 +90,17 @@ class PasswordMethodCryptTestCase(unittest.TestCase):
             user = m.return_value
             with pytest.raises(PasswordException):
                 self.obj.unlockAccountPassword("Test", "dn")
-            user.userPassword = None
+            user.userPassword = []
             user.get_attributes.return_value = ['userPassword']
             with pytest.raises(PasswordException):
                 self.obj.unlockAccountPassword("Test", "dn")
-            user.userPassword = "{UNKNOWN}$0$md"
+            user.userPassword[0] = "{UNKNOWN}$0$md"
             with pytest.raises(PasswordException):
                 self.obj.unlockAccountPassword("Test", "dn")
-            user.userPassword = "{CRYPT}!uw8er0hjewofh"
+            user.userPassword[0] = "{CRYPT}!uw8er0hjewofh"
             self.obj.unlockAccountPassword("Test", "dn")
             # account should be locked
-            assert user.userPassword == "{CRYPT}uw8er0hjewofh"
+            assert user.userPassword[0] == "{CRYPT}uw8er0hjewofh"
             assert user.commit.called is True
 
     @unittest.mock.patch.object(Environment, "getInstance")
