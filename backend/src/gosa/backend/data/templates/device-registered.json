@@ -10,12 +10,22 @@
     },
     "extensions": {
         "resources": {
-            "favicon": "@Ligature/pc"
+            "favicon": "@Ligature/pc",
+            "actionConfigureClient": "@Ligature/gear"
         },
         "tabConfig": {
             "title": "tr('Registered device')",
             "icon": "favicon"
-        }
+        },
+        "actions": [
+            {
+                "name": "configureClient",
+                "target": "configureClient()",
+                "icon": "actionConfigureClient",
+                "text": "tr('Configure client')",
+                "condition": "status_Online"
+            }
+        ]
     },
     "children": [{
         "class": "gosa.ui.widgets.GroupBox",

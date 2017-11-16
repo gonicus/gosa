@@ -201,6 +201,15 @@
 				<Mandatory>true</Mandatory>
 			</Attribute>
 		</Attributes>
+		<Methods>
+			<Method>
+				<Name>configureClient</Name>
+				<Command>configureClient</Command>
+				<CommandParameters>
+					<Value>deviceUUID</Value>
+				</CommandParameters>
+			</Method>
+		</Methods>
 		<Extends>
 			<Value>Device</Value>
 		</Extends>
