@@ -278,12 +278,18 @@ qx.Class.define("gosa.view.Search", {
     },
 
     updateFilter : function() {
-      var d = new Date();
-      this.__selection = this.searchAid.getSelection();
+      if (this.__selection.secondary === "disabled" && this.searchAid.getSelection().secondary === "enabled") {
+        // search again as we need secondary results also
+        this.__selection = qx.lang.Object.mergeWith(this.__default_selection, this.searchAid.getSelection());
+        this.doSearch(false, true);
+      } else {
+        var d = new Date();
+        this.__selection = this.searchAid.getSelection();
 
-      this.__now = d.getTime() / 1000 + d.getTimezoneOffset() * 60;
-      this.resultList.refresh();
-      this.__updateResultInfo(this.resultList.getPane().getRowConfig().getItemCount());
+        this.__now = d.getTime() / 1000 + d.getTimezoneOffset() * 60;
+        this.resultList.refresh();
+        this.__updateResultInfo(this.resultList.getPane().getRowConfig().getItemCount());
+      }
     },
 
     showSpinner: function() {
@@ -301,12 +307,12 @@ qx.Class.define("gosa.view.Search", {
       return this.doSearch(noListUpdate);
     }, 200, false),
 
-    doSearch : function(noListUpdate) {
+    doSearch : function(noListUpdate, force) {
       console.time('search');
       var query = this.sf.getValue();
 
       // Don't search for nothing or not changed values
-      if (!noListUpdate && (query === "" || this._old_query === query)) {
+      if (!noListUpdate && !force && (query === "" || this._old_query === query)) {
         return qx.Promise.resolve([]);
       }
       if (!noListUpdate) {
@@ -323,7 +329,7 @@ qx.Class.define("gosa.view.Search", {
       }
       console.time('search RPC');
       this._old_query = query;
-      return this.__searchPromise = rpc.cA("search", base, "sub", query, this.__default_selection)
+      return this.__searchPromise = rpc.cA("search", base, "sub", query, this.__selection)
       .then(function(result) {
         console.timeEnd('search RPC');
         var endTime = new Date().getTime();
