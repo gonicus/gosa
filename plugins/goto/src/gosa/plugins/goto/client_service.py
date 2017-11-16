@@ -117,6 +117,8 @@ class ClientService(Plugin):
         sched = PluginRegistry.getInstance('SchedulerService').getScheduler()
         sched.add_interval_job(self.__gc, minutes=1, tag='_internal', jobstore="ram")
 
+        self.register_listener("configureHostPrinters", self._on_client_caps)
+
     def __handle_events(self, event):
         """
         React on object modifications to keep active ACLs up to date.
@@ -696,9 +698,6 @@ class ClientService(Plugin):
 
         self.__client[client] = info
 
-        # configure client
-        self.configureClient(client)
-
         # Handle pending "P"repare actions for that client
         if "P" in self.systemGetStatus(client):
             try:
@@ -706,6 +705,11 @@ class ClientService(Plugin):
                 rm.prepareClient(client)
             except ValueError:
                 pass
+
+    def _on_client_caps(self, cid, method, status):
+        if method == "configureHostPrinters":
+            if status is True:
+                self.configureClient(cid)
 
     def _handleClientLeave(self, data):
         data = data.ClientLeave
