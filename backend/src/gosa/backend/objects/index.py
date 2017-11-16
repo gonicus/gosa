@@ -166,7 +166,7 @@ class ObjectIndex(Plugin):
         # If there is already a collection, check if there is a newer schema available
         schema = self.factory.getXMLObjectSchema(True)
         if self.isSchemaUpdated(schema):
-            if self.env.config.get("backend.index", "True").lower() == "true":
+            if self.env.config.get("backend.index", "True").lower() == "false":
                 self.log.error("object definitions changed and the index needs to be re-created. Please enable the index in your config file!")
             else:
                 self.__session.query(Schema).delete()
