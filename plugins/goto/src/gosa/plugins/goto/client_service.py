@@ -401,44 +401,57 @@ class ClientService(Plugin):
         h, key, salt = generate_random_key()
 
         # Take a look at the directory to see if there's already a joined client with this uuid
-        # res = index.search({'_type': 'Device', 'macAddress': mac, 'extension': 'RegisteredDevice'},
-        #                    {'_uuid': 1})
-        #
-        # if len(res):
-        #     raise GOtoException(C.make_error("DEVICE_EXISTS", mac))
+        res = index.search({'_type': 'Device', 'macAddress': mac, 'extension': 'RegisteredDevice'},
+                           {'_uuid': 1})
 
-        # While the client is going to be joined, generate a random uuid and an encoded join key
-        cn = str(uuid4())
-        device_key = encrypt_key(device_uuid.replace("-", ""), cn + key)
+        if len(res) > 0:
+            record = ObjectProxy(res[0]['_uuid'])
+            for ext in ["simpleSecurityObject", "ieee802Device"]:
+                if not record.is_extended_by(ext):
+                    record.extend(ext)
 
-        # Resolve manager
-        res = index.search({'_type': 'User', 'uid': user},
-                           {'dn': 1})
+            if record.is_extended_by("ForemanHost") and record.otp is not None:
+                record.otp = None
 
-        if len(res) != 1:
-            raise GOtoException(C.make_error("USER_NOT_UNIQUE" if res else "UNKNOWN_USER", target=user))
-        manager = res[0]['dn']
+            record.userPassword = ["{SSHA}" + encode(h.digest() + salt).decode()]
+            for k, value in more_info:
+                setattr(record, k, value)
+            cn = record.deviceUUID
 
-        # Create new machine entry
-        dn = ",".join([self.env.config.get("goto.machine-rdn", default="ou=devices,ou=systems"), self.env.base])
-        record = ObjectProxy(dn, "Device")
-        record.extend("RegisteredDevice")
-        record.extend("ieee802Device")
-        record.extend("simpleSecurityObject")
-        record.deviceUUID = cn
-        record.deviceKey = Binary(device_key)
-        if record.is_extended_by("ForemanHost") and record.otp is not None:
-            record.otp = None
-        record.cn = cn
-        record.manager = manager
-        record.status_Offline = True
-        record.macAddress = mac.encode("ascii", "ignore")
-        record.userPassword = ["{SSHA}" + encode(h.digest() + salt).decode()]
-        for k, value in more_info:
-            setattr(record, k, value)
+            record.commit()
+            self.log.info("UUID '%s' joined as %s" % (device_uuid, record.dn))
+        else:
 
-        record.commit()
-        self.log.info("UUID '%s' joined as %s" % (device_uuid, record.dn))
+            # While the client is going to be joined, generate a random uuid and an encoded join key
+            cn = str(uuid4())
+            device_key = encrypt_key(device_uuid.replace("-", ""), cn + key)
+
+            # Resolve manager
+            res = index.search({'_type': 'User', 'uid': user},
+                               {'dn': 1})
+
+            if len(res) != 1:
+                raise GOtoException(C.make_error("USER_NOT_UNIQUE" if res else "UNKNOWN_USER", target=user))
+            manager = res[0]['dn']
+
+            # Create new machine entry
+            dn = ",".join([self.env.config.get("goto.machine-rdn", default="ou=devices,ou=systems"), self.env.base])
+            record = ObjectProxy(dn, "Device")
+            record.extend("RegisteredDevice")
+            record.extend("ieee802Device")
+            record.extend("simpleSecurityObject")
+            record.deviceUUID = cn
+            record.deviceKey = Binary(device_key)
+            record.cn = cn
+            record.manager = manager
+            record.status_Offline = True
+            record.macAddress = mac.encode("ascii", "ignore")
+            record.userPassword = ["{SSHA}" + encode(h.digest() + salt).decode()]
+            for k, value in more_info:
+                setattr(record, k, value)
+
+            record.commit()
+            self.log.info("UUID '%s' joined as %s" % (device_uuid, record.dn))
 
         return [key, cn]
 
