@@ -300,6 +300,13 @@
       </Attribute>
 
       <Attribute>
+        <Name>otp</Name>
+        <Description>OTP hash generated for foreman</Description>
+        <Type>UnicodeString</Type>
+        <Backend>JSON</Backend>
+      </Attribute>
+
+      <Attribute>
         <Name>name</Name>
         <Type>UnicodeString</Type>
         <Backend>Foreman</Backend>

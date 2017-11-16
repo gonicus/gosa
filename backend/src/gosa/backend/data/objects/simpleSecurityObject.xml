@@ -14,6 +14,7 @@
         <Description>password</Description>
         <Type>UnicodeString</Type>
         <Mandatory>true</Mandatory>
+        <MultiValue>true</MultiValue>
       </Attribute>
     </Attributes>
     <Extends>

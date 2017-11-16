@@ -609,7 +609,11 @@ class Foreman(Plugin):
             device.status = "pending"
             device.status_InstallationInProgress = True
 
-            device.userPassword = "{SSHA}" + encode(h.digest() + salt).decode()
+            if device.userPassword is None:
+                device.userPassword = []
+            elif device.otp is not None:
+                device.userPassword.remove(device.otp)
+            device.userPassword.append("{SSHA}" + encode(h.digest() + salt).decode())
 
             device.commit()
             self.mark_for_parameter_setting(hostname, {"status": "added"})
