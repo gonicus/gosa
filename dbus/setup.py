@@ -81,6 +81,7 @@ setup(
         inventory = gosa.dbus.plugins.inventory.main:DBusInventoryHandler
         service = gosa.dbus.plugins.services.main:DBusUnixServiceHandler
         notify = gosa.dbus.plugins.notify.main:DBusNotifyHandler
+        cups = gosa.dbus.plugins.cups.main:DBusCupsHandler
         #wol = gosa.dbus.plugins.wakeonlan.main:DBusWakeOnLanHandler
         #shell = gosa.dbus.plugins.shell.main:DBusShellHandler
     """,
