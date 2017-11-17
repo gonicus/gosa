@@ -615,6 +615,50 @@ class Foreman(Plugin):
                 device.userPassword.remove(device.otp)
             device.userPassword.append("{SSHA}" + encode(h.digest() + salt).decode())
 
+            # check rights
+            acl = PluginRegistry.getInstance("ACLResolver")
+            if not acl.check(device.deviceUUID, "%s.%s.%s" % (self.env.domain, "command", "joinClient"), "x"):
+                role_name = "$$DeviceJoin"
+                # create AclRole for joining if not exists
+                index = PluginRegistry.getInstance("ObjectIndex")
+                res = index.search({"_type": "AclRole", "name": role_name}, {"dn": 1})
+                if len(res) == 0:
+                    # create
+                    role = ObjectProxy(self.env.base, "AclRole")
+                    role.name = role_name
+
+                    # create rule
+                    aclentry = {
+                        "priority": 0,
+                        "scope": "sub",
+                        "actions": [
+                            {
+                                "topic": "%s\.command\.joinClient" % self.env.domain,
+                                "acl": "x",
+                                "options": {}
+                            }
+                        ]}
+                    role.AclRoles = [aclentry]
+                    role.commit()
+
+                # check if device has role
+                found = False
+                base = ObjectProxy(self.env.base)
+                if base.is_extended_by("Acl"):
+                    for entry in base.AclSets:
+                        if entry["rolename"] == role_name and device.deviceUUID in entry["members"]:
+                            found = True
+                            break
+                else:
+                    base.extend("Acl")
+
+                if found is False:
+                    acl_entry = {"priority": 0,
+                                 "members": [device.deviceUUID],
+                                 "rolename": role_name}
+                    base.AclSets.append(acl_entry)
+                    base.commit()
+
             device.commit()
             self.mark_for_parameter_setting(hostname, {"status": "added"})
             return "%s|%s" % (key, cn)
