@@ -402,10 +402,10 @@ class ClientService(Plugin):
 
         # Take a look at the directory to see if there's already a joined client with this uuid
         res = index.search({'_type': 'Device', 'macAddress': mac, 'extension': 'RegisteredDevice'},
-                           {'_uuid': 1})
+                           {'dn': 1})
 
         if len(res) > 0:
-            record = ObjectProxy(res[0]['_uuid'])
+            record = ObjectProxy(res[0]['dn'])
             for ext in ["simpleSecurityObject", "ieee802Device"]:
                 if not record.is_extended_by(ext):
                     record.extend(ext)
