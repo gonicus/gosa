@@ -142,7 +142,7 @@ class Config(object):
         """
         return self.__registry[section.lower()]
 
-    def get(self, path, default=None, use_user_config=True):
+    def get(self, path, default=None, use_user_config=True, method="get"):
         """
         *get* allows dot-separated access to the configuration structure.
         If the desired value is not defined, you can specify a default
@@ -169,7 +169,7 @@ class Config(object):
         # override with user config if exists
         if use_user_config is True and self.__user_config and self.__user_config.has_section(section) and self.__user_config.has_option(\
                 section, key):
-            return self.__user_config.get(section, key)
+            return getattr(self.__user_config, method)(section, key)
 
         tmp = self.__registry
         try:
@@ -181,6 +181,9 @@ class Config(object):
             pass
 
         return default
+
+    def getfloat(self, path, default=None, use_user_config=True):
+        return self.get(path, default, use_user_config, "getfloat")
 
     def set(self, path, value):
         """
