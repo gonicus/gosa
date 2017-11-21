@@ -1020,13 +1020,15 @@ class ACLResolver(Plugin):
         Generate a unique ID for each AclEntry used in Sets or Roles.
         """
         used_ids = []
-        for aclset in self.acl_sets:
-            for acl in aclset:
-                used_ids.append(acl.id)
+        if self.acl_sets is not None:
+            for aclset in self.acl_sets:
+                for acl in aclset:
+                    used_ids.append(acl.id)
 
-        for aclrole in self.acl_roles:
-            for acl in self.acl_roles[aclrole]:
-                used_ids.append(acl.id)
+        if self.acl_roles is not None:
+            for aclrole in self.acl_roles:
+                for acl in self.acl_roles[aclrole]:
+                    used_ids.append(acl.id)
 
         self.next_acl_id += 1
         while self.next_acl_id in used_ids:
