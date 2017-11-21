@@ -234,6 +234,10 @@
                         <Source>cn</Source>
                         <Destination>title</Destination>
                     </Map>
+                    <Map>
+                        <Source><![CDATA[%(maker)s<br/>%(description)s]]></Source>
+                        <Destination>description</Destination>
+                    </Map>
                 </Result>
             </Aspect>
         </Find>
