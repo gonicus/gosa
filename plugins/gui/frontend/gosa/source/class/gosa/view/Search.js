@@ -46,7 +46,7 @@ qx.Class.define("gosa.view.Search", {
     var searchLayout = new qx.ui.layout.HBox(10);
     searchHeader.setLayout(searchLayout);
 
-    var sf = this.searchField = new qx.ui.form.TextField('');
+    var sf = new qx.ui.form.TextField('');
     sf.setPlaceholder(this.tr("Please enter your search..."));
     this.addListener("resize", function() {
       var newWidth = parseInt(this.getBounds().width / 2);
@@ -70,7 +70,8 @@ qx.Class.define("gosa.view.Search", {
       });
     }, this);
 
-    var sb = new qx.ui.form.Button(this.tr("Search"));
+    var sb = this._searchButton = new qx.ui.form.Button(this.tr("Search"));
+    sb.setEnabled(false);
     sb.setAppearance("button-primary");
     searchHeader.add(sb);
 
@@ -264,6 +265,7 @@ qx.Class.define("gosa.view.Search", {
     _handle_key_event : function(e) {
       // Push the search to the search queue
       if (this.sf.getValue().length > 2) {
+        this._searchButton.setEnabled(true);
         this.doSearchE();
 
         if (this._delta) {
@@ -284,6 +286,8 @@ qx.Class.define("gosa.view.Search", {
           this._delta = 0;
         }
 
+      } else {
+        this._searchButton.setEnabled(false);
       }
     },
 

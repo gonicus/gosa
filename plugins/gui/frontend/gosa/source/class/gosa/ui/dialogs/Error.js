@@ -22,12 +22,18 @@ qx.Class.define("gosa.ui.dialogs.Error", {
     msg = gosa.ui.dialogs.Error.getMessage(msg);
 
     var message = new qx.ui.basic.Label(msg);
+    message.set({
+      rich: true,
+      wrap: true
+    });
+    this.setMaxWidth(qx.bom.Viewport.getWidth()-20);
     this.addElement(message);
 
     var ok = gosa.ui.base.Buttons.getOkButton();
     ok.setAppearance("button-danger");
     ok.addListener("execute", this.close, this);
     this.addButton(ok);
+
   },
 
   /*
