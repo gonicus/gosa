@@ -28,7 +28,7 @@ qx.Class.define("gosa.view.Search", {
     // Default search parameters
     this.__default_selection = this.__selection = {
         'fallback': true,
-        'secondary': "disabled",
+        'secondary': "enabled",
         'category': "all",
         'mod-time': "all"
     };
@@ -95,8 +95,12 @@ qx.Class.define("gosa.view.Search", {
     this.searchInfo.add(sil);
 
     this.sii = new qx.ui.basic.Label();
-    this.sii.setTextColor("darkgray-light");
-    this.sii.setAlignY("bottom");
+    this.sii.set({
+      textColor: "darkgray-light",
+      alignY: "bottom",
+      rich: true,
+      wrap: true
+    });
     this.searchInfo.add(this.sii);
 
     this.add(this.searchInfo);
@@ -191,7 +195,7 @@ qx.Class.define("gosa.view.Search", {
     this._removedObjects = [];
     this._createdObjects = [];
     this._modifiedObjects = [];
-    this._currentResult = [];
+    this._currentResponse = {};
 
     // Listen for object changes coming from the backend
     this.__debouncedReload = qx.util.Function.debounce(this._handleObjectEvent, 500, true);
@@ -210,6 +214,12 @@ qx.Class.define("gosa.view.Search", {
     appearance: {
       refine: true,
       init: "gosa-tabview-page"
+    },
+
+    // if true every filter update triggers a new search
+    searchOnFilterUpdate: {
+      check: "Boolean",
+      init: false
     }
   },
 
@@ -277,8 +287,8 @@ qx.Class.define("gosa.view.Search", {
       }
     },
 
-    updateFilter : function() {
-      if (this.__selection.secondary === "disabled" && this.searchAid.getSelection().secondary === "enabled") {
+    updateFilter : function(ev) {
+      if (ev && (ev.getData().triggerSearch || (this.__selection.secondary === "disabled" && this.searchAid.getSelection().secondary === "enabled"))) {
         // search again as we need secondary results also
         this.__selection = qx.lang.Object.mergeWith(this.__default_selection, this.searchAid.getSelection());
         this.doSearch(false, true);
@@ -307,16 +317,19 @@ qx.Class.define("gosa.view.Search", {
       return this.doSearch(noListUpdate);
     }, 200, false),
 
-    doSearch : function(noListUpdate, force) {
+    doSearch : function(noListUpdate, selection) {
       console.time('search');
       var query = this.sf.getValue();
 
       // Don't search for nothing or not changed values
-      if (!noListUpdate && !force && (query === "" || this._old_query === query)) {
+      if (!noListUpdate && !selection && (query === "" || this._old_query === query)) {
         return qx.Promise.resolve([]);
       }
       if (!noListUpdate) {
         this.showSpinner();
+      }
+      if (!selection) {
+        selection = this.__selection = this.__default_selection;
       }
 
       var rpc = gosa.io.Rpc.getInstance();
@@ -329,14 +342,14 @@ qx.Class.define("gosa.view.Search", {
       }
       console.time('search RPC');
       this._old_query = query;
-      return this.__searchPromise = rpc.cA("search", base, "sub", query, this.__selection)
+      return this.__searchPromise = rpc.cA("search", base, "sub", query, selection)
       .then(function(result) {
         console.timeEnd('search RPC');
         var endTime = new Date().getTime();
 
         // Memorize old query and display results
         if(!noListUpdate) {
-          this.showSearchResults(result, endTime - startTime, false, query);
+          this.showSearchResults(result, endTime - startTime, !!selection.fallback, query);
         }
 
         return result;
@@ -357,17 +370,30 @@ qx.Class.define("gosa.view.Search", {
     },
 
     __updateResultInfo: function(count) {
-      if (this.__fuzzy) {
-        this.sii.setValue(this.trn("%1 fuzzy result", "%1 fuzzy results", count, count) + " / " + this.tr("no exact matches") + " (" + this.trn("%1 second", "%1 seconds", this.__duration, this.__duration) + ")");
-      } else {
-        this.sii.setValue(this.trn("%1 result", "%1 results", count, count) + " (" + this.trn("%1 second", "%1 seconds", this.__duration, this.__duration) + ")");
+      var resultString = "";
+      var isFuzzy = this._currentResponse.hasOwnProperty("fuzzy") && !!this._currentResponse.fuzzy;
+      var moreResults= this._currentResponse.total > this._currentResponse.results.length;
+
+      if (isFuzzy) {
+        resultString += this.tr("Search for '%1' returned no results, searched for '%2' instead", this._currentResponse.orig, this._currentResponse.fuzzy)+"<br/><br/>";
       }
+      if (moreResults) {
+        resultString += this.trn("%1 / %2 result shown", "%1 / %2 results shown", count, count, this._total);
+      } else {
+        resultString += this.trn("%1 result", "%1 results", count, count);
+      }
+      resultString += " (" + this.trn("%1 second", "%1 seconds", this.__duration, this.__duration) + ")";
+      if (moreResults) {
+        resultString += "<br>"+this.tr("Please consider using a more specific search string or filters to reduce the result set. ");
+      }
+      this.sii.setValue(resultString);
     },
 
-    showSearchResults : function(items, duration, fuzzy, query) {
+    showSearchResults : function(result, duration, fuzzy, query) {
+      this._currentResponse = result;
+      var items = result.results;
+      this._total = result.total;
       var i = items.length;
-
-      this._currentResult = items;
 
       this.searchInfo.show();
       this.resultList.getChildControl("scrollbar-x").setPosition(0);
@@ -381,6 +407,7 @@ qx.Class.define("gosa.view.Search", {
       this.__duration = Math.round(duration / 10) / 100;
       this.__fuzzy = fuzzy;
       this.__updateResultInfo(i);
+      this.setSearchOnFilterUpdate(i < this._total);
 
       var model = [];
       var _categories = {};
@@ -506,7 +533,7 @@ qx.Class.define("gosa.view.Search", {
     },
 
     __sortByRelevance: function(a, b){
-      return (a.getRelevance() - b.getRelevance());
+      return (b.getRelevance() - a.getRelevance());
     },
 
     /**
@@ -556,9 +583,9 @@ qx.Class.define("gosa.view.Search", {
 
           // Create a list containing all currently show entry-uuids.
           var current_uuids = [];
-          for(var i=0; i<this._currentResult.length; i++){
-            current_uuids.push(this._currentResult[i].uuid);
-            entries_by_uuid[this._currentResult[i].uuid] = this._currentResult[i];
+          for(var i=0; i<this._currentResponse.results.length; i++){
+            current_uuids.push(this._currentResponse.results[i].uuid);
+            entries_by_uuid[this._currentResponse.results[i].uuid] = this._currentResponse.results[i];
           }
 
           // Create  list of all entry-uuids that ware returned by the query.
@@ -634,9 +661,9 @@ qx.Class.define("gosa.view.Search", {
       }
 
       // Now remove the entry from the current result set
-      for(i=0; i<this._currentResult.length; i++){
-        if(this._currentResult[i].uuid == entry.uuid){
-          this._currentResult[i] = entry;
+      for(i=0; i<this._currentResponse.results.length; i++){
+        if(this._currentResponse.results[i].uuid == entry.uuid){
+          this._currentResponse.results[i] = entry;
           break;
         }
       }
@@ -659,7 +686,7 @@ qx.Class.define("gosa.view.Search", {
       // Also add this result-item to the current result set,
       // else we would add the item the the result-list
       // again and again and ...
-      this._currentResult.push(entry);
+      this._currentResponse.results.push(entry);
     },
 
 
@@ -681,9 +708,9 @@ qx.Class.define("gosa.view.Search", {
       }
 
       // Now remove the entry from the current result set.
-      for(i=0; i<this._currentResult.length; i++){
-        if(this._currentResult[i].uuid == entry.uuid){
-          qx.lang.Array.remove(this._currentResult, this._currentResult[i]);
+      for(i=0; i<this._currentResponse.results.length; i++){
+        if(this._currentResponse.results[i].uuid == entry.uuid){
+          qx.lang.Array.remove(this._currentResponse.results, this._currentResponse.results[i]);
           break;
         }
       }

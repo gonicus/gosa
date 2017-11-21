@@ -141,7 +141,9 @@ qx.Class.define("gosa.plugins.activity.Main", {
           'limit' : this.getMaxItems(),
           'secondary' : false
         })
-        .then(this._model.updateModel, this._model)
+        .then(function(res) {
+          this._model.updateModel(res.results);
+        }, this)
         .catch(function(error) {
           this.error(error);
           var d = new gosa.ui.dialogs.Error(error);

@@ -50,7 +50,7 @@ qx.Class.define("gosa.data.model.SearchResultItem", {
     },
 
     relevance : {
-      check : "Integer",
+      check : "Number",
       event : "changeRelevance"
     },
 

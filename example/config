@@ -26,6 +26,8 @@ database-file = /tmp/gosa.json
 [backend]
 admins = admin
 index = true
+# threshold for word similarity on fuzzy searches
+#fuzzy-threshold = 0.3
 
 [user]
 image-path = /tmp/images

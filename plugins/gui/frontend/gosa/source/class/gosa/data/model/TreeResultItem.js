@@ -31,6 +31,15 @@ qx.Class.define("gosa.data.model.TreeResultItem",
     this.setLeafs(new qx.data.Array());
   },
 
+  /*
+  *****************************************************************************
+     STATICS
+  *****************************************************************************
+  */
+  statics: {
+    RPC_CACHE: {}
+  },
+
   events : {
     "updatedItems" : "qx.event.type.Event"
   },
@@ -186,6 +195,9 @@ qx.Class.define("gosa.data.model.TreeResultItem",
               })
             }
             return promise.then(function(data) {
+              if (data.hasOwnProperty("results")) {
+                data = data.results;
+              }
               var newc = new qx.data.Array();
               var newl = new qx.data.Array();
               for (var id in data) {
@@ -224,9 +236,9 @@ qx.Class.define("gosa.data.model.TreeResultItem",
             .then(function(results) {
               var newc = new qx.data.Array();
               results.forEach(function(result) {
-                var item = this.parseItemForResult(result[0]);
-                rpc.cA("isContainerForObjectType", result[0]['dn'],
-                  this.getMoveTargetFor()).then(item.setMoveTarget, item);
+                var item = this.parseItemForResult(result.results[0]);
+                rpc.cA("isContainerForObjectType", result.results[0]['dn'], this.getMoveTargetFor())
+                  .then(item.setMoveTarget, item);
                 newc.push(item);
               }, this);
               this.sortElements();

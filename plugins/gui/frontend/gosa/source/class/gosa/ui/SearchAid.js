@@ -44,7 +44,7 @@ qx.Class.define("gosa.ui.SearchAid",
       return this.__selection;
     },
 
-    addFilter : function(title, cat, elements, dflt){
+    addFilter : function(title, cat, elements, dflt, searchOnChange) {
       var w = new qx.ui.groupbox.GroupBox(title);
       this.__filters[cat] = {"default": dflt};
 
@@ -61,7 +61,11 @@ qx.Class.define("gosa.ui.SearchAid",
 
       for (var k in elements) {
         var v = elements[k];
-        var b = new qx.ui.form.ToggleButton(v.name+" ("+v.count+")");
+        var title = v.name;
+        if (v.hasOwnProperty("count")) {
+          title += " ("+v.count+")";
+        }
+        var b = new qx.ui.form.ToggleButton(title);
 
         if (!this.__selection[cat]) {
           this.__selection[cat] = dflt;
@@ -69,6 +73,7 @@ qx.Class.define("gosa.ui.SearchAid",
 
         b.setAppearance("SearchAidButton");
         b.setUserData("category", k);
+        b.setUserData("searchOnChange", searchOnChange);
         w.add(b);
         group.add(b);
 
@@ -83,11 +88,13 @@ qx.Class.define("gosa.ui.SearchAid",
           return;
         }
         var selection = group.getSelection()[0].getUserData("category");
+        var searchOnChange = !!group.getSelection()[0].getUserData("searchOnChange");
         if (this.__selection[cat] != selection) {
           this.__selection[cat] = selection;
           this.fireDataEvent("filterChanged", {
             "category": cat,
-            "selection": selection
+            "selection": selection,
+            "triggerSearch": searchOnChange
           });
         }
       }, this);
@@ -100,29 +107,35 @@ qx.Class.define("gosa.ui.SearchAid",
 
     updateFilter : function (cat, elements) {
       this.__block_event = true;
-      var w = this.__filters[cat]['widget'];
-      var group = this.__filters[cat]['group'];
+      if (this.__filters[cat]) {
+        var w = this.__filters[cat]['widget'];
+        var group = this.__filters[cat]['group'];
 
-      // Remove old members
-      w.removeAll();
-      var children = group.getChildren();
-      for (var i in children) {
-        group.remove(children[i]);
-      }
+        // Remove old members
+        w.removeAll();
+        var children = group.getChildren();
+        for (var i in children) {
+          group.remove(children[i]);
+        }
 
-      // Add replacement members
-      for (var k in elements) {
-        var v = elements[k];
-        var b = new qx.ui.form.ToggleButton(v.name+" ("+v.count+")");
+        // Add replacement members
+        for (var k in elements) {
+          var v = elements[k];
+          var title = v.name;
+          if (v.hasOwnProperty("count")) {
+            title += " (" + v.count + ")";
+          }
+          var b = new qx.ui.form.ToggleButton(title);
 
-        b.setAppearance("SearchAidButton");
-        b.setUserData("category", k);
-        w.add(b);
-        group.add(b);
+          b.setAppearance("SearchAidButton");
+          b.setUserData("category", k);
+          w.add(b);
+          group.add(b);
 
-        // Set selection
-        if (k == this.__selection[cat]) {
-          group.setSelection([b]);
+          // Set selection
+          if (k == this.__selection[cat]) {
+            group.setSelection([b]);
+          }
         }
       }
       this.__block_event = false;

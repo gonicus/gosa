@@ -19,8 +19,16 @@ local index database
 """
 import logging
 
-from sqlalchemy.dialects import postgresql
+import re
 
+import ldap
+import sqlalchemy
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy_searchable import make_searchable
+from sqlalchemy_utils import TSVectorType
+
+import gosa
 from gosa.common.event import EventMaker
 from lxml import etree
 from lxml import objectify
@@ -42,9 +50,11 @@ from gosa.backend.exceptions import FilterException, IndexException, ProxyExcept
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, joinedload
-from sqlalchemy import Column, String, Integer, Boolean, Sequence, DateTime, ForeignKey, or_, and_, not_, func
+from sqlalchemy import Column, String, Integer, Boolean, Sequence, DateTime, ForeignKey, or_, and_, not_, func, orm
 
 Base = declarative_base()
+make_searchable()
+
 
 # Register the errors handled  by us
 C.register_codes(dict(
@@ -64,12 +74,31 @@ class Schema(Base):
        return "<Schema(hash='%s')>" % self.hash
 
 
+class SearchObjectIndex(Base):
+    __tablename__ = "so_index"
+    so_uuid = Column(String(36), ForeignKey('obj-index.uuid'), primary_key=True)
+    reverse_parent_dn = Column(String, index=True)
+    title = Column(String)
+    description = Column(String)
+    search = Column(String)
+    search_vector = Column(TSVectorType('title', 'description', 'search',
+                                        weights={'title': 'A', 'description': 'B', 'search': 'C'},
+                                        regconfig='pg_catalog.simple'
+                                        ))
+    object = relationship("ObjectInfoIndex", uselist=False, back_populates="search_object")
+
+    def __repr__(self):  # pragma: nocover
+
+        return "<SearchObjectIndex(so_uuid='%s', reverse_dn='%s', title='%s', description='%s')>" % \
+               (self.so_uuid, self.reverse_dn, self.title, self.description)
+
+
 class KeyValueIndex(Base):
     __tablename__ = 'kv-index'
 
     key_id = Column(Integer, Sequence('kv_id_seq'), primary_key=True, nullable=False)
     uuid = Column(String(36), ForeignKey('obj-index.uuid'))
-    key = Column(String(64))
+    key = Column(String(64), index=True)
     value = Column(String)
 
     def __repr__(self):  # pragma: nocover
@@ -96,11 +125,12 @@ class ObjectInfoIndex(Base):
     dn = Column(String, index=True)
     _parent_dn = Column(String, index=True)
     _adjusted_parent_dn = Column(String, index=True)
-    _type = Column(String(64))
+    _type = Column(String(64), index=True)
     _last_modified = Column(DateTime)
     _invisible = Column(Boolean)
     properties = relationship("KeyValueIndex", order_by=KeyValueIndex.key)
     extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension)
+    search_object = relationship("SearchObjectIndex", back_populates="object")
 
     def __repr__(self):  # pragma: nocover
        return "<ObjectInfoIndex(uuid='%s', dn='%s', _parent_dn='%s', _adjusted_parent_dn='%s', _type='%s', _last_modified='%s', _invisible='%s')>" % (
@@ -134,6 +164,7 @@ class ObjectIndex(Plugin):
     last_notification = None
     # notification period in seconds during indexing
     notify_every = 1
+    __value_extender = None
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -151,16 +182,29 @@ class ObjectIndex(Plugin):
 
     def serve(self):
         # Configure database for the index
+        orm.configure_mappers()
         Base.metadata.create_all(self.env.getDatabaseEngine("backend-database"))
 
         # Store DB session
         self.__session = self.env.getDatabaseSession("backend-database")
+        self.__value_extender = gosa.backend.objects.renderer.get_renderers()
 
-        # Do a feature check
+
+        # create view
         try:
-            self.__session.query(KeyValueIndex).filter(func.levenshtein("foo", "foo") < 2).one_or_none()
+            # check if extension exists
+            if self.__session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'pg_trgm';").rowcount == 0:
+                self.__session.execute("CREATE EXTENSION pg_trgm;")
+
+            view_name = "unique_lexeme"
+            # check if view exists
+            res = self.__session.execute("SELECT count(*) > 0 as \"exists\" FROM pg_catalog.pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind = 'm' AND n.nspname = 'public' AND c.relname = '%s';" % view_name).first()
+            if res[0] is False:
+                self.__session.execute("CREATE MATERIALIZED VIEW %s AS SELECT word FROM ts_stat('SELECT so_index.search_vector FROM so_index');" % view_name)
+                self.__session.execute("CREATE INDEX words_idx ON %s USING gin(word gin_trgm_ops);" % view_name)
             self.fuzzy = True
-        except:
+        except Exception as e:
+            self.log.error("Error creating view for unique word index: %s" % str(e))
             self.__session.rollback()
 
         # If there is already a collection, check if there is a newer schema available
@@ -172,6 +216,7 @@ class ObjectIndex(Plugin):
                 self.__session.query(Schema).delete()
                 self.__session.query(KeyValueIndex).delete()
                 self.__session.query(ExtensionIndex).delete()
+                self.__session.query(SearchObjectIndex).delete()
                 self.__session.query(ObjectInfoIndex).delete()
                 self.log.info('object definitions changed, dropped old object index')
 
@@ -599,8 +644,15 @@ class ObjectIndex(Plugin):
 
         ObjectIndex.to_be_updated = []
 
+        self.update_words()
+
     def index_active(self):  # pragma: nocover
         return self._indexed
+
+    def update_words(self):
+        # update unique word list
+        if self.fuzzy is True:
+            self.__session.execute("REFRESH MATERIALIZED VIEW unique_lexeme;")
 
     def __handle_events(self, event):
         if isinstance(event, objectify.ObjectifiedElement):
@@ -737,7 +789,56 @@ class ObjectIndex(Plugin):
                 kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=value)
                 self.__session.add(kvi)
 
+        # assemble search object
+        if data['_type'] in self.__search_aid['mapping']:
+            aid = self.__search_aid['mapping'][data['_type']]
+            attrs = self.__search_aid['attrs'][data['_type']] if data['_type'] in self.__search_aid['attrs'] else []
+            so = SearchObjectIndex(
+                so_uuid=data["_uuid"],
+                reverse_parent_dn=','.join([d for d in ldap.dn.explode_dn(data["_parent_dn"], flags=ldap.DN_FORMAT_LDAPV3)[::-1]]),
+                title=self.__build_value(aid["title"], data),
+                description=self.__build_value(aid["description"], data),
+                search=" ".join([", ".join(data[x]) for x in attrs if x in data and data[x] is not None])
+            )
+            self.__session.add(so)
         self.__session.commit()
+
+        # update word index on change (if indexing is not running currently)
+        if not GlobalLock.exists("scan_index"):
+            self.update_words()
+
+    def __build_value(self, v, info):
+        """
+        Fill placeholders in the value to be displayed as "description".
+        """
+        if not v:
+            return None
+
+        if v in info:
+            return ", ".join(info[v])
+
+        # Find all placeholders
+        attrs = {}
+        for attr in re.findall(r"%\(([^)]+)\)s", v):
+
+            # Extract ordinary attributes
+            if attr in info:
+                attrs[attr] = ", ".join(info[attr])
+
+            # Check for result renderers
+            elif attr in self.__value_extender:
+                attrs[attr] = self.__value_extender[attr](info)
+
+            # Fallback - just set nothing
+            else:
+                attrs[attr] = ""
+
+        # Assemble and remove empty lines and multiple whitespaces
+        res = v % attrs
+        res = re.sub(r"(<br>)+", "<br>", res)
+        res = re.sub(r"^<br>", "", res)
+        res = re.sub(r"<br>$", "", res)
+        return "<br>".join([s.strip() for s in res.split("<br>")])
 
     def remove(self, obj):
         self.remove_by_uuid(obj.uuid)
@@ -747,6 +848,7 @@ class ObjectIndex(Plugin):
 
         self.__session.query(KeyValueIndex).filter(~KeyValueIndex.uuid.in_(uuids)).delete(synchronize_session=False)
         self.__session.query(ExtensionIndex).filter(~ExtensionIndex.uuid.in_(uuids)).delete(synchronize_session=False)
+        self.__session.query(SearchObjectIndex).filter(~SearchObjectIndex.so_uuid.in_(uuids)).delete(synchronize_session=False)
         self.__session.query(ObjectInfoIndex).filter(~ObjectInfoIndex.uuid.in_(uuids)).delete(synchronize_session=False)
         self.__session.commit()
 
@@ -756,6 +858,7 @@ class ObjectIndex(Plugin):
         if self.exists(uuid):
             self.__session.query(KeyValueIndex).filter(KeyValueIndex.uuid == uuid).delete()
             self.__session.query(ExtensionIndex).filter(ExtensionIndex.uuid == uuid).delete()
+            self.__session.query(SearchObjectIndex).filter(SearchObjectIndex.so_uuid == uuid).delete()
             self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == uuid).delete()
             self.__session.commit()
 
@@ -1032,10 +1135,13 @@ class ObjectIndex(Plugin):
         if 'limit' in options:
             q.limit(options['limit'])
 
-        self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-
-        for o in q.all():
-            res.append(normalize(o, properties))
+        # self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+        try:
+            for o in q.all():
+                res.append(normalize(o, properties))
+        except sqlalchemy.exc.InternalError as e:
+            self.log.error(str(e))
+            self.__session.rollback()
 
         return res
 
