@@ -65,7 +65,7 @@ setup(
         'gosa.common',
         'setproctitle',
         'xdg',
-        'bs4'
+        'beautifulsoup4'
         ],
     tests_require=[
         'pytest',
