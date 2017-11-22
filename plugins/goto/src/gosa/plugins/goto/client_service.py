@@ -118,7 +118,7 @@ class ClientService(Plugin):
         sched = PluginRegistry.getInstance('SchedulerService').getScheduler()
         sched.add_interval_job(self.__gc, minutes=1, tag='_internal', jobstore="ram")
 
-        self.register_listener("configureHostPrinters", self._on_client_caps)
+        # self.register_listener("configureHostPrinters", self._on_client_caps)
 
     def __handle_events(self, event):
         """
@@ -758,8 +758,7 @@ class ClientService(Plugin):
             except ValueError:
                 pass
 
-    def _on_client_caps(self, cid, method, status):
-        pass
+    # def _on_client_caps(self, cid, method, status):
         # if method == "configureHostPrinters":
         #     if status is True:
         #         self.configureClient(cid)

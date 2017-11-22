@@ -82,6 +82,7 @@ setup(
         service = gosa.dbus.plugins.services.main:DBusUnixServiceHandler
         notify = gosa.dbus.plugins.notify.main:DBusNotifyHandler
         cups = gosa.dbus.plugins.cups.main:DBusCupsHandler
+        environment = gosa.dbus.plugins.environment.main:DBusEnvironmentHandler
         #wol = gosa.dbus.plugins.wakeonlan.main:DBusWakeOnLanHandler
         #shell = gosa.dbus.plugins.shell.main:DBusShellHandler
     """,
