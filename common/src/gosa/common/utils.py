@@ -407,8 +407,8 @@ def encrypt_key(key, data):
 
 def cache_return(timeout_secs=0):
     """
-    Caches method returns with a given timeout. Please not that this cache decorator expects the first
-    parameter of the called function to be the reference to *self*. So it will only work fot class methods.
+    Caches method returns with a given timeout. Please note that this cache decorator expects the first
+    parameter of the called function to be the reference to *self*. So it will only work for class methods.
     """
     timeout = datetime.timedelta(seconds=timeout_secs) if timeout_secs > 0 else None
 
@@ -421,7 +421,7 @@ def cache_return(timeout_secs=0):
                 args[0].__class__.__module__,
                 args[0].__class__.__name__,
                 func.__name__,
-                ",".join(args[1:]),
+                ",".join(str(x) for x in args[1:]),
                 ",".join(['%s=%s' % (k, str(v)) for (k, v) in kwargs.items()])
             )
             try:
