@@ -90,7 +90,8 @@ setup(
         'tornadostreamform',
         'pycups',
         'sh',
-        'pylint'
+        'pylint',
+        'sqlalchemy_searchable'
         ],
 
     entry_points = """
