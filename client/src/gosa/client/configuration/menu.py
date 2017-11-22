@@ -35,6 +35,7 @@ class MenuConfiguration(Plugin):
     home_dir = None
     local_menu = os.path.join(".config", "menus", XDG_MENU_PREFIX + 'applications.menu')
     local_applications = os.path.join(".local", "share", "applications")
+    local_applications_scripts = os.path.join(".local", "share", "goto", "applications-scripts")
     local_icons = os.path.join(".local", "share", "icons")
     local_directories = os.path.join(".local", "share", "desktop-directories")
 
@@ -53,17 +54,24 @@ class MenuConfiguration(Plugin):
 
     def init_applications(self, user_menu):
         app_dir = os.path.join(self.home_dir, self.local_applications)
+        scripts_dir = os.path.join(self.home_dir, self.local_applications_scripts)
         if not os.path.exists(app_dir):
             os.makedirs(app_dir)
 
+        if not os.path.exists(scripts_dir):
+            os.makedirs(scripts_dir)
+
         shutil.rmtree(app_dir)
         os.makedirs(app_dir)
+
+        shutil.rmtree(scripts_dir)
+        os.makedirs(scripts_dir)
 
         def get_appname(item):
             result = []
 
             if 'apps' in item:
-                for app_entry in item['apps']:
+                for cn, app_entry in item['apps'].items():
                     result.append(app_entry)
 
             if 'menus' in item:
@@ -73,6 +81,7 @@ class MenuConfiguration(Plugin):
             return result
 
         for entry in get_appname(user_menu):
+            self.write_app_script(entry)
             self.write_app(entry)
 
     def init_directories(self, user_menu):
@@ -139,11 +148,26 @@ class MenuConfiguration(Plugin):
         if 'gosaApplicationExecute' in app_entry:
             desktop_entry.set('Exec', app_entry['gosaApplicationExecute'])
         if 'gosaApplicationIcon' in app_entry:
-            desktop_entry.set('Icon', self.write_icon(app_entry.get('cn', 'name'), app_entry['gosaApplicationIcon']))
+            desktop_entry.set('Icon', self.write_icon(app_entry['cn'], app_entry['gosaApplicationIcon']))
         else:
-            desktop_entry.set('Icon', app_entry.get('cn'))
+            desktop_entry.set('Icon', app_entry['cn'])
 
         desktop_entry.write()
+
+    def write_app_script(self, app_entry):
+        result = ""
+
+        if 'gotoLogonScript' in app_entry:
+            script_path = os.path.join(self.home_dir, self.local_applications_scripts, app_entry['cn'])
+
+            if os.path.exists(script_path):
+                os.unlink(script_path)
+
+            with open (script_path, 'w') as script_file:
+                script_file.write(app_entry['gotoLogonScript'])
+            result = script_path
+
+        return result
 
     def init_menu(self, user_menu):
         menu_dir = os.path.join(self.home_dir, self.local_menu)
@@ -178,12 +202,12 @@ class MenuConfiguration(Plugin):
             # Insert Top-Level Apps
             soup.Menu.append(soup.new_tag('Include'))
             if 'apps' in user_menu:
-                for app_entry in user_menu['apps']:
+                for cn, app_entry in user_menu['apps'].items():
                     app = soup.new_tag('Filename')
-                    app.string=app_entry['cn'] + '.desktop'
+                    app.string=cn + '.desktop'
                     soup.Menu.Include.append(app)
 
-            def get_menu(item, prefix=None):
+            def get_xml_menu(item, prefix=None):
                 result = []
 
                 if 'menus' in item:
@@ -205,25 +229,14 @@ class MenuConfiguration(Plugin):
                                 _prefix = menu_entry + "_"
                             else:
                                 _prefix = prefix + menu_entry + "_"
-                            for submenu_result in get_menu(item['menus'][menu_entry], prefix=_prefix):
+                            for submenu_result in get_xml_menu(item['menus'][menu_entry], prefix=_prefix):
                                 menu.append(submenu_result)
 
                         result.append(menu)
 
                 return result
 
-            for menu_entry in get_menu(user_menu):
+            for menu_entry in get_xml_menu(user_menu):
                 soup.Menu.append(menu_entry)
-
-            if self.add_other_menu:
-                other_menu = soup.new_tag('Menu')
-                other_menu.append(soup.new_tag('Name'))
-                other_menu.Name.string = 'Other'
-                other_menu.append(soup.new_tag('Directory'))
-                other_menu.Directory.string = 'xfce-other.directory'
-                other_menu.append(soup.new_tag('OnlyUnallocated'))
-                other_menu.append(soup.new_tag('Include'))
-                other_menu.Include.append(soup.new_tag('All'))
-                soup.Menu.append(other_menu)
 
             menu.write(str(soup))

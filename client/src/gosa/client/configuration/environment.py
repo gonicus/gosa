@@ -44,6 +44,9 @@ class PrinterConfiguration(Plugin):
                 del self.gosa_dbus
             self.gosa_dbus = self.bus.get_object('org.gosa', '/org/gosa/cups')
             ccr = PluginRegistry.getInstance('ClientCommandRegistry')
+            ccr.register("configureUserPrinters", 'PrinterConfiguration.configureUserPrinters', [],
+                         ['user', 'config'],
+                         'Configure the printers for the user on this client')
             ccr.register("configureHostPrinters", 'PrinterConfiguration.configureHostPrinters', [],
                          ['config'],
                          'Configure the printers for this client')
@@ -58,16 +61,16 @@ class PrinterConfiguration(Plugin):
                 # Trigger resend of capapability event
                 ccr = PluginRegistry.getInstance('ClientCommandRegistry')
                 ccr.unregister("configureHostPrinters")
+                ccr.unregister("configureUserPrinters")
                 mqtt = PluginRegistry.getInstance('MQTTClientService')
                 mqtt.reAnnounce()
                 self.log.info("lost dbus connection")
             else:
                 self.log.info("no dbus connection")
 
-    @Command()
-    def configureUserPrinters(self, user, ppds):
+    def configureUserPrinters(self, user, config):
         """ configure a users printers """
-        pass
+        self.configureHostPrinters(config)
 
     def configureHostPrinters(self, config):
         """ configure the printers for this client via dbus. """

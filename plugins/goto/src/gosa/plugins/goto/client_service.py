@@ -80,8 +80,9 @@ class ClientService(Plugin):
     __proxy = {}
     __user_session = {}
     __listeners = {}
-    entry_attributes = ['cn', 'description', 'gosaApplicationPriority', 'gosaApplicationName', 'gosaApplicationFlags', 'gosaApplicationExecute']
+    entry_attributes = ['cn', 'description', 'gosaApplicationPriority', 'gosaApplicationIcon', 'gosaApplicationName', 'gotoLogonScript', 'gosaApplicationFlags', 'gosaApplicationExecute']
     entry_map = {"gosaApplicationPriority": "prio", "description": "description"}
+    printer_attributes = ["gotoPrinterPPD", "labeledURI", "cn", "l", "description"]
 
     def __init__(self):
         """
@@ -494,17 +495,22 @@ class ClientService(Plugin):
         self.log.debug("updating client '%s' user session: %s" % (data.Id,
                 ','.join(self.__user_session[str(data.Id)])))
 
-    # @Command(__help__="Remove later")
+    @Command(__help__="Send user configurations of all logged in user to a client")
     def configureUsers(self, client_id, users):
+        """
+        :param client_id: deviceUUID or hostname
+        :param users: list of currently logged in users on the client
+        """
         client = self.__open_device(client_id)
+        group = ObjectProxy(client.groupMembership) if client.groupMembership is not None else None
 
+        release = None
         if client.is_extended_by("GotoMenu"):
             release = client.getReleaseName()
-        elif client.groupMembership is not None:
-            # get it from the group
-            group = ObjectProxy(client.groupMembership)
+        elif group.is_extended_by("GotoMenu"):
             release = group.getReleaseName()
-        else:
+
+        if release is None:
             self.log.error("no release found for client/user combination (%s/%s)" % client_id, users)
             return
 
@@ -542,6 +548,26 @@ class ClientService(Plugin):
                     self.log.debug("for user %s generated menu: %s" % (entry["uid"], user_menu))
                     self.clientDispatch(client_id, "configureUserMenu", entry["uid"], user_menu)
 
+            # collect printer settings for user, starting with the clients printers
+            settings = self.__collect_printer_settings(group)
+            printer_names = [x["cn"] for x in settings["printers"]]
+            for res in index.search({'_type': 'GroupOfNames', "member": entry["dn"], "extension": "GotoEnvironment"},
+                                    {"dn": 1}):
+                user_group = ObjectProxy(res["dn"])
+                if user_group.dn == group.dn:
+                    continue
+                s = self.__collect_printer_settings(user_group)
+
+                for p in s["printers"]:
+                    if p["cn"] not in printer_names:
+                        settings["printers"].append(p)
+
+                if s["defaultPrinter"] is not None:
+                    settings["defaultPrinter"] = s["defaultPrinter"]
+
+            if len(settings["printers"]):
+                self.clientDispatch(client_id, "configureUserPrinters", entry["uid"], settings)
+
     def merge_submenu(self, menu1, menu2):
         for cn, app in menu2.get('apps', {}).items():
             if cn in menu1['apps']:
@@ -575,14 +601,15 @@ class ClientService(Plugin):
         result = None
         for entry in entries:
             if result is None:
-                result = {'apps': []}
+                result = {'apps': {}}
 
             if 'children' in entry:
                 if not 'menus' in result:
                     result['menus'] = {}
                 result['menus'][entry.get('name', N_('Unbekannt'))] = self.get_submenu(entry['children'])
             else:
-                result['apps'].append(self.get_application(entry))
+                application = self.get_application(entry)
+                result['apps'][application.get('cn', 'name')] = application
 
         return result
 
@@ -602,33 +629,40 @@ class ClientService(Plugin):
 
         return result
 
-    @Command(__help__="Remove me")
+    @Command(__help__="Send client specific configuration (e.g. printers) to a client")
     def configureClient(self, client_id):
-        """ Send system printer PPDs to client """
+        """
+        Send system printer PPDs to client
+        :param client_id: deviceUUID or hostname
+        """
         client = self.__open_device(client_id)
-        printer_attributes = ["gotoPrinterPPD", "labeledURI", "cn", "l", "description"]
+
         self.log.debug("client '%s' is member of '%s'" % (client_id, client.groupMembership))
         if client.groupMembership is not None:
             # get it from the group
-            settings = {"printers": [], "defaultPrinter": None}
             group = ObjectProxy(client.groupMembership)
-            if group.is_extended_by("GotoEnvironment") and len(group.gotoPrinters):
-                # get default printer
-                settings["defaultPrinter"] = group.gotoDefaultPrinter
-
-                # collect printer PPDs
-                for printer_dn in group.gotoPrinters:
-                    printer = ObjectProxy(printer_dn)
-                    p_conf = {}
-                    for attr in printer_attributes:
-                        p_conf[attr] = getattr(printer, attr)
-                    settings["printers"].append(p_conf)
+            settings = self.__collect_printer_settings(group)
 
             if len(settings["printers"]):
                 self.log.debug("sending printer settings to client (%s): %s" % (client_id, settings))
                 self.clientDispatch(client_id, "configureHostPrinters", settings)
             else:
                 self.log.debug("no printers defined for client: %s" % client_id)
+
+    def __collect_printer_settings(self, object):
+        settings = {"printers": [], "defaultPrinter": None}
+        if object.is_extended_by("GotoEnvironment") and len(object.gotoPrinters):
+            # get default printer
+            settings["defaultPrinter"] = object.gotoDefaultPrinter
+
+            # collect printer PPDs
+            for printer_dn in object.gotoPrinters:
+                printer = ObjectProxy(printer_dn)
+                p_conf = {}
+                for attr in self.printer_attributes:
+                    p_conf[attr] = getattr(printer, attr)
+                settings["printers"].append(p_conf)
+        return settings
 
     def _handleClientPing(self, data):
         data = data.ClientPing
@@ -725,9 +759,10 @@ class ClientService(Plugin):
                 pass
 
     def _on_client_caps(self, cid, method, status):
-        if method == "configureHostPrinters":
-            if status is True:
-                self.configureClient(cid)
+        pass
+        # if method == "configureHostPrinters":
+        #     if status is True:
+        #         self.configureClient(cid)
 
     def _handleClientLeave(self, data):
         data = data.ClientLeave
