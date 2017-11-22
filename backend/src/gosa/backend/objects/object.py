@@ -32,8 +32,7 @@ from gosa.common.utils import N_, is_uuid
 from gosa.common.components import PluginRegistry
 from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
-from gosa.backend.exceptions import ObjectException
-
+from gosa.backend.exceptions import ObjectException, DNGeneratorError
 
 # Status
 STATUS_OK = 0
@@ -804,7 +803,11 @@ class Object(object):
                                   'orig': self.myProperties[prop_key]['in_value'],
                                   'value': self.myProperties[prop_key]['value'],
                                   'type': self.myProperties[prop_key]['backend_type']}
-            return be.get_final_dn(self.dn, data, be_params)
+            try:
+                return be.get_final_dn(self.dn, data, be_params)
+            except DNGeneratorError as e:
+                self.log.error("Error retrieving final dn of '%s' in mode '%s': %s" % (base_object.dn, self._mode, str(e)))
+                return base_object.dn
 
     def commit(self, propsFromOtherExtensions=None):
         """
