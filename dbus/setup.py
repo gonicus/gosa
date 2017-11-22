@@ -64,7 +64,7 @@ setup(
     install_requires = [
         'gosa.common',
         'setproctitle',
-        'xdg',
+        'pyxdg',
         'beautifulsoup4'
         ],
     tests_require=[
