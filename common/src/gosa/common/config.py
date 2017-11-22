@@ -91,8 +91,9 @@ class Config(object):
         self.__user_config = None
 
         # Load file configuration
+        override_options = {}
         if not self.__noargs:
-            self.__parseCmdOptions()
+            override_options = self.__parseCmdOptions()
         self.__parseCfgOptions()
 
         user = getpass.getuser()
@@ -101,6 +102,10 @@ class Config(object):
 
         self.__registry['core']['user'] = user
         self.__registry['core']['group'] = group
+
+        for section, entries in override_options.items():
+            for option, value in entries.items():
+                self.__registry[section][option] = value
 
     def __parseCmdOptions(self):
         parser = ArgumentParser(usage="%(prog)s - the gosa daemon")
@@ -112,8 +117,19 @@ class Config(object):
                           metavar="DIRECTORY")
         options, argv = parser.parse_known_args()
 
+        override_options = {}
+        for arg in argv:
+            m = re.match("^-{1,2}([^\.]+)\.([^\.]+)=(.*)$", arg)
+            if m:
+                # section
+                if m.group(1) not in override_options:
+                    override_options[m.group(1)] = {}
+                override_options[m.group(1)][m.group(2)] = m.group(3)
+
         items = options.__dict__
         self.__registry['core'].update(dict([(k, items[k]) for k in items if items[k] != None]))
+
+        return override_options
 
     def getBaseDir(self):
         return self.__registry['core']['config']
