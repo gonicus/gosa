@@ -63,7 +63,9 @@ setup(
 
     install_requires = [
         'gosa.common',
-        'setproctitle'
+        'setproctitle',
+        'xdg',
+        'bs4'
         ],
     tests_require=[
         'pytest',
