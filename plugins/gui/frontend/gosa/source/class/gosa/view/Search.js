@@ -381,6 +381,9 @@ qx.Class.define("gosa.view.Search", {
       if (isFuzzy) {
         resultString += this.tr("Search for '%1' returned no results, searched for '%2' instead", this._currentResponse.orig, this._currentResponse.fuzzy)+"<br/><br/>";
       }
+      if (count === 0) {
+        console.trace();
+      }
       if (moreResults) {
         resultString += this.trn("%1 / %2 result shown", "%1 / %2 results shown", count, count, this._total);
       } else {
@@ -571,77 +574,85 @@ qx.Class.define("gosa.view.Search", {
         this._modifiedObjects.push(data.uuid);
       }
 
-      // Once an event was catched, start a new query, but do not show
-      // the result in the list, instead just return it.
+      // do not start a new search while there is one running
       if (this.__searchPromise) {
-        this.__searchPromise.cancel();
+        this.__queuedSearch = true;
+        return;
       }
-      this.__searchPromise = this.doSearch(true).then(function(result) {
+      var updateResultList = function(result) {
 
-          // Check for differences between the currently active result-set
-          // and the fetched one.
-          var added = [];
-          var removed = [];
-          var stillthere = [];
-          var entries_by_uuid = {};
+        // Check for differences between the currently active result-set
+        // and the fetched one.
+        var added = [];
+        var removed = [];
+        var stillthere = [];
+        var entries_by_uuid = {};
 
-          // Create a list containing all currently show entry-uuids.
-          var current_uuids = [];
-          for(var i=0; i<this._currentResponse.results.length; i++){
-            current_uuids.push(this._currentResponse.results[i].uuid);
-            entries_by_uuid[this._currentResponse.results[i].uuid] = this._currentResponse.results[i];
+        // Create a list containing all currently show entry-uuids.
+        var current_uuids = [];
+        for(var i=0; i<this._currentResponse.results.length; i++){
+          current_uuids.push(this._currentResponse.results[i].uuid);
+          entries_by_uuid[this._currentResponse.results[i].uuid] = this._currentResponse.results[i];
+        }
+
+        // Create  list of all entry-uuids that ware returned by the query.
+        var uuids = [];
+        for(i=0; i<result.results.length; i++){
+          uuids.push(result.results[i].uuid);
+          entries_by_uuid[result.results[i].uuid] = result.results[i];
+        }
+
+        // Check which uuids were new, which were removed and which uuids are still there
+        removed = qx.lang.Array.exclude(qx.lang.Array.clone(current_uuids), uuids);
+        added = qx.lang.Array.exclude(qx.lang.Array.clone(uuids), current_uuids);
+        stillthere = qx.lang.Array.exclude(current_uuids, added);
+        stillthere = qx.lang.Array.exclude(stillthere, removed);
+
+        // Walk through collected "remove-event" uuids and check if they were in our list
+        // before, but are now gone. If so, then fade it out.
+        // If its no longer in our list, but was not removed before (e.g just moved) then
+        // just remove it from the list without fading it out.
+        for(i=0; i<removed.length; i++){
+          if(qx.lang.Array.includes(this._removedObjects, removed[i])){
+            this.__fadeOut(entries_by_uuid[removed[i]]);
+          }else{
+            this.__removeEntry(entries_by_uuid[removed[i]]);
           }
+          this.updateFilter();
+          qx.lang.Array.remove(this._removedObjects, removed[i]);
+        }
 
-          // Create  list of all entry-uuids that ware returned by the query.
-          var uuids = [];
-          for(i=0; i<result.length; i++){
-            uuids.push(result[i].uuid);
-            entries_by_uuid[result[i].uuid] = result[i];
-          }
-
-          // Check which uuids were new, which were removed and which uuids are still there
-          removed = qx.lang.Array.exclude(qx.lang.Array.clone(current_uuids), uuids);
-          added = qx.lang.Array.exclude(qx.lang.Array.clone(uuids), current_uuids);
-          stillthere = qx.lang.Array.exclude(current_uuids, added);
-          stillthere = qx.lang.Array.exclude(stillthere, removed);
-
-          // Walk through collected "remove-event" uuids and check if they were in our list
-          // before, but are now gone. If so, then fade it out.
-          // If its no longer in our list, but was not removed before (e.g just moved) then
-          // just remove it from the list without fading it out.
-          for(i=0; i<removed.length; i++){
-            if(qx.lang.Array.contains(this._removedObjects, removed[i])){
-              this.__fadeOut(entries_by_uuid[removed[i]]);
-            }else{
-              this.__removeEntry(entries_by_uuid[removed[i]]);
-            }
+        // Walk through all uuids that were there before and are still there.
+        // If there was an modify event for one of the uuids, then update
+        // the list entry.
+        for(i=0; i<stillthere.length; i++){
+          if(qx.lang.Array.includes(this._modifiedObjects, stillthere[i])){
+            this.__updateEntry(entries_by_uuid[stillthere[i]]);
             this.updateFilter();
-            qx.lang.Array.remove(this._removedObjects, removed[i]);
           }
+          qx.lang.Array.remove(this._modifiedObjects, stillthere[i]);
+        }
 
-          // Walk through all uuids that were there before and are still there.
-          // If there was an modify event for one of the uuids, then update
-          // the list entry.
-          for(i=0; i<stillthere.length; i++){
-            if(qx.lang.Array.contains(this._modifiedObjects, stillthere[i])){
-              this.__updateEntry(entries_by_uuid[stillthere[i]]);
-              this.updateFilter();
-            }
-            qx.lang.Array.remove(this._modifiedObjects, stillthere[i]);
+        // If there is a new entry in the result and we've got an create event
+        // then fade the new entry in the result list.
+        for(i=0; i<added.length; i++){
+          if(qx.lang.Array.includes(this._createdObjects, added[i])){
+            this.__fadeIn(entries_by_uuid[added[i]]);
+          }else{
+            this.__addEntry(entries_by_uuid[added[i]]);
           }
+          this.updateFilter();
+          qx.lang.Array.remove(this._createdObjects, added[i]);
+        }
+        if (this.__queuedSearch === true) {
+          this.__searchPromise = this.doSearch(true).then(updateResultList, this);
+          this.__queuedSearch = false;
+        } else {
+          this.__searchPromise = null;
+        }
+      }.bind(this);
 
-          // If there is a new entry in the result and we've got an create event
-          // then fade the new entry in the result list.
-          for(i=0; i<added.length; i++){
-            if(qx.lang.Array.contains(this._createdObjects, added[i])){
-              this.__fadeIn(entries_by_uuid[added[i]]);
-            }else{
-              this.__addEntry(entries_by_uuid[added[i]]);
-            }
-            this.updateFilter();
-            qx.lang.Array.remove(this._createdObjects, added[i]);
-          }
-        }, this);
+      this.__searchPromise = this.doSearch(true).then(updateResultList, this);
     },
 
 
