@@ -22,6 +22,7 @@ import dbus.service
 
 from gosa.common import Environment
 from gosa.common.components import Plugin
+from gosa.common.gjson import loads
 from gosa.dbus import get_system_bus
 import shutil
 import xdg.DesktopEntry
@@ -56,9 +57,10 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
-    @dbus.service.method('org.gosa', in_signature='sa{ss}', out_signature='')
+    @dbus.service.method('org.gosa', in_signature='ss', out_signature='')
     def configureUserMenu(self, user, user_menu):
         """ configure a users application menu """
+        user_menu = loads(user_menu)
         self.home_dir = os.path.expanduser('~%s' % user)
         self.init_directories(user_menu)
         self.init_applications(user_menu)
