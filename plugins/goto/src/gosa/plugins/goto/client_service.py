@@ -569,8 +569,7 @@ class ClientService(Plugin):
                 if s["defaultPrinter"] is not None:
                     settings["defaultPrinter"] = s["defaultPrinter"]
 
-            if len(settings["printers"]):
-                self.clientDispatch(client_id, "dbus_configureUserPrinters", entry["uid"], settings)
+            self.configureHostPrinters(client_id, settings)
 
     def merge_submenu(self, menu1, menu2):
         for cn, app in menu2.get('apps', {}).items():
@@ -646,12 +645,22 @@ class ClientService(Plugin):
             # get it from the group
             group = ObjectProxy(client.groupMembership)
             settings = self.__collect_printer_settings(group)
+            self.configureHostPrinters(client_id, settings)
 
-            if len(settings["printers"]):
-                self.log.debug("sending printer settings to client (%s): %s" % (client_id, settings))
-                self.clientDispatch(client_id, "dbus_configureHostPrinters", settings)
-            else:
-                self.log.debug("no printers defined for client: %s" % client_id)
+    def configureHostPrinters(self, client_id, config):
+        """ configure the printers for this client via dbus. """
+        if "printers" not in config or len(config["printers"]) == 0:
+            self.log.debug("no printers defined for client: %s" % client_id)
+            return
+        # delete old printers first
+        self.clientDispatch(client_id, "dbus_deleteAllPrinters")
+
+        self.log.debug("sending printer settings to client (%s): %s" % (client_id, config))
+        for p_conf in config["printers"]:
+            self.clientDispatch(client_id, "dbus_addPrinter", p_conf)
+
+        if "defaultPrinter" in config and config["defaultPrinter"] is not None:
+            self.clientDispatch(client_id, "dbus_defaultPrinter", config["defaultPrinter"])
 
     def __collect_printer_settings(self, object):
         settings = {"printers": [], "defaultPrinter": None}
