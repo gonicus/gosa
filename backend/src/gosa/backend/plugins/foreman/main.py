@@ -66,7 +66,12 @@ class Foreman(Plugin):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.factory = ObjectFactory.getInstance()
-        self.incoming_base = "%s,%s" % (self.env.config.get("foreman.incoming-rdn", "ou=incoming"), self.env.base)
+        incoming_base = "%s,%s" % (self.env.config.get("foreman.host-rdn", default="ou=incoming"), self.env.base)
+        group_rdn = self.env.config.get("foreman.group-rdn")
+        self.type_bases = {"ForemanHost": incoming_base}
+        if group_rdn is not None:
+            self.type_bases["ForemanHostGroup"] = "%s,%s" % (self.env.config.get("foreman.group-rdn", default=""), self.env.base)
+
         self.__marked_hosts = {}
         if self.env.config.get("foreman.host") is None:
             self.log.warning("no foreman host configured")
@@ -118,7 +123,7 @@ class Foreman(Plugin):
     def create_container(self):
         # create incoming ou if not exists
         index = PluginRegistry.getInstance("ObjectIndex")
-        res = index.search({'dn': self.incoming_base}, {'_type': 1})
+        res = index.search({'dn': self.type_bases["ForemanHost"]}, {'_type': 1})
 
         if len(res) == 0:
             ou = ObjectProxy(self.env.base, "IncomingDeviceContainer")
@@ -209,8 +214,8 @@ class Foreman(Plugin):
                 # no object found -> create one
                 self.log.debug(">>> creating new %s" % object_type)
                 base_dn = self.env.base
-                if object_type == "ForemanHost":
-                    base_dn = self.incoming_base
+                if object_type in self.type_bases:
+                    base_dn = self.type_bases[object_type]
                 foreman_object = ObjectProxy(base_dn, base_type)
                 uuid_extension = foreman_object.get_extension_off_attribute(backend_attributes["Foreman"]["_uuidAttribute"])
                 if base_type != uuid_extension and not foreman_object.is_extended_by(uuid_extension):
@@ -569,7 +574,7 @@ class Foreman(Plugin):
 
         # create dn
         if base is None:
-            base = self.incoming_base
+            base = self.type_bases["ForemanHost"]
 
         ForemanBackend.modifier = "foreman"
 
