@@ -481,7 +481,7 @@ class ClientService(Plugin):
         if hasattr(data.User, 'Name'):
             users = list(map(str, data.User.Name))
             if id in self.__user_session:
-                new_users = set.difference(users, self.__user_session[id])
+                new_users = list(set.difference(set(users), set(self.__user_session[id])))
                 if len(new_users):
                     # configure users
                     self.configureUsers(id, new_users)
