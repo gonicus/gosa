@@ -484,6 +484,7 @@ class ClientService(Plugin):
                 new_users = list(set.difference(set(users), set(self.__user_session[id])))
                 if len(new_users):
                     # configure users
+                    self.log.debug("configuring new users: %s" % new_users)
                     self.configureUsers(id, new_users)
 
             self.__user_session[id] = users
@@ -683,6 +684,7 @@ class ClientService(Plugin):
         # Assemble caps
         caps = {}
         for method in data.ClientCapabilities.ClientMethod:
+            self.log.debug("client %s provides method %s" % (client, method.Name.text))
             caps[method.Name.text] = {
                 'path': method.Path.text,
                 'sig': method.Signature.text,
