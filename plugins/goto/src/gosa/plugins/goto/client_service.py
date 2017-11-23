@@ -486,6 +486,10 @@ class ClientService(Plugin):
                     # configure users
                     self.log.debug("configuring new users: %s" % new_users)
                     self.configureUsers(id, new_users)
+            else:
+                # configure users
+                self.log.debug("configuring new users: %s" % users)
+                self.configureUsers(id, users)
 
             self.__user_session[id] = users
             self.systemSetStatus(id, "+B")
