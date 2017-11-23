@@ -546,7 +546,7 @@ class ClientService(Plugin):
                 # send to client
                 if user_menu is not None:
                     self.log.debug("sending generated menu for user %s" % entry["uid"])
-                    self.clientDispatch(client_id, "configureUserMenu", entry["uid"], user_menu)
+                    self.clientDispatch(client_id, "dbus_configureUserMenu", entry["uid"], user_menu)
 
             # collect printer settings for user, starting with the clients printers
             settings = self.__collect_printer_settings(group)
@@ -566,7 +566,7 @@ class ClientService(Plugin):
                     settings["defaultPrinter"] = s["defaultPrinter"]
 
             if len(settings["printers"]):
-                self.clientDispatch(client_id, "configureUserPrinters", entry["uid"], settings)
+                self.clientDispatch(client_id, "dbus_configureUserPrinters", entry["uid"], settings)
 
     def merge_submenu(self, menu1, menu2):
         for cn, app in menu2.get('apps', {}).items():
@@ -645,7 +645,7 @@ class ClientService(Plugin):
 
             if len(settings["printers"]):
                 self.log.debug("sending printer settings to client (%s): %s" % (client_id, settings))
-                self.clientDispatch(client_id, "configureHostPrinters", settings)
+                self.clientDispatch(client_id, "dbus_configureHostPrinters", settings)
             else:
                 self.log.debug("no printers defined for client: %s" % client_id)
 

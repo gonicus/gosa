@@ -103,7 +103,5 @@ setup(
         powermanagement = gosa.client.plugins.powermanagement.main:PowerManagement
         session = gosa.client.plugins.sessions.main:SessionKeeper
         scheduler = gosa.client.scheduler:SchedulerService
-        menu_config = gosa.client.configuration.menu:MenuConfiguration
-        printer_config = gosa.client.configuration.environment:PrinterConfiguration
     """
 )
