@@ -66,11 +66,18 @@ class Foreman(Plugin):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.factory = ObjectFactory.getInstance()
-        incoming_base = "%s,%s" % (self.env.config.get("foreman.host-rdn", default="ou=incoming"), self.env.base)
+        incoming_base = self.env.config.get("foreman.host-rdn")
+        if incoming_base is None:
+            incoming_base = self.env.base
+        else:
+            incoming_base = "%s,%s" % (incoming_base, self.env.base)
+
         group_rdn = self.env.config.get("foreman.group-rdn")
         self.type_bases = {"ForemanHost": incoming_base}
         if group_rdn is not None:
-            self.type_bases["ForemanHostGroup"] = "%s,%s" % (self.env.config.get("foreman.group-rdn", default=""), self.env.base)
+            self.type_bases["ForemanHostGroup"] = "%s,%s" % (group_rdn, self.env.base)
+        else:
+            self.type_bases["ForemanHostGroup"] = self.env.base
 
         self.__marked_hosts = {}
         if self.env.config.get("foreman.host") is None:
@@ -123,10 +130,15 @@ class Foreman(Plugin):
     def create_container(self):
         # create incoming ou if not exists
         index = PluginRegistry.getInstance("ObjectIndex")
-        res = index.search({'dn': self.type_bases["ForemanHost"]}, {'_type': 1})
+        res = index.search({'_parent_dn': self.type_bases["ForemanHost"], '_type': 'IncomingDeviceContainer'}, {'dn': 1})
 
         if len(res) == 0:
-            ou = ObjectProxy(self.env.base, "IncomingDeviceContainer")
+            ou = ObjectProxy(self.type_bases["ForemanHost"], "IncomingDeviceContainer")
+            ou.commit()
+
+        res = index.search({'_parent_dn': self.type_bases["ForemanHostGroup"], '_type': 'GroupContainer'}, {'dn': 1})
+        if len(res) == 0:
+            ou = ObjectProxy(self.type_bases["ForemanHostGroup"], "GroupContainer")
             ou.commit()
 
     def sync_type(self, object_type, foreman_type=None):

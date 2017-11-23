@@ -49,7 +49,7 @@ ldap_monitor_token = 9d6250c0-6413-4b1e-98d9-7b763472962a
 spool = /tmp/spool
 
 [foreman]
-#host-rdn = ou=incoming
+#host-rdn =
 #group-rdn =
 
 ##############################################################################
