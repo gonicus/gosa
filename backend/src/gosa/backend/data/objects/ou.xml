@@ -81,6 +81,7 @@
       <Type>SambaDomain</Type>
       <Type>AclRole</Type>
       <Type>GosaApplication</Type>
+      <Type>IncomingDeviceContainer</Type>
     </Container>
     <BaseObject>true</BaseObject>
     <Find>
