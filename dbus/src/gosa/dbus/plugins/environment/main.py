@@ -22,6 +22,7 @@ import dbus.service
 
 from gosa.common import Environment
 from gosa.common.components import Plugin
+from gosa.common.components.jsonrpc_utils import Binary
 from gosa.common.gjson import loads
 from gosa.dbus import get_system_bus
 import shutil
@@ -163,6 +164,8 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
         result = ""
 
         icon_path = os.path.join(self.home_dir, self.local_icons, basename + ".png")
+        if isinstance(icon, Binary):
+            icon = icon.get()
 
         if os.path.exists(icon_path):
             os.unlink(icon_path)
@@ -193,7 +196,7 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     def write_app_script(self, app_entry):
         result = ""
 
-        if 'gotoLogonScript' in app_entry:
+        if 'gotoLogonScript' in app_entry and app_entry['gotoLogonScript'] is not None:
             script_path = os.path.join(self.home_dir, self.local_applications_scripts, app_entry['cn'])
 
             if os.path.exists(script_path):
@@ -257,7 +260,7 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
                         menu.append(soup.new_tag('Include'))
                         for app_entry in item['menus'][menu_entry]['apps']:
                             app = soup.new_tag('Filename')
-                            app.string=app_entry['cn'] + '.desktop'
+                            app.string=app_entry + '.desktop'
                             menu.Include.append(app)
 
                         if 'menus' in item['menus'][menu_entry]:
