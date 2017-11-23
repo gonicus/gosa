@@ -549,8 +549,8 @@ class ClientService(Plugin):
 
                 # send to client
                 if user_menu is not None:
-                    self.log.debug("sending generated menu for user %s" % entry["uid"])
-                    self.clientDispatch(client_id, "dbus_configureUserMenu", entry["uid"], user_menu)
+                    self.log.debug("sending generated menu for user %s" % entry["uid"][0])
+                    self.clientDispatch(client_id, "dbus_configureUserMenu", entry["uid"][0], user_menu)
 
             # collect printer settings for user, starting with the clients printers
             settings = self.__collect_printer_settings(group)
@@ -650,12 +650,10 @@ class ClientService(Plugin):
     def configureHostPrinters(self, client_id, config):
         """ configure the printers for this client via dbus. """
         if "printers" not in config or len(config["printers"]) == 0:
-            self.log.debug("no printers defined for client: %s" % client_id)
             return
         # delete old printers first
         self.clientDispatch(client_id, "dbus_deleteAllPrinters")
 
-        self.log.debug("sending printer settings to client (%s): %s" % (client_id, config))
         for p_conf in config["printers"]:
             self.clientDispatch(client_id, "dbus_addPrinter", p_conf)
 
