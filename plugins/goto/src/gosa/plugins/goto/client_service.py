@@ -492,8 +492,7 @@ class ClientService(Plugin):
             self.__user_session[id] = []
             self.systemSetStatus(id, "-B")
 
-        self.log.debug("updating client '%s' user session: %s" % (data.Id,
-                ','.join(self.__user_session[str(data.Id)])))
+        self.log.debug("updating client '%s' user session: %s" % (id, ','.join(self.__user_session[id])))
 
     @Command(__help__="Send user configurations of all logged in user to a client")
     def configureUsers(self, client_id, users):
