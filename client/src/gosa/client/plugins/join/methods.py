@@ -152,6 +152,8 @@ class join_method(object):
             parser.set("core", "id", uuid)
             parser.set("jsonrpc", "key", key)
 
+            self.modify_config(parser)
+
             # Write back to file
             with open(config, "w") as f:
                 parser.write(f)
@@ -239,8 +241,6 @@ class join_method(object):
             parser.set("jsonrpc", "url", self.url)
             parser.set("core", "id", self.svc_id)
             parser.set("jsonrpc", "key", self.key)
-
-            self.modify_config(parser)
 
             # Write back to file
             with open(config, "w") as f:
