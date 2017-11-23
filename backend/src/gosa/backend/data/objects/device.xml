@@ -67,7 +67,9 @@
         <Keyword>Device</Keyword>
         <Keyword>Server</Keyword>
         <Keyword>Workstation</Keyword>
+        <Keyword>Host</Keyword>
         <Search>cn</Search>
+        <Resolve type="GroupOfNames" filter="DN">groupMembership</Resolve>
         <Resolve filter="DN">manager</Resolve>
         <Result>
           <Map>

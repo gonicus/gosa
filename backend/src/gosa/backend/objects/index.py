@@ -24,7 +24,6 @@ import re
 import ldap
 import sqlalchemy
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils import TSVectorType
 
@@ -81,8 +80,9 @@ class SearchObjectIndex(Base):
     title = Column(String)
     description = Column(String)
     search = Column(String)
-    search_vector = Column(TSVectorType('title', 'description', 'search',
-                                        weights={'title': 'A', 'description': 'B', 'search': 'C'},
+    types = Column(String)
+    search_vector = Column(TSVectorType('title', 'description', 'search', 'types',
+                                        weights={'title': 'A', 'types': 'B', 'description': 'C', 'search': 'C'},
                                         regconfig='pg_catalog.simple'
                                         ))
     object = relationship("ObjectInfoIndex", uselist=False, back_populates="search_object")
@@ -793,12 +793,20 @@ class ObjectIndex(Plugin):
         if data['_type'] in self.__search_aid['mapping']:
             aid = self.__search_aid['mapping'][data['_type']]
             attrs = self.__search_aid['attrs'][data['_type']] if data['_type'] in self.__search_aid['attrs'] else []
+            types = [data['_type']]
+            types.extend(data["_extensions"])
+            # append aliases to search words
+            if data['_type'] in self.__search_aid['aliases']:
+                types.extend(self.__search_aid['aliases'][data['_type']])
+
+            search_words = [", ".join(data[x]) for x in attrs if x in data and data[x] is not None]
             so = SearchObjectIndex(
                 so_uuid=data["_uuid"],
                 reverse_parent_dn=','.join([d for d in ldap.dn.explode_dn(data["_parent_dn"], flags=ldap.DN_FORMAT_LDAPV3)[::-1]]),
                 title=self.__build_value(aid["title"], data),
                 description=self.__build_value(aid["description"], data),
-                search=" ".join([", ".join(data[x]) for x in attrs if x in data and data[x] is not None])
+                search=" ".join(search_words),
+                types=" ".join(list(set(types)))
             )
             self.__session.add(so)
         self.__session.commit()
@@ -1062,7 +1070,6 @@ class ObjectIndex(Plugin):
                             sub_query = self.__session.query(KeyValueIndex.uuid).\
                                 filter(and_(KeyValueIndex.key == key, KeyValueIndex.value == value)).\
                                 subquery()
-                        self.log.debug(str(sub_query))
                         res.append(ObjectInfoIndex.uuid.in_(sub_query))
 
             return res
@@ -1135,7 +1142,12 @@ class ObjectIndex(Plugin):
         if 'limit' in options:
             q.limit(options['limit'])
 
-        # self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+        # try:
+        #     self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+        # except Exception as e:
+        #     self.log.error("Error creating SQL string: %s" % str(e))
+        #     self.log.debug(str(q))
+
         try:
             for o in q.all():
                 res.append(normalize(o, properties))

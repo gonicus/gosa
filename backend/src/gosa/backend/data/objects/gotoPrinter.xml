@@ -225,7 +225,6 @@
         <Find>
             <Aspect>
                 <Tag>GotoPrinter</Tag>
-                <Keyword>GotoPrinter</Keyword>
                 <Keyword>Printer</Keyword>
                 <Search>cn</Search>
                 <Search>description</Search>
