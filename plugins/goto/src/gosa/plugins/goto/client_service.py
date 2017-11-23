@@ -545,7 +545,7 @@ class ClientService(Plugin):
 
                 # send to client
                 if user_menu is not None:
-                    self.log.debug("for user %s generated menu: %s" % (entry["uid"], user_menu))
+                    self.log.debug("sending generated menu for user %s" % entry["uid"])
                     self.clientDispatch(client_id, "configureUserMenu", entry["uid"], user_menu)
 
             # collect printer settings for user, starting with the clients printers
