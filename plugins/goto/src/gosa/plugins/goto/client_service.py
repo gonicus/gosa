@@ -83,6 +83,7 @@ class ClientService(Plugin):
     entry_attributes = ['cn', 'description', 'gosaApplicationPriority', 'gosaApplicationIcon', 'gosaApplicationName', 'gotoLogonScript', 'gosaApplicationFlags', 'gosaApplicationExecute']
     entry_map = {"gosaApplicationPriority": "prio", "description": "description"}
     printer_attributes = ["gotoPrinterPPD", "labeledURI", "cn", "l", "description"]
+    __client_call_queue = {}
 
     def __init__(self):
         """
@@ -199,6 +200,26 @@ class ClientService(Plugin):
         # Do the call
         res = yield methodCall(*arg, **larg)
         raise gen.Return(res)
+
+    def queuedClientDispatch(self, client, method, *arg, **larg):
+        client = self.get_client_uuid(client)
+
+        # Bail out if the client is not available
+        if not client in self.__client:
+            raise JSONRPCException("client '%s' not available" % client)
+        if not self.__client[client]['online']:
+            raise JSONRPCException("client '%s' is offline" % client)
+        if not method in self.__client[client]['caps']:
+            # wait til method gets available
+            if client not in self.__client_call_queue:
+                self.__client_call_queue[client] = {}
+            if method not in self.__client_call_queue[client]:
+                self.__client_call_queue[client][method] = []
+            if method not in self.__listeners:
+                self.register_listener(method, self._on_client_caps)
+            self.__client_call_queue[client][method].append((arg, larg))
+        else:
+            self.clientDispatch(client, method, *arg, **larg)
 
     @Command(__help__=N_("Get the client Interface/IP/Netmask/Broadcast/MAC list."))
     def getClientNetInfo(self, client):
@@ -550,7 +571,7 @@ class ClientService(Plugin):
                 # send to client
                 if user_menu is not None:
                     self.log.debug("sending generated menu for user %s" % entry["uid"][0])
-                    self.clientDispatch(client_id, "dbus_configureUserMenu", entry["uid"][0], dumps(user_menu))
+                    self.queuedClientDispatch(client_id, "dbus_configureUserMenu", entry["uid"][0], dumps(user_menu))
 
             # collect printer settings for user, starting with the clients printers
             settings = self.__collect_printer_settings(group)
@@ -645,13 +666,13 @@ class ClientService(Plugin):
         if "printers" not in config or len(config["printers"]) == 0:
             return
         # delete old printers first
-        self.clientDispatch(client_id, "dbus_deleteAllPrinters")
+        self.queuedClientDispatch(client_id, "dbus_deleteAllPrinters")
 
         for p_conf in config["printers"]:
-            self.clientDispatch(client_id, "dbus_addPrinter", p_conf)
+            self.queuedClientDispatch(client_id, "dbus_addPrinter", p_conf)
 
         if "defaultPrinter" in config and config["defaultPrinter"] is not None:
-            self.clientDispatch(client_id, "dbus_defaultPrinter", config["defaultPrinter"])
+            self.queuedClientDispatch(client_id, "dbus_defaultPrinter", config["defaultPrinter"])
 
     def __collect_printer_settings(self, object):
         settings = {"printers": [], "defaultPrinter": None}
@@ -763,10 +784,27 @@ class ClientService(Plugin):
             except ValueError:
                 pass
 
-    # def _on_client_caps(self, cid, method, status):
-        # if method == "configureHostPrinters":
-        #     if status is True:
-        #         self.configureClient(cid)
+    def _on_client_caps(self, cid, method, status):
+        if status is False:
+            return
+
+        if cid in self.__client_call_queue and method in self.__client_call_queue[cid]:
+            for arg, larg in self.__client_call_queue[cid][method]:
+                self.clientDispatch(cid, method, *arg, **larg)
+            del self.__client_call_queue[cid][method]
+
+            if len(self.__client_call_queue[cid].keys()) == 0:
+                del self.__client_call_queue[cid]
+
+            # check if we still have listeners for that method
+            delete = True
+            for client_id, queue in self.__client_call.items():
+                if method in queue:
+                    delete = False
+                    break
+
+            if delete is True:
+                self.unregister_listener(method, self._on_client_caps)
 
     def _handleClientLeave(self, data):
         data = data.ClientLeave
