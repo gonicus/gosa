@@ -396,10 +396,10 @@ class RPCMethods(Plugin):
         for container in self.containers:
             types.append(getattr(ObjectInfoIndex, "_type") == container)
 
-        query = and_(getattr(ObjectInfoIndex, "_parent_dn") == base, or_(*types))
+        query = and_(getattr(ObjectInfoIndex, "_adjusted_parent_dn") == base, or_(*types))
 
-        query_result = self.__session.query(ObjectInfoIndex, func.count(getattr(o2, "_parent_dn"))) \
-            .outerjoin(o2, and_(getattr(o2, "_invisible").is_(False), getattr(o2, "_parent_dn") == getattr(ObjectInfoIndex, "dn"))) \
+        query_result = self.__session.query(ObjectInfoIndex, func.count(getattr(o2, "_adjusted_parent_dn"))) \
+            .outerjoin(o2, and_(getattr(o2, "_invisible").is_(False), getattr(o2, "_adjusted_parent_dn") == getattr(ObjectInfoIndex, "dn"))) \
             .filter(query) \
             .group_by(*table.c)
 
@@ -443,6 +443,7 @@ class RPCMethods(Plugin):
         if not base:
             return []
 
+        adjusted_base = base
         # Set defaults
         if not fltr:
             fltr = {}
@@ -454,6 +455,8 @@ class RPCMethods(Plugin):
             fltr['mod-time'] = "all"
         if 'adjusted-dn' in fltr and fltr['adjusted-dn'] is True:
             dn_hook = "_adjusted_parent_dn"
+            adjusted_base = ObjectProxy.get_adjusted_dn(base, self.env.base)
+
         actions = 'actions' in fltr and fltr['actions'] is True
 
         # Sanity checks
@@ -475,10 +478,10 @@ class RPCMethods(Plugin):
                 query = or_(ObjectInfoIndex._parent_dn == base, ObjectInfoIndex._parent_dn.like("%," + base))
 
         elif scope == "ONE":
-            query = and_(or_(ObjectInfoIndex.dn == base, getattr(ObjectInfoIndex, dn_hook) == base), or_(*queries))
+            query = and_(or_(ObjectInfoIndex.dn == adjusted_base, getattr(ObjectInfoIndex, dn_hook) == adjusted_base), or_(*queries))
 
         elif scope == "CHILDREN":
-            query = and_(getattr(ObjectInfoIndex, dn_hook) == base, or_(*queries))
+            query = and_(getattr(ObjectInfoIndex, dn_hook) == adjusted_base, or_(*queries))
 
         else:
             if queries:
