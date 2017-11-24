@@ -49,7 +49,7 @@ qx.Class.define("gosa.engine.processors.FormProcessor", {
 
         this._formRenderer.add(errorArea);
         this._form.getValidationManager().addListener("complete", function() {
-          if (!this.isValid() && qx.lang.Array.includes(this.getInvalidMessages(), this.getInvalidMessage())) {
+          if (!this.isValid() && qx.lang.Array.contains(this.getInvalidMessages(), this.getInvalidMessage())) {
             errorArea.show();
             label.setValue(this.getInvalidMessage());
           }

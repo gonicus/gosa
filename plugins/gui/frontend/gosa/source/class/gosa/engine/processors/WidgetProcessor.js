@@ -52,7 +52,7 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
     __shouldGenerateWidget : function(node) {
       // check if attribute is in object description so it can at least be read
       var modelPath = this._getValue(node, "modelPath") || this._getValue(node, "buddyModelPath");
-      if (modelPath && !qx.lang.Array.includes(this._context.getAttributes(), modelPath)) {
+      if (modelPath && !qx.lang.Array.contains(this._context.getAttributes(), modelPath)) {
         return false;
       }
 
@@ -157,7 +157,7 @@ qx.Class.define("gosa.engine.processors.WidgetProcessor", {
         var transformedProperties = this._transformProperties(properties);
 
         for (var property in transformedProperties) {
-          if (qx.lang.Array.includes(this.self(arguments).IGNORED_PROPERTIES, property)) {
+          if (qx.lang.Array.contains(this.self(arguments).IGNORED_PROPERTIES, property)) {
             break;
           }
           if (qx.Class.hasProperty(target.constructor, property)) {

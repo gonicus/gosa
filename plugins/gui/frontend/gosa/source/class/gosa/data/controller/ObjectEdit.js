@@ -353,7 +353,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
       });
 
       var contexts = this._widget.getContexts().filter(function(context) {
-        return qx.lang.Array.includes(extensions, context.getExtension());
+        return qx.lang.Array.contains(extensions, context.getExtension());
       });
 
       if (contexts.length) {
@@ -406,7 +406,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
     },
 
     __addModifyListeners : function(modelPath, widget, temporary) {
-      if (qx.lang.Array.includes(this._connectedAttributes, modelPath)) {
+      if (qx.lang.Array.contains(this._connectedAttributes, modelPath)) {
         return;
       }
       var listenerId = widget.addListener("changeValue", this._onChangeWidgetValue, this);
@@ -427,10 +427,10 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
      */
     cleanupContext: function(context) {
       gosa.util.Object.iterate(context.getWidgetRegistry().getMap(), function(modelPath, widget, temporary) {
-        if (qx.lang.Array.includes(this._validatingWidgets, widget)) {
+        if (qx.lang.Array.contains(this._validatingWidgets, widget)) {
           this._validatingWidgets.remove(widget);
         }
-        if (qx.lang.Array.includes(this._connectedAttributes, modelPath)) {
+        if (qx.lang.Array.contains(this._connectedAttributes, modelPath)) {
           this._connectedAttributes.remove(modelPath);
         }
       }, this);

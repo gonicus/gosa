@@ -613,7 +613,7 @@ qx.Class.define("gosa.view.Search", {
         // If its no longer in our list, but was not removed before (e.g just moved) then
         // just remove it from the list without fading it out.
         for(i=0; i<removed.length; i++){
-          if(qx.lang.Array.includes(this._removedObjects, removed[i])){
+          if(qx.lang.Array.contains(this._removedObjects, removed[i])){
             this.__fadeOut(entries_by_uuid[removed[i]]);
           }else{
             this.__removeEntry(entries_by_uuid[removed[i]]);
@@ -626,7 +626,7 @@ qx.Class.define("gosa.view.Search", {
         // If there was an modify event for one of the uuids, then update
         // the list entry.
         for(i=0; i<stillthere.length; i++){
-          if(qx.lang.Array.includes(this._modifiedObjects, stillthere[i])){
+          if(qx.lang.Array.contains(this._modifiedObjects, stillthere[i])){
             this.__updateEntry(entries_by_uuid[stillthere[i]]);
             this.updateFilter();
           }
@@ -636,7 +636,7 @@ qx.Class.define("gosa.view.Search", {
         // If there is a new entry in the result and we've got an create event
         // then fade the new entry in the result list.
         for(i=0; i<added.length; i++){
-          if(qx.lang.Array.includes(this._createdObjects, added[i])){
+          if(qx.lang.Array.contains(this._createdObjects, added[i])){
             this.__fadeIn(entries_by_uuid[added[i]]);
           }else{
             this.__addEntry(entries_by_uuid[added[i]]);

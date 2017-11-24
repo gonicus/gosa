@@ -352,7 +352,7 @@ qx.Class.define("gosa.data.controller.BackendChanges", {
       if (takeLocal) {
         this.__controller.getExtensionController().addExtensionSilently(extension);
       }
-      else if (!takeLocal && qx.lang.Array.includes(activeExtensions, extension)) {
+      else if (!takeLocal && qx.lang.Array.contains(activeExtensions, extension)) {
         this.__controller.getExtensionController().removeExtension(extension, false);
       }
     },

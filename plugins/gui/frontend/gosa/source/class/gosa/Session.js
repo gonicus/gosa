@@ -109,7 +109,7 @@ qx.Class.define("gosa.Session",
       if (splitted.length > 0) {
         command = splitted[0];
       }
-      return qx.lang.Array.includes(this.getCommands(), command);
+      return qx.lang.Array.contains(this.getCommands(), command);
     },
 
     _objectEvent: function(e){
@@ -139,15 +139,14 @@ qx.Class.define("gosa.Session",
           this.setDn(result['dn']);
           this.setUuid(result['uuid']);
           this.setImageURL(result['icon']);
-        }, function(error) {
+        }, this).catch(function(error) {
           // var d = new gosa.ui.dialogs.Error(new qx.ui.core.Widget().tr("Failed to fetch current user information."));
           var d = new gosa.ui.dialogs.Error(error);
           d.open();
           d.addListener("close", function(){
             gosa.Session.getInstance().logout();
           }, this);
-        })
-        .catch(gosa.ui.dialogs.Error.show);
+        });
       } else {
         this.setSn(null);
         this.setCn(null);

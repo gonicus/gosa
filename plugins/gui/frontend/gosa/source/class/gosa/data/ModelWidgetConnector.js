@@ -42,7 +42,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
      */
     connectAll : function() {
       gosa.util.Object.iterate(this.__object.attribute_data, function(attributeName, config) {
-        if (qx.lang.Array.includes(this.__boundAttributes, attributeName)) {
+        if (qx.lang.Array.contains(this.__boundAttributes, attributeName)) {
           return;
         }
 
@@ -198,7 +198,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
       // get suggested values from backend
       gosa.io.Rpc.getInstance().cA("**"+rpcMethod, data).then(function(suggestions) {
         widget.setValues(suggestions);
-        if (oldValue && suggestions.hasOwnProperty(oldValue) || qx.lang.Type.isArray(suggestions) && qx.lang.Array.includes(suggestions, oldValue)) {
+        if (oldValue && suggestions.hasOwnProperty(oldValue) || qx.lang.Type.isArray(suggestions) && qx.lang.Array.contains(suggestions, oldValue)) {
           this.__object.setWriteAttributeUpdates(false);
           widget.setWidgetValue(0, oldValue);
           this.__object.setWriteAttributeUpdates(true);
@@ -220,7 +220,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
           var oldValue = widget.getSingleValue();
           var suggestions = qx.lang.Json.parse(change.NewValues);
           widget.setValues(suggestions);
-          if (oldValue && suggestions.hasOwnProperty(oldValue) || qx.lang.Type.isArray(suggestions) && qx.lang.Array.includes(suggestions, oldValue)) {
+          if (oldValue && suggestions.hasOwnProperty(oldValue) || qx.lang.Type.isArray(suggestions) && qx.lang.Array.contains(suggestions, oldValue)) {
             widget.setWidgetValue(0, oldValue);
           }
         }, this);
