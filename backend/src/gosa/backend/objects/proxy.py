@@ -502,27 +502,31 @@ class ObjectProxy(object):
         return dn2str(str2dn(dn)[1:])
 
     def get_adjusted_parent_dn(self, dn=None):
-        index = PluginRegistry.getInstance("ObjectIndex")
-        tdn = []
-        pdn = self.get_parent_dn(dn)
+        return ObjectProxy.get_adjusted_dn(self.get_parent_dn(dn), self.__env.base)
 
+    @classmethod
+    def get_adjusted_dn(cls, dn, base):
+        index = PluginRegistry.getInstance("ObjectIndex")
+        factory = ObjectFactory.getInstance()
+        tdn = []
+        pdn = dn
         # Skip base
-        if len(pdn) < len(self.__env.base):
+        if len(pdn) < len(base):
             return pdn
 
         while True:
-            if pdn == self.__env.base or len(pdn) < len(self.__env.base):
+            if pdn == base or len(pdn) < len(base):
                 break
 
             # Fetch object type for pdn
             ptype = index.search({"dn": pdn}, {'_type': 1})[0]['_type']
-            schema = self.__factory.getXMLSchema(ptype)
+            schema = factory.getXMLSchema(ptype)
             if not ("StructuralInvisible" in schema.__dict__ and schema.StructuralInvisible == True):
                 tdn.append(str2dn(pdn.encode('utf-8'))[0])
 
-            pdn = self.get_parent_dn(pdn)
+            pdn = dn2str(str2dn(pdn)[1:])
 
-        tdn = str2dn(self.__env.base)[::-1] + tdn[::-1]
+        tdn = str2dn(base)[::-1] + tdn[::-1]
 
         return dn2str(tdn[::-1])
 
