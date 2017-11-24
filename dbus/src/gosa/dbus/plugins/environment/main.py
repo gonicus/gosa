@@ -18,9 +18,9 @@ This plugin allows to configure a user environment (e.g. application menu).
 """
 import glob
 import logging
-from subprocess import check_output
 
 import dbus.service
+import pwd
 
 from gosa.common import Environment
 from gosa.common.components import Plugin
@@ -64,34 +64,30 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     def configureUserMenu(self, user, user_menu):
         """ configure a users application menu """
         user_menu = loads(user_menu)
-        primary_group = None
-        try:
-            groups = check_output(['id', '-gn', user]).split()
-            if len(groups) > 0:
-                primary_group = groups[0].decode("utf-8")
-        except:
-            pass
+        uid = pwd.getpwnam(user).pw_uid
+        gid = pwd.getpwnam(user).pw_gid
+
         self.__initialized_dirs = []
         self.home_dir = os.path.expanduser('~%s' % user)
         self.init_directories(user_menu)
         self.init_applications(user_menu)
         self.init_menu(user_menu)
         if self.env.config.get("user.chown-menu", default="false") == "true":
-            self.chown_dirs(user, primary_group)
+            self.chown_dirs(uid, gid)
 
     def chown_dirs(self, user, primary_group):
         self.log.debug("chown %s dirs to %s:%s" % (self.__initialized_dirs, user, primary_group))
         for dir in self.__initialized_dirs:
-            self.__chown(dir, user=user, group=primary_group)
+            self.__chown(dir, user, primary_group)
 
-    def __chown(self, path, user, group=None):
-        shutil.chown(path, user=user, group=group)
+    def __chown(self, path, user, group):
+        os.chown(path, user, group)
         for item in glob.glob(path+'/*'):
             cur_path = os.path.join(path, item)
             if os.path.isdir(item):
-                self.__chown(cur_path, user, group=group)
+                self.__chown(cur_path, user, group)
             else:
-                shutil.chown(cur_path, user=user, group=group)
+                os.chown(cur_path, user, group)
 
     def init_dir(self, dir):
         if not os.path.exists(dir):
