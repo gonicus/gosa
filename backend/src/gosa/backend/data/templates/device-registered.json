@@ -23,7 +23,7 @@
                 "target": "configureClient()",
                 "icon": "actionConfigureClient",
                 "text": "tr('Configure client')",
-                "condition": "status_Online"
+                "condition": "status_SystemHasActiveUserSessions"
             }
         ]
     },

@@ -632,20 +632,13 @@ class ClientService(Plugin):
 
         return result
 
-    @Command(__help__="Send client specific configuration (e.g. printers) to a client")
+    @Command(__help__="Send user specific configuration (e.g. printers) to a clients active user sessions")
     def configureClient(self, client_id):
         """
-        Send system printer PPDs to client
         :param client_id: deviceUUID or hostname
         """
-        client = self.__open_device(client_id)
-
-        self.log.debug("client '%s' is member of '%s'" % (client_id, client.groupMembership))
-        if client.groupMembership is not None:
-            # get it from the group
-            group = ObjectProxy(client.groupMembership)
-            settings = self.__collect_printer_settings(group)
-            self.configureHostPrinters(client_id, settings)
+        if client_id in self.__user_session:
+            self.configureUsers(client_id, self.__user_session[client_id])
 
     def configureHostPrinters(self, client_id, config):
         """ configure the printers for this client via dbus. """
