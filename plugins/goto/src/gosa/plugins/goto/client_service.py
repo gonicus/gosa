@@ -515,7 +515,7 @@ class ClientService(Plugin):
             release = group.getReleaseName()
 
         if release is None:
-            self.log.error("no release found for client/user combination (%s/%s)" % client_id, users)
+            self.log.error("no release found for client/user combination (%s/%s)" % (client_id, users))
             return
 
         client_menu = None
