@@ -140,7 +140,7 @@ qx.Class.define("gosa.data.controller.Actions", {
      */
     move: function(newDn) {
       qx.core.Assert.assertString(newDn);
-      return this.__object.move(newDn);
+      return this.__object.move(newDn, true);
     },
 
     /**
