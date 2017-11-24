@@ -11,11 +11,12 @@
 
 		<BaseObject>true</BaseObject>
 		<FixedRDN>ou=systems</FixedRDN>
-                <StructuralInvisible>true</StructuralInvisible>
+		<StructuralInvisible>true</StructuralInvisible>
 		<Container>
 			<Type>SambaWorkstationContainer</Type>
 			<Type>DeviceContainer</Type>
 			<Type>PrinterContainer</Type>
+			<Type>OrganizationalUnit</Type>
 		</Container>
 	</Object>
 </Objects>
