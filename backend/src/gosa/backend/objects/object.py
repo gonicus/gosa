@@ -58,7 +58,7 @@ C.register_codes(dict(
     ATTRIBUTE_NOT_FOUND=N_("Attribute '%(topic)s' not found"),
     OBJECT_MODE_NOT_AVAILABLE=N_("Mode '%(mode)s' is not available for base objects"),
     OBJECT_MODE_BASE_AVAILABLE=N_("Mode '%(mode)s' is only available for base objects"),
-    OBJECT_NO_BASE_TYPE_FOR_DN=N_("'No base type found fir dn %(dn)s'"),
+    OBJECT_NO_BASE_TYPE_FOR_DN=N_("'No base type found for dn %(dn)s'"),
     OBJECT_NOT_SUB_FOR=N_("Object of type '%(ext)s' cannot be added as to the '%(base)s' container"),
     OBJECT_REMOVE_NON_BASE_OBJECT=N_("Cannot remove non base object"),
     OBJECT_MOVE_NON_BASE_OBJECT=N_("Cannot move non base object"),
