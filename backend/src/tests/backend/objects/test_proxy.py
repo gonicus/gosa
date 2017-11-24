@@ -126,6 +126,10 @@ class ObjectProxyTestCase(GosaTestCase):
         assert user.get_parent_dn() == "ou=people,dc=example,dc=net"
         assert user.get_parent_dn('ou=people,dc=example,dc=net') == "dc=example,dc=net"
 
+    def test_get_adjusted_parent_dn(self):
+        user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net', None, 'admin')
+        assert user.get_adjusted_parent_dn() == "dc=example,dc=net"
+
     def test_get_base_type(self):
         user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net', None, 'admin')
         assert user.get_base_type() == "User"
