@@ -119,7 +119,7 @@ qx.Class.define("gosa.data.model.SearchResultItem", {
         return;
       }
       var properties = this.__highlightProperties;
-      if (qx.lang.Array.contains(properties, name)) {
+      if (qx.lang.Array.includes(properties, name)) {
         // only highlight this property
         properties = [name];
         qx.lang.Array.remove(this.__highlighted, name);
@@ -133,7 +133,7 @@ qx.Class.define("gosa.data.model.SearchResultItem", {
       this.__blockHighlighting = true;
       properties.forEach(function(prop) {
         if (this.isPropertyInitialized(prop)) {
-          if (qx.lang.Array.contains(this.__highlighted, prop)) {
+          if (qx.lang.Array.includes(this.__highlighted, prop)) {
             // skip this one, as it is already highlighted
             return;
           }

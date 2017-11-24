@@ -271,8 +271,8 @@ qx.Class.define("gosa.view.Tree", {
         var canDelete = true;
         selectionModel.iterateSelection(function(index) {
           var selection = this._tableModel.getRowData(index);
-          canOpen = canOpen && qx.lang.Array.contains(this._objectRights[selection[0]] || [], "r");
-          canDelete = canDelete && qx.lang.Array.contains(this._objectRights[selection[0]] || [], "d");
+          canOpen = canOpen && qx.lang.Array.includes(this._objectRights[selection[0]] || [], "r");
+          canDelete = canDelete && qx.lang.Array.includes(this._objectRights[selection[0]] || [], "d");
         }, this);
         this.getChildControl("action-menu-button").setEnabled(canOpen && canDelete);
         this.getChildControl("open-button").setEnabled(canOpen);
@@ -420,7 +420,7 @@ qx.Class.define("gosa.view.Tree", {
           }
           var children = item.getChildren().concat(item.getLeafs());
           children.forEach(function(child) {
-            if(!qx.lang.Array.contains(done, child)){
+            if(!qx.lang.Array.includes(done, child)){
               this._tableData.push(child.getTableRow());
               done.push(child);
             }
@@ -460,7 +460,7 @@ qx.Class.define("gosa.view.Tree", {
       var openNodes = this.getChildControl("tree").getOpenNodes();
       openNodes.forEach(function(node) {
         node.getChildren().forEach(function(child) {
-          if (qx.lang.Array.contains(openNodes, child)) {
+          if (qx.lang.Array.includes(openNodes, child)) {
             // mark currently opened nodes for reload on next opening
             child.setLoaded(false);
           } else {
@@ -486,7 +486,7 @@ qx.Class.define("gosa.view.Tree", {
       if (selection.getSelectedCount() === 1) {
         selection.iterateSelection(function(index) {
           var row = this._tableModel.getRowData(index);
-          if (qx.lang.Array.contains(this._objectRights[row[0]] || [], "w")) {
+          if (qx.lang.Array.includes(this._objectRights[row[0]] || [], "w")) {
             gosa.proxy.ObjectFactory.openObject(row[3])
             .then(function(object) {
               var dialog = new gosa.ui.dialogs.actions.MoveObjectDialog(new gosa.data.controller.Actions(object));
@@ -502,7 +502,7 @@ qx.Class.define("gosa.view.Tree", {
       // get currently selected dn in tree
       this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
         var row = this._tableModel.getRowData(index);
-        if (qx.lang.Array.contains(this._objectRights[row[0]] || [], "d")) {
+        if (qx.lang.Array.includes(this._objectRights[row[0]] || [], "d")) {
           gosa.proxy.ObjectFactory.removeObject(row[3]);
         }
       }, this);
@@ -516,7 +516,7 @@ qx.Class.define("gosa.view.Tree", {
         var promises = [];
         selection.iterateSelection(function(index) {
           var row = this._tableModel.getRowData(index);
-          if (qx.lang.Array.contains(this._objectRights[row[0]] || [], "r")) {
+          if (qx.lang.Array.includes(this._objectRights[row[0]] || [], "r")) {
             promises.push(gosa.ui.controller.Objects.getInstance().openObject(row[3]));
           }
         }, this);
@@ -539,7 +539,7 @@ qx.Class.define("gosa.view.Tree", {
 
       if (types.length > 0 && types.length < all) {
         filtered = filtered.filter(function(row) {
-          return qx.lang.Array.contains(types, row.type);
+          return qx.lang.Array.includes(types, row.type);
         });
       }
       var searchValue = this.getChildControl("search-field").getValue();

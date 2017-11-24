@@ -109,7 +109,7 @@ qx.Class.define("gosa.Session",
       if (splitted.length > 0) {
         command = splitted[0];
       }
-      return qx.lang.Array.contains(this.getCommands(), command);
+      return qx.lang.Array.includes(this.getCommands(), command);
     },
 
     _objectEvent: function(e){

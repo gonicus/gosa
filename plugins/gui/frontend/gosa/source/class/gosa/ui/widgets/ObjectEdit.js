@@ -424,7 +424,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
 
       // create button for each extension
       extFinder.getRetractableExtensions().sort(this.__compareExtensionsByTranslatedName).forEach(function(ext) {
-        if (qx.lang.Array.contains(actExts, ext)) {
+        if (qx.lang.Array.includes(actExts, ext)) {
           var config = gosa.Cache.extensionConfig[ext];
           if (!config) {
             // don't show menus w/o configuration

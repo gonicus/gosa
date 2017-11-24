@@ -73,7 +73,7 @@ qx.Class.define("gosa.data.util.ExtensionFinder", {
             }
           }
         }
-        if (!qx.lang.Array.contains(result, name)) {
+        if (!qx.lang.Array.includes(result, name)) {
           result.push(name);
         }
       };
@@ -92,7 +92,7 @@ qx.Class.define("gosa.data.util.ExtensionFinder", {
     getCurrentExtensions : function() {
       var result = [];
       gosa.util.Object.iterate(this.__object.extensionTypes, function(extensionName, value) {
-        if (value && !qx.lang.Array.contains(result, extensionName)) {
+        if (value && !qx.lang.Array.includes(result, extensionName)) {
           result.push(extensionName);
         }
       });
@@ -158,7 +158,7 @@ qx.Class.define("gosa.data.util.ExtensionFinder", {
     __getAllExtensionsDependentOn : function(extension) {
       var result = [];
       gosa.util.Object.iterate(this.__object.extensionDeps, function(extName, value) {
-        if (qx.lang.Array.contains(value, extension) && !qx.lang.Array.contains(result, extName)) {
+        if (qx.lang.Array.includes(value, extension) && !qx.lang.Array.includes(result, extName)) {
           result.push(extName);
         }
       });

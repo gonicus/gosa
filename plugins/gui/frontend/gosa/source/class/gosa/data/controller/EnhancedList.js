@@ -632,7 +632,7 @@ qx.Class.define("gosa.data.controller.EnhancedList", {
       targetWidget.setUserData(targetProperty + "BindingId", id);
 
       // save the bound property
-      if (!qx.lang.Array.contains(this.__boundProperties, targetProperty)) {
+      if (!qx.lang.Array.includes(this.__boundProperties, targetProperty)) {
         this.__boundProperties.push(targetProperty);
       }
     },
@@ -662,7 +662,7 @@ qx.Class.define("gosa.data.controller.EnhancedList", {
       sourceWidget.setUserData(targetPath + "ReverseBindingId", id);
 
       // save the bound property
-      if (!qx.lang.Array.contains(this.__boundPropertiesReverse, targetPath)) {
+      if (!qx.lang.Array.includes(this.__boundPropertiesReverse, targetPath)) {
         this.__boundPropertiesReverse.push(targetPath);
       }
     },
