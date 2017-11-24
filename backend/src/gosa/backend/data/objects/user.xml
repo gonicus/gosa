@@ -707,7 +707,7 @@
 					<Destination>title</Destination>
 				</Map>
 				<Map>
-					<Source><![CDATA[%(description)s%(phoneRenderer)s%(mailRenderer)s<br>%(extensions)s]]></Source>
+					<Source><![CDATA[%(uid)s %(description)s %(phoneRenderer)s %(mailRenderer)s<br>%(_extensions)s]]></Source>
 					<Destination>description</Destination>
 				</Map>
 				<Map>
