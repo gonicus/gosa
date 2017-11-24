@@ -31,6 +31,8 @@ index = true
 
 [user]
 image-path = /tmp/images
+# chown user menu after generation to allow user to change the entries)
+# chown-menu = false
 
 [gui]
 debug = true

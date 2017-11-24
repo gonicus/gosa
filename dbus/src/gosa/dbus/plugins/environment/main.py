@@ -62,13 +62,16 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     def configureUserMenu(self, user, user_menu):
         """ configure a users application menu """
         user_menu = loads(user_menu)
+        self.__initialized_dirs = []
         self.home_dir = os.path.expanduser('~%s' % user)
         self.init_directories(user_menu)
         self.init_applications(user_menu)
         self.init_menu(user_menu)
-        self.chown_dirs(user)
+        if self.env.config.get("user.chown-menu", default="false") == "true":
+            self.chown_dirs(user)
 
     def chown_dirs(self, user):
+        self.log.debug("chown %s dirs to user %s" % (self.__initialized_dirs, user))
         for dir in self.__initialized_dirs:
             self.__chown(dir, user=user)
 
@@ -91,18 +94,9 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
 
     def init_applications(self, user_menu):
         app_dir = os.path.join(self.home_dir, self.local_applications)
+        self.init_dir(app_dir)
         scripts_dir = os.path.join(self.home_dir, self.local_applications_scripts)
-        if not os.path.exists(app_dir):
-            os.makedirs(app_dir)
-
-        if not os.path.exists(scripts_dir):
-            os.makedirs(scripts_dir)
-
-        shutil.rmtree(app_dir)
-        os.makedirs(app_dir)
-
-        shutil.rmtree(scripts_dir)
-        os.makedirs(scripts_dir)
+        self.init_dir(scripts_dir)
 
         def get_appname(item):
             result = []
@@ -123,15 +117,9 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
 
     def init_directories(self, user_menu):
         loc_dir = os.path.join(self.home_dir, self.local_directories)
+        self.init_dir(loc_dir)
         icon_dir = os.path.join(self.home_dir, self.local_icons)
-        if not os.path.exists(loc_dir):
-            os.makedirs(loc_dir)
-
-        if not os.path.exists(icon_dir):
-            os.makedirs(icon_dir)
-
-        shutil.rmtree(loc_dir)
-        os.makedirs(loc_dir)
+        self.init_dir(icon_dir)
 
         def get_dirname(item, prefix=None):
             result = []
@@ -210,6 +198,7 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
 
     def init_menu(self, user_menu):
         menu_dir = os.path.join(self.home_dir, self.local_menu)
+        self.__initialized_dirs.append(os.path.dirname(menu_dir))
         if not os.path.exists(os.path.dirname(menu_dir)):
             os.makedirs(os.path.dirname(menu_dir))
 
