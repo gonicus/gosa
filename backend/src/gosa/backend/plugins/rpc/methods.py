@@ -334,7 +334,7 @@ class RPCMethods(Plugin):
         # Start the query and bring the result in a usable form
         index = PluginRegistry.getInstance("ObjectIndex")
 
-        query = {oattr: names}
+        query = {oattr: {"in_": names}}
         if otype != "*":
             if of.isBaseType(otype):
                 query["_type"] = otype
