@@ -20,12 +20,15 @@ You can import it to your own code like this::
 """
 import logging
 import platform
+
+import os
+
 from gosa.common.config import Config
 from gosa.common.utils import dmi_system
 
 try:
-    from sqlalchemy.orm import sessionmaker, scoped_session
-    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker, scoped_session, exc
+    from sqlalchemy import create_engine, event
 except ImportError: # pragma: nocover
     pass
 
@@ -108,6 +111,21 @@ class Environment:
                                                  poolclass=StaticPool, encoding="utf-8")
             else:
                 self.__db[index] = create_engine(self.config.get(index), encoding="utf-8")
+
+                @event.listens_for(self.__db[index], "connect")
+                def connect(dbapi_connection, connection_record):
+                    connection_record.info['pid'] = os.getpid()
+
+                @event.listens_for(self.__db[index], "checkout")
+                def checkout(dbapi_connection, connection_record, connection_proxy):
+                    pid = os.getpid()
+                    if connection_record.info['pid'] != pid:
+                        connection_record.connection = connection_proxy.connection = None
+                        raise exc.DisconnectionError(
+                            "Connection record belongs to pid %s, "
+                            "attempting to check out in pid %s" %
+                            (connection_record.info['pid'], pid)
+                        )
 
             #TODO: configure engine
             #self.__db[index] = create_engine(self.config.get(index),

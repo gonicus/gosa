@@ -651,9 +651,10 @@ class ObjectIndex(Plugin):
         total = len(to_be_updated)
 
         # Some object may have queued themselves to be re-indexed, process them now.
-        self.log.info("need to refresh index for %d objects (using %s threads)" % (total, procs))
+        self.log.info("need to refresh index for %d objects (using %s threads)" % (total, self.procs))
 
         def process(self, queue, current):
+
             while len(queue) > 0:
                 dn = queue.pop()
                 current += 1
