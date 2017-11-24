@@ -511,7 +511,7 @@ class ClientService(Plugin):
         release = None
         if client.is_extended_by("GotoMenu"):
             release = client.getReleaseName()
-        elif group.is_extended_by("GotoMenu"):
+        elif group is not None and group.is_extended_by("GotoMenu"):
             release = group.getReleaseName()
 
         if release is None:
@@ -662,7 +662,7 @@ class ClientService(Plugin):
 
     def __collect_printer_settings(self, object):
         settings = {"printers": [], "defaultPrinter": None}
-        if object.is_extended_by("GotoEnvironment") and len(object.gotoPrinters):
+        if object is not None and object.is_extended_by("GotoEnvironment") and len(object.gotoPrinters):
             # get default printer
             settings["defaultPrinter"] = object.gotoDefaultPrinter
 
