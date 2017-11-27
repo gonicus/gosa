@@ -67,14 +67,14 @@ class Foreman(Plugin):
         self.log = logging.getLogger(__name__)
         self.factory = ObjectFactory.getInstance()
         incoming_base = self.env.config.get("foreman.host-rdn")
-        if incoming_base is None:
+        if incoming_base is None or len(incoming_base) == 0:
             incoming_base = self.env.base
         else:
             incoming_base = "%s,%s" % (incoming_base, self.env.base)
 
         group_rdn = self.env.config.get("foreman.group-rdn")
         self.type_bases = {"ForemanHost": incoming_base}
-        if group_rdn is not None:
+        if group_rdn is not None and len(group_rdn) > 0:
             self.type_bases["ForemanHostGroup"] = "%s,%s" % (group_rdn, self.env.base)
         else:
             self.type_bases["ForemanHostGroup"] = self.env.base
@@ -586,7 +586,13 @@ class Foreman(Plugin):
 
         # create dn
         if base is None:
-            base = self.type_bases["ForemanHost"]
+            index = PluginRegistry.getInstance("ObjectIndex")
+            # get the IncomingDevice-Container
+            res = index.search({"_type": "IncomingDeviceContainer"}, {"dn": 1})
+            if len(res) > 0:
+                base = res[0]["dn"]
+            else:
+                base = self.type_bases["ForemanHost"]
 
         ForemanBackend.modifier = "foreman"
 

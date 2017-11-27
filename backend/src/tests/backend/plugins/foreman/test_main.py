@@ -95,6 +95,9 @@ class ForemanTestCase(GosaTestCase):
         logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
         logging.getLogger("gosa.backend.objects").info("SET UP")
         super(ForemanTestCase, self).setUp()
+        env = Environment.getInstance()
+        env.config.set("foreman.host-rdn", None)
+        env.config.set("foreman.group-rdn", None)
         self.foreman = ForemanPlugin()
         # just use a fake url as the requests are mocked anyway
         self.foreman.init_client("http://localhost:8000/api/v2")

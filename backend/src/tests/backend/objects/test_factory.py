@@ -111,7 +111,7 @@ class ObjectBackendTestCase(unittest.TestCase):
         assert {'filter': 'DN', 'type': None, 'attribute': 'manager'} in res['resolve']
 
         assert res['map']['title'] == 'cn'
-        assert res['map']['description'] == '%(description)s%(phoneRenderer)s%(mailRenderer)s<br>%(extensions)s'
+        assert res['map']['description'] == '%(uid)s %(description)s %(phoneRenderer)s %(mailRenderer)s<br>%(_extensions)s'
         #assert res['map']['icon'] == 'jpegPhoto'
 
     def test_getAllowedSubElementsForObject(self):

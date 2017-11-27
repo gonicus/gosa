@@ -231,25 +231,6 @@ class ObjectIndex(Plugin):
             self.__session.add(schema)
             self.__session.commit()
 
-        # Schedule index sync
-        if self.env.config.get("backend.index", "true").lower() == "true":
-            import sys
-            if hasattr(sys, '_called_from_test'):
-                self.sync_index()
-            else:
-                sobj = PluginRegistry.getInstance("SchedulerService")
-                sobj.getScheduler().add_date_job(self.sync_index,
-                       datetime.datetime.now() + datetime.timedelta(seconds=1),
-                       tag='_internal', jobstore='ram')
-        else:
-            def finish():
-                zope.event.notify(IndexScanFinished())
-
-            sobj = PluginRegistry.getInstance("SchedulerService")
-            sobj.getScheduler().add_date_job(finish,
-                                             datetime.datetime.now() + datetime.timedelta(seconds=10),
-                                             tag='_internal', jobstore='ram')
-
         # Extract search aid
         attrs = {}
         mapping = {}
@@ -300,6 +281,25 @@ class ObjectIndex(Plugin):
                                  mapping=mapping,
                                  resolve=resolve,
                                  aliases=aliases)
+
+        # Schedule index sync
+        if self.env.config.get("backend.index", "true").lower() == "true":
+            import sys
+            if hasattr(sys, '_called_from_test'):
+                self.sync_index()
+            else:
+                sobj = PluginRegistry.getInstance("SchedulerService")
+                sobj.getScheduler().add_date_job(self.sync_index,
+                                                 datetime.datetime.now() + datetime.timedelta(seconds=1),
+                                                 tag='_internal', jobstore='ram')
+        else:
+            def finish():
+                zope.event.notify(IndexScanFinished())
+
+            sobj = PluginRegistry.getInstance("SchedulerService")
+            sobj.getScheduler().add_date_job(finish,
+                                             datetime.datetime.now() + datetime.timedelta(seconds=10),
+                                             tag='_internal', jobstore='ram')
 
     def stop(self):
         if self.__handle_events in zope.event.subscribers:
@@ -627,11 +627,13 @@ class ObjectIndex(Plugin):
         ObjectIndex.importing = False
         self.last_notification = time.time()
         current = 0
-        total = len(ObjectIndex.to_be_updated)
+        uuids = list(set(ObjectIndex.to_be_updated))
+        ObjectIndex.to_be_updated = []
+        total = len(uuids)
 
         # Some object may have queued themselves to be re-indexed, process them now.
         self.log.info("need to refresh index for %d objects" % total)
-        for dn in self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid.in_(ObjectIndex.to_be_updated)).all():
+        for dn in self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid.in_(uuids)).all():
             current += 1
             if dn:
                 obj = ObjectProxy(dn[0])
@@ -641,8 +643,6 @@ class ObjectIndex(Plugin):
                 if now - self.last_notification > self.notify_every:
                     self.notify_frontends(N_("refreshing object %s/%s" % (current, total)), round(100/total*current), step=4)
                     self.last_notification = now
-
-        ObjectIndex.to_be_updated = []
 
         self.update_words()
 
@@ -809,7 +809,11 @@ class ObjectIndex(Plugin):
                 types=" ".join(list(set(types)))
             )
             self.__session.add(so)
-        self.__session.commit()
+        try:
+            self.__session.commit()
+        except Exception as e:
+            self.__session.rollback()
+            raise e
 
         # update word index on change (if indexing is not running currently)
         if not GlobalLock.exists("scan_index"):
