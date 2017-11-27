@@ -799,7 +799,7 @@ class ClientService(Plugin):
 
             # check if we still have listeners for that method
             delete = True
-            for client_id, queue in self.__client_call.items():
+            for client_id, queue in self.__client_call_queue.items():
                 if method in queue:
                     delete = False
                     break
