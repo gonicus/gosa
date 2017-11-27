@@ -201,6 +201,10 @@ class ClientService(Plugin):
         res = yield methodCall(*arg, **larg)
         raise gen.Return(res)
 
+    @Command(__help__=N_("Check if the client supports a method call"))
+    def hasCapability(self, client_id, method):
+        return client_id in self.__client and method in self.client[client_id]
+
     def queuedClientDispatch(self, client, method, *arg, **larg):
         client = self.get_client_uuid(client)
 

@@ -225,6 +225,22 @@
 					<Value>method</Value>
 				</CommandParameters>
 			</Method>
+			<Method>
+				<Name>canReboot</Name>
+				<Command>hasCapability</Command>
+				<MethodParameters>
+					<MethodParameter>
+						<Name>method</Name>
+						<Type>UnicodeString</Type>
+						<Required>true</Required>
+						<Default>reboot</Default>
+					</MethodParameter>
+				</MethodParameters>
+				<CommandParameters>
+					<Value>deviceUUID</Value>
+					<Value>method</Value>
+				</CommandParameters>
+			</Method>
 		</Methods>
 		<Extends>
 			<Value>Device</Value>
