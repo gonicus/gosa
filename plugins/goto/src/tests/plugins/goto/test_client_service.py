@@ -150,9 +150,10 @@ class GotoClientServiceTestCase(AsyncTestCase):
             yield self.service.clientDispatch('fake_client_uuid', 'fakeCommand')
 
 
+    @mock.patch("gosa.plugins.goto.client_service.ClientService.configureUsers")
     @mock.patch("gosa.plugins.goto.client_service.ClientService.systemSetStatus")
     @mock.patch("gosa.plugins.goto.client_service.ClientService.systemGetStatus", return_value="")
-    def test_users(self, mocked_get_status, mocked_set_status):
+    def test_users(self, mocked_get_status, mocked_set_status, mocked_configure):
         # setup users
         self.__announce_client()
         self.__announce_client_caps()
@@ -173,6 +174,7 @@ class GotoClientServiceTestCase(AsyncTestCase):
 
         assert self.service.getUserClients("tester") == ['fake_client_uuid']
         assert self.service.getUserClients("unknown_user") == []
+        mocked_configure.assert_called_with('fake_client_uuid', ["tester"])
 
         # notify user
         with mock.patch.object(self.service, "clientDispatch") as m:
