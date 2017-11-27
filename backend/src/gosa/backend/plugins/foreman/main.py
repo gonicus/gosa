@@ -376,7 +376,7 @@ class Foreman(Plugin):
     @Command(__help__=N_("Get release name of an operating system"))
     @cache_return(timeout_secs=600)
     def getForemanReleaseName(self, operatingsystem_id):
-        if self.client:
+        if self.client and operatingsystem_id is not None:
             data = self.client.get("operatingsystems", id=operatingsystem_id)
             return data["release_name"]
         return None
