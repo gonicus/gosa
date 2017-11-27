@@ -205,11 +205,11 @@ class ClientService(Plugin):
         client = self.get_client_uuid(client)
 
         # Bail out if the client is not available
-        if not client in self.__client:
+        if client not in self.__client:
             raise JSONRPCException("client '%s' not available" % client)
         if not self.__client[client]['online']:
             raise JSONRPCException("client '%s' is offline" % client)
-        if not method in self.__client[client]['caps']:
+        if method not in self.__client[client]['caps']:
             # wait til method gets available
             if client not in self.__client_call_queue:
                 self.__client_call_queue[client] = {}
@@ -788,6 +788,7 @@ class ClientService(Plugin):
         if status is False:
             return
 
+        self.log.debug("client %s provides method %s" % (cid, method))
         if cid in self.__client_call_queue and method in self.__client_call_queue[cid]:
             for arg, larg in self.__client_call_queue[cid][method]:
                 self.clientDispatch(cid, method, *arg, **larg)
