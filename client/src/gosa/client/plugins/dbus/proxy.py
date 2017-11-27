@@ -126,7 +126,7 @@ class DBUSProxy(Plugin):
         if "org.gosa" in self.bus.list_names():
             if self.gosa_dbus:
                 del(self.gosa_dbus)
-            self.gosa_dbus = self.bus.get_object('org.gosa', '/org/gosa/shell')
+            self.gosa_dbus = self.bus.get_object('org.gosa', '/org/gosa/services')
             self.gosa_dbus.connect_to_signal("_signatureChanged", self.__signatureChanged_received, dbus_interface="org.gosa")
             self.log.info("established dbus connection")
             self.__signatureChanged_received(None)
@@ -190,7 +190,8 @@ class DBUSProxy(Plugin):
                 self.log.debug("found %s registered dbus methods" % (str(len(self.methods))))
 
             except DBusException as exception:
-                self.log.debug("failed to load dbus methods: %s" % (str(exception)))
+                self.log.error("failed to load dbus methods: %s" % (str(exception)))
+                raise exception
 
         # (Re-)register the methods we've found
         ccr = PluginRegistry.getInstance('ClientCommandRegistry')
