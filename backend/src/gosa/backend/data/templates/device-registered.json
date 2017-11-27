@@ -11,7 +11,8 @@
     "extensions": {
         "resources": {
             "favicon": "@Ligature/pc",
-            "actionConfigureClient": "@Ligature/gear"
+            "actionConfigureClient": "@Ligature/gear",
+            "actionReboot": "@Ligature/refresh"
         },
         "tabConfig": {
             "title": "tr('Registered device')",
@@ -24,6 +25,13 @@
                 "icon": "actionConfigureClient",
                 "text": "tr('Configure client')",
                 "condition": "status_SystemHasActiveUserSessions"
+            },
+            {
+                "name": "reboot",
+                "target": "rebootClient()",
+                "icon": "actionReboot",
+                "text": "tr('Reboot')",
+                "condition": "status_Online"
             }
         ]
     },
