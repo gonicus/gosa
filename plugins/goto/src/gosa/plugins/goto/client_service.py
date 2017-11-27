@@ -532,12 +532,21 @@ class ClientService(Plugin):
         """
         client = self.__open_device(client_id)
         group = ObjectProxy(client.groupMembership) if client.groupMembership is not None else None
+        index = PluginRegistry.getInstance("ObjectIndex")
 
         release = None
         if client.is_extended_by("GotoMenu"):
             release = client.getReleaseName()
-        elif group is not None and group.is_extended_by("GotoMenu"):
+        elif group is not None and group.is_extended_by("ForemanHostGroup"):
             release = group.getReleaseName()
+            parent_group = group
+            while release is None and parent_group is not None and parent_group.parent_id is not None:
+                res = index.search({"_type": "GroupOfNames", "extension": "ForemanHostGroup", "foremanGroupId": parent_group.parent_id}, {"dn": 1})
+                if len(res) == 0:
+                    break
+                else:
+                    parent_group = ObjectProxy(res[0]["dn"])
+                    release = parent_group.getReleaseName()
 
         if release is None:
             self.log.error("no release found for client/user combination (%s/%s)" % (client_id, users))
@@ -548,7 +557,6 @@ class ClientService(Plugin):
         if hasattr(client, "gotoMenu") and client.gotoMenu is not None:
             client_menu = loads(client.gotoMenu)
 
-        index = PluginRegistry.getInstance("ObjectIndex")
         # collect users DNs
         query_result = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1, "uid": 1})
         for entry in query_result:
