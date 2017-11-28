@@ -20,13 +20,11 @@
         <Name>gotoLastSystemLogin</Name>
         <Description>Timestamp for a Users last System Login</Description>
         <Type>Timestamp</Type>
-        <BackendType>UnicodeString</BackendType>
         <InFilter>
           <FilterChain>
             <FilterEntry>
               <Filter>
-                <Name>StringToDatetime</Name>
-                <Param>%%d.%%m.%%Y %%H:%%M:%%S</Param>
+                <Name>IntegerToDatetime</Name>
               </Filter>
             </FilterEntry>
           </FilterChain>
@@ -35,8 +33,7 @@
           <FilterChain>
             <FilterEntry>
               <Filter>
-                <Name>DatetimeToString</Name>
-                <Param>%%d.%%m.%%Y %%H:%%M:%%S</Param>
+                <Name>DatetimeToInteger</Name>
               </Filter>
             </FilterEntry>
           </FilterChain>
