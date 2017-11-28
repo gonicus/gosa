@@ -887,8 +887,11 @@ class ObjectProxy(object):
             children.sort(key=len, reverse=True)
 
             for child in children:
-                c_obj = ObjectProxy(child)
-                c_obj.remove(recursive=True)
+                try:
+                    c_obj = ObjectProxy(child)
+                    c_obj.remove(recursive=True)
+                except ProxyException as e:
+                    self.log.error("Error removing chile %s: %s" % (child, str(e)))
 
         else:
             # Test if we've children

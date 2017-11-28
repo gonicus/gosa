@@ -22,6 +22,7 @@ class ACLSetTestCase(TestCase):
         super(ACLSetTestCase, self).setUp()
         self.resolver = PluginRegistry.getInstance("ACLResolver")
         self.resolver.clear()
+        self.resolver.load_acls()
         self.set = ACLSet()
 
     def test_get_base(self):

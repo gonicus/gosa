@@ -342,9 +342,7 @@ class ForemanSyncTestCase(GosaTestCase):
         assert m_put.called is True
         args, kwargs = m_put.call_args
         data = loads(kwargs["data"])
-        print(data)
         assert "hostgroup_id" in data["host"]
-        assert data["host"]["name"] == host.cn
         assert data["host"]["hostgroup_id"] is None
 
 

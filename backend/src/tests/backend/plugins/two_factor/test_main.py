@@ -21,6 +21,9 @@ class TwoFactorAuthManagerTestCase(TestCase):
         assert self.env.config.get("user.2fa-store").startswith("/tmp")
         os.remove(self.env.config.get("user.2fa-store"))
         self.manager = PluginRegistry.getInstance("TwoFactorAuthManager")
+        with open(self.env.config.get("user.2fa-store"), "w") as f:
+            f.write("{}")
+        self.manager.reload()
         self.ssl = self.env.config.get("http.ssl") is True
 
     def test_getAvailable2FAMethods(self):
@@ -31,8 +34,10 @@ class TwoFactorAuthManagerTestCase(TestCase):
             assert 'u2f' in methods
 
     def test_OTPMethod(self):
+        index = PluginRegistry.getInstance("ObjectIndex")
         with mock.patch("gosa.backend.plugins.two_factor.main.PluginRegistry.getInstance") as m_resolver:
             m_resolver.return_value.check.return_value = False
+            m_resolver.return_value.search.side_effect = index.search
             with pytest.raises(ACLException):
                 self.manager.getTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net")
 

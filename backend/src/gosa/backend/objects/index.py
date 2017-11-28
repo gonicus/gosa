@@ -18,7 +18,7 @@ local index database
 ----
 """
 import logging
-
+import sys
 import re
 
 import ldap
@@ -284,7 +284,6 @@ class ObjectIndex(Plugin):
 
         # Schedule index sync
         if self.env.config.get("backend.index", "true").lower() == "true":
-            import sys
             if hasattr(sys, '_called_from_test'):
                 self.sync_index()
             else:
@@ -339,10 +338,11 @@ class ObjectIndex(Plugin):
         # Setup or refresh timer job to run the post processing
         sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
         next_run = datetime.datetime.now() + datetime.timedelta(0, 5)
-        if self._post_process_job:
-            sched.reschedule_date_job(self._post_process_job, next_run)
-        else:
-            self._post_process_job = sched.add_date_job(self._post_process_by_timer, next_run, tag='_internal', jobstore="ram", )
+        if not hasattr(sys, '_called_from_test'):
+            if self._post_process_job:
+                sched.reschedule_date_job(self._post_process_job, next_run)
+            else:
+                self._post_process_job = sched.add_date_job(self._post_process_by_timer, next_run, tag='_internal', jobstore="ram", )
 
         # Resolve dn from uuid if needed
         if not dn:
@@ -441,6 +441,9 @@ class ObjectIndex(Plugin):
         xml = objectify.fromstring(event, PluginRegistry.getEventParser())
 
         SseHandler.notify(xml, channel="broadcast")
+
+        if hasattr(sys, '_called_from_test'):
+            self.post_process()
 
     def _post_process_by_timer(self):
         self._post_process_job = None
@@ -652,7 +655,11 @@ class ObjectIndex(Plugin):
     def update_words(self):
         # update unique word list
         if self.fuzzy is True:
-            self.__session.execute("REFRESH MATERIALIZED VIEW unique_lexeme;")
+            try:
+                self.__session.execute("REFRESH MATERIALIZED VIEW unique_lexeme;")
+            except Exception as e:
+                self.__session.rollback()
+                raise e
 
     def __handle_events(self, event):
         if isinstance(event, objectify.ObjectifiedElement):
@@ -754,63 +761,65 @@ class ObjectIndex(Plugin):
 
     def __save(self, data):
 
-        # Assemble object index object
-        oi = ObjectInfoIndex(
-            uuid=data["_uuid"],
-            dn=data["dn"],
-            _type=data["_type"],
-            _parent_dn=data["_parent_dn"],
-            _adjusted_parent_dn=data["_adjusted_parent_dn"],
-            _invisible=data["_invisible"]
-        )
-
-        if '_last_changed' in data:
-            oi._last_modified = datetime.datetime.fromtimestamp(data["_last_changed"])
-
-        self.__session.add(oi)
-
-        # Assemble extension index objects
-        for ext in data["_extensions"]:
-            ei = ExtensionIndex(uuid=data["_uuid"], extension=ext)
-            self.__session.add(ei)
-
-        # Assemble key value index objects
-        for key, value in data.items():
-
-            # Skip meta information and DN
-            if key.startswith("_") or key == "dn":
-                continue
-
-            if isinstance(value, list):
-                for v in value:
-                    kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=v)
-                    self.__session.add(kvi)
-            else:
-                kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=value)
-                self.__session.add(kvi)
-
-        # assemble search object
-        if data['_type'] in self.__search_aid['mapping']:
-            aid = self.__search_aid['mapping'][data['_type']]
-            attrs = self.__search_aid['attrs'][data['_type']] if data['_type'] in self.__search_aid['attrs'] else []
-            types = [data['_type']]
-            types.extend(data["_extensions"])
-            # append aliases to search words
-            if data['_type'] in self.__search_aid['aliases']:
-                types.extend(self.__search_aid['aliases'][data['_type']])
-
-            search_words = [", ".join(data[x]) for x in attrs if x in data and data[x] is not None]
-            so = SearchObjectIndex(
-                so_uuid=data["_uuid"],
-                reverse_parent_dn=','.join([d for d in ldap.dn.explode_dn(data["_parent_dn"], flags=ldap.DN_FORMAT_LDAPV3)[::-1]]),
-                title=self.__build_value(aid["title"], data),
-                description=self.__build_value(aid["description"], data),
-                search=" ".join(search_words),
-                types=" ".join(list(set(types)))
-            )
-            self.__session.add(so)
         try:
+            # Assemble object index object
+            oi = ObjectInfoIndex(
+                uuid=data["_uuid"],
+                dn=data["dn"],
+                _type=data["_type"],
+                _parent_dn=data["_parent_dn"],
+                _adjusted_parent_dn=data["_adjusted_parent_dn"],
+                _invisible=data["_invisible"]
+            )
+
+            if '_last_changed' in data:
+                oi._last_modified = datetime.datetime.fromtimestamp(data["_last_changed"])
+
+            self.__session.add(oi)
+
+            # Assemble extension index objects
+            for ext in data["_extensions"]:
+                ei = ExtensionIndex(uuid=data["_uuid"], extension=ext)
+                self.__session.add(ei)
+
+            # Assemble key value index objects
+            for key, value in data.items():
+
+                # Skip meta information and DN
+                if key.startswith("_") or key == "dn":
+                    continue
+
+                if isinstance(value, list):
+                    for v in value:
+                        kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=v)
+                        self.__session.add(kvi)
+                else:
+                    kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=value)
+                    self.__session.add(kvi)
+
+            # assemble search object
+            if data['_type'] in self.__search_aid['mapping']:
+                aid = self.__search_aid['mapping'][data['_type']]
+                attrs = self.__search_aid['attrs'][data['_type']] if data['_type'] in self.__search_aid['attrs'] else []
+                types = [data['_type']]
+                types.extend(data["_extensions"])
+                # append aliases to search words
+                if data['_type'] in self.__search_aid['aliases']:
+                    types.extend(self.__search_aid['aliases'][data['_type']])
+
+                search_words = [", ".join(data[x]) for x in attrs if x in data and data[x] is not None]
+                so = SearchObjectIndex(
+                    so_uuid=data["_uuid"],
+                    reverse_parent_dn=','.join([d for d in ldap.dn.explode_dn(data["_parent_dn"], flags=ldap.DN_FORMAT_LDAPV3)[::-1]]),
+                    title=self.__build_value(aid["title"], data),
+                    description=self.__build_value(aid["description"], data),
+                    search=" ".join(search_words),
+                    types=" ".join(list(set(types)))
+                )
+                self.__session.add(so)
+
             self.__session.commit()
+
         except Exception as e:
             self.__session.rollback()
             raise e
