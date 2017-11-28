@@ -69,7 +69,8 @@ setup(
         'coveralls',
         'requests_toolbelt',
         'pytest',
-        'line_profiler'
+        'line_profiler',
+        'psutil'
     ],
     install_requires = [
         'tornado',

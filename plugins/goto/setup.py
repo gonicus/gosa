@@ -68,7 +68,8 @@ setup(
         'pytest',
         'pytest-cov',
         'coveralls',
-        'tornado'
+        'tornado',
+        'psutil'
     ],
     install_requires = [
         'gosa.backend',
