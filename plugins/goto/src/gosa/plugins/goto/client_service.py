@@ -508,15 +508,46 @@ class ClientService(Plugin):
             if id in self.__user_session:
                 new_users = list(set.difference(set(users), set(self.__user_session[id])))
                 if len(new_users):
-                    # configure users
+                    # configure users# save login time and system<->user references
+                    client = self.__open_device(id)
+                    client.gotoLastUser = new_users[0]
+                    client.commit()
+
+                    index = PluginRegistry.getInstance("ObjectIndex")
+                    res = index.search({"_type": "User", "uid": {"in_": new_users}}, {"dn": 1})
+                    for u in res:
+                        user = ObjectProxy(u["dn"])
+                        if not user.is_extended_by("GosaAccount"):
+                            user.extend("GosaAccount")
+                        user.gotoLastSystemLogin = datetime.datetime.now()
+                        user.gotoLastSystem = client.dn
+                        user.commit()
                     self.log.debug("configuring new users: %s" % new_users)
                     self.configureUsers(id, new_users)
+
             else:
                 # configure users
                 self.log.debug("configuring new users: %s" % users)
                 self.configureUsers(id, users)
 
             self.__user_session[id] = users
+
+            if len(users):
+                # save login time and system<->user references
+                client = self.__open_device(id)
+                client.gotoLastUser = users[0]
+                client.commit()
+
+                index = PluginRegistry.getInstance("ObjectIndex")
+                res = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1})
+                for u in res:
+                    user = ObjectProxy(u["dn"])
+                    if not user.is_extended_by("GosaAccount"):
+                        user.extend("GosaAccount")
+                    user.gotoLastSystemLogin = datetime.datetime.now()
+                    user.gotoLastSystem = client.dn
+                    user.commit()
+
             self.systemSetStatus(id, "+B")
         else:
             self.__user_session[id] = []
