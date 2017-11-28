@@ -45,7 +45,7 @@ script:
     # setup GOsa, install deps...
     - ./setup.py develop
     # finally run the tests, with running dbus
-    - export TRAVIS=true dbus-launch ./setup.py test --addopts="--runslow"
+    - export TRAVIS=true && dbus-launch ./setup.py test --addopts="--runslow"
 after_success:
     # send test coverage results to coveralls.io
     - coveralls --merge=coveralls.json
