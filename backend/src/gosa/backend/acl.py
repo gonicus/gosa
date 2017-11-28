@@ -1261,7 +1261,6 @@ class ACLResolver(Plugin):
         """
 
         # Admin users are allowed to do anything.
-        print(user, self.admins)
         if user in self.admins or user is None:
             self.log.debug("ACL check override active for %s/%s/%s" % (user, base, str(topic)))
             return True
