@@ -10,9 +10,9 @@
 import pytest
 from gosa.backend.main import *
 
+
 def pytest_addoption(parser):
-    parser.addoption("--runslow", action="store_true",
-                     help="run slow tests")
+    parser.addoption("--runslow", action="store_true", help="run slow tests")
     parser.addoption("--travis", action="store_true", default=False, help="Use travis config for tests")
 
 
@@ -24,6 +24,7 @@ def pytest_unconfigure(config):
     del sys._called_from_test
     PluginRegistry.getInstance('HTTPService').srv.stop()
     shutdown()
+
 
 @pytest.fixture(scope="session", autouse=True)
 def use_test_config():
