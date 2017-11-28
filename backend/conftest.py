@@ -27,7 +27,6 @@ def pytest_unconfigure(config):
 @pytest.fixture(scope="session", autouse=True)
 def use_test_config():
     Environment.reset()
-    print("TRAVIS: %s " % os.environ.get("TRAVIS"))
     if os.environ.get("TRAVIS") is not None:
         Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "travis_conf")
     else:
