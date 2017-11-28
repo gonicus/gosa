@@ -28,7 +28,6 @@ before_install:
     - sudo mkdir /etc/gosa
     - sudo cp ./test_conf/config /etc/gosa/
     - sudo chown travis:travis /tmp/workflows
-    - psql -h localhost -U admin gosa -c "CREATE DATABASE \"gosa-test\""
 install:
     - sudo apt-get install dbus-x11 libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev # needed to compile dbus-python
     - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure
