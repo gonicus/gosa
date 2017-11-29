@@ -285,6 +285,8 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       }
       this._tableModel.setDataAsMapArray(this._tableData, true, false);
       this._table.sort();
+
+      this._onMarkerPropertyChange();
     },
 
     _contextMenuHandlerRow: function(col, row, table, dataModel, contextMenu) {
@@ -353,19 +355,21 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     },
 
     _onMarkerPropertyChange: function(ev) {
-      var conf = this._contextMenuConfig.marker;
-      var object = this._getController().getObject();
-      var value = gosa.ui.widgets.Widget.getSingleValue(object.get(conf.ref));
-      var refColumn = this._tableModel.getColumnIndexById(conf.columnId);
-      var data = this._tableModel.getData();
-      for (var row = 0, l = data.length; row < l; row++) {
-        var cellValue = data[row][refColumn];
-        var normalized = this.__normalizeMarkerValue(cellValue);
-        if (normalized === value) {
-          // mark this one
-          this._tableModel.setValue(refColumn, row, this.__markValue(normalized));
-        } else {
-          this._tableModel.setValue(refColumn, row, normalized);
+      if (this._contextMenuConfig && this._contextMenuConfig.marker) {
+        var conf = this._contextMenuConfig.marker;
+        var object = this._getController().getObject();
+        var value = gosa.ui.widgets.Widget.getSingleValue(object.get(conf.ref));
+        var refColumn = this._tableModel.getColumnIndexById(conf.columnId);
+        var data = this._tableModel.getData();
+        for (var row = 0, l = data.length; row < l; row++) {
+          var cellValue = data[row][refColumn];
+          var normalized = this.__normalizeMarkerValue(cellValue);
+          if (normalized === value) {
+            // mark this one
+            this._tableModel.setValue(refColumn, row, this.__markValue(normalized));
+          } else {
+            this._tableModel.setValue(refColumn, row, normalized);
+          }
         }
       }
     },
