@@ -25,8 +25,8 @@ before_install:
     # some preparations for the tests
     - export TZ=Europe/Berlin
     - sudo mkdir /tmp/workflows
-#    - sudo mkdir /etc/gosa
-#    - sudo cp ./travis_conf/config /etc/gosa/
+    - sudo mkdir /etc/gosa
+    - sudo cp ./travis_conf/config /etc/gosa/
     - sudo chown travis:travis /tmp/workflows
 install:
     - sudo apt-get install dbus-x11 libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev # needed to compile dbus-python
