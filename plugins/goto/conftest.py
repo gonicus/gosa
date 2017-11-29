@@ -4,11 +4,6 @@ from gosa.common.components import PluginRegistry, ObjectRegistry
 import os
 
 
-def pytest_addoption(parser):
-    parser.addoption("--runslow", action="store_true", help="run slow tests")
-    parser.addoption("--travis", action="store_true", default=False, help="Use travis config for tests")
-
-
 def pytest_unconfigure(config):
     PluginRegistry.getInstance('HTTPService').srv.stop()
     PluginRegistry.shutdown()
