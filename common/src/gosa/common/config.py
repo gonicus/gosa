@@ -191,6 +191,10 @@ class Config(object):
         try:
             for pos in path.split("."):
                 tmp = tmp[pos.lower()]
+            if method == "getboolean":
+                tmp = tmp.lower() in ["true", "on", "1"]
+            elif method == "getfloat":
+                tmp = float(tmp)
             return tmp
 
         except KeyError:
