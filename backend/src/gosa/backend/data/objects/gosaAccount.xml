@@ -19,7 +19,8 @@
       <Attribute>
         <Name>gotoLastSystemLogin</Name>
         <Description>Timestamp for a Users last System Login</Description>
-        <Type>String</Type>
+        <Type>Timestamp</Type>
+        <BackendType>String</BackendType>
         <InFilter>
           <FilterChain>
             <FilterEntry>
