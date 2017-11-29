@@ -73,6 +73,7 @@ setup(
     ],
     install_requires = [
         'tornado',
+        'babel',
         'zope.interface>=3.5',
         'zope.event',
         'unidecode',
