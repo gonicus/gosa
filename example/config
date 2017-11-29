@@ -39,6 +39,10 @@ debug = true
 
 [mqtt]
 host = localhost
+#port = 1883
+#ssl = <inherit from http.ssl>
+#cert =
+#insecure = false
 
 [jsonrpc]
 url = http://localhost:8000/rpc
