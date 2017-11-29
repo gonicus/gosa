@@ -41,7 +41,7 @@ debug = true
 host = localhost
 #port = 1883
 #ssl = <inherit from http.ssl>
-#cert =
+#ca_file =
 #insecure = false
 
 [jsonrpc]

@@ -74,7 +74,7 @@ class MQTTClient(object):
             ssl = self.env.config.getboolean('http.ssl')
 
         if ssl is True:
-            cert = self.env.config.get('mqtt.cert', default=None)
+            cert = self.env.config.get('mqtt.ca_file', default=None)
             if cert is not None:
                 self.client.tls_set(cert)
 
