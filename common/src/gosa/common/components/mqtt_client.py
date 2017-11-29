@@ -69,6 +69,17 @@ class MQTTClient(object):
         self.client.on_publish = self.__on_publish
         self.client.on_log = self.__on_log
 
+        ssl = self.env.config.getboolean('mqtt.ssl')
+        if ssl is False:
+            ssl = self.env.config.getboolean('http.ssl')
+
+        if ssl is True:
+            cert = self.env.config.get('mqtt.cert', default=None)
+            if cert is not None:
+                self.client.tls_set(cert)
+
+            self.client.tls_insecure_set(self.env.config.getboolean('mqtt.insecure'))
+
         self.subscriptions = {}
 
     def __on_log(self, client, userdata, level, buf):

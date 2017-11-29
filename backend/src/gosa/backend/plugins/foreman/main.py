@@ -86,8 +86,8 @@ class Foreman(Plugin):
             self.init_client(self.env.config.get("foreman.host"))
 
             host = socket.getfqdn() if self.env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] else self.env.config.get("http.host", default="localhost")
-            ssl = self.env.config.get('http.ssl', default=None)
-            protocol = "https" if ssl and ssl.lower() in ['true', 'yes', 'on'] else "http"
+            ssl = self.env.config.getboolean('http.ssl')
+            protocol = "https" if ssl is True else "http"
 
             self.gosa_server = "%s://%s:%s/rpc" % (protocol, host, self.env.config.get('http.port', default=8080))
             self.mqtt_host = None
@@ -729,6 +729,7 @@ class Foreman(Plugin):
         self.client.set_common_parameter("gosa-server", self.gosa_server, host=use_id if use_id is not None else hostname)
         if self.mqtt_host is not None:
             self.client.set_common_parameter("gosa-mqtt", self.mqtt_host, host=use_id if use_id is not None else hostname)
+
         self.client.set_common_parameter("gosa-domain", self.env.domain, host=use_id if use_id is not None else hostname)
 
         if hostname is not None and hostname in self.__marked_hosts:

@@ -24,7 +24,7 @@ class TwoFactorAuthManagerTestCase(TestCase):
         with open(self.env.config.get("user.2fa-store"), "w") as f:
             f.write("{}")
         self.manager.reload()
-        self.ssl = self.env.config.get("http.ssl") is True
+        self.ssl = self.env.config.getboolean("http.ssl")
 
     def test_getAvailable2FAMethods(self):
         methods = self.manager.getAvailable2FAMethods("admin")
@@ -79,7 +79,7 @@ class TwoFactorAuthManagerTestCase(TestCase):
             # should always verify when no 2FA method is used
             assert self.manager.verify("admin", "cn=System Administrator,ou=people,dc=example,dc=net", "fake-key") is True
 
-    @pytest.mark.skipif(Environment.getInstance().config.get("http.ssl") is not True, reason="SSL required")
+    @pytest.mark.skipif(Environment.getInstance().config.getboolean("http.ssl") is not True, reason="SSL required")
     def test_U2FMethod(self):
         with mock.patch("gosa.backend.plugins.two_factor.main.PluginRegistry.getInstance") as m_resolver:
             m_resolver.return_value.check.return_value = False

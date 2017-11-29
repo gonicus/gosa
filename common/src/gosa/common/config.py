@@ -201,6 +201,9 @@ class Config(object):
     def getfloat(self, path, default=None, use_user_config=True):
         return self.get(path, default, use_user_config, "getfloat")
 
+    def getboolean(self, path, default=False, use_user_config=True):
+        return self.get(path, default, use_user_config, "getboolean")
+
     def set(self, path, value):
         """
         *set* allows dot-separated changing of configuration settings.

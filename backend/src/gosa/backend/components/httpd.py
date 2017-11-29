@@ -83,7 +83,7 @@ class HTTPService(object):
         self.log.info("initializing HTTP service provider")
         self.env = env
         self.srv = None
-        self.ssl = None
+        self.ssl = False
         self.host = None
         self.scheme = None
         self.port = None
@@ -94,9 +94,9 @@ class HTTPService(object):
         """
         self.host = self.env.config.get('http.host', default="localhost")
         self.port = self.env.config.get('http.port', default=8080)
-        self.ssl = self.env.config.get('http.ssl', default=None)
+        self.ssl = self.env.config.getboolean('http.ssl')
 
-        if self.ssl and self.ssl.lower() in ['true', 'yes', 'on']:
+        if self.ssl is True:
             self.scheme = "https"
             ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
 

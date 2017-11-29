@@ -58,7 +58,7 @@ class TwoFactorAuthManager(Plugin):
         self.settings_file = self.env.config.get("user.2fa-store", "/var/lib/gosa/2fa")
         self.reload()
 
-        if self.env.config.get("http.ssl") is True:
+        if self.env.config.getboolean("http.ssl") is True:
             host = "localhost" if self.env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] else self.env.config.get("http.host", default="localhost")
             # U2F requires https protocol otherwise facet is invalid
             self.facet = "https://%s:%s" % (host, self.env.config.get('http.port', default=8080))
