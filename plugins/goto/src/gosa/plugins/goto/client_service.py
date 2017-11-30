@@ -551,6 +551,10 @@ class ClientService(Plugin):
         group = ObjectProxy(client.groupMembership) if client.groupMembership is not None else None
         index = PluginRegistry.getInstance("ObjectIndex")
 
+        resolution = None
+        if group is not None and group.is_extented_by("GotoEnvironment") and group.gotoXResolution is not None:
+            resolution = group.gotoXResolution
+
         release = None
         if client.is_extended_by("GotoMenu"):
             release = client.getReleaseName()
@@ -612,6 +616,9 @@ class ClientService(Plugin):
                     continue
                 s = self.__collect_printer_settings(user_group)
 
+                if user_group.gotoXResolution is not None:
+                    resolution = user_group.gotoXResolution
+
                 for p in s["printers"]:
                     if p["cn"] not in printer_names:
                         settings["printers"].append(p)
@@ -620,6 +627,14 @@ class ClientService(Plugin):
                     settings["defaultPrinter"] = s["defaultPrinter"]
 
             self.configureHostPrinters(client_id, settings)
+
+            if resolution is not None:
+                parts = [int(x) for x in resolution.split("x")]
+                if len(parts) == 2:
+                    self.log.debug("sending screen resolution: %sx%s for user %s to client %s" % (parts[0], parts[1], entry["uid"[0]], client_id))
+                    self.queuedClientDispatch(client_id, "dbus_configureUserScreen", entry["uid"][0], parts[0], parts[1])
+
+            # TODO: collect and send login scripts to client
 
     def merge_submenu(self, menu1, menu2):
         for cn, app in menu2.get('apps', {}).items():
