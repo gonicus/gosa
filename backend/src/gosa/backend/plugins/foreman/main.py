@@ -97,7 +97,7 @@ class Foreman(Plugin):
             mqtt_host = self.env.config.get('mqtt.host')
             if mqtt_host is not None:
                 if mqtt_host == "localhost":
-                    mqtt_host = host
+                    mqtt_host = socket.getfqdn()
                 self.mqtt_host = "%s:%s" % (mqtt_host, self.env.config.get('mqtt.port', default=1883))
 
             # Listen for object events
