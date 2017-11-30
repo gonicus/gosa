@@ -23,6 +23,7 @@ from gosa.backend.objects.index import ObjectInfoIndex, ExtensionIndex, KeyValue
 from gosa.backend.routes.sse.main import SseHandler
 from gosa.common import Environment
 from gosa.common.components import Plugin, Command
+from gosa.common.env import SessionMixin
 from gosa.common.event import EventMaker
 from gosa.common.handler import IInterfaceHandler
 from zope.interface import implementer
@@ -45,7 +46,7 @@ C.register_codes(dict(
 
 
 @implementer(IInterfaceHandler)
-class Foreman(Plugin):
+class Foreman(Plugin, SessionMixin):
     """
     The Foreman plugin takes care about syncing the required data between the foreman and GOsa.
     Currently the following foreman objects are synced:
@@ -529,7 +530,8 @@ class Foreman(Plugin):
             KeyValueIndex.value == "discovered"
         )
 
-        query_result = self.__session.query(ObjectInfoIndex).filter(query)
+        with self.make_session() as session:
+            query_result = session.query(ObjectInfoIndex).filter(query)
         res = {}
         for item in query_result:
             methods.update_res(res, item, user, 1)
