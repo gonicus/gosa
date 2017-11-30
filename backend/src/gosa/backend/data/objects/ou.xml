@@ -82,6 +82,7 @@
       <Type>AclRole</Type>
       <Type>GosaApplication</Type>
       <Type>IncomingDeviceContainer</Type>
+      <Type>SystemsContainer</Type>
     </Container>
     <BaseObject>true</BaseObject>
     <Find>
