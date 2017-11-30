@@ -631,7 +631,7 @@ class ClientService(Plugin):
             if resolution is not None:
                 parts = [int(x) for x in resolution.split("x")]
                 if len(parts) == 2:
-                    self.log.debug("sending screen resolution: %sx%s for user %s to client %s" % (parts[0], parts[1], entry["uid"[0]], client_id))
+                    self.log.debug("sending screen resolution: %sx%s for user %s to client %s" % (parts[0], parts[1], entry["uid"][0], client_id))
                     self.queuedClientDispatch(client_id, "dbus_configureUserScreen", entry["uid"][0], parts[0], parts[1])
 
             # TODO: collect and send login scripts to client
