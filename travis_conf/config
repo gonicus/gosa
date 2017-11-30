@@ -7,7 +7,7 @@ workflow_path = /tmp/workflows
 
 [http]
 host = localhost
-port = 8000
+port = 8050
 sslpemfile = /etc/gosa/host.pem
 
 [ldap]
@@ -31,7 +31,7 @@ image-path = /tmp/images
 admins = admin
 
 [jsonrpc]
-url = http://localhost:8000/rpc
+url = http://localhost:8050/rpc
 key = FIAYj6kqb273a0UoZl4MPz1WTs8E9iHw
 
 [mqtt]
@@ -50,7 +50,7 @@ ldap_monitor_token = 9d6250c0-6413-4b1e-98d9-7b763472962a
 [backend-monitor]
 audit-log = /var/run/gosa/audit.log
 modifier = cn=ldapadmin,dc=example,dc=net
-webhook-target = http://localhost:8000/hooks/
+webhook-target = http://localhost:8050/hooks/
 webhook-token = 9d6250c0-6413-4b1e-98d9-7b763472962a
 
 [cups]
