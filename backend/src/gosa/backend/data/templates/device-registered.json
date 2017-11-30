@@ -31,7 +31,7 @@
                 "target": "rebootClient()",
                 "icon": "actionReboot",
                 "text": "tr('Reboot')",
-                "condition": "status_Online && canReboot()"
+                "condition": "status_Online && hasCapability(deviceUUID, 'reboot')"
             }
         ]
     },
