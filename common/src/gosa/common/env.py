@@ -144,7 +144,7 @@ class Environment:
     def getDatabaseFactory(self, section, key="database"):
         index = "%s.%s" % (section, key)
         if index not in self.__db_factory:
-            self.__db_factory[index] = make_session_factory(self.config.get(index))
+            self.__db_factory[index] = SessionFactory(self.config.get(index))
         return self.__db_factory[index]
 
     @staticmethod
@@ -226,15 +226,6 @@ class SessionFactory(object):
     @property
     def engine(self):
         return self._engine
-
-
-def make_session_factory(database_url,
-                         pool_size=None,
-                         use_native_unicode=True,
-                         engine_events=None,
-                         session_events=None):
-    return SessionFactory(database_url, pool_size, use_native_unicode,
-                          engine_events, session_events)
 
 
 class SessionMixin(object):
