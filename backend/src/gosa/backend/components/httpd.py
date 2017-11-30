@@ -93,7 +93,7 @@ class HTTPService(object):
         Start HTTP service thread.
         """
         self.host = self.env.config.get('http.host', default="localhost")
-        self.port = self.env.config.get('http.port', default=8080)
+        self.port = self.env.config.get('http.port', default=8050)
         self.ssl = self.env.config.getboolean('http.ssl')
 
         if self.ssl is True:

@@ -84,12 +84,14 @@ class Foreman(Plugin):
             self.log.warning("no foreman host configured")
         else:
             self.init_client(self.env.config.get("foreman.host"))
+            self.gosa_server = self.env.config.get("jsonrpc.url")
+            if self.gosa_server is None:
 
-            host = socket.getfqdn() if self.env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] else self.env.config.get("http.host", default="localhost")
-            ssl = self.env.config.getboolean('http.ssl')
-            protocol = "https" if ssl is True else "http"
+                host = socket.getfqdn() if self.env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] else self.env.config.get("http.host", default="localhost")
+                ssl = self.env.config.getboolean('http.ssl')
+                protocol = "https" if ssl is True else "http"
 
-            self.gosa_server = "%s://%s:%s/rpc" % (protocol, host, self.env.config.get('http.port', default=8080))
+                self.gosa_server = "%s://%s:%s/rpc" % (protocol, host, self.env.config.get('http.port', default=8050))
             self.mqtt_host = None
 
             mqtt_host = self.env.config.get('mqtt.host')

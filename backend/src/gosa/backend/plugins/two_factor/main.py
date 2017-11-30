@@ -61,7 +61,7 @@ class TwoFactorAuthManager(Plugin):
         if self.env.config.getboolean("http.ssl") is True:
             host = "localhost" if self.env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] else self.env.config.get("http.host", default="localhost")
             # U2F requires https protocol otherwise facet is invalid
-            self.facet = "https://%s:%s" % (host, self.env.config.get('http.port', default=8080))
+            self.facet = "https://%s:%s" % (host, self.env.config.get('http.port', default=8050))
             self.app_id = self.facet
         else:
             # u2f only available in ssl mode
