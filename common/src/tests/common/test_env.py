@@ -62,11 +62,7 @@ class EnvTestCase(unittest.TestCase):
         assert e.getDatabaseEngine("db3", key="dbs") == engines["sqlite:///:memory:"]
         with pytest.raises(Exception):
             e.getDatabaseEngine("notexistant", key="dbs")
-        
-        e.getDatabaseSession("db1", key="dbs")
-        
-        scopedSessionMock.assert_called_with(sessionmakerMock(autoflush=True))
-        
+
         assert e == Environment.getInstance()
         
         del e

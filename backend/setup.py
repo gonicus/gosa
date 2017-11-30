@@ -92,7 +92,8 @@ setup(
         'pycups',
         'sh',
         'pylint',
-        'sqlalchemy_searchable'
+        'sqlalchemy_searchable',
+        'tornado-sqlalchemy'
         ],
 
     entry_points = """

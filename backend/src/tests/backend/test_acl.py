@@ -738,9 +738,9 @@ class ACLResolverTestCase(TestCase):
         res = self.resolver.getEntryPoints('admin')
         assert base in res
 
-        with mock.patch.object(self.resolver, "_ACLResolver__session") as m_session, \
+        with mock.patch.object(self.resolver, "make_session") as m_session, \
                 pytest.raises(ACLException):
-            m_session.query.return_value.filter.return_value.one_or_none.return_value = None
+            m_session.return_value.__enter__.return_value.query.return_value.filter.return_value.one_or_none.return_value = None
             self.resolver.getEntryPoints('admin')
 
     def test_getACLs(self):

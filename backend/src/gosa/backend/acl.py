@@ -67,6 +67,8 @@ import logging
 import zope.event
 
 from zope.interface import implementer
+
+from gosa.common.env import SessionMixin
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.components import Command, Plugin
@@ -903,7 +905,7 @@ class CacheCheck:
 
 
 @implementer(IInterfaceHandler)
-class ACLResolver(Plugin):
+class ACLResolver(Plugin, SessionMixin):
     """
     The ACLResolver is responsible for loading, saving and resolving
     permission::
@@ -947,9 +949,6 @@ class ACLResolver(Plugin):
 
         # Load default LDAP base
         self.base = self.env.base
-
-        # Store DB session
-        self.__session = self.env.getDatabaseSession("backend-database")
 
     def __check_actions(self, actions):
         for action in actions:
@@ -1532,93 +1531,95 @@ class ACLResolver(Plugin):
         sub_bases = {}
         bases = {}
 
-        # Walk thru all ACL definitions and check if the current user
-        # can read the base entry
-        for aclset in self.acl_sets:
-            res = self.__session.query(ObjectInfoIndex).filter(ObjectInfoIndex.dn == aclset.base).one_or_none()
-            if not res:
-                raise ACLException(C.make_error("ACL_BASE_ERROR"))
-            base_type = res._type
+        with self.make_session() as session:
+            print(session)
+            # Walk thru all ACL definitions and check if the current user
+            # can read the base entry
+            for aclset in self.acl_sets:
+                res = session.query(ObjectInfoIndex).filter(ObjectInfoIndex.dn == aclset.base).one_or_none()
+                if not res:
+                    raise ACLException(C.make_error("ACL_BASE_ERROR"))
+                base_type = res._type
 
-            # Check if this ACL is eventually already covered by a previous sub ACL
-            for acl in aclset:
-                if user in acl.members:
+                # Check if this ACL is eventually already covered by a previous sub ACL
+                for acl in aclset:
+                    if user in acl.members:
 
-                    # Collect ACL
-                    d_acls = []
-                    if acl.uses_role:
-                        for entry in self.acl_roles[acl.role]:
-                            d_acls.append((entry.actions, entry.scope))
+                        # Collect ACL
+                        d_acls = []
+                        if acl.uses_role:
+                            for entry in self.acl_roles[acl.role]:
+                                d_acls.append((entry.actions, entry.scope))
 
-                    else:
-                        d_acls.append((acl.actions, acl.scope))
+                        else:
+                            d_acls.append((acl.actions, acl.scope))
 
-                    # Walk thru the collected d_acls and check: their actions,
-                    # their options and their scope
-                    for actions, scope in d_acls:
+                        # Walk thru the collected d_acls and check: their actions,
+                        # their options and their scope
+                        for actions, scope in d_acls:
 
-                        # Check for ACL resets. If this is a reset rule, the remaining
-                        # results can be ignored
-                        if scope == ACL.RESET:
-                            sub_bases[aclset.base] = scope
-                            break
+                            # Check for ACL resets. If this is a reset rule, the remaining
+                            # results can be ignored
+                            if scope == ACL.RESET:
+                                sub_bases[aclset.base] = scope
+                                break
 
-                        # Options?
-                        for action in actions:
-                            if not action['options']:
+                            # Options?
+                            for action in actions:
+                                if not action['options']:
 
-                                # Does this ACL affect 'domain'.objects?
-                                if re.match(action['topic'], "%s.objects.%s" % (self.env.domain, base_type)):
+                                    # Does this ACL affect 'domain'.objects?
+                                    if re.match(action['topic'], "%s.objects.%s" % (self.env.domain, base_type)):
 
-                                    # Check for read and search access
-                                    if "r" in action['acls'] and "s" in action['acls']:
+                                        # Check for read and search access
+                                        if "r" in action['acls'] and "s" in action['acls']:
 
-                                        # Ok. Seems to be a candidate. Check for [P]?SUB/RESET
-                                        s_base = self._get_base(aclset.base, sub_bases.keys())
-                                        if s_base:
+                                            # Ok. Seems to be a candidate. Check for [P]?SUB/RESET
+                                            s_base = self._get_base(aclset.base, sub_bases.keys())
+                                            if s_base:
 
-                                            # If the preceding base was "RESET, we've a new base
-                                            if sub_bases[s_base] == ACL.RESET:
+                                                # If the preceding base was "RESET, we've a new base
+                                                if sub_bases[s_base] == ACL.RESET:
+                                                    bases[aclset.base] = True
+
+                                                # Elseways - we do not care, because it does not change our
+                                                # permissions
+
+                                            else:
                                                 bases[aclset.base] = True
 
-                                            # Elseways - we do not care, because it does not change our
-                                            # permissions
+                                            # Depending on the scope, feed different base stores
+                                            if scope in [ACL.SUB, ACL.PSUB]:
+                                                sub_bases[aclset.base] = scope
 
+                                # Options! Search for all potentially affected entries and check the permissions
+                                else:
+                                    for attr, val in action['options'].items():
+                                        entries = []
+
+                                        match_attr = None
+                                        if attr in ObjectInfoIndex:
+                                            entries = session.query(ObjectInfoIndex).filter(and_(
+                                                or_(ObjectInfoIndex.dn == aclset.base, ObjectInfoIndex.dn.like("%," + aclset.base)),
+                                                getattr(ObjectInfoIndex, attr) == val
+                                                ))
                                         else:
-                                            bases[aclset.base] = True
+                                            entries = session.query(ObjectInfoIndex).filter(and_(
+                                                ObjectInfoIndex.uuid == KeyValueIndex.uuid,
+                                                or_(ObjectInfoIndex.dn == aclset.base, ObjectInfoIndex.dn.like("%," + aclset.base)),
+                                                KeyValueIndex.key == attr,
+                                                KeyValueIndex.value == val,
+                                                ))
 
-                                        # Depending on the scope, feed different base stores
-                                        if scope in [ACL.SUB, ACL.PSUB]:
-                                            sub_bases[aclset.base] = scope
-
-                            # Options! Search for all potentially affected entries and check the permissions
-                            else:
-                                for attr, val in action['options'].items():
-                                    entries = []
-
-                                    match_attr = None
-                                    if attr in ObjectInfoIndex:
-                                        entries = self.__session.query(ObjectInfoIndex).filter(and_(
-                                            or_(ObjectInfoIndex.dn == aclset.base, ObjectInfoIndex.dn.like("%," + aclset.base)),
-                                            getattr(ObjectInfoIndex, attr) == val
-                                            ))
-                                    else:
-                                        entries = self.__session.query(ObjectInfoIndex).filter(and_(
-                                            ObjectInfoIndex.uuid == KeyValueIndex.uuid,
-                                            or_(ObjectInfoIndex.dn == aclset.base, ObjectInfoIndex.dn.like("%," + aclset.base)),
-                                            KeyValueIndex.key == attr,
-                                            KeyValueIndex.value == val,
-                                            ))
-
-                                    for entry in entries:
-                                        if self.check(user, "%s.objects.%s" % (self.env.base, entries['_type']), "rs", None, entry['dn']):
-                                            # Ok. Seems to be a candidate. Check for [P]?SUB/RESET
-                                            s_base = self._get_base(entry['dn'], sub_bases.keys())
-                                            if s_base:
-                                                if sub_bases[s_base] == ACL.RESET:
+                                        for entry in entries:
+                                            if self.check(user, "%s.objects.%s" % (self.env.base, entries['_type']), "rs", None, entry['dn']):
+                                                # Ok. Seems to be a candidate. Check for [P]?SUB/RESET
+                                                s_base = self._get_base(entry['dn'], sub_bases.keys())
+                                                if s_base:
+                                                    if sub_bases[s_base] == ACL.RESET:
+                                                        bases[entry['dn']] = True
+                                                else:
                                                     bases[entry['dn']] = True
-                                            else:
-                                                bases[entry['dn']] = True
 
         return list(bases.keys())
 

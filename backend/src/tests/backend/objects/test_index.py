@@ -42,14 +42,14 @@ class ObjectIndexTestCase(TestCase):
             test.uuid = 'new-uuid'
             test.asJSON.return_value = {'uuid': test.uuid}
             self.obj.insert(test)
-            m_save.assert_called_with({'uuid': 'new-uuid'})
+            m_save.assert_called_with({'uuid': 'new-uuid'}, session=mock.ANY)
 
     def test_remove(self):
         test = mock.MagicMock()
         test.uuid = '78475884-c7f2-1035-8262-f535be14d43a'
         with mock.patch.object(self.obj, "remove_by_uuid") as m:
             self.obj.remove(test)
-            m.assert_called_with(test.uuid)
+            m.assert_called_with(test.uuid, session=None)
 
     def test_getBaseObjectTypes(self):
         res = self.obj.getBaseObjectTypes()
@@ -226,17 +226,21 @@ class ObjectIndexTestCase(TestCase):
                 assert m_update.called
 
     def test_serve(self):
-        with mock.patch("gosa.backend.objects.index.ObjectIndex.isSchemaUpdated", return_value=True),\
-                mock.patch("gosa.backend.objects.index.Environment.getInstance") as m_env:
-            m_session = m_env.return_value.getDatabaseSession.return_value
-            m_session.query.return_value.one_or_none.return_value = None
+
+        with mock.patch("gosa.backend.objects.index.ObjectIndex.isSchemaUpdated", return_value=True):
             index = ObjectIndex()
-            index.serve()
 
-            assert m_session.query.return_value.delete.called
-            assert m_session.add.called
-            assert m_session.commit.called
+            with mock.patch.object(index, "make_session") as m,\
+                    mock.patch.object(index.env.config, "getboolean", return_value=True):
+                m_session = m.return_value.__enter__.return_value
+                m_session.query.return_value.one_or_none.return_value = None
 
-            index.stop()
-            del index
+                index.serve()
+
+                assert m_session.query.return_value.delete.called
+                assert m_session.add.called
+                assert m_session.commit.called
+
+                index.stop()
+                del index
 

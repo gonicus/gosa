@@ -15,6 +15,7 @@ from gosa.common import Environment
 from gosa.backend.objects.filter import ElementFilter
 from gosa.backend.exceptions import ElementFilterException
 from gosa.common.components import PluginRegistry
+from gosa.common.env import SessionMixin
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.utils import N_
 from io import BytesIO
@@ -58,7 +59,7 @@ class ImageIndex(Base):
 Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
 
 
-class ImageProcessor(ElementFilter):
+class ImageProcessor(ElementFilter, SessionMixin):
     """
     Generate a couple of pre-sized images and place them in the cache.
     """
@@ -66,7 +67,6 @@ class ImageProcessor(ElementFilter):
         super(ImageProcessor, self).__init__(obj)
 
         env = Environment.getInstance()
-        self.__session = env.getDatabaseSession("backend-database")
         self.__path = env.config.get("user.image-path", "/var/lib/gosa/images")
 
     def process(self, obj, key, valDict, *sizes):
@@ -74,87 +74,89 @@ class ImageProcessor(ElementFilter):
         # Sanity check
         if len(sizes) == 0:
             raise ElementFilterException(C.make_error("USER_IMAGE_SIZE_MISSING"))
-
-        # Do we have an attribute to process?
-        if key in valDict:
-
-            if valDict[key]['value']:
-
-                # Check if a cache entry exists...
-                try:
-                    entry = self.__session.query(ImageIndex).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
-                except OperationalError:
-                    Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
-                    entry = None
-
-                if entry:
-
-                    # Nothing to do if it's unmodified
-                    if obj.modifyTimestamp == entry.modified:
-                        return key, valDict
-
-                # Create new cache entry
-                else:
-                    entry = ImageIndex(uuid=obj.uuid, attribute=key)
-                    self.__session.add(entry)
-
-                # Convert all images to all requested sizes
-                entry.modified = obj.modifyTimestamp
-
-                for idx in range(0, len(valDict[key]['value'])):
-                    image = BytesIO(valDict[key]['value'][idx].get())
+        
+        with self.make_session() as session:
+            # Do we have an attribute to process?
+            if key in valDict:
+    
+                if valDict[key]['value']:
+    
+                    # Check if a cache entry exists...
                     try:
-                        im = Image.open(image) #@UndefinedVariable
-                    except IOError:
-                        continue
-
-                    # Check for target directory
-                    wd = os.path.join(self.__path, obj.uuid, key, str(idx))
-                    if os.path.exists(wd) and not os.path.isdir(wd):
-                        raise ElementFilterException(C.make_error("USER_IMAGE_CACHE_BROKEN"))
-                    if not os.path.exists(wd):
-                        os.makedirs(wd)
-
-                    for size in sizes:
-                        wds = os.path.join(wd, size + ".jpg")
-                        s = int(size)
-                        tmp = ImageOps.fit(im, (s, s), Image.ANTIALIAS) #@UndefinedVariable
-                        tmp.save(wds, "JPEG")
-
-                        # Save size reference if not there yet
+                        entry = session.query(ImageIndex).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
+                    except OperationalError:
+                        session.rollback()
+                        Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
+                        entry = None
+    
+                    if entry:
+    
+                        # Nothing to do if it's unmodified
+                        if obj.modifyTimestamp == entry.modified:
+                            return key, valDict
+    
+                    # Create new cache entry
+                    else:
+                        entry = ImageIndex(uuid=obj.uuid, attribute=key)
+                        session.add(entry)
+    
+                    # Convert all images to all requested sizes
+                    entry.modified = obj.modifyTimestamp
+    
+                    for idx in range(0, len(valDict[key]['value'])):
+                        image = BytesIO(valDict[key]['value'][idx].get())
                         try:
-                            se = self.__session.query(ImageSize.size).filter(and_(ImageSize.uuid == obj.uuid, ImageSize.size == s)).one_or_none()
-                        except OperationalError:
-                            Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
-                            se = None
-                        if not se:
-                            se = ImageSize(uuid=obj.uuid, size=s, path=wds)
-                            self.__session.add(se)
-
-                # Flush
-                self.__session.commit()
-
-            elif 'last_value' in valDict[key] and valDict[key]['last_value']:
-
-                # Delete from db index
-                try:
-                    entry = self.__session.query(ImageIndex).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
-                    if entry is not None:
-                        self.__session.delete(entry)
-                except OperationalError:
-                    pass
-
-                # delete from file system
-                for idx in range(0, len(valDict[key]['last_value'])):
-
-                    # Check for target directory
-                    wd = os.path.join(self.__path, obj.uuid, key, str(idx))
-                    if os.path.exists(wd) and os.path.isdir(wd):
-                        # delete
-                        shutil.rmtree(wd)
-
-                # Flush
-                self.__session.commit()
+                            im = Image.open(image) #@UndefinedVariable
+                        except IOError:
+                            continue
+    
+                        # Check for target directory
+                        wd = os.path.join(self.__path, obj.uuid, key, str(idx))
+                        if os.path.exists(wd) and not os.path.isdir(wd):
+                            raise ElementFilterException(C.make_error("USER_IMAGE_CACHE_BROKEN"))
+                        if not os.path.exists(wd):
+                            os.makedirs(wd)
+    
+                        for size in sizes:
+                            wds = os.path.join(wd, size + ".jpg")
+                            s = int(size)
+                            tmp = ImageOps.fit(im, (s, s), Image.ANTIALIAS) #@UndefinedVariable
+                            tmp.save(wds, "JPEG")
+    
+                            # Save size reference if not there yet
+                            try:
+                                se = session.query(ImageSize.size).filter(and_(ImageSize.uuid == obj.uuid, ImageSize.size == s)).one_or_none()
+                            except OperationalError:
+                                Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
+                                se = None
+                            if not se:
+                                se = ImageSize(uuid=obj.uuid, size=s, path=wds)
+                                session.add(se)
+    
+                    # Flush
+                    session.commit()
+    
+                elif 'last_value' in valDict[key] and valDict[key]['last_value']:
+    
+                    # Delete from db index
+                    try:
+                        entry = session.query(ImageIndex).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
+                        if entry is not None:
+                            session.delete(entry)
+                    except OperationalError:
+                        pass
+    
+                    # delete from file system
+                    for idx in range(0, len(valDict[key]['last_value'])):
+    
+                        # Check for target directory
+                        wd = os.path.join(self.__path, obj.uuid, key, str(idx))
+                        if os.path.exists(wd) and os.path.isdir(wd):
+                            # delete
+                            shutil.rmtree(wd)
+    
+                    # Flush
+                    session.commit()
 
         return key, valDict
 

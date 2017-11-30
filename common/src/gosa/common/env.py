@@ -20,6 +20,10 @@ You can import it to your own code like this::
 """
 import logging
 import platform
+
+from decorator import contextmanager
+from tornado_sqlalchemy import make_session_factory
+
 from gosa.common.config import Config
 from gosa.common.utils import dmi_system
 
@@ -44,6 +48,7 @@ class Environment:
     __instance = None
     __db = None
     __db_session = None
+    __db_factory = None
 
     def __init__(self):
         # Load configuration
@@ -52,6 +57,7 @@ class Environment:
         self.id = platform.node()
         self.__db = {}
         self.__db_session = {}
+        self.__db_factory = {}
 
         # Dump configuration
         if self.log.getEffectiveLevel() == logging.DEBUG:
@@ -115,25 +121,31 @@ class Environment:
 
         return self.__db[index]
 
-    def getDatabaseSession(self, section, key="database"):
-        """
-        Return a database session from the pool.
+    # def getDatabaseSession(self, section, key="database"):
+    #     """
+    #     Return a database session from the pool.
+    #
+    #     ========= ============
+    #     Parameter Description
+    #     ========= ============
+    #     section   name of the configuration section where the config is placed.
+    #     key       optional value for the key where the database information is stored, defaults to *database*.
+    #     ========= ============
+    #
+    #     ``Return``: database session
+    #     """
+    #     index = "%s.%s" % (section, key)
+    #     sql = self.getDatabaseEngine(section, key)
+    #     if index not in self.__db_session:
+    #         self.__db_session[index] = scoped_session(sessionmaker(autoflush=True, bind=sql))
+    #
+    #     return self.__db_session[index]()
 
-        ========= ============
-        Parameter Description
-        ========= ============
-        section   name of the configuration section where the config is placed.
-        key       optional value for the key where the database information is stored, defaults to *database*.
-        ========= ============
-
-        ``Return``: database session
-        """
+    def getDatabaseFactory(self, section, key="database"):
         index = "%s.%s" % (section, key)
-        sql = self.getDatabaseEngine(section, key)
-        if index not in self.__db_session:
-            self.__db_session[index] = scoped_session(sessionmaker(autoflush=True, bind=sql))
-
-        return self.__db_session[index]()
+        if index not in self.__db_factory:
+            self.__db_factory[index] = make_session_factory(self.config.get(index))
+        return self.__db_factory[index]
 
     @staticmethod
     def getInstance():
@@ -151,3 +163,28 @@ class Environment:
     def reset():
         if Environment.__instance:
             Environment.__instance = None
+
+
+class SessionMixin(object):
+    @contextmanager
+    def make_session(self):
+        factory = Environment.getInstance().getDatabaseFactory("backend-database")
+
+        if not factory:
+            raise MissingFactoryError()
+
+        try:
+            session = factory.make_session()
+
+            yield session
+        except:
+            session.rollback()
+            raise
+        else:
+            session.commit()
+        finally:
+            session.close()
+
+
+class MissingFactoryError(Exception):
+    pass

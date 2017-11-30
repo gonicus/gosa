@@ -106,8 +106,6 @@ class Foreman(Plugin):
         self.client = ForemanClient(url)
 
     def serve(self):
-        # Load DB session
-        self.__session = self.env.getDatabaseSession('backend-database')
 
         if self.client:
             sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
