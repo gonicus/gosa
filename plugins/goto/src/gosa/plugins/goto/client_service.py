@@ -552,7 +552,7 @@ class ClientService(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
 
         resolution = None
-        if group is not None and group.is_extented_by("GotoEnvironment") and group.gotoXResolution is not None:
+        if group is not None and group.is_extended_by("GotoEnvironment") and group.gotoXResolution is not None:
             resolution = group.gotoXResolution
 
         release = None
