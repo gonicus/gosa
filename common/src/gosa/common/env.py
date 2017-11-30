@@ -22,14 +22,14 @@ import logging
 import platform
 
 from decorator import contextmanager
-from tornado_sqlalchemy import make_session_factory
+from sqlalchemy.engine.url import make_url
 
 from gosa.common.config import Config
 from gosa.common.utils import dmi_system
 
 try:
     from sqlalchemy.orm import sessionmaker, scoped_session
-    from sqlalchemy import create_engine
+    from sqlalchemy import create_engine, event
 except ImportError: # pragma: nocover
     pass
 
@@ -163,6 +163,78 @@ class Environment:
     def reset():
         if Environment.__instance:
             Environment.__instance = None
+
+###########################################
+# Parts from tornado_sqlalchemy 0.3.3
+###########################################
+
+
+class SessionFactory(object):
+    """SessionFactory is a wrapper around the functions that SQLAlchemy
+    provides. The intention here is to let the user work at the session level
+    instead of engines and connections.
+
+    :param database_url: Database URL
+    :param pool_size: Connection pool size
+    :param use_native_unicode: Enable/Disable native unicode support. This is
+    only used in case the driver is psycopg2.
+    :param engine_events: List of (name, listener_function) tuples to subscribe
+    to engine events
+    :param session_events: List of (name, listener_function) tuples to
+    subscribe to session events
+    """
+
+    def __init__(self, database_url, pool_size=None, use_native_unicode=True,
+                 engine_events=None, session_events=None):
+        self._database_url = make_url(database_url)
+        self._pool_size = pool_size
+        self._engine_events = engine_events
+        self._session_events = session_events
+        self._use_native_unicode = use_native_unicode
+
+        self._engine = None
+        self._factory = None
+
+        self._setup()
+
+    def _setup(self):
+        kwargs = {}
+        if self._database_url.get_driver_name() == 'postgresql':
+            kwargs['use_native_unicode'] = self._use_native_unicode
+
+        if self._pool_size is not None:
+            kwargs['pool_size'] = self._pool_size
+
+        self._engine = create_engine(self._database_url, **kwargs)
+
+        if self._engine_events:
+            for (name, listener) in self._engine_events:
+                event.listen(self._engine, name, listener)
+
+        self._factory = sessionmaker()
+        self._factory.configure(bind=self._engine)
+
+    def make_session(self):
+        session = self._factory()
+
+        if self._session_events:
+            for (name, listener) in self._session_events:
+                event.listen(session, name, listener)
+
+        return session
+
+    @property
+    def engine(self):
+        return self._engine
+
+
+def make_session_factory(database_url,
+                         pool_size=None,
+                         use_native_unicode=True,
+                         engine_events=None,
+                         session_events=None):
+    return SessionFactory(database_url, pool_size, use_native_unicode,
+                          engine_events, session_events)
 
 
 class SessionMixin(object):
