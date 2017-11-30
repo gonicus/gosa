@@ -61,6 +61,10 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
+    @dbus.service.method('org.gosa', in_signature='sii', out_signature='')
+    def configureUserScreen(self, user, width, height):
+        self.log.info("configuring %s screen resolution to %sx%s is currently not supported" % (user, width, height))
+
     @dbus.service.method('org.gosa', in_signature='ss', out_signature='')
     def configureUserMenu(self, user, user_menu):
         """ configure a users application menu """
