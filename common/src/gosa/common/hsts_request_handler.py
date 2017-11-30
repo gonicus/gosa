@@ -9,6 +9,8 @@
 
 from tornado.web import RequestHandler, StaticFileHandler
 
+from gosa.common import Environment
+
 
 class HSTSRequestHandler(RequestHandler):
 
@@ -19,6 +21,11 @@ class HSTSRequestHandler(RequestHandler):
                  **kwargs):
         super(HSTSRequestHandler, self).__init__(application, request, **kwargs)
         self.hsts = hsts
+        self.env = Environment.getInstance()
+
+    def prepare(self):
+        if self.request.protocol == "http" and self.env.config.getboolean("http.ssl") is True:
+            self.redirect("https://%s" % self.request.full_url()[len("http://"):], permanent=True)
 
     def finish(self, chunk=None):
         if self.hsts is True:
@@ -36,6 +43,11 @@ class HSTSStaticFileHandler(StaticFileHandler):
                  **kwargs):
         super(HSTSStaticFileHandler, self).__init__(application, request, **kwargs)
         self.hsts = hsts
+        self.env = Environment.getInstance()
+
+    def prepare(self):
+        if self.request.protocol == "http" and self.env.config.getboolean("http.ssl") is True:
+            self.redirect("https://%s" % self.request.full_url()[len("http://"):], permanent=True)
 
     def finish(self, chunk=None):
         if self.hsts is True:
