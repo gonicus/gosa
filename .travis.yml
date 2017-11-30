@@ -25,6 +25,7 @@ before_install:
     # some preparations for the tests
     - export TZ=Europe/Berlin
     - sudo mkdir /tmp/workflows
+    - sudo mkdir /tmp/images
     - sudo mkdir /etc/gosa
     - sudo cp ./travis_conf/config /etc/gosa/
     - sudo chown travis:travis /tmp/workflows
