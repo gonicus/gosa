@@ -84,7 +84,7 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
             os.chmod(script, 0o755)
             # execute script as user
             try:
-                retcode = subprocess.call("su %s %s" % (uid, script), shell=True)
+                retcode = subprocess.call("su %s %s" % (user, script), shell=True)
                 if retcode < 0:
                     self.log.error("%s was terminated by signal %s" % (script, -retcode))
                 else:
@@ -140,7 +140,9 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
             return result
 
         for entry in get_appname(user_menu):
-            scripts.append(self.write_app_script(entry))
+            file = self.write_app_script(entry)
+            if file is not None:
+                scripts.append(file)
             self.write_app(entry)
 
         return scripts
@@ -212,7 +214,6 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
         desktop_entry.write()
 
     def write_app_script(self, app_entry):
-        result = ""
 
         if 'gotoLogonScript' in app_entry and app_entry['gotoLogonScript'] is not None:
             script_path = os.path.join(self.home_dir, self.local_applications_scripts, app_entry['cn'])
@@ -223,9 +224,9 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
             with open(script_path, 'w') as script_file:
                 script_file.write(app_entry['gotoLogonScript'])
 
-            result = script_path
+            return script_path
 
-        return result
+        return None
 
     def init_menu(self, user_menu):
         menu_dir = os.path.join(self.home_dir, self.local_menu)
