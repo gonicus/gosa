@@ -211,6 +211,7 @@ qx.Class.define("gosa.view.Tree", {
           tcm.setColumnVisible(3, false);
           tcm.setColumnVisible(4, false);
           tcm.setDataCellRenderer(0, new gosa.ui.table.cellrenderer.ImageByType(22, 22));
+          tcm.setDataCellRenderer(2, new qx.ui.table.cellrenderer.Html());
 
           control = table;
           break;
