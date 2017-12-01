@@ -220,14 +220,23 @@ class RPCMethods(Plugin, SessionMixin):
         if object_attribute is not None:
             query[object_attribute] = '%{}%'.format(search_filter) if len(search_filter) > 0 else '%'
 
+        types = []
+        extensions = []
         if object_type != "*":
             if object_factory.isBaseType(object_type):
-                query["_type"] = object_type
+                types.append(object_type)
             else:
-                query["extension"] = object_type
+                extensions.append(object_type)
         if options is not None and 'filter' in options:
             for key, values in options['filter'].items():
-                if key not in query:
+                if key == "_type" or key == "types" or key == "extension":
+                    if isinstance(values, list):
+                        for type in values:
+                            if object_factory.isBaseType(type):
+                                types.append(type)
+                            else:
+                                extensions.append(type)
+                elif key not in query:
                     query[key] = values
                 else:
                     if isinstance(query[key], list):
@@ -237,6 +246,10 @@ class RPCMethods(Plugin, SessionMixin):
                         query[key].append(values)
 
             del options['filter']
+        if len(types):
+            query["_type"] = {"in_": types}
+        if len(extensions):
+            query["extension"] = {"in_": extensions}
 
         search_result = index.search(query, attrs, options)
 
@@ -385,7 +398,15 @@ class RPCMethods(Plugin, SessionMixin):
                 getattr(ObjectInfoIndex, "dn") == container_dn).one()
             container_type = container_type_query[0]
             allowed = ObjectFactory.getInstance().getAllowedSubElementsForObject(container_type)
-            return object_type in allowed
+            if object_type is None:
+                return True
+            elif "*" in object_type:
+                # all allowed
+                return True
+            elif isinstance(object_type, list):
+                return len(set(object_type).intersection(allowed)) > 0
+            else:
+                return object_type in allowed
 
     @Command(needsUser=True, __help__=N_("Returns a list of all containers"))
     def getContainerTree(self, user, base, object_type=None):
@@ -411,8 +432,14 @@ class RPCMethods(Plugin, SessionMixin):
             if object_type is not None and item.dn in res:
                 res[item.dn]['hasChildren'] = children > 0
                 # check if object_type is allowed in this container
-                res[item.dn]['allowed_move_target'] = object_type in factory.getAllowedSubElementsForObject(res[item.dn]['tag'],
-                                                                                                            includeInvisible=False)
+                allowed = factory.getAllowedSubElementsForObject(res[item.dn]['tag'], includeInvisible=False)
+                if "*" in object_type:
+                    # all allowed
+                    res[item.dn]['allowed_move_target'] = True
+                elif isinstance(object_type, list):
+                    res[item.dn]['allowed_move_target'] = len(set(object_type).intersection(allowed)) > 0
+                else:
+                    res[item.dn]['allowed_move_target'] = object_type in allowed
         return res
 
     @Command(needsUser=True, __help__=N_("Filter for indexed attributes and return the matches."))

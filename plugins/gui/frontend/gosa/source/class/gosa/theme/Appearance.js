@@ -958,6 +958,8 @@ qx.Theme.define("gosa.theme.Appearance", {
       }
     },
 
+    "window/base-selector/tree": "virtual-tree",
+
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
     "root": {

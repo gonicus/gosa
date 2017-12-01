@@ -1174,7 +1174,7 @@ class ObjectIndex(Plugin, SessionMixin):
         with self.make_session() as session:
             fltr = self._make_filter(query, session)
 
-            def normalize(data, resultset=None):
+            def normalize(data, resultset=None, so_props=None):
                 _res = {
                     "_uuid": data.uuid,
                     "dn": data.dn,
@@ -1197,6 +1197,11 @@ class ObjectIndex(Plugin, SessionMixin):
                     else:
                         _res[kv.key] = [kv.value]
 
+                # get data from SearchObjectIndex (e.g. title, description)
+                if so_props is not None and len(so_props) > 0 and len(data.search_object) > 0:
+                    for prop in so_props:
+                        _res[prop] = [getattr(data.search_object[0], prop)]
+
                 # Clean the result set?
                 if resultset:
                     for key in [_key for _key in _res if not _key in resultset.keys() and _key[0:1] != "_"]:
@@ -1208,21 +1213,28 @@ class ObjectIndex(Plugin, SessionMixin):
 
             q = session.query(ObjectInfoIndex)\
                 .options(joinedload(ObjectInfoIndex.properties)) \
-                .options(joinedload(ObjectInfoIndex.extensions))\
-                .filter(*fltr)
+                .options(joinedload(ObjectInfoIndex.extensions))
+
+            # check if we need somthing from the searchObject
+            so_props = None
+            if properties is not None:
+                so_props = [x for x in properties if hasattr(SearchObjectIndex, x)]
+                if len(so_props) > 0:
+                    q = q.options(joinedload(ObjectInfoIndex.search_object))
+            q = q.filter(*fltr)
 
             if 'limit' in options:
                 q.limit(options['limit'])
 
-            # try:
-            #     self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-            # except Exception as e:
-            #     self.log.error("Error creating SQL string: %s" % str(e))
-            #     self.log.debug(str(q))
+            try:
+                self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+            except Exception as e:
+                self.log.error("Error creating SQL string: %s" % str(e))
+                self.log.debug(str(q))
 
             try:
                 for o in q.all():
-                    res.append(normalize(o, properties))
+                    res.append(normalize(o, properties, so_props=so_props))
             except sqlalchemy.exc.InternalError as e:
                 self.log.error(str(e))
                 session.rollback()
