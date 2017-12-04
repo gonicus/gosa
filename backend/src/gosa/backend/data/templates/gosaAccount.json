@@ -85,6 +85,38 @@
             "readOnly": true
           },
           "class": "gosa.ui.widgets.QLineEditWidget"
+        },
+        {
+          "class": "gosa.ui.widgets.QLabelWidget",
+          "buddyModelPath": "gosaDefaultPrinter",
+          "addOptions": {
+            "row": 2,
+            "column": 0
+          },
+          "properties": {
+            "text": "tr('Default printer')"
+          }
+        },
+        {
+          "class": "gosa.ui.widgets.QTableWidgetWidget",
+          "modelPath": "gosaDefaultPrinter",
+          "addOptions": {
+            "row": 2,
+            "column": 1
+          },
+          "properties": {
+            "tabIndex": 3
+          },
+          "extensions": {
+            "guiProperties": {
+              "editTitle": "tr('Choose the default printer')",
+              "columns": {
+                "cn": "tr('Name')",
+                "l": "tr('Location')",
+                "description": "tr('Description')"
+              }
+            }
+          }
         }
       ]
     }

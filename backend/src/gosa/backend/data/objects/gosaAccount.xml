@@ -7,6 +7,7 @@
     <Backend>LDAP</Backend>
     <BackendParameters>
       <Backend objectClasses="gosaAccount">LDAP</Backend>
+      <Backend gosaDefaultPrinter="GotoPrinter:cn">ObjectHandler</Backend>
     </BackendParameters>
     <BaseObject>false</BaseObject>
     <Templates>
@@ -64,6 +65,25 @@
         <Type>UnicodeString</Type>
         <MultiValue>true</MultiValue>
         <Mandatory>false</Mandatory>
+      </Attribute>
+
+      <Attribute>
+        <Name>gosaDefaultPrinter</Name>
+        <Description>Defines a default printer a user owns</Description>
+        <Type>String</Type>
+        <Validators>
+          <Condition>
+            <Name>ObjectWithPropertyExists</Name>
+            <Param>GotoPrinter</Param>
+            <Param>cn</Param>
+          </Condition>
+        </Validators>
+        <References>
+          <Reference>
+            <Object>GotoPrinter</Object>
+            <Attribute>cn</Attribute>
+          </Reference>
+        </References>
       </Attribute>
     </Attributes>
   </Object>
