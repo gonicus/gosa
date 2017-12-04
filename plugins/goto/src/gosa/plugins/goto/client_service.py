@@ -579,14 +579,15 @@ class ClientService(Plugin):
             client_menu = loads(client.gotoMenu)
 
         # collect users DNs
-        query_result = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1, "uid": 1})
+        query_result = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1})
         for entry in query_result:
+            user = ObjectProxy(entry["dn"])
             menus = []
             if client_menu is not None:
                 menus.append(client_menu)
 
             # get all groups the user is member of which have a menu for the given release
-            query = {'_type': 'GroupOfNames', "member": entry["dn"], "extension": "GotoMenu", "gotoLsbName": release}
+            query = {'_type': 'GroupOfNames', "member": user.dn, "extension": "GotoMenu", "gotoLsbName": release}
 
             for res in index.search(query, {"gotoMenu": 1}):
                 # collect user menus
@@ -603,13 +604,13 @@ class ClientService(Plugin):
 
                 # send to client
                 if user_menu is not None:
-                    self.log.debug("sending generated menu for user %s" % entry["uid"][0])
-                    self.queuedClientDispatch(client_id, "dbus_configureUserMenu", entry["uid"][0], dumps(user_menu))
+                    self.log.debug("sending generated menu for user %s" % user.uid)
+                    self.queuedClientDispatch(client_id, "dbus_configureUserMenu", user.uid, dumps(user_menu))
 
             # collect printer settings for user, starting with the clients printers
             settings = self.__collect_printer_settings(group)
             printer_names = [x["cn"] for x in settings["printers"]]
-            for res in index.search({'_type': 'GroupOfNames', "member": entry["dn"], "extension": "GotoEnvironment"},
+            for res in index.search({'_type': 'GroupOfNames', "member": user.dn, "extension": "GotoEnvironment"},
                                     {"dn": 1}):
                 user_group = ObjectProxy(res["dn"])
                 if user_group.dn == group.dn:
@@ -625,6 +626,49 @@ class ClientService(Plugin):
 
                 if s["defaultPrinter"] is not None:
                     settings["defaultPrinter"] = s["defaultPrinter"]
+
+            if user.is_extended_by("GosaAccount") and user.gosaDefaultPrinter is not None:
+                # check if the users default printer is send to the client
+                found = False
+                for printer_settings in settings["printers"]:
+                    if printer_settings["cn"] == user.gosaDefaultPrinter:
+                        found = True
+                        break
+
+                def process(res):
+                    res = index.search({"_type": "GotoPrinter", "cn": user.gosaDefaultPrinter}, {"dn": 1})
+                    if len(res) == 0:
+                        self.log.warning("users defaultPrinter not found: %s" % user.gosaDefaultPrinter)
+                        return None
+                    elif len(res) == 1:
+                        # add this one to the result set
+                        printer = ObjectProxy(res[0]["dn"])
+                        p_conf = {}
+                        for attr in self.printer_attributes:
+                            p_conf[attr] = getattr(printer, attr)
+                        return p_conf
+                    return False
+
+                if found is False:
+                    # find the printer and add it to the settings
+                    res = index.search({"_type": "GotoPrinter", "cn": user.gosaDefaultPrinter}, {"dn": 1})
+                    printer_config = process(res)
+                    if printer_config is False:
+                        # more than 1 printers found by this CN, try to look in the users subtree
+                        res = index.search({
+                            "_type": "GotoPrinter",
+                            "cn": user.gosaDefaultPrinter,
+                            "_adjusted_parent_dn": user.get_adjusted_parent_dn()
+                        }, {"dn": 1})
+                        printer_config = process(res)
+
+                    if isinstance(printer_config, dict):
+                        settings["printers"].append(printer_config)
+                        settings["defaultPrinter"] = user.gosaDefaultPrinter
+                    else:
+                        self.log.warning("users defaultPrinter not found: %s" % user.gosaDefaultPrinter)
+                else:
+                    settings["defaultPrinter"] = user.gosaDefaultPrinter
 
             self.configureHostPrinters(client_id, settings)
 
