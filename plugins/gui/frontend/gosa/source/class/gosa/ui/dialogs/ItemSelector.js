@@ -60,7 +60,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
     this.__initWidgets(columnSettings, extension, attribute);
 
-    if (!options.skipInitialSearch) {
+    if (!this._selectorOptions.skipInitialSearch) {
       this._updateValues();
     }
   },
@@ -157,7 +157,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
                 var control = this.getChildControl('type-selector');
                 control.add(new qx.ui.form.ListItem(""));
                 this._allowedTypes.forEach(function(type) {
-                  var item = new qx.ui.form.ListItem(this.tr(type));
+                  var item = new qx.ui.form.ListItem(this['tr'](type));
                   item.setUserData("type", type);
                   control.add(item);
                 }, this);

@@ -198,8 +198,10 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
         this.getValue().toArray(),
         this.getExtension(),
         this.getAttribute(),
-        this._columnIDs,
-        this._columnNames,
+        {
+          ids : this._columnIDs,
+          names : this._columnNames
+        },
         true
       );
 

@@ -269,15 +269,6 @@
         <Type>String</Type>
       </Attribute>
       <Attribute>
-        <Name>gender</Name>
-        <Description>Gender of the user</Description>
-        <Type>String</Type>
-        <Values>
-          <Value key="F">female</Value>
-          <Value key="M">male</Value>
-        </Values>
-      </Attribute>
-      <Attribute>
         <Name>dateOfBirth</Name>
         <Description>Birthday of the user</Description>
         <Type>Timestamp</Type>
