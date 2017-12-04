@@ -22,29 +22,73 @@ qx.Class.define("gosa.ui.widgets.QBaseSelectorWidget", {
   },
 
   properties : {
+    appearance: {
+      refine: true,
+      init: "base-selector"
+    },
 
     /**
      * The type of the object for which a base shall be selected, e.g. "user".
      */
     objectType : {
-      check : "String",
+      check : "Array",
       init : null,
       event : "changeObjectType",
       apply : "__generateTreeDelegate"
     }
   },
 
-  members : {
+  /*
+  *****************************************************************************
+     EVENTS
+  *****************************************************************************
+  */
+  events: {
+    "changeObjectType": "qx.event.type.Data"
+  },
 
+  members : {
     __root : null,
+    __objectTypes: null,
+
+    setObjectTypes: function(values) {
+      var old = this.__objectTypes ? this.__objectTypes.slice(0) : null;
+      this.__objectTypes = values;
+      this.fireDataEvent("changeObjectType", this.__objectTypes, old);
+    },
+
+    setObjectType: function(value) {
+      var old = this.__objectTypes ? this.__objectTypes.slice(0) : null;
+      if (value) {
+        if (!this.__objectTypes) {
+          this.__objectTypes = [value];
+          this.fireDataEvent("changeObjectType", this.__objectTypes, null);
+        } else if (!this.__objectTypes.includes(value)) {
+          this.__objectTypes.push(value);
+        }
+      } else {
+        // resetting value
+        this.__objectTypes = null;
+      }
+      this.fireDataEvent("changeObjectType", this.__objectTypes, old);
+    },
+
+    getObjectType: function() {
+      return this.__objectTypes;
+    },
 
     __draw : function() {
       this.__root = new gosa.data.model.TreeResultItem(this.tr("Root"));
       this.__root.setMoveTarget(false);
-      this.bind("objectType", this.__root, "moveTargetFor");
+      this.__root.setMoveTargetFor(this.__objectTypes);
+      this.addListener("changeObjectType", function(ev) {
+        this.__root.setMoveTargetFor(ev.getData());
+      }, this);
       this.__root.setType("root");  // Required to show the icon
       this.__root.load().then(function() {
-        this.getChildControl("tree").openNode(this.__root.getChildren().getItem(0));
+        var firstChild = this.__root.getChildren().getItem(0);
+        this.getChildControl("tree").openNode(firstChild);
+        firstChild.load();
       }, this);
     },
 

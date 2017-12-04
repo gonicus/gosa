@@ -164,10 +164,37 @@
             "editTitle": "tr('Add members')",
             "columns": {
               "_type": "tr('Type')",
+              "title": "tr('Title')",
+              "description": "tr('Description')",
               "dn": "tr('DN')"
             },
-            "sortByColumn": "_type",
-            "skipInitialSearch": true
+            "columnWidths": {
+              "0": 32,
+              "1": "1*",
+              "2": "1*",
+              "3": "1*"
+            },
+            "columnRenderers": {
+              "0": {
+                "class": "gosa.ui.table.cellrenderer.ImageByType",
+                "params": [22, 22]
+              },
+              "2": {
+                "class": "qx.ui.table.cellrenderer.Html"
+              }
+            },
+            "selectorOptions": {
+              "filters": {
+                "base": {
+                  "use": "_adjusted_parent_dn",
+                  "mode": "children"
+                },
+                "type": true,
+                "search": true
+              },
+              "skipInitialSearch": true
+            },
+            "sortByColumn": "_type"
           }
         }
       }]

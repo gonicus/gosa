@@ -47,7 +47,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
   properties : {
 
     moveTargetFor: {
-      check: "String",
+      check: "Array",
       nullable: true,
       event: "changeMoveTargetFor"
     },
@@ -146,8 +146,6 @@ qx.Class.define("gosa.data.model.TreeResultItem",
     _onOpen : function(value){
 
       if(!this.isLoaded() && value){
-        // this.getChildren().removeAll();
-        // this.getLeafs().removeAll();
         this.load();
       }
     },
@@ -203,6 +201,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
               for (var id in data) {
                 if (data.hasOwnProperty(id)) {
                   var item = this.parseItemForResult(data[id]);
+                  console.log(item);
                   if (item.isContainer()) {
                     newc.push(item);
                   }
