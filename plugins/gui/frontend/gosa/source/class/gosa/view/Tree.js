@@ -120,7 +120,7 @@ qx.Class.define("gosa.view.Tree", {
 
         case "search-field":
           control = new qx.ui.form.TextField().set({
-            placeholder : this.tr("Search..."),
+            placeholder : this.tr("Filter..."),
             liveUpdate : true,
             allowGrowX : true
           });
