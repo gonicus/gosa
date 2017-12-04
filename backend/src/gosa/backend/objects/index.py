@@ -187,6 +187,8 @@ class ObjectIndex(Plugin, SessionMixin):
 
         self.__value_extender = gosa.backend.objects.renderer.get_renderers()
 
+        self._acl_resolver = PluginRegistry.getInstance("ACLResolver")
+
         with self.make_session() as session:
 
             # create view
@@ -1254,14 +1256,15 @@ class ObjectIndex(Plugin, SessionMixin):
 
         ``Return``: Filtered result entry
         """
-
+        if self._acl_resolver.isAdmin(user):
+            return entry
         res = {}
         for attr in entry.keys():
-           if attr in ['dn', '_type', '_uuid', '_last_changed']:
+            if attr in ['dn', '_type', '_uuid', '_last_changed']:
                 res[attr] = entry[attr]
                 continue
 
-           if self.__has_access_to(user, entry['dn'], entry['_type'], attr):
+            if self.__has_access_to(user, entry['dn'], entry['_type'], attr):
                 res[attr] = entry[attr]
 
         return res
@@ -1270,9 +1273,8 @@ class ObjectIndex(Plugin, SessionMixin):
         """
         Checks whether the given user has access to the given object/attribute or not.
         """
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
         if user:
             topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
-            return aclresolver.check(user, topic, "r", base=object_dn)
+            return self._acl_resolver.check(user, topic, "r", base=object_dn)
         else:
             return True
