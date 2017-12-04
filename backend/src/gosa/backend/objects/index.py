@@ -28,7 +28,7 @@ from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils import TSVectorType
 
 import gosa
-from gosa.common.env import SessionMixin
+from gosa.common.env import SessionMixin, declarative_base
 from gosa.common.event import EventMaker
 from lxml import etree
 from lxml import objectify
@@ -48,7 +48,6 @@ from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects import ObjectFactory, ObjectProxy, ObjectChanged
 from gosa.backend.exceptions import FilterException, IndexException, ProxyException, ObjectException
 from gosa.backend.lock import GlobalLock
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, joinedload
 from sqlalchemy import Column, String, Integer, Boolean, Sequence, DateTime, ForeignKey, or_, and_, not_, func, orm
 
@@ -1226,11 +1225,11 @@ class ObjectIndex(Plugin, SessionMixin):
             if 'limit' in options:
                 q.limit(options['limit'])
 
-            try:
-                self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-            except Exception as e:
-                self.log.error("Error creating SQL string: %s" % str(e))
-                self.log.debug(str(q))
+            # try:
+            #     self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+            # except Exception as e:
+            #     self.log.error("Error creating SQL string: %s" % str(e))
+            #     self.log.debug(str(q))
 
             try:
                 for o in q.all():

@@ -27,11 +27,9 @@ from sqlalchemy.engine.url import make_url
 from gosa.common.config import Config
 from gosa.common.utils import dmi_system
 
-try:
-    from sqlalchemy.orm import sessionmaker, scoped_session
-    from sqlalchemy import create_engine, event
-except ImportError: # pragma: nocover
-    pass
+from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy import create_engine, event
+from sqlalchemy.ext.declarative import declarative_base as _declarative_base
 
 
 class Environment:
@@ -144,6 +142,7 @@ class Environment:
     def getDatabaseFactory(self, section, key="database"):
         index = "%s.%s" % (section, key)
         if index not in self.__db_factory:
+            self.log.debug("creating new DB factory for %s" % index)
             self.__db_factory[index] = SessionFactory(self.config.get(index))
         return self.__db_factory[index]
 
@@ -247,6 +246,15 @@ class SessionMixin(object):
             session.commit()
         finally:
             session.close()
+
+
+def declarative_base():
+    if not declarative_base._instance:
+        declarative_base._instance = _declarative_base()
+    return declarative_base._instance
+
+
+declarative_base._instance = None
 
 
 class MissingFactoryError(Exception):
