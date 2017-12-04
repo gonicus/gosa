@@ -297,6 +297,9 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
         case 'base-selector':
           control = new gosa.ui.widgets.QBaseSelectorWidget();
+          control.addListener("resize", function () {
+            this.center();
+          }, this);
           control.addListener("changeValue", this.__maintainSearchButton, this);
           this.getChildControl('filter-container').addAt(new qx.ui.basic.Label(this.tr("Select Base")), 0);
           this.getChildControl('filter-container').addAt(control, 1);
