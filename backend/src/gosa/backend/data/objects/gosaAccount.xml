@@ -85,6 +85,17 @@
           </Reference>
         </References>
       </Attribute>
+
+      <Attribute>
+        <Name>gender</Name>
+        <Description>Gender of the user</Description>
+        <Type>String</Type>
+        <Values>
+          <Value key="F">female</Value>
+          <Value key="M">male</Value>
+        </Values>
+      </Attribute>
+
     </Attributes>
   </Object>
 </Objects>

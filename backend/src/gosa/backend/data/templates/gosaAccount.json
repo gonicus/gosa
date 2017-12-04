@@ -22,6 +22,49 @@
       "class": "gosa.ui.widgets.GroupBox",
       "layout": "qx.ui.layout.Grid",
       "properties": {
+        "legend": "tr('General information')"
+      },
+      "layoutConfig": {
+        "spacingX": "CONST_SPACING_X",
+        "spacingY": "CONST_SPACING_Y"
+      },
+      "extensions": {
+        "layoutOptions": {
+          "columnFlex": {
+            "column": [1],
+            "flex": 1
+          }
+        }
+      },
+      "children": [
+        {
+          "buddyModelPath": "gender",
+          "addOptions": {
+            "row": 0,
+            "column": 0
+          },
+          "properties": {
+            "text": "tr('Gender')"
+          },
+          "class": "gosa.ui.widgets.QLabelWidget"
+        },
+        {
+          "addOptions": {
+            "row": 0,
+            "column": 1
+          },
+          "modelPath": "gender",
+          "properties": {
+            "tabIndex": 1
+          },
+          "class": "gosa.ui.widgets.QComboBoxWidget"
+        }
+      ]
+    },
+    {
+      "class": "gosa.ui.widgets.GroupBox",
+      "layout": "qx.ui.layout.Grid",
+      "properties": {
         "legend": "tr('Login data')"
       },
       "layoutConfig": {
@@ -43,7 +86,7 @@
         {
           "buddyModelPath": "gotoLastSystemLogin",
           "addOptions": {
-            "row": 0,
+            "row": 1,
             "column": 0
           },
           "properties": {
@@ -53,7 +96,7 @@
         },
         {
           "addOptions": {
-            "row": 0,
+            "row": 1,
             "column": 1
           },
           "modelPath": "gotoLastSystemLogin",
@@ -66,7 +109,7 @@
         {
           "buddyModelPath": "gotoLastSystem",
           "addOptions": {
-            "row": 1,
+            "row": 2,
             "column": 0
           },
           "properties": {
@@ -76,7 +119,7 @@
         },
         {
           "addOptions": {
-            "row": 1,
+            "row": 2,
             "column": 1
           },
           "modelPath": "gotoLastSystem",
@@ -90,7 +133,7 @@
           "class": "gosa.ui.widgets.QLabelWidget",
           "buddyModelPath": "gosaDefaultPrinter",
           "addOptions": {
-            "row": 2,
+            "row": 3,
             "column": 0
           },
           "properties": {
@@ -101,7 +144,7 @@
           "class": "gosa.ui.widgets.QTableWidgetWidget",
           "modelPath": "gosaDefaultPrinter",
           "addOptions": {
-            "row": 2,
+            "row": 3,
             "column": 1
           },
           "properties": {
