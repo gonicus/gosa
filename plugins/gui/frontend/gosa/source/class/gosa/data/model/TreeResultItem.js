@@ -144,7 +144,6 @@ qx.Class.define("gosa.data.model.TreeResultItem",
   members: {
 
     _onOpen : function(value){
-      console.log(this);
 
       if(!this.isLoaded() && value){
         this.load();
