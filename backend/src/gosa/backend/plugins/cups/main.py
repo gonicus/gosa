@@ -14,6 +14,8 @@ import os
 import tempfile
 
 import time
+
+import requests
 from zope.interface import implementer
 
 from gosa.backend.exceptions import EntryNotFound
@@ -402,18 +404,29 @@ class CupsClient(Plugin):
 
     def get_attributes_from_ppd(self, ppd_file, attributes):
         res = {}
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
         try:
-            ppd = cups.PPD(ppd_file)
+            if ppd_file[0:4] == "http":
+                # fetch remote file and copy it to a temporary local one
+                r = requests.get(ppd_file)
+                with open(temp_file.name, "w") as tf:
+                    tf.write(r.content)
+                local_file = tf
+            else:
+                local_file = ppd_file
+
+            ppd = cups.PPD(local_file)
             ppd.localize()
             for name in attributes:
                 attr = ppd.findAttr(name)
                 if attr is not None:
                     res[name] = attr.value
 
-        except cups.IPPError as e:
+        except Exception as e:
             self.log.error(str(e))
 
         finally:
+            os.unlink(temp_file.name)
             return res
 
 

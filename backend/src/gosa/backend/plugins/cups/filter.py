@@ -72,7 +72,7 @@ class DeleteOldFile(ElementFilter):
         old_file = valDict[key]['orig_value'] if valDict[key]['orig_value'] != valDict[key]['value'] else None
         if old_file is not None:
             for file in old_file:
-                if os.path.exists(file) and os.access(file, os.F_OK):
+                if file[0:4] != "http" and os.path.exists(file) and os.access(file, os.F_OK):
                     # check if there is only one remaining link left to this file (the current object)
                     index = PluginRegistry.getInstance("ObjectIndex")
                     res = index.search({key: old_file}, {"dn": 1})
