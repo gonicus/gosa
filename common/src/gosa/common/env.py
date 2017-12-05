@@ -20,7 +20,7 @@ You can import it to your own code like this::
 """
 import logging
 import platform
-
+import threading
 from decorator import contextmanager
 from sqlalchemy.engine.url import make_url
 
@@ -119,25 +119,25 @@ class Environment:
 
         return self.__db[index]
 
-    # def getDatabaseSession(self, section, key="database"):
-    #     """
-    #     Return a database session from the pool.
-    #
-    #     ========= ============
-    #     Parameter Description
-    #     ========= ============
-    #     section   name of the configuration section where the config is placed.
-    #     key       optional value for the key where the database information is stored, defaults to *database*.
-    #     ========= ============
-    #
-    #     ``Return``: database session
-    #     """
-    #     index = "%s.%s" % (section, key)
-    #     sql = self.getDatabaseEngine(section, key)
-    #     if index not in self.__db_session:
-    #         self.__db_session[index] = scoped_session(sessionmaker(autoflush=True, bind=sql))
-    #
-    #     return self.__db_session[index]()
+    def getDatabaseSession(self, section, key="database"):
+        """
+        Return a database session from the pool.
+
+        ========= ============
+        Parameter Description
+        ========= ============
+        section   name of the configuration section where the config is placed.
+        key       optional value for the key where the database information is stored, defaults to *database*.
+        ========= ============
+
+        ``Return``: database session
+        """
+        index = "%s.%s" % (section, key)
+        sql = self.getDatabaseEngine(section, key)
+        if index not in self.__db_session:
+            self.__db_session[index] = scoped_session(sessionmaker(autoflush=True, bind=sql))
+
+        return self.__db_session[index]()
 
     def getDatabaseFactory(self, section, key="database"):
         index = "%s.%s" % (section, key)
@@ -228,15 +228,36 @@ class SessionFactory(object):
 
 
 class SessionMixin(object):
-    @contextmanager
-    def make_session(self):
-        factory = Environment.getInstance().getDatabaseFactory("backend-database")
+    """
+    Session handling for database access.
+    Despite from the context this Mixin creates a new session or uses an existing one
 
-        if not factory:
-            raise MissingFactoryError()
+    If there exists a global context session (in tornados StackContext) this session is used
+    otherwise the global connections session is used (or created if it does not exist yet)
+    """
+    @contextmanager
+    def make_session(self, skip_context_check=False):
+        session = None
+        if skip_context_check is False:
+            current = SessionContext.current()
+            if current is not None:
+                session = current.session
+
+        close_session = session is None
 
         try:
-            session = factory.make_session()
+            if session is None:
+                # use the global session
+                if skip_context_check is True:
+                    # create new context session
+                    factory = Environment.getInstance().getDatabaseFactory("backend-database")
+                    if not factory:
+                        raise MissingFactoryError()
+
+                    session = factory.make_session()
+                else:
+                    session = Environment.getInstance().getDatabaseSession("backend-database")
+                    close_session = False
 
             yield session
         except:
@@ -245,7 +266,8 @@ class SessionMixin(object):
         else:
             session.commit()
         finally:
-            session.close()
+            if close_session is True:
+                session.close()
 
 
 def declarative_base():
@@ -259,3 +281,70 @@ declarative_base._instance = None
 
 class MissingFactoryError(Exception):
     pass
+
+
+class _ContextLocalManager(threading.local):
+    """Extension of threading.local which ensures that the 'current' attribute
+    defaults to an empty dict for each thread.
+    """
+    def __init__(self):
+        self.current = dict()
+
+
+class ContextLocal(object):
+    """Base class for objects which have a context-local instance.  An instance
+    of a derived class can be pushed onto the persistent stack using a
+    StackContext object. The currently in-scope instance of a derived class
+    can be retrieved from the stack with the class method cls.current().
+    This mimics the concept of a thread-local object, but the object is linked
+    to the persistent stack context provided by Tornado.
+    Example:
+      # Create a stack-aware context class
+      class MyContext(ContextLocal):
+        def __init__(self, val):
+          self.some_value = val
+      # Push a new context onto the stack, and verify a value in it:
+      with StackContext(MyContext(val)):
+        assert MyContext.current().some_value == val
+    """
+    _contexts = _ContextLocalManager()
+    _default_instance = None
+
+    def __init__(self):
+        """Maintain stack of previous instances.  This is a stack to support re-entry
+        of a context.
+        """
+        self.__previous_instances = []
+
+    @classmethod
+    def current(cls):
+        """Retrieves the currently in-scope instance of context class cls, or a
+        default instance if no instance is currently in scope.
+        """
+        current_value = cls._contexts.current.get(cls.__name__, None)
+        return current_value if current_value is not None else cls._default_instance
+
+    def __enter__(self):
+        """Sets this instance to be the currently in-scope instance of its class."""
+        cls = type(self)
+        self.__previous_instances.append(cls._contexts.current.get(cls.__name__, None))
+        cls._contexts.current[cls.__name__] = self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        """Sets the currently in-scope instance of this class to its previous value."""
+        cls = type(self)
+        cls._contexts.current[cls.__name__] = self.__previous_instances.pop()
+
+    def __call__(self):
+        """StackContext takes a 'context factory' as a parameter, which is a callable
+        which should return a context object.  By making an instance of this class return
+        itself when called, each instance becomes its own factory.
+        """
+        return self
+
+
+class SessionContext(ContextLocal):
+
+    def __init__(self, session):
+        super(SessionContext, self).__init__()
+        self.session = session

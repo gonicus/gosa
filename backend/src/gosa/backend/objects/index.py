@@ -196,7 +196,7 @@ class ObjectIndex(Plugin, SessionMixin):
                 # check if extension exists
                 if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'pg_trgm';").rowcount == 0:
                     session.execute("CREATE EXTENSION pg_trgm;")
-    
+
                 view_name = "unique_lexeme"
                 # check if view exists
                 res = session.execute("SELECT count(*) > 0 as \"exists\" FROM pg_catalog.pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind = 'm' AND n.nspname = 'public' AND c.relname = '%s';" % view_name).first()
@@ -207,7 +207,7 @@ class ObjectIndex(Plugin, SessionMixin):
             except Exception as e:
                 self.log.error("Error creating view for unique word index: %s" % str(e))
                 session.rollback()
-    
+
             # If there is already a collection, check if there is a newer schema available
             schema = self.factory.getXMLObjectSchema(True)
             if self.isSchemaUpdated(schema):
@@ -220,14 +220,14 @@ class ObjectIndex(Plugin, SessionMixin):
                     session.query(SearchObjectIndex).delete()
                     session.query(ObjectInfoIndex).delete()
                     self.log.info('object definitions changed, dropped old object index')
-    
+
             # Create the initial schema information if required
             if not session.query(Schema).one_or_none():
                 self.log.info('created schema')
                 md5s = hashlib.md5()
                 md5s.update(schema)
                 md5sum = md5s.hexdigest()
-    
+
                 schema = Schema(hash=md5sum)
                 session.add(schema)
                 session.commit()
@@ -349,15 +349,15 @@ class ObjectIndex(Plugin, SessionMixin):
         with self.make_session() as session:
             if not dn:
                 dn = session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == _uuid).one_or_none()
-    
+
             # Modification
             if change_type == "modify":
-    
+
                 # Get object
                 obj = self._get_object(dn)
                 if not obj:
                     return
-    
+
                 # Check if the entry exists - if not, maybe let create it
                 entry = session.query(ObjectInfoIndex.dn).filter(
                     or_(
@@ -366,20 +366,20 @@ class ObjectIndex(Plugin, SessionMixin):
                     )).one_or_none()
                 if entry:
                     self.update(obj, session=session)
-    
+
                 else:
                     self.insert(obj, session=session)
-    
+
             # Add
             if change_type == "add":
-    
+
                 # Get object
                 obj = self._get_object(dn)
                 if not obj:
                     return
-    
+
                 self.insert(obj, session=session)
-    
+
             # Delete
             if change_type == "delete":
                 self.log.info("object has changed in backend: indexing %s" % dn)
@@ -390,27 +390,27 @@ class ObjectIndex(Plugin, SessionMixin):
                     obj = self._get_object(dn)
                     if not obj:
                         return
-    
+
                     self.remove(obj)
-    
+
             # Move
             if change_type in ['modrdn', 'moddn']:
-    
+
                 # Get object
                 obj = self._get_object(new_dn)
                 if not obj:
                     return
-    
+
                 # Check if the entry exists - if not, maybe let create it
                 entry = session.query(ObjectInfoIndex.dn).filter(
                     or_(
                         ObjectInfoIndex.uuid == _uuid,
                         func.lower(ObjectInfoIndex.dn) == func.lower(dn)
                     )).one_or_none()
-    
+
                 if entry:
                     self.update(obj)
-    
+
                 else:
                     self.insert(obj)
 
@@ -420,7 +420,7 @@ class ObjectIndex(Plugin, SessionMixin):
                 event_change_type = "create"
             elif change_type == "delete":
                 event_change_type = "remove"
-    
+
             e = EventMaker()
             if obj:
                 ev = e.Event(e.ObjectChanged(
@@ -436,14 +436,14 @@ class ObjectIndex(Plugin, SessionMixin):
                     e.ModificationTime(_last_changed.strftime("%Y%m%d%H%M%SZ")),
                     e.ChangeType(event_change_type)
                 ))
-    
+
             event = "<?xml version='1.0'?>\n%s" % etree.tostring(ev, pretty_print=True).decode('utf-8')
-    
+
             # Validate event
             xml = objectify.fromstring(event, PluginRegistry.getEventParser())
-    
+
             SseHandler.notify(xml, channel="broadcast")
-    
+
             if hasattr(sys, '_called_from_test'):
                 self.post_process()
 
@@ -508,8 +508,8 @@ class ObjectIndex(Plugin, SessionMixin):
         existing = 0
         removed = 0
 
-
         with self.make_session() as session:
+            self.__session = session
             try:
                 self._indexed = True
 
@@ -627,8 +627,9 @@ class ObjectIndex(Plugin, SessionMixin):
                 self.post_process(session=session)
                 self.log.info("index refresh finished")
                 self.notify_frontends(N_("Index refresh finished"), 100)
-
+                self.__session = None
                 GlobalLock.release("scan_index")
+
                 zope.event.notify(IndexScanFinished())
 
     def post_process(self, session=None):
@@ -683,6 +684,9 @@ class ObjectIndex(Plugin, SessionMixin):
                 raise e
 
     def __handle_events(self, event):
+        if GlobalLock.exists("scan_index"):
+            return
+
         if isinstance(event, objectify.ObjectifiedElement):
             self.__backend_change_processor(event)
 
@@ -797,68 +801,63 @@ class ObjectIndex(Plugin, SessionMixin):
 
     def __session_save(self, data, session):
 
-        try:
-            # Assemble object index object
-            oi = ObjectInfoIndex(
-                uuid=data["_uuid"],
-                dn=data["dn"],
-                _type=data["_type"],
-                _parent_dn=data["_parent_dn"],
-                _adjusted_parent_dn=data["_adjusted_parent_dn"],
-                _invisible=data["_invisible"]
-            )
+        # Assemble object index object
+        oi = ObjectInfoIndex(
+            uuid=data["_uuid"],
+            dn=data["dn"],
+            _type=data["_type"],
+            _parent_dn=data["_parent_dn"],
+            _adjusted_parent_dn=data["_adjusted_parent_dn"],
+            _invisible=data["_invisible"]
+        )
 
-            if '_last_changed' in data:
-                oi._last_modified = datetime.datetime.fromtimestamp(data["_last_changed"])
+        if '_last_changed' in data:
+            oi._last_modified = datetime.datetime.fromtimestamp(data["_last_changed"])
 
-            session.add(oi)
+        session.add(oi)
 
-            # Assemble extension index objects
-            for ext in data["_extensions"]:
-                ei = ExtensionIndex(uuid=data["_uuid"], extension=ext)
-                session.add(ei)
+        # Assemble extension index objects
+        for ext in data["_extensions"]:
+            ei = ExtensionIndex(uuid=data["_uuid"], extension=ext)
+            session.add(ei)
 
-            # Assemble key value index objects
-            for key, value in data.items():
+        # Assemble key value index objects
+        for key, value in data.items():
 
-                # Skip meta information and DN
-                if key.startswith("_") or key == "dn":
-                    continue
+            # Skip meta information and DN
+            if key.startswith("_") or key == "dn":
+                continue
 
-                if isinstance(value, list):
-                    for v in value:
-                        kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=v)
-                        session.add(kvi)
-                else:
-                    kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=value)
+            if isinstance(value, list):
+                for v in value:
+                    kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=v)
                     session.add(kvi)
+            else:
+                kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=value)
+                session.add(kvi)
 
-            # assemble search object
-            if data['_type'] in self.__search_aid['mapping']:
-                aid = self.__search_aid['mapping'][data['_type']]
-                attrs = self.__search_aid['attrs'][data['_type']] if data['_type'] in self.__search_aid['attrs'] else []
-                types = [data['_type']]
-                types.extend(data["_extensions"])
-                # append aliases to search words
-                if data['_type'] in self.__search_aid['aliases']:
-                    types.extend(self.__search_aid['aliases'][data['_type']])
+        # assemble search object
+        if data['_type'] in self.__search_aid['mapping']:
+            aid = self.__search_aid['mapping'][data['_type']]
+            attrs = self.__search_aid['attrs'][data['_type']] if data['_type'] in self.__search_aid['attrs'] else []
+            types = [data['_type']]
+            types.extend(data["_extensions"])
+            # append aliases to search words
+            if data['_type'] in self.__search_aid['aliases']:
+                types.extend(self.__search_aid['aliases'][data['_type']])
 
-                search_words = [", ".join(data[x]) for x in attrs if x in data and data[x] is not None]
-                so = SearchObjectIndex(
-                    so_uuid=data["_uuid"],
-                    reverse_parent_dn=','.join([d for d in ldap.dn.explode_dn(data["_parent_dn"], flags=ldap.DN_FORMAT_LDAPV3)[::-1]]),
-                    title=self.__build_value(aid["title"], data),
-                    description=self.__build_value(aid["description"], data),
-                    search=" ".join(search_words),
-                    types=" ".join(list(set(types)))
-                )
-                session.add(so)
+            search_words = [", ".join(data[x]) for x in attrs if x in data and data[x] is not None]
+            so = SearchObjectIndex(
+                so_uuid=data["_uuid"],
+                reverse_parent_dn=','.join([d for d in ldap.dn.explode_dn(data["_parent_dn"], flags=ldap.DN_FORMAT_LDAPV3)[::-1]]),
+                title=self.__build_value(aid["title"], data),
+                description=self.__build_value(aid["description"], data),
+                search=" ".join(search_words),
+                types=" ".join(list(set(types)))
+            )
+            session.add(so)
 
-            session.commit()
-
-        except Exception as e:
-            session.rollback()
-            raise e
+        session.commit()
 
         # update word index on change (if indexing is not running currently)
         if not GlobalLock.exists("scan_index"):
@@ -926,7 +925,7 @@ class ObjectIndex(Plugin, SessionMixin):
     def __remove_by_uuid(self, uuid, session):
         self.log.debug("removing object index for %s" % uuid)
 
-        if self.exists(uuid):
+        if self.exists(uuid, session=session):
             session.query(KeyValueIndex).filter(KeyValueIndex.uuid == uuid).delete()
             session.query(ExtensionIndex).filter(ExtensionIndex.uuid == uuid).delete()
             session.query(SearchObjectIndex).filter(SearchObjectIndex.so_uuid == uuid).delete()
@@ -950,8 +949,8 @@ class ObjectIndex(Plugin, SessionMixin):
         old_dn = old_dn[0]
 
         # Remove old entry and insert new
-        self.remove_by_uuid(obj.uuid)
-        self.__save(current)
+        self.remove_by_uuid(obj.uuid, session=session)
+        self.__save(current, session=session)
 
         # Has the entry been moved?
         if current['dn'] != old_dn:
@@ -979,7 +978,7 @@ class ObjectIndex(Plugin, SessionMixin):
                 session.commit()
 
     @Command(__help__=N_("Check if an object with the given UUID exists."))
-    def exists(self, uuid):
+    def exists(self, uuid, session=None):
         """
         Do a database query for the given UUID and return an
         existance flag.
@@ -992,8 +991,11 @@ class ObjectIndex(Plugin, SessionMixin):
 
         ``Return``: True/False
         """
-        with self.make_session() as session:
+        if session is not None:
             return session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.uuid == uuid).one_or_none() is not None
+        else:
+            with self.make_session() as session:
+                return session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.uuid == uuid).one_or_none() is not None
 
     @Command(__help__=N_("Get list of defined base object types."))
     def getBaseObjectTypes(self):
@@ -1131,16 +1133,16 @@ class ObjectIndex(Plugin, SessionMixin):
                     else:
                         if "%" in value:
                             if value == "%":
-                                sub_query = session.query(KeyValueIndex.uuid).\
-                                    filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(value))).\
+                                sub_query = session.query(KeyValueIndex.uuid). \
+                                    filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(value))). \
                                     subquery()
                             else:
                                 sub_query = session.query(KeyValueIndex.uuid). \
                                     filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.ilike(value))). \
                                     subquery()
                         else:
-                            sub_query = session.query(KeyValueIndex.uuid).\
-                                filter(and_(KeyValueIndex.key == key, KeyValueIndex.value == value)).\
+                            sub_query = session.query(KeyValueIndex.uuid). \
+                                filter(and_(KeyValueIndex.key == key, KeyValueIndex.value == value)). \
                                 subquery()
                         res.append(ObjectInfoIndex.uuid.in_(sub_query))
 
@@ -1156,7 +1158,7 @@ class ObjectIndex(Plugin, SessionMixin):
 
         return _args
 
-    def search(self, query, properties, options=None):
+    def search(self, query, properties, options=None, session=None):
         """
         Perform an index search
 
@@ -1171,74 +1173,83 @@ class ObjectIndex(Plugin, SessionMixin):
 
         ``Return``: List of dicts
         """
+        if session is None:
+            if self.__session is not None:
+                return self._session_search(self.__session, query, properties, options=options)
+            else:
+                with self.make_session() as session:
+                    return self._session_search(session, query, properties, options=options)
+        else:
+            return self._session_search(session, query, properties, options=options)
+
+    def _session_search(self, session, query, properties, options=None):
         res = []
-        with self.make_session() as session:
-            fltr = self._make_filter(query, session)
+        fltr = self._make_filter(query, session)
 
-            def normalize(data, resultset=None, so_props=None):
-                _res = {
-                    "_uuid": data.uuid,
-                    "dn": data.dn,
-                    "_type": data._type,
-                    "_parent_dn": data._parent_dn,
-                    "_adjusted_parent_dn": data._adjusted_parent_dn,
-                    "_last_changed": data._last_modified,
-                    "_extensions": []
-                }
+        def normalize(data, resultset=None, so_props=None):
+            _res = {
+                "_uuid": data.uuid,
+                "dn": data.dn,
+                "_type": data._type,
+                "_parent_dn": data._parent_dn,
+                "_adjusted_parent_dn": data._adjusted_parent_dn,
+                "_last_changed": data._last_modified,
+                "_extensions": []
+            }
 
-                # Add extension list
-                for extension in data.extensions:
-                    _res["_extensions"].append(extension.extension)
+            # Add extension list
+            for extension in data.extensions:
+                _res["_extensions"].append(extension.extension)
 
-                # Add indexed properties
-                for kv in data.properties:
-                    if kv.key in _res:
-                        _res[kv.key].append(kv.value)
+            # Add indexed properties
+            for kv in data.properties:
+                if kv.key in _res:
+                    _res[kv.key].append(kv.value)
 
-                    else:
-                        _res[kv.key] = [kv.value]
+                else:
+                    _res[kv.key] = [kv.value]
 
-                # get data from SearchObjectIndex (e.g. title, description)
-                if so_props is not None and len(so_props) > 0 and len(data.search_object) > 0:
-                    for prop in so_props:
-                        _res[prop] = [getattr(data.search_object[0], prop)]
+            # get data from SearchObjectIndex (e.g. title, description)
+            if so_props is not None and len(so_props) > 0 and len(data.search_object) > 0:
+                for prop in so_props:
+                    _res[prop] = [getattr(data.search_object[0], prop)]
 
-                # Clean the result set?
-                if resultset:
-                    for key in [_key for _key in _res if not _key in resultset.keys() and _key[0:1] != "_"]:
-                        _res.pop(key, None)
+            # Clean the result set?
+            if resultset:
+                for key in [_key for _key in _res if not _key in resultset.keys() and _key[0:1] != "_"]:
+                    _res.pop(key, None)
 
-                return _res
-            if options is None:
-                options = {}
+            return _res
+        if options is None:
+            options = {}
 
-            q = session.query(ObjectInfoIndex)\
-                .options(joinedload(ObjectInfoIndex.properties)) \
-                .options(joinedload(ObjectInfoIndex.extensions))
+        q = session.query(ObjectInfoIndex) \
+            .options(joinedload(ObjectInfoIndex.properties)) \
+            .options(joinedload(ObjectInfoIndex.extensions))
 
-            # check if we need somthing from the searchObject
-            so_props = None
-            if properties is not None:
-                so_props = [x for x in properties if hasattr(SearchObjectIndex, x)]
-                if len(so_props) > 0:
-                    q = q.options(joinedload(ObjectInfoIndex.search_object))
-            q = q.filter(*fltr)
+        # check if we need somthing from the searchObject
+        so_props = None
+        if properties is not None:
+            so_props = [x for x in properties if hasattr(SearchObjectIndex, x)]
+            if len(so_props) > 0:
+                q = q.options(joinedload(ObjectInfoIndex.search_object))
+        q = q.filter(*fltr)
 
-            if 'limit' in options:
-                q.limit(options['limit'])
+        if 'limit' in options:
+            q.limit(options['limit'])
 
-            # try:
-            #     self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-            # except Exception as e:
-            #     self.log.error("Error creating SQL string: %s" % str(e))
-            #     self.log.debug(str(q))
+        # try:
+        #     self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+        # except Exception as e:
+        #     self.log.error("Error creating SQL string: %s" % str(e))
+        #     self.log.debug(str(q))
 
-            try:
-                for o in q.all():
-                    res.append(normalize(o, properties, so_props=so_props))
-            except sqlalchemy.exc.InternalError as e:
-                self.log.error(str(e))
-                session.rollback()
+        try:
+            for o in q.all():
+                res.append(normalize(o, properties, so_props=so_props))
+        except sqlalchemy.exc.InternalError as e:
+            self.log.error(str(e))
+            session.rollback()
 
         return res
 
