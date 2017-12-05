@@ -22,6 +22,7 @@ import subprocess
 
 import dbus.service
 import pwd
+import stat
 
 from gosa.common import Environment
 from gosa.common.components import Plugin
@@ -48,9 +49,11 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     """
     add_other_menu = False
     home_dir = None
+    username = None
     local_menu = os.path.join(".config", "menus", XDG_MENU_PREFIX + 'applications.menu')
     local_applications = os.path.join(".local", "share", "applications")
-    local_applications_scripts = os.path.join(".local", "share", "goto", "applications-scripts")
+    local_application_scripts = os.path.join(".local", "share", "goto", "applications")
+    local_application_scripts_log = os.path.join(".local", "share", "goto", "log", "applications")
     local_icons = os.path.join(".local", "share", "icons")
     local_directories = os.path.join(".local", "share", "desktop-directories")
     __initialized_dirs = []
@@ -69,30 +72,58 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     def configureUserMenu(self, user, user_menu):
         """ configure a users application menu """
         user_menu = loads(user_menu)
-        uid = pwd.getpwnam(user).pw_uid
-        gid = pwd.getpwnam(user).pw_gid
+        pw_ent = pwd.getpwnam(user)
+        uid = pw_ent.pw_uid
+        gid = pw_ent.pw_gid
 
         self.__initialized_dirs = []
         self.home_dir = os.path.expanduser('~%s' % user)
+        self.username = user
         self.init_directories(user_menu)
         scripts = self.init_applications(user_menu)
         self.init_menu(user_menu)
-        if self.env.config.get("user.chown-menu", default="false") == "true":
-            self.chown_dirs(uid, gid)
-        elif len(scripts) > 0:
-            # script files need to be chowned to user anyways
+        self.chown_dirs(uid, gid)
+        if len(scripts) > 0:
+            # script files need to be chowned to user always
             for script in scripts:
                 self.__chown(script, uid, gid)
-        # make it executable by user and execute them
+                os.chmod(script, stat.S_IRUSR | stat.S_IXUSR)
+
+        def demote(user_uid, user_gid):
+            os.setgid(user_gid)
+            os.setuid(user_uid)
+
         for script in scripts:
-            os.chmod(script, 0o755)
-            # execute script as user
+            # execute script as user and create environment
+            environment = os.environ.copy()
+            environment['HOME'] = pw_ent.pw_dir
+            environment['LOGNAME'] = pw_ent.pw_name
+            environment['USER'] = pw_ent.pw_name
+            environment['PWD'] = pw_ent.pw_dir
+
+            # TODO: Append gosaApplicationParameters
+            # for parameter in gosaApplicationParameter:
+            #     environment[parameter] = gosaApplicationParameter[parameter]
+
+            script_log = os.path.join(self.home_dir, self.local_application_scripts_log, os.path.basename(script) + '.log')
             try:
-                retcode = subprocess.call("su %s %s" % (user, script), shell=True)
-                if retcode < 0:
-                    self.log.error("%s was terminated by signal %s" % (script, -retcode))
-                else:
-                    self.log.info("%s returned %s" % (script, retcode))
+                with open(script_log, 'w+') as logfile:
+                    p = subprocess.Popen(
+                        [script],
+                        shell=True,
+                        bufsize=1024,
+                        stdout=logfile,
+                        stderr=logfile,
+                        close_fds=True,
+                        env = environment,
+                        preexec_fn=demote(uid, gid)
+                    )
+
+                    returncode = p.wait()
+                    if returncode != 0:
+                        self.log.error("{} was terminated by signal {}: check {}".format(script, returncode, script_log))
+                    else:
+                        self.log.info("{} returned {}".format(script, returncode))
             except OSError as e:
                 self.log.error("%s execution failed: %s" % (script, str(e)))
 
@@ -125,8 +156,12 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     def init_applications(self, user_menu):
         app_dir = os.path.join(self.home_dir, self.local_applications)
         self.init_dir(app_dir)
-        scripts_dir = os.path.join(self.home_dir, self.local_applications_scripts)
+
+        scripts_dir = os.path.join(self.home_dir, self.local_application_scripts)
         self.init_dir(scripts_dir)
+
+        script_logs_dir = os.path.join(self.home_dir, self.local_application_scripts_log)
+        self.init_dir(script_logs_dir)
 
         scripts = []
 
@@ -154,6 +189,7 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     def init_directories(self, user_menu):
         loc_dir = os.path.join(self.home_dir, self.local_directories)
         self.init_dir(loc_dir)
+
         icon_dir = os.path.join(self.home_dir, self.local_icons)
         self.init_dir(icon_dir)
 
@@ -220,13 +256,14 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     def write_app_script(self, app_entry):
 
         if 'gotoLogonScript' in app_entry and app_entry['gotoLogonScript'] is not None:
-            script_path = os.path.join(self.home_dir, self.local_applications_scripts, app_entry['cn'])
+            script_path = os.path.join(self.home_dir, self.local_application_scripts, app_entry['cn'])
 
             if os.path.exists(script_path):
                 os.unlink(script_path)
 
-            with open(script_path, 'w') as script_file:
-                script_file.write(app_entry['gotoLogonScript'])
+            with open(script_path, 'w+') as script_file:
+                script = app_entry['gotoLogonScript'].replace('\r\n', '\n')
+                script_file.write(script)
 
             return script_path
 
