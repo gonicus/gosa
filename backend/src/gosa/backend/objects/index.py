@@ -151,7 +151,6 @@ class ObjectIndex(Plugin, SessionMixin):
     fuzzy = False
     db = None
     base = None
-    __session = None
     _priority_ = 20
     _target_ = 'core'
     _indexed = False
@@ -509,7 +508,6 @@ class ObjectIndex(Plugin, SessionMixin):
         removed = 0
 
         with self.make_session() as session:
-            self.__session = session
             try:
                 self._indexed = True
 
@@ -627,7 +625,6 @@ class ObjectIndex(Plugin, SessionMixin):
                 self.post_process(session=session)
                 self.log.info("index refresh finished")
                 self.notify_frontends(N_("Index refresh finished"), 100)
-                self.__session = None
                 GlobalLock.release("scan_index")
 
                 zope.event.notify(IndexScanFinished())
@@ -1174,11 +1171,8 @@ class ObjectIndex(Plugin, SessionMixin):
         ``Return``: List of dicts
         """
         if session is None:
-            if self.__session is not None:
-                return self._session_search(self.__session, query, properties, options=options)
-            else:
-                with self.make_session() as session:
-                    return self._session_search(session, query, properties, options=options)
+            with self.make_session() as session:
+                return self._session_search(session, query, properties, options=options)
         else:
             return self._session_search(session, query, properties, options=options)
 
