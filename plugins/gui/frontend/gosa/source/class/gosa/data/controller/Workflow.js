@@ -33,6 +33,8 @@ qx.Class.define("gosa.data.controller.Workflow", {
       this.__backendChangeController
     );
 
+    this.__workflowObject.addListener("propertyUpdateOnServer", this.__onServerPropertyUpdated, this);
+
     this.__workflowObject.setUiBound(true);
   },
 
@@ -94,10 +96,27 @@ qx.Class.define("gosa.data.controller.Workflow", {
      */
     getExtensionController : function() {
       return null;
+    },
+
+    /**
+     * @param ev {qx.event.type.Data}
+     */
+    __onServerPropertyUpdated : function(ev) {
+      if (qx.core.Environment.get("qx.debug")) {
+        qx.core.Assert.assertInstance(ev, qx.event.type.Data);
+      }
+
+      var data = ev.getData();
+      var widget = this.getWidgetByAttributeName(data.property);
+
+      widget.setValid(data.success);
+      data.error && widget.setError(data.error.getData());
     }
   },
 
   destruct : function() {
+    this.__workflowObject.removeListener("propertyUpdateOnServer", this.__onServerPropertyUpdated, this);
+
     this.__workflowObject.removeListener(
       "foundDifferencesDuringReload",
       this.__backendChangeController.onFoundDifferenceDuringReload,

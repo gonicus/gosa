@@ -1,8 +1,12 @@
+import copy
 import os
 import sys
 import logging
 
 import datetime
+
+from gosa.backend.objects.validator import Validator
+from gosa.backend.objects.xml_parsing import XmlParsing
 from lxml import objectify, etree
 
 from gosa.backend.routes.sse.main import SseHandler
@@ -43,6 +47,9 @@ class Workflow:
     __reference_object = None
     __log = None
     __skip_refresh = False
+    __xml_parsing = None
+    __attribute_config = None  # information about attributes that shall not be in __attribute_map
+    __validator = None
 
     def __init__(self, _id, what=None, user=None, session_id=None):
         schema = etree.XMLSchema(file=resource_filename("gosa.backend", "data/workflow.xsd"))
@@ -50,6 +57,9 @@ class Workflow:
         self.env = Environment.getInstance()
         self.uuid = _id
         self.dn = self.env.base
+        self.__xml_parsing = XmlParsing('Workflows')
+        self.__validator = Validator()
+        self.__attribute_config = {}
         self.__user = user
         self.__session_id = session_id
         self.__log = logging.getLogger(__name__)
@@ -241,6 +251,11 @@ class Workflow:
                                     "reference_attribute": attr.__dict__['InheritFrom'].attrib['relation']
                                 }
 
+                            if 'Validators' in attr.__dict__:
+                                self.__attribute_config[attr.Name.text] = {
+                                    'validators': self.__xml_parsing.build_filter(attr['Validators'])
+                                }
+
                             res[attr.Name.text] = {
                                 'description': str(self._load(attr, "Description", "")),
                                 'type': attr.Type.text,
@@ -318,8 +333,15 @@ class Workflow:
 
         # Validate value
         attribute = self._get_attributes()[name]
+        config = self.__attribute_config[name]
         if attribute['mandatory'] and value is None:
             raise AttributeError(C.make_error('ATTRIBUTE_MANDATORY', name))
+
+        if 'validators' in config and config['validators'] is not None:
+            props_copy = copy.deepcopy(self.__attribute)
+            res, error = self.__validator.process_validator(config['validators'], name, [value], props_copy)
+            if res is False:
+                raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
 
         changed = self.__attribute[name] != value
         self.__attribute[name] = value
