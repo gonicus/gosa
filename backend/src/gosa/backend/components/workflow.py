@@ -332,16 +332,19 @@ class Workflow:
             raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
 
         # Validate value
+        # mandatory
         attribute = self._get_attributes()[name]
-        config = self.__attribute_config[name]
         if attribute['mandatory'] and value is None:
             raise AttributeError(C.make_error('ATTRIBUTE_MANDATORY', name))
 
-        if 'validators' in config and config['validators'] is not None:
-            props_copy = copy.deepcopy(self.__attribute)
-            res, error = self.__validator.process_validator(config['validators'], name, [value], props_copy)
-            if res is False:
-                raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
+        # custom validators
+        if name in self.__attribute_config:
+            config = self.__attribute_config[name]
+            if 'validators' in config and config['validators'] is not None:
+                props_copy = copy.deepcopy(self.__attribute)
+                res, error = self.__validator.process_validator(config['validators'], name, [value], props_copy)
+                if res is False:
+                    raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
 
         changed = self.__attribute[name] != value
         self.__attribute[name] = value

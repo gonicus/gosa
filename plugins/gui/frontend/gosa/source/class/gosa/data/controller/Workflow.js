@@ -111,6 +111,8 @@ qx.Class.define("gosa.data.controller.Workflow", {
 
       widget.setValid(data.success);
       data.error && widget.setError(data.error.getData());
+
+      this._widget.validate();
     }
   },
 

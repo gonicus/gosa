@@ -90,6 +90,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       }, this);
 
       this.getChildControl("next-button").setEnabled(valid);
+      this.getChildControl("save-button").setEnabled(valid);
     },
 
     __onEnterPress : function() {
