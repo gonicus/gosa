@@ -60,6 +60,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     __currentStep : 0,
     __modelWidgetConnector : null,
     __enterCommand : null,
+    __savingInfo : null,
 
     /**
      * @type {Array} Holds information for the single steps. The order is in which to show the steps. There is one
@@ -190,6 +191,28 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       last.addState("last");
     },
 
+    __save : function() {
+      this.setEnabled(false);
+      this.getChildControl("save-button").setEnabled(false);
+      this.__showSavingInfo();
+      this.__controller.saveAndClose();
+    },
+
+    __showSavingInfo : function() {
+      if (this.__savingInfo) {
+        this.__savingInfo.destroy();
+        this.__savingInfo = null;
+      }
+
+      this.__savingInfo = new gosa.ui.dialogs.Loading();
+      this.__savingInfo.setAutoDispose(true);
+      this.__savingInfo.getChildControl("loading-label").set({
+        label : this.tr("Saving..."),
+        icon : "@Ligature/save/22"
+      });
+      this.__savingInfo.open();
+    },
+
     __showSaveButton : function(shallShow) {
       this.getChildControl("save-button").setVisibility(shallShow ? "visible" : "excluded");
       this.getChildControl("next-button").setVisibility(shallShow ? "excluded" : "visible");
@@ -249,7 +272,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
         case "save-button":
           control = new qx.ui.form.Button(this.tr("Save & Close"));
-          control.addListener("execute", this.__controller.saveAndClose, this.__controller);
+          control.addListener("execute", this.__save, this);
           this.getChildControl("button-group").add(control);
           break;
       }
@@ -260,7 +283,7 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
 
   destruct : function() {
     this._disposeArray("__contexts");
-    this._disposeObjects("__modelWidgetConnector", "__enterCommand");
+    this._disposeObjects("__modelWidgetConnector", "__enterCommand", "__savingInfo");
     this.__controller = null;
     this.__stepsConfig = null;
   }
