@@ -410,8 +410,8 @@ class CupsClient(Plugin):
                 # fetch remote file and copy it to a temporary local one
                 r = requests.get(ppd_file)
                 with open(temp_file.name, "wb") as tf:
-                    tf.write(r.content)
-                local_file = tf
+                    tf.write(r.content.decode("utf-8"))
+                local_file = temp_file.name
             else:
                 local_file = ppd_file
 
@@ -423,7 +423,7 @@ class CupsClient(Plugin):
                     res[name] = attr.value
 
         except Exception as e:
-            self.log.error(str(e))
+            self.log.error("Error reading PPD file %s: %s" % (ppd_file, str(e)))
 
         finally:
             os.unlink(temp_file.name)
