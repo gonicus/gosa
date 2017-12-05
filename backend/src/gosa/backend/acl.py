@@ -1060,11 +1060,13 @@ class ACLResolver(Plugin, SessionMixin):
     def is_member_of_role(self, user, role_name, base=None):
         if base is None:
             base = self.env.base
-
-        for acl in self.get_aclset_by_base(base):
-            if acl.uses_role is True and acl.role == role_name:
-                if user in acl.members:
-                    return True
+        try:
+            for acl in self.get_aclset_by_base(base):
+                if acl.uses_role is True and acl.role == role_name:
+                    if user in acl.members:
+                        return True
+        except ACLException as e:
+            self.log.debug(str(e))
         return False
 
     def list_admin_accounts(self):
