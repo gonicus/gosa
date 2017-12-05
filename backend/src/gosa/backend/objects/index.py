@@ -1227,7 +1227,7 @@ class ObjectIndex(Plugin, SessionMixin):
                 q.limit(options['limit'])
 
             try:
-                self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+                str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
             except Exception as e:
                 self.log.error("Error creating SQL string: %s" % str(e))
                 self.log.debug(str(q))
