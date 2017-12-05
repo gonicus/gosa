@@ -204,6 +204,8 @@ setup(
         imagefilter = gosa.backend.plugins.user.filters:ImageProcessor
         generatedn = gosa.backend.plugins.user.filters:GenerateDisplayName
         loaddnstate = gosa.backend.plugins.user.filters:LoadDisplayNameState
+        IsMemberOfAclRole = gosa.backend.plugins.user.filters:IsMemberOfAclRole
+        UpdateMemberOfAclRole = gosa.backend.plugins.user.filters:UpdateMemberOfAclRole
         generateids = gosa.backend.plugins.posix.filters:GenerateIDs
         datetoshadowdays = gosa.backend.plugins.posix.shadow:DatetimeToShadowDays
         shadowdaystodate = gosa.backend.plugins.posix.shadow:ShadowDaysToDatetime

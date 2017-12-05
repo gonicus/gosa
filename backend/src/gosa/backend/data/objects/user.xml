@@ -685,6 +685,60 @@
           </FilterChain>
         </OutFilter>
       </Attribute>
+      <Attribute>
+        <Name>isAdmin</Name>
+        <Type>Boolean</Type>
+        <Backend>NULL</Backend>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>IsMemberOfAclRole</Name>
+                <Param>uid</Param>
+                <Param>Admin</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>UpdateMemberOfAclRole</Name>
+                <Param>uid</Param>
+                <Param>Admin</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>isSelfService</Name>
+        <Type>Boolean</Type>
+        <Backend>NULL</Backend>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>IsMemberOfAclRole</Name>
+                <Param>uid</Param>
+                <Param>SelfService</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>UpdateMemberOfAclRole</Name>
+                <Param>uid</Param>
+                <Param>SelfService</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
     </Attributes>
     <BaseObject>true</BaseObject>
 

@@ -15,11 +15,10 @@ from gosa.common import Environment
 from gosa.backend.objects.filter import ElementFilter
 from gosa.backend.exceptions import ElementFilterException
 from gosa.common.components import PluginRegistry
-from gosa.common.env import SessionMixin
+from gosa.common.env import SessionMixin, declarative_base
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.utils import N_
 from io import BytesIO
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, Integer, DateTime, and_, Sequence, ForeignKey
 from sqlalchemy.exc import OperationalError
@@ -269,4 +268,41 @@ class UnmarshalLogonScript(ElementFilter):
                 else:
                     valDict["script"]["value"].append("")
 
+        return key, valDict
+
+
+class IsMemberOfAclRole(ElementFilter):
+    """
+    Check is a user (identified by the values in the uidAttribute) is part of the given ACLRole
+    """
+
+    def process(self, obj, key, valDict, uidAttribute, role_name):
+        if uidAttribute in valDict:
+            acl = PluginRegistry.getInstance("ACLResolver")
+            res = []
+            for uid in valDict[uidAttribute]["value"]:
+                if role_name.lower() == "admin":
+                    res.append(acl.isAdmin(uid))
+                else:
+                    res.append(acl.is_member_of_role(uid, role_name))
+            valDict[key]["value"] = res
+        return key, valDict
+
+
+class UpdateMemberOfAclRole(ElementFilter):
+    """
+    Add a user to a ACLRole if the references attribute value is True or remove it if False
+    """
+    def process(self, obj, key, valDict, uidAttribute, role_name):
+        acl = PluginRegistry.getInstance("ACLResolver")
+        for idx, val in enumerate(valDict[key]["value"]):
+            uid = valDict[uidAttribute]["value"][idx]
+            if role_name.lower() == "admin":
+                if acl.isAdmin(uid) != val:
+                    acl.changeAdmin(None, uid, val)
+            elif acl.is_member_of_role(uid, role_name) != val:
+                if val is True:
+                    acl.add_member_to_role(role_name, uid)
+                else:
+                    acl.remove_member_from_role(role_name, uid)
         return key, valDict

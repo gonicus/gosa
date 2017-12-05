@@ -885,23 +885,28 @@ class CacheCheck:
         self._instance = instance
         return self
 
-    def __call__(self, user, topic, acls, options=None, base=None):
+    def __call__(self, user, topic, acls, options=None, base=None, skip_admin_override=False):
         try:
             key = "%s.%s.%s" % (user, topic, acls)
             if options is not None and len(options):
                 key += "."+str(tuple(sorted(options.items())))
             if base is not None:
                 key += "."+base
+            if skip_admin_override is True:
+                key += ".skipAdmin"
             res = self.memoized[key]
             self.log.debug("cache HIT %s" % key)
             return res
         except KeyError:
             self.log.debug("cache MISS %s" % key)
-            self.memoized[key] = self.function(self._instance, user, topic, acls, options, base)
+            self.memoized[key] = self.function(self._instance, user, topic, acls, options, base, skip_admin_override)
             return self.memoized[key]
 
-    def cache_clear(self):
-        self.memoized = {}
+    def cache_clear(self, key=None):
+        if key is None:
+            self.memoized = {}
+        elif key in self.memoized:
+            del self.memoized[key]
 
 
 @implementer(IInterfaceHandler)
@@ -1007,6 +1012,62 @@ class ACLResolver(Plugin, SessionMixin):
 
         # Load Acls from the object DB
         self.load_from_object_database()
+
+    @Command(__help__=N_("Checks if user has admin rights"))
+    def isAdmin(self, user):
+        if user in self.admins:
+            return True
+        else:
+            return self.check(user,  "%s.command.isAdmin" % self.env.domain, "x", skip_admin_override=True)
+
+    def changeAdmin(self, user, new_admin, value=True):
+        role_name = "Admin"
+        cache_key = "%s.%s.%s" % (new_admin, "%s.command.isAdmin" % self.env.domain, "x")
+        if user is None or self.isAdmin(user):
+            if value is True and not self.isAdmin(new_admin):
+                # make him admin
+                # create AclRole for joining if not exists
+                index = PluginRegistry.getInstance("ObjectIndex")
+                res = index.search({"_type": "AclRole", "name": role_name}, {"dn": 1})
+                if len(res) == 0:
+                    # create
+                    self.log.debug("creating new AclRole: %s" % role_name)
+                    role = ObjectProxy(self.env.base, "AclRole")
+                    role.name = role_name
+
+                    # create rule
+                    aclentry = {
+                        "priority": 0,
+                        "scope": "sub",
+                        "actions": [
+                            {
+                                "topic": "%s\.command\.isAdmin" % self.env.domain,
+                                "acl": "x",
+                                "options": {}
+                            }
+                        ]}
+                    role.AclRoles = [aclentry]
+                    role.commit()
+
+                self.add_member_to_role(role_name, new_admin)
+                self.check.cache_clear(key=cache_key)
+
+            elif value is False and self.isAdmin(new_admin):
+                # find the ACLSet and remove the user from it
+                self.remove_member_from_role(role_name, new_admin)
+                self.check.cache_clear(key=cache_key)
+
+    def is_member_of_role(self, user, role_name, base=None):
+        if base is None:
+            base = self.env.base
+        try:
+            for acl in self.get_aclset_by_base(base):
+                if acl.uses_role is True and acl.role == role_name:
+                    if user in acl.members:
+                        return True
+        except ACLException as e:
+            self.log.debug(str(e))
+        return False
 
     def list_admin_accounts(self):
         """
@@ -1236,7 +1297,7 @@ class ACLResolver(Plugin, SessionMixin):
         self.check.cache_clear()
 
     @CacheCheck
-    def check(self, user, topic, acls, options=None, base=None):
+    def check(self, user, topic, acls, options=None, base=None, skip_admin_override=False):
         """
         Check permission for a given user and a base.
 
@@ -1260,9 +1321,10 @@ class ACLResolver(Plugin, SessionMixin):
         """
 
         # Admin users are allowed to do anything.
-        if user in self.admins or user is None:
-            self.log.debug("ACL check override active for %s/%s/%s" % (user, base, str(topic)))
-            return True
+        if skip_admin_override is False:
+            if user is None or self.isAdmin(user):
+                self.log.debug("ACL check override active for %s/%s/%s" % (user, base, str(topic)))
+                return True
 
         # Load default base if needed
         if not base:
@@ -1479,6 +1541,51 @@ class ACLResolver(Plugin, SessionMixin):
             if aclset.base == base:
                 aclset.add(acl)
                 self.check.cache_clear()
+
+    def add_member_to_role(self, role, member, base=None):
+        if base is None:
+            base = self.env.base
+
+        base = ObjectProxy(base)
+        if not base.is_extended_by("Acl"):
+            return
+
+        found_set = None
+        for aclSet in base.AclSets:
+            if aclSet["rolename"] == role:
+                found_set = aclSet
+                if member in aclSet["members"]:
+                    # nothing to to
+                    return
+
+        if found_set is not None:
+            found_set["members"].append(member)
+        else:
+            acl_entry = {"priority": 0,
+                         "members": [member],
+                         "rolename": role}
+            base.AclSets.append(acl_entry)
+        base.commit()
+
+        self.check.cache_clear()
+
+    def remove_member_from_role(self, role, member, base=None):
+        if base is None:
+            base = self.env.base
+
+        base = ObjectProxy(base)
+        if not base.is_extended_by("Acl"):
+            return
+
+        changed = False
+        for aclSet in base.AclSets:
+            if aclSet["rolename"] == role and member in aclSet["members"]:
+                aclSet["members"].remove(member)
+                changed = True
+
+        if changed is True:
+            base.commit()
+            self.check.cache_clear()
 
     def remove_acls_for_user(self, user):
         """

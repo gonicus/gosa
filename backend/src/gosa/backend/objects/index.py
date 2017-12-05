@@ -28,7 +28,7 @@ from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils import TSVectorType
 
 import gosa
-from gosa.common.env import SessionMixin
+from gosa.common.env import SessionMixin, declarative_base
 from gosa.common.event import EventMaker
 from lxml import etree
 from lxml import objectify
@@ -48,7 +48,6 @@ from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects import ObjectFactory, ObjectProxy, ObjectChanged
 from gosa.backend.exceptions import FilterException, IndexException, ProxyException, ObjectException
 from gosa.backend.lock import GlobalLock
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, joinedload
 from sqlalchemy import Column, String, Integer, Boolean, Sequence, DateTime, ForeignKey, or_, and_, not_, func, orm
 
@@ -187,6 +186,8 @@ class ObjectIndex(Plugin, SessionMixin):
         Base.metadata.create_all(self.env.getDatabaseEngine("backend-database"))
 
         self.__value_extender = gosa.backend.objects.renderer.get_renderers()
+
+        self._acl_resolver = PluginRegistry.getInstance("ACLResolver")
 
         with self.make_session() as session:
 
@@ -1255,14 +1256,15 @@ class ObjectIndex(Plugin, SessionMixin):
 
         ``Return``: Filtered result entry
         """
-
+        if self._acl_resolver.isAdmin(user):
+            return entry
         res = {}
         for attr in entry.keys():
-           if attr in ['dn', '_type', '_uuid', '_last_changed']:
+            if attr in ['dn', '_type', '_uuid', '_last_changed']:
                 res[attr] = entry[attr]
                 continue
 
-           if self.__has_access_to(user, entry['dn'], entry['_type'], attr):
+            if self.__has_access_to(user, entry['dn'], entry['_type'], attr):
                 res[attr] = entry[attr]
 
         return res
@@ -1271,9 +1273,8 @@ class ObjectIndex(Plugin, SessionMixin):
         """
         Checks whether the given user has access to the given object/attribute or not.
         """
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
         if user:
             topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
-            return aclresolver.check(user, topic, "r", base=object_dn)
+            return self._acl_resolver.check(user, topic, "r", base=object_dn)
         else:
             return True
