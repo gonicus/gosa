@@ -409,7 +409,7 @@ class CupsClient(Plugin):
             if ppd_file[0:4] == "http":
                 # fetch remote file and copy it to a temporary local one
                 r = requests.get(ppd_file)
-                with open(temp_file.name, "w") as tf:
+                with open(temp_file.name, "wb") as tf:
                     tf.write(r.content)
                 local_file = tf
             else:
