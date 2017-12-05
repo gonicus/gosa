@@ -212,9 +212,9 @@ class ObjectProxy(object):
         self.__attribute_map = self.__factory.get_attributes_by_object(self.__base_type)
 
         # Generate attribute to object-type mapping
-        for attr in [n for n, o in self.__base.getProperties().items() if not o['foreign']]:
-            self.__attributes.append(attr)
         self.__property_map = self.__base.getProperties()
+        for attr in [n for n, o in self.__property_map.items() if not o['foreign']]:
+            self.__attributes.append(attr)
         for ext in all_extensions:
             if self.__extensions[ext]:
                 props = self.__extensions[ext].getProperties()
@@ -563,13 +563,14 @@ class ObjectProxy(object):
         Return a dictionary containing all property values.
         """
         res = {'value': {}, 'values': {}, 'saveable': {}}
+        base_properties = self.__base.getProperties()
         for item in self.get_attributes():
             if self.__base_type == self.__attribute_type_map[item]:
                 res['value'][item] = getattr(self, item)
-                res['saveable'][item] = self.__base.getProperties()[item]['readonly'] is False and \
-                                        ('skip_save' not in self.__base.getProperties()[item] or self.__base.getProperties()[item]['skip_save'] is False)
-                if self.__base.getProperties()[item]['values_populate']:
-                    res['values'][item] = self.__base.getProperties()[item]['values']
+                res['saveable'][item] = base_properties[item]['readonly'] is False and \
+                                        ('skip_save' not in base_properties[item] or base_properties[item]['skip_save'] is False)
+                if base_properties[item]['values_populate']:
+                    res['values'][item] = base_properties[item]['values']
             elif self.__extensions[self.__attribute_type_map[item]]:
                 res['value'][item] = getattr(self, item)
                 map = self.__extensions[self.__attribute_type_map[item]].getProperties()[item]
