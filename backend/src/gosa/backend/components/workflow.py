@@ -58,7 +58,7 @@ class Workflow:
         self.uuid = _id
         self.dn = self.env.base
         self.__xml_parsing = XmlParsing('Workflows')
-        self.__validator = Validator()
+        self.__validator = Validator(self)
         self.__attribute_config = {}
         self.__user = user
         self.__session_id = session_id
