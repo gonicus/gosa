@@ -76,19 +76,23 @@ class CupsClient(Plugin):
 
             sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
             sched.add_interval_job(self.__gc, minutes=60, tag='_internal', jobstore="ram")
+            sched.add_interval_job(self.__update_printer_list, minutes=30, tag='_internal', jobstore="ram")
 
         except RuntimeError as e:
             self.log.error(str(e))
 
     def __get_printer_list(self):
         if self.__printer_list is None:
-            res = {}
-            for name, ppd in self.client.getPPDs().items():
-                if ppd["ppd-make"] not in res:
-                    res[ppd["ppd-make"]] = []
-                res[ppd["ppd-make"]].append({"model": ppd["ppd-make-and-model"], "ppd": name})
-            self.__printer_list = res
+            self.__update_printer_list()
         return self.__printer_list
+
+    def __update_printer_list(self):
+        res = {}
+        for name, ppd in self.client.getPPDs().items():
+            if ppd["ppd-make"] not in res:
+                res[ppd["ppd-make"]] = []
+            res[ppd["ppd-make"]].append({"model": ppd["ppd-make-and-model"], "ppd": name})
+        self.__printer_list = res
 
     def __gc(self):
         """ garbage collection for unused temporary PPD files in spool directory """
