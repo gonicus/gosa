@@ -2,8 +2,9 @@ from logging import getLogger
 
 
 class Validator:
-    def __init__(self):
+    def __init__(self, context):
         self.log = getLogger(__name__)
+        self._context = context
 
     def process_validator(self, fltr, key, value, props_copy, **kwargs):
         """
@@ -35,7 +36,7 @@ class Validator:
             if 'condition' in curline:
 
                 # Build up argument list
-                args = [props_copy, key, value] + [self if x == "#self#" else x for x in curline['params']]
+                args = [props_copy, key, value] + [self._context if x == "#self#" else x for x in curline['params']]
 
                 # Process condition and keep results
                 fname = type(curline['condition']).__name__

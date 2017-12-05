@@ -94,11 +94,15 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
     },
 
     __onEnterPress : function() {
-      if (this.getChildControl("save-button").isVisible()) {
-        this.getChildControl("save-button").execute();
+      var saveButton = this.getChildControl("save-button");
+      if (saveButton.isVisible() && saveButton.isEnabled()) {
+        saveButton.execute();
+        return;
       }
-      else if (this.getChildControl("next-button").isEnabled()) {
-        this.getChildControl("next-button").execute();
+
+      var nextButton = this.getChildControl("next-button");
+      if (nextButton.isVisible() && nextButton.isEnabled()) {
+        nextButton.execute();
       }
     },
 

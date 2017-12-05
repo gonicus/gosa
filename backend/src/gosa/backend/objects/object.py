@@ -150,7 +150,7 @@ class Object(object):
 
     def __init__(self, where=None, mode="update", data=None, force_update=False):
         self.env = Environment.getInstance()
-        self._validator = Validator()
+        self._validator = Validator(self)
 
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
