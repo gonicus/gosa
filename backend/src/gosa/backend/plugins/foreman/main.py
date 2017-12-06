@@ -227,7 +227,14 @@ class Foreman(Plugin, SessionMixin):
                 # no object found -> create one
                 self.log.debug(">>> creating new %s" % object_type)
                 base_dn = self.env.base
-                if object_type in self.type_bases:
+                if object_type == "ForemanHost":
+                    # get the IncomingDevice-Container
+                    res = index.search({"_type": "IncomingDeviceContainer", "_parent_dn": self.type_bases["ForemanHost"]}, {"dn": 1})
+                    if len(res) > 0:
+                        base_dn = res[0]["dn"]
+                    else:
+                        base_dn = self.type_bases["ForemanHost"]
+                elif object_type in self.type_bases:
                     base_dn = self.type_bases[object_type]
                 foreman_object = ObjectProxy(base_dn, base_type)
                 uuid_extension = foreman_object.get_extension_off_attribute(backend_attributes["Foreman"]["_uuidAttribute"])
