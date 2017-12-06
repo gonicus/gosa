@@ -21,7 +21,7 @@ import tempfile
 import os
 import cups
 import dbus.service
-from requests import get
+from requests import get, utils
 
 from gosa.common import Environment
 from gosa.common.components import Plugin
@@ -54,7 +54,7 @@ class DBusCupsHandler(dbus.service.Object, Plugin):
         connection = cups.Connection()
         temp_file = tempfile.NamedTemporaryFile(delete=False)
         with open(temp_file.name, "w") as tf:
-            response = get(config["gotoPrinterPPD"])
+            response = get(utils.quote(config["gotoPrinterPPD"], safe=":/"))
             tf.write(response.content.decode('utf-8'))
         try:
             connection.addPrinter(

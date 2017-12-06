@@ -23,6 +23,7 @@ class JSONRPCObjectMapperTestCase(TestCase):
         self.mapper = JSONRPCObjectMapper()
         self.mocked_resolver = mock.MagicMock()
         self.mocked_resolver.return_value.check.return_value = True
+        self.mocked_resolver.return_value.isAdmin.return_value = False
         self.patcher = mock.patch.dict(PluginRegistry.modules, {'ACLResolver': self.mocked_resolver})
         self.patcher.start()
 
