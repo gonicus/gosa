@@ -216,12 +216,16 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
       if (this.__object.uuid === data.UUID || this.__object.dn === data.DN) {
         this.__object.setWriteAttributeUpdates(false);
         data.Change.forEach(function(change) {
-          var widget = this.__findWidgets(change.PropertyName).widget;
-          var oldValue = widget.getSingleValue();
-          var suggestions = qx.lang.Json.parse(change.NewValues);
-          widget.setValues(suggestions);
-          if (oldValue && suggestions.hasOwnProperty(oldValue) || qx.lang.Type.isArray(suggestions) && qx.lang.Array.contains(suggestions, oldValue)) {
-            widget.setWidgetValue(0, oldValue);
+          if (this.__findWidgets(change.PropertyName)) {
+            var widget = this.__findWidgets(change.PropertyName).widget;
+            var oldValue = widget.getSingleValue();
+            var suggestions = qx.lang.Json.parse(change.NewValues);
+            widget.setValues(suggestions);
+            if (oldValue && suggestions.hasOwnProperty(oldValue) || qx.lang.Type.isArray(suggestions) && qx.lang.Array.contains(suggestions, oldValue)) {
+              widget.setWidgetValue(0, oldValue);
+            }
+          } else {
+            this.warn("no widget found for property: ", change.PropertyName);
           }
         }, this);
         this.__object.setWriteAttributeUpdates(true);
