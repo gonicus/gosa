@@ -330,8 +330,10 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
         [],
         this._type,
         this._attribute,
-        this._columnIDs,
-        this._columnNames,
+        {
+          ids: this._columnIDs,
+          names: this._columnNames
+        },
         false,
         null,
         this._sortByColumn,
