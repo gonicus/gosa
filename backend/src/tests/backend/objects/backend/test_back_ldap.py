@@ -260,7 +260,7 @@ class LdapBackendTestCase(TestCase):
                 mock.patch.object(self.ldap.con, 'search_s') as ms:
             ms.return_value = [['dn', {'uid': ["1"]}]]
 
-            assert self.ldap.get_next_id('uid') == 2
+            assert self.ldap.get_next_id('uid') == 1
             args, kwargs = mm.call_args_list[0]
             assert args[0] == 'dn'
             assert (ldap.MOD_DELETE, 'uid', ["1"]) in args[1]
