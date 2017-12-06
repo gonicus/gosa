@@ -40,6 +40,7 @@ class CommandRegistryTestCase(TestCase):
     def test_getAllowedMethods(self):
         mocked_resolver = mock.MagicMock()
         mocked_resolver.check.return_value = True
+        mocked_resolver.isAdmin.return_value = False
         with mock.patch.dict("gosa.backend.command.PluginRegistry.modules", {'ACLResolver': mocked_resolver}):
             res = self.reg.getAllowedMethods("testUser")
             assert len(res) > 0
@@ -90,6 +91,7 @@ class CommandRegistryTestCase(TestCase):
 
         mocked_resolver = mock.MagicMock()
         mocked_resolver.check.return_value = False
+        mocked_resolver.isAdmin.return_value = False
         with mock.patch.dict("gosa.backend.command.PluginRegistry.modules", {'ACLResolver': mocked_resolver}),\
                 mock.patch("gosa.backend.command.SseHandler.send_message") as mocked_sse:
 
