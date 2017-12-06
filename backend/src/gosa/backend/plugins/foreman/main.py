@@ -590,7 +590,7 @@ class Foreman(Plugin, SessionMixin):
         if base is None:
             index = PluginRegistry.getInstance("ObjectIndex")
             # get the IncomingDevice-Container
-            res = index.search({"_type": "IncomingDeviceContainer"}, {"dn": 1})
+            res = index.search({"_type": "IncomingDeviceContainer", "_parent_dn": self.type_bases["ForemanHost"]}, {"dn": 1})
             if len(res) > 0:
                 base = res[0]["dn"]
             else:
