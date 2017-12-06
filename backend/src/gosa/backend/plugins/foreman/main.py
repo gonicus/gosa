@@ -643,7 +643,7 @@ class Foreman(Plugin, SessionMixin):
             # check rights
             acl = PluginRegistry.getInstance("ACLResolver")
             if not acl.check(device.deviceUUID, "%s.%s.%s" % (self.env.domain, "command", "joinClient"), "x"):
-                role_name = "$$DeviceJoin"
+                role_name = "$$ClientDevices"
                 # create AclRole for joining if not exists
                 index = PluginRegistry.getInstance("ObjectIndex")
                 res = index.search({"_type": "AclRole", "name": role_name}, {"dn": 1})
@@ -658,7 +658,7 @@ class Foreman(Plugin, SessionMixin):
                         "scope": "sub",
                         "actions": [
                             {
-                                "topic": "%s\.command\.joinClient" % self.env.domain,
+                                "topic": "%s\.command\.(joinClient|preUserSession|postUserSession)" % self.env.domain,
                                 "acl": "x",
                                 "options": {}
                             }
