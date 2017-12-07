@@ -229,6 +229,7 @@
         <Extends>
             <!--<Value>User</Value>-->
             <Value>GroupOfNames</Value>
+            <Value>Device</Value>
         </Extends>
         <!--<ExtensionConditions>-->
             <!--<ExtensionCondition extension="GroupOfNames" properties="member">-->

@@ -227,7 +227,14 @@ class Foreman(Plugin, SessionMixin):
                 # no object found -> create one
                 self.log.debug(">>> creating new %s" % object_type)
                 base_dn = self.env.base
-                if object_type in self.type_bases:
+                if object_type == "ForemanHost":
+                    # get the IncomingDevice-Container
+                    res = index.search({"_type": "IncomingDeviceContainer", "_parent_dn": self.type_bases["ForemanHost"]}, {"dn": 1})
+                    if len(res) > 0:
+                        base_dn = res[0]["dn"]
+                    else:
+                        base_dn = self.type_bases["ForemanHost"]
+                elif object_type in self.type_bases:
                     base_dn = self.type_bases[object_type]
                 foreman_object = ObjectProxy(base_dn, base_type)
                 uuid_extension = foreman_object.get_extension_off_attribute(backend_attributes["Foreman"]["_uuidAttribute"])
@@ -590,7 +597,7 @@ class Foreman(Plugin, SessionMixin):
         if base is None:
             index = PluginRegistry.getInstance("ObjectIndex")
             # get the IncomingDevice-Container
-            res = index.search({"_type": "IncomingDeviceContainer"}, {"dn": 1})
+            res = index.search({"_type": "IncomingDeviceContainer", "_parent_dn": self.type_bases["ForemanHost"]}, {"dn": 1})
             if len(res) > 0:
                 base = res[0]["dn"]
             else:
@@ -643,7 +650,7 @@ class Foreman(Plugin, SessionMixin):
             # check rights
             acl = PluginRegistry.getInstance("ACLResolver")
             if not acl.check(device.deviceUUID, "%s.%s.%s" % (self.env.domain, "command", "joinClient"), "x"):
-                role_name = "$$DeviceJoin"
+                role_name = "$$ClientDevices"
                 # create AclRole for joining if not exists
                 index = PluginRegistry.getInstance("ObjectIndex")
                 res = index.search({"_type": "AclRole", "name": role_name}, {"dn": 1})
@@ -658,7 +665,7 @@ class Foreman(Plugin, SessionMixin):
                         "scope": "sub",
                         "actions": [
                             {
-                                "topic": "%s\.command\.joinClient" % self.env.domain,
+                                "topic": "%s\.command\.(joinClient|preUserSession|postUserSession)" % self.env.domain,
                                 "acl": "x",
                                 "options": {}
                             }

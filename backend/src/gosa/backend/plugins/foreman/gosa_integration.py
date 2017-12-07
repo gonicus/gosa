@@ -10,7 +10,7 @@ import json
 #. /etc/sysconfig/foreman-gosa
 # Gosa settings
 GOSA_SERVER = "http://localhost"
-GOSA_PORT = 8000
+GOSA_PORT = 8050
 HTTP_X_HUB_SENDER = "foreman-hook"
 SECRET = "e540f417-4c36-4e5d-b78a-4d36f51727ec"
 

@@ -34,21 +34,22 @@ class TwoFactorAuthManagerTestCase(TestCase):
             assert 'u2f' in methods
 
     def test_OTPMethod(self):
-        index = PluginRegistry.getInstance("ObjectIndex")
-        with mock.patch("gosa.backend.plugins.two_factor.main.PluginRegistry.getInstance") as m_resolver:
-            m_resolver.return_value.check.return_value = False
-            m_resolver.return_value.search.side_effect = index.search
+        m_resolver = mock.MagicMock()
+        m_resolver.check.return_value = False
+        m_resolver.isAdmin.return_value = False
+
+        with mock.patch.dict("gosa.backend.plugins.two_factor.main.PluginRegistry.modules", {'ACLResolver': m_resolver}):
             with pytest.raises(ACLException):
                 self.manager.getTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net")
 
-            m_resolver.return_value.check.return_value = True
+            m_resolver.check.return_value = True
             assert self.manager.getTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net") is None
 
             # change the settings
-            m_resolver.return_value.check.return_value = False
+            m_resolver.check.return_value = False
             with pytest.raises(ACLException):
                 self.manager.setTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net", "otp")
-            m_resolver.return_value.check.return_value = True
+            m_resolver.check.return_value = True
             assert self.manager.getTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net") is None
 
             self.manager.setTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net", "otp")
@@ -56,10 +57,10 @@ class TwoFactorAuthManagerTestCase(TestCase):
 
             # verify
             with mock.patch("gosa.backend.plugins.two_factor.main.TOTP") as m_totp:
-                m_resolver.return_value.check.return_value = False
+                m_resolver.check.return_value = False
                 with pytest.raises(ACLException):
                     self.manager.verify("admin", "cn=System Administrator,ou=people,dc=example,dc=net", "fake-key")
-                m_resolver.return_value.check.return_value = True
+                m_resolver.check.return_value = True
                 m_totp.return_value.verify.return_value = True
                 assert self.manager.verify("admin", "cn=System Administrator,ou=people,dc=example,dc=net", "fake-key") is True
                 m_totp.return_value.verify.return_value = False
@@ -81,19 +82,22 @@ class TwoFactorAuthManagerTestCase(TestCase):
 
     @pytest.mark.skipif(Environment.getInstance().config.getboolean("http.ssl") is not True, reason="SSL required")
     def test_U2FMethod(self):
-        with mock.patch("gosa.backend.plugins.two_factor.main.PluginRegistry.getInstance") as m_resolver:
-            m_resolver.return_value.check.return_value = False
+        m_resolver = mock.MagicMock()
+        m_resolver.check.return_value = False
+        m_resolver.isAdmin.return_value = False
+
+        with mock.patch.dict("gosa.backend.plugins.two_factor.main.PluginRegistry.modules", {'ACLResolver': m_resolver}):
             with pytest.raises(ACLException):
                 self.manager.getTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net")
 
-            m_resolver.return_value.check.return_value = True
+            m_resolver.check.return_value = True
             assert self.manager.getTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net") is None
 
             # change the settings
-            m_resolver.return_value.check.return_value = False
+            m_resolver.check.return_value = False
             with pytest.raises(ACLException):
                 self.manager.setTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net", "u2f")
-            m_resolver.return_value.check.return_value = True
+            m_resolver.check.return_value = True
             assert self.manager.getTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net") is None
 
             res = loads(self.manager.setTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net", "u2f"))
@@ -107,10 +111,10 @@ class TwoFactorAuthManagerTestCase(TestCase):
             # proceed with some fake data
             fake_response = dumps({"clientData":
                                        "eyJvcmlnaW4iOiAiaHR0cDovL2xvY2FsaG9zdDo4MDgxIiwgImNoYWxsZW5nZSI6ICJEMnB6VFBaYTdicTY5QUJ1aUdRSUxvOXpjc1RVUlAyNlJMaWZUeUNraWxjIiwgInR5cCI6ICJuYXZpZ2F0b3IuaWQuZmluaXNoRW5yb2xsbWVudCJ9", "registrationData": "BQSivQtJ6-lAgZ2qQ0aUGLEiJSRoLWUSGcmMO8C-GuibA0-xTvmuQfTqKyFJZWOUjGzEIgF4xV6gJ6itcagsyuUWQEQh9noDSu-WtzTOMhK_lKHxwHtQgJHCkzs4mukfpf310K5Dq9k6zBNtZ2RMBWgJhI7hJo4JiFn3k2GUNLwKZpwwggGHMIIBLqADAgECAgkAmb7osQyi7BwwCQYHKoZIzj0EATAhMR8wHQYDVQQDDBZZdWJpY28gVTJGIFNvZnQgRGV2aWNlMB4XDTEzMDcxNzE0MjEwM1oXDTE2MDcxNjE0MjEwM1owITEfMB0GA1UEAwwWWXViaWNvIFUyRiBTb2Z0IERldmljZTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABDvhl91zfpg9n7DeCedcQ8gGXUnemiXoi-JEAxz-EIhkVsMPAyzhtJZ4V3CqMZ-MOUgICt2aMxacMX9cIa8dgS2jUDBOMB0GA1UdDgQWBBQNqL-TV04iaO6mS5tjGE6ShfexnjAfBgNVHSMEGDAWgBQNqL-TV04iaO6mS5tjGE6ShfexnjAMBgNVHRMEBTADAQH_MAkGByqGSM49BAEDSAAwRQIgXJWZdbvOWdhVaG7IJtn44o21Kmi8EHsDk4cAfnZ0r38CIQD6ZPi3Pl4lXxbY7BXFyrpkiOvCpdyNdLLYbSTbvIBQOTBFAiEA1uwJKNez6_BHdA2d-DPmRFJj19biYNkhN86SFH5Z_lYCICld2L3ZAVsm_uNFRt13_N9dlhGu50pb1ql8-_3_p5v1"})
-            m_resolver.return_value.check.return_value = False
+            m_resolver.check.return_value = False
             with pytest.raises(ACLException):
                 self.manager.completeU2FRegistration("admin", "cn=System Administrator,ou=people,dc=example,dc=net", fake_response)
-            m_resolver.return_value.check.return_value = True
+            m_resolver.check.return_value = True
             assert self.manager.getTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net") is None
 
 
@@ -124,11 +128,11 @@ class TwoFactorAuthManagerTestCase(TestCase):
             assert self.manager.getTwoFactorMethod("admin", "cn=System Administrator,ou=people,dc=example,dc=net") == "u2f"
 
             # sign
-            m_resolver.return_value.check.return_value = False
+            m_resolver.check.return_value = False
             with pytest.raises(ACLException):
                 self.manager.sign("admin", "cn=System Administrator,ou=people,dc=example,dc=net")
 
-            m_resolver.return_value.check.return_value = True
+            m_resolver.check.return_value = True
             res = loads(self.manager.sign("admin", "cn=System Administrator,ou=people,dc=example,dc=net"))
 
             assert 'authenticateRequests' in res
@@ -138,11 +142,11 @@ class TwoFactorAuthManagerTestCase(TestCase):
                                   "eyJvcmlHR0cDovL2xvY2FsaG9zdDo4MDgxIiwgImNoYWxsZW5nZSI6ICJlNGtScWk3eTdmUHdtZGZ1RnJ5WkxyVUhYby1BdF91YUFwWHdxdkV2UmxzIiwgInR5cCI6ICJuYXZpZ2F0b3IuaWQuZ2V0QXNzZXJ0aW9uIn0", "challenge": "e4kRqi7y7fPwmdfuFryZLrUHXo-At_uaApXwqvEvRls", "keyHandle": "RCH2egNK75a3NM4yEr-UofHAe1CAkcKTOzia6R-l_fXQrkOr2TrME21nZEwFaAmEjuEmjgmIWfeTYZQ0vApmnA", "signatureData": "AQAAAAIwRQIhAIyr0y4xg-pI8NhAUHJmaluGXwZ7yd5i0e7FQE4l9OaEAiB68JP-df7ro8ohxCcgyxfRiKrsY1J67kLcEuYb0MCrDg"})
 
             # verify
-            m_resolver.return_value.check.return_value = False
+            m_resolver.check.return_value = False
             with pytest.raises(ACLException):
                 self.manager.verify("admin", "cn=System Administrator,ou=people,dc=example,dc=net", fake_response)
 
-            m_resolver.return_value.check.return_value = True
+            m_resolver.check.return_value = True
             with mock.patch("gosa.backend.plugins.two_factor.main.verify_authenticate", return_value=(2, "1")):
                 assert self.manager.verify("admin", "cn=System Administrator,ou=people,dc=example,dc=net", fake_response) == {"touch": "1",
                                                                                                                               "counter": 2}

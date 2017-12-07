@@ -33,10 +33,12 @@ class UserFiltersTestCase(TestCase):
             }
         }
         image_dir = os.path.join(Environment.getInstance().config.get("user.image-path", "/tmp/images"), user.uuid)
+        tmp_image = mock.MagicMock()
 
         with mock.patch("gosa.backend.plugins.user.filters.Base.metadata.create_all") as m_create_all, \
                 mock.patch("gosa.backend.plugins.user.filters.os.path.exists", return_value=True), \
-                mock.patch("gosa.backend.plugins.user.filters.os.path.isdir", return_value=True):
+                mock.patch("gosa.backend.plugins.user.filters.os.path.isdir", return_value=True), \
+                mock.patch("gosa.backend.plugins.user.filters.ImageOps.fit", return_value=tmp_image):
             filter = ImageProcessor(None)
             with mock.patch.object(filter, "make_session") as m:
                 mocked_db_query = m.return_value.__enter__.return_value.query.return_value.filter.return_value.one_or_none
@@ -49,6 +51,7 @@ class UserFiltersTestCase(TestCase):
                 mocked_db_query.side_effect = [None, OperationalError(None, None, None)]
                 filter.process(user, "image", test_dict, "32")
                 assert m_create_all.called
+                assert tmp_image.save.called
 
         filter = ImageProcessor(None)
 

@@ -204,6 +204,13 @@ qx.Class.define("gosa.view.Search", {
     gosa.io.Sse.getInstance().addListener("objectCreated", this.__debouncedReload, this);
     gosa.io.Sse.getInstance().addListener("objectRemoved", this.__debouncedReload, this);
     gosa.io.Sse.getInstance().addListener("objectMoved", this.__debouncedReload, this);
+
+    this.addListener("appear", function() {
+      if (this.__queuedObjectEvents) {
+        this._handleObjectEvent();
+        this.__queuedObjectEvents = false;
+      }
+    }, this);
   },
 
   /*
@@ -253,6 +260,7 @@ qx.Class.define("gosa.view.Search", {
     __fuzzy: null,
     __duration: null,
     __debouncedReload: null,
+    __queuedObjectEvents: false,
 
 
     updateFocus: function(){
@@ -365,6 +373,7 @@ qx.Class.define("gosa.view.Search", {
         this._old_query = null;
       }, this)
       .finally(function() {
+        this.__searchPromise = null;
         if (!noListUpdate && !this.isDisposed()) {
           this.hideSpinner();
         }
@@ -376,7 +385,7 @@ qx.Class.define("gosa.view.Search", {
     __updateResultInfo: function(count) {
       var resultString = "";
       var isFuzzy = this._currentResponse.hasOwnProperty("fuzzy") && !!this._currentResponse.fuzzy;
-      var moreResults= this._currentResponse.total > this._currentResponse.results.length;
+      var moreResults= false; //this._currentResponse.total > this._currentResponse.results.length;
 
       if (isFuzzy) {
         resultString += this.tr("Search for '%1' returned no results, searched for '%2' instead", this._currentResponse.orig, this._currentResponse.fuzzy)+"<br/><br/>";
@@ -563,20 +572,25 @@ qx.Class.define("gosa.view.Search", {
       }
 
       // Keep track of each event uuid we receive
-      var data = e.getData();
-      if(data.changeType == "remove"){
+      var data = e ? e.getData() : {};
+      if(data.changeType === "remove"){
         this._removedObjects.push(data.uuid);
       }
-      if(data.changeType == "create"){
+      if(data.changeType === "create"){
         this._createdObjects.push(data.uuid);
       }
-      if(data.changeType == "update" || data.changeType == "move") {
+      if(data.changeType === "update" || data.changeType === "move") {
         this._modifiedObjects.push(data.uuid);
       }
 
       // do not start a new search while there is one running
       if (this.__searchPromise) {
         this.__queuedSearch = true;
+        return;
+      }
+      if (!this.isVisible()) {
+        // do not update anything while we are not visible
+        this.__queuedObjectEvents = true;
         return;
       }
       var updateResultList = function(result) {

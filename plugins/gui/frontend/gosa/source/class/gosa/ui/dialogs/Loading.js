@@ -37,10 +37,16 @@ qx.Class.define("gosa.ui.dialogs.Loading",
   *****************************************************************************
   */
   members: {
+    __autoOpened: false,
+
     _onLoadingMessage: function(ev) {
       var control;
       var payload = ev.getData();
       if (payload.Type === "index") {
+        if (!this.isActive()) {
+          this.open();
+          this.__autoOpened = true;
+        }
         this.getChildControl('loading-label').setLabel(this.tr("Indexing") + '...');
         if (payload.hasOwnProperty("Progress")) {
           control = this.getChildControl("progress");
@@ -49,12 +55,14 @@ qx.Class.define("gosa.ui.dialogs.Loading",
         } else {
           this.getChildControl("progress").exclude();
         }
+        var lastStep = true;
         if (payload.hasOwnProperty("State")) {
           var state = payload.State;
           control = this.getChildControl("progress-info");
           control.show();
           if (payload.hasOwnProperty("Step") && parseInt(payload.Step, 10)) {
             if (payload.hasOwnProperty("TotalSteps") && parseInt(payload.TotalSteps, 10)) {
+              lastStep = (payload.TotalSteps - payload.Step) === 0;
               state = this.tr("Step %1 of %2", parseInt(payload.Step, 10), parseInt(payload.TotalSteps, 10));
             } else {
               state = this.tr("Step %1", parseInt(payload.Step, 10));
@@ -62,6 +70,12 @@ qx.Class.define("gosa.ui.dialogs.Loading",
             state += "<br/>" + payload.State;
           }
           control.setValue(state);
+        } else {
+          state = 100;
+        }
+        if (lastStep === true && state === 100 && this.__autoOpened === true) {
+          this.close();
+          this.__autoOpened = false;
         }
       }
     },

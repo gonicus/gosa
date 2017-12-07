@@ -59,8 +59,8 @@ qx.Class.define("gosa.ui.widgets.TableWithDialog", {
     },
 
     _createGui: function() {
-      this._columnNames.unshift("Index");
-      this._columnIDs.unshift("__identifier__");
+      this._columnSettings.names.unshift("Index");
+      this._columnSettings.ids.unshift("__identifier__");
       this.base(arguments);
       var tcm = this._table.getTableColumnModel();
       new qx.util.DeferredCall(function() {
@@ -68,7 +68,7 @@ qx.Class.define("gosa.ui.widgets.TableWithDialog", {
       }).schedule();
       var object = this._getController().getObject();
 
-      this._columnIDs.forEach(function(attributeName, idx) {
+      this._columnSettings.ids.forEach(function(attributeName, idx) {
         if (attributeName in object.attribute_data && object.attribute_data[attributeName].type === "Boolean") {
           tcm.setDataCellRenderer(idx, new qx.ui.table.cellrenderer.Boolean());
         }
@@ -91,7 +91,7 @@ qx.Class.define("gosa.ui.widgets.TableWithDialog", {
       }
       this._tableData = [];
       var object = this._getController().getObject();
-      this._columnIDs.forEach(function(attributeName) {
+      this._columnSettings.ids.forEach(function(attributeName) {
         if (attributeName in object.attribute_data) {
           var arr = object.get(attributeName);
           arr.forEach(function(value, index) {

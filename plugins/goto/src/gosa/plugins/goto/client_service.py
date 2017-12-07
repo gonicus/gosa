@@ -543,6 +543,21 @@ class ClientService(Plugin):
 
     @Command(__help__="Send user configurations of all logged in user to a client")
     def configureUsers(self, client_id, users):
+        users_config = self.__collect_user_configuration(client_id, users)
+        for uid, config in users_config.items():
+            if "menu" in config:
+                # send to client
+                self.log.debug("sending generated menu for user %s" % uid)
+                self.queuedClientDispatch(client_id, "dbus_configureUserMenu", uid, dumps(config["menu"]))
+
+            if "printer-setup" in config:
+                self.configureHostPrinters(client_id, config["printer-setup"])
+
+            if "resolution" in config and len(config["resolution"]):
+                self.log.debug("sending screen resolution: %sx%s for user %s to client %s" % (config["resolution"][0], config["resolution"][1], uid, client_id))
+                self.queuedClientDispatch(client_id, "dbus_configureUserScreen", uid, config["resolution"][0], config["resolution"][1])
+
+    def __collect_user_configuration(self, client_id, users):
         """
         :param client_id: deviceUUID or hostname
         :param users: list of currently logged in users on the client
@@ -550,10 +565,14 @@ class ClientService(Plugin):
         client = self.__open_device(client_id)
         group = ObjectProxy(client.groupMembership) if client.groupMembership is not None else None
         index = PluginRegistry.getInstance("ObjectIndex")
+        config = {}
 
         resolution = None
         if group is not None and group.is_extended_by("GotoEnvironment") and group.gotoXResolution is not None:
             resolution = group.gotoXResolution
+
+        if client.is_extended_by("GotoEnvironment") and client.gotoXResolution is not None:
+            resolution = client.gotoXResolution
 
         release = None
         if client.is_extended_by("GotoMenu"):
@@ -582,6 +601,7 @@ class ClientService(Plugin):
         query_result = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1})
         for entry in query_result:
             user = ObjectProxy(entry["dn"])
+            config[user.uid] = {}
             menus = []
             if client_menu is not None:
                 menus.append(client_menu)
@@ -601,11 +621,7 @@ class ClientService(Plugin):
                         user_menu = self.get_submenu(menu_entry)
                     else:
                         self.merge_submenu(user_menu, self.get_submenu(menu_entry))
-
-                # send to client
-                if user_menu is not None:
-                    self.log.debug("sending generated menu for user %s" % user.uid)
-                    self.queuedClientDispatch(client_id, "dbus_configureUserMenu", user.uid, dumps(user_menu))
+                config[user.uid]["menu"] = user_menu
 
             # collect printer settings for user, starting with the clients printers
             settings = self.__collect_printer_settings(group)
@@ -623,9 +639,16 @@ class ClientService(Plugin):
                 for p in s["printers"]:
                     if p["cn"] not in printer_names:
                         settings["printers"].append(p)
+                        printer_names.append(p["cn"])
 
                 if s["defaultPrinter"] is not None:
                     settings["defaultPrinter"] = s["defaultPrinter"]
+
+            # override group environment settings if the client has one
+            s = self.__collect_printer_settings(client)
+            if len(s["printers"]) > 0:
+                settings["printers"] = s["printers"]
+                settings["defaultPrinter"] = s["defaultPrinter"]
 
             if user.is_extended_by("GosaAccount") and user.gosaDefaultPrinter is not None:
                 # check if the users default printer is send to the client
@@ -636,7 +659,6 @@ class ClientService(Plugin):
                         break
 
                 def process(res):
-                    res = index.search({"_type": "GotoPrinter", "cn": user.gosaDefaultPrinter}, {"dn": 1})
                     if len(res) == 0:
                         self.log.warning("users defaultPrinter not found: %s" % user.gosaDefaultPrinter)
                         return None
@@ -670,15 +692,14 @@ class ClientService(Plugin):
                 else:
                     settings["defaultPrinter"] = user.gosaDefaultPrinter
 
-            self.configureHostPrinters(client_id, settings)
+            config[user.uid]["printer-setup"] = settings
+            config[user.uid]["resolution"] = None
 
             if resolution is not None:
-                parts = [int(x) for x in resolution.split("x")]
-                if len(parts) == 2:
-                    self.log.debug("sending screen resolution: %sx%s for user %s to client %s" % (parts[0], parts[1], user.uid, client_id))
-                    self.queuedClientDispatch(client_id, "dbus_configureUserScreen", user.uid, parts[0], parts[1])
+                config[user.uid]["resolution"] = [int(x) for x in resolution.split("x")]
 
             # TODO: collect and send login scripts to client
+        return config
 
     def merge_submenu(self, menu1, menu2):
         for cn, app in menu2.get('apps', {}).items():
@@ -741,13 +762,44 @@ class ClientService(Plugin):
 
         return result
 
-    @Command(__help__="Send user specific configuration (e.g. printers) to a clients active user sessions")
+    @Command(__help__=N_("Send user specific configuration (e.g. printers) to a clients active user sessions"))
     def configureClient(self, client_id):
         """
         :param client_id: deviceUUID or hostname
         """
         if client_id in self.__user_session:
             self.configureUsers(client_id, self.__user_session[client_id])
+
+    @Command(__help__=N_("Prepare a user session after a user has logged in"))
+    def preUserSession(self, client_id, user):
+        """
+        :param client_id: clients deviceUUID
+        :param user: uid of the user that has logged out
+        :returns: user configuration {"menu": ..., "printer-setup": ..., "resolution": (width, height)}
+        """
+        if client_id not in self.__user_session:
+            self.__user_session[client_id] = []
+
+        if user not in self.__user_session[client_id]:
+            self.__user_session[client_id].append(user)
+
+        self.systemSetStatus(client_id, "+B")
+        # send configuration to client
+        config = self.__collect_user_configuration(client_id, [user])
+        return config[user]
+
+    @Command(__help__=N_("Cleanup a user session after a user has logged out"))
+    def postUserSession(self, client_id, user):
+        """
+        :param client_id: clients deviceUUID
+        :param user: uid of the user that has logged out
+        """
+        if client_id not in self.__user_session:
+            self.__user_session[client_id] = []
+        if user in self.__user_session[client_id]:
+            self.__user_session[client_id].remove(user)
+        if len(self.__user_session[client_id]) == 0:
+            self.systemSetStatus(client_id, "-B")
 
     def configureHostPrinters(self, client_id, config):
         """ configure the printers for this client via dbus. """
