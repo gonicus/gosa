@@ -571,6 +571,9 @@ class ClientService(Plugin):
         if group is not None and group.is_extended_by("GotoEnvironment") and group.gotoXResolution is not None:
             resolution = group.gotoXResolution
 
+        if client.is_extended_by("GotoEnvironment") and client.gotoXResolution is not None:
+            resolution = client.gotoXResolution
+
         release = None
         if client.is_extended_by("GotoMenu"):
             release = client.getReleaseName()
@@ -636,9 +639,16 @@ class ClientService(Plugin):
                 for p in s["printers"]:
                     if p["cn"] not in printer_names:
                         settings["printers"].append(p)
+                        printer_names.append(p["cn"])
 
                 if s["defaultPrinter"] is not None:
                     settings["defaultPrinter"] = s["defaultPrinter"]
+
+            # override group environment settings if the client has one
+            s = self.__collect_printer_settings(client)
+            if len(s["printers"]) > 0:
+                settings["printers"] = s["printers"]
+                settings["defaultPrinter"] = s["defaultPrinter"]
 
             if user.is_extended_by("GosaAccount") and user.gosaDefaultPrinter is not None:
                 # check if the users default printer is send to the client

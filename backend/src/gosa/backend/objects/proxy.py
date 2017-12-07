@@ -504,7 +504,6 @@ class ObjectProxy(object):
         return dn2str(str2dn(dn, flags=ldap.DN_FORMAT_LDAPV3)[1:])
 
     def get_adjusted_parent_dn(self, dn=None):
-        print("DN: %s, Parent: %s" % (dn, self.get_parent_dn(dn)))
         return ObjectProxy.get_adjusted_dn(self.get_parent_dn(dn), self.__env.base)
 
     @classmethod
