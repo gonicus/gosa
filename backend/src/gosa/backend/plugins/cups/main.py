@@ -34,7 +34,11 @@ C.register_codes(dict(
     OPTION_CONFLICT=N_("Setting option '%(option)s' to '%(value)s' caused %(conflicts)s"),
     OPTION_NOT_FOUND=N_("Option '%(option)s' not found in PPD"),
     COULD_NOT_READ_SOURCE_PPD=N_("Could not read source PPD file"),
-    USER_NOT_FOUND=N_("User '%(topic)s' not found")
+    USER_NOT_FOUND=N_("User '%(topic)s' not found"),
+    PPD_DIFF_TO_LARGE=N_("Cannot find new ppd file per diff, because to many new printers where found"),
+    PPD_ALREADY_EXISTS=N_("Cannot find new ppd file per diff, because if already exists"),
+    PPD_NOT_EXACTLY_ONE=N_(
+        "Cannot find cups ppd - there should be exactly one for the manufacturer but there are %(number_ppds)s"),
 ))
 
 
@@ -92,6 +96,7 @@ class CupsClient(Plugin):
             if ppd["ppd-make"] not in res:
                 res[ppd["ppd-make"]] = []
             res[ppd["ppd-make"]].append({"model": ppd["ppd-make-and-model"], "ppd": name})
+
         self.__printer_list = res
 
     def __gc(self):
@@ -107,6 +112,70 @@ class CupsClient(Plugin):
                     # no entry -> delete file if it has not been changed in the last hour
                     self.log.debug("deleting obsolete PPD file: %s" % ppd_file)
                     os.unlink(ppd_file)
+
+    @Command(__help__=N_("Write a general PPD file to the cups pool"))
+    def uploadPPD(self, obj, data):
+        directory = self.env.config.get('cups.pool', default='/usr/share/ppd')
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        # write temporary ppd file and read it to extract manufacturer and model name
+        temp_file = tempfile.NamedTemporaryFile()
+        with open(temp_file.name, 'w') as tf:
+            tf.write(data)
+
+        printer_infos = self.get_attributes_from_ppd(temp_file.name, ['Manufacturer', 'NickName', 'PCFileName'])
+
+        maker = printer_infos['Manufacturer']
+        directory = os.path.join(directory, maker)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        new_file = os.path.join(directory, printer_infos['PCFileName'].lower())
+
+        with open(new_file, 'w') as f:
+            f.write(data)
+
+        model_name = ''
+
+        # find cups ppd of new printer
+        if maker in self.__printer_list:
+            # find via diff on printer list
+            old_printer_list = self.__printer_list[maker]
+            self.__update_printer_list()
+            printer_list = self.__printer_list[maker]
+
+            # if there are no new items, we are screwed...
+            if len(printer_list) == len(old_printer_list):
+                raise AssertionError(C.make_error('PPD_ALREADY_EXISTS'))
+            elif len(printer_list) > len(old_printer_list) + 1:
+                raise AssertionError(C.make_error('PPD_DIFF_TO_LARGE'))
+
+            old_set = set(map(lambda x: x['ppd'], old_printer_list))
+            new_set = set(map(lambda x: x['ppd'], printer_list))
+            diff = list(new_set - old_set)
+            found = diff[0]
+
+            # find model name
+            for items in printer_list:
+                if items['ppd'] == found:
+                    model_name = items['model']
+        else:
+            # ppd is the only one for the manufacturer
+            self.__update_printer_list()
+            printer_list = self.__printer_list[maker]
+            if len(printer_list) != 1:
+                raise AssertionError(C.make_error('PPD_NOT_EXACTLY_ONE', number_ppds=len(printer_list)))
+            found = printer_list[0]['ppd']
+            model_name = printer_list[0]['model']
+
+        obj.repopulate_attribute_values('maker')
+
+        return {
+            'manufacturer': maker,
+            'model_name': model_name,
+            'file_name': found,
+        }
 
     @Command(__help__=N_("Write settings to PPD file"))
     def writePPD(self, printer_cn, server_ppd_file, custom_ppd_file, data):
@@ -207,7 +276,6 @@ class CupsClient(Plugin):
             if manufacturer in printers:
                 for entry in printers[manufacturer]:
                     res[entry["ppd"]] = {"value": entry["model"]}
-
         return res
 
     @Command(__help__=N_("Return all printer PPD files associated to a user"))

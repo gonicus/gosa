@@ -221,6 +221,20 @@
                     <Value>data</Value>
                 </CommandParameters>
             </Method>
+            <Method>
+                <Name>uploadPPD</Name>
+                <Command>uploadPPD</Command>
+                <MethodParameters>
+                    <MethodParameter>
+                        <Name>data</Name>
+                        <Type>UnicodeString</Type>
+                    </MethodParameter>
+                </MethodParameters>
+                <CommandParameters>
+                    <Value>__self__</Value>
+                    <Value>data</Value>
+                </CommandParameters>
+            </Method>
         </Methods>
         <Find>
             <Aspect>

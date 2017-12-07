@@ -392,6 +392,15 @@ class ObjectProxy(object):
             if ext in self.__extensions and self.__extensions[ext]:
                 self.__extensions[ext].set_foreign_value(attr, cur)
 
+    def repopulate_attribute_values(self, attribute_name):
+        type = self.get_extension_off_attribute(attribute_name)
+        if type == self.get_base_type():
+            self.__base.update_population_of_attribute(attribute_name)
+        elif type is not None:
+            self.__extension[type].update_population_of_attribute(attribute_name)
+        else:
+            raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', attribute_name))
+
     def get_extension_off_attribute(self, attribute_name):
         if attribute_name in self.__attribute_map:
             return self.__attribute_map[attribute_name]['base']

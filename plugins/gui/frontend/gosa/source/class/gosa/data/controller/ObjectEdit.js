@@ -200,7 +200,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
      */
     getActionController : function() {
       if (!this._actionController) {
-        this._actionController =  new gosa.data.controller.Actions(this.__object);
+        this._actionController =  new gosa.data.controller.Actions(this.__object, this._widget);
       }
       return this._actionController;
     },

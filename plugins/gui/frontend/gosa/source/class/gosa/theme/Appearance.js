@@ -849,6 +849,16 @@ qx.Theme.define("gosa.theme.Appearance", {
       }
     },
 
+    "gosa-dialog-uploadppd" : {
+      include : "window",
+      alias : "window",
+      style : function () {
+        return {
+          width : 300
+        };
+      }
+    },
+
     "gosa-table-widget": {},
 
     "gosa-table-widget/control-bar": {

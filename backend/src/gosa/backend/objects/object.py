@@ -234,7 +234,10 @@ class Object(object):
     def hasattr(self, attr):
         return attr in self.myProperties
 
-    def __update_population(self):
+    def update_population_of_attribute(self, attribute_name):
+        self.__update_population(attribute=attribute_name)
+
+    def __update_population(self, attribute=None):
         # collect current attribute values
         data = {}
         for prop in self.myProperties.keys():
@@ -243,11 +246,18 @@ class Object(object):
         atypes = self._objectFactory.getAttributeTypes()
 
         changes = {}
+        properties = [attribute] if attribute is not None else self.myProperties
 
-        for key in self.myProperties:
-            if self.myProperties[key]['values_populate'] and self.myProperties[key]['re_populate_on_update'] is True:
+        for key in properties:
+            if self.myProperties[key]['values_populate'] and \
+                    (key == attribute or self.myProperties[key]['re_populate_on_update'] is True):
                 cr = PluginRegistry.getInstance('CommandRegistry')
-                values = cr.call(self.myProperties[key]['values_populate'], data)
+
+                if self.myProperties[key]['re_populate_on_update']:
+                    values = cr.call(self.myProperties[key]['values_populate'], data)
+                else:
+                    values = cr.call(self.myProperties[key]['values_populate'])
+
                 if type(values).__name__ == "dict":
                     if self.myProperties[key]['values'] != values:
                         changes[key] = values
