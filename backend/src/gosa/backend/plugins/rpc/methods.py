@@ -546,9 +546,10 @@ class RPCMethods(Plugin, SessionMixin):
         these = dict([(x, 1) for x in self.__search_aid['used_attrs']])
         these.update(dict(dn=1, _type=1, _uuid=1, _last_changed=1))
         these = list(these.keys())
+        ranked = False
 
         with self.make_session() as session:
-            query_result = self.finalize_query(query, fltr, session, qstring=qstring, order_by=order_by)
+            query_result, ranked = self.finalize_query(query, fltr, session, qstring=qstring, order_by=order_by)
 
             try:
                 self.log.debug(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
@@ -584,7 +585,7 @@ class RPCMethods(Plugin, SessionMixin):
                     self.log.info("no results found for: '%s' => re-trying with: '%s'" % (qstring, " ".join(keywords)))
                     response['orig'] = qstring
                     response['fuzzy'] = " ".join(keywords)
-                    query_result = self.finalize_query(query, fltr, session, qstring=" ".join(keywords), order_by=order_by)
+                    query_result, ranked = self.finalize_query(query, fltr, session, qstring=" ".join(keywords), order_by=order_by)
                     total = query_result.count()
 
             response['primary_total'] = total
@@ -592,8 +593,12 @@ class RPCMethods(Plugin, SessionMixin):
 
             squery_constraints = {}
             for tuple in query_result:
-                item = tuple[0]
-                rank = tuple[1]
+                if ranked is True:
+                    item = tuple[0]
+                    rank = tuple[1]
+                else:
+                    item = tuple
+                    rank = 0
                 self.update_res(res, item, user, rank, these=these, actions=actions)
                 counter += 1
                 if counter >= max_results:
@@ -671,17 +676,20 @@ class RPCMethods(Plugin, SessionMixin):
         else:
             ft_query = query
 
+        ranked = False
+
         if search_query is not None:
             query_result = session.query(ObjectInfoIndex, func.ts_rank_cd(
                 SearchObjectIndex.search_vector,
                 func.to_tsquery(search_query)
             ).label('rank')).options(joinedload(ObjectInfoIndex.search_object)).options(joinedload(ObjectInfoIndex.properties)).filter(ft_query)
+            ranked = True
         else:
-            query_result = session.query(ObjectInfoIndex, "0").options(joinedload(ObjectInfoIndex.properties)).filter(ft_query)
+            query_result = session.query(ObjectInfoIndex).options(joinedload(ObjectInfoIndex.properties)).filter(ft_query)
 
         if order_by is not None:
             query_result = query_result.order_by(order_by)
-        elif search_query is not None:
+        elif ranked is True:
             query_result = query_result.order_by(
                 desc(
                     func.ts_rank_cd(
@@ -692,7 +700,7 @@ class RPCMethods(Plugin, SessionMixin):
             )
         if 'limit' in fltr:
             query_result = query_result.limit(fltr['limit'])
-        return query_result
+        return query_result, ranked
 
     def __make_relevance(self, item, keywords, fltr, fuzzy=False):
         """
