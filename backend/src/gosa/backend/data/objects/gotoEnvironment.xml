@@ -229,16 +229,17 @@
         <Extends>
             <!--<Value>User</Value>-->
             <Value>GroupOfNames</Value>
+            <Value>Device</Value>
         </Extends>
-        <ExtensionConditions>
-            <ExtensionCondition extension="GroupOfNames" properties="member">
-                <Condition>
-                    <Name>HasMemberOfType</Name>
-                    <Param>ForemanHost</Param>
-                    <Param>member</Param>
-                    <Param>dn</Param>
-                </Condition>
-            </ExtensionCondition>
-        </ExtensionConditions>
+        <!--<ExtensionConditions>-->
+            <!--<ExtensionCondition extension="GroupOfNames" properties="member">-->
+                <!--<Condition>-->
+                    <!--<Name>HasMemberOfType</Name>-->
+                    <!--<Param>ForemanHost</Param>-->
+                    <!--<Param>member</Param>-->
+                    <!--<Param>dn</Param>-->
+                <!--</Condition>-->
+            <!--</ExtensionCondition>-->
+        <!--</ExtensionConditions>-->
     </Object>
 </Objects>

@@ -83,6 +83,7 @@ class ClientService(Plugin):
     entry_attributes = ['cn', 'description', 'gosaApplicationPriority', 'gosaApplicationIcon', 'gosaApplicationName', 'gotoLogonScript', 'gosaApplicationFlags', 'gosaApplicationExecute']
     entry_map = {"gosaApplicationPriority": "prio", "description": "description"}
     printer_attributes = ["gotoPrinterPPD", "labeledURI", "cn", "l", "description"]
+    __client_call_queue = {}
 
     def __init__(self):
         """
@@ -199,6 +200,30 @@ class ClientService(Plugin):
         # Do the call
         res = yield methodCall(*arg, **larg)
         raise gen.Return(res)
+
+    @Command(__help__=N_("Check if the client supports a method call"))
+    def hasCapability(self, client_id, method):
+        return client_id in self.__client and method in self.__client[client_id]
+
+    def queuedClientDispatch(self, client, method, *arg, **larg):
+        client = self.get_client_uuid(client)
+
+        # Bail out if the client is not available
+        if client not in self.__client:
+            raise JSONRPCException("client '%s' not available" % client)
+        if not self.__client[client]['online']:
+            raise JSONRPCException("client '%s' is offline" % client)
+        if method not in self.__client[client]['caps']:
+            # wait til method gets available
+            if client not in self.__client_call_queue:
+                self.__client_call_queue[client] = {}
+            if method not in self.__client_call_queue[client]:
+                self.__client_call_queue[client][method] = []
+            if method not in self.__listeners:
+                self.register_listener(method, self._on_client_caps)
+            self.__client_call_queue[client][method].append((arg, larg))
+        else:
+            self.clientDispatch(client, method, *arg, **larg)
 
     @Command(__help__=N_("Get the client Interface/IP/Netmask/Broadcast/MAC list."))
     def getClientNetInfo(self, client):
@@ -483,15 +508,32 @@ class ClientService(Plugin):
             if id in self.__user_session:
                 new_users = list(set.difference(set(users), set(self.__user_session[id])))
                 if len(new_users):
-                    # configure users
                     self.log.debug("configuring new users: %s" % new_users)
                     self.configureUsers(id, new_users)
+
             else:
                 # configure users
                 self.log.debug("configuring new users: %s" % users)
                 self.configureUsers(id, users)
 
             self.__user_session[id] = users
+
+            if len(users):
+                # save login time and system<->user references
+                client = self.__open_device(id)
+                client.gotoLastUser = users[0]
+                client.commit()
+
+                index = PluginRegistry.getInstance("ObjectIndex")
+                res = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1})
+                for u in res:
+                    user = ObjectProxy(u["dn"])
+                    if not user.is_extended_by("GosaAccount"):
+                        user.extend("GosaAccount")
+                    user.gotoLastSystemLogin = datetime.datetime.now()
+                    user.gotoLastSystem = client.dn
+                    user.commit()
+
             self.systemSetStatus(id, "+B")
         else:
             self.__user_session[id] = []
@@ -501,21 +543,50 @@ class ClientService(Plugin):
 
     @Command(__help__="Send user configurations of all logged in user to a client")
     def configureUsers(self, client_id, users):
+        users_config = self.__collect_user_configuration(client_id, users)
+        for uid, config in users_config.items():
+            if "menu" in config:
+                # send to client
+                self.log.debug("sending generated menu for user %s" % uid)
+                self.queuedClientDispatch(client_id, "dbus_configureUserMenu", uid, dumps(config["menu"]))
+
+            if "printer-setup" in config:
+                self.configureHostPrinters(client_id, config["printer-setup"])
+
+            if "resolution" in config and len(config["resolution"]):
+                self.log.debug("sending screen resolution: %sx%s for user %s to client %s" % (config["resolution"][0], config["resolution"][1], uid, client_id))
+                self.queuedClientDispatch(client_id, "dbus_configureUserScreen", uid, config["resolution"][0], config["resolution"][1])
+
+    def __collect_user_configuration(self, client_id, users):
         """
         :param client_id: deviceUUID or hostname
         :param users: list of currently logged in users on the client
         """
         client = self.__open_device(client_id)
         group = ObjectProxy(client.groupMembership) if client.groupMembership is not None else None
+        index = PluginRegistry.getInstance("ObjectIndex")
+        config = {}
+
+        resolution = None
+        if group is not None and group.is_extended_by("GotoEnvironment") and group.gotoXResolution is not None:
+            resolution = group.gotoXResolution
 
         release = None
         if client.is_extended_by("GotoMenu"):
             release = client.getReleaseName()
-        elif group is not None and group.is_extended_by("GotoMenu"):
+        elif group is not None and group.is_extended_by("ForemanHostGroup"):
             release = group.getReleaseName()
+            parent_group = group
+            while release is None and parent_group is not None and parent_group.parent_id is not None:
+                res = index.search({"_type": "GroupOfNames", "extension": "ForemanHostGroup", "foremanGroupId": parent_group.parent_id}, {"dn": 1})
+                if len(res) == 0:
+                    break
+                else:
+                    parent_group = ObjectProxy(res[0]["dn"])
+                    release = parent_group.getReleaseName()
 
         if release is None:
-            self.log.error("no release found for client/user combination (%s/%s)" % client_id, users)
+            self.log.error("no release found for client/user combination (%s/%s)" % (client_id, users))
             return
 
         client_menu = None
@@ -523,16 +594,17 @@ class ClientService(Plugin):
         if hasattr(client, "gotoMenu") and client.gotoMenu is not None:
             client_menu = loads(client.gotoMenu)
 
-        index = PluginRegistry.getInstance("ObjectIndex")
         # collect users DNs
-        query_result = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1, "uid": 1})
+        query_result = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1})
         for entry in query_result:
+            user = ObjectProxy(entry["dn"])
+            config[user.uid] = {}
             menus = []
             if client_menu is not None:
                 menus.append(client_menu)
 
             # get all groups the user is member of which have a menu for the given release
-            query = {'_type': 'GroupOfNames', "member": entry["dn"], "extension": "GotoMenu", "gotoLsbName": release}
+            query = {'_type': 'GroupOfNames', "member": user.dn, "extension": "GotoMenu", "gotoLsbName": release}
 
             for res in index.search(query, {"gotoMenu": 1}):
                 # collect user menus
@@ -546,21 +618,20 @@ class ClientService(Plugin):
                         user_menu = self.get_submenu(menu_entry)
                     else:
                         self.merge_submenu(user_menu, self.get_submenu(menu_entry))
-
-                # send to client
-                if user_menu is not None:
-                    self.log.debug("sending generated menu for user %s" % entry["uid"][0])
-                    self.clientDispatch(client_id, "dbus_configureUserMenu", entry["uid"][0], dumps(user_menu))
+                config[user.uid]["menu"] = user_menu
 
             # collect printer settings for user, starting with the clients printers
             settings = self.__collect_printer_settings(group)
             printer_names = [x["cn"] for x in settings["printers"]]
-            for res in index.search({'_type': 'GroupOfNames', "member": entry["dn"], "extension": "GotoEnvironment"},
+            for res in index.search({'_type': 'GroupOfNames', "member": user.dn, "extension": "GotoEnvironment"},
                                     {"dn": 1}):
                 user_group = ObjectProxy(res["dn"])
                 if user_group.dn == group.dn:
                     continue
                 s = self.__collect_printer_settings(user_group)
+
+                if user_group.gotoXResolution is not None:
+                    resolution = user_group.gotoXResolution
 
                 for p in s["printers"]:
                     if p["cn"] not in printer_names:
@@ -569,7 +640,56 @@ class ClientService(Plugin):
                 if s["defaultPrinter"] is not None:
                     settings["defaultPrinter"] = s["defaultPrinter"]
 
-            self.configureHostPrinters(client_id, settings)
+            if user.is_extended_by("GosaAccount") and user.gosaDefaultPrinter is not None:
+                # check if the users default printer is send to the client
+                found = False
+                for printer_settings in settings["printers"]:
+                    if printer_settings["cn"] == user.gosaDefaultPrinter:
+                        found = True
+                        break
+
+                def process(res):
+                    if len(res) == 0:
+                        self.log.warning("users defaultPrinter not found: %s" % user.gosaDefaultPrinter)
+                        return None
+                    elif len(res) == 1:
+                        # add this one to the result set
+                        printer = ObjectProxy(res[0]["dn"])
+                        p_conf = {}
+                        for attr in self.printer_attributes:
+                            p_conf[attr] = getattr(printer, attr)
+                        return p_conf
+                    return False
+
+                if found is False:
+                    # find the printer and add it to the settings
+                    res = index.search({"_type": "GotoPrinter", "cn": user.gosaDefaultPrinter}, {"dn": 1})
+                    printer_config = process(res)
+                    if printer_config is False:
+                        # more than 1 printers found by this CN, try to look in the users subtree
+                        res = index.search({
+                            "_type": "GotoPrinter",
+                            "cn": user.gosaDefaultPrinter,
+                            "_adjusted_parent_dn": user.get_adjusted_parent_dn()
+                        }, {"dn": 1})
+                        printer_config = process(res)
+
+                    if isinstance(printer_config, dict):
+                        settings["printers"].append(printer_config)
+                        settings["defaultPrinter"] = user.gosaDefaultPrinter
+                    else:
+                        self.log.warning("users defaultPrinter not found: %s" % user.gosaDefaultPrinter)
+                else:
+                    settings["defaultPrinter"] = user.gosaDefaultPrinter
+
+            config[user.uid]["printer-setup"] = settings
+            config[user.uid]["resolution"] = None
+
+            if resolution is not None:
+                config[user.uid]["resolution"] = [int(x) for x in resolution.split("x")]
+
+            # TODO: collect and send login scripts to client
+        return config
 
     def merge_submenu(self, menu1, menu2):
         for cn, app in menu2.get('apps', {}).items():
@@ -632,33 +752,57 @@ class ClientService(Plugin):
 
         return result
 
-    @Command(__help__="Send client specific configuration (e.g. printers) to a client")
+    @Command(__help__=N_("Send user specific configuration (e.g. printers) to a clients active user sessions"))
     def configureClient(self, client_id):
         """
-        Send system printer PPDs to client
         :param client_id: deviceUUID or hostname
         """
-        client = self.__open_device(client_id)
+        if client_id in self.__user_session:
+            self.configureUsers(client_id, self.__user_session[client_id])
 
-        self.log.debug("client '%s' is member of '%s'" % (client_id, client.groupMembership))
-        if client.groupMembership is not None:
-            # get it from the group
-            group = ObjectProxy(client.groupMembership)
-            settings = self.__collect_printer_settings(group)
-            self.configureHostPrinters(client_id, settings)
+    @Command(__help__=N_("Prepare a user session after a user has logged in"))
+    def preUserSession(self, client_id, user):
+        """
+        :param client_id: clients deviceUUID
+        :param user: uid of the user that has logged out
+        :returns: user configuration {"menu": ..., "printer-setup": ..., "resolution": (width, height)}
+        """
+        if client_id not in self.__user_session:
+            self.__user_session[client_id] = []
+
+        if user not in self.__user_session[client_id]:
+            self.__user_session[client_id].append(user)
+
+        self.systemSetStatus(client_id, "+B")
+        # send configuration to client
+        config = self.__collect_user_configuration(client_id, [user])
+        return config[user]
+
+    @Command(__help__=N_("Cleanup a user session after a user has logged out"))
+    def postUserSession(self, client_id, user):
+        """
+        :param client_id: clients deviceUUID
+        :param user: uid of the user that has logged out
+        """
+        if client_id not in self.__user_session:
+            self.__user_session[client_id] = []
+        if user in self.__user_session[client_id]:
+            self.__user_session[client_id].remove(user)
+        if len(self.__user_session[client_id]) == 0:
+            self.systemSetStatus(client_id, "-B")
 
     def configureHostPrinters(self, client_id, config):
         """ configure the printers for this client via dbus. """
         if "printers" not in config or len(config["printers"]) == 0:
             return
         # delete old printers first
-        self.clientDispatch(client_id, "dbus_deleteAllPrinters")
+        self.queuedClientDispatch(client_id, "dbus_deleteAllPrinters")
 
         for p_conf in config["printers"]:
-            self.clientDispatch(client_id, "dbus_addPrinter", p_conf)
+            self.queuedClientDispatch(client_id, "dbus_addPrinter", p_conf)
 
         if "defaultPrinter" in config and config["defaultPrinter"] is not None:
-            self.clientDispatch(client_id, "dbus_defaultPrinter", config["defaultPrinter"])
+            self.queuedClientDispatch(client_id, "dbus_defaultPrinter", config["defaultPrinter"])
 
     def __collect_printer_settings(self, object):
         settings = {"printers": [], "defaultPrinter": None}
@@ -770,10 +914,28 @@ class ClientService(Plugin):
             except ValueError:
                 pass
 
-    # def _on_client_caps(self, cid, method, status):
-        # if method == "configureHostPrinters":
-        #     if status is True:
-        #         self.configureClient(cid)
+    def _on_client_caps(self, cid, method, status):
+        if status is False:
+            return
+
+        self.log.debug("client %s provides method %s" % (cid, method))
+        if cid in self.__client_call_queue and method in self.__client_call_queue[cid]:
+            for arg, larg in self.__client_call_queue[cid][method]:
+                self.clientDispatch(cid, method, *arg, **larg)
+            del self.__client_call_queue[cid][method]
+
+            if len(self.__client_call_queue[cid].keys()) == 0:
+                del self.__client_call_queue[cid]
+
+            # check if we still have listeners for that method
+            delete = True
+            for client_id, queue in self.__client_call_queue.items():
+                if method in queue:
+                    delete = False
+                    break
+
+            if delete is True:
+                self.unregister_listener(method, self._on_client_caps)
 
     def _handleClientLeave(self, data):
         data = data.ClientLeave

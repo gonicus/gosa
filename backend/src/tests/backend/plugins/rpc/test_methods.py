@@ -161,24 +161,24 @@ class RpcMethodsTestCase(TestCase):
 
         assert self.rpc.search('admin', None, 'SUB', 'freich') == []
 
-        res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich')
+        res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich')["results"]
         # user + group freich must be found
         assert res[0]['title'] == "freich" or res[0]['title'] == "Frank Reich"
         assert res[1]['title'] == "freich" or res[1]['title'] == "Frank Reich"
 
-        res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich', fltr={'mod-time': 'hour'})
+        res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich', fltr={'mod-time': 'hour'})["results"]
         assert len(res) == 0
 
-        res = self.rpc.search('admin', 'dc=example,dc=net', 'ONE', 'freich')
+        res = self.rpc.search('admin', 'dc=example,dc=net', 'ONE', 'freich')["results"]
         assert len(res) == 0
 
-        res = self.rpc.search('admin', 'ou=people,dc=example,dc=net', 'ONE', 'freich')
+        res = self.rpc.search('admin', 'ou=people,dc=example,dc=net', 'ONE', 'freich')["results"]
         assert len(res) == 1
         assert res[0]['title'] == "Frank Reich"
 
-        res = self.rpc.search('admin', 'ou=people,dc=example,dc=net', 'CHILDREN', 'freich')
+        res = self.rpc.search('admin', 'ou=people,dc=example,dc=net', 'CHILDREN', 'freich')["results"]
         assert len(res) == 1
 
-        res = self.rpc.search('admin', 'cn=Frank Reich,ou=people,dc=example,dc=net', 'BASE', 'freich',)
+        res = self.rpc.search('admin', 'cn=Frank Reich,ou=people,dc=example,dc=net', 'BASE', 'freich',)["results"]
         assert len(res) == 1
         assert res[0]['title'] == "Frank Reich"

@@ -23,6 +23,7 @@ from gosa.backend.objects.index import ObjectInfoIndex, ExtensionIndex, KeyValue
 from gosa.backend.routes.sse.main import SseHandler
 from gosa.common import Environment
 from gosa.common.components import Plugin, Command
+from gosa.common.env import SessionMixin
 from gosa.common.event import EventMaker
 from gosa.common.handler import IInterfaceHandler
 from zope.interface import implementer
@@ -45,7 +46,7 @@ C.register_codes(dict(
 
 
 @implementer(IInterfaceHandler)
-class Foreman(Plugin):
+class Foreman(Plugin, SessionMixin):
     """
     The Foreman plugin takes care about syncing the required data between the foreman and GOsa.
     Currently the following foreman objects are synced:
@@ -67,14 +68,14 @@ class Foreman(Plugin):
         self.log = logging.getLogger(__name__)
         self.factory = ObjectFactory.getInstance()
         incoming_base = self.env.config.get("foreman.host-rdn")
-        if incoming_base is None:
+        if incoming_base is None or len(incoming_base) == 0:
             incoming_base = self.env.base
         else:
             incoming_base = "%s,%s" % (incoming_base, self.env.base)
 
         group_rdn = self.env.config.get("foreman.group-rdn")
         self.type_bases = {"ForemanHost": incoming_base}
-        if group_rdn is not None:
+        if group_rdn is not None and len(group_rdn) > 0:
             self.type_bases["ForemanHostGroup"] = "%s,%s" % (group_rdn, self.env.base)
         else:
             self.type_bases["ForemanHostGroup"] = self.env.base
@@ -84,18 +85,20 @@ class Foreman(Plugin):
             self.log.warning("no foreman host configured")
         else:
             self.init_client(self.env.config.get("foreman.host"))
+            self.gosa_server = self.env.config.get("jsonrpc.url")
+            if self.gosa_server is None:
 
-            host = socket.getfqdn() if self.env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] else self.env.config.get("http.host", default="localhost")
-            ssl = self.env.config.get('http.ssl', default=None)
-            protocol = "https" if ssl and ssl.lower() in ['true', 'yes', 'on'] else "http"
+                host = socket.getfqdn() if self.env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] else self.env.config.get("http.host", default="localhost")
+                ssl = self.env.config.getboolean('http.ssl')
+                protocol = "https" if ssl is True else "http"
 
-            self.gosa_server = "%s://%s:%s/rpc" % (protocol, host, self.env.config.get('http.port', default=8080))
+                self.gosa_server = "%s://%s:%s/rpc" % (protocol, host, self.env.config.get('http.port', default=8050))
             self.mqtt_host = None
 
             mqtt_host = self.env.config.get('mqtt.host')
             if mqtt_host is not None:
                 if mqtt_host == "localhost":
-                    mqtt_host = host
+                    mqtt_host = socket.getfqdn()
                 self.mqtt_host = "%s:%s" % (mqtt_host, self.env.config.get('mqtt.port', default=1883))
 
             # Listen for object events
@@ -106,8 +109,6 @@ class Foreman(Plugin):
         self.client = ForemanClient(url)
 
     def serve(self):
-        # Load DB session
-        self.__session = self.env.getDatabaseSession('backend-database')
 
         if self.client:
             sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
@@ -226,7 +227,14 @@ class Foreman(Plugin):
                 # no object found -> create one
                 self.log.debug(">>> creating new %s" % object_type)
                 base_dn = self.env.base
-                if object_type in self.type_bases:
+                if object_type == "ForemanHost":
+                    # get the IncomingDevice-Container
+                    res = index.search({"_type": "IncomingDeviceContainer", "_parent_dn": self.type_bases["ForemanHost"]}, {"dn": 1})
+                    if len(res) > 0:
+                        base_dn = res[0]["dn"]
+                    else:
+                        base_dn = self.type_bases["ForemanHost"]
+                elif object_type in self.type_bases:
                     base_dn = self.type_bases[object_type]
                 foreman_object = ObjectProxy(base_dn, base_type)
                 uuid_extension = foreman_object.get_extension_off_attribute(backend_attributes["Foreman"]["_uuidAttribute"])
@@ -376,7 +384,7 @@ class Foreman(Plugin):
     @Command(__help__=N_("Get release name of an operating system"))
     @cache_return(timeout_secs=600)
     def getForemanReleaseName(self, operatingsystem_id):
-        if self.client:
+        if self.client and operatingsystem_id is not None:
             data = self.client.get("operatingsystems", id=operatingsystem_id)
             return data["release_name"]
         return None
@@ -529,7 +537,8 @@ class Foreman(Plugin):
             KeyValueIndex.value == "discovered"
         )
 
-        query_result = self.__session.query(ObjectInfoIndex).filter(query)
+        with self.make_session() as session:
+            query_result = session.query(ObjectInfoIndex).filter(query)
         res = {}
         for item in query_result:
             methods.update_res(res, item, user, 1)
@@ -586,7 +595,13 @@ class Foreman(Plugin):
 
         # create dn
         if base is None:
-            base = self.type_bases["ForemanHost"]
+            index = PluginRegistry.getInstance("ObjectIndex")
+            # get the IncomingDevice-Container
+            res = index.search({"_type": "IncomingDeviceContainer", "_parent_dn": self.type_bases["ForemanHost"]}, {"dn": 1})
+            if len(res) > 0:
+                base = res[0]["dn"]
+            else:
+                base = self.type_bases["ForemanHost"]
 
         ForemanBackend.modifier = "foreman"
 
@@ -635,7 +650,7 @@ class Foreman(Plugin):
             # check rights
             acl = PluginRegistry.getInstance("ACLResolver")
             if not acl.check(device.deviceUUID, "%s.%s.%s" % (self.env.domain, "command", "joinClient"), "x"):
-                role_name = "$$DeviceJoin"
+                role_name = "$$ClientDevices"
                 # create AclRole for joining if not exists
                 index = PluginRegistry.getInstance("ObjectIndex")
                 res = index.search({"_type": "AclRole", "name": role_name}, {"dn": 1})
@@ -650,7 +665,7 @@ class Foreman(Plugin):
                         "scope": "sub",
                         "actions": [
                             {
-                                "topic": "%s\.command\.joinClient" % self.env.domain,
+                                "topic": "%s\.command\.(joinClient|preUserSession|postUserSession)" % self.env.domain,
                                 "acl": "x",
                                 "options": {}
                             }
@@ -723,6 +738,7 @@ class Foreman(Plugin):
         self.client.set_common_parameter("gosa-server", self.gosa_server, host=use_id if use_id is not None else hostname)
         if self.mqtt_host is not None:
             self.client.set_common_parameter("gosa-mqtt", self.mqtt_host, host=use_id if use_id is not None else hostname)
+
         self.client.set_common_parameter("gosa-domain", self.env.domain, host=use_id if use_id is not None else hostname)
 
         if hostname is not None and hostname in self.__marked_hosts:

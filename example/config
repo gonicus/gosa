@@ -31,12 +31,18 @@ index = true
 
 [user]
 image-path = /tmp/images
+# chown user menu after generation to allow user to change the entries)
+# chown-menu = false
 
 [gui]
 debug = true
 
 [mqtt]
 host = localhost
+#port = 1883
+#ssl = <inherit from http.ssl>
+#ca_file =
+#insecure = false
 
 [jsonrpc]
 url = http://localhost:8000/rpc

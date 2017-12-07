@@ -21,7 +21,6 @@ class ObjectTestCase(TestCase):
         res = obj.listProperties()
         # just test if something is there
         assert 'uid' in res
-        assert 'gender' in res
 
     def test_getProperties(self):
         obj = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
@@ -41,7 +40,6 @@ class ObjectTestCase(TestCase):
         res = obj.listMethods()
         # just test if something is there
         assert obj.hasattr('uid') is True
-        assert obj.hasattr('gender') is True
 
     def test_getTemplate(self):
         obj = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
@@ -67,11 +65,11 @@ class ObjectTestCase(TestCase):
 
     def test_attributes(self):
         obj = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')
-        assert obj.gender == 'M'
+        assert obj.uid == 'freich'
 
         # just test the change
-        obj.gender = 'F'
-        assert obj.gender == 'F'
+        obj.uid = 'test'
+        assert obj.uid == 'test'
 
         # cannot delete mandatory attribute
         with pytest.raises(AttributeError):
@@ -89,21 +87,8 @@ class ObjectTestCase(TestCase):
         with pytest.raises(AttributeError):
             obj.unknown
 
-        del obj.gender
-        assert obj.gender is None
-
-        # try to set some wrong types
-        with pytest.raises(TypeError):
-            obj.gender = True
-        with pytest.raises(TypeError):
-            obj.gender = "T"
-
-        obj.gender = 'M'
-        assert obj.gender == 'M'
-
-        # delete by setting None
-        obj.gender = None
-        assert obj.gender is None
+        del obj.dateOfBirth
+        assert obj.dateOfBirth is None
 
         # cannot change readonly attribute
         with pytest.raises(AttributeError):
@@ -137,7 +122,6 @@ class ObjectTestCase(TestCase):
         res = obj.check()
         # just test if something is there
         assert 'uid' in res
-        assert 'gender' in res
 
         # create new object with wrong dn
         obj = ObjectFactory.getInstance().getObject('User', 'cn=Test User,ou=people,dc=example,dc=net', 'create')
@@ -313,10 +297,9 @@ class ObjectTestCase(TestCase):
         mocked_index.search.return_value = [{'dn': 'dn1'}, {'dn': 'dn2'}]
         with mock.patch.dict(PluginRegistry.modules, {'ObjectIndex': mocked_index}):
             res = object.get_dn_references()
-            assert len(res) == 1
-            assert 'member' in res[0]
-            assert 'dn1' in res[0][1]
-            assert 'dn2' in res[0][1]
+            assert len(res) == 2
+            for entry in res:
+                assert entry[0] in ["member", "gotoLastSystem"]
 
     def test_update_dn_refs(self):
         object = ObjectFactory.getInstance().getObject('User', '78475884-c7f2-1035-8262-f535be14d43a')

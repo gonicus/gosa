@@ -456,6 +456,11 @@ class LDAP(ObjectBackend):
         return sorted(dn_list, key=len)
 
     def get_next_id(self, attr):
+        """
+        Look for a sambaUnixIdPool which holds the next free id values
+        :param attr:
+        :return:
+        """
         with self.lock:
             fltr = self.env.config.get("pool.attribute", "sambaUnixIdPool")
             res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, "(objectClass=%s)" % fltr, [attr])
@@ -483,11 +488,12 @@ class LDAP(ObjectBackend):
                         if num > minGidNumber:
                             minGidNumber = num
 
+                # save the next free ids
                 mod_attrs = [
                     ('objectClass', [bytes(fltr, 'ascii'), b"organizationalUnit"]),
                     ("ou", [b"idmap"]),
-                    ("uidNumber", bytes(str(minUidNumber), 'ascii')),
-                    ("gidNumber", bytes(str(minGidNumber), 'ascii'))
+                    ("uidNumber", bytes(str(minUidNumber + 1), 'ascii')),
+                    ("gidNumber", bytes(str(minGidNumber + 1), 'ascii'))
                     ]
                 self.con.add_s("ou=idmap,%s" % self.lh.get_base(), mod_attrs)
 
@@ -499,26 +505,28 @@ class LDAP(ObjectBackend):
 
             # Current value
             if attr in res[0][1]:
-              old_value = res[0][1][attr][0]
-              new_value = bytes(str(int(old_value) + 1),  'ascii')
+                # currently free id
+                currently_free_value = res[0][1][attr][0]
+                next_free_value = bytes(str(int(currently_free_value) + 1),  'ascii')
 
-              # Remove old, add new
-              mod_attrs = [
-                      (ldap.MOD_DELETE, attr, [old_value]),
-                      (ldap.MOD_ADD, attr, [new_value]),
-                    ]
+                # Remove old, add new
+                mod_attrs = [
+                    (ldap.MOD_DELETE, attr, [currently_free_value]),
+                    (ldap.MOD_ADD, attr, [next_free_value]),
+                ]
 
             else:
-                new_value = bytes(str(self.env.config.get("pool.min-%s" % attr, 1000)), 'ascii')
+                currently_free_value = bytes(str(self.env.config.get("pool.min-%s" % attr, 1000)), 'ascii')
+                next_free_value = bytes(str(int(currently_free_value) + 1),  'ascii')
 
                 # Add new
                 mod_attrs = [
-                    (ldap.MOD_ADD, attr, [new_value]),
+                    (ldap.MOD_ADD, attr, [next_free_value]),
                 ]
 
             self.con.modify_s(res[0][0], mod_attrs)
 
-            return int(new_value)
+            return int(currently_free_value)
 
     def __check_res(self, uuid, res):
         if not res:

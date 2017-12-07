@@ -40,16 +40,18 @@ will list the available extension types for that specific object.
 import copy
 
 from datetime import datetime
+
+import ldap
 import pkg_resources
 import re
 import time
 import zope.event
 from lxml import etree, objectify
-from ldap.dn import str2dn, dn2str
+from ldap.dn import dn2str, str2dn
 from logging import getLogger
 
-from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 from gosa.backend.routes.sse.main import SseHandler
+from gosa.backend.utils.ldap import normalize_dn
 from gosa.common import Environment
 from gosa.common.event import EventMaker
 from gosa.common.utils import is_uuid, N_
@@ -212,9 +214,9 @@ class ObjectProxy(object):
         self.__attribute_map = self.__factory.get_attributes_by_object(self.__base_type)
 
         # Generate attribute to object-type mapping
-        for attr in [n for n, o in self.__base.getProperties().items() if not o['foreign']]:
-            self.__attributes.append(attr)
         self.__property_map = self.__base.getProperties()
+        for attr in [n for n, o in self.__property_map.items() if not o['foreign']]:
+            self.__attributes.append(attr)
         for ext in all_extensions:
             if self.__extensions[ext]:
                 props = self.__extensions[ext].getProperties()
@@ -499,9 +501,10 @@ class ObjectProxy(object):
     def get_parent_dn(self, dn=None):
         if not dn:
             dn = self.__base.dn
-        return dn2str(str2dn(dn)[1:])
+        return dn2str(str2dn(dn, flags=ldap.DN_FORMAT_LDAPV3)[1:])
 
     def get_adjusted_parent_dn(self, dn=None):
+        print("DN: %s, Parent: %s" % (dn, self.get_parent_dn(dn)))
         return ObjectProxy.get_adjusted_dn(self.get_parent_dn(dn), self.__env.base)
 
     @classmethod
@@ -519,8 +522,13 @@ class ObjectProxy(object):
                 break
 
             # Fetch object type for pdn
-            ptype = index.search({"dn": pdn}, {'_type': 1})[0]['_type']
+            res = index.search({"dn": pdn}, {'_type': 1})
+            if len(res) == 0:
+                raise Exception("no type found for DN: %s" % pdn)
+            ptype = res[0]['_type']
+
             schema = factory.getXMLSchema(ptype)
+            # Note: schema.StructuralInvisible is a BoolElement and no boolean value so never use "is True" use == operator instead
             if not ("StructuralInvisible" in schema.__dict__ and schema.StructuralInvisible == True):
                 tdn.append(str2dn(pdn.encode('utf-8'))[0])
 
@@ -563,13 +571,14 @@ class ObjectProxy(object):
         Return a dictionary containing all property values.
         """
         res = {'value': {}, 'values': {}, 'saveable': {}}
+        base_properties = self.__base.getProperties()
         for item in self.get_attributes():
             if self.__base_type == self.__attribute_type_map[item]:
                 res['value'][item] = getattr(self, item)
-                res['saveable'][item] = self.__base.getProperties()[item]['readonly'] is False and \
-                                        ('skip_save' not in self.__base.getProperties()[item] or self.__base.getProperties()[item]['skip_save'] is False)
-                if self.__base.getProperties()[item]['values_populate']:
-                    res['values'][item] = self.__base.getProperties()[item]['values']
+                res['saveable'][item] = base_properties[item]['readonly'] is False and \
+                                        ('skip_save' not in base_properties[item] or base_properties[item]['skip_save'] is False)
+                if base_properties[item]['values_populate']:
+                    res['values'][item] = base_properties[item]['values']
             elif self.__extensions[self.__attribute_type_map[item]]:
                 res['value'][item] = getattr(self, item)
                 map = self.__extensions[self.__attribute_type_map[item]].getProperties()[item]
@@ -755,7 +764,7 @@ class ObjectProxy(object):
                     self.__current_user, self.__base.dn, topic_user, "c", new_base))
                 raise ACLException(C.make_error('PERMISSION_MOVE', source=self.__base.dn, target=new_base))
 
-        zope.event.notify(ObjectChanged("pre object move", self.__base, dn=dn2str([str2dn(self.__base.dn)[0]]) + "," + new_base))
+        zope.event.notify(ObjectChanged("pre object move", self.__base, dn=dn2str([str2dn(self.__base.dn, flags=ldap.DN_FORMAT_LDAPV3)[0]]) + "," + new_base))
 
         old_base = self.__base.dn
 
@@ -764,7 +773,7 @@ class ObjectProxy(object):
         if recursive:
 
             try:
-                child_new_base = dn2str([str2dn(self.__base.dn)[0]]) + "," + new_base
+                child_new_base = dn2str([str2dn(self.__base.dn, flags=ldap.DN_FORMAT_LDAPV3)[0]]) + "," + new_base
 
                 # Get primary backend of the object to be moved
                 p_backend = getattr(self.__base, '_backend')
@@ -799,7 +808,7 @@ class ObjectProxy(object):
 
                     # Get new base of child
                     new_child_dn = fdn[:len(fdn) - len(old_base)] + child_new_base
-                    new_child_base = dn2str(str2dn(new_child_dn)[1:])
+                    new_child_base = dn2str(str2dn(new_child_dn, flags=ldap.DN_FORMAT_LDAPV3)[1:])
 
                     # Select objects with different base and trigger a move, the
                     # primary backend move will be triggered and do a recursive
@@ -887,8 +896,11 @@ class ObjectProxy(object):
             children.sort(key=len, reverse=True)
 
             for child in children:
-                c_obj = ObjectProxy(child)
-                c_obj.remove(recursive=True)
+                try:
+                    c_obj = ObjectProxy(child)
+                    c_obj.remove(recursive=True)
+                except ProxyException as e:
+                    self.log.error("Error removing chile %s: %s" % (child, str(e)))
 
         else:
             # Test if we've children
@@ -986,7 +998,7 @@ class ObjectProxy(object):
 
                     # Get new base of child
                     new_child_dn = fdn[:len(fdn) - len(old_base)] + self.__base.dn
-                    new_child_base = dn2str(str2dn(new_child_dn)[1:])
+                    new_child_base = dn2str(str2dn(new_child_dn, flags=ldap.DN_FORMAT_LDAPV3)[1:])
 
                     # Select objects with different base and trigger a move, the
                     # primary backend move will be triggered and do a recursive
@@ -1232,7 +1244,7 @@ class ObjectProxy(object):
                 self.__current_user, self.dn, topic, "r"))
             raise ACLException(C.make_error('PERMISSION_ACCESS', topic, target=self.dn))
 
-        res = {'dn': self.__base.dn, '_type': self.__base.__class__.__name__,
+        res = {'dn': normalize_dn(self.__base.dn), '_type': self.__base.__class__.__name__,
                '_parent_dn': self.get_parent_dn(self.__base.dn),
                '_adjusted_parent_dn': self.get_adjusted_parent_dn(self.__base.dn),
                '_uuid': self.__base.uuid,

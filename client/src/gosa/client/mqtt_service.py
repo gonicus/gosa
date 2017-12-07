@@ -175,11 +175,7 @@ class MQTTClientService(object):
             except KeyError as e:
                 self.log.error("KeyError: %s" % e)
                 err = str(BadServiceRequest(message))
-        try:
-            self.log.debug("received call [%s] for %s: %s(%s)" % (id_, topic, name, args))
-        except:
-            # args might be to long
-            self.log.debug("received call [%s] for %s: %s(...)" % (id_, topic, name))
+        self.log.debug("received call [%s] for %s: %s(%s)" % (id_, topic, name, args))
 
         # Try to execute
         if err is None:

@@ -33,21 +33,25 @@ class UserFiltersTestCase(TestCase):
             }
         }
         image_dir = os.path.join(Environment.getInstance().config.get("user.image-path", "/tmp/images"), user.uuid)
+        tmp_image = mock.MagicMock()
 
-        with mock.patch("gosa.backend.plugins.user.filters.Environment.getInstance") as m_env, \
-                mock.patch("gosa.backend.plugins.user.filters.Base.metadata.create_all") as m_create_all, \
+        with mock.patch("gosa.backend.plugins.user.filters.Base.metadata.create_all") as m_create_all, \
                 mock.patch("gosa.backend.plugins.user.filters.os.path.exists", return_value=True), \
-                mock.patch("gosa.backend.plugins.user.filters.os.path.isdir", return_value=True):
-            mocked_db_query = m_env.return_value.getDatabaseSession.return_value.query.return_value.filter.return_value.one_or_none
-            mocked_db_query.side_effect = OperationalError(None, None, None)
+                mock.patch("gosa.backend.plugins.user.filters.os.path.isdir", return_value=True), \
+                mock.patch("gosa.backend.plugins.user.filters.ImageOps.fit", return_value=tmp_image):
             filter = ImageProcessor(None)
-            filter.process(user, "image", test_dict, "32", "64")
-            assert m_create_all.called
-            m_create_all.reset_mock()
+            with mock.patch.object(filter, "make_session") as m:
+                mocked_db_query = m.return_value.__enter__.return_value.query.return_value.filter.return_value.one_or_none
+                mocked_db_query.side_effect = OperationalError(None, None, None)
 
-            mocked_db_query.side_effect = [None, OperationalError(None, None, None)]
-            filter.process(user, "image", test_dict, "32")
-            assert m_create_all.called
+                filter.process(user, "image", test_dict, "32", "64")
+                assert m_create_all.called
+                m_create_all.reset_mock()
+
+                mocked_db_query.side_effect = [None, OperationalError(None, None, None)]
+                filter.process(user, "image", test_dict, "32")
+                assert m_create_all.called
+                assert tmp_image.save.called
 
         filter = ImageProcessor(None)
 
@@ -57,15 +61,15 @@ class UserFiltersTestCase(TestCase):
         with pytest.raises(ElementFilterException), \
                 mock.patch("gosa.backend.plugins.user.filters.os.path.exists", return_value=True),\
                 mock.patch("gosa.backend.plugins.user.filters.os.path.isdir", return_value=False), \
-                mock.patch.object(filter._ImageProcessor__session, "add"), \
-                mock.patch.object(filter._ImageProcessor__session, "commit"):
+                mock.patch.object(filter, "make_session"):
             filter.process(user, "image", test_dict, "32", "64")
 
-        with mock.patch.object(filter._ImageProcessor__session, "add") as ma, \
-                mock.patch.object(filter._ImageProcessor__session, "commit") as mc:
+        with mock.patch.object(filter, "make_session") as m:
+            m_session = m.return_value.__enter__.return_value
+            m_session.query.return_value.filter.return_value.one_or_none.return_value = None
             filter.process(user, "image", test_dict, "32", "64")
-            assert ma.called
-            assert mc.called
+            assert m_session.add.called
+            assert m_session.commit.called
             assert os.path.exists(os.path.join(image_dir, "image", "0", "32.jpg"))
             assert os.path.exists(os.path.join(image_dir, "image", "0", "64.jpg"))
 
@@ -73,22 +77,23 @@ class UserFiltersTestCase(TestCase):
 
         found = mock.MagicMock()
         found.filter.return_value.one_or_none.return_value.modified = user.modifyTimestamp
-        with mock.patch.object(filter._ImageProcessor__session, "query", return_value=found),\
-                mock.patch.object(filter._ImageProcessor__session, "add") as ma, \
-                mock.patch.object(filter._ImageProcessor__session, "commit") as mc:
+        with mock.patch.object(filter, "make_session") as m:
+            m_session = m.return_value.__enter__.return_value
+            m_session.query.return_value = found
             filter.process(user, "image", test_dict, "32", "64")
-            assert not ma.called
-            assert not mc.called
+            assert not m_session.add.called
+            assert not m_session.commit.called
             assert not os.path.exists(os.path.join(image_dir, "image", "0", "32.jpg"))
             assert not os.path.exists(os.path.join(image_dir, "image", "0", "64.jpg"))
 
             filter.process(user, "image", {'image': {'value': [Binary(b"wrong binary data")]}}, "32", "64")
 
-        with mock.patch.object(filter._ImageProcessor__session, "add") as ma, \
-                mock.patch.object(filter._ImageProcessor__session, "commit") as mc:
+        with mock.patch.object(filter, "make_session") as m:
+            m_session = m.return_value.__enter__.return_value
+            m_session.query.return_value.filter.return_value.one_or_none.return_value = None
             filter.process(user, "image", {'image': {'value': [Binary(b"wrong binary data")]}}, "32", "64")
-            assert ma.called
-            assert mc.called
+            assert m_session.add.called
+            assert m_session.commit.called
             assert not os.path.exists(os.path.join(image_dir, "image", "0", "32.jpg"))
             assert not os.path.exists(os.path.join(image_dir, "image", "0", "64.jpg"))
 

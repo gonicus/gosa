@@ -14,6 +14,8 @@ import os
 import tempfile
 
 import time
+
+import requests
 from zope.interface import implementer
 
 from gosa.backend.exceptions import EntryNotFound
@@ -74,19 +76,23 @@ class CupsClient(Plugin):
 
             sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
             sched.add_interval_job(self.__gc, minutes=60, tag='_internal', jobstore="ram")
+            sched.add_interval_job(self.__update_printer_list, minutes=30, tag='_internal', jobstore="ram")
 
         except RuntimeError as e:
             self.log.error(str(e))
 
     def __get_printer_list(self):
         if self.__printer_list is None:
-            res = {}
-            for name, ppd in self.client.getPPDs().items():
-                if ppd["ppd-make"] not in res:
-                    res[ppd["ppd-make"]] = []
-                res[ppd["ppd-make"]].append({"model": ppd["ppd-make-and-model"], "ppd": name})
-            self.__printer_list = res
+            self.__update_printer_list()
         return self.__printer_list
+
+    def __update_printer_list(self):
+        res = {}
+        for name, ppd in self.client.getPPDs().items():
+            if ppd["ppd-make"] not in res:
+                res[ppd["ppd-make"]] = []
+            res[ppd["ppd-make"]].append({"model": ppd["ppd-make-and-model"], "ppd": name})
+        self.__printer_list = res
 
     def __gc(self):
         """ garbage collection for unused temporary PPD files in spool directory """
@@ -402,18 +408,29 @@ class CupsClient(Plugin):
 
     def get_attributes_from_ppd(self, ppd_file, attributes):
         res = {}
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
         try:
-            ppd = cups.PPD(ppd_file)
+            if ppd_file[0:4] == "http":
+                # fetch remote file and copy it to a temporary local one
+                r = requests.get(requests.utils.quote(ppd_file, safe=":/"))
+                with open(temp_file.name, "w") as tf:
+                    tf.write(r.content.decode("utf-8"))
+                local_file = temp_file.name
+            else:
+                local_file = ppd_file
+
+            ppd = cups.PPD(local_file)
             ppd.localize()
             for name in attributes:
                 attr = ppd.findAttr(name)
                 if attr is not None:
                     res[name] = attr.value
 
-        except cups.IPPError as e:
-            self.log.error(str(e))
+        except Exception as e:
+            self.log.error("Error reading PPD file %s: %s" % (ppd_file, str(e)))
 
         finally:
+            os.unlink(temp_file.name)
             return res
 
 

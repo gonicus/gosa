@@ -191,6 +191,10 @@ class Config(object):
         try:
             for pos in path.split("."):
                 tmp = tmp[pos.lower()]
+            if method == "getboolean":
+                tmp = tmp.lower() in ["true", "on", "1"]
+            elif method == "getfloat":
+                tmp = float(tmp)
             return tmp
 
         except KeyError:
@@ -200,6 +204,9 @@ class Config(object):
 
     def getfloat(self, path, default=None, use_user_config=True):
         return self.get(path, default, use_user_config, "getfloat")
+
+    def getboolean(self, path, default=False, use_user_config=True):
+        return self.get(path, default, use_user_config, "getboolean")
 
     def set(self, path, value):
         """

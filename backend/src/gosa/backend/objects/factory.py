@@ -49,15 +49,14 @@ import json
 import logging
 import ldap
 import html
+
+from gosa.backend.objects.xml_parsing import XmlParsing
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry
 from gosa.common.utils import N_
 from gosa.common.error import GosaErrorHandler as C
-from gosa.backend.objects.filter import get_filter
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
-from gosa.backend.objects.comparator import get_comparator
-from gosa.backend.objects.operator import get_operator
 from gosa.backend.objects.object import Object
 from gosa.backend.exceptions import FactoryException
 from io import StringIO
@@ -114,6 +113,8 @@ class ObjectFactory(object):
     def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
+
+        self.__xml_parsing = XmlParsing()
 
         # Initialize backend registry
         ObjectBackendRegistry.getInstance()
@@ -632,7 +633,7 @@ class ObjectFactory(object):
                 for ext_cond in t_obj.ExtensionConditions.ExtensionCondition:
                     if ext_cond.attrib["extension"] not in extension_conditions:
                         extension_conditions[ext_cond.attrib["extension"]] = {}
-                    extension_conditions[ext_cond.attrib["extension"]][t_obj.Name.text] = self.__build_filter(ext_cond)
+                    extension_conditions[ext_cond.attrib["extension"]][t_obj.Name.text] = self.__xml_parsing.build_filter(ext_cond)
                     if "properties" in ext_cond.attrib:
                         extension_conditions[ext_cond.attrib["extension"]][t_obj.Name.text]["properties"] = \
                             [x.strip() for x in ext_cond.attrib["properties"].split(",") if len(x)]
@@ -939,19 +940,19 @@ class ObjectFactory(object):
                     if "OutFilter" in prop.__dict__:
                         for entry in  prop['OutFilter'].iterchildren():
                             self.log.debug(" appending out-filter")
-                            of = self.__handleFilterChain(entry)
+                            of = self.__xml_parsing.handleFilterChain(entry)
                             out_f.append(of)
 
                     # Do we have a input filter definition?
                     if "InFilter" in prop.__dict__:
                         for entry in  prop['InFilter'].iterchildren():
                             self.log.debug(" appending in-filter")
-                            in_f.append(self.__handleFilterChain(entry))
+                            in_f.append(self.__xml_parsing.handleFilterChain(entry))
 
                     # Read and build up validators
                     if "Validators" in prop.__dict__:
                         self.log.debug(" appending property validator")
-                        validator = self.__build_filter(prop['Validators'])
+                        validator = self.__xml_parsing.build_filter(prop['Validators'])
 
                     # Read the properties syntax
                     if "BackendType" in prop.__dict__:
@@ -1230,249 +1231,6 @@ class ObjectFactory(object):
             return cr.dispatch(*args)
 
         return funk
-
-    def __build_filter(self, element, out=None):
-        """
-        Attributes of objects can be filtered using in- and out-filters.
-        These filters can manipulate the raw-values while they are read form
-        the backend or they can manipulate values that have to be written to
-        the backend.
-
-        This method converts the read XML filter-elements of the defintion into
-        a process lists. This list can then be easily executed line by line for
-        each property, using the method:
-
-        :meth:`gosa.backend.objects.object.Object.__processFilter`
-
-        """
-
-        # Parse each <FilterChain>, <Condition>, <ConditionChain>
-        out = {}
-        for el in element.iterchildren():
-            if el.tag == "{http://www.gonicus.de/Objects}FilterChain":
-                out = self.__handleFilterChain(el, out)
-            elif  el.tag == "{http://www.gonicus.de/Objects}Condition":
-                out = self.__handleCondition(el, out)
-            elif  el.tag == "{http://www.gonicus.de/Objects}ConditionOperator":
-                out = self.__handleConditionOperator(el, out)
-
-        return out
-
-    def __handleFilterChain(self, element, out=None):
-        """
-        This method is used in '__build_filter' to generate a process
-        list for the in and out filters.
-
-        The 'FilterChain' element is handled here.
-
-        Occurrence: OutFilter->FilterChain
-        """
-        if not out:
-            out = {}
-
-        # FilterChains can contain muliple "FilterEntry" tags.
-        # But at least one.
-        # Here we forward these elements to their handler.
-        for el in element.iterchildren():
-            if el.tag == "{http://www.gonicus.de/Objects}FilterEntry":
-                out = self.__handleFilterEntry(el, out)
-        return out
-
-    def __handleFilterEntry(self, element, out):
-        """
-        This method is used in '__build_filter' to generate a process
-        list for the in and out filters.
-
-        The 'FilterEntry' element is handled here.
-
-        Occurrence: OutFilter->FilterChain->FilterEntry
-        """
-
-        # FilterEntries contain a "Filter" OR a "Choice" tag.
-        # Here we forward the elements to their handler.
-        for el in element.iterchildren():
-            if el.tag == "{http://www.gonicus.de/Objects}Filter":
-                out = self.__handleFilter(el, out)
-            elif el.tag == "{http://www.gonicus.de/Objects}Choice":
-                out = self.__handleChoice(el, out)
-        return out
-
-    def __handleFilter(self, element, out):
-        """
-        This method is used in '__build_filter' to generate a process
-        list for the in and out filters.
-
-        The 'Filter' element is handled here.
-
-        Occurrence: OutFilter->FilterChain->FilterEntry->Filter
-        """
-
-        # Get the <Name> and the <Param> element values to be able
-        # to create a process list entry.
-        name = element.__dict__['Name'].text
-        params = []
-        for entry in element.iterchildren():
-            if entry.tag == "{http://www.gonicus.de/Objects}Param":
-                params.append(entry.text)
-
-        # Attach the collected filter and parameter value to the process list.
-        cnt = len(out) + 1
-        out[cnt] = {'filter': get_filter(name)(self), 'params': params}
-        return out
-
-    def __handleChoice(self, element, out):
-        """
-        This method is used in '__build_filter' to generate a process
-        list for the in and out filters.
-
-        The 'Choice' element is handled here.
-
-        Occurrence: OutFilter->FilterChain->FilterEntry->Choice
-        """
-
-        # We just forward <When> tags to their handler.
-        for el in element.iterchildren():
-            if el.tag == "{http://www.gonicus.de/Objects}When":
-                out = self.__handleWhen(el, out)
-        return out
-
-    def __handleWhen(self, element, out):
-        """
-        This method is used in '__build_filter' to generate a process
-        list for the in and out filters.
-
-        The 'When' element is handled here.
-
-        Occurrence: OutFilter->FilterChain->FilterEntry->Choice->When
-        """
-
-        # (<When> tags contain a <ConditionChain>, a <FilterChain> tag and
-        # an optional <Else> tag.
-        #  The <FilterChain> is only executed when the <ConditionChain> matches
-        #  the given values.)
-
-        # Forward the tags to their correct handler.
-        filterChain = {}
-        elseChain = {}
-        for el in element.iterchildren():
-            if el.tag == "{http://www.gonicus.de/Objects}ConditionChain":
-                out = self.__handleConditionChain(el, out)
-            if el.tag == "{http://www.gonicus.de/Objects}FilterChain":
-                filterChain = self.__handleFilterChain(el, filterChain)
-            elif el.tag == "{http://www.gonicus.de/Objects}Else":
-                elseChain = self.__handleElse(el, elseChain)
-
-        # Collect jump points
-        cnt = len(out)
-        match = cnt + 2
-        endMatch = match + len(filterChain)
-        noMatch = endMatch + 1
-        endNoMatch = noMatch + len(elseChain)
-
-        # Add jump point for this condition
-        cnt = len(out)
-        out[cnt + 1] = {'jump': 'conditional', 'onTrue': match, 'onFalse': noMatch}
-
-        # Add the <FilterChain> process.
-        cnt = len(out)
-        for entry in filterChain:
-            cnt += 1
-            out[cnt] = filterChain[entry]
-
-        # Add jump point to jump over the else chain
-        cnt = len(out)
-        out[cnt + 1] = {'jump': 'non-conditional', 'to': endNoMatch}
-
-        # Add the <Else> process.
-        cnt = len(out)
-        for entry in elseChain:
-            cnt += 1
-            out[cnt] = elseChain[entry]
-
-        return out
-
-    def __handleElse(self, element, out):
-        """
-        This method is used in '__build_filter' to generate a process
-        list for the in and out filters.
-
-        The 'Else' element is handled here.
-
-        Occurrence: OutFilter->FilterChain->FilterEntry->Choice->Else
-        """
-
-        # Handle <FilterChain> elements of this else tree.
-        for el in element.iterchildren():
-            if el.tag == "{http://www.gonicus.de/Objects}FilterChain":
-                out = self.__handleFilterChain(el, out)
-
-        return out
-
-    def __handleConditionChain(self, element, out):
-        """
-        This method is used in '__build_filter' to generate a process
-        list for the in and out filters.
-
-        The 'ConditionChain' element is handled here.
-
-        Occurrence: OutFilter->FilterChain->FilterEntry->Choice->When->ConditionChain
-        """
-
-        # Forward <Condition> tags to their handler.
-        for el in element.iterchildren():
-            if el.tag == "{http://www.gonicus.de/Objects}Condition":
-                out = self.__handleCondition(el, out)
-            elif el.tag == "{http://www.gonicus.de/Objects}ConditionOperator":
-                out = self.__handleConditionOperator(el, out)
-
-        return out
-
-    def __handleConditionOperator(self, element, out):
-        """
-        This method is used in '__build_filter' to generate a process
-        list for the in and out filters.
-
-        The 'ConditionOperator' element is handled here.
-
-        Occurrence: OutFilter->FilterChain->FilterEntry->Choice->When->ConditionChain->ConditionOperator
-        """
-
-        # Forward <Left and <RightConditionChains> to the ConditionChain handler.
-        out = self.__handleConditionChain(element.__dict__['LeftConditionChain'], out)
-        out = self.__handleConditionChain(element.__dict__['RightConditionChain'], out)
-
-        # Append operator
-        cnt = len(out)
-        if element.__dict__['Operator'] == "or":
-            out[cnt + 1] = {'operator': get_operator('Or')()}
-        else:
-            out[cnt + 1] = {'operator': get_operator('And')()}
-
-        return out
-
-    def __handleCondition(self, element, out):
-        """
-        This method is used in '__build_filter' to generate a process
-        list for the in and out filters.
-
-        The 'Condition' element is handled here.
-
-        Occurrence: OutFilter->FilterChain->FilterEntry->Choice->When->ConditionChain->Condition
-        """
-
-        # Get the condition name and the parameters to use.
-        # The name of the condition specifies which ElementComparator
-        # we schould use.
-        name = element.__dict__['Name'].text
-        params = []
-        for entry in element.iterchildren():
-            if entry.tag == "{http://www.gonicus.de/Objects}Param":
-                params.append(entry.text)
-
-        # Append the condition to the process list.
-        cnt = len(out) + 1
-        out[cnt] = {'condition': get_comparator(name)(), 'params': params}
-        return out
 
     @staticmethod
     def getInstance():

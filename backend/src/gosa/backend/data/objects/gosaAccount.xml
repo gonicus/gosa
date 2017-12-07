@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects">
+  <Object>
+    <Name>GosaAccount</Name>
+    <DisplayName>GosaAccount</DisplayName>
+    <Description>Class for GOsa Accounts (v2.7)</Description>
+    <Backend>LDAP</Backend>
+    <BackendParameters>
+      <Backend objectClasses="gosaAccount">LDAP</Backend>
+      <Backend gosaDefaultPrinter="GotoPrinter:cn">ObjectHandler</Backend>
+    </BackendParameters>
+    <BaseObject>false</BaseObject>
+    <Templates>
+      <Template>gosaAccount.json</Template>
+    </Templates>
+    <Extends>
+      <Value>User</Value>
+    </Extends>
+    <Attributes>
+      <Attribute>
+        <Name>gotoLastSystemLogin</Name>
+        <Description>Timestamp for a Users last System Login</Description>
+        <Type>Timestamp</Type>
+        <BackendType>String</BackendType>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>StringToDatetime</Name>
+                <Param>%%Y%%m%%d%%H%%M%%S</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>DatetimeToString</Name>
+                <Param>%%Y%%m%%d%%H%%M%%S</Param>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>gotoLastSystem</Name>
+        <Description>The DN of the System where the Login was performed</Description>
+        <Type>UnicodeString</Type>
+        <Validators>
+          <Condition>
+            <Name>IsExistingDN</Name>
+          </Condition>
+        </Validators>
+        <References>
+          <Reference>
+            <Object>*</Object>
+            <Attribute>dn</Attribute>
+          </Reference>
+        </References>
+      </Attribute>
+      <Attribute>
+        <Name>gosaLoginRestriction</Name>
+        <Description>Multivalue attribute to carry a number of allowed ips/subnets</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+
+      <Attribute>
+        <Name>gosaDefaultPrinter</Name>
+        <Description>Defines a default printer a user owns</Description>
+        <Type>String</Type>
+        <Validators>
+          <Condition>
+            <Name>ObjectWithPropertyExists</Name>
+            <Param>GotoPrinter</Param>
+            <Param>cn</Param>
+          </Condition>
+        </Validators>
+        <References>
+          <Reference>
+            <Object>GotoPrinter</Object>
+            <Attribute>cn</Attribute>
+          </Reference>
+        </References>
+      </Attribute>
+
+      <Attribute>
+        <Name>gender</Name>
+        <Description>Gender of the user</Description>
+        <Type>String</Type>
+        <Values>
+          <Value key="F">female</Value>
+          <Value key="M">male</Value>
+        </Values>
+      </Attribute>
+
+    </Attributes>
+  </Object>
+</Objects>

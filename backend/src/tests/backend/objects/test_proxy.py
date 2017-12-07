@@ -18,28 +18,16 @@ from lxml import objectify
 @slow
 class ObjectProxyTestCase(GosaTestCase):
 
-    def _create_test_data(self):
+    def _create_test_data(self, user=True):
         super(ObjectProxyTestCase, self)._create_test_data()
 
-        # new ou's
-        ou = ObjectProxy("dc=test,dc=example,dc=net", "OrganizationalRoleContainer")
-        ou.commit()
-
-        # new user
-        user = ObjectProxy("dc=test,dc=example,dc=net", "User")
-        user.uid = "testu"
-        user.givenName = "Test"
-        user.sn = "User"
-        user.commit()
-
-    def tearDown(self):
-        super(ObjectProxyTestCase, self).tearDown()
-        try:
-            new_domain = ObjectProxy("cn=Test User,dc=example,dc=net")
-            new_domain.remove(True)
-            new_domain.commit()
-        except Exception:
-            pass
+        if user is True:
+            # new user
+            user = ObjectProxy("dc=test,dc=example,dc=net", "User")
+            user.uid = "testu"
+            user.givenName = "Test"
+            user.sn = "User"
+            user.commit()
 
     def test_init(self):
         with pytest.raises(ProxyException),\
@@ -125,6 +113,10 @@ class ObjectProxyTestCase(GosaTestCase):
         user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net', None, 'admin')
         assert user.get_parent_dn() == "ou=people,dc=example,dc=net"
         assert user.get_parent_dn('ou=people,dc=example,dc=net') == "dc=example,dc=net"
+
+    def test_get_adjusted_parent_dn(self):
+        user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net', None, 'admin')
+        assert user.get_adjusted_parent_dn() == "dc=example,dc=net"
 
     def test_get_base_type(self):
         user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net', None, 'admin')
@@ -290,32 +282,34 @@ class ObjectProxyTestCase(GosaTestCase):
             # none recursive with children
             user.remove()
 
-    @mock.patch("zope.event.notify")
-    def test_commit(self, me):
-        ldap_backend = ObjectBackendRegistry.getBackend("LDAP")
+    def test_commit(self):
+        self._create_test_data(user=False)
+        with mock.patch("zope.event.notify") as me:
+            ldap_backend = ObjectBackendRegistry.getBackend("LDAP")
 
-        with mock.patch.object(ldap_backend, "create", return_value="fake-uuid") as mb,\
-                mock.patch.object(ldap_backend, "uuid2dn", return_value="cn=Test User,ou=people'dc=example,dc=net"):
-            # check permissions
-            mocked_resolver = mock.MagicMock()
-            mocked_resolver.check.return_value = False
+            with mock.patch.object(ldap_backend, "create", return_value="fake-uuid") as mb,\
+                    mock.patch.object(ldap_backend, "uuid2dn", return_value="cn=Test User,dc=test,dc=example,dc=net"),\
+                    mock.patch("gosa.backend.objects.object.Object.get_object_type_by_dn", return_value="DomainComponent"):
+                # check permissions
+                mocked_resolver = mock.MagicMock()
+                mocked_resolver.check.return_value = False
 
-            with mock.patch.dict("gosa.backend.objects.proxy.PluginRegistry.modules", {'ACLResolver': mocked_resolver}):
-                user = ObjectProxy('dc=example,dc=net', 'User', 'admin')
+                with mock.patch.dict("gosa.backend.objects.proxy.PluginRegistry.modules", {'ACLResolver': mocked_resolver}):
+                    user = ObjectProxy('dc=example,dc=net', 'User', 'admin')
 
-                with pytest.raises(ACLException):
+                    with pytest.raises(ACLException):
+                        user.commit()
+
+                    mocked_resolver.check.return_value = True
+                    user = ObjectProxy('dc=test,dc=example,dc=net', 'User')
+
+                    # add mandatory values
+                    user.givenName = "Test"
+                    user.sn = "User"
+                    user.uid = "tuser"
+
                     user.commit()
-
-                mocked_resolver.check.return_value = True
-                user = ObjectProxy('dc=example,dc=net', 'User')
-
-                # add mandatory values
-                user.givenName = "Test"
-                user.sn = "User"
-                user.uid = "tuser"
-
-                user.commit()
-                assert mb.called
+                    assert mb.called
 
     def test_attribute_manipulation(self):
         # check permissions

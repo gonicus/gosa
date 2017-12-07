@@ -14,14 +14,17 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
 
   extend: gosa.ui.widgets.Widget,
 
-  include: gosa.ui.widgets.MDragDrop,
+  include: [
+    gosa.ui.widgets.MDragDrop,
+    gosa.ui.table.MColumnSettings
+  ],
 
   construct: function(valueIndex){
 
     this.base(arguments, valueIndex);
     this.contents.setLayout(new qx.ui.layout.Canvas());
     this.setDecorator("main");
-    this._columnNames = [];
+    this._columnSettings = {names: [], ids: [], renderers: [], widths: []};
     this._tableData = [];
     this._resolvedNames = {};
     this._selectorOptions = {};
@@ -52,9 +55,8 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     _table: null,
     _tableModel: null,
     _tableData: null,
-    _columnNames: null,
+    _columnSettings: null,
     _editTitle: "",
-    _columnIDs: null,
     _firstColumn: null,
     _resolvedNames: null,
     _errorRows: null,
@@ -86,13 +88,13 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
 
     _createGui: function(){
       this._tableModel = new qx.ui.table.model.Simple();
-      this._tableModel.setColumns(this._columnNames, this._columnIDs);
+      this._tableModel.setColumns(this._columnSettings.names, this._columnSettings.ids);
       if (this._sortByColumn) {
         this._tableModel.sortByColumn(this._tableModel.getColumnIndexById(this._sortByColumn), true);
       }
       this._table = new gosa.ui.table.Table(this._tableModel);
       if (this._contextMenuConfig) {
-        for (var i = 0, l = this._columnIDs.length; i < l; i++) {
+        for (var i = 0, l = this._columnSettings.ids.length; i < l; i++) {
           this._table.setContextMenuHandler(i, this._contextMenuHandlerRow, this);
         }
         if (this._contextMenuConfig.hasOwnProperty("marker")) {
@@ -115,6 +117,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       // Listeners
       this._table.addListener("edit", this.openSelector, this);
       this._table.addListener("remove", this.removeSelection, this);
+      this._applyColumnSettings(this._table, this._columnSettings);
 
       // drag&drop
       this._initDragDropListeners();
@@ -161,7 +164,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
 
     openSelector :  function() {
       var d = new gosa.ui.dialogs.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
-        this.getExtension(), this.getAttribute(), this._columnIDs, this._columnNames, false,
+        this.getExtension(), this.getAttribute(), this._columnSettings, false,
         this._modelFilter, this._sortByColumn, null, this._selectorOptions);
 
       d.addListener("selected", function(e){
@@ -244,7 +247,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       }
 
       if(unknown_values.length){
-        rpc.cA("getObjectDetails", this.getExtension(), this.getAttribute(), unknown_values, this._columnIDs)
+        rpc.cA("getObjectDetails", this.getExtension(), this.getAttribute(), unknown_values, this._columnSettings.ids)
         .then(function(result) {
           for(var value in result['map']){
             var data = result['result'][result['map'][value]];
@@ -285,6 +288,8 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       }
       this._tableModel.setDataAsMapArray(this._tableData, true, false);
       this._table.sort();
+
+      this._onMarkerPropertyChange();
     },
 
     _contextMenuHandlerRow: function(col, row, table, dataModel, contextMenu) {
@@ -353,19 +358,21 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     },
 
     _onMarkerPropertyChange: function(ev) {
-      var conf = this._contextMenuConfig.marker;
-      var object = this._getController().getObject();
-      var value = gosa.ui.widgets.Widget.getSingleValue(object.get(conf.ref));
-      var refColumn = this._tableModel.getColumnIndexById(conf.columnId);
-      var data = this._tableModel.getData();
-      for (var row = 0, l = data.length; row < l; row++) {
-        var cellValue = data[row][refColumn];
-        var normalized = this.__normalizeMarkerValue(cellValue);
-        if (normalized === value) {
-          // mark this one
-          this._tableModel.setValue(refColumn, row, this.__markValue(normalized));
-        } else {
-          this._tableModel.setValue(refColumn, row, normalized);
+      if (this._contextMenuConfig && this._contextMenuConfig.marker) {
+        var conf = this._contextMenuConfig.marker;
+        var object = this._getController().getObject();
+        var value = gosa.ui.widgets.Widget.getSingleValue(object.get(conf.ref));
+        var refColumn = this._tableModel.getColumnIndexById(conf.columnId);
+        var data = this._tableModel.getData();
+        for (var row = 0, l = data.length; row < l; row++) {
+          var cellValue = data[row][refColumn];
+          var normalized = this.__normalizeMarkerValue(cellValue);
+          if (normalized === value) {
+            // mark this one
+            this._tableModel.setValue(refColumn, row, this.__markValue(normalized));
+          } else {
+            this._tableModel.setValue(refColumn, row, normalized);
+          }
         }
       }
     },
@@ -383,29 +390,39 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
 
       this._applyDragDropGuiProperties(props);
 
-      this._columnNames = [];
-      this._columnIDs = [];
+      this._columnSettings = {
+        names: [],
+        ids: [],
+        renderers: {},
+        widths: {}
+      };
       var first = null;
       if('columns' in props){
         for(var col in props['columns']){
           if (props['columns'].hasOwnProperty(col)) {
-            this._columnNames.push(this['tr'](props['columns'][col]));
-            this._columnIDs.push(col);
+            this._columnSettings.names.push(this['tr'](props['columns'][col]));
+            this._columnSettings.ids.push(col);
             if (!first) {
               first = col;
             }
           }
         }
       }
+      if (props.hasOwnProperty("columnRenderers")) {
+        this._columnSettings.renderers = props.columnRenderers;
+      }
+      if (props.hasOwnProperty("columnWidths")) {
+        this._columnSettings.widths = props.columnWidths;
+      }
       this._firstColumn = first;
       if ("sortByColumn" in props) {
         this._sortByColumn = props.sortByColumn;
       }
-      if (props.hasOwnProperty("skipInitialSearch")) {
-        this._selectorOptions.skipInitialSearch = props.skipInitialSearch;
-      }
       if (props.hasOwnProperty("contextMenu")) {
         this._contextMenuConfig = props.contextMenu;
+      }
+      if (props.hasOwnProperty("selectorOptions")) {
+        this._selectorOptions = props.selectorOptions;
       }
     }
   },
@@ -424,12 +441,12 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     this._disposeObjects("_table", "_actionBtn", "_widget", "_tableModel");
 
     this._tableData = null;
-    this._columnNames = null;
+    this._columnSettings = null;
     this._editTitle = null;
-    this._columnIDs = null;
     this._firstColumn = null;
     this._resolvedNames = null;
     this._errorRows = null;
+    this._selectorOptions = null;
     this.__listeners.forEach(function(entry) {
       entry[0].removeListenerById(entry[1]);
     });

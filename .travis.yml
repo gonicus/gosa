@@ -14,7 +14,7 @@ cache:
     - /tmp/qx5.1
 before_install:
     - sudo apt-get update
-    - sudo cp test_conf/org.gosa.conf /etc/dbus-1/system.d/
+    - sudo cp travis_conf/org.gosa.conf /etc/dbus-1/system.d/
     - sudo service dbus reload
     - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
     - docker pull cpollmeier/gosa3:devel # download docker container
@@ -25,10 +25,11 @@ before_install:
     # some preparations for the tests
     - export TZ=Europe/Berlin
     - sudo mkdir /tmp/workflows
+    - sudo mkdir /tmp/images
     - sudo mkdir /etc/gosa
-    - sudo cp ./test_conf/config /etc/gosa/
+    - sudo cp ./travis_conf/config /etc/gosa/
     - sudo chown travis:travis /tmp/workflows
-    - psql -h localhost -U admin gosa -c "CREATE DATABASE \"gosa-test\""
+    - sudo chown travis:travis /tmp/images
 install:
     - sudo apt-get install dbus-x11 libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev # needed to compile dbus-python
     - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure
@@ -46,7 +47,7 @@ script:
     # setup GOsa, install deps...
     - ./setup.py develop
     # finally run the tests, with running dbus
-    - dbus-launch ./setup.py test --addopts="--runslow"
+    - dbus-launch ./setup.py test --addopts="--runslow --travis"
 after_success:
     # send test coverage results to coveralls.io
     - coveralls --merge=coveralls.json

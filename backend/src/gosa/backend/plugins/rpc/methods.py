@@ -24,6 +24,7 @@ from zope.interface import implementer
 from gosa.common import Environment
 from gosa.common.components import Command
 from gosa.common.components import Plugin
+from gosa.common.env import SessionMixin
 from gosa.common.utils import N_
 from gosa.common.components import PluginRegistry
 from gosa.backend.objects import ObjectProxy
@@ -49,7 +50,7 @@ class GOsaException(Exception):
 
 
 @implementer(IInterfaceHandler)
-class RPCMethods(Plugin):
+class RPCMethods(Plugin, SessionMixin):
     """
     Key for configuration section **gosa**
 
@@ -83,9 +84,6 @@ class RPCMethods(Plugin):
         self.__value_extender = gosa.backend.objects.renderer.get_renderers()
         self.__search_aid = PluginRegistry.getInstance("ObjectIndex").get_search_aid()
         self.__oi = PluginRegistry.getInstance("ObjectIndex")
-
-        # Load DB session
-        self.__session = self.env.getDatabaseSession('backend-database')
 
     @Command(__help__=N_("Returns a list containing all available object names"))
     def getAvailableObjectNames(self, only_base_objects=False, base=None):
@@ -222,14 +220,23 @@ class RPCMethods(Plugin):
         if object_attribute is not None:
             query[object_attribute] = '%{}%'.format(search_filter) if len(search_filter) > 0 else '%'
 
+        types = []
+        extensions = []
         if object_type != "*":
             if object_factory.isBaseType(object_type):
-                query["_type"] = object_type
+                types.append(object_type)
             else:
-                query["extension"] = object_type
+                extensions.append(object_type)
         if options is not None and 'filter' in options:
             for key, values in options['filter'].items():
-                if key not in query:
+                if key == "_type" or key == "types" or key == "extension":
+                    if isinstance(values, list):
+                        for type in values:
+                            if object_factory.isBaseType(type):
+                                types.append(type)
+                            else:
+                                extensions.append(type)
+                elif key not in query:
                     query[key] = values
                 else:
                     if isinstance(query[key], list):
@@ -239,6 +246,10 @@ class RPCMethods(Plugin):
                         query[key].append(values)
 
             del options['filter']
+        if len(types):
+            query["_type"] = {"in_": types}
+        if len(extensions):
+            query["extension"] = {"in_": extensions}
 
         search_result = index.search(query, attrs, options)
 
@@ -334,7 +345,7 @@ class RPCMethods(Plugin):
         # Start the query and bring the result in a usable form
         index = PluginRegistry.getInstance("ObjectIndex")
 
-        query = {oattr: names}
+        query = {oattr: {"in_": names}}
         if otype != "*":
             if of.isBaseType(otype):
                 query["_type"] = otype
@@ -382,11 +393,20 @@ class RPCMethods(Plugin):
 
     @Command(needsUser=True, __help__=N_("Checks an object of the given type can be placed in the dn"))
     def isContainerForObjectType(self, user, container_dn, object_type):
-        container_type_query = self.__session.query(getattr(ObjectInfoIndex, "_type")).filter(
-            getattr(ObjectInfoIndex, "dn") == container_dn).one()
-        container_type = container_type_query[0]
-        allowed = ObjectFactory.getInstance().getAllowedSubElementsForObject(container_type)
-        return object_type in allowed
+        with self.make_session() as session:
+            container_type_query = session.query(getattr(ObjectInfoIndex, "_type")).filter(
+                getattr(ObjectInfoIndex, "dn") == container_dn).one()
+            container_type = container_type_query[0]
+            allowed = ObjectFactory.getInstance().getAllowedSubElementsForObject(container_type)
+            if object_type is None:
+                return True
+            elif "*" in object_type:
+                # all allowed
+                return True
+            elif isinstance(object_type, list):
+                return len(set(object_type).intersection(allowed)) > 0
+            else:
+                return object_type in allowed
 
     @Command(needsUser=True, __help__=N_("Returns a list of all containers"))
     def getContainerTree(self, user, base, object_type=None):
@@ -398,10 +418,11 @@ class RPCMethods(Plugin):
 
         query = and_(getattr(ObjectInfoIndex, "_adjusted_parent_dn") == base, or_(*types))
 
-        query_result = self.__session.query(ObjectInfoIndex, func.count(getattr(o2, "_adjusted_parent_dn"))) \
-            .outerjoin(o2, and_(getattr(o2, "_invisible").is_(False), getattr(o2, "_adjusted_parent_dn") == getattr(ObjectInfoIndex, "dn"))) \
-            .filter(query) \
-            .group_by(*table.c)
+        with self.make_session() as session:
+            query_result = session.query(ObjectInfoIndex, func.count(getattr(o2, "_adjusted_parent_dn"))) \
+                .outerjoin(o2, and_(getattr(o2, "_invisible").is_(False), getattr(o2, "_adjusted_parent_dn") == getattr(ObjectInfoIndex, "dn"))) \
+                .filter(query) \
+                .group_by(*table.c)
 
         res = {}
         factory = ObjectFactory.getInstance()
@@ -411,8 +432,14 @@ class RPCMethods(Plugin):
             if object_type is not None and item.dn in res:
                 res[item.dn]['hasChildren'] = children > 0
                 # check if object_type is allowed in this container
-                res[item.dn]['allowed_move_target'] = object_type in factory.getAllowedSubElementsForObject(res[item.dn]['tag'],
-                                                                                                            includeInvisible=False)
+                allowed = factory.getAllowedSubElementsForObject(res[item.dn]['tag'], includeInvisible=False)
+                if "*" in object_type:
+                    # all allowed
+                    res[item.dn]['allowed_move_target'] = True
+                elif isinstance(object_type, list):
+                    res[item.dn]['allowed_move_target'] = len(set(object_type).intersection(allowed)) > 0
+                else:
+                    res[item.dn]['allowed_move_target'] = object_type in allowed
         return res
 
     @Command(needsUser=True, __help__=N_("Filter for indexed attributes and return the matches."))
@@ -519,121 +546,127 @@ class RPCMethods(Plugin):
         these = dict([(x, 1) for x in self.__search_aid['used_attrs']])
         these.update(dict(dn=1, _type=1, _uuid=1, _last_changed=1))
         these = list(these.keys())
+        ranked = False
 
-        query_result = self.finalize_query(query, fltr, qstring=qstring, order_by=order_by)
+        with self.make_session() as session:
+            query_result, ranked = self.finalize_query(query, fltr, session, qstring=qstring, order_by=order_by)
 
-        try:
-            self.log.debug(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-        except Exception as e:
-            self.log.warning(str(e))
-            self.log.debug(str(query_result))
-            pass
-
-        # limit only secondary enabled searches, because e.g. the treeitems use this search to resolve and we do not want to limit those results
-        if fltr['secondary'] == "enabled":
-            max_results = self.env.config.get("backend.max-results", default=1000)
-        else:
-            max_results = math.inf
-
-        counter = 0
-        total = query_result.count()
-        response = {}
-        if total == 0 and fallback is True and PluginRegistry.getInstance("ObjectIndex").fuzzy is True:
-            # do fuzzy search
-            if qstring:
-                try:
-                    keywords = [s.strip("'").strip('"') for s in shlex.split(qstring)]
-                except ValueError:
-                    keywords = [s.strip("'").strip('"') for s in qstring.split(" ")]
-                # Make keywords unique
-                keywords = list(set(keywords))
-
-                # find most similar words
-                for i, kw in enumerate(keywords):
-                    r = self.__session.execute("SELECT word FROM unique_lexeme WHERE similarity(word, '{0}') > {1} ORDER BY word <-> '{0}' LIMIT 1;".format(kw, self.__fuzzy_similarity_threshold)).fetchone()
-                    keywords[i] = r['word']
-
-                self.log.info("no results found for: '%s' => re-trying with: '%s'" % (qstring, " ".join(keywords)))
-                response['orig'] = qstring
-                response['fuzzy'] = " ".join(keywords)
-                query_result = self.finalize_query(query, fltr, qstring=" ".join(keywords), order_by=order_by)
-                total = query_result.count()
-
-        response['primary_total'] = total
-        self.log.debug("Query: %s Keywords: %s, Filter: %s => %s results" % (qstring, keywords, fltr, total))
-
-        squery_constraints = {}
-        for tuple in query_result:
-            item = tuple[0]
-            rank = tuple[1]
-            self.update_res(res, item, user, rank, these=these, actions=actions)
-            counter += 1
-            if counter >= max_results:
-                break
-
-            # Collect information for secondary search?
-            if fltr['secondary'] != "enabled":
-                continue
-
-            if item._type in self.__search_aid['resolve']:
-                if len(self.__search_aid['resolve'][item._type]) == 0:
-                    continue
-
-                kv = self.__index_props_to_key_value(item.properties)
-                for r in self.__search_aid['resolve'][item._type]:
-                    if r['attribute'] in kv:
-                        tag = r['type'] if r['type'] else item._type
-
-                        # If a category was choosen and it does not fit the
-                        # desired target tag - skip that one
-                        if not (fltr['category'] == "all" or fltr['category'] == tag):
-                            continue
-
-                        if hasattr(ObjectInfoIndex, r['filter']):
-                            squery.append(and_(ObjectInfoIndex._type == tag, getattr(ObjectInfoIndex, r['filter']) == kv[r['attribute']]))
-                        else:
-                            if tag not in squery_constraints:
-                                squery_constraints[tag] = {}
-                            if r['filter'] not in squery_constraints[tag]:
-                                squery_constraints[tag][r['filter']] = []
-                            squery_constraints[tag][r['filter']].append(kv[r['attribute']][0])
-
-        for type, constraints in squery_constraints.items():
-            for key, values in constraints.items():
-                values = list(set(values))
-                if len(values) > 0:
-                    squery.append(and_(ObjectInfoIndex._type == type, KeyValueIndex.key == key, KeyValueIndex.value.in_(values)))
-
-        # Perform secondary query and update the result
-        if fltr['secondary'] == "enabled" and squery:
-            query = or_(*squery)
-
-            # Add "_last_changed" information to query
-            if fltr['mod-time'] != "all":
-                query = and_(query, ObjectInfoIndex._last_modified >= td)
-
-            # Execute query and update results
-            sec_result = self.__session.query(ObjectInfoIndex).join(ObjectInfoIndex.properties).options(contains_eager(ObjectInfoIndex.properties)).filter(query)
             try:
-                self.log.debug("Secondary query: %s " % str(sec_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+                self.log.debug(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
             except Exception as e:
                 self.log.warning(str(e))
-                self.log.debug("Secondary query: %s " % str(sec_result))
+                self.log.debug(str(query_result))
                 pass
 
-            total += sec_result.count()
-            if counter < max_results:
-                for item in sec_result:
-                    self.update_res(res, item, user, self.__make_relevance(item, keywords, fltr, True), secondary=True, these=these, actions=actions)
-                    counter += 1
-                    if counter >= max_results:
-                        break
+            # limit only secondary enabled searches, because e.g. the treeitems use this search to resolve and we do not want to limit those results
+            if fltr['secondary'] == "enabled":
+                max_results = self.env.config.get("backend.max-results", default=1000)
+            else:
+                max_results = math.inf
+
+            counter = 0
+            total = query_result.count()
+            response = {}
+            if total == 0 and fallback is True and PluginRegistry.getInstance("ObjectIndex").fuzzy is True:
+                # do fuzzy search
+                if qstring:
+                    try:
+                        keywords = [s.strip("'").strip('"') for s in shlex.split(qstring)]
+                    except ValueError:
+                        keywords = [s.strip("'").strip('"') for s in qstring.split(" ")]
+                    # Make keywords unique
+                    keywords = list(set(keywords))
+
+                    # find most similar words
+                    for i, kw in enumerate(keywords):
+                        r = session.execute("SELECT word FROM unique_lexeme WHERE similarity(word, '{0}') > {1} ORDER BY levenshtein(word, '{0}', 2, 2, 1) LIMIT 3;".format(kw, self.__fuzzy_similarity_threshold)).fetchall()
+                        keywords[i] = " or ".join([x['word'] for x in r])
+
+                    self.log.info("no results found for: '%s' => re-trying with: '%s'" % (qstring, " ".join(keywords)))
+                    response['orig'] = qstring
+                    response['fuzzy'] = " ".join(keywords)
+                    query_result, ranked = self.finalize_query(query, fltr, session, qstring=" ".join(keywords), order_by=order_by)
+                    total = query_result.count()
+
+            response['primary_total'] = total
+            self.log.debug("Query: %s Keywords: %s, Filter: %s => %s results" % (qstring, keywords, fltr, total))
+
+            squery_constraints = {}
+            for tuple in query_result:
+                if ranked is True:
+                    item = tuple[0]
+                    rank = tuple[1]
+                else:
+                    item = tuple
+                    rank = 0
+                self.update_res(res, item, user, rank, these=these, actions=actions)
+                counter += 1
+                if counter >= max_results:
+                    break
+
+                # Collect information for secondary search?
+                if fltr['secondary'] != "enabled":
+                    continue
+
+                if item._type in self.__search_aid['resolve']:
+                    if len(self.__search_aid['resolve'][item._type]) == 0:
+                        continue
+
+                    kv = self.__index_props_to_key_value(item.properties)
+                    for r in self.__search_aid['resolve'][item._type]:
+                        if r['attribute'] in kv:
+                            tag = r['type'] if r['type'] else item._type
+
+                            # If a category was choosen and it does not fit the
+                            # desired target tag - skip that one
+                            if not (fltr['category'] == "all" or fltr['category'] == tag):
+                                continue
+
+                            if hasattr(ObjectInfoIndex, r['filter']):
+                                squery.append(and_(ObjectInfoIndex._type == tag, getattr(ObjectInfoIndex, r['filter']) == kv[r['attribute']]))
+                            else:
+                                if tag not in squery_constraints:
+                                    squery_constraints[tag] = {}
+                                if r['filter'] not in squery_constraints[tag]:
+                                    squery_constraints[tag][r['filter']] = []
+                                squery_constraints[tag][r['filter']].append(kv[r['attribute']][0])
+
+            for type, constraints in squery_constraints.items():
+                for key, values in constraints.items():
+                    values = list(set(values))
+                    if len(values) > 0:
+                        squery.append(and_(ObjectInfoIndex._type == type, KeyValueIndex.key == key, KeyValueIndex.value.in_(values)))
+
+            # Perform secondary query and update the result
+            if fltr['secondary'] == "enabled" and squery:
+                query = or_(*squery)
+
+                # Add "_last_changed" information to query
+                if fltr['mod-time'] != "all":
+                    query = and_(query, ObjectInfoIndex._last_modified >= td)
+
+                # Execute query and update results
+                sec_result = session.query(ObjectInfoIndex).join(ObjectInfoIndex.properties).options(contains_eager(ObjectInfoIndex.properties)).filter(query)
+                try:
+                    self.log.debug("Secondary query: %s " % str(sec_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+                except Exception as e:
+                    self.log.warning(str(e))
+                    self.log.debug("Secondary query: %s " % str(sec_result))
+                    pass
+
+                total += sec_result.count()
+                if counter < max_results:
+                    for item in sec_result:
+                        self.update_res(res, item, user, self.__make_relevance(item, keywords, fltr, True), secondary=True, these=these, actions=actions)
+                        counter += 1
+                        if counter >= max_results:
+                            break
 
         response['total'] = total
         response['results'] = list(res.values())
         return response
 
-    def finalize_query(self, query, fltr, qstring=None, order_by=None):
+    def finalize_query(self, query, fltr, session, qstring=None, order_by=None):
         search_query = None
         if qstring is not None:
             search_query = parse_search_query(qstring)
@@ -643,17 +676,20 @@ class RPCMethods(Plugin):
         else:
             ft_query = query
 
+        ranked = False
+
         if search_query is not None:
-            query_result = self.__session.query(ObjectInfoIndex, func.ts_rank_cd(
+            query_result = session.query(ObjectInfoIndex, func.ts_rank_cd(
                 SearchObjectIndex.search_vector,
                 func.to_tsquery(search_query)
             ).label('rank')).options(joinedload(ObjectInfoIndex.search_object)).options(joinedload(ObjectInfoIndex.properties)).filter(ft_query)
+            ranked = True
         else:
-            query_result = self.__session.query(ObjectInfoIndex, "0").options(joinedload(ObjectInfoIndex.properties)).filter(ft_query)
+            query_result = session.query(ObjectInfoIndex).options(joinedload(ObjectInfoIndex.properties)).filter(ft_query)
 
         if order_by is not None:
             query_result = query_result.order_by(order_by)
-        elif search_query is not None:
+        elif ranked is True:
             query_result = query_result.order_by(
                 desc(
                     func.ts_rank_cd(
@@ -664,246 +700,7 @@ class RPCMethods(Plugin):
             )
         if 'limit' in fltr:
             query_result = query_result.limit(fltr['limit'])
-        return query_result
-
-    @Command(needsUser=True, __help__=N_("Filter for indexed attributes and return the matches."))
-    def search1(self, user, base, scope, qstring, fltr=None):
-        """
-        Performs a query based on a simple search string consisting of keywords.
-
-        Query the database using the given query string and an optional filter
-        dict - and return the result set.
-
-        ========== ==================
-        Parameter  Description
-        ========== ==================
-        base       Query base
-        scope      Query scope (SUB, BASE, ONE, CHILDREN)
-        qstring    Query string
-        fltr       Hash for extra parameters
-        ========== ==================
-
-        ``Return``: List of dicts
-        """
-
-        res = {}
-        keywords = None
-        dn_hook = "_parent_dn"
-        fallback = fltr and "fallback" in fltr and fltr["fallback"]
-
-        def keywords_to_query_list(subject, keywords, fallback=False):
-            res = []
-
-            for kw in keywords:
-                if fallback:
-                    if not self.__oi.fuzzy:
-                        res.append(or_(
-                            func.levenshtein(func.substring(subject, 0, 50), func.substring(kw, 0, 50)) < 3,
-                            subject.ilike("%" + kw.replace(r"%", "\%") + "%")
-                        ))
-                    else:
-                        res.append(subject.ilike("%" + kw.replace(r"%", "\%") + "%"))
-                else:
-                    res.append(subject == kw)
-
-            return res
-
-        if not base:
-            return []
-
-        # Set defaults
-        if not fltr:
-            fltr = {}
-        if not 'category' in fltr:
-            fltr['category'] = "all"
-        if not 'secondary' in fltr:
-            fltr['secondary'] = "enabled"
-        if not 'mod-time' in fltr:
-            fltr['mod-time'] = "all"
-        if 'adjusted-dn' in fltr and fltr['adjusted-dn'] is True:
-            dn_hook = "_adjusted_parent_dn"
-        actions = 'actions' in fltr and fltr['actions'] is True
-
-        if qstring:
-            try:
-                keywords = [s.strip("'").strip('"') for s in shlex.split(qstring)]
-            except ValueError:
-                keywords = [s.strip("'").strip('"') for s in qstring.split(" ")]
-            qstring = qstring.strip("'").strip('"')
-            keywords.append(qstring)
-
-            # Make keywords unique
-            keywords = list(set(keywords))
-
-        # Sanity checks
-        scope = scope.upper()
-        if not scope in ["SUB", "BASE", "ONE", "CHILDREN"]:
-            raise GOsaException(C.make_error("INVALID_SEARCH_SCOPE", scope=scope))
-        if not fltr['mod-time'] in ["hour", "day", "week", "month", "year", "all"]:
-            raise GOsaException(C.make_error("INVALID_SEARCH_DATE", date=fltr['mod-time']))
-
-        # Build query: join attributes and keywords
-        queries = []
-        for typ in self.__search_aid['attrs'].keys():
-
-            # Only filter for category if desired
-            if not ("all" == fltr['category'] or typ == fltr['category']):
-                continue
-
-            attrs = self.__search_aid['attrs'][typ]
-
-            if len(attrs) == 0:
-                continue
-
-            if keywords:
-
-                if len(attrs) == 1:
-                    if hasattr(ObjectInfoIndex, attrs[0]):
-                        sq = keywords_to_query_list(getattr(ObjectInfoIndex, attrs[0]), keywords, fallback)
-                        queries.append(and_(ObjectInfoIndex._type == typ, or_(*sq)))
-
-                    else:
-                        sq = keywords_to_query_list(KeyValueIndex.value, keywords, fallback)
-                        queries.append(and_(
-                            ObjectInfoIndex._type == typ,
-                            KeyValueIndex.uuid == ObjectInfoIndex.uuid,
-                            KeyValueIndex.key == attrs[0],
-                            or_(*sq)))
-
-                if len(attrs) > 1:
-                    cond = []
-                    for attr in attrs:
-                        if hasattr(ObjectInfoIndex, attr):
-                            sq = keywords_to_query_list(getattr(ObjectInfoIndex, attr), keywords, fallback)
-                            cond.extend(sq)
-                        else:
-                            sq = keywords_to_query_list(KeyValueIndex.value, keywords, fallback)
-                            cond.append(and_(KeyValueIndex.uuid == ObjectInfoIndex.uuid, KeyValueIndex.key == attr, or_(*sq)))
-
-                    queries.append(and_(ObjectInfoIndex._type == typ, or_(*cond)))
-
-            else:
-                if dn_hook != "_adjusted_parent_dn":
-                    queries.append(ObjectInfoIndex._type == typ)
-
-        # Build query: assemble
-        query = None
-        if scope == "SUB":
-            if queries:
-                query = and_(or_(ObjectInfoIndex._parent_dn == base, ObjectInfoIndex._parent_dn.like("%," + base)), or_(*queries))
-            else:
-                query = or_(ObjectInfoIndex._parent_dn == base, ObjectInfoIndex._parent_dn.like("%," + base))
-
-        elif scope == "ONE":
-            query = and_(or_(ObjectInfoIndex.dn == base, getattr(ObjectInfoIndex, dn_hook) == base), or_(*queries))
-
-        elif scope == "CHILDREN":
-            query = and_(getattr(ObjectInfoIndex, dn_hook) == base, or_(*queries))
-
-        else:
-            if queries:
-                query = and_(ObjectInfoIndex.dn == base, or_(*queries))
-            else:
-                query = ObjectInfoIndex.dn == base
-
-        # Build query: eventually extend with timing information
-        td = None
-        if fltr['mod-time'] != "all":
-            now = datetime.datetime.now()
-            if fltr['mod-time'] == 'hour':
-                td = now - datetime.timedelta(hours=1)
-            elif fltr['mod-time'] == 'day':
-                td = now - datetime.timedelta(days=1)
-            elif fltr['mod-time'] == 'week':
-                td = now - datetime.timedelta(weeks=1)
-            elif fltr['mod-time'] == 'month':
-                td = now - datetime.timedelta(days=31)
-            elif fltr['mod-time'] == 'year':
-                td = now - datetime.timedelta(days=365)
-
-            query = and_(ObjectInfoIndex._last_modified >= td, query)
-
-        order_by = None
-        if 'order-by' in fltr:
-            is_desc = 'order' in fltr and fltr['order'] == 'desc'
-            order_by = "_last_changed"
-            if fltr['order-by'] == "last-changed":
-                order_by = "_last_modified"
-            order_by = desc(getattr(ObjectInfoIndex, order_by)) if is_desc else getattr(ObjectInfoIndex, order_by)
-
-        # Perform primary query and get collect the results
-        squery = []
-        these = dict([(x, 1) for x in self.__search_aid['used_attrs']])
-        these.update(dict(dn=1, _type=1, _uuid=1, _last_changed=1))
-        these = list(these.keys())
-
-        query_result = self.__session.query(ObjectInfoIndex).options(joinedload(ObjectInfoIndex.properties)).filter(query)
-        if order_by is not None:
-            query_result.order_by(order_by)
-        if 'limit' in fltr:
-            query_result.limit(fltr['limit'])
-
-        try:
-            self.log.debug(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-        except Exception:
-            pass
-
-        max_results = self.env.config.get("backend.max-results", default=1000)
-        counter = 0
-        total = query_result.count()
-        print("Keywords: %s, Filter: %s" % (keywords, fltr))
-
-        for item in query_result:
-            self.update_res(res, item, user, self.__make_relevance(item, keywords, fltr), these=these, actions=actions)
-            counter += 1
-            if counter >= max_results:
-                break
-
-            # Collect information for secondary search?
-            if fltr['secondary'] != "enabled":
-                continue
-
-            if item._type in self.__search_aid['resolve']:
-                if len(self.__search_aid['resolve'][item._type]) == 0:
-                    continue
-
-                kv = self.__index_props_to_key_value(item.properties)
-                for r in self.__search_aid['resolve'][item._type]:
-                    if r['attribute'] in kv:
-                        tag = r['type'] if r['type'] else item._type
-
-                        # If a category was choosen and it does not fit the
-                        # desired target tag - skip that one
-                        if not (fltr['category'] == "all" or fltr['category'] == tag):
-                            continue
-
-                        if hasattr(ObjectInfoIndex, r['filter']):
-                            squery.append(and_(ObjectInfoIndex._type == tag, getattr(ObjectInfoIndex, r['filter']) == kv[r['attribute']]))
-                        else:
-                            squery.append(and_(ObjectInfoIndex._type == tag, KeyValueIndex.key == r['filter'], KeyValueIndex.value == kv[r['attribute']][0]))
-
-        # Perform secondary query and update the result
-        if fltr['secondary'] == "enabled" and squery:
-            query = or_(*squery)
-
-            # Add "_last_changed" information to query
-            if fltr['mod-time'] != "all":
-                query = and_(query, ObjectInfoIndex._last_modified >= td)
-
-            # Execute query and update results
-            sec_result = self.__session.query(ObjectInfoIndex).filter(query)
-            total += sec_result.count()
-            if counter < max_results:
-                for item in sec_result:
-                    self.update_res(res, item, user, self.__make_relevance(item, keywords, fltr, True), secondary=True, these=these, actions=actions)
-                    counter += 1
-                    if counter >= max_results:
-                        break
-
-        return {
-            "total": total,
-            "results": list(res.values())
-        }
+        return query_result, ranked
 
     def __make_relevance(self, item, keywords, fltr, fuzzy=False):
         """

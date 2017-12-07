@@ -56,18 +56,18 @@ class TwoFactorAuthManager(Plugin):
         self.__log = logging.getLogger(__name__)
         self.env = Environment.getInstance()
         self.settings_file = self.env.config.get("user.2fa-store", "/var/lib/gosa/2fa")
-        self.__reload()
+        self.reload()
 
-        if self.env.config.get("http.ssl") is True:
+        if self.env.config.getboolean("http.ssl") is True:
             host = "localhost" if self.env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] else self.env.config.get("http.host", default="localhost")
             # U2F requires https protocol otherwise facet is invalid
-            self.facet = "https://%s:%s" % (host, self.env.config.get('http.port', default=8080))
+            self.facet = "https://%s:%s" % (host, self.env.config.get('http.port', default=8050))
             self.app_id = self.facet
         else:
             # u2f only available in ssl mode
             self.methods = [None, "otp"]
 
-    def __reload(self):
+    def reload(self):
         if not os.path.exists(self.settings_file):
             self.__save_settings()
         else:
@@ -120,8 +120,8 @@ class TwoFactorAuthManager(Plugin):
 
         if current_method is not None:
             # we need to be verified by user password in order to change the method
-           if user_password is None or not check_auth(user_name, user_password):
-            raise ChangingNotAllowed(C.make_error('CHANGE_2FA_METHOD_FORBIDDEN'))
+            if user_password is None or not check_auth(user_name, user_password):
+                raise ChangingNotAllowed(C.make_error('CHANGE_2FA_METHOD_FORBIDDEN'))
 
         if factor_method == "otp":
             return self.__enable_otp(user)

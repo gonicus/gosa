@@ -16,6 +16,8 @@ make LDAP connections a little bit easier to use.
 import ldapurl
 import ldap.sasl
 import logging
+
+from ldap.dn import escape_dn_chars, str2dn, dn2str
 from ldap.filter import filter_format
 from contextlib import contextmanager
 from gosa.common import Environment
@@ -304,3 +306,7 @@ def normalize_ldap(data):
         return [data]
 
     return data
+
+
+def normalize_dn(dn, flags=0):
+    return dn2str(str2dn(dn, flags=flags))

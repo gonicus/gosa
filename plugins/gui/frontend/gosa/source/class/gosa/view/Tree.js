@@ -24,15 +24,38 @@ qx.Class.define("gosa.view.Tree", {
     this._createChildControl("bread-crumb");
     this.getChildControl("button").getChildControl("label").exclude();
     this.setLayout(new qx.ui.layout.Canvas());
-    this.addListenerOnce("appear", this.load, this);
-    this._rpc = gosa.io.Rpc.getInstance();
-    this._objectRights = {};
 
     this.__debouncedReload = qx.util.Function.debounce(this.__reloadTree, 500, true);
-    gosa.io.Sse.getInstance().addListener("objectRemoved", this.__debouncedReload, this);
-    gosa.io.Sse.getInstance().addListener("objectCreated", this.__debouncedReload, this);
-    gosa.io.Sse.getInstance().addListener("objectModified", this.__debouncedReload, this);
-    gosa.io.Sse.getInstance().addListener("objectMoved", this.__debouncedReload, this);
+
+    this.addListenerOnce("appear", function() {
+      // initial load
+      this.load();
+
+      // add listeners initially
+      gosa.io.Sse.getInstance().addListener("objectRemoved", this.__debouncedReload, this);
+      gosa.io.Sse.getInstance().addListener("objectCreated", this.__debouncedReload, this);
+      gosa.io.Sse.getInstance().addListener("objectModified", this.__debouncedReload, this);
+      gosa.io.Sse.getInstance().addListener("objectMoved", this.__debouncedReload, this);
+
+      // add listeners on every re-appear
+      this.addListener("appear", function() {
+        this.__reloadTree();
+        gosa.io.Sse.getInstance().addListener("objectRemoved", this.__debouncedReload, this);
+        gosa.io.Sse.getInstance().addListener("objectCreated", this.__debouncedReload, this);
+        gosa.io.Sse.getInstance().addListener("objectModified", this.__debouncedReload, this);
+        gosa.io.Sse.getInstance().addListener("objectMoved", this.__debouncedReload, this);
+      }, this);
+    }, this);
+
+    // remove listeners when we disappear
+    this.addListener("disappear", function() {
+      gosa.io.Sse.getInstance().removeListener("objectRemoved", this.__debouncedReload, this);
+      gosa.io.Sse.getInstance().removeListener("objectCreated", this.__debouncedReload, this);
+      gosa.io.Sse.getInstance().removeListener("objectModified", this.__debouncedReload, this);
+      gosa.io.Sse.getInstance().removeListener("objectMoved", this.__debouncedReload, this);
+    }, this);
+    this._rpc = gosa.io.Rpc.getInstance();
+    this._objectRights = {};
   },
 
   /*
@@ -120,7 +143,7 @@ qx.Class.define("gosa.view.Tree", {
 
         case "search-field":
           control = new qx.ui.form.TextField().set({
-            placeholder : this.tr("Search..."),
+            placeholder : this.tr("Filter..."),
             liveUpdate : true,
             allowGrowX : true
           });
@@ -211,6 +234,7 @@ qx.Class.define("gosa.view.Tree", {
           tcm.setColumnVisible(3, false);
           tcm.setColumnVisible(4, false);
           tcm.setDataCellRenderer(0, new gosa.ui.table.cellrenderer.ImageByType(22, 22));
+          tcm.setDataCellRenderer(2, new qx.ui.table.cellrenderer.Html());
 
           control = table;
           break;

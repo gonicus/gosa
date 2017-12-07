@@ -11,6 +11,7 @@ from unittest import TestCase
 import pytest
 
 from gosa.backend.objects import ObjectProxy
+from gosa.common.components import PluginRegistry
 
 slow = pytest.mark.skipif(
     not pytest.config.getoption("--runslow"),
@@ -26,12 +27,12 @@ class GosaTestCase(TestCase):
         """
         Insert new data just for testing purposes
         """
-        try:
+        index = PluginRegistry.getInstance("ObjectIndex")
+        res = index.search({"dn": "dc=test,dc=example,dc=net"}, {"dn": 1})
+        if len(res) > 0:
             new_domain = ObjectProxy("dc=test,dc=example,dc=net")
             new_domain.remove(True)
             new_domain.commit()
-        except:
-            pass
 
         new_domain = ObjectProxy("dc=example,dc=net", "DomainComponent")
         new_domain.dc = "test"

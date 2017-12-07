@@ -18,7 +18,10 @@ This plugin allows to configure a user environment (e.g. application menu).
 """
 import glob
 import logging
+import subprocess
+
 import dbus.service
+import pwd
 
 from gosa.common import Environment
 from gosa.common.components import Plugin
@@ -58,28 +61,58 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
+    @dbus.service.method('org.gosa', in_signature='sii', out_signature='')
+    def configureUserScreen(self, user, width, height):
+        self.log.info("configuring %s screen resolution to %sx%s is currently not supported" % (user, width, height))
+
     @dbus.service.method('org.gosa', in_signature='ss', out_signature='')
     def configureUserMenu(self, user, user_menu):
         """ configure a users application menu """
         user_menu = loads(user_menu)
+        uid = pwd.getpwnam(user).pw_uid
+        gid = pwd.getpwnam(user).pw_gid
+
+        self.__initialized_dirs = []
         self.home_dir = os.path.expanduser('~%s' % user)
         self.init_directories(user_menu)
-        self.init_applications(user_menu)
+        scripts = self.init_applications(user_menu)
         self.init_menu(user_menu)
-        self.chown_dirs(user)
+        if self.env.config.get("user.chown-menu", default="false") == "true":
+            self.chown_dirs(uid, gid)
+        elif len(scripts) > 0:
+            # script files need to be chowned to user anyways
+            for script in scripts:
+                self.__chown(script, uid, gid)
+        # make it executable by user and execute them
+        for script in scripts:
+            os.chmod(script, 0o755)
+            # execute script as user
+            try:
+                retcode = subprocess.call("su %s %s" % (user, script), shell=True)
+                if retcode < 0:
+                    self.log.error("%s was terminated by signal %s" % (script, -retcode))
+                else:
+                    self.log.info("%s returned %s" % (script, retcode))
+            except OSError as e:
+                self.log.error("%s execution failed: %s" % (script, str(e)))
 
-    def chown_dirs(self, user):
+    def chown_dirs(self, user, primary_group):
+        self.log.debug("chown %s dirs to %s:%s" % (self.__initialized_dirs, user, primary_group))
         for dir in self.__initialized_dirs:
-            self.__chown(dir, user=user)
+            self.__chown(dir, user, primary_group)
 
-    def __chown(self, path, user):
-        shutil.chown(path, user=user)
+    def __chown(self, path, user, group):
+        os.chown(path, user, group)
         for item in glob.glob(path+'/*'):
             cur_path = os.path.join(path, item)
             if os.path.isdir(item):
-                self.__chown(cur_path, user)
+                self.__chown(cur_path, user, group)
             else:
-                shutil.chown(cur_path, user=user)
+                os.chown(cur_path, user, group)
+
+    def __chmod(self, path, mode):
+        if os.path.exists(path):
+            os.chmod(path, mode)
 
     def init_dir(self, dir):
         if not os.path.exists(dir):
@@ -91,18 +124,11 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
 
     def init_applications(self, user_menu):
         app_dir = os.path.join(self.home_dir, self.local_applications)
+        self.init_dir(app_dir)
         scripts_dir = os.path.join(self.home_dir, self.local_applications_scripts)
-        if not os.path.exists(app_dir):
-            os.makedirs(app_dir)
+        self.init_dir(scripts_dir)
 
-        if not os.path.exists(scripts_dir):
-            os.makedirs(scripts_dir)
-
-        shutil.rmtree(app_dir)
-        os.makedirs(app_dir)
-
-        shutil.rmtree(scripts_dir)
-        os.makedirs(scripts_dir)
+        scripts = []
 
         def get_appname(item):
             result = []
@@ -118,20 +144,18 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
             return result
 
         for entry in get_appname(user_menu):
-            self.write_app_script(entry)
+            file = self.write_app_script(entry)
+            if file is not None:
+                scripts.append(file)
             self.write_app(entry)
+
+        return scripts
 
     def init_directories(self, user_menu):
         loc_dir = os.path.join(self.home_dir, self.local_directories)
+        self.init_dir(loc_dir)
         icon_dir = os.path.join(self.home_dir, self.local_icons)
-        if not os.path.exists(loc_dir):
-            os.makedirs(loc_dir)
-
-        if not os.path.exists(icon_dir):
-            os.makedirs(icon_dir)
-
-        shutil.rmtree(loc_dir)
-        os.makedirs(loc_dir)
+        self.init_dir(icon_dir)
 
         def get_dirname(item, prefix=None):
             result = []
@@ -194,7 +218,6 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
         desktop_entry.write()
 
     def write_app_script(self, app_entry):
-        result = ""
 
         if 'gotoLogonScript' in app_entry and app_entry['gotoLogonScript'] is not None:
             script_path = os.path.join(self.home_dir, self.local_applications_scripts, app_entry['cn'])
@@ -202,14 +225,16 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
             if os.path.exists(script_path):
                 os.unlink(script_path)
 
-            with open (script_path, 'w') as script_file:
+            with open(script_path, 'w') as script_file:
                 script_file.write(app_entry['gotoLogonScript'])
-            result = script_path
 
-        return result
+            return script_path
+
+        return None
 
     def init_menu(self, user_menu):
         menu_dir = os.path.join(self.home_dir, self.local_menu)
+        self.__initialized_dirs.append(os.path.dirname(menu_dir))
         if not os.path.exists(os.path.dirname(menu_dir)):
             os.makedirs(os.path.dirname(menu_dir))
 

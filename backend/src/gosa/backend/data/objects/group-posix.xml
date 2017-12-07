@@ -71,6 +71,7 @@
         <Mandatory>true</Mandatory>
         <Backend>NULL</Backend>
         <Type>Boolean</Type>
+        <Auto>true</Auto>
         <OutFilter>
           <FilterChain>
             <FilterEntry>

@@ -200,6 +200,23 @@
 				<Default>false</Default>
 				<Mandatory>true</Mandatory>
 			</Attribute>
+			<Attribute>
+				<Name>gotoLastUser</Name>
+				<Type>String</Type>
+				<References>
+					<Reference>
+						<Object>PosixUser</Object>
+						<Attribute>uid</Attribute>
+					</Reference>
+				</References>
+				<Validators>
+					<Condition>
+						<Name>ObjectWithPropertyExists</Name>
+						<Param>PosixUser</Param>
+						<Param>uid</Param>
+					</Condition>
+				</Validators>
+			</Attribute>
 		</Attributes>
 		<Methods>
 			<Method>
@@ -207,6 +224,38 @@
 				<Command>configureClient</Command>
 				<CommandParameters>
 					<Value>deviceUUID</Value>
+				</CommandParameters>
+			</Method>
+			<Method>
+				<Name>rebootClient</Name>
+				<Command>clientDispatch</Command>
+				<MethodParameters>
+					<MethodParameter>
+						<Name>method</Name>
+						<Type>UnicodeString</Type>
+						<Required>true</Required>
+						<Default>reboot</Default>
+					</MethodParameter>
+				</MethodParameters>
+				<CommandParameters>
+					<Value>deviceUUID</Value>
+					<Value>method</Value>
+				</CommandParameters>
+			</Method>
+			<Method>
+				<Name>canReboot</Name>
+				<Command>hasCapability</Command>
+				<MethodParameters>
+					<MethodParameter>
+						<Name>method</Name>
+						<Type>UnicodeString</Type>
+						<Required>true</Required>
+						<Default>reboot</Default>
+					</MethodParameter>
+				</MethodParameters>
+				<CommandParameters>
+					<Value>deviceUUID</Value>
+					<Value>method</Value>
 				</CommandParameters>
 			</Method>
 		</Methods>

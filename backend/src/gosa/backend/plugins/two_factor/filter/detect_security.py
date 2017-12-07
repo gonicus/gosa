@@ -24,6 +24,6 @@ class DetectSecureContext(ElementFilter):
         """
         Detects whether this password hash was marked as locked or not
         """
-        ssl = Environment.getInstance().config.get('http.ssl', default=None)
-        valDict[key]['value'] = [ssl and ssl.lower() in ["true", "yes", "on"]]
+        ssl = Environment.getInstance().config.getboolean('http.ssl')
+        valDict[key]['value'] = [ssl]
         return key, valDict
