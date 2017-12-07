@@ -28,6 +28,7 @@ from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils import TSVectorType
 
 import gosa
+from gosa.backend.utils.ldap import normalize_dn
 from gosa.common.env import SessionMixin, declarative_base
 from gosa.common.event import EventMaker
 from lxml import etree
@@ -579,10 +580,10 @@ class ObjectIndex(Plugin, SessionMixin):
                     else:
                         # OK: already there
                         if obj.modifyTimestamp == last_modified[0]:
-                            self.log.debug("found up-to-date object index for %s" % obj.uuid)
+                            self.log.debug("found up-to-date object index for %s (%s)" % (obj.uuid, obj.dn))
                             existing += 1
                         else:
-                            self.log.debug("updating object index for %s" % obj.uuid)
+                            self.log.debug("updating object index for %s (%s)" % (obj.uuid, obj.dn))
                             self.update(obj, session=session)
                             updated += 1
 
@@ -620,6 +621,7 @@ class ObjectIndex(Plugin, SessionMixin):
                 self.log.critical("building the index failed: %s" % str(e))
                 import traceback
                 traceback.print_exc()
+                raise e
 
             finally:
                 self.post_process(session=session)
@@ -706,7 +708,7 @@ class ObjectIndex(Plugin, SessionMixin):
                         _dn = "not known yet"
 
                 if event.reason == "post object remove":
-                    self.log.debug("removing object index for %s" % _uuid)
+                    self.log.debug("removing object index for %s (%s)" % (_uuid, _dn))
                     self.remove_by_uuid(_uuid, session=session)
                     change_type = "remove"
 
@@ -715,7 +717,7 @@ class ObjectIndex(Plugin, SessionMixin):
                     self.currently_moving[_dn] = event.dn
 
                 if event.reason == "post object move":
-                    self.log.debug("updating object index for %s" % _uuid)
+                    self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
                     obj = ObjectProxy(event.dn)
                     self.update(obj, session=session)
                     _dn = obj.dn
@@ -724,14 +726,14 @@ class ObjectIndex(Plugin, SessionMixin):
                         del self.currently_moving[event.orig_dn]
 
                 if event.reason == "post object create":
-                    self.log.debug("creating object index for %s" % _uuid)
+                    self.log.debug("creating object index for %s (%s)" % (_uuid, _dn))
                     obj = ObjectProxy(event.dn)
                     self.insert(obj, session=session)
                     _dn = obj.dn
                     change_type = "create"
 
                 if event.reason in ["post object update"]:
-                    self.log.debug("updating object index for %s" % _uuid)
+                    self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
                     if not event.dn:
                         dn = session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == _uuid).one_or_none()
                         if dn:
@@ -781,7 +783,7 @@ class ObjectIndex(Plugin, SessionMixin):
                 self.log.debug("ignoring object that is not relevant for the index: " + obj.dn)
                 return
 
-        self.log.debug("creating object index for %s" % obj.uuid)
+        self.log.debug("creating object index for %s (%s)" % (obj.uuid, obj.dn))
 
         uuid = session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
         if uuid:
@@ -1221,7 +1223,7 @@ class ObjectIndex(Plugin, SessionMixin):
             .options(joinedload(ObjectInfoIndex.properties)) \
             .options(joinedload(ObjectInfoIndex.extensions))
 
-        # check if we need somthing from the searchObject
+        # check if we need something from the searchObject
         so_props = None
         if properties is not None:
             so_props = [x for x in properties if hasattr(SearchObjectIndex, x)]
