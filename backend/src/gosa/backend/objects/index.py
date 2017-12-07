@@ -21,6 +21,7 @@ import logging
 import multiprocessing
 import sys
 import re
+from queue import Queue
 
 import ldap
 import sqlalchemy
@@ -511,112 +512,118 @@ class ObjectIndex(Plugin, SessionMixin):
         existing = 0
         removed = 0
 
-        with self.make_session() as session:
-            try:
-                self._indexed = True
+        try:
+            self._indexed = True
 
-                t0 = time.time()
-                self.last_notification = time.time()
+            t0 = time.time()
+            self.last_notification = time.time()
 
-                def resolve_children(dn):
-                    self.log.debug("found object '%s'" % dn)
-                    res = {}
+            def resolve_children(dn):
+                self.log.debug("found object '%s'" % dn)
+                res = {}
 
-                    children = self.factory.getObjectChildren(dn)
-                    res = {**res, **children}
+                children = self.factory.getObjectChildren(dn)
+                res = {**res, **children}
 
-                    for chld in children.keys():
-                        res = {**res, **resolve_children(chld)}
-                    now = time.time()
-                    if now - self.last_notification > self.notify_every:
-                        self.notify_frontends(N_("scanning for objects"), step=1)
-                        self.last_notification = now
+                for chld in children.keys():
+                    res = {**res, **resolve_children(chld)}
+                now = time.time()
+                if now - self.last_notification > self.notify_every:
+                    self.notify_frontends(N_("scanning for objects"), step=1)
+                    self.last_notification = now
 
-                    return res
+                return res
 
-                self.log.info("scanning for objects")
-                self.notify_frontends(N_("scanning for objects"), step=1)
-                res = resolve_children(self.env.base)
-                # count by type
-                counts = {}
-                for o in res.keys():
-                    if res[o] not in counts:
-                        counts[res[o]] = 1
-                    else:
-                        counts[res[o]] += 1
+            self.log.info("scanning for objects")
+            self.notify_frontends(N_("scanning for objects"), step=1)
+            res = resolve_children(self.env.base)
+            # count by type
+            counts = {}
+            for o in res.keys():
+                if res[o] not in counts:
+                    counts[res[o]] = 1
+                else:
+                    counts[res[o]] += 1
 
-                self.log.debug("Found objects: %s" % counts)
-                res[self.env.base] = 'dummy'
+            self.log.debug("Found objects: %s" % counts)
+            res[self.env.base] = 'dummy'
 
-                self.log.info("generating object index")
-                self.notify_frontends(N_("Generating object index"))
+            self.log.info("generating object index")
+            self.notify_frontends(N_("Generating object index"))
 
             # Find new entries
             backend_objects = []
             total = len(res)
             current = 0
             oids = sorted(res.keys(), key=len)
+            queue = multiprocessing.JoinableQueue()
 
             def process(self, queue, current, added, existing, updated):
-                while len(queue) > 0:
-                    current += 1
-                    o = queue.pop()
+                with self.make_session() as inner_session:
+                    while True:
+                        current += 1
+                        o = queue.get()
+                        if o is None:
+                            break
 
-                    # Get object
-                    try:
-                        obj = ObjectProxy(o)
+                        # Get object
+                        try:
+                            obj = ObjectProxy(o)
 
-                    except ProxyException as e:
-                        self.log.warning("not indexing %s: %s" % (o, str(e)))
-                        continue
+                        except ProxyException as e:
+                            self.log.warning("not indexing %s: %s" % (o, str(e)))
+                            continue
 
-                    except ObjectException as e:
-                        self.log.warning("not indexing %s: %s" % (o, str(e)))
-                        continue
+                        except ObjectException as e:
+                            self.log.warning("not indexing %s: %s" % (o, str(e)))
+                            continue
 
-                    # Check for index entry
-                    last_modified = session.query(ObjectInfoIndex._last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
+                        # Check for index entry
+                        last_modified = inner_session.query(ObjectInfoIndex._last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
 
-                    # Entry is not in the database
-                    if not last_modified:
-                        added += 1
-                        self.insert(obj, True, session=session)
+                        # Entry is not in the database
+                        if not last_modified:
+                            added += 1
+                            self.insert(obj, True, session=inner_session)
 
-                    # Entry is in the database
-                    else:
-                        # OK: already there
-                        if obj.modifyTimestamp == last_modified[0]:
-                            self.log.debug("found up-to-date object index for %s (%s)" % (obj.uuid, obj.dn))
-                            existing += 1
+                        # Entry is in the database
                         else:
-                            self.log.debug("updating object index for %s (%s)" % (obj.uuid, obj.dn))
-                            self.update(obj, session=session)
-                            updated += 1
+                            # OK: already there
+                            if obj.modifyTimestamp == last_modified[0]:
+                                self.log.debug("found up-to-date object index for %s (%s)" % (obj.uuid, obj.dn))
+                                existing += 1
+                            else:
+                                self.log.debug("updating object index for %s (%s)" % (obj.uuid, obj.dn))
+                                self.update(obj, session=inner_session)
+                                updated += 1
 
-                    backend_objects.append(obj.uuid)
-                    del obj
+                        backend_objects.append(obj.uuid)
+                        del obj
 
-                    now = time.time()
-                    if now - self.last_notification > self.notify_every:
-                        self.notify_frontends(N_("Processing object %s/%s" % (current, total)), round(100/total*current), step=2)
-                        self.last_notification = now
+                        now = time.time()
+                        if now - self.last_notification > self.notify_every:
+                            self.notify_frontends(N_("Processing object %s/%s" % (current, total)), round(100/total*current), step=2)
+                            self.last_notification = now
+                        queue.task_done()
 
             jobs = []
             for i in range(0, self.procs):
                 p = multiprocessing.Process(target=process,
-                                            args=(self, oids, current, added, existing, updated))
+                                            args=(self, queue, current, added, existing, updated))
                 jobs.append(p)
 
             for j in jobs:
                 j.start()
 
+            # fill the queue
+            map(queue.put, oids)
+
             # Ensure all of the processes have finished
+            queue.join()
             for j in jobs:
-                j.join()
+                j.terminate()
 
             self.notify_frontends(N_("%s objects processed" % total), 100)
-
-                self.notify_frontends(N_("%s objects processed" % total), 100)
 
             t1 = time.time()
             self.log.info("processed %d objects in %ds" % (len(res), t1 - t0))
@@ -628,7 +635,7 @@ class ObjectIndex(Plugin, SessionMixin):
             traceback.print_exc()
 
         finally:
-            self.post_process(session=session)
+            self.post_process()
             self.log.info("index refresh finished")
             self.notify_frontends(N_("Index refresh finished"), 100)
 
@@ -645,27 +652,31 @@ class ObjectIndex(Plugin, SessionMixin):
 
         # Some object may have queued themselves to be re-indexed, process them now.
         self.log.info("need to refresh index for %d objects" % total)
-        for dn in session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid.in_(uuids)).all():
-            current += 1
-            if dn:
-                obj = ObjectProxy(dn[0])
-                self.update(obj)
 
         def process(self, queue, current):
 
-            while len(queue) > 0:
-                dn = queue.pop()
-                current += 1
-                if dn:
-                    obj = ObjectProxy(dn[0])
-                    self.update(obj)
+            with self.make_session() as inner_session:
 
-                    now = time.time()
-                    if now - self.last_notification > self.notify_every:
-                        self.notify_frontends(N_("refreshing object %s/%s" % (current, total)), round(100/total*current), step=4)
-                        self.last_notification = now
+                while True:
+                    dn = queue.get()
+                    if dn is None:
+                        break
 
-        queue = self.__session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid.in_(to_be_updated)).all()
+                    current += 1
+                    if dn:
+                        obj = ObjectProxy(dn[0])
+                        self.update(obj, session=inner_session)
+
+                        now = time.time()
+                        if now - self.last_notification > self.notify_every:
+                            self.notify_frontends(N_("refreshing object %s/%s" % (current, total)), round(100/total*current), step=4)
+                            self.last_notification = now
+                    queue.task_done()
+
+        with self.make_session() as session:
+            res = session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid.in_(uuids)).all()
+            queue = Queue(maxsize=len(res))
+            map(queue.put, res)
 
         jobs = []
         for i in range(0, self.procs):
@@ -681,9 +692,9 @@ class ObjectIndex(Plugin, SessionMixin):
             j.join()
 
         if len(ObjectIndex.to_be_updated):
-            self.post_process()
+            self._post_process()
 
-        self.update_words(session=session)
+        self.update_words()
 
     def index_active(self):  # pragma: nocover
         return self._indexed

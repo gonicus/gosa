@@ -102,18 +102,19 @@ class Environment:
 
         ``Return``: database engine
         """
-        index = "%s.%s" % (section, key)
+        config_key = "%s.%s" % (section, key)
+        index = "%s:%s" % (os.getpid(), config_key)
 
         if not index in self.__db:
-            if not self.config.get(index):
+            if not self.config.get(config_key):
                 raise Exception("No database connection defined for '%s'!" % index)
-            if self.config.get(index).startswith("sqlite://"):
+            if self.config.get(config_key).startswith("sqlite://"):
                 from sqlalchemy.pool import StaticPool
-                self.__db[index] = create_engine(self.config.get(index),
+                self.__db[index] = create_engine(self.config.get(config_key),
                                                  connect_args={'check_same_thread': False},
                                                  poolclass=StaticPool, encoding="utf-8")
             else:
-                self.__db[index] = create_engine(self.config.get(index), encoding="utf-8")
+                self.__db[index] = create_engine(self.config.get(config_key), encoding="utf-8")
 
             #TODO: configure engine
             #self.__db[index] = create_engine(self.config.get(index),
@@ -134,7 +135,7 @@ class Environment:
 
         ``Return``: database session
         """
-        index = "%s.%s" % (section, key)
+        index = "%s:%s.%s" % (os.getpid(), section, key)
         sql = self.getDatabaseEngine(section, key)
         if index not in self.__db_session:
             self.__db_session[index] = scoped_session(sessionmaker(autoflush=True, bind=sql))
