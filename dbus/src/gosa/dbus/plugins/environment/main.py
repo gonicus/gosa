@@ -41,7 +41,6 @@ XDG_CONFIG_DIR = "/etc/xdg/xdg-gnome"
 XDG_MENU_PREFIX = "gnome-"
 GLOBAL_MENU = XDG_CONFIG_DIR + '/menus/' + XDG_MENU_PREFIX + 'applications.menu'
 
-
 class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     """
     This dbus plugin is able to configure a users environment.
@@ -66,6 +65,27 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
 
     @dbus.service.method('org.gosa', in_signature='sii', out_signature='')
     def configureUserScreen(self, user, width, height):
+        cmd = ['/usr/bin/autorandr', '--batch', '--force', '--debug', '-l', 'common']
+        environment = os.environ.copy()
+
+        try:
+            p = subprocess.Popen(
+                cmd,
+                shell=True,
+                bufsize=1024,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=environment,
+                close_fds=True
+            )
+
+            stdout, stderr = p.communicate()
+            if p.returncode != 0:
+                self.log.error("{} was terminated by signal {}: {}".format(cmd, p.returncode, stderr))
+            else:
+                self.log.info("{} returned {}: {}".format(cmd, p.returncode, stdout))
+        except OSError as e:
+            self.log.error("%s execution failed: %s" % (cmd, str(e)))
         self.log.info("configuring %s screen resolution to %sx%s is currently not supported" % (user, width, height))
 
     @dbus.service.method('org.gosa', in_signature='ss', out_signature='')
@@ -86,46 +106,44 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
         if len(scripts) > 0:
             # script files need to be chowned to user always
             for script in scripts:
-                self.__chown(script, uid, gid)
-                os.chmod(script, stat.S_IRUSR | stat.S_IXUSR)
+                self.__chown(script['path'], uid, gid)
+                os.chmod(script['path'], stat.S_IRUSR | stat.S_IXUSR)
 
-        def demote(user_uid, user_gid):
-            os.setgid(user_gid)
-            os.setuid(user_uid)
+        environment = os.environ.copy()
+        environment['DISPLAY'] = ':0'
 
         for script in scripts:
-            # execute script as user and create environment
-            environment = os.environ.copy()
-            environment['HOME'] = pw_ent.pw_dir
-            environment['LOGNAME'] = pw_ent.pw_name
-            environment['USER'] = pw_ent.pw_name
-            environment['PWD'] = pw_ent.pw_dir
+            # Write gosaApplicationParameter values in execution environment
+            for env_entry in script['environment']:
+                environment[env_entry] = script['environment'][env_entry]
 
-            # TODO: Append gosaApplicationParameters
-            # for parameter in gosaApplicationParameter:
-            #     environment[parameter] = gosaApplicationParameter[parameter]
-
-            script_log = os.path.join(self.home_dir, self.local_application_scripts_log, os.path.basename(script) + '.log')
+            script_log = os.path.join(self.home_dir, self.local_application_scripts_log, os.path.basename(script['path']) + '.log')
+            # Run command as user using sudo
+            cmd = ['sudo', '-i', '-E', '-n', '-u', user, script['path']]
+            self.log.debug("executing {script} as {user}, logging to {log}".format(script=" ".join(cmd), user=pw_ent.pw_name, log=script_log))
             try:
-                with open(script_log, 'w+') as logfile:
-                    p = subprocess.Popen(
-                        [script],
-                        shell=True,
-                        bufsize=1024,
-                        stdout=logfile,
-                        stderr=logfile,
-                        close_fds=True,
-                        env = environment,
-                        preexec_fn=demote(uid, gid)
-                    )
+                pid = os.fork()
+                if pid == 0:
+                    with open(script_log, 'w+') as logfile:
+                        p = subprocess.Popen(
+                            [cmd],
+                            shell=True,
+                            env=environment,
+                            bufsize=-1,
+                            stdout=logfile,
+                            stderr=logfile
+                        )
 
-                    returncode = p.wait()
-                    if returncode != 0:
-                        self.log.error("{} was terminated by signal {}: check {}".format(script, returncode, script_log))
-                    else:
-                        self.log.info("{} returned {}".format(script, returncode))
+                        returncode = p.wait()
+                        if returncode != 0:
+                            self.log.error("{} was terminated by signal {}: check {}".format(script['path'], returncode, script_log))
+                        else:
+                            self.log.info("{} returned {}".format(script['path'], returncode))
             except OSError as e:
-                self.log.error("%s execution failed: %s" % (script, str(e)))
+                self.log.error("%s execution failed: %s" % (script['path'], str(e)))
+            finally:
+                if os.path.exists(script_log):
+                    self.__chown(script_log, uid, gid)
 
     def chown_dirs(self, user, primary_group):
         self.log.debug("chown %s dirs to %s:%s" % (self.__initialized_dirs, user, primary_group))
@@ -254,6 +272,7 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
         desktop_entry.write()
 
     def write_app_script(self, app_entry):
+        result = None
 
         if 'gotoLogonScript' in app_entry and app_entry['gotoLogonScript'] is not None:
             script_path = os.path.join(self.home_dir, self.local_application_scripts, app_entry['cn'])
@@ -265,9 +284,9 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
                 script = app_entry['gotoLogonScript'].replace('\r\n', '\n')
                 script_file.write(script)
 
-            return script_path
+            result = {'path': script_path, 'environment': app_entry.get('gosaApplicationParameter', [])}
 
-        return None
+        return result
 
     def init_menu(self, user_menu):
         menu_dir = os.path.join(self.home_dir, self.local_menu)
