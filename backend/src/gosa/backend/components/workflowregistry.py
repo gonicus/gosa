@@ -191,5 +191,5 @@ class WorkflowRegistry(Plugin):
         """
         self._workflows = {}
         for fn in os.listdir(self.__path):
-            if fn[0] is not '.':
+            if fn[0] is not '.' and os.path.isdir(fn):
                 self.__add(os.path.join(self.__path, fn))
