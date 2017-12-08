@@ -16,12 +16,20 @@
       "title": "tr('Printer')",
       "icon": "favicon"
     },
-    "actions": [{
-      "name": "writePPD",
-      "target": "writePPD()",
-      "text": "writePPD",
-      "type": "afterDialog"
-    }]
+    "actions": [
+      {
+        "name": "writePPD",
+        "target": "writePPD()",
+        "text": "writePPD",
+        "type": "afterDialog"
+      },
+      {
+        "name": "uploadPPD",
+        "dialog": "UploadPPD",
+        "text": "tr('Upload PPD file')",
+        "icon": "@Ligature/upload"
+      }
+    ]
   },
   "children": [
     {

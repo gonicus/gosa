@@ -199,10 +199,14 @@ qx.Class.define("gosa.proxy.Object", {
         var rpc_value = null;
         if (this.attribute_data[name].multivalue) {
           rpc_value = value.toArray();
-        } else {
-          if(value.getLength()){
+        }
+        else if (value instanceof qx.data.Array) {
+          if (value.getLength()){
             rpc_value = value.toArray()[0];
           }
+        }
+        else {
+          rpc_value = value;
         }
         rpc.cA("setObjectProperty", this.instance_uuid, name, rpc_value).bind(this)
         .then(function() {

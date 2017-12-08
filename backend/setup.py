@@ -110,7 +110,7 @@ setup(
         /uploads/(?P<uuid>.*)? = gosa.backend.plugins.upload.main:UploadHandler
         /workflow/(?P<path>.*)? = gosa.backend.routes.static.main:WorkflowHandler
         /hooks(?P<path>.*)? = gosa.backend.plugins.webhook.registry:WebhookReceiver
-        /ppd/(?P<path>.*)? = gosa.backend.plugins.cups.route:PPDHandler
+        /ppd/modified/(?P<path>.*)? = gosa.backend.plugins.cups.route:PPDHandler
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
@@ -218,6 +218,7 @@ setup(
         foremanstatusin = gosa.backend.plugins.foreman.filter:ForemanStatusIn
         GetMakeModelFromPPD = gosa.backend.plugins.cups.filter:GetMakeModelFromPPD
         DeleteOldFile = gosa.backend.plugins.cups.filter:DeleteOldFile
+        GetPPDUrl = gosa.backend.plugins.cups.filter:GetPPDUrl
         MarshalLogonScript = gosa.backend.plugins.user.filters:MarshalLogonScript
         UnmarshalLogonScript = gosa.backend.plugins.user.filters:UnmarshalLogonScript
         MarshalFlags = gosa.backend.objects.filter.flags:MarshalFlags

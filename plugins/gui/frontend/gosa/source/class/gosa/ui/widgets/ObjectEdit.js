@@ -282,7 +282,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
           return !value;
         }
       });
-      var actionController = new gosa.data.controller.Actions(this.getController().getObject());
+      var actionController = new gosa.data.controller.Actions(this.getController().getObject(), this);
 
       // listener to open dialog
       button.addListener("execute", function() {
