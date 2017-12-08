@@ -23,7 +23,6 @@ import subprocess
 import dbus.service
 import pwd
 import stat
-import pprint
 
 from gosa.common import Environment
 from gosa.common.components import Plugin
@@ -41,9 +40,6 @@ import os
 XDG_CONFIG_DIR = "/etc/xdg/xdg-gnome"
 XDG_MENU_PREFIX = "gnome-"
 GLOBAL_MENU = XDG_CONFIG_DIR + '/menus/' + XDG_MENU_PREFIX + 'applications.menu'
-
-pp=pprint.PrettyPrinter()
-
 
 class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     """
