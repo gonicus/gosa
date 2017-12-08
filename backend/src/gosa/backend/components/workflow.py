@@ -16,7 +16,7 @@ from gosa.common.utils import N_
 from gosa.backend.objects import ObjectProxy
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry
-from gosa.common.error import GosaErrorHandler as C
+from gosa.common.error import GosaErrorHandler as C, GosaErrorHandler
 from pkg_resources import resource_filename
 
 
@@ -307,7 +307,10 @@ class Workflow:
             print(fname, "line", exc_tb.tb_lineno)
             print(exc_type)
             print(exc_obj)
-            raise ScriptError(C.make_error('WORKFLOW_SCRIPT_ERROR', e))
+            if GosaErrorHandler.get_error_id(str(e)) is not None:
+                raise e
+            else:
+                raise ScriptError(C.make_error('WORKFLOW_SCRIPT_ERROR', e))
 
         return True
 
