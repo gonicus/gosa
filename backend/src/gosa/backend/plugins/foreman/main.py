@@ -501,6 +501,19 @@ class Foreman(Plugin, SessionMixin):
 
         return selection_data
 
+    @Command(__help__=N_("Get all SystemsContainer search key(dn): value(dn) pairs."))
+    def getSystemsContainers(self, *args):
+        index = PluginRegistry.getInstance("ObjectIndex")
+
+        res = index.search({"_type": {"in_": ["SystemsContainer"]}}, {"dn": 1})
+
+        selection_data = {}
+
+        for entry in res:
+            selection_data[entry["dn"]] = {"value": entry["dn"]}
+
+        return selection_data
+
     @Command(__help__=N_("Get foreman hosts as search key(dn): value(cn) pairs."))
     def getForemanHostsForSelection(self, *args):
         index = PluginRegistry.getInstance("ObjectIndex")
