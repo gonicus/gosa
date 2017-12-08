@@ -16,8 +16,11 @@ import tempfile
 import time
 
 import requests
+from tornado import gen
+from tornado.httpclient import AsyncHTTPClient
 from zope.interface import implementer
 
+from gosa.backend.components.httpd import get_server_url
 from gosa.backend.exceptions import EntryNotFound
 from gosa.backend.objects import ObjectProxy
 from gosa.common.error import GosaErrorHandler as C
@@ -243,7 +246,10 @@ class CupsClient(Plugin):
             with open(new_file, "w") as f:
                 f.write(result)
 
-            return {"gotoPrinterPPD": ["%s.ppd" % hash]}
+            return {
+                "gotoPrinterPPD": ["%s/ppd/modified/%s.ppd" % (get_server_url(), hash)],
+                "configured": True
+            }
 
         except Exception as e:
             self.log.error(str(e))
@@ -479,11 +485,15 @@ class CupsClient(Plugin):
         temp_file = tempfile.NamedTemporaryFile(delete=False)
         try:
             if ppd_file[0:4] == "http":
-                # fetch remote file and copy it to a temporary local one
-                r = requests.get(requests.utils.quote(ppd_file, safe=":/"))
-                with open(temp_file.name, "w") as tf:
-                    tf.write(r.content.decode("utf-8"))
-                local_file = temp_file.name
+                if get_local_ppd_path(ppd_file) is not None:
+                    # no need to make an HTTP request
+                    local_file = get_local_ppd_path(ppd_file)
+                else:
+                    # fetch remote file and copy it to a temporary local one
+                    r = requests.get(requests.utils.quote(ppd_file, safe=":/"))
+                    with open(temp_file.name, "w") as tf:
+                        tf.write(r.content.decode("utf-8"))
+                    local_file = temp_file.name
             else:
                 local_file = ppd_file
 
@@ -500,6 +510,15 @@ class CupsClient(Plugin):
         finally:
             os.unlink(temp_file.name)
             return res
+
+
+def get_local_ppd_path(url):
+    server_url = get_server_url()
+    if url[0:len(server_url)] == server_url:
+        http_part = "%s/ppd/modified/" % get_server_url()
+        dir = Environment.getInstance().config.get("cups.spool", default="/tmp/spool")
+        return "%s/%s" % (dir, url[len(http_part):])
+    return None
 
 
 class CupsException(Exception):

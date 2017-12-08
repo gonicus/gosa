@@ -507,6 +507,7 @@ class ObjectIndex(Plugin, SessionMixin):
         added = 0
         existing = 0
         removed = 0
+        index_successful = False
 
         with self.make_session() as session:
             try:
@@ -616,20 +617,24 @@ class ObjectIndex(Plugin, SessionMixin):
                 t1 = time.time()
                 self.log.info("processed %d objects in %ds" % (len(res), t1 - t0))
                 self.log.info("%s added, %s updated, %s removed, %s are up-to-date" % (added, updated, removed, existing))
+                index_successful = True
 
             except Exception as e:
                 self.log.critical("building the index failed: %s" % str(e))
                 import traceback
                 traceback.print_exc()
-                raise e
 
             finally:
-                self.post_process(session=session)
-                self.log.info("index refresh finished")
-                self.notify_frontends(N_("Index refresh finished"), 100)
-                GlobalLock.release("scan_index")
+                if index_successful is True:
+                    self.post_process(session=session)
+                    self.log.info("index refresh finished")
+                    self.notify_frontends(N_("Index refresh finished"), 100)
+                    GlobalLock.release("scan_index")
 
-                zope.event.notify(IndexScanFinished())
+                    zope.event.notify(IndexScanFinished())
+                else:
+                    raise IndexException("Error creating index, please restart.")
+                    sys.exit(1)
 
     def post_process(self, session=None):
         if session is not None:

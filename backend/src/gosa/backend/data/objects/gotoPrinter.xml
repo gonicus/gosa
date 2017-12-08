@@ -80,16 +80,13 @@
                 <BlockedBy>
                     <Attribute value="null">maker</Attribute>
                 </BlockedBy>
-                <InFilter>
-                    <FilterChain>
-                        <FilterEntry>
-                            <Filter>
-                                <Name>GetMakeModelFromPPD</Name>
-                                <Param>maker</Param>
-                            </Filter>
-                        </FilterEntry>
-                    </FilterChain>
-                </InFilter>
+            </Attribute>
+            <Attribute>
+                <Name>configured</Name>
+                <Backend>NULL</Backend>
+                <Type>Boolean</Type>
+                <Default>false</Default>
+                <Description>Internal helper attribute to mark PPDs that have been configured since last change.</Description>
             </Attribute>
             <Attribute>
                 <Name>gotoPrinterPPD</Name>
@@ -111,17 +108,16 @@
                     <FilterChain>
                         <FilterEntry>
                             <Filter>
+                                <Name>GetPPDUrl</Name>
+                            </Filter>
+                        </FilterEntry>
+                        <FilterEntry>
+                            <Filter>
                                 <Name>DeleteOldFile</Name>
                             </Filter>
                         </FilterEntry>
                     </FilterChain>
                 </OutFilter>
-                <Validators>
-                    <Condition>
-                        <Name>RegEx</Name>
-                        <Param>^[\x00-\x7F]*$</Param>
-                    </Condition>
-                </Validators>
             </Attribute>
             <Attribute>
                 <Name>gotoUserAdminPrinter</Name>
