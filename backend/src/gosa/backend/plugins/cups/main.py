@@ -248,7 +248,7 @@ class CupsClient(Plugin):
 
             return {
                 "gotoPrinterPPD": ["%s/ppd/modified/%s.ppd" % (get_server_url(), hash)],
-                "configured": True
+                "configured": [True]
             }
 
         except Exception as e:
@@ -321,9 +321,17 @@ class CupsClient(Plugin):
         if isinstance(data, str):
             name = data
         elif isinstance(data, dict):
-            if "gotoPrinterPPD" in data and data["gotoPrinterPPD"] is not None and os.path.exists(data["gotoPrinterPPD"]):
+            if "gotoPrinterPPD" in data and data["gotoPrinterPPD"] is not None:
                 ppd_file = data["gotoPrinterPPD"]
-                delete = False
+                if get_local_ppd_path(ppd_file) is not None:
+                    ppd_file = get_local_ppd_path(ppd_file)
+                    delete = False
+                else:
+                    r = requests.get(requests.utils.quote(ppd_file, safe=":/"))
+                    temp_file = tempfile.NamedTemporaryFile(delete=False)
+                    with open(temp_file.name, "w") as tf:
+                        tf.write(r.content.decode("utf-8"))
+                    ppd_file = temp_file.name
             else:
                 name = data["serverPPD"]
         else:
