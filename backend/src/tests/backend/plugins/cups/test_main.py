@@ -121,8 +121,6 @@ class CupsTestCase(GosaTestCase):
         assert "gotoPrinterPPD" in res
 
         # open the newly written PPD and check if the value has been set
-        dir = Environment.getInstance().config.get("cups.spool", default="/tmp/spool")
-
         path = get_local_ppd_path(res["gotoPrinterPPD"][0])
         ppd = cups.PPD(path)
         option = ppd.findOption("PageSize")
