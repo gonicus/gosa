@@ -260,7 +260,7 @@ class CupsClient(Plugin):
                 os.unlink(server_ppd)
 
     @Command(__help__=N_("Get a list of all available printer manufacturers"))
-    def getPrinterManufacturers(self):
+    def getPrinterManufacturers(self, *args):
         if self.client is None:
             return []
         return list(self.__get_printer_list().keys())
