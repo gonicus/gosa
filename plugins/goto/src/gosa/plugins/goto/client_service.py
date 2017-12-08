@@ -553,7 +553,7 @@ class ClientService(Plugin):
             if "printer-setup" in config:
                 self.configureHostPrinters(client_id, config["printer-setup"])
 
-            if "resolution" in config and len(config["resolution"]):
+            if "resolution" in config and config["resolution"] is not None and len(config["resolution"]):
                 self.log.debug("sending screen resolution: %sx%s for user %s to client %s" % (config["resolution"][0], config["resolution"][1], uid, client_id))
                 self.queuedClientDispatch(client_id, "dbus_configureUserScreen", uid, config["resolution"][0], config["resolution"][1])
 
