@@ -47,19 +47,22 @@ qx.Class.define("gosa.ui.dialogs.Loading",
           this.open();
           this.__autoOpened = true;
         }
+        var progress = 100;
         this.getChildControl('loading-label').setLabel(this.tr("Indexing") + '...');
         if (payload.hasOwnProperty("Progress")) {
+          progress = parseInt(payload.Progress, 10);
           control = this.getChildControl("progress");
           control.show();
-          control.setValue(parseInt(payload.Progress, 10));
+          control.setValue(progress);
         } else {
           this.getChildControl("progress").exclude();
         }
         var lastStep = true;
         if (payload.hasOwnProperty("State")) {
-          var state = payload.State;
+
           control = this.getChildControl("progress-info");
           control.show();
+          var state = "";
           if (payload.hasOwnProperty("Step") && parseInt(payload.Step, 10)) {
             if (payload.hasOwnProperty("TotalSteps") && parseInt(payload.TotalSteps, 10)) {
               lastStep = (payload.TotalSteps - payload.Step) === 0;
@@ -70,10 +73,8 @@ qx.Class.define("gosa.ui.dialogs.Loading",
             state += "<br/>" + payload.State;
           }
           control.setValue(state);
-        } else {
-          state = 100;
         }
-        if (lastStep === true && state === 100 && this.__autoOpened === true) {
+        if (lastStep === true && progress === 100 && this.__autoOpened === true) {
           this.close();
           this.__autoOpened = false;
         }
