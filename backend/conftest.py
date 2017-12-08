@@ -37,3 +37,6 @@ def use_test_config():
 
     Environment.getInstance()
     main()
+    # sync index
+    index = PluginRegistry.getInstance("ObjectIndex")
+    index.sync_index()

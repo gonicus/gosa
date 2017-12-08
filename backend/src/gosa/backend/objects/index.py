@@ -285,9 +285,7 @@ class ObjectIndex(Plugin, SessionMixin):
 
         # Schedule index sync
         if self.env.config.get("backend.index", "true").lower() == "true":
-            if hasattr(sys, '_called_from_test'):
-                self.sync_index()
-            else:
+            if not hasattr(sys, '_called_from_test'):
                 sobj = PluginRegistry.getInstance("SchedulerService")
                 sobj.getScheduler().add_date_job(self.sync_index,
                                                  datetime.datetime.now() + datetime.timedelta(seconds=1),
