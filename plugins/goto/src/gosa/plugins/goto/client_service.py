@@ -503,14 +503,11 @@ class ClientService(Plugin):
     def _handleUserSession(self, data):
         data = data.UserSession
         id = str(data.Id)
+        new_users = []
         if hasattr(data.User, 'Name'):
             users = list(map(str, data.User.Name))
             if id in self.__user_session:
                 new_users = list(set.difference(set(users), set(self.__user_session[id])))
-                if len(new_users):
-                    self.log.debug("configuring new users: %s" % new_users)
-                    self.configureUsers(id, new_users)
-
             else:
                 # configure users
                 self.log.debug("configuring new users: %s" % users)
@@ -535,6 +532,11 @@ class ClientService(Plugin):
                     user.commit()
 
             self.systemSetStatus(id, "+B")
+
+            if len(new_users):
+                self.log.debug("configuring new users: %s" % new_users)
+                self.configureUsers(id, new_users)
+
         else:
             self.__user_session[id] = []
             self.systemSetStatus(id, "-B")
