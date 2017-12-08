@@ -292,6 +292,9 @@ class ObjectProxy(object):
             else:
                 self.__log.warning("unknown extension '%s', skipping data" % extension)
 
+    def get_dn(self):
+        return self.dn
+
     def find_dn_for_object(self, new_base, current_base, dn="", checked=None):
         """
         Traverse through the object_types to find the container, which holds objects of type *base* and return that containers
