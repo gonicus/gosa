@@ -22,6 +22,7 @@ import subprocess
 
 import dbus.service
 import pwd
+import stat
 
 from gosa.common import Environment
 from gosa.common.components import Plugin
@@ -40,7 +41,6 @@ XDG_CONFIG_DIR = "/etc/xdg/xdg-gnome"
 XDG_MENU_PREFIX = "gnome-"
 GLOBAL_MENU = XDG_CONFIG_DIR + '/menus/' + XDG_MENU_PREFIX + 'applications.menu'
 
-
 class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     """
     This dbus plugin is able to configure a users environment.
@@ -48,9 +48,11 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     """
     add_other_menu = False
     home_dir = None
+    username = None
     local_menu = os.path.join(".config", "menus", XDG_MENU_PREFIX + 'applications.menu')
     local_applications = os.path.join(".local", "share", "applications")
-    local_applications_scripts = os.path.join(".local", "share", "goto", "applications-scripts")
+    local_application_scripts = os.path.join(".local", "share", "goto", "applications")
+    local_application_scripts_log = os.path.join(".local", "share", "goto", "log", "applications")
     local_icons = os.path.join(".local", "share", "icons")
     local_directories = os.path.join(".local", "share", "desktop-directories")
     __initialized_dirs = []
@@ -61,40 +63,135 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
+    def query_output(self, user):
+        result = None
+        cmd = ['sudo', '-n', '-u', user, 'DISPLAY=:0', 'xrandr', '-q']
+        try:
+            p = subprocess.Popen(
+                cmd,
+                shell=False,
+                bufsize=-1,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                close_fds=True
+            )
+
+            stdout, stderr = p.communicate()
+            stdout = stdout.decode('utf-8')
+            stderr = stderr.decode('utf-8')
+
+            if p.returncode != 0:
+                self.log.error("{} was terminated by signal {}: {}".format(" ".join(cmd), p.returncode, stderr))
+            else:
+                self.log.debug("{} returned {}: {}".format(" ".join(cmd), p.returncode, stdout))
+
+        except OSError as e:
+            self.log.error("%s execution failed: %s" % (" ".join(cmd), str(e)))
+
+        monitor = None
+        resulution = None
+
+        for line in [x for x in stdout.split('\n')]:
+            if " connected " in line:
+                [monitor, x1, x2, resolution, x3] = line.split(" ", 4)
+                [resolution, x_offset, y_offset] = resolution.split('+')
+                result = [monitor, resolution]
+
+        self.log.debug("Current resolution for {}: {} @ {}".format(user, monitor, resolution))
+        return result
+
+
+    def set_resolution(self, user, monitor, width, height):
+        result = False
+        cmd = ['sudo', '-n', '-u', user, 'DISPLAY=:0', 'xrandr', '--output', monitor, '--mode', str(height) + 'x' + str(width)]
+        try:
+            p = subprocess.Popen(
+                cmd,
+                shell=False,
+                bufsize=-1,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                close_fds=True
+            )
+
+            stdout, stderr = p.communicate()
+            stdout = stdout.decode('utf-8')
+            stderr = stderr.decode('utf-8')
+            result = True
+            if p.returncode != 0:
+                self.log.error("{} was terminated by signal {}: {}".format(" ".join(cmd), p.returncode, stderr))
+            else:
+                self.log.debug("{} returned {}: {}".format(" ".join(cmd), p.returncode, stdout))
+
+        except OSError as e:
+            self.log.error("%s execution failed: %s" % (" ".join(cmd), str(e)))
+
+
     @dbus.service.method('org.gosa', in_signature='sii', out_signature='')
-    def configureUserScreen(self, user, width, height):
-        self.log.info("configuring %s screen resolution to %sx%s is currently not supported" % (user, width, height))
+    def configureUserScreen(self, user, height, width):
+        # Run command as user using sudo
+        current = self.query_output(user)
+        if current is not None:
+            [monitor, resolution] = current
+            if monitor is not None and resolution.split != str(height) + "x" + str(width):
+                if self.set_resolution(user, monitor, width, height):
+                    self.log.info("configured %s screen resolution to %sx%s: done" % (user, width, height))
+            else:
+                self.log.info("configured %s screen resolution to %sx%s: already configured" % (user, width, height))
+
 
     @dbus.service.method('org.gosa', in_signature='ss', out_signature='')
     def configureUserMenu(self, user, user_menu):
         """ configure a users application menu """
         user_menu = loads(user_menu)
-        uid = pwd.getpwnam(user).pw_uid
-        gid = pwd.getpwnam(user).pw_gid
+        pw_ent = pwd.getpwnam(user)
+        uid = pw_ent.pw_uid
+        gid = pw_ent.pw_gid
 
         self.__initialized_dirs = []
         self.home_dir = os.path.expanduser('~%s' % user)
+        self.username = user
         self.init_directories(user_menu)
         scripts = self.init_applications(user_menu)
         self.init_menu(user_menu)
-        if self.env.config.get("user.chown-menu", default="false") == "true":
-            self.chown_dirs(uid, gid)
-        elif len(scripts) > 0:
-            # script files need to be chowned to user anyways
+        self.chown_dirs(uid, gid)
+        if len(scripts) > 0:
+            # script files need to be chowned to user always
             for script in scripts:
-                self.__chown(script, uid, gid)
-        # make it executable by user and execute them
+                self.__chown(script['path'], uid, gid)
+                os.chmod(script['path'], stat.S_IRUSR | stat.S_IXUSR)
+
         for script in scripts:
-            os.chmod(script, 0o755)
-            # execute script as user
+            # Write gosaApplicationParameter values in execution environment
+            #for env_entry in script['environment']:
+            #    environment[env_entry] = script['environment'][env_entry]
+
+            script_log = os.path.join(self.home_dir, self.local_application_scripts_log, os.path.basename(script['path']) + '.log')
+            # Run command as user using sudo
+            cmd = ['sudo', '-n', '-u', user, '"DISPLAY=:0"', '-i', script['path']]
+            self.log.debug("executing {script} as {user}, logging to {log}".format(script=" ".join(cmd), user=pw_ent.pw_name, log=script_log))
             try:
-                retcode = subprocess.call("su %s %s" % (user, script), shell=True)
-                if retcode < 0:
-                    self.log.error("%s was terminated by signal %s" % (script, -retcode))
-                else:
-                    self.log.info("%s returned %s" % (script, retcode))
+                with open(script_log, 'w+') as logfile:
+                    p = subprocess.Popen(
+                        cmd,
+                        shell=True,
+                        env=environment,
+                        bufsize=-1,
+                        stdout=logfile,
+                        stderr=logfile,
+                        close_fds=True
+                    )
+
+                    returncode = p.wait()
+                    if returncode != 0:
+                        self.log.error("{} was terminated by signal {}: check {}".format(script['path'], returncode, script_log))
+                    else:
+                        self.log.info("{} returned {}".format(script['path'], returncode))
             except OSError as e:
-                self.log.error("%s execution failed: %s" % (script, str(e)))
+                self.log.error("%s execution failed: %s" % (script['path'], str(e)))
+            finally:
+                if os.path.exists(script_log):
+                    self.__chown(script_log, uid, gid)
 
     def chown_dirs(self, user, primary_group):
         self.log.debug("chown %s dirs to %s:%s" % (self.__initialized_dirs, user, primary_group))
@@ -125,8 +222,12 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     def init_applications(self, user_menu):
         app_dir = os.path.join(self.home_dir, self.local_applications)
         self.init_dir(app_dir)
-        scripts_dir = os.path.join(self.home_dir, self.local_applications_scripts)
+
+        scripts_dir = os.path.join(self.home_dir, self.local_application_scripts)
         self.init_dir(scripts_dir)
+
+        script_logs_dir = os.path.join(self.home_dir, self.local_application_scripts_log)
+        self.init_dir(script_logs_dir)
 
         scripts = []
 
@@ -154,6 +255,7 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     def init_directories(self, user_menu):
         loc_dir = os.path.join(self.home_dir, self.local_directories)
         self.init_dir(loc_dir)
+
         icon_dir = os.path.join(self.home_dir, self.local_icons)
         self.init_dir(icon_dir)
 
@@ -218,19 +320,21 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
         desktop_entry.write()
 
     def write_app_script(self, app_entry):
+        result = None
 
         if 'gotoLogonScript' in app_entry and app_entry['gotoLogonScript'] is not None:
-            script_path = os.path.join(self.home_dir, self.local_applications_scripts, app_entry['cn'])
+            script_path = os.path.join(self.home_dir, self.local_application_scripts, app_entry['cn'])
 
             if os.path.exists(script_path):
                 os.unlink(script_path)
 
-            with open(script_path, 'w') as script_file:
-                script_file.write(app_entry['gotoLogonScript'])
+            with open(script_path, 'w+') as script_file:
+                script = app_entry['gotoLogonScript'].replace('\r\n', '\n')
+                script_file.write(script)
 
-            return script_path
+            result = {'path': script_path, 'environment': app_entry.get('gosaApplicationParameter', [])}
 
-        return None
+        return result
 
     def init_menu(self, user_menu):
         menu_dir = os.path.join(self.home_dir, self.local_menu)

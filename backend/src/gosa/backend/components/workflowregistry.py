@@ -182,7 +182,8 @@ class WorkflowRegistry(Plugin):
 
         self._workflows[id] = entry
 
-    def refresh(self):
+    @Command(__help__=N_("Refresh workflow list"))
+    def refreshWorkflows(self):
         self._update_map()
 
     def _update_map(self):

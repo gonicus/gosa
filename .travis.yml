@@ -33,7 +33,7 @@ before_install:
 install:
     - sudo apt-get install dbus-x11 libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev # needed to compile dbus-python
     - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure
-    - pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.21.1
+    #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
 before_script:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start

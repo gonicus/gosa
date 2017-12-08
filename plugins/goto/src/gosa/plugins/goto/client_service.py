@@ -507,14 +507,9 @@ class ClientService(Plugin):
             users = list(map(str, data.User.Name))
             if id in self.__user_session:
                 new_users = list(set.difference(set(users), set(self.__user_session[id])))
-                if len(new_users):
-                    self.log.debug("configuring new users: %s" % new_users)
-                    self.configureUsers(id, new_users)
-
             else:
-                # configure users
-                self.log.debug("configuring new users: %s" % users)
-                self.configureUsers(id, users)
+                # all users are new
+                new_users = users
 
             self.__user_session[id] = users
 
@@ -535,6 +530,11 @@ class ClientService(Plugin):
                     user.commit()
 
             self.systemSetStatus(id, "+B")
+
+            if len(new_users):
+                self.log.debug("configuring new users: %s" % new_users)
+                self.configureUsers(id, new_users)
+
         else:
             self.__user_session[id] = []
             self.systemSetStatus(id, "-B")
@@ -553,7 +553,7 @@ class ClientService(Plugin):
             if "printer-setup" in config:
                 self.configureHostPrinters(client_id, config["printer-setup"])
 
-            if "resolution" in config and len(config["resolution"]):
+            if "resolution" in config and config["resolution"] is not None and len(config["resolution"]):
                 self.log.debug("sending screen resolution: %sx%s for user %s to client %s" % (config["resolution"][0], config["resolution"][1], uid, client_id))
                 self.queuedClientDispatch(client_id, "dbus_configureUserScreen", uid, config["resolution"][0], config["resolution"][1])
 
