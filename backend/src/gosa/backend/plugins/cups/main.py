@@ -518,6 +518,9 @@ def get_local_ppd_path(url):
         http_part = "%s/ppd/modified/" % get_server_url()
         dir = Environment.getInstance().config.get("cups.spool", default="/tmp/spool")
         return "%s/%s" % (dir, url[len(http_part):])
+    elif url[0:1] == "/":
+        # is already a local path
+        return url
     return None
 
 
