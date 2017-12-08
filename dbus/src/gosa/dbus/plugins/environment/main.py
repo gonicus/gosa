@@ -23,6 +23,7 @@ import subprocess
 import dbus.service
 import pwd
 import stat
+import pprint
 
 from gosa.common import Environment
 from gosa.common.components import Plugin
@@ -40,6 +41,9 @@ import os
 XDG_CONFIG_DIR = "/etc/xdg/xdg-gnome"
 XDG_MENU_PREFIX = "gnome-"
 GLOBAL_MENU = XDG_CONFIG_DIR + '/menus/' + XDG_MENU_PREFIX + 'applications.menu'
+
+pp=pprint.PrettyPrinter()
+
 
 class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     """
@@ -63,30 +67,82 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
-    @dbus.service.method('org.gosa', in_signature='sii', out_signature='')
-    def configureUserScreen(self, user, width, height):
-        cmd = ['/usr/bin/autorandr', '--batch', '--force', '--debug', '-l', 'common']
-        environment = os.environ.copy()
-
+    def query_output(self, user):
+        result = None
+        cmd = ['sudo', '-n', '-u', user, 'DISPLAY=:0', 'xrandr', '-q']
         try:
             p = subprocess.Popen(
                 cmd,
-                shell=True,
-                bufsize=1024,
+                shell=False,
+                bufsize=-1,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                env=environment,
                 close_fds=True
             )
 
             stdout, stderr = p.communicate()
+            stdout = stdout.decode('utf-8')
+            stderr = stderr.decode('utf-8')
+
             if p.returncode != 0:
-                self.log.error("{} was terminated by signal {}: {}".format(cmd, p.returncode, stderr))
+                self.log.error("{} was terminated by signal {}: {}".format(" ".join(cmd), p.returncode, stderr))
             else:
-                self.log.info("{} returned {}: {}".format(cmd, p.returncode, stdout))
+                self.log.debug("{} returned {}: {}".format(" ".join(cmd), p.returncode, stdout))
+
         except OSError as e:
-            self.log.error("%s execution failed: %s" % (cmd, str(e)))
-        self.log.info("configuring %s screen resolution to %sx%s is currently not supported" % (user, width, height))
+            self.log.error("%s execution failed: %s" % (" ".join(cmd), str(e)))
+
+        monitor = None
+        resulution = None
+
+        for line in [x for x in stdout.split('\n')]:
+            if " connected " in line:
+                [monitor, x1, x2, resolution, x3] = line.split(" ", 4)
+                [resolution, x_offset, y_offset] = resolution.split('+')
+                result = [monitor, resolution]
+
+        self.log.debug("Current resolution for {}: {} @ {}".format(user, monitor, resolution))
+        return result
+
+
+    def set_resolution(self, user, monitor, width, height):
+        result = False
+        cmd = ['sudo', '-n', '-u', user, 'DISPLAY=:0', 'xrandr', '--output', monitor, '--mode', str(height) + 'x' + str(width)]
+        try:
+            p = subprocess.Popen(
+                cmd,
+                shell=False,
+                bufsize=-1,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                close_fds=True
+            )
+
+            stdout, stderr = p.communicate()
+            stdout = stdout.decode('utf-8')
+            stderr = stderr.decode('utf-8')
+            result = True
+            if p.returncode != 0:
+                self.log.error("{} was terminated by signal {}: {}".format(" ".join(cmd), p.returncode, stderr))
+            else:
+                self.log.debug("{} returned {}: {}".format(" ".join(cmd), p.returncode, stdout))
+
+        except OSError as e:
+            self.log.error("%s execution failed: %s" % (" ".join(cmd), str(e)))
+
+
+    @dbus.service.method('org.gosa', in_signature='sii', out_signature='')
+    def configureUserScreen(self, user, height, width):
+        # Run command as user using sudo
+        current = self.query_output(user)
+        if current is not None:
+            [monitor, resolution] = current
+            if monitor is not None and resolution.split != str(height) + "x" + str(width):
+                if self.set_resolution(user, monitor, width, height):
+                    self.log.info("configured %s screen resolution to %sx%s: done" % (user, width, height))
+            else:
+                self.log.info("configured %s screen resolution to %sx%s: already configured" % (user, width, height))
+
 
     @dbus.service.method('org.gosa', in_signature='ss', out_signature='')
     def configureUserMenu(self, user, user_menu):
@@ -109,36 +165,32 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
                 self.__chown(script['path'], uid, gid)
                 os.chmod(script['path'], stat.S_IRUSR | stat.S_IXUSR)
 
-        environment = os.environ.copy()
-        environment['DISPLAY'] = ':0'
-
         for script in scripts:
             # Write gosaApplicationParameter values in execution environment
-            for env_entry in script['environment']:
-                environment[env_entry] = script['environment'][env_entry]
+            #for env_entry in script['environment']:
+            #    environment[env_entry] = script['environment'][env_entry]
 
             script_log = os.path.join(self.home_dir, self.local_application_scripts_log, os.path.basename(script['path']) + '.log')
             # Run command as user using sudo
-            cmd = ['sudo', '-i', '-E', '-n', '-u', user, script['path']]
+            cmd = ['sudo', '-n', '-u', user, '"DISPLAY=:0"', '-i', script['path']]
             self.log.debug("executing {script} as {user}, logging to {log}".format(script=" ".join(cmd), user=pw_ent.pw_name, log=script_log))
             try:
-                pid = os.fork()
-                if pid == 0:
-                    with open(script_log, 'w+') as logfile:
-                        p = subprocess.Popen(
-                            [cmd],
-                            shell=True,
-                            env=environment,
-                            bufsize=-1,
-                            stdout=logfile,
-                            stderr=logfile
-                        )
+                with open(script_log, 'w+') as logfile:
+                    p = subprocess.Popen(
+                        cmd,
+                        shell=True,
+                        env=environment,
+                        bufsize=-1,
+                        stdout=logfile,
+                        stderr=logfile,
+                        close_fds=True
+                    )
 
-                        returncode = p.wait()
-                        if returncode != 0:
-                            self.log.error("{} was terminated by signal {}: check {}".format(script['path'], returncode, script_log))
-                        else:
-                            self.log.info("{} returned {}".format(script['path'], returncode))
+                    returncode = p.wait()
+                    if returncode != 0:
+                        self.log.error("{} was terminated by signal {}: check {}".format(script['path'], returncode, script_log))
+                    else:
+                        self.log.info("{} returned {}".format(script['path'], returncode))
             except OSError as e:
                 self.log.error("%s execution failed: %s" % (script['path'], str(e)))
             finally:

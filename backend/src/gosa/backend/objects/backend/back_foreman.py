@@ -356,7 +356,7 @@ class ForemanClient(object):
         ev = e.Event(e.BackendException(
             e.BackendName("Foreman"),
             e.ErrorMessage(ex.message),
-            e.Operation(ex.operation)
+            e.Operation(ex.method)
         ))
         event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
         SseHandler.notify(event_object, channel=channel)
