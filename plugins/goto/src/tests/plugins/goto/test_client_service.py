@@ -165,7 +165,12 @@ class GotoClientServiceTestCase(AsyncTestCase):
                 e.Id('fake_client_uuid'),
                 e.User(e.Name('tester'))))
 
-        self.service.mqtt.simulate_message("net.example/client/fake_client_uuid", etree.tostring(info))
+        m_index = mock.MagicMock()
+        with mock.patch("gosa.plugins.goto.client_service.ObjectProxy") as mocked_proxy, \
+                mock.patch.dict(PluginRegistry.modules, {'ObjectIndex': m_index}):
+            m_index.search.side_effect = [[{"_uuid": "fake_client_uuid"}], [{"dn": 'cn=tester,dc=example,dc=net'}]]
+
+            self.service.mqtt.simulate_message("net.example/client/fake_client_uuid", etree.tostring(info))
 
         assert self.service.getUserSessions()[0] == 'fake_client_uuid'
 

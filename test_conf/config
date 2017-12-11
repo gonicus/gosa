@@ -36,6 +36,7 @@ key = FIAYj6kqb273a0UoZl4MPz1WTs8E9iHw
 
 [mqtt]
 host = localhost
+port = 1883
 
 [dbus]
 script-path = /tmp/shell.d
