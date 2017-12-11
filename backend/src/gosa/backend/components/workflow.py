@@ -42,6 +42,7 @@ class Workflow:
     env = None
     dn = None
     uuid = None
+    parent = None
     _path = None
     _xml_root = None
     __attribute_map = None
@@ -61,6 +62,7 @@ class Workflow:
         schema = etree.XMLSchema(file=resource_filename("gosa.backend", "data/workflow.xsd"))
         parser = objectify.makeparser(schema=schema)
         self.env = Environment.getInstance()
+        self.parent = self
         self.uuid = _id
         self.dn = self.env.base
         self.__xml_parsing = XmlParsing('Workflows')
@@ -408,6 +410,13 @@ class Workflow:
                                     'validators': self.__xml_parsing.build_filter(attr['Validators'])
                                 }
 
+                            blocked_by = []
+                            if "BlockedBy" in attr.__dict__:
+                                for d in attr.__dict__['BlockedBy'].iterchildren():
+                                    blocked_by.append({
+                                        'name': d.text,
+                                        'value': None if d.attrib['value'] == 'null' else d.attrib['value']})
+
                             res[attr.Name.text] = {
                                 'description': str(self._load(attr, "Description", "")),
                                 'type': attr.Type.text,
@@ -418,6 +427,7 @@ class Workflow:
                                 'is_reference_dn': bool(self._load(attr, "IsReferenceDn", False)),
                                 'case_sensitive': bool(self._load(attr, "CaseSensitive", False)),
                                 'unique': bool(self._load(attr, "Unique", False)),
+                                'blocked_by': blocked_by,
                                 'values_populate': values_populate,
                                 're_populate_on_update': re_populate_on_update,
                                 'value_inherited_from': value_inherited_from,
@@ -517,6 +527,9 @@ class Workflow:
 
         if changed is True:
             self.__update_population()
+
+    def repopulate_attribute_values(self, attribute_name):
+        self.__update_population()
 
     def __update_population(self):
         # collect current attribute values

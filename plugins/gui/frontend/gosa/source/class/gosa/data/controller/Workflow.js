@@ -152,8 +152,15 @@ qx.Class.define("gosa.data.controller.Workflow", {
     },
 
     /**
-      * @return {Array | null} List of all attributes of the object
-    */
+     * @return {gosa.ui.widgets.WorkflowWizard | null}
+     */
+    getWidget : function() {
+      return this._widget;
+    },
+
+    /**
+     * @return {Array | null} List of all attributes of the object
+     */
     getAttributes : function() {
       return qx.lang.Type.isArray(this.__workflowObject.attributes) ? this.__workflowObject.attributes : null;
     },
@@ -187,6 +194,17 @@ qx.Class.define("gosa.data.controller.Workflow", {
      */
     getExtensionController : function() {
       return null;
+    },
+
+    /**
+     * Calls the given method on the object.
+     *
+     * @param methodName {String} Name of the method
+     * @return {qx.Promise}
+     */
+    callMethod : function(methodName) {
+      qx.core.Assert.assertString(methodName);
+      return this.__workflowObject.callMethod.apply(this.__workflowObject, arguments);
     },
 
     /**

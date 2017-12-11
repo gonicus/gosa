@@ -81,6 +81,9 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       return this.__contexts;
     },
 
+    addDialog : function() {
+    },
+
     validate : function() {
       var valid = this.__contexts.every(function(context) {
         var widgetMap = context.getWidgetRegistry().getMap();

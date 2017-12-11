@@ -91,13 +91,17 @@ qx.Class.define("gosa.engine.WidgetFactory", {
           return qx.Promise.resolve(new gosa.ui.dialogs.TemplateDialog(compiledTemplate, controller, extension));
         });
       } else {
+        var splitted = name.split(".");
 
-        var clazzName = name.substring(0, 1).toUpperCase() + name.substring(1);
-        var clazz = qx.Class.getByName("gosa.ui.dialogs." + clazzName);
+        // Make class name start with an uppercase letter
+        var clazzName = splitted[splitted.length - 1];
+        clazzName = clazzName.substring(0, 1).toUpperCase() + clazzName.substring(1);
+        splitted[splitted.length - 1] = clazzName;
+        var clazz = qx.Class.getByName("gosa.ui.dialogs." + splitted.join("."));
 
         // directly known class
         if (clazz) {
-          dialog = new clazz();
+          dialog = new clazz(controller);
           dialog.setAutoDispose(true);
         }
         else {
