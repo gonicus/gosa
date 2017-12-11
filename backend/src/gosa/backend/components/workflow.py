@@ -5,6 +5,10 @@ import logging
 
 import datetime
 
+import pkg_resources
+from gosa.common.exceptions import FactoryException
+
+from gosa.backend.objects.object import Object
 from gosa.backend.objects.validator import Validator
 from gosa.backend.objects.xml_parsing import XmlParsing
 from lxml import objectify, etree
@@ -50,6 +54,8 @@ class Workflow:
     __xml_parsing = None
     __attribute_config = None  # information about attributes that shall not be in __attribute_map
     __validator = None
+    __method_map = None
+    __attribute_type = None
 
     def __init__(self, _id, what=None, user=None, session_id=None):
         schema = etree.XMLSchema(file=resource_filename("gosa.backend", "data/workflow.xsd"))
@@ -63,11 +69,22 @@ class Workflow:
         self.__user = user
         self.__session_id = session_id
         self.__log = logging.getLogger(__name__)
+        self.__attribute_type = {}
+
+        for entry in pkg_resources.iter_entry_points("gosa.object.type"):
+            mod = entry.load()
+            self.__attribute_type[mod.__alias__] = mod()
 
         self._path = self.env.config.get("core.workflow_path", "/var/lib/gosa/workflows")
         self._xml_root = objectify.parse(os.path.join(self._path, _id, "workflow.xml"), parser).getroot()
 
         self.__attribute = {key: None for key in self.get_attributes()}
+        self.__method_map = {
+            "commit": None,
+            "get_templates": None,
+            "get_translations": None,
+        }
+        self.__fill_method_map()
 
         if what is not None:
             # load object and copy attribute values to workflow
@@ -94,7 +111,7 @@ class Workflow:
         return self.get_all_method_names()
 
     def get_all_method_names(self):
-        return ["commit", "get_templates", "get_translations"]
+        return list(self.__method_map)
 
     def get_attributes(self, detail=False):
         res = self._get_attributes()
@@ -210,6 +227,141 @@ class Workflow:
 
         return attr[element]
 
+    def __fill_method_map(self):
+        from gosa.backend.objects.factory import load
+
+        class Klass(Object):
+
+            #noinspection PyMethodParameters
+            def __init__(me, *args, **kwargs): #@NoSelf
+                Object.__init__(me, *args, **kwargs)
+
+            #noinspection PyMethodParameters
+            def __setattr__(me, name, value): #@NoSelf
+                me._setattr_(name, value)
+
+            #noinspection PyMethodParameters
+            def __getattr__(me, name): #@NoSelf
+                return me._getattr_(name)
+
+            #noinspection PyMethodParameters
+            def __delattr__(me, name): #@NoSelf
+                me._delattr_(name)
+
+        for element in self._xml_root:
+            find = objectify.ObjectPath('Workflow.Methods')
+            if (find.hasattr(element)):
+                for method in find(element).iterchildren():
+                    if method.tag == "{http://www.gonicus.de/Workflows}Method":
+                        # method = attr.Command.text
+
+                        # self.__method_map[method.text] = getattr(self.__base, method)
+
+                        # Extract method information out of the xml tag
+                        method_name = method['Name'].text
+                        command = method['Command'].text
+
+                        # Get the list of method parameters
+                        m_params = []
+                        if 'MethodParameters' in method.__dict__:
+                            for param in method['MethodParameters']['MethodParameter']:
+                                p_name = param['Name'].text
+                                p_type = param['Type'].text
+
+                                p_required = bool(load(param, "Required", False))
+                                p_default = str(load(param, "Default"))
+                                m_params.append((p_name, p_type, p_required, p_default))
+
+                        # Get the list of command parameters
+                        c_params = []
+                        if 'CommandParameters' in method.__dict__:
+                            for param in method['CommandParameters']['Value']:
+                                c_params.append(param.text)
+
+                        # Append the method to the list of registered methods for this object
+                        cr = PluginRegistry.getInstance('CommandRegistry')
+                        self.__method_map[method_name] = {'ref': self.__create_class_method(
+                            Klass, method_name, command, m_params, c_params, cr.callNeedsUser(command),
+                            cr.callNeedsSession(command))}
+
+    def __create_class_method(self, klass, methodName, command, mParams, cParams, needsUser=False, needsSession=False):
+        """
+        Creates a new klass-method for the current objekt.
+        """
+
+        # Now add the method to the object
+        def funk(caller_object, *args, **kwargs):
+
+            # Load the objects actual property set
+            props = caller_object.get_attribute_values()['value']
+
+            # Convert all given parameters into named arguments
+            # The eases up things a lot.
+            cnt = 0
+            arguments = {}
+            for mParam in mParams:
+                mName, mType, mRequired, mDefault = mParam #@UnusedVariable
+                if mName in kwargs:
+                    arguments[mName] = kwargs[mName]
+                elif cnt < len(args):
+                    arguments[mName] = args[cnt]
+                elif mDefault:
+                    arguments[mName] = mDefault
+                else:
+                    raise FactoryException(C.make_error("FACTORY_PARAMETER_MISSING", command=command, parameter=mName))
+
+                # Convert value to its required type.
+                arguments[mName] = self.__attribute_type['String'].convert_to(mType, [arguments[mName]])[0]
+                cnt += 1
+
+            # Build the command-parameter list.
+            # Collect all property values of this object to be able to fill in
+            # placeholders in command-parameters later.
+            propList = {}
+            for key in props:
+                if props[key]:
+                    propList[key] = props[key]
+                else:
+                    propList[key] = None
+
+            # Add method-parameters passed to this method.
+            for entry in arguments:
+                propList[entry] = arguments[entry]
+
+            # Fill in the placeholders of the command-parameters now.
+            parmList = []
+            for value in cParams:
+                if value in propList:
+                    parmList.append(propList[value])
+                elif value in ['dn']:
+                    parmList.append(getattr(caller_object, value))
+                elif value in ['__self__']:
+                    parmList.append(caller_object.parent)
+                else:
+                    raise FactoryException(C.make_error("FACTORY_INVALID_METHOD_DEPENDS", method=command, attribute=value))
+
+            cr = PluginRegistry.getInstance('CommandRegistry')
+
+            if not needsSession and not needsUser:
+                return cr.call(command, *parmList)
+
+            # Do we need a user / session_id specification?
+            args = []
+            if needsUser:
+                args.append(caller_object._owner)
+            else:
+                args.append(cr)
+            if needsSession:
+                args.append(caller_object._session_id)
+            else:
+                args.append(None)
+
+            args.append(command)
+            args.extend(parmList)
+            return cr.dispatch(*args)
+
+        return funk
+
     def _get_attributes(self):
         if not self.__attribute_map:
             res = {}
@@ -315,6 +467,14 @@ class Workflow:
         return True
 
     def __getattr__(self, name):
+
+        # Methods
+        methods = self.__method_map
+        if name in methods:
+            def m_call(*args, **kwargs):
+                return methods[name]['ref'](self, *args, **kwargs)
+            return m_call
+
         # Valid attribute?
         if not name in self._get_attributes():
             raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))

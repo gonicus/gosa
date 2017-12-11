@@ -15,7 +15,10 @@
  */
 qx.Class.define("gosa.data.controller.ObjectEdit", {
   extend : gosa.data.controller.BaseObjectEdit,
-  implement: gosa.data.controller.IObject,
+  implement: [
+    gosa.data.controller.IObject,
+    gosa.data.controller.ITemplateDialogCreator
+  ],
 
   /**
    * @param obj {gosa.proxy.Object}

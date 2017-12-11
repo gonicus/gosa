@@ -70,7 +70,7 @@ qx.Class.define("gosa.engine.WidgetFactory", {
      * {@link gosa.ui.dialogs}. If that is not found, it looks into the transferred cache of dialog templates.
      *
      * @param name {String} Name of the dialog class/template
-     * @param controller {gosa.data.controller.ObjectEdit ? null} Optional object controller
+     * @param controller {gosa.data.controller.ITemplateDialogCreator ? null} Optional object controller
      * @param extension {String} Name of the extension that the dialog is created in
      * @return {gosa.ui.dialogs.Dialog | null} The (unopened) dialog widget
      */
@@ -78,11 +78,13 @@ qx.Class.define("gosa.engine.WidgetFactory", {
       qx.core.Assert.assertString(name);
       qx.core.Assert.assertString(extension);
       if (controller) {
-        qx.core.Assert.assertInstance(controller, gosa.data.controller.ObjectEdit);
+        qx.core.Assert.assertQxObject(controller);
+        qx.core.Assert.assertInterface(controller, gosa.data.controller.ITemplateDialogCreator);
       }
+
       var dialog = null;
       if (name.startsWith("RPC:")) {
-        return gosa.io.Rpc.getInstance().cA(name.substring(4), controller.getObjectData())
+        return gosa.io.Rpc.getInstance().cA(name.substring(4), controller ? controller.getObjectData() : null)
         .then(function(template) {
           var templateString = qx.lang.Json.stringify(template);
           var compiledTemplate = gosa.util.Template.compileTemplate(templateString);

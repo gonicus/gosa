@@ -15,7 +15,10 @@
  */
 qx.Class.define("gosa.data.controller.Workflow", {
   extend : gosa.data.controller.BaseObjectEdit,
-  implement: gosa.data.controller.IObject,
+  implement: [
+    gosa.data.controller.IObject,
+    gosa.data.controller.ITemplateDialogCreator
+  ],
 
   /**
    * @param workflowObject {gosa.proxy.Object}
@@ -44,12 +47,100 @@ qx.Class.define("gosa.data.controller.Workflow", {
      */
     __workflowObject : null,
     __backendChangeController : null,
+    __actionController : null,
 
     /**
      * @return {gosa.proxy.Object}
      */
     getObject : function() {
       return this.__workflowObject;
+    },
+
+    getObjectData: function() {
+      var data = {};
+      this.__workflowObject.attributes.forEach(function(attributeName) {
+        var arr = this.__workflowObject.get(attributeName);
+        if (arr instanceof qx.data.Array && arr.getLength() === 1) {
+          data[attributeName] = arr.getItem(0);
+        }
+      }, this);
+      return data;
+    },
+
+    addDialog : function(dialog) {
+      if (qx.core.Environment.get("qx.debug")) {
+        qx.core.Assert.assertInstance(dialog, qx.ui.window.Window);
+        qx.core.Assert.assertNotNull(this._widget);
+      }
+      this._widget.addDialog(dialog);
+    },
+
+    /**
+     * @param actionName {String}
+     * @param context {gosa.engine.Context}
+     */
+    executeAction : function(actionName, context) {
+      if (qx.core.Environment.get("qx.debug")) {
+        qx.core.Assert.assertString(actionName);
+        qx.core.Assert.assertInstance(context, gosa.engine.Context);
+      }
+
+      // create arguments for command
+      var values = {};
+      var widgetMap = context.getFreeWidgetRegistry().getMap();
+      Object.getOwnPropertyNames(widgetMap).forEach(function(key) {
+        var val = widgetMap[key].getValue();
+        values[key] = gosa.ui.widgets.Widget.getSingleValue(val);
+      });
+
+      var args = this.__createArgumentsList(actionName + "()", context);
+      args.push(qx.lang.Json.stringify(values));
+
+      // execute command
+      this.__workflowObject.callMethod.apply(this.__workflowObject, args)
+        .then(function(result) {
+          this.info(this, "Call of method '" + args[0] + "' was successful and returned '" + result + "'");
+          // apply returned values to object
+          var obj = context && !context.isDisposed() ? context.getObject() : this.__workflowObject;
+          Object.getOwnPropertyNames(result).forEach(function(attr) {
+            obj.set(attr, new qx.data.Array(result[attr]));
+          }, this);
+          return null;
+        }, this)
+        .catch(function(error) {
+          new gosa.ui.dialogs.Error(error).open();
+        });
+    },
+
+    __createArgumentsList: function(target, context) {
+      var parser = /^([^(]+)\((.*)\)$/;
+      var parsed = parser.exec(target);
+      var methodName = parsed[1];
+      var params = parsed[2];
+      var args = [];
+
+      // create argument list
+      if (qx.lang.Type.isString(params) && params !== "") {
+        params = params.split(",");
+        var paramParser = /%\(([^)]+)\)s/;
+        var paramType = /\s*['"]([^'"]+)['"]\s*/;
+
+        params.forEach(function(param) {
+          var match = paramParser.exec(param);
+          if (match) {
+            throw new Error("Cannot use property '" + match[1] + "'")
+            // var data = gosa.ui.widgets.Widget.getSingleValue(context.getActionController().getProperty(match[1]));
+            // args.push(param.replace(match[0], data));
+          } else {
+            var typeMatch = paramType.exec(param);
+            if (typeMatch) {
+              args.push(typeMatch[1]);
+            }
+          }
+        });
+      }
+      args.unshift(methodName);
+      return args;
     },
 
     /**
@@ -109,10 +200,12 @@ qx.Class.define("gosa.data.controller.Workflow", {
       var data = ev.getData();
       var widget = this.getWidgetByAttributeName(data.property);
 
-      widget.setValid(data.success);
-      data.error && widget.setError(data.error.getData());
+      if (widget) {
+        widget.setValid(data.success);
+        data.error && widget.setError(data.error.getData());
 
-      this._widget.validate();
+        this._widget.validate();
+      }
     }
   },
 
@@ -126,6 +219,7 @@ qx.Class.define("gosa.data.controller.Workflow", {
     );
 
     this._disposeObjects(
+      "__actionController",
       "__backendChangeController"
     );
 
