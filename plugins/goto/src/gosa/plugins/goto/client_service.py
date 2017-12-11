@@ -503,15 +503,13 @@ class ClientService(Plugin):
     def _handleUserSession(self, data):
         data = data.UserSession
         id = str(data.Id)
-        new_users = []
         if hasattr(data.User, 'Name'):
             users = list(map(str, data.User.Name))
             if id in self.__user_session:
                 new_users = list(set.difference(set(users), set(self.__user_session[id])))
             else:
-                # configure users
-                self.log.debug("configuring new users: %s" % users)
-                self.configureUsers(id, users)
+                # all users are new
+                new_users = users
 
             self.__user_session[id] = users
 

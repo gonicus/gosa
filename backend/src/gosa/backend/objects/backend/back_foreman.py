@@ -304,7 +304,7 @@ class ForemanClient(object):
                 raise ForemanBackendException(response, method=method_name)
             return data
         else:
-            self.log.error("%s request with %s to %s failed: %s" % (method_name, data, url, str(response)))
+            self.log.error("%s request with %s to %s failed: %s" % (method_name, data, url, str(response.content)))
             raise ForemanBackendException(response, method=method_name)
 
     def check_backend(self):

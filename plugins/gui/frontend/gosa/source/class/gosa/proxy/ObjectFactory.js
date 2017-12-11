@@ -181,8 +181,8 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
     removeObject: function(uuid) {
       return gosa.io.Rpc.getInstance().cA("removeObject", "object", uuid)
       .catch(function(error) {
-        new gosa.ui.dialogs.Error(this.tr("Cannot remove entry!")).open();
-        this.error("cannot remove entry: " + error);
+        new gosa.ui.dialogs.Error(qx.locale.Manager.tr("Cannot remove entry!")).open();
+        qx.locale.Manager.error("cannot remove entry: " + error);
       }, this);
     }
   }
