@@ -658,10 +658,12 @@ class ObjectIndex(Plugin, SessionMixin):
                 obj = ObjectProxy(dn[0])
                 self.update(obj)
 
-                now = time.time()
-                if now - self.last_notification > self.notify_every:
-                    self.notify_frontends(N_("refreshing object %s/%s" % (current, total)), round(100/total*current), step=4)
-                    self.last_notification = now
+                if GlobalLock.exists("scan_index"):
+                    now = time.time()
+                    if now - self.last_notification > self.notify_every:
+
+                        self.notify_frontends(N_("refreshing object %s/%s" % (current, total)), round(100/total*current), step=4)
+                        self.last_notification = now
 
         self.update_words(session=session)
 
@@ -1065,7 +1067,14 @@ class ObjectIndex(Plugin, SessionMixin):
                     elif key == "not_":
                         res.append(not_(*__make_filter(value, session)))
                     elif 'not_in_' in value or 'in_' in value:
-                        if hasattr(ObjectInfoIndex, key):
+                        if key == "extension":
+                            use_extension = True
+                            if 'not_in_' in value:
+                                res.append(~ExtensionIndex.extension.in_(value['not_in_']))
+                            elif 'in_' in value:
+                                res.append(ExtensionIndex.extension.in_(value['in_']))
+
+                        elif hasattr(ObjectInfoIndex, key):
                             attr = getattr(ObjectInfoIndex, key)
                             if 'not_in_' in value:
                                 res.append(~attr.in_(value['not_in_']))
@@ -1237,11 +1246,11 @@ class ObjectIndex(Plugin, SessionMixin):
         if 'limit' in options:
             q.limit(options['limit'])
 
-        # try:
-        #     self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-        # except Exception as e:
-        #     self.log.error("Error creating SQL string: %s" % str(e))
-        #     self.log.debug(str(q))
+        try:
+            self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+        except Exception as e:
+            self.log.error("Error creating SQL string: %s" % str(e))
+            self.log.debug(str(q))
 
         try:
             for o in q.all():

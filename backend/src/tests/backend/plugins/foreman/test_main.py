@@ -35,6 +35,10 @@ class MockResponse:
         self.cookies = {}
         self.url = None
 
+    @property
+    def content(self):
+        return self.json()
+
     def json(self):
         if isinstance(self.json_data, dict):
             return self.json_data

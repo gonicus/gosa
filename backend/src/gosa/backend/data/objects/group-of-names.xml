@@ -56,7 +56,7 @@
             <RightConditionChain>
               <Condition>
                 <Name>CheckExtensionConditions</Name>
-                <Param>#self#</Param>
+                <Param>__self__</Param>
               </Condition>
             </RightConditionChain>
           </ConditionOperator>

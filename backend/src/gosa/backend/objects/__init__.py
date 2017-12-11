@@ -323,8 +323,8 @@ Right now there is a very limited set of conditions available - but there will b
 
 .. hint::
 
-    You can add the object instance as parameter to the condition by using the reserved keyword ``#self#``
-    as parameter. e.g.``<Param>#self#</Param>``
+    You can add the object instance as parameter to the condition by using the reserved keyword ``__self__``
+    as parameter. e.g.``<Param>__self__</Param>``
 
 You can also define more complex validators like this (This example does not make much sense!):
 
