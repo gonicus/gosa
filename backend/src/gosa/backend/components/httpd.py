@@ -167,5 +167,5 @@ def get_server_url():
             else env.config.get("http.host", default="localhost")
         ssl = env.config.getboolean('http.ssl')
         protocol = "https" if ssl is True else "http"
-        gosa_server = "%s://%s:%s/rpc" % (protocol, host, env.config.get('http.port', default=8050))
+        gosa_server = "%s://%s:%s" % (protocol, host, env.config.get('http.port', default=8050))
     return gosa_server
