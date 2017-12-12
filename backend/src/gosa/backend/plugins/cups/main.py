@@ -10,6 +10,7 @@ import functools
 import hashlib
 import logging
 import cups
+import multiprocessing
 import os
 import tempfile
 
@@ -55,6 +56,7 @@ class CupsClient(Plugin):
     def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
+        self.lock = multiprocessing.Lock()
 
     def serve(self):
         try:
@@ -95,10 +97,11 @@ class CupsClient(Plugin):
 
     def __update_printer_list(self):
         res = {}
-        for name, ppd in self.client.getPPDs().items():
-            if ppd["ppd-make"] not in res:
-                res[ppd["ppd-make"]] = []
-            res[ppd["ppd-make"]].append({"model": ppd["ppd-make-and-model"], "ppd": name})
+        with self.lock:
+            for name, ppd in self.client.getPPDs().items():
+                if ppd["ppd-make"] not in res:
+                    res[ppd["ppd-make"]] = []
+                res[ppd["ppd-make"]].append({"model": ppd["ppd-make-and-model"], "ppd": name})
 
         self.__printer_list = res
 
