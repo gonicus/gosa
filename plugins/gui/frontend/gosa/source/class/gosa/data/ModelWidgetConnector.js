@@ -159,7 +159,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
 
       // handle values_populate
       if (config["values_populate"] && widget) {
-        this.__populateValues(widget, config["values_populate"]);
+        this.__populateValues(widget, config["values_populate"], true);
         widget.addListener("appear", function() {
           this.__populateValues(widget, config["values_populate"]);
         }, this);
@@ -188,7 +188,7 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
       }
     },
 
-    __populateValues : function(widget, rpcMethod) {
+    __populateValues : function(widget, rpcMethod, initial) {
       var data = {};
       this.__object.attributes.forEach(function(attributeName) {
         var arr = this.__object.get(attributeName);
@@ -201,12 +201,12 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
 
       // get suggested values from backend
       gosa.io.Rpc.getInstance().cA("**"+rpcMethod, data).then(function(suggestions) {
-        this.__object.setWriteAttributeUpdates(false);
+        initial || this.__object.setWriteAttributeUpdates(false);
         widget.setValues(suggestions);
         if (oldValue && suggestions.hasOwnProperty(oldValue) || qx.lang.Type.isArray(suggestions) && qx.lang.Array.contains(suggestions, oldValue)) {
           widget.setWidgetValue(0, oldValue);
         }
-        this.__object.setWriteAttributeUpdates(true);
+        initial || this.__object.setWriteAttributeUpdates(true);
       }, this);
     },
 
