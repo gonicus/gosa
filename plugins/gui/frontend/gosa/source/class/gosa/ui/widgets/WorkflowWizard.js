@@ -73,8 +73,15 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
      */
     __stepsConfig : null,
 
+    getController : function() {
+      return this.__controller;
+    },
+
     getContexts : function() {
       return this.__contexts;
+    },
+
+    addDialog : function() {
     },
 
     validate : function() {

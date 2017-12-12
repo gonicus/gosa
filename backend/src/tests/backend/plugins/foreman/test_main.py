@@ -35,6 +35,10 @@ class MockResponse:
         self.cookies = {}
         self.url = None
 
+    @property
+    def content(self):
+        return self.json()
+
     def json(self):
         if isinstance(self.json_data, dict):
             return self.json_data
@@ -91,9 +95,9 @@ class ForemanTestCase(GosaTestCase):
     foreman = None
 
     def setUp(self):
-        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.DEBUG)
-        logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
-        logging.getLogger("gosa.backend.objects").info("SET UP")
+        # logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.DEBUG)
+        # logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
+        # logging.getLogger("gosa.backend.objects").info("SET UP")
         super(ForemanTestCase, self).setUp()
         env = Environment.getInstance()
         env.config.set("foreman.host-rdn", None)
@@ -105,9 +109,9 @@ class ForemanTestCase(GosaTestCase):
         self.foreman.create_container()
 
     def tearDown(self):
-        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.INFO)
-        logging.getLogger("gosa.backend.objects").setLevel(logging.INFO)
-        logging.getLogger("gosa.backend.objects").info("tear down")
+        # logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.INFO)
+        # logging.getLogger("gosa.backend.objects").setLevel(logging.INFO)
+        # logging.getLogger("gosa.backend.objects").info("tear down")
         super(ForemanTestCase, self).tearDown()
 
     def test_add_host(self, m_get, m_del, m_put, m_post):
@@ -195,9 +199,12 @@ class ForemanSyncTestCase(GosaTestCase):
 
     def setUp(self):
         self.log = logging.getLogger(__name__)
-        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.DEBUG)
-        logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
+        # logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.DEBUG)
+        # logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
         super(ForemanSyncTestCase, self).setUp()
+        env = Environment.getInstance()
+        env.config.set("foreman.host-rdn", None)
+        env.config.set("foreman.group-rdn", None)
         self.foreman = ForemanPlugin()
         self.foreman.init_client("http://localhost:8000/api/v2")
         self.foreman.serve()
@@ -210,8 +217,8 @@ class ForemanSyncTestCase(GosaTestCase):
     def tearDown(self):
         backend = ObjectBackendRegistry.getBackend("Foreman")
         backend.client.foreman_host = None
-        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.INFO)
-        logging.getLogger("gosa.backend.objects").setLevel(logging.INFO)
+        # logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.INFO)
+        # logging.getLogger("gosa.backend.objects").setLevel(logging.INFO)
 
         # remove them all
         with mock.patch("gosa.backend.objects.backend.back_foreman.requests.delete") as m_del:

@@ -91,6 +91,9 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
       }
       return qx.Promise.all(promises)
       .spread(function(userData, _attribute_data, info) {
+
+        console.log(typeof _attribute_data.serverPPD.blocked_by[0].value);
+
         // Extract required user information out of the '__jsonclass__' result object.
         var jDefs = userData["__jsonclass__"][1];
         var uuid = jDefs[1];
@@ -182,7 +185,7 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
       return gosa.io.Rpc.getInstance().cA("removeObject", "object", uuid)
       .catch(function(error) {
         new gosa.ui.dialogs.Error(qx.locale.Manager.tr("Cannot remove entry!")).open();
-        qx.locale.Manager.error("cannot remove entry: " + error);
+        this.error("cannot remove entry: " + error);
       }, this);
     }
   }
