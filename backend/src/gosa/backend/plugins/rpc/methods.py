@@ -24,7 +24,7 @@ from zope.interface import implementer
 from gosa.common import Environment
 from gosa.common.components import Command
 from gosa.common.components import Plugin
-from gosa.common.env import SessionMixin
+from gosa.common.env import make_session
 from gosa.common.utils import N_
 from gosa.common.components import PluginRegistry
 from gosa.backend.objects import ObjectProxy
@@ -50,7 +50,7 @@ class GOsaException(Exception):
 
 
 @implementer(IInterfaceHandler)
-class RPCMethods(Plugin, SessionMixin):
+class RPCMethods(Plugin):
     """
     Key for configuration section **gosa**
 
@@ -393,7 +393,7 @@ class RPCMethods(Plugin, SessionMixin):
 
     @Command(needsUser=True, __help__=N_("Checks an object of the given type can be placed in the dn"))
     def isContainerForObjectType(self, user, container_dn, object_type):
-        with self.make_session() as session:
+        with make_session() as session:
             container_type_query = session.query(getattr(ObjectInfoIndex, "_type")).filter(
                 getattr(ObjectInfoIndex, "dn") == container_dn).one()
             container_type = container_type_query[0]
@@ -418,7 +418,7 @@ class RPCMethods(Plugin, SessionMixin):
 
         query = and_(getattr(ObjectInfoIndex, "_adjusted_parent_dn") == base, or_(*types))
 
-        with self.make_session() as session:
+        with make_session() as session:
             query_result = session.query(ObjectInfoIndex, func.count(getattr(o2, "_adjusted_parent_dn"))) \
                 .outerjoin(o2, and_(getattr(o2, "_invisible").is_(False), getattr(o2, "_adjusted_parent_dn") == getattr(ObjectInfoIndex, "dn"))) \
                 .filter(query) \
@@ -548,7 +548,7 @@ class RPCMethods(Plugin, SessionMixin):
         these = list(these.keys())
         ranked = False
 
-        with self.make_session() as session:
+        with make_session() as session:
             query_result, ranked = self.finalize_query(query, fltr, session, qstring=qstring, order_by=order_by)
 
             try:

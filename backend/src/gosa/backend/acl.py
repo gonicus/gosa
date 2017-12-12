@@ -68,7 +68,7 @@ import zope.event
 
 from zope.interface import implementer
 
-from gosa.common.env import SessionMixin
+from gosa.common.env import make_session
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.components import Command, Plugin
@@ -910,7 +910,7 @@ class CacheCheck:
 
 
 @implementer(IInterfaceHandler)
-class ACLResolver(Plugin, SessionMixin):
+class ACLResolver(Plugin):
     """
     The ACLResolver is responsible for loading, saving and resolving
     permission::
@@ -1638,8 +1638,7 @@ class ACLResolver(Plugin, SessionMixin):
         sub_bases = {}
         bases = {}
 
-        with self.make_session() as session:
-            print(session)
+        with make_session() as session:
             # Walk thru all ACL definitions and check if the current user
             # can read the base entry
             for aclset in self.acl_sets:

@@ -21,7 +21,7 @@ import logging
 import multiprocessing
 import sys
 import re
-from queue import Queue
+from multiprocessing.pool import Pool
 
 import ldap
 import sqlalchemy
@@ -31,7 +31,7 @@ from sqlalchemy_utils import TSVectorType
 
 import gosa
 from gosa.backend.utils.ldap import normalize_dn
-from gosa.common.env import SessionMixin, declarative_base
+from gosa.common.env import declarative_base, make_session
 from gosa.common.event import EventMaker
 from lxml import etree
 from lxml import objectify
@@ -144,7 +144,7 @@ class IndexScanFinished():  # pragma: nocover
 
 
 @implementer(IInterfaceHandler)
-class ObjectIndex(Plugin, SessionMixin):
+class ObjectIndex(Plugin):
     """
     The *ObjectIndex* keeps track of objects and their indexed attributes. It
     is the search engine that allows quick queries on the data set with
@@ -193,7 +193,7 @@ class ObjectIndex(Plugin, SessionMixin):
 
         self._acl_resolver = PluginRegistry.getInstance("ACLResolver")
 
-        with self.make_session() as session:
+        with make_session() as session:
 
             # create view
             try:
@@ -348,7 +348,7 @@ class ObjectIndex(Plugin, SessionMixin):
                 self._post_process_job = sched.add_date_job(self._post_process_by_timer, next_run, tag='_internal', jobstore="ram", )
 
         # Resolve dn from uuid if needed
-        with self.make_session() as session:
+        with make_session() as session:
             if not dn:
                 dn = session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == _uuid).one_or_none()
 
@@ -476,7 +476,7 @@ class ObjectIndex(Plugin, SessionMixin):
         md5s.update(schema)
         md5sum = md5s.hexdigest()
 
-        with self.make_session() as session:
+        with make_session() as session:
             stored_md5sum = session.query(Schema.hash).one_or_none()
         if stored_md5sum and stored_md5sum[0] == md5sum:
             return False
@@ -508,7 +508,6 @@ class ObjectIndex(Plugin, SessionMixin):
         updated = 0
         added = 0
         existing = 0
-        removed = 0
         index_successful = False
 
         try:
@@ -517,25 +516,20 @@ class ObjectIndex(Plugin, SessionMixin):
             t0 = time.time()
             self.last_notification = time.time()
 
-            def resolve_children(dn):
-                self.log.debug("found object '%s'" % dn)
-                res = {}
-
-                children = self.factory.getObjectChildren(dn)
-                res = {**res, **children}
-
-                for chld in children.keys():
-                    res = {**res, **resolve_children(chld)}
-                now = time.time()
-                if now - self.last_notification > self.notify_every:
-                    self.notify_frontends(N_("scanning for objects"), step=1)
-                    self.last_notification = now
-
-                return res
-
             self.log.info("scanning for objects")
             self.notify_frontends(N_("scanning for objects"), step=1)
-            res = resolve_children(self.env.base)
+            with Pool(processes=self.procs) as pool:
+                children = self.factory.getObjectChildren(self.env.base)
+                result = pool.starmap_async(resolve_children, [(dn,) for dn in children.keys()])
+                while not result.ready():
+                    self.notify_frontends(N_("scanning for objects"), step=1)
+                    self.last_notification = time.time()
+                    time.sleep(self.notify_every)
+
+                res = children
+                for r in result.get():
+                    res = {**res, **r}
+
             # count by type
             counts = {}
             for o in res.keys():
@@ -544,7 +538,7 @@ class ObjectIndex(Plugin, SessionMixin):
                 else:
                     counts[res[o]] += 1
 
-            self.log.debug("Found objects: %s" % counts)
+            self.log.info("Found objects: %s" % counts)
             res[self.env.base] = 'dummy'
 
             self.log.info("generating object index")
@@ -553,81 +547,38 @@ class ObjectIndex(Plugin, SessionMixin):
             # Find new entries
             backend_objects = []
             total = len(res)
-            current = 0
             oids = sorted(res.keys(), key=len)
-            queue = multiprocessing.JoinableQueue()
 
-            def process(self, queue, current, added, existing, updated):
-                with self.make_session() as inner_session:
-                    while True:
-                        current += 1
-                        o = queue.get()
-                        if o is None:
-                            break
+            with Pool(processes=self.procs) as pool:
+                result = pool.starmap_async(process_objects, [(oid,) for oid in oids], chunksize=1)
+                while not result.ready():
+                    now = time.time()
+                    current = total-result._number_left
+                    self.notify_frontends(N_("Processing object %s/%s" % (current, total)), round(100/total*current), step=2)
+                    self.last_notification = now
+                    time.sleep(self.notify_every)
 
-                        # Get object
-                        try:
-                            obj = ObjectProxy(o)
-
-                        except ProxyException as e:
-                            self.log.warning("not indexing %s: %s" % (o, str(e)))
-                            continue
-
-                        except ObjectException as e:
-                            self.log.warning("not indexing %s: %s" % (o, str(e)))
-                            continue
-
-                        # Check for index entry
-                        last_modified = inner_session.query(ObjectInfoIndex._last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
-
-                        # Entry is not in the database
-                        if not last_modified:
-                            added += 1
-                            self.insert(obj, True, session=inner_session)
-
-                        # Entry is in the database
-                        else:
-                            # OK: already there
-                            if obj.modifyTimestamp == last_modified[0]:
-                                self.log.debug("found up-to-date object index for %s (%s)" % (obj.uuid, obj.dn))
-                                existing += 1
-                            else:
-                                self.log.debug("updating object index for %s (%s)" % (obj.uuid, obj.dn))
-                                self.update(obj, session=inner_session)
-                                updated += 1
-
-                        backend_objects.append(obj.uuid)
-                        del obj
-
-                        now = time.time()
-                        if now - self.last_notification > self.notify_every:
-                            self.notify_frontends(N_("Processing object %s/%s" % (current, total)), round(100/total*current), step=2)
-                            self.last_notification = now
-                        queue.task_done()
-
-            jobs = []
-            for i in range(0, self.procs):
-                p = multiprocessing.Process(target=process,
-                                            args=(self, queue, current, added, existing, updated))
-                jobs.append(p)
-
-            for j in jobs:
-                j.start()
-
-            # fill the queue
-            map(queue.put, oids)
-
-            # Ensure all of the processes have finished
-            queue.join()
-            for j in jobs:
-                j.terminate()
+                for r, uuid, to_be_updated in result.get():
+                    backend_objects.append(uuid)
+                    ObjectIndex.to_be_updated.extend(to_be_updated)
+                    if r == "added":
+                        added += 1
+                    elif r == "existing":
+                        existing += 1
+                    elif r == "updated":
+                        updated += 1
 
             self.notify_frontends(N_("%s objects processed" % total), 100)
 
+            # Remove entries that are in the index, but not in any other backends
+            self.notify_frontends(N_("removing orphan objects from index"), step=3)
+            with make_session() as session:
+                removed = self.__remove_others(backend_objects, session=session)
+
             t1 = time.time()
-            self.log.info("processed %d objects in %ds" % (len(res), t1 - t0))
+            self.log.info("processed %d objects in %ds" % (total, t1 - t0))
             self.log.info("%s added, %s updated, %s removed, %s are up-to-date" % (added, updated, removed, existing))
-	    index_successful = True
+            index_successful = True
 
         except Exception as e:
             self.log.critical("building the index failed: %s" % str(e))
@@ -635,28 +586,19 @@ class ObjectIndex(Plugin, SessionMixin):
             traceback.print_exc()
 
         finally:
-	    if index_successful is True:
-		    self.post_process()
-		    self.log.info("index refresh finished")
-		    self.notify_frontends(N_("Index refresh finished"), 100)
+            if index_successful is True:
+                self.post_process()
+                self.log.info("index refresh finished")
+                self.notify_frontends(N_("Index refresh finished"), 100)
 
-		    GlobalLock.release("scan_index")
-		    zope.event.notify(IndexScanFinished())
-	    else:
-		raise IndexException("Error creating index, please restart.")
-                sys.exit(1)
+                GlobalLock.release("scan_index")
+                zope.event.notify(IndexScanFinished())
+            else:
+                raise IndexException("Error creating index, please restart.")
 
- def post_process(self, session=None):
-        if session is not None:
-            self._post_process(session)
-        else:
-            with self.make_session() as session:
-                self._post_process(session)
-
-    def _post_process(self, session=None):
+    def post_process(self):
         ObjectIndex.importing = False
         self.last_notification = time.time()
-        current = 0
         uuids = list(set(ObjectIndex.to_be_updated))
         ObjectIndex.to_be_updated = []
         total = len(uuids)
@@ -664,44 +606,19 @@ class ObjectIndex(Plugin, SessionMixin):
         # Some object may have queued themselves to be re-indexed, process them now.
         self.log.info("need to refresh index for %d objects" % total)
 
-        def process(self, queue, current):
+        dns = []
+        with make_session() as session:
+            for res in session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid.in_(uuids)).all():
+                dns.append(res[0])
 
-            with self.make_session() as inner_session:
-
-                while True:
-                    dn = queue.get()
-                    if dn is None:
-                        break
-
-                    current += 1
-                    if dn:
-                        obj = ObjectProxy(dn[0])
-                        self.update(obj, session=inner_session)
-
-                        if GlobalLock.exists("scan_index"):
-                            now = time.time()
-                            if now - self.last_notification > self.notify_every:
-                                self.notify_frontends(N_("refreshing object %s/%s" % (current, total)), round(100/total*current), step=4)
-                                self.last_notification = now
-                    queue.task_done()
-
-        with self.make_session() as session:
-            res = session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid.in_(uuids)).all()
-            queue = Queue(maxsize=len(res))
-            map(queue.put, res)
-
-        jobs = []
-        for i in range(0, self.procs):
-            p = multiprocessing.Process(target=process,
-                                        args=(self, queue, current))
-            jobs.append(p)
-
-        for j in jobs:
-            j.start()
-
-        # Ensure all of the processes have finished
-        for j in jobs:
-            j.join()
+        with Pool(processes=self.procs) as pool:
+            result = pool.starmap_async(process_objects, [(dn,) for dn in dns], chunksize=1)
+            while not result.ready():
+                now = time.time()
+                current = total-result._number_left
+                self.notify_frontends(N_("Refreshing object %s/%s" % (current, total)), round(100/total*current), step=4)
+                self.last_notification = now
+                time.sleep(self.notify_every)
 
         if len(ObjectIndex.to_be_updated):
             self._post_process()
@@ -713,7 +630,7 @@ class ObjectIndex(Plugin, SessionMixin):
 
     def update_words(self, session=None):
         if session is None:
-            with self.make_session() as session:
+            with make_session() as session:
                 self._update_words(session)
         else:
             self._update_words(session)
@@ -742,7 +659,7 @@ class ObjectIndex(Plugin, SessionMixin):
             _last_changed = datetime.datetime.now()
 
             # Try to find the affected DN
-            with self.make_session() as session:
+            with make_session() as session:
                 e = session.query(ObjectInfoIndex).filter(ObjectInfoIndex.uuid == _uuid).one_or_none()
                 if e:
 
@@ -812,7 +729,7 @@ class ObjectIndex(Plugin, SessionMixin):
         if session is not None:
             self._insert(obj, session, skip_base_check=skip_base_check)
         else:
-            with self.make_session() as session:
+            with make_session() as session:
                 self._insert(obj, session, skip_base_check=skip_base_check)
 
     def _insert(self, obj, session, skip_base_check=False):
@@ -841,7 +758,7 @@ class ObjectIndex(Plugin, SessionMixin):
         if session is not None:
             self.__session_save(data, session)
         else:
-            with self.make_session() as session:
+            with make_session() as session:
                 self.__session_save(data, session)
 
     def __session_save(self, data, session):
@@ -946,10 +863,10 @@ class ObjectIndex(Plugin, SessionMixin):
 
     def __remove_others(self, uuids, session=None):
         if session is not None:
-            self.__session_remove_others(uuids, session)
+            return self.__session_remove_others(uuids, session)
         else:
-            with self.make_session() as session:
-                self.__session_remove_others(uuids, session)
+            with make_session() as session:
+                return self.__session_remove_others(uuids, session)
 
     def __session_remove_others(self, uuids, session):
         self.log.debug("removing a bunch of objects")
@@ -957,14 +874,15 @@ class ObjectIndex(Plugin, SessionMixin):
         session.query(KeyValueIndex).filter(~KeyValueIndex.uuid.in_(uuids)).delete(synchronize_session=False)
         session.query(ExtensionIndex).filter(~ExtensionIndex.uuid.in_(uuids)).delete(synchronize_session=False)
         session.query(SearchObjectIndex).filter(~SearchObjectIndex.so_uuid.in_(uuids)).delete(synchronize_session=False)
-        session.query(ObjectInfoIndex).filter(~ObjectInfoIndex.uuid.in_(uuids)).delete(synchronize_session=False)
+        removed = session.query(ObjectInfoIndex).filter(~ObjectInfoIndex.uuid.in_(uuids)).delete(synchronize_session=False)
         session.commit()
+        return removed
 
     def remove_by_uuid(self, uuid, session=None):
         if session is not None:
             self.__remove_by_uuid(uuid, session)
         else:
-            with self.make_session() as session:
+            with make_session() as session:
                 self.__remove_by_uuid(uuid, session)
 
     def __remove_by_uuid(self, uuid, session):
@@ -981,7 +899,7 @@ class ObjectIndex(Plugin, SessionMixin):
         if session is not None:
             self.__update(obj, session)
         else:
-            with self.make_session() as session:
+            with make_session() as session:
                 self.__update(obj, session)
 
     def __update(self, obj, session):
@@ -1039,7 +957,7 @@ class ObjectIndex(Plugin, SessionMixin):
         if session is not None:
             return session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.uuid == uuid).one_or_none() is not None
         else:
-            with self.make_session() as session:
+            with make_session() as session:
                 return session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.uuid == uuid).one_or_none() is not None
 
     @Command(__help__=N_("Get list of defined base object types."))
@@ -1226,7 +1144,7 @@ class ObjectIndex(Plugin, SessionMixin):
         ``Return``: List of dicts
         """
         if session is None:
-            with self.make_session() as session:
+            with make_session() as session:
                 return self._session_search(session, query, properties, options=options)
         else:
             return self._session_search(session, query, properties, options=options)
@@ -1287,11 +1205,11 @@ class ObjectIndex(Plugin, SessionMixin):
         if 'limit' in options:
             q.limit(options['limit'])
 
-        try:
-            self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-        except Exception as e:
-            self.log.error("Error creating SQL string: %s" % str(e))
-            self.log.debug(str(q))
+        # try:
+        #     self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+        # except Exception as e:
+        #     self.log.error("Error creating SQL string: %s" % str(e))
+        #     self.log.debug(str(q))
 
         try:
             for o in q.all():
@@ -1338,3 +1256,72 @@ class ObjectIndex(Plugin, SessionMixin):
             return self._acl_resolver.check(user, topic, "r", base=object_dn)
         else:
             return True
+
+
+# needs to be top level to be picklable
+def process_objects(o):
+    res = None
+    index = PluginRegistry.getInstance("ObjectIndex")
+    with make_session() as inner_session:
+
+        if o is None:
+            return None
+
+        # Get object
+        try:
+            obj = ObjectProxy(o)
+
+        except ProxyException as e:
+            index.log.warning("not indexing %s: %s" % (o, str(e)))
+            return res, None
+
+        except ObjectException as e:
+            index.log.warning("not indexing %s: %s" % (o, str(e)))
+            return res, None
+
+        # Check for index entry
+        last_modified = inner_session.query(ObjectInfoIndex._last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
+
+        # Entry is not in the database
+        if not last_modified:
+            index.insert(obj, True, session=inner_session)
+            res = "added"
+
+        # Entry is in the database
+        else:
+            # OK: already there
+            if obj.modifyTimestamp == last_modified[0]:
+                index.log.debug("found up-to-date object index for %s (%s)" % (obj.uuid, obj.dn))
+                res = "existing"
+            else:
+                index.log.debug("updating object index for %s (%s)" % (obj.uuid, obj.dn))
+                index.update(obj, session=inner_session)
+                res = "updated"
+
+        uuid = obj.uuid
+        del obj
+        return res, uuid, ObjectIndex.to_be_updated
+
+
+def post_process(dn):
+    index = PluginRegistry.getInstance("ObjectIndex")
+    with make_session() as inner_session:
+        if dn:
+            obj = ObjectProxy(dn[0])
+            index.update(obj, session=inner_session)
+            return True
+    return False
+
+
+def resolve_children(dn):
+    index = PluginRegistry.getInstance("ObjectIndex")
+    index.log.debug("found object '%s'" % dn)
+    res = {}
+
+    children = index.factory.getObjectChildren(dn)
+    res = {**res, **children}
+
+    for chld in children.keys():
+        res = {**res, **resolve_children(chld)}
+
+    return res

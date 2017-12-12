@@ -230,7 +230,8 @@ class SessionFactory(object):
         return self._engine
 
 
-class SessionMixin(object):
+@contextmanager
+def make_session(skip_context_check=False):
     """
     Session handling for database access.
     Despite from the context this Mixin creates a new session or uses an existing one
@@ -238,39 +239,37 @@ class SessionMixin(object):
     If there exists a global context session (in tornados StackContext) this session is used
     otherwise the global connections session is used (or created if it does not exist yet)
     """
-    @contextmanager
-    def make_session(self, skip_context_check=False):
-        session = None
-        if skip_context_check is False:
-            current = SessionContext.current()
-            if current is not None:
-                session = current.session
+    session = None
+    if skip_context_check is False:
+        current = SessionContext.current()
+        if current is not None:
+            session = current.session
 
-        close_session = session is None
+    close_session = session is None
 
-        try:
-            if session is None:
-                # use the global session
-                if skip_context_check is True:
-                    # create new context session
-                    factory = Environment.getInstance().getDatabaseFactory("backend-database")
-                    if not factory:
-                        raise MissingFactoryError()
+    try:
+        if session is None:
+            # use the global session
+            if skip_context_check is True:
+                # create new context session
+                factory = Environment.getInstance().getDatabaseFactory("backend-database")
+                if not factory:
+                    raise MissingFactoryError()
 
-                    session = factory.make_session()
-                else:
-                    session = Environment.getInstance().getDatabaseSession("backend-database")
-                    close_session = False
+                session = factory.make_session()
+            else:
+                session = Environment.getInstance().getDatabaseSession("backend-database")
+                close_session = False
 
-            yield session
-        except:
-            session.rollback()
-            raise
-        else:
-            session.commit()
-        finally:
-            if close_session is True:
-                session.close()
+        yield session
+    except:
+        session.rollback()
+        raise
+    else:
+        session.commit()
+    finally:
+        if close_session is True:
+            session.close()
 
 
 def declarative_base():
