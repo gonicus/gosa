@@ -26,7 +26,7 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
    */
   construct : function(template, controller, extension, valueIndex) {
     qx.core.Assert.assertObject(template);
-    qx.core.Assert.assertInstance(controller, gosa.data.controller.ObjectEdit);
+    qx.core.Assert.assertInterface(controller, gosa.data.controller.ITemplateDialogCreator);
     qx.core.Assert.assertString(extension);
 
     this._parsedTemplate = template;
@@ -104,11 +104,11 @@ qx.Class.define("gosa.ui.dialogs.TemplateDialog",
       this.addElement(container, {flex : 1});
 
       this._context = new gosa.engine.Context(this._parsedTemplate, container, this._extension, this.getController(), this._valueIndex);
-      this.getController().handleTemporaryContext(this._context);
+      this.getController().handleTemporaryContext && this.getController().handleTemporaryContext(this._context);
     },
 
     _onClose: function() {
-      this.getController().cleanupContext(this._context);
+      this.getController().cleanupContext && this.getController().cleanupContext(this._context);
     }
   },
 
