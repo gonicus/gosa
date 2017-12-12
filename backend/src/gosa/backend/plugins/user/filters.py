@@ -15,7 +15,7 @@ from gosa.common import Environment
 from gosa.backend.objects.filter import ElementFilter
 from gosa.backend.exceptions import ElementFilterException
 from gosa.common.components import PluginRegistry
-from gosa.common.env import SessionMixin, declarative_base
+from gosa.common.env import make_session, declarative_base
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.utils import N_
 from io import BytesIO
@@ -58,7 +58,7 @@ class ImageIndex(Base):
 Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
 
 
-class ImageProcessor(ElementFilter, SessionMixin):
+class ImageProcessor(ElementFilter):
     """
     Generate a couple of pre-sized images and place them in the cache.
     """
@@ -74,7 +74,7 @@ class ImageProcessor(ElementFilter, SessionMixin):
         if len(sizes) == 0:
             raise ElementFilterException(C.make_error("USER_IMAGE_SIZE_MISSING"))
         
-        with self.make_session() as session:
+        with make_session() as session:
             # Do we have an attribute to process?
             if key in valDict:
     

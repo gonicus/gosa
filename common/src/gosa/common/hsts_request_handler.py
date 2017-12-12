@@ -11,10 +11,10 @@ from tornado.stack_context import StackContext
 from tornado.web import RequestHandler, StaticFileHandler
 
 from gosa.common import Environment
-from gosa.common.env import SessionMixin, SessionContext
+from gosa.common.env import make_session, SessionContext
 
 
-class HSTSRequestHandler(RequestHandler, SessionMixin):
+class HSTSRequestHandler(RequestHandler):
 
     def data_received(self, chunk):  # pragma: nocover
         pass
@@ -30,7 +30,7 @@ class HSTSRequestHandler(RequestHandler, SessionMixin):
             self.redirect("https://%s" % self.request.full_url()[len("http://"):], permanent=True)
 
     def _execute(self, transforms, *args, **kwargs):
-        with self.make_session(skip_context_check=True) as session:
+        with make_session(skip_context_check=True) as session:
             with StackContext(SessionContext(session)):
                 super(HSTSRequestHandler, self)._execute(transforms, *args, **kwargs)
 

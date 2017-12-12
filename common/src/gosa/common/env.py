@@ -20,6 +20,8 @@ You can import it to your own code like this::
 """
 import logging
 import platform
+
+import os
 import threading
 from decorator import contextmanager
 from sqlalchemy.engine.url import make_url
@@ -100,18 +102,19 @@ class Environment:
 
         ``Return``: database engine
         """
-        index = "%s.%s" % (section, key)
+        config_key = "%s.%s" % (section, key)
+        index = "%s:%s" % (os.getpid(), config_key)
 
         if not index in self.__db:
-            if not self.config.get(index):
+            if not self.config.get(config_key):
                 raise Exception("No database connection defined for '%s'!" % index)
-            if self.config.get(index).startswith("sqlite://"):
+            if self.config.get(config_key).startswith("sqlite://"):
                 from sqlalchemy.pool import StaticPool
-                self.__db[index] = create_engine(self.config.get(index),
+                self.__db[index] = create_engine(self.config.get(config_key),
                                                  connect_args={'check_same_thread': False},
                                                  poolclass=StaticPool, encoding="utf-8")
             else:
-                self.__db[index] = create_engine(self.config.get(index), encoding="utf-8")
+                self.__db[index] = create_engine(self.config.get(config_key), encoding="utf-8")
 
             #TODO: configure engine
             #self.__db[index] = create_engine(self.config.get(index),
@@ -132,7 +135,7 @@ class Environment:
 
         ``Return``: database session
         """
-        index = "%s.%s" % (section, key)
+        index = "%s:%s.%s" % (os.getpid(), section, key)
         sql = self.getDatabaseEngine(section, key)
         if index not in self.__db_session:
             self.__db_session[index] = scoped_session(sessionmaker(autoflush=True, bind=sql))
@@ -227,7 +230,8 @@ class SessionFactory(object):
         return self._engine
 
 
-class SessionMixin(object):
+@contextmanager
+def make_session(skip_context_check=False):
     """
     Session handling for database access.
     Despite from the context this Mixin creates a new session or uses an existing one
@@ -235,39 +239,37 @@ class SessionMixin(object):
     If there exists a global context session (in tornados StackContext) this session is used
     otherwise the global connections session is used (or created if it does not exist yet)
     """
-    @contextmanager
-    def make_session(self, skip_context_check=False):
-        session = None
-        if skip_context_check is False:
-            current = SessionContext.current()
-            if current is not None:
-                session = current.session
+    session = None
+    if skip_context_check is False:
+        current = SessionContext.current()
+        if current is not None:
+            session = current.session
 
-        close_session = session is None
+    close_session = session is None
 
-        try:
-            if session is None:
-                # use the global session
-                if skip_context_check is True:
-                    # create new context session
-                    factory = Environment.getInstance().getDatabaseFactory("backend-database")
-                    if not factory:
-                        raise MissingFactoryError()
+    try:
+        if session is None:
+            # use the global session
+            if skip_context_check is True:
+                # create new context session
+                factory = Environment.getInstance().getDatabaseFactory("backend-database")
+                if not factory:
+                    raise MissingFactoryError()
 
-                    session = factory.make_session()
-                else:
-                    session = Environment.getInstance().getDatabaseSession("backend-database")
-                    close_session = False
+                session = factory.make_session()
+            else:
+                session = Environment.getInstance().getDatabaseSession("backend-database")
+                close_session = False
 
-            yield session
-        except:
-            session.rollback()
-            raise
-        else:
-            session.commit()
-        finally:
-            if close_session is True:
-                session.close()
+        yield session
+    except:
+        session.rollback()
+        raise
+    else:
+        session.commit()
+    finally:
+        if close_session is True:
+            session.close()
 
 
 def declarative_base():
