@@ -367,6 +367,7 @@ class Workflow:
     def _get_attributes(self):
         if not self.__attribute_map:
             res = {}
+            references = {}
             for element in self._xml_root:
                 find = objectify.ObjectPath("Workflow.Attributes")
                 if find.hasattr(element):
@@ -404,6 +405,11 @@ class Workflow:
                                     "rpc": str(self._load(attr, "InheritFrom", "")),
                                     "reference_attribute": attr.__dict__['InheritFrom'].attrib['relation']
                                 }
+                                if value_inherited_from["reference_attribute"] not in references:
+                                    references[value_inherited_from["reference_attribute"]] = {}
+                                if value_inherited_from["rpc"] not in references[value_inherited_from["reference_attribute"]]:
+                                    references[value_inherited_from["reference_attribute"]][value_inherited_from["rpc"]] = []
+                                references[value_inherited_from["reference_attribute"]][value_inherited_from["rpc"]].append(attr.Name.text)
 
                             if 'Validators' in attr.__dict__:
                                 self.__attribute_config[attr.Name.text] = {
@@ -433,7 +439,8 @@ class Workflow:
                                 'value_inherited_from': value_inherited_from,
                                 'values': values
                             }
-
+                for attr, referenced_attrs in references.items():
+                    res[attr]['value_inheriting_to'] = referenced_attrs
             self.__attribute_map = res
 
         return self.__attribute_map
@@ -506,7 +513,8 @@ class Workflow:
 
         # Validate value
         # mandatory
-        attribute = self._get_attributes()[name]
+        attributes = self._get_attributes()
+        attribute = attributes[name]
         if attribute['mandatory'] and value is None:
             raise AttributeError(C.make_error('ATTRIBUTE_MANDATORY', name))
 
@@ -522,11 +530,32 @@ class Workflow:
         changed = self.__attribute[name] != value
         self.__attribute[name] = value
 
+        if changed is True:
+            self.__update_population()
+
         if attribute['is_reference_dn'] and self.__skip_refresh is False:
             self.__refresh_reference_object(value)
 
-        if changed is True:
-            self.__update_population()
+        if 'value_inheriting_to' in attribute and \
+                attribute['value_inheriting_to'] and self.__skip_refresh is False:
+            registry = PluginRegistry.getInstance("CommandRegistry")
+            inherited_change = False
+            for rpc, values in attribute['value_inheriting_to'].items():
+                res = registry.dispatch(registry, None, rpc, value)
+                for a, val in res.items():
+                    if a in values and hasattr(self, a) and getattr(self, a) != val:
+                        setattr(self, a, val)
+                        inherited_change = True
+
+            if inherited_change is True:
+                e = EventMaker()
+                ev = e.Event(e.ObjectChanged(
+                    e.UUID(self.uuid),
+                    e.ModificationTime(datetime.datetime.now().strftime("%Y%m%d%H%M%SZ")),
+                    e.ChangeType("update")
+                ))
+                event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
+                SseHandler.notify(event_object, channel="user.%s" % self.__user)
 
     def repopulate_attribute_values(self, attribute_name):
         self.__update_population()
