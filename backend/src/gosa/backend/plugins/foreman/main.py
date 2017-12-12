@@ -86,7 +86,7 @@ class Foreman(Plugin):
             self.log.warning("no foreman host configured")
         else:
             self.init_client(self.env.config.get("foreman.host"))
-            self.gosa_server = get_server_url()
+            self.gosa_server = "%s/rpc" % get_server_url()
             self.mqtt_host = None
 
             mqtt_host = self.env.config.get('mqtt.host')
