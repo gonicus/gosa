@@ -90,6 +90,10 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
 
       widget.setValue(this.__object.get(attributeName));
       widget.addListener("changeValue", function(event) {
+        if (!this.__object.getWriteAttributeUpdates()) {
+          return;
+        }
+
         this.__object.set(attributeName, event.getData());
         if (this.__widget.validate) {
           this.__widget.validate();
@@ -197,12 +201,12 @@ qx.Class.define("gosa.data.ModelWidgetConnector", {
 
       // get suggested values from backend
       gosa.io.Rpc.getInstance().cA("**"+rpcMethod, data).then(function(suggestions) {
+        this.__object.setWriteAttributeUpdates(false);
         widget.setValues(suggestions);
         if (oldValue && suggestions.hasOwnProperty(oldValue) || qx.lang.Type.isArray(suggestions) && qx.lang.Array.contains(suggestions, oldValue)) {
-          this.__object.setWriteAttributeUpdates(false);
           widget.setWidgetValue(0, oldValue);
-          this.__object.setWriteAttributeUpdates(true);
         }
+        this.__object.setWriteAttributeUpdates(true);
       }, this);
     },
 
