@@ -110,6 +110,8 @@ class CupsClient(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
 
         dir = self.env.config.get("cups.spool", default="/tmp/spool")
+        if not os.path.exists(dir):
+            return
         for file in os.listdir(dir):
             if os.path.isfile(os.path.join(dir, file)) and file.split(".")[-1:][0].lower() == "ppd":
                 ppd_file = os.path.join(dir, file)
