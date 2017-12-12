@@ -570,7 +570,7 @@ qx.Class.define("gosa.view.Tree", {
       if (searchValue && searchValue.length > 2) {
         var options = {
           shouldSort: false,
-          threshold: 0.4,
+          threshold: 0.3,
           tokenize: true,
           keys: [
             "title",

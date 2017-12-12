@@ -20,15 +20,19 @@ qx.Class.define("gosa.data.controller.Actions", {
 
   /**
    * @param object {gosa.proxy.Object}
+   * @param widget {gosa.ui.widgets.ObjectEdit}
    */
-  construct : function(object) {
+  construct : function(object, widget) {
     this.base(arguments);
     qx.core.Assert.assertInstance(object, gosa.proxy.Object);
+    qx.core.Assert.assertInstance(widget, gosa.ui.widgets.ObjectEdit);
     this.__object = object;
+    this.__widget = widget;
   },
 
   members : {
     __object : null,
+    __widget : null,
 
     // overridden
     allowMethodSelection: function() {
@@ -133,6 +137,15 @@ qx.Class.define("gosa.data.controller.Actions", {
     },
 
     /**
+     * Getter for the widget that edits the object.
+     *
+     * @return {gosa.ui.widgets.ObjectEdit}
+     */
+    getWidget : function() {
+      return this.__widget;
+    },
+
+    /**
      * Move the object to a new DN
      *
      * @param newDn {String} new dn the object should be moved to
@@ -224,5 +237,10 @@ qx.Class.define("gosa.data.controller.Actions", {
       qx.core.Assert.assertString(message);
       return this.__object.notify(subject, message);
     }
+  },
+
+  destruct : function() {
+    this.__object = null;
+    this.__widget = null;
   }
 });

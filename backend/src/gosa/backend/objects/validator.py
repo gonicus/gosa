@@ -36,7 +36,7 @@ class Validator:
             if 'condition' in curline:
 
                 # Build up argument list
-                args = [props_copy, key, value] + [self._context if x == "#self#" else x for x in curline['params']]
+                args = [props_copy, key, value] + [self._context if x == "__self__" else x for x in curline['params']]
 
                 # Process condition and keep results
                 fname = type(curline['condition']).__name__

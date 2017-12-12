@@ -155,3 +155,17 @@ class HTTPService(object):
         """
         self.log.debug("shutting down HTTP service provider")
         IOLoop.instance().stop()
+
+
+def get_server_url():
+    """ Return the public URL of this GOsa server """
+    env = Environment.getInstance()
+    gosa_server = env.config.get("jsonrpc.url")[0:-4] if env.config.get("jsonrpc.url") is not None else None
+    if gosa_server is None:
+
+        host = socket.getfqdn() if env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] \
+            else env.config.get("http.host", default="localhost")
+        ssl = env.config.getboolean('http.ssl')
+        protocol = "https" if ssl is True else "http"
+        gosa_server = "%s://%s:%s/rpc" % (protocol, host, env.config.get('http.port', default=8050))
+    return gosa_server

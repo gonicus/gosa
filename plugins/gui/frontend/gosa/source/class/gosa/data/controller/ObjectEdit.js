@@ -15,7 +15,10 @@
  */
 qx.Class.define("gosa.data.controller.ObjectEdit", {
   extend : gosa.data.controller.BaseObjectEdit,
-  implement: gosa.data.controller.IObject,
+  implement: [
+    gosa.data.controller.IObject,
+    gosa.data.controller.ITemplateDialogCreator
+  ],
 
   /**
    * @param obj {gosa.proxy.Object}
@@ -200,7 +203,7 @@ qx.Class.define("gosa.data.controller.ObjectEdit", {
      */
     getActionController : function() {
       if (!this._actionController) {
-        this._actionController =  new gosa.data.controller.Actions(this.__object);
+        this._actionController =  new gosa.data.controller.Actions(this.__object, this._widget);
       }
       return this._actionController;
     },

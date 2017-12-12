@@ -111,9 +111,18 @@ qx.Class.define("gosa.ui.widgets.QPushButtonWidget", {
             dialog = qx.Promise.resolve(dialog);
           }
           dialog.then(function(d) {
-            if (this.getActionOnClose()) {
-              var context = this._getController().getContextByExtensionName(this.getExtension());
-              d.addListenerOnce("send", context.getAfterDialogActionCallback(this.getActionOnClose()));
+            var controller = this._getController();
+
+            if (this.getActionOnClose() && controller) {
+              if (controller.getContextByExtensionName) {
+                var context = controller.getContextByExtensionName(this.getExtension());
+                d.addListenerOnce("send", context.getAfterDialogActionCallback(this.getActionOnClose()));
+              }
+              else if (controller.executeAction) {
+                d.addListenerOnce("send", function() {
+                  controller.executeAction(this.getActionOnClose(), d.getContext());
+                }, this);
+              }
             }
             d.open();
           }, this);

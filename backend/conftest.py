@@ -36,4 +36,13 @@ def use_test_config():
     Environment.noargs = True
 
     Environment.getInstance()
+    if not sys.stdout.encoding:
+        sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+    if not sys.stderr.encoding:
+        sys.stderr = codecs.getwriter('utf8')(sys.stderr)
+
+    pkg_resources.require('gosa.common==%s' % VERSION)
     main()
+    # sync index
+    index = PluginRegistry.getInstance("ObjectIndex")
+    index.sync_index()

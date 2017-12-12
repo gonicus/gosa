@@ -26,7 +26,7 @@ class WorkflowRegistryTestCase(TestCase):
         except:
             pass
         self.reg = WorkflowRegistry.get_instance()
-        self.reg.refresh()
+        self.reg.refreshWorkflows()
 
     def test_singleton(self):
         with pytest.raises(Exception):

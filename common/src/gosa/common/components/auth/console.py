@@ -33,8 +33,8 @@ class ConsoleHandler(object):
         try:
             res = self.proxy.login(username, password)
             return self.__handle_result(res)
-        except Exception:
-            print(_("Login of user '%s' failed") % self.__username)
+        except Exception as e:
+            print(_("Login of user '%s' failed: %s") % (self.__username, str(e)))
             sys.exit(1)
 
     def __handle_result(self, response):

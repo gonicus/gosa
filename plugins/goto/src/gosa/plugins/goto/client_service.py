@@ -507,14 +507,9 @@ class ClientService(Plugin):
             users = list(map(str, data.User.Name))
             if id in self.__user_session:
                 new_users = list(set.difference(set(users), set(self.__user_session[id])))
-                if len(new_users):
-                    self.log.debug("configuring new users: %s" % new_users)
-                    self.configureUsers(id, new_users)
-
             else:
-                # configure users
-                self.log.debug("configuring new users: %s" % users)
-                self.configureUsers(id, users)
+                # all users are new
+                new_users = users
 
             self.__user_session[id] = users
 
@@ -535,6 +530,11 @@ class ClientService(Plugin):
                     user.commit()
 
             self.systemSetStatus(id, "+B")
+
+            if len(new_users):
+                self.log.debug("configuring new users: %s" % new_users)
+                self.configureUsers(id, new_users)
+
         else:
             self.__user_session[id] = []
             self.systemSetStatus(id, "-B")
@@ -553,7 +553,7 @@ class ClientService(Plugin):
             if "printer-setup" in config:
                 self.configureHostPrinters(client_id, config["printer-setup"])
 
-            if "resolution" in config and len(config["resolution"]):
+            if "resolution" in config and config["resolution"] is not None and len(config["resolution"]):
                 self.log.debug("sending screen resolution: %sx%s for user %s to client %s" % (config["resolution"][0], config["resolution"][1], uid, client_id))
                 self.queuedClientDispatch(client_id, "dbus_configureUserScreen", uid, config["resolution"][0], config["resolution"][1])
 
@@ -570,6 +570,9 @@ class ClientService(Plugin):
         resolution = None
         if group is not None and group.is_extended_by("GotoEnvironment") and group.gotoXResolution is not None:
             resolution = group.gotoXResolution
+
+        if client.is_extended_by("GotoEnvironment") and client.gotoXResolution is not None:
+            resolution = client.gotoXResolution
 
         release = None
         if client.is_extended_by("GotoMenu"):
@@ -636,9 +639,16 @@ class ClientService(Plugin):
                 for p in s["printers"]:
                     if p["cn"] not in printer_names:
                         settings["printers"].append(p)
+                        printer_names.append(p["cn"])
 
                 if s["defaultPrinter"] is not None:
                     settings["defaultPrinter"] = s["defaultPrinter"]
+
+            # override group environment settings if the client has one
+            s = self.__collect_printer_settings(client)
+            if len(s["printers"]) > 0:
+                settings["printers"] = s["printers"]
+                settings["defaultPrinter"] = s["defaultPrinter"]
 
             if user.is_extended_by("GosaAccount") and user.gosaDefaultPrinter is not None:
                 # check if the users default printer is send to the client

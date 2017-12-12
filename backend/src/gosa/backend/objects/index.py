@@ -289,9 +289,7 @@ class ObjectIndex(Plugin, SessionMixin):
 
         # Schedule index sync
         if self.env.config.get("backend.index", "true").lower() == "true":
-            if hasattr(sys, '_called_from_test'):
-                self.sync_index()
-            else:
+            if not hasattr(sys, '_called_from_test'):
                 sobj = PluginRegistry.getInstance("SchedulerService")
                 sobj.getScheduler().add_date_job(self.sync_index,
                                                  datetime.datetime.now() + datetime.timedelta(seconds=1),
@@ -511,6 +509,7 @@ class ObjectIndex(Plugin, SessionMixin):
         added = 0
         existing = 0
         removed = 0
+        index_successful = False
 
         try:
             self._indexed = True
@@ -628,6 +627,7 @@ class ObjectIndex(Plugin, SessionMixin):
             t1 = time.time()
             self.log.info("processed %d objects in %ds" % (len(res), t1 - t0))
             self.log.info("%s added, %s updated, %s removed, %s are up-to-date" % (added, updated, removed, existing))
+	    index_successful = True
 
         except Exception as e:
             self.log.critical("building the index failed: %s" % str(e))
@@ -635,14 +635,25 @@ class ObjectIndex(Plugin, SessionMixin):
             traceback.print_exc()
 
         finally:
-            self.post_process()
-            self.log.info("index refresh finished")
-            self.notify_frontends(N_("Index refresh finished"), 100)
+	    if index_successful is True:
+		    self.post_process()
+		    self.log.info("index refresh finished")
+		    self.notify_frontends(N_("Index refresh finished"), 100)
 
-            GlobalLock.release("scan_index")
-            zope.event.notify(IndexScanFinished())
+		    GlobalLock.release("scan_index")
+		    zope.event.notify(IndexScanFinished())
+	    else:
+		raise IndexException("Error creating index, please restart.")
+                sys.exit(1)
 
-    def post_process(self):
+ def post_process(self, session=None):
+        if session is not None:
+            self._post_process(session)
+        else:
+            with self.make_session() as session:
+                self._post_process(session)
+
+    def _post_process(self, session=None):
         ObjectIndex.importing = False
         self.last_notification = time.time()
         current = 0
@@ -667,10 +678,11 @@ class ObjectIndex(Plugin, SessionMixin):
                         obj = ObjectProxy(dn[0])
                         self.update(obj, session=inner_session)
 
-                        now = time.time()
-                        if now - self.last_notification > self.notify_every:
-                            self.notify_frontends(N_("refreshing object %s/%s" % (current, total)), round(100/total*current), step=4)
-                            self.last_notification = now
+                        if GlobalLock.exists("scan_index"):
+                            now = time.time()
+                            if now - self.last_notification > self.notify_every:
+                                self.notify_frontends(N_("refreshing object %s/%s" % (current, total)), round(100/total*current), step=4)
+                                self.last_notification = now
                     queue.task_done()
 
         with self.make_session() as session:
@@ -694,7 +706,7 @@ class ObjectIndex(Plugin, SessionMixin):
         if len(ObjectIndex.to_be_updated):
             self._post_process()
 
-        self.update_words()
+        self.update_words(session=session)
 
     def index_active(self):  # pragma: nocover
         return self._indexed
@@ -1096,7 +1108,14 @@ class ObjectIndex(Plugin, SessionMixin):
                     elif key == "not_":
                         res.append(not_(*__make_filter(value, session)))
                     elif 'not_in_' in value or 'in_' in value:
-                        if hasattr(ObjectInfoIndex, key):
+                        if key == "extension":
+                            use_extension = True
+                            if 'not_in_' in value:
+                                res.append(~ExtensionIndex.extension.in_(value['not_in_']))
+                            elif 'in_' in value:
+                                res.append(ExtensionIndex.extension.in_(value['in_']))
+
+                        elif hasattr(ObjectInfoIndex, key):
                             attr = getattr(ObjectInfoIndex, key)
                             if 'not_in_' in value:
                                 res.append(~attr.in_(value['not_in_']))
@@ -1268,11 +1287,11 @@ class ObjectIndex(Plugin, SessionMixin):
         if 'limit' in options:
             q.limit(options['limit'])
 
-        # try:
-        #     self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-        # except Exception as e:
-        #     self.log.error("Error creating SQL string: %s" % str(e))
-        #     self.log.debug(str(q))
+        try:
+            self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+        except Exception as e:
+            self.log.error("Error creating SQL string: %s" % str(e))
+            self.log.debug(str(q))
 
         try:
             for o in q.all():

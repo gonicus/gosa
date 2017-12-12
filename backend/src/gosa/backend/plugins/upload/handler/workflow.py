@@ -51,7 +51,7 @@ class WorkflowUploadHandler(IUploadFileHandler):
                         target = os.path.join(env.config.get("core.workflow_path", "/var/lib/gosa/workflows"), id)
                         workflow_zip.extractall(target)
 
-                        WorkflowRegistry.get_instance().refresh()
+                        WorkflowRegistry.get_instance().refreshWorkflows()
 
                         # send the event to the clients
                         e = EventMaker()

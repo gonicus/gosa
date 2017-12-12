@@ -25,7 +25,6 @@ qx.Class.define("gosa.ui.dialogs.actions.Base", {
    */
   construct: function(actionController, caption, icon) {
     this.base(arguments, caption, icon);
-    qx.core.Assert.assertInterface(actionController, gosa.data.controller.IAction);
     this._actionController = actionController;
   },
 
