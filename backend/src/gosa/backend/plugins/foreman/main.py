@@ -421,8 +421,6 @@ class Foreman(Plugin):
     @Command(__help__=N_("Get available foreman hostgroups."))
     def getForemanHostgroups(self, *args):
         path = "hostgroups"
-        if len(args) and "hostgroup_id" in args[0] and args[0]["hostgroup_id"] is not None:
-            path += "/%s" % args[0]["hostgroup_id"]
         return self.__get_hostgroup_key_values(path)
 
     @cache_return(timeout_secs=60)
