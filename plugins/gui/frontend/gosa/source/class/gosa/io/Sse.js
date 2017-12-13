@@ -102,7 +102,7 @@ qx.Class.define("gosa.io.Sse", {
         var error = qx.locale.Manager.tr("%1 operation failed", message.Operation)+" "+message.ErrorMessage;
         // create error dialog to inform user
         var dialog = new gosa.ui.dialogs.Error(error, title);
-        this.log.error(title+": "+error);
+        this.error(title+": "+error);
         dialog.open();
       }.bind(this), false);
 

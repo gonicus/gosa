@@ -168,7 +168,7 @@ class ObjectIndex(Plugin):
     notify_every = 1
     __value_extender = None
 
-    procs = max(1, multiprocessing.cpu_count() - 2)
+    procs = multiprocessing.cpu_count()
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -508,12 +508,12 @@ class ObjectIndex(Plugin):
         updated = 0
         added = 0
         existing = 0
+        total = 0
         index_successful = False
-
+        t0 = time.time()
         try:
             self._indexed = True
 
-            t0 = time.time()
             self.last_notification = time.time()
 
             self.log.info("scanning for objects")
@@ -575,8 +575,6 @@ class ObjectIndex(Plugin):
             with make_session() as session:
                 removed = self.__remove_others(backend_objects, session=session)
 
-            t1 = time.time()
-            self.log.info("processed %d objects in %ds" % (total, t1 - t0))
             self.log.info("%s added, %s updated, %s removed, %s are up-to-date" % (added, updated, removed, existing))
             index_successful = True
 
@@ -592,6 +590,8 @@ class ObjectIndex(Plugin):
                 self.notify_frontends(N_("Index refresh finished"), 100)
 
                 GlobalLock.release("scan_index")
+                t1 = time.time()
+                self.log.info("processed %d objects in %ds" % (total, t1 - t0))
                 zope.event.notify(IndexScanFinished())
             else:
                 raise IndexException("Error creating index, please restart.")
@@ -1265,7 +1265,7 @@ def process_objects(o):
     with make_session() as inner_session:
 
         if o is None:
-            return None
+            return None, None, ObjectIndex.to_be_updated
 
         # Get object
         try:
@@ -1273,11 +1273,11 @@ def process_objects(o):
 
         except ProxyException as e:
             index.log.warning("not indexing %s: %s" % (o, str(e)))
-            return res, None
+            return res, None, ObjectIndex.to_be_updated
 
         except ObjectException as e:
             index.log.warning("not indexing %s: %s" % (o, str(e)))
-            return res, None
+            return res, None, ObjectIndex.to_be_updated
 
         # Check for index entry
         last_modified = inner_session.query(ObjectInfoIndex._last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
