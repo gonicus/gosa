@@ -40,7 +40,7 @@ class UserFiltersTestCase(TestCase):
                 mock.patch("gosa.backend.plugins.user.filters.os.path.isdir", return_value=True), \
                 mock.patch("gosa.backend.plugins.user.filters.ImageOps.fit", return_value=tmp_image):
             filter = ImageProcessor(None)
-            with mock.patch.object(filter, "make_session") as m:
+            with mock.patch("gosa.backend.plugins.user.filters.make_session") as m:
                 mocked_db_query = m.return_value.__enter__.return_value.query.return_value.filter.return_value.one_or_none
                 mocked_db_query.side_effect = OperationalError(None, None, None)
 
@@ -61,10 +61,10 @@ class UserFiltersTestCase(TestCase):
         with pytest.raises(ElementFilterException), \
                 mock.patch("gosa.backend.plugins.user.filters.os.path.exists", return_value=True),\
                 mock.patch("gosa.backend.plugins.user.filters.os.path.isdir", return_value=False), \
-                mock.patch.object(filter, "make_session"):
+                mock.patch("gosa.backend.plugins.user.filters.make_session"):
             filter.process(user, "image", test_dict, "32", "64")
 
-        with mock.patch.object(filter, "make_session") as m:
+        with mock.patch("gosa.backend.plugins.user.filters.make_session") as m:
             m_session = m.return_value.__enter__.return_value
             m_session.query.return_value.filter.return_value.one_or_none.return_value = None
             filter.process(user, "image", test_dict, "32", "64")
@@ -77,7 +77,7 @@ class UserFiltersTestCase(TestCase):
 
         found = mock.MagicMock()
         found.filter.return_value.one_or_none.return_value.modified = user.modifyTimestamp
-        with mock.patch.object(filter, "make_session") as m:
+        with mock.patch("gosa.backend.plugins.user.filters.make_session") as m:
             m_session = m.return_value.__enter__.return_value
             m_session.query.return_value = found
             filter.process(user, "image", test_dict, "32", "64")
@@ -88,7 +88,7 @@ class UserFiltersTestCase(TestCase):
 
             filter.process(user, "image", {'image': {'value': [Binary(b"wrong binary data")]}}, "32", "64")
 
-        with mock.patch.object(filter, "make_session") as m:
+        with mock.patch("gosa.backend.plugins.user.filters.make_session") as m:
             m_session = m.return_value.__enter__.return_value
             m_session.query.return_value.filter.return_value.one_or_none.return_value = None
             filter.process(user, "image", {'image': {'value': [Binary(b"wrong binary data")]}}, "32", "64")

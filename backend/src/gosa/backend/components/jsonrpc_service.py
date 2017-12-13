@@ -23,7 +23,7 @@ import logging
 import tornado.web
 import time
 from gosa.common.hsts_request_handler import HSTSRequestHandler
-from tornado.gen import coroutine
+from tornado.gen import coroutine, is_future
 from gosa.common.gjson import loads, dumps
 from gosa.common.utils import f_print, N_
 from gosa.common.error import GosaErrorHandler as C
@@ -98,7 +98,7 @@ class JsonRpcHandler(HSTSRequestHandler):
             self.finish(dumps(dict(result=None, error=error, id=None)))
             raise e
         else:
-            if isinstance(resp['result'], Future):
+            if is_future(resp['result']):
                 resp['result'] = yield resp['result']
 
             self.write(dumps(resp))
