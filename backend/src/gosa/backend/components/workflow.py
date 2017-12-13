@@ -4,6 +4,7 @@ import sys
 import logging
 
 import datetime
+from threading import Thread
 
 import pkg_resources
 from tornado import gen
@@ -188,7 +189,8 @@ class Workflow:
     def commit(self):
         self.check()
         with open(os.path.join(self._path, self.uuid, "workflow.py"), "r") as fscr:
-            return self._execute_embedded_script(fscr.read())
+            thread = Thread(target=self._execute_embedded_script, args=(fscr.read(), ))
+            thread.start()
 
     def get_id(self):
         find = objectify.ObjectPath("Workflow.Id")
@@ -447,7 +449,6 @@ class Workflow:
 
         return self.__attribute_map
 
-    @gen.coroutine
     def _execute_embedded_script(self, script):
         try:
             log = logging.getLogger("%s.%s" % (__name__, self.uuid))
@@ -467,7 +468,7 @@ class Workflow:
             # add logger
             env['log'] = log
 
-            yield gen.coroutine(exec)(script, env)
+            exec(script, env)
 
             log.info("finished executing workflow script")
 
@@ -479,10 +480,11 @@ class Workflow:
             print(fname, "line", exc_tb.tb_lineno)
             print(exc_type)
             print(exc_obj)
+
             if GosaErrorHandler.get_error_id(str(e)) is not None:
-                raise e
+                SseHandler.error_notify_user("Workflow error", e, user=self.__user)
             else:
-                raise ScriptError(C.make_error('WORKFLOW_SCRIPT_ERROR', e))
+                SseHandler.error_notify_user("Workflow error", ScriptError(C.make_error('WORKFLOW_SCRIPT_ERROR', e)), user=self.__user)
 
         return True
 

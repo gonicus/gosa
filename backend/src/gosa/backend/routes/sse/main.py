@@ -11,7 +11,9 @@ import uuid
 import time
 import hashlib
 import logging
+from lxml import objectify, etree
 
+from gosa.common.event import EventMaker
 from gosa.common.utils import stripNs, N_
 from gosa.common.gjson import dumps
 from gosa.common.hsts_request_handler import HSTSRequestHandler
@@ -265,3 +267,21 @@ class SseHandler(HSTSRequestHandler):
     def on_message(self, message):
         self.write(message)
         self.flush()
+
+    @classmethod
+    def error_notify_user(cls, prefix, ex, user=None):
+        if user is not None:
+            channel = "user.%s" % user
+        else:
+            channel = "broadcast"
+        logging.getLogger(__name__).error("%s: %s" % (prefix, str(ex)))
+        # report to clients
+        e = EventMaker()
+        ev = e.Event(e.BackendException(
+            e.BackendName("Foreman"),
+            e.ErrorMessage(ex.message),
+            e.Operation(ex.method)
+        ))
+        event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
+        SseHandler.notify(event_object, channel=channel)
+
