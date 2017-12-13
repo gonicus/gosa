@@ -349,20 +349,7 @@ class ForemanClient(object):
 
     @classmethod
     def error_notify_user(cls, ex, user=None):
-        if user is not None:
-            channel = "user.%s" % user
-        else:
-            channel = "broadcast"
-        logging.getLogger(__name__).error("Foreman backend error: %s" % str(ex))
-        # report to clients
-        e = EventMaker()
-        ev = e.Event(e.BackendException(
-            e.BackendName("Foreman"),
-            e.ErrorMessage(ex.message),
-            e.Operation(ex.method)
-        ))
-        event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
-        SseHandler.notify(event_object, channel=channel)
+        SseHandler.error_notify_user("Foreman backend error", ex, user=user)
 
 
 class ForemanBackendException(ObjectException):
