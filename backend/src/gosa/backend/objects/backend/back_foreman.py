@@ -349,7 +349,10 @@ class ForemanClient(object):
 
     @classmethod
     def error_notify_user(cls, ex, user=None):
-        channel = "user.%s" if user is not None else "broadcast"
+        if user is not None:
+            channel = "user.%s" % user
+        else:
+            channel = "broadcast"
         logging.getLogger(__name__).error("Foreman backend error: %s" % str(ex))
         # report to clients
         e = EventMaker()
@@ -381,7 +384,7 @@ class ForemanBackendException(ObjectException):
                     if "message" in data["error"]:
                         self.message = C.make_error('FOREMAN_COMMUNICATION_ERROR', data["error"]["message"])
                     else:
-                        self.message = ", ".join(data["error"]["errors"]) if "errors" in data["error"] else str(data["error"])
+                        self.message = ", ".join(data["error"]["full_messages"]) if "full_messages" in data["error"] else str(data["error"])
                 else:
                     self.message = C.make_error('FOREMAN_COMMUNICATION_ERROR', response.status_code)
 
