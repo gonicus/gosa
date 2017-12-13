@@ -17,6 +17,7 @@ import zope
 import socket
 
 from sqlalchemy import and_
+from tornado import gen
 
 from gosa.backend.components.httpd import get_server_url
 from gosa.backend.objects import ObjectProxy, ObjectFactory
@@ -596,6 +597,7 @@ class Foreman(Plugin):
             self.__acl_resolver = PluginRegistry.getInstance("ACLResolver")
         return self.__acl_resolver
 
+    @gen.coroutine
     def add_host(self, hostname, base=None):
 
         # create dn
@@ -763,6 +765,7 @@ class ForemanRealmReceiver(object):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
+    @gen.coroutine
     def handle_request(self, request_handler):
         foreman = PluginRegistry.getInstance("Foreman")
         self.log.debug(request_handler.request.body)
@@ -780,7 +783,7 @@ class ForemanRealmReceiver(object):
         if data['action'] == "create":
             # new client -> join it
             try:
-                key = foreman.add_host(data['hostname'])
+                key = yield foreman.add_host(data['hostname'])
 
                 # send key as otp to foremans realm proxy
                 request_handler.finish(dumps({
