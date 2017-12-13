@@ -6,6 +6,8 @@ import logging
 import datetime
 
 import pkg_resources
+from tornado import gen
+
 from gosa.common.exceptions import FactoryException
 
 from gosa.backend.objects.object import Object
@@ -445,6 +447,7 @@ class Workflow:
 
         return self.__attribute_map
 
+    @gen.coroutine
     def _execute_embedded_script(self, script):
         try:
             log = logging.getLogger("%s.%s" % (__name__, self.uuid))
@@ -464,7 +467,7 @@ class Workflow:
             # add logger
             env['log'] = log
 
-            exec(script, env)
+            yield gen.coroutine(exec)(script, env)
 
             log.info("finished executing workflow script")
 
