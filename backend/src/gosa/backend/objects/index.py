@@ -1265,7 +1265,7 @@ def process_objects(o):
     with make_session() as inner_session:
 
         if o is None:
-            return None
+            return None, None, ObjectIndex.to_be_updated
 
         # Get object
         try:
@@ -1273,11 +1273,11 @@ def process_objects(o):
 
         except ProxyException as e:
             index.log.warning("not indexing %s: %s" % (o, str(e)))
-            return res, None
+            return res, None, ObjectIndex.to_be_updated
 
         except ObjectException as e:
             index.log.warning("not indexing %s: %s" % (o, str(e)))
-            return res, None
+            return res, None, ObjectIndex.to_be_updated
 
         # Check for index entry
         last_modified = inner_session.query(ObjectInfoIndex._last_modified).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
