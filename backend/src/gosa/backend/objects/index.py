@@ -697,10 +697,8 @@ class ObjectIndex(Plugin):
 
                 if event.reason in ["post object update"]:
                     self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
-                    if not event.dn:
-                        dn = session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == _uuid).one_or_none()
-                        if dn:
-                            event.dn = dn
+                    if not event.dn and _dn != "not known yet":
+                        event.dn = _dn
 
                     obj = ObjectProxy(event.dn)
                     self.update(obj, session=session)
