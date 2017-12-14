@@ -568,7 +568,7 @@ class ObjectIndex(Plugin):
                     elif r == "updated":
                         updated += 1
 
-            self.notify_frontends(N_("%s objects processed" % total), 100)
+            self.notify_frontends(N_("%s objects processed" % total), 100, step=2)
 
             # Remove entries that are in the index, but not in any other backends
             self.notify_frontends(N_("removing orphan objects from index"), step=3)
@@ -587,7 +587,7 @@ class ObjectIndex(Plugin):
             if index_successful is True:
                 self.post_process()
                 self.log.info("index refresh finished")
-                self.notify_frontends(N_("Index refresh finished"), 100)
+                self.notify_frontends(N_("Index refresh finished"), 100, step=4)
 
                 GlobalLock.release("scan_index")
                 t1 = time.time()
@@ -606,13 +606,13 @@ class ObjectIndex(Plugin):
         # Some object may have queued themselves to be re-indexed, process them now.
         self.log.info("need to refresh index for %d objects" % total)
 
-        dns = []
-        with make_session() as session:
-            for res in session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid.in_(uuids)).all():
-                dns.append(res[0])
+        # dns = []
+        # with make_session() as session:
+        #     for res in session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid.in_(uuids)).all():
+        #         dns.append(res[0])
 
         with Pool(processes=self.procs) as pool:
-            result = pool.starmap_async(process_objects, [(dn,) for dn in dns], chunksize=1)
+            result = pool.starmap_async(post_process, [(uuid,) for uuid in uuids], chunksize=1)
             while not result.ready():
                 now = time.time()
                 current = total-result._number_left
@@ -621,9 +621,9 @@ class ObjectIndex(Plugin):
                 time.sleep(self.notify_every)
 
         if len(ObjectIndex.to_be_updated):
-            self._post_process()
+            self.post_process()
 
-        self.update_words(session=session)
+        self.update_words()
 
     def index_active(self):  # pragma: nocover
         return self._indexed
@@ -1301,11 +1301,11 @@ def process_objects(o):
         return res, uuid, ObjectIndex.to_be_updated
 
 
-def post_process(dn):
+def post_process(uuid):
     index = PluginRegistry.getInstance("ObjectIndex")
     with make_session() as inner_session:
-        if dn:
-            obj = ObjectProxy(dn[0])
+        if uuid:
+            obj = ObjectProxy(uuid)
             index.update(obj, session=inner_session)
             return True
     return False
