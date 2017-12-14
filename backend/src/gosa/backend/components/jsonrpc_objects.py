@@ -248,6 +248,8 @@ class JSONRPCObjectMapper(Plugin):
 
             oid = item['object']['oid']
             uuid = item['object']['uuid']
+            if uuid is None:
+                uuid = item['object']['object'].uuid
             session_id = item['session_id']
             new_item = self.openObject(user, session_id, oid, uuid)
 
