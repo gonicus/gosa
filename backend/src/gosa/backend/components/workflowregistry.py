@@ -6,6 +6,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import logging
 import os
 import shutil
 
@@ -25,7 +26,8 @@ C.register_codes(dict(
     WORKFLOW_DIR_ERROR=N_("Workflow directory '%(path)s' does not exist"),
     WORKFLOW_PERMISSION_DELETE=N_("No permission to delete workflow '%(id)s'"),
     WORKFLOW_DELETE_ERROR=N_("Error removing workflow '%(id)s': %(error)s"),
-    WORKFLOW_NOT_FOUND=N_("Workflow '%(id)s' does not exist")
+    WORKFLOW_NOT_FOUND=N_("Workflow '%(id)s' does not exist"),
+    WORKFLOW_DIR_CREATION_ERROR=N_("Error creating workflow directory '%(path)s': %(error)s")
 ))
 
 
@@ -48,7 +50,16 @@ class WorkflowRegistry(Plugin):
 
     def __init__(self):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
         self.__path = self.env.config.get("core.workflow_path", "/var/lib/gosa/workflows")
+
+        if not os.path.exists(self.__path):
+            # try to create dir
+            try:
+                os.mkdir(self.__path)
+            except Exception as e:
+                self.log.error(str(e))
+                raise WorkflowException(C.make_error('WORKFLOW_DIR_CREATION_ERROR', path=self.__path, error=str(e)))
 
         if not os.path.exists(self.__path) or not os.path.isdir(self.__path):
             raise WorkflowException(C.make_error('WORKFLOW_DIR_ERROR', path=self.__path))
