@@ -99,7 +99,7 @@ qx.Class.define("gosa.io.Sse", {
         this.fireDataEvent("workflowUpdate", message);
       }.bind(this), false);
 
-      this.__eventSource.addEventListener("backendDone", function (e) {
+      this.__eventSource.addEventListener("BackendDone", function (e) {
         var message = qx.lang.Json.parse(e.data);
         this._handleBackendDoneEvent(message);
       }.bind(this), false);
@@ -213,12 +213,12 @@ qx.Class.define("gosa.io.Sse", {
 
     _handleBackendDoneEvent: function(message) {
       if (message) {
-        var id = message.UUID+"|"+message.type;
+        var id = message.UUID+"|"+message.Type;
         if (this.__backendDoneListeners.hasOwnProperty(id)) {
           var listeners = this.__backendDoneListeners[id].slice(0);
           delete this.__backendDoneListeners[id];
           listeners.forEach(function(entry) {
-            entry.cb.apply(entry.co, message);
+            entry.cb.call(entry.co, message);
           });
         }
       }

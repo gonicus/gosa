@@ -166,36 +166,49 @@ qx.Class.define("gosa.data.controller.Workflow", {
     },
 
     saveAndClose : function() {
-      this.__workflowObject.commit().catch(gosa.ui.dialogs.Error.show, this).then(function() {
-        // listen to the BackendDone event
-        var workflow = this.getObject();
-        return new qx.Promise(function(resolve, reject) {
-          var timer = qx.event.Timer.once(function() {
-            reject(qx.locale.Manager.tr("Timout waiting for workflow execution"));
-          }, this, 5000);
-          gosa.io.Sse.getInstance().addBackendDoneListener(workflow.uuid, "workflow", function(message) {
-            if (!timer.isDisposed() && timer.isEnabled()) {
-              timer.stop();
-              timer.dispose();
-            }
-            switch (message.State) {
-              case "success":
-                resolve(message.Message);
-                break;
-              case "error":
-                reject(message.Message);
-                break;
-              case "aborted":
-                reject(message.Message);
-                break;
-            }
+      return new qx.Promise(function(res, rej) {
+        this.__workflowObject.commit().catch(gosa.ui.dialogs.Error.show, this).then(function() {
+          // listen to the BackendDone event
+          var workflow = this.getObject();
+          return new qx.Promise(function(resolve, reject) {
+            var timer = qx.event.Timer.once(function() {
+              reject(new Error(qx.locale.Manager.tr("Timout waiting for workflow execution")));
+            }, this, 60000);
+            gosa.io.Sse.getInstance().addBackendDoneListener(workflow.uuid, "workflow", function(message) {
+              if (!timer.isDisposed() && timer.isEnabled()) {
+                timer.stop();
+                timer.dispose();
+              }
+              switch (message.State) {
+                case "success":
+                  resolve(message.Message);
+                  break;
+                case "error":
+                  var match = message.Message.match(/<([a-zA-Z0-9\-_ ]*)>[ ]*(.*)$/);
+
+                  if (match) {
+                    var error = {field: match[1], message: match[2]};
+                    gosa.io.Rpc.resolveError(error).catch(reject).then(reject);
+                  } else {
+                    reject(new Error(message.Message));
+                  }
+                  break;
+                case "aborted":
+                  reject(new Error(message.Message));
+                  break;
+              }
+            }, this);
           }, this);
-        }, this);
-      }, this)
-        .then(function() {
-          this.close();
-        })
-        .catch(gosa.ui.dialogs.Error.show, this);
+        }, this)
+          .then(function() {
+            res();
+            this.close();
+          })
+          .catch(function(err) {
+            gosa.ui.dialogs.Error.show(err);
+            rej(err);
+          }, this);
+      }, this);
     },
 
     close : function() {
