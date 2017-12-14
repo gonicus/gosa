@@ -738,7 +738,7 @@ class ACLResolverTestCase(TestCase):
         res = self.resolver.getEntryPoints('admin')
         assert base in res
 
-        with mock.patch.object(self.resolver, "make_session") as m_session, \
+        with mock.patch("gosa.backend.acl.make_session") as m_session, \
                 pytest.raises(ACLException):
             m_session.return_value.__enter__.return_value.query.return_value.filter.return_value.one_or_none.return_value = None
             self.resolver.getEntryPoints('admin')

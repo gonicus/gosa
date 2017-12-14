@@ -230,7 +230,7 @@ class ObjectIndexTestCase(TestCase):
         with mock.patch("gosa.backend.objects.index.ObjectIndex.isSchemaUpdated", return_value=True):
             index = ObjectIndex()
 
-            with mock.patch.object(index, "make_session") as m,\
+            with mock.patch("gosa.backend.objects.index.make_session") as m,\
                     mock.patch.object(index.env.config, "getboolean", return_value=True):
                 m_session = m.return_value.__enter__.return_value
                 m_session.query.return_value.one_or_none.return_value = None
