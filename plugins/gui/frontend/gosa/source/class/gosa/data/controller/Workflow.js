@@ -203,7 +203,7 @@ qx.Class.define("gosa.data.controller.Workflow", {
           .then(function() {
             res();
             this.close();
-          })
+          }, this)
           .catch(function(err) {
             gosa.ui.dialogs.Error.show(err);
             rej(err);
