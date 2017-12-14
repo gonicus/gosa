@@ -86,20 +86,28 @@ class ObjectWithPropertyExists(ElementComparator):
     def process(self, all_props, key, value, objectType, attribute, comp=None):
         errors = []
         index = PluginRegistry.getInstance("ObjectIndex")
+        factory = ObjectFactory.getInstance()
+        query = {attribute: ""}
+        if factory.isBaseType(objectType):
+            query["_type"] = objectType
+        else:
+            query["extension"] = objectType
+
         for val in value:
+            if val in all_props[key]['value']:
+                # do not check existing values
+                continue
             if attribute == "dn" and val in [x.dn for x in index.currently_in_creation]:
                 # this object has been created but is not in the DB yet
                 continue
 
-            query = {'or_': {'_type': objectType, 'extension': objectType}, attribute: val}
+            query[attribute] = val
             if not len(index.search(query, {'dn': 1})):
-                query = {'_type': objectType, attribute: val}
-                if not len(index.search(query, {'dn': 1})):
-                    errors.append(dict(index=value.index(val),
-                        detail=N_("no '%(type)s' object with '%(attribute)s' property matching '%(value)s' found"),
-                        type=objectType,
-                        attribute=attribute,
-                        value=val))
+                errors.append(dict(index=value.index(val),
+                                   detail=N_("no '%(type)s' object with '%(attribute)s' property matching '%(value)s' found"),
+                                   type=objectType,
+                                   attribute=attribute,
+                                   value=val))
 
         return len(errors) == 0, errors
 
