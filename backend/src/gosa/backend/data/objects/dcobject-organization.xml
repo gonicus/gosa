@@ -74,7 +74,7 @@
         <Keyword>Domain</Keyword>
         <Keyword>Component</Keyword>
         <Search>dc</Search>
-        <Resolve filter="DN">manager</Resolve>
+        <Resolve filter="dn">manager</Resolve>
         <Result>
           <Map>
             <Source>dc</Source>

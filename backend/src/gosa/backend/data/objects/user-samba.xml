@@ -891,7 +891,7 @@
                 <Tag>User</Tag>
                 <Keyword>Samba</Keyword>
                 <Search>sambaSID</Search>
-                <Resolve filter="DN">manager</Resolve>
+                <Resolve filter="dn">manager</Resolve>
                 <Result>
                     <Map>
                         <Source>sambaSID</Source>

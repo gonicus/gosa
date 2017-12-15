@@ -592,6 +592,7 @@ class RPCMethods(Plugin):
             self.log.debug("Query: %s Keywords: %s, Filter: %s => %s results" % (qstring, keywords, fltr, total))
 
             squery_constraints = {}
+            primary_uuids = []
             for tuple in query_result:
                 if ranked is True:
                     item = tuple[0]
@@ -603,7 +604,7 @@ class RPCMethods(Plugin):
                 counter += 1
                 if counter >= max_results:
                     break
-
+                primary_uuids.append(item.uuid)
                 # Collect information for secondary search?
                 if fltr['secondary'] != "enabled":
                     continue
@@ -623,7 +624,10 @@ class RPCMethods(Plugin):
                                 continue
 
                             if hasattr(ObjectInfoIndex, r['filter']):
-                                squery.append(and_(ObjectInfoIndex._type == tag, getattr(ObjectInfoIndex, r['filter']) == kv[r['attribute']]))
+                                if tag == "*":
+                                    squery.append(getattr(ObjectInfoIndex, r['filter']).in_(kv[r['attribute']]))
+                                else:
+                                    squery.append(and_(ObjectInfoIndex._type == tag, getattr(ObjectInfoIndex, r['filter']).in_(kv[r['attribute']])))
                             else:
                                 if tag not in squery_constraints:
                                     squery_constraints[tag] = {}
@@ -635,11 +639,14 @@ class RPCMethods(Plugin):
                 for key, values in constraints.items():
                     values = list(set(values))
                     if len(values) > 0:
-                        squery.append(and_(ObjectInfoIndex._type == type, KeyValueIndex.key == key, KeyValueIndex.value.in_(values)))
+                        if type == "*":
+                            squery.append(KeyValueIndex.key == key, KeyValueIndex.value.in_(values))
+                        else:
+                            squery.append(and_(ObjectInfoIndex._type == type, KeyValueIndex.key == key, KeyValueIndex.value.in_(values)))
 
             # Perform secondary query and update the result
             if fltr['secondary'] == "enabled" and squery:
-                query = or_(*squery)
+                query = and_(or_(*squery), ~ObjectInfoIndex.uuid.in_(primary_uuids))
 
                 # Add "_last_changed" information to query
                 if fltr['mod-time'] != "all":
@@ -654,9 +661,10 @@ class RPCMethods(Plugin):
                     self.log.debug("Secondary query: %s " % str(sec_result))
                     pass
 
-                total += sec_result.count()
+                results = sec_result.all()
+                total += len(results)
                 if counter < max_results:
-                    for item in sec_result:
+                    for item in results:
                         self.update_res(res, item, user, self.__make_relevance(item, keywords, fltr, True), secondary=True, these=these, actions=actions)
                         counter += 1
                         if counter >= max_results:
@@ -760,7 +768,7 @@ class RPCMethods(Plugin):
 
         if item['dn'] in res:
             dn = item['dn']
-            if res[dn]['relevance'] > relevance:
+            if res[dn]['relevance'] < relevance:
                 res[dn]['relevance'] = relevance
             return
 

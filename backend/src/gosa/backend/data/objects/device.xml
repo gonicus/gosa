@@ -69,8 +69,8 @@
         <Keyword>Workstation</Keyword>
         <Keyword>Host</Keyword>
         <Search>cn</Search>
-        <Resolve type="GroupOfNames" filter="DN">groupMembership</Resolve>
-        <Resolve filter="DN">manager</Resolve>
+        <Resolve type="GroupOfNames" filter="dn">groupMembership</Resolve>
+        <Resolve filter="dn">manager</Resolve>
         <Result>
           <Map>
             <Source>cn</Source>

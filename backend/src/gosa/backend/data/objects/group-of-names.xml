@@ -141,6 +141,7 @@
         <Keyword>Membership</Keyword>
         <Search>cn</Search>
         <Search>description</Search>
+        <Resolve type="*" filter="dn">member</Resolve>
         <Result>
           <Map>
             <Source>cn</Source>

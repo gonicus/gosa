@@ -211,7 +211,7 @@
         <Tag>Organization</Tag>
         <Keyword>Organization</Keyword>
         <Search>o</Search>
-        <Resolve filter="DN">manager</Resolve>
+        <Resolve filter="dn">manager</Resolve>
         <Result>
           <Map>
             <Source>o</Source>
