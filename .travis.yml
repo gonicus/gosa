@@ -35,7 +35,7 @@ before_install:
     - sudo chown travis:travis /tmp/workflows
     - sudo chown travis:travis /tmp/images
 install:
-    - sudo apt-get install -y pylint python3-tornado python3-pytest libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev python3-dnspython
+    - sudo apt-get install -y pylint python3-tornado python3-pytest libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev python3-dnspython python3-dev
 #    - ./.travis/install-dbus.sh
     - pip install setproctitle coveralls hidraw-pure dbus-python
     #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
