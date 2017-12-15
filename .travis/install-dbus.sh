@@ -12,7 +12,7 @@ rm dbus-python.tar.gz
 
 mkdir -p python-tmpenv
 
-python_virtualenv=$VIRTUAL_ENV
+python_virtualenv=./.env/
 python_tmpenv=`pwd`/python-tmpenv
 
 cd dbus-python-1.2.4
