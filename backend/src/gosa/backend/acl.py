@@ -1632,7 +1632,7 @@ class ACLResolver(Plugin):
     def getEntryPoints(self, user):
 
         # Check if we've an admin override first
-        if user in self.admins:
+        if self.isAdmin(user):
             return [self.env.base]
 
         sub_bases = {}
@@ -1735,7 +1735,7 @@ class ACLResolver(Plugin):
         check = ['c', 'w', 'r', 'd']
 
         # Admin users are allowed to do anything.
-        if user in self.admins:
+        if self.isAdmin(user):
             return check
 
         result = [x for x in check if self.check(user, topic, x, None, base=base)]
