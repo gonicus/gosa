@@ -6,7 +6,6 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-import multiprocessing
 
 import ldap #@UnusedImport
 import ldap.dn
@@ -22,6 +21,7 @@ from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.utils.ldap import LDAPHandler
 from gosa.backend.objects.backend import ObjectBackend
 from gosa.backend.exceptions import EntryNotFound, RDNNotSpecified, DNGeneratorError
+from multiprocessing import RLock
 
 
 # Register the errors handled  by us
@@ -48,7 +48,7 @@ class LDAP(ObjectBackend):
         # Internal identify cache
         self.__i_cache = {}
         self.__i_cache_ttl = {}
-        self.lock = multiprocessing.RLock()
+        self.lock = RLock()
 
     def __del__(self):
         if self.con:
