@@ -71,7 +71,7 @@
         <Tag>Locality</Tag>
         <Keyword>Locality</Keyword>
         <Search>l</Search>
-        <Resolve filter="DN">manager</Resolve>
+        <Resolve filter="dn">manager</Resolve>
         <Result>
           <Map>
             <Source>l</Source>

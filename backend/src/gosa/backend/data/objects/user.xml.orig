@@ -559,7 +559,7 @@
 			<Search>cn</Search>
 			<Search>uid</Search>
 			<Resolve type="PosixGroup" filter="cn">groupMembership</Resolve>
-			<Resolve filter="DN">manager</Resolve>
+			<Resolve filter="dn">manager</Resolve>
 			<Result>
 				<Map>
 					<Source>cn</Source>

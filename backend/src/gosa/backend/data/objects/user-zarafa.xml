@@ -610,7 +610,7 @@
         <Keyword>Groupware</Keyword>
         <Keyword>Zarafa</Keyword>
         <Search>mil</Search>
-        <Resolve filter="DN">manager</Resolve>
+        <Resolve filter="dn">manager</Resolve>
         <Result>
           <Map>
             <Source>mail</Source>

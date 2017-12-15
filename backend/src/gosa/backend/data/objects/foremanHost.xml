@@ -58,12 +58,12 @@
             <Param>dn</Param>
           </Condition>
         </Validators>
-        <!--<UpdateHooks>-->
-          <!--<UpdateHook>-->
-            <!--<Object>ForemanHostGroup</Object>-->
-            <!--<Attribute>member</Attribute>-->
-          <!--</UpdateHook>-->
-        <!--</UpdateHooks>-->
+        <UpdateHooks>
+          <UpdateHook>
+            <Object>ForemanHostGroup</Object>
+            <Attribute>member</Attribute>
+          </UpdateHook>
+        </UpdateHooks>
       </Attribute>
       <Attribute>
         <Name>build_status</Name>

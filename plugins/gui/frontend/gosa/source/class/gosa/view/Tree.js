@@ -75,6 +75,7 @@ qx.Class.define("gosa.view.Tree", {
     _rpc : null,
     _tableData : null,
     __debouncedReload: null,
+    __skipApplyFilter: false,
 
     _createChildControlImpl : function(id, hash) {
 
@@ -401,6 +402,15 @@ qx.Class.define("gosa.view.Tree", {
               button.setUserData("type", name);
               this.getChildControl("filter-menu").add(button);
               button.addListener("execute", this._applyFilter, this);
+              button.addListener("contextmenu", function() {
+                // select only this button
+                this.__skipApplyFilter = true;
+                this.getChildControl("filter-menu").getChildren().forEach(function(box) {
+                  box.setValue(box === button);
+                });
+                this.__skipApplyFilter = false;
+                this._applyFilter();
+              }, this);
             }
           }, this);
         }, this).catch(function(error) {
@@ -551,6 +561,9 @@ qx.Class.define("gosa.view.Tree", {
     },
 
     _applyFilter : function() {
+      if (this.__skipApplyFilter) {
+        return;
+      }
       var types = [];
       var all = 0;
       this.getChildControl("filter-menu").getChildren().forEach(function(button) {
@@ -561,9 +574,9 @@ qx.Class.define("gosa.view.Tree", {
       }, this);
       var filtered = this._tableData;
 
-      if (types.length > 0 && types.length < all) {
+      if (types.length < all) {
         filtered = filtered.filter(function(row) {
-          return qx.lang.Array.contains(types, row.type);
+          return types.includes(row.type);
         });
       }
       var searchValue = this.getChildControl("search-field").getValue();
