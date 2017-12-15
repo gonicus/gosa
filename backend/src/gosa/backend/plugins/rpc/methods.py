@@ -629,7 +629,7 @@ class RPCMethods(Plugin):
                                     squery_constraints[tag] = {}
                                 if r['filter'] not in squery_constraints[tag]:
                                     squery_constraints[tag][r['filter']] = []
-                                squery_constraints[tag][r['filter']].append(kv[r['attribute']][0])
+                                squery_constraints[tag][r['filter']].extend(kv[r['attribute']])
 
             for type, constraints in squery_constraints.items():
                 for key, values in constraints.items():
