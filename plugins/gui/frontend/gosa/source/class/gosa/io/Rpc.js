@@ -299,10 +299,10 @@ qx.Class.define("gosa.io.Rpc", {
         var d = new gosa.ui.dialogs.RpcError(msg);
         return new qx.Promise(function(resolve, reject) {
           d.addListener("retry", function(){
-            this.__promiseCallAsync(argx).then(resolve, reject);
-          }, this).catch(outerReject);
+            this.__promiseCallAsync(argx).then(resolve).catch(reject);
+          }, this);
           d.open();
-        }, this);
+        }, this).catch(outerReject);
       } else if (error && argx[0] !== "getError") {
         // Parse additional information out of the error.message string.
         error.field = null;
