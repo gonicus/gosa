@@ -8,7 +8,9 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import unittest
+from unittest import mock
 from gosa.backend.plugins.misc.filter_validators import *
+
 
 class FilterValidatorTests(unittest.TestCase):
 
@@ -22,7 +24,7 @@ class FilterValidatorTests(unittest.TestCase):
         assert res == False
         assert len(errors) == 1
 
-    @unittest.mock.patch.object(PluginRegistry, 'getInstance')
+    @mock.patch.object(PluginRegistry, 'getInstance')
     def test_IsExistingDN(self, mockedRegistry):
         # mockup ObjectIndex.search
         mockedRegistry.return_value.search.return_value = []
@@ -49,7 +51,7 @@ class FilterValidatorTests(unittest.TestCase):
         assert res is True
         assert len(errors) == 0
 
-    @unittest.mock.patch.object(PluginRegistry, 'getInstance')
+    @mock.patch.object(PluginRegistry, 'getInstance')
     def test_IsExistingDnOfType(self, mockedRegistry):
         # mockup ObjectIndex.search
         mockedRegistry.return_value.search.return_value = []
@@ -65,17 +67,33 @@ class FilterValidatorTests(unittest.TestCase):
         assert res == True
         assert len(errors) == 0
 
-    @unittest.mock.patch.object(PluginRegistry, 'getInstance')
+    @mock.patch.object(PluginRegistry, 'getInstance')
     def test_ObjectWithPropertyExists(self, mocked_registry):
         mocked_registry.return_value.search.return_value = []
 
         # start the tests
-        filter = ObjectWithPropertyExists()
-        (res, errors) = filter.process(None, None, ["test"], "type", "attr")
-        assert res is False
-        assert len(errors) == 1
+        with mock.patch.object(ObjectFactory.getInstance(), "isBaseType", return_value=True):
+            filter = ObjectWithPropertyExists()
+            (res, errors) = filter.process({
+                "prop": {
+                    "value": []
+                }}, "prop", ["test"], "type", "attr")
+            assert res is False
+            assert len(errors) == 1
 
-        mocked_registry.return_value.search.return_value = [1]
-        (res, errors) = filter.process(None, None, ["test"], "type", "attr")
-        assert res is True
-        assert len(errors) == 0
+            # do not test existing values
+            filter = ObjectWithPropertyExists()
+            (res, errors) = filter.process({
+                "prop": {
+                    "value": ["test"]
+                }}, "prop", ["test"], "type", "attr")
+            assert res is True
+            assert len(errors) == 0
+
+            mocked_registry.return_value.search.return_value = [1]
+            (res, errors) = filter.process({
+                "prop": {
+                    "value": []
+                }}, "prop", ["test"], "type", "attr")
+            assert res is True
+            assert len(errors) == 0
