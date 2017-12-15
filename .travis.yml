@@ -5,6 +5,10 @@ services:
     - docker
 python:
     - "3.5"
+addons:
+  apt:
+    source:
+    - deadsnakes
 cache:
   pip: true
   directories:
@@ -31,8 +35,10 @@ before_install:
     - sudo chown travis:travis /tmp/workflows
     - sudo chown travis:travis /tmp/images
 install:
-    - sudo apt-get install pylint python3-tornado python3-pytest libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev python3-dbus python3-dnspython python3-dev
-    - pip install setproctitle coveralls hidraw-pure dbus-python
+    - sudo apt-get install -y pylint python3-tornado python3-pytest libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev python3-dnspython
+    - ./travis/install-dbus.sh
+    - pip install setproctitle coveralls hidraw-pure #dbus-python
+    - install from
     #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
 before_script:
     - export DISPLAY=:99.0
