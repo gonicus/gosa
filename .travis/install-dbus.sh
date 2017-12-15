@@ -15,7 +15,7 @@ mkdir -p python-tmpenv
 python_virtualenv=$VIRTUAL_ENV
 python_tmpenv=`pwd`/python-tmpenv
 
-cd dbus-python-1.2.0
+cd dbus-python-1.2.4
 
 PYTHON=`sudo which ${system_python}` ./configure --prefix=$python_tmpenv
 make
