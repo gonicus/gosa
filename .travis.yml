@@ -4,11 +4,8 @@ language: python
 services:
     - docker
 python:
-    - "3.6"
-addons:
-  apt:
-    source:
-    - deadsnakes
+    - "3.5"
+group: deprecated-2017Q4
 cache:
   pip: true
   directories:
@@ -23,7 +20,7 @@ before_install:
     - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
     - docker pull cpollmeier/gosa3:devel # download docker container
     - docker run -d -p 389:389 -p 1883:1883 -p 5432:5432 cpollmeier/gosa3:devel # start it
-    - virtualenv --python=python3 --system-site-packages .env
+    - virtualenv --python=python3.5 --system-site-packages .env
     - source .env/bin/activate
     - pip install --upgrade pip # upgrade pip, we need the latest version
     # some preparations for the tests
@@ -35,9 +32,8 @@ before_install:
     - sudo chown travis:travis /tmp/workflows
     - sudo chown travis:travis /tmp/images
 install:
-    - sudo apt-get install -y pylint python3-tornado python3-pytest libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev python3-dnspython python3-dev
-#    - ./.travis/install-dbus.sh
-    - pip install setproctitle coveralls hidraw-pure dbus-python
+    - sudo apt-get install dbus-x11 libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev # needed to compile dbus-python
+    - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure
     #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
 before_script:
     - export DISPLAY=:99.0
