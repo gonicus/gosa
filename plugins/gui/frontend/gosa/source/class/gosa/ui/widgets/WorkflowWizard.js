@@ -202,14 +202,29 @@ qx.Class.define("gosa.ui.widgets.WorkflowWizard", {
       this.setEnabled(false);
       this.getChildControl("save-button").setEnabled(false);
       this.__showSavingInfo();
-      this.__controller.saveAndClose();
+      this.__controller.saveAndClose()
+        .then(this.__postSaveAndClose, this)
+        .catch(this.__postSaveAndClose, this);
     },
 
-    __showSavingInfo : function() {
+    /**
+     * Called after the controllers saveAndClose has been executed (independent from if it was successful or not)
+     */
+    __postSaveAndClose: function() {
+      this.setEnabled(true);
+      this.__closeSavingInfo();
+    },
+
+    __closeSavingInfo: function() {
       if (this.__savingInfo) {
         this.__savingInfo.destroy();
         this.__savingInfo = null;
+
       }
+    },
+
+    __showSavingInfo : function() {
+      this.__closeSavingInfo();
 
       this.__savingInfo = new gosa.ui.dialogs.Loading();
       this.__savingInfo.setAutoDispose(true);

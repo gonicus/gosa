@@ -450,8 +450,8 @@ class Workflow:
         return self.__attribute_map
 
     def _execute_embedded_script(self, script):
+        log = logging.getLogger("%s.%s" % (__name__, self.uuid))
         try:
-            log = logging.getLogger("%s.%s" % (__name__, self.uuid))
             log.info("start executing workflow script")
             env = dict(data=self._get_data())
             dispatcher = PluginRegistry.getInstance('CommandRegistry')
@@ -472,19 +472,39 @@ class Workflow:
 
             log.info("finished executing workflow script")
 
-        except Exception as e:
+            if self.__user is not None:
+                # tell the frontend
+                e = EventMaker()
+                ev = e.Event(e.BackendDone(
+                    e.UUID(self.uuid),
+                    e.Type("workflow"),
+                    e.State("success")
+                ))
+                event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
+                SseHandler.notify(event_object, channel="user.%s" % self.__user)
+
+        except Exception as ex:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
-            print("Exception while executing the embedded script:")
-            print(fname, "line", exc_tb.tb_lineno)
-            print(exc_type)
-            print(exc_obj)
+            log.error("Exception while executing the embedded script:")
+            log.error("%s line %s" % (fname, exc_tb.tb_lineno))
+            log.error(exc_type)
+            log.error(exc_obj)
 
-            if GosaErrorHandler.get_error_id(str(e)) is not None:
-                SseHandler.error_notify_user("Workflow error", e, user=self.__user)
-            else:
-                SseHandler.error_notify_user("Workflow error", ScriptError(C.make_error('WORKFLOW_SCRIPT_ERROR', e)), user=self.__user)
+            if GosaErrorHandler.get_error_id(str(ex)) is None:
+                ex = ScriptError(C.make_error('WORKFLOW_SCRIPT_ERROR', str(ex)))
+
+            e = EventMaker()
+            ev = e.Event(e.BackendDone(
+                e.UUID(self.uuid),
+                e.Type("workflow"),
+                e.State("error"),
+                e.Message(str(ex))
+            ))
+            event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
+            SseHandler.notify(event_object, channel="user.%s" % self.__user)
+            raise ex
 
         return True
 

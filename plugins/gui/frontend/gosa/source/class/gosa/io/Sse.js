@@ -26,6 +26,7 @@ qx.Class.define("gosa.io.Sse", {
   construct: function(){
     this.base(arguments);
     this.__eventSource = null;
+    this.__backendDoneListeners = {};
   },
 
   destruct : function(){
@@ -55,6 +56,8 @@ qx.Class.define("gosa.io.Sse", {
   members : {
 
     __eventSource: null,
+
+    __backendDoneListeners: null,
 
     reconnect : function() {
 
@@ -94,6 +97,11 @@ qx.Class.define("gosa.io.Sse", {
       this.__eventSource.addEventListener("workflowUpdate", function (e) {
         var message = qx.lang.Json.parse(e.data);
         this.fireDataEvent("workflowUpdate", message);
+      }.bind(this), false);
+
+      this.__eventSource.addEventListener("BackendDone", function (e) {
+        var message = qx.lang.Json.parse(e.data);
+        this._handleBackendDoneEvent(message);
       }.bind(this), false);
 
       this.__eventSource.addEventListener("BackendException", function (e) {
@@ -201,6 +209,32 @@ qx.Class.define("gosa.io.Sse", {
 
     _handleObjectCloseAnnouncement : function(info) {
       this.fireDataEvent("objectClosing", info);
+    },
+
+    _handleBackendDoneEvent: function(message) {
+      if (message) {
+        var id = message.UUID+"|"+message.Type;
+        if (this.__backendDoneListeners.hasOwnProperty(id)) {
+          var listeners = this.__backendDoneListeners[id].slice(0);
+          delete this.__backendDoneListeners[id];
+          listeners.forEach(function(entry) {
+            entry.cb.call(entry.co, message);
+          });
+        }
+      }
+    },
+
+    /**
+     * Add a listener to a BackendDone event (these listeners are always "once" listeners)
+     * @param uuid {String} uuid of the event
+     * @param type {String} type of the event
+     */
+    addBackendDoneListener: function(uuid, type, callback, context) {
+      var id = uuid+"|"+type;
+      if (!this.__backendDoneListeners.hasOwnProperty(id)) {
+        this.__backendDoneListeners[id] = [];
+      }
+      this.__backendDoneListeners[id].push({cb: callback, co: context});
     },
 
     closePopup : function(popup) {

@@ -609,7 +609,6 @@ class Object(object):
                             res, error = self.processValidator(self.myProperties[name]['validator'], name, new_value, props_copy)
                             if not res:
                                 if len(error):
-                                    self.log.error(error)
                                     raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
                                 else:
                                     raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name))

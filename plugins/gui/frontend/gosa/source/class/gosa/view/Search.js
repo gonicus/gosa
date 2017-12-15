@@ -388,7 +388,9 @@ qx.Class.define("gosa.view.Search", {
       var moreResults= false; //this._currentResponse.total > this._currentResponse.results.length;
 
       if (isFuzzy) {
-        resultString += this.tr("Search for '%1' returned no results, searched for '%2' instead", this._currentResponse.orig, this._currentResponse.fuzzy)+"<br/><br/>";
+        resultString += this.tr("Search for '%1' returned no results, searched for '%2' instead",
+          this._currentResponse.orig.replace(" or ", "' or '"),
+          this._currentResponse.fuzzy.replace(" or ", "' or '"))+"<br/><br/>";
       }
       if (count === 0) {
         console.trace();
