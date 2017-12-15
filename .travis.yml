@@ -17,6 +17,7 @@ cache:
     - .env
     - /tmp/qx5.1
 before_install:
+    - apt-cache search python3 | grep dev
     - sudo apt-get update
     - sudo cp travis_conf/org.gosa.conf /etc/dbus-1/system.d/
     - sudo service dbus reload
