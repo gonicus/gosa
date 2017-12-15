@@ -14,6 +14,9 @@ import time
 import datetime
 from itertools import permutations
 from logging import getLogger
+
+from ldap.controls import SimplePagedResultsControl
+
 from gosa.common import Environment
 from gosa.common.utils import is_uuid, N_
 from gosa.common.components.jsonrpc_utils import Binary
@@ -40,19 +43,15 @@ class LDAP(ObjectBackend):
         self.log = getLogger(__name__)
 
         self.lh = LDAPHandler.get_instance()
-        self.con = self.lh.get_connection()
         self.uuid_entry = self.env.config.get("backend-ldap.uuid-attribute", "entryUUID")
         self.create_ts_entry = self.env.config.get("backend-ldap.create-attribute", "createTimestamp")
         self.modify_ts_entry = self.env.config.get("backend-ldap.modify-attribute", "modifyTimestamp")
+        self.page_size = self.env.config.get("backend-ldap.page-size", 100)
 
         # Internal identify cache
         self.__i_cache = {}
         self.__i_cache_ttl = {}
         self.lock = RLock()
-
-    def __del__(self):
-        if self.con:
-            self.lh.free_connection(self.con)
 
     def load(self, uuid, info, back_attrs=None, needed=None):
         keys = info.keys()
@@ -61,8 +60,8 @@ class LDAP(ObjectBackend):
 
         self.log.debug("searching with filter '%s' on base '%s'" % (fltr,
             self.lh.get_base()))
-        with self.lock:
-            res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr,
+        with self.lock, self.lh.get_handle() as con:
+            res = con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr,
                 keys)
 
         # Check if res is valid
@@ -82,7 +81,7 @@ class LDAP(ObjectBackend):
         return False
 
     def identify(self, dn, params, fixed_rdn=None):
-        with self.lock:
+        with self.lock, self.lh.get_handle() as con:
 
             # Check for special RDN attribute
             if 'RDN' in params:
@@ -131,7 +130,7 @@ class LDAP(ObjectBackend):
 
             fltr = "(&(objectClass=*)" + fixed_rdn_filter + custom_filter + ")"
             try:
-                res = self.con.search_s(dn, ldap.SCOPE_BASE, fltr,
+                res = con.search_s(dn, ldap.SCOPE_BASE, fltr,
                         [self.uuid_entry, 'objectClass'] + ([attr] if attr else []))
             except ldap.NO_SUCH_OBJECT:
                 return False
@@ -159,25 +158,47 @@ class LDAP(ObjectBackend):
     def query(self, base, scope, params, fixed_rdn=None):
         ocs = ["(objectClass=%s)" % o.strip() for o in params['objectClasses'].split(",")]
         fltr = "(&" + "".join(ocs) + (ldap.filter.filter_format("(%s)", [fixed_rdn]) if fixed_rdn else "") + ")"
-        with self.lock:
-            res = self.con.search_s(base, ldap.SCOPE_ONELEVEL, fltr,
-                    [self.uuid_entry])
-        return [x for x in dict(res).keys()]
+        result = []
+
+        with self.lh.get_handle() as l, self.lock:
+            self.log.debug("LDAP Search using filter '{filter}'".format(filter=fltr))
+            lc = SimplePagedResultsControl(criticality=True, size=self.page_size, cookie='')
+            ix = 0
+            while True:
+                msgid = l.search_ext(base, ldap.SCOPE_ONELEVEL, fltr, attrlist=[self.uuid_entry], serverctrls=[lc])
+                res = l.result3(msgid=msgid)
+                result_type, results, unused_msgid, serverctrls = res
+                for resultdata in results:
+                    ix += 1
+                    if resultdata[0] is not None:
+                            result.append(resultdata)
+
+                cookie = None
+                for serverctrl in serverctrls:
+                        if serverctrl.controlType == ldap.controls.libldap.SimplePagedResultsControl.controlType:
+                            cookie = serverctrl.cookie
+                        if cookie:
+                                lc.cookie = cookie
+                        break
+
+                if not cookie:
+                        break
+
+        return [x for x in dict(result).keys()]
 
     def exists(self, misc, needed=None):
-        with self.lock:
+        with self.lock, self.lh.get_handle() as con:
             if is_uuid(misc):
                 fltr_tpl = "%s=%%s" % self.uuid_entry
                 fltr = ldap.filter.filter_format(fltr_tpl, [misc])
 
-                res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE,
-                        fltr, [self.uuid_entry])
+                res = con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE,
+                                   fltr, [self.uuid_entry])
 
             else:
                 res = []
                 try:
-                    res = self.con.search_s(misc, ldap.SCOPE_BASE, '(objectClass=*)',
-                        [self.uuid_entry])
+                    res = con.search_s(misc, ldap.SCOPE_BASE, '(objectClass=*)', [self.uuid_entry])
                 except ldap.NO_SUCH_OBJECT:
                     pass
 
@@ -188,13 +209,13 @@ class LDAP(ObjectBackend):
 
     def remove(self, uuid, data, params, needed=None, user=None):
         dn = self.uuid2dn(uuid)
-        with self.lock:
+        with self.lock, self.lh.get_handle() as con:
             self.log.debug("removing entry '%s'" % dn)
-            return self.con.delete_s(dn)
+            return con.delete_s(dn)
 
     def __delete_children(self, dn):
-        with self.lock:
-            res = self.con.search_s(dn, ldap.SCOPE_ONELEVEL, '(objectClass=*)',
+        with self.lock, self.lh.get_handle() as con:
+            res = con.search_s(dn, ldap.SCOPE_ONELEVEL, '(objectClass=*)',
                     [self.uuid_entry])
 
             for c_dn, data in res:
@@ -203,14 +224,14 @@ class LDAP(ObjectBackend):
             # Delete ourselves
             if not res:
                 self.log.debug("removing entry '%s'" % dn)
-                return self.con.delete_s(dn)
+                return con.delete_s(dn)
             return None
 
     def retract(self, uuid, data, params, needed=None, user=None):
         # Remove defined data from the specified object
         dn = self.uuid2dn(uuid)
         mod_attrs = []
-        with self.lock:
+        with self.lock, self.lh.get_handle() as con:
             # We know about object classes - remove them
             if 'objectClasses' in params:
                 ocs = [bytes(o.strip(), 'ascii') for o in params['objectClasses'].split(",")]
@@ -220,7 +241,7 @@ class LDAP(ObjectBackend):
             for key in data.keys():
                 mod_attrs.append((ldap.MOD_DELETE, key, None))
 
-            self.con.modify_s(dn, mod_attrs)
+            con.modify_s(dn, mod_attrs)
 
         # Clear identify cache, else we will receive old values from self.identifyObject
         if dn in self.__i_cache_ttl:
@@ -236,14 +257,14 @@ class LDAP(ObjectBackend):
         pass
 
     def move(self, uuid, new_base, needed=None):
-        with self.lock:
+        with self.lock, self.lh.get_handle() as con:
             dn = self.uuid2dn(uuid)
             self.log.debug("moving entry '%s' to new base '%s'" % (dn, new_base))
             rdn = ldap.dn.explode_dn(dn, flags=ldap.DN_FORMAT_LDAPV3)[0]
-            return self.con.rename_s(dn, rdn, new_base)
+            return con.rename_s(dn, rdn, new_base)
 
     def create(self, base, data, params, foreign_keys=None, needed=None, user=None):
-        with self.lock:
+        with self.lock, self.lh.get_handle() as con:
             mod_attrs = []
             self.log.debug("gathering modifications for entry on base '%s'" % base)
             for attr, entry in data.items():
@@ -282,9 +303,9 @@ class LDAP(ObjectBackend):
             self.log.debug("saving entry '%s'" % dn)
 
             if foreign_keys is None:
-                self.con.add_s(dn, mod_attrs)
+                con.add_s(dn, mod_attrs)
             else:
-                self.con.modify_s(dn, mod_attrs)
+                con.modify_s(dn, mod_attrs)
 
             # Clear identify cache, else we will receive old values from self.identifyObject
             if dn in self.__i_cache_ttl:
@@ -310,7 +331,7 @@ class LDAP(ObjectBackend):
         return dn
 
     def update(self, uuid, data, params, needed=None, user=None):
-        with self.lock:
+        with self.lock, self.lh.get_handle() as con:
             # Assemble a proper modlist
             dn = self.uuid2dn(uuid)
 
@@ -356,21 +377,21 @@ class LDAP(ObjectBackend):
 
             if tdn != dn:
                 self.log.debug("entry needs a rename from '%s' to '%s'" % (dn, tdn))
-                self.con.rename_s(dn, ldap.dn.dn2str([new_rdn_parts]))
+                con.rename_s(dn, ldap.dn.dn2str([new_rdn_parts]))
 
             # Write back...
             self.log.debug("saving entry '%s'" % tdn)
-            return self.con.modify_s(tdn, mod_attrs)
+            return con.modify_s(tdn, mod_attrs)
 
     def uuid2dn(self, uuid):
         # Get DN of entry
-        with self.lock:
+        with self.lock, self.lh.get_handle() as con:
             fltr_tpl = "%s=%%s" % self.uuid_entry
             fltr = ldap.filter.filter_format(fltr_tpl, [uuid])
 
             self.log.debug("searching with filter '%s' on base '%s'" % (fltr,
                 self.lh.get_base()))
-            res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr,
+            res = con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr,
                     [self.uuid_entry])
 
             self.__check_res(uuid, res)
@@ -378,9 +399,9 @@ class LDAP(ObjectBackend):
             return res[0][0]
 
     def dn2uuid(self, dn):
-        with self.lock:
+        with self.lock, self.lh.get_handle() as con:
             try:
-                res = self.con.search_s(dn, ldap.SCOPE_BASE, '(objectClass=*)',
+                res = con.search_s(dn, ldap.SCOPE_BASE, '(objectClass=*)',
                         [self.uuid_entry])
             except:
                 return False
@@ -391,8 +412,8 @@ class LDAP(ObjectBackend):
             return res[0][1][self.uuid_entry][0].decode()
 
     def get_timestamps(self, dn):
-        with self.lock:
-            res = self.con.search_s(dn, ldap.SCOPE_BASE,
+        with self.lock, self.lh.get_handle() as con:
+            res = con.search_s(dn, ldap.SCOPE_BASE,
                     '(objectClass=*)', [self.create_ts_entry, self.modify_ts_entry])
             cts = self._convert_from_timestamp(res[0][1][self.create_ts_entry][0])
             mts = self._convert_from_timestamp(res[0][1][self.modify_ts_entry][0])
@@ -400,10 +421,10 @@ class LDAP(ObjectBackend):
             return cts, mts
 
     def get_uniq_dn(self, rdns, base, data, FixedRDN):
-        with self.lock:
+        with self.lock, self.lh.get_handle() as con:
             for dn in self.build_dn_list(rdns, base, data, FixedRDN):
                 try:
-                    self.con.search_s(dn, ldap.SCOPE_BASE, '(objectClass=*)',
+                    con.search_s(dn, ldap.SCOPE_BASE, '(objectClass=*)',
                         [self.uuid_entry])
 
                 except ldap.NO_SUCH_OBJECT:
@@ -412,7 +433,7 @@ class LDAP(ObjectBackend):
             return None
 
     def is_uniq(self, attr, value, at_type):
-        with self.lock:
+        with self.lock, self.lh.get_handle() as con:
             fltr_tpl = "%s=%%s" % attr
 
             cnv = getattr(self, "_convert_to_%s" % at_type.lower())
@@ -421,7 +442,7 @@ class LDAP(ObjectBackend):
 
             self.log.debug("uniq test with filter '%s' on base '%s'" % (fltr,
                 self.lh.get_base()))
-            res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr,
+            res = con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr,
                 [self.uuid_entry])
 
             return len(res) == 0
@@ -461,9 +482,9 @@ class LDAP(ObjectBackend):
         :param attr:
         :return:
         """
-        with self.lock:
+        with self.lock, self.lh.get_handle() as con:
             fltr = self.env.config.get("pool.attribute", "sambaUnixIdPool")
-            res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, "(objectClass=%s)" % fltr, [attr])
+            res = con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, "(objectClass=%s)" % fltr, [attr])
 
             if not res:
 
@@ -473,7 +494,7 @@ class LDAP(ObjectBackend):
                 minGidNumber = int(self.env.config.get("pool.min-gidNumber", 1000))
 
                 # Check for the highest available ones
-                entries = self.con.search_s(
+                entries = con.search_s(
                     self.lh.get_base(),
                     ldap.SCOPE_SUBTREE,
                     "(|(objectClass=posixAccount)(objectClass=posixGroup))",
@@ -495,10 +516,10 @@ class LDAP(ObjectBackend):
                     ("uidNumber", bytes(str(minUidNumber + 1), 'ascii')),
                     ("gidNumber", bytes(str(minGidNumber + 1), 'ascii'))
                     ]
-                self.con.add_s("ou=idmap,%s" % self.lh.get_base(), mod_attrs)
+                con.add_s("ou=idmap,%s" % self.lh.get_base(), mod_attrs)
 
                 # Load the new entry
-                res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, "(objectClass=%s)" % fltr, [attr])
+                res = con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, "(objectClass=%s)" % fltr, [attr])
 
             if len(res) != 1:
                 raise EntryNotFound(C.make_error("MULTIPLE_ID_POOLS"))
@@ -524,7 +545,7 @@ class LDAP(ObjectBackend):
                     (ldap.MOD_ADD, attr, [next_free_value]),
                 ]
 
-            self.con.modify_s(res[0][0], mod_attrs)
+            con.modify_s(res[0][0], mod_attrs)
 
             return int(currently_free_value)
 
