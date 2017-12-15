@@ -31,8 +31,8 @@ before_install:
     - sudo chown travis:travis /tmp/workflows
     - sudo chown travis:travis /tmp/images
 install:
-    - sudo apt-get install dbus-x11 libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev python3-dbus # needed to compile dbus-python
-    - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' hidraw-pure
+    - sudo apt-get install python3-setproctitle pylint python3-tornado python3-pytest libcups2-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev python3-dbus
+    - pip install coveralls hidraw-pure
     #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
 before_script:
     - export DISPLAY=:99.0
