@@ -273,7 +273,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
             liveUpdate: true,
             allowGrowX: true
           });
-          var debouncedUpdate = qx.util.Function.debounce(this._updateValues, 500, false);
+          var debouncedUpdate = qx.util.Function.debounce(this._updateValues, 500, false).bind(this);
           control.addListener("changeValue", function() {
             debouncedUpdate();
             this.__maintainSearchButton();

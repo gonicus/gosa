@@ -26,7 +26,7 @@ from multiprocessing.pool import Pool
 import ldap
 import sqlalchemy
 from sqlalchemy.dialects import postgresql
-from sqlalchemy_searchable import make_searchable
+from sqlalchemy_searchable import make_searchable, parse_search_query
 from sqlalchemy_utils import TSVectorType
 
 import gosa
@@ -1069,7 +1069,12 @@ class ObjectIndex(Plugin):
                             use_extension = True
                             exprs.append(ExtensionIndex.extension == v)
                         else:
-                            if "%" in v:
+                            if key == "*":
+                                search_query = parse_search_query(v)
+                                sub_query = session.query(SearchObjectIndex.so_uuid). \
+                                    filter(SearchObjectIndex.search_vector.match(search_query, sort=True, postgresql_regconfig='simple')). \
+                                    subquery()
+                            elif "%" in v:
                                 if v == "%":
                                     sub_query = session.query(KeyValueIndex.uuid). \
                                         filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(v))). \
@@ -1082,6 +1087,7 @@ class ObjectIndex(Plugin):
                                 sub_query = session.query(KeyValueIndex.uuid). \
                                     filter(and_(KeyValueIndex.key == key, KeyValueIndex.value == v)). \
                                     subquery()
+
                             res.append(ObjectInfoIndex.uuid.in_(sub_query))
 
                     res.append(or_(*exprs))
@@ -1099,7 +1105,12 @@ class ObjectIndex(Plugin):
                         use_extension = True
                         res.append(ExtensionIndex.extension == value)
                     else:
-                        if "%" in value:
+                        if key == "*":
+                            search_query = parse_search_query(value)
+                            sub_query = session.query(SearchObjectIndex.so_uuid). \
+                                filter(SearchObjectIndex.search_vector.match(search_query, sort=True, postgresql_regconfig='simple')). \
+                                subquery()
+                        elif "%" in value:
                             if value == "%":
                                 sub_query = session.query(KeyValueIndex.uuid). \
                                     filter(and_(KeyValueIndex.key == key, KeyValueIndex.value.like(value))). \
@@ -1203,11 +1214,11 @@ class ObjectIndex(Plugin):
         if 'limit' in options:
             q.limit(options['limit'])
 
-        # try:
-        #     self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-        # except Exception as e:
-        #     self.log.error("Error creating SQL string: %s" % str(e))
-        #     self.log.debug(str(q))
+        try:
+            self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+        except Exception as e:
+            self.log.error("Error creating SQL string: %s" % str(e))
+            self.log.debug(str(q))
 
         try:
             for o in q.all():

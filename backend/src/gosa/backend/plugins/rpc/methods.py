@@ -217,8 +217,10 @@ class RPCMethods(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
         query = {}
         object_factory = ObjectFactory.getInstance()
-        if object_attribute is not None:
-            query[object_attribute] = '%{}%'.format(search_filter) if len(search_filter) > 0 else '%'
+        if search_filter is not None:
+            query["*"] = search_filter
+        elif object_attribute is not None:
+            query[object_attribute] = '%'
 
         types = []
         extensions = []

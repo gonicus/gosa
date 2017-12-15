@@ -327,7 +327,7 @@ qx.Class.define("gosa.view.Search", {
 
     doSearchE : qx.util.Function.debounce(function(noListUpdate) {
       return this.doSearch(noListUpdate);
-    }, 200, false),
+    }, 500, false),
 
     doSearch : function(noListUpdate, selection) {
       console.time('search');
