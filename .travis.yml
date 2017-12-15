@@ -4,7 +4,7 @@ language: python
 services:
     - docker
 python:
-    - "3.5"
+    - "3.6"
 addons:
   apt:
     source:
@@ -17,8 +17,8 @@ cache:
     - .env
     - /tmp/qx5.1
 before_install:
-    - apt-cache search python3 | grep dev
     - sudo apt-get update
+    - apt-cache search python3 | grep dev
     - sudo cp travis_conf/org.gosa.conf /etc/dbus-1/system.d/
     - sudo service dbus reload
     - sudo killall -9 postgres # kill systems postgres, as we use the one from docker

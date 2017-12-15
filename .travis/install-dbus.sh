@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-system_python=python3.5
+system_python=python3
 
 sudo apt-get install ${system_python}-dev
 
