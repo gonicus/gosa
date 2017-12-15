@@ -201,6 +201,9 @@ class ObjectIndex(Plugin):
                 if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'pg_trgm';").rowcount == 0:
                     session.execute("CREATE EXTENSION pg_trgm;")
 
+                if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'fuzzystrmatch';").rowcount == 0:
+                    session.execute("CREATE EXTENSION fuzzystrmatch;")
+
                 view_name = "unique_lexeme"
                 # check if view exists
                 res = session.execute("SELECT count(*) > 0 as \"exists\" FROM pg_catalog.pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind = 'm' AND n.nspname = 'public' AND c.relname = '%s';" % view_name).first()
