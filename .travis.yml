@@ -1,11 +1,11 @@
 sudo: required
 dist: trusty
+group: deprecated-2017Q4
 language: python
 services:
     - docker
 python:
-    - "3.5"
-group: deprecated-2017Q4
+    - "3.5-dev"
 cache:
   pip: true
   directories:
