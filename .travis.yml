@@ -14,6 +14,7 @@ cache:
     - .env
     - /tmp/qx5.1
 before_install:
+    - export PYENV_VERSION=3.5-dev 
     - sudo apt-get update
     - sudo cp travis_conf/org.gosa.conf /etc/dbus-1/system.d/
     - sudo service dbus reload
