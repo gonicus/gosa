@@ -58,3 +58,4 @@ def use_test_config():
     with make_session() as session:
         res = session.execute("SELECT search_vector from \"so_index\"").fetchall()
         print("Search vector: %s " % res)
+        print(session.execute("select * from pg_trigger WHERE tgname LIKE 'so_index%'").fetchall())
