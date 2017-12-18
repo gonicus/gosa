@@ -11,6 +11,7 @@ import pytest
 from unittest import mock, TestCase
 from gosa.backend.plugins.rpc.methods import GOsaException
 import gosa
+from gosa.common.env import make_session
 from gosa.common.gjson import loads
 from tests.GosaTestCase import slow
 
@@ -160,6 +161,10 @@ class RpcMethodsTestCase(TestCase):
             self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich', fltr={'mod-time': 'unknown-mod-time'})
 
         assert self.rpc.search('admin', None, 'SUB', 'freich') == []
+
+        with make_session() as session:
+            res = session.execute("SELECT * FROM ObjectInfoIndex").all()
+            print(res)
 
         res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich')
         # user + group freich must be found
