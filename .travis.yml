@@ -43,9 +43,11 @@ script:
     # build the gui, to be able to test it if gets served
     - cd plugins/gui/frontend/gosa/
     - npm install
+    - export PYENV_VERSION=2.7
     - python2 generate.py -sI source
     - python2 generate.py -sI test-source
     - cd ../../../../
+    - export PYENV_VERSION=3.5-dev
     # setup GOsa, install deps...
     - ./setup.py develop
     # finally run the tests, with running dbus
