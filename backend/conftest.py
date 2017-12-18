@@ -49,8 +49,12 @@ def use_test_config():
         if session.execute("select * from pg_trigger WHERE tgname LIKE 'so_index%'").rowcount == 0:
             print("creating trigger")
             # create trigger
-            res = session.execute("CREATE OR REPLACE FUNCTION public.so_index_search_vector_update() RETURNS trigger AS $BODY$ BEGIN NEW.search_vector = ((setweight(to_tsvector('pg_catalog.simple', regexp_replace(coalesce(NEW.title, ''), '[-@.]', ' ', 'g')), 'A') || setweight(to_tsvector('pg_catalog.simple', regexp_replace(coalesce(NEW.description, ''), '[-@.]', ' ', 'g')), 'C')) || setweight(to_tsvector('pg_catalog.simple', regexp_replace(coalesce(NEW.search, ''), '[-@.]', ' ', 'g')), 'C')) || setweight(to_tsvector('pg_catalog.simple', regexp_replace(coalesce(NEW.types, ''), '[-@.]', ' ', 'g')), 'B'); RETURN NEW; END $BODY$ LANGUAGE plpgsql VOLATILE COST 100; ALTER FUNCTION public.so_index_search_vector_update() OWNER TO admin;")
-            print(res)
+            session.execute("CREATE OR REPLACE FUNCTION public.so_index_search_vector_update() RETURNS trigger AS $BODY$ BEGIN NEW.search_vector = ((setweight(to_tsvector('pg_catalog.simple', regexp_replace(coalesce(NEW.title, ''), '[-@.]', ' ', 'g')), 'A') || setweight(to_tsvector('pg_catalog.simple', regexp_replace(coalesce(NEW.description, ''), '[-@.]', ' ', 'g')), 'C')) || setweight(to_tsvector('pg_catalog.simple', regexp_replace(coalesce(NEW.search, ''), '[-@.]', ' ', 'g')), 'C')) || setweight(to_tsvector('pg_catalog.simple', regexp_replace(coalesce(NEW.types, ''), '[-@.]', ' ', 'g')), 'B'); RETURN NEW; END $BODY$ LANGUAGE plpgsql VOLATILE COST 100; ALTER FUNCTION public.so_index_search_vector_update() OWNER TO admin;")
+
     # sync index
     index = PluginRegistry.getInstance("ObjectIndex")
     index.sync_index()
+
+    with make_session() as session:
+        res = session.execute("SELECT search_vector from \"so_index\" LIMIT 1").fetchone()
+        assert res[0] is not None

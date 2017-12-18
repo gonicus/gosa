@@ -52,7 +52,7 @@ script:
     - ./setup.py develop
     # finally run the tests, with running dbus
     - cd backend
-    - dbus-launch ./setup.py test --addopts="--runslow --travis -x -v"
+    - dbus-launch ./setup.py test --addopts="--runslow --travis -x -v -s"
 after_success:
     # send test coverage results to coveralls.io
     - coveralls --merge=coveralls.json
