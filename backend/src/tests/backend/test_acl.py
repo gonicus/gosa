@@ -63,6 +63,8 @@ class ACLSetTestCase(TestCase):
 
     def test_add(self):
         with make_session() as session:
+            res = session.execute("select * from pg_trigger").fetchall()
+            print(res)
             res = session.execute("SELECT search_vector from \"so_index\" LIMIT 1").fetchone()
             assert res[0] is not None
 
