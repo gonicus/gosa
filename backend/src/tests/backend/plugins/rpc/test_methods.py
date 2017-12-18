@@ -163,7 +163,7 @@ class RpcMethodsTestCase(TestCase):
         assert self.rpc.search('admin', None, 'SUB', 'freich') == []
 
         with make_session() as session:
-            res = session.execute("SELECT * FROM ObjectInfoIndex").all()
+            res = session.execute("SELECT * FROM obj-index").all()
             print(res)
 
         res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich')
