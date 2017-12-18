@@ -62,6 +62,10 @@ class ACLSetTestCase(TestCase):
         assert len(self.set) == 0
 
     def test_add(self):
+        with make_session() as session:
+            res = session.execute("SELECT search_vector from \"so_index\" LIMIT 1").fetchone()
+            assert res[0] is not None
+
         with pytest.raises(TypeError):
             self.set.add("wrong type")
 
@@ -540,9 +544,6 @@ class ACLResolverTestCase(TestCase):
                         "Stacked ACLRoles are not resolved correctly! The user should be able to read, but he cannot!")
 
     def test_acl_priorities(self):
-        with make_session() as session:
-            res = session.execute("SELECT search_vector from \"so_index\" LIMIT 1").fetchone()
-            assert res[0] is not None
         # Set up a RESET and a ONE or SUB scoped acl for the same base
         # and check which wins.
 
