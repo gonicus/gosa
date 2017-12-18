@@ -92,7 +92,7 @@ class SearchObjectIndex(Base):
 
     def __repr__(self):  # pragma: nocover
 
-        return "<SearchObjectIndex(so_uuid='%s', reverse_dn='%s', title='%s', description='%s')>" % \
+        return "<SearchObjectIndex(so_uuid='%s', reverse_parent_dn='%s', title='%s', description='%s')>" % \
                (self.so_uuid, self.reverse_dn, self.title, self.description)
 
 
