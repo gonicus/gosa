@@ -163,7 +163,8 @@ class RpcMethodsTestCase(TestCase):
         assert self.rpc.search('admin', None, 'SUB', 'freich') == []
 
         with make_session() as session:
-            res = session.execute("SELECT title, search_vector from \"so_index\" LIMIT 1").fetchone()
+            res = session.execute("SELECT search_vector from \"so_index\" LIMIT 1").fetchone()
+            print(res)
             assert res is not None
 
         res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich')
