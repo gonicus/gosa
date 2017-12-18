@@ -9,6 +9,7 @@
 
 import pytest
 from gosa.backend.main import *
+from gosa.common.env import make_session
 
 
 def pytest_addoption(parser):
@@ -43,6 +44,11 @@ def use_test_config():
 
     pkg_resources.require('gosa.common==%s' % VERSION)
     main()
+    # check for trigger
+    with make_session() as session:
+        if session.execute("select * from pg_trigger WHERE tgname LIKE 'so_index%'").rowcount == 0:
+            # create trigger
+            session.execute("CREATE OR REPLACE FUNCTION public.so_index_search_vector_update() RETURNS trigger AS $BODY$ BEGIN NEW.search_vector = ((setweight(to_tsvector('pg_catalog.simple', regexp_replace(coalesce(NEW.title, ''), '[-@.]', ' ', 'g')), 'A') || setweight(to_tsvector('pg_catalog.simple', regexp_replace(coalesce(NEW.description, ''), '[-@.]', ' ', 'g')), 'C')) || setweight(to_tsvector('pg_catalog.simple', regexp_replace(coalesce(NEW.search, ''), '[-@.]', ' ', 'g')), 'C')) || setweight(to_tsvector('pg_catalog.simple', regexp_replace(coalesce(NEW.types, ''), '[-@.]', ' ', 'g')), 'B'); RETURN NEW; END $BODY$ LANGUAGE plpgsql VOLATILE COST 100; ALTER FUNCTION public.so_index_search_vector_update() OWNER TO admin;")
     # sync index
     index = PluginRegistry.getInstance("ObjectIndex")
     index.sync_index()
