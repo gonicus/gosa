@@ -57,4 +57,4 @@ def use_test_config():
 
     with make_session() as session:
         res = session.execute("SELECT search_vector from \"so_index\"").fetchone()
-        print(res)
+        print("Search vector: %s " % res)
