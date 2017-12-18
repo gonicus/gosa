@@ -56,5 +56,5 @@ def use_test_config():
     index.sync_index()
 
     with make_session() as session:
-        res = session.execute("SELECT search_vector from \"so_index\"").fetchone()
+        res = session.execute("SELECT search_vector from \"so_index\"").fetchall()
         print("Search vector: %s " % res)
