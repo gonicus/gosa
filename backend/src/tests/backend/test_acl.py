@@ -542,8 +542,7 @@ class ACLResolverTestCase(TestCase):
     def test_acl_priorities(self):
         with make_session() as session:
             res = session.execute("SELECT search_vector from \"so_index\" LIMIT 1").fetchone()
-            assert res is not None
-
+            assert res[0] is not None
         # Set up a RESET and a ONE or SUB scoped acl for the same base
         # and check which wins.
 

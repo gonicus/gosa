@@ -164,8 +164,7 @@ class RpcMethodsTestCase(TestCase):
 
         with make_session() as session:
             res = session.execute("SELECT search_vector from \"so_index\" LIMIT 1").fetchone()
-            print(res)
-            assert res is not None
+            assert res[0] is not None
 
         res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich')
         # user + group freich must be found
