@@ -1,11 +1,11 @@
 sudo: required
 dist: trusty
+group: deprecated-2017Q4
 language: python
 services:
     - docker
 python:
-    - "3.5"
-group: deprecated-2017Q4
+    - "3.5-dev"
 cache:
   pip: true
   directories:
@@ -14,6 +14,7 @@ cache:
     - .env
     - /tmp/qx5.1
 before_install:
+    - export PYENV_VERSION=3.5-dev 
     - sudo apt-get update
     - sudo cp travis_conf/org.gosa.conf /etc/dbus-1/system.d/
     - sudo service dbus reload
