@@ -554,10 +554,10 @@ class RPCMethods(Plugin):
             query_result, ranked = self.finalize_query(query, fltr, session, qstring=qstring, order_by=order_by)
 
             try:
-                self.log.debug(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+                self.log.info(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
             except Exception as e:
                 self.log.warning(str(e))
-                self.log.debug(str(query_result))
+                self.log.info(str(query_result))
                 pass
 
             # limit only secondary enabled searches, because e.g. the treeitems use this search to resolve and we do not want to limit those results
