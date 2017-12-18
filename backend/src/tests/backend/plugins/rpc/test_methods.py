@@ -163,7 +163,7 @@ class RpcMethodsTestCase(TestCase):
         assert self.rpc.search('admin', None, 'SUB', 'freich') == []
 
         with make_session() as session:
-            res = session.execute("SELECT * FROM \"so_index\"").fetchall()
+            res = session.execute('SELECT "obj-index".uuid AS "obj-index_uuid", "obj-index".dn AS "obj-index_dn", "obj-index"._parent_dn AS "obj-index__parent_dn", "obj-index"._adjusted_parent_dn AS "obj-index__adjusted_parent_dn", "obj-index"._type AS "obj-index__type", "obj-index"._last_modified AS "obj-index__last_modified", "obj-index"._invisible AS "obj-index__invisible", ts_rank_cd(so_index.search_vector, to_tsquery(%(to_tsquery_1)s)) AS rank, "kv-index_1".key_id AS "kv-index_1_key_id", "kv-index_1".uuid AS "kv-index_1_uuid", "kv-index_1".key AS "kv-index_1_key", "kv-index_1".value AS "kv-index_1_value", so_index_1.so_uuid AS so_index_1_so_uuid, so_index_1.reverse_parent_dn AS so_index_1_reverse_parent_dn, so_index_1.title AS so_index_1_title, so_index_1.description AS so_index_1_description, so_index_1.search AS so_index_1_search, so_index_1.types AS so_index_1_types, so_index_1.search_vector AS so_index_1_search_vector FROM so_index, "obj-index" LEFT OUTER JOIN "kv-index" AS "kv-index_1" ON "obj-index".uuid = "kv-index_1".uuid LEFT OUTER JOIN so_index AS so_index_1 ON "obj-index".uuid = so_index_1.so_uuid WHERE so_index.search_vector @@ to_tsquery(\'simple\', \'freich\') AND so_index.so_uuid = "obj-index".uuid AND ("obj-index"._parent_dn = \'dc=example,dc=net\' OR "obj-index"._parent_dn LIKE \'%dc=example,dc=net\' ORDER BY ts_rank_cd(so_index.search_vector, to_tsquery(\'freich\')) DESC, "kv-index_1".key').fetchall()
             print(res)
 
         res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich')
