@@ -940,10 +940,10 @@ class Object(object):
 
         # Call pre-hooks now
         if self._mode in ["extend", "create"]:
-            self.__execute_hook("PreCreate")
+            self.__execute_hook("PreCreate", props)
 
         if self._mode in ["update"]:
-            self.__execute_hook("PreModify")
+            self.__execute_hook("PreModify", props)
 
         index = PluginRegistry.getInstance("ObjectIndex")
 
@@ -1034,9 +1034,9 @@ class Object(object):
 
         # Call post-hooks now
         if self._mode in ["extend", "create"]:
-            self.__execute_hook("PostCreate")
+            self.__execute_hook("PostCreate", props)
         if self._mode in ["update"] and "PostModify":
-            self.__execute_hook("PostModify")
+            self.__execute_hook("PostModify", props)
 
         # remove the creation marker again
         if self in index.currently_in_creation:
@@ -1483,6 +1483,9 @@ class Object(object):
 
         zope.event.notify(ObjectChanged("post move", obj, dn=self.dn, orig_dn=orig_dn))
 
+    def get_type(self):
+        return self.__class__.__name__
+
     def move(self, new_base):
         """
         Moves this object - and eventually it's containments.
@@ -1604,13 +1607,13 @@ class Object(object):
     def is_attr_using_default(self, name):
         return not self.is_attr_set(name) and self.myProperties[name]['default'] == self.myProperties[name]['value']
 
-    def __execute_hook(self, hook_type):
+    def __execute_hook(self, hook_type, props=None):
 
         # Call post-remove now
         hooks = getattr(self, '__hooks')
         if hook_type in hooks:
             for hook in hooks[hook_type]:
-                hook["ref"](self)
+                hook["ref"](self, props=props)
 
 
 class IObjectChanged(Interface):  # pragma: nocover

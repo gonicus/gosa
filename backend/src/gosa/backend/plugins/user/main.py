@@ -7,7 +7,8 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-from gosa.common.error import GosaErrorHandler as C
+from gosa.backend.objects import ObjectProxy
+from gosa.common.error import GosaErrorHandler as C, GosaException
 from gosa.backend.plugins.misc.transliterate import Transliterate
 from gosa.common import Environment
 from gosa.common.components import Command
@@ -21,6 +22,7 @@ import random
 
 C.register_codes(dict(
     CONFIG_NO_FORMAT_STRING=N_("Cannot find a format_string in the configuration"),
+    GROUP_ID_IS_AMBIGUOUS=N_("Multiple PosixGroups with gid '%(gid)s' found")
     ))
 
 @implementer(IInterfaceHandler)
@@ -44,6 +46,31 @@ class User(Plugin):
 
         # remove any uid that already exists
         return list(filter(lambda x: not self.uid_exists(x), result))
+
+    @Command(__help__=N_('Create PosixGroup if it does not exists and add the user to it'))
+    def createAddGroupIfNotExists(self, user_dn, user_name, gid_number):
+        if user_dn is None or user_name is None or gid_number is None:
+            return
+        index = PluginRegistry.getInstance("ObjectIndex")
+        res = index.search({"_type": "PosixGroup", "gidNumber": gid_number}, {"dn": 1})
+        if len(res) == 0:
+            # create group
+            user = ObjectProxy(user_dn)
+            group = ObjectProxy(user.get_adjusted_parent_dn(), "PosixGroup")
+            group.cn = user_name
+            group.description = N_("Group of user %s" % user_name)
+            group.autoGid = False
+            group.gidNumber = gid_number
+            group.memberUid = [user_name]
+            group.commit()
+        elif len(res) == 1:
+            group = ObjectProxy(res[0]["dn"])
+            if user_name not in group.memberUid:
+                group.memberUid.append(user_name)
+                group.commit()
+        else:
+            raise GosaException(C.make_error('GROUP_ID_IS_AMBIGUOUS', gid=gid_number))
+
 
     def uid_exists(self, uid):
         results = PluginRegistry.getInstance("ObjectIndex").search({'uid': uid}, {'dn': 1})

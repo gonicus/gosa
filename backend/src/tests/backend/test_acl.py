@@ -11,6 +11,7 @@ import pytest
 from gosa.backend.exceptions import ProxyException
 from gosa.backend.objects import ObjectProxy
 from gosa.common.components import PluginRegistry
+from gosa.common.env import make_session
 from tests.GosaTestCase import slow
 from gosa.backend.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLException
 from gosa.common import Environment
@@ -539,7 +540,6 @@ class ACLResolverTestCase(TestCase):
                         "Stacked ACLRoles are not resolved correctly! The user should be able to read, but he cannot!")
 
     def test_acl_priorities(self):
-
         # Set up a RESET and a ONE or SUB scoped acl for the same base
         # and check which wins.
 

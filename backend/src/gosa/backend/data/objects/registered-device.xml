@@ -6,6 +6,7 @@
 		<DisplayName>RegisteredDevice</DisplayName>
 		<BackendParameters>
 			<Backend objectClasses="registeredDevice">LDAP</Backend>
+			<Backend manager="User:dn,">ObjectHandler</Backend>
 		</BackendParameters>
 		<Templates>
 			<Template>device-registered.json</Template>
@@ -15,7 +16,7 @@
 			<Attribute>
 				<Name>manager</Name>
 				<Description>DN of manager</Description>
-				<Type>String</Type>
+				<Type>UnicodeString</Type>
 				<Validators>
 					<Condition>
 						<Name>IsExistingDnOfType</Name>

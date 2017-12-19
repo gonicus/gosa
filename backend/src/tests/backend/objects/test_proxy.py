@@ -267,11 +267,13 @@ class ObjectProxyTestCase(GosaTestCase):
                 user.remove()
 
         user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net')
-        with mock.patch("gosa.backend.objects.proxy.ObjectProxy") as mp, \
+        with mock.patch.object(user, "_ObjectProxy__base") as m_base, \
                 mock.patch("zope.event.notify") as me, \
                 mock.patch("gosa.backend.objects.object.ObjectBackendRegistry.getBackend") as mb:
+            m_base.dn = 'cn=Frank Reich,ou=people,dc=example,dc=net'
             user.remove(True)
-            assert mb.return_value.remove.called
+            assert m_base.remove_refs.called
+            assert m_base.remove.called
             assert me.called
 
         mocked_index = mock.MagicMock()

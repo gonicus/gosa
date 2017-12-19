@@ -1,10 +1,11 @@
 sudo: required
 dist: trusty
+group: deprecated-2017Q4
 language: python
 services:
     - docker
 python:
-    - "3.5"
+    - "3.5-dev"
 cache:
   pip: true
   directories:
@@ -13,6 +14,7 @@ cache:
     - .env
     - /tmp/qx5.1
 before_install:
+    - export PYENV_VERSION=3.5-dev 
     - sudo apt-get update
     - sudo cp travis_conf/org.gosa.conf /etc/dbus-1/system.d/
     - sudo service dbus reload
@@ -41,13 +43,16 @@ script:
     # build the gui, to be able to test it if gets served
     - cd plugins/gui/frontend/gosa/
     - npm install
+    - export PYENV_VERSION=2.7
     - python2 generate.py -sI source
     - python2 generate.py -sI test-source
     - cd ../../../../
+    - export PYENV_VERSION=3.5-dev
     # setup GOsa, install deps...
     - ./setup.py develop
     # finally run the tests, with running dbus
-    - dbus-launch ./setup.py test --addopts="--runslow --travis"
+    - cd backend
+    - dbus-launch ./setup.py test --addopts="--runslow --travis -v -s -x"
 after_success:
     # send test coverage results to coveralls.io
     - coveralls --merge=coveralls.json

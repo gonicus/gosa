@@ -11,8 +11,17 @@ import pytest
 from unittest import mock, TestCase
 from gosa.backend.plugins.rpc.methods import GOsaException
 import gosa
+from gosa.common.env import make_session
 from gosa.common.gjson import loads
 from tests.GosaTestCase import slow
+
+
+def check_trigger():
+    with make_session() as session:
+        return session.execute("select * from pg_trigger WHERE tgname LIKE 'so_index%'").rowcount == 0
+
+
+notrigger = pytest.mark.skipif(check_trigger(), reason="No trigger function in DB")
 
 
 @slow
@@ -97,6 +106,7 @@ class RpcMethodsTestCase(TestCase):
             m.return_value.guiPreferences = ''
             assert self.rpc.loadUserPreferences('admin', 'description') is None
 
+    @notrigger
     def test_searchForObjectDetails(self):
         with pytest.raises(GOsaException),\
                 mock.patch("gosa.backend.plugins.rpc.methods.ObjectFactory.getInstance") as m:
@@ -152,6 +162,8 @@ class RpcMethodsTestCase(TestCase):
         assert 'cn=System Administrator,ou=people,dc=example,dc=net' in res['map']
         assert 'cn=Frank Reich,ou=people,dc=example,dc=net' in res['map']
 
+
+    @notrigger
     def test_search(self):
         with pytest.raises(GOsaException):
             self.rpc.search('admin', 'dc=example,dc=net', 'UNKNOWN_SCOPE', 'freich')
@@ -161,8 +173,9 @@ class RpcMethodsTestCase(TestCase):
 
         assert self.rpc.search('admin', None, 'SUB', 'freich') == []
 
-        res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich')["results"]
+        res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich')
         # user + group freich must be found
+        res = res["results"]
         assert res[0]['title'] == "freich" or res[0]['title'] == "Frank Reich"
         assert res[1]['title'] == "freich" or res[1]['title'] == "Frank Reich"
 

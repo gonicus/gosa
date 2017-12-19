@@ -92,7 +92,7 @@ class SearchObjectIndex(Base):
 
     def __repr__(self):  # pragma: nocover
 
-        return "<SearchObjectIndex(so_uuid='%s', reverse_dn='%s', title='%s', description='%s')>" % \
+        return "<SearchObjectIndex(so_uuid='%s', reverse_parent_dn='%s', title='%s', description='%s')>" % \
                (self.so_uuid, self.reverse_dn, self.title, self.description)
 
 
@@ -200,6 +200,9 @@ class ObjectIndex(Plugin):
                 # check if extension exists
                 if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'pg_trgm';").rowcount == 0:
                     session.execute("CREATE EXTENSION pg_trgm;")
+
+                if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'fuzzystrmatch';").rowcount == 0:
+                    session.execute("CREATE EXTENSION fuzzystrmatch;")
 
                 view_name = "unique_lexeme"
                 # check if view exists

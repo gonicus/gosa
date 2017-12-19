@@ -165,7 +165,17 @@
         </OutFilter>
       </Attribute>
     </Attributes>
-
+    <Hooks>
+      <Hook>
+        <Type>PostCreate</Type>
+        <Command>createAddGroupIfNotExists</Command>
+        <CommandParameters>
+          <Value>dn</Value>
+          <Value>uid</Value>
+          <Value>gidNumber</Value>
+        </CommandParameters>
+      </Hook>
+    </Hooks>
     <Extends>
       <Value>User</Value>
     </Extends>
