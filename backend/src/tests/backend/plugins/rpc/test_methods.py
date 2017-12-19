@@ -16,6 +16,14 @@ from gosa.common.gjson import loads
 from tests.GosaTestCase import slow
 
 
+def check_trigger():
+    with make_session() as session:
+        return session.execute("select * from pg_trigger WHERE tgname LIKE 'so_index%'").rowcount == 0
+
+
+notrigger = pytest.mark.skipif(check_trigger())
+
+
 @slow
 class RpcMethodsTestCase(TestCase):
 
@@ -98,6 +106,7 @@ class RpcMethodsTestCase(TestCase):
             m.return_value.guiPreferences = ''
             assert self.rpc.loadUserPreferences('admin', 'description') is None
 
+    @notrigger
     def test_searchForObjectDetails(self):
         with pytest.raises(GOsaException),\
                 mock.patch("gosa.backend.plugins.rpc.methods.ObjectFactory.getInstance") as m:
@@ -153,6 +162,8 @@ class RpcMethodsTestCase(TestCase):
         assert 'cn=System Administrator,ou=people,dc=example,dc=net' in res['map']
         assert 'cn=Frank Reich,ou=people,dc=example,dc=net' in res['map']
 
+
+    @notrigger
     def test_search(self):
         with pytest.raises(GOsaException):
             self.rpc.search('admin', 'dc=example,dc=net', 'UNKNOWN_SCOPE', 'freich')
