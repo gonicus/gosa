@@ -251,7 +251,7 @@ class MQTTClientService(object):
                     e.Name(self.env.id),
                     *more))
 
-            mqtt.send_event(info)
+            mqtt.send_event(info, qos=2)
 
         # Assemble capabilities
         more = []
@@ -271,7 +271,7 @@ class MQTTClientService(object):
                 e.Name(self.env.id),
                 *more))
 
-        mqtt.send_event(info)
+        mqtt.send_event(info, qos=2)
 
         if not initial:
             try:

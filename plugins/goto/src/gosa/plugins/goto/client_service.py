@@ -517,7 +517,7 @@ class ClientService(Plugin):
             self.__user_session[id] = users
 
             for user in users:
-                self.startUserSession(id, user)
+                self.preUserSession(id, user, skip_config=True)
 
             if len(new_users):
                 self.log.debug("configuring new users: %s" % new_users)
@@ -530,7 +530,7 @@ class ClientService(Plugin):
         self.log.debug("updating client '%s' user session: %s" % (id, ','.join(self.__user_session[id])))
 
     @Command(__help__=N_("Prepare a user session after a user has logged in"))
-    def preUserSession(self, client_id, user_name):
+    def preUserSession(self, client_id, user_name, skip_config=False):
         # save login time and system<->user references
         client = self.__open_device(client_id)
         client.gotoLastUser = user_name
@@ -548,12 +548,12 @@ class ClientService(Plugin):
 
         self.systemSetStatus(client_id, "+B")
 
-        user_config = self.__collect_user_configuration(client_id, [user_name])
-        print(user_config)
-        if user_config is not None and user_name in user_config:
-            return user_config[user_name]
-        else:
-            return None
+        if skip_config is False:
+            user_config = self.__collect_user_configuration(client_id, [user_name])
+            if user_config is not None and user_name in user_config:
+                return user_config[user_name]
+
+        return None
 
     @Command(__help__=N_("Cleanup a user session after a user has logged out"))
     def postUserSession(self, client_id, user):

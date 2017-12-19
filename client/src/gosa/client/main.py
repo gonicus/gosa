@@ -43,7 +43,7 @@ def shutdown(a=None, b=None):
     e = EventMaker()
     goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
     if mqtt:
-        mqtt.send_event(goodbye)
+        mqtt.send_event(goodbye, qos=2)
         mqtt.close()
 
     # Shutdown plugins
@@ -185,7 +185,7 @@ def netactivity(online):
         e = EventMaker()
         goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
         if mqtt:
-            mqtt.send_event(goodbye)
+            mqtt.send_event(goodbye, qos=2)
             mqtt.close()
 
         env.reset_requested = True
