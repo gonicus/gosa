@@ -1125,6 +1125,10 @@ class ObjectFactory(object):
 
             # Load the objects actual property set
             props = caller_object.myProperties
+            cloned_props = {}
+            if "props" in kwargs:
+                # this is the cloned property set with applied out filters (which might have changed the original values)
+                cloned_props = kwargs["props"]
 
             # Build the command-parameter list.
             # Collect all property values of this object to be able to fill in
@@ -1135,6 +1139,8 @@ class ObjectFactory(object):
                     propList[key] = props[key]['value'][0]
                 else:
                     propList[key] = None
+                if key in cloned_props and cloned_props[key]['value']:
+                    propList[key] = cloned_props[key]['value'][0]
 
             # Fill in the placeholders of the command-parameters now.
             parmList = []

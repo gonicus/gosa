@@ -97,8 +97,14 @@ class ObjectWithPropertyExists(ElementComparator):
             if val in all_props[key]['value']:
                 # do not check existing values
                 continue
-            if attribute == "dn" and val in [x.dn for x in index.currently_in_creation]:
-                # this object has been created but is not in the DB yet
+            in_creation = False
+            for obj in index.currently_in_creation:
+                if hasattr(obj, attribute) and val == getattr(obj, attribute) and objectType == obj.get_type():
+                    # this object has been created but is not in the DB yet
+                    in_creation = True
+                    break
+
+            if in_creation is True:
                 continue
 
             query[attribute] = val
