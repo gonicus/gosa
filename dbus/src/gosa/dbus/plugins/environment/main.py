@@ -163,8 +163,9 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
 
         for script in scripts:
             # Write gosaApplicationParameter values in execution environment
-            #for env_entry in script['environment']:
-            #    environment[env_entry] = script['environment'][env_entry]
+            environment = {}
+            for env_entry in script['environment']:
+               environment.update(env_entry)
 
             script_log = os.path.join(self.home_dir, self.local_application_scripts_log, os.path.basename(script['path']) + '.log')
             # Run command as user using sudo
