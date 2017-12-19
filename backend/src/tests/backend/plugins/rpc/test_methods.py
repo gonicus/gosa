@@ -21,7 +21,7 @@ def check_trigger():
         return session.execute("select * from pg_trigger WHERE tgname LIKE 'so_index%'").rowcount == 0
 
 
-notrigger = pytest.mark.skipif(check_trigger())
+notrigger = pytest.mark.skipif(check_trigger(), reason="No trigger function in DB")
 
 
 @slow
@@ -173,13 +173,8 @@ class RpcMethodsTestCase(TestCase):
 
         assert self.rpc.search('admin', None, 'SUB', 'freich') == []
 
-        with make_session() as session:
-            res = session.execute("SELECT search_vector from \"so_index\" LIMIT 1").fetchone()
-            assert res[0] is not None
-
         res = self.rpc.search('admin', 'dc=example,dc=net', 'SUB', 'freich')
         # user + group freich must be found
-        print(res)
         res = res["results"]
         assert res[0]['title'] == "freich" or res[0]['title'] == "Frank Reich"
         assert res[1]['title'] == "freich" or res[1]['title'] == "Frank Reich"
