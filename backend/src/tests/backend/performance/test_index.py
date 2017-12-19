@@ -1,44 +1,44 @@
-import logging
-import cProfile
-
-import ldap
-from line_profiler import LineProfiler
-from unittest import TestCase
-
-from gosa.backend.objects import ObjectFactory, ObjectProxy
-from gosa.backend.objects.backend.registry import ObjectBackendRegistry
-from gosa.backend.utils.ldap import LDAPHandler
-from gosa.common import Environment
-from gosa.common.components import PluginRegistry
-
-
-def do_cprofile(func):
-    def profiled_func(*args, **kwargs):
-        profile = cProfile.Profile()
-        try:
-            profile.enable()
-            result = func(*args, **kwargs)
-            profile.disable()
-            return result
-        finally:
-            profile.print_stats()
-    return profiled_func
-
-
-def do_profile(follow=[]):
-    def inner(func):
-        def profiled_func(*args, **kwargs):
-            try:
-                profiler = LineProfiler()
-                profiler.add_function(func)
-                for f in follow:
-                    profiler.add_function(f)
-                profiler.enable_by_count()
-                return func(*args, **kwargs)
-            finally:
-                profiler.print_stats()
-        return profiled_func
-    return inner
+# import logging
+# import cProfile
+#
+# import ldap
+# from line_profiler import LineProfiler
+# from unittest import TestCase
+#
+# from gosa.backend.objects import ObjectFactory, ObjectProxy
+# from gosa.backend.objects.backend.registry import ObjectBackendRegistry
+# from gosa.backend.utils.ldap import LDAPHandler
+# from gosa.common import Environment
+# from gosa.common.components import PluginRegistry
+#
+#
+# def do_cprofile(func):
+#     def profiled_func(*args, **kwargs):
+#         profile = cProfile.Profile()
+#         try:
+#             profile.enable()
+#             result = func(*args, **kwargs)
+#             profile.disable()
+#             return result
+#         finally:
+#             profile.print_stats()
+#     return profiled_func
+#
+#
+# def do_profile(follow=[]):
+#     def inner(func):
+#         def profiled_func(*args, **kwargs):
+#             try:
+#                 profiler = LineProfiler()
+#                 profiler.add_function(func)
+#                 for f in follow:
+#                     profiler.add_function(f)
+#                 profiler.enable_by_count()
+#                 return func(*args, **kwargs)
+#             finally:
+#                 profiler.print_stats()
+#         return profiled_func
+#     return inner
 
 
 # class IndexTestCase(TestCase):
