@@ -48,6 +48,7 @@ class SessionKeeper(Plugin):
         self.env = env
         self.__dr = DBusRunner.get_instance()
         self.__bus = None
+        self.__notify_backend = env.config.getboolean("client.dbus-login", default=True)
 
         # Register for resume events
         zope.event.subscribers.append(self.__handle_events)
@@ -104,14 +105,15 @@ class SessionKeeper(Plugin):
         self.sendSessionNotification()
 
     def sendSessionNotification(self):
-        # Build event
-        mqtt = PluginRegistry.getInstance("MQTTClientHandler")
-        e = EventMaker()
-        more = set([x['uid'] for x in self.__sessions.values()])
-        more = map(e.Name, more)
-        info = e.Event(
-            e.UserSession(
-                e.Id(self.env.uuid),
-                e.User(*more)))
+        if self.__notify_backend is True:
+            # Build event
+            mqtt = PluginRegistry.getInstance("MQTTClientHandler")
+            e = EventMaker()
+            more = set([x['uid'] for x in self.__sessions.values()])
+            more = map(e.Name, more)
+            info = e.Event(
+                e.UserSession(
+                    e.Id(self.env.uuid),
+                    e.User(*more)))
 
-        mqtt.send_event(info)
+            mqtt.send_event(info)
