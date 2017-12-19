@@ -464,14 +464,14 @@ class ClientService(Plugin):
             manager = res[0]['dn']
 
             # Create new machine entry
-            dn = ",".join([self.env.config.get("goto.machine-rdn", default="ou=devices,ou=systems"), self.env.base])
+            dn = ",".join([self.env.config.get("goto.machine-rdn", default="ou=systems"), self.env.base])
             record = ObjectProxy(dn, "Device")
             record.extend("RegisteredDevice")
             record.extend("ieee802Device")
             record.extend("simpleSecurityObject")
             record.deviceUUID = cn
             record.deviceKey = Binary(device_key)
-            record.cn = cn
+            record.cn = "mac%s" % mac.replace(":", "")
             record.manager = manager
             record.status_Offline = True
             record.macAddress = mac.encode("ascii", "ignore")
@@ -481,6 +481,9 @@ class ClientService(Plugin):
 
             record.commit()
             self.log.info("UUID '%s' joined as %s" % (device_uuid, record.dn))
+
+        # make sure the client has the access rights he needs
+        self.applyClientRights(cn)
 
         return [key, cn]
 
@@ -513,23 +516,8 @@ class ClientService(Plugin):
 
             self.__user_session[id] = users
 
-            if len(users):
-                # save login time and system<->user references
-                client = self.__open_device(id)
-                client.gotoLastUser = users[0]
-                client.commit()
-
-                index = PluginRegistry.getInstance("ObjectIndex")
-                res = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1})
-                for u in res:
-                    user = ObjectProxy(u["dn"])
-                    if not user.is_extended_by("GosaAccount"):
-                        user.extend("GosaAccount")
-                    user.gotoLastSystemLogin = datetime.datetime.now()
-                    user.gotoLastSystem = client.dn
-                    user.commit()
-
-            self.systemSetStatus(id, "+B")
+            for user in users:
+                self.startUserSession(id, user)
 
             if len(new_users):
                 self.log.debug("configuring new users: %s" % new_users)
@@ -540,6 +528,45 @@ class ClientService(Plugin):
             self.systemSetStatus(id, "-B")
 
         self.log.debug("updating client '%s' user session: %s" % (id, ','.join(self.__user_session[id])))
+
+    @Command(__help__=N_("Prepare a user session after a user has logged in"))
+    def preUserSession(self, client_id, user_name):
+        # save login time and system<->user references
+        client = self.__open_device(client_id)
+        client.gotoLastUser = user_name
+        client.commit()
+
+        index = PluginRegistry.getInstance("ObjectIndex")
+        res = index.search({"_type": "User", "uid": user_name}, {"dn": 1})
+        for u in res:
+            user = ObjectProxy(u["dn"])
+            if not user.is_extended_by("GosaAccount"):
+                user.extend("GosaAccount")
+            user.gotoLastSystemLogin = datetime.datetime.now()
+            user.gotoLastSystem = client.dn
+            user.commit()
+
+        self.systemSetStatus(client_id, "+B")
+
+        user_config = self.__collect_user_configuration(client_id, [user_name])
+        print(user_config)
+        if user_config is not None and user_name in user_config:
+            return user_config[user_name]
+        else:
+            return None
+
+    @Command(__help__=N_("Cleanup a user session after a user has logged out"))
+    def postUserSession(self, client_id, user):
+        """
+        :param client_id: clients deviceUUID
+        :param user: uid of the user that has logged out
+        """
+        if client_id not in self.__user_session:
+            self.__user_session[client_id] = []
+        if user in self.__user_session[client_id]:
+            self.__user_session[client_id].remove(user)
+        if len(self.__user_session[client_id]) == 0:
+            self.systemSetStatus(client_id, "-B")
 
     @Command(__help__="Send user configurations of all logged in user to a client")
     def configureUsers(self, client_id, users):
@@ -563,8 +590,11 @@ class ClientService(Plugin):
         :param users: list of currently logged in users on the client
         """
         client = self.__open_device(client_id)
-        group = ObjectProxy(client.groupMembership) if client.groupMembership is not None else None
+        group = None
         index = PluginRegistry.getInstance("ObjectIndex")
+        res = index.search({"_type": "GroupOfNames", "member": client.dn}, {"dn": 1})
+        if len(res) > 0:
+            group = ObjectProxy(res[0]["dn"])
         config = {}
 
         resolution = None
@@ -590,7 +620,6 @@ class ClientService(Plugin):
 
         if release is None:
             self.log.error("no release found for client/user combination (%s/%s)" % (client_id, users))
-            return
 
         client_menu = None
 
@@ -602,26 +631,28 @@ class ClientService(Plugin):
         for entry in query_result:
             user = ObjectProxy(entry["dn"])
             config[user.uid] = {}
-            menus = []
-            if client_menu is not None:
-                menus.append(client_menu)
 
-            # get all groups the user is member of which have a menu for the given release
-            query = {'_type': 'GroupOfNames', "member": user.dn, "extension": "GotoMenu", "gotoLsbName": release}
+            if release is not None:
+                menus = []
+                if client_menu is not None:
+                    menus.append(client_menu)
 
-            for res in index.search(query, {"gotoMenu": 1}):
-                # collect user menus
-                for m in res["gotoMenu"]:
-                    menus.append(loads(m))
+                # get all groups the user is member of which have a menu for the given release
+                query = {'_type': 'GroupOfNames', "member": user.dn, "extension": "GotoMenu", "gotoLsbName": release}
 
-            if len(menus):
-                user_menu = None
-                for menu_entry in menus:
-                    if user_menu is None:
-                        user_menu = self.get_submenu(menu_entry)
-                    else:
-                        self.merge_submenu(user_menu, self.get_submenu(menu_entry))
-                config[user.uid]["menu"] = user_menu
+                for res in index.search(query, {"gotoMenu": 1}):
+                    # collect user menus
+                    for m in res["gotoMenu"]:
+                        menus.append(loads(m))
+
+                if len(menus):
+                    user_menu = None
+                    for menu_entry in menus:
+                        if user_menu is None:
+                            user_menu = self.get_submenu(menu_entry)
+                        else:
+                            self.merge_submenu(user_menu, self.get_submenu(menu_entry))
+                    config[user.uid]["menu"] = user_menu
 
             # collect printer settings for user, starting with the clients printers
             settings = self.__collect_printer_settings(group)
@@ -769,37 +800,6 @@ class ClientService(Plugin):
         """
         if client_id in self.__user_session:
             self.configureUsers(client_id, self.__user_session[client_id])
-
-    @Command(__help__=N_("Prepare a user session after a user has logged in"))
-    def preUserSession(self, client_id, user):
-        """
-        :param client_id: clients deviceUUID
-        :param user: uid of the user that has logged out
-        :returns: user configuration {"menu": ..., "printer-setup": ..., "resolution": (width, height)}
-        """
-        if client_id not in self.__user_session:
-            self.__user_session[client_id] = []
-
-        if user not in self.__user_session[client_id]:
-            self.__user_session[client_id].append(user)
-
-        self.systemSetStatus(client_id, "+B")
-        # send configuration to client
-        config = self.__collect_user_configuration(client_id, [user])
-        return config[user]
-
-    @Command(__help__=N_("Cleanup a user session after a user has logged out"))
-    def postUserSession(self, client_id, user):
-        """
-        :param client_id: clients deviceUUID
-        :param user: uid of the user that has logged out
-        """
-        if client_id not in self.__user_session:
-            self.__user_session[client_id] = []
-        if user in self.__user_session[client_id]:
-            self.__user_session[client_id].remove(user)
-        if len(self.__user_session[client_id]) == 0:
-            self.systemSetStatus(client_id, "-B")
 
     def configureHostPrinters(self, client_id, config):
         """ configure the printers for this client via dbus. """
@@ -993,3 +993,48 @@ class ClientService(Plugin):
             if info['last-seen'] < datetime.datetime.utcnow() - datetime.timedelta(seconds=2 * interval):
                 self.log.info("client '%s' looks dead - setting to 'offline'" % client)
                 self.__set_client_offline(client)
+
+    def applyClientRights(self, device_uuid):
+        # check rights
+        acl = PluginRegistry.getInstance("ACLResolver")
+        if not acl.check(device_uuid, "%s.%s.%s" % (self.env.domain, "command", "preUserSession"), "x"):
+            role_name = "$$ClientDevices"
+            # create AclRole for joining if not exists
+            index = PluginRegistry.getInstance("ObjectIndex")
+            res = index.search({"_type": "AclRole", "name": role_name}, {"dn": 1})
+            if len(res) == 0:
+                # create
+                role = ObjectProxy(self.env.base, "AclRole")
+                role.name = role_name
+
+                # create rule
+                aclentry = {
+                    "priority": 0,
+                    "scope": "sub",
+                    "actions": [
+                        {
+                            "topic": "%s\.command\.(joinClient|preUserSession|postUserSession)" % self.env.domain,
+                            "acl": "x",
+                            "options": {}
+                        }
+                    ]}
+                role.AclRoles = [aclentry]
+                role.commit()
+
+            # check if device has role
+            found = False
+            base = ObjectProxy(self.env.base)
+            if base.is_extended_by("Acl"):
+                for entry in base.AclSets:
+                    if entry["rolename"] == role_name and device_uuid in entry["members"]:
+                        found = True
+                        break
+            else:
+                base.extend("Acl")
+
+            if found is False:
+                acl_entry = {"priority": 0,
+                             "members": [device_uuid],
+                             "rolename": role_name}
+                base.AclSets.append(acl_entry)
+                base.commit()

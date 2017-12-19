@@ -88,6 +88,7 @@ setup(
         [console_scripts]
         gosa-client = gosa.client.main:main
         gosa-join = gosa.client.join:main
+        gosa-session = gosa.client.session:main
 
         [gosa.client.join.module]
         join.cli = gosa.client.plugins.join.cli:Cli

@@ -553,12 +553,12 @@ class RPCMethods(Plugin):
         with make_session() as session:
             query_result, ranked = self.finalize_query(query, fltr, session, qstring=qstring, order_by=order_by)
 
-            try:
-                self.log.info(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-            except Exception as e:
-                self.log.warning(str(e))
-                self.log.info(str(query_result))
-                pass
+            # try:
+            #     self.log.debug(str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+            # except Exception as e:
+            #     self.log.warning(str(e))
+            #     self.log.debug(str(query_result))
+            #     pass
 
             # limit only secondary enabled searches, because e.g. the treeitems use this search to resolve and we do not want to limit those results
             if fltr['secondary'] == "enabled":
@@ -656,12 +656,12 @@ class RPCMethods(Plugin):
 
                 # Execute query and update results
                 sec_result = session.query(ObjectInfoIndex).join(ObjectInfoIndex.properties).options(contains_eager(ObjectInfoIndex.properties)).filter(query)
-                try:
-                    self.log.debug("Secondary query: %s " % str(sec_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-                except Exception as e:
-                    self.log.warning(str(e))
-                    self.log.debug("Secondary query: %s " % str(sec_result))
-                    pass
+                # try:
+                #     self.log.debug("Secondary query: %s " % str(sec_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+                # except Exception as e:
+                #     self.log.warning(str(e))
+                #     self.log.debug("Secondary query: %s " % str(sec_result))
+                #     pass
 
                 results = sec_result.all()
                 total += len(results)
