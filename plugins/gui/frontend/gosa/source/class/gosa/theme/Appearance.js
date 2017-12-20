@@ -183,6 +183,16 @@ qx.Theme.define("gosa.theme.Appearance", {
       }
     },
 
+    "search-list-item/overlay-icon": {
+      style: function() {
+        return {
+          width: 32,
+          scale: true,
+          backgroundColor: "rgba(255,255,255,0.8)"
+        };
+      }
+    },
+
     "search-list-item/dn": {
       style: function() {
         return {

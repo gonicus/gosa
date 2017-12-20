@@ -261,6 +261,7 @@ setup(
         [gosa.object.renderer]
         extensions = gosa.backend.objects.renderer.extensions:ExtensionRenderer
         user_photo = gosa.backend.objects.renderer.photo:UserPhotoRenderer
+        host_state = gosa.backend.objects.renderer.hoststate:HostStateRenderer
 
         [gosa.object]
         object = gosa.backend.objects.proxy:ObjectProxy

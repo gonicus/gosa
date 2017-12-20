@@ -165,6 +165,11 @@ qx.Class.define("gosa.view.Search", {
           controller.bindProperty("uuid", "uuid", null, item, id);
           controller.bindProperty("description", "description", null, item, id);
           controller.bindProperty("icon", "icon", null, item, id);
+          controller.bindProperty("iconColor", "iconColor", null, item, id);
+          controller.bindProperty("overlayIcon", "overlayIcon", null, item, id);
+          controller.bindProperty("overlayIconColor", "overlayIconColor", null, item, id);
+          controller.bindProperty("overlayIconPosition", "overlayIconPosition", null, item, id);
+          controller.bindProperty("iconTooltip", "iconTooltip", null, item, id);
           controller.bindProperty("", "model", null, item, id);
         },
 
@@ -791,6 +796,9 @@ qx.Class.define("gosa.view.Search", {
 
       // Icon fallback to server provided images
       var icon = entry['icon'] ? entry['icon'] : gosa.util.Icons.getIconByType(entry['tag'], 64);
+      if (icon.startsWith("{")) {
+        icon = qx.lang.Json.parse(icon.replace(/'/g, '"'));
+      }
 
       item.setDn(entry.dn);
       item.setTitle(entry.title);

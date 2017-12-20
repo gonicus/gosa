@@ -95,6 +95,36 @@ qx.Class.define("gosa.data.model.SearchResultItem", {
       transform: "_transformIcon"
     },
 
+    iconColor:  {
+      check: "Color",
+      event: "changeIconColor",
+      nullable: true
+    },
+
+    iconTooltip: {
+      check: "String",
+      event: "changeIconTooltip",
+      nullable: true
+    },
+
+    overlayIcon: {
+      check: "String",
+      event: "changeOverlayIcon",
+      nullable: true
+    },
+
+    overlayIconColor:  {
+      check: "Color",
+      event: "changeOverlayIconColor",
+      nullable: true
+    },
+
+    overlayIconPosition: {
+      check: ["top-left", "top-right", "bottom-left", "bottom-right", "center"],
+      init: "bottom-right",
+      event: "changeOverlayIconPosition"
+    },
+
     highlight: {
       check: "RegExp",
       nullable: true,
@@ -167,6 +197,23 @@ qx.Class.define("gosa.data.model.SearchResultItem", {
           this.__typeIconUsed = true;
           return this.setIcon(gosa.util.Icons.getIconByType(this.getType(), 64));
         }
+      } else if (qx.lang.Type.isObject(value)) {
+        if (value.hasOwnProperty("tooltip")) {
+          this.setIconTooltip(value.tooltip);
+        }
+        if (value.hasOwnProperty("color")) {
+          this.setIconColor(value.color);
+        }
+        if (value.hasOwnProperty("overlay")) {
+          this.setOverlayIcon(value.overlay.icon);
+          if (value.overlay.hasOwnProperty("color")) {
+            this.setOverlayIconColor(value.overlay.color);
+          }
+          if (value.overlay.hasOwnProperty("position")) {
+            this.setOverlayIconPosition(value.overlay.position);
+          }
+        }
+        return value.icon;
       }
       return value;
     },
