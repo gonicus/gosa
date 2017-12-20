@@ -294,9 +294,10 @@ class ObjectFactory(object):
                             type=r.attrib['type'] if 'type' in r.attrib else None))
 
                 res['map'] = {}
-                for r in attr['Result']:
-                    for m in r['Map']:
-                        res['map'][m['Destination'].text] = m['Source'].text
+                if 'Result' in attr.__dict__:
+                    for r in attr['Result']:
+                        for m in r['Map']:
+                            res['map'][m['Destination'].text] = m['Source'].text
 
         return res
 

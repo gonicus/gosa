@@ -886,20 +886,6 @@
         <RequiresExtension>
             <Extension>PosixUser</Extension>
         </RequiresExtension>
-        <Find>
-            <Aspect>
-                <Tag>User</Tag>
-                <Keyword>Samba</Keyword>
-                <Search>sambaSID</Search>
-                <Resolve filter="dn">manager</Resolve>
-                <Result>
-                    <Map>
-                        <Source>sambaSID</Source>
-                        <Destination>title</Destination>
-                    </Map>
-                </Result>
-            </Aspect>
-        </Find>
     </Object>
 </Objects>
 
