@@ -111,7 +111,20 @@ qx.Class.define("gosa.Application",
             var extension = parts.path.startsWith("/") ? parts.path.substring(1) : parts.path;
 
             if (action === "edit") {
+              var qxWidget = qx.ui.core.Widget.getWidgetByElement(ev.target);
+              while (!(qxWidget instanceof gosa.ui.SearchListItem)) {
+                qxWidget = qxWidget.getLayoutParent();
+                if (!qxWidget) {
+                  break;
+                }
+              }
+              if (qxWidget) {
+                qxWidget.setIsLoading(true);
+              }
               gosa.ui.controller.Objects.getInstance().openObject(dn).then(function(widget) {
+                if (qxWidget) {
+                  qxWidget.setIsLoading(false);
+                }
                 var context = widget.getController().getContextByExtensionName(extension);
                 if (context) {
                   widget.openTab(context);
