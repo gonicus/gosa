@@ -758,7 +758,7 @@
 					<Destination>title</Destination>
 				</Map>
 				<Map>
-					<Source><![CDATA[<i>uid</i>: %(uid)s %(description)s %(phoneRenderer)s %(mailRenderer)s<br><i>Extensions:</i>%(extensions)s]]></Source>
+					<Source><![CDATA[<i>uid</i>: %(uid)s %(description)s %(phoneRenderer)s %(mailRenderer)s<br><i>Extensions:</i> %(extensions)s]]></Source>
 					<Destination>description</Destination>
 				</Map>
 				<Map>

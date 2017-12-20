@@ -11,5 +11,5 @@ class ExtensionRendererTestCase(unittest.TestCase):
     def test_render(self):
         assert ExtensionRenderer.render({}) == ""
         assert ExtensionRenderer.render({
-            "Extension":["ext1"],
-            "DN": ["dn"]}) == "Extensions: <a href='gosa://dn/ext1?edit'>ext1</a>"
+            "_extensions": ["ext1"],
+            "dn": ["dn"]}) == "<a href='gosa://dn/ext1?edit'>ext1</a>"

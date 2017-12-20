@@ -112,6 +112,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
 
         var controller = new gosa.data.controller.ObjectEdit(obj, w);
         w.setController(controller);
+        return w;
       }, this)
       .catch(function(error) {
         this.error(error);

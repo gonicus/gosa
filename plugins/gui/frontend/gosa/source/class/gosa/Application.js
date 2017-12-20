@@ -96,15 +96,36 @@ qx.Class.define("gosa.Application",
 
       /*
       -------------------------------------------------------------------------
-        Create basic tabbed clacks view
+        Create basic tabbed gosa view
       -------------------------------------------------------------------------
       */
 
-      // Optionally register protocol handler for clacks
-      //var reg_path = window.location.origin + window.location.pathname;
-      //if (navigator.registerProtocolHandler) {
-      //  navigator.registerProtocolHandler('web+gosa', reg_path + '#%s', this.tr('GOsa protocol handler'));
-      //}
+      // catch all click events to catch web+gosa:// protocol links
+      window.onclick = function(ev) {
+        if (ev.target.tagName.toLowerCase() === "a" && qx.bom.element.Attribute.get(ev.target, "href")) {
+          var url = qx.bom.element.Attribute.get(ev.target, "href").replace(/<\/?b>/g, '');
+          if (url.startsWith("web+gosa://")) {
+            var parts = qx.util.Uri.parseUri(url);
+            var action = parts.query;
+            var dn = parts.host;
+            var extension = parts.path.startsWith("/") ? parts.path.substring(1) : parts.path;
+
+            if (action === "edit") {
+              gosa.ui.controller.Objects.getInstance().openObject(dn).then(function(widget) {
+                var context = widget.getController().getContextByExtensionName(extension);
+                if (context) {
+                  widget.openTab(context);
+                }
+              });
+            } else {
+              this.warning("unhandled action type: ", action);
+            }
+
+            ev.preventDefault();
+            ev.stopPropagation();
+          }
+        }
+      };
 
       // Base settings
       var locale = gosa.Tools.getLocale();
@@ -318,7 +339,7 @@ qx.Class.define("gosa.Application",
      * address bar.
      *
      * E.g. the 'User' action 'Change_password' should also be triggerable
-     * by passing the url "https://clacks-server/index.html#Change_password:UUID"
+     * by passing the url "https://gosa-server/index.html#Change_password:UUID"
      * to the address bar.
      *
      * This method registers an URL-handler for each found ui-action.

@@ -347,7 +347,7 @@ qx.Class.define("gosa.ui.SearchListItem", {
         case "title":
           control = new qx.ui.basic.Label("");
           this.getChildControl("container").add(control, {row: 0, column: 1});
-          control.addListener("click", function(){
+          control.addListener("tap", function(){
               this.fireDataEvent("edit", this.getModel());
             }, this);
           control.setRich(true);
