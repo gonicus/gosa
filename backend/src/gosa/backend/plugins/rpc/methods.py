@@ -761,7 +761,8 @@ class RPCMethods(Plugin):
         return penalty
 
     def update_res(self, res, search_item, user=None, relevance=0, secondary=False, these=None, actions=False):
-
+        if search_item._type not in self.__search_aid['mapping']:
+            return
         aid = self.__search_aid['mapping'][search_item._type]
 
         for ext in search_item.extensions:
@@ -782,8 +783,6 @@ class RPCMethods(Plugin):
 
         entry = {'tag': item['_type'], 'relevance': relevance, 'uuid': item['_uuid'],
             'secondary': secondary, 'lastChanged': item['_last_changed'], 'hasChildren': True}
-
-
 
         for k, v in aid.items():
             if k:
