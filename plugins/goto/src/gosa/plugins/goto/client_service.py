@@ -825,7 +825,7 @@ class ClientService(Plugin):
                 printer = ObjectProxy(printer_dn)
                 p_conf = {}
                 for attr in self.printer_attributes:
-                    p_conf[attr] = getattr(printer, attr)
+                    p_conf[attr] = getattr(printer, attr) if getattr(printer, attr) is not None else ""
                 settings["printers"].append(p_conf)
         return settings
 
