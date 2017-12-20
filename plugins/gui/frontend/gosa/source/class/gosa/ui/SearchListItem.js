@@ -28,6 +28,8 @@ qx.Class.define("gosa.ui.SearchListItem", {
 
     this.setSelectable(false);
     this._setLayout(new qx.ui.layout.Canvas());
+
+    this.bind("iconTooltip", this.getChildControl("icon"), "toolTipText");
   },
 
   events: {
@@ -107,10 +109,40 @@ qx.Class.define("gosa.ui.SearchListItem", {
     toolbarEnabled: {
       check: "Boolean",
       init: true
+    },
+    iconColor:  {
+      check: "Color",
+      event: "changeIconColor",
+      nullable: true
+    },
+
+    iconTooltip: {
+      check: "String",
+      event: "changeIconTooltip",
+      nullable: true
+    },
+
+    overlayIcon: {
+      check: "String",
+      nullable: true,
+      apply: "_applyOverlayIcon"
+    },
+
+    overlayIconColor:  {
+      check: "Color",
+      nullable: true
+    },
+
+    overlayIconPosition: {
+      check: ["top-left", "top-right", "bottom-left", "bottom-right", "center"],
+      init: "bottom-right",
+      themeable: true,
+      apply: "__maintainOverlayPosition"
     }
   },
 
   members: {
+    __overlayIconSize: 30,
 
     reset: function(){
       if(this.isIsLoading()){
@@ -163,15 +195,35 @@ qx.Class.define("gosa.ui.SearchListItem", {
       }
     },
 
-    _applyIcon: function(value){
+    _applyIcon: function(){
       var widget = this.getChildControl("icon");
-      if (value) {
+      var source = this.getIcon();
+      if (source) {
         new qx.util.DeferredCall(function() {
-          widget.setSource(value);
+          widget.setSource(source);
+          if (this.getIconColor()) {
+            widget.setTextColor(this.getIconColor());
+          }
         }, this).schedule();
         this._showChildControl("icon");
       } else {
         this._excludeChildControl("icon");
+      }
+    },
+
+    _applyOverlayIcon: function() {
+      var widget = this.getChildControl("overlay-icon");
+      var source = this.getOverlayIcon();
+      if (source) {
+        new qx.util.DeferredCall(function() {
+          widget.setSource(source+"/"+this.__overlayIconSize);
+          if (this.getOverlayIconColor()) {
+            widget.setTextColor(this.getOverlayIconColor());
+          }
+        }, this).schedule();
+        this._showChildControl("overlay-icon");
+      } else {
+        this._excludeChildControl("overlay-icon");
       }
     },
 
@@ -186,6 +238,37 @@ qx.Class.define("gosa.ui.SearchListItem", {
       var widget = this.getChildControl("dn");
       if(widget){
         widget.setValue(value);
+      }
+    },
+
+    __maintainOverlayPosition: function() {
+      if (!this.getOverlayIcon()) {
+        return;
+      }
+      var iconBounds = this.getChildControl("icon").getBounds();
+      if (!iconBounds) {
+        this.getChildControl("icon").addListenerOnce("appear", this.__maintainOverlayPosition, this);
+        return;
+      }
+      var margin = 2;
+      var size = this.__overlayIconSize;
+      var overlayIcon = this.getChildControl("overlay-icon");
+      switch (this.getOverlayIconPosition()) {
+        case "top-left":
+          overlayIcon.setUserBounds(margin, margin, size, size);
+          break;
+        case "top-right":
+          overlayIcon.setUserBounds(margin, iconBounds.width - margin - size, size, size);
+          break;
+        case "bottom-left":
+          overlayIcon.setUserBounds(iconBounds.height - margin - size, margin, size, size);
+          break;
+        case "bottom-right":
+          overlayIcon.setUserBounds(iconBounds.height - margin - size, iconBounds.width - margin - size, size, size);
+          break;
+        case "center":
+          overlayIcon.setUserBounds(Math.round(iconBounds.height/2 - size/2), Math.round(iconBounds.width/2 - size/2), size, size);
+          break;
       }
     },
 
@@ -247,6 +330,18 @@ qx.Class.define("gosa.ui.SearchListItem", {
           control = new qx.ui.basic.Image();
           control.setAnonymous(true);
           this.getChildControl("container").add(control, {row: 0, column: 0, rowSpan: 3});
+          break;
+
+        case "overlay-icon":
+          control = new qx.ui.basic.Image();
+          control.setAnonymous(true);
+          control.exclude();
+          control.setUserBounds(0,0,0,0);
+          if (this.getOverlayIcon()) {
+            new qx.util.DeferredCall(this.__maintainOverlayPosition, this).schedule();
+          }
+          this.getChildControl("icon").addListener("resize", this.__maintainOverlayPosition, this);
+          this.getChildControl("container").add(control);
           break;
 
         case "title":

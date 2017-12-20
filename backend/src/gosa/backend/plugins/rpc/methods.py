@@ -761,9 +761,15 @@ class RPCMethods(Plugin):
         return penalty
 
     def update_res(self, res, search_item, user=None, relevance=0, secondary=False, these=None, actions=False):
-    
+
+        aid = self.__search_aid['mapping'][search_item._type]
+
+        for ext in search_item.extensions:
+            if ext in self.__search_aid['mapping']:
+                aid.update(self.__search_aid['mapping'][ext])
+
         # Filter out what the current use is not allowed to see
-        item = self.__filter_entry(user, search_item, these)
+        item = self.__filter_entry(user, search_item, these, aid=aid)
         if not item or item['dn'] is None:
             # We've obviously no permission to see thins one - skip it
             return
@@ -776,7 +782,10 @@ class RPCMethods(Plugin):
 
         entry = {'tag': item['_type'], 'relevance': relevance, 'uuid': item['_uuid'],
             'secondary': secondary, 'lastChanged': item['_last_changed'], 'hasChildren': True}
-        for k, v in self.__search_aid['mapping'][item['_type']].items():
+
+
+
+        for k, v in aid.items():
             if k:
                 if len(search_item.search_object) == 1 is not None and hasattr(search_item.search_object[0], k) and getattr(search_item.search_object[0], k) is not None:
                     entry[k] = getattr(search_item.search_object[0], k)
@@ -823,7 +832,7 @@ class RPCMethods(Plugin):
         res = re.sub(r"<br>$", "", res)
         return "<br>".join([s.strip() for s in res.split("<br>")])
 
-    def __filter_entry(self, user, entry, these=None):
+    def __filter_entry(self, user, entry, these=None, aid=None):
         """
         Takes a query entry and decides based on the user what to do
         with the result set.
@@ -839,10 +848,18 @@ class RPCMethods(Plugin):
         """
         ne = {'dn': entry.dn, '_type': entry._type, '_uuid': entry.uuid, '_last_changed': entry._last_modified}
 
-        if not entry._type in self.__search_aid['mapping']:
-            return None
+        if aid is not None:
+            if not entry._type in self.__search_aid['mapping']:
+                return None
 
-        attrs = self.__search_aid['mapping'][entry._type].values()
+            aid = self.__search_aid['mapping'][entry._type]
+
+        attrs = []
+        for v in aid.values():
+            if v is None:
+                continue
+            for attr in re.findall(r"%\(([^)]+)\)s", v):
+                attrs.append(attr)
         get_attrs = []
 
         for attr in attrs:
@@ -852,6 +869,8 @@ class RPCMethods(Plugin):
             if attr is not None and self.__has_access_to(user, entry.dn, entry._type, attr):
                 if hasattr(ObjectInfoIndex, attr):
                     ne[attr] = getattr(entry, attr)
+                elif hasattr(SearchObjectIndex, attr):
+                    ne[attr] = getattr(entry.search_object[0], attr)
                 else:
                     get_attrs.append(attr)
                     ne[attr] = None

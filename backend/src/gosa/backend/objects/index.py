@@ -609,11 +609,6 @@ class ObjectIndex(Plugin):
         # Some object may have queued themselves to be re-indexed, process them now.
         self.log.info("need to refresh index for %d objects" % total)
 
-        # dns = []
-        # with make_session() as session:
-        #     for res in session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid.in_(uuids)).all():
-        #         dns.append(res[0])
-
         with Pool(processes=self.procs) as pool:
             result = pool.starmap_async(post_process, [(uuid,) for uuid in uuids], chunksize=1)
             while not result.ready():
@@ -806,9 +801,17 @@ class ObjectIndex(Plugin):
             types = [data['_type']]
             types.extend(data["_extensions"])
             # append aliases to search words
-            if data['_type'] in self.__search_aid['aliases']:
-                types.extend(self.__search_aid['aliases'][data['_type']])
+            for type in types[:]:
+                if type in self.__search_aid['aliases']:
+                    types.extend(self.__search_aid['aliases'][type])
 
+            for ext in data["_extensions"]:
+                if ext in self.__search_aid['mapping']:
+                    aid.update(self.__search_aid['mapping'][ext])
+                if ext in self.__search_aid['attrs']:
+                    attrs.extend(self.__search_aid['attrs'][ext])
+
+            attrs = list(set(attrs))
             search_words = [", ".join(data[x]) for x in attrs if x in data and data[x] is not None]
             so = SearchObjectIndex(
                 so_uuid=data["_uuid"],
@@ -1217,11 +1220,11 @@ class ObjectIndex(Plugin):
         if 'limit' in options:
             q.limit(options['limit'])
 
-        try:
-            self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-        except Exception as e:
-            self.log.error("Error creating SQL string: %s" % str(e))
-            self.log.debug(str(q))
+        # try:
+        #     self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+        # except Exception as e:
+        #     self.log.error("Error creating SQL string: %s" % str(e))
+        #     self.log.debug(str(q))
 
         try:
             for o in q.all():

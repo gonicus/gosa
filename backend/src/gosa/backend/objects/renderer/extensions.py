@@ -18,7 +18,7 @@ class ExtensionRenderer(ResultRenderer):
 
     @staticmethod
     def render(data):
-        if "Extension" in data:
-            return "Extensions: " + (", ".join(["<a href='gosa://%s/%s?edit'>%s</a>" % (data['DN'][0], i, i) for i in data['Extension']]))
+        if "_extensions" in data:
+            return (", ".join(["<a href='gosa://%s/%s?edit'>%s</a>" % (data['dn'][0], i, i) for i in data['_extensions']]))
 
         return ""

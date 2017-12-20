@@ -481,5 +481,27 @@
     <Extends>
       <Value>Device</Value>
     </Extends>
+    <Find>
+      <Aspect>
+        <Tag>Host</Tag>
+        <Keyword>Server</Keyword>
+        <Keyword>Foreman</Keyword>
+        <Search>status</Search>
+        <Result>
+          <Map>
+            <Source>cn</Source>
+            <Destination>title</Destination>
+          </Map>
+          <Map>
+            <Source><![CDATA[<i>State:</i> %(status)s - %(description)s]]></Source>
+            <Destination>description</Destination>
+          </Map>
+          <Map>
+            <Source><![CDATA[%(hostStateRenderer)s]]></Source>
+            <Destination>icon</Destination>
+          </Map>
+        </Result>
+      </Aspect>
+    </Find>
   </Object>
 </Objects>
