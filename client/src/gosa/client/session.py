@@ -72,15 +72,18 @@ def notify_backend(env, mode, user):
                 # send config to dbus
                 if "menu" in config:
                     # send to client
-                    print("sending generated menu for user %s" % user)
+                    print("sending generated menu for user '%s'" % user)
                     dbus_proxy.callDBusMethod("dbus_configureUserMenu", user, dumps(config["menu"]))
 
                 if "printer-setup" in config and "printers" in config["printer-setup"]:
                     dbus_proxy.callDBusMethod("dbus_deleteAllPrinters")
                     for p_conf in config["printer-setup"]["printers"]:
-                        dbus_proxy.callDBusMethod("dbus_addPrinter", p_conf)
+                        print("adding printer '%s'" % p_conf["cn"])
+                        p = {key: value if value is not None else "" for (key, value) in p_conf.items()}
+                        dbus_proxy.callDBusMethod("dbus_addPrinter", p)
 
                     if "defaultPrinter" in config["printer-setup"] and config["printer-setup"]["defaultPrinter"] is not None:
+                        print("setting '%s' as default printer" % config["printer-setup"]["defaultPrinter"])
                         dbus_proxy.callDBusMethod("dbus_defaultPrinter", config["printer-setup"]["defaultPrinter"])
 
                 if "resolution" in config and config["resolution"] is not None and len(config["resolution"]):
