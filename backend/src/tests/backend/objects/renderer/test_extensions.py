@@ -12,4 +12,4 @@ class ExtensionRendererTestCase(unittest.TestCase):
         assert ExtensionRenderer.render({}) == ""
         assert ExtensionRenderer.render({
             "_extensions": ["ext1"],
-            "dn": "dn"}) == "<a href='gosa://dn/ext1?edit'>ext1</a>"
+            "dn": "dn"}) == "<a href='web+gosa://dn/ext1?edit'>ext1</a>"
