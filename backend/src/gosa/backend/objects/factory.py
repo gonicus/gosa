@@ -109,6 +109,7 @@ class ObjectFactory(object):
     __attribute_type = {}
     __object_types = {}
     __xml_objects_combined = None
+    __class_names = []
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -162,6 +163,10 @@ class ObjectFactory(object):
         if not name in self.__classes:
             self.__classes[name] = self.__build_class(name)
         return self.__classes[name]
+
+    def create_classes(self):
+        for name in self.__class_names:
+            self.__get_class(name)
 
     def getObjectBackendProperties(self, name):
         return getattr(self.__get_class(name), "_backendAttrs")
@@ -795,6 +800,7 @@ class ObjectFactory(object):
             if find.hasattr(xml):
                 for attr in find(xml):
                     self.__xml_defs[attr['Name'].text] = attr
+                    self.__class_names.append(attr['Name'].text)
                     self.log.info("loaded schema for '%s'" % attr['Name'].text)
 
         except etree.XMLSyntaxError as e:

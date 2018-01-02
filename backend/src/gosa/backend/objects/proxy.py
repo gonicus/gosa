@@ -77,7 +77,8 @@ C.register_codes(dict(
     PERMISSION_ACCESS=N_("No permission to access '%(topic)s' on '%(target)s'"),
     OBJECT_UUID_MISMATCH=N_("UUID of base (%(b_uuid)s) and extension (%(e_uuid)s) differ"),
     MOVE_TARGET_INVALID=N_("moving object '%(target)s' from '%(old_dn)s' to '%(new_dn)s' failed: no valid container found"),
-    OBJECT_EXTENSION_CONDITION_FAILED=N_("Extension '%(extension)s' condition not met")
+    OBJECT_EXTENSION_CONDITION_FAILED=N_("Extension '%(extension)s' condition not met"),
+    CANNOT_CREATE_OBJECT_READ_ONLY=N_("Cannot create object in read-only mode.")
     ))
 
 
@@ -108,8 +109,9 @@ class ObjectProxy(object):
     __search_aid = None
     __attribute_change_hooks = None
     __attribute_change_write_hooks = None
+    __read_only = False
 
-    def __init__(self, _id, what=None, user=None, session_id=None, data=None):
+    def __init__(self, _id, what=None, user=None, session_id=None, data=None, read_only=False):
         self.__env = Environment.getInstance()
         self.__log = getLogger(__name__)
         self.__factory = ObjectFactory.getInstance()
@@ -128,6 +130,7 @@ class ObjectProxy(object):
         self.__property_map = {}
         self.__foreign_attrs = []
         self.__all_method_names = []
+        self.__read_only = read_only
         # hooks that are triggered on every setattr
         self.__attribute_change_hooks = {}
         # hooks that are triggered when the attribute change is committed
@@ -162,13 +165,18 @@ class ObjectProxy(object):
         if not base:
             raise ProxyException(C.make_error('OBJECT_NOT_FOUND', id=dn_or_base))
 
+        if read_only is True and base_mode == "create":
+            raise ProxyException(C.make_error('CANNOT_CREATE_OBJECT_READ_ONLY', id=dn_or_base))
+
         # Get available extensions
         self.__log.debug("loading %s base object for %s" % (base, dn_or_base))
         all_extensions = object_types[base]['extended_by']
 
         # Load base object and extensions
-        self.__base = self.__factory.getObject(base, dn_or_base, mode=base_mode, data=data[base] if data is not None and base in data else
-        None)
+        self.__base = self.__factory.getObject(base, dn_or_base,
+                                               mode=base_mode,
+                                               data=data[base] if data is not None and base in data else None,
+                                               read_only=self.__read_only)
         self.__base._owner = self.__current_user
         self.__base._session_id = self.__current_session_id
         self.__base.parent = self
@@ -176,9 +184,9 @@ class ObjectProxy(object):
         self.__base_mode = base_mode
         for extension in extensions:
             self.__log.debug("loading %s extension for %s" % (extension, dn_or_base))
-            self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid, data=data[extension] if data is not None
-                                                                                                                         and extension in
-                                                                                                                         data else None)
+            self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid,
+                                                                    data=data[extension] if data is not None and extension in data else None,
+                                                                    read_only=self.__read_only)
             self.__extensions[extension].dn = self.__base.dn
             self.__extensions[extension].parent = self
             self.__extensions[extension]._owner = self.__current_user

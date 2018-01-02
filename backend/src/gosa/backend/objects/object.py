@@ -105,6 +105,7 @@ class Object(object):
     _type = None
     attributesInSaveOrder = None
     _validator = None
+    _read_only = False
 
     def __saveOrder(self):
         """
@@ -148,9 +149,10 @@ class Object(object):
             res[level].append(item)
         return res
 
-    def __init__(self, where=None, mode="update", data=None, force_update=False):
+    def __init__(self, where=None, mode="update", data=None, force_update=False, read_only=False):
         self.env = Environment.getInstance()
         self._validator = Validator(self)
+        self._read_only = read_only
 
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
@@ -319,72 +321,85 @@ class Object(object):
         # And then assign the values to the properties.
         self.log.debug("object uuid: %s" % self.uuid)
 
-        # get ordered list of backends, load main backend first
-        if self._backend in self._propsByBackend:
-            backends = [self._backend]
-            for backend in self._propsByBackend:
-                if backend != self._backend:
-                    backends.append(backend)
+        if self._read_only is True:
+            # just load everything from database
+            index = PluginRegistry.getInstance("ObjectIndex")
+            res = index.search({"uuid": self.uuid}, {k: 1 for k in self.myProperties.keys()})
+
+            for prop, values in res[0].items():
+                if prop in self.myProperties:
+                    # Keep original values, they may be overwritten in the in-filters.
+                    self.myProperties[prop]['in_value'] = self.myProperties[prop]['value'] = values
+                    self.log.debug("%s: %s" % (prop, self.myProperties[prop]['value']))
+
         else:
-            backends = self._propsByBackend.keys()
 
-        changed_attributes = []
+            # get ordered list of backends, load main backend first
+            if self._backend in self._propsByBackend:
+                backends = [self._backend]
+                for backend in self._propsByBackend:
+                    if backend != self._backend:
+                        backends.append(backend)
+            else:
+                backends = self._propsByBackend.keys()
 
-        for backend in backends:
+            changed_attributes = []
 
-            try:
-                be = ObjectBackendRegistry.getBackend(backend)
-                attrs = None
-                if data is not None and backend in data:
-                    attrs = be.process_data(data[backend], self._propsByBackend[backend])
-                    changed_attributes += list(attrs.keys())
+            for backend in backends:
 
-                if attrs is None:
-                    # Create a dictionary with all attributes we want to fetch
-                    # {attribute_name: type, name: type}
-                    info = dict([(k, self.myProperties[k]['backend_type']) for k in self._propsByBackend[backend]])
-                    self.log.debug("loading attributes for backend '%s': %s" % (backend, str(info)))
-                    uuid = self.uuid
-                    be_attrs = None
-                    kwargs = {}
-                    if backend in self._backendAttrs:
-                        be_attrs = self._backendAttrs[backend]
+                try:
+                    be = ObjectBackendRegistry.getBackend(backend)
+                    attrs = None
+                    if data is not None and backend in data:
+                        attrs = be.process_data(data[backend], self._propsByBackend[backend])
+                        changed_attributes += list(attrs.keys())
 
-                        if "_uuidAttribute" in be_attrs:
-                            value = self._getattr_(be_attrs['_uuidAttribute'], "in_value")
-                            if value is None:
-                                raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=backend, name=be_attrs['_uuidAttribute']))
-                            else:
-                                uuid = self._getattr_(be_attrs['_uuidAttribute'], "in_value")
+                    if attrs is None:
+                        # Create a dictionary with all attributes we want to fetch
+                        # {attribute_name: type, name: type}
+                        info = dict([(k, self.myProperties[k]['backend_type']) for k in self._propsByBackend[backend]])
+                        self.log.debug("loading attributes for backend '%s': %s" % (backend, str(info)))
+                        uuid = self.uuid
+                        be_attrs = None
+                        kwargs = {}
+                        if backend in self._backendAttrs:
+                            be_attrs = self._backendAttrs[backend]
 
-                        kwargs = self.get_backend_kwargs(be_attrs)
+                            if "_uuidAttribute" in be_attrs:
+                                value = self._getattr_(be_attrs['_uuidAttribute'], "in_value")
+                                if value is None:
+                                    raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=backend, name=be_attrs['_uuidAttribute']))
+                                else:
+                                    uuid = self._getattr_(be_attrs['_uuidAttribute'], "in_value")
 
-                    attrs = be.load(uuid, info, be_attrs, **kwargs)
+                            kwargs = self.get_backend_kwargs(be_attrs)
 
-            except ValueError as e:
-                self.log.error(e)
-                import traceback
-                traceback.print_exc()
-                raise ObjectException(C.make_error('READ_BACKEND_PROPERTIES', backend=backend))
+                        attrs = be.load(uuid, info, be_attrs, **kwargs)
 
-            # Assign fetched value to the properties.
-            for key in self._propsByBackend[backend]:
+                except ValueError as e:
+                    self.log.error(e)
+                    import traceback
+                    traceback.print_exc()
+                    raise ObjectException(C.make_error('READ_BACKEND_PROPERTIES', backend=backend))
 
-                if key not in attrs:
-                    self.log.debug("attribute '%s' was not returned by load" % key)
-                    continue
+                # Assign fetched value to the properties.
+                for key in self._propsByBackend[backend]:
 
-                # Keep original values, they may be overwritten in the in-filters.
-                self.myProperties[key]['in_value'] = self.myProperties[key]['value'] = attrs[key]
-                self.log.debug("%s: %s" % (key, self.myProperties[key]['value']))
+                    if key not in attrs:
+                        self.log.debug("attribute '%s' was not returned by load" % key)
+                        continue
 
-        # Once we've loaded all properties from the backend, execute the
-        # in-filters.
-        keys = changed_attributes if len(changed_attributes) > 0 else None
-        self._process_in_filters(keys=keys)
+                    # Keep original values, they may be overwritten in the in-filters.
+                    self.myProperties[key]['in_value'] = self.myProperties[key]['value'] = attrs[key]
+                    self.log.debug("%s: %s" % (key, self.myProperties[key]['value']))
 
-        # Convert the received type into the target type if not done already
-        self._convert_types(keys=keys, keep=False if keys is not None else True)
+            # Once we've loaded all properties from the backend, execute the
+            # in-filters.
+            keys = changed_attributes if len(changed_attributes) > 0 else None
+            self._process_in_filters(keys=keys)
+
+            # Convert the received type into the target type if not done already
+            self._convert_types(keys=keys, keep=False if keys is not None else True)
 
     def _process_in_filters(self, keys=None):
         if keys is None:
