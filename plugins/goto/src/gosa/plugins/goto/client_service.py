@@ -352,18 +352,21 @@ class ClientService(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
 
         res = index.search({'_type': 'Device', 'deviceUUID': device_uuid},
-                           {'_uuid': 1})
+                           {'dn': 1})
         if len(res) != 1:
             raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid, status_code=404))
 
-        return ObjectProxy(res[0]['_uuid'])
+        return ObjectProxy(res[0]['dn'])
 
     @Command(__help__=N_("Set system status"))
     def systemGetStatus(self, device_uuid):
         """
         TODO
         """
-        device = self.__open_device(device_uuid)
+        if isinstance(device_uuid, ObjectProxy):
+            device = device_uuid
+        else:
+            device = self.__open_device(device_uuid)
         return device.deviceStatus
 
     @Command(__help__=N_("Set system status"))
@@ -375,7 +378,10 @@ class ClientService(Plugin):
             # do not update state during index, clients will be polled after index is done
             return
 
-        device = self.__open_device(device_uuid)
+        if isinstance(device_uuid, ObjectProxy):
+            device = device_uuid
+        else:
+            device = self.__open_device(device_uuid)
         r = re.compile(r"([+-].)")
         for stat in r.findall(status):
             if stat[1] not in mapping:
@@ -531,10 +537,27 @@ class ClientService(Plugin):
 
     @Command(__help__=N_("Prepare a user session after a user has logged in"))
     def preUserSession(self, client_id, user_name, skip_config=False):
+        sobj = PluginRegistry.getInstance("SchedulerService")
+        # delay changes, send configuration first
+        def maintain_session():
+            self.__maintain_user_session(client_id, user_name)
+
+        sobj.getScheduler().add_date_job(maintain_session,
+                                         datetime.datetime.now() + datetime.timedelta(milliseconds=1),
+                                         tag='_internal', jobstore='ram')
+
+        if skip_config is False:
+            user_config = self.__collect_user_configuration(client_id, [user_name])
+            if user_config is not None and user_name in user_config:
+                return user_config[user_name]
+
+        return None
+
+    def __maintain_user_session(self, client_id, user_name):
         # save login time and system<->user references
         client = self.__open_device(client_id)
         client.gotoLastUser = user_name
-        client.commit()
+        self.systemSetStatus(client, "+B")
 
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({"_type": "User", "uid": user_name}, {"dn": 1})
@@ -545,15 +568,6 @@ class ClientService(Plugin):
             user.gotoLastSystemLogin = datetime.datetime.now()
             user.gotoLastSystem = client.dn
             user.commit()
-
-        self.systemSetStatus(client_id, "+B")
-
-        if skip_config is False:
-            user_config = self.__collect_user_configuration(client_id, [user_name])
-            if user_config is not None and user_name in user_config:
-                return user_config[user_name]
-
-        return None
 
     @Command(__help__=N_("Cleanup a user session after a user has logged out"))
     def postUserSession(self, client_id, user):
@@ -589,12 +603,15 @@ class ClientService(Plugin):
         :param client_id: deviceUUID or hostname
         :param users: list of currently logged in users on the client
         """
-        client = self.__open_device(client_id)
+        if isinstance(client_id, ObjectProxy):
+            client = client_id
+        else:
+            client = self.__open_device(client_id)
         group = None
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({"_type": "GroupOfNames", "member": client.dn}, {"dn": 1})
         if len(res) > 0:
-            group = ObjectProxy(res[0]["dn"])
+            group = ObjectProxy(res[0]["dn"], read_only=True)
         config = {}
 
         resolution = None
@@ -615,7 +632,7 @@ class ClientService(Plugin):
                 if len(res) == 0:
                     break
                 else:
-                    parent_group = ObjectProxy(res[0]["dn"])
+                    parent_group = ObjectProxy(res[0]["dn"], read_only=True)
                     release = parent_group.getReleaseName()
 
         if release is None:
@@ -629,7 +646,7 @@ class ClientService(Plugin):
         # collect users DNs
         query_result = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1})
         for entry in query_result:
-            user = ObjectProxy(entry["dn"])
+            user = ObjectProxy(entry["dn"], read_only=True)
             config[user.uid] = {}
 
             if release is not None:
@@ -659,7 +676,7 @@ class ClientService(Plugin):
             printer_names = [x["cn"] for x in settings["printers"]]
             for res in index.search({'_type': 'GroupOfNames', "member": user.dn, "extension": "GotoEnvironment"},
                                     {"dn": 1}):
-                user_group = ObjectProxy(res["dn"])
+                user_group = ObjectProxy(res["dn"], read_only=True)
                 if user_group.dn == group.dn:
                     continue
                 s = self.__collect_printer_settings(user_group)
