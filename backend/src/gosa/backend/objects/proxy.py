@@ -940,6 +940,9 @@ class ObjectProxy(object):
         zope.event.notify(ObjectChanged("post object remove", self.__base))
 
     def commit(self):
+        if self.__read_only is True:
+            # no changes in read-only mode
+            return
 
         # Check create permissions
         if self.__base_mode == "create":
