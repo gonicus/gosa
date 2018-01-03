@@ -94,10 +94,16 @@ class MQTTServiceProxy(object):
             raise NameError("name '%s' not defined" % self.__serviceName)
 
         # Send
+        data = {
+            "method": self.__serviceName,
+            "id": "jsonrpc",
+            "sender": self.env.uuid
+        }
         if len(kwargs):
-            postdata = dumps({"method": self.__serviceName, 'params': kwargs, 'id': 'jsonrpc'})
+            data["params"] = kwargs
         else:
-            postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
+            data["params"] = args
+        postdata = dumps(data)
 
         response = yield self.__handler.send_sync_message(postdata, topic)
         resp = loads(response)
