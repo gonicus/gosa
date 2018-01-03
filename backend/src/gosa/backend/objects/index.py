@@ -53,6 +53,7 @@ from gosa.backend.exceptions import FilterException, IndexException, ProxyExcept
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.orm import relationship, joinedload
 from sqlalchemy import Column, String, Integer, Boolean, Sequence, DateTime, ForeignKey, or_, and_, not_, func, orm
+from gosa.backend.routes.system import State
 
 Base = declarative_base()
 make_searchable()
@@ -300,6 +301,7 @@ class ObjectIndex(Plugin):
         else:
             def finish():
                 zope.event.notify(IndexScanFinished())
+                State.system_state = "ready"
 
             sobj = PluginRegistry.getInstance("SchedulerService")
             sobj.getScheduler().add_date_job(finish,
@@ -499,6 +501,7 @@ class ObjectIndex(Plugin):
         SseHandler.notify(event_object, channel="broadcast")
 
     def sync_index(self):
+        State.system_state = "indexing"
         # Don't index if someone else is already doing it
         if GlobalLock.exists("scan_index"):
             return
@@ -596,6 +599,7 @@ class ObjectIndex(Plugin):
                 t1 = time.time()
                 self.log.info("processed %d objects in %ds" % (total, t1 - t0))
                 zope.event.notify(IndexScanFinished())
+                State.system_state = "ready"
             else:
                 raise IndexException("Error creating index, please restart.")
 

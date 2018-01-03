@@ -111,6 +111,7 @@ setup(
         /workflow/(?P<path>.*)? = gosa.backend.routes.static.main:WorkflowHandler
         /hooks(?P<path>.*)? = gosa.backend.plugins.webhook.registry:WebhookReceiver
         /ppd/modified/(?P<path>.*)? = gosa.backend.plugins.cups.route:PPDHandler
+        /state = gosa.backend.routes.system:SystemStateReporter
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
