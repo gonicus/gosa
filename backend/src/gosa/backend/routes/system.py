@@ -15,5 +15,5 @@ class SystemStateReporter(HSTSRequestHandler):
     def check_xsrf_cookie(self):
         pass
 
-    def get(self, path):
-        return State.system_state
+    def get(self):
+        self.write(State.system_state)
