@@ -933,14 +933,6 @@ class ClientService(Plugin):
 
         self.__client[client] = info
 
-        # Handle pending "P"repare actions for that client
-        if "P" in self.systemGetStatus(client):
-            try:
-                rm = PluginRegistry.getInstance("RepositoryManager")
-                rm.prepareClient(client)
-            except ValueError:
-                pass
-
     def _on_client_caps(self, cid, method, status):
         if status is False:
             return
