@@ -97,7 +97,8 @@ class Foreman(Plugin):
                 self.mqtt_host = "%s:%s" % (mqtt_host, self.env.config.get('mqtt.port', default=1883))
 
             # Listen for object events
-            if not hasattr(sys, '_called_from_test'):
+            self.log.info("Foreman-Sync: %s" % self.env.config.getboolean("foreman.initial-sync", default=True))
+            if not hasattr(sys, '_called_from_test') and self.env.config.getboolean("foreman.initial-sync", default=True) is True:
                 zope.event.subscribers.append(self.__handle_events)
 
     def init_client(self, url):

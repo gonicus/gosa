@@ -4,6 +4,8 @@ base = dc=example,dc=net
 domain = net.example
 id = backend
 idGenerator = "{%sn}-{%givenName[0-4]}"
+# master/slave mode
+mode = master
 
 [http]
 host = 0.0.0.0
@@ -57,6 +59,7 @@ spool = /tmp/spool
 [foreman]
 #host-rdn =
 #group-rdn =
+#initial-sync=true
 
 ##############################################################################
 #                            Logger configuration                            #
