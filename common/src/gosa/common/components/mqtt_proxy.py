@@ -9,6 +9,8 @@
 
 import uuid
 from tornado import gen
+
+from gosa.common import Environment
 from gosa.common.components.json_exception import JSONRPCException
 from gosa.common.components.mqtt_handler import MQTTHandler
 from gosa.common.gjson import dumps, loads
@@ -52,6 +54,7 @@ class MQTTServiceProxy(object):
         self.__serviceName = serviceName
         self.__serviceAddress = serviceAddress
         self.__methods = methods
+        self.env = Environment.getInstance()
 
         # Retrieve methods
         if not self.__methods:
@@ -103,6 +106,7 @@ class MQTTServiceProxy(object):
             data["params"] = kwargs
         else:
             data["params"] = args
+        print(data)
         postdata = dumps(data)
 
         response = yield self.__handler.send_sync_message(postdata, topic)
