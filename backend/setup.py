@@ -92,7 +92,8 @@ setup(
         'pycups',
         'sh',
         'pylint',
-        'sqlalchemy_searchable'
+        'sqlalchemy_searchable',
+        'bcrypt'
         ],
 
     entry_points = """
@@ -137,6 +138,7 @@ setup(
         foreman = gosa.backend.plugins.foreman.main:Foreman
         settings = gosa.backend.components.settings_registry:SettingsRegistry
         cups = gosa.backend.plugins.cups.main:CupsClient
+        mqttbackends = gosa.backend.objects.index:BackendRegistry
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP

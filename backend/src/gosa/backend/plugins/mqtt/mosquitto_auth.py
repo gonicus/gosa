@@ -46,14 +46,10 @@ class MosquittoAuthHandler(BaseMosquittoClass):
     def post(self, *args, **kwargs):
         username = self.get_argument('username', '')
         password = self.get_argument('password')
-        is_allowed = False
-        is_backend = False
-        if hasattr(self.env, "core_uuid") and hasattr(self.env, "core_key"):
-            # backend self authentification mode
-            is_backend = username == self.env.core_uuid and password == self.env.core_key
-            is_allowed = is_backend or check_auth(username, password)
-        else:
-            is_allowed = check_auth(username, password)
+
+        # backend self authentification mode
+        is_backend = PluginRegistry.getInstance("BackendRegistry").check_auth(username, password)
+        is_allowed = is_backend or check_auth(username, password)
         self.log.debug("MQTT AUTH request from '%s' ['%s'] => %s" %
                        (username, "backend" if is_backend else "client", "GRANTED" if is_allowed else "DENIED"))
         self.send_result(is_allowed)
@@ -78,7 +74,7 @@ class MosquittoAclHandler(BaseMosquittoClass):
         # 1 == SUB, 2 == PUB
         acc = self.get_argument('acc')
 
-        is_backend = hasattr(self.env, "core_uuid") and uuid == self.env.core_uuid
+        is_backend = PluginRegistry.getInstance("BackendRegistry").is_backend(uuid)
 
         client_channel = "%s/client/%s" % (self.env.domain, uuid)
         event_channel = "%s/events" % self.env.domain

@@ -22,6 +22,9 @@ import traceback
 import logging
 import tornado.web
 import time
+
+from gosa.backend.objects.index import UserSession
+from gosa.common.env import make_session
 from gosa.common.hsts_request_handler import HSTSRequestHandler
 from tornado.gen import coroutine, is_future
 from gosa.common.gjson import loads, dumps
@@ -56,8 +59,6 @@ class JsonRpcHandler(HSTSRequestHandler):
     :class:`gosa.backend.command.CommandRegistry` via HTTP/JSONRPC.
     """
 
-    # Simple authentication saver
-    __session = {}
     # denial service for some time after login fails to often
     __dos_manager = {}
 
@@ -182,31 +183,35 @@ class JsonRpcHandler(HSTSRequestHandler):
                 if user in cls.__dos_manager:
                     del cls.__dos_manager[user]
 
-                cls.__session[sid] = {
-                    'user': user,
-                    'dn': dn,
-                    'auth_state': None
-                }
-                self.set_secure_cookie('REMOTE_USER', user)
-                self.set_secure_cookie('REMOTE_SESSION', sid)
-                factor_method = twofa_manager.get_method_from_user(dn)
-                if factor_method is None:
-                    result['state'] = AUTH_SUCCESS
-                    self.log.info("login succeeded for user '%s'" % user)
-                elif factor_method == "otp":
-                    result['state'] = AUTH_OTP_REQUIRED
-                    self.log.info("login succeeded for user '%s', proceeding with OTP two-factor authentication" % user)
-                elif factor_method == "u2f":
-                    self.log.info("login succeeded for user '%s', proceeding with U2F two-factor authentication" % user)
-                    result['state'] = AUTH_U2F_REQUIRED
-                    result['u2f_data'] = twofa_manager.sign(user, dn)
+                with make_session() as session:
+                    us = UserSession(
+                        sid=sid,
+                        user=user,
+                        dn=dn
+                    )
 
-                cls.__session[sid]['auth_state'] = result['state']
+                    self.set_secure_cookie('REMOTE_USER', user)
+                    self.set_secure_cookie('REMOTE_SESSION', sid)
+                    factor_method = twofa_manager.get_method_from_user(dn)
+                    if factor_method is None:
+                        result['state'] = AUTH_SUCCESS
+                        self.log.info("login succeeded for user '%s'" % user)
+                    elif factor_method == "otp":
+                        result['state'] = AUTH_OTP_REQUIRED
+                        self.log.info("login succeeded for user '%s', proceeding with OTP two-factor authentication" % user)
+                    elif factor_method == "u2f":
+                        self.log.info("login succeeded for user '%s', proceeding with U2F two-factor authentication" % user)
+                        result['state'] = AUTH_U2F_REQUIRED
+                        result['u2f_data'] = twofa_manager.sign(user, dn)
 
+                    us.auth_state = result['state']
+                    session.add(us)
             else:
                 # Remove current sid if present
-                if not self.get_secure_cookie('REMOTE_SESSION') and sid in cls.__session:
-                    del cls.__session[sid]
+                with make_session() as session:
+                    db_session = session.query(UserSession).filter(UserSession.sid == sid).one_or_none()
+                    if not self.get_secure_cookie('REMOTE_SESSION') and db_session is not None:
+                        db_session.delete()
 
                 self.log.error("login failed for user '%s'" % user)
                 result['state'] = AUTH_FAILED
@@ -232,39 +237,47 @@ class JsonRpcHandler(HSTSRequestHandler):
             return dict(result=result, error=None, id=jid)
 
         # Don't let calls pass beyond this point if we've no valid session ID
-        if self.get_secure_cookie('REMOTE_SESSION') is None or not self.get_secure_cookie('REMOTE_SESSION').decode('ascii') in cls.__session:
-            self.log.error("blocked unauthenticated call of method '%s'" % method)
-            raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
+        with make_session() as session:
+            cookie = self.get_secure_cookie('REMOTE_SESSION')
+            if cookie is None:
+                self.log.error("blocked unauthenticated call of method '%s'" % method)
+                raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
-        # Remove remote session on logout
-        if method == 'logout':
+            db_session = session.query(UserSession).filter(UserSession.sid == cookie.decode('ascii')).one_or_none()
+            if db_session is None:
+                self.log.error("blocked unauthenticated call of method '%s'" % method)
+                raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
-            # Remove current sid if present
-            if self.get_secure_cookie('REMOTE_SESSION') and self.get_secure_cookie('REMOTE_SESSION').decode('ascii') in cls.__session:
-                del cls.__session[self.get_secure_cookie('REMOTE_SESSION').decode('ascii')]
+            # Remove remote session on logout
+            if method == 'logout':
 
-            # Show logout message
-            if self.get_secure_cookie('REMOTE_USER'):
-                self.log.info("logout for user '%s' succeeded" % self.get_secure_cookie('REMOTE_USER'))
+                # Remove current sid if present
+                if self.get_secure_cookie('REMOTE_SESSION'):
+                    if db_session is not None:
+                        db_session.delete()
 
-            self.clear_cookie("REMOTE_USER")
-            self.clear_cookie("REMOTE_SESSION")
-            return dict(result=True, error=None, id=jid)
+                # Show logout message
+                if self.get_secure_cookie('REMOTE_USER'):
+                    self.log.info("logout for user '%s' succeeded" % self.get_secure_cookie('REMOTE_USER'))
 
-        # check two-factor authentication
-        sid = self.get_secure_cookie('REMOTE_SESSION').decode('ascii')
-        if method == 'verify':
-            (key,) = params
-            if cls.__session[sid]['auth_state'] == AUTH_OTP_REQUIRED or cls.__session[sid]['auth_state'] == AUTH_U2F_REQUIRED:
+                self.clear_cookie("REMOTE_USER")
+                self.clear_cookie("REMOTE_SESSION")
+                return dict(result=True, error=None, id=jid)
 
-                if twofa_manager.verify(cls.__session[sid]['user'], cls.__session[sid]['dn'], key):
-                    cls.__session[sid]['auth_state'] = AUTH_SUCCESS
-                    return dict(result={'state': AUTH_SUCCESS}, error=None, id=jid)
-                else:
-                    return dict(result={'state': AUTH_FAILED}, error=None, id=jid)
+            # check two-factor authentication
+            if method == 'verify':
+                (key,) = params
 
-        if cls.__session[sid]['auth_state'] != AUTH_SUCCESS:
-            raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
+                if db_session.auth_state == AUTH_OTP_REQUIRED or db_session.auth_state == AUTH_U2F_REQUIRED:
+
+                    if twofa_manager.verify(db_session.user, db_session.dn, key):
+                        db_session.auth_state = AUTH_SUCCESS
+                        return dict(result={'state': AUTH_SUCCESS}, error=None, id=jid)
+                    else:
+                        return dict(result={'state': AUTH_FAILED}, error=None, id=jid)
+
+            if db_session.auth_state != AUTH_SUCCESS:
+                raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
         return self.dispatch(method, params, jid)
 
@@ -369,14 +382,13 @@ class JsonRpcHandler(HSTSRequestHandler):
 
     @classmethod
     def check_session(cls, sid, user):
-        if not sid in cls.__session:
-            return False
-
-        return cls.__session[sid] == user
+        with make_session() as session:
+            return session.query(UserSession).filter(UserSession.sid == sid, UserSession.user == user).count() > 0
 
     @classmethod
     def user_sessions_available(cls, user):
-        if user:
-            return user in cls.__session.values()
-        else:
-            return len(cls.__session) > 0
+        with make_session() as session:
+            if user is not None:
+                return session.query(UserSession).filter(UserSession.user == user).count() > 0
+            else:
+                return session.query(UserSession).count() > 0
