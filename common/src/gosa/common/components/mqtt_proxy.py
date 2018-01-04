@@ -106,7 +106,6 @@ class MQTTServiceProxy(object):
             data["params"] = kwargs
         else:
             data["params"] = args
-        print(data)
         postdata = dumps(data)
 
         response = yield self.__handler.send_sync_message(postdata, topic)
