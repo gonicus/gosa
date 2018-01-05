@@ -59,7 +59,7 @@ class PluginRegistry(object):
                           self.env.config.get("core.mode", default="backend")]
         else:
             components = [component]
-        print(components)
+
         for comp in components:
             for entry in iter_entry_points(comp):
                 module = entry.load()
