@@ -54,7 +54,7 @@ from gosa.backend.objects.xml_parsing import XmlParsing
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry
-from gosa.common.utils import N_
+from gosa.common.utils import N_, cache_return
 from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 from gosa.backend.objects.object import Object
@@ -447,6 +447,7 @@ class ObjectFactory(object):
 
         return res
 
+    @cache_return()
     def __get_primary_class_for_foreign_attribute(self, attribute, obj):
         """
         Returns the primary class for a given primary attribute which belongs
@@ -495,6 +496,7 @@ class ObjectFactory(object):
         else:
             raise ValueError(C.make_error("OBJECT_TYPE_NOT_FOUND", type=obj))
 
+    @cache_return()
     def get_attributes_by_object(self, object_name):
         """
         Extracts all attributes with their base/secondary classes.
@@ -548,6 +550,7 @@ class ObjectFactory(object):
                         res = extract_attrs(res, obj)
         return res
 
+    @cache_return()
     def getAttributes(self):
         """
         Returns a list of all object-attributes
