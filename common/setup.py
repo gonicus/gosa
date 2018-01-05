@@ -26,7 +26,7 @@ common_install_requires = [
     'zope.interface>=3.5',
     'babel',
     'pyOpenSSL',
-    'sqlalchemy',
+    'sqlalchemy>=1.1',
     'lxml',
     'cryptography',
     'colorlog'
