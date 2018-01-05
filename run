@@ -1,6 +1,6 @@
 #!/bin/bash
 
-config="example"
+config="config/backend_conf"
 
 abort() {
     echo "Stopped GOsa process. 'gosa-next' container is keept running. Use 'run --stop' to stop it."

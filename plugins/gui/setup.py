@@ -80,13 +80,13 @@ setup(
         ],
 
     entry_points = """
-        [gosa.route]
+        [gosa.backend.route]
         /(?P<path>.*)? = gosa.plugin.gui.main:GuiPlugin
 
         [gosa.upload_handler]
         widget = gosa.plugin.gui.upload:WidgetUploadHandler
 
-        [gosa.plugin]
+        [gosa.backend.plugin]
         rpc = gosa.plugin.gui.main:RpcPlugin
     """,
 )

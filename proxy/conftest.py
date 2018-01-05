@@ -29,7 +29,6 @@ def use_test_config(request):
         dr = DBusRunner()
         dr.start()
 
-    PluginRegistry(component='gosa.client.module')  # @UnusedVariable
     env.active = True
 
     def shutdown():
