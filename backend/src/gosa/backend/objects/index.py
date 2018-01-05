@@ -1479,12 +1479,15 @@ class BackendRegistry(Plugin):
         with make_session() as session:
             backend = session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).one_or_none()
             if backend is not None and backend.validate_password(password):
-                backend.delete()
+                session.delete(backend)
                 return True
             else:
                 return False
 
     def check_auth(self, uuid, password):
+        if self.env.core_uuid == uuid and self.env.core_key == password:
+            return True
+
         with make_session() as session:
             backend = session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).one_or_none()
             if backend is not None:
