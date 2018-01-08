@@ -29,7 +29,7 @@ before_install:
     - sudo mkdir /tmp/workflows
     - sudo mkdir /tmp/images
     - sudo mkdir /etc/gosa
-    - sudo cp ./travis_conf/config /etc/gosa/
+    - sudo cp ./configs/travis_conf/config /etc/gosa/
     - sudo chown travis:travis /tmp/workflows
     - sudo chown travis:travis /tmp/images
 install:
