@@ -16,7 +16,7 @@ cache:
 before_install:
     - export PYENV_VERSION=3.5-dev 
     - sudo apt-get update
-    - sudo cp travis_conf/org.gosa.conf /etc/dbus-1/system.d/
+    - sudo cp ./configs/travis_conf/org.gosa.conf /etc/dbus-1/system.d/
     - sudo service dbus reload
     - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
     - docker pull cpollmeier/gosa3:devel # download docker container
