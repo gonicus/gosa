@@ -79,13 +79,13 @@ class MosquittoAuthTestCase(AsyncHTTPTestCase):
                 'subscribe': True
             },
             {
-                'topic': "%s/client/uuid/to-client" % self.env.domain,
+                'topic': "%s/client/uuid/request" % self.env.domain,
                 'username': self.env.core_uuid,
                 'publish': True,
                 'subscribe': False
             },
             {
-                'topic': "%s/client/uuid/to-backend" % self.env.domain,
+                'topic': "%s/client/uuid/response" % self.env.domain,
                 'username': self.env.core_uuid,
                 'publish': False,
                 'subscribe': True
@@ -115,13 +115,13 @@ class MosquittoAuthTestCase(AsyncHTTPTestCase):
                 'subscribe': False
             },
             {
-                'topic': "%s/client/uuid/to-backend" % self.env.domain,
+                'topic': "%s/client/uuid/response" % self.env.domain,
                 'username': 'uuid',
                 'publish': True,
                 'subscribe': False
             },
             {
-                'topic': "%s/client/uuid/to-client" % self.env.domain,
+                'topic': "%s/client/uuid/request" % self.env.domain,
                 'username': 'uuid',
                 'publish': False,
                 'subscribe': True
