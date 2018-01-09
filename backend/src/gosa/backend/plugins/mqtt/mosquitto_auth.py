@@ -92,12 +92,24 @@ class MosquittoAclHandler(BaseMosquittoClass):
             elif mqtt.topic_matches_sub(client_channel, topic):
                 # backend can publish/subscribe (send ClientPoll, receive ClientPing)
                 is_allowed = True
-            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/to-client"):
-                # the temporary RPC to-client channel: backend can send
+            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/request"):
+                # the temporary RPC request channel: backend can send
                 is_allowed = acc == "2"
-            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/to-backend"):
-                # the temporary RPC to-backend channel: backend can receive
+            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/response"):
+                # the temporary RPC response channel: backend can receive
                 is_allowed = acc == "1"
+            elif topic.startswith("%s/proxy/" % self.env.domain) and topic.endswith("/request"):
+                # the temporary RPC request channel from proxy: backend can receive, proxy can publish
+                if self.env.mode == "proxy":
+                    is_allowed = acc == "2"
+                else:
+                    is_allowed = acc == "1"
+            elif topic.startswith("%s/proxy/" % self.env.domain) and topic.endswith("/response"):
+                # the temporary RPC response channel to proxy: backend can publish, proxy can receive
+                if self.env.mode == "proxy":
+                    is_allowed = acc == "1"
+                else:
+                    is_allowed = acc == "2"
             else:
                 is_allowed = False
         else:
@@ -112,11 +124,11 @@ class MosquittoAclHandler(BaseMosquittoClass):
             elif topic == client_channel:
                 # client can do both on own channel
                 is_allowed = True
-            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/to-client"):
-                # the temporary RPC to-client channel: client can subscribe
+            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/request"):
+                # the temporary RPC request channel: client can subscribe
                 is_allowed = acc == "1"
-            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/to-backend"):
-                # the temporary RPC to-backend channel: client can publish
+            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/response"):
+                # the temporary RPC response channel: client can publish
                 is_allowed = acc == "2"
             else:
                 is_allowed = False
