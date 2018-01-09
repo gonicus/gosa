@@ -55,8 +55,7 @@ class PluginRegistry(object):
 
         # Get module from setuptools
         if component is None:
-            components = ["gosa.plugin", "gosa.%s.plugin" %
-                          self.env.config.get("core.mode", default="backend")]
+            components = ["gosa.plugin", "gosa.%s.plugin" % self.env.mode]
         else:
             components = [component]
 
