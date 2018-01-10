@@ -201,7 +201,10 @@ class JSONRPCObjectMapper(Plugin):
             with make_session() as session:
                 obj = session.query(OpenObject).filter(OpenObject.ref == ref).one()
                 obj.last_interaction = objdsc['last_interaction']
-                obj.data[name] = value
+                if obj.data is None:
+                    obj.data = {name: value}
+                else:
+                    obj.data[name] = value
                 session.commit()
 
     @Command(needsUser=True, __help__=N_("Get property from object on stack"))
@@ -531,7 +534,7 @@ class JSONRPCObjectMapper(Plugin):
                     oid=oid,
                     user=user,
                     session_id=session_id,
-                    backend=self.env.core_uuid,
+                    backend_uuid=self.env.core_uuid,
                     created=self.__stack[ref]["created"],
                     last_interaction=self.__stack[ref]["created"]
                 )
