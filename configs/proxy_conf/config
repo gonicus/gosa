@@ -28,6 +28,10 @@ admins = admin
 index = false
 # threshold for word similarity on fuzzy searches
 #fuzzy-threshold = 0.3
+# proxy needs to know where to find master backend + mqtt
+mqtt-host = localhost
+mqtt-port = 1883
+rpc = http://localhost:8050/rpc
 
 [user]
 image-path = /tmp/images
@@ -39,13 +43,13 @@ debug = true
 
 [mqtt]
 host = localhost
-#port = 1883
+port = 1884
 #ssl = <inherit from http.ssl>
 #ca_file =
 #insecure = false
 
 [jsonrpc]
-url = http://localhost:8000/rpc
+url = http://localhost:8051/rpc
 key = tester
 
 [webhooks]
