@@ -77,6 +77,7 @@ class Environment:
         self.domain = self.config.get("core.domain", "default")
 
         self.uuid = self.config.get("core.id", default=None)
+        self.mode = self.config.get("core.mode", default="backend")
         if not self.uuid:
             self.log.warning("system has no id - falling back to configured hardware uuid")
             self.uuid = dmi_system("uuid")
