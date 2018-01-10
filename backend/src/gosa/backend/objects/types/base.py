@@ -123,6 +123,9 @@ class BooleanAttribute(AttributeType):
     def _convert_from_string(self, value):
         return list(map(lambda x: not(x in ['', 'false', '0', 'False']), value))
 
+    def _convert_from_unicodestring(self, value):
+        return list(map(lambda x: not(x.decode('ascii') if type(x) == bytes else x in ['', 'false', '0', 'False']), value))
+
 
 class BinaryAttribute(AttributeType):
     __alias__ = "Binary"
@@ -163,6 +166,12 @@ class UnicodeStringAttribute(AttributeType):
 
     def _convert_to_unicodestring(self, value):
         return list(map(lambda x: x.decode('utf-8') if type(x) == bytes else x, value))
+
+    def _convert_to_boolean(self, value):
+        return list(map(lambda x: not(x in ['', 'false', '0', 'False']), value))
+
+    def _convert_to_integer(self, value):
+        return list(map(lambda x: int(x), value))
 
     def _convert_from_string(self, value):
         new_value = []
