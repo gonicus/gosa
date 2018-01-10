@@ -115,8 +115,7 @@ class HTTPService(object):
 
         # register routes in the HTTPService
         routes = [x for x in pkg_resources.iter_entry_points("gosa.route")]
-        for x in pkg_resources.iter_entry_points("gosa.%s.route" %
-                                                  self.env.config.get("core.mode", default="backend")):
+        for x in pkg_resources.iter_entry_points("gosa.%s.route" % self.env.mode):
             routes.append(x)
 
         for entry in sorted(routes, key=lambda entry: entry.name, reverse=True):
