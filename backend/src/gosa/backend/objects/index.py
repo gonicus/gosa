@@ -201,6 +201,17 @@ class UserSession(Base):
         return "<UserSession(sid='%s', user='%s', dn='%s', auth_state='%s')>" % (self.sid, self.user, self.dn, self.auth_state)
 
 
+class Cache(Base):
+    __tablename__ = "cache"
+
+    key = Column(String, primary_key=True)
+    data = Column(JSON)
+    time = Column(DateTime)
+
+    def __repr__(self):
+        return "<Cache(key='%s',data='%s',time='%s')" % (self.key, self.data, self.time)
+
+
 class IndexScanFinished():  # pragma: nocover
     pass
 
