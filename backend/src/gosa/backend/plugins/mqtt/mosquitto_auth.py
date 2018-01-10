@@ -7,6 +7,8 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import logging
+
+from gosa.backend.utils import BackendTypes
 from gosa.common import Environment
 from gosa.backend.utils.ldap import check_auth
 import paho.mqtt.client as mqtt
@@ -74,14 +76,12 @@ class MosquittoAclHandler(BaseMosquittoClass):
         # 1 == SUB, 2 == PUB
         acc = self.get_argument('acc')
 
-        is_backend = PluginRegistry.getInstance("BackendRegistry").is_backend(uuid)
+        backend_type = PluginRegistry.getInstance("BackendRegistry").get_type(uuid)
 
         client_channel = "%s/client/%s" % (self.env.domain, uuid)
         event_channel = "%s/events" % self.env.domain
 
-        is_allowed = False
-
-        if is_backend:
+        if backend_type is not None:
             client_channel = "%s/client/+" % self.env.domain
             if topic == event_channel:
                 # backend can publish/subscribe to event channel
@@ -100,13 +100,13 @@ class MosquittoAclHandler(BaseMosquittoClass):
                 is_allowed = acc == "1"
             elif topic.startswith("%s/proxy/" % self.env.domain) and topic.endswith("/request"):
                 # the temporary RPC request channel from proxy: backend can receive, proxy can publish
-                if self.env.mode == "proxy":
+                if backend_type == BackendTypes.proxy:
                     is_allowed = acc == "2"
                 else:
                     is_allowed = acc == "1"
             elif topic.startswith("%s/proxy/" % self.env.domain) and topic.endswith("/response"):
                 # the temporary RPC response channel to proxy: backend can publish, proxy can receive
-                if self.env.mode == "proxy":
+                if backend_type == BackendTypes.proxy:
                     is_allowed = acc == "1"
                 else:
                     is_allowed = acc == "2"
@@ -135,7 +135,7 @@ class MosquittoAclHandler(BaseMosquittoClass):
 
         self.log.debug("MQTT ACL request: '%s'|->%s from '%s' ['%s'] => %s" %
                        (topic, "PUB" if acc == "2" else "SUB" if acc == "1" else "BOTH" if acc == "0" else "UNKOWN",
-                        uuid, "backend" if is_backend else "client", "GRANTED" if is_allowed else "DENIED"))
+                        uuid, backend_type if backend_type is not None else "client", "GRANTED" if is_allowed else "DENIED"))
         self.send_result(is_allowed)
 
 
