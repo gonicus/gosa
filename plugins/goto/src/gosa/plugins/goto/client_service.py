@@ -540,7 +540,7 @@ class ClientService(Plugin):
     def preUserSession(self, client_id, user_name, skip_config=False):
         sobj = PluginRegistry.getInstance("SchedulerService")
         # delay changes, send configuration first
-        if self.env.mode == "PROXY":
+        if self.env.mode == "proxy":
             # answer config locally and proceed the write-part of the call to the GOsa backend
             # TODO add MQTT call to backend MQTT-broker (with skip_config=True)
             self.log.info("calling preUserSession(%s, %s, skip_config=True) on master backend" % (client_id, user_name))
