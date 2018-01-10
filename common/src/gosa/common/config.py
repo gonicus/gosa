@@ -195,6 +195,8 @@ class Config(object):
                 tmp = tmp.lower() in ["true", "on", "1"]
             elif method == "getfloat":
                 tmp = float(tmp)
+            elif method == "getint":
+                tmp = int(tmp)
             return tmp
 
         except KeyError:
@@ -204,6 +206,9 @@ class Config(object):
 
     def getfloat(self, path, default=None, use_user_config=True):
         return self.get(path, default, use_user_config, "getfloat")
+
+    def getint(self, path, default=None, use_user_config=True):
+        return self.get(path, default, use_user_config, "getint")
 
     def getboolean(self, path, default=False, use_user_config=True):
         return self.get(path, default, use_user_config, "getboolean")
