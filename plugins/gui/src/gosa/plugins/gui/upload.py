@@ -33,6 +33,7 @@ class WidgetUploadHandler(IUploadFileHandler):
                     self.log.error("bad widget zip uploaded")
                     return
                 # extract filename from zip
+#TODO: wrong path, needs to be configurable
                 widget_zip.extractall(os.path.join(frontend_path, "gosa", "uploads", "widgets"))
                 # send the event to the clients
                 e = EventMaker()

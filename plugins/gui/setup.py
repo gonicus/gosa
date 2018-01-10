@@ -22,14 +22,11 @@ README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
 data_files = []
-for path, dirs, files in os.walk("frontend/gosa/build"):
-    for f in files:
-        data_files.append(os.path.join(path[14:], f))
 
 # noinspection PyRedeclaration
 for path, dirs, files in os.walk("src/gosa/plugins/gui/data"):
     for f in files:
-        data_files.append(os.path.join(path[14:], f))
+        data_files.append(os.path.join(path[21:], f))
 
 setup(
     name = "gosa-plugin-gui",
@@ -56,11 +53,11 @@ setup(
 
     packages = find_packages('src', exclude=['examples', 'tests']),
     package_dir={'': 'src'},
-    namespace_packages = ['gosa.plugin.gui'],
+    namespace_packages = ['gosa.plugins.gui'],
 
     include_package_data = True,
     package_data = {
-        'gosa.plugin.gui': data_files
+        'gosa.plugins.gui': data_files
     },
 
     zip_safe = False,
@@ -81,13 +78,13 @@ setup(
 
     entry_points = """
         [gosa.route]
-        /(?P<path>.*)? = gosa.plugin.gui.main:GuiPlugin
+        /(?P<path>.*)? = gosa.plugins.gui.main:GuiPlugin
 
         [gosa.upload_handler]
-        widget = gosa.plugin.gui.upload:WidgetUploadHandler
+        widget = gosa.plugins.gui.upload:WidgetUploadHandler
 
         [gosa.plugin]
-        rpc = gosa.plugin.gui.main:RpcPlugin
+        rpc = gosa.plugins.gui.main:RpcPlugin
     """,
 )
 
