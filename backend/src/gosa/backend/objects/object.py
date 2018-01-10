@@ -321,6 +321,8 @@ class Object(object):
         # And then assign the values to the properties.
         self.log.debug("object uuid: %s" % self.uuid)
 
+        changed_attributes = []
+
         if self._read_only is True:
             # just load everything from database
             index = PluginRegistry.getInstance("ObjectIndex")
@@ -331,6 +333,9 @@ class Object(object):
                     # Keep original values, they may be overwritten in the in-filters.
                     self.myProperties[prop]['in_value'] = self.myProperties[prop]['value'] = values
                     self.log.debug("%s: %s" % (prop, self.myProperties[prop]['value']))
+                    changed_attributes.append(prop)
+
+            keys = changed_attributes if len(changed_attributes) > 0 else None
 
         else:
 
@@ -342,8 +347,6 @@ class Object(object):
                         backends.append(backend)
             else:
                 backends = self._propsByBackend.keys()
-
-            changed_attributes = []
 
             for backend in backends:
 
@@ -398,8 +401,8 @@ class Object(object):
             keys = changed_attributes if len(changed_attributes) > 0 else None
             self._process_in_filters(keys=keys)
 
-            # Convert the received type into the target type if not done already
-            self._convert_types(keys=keys, keep=False if keys is not None else True)
+        # Convert the received type into the target type if not done already
+        self._convert_types(keys=keys, keep=False if keys is not None else True)
 
     def _process_in_filters(self, keys=None):
         if keys is None:
@@ -445,7 +448,7 @@ class Object(object):
             # Convert values from incoming backend-type to required type
             if self.myProperties[key]['value']:
                 a_type = self.myProperties[key]['type']
-                be_type = self.myProperties[key]['backend_type']
+                be_type = self.myProperties[key]['backend_type'] if self._read_only is False else "UnicodeString"
 
                 #  Convert all values to required type
                 if not atypes[a_type].is_valid_value(self.myProperties[key]['value']):
