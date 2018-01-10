@@ -96,7 +96,7 @@ setup(
 
         [gosa.client.module]
         command = gosa.client.command:ClientCommandRegistry
-        mqtt = gosa.client.mqtt:MQTTClientHandler
+        mqtt = gosa.common.mqtt:MQTTClientHandler
         mqtt_service = gosa.client.mqtt_service:MQTTClientService
         notify = gosa.client.plugins.notify.main:Notify
         inventory = gosa.client.plugins.inventory.main:Inventory

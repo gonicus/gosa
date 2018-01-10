@@ -163,7 +163,7 @@ class MQTTClient(object):
                 self.subscriptions[topic]['subscription_result'] = res
         else:
             msg = mqtt.error_string(rc)
-            self.log.error("MQTT connection error: %s" % msg)
+            self.log.error("MQTT connection error (%s:%s): %s" % (self.host, self.port, msg))
             self.__sender_id = None
 
     def __on_message(self, client, userdata, message):
@@ -193,15 +193,15 @@ class MQTTClient(object):
         Sends a message to a client queue and waits and returns the response from the client.
 
         :param topic: Topic this message should be sent to / received from
-        :param message: The message published on the to-client topic
+        :param message: The message published on the request topic
         :param qos: QOS value
         :return: The clients response
         """
         # listen on the backend response topic
-        listen_to_topic = "%s/to-backend" % topic
+        listen_to_topic = "%s/response" % topic
         self.__sync_message_queues[listen_to_topic] = Queue()
         self.add_subscription(listen_to_topic, sync=True)
-        self.publish("%s/to-client" % topic, message, qos)
+        self.publish("%s/request" % topic, message, qos)
         # send to the client topic
         try:
             response = yield self.__sync_message_queues[listen_to_topic].get(timeout=datetime.timedelta(seconds=10))

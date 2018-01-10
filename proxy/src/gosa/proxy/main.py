@@ -191,7 +191,7 @@ def netactivity(online):
 
 def main():
     """
-    Main programm which is called when the GOsa backend process gets started.
+    Main program which is called when the GOsa proxy process gets started.
     It does the main forking os related tasks.
     """
 
@@ -202,6 +202,7 @@ def main():
     # Initialize core environment
     env = Environment.getInstance()
     env.active = False
+    env.mode = "proxy"
 
     # create temporal credentials for mqtt
     env.core_uuid = str(uuid4())
@@ -219,6 +220,7 @@ if __name__ == '__main__':
         sys.stderr = codecs.getwriter('utf8')(sys.stderr)
 
     pkg_resources.require('gosa.common==%s' % VERSION)
+    pkg_resources.require('gosa.backend==%s' % VERSION)
 
     netstate = False
     main()

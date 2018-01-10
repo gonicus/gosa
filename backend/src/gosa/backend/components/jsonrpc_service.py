@@ -77,7 +77,7 @@ class JsonRpcHandler(HSTSRequestHandler):
     @coroutine
     def post(self):
         try:
-            resp = self.process(self.request.body)
+            resp = yield self.process(self.request.body)
         except ValueError as e:
             self.clear()
             self.set_status(400)
@@ -99,9 +99,8 @@ class JsonRpcHandler(HSTSRequestHandler):
             self.finish(dumps(dict(result=None, error=error, id=None)))
             raise e
         else:
-            if is_future(resp['result']):
-                resp['result'] = yield resp['result']
-
+            if is_future(resp):
+                resp = yield resp
             self.write(dumps(resp))
             self.set_header("Content-Type", "application/json")
 
@@ -121,6 +120,7 @@ class JsonRpcHandler(HSTSRequestHandler):
                 }
         return None
 
+    @coroutine
     def process(self, data):
         """
         Process an incoming JSONRPC request and dispatch it thru the
@@ -281,6 +281,7 @@ class JsonRpcHandler(HSTSRequestHandler):
 
         return self.dispatch(method, params, jid)
 
+    @coroutine
     def dispatch(self, method, params, jid):
         cached_method = method[0:2] == "**"
         hash_value = None
@@ -314,6 +315,9 @@ class JsonRpcHandler(HSTSRequestHandler):
                 result = self.dispatcher.dispatch(user, sid, method, **params)
             else:
                 result = self.dispatcher.dispatch(user, sid, method, *params)
+
+            if is_future(result):
+                result = yield result
 
         except JSONRPCException as e:
             exc_value = sys.exc_info()[1]

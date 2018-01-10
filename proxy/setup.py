@@ -76,6 +76,7 @@ setup(
         [console_scripts]
         gosa-proxy=gosa.proxy.main:main
 
-        [gosa.proxy.module]
+        [gosa.proxy.plugin]
+        mqtt = gosa.common.mqtt:MQTTClientHandler
     """
 )

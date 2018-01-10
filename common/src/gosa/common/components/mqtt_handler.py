@@ -30,7 +30,7 @@ class MQTTHandler(object):
     url = None
     joined = False
 
-    def __init__(self, autostart=True):
+    def __init__(self, autostart=True, host=None, port=None, keepalive=None):
         """
         Construct a new MQTTClientHandler instance based on the configuration
         stored in the environment.
@@ -43,9 +43,12 @@ class MQTTHandler(object):
         self.env = Environment.getInstance()
 
         # Load configuration
-        self.host = self.env.config.get('mqtt.host')
-        self.port = int(self.env.config.get('mqtt.port', default=1883)) if self.env.config.get('mqtt.port', default=1883) is not None \
-            else 1883
+        self.host = self.env.config.get('mqtt.host') if host is None else host
+        if port is not None:
+            self.port = port
+        else:
+            self.port = int(self.env.config.get('mqtt.port', default=1883)) \
+                if self.env.config.get('mqtt.port', default=1883) is not None else 1883
 
         # Auto detect if possible
         if not self.host:
@@ -58,7 +61,7 @@ class MQTTHandler(object):
             self.log.error("no MQTT host available for bus communication")
             raise Exception("no MQTT host available")
 
-        self.keep_alive = self.env.config.get('mqtt.keepalive', default=60)
+        self.keep_alive = self.env.config.get('mqtt.keepalive', default=60) if keepalive is None else keepalive
         self.domain = self.env.domain
         domain_parts = socket.getfqdn().split('.', 1)
         self.dns_domain = domain_parts[1] if len(domain_parts) == 2 else "local"

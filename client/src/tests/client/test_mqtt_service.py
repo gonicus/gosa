@@ -72,7 +72,7 @@ class ClientMqttServiceTestCase(TestCase):
             self.mqtt.commandReceived(topic, "{'id'}")
             assert m.called
             args, kwargs = mocked_handler.send_message.call_args
-            assert kwargs['topic'] == "%s/to-backend" % topic
+            assert kwargs['topic'] == "%s/response" % topic
             sent_message = loads(args[0])
             assert sent_message['result'] is None
 
@@ -80,7 +80,7 @@ class ClientMqttServiceTestCase(TestCase):
         mocked_handler.reset_mock()
         self.mqtt.commandReceived(topic, '{"id": "0", "params": []}')
         args, kwargs = mocked_handler.send_message.call_args
-        assert kwargs['topic'] == "%s/to-backend" % topic
+        assert kwargs['topic'] == "%s/response" % topic
         sent_message = loads(args[0])
         assert sent_message['result'] is None
 
@@ -88,7 +88,7 @@ class ClientMqttServiceTestCase(TestCase):
         mocked_handler.reset_mock()
         self.mqtt.commandReceived(topic, '{"id": "0", "method": "unknown_method", "params": []}')
         args, kwargs = mocked_handler.send_message.call_args
-        assert kwargs['topic'] == "%s/to-backend" % topic
+        assert kwargs['topic'] == "%s/response" % topic
         sent_message = loads(args[0])
         assert sent_message['result'] is None
 
@@ -96,7 +96,7 @@ class ClientMqttServiceTestCase(TestCase):
         mocked_handler.reset_mock()
         self.mqtt.commandReceived(topic, '{"id": "0", "method": "getMethods", "params": []}')
         args, kwargs = mocked_handler.send_message.call_args
-        assert kwargs['topic'] == "%s/to-backend" % topic
+        assert kwargs['topic'] == "%s/response" % topic
 
     def test_reAnnounce(self):
         self.mqtt.reAnnounce()

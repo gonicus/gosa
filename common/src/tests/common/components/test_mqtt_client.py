@@ -174,7 +174,7 @@ class MqttClientTestCase(AsyncTestCase):
     def test_get_sync_response(self):
         class MessageMock:
             payload = '{"sender_id": "backend", "content": "message content"}'
-            topic = "test/topic/to-backend"
+            topic = "test/topic/response"
 
         self.mqtt.client.connected = True
         self.mqtt.client.subscribe.return_value = 0, 0

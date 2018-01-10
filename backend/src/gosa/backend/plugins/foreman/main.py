@@ -100,7 +100,7 @@ class Foreman(Plugin):
             self.log.info("Initial-Sync: %s, startpassive: %s" % (self.env.config.getboolean("foreman.initial-sync", default=True), self.env.config.getboolean("core.startpassive", default=False)))
             if not hasattr(sys, '_called_from_test') and \
                     self.env.config.getboolean("foreman.initial-sync", default=True) is True and \
-                    self.env.config.getboolean("core.startpassive", default=False) is False:
+                    self.env.mode != "proxy":
                 zope.event.subscribers.append(self.__handle_events)
 
     def init_client(self, url):

@@ -34,6 +34,7 @@ from sqlalchemy_utils import TSVectorType
 
 import gosa
 from gosa.backend.components.httpd import get_server_url, get_internal_server_url
+from gosa.backend.utils import BackendTypes
 from gosa.common.env import declarative_base, make_session
 from gosa.common.event import EventMaker
 from lxml import etree
@@ -56,7 +57,7 @@ from gosa.backend.exceptions import FilterException, IndexException, ProxyExcept
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.orm import relationship, joinedload
 from sqlalchemy import Column, String, Integer, Boolean, Sequence, DateTime, ForeignKey, or_, and_, not_, func, orm, \
-    JSON
+    JSON, Enum
 from gosa.backend.routes.system import State
 
 Base = declarative_base()
@@ -153,20 +154,20 @@ class RegisteredBackend(Base):
     uuid = Column(String(36), primary_key=True, nullable=False)
     password = Column(String(300), nullable=False)
     url = Column(String)
-    active = Column(Boolean)
+    type = Column(Enum(BackendTypes))
 
-    def __init__(self, uuid, password, url="", active=False):
+    def __init__(self, uuid, password, url="", type=BackendTypes.unknown):
         self.uuid = uuid
         self.password = bcrypt.encrypt(password)
         self.url = url
-        self.active = active
+        self.type = type
 
     def validate_password(self, password):
         return bcrypt.verify(password, self.password)
 
     def __repr__(self):  # pragma: nocover
-        return "<RegisteredBackend(uuid='%s', password='%s', url='%s', active='%s')>" % \
-               (self.uuid, self.password, self.url, self.active)
+        return "<RegisteredBackend(uuid='%s', password='%s', url='%s', type='%s')>" % \
+               (self.uuid, self.password, self.url, self.type)
 
 
 class OpenObject(Base):
@@ -353,14 +354,16 @@ class ObjectIndex(Plugin):
                                  aliases=aliases)
 
         # store core_uuid/core_key into DB
-        if self.env.config.getboolean("core.startpassive", default=False) is False:
+        if self.env.mode != "proxy":
             with make_session() as session:
+                session.query(UserSession).delete()
+                session.query(OpenObject).delete()
                 session.query(RegisteredBackend).delete()
                 rb = RegisteredBackend(
                     uuid=self.env.core_uuid,
                     password=self.env.core_key,
                     url=get_internal_server_url(),
-                    active=True
+                    type=BackendTypes.active_master
                 )
                 session.add(rb)
                 session.commit()
@@ -384,7 +387,9 @@ class ObjectIndex(Plugin):
                     if not proxy.login(self.env.config.get("core.backend-user"), self.env.config.get("core.backend-key")):
                         raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
                     else:
-                        proxy.registerBackend(self.env.core_uuid, self.env.core_key, get_internal_server_url())
+                        proxy.registerBackend(self.env.core_uuid,
+                                              self.env.core_key, get_internal_server_url(),
+                                              BackendTypes.proxy if self.env.mode == "proxy" else BackendTypes.standby_master)
                 except HTTPError as e:
                     if e.code == 401:
                         raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
@@ -1460,19 +1465,21 @@ class BackendRegistry(Plugin):
         self.env = Environment.getInstance()
 
     @Command(__help__=N_("Register a backend to allow MQTT access"))
-    def registerBackend(self, uuid, password, url=None):
+    def registerBackend(self, uuid, password, url=None, type=BackendTypes.unknown):
         with make_session() as session:
             if session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).count() == 0:
                 rb = RegisteredBackend(
                     uuid=uuid,
                     password=password,
-                    url=url
+                    url=url,
+                    type=type
                 )
                 session.add(rb)
-                return True
             else:
                 self.log.error("there is already a backend registered for this uuid")
-                return False
+                rb = session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).one()
+                rb.password = password
+            session.commit()
 
     @Command(__help__=N_("Unregister a backend from MQTT access"))
     def unregisterBackend(self, uuid, password):
@@ -1480,9 +1487,7 @@ class BackendRegistry(Plugin):
             backend = session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).one_or_none()
             if backend is not None and backend.validate_password(password):
                 session.delete(backend)
-                return True
-            else:
-                return False
+                session.commit()
 
     def check_auth(self, uuid, password):
         if self.env.core_uuid == uuid and self.env.core_key == password:
@@ -1494,6 +1499,7 @@ class BackendRegistry(Plugin):
                 return backend.validate_password(password)
         return False
 
-    def is_backend(self, uuid):
+    def get_type(self, uuid):
         with make_session() as session:
-            return session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).count() > 0
+            res = session.query(RegisteredBackend.type).filter(RegisteredBackend.uuid == uuid).one_or_none()
+            return res[0] if res is not None else None

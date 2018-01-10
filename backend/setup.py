@@ -124,25 +124,26 @@ setup(
         command = gosa.backend.command:CommandRegistry
         rpc = gosa.backend.plugins.rpc.methods:RPCMethods
         mqttbackends = gosa.backend.objects.index:BackendRegistry
+        two_factor = gosa.backend.plugins.two_factor.main:TwoFactorAuthManager
+        foreman = gosa.backend.plugins.foreman.main:Foreman
+        locales = gosa.backend.plugins.misc.locales:Locales
         
         [gosa.backend.plugin]
         workflow = gosa.backend.components.workflowregistry:WorkflowRegistry
         sambaguimethods = gosa.backend.plugins.samba.domain:SambaGuiMethods
         transliterate = gosa.backend.plugins.misc.transliterate:Transliterate
-        locales = gosa.backend.plugins.misc.locales:Locales
         gravatar = gosa.backend.plugins.misc.gravatar:Gravatar
         shells = gosa.backend.plugins.posix.shells:ShellSupport
         webhook_registry = gosa.backend.plugins.webhook.registry:WebhookRegistry
         zarafa = gosa.backend.plugins.zarafa.methods:ZarafaRPCMethods
-        foreman = gosa.backend.plugins.foreman.main:Foreman
         settings = gosa.backend.components.settings_registry:SettingsRegistry
         cups = gosa.backend.plugins.cups.main:CupsClient
-        two_factor = gosa.backend.plugins.two_factor.main:TwoFactorAuthManager
         password = gosa.backend.plugins.password.manager:PasswordManager
         uploads = gosa.backend.plugins.upload.main:UploadManager
         mail = gosa.backend.plugins.mail.main:Mail
         user = gosa.backend.plugins.user.main:User
         jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
+        mqttrpc_service = gosa.backend.components.mqttrpc_service:MQTTRPCService
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
@@ -288,5 +289,8 @@ setup(
 
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt
+        
+        [gosa.json.datahandler]
+        backend_types = gosa.backend.utils:BackendTypesEncoder
     """,
 )

@@ -157,7 +157,7 @@ class MQTTClientService(object):
         args = None
         id_ = ''
 
-        response_topic = "%s/to-backend" % "/".join(topic.split("/")[0:4])
+        response_topic = "%s/response" % "/".join(topic.split("/")[0:4])
 
         try:
             req = loads(message)
