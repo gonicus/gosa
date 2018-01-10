@@ -119,8 +119,8 @@ class Config(object):
 
         override_options = {}
         for arg in argv:
-            m = re.match("^-{1,2}([^\.]+)\.([^\.]+)=(.*)$", arg)
-            if m:
+            m = re.match("^-{2}([^\.]+)\.([^\.]+)=(.*)$", arg)
+            if m and m.groups() is not None and len(m.groups()) == 3:
                 # section
                 if m.group(1) not in override_options:
                     override_options[m.group(1)] = {}
