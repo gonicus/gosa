@@ -107,6 +107,7 @@ setup(
         /mqtt/acl = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoAclHandler
         /mqtt/superuser = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoSuperuserHandler
         /state = gosa.backend.routes.system:SystemStateReporter
+        /ppd/modified/(?P<path>.*)? = gosa.backend.plugins.cups.route:PPDHandler
         
         [gosa.backend.route]
         /images/(?P<path>.*)? = gosa.backend.routes.static.main:ImageHandler
@@ -114,7 +115,6 @@ setup(
         /uploads/(?P<uuid>.*)? = gosa.backend.plugins.upload.main:UploadHandler
         /workflow/(?P<path>.*)? = gosa.backend.routes.static.main:WorkflowHandler
         /hooks(?P<path>.*)? = gosa.backend.plugins.webhook.registry:WebhookReceiver
-        /ppd/modified/(?P<path>.*)? = gosa.backend.plugins.cups.route:PPDHandler
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
