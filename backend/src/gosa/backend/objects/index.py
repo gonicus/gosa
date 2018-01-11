@@ -1511,7 +1511,7 @@ class BackendRegistry(Plugin):
                 session.commit()
 
     def check_auth(self, uuid, password):
-        if self.env.core_uuid == uuid and self.env.core_key == password:
+        if hasattr(self.env, "core_uuid") and self.env.core_uuid == uuid and self.env.core_key == password:
             return True
 
         with make_session() as session:
@@ -1522,7 +1522,7 @@ class BackendRegistry(Plugin):
 
     def get_type(self, uuid):
         # do not use DB if we want to identify ourselves
-        if self.env.core_uuid == uuid:
+        if hasattr(self.env, "core_uuid") and self.env.core_uuid == uuid:
             return BackendTypes.proxy if self.env.mode == "proxy" else BackendTypes.active_master
 
         with make_session() as session:
