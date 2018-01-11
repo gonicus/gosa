@@ -356,7 +356,6 @@ class ClientService(Plugin):
                            {'dn': 1})
         if len(res) != 1:
             raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid, status_code=404))
-
         return ObjectProxy(res[0]['dn'])
 
     @Command(__help__=N_("Set system status"), type="READONLY")
@@ -364,10 +363,10 @@ class ClientService(Plugin):
         """
         TODO
         """
-        if isinstance(device_uuid, ObjectProxy):
-            device = device_uuid
-        else:
+        if isinstance(device_uuid, str):
             device = self.__open_device(device_uuid)
+        else:
+            device = device_uuid
         return device.deviceStatus
 
     @Command(__help__=N_("Set system status"))
@@ -379,10 +378,10 @@ class ClientService(Plugin):
             # do not update state during index, clients will be polled after index is done
             return
 
-        if isinstance(device_uuid, ObjectProxy):
-            device = device_uuid
-        else:
+        if isinstance(device_uuid, str):
             device = self.__open_device(device_uuid)
+        else:
+            device = device_uuid
         r = re.compile(r"([+-].)")
         for stat in r.findall(status):
             if stat[1] not in mapping:
