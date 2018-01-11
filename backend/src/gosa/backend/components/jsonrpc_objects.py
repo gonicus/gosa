@@ -540,7 +540,7 @@ class JSONRPCObjectMapper(Plugin):
                 )
                 session.add(oo)
                 session.commit()
-        else:
+        elif db_object.data is not None:
             # apply changes to opened object
             for prop, value in db_object.data.items():
                 self.setObjectProperty(user, ref, prop, value, skip_db_update=True)
@@ -590,7 +590,7 @@ class JSONRPCObjectMapper(Plugin):
                             obj.backend_uuid = self.env.core_uuid
                             session.commit()
 
-                    self.openObject(obj.user, obj.session_id, obj.oid, db_object=obj)
+                    self.openObject(obj.user, obj.session_id, obj.oid, obj.uuid, db_object=obj)
                     return self.__stack[ref]
         return None
 
@@ -633,6 +633,8 @@ class JSONRPCObjectMapper(Plugin):
                                 del item['countdown_job']
 
                         del self.__stack[ref]
+                        with make_session() as session:
+                            session.query(OpenObject).filter(OpenObject.ref == ref).delete()
 
                         event = e.Event(
                             e.ObjectCloseAnnouncement(
