@@ -365,21 +365,22 @@ class ObjectIndex(Plugin):
                                  aliases=aliases)
 
         # store core_uuid/core_key into DB
-        if self.env.mode != "proxy":
-            with make_session() as session:
-                session.query(UserSession).delete()
-                session.query(OpenObject).delete()
-                session.query(RegisteredBackend).delete()
-                rb = RegisteredBackend(
-                    uuid=self.env.core_uuid,
-                    password=self.env.core_key,
-                    url=get_internal_server_url(),
-                    type=BackendTypes.active_master
-                )
-                session.add(rb)
-                session.commit()
-        else:
-            self.registerProxy()
+        if hasattr(self.env, "core_uuid"):
+            if self.env.mode != "proxy":
+                with make_session() as session:
+                    session.query(UserSession).delete()
+                    session.query(OpenObject).delete()
+                    session.query(RegisteredBackend).delete()
+                    rb = RegisteredBackend(
+                        uuid=self.env.core_uuid,
+                        password=self.env.core_key,
+                        url=get_internal_server_url(),
+                        type=BackendTypes.active_master
+                    )
+                    session.add(rb)
+                    session.commit()
+            else:
+                self.registerProxy()
 
         # Schedule index sync
         if self.env.config.get("backend.index", "true").lower() == "true":
