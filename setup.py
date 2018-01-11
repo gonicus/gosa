@@ -13,7 +13,7 @@ modules = [
 ]
 paths = []
 return_code = 0
-skip_tests = ["client"]
+skip_tests = ["client", "proxy"]
 skip_return_code = ["dbus", "goto", "gui"]
 
 failed_modules = {}
