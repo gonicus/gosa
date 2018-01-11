@@ -30,11 +30,14 @@ via the :meth:`gosa.backend.command.CommandRegistry.dispatch` method
 """
 import re
 import logging
+from datetime import timedelta
+
 from lxml import objectify, etree
 
 import zope
 import gettext
 
+from tornado import gen
 from tornado.gen import coroutine
 
 from gosa.common.components.mqtt_handler import MQTTHandler
@@ -264,7 +267,7 @@ class CommandRegistry(Plugin):
         (clazz, method) = self.path2method(self.commands[func]['path'])
 
         method = PluginRegistry.modules[clazz].__getattribute__(method)
-        execute_locally = self.env.mode != "proxy" or getattr(method, "type", "READWRITE") == "PROXY"
+        execute_locally = self.env.mode != "proxy" or getattr(method, "type", "READWRITE") != "READWRITE"
 
         if execute_locally is True:
             self.log.info("executing '%s' locally" % func)
@@ -280,7 +283,8 @@ class CommandRegistry(Plugin):
             if self.callNeedsSession(func):
                 larg['__session_id__'] = arg.pop(0)
 
-            return getattr(self.backend_proxy, func)(*arg, **larg)
+            future = getattr(self.backend_proxy, func)(*arg, **larg)
+            return future.result()
 
     def path2method(self, path):
         """

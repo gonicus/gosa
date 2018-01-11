@@ -108,7 +108,7 @@ class Foreman(Plugin):
 
     def serve(self):
 
-        if self.client:
+        if self.client and self.env.mode != "proxy":
             sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
             sched.add_interval_job(self.flush_parameter_setting, seconds=10, tag='_internal', jobstore="ram")
 
@@ -416,7 +416,7 @@ class Foreman(Plugin):
         res = {}
         with make_session() as session:
             for r in session.query(Cache.data).filter(Cache.key.ilike("foreman.operating_system.%")).all():
-                res[r["release_name"]] = {"value": r["release_name"]}
+                res[r[0]["release_name"]] = {"value": r[0]["release_name"]}
         return res
 
     @Command(__help__=N_("Get release name of an operating system"), type="READONLY")

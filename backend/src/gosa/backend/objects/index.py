@@ -379,38 +379,7 @@ class ObjectIndex(Plugin):
                 session.add(rb)
                 session.commit()
         else:
-            # register on the current master
-            with make_session() as session:
-                # get any other registered backend
-                master_backend = session.query(RegisteredBackend).filter(RegisteredBackend.uuid != self.env.core_uuid).first()
-                if master_backend is None:
-                    raise GosaException(C.make_error("NO_MASTER_BACKEND_FOUND"))
-                # Try to log in with provided credentials
-                url = urlparse("%s/rpc" % master_backend.url)
-                connection = '%s://%s%s' % (url.scheme, url.netloc, url.path)
-                proxy = JSONServiceProxy(connection)
-
-                if self.env.config.get("core.backend-user") is None or self.env.config.get("core.backend-key") is None:
-                    raise GosaException(C.make_error("NO_BACKEND_CREDENTIALS"))
-
-                # Try to log in
-                try:
-                    if not proxy.login(self.env.config.get("core.backend-user"), self.env.config.get("core.backend-key")):
-                        raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
-                    else:
-                        proxy.registerBackend(self.env.core_uuid,
-                                              self.env.core_key, get_internal_server_url(),
-                                              BackendTypes.proxy if self.env.mode == "proxy" else BackendTypes.standby_master)
-                except HTTPError as e:
-                    if e.code == 401:
-                        raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
-                    else:
-                        self.log.error("Error: %s " % str(e))
-                        raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
-
-                except Exception as e:
-                    self.log.error("Error: %s " % str(e))
-                    raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
+            self.registerProxy()
 
         # Schedule index sync
         if self.env.config.get("backend.index", "true").lower() == "true":
@@ -428,6 +397,43 @@ class ObjectIndex(Plugin):
             sobj.getScheduler().add_date_job(finish,
                                              datetime.datetime.now() + datetime.timedelta(seconds=10),
                                              tag='_internal', jobstore='ram')
+
+    def registerProxy(self):
+        if self.env.mode == "proxy":
+            # register on the current master
+            with make_session() as session:
+                # get any other registered backend
+                master_backend = session.query(RegisteredBackend) \
+                    .filter(RegisteredBackend.uuid != self.env.core_uuid,
+                            RegisteredBackend.type == BackendTypes.active_master).first()
+                if master_backend is None:
+                    raise GosaException(C.make_error("NO_MASTER_BACKEND_FOUND"))
+                # Try to log in with provided credentials
+                url = urlparse("%s/rpc" % master_backend.url)
+                connection = '%s://%s%s' % (url.scheme, url.netloc, url.path)
+                proxy = JSONServiceProxy(connection)
+
+                if self.env.config.get("core.backend-user") is None or self.env.config.get("core.backend-key") is None:
+                    raise GosaException(C.make_error("NO_BACKEND_CREDENTIALS"))
+
+                # Try to log in
+                try:
+                    if not proxy.login(self.env.config.get("core.backend-user"), self.env.config.get("core.backend-key")):
+                        raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
+                    else:
+                        proxy.registerBackend(self.env.core_uuid,
+                                              self.env.core_key, get_internal_server_url(),
+                                              BackendTypes.proxy)
+                except HTTPError as e:
+                    if e.code == 401:
+                        raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
+                    else:
+                        self.log.error("Error: %s " % str(e))
+                        raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
+
+                except Exception as e:
+                    self.log.error("Error: %s " % str(e))
+                    raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
 
     def stop(self):
         if self.__handle_events in zope.event.subscribers:
@@ -876,6 +882,9 @@ class ObjectIndex(Plugin):
         self.__save(obj.asJSON(True), session=session)
 
     def __save(self, data, session=None):
+        if self.env.mode == "proxy":
+            self.log.error("GOsa proxy is not allowed to write anything to the database")
+
         if session is not None:
             self.__session_save(data, session)
         else:
@@ -1474,6 +1483,7 @@ class BackendRegistry(Plugin):
 
     def __init__(self):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
 
     @Command(__help__=N_("Register a backend to allow MQTT access"))
     def registerBackend(self, uuid, password, url=None, type=BackendTypes.unknown):
@@ -1493,10 +1503,10 @@ class BackendRegistry(Plugin):
             session.commit()
 
     @Command(__help__=N_("Unregister a backend from MQTT access"))
-    def unregisterBackend(self, uuid, password):
+    def unregisterBackend(self, uuid):
         with make_session() as session:
             backend = session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).one_or_none()
-            if backend is not None and backend.validate_password(password):
+            if backend is not None:
                 session.delete(backend)
                 session.commit()
 
@@ -1511,6 +1521,10 @@ class BackendRegistry(Plugin):
         return False
 
     def get_type(self, uuid):
+        # do not use DB if we want to identify ourselves
+        if self.env.core_uuid == uuid:
+            return BackendTypes.proxy if self.env.mode == "proxy" else BackendTypes.active_master
+
         with make_session() as session:
             res = session.query(RegisteredBackend.type).filter(RegisteredBackend.uuid == uuid).one_or_none()
             return res[0] if res is not None else None

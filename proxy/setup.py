@@ -77,6 +77,6 @@ setup(
         gosa-proxy=gosa.proxy.main:main
 
         [gosa.proxy.plugin]
-        mqtt = gosa.common.mqtt:MQTTClientHandler
+        mqtt_relay = gosa.proxy.mqtt_relay:MQTTRelayService
     """
 )

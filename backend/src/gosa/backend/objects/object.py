@@ -169,8 +169,8 @@ class Object(object):
         atypes = self._objectFactory.getAttributeTypes()
         for key in self.myProperties:
 
-            # Load dynamic dropdown-values
-            if self.myProperties[key]['values_populate'] and self.myProperties[key]['re_populate_on_update'] is False:
+            # Load dynamic dropdown-values (when not read_only)
+            if self._read_only is False and self.myProperties[key]['values_populate'] and self.myProperties[key]['re_populate_on_update'] is False:
                 cr = PluginRegistry.getInstance('CommandRegistry')
                 values = cr.call(self.myProperties[key]['values_populate'])
                 if type(values).__name__ == "dict":
@@ -240,6 +240,10 @@ class Object(object):
         self.__update_population(attribute=attribute_name)
 
     def __update_population(self, attribute=None):
+        # value population is only needed if we want to change attribute values
+        if self._read_only is True:
+            return
+
         # collect current attribute values
         data = {}
         for prop in self.myProperties.keys():
@@ -448,7 +452,7 @@ class Object(object):
             # Convert values from incoming backend-type to required type
             if self.myProperties[key]['value']:
                 a_type = self.myProperties[key]['type']
-                be_type = self.myProperties[key]['backend_type'] if self._read_only is False else "UnicodeString"
+                be_type = self.myProperties[key]['backend_type'] if self._read_only is False else "String"
 
                 #  Convert all values to required type
                 if not atypes[a_type].is_valid_value(self.myProperties[key]['value']):

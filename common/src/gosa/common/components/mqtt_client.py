@@ -107,6 +107,7 @@ class MQTTClient(object):
         """ disconnect from the MQTT broker """
         self.client.disconnect()
         self.client.loop_stop()
+        self.__sender_id = None
 
     def add_subscription(self, topic, callback=None, qos=0, sync=False):
         """ subscribe to a topic """
@@ -164,7 +165,6 @@ class MQTTClient(object):
         else:
             msg = mqtt.error_string(rc)
             self.log.error("MQTT connection error (%s:%s): %s" % (self.host, self.port, msg))
-            self.__sender_id = None
 
     def __on_message(self, client, userdata, message):
         payload = loads(message.payload)

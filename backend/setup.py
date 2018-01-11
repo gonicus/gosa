@@ -127,21 +127,21 @@ setup(
         two_factor = gosa.backend.plugins.two_factor.main:TwoFactorAuthManager
         foreman = gosa.backend.plugins.foreman.main:Foreman
         locales = gosa.backend.plugins.misc.locales:Locales
+        password = gosa.backend.plugins.password.manager:PasswordManager
+        sambaguimethods = gosa.backend.plugins.samba.domain:SambaGuiMethods
+        gravatar = gosa.backend.plugins.misc.gravatar:Gravatar
+        cups = gosa.backend.plugins.cups.main:CupsClient
+        transliterate = gosa.backend.plugins.misc.transliterate:Transliterate
+        zarafa = gosa.backend.plugins.zarafa.methods:ZarafaRPCMethods
+        settings = gosa.backend.components.settings_registry:SettingsRegistry
+        mail = gosa.backend.plugins.mail.main:Mail
+        user = gosa.backend.plugins.user.main:User
         
         [gosa.backend.plugin]
         workflow = gosa.backend.components.workflowregistry:WorkflowRegistry
-        sambaguimethods = gosa.backend.plugins.samba.domain:SambaGuiMethods
-        transliterate = gosa.backend.plugins.misc.transliterate:Transliterate
-        gravatar = gosa.backend.plugins.misc.gravatar:Gravatar
         shells = gosa.backend.plugins.posix.shells:ShellSupport
         webhook_registry = gosa.backend.plugins.webhook.registry:WebhookRegistry
-        zarafa = gosa.backend.plugins.zarafa.methods:ZarafaRPCMethods
-        settings = gosa.backend.components.settings_registry:SettingsRegistry
-        cups = gosa.backend.plugins.cups.main:CupsClient
-        password = gosa.backend.plugins.password.manager:PasswordManager
         uploads = gosa.backend.plugins.upload.main:UploadManager
-        mail = gosa.backend.plugins.mail.main:Mail
-        user = gosa.backend.plugins.user.main:User
         jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
         mqttrpc_service = gosa.backend.components.mqttrpc_service:MQTTRPCService
 

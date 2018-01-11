@@ -9,6 +9,7 @@
 import logging
 import sys
 import traceback
+from lxml import objectify, etree
 
 from zope.interface import implementer
 
@@ -19,6 +20,7 @@ from gosa.common.components.mqtt_handler import MQTTHandler
 from gosa.common.gjson import loads, dumps
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.handler import IInterfaceHandler
+from gosa.common.utils import stripNs
 
 
 @implementer(IInterfaceHandler)
@@ -34,8 +36,8 @@ class MQTTRPCService(object):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.subtopic = "%s/proxy" % self.env.domain
-        self.mqtt = MQTTHandler(host=self.env.config.get("backend.mqtt-host"),
-                                port=self.env.config.getint("backend.mqtt-port", default=1883))
+        self.mqtt = MQTTHandler(host=self.env.config.get("mqtt.host"),
+                                port=self.env.config.getint("mqtt.port", default=1883))
 
     def serve(self):
         self.mqtt.get_client().add_subscription('%s/#' % self.subtopic)
@@ -44,7 +46,20 @@ class MQTTRPCService(object):
         self.log.info("MQTT RPC service started, listening on subtopic '%s/#'" % self.subtopic)
 
     def __handle_request(self, topic, message):
-        if topic.startswith(self.subtopic):
+        if topic == self.subtopic:
+            # event from proxy received
+            try:
+                data = etree.fromstring(message, PluginRegistry.getEventParser())
+                event_type = stripNs(data.xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag)
+                if event_type == "ClientLeave":
+                    proxy_id = str(data.ClientLeave.Id)
+                    registry = PluginRegistry.getInstance("BackendRegistry")
+                    registry.unregisterBackend(proxy_id)
+
+            except etree.XMLSyntaxError as e:
+                self.log.error("Event parsing error: %s" % e)
+
+        elif topic.startswith(self.subtopic):
             response_topic = "%s/response" % "/".join(topic.split("/")[0:4])
 
             try:

@@ -32,20 +32,21 @@ from gosa.common.event import EventMaker
 netstate = False
 
 
-def shutdown(a=None, b=None):
+def shutdown():
     global dr
 
     env = Environment.getInstance()
     log = logging.getLogger(__name__)
 
     # Function to shut down the client. Do some clean up and close sockets.
-    mqtt = PluginRegistry.getInstance("MQTTClientHandler")
+    mqtt = PluginRegistry.getInstance("MQTTRelayService")
 
     # Tell others that we're away now
     e = EventMaker()
-    goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
+
+    goodbye = e.Event(e.ClientLeave(e.Id(env.core_uuid)))
     if mqtt:
-        mqtt.send_event(goodbye, qos=2)
+        mqtt.backend_mqtt.send_event(goodbye, "%s/proxy" % env.domain, qos=1)
         mqtt.close()
 
     # Shutdown plugins
