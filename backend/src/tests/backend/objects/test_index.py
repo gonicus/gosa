@@ -55,44 +55,45 @@ class ObjectIndexTestCase(TestCase):
         res = self.obj.getBaseObjectTypes()
         assert 'User' in res
 
-    @pytest.mark.skip(msg="messes up the index")
-    def test_update(self):
-        test = mock.MagicMock()
-        test.uuid = '78475884-c7f2-1035-8262-f535be14d43b'
-        test.asJSON.return_value = {
-            'uuid': '78475884-c7f2-1035-8262-f535be14d43a',
-            'dn': 'cn=Frank Reich,ou=people,dc=example,dc=de',
-            '_adjusted_parent_dn': 'ou=people,dc=example,dc=de'
-        }
-
-        with mock.patch.object(self.obj, "_ObjectIndex__save") as ms, \
-                mock.patch.object(self.obj._ObjectIndex__session, "commit") as mc,\
-                mock.patch.object(self.obj, "remove_by_uuid") as mr:
-            with pytest.raises(IndexException):
-                self.obj.update(test)
-            assert not ms.called
-            assert not mc.called
-            assert not mr.called
-
-            test.uuid = '7ff15c20-b305-1031-916b-47d262a62cc5'
-            test.asJSON.return_value = {
-                'uuid': '7ff15c20-b305-1031-916b-47d262a62cc5',
-                'dn': 'ou=people,dc=example,dc=de',
-                '_adjusted_parent_dn': 'dc=example,dc=de'
-            }
-
-            self.obj.update(test)
-            assert ms.called
-            assert mc.called
-            mr.assert_called_with(test.uuid)
-
-        # ObjectIndex needs to be rebuild after this test
-        PluginRegistry.getInstance('HTTPService').srv.stop()
-        PluginRegistry.shutdown()
-
-        oreg = ObjectRegistry.getInstance()  # @UnusedVariable
-        pr = PluginRegistry()  # @UnusedVariable
-        cr = PluginRegistry.getInstance("CommandRegistry") # @UnusedVariable
+    # @pytest.mark.skip(reason="messes up the index")
+    # def test_update(self):
+    #     test = mock.MagicMock()
+    #     test.uuid = '78475884-c7f2-1035-8262-f535be14d43b'
+    #     test.asJSON.return_value = {
+    #         'uuid': '78475884-c7f2-1035-8262-f535be14d43a',
+    #         'dn': 'cn=Frank Reich,ou=people,dc=example,dc=de',
+    #         '_adjusted_parent_dn': 'ou=people,dc=example,dc=de'
+    #     }
+    #
+    #     with mock.patch.object(self.obj, "_ObjectIndex__save") as ms, \
+    #             mock.patch("gosa.backend.objects.index.make_session") as m, \
+    #             mock.patch.object(self.obj, "remove_by_uuid") as mr:
+    #         mc = m.return_value.__enter__.return_value.commit
+    #         with pytest.raises(IndexException):
+    #             self.obj.update(test)
+    #         assert not ms.called
+    #         assert not mc.called
+    #         assert not mr.called
+    #
+    #         test.uuid = '7ff15c20-b305-1031-916b-47d262a62cc5'
+    #         test.asJSON.return_value = {
+    #             'uuid': '7ff15c20-b305-1031-916b-47d262a62cc5',
+    #             'dn': 'ou=people,dc=example,dc=de',
+    #             '_adjusted_parent_dn': 'dc=example,dc=de'
+    #         }
+    #
+    #         self.obj.update(test)
+    #         assert ms.called
+    #         assert mc.called
+    #         mr.assert_called_with(test.uuid)
+    #
+    #     # ObjectIndex needs to be rebuild after this test
+    #     PluginRegistry.getInstance('HTTPService').srv.stop()
+    #     PluginRegistry.shutdown()
+    #
+    #     oreg = ObjectRegistry.getInstance()  # @UnusedVariable
+    #     pr = PluginRegistry()  # @UnusedVariable
+    #     cr = PluginRegistry.getInstance("CommandRegistry") # @UnusedVariable
 
     def test_find(self):
 

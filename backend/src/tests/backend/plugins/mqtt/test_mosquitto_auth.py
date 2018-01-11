@@ -148,7 +148,7 @@ class MosquittoAuthTestCase(AsyncHTTPTestCase):
 
         # test event channel for client separately as we need to mock the acl check
         with mock.patch("gosa.backend.plugins.mqtt.mosquitto_auth.PluginRegistry.getInstance") as m_resolver:
-            m_resolver.return_value.check.return_value = False
+            m_resolver.return_value.get_type.return_value = None
             params = urlencode({'username': 'uuid', 'topic': "%s/events" % self.env.domain, 'acc': 2})
             response = self.fetch('/mqtt/acl', method="POST", body=params)
             assert response.code == 403
@@ -157,7 +157,7 @@ class MosquittoAuthTestCase(AsyncHTTPTestCase):
             response = self.fetch('/mqtt/acl', method="POST", body=params)
             assert response.code == 403
 
-            m_resolver.return_value.check.return_value = True
+            m_resolver.return_value.get_type.return_value = BackendTypes.active_master
             params = urlencode({'username': 'uuid', 'topic': "%s/events" % self.env.domain, 'acc': 2})
             response = self.fetch('/mqtt/acl', method="POST", body=params)
             assert response.code == 200
