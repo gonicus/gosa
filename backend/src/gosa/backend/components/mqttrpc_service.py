@@ -41,11 +41,11 @@ class MQTTRPCService(object):
 
     def serve(self):
         self.mqtt.get_client().add_subscription('%s/#' % self.subtopic)
-        self.mqtt.set_subscription_callback(self.__handle_request)
+        self.mqtt.set_subscription_callback(self.handle_request)
         self.__command_registry = PluginRegistry.getInstance('CommandRegistry')
         self.log.info("MQTT RPC service started, listening on subtopic '%s/#'" % self.subtopic)
 
-    def __handle_request(self, topic, message):
+    def handle_request(self, topic, message):
         if topic == self.subtopic:
             # event from proxy received
             try:
