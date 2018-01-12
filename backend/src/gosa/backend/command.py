@@ -270,10 +270,10 @@ class CommandRegistry(Plugin):
         execute_locally = self.env.mode != "proxy" or getattr(method, "type", "READWRITE") != "READWRITE"
 
         if execute_locally is True:
-            self.log.info("executing '%s' locally" % func)
+            self.log.debug("executing '%s' locally" % func)
             return method(*arg, **larg)
         else:
-            self.log.info("proxying '%s(%s)' call to GOsa backend via %s:%s" % (func, arg, self.mqtt.host, self.mqtt.port))
+            self.log.debug("proxying '%s(%s)' call to GOsa backend via %s:%s" % (func, arg, self.mqtt.host, self.mqtt.port))
 
             if self.callNeedsUser(func):
                 larg['__user__'] = arg.pop(0)
