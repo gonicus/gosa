@@ -129,6 +129,12 @@ class ClientService(Plugin):
         if event.__class__.__name__ == "IndexScanFinished":
             self.__refresh()
 
+        elif event.__class__.__name__ == "ACLChanged":
+            if self.env.mode != "proxy":
+                e = EventMaker()
+                trigger = e.Event(e.Trigger(e.Type(event.__class__.__name__)))
+                self.mqtt.send_event(trigger, "%s/proxy" % self.env.domain)
+
     def __refresh(self):
         # Initially check if we need to ask for client caps
         if not self.__client:
