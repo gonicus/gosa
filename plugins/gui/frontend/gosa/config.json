@@ -112,8 +112,16 @@
         "build-manifest-file",
         "build-customize",
         "build-ssl-index",
-        "build-manifest-index"
+        "build-manifest-index",
+        "build-deploy"
       ]
+    },
+
+    "build-deploy":
+    {
+      "shell" : {
+        "command" : " rm -rf ../../src/gosa/plugins/gui/data/web; mv build ../../src/gosa/plugins/gui/data/web"
+      }
     },
 
     "build-manifest-file":
