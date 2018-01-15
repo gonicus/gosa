@@ -84,6 +84,7 @@ class ClientService(Plugin):
     entry_map = {"gosaApplicationPriority": "prio", "description": "description"}
     printer_attributes = ["gotoPrinterPPD", "labeledURI", "cn", "l", "description"]
     __client_call_queue = {}
+    ppd_proxy = None
 
     def __init__(self):
         """
@@ -105,6 +106,7 @@ class ClientService(Plugin):
     def serve(self):
         # Add event processor
         mqtt = self.__get_handler()
+        # listen to client topics
         mqtt.get_client().add_subscription('%s/client/+' % self.env.domain)
         self.log.debug("subscribing to %s event queue" % '%s/client/+' % self.env.domain)
         mqtt.set_subscription_callback(self.__eventProcessor)
@@ -120,6 +122,7 @@ class ClientService(Plugin):
         sched.add_interval_job(self.__gc, minutes=1, tag='_internal', jobstore="ram")
 
         # self.register_listener("configureHostPrinters", self._on_client_caps)
+        self.ppd_proxy = PluginRegistry.getInstance("PPDProxy")
 
     def __handle_events(self, event):
         """
@@ -127,6 +130,12 @@ class ClientService(Plugin):
         """
         if event.__class__.__name__ == "IndexScanFinished":
             self.__refresh()
+
+        elif event.__class__.__name__ == "ACLChanged":
+            if self.env.mode != "proxy":
+                e = EventMaker()
+                trigger = e.Event(e.Trigger(e.Type(event.__class__.__name__)))
+                self.mqtt.send_event(trigger, "%s/proxy" % self.env.domain)
 
     def __refresh(self):
         # Initially check if we need to ask for client caps
@@ -147,7 +156,7 @@ class ClientService(Plugin):
                     return uuid
         return name_or_uuid
 
-    @Command(__help__=N_("List available clients."))
+    @Command(__help__=N_("List available clients."), type="READONLY")
     def getClients(self):
         """
         List available domain clients.
@@ -201,7 +210,7 @@ class ClientService(Plugin):
         res = yield methodCall(*arg, **larg)
         raise gen.Return(res)
 
-    @Command(__help__=N_("Check if the client supports a method call"))
+    @Command(__help__=N_("Check if the client supports a method call"), type="READONLY")
     def hasCapability(self, client_id, method):
         return client_id in self.__client and method in self.__client[client_id]
 
@@ -225,7 +234,7 @@ class ClientService(Plugin):
         else:
             self.clientDispatch(client, method, *arg, **larg)
 
-    @Command(__help__=N_("Get the client Interface/IP/Netmask/Broadcast/MAC list."))
+    @Command(__help__=N_("Get the client Interface/IP/Netmask/Broadcast/MAC list."), type="READONLY")
     def getClientNetInfo(self, client):
         """
         Get brief information about the client network setup.
@@ -251,7 +260,7 @@ class ClientService(Plugin):
         res = self.__client[client]['network']
         return res
 
-    @Command(__help__=N_("List available client methods for specified client."))
+    @Command(__help__=N_("List available client methods for specified client."), type="READONLY")
     def getClientMethods(self, client):
         """
         Get list of available client methods and their signature.
@@ -267,7 +276,7 @@ class ClientService(Plugin):
 
         return self.__client[client]['caps']
 
-    @Command(__help__=N_("List user sessions per client"))
+    @Command(__help__=N_("List user sessions per client"), type="READONLY")
     def getUserSessions(self, client=None):
         """
         TODO
@@ -278,14 +287,14 @@ class ClientService(Plugin):
 
         return list(self.__user_session)
 
-    @Command(__help__=N_("List clients a user is logged in"))
+    @Command(__help__=N_("List clients a user is logged in"), type="READONLY")
     def getUserClients(self, user):
         """
         TODO
         """
         return [client for client, users in self.__user_session.items() if user in users]
 
-    @Command(__help__=N_("Send synchronous notification message to user"))
+    @Command(__help__=N_("Send synchronous notification message to user"), type="READONLY")
     def notifyUser(self, users, title, message, timeout=10, level='normal', icon="dialog-information"):
         """
         Send a notification request to the user client.
@@ -355,18 +364,17 @@ class ClientService(Plugin):
                            {'dn': 1})
         if len(res) != 1:
             raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid, status_code=404))
-
         return ObjectProxy(res[0]['dn'])
 
-    @Command(__help__=N_("Set system status"))
+    @Command(__help__=N_("Set system status"), type="READONLY")
     def systemGetStatus(self, device_uuid):
         """
         TODO
         """
-        if isinstance(device_uuid, ObjectProxy):
-            device = device_uuid
-        else:
+        if isinstance(device_uuid, str):
             device = self.__open_device(device_uuid)
+        else:
+            device = device_uuid
         return device.deviceStatus
 
     @Command(__help__=N_("Set system status"))
@@ -378,10 +386,10 @@ class ClientService(Plugin):
             # do not update state during index, clients will be polled after index is done
             return
 
-        if isinstance(device_uuid, ObjectProxy):
-            device = device_uuid
-        else:
+        if isinstance(device_uuid, str):
             device = self.__open_device(device_uuid)
+        else:
+            device = device_uuid
         r = re.compile(r"([+-].)")
         for stat in r.findall(status):
             if stat[1] not in mapping:
@@ -535,16 +543,24 @@ class ClientService(Plugin):
 
         self.log.debug("updating client '%s' user session: %s" % (id, ','.join(self.__user_session[id])))
 
-    @Command(__help__=N_("Prepare a user session after a user has logged in"))
+    @Command(__help__=N_("Prepare a user session after a user has logged in"), type="PROXY")
     def preUserSession(self, client_id, user_name, skip_config=False):
         sobj = PluginRegistry.getInstance("SchedulerService")
         # delay changes, send configuration first
-        def maintain_session():
-            self.__maintain_user_session(client_id, user_name)
+        if self.env.mode == "proxy":
+            # answer config locally and proceed the write-part of the call to the GOsa backend
+            # TODO add MQTT call to backend MQTT-broker (with skip_config=True)
+            self.log.info("calling preUserSession(%s, %s, skip_config=True) on master backend" % (client_id, user_name))
 
-        sobj.getScheduler().add_date_job(maintain_session,
-                                         datetime.datetime.now() + datetime.timedelta(milliseconds=1),
-                                         tag='_internal', jobstore='ram')
+        elif skip_config is True:
+            self.__maintain_user_session(client_id, user_name)
+        else:
+            # normal (non-proxy) mode -> return the config and schedule the user_session maintenance
+            # to prevent it from blocking the config generation
+            sobj.getScheduler().add_date_job(self.__maintain_user_session,
+                                             datetime.datetime.now() + datetime.timedelta(milliseconds=1),
+                                             args=(client_id, user_name),
+                                             tag='_internal', jobstore='ram')
 
         if skip_config is False:
             user_config = self.__collect_user_configuration(client_id, [user_name])
@@ -611,7 +627,7 @@ class ClientService(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({"_type": "GroupOfNames", "member": client.dn}, {"dn": 1})
         if len(res) > 0:
-            group = ObjectProxy(res[0]["dn"], read_only=True)
+            group = ObjectProxy(res[0]["dn"])
         config = {}
 
         resolution = None
@@ -632,7 +648,7 @@ class ClientService(Plugin):
                 if len(res) == 0:
                     break
                 else:
-                    parent_group = ObjectProxy(res[0]["dn"], read_only=True)
+                    parent_group = ObjectProxy(res[0]["dn"])
                     release = parent_group.getReleaseName()
 
         if release is None:
@@ -646,7 +662,7 @@ class ClientService(Plugin):
         # collect users DNs
         query_result = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1})
         for entry in query_result:
-            user = ObjectProxy(entry["dn"], read_only=True)
+            user = ObjectProxy(entry["dn"])
             config[user.uid] = {}
 
             if release is not None:
@@ -676,7 +692,7 @@ class ClientService(Plugin):
             printer_names = [x["cn"] for x in settings["printers"]]
             for res in index.search({'_type': 'GroupOfNames', "member": user.dn, "extension": "GotoEnvironment"},
                                     {"dn": 1}):
-                user_group = ObjectProxy(res["dn"], read_only=True)
+                user_group = ObjectProxy(res["dn"])
                 if user_group.dn == group.dn:
                     continue
                 s = self.__collect_printer_settings(user_group)
@@ -843,6 +859,9 @@ class ClientService(Plugin):
                 p_conf = {}
                 for attr in self.printer_attributes:
                     p_conf[attr] = getattr(printer, attr) if getattr(printer, attr) is not None else ""
+                    if attr == "gotoPrinterPPD" and p_conf[attr] != "":
+                        p_conf[attr] = self.ppd_proxy.getPPDURL(p_conf[attr])
+
                 settings["printers"].append(p_conf)
         return settings
 
@@ -1022,7 +1041,7 @@ class ClientService(Plugin):
                     "scope": "sub",
                     "actions": [
                         {
-                            "topic": "%s\.command\.(joinClient|preUserSession|postUserSession)" % self.env.domain,
+                            "topic": "%s\.command\.(joinClient|preUserSession|postUserSession|getMethods)" % self.env.domain,
                             "acl": "x",
                             "options": {}
                         }

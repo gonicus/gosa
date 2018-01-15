@@ -22,6 +22,9 @@ README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
 data_files = []
+for path, dirs, files in os.walk("frontend/gosa/build"):
+    for f in files:
+        data_files.append(os.path.join(path[14:], f))
 
 # noinspection PyRedeclaration
 for path, dirs, files in os.walk("src/gosa/plugins/gui/data"):
@@ -77,13 +80,13 @@ setup(
         ],
 
     entry_points = """
-        [gosa.route]
+        [gosa.backend.route]
         /(?P<path>.*)? = gosa.plugins.gui.main:GuiPlugin
 
         [gosa.upload_handler]
         widget = gosa.plugins.gui.upload:WidgetUploadHandler
 
-        [gosa.plugin]
+        [gosa.backend.plugin]
         rpc = gosa.plugins.gui.main:RpcPlugin
     """,
 )

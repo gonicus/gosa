@@ -168,7 +168,7 @@ class GotoClientServiceTestCase(AsyncTestCase):
         m_index = mock.MagicMock()
         with mock.patch("gosa.plugins.goto.client_service.ObjectProxy") as mocked_proxy, \
                 mock.patch.dict(PluginRegistry.modules, {'ObjectIndex': m_index}):
-            m_index.search.side_effect = [[{"_uuid": "fake_client_uuid"}], [{"dn": 'cn=tester,dc=example,dc=net'}]]
+            m_index.search.side_effect = [[{"dn": "fake_client_uuid"}], [{"dn": 'cn=tester,dc=example,dc=net'}]]
 
             self.service.mqtt.simulate_message("net.example/client/fake_client_uuid", etree.tostring(info))
 
@@ -233,9 +233,9 @@ class GotoClientServiceTestCase(AsyncTestCase):
             with pytest.raises(ValueError):
                 self.service.systemGetStatus('some_uuid')
 
-            mocked_index.return_value.search.return_value = [{'_uuid': ["some_uuid"]}]
+            mocked_index.return_value.search.return_value = [{'dn': ["some_dn"]}]
 
-            assert self.service.systemGetStatus('some_uuid') == "O"
+            assert self.service.systemGetStatus('some_dn') == "O"
 
     @mock.patch("gosa.plugins.goto.client_service.ObjectProxy")
     def test_systemSetStatus(self, mocked_proxy):
@@ -245,17 +245,17 @@ class GotoClientServiceTestCase(AsyncTestCase):
             with pytest.raises(ValueError):
                 self.service.systemSetStatus('some_uuid', "+O")
 
-            mocked_index.return_value.search.return_value = [{'_uuid': 'some_uuid'}]
-            self.service.systemSetStatus('some_uuid', "-O")
+            mocked_index.return_value.search.return_value = [{'dn': 'some_dn'}]
+            self.service.systemSetStatus('some_dn', "-O")
             mocked_proxy.return_value.system_Online is False
 
             with pytest.raises(ValueError):
-                self.service.systemSetStatus('some_uuid', "+X")
+                self.service.systemSetStatus('some_dn', "+X")
 
-            self.service.systemSetStatus('some_uuid', "+U")
+            self.service.systemSetStatus('some_dn', "+U")
             mocked_proxy.return_value.status_UpdateInProgress is True
 
-            self.service.systemSetStatus('some_uuid', "-U")
+            self.service.systemSetStatus('some_dn', "-U")
             mocked_proxy.return_value.status_UpdateInProgress is False
 
     @mock.patch("gosa.plugins.goto.client_service.ObjectProxy")

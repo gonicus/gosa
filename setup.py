@@ -9,6 +9,7 @@ modules = [
   'dbus',
   'shell',
   'utils',
+  'proxy'
 ]
 paths = []
 return_code = 0

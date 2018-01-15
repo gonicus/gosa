@@ -17,6 +17,7 @@ from tests.GosaTestCase import *
 
 @slow
 class JSONRPCObjectMapperTestCase(TestCase):
+    refs = []
 
     def setUp(self):
         super(JSONRPCObjectMapperTestCase, self).setUp()
@@ -26,8 +27,14 @@ class JSONRPCObjectMapperTestCase(TestCase):
         self.mocked_resolver.return_value.isAdmin.return_value = False
         self.patcher = mock.patch.dict(PluginRegistry.modules, {'ACLResolver': self.mocked_resolver})
         self.patcher.start()
+        self.refs = []
 
     def tearDown(self):
+        for ref in self.refs:
+            try:
+                self.mapper.closeObject('admin', ref)
+            except ValueError:
+                pass
         self.patcher.stop()
         super(JSONRPCObjectMapperTestCase, self).tearDown()
 
@@ -37,30 +44,46 @@ class JSONRPCObjectMapperTestCase(TestCase):
         assert 'workflow' in res
         assert len(res) == 2
 
+    def openObject(self, *args, **kwargs):
+        res = self.mapper.openObject(*args, **kwargs)
+        self.refs.append(res['__jsonclass__'][1][1])
+        return res
+
+    def reloadObject(self, *args, **kwargs):
+        res = self.mapper.reloadObject(*args, **kwargs)
+        self.refs.remove(args[1])
+        self.refs.append(res['__jsonclass__'][1][1])
+        return res
+
+    def closeObject(self, user, ref):
+        res = self.mapper.closeObject(user, ref)
+        self.refs.remove(ref)
+        return res
+
     def test_openObject(self):
-        res = self.mapper.openObject('admin', None, 'object', 'dc=example,dc=net')
+        res = self.openObject('admin', None, 'object', 'dc=example,dc=net')
         assert res['dc'] == "example"
 
         with pytest.raises(Exception):
-            self.mapper.openObject('admin', None, 'object', 'dc=example,dc=net')
+            self.openObject('admin', None, 'object', 'dc=example,dc=net')
 
     def test_closeObject(self):
-        res = self.mapper.openObject('admin', None, 'object', 'dc=example,dc=net')
+        res = self.openObject('admin', None, 'object', 'dc=example,dc=net')
 
         with pytest.raises(ValueError):
-            self.mapper.closeObject('admin', 'unknown')
+            self.closeObject('admin', 'unknown')
 
         with pytest.raises(ValueError):
-            self.mapper.closeObject('someone else', res["__jsonclass__"][1][1])
+            self.closeObject('someone else', res["__jsonclass__"][1][1])
 
-        self.mapper.closeObject('admin', res["__jsonclass__"][1][1])
+        self.closeObject('admin', res["__jsonclass__"][1][1])
 
         # as a workaround for checking if its not loaded anymore we try to reload it
         with pytest.raises(ValueError):
-            self.mapper.reloadObject('admin', res["__jsonclass__"][1][1])
+            self.reloadObject('admin', res["__jsonclass__"][1][1])
 
     def test_continueObjectEditing(self):
-        res = self.mapper.openObject('admin', 'session-uuid', 'object', 'dc=example,dc=net')
+        res = self.openObject('admin', 'session-uuid', 'object', 'dc=example,dc=net')
 
         with pytest.raises(ValueError):
             self.mapper.continueObjectEditing('admin', 'unknown_ref')
@@ -78,16 +101,16 @@ class JSONRPCObjectMapperTestCase(TestCase):
         assert 'mark_for_deletion' not in ref
 
     def test_checkObjectRef(self):
-        res = self.mapper.openObject('admin', 'session-uuid', 'object', 'dc=example,dc=net')
+        res = self.openObject('admin', 'session-uuid', 'object', 'dc=example,dc=net')
         ref = self.mapper._JSONRPCObjectMapper__get_ref(res["__jsonclass__"][1][1])
         assert self.mapper.checkObjectRef('admin', 'new-session-uuid', res["__jsonclass__"][1][1]) is True
         assert ref['session_id'] == "new-session-uuid"
 
-        self.mapper.closeObject('admin', res["__jsonclass__"][1][1])
+        self.closeObject('admin', res["__jsonclass__"][1][1])
         assert self.mapper.checkObjectRef('admin', 'new-session-uuid', res["__jsonclass__"][1][1]) is False
 
     def test_getObjectProperty(self):
-        res = self.mapper.openObject('admin', None, 'object', 'dc=example,dc=net')
+        res = self.openObject('admin', None, 'object', 'dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(ValueError):
@@ -102,7 +125,7 @@ class JSONRPCObjectMapperTestCase(TestCase):
         assert self.mapper.getObjectProperty('admin', ref, 'description') == "Example"
 
     def test_setObjectProperty(self):
-        res = self.mapper.openObject('admin', "session-uuid", 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+        res = self.openObject('admin', "session-uuid", 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(ValueError):
@@ -126,19 +149,19 @@ class JSONRPCObjectMapperTestCase(TestCase):
         assert self.mapper.getObjectProperty('admin', ref, 'uid') == "admin"
 
     def test_reloadObjectProperty(self):
-        res = self.mapper.openObject('admin', None, 'object', 'dc=example,dc=net')
+        res = self.openObject('admin', None, 'object', 'dc=example,dc=net')
         uuid = res['uuid']
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(ValueError):
-            self.mapper.reloadObject('someone else', ref)
+            self.reloadObject('someone else', ref)
 
-        res = self.mapper.reloadObject('admin', ref)
+        res = self.reloadObject('admin', ref)
         assert uuid == res['uuid']
         assert ref != res["__jsonclass__"][1][1]
 
     def test_dispatchObjectMethod(self):
-        res = self.mapper.openObject('admin', None, 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+        res = self.openObject('admin', None, 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(ValueError):
@@ -162,7 +185,7 @@ class JSONRPCObjectMapperTestCase(TestCase):
     def test_diffObject(self):
         assert self.mapper.diffObject('admin', 'unkown_ref') is None
 
-        res = self.mapper.openObject('admin', None, 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+        res = self.openObject('admin', None, 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(ValueError):
@@ -173,13 +196,13 @@ class JSONRPCObjectMapperTestCase(TestCase):
         assert 'uid' in delta['attributes']['changed']
 
     def test_removeObject(self):
-        res = self.mapper.openObject('admin', None, 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+        res = self.openObject('admin', None, 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
 
         with pytest.raises(Exception):
             self.mapper.removeObject('admin','object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
 
-        self.mapper.closeObject('admin', ref)
+        self.closeObject('admin', ref)
 
         with mock.patch.dict(ObjectRegistry.objects['object'], {'object': mock.MagicMock()}):
             mockedObject = ObjectRegistry.objects['object']['object'].return_value
@@ -187,7 +210,7 @@ class JSONRPCObjectMapperTestCase(TestCase):
             assert mockedObject.remove.called
 
     def test_garbage_collection(self):
-        res = self.mapper.openObject('admin', 'session-uuid', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+        res = self.openObject('admin', 'session-uuid', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
         ref = res["__jsonclass__"][1][1]
         obj_desc = self.mapper._JSONRPCObjectMapper__get_ref(res["__jsonclass__"][1][1])
 
@@ -224,7 +247,7 @@ class JSONRPCObjectMapperTestCase(TestCase):
             m_command.reset_mock()
 
             # start over
-            res = self.mapper.openObject('admin', 'session-uuid', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
+            res = self.openObject('admin', 'session-uuid', 'object', 'cn=Frank Reich,ou=people,dc=example,dc=net')
             ref = res["__jsonclass__"][1][1]
             obj_desc = self.mapper._JSONRPCObjectMapper__get_ref(res["__jsonclass__"][1][1])
 

@@ -102,43 +102,49 @@ setup(
 
         [gosa.route]
         /events = gosa.backend.routes.sse.main:SseHandler
-        /images/(?P<path>.*)? = gosa.backend.routes.static.main:ImageHandler
-        /static/(?P<path>.*)? = gosa.backend.routes.static.main:StaticHandler
         /rpc = gosa.backend.components.jsonrpc_service:JsonRpcHandler
         /mqtt/auth/(?P<path>.*)? = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoAuthHandler
         /mqtt/acl = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoAclHandler
         /mqtt/superuser = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoSuperuserHandler
+        /state = gosa.backend.routes.system:SystemStateReporter
+        
+        [gosa.backend.route]
+        /images/(?P<path>.*)? = gosa.backend.routes.static.main:ImageHandler
+        /static/(?P<path>.*)? = gosa.backend.routes.static.main:StaticHandler
         /uploads/(?P<uuid>.*)? = gosa.backend.plugins.upload.main:UploadHandler
         /workflow/(?P<path>.*)? = gosa.backend.routes.static.main:WorkflowHandler
         /hooks(?P<path>.*)? = gosa.backend.plugins.webhook.registry:WebhookReceiver
         /ppd/modified/(?P<path>.*)? = gosa.backend.plugins.cups.route:PPDHandler
-        /state = gosa.backend.routes.system:SystemStateReporter
 
         [gosa.plugin]
         scheduler = gosa.backend.components.scheduler:SchedulerService
         acl = gosa.backend.acl:ACLResolver
         objects = gosa.backend.objects.index:ObjectIndex
         httpd = gosa.backend.components.httpd:HTTPService
-        workflow = gosa.backend.components.workflowregistry:WorkflowRegistry
         command = gosa.backend.command:CommandRegistry
-        jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
         rpc = gosa.backend.plugins.rpc.methods:RPCMethods
-        sambaguimethods = gosa.backend.plugins.samba.domain:SambaGuiMethods
-        transliterate = gosa.backend.plugins.misc.transliterate:Transliterate
-        locales = gosa.backend.plugins.misc.locales:Locales
-        gravatar = gosa.backend.plugins.misc.gravatar:Gravatar
-        shells = gosa.backend.plugins.posix.shells:ShellSupport
-        password = gosa.backend.plugins.password.manager:PasswordManager
-        uploads = gosa.backend.plugins.upload.main:UploadManager
+        mqttbackends = gosa.backend.objects.index:BackendRegistry
         two_factor = gosa.backend.plugins.two_factor.main:TwoFactorAuthManager
+        foreman = gosa.backend.plugins.foreman.main:Foreman
+        locales = gosa.backend.plugins.misc.locales:Locales
+        password = gosa.backend.plugins.password.manager:PasswordManager
+        sambaguimethods = gosa.backend.plugins.samba.domain:SambaGuiMethods
+        gravatar = gosa.backend.plugins.misc.gravatar:Gravatar
+        cups = gosa.backend.plugins.cups.main:CupsClient
+        transliterate = gosa.backend.plugins.misc.transliterate:Transliterate
+        zarafa = gosa.backend.plugins.zarafa.methods:ZarafaRPCMethods
+        settings = gosa.backend.components.settings_registry:SettingsRegistry
         mail = gosa.backend.plugins.mail.main:Mail
         user = gosa.backend.plugins.user.main:User
+        
+        [gosa.backend.plugin]
+        workflow = gosa.backend.components.workflowregistry:WorkflowRegistry
+        shells = gosa.backend.plugins.posix.shells:ShellSupport
         webhook_registry = gosa.backend.plugins.webhook.registry:WebhookRegistry
-        zarafa = gosa.backend.plugins.zarafa.methods:ZarafaRPCMethods
-        foreman = gosa.backend.plugins.foreman.main:Foreman
-        settings = gosa.backend.components.settings_registry:SettingsRegistry
-        cups = gosa.backend.plugins.cups.main:CupsClient
-        mqttbackends = gosa.backend.objects.index:BackendRegistry
+        uploads = gosa.backend.plugins.upload.main:UploadManager
+        jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
+        mqttrpc_service = gosa.backend.components.mqttrpc_service:MQTTRPCService
+        ppd_proxy = gosa.backend.plugins.cups.ppd_proxy:PPDProxy
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
@@ -284,5 +290,8 @@ setup(
 
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt
+        
+        [gosa.json.datahandler]
+        backend_types = gosa.backend.utils:BackendTypesEncoder
     """,
 )

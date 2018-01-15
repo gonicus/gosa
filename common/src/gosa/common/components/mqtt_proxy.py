@@ -57,7 +57,7 @@ class MQTTServiceProxy(object):
         self.env = Environment.getInstance()
 
         # Retrieve methods
-        if not self.__methods:
+        if self.__methods is None:
             self.__serviceName = "getMethods"
             self.__methods = self.__call__()
             self.__serviceName = None
@@ -83,6 +83,14 @@ class MQTTServiceProxy(object):
 
     @gen.coroutine
     def __call__(self, *args, **kwargs):
+        data = {}
+        if '__user__' in kwargs:
+            data['user'] = kwargs['__user__']
+            del kwargs['__user__']
+        if '__session_id__' in kwargs:
+            data['session_id'] = kwargs['__session_id__']
+            del kwargs['__session_id__']
+
         if len(kwargs) > 0 and len(args) > 0:
             raise JSONRPCException("JSON-RPC does not support positional and keyword arguments at the same time")
 
@@ -97,11 +105,11 @@ class MQTTServiceProxy(object):
             raise NameError("name '%s' not defined" % self.__serviceName)
 
         # Send
-        data = {
+        data.update({
             "method": self.__serviceName,
             "id": "jsonrpc",
             "sender": self.env.uuid
-        }
+        })
         if len(kwargs):
             data["params"] = kwargs
         else:
@@ -114,5 +122,5 @@ class MQTTServiceProxy(object):
         if 'error' in resp and resp['error'] is not None:
             raise JSONRPCException(resp['error'])
 
-        raise gen.Return(response)
+        return resp['result']
 

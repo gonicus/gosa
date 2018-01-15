@@ -43,7 +43,7 @@ class MqttProxyTestCase(AsyncTestCase):
             assert content['params'] == ["arg"]
             assert content['id'] == "jsonrpc"
             assert args[1].startswith("test/client/")
-            assert res == '{"result": "test"}'
+            assert res == "test"
 
             response = Future()
             m_handler.send_sync_message.return_value = response
@@ -71,7 +71,7 @@ class MqttProxyTestCase(AsyncTestCase):
             m_handler.send_sync_message.return_value = response
 
             def send():
-                response.set_result('{"testCall": "test"}')
+                response.set_result('{"result": {"testCall": "test"}}')
 
             timer = Timer(0.1, send)
             timer.start()
@@ -86,7 +86,7 @@ class MqttProxyTestCase(AsyncTestCase):
             assert content['params'] == {'test': 'arg'}
             assert content['id'] == "jsonrpc"
             assert args[1].startswith("test/client/")
-            assert res == '{"testCall": "test"}'
+            assert res == {"testCall": "test"}
 
     def test_get_attr(self):
         with mock.patch("gosa.common.components.mqtt_proxy.MQTTHandler", spec=MQTTHandler) as m_handler:

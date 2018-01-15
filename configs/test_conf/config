@@ -18,7 +18,7 @@ pool-size = 10
 
 [backend-database]
 #database = sqlite:///:memory:
-database = postgresql://admin:secret@localhost:5432/gosa
+database = postgresql://admin:secret@localhost:5432/gosa-test
 
 [backend-json]
 database-file = /tmp/gosa.json
@@ -36,6 +36,7 @@ key = FIAYj6kqb273a0UoZl4MPz1WTs8E9iHw
 
 [mqtt]
 host = localhost
+port = 1883
 
 [dbus]
 script-path = /tmp/shell.d
@@ -54,7 +55,7 @@ webhook-target = http://localhost:8050/hooks/
 webhook-token = 9d6250c0-6413-4b1e-98d9-7b763472962a
 
 [cups]
-spool = /tmp/spool
+spool = /tmp/test-spool
 
 [foreman]
 host-rdn =

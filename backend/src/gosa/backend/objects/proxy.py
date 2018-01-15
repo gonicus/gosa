@@ -130,7 +130,7 @@ class ObjectProxy(object):
         self.__property_map = {}
         self.__foreign_attrs = []
         self.__all_method_names = []
-        self.__read_only = read_only
+        self.__read_only = self.__env.mode == "proxy" or read_only
         # hooks that are triggered on every setattr
         self.__attribute_change_hooks = {}
         # hooks that are triggered when the attribute change is committed
@@ -165,7 +165,7 @@ class ObjectProxy(object):
         if not base:
             raise ProxyException(C.make_error('OBJECT_NOT_FOUND', id=dn_or_base))
 
-        if read_only is True and base_mode == "create":
+        if self.__read_only is True and base_mode == "create":
             raise ProxyException(C.make_error('CANNOT_CREATE_OBJECT_READ_ONLY', id=dn_or_base))
 
         # Get available extensions

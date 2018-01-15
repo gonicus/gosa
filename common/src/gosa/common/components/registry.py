@@ -10,6 +10,8 @@
 import os
 import logging
 from inspect import isclass
+
+import itertools
 from lxml import objectify
 
 from lxml import etree
@@ -35,7 +37,7 @@ class PluginRegistry(object):
     evreg = {}
     _event_parser = None
 
-    def __init__(self, component="gosa.plugin"):
+    def __init__(self, component=None):
         env = Environment.getInstance()
         self.env = env
         self.log = logging.getLogger(__name__)
@@ -52,16 +54,22 @@ class PluginRegistry(object):
             PluginRegistry.evreg[event] = os.path.join(base_dir, f)
 
         # Get module from setuptools
-        for entry in iter_entry_points(component):
-            module = entry.load()
-            self.log.info("module %s included" % module.__name__)
-            PluginRegistry.modules[module.__name__] = module
+        if component is None:
+            components = ["gosa.plugin", "gosa.%s.plugin" % self.env.mode]
+        else:
+            components = [component]
 
-            # Save interface handlers
-            # pylint: disable=E1101
-            if IInterfaceHandler.implementedBy(module):
-                self.log.debug("registering handler module %s" % module.__name__)
-                PluginRegistry.handlers[module.__name__] = module
+        for comp in components:
+            for entry in iter_entry_points(comp):
+                module = entry.load()
+                self.log.info("module %s included" % module.__name__)
+                PluginRegistry.modules[module.__name__] = module
+
+                # Save interface handlers
+                # pylint: disable=E1101
+                if IInterfaceHandler.implementedBy(module):
+                    self.log.debug("registering handler module %s" % module.__name__)
+                    PluginRegistry.handlers[module.__name__] = module
 
         # Register module events
         for module, clazz  in PluginRegistry.modules.items():

@@ -15,6 +15,8 @@ The *HTTPService* is responsible for exposing registered HTTP components to the 
 from threading import Thread
 import logging
 import ssl
+
+import itertools
 import tornado.wsgi
 import tornado.web
 import pkg_resources
@@ -112,7 +114,11 @@ class HTTPService(object):
         apps = []
 
         # register routes in the HTTPService
-        for entry in sorted(pkg_resources.iter_entry_points("gosa.route"), key=lambda entry: entry.name, reverse=True):
+        routes = [x for x in pkg_resources.iter_entry_points("gosa.route")]
+        for x in pkg_resources.iter_entry_points("gosa.%s.route" % self.env.mode):
+            routes.append(x)
+
+        for entry in sorted(routes, key=lambda entry: entry.name, reverse=True):
             module = entry.load()
             if issubclass(module, (HSTSStaticFileHandler, HSTSRequestHandler)):
                 self.log.debug("registering route %s for %s" % (entry.name, module))

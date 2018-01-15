@@ -51,7 +51,8 @@ Create the directory structure for the hooks
 
     mkdir -p /usr/share/foreman/config/hooks/host/managed/{create,destroy,update}
     mkdir -p /usr/share/foreman/config/hooks/host/discovered/{after_create,after_destroy,after_commit} 
-    mkdir -p /usr/share/foreman/config/hooks/hostgroup/{after_create,after_destroy,after_commit}  
+    mkdir -p /usr/share/foreman/config/hooks/hostgroup/{after_create,after_destroy,after_commit}
+    mkdir -p /usr/share/foreman/config/hooks/operatingsystem/{after_create,after_destroy,after_commit}  
 
     # Copy the hook script
     cp backend/src/gosa/backend/plugins/foreman/gosa_integration.py /usr/share/foreman/config/hooks/
@@ -68,6 +69,10 @@ Create the directory structure for the hooks
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/hostgroup/after_create
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/hostgroup/after_commit
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/hostgroup/after_destroy
+    
+    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/operatingsystem/after_create
+    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/operatingsystem/after_commit
+    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/operatingsystem/after_destroy
     
 Open the `/usr/share/foreman/config/hooks/gosa_integration.py` script and change the setting according to the created webhook in GOsa³
 for the `Foreman hook event`.

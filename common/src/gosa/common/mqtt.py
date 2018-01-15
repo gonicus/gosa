@@ -22,7 +22,7 @@ class MQTTClientHandler(MQTTHandler):
         goodbye = e.Event(e.ClientLeave(
             e.Id(Environment.getInstance().uuid)
         ))
-        self.will_set("%s/client/%s" % (self.domain, self.env.uuid), goodbye, qos=2)
+        self.will_set("%s/client/%s" % (self.domain, self.env.uuid), goodbye, qos=1)
 
     def send_message(self, data, topic=None, qos=0):
         """ Send message to mqtt. """
@@ -38,7 +38,7 @@ class MQTTClientHandler(MQTTHandler):
 
     def init_subscriptions(self):
         """ add client subscriptions """
-        self.get_client().add_subscription("%s/client/broadcast" % self.domain)
-        self.get_client().add_subscription("%s/client/%s" % (self.domain, self.env.uuid))
+        self.get_client().add_subscription("%s/client/broadcast" % self.domain, qos=1)
+        self.get_client().add_subscription("%s/client/%s" % (self.domain, self.env.uuid), qos=1)
         # RPC calls from backend
-        self.get_client().add_subscription("%s/client/%s/+/to-client" % (self.domain, self.env.uuid))
+        self.get_client().add_subscription("%s/client/%s/+/request" % (self.domain, self.env.uuid), qos=1)
