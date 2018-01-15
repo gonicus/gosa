@@ -9,14 +9,13 @@ from gosa.backend.routes.sse.main import SseHandler
 from gosa.common import Environment
 from gosa.common.event import EventMaker
 
-frontend_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', '..', 'frontend'))
-
 
 class WidgetUploadHandler(IUploadFileHandler):
 
     def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
+        self.upload_path = self.env.config.get("gui.widget-path", default="/var/lib/gosa/widgets")
         self.log.info("initializing dashboard widget upload handler")
 
     def handle_upload(self, file, request):
@@ -33,8 +32,7 @@ class WidgetUploadHandler(IUploadFileHandler):
                     self.log.error("bad widget zip uploaded")
                     return
                 # extract filename from zip
-#TODO: wrong path, needs to be configurable
-                widget_zip.extractall(os.path.join(frontend_path, "gosa", "uploads", "widgets"))
+                widget_zip.extractall(self.upload_path)
                 # send the event to the clients
                 e = EventMaker()
 

@@ -81,6 +81,7 @@ setup(
 
     entry_points = """
         [gosa.backend.route]
+        /widgets/(?P<path>.*)? = gosa.plugins.gui.main:WidgetsProvider
         /(?P<path>.*)? = gosa.plugins.gui.main:GuiPlugin
 
         [gosa.upload_handler]

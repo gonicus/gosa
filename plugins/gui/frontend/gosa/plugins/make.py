@@ -44,7 +44,7 @@ def deploy():
                             print_task_log("ERROR: bad widget zip")
                             return
                         # extract filename from zip
-                        target_dir = os.path.join("..", "uploads", "widgets")
+                        target_dir = os.path.join("..", "..", "..", "src", "gosa", "plugins", "gui", "data", "widgets")
                         print_task_log("SUCCESS: deployed '%s' plugin to '%s'" % (".".join(subfile.split(".")[0:-1]), target_dir))
                         zip.extractall(target_dir)
 
