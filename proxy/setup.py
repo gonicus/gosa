@@ -78,5 +78,9 @@ setup(
 
         [gosa.proxy.plugin]
         mqtt_relay = gosa.proxy.mqtt_relay:MQTTRelayService
+        ppd_proxy = gosa.proxy.ppd_proxy:PPDProxy
+        
+        [gosa.proxy.route]
+        /ppd-proxy/(?P<path>.*)? = gosa.backend.plugins.cups.route:PPDHandler
     """
 )

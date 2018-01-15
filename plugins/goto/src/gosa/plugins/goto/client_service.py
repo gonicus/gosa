@@ -84,6 +84,7 @@ class ClientService(Plugin):
     entry_map = {"gosaApplicationPriority": "prio", "description": "description"}
     printer_attributes = ["gotoPrinterPPD", "labeledURI", "cn", "l", "description"]
     __client_call_queue = {}
+    ppd_proxy = None
 
     def __init__(self):
         """
@@ -121,6 +122,7 @@ class ClientService(Plugin):
         sched.add_interval_job(self.__gc, minutes=1, tag='_internal', jobstore="ram")
 
         # self.register_listener("configureHostPrinters", self._on_client_caps)
+        self.ppd_proxy = PluginRegistry.getInstance("PPDProxy")
 
     def __handle_events(self, event):
         """
@@ -857,6 +859,9 @@ class ClientService(Plugin):
                 p_conf = {}
                 for attr in self.printer_attributes:
                     p_conf[attr] = getattr(printer, attr) if getattr(printer, attr) is not None else ""
+                    if attr == "gotoPrinterPPD" and p_conf[attr] != "":
+                        p_conf[attr] = self.ppd_proxy.getPPDURL(p_conf[attr])
+
                 settings["printers"].append(p_conf)
         return settings
 
