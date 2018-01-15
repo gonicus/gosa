@@ -14,6 +14,7 @@ from gosa.common.utils import N_
 
 frontend_path = pkg_resources.resource_filename("gosa.plugins.gui", "data/web")
 
+
 class GuiPlugin(HSTSStaticFileHandler):
 
     def initialize(self):
@@ -22,8 +23,11 @@ class GuiPlugin(HSTSStaticFileHandler):
         path = frontend_path
 
         if env.config.get("gui.debug", "false") == "true":  # pragma: nocover
-            path = os.path.join('/frontend')
-
+            path = os.path.realpath(
+                os.path.join(
+                    pkg_resources.resource_filename("gosa.plugins.gui", "data"), '..', '..', '..', '..', '..', 'frontend'
+                )
+            )
         super(GuiPlugin, self).initialize(path, default)
 
 
