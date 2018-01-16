@@ -59,7 +59,7 @@ setup(
 
     packages = find_packages('src', exclude=['examples', 'tests']),
     package_dir={'': 'src'},
-    namespace_packages = ['gosa.plugins.gui'],
+    namespace_packages = ['gosa'],
 
     include_package_data = True,
     package_data = {
