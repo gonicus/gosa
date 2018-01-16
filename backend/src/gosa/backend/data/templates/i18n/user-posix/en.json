@@ -1,14 +1,17 @@
 {
-  "GECOS": null,
-  "User ID": null,
-  "Automatic UID/GID numbers": null,
   "Automatic GECOS": null,
-  "POSIX": null,
+  "Automatic UID/GID numbers": null,
   "Description": null,
+  "Edit group membership": null,
+  "GECOS": null,
   "Generic POSIX settings": null,
-  "Login shell": null,
-  "dit group membership": null,
-  "Group mempership": null,
   "Group ID": null,
-  "Name": null
+  "Group membership": null,
+  "Group mempership": null,
+  "Home directory": null,
+  "Login shell": null,
+  "Name": null,
+  "POSIX": null,
+  "User ID": null,
+  "dit group membership": null
 }

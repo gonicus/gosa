@@ -1,5 +1,7 @@
 {
-  "Organization": "Organisation",
+  "Description": null,
   "Generic": "Allgemein",
-  "Name": "Name" 
+  "Name": "Name",
+  "Organization": "Organisation",
+  "Organization name": null
 }

@@ -1,14 +1,15 @@
 {
-  "POSIX": "POSIX",
-  "Generic": "Allgemein",
-  "PosixGroup": "POSIX-Gruppe",
-  "Edit members": "Mitglieder bearbeiten",
-  "Given name": "Vorname",
+  "Add members": null,
+  "Automatically assign group ID": "Gruppen-ID automatisch vergeben",
   "Description": "Beschreibung",
-  "Surname": "Nachname",
-  "Members": "Mitglieder",
+  "Edit members": "Mitglieder bearbeiten",
+  "Generic": "Allgemein",
+  "Given name": "Vorname",
+  "Group ID": "Gruppen-ID",
   "Group name": "Gruppen Name",
   "Login ID": "Anmelde ID",
-  "Group ID": "Gruppen-ID",
-  "Automatically assign group ID": "Gruppen-ID automatisch vergeben"
+  "Members": "Mitglieder",
+  "POSIX": "POSIX",
+  "PosixGroup": "POSIX-Gruppe",
+  "Surname": "Nachname"
 }

@@ -15,31 +15,31 @@ msgstr ""
 msgid "Page %1 not found"
 msgstr ""
 
-#: gosa/Application.js:190
+#: gosa/Application.js:225
 msgid "Unable to receive commands."
 msgstr ""
 
-#: gosa/Application.js:205
+#: gosa/Application.js:240
 msgid "Fetching translations failed."
 msgstr ""
 
-#: gosa/Application.js:217
+#: gosa/Application.js:252
 msgid "Fetching base failed."
 msgstr ""
 
-#: gosa/Application.js:240
+#: gosa/Application.js:275
 msgid "Fetching object description failed."
 msgstr ""
 
-#: gosa/Application.js:260
+#: gosa/Application.js:295
 msgid "Fetching templates failed."
 msgstr ""
 
-#: gosa/Application.js:393
+#: gosa/Application.js:428
 msgid "There is a new version of this application available."
 msgstr ""
 
-#: gosa/Application.js:394
+#: gosa/Application.js:429
 msgid "Do you want to reload in order to activate it?"
 msgstr ""
 
@@ -91,9 +91,13 @@ msgstr ""
 msgid "Failed to retract the %1 extension: %2"
 msgstr ""
 
-#: gosa/data/controller/ObjectEdit.js:159
+#: gosa/data/controller/ObjectEdit.js:162
 msgid ""
 "The object was automatically closed because it was removed in the backend."
+msgstr ""
+
+#: gosa/data/controller/Workflow.js:175
+msgid "Timout waiting for workflow execution"
 msgstr ""
 
 #: gosa/engine/extensions/Validator.js:36
@@ -104,15 +108,15 @@ msgstr ""
 msgid "Value conflicts with '%1' option value '%2'"
 msgstr ""
 
-#: gosa/io/Rpc.js:294
+#: gosa/io/Rpc.js:296
 msgid "Communication with the backend failed!"
 msgstr ""
 
-#: gosa/io/Sse.js:96
+#: gosa/io/Sse.js:109
 msgid "%1 backend error"
 msgstr ""
 
-#: gosa/io/Sse.js:97
+#: gosa/io/Sse.js:110
 msgid "%1 operation failed"
 msgstr ""
 
@@ -120,8 +124,9 @@ msgstr ""
 msgid "Please enter your search..."
 msgstr ""
 
-#: gosa/view/Search.js:73 gosa/view/Search.js:91
+#: gosa/view/Search.js:73 gosa/view/Search.js:92
 #: gosa/plugins/search/Main.js:65 gosa/plugins/search/Main.js:91
+#: gosa/ui/dialogs/ItemSelector.js:281
 msgid "Search"
 msgstr ""
 
@@ -165,11 +170,11 @@ msgstr ""
 msgid "Workflow starter"
 msgstr ""
 
-#: gosa/ui/controller/Objects.js:158 gosa/plugins/workflowstarter/Main.js:289
+#: gosa/ui/controller/Objects.js:159 gosa/plugins/workflowstarter/Main.js:289
 msgid "Workflow"
 msgstr ""
 
-#: gosa/proxy/ObjectFactory.js:184
+#: gosa/proxy/ObjectFactory.js:185
 msgid "Cannot remove entry!"
 msgstr ""
 
@@ -190,13 +195,13 @@ msgid "Logout"
 msgstr ""
 
 #: gosa/ui/dialogs/actions/Change2FAMethod.js:168 gosa/ui/base/Buttons.js:46
-#: gosa/ui/dialogs/ItemSelector.js:141
+#: gosa/ui/dialogs/ItemSelector.js:202
 msgid "OK"
 msgstr ""
 
-#: gosa/ui/widgets/WorkflowWizard.js:227
-#: gosa/ui/dialogs/PromptTextDialog.js:67 gosa/ui/base/Buttons.js:50
-#: gosa/ui/dialogs/ItemSelector.js:148
+#: gosa/ui/widgets/WorkflowWizard.js:277
+#: gosa/ui/dialogs/PromptTextDialog.js:70 gosa/ui/base/Buttons.js:50
+#: gosa/ui/dialogs/ItemSelector.js:209
 msgid "Cancel"
 msgstr ""
 
@@ -210,7 +215,7 @@ msgstr ""
 
 #: gosa/ui/dialogs/AddDependentExtensions.js:28
 #: gosa/ui/dialogs/AddDependentExtensions.js:43 gosa/view/Dashboard.js:306
-#: gosa/ui/dialogs/ItemSelector.js:143
+#: gosa/ui/dialogs/ItemSelector.js:204
 #: gosa/ui/widgets/QTableWidgetWidget.js:145
 msgid "Add"
 msgstr ""
@@ -300,11 +305,35 @@ msgid "Info"
 msgstr ""
 
 #: gosa/ui/settings/Editor.js:80 gosa/ui/settings/Webhooks.js:127
-#: gosa/view/Tree.js:123 gosa/ui/dialogs/ItemSelector.js:110
+#: gosa/ui/dialogs/ItemSelector.js:272
 msgid "Search..."
 msgstr ""
 
-#: gosa/ui/dialogs/Loading.js:26
+#: gosa/ui/dialogs/RegisterWebhook.js:25 gosa/ui/dialogs/ItemSelector.js:291
+msgid "Type"
+msgstr ""
+
+#: gosa/ui/dialogs/ItemSelector.js:304
+msgid "Select Base"
+msgstr ""
+
+#: gosa/view/Tree.js:284 gosa/ui/dialogs/ItemSelector.js:309
+msgid "Filter"
+msgstr ""
+
+#: gosa/ui/dialogs/Loading.js:51
+msgid "Indexing"
+msgstr ""
+
+#: gosa/ui/dialogs/Loading.js:69
+msgid "Step %1 of %2"
+msgstr ""
+
+#: gosa/ui/dialogs/Loading.js:71
+msgid "Step %1"
+msgstr ""
+
+#: gosa/ui/dialogs/Loading.js:90
 msgid "Initializing"
 msgstr ""
 
@@ -423,7 +452,7 @@ msgstr ""
 msgid "Abort"
 msgstr ""
 
-#: gosa/ui/dialogs/PromptTextDialog.js:61
+#: gosa/ui/dialogs/PromptTextDialog.js:64
 msgid "Ok"
 msgstr ""
 
@@ -433,10 +462,6 @@ msgstr ""
 
 #: gosa/ui/dialogs/RegisterWebhook.js:24
 msgid "Sender name"
-msgstr ""
-
-#: gosa/ui/dialogs/RegisterWebhook.js:25
-msgid "Type"
 msgstr ""
 
 #: gosa/ui/dialogs/RegisterWebhook.js:73
@@ -497,7 +522,7 @@ msgstr ""
 msgid "Change 2FA method"
 msgstr ""
 
-#: gosa/view/Search.js:472 gosa/view/Search.js:488
+#: gosa/view/Search.js:528 gosa/view/Search.js:544
 #: gosa/ui/dialogs/actions/Change2FAMethod.js:75
 msgid "Disabled"
 msgstr ""
@@ -584,12 +609,12 @@ msgstr ""
 msgid "Move object"
 msgstr ""
 
-#: gosa/view/Tree.js:70 gosa/ui/widgets/QBaseSelectorWidget.js:42
+#: gosa/view/Tree.js:94 gosa/ui/widgets/QBaseSelectorWidget.js:81
 #: gosa/ui/dialogs/actions/MoveObjectDialog.js:93
 msgid "Root"
 msgstr ""
 
-#: gosa/view/Tree.js:152 gosa/ui/dialogs/actions/MoveObjectDialog.js:116
+#: gosa/view/Tree.js:176 gosa/ui/dialogs/actions/MoveObjectDialog.js:116
 msgid "Move"
 msgstr ""
 
@@ -605,6 +630,21 @@ msgstr ""
 msgid "Message"
 msgstr ""
 
+#: gosa/ui/dialogs/actions/UploadPPD.js:21
+msgid "Upload PPD file"
+msgstr ""
+
+#: gosa/ui/dialogs/actions/UploadPPD.js:116
+msgid ""
+"PPD files describe the features and capabilities of a PostScript printer. "
+"Please select the appropriate file distributed by the vendor of your "
+"printer."
+msgstr ""
+
+#: gosa/ui/dialogs/actions/UploadPPD.js:125
+msgid "Select file..."
+msgstr ""
+
 #: gosa/ui/settings/Editor.js:74
 msgid "Settings"
 msgstr ""
@@ -613,7 +653,7 @@ msgstr ""
 msgid "Path"
 msgstr ""
 
-#: gosa/ui/settings/Editor.js:163 gosa/view/Tree.js:168
+#: gosa/ui/settings/Editor.js:163 gosa/view/Tree.js:192
 msgid "Description"
 msgstr ""
 
@@ -626,7 +666,7 @@ msgid "Webhooks"
 msgstr ""
 
 #: gosa/ui/settings/Webhooks.js:97 gosa/ui/widgets/ObjectEdit.js:316
-#: gosa/view/Tree.js:116 gosa/view/Tree.js:253
+#: gosa/view/Tree.js:140 gosa/view/Tree.js:278
 msgid "Action"
 msgstr ""
 
@@ -639,12 +679,12 @@ msgid "Create..."
 msgstr ""
 
 #: gosa/ui/settings/Webhooks.js:113 gosa/ui/settings/Webhooks.js:192
-#: gosa/view/Tree.js:146 gosa/view/Workflows.js:239
+#: gosa/view/Tree.js:170 gosa/view/Workflows.js:239
 #: gosa/ui/widgets/MenuEditWidget.js:201 gosa/view/Dashboard.js:332
 msgid "Delete"
 msgstr ""
 
-#: gosa/ui/settings/Webhooks.js:150 gosa/view/Tree.js:168
+#: gosa/ui/settings/Webhooks.js:150 gosa/view/Tree.js:192
 #: gosa/ui/widgets/MenuEditWidget.js:236 gosa/ui/widgets/MenuEditWidget.js:259
 #: gosa/ui/widgets/MenuEditWidget.js:300
 msgid "Name"
@@ -749,7 +789,7 @@ msgstr ""
 msgid "Remove image"
 msgstr ""
 
-#: gosa/view/Tree.js:140 gosa/view/Dashboard.js:314
+#: gosa/view/Tree.js:164 gosa/view/Dashboard.js:314
 #: gosa/ui/widgets/QTableWidgetWidget.js:157
 msgid "Edit"
 msgstr ""
@@ -774,27 +814,31 @@ msgstr ""
 msgid "Failed..."
 msgstr ""
 
-#: gosa/ui/widgets/WorkflowWizard.js:106
+#: gosa/ui/widgets/WorkflowWizard.js:119
 msgid "Really abort?"
 msgstr ""
 
-#: gosa/ui/widgets/WorkflowWizard.js:107
+#: gosa/ui/widgets/WorkflowWizard.js:120
 msgid "All entered data will be lost. Are you sure you want to abort?"
 msgstr ""
 
-#: gosa/ui/widgets/WorkflowWizard.js:128
+#: gosa/ui/widgets/WorkflowWizard.js:141
 msgid "Workflow step index out of bounds %1"
 msgstr ""
 
-#: gosa/ui/widgets/WorkflowWizard.js:234
+#: gosa/ui/widgets/WorkflowWizard.js:232
+msgid "Saving..."
+msgstr ""
+
+#: gosa/ui/widgets/WorkflowWizard.js:284
 msgid "Next"
 msgstr ""
 
-#: gosa/ui/widgets/WorkflowWizard.js:240
+#: gosa/ui/widgets/WorkflowWizard.js:290
 msgid "Previous"
 msgstr ""
 
-#: gosa/ui/widgets/WorkflowWizard.js:246
+#: gosa/ui/widgets/WorkflowWizard.js:296
 msgid "Save & Close"
 msgstr ""
 
@@ -816,65 +860,71 @@ msgstr ""
 msgid "Clear"
 msgstr ""
 
-#: gosa/view/Search.js:355
-msgid "%1 fuzzy result"
-msgid_plural "%1 fuzzy results"
-msgstr[0] ""
-msgstr[1] ""
-
-#: gosa/view/Search.js:355 gosa/view/Search.js:357
-msgid "%1 second"
-msgid_plural "%1 seconds"
-msgstr[0] ""
-msgstr[1] ""
-
-#: gosa/view/Search.js:355
-msgid "no exact matches"
+#: gosa/view/Search.js:396
+msgid "Search for '%1' returned no results, searched for '%2' instead"
 msgstr ""
 
-#: gosa/view/Search.js:357
+#: gosa/view/Search.js:404
+msgid "%1 / %2 result shown"
+msgid_plural "%1 / %2 results shown"
+msgstr[0] ""
+msgstr[1] ""
+
+#: gosa/view/Search.js:406
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: gosa/view/Search.js:446 gosa/view/Search.js:475 gosa/view/Search.js:492
+#: gosa/view/Search.js:408
+msgid "%1 second"
+msgid_plural "%1 seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: gosa/view/Search.js:410
+msgid ""
+"Please consider using a more specific search string or filters to reduce the"
+" result set. "
+msgstr ""
+
+#: gosa/view/Search.js:502 gosa/view/Search.js:531 gosa/view/Search.js:548
 msgid "All"
 msgstr ""
 
-#: gosa/view/Search.js:471 gosa/view/Search.js:487
+#: gosa/view/Search.js:527 gosa/view/Search.js:543
 msgid "Enabled"
 msgstr ""
 
-#: gosa/view/Search.js:476 gosa/view/Search.js:493
+#: gosa/view/Search.js:532 gosa/view/Search.js:549
 msgid "Last hour"
 msgstr ""
 
-#: gosa/view/Search.js:477 gosa/view/Search.js:494
+#: gosa/view/Search.js:533 gosa/view/Search.js:550
 msgid "Last 24 hours"
 msgstr ""
 
-#: gosa/view/Search.js:478 gosa/view/Search.js:495
+#: gosa/view/Search.js:534 gosa/view/Search.js:551
 msgid "Last week"
 msgstr ""
 
-#: gosa/view/Search.js:479 gosa/view/Search.js:496
+#: gosa/view/Search.js:535 gosa/view/Search.js:552
 msgid "Last month"
 msgstr ""
 
-#: gosa/view/Search.js:480 gosa/view/Search.js:497
+#: gosa/view/Search.js:536 gosa/view/Search.js:553
 msgid "Last year"
 msgstr ""
 
-#: gosa/view/Search.js:483
+#: gosa/view/Search.js:539
 msgid "Category"
 msgstr ""
 
-#: gosa/view/Search.js:486
+#: gosa/view/Search.js:542
 msgid "Secondary search"
 msgstr ""
 
-#: gosa/view/Search.js:491
+#: gosa/view/Search.js:547
 msgid "Last modification"
 msgstr ""
 
@@ -882,24 +932,24 @@ msgstr ""
 msgid "Sections"
 msgstr ""
 
-#: gosa/view/Tree.js:106 gosa/view/Tree.js:256
+#: gosa/view/Tree.js:130 gosa/view/Tree.js:281
 msgid "Create"
 msgstr ""
 
-#: gosa/view/Tree.js:111
+#: gosa/view/Tree.js:135
 msgid "Show"
 msgstr ""
 
-#: gosa/view/Tree.js:168
+#: gosa/view/Tree.js:147
+msgid "Filter..."
+msgstr ""
+
+#: gosa/view/Tree.js:192
 msgid "DN"
 msgstr ""
 
-#: gosa/view/Tree.js:168
+#: gosa/view/Tree.js:192
 msgid "UUID"
-msgstr ""
-
-#: gosa/view/Tree.js:259
-msgid "Filter"
 msgstr ""
 
 #: gosa/view/Workflows.js:29
@@ -910,13 +960,15 @@ msgstr ""
 msgid "Please add a workflow dragging a workflow archive into this window."
 msgstr ""
 
+#~ msgid "%1 fuzzy result"
+#~ msgid_plural "%1 fuzzy results"
+#~ msgstr[0] ""
+#~ msgstr[1] ""
+
 #~ msgid "Actions"
 #~ msgstr ""
 
 #~ msgid "Activities"
-#~ msgstr ""
-
-#~ msgid "Remove webhook"
 #~ msgstr ""
 
 #~ msgid ""
@@ -1028,6 +1080,9 @@ msgstr ""
 #~ msgid "Recently changed items"
 #~ msgstr ""
 
+#~ msgid "Remove webhook"
+#~ msgstr ""
+
 #~ msgid "Reset password"
 #~ msgstr ""
 
@@ -1061,4 +1116,7 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "empty"
+#~ msgstr ""
+
+#~ msgid "no exact matches"
 #~ msgstr ""

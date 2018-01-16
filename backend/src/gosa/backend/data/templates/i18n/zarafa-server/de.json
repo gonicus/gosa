@@ -1,8 +1,8 @@
 {
-  "Proxy URL": "Proxy-URL",
-  "HTTP port": "HTTP-Port",
-  "SSL port": "SSL-Port",
+  "Contains public store": "Enthält öffentlichen Speicher",
   "Enabled": "Aktiviert",
   "File path": "Dateipfad",
-  "Contains public store": "Enthält öffentlichen Speicher"
+  "HTTP port": "HTTP-Port",
+  "Proxy URL": "Proxy-URL",
+  "SSL port": "SSL-Port"
 }

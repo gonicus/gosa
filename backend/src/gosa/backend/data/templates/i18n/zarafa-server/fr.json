@@ -1,8 +1,8 @@
 {
-  "Proxy URL": null,
-  "HTTP port": null,
-  "SSL port": null,
+  "Contains public store": null,
   "Enabled": null,
   "File path": null,
-  "Contains public store": null
+  "HTTP port": null,
+  "Proxy URL": null,
+  "SSL port": null
 }

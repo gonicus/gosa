@@ -1,14 +1,16 @@
 {
-  "GECOS": "GECOS",
-  "User ID": "Benutzer-ID",
-  "Automatic UID/GID numbers": "Automatische UID-/GID-Nummern",
   "Automatic GECOS": "Automatischer GECOS",
-  "POSIX": "POSIX",
+  "Automatic UID/GID numbers": "Automatische UID-/GID-Nummern",
   "Description": "Beschreibung",
-  "Generic POSIX settings": "Allgemeine POSIX-Einstellungen",
-  "Login shell": "Anmelde-Interpreter",
   "Edit group membership": "Gruppenzugehörigkeit bearbeiten",
-  "Group mempership": "Gruppenmitgliedschaft",
+  "GECOS": "GECOS",
+  "Generic POSIX settings": "Allgemeine POSIX-Einstellungen",
   "Group ID": "Gruppen-ID",
-  "Name": "Name" 
+  "Group membership": null,
+  "Group mempership": "Gruppenmitgliedschaft",
+  "Home directory": null,
+  "Login shell": "Anmelde-Interpreter",
+  "Name": "Name",
+  "POSIX": "POSIX",
+  "User ID": "Benutzer-ID"
 }

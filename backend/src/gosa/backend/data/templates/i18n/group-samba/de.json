@@ -1,12 +1,12 @@
 {
   "Description": "Beschreibung",
-  "Edit nested groups": "Verschachtelte Gruppen bearbeiten",
-  "Group type": "Gruppen-Typ",
-  "Samba": "Samba",
-  "Domain": "Domäne",
-  "Generic": "Allgemein",
-  "Nested groups": "Verschachtelte Gruppen",
   "Display name": "Angezeigter Name",
+  "Domain": "Domäne",
+  "Edit nested groups": "Verschachtelte Gruppen bearbeiten",
+  "Generic": "Allgemein",
+  "Group type": "Gruppen-Typ",
+  "Name": "Name",
+  "Nested groups": "Verschachtelte Gruppen",
   "SID": "SID",
-  "Name": "Name" 
+  "Samba": "Samba"
 }

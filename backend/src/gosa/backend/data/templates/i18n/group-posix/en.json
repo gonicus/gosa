@@ -1,14 +1,16 @@
 {
-  "POSIX": null,
-  "Generic": null,
-  "PosixGroup": null,
-  "Edit members": null,
-  "Given name": null,
+  "Add members": null,
+  "Automatically assign group ID": null,
   "Description": null,
-  "Name": null,
-  "Members": null,
+  "Edit members": null,
+  "Generic": null,
+  "Given name": null,
+  "Group ID": null,
   "Group name": null,
   "Login ID": null,
-  "Group ID": null,
-  "Automatically assign group ID": null
+  "Members": null,
+  "Name": null,
+  "POSIX": null,
+  "PosixGroup": null,
+  "Surname": null
 }

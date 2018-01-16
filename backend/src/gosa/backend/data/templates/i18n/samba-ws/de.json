@@ -1,10 +1,14 @@
 {
   "Description": "Beschreibung",
-  "Windows Workstation": "Windows Arbeitsplätze",
-  "System ID": "System-ID",
   "Display Name": "Anzeigename",
+  "Display name": null,
   "Domain": "Domäne",
   "Generic": "Allgemein",
   "Machine Account": "Maschinen-Konto",
-  "SID": "SID" 
+  "SID": "SID",
+  "Samba domain": null,
+  "System ID": "System-ID",
+  "Windows NT domain to which the user belongs": null,
+  "Windows Workstation": "Windows Arbeitsplätze",
+  "preferred name of a person to be used when displaying entries": null
 }
