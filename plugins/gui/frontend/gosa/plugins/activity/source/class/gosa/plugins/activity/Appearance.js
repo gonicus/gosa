@@ -33,7 +33,12 @@ qx.Theme.define("gosa.plugins.activity.Appearance", {
 
     "gosa-plugins-actitivies-item": {
       include: "search-list-item",
-      alias: "search-list-item"
+      alias: "search-list-item",
+      style: function() {
+        return {
+          overlayIconSize: 20
+        }
+      }
     },
     "gosa-plugins-actitivies-item/icon": {
       style: function() {
