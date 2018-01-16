@@ -30,7 +30,9 @@ for module in modules:
     if testing and module in skip_tests:
         continue
     paths.append("%s/" % module)
-    module_return_code = os.system("cd %s && ./setup.py %s" % (module, " ".join(sys.argv[1:])))
+    command = "cd %s && ./setup.py %s" % (module, " ".join(sys.argv[1:]))
+    print("RUNNING: %s" % command)
+    module_return_code = os.system(command)
     if module not in skip_return_code:
         return_code = max(return_code, module_return_code >> 8)
     if module_return_code > 0:
