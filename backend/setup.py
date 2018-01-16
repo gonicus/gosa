@@ -97,6 +97,9 @@ setup(
         ],
 
     entry_points = """
+        [babel.extractors]
+        extract_object_xml = gosa.babel_extract:extract_object_xml
+        
         [console_scripts]
         gosa = gosa.backend.main:main
 
