@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa.backend 1.0\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-01-16 14:49+0100\n"
+"POT-Creation-Date: 2018-01-16 15:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -455,188 +455,6 @@ msgstr ""
 msgid "Refresh workflow list"
 msgstr ""
 
-#: src/gosa/backend/data/objects/acl.xml:5
-msgid "Acl"
-msgstr ""
-
-#: src/gosa/backend/data/objects/acl.xml:6
-msgid "Acl extension"
-msgstr ""
-
-#: src/gosa/backend/data/objects/aclrole.xml:5
-#: src/gosa/backend/data/objects/aclrole.xml:6
-msgid "AclRole"
-msgstr ""
-
-#: src/gosa/backend/data/objects/country.xml:5
-msgid "Country"
-msgstr ""
-
-#: src/gosa/backend/data/objects/country.xml:6
-msgid "A country"
-msgstr ""
-
-#: src/gosa/backend/data/objects/country.xml:19
-msgid "Country ISO code"
-msgstr ""
-
-#: src/gosa/backend/data/objects/country.xml:26
-#: src/gosa/backend/data/objects/dcobject-organization.xml:26
-#: src/gosa/backend/data/objects/dcobject.xml:26
-#: src/gosa/backend/data/objects/domain.xml:25
-#: src/gosa/backend/data/objects/group-of-names.xml:26
-#: src/gosa/backend/data/objects/group-posix.xml:26
-#: src/gosa/backend/data/objects/locality.xml:26
-#: src/gosa/backend/data/objects/samba-ws.xml:247
-#: src/gosa/backend/data/objects/user.xml:562
-msgid "Description"
-msgstr ""
-
-#: src/gosa/backend/data/objects/country.xml:33
-#: src/gosa/backend/data/objects/dcobject-organization.xml:33
-#: src/gosa/backend/data/objects/dcobject.xml:33
-#: src/gosa/backend/data/objects/locality.xml:33
-#: src/gosa/backend/data/objects/ou.xml:5
-#: src/gosa/backend/data/objects/ou.xml:6
-msgid "Organizational unit"
-msgstr ""
-
-#: src/gosa/backend/data/objects/country.xml:40
-#: src/gosa/backend/data/objects/dcobject-organization.xml:40
-#: src/gosa/backend/data/objects/dcobject.xml:40
-#: src/gosa/backend/data/objects/locality.xml:40
-msgid "The dn of the manager"
-msgstr ""
-
-#: src/gosa/backend/data/objects/dcobject-organization.xml:5
-#: src/gosa/backend/data/objects/dcobject.xml:5
-msgid "Domain component"
-msgstr ""
-
-#: src/gosa/backend/data/objects/dcobject-organization.xml:6
-#: src/gosa/backend/data/objects/dcobject.xml:6
-msgid "A domain component"
-msgstr ""
-
-#: src/gosa/backend/data/objects/dcobject-organization.xml:19
-#: src/gosa/backend/data/objects/dcobject.xml:19
-#: src/gosa/backend/data/objects/domain.xml:18
-msgid "domain component"
-msgstr ""
-
-#: src/gosa/backend/data/objects/device-container.xml:5
-msgid "DeviceContainer"
-msgstr ""
-
-#: src/gosa/backend/data/objects/device-container.xml:6
-msgid "Organizational unit that can contain devices"
-msgstr ""
-
-#: src/gosa/backend/data/objects/device.xml:5
-#: src/gosa/backend/data/objects/device.xml:6
-msgid "Device"
-msgstr ""
-
-#: src/gosa/backend/data/objects/device.xml:17
-#: src/gosa/backend/data/objects/group-of-names.xml:19
-#: src/gosa/backend/data/objects/group-posix.xml:19
-msgid "Common Name"
-msgstr ""
-
-#: src/gosa/backend/data/objects/device.xml:29
-msgid "description"
-msgstr ""
-
-#: src/gosa/backend/data/objects/device.xml:34
-msgid "serialNumber"
-msgstr ""
-
-#: src/gosa/backend/data/objects/device.xml:39
-msgid "seeAlso"
-msgstr ""
-
-#: src/gosa/backend/data/objects/device.xml:44
-msgid "owner"
-msgstr ""
-
-#: src/gosa/backend/data/objects/device.xml:49
-msgid "ou"
-msgstr ""
-
-#: src/gosa/backend/data/objects/device.xml:54
-msgid "o"
-msgstr ""
-
-#: src/gosa/backend/data/objects/device.xml:59
-#: src/gosa/backend/data/objects/ipHost.xml:17
-msgid "location"
-msgstr ""
-
-#: src/gosa/backend/data/objects/domain.xml:5
-msgid "Domain"
-msgstr ""
-
-#: src/gosa/backend/data/objects/domain.xml:6
-msgid "A domain"
-msgstr ""
-
-#: src/gosa/backend/data/objects/domain.xml:32
-#: src/gosa/backend/data/objects/organization.xml:19
-msgid "Organization name"
-msgstr ""
-
-#: src/gosa/backend/data/objects/foremanHost.xml:5
-msgid "Deployment"
-msgstr ""
-
-#: src/gosa/backend/data/objects/foremanHost.xml:6
-msgid "The foreman - this device is managed by foreman"
-msgstr ""
-
-#: src/gosa/backend/data/objects/foremanHost.xml:30
-msgid "The foreman - current device status"
-msgstr ""
-
-#: src/gosa/backend/data/objects/foremanHost.xml:51
-msgid "Assigned host group"
-msgstr ""
-
-#: src/gosa/backend/data/objects/foremanHost.xml:70
-msgid "Foreman build status ID"
-msgstr ""
-
-#: src/gosa/backend/data/objects/foremanHost.xml:86
-msgid "Foreman global status ID"
-msgstr ""
-
-#: src/gosa/backend/data/objects/foremanHost.xml:102
-msgid "ID of the hostgroup this host is part of"
-msgstr ""
-
-#: src/gosa/backend/data/objects/foremanHost.xml:143
-#: src/gosa/backend/data/objects/gotoPrinter.xml:35
-msgid "IP address"
-msgstr ""
-
-#: src/gosa/backend/data/objects/foremanHost.xml:172
-#: src/gosa/backend/data/objects/gotoPrinter.xml:47
-#: src/gosa/backend/data/objects/ieee802Device.xml:17
-msgid "MAC address"
-msgstr ""
-
-#: src/gosa/backend/data/objects/foremanHost.xml:209
-#: src/gosa/backend/data/objects/foremanHostGroup.xml:85
-msgid "Domain the host should be added to"
-msgstr ""
-
-#: src/gosa/backend/data/objects/foremanHost.xml:283
-msgid "Reboot host to start the build"
-msgstr ""
-
-#: src/gosa/backend/data/objects/foremanHost.xml:304
-msgid "OTP hash generated for foreman"
-msgstr ""
-
 #: src/gosa/backend/data/objects/foremanHost.xml:34
 msgid "Unknown"
 msgstr ""
@@ -679,49 +497,49 @@ msgstr ""
 msgid "Discovered"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHostGroup.xml:5
-msgid "Deployment Group"
+#: src/gosa/backend/data/objects/foremanHost.xml:230
+#: src/gosa/backend/data/objects/foremanHostGroup.xml:137
+msgid "PXELinux BIOS"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHostGroup.xml:6
-msgid "The foreman - this group is managed by foreman"
+#: src/gosa/backend/data/objects/foremanHost.xml:231
+#: src/gosa/backend/data/objects/foremanHostGroup.xml:138
+msgid "PXELinux UEFI"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHostGroup.xml:34
-msgid "ID used in foreman to identify the hostGroup"
+#: src/gosa/backend/data/objects/foremanHost.xml:232
+#: src/gosa/backend/data/objects/foremanHostGroup.xml:139
+msgid "Grub UEFI 64bit"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHostGroup.xml:76
-msgid "Parent host group id"
+#: src/gosa/backend/data/objects/foremanHost.xml:233
+#: src/gosa/backend/data/objects/foremanHostGroup.xml:140
+msgid "Grub UEFI 32bit"
 msgstr ""
 
-#: src/gosa/backend/data/objects/gosaAccount.xml:5
-msgid "GosaAccount"
+#: src/gosa/backend/data/objects/foremanHost.xml:234
+#: src/gosa/backend/data/objects/foremanHostGroup.xml:141
+msgid "Grub SecureBoot"
 msgstr ""
 
-#: src/gosa/backend/data/objects/gosaAccount.xml:6
-msgid "Class for GOsa Accounts (v2.7)"
+#: src/gosa/backend/data/objects/foremanHost.xml:235
+#: src/gosa/backend/data/objects/foremanHostGroup.xml:142
+msgid "Grub2 UEFI 64bit"
 msgstr ""
 
-#: src/gosa/backend/data/objects/gosaAccount.xml:22
-msgid "Timestamp for a Users last System Login"
+#: src/gosa/backend/data/objects/foremanHost.xml:236
+#: src/gosa/backend/data/objects/foremanHostGroup.xml:143
+msgid "Grub2 UEFI 32bit"
 msgstr ""
 
-#: src/gosa/backend/data/objects/gosaAccount.xml:48
-msgid "The DN of the System where the Login was performed"
+#: src/gosa/backend/data/objects/foremanHost.xml:237
+#: src/gosa/backend/data/objects/foremanHostGroup.xml:144
+msgid "Grub2 SecureBoot"
 msgstr ""
 
-#: src/gosa/backend/data/objects/gosaAccount.xml:64
-msgid "Multivalue attribute to carry a number of allowed ips/subnets"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaAccount.xml:72
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:104
-msgid "Defines a default printer a user owns"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaAccount.xml:91
-msgid "Gender of the user"
+#: src/gosa/backend/data/objects/foremanHost.xml:238
+#: src/gosa/backend/data/objects/foremanHostGroup.xml:145
+msgid "None"
 msgstr ""
 
 #: src/gosa/backend/data/objects/gosaAccount.xml:94
@@ -730,240 +548,6 @@ msgstr ""
 
 #: src/gosa/backend/data/objects/gosaAccount.xml:95
 msgid "male"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaApplication.xml:5
-msgid "GosaApplication"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaApplication.xml:6
-msgid "Class for GOsa applications (v2.7)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaApplication.xml:19
-msgid "Specifies the executable path of an application"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaApplication.xml:26
-#: src/gosa/backend/data/objects/gotoPrinter.xml:23
-#: src/gosa/backend/data/objects/organizationalRole.xml:15
-msgid "RFC4519: common name(s) for which the entity is known by"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaApplication.xml:33
-#: src/gosa/backend/data/objects/gosaApplication.xml:114
-msgid "Store application parameters"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaApplication.xml:40
-msgid "Keeps the application icon in png format"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaApplication.xml:72
-msgid "Specifies the application flags G(roup only), D(esktop), M(enu)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaApplication.xml:121
-#: src/gosa/backend/data/objects/gotoPrinter.xml:59
-#: src/gosa/backend/data/objects/organizationalRole.xml:49
-msgid "RFC4519: descriptive information"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaApplication.xml:128
-msgid "Takes a list of relevant mime-type|priority settings"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaApplication.xml:141
-msgid "Specifies the name of an application to be shown up on users desktop"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gosaApplication.xml:148
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:72
-msgid "GOto - specifies a LogonScript"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:5
-msgid "GotoEnvironment"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:6
-msgid "GOto - contains environment settings (v2.7)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:19
-msgid "GOto - Gonicus Terminal Concept, value xResolution."
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:123
-msgid "List of assigned printers"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:138
-msgid "GOto - specifies the profile server"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:151
-msgid "GOto - Flags for Profile handling - C is for caching"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:165
-msgid "GOto - specifies a share"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:179
-msgid "GOto - specifies a kiosk profile"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:192
-msgid "GOto - keeps hotplug devices"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:205
-msgid "GOto - save quota for home"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoEnvironment.xml:218
-msgid "GOto - points to hotplug devices"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoMenu.xml:5
-msgid "GotoMenu"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoMenu.xml:6
-msgid "GOto - defines a menu entry (v2.7)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoMenu.xml:35
-msgid "Foreman release"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoMenu.xml:43
-msgid "JSON encoded menu"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoPrinter.xml:5
-msgid "GotoPrinter"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoPrinter.xml:6
-msgid "GOto - Gonicus Terminal Concept, objectclass (v2.7)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoPrinter.xml:29
-#: src/gosa/backend/data/objects/organizationalRole.xml:89
-msgid "RFC2256: locality which this object resides in"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoPrinter.xml:65
-msgid "RFC2079: Uniform Resource Identifier with optional label"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoPrinter.xml:89
-msgid ""
-"Internal helper attribute to mark PPDs that have been configured since "
-"last change."
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoPrinter.xml:93
-msgid "GOto - Gonicus Terminal Concept, PPD data"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoPrinter.xml:124
-#: src/gosa/backend/data/objects/gotoPrinter.xml:164
-msgid "GOto - keeps printers we are admin for"
-msgstr ""
-
-#: src/gosa/backend/data/objects/gotoPrinter.xml:144
-#: src/gosa/backend/data/objects/gotoPrinter.xml:184
-msgid "GOto - keeps printers shown for this user"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-container.xml:5
-msgid "Groups"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-container.xml:6
-msgid "Organizational unit that can contain groups"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-of-names.xml:5
-msgid "GroupOfNames"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-of-names.xml:6
-msgid "RFC2256: a group of names (DNs)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-of-names.xml:33
-msgid "RFC2256: member of a group"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-of-names.xml:92
-msgid "RFC2256: business category"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-of-names.xml:99
-msgid "RFC2256: organization this object belongs to"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-of-names.xml:106
-msgid "RFC2256: owner (of the object)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-of-names.xml:118
-#: src/gosa/backend/data/objects/organizationalRole.xml:117
-msgid "RFC2256: organizational unit this object belongs to"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-of-names.xml:125
-#: src/gosa/backend/data/objects/organizationalRole.xml:176
-msgid "RFC4519: DN of related object"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-posix.xml:9
-msgid "Posix group"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-posix.xml:5
-msgid "A posix group"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-posix.xml:33
-msgid "The primary group number number"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-posix.xml:50
-msgid "A list of member-uids"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-samba.xml:6
-msgid "Samba group extension"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-samba.xml:5
-msgid "A samba extension for a posix group"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-samba.xml:19
-#: src/gosa/backend/data/objects/samba-ws.xml:30
-#: src/gosa/backend/data/objects/sambadomain.xml:23
-#: src/gosa/backend/data/objects/user-samba.xml:69
-msgid "Security ID"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-samba.xml:63
-msgid ""
-"Samba group(0) Domain administrators(512) Domain users(513) Domain "
-"guests(514)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-samba.xml:77
-msgid "Displayed name"
-msgstr ""
-
-#: src/gosa/backend/data/objects/group-samba.xml:82
-msgid "A list of member-SIDs"
 msgstr ""
 
 #: src/gosa/backend/data/objects/group-samba.xml:66
@@ -982,356 +566,76 @@ msgstr ""
 msgid "Domain guests"
 msgstr ""
 
-#: src/gosa/backend/data/objects/ieee802Device.xml:5
-#: src/gosa/backend/data/objects/ieee802Device.xml:6
-msgid "ieee802Device"
+#: src/gosa/backend/data/objects/organizationalRole.xml:129
+msgid "any"
 msgstr ""
 
-#: src/gosa/backend/data/objects/incoming-device-container.xml:17
-msgid "IncomingDeviceContainer"
+#: src/gosa/backend/data/objects/organizationalRole.xml:130
+msgid "mhs"
 msgstr ""
 
-#: src/gosa/backend/data/objects/incoming-device-container.xml:18
-msgid "Organizational unit that can contain newly reported devices"
+#: src/gosa/backend/data/objects/organizationalRole.xml:131
+msgid "physical"
 msgstr ""
 
-#: src/gosa/backend/data/objects/installed-device.xml:6
-msgid "InstalledDevice"
+#: src/gosa/backend/data/objects/organizationalRole.xml:132
+msgid "telex"
 msgstr ""
 
-#: src/gosa/backend/data/objects/installed-device.xml:5
-msgid "Object class for bundling installation recipes"
+#: src/gosa/backend/data/objects/organizationalRole.xml:133
+msgid "teletex"
 msgstr ""
 
-#: src/gosa/backend/data/objects/ipHost.xml:5
-#: src/gosa/backend/data/objects/ipHost.xml:6
-msgid "IpHost"
+#: src/gosa/backend/data/objects/organizationalRole.xml:134
+msgid "g3fax"
 msgstr ""
 
-#: src/gosa/backend/data/objects/locality.xml:5
-#: src/gosa/backend/data/objects/locality.xml:6
-msgid "Locality"
+#: src/gosa/backend/data/objects/organizationalRole.xml:135
+msgid "g4fax"
 msgstr ""
 
-#: src/gosa/backend/data/objects/locality.xml:19
-msgid "Locality name"
+#: src/gosa/backend/data/objects/organizationalRole.xml:136
+msgid "ia5"
 msgstr ""
 
-#: src/gosa/backend/data/objects/nagios-group.xml:6
-msgid "Nagios group extension"
+#: src/gosa/backend/data/objects/organizationalRole.xml:137
+msgid "videotex"
 msgstr ""
 
-#: src/gosa/backend/data/objects/nagios-group.xml:5
-msgid "Nagios extension for a group"
+#: src/gosa/backend/data/objects/organizationalRole.xml:138
+msgid "telephone"
 msgstr ""
 
-#: src/gosa/backend/data/objects/organization.xml:6
-msgid "Organization"
+#: src/gosa/backend/data/objects/registered-device.xml:80
+msgid "terminal"
 msgstr ""
 
-#: src/gosa/backend/data/objects/organization.xml:5
-msgid "An organization"
+#: src/gosa/backend/data/objects/registered-device.xml:81
+msgid "workstation"
 msgstr ""
 
-#: src/gosa/backend/data/objects/organizationalRole.xml:5
-msgid "Organizational role"
+#: src/gosa/backend/data/objects/registered-device.xml:82
+msgid "server"
 msgstr ""
 
-#: src/gosa/backend/data/objects/organizationalRole.xml:6
-msgid "RFC2256: an organizational role"
+#: src/gosa/backend/data/objects/registered-device.xml:83
+msgid "sipphone"
 msgstr ""
 
-#: src/gosa/backend/data/objects/organizationalRole.xml:22
-msgid "RFC2256: Telephone Number"
+#: src/gosa/backend/data/objects/registered-device.xml:84
+msgid "switch"
 msgstr ""
 
-#: src/gosa/backend/data/objects/organizationalRole.xml:35
-msgid "RFC2256: registered postal address"
+#: src/gosa/backend/data/objects/registered-device.xml:85
+msgid "router"
 msgstr ""
 
-#: src/gosa/backend/data/objects/organizationalRole.xml:42
-msgid "RFC2256: Physical Delivery Office Name"
+#: src/gosa/backend/data/objects/registered-device.xml:86
+msgid "printer"
 msgstr ""
 
-#: src/gosa/backend/data/objects/organizationalRole.xml:56
-msgid "RFC2256: occupant of role"
-msgstr ""
-
-#: src/gosa/backend/data/objects/organizationalRole.xml:68
-msgid "RFC2256: Facsimile (Fax) Telephone Number"
-msgstr ""
-
-#: src/gosa/backend/data/objects/organizationalRole.xml:75
-msgid "RFC2256: Post Office Box"
-msgstr ""
-
-#: src/gosa/backend/data/objects/organizationalRole.xml:82
-msgid "RFC2256: Teletex Terminal Identifier"
-msgstr ""
-
-#: src/gosa/backend/data/objects/organizationalRole.xml:96
-msgid "RFC2256: state or province which this object resides in"
-msgstr ""
-
-#: src/gosa/backend/data/objects/organizationalRole.xml:103
-msgid "RFC2256: postal code"
-msgstr ""
-
-#: src/gosa/backend/data/objects/organizationalRole.xml:110
-msgid "RFC2256: street address of this object"
-msgstr ""
-
-#: src/gosa/backend/data/objects/organizationalRole.xml:124
-msgid "RFC2256: preferred delivery method"
-msgstr ""
-
-#: src/gosa/backend/data/objects/organizationalRole.xml:143
-msgid "RFC2256: Telex Number"
-msgstr ""
-
-#: src/gosa/backend/data/objects/organizationalRole.xml:150
-#: src/gosa/backend/data/objects/user.xml:425
-msgid "RFC2256: X.121 Address"
-msgstr ""
-
-#: src/gosa/backend/data/objects/organizationalRole.xml:163
-msgid "RFC2256: international ISDN number"
-msgstr ""
-
-#: src/gosa/backend/data/objects/organizationalRole.xml:188
-msgid "RFC2256: postal address"
-msgstr ""
-
-#: src/gosa/backend/data/objects/organizationalRole.xml:195
-msgid "RFC2256: destination indicator"
-msgstr ""
-
-#: src/gosa/backend/data/objects/people-container.xml:5
-msgid "Users"
-msgstr ""
-
-#: src/gosa/backend/data/objects/people-container.xml:6
-#: src/gosa/backend/data/objects/rfc2256-role-container.xml:6
-msgid "Organizational unit that can contain users"
-msgstr ""
-
-#: src/gosa/backend/data/objects/printer-container.xml:17
-msgid "PrinterContainer"
-msgstr ""
-
-#: src/gosa/backend/data/objects/printer-container.xml:18
-msgid "Organizational unit that can contain printers"
-msgstr ""
-
-#: src/gosa/backend/data/objects/registered-device.xml:6
-msgid "RegisteredDevice"
-msgstr ""
-
-#: src/gosa/backend/data/objects/registered-device.xml:5
-msgid ""
-"The registeredDevice is a device that is known to GOsa and will display "
-"additional information."
-msgstr ""
-
-#: src/gosa/backend/data/objects/registered-device.xml:18
-msgid "DN of manager"
-msgstr ""
-
-#: src/gosa/backend/data/objects/registered-device.xml:29
-msgid "This attribute keeps the encrypted (initial) device secret"
-msgstr ""
-
-#: src/gosa/backend/data/objects/registered-device.xml:34
-msgid ""
-"The deviceStatus attribute represents several states a system can "
-"represent.\n"
-"\t\t\t\t\tNote that this is the current status - i.e. no history of "
-"states is\n"
-"\t\t\t\t\trecordable this way. The attribute is mostly used to quickly "
-"determine\n"
-"\t\t\t\t\tthe state without reading system logs.\n"
-"\t\t\t\t"
-msgstr ""
-
-#: src/gosa/backend/data/objects/registered-device.xml:77
-msgid "To order systems, you can mark a system i.e. as a server"
-msgstr ""
-
-#: src/gosa/backend/data/objects/registered-device.xml:92
-msgid ""
-"This attribute keeps a unique identifier for a device that should be\n"
-"\t\t\t\t\tregistered to the GOsa services. It is used as a unique key to "
-"find\n"
-"\t\t\t\t\tthe relationship of the registered device to other information "
-"like\n"
-"\t\t\t\t\tinventory, received events and logging data.\n"
-"\t\t\t\t"
-msgstr ""
-
-#: src/gosa/backend/data/objects/rfc2256-role-container.xml:5
-msgid "OrganizationalRoleContainer"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws-container.xml:5
-msgid "Samba Workstation Container"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws-container.xml:6
-msgid "Organizational unit that can contain Samba workstations"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws.xml:7
-msgid "Windows Workstation"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws.xml:6
-msgid "Windows workstation account"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws.xml:18
-#: src/gosa/backend/data/objects/user.xml:210
-msgid "preferred name of a person to be used when displaying entries"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws.xml:151
-#: src/gosa/backend/data/objects/user-samba.xml:420
-msgid "Account Flags"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws.xml:188
-#: src/gosa/backend/data/objects/user-samba.xml:322
-msgid "Windows NT domain to which the user belongs"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws.xml:196
-#: src/gosa/backend/data/objects/user-posix.xml:55
-msgid "An integer uniquely identifying a user in an administrative domain"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws.xml:219
-#: src/gosa/backend/data/objects/user-posix.xml:74
-msgid "An integer uniquely identifying a group in an administrative domain"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws.xml:242
-#: src/gosa/backend/data/objects/user.xml:557
-msgid "See also (distinguishedName)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws.xml:252
-#: src/gosa/backend/data/objects/user-posix.xml:107
-msgid "The GECOS field; the common name"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws.xml:266
-#: src/gosa/backend/data/objects/user.xml:600
-msgid "The Userid attribute type specifies a computer system login name."
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws.xml:299
-#: src/gosa/backend/data/objects/user-posix.xml:93
-msgid "The absolute path to the home directory"
-msgstr ""
-
-#: src/gosa/backend/data/objects/samba-ws.xml:306
-#: src/gosa/backend/data/objects/user-posix.xml:100
-msgid "The path to the login shell"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:5
-#: src/gosa/backend/data/objects/sambadomain.xml:6
-msgid "Samba domain"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:17
-msgid "Windows NT domain"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:29
-msgid "Base at which the samba RID generation algorithm should operate"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:35
-msgid "Next NT rid to give our for users"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:40
-msgid "Minimal password length (default: 5)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:46
-msgid "Length of Password History Entries (default: 0 => off)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:52
-msgid "Force Users to logon for password change (default: 0 => off, 2 => on)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:58
-msgid "Maximum password age, in seconds (default: -1 => never expire passwords)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:64
-msgid ""
-"Minimum password age, in seconds (default: 0 => allow immediate password "
-"change)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:70
-msgid "Lockout duration in minutes (default: 30, -1 => forever)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:76
-msgid "Reset time after lockout in minutes (default: 30)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:82
-msgid "Lockout users after bad logon attempts (default: 0 => off)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:88
-msgid "Disconnect Users outside logon hours (default: -1 => off, 0 => on)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:94
-msgid "Allow Machine Password changes (default: 0 => off)"
-msgstr ""
-
-#: src/gosa/backend/data/objects/sambadomain.xml:100
-msgid "Next NT rid to give out for anything"
-msgstr ""
-
-#: src/gosa/backend/data/objects/simpleSecurityObject.xml:5
-#: src/gosa/backend/data/objects/simpleSecurityObject.xml:6
-msgid "simpleSecurityObject"
-msgstr ""
-
-#: src/gosa/backend/data/objects/simpleSecurityObject.xml:14
-msgid "password"
-msgstr ""
-
-#: src/gosa/backend/data/objects/systems-container.xml:5
-msgid "Container for systems"
-msgstr ""
-
-#: src/gosa/backend/data/objects/systems-container.xml:6
-msgid "Organizational unit that can contain systems"
-msgstr ""
-
-#: src/gosa/backend/data/objects/trustaccount.xml:6
-msgid "Trust account"
-msgstr ""
-
-#: src/gosa/backend/data/objects/trustaccount.xml:5
-msgid "A trust account extension"
-msgstr ""
-
-#: src/gosa/backend/data/objects/trustaccount.xml:19
-msgid "Access scheme"
-msgstr ""
-
-#: src/gosa/backend/data/objects/trustaccount.xml:31
-msgid "Access to which servers user is allowed"
+#: src/gosa/backend/data/objects/registered-device.xml:87
+msgid "scanner"
 msgstr ""
 
 #: src/gosa/backend/data/objects/trustaccount.xml:22
@@ -1344,112 +648,6 @@ msgstr ""
 
 #: src/gosa/backend/data/objects/trustaccount.xml:24
 msgid "By host"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-posix.xml:5
-msgid "POSIX extension"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-posix.xml:9
-msgid "A posix extension for a generic user"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-posix.xml:39
-msgid "A list on posix-group names this user is member of"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:7
-msgid "Samba"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:6
-msgid "A samba extension for a POSIX user"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:92
-msgid "LanManager Password"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:98
-msgid "MD4 hash of the unicode password"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:104
-msgid "Timestamp of the last password update"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:130
-msgid "Timestamp of last logon"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:156
-msgid "Timestamp of last logoff"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:182
-msgid "Timestamp of when the user will be logged off automatically"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:207
-msgid "Timestamp of when the user is allowed to update the password"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:232
-msgid "Timestamp of when the password will expire"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:257
-msgid "Home directory UNC path"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:269
-msgid "Driver letter of home directory mapping"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:276
-msgid "Logon script path"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:282
-msgid "Roaming profile path"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:288
-msgid "List of user workstations the user is allowed to logon to"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:316
-msgid "Primary Group Security ID"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:330
-msgid "Bad password attempt count"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:337
-msgid "Time of the last bad password attempt"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:363
-msgid "Concatenated MD5 hashes of the salted NT passwords used on this account"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:369
-msgid "Base64 encoded user parameter string"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:458
-msgid "Logon Hours"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-samba.xml:528
-msgid ""
-"There seems to be an old and a new storage method for the sambaMungedDial"
-" attribute, this\n"
-"                    flag just shows the whether the processes values was "
-"in the old or in the new style. Saved will\n"
-"                    always be done in the new way.\n"
-"                "
 msgstr ""
 
 #: src/gosa/backend/data/objects/user-samba.xml:584
@@ -1491,176 +689,7 @@ msgstr ""
 msgid "input off, notify off"
 msgstr ""
 
-#: src/gosa/backend/data/objects/user-shadow.xml:5
-msgid "Shadow extension"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-shadow.xml:9
-msgid "A Shadow extension for a generic user"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-shadow.xml:19
-msgid "The dat of the last password change."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-shadow.xml:45
-msgid ""
-"The minimum password age is the number of days the user will have to wait"
-" before she will be allowed to change her password again."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-shadow.xml:51
-msgid ""
-"The maximum password age is the number of days after which the user will "
-"have to change her password."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-shadow.xml:57
-msgid ""
-"The number of days before a password is going to expire (see the "
-"shadowMax) during which the user should be warned."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-shadow.xml:63
-msgid ""
-"The number of days after a password has expired (see the shadowMax) "
-"during which the password should still be accepted (and the user should "
-"update her password during the next login)."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-shadow.xml:69
-msgid "The date of expiration of the account."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:5
-#: src/gosa/backend/data/objects/zarafa-server.xml:5
-msgid "Zarafa"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:6
-msgid "Zarafa: an user of Zarafa"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:30
-msgid "ZARAFA: Override child quota"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:55
-msgid "ZARAFA: Warning quota size in MB"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:70
-msgid "ZARAFA: Soft quota size in MB"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:84
-msgid "ZARAFA: Hard quota size in MB"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:99
-msgid "ZARAFA: Users may directly send email as this user"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:118
-msgid "ZARAFA: Administrator of zarafa"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:142
-msgid "ZARAFA: is store a shared store"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:166
-msgid "ZARAFA: for shared stores, resource is type Room or Equipment"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:178
-msgid "ZARAFA: number of rooms or equipment available"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:189
-#: src/gosa/backend/data/objects/zarafa-server.xml:24
-msgid "ZARAFA: entry is a part of zarafa"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:213
-#: src/gosa/backend/data/objects/zarafa-server.xml:48
-msgid "ZARAFA: This object should be hidden from address book"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:258
-msgid "ZARAFA: This user has these features explicitly enabled"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:290
-msgid "ZARAFA: This user has these features explicitly disabled"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:312
-msgid "ZARAFA: List of server names that contain an archive store for the user"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:326
-msgid "RFC1274: RFC822 Mailbox"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:357
-msgid "Specify users main mail server"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:371
-msgid "Whether the account is in vacation"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:379
-msgid "Whether to use a SPAM filter for the account"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:387
-msgid "Whether to reject mails of certain size"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:395
-msgid "Whether to do a local delivery only"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:403
-msgid "Whether to skip insertion into the users own mailbox"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:411
-msgid "Don't use GOsa 2.x build in sieve script generation"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:419
-msgid "What to do with mails"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:450
-msgid "Additional mail addresses where the user is reachable"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:480
-msgid "Addresses where to forward mail to"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:511
-msgid "Text to display in case of vacation"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:519
-msgid "Timestamp for enabling current vacation message"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:548
-msgid "Timestamp for switching off current vacation message"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user-zarafa.xml:577
-msgid "goZarafa Display Name"
-msgstr ""
-
 #: src/gosa/backend/data/objects/user-zarafa.xml:171
-#: src/gosa/backend/data/objects/user.xml:6
 msgid "User"
 msgstr ""
 
@@ -1672,331 +701,12 @@ msgstr ""
 msgid "Equipment"
 msgstr ""
 
-#: src/gosa/backend/data/objects/user.xml:5
-msgid "A generic user"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:165
-msgid "This attribute stores user specific settings for the GUI"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:189
-msgid ""
-"The Audio attribute type allows the storing of sounds in the Directory. "
-"The attribute uses a u-law encoded sound file as used by the \"play\" "
-"utility on a Sun 4. This is an interim format"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:194
-msgid ""
-"This attribute describes the kind of business performed by an "
-"organization."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:199
-msgid ""
-"This multivalued field is used to record the values of the license or "
-"registration plate associated with an individual."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:205
-msgid "Identifies a department within an organization"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:252
-msgid "numerically identifies an employee within an organization'"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:257
-msgid ""
-"Used to identify the employer to employee relationship. Typical values "
-"used will be \"Contractor\", \"Employee\", \"Intern\", \"Temp\", "
-"\"External\", and \"Unknown\" but any value may be used."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:262
-msgid ""
-"The givenName attribute is used to hold the part of a person's name which"
-" is not their surname nor middle name."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:268
-msgid "homePhone"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:273
-msgid "Birthday of the user"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:299
-#: src/gosa/backend/data/objects/user.xml:492
-msgid ""
-"The Home postal address attribute type specifies a home postal address "
-"for an object.  This should be limited to up to 6 lines of 30 characters "
-"each."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:304
-msgid ""
-"The initials attribute contains the initials of some or all of an "
-"individuals names, but not the surname(s)."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:309
-msgid ""
-"Used to store one or more images of a person using the JPEG File "
-"Interchange Format [JFIF]."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:340
-msgid "Uniform Resource Identifier with optional label"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:345
-msgid ""
-"The Manager attribute type specifies the manager of an object represented"
-" by an entry."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:357
-msgid ""
-"The Mobile Telephone Number attribute type specifies a mobile telephone "
-"number associated with a person. Attribute values should follow the "
-"agreed format for international telephone numbers: i.e., \"+44 71 123 "
-"4567\"."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:362
-msgid "This attribute contains the name of an organization (organizationName)."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:367
-msgid ""
-"The Pager Telephone Number attribute type specifies a pager telephone "
-"number for an object. Attribute values should follow the agreed format "
-"for international telephone numbers: i.e., \"+44 71 123 4567\"."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:372
-msgid ""
-"The Photo attribute type specifies a \"photograph\" for an object. This "
-"should be encoded in G3 fax as explained in recommendation T.4, with an "
-"ASN.1 wrapper to make it compatible with an X.400 BodyPart as defined in "
-"X.420."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:377
-msgid ""
-"The Room Number attribute type specifies the room number of an object.  "
-"Note that the commonName attribute should be used for naming room "
-"objects."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:382
-msgid ""
-"The Secretary attribute type specifies the secretary of a person. The "
-"attribute value for Secretary is a distinguished name"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:387
-msgid ""
-"This attribute is to be stored and requested in the binary form, as "
-"'userCertificate;binary'."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:393
-msgid ""
-"The x500UniqueIdentifier attribute is used to distinguish between objects"
-" when a distinguished name has been reused.  This is a different "
-"attribute type from both the \"uid\" and \"uniqueIdentifier\" types."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:399
-msgid "Preferred written or spoken language for a person"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:405
-msgid ""
-"A PKCS#7 [RFC2315] SignedData, where the content that is signed is "
-"ignored by consumers of userSMIMECertificate values.  It is recommended "
-"that values have a `contentType' of data with an absent `content' field."
-"  Values of this attribute contain a person's entire certificate chain "
-"and an smimeCapabilities field [RFC2633] that at a minimum describes "
-"their SMIME algorithm capabilities.  Values for this attribute are to be "
-"stored and requested in binary form, as 'userSMIMECertificate;binary'.  "
-"If available, this attribute is preferred over the userCertificate "
-"attribute for S/MIME applications."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:410
-msgid ""
-"PKCS #12 [PKCS12] provides a format for exchange of personal identity "
-"information.  When such information is stored in a directory service, the"
-" userPKCS12 attribute should be used. This attribute is to be stored and "
-"requested in binary form, as 'userPKCS12;binary'.  The attribute values "
-"are PFX PDUs stored as binary data."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:415
-msgid ""
-"This attribute contains the title, such as \"Vice President\", of a "
-"person in their organizational context.  The \"personalTitle\" attribute "
-"would be used for a person's title independent of their job function."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:420
-msgid ""
-"This attribute contains the title, such as \"Phd\", of a person in their "
-"organizational context.  The \"academicTitle\" attribute would be used "
-"for a person's title independent of their job function."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:430
-msgid ""
-"This attribute holds a postal address suitable for reception of telegrams"
-" or expedited documents, where it is necessary to have the recipient "
-"accept delivery."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:435
-msgid "This attribute is used for the telegram service."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:440
-msgid "Preferred delivery method"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:445
-msgid "Telex number"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:450
-msgid "Teletex terminal identifier"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:455
-msgid "Telephone number"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:467
-msgid "International iSDN number"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:472
-msgid "Facsimile telephone number"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:477
-msgid ""
-"This attribute contains the physical address of the object to which the "
-"entry corresponds, such as an address for package delivery "
-"(streetAddress)."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:482
-msgid "Post office box"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:487
-msgid "Postal code"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:497
-msgid "Physical delivery office name"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:502
-msgid ""
-"This attribute contains the name of an organizational unit "
-"(organizationalUnitName)."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:507
-msgid ""
-"This attribute contains the full name of a state or province "
-"(stateOrProvinceName)."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:512
-msgid ""
-"This attribute contains the name of a locality, such as a city, county or"
-" other geographic region (localityName)."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:517
-msgid "The selected password encryption method"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:534
-msgid "Represents the account locking status. True means locked!"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:552
-msgid ""
-"Passwords are stored using an Octet String syntax and are not encrypted."
-"  Transfer of cleartext passwords are strongly discouraged where the "
-"underlying transport service cannot guarantee confidentiality and may "
-"result in disclosure of the password to unauthorized parties."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:567
-msgid ""
-"This is the X.500 surname attribute, which contains the family name of a "
-"person."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:573
-msgid ""
-"This is the X.500 commonName attribute, which contains a name of an "
-"object.  If the object corresponds to a person, it is typically the "
-"person's full name."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:623
-msgid "True means we are in a secure context"
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:641
-msgid ""
-"If the user has successfully started a password recovery process this "
-"attribute shows the current state for\n"
-"          this process."
-msgstr ""
-
-#: src/gosa/backend/data/objects/user.xml:666
-msgid "This hash contains the chosen password recovery questions and answers"
-msgstr ""
-
-#: src/gosa/backend/data/objects/zarafa-server.xml:6
-msgid "ZARAFA: a Zarafa server"
-msgstr ""
-
-#: src/gosa/backend/data/objects/zarafa-server.xml:73
-msgid "ZARAFA: Port for the http connection"
-msgstr ""
-
-#: src/gosa/backend/data/objects/zarafa-server.xml:84
-msgid "ZARAFA: Port for the ssl connection"
-msgstr ""
-
-#: src/gosa/backend/data/objects/zarafa-server.xml:95
-msgid "ZARAFA: The unix socket or named pipe to the server"
-msgstr ""
-
-#: src/gosa/backend/data/objects/zarafa-server.xml:106
-msgid "ZARAFA: This server contains the public store"
-msgstr ""
-
-#: src/gosa/backend/data/objects/zarafa-server.xml:131
-msgid "ZARAFA: Full proxy URL for this server"
-msgstr ""
-
 #: src/gosa/backend/objects/factory.py:76
 #, python-format
 msgid "'%(type)s' is no base type"
 msgstr ""
 
-#: src/gosa/backend/objects/factory.py:77 src/gosa/backend/objects/proxy.py:65
+#: src/gosa/backend/objects/factory.py:77 src/gosa/backend/objects/proxy.py:66
 #: src/gosa/backend/plugins/foreman/main.py:40
 #, python-format
 msgid "Unknown object type '%(type)s'"
@@ -2254,85 +964,90 @@ msgstr ""
 msgid "Unhandled reference mode: '%(mode)s'"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:66
+#: src/gosa/backend/objects/proxy.py:67
 #, python-format
 msgid "Extension '%(extension)s' not allowed"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:67
+#: src/gosa/backend/objects/proxy.py:68
 #, python-format
 msgid "Extension '%(extension)s' already there"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:68
+#: src/gosa/backend/objects/proxy.py:69
 #, python-format
 msgid "Extension '%(extension)s' depends on '%(missing)s'"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:69
+#: src/gosa/backend/objects/proxy.py:70
 #, python-format
 msgid "No permission to extend %(target)s with %(extension)s"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:70
+#: src/gosa/backend/objects/proxy.py:71
 #, python-format
 msgid "Extension '%(extension)s' already retracted"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:71
+#: src/gosa/backend/objects/proxy.py:72
 #, python-format
 msgid "Extension '%(extension)s' is required by '%(origin)s'"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:72
+#: src/gosa/backend/objects/proxy.py:73
 #, python-format
 msgid "No permission to retract '%(extension)s' from '%(target)s'"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:73
+#: src/gosa/backend/objects/proxy.py:74
 #, python-format
 msgid "No permission to move '%(source)s' to '%(target)s'"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:74
+#: src/gosa/backend/objects/proxy.py:75
 #, python-format
 msgid "Object '%(target)s' has children"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:75
+#: src/gosa/backend/objects/proxy.py:76
 #, python-format
 msgid "No permission to remove '%(target)s'"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:76
+#: src/gosa/backend/objects/proxy.py:77
 #, python-format
 msgid "No permission to create '%(target)s'"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:77
+#: src/gosa/backend/objects/proxy.py:78
 #, python-format
 msgid "No permission to access '%(topic)s' on '%(target)s'"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:78
+#: src/gosa/backend/objects/proxy.py:79
 #, python-format
 msgid "UUID of base (%(b_uuid)s) and extension (%(e_uuid)s) differ"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:79
+#: src/gosa/backend/objects/proxy.py:80
 #, python-format
 msgid ""
 "moving object '%(target)s' from '%(old_dn)s' to '%(new_dn)s' failed: no "
 "valid container found"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:80
+#: src/gosa/backend/objects/proxy.py:81
 #, python-format
 msgid "Extension '%(extension)s' condition not met"
 msgstr ""
 
-#: src/gosa/backend/objects/proxy.py:81
+#: src/gosa/backend/objects/proxy.py:82
 msgid "Cannot create object in read-only mode."
+msgstr ""
+
+#: src/gosa/backend/objects/proxy.py:505
+#: src/gosa/backend/plugins/misc/locales.py:194
+msgid "value"
 msgstr ""
 
 #: src/gosa/backend/objects/backend/__init__.py:20
@@ -3368,10 +2083,6 @@ msgstr ""
 
 #: src/gosa/backend/plugins/misc/locales.py:177
 msgid "Return list of languages"
-msgstr ""
-
-#: src/gosa/backend/plugins/misc/locales.py:194
-msgid "value"
 msgstr ""
 
 #: src/gosa/backend/plugins/misc/locales.py:198

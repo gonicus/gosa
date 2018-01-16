@@ -24,6 +24,7 @@ def extract_object_xml(fileobj, keywords, comment_tags, options):
         namespaces = loads(options["namespaces"])
     for path in options["paths"].split(" "):
         for r in xml.xpath(path, namespaces=namespaces):
-            found.append((r.sourceline, None, r.text, []))
+            if "translate" not in r.attrib or r.attrib["translate"] == "true":
+                found.append((r.sourceline, None, r.text, []))
     return found
 

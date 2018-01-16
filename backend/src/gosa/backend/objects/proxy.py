@@ -38,6 +38,7 @@ will list the available extension types for that specific object.
 
 """
 import copy
+import gettext
 
 from datetime import datetime
 
@@ -435,7 +436,7 @@ class ObjectProxy(object):
 
         return required
 
-    def get_attributes(self, detail=False):
+    def get_attributes(self, detail=False, locale=None):
         """
         Returns a list containing all property names known for the instantiated object.
         """
@@ -492,6 +493,19 @@ class ObjectProxy(object):
                     'auto': self.__property_map[attr]['auto'],
                     'value_inherited_from': self.__property_map[attr]['value_inherited_from'],
                     'validator_information': validator_information if len(validator_information.keys()) else None}
+
+                if locale is not None and isinstance(res[attr]['values'], dict):
+                    t = gettext.translation('messages',
+                                            pkg_resources.resource_filename("gosa.backend", "locale"),
+                                            fallback=True,
+                                            languages=[locale])
+
+                    for (key, value) in res[attr]['values'].items():
+                        if isinstance(value, dict):
+                            if value["value"] not in self.__property_map[attr]['skip_translation_values']:
+                                value["value"] = t.gettext(value["value"])
+                        elif value not in self.__property_map[attr]['skip_translation_values']:
+                            res[attr]['values'][key] = t.gettext(value)
 
             return res
 

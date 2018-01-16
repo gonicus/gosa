@@ -986,9 +986,9 @@ class ObjectFactory(object):
                 values = []
                 values_populate = None
                 re_populate_on_update = False
+                skip_translation_values = []
                 if "Values" in prop.__dict__:
-                    avalues = []
-                    dvalues = {}
+                    values = {}
 
                     if 'populate' in prop.__dict__['Values'].attrib:
                         values_populate = prop.__dict__['Values'].attrib['populate']
@@ -997,14 +997,13 @@ class ObjectFactory(object):
                     else:
                         for d in prop.__dict__['Values'].iterchildren():
                             if 'key' in d.attrib:
-                                dvalues[self.__attribute_type['String'].convert_to(syntax, [d.attrib['key']])[0]] = d.text
+                                values[self.__attribute_type['String'].convert_to(syntax, [d.attrib['key']])[0]] = d.text
                             else:
-                                avalues.append(d.text)
+                                values[self.__attribute_type['String'].convert_to(syntax, [d.text])[0]] = d.text
 
-                    if avalues:
-                        values = self.__attribute_type['String'].convert_to(syntax, avalues)
-                    else:
-                        values = dvalues
+                            if 'translate' in d.attrib and d.attrib["translate"] == "false":
+                                # never translate this value
+                                skip_translation_values.append(d.text)
 
                 value_inherited_from = None
                 if 'InheritFrom' in prop.__dict__:
@@ -1017,6 +1016,7 @@ class ObjectFactory(object):
                 props[prop['Name'].text] = {
                     'value': [],
                     'values': values,
+                    'skip_translation_values': skip_translation_values,
                     'values_populate': values_populate,
                     're_populate_on_update': re_populate_on_update,
                     'status': STATUS_OK,

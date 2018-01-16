@@ -19,11 +19,11 @@
                 <Description>GOto - Gonicus Terminal Concept, value xResolution.</Description>
                 <Type>String</Type>
                 <Values>
-                    <Value>800x600</Value>
-                    <Value>1024x768</Value>
-                    <Value>1280x960</Value>
-                    <Value>1600x1200</Value>
-                    <Value>1920x1080</Value>
+                    <Value translate="false">800x600</Value>
+                    <Value translate="false">1024x768</Value>
+                    <Value translate="false">1280x960</Value>
+                    <Value translate="false">1600x1200</Value>
+                    <Value translate="false">1920x1080</Value>
                 </Values>
             </Attribute>
 
