@@ -297,7 +297,7 @@ setup(
 )
 return_code = 0
 
-if sys.argv[1] == "extract_messages":
+if sys.argv[1] == "update_catalog":
     # update frontend translation files
     return_code = os.system('./update_template_translations.py')
 
