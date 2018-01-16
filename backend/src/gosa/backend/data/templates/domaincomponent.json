@@ -3,7 +3,7 @@
     "class": "qx.ui.container.Composite",
     "layout": "qx.ui.layout.VBox",
     "properties": {
-        "categoryTitle": "tr('DomainComponent')"
+        "categoryTitle": "tr('Domain Component')"
     },
     "extensions": {
         "tabConfig": {
