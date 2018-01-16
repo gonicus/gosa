@@ -101,7 +101,7 @@ if sys.argv[1] == "test":
     return_code = os.system('cd frontend/gosa && ./node_modules/grunt/bin/grunt')
     os.system('mv ./frontend/gosa/coverage/coveralls.json ../../')
 
-elif sys.argv[1] == "extract_messages":
+elif sys.argv[1] == "update_catalog":
     # update frontend translation files
     return_code = os.system('cd frontend/gosa && python2 ./generate.py translation')
 

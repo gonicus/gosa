@@ -7,7 +7,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
+import sys
 from setuptools import setup, find_packages
 import os
 
@@ -295,3 +295,12 @@ setup(
         backend_types = gosa.backend.utils:BackendTypesEncoder
     """,
 )
+return_code = 0
+
+if sys.argv[1] == "extract_messages":
+    # update frontend translation files
+    return_code = os.system('./update_template_translations.py')
+
+if return_code > 0:
+    # exit with error code
+    sys.exit(return_code >> 8)
