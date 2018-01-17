@@ -147,10 +147,11 @@ class Workflow:
         and returns the gettext.translation object
         """
         mofiles = gettext.find('messages', os.path.join(path, workflow_id, "i18n"), [locale], all=True)
-        for mofile in mofiles:
-            key = (gettext.GNUTranslations, os.path.abspath(mofile))
-            if key in gettext._translations:
-                del gettext._translations[key]
+        if mofiles:
+            for mofile in mofiles:
+                key = (gettext.GNUTranslations, os.path.abspath(mofile))
+                if key in gettext._translations:
+                    del gettext._translations[key]
 
         t = gettext.translation('messages',
                                 os.path.join(path, workflow_id, "i18n"),
