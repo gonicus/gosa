@@ -5,6 +5,7 @@ import sys
 import logging
 
 import datetime
+from json import loads
 from threading import Thread
 
 import pkg_resources
@@ -246,14 +247,20 @@ class Workflow:
         translations = {}
 
         find = objectify.ObjectPath("Workflow.Templates")
-        for template in find(self._xml_root[0]).getchildren():
-            translation = template.text[:-5]
-            translation_path = os.path.join(self._path, self.uuid, "i18n", translation, "%s.json" % locale)
-            if os.path.isfile(translation_path):
-                with open(translation_path, "r") as ftpl:
-                    translations[template.text] = ftpl.read()
-            else:
-                translations[template.text] = None
+        t = Workflow.gettext(self._path, self.uuid, locale)
+
+        keymap_file = os.path.join(self._path, self.uuid, "i18n", "keymap.json")
+        if os.path.isfile(keymap_file):
+            with open(keymap_file, "r") as f:
+                keymap = loads(f.read())
+
+            for template in find(self._xml_root[0]).getchildren():
+                template_name = template.text[:-5]
+
+                if template_name in keymap:
+                    translations[template.text] = {x: t.gettext(x) for x in keymap[template_name]}
+                else:
+                    translations[template.text] = None
 
         return translations
 

@@ -55,6 +55,7 @@ setup(
     entry_points = """
         [babel.extractors]
         extract_object_xml = gosa.common.babel_extract:extract_object_xml
+        extract_template_json = gosa.common.babel_extract:extract_template_json
         
         [console_scripts]
         acl-admin = gosa.utils.acl_admin:main

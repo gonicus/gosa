@@ -88,7 +88,6 @@ class WorkflowRegistry(Plugin):
             topic = "%s.workflows.%s" % (self.env.domain, id)
             if not user or aclresolver.check(user, topic, "r", base=self.env.base):
                 if locale is not None:
-                    print(self.__path, id, locale)
                     t = Workflow.gettext(self.__path, id, locale)
 
                     res[id] = dict(
