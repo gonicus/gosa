@@ -26,6 +26,12 @@ for idx, arg in enumerate(sys.argv):
     if arg.startswith("--addopts"):
         sys.argv[idx] = '--addopts="%s"' % arg.split("=")[1]
 
+if task == "i18nstats":
+    # only in backend
+    command = "cd backend && ./setup.py %s" % " ".join(sys.argv[1:])
+    module_return_code = os.system(command)
+    sys.exit(return_code)
+
 for module in modules:
     if testing and module in skip_tests:
         continue

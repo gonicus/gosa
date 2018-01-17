@@ -7,9 +7,16 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import distutils
 import sys
+
+import re
 from setuptools import setup, find_packages
 import os
+import glob
+import polib
+
+from gosa.common.gjson import loads
 
 try:
     from babel.messages import frontend as babel
@@ -24,6 +31,120 @@ data_files = []
 for path, dirs, files in os.walk("src/gosa/backend/data"):
     for f in files:
             data_files.append(os.path.join(path[17:], f))
+
+
+class CollectI18nStats(distutils.cmd.Command):
+
+    description = 'collect status information about translations in GOsa'
+
+    user_options = [
+        # The format is (long option, short option, description).
+        ('detailed', None, 'print file statistics'),
+    ]
+
+    def initialize_options(self):
+        """Set default values for options."""
+        self.detailed = False
+
+    def finalize_options(self):
+        """Post-process options."""
+        self.detailed = bool(self.detailed)
+
+    def __process_file(self, po_file):
+        po = polib.pofile(po_file)
+        language = None
+        if 'Language' in po.metadata:
+            language = po.metadata['Language']
+        elif 'X-Language' in po.metadata:
+            language = po.metadata['X-Language'].split("_")[0]
+        else:
+            # fallback get from file name
+            file_name = os.path.basename(po_file).split(".")[0]
+            if len(file_name) == 2:
+                language = file_name
+            else:
+                match = re.match(".*\/locale\/([a-z]{2})\/.*". po_file)
+                if match is not None:
+                    language = match.group(1)
+        valid_entries = [e for e in po if not e.obsolete]
+
+        return {
+            "language": language,
+            "file": po_file,
+            "strings": len(valid_entries),
+            "translated_percent": po.percent_translated(),
+            "translated": len(po.translated_entries()),
+            "untranslated": len(po.untranslated_entries()),
+            "obsolete": len(po.obsolete_entries()),
+            "fuzzy": len(po.fuzzy_entries()),
+        }
+
+    def __update_stats(self, file_entry, stats):
+        language = file_entry["language"]
+        if language not in stats:
+            stats[language] = {
+                "strings": 0,
+                "translated": 0,
+                "untranslated": 0,
+                "obsolete": 0,
+                "fuzzy": 0,
+                "files": []
+            }
+        stats[language]["strings"] += file_entry["strings"]
+        stats[language]["translated"] += file_entry["translated"]
+        stats[language]["untranslated"] += file_entry["untranslated"]
+        stats[language]["obsolete"] += file_entry["obsolete"]
+        stats[language]["fuzzy"] += file_entry["fuzzy"]
+        stats[language]["files"].append(file_entry)
+        return stats
+
+    def __print_language_stats(self, lang, entry):
+        print("{:#<120}".format(""))
+        print("Language: {}\t{:>3}% translated ({}/{})".format(
+            lang,
+            round(100/entry["strings"] * entry["translated"]),
+            entry["translated"],
+            entry["strings"])
+        )
+        if lang != "en" and self.detailed is True:
+            print("{:-<120}".format(""))
+            for file_entry in sorted(entry["files"], key=lambda k: k['file']):
+                print("    {file:<80}:\t{translated_percent:>3}% ({translated}/{strings})".format(**file_entry))
+        print("{:#<120}\n".format(""))
+
+    def run(self):
+        """Run command."""
+        print("collecting po files...")
+        stats = {}
+        for po_file in glob.glob('../**/gosa/**/*.po', recursive=True):
+            if "packaging" in po_file:
+                 continue
+            self.__update_stats(self.__process_file(po_file), stats)
+
+        # collect template files
+        for json_file in glob.glob('**/gosa/backend/data/templates/i18n/*/*.json', recursive=True):
+            with open(json_file) as f:
+                data = loads(f.read())
+                strings = len(data.keys())
+                language = os.path.basename(json_file).split(".")[0]
+                translated = [x for x in data.values() if x is not None and x != ""]
+                file_entry = {
+                    "language": language,
+                    "file": json_file,
+                    "strings": strings,
+                    "translated_percent": round(100/strings*len(translated)),
+                    "translated": len(translated),
+                    "untranslated": strings - len(translated),
+                    "obsolete": 0,
+                    "fuzzy": 0,
+                }
+                self.__update_stats(file_entry, stats)
+
+        self.__print_language_stats("en", stats["en"])
+        for lang, entry in sorted(stats.items()):
+            if lang != "en":
+                self.__print_language_stats(lang, entry)
+
 
 setup(
     name = "gosa.backend",
@@ -47,6 +168,9 @@ setup(
         'Topic :: System :: Software Distribution',
         'Topic :: System :: Monitoring',
     ],
+    cmdclass={
+        'i18nstats': CollectI18nStats,
+    },
 
     packages = find_packages('src', exclude=['examples', 'tests']),
     package_dir={'': 'src'},
@@ -93,7 +217,8 @@ setup(
         'sh',
         'pylint',
         'sqlalchemy_searchable',
-        'bcrypt'
+        'bcrypt',
+        'polib'
         ],
 
     entry_points = """
