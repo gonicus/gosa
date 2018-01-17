@@ -62,6 +62,6 @@ setup(
         gosa-plugin-skel = gosa.utils.gosa_plugin_skel:main
         schema2xml = gosa.utils.schema2xml:main
         update-i18n = gosa.utils.update_i18n:main
-        workflow-i18n = gosa.utils.i18n.workflows:main
+        gosa-workflow-i18n = gosa.utils.i18n.workflows:main
     """,
 )
