@@ -28,7 +28,7 @@ def main():
         for workflow in os.listdir(env.config.get("core.workflow-path")):
             dir = os.path.join(env.config.get("core.workflow-path"), workflow)
             if os.path.isdir(dir) and not workflow.startswith("."):
-                print("processing '%s' in workflow '%s'..." % (command_name, workflow))
+                print("{:.<80}".format("processing '{}' in workflow '{}'".format(command_name, workflow, "")), end='')
                 command = getattr(babel, command_name)()
                 command.initialize_options()
 
@@ -57,7 +57,7 @@ def main():
 
                 command.finalize_options()
                 command.run()
-                print("...done")
+                print(" done")
 
 
 if __name__ == "__main__":  # pragma: nocover
