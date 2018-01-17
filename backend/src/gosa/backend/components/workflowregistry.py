@@ -51,7 +51,7 @@ class WorkflowRegistry(Plugin):
     def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
-        self.__path = self.env.config.get("core.workflow_path", "/var/lib/gosa/workflows")
+        self.__path = self.env.config.get("core.workflow-path", "/var/lib/gosa/workflows")
 
         if not os.path.exists(self.__path):
             # try to create dir

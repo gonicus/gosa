@@ -31,7 +31,7 @@ class WorkflowHandler(HSTSStaticFileHandler):
 
     def initialize(self):
         env = Environment.getInstance()
-        path = env.config.get("core.workflow_path", "/var/lib/gosa/workflows")
+        path = env.config.get("core.workflow-path", "/var/lib/gosa/workflows")
         super(WorkflowHandler, self).initialize(path)
 
     def get(self, path, include_body=True):

@@ -80,7 +80,7 @@ class Workflow:
             mod = entry.load()
             self.__attribute_type[mod.__alias__] = mod()
 
-        self._path = self.env.config.get("core.workflow_path", "/var/lib/gosa/workflows")
+        self._path = self.env.config.get("core.workflow-path", "/var/lib/gosa/workflows")
         self._xml_root = objectify.parse(os.path.join(self._path, _id, "workflow.xml"), parser).getroot()
 
         self.__attribute = {key: None for key in self.get_attributes()}
