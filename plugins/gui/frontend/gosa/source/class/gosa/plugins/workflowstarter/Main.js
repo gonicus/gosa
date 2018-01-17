@@ -241,7 +241,7 @@ qx.Class.define("gosa.plugins.workflowstarter.Main", {
     _applyWorkflow: function(value) {
       var item = this.getChildControl("workflow-item");
       item.setLoading(true);
-      gosa.io.Rpc.getInstance().cA("getWorkflowDetails", value)
+      gosa.io.Rpc.getInstance().cA("getWorkflowDetails", value, gosa.Config.getLocale())
       .then(function(workflowDetails) {
         item.setLabel(workflowDetails.name);
         item.setDescription(workflowDetails.description);

@@ -1,4 +1,5 @@
 import copy
+import gettext
 import os
 import sys
 import logging
@@ -118,13 +119,44 @@ class Workflow:
     def get_all_method_names(self):
         return list(self.__method_map)
 
-    def get_attributes(self, detail=False):
+    def get_attributes(self, detail=False, locale=None):
         res = self._get_attributes()
 
         if detail:
+
+            if locale is not None:
+                res = copy.deepcopy(res)
+                t = Workflow.gettext(self._path, self.uuid, locale)
+
+                for attr in res:
+                    if isinstance(res[attr]['values'], dict):
+                        for (key, value) in res[attr]['values'].items():
+                            if isinstance(value, dict):
+                                if value["value"] not in res[attr]['skip_translation_values']:
+                                    value["value"] = t.gettext(value["value"])
+                            elif value not in res[attr]['skip_translation_values']:
+                                res[attr]['values'][key] = t.gettext(value)
             return res
 
         return list(res.keys())
+
+    @classmethod
+    def gettext(cls, path, workflow_id, locale):
+        """
+        reads the workflow translations files (those are refreshed every time)
+        and returns the gettext.translation object
+        """
+        mofiles = gettext.find('messages', os.path.join(path, workflow_id, "i18n"), [locale], all=True)
+        for mofile in mofiles:
+            key = (gettext.GNUTranslations, os.path.abspath(mofile))
+            if key in gettext._translations:
+                del gettext._translations[key]
+
+        t = gettext.translation('messages',
+                                os.path.join(path, workflow_id, "i18n"),
+                                fallback=True,
+                                languages=[locale])
+        return t
 
     def get_attribute_values(self):
         """
@@ -383,10 +415,9 @@ class Workflow:
                             values_populate = None
                             value_inherited_from = None
                             re_populate_on_update = False
-                            values = []
+                            values = {}
+                            skip_translation_values = []
                             if 'Values' in attr.__dict__:
-                                avalues = []
-                                dvalues = {}
 
                                 if 'populate' in attr.__dict__['Values'].attrib:
                                     values_populate = attr.__dict__['Values'].attrib['populate']
@@ -395,14 +426,13 @@ class Workflow:
                                 else:
                                     for d in attr.__dict__['Values'].iterchildren():
                                         if 'key' in d.attrib:
-                                            dvalues[d.attrib['key']] = d.text
+                                            values[d.attrib['key']] = d.text
                                         else:
-                                            avalues.append(d.text)
+                                            values[d.text] = d.text
 
-                                if avalues:
-                                    values = avalues
-                                else:
-                                    values = dvalues
+                                    if 'translate' in d.attrib and d.attrib["translate"] == "false":
+                                        # never translate this value
+                                        skip_translation_values.append(d.text)
 
                             if 'InheritFrom' in attr.__dict__:
                                 value_inherited_from = {
@@ -441,7 +471,8 @@ class Workflow:
                                 'values_populate': values_populate,
                                 're_populate_on_update': re_populate_on_update,
                                 'value_inherited_from': value_inherited_from,
-                                'values': values
+                                'values': values,
+                                'skip_translation_values': skip_translation_values
                             }
                 for attr, referenced_attrs in references.items():
                     res[attr]['value_inheriting_to'] = referenced_attrs

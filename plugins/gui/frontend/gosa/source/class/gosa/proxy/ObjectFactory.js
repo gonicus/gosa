@@ -86,7 +86,7 @@ qx.Class.define("gosa.proxy.ObjectFactory", {
       } else if (object_type === "workflow") {
         promises = [
           userData,
-          rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true)
+          rpc.cA("dispatchObjectMethod", uuid, "get_attributes", true, locale)
         ];
       }
       return qx.Promise.all(promises)
