@@ -42,6 +42,8 @@ Here are some examples on how to instantiate on new object:
 >>> person.commit()
 
 """
+import gettext
+
 import pkg_resources
 import os
 import re
@@ -1290,8 +1292,6 @@ class ObjectFactory(object):
         if not language:
             return {}
 
-        env = Environment.getInstance()
-        i18n = None
         locales = []
         if "-" in language:
             tmp = language.split("-")
@@ -1302,35 +1302,18 @@ class ObjectFactory(object):
 
         # If there's a i18n file, try to find it
         res = {}
+        t = gettext.translation('messages',
+                                pkg_resources.resource_filename("gosa.backend", "locale"),
+                                fallback=True,
+                                languages=locales)
+        # load keymap for template strings
+        with open(pkg_resources.resource_filename("gosa.backend", "data/templates/i18n/keymap.json"), "r") as f:
+            keymap = json.loads(f.read())
 
         if templates:
             for template in templates:
-                paths = []
-
-                # Absolute path
-                if template.startswith(os.path.sep):
-                    tp = os.path.dirname(template)
-                    tn = os.path.basename(template)[:-5]
-                    for loc in locales:
-                        paths.append(os.path.join(tp, "i18n", tn, "%s.json" % loc))
-
-                # Relative path
-                else:
-                    tn = os.path.basename(template)[:-5]
-
-                    # Find path
-                    for loc in locales:
-                        paths.append(pkg_resources.resource_filename('gosa.backend', os.path.join('data', 'templates', "i18n", tn, "%s.json" % loc))) #@UndefinedVariable
-                        paths.append(os.path.join(env.config.getBaseDir(), 'templates', 'i18n', tn, "%s.json" % loc))
-
-                for path in paths:
-                    if os.path.exists(path):
-                        with open(path, "rb") as f:
-                            i18n = f.read()
-                        break
-
-                if i18n:
-                    res = {**res, **json.loads(i18n.decode('utf-8'))}
+                template_name = os.path.basename(template).split(".")[0]
+                res.update({x: t.gettext(x) for x in keymap[template_name]})
 
         return res
 

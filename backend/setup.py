@@ -121,26 +121,7 @@ class CollectI18nStats(distutils.cmd.Command):
                  continue
             self.__update_stats(self.__process_file(po_file), stats)
 
-        # collect template files
-        for json_file in glob.glob('**/gosa/backend/data/templates/i18n/*/*.json', recursive=True):
-            with open(json_file) as f:
-                data = loads(f.read())
-                strings = len(data.keys())
-                language = os.path.basename(json_file).split(".")[0]
-                translated = [x for x in data.values() if x is not None and x != ""]
-                file_entry = {
-                    "language": language,
-                    "file": json_file,
-                    "strings": strings,
-                    "translated_percent": round(100/strings*len(translated)),
-                    "translated": len(translated),
-                    "untranslated": strings - len(translated),
-                    "obsolete": 0,
-                    "fuzzy": 0,
-                }
-                self.__update_stats(file_entry, stats)
-
-        self.__print_language_stats("en", stats["en"])
+        # self.__print_language_stats("en", stats["en"])
         for lang, entry in sorted(stats.items()):
             if lang != "en":
                 self.__print_language_stats(lang, entry)
@@ -425,9 +406,31 @@ setup(
 )
 return_code = 0
 
-if sys.argv[1] == "update_catalog":
-    # update frontend translation files
-    return_code = os.system('./update_template_translations.py')
+if sys.argv[1]  == "import-from-json":
+    # import old template translations from json files
+    translations = {}
+    for translation_file in glob.glob(os.path.join("src", "gosa", "backend", "data", "templates", "i18n", "*", "*.json")):
+        lang = os.path.basename(translation_file).split(".")[0]
+        if lang == "en":
+            continue
+        if lang not in translations:
+            translations[lang] = {}
+        with open(translation_file) as f:
+            translations[lang].update(loads(f.read()))
+
+    # write them to the PO-Files
+
+    for lang, strings in translations.items():
+        po = polib.pofile(os.path.join("src", "gosa", "backend", "locale", lang, "LC_MESSAGES", "messages.po"))
+        changed = False
+        for key, translation in strings.items():
+            entry = po.find(key)
+            if entry is not None and entry.translated() is False:
+                entry.msgstr = translation
+                changed = True
+
+        if changed is True:
+            po.save()
 
 if return_code > 0:
     # exit with error code
