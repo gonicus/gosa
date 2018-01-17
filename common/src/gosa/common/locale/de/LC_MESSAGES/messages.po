@@ -21,55 +21,55 @@ msgstr ""
 
 #: src/gosa/common/error.py:29
 msgid "Get the error message assigned to a specific ID."
-msgstr ""
+msgstr "Liefert die Fehlermeldung zu einer bestimmen ID."
 
 #: src/gosa/common/error.py:48
 msgid "code"
-msgstr ""
+msgstr "Code"
 
 #: src/gosa/common/error.py:53
 msgid "detail"
-msgstr ""
+msgstr "Detail"
 
 #: src/gosa/common/error.py:133
 #, python-format
 msgid "Method %(method)s is not implemented"
-msgstr ""
+msgstr "Methode %(method)s ist nicht implementiert"
 
 #: src/gosa/common/error.py:134
 #, python-format
 msgid "Cannot read resource '%(resource)s'"
-msgstr ""
+msgstr "Ressource '%(resource)s' kann nicht gelesen werden"
 
 #: src/gosa/common/utils.py:218
 msgid "URL is mandatory!"
-msgstr ""
+msgstr "URL muss angegeben werden!"
 
 #: src/gosa/common/utils.py:223
 #, python-format
 msgid "Invalid url specified: %s"
-msgstr ""
+msgstr "Ungültige URL angegeben: %s"
 
 #: src/gosa/common/utils.py:247
 #, python-format
 msgid "Unsupported URL scheme %s!"
-msgstr ""
+msgstr "Ungültiges URL-Schema: %s!"
 
 #: src/gosa/common/components/auth/console.py:37
 #, python-format
 msgid "Login of user '%s' failed: %s"
-msgstr ""
+msgstr "Anmeldung des Benutzers '%s' ist fehlgeschlagen: %s"
 
 #: src/gosa/common/components/auth/console.py:49
 #, python-format
 msgid "Login of user '%s' failed"
-msgstr ""
+msgstr "Anmeldung des Benutzers '%s' ist fehlgeschlagen"
 
 #: src/gosa/common/components/auth/console.py:53
 msgid "OTP-Passkey: "
-msgstr ""
+msgstr "OTP-Schlüssel: "
 
 #: src/gosa/common/components/auth/console.py:61
 msgid "Please touch the flashing U2F device now."
-msgstr ""
+msgstr "Bitte berühren Sie das blinkende U2F-Gerät"
 
