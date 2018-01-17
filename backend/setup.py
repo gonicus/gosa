@@ -140,7 +140,7 @@ class CollectI18nStats(distutils.cmd.Command):
         if lang != "en" and self.detailed is True:
             print("{:-<120}".format(""))
             for file_entry in sorted(entry["files"], key=lambda k: k['file']):
-                print("    {file:<80}:\t{translated_percent:>3}% ({translated}/{strings})".format(**file_entry))
+                print("    {file:<90}{translated_percent:>3}% ({translated}/{strings})".format(**file_entry))
         print("{:#<120}\n".format(""))
 
     def run(self):
