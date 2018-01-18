@@ -25,7 +25,9 @@ qx.Class.define("gosa.data.controller.Actions", {
   construct : function(object, widget) {
     this.base(arguments);
     qx.core.Assert.assertInstance(object, gosa.proxy.Object);
-    qx.core.Assert.assertInstance(widget, gosa.ui.widgets.ObjectEdit);
+    if (widget) {
+      qx.core.Assert.assertInstance(widget, gosa.ui.widgets.ObjectEdit);
+    }
     this.__object = object;
     this.__widget = widget;
   },
