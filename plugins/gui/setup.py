@@ -35,7 +35,7 @@ for path, dirs, files in os.walk("src/gosa/plugins/gui/data"):
         data_files.append(os.path.join(path[21:], f))
 
 setup(
-    name = "gosa-plugin-gui",
+    name = "gosa.plugins.gui",
     version = "3.0",
     author = "GONICUS GmbH",
     author_email = "info@gonicus.de",

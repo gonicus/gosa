@@ -23,14 +23,9 @@ with open(os.path.join(here, 'README')) as f:
 with open(os.path.join(here, 'CHANGES')) as f:
     CHANGES = f.read()
 
-
-client_install_requires = [
-    ],
-
-
 setup(
     name = "gosa.client",
-    version = "1.0",
+    version = "3.0",
     author = "GONICUS GmbH",
     author_email = "info@gonicus.de",
     description = "Identity-, system- and configmanagement middleware",

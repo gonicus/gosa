@@ -35,7 +35,7 @@ common_install_requires = [
 
 setup(
     name = "gosa.common",
-    version = "1.0",
+    version = "3.0",
     author = "Cajus Pollmeier",
     author_email = "pollmeier@gonicus.de",
     description = "Identity-, system- and configmanagement middleware",

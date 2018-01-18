@@ -27,8 +27,8 @@ for path, dirs, files in os.walk("src/gosa/plugins/goto/data"):
         data_files.append(os.path.join(path[14:], f))
 
 setup(
-    name = "gosa-plugin-goto",
-    version = "1.0",
+    name = "gosa.plugins.goto",
+    version = "3.0",
     author = "GONICUS GmbH",
     author_email = "info@gonicus.de",
     description = "GOsa client integration",
