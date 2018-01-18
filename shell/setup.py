@@ -24,7 +24,7 @@ CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
 setup(
     name = "gosa.shell",
-    version = "0.8",
+    version = "3.0",
     author = "GONICUS GmbH",
     author_email = "info@gonicus.de",
     description = "Identity-, system- and configmanagement middleware",

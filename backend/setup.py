@@ -160,7 +160,7 @@ class CollectI18nStats(distutils.cmd.Command):
 
 setup(
     name = "gosa.backend",
-    version = "1.0",
+    version = "3.0",
     author = "GONICUS GmbH",
     author_email = "info@gonicus.de",
     description = "Identity-, system- and configmanagement middleware",
