@@ -47,18 +47,29 @@ def extract_template_json(fileobj, keywords, comment_tags, options):
     :rtype: ``iterator``
     """
     found = []
-    pattern = re.compile('(tr|trc)\((.*)\)')
+    pattern = re.compile('(tr|trc|trn|trnc|marktr)\((.*)\)')
     line_no = 0
     strings = []
     for line in fileobj:
         match = pattern.search(line.decode('utf-8'))
         if match is not None:
             try:
-                args = loads("[%s]" % match.group(2).replace("'", '"'))
-                text = args.pop(0)
-                strings.append(text)
-                found.append((line_no, None, text, args))
-            except decoder.JSONDecodeError as e:
+                method_name = match.group(1)
+                # get only string arguments
+                args = [x.strip()[1:-1] for x in match.group(2).split(",") if x.strip()[0:1] in ["'", '"']]
+                comments = []
+                if method_name in ["trc", "trnc"]:
+                    comments.append(args.pop(0))
+                text = [args.pop(0)]
+                func_name = 'gettext'
+                if method_name in ["trn", "trnc"]:
+                    # plural form
+                    func_name = 'ngettext'
+                    text.append(args.pop(0))
+
+                strings.extend(text)
+                found.append((line_no, func_name, text, comments))
+            except decoder.JSONDecodeError:
                 print("Error parsing '%s' in line %s of '%s'" % (match.group(2).replace("'", '"'), line_no, fileobj.name))
 
         line_no += 1
