@@ -56,7 +56,7 @@ def extract_template_json(fileobj, keywords, comment_tags, options):
             try:
                 method_name = match.group(1)
                 # get only string arguments
-                args = [x.strip()[1:-1] for x in match.group(2).split(",") if x.strip()[0:1] in ["'", '"']]
+                args = [x.strip()[1:-1] for x in match.group(2).split(",") if x.strip()[0:1] in ["'", '"', "\""]]
                 comments = []
                 if method_name in ["trc", "trnc"]:
                     comments.append(args.pop(0))
@@ -91,6 +91,6 @@ def extract_template_json(fileobj, keywords, comment_tags, options):
                 data = loads(f.read())
                 data[template_name] = strings
                 f.seek(0)
-                f.write(dumps(data))
+                f.write(dumps(data, sort_keys=True))
 
     return found
