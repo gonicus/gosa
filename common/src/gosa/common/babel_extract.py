@@ -56,19 +56,21 @@ def extract_template_json(fileobj, keywords, comment_tags, options):
             try:
                 method_name = match.group(1)
                 # get only string arguments
-                args = [x.strip()[1:-1] for x in match.group(2).split(",") if x.strip()[0:1] in ["'", '"', "\""]]
-                comments = []
-                if method_name in ["trc", "trnc"]:
-                    comments.append(args.pop(0))
-                text = [args.pop(0)]
+                messages = [x.strip()[1:-1] for x in match.group(2).split(",") if x.strip()[0:1] in ["'", '"', "\""]]
                 func_name = 'gettext'
-                if method_name in ["trn", "trnc"]:
+                if 'c' in method_name:
+                    # with context
+                    func_name = 'pgettext' if 'n' not in method_name else 'npgettext'
+                    # do not add the context message to the list of message ids
+                    strings.extend(messages[1:])
+                elif 'n' in method_name:
                     # plural form
                     func_name = 'ngettext'
-                    text.append(args.pop(0))
+                    strings.extend(messages)
+                else:
+                    strings.extend(messages)
 
-                strings.extend(text)
-                found.append((line_no, func_name, text, comments))
+                found.append((line_no, func_name, messages, []))
             except decoder.JSONDecodeError:
                 print("Error parsing '%s' in line %s of '%s'" % (match.group(2).replace("'", '"'), line_no, fileobj.name))
 
