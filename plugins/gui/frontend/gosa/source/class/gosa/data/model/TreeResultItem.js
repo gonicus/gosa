@@ -49,7 +49,8 @@ qx.Class.define("gosa.data.model.TreeResultItem",
     moveTargetFor: {
       check: "Array",
       nullable: true,
-      event: "changeMoveTargetFor"
+      event: "changeMoveTargetFor",
+      transform: "_ensureArray"
     },
 
     moveTarget: {
@@ -142,6 +143,12 @@ qx.Class.define("gosa.data.model.TreeResultItem",
   },
 
   members: {
+    _ensureArray: function(value) {
+      if (!qx.lang.Type.isArray(value)) {
+        return [value];
+      }
+      return value;
+    },
 
     _onOpen : function(value){
 
