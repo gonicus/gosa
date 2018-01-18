@@ -99,11 +99,11 @@ def notify_backend(env, mode, user):
             return False
         else:
             print("Error: %s " % str(e))
-            sys.exit(1)
+            raise e
 
     except Exception as e:
         print("Error: %s " % str(e))
-        sys.exit(1)
+        raise e
 
 
 def main():

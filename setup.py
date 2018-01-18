@@ -9,11 +9,12 @@ modules = [
   'dbus',
   'shell',
   'utils',
+  'proxy'
 ]
 paths = []
 return_code = 0
 skip_tests = ["client"]
-skip_return_code = ["dbus", "goto"]
+skip_return_code = ["dbus", "goto", "gui"]
 
 failed_modules = {}
 
@@ -25,11 +26,19 @@ for idx, arg in enumerate(sys.argv):
     if arg.startswith("--addopts"):
         sys.argv[idx] = '--addopts="%s"' % arg.split("=")[1]
 
+if task == "i18nstats":
+    # only in backend
+    command = "cd backend && ./setup.py %s" % " ".join(sys.argv[1:])
+    module_return_code = os.system(command)
+    sys.exit(return_code)
+
 for module in modules:
     if testing and module in skip_tests:
         continue
     paths.append("%s/" % module)
-    module_return_code = os.system("cd %s && ./setup.py %s" % (module, " ".join(sys.argv[1:])))
+    command = "cd %s && ./setup.py %s" % (module, " ".join(sys.argv[1:]))
+    print("RUNNING: %s" % command)
+    module_return_code = os.system(command)
     if module not in skip_return_code:
         return_code = max(return_code, module_return_code >> 8)
     if module_return_code > 0:

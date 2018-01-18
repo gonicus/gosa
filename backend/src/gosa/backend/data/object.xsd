@@ -257,6 +257,7 @@
     <simpleContent>
       <extension base="string">
         <attribute name="key" type="string"/>
+        <attribute name="translate" type="boolean" use="optional"/>
       </extension>
     </simpleContent>
   </complexType>

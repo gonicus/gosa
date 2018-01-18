@@ -134,15 +134,15 @@ qx.Class.define("gosa.data.controller.Dashboard", {
      */
     loadFromBackend: function(namespace) {
       return new qx.Promise(function(resolve, reject) {
-        var loader = new qx.util.DynamicScriptLoader(['/gosa/uploads/widgets/'+namespace+'/'+namespace+".js"]);
+        var loader = new qx.util.DynamicScriptLoader(['/widgets/'+namespace+'/'+namespace+".js"]);
         loader.addListenerOnce("ready", function() {
           resolve(namespace);
         }, this);
         loader.addListener('failed',function(e){
           var data = e.getData();
           this.error("failed to load "+data.script);
-          reject(new Error(this.tr("Error loading widget '%1'", data.script)))
-        });
+          reject(new Error(qx.locale.Manager.tr("Error loading widget '%1'", data.script)))
+        }, this);
         loader.start();
       }, this);
     }

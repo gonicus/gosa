@@ -1,0 +1,111 @@
+[core]
+profile = False
+base = dc=example,dc=net
+domain = net.example
+id = fff0c8ad-d26b-4b6d-8e8e-75e054614dd9
+workflow-path = /tmp/workflows
+
+[http]
+host = localhost
+port = 8050
+sslpemfile = /etc/gosa/host.pem
+
+[ldap]
+url = ldap://127.0.0.1/dc=example,dc=net
+bind-dn = cn=ldapadmin,dc=example,dc=net
+bind-secret = secret
+pool-size = 10
+
+[backend-database]
+#database = sqlite:///:memory:
+database = postgresql://admin:secret@localhost:5432/gosa
+
+[backend-json]
+database-file = /tmp/gosa.json
+
+[user]
+image-path = /tmp/images
+2fa-store = /tmp/2fa
+
+[backend]
+admins = admin
+
+[jsonrpc]
+url = http://localhost:8050/rpc
+key = FIAYj6kqb273a0UoZl4MPz1WTs8E9iHw
+
+[mqtt]
+host = localhost
+
+[dbus]
+script-path = /tmp/shell.d
+
+[gui]
+debug = true
+
+[webhooks]
+registry-store = /tmp/webhooks
+ldap_monitor_token = 9d6250c0-6413-4b1e-98d9-7b763472962a
+
+[backend-monitor]
+audit-log = /var/run/gosa/audit.log
+modifier = cn=ldapadmin,dc=example,dc=net
+webhook-target = http://localhost:8050/hooks/
+webhook-token = 9d6250c0-6413-4b1e-98d9-7b763472962a
+
+[cups]
+spool = /tmp/test-spool
+
+[foreman]
+host-rdn =
+group-rdn =
+
+##############################################################################
+#                            Logger configuration                            #
+##############################################################################
+
+[loggers]
+keys=root,gosa,tornado
+
+[handlers]
+keys=syslog,console
+
+[formatters]
+keys=syslog,console
+
+[logger_root]
+level=NOTSET
+handlers=console
+
+[logger_gosa]
+# Desired loglevel: DEBUG, INFO, WARNING, ERROR, CRITICAL
+level=INFO
+# Desired handler: syslog, console
+handlers=console
+qualname=gosa
+propagate=0
+
+[logger_tornado]
+level=WARNING
+handlers=console
+qualname=tornado
+
+[handler_console]
+class=StreamHandler
+formatter=console
+args=(sys.stderr,)
+
+[handler_syslog]
+class=logging.handlers.SysLogHandler
+formatter=syslog
+args=('/dev/log',)
+
+[formatter_syslog]
+format=%(name)s: %(module)s - %(message)s
+datefmt=
+class=logging.Formatter
+
+[formatter_console]
+format=%(asctime)s %(levelname)s: %(name)s - %(message)s
+datefmt=
+class=logging.Formatter

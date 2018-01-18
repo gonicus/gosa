@@ -6,6 +6,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import gettext
 import logging
 import os
 import shutil
@@ -51,7 +52,7 @@ class WorkflowRegistry(Plugin):
     def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
-        self.__path = self.env.config.get("core.workflow_path", "/var/lib/gosa/workflows")
+        self.__path = self.env.config.get("core.workflow-path", "/var/lib/gosa/workflows")
 
         if not os.path.exists(self.__path):
             # try to create dir
@@ -75,7 +76,7 @@ class WorkflowRegistry(Plugin):
         del WorkflowRegistry.instance
 
     @Command(needsUser=True, __help__=N_("List available workflows"))
-    def getWorkflows(self, user):
+    def getWorkflows(self, user, locale=None):
         """
         Returns a list of the names of all workflows that are found by the registry in the file system or that are
         added via the 'add' method.
@@ -86,17 +87,27 @@ class WorkflowRegistry(Plugin):
         for id, workflow in self._workflows.items():
             topic = "%s.workflows.%s" % (self.env.domain, id)
             if not user or aclresolver.check(user, topic, "r", base=self.env.base):
-                res[id] = dict(
-                    name=workflow["display_name"],
-                    description=workflow["description"],
-                    icon=workflow["icon"],
-                    category=workflow['category']
-                )
+                if locale is not None:
+                    t = Workflow.gettext(self.__path, id, locale)
+
+                    res[id] = dict(
+                        name=t.gettext(workflow["display_name"]),
+                        description=t.gettext(workflow["description"]),
+                        icon=workflow["icon"],
+                        category=t.gettext(workflow['category'])
+                    )
+                else:
+                    res[id] = dict(
+                        name=workflow["display_name"],
+                        description=workflow["description"],
+                        icon=workflow["icon"],
+                        category=workflow['category']
+                    )
 
         return res
 
     @Command(needsUser=True, __help__=N_("Get workflow information"))
-    def getWorkflowDetails(self, user, id):
+    def getWorkflowDetails(self, user, id, locale=None):
         """
         Returns information about one workflow.
         """
@@ -106,12 +117,24 @@ class WorkflowRegistry(Plugin):
             topic = "%s.workflows.%s" % (self.env.domain, id)
             if not user or aclresolver.check(user, topic, "r", base=self.env.base):
                 workflow = self._workflows[id]
-                return dict(
-                    name=workflow["display_name"],
-                    description=workflow["description"],
-                    icon=workflow["icon"],
-                    category=workflow['category']
-                )
+                if locale is not None:
+                    t = gettext.translation('messages',
+                                            os.path.join(self.__path, id, "i18n"),
+                                            fallback=True,
+                                            languages=[locale])
+                    return dict(
+                        name=t.gettext(workflow["display_name"]),
+                        description=t.gettext(workflow["description"]),
+                        icon=workflow["icon"],
+                        category=t.gettext(workflow['category'])
+                    )
+                else:
+                    return dict(
+                        name=workflow["display_name"],
+                        description=workflow["description"],
+                        icon=workflow["icon"],
+                        category=workflow['category']
+                    )
         else:
             raise WorkflowException(C.make_error('WORKFLOW_NOT_FOUND', id=id))
 

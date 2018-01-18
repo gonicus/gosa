@@ -15,6 +15,8 @@ The *HTTPService* is responsible for exposing registered HTTP components to the 
 from threading import Thread
 import logging
 import ssl
+
+import itertools
 import tornado.wsgi
 import tornado.web
 import pkg_resources
@@ -112,7 +114,11 @@ class HTTPService(object):
         apps = []
 
         # register routes in the HTTPService
-        for entry in sorted(pkg_resources.iter_entry_points("gosa.route"), key=lambda entry: entry.name, reverse=True):
+        routes = [x for x in pkg_resources.iter_entry_points("gosa.route")]
+        for x in pkg_resources.iter_entry_points("gosa.%s.route" % self.env.mode):
+            routes.append(x)
+
+        for entry in sorted(routes, key=lambda entry: entry.name, reverse=True):
             module = entry.load()
             if issubclass(module, (HSTSStaticFileHandler, HSTSRequestHandler)):
                 self.log.debug("registering route %s for %s" % (entry.name, module))
@@ -162,10 +168,14 @@ def get_server_url():
     env = Environment.getInstance()
     gosa_server = env.config.get("jsonrpc.url")[0:-4] if env.config.get("jsonrpc.url") is not None else None
     if gosa_server is None:
-
-        host = socket.getfqdn() if env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] \
-            else env.config.get("http.host", default="localhost")
-        ssl = env.config.getboolean('http.ssl')
-        protocol = "https" if ssl is True else "http"
-        gosa_server = "%s://%s:%s" % (protocol, host, env.config.get('http.port', default=8050))
+        gosa_server = get_internal_server_url()
     return gosa_server
+
+
+def get_internal_server_url():
+    env = Environment.getInstance()
+    host = socket.getfqdn() if env.config.get("http.host", default="localhost") in ["0.0.0.0", "127.0.0.1"] \
+        else env.config.get("http.host", default="localhost")
+    ssl = env.config.getboolean('http.ssl')
+    protocol = "https" if ssl is True else "http"
+    return "%s://%s:%s" % (protocol, host, env.config.get('http.port', default=8050))

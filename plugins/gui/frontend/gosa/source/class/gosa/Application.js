@@ -68,6 +68,7 @@ qx.Class.define("gosa.Application",
      */
     main : function()
     {
+      throb.stop();
       // Add the context menu mixin to the Table class
       qx.Class.include(qx.ui.table.Table, qx.ui.table.MTableContextMenu);
 

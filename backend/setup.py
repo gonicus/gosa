@@ -7,9 +7,16 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import distutils
+import sys
 
+import re
 from setuptools import setup, find_packages
 import os
+import glob
+import polib
+
+from gosa.common.gjson import loads
 
 try:
     from babel.messages import frontend as babel
@@ -24,6 +31,132 @@ data_files = []
 for path, dirs, files in os.walk("src/gosa/backend/data"):
     for f in files:
             data_files.append(os.path.join(path[17:], f))
+
+if sys.argv[1] == "import-from-json":
+    # import old template translations from json files
+    translations = {}
+    for translation_file in glob.glob(os.path.join("src", "gosa", "backend", "data", "templates", "i18n", "*", "*.json")):
+        lang = os.path.basename(translation_file).split(".")[0]
+        if lang == "en":
+            continue
+        if lang not in translations:
+            translations[lang] = {}
+        with open(translation_file) as f:
+            translations[lang].update(loads(f.read()))
+
+    # write them to the PO-Files
+
+    for lang, strings in translations.items():
+        po_file = os.path.join("src", "gosa", "backend", "locale", lang, "LC_MESSAGES", "messages.po")
+        if os.path.exists(po_file):
+            po = polib.pofile(po_file)
+            changed = False
+            for key, translation in strings.items():
+                if translation is None:
+                    continue
+                entry = po.find(key)
+                if entry is not None and entry.translated() is False:
+                    entry.msgstr = translation
+                    changed = True
+
+            if changed is True:
+                po.save()
+    sys.exit(0)
+
+
+class CollectI18nStats(distutils.cmd.Command):
+
+    description = 'collect status information about translations in GOsa'
+
+    user_options = [
+        # The format is (long option, short option, description).
+        ('detailed', None, 'print file statistics'),
+    ]
+
+    def initialize_options(self):
+        """Set default values for options."""
+        self.detailed = False
+
+    def finalize_options(self):
+        """Post-process options."""
+        self.detailed = bool(self.detailed)
+
+    def __process_file(self, po_file):
+        po = polib.pofile(po_file)
+        language = None
+        if 'Language' in po.metadata:
+            language = po.metadata['Language']
+        elif 'X-Language' in po.metadata:
+            language = po.metadata['X-Language'].split("_")[0]
+        else:
+            # fallback get from file name
+            file_name = os.path.basename(po_file).split(".")[0]
+            if len(file_name) == 2:
+                language = file_name
+            else:
+                match = re.match(".*\/locale\/([a-z]{2})\/.*". po_file)
+                if match is not None:
+                    language = match.group(1)
+        valid_entries = [e for e in po if not e.obsolete]
+
+        return {
+            "language": language,
+            "file": po_file,
+            "strings": len(valid_entries),
+            "translated_percent": po.percent_translated(),
+            "translated": len(po.translated_entries()),
+            "untranslated": len(po.untranslated_entries()),
+            "obsolete": len(po.obsolete_entries()),
+            "fuzzy": len(po.fuzzy_entries()),
+        }
+
+    def __update_stats(self, file_entry, stats):
+        language = file_entry["language"]
+        if language not in stats:
+            stats[language] = {
+                "strings": 0,
+                "translated": 0,
+                "untranslated": 0,
+                "obsolete": 0,
+                "fuzzy": 0,
+                "files": []
+            }
+        stats[language]["strings"] += file_entry["strings"]
+        stats[language]["translated"] += file_entry["translated"]
+        stats[language]["untranslated"] += file_entry["untranslated"]
+        stats[language]["obsolete"] += file_entry["obsolete"]
+        stats[language]["fuzzy"] += file_entry["fuzzy"]
+        stats[language]["files"].append(file_entry)
+        return stats
+
+    def __print_language_stats(self, lang, entry):
+        print("{:#<120}".format(""))
+        print("Language: {}\t{:>3}% translated ({}/{})".format(
+            lang,
+            round(100/entry["strings"] * entry["translated"]),
+            entry["translated"],
+            entry["strings"])
+        )
+        if lang != "en" and self.detailed is True:
+            print("{:-<120}".format(""))
+            for file_entry in sorted(entry["files"], key=lambda k: k['file']):
+                print("    {file:<90}{translated_percent:>3}% ({translated}/{strings})".format(**file_entry))
+        print("{:#<120}\n".format(""))
+
+    def run(self):
+        """Run command."""
+        print("collecting po files...")
+        stats = {}
+        for po_file in glob.glob('../**/gosa/**/*.po', recursive=True):
+            if "packaging" in po_file:
+                 continue
+            self.__update_stats(self.__process_file(po_file), stats)
+
+        # self.__print_language_stats("en", stats["en"])
+        for lang, entry in sorted(stats.items()):
+            if lang != "en":
+                self.__print_language_stats(lang, entry)
+
 
 setup(
     name = "gosa.backend",
@@ -47,6 +180,9 @@ setup(
         'Topic :: System :: Software Distribution',
         'Topic :: System :: Monitoring',
     ],
+    cmdclass={
+        'i18nstats': CollectI18nStats,
+    },
 
     packages = find_packages('src', exclude=['examples', 'tests']),
     package_dir={'': 'src'},
@@ -73,7 +209,7 @@ setup(
     ],
     install_requires = [
         'tornado',
-        'babel',
+        'babel>=2.5',
         'zope.interface>=3.5',
         'zope.event',
         'unidecode',
@@ -92,21 +228,29 @@ setup(
         'pycups',
         'sh',
         'pylint',
-        'sqlalchemy_searchable'
+        'sqlalchemy_searchable',
+        'bcrypt',
+        'polib'
         ],
 
     entry_points = """
+        [babel.extractors]
+        extract_object_xml = gosa.common.babel_extract:extract_object_xml
+        
         [console_scripts]
         gosa = gosa.backend.main:main
 
         [gosa.route]
         /events = gosa.backend.routes.sse.main:SseHandler
-        /images/(?P<path>.*)? = gosa.backend.routes.static.main:ImageHandler
-        /static/(?P<path>.*)? = gosa.backend.routes.static.main:StaticHandler
         /rpc = gosa.backend.components.jsonrpc_service:JsonRpcHandler
         /mqtt/auth/(?P<path>.*)? = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoAuthHandler
         /mqtt/acl = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoAclHandler
         /mqtt/superuser = gosa.backend.plugins.mqtt.mosquitto_auth:MosquittoSuperuserHandler
+        /state = gosa.backend.routes.system:SystemStateReporter
+        
+        [gosa.backend.route]
+        /images/(?P<path>.*)? = gosa.backend.routes.static.main:ImageHandler
+        /static/(?P<path>.*)? = gosa.backend.routes.static.main:StaticHandler
         /uploads/(?P<uuid>.*)? = gosa.backend.plugins.upload.main:UploadHandler
         /workflow/(?P<path>.*)? = gosa.backend.routes.static.main:WorkflowHandler
         /hooks(?P<path>.*)? = gosa.backend.plugins.webhook.registry:WebhookReceiver
@@ -117,25 +261,30 @@ setup(
         acl = gosa.backend.acl:ACLResolver
         objects = gosa.backend.objects.index:ObjectIndex
         httpd = gosa.backend.components.httpd:HTTPService
-        workflow = gosa.backend.components.workflowregistry:WorkflowRegistry
         command = gosa.backend.command:CommandRegistry
-        jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
         rpc = gosa.backend.plugins.rpc.methods:RPCMethods
-        sambaguimethods = gosa.backend.plugins.samba.domain:SambaGuiMethods
-        transliterate = gosa.backend.plugins.misc.transliterate:Transliterate
-        locales = gosa.backend.plugins.misc.locales:Locales
-        gravatar = gosa.backend.plugins.misc.gravatar:Gravatar
-        shells = gosa.backend.plugins.posix.shells:ShellSupport
-        password = gosa.backend.plugins.password.manager:PasswordManager
-        uploads = gosa.backend.plugins.upload.main:UploadManager
+        mqttbackends = gosa.backend.objects.index:BackendRegistry
         two_factor = gosa.backend.plugins.two_factor.main:TwoFactorAuthManager
+        foreman = gosa.backend.plugins.foreman.main:Foreman
+        locales = gosa.backend.plugins.misc.locales:Locales
+        password = gosa.backend.plugins.password.manager:PasswordManager
+        sambaguimethods = gosa.backend.plugins.samba.domain:SambaGuiMethods
+        gravatar = gosa.backend.plugins.misc.gravatar:Gravatar
+        cups = gosa.backend.plugins.cups.main:CupsClient
+        transliterate = gosa.backend.plugins.misc.transliterate:Transliterate
+        zarafa = gosa.backend.plugins.zarafa.methods:ZarafaRPCMethods
+        settings = gosa.backend.components.settings_registry:SettingsRegistry
         mail = gosa.backend.plugins.mail.main:Mail
         user = gosa.backend.plugins.user.main:User
+        
+        [gosa.backend.plugin]
+        workflow = gosa.backend.components.workflowregistry:WorkflowRegistry
+        shells = gosa.backend.plugins.posix.shells:ShellSupport
         webhook_registry = gosa.backend.plugins.webhook.registry:WebhookRegistry
-        zarafa = gosa.backend.plugins.zarafa.methods:ZarafaRPCMethods
-        foreman = gosa.backend.plugins.foreman.main:Foreman
-        settings = gosa.backend.components.settings_registry:SettingsRegistry
-        cups = gosa.backend.plugins.cups.main:CupsClient
+        uploads = gosa.backend.plugins.upload.main:UploadManager
+        jsonrpc_om = gosa.backend.components.jsonrpc_objects:JSONRPCObjectMapper
+        mqttrpc_service = gosa.backend.components.mqttrpc_service:MQTTRPCService
+        ppd_proxy = gosa.backend.plugins.cups.ppd_proxy:PPDProxy
 
         [gosa.object.backend]
         ldap = gosa.backend.objects.backend.back_ldap:LDAP
@@ -281,5 +430,13 @@ setup(
 
         [password.methods]
         crypt_method = gosa.backend.plugins.password.crypt_password:PasswordMethodCrypt
+        
+        [gosa.json.datahandler]
+        backend_types = gosa.backend.utils:BackendTypesEncoder
     """,
 )
+return_code = 0
+
+if return_code > 0:
+    # exit with error code
+    sys.exit(return_code >> 8)

@@ -35,22 +35,19 @@ def Command(**d_kwargs):
 
     Function types can be:
 
-    * **NORMAL** (default)
+    * **READONLY**
 
-      The decorated function will be called as if it is local. Which
-      node will answer this request is not important.
+      This command does not change any value in the backends.
 
-    * **FIRSTRESULT**
+    * **READWRITE** (default)
 
-      Some functionality may be distributed on several nodes with
-      several information. FIRSTRESULT iterates thru all nodes which
-      provide the decorated function and return on first success.
+      This command may trigger a change in any of the backends.
 
-    * **CUMULATIVE**
+    * **PROXY**
 
-      Some functionality may be distributed on several nodes with
-      several information. CUMULATIVE iterates thru all nodes which
-      provide the decorated function and returns the combined result.
+      This command is a combines a READONLY part, where the READ-part is answered locally (by the GOsa-proxy)
+      and the WRITE-part is forwarded to the GOsa-backend
+
     """
     def decorate(f):
         setattr(f, 'isCommand', True)
@@ -58,6 +55,9 @@ def Command(**d_kwargs):
             setattr(f, k, d_kwargs[k])
             if k == "noLoginRequired" and d_kwargs[k] is True:
                 no_login_commands.append(f.__name__)
+        if "type" not in d_kwargs:
+            # set default type
+            setattr(f, "type", "READWRITE")
 
         # Tweak docstrings
         doc = getattr(f, '__doc__')

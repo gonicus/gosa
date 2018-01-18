@@ -1,0 +1,114 @@
+[core]
+profile = False
+base = dc=example,dc=net
+domain = net.example
+id = backend
+idGenerator = "{%sn}-{%givenName[0-4]}"
+# master/slave mode
+mode = master
+
+[http]
+host = 0.0.0.0
+port = 8000
+
+[ldap]
+url = ldap://127.0.0.1/dc=example,dc=net
+bind-dn = cn=ldapadmin,dc=example,dc=net
+bind-secret = secret
+pool-size = 10
+
+[backend-database]
+database = postgresql://admin:secret@localhost:5432/gosa
+#database = sqlite:///:memory:
+#database = sqlite:////tmp/gosa.db
+
+[backend-json]
+database-file = /tmp/gosa.json
+
+[backend]
+admins = admin
+index = true
+# threshold for word similarity on fuzzy searches
+#fuzzy-threshold = 0.3
+
+[user]
+image-path = /tmp/images
+# chown user menu after generation to allow user to change the entries)
+# chown-menu = false
+
+[gui]
+debug = true
+
+[mqtt]
+host = localhost
+#port = 1883
+#ssl = <inherit from http.ssl>
+#ca_file =
+#insecure = false
+
+[jsonrpc]
+url = http://localhost:8000/rpc
+key = tester
+
+[webhooks]
+ldap_monitor_token = 9d6250c0-6413-4b1e-98d9-7b763472962a
+
+[cups]
+spool = /tmp/spool
+
+[foreman]
+#host-rdn =
+#group-rdn =
+#initial-sync=true
+
+##############################################################################
+#                            Logger configuration                            #
+##############################################################################
+
+[loggers]
+keys=root,gosa,gosa.backend.acl
+
+[handlers]
+keys=syslog,console
+
+[formatters]
+keys=syslog,console
+
+[logger_root]
+level=NOTSET
+handlers=console
+
+[logger_gosa]
+# Desired loglevel: DEBUG, INFO, WARNING, ERROR, CRITICAL
+level=DEBUG
+# Desired handler: syslog, console
+handlers=console
+qualname=gosa
+propagate=0
+
+[logger_gosa.backend.acl]
+level=INFO
+handlers=console
+qualname=gosa.backend.acl
+propagate=0
+
+[handler_console]
+class = colorlog.StreamHandler
+formatter=console
+args=(sys.stderr,)
+
+[handler_syslog]
+class=logging.handlers.SysLogHandler
+formatter=syslog
+args=('/dev/log',)
+
+[formatter_syslog]
+format=%(name)s: %(module)s - %(message)s
+datefmt=
+class=logging.Formatter
+
+[formatter_console]
+format = %(log_color)s%(asctime)s %(levelname)s: %(name)s - %(message)s
+datefmt =
+class = colorlog.ColoredFormatter
+

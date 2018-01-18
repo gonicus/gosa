@@ -53,11 +53,16 @@ setup(
         'coveralls'
     ],
     entry_points = """
+        [babel.extractors]
+        extract_object_xml = gosa.common.babel_extract:extract_object_xml
+        extract_template_json = gosa.common.babel_extract:extract_template_json
+        
         [console_scripts]
         acl-admin = gosa.utils.acl_admin:main
         gosa-ldap-monitor = gosa.utils.gosa_ldap_monitor:main
         gosa-plugin-skel = gosa.utils.gosa_plugin_skel:main
         schema2xml = gosa.utils.schema2xml:main
         update-i18n = gosa.utils.update_i18n:main
+        gosa-workflow-i18n = gosa.utils.i18n.workflows:main
     """,
 )

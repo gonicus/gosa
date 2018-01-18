@@ -69,7 +69,7 @@ qx.Class.define("gosa.view.Workflows", {
      */
     __reload: function() {
       this._marshaler = new qx.data.marshal.Json();
-      this._rpc.cA("getWorkflows").then(function(result) {
+      this._rpc.cA("getWorkflows", gosa.Config.getLocale()).then(function(result) {
         var data = new qx.data.Array();
         for (var id in result) {
           if (result.hasOwnProperty(id)) {

@@ -33,7 +33,12 @@ qx.Theme.define("gosa.plugins.objectlist.Appearance", {
 
     "gosa-plugins-objectlist-item": {
       include: "search-list-item",
-      alias: "search-list-item"
+      alias: "search-list-item",
+      style: function() {
+        return {
+          overlayIconSize: 20
+        }
+      }
     },
     "gosa-plugins-objectlist-item/icon": {
       style: function() {

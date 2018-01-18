@@ -661,7 +661,7 @@ qx.Class.define("gosa.view.Dashboard", {
             partsToLoad.push(widgetEntry.widget);
           }
         } else if (widgetEntry.source === "external") {
-          scriptsToLoad.push('/gosa/uploads/widgets/'+widgetEntry.widget+"/"+widgetEntry.widget+".js");
+          scriptsToLoad.push('/widgets/'+widgetEntry.widget+"/"+widgetEntry.widget+".js");
         }
       }, this);
       return {parts: partsToLoad, scripts: scriptsToLoad};
@@ -987,7 +987,10 @@ qx.Class.define("gosa.view.Dashboard", {
           var button = new qx.ui.menu.Button(displayName);
           button.setUserData("namespace", widget.provides.namespace);
           this._createMenu.add(button);
-          button.addListener("execute", this._loadFromBackend, this);
+          button.addListener("execute", function() {
+            gosa.data.controller.Dashboard.getInstance().loadFromBackend(widget.provides.namespace)
+              .then(this._createWidget, this);
+          }, this);
         }, this);
       }, this);
 

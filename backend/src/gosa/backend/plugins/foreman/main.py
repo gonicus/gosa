@@ -21,7 +21,7 @@ from tornado import gen
 
 from gosa.backend.components.httpd import get_server_url
 from gosa.backend.objects import ObjectProxy, ObjectFactory
-from gosa.backend.objects.index import ObjectInfoIndex, ExtensionIndex, KeyValueIndex
+from gosa.backend.objects.index import ObjectInfoIndex, ExtensionIndex, KeyValueIndex, Cache
 from gosa.backend.routes.sse.main import SseHandler
 from gosa.common import Environment
 from gosa.common.components import Plugin, Command
@@ -97,7 +97,10 @@ class Foreman(Plugin):
                 self.mqtt_host = "%s:%s" % (mqtt_host, self.env.config.get('mqtt.port', default=1883))
 
             # Listen for object events
-            if not hasattr(sys, '_called_from_test'):
+            self.log.info("Initial-Sync: %s, startpassive: %s" % (self.env.config.getboolean("foreman.initial-sync", default=True), self.env.config.getboolean("core.startpassive", default=False)))
+            if not hasattr(sys, '_called_from_test') and \
+                    self.env.config.getboolean("foreman.initial-sync", default=True) is True and \
+                    self.env.mode != "proxy":
                 zope.event.subscribers.append(self.__handle_events)
 
     def init_client(self, url):
@@ -105,7 +108,7 @@ class Foreman(Plugin):
 
     def serve(self):
 
-        if self.client:
+        if self.client and self.env.mode != "proxy":
             sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
             sched.add_interval_job(self.flush_parameter_setting, seconds=10, tag='_internal', jobstore="ram")
 
@@ -116,6 +119,8 @@ class Foreman(Plugin):
         if event.__class__.__name__ == "IndexScanFinished":
             self.log.info("index scan finished, triggered foreman sync")
             self.create_container()
+
+            self.sync_release_names()
 
             self.sync_type("ForemanHostGroup")
             self.sync_type("ForemanHost")
@@ -365,23 +370,63 @@ class Foreman(Plugin):
 
         ForemanBackend.modifier = None
 
-    @Command(__help__=N_("Get all available foreman LSB names"))
-    @cache_return(timeout_secs=60)
-    def getForemanLsbNames(self):
-        res = {}
+    def sync_release_names(self):
+        """
+        The GOsa proxies need to know the release names of the operating systems,
+        as we do not store them within any object, we save them in the Cache-Database.
+        Proxies can query their replicated database for them
+        """
         if self.client:
             data = self.client.get("operatingsystems")
             if "results" in data:
-                for entry in data["results"]:
-                    res[entry["release_name"]] = {"value": entry["release_name"]}
+                # clear Database
+                with make_session() as session:
+                    session.query(Cache).filter((Cache.key.ilike("foreman.operating_system.%"))).delete(synchronize_session='fetch')
+                    for entry in data["results"]:
+                        self.sync_release_name(entry, session)
+                    session.commit()
+
+    def sync_release_name(self, data, session, check_if_exists=False, event="create"):
+        id = "foreman.operating_system.%s" % data["id"]
+
+        if check_if_exists is False and event == "after_commit":
+            check_if_exists = True
+
+        if event in ["create", "after_create", "after_commit"]:
+            if check_if_exists is True:
+                res = session.query(Cache).filter(Cache.key == id).one_or_none()
+                if res is not None:
+                    res.data = data
+                    res.time = datetime.datetime.now()
+                    return
+
+            cache = Cache(
+                key=id,
+                data=data,
+                time=datetime.datetime.now()
+            )
+            session.add(cache)
+        elif event == "after_destroy":
+            session.query(Cache).filter(Cache.key == id).delete()
+
+
+    @Command(__help__=N_("Get all available foreman LSB names"), type="READONLY")
+    @cache_return(timeout_secs=60)
+    def getForemanLsbNames(self):
+        res = {}
+        with make_session() as session:
+            for r in session.query(Cache.data).filter(Cache.key.ilike("foreman.operating_system.%")).all():
+                res[r[0]["release_name"]] = {"value": r[0]["release_name"]}
         return res
 
-    @Command(__help__=N_("Get release name of an operating system"))
+    @Command(__help__=N_("Get release name of an operating system"), type="READONLY")
     @cache_return(timeout_secs=600)
     def getForemanReleaseName(self, operatingsystem_id):
-        if self.client and operatingsystem_id is not None:
-            data = self.client.get("operatingsystems", id=operatingsystem_id)
-            return data["release_name"]
+        if operatingsystem_id is not None:
+            with make_session() as session:
+                res = session.query(Cache.data).filter(Cache.key == "foreman.operating_system.%s" % operatingsystem_id).one_or_none()
+                if res is not None:
+                    return res[0]["release_name"]
         return None
 
     @Command(__help__=N_("Get details of a single foreman hostgroup."))
@@ -807,6 +852,12 @@ class ForemanHookReceiver(object):
             payload_data = data['data'][type][list(data['data'][type].keys())[0]]
         else:
             payload_data = data['data'][type]
+
+        if type == "operatingsystem":
+            with make_session() as session:
+                foreman.sync_release_name(payload_data, session, event=data['event'])
+                session.commit()
+                return
 
         factory = ObjectFactory.getInstance()
         foreman_type = type

@@ -30,23 +30,32 @@ via the :meth:`gosa.backend.command.CommandRegistry.dispatch` method
 """
 import re
 import logging
+from datetime import timedelta
+
 from lxml import objectify, etree
 
 import zope
 import gettext
+
+from tornado import gen
+from tornado.gen import coroutine
+
+from gosa.common.components.mqtt_handler import MQTTHandler
+from gosa.common.components.mqtt_proxy import MQTTServiceProxy
 from gosa.common.exceptions import ACLException
 from pkg_resources import resource_filename #@UnresolvedImport
 from threading import Event
 from inspect import getargspec, getmembers, ismethod
 from zope.interface import implementer
 from gosa.common.components import PluginRegistry, ObjectRegistry, Command, no_login_commands
+from gosa.common.gjson import loads
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.utils import stripNs, N_
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.components import Plugin
 from gosa.common.events import Event, EventNotAuthorized
-from gosa.backend.exceptions import CommandInvalid, CommandNotAuthorized
+from gosa.backend.exceptions import CommandInvalid, CommandNotAuthorized, MQTTProxyException
 from gosa.backend.routes.sse.main import SseHandler
 
 
@@ -78,13 +87,16 @@ class CommandRegistry(Plugin):
     objects = {}
     commands = {}
 
+    mqtt = None
+    backend_proxy = None
+
     def __init__(self):
         env = Environment.getInstance()
         self.env = env
         self.log = logging.getLogger(__name__)
         self.log.info("initializing command registry")
 
-    @Command(__help__=N_("Returns the LDAP base"))
+    @Command(__help__=N_("Returns the LDAP base"), type="READONLY")
     def getBase(self):
         """
         Returns the LDAP base used by the agent as string
@@ -93,7 +105,7 @@ class CommandRegistry(Plugin):
         """
         return self.env.base
 
-    @Command(needsUser=True, __help__=N_("List all methods that are allowed for the given user."))
+    @Command(needsUser=True, __help__=N_("List all methods that are allowed for the given user."), type="READONLY")
     def getAllowedMethods(self, user):
         """
         Lists the all methods that are available in the domain and are allowed for the user.
@@ -109,7 +121,7 @@ class CommandRegistry(Plugin):
 
         return res
 
-    @Command(__help__=N_("List available methods that are registered on the bus."))
+    @Command(__help__=N_("List available methods that are registered on the bus."), type="READONLY")
     def getMethods(self, locale=None):
         """
         Lists the all methods that are available in the domain.
@@ -139,7 +151,7 @@ class CommandRegistry(Plugin):
 
         return res
 
-    @Command(noLoginRequired=True, __help__=N_("List available methods that are allowed without login."))
+    @Command(noLoginRequired=True, __help__=N_("List available methods that are allowed without login."), type="READONLY")
     def getNoLoginMethods(self):
         return no_login_commands
 
@@ -218,8 +230,12 @@ class CommandRegistry(Plugin):
             raise CommandNotAuthorized(C.make_error("COMMAND_NO_USERNAME", method=func))
 
         # Check if the command is available
-        if not func in self.commands:
-            raise CommandInvalid(C.make_error("COMMAND_NOT_DEFINED", method=func))
+        if func not in self.commands:
+            if self.env.mode == "proxy":
+                # try to execute command on GOsa-backend
+                self.log.debug("forward '%s' execution to GOsa backend" % func)
+            else:
+                raise CommandInvalid(C.make_error("COMMAND_NOT_DEFINED", method=func))
 
         # Check for permission (if user equals 'self' then this is an internal call)
         if user != self and func not in self.getNoLoginMethods():
@@ -250,8 +266,25 @@ class CommandRegistry(Plugin):
         # Handle function type (additive, first match, regular)
         (clazz, method) = self.path2method(self.commands[func]['path'])
 
-        return PluginRegistry.modules[clazz].\
-                 __getattribute__(method)(*arg, **larg)
+        method = PluginRegistry.modules[clazz].__getattribute__(method)
+        execute_locally = self.env.mode != "proxy" or getattr(method, "type", "READWRITE") != "READWRITE"
+
+        if execute_locally is True:
+            self.log.debug("executing '%s' locally" % func)
+            return method(*arg, **larg)
+        else:
+            self.log.debug("proxying '%s(%s)' call to GOsa backend via %s:%s" % (func, arg, self.mqtt.host, self.mqtt.port))
+
+            if self.callNeedsUser(func):
+                larg['__user__'] = arg.pop(0)
+            else:
+                # always add user to the call (for general ACL checks)
+                larg['__user__'] = user
+            if self.callNeedsSession(func):
+                larg['__session_id__'] = arg.pop(0)
+
+            future = getattr(self.backend_proxy, func)(*arg, **larg)
+            return future.result()
 
     def path2method(self, path):
         """
@@ -339,7 +372,13 @@ class CommandRegistry(Plugin):
 
                     self.commands[func] = info
 
-    @Command(needsUser=True, __help__=N_("Return the current session's user ID."))
+        if self.env.mode == "proxy":
+            # initializing MQTTServiceProxy to GOsa backend
+            self.mqtt = MQTTHandler(host=self.env.config.get("backend.mqtt-host"), port=self.env.config.getint("backend.mqtt-port", default=1883))
+            queue = '%s/proxy/%s' % (self.env.domain, self.env.uuid)
+            self.backend_proxy = MQTTServiceProxy(mqttHandler=self.mqtt, serviceAddress=queue, methods=False)
+
+    @Command(needsUser=True, __help__=N_("Return the current session's user ID."), type="READONLY")
     def getSessionUser(self, user):
         return user
 

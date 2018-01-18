@@ -8,7 +8,7 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 from unittest import TestCase, mock
-from gosa.client.mqtt import *
+from gosa.common.mqtt import *
 from gosa.common import Environment
 
 

@@ -72,7 +72,8 @@ qx.Class.define("gosa.ui.SearchListItem", {
       apply : "_applyIcon",
       nullable : true,
       check : "String",
-      event : "changeIcon"
+      event : "changeIcon",
+      transform: "_transformIcon"
     },
 
     title :
@@ -138,11 +139,44 @@ qx.Class.define("gosa.ui.SearchListItem", {
       init: "bottom-right",
       themeable: true,
       apply: "__maintainOverlayPosition"
+    },
+
+    overlayIconSize: {
+      check: "Integer",
+      init: 30,
+      themeable: true,
+      apply: "__maintainOverlayPosition"
     }
   },
 
   members: {
-    __overlayIconSize: 30,
+
+    _transformIcon: function(value) {
+      if (value && value.startsWith("{")) {
+        // json encoded
+        var data = qx.lang.Json.parse(value.replace(/'/g, '"'));
+        if (data.hasOwnProperty("tooltip") && data.tooltip) {
+          this.setIconTooltip(data.tooltip);
+        }
+        if (data.overlay) {
+          if (data.overlay.icon) {
+            this.setOverlayIcon(data.overlay.icon);
+          }
+          if (data.overlay.color) {
+            this.setOverlayIconColor(data.overlay.color);
+          }
+          if (data.overlay.position) {
+            this.setOverlayIconPosition(data.overlay.position);
+          }
+        } else {
+          this.resetOverlayIcon();
+        }
+        return data.icon
+      } else {
+        this.resetOverlayIcon();
+      }
+      return value;
+    },
 
     reset: function(){
       if(this.isIsLoading()){
@@ -251,8 +285,9 @@ qx.Class.define("gosa.ui.SearchListItem", {
         return;
       }
       var margin = 2;
-      var size = this.__overlayIconSize;
+      var size = this.getOverlayIconSize();
       var overlayIcon = this.getChildControl("overlay-icon");
+      overlayIcon.setWidth(size);
       switch (this.getOverlayIconPosition()) {
         case "top-left":
           overlayIcon.setUserBounds(margin, margin, size, size);

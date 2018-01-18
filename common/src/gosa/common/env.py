@@ -23,6 +23,8 @@ import platform
 
 import os
 import threading
+import traceback
+
 from decorator import contextmanager
 from sqlalchemy.engine.url import make_url
 
@@ -32,6 +34,8 @@ from gosa.common.utils import dmi_system
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import create_engine, event
 from sqlalchemy.ext.declarative import declarative_base as _declarative_base
+
+logger = logging.getLogger(__name__)
 
 
 class Environment:
@@ -77,6 +81,7 @@ class Environment:
         self.domain = self.config.get("core.domain", "default")
 
         self.uuid = self.config.get("core.id", default=None)
+        self.mode = self.config.get("core.mode", default="backend")
         if not self.uuid:
             self.log.warning("system has no id - falling back to configured hardware uuid")
             self.uuid = dmi_system("uuid")
@@ -140,13 +145,24 @@ class Environment:
         if index not in self.__db_session:
             self.__db_session[index] = scoped_session(sessionmaker(autoflush=True, bind=sql))
 
-        return self.__db_session[index]()
+        session = self.__db_session[index]()
+        if self.mode == "proxy":
+            # read only mode
+            event.listen(session, "before_flush", before_proxy_flush)
+
+        return session
 
     def getDatabaseFactory(self, section, key="database"):
         index = "%s.%s" % (section, key)
         if index not in self.__db_factory:
             self.log.debug("creating new DB factory for %s" % index)
-            self.__db_factory[index] = SessionFactory(self.config.get(index))
+            session_events = None
+
+            if self.mode == "proxy":
+                # read only mode
+                session_events = [("before_flush", before_proxy_flush)]
+
+            self.__db_factory[index] = SessionFactory(self.config.get(index), session_events=session_events)
         return self.__db_factory[index]
 
     @staticmethod
@@ -228,6 +244,20 @@ class SessionFactory(object):
     @property
     def engine(self):
         return self._engine
+
+
+def before_proxy_flush(session, flush_context, instance):
+    print("before_flush")
+    logger.error("GOsa proxy is not allowed to write anything to the database")
+
+    # skip changes
+    logger.debug("dropping %s new, %s dirty, %s deleted changed in read-only mode" %
+                 (len(session.new), len(session.dirty), len(session.deleted)))
+    session.new = []
+    session.dirty = []
+    session.deleted = []
+    import sys
+    sys.exit(1)
 
 
 @contextmanager

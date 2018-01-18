@@ -9,6 +9,8 @@
 
 import uuid
 from tornado import gen
+
+from gosa.common import Environment
 from gosa.common.components.json_exception import JSONRPCException
 from gosa.common.components.mqtt_handler import MQTTHandler
 from gosa.common.gjson import dumps, loads
@@ -52,9 +54,10 @@ class MQTTServiceProxy(object):
         self.__serviceName = serviceName
         self.__serviceAddress = serviceAddress
         self.__methods = methods
+        self.env = Environment.getInstance()
 
         # Retrieve methods
-        if not self.__methods:
+        if self.__methods is None:
             self.__serviceName = "getMethods"
             self.__methods = self.__call__()
             self.__serviceName = None
@@ -80,6 +83,14 @@ class MQTTServiceProxy(object):
 
     @gen.coroutine
     def __call__(self, *args, **kwargs):
+        data = {}
+        if '__user__' in kwargs:
+            data['user'] = kwargs['__user__']
+            del kwargs['__user__']
+        if '__session_id__' in kwargs:
+            data['session_id'] = kwargs['__session_id__']
+            del kwargs['__session_id__']
+
         if len(kwargs) > 0 and len(args) > 0:
             raise JSONRPCException("JSON-RPC does not support positional and keyword arguments at the same time")
 
@@ -94,10 +105,16 @@ class MQTTServiceProxy(object):
             raise NameError("name '%s' not defined" % self.__serviceName)
 
         # Send
+        data.update({
+            "method": self.__serviceName,
+            "id": "jsonrpc",
+            "sender": self.env.uuid
+        })
         if len(kwargs):
-            postdata = dumps({"method": self.__serviceName, 'params': kwargs, 'id': 'jsonrpc'})
+            data["params"] = kwargs
         else:
-            postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
+            data["params"] = args
+        postdata = dumps(data)
 
         response = yield self.__handler.send_sync_message(postdata, topic)
         resp = loads(response)
@@ -105,5 +122,5 @@ class MQTTServiceProxy(object):
         if 'error' in resp and resp['error'] is not None:
             raise JSONRPCException(resp['error'])
 
-        raise gen.Return(response)
+        return resp['result']
 

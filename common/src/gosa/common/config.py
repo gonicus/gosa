@@ -119,8 +119,8 @@ class Config(object):
 
         override_options = {}
         for arg in argv:
-            m = re.match("^-{1,2}([^\.]+)\.([^\.]+)=(.*)$", arg)
-            if m:
+            m = re.match("^-{2}([^\.]+)\.([^\.]+)=(.*)$", arg)
+            if m and m.groups() is not None and len(m.groups()) == 3:
                 # section
                 if m.group(1) not in override_options:
                     override_options[m.group(1)] = {}
@@ -195,6 +195,8 @@ class Config(object):
                 tmp = tmp.lower() in ["true", "on", "1"]
             elif method == "getfloat":
                 tmp = float(tmp)
+            elif method == "getint":
+                tmp = int(tmp)
             return tmp
 
         except KeyError:
@@ -204,6 +206,9 @@ class Config(object):
 
     def getfloat(self, path, default=None, use_user_config=True):
         return self.get(path, default, use_user_config, "getfloat")
+
+    def getint(self, path, default=None, use_user_config=True):
+        return self.get(path, default, use_user_config, "getint")
 
     def getboolean(self, path, default=False, use_user_config=True):
         return self.get(path, default, use_user_config, "getboolean")

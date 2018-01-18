@@ -97,3 +97,7 @@ class ProxyError(Exception):
 
 class WebhookException(Exception):
     pass
+
+
+class MQTTProxyException(Exception):
+    pass

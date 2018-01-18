@@ -48,7 +48,7 @@ class WorkflowUploadHandler(IUploadFileHandler):
                         root = objectify.fromstring(dsc.read(), parser)
                         id = objectify.ObjectPath("Workflow.Id")(root)[0].text
 
-                        target = os.path.join(env.config.get("core.workflow_path", "/var/lib/gosa/workflows"), id)
+                        target = os.path.join(env.config.get("core.workflow-path", "/var/lib/gosa/workflows"), id)
                         workflow_zip.extractall(target)
 
                         WorkflowRegistry.get_instance().refreshWorkflows()

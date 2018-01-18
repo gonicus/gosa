@@ -139,7 +139,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
         for (var name in _templates) {
           if (translations.hasOwnProperty(name)) {
             // add translations to make them available before the template gets compiled
-            localeManager.addTranslation(gosa.Config.getLocale(), qx.lang.Json.parse(translations[name]));
+            localeManager.addTranslation(gosa.Config.getLocale(), translations[name]);
           }
           if (_templates.hasOwnProperty(name)) {
             templates.push({

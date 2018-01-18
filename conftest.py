@@ -21,8 +21,8 @@ def pytest_unconfigure(config):
 def use_test_config():
     Environment.reset()
     if pytest.config.getoption("--travis"):
-        Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "travis_conf")
+        Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "configs", "travis_conf")
     else:
-        Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_conf")
+        Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "configs", "test_conf")
     Environment.noargs = True
 

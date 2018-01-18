@@ -69,6 +69,7 @@ import zope.event
 from zope.interface import implementer
 
 from gosa.common.env import make_session
+from gosa.common.event import EventMaker
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.components import Command, Plugin
@@ -909,6 +910,10 @@ class CacheCheck:
             del self.memoized[key]
 
 
+class ACLChanged(object):
+    pass
+
+
 @implementer(IInterfaceHandler)
 class ACLResolver(Plugin):
     """
@@ -1230,6 +1235,8 @@ class ACLResolver(Plugin):
                     continue
 
             self.add_acl_set(acls)
+
+        zope.event.notify(ACLChanged())
 
     def add_acl_set(self, acl):
         """

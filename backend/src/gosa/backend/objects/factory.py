@@ -42,6 +42,8 @@ Here are some examples on how to instantiate on new object:
 >>> person.commit()
 
 """
+import gettext
+
 import pkg_resources
 import os
 import re
@@ -54,7 +56,7 @@ from gosa.backend.objects.xml_parsing import XmlParsing
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry
-from gosa.common.utils import N_
+from gosa.common.utils import N_, cache_return
 from gosa.common.error import GosaErrorHandler as C
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 from gosa.backend.objects.object import Object
@@ -447,6 +449,7 @@ class ObjectFactory(object):
 
         return res
 
+    @cache_return()
     def __get_primary_class_for_foreign_attribute(self, attribute, obj):
         """
         Returns the primary class for a given primary attribute which belongs
@@ -495,6 +498,7 @@ class ObjectFactory(object):
         else:
             raise ValueError(C.make_error("OBJECT_TYPE_NOT_FOUND", type=obj))
 
+    @cache_return()
     def get_attributes_by_object(self, object_name):
         """
         Extracts all attributes with their base/secondary classes.
@@ -548,6 +552,7 @@ class ObjectFactory(object):
                         res = extract_attrs(res, obj)
         return res
 
+    @cache_return()
     def getAttributes(self):
         """
         Returns a list of all object-attributes
@@ -983,9 +988,9 @@ class ObjectFactory(object):
                 values = []
                 values_populate = None
                 re_populate_on_update = False
+                skip_translation_values = []
                 if "Values" in prop.__dict__:
-                    avalues = []
-                    dvalues = {}
+                    values = {}
 
                     if 'populate' in prop.__dict__['Values'].attrib:
                         values_populate = prop.__dict__['Values'].attrib['populate']
@@ -994,14 +999,13 @@ class ObjectFactory(object):
                     else:
                         for d in prop.__dict__['Values'].iterchildren():
                             if 'key' in d.attrib:
-                                dvalues[self.__attribute_type['String'].convert_to(syntax, [d.attrib['key']])[0]] = d.text
+                                values[self.__attribute_type['String'].convert_to(syntax, [d.attrib['key']])[0]] = d.text
                             else:
-                                avalues.append(d.text)
+                                values[self.__attribute_type['String'].convert_to(syntax, [d.text])[0]] = d.text
 
-                    if avalues:
-                        values = self.__attribute_type['String'].convert_to(syntax, avalues)
-                    else:
-                        values = dvalues
+                            if 'translate' in d.attrib and d.attrib["translate"] == "false":
+                                # never translate this value
+                                skip_translation_values.append(d.text)
 
                 value_inherited_from = None
                 if 'InheritFrom' in prop.__dict__:
@@ -1014,6 +1018,7 @@ class ObjectFactory(object):
                 props[prop['Name'].text] = {
                     'value': [],
                     'values': values,
+                    'skip_translation_values': skip_translation_values,
                     'values_populate': values_populate,
                     're_populate_on_update': re_populate_on_update,
                     'status': STATUS_OK,
@@ -1287,8 +1292,6 @@ class ObjectFactory(object):
         if not language:
             return {}
 
-        env = Environment.getInstance()
-        i18n = None
         locales = []
         if "-" in language:
             tmp = language.split("-")
@@ -1299,35 +1302,18 @@ class ObjectFactory(object):
 
         # If there's a i18n file, try to find it
         res = {}
+        t = gettext.translation('messages',
+                                pkg_resources.resource_filename("gosa.backend", "locale"),
+                                fallback=True,
+                                languages=locales)
+        # load keymap for template strings
+        with open(pkg_resources.resource_filename("gosa.backend", "data/templates/i18n/keymap.json"), "r") as f:
+            keymap = json.loads(f.read())
 
         if templates:
             for template in templates:
-                paths = []
-
-                # Absolute path
-                if template.startswith(os.path.sep):
-                    tp = os.path.dirname(template)
-                    tn = os.path.basename(template)[:-5]
-                    for loc in locales:
-                        paths.append(os.path.join(tp, "i18n", tn, "%s.json" % loc))
-
-                # Relative path
-                else:
-                    tn = os.path.basename(template)[:-5]
-
-                    # Find path
-                    for loc in locales:
-                        paths.append(pkg_resources.resource_filename('gosa.backend', os.path.join('data', 'templates', "i18n", tn, "%s.json" % loc))) #@UndefinedVariable
-                        paths.append(os.path.join(env.config.getBaseDir(), 'templates', 'i18n', tn, "%s.json" % loc))
-
-                for path in paths:
-                    if os.path.exists(path):
-                        with open(path, "rb") as f:
-                            i18n = f.read()
-                        break
-
-                if i18n:
-                    res = {**res, **json.loads(i18n.decode('utf-8'))}
+                template_name = os.path.basename(template).split(".")[0]
+                res.update({x: t.gettext(x) for x in keymap[template_name]})
 
         return res
 

@@ -10,7 +10,7 @@
 from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application
 from unittest import mock
-from gosa.plugin.gui.main import GuiPlugin, PluginRegistry
+from gosa.plugins.gui.main import GuiPlugin, PluginRegistry
 import os
 
 

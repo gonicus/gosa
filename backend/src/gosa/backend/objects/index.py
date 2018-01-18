@@ -22,15 +22,19 @@ import multiprocessing
 import sys
 import re
 from multiprocessing.pool import Pool
+from urllib.parse import urlparse
 
 import ldap
 import sqlalchemy
+from passlib.hash import bcrypt
+from requests import HTTPError
 from sqlalchemy.dialects import postgresql
 from sqlalchemy_searchable import make_searchable, parse_search_query
 from sqlalchemy_utils import TSVectorType
 
 import gosa
-from gosa.backend.utils.ldap import normalize_dn
+from gosa.backend.components.httpd import get_server_url, get_internal_server_url
+from gosa.backend.utils import BackendTypes
 from gosa.common.env import declarative_base, make_session
 from gosa.common.event import EventMaker
 from lxml import etree
@@ -46,13 +50,15 @@ from zope.interface import implementer
 from gosa.common import Environment
 from gosa.common.utils import N_
 from gosa.common.handler import IInterfaceHandler
-from gosa.common.components import Command, Plugin, PluginRegistry
-from gosa.common.error import GosaErrorHandler as C
+from gosa.common.components import Command, Plugin, PluginRegistry, JSONServiceProxy
+from gosa.common.error import GosaErrorHandler as C, GosaException
 from gosa.backend.objects import ObjectFactory, ObjectProxy, ObjectChanged
 from gosa.backend.exceptions import FilterException, IndexException, ProxyException, ObjectException
 from gosa.backend.lock import GlobalLock
 from sqlalchemy.orm import relationship, joinedload
-from sqlalchemy import Column, String, Integer, Boolean, Sequence, DateTime, ForeignKey, or_, and_, not_, func, orm
+from sqlalchemy import Column, String, Integer, Boolean, Sequence, DateTime, ForeignKey, or_, and_, not_, func, orm, \
+    JSON, Enum
+from gosa.backend.routes.system import State
 
 Base = declarative_base()
 make_searchable()
@@ -64,6 +70,9 @@ C.register_codes(dict(
     OBJECT_NOT_FOUND=N_("Cannot find object %(id)s"),
     INDEXING=N_("Index rebuild in progress - try again later"),
     NOT_SUPPORTED=N_("Requested search operator %(operator)s is not supported"),
+    NO_MASTER_BACKEND_FOUND=N_("No master backend found"),
+    NO_MASTER_BACKEND_CONNECTION=N_("connection to GOsa backend failed"),
+    NO_BACKEND_CREDENTIALS=N_("Please add valid backend credentials to you configuration (core.backend-user, core.backend-key)")
 ))
 
 
@@ -138,6 +147,70 @@ class ObjectInfoIndex(Base):
     def __repr__(self):  # pragma: nocover
        return "<ObjectInfoIndex(uuid='%s', dn='%s', _parent_dn='%s', _adjusted_parent_dn='%s', _type='%s', _last_modified='%s', _invisible='%s')>" % (
                             self.uuid, self.dn, self._parent_dn, self._adjusted_parent_dn, self._type, self._last_modified, self._invisible)
+
+
+class RegisteredBackend(Base):
+    __tablename__ = "registered-backends"
+    uuid = Column(String(36), primary_key=True, nullable=False)
+    password = Column(String(300), nullable=False)
+    url = Column(String)
+    type = Column(Enum(BackendTypes))
+
+    def __init__(self, uuid, password, url="", type=BackendTypes.unknown):
+        self.uuid = uuid
+        self.password = bcrypt.encrypt(password)
+        self.url = url
+        self.type = type
+
+    def validate_password(self, password):
+        return bcrypt.verify(password, self.password)
+
+    def __repr__(self):  # pragma: nocover
+        return "<RegisteredBackend(uuid='%s', password='%s', url='%s', type='%s')>" % \
+               (self.uuid, self.password, self.url, self.type)
+
+
+class OpenObject(Base):
+    __tablename__ = "open-objects"
+
+    ref = Column(String(36), primary_key=True, nullable=False)
+    uuid = Column(String(36), nullable=False)
+    oid = Column(String)
+    data = Column(JSON)
+    backend_uuid = Column(String, ForeignKey('registered-backends.uuid'))
+    backend = relationship("RegisteredBackend")
+    created = Column(DateTime)
+    last_interaction = Column(DateTime)
+    user = Column(String)
+    session_id = Column(String)
+
+    def __repr__(self):  # pragma: nocover
+        return "<OpenObject(ref='%s', uuid='%s', oid='%s', data='%s', backend='%s', created='%s', last_interaction='%s', user='%s', session_id='%s')>" % \
+               (self.ref, self.uuid, self.oid, self.data, self.backend, self.created, self.last_interaction, self.user, self.session_id)
+
+
+class UserSession(Base):
+    __tablename__ = "user-sessions"
+
+    sid = Column(String(36), primary_key=True, nullable=False)
+    user = Column(String)
+    dn = Column(String)
+    auth_state = Column(Integer)
+
+    def __repr__(self):
+        return "<UserSession(sid='%s', user='%s', dn='%s', auth_state='%s')>" % (self.sid, self.user, self.dn, self.auth_state)
+
+
+class Cache(Base):
+    __tablename__ = "cache"
+
+    key = Column(String, primary_key=True)
+    data = Column(JSON)
+    time = Column(DateTime)
+
+    def __repr__(self):
+        return "<Cache(key='%s',data='%s',time='%s')" % (self.key, self.data, self.time)
+
 
 class IndexScanFinished():  # pragma: nocover
     pass
@@ -226,6 +299,7 @@ class ObjectIndex(Plugin):
                     session.query(ExtensionIndex).delete()
                     session.query(SearchObjectIndex).delete()
                     session.query(ObjectInfoIndex).delete()
+                    session.query(RegisteredBackend).delete()
                     self.log.info('object definitions changed, dropped old object index')
 
             # Create the initial schema information if required
@@ -290,6 +364,24 @@ class ObjectIndex(Plugin):
                                  resolve=resolve,
                                  aliases=aliases)
 
+        # store core_uuid/core_key into DB
+        if hasattr(self.env, "core_uuid"):
+            if self.env.mode != "proxy":
+                with make_session() as session:
+                    session.query(UserSession).delete()
+                    session.query(OpenObject).delete()
+                    session.query(RegisteredBackend).delete()
+                    rb = RegisteredBackend(
+                        uuid=self.env.core_uuid,
+                        password=self.env.core_key,
+                        url=get_internal_server_url(),
+                        type=BackendTypes.active_master
+                    )
+                    session.add(rb)
+                    session.commit()
+            else:
+                self.registerProxy()
+
         # Schedule index sync
         if self.env.config.get("backend.index", "true").lower() == "true":
             if not hasattr(sys, '_called_from_test'):
@@ -300,11 +392,49 @@ class ObjectIndex(Plugin):
         else:
             def finish():
                 zope.event.notify(IndexScanFinished())
+                State.system_state = "ready"
 
             sobj = PluginRegistry.getInstance("SchedulerService")
             sobj.getScheduler().add_date_job(finish,
                                              datetime.datetime.now() + datetime.timedelta(seconds=10),
                                              tag='_internal', jobstore='ram')
+
+    def registerProxy(self):
+        if self.env.mode == "proxy":
+            # register on the current master
+            with make_session() as session:
+                # get any other registered backend
+                master_backend = session.query(RegisteredBackend) \
+                    .filter(RegisteredBackend.uuid != self.env.core_uuid,
+                            RegisteredBackend.type == BackendTypes.active_master).first()
+                if master_backend is None:
+                    raise GosaException(C.make_error("NO_MASTER_BACKEND_FOUND"))
+                # Try to log in with provided credentials
+                url = urlparse("%s/rpc" % master_backend.url)
+                connection = '%s://%s%s' % (url.scheme, url.netloc, url.path)
+                proxy = JSONServiceProxy(connection)
+
+                if self.env.config.get("core.backend-user") is None or self.env.config.get("core.backend-key") is None:
+                    raise GosaException(C.make_error("NO_BACKEND_CREDENTIALS"))
+
+                # Try to log in
+                try:
+                    if not proxy.login(self.env.config.get("core.backend-user"), self.env.config.get("core.backend-key")):
+                        raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
+                    else:
+                        proxy.registerBackend(self.env.core_uuid,
+                                              self.env.core_key, get_internal_server_url(),
+                                              BackendTypes.proxy)
+                except HTTPError as e:
+                    if e.code == 401:
+                        raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
+                    else:
+                        self.log.error("Error: %s " % str(e))
+                        raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
+
+                except Exception as e:
+                    self.log.error("Error: %s " % str(e))
+                    raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
 
     def stop(self):
         if self.__handle_events in zope.event.subscribers:
@@ -499,6 +629,7 @@ class ObjectIndex(Plugin):
         SseHandler.notify(event_object, channel="broadcast")
 
     def sync_index(self):
+        State.system_state = "indexing"
         # Don't index if someone else is already doing it
         if GlobalLock.exists("scan_index"):
             return
@@ -596,6 +727,7 @@ class ObjectIndex(Plugin):
                 t1 = time.time()
                 self.log.info("processed %d objects in %ds" % (total, t1 - t0))
                 zope.event.notify(IndexScanFinished())
+                State.system_state = "ready"
             else:
                 raise IndexException("Error creating index, please restart.")
 
@@ -751,6 +883,9 @@ class ObjectIndex(Plugin):
         self.__save(obj.asJSON(True), session=session)
 
     def __save(self, data, session=None):
+        if self.env.mode == "proxy":
+            self.log.error("GOsa proxy is not allowed to write anything to the database")
+
         if session is not None:
             self.__session_save(data, session)
         else:
@@ -1340,3 +1475,57 @@ def resolve_children(dn):
         res = {**res, **resolve_children(chld)}
 
     return res
+
+
+@implementer(IInterfaceHandler)
+class BackendRegistry(Plugin):
+    _target_ = 'core'
+    _priority_ = 99
+
+    def __init__(self):
+        self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
+
+    @Command(__help__=N_("Register a backend to allow MQTT access"))
+    def registerBackend(self, uuid, password, url=None, type=BackendTypes.unknown):
+        with make_session() as session:
+            if session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).count() == 0:
+                rb = RegisteredBackend(
+                    uuid=uuid,
+                    password=password,
+                    url=url,
+                    type=type
+                )
+                session.add(rb)
+            else:
+                self.log.error("there is already a backend registered for this uuid")
+                rb = session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).one()
+                rb.password = password
+            session.commit()
+
+    @Command(__help__=N_("Unregister a backend from MQTT access"))
+    def unregisterBackend(self, uuid):
+        with make_session() as session:
+            backend = session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).one_or_none()
+            if backend is not None:
+                session.delete(backend)
+                session.commit()
+
+    def check_auth(self, uuid, password):
+        if hasattr(self.env, "core_uuid") and self.env.core_uuid == uuid and self.env.core_key == password:
+            return True
+
+        with make_session() as session:
+            backend = session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).one_or_none()
+            if backend is not None:
+                return backend.validate_password(password)
+        return False
+
+    def get_type(self, uuid):
+        # do not use DB if we want to identify ourselves
+        if hasattr(self.env, "core_uuid") and self.env.core_uuid == uuid:
+            return BackendTypes.proxy if self.env.mode == "proxy" else BackendTypes.active_master
+
+        with make_session() as session:
+            res = session.query(RegisteredBackend.type).filter(RegisteredBackend.uuid == uuid).one_or_none()
+            return res[0] if res is not None else None

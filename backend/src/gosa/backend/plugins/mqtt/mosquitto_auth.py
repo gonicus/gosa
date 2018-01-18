@@ -7,6 +7,8 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import logging
+
+from gosa.backend.utils import BackendTypes
 from gosa.common import Environment
 from gosa.backend.utils.ldap import check_auth
 import paho.mqtt.client as mqtt
@@ -46,14 +48,10 @@ class MosquittoAuthHandler(BaseMosquittoClass):
     def post(self, *args, **kwargs):
         username = self.get_argument('username', '')
         password = self.get_argument('password')
-        is_allowed = False
-        is_backend = False
-        if hasattr(self.env, "core_uuid") and hasattr(self.env, "core_key"):
-            # backend self authentification mode
-            is_backend = username == self.env.core_uuid and password == self.env.core_key
-            is_allowed = is_backend or check_auth(username, password)
-        else:
-            is_allowed = check_auth(username, password)
+
+        # backend self authentification mode
+        is_backend = PluginRegistry.getInstance("BackendRegistry").check_auth(username, password)
+        is_allowed = is_backend or check_auth(username, password)
         self.log.debug("MQTT AUTH request from '%s' ['%s'] => %s" %
                        (username, "backend" if is_backend else "client", "GRANTED" if is_allowed else "DENIED"))
         self.send_result(is_allowed)
@@ -78,14 +76,12 @@ class MosquittoAclHandler(BaseMosquittoClass):
         # 1 == SUB, 2 == PUB
         acc = self.get_argument('acc')
 
-        is_backend = hasattr(self.env, "core_uuid") and uuid == self.env.core_uuid
+        backend_type = PluginRegistry.getInstance("BackendRegistry").get_type(uuid)
 
         client_channel = "%s/client/%s" % (self.env.domain, uuid)
         event_channel = "%s/events" % self.env.domain
 
-        is_allowed = False
-
-        if is_backend:
+        if backend_type is not None:
             client_channel = "%s/client/+" % self.env.domain
             if topic == event_channel:
                 # backend can publish/subscribe to event channel
@@ -93,15 +89,33 @@ class MosquittoAclHandler(BaseMosquittoClass):
             elif topic == "%s/client/broadcast" % self.env.domain:
                 # backend can publish/subscribe on client broadcast channel
                 is_allowed = True
+            elif topic == "%s/client/#" % self.env.domain:
+                # proxy can publish/subscribe on all client subtopics
+                is_allowed = backend_type == BackendTypes.proxy
+            elif topic == "%s/proxy" % self.env.domain:
+                # proxy and backend can publish/subscribe on /proxy topic
+                is_allowed = True
             elif mqtt.topic_matches_sub(client_channel, topic):
                 # backend can publish/subscribe (send ClientPoll, receive ClientPing)
                 is_allowed = True
-            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/to-client"):
-                # the temporary RPC to-client channel: backend can send
+            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/request"):
+                # the temporary RPC request channel: backend can send
                 is_allowed = acc == "2"
-            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/to-backend"):
-                # the temporary RPC to-backend channel: backend can receive
+            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/response"):
+                # the temporary RPC response channel: backend can receive
                 is_allowed = acc == "1"
+            elif topic.startswith("%s/proxy/" % self.env.domain) and topic.endswith("/request"):
+                # the temporary RPC request channel from proxy: backend can receive, proxy can publish
+                if backend_type == BackendTypes.proxy:
+                    is_allowed = acc == "2"
+                else:
+                    is_allowed = acc == "1"
+            elif topic.startswith("%s/proxy/" % self.env.domain) and topic.endswith("/response"):
+                # the temporary RPC response channel to proxy: backend can publish, proxy can receive
+                if backend_type == BackendTypes.proxy:
+                    is_allowed = acc == "1"
+                else:
+                    is_allowed = acc == "2"
             else:
                 is_allowed = False
         else:
@@ -116,18 +130,18 @@ class MosquittoAclHandler(BaseMosquittoClass):
             elif topic == client_channel:
                 # client can do both on own channel
                 is_allowed = True
-            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/to-client"):
-                # the temporary RPC to-client channel: client can subscribe
+            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/request"):
+                # the temporary RPC request channel: client can subscribe
                 is_allowed = acc == "1"
-            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/to-backend"):
-                # the temporary RPC to-backend channel: client can publish
+            elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/response"):
+                # the temporary RPC response channel: client can publish
                 is_allowed = acc == "2"
             else:
                 is_allowed = False
 
         self.log.debug("MQTT ACL request: '%s'|->%s from '%s' ['%s'] => %s" %
                        (topic, "PUB" if acc == "2" else "SUB" if acc == "1" else "BOTH" if acc == "0" else "UNKOWN",
-                        uuid, "backend" if is_backend else "client", "GRANTED" if is_allowed else "DENIED"))
+                        uuid, backend_type if backend_type is not None else "client", "GRANTED" if is_allowed else "DENIED"))
         self.send_result(is_allowed)
 
 
