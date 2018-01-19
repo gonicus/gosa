@@ -469,7 +469,7 @@ msgstr ""
 #: src/gosa/backend/components/workflowregistry.py:95
 #: src/gosa/backend/components/workflowregistry.py:127
 msgid "description"
-msgstr ""
+msgstr "Beschreibung"
 
 #: src/gosa/backend/components/workflowregistry.py:97
 #: src/gosa/backend/components/workflowregistry.py:129
@@ -573,43 +573,43 @@ msgstr ""
 msgid "Grub2 SecureBoot"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHost.xml:238
+    #: src/gosa/backend/data/objects/foremanHost.xml:238
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:145
 #, fuzzy
 msgid "None"
-msgstr "an"
+msgstr "Nichts"
 
 #: src/gosa/backend/data/objects/gosaAccount.xml:94
 msgid "female"
-msgstr ""
+msgstr "weiblich"
 
 #: src/gosa/backend/data/objects/gosaAccount.xml:95
 #, fuzzy
 msgid "male"
-msgstr "Wert"
+msgstr "männlich"
 
 #: src/gosa/backend/data/objects/group-samba.xml:66
 msgid "Samba group"
-msgstr ""
+msgstr "Sambagruppe"
 
 #: src/gosa/backend/data/objects/group-samba.xml:67
 msgid "Domain administrators"
-msgstr ""
+msgstr "Domänen Administratoren"
 
 #: src/gosa/backend/data/objects/group-samba.xml:68
 #, fuzzy
 msgid "Domain users"
-msgstr "Minuten"
+msgstr "Domänen-Benutzer"
 
 #: src/gosa/backend/data/objects/group-samba.xml:69
 #, fuzzy
 msgid "Domain guests"
-msgstr "Minuten"
+msgstr "Domänen-Gäste"
 
 #: src/gosa/backend/data/objects/organizationalRole.xml:129
 #, fuzzy
 msgid "any"
-msgstr "Tag"
+msgstr "beliebig"
 
 #: src/gosa/backend/data/objects/organizationalRole.xml:130
 msgid "mhs"
@@ -670,16 +670,16 @@ msgstr ""
 #: src/gosa/backend/data/objects/registered-device.xml:85
 #, fuzzy
 msgid "router"
-msgstr "Stunde"
+msgstr "Router"
 
 #: src/gosa/backend/data/objects/registered-device.xml:86
 #, fuzzy
 msgid "printer"
-msgstr "Minute"
+msgstr "Drucker"
 
 #: src/gosa/backend/data/objects/registered-device.xml:87
 msgid "scanner"
-msgstr ""
+msgstr "Scanner"
 
 #: src/gosa/backend/data/objects/trustaccount.xml:22
 #, fuzzy
@@ -698,6 +698,7 @@ msgstr ""
 #, fuzzy
 msgid "disconnect"
 msgstr "trennen"
+
 
 #: src/gosa/backend/data/objects/user-samba.xml:585
 msgid "reset"
@@ -738,11 +739,11 @@ msgstr ""
 #: src/gosa/backend/data/templates/gotoPrinter-relations.json:44
 #: src/gosa/backend/data/templates/user.json:61
 msgid "User"
-msgstr ""
+msgstr "Benutzer"
 
 #: src/gosa/backend/data/objects/user-zarafa.xml:172
 msgid "Room"
-msgstr ""
+msgstr "Raum"
 
 #: src/gosa/backend/data/objects/user-zarafa.xml:173
 msgid "Equipment"
@@ -775,7 +776,7 @@ msgstr "Land"
 #: src/gosa/backend/data/templates/user-posix.json:202
 #: src/gosa/backend/data/templates/user-samba.json:89
 msgid "Name"
-msgstr ""
+msgstr "Name"
 
 #: src/gosa/backend/data/templates/country.json:55
 #: src/gosa/backend/data/templates/device.json:52
@@ -803,7 +804,7 @@ msgstr ""
 #: src/gosa/backend/data/templates/user-samba.json:90
 #: src/gosa/backend/data/templates/user-samba.json:103
 msgid "Description"
-msgstr ""
+msgstr "Beschreibung"
 
 #: src/gosa/backend/data/templates/device-ieee802.json:12
 msgid "IEEE 802 device"
@@ -811,7 +812,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/device-ieee802.json:35
 msgid "MAC address"
-msgstr ""
+msgstr "MAC Adresse"
 
 #: src/gosa/backend/data/templates/device-installed.json:12
 msgid "Installed Device"
@@ -844,7 +845,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/device-installed.json:131
 msgid "Timezone"
-msgstr ""
+msgstr "Zeitzone"
 
 #: src/gosa/backend/data/templates/device-installed.json:148
 msgid "Time UTC"
@@ -860,7 +861,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/device-installed.json:199
 msgid "Keyboard layout"
-msgstr ""
+msgstr "Tastaturlayout"
 
 #: src/gosa/backend/data/templates/device-installed.json:216
 #: src/gosa/backend/data/templates/gotoMenu.json:38
@@ -874,7 +875,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/device-iphost.json:35
 msgid "IP address"
-msgstr ""
+msgstr "IP Adresse"
 
 #: src/gosa/backend/data/templates/device-registered.json:17
 msgid "Registered device"
@@ -887,7 +888,7 @@ msgstr ""
 #: src/gosa/backend/data/templates/device-registered.json:32
 #: src/gosa/backend/data/templates/foreman-host.json:138
 msgid "Reboot"
-msgstr ""
+msgstr "Neustart"
 
 #: src/gosa/backend/data/templates/device-registered.json:41
 #: src/gosa/backend/data/templates/domaincomponent.json:20
@@ -895,7 +896,7 @@ msgstr ""
 #: src/gosa/backend/data/templates/group-samba.json:24
 #: src/gosa/backend/data/templates/user-samba-ts.json:29
 msgid "Generic"
-msgstr ""
+msgstr "Allgemein"
 
 #: src/gosa/backend/data/templates/device-registered.json:59
 msgid "Device UUID"
@@ -954,7 +955,7 @@ msgstr ""
 #: src/gosa/backend/data/templates/group-posix.json:131
 #: src/gosa/backend/data/templates/user-organizational.json:99
 msgid "Login ID"
-msgstr ""
+msgstr "Anmelde ID"
 
 #: src/gosa/backend/data/templates/device-registered.json:172
 msgid "States"
@@ -972,43 +973,43 @@ msgstr "aus"
 
 #: src/gosa/backend/data/templates/device-registered.json:230
 msgid "Active user session"
-msgstr ""
+msgstr "Benutzer eingelogged"
 
 #: src/gosa/backend/data/templates/device-registered.json:240
 msgid "System activated"
-msgstr ""
+msgstr "System aktiviert"
 
 #: src/gosa/backend/data/templates/device-registered.json:250
 msgid "System locked"
-msgstr ""
+msgstr "System gesperrt"
 
 #: src/gosa/backend/data/templates/device-registered.json:260
 msgid "Update available"
-msgstr ""
+msgstr "Aktualisierung verfügbar"
 
 #: src/gosa/backend/data/templates/device-registered.json:270
 msgid "Update in progress"
-msgstr ""
+msgstr "wird aktualisiert"
 
 #: src/gosa/backend/data/templates/device-registered.json:280
 msgid "Inventory in progress"
-msgstr ""
+msgstr "wird inventarisiert"
 
 #: src/gosa/backend/data/templates/device-registered.json:290
 msgid "Configuration in progress"
-msgstr ""
+msgstr "wird konfiguriert"
 
 #: src/gosa/backend/data/templates/device-registered.json:300
 msgid "Installation in progress"
-msgstr ""
+msgstr "wird installiert"
 
 #: src/gosa/backend/data/templates/device-registered.json:310
 msgid "VM creation in progress"
-msgstr ""
+msgstr "VM wird erstellt"
 
 #: src/gosa/backend/data/templates/device.json:12
 msgid "Device"
-msgstr ""
+msgstr "Gerät"
 
 #: src/gosa/backend/data/templates/device.json:35
 msgid "Common Name"
@@ -1016,7 +1017,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/device.json:69
 msgid "Serial number"
-msgstr ""
+msgstr "Seriennummer"
 
 #: src/gosa/backend/data/templates/device.json:86
 msgid "See also"
@@ -1025,7 +1026,7 @@ msgstr ""
 #: src/gosa/backend/data/templates/device.json:103
 #, fuzzy
 msgid "Owner"
-msgstr "an"
+msgstr "Besitzer"
 
 #: src/gosa/backend/data/templates/device.json:120
 #: src/gosa/backend/data/templates/groupOfNames.json:56
@@ -1038,7 +1039,7 @@ msgstr ""
 #: src/gosa/backend/data/templates/organization.json:14
 #: src/gosa/backend/data/templates/user-organizational.json:111
 msgid "Organization"
-msgstr ""
+msgstr "Organisation"
 
 #: src/gosa/backend/data/templates/device.json:154
 #: src/gosa/backend/data/templates/gosaAccount.json:157
@@ -1046,18 +1047,18 @@ msgstr ""
 #: src/gosa/backend/data/templates/organizational-unit.json:159
 #: src/gosa/backend/data/templates/user-organizational.json:290
 msgid "Location"
-msgstr ""
+msgstr "Ort"
 
 #: src/gosa/backend/data/templates/domain.json:12
 #: src/gosa/backend/data/templates/foreman-host-group.json:88
 #: src/gosa/backend/data/templates/group-samba.json:63
 #: src/gosa/backend/data/templates/user-samba.json:120
 msgid "Domain"
-msgstr ""
+msgstr "Domäne"
 
 #: src/gosa/backend/data/templates/domain.json:35
 msgid "Domain component"
-msgstr ""
+msgstr "Domänen-Objekt-Klasse"
 
 #: src/gosa/backend/data/templates/domain.json:70
 #: src/gosa/backend/data/templates/organization.json:35
@@ -1071,7 +1072,7 @@ msgstr "Domänen-Objekt-Klasse"
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:15
 msgid "Deployment group"
-msgstr ""
+msgstr "Bereitstellungsgruppe"
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:20
 #: src/gosa/backend/data/templates/foreman-host.json:15
@@ -1088,23 +1089,23 @@ msgstr "Server-Informationen"
 #: src/gosa/backend/data/templates/foreman-host-group.json:43
 #, fuzzy
 msgid "Parent"
-msgstr "Minute"
+msgstr ""
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:111
 msgid "Operating system"
-msgstr ""
+msgstr "Betriebssystem"
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:134
 msgid "Architecture"
-msgstr ""
+msgstr "Architektur"
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:157
 msgid "Partition table"
-msgstr ""
+msgstr "Partitionstabelle"
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:180
 msgid "PXE loader"
-msgstr ""
+msgstr "PXE Ladeprogramm"
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:202
 msgid "Medium"
@@ -1117,11 +1118,11 @@ msgstr "Kein Passwort zum Sperren vorhanden."
 
 #: src/gosa/backend/data/templates/foreman-host.json:22
 msgid "Power on"
-msgstr ""
+msgstr "Einschalten"
 
 #: src/gosa/backend/data/templates/foreman-host.json:29
 msgid "Power off"
-msgstr ""
+msgstr "Ausschalten"
 
 #: src/gosa/backend/data/templates/foreman-host.json:35
 msgid "Run puppet"
@@ -1133,23 +1134,23 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/foreman-host.json:62
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: src/gosa/backend/data/templates/foreman-host.json:85
 msgid "Hostgroup membership"
-msgstr ""
+msgstr "Hostgruppenmitgliedschaft"
 
 #: src/gosa/backend/data/templates/foreman-host.json:107
 msgid "Change hostgroup membership"
-msgstr ""
+msgstr "Hostgruppenmitgliedschaft ändern"
 
 #: src/gosa/backend/data/templates/foreman-host.json:109
 msgid "Hostgroup name"
-msgstr ""
+msgstr "Name der Hostgruppe"
 
 #: src/gosa/backend/data/templates/foreman-host.json:116
 msgid "Build host"
-msgstr ""
+msgstr "Host erstellen"
 
 #: src/gosa/backend/data/templates/foreman-host.json:160
 msgid "Compute resource"
@@ -1166,11 +1167,11 @@ msgstr "Server-Informationen"
 
 #: src/gosa/backend/data/templates/gosaAccount.json:46
 msgid "Gender"
-msgstr ""
+msgstr "Geschlecht"
 
 #: src/gosa/backend/data/templates/gosaAccount.json:67
 msgid "Login data"
-msgstr ""
+msgstr "Anmeldedaten"
 
 #: src/gosa/backend/data/templates/gosaAccount.json:92
 #, fuzzy
@@ -1179,21 +1180,21 @@ msgstr "Letzte Anmeldung"
 
 #: src/gosa/backend/data/templates/gosaAccount.json:115
 msgid "Last login system"
-msgstr ""
+msgstr "Zuletzt angemeldet auf"
 
 #: src/gosa/backend/data/templates/gosaAccount.json:139
 #: src/gosa/backend/data/templates/gotoEnvironment.json:254
 #, fuzzy
 msgid "Default printer"
-msgstr "Minute"
+msgstr "Standarddrucker"
 
 #: src/gosa/backend/data/templates/gosaAccount.json:154
 msgid "Choose the default printer"
-msgstr ""
+msgstr "Standarddrucker wählen"
 
 #: src/gosa/backend/data/templates/gosaApplication.json:7
 msgid "Application"
-msgstr ""
+msgstr "Applikation"
 
 #: src/gosa/backend/data/templates/gosaApplication.json:38
 #: src/gosa/backend/data/templates/groupOfNames.json:34
@@ -1210,7 +1211,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/gosaApplication.json:104
 msgid "Category"
-msgstr ""
+msgstr "Kategorie"
 
 #: src/gosa/backend/data/templates/gosaApplication.json:154
 msgid "Group only"
@@ -1235,7 +1236,7 @@ msgstr ""
 #: src/gosa/backend/data/templates/gosaApplication.json:216
 #, fuzzy
 msgid "Parameter"
-msgstr "Minute"
+msgstr "Parameter"
 
 #: src/gosa/backend/data/templates/gosaApplicationScript.json:7
 msgid "Application script"
@@ -1243,41 +1244,41 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/gosaApplicationScript.json:25
 msgid "Script"
-msgstr ""
+msgstr "Skript"
 
 #: src/gosa/backend/data/templates/gotoEnvironment.json:8
 msgid "Desktop"
-msgstr ""
+msgstr "Desktop"
 
 #: src/gosa/backend/data/templates/gotoEnvironment.json:37
 msgid "Resolution"
-msgstr ""
+msgstr "Auflösung"
 
 #: src/gosa/backend/data/templates/gotoEnvironment.json:59
 #: src/gosa/backend/data/templates/user.json:190
 msgid "Preferred language"
-msgstr ""
+msgstr "Bevorzugte Sprache"
 
 #: src/gosa/backend/data/templates/gotoEnvironment.json:80
 #: src/gosa/backend/data/templates/gotoEnvironment.json:117
 #: src/gosa/backend/data/templates/user-samba.json:205
 msgid "Logon script"
-msgstr ""
+msgstr "Anmeldeskript"
 
 #: src/gosa/backend/data/templates/gotoEnvironment.json:98
 msgid "Edit logon script"
-msgstr ""
+msgstr "Anmeldeskript bearbeiten"
 
 #: src/gosa/backend/data/templates/gotoEnvironment.json:101
 #: src/gosa/backend/data/templates/gotoEnvironment.json:150
 msgid "Priority"
-msgstr ""
+msgstr "Priorität"
 
 #: src/gosa/backend/data/templates/gotoEnvironment.json:102
 #: src/gosa/backend/data/templates/gotoEnvironment.json:164
 #, fuzzy
 msgid "Editable"
-msgstr "deaktiviert"
+msgstr "editierbar"
 
 #: src/gosa/backend/data/templates/gotoEnvironment.json:103
 msgid "Last"
@@ -1291,7 +1292,7 @@ msgstr ""
 #: src/gosa/backend/data/templates/gotoPrinter.json:15
 #, fuzzy
 msgid "Printer"
-msgstr "Minute"
+msgstr "Drucker"
 
 #: src/gosa/backend/data/templates/gotoEnvironment.json:241
 #: src/gosa/backend/data/templates/gotoPrinter-relations.json:61
@@ -1305,7 +1306,7 @@ msgstr ""
 #: src/gosa/backend/data/templates/gotoMenu.json:62
 #, fuzzy
 msgid "Menu"
-msgstr "Minute"
+msgstr "Menü"
 
 #: src/gosa/backend/data/templates/gotoMenu.json:81
 msgid "Add application"
@@ -1392,12 +1393,12 @@ msgstr "Gruppen-ID"
 #: src/gosa/backend/data/templates/group-posix.json:113
 #: src/gosa/backend/data/templates/groupOfNames.json:146
 msgid "Members"
-msgstr ""
+msgstr "Mitglieder"
 
 #: src/gosa/backend/data/templates/group-posix.json:127
 #: src/gosa/backend/data/templates/groupOfNames.json:163
 msgid "Add members"
-msgstr ""
+msgstr "Mitglieder hinzufügen"
 
 #: src/gosa/backend/data/templates/group-posix.json:129
 #: src/gosa/backend/data/templates/user.json:139
@@ -1452,16 +1453,16 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/groupOfNames.json:165
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 #: src/gosa/backend/data/templates/groupOfNames.json:166
 #: src/gosa/backend/data/templates/user.json:262
 msgid "Title"
-msgstr ""
+msgstr "Titel"
 
 #: src/gosa/backend/data/templates/groupOfNames.json:168
 msgid "DN"
-msgstr ""
+msgstr "DN"
 
 #: src/gosa/backend/data/templates/locality.json:5
 #: src/gosa/backend/data/templates/locality.json:9
@@ -1487,14 +1488,14 @@ msgstr "Server-Informationen"
 #: src/gosa/backend/data/templates/user-organizational.json:131
 #, fuzzy
 msgid "Unit"
-msgstr "unbegrenzt"
+msgstr "Einheit"
 
 #: src/gosa/backend/data/templates/organizational-unit.json:97
 #: src/gosa/backend/data/templates/user-organizational.json:188
 #: src/gosa/backend/data/templates/user.json:208
 #, fuzzy
 msgid "Contact information"
-msgstr "Löst Objekt-Informationen auf"
+msgstr "Kontakt-Information"
 
 #: src/gosa/backend/data/templates/organizational-unit.json:119
 #: src/gosa/backend/data/templates/user-organizational.json:210
@@ -3894,7 +3895,7 @@ msgstr ""
 #: src/gosa/backend/plugins/rpc/methods.py:413
 #, fuzzy
 msgid "Returns a list of all containers"
-msgstr "Liste verfügbare Sprachen auf"
+msgstr "Liefert eine Liste mit allen Containern"
 
 #: src/gosa/backend/plugins/rpc/methods.py:447
 msgid "Filter for indexed attributes and return the matches."
@@ -4080,7 +4081,7 @@ msgstr ""
 msgid ""
 "Returns the current two factor authentication method for the given user"
 msgstr ""
-"Liefert die momentane Samba Domänen-Richtlinie für den angegebenen Benutzer"
+""
 
 #: src/gosa/backend/plugins/two_factor/main.py:102
 msgid "Enable two factor authentication for the given user"
