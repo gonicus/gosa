@@ -25,7 +25,7 @@ class UserFiltersTestCase(TestCase):
             byte = f.read()
 
         user = mock.MagicMock()
-        user.uuid = '78475884-c7f2-1035-8262-f535be14d43a'
+        user.uuid = 'fae09b6a-914b-1037-8941-b59a822cf04a'
         user.modifyTimestamp = datetime.datetime.now()
         test_dict = {
             "image": {

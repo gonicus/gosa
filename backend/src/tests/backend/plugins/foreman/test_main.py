@@ -491,6 +491,9 @@ class ForemanHookTestCase(RemoteTestCase):
     _host_cn = None
 
     def setUp(self):
+        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.DEBUG)
+        # logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
+        # logging.getLogger("gosa.backend.objects").info("SET UP")
         super(ForemanHookTestCase, self).setUp()
         self.registry = PluginRegistry.getInstance("WebhookRegistry")
         self.url, self.token = self.registry.registerWebhook("admin", "test-webhook", "application/vnd.foreman.hookevent+json")
@@ -532,6 +535,7 @@ class ForemanHookTestCase(RemoteTestCase):
         # create new host to update
         foreman = ForemanPlugin()
         foreman.serve()
+        logging.getLogger(__name__).info("add_host")
         foreman.add_host("new-foreman-host")
 
         payload_data = {
@@ -549,7 +553,9 @@ class ForemanHookTestCase(RemoteTestCase):
         }
 
         headers, payload = self._create_request(payload_data)
+        logging.getLogger(__name__).info("send update")
         AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
+        logging.getLogger(__name__).info("finished update")
 
         # check if the host has been updated
         device = ObjectProxy(host_dn)

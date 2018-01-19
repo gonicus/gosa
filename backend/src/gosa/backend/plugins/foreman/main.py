@@ -70,14 +70,15 @@ class Foreman(Plugin):
         self.log = logging.getLogger(__name__)
         self.factory = ObjectFactory.getInstance()
         incoming_base = self.env.config.get("foreman.host-rdn")
-        if incoming_base is None or len(incoming_base) == 0:
-            incoming_base = self.env.base
-        else:
+
+        if incoming_base is not None and len(incoming_base.strip()) > 0 and incoming_base != "None":
             incoming_base = "%s,%s" % (incoming_base, self.env.base)
+        else:
+            incoming_base = self.env.base
+        self.type_bases = {"ForemanHost": incoming_base}
 
         group_rdn = self.env.config.get("foreman.group-rdn")
-        self.type_bases = {"ForemanHost": incoming_base}
-        if group_rdn is not None and len(group_rdn) > 0:
+        if group_rdn is not None and len(group_rdn.strip()) > 0 and group_rdn != "None":
             self.type_bases["ForemanHostGroup"] = "%s,%s" % (group_rdn, self.env.base)
         else:
             self.type_bases["ForemanHostGroup"] = self.env.base
@@ -108,7 +109,7 @@ class Foreman(Plugin):
 
     def serve(self):
 
-        if self.client and self.env.mode != "proxy":
+        if self.client and self.env.mode != "proxy" and not sys._called_from_test:
             sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
             sched.add_interval_job(self.flush_parameter_setting, seconds=10, tag='_internal', jobstore="ram")
 
@@ -780,9 +781,9 @@ class ForemanRealmReceiver(object):
             del ForemanRealmReceiver.skip_next_event[data["action"]]
             return
 
-        # TODO disable hook logging to file
-        with open("foreman-log.json", "a") as f:
-            f.write("%s,\n" % dumps(data, indent=4, sort_keys=True))
+        if self.env.config.get("foreman.event-log") is not None:
+            with open(self.env.config.get("foreman.event-log"), "a") as f:
+                f.write("%s,\n" % dumps(data, indent=4, sort_keys=True))
 
         ForemanBackend.modifier = "foreman"
         if data['action'] == "create":
@@ -826,9 +827,9 @@ class ForemanHookReceiver(object):
         data = loads(request_handler.request.body)
         self.log.debug(data)
 
-        # TODO disable hook logging to file
-        with open("foreman-log.json", "a") as f:
-            f.write("%s,\n" % dumps(data, indent=4, sort_keys=True))
+        if self.env.config.get("foreman.event-log") is not None:
+            with open(self.env.config.get("foreman.event-log"), "a") as f:
+                f.write("%s,\n" % dumps(data, indent=4, sort_keys=True))
 
         if data["event"] in ForemanHookReceiver.skip_next_event and data["object"] in ForemanHookReceiver.skip_next_event[data["event"]]:
             ForemanHookReceiver.skip_next_event[data["event"]].remove(data["object"])
@@ -858,15 +859,15 @@ class ForemanHookReceiver(object):
                 foreman.sync_release_name(payload_data, session, event=data['event'])
                 session.commit()
                 return
-
+        self.log.debug("1")
         factory = ObjectFactory.getInstance()
         foreman_type = type
         if type == "discovered_host":
             type = "host"
-
+        self.log.debug("2")
         object_types = factory.getObjectNamesWithBackendSetting("Foreman", "type", "%ss" % type)
         object_type = object_types[0] if len(object_types) else None
-
+        self.log.debug("3")
         backend_attributes = factory.getObjectBackendProperties(object_type) if object_type is not None else None
         self.log.debug("Hookevent: '%s' for '%s' (%s)" % (data['event'], data['object'], object_type))
 

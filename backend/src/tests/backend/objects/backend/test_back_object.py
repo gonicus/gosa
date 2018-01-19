@@ -22,7 +22,7 @@ class ObjectBackendTestCase(TestCase):
 
     @slow
     def test_load(self):
-        res = self.back.load('78475884-c7f2-1035-8262-f535be14d43a',
+        res = self.back.load('fae09b6a-914b-1037-8941-b59a822cf04a',
                              {
                                  'groupMembership': {
                                      'value': ['freich'],
@@ -64,7 +64,7 @@ class ObjectBackendTestCase(TestCase):
     def test_update(self):
 
         with pytest.raises(BackendError):
-            self.back.update('78475884-c7f2-1035-8262-f535be14d43a',
+            self.back.update('fae09b6a-914b-1037-8941-b59a822cf04a',
                                    {'groupMembership': 'String'},
                                    {})
         with pytest.raises(BackendError):
@@ -80,7 +80,7 @@ class ObjectBackendTestCase(TestCase):
                                    {'groupMembership': 'PosixGroup:cn,memberUid=uid'})
         with pytest.raises(EntryNotFound):
             # wrong group
-            self.back.update('78475884-c7f2-1035-8262-f535be14d43a',
+            self.back.update('fae09b6a-914b-1037-8941-b59a822cf04a',
                              {
                                  'groupMembership': {
                                      'value': ['unknown'],
@@ -91,7 +91,7 @@ class ObjectBackendTestCase(TestCase):
                              {'groupMembership': 'PosixGroup:cn,memberUid=uid'})
 
         with mock.patch("gosa.backend.objects.backend.back_object.ObjectProxy") as m:
-            self.back.update('78475884-c7f2-1035-8262-f535be14d43a',
+            self.back.update('fae09b6a-914b-1037-8941-b59a822cf04a',
                                  {
                                      'groupMembership': {
                                          'value': ['freich'],
@@ -113,7 +113,7 @@ class ObjectBackendTestCase(TestCase):
                     return real_index.search(query, attrs)
             mocked_index.search.side_effect = search
             with mock.patch.dict("gosa.backend.objects.proxy.PluginRegistry.modules", {'ObjectIndex': mocked_index}):
-                self.back.update('78475884-c7f2-1035-8262-f535be14d43a',
+                self.back.update('fae09b6a-914b-1037-8941-b59a822cf04a',
                                  {
                                      'groupMembership': {
                                          'value': ['new', 'add'],

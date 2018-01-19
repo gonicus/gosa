@@ -45,7 +45,7 @@ class ObjectProxyTestCase(GosaTestCase):
         with pytest.raises(ProxyException), \
              mock.patch('gosa.backend.objects.proxy.ObjectFactory.getInstance', return_value=mocked_factory):
             # base not found
-            ObjectProxy('78475884-c7f2-1035-8262-f535be14d43a')
+            ObjectProxy('fae09b6a-914b-1037-8941-b59a822cf04a')
 
         user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net')
         assert user.uid == 'freich'

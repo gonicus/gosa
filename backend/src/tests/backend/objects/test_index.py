@@ -29,7 +29,7 @@ class ObjectIndexTestCase(TestCase):
     def test_insert(self):
         test = mock.MagicMock()
         test.get_parent_dn.return_value = "dc=example,dc=net"
-        test.uuid = '78475884-c7f2-1035-8262-f535be14d43a'
+        test.uuid = 'fae09b6a-914b-1037-8941-b59a822cf04a'
         test.asJSON.return_value = {'uuid': test.uuid}
 
         with mock.patch.object(self.obj, "_ObjectIndex__save") as m_save,\
@@ -46,7 +46,7 @@ class ObjectIndexTestCase(TestCase):
 
     def test_remove(self):
         test = mock.MagicMock()
-        test.uuid = '78475884-c7f2-1035-8262-f535be14d43a'
+        test.uuid = 'fae09b6a-914b-1037-8941-b59a822cf04a'
         with mock.patch.object(self.obj, "remove_by_uuid") as m:
             self.obj.remove(test)
             m.assert_called_with(test.uuid, session=None)
@@ -60,7 +60,7 @@ class ObjectIndexTestCase(TestCase):
     #     test = mock.MagicMock()
     #     test.uuid = '78475884-c7f2-1035-8262-f535be14d43b'
     #     test.asJSON.return_value = {
-    #         'uuid': '78475884-c7f2-1035-8262-f535be14d43a',
+    #         'uuid': 'fae09b6a-914b-1037-8941-b59a822cf04a',
     #         'dn': 'cn=Frank Reich,ou=people,dc=example,dc=de',
     #         '_adjusted_parent_dn': 'ou=people,dc=example,dc=de'
     #     }
@@ -75,9 +75,9 @@ class ObjectIndexTestCase(TestCase):
     #         assert not mc.called
     #         assert not mr.called
     #
-    #         test.uuid = '7ff15c20-b305-1031-916b-47d262a62cc5'
+    #         test.uuid = 'fae082c4-914b-1037-892e-b59a822cf04a'
     #         test.asJSON.return_value = {
-    #             'uuid': '7ff15c20-b305-1031-916b-47d262a62cc5',
+    #             'uuid': 'fae082c4-914b-1037-892e-b59a822cf04a',
     #             'dn': 'ou=people,dc=example,dc=de',
     #             '_adjusted_parent_dn': 'dc=example,dc=de'
     #         }
@@ -100,23 +100,23 @@ class ObjectIndexTestCase(TestCase):
         with pytest.raises(FilterException):
             self.obj.find('admin', 'query')
 
-        res = self.obj.find('admin', {'uuid': '78475884-c7f2-1035-8262-f535be14d43a'}, {'uid': 1})
+        res = self.obj.find('admin', {'uid': 'freich'}, {'dn': 1})
         assert res[0]['dn'] == "cn=Frank Reich,ou=people,dc=example,dc=net"
 
     def test_search(self):
 
         with pytest.raises(Exception):
-            self.obj.search({'unsupported_': {'uuid': '7ff15c20-b305-1031-916b-47d262a62cc5',
+            self.obj.search({'unsupported_': {'uuid': 'fae082c4-914b-1037-892e-b59a822cf04a',
                                               'dn': 'cn=Frank Reich,ou=people,dc=example,dc=net'}}, {'dn': 1})
 
-        res = self.obj.search({'or_': {'uuid': '7ff15c20-b305-1031-916b-47d262a62cc5',
+        res = self.obj.search({'or_': {'uuid': 'fae082c4-914b-1037-892e-b59a822cf04a',
                                        'dn': 'cn=Frank Reich,ou=people,dc=example,dc=net'}}, {'dn': 1})
 
         assert len(res) == 2
         assert 'cn=Frank Reich,ou=people,dc=example,dc=net' in [res[0]['dn'], res[1]['dn']]
         assert 'ou=people,dc=example,dc=net' in [res[0]['dn'], res[1]['dn']]
 
-        res = self.obj.search({'and_': {'uuid': '78475884-c7f2-1035-8262-f535be14d43a',
+        res = self.obj.search({'and_': {'uuid': 'fae09b6a-914b-1037-8941-b59a822cf04a',
                                         'dn': 'cn=Frank Reich,ou=people,dc=example,dc=net'}}, {'dn': 1})
         assert len(res) == 1
         assert res[0]['dn'] == 'cn=Frank Reich,ou=people,dc=example,dc=net'
