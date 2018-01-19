@@ -27,7 +27,6 @@ def pytest_unconfigure(config):
 
 @pytest.fixture(scope="session", autouse=True)
 def use_test_config():
-    Environment.getInstance()
     if not sys.stdout.encoding:
         sys.stdout = codecs.getwriter('utf8')(sys.stdout)
     if not sys.stderr.encoding:

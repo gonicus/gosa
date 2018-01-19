@@ -7,15 +7,22 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
+import sys
 from setuptools import setup, find_packages
 import os
 import platform
+
+from gosa.common import Environment
 
 try:
     from babel.messages import frontend as babel
 except:
     pass
+
+if sys.argv[1] == "test":
+    Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "configs", "test_conf")
+    Environment.noargs = True
+    env = Environment.getInstance()
 
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README')) as f:
