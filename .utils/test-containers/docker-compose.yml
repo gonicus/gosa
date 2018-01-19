@@ -31,8 +31,7 @@ services:
   cups:
     image: gonicus/cups:latest
     container_name: gosa-test-cups
-    networks:
-     - backbone
+    network_mode: host
     volumes:
       - ./config/cups/cupsd.conf:/etc/cups/cupsd.conf
     restart: always
