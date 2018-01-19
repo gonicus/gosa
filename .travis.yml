@@ -21,7 +21,7 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
   - export PYENV_VERSION=3.6-dev
   - sudo apt-get update
-  - sudo cp ./configs/travis_conf/org.gosa.conf /etc/dbus-1/system.d/
+  - sudo cp ./configs/test_conf/org.gosa.conf /etc/dbus-1/system.d/
   - sudo service dbus reload
   - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
   - cd .utils/test-containers && docker-compose up -d
@@ -34,7 +34,7 @@ before_install:
   - sudo mkdir /tmp/workflows
   - sudo mkdir /tmp/images
   - sudo mkdir /etc/gosa
-  - sudo cp ./configs/travis_conf/config /etc/gosa/
+  - sudo cp ./configs/test_conf/config /etc/gosa/
   - sudo chown travis:travis /tmp/workflows
   - sudo chown travis:travis /tmp/images
 install:
