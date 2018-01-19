@@ -871,7 +871,7 @@ class ObjectProxy(object):
                     obj.parent = self
                     obj.simulate_move(cdn)
 
-                zope.event.notify(ObjectChanged("post object move", self.__base, dn=new_base, orig_dn=old_base))
+                zope.event.notify(ObjectChanged("post object move", self.__base, dn=self.__base.dn, orig_dn=old_base))
                 return True
 
             except Exception as e:
