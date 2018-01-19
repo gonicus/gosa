@@ -21,9 +21,10 @@ services:
     network_mode: host
     restart: always
     environment:
+      POSTGRES_USER: admin
       POSTGRES_PASSWORD: secret
+      POSTGRES_DB: gosa-test
     volumes:
-      - ./config/postgresql/init:/docker-entrypoint-initdb.d
       - ./config/postgresql/db:/var/lib/postgresql/data
     ports:
       - "5432:5432"
