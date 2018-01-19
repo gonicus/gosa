@@ -24,8 +24,7 @@ before_install:
   - sudo cp ./configs/test_conf/org.gosa.conf /etc/dbus-1/system.d/
   - sudo service dbus reload
   - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
-  - cd .utils/test-containers && docker-compose up -d
-  - ls -la
+  - cd .utils/test-containers && docker-compose up -d && cd ../../
   - virtualenv --python=python3.6 --system-site-packages .env
   - source .env/bin/activate
   - pip install --upgrade pip # upgrade pip, we need the latest version
@@ -62,4 +61,4 @@ after_success:
     # send test coverage results to coveralls.io
     - coveralls --merge=coveralls.json
 after_script:
-  - cd .utils/test-containers && docker-compose down
+  - cd .utils/test-containers && docker-compose down && cd ../../
