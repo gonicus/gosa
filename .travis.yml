@@ -25,9 +25,6 @@ before_install:
   - sudo service dbus reload
   - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
   - cd .utils/test-containers && docker-compose up -d && cd ../../
-  - virtualenv --python=python3.6 --system-site-packages .env
-  - source .env/bin/activate
-  - pip install --upgrade pip # upgrade pip, we need the latest version
   # some preparations for the tests
   - export TZ=Europe/Berlin
   - sudo mkdir /tmp/workflows
@@ -37,7 +34,10 @@ before_install:
   - sudo chown travis:travis /tmp/workflows
   - sudo chown travis:travis /tmp/images
 install:
-  - sudo apt-get install dbus-x11 libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev python3-decorator
+  - sudo apt-get install libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev python3-decorator
+  - virtualenv --python=python3.6 --system-site-packages .env
+  - source .env/bin/activate
+  - pip install --upgrade pip # upgrade pip, we need the latest version
   - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure
   #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
 before_script:
