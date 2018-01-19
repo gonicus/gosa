@@ -38,12 +38,11 @@ install:
   - virtualenv --python=python3.6 --system-site-packages .env
   - source .env/bin/activate
   - pip install --upgrade pip # upgrade pip, we need the latest version
-  - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure
+  - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure decorator
   #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
 before_script:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
-script:
     # build the gui, to be able to test it if gets served
     - cd plugins/gui/frontend/gosa/
     - npm install
@@ -54,6 +53,7 @@ script:
     - export PYENV_VERSION=3.6-dev
     # setup GOsa, install deps...
     - ./setup.py develop
+script:
     # finally run the tests, with running dbus
     - export ASYNC_TEST_TIMEOUT=10
     - dbus-launch ./setup.py test --addopts="--runslow --travis -v"
