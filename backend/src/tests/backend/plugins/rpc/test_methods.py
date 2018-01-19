@@ -61,6 +61,7 @@ class RpcMethodsTestCase(TestCase):
     def test_getTemplateI18N(self):
 
         res = self.rpc.getTemplateI18N('de')
+        print(res)
         assert res['User'] == 'Benutzer'
         assert res['Title'] == 'Titel'
 
@@ -73,7 +74,6 @@ class RpcMethodsTestCase(TestCase):
         assert res['sn'] == 'Administrator'
         assert res['givenName'] == 'System'
         assert res['dn'] == 'cn=System Administrator,ou=people,dc=example,dc=net'
-        assert res['uuid'] == '7ffcb0f2-b305-1031-916c-47d262a62cc5'
 
     def test_extensionExists(self):
 

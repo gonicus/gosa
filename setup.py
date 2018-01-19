@@ -14,7 +14,7 @@ modules = [
 paths = []
 return_code = 0
 skip_tests = ["client"]
-skip_return_code = ["dbus", "goto", "gui"]
+skip_return_code = []
 
 failed_modules = {}
 
@@ -41,12 +41,16 @@ for module in modules:
     module_return_code = os.system(command)
     if module not in skip_return_code:
         return_code = max(return_code, module_return_code >> 8)
+
+    print("%s returned %s (ignored: %s): %s" % (module, module_return_code, module in skip_return_code, return_code))
+
     if module_return_code > 0:
         failed_modules[module] = {
             "code": module_return_code,
             "type": "module"
         }
-    print("%s returned %s (ignored: %s): %s" % (module, module_return_code, module in skip_return_code, return_code))
+        if task in ["develop", "install"]:
+            sys.exit(module_return_code)
 
 for root, dirs, files in os.walk("plugins"):
     if "setup.py" in files:

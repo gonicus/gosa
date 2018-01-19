@@ -33,7 +33,7 @@
             "class": "gosa.ui.widgets.QLabelWidget",
             "buddyModelPath": "cn",
             "properties": {
-                "text": "tr('Common Name')"
+                "text": "tr('Common name')"
             },
             "addOptions": {
                 "row": 0,

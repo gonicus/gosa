@@ -9,6 +9,7 @@
 
 import pytest
 from gosa.backend.main import *
+from gosa.backend.objects import ObjectFactory
 
 
 def pytest_addoption(parser):
@@ -27,7 +28,6 @@ def pytest_unconfigure(config):
 
 @pytest.fixture(scope="session", autouse=True)
 def use_test_config():
-    Environment.getInstance()
     if not sys.stdout.encoding:
         sys.stdout = codecs.getwriter('utf8')(sys.stdout)
     if not sys.stderr.encoding:
@@ -38,3 +38,6 @@ def use_test_config():
     # sync index
     index = PluginRegistry.getInstance("ObjectIndex")
     index.sync_index()
+
+    # create all classes to prevent test timeouts
+    ObjectFactory.getInstance().create_classes()

@@ -6,7 +6,7 @@ services:
 python:
     - "3.6-dev"
 env:
-  - DOCKER_COMPOSE_VERSION=1.18
+  - DOCKER_COMPOSE_VERSION=1.18.0
 cache:
   pip: true
   directories:
@@ -24,27 +24,25 @@ before_install:
   - sudo cp ./configs/test_conf/org.gosa.conf /etc/dbus-1/system.d/
   - sudo service dbus reload
   - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
-  - cd .utils/test-containers && docker-compose up -d
-  - ls -la
+  - cd .utils/test-containers && docker-compose up -d && cd ../../
+  # some preparations for the tests
+  - export TZ=Europe/Berlin
+  - sudo mkdir -p /tmp/gosa/workflows
+  - sudo mkdir /tmp/gosa/images
+  - sudo mkdir /tmp/gosa/widgets
+  - sudo mkdir /etc/gosa
+  - sudo cp ./configs/test_conf/config /etc/gosa/
+  - sudo chown -R travis:travis /tmp/gosa
+install:
+  - sudo apt-get install libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev
   - virtualenv --python=python3.6 --system-site-packages .env
   - source .env/bin/activate
   - pip install --upgrade pip # upgrade pip, we need the latest version
-  # some preparations for the tests
-  - export TZ=Europe/Berlin
-  - sudo mkdir /tmp/workflows
-  - sudo mkdir /tmp/images
-  - sudo mkdir /etc/gosa
-  - sudo cp ./configs/test_conf/config /etc/gosa/
-  - sudo chown travis:travis /tmp/workflows
-  - sudo chown travis:travis /tmp/images
-install:
-  - sudo apt-get install dbus-x11 libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev # needed to compile dbus-python
-  - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure
+  - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' dbus-python hidraw-pure decorator
   #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
 before_script:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
-script:
     # build the gui, to be able to test it if gets served
     - cd plugins/gui/frontend/gosa/
     - npm install
@@ -55,11 +53,12 @@ script:
     - export PYENV_VERSION=3.6-dev
     # setup GOsa, install deps...
     - ./setup.py develop
+script:
     # finally run the tests, with running dbus
     - export ASYNC_TEST_TIMEOUT=10
-    - dbus-launch ./setup.py test --addopts="--runslow --travis -v"
+    - dbus-launch ./setup.py test --addopts="--runslow -v"
 after_success:
     # send test coverage results to coveralls.io
     - coveralls --merge=coveralls.json
 after_script:
-  - cd .utils/test-containers && docker-compose down
+  - cd .utils/test-containers && docker-compose down && cd ../../
