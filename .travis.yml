@@ -6,7 +6,7 @@ services:
 python:
     - "3.6-dev"
 env:
-  - DOCKER_COMPOSE_VERSION=1.18
+  - DOCKER_COMPOSE_VERSION=1.18.0
 cache:
   pip: true
   directories:
