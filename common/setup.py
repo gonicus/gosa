@@ -32,7 +32,7 @@ common_install_requires = [
     'cryptography',
     'colorlog',
     'dnspython',
-    'bcrypt'
+    'pycrypto'
     ],
 
 setup(
