@@ -53,6 +53,7 @@ before_script:
     - export PYENV_VERSION=3.6-dev
     # setup GOsa, install deps...
     - ./setup.py develop
+    - find .env/ -name dnspython*
 script:
     # finally run the tests, with running dbus
     - export ASYNC_TEST_TIMEOUT=10
