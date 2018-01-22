@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa-plugin-gui 3.0\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-01-16 12:41+0100\n"
+"POT-Creation-Date: 2018-01-22 11:20+0100\n"
 "PO-Revision-Date: 2018-01-16 10:44+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de\n"
@@ -21,5 +21,5 @@ msgstr ""
 
 #: src/gosa/plugins/gui/main.py:76
 msgid "Returns manifest informations from all uploaded dashboard widgets."
-msgstr ""
+msgstr "Liefert die Manifest Informationen von allen Dashboard-Widgets zurück."
 

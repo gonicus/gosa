@@ -803,7 +803,7 @@ class ClientService(Plugin):
             if 'children' in entry:
                 if not 'menus' in result:
                     result['menus'] = {}
-                result['menus'][entry.get('name', N_('Unbekannt'))] = self.get_submenu(entry['children'])
+                result['menus'][entry.get('name', N_('unknown'))] = self.get_submenu(entry['children'])
             else:
                 application = self.get_application(entry)
                 result['apps'][application.get('cn', 'name')] = application
@@ -992,7 +992,7 @@ class ClientService(Plugin):
         except ValueError as e:
             id = C.get_error_id(str(e))
             error = C.getError(None, None, id, keep=True)
-            if error.status_code == 404:
+            if error['status_code'] == 404:
                 pass
             else:
                 raise e

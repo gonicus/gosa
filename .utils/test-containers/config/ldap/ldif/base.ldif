@@ -1,0 +1,268 @@
+dn: dc=example,dc=net
+objectClass: dcObject
+objectClass: top
+objectClass: locality
+objectClass: gosaDepartment
+dc: example
+ou: Example
+description: Example
+
+dn: cn=accesslog,dc=example,dc=net
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+givenName: Log
+sn: Replicator
+uid: accesslog
+userPassword:: e0NSWVBUfSQxJDNCZElQdjNFJEpZdXFRMHFDa21EY2ZoLmRySlZyYzE=
+cn: accesslog
+
+dn: ou=people,dc=example,dc=net
+ou: people
+objectClass: organizationalUnit
+
+dn: cn=System Administrator,ou=people,dc=example,dc=net
+objectClass: gosaAccount
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: kolabInetOrgPerson
+givenName: System
+sn: Administrator
+uid: admin
+userPassword:: e0NSWVBUfSQxJDNCZElQdjNFJEpZdXFRMHFDa21EY2ZoLmRySlZyYzE=
+cyrus-userquota: 50
+kolabHomeServer: mail.intranet.gonicus.de
+preferredLanguage: en_US
+cn: System Administrator
+
+dn: o=GOsaLdapEncoding_\2C_\22_(_)_\2B_/,dc=example,dc=net
+o: GOsaLdapEncoding_,_"_(_)_+_/
+description: GOsa character encoding test-object.
+objectClass: top
+objectClass: organization
+
+dn: ou=systems,dc=example,dc=net
+ou: systems
+objectClass: organizationalUnit
+
+dn: ou=configs,ou=systems,dc=example,dc=net
+ou: configs
+objectClass: organizationalUnit
+
+dn: ou=gosa,ou=configs,ou=systems,dc=example,dc=net
+ou: gosa
+objectClass: organizationalUnit
+
+dn: ou=servers,ou=systems,dc=example,dc=net
+ou: servers
+objectClass: organizationalUnit
+
+dn: cn=271d541915f5e58f335b532593c48a93,ou=gosa,ou=configs,ou=systems,dc=example,dc=net
+gosaUser: cn=System Administrator-admin,ou=people,dc=example,dc=net
+gosaObject: Y249U3lzdGVtIEFkbWluaXN0cmF0b3ItYWRtaW4sb3U9cGVvcGxlLGRjPWludHJh
+ bmV0LGRjPWdvbmljdXMsZGM9ZGU=
+cn: 271d541915f5e58f335b532593c48a93
+objectClass: gosaLockEntry
+
+dn: ou=groups,dc=example,dc=net
+ou: groups
+objectClass: organizationalUnit
+
+dn: cn=core,ou=gosa,ou=configs,ou=systems,dc=example,dc=net
+cn: core
+gosaSetting: copyPaste:true
+objectClass: top
+objectClass: gosaConfig
+
+dn: ou=aclroles,dc=example,dc=net
+ou: aclroles
+objectClass: organizationalUnit
+
+dn: ou=roles,dc=example,dc=net
+ou: roles
+objectClass: organizationalUnit
+
+dn: ou=phones,ou=systems,dc=example,dc=net
+ou: phones
+objectClass: organizationalUnit
+
+dn: ou=netdevices,ou=systems,dc=example,dc=net
+ou: netdevices
+objectClass: organizationalUnit
+
+dn: cn=mail.test-lt.de,ou=servers,ou=systems,dc=example,dc=net
+cn: mail.test-lt.de
+description: Teset-lt mail server
+gotoMode: active
+macAddress: 00:0C:7F:31:33:F1
+goImapName: mail.test-lt.de
+goImapConnect: {localhost:993/imap}
+goImapAdmin: admin
+goImapPassword: tester
+goImapSieveServer: {localhost:4190/tls}
+goImapSievePort: 4190
+cyrusImap: 1
+cyrusImapSSL: 1
+cyrusPop3: 1
+cyrusPop3SSL: 1
+goKrbRealm: localhost
+goFaxAdmin: admin
+goFaxPassword: tester
+goFonAdmin: admin
+goFonPassword: tester
+goFonAreaCode: 02373
+goFonCountryCode: +49
+goXdmcpIsEnabled: 1
+gotoSessionType: LDM
+gotoSessionType: XDMCP
+gotoSessionType: SHELL
+gotoSessionType: RDP
+gotoSessionType: TELNET
+objectClass: top
+objectClass: GOhard
+objectClass: goServer
+objectClass: gotoWorkstationTemplate
+objectClass: goImapServer
+objectClass: goKrbServer
+objectClass: goFaxServer
+objectClass: goShareServer
+objectClass: goVirusServer
+objectClass: goFonServer
+objectClass: goNtpServer
+objectClass: goTerminalServer
+
+dn: ou=workstations,ou=systems,dc=example,dc=net
+objectClass: organizationalUnit
+ou: workstations
+
+dn: cn=thin1,ou=workstations,ou=systems,dc=example,dc=net
+gotoMode: locked
+gotoNtpServer: mail.test-lt.de
+cn: thin1
+ghCpuType: -
+ghMemSize: -
+ghUsbSupport: -
+ghGfxAdapter: -
+ghSoundAdapter: -
+gotoLastUser: -
+macAddress: 00:0C:7F:31:33:F2
+gotoXDriver: 0
+gotoXResolution: 640x480
+gotoXColordepth: 8
+gotoXHsync: 30+55
+gotoXVsync: 50+70
+gotoXKbModel: btc9000
+gotoXKbLayout: de
+gotoXKbVariant: nodeadkeys
+gotoXMouseType: auto
+gotoXMouseport: /dev/input/mice
+goFonHardware: automatic
+objectClass: top
+objectClass: gotoWorkstation
+objectClass: GOhard
+
+dn: ou=terminals,ou=systems,dc=example,dc=net
+objectClass: organizationalUnit
+ou: terminals
+
+dn: cn=term1,ou=terminals,ou=systems,dc=example,dc=net
+gotoMode: active
+gotoSwapServer: !
+gotoNtpServer: mail.test-lt.de
+cn: term1
+ghCpuType: -
+ghMemSize: -
+ghUsbSupport: -
+ghGfxAdapter: -
+ghSoundAdapter: -
+gotoLastUser: -
+macAddress: 00:0C:7F:31:33:F3
+goFonHardware: automatic
+objectClass: top
+objectClass: gotoTerminal
+objectClass: GOhard
+
+dn: cn=Frank Reich,ou=people,dc=example,dc=net
+sn: Reich
+givenName: Frank
+uid: freich
+academicTitle: Dr.
+dateOfBirth: 1995-01-05
+gender: M
+preferredLanguage: de_DE
+cn: Frank Reich
+homeDirectory: /home/freich
+loginShell: /bin/bash
+uidNumber: 1001
+gidNumber: 1001
+gecos: Frank Reich
+shadowLastChange: 16967
+sambaSID: -2002
+sambaPwdLastSet: 0
+sambaLogonTime: 0
+sambaLogoffTime: 2147483647
+sambaKickoffTime: 1560556800
+sambaPwdCanChange: 4294967295
+sambaAcctFlags: [UXND        ]
+sambaMungedDial: IAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAA
+ gACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAUAAQAB
+ oACAABAEMAdAB4AEMAZgBnAFAAcgBlAHMAZQBuAHQANTUxZTBiYjAYAAgAAQBDAHQAeABDAGYAZ
+ wBGAGwAYQBnAHMAMQAwMGUwMDAxMBYAAAABAEMAdAB4AEMAYQBsAGwAYgBhAGMAawASAAgAAQBD
+ AHQAeABTAGgAYQBkAG8AdwAwMTAwMDAwMCIAAAABAEMAdAB4AEsAZQB5AGIAbwBhAHIAZABMAGE
+ AeQBvAHUAdAAqAAIAAQBDAHQAeABNAGkAbgBFAG4AYwByAHkAcAB0AGkAbwBuAEwAZQB2AGUAbA
+ AwMCAAAgABAEMAdAB4AFcAbwByAGsARABpAHIAZQBjAHQAbwByAHkAMDAgAAIAAQBDAHQAeABOA
+ FcATABvAGcAbwBuAFMAZQByAHYAZQByADAwGAACAAEAQwB0AHgAVwBGAEgAbwBtAGUARABpAHIA
+ MDAiAAIAAQBDAHQAeABXAEYASABvAG0AZQBEAGkAcgBEAHIAaQB2AGUAMDAgAAIAAQBDAHQAeAB
+ XAEYAUAByAG8AZgBpAGwAZQBQAGEAdABoADAwIgACAAEAQwB0AHgASQBuAGkAdABpAGEAbABQAH
+ IAbwBnAHIAYQBtADAwIgACAAEAQwB0AHgAQwBhAGwAbABiAGEAYwBrAE4AdQBtAGIAZQByADAwK
+ AAIAAEAQwB0AHgATQBhAHgAQwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwLgAI
+ AAEAQwB0AHgATQBhAHgARABpAHMAYwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDA
+ wHAAIAAEAQwB0AHgATQBhAHgASQBkAGwAZQBUAGkAbQBlADAwMDAwMDAw
+sambaHomePath: \\home\freich
+sambaHomeDrive: D:
+sambaPrimaryGroupSID: -513
+sambaDomainName: DEFAULT
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: gosaAccount
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: sambaSamAccount
+
+dn: cn=freich,ou=groups,dc=example,dc=net
+cn: freich
+description: Group of user freich freich
+gidNumber: 1001
+sambaGroupType: 2
+sambaSID: -2003
+labeledURI: ldap:///cn=freich,ou=groups,dc=example,dc=net?memberU
+ id?sub?(objectClass=posixGroup)
+gotoProfileFlags: L
+objectClass: top
+objectClass: posixGroup
+objectClass: sambaGroupMapping
+objectClass: goFonPickupGroup
+objectClass: nagiosContactGroup
+objectClass: labeledURIObject
+objectClass: gotoEnvironment
+
+dn: cn=administration,ou=roles,dc=example,dc=net
+cn: administration
+roleOccupant: cn=Frank Reich,ou=people,dc=example,dc=net
+roleOccupant: cn=System Administrator,ou=people,dc=example,dc=net
+labeledURI: ldap:///new?memberUid?sub?(objectClass=posixGroup)
+objectClass: top
+objectClass: organizationalRole
+objectClass: labeledURIObject
+
+dn: cn=administration,ou=aclroles,dc=example,dc=net
+objectClass: top
+objectClass: gosaRole
+gosaAclTemplate: 0:sub::all/all;cmdrw,all/core;cmdrw
+cn: administration
+

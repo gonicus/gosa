@@ -18,6 +18,7 @@
 
 /**
  * This is the main application class of your custom application "gosa"
+ * @ignore(throb,throb.stop)
  */
 
 qx.Class.define("gosa.Application",

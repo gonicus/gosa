@@ -43,7 +43,6 @@ class TwoFactorAuthManager(Plugin):
     """
     Manages the two factor authentication settings for users
     """
-    # TODO: implement U2F
 
     _priority_ = 80
     _target_ = 'user'

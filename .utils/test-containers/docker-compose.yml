@@ -1,0 +1,53 @@
+version: '2.2'
+
+services:
+
+  openldap:
+    image: gonicus/openldap:latest
+    container_name: gosa-test-openldap
+    restart: always
+    network_mode: host
+    ports:
+      - "389:389"
+      - "636:636"
+    volumes:
+      - ./config/ldap/db:/var/lib/ldap
+      - ./config/ldap/etc:/etc/ldap
+      - ./config/ldap/ldif:/provision
+
+  db:
+    image: postgres
+    container_name: gosa-test-db
+    network_mode: host
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: gosa-test
+    volumes:
+      - ./config/postgresql/db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  cups:
+    image: gonicus/cups:latest
+    container_name: gosa-test-cups
+    network_mode: host
+    volumes:
+      - ./config/cups/cupsd.conf:/etc/cups/cupsd.conf
+    restart: always
+    ports:
+      - "8631:8631"
+
+  mqtt:
+    image: gonicus/mosquitto:latest
+    container_name: gosa-test-mqtt
+    restart: always
+    network_mode: host
+    environment:
+      HTTP_AUTH_HOST: 127.0.0.1:8050
+    volumes:
+      - ./config/mosquitto:/provision/mosquitto
+    ports:
+      - "1883:1883"
+      - "8883:8883"

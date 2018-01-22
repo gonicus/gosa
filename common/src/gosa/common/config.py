@@ -232,7 +232,7 @@ class Config(object):
         try:
             if self.get(path, use_user_config=False) != value:
                 self.__user_config.set(section, key, value)
-            elif self.__user_config.get(section, key) != value:
+            elif self.__user_config.has_option(section, key) and self.__user_config.get(section, key) != value:
                 # return to unchanged value -> do not override
                 self.__user_config.remove_option(section, key)
                 if len(self.__user_config.options(section)) == 0:

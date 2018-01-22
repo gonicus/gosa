@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa-plugin-goto 1.0\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-01-16 12:41+0100\n"
+"POT-Creation-Date: 2018-01-22 11:20+0100\n"
 "PO-Revision-Date: 2018-01-16 10:44+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de\n"
@@ -22,32 +22,32 @@ msgstr ""
 #: src/gosa/plugins/goto/client_service.py:43
 #, python-format
 msgid "Device with hardware address '%(topic)s' already exists"
-msgstr ""
+msgstr "Ein Gerät mit der Hardware-Adresse '%(topic)s' existiert bereits"
 
 #: src/gosa/plugins/goto/client_service.py:44
 #, python-format
 msgid "User '%(topic)s' is not unique"
-msgstr ""
+msgstr "Benutzer '%(topic)s' ist nicht eindeutig"
 
 #: src/gosa/plugins/goto/client_service.py:45
 #, python-format
 msgid "Client '%(topic)s' not found"
-msgstr ""
+msgstr "Client '%(topic)s' nicht gefunden"
 
 #: src/gosa/plugins/goto/client_service.py:46
 #, python-format
 msgid "Client '%(topic)s' is offline"
-msgstr ""
+msgstr "Client '%(topic)s' ist offline"
 
 #: src/gosa/plugins/goto/client_service.py:47
 #, python-format
 msgid "Client '%(topic)s' has no method %(method)s"
-msgstr ""
+msgstr "Client '%(topic)s' unterstützt die Methode '%(method)s' nicht"
 
 #: src/gosa/plugins/goto/client_service.py:48
-#, python-format
+#, fuzzy, python-format
 msgid "Invalid data '%(entry)s:%(data)s' for client '%(topic)s provided'"
-msgstr ""
+msgstr "Ungültige Daten '%(entry)s:%(data)s' für Client '%(topic)s' angegeben"
 
 #: src/gosa/plugins/goto/client_service.py:49
 #, python-format
@@ -55,86 +55,90 @@ msgid ""
 "Device type '%(type)s' for client '%(topic)s' is invalid [terminal, "
 "workstation, server, sipphone, switch, router, printer, scanner]"
 msgstr ""
+"Unzulässiger Gerätetyp '%(type)s' für Slient '%(topic)s' [terminal, "
+"workstation, server, sipphone, switch, router, printer, scanner]"
 
 #: src/gosa/plugins/goto/client_service.py:50
 #, python-format
 msgid "Owner '%(owner)s' for client '%(topic)s' not found"
-msgstr ""
+msgstr "Besitzer '%(owner)s' für Client '%(topic)s' nicht gefunden"
 
 #: src/gosa/plugins/goto/client_service.py:51
 #, python-format
 msgid "Invalid client UUID '%(topic)s'"
-msgstr ""
+msgstr "Ungültige Client UUID '%(topic)s'"
 
 #: src/gosa/plugins/goto/client_service.py:52
 #, python-format
 msgid "Invalid status '%(status)s' for client '%(topic)s'"
-msgstr ""
+msgstr "Ungültiger Status '%(status)s' für Client '%(topic)s'"
 
 #: src/gosa/plugins/goto/client_service.py:159
 msgid "List available clients."
-msgstr ""
+msgstr "Listed verfügbare Clients."
 
 #: src/gosa/plugins/goto/client_service.py:173
 msgid "Call method exposed by client."
-msgstr ""
+msgstr "Rufe Methode auf, die vom Client zur Verfügung gestellt wird."
 
 #: src/gosa/plugins/goto/client_service.py:213
 msgid "Check if the client supports a method call"
-msgstr ""
+msgstr "Prüfe ob der Client den Methodenaufruf unterstützt"
 
 #: src/gosa/plugins/goto/client_service.py:237
 msgid "Get the client Interface/IP/Netmask/Broadcast/MAC list."
-msgstr ""
+msgstr "Liefert die Client Schnittstelle/IP/Netzmaske/Broadcast/MAC Liste."
 
 #: src/gosa/plugins/goto/client_service.py:263
 msgid "List available client methods for specified client."
-msgstr ""
+msgstr "Liefert die Methoden, die der Client bereitstellt."
 
 #: src/gosa/plugins/goto/client_service.py:279
 msgid "List user sessions per client"
-msgstr ""
+msgstr "Liefert die Benutzer-Sitzungen für die Clients"
 
 #: src/gosa/plugins/goto/client_service.py:290
 msgid "List clients a user is logged in"
-msgstr ""
+msgstr "Liefert die Clients mit aktiviert Benutzersitzung"
 
 #: src/gosa/plugins/goto/client_service.py:297
 msgid "Send synchronous notification message to user"
-msgstr ""
+msgstr "Sendet Benachrichtigung an Benutzer"
 
 #: src/gosa/plugins/goto/client_service.py:369
 #: src/gosa/plugins/goto/client_service.py:380
 msgid "Set system status"
-msgstr ""
+msgstr "Setzt den System Status"
 
 #: src/gosa/plugins/goto/client_service.py:400
 msgid "Join a client to the GOsa infrastructure."
-msgstr ""
+msgstr "Fügt einen Client zur GOsa-Infrastruktur hinzu."
 
 #: src/gosa/plugins/goto/client_service.py:546
 msgid "Prepare a user session after a user has logged in"
-msgstr ""
+msgstr "Bereitet die Benutzersitzung nach dem Einloggen vor."
 
 #: src/gosa/plugins/goto/client_service.py:588
 msgid "Cleanup a user session after a user has logged out"
-msgstr ""
+msgstr "Entfernt die Benutzersitzung nach dem Ausloggen."
 
 #: src/gosa/plugins/goto/client_service.py:806
-msgid "Unbekannt"
-msgstr ""
+msgid "unknown"
+msgstr "Unbekannt"
 
 #: src/gosa/plugins/goto/client_service.py:829
 msgid ""
 "Send user specific configuration (e.g. printers) to a clients active user"
 " sessions"
 msgstr ""
+"Sendet die individuellen Einstellungen  (z.B. Drucker) für die aktiven "
+"Benutzer eines Clients"
 
 #: src/gosa/plugins/goto/network.py:28
 msgid "Resolve network address to a mac / dns name tupel."
-msgstr ""
+msgstr "Netzwerkadresse in ein Tupel aus MAC / DNS namen auflösen."
 
 #: src/gosa/plugins/goto/network.py:65
 msgid "Resolve MAC address to the producer of the network card if possible."
-msgstr ""
+msgstr "MAC Adresse nach Hersteller der Netzwerkarte auflösen, wenn möglich."
 

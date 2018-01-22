@@ -9,11 +9,11 @@
 
 import pytest
 from gosa.backend.main import *
+from gosa.backend.objects import ObjectFactory
 
 
 def pytest_addoption(parser):
     parser.addoption("--runslow", action="store_true", help="run slow tests")
-    parser.addoption("--travis", action="store_true", default=False, help="Use travis config for tests")
 
 
 def pytest_configure(config):
@@ -28,14 +28,6 @@ def pytest_unconfigure(config):
 
 @pytest.fixture(scope="session", autouse=True)
 def use_test_config():
-    Environment.reset()
-    if pytest.config.getoption("--travis") is True:
-        Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "configs", "travis_conf")
-    else:
-        Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "configs", "test_conf")
-    Environment.noargs = True
-
-    Environment.getInstance()
     if not sys.stdout.encoding:
         sys.stdout = codecs.getwriter('utf8')(sys.stdout)
     if not sys.stderr.encoding:
@@ -46,3 +38,6 @@ def use_test_config():
     # sync index
     index = PluginRegistry.getInstance("ObjectIndex")
     index.sync_index()
+
+    # create all classes to prevent test timeouts
+    ObjectFactory.getInstance().create_classes()

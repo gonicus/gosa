@@ -13,7 +13,7 @@ msgstr ""
 
 #: gosa/plugins/yql/Main.js:128
 msgid "YQL"
-msgstr ""
+msgstr "YQL"
 
 #: gosa/plugins/yql/Main.js:139
 msgid "YQL query"

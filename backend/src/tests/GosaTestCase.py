@@ -32,7 +32,6 @@ class GosaTestCase(TestCase):
         if len(res) > 0:
             new_domain = ObjectProxy("dc=test,dc=example,dc=net")
             new_domain.remove(True)
-            new_domain.commit()
 
         new_domain = ObjectProxy("dc=example,dc=net", "DomainComponent")
         new_domain.dc = "test"

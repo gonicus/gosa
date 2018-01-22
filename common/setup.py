@@ -30,7 +30,9 @@ common_install_requires = [
     'lxml',
     'polib',
     'cryptography',
-    'colorlog'
+    'colorlog',
+    'dnspython',
+    'pycrypto'
     ],
 
 setup(

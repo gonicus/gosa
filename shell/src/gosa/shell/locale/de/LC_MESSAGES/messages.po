@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GOsa 3.0\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-01-16 12:41+0100\n"
+"POT-Creation-Date: 2018-01-22 11:20+0100\n"
 "PO-Revision-Date: 2010-07-19 17:03+0200\n"
 "Last-Translator: Cajus Pollmeier <pollmeier@gonicus.de>\n"
 "Language: de\n"
@@ -21,58 +21,67 @@ msgstr ""
 #: src/gosa/shell/main.py:109
 msgid "An open object has changed in the backend. You can either:"
 msgstr ""
+"Ein geöffnetes Objekt hat sich im Backend geändert. Sie können folgendes "
+"tun:"
 
 #: src/gosa/shell/main.py:110
 msgid ""
 "(1) Close the object and reopen it. All modified yet unsaved data will be"
 " lost."
 msgstr ""
+"(1) Das Objekt schließen und erneut öffnen. Alle ungespeicherten "
+"Änderungen gehen verloren."
 
 #: src/gosa/shell/main.py:111
 msgid ""
 "(2) Save your changes. Everything changed in the backend meanwhile will "
 "be lost."
-msgstr ""
+msgstr "(2) Änderungen speichern. Alle Änderungen im Backend gehen verloren."
 
 #: src/gosa/shell/main.py:113
 msgid ""
 "Information about the modified object (attribute name -> new backend "
 "value)"
 msgstr ""
+"Informationen über das geänderte Objekt (Attributename -> neuer Wert vom "
+"Backend)"
 
 #: src/gosa/shell/main.py:114
 msgid "dn='{}', uuid='{}'"
-msgstr ""
+msgstr "dn='{}', uuid='{}'"
 
 #: src/gosa/shell/main.py:124
 msgid "CHANGED ATTRIBUTES:"
-msgstr ""
+msgstr "GEÄNDERTE ATTRIBUTE:"
 
 #: src/gosa/shell/main.py:125
 msgid "ADDED ATTRIBUTES:"
-msgstr ""
+msgstr "HINZUGEFÜGTE ATTRIBUTE:"
 
 #: src/gosa/shell/main.py:126
 msgid "REMOVED ATTRIBUTES:"
-msgstr ""
+msgstr "ENTFERNTE ATTRIBUTE:"
 
 #: src/gosa/shell/main.py:127
 msgid "ADDED EXTENSIONS:"
-msgstr ""
+msgstr "HINZUGEFÜGTE ERWEITERUNGEN:"
 
 #: src/gosa/shell/main.py:128
 msgid "REMOVED EXTENSIONS:"
-msgstr ""
+msgstr "ENTFERNTE ERWEITERUNGEN"
 
 #: src/gosa/shell/main.py:130
 msgid ""
 "An object changed in the backend while it was opened. Your changes might "
 "override the changes. Ignoring, because not running in interactive mode."
 msgstr ""
+"Ein Objekt wurde im Backend geändert, während es geöffnet war. Ihre "
+"Änderungen könnten die Backend Änderungen überschreiben. Dieser Zustand "
+"wird im nicht interaktiven Modus ignoriert."
 
 #: src/gosa/shell/main.py:132
 msgid "Unhandled objectChange event of change type"
-msgstr ""
+msgstr "Unbehandeltes objectChange Ereignis vom Typ"
 
 #: src/gosa/shell/main.py:233
 msgid "Need at least a service URI!"
@@ -100,25 +109,27 @@ msgstr "Das gewählte Protokoll wird nicht unterstützt!"
 
 #: src/gosa/shell/main.py:283
 msgid "checking U2F devices..."
-msgstr ""
+msgstr "prüfe U2F Geräte..."
 
 #: src/gosa/shell/main.py:287
 msgid "No U2F devices found, aborting!"
-msgstr ""
+msgstr "Keine U2F Geräte gefunden, breche ab!"
 
 #: src/gosa/shell/main.py:298
 msgid "Please touch the flashing U2F device now."
-msgstr ""
+msgstr "Bitte berühren sie das blinkende U2F Gerät jetzt."
 
 #: src/gosa/shell/main.py:305
 msgid "U2F authentication has been enabled"
-msgstr ""
+msgstr "U2F Authentifizierung wurde aktiviert"
 
 #: src/gosa/shell/main.py:314
 msgid ""
 "You have to activate SSL support in the backend for enabling/changing the"
 " two-factor authentication method!"
 msgstr ""
+"Sie müssen SSL im Backend aktivieren, um die Zwei-Faktor-"
+"Authentifizierungs Methode aktivieren/verändern zu können!"
 
 #: src/gosa/shell/main.py:481
 #, fuzzy
