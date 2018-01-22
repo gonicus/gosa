@@ -31,7 +31,8 @@ common_install_requires = [
     'polib',
     'cryptography',
     'colorlog',
-    'dnspython'
+    'dnspython',
+    'brypt'
     ],
 
 setup(
