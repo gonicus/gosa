@@ -813,7 +813,7 @@ class RPCMethods(Plugin):
         for attr in re.findall(r"%\(([^)]+)\)s", v):
 
             # Extract ordinary attributes
-            if attr in info:
+            if attr in info and info[attr] is not None:
                 attrs[attr] = ", ".join(info[attr])
 
             # Check for result renderers
