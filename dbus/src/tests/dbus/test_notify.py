@@ -30,6 +30,7 @@ class NotifyTestCase(TestCase):
 
         del notify
 
+    @pytest.mark.skipif(os.environ['TRAVIS'] == "true", reason="DBUS test do not work on Travis CI")
     def test_main(self, m_service):
         m_service.return_value.GetCapabilities.return_value = []
 
