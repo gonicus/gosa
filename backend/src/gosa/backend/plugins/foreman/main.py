@@ -109,7 +109,7 @@ class Foreman(Plugin):
 
     def serve(self):
 
-        if self.client and self.env.mode != "proxy" and not sys._called_from_test:
+        if self.client and self.env.mode != "proxy" and not hasattr(sys, '_called_from_test'):
             sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
             sched.add_interval_job(self.flush_parameter_setting, seconds=10, tag='_internal', jobstore="ram")
 
