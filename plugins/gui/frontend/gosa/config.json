@@ -45,7 +45,8 @@
       "libraries",
       "common",
       "source",
-      "lint"
+      "lint",
+      "test-source"
     ],
     "exclude" :
     [
