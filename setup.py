@@ -50,6 +50,7 @@ for module in modules:
             "type": "module"
         }
         if task in ["develop", "install"]:
+            print("%s failed in %s, aborting with return code: %s!" % (command, module, return_code))
             sys.exit(module_return_code)
 
 for root, dirs, files in os.walk("plugins"):
