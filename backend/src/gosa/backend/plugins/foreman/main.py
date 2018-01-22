@@ -859,15 +859,14 @@ class ForemanHookReceiver(object):
                 foreman.sync_release_name(payload_data, session, event=data['event'])
                 session.commit()
                 return
-        self.log.debug("1")
         factory = ObjectFactory.getInstance()
         foreman_type = type
         if type == "discovered_host":
             type = "host"
-        self.log.debug("2")
+
         object_types = factory.getObjectNamesWithBackendSetting("Foreman", "type", "%ss" % type)
         object_type = object_types[0] if len(object_types) else None
-        self.log.debug("3")
+
         backend_attributes = factory.getObjectBackendProperties(object_type) if object_type is not None else None
         self.log.debug("Hookevent: '%s' for '%s' (%s)" % (data['event'], data['object'], object_type))
 
