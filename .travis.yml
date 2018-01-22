@@ -56,7 +56,7 @@ before_script:
 script:
     # finally run the tests, with running dbus
     - export ASYNC_TEST_TIMEOUT=10
-    - dbus-launch ./setup.py test --addopts="--runslow -v -x"
+    - dbus-launch ./setup.py test --addopts="--runslow -v"
 after_success:
     # send test coverage results to coveralls.io
     - coveralls --merge=coveralls.json
