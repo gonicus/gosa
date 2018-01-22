@@ -27,12 +27,12 @@ before_install:
   - cd .utils/test-containers && docker-compose up -d && cd ../../
   # some preparations for the tests
   - export TZ=Europe/Berlin
-  - sudo mkdir /tmp/workflows
-  - sudo mkdir /tmp/images
+  - sudo mkdir -p /tmp/gosa/workflows
+  - sudo mkdir /tmp/gosa/images
+  - sudo mkdir /tmp/gosa/widgets
   - sudo mkdir /etc/gosa
   - sudo cp ./configs/test_conf/config /etc/gosa/
-  - sudo chown travis:travis /tmp/workflows
-  - sudo chown travis:travis /tmp/images
+  - sudo chown travis:travis /tmp/gosa
 install:
   - sudo apt-get install libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev
   - virtualenv --python=python3.6 --system-site-packages .env

@@ -3,7 +3,7 @@ profile = False
 base = dc=example,dc=net
 domain = net.example
 id = fff0c8ad-d26b-4b6d-8e8e-75e054614dd9
-workflow-path = /tmp/workflows
+workflow-path = /tmp/gosa/workflows
 
 [http]
 host = localhost
@@ -21,11 +21,11 @@ pool-size = 10
 database = postgresql://admin:secret@localhost:5432/gosa-test
 
 [backend-json]
-database-file = /tmp/gosa.json
+database-file = /tmp/gosa/gosa.json
 
 [user]
-image-path = /tmp/images
-2fa-store = /tmp/2fa
+image-path = /tmp/gosa/images
+2fa-store = /tmp/gosa/2fa
 
 [backend]
 admins = admin
@@ -43,9 +43,10 @@ script-path = /tmp/shell.d
 
 [gui]
 debug = true
+widget-path = /tmp/gosa/widgets
 
 [webhooks]
-registry-store = /tmp/webhooks
+registry-store = /tmp/gosa/webhooks
 ldap_monitor_token = 9d6250c0-6413-4b1e-98d9-7b763472962a
 
 [backend-monitor]
