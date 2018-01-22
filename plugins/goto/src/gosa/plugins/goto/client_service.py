@@ -992,7 +992,7 @@ class ClientService(Plugin):
         except ValueError as e:
             id = C.get_error_id(str(e))
             error = C.getError(None, None, id, keep=True)
-            if error.status_code == 404:
+            if error['status_code'] == 404:
                 pass
             else:
                 raise e
