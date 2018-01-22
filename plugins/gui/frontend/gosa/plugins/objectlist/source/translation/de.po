@@ -13,7 +13,7 @@ msgstr ""
 
 #: gosa/plugins/objectlist/Main.js:192
 msgid "ObjectList"
-msgstr ""
+msgstr "Objektliste"
 
 #: gosa/plugins/objectlist/Main.js:203
 msgid "Title"

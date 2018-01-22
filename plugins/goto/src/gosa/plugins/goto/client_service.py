@@ -803,7 +803,7 @@ class ClientService(Plugin):
             if 'children' in entry:
                 if not 'menus' in result:
                     result['menus'] = {}
-                result['menus'][entry.get('name', N_('Unbekannt'))] = self.get_submenu(entry['children'])
+                result['menus'][entry.get('name', N_('unknown'))] = self.get_submenu(entry['children'])
             else:
                 application = self.get_application(entry)
                 result['apps'][application.get('cn', 'name')] = application

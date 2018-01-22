@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gosa.backend 1.0\n"
+"Project-Id-Version: gosa.backend 3.0\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-01-17 15:52+0100\n"
+"POT-Creation-Date: 2018-01-22 11:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -881,8 +881,7 @@ msgstr ""
 msgid ""
 "This attribute keeps a unique identifier for a device that should be "
 "registered to the GOsa services. It is used as a unique key to find the "
-"relationship of the registered device to other information like "
-"inventory, received events and logging data."
+"relationship of the registered device to other information like inventor"
 msgstr ""
 
 #: src/gosa/backend/data/templates/device-registered.json:80
@@ -913,7 +912,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/device-registered.json:124
 #: src/gosa/backend/data/templates/device-registered.json:134
-msgid "To order systems, you can mark a system i.e. as a server"
+msgid "To order system"
 msgstr ""
 
 #: src/gosa/backend/data/templates/device-registered.json:145
@@ -984,7 +983,9 @@ msgid "Device"
 msgstr ""
 
 #: src/gosa/backend/data/templates/device.json:35
-msgid "Common Name"
+#: src/gosa/backend/data/templates/gosaApplication.json:38
+#: src/gosa/backend/data/templates/groupOfNames.json:34
+msgid "Common name"
 msgstr ""
 
 #: src/gosa/backend/data/templates/device.json:69
@@ -1028,17 +1029,14 @@ msgid "Domain"
 msgstr ""
 
 #: src/gosa/backend/data/templates/domain.json:35
+#: src/gosa/backend/data/templates/domaincomponent.json:5
+#: src/gosa/backend/data/templates/domaincomponent.json:9
 msgid "Domain component"
 msgstr ""
 
 #: src/gosa/backend/data/templates/domain.json:70
 #: src/gosa/backend/data/templates/organization.json:35
 msgid "Organization name"
-msgstr ""
-
-#: src/gosa/backend/data/templates/domaincomponent.json:5
-#: src/gosa/backend/data/templates/domaincomponent.json:9
-msgid "Domain Component"
 msgstr ""
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:15
@@ -1158,11 +1156,6 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/gosaApplication.json:7
 msgid "Application"
-msgstr ""
-
-#: src/gosa/backend/data/templates/gosaApplication.json:38
-#: src/gosa/backend/data/templates/groupOfNames.json:34
-msgid "Common name"
 msgstr ""
 
 #: src/gosa/backend/data/templates/gosaApplication.json:60
@@ -1491,7 +1484,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:50
 #: src/gosa/backend/data/templates/samba-domain.json:60
-msgid "Lockout duration in minutes (default: 30, -1 => forever)"
+msgid "Lockout duration in minutes (default: 3"
 msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:70
@@ -1518,7 +1511,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:113
 #: src/gosa/backend/data/templates/samba-domain.json:123
-msgid "Force Users to logon for password change (default: 0 => off, 2 => on)"
+msgid "Force Users to logon for password change (default: 0 => of"
 msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:133
@@ -1527,7 +1520,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:134
 #: src/gosa/backend/data/templates/samba-domain.json:144
-msgid "Disconnect Users outside logon hours (default: -1 => off, 0 => on)"
+msgid "Disconnect Users outside logon hours (default: -1 => of"
 msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:154
@@ -1598,9 +1591,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:298
 #: src/gosa/backend/data/templates/samba-domain.json:308
-msgid ""
-"Minimum password age, in seconds (default: 0 => allow immediate password "
-"change)"
+msgid "Minimum password ag"
 msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:318
@@ -1611,7 +1602,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:319
 #: src/gosa/backend/data/templates/samba-domain.json:329
-msgid "Maximum password age, in seconds (default: -1 => never expire passwords)"
+msgid "Maximum password ag"
 msgstr ""
 
 #: src/gosa/backend/data/templates/samba-ws.json:8
@@ -2094,54 +2085,54 @@ msgstr ""
 msgid "Proxy URL"
 msgstr ""
 
-#: src/gosa/backend/objects/factory.py:76
+#: src/gosa/backend/objects/factory.py:78
 #, python-format
 msgid "'%(type)s' is no base type"
 msgstr ""
 
-#: src/gosa/backend/objects/factory.py:77 src/gosa/backend/objects/proxy.py:66
+#: src/gosa/backend/objects/factory.py:79 src/gosa/backend/objects/proxy.py:66
 #: src/gosa/backend/plugins/foreman/main.py:40
 #, python-format
 msgid "Unknown object type '%(type)s'"
 msgstr ""
 
-#: src/gosa/backend/objects/factory.py:78
+#: src/gosa/backend/objects/factory.py:80
 #, python-format
 msgid "Cannot find base object for type '%(type)s'"
 msgstr ""
 
-#: src/gosa/backend/objects/factory.py:79
+#: src/gosa/backend/objects/factory.py:81
 #, python-format
 msgid "No base type for attribute '%(attribute)s found'"
 msgstr ""
 
-#: src/gosa/backend/objects/factory.py:80
+#: src/gosa/backend/objects/factory.py:82
 #, python-format
 msgid ""
 "Cannot identify '%(topic)s' - it seems to be of type '%(type1)s' and "
 "'%(type2)s' at the same time"
 msgstr ""
 
-#: src/gosa/backend/objects/factory.py:81
-msgid "Cannot load object schema"
-msgstr ""
-
-#: src/gosa/backend/objects/factory.py:82
-#, python-format
-msgid "Attribute '%(topic)s' is blocked by non existing attribute '%(blocker)s'"
-msgstr ""
-
 #: src/gosa/backend/objects/factory.py:83
-#, python-format
-msgid "Attribute '%(topic)s' depends on non existing attribute '%(dependency)s'"
+msgid "Cannot load object schema"
 msgstr ""
 
 #: src/gosa/backend/objects/factory.py:84
 #, python-format
-msgid "Method '%(method)s' depends on unknown attribute %(attribute)s"
+msgid "Attribute '%(topic)s' is blocked by non existing attribute '%(blocker)s'"
 msgstr ""
 
 #: src/gosa/backend/objects/factory.py:85
+#, python-format
+msgid "Attribute '%(topic)s' depends on non existing attribute '%(dependency)s'"
+msgstr ""
+
+#: src/gosa/backend/objects/factory.py:86
+#, python-format
+msgid "Method '%(method)s' depends on unknown attribute %(attribute)s"
+msgstr ""
+
+#: src/gosa/backend/objects/factory.py:87
 #, python-format
 msgid "Parameter '%(parameter)s' for command '%(command)s' is missing"
 msgstr ""
@@ -2749,97 +2740,97 @@ msgstr ""
 msgid "(%groups)s found for group id '%(group_id)s'"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:413
+#: src/gosa/backend/plugins/foreman/main.py:414
 msgid "Get all available foreman LSB names"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:422
+#: src/gosa/backend/plugins/foreman/main.py:423
 msgid "Get release name of an operating system"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:432
+#: src/gosa/backend/plugins/foreman/main.py:433
 msgid "Get details of a single foreman hostgroup."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:450
+#: src/gosa/backend/plugins/foreman/main.py:451
 msgid "Get available foreman compute resources."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:463
+#: src/gosa/backend/plugins/foreman/main.py:464
 msgid "Get available foreman domains."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:467
-#: src/gosa/backend/plugins/foreman/main.py:514
+#: src/gosa/backend/plugins/foreman/main.py:468
+#: src/gosa/backend/plugins/foreman/main.py:515
 msgid "Get available foreman hostgroups."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:489
-#: src/gosa/backend/plugins/foreman/main.py:497
+#: src/gosa/backend/plugins/foreman/main.py:490
+#: src/gosa/backend/plugins/foreman/main.py:498
 msgid "Get available foreman operating systems."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:493
+#: src/gosa/backend/plugins/foreman/main.py:494
 msgid "Get available foreman architectures."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:501
+#: src/gosa/backend/plugins/foreman/main.py:502
 msgid "Get available foreman partition tables."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:505
+#: src/gosa/backend/plugins/foreman/main.py:506
 msgid "Get available foreman media."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:531
+#: src/gosa/backend/plugins/foreman/main.py:532
 msgid "Get discovered hosts as search key(dn): value(cn) pairs."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:548
+#: src/gosa/backend/plugins/foreman/main.py:549
 msgid "Get all SystemsContainer search key(dn): value(dn) pairs."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:561
+#: src/gosa/backend/plugins/foreman/main.py:562
 msgid "Get foreman hosts as search key(dn): value(cn) pairs."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:578
+#: src/gosa/backend/plugins/foreman/main.py:579
 msgid "Get discovered hosts as search result."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:599
+#: src/gosa/backend/plugins/foreman/main.py:600
 msgid "Force a Puppet agent run on the host"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:603
+#: src/gosa/backend/plugins/foreman/main.py:604
 msgid "Boot host from specified device"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:613
+#: src/gosa/backend/plugins/foreman/main.py:614
 msgid "Run a power operation on host"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:622
+#: src/gosa/backend/plugins/foreman/main.py:623
 msgid "Checks if a host supports power operations"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:626
+#: src/gosa/backend/plugins/foreman/main.py:627
 msgid "Get a foreman setting by ID"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:769
+#: src/gosa/backend/plugins/foreman/main.py:770
 msgid "Foreman host event"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:820
+#: src/gosa/backend/plugins/foreman/main.py:821
 msgid "Foreman hook event"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:947
+#: src/gosa/backend/plugins/foreman/main.py:948
 msgid "Host ready"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:948
+#: src/gosa/backend/plugins/foreman/main.py:949
 #, python-format
 msgid "Host '%s' has been successfully build."
 msgstr ""

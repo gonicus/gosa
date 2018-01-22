@@ -5,17 +5,17 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GOsa3\n"
+"Project-Id-Version:  GOsa3\n"
 "Report-Msgid-Bugs-To: pollmeier@gonicus.de\n"
-"POT-Creation-Date: 2018-01-17 15:52+0100\n"
+"POT-Creation-Date: 2018-01-22 11:20+0100\n"
 "PO-Revision-Date: 2012-09-28 16:00+0200\n"
 "Last-Translator: Cajus Pollmeier <pollmeier@gonicus.de>\n"
-"Language-Team: de <LL@li.org>\n"
 "Language: de\n"
+"Language-Team: de <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "Generated-By: Babel 2.5.3\n"
 
 #: src/gosa/backend/acl.py:92
@@ -47,11 +47,11 @@ msgstr "ACL- und Rollen-Objekte sind nicht kombinierbar"
 
 #: src/gosa/backend/acl.py:98
 msgid ""
-"Invalid permission map - combination of the characters c, r, o, w, d, s, e, "
-"x and m expected"
+"Invalid permission map - combination of the characters c, r, o, w, d, s, "
+"e, x and m expected"
 msgstr ""
-"Ungültige Berechtigungsabbildung - Kombination der Zeichen c, r, o, w, d, s,"
-" e, x und m erwartet"
+"Ungültige Berechtigungsabbildung - Kombination der Zeichen c, r, o, w, d,"
+" s, e, x und m erwartet"
 
 #: src/gosa/backend/acl.py:99
 #, python-format
@@ -98,8 +98,7 @@ msgstr "Aktion '%(action)s' hat keinen '%(key)s' Schlüssel"
 
 #: src/gosa/backend/acl.py:108
 msgid "Action and role name parameter cannot be used at the same time"
-msgstr ""
-"Aktion und Rollenname Parameter können nicht gleichzeitig benutzt werden"
+msgstr "Aktion und Rollenname Parameter können nicht gleichzeitig benutzt werden"
 
 #: src/gosa/backend/acl.py:109
 #, python-format
@@ -183,10 +182,10 @@ msgstr "Definierte Rollen-ACL anhand des Namens löschen"
 
 #: src/gosa/backend/command.py:70
 #, python-format
-msgid ""
-"Calling method '%(method)s' without a valid user session is not permitted"
+msgid "Calling method '%(method)s' without a valid user session is not permitted"
 msgstr ""
-"Methodenaufruf '%(method)s' ohne gültige Benutzer-Sitzung ist nicht erlaubt"
+"Methodenaufruf '%(method)s' ohne gültige Benutzer-Sitzung ist nicht "
+"erlaubt"
 
 #: src/gosa/backend/command.py:71
 #, python-format
@@ -282,8 +281,8 @@ msgstr ""
 
 #: src/gosa/backend/components/jsonrpc_objects.py:35
 msgid ""
-"No master backend defined in slave mode. Please configure a master server in"
-" 'core.master' config option"
+"No master backend defined in slave mode. Please configure a master server"
+" in 'core.master' config option"
 msgstr ""
 
 #: src/gosa/backend/components/jsonrpc_objects.py:74
@@ -295,8 +294,7 @@ msgid "Close object and remove it from stack"
 msgstr "Schliesst ein Objekt und entfernt es vom Stapel"
 
 #: src/gosa/backend/components/jsonrpc_objects.py:106
-msgid ""
-"Prevent an object from being automatically closed by an inactivity timeout"
+msgid "Prevent an object from being automatically closed by an inactivity timeout"
 msgstr ""
 
 #: src/gosa/backend/components/jsonrpc_objects.py:137
@@ -321,8 +319,7 @@ msgstr "Läd Objekt neu"
 
 #: src/gosa/backend/components/jsonrpc_objects.py:290
 msgid "Returns a delta of the reference currently in store and the data store"
-msgstr ""
-"Liefert die Änderungen der Objekt-Referenz und des momentanen Objektes"
+msgstr "Liefert die Änderungen der Objekt-Referenz und des momentanen Objektes"
 
 #: src/gosa/backend/components/jsonrpc_objects.py:399
 msgid "Removes the given object"
@@ -573,7 +570,7 @@ msgstr ""
 msgid "Grub2 SecureBoot"
 msgstr ""
 
-    #: src/gosa/backend/data/objects/foremanHost.xml:238
+#: src/gosa/backend/data/objects/foremanHost.xml:238
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:145
 #, fuzzy
 msgid "None"
@@ -698,7 +695,6 @@ msgstr ""
 #, fuzzy
 msgid "disconnect"
 msgstr "trennen"
-
 
 #: src/gosa/backend/data/objects/user-samba.xml:585
 msgid "reset"
@@ -907,8 +903,7 @@ msgstr ""
 msgid ""
 "This attribute keeps a unique identifier for a device that should be "
 "registered to the GOsa services. It is used as a unique key to find the "
-"relationship of the registered device to other information like inventory, "
-"received events and logging data."
+"relationship of the registered device to other information like inventor"
 msgstr ""
 
 #: src/gosa/backend/data/templates/device-registered.json:80
@@ -927,10 +922,10 @@ msgstr ""
 #: src/gosa/backend/data/templates/device-registered.json:102
 #: src/gosa/backend/data/templates/device-registered.json:112
 msgid ""
-"The deviceStatus attribute represents several states a system can represent."
-" Note that this is the current status - i.e. no history of states is "
-"recordable this way. The attribute is mostly used to quickly determine the "
-"state without reading system logs. "
+"The deviceStatus attribute represents several states a system can "
+"represent. Note that this is the current status - i.e. no history of "
+"states is recordable this way. The attribute is mostly used to quickly "
+"determine the state without reading system logs. "
 msgstr ""
 
 #: src/gosa/backend/data/templates/device-registered.json:123
@@ -939,8 +934,9 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/device-registered.json:124
 #: src/gosa/backend/data/templates/device-registered.json:134
-msgid "To order systems, you can mark a system i.e. as a server"
-msgstr ""
+#, fuzzy
+msgid "To order system"
+msgstr "Zuletzt angemeldet auf"
 
 #: src/gosa/backend/data/templates/device-registered.json:145
 msgid "DN of manager"
@@ -1012,7 +1008,9 @@ msgid "Device"
 msgstr "Gerät"
 
 #: src/gosa/backend/data/templates/device.json:35
-msgid "Common Name"
+#: src/gosa/backend/data/templates/gosaApplication.json:38
+#: src/gosa/backend/data/templates/groupOfNames.json:34
+msgid "Common name"
 msgstr ""
 
 #: src/gosa/backend/data/templates/device.json:69
@@ -1057,6 +1055,8 @@ msgid "Domain"
 msgstr "Domäne"
 
 #: src/gosa/backend/data/templates/domain.json:35
+#: src/gosa/backend/data/templates/domaincomponent.json:5
+#: src/gosa/backend/data/templates/domaincomponent.json:9
 msgid "Domain component"
 msgstr "Domänen-Objekt-Klasse"
 
@@ -1064,11 +1064,6 @@ msgstr "Domänen-Objekt-Klasse"
 #: src/gosa/backend/data/templates/organization.json:35
 msgid "Organization name"
 msgstr ""
-
-#: src/gosa/backend/data/templates/domaincomponent.json:5
-#: src/gosa/backend/data/templates/domaincomponent.json:9
-msgid "Domain Component"
-msgstr "Domänen-Objekt-Klasse"
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:15
 msgid "Deployment group"
@@ -1195,11 +1190,6 @@ msgstr "Standarddrucker wählen"
 #: src/gosa/backend/data/templates/gosaApplication.json:7
 msgid "Application"
 msgstr "Applikation"
-
-#: src/gosa/backend/data/templates/gosaApplication.json:38
-#: src/gosa/backend/data/templates/groupOfNames.json:34
-msgid "Common name"
-msgstr ""
 
 #: src/gosa/backend/data/templates/gosaApplication.json:60
 msgid "Executable path"
@@ -1536,7 +1526,7 @@ msgstr "Sperrzeit"
 
 #: src/gosa/backend/data/templates/samba-domain.json:50
 #: src/gosa/backend/data/templates/samba-domain.json:60
-msgid "Lockout duration in minutes (default: 30, -1 => forever)"
+msgid "Lockout duration in minutes (default: 3"
 msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:70
@@ -1565,8 +1555,9 @@ msgstr "Passwortänderung erzwingen"
 
 #: src/gosa/backend/data/templates/samba-domain.json:113
 #: src/gosa/backend/data/templates/samba-domain.json:123
-msgid "Force Users to logon for password change (default: 0 => off, 2 => on)"
-msgstr ""
+#, fuzzy
+msgid "Force Users to logon for password change (default: 0 => of"
+msgstr "Passwortänderung erzwingen"
 
 #: src/gosa/backend/data/templates/samba-domain.json:133
 #, fuzzy
@@ -1575,7 +1566,7 @@ msgstr "Automatische Abmeldung"
 
 #: src/gosa/backend/data/templates/samba-domain.json:134
 #: src/gosa/backend/data/templates/samba-domain.json:144
-msgid "Disconnect Users outside logon hours (default: -1 => off, 0 => on)"
+msgid "Disconnect Users outside logon hours (default: -1 => of"
 msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:154
@@ -1649,10 +1640,9 @@ msgstr "Minimales Passwortalter"
 
 #: src/gosa/backend/data/templates/samba-domain.json:298
 #: src/gosa/backend/data/templates/samba-domain.json:308
-msgid ""
-"Minimum password age, in seconds (default: 0 => allow immediate password "
-"change)"
-msgstr ""
+#, fuzzy
+msgid "Minimum password ag"
+msgstr "Minimales Passwortalter"
 
 #: src/gosa/backend/data/templates/samba-domain.json:318
 #: src/gosa/backend/data/templates/user-shadow.json:186
@@ -1662,9 +1652,9 @@ msgstr "Maximales Passwortalter"
 
 #: src/gosa/backend/data/templates/samba-domain.json:319
 #: src/gosa/backend/data/templates/samba-domain.json:329
-msgid ""
-"Maximum password age, in seconds (default: -1 => never expire passwords)"
-msgstr ""
+#, fuzzy
+msgid "Maximum password ag"
+msgstr "Maximales Passwortalter"
 
 #: src/gosa/backend/data/templates/samba-ws.json:8
 #: src/gosa/backend/data/templates/samba-ws.json:15
@@ -1908,8 +1898,8 @@ msgstr "Erzwungene Abmeldezeit"
 #: src/gosa/backend/data/templates/user-samba.json:368
 msgid "Date and time when the user should be logged of the workstation"
 msgstr ""
-"Datum und Uhrzeit an denen der Benutzer nicht an dem Arbeitsplatz angemeldet"
-" sein sollte"
+"Datum und Uhrzeit an denen der Benutzer nicht an dem Arbeitsplatz "
+"angemeldet sein sollte"
 
 #: src/gosa/backend/data/templates/user-samba.json:388
 #, fuzzy
@@ -1950,11 +1940,11 @@ msgstr "Warnen vor Ablauf des Passwortes"
 #: src/gosa/backend/data/templates/user-shadow.json:90
 #: src/gosa/backend/data/templates/user-shadow.json:100
 msgid ""
-"Specifies the number of days before the password expires that the user is "
-"warned."
+"Specifies the number of days before the password expires that the user is"
+" warned."
 msgstr ""
-"Legt fest, wie viele Tage vor Ablauf des Passwortes, der Benutzer gewarnt "
-"wird."
+"Legt fest, wie viele Tage vor Ablauf des Passwortes, der Benutzer gewarnt"
+" wird."
 
 #: src/gosa/backend/data/templates/user-shadow.json:115
 msgid "Inactivity before account is disabled"
@@ -1962,8 +1952,7 @@ msgstr "Inaktivität bevor das Konto deaktiviert wird"
 
 #: src/gosa/backend/data/templates/user-shadow.json:116
 #: src/gosa/backend/data/templates/user-shadow.json:126
-msgid ""
-"Specifies the number of days of inactivity allowed for the specified user."
+msgid "Specifies the number of days of inactivity allowed for the specified user."
 msgstr "Legt fest wie lange ein bestimmter Benutzer inaktiv sein darf."
 
 #: src/gosa/backend/data/templates/user-shadow.json:142
@@ -1972,8 +1961,7 @@ msgstr "Optionen"
 
 #: src/gosa/backend/data/templates/user-shadow.json:161
 #: src/gosa/backend/data/templates/user-shadow.json:171
-msgid ""
-"Specifices the minimum number of days required between password changes."
+msgid "Specifices the minimum number of days required between password changes."
 msgstr ""
 "Mindest Anzahl an Tagen, die zwischen zweier Passwortänderungen vergehen "
 "müssen"
@@ -2174,28 +2162,28 @@ msgstr "Dateipfad"
 msgid "Proxy URL"
 msgstr "Proxy-URL"
 
-#: src/gosa/backend/objects/factory.py:76
+#: src/gosa/backend/objects/factory.py:78
 #, python-format
 msgid "'%(type)s' is no base type"
 msgstr "'%(type)s' ist kein Basis-Typ"
 
-#: src/gosa/backend/objects/factory.py:77 src/gosa/backend/objects/proxy.py:66
+#: src/gosa/backend/objects/factory.py:79 src/gosa/backend/objects/proxy.py:66
 #: src/gosa/backend/plugins/foreman/main.py:40
 #, python-format
 msgid "Unknown object type '%(type)s'"
 msgstr "Unbekannter Objekt-Typ '%(type)s'"
 
-#: src/gosa/backend/objects/factory.py:78
+#: src/gosa/backend/objects/factory.py:80
 #, python-format
 msgid "Cannot find base object for type '%(type)s'"
 msgstr "Kann kein Basis-Objekt für den Typ '%(type)s' ermitteln"
 
-#: src/gosa/backend/objects/factory.py:79
+#: src/gosa/backend/objects/factory.py:81
 #, python-format
 msgid "No base type for attribute '%(attribute)s found'"
 msgstr "Kein Basis-Typ für Attribut '%(attribute)s' gefunden"
 
-#: src/gosa/backend/objects/factory.py:80
+#: src/gosa/backend/objects/factory.py:82
 #, fuzzy, python-format
 msgid ""
 "Cannot identify '%(topic)s' - it seems to be of type '%(type1)s' and "
@@ -2204,33 +2192,30 @@ msgstr ""
 "Kann '%(topic)s' nicht identifizieren - es scheint gleichzeitig von Typ "
 "'%(type1)s und %(type2)s zu sein'"
 
-#: src/gosa/backend/objects/factory.py:81
+#: src/gosa/backend/objects/factory.py:83
 msgid "Cannot load object schema"
 msgstr "Kann Objekt-Schema nicht laden"
 
-#: src/gosa/backend/objects/factory.py:82
+#: src/gosa/backend/objects/factory.py:84
 #, python-format
-msgid ""
-"Attribute '%(topic)s' is blocked by non existing attribute '%(blocker)s'"
+msgid "Attribute '%(topic)s' is blocked by non existing attribute '%(blocker)s'"
 msgstr ""
 "Attribut '%(topic)s' wird von einem nicht existierenden Attribut "
 "'%(blocker)s' blockiert"
 
-#: src/gosa/backend/objects/factory.py:83
+#: src/gosa/backend/objects/factory.py:85
 #, python-format
-msgid ""
-"Attribute '%(topic)s' depends on non existing attribute '%(dependency)s'"
+msgid "Attribute '%(topic)s' depends on non existing attribute '%(dependency)s'"
 msgstr ""
 "Attribut '%(topic)s' hängt von einem nicht existierenden Attribut "
 "'%(dependency)s' ab"
 
-#: src/gosa/backend/objects/factory.py:84
+#: src/gosa/backend/objects/factory.py:86
 #, python-format
 msgid "Method '%(method)s' depends on unknown attribute %(attribute)s"
-msgstr ""
-"Methode '%(method)s' hängt von einem unbekannten Attribut %(attribute)s ab"
+msgstr "Methode '%(method)s' hängt von einem unbekannten Attribut %(attribute)s ab"
 
-#: src/gosa/backend/objects/factory.py:85
+#: src/gosa/backend/objects/factory.py:87
 #, python-format
 msgid "Parameter '%(parameter)s' for command '%(command)s' is missing"
 msgstr "'%(parameter)s' Parameter für Methode '%(command)s' fehlt"
@@ -2350,8 +2335,8 @@ msgstr ""
 #: src/gosa/backend/objects/object.py:52
 #, python-format
 msgid ""
-"Attribute '%(topic)s' is tagged to be auto-generated too many dependencies "
-"and no output filter"
+"Attribute '%(topic)s' is tagged to be auto-generated too many "
+"dependencies and no output filter"
 msgstr ""
 
 #: src/gosa/backend/objects/object.py:54
@@ -2402,8 +2387,7 @@ msgstr ""
 
 #: src/gosa/backend/objects/object.py:63
 #, python-format
-msgid ""
-"Object of type '%(ext)s' cannot be added as to the '%(base)s' container"
+msgid "Object of type '%(ext)s' cannot be added as to the '%(base)s' container"
 msgstr ""
 "Objekte vom Typ '%(ext)s' können nicht im Container '%(base)s' abgelegt "
 "werden"
@@ -2428,15 +2412,14 @@ msgstr "Ungültiger Schlüssel '%(key)s' für Filter '%(filter)s'"
 #: src/gosa/backend/objects/object.py:68
 #, python-format
 msgid "Missing key '%(key)s' after processing filter '%(filter)s'"
-msgstr ""
-"Fehlender Schlüssel '%(key)s' nach dem Verarbeiten von Filter '%(filter)s'"
+msgstr "Fehlender Schlüssel '%(key)s' nach dem Verarbeiten von Filter '%(filter)s'"
 
 #: src/gosa/backend/objects/object.py:69
 #, python-format
-msgid ""
-"Filter '%(filter)s' did not return a %(type)s value - a list was expected"
+msgid "Filter '%(filter)s' did not return a %(type)s value - a list was expected"
 msgstr ""
-"Filter '%(filter)s' lieferte einen %(type)s Wert - eine Liste wurde erwartet"
+"Filter '%(filter)s' lieferte einen %(type)s Wert - eine Liste wurde "
+"erwartet"
 
 #: src/gosa/backend/objects/object.py:70
 msgid "Potential loop in attribute dependencies"
@@ -2444,8 +2427,7 @@ msgstr "Potentielle Schleife in Attribut-Abhängigkeiten"
 
 #: src/gosa/backend/objects/object.py:71
 #, python-format
-msgid ""
-"Error reading value for '%(backend)s' backend UUID attribute '%(name)s'"
+msgid "Error reading value for '%(backend)s' backend UUID attribute '%(name)s'"
 msgstr ""
 
 #: src/gosa/backend/objects/object.py:72
@@ -2517,8 +2499,8 @@ msgstr "Keine Berechtigung auf '%(topic)s' von '%(target)s' zuzugreifen"
 #, python-format
 msgid "UUID of base (%(b_uuid)s) and extension (%(e_uuid)s) differ"
 msgstr ""
-"UUID der Basis (%(b_uuid)s) und der  Erweiterung (%(e_uuid)s) unterscheiden "
-"sich"
+"UUID der Basis (%(b_uuid)s) und der  Erweiterung (%(e_uuid)s) "
+"unterscheiden sich"
 
 #: src/gosa/backend/objects/proxy.py:80
 #, python-format
@@ -2547,11 +2529,10 @@ msgstr "Kein 'RDN' Backend-Parameter angegeben"
 
 #: src/gosa/backend/objects/backend/__init__.py:22
 #, python-format
-msgid ""
-"Cannot generate a unique DN in '%(base)s' using a combination of %(rdns)s"
+msgid "Cannot generate a unique DN in '%(base)s' using a combination of %(rdns)s"
 msgstr ""
-"Kann keine eindeutige DN in '%(base)s' aus einer Kombination von %(rdns)s "
-"erzeugen"
+"Kann keine eindeutige DN in '%(base)s' aus einer Kombination von %(rdns)s"
+" erzeugen"
 
 #: src/gosa/backend/objects/backend/__init__.py:23
 #, python-format
@@ -2566,10 +2547,11 @@ msgstr "Keine Datenbank-Konfiguration für '%(target)s' gefunden"
 #: src/gosa/backend/objects/backend/__init__.py:25
 #, python-format
 msgid ""
-"Attribute '%s' uses the ObjectHandler backend but there is no config for it"
+"Attribute '%s' uses the ObjectHandler backend but there is no config for "
+"it"
 msgstr ""
-"Attribut '%s' verwendet das ObjectHandler-Backend, aber es existiert keine "
-"Konfiguration dafür"
+"Attribut '%s' verwendet das ObjectHandler-Backend, aber es existiert "
+"keine Konfiguration dafür"
 
 #: src/gosa/backend/objects/backend/__init__.py:26
 #, python-format
@@ -2578,11 +2560,10 @@ msgstr "Kann Quell-Objekt '%(object)s' nicht finden"
 
 #: src/gosa/backend/objects/backend/__init__.py:27
 #, python-format
-msgid ""
-"No unique '%(object)s' object which matches '%(attribute)s == %(value)s'"
+msgid "No unique '%(object)s' object which matches '%(attribute)s == %(value)s'"
 msgstr ""
-"Kein eindeutiges '%(object)s' Objekt bei dem '%(attribute)s == %(value)s' "
-"gilt gefunden"
+"Kein eindeutiges '%(object)s' Objekt bei dem '%(attribute)s == %(value)s'"
+" gilt gefunden"
 
 #: src/gosa/backend/objects/backend/__init__.py:28
 msgid "Failed to generate a unique ID"
@@ -2668,8 +2649,8 @@ msgstr "unbekannte Rolle '%(role)s'"
 #: src/gosa/backend/objects/comparator/acl_set.py:129
 msgid "please use a combination of the charaters c, r, o, w, d, s, e, x and m"
 msgstr ""
-"Bitte verwenden Sie eine Kombination der Zeichen c, r, o, w, d, s, e, x und "
-"m"
+"Bitte verwenden Sie eine Kombination der Zeichen c, r, o, w, d, s, e, x "
+"und m"
 
 #: src/gosa/backend/objects/comparator/acl_roles.py:143
 #: src/gosa/backend/objects/comparator/acl_set.py:142
@@ -2785,7 +2766,8 @@ msgstr "Client '%(topic)s' nicht gefunden"
 
 #: src/gosa/backend/plugins/cups/main.py:42
 msgid ""
-"Cannot find new ppd file per diff, because to many new printers where found"
+"Cannot find new ppd file per diff, because to many new printers where "
+"found"
 msgstr ""
 
 #: src/gosa/backend/plugins/cups/main.py:43
@@ -2795,8 +2777,8 @@ msgstr ""
 #: src/gosa/backend/plugins/cups/main.py:44
 #, python-format
 msgid ""
-"Cannot find cups ppd - there should be exactly one for the manufacturer but "
-"there are %(number_ppds)s"
+"Cannot find cups ppd - there should be exactly one for the manufacturer "
+"but there are %(number_ppds)s"
 msgstr ""
 
 #: src/gosa/backend/plugins/cups/main.py:124
@@ -2858,100 +2840,100 @@ msgstr ""
 msgid "(%groups)s found for group id '%(group_id)s'"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:413
+#: src/gosa/backend/plugins/foreman/main.py:414
 msgid "Get all available foreman LSB names"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:422
+#: src/gosa/backend/plugins/foreman/main.py:423
 msgid "Get release name of an operating system"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:432
+#: src/gosa/backend/plugins/foreman/main.py:433
 msgid "Get details of a single foreman hostgroup."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:450
+#: src/gosa/backend/plugins/foreman/main.py:451
 msgid "Get available foreman compute resources."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:463
+#: src/gosa/backend/plugins/foreman/main.py:464
 #, fuzzy
 msgid "Get available foreman domains."
 msgstr "Listet verfügbare Clients."
 
-#: src/gosa/backend/plugins/foreman/main.py:467
-#: src/gosa/backend/plugins/foreman/main.py:514
+#: src/gosa/backend/plugins/foreman/main.py:468
+#: src/gosa/backend/plugins/foreman/main.py:515
 #, fuzzy
 msgid "Get available foreman hostgroups."
 msgstr "Listet verfügbare Clients."
 
-#: src/gosa/backend/plugins/foreman/main.py:489
-#: src/gosa/backend/plugins/foreman/main.py:497
+#: src/gosa/backend/plugins/foreman/main.py:490
+#: src/gosa/backend/plugins/foreman/main.py:498
 msgid "Get available foreman operating systems."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:493
+#: src/gosa/backend/plugins/foreman/main.py:494
 #, fuzzy
 msgid "Get available foreman architectures."
 msgstr "Listet verfügbare Clients."
 
-#: src/gosa/backend/plugins/foreman/main.py:501
+#: src/gosa/backend/plugins/foreman/main.py:502
 msgid "Get available foreman partition tables."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:505
+#: src/gosa/backend/plugins/foreman/main.py:506
 msgid "Get available foreman media."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:531
+#: src/gosa/backend/plugins/foreman/main.py:532
 msgid "Get discovered hosts as search key(dn): value(cn) pairs."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:548
+#: src/gosa/backend/plugins/foreman/main.py:549
 msgid "Get all SystemsContainer search key(dn): value(dn) pairs."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:561
+#: src/gosa/backend/plugins/foreman/main.py:562
 msgid "Get foreman hosts as search key(dn): value(cn) pairs."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:578
+#: src/gosa/backend/plugins/foreman/main.py:579
 msgid "Get discovered hosts as search result."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:599
+#: src/gosa/backend/plugins/foreman/main.py:600
 msgid "Force a Puppet agent run on the host"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:603
+#: src/gosa/backend/plugins/foreman/main.py:604
 msgid "Boot host from specified device"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:613
+#: src/gosa/backend/plugins/foreman/main.py:614
 msgid "Run a power operation on host"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:622
+#: src/gosa/backend/plugins/foreman/main.py:623
 msgid "Checks if a host supports power operations"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:626
+#: src/gosa/backend/plugins/foreman/main.py:627
 msgid "Get a foreman setting by ID"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:769
+#: src/gosa/backend/plugins/foreman/main.py:770
 msgid "Foreman host event"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:820
+#: src/gosa/backend/plugins/foreman/main.py:821
 msgid "Foreman hook event"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:947
+#: src/gosa/backend/plugins/foreman/main.py:948
 msgid "Host ready"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:948
+#: src/gosa/backend/plugins/foreman/main.py:949
 #, python-format
 msgid "Host '%s' has been successfully build."
 msgstr ""
@@ -2982,8 +2964,8 @@ msgid ""
 "no '%(type)s' object with '%(attribute)s' property matching '%(value)s' "
 "found"
 msgstr ""
-"kein '%(type)s'-Objekt mit %(attribute)s'-Eigenschaft welche auf '%(value)s'"
-" passt gefunden"
+"kein '%(type)s'-Objekt mit %(attribute)s'-Eigenschaft welche auf "
+"'%(value)s' passt gefunden"
 
 #: src/gosa/backend/plugins/misc/filter_validators.py:133
 #, python-format
@@ -3603,8 +3585,7 @@ msgstr "Kann Passwort-Methode nicht ermitteln"
 #: src/gosa/backend/plugins/password/manager.py:29
 #, python-format
 msgid "No password method to generate hash of type '%(type)s' available"
-msgstr ""
-"Keine Passwort-Methode zum erzeugen des Hash-Typs '%(type)s' verfügbar"
+msgstr "Keine Passwort-Methode zum erzeugen des Hash-Typs '%(type)s' verfügbar"
 
 #: src/gosa/backend/plugins/password/manager.py:30
 #, python-format
@@ -3626,14 +3607,14 @@ msgstr ""
 
 #: src/gosa/backend/plugins/password/manager.py:34
 msgid ""
-"The password recovery process cannot be started for this user, because of "
-"invalid ot missing data"
+"The password recovery process cannot be started for this user, because of"
+" invalid ot missing data"
 msgstr ""
 
 #: src/gosa/backend/plugins/password/manager.py:35
 msgid ""
-"This step of the password recovery process cannot be executed at the current"
-" state"
+"This step of the password recovery process cannot be executed at the "
+"current state"
 msgstr ""
 
 #: src/gosa/backend/plugins/password/manager.py:66
@@ -3687,8 +3668,8 @@ msgstr ""
 
 #: src/gosa/backend/plugins/password/manager.py:309
 msgid ""
-"What are the second names or nicknames of all your children (e.g. Max, Sam, "
-"and Lisa)?"
+"What are the second names or nicknames of all your children (e.g. Max, "
+"Sam, and Lisa)?"
 msgstr ""
 
 #: src/gosa/backend/plugins/password/manager.py:310
@@ -3697,14 +3678,14 @@ msgstr ""
 
 #: src/gosa/backend/plugins/password/manager.py:311
 msgid ""
-"What is your favorite book (author and title) (e.g. Donald Knuth, The Art of"
-" Programming)?"
+"What is your favorite book (author and title) (e.g. Donald Knuth, The Art"
+" of Programming)?"
 msgstr ""
 
 #: src/gosa/backend/plugins/password/manager.py:312
 msgid ""
-"What is your favorite quote / proverb / aphorism (e.g. the pen is mightier "
-"than the sword)?"
+"What is your favorite quote / proverb / aphorism (e.g. the pen is "
+"mightier than the sword)?"
 msgstr ""
 
 #: src/gosa/backend/plugins/password/manager.py:313
@@ -3722,8 +3703,7 @@ msgid ""
 msgstr ""
 
 #: src/gosa/backend/plugins/password/manager.py:316
-msgid ""
-"What is your favorite historical event (e.g. the industrial revolution)?"
+msgid "What is your favorite historical event (e.g. the industrial revolution)?"
 msgstr ""
 
 #: src/gosa/backend/plugins/password/manager.py:317
@@ -3740,8 +3720,8 @@ msgstr ""
 
 #: src/gosa/backend/plugins/password/manager.py:320
 msgid ""
-"Which famous, no longer living person would you like to meet (e.g. Leonardo "
-"da Vinci)?"
+"Which famous, no longer living person would you like to meet (e.g. "
+"Leonardo da Vinci)?"
 msgstr ""
 
 #: src/gosa/backend/plugins/password/manager.py:321
@@ -3802,8 +3782,7 @@ msgstr "Ungültiger Bereich '%(scope)s' [SUB, BASE, ONE]"
 
 #: src/gosa/backend/plugins/rpc/methods.py:42
 #, python-format
-msgid ""
-"Invalid date specification '%(date)s' [hour, day, week, month, year, all]"
+msgid "Invalid date specification '%(date)s' [hour, day, week, month, year, all]"
 msgstr ""
 "Ungültige Datums-Sepzifikation '%(date)s' [hour, day, week, month, year, "
 "all]"
@@ -3829,8 +3808,8 @@ msgstr "Liefert eine Liste mit allen verfügbaren Objekt-Namen"
 
 #: src/gosa/backend/plugins/rpc/methods.py:96
 msgid ""
-"Returns a list of objects that can be stored as sub-objects for the given "
-"object."
+"Returns a list of objects that can be stored as sub-objects for the given"
+" object."
 msgstr ""
 
 #: src/gosa/backend/plugins/rpc/methods.py:101
@@ -3908,7 +3887,8 @@ msgstr "Setzt ein neues Benutzerpasswort"
 #: src/gosa/backend/plugins/samba/domain.py:64
 msgid "Returns the current samba domain policy for a given user"
 msgstr ""
-"Liefert die momentane Samba Domänen-Richtlinie für den angegebenen Benutzer"
+"Liefert die momentane Samba Domänen-Richtlinie für den angegebenen "
+"Benutzer"
 
 #: src/gosa/backend/plugins/samba/domain.py:145
 #: src/gosa/backend/plugins/samba/domain.py:149
@@ -4078,10 +4058,8 @@ msgstr ""
 
 #: src/gosa/backend/plugins/two_factor/main.py:94
 #, fuzzy
-msgid ""
-"Returns the current two factor authentication method for the given user"
+msgid "Returns the current two factor authentication method for the given user"
 msgstr ""
-""
 
 #: src/gosa/backend/plugins/two_factor/main.py:102
 msgid "Enable two factor authentication for the given user"
@@ -4133,8 +4111,8 @@ msgstr ""
 #: src/gosa/backend/plugins/webhook/registry.py:37
 #, python-format
 msgid ""
-"There is already a webhook registered for mime-type '%(topic)s' with name "
-"'%(name)s'"
+"There is already a webhook registered for mime-type '%(topic)s' with name"
+" '%(name)s'"
 msgstr ""
 
 #: src/gosa/backend/plugins/webhook/registry.py:38
@@ -4145,8 +4123,8 @@ msgstr ""
 
 #: src/gosa/backend/plugins/webhook/registry.py:39
 msgid ""
-"Invalid mime-type syntax: only alphanumeric, . (dot), + (plus) and / (slash)"
-" characters are allowed"
+"Invalid mime-type syntax: only alphanumeric, . (dot), + (plus) and / "
+"(slash) characters are allowed"
 msgstr ""
 
 #: src/gosa/backend/plugins/webhook/registry.py:87
@@ -4206,13 +4184,17 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr "Listet verfügbaren Dienst-Konten des Busses."
 
 #~ msgid ""
-#~ "Shut down the service belonging to the supplied queue. In case of HTTP "
-#~ "connections, this command will shut down the node you're currently logged "
-#~ "in."
+#~ "Shut down the service belonging to "
+#~ "the supplied queue. In case of "
+#~ "HTTP connections, this command will shut"
+#~ " down the node you're currently "
+#~ "logged in."
 #~ msgstr ""
-#~ "Node herunterfahren, dem die verwendete Queue gehört. Im Fall von HTTP-"
-#~ "Verbindungen wird der Node heruntergefahren, der das HTTP-Gateway "
-#~ "bereitstellt an dem Sie angemeldet sind."
+#~ "Node herunterfahren, dem die verwendete "
+#~ "Queue gehört. Im Fall von HTTP-"
+#~ "Verbindungen wird der Node heruntergefahren,"
+#~ " der das HTTP-Gateway bereitstellt an"
+#~ " dem Sie angemeldet sind."
 
 #~ msgid "Attribute not found"
 #~ msgstr "Attribut %(target)s nicht gefunden"
@@ -4234,19 +4216,24 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 
 #~ msgid "Invalid data '%(entry)s:%(data)s' for client '%(target)s provided'"
 #~ msgstr ""
-#~ "Es wurden ungültige Daten '%(entry)s:%(data)s' für den Client '%(target)s "
-#~ "angegeben"
+#~ "Es wurden ungültige Daten '%(entry)s:%(data)s'"
+#~ " für den Client '%(target)s angegeben"
 
 #~ msgid ""
-#~ "Device type '%(type)s' for client '%(target)s' is invalid [terminal, "
-#~ "workstation, server, sipphone, switch, router, printer, scanner]"
+#~ "Device type '%(type)s' for client "
+#~ "'%(target)s' is invalid [terminal, "
+#~ "workstation, server, sipphone, switch, router,"
+#~ " printer, scanner]"
 #~ msgstr ""
-#~ "Geräte-Typ '%(type)s' des Clients '%(target)s' ist ungültig [terminal, "
-#~ "workstation, server, sipphone, switch, router, printer, scanner]"
+#~ "Geräte-Typ '%(type)s' des Clients "
+#~ "'%(target)s' ist ungültig [terminal, "
+#~ "workstation, server, sipphone, switch, router,"
+#~ " printer, scanner]"
 
 #~ msgid "Owner '%(owner)s' for client '%(target)s' not found"
 #~ msgstr ""
-#~ "Eigentümer '%(owner)s' des Clients %(target)s' kann nicht gefunden werden"
+#~ "Eigentümer '%(owner)s' des Clients %(target)s'"
+#~ " kann nicht gefunden werden"
 
 #~ msgid "Invalid client UUID '%(target)s'"
 #~ msgstr "Ungültige Client UUID '%(target)s'"
@@ -4534,8 +4521,9 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "Internal helper attribute to mark PPDs that have been configured since last "
-#~ "change."
+#~ "Internal helper attribute to mark PPDs"
+#~ " that have been configured since last"
+#~ " change."
 #~ msgstr ""
 
 #~ msgid "GOto - Gonicus Terminal Concept, PPD data"
@@ -4599,8 +4587,8 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "Samba group(0) Domain administrators(512) Domain users(513) Domain "
-#~ "guests(514)"
+#~ "Samba group(0) Domain administrators(512) "
+#~ "Domain users(513) Domain guests(514)"
 #~ msgstr ""
 
 #~ msgid "Displayed name"
@@ -4715,8 +4703,9 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The registeredDevice is a device that is known to GOsa and will display "
-#~ "additional information."
+#~ "The registeredDevice is a device that"
+#~ " is known to GOsa and will "
+#~ "display additional information."
 #~ msgstr ""
 
 #~ msgid "DN of manager"
@@ -4726,9 +4715,14 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The deviceStatus attribute represents several states a system can represent.\n"
-#~ "\t\t\t\t\tNote that this is the current status - i.e. no history of states is\n"
-#~ "\t\t\t\t\trecordable this way. The attribute is mostly used to quickly determine\n"
+#~ "The deviceStatus attribute represents several"
+#~ " states a system can represent.\n"
+#~ "\t\t\t\t\tNote that this is the "
+#~ "current status - i.e. no history "
+#~ "of states is\n"
+#~ "\t\t\t\t\trecordable this way. The "
+#~ "attribute is mostly used to quickly "
+#~ "determine\n"
 #~ "\t\t\t\t\tthe state without reading system logs.\n"
 #~ "\t\t\t\t"
 #~ msgstr ""
@@ -4738,8 +4732,12 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 
 #~ msgid ""
 #~ "This attribute keeps a unique identifier for a device that should be\n"
-#~ "\t\t\t\t\tregistered to the GOsa services. It is used as a unique key to find\n"
-#~ "\t\t\t\t\tthe relationship of the registered device to other information like\n"
+#~ "\t\t\t\t\tregistered to the GOsa "
+#~ "services. It is used as a unique"
+#~ " key to find\n"
+#~ "\t\t\t\t\tthe relationship of the "
+#~ "registered device to other information "
+#~ "like\n"
 #~ "\t\t\t\t\tinventory, received events and logging data.\n"
 #~ "\t\t\t\t"
 #~ msgstr ""
@@ -4811,12 +4809,14 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "Maximum password age, in seconds (default: -1 => never expire passwords)"
+#~ "Maximum password age, in seconds "
+#~ "(default: -1 => never expire passwords)"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "Minimum password age, in seconds (default: 0 => allow immediate password "
-#~ "change)"
+#~ "Minimum password age, in seconds "
+#~ "(default: 0 => allow immediate password"
+#~ " change)"
 #~ msgstr ""
 
 #~ msgid "Lockout duration in minutes (default: 30, -1 => forever)"
@@ -4924,8 +4924,7 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgid "Time of the last bad password attempt"
 #~ msgstr ""
 
-#~ msgid ""
-#~ "Concatenated MD5 hashes of the salted NT passwords used on this account"
+#~ msgid "Concatenated MD5 hashes of the salted NT passwords used on this account"
 #~ msgstr ""
 
 #~ msgid "Base64 encoded user parameter string"
@@ -4935,8 +4934,13 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr "Stunden"
 
 #~ msgid ""
-#~ "There seems to be an old and a new storage method for the sambaMungedDial attribute, this\n"
-#~ "                    flag just shows the whether the processes values was in the old or in the new style. Saved will\n"
+#~ "There seems to be an old and "
+#~ "a new storage method for the "
+#~ "sambaMungedDial attribute, this\n"
+#~ "                    flag just shows the "
+#~ "whether the processes values was in "
+#~ "the old or in the new style. "
+#~ "Saved will\n"
 #~ "                    always be done in the new way.\n"
 #~ "                "
 #~ msgstr ""
@@ -4951,24 +4955,33 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr "Änderung des Maschinenpasswortes verbieten"
 
 #~ msgid ""
-#~ "The minimum password age is the number of days the user will have to wait "
-#~ "before she will be allowed to change her password again."
+#~ "The minimum password age is the "
+#~ "number of days the user will have"
+#~ " to wait before she will be "
+#~ "allowed to change her password again."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The maximum password age is the number of days after which the user will "
-#~ "have to change her password."
+#~ "The maximum password age is the "
+#~ "number of days after which the "
+#~ "user will have to change her "
+#~ "password."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The number of days before a password is going to expire (see the shadowMax) "
-#~ "during which the user should be warned."
+#~ "The number of days before a "
+#~ "password is going to expire (see "
+#~ "the shadowMax) during which the user "
+#~ "should be warned."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The number of days after a password has expired (see the shadowMax) during "
-#~ "which the password should still be accepted (and the user should update her "
-#~ "password during the next login)."
+#~ "The number of days after a "
+#~ "password has expired (see the shadowMax)"
+#~ " during which the password should "
+#~ "still be accepted (and the user "
+#~ "should update her password during the"
+#~ " next login)."
 #~ msgstr ""
 
 #~ msgid "The date of expiration of the account."
@@ -5019,8 +5032,7 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgid "ZARAFA: This user has these features explicitly disabled"
 #~ msgstr ""
 
-#~ msgid ""
-#~ "ZARAFA: List of server names that contain an archive store for the user"
+#~ msgid "ZARAFA: List of server names that contain an archive store for the user"
 #~ msgstr ""
 
 #~ msgid "RFC1274: RFC822 Mailbox"
@@ -5075,18 +5087,24 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The Audio attribute type allows the storing of sounds in the Directory. The "
-#~ "attribute uses a u-law encoded sound file as used by the \"play\" utility on"
-#~ " a Sun 4. This is an interim format"
+#~ "The Audio attribute type allows the "
+#~ "storing of sounds in the Directory. "
+#~ "The attribute uses a u-law encoded "
+#~ "sound file as used by the \"play\""
+#~ " utility on a Sun 4. This is"
+#~ " an interim format"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "This attribute describes the kind of business performed by an organization."
+#~ "This attribute describes the kind of "
+#~ "business performed by an organization."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "This multivalued field is used to record the values of the license or "
-#~ "registration plate associated with an individual."
+#~ "This multivalued field is used to "
+#~ "record the values of the license "
+#~ "or registration plate associated with an"
+#~ " individual."
 #~ msgstr ""
 
 #~ msgid "Identifies a department within an organization"
@@ -5096,14 +5114,19 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "Used to identify the employer to employee relationship. Typical values used "
-#~ "will be \"Contractor\", \"Employee\", \"Intern\", \"Temp\", \"External\", "
-#~ "and \"Unknown\" but any value may be used."
+#~ "Used to identify the employer to "
+#~ "employee relationship. Typical values used "
+#~ "will be \"Contractor\", \"Employee\", "
+#~ "\"Intern\", \"Temp\", \"External\", and "
+#~ "\"Unknown\" but any value may be "
+#~ "used."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The givenName attribute is used to hold the part of a person's name which is"
-#~ " not their surname nor middle name."
+#~ "The givenName attribute is used to "
+#~ "hold the part of a person's name"
+#~ " which is not their surname nor "
+#~ "middle name."
 #~ msgstr ""
 
 #~ msgid "homePhone"
@@ -5113,111 +5136,155 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The Home postal address attribute type specifies a home postal address for "
-#~ "an object.  This should be limited to up to 6 lines of 30 characters each."
+#~ "The Home postal address attribute type"
+#~ " specifies a home postal address for"
+#~ " an object.  This should be limited"
+#~ " to up to 6 lines of 30 "
+#~ "characters each."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The initials attribute contains the initials of some or all of an "
-#~ "individuals names, but not the surname(s)."
+#~ "The initials attribute contains the "
+#~ "initials of some or all of an "
+#~ "individuals names, but not the "
+#~ "surname(s)."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "Used to store one or more images of a person using the JPEG File Interchange"
-#~ " Format [JFIF]."
+#~ "Used to store one or more images"
+#~ " of a person using the JPEG "
+#~ "File Interchange Format [JFIF]."
 #~ msgstr ""
 
 #~ msgid "Uniform Resource Identifier with optional label"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The Manager attribute type specifies the manager of an object represented by"
+#~ "The Manager attribute type specifies the"
+#~ " manager of an object represented by"
 #~ " an entry."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The Mobile Telephone Number attribute type specifies a mobile telephone "
-#~ "number associated with a person. Attribute values should follow the agreed "
-#~ "format for international telephone numbers: i.e., \"+44 71 123 4567\"."
+#~ "The Mobile Telephone Number attribute "
+#~ "type specifies a mobile telephone number"
+#~ " associated with a person. Attribute "
+#~ "values should follow the agreed format"
+#~ " for international telephone numbers: i.e.,"
+#~ " \"+44 71 123 4567\"."
+#~ msgstr ""
+
+#~ msgid "This attribute contains the name of an organization (organizationName)."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "This attribute contains the name of an organization (organizationName)."
+#~ "The Pager Telephone Number attribute "
+#~ "type specifies a pager telephone number"
+#~ " for an object. Attribute values "
+#~ "should follow the agreed format for "
+#~ "international telephone numbers: i.e., \"+44"
+#~ " 71 123 4567\"."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The Pager Telephone Number attribute type specifies a pager telephone number"
-#~ " for an object. Attribute values should follow the agreed format for "
-#~ "international telephone numbers: i.e., \"+44 71 123 4567\"."
+#~ "The Photo attribute type specifies a "
+#~ "\"photograph\" for an object. This "
+#~ "should be encoded in G3 fax as "
+#~ "explained in recommendation T.4, with an"
+#~ " ASN.1 wrapper to make it compatible"
+#~ " with an X.400 BodyPart as defined"
+#~ " in X.420."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The Photo attribute type specifies a \"photograph\" for an object. This "
-#~ "should be encoded in G3 fax as explained in recommendation T.4, with an "
-#~ "ASN.1 wrapper to make it compatible with an X.400 BodyPart as defined in "
-#~ "X.420."
+#~ "The Room Number attribute type specifies"
+#~ " the room number of an object.  "
+#~ "Note that the commonName attribute "
+#~ "should be used for naming room "
+#~ "objects."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The Room Number attribute type specifies the room number of an object.  Note"
-#~ " that the commonName attribute should be used for naming room objects."
+#~ "The Secretary attribute type specifies "
+#~ "the secretary of a person. The "
+#~ "attribute value for Secretary is a "
+#~ "distinguished name"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The Secretary attribute type specifies the secretary of a person. The "
-#~ "attribute value for Secretary is a distinguished name"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This attribute is to be stored and requested in the binary form, as "
+#~ "This attribute is to be stored and"
+#~ " requested in the binary form, as "
 #~ "'userCertificate;binary'."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "The x500UniqueIdentifier attribute is used to distinguish between objects "
-#~ "when a distinguished name has been reused.  This is a different attribute "
-#~ "type from both the \"uid\" and \"uniqueIdentifier\" types."
+#~ "The x500UniqueIdentifier attribute is used "
+#~ "to distinguish between objects when a"
+#~ " distinguished name has been reused.  "
+#~ "This is a different attribute type "
+#~ "from both the \"uid\" and "
+#~ "\"uniqueIdentifier\" types."
 #~ msgstr ""
 
 #~ msgid "Preferred written or spoken language for a person"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "A PKCS#7 [RFC2315] SignedData, where the content that is signed is ignored "
-#~ "by consumers of userSMIMECertificate values.  It is recommended that values "
-#~ "have a `contentType' of data with an absent `content' field.  Values of this"
-#~ " attribute contain a person's entire certificate chain and an "
-#~ "smimeCapabilities field [RFC2633] that at a minimum describes their SMIME "
-#~ "algorithm capabilities.  Values for this attribute are to be stored and "
-#~ "requested in binary form, as 'userSMIMECertificate;binary'.  If available, "
-#~ "this attribute is preferred over the userCertificate attribute for S/MIME "
+#~ "A PKCS#7 [RFC2315] SignedData, where the"
+#~ " content that is signed is ignored"
+#~ " by consumers of userSMIMECertificate "
+#~ "values.  It is recommended that values"
+#~ " have a `contentType' of data with"
+#~ " an absent `content' field.  Values "
+#~ "of this attribute contain a person's "
+#~ "entire certificate chain and an "
+#~ "smimeCapabilities field [RFC2633] that at "
+#~ "a minimum describes their SMIME "
+#~ "algorithm capabilities.  Values for this "
+#~ "attribute are to be stored and "
+#~ "requested in binary form, as "
+#~ "'userSMIMECertificate;binary'.  If available, this"
+#~ " attribute is preferred over the "
+#~ "userCertificate attribute for S/MIME "
 #~ "applications."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "PKCS #12 [PKCS12] provides a format for exchange of personal identity "
-#~ "information.  When such information is stored in a directory service, the "
-#~ "userPKCS12 attribute should be used. This attribute is to be stored and "
-#~ "requested in binary form, as 'userPKCS12;binary'.  The attribute values are "
-#~ "PFX PDUs stored as binary data."
+#~ "PKCS #12 [PKCS12] provides a format "
+#~ "for exchange of personal identity "
+#~ "information.  When such information is "
+#~ "stored in a directory service, the "
+#~ "userPKCS12 attribute should be used. "
+#~ "This attribute is to be stored and"
+#~ " requested in binary form, as "
+#~ "'userPKCS12;binary'.  The attribute values are"
+#~ " PFX PDUs stored as binary data."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "This attribute contains the title, such as \"Vice President\", of a person "
-#~ "in their organizational context.  The \"personalTitle\" attribute would be "
-#~ "used for a person's title independent of their job function."
+#~ "This attribute contains the title, such"
+#~ " as \"Vice President\", of a person"
+#~ " in their organizational context.  The "
+#~ "\"personalTitle\" attribute would be used "
+#~ "for a person's title independent of "
+#~ "their job function."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "This attribute contains the title, such as \"Phd\", of a person in their "
-#~ "organizational context.  The \"academicTitle\" attribute would be used for a"
-#~ " person's title independent of their job function."
+#~ "This attribute contains the title, such"
+#~ " as \"Phd\", of a person in "
+#~ "their organizational context.  The "
+#~ "\"academicTitle\" attribute would be used "
+#~ "for a person's title independent of "
+#~ "their job function."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "This attribute holds a postal address suitable for reception of telegrams or"
-#~ " expedited documents, where it is necessary to have the recipient accept "
-#~ "delivery."
+#~ "This attribute holds a postal address"
+#~ " suitable for reception of telegrams "
+#~ "or expedited documents, where it is "
+#~ "necessary to have the recipient accept"
+#~ " delivery."
 #~ msgstr ""
 
 #~ msgid "This attribute is used for the telegram service."
@@ -5242,8 +5309,10 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "This attribute contains the physical address of the object to which the "
-#~ "entry corresponds, such as an address for package delivery (streetAddress)."
+#~ "This attribute contains the physical "
+#~ "address of the object to which the"
+#~ " entry corresponds, such as an "
+#~ "address for package delivery (streetAddress)."
 #~ msgstr ""
 
 #~ msgid "Post office box"
@@ -5256,18 +5325,20 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "This attribute contains the name of an organizational unit "
-#~ "(organizationalUnitName)."
+#~ "This attribute contains the name of "
+#~ "an organizational unit (organizationalUnitName)."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "This attribute contains the full name of a state or province "
+#~ "This attribute contains the full name"
+#~ " of a state or province "
 #~ "(stateOrProvinceName)."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "This attribute contains the name of a locality, such as a city, county or "
-#~ "other geographic region (localityName)."
+#~ "This attribute contains the name of "
+#~ "a locality, such as a city, county"
+#~ " or other geographic region (localityName)."
 #~ msgstr ""
 
 #~ msgid "The selected password encryption method"
@@ -5277,28 +5348,38 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "Passwords are stored using an Octet String syntax and are not encrypted.  "
-#~ "Transfer of cleartext passwords are strongly discouraged where the "
-#~ "underlying transport service cannot guarantee confidentiality and may result"
-#~ " in disclosure of the password to unauthorized parties."
+#~ "Passwords are stored using an Octet "
+#~ "String syntax and are not encrypted."
+#~ "  Transfer of cleartext passwords are "
+#~ "strongly discouraged where the underlying "
+#~ "transport service cannot guarantee "
+#~ "confidentiality and may result in "
+#~ "disclosure of the password to "
+#~ "unauthorized parties."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "This is the X.500 surname attribute, which contains the family name of a "
-#~ "person."
+#~ "This is the X.500 surname attribute, "
+#~ "which contains the family name of "
+#~ "a person."
 #~ msgstr ""
 
 #~ msgid ""
-#~ "This is the X.500 commonName attribute, which contains a name of an object."
-#~ "  If the object corresponds to a person, it is typically the person's full "
-#~ "name."
+#~ "This is the X.500 commonName attribute,"
+#~ " which contains a name of an "
+#~ "object.  If the object corresponds to"
+#~ " a person, it is typically the "
+#~ "person's full name."
 #~ msgstr ""
 
 #~ msgid "True means we are in a secure context"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "If the user has successfully started a password recovery process this attribute shows the current state for\n"
+#~ "If the user has successfully started "
+#~ "a password recovery process this "
+#~ "attribute shows the current state for"
+#~ "\n"
 #~ "          this process."
 #~ msgstr ""
 
@@ -5322,3 +5403,18 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 
 #~ msgid "ZARAFA: Full proxy URL for this server"
 #~ msgstr ""
+
+#~ msgid ""
+#~ "This attribute keeps a unique identifier"
+#~ " for a device that should be "
+#~ "registered to the GOsa services. It "
+#~ "is used as a unique key to "
+#~ "find the relationship of the registered"
+#~ " device to other information like "
+#~ "inventory, received events and logging "
+#~ "data."
+#~ msgstr ""
+
+#~ msgid "Domain Component"
+#~ msgstr "Domänen-Objekt-Klasse"
+
