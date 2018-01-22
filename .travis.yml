@@ -32,7 +32,7 @@ before_install:
   - sudo mkdir /tmp/gosa/widgets
   - sudo mkdir /etc/gosa
   - sudo cp ./configs/test_conf/config /etc/gosa/
-  - sudo chown travis:travis /tmp/gosa
+  - sudo chown -R travis:travis /tmp/gosa
 install:
   - sudo apt-get install libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev
   - virtualenv --python=python3.6 --system-site-packages .env
