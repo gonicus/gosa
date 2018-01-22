@@ -1,7 +1,4 @@
-import pytest
 import sys
-from gosa.common import Environment
-import os
 
 
 def pytest_addoption(parser):
