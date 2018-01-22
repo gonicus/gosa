@@ -12,9 +12,12 @@ import pytest
 import shutil
 import datetime
 import os
+
+from gosa.backend.objects.index import ObjectInfoIndex
 from gosa.backend.plugins.user.filters import GenerateDisplayName, ImageProcessor, LoadDisplayNameState, OperationalError, Environment, \
     ElementFilterException, MarshalLogonScript, UnmarshalLogonScript
 from gosa.common.components.jsonrpc_utils import Binary
+from gosa.common.env import make_session
 
 
 class UserFiltersTestCase(TestCase):
@@ -25,7 +28,9 @@ class UserFiltersTestCase(TestCase):
             byte = f.read()
 
         user = mock.MagicMock()
-        user.uuid = 'fae09b6a-914b-1037-8941-b59a822cf04a'
+        with make_session() as session:
+            res = session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.dn == "cn=Frank Reich,ou=people,dc=example,dc=net").one()
+            user.uuid = res[0]
         user.modifyTimestamp = datetime.datetime.now()
         test_dict = {
             "image": {

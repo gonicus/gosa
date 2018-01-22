@@ -10,6 +10,8 @@
 from unittest import mock
 
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
+from gosa.backend.objects.index import ObjectInfoIndex
+from gosa.common.env import make_session
 from tests.GosaTestCase import *
 from gosa.backend.objects.proxy import *
 from lxml import objectify
@@ -42,10 +44,13 @@ class ObjectProxyTestCase(GosaTestCase):
         mocked_factory = mock.MagicMock()
         mocked_factory.identifyObject.return_value = (None, None)
         mocked_factory.getObjectTypes.return_value = ['User']
+        with make_session() as session:
+            res = session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.dn == "cn=Frank Reich,ou=people,dc=example,dc=net").one()
+            uuid = res[0]
         with pytest.raises(ProxyException), \
              mock.patch('gosa.backend.objects.proxy.ObjectFactory.getInstance', return_value=mocked_factory):
             # base not found
-            ObjectProxy('fae09b6a-914b-1037-8941-b59a822cf04a')
+            ObjectProxy(uuid)
 
         user = ObjectProxy('cn=Frank Reich,ou=people,dc=example,dc=net')
         assert user.uid == 'freich'

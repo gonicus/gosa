@@ -8,6 +8,9 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 from unittest import mock
+
+from gosa.backend.objects.index import ObjectInfoIndex
+from gosa.common.env import make_session
 from tests.GosaTestCase import *
 from gosa.backend.objects.backend.back_object import *
 
@@ -16,13 +19,16 @@ class ObjectBackendTestCase(TestCase):
 
     def setUp(self):
         self.back = ObjectHandler()
+        with make_session() as session:
+            res = session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.dn == "cn=Frank Reich,ou=people,dc=example,dc=net").one()
+            self.user_uuid = res[0]
 
     def tearDown(self):
         del self.back
 
     @slow
     def test_load(self):
-        res = self.back.load('fae09b6a-914b-1037-8941-b59a822cf04a',
+        res = self.back.load(self.user_uuid,
                              {
                                  'groupMembership': {
                                      'value': ['freich'],
@@ -64,7 +70,7 @@ class ObjectBackendTestCase(TestCase):
     def test_update(self):
 
         with pytest.raises(BackendError):
-            self.back.update('fae09b6a-914b-1037-8941-b59a822cf04a',
+            self.back.update(self.user_uuid,
                                    {'groupMembership': 'String'},
                                    {})
         with pytest.raises(BackendError):
@@ -80,7 +86,7 @@ class ObjectBackendTestCase(TestCase):
                                    {'groupMembership': 'PosixGroup:cn,memberUid=uid'})
         with pytest.raises(EntryNotFound):
             # wrong group
-            self.back.update('fae09b6a-914b-1037-8941-b59a822cf04a',
+            self.back.update(self.user_uuid,
                              {
                                  'groupMembership': {
                                      'value': ['unknown'],
@@ -91,7 +97,7 @@ class ObjectBackendTestCase(TestCase):
                              {'groupMembership': 'PosixGroup:cn,memberUid=uid'})
 
         with mock.patch("gosa.backend.objects.backend.back_object.ObjectProxy") as m:
-            self.back.update('fae09b6a-914b-1037-8941-b59a822cf04a',
+            self.back.update(self.user_uuid,
                                  {
                                      'groupMembership': {
                                          'value': ['freich'],
@@ -113,7 +119,7 @@ class ObjectBackendTestCase(TestCase):
                     return real_index.search(query, attrs)
             mocked_index.search.side_effect = search
             with mock.patch.dict("gosa.backend.objects.proxy.PluginRegistry.modules", {'ObjectIndex': mocked_index}):
-                self.back.update('fae09b6a-914b-1037-8941-b59a822cf04a',
+                self.back.update(self.user_uuid,
                                  {
                                      'groupMembership': {
                                          'value': ['new', 'add'],

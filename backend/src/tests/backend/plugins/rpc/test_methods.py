@@ -74,7 +74,6 @@ class RpcMethodsTestCase(TestCase):
         assert res['sn'] == 'Administrator'
         assert res['givenName'] == 'System'
         assert res['dn'] == 'cn=System Administrator,ou=people,dc=example,dc=net'
-        assert res['uuid'] == 'fae0840e-914b-1037-892f-b59a822cf04a'
 
     def test_extensionExists(self):
 

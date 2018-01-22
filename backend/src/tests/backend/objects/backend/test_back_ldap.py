@@ -10,17 +10,23 @@
 from unittest import mock,TestCase
 import pytest
 from gosa.backend.objects.backend.back_ldap import *
+from gosa.backend.objects.index import ObjectInfoIndex
+from gosa.common.env import make_session
+
 
 class LdapBackendTestCase(TestCase):
 
     def setUp(self):
         self.ldap = LDAP()
+        with make_session() as session:
+            res = session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.dn == "cn=Frank Reich,ou=people,dc=example,dc=net").one()
+            self.user_uuid = res[0]
 
     def tearDown(self):
         del self.ldap
 
     def test_load(self):
-        res = self.ldap.load('fae09b6a-914b-1037-8941-b59a822cf04a', {'uid':'string','dateOfBirth':'string','uidNumber':'integer'})
+        res = self.ldap.load(self.user_uuid, {'uid':'string','dateOfBirth':'string','uidNumber':'integer'})
         assert 'uid' in res
         assert 'dateOfBirth' in res
         assert 'uidNumber' in res
@@ -32,7 +38,7 @@ class LdapBackendTestCase(TestCase):
         assert self.ldap.identify_by_uuid(None, None) is False
 
     def test_exists(self):
-        assert self.ldap.exists('fae09b6a-914b-1037-8941-b59a822cf04a') is True
+        assert self.ldap.exists(self.user_uuid) is True
         assert self.ldap.exists('cn=Frank Reich,ou=people,dc=example,dc=net') is True
         assert self.ldap.exists('cn=Frank Reich,ou=people,dc=example,dc=de') is False
 
@@ -40,7 +46,7 @@ class LdapBackendTestCase(TestCase):
         with self.ldap.lh.get_handle() as con:
             with mock.patch.object(self.ldap.lh, 'get_handle') as m:
                 m.return_value.__enter__.return_value.search_s = con.search_s
-                self.ldap.remove('fae09b6a-914b-1037-8941-b59a822cf04a', None, None)
+                self.ldap.remove(self.user_uuid, None, None)
                 m.return_value.__enter__.return_value.delete_s.assert_called_with('cn=Frank Reich,ou=people,dc=example,dc=net')
 
     def test_retract(self):
@@ -49,7 +55,7 @@ class LdapBackendTestCase(TestCase):
                  mock.patch.dict(self.ldap._LDAP__i_cache_ttl, {'cn=Frank Reich,ou=people,dc=example,dc=net': 'dummy'}),\
                  mock.patch.dict(self.ldap._LDAP__i_cache, {'cn=Frank Reich,ou=people,dc=example,dc=net': 'dummy'}):
                 m.return_value.__enter__.return_value.search_s = con.search_s
-                self.ldap.retract('fae09b6a-914b-1037-8941-b59a822cf04a', {'gender':True}, {'objectClasses':'shadowAccount,sambaSamAccount'})
+                self.ldap.retract(self.user_uuid, {'gender':True}, {'objectClasses':'shadowAccount,sambaSamAccount'})
                 assert m.return_value.__enter__.return_value.modify_s.called
                 args, kwargs = m.return_value.__enter__.return_value.modify_s.call_args_list[0]
                 assert args[0] == 'cn=Frank Reich,ou=people,dc=example,dc=net'
@@ -60,14 +66,14 @@ class LdapBackendTestCase(TestCase):
 
     def test_extend(self):
         with mock.patch.object(self.ldap, 'create') as m:
-            self.ldap.extend('fae09b6a-914b-1037-8941-b59a822cf04a',{'data':'test'},{'params':'test'},{'foreign_keys':'test'})
+            self.ldap.extend(self.user_uuid,{'data':'test'},{'params':'test'},{'foreign_keys':'test'})
             m.assert_called_with('cn=Frank Reich,ou=people,dc=example,dc=net',{'data':'test'},{'params':'test'},{'foreign_keys':'test'})
 
     def test_move(self):
         with self.ldap.lh.get_handle() as con:
             with mock.patch.object(self.ldap.lh, 'get_handle') as m:
                 m.return_value.__enter__.return_value.search_s = con.search_s
-                self.ldap.move('fae09b6a-914b-1037-8941-b59a822cf04a', 'ou=people,dc=test,dc=de')
+                self.ldap.move(self.user_uuid, 'ou=people,dc=test,dc=de')
                 m.return_value.__enter__.return_value.rename_s.assert_called_with('cn=Frank Reich,ou=people,dc=example,dc=net','cn=Frank Reich', 'ou=people,dc=test,dc=de')
 
     def test_create(self):
@@ -140,7 +146,7 @@ class LdapBackendTestCase(TestCase):
         with self.ldap.lh.get_handle() as con:
             with mock.patch.object(self.ldap.lh, 'get_handle') as m:
                 m.return_value.__enter__.return_value.search_s = con.search_s
-                self.ldap.update('fae09b6a-914b-1037-8941-b59a822cf04a', {
+                self.ldap.update(self.user_uuid, {
                     'attr': {
                         'value': ['new'],
                         'orig': None,
@@ -166,7 +172,7 @@ class LdapBackendTestCase(TestCase):
 
                 #with changed rdn part
                 m.return_value.__enter__.return_value.modify_s.reset_mock()
-                self.ldap.update('fae09b6a-914b-1037-8941-b59a822cf04a', {
+                self.ldap.update(self.user_uuid, {
                     'attr': {
                         'value': ['new'],
                         'orig': None,
@@ -202,7 +208,7 @@ class LdapBackendTestCase(TestCase):
                 assert (ldap.MOD_REPLACE, 'cn', [bytes('Frank Möller', 'utf-8')]) in args[1]
 
     def test_uuid2dn(self):
-        assert self.ldap.dn2uuid('cn=Frank Reich,ou=people,dc=example,dc=net') == 'fae09b6a-914b-1037-8941-b59a822cf04a'
+        assert self.ldap.dn2uuid('cn=Frank Reich,ou=people,dc=example,dc=net') == self.user_uuid
         assert self.ldap.dn2uuid('cn=Frank Reich,ou=people,dc=example,dc=de') is False
 
     def test_get_uniq_dn(self):
@@ -214,7 +220,7 @@ class LdapBackendTestCase(TestCase):
         }, None) == 'cn=Frank Möller,ou=people,dc=example,dc=net'
 
     def test_is_uniq(self):
-        assert self.ldap.is_uniq('entryUUID','fae09b6a-914b-1037-8941-b59a822cf04a','string') is False
+        assert self.ldap.is_uniq('entryUUID',self.user_uuid,'string') is False
         assert self.ldap.is_uniq('entryUUID','78475884-c7f2-1035-8262-f535be14d43b','string') is True
 
     def test_build_dn_list(self):

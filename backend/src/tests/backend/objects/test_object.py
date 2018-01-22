@@ -9,47 +9,56 @@
 
 from unittest import mock
 from gosa.backend.objects import ObjectFactory
+from gosa.backend.objects.index import ObjectInfoIndex
+from gosa.common.env import make_session
 from tests.GosaTestCase import *
 from gosa.backend.objects.object import *
 
 
 @slow
 class ObjectTestCase(TestCase):
+    user_uuid = None
+    
+    def setUp(self):
+        super(ObjectTestCase, self).setUp()
+        with make_session() as session:
+            res = session.query(ObjectInfoIndex.uuid).filter(ObjectInfoIndex.dn == "cn=Frank Reich,ou=people,dc=example,dc=net").one()
+            self.user_uuid = res[0] 
 
     def test_listProperties(self):
-        obj = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         res = obj.listProperties()
         # just test if something is there
         assert 'uid' in res
 
     def test_getProperties(self):
-        obj = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         res = obj.getProperties()
         # just test if something is there
         assert res['uid']['value'][0] == "freich"
 
     def test_listMethods(self):
-        obj = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         res = obj.listMethods()
         # just test if something is there
         assert 'lock' in res
         assert 'unlock' in res
 
     def test_listMethods2(self):
-        obj = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         res = obj.listMethods()
         # just test if something is there
         assert obj.hasattr('uid') is True
 
     def test_getTemplate(self):
-        obj = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         res = obj.getTemplate()
         assert res[0][0:3] == "{\n "
 
     def test_getNamedTemplate(self):
         assert Object.getNamedTemplate({}, []) == []
 
-        obj = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         res = Object.getNamedTemplate(obj.env, obj._templates)
         assert res[0][0:3] == "{\n "
 
@@ -57,14 +66,14 @@ class ObjectTestCase(TestCase):
             assert Object.getNamedTemplate(obj.env, obj._templates) is None
 
     def test_getAttrType(self):
-        obj = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         assert obj.getAttrType('uid') == "String"
 
         with pytest.raises(AttributeError):
             obj.getAttrType('unknown')
 
     def test_attributes(self):
-        obj = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         assert obj.uid == 'freich'
 
         # just test the change
@@ -108,17 +117,17 @@ class ObjectTestCase(TestCase):
 
     def test_check(self):
         # wrong mode for base object
-        obj = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a', 'delete')
+        obj = ObjectFactory.getInstance().getObject('User', self.user_uuid, 'delete')
         with pytest.raises(ObjectException):
             obj.check()
 
         # remove a non base object
-        obj = ObjectFactory.getInstance().getObject('PosixUser', 'fae09b6a-914b-1037-8941-b59a822cf04a', 'remove')
+        obj = ObjectFactory.getInstance().getObject('PosixUser', self.user_uuid, 'remove')
         with pytest.raises(ObjectException):
             obj.check()
 
         # update base object
-        obj = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         res = obj.check()
         # just test if something is there
         assert 'uid' in res
@@ -148,40 +157,40 @@ class ObjectTestCase(TestCase):
         assert res['uid']['value'][0] == "tuser"
 
     def test_revert(self):
-        obj = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         obj.uid = 'frank'
         obj.revert()
         assert obj.uid == 'freich'
 
     def test_getExclusiveProperties(self):
-        obj = ObjectFactory.getInstance().getObject('PosixUser', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('PosixUser', self.user_uuid)
         res = obj.getExclusiveProperties()
         assert 'uid' not in res
         assert 'groupMembership' in res
 
     def test_getForeignProperties(self):
-        obj = ObjectFactory.getInstance().getObject('PosixUser', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('PosixUser', self.user_uuid)
         res = obj.getForeignProperties()
         assert 'uid' in res
         assert 'groupMembership' not in res
 
     def test_object_type_by_dn(self):
-        obj = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         assert obj.get_object_type_by_dn("ou=people,dc=example,dc=net") == "PeopleContainer"
         assert obj.get_object_type_by_dn("ou=people,dc=example,dc=de") is None
 
     def test_get_references(self):
-        obj = ObjectFactory.getInstance().getObject('PosixUser', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        obj = ObjectFactory.getInstance().getObject('PosixUser', self.user_uuid)
         res = obj.get_references()
         for rel in res:
             if rel[0] == "memberUid":
                 assert rel == ('memberUid', 'uid', 'freich', [], False, "replace", {"identify": None, "replace": None, "delete": None})
 
     def test_update_refs(self):
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         with mock.patch.object(object, "get_references",
                                return_value=[('memberUid', 'uid', 'freich',
-                                             ['fae09b6a-914b-1037-8941-b59a822cf04a'], False, "replace",
+                                             [self.user_uuid], False, "replace",
                                               {"identify": None, "replace": None, "delete": None})]) as m, \
              mock.patch.object(object, "_delattr_"), \
              mock.patch("gosa.backend.objects.object.ObjectProxy") as c_obj:
@@ -206,7 +215,7 @@ class ObjectTestCase(TestCase):
 
             # multivalue
             m.return_value = [('memberUid', 'uid', 'freich',
-                               ['fae09b6a-914b-1037-8941-b59a822cf04a'], True, "replace",
+                               [self.user_uuid], True, "replace",
                                {"identify": None, "replace": None, "delete": None})]
             c_obj.return_value.memberUid = ['Test']
             object.update_refs({'uid': {'value': ['frank', 'more'], 'orig': ['freich']}})
@@ -215,10 +224,10 @@ class ObjectTestCase(TestCase):
             assert 'more' in c_obj.return_value.memberUid
 
     def test_update_inline_refs(self):
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         with mock.patch.object(object, "get_references",
                                return_value=[('gotoMenu', 'cn', 'chrome',
-                                              ['fae09b6a-914b-1037-8941-b59a822cf04a'], False, "inline",
+                                              [self.user_uuid], False, "inline",
                                               {
                                                   "identify": "\"cn\":\"###VALUE###\"",
                                                   "replace": "\"cn\":\"###VALUE###\"",
@@ -236,10 +245,10 @@ class ObjectTestCase(TestCase):
 
 
     def test_remove_inline_refs(self):
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         with mock.patch.object(object, "get_references",
                                return_value=[('gotoMenu', 'cn', 'chrome',
-                                              ['fae09b6a-914b-1037-8941-b59a822cf04a'], False, "inline",
+                                              [self.user_uuid], False, "inline",
                                               {
                                                   "identify": "\"cn\":\"###VALUE###\"",
                                                   "replace": "\"cn\":\"###VALUE###\"",
@@ -268,10 +277,10 @@ class ObjectTestCase(TestCase):
             assert c_obj.return_value.gotoMenu == '[{"name":"Browsers","children":[{"name":"Firefox","cn":"firefox","gosaApplicationParameter":[]}]}]'
 
     def test_remove_refs(self):
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         with mock.patch.object(object, "get_references",
                                return_value=[('memberUid', 'uid', 'freich',
-                                              ['fae09b6a-914b-1037-8941-b59a822cf04a'], False, "replace",
+                                              [self.user_uuid], False, "replace",
                                               {"identify": None, "replace": None, "delete": None})]) as m, \
                 mock.patch.object(object, "_delattr_"), \
                 mock.patch("gosa.backend.objects.object.ObjectProxy") as c_obj:
@@ -285,14 +294,14 @@ class ObjectTestCase(TestCase):
             assert c_obj.return_value.memberUid == ['Test']
 
             m.return_value = [('memberUid', 'uid', ['freich'],
-                               ['fae09b6a-914b-1037-8941-b59a822cf04a'], True, "replace",
+                               [self.user_uuid], True, "replace",
                                {"identify": None, "replace": None, "delete": None})]
             c_obj.return_value.memberUid = ['Test', 'freich']
             object.remove_refs()
             assert c_obj.return_value.memberUid == ['Test']
 
     def test_get_dn_references(self):
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         mocked_index = mock.MagicMock()
         mocked_index.search.return_value = [{'dn': 'dn1'}, {'dn': 'dn2'}]
         with mock.patch.dict(PluginRegistry.modules, {'ObjectIndex': mocked_index}):
@@ -302,9 +311,9 @@ class ObjectTestCase(TestCase):
                 assert entry[0] in ["member", "gotoLastSystem"]
 
     def test_update_dn_refs(self):
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         with mock.patch.object(object, "get_dn_references",
-                               return_value=[('member', ['fae09b6a-914b-1037-8941-b59a822cf04a'])]) as m, \
+                               return_value=[('member', [self.user_uuid])]) as m, \
                 mock.patch.object(object, "_delattr_"), \
                 mock.patch("gosa.backend.objects.object.ObjectProxy") as c_obj:
 
@@ -320,9 +329,9 @@ class ObjectTestCase(TestCase):
             assert c_obj.return_value.commit.called
 
     def test_remove_dn_refs(self):
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         with mock.patch.object(object, "get_dn_references",
-                               return_value=[('member', ['fae09b6a-914b-1037-8941-b59a822cf04a'])]) as m, \
+                               return_value=[('member', [self.user_uuid])]) as m, \
                 mock.patch.object(object, "_delattr_"), \
                 mock.patch("gosa.backend.objects.object.ObjectProxy") as c_obj:
 
@@ -341,12 +350,12 @@ class ObjectTestCase(TestCase):
             assert c_obj.return_value.commit.called
 
     def test_remove(self):
-        object = ObjectFactory.getInstance().getObject('PosixUser', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('PosixUser', self.user_uuid)
 
         with pytest.raises(ObjectException):
             object.remove()
 
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
 
         with mock.patch("gosa.backend.objects.object.ObjectBackendRegistry.getBackend") as mb, \
             mock.patch("zope.event.notify") as me:
@@ -356,15 +365,15 @@ class ObjectTestCase(TestCase):
             assert me.called
 
     def test_simulate_move(self):
-        object = ObjectFactory.getInstance().getObject('PosixUser', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('PosixUser', self.user_uuid)
 
         with pytest.raises(ObjectException):
             object.simulate_move('orig_dn')
 
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         with mock.patch("zope.event.notify") as me, \
                 mock.patch.object(object, "get_dn_references",
-                                  return_value=[('member', ['fae09b6a-914b-1037-8941-b59a822cf04a'])]), \
+                                  return_value=[('member', [self.user_uuid])]), \
                 mock.patch.object(object, "_delattr_"), \
                 mock.patch("gosa.backend.objects.object.ObjectProxy") as c_obj:
 
@@ -375,15 +384,15 @@ class ObjectTestCase(TestCase):
             assert c_obj.return_value.member == object.dn
 
     def test_move(self):
-        object = ObjectFactory.getInstance().getObject('PosixUser', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('PosixUser', self.user_uuid)
 
         with pytest.raises(ObjectException):
             object.move('orig_dn')
 
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         with mock.patch("zope.event.notify") as me, \
                 mock.patch.object(object, "get_dn_references",
-                                  return_value=[('member', ['fae09b6a-914b-1037-8941-b59a822cf04a'])]), \
+                                  return_value=[('member', [self.user_uuid])]), \
                 mock.patch.object(object, "_delattr_"), \
                 mock.patch("gosa.backend.objects.object.ObjectBackendRegistry.getBackend") as mb, \
                 mock.patch("gosa.backend.objects.object.ObjectProxy") as c_obj:
@@ -396,12 +405,12 @@ class ObjectTestCase(TestCase):
             assert c_obj.return_value.member == 'new dn'
 
     def test_retract(self):
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
 
         with pytest.raises(ObjectException):
             object.retract()
 
-        object = ObjectFactory.getInstance().getObject('PosixUser', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('PosixUser', self.user_uuid)
         with mock.patch("zope.event.notify") as me, \
                 mock.patch.object(object, "remove_dn_refs") as mdn, \
                 mock.patch.object(object, "remove_refs") as mrem, \
@@ -417,17 +426,17 @@ class ObjectTestCase(TestCase):
             assert mb.return_value.retract.called
 
     def test_is_attr_set(self):
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         assert object.is_attr_set('uid') is True
         assert object.is_attr_set('pager') is False
 
     def test_is_attr_using_default(self):
-        object = ObjectFactory.getInstance().getObject('User', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('User', self.user_uuid)
         assert object.is_attr_using_default('uid') is False
         assert object.is_attr_using_default('autoDisplayName') is True
 
     def test_commit(self):
-        object = ObjectFactory.getInstance().getObject('PosixUser', 'fae09b6a-914b-1037-8941-b59a822cf04a')
+        object = ObjectFactory.getInstance().getObject('PosixUser', self.user_uuid)
         with mock.patch("gosa.backend.objects.object.ObjectBackendRegistry.getBackend") as mb, \
                 mock.patch("zope.event.notify") as me:
 
