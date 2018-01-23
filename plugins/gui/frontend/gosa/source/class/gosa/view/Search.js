@@ -792,10 +792,7 @@ qx.Class.define("gosa.view.Search", {
       item.setUuid(entry.uuid);
 
       // Icon fallback to server provided images
-      var icon = entry['icon'] ? entry['icon'] : gosa.util.Icons.getIconByType(entry['tag'], 64);
-      if (icon.startsWith("{")) {
-        icon = qx.lang.Json.parse(icon.replace(/'/g, '"'));
-      }
+      var icon = entry['icon'] ? gosa.util.Icons.parse(entry['icon']) : gosa.util.Icons.getIconByType(entry['tag'], 64);
 
       item.setDn(entry.dn);
       item.setTitle(entry.title);

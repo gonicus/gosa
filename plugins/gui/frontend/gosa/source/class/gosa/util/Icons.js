@@ -52,10 +52,28 @@ qx.Class.define("gosa.util.Icons", {
       if (gosa.util.Icons.iconMappings[type.toLowerCase()]) {
         return gosa.util.Icons.iconMappings[type.toLowerCase()]
       } else {
+        return null;
         var path = gosa.Config.spath + "/" + gosa.Config.getTheme() + "/resources/images/objects/"+size+"/" + type.toLowerCase() + ".png";
         path = document.URL.replace(/\/[^\/]*[a-zA-Z]\/.*/, "") + path;
         return path;
       }
+    },
+
+    /**
+     * Parse an icon received from the backend
+     * @param data {String|Object} icon data can be a simple icon source string or stringified JSON data
+     * @param property {String?} optional property to return (data must be an object or JSON string)
+     * @returns {String} icon source path or property value
+     */
+    parse: function(data, property) {
+      if (qx.lang.Type.isString(data) && data.startsWith("{")) {
+        data = qx.lang.Json.parse(data.replace(/'/g, '"'));
+      }
+      if (property && qx.lang.Type.isObject(data) && data.hasOwnProperty(property)) {
+        return data[property];
+      }
+      return data;
+
     }
   }
 });
