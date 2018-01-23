@@ -57,7 +57,6 @@ class DBusShellHandlerTestCase(TestCase):
             self.handler.shell_exec("unknown_script", [])
 
         res = self.handler.shell_exec("ls", ["--directory", "/tmp/shell.d/"])
-        print(res)
         lines = res['stdout'].split("\n")
         assert res['code'] == 0
         assert res['stderr'] == ''
