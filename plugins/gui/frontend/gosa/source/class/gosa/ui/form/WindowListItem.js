@@ -81,7 +81,7 @@ qx.Class.define("gosa.ui.form.WindowListItem", {
           object.bind("label", this, "label");
           object.bind("icon", this, "icon", {
             converter : function(value) {
-              return value.startsWith("@") ? value : "/workflow/" + object.getId() + "/32/" + value;
+              return !value || value.startsWith("@") ? value : "/workflow/" + object.getId() + "/32/" + value;
             }
           });
         } else if (!object.uuid) {
