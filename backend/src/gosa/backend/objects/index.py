@@ -386,7 +386,7 @@ class ObjectIndex(Plugin):
         if self.env.config.get("backend.index", "true").lower() == "true":
             if not hasattr(sys, '_called_from_test'):
                 sobj = PluginRegistry.getInstance("SchedulerService")
-                sobj.getScheduler().add_date_job(self.sync_index,
+                sobj.getScheduler().add_date_job(self.syncIndex,
                                                  datetime.datetime.now() + datetime.timedelta(seconds=1),
                                                  tag='_internal', jobstore='ram')
         else:
@@ -628,7 +628,8 @@ class ObjectIndex(Plugin):
         event_object = objectify.fromstring(etree.tostring(ev, pretty_print=True).decode('utf-8'))
         SseHandler.notify(event_object, channel="broadcast")
 
-    def sync_index(self):
+    @Command(__help__=N_('Start index synchronizing from an optional root-DN'))
+    def syncIndex(self, base=None):
         State.system_state = "indexing"
         # Don't index if someone else is already doing it
         if GlobalLock.exists("scan_index"):
@@ -645,6 +646,10 @@ class ObjectIndex(Plugin):
         total = 0
         index_successful = False
         t0 = time.time()
+        if base is None:
+            start_dn = self.env.base
+        else:
+            start_dn = base
         try:
             self._indexed = True
 
@@ -653,7 +658,7 @@ class ObjectIndex(Plugin):
             self.log.info("scanning for objects")
             self.notify_frontends(N_("scanning for objects"), step=1)
             with Pool(processes=self.procs) as pool:
-                children = self.factory.getObjectChildren(self.env.base)
+                children = self.factory.getObjectChildren(start_dn)
                 result = pool.starmap_async(resolve_children, [(dn,) for dn in children.keys()])
                 while not result.ready():
                     self.notify_frontends(N_("scanning for objects"), step=1)
@@ -705,9 +710,12 @@ class ObjectIndex(Plugin):
             self.notify_frontends(N_("%s objects processed" % total), 100, step=2)
 
             # Remove entries that are in the index, but not in any other backends
-            self.notify_frontends(N_("removing orphan objects from index"), step=3)
-            with make_session() as session:
-                removed = self.__remove_others(backend_objects, session=session)
+            if base is None:
+                self.notify_frontends(N_("removing orphan objects from index"), step=3)
+                with make_session() as session:
+                    removed = self.__remove_others(backend_objects, session=session)
+            else:
+                removed = 0
 
             self.log.info("%s added, %s updated, %s removed, %s are up-to-date" % (added, updated, removed, existing))
             index_successful = True
