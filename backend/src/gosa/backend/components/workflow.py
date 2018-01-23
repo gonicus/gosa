@@ -51,7 +51,6 @@ class Workflow:
     _path = None
     _xml_root = None
     __attribute_map = None
-    __attribute = None
     __user = None
     __session_id = None
     __reference_object = None
@@ -85,7 +84,8 @@ class Workflow:
         self._path = self.env.config.get("core.workflow-path", "/var/lib/gosa/workflows")
         self._xml_root = objectify.parse(os.path.join(self._path, _id, "workflow.xml"), parser).getroot()
 
-        self.__attribute = {key: None for key in self.get_attributes()}
+        attributes = self._get_attributes()
+
         self.__method_map = {
             "commit": None,
             "get_templates": None,
@@ -100,11 +100,11 @@ class Workflow:
 
                 self.__skip_refresh = True
                 # set the reference dn if possible
-                if 'reference_dn' in self.__attribute:
+                if 'reference_dn' in attributes:
                     setattr(self, 'reference_dn', what)
 
                 # copy all other available attribute values to workflow object
-                for key in self.__attribute:
+                for key in attributes:
                     if hasattr(self.__reference_object, key) and getattr(self.__reference_object, key) is not None:
                         setattr(self, key, getattr(self.__reference_object, key))
 
@@ -186,7 +186,7 @@ class Workflow:
             return
         elif new_dn is None:
             # reset object
-            for key in self.__attribute:
+            for key in self.__attribute_map:
                 if hasattr(self.__reference_object, key) and \
                         getattr(self.__reference_object, key) is not None and \
                         getattr(self, key) == getattr(self.__reference_object, key) and \
@@ -201,7 +201,7 @@ class Workflow:
 
         # update all attribute values that are not set yet
         if self.__reference_object is not None:
-            for key in self.__attribute:
+            for key in self.__attribute_map:
                 if hasattr(self.__reference_object, key) and \
                             getattr(self.__reference_object, key) is not None and \
                             (getattr(self, key) is None or override is True):
@@ -480,7 +480,8 @@ class Workflow:
                                 're_populate_on_update': re_populate_on_update,
                                 'value_inherited_from': value_inherited_from,
                                 'values': values,
-                                'skip_translation_values': skip_translation_values
+                                'skip_translation_values': skip_translation_values,
+                                'value': []
                             }
                 for attr, referenced_attrs in references.items():
                     res[attr]['value_inheriting_to'] = referenced_attrs
@@ -557,10 +558,18 @@ class Workflow:
             return m_call
 
         # Valid attribute?
-        if not name in self._get_attributes():
+        attributes = self._get_attributes()
+        if name not in attributes:
             raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
 
-        return self.__attribute[name]
+        # We can have single and multivalues, return the correct type here.
+        value = None
+        if attributes[name]['multivalue']:
+            value = attributes[name]['value']
+        else:
+            if len(attributes[name]['value']):
+                value = attributes[name]['value'][0]
+        return value
 
     def __setattr__(self, name, value):
         # Store non property values
@@ -572,27 +581,40 @@ class Workflow:
             pass
 
         # Valid attribute?
-        if not name in self._get_attributes():
+        attributes = self._get_attributes()
+        if not name in attributes:
             raise AttributeError(C.make_error('ATTRIBUTE_NOT_FOUND', name))
 
         # Validate value
         # mandatory
-        attributes = self._get_attributes()
         attribute = attributes[name]
         if attribute['mandatory'] and value is None:
             raise AttributeError(C.make_error('ATTRIBUTE_MANDATORY', name))
+
+        # Set the new value
+        if value is None:
+            new_value = []
+        else:
+            if attributes[name]['multivalue']:
+
+                # Check if the new value is s list.
+                if type(value) != list:
+                    raise TypeError(C.make_error('ATTRIBUTE_INVALID_LIST', name))
+                new_value = value
+            else:
+                new_value = [value]
 
         # custom validators
         if name in self.__attribute_config:
             config = self.__attribute_config[name]
             if 'validators' in config and config['validators'] is not None:
-                props_copy = copy.deepcopy(self.__attribute)
-                res, error = self.__validator.process_validator(config['validators'], name, [value], props_copy)
+                props_copy = copy.deepcopy(attributes)
+                res, error = self.__validator.process_validator(config['validators'], name, new_value, props_copy)
                 if res is False:
                     raise ValueError(C.make_error('ATTRIBUTE_CHECK_FAILED', name, details=error))
 
-        changed = self.__attribute[name] != value
-        self.__attribute[name] = value
+        changed = attribute['value'] != new_value
+        attribute['value'] = new_value if value is not None else []
 
         if changed is True:
             self.__update_population()
@@ -663,7 +685,18 @@ class Workflow:
         """
         Returns a dictionary with key being the attribute ids and the values the data the user entered.
         """
-        return self.__attribute
+        attrs = self._get_attributes()
+        res = {}
+        for name, config in attrs.items():
+            value = None
+            if len(config['value']) > 0:
+                if config['multivalue']:
+                    value = config['value']
+                else:
+                    value = config['value'][0]
+            res[name] = value
+
+        return res
 
     def check(self):
         """

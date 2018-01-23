@@ -218,7 +218,11 @@ class RPCMethods(Plugin):
         query = {}
         object_factory = ObjectFactory.getInstance()
         if len(search_filter) > 0:
-            query["*"] = search_filter
+            if object_attribute is None:
+                query["*"] = '%{}%'.format(search_filter)
+            else:
+                query[object_attribute] = '%{}%'.format(search_filter)
+
         elif object_attribute is not None:
             query[object_attribute] = '%'
 

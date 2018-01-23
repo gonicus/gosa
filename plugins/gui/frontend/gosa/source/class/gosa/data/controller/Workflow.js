@@ -262,7 +262,13 @@ qx.Class.define("gosa.data.controller.Workflow", {
 
       if (widget) {
         widget.setValid(data.success);
-        data.error && widget.setError(data.error.toString());
+        if (data.error) {
+          if (data.error instanceof gosa.core.RpcError) {
+            widget.setError(data.error.getData());
+          } else {
+            widget.setError(data.error);
+          }
+        }
 
         this._widget.validate();
       }

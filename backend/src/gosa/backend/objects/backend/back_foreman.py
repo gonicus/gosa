@@ -178,7 +178,7 @@ class Foreman(ObjectBackend):
         self.log.debug("create: %s, %s, %s, %s" % (base, data, params, foreign_keys))
         return None
 
-    def update(self, uuid, data, params, needed=None, user=None):
+    def update(self, uuid, data, params, dn=None, needed=None, user=None):
         self.log.debug("update: '%s', '%s', '%s'" % (uuid, data, params))
         if Foreman.modifier != "foreman":
             type = self.get_foreman_type(needed, params)

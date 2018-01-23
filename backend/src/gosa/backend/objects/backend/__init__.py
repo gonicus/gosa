@@ -98,7 +98,7 @@ class ObjectBackend(object):
         """
         raise NotImplementedError(C.make_error("NOT_IMPLEMENTED", uuid, method="extend"))
 
-    def update(self, uuid, data, params, needed=None, user=None):  # pragma: nocover
+    def update(self, uuid, data, params, dn=None, needed=None, user=None):  # pragma: nocover
         """
         Update a base entry or an extension with the given UUID.
         """

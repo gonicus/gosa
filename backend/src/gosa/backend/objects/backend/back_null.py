@@ -45,7 +45,7 @@ class NULL(ObjectBackend):
     def create(self, base, data, params, foreign_keys=None, needed=None, user=None):  # pragma: nocover
         return None
 
-    def update(self, uuid, data, params, needed=None, user=None):  # pragma: nocover
+    def update(self, uuid, data, params, dn=None, needed=None, user=None):  # pragma: nocover
         return True
 
     def is_uniq(self, attr, value, at_type):  # pragma: nocover

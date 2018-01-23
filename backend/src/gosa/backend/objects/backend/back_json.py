@@ -287,7 +287,7 @@ class JSON(ObjectBackend):
                     return False
         return True
 
-    def update(self, item_uuid, data, params, needed=None, user=None):
+    def update(self, item_uuid, data, params, dn=None, needed=None, user=None):
         """
         Update the given entry (by uuid) with a new set of values.
         """

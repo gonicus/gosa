@@ -330,7 +330,7 @@ class LDAP(ObjectBackend):
             raise DNGeneratorError(C.make_error("NO_UNIQUE_DN", base=base_dn, rdns=", ".join(rdns)))
         return dn
 
-    def update(self, uuid, data, params, needed=None, user=None):
+    def update(self, uuid, data, params, dn=None, needed=None, user=None):
         with self.lock, self.lh.get_handle() as con:
             # Assemble a proper modlist
             dn = self.uuid2dn(uuid)

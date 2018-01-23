@@ -97,15 +97,22 @@ qx.Class.define("gosa.io.Rpc", {
         .then(function(data) {
           // The default error message attribute is 'message'
           // so fill it with the incoming message
-          data.message = data.text;
-          if("details" in data){
-            for(var item in data.details) {
-              if (data.details.hasOwnProperty(item)) {
-                data.message += " - " + data.details[item]['detail'];
+          if (!data) {
+            if(!old_error.message){
+              old_error.message = old_error.text;
+            }
+            innerReject(new gosa.core.RpcError(old_error));
+          } else {
+            data.message = data.text;
+            if ("details" in data) {
+              for (var item in data.details) {
+                if (data.details.hasOwnProperty(item)) {
+                  data.message += " - " + data.details[item]['detail'];
+                }
               }
             }
+            innerReject(new gosa.core.RpcError(data));
           }
-          innerReject(new gosa.core.RpcError(data));
         });
       };
       return new qx.Promise(wrapper, this);
