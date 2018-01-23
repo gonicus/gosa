@@ -397,9 +397,6 @@ qx.Class.define("gosa.view.Search", {
           this._currentResponse.orig.replace(" or ", "' or '"),
           this._currentResponse.fuzzy.replace(" or ", "' or '"))+"<br/><br/>";
       }
-      if (count === 0) {
-        console.trace();
-      }
       if (moreResults) {
         resultString += this.trn("%1 / %2 result shown", "%1 / %2 results shown", count, count, this._total);
       } else {
