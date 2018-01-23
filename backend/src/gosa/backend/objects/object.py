@@ -1050,7 +1050,7 @@ class Object(object):
                 kwargs["dn"] = self.dn
                 be.extend(self.uuid, data, beAttrs, self.getForeignProperties(), **kwargs)
             else:
-                # DN night have changed -> deliver the new one
+                # DN might have changed -> deliver the new one
                 kwargs["dn"] = self.dn
                 be.update(uuid, data, beAttrs, **kwargs)
 

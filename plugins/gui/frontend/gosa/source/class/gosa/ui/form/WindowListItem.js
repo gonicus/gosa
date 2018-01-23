@@ -81,7 +81,17 @@ qx.Class.define("gosa.ui.form.WindowListItem", {
           object.bind("label", this, "label");
           object.bind("icon", this, "icon", {
             converter : function(value) {
-              return !value || value.startsWith("@") ? value : "/workflow/" + object.getId() + "/32/" + value;
+              if (value === null) {
+                return value;
+              }
+              if (qx.lang.Type.isString(value) && value.startsWith("@")) {
+                return value;
+              } else if (qx.lang.Type.isObject(value) && value.hasOwnProperty("icon")) {
+                return value.icon;
+              }
+
+              // fallback
+              return "/workflow/" + object.getId() + "/32/" + value;
             }
           });
         } else if (!object.uuid) {
@@ -96,7 +106,11 @@ qx.Class.define("gosa.ui.form.WindowListItem", {
             gosa.io.Rpc.getInstance().cA("getObjectSearchItem", object.dn)
             .then(function(result) {
               this.setLabel(result.title);
-              this.setIcon(result.icon ? result.icon : gosa.util.Icons.getIconByType(result.tag, 22));
+              if (result.icon) {
+                this.setIcon(gosa.util.Icons.parse(result.icon, "icon"));
+              } else {
+                this.setIcon(gosa.util.Icons.getIconByType(result.tag, 22));
+              }
             }, this)
             .catch(function(error) {
               this.error(error);

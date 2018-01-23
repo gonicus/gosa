@@ -397,9 +397,6 @@ qx.Class.define("gosa.view.Search", {
           this._currentResponse.orig.replace(" or ", "' or '"),
           this._currentResponse.fuzzy.replace(" or ", "' or '"))+"<br/><br/>";
       }
-      if (count === 0) {
-        console.trace();
-      }
       if (moreResults) {
         resultString += this.trn("%1 / %2 result shown", "%1 / %2 results shown", count, count, this._total);
       } else {
@@ -795,10 +792,7 @@ qx.Class.define("gosa.view.Search", {
       item.setUuid(entry.uuid);
 
       // Icon fallback to server provided images
-      var icon = entry['icon'] ? entry['icon'] : gosa.util.Icons.getIconByType(entry['tag'], 64);
-      if (icon.startsWith("{")) {
-        icon = qx.lang.Json.parse(icon.replace(/'/g, '"'));
-      }
+      var icon = entry['icon'] ? gosa.util.Icons.parse(entry['icon']) : gosa.util.Icons.getIconByType(entry['tag'], 64);
 
       item.setDn(entry.dn);
       item.setTitle(entry.title);
