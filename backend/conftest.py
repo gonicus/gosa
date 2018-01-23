@@ -37,7 +37,7 @@ def use_test_config():
     main()
     # sync index
     index = PluginRegistry.getInstance("ObjectIndex")
-    index.sync_index()
+    index.syncIndex()
 
     # create all classes to prevent test timeouts
     ObjectFactory.getInstance().create_classes()
