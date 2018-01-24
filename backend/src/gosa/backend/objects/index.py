@@ -495,6 +495,8 @@ class ObjectIndex(Plugin):
                     new_obj.apply_update(update)
                 del self.__dirty[uuid]
                 new_obj.commit()
+            else:
+                del self.__dirty[uuid]
 
     def is_currently_moving(self, dn, move_target=False):
         if move_target:
