@@ -301,6 +301,24 @@ class ObjectProxy(object):
             else:
                 self.__log.warning("unknown extension '%s', skipping data" % extension)
 
+    def set(self, update):
+        """
+        Change multiple attribute values and extensions at once
+        :param update: dict of {attribute_name: new value,...,'__extensions__': []}
+        :type update: dict
+        """
+        if '__extensions__' in update:
+            for ext in update['__extensions__']:
+                if not self.is_extended_by(ext):
+                    self.extend(ext)
+            del update['__extensions__']
+
+        for name, value in update.items():
+            ext = self.get_extension_off_attribute(name)
+            if not self.is_extended_by(ext):
+                self.extend(ext)
+            setattr(self, name, value)
+
     def get_dn(self):
         return self.dn
 
@@ -1007,6 +1025,8 @@ class ObjectProxy(object):
         check_props = self.__base.check()
         for extension in [ext for ext in self.__extensions.values() if ext]:
             check_props.update(extension.check(check_props))
+
+        index.mark_as_dirty(self)
 
         # Handle commits
         save_props = self.__base.commit()

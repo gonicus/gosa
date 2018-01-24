@@ -72,7 +72,8 @@ C.register_codes(dict(
     NOT_SUPPORTED=N_("Requested search operator %(operator)s is not supported"),
     NO_MASTER_BACKEND_FOUND=N_("No master backend found"),
     NO_MASTER_BACKEND_CONNECTION=N_("connection to GOsa backend failed"),
-    NO_BACKEND_CREDENTIALS=N_("Please add valid backend credentials to you configuration (core.backend-user, core.backend-key)")
+    NO_BACKEND_CREDENTIALS=N_("Please add valid backend credentials to you configuration (core.backend-user, core.backend-key)"),
+    DELAYED_UPDATE_FOR_NON_DIRTY_OBJECT=N_("Trying to add a delayed update to a non-dirty object (%(topic)s)")
 ))
 
 
@@ -233,7 +234,10 @@ class ObjectIndex(Plugin):
     _post_process_job = None
     importing = False
     to_be_updated = []
+    # objects that a currently created (stored in the backend but not in the database yet)
     currently_in_creation = []
+    # objects that are have been changes (changes not in database yet)
+    __dirty = {}
     currently_moving = {}
     __search_aid = {}
     last_notification = None
@@ -439,6 +443,53 @@ class ObjectIndex(Plugin):
     def stop(self):
         if self.__handle_events in zope.event.subscribers:
             zope.event.subscribers.remove(self.__handle_events)
+
+    def mark_as_dirty(self, obj):
+        """
+        Marks an object as "dirty". Dirty objects are currently being persisted to their backends (aka committed).
+        :param obj:
+        :type obj: gosa.backend.proxy.ObjectProxy
+        :return:
+        """
+        if not self.is_dirty(obj.uuid):
+            self.__dirty[obj.uuid] = []
+
+    def is_dirty(self, uuid):
+        """
+        Check if an object identified by UUID is marked as "dirty".
+        :param uuid: UUID ob the object to check
+        :type uuid: str
+        :return: True if "dirty"
+        """
+        return uuid in self.__dirty
+
+    def add_delayed_update(self, obj, update):
+        """
+        Add a delayed update for an object that is currently being committed (marked "dirty").
+        This update will be processed after the ongoing commit has been completed.
+        :param obj: The object to apply the update to
+        :type obj: gosa.backend.proxy.ObjectProxy
+        :param update: updated data that can be processed by :meth:`gosa.backend.proxy.ObjectProxy.set`
+        :type update: dict
+        """
+        if not self.is_dirty(obj):
+            raise GosaException(C.make_error('DELAYED_UPDATE_FOR_NON_DIRTY_OBJECT', topic=obj.uuid))
+
+        self.__dirty[obj.uuid].append(update)
+
+    def unmark_as_dirty(self, uuid):
+        """
+        removes the "dirty" mark for the object and processes the delayed updates
+        :param uuid: UUID of the Object to unmark
+        :type uuid: str
+        """
+        if self.is_dirty(uuid):
+            if len(self.__dirty[uuid]) > 0:
+                # freshly open the object
+                new_obj = ObjectProxy(uuid)
+                for update in self.__dirty[uuid]:
+                    new_obj.set(update)
+                new_obj.commit()
 
     def is_currently_moving(self, dn, move_target=False):
         if move_target:
@@ -971,6 +1022,8 @@ class ObjectIndex(Plugin):
         # update word index on change (if indexing is not running currently)
         if not GlobalLock.exists("scan_index"):
             self.update_words(session=session)
+
+        self.unmark_as_dirty(data["_uuid"])
 
     def __build_value(self, v, info):
         """
