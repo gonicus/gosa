@@ -491,7 +491,7 @@ class ObjectIndex(Plugin):
                 # freshly open the object
                 new_obj = ObjectProxy(uuid)
                 for update in self.__dirty[uuid]:
-                    new_obj.set(update)
+                    new_obj.apply_update(update)
                 new_obj.commit()
 
     def is_currently_moving(self, dn, move_target=False):

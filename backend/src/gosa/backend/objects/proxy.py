@@ -301,7 +301,7 @@ class ObjectProxy(object):
             else:
                 self.__log.warning("unknown extension '%s', skipping data" % extension)
 
-    def set(self, update):
+    def apply_update(self, update):
         """
         Change multiple attribute values and extensions at once
         :param update: dict of {attribute_name: new value,...,'__extensions__': []}
