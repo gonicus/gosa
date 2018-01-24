@@ -452,6 +452,7 @@ class ObjectIndex(Plugin):
         :return:
         """
         if not self.is_dirty(obj.uuid):
+            self.log.info("marking %s (%s) as dirty" % (obj.uuid, obj.dn))
             self.__dirty[obj.uuid] = {"obj": obj, "updates": []}
 
     def is_dirty(self, uuid):
@@ -475,18 +476,24 @@ class ObjectIndex(Plugin):
         :param update: updated data that can be processed by :meth:`gosa.backend.proxy.ObjectProxy.apply_update`
         :type update: dict
         """
+        self.log.info("adding delayed update to %s (%s)" % (obj.uuid, obj.dn))
         if not self.is_dirty(obj):
             raise GosaException(C.make_error('DELAYED_UPDATE_FOR_NON_DIRTY_OBJECT', topic=obj.uuid))
 
         self.__dirty[obj.uuid]["updates"].append(update)
 
-    def unmark_as_dirty(self, uuid):
+    def unmark_as_dirty(self, id):
         """
         removes the "dirty" mark for the object and processes the delayed updates
-        :param uuid: UUID of the Object to unmark
-        :type uuid: str
+        :param id: UUID of the Object to unmark or ObjectProxy instance
+        :type id: str|ObjectProxy
         """
+        if isinstance(id, ObjectProxy):
+            uuid = id.uuid
+        else:
+            uuid = id
         if self.is_dirty(uuid):
+            self.log.info("unmarking %s (%s) as dirty" % (self.__dirty[uuid]['obj'].uuid, self.__dirty[uuid]['obj'].dn))
             if len(self.__dirty[uuid]['updates']) > 0:
                 # freshly open the object
                 entry = self.__dirty[uuid]
