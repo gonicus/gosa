@@ -463,6 +463,9 @@ class ObjectIndex(Plugin):
         """
         return uuid in self.__dirty
 
+    def get_dirty_objects(self):
+        return self.__dirty
+
     def add_delayed_update(self, obj, update):
         """
         Add a delayed update for an object that is currently being committed (marked "dirty").

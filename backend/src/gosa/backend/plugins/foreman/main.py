@@ -666,14 +666,16 @@ class Foreman(Plugin):
         update = {}
         # apply changes to device immediately or delayed
         delay_update = False
-        if device is None and len(index.dirty) > 0:
+        dirty = index.get_dirty_objects()
+        if device is None and len(dirty) > 0:
             # check if the device is currently updated
-            for obj in index.dirty:
+            for obj in dirty:
                 if obj.get_type() == "ForemanHost" and obj.cn == hostname:
                     # obj is currently beeing committed, we cannot change things in it
                     # but need a new instance
                     device = obj
                     delay_update = True
+                    break
 
         if device is None:
             self.log.debug("Realm request: creating new host with hostname: %s" % hostname)
