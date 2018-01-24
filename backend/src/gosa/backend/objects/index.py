@@ -487,7 +487,7 @@ class ObjectIndex(Plugin):
         :type uuid: str
         """
         if self.is_dirty(uuid):
-            if len(self.__dirty[uuid]) > 0:
+            if len(self.__dirty[uuid]['updates']) > 0:
                 # freshly open the object
                 entry = self.__dirty[uuid]
                 new_obj = ObjectProxy(entry["obj"].dn)
