@@ -34,3 +34,4 @@ LocalConfig.js
 
 # IntellJ
 .idea/
+/.utils/test-containers/config/ldap/db/*.mdb
