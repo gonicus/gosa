@@ -679,11 +679,11 @@ class Foreman(Plugin):
         dirty = index.get_dirty_objects()
         if device is None and len(dirty) > 0:
             # check if the device is currently updated
-            for obj in dirty:
-                if obj.get_type() == "ForemanHost" and obj.cn == hostname:
-                    # obj is currently beeing committed, we cannot change things in it
+            for entry in dirty.values():
+                if entry["obj"].get_type() == "Device" and entry["obj"].cn == hostname:
+                    # obj is currently being committed, we cannot change things in it
                     # but need a new instance
-                    device = obj
+                    device = entry["obj"]
                     delay_update = True
                     break
 
