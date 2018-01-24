@@ -200,7 +200,7 @@ class Foreman(Plugin):
 
         ForemanBackend.modifier = None
 
-    def get_object(self, object_type, oid, create=True, data=None):
+    def get_object(self, object_type, oid, create=True, data=None, read_only=False):
         backend_attributes = self.factory.getObjectBackendProperties(object_type)
         foreman_object = None
 
@@ -245,7 +245,11 @@ class Foreman(Plugin):
         else:
             # open existing object
             self.log.debug(">>> open existing %s with DN: %s" % (object_type, res[0]["dn"]))
-            foreman_object = ObjectProxy(res[0]["dn"], data={object_type: {"Foreman": data}} if data is not None else None)
+            foreman_object = ObjectProxy(
+                res[0]["dn"],
+                data={object_type: {"Foreman": data}} if data is not None else None,
+                read_only=read_only
+            )
 
         return foreman_object
 
@@ -647,8 +651,8 @@ class Foreman(Plugin):
     def add_host(self, hostname, base=None):
 
         # create dn
+        index = PluginRegistry.getInstance("ObjectIndex")
         if base is None:
-            index = PluginRegistry.getInstance("ObjectIndex")
             # get the IncomingDevice-Container
             res = index.search({"_type": "IncomingDeviceContainer", "_parent_dn": self.type_bases["ForemanHost"]}, {"dn": 1})
             if len(res) > 0:
@@ -659,54 +663,73 @@ class Foreman(Plugin):
         ForemanBackend.modifier = "foreman"
 
         device = self.get_object("ForemanHost", hostname, create=False)
+        update = {}
+        # apply changes to device immediately or delayed
+        delay_update = False
+        if device is None and len(index.dirty) > 0:
+            # check if the device is currently updated
+            for obj in index.dirty:
+                if obj.get_type() == "ForemanHost" and obj.cn == hostname:
+                    # obj is currently beeing committed, we cannot change things in it
+                    # but need a new instance
+                    device = obj
+                    delay_update = True
+
         if device is None:
             self.log.debug("Realm request: creating new host with hostname: %s" % hostname)
             device = ObjectProxy(base, "Device")
             device.extend("ForemanHost")
+            update['cn'] = hostname
             device.cn = hostname
             # commit now to get a uuid
             device.commit()
 
             # re-open to get a clean object
             device = ObjectProxy(device.dn)
+            delay_update = False
         else:
             self.log.debug("Realm request: use existing host with hostname: %s" % hostname)
 
         try:
-
-            if not device.is_extended_by("ForemanHost"):
-                device.extend("ForemanHost")
+            update['__extensions__'] = ['ForemanHost', 'RegisteredDevice', 'simpleSecurityObject']
+            # if not device.is_extended_by("ForemanHost"):
+            #     device.extend("ForemanHost")
 
             # Generate random client key
             h, key, salt = generate_random_key()
 
             # While the client is going to be joined, generate a random uuid and an encoded join key
-            if not device.is_extended_by("RegisteredDevice"):
-                device.extend("RegisteredDevice")
-            if not device.is_extended_by("simpleSecurityObject"):
-                device.extend("simpleSecurityObject")
+            # if not device.is_extended_by("RegisteredDevice"):
+            #     device.extend("RegisteredDevice")
+            # if not device.is_extended_by("simpleSecurityObject"):
+            #     device.extend("simpleSecurityObject")
             if device.deviceUUID is None:
-                cn = str(uuid.uuid4())
-                device.deviceUUID = cn
-            else:
-                cn = device.deviceUUID
+                update['deviceUUID'] = str(uuid.uuid4())
 
-            device.status = "pending"
-            device.status_InstallationInProgress = True
+            # device.status = "pending"
+            # device.status_InstallationInProgress = True
+            update['status'] = 'pending'
+            update['status_InstallationInProgress'] = True
 
-            if device.userPassword is None:
-                device.userPassword = []
+            update['userPassword'] = device.userPassword
+            if update['userPassword'] is None:
+                update['userPassword'] = []
             elif device.otp is not None:
-                device.userPassword.remove(device.otp)
-            device.userPassword.append("{SSHA}" + encode(h.digest() + salt).decode())
+                update['userPassword'].remove(device.otp)
+            update['userPassword'].append("{SSHA}" + encode(h.digest() + salt).decode())
 
             # make sure the client has the access rights he needs
             client_service = PluginRegistry.getInstance("ClientService")
             client_service.applyClientRights(device.deviceUUID)
 
-            device.commit()
+            if delay_update is True:
+                # process the update when the current dirty object has been processed
+                index.add_delayed_update(device, update)
+            else:
+                device.set(update)
+                device.commit()
             self.mark_for_parameter_setting(hostname, {"status": "added"})
-            return "%s|%s" % (key, cn)
+            return "%s|%s" % (key, update['deviceUUID'])
 
         except Exception as e:
             # remove created device again because something went wrong
