@@ -926,7 +926,7 @@ class ForemanHookReceiver(object):
 
         if data['event'] == "after_commit" or data['event'] == "update" or data['event'] == "after_create" or data['event'] == "create":
             host = None
-            update = {}
+            update = {'__extensions__': []}
             if data['event'] == "update" and foreman_type == "host" and "mac" in payload_data and payload_data["mac"] is not None:
                 # check if we have an discovered host for this mac
                 index = PluginRegistry.getInstance("ObjectIndex")
