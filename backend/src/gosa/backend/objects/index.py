@@ -452,7 +452,7 @@ class ObjectIndex(Plugin):
         :return:
         """
         if not self.is_dirty(obj.uuid):
-            self.__dirty[obj.uuid] = []
+            self.__dirty[obj.uuid] = {"obj": obj, "updates": []}
 
     def is_dirty(self, uuid):
         """
@@ -478,7 +478,7 @@ class ObjectIndex(Plugin):
         if not self.is_dirty(obj):
             raise GosaException(C.make_error('DELAYED_UPDATE_FOR_NON_DIRTY_OBJECT', topic=obj.uuid))
 
-        self.__dirty[obj.uuid].append(update)
+        self.__dirty[obj.uuid]["updates"].append(update)
 
     def unmark_as_dirty(self, uuid):
         """
@@ -489,8 +489,9 @@ class ObjectIndex(Plugin):
         if self.is_dirty(uuid):
             if len(self.__dirty[uuid]) > 0:
                 # freshly open the object
-                new_obj = ObjectProxy(uuid)
-                for update in self.__dirty[uuid]:
+                entry = self.__dirty[uuid]
+                new_obj = ObjectProxy(entry["obj"].dn)
+                for update in entry["updates"]:
                     new_obj.apply_update(update)
                 new_obj.commit()
 

@@ -268,7 +268,7 @@ class ObjectProxy(object):
         # build property change hooks from update_hooks
         self.__attribute_change_write_hooks = self.__factory.getUpdateHooks(self.__base_type)
 
-    def apply_data(self, data, force_update=False, raw=True):
+    def inject_backend_data(self, data, force_update=False, raw=True):
         """
         Apply attribute values as if they were read from each backend.
         If a backend receives data e.g. by hook events there is no need to query the backend again, the received data
@@ -285,7 +285,7 @@ class ObjectProxy(object):
         for extension in data:
             if self.__base_type == extension:
                 self.__log.debug("applying data to base object %s" % extension)
-                self.__base.apply_data(data[extension], force_update=force_update, raw=raw)
+                self.__base.inject_backend_data(data[extension], force_update=force_update, raw=raw)
             elif extension in self.__extensions:
                 if not self.is_extended_by(extension):
                     self.__log.debug("applying data to new extension object %s" % extension)
@@ -297,7 +297,7 @@ class ObjectProxy(object):
                         self.extend(extension, data=data[extension], force_update=force_update)
                 else:
                     self.__log.debug("applying data to existing extension object %s" % extension)
-                    self.__extensions[extension].apply_data(data[extension], force_update=force_update, raw=raw)
+                    self.__extensions[extension].inject_backend_data(data[extension], force_update=force_update, raw=raw)
             else:
                 self.__log.warning("unknown extension '%s', skipping data" % extension)
 
