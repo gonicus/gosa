@@ -472,7 +472,7 @@ class ObjectIndex(Plugin):
         This update will be processed after the ongoing commit has been completed.
         :param obj: The object to apply the update to
         :type obj: gosa.backend.proxy.ObjectProxy
-        :param update: updated data that can be processed by :meth:`gosa.backend.proxy.ObjectProxy.set`
+        :param update: updated data that can be processed by :meth:`gosa.backend.proxy.ObjectProxy.apply_update`
         :type update: dict
         """
         if not self.is_dirty(obj):
