@@ -934,6 +934,7 @@ class ForemanHookReceiver(object):
                     if hasattr(entry["obj"], "macAddress") and entry["obj"].macAddress == payload_data["mac"] and \
                             hasattr(entry["obj"], "status") and entry["obj"].status == "discovered":
                         host = ObjectProxy(entry["obj"].dn)
+                        self.log.debug("found dirty host %s" % entry["obj"].dn)
                         delay_update = True
                         break
 
