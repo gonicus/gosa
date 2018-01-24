@@ -309,7 +309,7 @@ class ObjectProxy(object):
         """
         if '__extensions__' in update:
             for ext in update['__extensions__']:
-                if not self.is_extended_by(ext):
+                if not self.is_extended_by(ext) and ext != self.__base.get_type():
                     self.extend(ext)
             del update['__extensions__']
 
