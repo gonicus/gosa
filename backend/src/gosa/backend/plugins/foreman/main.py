@@ -738,7 +738,7 @@ class Foreman(Plugin):
                 # process the update when the current dirty object has been processed
                 index.add_delayed_update(device, update)
             else:
-                device.set(update)
+                device.apply_update(update)
                 device.commit()
             self.mark_for_parameter_setting(hostname, {"status": "added"})
             return "%s|%s" % (key, update['deviceUUID'])
