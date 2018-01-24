@@ -196,13 +196,13 @@ class Object(object):
                     raise ValueError(C.make_error('CREATE_NEEDS_BASE', "base", location=where))
                 self.orig_dn = self.dn = where
                 if data is not None:
-                    self.apply_data(data, force_update=force_update)
+                    self.inject_backend_data(data, force_update=force_update)
             else:
                 self._read(where, data=data)
 
         else:
             if data is not None:
-                self.apply_data(data, force_update=force_update)
+                self.inject_backend_data(data, force_update=force_update)
 
         # Set status to modified for attributes that do not have a value but are
         # mandatory and have a default.
@@ -469,7 +469,7 @@ class Object(object):
             else:
                 self.myProperties[key]['last_value'] = copy.deepcopy(self.myProperties[key]['value'])
 
-    def apply_data(self, data, force_update=False, raw=True):
+    def inject_backend_data(self, data, force_update=False, raw=True):
         """
         This method tries to initialize a object instance with the given data using the same process as the ``_read``
         method but without querying the backend but using the given data instead.

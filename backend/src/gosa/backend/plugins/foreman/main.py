@@ -253,7 +253,7 @@ class Foreman(Plugin):
 
         return foreman_object
 
-    def update_type(self, object_type, object, data, uuid_attribute=None, update_data=None):
+    def update_type(self, object_type, object, data, uuid_attribute=None, backend_data=None, update_data=None, delay_update=False):
         """
         Directly updates the objects attribute values. Generates a dict with structure:
 
@@ -296,8 +296,8 @@ class Foreman(Plugin):
             uuid_attribute = backend_attributes["Foreman"]["_uuidSourceAttribute"] \
                 if '_uuidSourceAttribute' in backend_attributes["Foreman"] else backend_attributes["Foreman"]["_uuidAttribute"]
 
-        if update_data is None:
-            update_data = {}
+        if backend_data is None:
+            backend_data = {}
 
         if object.get_mode() == "create":
             for entry in set_on_create:
@@ -318,17 +318,17 @@ class Foreman(Plugin):
         def update(key, value, backend=None):
             # check if we need to extend the object before setting the property
             extension = object.get_extension_off_attribute(key)
-            if extension not in update_data:
-                update_data[extension] = {}
+            if extension not in backend_data:
+                backend_data[extension] = {}
             if backend is not None:
-                if backend not in update_data[extension]:
-                    update_data[extension][backend] = {}
-                update_data[extension][backend][key] = value
+                if backend not in backend_data[extension]:
+                    backend_data[extension][backend] = {}
+                backend_data[extension][backend][key] = value
             else:
                 for backend_name in properties[key]['backend']:
-                    if backend_name not in update_data[extension]:
-                        update_data[extension][backend_name] = {}
-                    update_data[extension][backend_name][key] = value
+                    if backend_name not in backend_data[extension]:
+                        backend_data[extension][backend_name] = {}
+                    backend_data[extension][backend_name][key] = value
 
         for key, value in data.items():
             if key == uuid_attribute and object.get_mode() != "create":
@@ -346,10 +346,20 @@ class Foreman(Plugin):
                                  (key, object.uuid, object_type, value, e))
                 raise e
 
-        self.log.debug(">>> applying data to '%s': %s" % (object_type, update_data))
-        object.apply_data(update_data, force_update=True)
-        self.log.debug(">>> commiting '%s'" % object_type)
-        object.commit()
+        if delay_update is True:
+            for ext, entry in backend_data.items():
+                if ext != object.get_type() and ext not in update_data['__extensions__']:
+                    update_data['__extensions__'].append(ext)
+                for data in entry.values():
+                    update_data.update(data)
+            self.log.debug(">>> delay applying data to '%s': %s" % (object_type, update_data))
+            PluginRegistry.getInstance("ObjectIndex").add_delayed_update(object, update_data)
+
+        else:
+            self.log.debug(">>> applying data to '%s': %s" % (object_type, backend_data))
+            object.inject_backend_data(backend_data, force_update=True)
+            self.log.debug(">>> commiting '%s'" % object_type)
+            object.commit()
 
     def remove_type(self, object_type, oid):
         ForemanBackend.modifier = "foreman"
@@ -901,7 +911,8 @@ class ForemanHookReceiver(object):
                 if '_uuidSourceAttribute' in backend_attributes["Foreman"] else backend_attributes["Foreman"]["_uuidAttribute"]
 
         ForemanBackend.modifier = "foreman"
-        update_data = {}
+        backend_data = {}
+        delay_update = False
 
         if data['event'] in ["update", "create"] and foreman_type == "host":
             id = payload_data["id"] if "id" in payload_data else None
@@ -915,22 +926,31 @@ class ForemanHookReceiver(object):
 
         if data['event'] == "after_commit" or data['event'] == "update" or data['event'] == "after_create" or data['event'] == "create":
             host = None
+            update = {}
             if data['event'] == "update" and foreman_type == "host" and "mac" in payload_data and payload_data["mac"] is not None:
                 # check if we have an discovered host for this mac
                 index = PluginRegistry.getInstance("ObjectIndex")
-                res = index.search({
-                    "_type": "Device",
-                    "extension": ["ForemanHost", "ieee802Device"],
-                    "macAddress": payload_data["mac"],
-                    "status": "discovered"
-                }, {"dn": 1})
+                for entry in index.get_dirty_objects().values():
+                    if hasattr(entry["obj"], "macAddress") and entry["obj"].macAddress == payload_data["mac"] and \
+                            hasattr(entry["obj"], "status") and entry["obj"].status == "discovered":
+                        host = ObjectProxy(entry["obj"].dn)
+                        delay_update = True
+                        break
 
-                if len(res):
-                    self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
-                    host = ObjectProxy(res[0]["dn"])
+                if host is None:
+                    res = index.search({
+                        "_type": "Device",
+                        "extension": ["ForemanHost", "ieee802Device"],
+                        "macAddress": payload_data["mac"],
+                        "status": "discovered"
+                    }, {"dn": 1})
 
-                    if foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
-                        host.status = "unknown"
+                    if len(res):
+                        self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
+                        host = ObjectProxy(res[0]["dn"])
+
+                if host is not None and foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
+                    update['status'] = "unknown"
 
             foreman_object = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None)
             if foreman_object and host:
@@ -938,14 +958,9 @@ class ForemanHookReceiver(object):
                     self.log.debug("using known host instead of creating a new one")
                     # host is the formerly discovered host, which might have been changed in GOsa for provisioning
                     # so we want to use this one, foreman_object is the joined one, so copy the credentials from foreman_object to host
-                    if not host.is_extended_by("RegisteredDevice"):
-                        host.extend("RegisteredDevice")
-                    if not host.is_extended_by("simpleSecurityObject"):
-                        host.extend("simpleSecurityObject")
-                    host.deviceUUID = foreman_object.deviceUUID
-                    host.userPassword = foreman_object.userPassword
-                    host.otp = foreman_object.otp
-                    host.cn = foreman_object.cn
+                    update['__extensions__'].extend(['RegisteredDevice', 'simpleSecurityObject'])
+                    for attr in ['deviceUUID', 'userPassword', 'otp' , 'userPassword']:
+                        update[attr] = getattr(foreman, attr)
 
                     # now delete the formerly joined host
                     foreman_object.remove()
@@ -956,14 +971,20 @@ class ForemanHookReceiver(object):
 
             elif foreman_type == "discovered_host":
                 self.log.debug("setting discovered state for %s" % payload_data[uuid_attribute])
-                if not foreman_object.is_extended_by("ForemanHost"):
-                    foreman_object.extend("ForemanHost")
-                foreman_object.status = "discovered"
+                update['__extensions__'].append('ForemanHost')
+                update['status'] = 'discovered'
 
             if foreman_type == "host":
                 old_build_state = foreman_object.build
 
-            foreman.update_type(object_type, foreman_object, payload_data, uuid_attribute, update_data=update_data)
+            foreman.update_type(object_type,
+                                foreman_object,
+                                payload_data,
+                                uuid_attribute,
+                                backend_data=backend_data,
+                                update_data=update,
+                                delay_update=delay_update)
+
             if foreman_type == "host" and old_build_state is True and foreman_object.build is False and \
                             foreman_object.status == "ready":
                 # send notification

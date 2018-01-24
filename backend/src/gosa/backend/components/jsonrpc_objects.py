@@ -392,7 +392,7 @@ class JSONRPCObjectMapper(Plugin):
                         apply_directly[extension][attribute_name] = delta["attributes"]["added"][attribute_name]
 
         if len(apply_directly.keys()):
-            cache_obj.apply_data(apply_directly, raw=False)
+            cache_obj.inject_backend_data(apply_directly, raw=False)
 
         return delta
 
