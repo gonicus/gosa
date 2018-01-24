@@ -348,7 +348,7 @@ class Foreman(Plugin):
 
         if delay_update is True:
             for ext, entry in backend_data.items():
-                if ext != object.get_type() and ext not in update_data['__extensions__']:
+                if ext not in update_data['__extensions__']:
                     update_data['__extensions__'].append(ext)
                 for data in entry.values():
                     update_data.update(data)
@@ -680,7 +680,7 @@ class Foreman(Plugin):
         if device is None and len(dirty) > 0:
             # check if the device is currently updated
             for entry in dirty.values():
-                if entry["obj"].get_type() == "Device" and entry["obj"].cn == hostname:
+                if entry["obj"].is_extended_by("ForemanHost") and entry["obj"].cn == hostname:
                     # obj is currently being committed, we cannot change things in it
                     # but need a new instance
                     device = entry["obj"]
