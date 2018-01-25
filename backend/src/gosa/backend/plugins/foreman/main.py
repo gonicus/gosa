@@ -166,7 +166,7 @@ class Foreman(Plugin):
             found_ids.append(str(data[uuid_attribute]))
             self.log.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             self.log.debug(">>> START syncing foreman object of type '%s' with id '%s'" % (object_type, data[uuid_attribute]))
-            foreman_object,  = self.get_object(object_type, data[uuid_attribute], data=data)
+            foreman_object, delay_update = self.get_object(object_type, data[uuid_attribute], data=data)
             if foreman_type == "discovered_hosts":
                 # add status to data
                 if not foreman_object.is_extended_by("ForemanHost"):
