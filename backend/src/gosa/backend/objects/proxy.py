@@ -315,7 +315,7 @@ class ObjectProxy(object):
 
         for name, value in update.items():
             ext = self.get_extension_off_attribute(name)
-            if not self.is_extended_by(ext):
+            if ext != self.__base.get_type() and not self.is_extended_by(ext):
                 self.extend(ext)
             setattr(self, name, value)
 
@@ -954,7 +954,7 @@ class ObjectProxy(object):
                     c_obj = ObjectProxy(child)
                     c_obj.remove(recursive=True)
                 except ProxyException as e:
-                    self.log.error("Error removing chile %s: %s" % (child, str(e)))
+                    self.__log.error("Error removing child %s: %s" % (child, str(e)))
 
         else:
             # Test if we've children
@@ -1026,10 +1026,20 @@ class ObjectProxy(object):
         for extension in [ext for ext in self.__extensions.values() if ext]:
             check_props.update(extension.check(check_props))
 
-        index.mark_as_dirty(self)
+        if self.__base_mode != "create":
+            # we need a UUID to mark as dirty and thats only available in non creation mode
+            index.mark_as_dirty(self)
 
         # Handle commits
         save_props = self.__base.commit()
+
+        # Skip further actions if we're in create mode
+        if self.__base_mode == "create":
+            # update values
+            self.dn = self.__base.dn
+            self.uuid = self.__base.uuid
+            index.mark_as_dirty(self)
+
         for extension in self.__extensions.values():
             if extension:
                 # Populate the base uuid to the extensions
@@ -1042,14 +1052,8 @@ class ObjectProxy(object):
                 extension.dn = self.__base.dn
                 save_props.update(extension.commit(save_props))
 
-        # Skip further actions if we're in create mode
-        if self.__base_mode == "create":
-            # update values
-            self.dn = self.__base.dn
-            self.uuid = self.__base.uuid
-
         # Did the commit result in a move?
-        elif self.dn != self.__base.dn:
+        if self.__base_mode != "create" and self.dn != self.__base.dn:
 
             if children:
                 # Move additional backends if needed

@@ -56,3 +56,29 @@ class ForemanStatusIn(ElementFilter):
             return "error"
         else:
             return "unknown"
+
+
+class ForemanStatusOut(ElementFilter):
+    """
+    converts foreman discovered state to unknown if a hostgroup got assigned
+
+    e.g.:
+
+    .. code-block: xml
+
+        <FilterEntry>
+            <Filter>
+                <Name>ForemanStatusOut</Name>
+            </Filter>
+        </FilterEntry>
+        ...
+
+    """
+
+    def process(self, obj, key, valDict, glue=", "):
+        if len(valDict[key]['value']) == 1 and \
+           len(valDict[key]['in_value']) == 0 and \
+           valDict['status']['value'][0] == 'discovered':
+            valDict['status']['value'][0] = 'unknown'
+
+        return key, valDict

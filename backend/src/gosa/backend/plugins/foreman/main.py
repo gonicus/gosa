@@ -166,7 +166,7 @@ class Foreman(Plugin):
             found_ids.append(str(data[uuid_attribute]))
             self.log.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             self.log.debug(">>> START syncing foreman object of type '%s' with id '%s'" % (object_type, data[uuid_attribute]))
-            foreman_object = self.get_object(object_type, data[uuid_attribute], data=data)
+            foreman_object,  = self.get_object(object_type, data[uuid_attribute], data=data)
             if foreman_type == "discovered_hosts":
                 # add status to data
                 if not foreman_object.is_extended_by("ForemanHost"):
@@ -220,10 +220,23 @@ class Foreman(Plugin):
         }
         if types["base"] is False:
             query["extension"] = object_type
-
         res = index.search(query, {'dn': 1})
 
         if len(res) == 0:
+
+            # lookup the dirty ones
+            dirty = index.get_dirty_objects()
+            # check if the device is currently updated
+            for entry in dirty.values():
+                if (hasattr(entry['obj'], backend_attributes["Foreman"]["_uuidAttribute"]) and
+                        getattr(entry['obj'], backend_attributes["Foreman"]["_uuidAttribute"]) == str(oid) and
+                        (types["base"] is False and entry["obj"].is_extended_by(object_type)) or
+                        (types["base"] is True and entry["obj"].get_base_type() == base_type)):
+                    # obj is currently being committed, we cannot change things in it
+                    # but need a new instance
+                    res.append({"dn": entry["obj"].dn})
+                    return entry["obj"], True
+
             if create is True:
                 # no object found -> create one
                 self.log.debug(">>> creating new %s" % object_type)
@@ -251,7 +264,7 @@ class Foreman(Plugin):
                 read_only=read_only
             )
 
-        return foreman_object
+        return foreman_object, False
 
     def update_type(self, object_type, object, data, uuid_attribute=None, backend_data=None, update_data=None, delay_update=False):
         """
@@ -365,7 +378,7 @@ class Foreman(Plugin):
         ForemanBackend.modifier = "foreman"
         factory = ObjectFactory.getInstance()
 
-        foreman_object = self.get_object(object_type, oid, create=False)
+        foreman_object, delay_update = self.get_object(object_type, oid, create=False)
         if foreman_object is not None:
             types = factory.getObjectTypes()[object_type]
             base_type = object_type if types["base"] is True else types["extends"][0]
@@ -672,20 +685,19 @@ class Foreman(Plugin):
 
         ForemanBackend.modifier = "foreman"
 
-        device = self.get_object("ForemanHost", hostname, create=False)
+        device, delay_update = self.get_object("ForemanHost", hostname, create=False)
         update = {}
-        # apply changes to device immediately or delayed
-        delay_update = False
-        dirty = index.get_dirty_objects()
-        if device is None and len(dirty) > 0:
-            # check if the device is currently updated
-            for entry in dirty.values():
-                if entry["obj"].is_extended_by("ForemanHost") and entry["obj"].cn == hostname:
-                    # obj is currently being committed, we cannot change things in it
-                    # but need a new instance
-                    device = entry["obj"]
-                    delay_update = True
-                    break
+        # # apply changes to device immediately or delayed
+        # dirty = index.get_dirty_objects()
+        # if device is None and len(dirty) > 0:
+        #     # check if the device is currently updated
+        #     for entry in dirty.values():
+        #         if entry["obj"].is_extended_by("ForemanHost") and entry["obj"].cn == hostname:
+        #             # obj is currently being committed, we cannot change things in it
+        #             # but need a new instance
+        #             device = entry["obj"]
+        #             delay_update = True
+        #             break
 
         if device is None:
             self.log.debug("Realm request: creating new host with hostname: %s" % hostname)
@@ -742,12 +754,6 @@ class Foreman(Plugin):
                 device.commit()
             self.mark_for_parameter_setting(hostname, {"status": "added"})
             return "%s|%s" % (key, update['deviceUUID'])
-
-        except Exception as e:
-            # remove created device again because something went wrong
-            # self.remove_type("ForemanHost", hostname)
-            self.log.error(str(e))
-            raise e
 
         finally:
             ForemanBackend.modifier = None
@@ -953,7 +959,7 @@ class ForemanHookReceiver(object):
                 if host is not None and foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
                     update['status'] = "unknown"
 
-            foreman_object = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None)
+            foreman_object, delay_update = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None)
             if foreman_object and host:
                 if foreman_object != host:
                     self.log.debug("using known host instead of creating a new one")

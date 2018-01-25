@@ -1,0 +1,48 @@
+{
+  "total": 3,
+  "subtotal": 3,
+  "page": 1,
+  "per_page": 200,
+  "search": null,
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "fullname": "",
+      "created_at": "2017-07-26T07:27:45.347Z",
+      "updated_at": "2017-07-26T07:28:14.276Z",
+      "id": 3,
+      "name": "example.net",
+      "dns_id": 1,
+      "dns": {
+        "name": "smitty.intranet.gonicus.de",
+        "id": 1,
+        "url": "https://smitty.intranet.gonicus.de:8443"
+      }
+    },
+    {
+      "fullname": null,
+      "created_at": "2017-04-18T14:21:22.930Z",
+      "updated_at": "2017-04-18T14:21:22.930Z",
+      "id": 1,
+      "name": "intranet.gonicus.de",
+      "dns_id": null,
+      "dns": null
+    },
+    {
+      "fullname": "",
+      "created_at": "2017-04-19T07:57:45.678Z",
+      "updated_at": "2017-04-19T07:57:45.678Z",
+      "id": 2,
+      "name": "test.intranet.gonicus.de",
+      "dns_id": 1,
+      "dns": {
+        "name": "smitty.intranet.gonicus.de",
+        "id": 1,
+        "url": "https://smitty.intranet.gonicus.de:8443"
+      }
+    }
+  ]
+}

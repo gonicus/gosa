@@ -56,4 +56,4 @@ class GosaTestCase(TestCase):
                 GosaTestCase.remove_test_data(self._test_dn)
                 self._test_dn = None
             except Exception as e:
-                print(str(e))
+                print("Error removing test data: %s " % str(e))

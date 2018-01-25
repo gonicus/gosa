@@ -1,0 +1,93 @@
+{
+  "total": 10,
+  "subtotal": 10,
+  "page": 1,
+  "per_page": 200,
+  "search": null,
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "path": "http://mirror.centos.org/centos/$version/os/$arch",
+      "os_family": "Redhat",
+      "created_at": "2017-04-18T14:07:08.082Z",
+      "updated_at": "2017-04-18T14:07:08.082Z",
+      "id": 1,
+      "name": "CentOS mirror"
+    },
+    {
+      "path": "http://$release.release.core-os.net",
+      "os_family": "Coreos",
+      "created_at": "2017-04-18T14:07:08.209Z",
+      "updated_at": "2017-04-18T14:07:08.209Z",
+      "id": 8,
+      "name": "CoreOS mirror"
+    },
+    {
+      "path": "http://ftp.debian.org/debian",
+      "os_family": "Debian",
+      "created_at": "2017-04-18T14:07:08.101Z",
+      "updated_at": "2017-04-18T14:07:08.101Z",
+      "id": 2,
+      "name": "Debian mirror"
+    },
+    {
+      "path": "http://dl.fedoraproject.org/pub/alt/atomic/stable/Cloud_Atomic/$arch/os/",
+      "os_family": "Redhat",
+      "created_at": "2017-04-18T14:07:08.143Z",
+      "updated_at": "2017-04-18T14:07:08.143Z",
+      "id": 4,
+      "name": "Fedora Atomic mirror"
+    },
+    {
+      "path": "http://dl.fedoraproject.org/pub/fedora/linux/releases/$major/Server/$arch/os/",
+      "os_family": "Redhat",
+      "created_at": "2017-04-18T14:07:08.129Z",
+      "updated_at": "2017-04-18T14:07:08.129Z",
+      "id": 3,
+      "name": "Fedora mirror"
+    },
+    {
+      "path": "http://ftp.freebsd.org/pub/FreeBSD/releases/$arch/$version-RELEASE/",
+      "os_family": "Freebsd",
+      "created_at": "2017-04-18T14:07:08.158Z",
+      "updated_at": "2017-04-18T14:07:08.158Z",
+      "id": 5,
+      "name": "FreeBSD mirror"
+    },
+    {
+      "path": "http://smitty.intranet.gonicus.de:9080/repos/ubuntu",
+      "os_family": "Debian",
+      "created_at": "2017-08-16T08:41:51.758Z",
+      "updated_at": "2017-08-16T14:09:59.573Z",
+      "id": 10,
+      "name": "go-lts"
+    },
+    {
+      "path": "http://mirror.intranet.gonicus.de/ubuntu",
+      "os_family": "Debian",
+      "created_at": "2017-04-19T11:58:01.653Z",
+      "updated_at": "2017-04-19T11:58:01.653Z",
+      "id": 9,
+      "name": "Local Ubuntu Mirror"
+    },
+    {
+      "path": "http://download.opensuse.org/distribution/$version/repo/oss",
+      "os_family": "Suse",
+      "created_at": "2017-04-18T14:07:08.178Z",
+      "updated_at": "2017-04-18T14:07:08.178Z",
+      "id": 6,
+      "name": "OpenSUSE mirror"
+    },
+    {
+      "path": "http://de.archive.ubuntu.com/ubuntu",
+      "os_family": "Debian",
+      "created_at": "2017-04-18T14:07:08.192Z",
+      "updated_at": "2017-04-19T11:16:00.887Z",
+      "id": 7,
+      "name": "Ubuntu mirror"
+    }
+  ]
+}
