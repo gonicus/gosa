@@ -1,0 +1,31 @@
+{
+  "total": 3,
+  "subtotal": 3,
+  "page": 1,
+  "per_page": 200,
+  "search": null,
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "created_at": "2017-04-18T14:07:06.489Z",
+      "updated_at": "2017-04-18T14:07:06.489Z",
+      "name": "x86_64",
+      "id": 1
+    },
+    {
+      "created_at": "2017-04-18T14:07:06.496Z",
+      "updated_at": "2017-04-18T14:07:06.496Z",
+      "name": "i386",
+      "id": 2
+    },
+    {
+      "created_at": "2017-08-17T09:00:20.938Z",
+      "updated_at": "2017-08-17T09:00:20.938Z",
+      "name": "Test_NoOS",
+      "id": 3
+    }
+  ]
+}

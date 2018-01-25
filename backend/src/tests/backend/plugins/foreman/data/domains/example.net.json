@@ -1,0 +1,16 @@
+{
+  "fullname": "",
+  "created_at": "2017-07-26T07:27:45.347Z",
+  "updated_at": "2017-07-26T07:28:14.276Z",
+  "id": 3,
+  "name": "example.net",
+  "dns_id": 1,
+  "dns": {
+    "name": "smitty.intranet.gonicus.de",
+    "id": 1,
+    "url": "https://smitty.intranet.gonicus.de:8443"
+  },
+  "subnets": [],
+  "interfaces": [],
+  "parameters": []
+}

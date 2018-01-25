@@ -10,11 +10,11 @@
   },
   "results": [
     {
-      "ip": "10.6.67.1",
+      "ip": "192.168.0.1",
       "mac": "00:26:2d:f1:6a:2c",
       "last_report": "2017-08-07T07:50:39.489Z",
       "subnet_id": 1,
-      "subnet_name": "Test LAN (10.6.64.0/22)",
+      "subnet_name": "Test LAN (192.168.0.0/24)",
       "hardware_model_name": "43494JG",
       "memory": 7845,
       "disk_count": 2,

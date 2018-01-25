@@ -64,6 +64,15 @@
             <Attribute>member</Attribute>
           </UpdateHook>
         </UpdateHooks>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>ForemanStatusOut</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
       </Attribute>
       <Attribute>
         <Name>build_status</Name>

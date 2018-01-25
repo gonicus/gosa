@@ -104,6 +104,6 @@ datefmt=
 class=logging.Formatter
 
 [formatter_console]
-format=%(asctime)s %(levelname)s: %(name)s - %(message)s
+format=%(log_color)s%(asctime)s %(levelname)s: %(name)s - %(message)s
 datefmt=
-class=logging.Formatter
+class=colorlog.ColoredFormatter

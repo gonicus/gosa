@@ -1,0 +1,111 @@
+{
+  "total": 14,
+  "subtotal": 14,
+  "page": 1,
+  "per_page": 200,
+  "search": null,
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "os_family": "Suse",
+      "created_at": "2017-04-18T14:07:07.857Z",
+      "updated_at": "2017-04-18T14:07:07.857Z",
+      "name": "AutoYaST entire SCSI disk",
+      "id": 72
+    },
+    {
+      "os_family": "Suse",
+      "created_at": "2017-04-18T14:07:07.872Z",
+      "updated_at": "2017-04-18T14:07:07.872Z",
+      "name": "AutoYaST entire virtual disk",
+      "id": 73
+    },
+    {
+      "os_family": "Suse",
+      "created_at": "2017-04-18T14:07:07.889Z",
+      "updated_at": "2017-04-18T14:07:07.889Z",
+      "name": "AutoYaST LVM",
+      "id": 74
+    },
+    {
+      "os_family": "Coreos",
+      "created_at": "2017-04-18T14:07:07.905Z",
+      "updated_at": "2017-04-18T14:07:07.905Z",
+      "name": "CoreOS default fake",
+      "id": 75
+    },
+    {
+      "os_family": "Freebsd",
+      "created_at": "2017-04-18T14:07:07.922Z",
+      "updated_at": "2017-04-18T14:07:07.922Z",
+      "name": "FreeBSD",
+      "id": 76
+    },
+    {
+      "os_family": "Solaris",
+      "created_at": "2017-04-18T14:07:07.939Z",
+      "updated_at": "2017-04-18T14:07:07.939Z",
+      "name": "Jumpstart default",
+      "id": 77
+    },
+    {
+      "os_family": "Solaris",
+      "created_at": "2017-04-18T14:07:07.956Z",
+      "updated_at": "2017-04-18T14:07:07.956Z",
+      "name": "Jumpstart mirrored",
+      "id": 78
+    },
+    {
+      "os_family": "Junos",
+      "created_at": "2017-04-18T14:07:07.973Z",
+      "updated_at": "2017-04-18T14:07:07.973Z",
+      "name": "Junos default fake",
+      "id": 79
+    },
+    {
+      "os_family": "Redhat",
+      "created_at": "2017-04-18T14:07:07.989Z",
+      "updated_at": "2017-04-18T14:07:07.989Z",
+      "name": "Kickstart default",
+      "id": 80
+    },
+    {
+      "os_family": "NXOS",
+      "created_at": "2017-04-18T14:07:08.006Z",
+      "updated_at": "2017-04-18T14:07:08.006Z",
+      "name": "NX-OS default fake",
+      "id": 81
+    },
+    {
+      "os_family": "Debian",
+      "created_at": "2017-04-18T14:07:08.039Z",
+      "updated_at": "2018-01-22T13:08:06.686Z",
+      "name": "Preseed custom LVM",
+      "id": 83
+    },
+    {
+      "os_family": "Debian",
+      "created_at": "2017-04-18T14:07:08.023Z",
+      "updated_at": "2018-01-22T13:08:06.675Z",
+      "name": "Preseed default",
+      "id": 82
+    },
+    {
+      "os_family": "Debian",
+      "created_at": "2017-08-16T13:56:31.232Z",
+      "updated_at": "2017-08-16T13:56:31.232Z",
+      "name": "Preseed LVM XFS",
+      "id": 97
+    },
+    {
+      "os_family": "Xenserver",
+      "created_at": "2017-04-18T14:07:08.056Z",
+      "updated_at": "2018-01-22T13:08:06.694Z",
+      "name": "XenServer default",
+      "id": 84
+    }
+  ]
+}

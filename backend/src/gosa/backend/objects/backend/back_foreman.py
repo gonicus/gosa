@@ -96,6 +96,7 @@ class Foreman(ObjectBackend):
                 # something when wrong
                 self.log.error("Error requesting foreman backend: %s" % e.message)
                 data = {}
+                raise e
         return self.process_data(data, info)
 
     def identify(self, dn, params, fixed_rdn=None):
@@ -263,6 +264,8 @@ class ForemanClient(object):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.foreman_host = self.env.config.get("foreman.host") if url is None else url
+        if url is None and self.foreman_host is not None:
+            raise Exception()
 
     def __authenticate(self, method, url, kwargs):
         kwargs["auth"] = HTTPBasicAuth(self.env.config.get("foreman.user"), self.env.config.get("foreman.password"))

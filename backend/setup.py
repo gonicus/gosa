@@ -64,11 +64,6 @@ if sys.argv[1] == "import-from-json":
                 po.save()
     sys.exit(0)
 
-elif sys.argv[1] == "test":
-    Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "configs", "test_conf")
-    Environment.noargs = True
-    env = Environment.getInstance()
-
 
 class CollectI18nStats(distutils.cmd.Command):
 
@@ -371,6 +366,7 @@ setup(
         stringtojson = gosa.backend.objects.filter.strings:StringToJson
         jsontostring = gosa.backend.objects.filter.strings:JsonToString
         foremanstatusin = gosa.backend.plugins.foreman.filter:ForemanStatusIn
+        foremanstatusout = gosa.backend.plugins.foreman.filter:ForemanStatusOut
         GetMakeModelFromPPD = gosa.backend.plugins.cups.filter:GetMakeModelFromPPD
         DeleteOldFile = gosa.backend.plugins.cups.filter:DeleteOldFile
         GetPPDUrl = gosa.backend.plugins.cups.filter:GetPPDUrl
