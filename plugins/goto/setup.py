@@ -73,7 +73,7 @@ setup(
     install_requires = [
         'gosa.backend',
         'netaddr',
-        'dnspython'
+        'dnspython3'
         ],
 
     entry_points = """
