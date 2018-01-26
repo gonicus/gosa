@@ -922,13 +922,10 @@ class ForemanHookReceiver(object):
 
         if data['event'] in ["update", "create"] and foreman_type == "host":
             id = payload_data["id"] if "id" in payload_data else None
-            try:
-                foreman.write_parameters(id if id is not None else data['object'])
-            except:
-                foreman.mark_for_parameter_setting(data['object'], {
-                    "status": "created",
-                    "use_id": id
-                })
+            foreman.mark_for_parameter_setting(data['object'], {
+                "status": "created",
+                "use_id": id
+            })
 
         if data['event'] == "after_commit" or data['event'] == "update" or data['event'] == "after_create" or data['event'] == "create":
             host = None
