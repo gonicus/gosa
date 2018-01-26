@@ -1,5 +1,6 @@
 [Unit]
 Description=GOsa client
+After=network-online.target
 
 [Service]
 ExecStart=/usr/sbin/gosa
