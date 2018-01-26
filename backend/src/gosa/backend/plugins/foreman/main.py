@@ -950,8 +950,8 @@ class ForemanHookReceiver(object):
                 # check if we have an discovered host for this mac
                 index = PluginRegistry.getInstance("ObjectIndex")
                 for entry in index.get_dirty_objects().values():
-                    if hasattr(entry["obj"], "macAddress") and entry["obj"].macAddress == payload_data["mac"] and \
-                            hasattr(entry["obj"], "status") and entry["obj"].status == "discovered":
+                    if entry["obj"].is_extended_by("ForemanHost") and \
+                            hasattr(entry["obj"], "macAddress") and entry["obj"].macAddress == payload_data["mac"]:
                         host = ObjectProxy(entry["obj"].dn)
                         self.log.debug("found dirty host %s" % entry["obj"].dn)
                         delay_update = True
