@@ -369,8 +369,9 @@ class Foreman(Plugin):
             PluginRegistry.getInstance("ObjectIndex").add_delayed_update(object, update_data)
 
         else:
-            self.log.debug(">>> applying data to '%s': %s" % (object_type, backend_data))
+            self.log.debug(">>> applying data to '%s': %s | %s" % (object_type, backend_data, update_data))
             object.inject_backend_data(backend_data, force_update=True)
+            object.apply_update(update_data)
             self.log.debug(">>> commiting '%s'" % object_type)
             object.commit()
 
@@ -882,7 +883,6 @@ class ForemanHookReceiver(object):
     def handle_request(self, request_handler):
         foreman = PluginRegistry.getInstance("Foreman")
         data = loads(request_handler.request.body)
-        self.log.debug(data)
 
         if self.env.config.get("foreman.event-log") is not None:
             with open(self.env.config.get("foreman.event-log"), "a") as f:
