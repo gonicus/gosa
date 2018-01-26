@@ -767,19 +767,35 @@ class Foreman(Plugin):
         if hostname in self.__marked_hosts and self.__marked_hosts[hostname]["use_id"] is not None:
             id = self.__marked_hosts[hostname]["use_id"]
         if hostname is not None:
-            self.write_parameters(hostname, use_id=id)
-            if hostname in self.__marked_hosts:
-                del self.__marked_hosts[hostname]
+            done = False
+            try:
+                self.write_parameters(hostname, use_id=id)
+            except ForemanBackendException as e:
+                done = e.status_code == 404
+            except Exception as e:
+                self.log.error("Error writing host parameters: %s" % str(e))
+
+            if done is True and hostname in self.__marked_hosts:
+                    del self.__marked_hosts[hostname]
         else:
             if len(self.__marked_hosts.keys()) == 0:
                 return
 
+            done = []
             for hostname in list(self.__marked_hosts):
                 try:
                     status = self.__marked_hosts[hostname]
                     self.write_parameters(hostname, use_id=status["use_id"] if "use_id" in status else None)
+                    done.append(hostname)
+                except ForemanBackendException as e:
+                    if e.status_code == 404:
+                        # this host does not exist anymore
+                        done.append(hostname)
+
                 except Exception as e:
                     self.log.error("Error writing host parameters: %s" % str(e))
+
+            self.__marked_hosts = {hostname: entry for hostname, entry in self.__marked_hosts.items() if hostname not in done}
 
     def write_parameters(self, hostname=None, use_id=None):
         """
@@ -956,14 +972,14 @@ class ForemanHookReceiver(object):
                 if host is not None and foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
                     update['status'] = "unknown"
 
-            foreman_object, delay_update = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None)
+            foreman_object, skip_this = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None)
             if foreman_object and host:
                 if foreman_object != host:
                     self.log.debug("using known host instead of creating a new one")
                     # host is the formerly discovered host, which might have been changed in GOsa for provisioning
                     # so we want to use this one, foreman_object is the joined one, so copy the credentials from foreman_object to host
                     update['__extensions__'].extend(['RegisteredDevice', 'simpleSecurityObject'])
-                    for attr in ['deviceUUID', 'userPassword', 'otp' , 'userPassword']:
+                    for attr in ['deviceUUID', 'userPassword', 'otp', 'userPassword']:
                         update[attr] = getattr(foreman, attr)
 
                     # now delete the formerly joined host
