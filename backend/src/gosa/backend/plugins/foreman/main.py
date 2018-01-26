@@ -371,7 +371,8 @@ class Foreman(Plugin):
         else:
             self.log.debug(">>> applying data to '%s': %s | %s" % (object_type, backend_data, update_data))
             object.inject_backend_data(backend_data, force_update=True)
-            object.apply_update(update_data)
+            if update_data is not None:
+                object.apply_update(update_data)
             self.log.debug(">>> commiting '%s'" % object_type)
             object.commit()
 
