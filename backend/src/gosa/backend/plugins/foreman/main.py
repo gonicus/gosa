@@ -771,7 +771,7 @@ class Foreman(Plugin):
             try:
                 self.write_parameters(hostname, use_id=id)
             except ForemanBackendException as e:
-                done = e.status_code == 404
+                done = e.response.status_code == 404
             except Exception as e:
                 self.log.error("Error writing host parameters: %s" % str(e))
 
@@ -788,7 +788,7 @@ class Foreman(Plugin):
                     self.write_parameters(hostname, use_id=status["use_id"] if "use_id" in status else None)
                     done.append(hostname)
                 except ForemanBackendException as e:
-                    if e.status_code == 404:
+                    if e.response.status_code == 404:
                         # this host does not exist anymore
                         done.append(hostname)
 
