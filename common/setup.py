@@ -24,7 +24,7 @@ CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
 common_install_requires = [
     'zope.interface>=3.5',
-    'babel>=2.5',
+    'babel>=2.4',
     'pyOpenSSL',
     'sqlalchemy>=1.1',
     'lxml',
