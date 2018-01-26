@@ -29,9 +29,9 @@ common_install_requires = [
     'sqlalchemy>=1.1',
     'lxml',
     'polib',
-    'cryptography>=2.1.4',
+    'cryptography',
     'colorlog',
-    'dnspython',
+    'dnspython3',
     'pycrypto'
     ],
 
