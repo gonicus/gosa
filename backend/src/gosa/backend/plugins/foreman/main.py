@@ -111,7 +111,7 @@ class Foreman(Plugin):
 
         if self.client and self.env.mode != "proxy" and not hasattr(sys, '_called_from_test'):
             sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
-            sched.add_interval_job(self.flush_parameter_setting, seconds=10, tag='_internal', jobstore="ram")
+            sched.add_interval_job(self.flush_parameter_setting, seconds=60, tag='_internal', jobstore="ram")
 
     def __handle_events(self, event):
         """
@@ -778,8 +778,8 @@ class Foreman(Plugin):
                 try:
                     status = self.__marked_hosts[hostname]
                     self.write_parameters(hostname, use_id=status["use_id"] if "use_id" in status else None)
-                except:
-                    pass
+                except Exception as e:
+                    self.log.error("Error writing host parameters: %s" % str(e))
 
     def write_parameters(self, hostname=None, use_id=None):
         """
@@ -922,13 +922,10 @@ class ForemanHookReceiver(object):
 
         if data['event'] in ["update", "create"] and foreman_type == "host":
             id = payload_data["id"] if "id" in payload_data else None
-            try:
-                foreman.write_parameters(id if id is not None else data['object'])
-            except:
-                foreman.mark_for_parameter_setting(data['object'], {
-                    "status": "created",
-                    "use_id": id
-                })
+            foreman.mark_for_parameter_setting(data['object'], {
+                "status": "created",
+                "use_id": id
+            })
 
         if data['event'] == "after_commit" or data['event'] == "update" or data['event'] == "after_create" or data['event'] == "create":
             host = None
