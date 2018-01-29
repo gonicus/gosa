@@ -504,10 +504,10 @@ class ObjectIndex(Plugin):
                 for update in entry["updates"]:
                     if update["inject"] is True:
                         self.log.info("injecting %s to %s" % (update["data"], obj.uuid))
-                        new_obj.inject_backend_data(update, force_update=True)
+                        new_obj.inject_backend_data(update["data"], force_update=True)
                     else:
                         self.log.info("applying %s to %s" % (update["data"], obj.uuid))
-                        new_obj.apply_update(update)
+                        new_obj.apply_update(update["data"])
                 del self.__dirty[uuid]
                 new_obj.commit()
             else:
