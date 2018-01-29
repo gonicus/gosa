@@ -10,7 +10,6 @@
 
 from setuptools import setup, find_packages
 import os
-import platform
 
 try:
     from babel.messages import frontend as babel

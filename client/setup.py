@@ -10,7 +10,6 @@
 import sys
 from setuptools import setup, find_packages
 import os
-import platform
 
 from gosa.common import Environment
 

@@ -9,7 +9,6 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import os
-import platform
 from setuptools import setup, find_packages
 
 try:
@@ -29,7 +28,7 @@ common_install_requires = [
     'sqlalchemy>=1.1',
     'lxml',
     'polib',
-    'cryptography>=2.1.4',
+    'cryptography',
     'colorlog',
     'dnspython',
     'pycrypto'
