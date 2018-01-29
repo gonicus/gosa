@@ -11,14 +11,13 @@ import sys
 from setuptools import setup, find_packages
 import os
 
-from gosa.common import Environment
-
 try:
     from babel.messages import frontend as babel
 except:
     pass
 
 if sys.argv[1] == "test":
+    from gosa.common import Environment
     Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "configs", "test_conf")
     Environment.noargs = True
     env = Environment.getInstance()

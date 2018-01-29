@@ -1382,7 +1382,7 @@ class Object(object):
                 dns = index.search({ref_attribute: self.dn}, {'dn': 1})
                 if len(dns):
                     dns = [x['dn'] for x in dns]
-                res.append((ref_attribute,dns))
+                res.append((ref_attribute, dns))
 
         return res
 
@@ -1401,7 +1401,7 @@ class Object(object):
                 else:
                     setattr(c_obj, ref_attr, new_dn)
 
-                c_obj.commit()
+                c_obj.commit(skip_write_hooks=True)
 
     def remove_dn_refs(self):
         for ref_attr, refs in self.get_dn_references():
@@ -1416,7 +1416,7 @@ class Object(object):
                 else:
                     setattr(c_obj, ref_attr, None)
 
-                c_obj.commit()
+                c_obj.commit(skip_write_hooks=True)
 
     def remove(self):
         """
@@ -1549,6 +1549,7 @@ class Object(object):
         p_backend = getattr(self, '_backend')
         be = ObjectBackendRegistry.getBackend(p_backend)
         dn = be.uuid2dn(self.uuid)
+        self.log.info("UUID: %s => DN: %s" % (self.uuid, dn))
         self.update_dn_refs(dn)
         self.dn = dn
 

@@ -953,7 +953,7 @@ class ObjectProxy(object):
                 try:
                     c_obj = ObjectProxy(child)
                     c_obj.remove(recursive=True)
-                except ProxyException as e:
+                except Exception as e:
                     self.__log.error("Error removing child %s: %s" % (child, str(e)))
 
         else:
@@ -971,7 +971,7 @@ class ObjectProxy(object):
 
         zope.event.notify(ObjectChanged("post object remove", self.__base))
 
-    def commit(self):
+    def commit(self, skip_write_hooks=False):
         if self.__read_only is True:
             # no changes in read-only mode
             return
@@ -1094,12 +1094,12 @@ class ObjectProxy(object):
 
         for name, settings in save_props.items():
             if self.__base_mode == "update":
-                if not self.__is_equal(settings['value'] , settings['orig_value']):
+                if not self.__is_equal(settings['value'], settings['orig_value']):
                     self.__log.info("%s changed from %s to %s" % (name, settings['orig_value'], settings['value']))
                     changed_props.append(name)
 
             # only react to real changes here
-            if name in self.__attribute_change_write_hooks and settings['status'] == STATUS_CHANGED:
+            if skip_write_hooks is False and name in self.__attribute_change_write_hooks and settings['status'] == STATUS_CHANGED:
                 for hook in self.__attribute_change_write_hooks[name]:
                     if hook["extension"] is not None and not self.is_extended_by(hook["extension"]):
                         self.__log.debug("skipping hook because object is not extended by %s" % hook["extension"])

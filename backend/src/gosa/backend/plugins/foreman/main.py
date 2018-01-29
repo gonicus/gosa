@@ -845,6 +845,7 @@ class ForemanRealmReceiver(object):
                 f.write("%s,\n" % dumps(data, indent=4, sort_keys=True))
 
         ForemanBackend.modifier = "foreman"
+        self.log.debug("Hostevent: '%s' for '%s'" % (data['action'], data['hostname']))
         if data['action'] == "create":
             # new client -> join it
             try:
@@ -944,16 +945,16 @@ class ForemanHookReceiver(object):
                 "use_id": id
             })
 
-        if data['event'] == "after_commit" or data['event'] == "update" or data['event'] == "after_create" or data['event'] == "create":
+        if data['event'] in ["after_commit", "update", "after_create", "create"]:
             host = None
             update = {'__extensions__': []}
-            if data['event'] == "update" and foreman_type == "host" and "mac" in payload_data and payload_data["mac"] is not None:
+            if data['event'] in ["update", "after_commit"] and foreman_type == "host" and "mac" in payload_data and payload_data["mac"] is not None:
                 # check if we have an discovered host for this mac
                 index = PluginRegistry.getInstance("ObjectIndex")
                 for entry in index.get_dirty_objects().values():
                     if entry["obj"].is_extended_by("ForemanHost") and \
                             hasattr(entry["obj"], "macAddress") and entry["obj"].macAddress == payload_data["mac"]:
-                        host = ObjectProxy(entry["obj"].dn)
+                        host = entry["obj"]
                         self.log.debug("found dirty host %s" % entry["obj"].dn)
                         delay_update = True
                         break
