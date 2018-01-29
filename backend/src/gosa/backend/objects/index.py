@@ -467,7 +467,7 @@ class ObjectIndex(Plugin):
     def get_dirty_objects(self):
         return self.__dirty
 
-    def add_delayed_update(self, obj, update):
+    def add_delayed_update(self, obj, update, inject=False):
         """
         Add a delayed update for an object that is currently being committed (marked "dirty").
         This update will be processed after the ongoing commit has been completed.
@@ -480,7 +480,10 @@ class ObjectIndex(Plugin):
             raise GosaException(C.make_error('DELAYED_UPDATE_FOR_NON_DIRTY_OBJECT', topic=obj.uuid))
 
         self.log.info("adding delayed update to %s (%s)" % (obj.uuid, obj.dn))
-        self.__dirty[obj.uuid]["updates"].append(update)
+        self.__dirty[obj.uuid]["updates"].append({
+            "inject": inject,
+            "data": update
+        })
 
     def unmark_as_dirty(self, id):
         """
@@ -499,8 +502,12 @@ class ObjectIndex(Plugin):
                 entry = self.__dirty[uuid]
                 new_obj = ObjectProxy(entry["obj"].dn)
                 for update in entry["updates"]:
-                    self.log.info("applying %s to %s" % (update, obj.uuid))
-                    new_obj.apply_update(update)
+                    if update["inject"] is True:
+                        self.log.info("injecting %s to %s" % (update["data"], obj.uuid))
+                        new_obj.inject_backend_data(update, force_update=True)
+                    else:
+                        self.log.info("applying %s to %s" % (update["data"], obj.uuid))
+                        new_obj.apply_update(update)
                 del self.__dirty[uuid]
                 new_obj.commit()
             else:

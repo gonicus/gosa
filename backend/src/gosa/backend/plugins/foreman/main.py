@@ -366,7 +366,7 @@ class Foreman(Plugin):
                 for data in entry.values():
                     update_data.update(data)
             self.log.debug(">>> delay applying data to '%s': %s" % (object_type, update_data))
-            PluginRegistry.getInstance("ObjectIndex").add_delayed_update(object, update_data)
+            PluginRegistry.getInstance("ObjectIndex").add_delayed_update(object, update_data, inject=True)
 
         else:
             self.log.debug(">>> applying data to '%s': %s | %s" % (object_type, backend_data, update_data))
