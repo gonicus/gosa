@@ -44,7 +44,6 @@ class GosaTestCase(TestCase):
         if dn is not None:
             new_domain = ObjectProxy(dn)
             new_domain.remove(True)
-            new_domain.commit()
 
     def _create_test_data(self):
         self._test_dn = GosaTestCase.create_test_data()
@@ -52,8 +51,5 @@ class GosaTestCase(TestCase):
     def tearDown(self):
         super(GosaTestCase, self).tearDown()
         if self._test_dn is not None:
-            try:
-                GosaTestCase.remove_test_data(self._test_dn)
-                self._test_dn = None
-            except Exception as e:
-                print("Error removing test data: %s " % str(e))
+            GosaTestCase.remove_test_data(self._test_dn)
+            self._test_dn = None
