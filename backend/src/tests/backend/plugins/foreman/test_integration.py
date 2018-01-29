@@ -183,7 +183,7 @@ class ForemanIntegrationTestCase(GosaTestCase, RemoteTestCase):
         logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.INFO)
         # logging.getLogger("gosa.backend.objects").setLevel(logging.INFO)
         logging.getLogger("gosa.backend.objects").info("tear down")
-        # super(ForemanIntegrationTestCase, self).tearDown()
+        super(ForemanIntegrationTestCase, self).tearDown()
 
     def get_app(self):
         return Application([('/hooks(?P<path>.*)?', WebhookReceiver)], cookie_secret='TecloigJink4', xsrf_cookies=True)
@@ -260,7 +260,7 @@ class ForemanIntegrationTestCase(GosaTestCase, RemoteTestCase):
                 'HTTP_X_HUB_SIGNATURE': signature
             }
             response = AsyncHTTPTestCase.fetch(myself, "/hooks/", method="POST", headers=headers, body=payload)
-            print("Host event response: %s" % response)
+            assert response.code == 200
 
             # send update
             payload = bytes(dumps({
@@ -276,7 +276,7 @@ class ForemanIntegrationTestCase(GosaTestCase, RemoteTestCase):
                 'HTTP_X_HUB_SIGNATURE': signature
             }
             response = AsyncHTTPTestCase.fetch(myself, "/hooks/", method="POST", headers=headers, body=payload)
-            print("Hook event response: %s" % response)
+            assert response.code == 200
 
         mocked_foreman.register_trigger("http://localhost:8000/api/v2/discovered_hosts/mac00262df16a2c",
                                         "put",
@@ -292,6 +292,7 @@ class ForemanIntegrationTestCase(GosaTestCase, RemoteTestCase):
         d_host.cn = "Testhost"
         d_host.groupMembership = hostgroup.dn
         d_host.commit()
+
         logging.getLogger("test.foreman-integration").info("########### END: Add Host to group #############")
 
         # now move the host to the final destination
@@ -311,12 +312,11 @@ class ForemanIntegrationTestCase(GosaTestCase, RemoteTestCase):
         logging.getLogger("test.foreman-integration").info("########### START: moving host #############")
         d_host.move("%s" % self._test_dn)
         logging.getLogger("test.foreman-integration").info("########### END: moving host #############")
-        # d_host.commit()
 
         # lets check if everything is fine in the database
         d_host = ObjectProxy("cn=Testhost,ou=devices,%s" % self._test_dn, read_only=True)
         assert d_host is not None
-        assert d_host.status == "pending"
+        assert d_host.status == "unknown"
         assert d_host.groupMembership == hostgroup.dn
 
 
