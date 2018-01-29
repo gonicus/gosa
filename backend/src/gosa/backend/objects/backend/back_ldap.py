@@ -211,7 +211,10 @@ class LDAP(ObjectBackend):
         dn = self.uuid2dn(uuid)
         with self.lock, self.lh.get_handle() as con:
             self.log.debug("removing entry '%s'" % dn)
-            return con.delete_s(dn)
+            try:
+                return con.delete_s(dn)
+            except ldap.NO_SUCH_OBJECT:
+                return None
 
     def __delete_children(self, dn):
         with self.lock, self.lh.get_handle() as con:
@@ -224,7 +227,10 @@ class LDAP(ObjectBackend):
             # Delete ourselves
             if not res:
                 self.log.debug("removing entry '%s'" % dn)
-                return con.delete_s(dn)
+                try:
+                    return con.delete_s(dn)
+                except ldap.NO_SUCH_OBJECT:
+                    pass
             return None
 
     def retract(self, uuid, data, params, needed=None, user=None):
