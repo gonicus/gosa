@@ -16,9 +16,6 @@ import os
 import glob
 import polib
 
-from gosa.common import Environment
-from gosa.common.gjson import loads
-
 try:
     from babel.messages import frontend as babel
 except:
@@ -34,6 +31,7 @@ for path, dirs, files in os.walk("src/gosa/backend/data"):
             data_files.append(os.path.join(path[17:], f))
 
 if sys.argv[1] == "import-from-json":
+    from gosa.common.gjson import loads
     # import old template translations from json files
     translations = {}
     for translation_file in glob.glob(os.path.join("src", "gosa", "backend", "data", "templates", "i18n", "*", "*.json")):
@@ -63,6 +61,12 @@ if sys.argv[1] == "import-from-json":
             if changed is True:
                 po.save()
     sys.exit(0)
+
+elif sys.argv[1] == "test":
+    from gosa.common import Environment
+    Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "configs", "test_conf")
+    Environment.noargs = True
+    env = Environment.getInstance()
 
 
 class CollectI18nStats(distutils.cmd.Command):
