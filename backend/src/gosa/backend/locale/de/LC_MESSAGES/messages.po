@@ -969,7 +969,7 @@ msgstr "aus"
 
 #: src/gosa/backend/data/templates/device-registered.json:230
 msgid "Active user session"
-msgstr "Benutzer eingelogged"
+msgstr "Benutzer angemeldet"
 
 #: src/gosa/backend/data/templates/device-registered.json:240
 msgid "System activated"
