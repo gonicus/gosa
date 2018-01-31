@@ -18,10 +18,25 @@ class MQTTRelayService(object):
      to forward messages from one to the other.
 
      In detail this service listens to (event-)messages from the backend to the clients on the backends MQTT broker
-     and forwards then to the clients (via the proxies MQTT broker) and the other way around.
+     and forwards them to the clients (via the proxies MQTT broker) and the other way around.
 
      In addition to that this service also handles events sent from the backend to the proxy (those are not forwarded
-     to the clients)
+     to the clients).
+
+     The message routing is done by the following rules:
+
+     **Received from backend MQTT broker**
+
+     * Subscribed to `<domain>/proxy` and `<domain>/client/#` topics
+     * all messages with topic not starting with `<domain>/proxy` are forwarded to the proxy MQTT broker
+     * `ClientPoll` and `Trigger` events are processed locally
+
+     **Received from proxy MQTT broker**
+
+     * Subscribed to`<domain>/client/#` topics
+     * all messages are forwarded to the backend MQTT broker
+     * (please note the the ClientService plugin
+       is also subscribed to the proxy MQTT broker and handles the client messages locally)
     """
 
     _priority_ = 10
@@ -35,7 +50,11 @@ class MQTTRelayService(object):
     def serve(self):
         self.backend_mqtt = MQTTHandler(
             host=self.env.config.get("backend.mqtt-host"),
-            port=self.env.config.getint("backend.mqtt-port", default=1883))
+            port=self.env.config.getint("backend.mqtt-port", default=1883),
+            use_ssl=self.env.config.getboolean("backend.mqtt-ssl", default=True),
+            ca_file=self.env.config.get("backend.mqtt-ca_file"),
+            insecure=self.env.config.getboolean("backend.mqtt-insecure", default=None),
+        )
 
         # subscribe to all client relevant topics
         self.backend_mqtt.get_client().add_subscription("%s/client/#" % self.env.domain, qos=1)
@@ -54,6 +73,8 @@ class MQTTRelayService(object):
             port=self.env.config.getint("mqtt.port", default=1883))
         self.proxy_mqtt.get_client().add_subscription("%s/client/#" % self.env.domain, qos=1)
         self.proxy_mqtt.set_subscription_callback(self._handle_proxy_message)
+
+        PluginRegistry.getInstance("CommandRegistry").init_backend_proxy(self.backend_mqtt)
 
     def _handle_backend_message(self, topic, message):
         """ forwards backend messages to proxy MQTT and handles received events"""
@@ -77,10 +98,12 @@ class MQTTRelayService(object):
                 self.log.error("Message parsing error: %s" % e)
 
         if forward is True:
+            self.log.debug("forwarding message in topic '%s' to proxy MQTT broker: %s" % (topic, message[0:80]))
             self.proxy_mqtt.send_message(message, topic, qos=1)
 
     def _handle_proxy_message(self, topic, message):
-        """ forwards backend messages to proxy MQTT """
+        """ forwards proxy messages to backend MQTT """
+        self.log.debug("forwarding message in topic '%s' to backend MQTT broker: %s" % (topic, message[0:80]))
         self.backend_mqtt.send_message(message, topic, qos=1)
 
     def __handleClientPoll(self):

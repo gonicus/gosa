@@ -88,6 +88,7 @@ class MQTTRPCService(object):
             id_ = req['id']
             name = req['method']
             args = req['params']
+            kwargs = req['kwparams']
             user = req['user'] if 'user' in req else topic.split("/")[2]
             sid = req['session_id'] if 'session_id' in req else None
 
@@ -95,10 +96,10 @@ class MQTTRPCService(object):
             self.log.error("KeyError: %s" % e)
             raise BadServiceRequest(message)
 
-        self.log.debug("received call [%s] for %s: %s(%s)" % (id_, topic, name, args))
+        self.log.debug("received call [%s] for %s: %s(%s,%s)" % (id_, topic, name, args, kwargs))
 
         try:
-            return id_, self.__command_registry.dispatch(user, sid, name, *args)
+            return id_, self.__command_registry.dispatch(user, sid, name, *args, **kwargs)
         except Exception as e:
             # Write exception to log
             exc_type, exc_value, exc_traceback = sys.exc_info()

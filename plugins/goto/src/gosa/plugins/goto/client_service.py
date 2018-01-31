@@ -107,8 +107,8 @@ class ClientService(Plugin):
         # Add event processor
         mqtt = self.__get_handler()
         # listen to client topics
-        mqtt.get_client().add_subscription('%s/client/+' % self.env.domain)
-        self.log.debug("subscribing to %s event queue" % '%s/client/+' % self.env.domain)
+        mqtt.get_client().add_subscription('%s/client/+' % self.env.domain, qos=1)
+        self.log.debug("subscribing to %s event queue on %s" % ('%s/client/+' % self.env.domain, mqtt.host))
         mqtt.set_subscription_callback(self.__eventProcessor)
 
         # Get registry - we need it later on
@@ -509,6 +509,7 @@ class ClientService(Plugin):
             try:
                 data = etree.fromstring(message, PluginRegistry.getEventParser())
                 eventType = stripNs(data.xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag)
+                self.log.debug("'%s' event received from local MQTT broker" % eventType)
                 if hasattr(self, "_handle"+eventType):
                     func = getattr(self, "_handle" + eventType)
                     func(data)
@@ -549,8 +550,9 @@ class ClientService(Plugin):
         # delay changes, send configuration first
         if self.env.mode == "proxy":
             # answer config locally and proceed the write-part of the call to the GOsa backend
-            # TODO add MQTT call to backend MQTT-broker (with skip_config=True)
+
             self.log.info("calling preUserSession(%s, %s, skip_config=True) on master backend" % (client_id, user_name))
+            self.__cr.dispatchRemote(client_id, None, 'preUserSession', client_id, user_name, skip_config=True)
 
         elif skip_config is True:
             self.__maintain_user_session(client_id, user_name)

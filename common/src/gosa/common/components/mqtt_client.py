@@ -50,7 +50,7 @@ class MQTTClient(object):
     __sync_message_queues = {}
     __sender_id = None
 
-    def __init__(self, host, port=1883, keepalive=60):
+    def __init__(self, host, port=1883, keepalive=60, use_ssl=None, ca_file=None, insecure=None):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
@@ -68,22 +68,24 @@ class MQTTClient(object):
         self.client.on_unsubscribe = self.__on_unsubscribe
         self.client.on_publish = self.__on_publish
         self.client.on_log = self.__on_log
+        if insecure is None:
+            insecure = self.env.config.getboolean('mqtt.insecure')
 
-        ssl = self.env.config.getboolean('mqtt.ssl')
-        if ssl is False:
-            ssl = self.env.config.getboolean('http.ssl')
+        use_ssl = use_ssl if use_ssl is not None else self.env.config.getboolean('mqtt.ssl')
+        if use_ssl is False and not self.env.config.has('mqtt.ssl'):
+            # fallback to http.ssl setting
+            use_ssl = self.env.config.getboolean('http.ssl')
 
-        if ssl is True:
-            cert = self.env.config.get('mqtt.ca_file', default=None)
+        if use_ssl is True:
+            cert = ca_file if ca_file is not None else self.env.config.get('mqtt.ca_file', default=None)
             if cert is not None:
                 self.client.tls_set(cert)
-
-            self.client.tls_insecure_set(self.env.config.getboolean('mqtt.insecure'))
+                self.client.tls_insecure_set(insecure)
 
         self.subscriptions = {}
 
     def __on_log(self, client, userdata, level, buf):
-        self.log.debug("MQTT-log message: %s" % buf)
+        self.log.debug("%s: MQTT-log message: %s" % (self.host, buf))
 
     def authenticate(self, uuid, secret=None):
         """ Send credentials to the MQTT broker.
@@ -120,7 +122,7 @@ class MQTTClient(object):
             }
         if self.connected is True:
             (res, mid) = self.client.subscribe(topic)
-            self.log.debug("subscribing to '%s' => mid: '%s' == '%s'" % (topic, mid, res))
+            self.log.debug("%s: subscribing to '%s' => mid: '%s' == '%s'" % (self.host, topic, mid, res))
             self.subscriptions[topic]['mid'] = mid
             self.subscriptions[topic]['subscription_result'] = res
 
@@ -130,14 +132,14 @@ class MQTTClient(object):
             self.subscriptions[topic]['callback'] = callback
 
     def __on_subscribe(self, client, userdata, mid, granted_qos):
-        self.log.debug("on_subscribe client='%s', userdata='%s', mid='%s', granted_qos='%s'" % (client, userdata, mid, granted_qos))
+        self.log.debug("%s: on_subscribe client='%s', userdata='%s', mid='%s', granted_qos='%s'" % (self.host, client, userdata, mid, granted_qos))
         for topic in self.subscriptions:
             if 'mid' in self.subscriptions[topic] and self.subscriptions[topic]['mid'] == mid:
                 self.subscriptions[topic]['granted_qos'] = granted_qos
                 self.subscriptions[topic]['subscribed'] = True
 
     def __on_unsubscribe(self, client, userdata, mid):
-        self.log.debug("on_unsubscribe client='%s', userdata='%s', mid='%s'" % (client, userdata, mid))
+        self.log.debug("%s: on_unsubscribe client='%s', userdata='%s', mid='%s'" % (self.host, client, userdata, mid))
         for topic in list(self.subscriptions):
             if 'mid' in self.subscriptions[topic] and self.subscriptions[topic]['mid'] == mid:
                 del self.subscriptions[topic]
@@ -159,7 +161,7 @@ class MQTTClient(object):
             self.connected = True
             for topic in self.subscriptions.keys():
                 (res, mid) = self.client.subscribe(topic)
-                self.log.debug("subscribing to '%s' => mid: '%s' == '%s'" % (topic, mid, res))
+                self.log.debug("%s: subscribing to '%s' => mid: '%s' == '%s'" % (self.host, topic, mid, res))
                 self.subscriptions[topic]['mid'] = mid
                 self.subscriptions[topic]['subscription_result'] = res
         else:
@@ -179,7 +181,7 @@ class MQTTClient(object):
         subs = self.get_subscriptions(message.topic)
         for sub in subs:
             if sub['sync'] is True:
-                self.log.debug("incoming message for synced topic %s" % message.topic)
+                self.log.debug("%s: incoming message for synced topic %s" % (self.host, message.topic))
                 self.__sync_message_queues[message.topic].put(content)
             if 'callback' in sub and sub['callback'] is not None:
                 callback = sub['callback']

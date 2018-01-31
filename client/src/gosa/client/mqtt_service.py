@@ -155,6 +155,7 @@ class MQTTClientService(object):
         res = None
         name = None
         args = None
+        kwargs = None
         id_ = ''
 
         response_topic = "%s/response" % "/".join(topic.split("/")[0:4])
@@ -171,16 +172,17 @@ class MQTTClientService(object):
                 id_ = req['id']
                 name = req['method']
                 args = req['params']
+                kwargs = req['kwparams']
 
             except KeyError as e:
                 self.log.error("KeyError: %s" % e)
                 err = str(BadServiceRequest(message))
-        self.log.debug("received call [%s] for %s: %s(%s)" % (id_, topic, name, args))
+        self.log.debug("received call [%s] for %s: %s(%s,%s)" % (id_, topic, name, args, kwargs))
 
         # Try to execute
         if err is None:
             try:
-                res = self.__cr.dispatch(name, *args)
+                res = self.__cr.dispatch(name, *args, **kwargs)
             except Exception as e:
                 err = str(e)
 
@@ -251,7 +253,7 @@ class MQTTClientService(object):
                     e.Name(self.env.id),
                     *more))
 
-            mqtt.send_event(info, qos=2)
+            mqtt.send_event(info, qos=1)
 
         # Assemble capabilities
         more = []
@@ -271,7 +273,7 @@ class MQTTClientService(object):
                 e.Name(self.env.id),
                 *more))
 
-        mqtt.send_event(info, qos=2)
+        mqtt.send_event(info, qos=1)
 
         if not initial:
             try:

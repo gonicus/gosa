@@ -30,7 +30,7 @@ class MQTTHandler(object):
     url = None
     joined = False
 
-    def __init__(self, autostart=True, host=None, port=None, keepalive=None):
+    def __init__(self, autostart=True, host=None, port=None, keepalive=None, use_ssl=None, ca_file=None, insecure=None):
         """
         Construct a new MQTTClientHandler instance based on the configuration
         stored in the environment.
@@ -39,8 +39,10 @@ class MQTTHandler(object):
         @param env: L{Environment} object
         """
         self.log = logging.getLogger(__name__)
-        self.log.debug("initializing MQTT client handler")
         self.env = Environment.getInstance()
+        self.use_ssl = use_ssl if use_ssl is not None else self.env.config.getboolean('mqtt.ssl', default=True)
+        self.ca_file = ca_file if ca_file is not None else self.env.config.get('mqtt.ca_file')
+        self.insecure = insecure if insecure is not None else self.env.config.getboolean('mqtt.insecure', default=False)
 
         # Load configuration
         self.host = self.env.config.get('mqtt.host') if host is None else host
@@ -61,6 +63,8 @@ class MQTTHandler(object):
             self.log.error("no MQTT host available for bus communication")
             raise Exception("no MQTT host available")
 
+        self.log.debug("initializing MQTT client handler on %s:%s" % (self.host, self.port))
+
         self.keep_alive = self.env.config.get('mqtt.keepalive', default=60) if keepalive is None else keepalive
         self.domain = self.env.domain
         domain_parts = socket.getfqdn().split('.', 1)
@@ -79,8 +83,15 @@ class MQTTHandler(object):
             key = self.env.config.get('jsonrpc.key')
 
         # Make proxy connection
-        self.log.info("using service '%s:%s'" % (self.host, self.port))
-        self.__client = MQTTClient(self.host, port=self.port, keepalive=self.keep_alive)
+        self.log.info("using service '%s:%s (SSL=%s, insecure=%s)'" % (self.host, self.port, self.use_ssl, self.insecure))
+        self.__client = MQTTClient(
+            self.host,
+            port=self.port,
+            keepalive=self.keep_alive,
+            use_ssl=self.use_ssl,
+            ca_file=self.ca_file,
+            insecure=self.insecure
+        )
 
         self.__client.authenticate(user, key)
 
