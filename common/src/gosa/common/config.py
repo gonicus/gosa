@@ -213,6 +213,9 @@ class Config(object):
     def getboolean(self, path, default=False, use_user_config=True):
         return self.get(path, default, use_user_config, "getboolean")
 
+    def has(self, path, use_user_config=True):
+        return self.get(path, None, use_user_config) is not None
+
     def set(self, path, value):
         """
         *set* allows dot-separated changing of configuration settings.
