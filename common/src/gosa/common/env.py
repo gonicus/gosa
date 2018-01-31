@@ -247,17 +247,12 @@ class SessionFactory(object):
 
 
 def before_proxy_flush(session, flush_context, instance):
-    print("before_flush")
     logger.error("GOsa proxy is not allowed to write anything to the database")
 
     # skip changes
     logger.debug("dropping %s new, %s dirty, %s deleted changed in read-only mode" %
                  (len(session.new), len(session.dirty), len(session.deleted)))
-    session.new = []
-    session.dirty = []
-    session.deleted = []
-    import sys
-    sys.exit(1)
+    session.expunge_all()
 
 
 @contextmanager
