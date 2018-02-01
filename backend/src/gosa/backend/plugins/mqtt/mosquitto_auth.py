@@ -137,6 +137,12 @@ class MosquittoAclHandler(BaseMosquittoClass):
             elif topic == client_channel:
                 # client can do both on own channel
                 is_allowed = True
+            elif topic.startswith("%s/proxy/" % self.env.domain) and topic.endswith("/request"):
+                # relayed request client -> proxy -> backend: client can publish
+                is_allowed = acc == "2"
+            elif topic.startswith("%s/proxy/" % self.env.domain) and topic.endswith("/response"):
+                # relayed response backend -> proxy -> client: client can subscribe
+                is_allowed = acc == "1"
             elif topic.startswith("%s/client/" % self.env.domain) and topic.endswith("/request"):
                 # the temporary RPC request channel: client can subscribe
                 is_allowed = acc == "1"
