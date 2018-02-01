@@ -49,6 +49,7 @@ class MosquittoAuthHandler(BaseMosquittoClass):
     def post(self, *args, **kwargs):
         username = self.get_argument('username', '')
         if self.superuser is not None and username == self.superuser:
+            self.log.debug("MQTT AUTH request from '%s' [SUPERUSER] => GRANTED" % username)
             self.send_result(True)
         else:
             password = self.get_argument('password')
@@ -156,6 +157,9 @@ class MosquittoSuperuserHandler(BaseMosquittoClass):
 
     def post(self, *args, **kwargs):
         if self.superuser is not None:
+            is_allowed = self.get_argument('username', '') == self.superuser
+            self.log.debug("MQTT Superuser ACL request for '%s': %s" % (self.get_argument('username', ''), "GRANTED" if is_allowed else "DENIED"))
             self.send_result(self.get_argument('username', '') == self.superuser)
         else:
+            self.log.debug("MQTT Superuser ACL request for '%s': DENIED" % self.get_argument('username', ''))
             self.send_result(False)
