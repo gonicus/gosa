@@ -1,0 +1,49 @@
+@startuml
+
+skinparam componentStyle uml2
+
+frame "GOsa server" {
+
+() "MQTT" as masterMqtt
+() "JSONRPC" as masterRpc
+database "Postgres Master" as masterDB #LightBlue
+[LDAP Master] as masterLdap #LightGreen
+
+node "GOsa Backend" as backend {
+    [MQTT Auth]
+    [RPC-Service]
+}
+
+masterRpc - backend
+masterMqtt - backend
+masterDB - backend
+masterLdap - backend
+}
+
+frame "Proxy server" {
+
+() "MQTT" as proxyMqtt
+() "JSONRPC" as proxyRpc
+database "Postgres Slave" as proxyDB #LightBlue
+[LDAP Slave] as proxyLdap #LightGreen
+[GOsa Proxy] as proxy
+
+proxy <--> masterMqtt
+proxyMqtt - proxy
+proxy - proxyRpc
+
+proxy ..> masterRpc : registerProxy()
+masterDB --> proxyDB : Replication
+masterLdap --> proxyLdap : Replication
+
+proxyDB --> proxy : read only
+proxyLdap - proxy : authentication only
+}
+
+frame "Clients" {
+[Client1]
+    Client1 <--> proxyMqtt : RPC + Events
+    Client1 --> proxyRpc : joinClient()
+}
+
+@enduml
