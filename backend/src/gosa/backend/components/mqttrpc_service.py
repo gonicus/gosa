@@ -10,6 +10,8 @@ import logging
 import sys
 import traceback
 from lxml import objectify, etree
+from tornado import gen
+from tornado.concurrent import is_future
 
 from zope.interface import implementer
 
@@ -45,6 +47,7 @@ class MQTTRPCService(object):
         self.__command_registry = PluginRegistry.getInstance('CommandRegistry')
         self.log.info("MQTT RPC service started, listening on subtopic '%s/#'" % self.subtopic)
 
+    @gen.coroutine
     def handle_request(self, topic, message):
         if topic == self.subtopic:
             # event from proxy received
@@ -64,7 +67,10 @@ class MQTTRPCService(object):
 
             try:
                 id_, res = self.process(topic, message)
+                if is_future(res):
+                    res = yield res
                 response = dumps({"result": res, "id": id_})
+                print("MQTT-RPC response: %s on topic %s" % (response, topic))
 
             except Exception as e:
                 err = str(e)

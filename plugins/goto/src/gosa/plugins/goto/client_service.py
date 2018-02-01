@@ -552,7 +552,7 @@ class ClientService(Plugin):
             # answer config locally and proceed the write-part of the call to the GOsa backend
 
             self.log.info("calling preUserSession(%s, %s, skip_config=True) on master backend" % (client_id, user_name))
-            self.__cr.dispatchRemote(client_id, None, 'preUserSession', client_id, user_name, skip_config=True)
+            return self.__cr.dispatchRemote(client_id, None, 'preUserSession', client_id, user_name, skip_config=True)
 
         elif skip_config is True:
             self.__maintain_user_session(client_id, user_name)
@@ -564,7 +564,6 @@ class ClientService(Plugin):
                                              args=(client_id, user_name),
                                              tag='_internal', jobstore='ram')
 
-        if skip_config is False:
             user_config = self.__collect_user_configuration(client_id, [user_name])
             if user_config is not None and user_name in user_config:
                 return user_config[user_name]
