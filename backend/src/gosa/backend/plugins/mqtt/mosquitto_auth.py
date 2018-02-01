@@ -21,6 +21,7 @@ class BaseMosquittoClass(HSTSRequestHandler):
         super(BaseMosquittoClass, self).__init__(application, request, **kwargs)
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
+        self.superuser = self.env.config.get("mqtt.superuser")
 
     def initialize(self):
         self.set_header('Content-Type', 'text/plain')
@@ -151,4 +152,7 @@ class MosquittoSuperuserHandler(BaseMosquittoClass):
     """
 
     def post(self, *args, **kwargs):
-        self.send_result(False)
+        if self.superuser is not None:
+            self.send_result(self.get_argument('username', '') == self.superuser)
+        else:
+            self.send_result(False)

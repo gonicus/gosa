@@ -45,6 +45,8 @@ host = localhost
 #ssl = <inherit from http.ssl>
 #ca_file =
 #insecure = false
+# can be used to allow external clients to listen on any mqtt topic e.g. for debugging the message bus
+#superuser =
 
 [jsonrpc]
 url = http://localhost:8000/rpc
