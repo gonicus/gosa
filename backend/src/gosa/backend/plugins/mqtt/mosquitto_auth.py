@@ -48,14 +48,17 @@ class MosquittoAuthHandler(BaseMosquittoClass):
 
     def post(self, *args, **kwargs):
         username = self.get_argument('username', '')
-        password = self.get_argument('password')
+        if self.superuser is not None and username == self.superuser:
+            self.send_result(True)
+        else:
+            password = self.get_argument('password')
 
-        # backend self authentification mode
-        is_backend = PluginRegistry.getInstance("BackendRegistry").check_auth(username, password)
-        is_allowed = is_backend or check_auth(username, password)
-        self.log.debug("MQTT AUTH request from '%s' ['%s'] => %s" %
-                       (username, "backend" if is_backend else "client", "GRANTED" if is_allowed else "DENIED"))
-        self.send_result(is_allowed)
+            # backend self authentification mode
+            is_backend = PluginRegistry.getInstance("BackendRegistry").check_auth(username, password)
+            is_allowed = is_backend or check_auth(username, password)
+            self.log.debug("MQTT AUTH request from '%s' ['%s'] => %s" %
+                           (username, "backend" if is_backend else "client", "GRANTED" if is_allowed else "DENIED"))
+            self.send_result(is_allowed)
 
 
 class MosquittoAclHandler(BaseMosquittoClass):
