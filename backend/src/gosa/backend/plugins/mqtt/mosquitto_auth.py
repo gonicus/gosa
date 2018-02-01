@@ -22,6 +22,7 @@ class BaseMosquittoClass(HSTSRequestHandler):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.superuser = self.env.config.get("mqtt.superuser")
+        self.backend_registry = PluginRegistry.getInstance("BackendRegistry")
 
     def initialize(self):
         self.set_header('Content-Type', 'text/plain')
@@ -55,10 +56,11 @@ class MosquittoAuthHandler(BaseMosquittoClass):
             password = self.get_argument('password')
 
             # backend self authentification mode
-            is_backend = PluginRegistry.getInstance("BackendRegistry").check_auth(username, password)
+            is_backend = self.backend_registry.check_auth(username, password)
+            backend_type = self.backend_registry.get_type(username)
             is_allowed = is_backend or check_auth(username, password)
             self.log.debug("MQTT AUTH request from '%s' ['%s'] => %s" %
-                           (username, "backend" if is_backend else "client", "GRANTED" if is_allowed else "DENIED"))
+                           (username, backend_type if backend_type is not None else "client", "GRANTED" if is_allowed else "DENIED"))
             self.send_result(is_allowed)
 
 
@@ -81,7 +83,7 @@ class MosquittoAclHandler(BaseMosquittoClass):
         # 1 == SUB, 2 == PUB
         acc = self.get_argument('acc')
 
-        backend_type = PluginRegistry.getInstance("BackendRegistry").get_type(uuid)
+        backend_type = self.backend_registry.get_type(uuid)
 
         client_channel = "%s/client/%s" % (self.env.domain, uuid)
         event_channel = "%s/events" % self.env.domain
@@ -161,5 +163,4 @@ class MosquittoSuperuserHandler(BaseMosquittoClass):
             self.log.debug("MQTT Superuser ACL request for '%s': %s" % (self.get_argument('username', ''), "GRANTED" if is_allowed else "DENIED"))
             self.send_result(self.get_argument('username', '') == self.superuser)
         else:
-            self.log.debug("MQTT Superuser ACL request for '%s': DENIED" % self.get_argument('username', ''))
             self.send_result(False)
