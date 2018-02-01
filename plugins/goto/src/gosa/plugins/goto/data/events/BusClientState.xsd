@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ This file is part of the GOsa project -  http://gosa-project.org
+  ~
+  ~ Copyright:
+  ~    (C) 2010-2018 GONICUS GmbH, Germany, http://www.gonicus.de
+  ~
+  ~ License:
+  ~    LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
+  ~
+  ~ See the LICENSE file in the project's top-level directory for details.
+  -->
+
+<schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events">
+
+  <complexType name="BusClientState">
+    <annotation>
+      <documentation>
+        The BusClientState event is fired whenever a client accesses or leaves the internal message bus (MQTT).
+      </documentation>
+    </annotation>
+    <sequence>
+      <element name="Id" type="string"/>
+      <element name="State">
+        <simpleType>
+          <restriction base="string">
+            <enumeration value="enter" />
+            <enumeration value="leave" />
+          </restriction>
+        </simpleType>
+      </element>
+      <element name="Type">
+        <simpleType>
+          <restriction base="string">
+            <enumeration value="backend" />
+            <enumeration value="proxy" />
+            <enumeration value="client" />
+          </restriction>
+        </simpleType>
+      </element>
+    </sequence>
+  </complexType>
+
+
+  <element name="BusClientState" type="e:BusClientState"/>
+
+</schema>

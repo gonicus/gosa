@@ -62,10 +62,10 @@ class MQTTRelayService(object):
         self.backend_mqtt.get_client().add_subscription("%s/proxy" % self.env.domain, qos=1)
         self.backend_mqtt.set_subscription_callback(self._handle_backend_message)
 
-        # set our last will and testament
+        # set our last will and testament (on the backend broker)
         e = EventMaker()
-        goodbye = e.Event(e.ClientLeave(e.Id(self.env.core_uuid)))
-        self.backend_mqtt.will_set("%s/proxy" % self.env.domain, goodbye, qos=1)
+        goodbye = e.Event(e.BusClientState(e.Id(self.env.core_uuid), e.Type("proxy"), e.State("leave")))
+        self.backend_mqtt.will_set("%s/bus" % self.env.domain, goodbye, qos=1)
 
         # connect to the proxy MQTT broker (where the clients are listening)
         self.proxy_mqtt = MQTTHandler(

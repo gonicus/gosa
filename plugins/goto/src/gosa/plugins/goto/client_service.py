@@ -85,6 +85,7 @@ class ClientService(Plugin):
     printer_attributes = ["gotoPrinterPPD", "labeledURI", "cn", "l", "description"]
     __client_call_queue = {}
     ppd_proxy = None
+    __current_backend_rpc = None
 
     def __init__(self):
         """
@@ -550,9 +551,9 @@ class ClientService(Plugin):
         # delay changes, send configuration first
         if self.env.mode == "proxy":
             # answer config locally and proceed the write-part of the call to the GOsa backend
-
-            self.log.info("calling preUserSession(%s, %s, skip_config=True) on master backend" % (client_id, user_name))
-            return self.__cr.dispatchRemote(client_id, None, 'preUserSession', client_id, user_name, skip_config=True)
+            if self.__current_backend_rpc is None or self.__current_backend_rpc.done() is True:
+                self.log.info("calling preUserSession(%s, %s, skip_config=True) on master backend" % (client_id, user_name))
+                self.__current_backend_rpc = self.__cr.dispatchRemote(client_id, None, 'preUserSession', client_id, user_name, skip_config=True)
 
         elif skip_config is True:
             self.__maintain_user_session(client_id, user_name)

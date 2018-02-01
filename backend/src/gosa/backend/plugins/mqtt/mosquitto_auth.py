@@ -88,7 +88,11 @@ class MosquittoAclHandler(BaseMosquittoClass):
         client_channel = "%s/client/%s" % (self.env.domain, uuid)
         event_channel = "%s/events" % self.env.domain
 
-        if backend_type is not None:
+        if topic == "%s/bus" % self.env.domain:
+            # internal communication topic everyone can pub/sub to
+            is_allowed = True
+
+        elif backend_type is not None:
             client_channel = "%s/client/+" % self.env.domain
             if topic == event_channel:
                 # backend can publish/subscribe to event channel

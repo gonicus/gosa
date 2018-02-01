@@ -104,5 +104,6 @@ setup(
         powermanagement = gosa.client.plugins.powermanagement.main:PowerManagement
         session = gosa.client.plugins.sessions.main:SessionKeeper
         scheduler = gosa.client.scheduler:SchedulerService
+        mqtt_connection = gosa.common.mqtt_connection_state:MQTTConnectionHandler
     """
 )

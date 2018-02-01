@@ -48,6 +48,7 @@ import itertools
 from gosa.backend.routes.sse.main import SseHandler
 from zope.interface import implementer
 from gosa.common import Environment
+from gosa.common.mqtt_connection_state import BusClientAvailability
 from gosa.common.utils import N_
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import Command, Plugin, PluginRegistry, JSONServiceProxy
@@ -403,16 +404,23 @@ class ObjectIndex(Plugin):
                                              datetime.datetime.now() + datetime.timedelta(seconds=10),
                                              tag='_internal', jobstore='ram')
 
-    def registerProxy(self):
+    def registerProxy(self, backend_uuid=None):
         if self.env.mode == "proxy":
             # register on the current master
             with make_session() as session:
                 # get any other registered backend
-                master_backend = session.query(RegisteredBackend) \
-                    .filter(RegisteredBackend.uuid != self.env.core_uuid,
-                            RegisteredBackend.type == BackendTypes.active_master).first()
+                if backend_uuid is None:
+                    master_backend = session.query(RegisteredBackend) \
+                        .filter(RegisteredBackend.uuid != self.env.core_uuid,
+                                RegisteredBackend.type == BackendTypes.active_master).first()
+                else:
+                    master_backend = session.query(RegisteredBackend) \
+                        .filter(RegisteredBackend.uuid == backend_uuid,
+                                RegisteredBackend.type == BackendTypes.active_master).first()
+
                 if master_backend is None:
                     raise GosaException(C.make_error("NO_MASTER_BACKEND_FOUND"))
+
                 # Try to log in with provided credentials
                 url = urlparse("%s/rpc" % master_backend.url)
                 connection = '%s://%s%s' % (url.scheme, url.netloc, url.path)
@@ -935,6 +943,20 @@ class ObjectIndex(Plugin):
                 xml = objectify.fromstring(event_string, PluginRegistry.getEventParser())
 
                 SseHandler.notify(xml, channel="broadcast")
+
+        elif isinstance(event, BusClientAvailability):
+            backend_registry = PluginRegistry.getInstance("BackendRegistry")
+            if event.type == "proxy":
+                # entering proxies are not handled, because they register themselves with credentials vie JSONRPC
+                if event.state == "leave":
+                    self.log.debug("unregistering proxy: %s" % event.client_id)
+                    backend_registry.unregisterBackend(event.client_id)
+            elif event.type == "backend":
+                if event.state == "enter":
+                    self.log.debug("new backend announced: %s" % event.client_id)
+                    if self.env.mode == "proxy":
+                        # register ourselves to this backend
+                        self.registerProxy(event.client_id)
 
     def insert(self, obj, skip_base_check=False, session=None):
         if session is not None:

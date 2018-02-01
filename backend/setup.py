@@ -281,6 +281,7 @@ setup(
         settings = gosa.backend.components.settings_registry:SettingsRegistry
         mail = gosa.backend.plugins.mail.main:Mail
         user = gosa.backend.plugins.user.main:User
+        mqtt_connection = gosa.common.mqtt_connection_state:MQTTConnectionHandler
         
         [gosa.backend.plugin]
         workflow = gosa.backend.components.workflowregistry:WorkflowRegistry
