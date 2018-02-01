@@ -208,7 +208,7 @@ class MQTTClient(object):
         try:
             response = yield self.__sync_message_queues[listen_to_topic].get(timeout=datetime.timedelta(seconds=10))
             self.__sync_message_queues[listen_to_topic].task_done()
-            raise gen.Return(response)
+            return response
         except QueueEmpty:
             raise JSONRPCException("Timeout while waiting for the clients response")
         finally:

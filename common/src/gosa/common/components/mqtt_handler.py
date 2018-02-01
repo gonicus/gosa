@@ -130,7 +130,7 @@ class MQTTHandler(object):
     def send_sync_message(self, data, topic):
         """Send request and return the response"""
         result = yield self.__client.get_sync_response(topic, data)
-        raise gen.Return(result)
+        return result
 
     def start(self):
         """
