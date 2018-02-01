@@ -111,7 +111,7 @@ class MQTTServiceProxy(object):
         data["params"] = args
         postdata = dumps(data)
 
-        response = yield self.__handler.send_sync_message(postdata, topic)
+        response = yield self.__handler.send_sync_message(postdata, topic, qos=2)
         resp = loads(response)
 
         if 'error' in resp and resp['error'] is not None:

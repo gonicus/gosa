@@ -42,7 +42,7 @@ class MQTTRPCService(object):
                                 port=self.env.config.getint("mqtt.port", default=1883))
 
     def serve(self):
-        self.mqtt.get_client().add_subscription('%s/#' % self.subtopic)
+        self.mqtt.get_client().add_subscription('%s/#' % self.subtopic, qos=2)
         self.mqtt.set_subscription_callback(self.handle_request)
         self.__command_registry = PluginRegistry.getInstance('CommandRegistry')
         self.log.info("MQTT RPC service started, listening on subtopic '%s/#'" % self.subtopic)
@@ -70,7 +70,7 @@ class MQTTRPCService(object):
                 if is_future(res):
                     res = yield res
                 response = dumps({"result": res, "id": id_})
-                print("MQTT-RPC response: %s on topic %s" % (response, topic))
+                self.log.debug("MQTT-RPC response: %s on topic %s" % (response, topic))
 
             except Exception as e:
                 err = str(e)
@@ -78,7 +78,7 @@ class MQTTRPCService(object):
                 response = dumps({'id': topic.split("/")[-2], 'error': err})
 
             # Get rid of it...
-            self.mqtt.send_message(response, topic=response_topic)
+            self.mqtt.send_message(response, topic=response_topic, qos=2)
 
         else:
             self.log.warning("unhandled topic request received: %s" % topic)

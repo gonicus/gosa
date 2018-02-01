@@ -127,9 +127,9 @@ class MQTTHandler(object):
         self.__client.will_set(topic, data, qos, retain)
 
     @gen.coroutine
-    def send_sync_message(self, data, topic):
+    def send_sync_message(self, data, topic, qos=0):
         """Send request and return the response"""
-        result = yield self.__client.get_sync_response(topic, data)
+        result = yield self.__client.get_sync_response(topic, data, qos=qos)
         return result
 
     def start(self):
