@@ -46,6 +46,9 @@ class MQTTRelayService(object):
     def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
+        e = EventMaker()
+        self.goodbye = e.Event(e.BusClientState(e.Id(self.env.core_uuid), e.Type("proxy"), e.State("leave")))
+        self.hello = e.Event(e.BusClientState(e.Id(self.env.core_uuid), e.Type("proxy"), e.State("enter")))
 
     def serve(self):
         self.backend_mqtt = MQTTHandler(
@@ -63,9 +66,9 @@ class MQTTRelayService(object):
         self.backend_mqtt.set_subscription_callback(self._handle_backend_message)
 
         # set our last will and testament (on the backend broker)
-        e = EventMaker()
-        goodbye = e.Event(e.BusClientState(e.Id(self.env.core_uuid), e.Type("proxy"), e.State("leave")))
-        self.backend_mqtt.will_set("%s/bus" % self.env.domain, goodbye, qos=1)
+        self.backend_mqtt.will_set("%s/bus" % self.env.domain, self.goodbye, qos=1)
+
+        self.backend_mqtt.send_event(self.hello, "%s/bus" % self.env.domain, qos=1)
 
         # connect to the proxy MQTT broker (where the clients are listening)
         self.proxy_mqtt = MQTTHandler(
@@ -75,6 +78,9 @@ class MQTTRelayService(object):
         self.proxy_mqtt.set_subscription_callback(self._handle_proxy_message)
 
         PluginRegistry.getInstance("CommandRegistry").init_backend_proxy(self.backend_mqtt)
+
+    def stop(self):
+        self.backend_mqtt.send_event(self.goodbye, "%s/bus" % self.env.domain, qos=1)
 
     def _handle_backend_message(self, topic, message):
         """ forwards backend messages to proxy MQTT and handles received events"""

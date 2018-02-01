@@ -23,7 +23,10 @@ from gosa.common.handler import IInterfaceHandler
 @implementer(IInterfaceHandler)
 class MQTTConnectionHandler(MQTTHandler):
     """
-    Handle MQTT connection states of the participiants (backend, proxies, clients)
+    Handle MQTT connection states of the participants (backend, proxies, clients).
+    hello and goodbye events are send to the default mqtt broker:
+
+    backend <-> default backend broker <-> proxy <-> default proxy broker <-> clients
     """
     _priority_ = 90
     __active_connections = {}
@@ -46,20 +49,24 @@ class MQTTConnectionHandler(MQTTHandler):
             self.e.Type(self.client_type)
         ))
 
-    def serve(self):
         if self.client_type == "client":
-            goodbye = self.e.Event(self.e.ClientLeave(self.e.Id(self.client_id)))
+            self.goodbye = self.e.Event(self.e.ClientLeave(self.e.Id(self.client_id)))
         else:
-            goodbye = self.e.Event(self.e.BusClientState(
+            self.goodbye = self.e.Event(self.e.BusClientState(
                 self.e.Id(self.client_id),
                 self.e.State('leave'),
                 self.e.Type(self.client_type)
             ))
 
-        self.will_set(self.topic, goodbye, qos=1)
+    def serve(self):
+        # set last will
+        self.will_set(self.topic, self.goodbye, qos=1)
 
         # proxies and backend must announce themselves
         self.send_event(self.hello, self.topic, qos=1)
+
+    def stop(self):
+        self.send_event(self.goodbye, self.topic, qos=1)
 
     def init_subscriptions(self):
         """ add client subscriptions """
