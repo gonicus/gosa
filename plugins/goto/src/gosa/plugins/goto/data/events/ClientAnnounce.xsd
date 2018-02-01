@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events">
 
-    <complexType name="NetworkDevice">
-        <all>
-                <element name="Name" type="string"></element>
-                <element name="IPAddress" type="string"></element>
-                <element name="IPv6Address" type="string"></element>
-                <element name="MAC" type="string"></element>
-                <element name="Netmask" type="string"></element>
-                <element name="Broadcast" type="string"></element>
-        </all>
-    </complexType>
+  <complexType name="NetworkDevice">
+    <all>
+      <element name="Name" type="string"/>
+      <element name="IPAddress" type="string"/>
+      <element name="IPv6Address" type="string"/>
+      <element name="MAC" type="string"/>
+      <element name="Netmask" type="string"/>
+      <element name="Broadcast" type="string"/>
+    </all>
+  </complexType>
 
-    <element name="NetworkDevice" type="e:NetworkDevice"></element>
+  <element name="NetworkDevice" type="e:NetworkDevice"/>
 
-    <complexType name="NetworkInformation">
-    	<sequence maxOccurs="unbounded" minOccurs="1">
-    		<element name="NetworkDevice" type="e:NetworkDevice"></element>
-    	</sequence>
-    </complexType>
+  <complexType name="NetworkInformation">
+    <sequence maxOccurs="unbounded" minOccurs="1">
+      <element name="NetworkDevice" type="e:NetworkDevice"/>
+    </sequence>
+  </complexType>
 
-    <element name="NetworkInformation" type="e:NetworkInformation"></element>
+  <element name="NetworkInformation" type="e:NetworkInformation"/>
 
-    <complexType name="ClientAnnounce">
-        <all>
-    		<element name="NetworkInformation" type="e:NetworkInformation" maxOccurs="1" minOccurs="1">
-    		</element>
-    		<element name="Id" type="string" maxOccurs="1" minOccurs="1">
-    		</element>
-    		<element name="Name" type="string" maxOccurs="1" minOccurs="1"></element>
-    	</all>
+  <complexType name="ClientAnnounce">
+    <all>
+      <element name="NetworkInformation" type="e:NetworkInformation" maxOccurs="1" minOccurs="1">
+      </element>
+      <element name="Id" type="string" maxOccurs="1" minOccurs="1">
+      </element>
+      <element name="Name" type="string" maxOccurs="1" minOccurs="1"/>
+    </all>
 
-    </complexType>
+  </complexType>
 
-    <element name="ClientAnnounce" type="e:ClientAnnounce"></element>
+  <element name="ClientAnnounce" type="e:ClientAnnounce"/>
 
 </schema>

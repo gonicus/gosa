@@ -4,6 +4,6 @@
     <complexType name="ClientPoll">
     </complexType>
 
-    <element name="ClientPoll" type="e:ClientPoll"></element>
+    <element name="ClientPoll" type="e:ClientPoll"/>
 
 </schema>
