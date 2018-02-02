@@ -41,7 +41,7 @@ class MqttProxyTestCase(AsyncTestCase):
             content = loads(args[0])
             assert content['method'] == "testCall"
             assert content['params'] == ["arg"]
-            assert content['id'] == "jsonrpc"
+            assert content['id'] == "mqttrpc"
             assert args[1].startswith("test/client/")
             assert res == "test"
 
@@ -84,7 +84,7 @@ class MqttProxyTestCase(AsyncTestCase):
             content = loads(args[0])
             assert content['method'] == "testCall"
             assert content['params'] == {'test': 'arg'}
-            assert content['id'] == "jsonrpc"
+            assert content['id'] == "mqttrpc"
             assert args[1].startswith("test/client/")
             assert res == {"testCall": "test"}
 

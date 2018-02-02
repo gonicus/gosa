@@ -95,7 +95,10 @@ class MQTTRPCService(object):
             name = req['method']
             args = req['params']
             kwargs = req['kwparams']
-            user = req['user'] if 'user' in req else topic.split("/")[2]
+            if 'user' in req:
+                user = req['user']
+            else:
+                user = topic.split("/")[2]
             sid = req['session_id'] if 'session_id' in req else None
 
         except KeyError as e:

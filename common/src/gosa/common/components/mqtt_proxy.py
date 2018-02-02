@@ -104,7 +104,7 @@ class MQTTServiceProxy(object):
         # Send
         data.update({
             "method": self.__serviceName,
-            "id": "jsonrpc",
+            "id": "mqttrpc",
             "sender": self.env.uuid
         })
         data["kwparams"] = kwargs

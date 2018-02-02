@@ -50,7 +50,7 @@ class MQTTRPCServiceTestCase(TestCase):
 
             # call without params
             service.handle_request(topic, dumps({
-                "id": "jsonrpc",
+                "id": "mqttrpc",
                 "method": "fakeCall",
                 "user": "admin"
             }))
@@ -62,7 +62,7 @@ class MQTTRPCServiceTestCase(TestCase):
 
             # call with empty params
             service.handle_request(topic, dumps({
-                "id": "jsonrpc",
+                "id": "mqttrpc",
                 "method": "fakeCall",
                 "user": "admin",
                 "session_id": "fake_session_id",
@@ -78,7 +78,7 @@ class MQTTRPCServiceTestCase(TestCase):
             m.reset_mock()
 
             service.handle_request(topic, dumps({
-                "id": "jsonrpc",
+                "id": "mqttrpc",
                 "method": "fakeCall",
                 "user": "admin",
                 "params": ["param1", "param2"]
@@ -95,7 +95,7 @@ class MQTTRPCServiceTestCase(TestCase):
 
             # call without user (client id taken as user)
             service.handle_request(topic, dumps({
-                "id": "jsonrpc",
+                "id": "mqttrpc",
                 "method": "fakeCall",
                 "params": []
             }))
