@@ -67,7 +67,7 @@ class MQTTClient(object):
 
         uuid = self.env.core_uuid if hasattr(self.env, "core_uuid") else self.env.uuid
 
-        self.client = BaseClient(client_id="%s-%s" % (uuid, client_counter))
+        self.client = BaseClient(client_id="%s-%s-%s" % (self.env.mode, uuid, client_counter))
         client_counter += 1
         self.host = host
         self.port = port
