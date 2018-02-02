@@ -23,10 +23,15 @@ from gosa.common.handler import IInterfaceHandler
 @implementer(IInterfaceHandler)
 class MQTTConnectionHandler(MQTTHandler):
     """
-    Handle MQTT connection states of the participants (backend, proxies, clients).
+    Handle MQTT connection states of the participants (backend, proxies).
     hello and goodbye events are send to the default mqtt broker:
 
     backend <-> default backend broker <-> proxy <-> default proxy broker <-> clients
+
+    .. NOTE:
+        Client connections maintained by ClientLeave and ClientAnnounce events
+        as those events can have additional information about the clients, needed by GOsa.
+
     """
     _priority_ = 90
     __active_connections = {}
@@ -36,12 +41,9 @@ class MQTTConnectionHandler(MQTTHandler):
         self.topic = "%s/bus" % self.env.domain
         super(MQTTConnectionHandler, self).__init__()
         self.e = EventMaker()
-        if hasattr(self.env, "core_uuid"):
-            self.client_id = self.env.core_uuid
-            self.client_type = "proxy" if self.env.mode == "proxy" else "backend"
-        else:
-            self.client_id = self.env.uuid
-            self.client_type = "client"
+
+        self.client_id = self.env.core_uuid
+        self.client_type = "proxy" if self.env.mode == "proxy" else "backend"
 
         self.hello = self.e.Event(self.e.BusClientState(
             self.e.Id(self.client_id),
@@ -49,14 +51,11 @@ class MQTTConnectionHandler(MQTTHandler):
             self.e.Type(self.client_type)
         ))
 
-        if self.client_type == "client":
-            self.goodbye = self.e.Event(self.e.ClientLeave(self.e.Id(self.client_id)))
-        else:
-            self.goodbye = self.e.Event(self.e.BusClientState(
-                self.e.Id(self.client_id),
-                self.e.State('leave'),
-                self.e.Type(self.client_type)
-            ))
+        self.goodbye = self.e.Event(self.e.BusClientState(
+            self.e.Id(self.client_id),
+            self.e.State('leave'),
+            self.e.Type(self.client_type)
+        ))
 
     def serve(self):
         # set last will
@@ -72,7 +71,7 @@ class MQTTConnectionHandler(MQTTHandler):
 
     def init_subscriptions(self):
         """ add client subscriptions """
-        self.log.info("MQTTConnectionHandler subscribing to '%s'" % self.topic)
+        self.log.info("MQTTConnectionHandler subscribing to '%s' on '%s'" % (self.topic, self.host))
         self.get_client().add_subscription(self.topic, qos=1)
         self.get_client().set_subscription_callback(self._handle_message)
 
