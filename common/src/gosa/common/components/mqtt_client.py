@@ -14,7 +14,7 @@ from gosa.common.gjson import loads, dumps
 from tornado.queues import Queue, QueueEmpty
 from tornado import gen
 from gosa.common import Environment
-from gosa.common.components import JSONRPCException
+from gosa.common.components import JSONRPCException, PluginRegistry
 
 
 class BaseClient(mqtt.Client):  # pragma: nocover
@@ -49,6 +49,9 @@ class MQTTClient(object):
     __published_messages = {}
     __sync_message_queues = {}
     __sender_id = None
+    __connection_retries = 3
+    __connection_retry_delay = 3
+    __retried = 0
 
     def __init__(self, host, port=1883, keepalive=60, use_ssl=None, ca_file=None, insecure=None):
         self.env = Environment.getInstance()
@@ -159,6 +162,7 @@ class MQTTClient(object):
         if rc == mqtt.CONNACK_ACCEPTED:
             # connection successful
             self.connected = True
+            self.__retried = 0
             for topic in self.subscriptions.keys():
                 (res, mid) = self.client.subscribe(topic)
                 self.log.debug("%s: subscribing to '%s' => mid: '%s' == '%s'" % (self.host, topic, mid, res))
@@ -167,6 +171,12 @@ class MQTTClient(object):
         else:
             msg = mqtt.error_string(rc)
             self.log.error("MQTT connection error (%s:%s): %s" % (self.host, self.port, msg))
+            if self.__retried < self.__connection_retries:
+                sobj = PluginRegistry.getInstance("SchedulerService")
+                sobj.getScheduler().add_date_job(self.connect,
+                                                 datetime.datetime.now() + datetime.timedelta(seconds=self.__connection_retry_delay),
+                                                 tag='_internal', jobstore='ram')
+                self.__retried += 1
 
     def __on_message(self, client, userdata, message):
         payload = loads(message.payload)
