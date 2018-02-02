@@ -295,10 +295,8 @@ class CommandRegistry(Plugin):
         # Convert to list
         arg = list(arg)
 
-        if self.callNeedsUser(func):
-            larg['__user__'] = user
-        if self.callNeedsSession(func):
-            larg['__session_id__'] = session_id
+        larg['__user__'] = user
+        larg['__session_id__'] = session_id
 
         return getattr(self.backend_proxy, func)(*arg, **larg)
 
