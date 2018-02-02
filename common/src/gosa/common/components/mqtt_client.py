@@ -31,6 +31,9 @@ class BaseClient(mqtt.Client):  # pragma: nocover
     def get_clients(cls):
         return cls._clients
 
+    def get_client_id(self):
+        return self._client_id
+
 
 class MQTTClient(object):
     """
@@ -128,9 +131,16 @@ class MQTTClient(object):
             }
         if self.connected is True:
             (res, mid) = self.client.subscribe(topic)
-            self.log.debug("%s: subscribing to '%s' => mid: '%s' == '%s'" % (self.host, topic, mid, res))
+            self.log.debug("%s: subscribing to '%s' => mid: '%s' == '%s'" % (self.__get_identifier(), topic, mid, res))
             self.subscriptions[topic]['mid'] = mid
             self.subscriptions[topic]['subscription_result'] = res
+
+    def __get_identifier(self):
+        """
+        generates an identifier by combining the broker host
+        and the client_id. Used mainly as preix for log messages
+        """
+        return "%s:%s/%s" % (self.host, self.port, self.client.get_client_id())
 
     def set_subscription_callback(self, callback):
         """ set a general callback for all subscriptions """
@@ -138,14 +148,14 @@ class MQTTClient(object):
             self.subscriptions[topic]['callback'] = callback
 
     def __on_subscribe(self, client, userdata, mid, granted_qos):
-        self.log.debug("%s: on_subscribe client='%s', userdata='%s', mid='%s', granted_qos='%s'" % (self.host, client, userdata, mid, granted_qos))
+        self.log.debug("%s: on_subscribe client='%s', userdata='%s', mid='%s', granted_qos='%s'" % (self.__get_identifier(), client, userdata, mid, granted_qos))
         for topic in self.subscriptions:
             if 'mid' in self.subscriptions[topic] and self.subscriptions[topic]['mid'] == mid:
                 self.subscriptions[topic]['granted_qos'] = granted_qos
                 self.subscriptions[topic]['subscribed'] = True
 
     def __on_unsubscribe(self, client, userdata, mid):
-        self.log.debug("%s: on_unsubscribe client='%s', userdata='%s', mid='%s'" % (self.host, client, userdata, mid))
+        self.log.debug("%s: on_unsubscribe client='%s', userdata='%s', mid='%s'" % (self.__get_identifier(), client, userdata, mid))
         for topic in list(self.subscriptions):
             if 'mid' in self.subscriptions[topic] and self.subscriptions[topic]['mid'] == mid:
                 del self.subscriptions[topic]
@@ -168,12 +178,12 @@ class MQTTClient(object):
             self.__retried = 0
             for topic in self.subscriptions.keys():
                 (res, mid) = self.client.subscribe(topic)
-                self.log.debug("%s: subscribing to '%s' => mid: '%s' == '%s'" % (self.host, topic, mid, res))
+                self.log.debug("%s: subscribing to '%s' => mid: '%s' == '%s'" % (self.__get_identifier(), topic, mid, res))
                 self.subscriptions[topic]['mid'] = mid
                 self.subscriptions[topic]['subscription_result'] = res
         else:
             msg = mqtt.error_string(rc)
-            self.log.error("MQTT connection error (%s:%s): %s" % (self.host, self.port, msg))
+            self.log.error("%s: MQTT connection error: %s" % (self.__get_identifier(), msg))
             self.__reconnect()
 
     @gen.coroutine
@@ -181,7 +191,7 @@ class MQTTClient(object):
         if self.__retried < self.__connection_retries:
             yield gen.sleep(self.__connection_retry_delay)
             self.__retried += 1
-            self.log.debug("Reconnecting retry %s to %s" % (self.__retried, self.host))
+            self.log.debug("%s: Reconnecting retry %s to %s" % (self.__get_identifier(), self.__retried, self.host))
             self.reconnect()
 
     def __on_message(self, client, userdata, message):
@@ -197,7 +207,7 @@ class MQTTClient(object):
         subs = self.get_subscriptions(message.topic)
         for sub in subs:
             if sub['sync'] is True:
-                self.log.debug("%s: incoming message for synced topic %s" % (self.host, message.topic))
+                self.log.debug("%s: incoming message for synced topic %s" % (self.__get_identifier(), message.topic))
                 self.__sync_message_queues[message.topic].put(content)
             if 'callback' in sub and sub['callback'] is not None:
                 callback = sub['callback']
@@ -241,7 +251,7 @@ class MQTTClient(object):
 
         self.__published_messages[mid] = res
         if res == mqtt.MQTT_ERR_NO_CONN:
-            self.log.error("mqtt server not reachable, message could not be send to '%s'" % topic)
+            self.log.error("%s: mqtt server not reachable, message could not be send to '%s'" % (self.__get_identifier(), topic))
 
             if qos > 0 and retried < 3:
                 # try again
