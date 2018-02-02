@@ -113,9 +113,12 @@ class MQTTHandler(object):
     def is_connected(self):
         return self.__client.connected
 
+    @gen.coroutine
     def wait_for_connection(self, callback):
         while self.is_connected() is False:
             yield gen.sleep(0.1)
+            print("waiting...")
+        print("connected")
         callback()
 
     def send_message(self, data, topic, qos=0):

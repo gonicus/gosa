@@ -230,7 +230,8 @@ class MQTTClient(object):
         finally:
             self.remove_subscription(listen_to_topic)
 
-    def publish(self, topic, message, qos=0, retain=False):
+    @gen.coroutine
+    def publish(self, topic, message, qos=0, retain=False, retried=0):
         """ Publish a message on the MQTT bus"""
         message = {
             "sender_id": self.__sender_id,
@@ -241,6 +242,11 @@ class MQTTClient(object):
         self.__published_messages[mid] = res
         if res == mqtt.MQTT_ERR_NO_CONN:
             self.log.error("mqtt server not reachable, message could not be send to '%s'" % topic)
+
+            if qos > 0 and retried < 3:
+                # try again
+                yield gen.sleep(0.1)
+                self.publish(topic, message, qos=qos, retain=retain, retried=retried+1)
 
     def will_set(self, topic, message, qos=0, retain=False):
         """
