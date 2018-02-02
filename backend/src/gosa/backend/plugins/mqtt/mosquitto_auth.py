@@ -22,6 +22,8 @@ class BaseMosquittoClass(HSTSRequestHandler):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.superuser = self.env.config.get("mqtt.superuser")
+        if self.superuser is not None:
+            self.log.warning("MQTT superuser is set. Please do not use this setting in a productive environment!")
         self.backend_registry = PluginRegistry.getInstance("BackendRegistry")
 
     def initialize(self):
