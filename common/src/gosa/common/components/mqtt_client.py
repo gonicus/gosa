@@ -220,6 +220,8 @@ class MQTTClient(object):
             if 'callback' in sub and sub['callback'] is not None:
                 callback = sub['callback']
                 callback(message.topic, content)
+            elif sub['sync'] is not True:
+                self.log.warning("Incoming message not processed by async subscription because of missing callback")
         if len(subs) == 0:
             self.log.warning("Incoming message for unhandled topic '%s'" % message.topic)
 
