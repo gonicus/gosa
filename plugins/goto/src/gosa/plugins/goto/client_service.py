@@ -532,10 +532,8 @@ class ClientService(Plugin):
 
             self.__user_session[id] = users
 
-            if self.env.mode != "proxy":
-                # maintain user session data in backends (not on proxy)
-                for user in users:
-                    self.preUserSession(id, user, skip_config=True)
+            for user in users:
+                self.preUserSession(id, user, skip_config=True)
 
             if len(new_users):
                 self.log.debug("configuring new users: %s" % new_users)
