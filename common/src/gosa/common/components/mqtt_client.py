@@ -59,7 +59,7 @@ class MQTTClient(object):
 
         self.connected = False
 
-        self.client = BaseClient(client_id=self.env.core_uuid if hasattr(self.env, "core_uuid") else self.env.uuid)
+        self.client = BaseClient()
         self.host = host
         self.port = port
         self.keepalive = keepalive
