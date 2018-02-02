@@ -79,9 +79,6 @@ class MQTTRelayService(object):
 
         PluginRegistry.getInstance("CommandRegistry").init_backend_proxy(self.backend_mqtt)
 
-    def stop(self):
-        self.backend_mqtt.send_event(self.goodbye, "%s/bus" % self.env.domain, qos=1)
-
     def _handle_backend_message(self, topic, message):
         """ forwards backend messages to proxy MQTT and handles received events"""
 
@@ -122,6 +119,7 @@ class MQTTRelayService(object):
         self.proxy_mqtt.close()
 
     def stop(self):
+        self.backend_mqtt.send_event(self.goodbye, "%s/bus" % self.env.domain, qos=1)
         self.close()
         self.backend_mqtt = None
         self.proxy_mqtt = None
