@@ -66,6 +66,7 @@ class MQTTConnectionHandler(MQTTHandler):
         self.send_event(self.hello, self.topic, qos=1)
 
     def stop(self):
+        self.log.info("MQTTConnectionHandler sending goodbye")
         self.send_event(self.goodbye, self.topic, qos=1)
         self.close()
 
