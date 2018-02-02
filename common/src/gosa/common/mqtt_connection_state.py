@@ -33,7 +33,7 @@ class MQTTConnectionHandler(MQTTHandler):
         as those events can have additional information about the clients, needed by GOsa.
 
     """
-    _priority_ = 90
+    _priority_ = 0
     __active_connections = {}
 
     def __init__(self):
