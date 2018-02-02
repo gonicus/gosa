@@ -63,21 +63,24 @@ class MQTTRelayService(object):
         self.backend_mqtt.get_client().add_subscription("%s/client/#" % self.env.domain, qos=1)
         # subscribe to proxy topic
         self.backend_mqtt.get_client().add_subscription("%s/proxy" % self.env.domain, qos=1)
+        self.backend_mqtt.get_client().add_subscription("%s/bus" % self.env.domain, qos=1)
         self.backend_mqtt.set_subscription_callback(self._handle_backend_message)
 
         # set our last will and testament (on the backend broker)
         self.backend_mqtt.will_set("%s/bus" % self.env.domain, self.goodbye, qos=1)
-
-        self.backend_mqtt.send_event(self.hello, "%s/bus" % self.env.domain, qos=1)
 
         # connect to the proxy MQTT broker (where the clients are listening)
         self.proxy_mqtt = MQTTHandler(
             host=self.env.config.get("mqtt.host"),
             port=self.env.config.getint("mqtt.port", default=1883))
         self.proxy_mqtt.get_client().add_subscription("%s/client/#" % self.env.domain, qos=1)
+        self.proxy_mqtt.get_client().add_subscription("%s/bus" % self.env.domain, qos=1)
         self.proxy_mqtt.set_subscription_callback(self._handle_proxy_message)
 
         PluginRegistry.getInstance("CommandRegistry").init_backend_proxy(self.backend_mqtt)
+
+        self.backend_mqtt.send_event(self.hello, "%s/bus" % self.env.domain, qos=1)
+        self.proxy_mqtt.send_event(self.hello, "%s/bus" % self.env.domain, qos=1)
 
     def _handle_backend_message(self, topic, message):
         """ forwards backend messages to proxy MQTT and handles received events"""
@@ -106,6 +109,19 @@ class MQTTRelayService(object):
 
     def _handle_proxy_message(self, topic, message):
         """ forwards proxy messages to backend MQTT """
+        if message[0:1] != "{":
+            # event received
+            try:
+                xml = objectify.fromstring(message)
+                if hasattr(xml, "UserSession"):
+                    # these events do not need to be forwarded as they are handled locally by a PROXY command
+                    # that means the reading part is done locally and the writing part is done by an RPC to the backend
+                    self.log.debug("NOT forwarding UserSession-Event in topic '%s' to backend MQTT broker" % topic)
+                    return
+
+            except etree.XMLSyntaxError as e:
+                self.log.error("Message parsing error: %s" % e)
+
         self.log.debug("forwarding message in topic '%s' to backend MQTT broker: %s" % (topic, message[0:80]))
         self.backend_mqtt.send_message(message, topic, qos=1)
 

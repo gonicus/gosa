@@ -532,8 +532,10 @@ class ClientService(Plugin):
 
             self.__user_session[id] = users
 
-            for user in users:
-                self.preUserSession(id, user, skip_config=True)
+            if self.env.mode != "proxy":
+                # maintain user session data in backends (not on proxy)
+                for user in users:
+                    self.preUserSession(id, user, skip_config=True)
 
             if len(new_users):
                 self.log.debug("configuring new users: %s" % new_users)
@@ -554,6 +556,11 @@ class ClientService(Plugin):
             if self.__current_backend_rpc is None or self.__current_backend_rpc.done() is True:
                 self.log.info("calling preUserSession(%s, %s, skip_config=True) on master backend" % (client_id, user_name))
                 self.__current_backend_rpc = self.__cr.dispatchRemote(client_id, None, 'preUserSession', client_id, user_name, skip_config=True)
+
+            if skip_config is False:
+                user_config = self.__collect_user_configuration(client_id, [user_name])
+                if user_config is not None and user_name in user_config:
+                    return user_config[user_name]
 
         elif skip_config is True:
             self.__maintain_user_session(client_id, user_name)
