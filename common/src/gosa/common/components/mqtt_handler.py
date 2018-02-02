@@ -110,6 +110,14 @@ class MQTTHandler(object):
     def get_client(self):
         return self.__client
 
+    def is_connected(self):
+        return self.__client.connected
+
+    def wait_for_connection(self, callback):
+        while self.is_connected() is False:
+            yield gen.sleep(0.1)
+        callback()
+
     def send_message(self, data, topic, qos=0):
         """ Send message via proxy to mqtt. """
         return self.__client.publish(topic, data, qos=qos)

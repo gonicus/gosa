@@ -60,8 +60,11 @@ class MQTTConnectionHandler(MQTTHandler):
     def serve(self):
         # set last will
         self.will_set(self.topic, self.goodbye, qos=1)
+        self.wait_for_connection(self.say_hello)
 
+    def say_hello(self):
         # proxies and backend must announce themselves
+        self.log.info("MQTTConnectionHandler sending hello")
         self.send_event(self.hello, self.topic, qos=1)
 
     def stop(self):
