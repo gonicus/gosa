@@ -43,10 +43,9 @@ class MQTTRPCService(object):
         self.mqtt = MQTTHandler(host=self.env.config.get("mqtt.host"),
                                 port=self.env.config.getint("mqtt.port", default=1883))
 
-        self.mqtt.set_subscription_callback(self.handle_request)
         self.__command_registry = PluginRegistry.getInstance('CommandRegistry')
         self.log.info("MQTT RPC service started, listening on subtopic '%s/#'" % self.subtopic)
-        self.mqtt.get_client().add_subscription('%s/#' % self.subtopic, qos=2)
+        self.mqtt.get_client().add_subscription('%s/#' % self.subtopic, qos=2, callback=self.handle_request)
 
     @gen.coroutine
     def handle_request(self, topic, message):
