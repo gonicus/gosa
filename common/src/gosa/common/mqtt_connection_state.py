@@ -67,9 +67,11 @@ class MQTTConnectionHandler(MQTTHandler):
 
     def stop(self):
         self.send_event(self.goodbye, self.topic, qos=1)
+        self.close()
 
     def init_subscriptions(self):
         """ add client subscriptions """
+        self.log.info("MQTTConnectionHandler subscribing to '%s'" % self.topic)
         self.get_client().add_subscription(self.topic, qos=1)
         self.get_client().set_subscription_callback(self._handle_message)
 
