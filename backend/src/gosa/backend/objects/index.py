@@ -1596,18 +1596,19 @@ class BackendRegistry(Plugin):
     @Command(__help__=N_("Register a backend to allow MQTT access"))
     def registerBackend(self, uuid, password, url=None, type=BackendTypes.unknown):
         with make_session() as session:
-            if session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).count() == 0:
-                rb = RegisteredBackend(
-                    uuid=uuid,
-                    password=password,
-                    url=url,
-                    type=type
-                )
-                session.add(rb)
-            else:
-                self.log.error("there is already a backend registered for this uuid")
-                rb = session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).one()
-                rb.password = password
+            query = session.query(RegisteredBackend).filter(or_(RegisteredBackend.uuid == uuid,
+                                                                RegisteredBackend.url == url))
+            if query.count() > 0:
+                # delete old entries
+                query.delete()
+
+            rb = RegisteredBackend(
+                uuid=uuid,
+                password=password,
+                url=url,
+                type=type
+            )
+            session.add(rb)
             session.commit()
 
     @Command(__help__=N_("Unregister a backend from MQTT access"))
