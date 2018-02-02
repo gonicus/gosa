@@ -174,6 +174,7 @@ class MQTTClient(object):
     def __on_connect(self, client, userdata, flags, rc):
         if rc == mqtt.CONNACK_ACCEPTED:
             # connection successful
+            self.log.info("%s: MQTT successfully connected" % self.__get_identifier())
             self.connected = True
             self.__retried = 0
             for topic in self.subscriptions.keys():
