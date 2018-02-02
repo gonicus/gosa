@@ -172,7 +172,6 @@ class MosquittoSuperuserHandler(BaseMosquittoClass):
     def post(self, *args, **kwargs):
         if self.superuser is not None:
             is_allowed = self.get_argument('username', '') == self.superuser
-            self.log.debug("MQTT Superuser ACL request for '%s': %s" % (self.get_argument('username', ''), "GRANTED" if is_allowed else "DENIED"))
-            self.send_result(self.get_argument('username', '') == self.superuser)
+            self.send_result(is_allowed)
         else:
             self.send_result(False)
