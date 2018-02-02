@@ -20,8 +20,8 @@ from gosa.common.components import JSONRPCException, PluginRegistry
 class BaseClient(mqtt.Client):  # pragma: nocover
     _clients = []
 
-    def __init__(self):
-        super(BaseClient, self).__init__()
+    def __init__(self, client_id=None, clean_session=True, userdata=None, protocol=mqtt.MQTTv31):
+        super(BaseClient, self).__init__(client_id=client_id, clean_session=clean_session, userdata=userdata, protocol=protocol)
         BaseClient._clients.append(self)
 
     def get_thread(self):
@@ -59,7 +59,7 @@ class MQTTClient(object):
 
         self.connected = False
 
-        self.client = BaseClient()
+        self.client = BaseClient(client_id=self.env.core_uuid if hasattr(self.env, "core_uuid") else self.env.uuid)
         self.host = host
         self.port = port
         self.keepalive = keepalive
@@ -107,6 +107,9 @@ class MQTTClient(object):
         self.client.connect(self.host, port=self.port, keepalive=self.keepalive)
         self.client.loop_start()
         self.env.threads.append(self.client.get_thread())
+
+    def reconnect(self):
+        self.client.reconnect()
 
     def disconnect(self):
         """ disconnect from the MQTT broker """
@@ -178,7 +181,7 @@ class MQTTClient(object):
         if self.__retried < self.__connection_retries:
             yield gen.sleep(self.__connection_retry_delay)
             self.__retried += 1
-            self.connect()
+            self.reconnect()
 
     def __on_message(self, client, userdata, message):
         payload = loads(message.payload)
