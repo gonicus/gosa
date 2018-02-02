@@ -171,12 +171,14 @@ class MQTTClient(object):
         else:
             msg = mqtt.error_string(rc)
             self.log.error("MQTT connection error (%s:%s): %s" % (self.host, self.port, msg))
-            if self.__retried < self.__connection_retries:
-                sobj = PluginRegistry.getInstance("SchedulerService")
-                sobj.getScheduler().add_date_job(self.connect,
-                                                 datetime.datetime.now() + datetime.timedelta(seconds=self.__connection_retry_delay),
-                                                 tag='_internal', jobstore='ram')
-                self.__retried += 1
+            self.__reconnect()
+
+    @gen.coroutine
+    def __reconnect(self):
+        if self.__retried < self.__connection_retries:
+            yield gen.sleep(self.__connection_retry_delay)
+            self.__retried += 1
+            self.connect()
 
     def __on_message(self, client, userdata, message):
         payload = loads(message.payload)
