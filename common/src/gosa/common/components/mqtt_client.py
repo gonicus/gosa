@@ -207,6 +207,7 @@ class MQTTClient(object):
                 self.reconnect()
 
     def __on_message(self, client, userdata, message):
+        self.log.debug("%s: __on_message client='%s', userdata='%s', message='%s'" % (self.get_identifier(), client, userdata, message))
         payload = loads(message.payload)
         if isinstance(payload, dict) and "content" in payload:
             content = payload["content"]
