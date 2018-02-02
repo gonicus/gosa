@@ -70,6 +70,7 @@ class MQTTClientService(object):
     # Time instance that helps us preventing re-announce-event flooding
     time_obj = None
     time_int = 3
+    client = None
 
     def __init__(self):
         env = Environment.getInstance()
@@ -77,6 +78,10 @@ class MQTTClientService(object):
         self.log.debug("initializing MQTT service provider")
         self.env = env
         self.__cr = None
+        e = EventMaker()
+        self.goodbye = e.Event(e.ClientLeave(
+            e.Id(Environment.getInstance().uuid)
+        ))
 
     def _handle_message(self, topic, message):
         if message[0:1] == "{":
@@ -96,10 +101,10 @@ class MQTTClientService(object):
     def serve(self):
         """ Start MQTT service for this gosa service provider. """
         # Load MQTT and Command registry instances
-        mqtt = PluginRegistry.getInstance('MQTTClientHandler')
+        self.client = PluginRegistry.getInstance('MQTTClientHandler')
         self.__cr = PluginRegistry.getInstance('ClientCommandRegistry')
 
-        mqtt.set_subscription_callback(self._handle_message)
+        self.client.set_subscription_callback(self._handle_message)
 
         self.__announce(True)
 
@@ -108,11 +113,14 @@ class MQTTClientService(object):
         sched = PluginRegistry.getInstance("SchedulerService").get_scheduler()
         sched.add_interval_job(self.__ping, seconds=timeout, start_date=datetime.datetime.now() + datetime.timedelta(seconds=1))
 
+    def stop(self):
+        self.client.send_event(self.goodbye, qos=1)
+        self.client.close()
+
     def __ping(self):
         e = EventMaker()
-        mqtt = PluginRegistry.getInstance('MQTTClientHandler')
         info = e.Event(e.ClientPing(e.Id(self.env.uuid)))
-        mqtt.send_event(info)
+        self.client.send_event(info)
 
     def reAnnounce(self):
         """
@@ -195,8 +203,7 @@ class MQTTClientService(object):
         response = dumps({"result": res, "id": id_})
 
         # Get rid of it...
-        mqtt = PluginRegistry.getInstance('MQTTClientHandler')
-        mqtt.send_message(response, topic=response_topic)
+        self.client.send_message(response, topic=response_topic)
 
     def __handleClientPoll(self):
         delay = random.randint(0, 30)
@@ -208,7 +215,6 @@ class MQTTClientService(object):
         zope.event.notify(Resume())
 
     def __announce(self, initial=False):
-        mqtt = PluginRegistry.getInstance('MQTTClientHandler')
         e = EventMaker()
 
         # Assemble network information
@@ -253,7 +259,7 @@ class MQTTClientService(object):
                     e.Name(self.env.id),
                     *more))
 
-            mqtt.send_event(info, qos=1)
+            self.client.send_event(info, qos=1)
 
         # Assemble capabilities
         more = []
@@ -273,7 +279,7 @@ class MQTTClientService(object):
                 e.Name(self.env.id),
                 *more))
 
-        mqtt.send_event(info, qos=1)
+        self.client.send_event(info, qos=1)
 
         if not initial:
             try:

@@ -30,7 +30,8 @@ class MQTTHandler(object):
     url = None
     joined = False
 
-    def __init__(self, autostart=True, host=None, port=None, keepalive=None, use_ssl=None, ca_file=None, insecure=None):
+    def __init__(self, autostart=True, host=None, port=None, keepalive=None, use_ssl=None, ca_file=None, insecure=None,
+                 client_id_prefix=None):
         """
         Construct a new MQTTClientHandler instance based on the configuration
         stored in the environment.
@@ -90,7 +91,8 @@ class MQTTHandler(object):
             keepalive=self.keep_alive,
             use_ssl=self.use_ssl,
             ca_file=self.ca_file,
-            insecure=self.insecure
+            insecure=self.insecure,
+            client_id_prefix=client_id_prefix
         )
 
         self.__client.authenticate(user, key)

@@ -41,7 +41,8 @@ class MQTTRPCService(object):
 
     def serve(self):
         self.mqtt = MQTTHandler(host=self.env.config.get("mqtt.host"),
-                                port=self.env.config.getint("mqtt.port", default=1883))
+                                port=self.env.config.getint("mqtt.port", default=1883),
+                                client_id_prefix="MQTTRPCService")
 
         self.__command_registry = PluginRegistry.getInstance('CommandRegistry')
         self.log.info("MQTT RPC service started, listening on subtopic '%s/#'" % self.subtopic)

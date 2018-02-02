@@ -58,7 +58,7 @@ class MQTTClient(object):
     __connection_retry_delay = 3
     __retried = 0
 
-    def __init__(self, host, port=1883, keepalive=60, use_ssl=None, ca_file=None, insecure=None):
+    def __init__(self, host, port=1883, keepalive=60, use_ssl=None, ca_file=None, insecure=None, client_id_prefix=None):
         global client_counter
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
@@ -66,8 +66,12 @@ class MQTTClient(object):
         self.connected = False
 
         uuid = self.env.core_uuid if hasattr(self.env, "core_uuid") else self.env.uuid
+        if client_id_prefix is not None:
+            client_id = "%s-%s-%s-%s" % (self.env.mode, client_id_prefix, uuid, client_counter)
+        else:
+            client_id = "%s-%s-%s" % (self.env.mode, uuid, client_counter)
 
-        self.client = BaseClient(client_id="%s-%s-%s" % (self.env.mode, uuid, client_counter))
+        self.client = BaseClient(client_id=client_id)
         client_counter += 1
         self.host = host
         self.port = port

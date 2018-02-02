@@ -19,10 +19,10 @@ class MQTTClientHandler(MQTTHandler):
     def __init__(self):
         super(MQTTClientHandler, self).__init__()
         e = EventMaker()
-        goodbye = e.Event(e.ClientLeave(
+        self.goodbye = e.Event(e.ClientLeave(
             e.Id(Environment.getInstance().uuid)
         ))
-        self.will_set("%s/client/%s" % (self.domain, self.env.uuid), goodbye, qos=1)
+        self.will_set("%s/client/%s" % (self.domain, self.env.uuid), self.goodbye, qos=1)
 
     def send_message(self, data, topic=None, qos=0):
         """ Send message to mqtt. """

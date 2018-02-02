@@ -40,14 +40,14 @@ class MQTTConnectionHandler(MQTTHandler):
     def __init__(self):
         self.env = Environment.getInstance()
         self.topic = "%s/bus" % self.env.domain
-        super(MQTTConnectionHandler, self).__init__()
+        super(MQTTConnectionHandler, self).__init__(client_id_prefix="MQTTConnectionHandler")
+
+        self.client_type = self.env.mode
         self.e = EventMaker()
         if hasattr(self.env, "core_uuid"):
             self.client_id = self.env.core_uuid
-            self.client_type = "proxy" if self.env.mode == "proxy" else "backend"
         else:
             self.client_id = self.env.uuid
-            self.client_type = "client"
 
         self.hello = self.e.Event(self.e.BusClientState(
             self.e.Id(self.client_id),
@@ -55,14 +55,11 @@ class MQTTConnectionHandler(MQTTHandler):
             self.e.Type(self.client_type)
         ))
 
-        if self.client_type == "client":
-            self.goodbye = self.e.Event(self.e.ClientLeave(self.e.Id(self.client_id)))
-        else:
-            self.goodbye = self.e.Event(self.e.BusClientState(
-                self.e.Id(self.client_id),
-                self.e.State('leave'),
-                self.e.Type(self.client_type)
-            ))
+        self.goodbye = self.e.Event(self.e.BusClientState(
+            self.e.Id(self.client_id),
+            self.e.State('leave'),
+            self.e.Type(self.client_type)
+        ))
 
     def serve(self):
         # set last will

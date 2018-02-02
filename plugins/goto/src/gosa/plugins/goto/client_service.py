@@ -101,7 +101,7 @@ class ClientService(Plugin):
 
     def __get_handler(self):
         if self.mqtt is None:
-            self.mqtt = MQTTHandler()
+            self.mqtt = MQTTHandler(client_id_prefix="ClientService")
         return self.mqtt
 
     def serve(self):
