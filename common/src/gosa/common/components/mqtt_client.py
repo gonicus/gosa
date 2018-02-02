@@ -191,9 +191,10 @@ class MQTTClient(object):
     def __reconnect(self):
         if self.__retried < self.__connection_retries:
             yield gen.sleep(self.__connection_retry_delay)
-            self.__retried += 1
-            self.log.debug("%s: Reconnecting retry %s to %s" % (self.__get_identifier(), self.__retried, self.host))
-            self.reconnect()
+            if self.connected is False:
+                self.__retried += 1
+                self.log.debug("%s: Reconnecting retry %s to %s" % (self.__get_identifier(), self.__retried, self.host))
+                self.reconnect()
 
     def __on_message(self, client, userdata, message):
         payload = loads(message.payload)
