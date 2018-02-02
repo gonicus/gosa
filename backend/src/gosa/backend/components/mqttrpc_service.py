@@ -31,21 +31,22 @@ class MQTTRPCService(object):
     The ProxyServer handles to the RPC calls from the GOsa proxies received via MQTT
     """
     mqtt = None
-    _priority_ = 10
+    _priority_ = 0
     __command_registry = None
 
     def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.subtopic = "%s/proxy" % self.env.domain
+
+    def serve(self):
         self.mqtt = MQTTHandler(host=self.env.config.get("mqtt.host"),
                                 port=self.env.config.getint("mqtt.port", default=1883))
 
-    def serve(self):
-        self.mqtt.get_client().add_subscription('%s/#' % self.subtopic, qos=2)
         self.mqtt.set_subscription_callback(self.handle_request)
         self.__command_registry = PluginRegistry.getInstance('CommandRegistry')
         self.log.info("MQTT RPC service started, listening on subtopic '%s/#'" % self.subtopic)
+        self.mqtt.get_client().add_subscription('%s/#' % self.subtopic, qos=2)
 
     @gen.coroutine
     def handle_request(self, topic, message):
