@@ -16,6 +16,8 @@ from tornado import gen
 from gosa.common import Environment
 from gosa.common.components import JSONRPCException, PluginRegistry
 
+client_counter = 0
+
 
 class BaseClient(mqtt.Client):  # pragma: nocover
     _clients = []
@@ -57,12 +59,16 @@ class MQTTClient(object):
     __retried = 0
 
     def __init__(self, host, port=1883, keepalive=60, use_ssl=None, ca_file=None, insecure=None):
+        global client_counter
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
         self.connected = False
 
-        self.client = BaseClient()
+        uuid = self.env.core_uuid if hasattr(self.env, "core_uuid") else self.env.uuid
+
+        self.client = BaseClient(client_id="%s-%s" % (uuid, client_counter))
+        client_counter += 1
         self.host = host
         self.port = port
         self.keepalive = keepalive
