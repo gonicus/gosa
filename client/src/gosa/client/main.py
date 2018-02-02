@@ -205,6 +205,7 @@ def main():
     # Initialize core environment
     env = Environment.getInstance()
     env.active = False
+    env.mode = "client"
 
     env.log.info("GOsa client is starting up")
 
