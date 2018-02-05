@@ -295,6 +295,58 @@ class ClientService(Plugin):
         """
         return [client for client, users in self.__user_session.items() if user in users]
 
+    @Command(__help__=N_("Get the destinationIndicator for a user"))
+    def getDestinationIndicator(self, client_id, uid, cn_query, rotate=True):
+        """
+
+        :param client_id: UUID of the client used to find the closest destinationIndicators
+        :param uid: uid of the user
+        :param cn_query: filter for destinationIndicator-cns (e.g. 'lts-% for wildcards)
+        :param rotate: rotate the destinationIndicators (do not use the last one twice in a row)
+        :return: FQDN of the server marked as destinationIndicator
+        """
+        index = PluginRegistry.getInstance('ObjectIndex')
+        res = index.search({'type': 'User', 'uid': uid}, {'dn': 1})
+        if len(res) == 0:
+            raise ValueError(C.make_error("USER_NOT_FOUND", topic=uid, status_code=404))
+
+        user = ObjectProxy(res[0]['dn'])
+
+        if rotate is False and user.destinationIndicator is not None:
+            # nothing to rotate, take the stored one
+            return user.destinationIndicator
+
+        client = self.__open_device(client_id)
+        parent_dn = client.get_adjusted_parent_dn()
+        res = index.search({'_type': 'Device', 'cn': cn_query, '_adjusted_parent_dn': parent_dn}, {'dn': 1})
+
+        while len(res) == 0 and len(parent_dn) > len(self.env.base):
+            parent_dn = ObjectProxy.get_adjusted_dn(parent_dn, self.env.base)
+            res = index.search({'_type': 'Device', 'cn': cn_query, '_adjusted_parent_dn': parent_dn}, {'dn': 1})
+
+        if len(res) > 0:
+            di_pool = sorted([x['dn'] for x in res])
+            if user.destinationIndicator is None:
+                # nothing to rotate, take the first one
+                user.destinationIndicator = di_pool[0]
+                user.commit()
+
+            elif rotate is True:
+                if user.destinationIndicator in di_pool:
+                    # take the next one from list
+                    position = di_pool.index(user.destinationIndicator)+1
+                    if position >= len(di_pool):
+                        position = 0
+                    user.destinationIndicator = di_pool[position]
+                    user.commit()
+                else:
+                    # nothing to rotate, take the first one
+                    user.destinationIndicator = di_pool[0]
+                    user.commit()
+
+            return user.destinationIndicator
+        return None
+
     @Command(__help__=N_("Send synchronous notification message to user"), type="READONLY")
     def notifyUser(self, users, title, message, timeout=10, level='normal', icon="dialog-information"):
         """
@@ -1032,7 +1084,16 @@ class ClientService(Plugin):
     def applyClientRights(self, device_uuid):
         # check rights
         acl = PluginRegistry.getInstance("ACLResolver")
-        if not acl.check(device_uuid, "%s.%s.%s" % (self.env.domain, "command", "preUserSession"), "x"):
+        allowed_commands = [
+            'joinClient',
+            'preUserSession',
+            'postUserSession',
+            'getMethods',
+            'getDestinationIndicator'
+        ]
+        missing = [x for x in allowed_commands if not acl.check(device_uuid, "%s.%s.%s" % (self.env.domain, "command", x), "x")]
+
+        if len(missing) > 0:
             role_name = "$$ClientDevices"
             # create AclRole for joining if not exists
             index = PluginRegistry.getInstance("ObjectIndex")
@@ -1041,20 +1102,22 @@ class ClientService(Plugin):
                 # create
                 role = ObjectProxy(self.env.base, "AclRole")
                 role.name = role_name
+            else:
+                role = ObjectProxy(res[0]['dn'])
 
-                # create rule
-                aclentry = {
-                    "priority": 0,
-                    "scope": "sub",
-                    "actions": [
-                        {
-                            "topic": "%s\.command\.(joinClient|preUserSession|postUserSession|getMethods)" % self.env.domain,
-                            "acl": "x",
-                            "options": {}
-                        }
-                    ]}
-                role.AclRoles = [aclentry]
-                role.commit()
+            # create rule
+            aclentry = {
+                "priority": 0,
+                "scope": "sub",
+                "actions": [
+                    {
+                        "topic": "%s\.command\.(%s)" % (self.env.domain, "|".join(allowed_commands)),
+                        "acl": "x",
+                        "options": {}
+                    }
+                ]}
+            role.AclRoles = [aclentry]
+            role.commit()
 
             # check if device has role
             found = False
