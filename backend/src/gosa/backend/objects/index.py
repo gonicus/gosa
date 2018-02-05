@@ -379,7 +379,7 @@ class ObjectIndex(Plugin):
                     rb = RegisteredBackend(
                         uuid=self.env.core_uuid,
                         password=self.env.core_key,
-                        url=get_internal_server_url(),
+                        url=get_server_url(),
                         type=BackendTypes.active_master
                     )
                     session.add(rb)
