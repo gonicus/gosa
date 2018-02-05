@@ -50,8 +50,7 @@ class MQTTHandler(object):
         if port is not None:
             self.port = port
         else:
-            self.port = int(self.env.config.get('mqtt.port', default=1883)) \
-                if self.env.config.get('mqtt.port', default=1883) is not None else 1883
+            self.port = self.env.config.getint('mqtt.port', default=1883)
 
         # Auto detect if possible
         if not self.host:
