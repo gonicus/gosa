@@ -176,7 +176,7 @@ class OpenObject(Base):
     __tablename__ = "open-objects"
 
     ref = Column(String(36), primary_key=True, nullable=False)
-    uuid = Column(String(36), nullable=False)
+    uuid = Column(String(36), nullable=True)
     oid = Column(String)
     data = Column(JSON)
     backend_uuid = Column(String, ForeignKey('registered-backends.uuid'))
