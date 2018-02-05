@@ -388,7 +388,7 @@ class ObjectIndex(Plugin):
                 self.registerProxy()
 
         # Schedule index sync
-        if self.env.config.get("backend.index", "true").lower() == "true":
+        if self.env.config.get("backend.index", "true").lower() == "true" and self.env.mode == 'backend':
             if not hasattr(sys, '_called_from_test'):
                 sobj = PluginRegistry.getInstance("SchedulerService")
                 sobj.getScheduler().add_date_job(self.syncIndex,
@@ -424,6 +424,7 @@ class ObjectIndex(Plugin):
                 # Try to log in with provided credentials
                 url = urlparse("%s/rpc" % master_backend.url)
                 connection = '%s://%s%s' % (url.scheme, url.netloc, url.path)
+                print(connection)
                 proxy = JSONServiceProxy(connection)
 
                 if self.env.config.get("core.backend-user") is None or self.env.config.get("core.backend-key") is None:
@@ -444,9 +445,9 @@ class ObjectIndex(Plugin):
                         self.log.error("Error: %s " % str(e))
                         raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
 
-                except Exception as e:
-                    self.log.error("Error: %s " % str(e))
-                    raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
+                # except Exception as e:
+                #     self.log.error("Error: %s " % str(e))
+                #     raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
 
     def stop(self):
         if self.__handle_events in zope.event.subscribers:
