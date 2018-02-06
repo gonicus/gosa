@@ -265,7 +265,9 @@ class ObjectIndex(Plugin):
     def serve(self):
         # Configure database for the index
         orm.configure_mappers()
-        Base.metadata.create_all(self.env.getDatabaseEngine("backend-database"))
+
+        engine = self.env.getDatabaseEngine("backend-database")
+        Base.metadata.create_all(engine)
 
         self.__value_extender = gosa.backend.objects.renderer.get_renderers()
 
@@ -371,11 +373,15 @@ class ObjectIndex(Plugin):
 
         # store core_uuid/core_key into DB
         if hasattr(self.env, "core_uuid"):
-            if self.env.mode != "proxy":
+            if self.env.mode == "backend":
                 with make_session() as session:
-                    session.query(UserSession).delete()
-                    session.query(OpenObject).delete()
-                    session.query(RegisteredBackend).delete()
+                    tables_to_recreate = [UserSession.__table__, OpenObject.__table__, RegisteredBackend.__table__]
+
+                    for table in tables_to_recreate:
+                        table.drop(engine)
+
+                    Base.metadata.create_all(engine, tables=tables_to_recreate)
+
                     rb = RegisteredBackend(
                         uuid=self.env.core_uuid,
                         password=self.env.core_key,
@@ -403,6 +409,8 @@ class ObjectIndex(Plugin):
             sobj.getScheduler().add_date_job(finish,
                                              datetime.datetime.now() + datetime.timedelta(seconds=10),
                                              tag='_internal', jobstore='ram')
+
+
 
     def registerProxy(self, backend_uuid=None):
         if self.env.mode == "proxy":
