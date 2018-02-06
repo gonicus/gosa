@@ -13,6 +13,7 @@
 import argparse
 import codecs
 import gettext
+import locale
 import os
 import sys
 import logging
@@ -28,15 +29,27 @@ from gosa.client.command import ClientCommandRegistry
 from gosa.client.mqtt_service import MQTTClientService
 from gosa.client.plugins.dbus.proxy import DBUSProxy
 from gosa.common import Environment
-from gosa.common.components import JSONServiceProxy
+from gosa.common.components import JSONServiceProxy, JSONRPCException
 from gosa.common.components.dbus_runner import DBusRunner
 from gosa.common.components.registry import PluginRegistry
+from gosa.common.error import GosaErrorHandler
 from gosa.common.gjson import dumps
 
 t = gettext.translation('messages', resource_filename("gosa.client", "locale"), fallback=True)
 _ = t.gettext
 
 log = logging.getLogger(__name__)
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 
 def connect():
@@ -86,16 +99,23 @@ def notify_backend(options):
 
     mode = options.mode
     user = options.user
+    if user is None:
+        user = os.getlogin()
 
     proxy = connect()
-    if proxy is True:
+    if proxy is not False:
         dbus_proxy = DBUSProxy()
         dbus_proxy.serve(register_methods=False)
         env = Environment.getInstance()
         sys_id = env.config.get("core.id", default=None)
 
         if mode == "start":
-            config = proxy.preUserSession(sys_id, user)
+            print("calling preUserSession...")
+            try:
+                config = proxy.preUserSession(sys_id, user)
+            except JSONRPCException as e:
+                handle_error(proxy, e)
+
             # send config to dbus
             if "menu" in config:
                 # send to client
@@ -118,7 +138,11 @@ def notify_backend(options):
                 dbus_proxy.callDBusMethod("dbus_configureUserScreen", user, config["resolution"][0], config["resolution"][1])
 
         elif mode == "end":
-            proxy.postUserSession(sys_id, user)
+            print("calling postUserSession...")
+            try:
+                print("postUserSession returned: %s" % proxy.postUserSession(sys_id, user))
+            except JSONRPCException as e:
+                handle_error(proxy, e)
 
 
 def get_destination_indicator(options):
@@ -132,9 +156,23 @@ def get_destination_indicator(options):
         user = os.getlogin()
 
     proxy = connect()
-    if proxy is True:
-        di = proxy.getDestinationIndicator(client_id, user, options.filter)
-        print(di)
+    if proxy is not False:
+        try:
+            di = proxy.getDestinationIndicator(client_id, user, options.filter)
+            print(di)
+        except JSONRPCException as e:
+            handle_error(proxy, e)
+
+
+def handle_error(proxy, e):
+    message = e.error['message']
+    error_id = GosaErrorHandler.get_error_id(message)
+    if error_id is not None:
+        # get translated error message
+        res = proxy.getError(error_id, locale.getlocale()[0].split("_")[0])
+        message = res['text']
+
+    print(bcolors.FAIL + 'Error: %s' % message)
 
 
 def main():
@@ -181,7 +219,7 @@ def main():
                 },
                 {
                     'args': ('-f', '--filter'),
-                    'kwargs': {'dest': 'filter', 'type': str, 'help': 'cn filter for the server query'}
+                    'kwargs': {'dest': 'filter', 'type': str, 'help': 'cn filter for the server query', 'required': True}
                 }
             ]
         }
@@ -189,7 +227,7 @@ def main():
 
     description = 'Helper commands to allow communication with the GOsa backend.'
     parser = argparse.ArgumentParser(description=description)
-    subparsers = parser.add_subparsers(help='available actions')
+    subparsers = parser.add_subparsers(help='available actions', dest='action')
 
     for command_name, config in commands.items():
         sub_parser = subparsers.add_parser(command_name, help=config['help'])
@@ -198,12 +236,13 @@ def main():
 
     options = parser.parse_args()
 
-    print(options)
     # Initialize core environment
     if options.action in commands:
-        commands[options.action](options)
+        commands[options.action]['command'](options)
+    elif options.action is None:
+        parser.print_help()
     else:
-        print(_("action '%s' is not available" % options.action))
+        print(bcolors.WARNING + _("action '%s' is not available" % options.action))
         sys.exit(1)
 
 
