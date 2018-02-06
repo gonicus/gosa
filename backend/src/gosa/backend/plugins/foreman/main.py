@@ -41,9 +41,9 @@ C.register_codes(dict(
     NO_MAC=N_("No MAC given to identify host '%(hostname)s'"),
     DEVICE_NOT_FOUND=N_("Cannot find device '%(hostname)s'"),
     NO_FOREMAN_OBJECT=N_("This object is not managed by foreman"),
-    MULTIPLE_DEVICES_FOUND=N_("(%devices)s found for hostname '%(hostname)s'"),
+    MULTIPLE_DEVICES_FOUND=N_("%(devices)s found for hostname '%(hostname)s'"),
     HOSTGROUP_NOT_FOUND=N_("Cannot find hostgroup with id '%(group_id)s'"),
-    MULTIPLE_HOSTGROUPS_FOUND=N_("(%groups)s found for group id '%(group_id)s'"),
+    MULTIPLE_HOSTGROUPS_FOUND=N_("%(groups)s found for group id '%(group_id)s'"),
 ))
 
 
