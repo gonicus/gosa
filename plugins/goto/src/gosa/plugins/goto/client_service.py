@@ -306,7 +306,7 @@ class ClientService(Plugin):
         :return: FQDN of the server marked as destinationIndicator
         """
         index = PluginRegistry.getInstance('ObjectIndex')
-        res = index.search({'type': 'User', 'uid': uid}, {'dn': 1})
+        res = index.search({'_type': 'User', 'uid': uid}, {'dn': 1})
         if len(res) == 0:
             raise ValueError(C.make_error("USER_NOT_FOUND", topic=uid, status_code=404))
 
@@ -318,7 +318,7 @@ class ClientService(Plugin):
 
         client = self.__open_device(client_id)
         parent_dn = client.get_adjusted_parent_dn()
-        res = index.search({'_type': 'Device', 'cn': cn_query, '_adjusted_parent_dn': parent_dn}, {'dn': 1})
+        res = index.search({'_type': 'Device', 'extension': 'GoServer', 'cn': cn_query, '_adjusted_parent_dn': parent_dn}, {'dn': 1})
 
         while len(res) == 0 and len(parent_dn) > len(self.env.base):
             parent_dn = ObjectProxy.get_adjusted_dn(parent_dn, self.env.base)
@@ -656,6 +656,8 @@ class ClientService(Plugin):
             self.__user_session[client_id].remove(user)
         if len(self.__user_session[client_id]) == 0:
             self.systemSetStatus(client_id, "-B")
+            return True
+        return False
 
     @Command(__help__="Send user configurations of all logged in user to a client")
     def configureUsers(self, client_id, users):
