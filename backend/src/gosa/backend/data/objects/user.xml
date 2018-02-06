@@ -610,6 +610,11 @@
           <FilterChain>
             <FilterEntry>
               <Filter>
+                <Name>LowerCase</Name>
+              </Filter>
+            </FilterEntry>
+            <FilterEntry>
+              <Filter>
                 <Name>SetBackends</Name>
                 <Param>NULL</Param>
                 <Param>LDAP</Param>
