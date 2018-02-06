@@ -381,8 +381,8 @@ setup(
         UnmarshalFlags = gosa.backend.objects.filter.flags:UnmarshalFlags
         FilterOwnDn = gosa.backend.objects.filter.basic:FilterOwnDn
         AddOwnDnIfEmpty = gosa.backend.objects.filter.basic:AddOwnDnIfEmpty
-        LowerCase = gosa.backend.objects.filter.string:LowerCase
-        UpperCase = gosa.backend.objects.filter.string:UpperCase
+        LowerCase = gosa.backend.objects.filter.strings:LowerCase
+        UpperCase = gosa.backend.objects.filter.strings:UpperCase
 
         [gosa.object.comparator]
         like = gosa.backend.objects.comparator.strings:Like
