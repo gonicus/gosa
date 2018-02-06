@@ -208,7 +208,7 @@ class JSONServiceProxy(object):
             raise JSONRPCException(str(e))
 
         resp = loads(respdata)
-        if resp['error'] != None:
+        if resp['error'] is not None:
             raise JSONRPCException(resp['error'])
 
         return resp['result']
