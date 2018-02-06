@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa.backend 3.0\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-01-22 11:20+0100\n"
+"POT-Creation-Date: 2018-02-06 10:16+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -177,60 +177,60 @@ msgstr ""
 msgid "Remove a defined acl-role by name"
 msgstr ""
 
-#: src/gosa/backend/command.py:70
+#: src/gosa/backend/command.py:63
 #, python-format
 msgid "Calling method '%(method)s' without a valid user session is not permitted"
 msgstr ""
 
-#: src/gosa/backend/command.py:71
+#: src/gosa/backend/command.py:64
 #, python-format
 msgid "Method '%(method)s' is not defined"
 msgstr ""
 
-#: src/gosa/backend/command.py:72
+#: src/gosa/backend/command.py:65
 #, python-format
 msgid "No permission to execute method '%(method)s'"
 msgstr ""
 
-#: src/gosa/backend/command.py:73
+#: src/gosa/backend/command.py:66
 #, python-format
 msgid "No permission to send event '%(topic)s'"
 msgstr ""
 
-#: src/gosa/backend/command.py:74
+#: src/gosa/backend/command.py:67
 #, python-format
 msgid "Method '%(method)s' has no documentation"
 msgstr ""
 
-#: src/gosa/backend/command.py:99
+#: src/gosa/backend/command.py:92
 msgid "Returns the LDAP base"
 msgstr ""
 
-#: src/gosa/backend/command.py:108
+#: src/gosa/backend/command.py:101
 msgid "List all methods that are allowed for the given user."
 msgstr ""
 
-#: src/gosa/backend/command.py:124
+#: src/gosa/backend/command.py:117
 msgid "List available methods that are registered on the bus."
 msgstr ""
 
-#: src/gosa/backend/command.py:150
+#: src/gosa/backend/command.py:143
 msgid "doc"
 msgstr ""
 
-#: src/gosa/backend/command.py:154
+#: src/gosa/backend/command.py:147
 msgid "List available methods that are allowed without login."
 msgstr ""
 
-#: src/gosa/backend/command.py:158
+#: src/gosa/backend/command.py:151
 msgid "Shut down the service."
 msgstr ""
 
-#: src/gosa/backend/command.py:381
+#: src/gosa/backend/command.py:389
 msgid "Return the current session's user ID."
 msgstr ""
 
-#: src/gosa/backend/command.py:385
+#: src/gosa/backend/command.py:393
 msgid "Send event to the bus."
 msgstr ""
 
@@ -340,7 +340,7 @@ msgid "Parameter must be list or dictionary"
 msgstr ""
 
 #: src/gosa/backend/components/jsonrpc_service.py:51
-#: src/gosa/backend/objects/index.py:71
+#: src/gosa/backend/objects/index.py:72
 msgid "Index rebuild in progress - try again later"
 msgstr ""
 
@@ -415,7 +415,7 @@ msgid "Error executing workflow script '%(topic)s'"
 msgstr ""
 
 #: src/gosa/backend/components/workflow.py:137
-#: src/gosa/backend/objects/proxy.py:506
+#: src/gosa/backend/objects/proxy.py:524
 #: src/gosa/backend/plugins/misc/locales.py:194
 msgid "value"
 msgstr ""
@@ -520,47 +520,47 @@ msgstr ""
 msgid "Discovered"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHost.xml:230
+#: src/gosa/backend/data/objects/foremanHost.xml:239
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:137
 msgid "PXELinux BIOS"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHost.xml:231
+#: src/gosa/backend/data/objects/foremanHost.xml:240
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:138
 msgid "PXELinux UEFI"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHost.xml:232
+#: src/gosa/backend/data/objects/foremanHost.xml:241
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:139
 msgid "Grub UEFI 64bit"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHost.xml:233
+#: src/gosa/backend/data/objects/foremanHost.xml:242
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:140
 msgid "Grub UEFI 32bit"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHost.xml:234
+#: src/gosa/backend/data/objects/foremanHost.xml:243
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:141
 msgid "Grub SecureBoot"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHost.xml:235
+#: src/gosa/backend/data/objects/foremanHost.xml:244
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:142
 msgid "Grub2 UEFI 64bit"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHost.xml:236
+#: src/gosa/backend/data/objects/foremanHost.xml:245
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:143
 msgid "Grub2 UEFI 32bit"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHost.xml:237
+#: src/gosa/backend/data/objects/foremanHost.xml:246
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:144
 msgid "Grub2 SecureBoot"
 msgstr ""
 
-#: src/gosa/backend/data/objects/foremanHost.xml:238
+#: src/gosa/backend/data/objects/foremanHost.xml:247
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:145
 msgid "None"
 msgstr ""
@@ -2137,83 +2137,92 @@ msgstr ""
 msgid "Parameter '%(parameter)s' for command '%(command)s' is missing"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:69
+#: src/gosa/backend/objects/index.py:70
 #, python-format
 msgid "Object with UUID %(uuid)s already exists"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:70
+#: src/gosa/backend/objects/index.py:71
 #, python-format
 msgid "Cannot find object %(id)s"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:72
+#: src/gosa/backend/objects/index.py:73
 #, python-format
 msgid "Requested search operator %(operator)s is not supported"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:73
+#: src/gosa/backend/objects/index.py:74
 msgid "No master backend found"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:74
+#: src/gosa/backend/objects/index.py:75
 msgid "connection to GOsa backend failed"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:75
+#: src/gosa/backend/objects/index.py:76
 msgid ""
 "Please add valid backend credentials to you configuration (core.backend-"
 "user, core.backend-key)"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:654 src/gosa/backend/objects/index.py:659
+#: src/gosa/backend/objects/index.py:77
+#, python-format
+msgid "Trying to add a delayed update to a non-dirty object (%(topic)s)"
+msgstr ""
+
+#: src/gosa/backend/objects/index.py:715
+msgid "Start index synchronizing from an optional root-DN"
+msgstr ""
+
+#: src/gosa/backend/objects/index.py:743 src/gosa/backend/objects/index.py:748
 msgid "scanning for objects"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:679
+#: src/gosa/backend/objects/index.py:768
 msgid "Generating object index"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:691
+#: src/gosa/backend/objects/index.py:780
 #, python-format
 msgid "Processing object %s/%s"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:705
+#: src/gosa/backend/objects/index.py:794
 #, python-format
 msgid "%s objects processed"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:708
+#: src/gosa/backend/objects/index.py:798
 msgid "removing orphan objects from index"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:724
+#: src/gosa/backend/objects/index.py:816
 msgid "Index refresh finished"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:749
+#: src/gosa/backend/objects/index.py:841
 #, python-format
 msgid "Refreshing object %s/%s"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:1082
+#: src/gosa/backend/objects/index.py:1190
 msgid "Check if an object with the given UUID exists."
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:1102
+#: src/gosa/backend/objects/index.py:1210
 msgid "Get list of defined base object types."
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:1111
+#: src/gosa/backend/objects/index.py:1219
 msgid "Query the index for entries."
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:1489
+#: src/gosa/backend/objects/index.py:1597
 msgid "Register a backend to allow MQTT access"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:1506
+#: src/gosa/backend/objects/index.py:1615
 msgid "Unregister a backend from MQTT access"
 msgstr ""
 
@@ -2727,7 +2736,7 @@ msgstr ""
 
 #: src/gosa/backend/plugins/foreman/main.py:44
 #, python-format
-msgid "(%devices)s found for hostname '%(hostname)s'"
+msgid "%(devices)s found for hostname '%(hostname)s'"
 msgstr ""
 
 #: src/gosa/backend/plugins/foreman/main.py:45
@@ -2737,100 +2746,100 @@ msgstr ""
 
 #: src/gosa/backend/plugins/foreman/main.py:46
 #, python-format
-msgid "(%groups)s found for group id '%(group_id)s'"
+msgid "%(groups)s found for group id '%(group_id)s'"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:414
+#: src/gosa/backend/plugins/foreman/main.py:439
 msgid "Get all available foreman LSB names"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:423
+#: src/gosa/backend/plugins/foreman/main.py:448
 msgid "Get release name of an operating system"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:433
+#: src/gosa/backend/plugins/foreman/main.py:458
 msgid "Get details of a single foreman hostgroup."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:451
+#: src/gosa/backend/plugins/foreman/main.py:476
 msgid "Get available foreman compute resources."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:464
+#: src/gosa/backend/plugins/foreman/main.py:489
 msgid "Get available foreman domains."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:468
-#: src/gosa/backend/plugins/foreman/main.py:515
+#: src/gosa/backend/plugins/foreman/main.py:493
+#: src/gosa/backend/plugins/foreman/main.py:540
 msgid "Get available foreman hostgroups."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:490
-#: src/gosa/backend/plugins/foreman/main.py:498
+#: src/gosa/backend/plugins/foreman/main.py:515
+#: src/gosa/backend/plugins/foreman/main.py:523
 msgid "Get available foreman operating systems."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:494
+#: src/gosa/backend/plugins/foreman/main.py:519
 msgid "Get available foreman architectures."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:502
+#: src/gosa/backend/plugins/foreman/main.py:527
 msgid "Get available foreman partition tables."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:506
+#: src/gosa/backend/plugins/foreman/main.py:531
 msgid "Get available foreman media."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:532
+#: src/gosa/backend/plugins/foreman/main.py:557
 msgid "Get discovered hosts as search key(dn): value(cn) pairs."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:549
+#: src/gosa/backend/plugins/foreman/main.py:574
 msgid "Get all SystemsContainer search key(dn): value(dn) pairs."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:562
+#: src/gosa/backend/plugins/foreman/main.py:587
 msgid "Get foreman hosts as search key(dn): value(cn) pairs."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:579
+#: src/gosa/backend/plugins/foreman/main.py:604
 msgid "Get discovered hosts as search result."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:600
+#: src/gosa/backend/plugins/foreman/main.py:625
 msgid "Force a Puppet agent run on the host"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:604
+#: src/gosa/backend/plugins/foreman/main.py:629
 msgid "Boot host from specified device"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:614
+#: src/gosa/backend/plugins/foreman/main.py:639
 msgid "Run a power operation on host"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:623
+#: src/gosa/backend/plugins/foreman/main.py:648
 msgid "Checks if a host supports power operations"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:627
+#: src/gosa/backend/plugins/foreman/main.py:652
 msgid "Get a foreman setting by ID"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:770
+#: src/gosa/backend/plugins/foreman/main.py:825
 msgid "Foreman host event"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:821
+#: src/gosa/backend/plugins/foreman/main.py:877
 msgid "Foreman hook event"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:948
+#: src/gosa/backend/plugins/foreman/main.py:1011
 msgid "Host ready"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:949
+#: src/gosa/backend/plugins/foreman/main.py:1012
 #, python-format
 msgid "Host '%s' has been successfully build."
 msgstr ""
@@ -3737,31 +3746,31 @@ msgstr ""
 msgid "Search for object information"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:286
+#: src/gosa/backend/plugins/rpc/methods.py:290
 msgid "Return object information like: title and icon"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:320
+#: src/gosa/backend/plugins/rpc/methods.py:324
 msgid "Resolves object information"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:380
+#: src/gosa/backend/plugins/rpc/methods.py:384
 msgid "Returns a list with all selectable samba-domain-names"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:388
+#: src/gosa/backend/plugins/rpc/methods.py:392
 msgid "Returns a list of DOS/Windows drive letters"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:396
+#: src/gosa/backend/plugins/rpc/methods.py:400
 msgid "Checks an object of the given type can be placed in the dn"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:413
+#: src/gosa/backend/plugins/rpc/methods.py:417
 msgid "Returns a list of all containers"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:447
+#: src/gosa/backend/plugins/rpc/methods.py:451
 msgid "Filter for indexed attributes and return the matches."
 msgstr ""
 
@@ -3935,19 +3944,19 @@ msgstr ""
 msgid "Wrong password! Changing two-factor authentication method denied."
 msgstr ""
 
-#: src/gosa/backend/plugins/two_factor/main.py:90
+#: src/gosa/backend/plugins/two_factor/main.py:89
 msgid "Returns the available two factor authentication methods"
 msgstr ""
 
-#: src/gosa/backend/plugins/two_factor/main.py:94
+#: src/gosa/backend/plugins/two_factor/main.py:93
 msgid "Returns the current two factor authentication method for the given user"
 msgstr ""
 
-#: src/gosa/backend/plugins/two_factor/main.py:102
+#: src/gosa/backend/plugins/two_factor/main.py:101
 msgid "Enable two factor authentication for the given user"
 msgstr ""
 
-#: src/gosa/backend/plugins/two_factor/main.py:136
+#: src/gosa/backend/plugins/two_factor/main.py:135
 msgid "Complete the started U2F registration"
 msgstr ""
 
