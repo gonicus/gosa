@@ -347,14 +347,13 @@ class JsonRpcHandler(HSTSRequestHandler):
 
             error_value = dict(
                 name='JSONRPCError',
-                code=100,
+                code=status_code,
                 message=str(exc_value),
                 error=err)
 
             self.log.error("returning call [%s]: %s / %s" % (jid, None, f_print(err)))
             self.log.error(text)
 
-            self.set_status(status_code)
             return dict(result=None, error=error_value, id=jid)
 
         self.log.debug("returning call [%s]: %s / %s" % (jid, result, None))
