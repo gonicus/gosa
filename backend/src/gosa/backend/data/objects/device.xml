@@ -27,7 +27,7 @@
       <Attribute>
         <Name>description</Name>
         <Description>description</Description>
-        <Type>String</Type>
+        <Type>UnicodeString</Type>
       </Attribute>
       <Attribute>
         <Name>serialNumber</Name>
