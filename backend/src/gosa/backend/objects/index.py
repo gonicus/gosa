@@ -273,52 +273,53 @@ class ObjectIndex(Plugin):
 
         self._acl_resolver = PluginRegistry.getInstance("ACLResolver")
 
-        with make_session() as session:
+        if self.env.mode == "backend":
+            with make_session() as session:
 
-            # create view
-            try:
-                # check if extension exists
-                if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'pg_trgm';").rowcount == 0:
-                    session.execute("CREATE EXTENSION pg_trgm;")
+                # create view
+                try:
+                    # check if extension exists
+                    if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'pg_trgm';").rowcount == 0:
+                        session.execute("CREATE EXTENSION pg_trgm;")
 
-                if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'fuzzystrmatch';").rowcount == 0:
-                    session.execute("CREATE EXTENSION fuzzystrmatch;")
+                    if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'fuzzystrmatch';").rowcount == 0:
+                        session.execute("CREATE EXTENSION fuzzystrmatch;")
 
-                view_name = "unique_lexeme"
-                # check if view exists
-                res = session.execute("SELECT count(*) > 0 as \"exists\" FROM pg_catalog.pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind = 'm' AND n.nspname = 'public' AND c.relname = '%s';" % view_name).first()
-                if res[0] is False:
-                    session.execute("CREATE MATERIALIZED VIEW %s AS SELECT word FROM ts_stat('SELECT so_index.search_vector FROM so_index');" % view_name)
-                    session.execute("CREATE INDEX words_idx ON %s USING gin(word gin_trgm_ops);" % view_name)
-                self.fuzzy = True
-            except Exception as e:
-                self.log.error("Error creating view for unique word index: %s" % str(e))
-                session.rollback()
+                    view_name = "unique_lexeme"
+                    # check if view exists
+                    res = session.execute("SELECT count(*) > 0 as \"exists\" FROM pg_catalog.pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind = 'm' AND n.nspname = 'public' AND c.relname = '%s';" % view_name).first()
+                    if res[0] is False:
+                        session.execute("CREATE MATERIALIZED VIEW %s AS SELECT word FROM ts_stat('SELECT so_index.search_vector FROM so_index');" % view_name)
+                        session.execute("CREATE INDEX words_idx ON %s USING gin(word gin_trgm_ops);" % view_name)
+                    self.fuzzy = True
+                except Exception as e:
+                    self.log.error("Error creating view for unique word index: %s" % str(e))
+                    session.rollback()
 
-            # If there is already a collection, check if there is a newer schema available
-            schema = self.factory.getXMLObjectSchema(True)
-            if self.isSchemaUpdated(schema):
-                if self.env.config.getboolean("backend.index", default=True) is False:
-                    self.log.error("object definitions changed and the index needs to be re-created. Please enable the index in your config file!")
-                else:
-                    session.query(Schema).delete()
-                    session.query(KeyValueIndex).delete()
-                    session.query(ExtensionIndex).delete()
-                    session.query(SearchObjectIndex).delete()
-                    session.query(ObjectInfoIndex).delete()
-                    session.query(RegisteredBackend).delete()
-                    self.log.info('object definitions changed, dropped old object index')
+                # If there is already a collection, check if there is a newer schema available
+                schema = self.factory.getXMLObjectSchema(True)
+                if self.isSchemaUpdated(schema):
+                    if self.env.config.getboolean("backend.index", default=True) is False:
+                        self.log.error("object definitions changed and the index needs to be re-created. Please enable the index in your config file!")
+                    else:
+                        session.query(Schema).delete()
+                        session.query(KeyValueIndex).delete()
+                        session.query(ExtensionIndex).delete()
+                        session.query(SearchObjectIndex).delete()
+                        session.query(ObjectInfoIndex).delete()
+                        session.query(RegisteredBackend).delete()
+                        self.log.info('object definitions changed, dropped old object index')
 
-            # Create the initial schema information if required
-            if not session.query(Schema).one_or_none():
-                self.log.info('created schema')
-                md5s = hashlib.md5()
-                md5s.update(schema)
-                md5sum = md5s.hexdigest()
+                # Create the initial schema information if required
+                if not session.query(Schema).one_or_none():
+                    self.log.info('created schema')
+                    md5s = hashlib.md5()
+                    md5s.update(schema)
+                    md5sum = md5s.hexdigest()
 
-                schema = Schema(hash=md5sum)
-                session.add(schema)
-                session.commit()
+                    schema = Schema(hash=md5sum)
+                    session.add(schema)
+                    session.commit()
 
         # Extract search aid
         attrs = {}
