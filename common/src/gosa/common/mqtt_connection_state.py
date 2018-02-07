@@ -49,9 +49,15 @@ class MQTTConnectionHandler(MQTTHandler):
         else:
             self.client_id = self.env.uuid
 
-        self.hello = self.e.Event(self.e.BusClientState(
+        self.init = self.e.Event(self.e.BusClientState(
             self.e.Id(self.client_id),
-            self.e.State('enter'),
+            self.e.State('init'),
+            self.e.Type(self.client_type)
+        ))
+
+        self.ready = self.e.Event(self.e.BusClientState(
+            self.e.Id(self.client_id),
+            self.e.State('ready'),
             self.e.Type(self.client_type)
         ))
 
@@ -64,12 +70,20 @@ class MQTTConnectionHandler(MQTTHandler):
     def serve(self):
         # set last will
         self.will_set(self.topic, self.goodbye, qos=1)
-        self.wait_for_connection(self.say_hello)
 
-    def say_hello(self):
-        # proxies and backend must announce themselves
-        self.log.info("MQTTConnectionHandler sending hello")
-        self.send_event(self.hello, self.topic, qos=1)
+        if self.client_type == "backend":
+            zope.event.subscribers.append(self.__handle_events)
+            self.wait_for_connection(self.send_init)
+        else:
+            self.wait_for_connection(self.send_ready)
+
+    def send_init(self):
+        self.log.info("MQTTConnectionHandler '%s' sending hello (init)" % self.client_type)
+        self.send_event(self.init, self.topic, qos=1)
+
+    def send_ready(self):
+        self.log.info("MQTTConnectionHandler '%s' sending hello (ready)" % self.client_type)
+        self.send_event(self.ready, self.topic, qos=1)
 
     def stop(self):
         self.log.info("MQTTConnectionHandler sending goodbye")
@@ -94,7 +108,7 @@ class MQTTConnectionHandler(MQTTHandler):
 
                     zope.event.notify(BusClientAvailability(client_id, client_state, client_type))
 
-                    if client_state == "enter":
+                    if client_state in ["init", "ready"]:
                         if client_type not in self.__active_connections:
                             self.__active_connections[client_type] = []
                         self.__active_connections[client_type].append(client_id)
@@ -107,6 +121,13 @@ class MQTTConnectionHandler(MQTTHandler):
 
             except etree.XMLSyntaxError as e:
                 self.log.error("Message parsing error: %s" % e)
+
+    def __handle_events(self, event):
+        """
+        React on object modifications, send ready after index scan is finished
+        """
+        if event.__class__.__name__ == "IndexScanFinished":
+            self.send_ready()
 
 
 class IBusClientAvailability(Interface):  # pragma: nocover

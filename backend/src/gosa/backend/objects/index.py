@@ -962,7 +962,7 @@ class ObjectIndex(Plugin):
                     self.log.debug("unregistering proxy: %s" % event.client_id)
                     backend_registry.unregisterBackend(event.client_id)
             elif event.type == "backend":
-                if event.state == "enter":
+                if event.state == "ready":
                     self.log.debug("new backend announced: %s" % event.client_id)
                     if self.env.mode == "proxy":
                         # register ourselves to this backend

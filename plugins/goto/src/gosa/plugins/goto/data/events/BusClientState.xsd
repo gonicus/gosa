@@ -24,8 +24,26 @@
       <element name="State">
         <simpleType>
           <restriction base="string">
-            <enumeration value="enter" />
-            <enumeration value="leave" />
+            <enumeration value="leave">
+              <annotation>
+                <documentation xml:lang="en">
+                  Send when the bus client is gone
+                </documentation>
+              </annotation>
+            </enumeration>
+            <enumeration value="init">
+              <annotation>
+                <documentation xml:lang="en">
+                  Send when the bus client has been started but not yet available
+                </documentation>
+              </annotation>
+            </enumeration>
+            <enumeration value="ready">
+                <annotation>
+                  <documentation xml:lang="en">
+                    Send when the bus client is done initializing and ready to handle messages from other clients
+                  </documentation>
+                </annotation>
           </restriction>
         </simpleType>
       </element>
