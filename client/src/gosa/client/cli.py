@@ -165,14 +165,23 @@ def get_destination_indicator(options):
 
 
 def handle_error(proxy, e):
-    message = e.error['message']
-    error_id = GosaErrorHandler.get_error_id(message)
-    if error_id is not None:
-        # get translated error message
-        res = proxy.getError(error_id, locale.getlocale()[0].split("_")[0])
-        message = res['text']
-
-    print(bcolors.FAIL + 'Error: %s' % message)
+    # Check for error member
+    try:
+        err = e.error["error"]
+    except Exception:
+        err = str(e)
+    # Resolve error details if supplied
+    error_id = GosaErrorHandler.get_error_id(err)
+    if error_id:
+        locs = locale.getdefaultlocale()
+        info = proxy.getError(error_id, ".".join(locs if locs != (None, None) else ("en_US", "UTF-8")))
+        detail = ""
+        if info['details']:
+            detail = " - %s [%s]" % (info['details'][0]['detail'], info['details'][0]['index'])
+        if info['topic']:
+            print(bcolors.FAIL + info['text'] + detail + ": " + info['topic'])
+        else:
+            print(bcolors.FAIL + info['text'] + detail)
 
 
 def main():

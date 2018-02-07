@@ -40,16 +40,16 @@ from base64 import b64encode as encode
 
 # Register the errors handled  by us
 C.register_codes(dict(
-    DEVICE_EXISTS=N_("Device with hardware address '%(topic)s' already exists"),
-    USER_NOT_UNIQUE=N_("User '%(topic)s' is not unique"),
-    CLIENT_NOT_FOUND=N_("Client '%(topic)s' not found"),
-    CLIENT_OFFLINE=N_("Client '%(topic)s' is offline"),
-    CLIENT_METHOD_NOT_FOUND=N_("Client '%(topic)s' has no method %(method)s"),
-    CLIENT_DATA_INVALID=N_("Invalid data '%(entry)s:%(data)s' for client '%(topic)s provided'"),
-    CLIENT_TYPE_INVALID=N_("Device type '%(type)s' for client '%(topic)s' is invalid [terminal, workstation, server, sipphone, switch, router, printer, scanner]"),
-    CLIENT_OWNER_NOT_FOUND=N_("Owner '%(owner)s' for client '%(topic)s' not found"),
-    CLIENT_UUID_INVALID=N_("Invalid client UUID '%(topic)s'"),
-    CLIENT_STATUS_INVALID=N_("Invalid status '%(status)s' for client '%(topic)s'")))
+    DEVICE_EXISTS=N_("Device with hardware address '%(mac)s' already exists"),
+    USER_NOT_UNIQUE=N_("User '%(user)s' is not unique"),
+    CLIENT_NOT_FOUND=N_("Client '%(client)s' not found"),
+    CLIENT_OFFLINE=N_("Client '%(client)s' is offline"),
+    CLIENT_METHOD_NOT_FOUND=N_("Client '%(client)s' has no method %(method)s"),
+    CLIENT_DATA_INVALID=N_("Invalid data '%(entry)s:%(data)s' for client '%(client)s provided'"),
+    CLIENT_TYPE_INVALID=N_("Device type '%(type)s' for client '%(client)s' is invalid [terminal, workstation, server, sipphone, switch, router, printer, scanner]"),
+    CLIENT_OWNER_NOT_FOUND=N_("Owner '%(owner)s' for client '%(client)s' not found"),
+    CLIENT_UUID_INVALID=N_("Invalid client UUID '%(uuid)s'"),
+    CLIENT_STATUS_INVALID=N_("Invalid status '%(status)s' for client '%(client)s'")))
 
 
 class GOtoException(Exception):
@@ -308,7 +308,7 @@ class ClientService(Plugin):
         index = PluginRegistry.getInstance('ObjectIndex')
         res = index.search({'_type': 'User', 'uid': uid}, {'dn': 1})
         if len(res) == 0:
-            raise ValueError(C.make_error("USER_NOT_FOUND", topic=uid, status_code=404))
+            raise ValueError(C.make_error("USER_NOT_FOUND", user=uid, status_code=404))
 
         user = ObjectProxy(res[0]['dn'])
 
@@ -416,7 +416,7 @@ class ClientService(Plugin):
         res = index.search({'_type': 'Device', 'deviceUUID': device_uuid},
                            {'dn': 1})
         if len(res) != 1:
-            raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid, status_code=404))
+            raise ValueError(C.make_error("CLIENT_NOT_FOUND", client=device_uuid, status_code=404))
         return ObjectProxy(res[0]['dn'])
 
     @Command(__help__=N_("Set system status"), type="READONLY")
@@ -446,7 +446,7 @@ class ClientService(Plugin):
         r = re.compile(r"([+-].)")
         for stat in r.findall(status):
             if stat[1] not in mapping:
-                raise ValueError(C.make_error("CLIENT_STATUS_INVALID", device_uuid, status=stat[1]))
+                raise ValueError(C.make_error("CLIENT_STATUS_INVALID", uuid=device_uuid, status=stat[1]))
             setattr(device, mapping[stat[1]], stat.startswith("+"))
         device.commit()
 
@@ -460,7 +460,7 @@ class ClientService(Plugin):
 
         uuid_check = re.compile(r"^[0-9a-f]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$", re.IGNORECASE)
         if not uuid_check.match(device_uuid):
-            raise ValueError(C.make_error("CLIENT_UUID_INVALID", device_uuid))
+            raise ValueError(C.make_error("CLIENT_UUID_INVALID", client=device_uuid))
 
         # Handle info, if present
         more_info = []
@@ -470,7 +470,7 @@ class ClientService(Plugin):
             for entry in filter(lambda x: x in info, ["serialNumber", "ou", "o", "l", "description"]):
 
                 if not re.match(r"^[\w\s]+$", info[entry]):
-                    raise ValueError(C.make_error("CLIENT_DATA_INVALID", device_uuid, entry=entry, data=info[entry]))
+                    raise ValueError(C.make_error("CLIENT_DATA_INVALID", client=device_uuid, entry=entry, data=info[entry]))
 
                 more_info.append((entry, info[entry]))
 
@@ -480,14 +480,14 @@ class ClientService(Plugin):
 
                     more_info.append(("deviceType", info["deviceType"]))
                 else:
-                    raise ValueError(C.make_error("CLIENT_TYPE_INVALID", device_uuid, type=info["deviceType"]))
+                    raise ValueError(C.make_error("CLIENT_TYPE_INVALID", client=device_uuid, type=info["deviceType"]))
 
             # Check owner for presence
             if "owner" in info:
                 # Take a look at the directory to see if there's  such an owner DN
                 res = index.search({'_dn': info["owner"]}, {'_dn': 1})
                 if len(res) == 0:
-                    raise ValueError(C.make_error("CLIENT_OWNER_NOT_FOUND", device_uuid, owner=info["owner"]))
+                    raise ValueError(C.make_error("CLIENT_OWNER_NOT_FOUND", client=device_uuid, owner=info["owner"]))
                 more_info.append(("owner", info["owner"]))
 
         # Generate random client key

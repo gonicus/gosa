@@ -351,6 +351,7 @@ class JsonRpcHandler(HSTSRequestHandler):
                 message=str(exc_value),
                 error=err)
 
+            self.set_status(status_code, reason=error_value['message'])
             self.log.error("returning call [%s]: %s / %s" % (jid, None, f_print(err)))
             self.log.error(text)
 

@@ -2770,8 +2770,8 @@ msgstr ""
 
 #: src/gosa/backend/plugins/cups/main.py:41
 #, python-format
-msgid "User '%(topic)s' not found"
-msgstr "Benutzer '%(topic)s' nicht gefunden"
+msgid "User '%(user)s' not found"
+msgstr "Benutzer '%(user)s' nicht gefunden"
 
 #: src/gosa/backend/plugins/cups/main.py:42
 msgid ""
