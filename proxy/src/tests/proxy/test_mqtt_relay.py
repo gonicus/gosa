@@ -18,9 +18,10 @@ class MQTTRelayServiceTestCase(TestCase):
         self.env = Environment.getInstance()
         self.env.core_uuid = str(uuid.uuid4())
         self.service = MQTTRelayService()
-        self.service.serve()
         PluginRegistry.modules["ACLResolver"] = mock.MagicMock()
         PluginRegistry.modules["ObjectIndex"] = mock.MagicMock()
+        PluginRegistry.modules["CommandRegistry"] = mock.MagicMock()
+        self.service.serve()
 
     def tearDown(self):
         self.service.stop()
