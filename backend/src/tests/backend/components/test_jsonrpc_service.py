@@ -201,5 +201,5 @@ class JsonRpcHandlerTestCase(RemoteTestCase):
                               )
         assert response.code == 500
         json = loads(response.body)
-        assert json['error']['code'] == 100
+        assert json['error']['code'] == 500
         assert json['error']['name'] == "JSONRPCError"
