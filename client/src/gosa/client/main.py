@@ -39,6 +39,16 @@ def shutdown(a=None, b=None):
 
     # Function to shut down the client. Do some clean up and close sockets.
 
+    # Function to shut down the client. Do some clean up and close sockets.
+    mqtt = PluginRegistry.getInstance("MQTTClientHandler")
+
+    # Tell others that we're away now
+    e = EventMaker()
+    goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
+    if mqtt:
+        log.info("sending ClientLeave")
+        mqtt.send_event(goodbye, qos=1)
+
     # Shutdown plugins
     PluginRegistry.shutdown()
 
