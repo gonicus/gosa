@@ -44,6 +44,7 @@
                     Send when the bus client is done initializing and ready to handle messages from other clients
                   </documentation>
                 </annotation>
+            </enumeration>
           </restriction>
         </simpleType>
       </element>
