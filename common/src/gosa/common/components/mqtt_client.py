@@ -193,6 +193,7 @@ class MQTTClient(object):
                 self.subscriptions[topic]['mid'] = mid
                 self.subscriptions[topic]['subscription_result'] = res
         else:
+            self.connected = False
             msg = mqtt.error_string(rc)
             self.log.error("%s: MQTT connection error: %s" % (self.get_identifier(), msg))
             self.__reconnect()
