@@ -446,7 +446,7 @@ class ClientService(Plugin):
         r = re.compile(r"([+-].)")
         for stat in r.findall(status):
             if stat[1] not in mapping:
-                raise ValueError(C.make_error("CLIENT_STATUS_INVALID", uuid=device_uuid, status=stat[1]))
+                raise ValueError(C.make_error("CLIENT_STATUS_INVALID", client=device_uuid, status=stat[1]))
             setattr(device, mapping[stat[1]], stat.startswith("+"))
         device.commit()
 
@@ -460,7 +460,7 @@ class ClientService(Plugin):
 
         uuid_check = re.compile(r"^[0-9a-f]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$", re.IGNORECASE)
         if not uuid_check.match(device_uuid):
-            raise ValueError(C.make_error("CLIENT_UUID_INVALID", client=device_uuid))
+            raise ValueError(C.make_error("CLIENT_UUID_INVALID", uuid=device_uuid))
 
         # Handle info, if present
         more_info = []
@@ -527,7 +527,7 @@ class ClientService(Plugin):
                                {'dn': 1})
 
             if len(res) != 1:
-                raise GOtoException(C.make_error("USER_NOT_UNIQUE" if res else "UNKNOWN_USER", target=user))
+                raise GOtoException(C.make_error("USER_NOT_UNIQUE" if res else "UNKNOWN_USER", user=user))
             manager = res[0]['dn']
 
             # Create new machine entry
