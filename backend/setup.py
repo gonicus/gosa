@@ -68,7 +68,7 @@ elif sys.argv[1] == "test":
     Environment.noargs = True
     env = Environment.getInstance()
 
-    gosa_dir = os.path.join('tmp', 'gosa')
+    gosa_dir = os.path.join(os.path.sep, 'tmp', 'gosa')
     if not os.path.exists(gosa_dir):
         os.makedirs(gosa_dir)
 
