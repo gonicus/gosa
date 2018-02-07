@@ -101,7 +101,8 @@ class MQTTClient(object):
         self.subscriptions = {}
 
     def __on_log(self, client, userdata, level, buf):
-        self.log.debug("%s: MQTT-log message: %s" % (self.get_identifier(), buf))
+        if "PING" not in buf:
+            self.log.debug("%s: MQTT-log message: %s" % (self.get_identifier(), buf))
 
     def authenticate(self, uuid, secret=None):
         """ Send credentials to the MQTT broker.
