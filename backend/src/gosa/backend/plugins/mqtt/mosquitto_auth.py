@@ -56,13 +56,15 @@ class MosquittoAuthHandler(BaseMosquittoClass):
             self.send_result(True)
         else:
             password = self.get_argument('password')
+            client_id = self.get_argument('clientid')
 
             # backend self authentification mode
             is_backend = self.backend_registry.check_auth(username, password)
             backend_type = self.backend_registry.get_type(username)
             is_allowed = is_backend or check_auth(username, password)
-            self.log.debug("MQTT AUTH request from '%s' ['%s'] => %s" %
-                           (username, backend_type if backend_type is not None else "client", "GRANTED" if is_allowed else "DENIED"))
+            self.log.debug("MQTT AUTH request for user '%s' ['%s'] from '%s'=> %s" %
+                           (username, backend_type if backend_type is not None else "client", client_id,
+                            "GRANTED" if is_allowed else "DENIED"))
             self.send_result(is_allowed)
 
 
@@ -82,6 +84,7 @@ class MosquittoAclHandler(BaseMosquittoClass):
         """
         uuid = self.get_argument('username', '')
         topic = self.get_argument('topic')
+        client_id = self.get_argument('clientid')
         # 1 == SUB, 2 == PUB
         acc = self.get_argument('acc')
 
@@ -160,7 +163,7 @@ class MosquittoAclHandler(BaseMosquittoClass):
 
         self.log.debug("MQTT ACL request: '%s'|->%s from '%s' ['%s'] => %s" %
                        (topic, "PUB" if acc == "2" else "SUB" if acc == "1" else "BOTH" if acc == "0" else "UNKOWN",
-                        uuid, backend_type if backend_type is not None else "client", "GRANTED" if is_allowed else "DENIED"))
+                        client_id, backend_type if backend_type is not None else "client", "GRANTED" if is_allowed else "DENIED"))
         self.send_result(is_allowed)
 
 
