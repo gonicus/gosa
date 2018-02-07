@@ -24,7 +24,11 @@ from gosa.common.handler import IInterfaceHandler
 class MQTTConnectionHandler(MQTTHandler):
     """
     Handle MQTT connection states of the participants (backend, proxies, clients).
-    hello and goodbye events are send to the default mqtt broker:
+    Clients can announce themselved in a 2-staged manner. First sending 'init' state
+    and when they are able to handle requests from other clients they tell them by
+    sending the 'ready' state.
+
+    If a clients shuts down, it send the 'leave' state.
 
     backend <-> default backend broker <-> proxy <-> default proxy broker <-> clients
 
