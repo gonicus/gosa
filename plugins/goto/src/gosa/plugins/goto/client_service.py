@@ -584,12 +584,14 @@ class ClientService(Plugin):
 
             self.__user_session[id] = users
 
-            for user in users:
-                self.preUserSession(id, user, skip_config=True)
+            # proxied user events need no configuration as the proxy sends an extra RPC for that
+            if not hasattr(data, "Proxied") or data.Proxied is False:
+                for user in users:
+                    self.preUserSession(id, user, skip_config=True)
 
-            if len(new_users):
-                self.log.debug("configuring new users: %s" % new_users)
-                self.configureUsers(id, new_users)
+                if len(new_users):
+                    self.log.debug("configuring new users: %s" % new_users)
+                    self.configureUsers(id, new_users)
 
         else:
             self.__user_session[id] = []

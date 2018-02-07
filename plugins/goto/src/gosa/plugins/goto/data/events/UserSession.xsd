@@ -16,6 +16,7 @@
     <all>
       <element name="Id" type="string"/>
       <element name="User" type="e:User" minOccurs="0" maxOccurs="1"/>
+      <element name="Proxied" type="boolean" minOccurs="0"/>
     </all>
   </complexType>
 

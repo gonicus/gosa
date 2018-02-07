@@ -114,10 +114,11 @@ class MQTTRelayService(object):
             try:
                 xml = objectify.fromstring(message)
                 if hasattr(xml, "UserSession"):
-                    # these events do not need to be forwarded as they are handled locally by a PROXY command
-                    # that means the reading part is done locally and the writing part is done by an RPC to the backend
-                    self.log.debug("NOT forwarding UserSession-Event in topic '%s' to backend MQTT broker" % topic)
-                    return
+                    # these events need to be handled differently when they are relayed by a proxy, so we flag them
+                    self.log.debug("Flagging UserSession-Event in topic '%s' as Proxied" % topic)
+                    elem = objectify.SubElement(xml, "Proxied")
+                    elem.text = True
+                    message = etree.tostring(xml)
 
             except etree.XMLSyntaxError as e:
                 self.log.error("Message parsing error: %s" % e)
