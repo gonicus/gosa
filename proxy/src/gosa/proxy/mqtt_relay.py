@@ -116,8 +116,8 @@ class MQTTRelayService(object):
                 if hasattr(xml, "UserSession"):
                     # these events need to be handled differently when they are relayed by a proxy, so we flag them
                     self.log.debug("Flagging UserSession-Event in topic '%s' as Proxied" % topic)
-                    elem = objectify.SubElement(xml, "Proxied")
-                    elem.text = True
+                    elem = objectify.SubElement(xml.UserSession, "Proxied")
+                    elem._setText("true")
                     message = etree.tostring(xml)
 
             except etree.XMLSyntaxError as e:
