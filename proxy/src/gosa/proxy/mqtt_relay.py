@@ -118,7 +118,7 @@ class MQTTRelayService(object):
                     self.log.debug("Flagging UserSession-Event in topic '%s' as Proxied" % topic)
                     elem = objectify.SubElement(xml.UserSession, "Proxied")
                     elem._setText("true")
-                    message = etree.tostring(xml)
+                    message = etree.tostring(xml, pretty_print=True).decode('utf-8')
 
             except etree.XMLSyntaxError as e:
                 self.log.error("Message parsing error: %s" % e)
