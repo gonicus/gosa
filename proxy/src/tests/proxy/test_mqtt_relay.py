@@ -1,6 +1,6 @@
 import uuid
 
-from lxml import etree
+from lxml import etree, objectify
 from unittest import TestCase, mock
 
 from gosa.proxy.mqtt_relay import MQTTRelayService
@@ -63,3 +63,23 @@ class MQTTRelayServiceTestCase(TestCase):
             topic = "%s/client/client_id/request_id/response" % self.env.domain
             self.service._handle_proxy_message(topic, payload)
             mbs.assert_called_with(payload, topic, qos=1)
+
+    def test_handle_user_session(self):
+        e = EventMaker()
+        client_id = str(uuid.uuid4())
+        event = e.Event(e.UserSession(
+            e.Id(client_id),
+            e.User('testuser')
+        ))
+        payload = etree.tostring(event, pretty_print=True).decode('utf-8')
+        topic = "%s/client/" % self.env.domain
+        with mock.patch.object(self.service.backend_mqtt, "send_message") as mbs:
+            self.service._handle_proxy_message(topic, payload)
+            args, kwargs = mbs.call_args
+            xml = objectify.fromstring(args[0])
+
+            assert hasattr(xml, "UserSession")
+            assert hasattr(xml.UserSession, "Proxied")
+            assert xml.UserSession.Proxied.text == "true"
+
+
