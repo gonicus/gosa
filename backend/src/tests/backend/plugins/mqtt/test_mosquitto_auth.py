@@ -38,30 +38,30 @@ class MosquittoAuthTestCase(AsyncHTTPTestCase):
 
     def test_auth(self):
         # normal user
-        params = urlencode({'username': 'admin', 'password': 'tester'})
+        params = urlencode({'username': 'admin', 'password': 'tester', 'clientid': 'testclient'})
         response = self.fetch('/mqtt/auth', method="POST", body=params)
         assert response.code == 200
 
         # unknown user
-        params = urlencode({'username': 'unknown', 'password': 'tester'})
+        params = urlencode({'username': 'unknown', 'password': 'tester', 'clientid': 'testclient'})
         response = self.fetch('/mqtt/auth', method="POST", body=params)
         assert response.code == 403
 
         # backend
-        params = urlencode({'username': self.env.core_uuid, 'password': self.env.core_key})
+        params = urlencode({'username': self.env.core_uuid, 'password': self.env.core_key, 'clientid': 'testclient'})
         response = self.fetch('/mqtt/auth', method="POST", body=params)
         assert response.code == 200
 
         # client without backend credentials set
         del self.env.core_key
         del self.env.core_uuid
-        params = urlencode({'username': 'admin', 'password': 'tester'})
+        params = urlencode({'username': 'admin', 'password': 'tester', 'clientid': 'testclient'})
         response = self.fetch('/mqtt/auth', method="POST", body=params)
         assert response.code == 200
 
     def test_acl(self):
         # superuser is disabled
-        params = urlencode({'username': 'superadmin', 'topic': 'test/topic'})
+        params = urlencode({'username': 'superadmin', 'topic': 'test/topic', 'clientid': 'testclient'})
         response = self.fetch('/mqtt/superuser', method="POST", body=params)
         assert response.code == 403
 
@@ -69,66 +69,77 @@ class MosquittoAuthTestCase(AsyncHTTPTestCase):
             {
                 'topic': "%s/client/uuid" % self.env.domain,
                 'username': self.env.core_uuid,
+                'clientid': 'testclient',
                 'publish': True,
                 'subscribe': True
             },
             {
                 'topic': "%s/client/broadcast" % self.env.domain,
                 'username': self.env.core_uuid,
+                'clientid': 'testclient',
                 'publish': True,
                 'subscribe': True
             },
             {
                 'topic': "%s/client/uuid/request" % self.env.domain,
                 'username': self.env.core_uuid,
+                'clientid': 'testclient',
                 'publish': True,
                 'subscribe': False
             },
             {
                 'topic': "%s/client/uuid/response" % self.env.domain,
                 'username': self.env.core_uuid,
+                'clientid': 'testclient',
                 'publish': False,
                 'subscribe': True
             },
             {
                 'topic': "%s/events" % self.env.domain,
                 'username': self.env.core_uuid,
+                'clientid': 'testclient',
                 'publish': True,
                 'subscribe': True
             },
             {
                 'topic': "%s/unknown-topic" % self.env.domain,
                 'username': self.env.core_uuid,
+                'clientid': 'testclient',
                 'publish': False,
                 'subscribe': False
             },
             {
                 'topic': "%s/client/uuid" % self.env.domain,
                 'username': 'uuid',
+                'clientid': 'testclient',
                 'publish': True,
                 'subscribe': True
             },
             {
                 'topic': "%s/client/other_uuid" % self.env.domain,
                 'username': 'uuid',
+                'clientid': 'testclient',
                 'publish': False,
                 'subscribe': False
             },
             {
                 'topic': "%s/client/uuid/response" % self.env.domain,
                 'username': 'uuid',
+                'clientid': 'testclient',
                 'publish': True,
                 'subscribe': False
             },
             {
                 'topic': "%s/client/uuid/request" % self.env.domain,
                 'username': 'uuid',
+                'clientid': 'testclient',
                 'publish': False,
                 'subscribe': True
             },
             {
                 'topic': "%s/client/broadcast" % self.env.domain,
                 'username': 'uuid',
+                'clientid': 'testclient',
                 'publish': False,
                 'subscribe': True
             }
@@ -136,7 +147,7 @@ class MosquittoAuthTestCase(AsyncHTTPTestCase):
 
         for test in test_matrix:
             for acc in ['publish', 'subscribe']:
-                params = urlencode({'username': test['username'], 'topic': test['topic'], 'acc': 2 if acc == "publish" else 1})
+                params = urlencode({'username': test['username'], 'topic': test['topic'], 'clientid': test['clientid'], 'acc': 2 if acc == "publish" else 1})
                 response = self.fetch('/mqtt/acl', method="POST", body=params)
                 msg = "%s should %s to %s to topic %s" % (
                     "client" if test['username'] != self.env.core_uuid else "backend",
@@ -149,19 +160,19 @@ class MosquittoAuthTestCase(AsyncHTTPTestCase):
         # test event channel for client separately as we need to mock the acl check
         with mock.patch("gosa.backend.plugins.mqtt.mosquitto_auth.PluginRegistry.getInstance") as m_resolver:
             m_resolver.return_value.get_type.return_value = None
-            params = urlencode({'username': 'uuid', 'topic': "%s/events" % self.env.domain, 'acc': 2})
+            params = urlencode({'username': 'uuid', 'topic': "%s/events" % self.env.domain, 'clientid': test['clientid'], 'acc': 2})
             response = self.fetch('/mqtt/acl', method="POST", body=params)
             assert response.code == 403
 
-            params = urlencode({'username': 'uuid', 'topic': "%s/events" % self.env.domain, 'acc': 1})
+            params = urlencode({'username': 'uuid', 'topic': "%s/events" % self.env.domain, 'clientid': test['clientid'], 'acc': 1})
             response = self.fetch('/mqtt/acl', method="POST", body=params)
             assert response.code == 403
 
             m_resolver.return_value.get_type.return_value = BackendTypes.active_master
-            params = urlencode({'username': 'uuid', 'topic': "%s/events" % self.env.domain, 'acc': 2})
+            params = urlencode({'username': 'uuid', 'topic': "%s/events" % self.env.domain, 'clientid': test['clientid'], 'acc': 2})
             response = self.fetch('/mqtt/acl', method="POST", body=params)
             assert response.code == 200
 
-            params = urlencode({'username': 'uuid', 'topic': "%s/events" % self.env.domain, 'acc': 1})
+            params = urlencode({'username': 'uuid', 'topic': "%s/events" % self.env.domain, 'clientid': test['clientid'], 'acc': 1})
             response = self.fetch('/mqtt/acl', method="POST", body=params)
             assert response.code == 200
