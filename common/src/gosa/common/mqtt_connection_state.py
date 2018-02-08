@@ -15,8 +15,6 @@ import zope
 from lxml import objectify, etree
 
 from zope.interface import implementer, Interface
-
-from gosa.backend.components.httpd import get_server_url
 from gosa.common import Environment
 from gosa.common.event import EventMaker
 from gosa.common.components.mqtt_handler import MQTTHandler
@@ -47,6 +45,7 @@ class MQTTConnectionHandler(MQTTHandler):
     """
     _priority_ = 0
     __active_connections = {}
+    __hostname = None
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -65,7 +64,8 @@ class MQTTConnectionHandler(MQTTHandler):
         self.goodbye = self.__gen_state_event('leave')
 
     def __gen_state_event(self, state):
-        if not self.__hostname:
+        if not self.__hostname and self.client_type in ['proxy', 'backend']:
+            from gosa.backend.components.httpd import get_server_url
             url = urlparse(get_server_url())
             self.__hostname = url.hostname
 
@@ -82,7 +82,6 @@ class MQTTConnectionHandler(MQTTHandler):
                 self.e.State(state),
                 self.e.Type(self.client_type)
             ))
-
 
     def serve(self):
         # set last will
