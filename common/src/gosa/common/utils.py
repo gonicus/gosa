@@ -290,9 +290,9 @@ def find_api_service():
 
 
 def find_bus_service():
-    res = []
-    for host, port in _find_service(["bus"]):
-        res.append((host, port))
+    res = [('smitty.intranet.gonicus.de', 8883), ('gosa-slave.test.intranet.gonicus.de', 8883)]
+    # for host, port in _find_service(["bus"]):
+    #     res.append((host, port))
 
     return res
 

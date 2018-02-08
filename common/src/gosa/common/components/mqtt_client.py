@@ -10,11 +10,14 @@
 import logging
 import datetime
 import paho.mqtt.client as mqtt
+import zope
+
 from gosa.common.gjson import loads, dumps
 from tornado.queues import Queue, QueueEmpty
 from tornado import gen
 from gosa.common import Environment
-from gosa.common.components import JSONRPCException, PluginRegistry
+from gosa.common.components import JSONRPCException
+from gosa.common import BusClientAvailability
 from gosa.common.utils import find_bus_service
 
 client_counter = 0
@@ -57,6 +60,8 @@ class MQTTClient(object):
     __sender_id = None
     __connection_retries = 3
     __connection_retry_delay = 3
+    __connection_error_counter = 0
+    __switch_threshold = 15
     __retried = 0
     __connected = False
     __connection_listeners = []
@@ -102,6 +107,26 @@ class MQTTClient(object):
 
         self.subscriptions = {}
 
+        # Listen for object events
+        zope.event.subscribers.append(self.__handle_events)
+
+    def __handle_events(self, event):
+        if isinstance(event, BusClientAvailability):
+
+            if event.type in ["proxy", "backend"]:
+                if event.state == "leave":
+                    self.blacklist(event.hostname)
+                    # are we connected to the host?
+                    if self.host == event.hostname:
+                        self.switch_to_host()
+
+                elif event.state == "ready":
+                    self.whitelist(event.hostname)
+                    # connect to this host
+                    broker_host, broker_port = self.__get_best_broker()
+                    if broker_host is not None and broker_host != self.host:
+                        self.switch_to_host(host=broker_host, port=broker_port)
+
     def __on_log(self, client, userdata, level, buf):
         if "PING" not in buf:
             self.log.debug("%s: MQTT-log message: %s" % (self.get_identifier(), buf))
@@ -140,19 +165,10 @@ class MQTTClient(object):
                 self.blacklist(self.host, self.port)
 
             # find mqtt service from DNS records
-            record_found = False
-            records = find_bus_service()
-            for broker_host, broker_port in records:
-                if (broker_host not in self.__broker_blacklist
-                        or broker_port not in self.__broker_blacklist[broker_host]) \
-                        and (host is None or broker_host == host):
-                    self.log.debug("using first white-listed MQTT broker from DNS entries: %s:%s" % (broker_host, broker_port))
-                    host = broker_host
-                    port = broker_port
-                    record_found = True
-
-            if record_found is False:
-                self.log.error("No whitelisted DNS entries found for GOsa bus service: %s" % records)
+            broker_host, broker_port = self.__get_best_broker(host=host)
+            if broker_host is not None:
+                host = broker_host
+                port = broker_port
 
         if host != self.host:
             self.log.info("switching MQTT connection from '%s' to '%s'" % (self.host, host))
@@ -163,6 +179,19 @@ class MQTTClient(object):
                 self.port = port
 
             self.connect()
+
+    def __get_best_broker(self, host=None):
+        """ returns the not blacklisted MQTT broker with the highest weight """
+        records = find_bus_service()
+        for broker_host, broker_port in records:
+            if (broker_host not in self.__broker_blacklist
+                or broker_port not in self.__broker_blacklist[broker_host]) \
+                    and (host is None or broker_host == host):
+                self.log.debug("using first white-listed MQTT broker from DNS entries: %s:%s" % (broker_host, broker_port))
+                return broker_host, broker_port
+
+        self.log.error("No whitelisted DNS entries found for GOsa bus service: %s" % records)
+        return None, None
 
     def blacklist(self, host, port='*'):
         """
@@ -201,6 +230,9 @@ class MQTTClient(object):
         self.client.loop_stop()
         self.__sender_id = None
 
+        if self.__handle_events in zope.event.subscribers:
+            zope.event.subscribers.remove(self.__handle_events)
+
     @property
     def connected(self):
         return self.__connected
@@ -213,6 +245,7 @@ class MQTTClient(object):
             # remove this host from the blacklist
             if val is True:
                 self.whitelist(self.host, self.port)
+                self.__connection_error_counter = 0
 
             for listener in self.__connection_listeners:
                 listener(self.__connected)
@@ -285,18 +318,24 @@ class MQTTClient(object):
                 self.subscriptions[topic]['subscription_result'] = res
         else:
             self._set_connected(False)
+            self.__connection_error_counter += 1
+            if self.__connection_error_counter >= self.__switch_threshold:
+                self.switch_to_host(blacklist_current=True)
+                return
+
             msg = mqtt.error_string(rc)
             self.log.error("%s: MQTT connection error: %s" % (self.get_identifier(), msg))
             self.__reconnect()
 
-    @gen.coroutine
     def __reconnect(self):
         if self.__retried < self.__connection_retries:
-            yield gen.sleep(self.__connection_retry_delay)
             if self.connected is False:
                 self.__retried += 1
-                self.log.debug("%s: Reconnecting retry %s to %s" % (self.get_identifier(), self.__retried, self.host))
+                self.log.info("%s: Reconnecting retry %s to %s" % (self.get_identifier(), self.__retried, self.host))
                 self.reconnect()
+        else:
+            # blacklist this host
+            self.switch_to_host(blacklist_current=True)
 
     def __on_message(self, client, userdata, message):
         self.log.debug("%s: __on_message client='%s', userdata='%s', message='%s'" % (self.get_identifier(), client, userdata, message))

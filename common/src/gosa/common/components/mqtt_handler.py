@@ -106,21 +106,11 @@ class MQTTHandler(object):
     def init_subscriptions(self): # pragma: nocover
         pass
 
-    def set_subscription_callback(self, callback):
-        self.__client.set_subscription_callback(callback)
-
     def get_client(self):
         return self.__client
 
-    @property
-    def connected(self):
-        return self.__client.connected
-
-    def add_connection_listener(self, callback):
-        self.__client.add_connection_listener(callback)
-
-    def switch_to_host(self, host=None, port=None, blacklist_current=False):
-        self.__client.switch_to_host(host=host, port=port, blacklist_current=blacklist_current)
+    def __getattr__(self, name):
+        return getattr(self.__client, name)
 
     @gen.coroutine
     def wait_for_connection(self, callback):

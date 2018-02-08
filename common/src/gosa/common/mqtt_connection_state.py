@@ -14,8 +14,8 @@ from urllib.parse import urlparse
 import zope
 from lxml import objectify, etree
 
-from zope.interface import implementer, Interface
-from gosa.common import Environment
+from zope.interface import implementer
+from gosa.common import Environment, BusClientAvailability
 from gosa.common.event import EventMaker
 from gosa.common.components.mqtt_handler import MQTTHandler
 from gosa.common.handler import IInterfaceHandler
@@ -109,8 +109,7 @@ class MQTTConnectionHandler(MQTTHandler):
     def init_subscriptions(self):
         """ add client subscriptions """
         self.log.info("MQTTConnectionHandler subscribing to '%s' on '%s'" % (self.topic, self.host))
-        self.get_client().add_subscription(self.topic, qos=1)
-        self.get_client().set_subscription_callback(self._handle_message)
+        self.get_client().add_subscription(self.topic, qos=1, callback=self._handle_message)
 
     def _handle_message(self, topic, message):
         if message[0:1] != "{":
@@ -145,19 +144,3 @@ class MQTTConnectionHandler(MQTTHandler):
         """
         if event.__class__.__name__ == "IndexScanFinished":
             self.send_ready()
-
-
-class IBusClientAvailability(Interface):  # pragma: nocover
-
-    def __init__(self, obj):
-        pass
-
-
-@implementer(IBusClientAvailability)
-class BusClientAvailability(object):
-
-    def __init__(self, client_id, state, type, hostname=None):
-        self.client_id = client_id
-        self.state = state
-        self.type = type
-        self.hostname = hostname
