@@ -349,7 +349,7 @@ class Foreman(Plugin):
             try:
                 # collect extensions etc.
                 if hasattr(object, key) and key in properties:
-                    if value is not None and len(value) > 0:
+                    if value is not None and (not type(value, str) or len(value) > 0):
                         update(key, value)
                         if key in mappings:
                             update(mappings[key], value)
