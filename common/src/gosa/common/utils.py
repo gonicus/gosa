@@ -104,14 +104,14 @@ def parseURL(url):
     ssl = 'tcp+ssl' if scheme[-1] == 's' else 'tcp'
 
     return {'source': source,
-        'scheme': scheme,
-        'user': user,
-        'password': password,
-        'host': host,
-        'port': int(port),
-        'path': path,
-        'transport': ssl,
-        'url': url}
+            'scheme': scheme,
+            'user': user,
+            'password': password,
+            'host': host,
+            'port': int(port),
+            'path': path,
+            'transport': ssl,
+            'url': url}
 
 
 def N_(message):
@@ -282,19 +282,19 @@ def xml2dict(node):
 
 
 def find_api_service():
-     res = []
-     for host, port in _find_service(["api"]):
-         res.append("https://" + host + ":" + str(port) + "/rpc")
+    res = []
+    for host, port in _find_service(["api"]):
+        res.append("https://" + host + ":" + str(port) + "/rpc")
 
-     return res
+    return res
 
 
 def find_bus_service():
-     res = []
-     for host, port in _find_service(["bus"]):
-         res.append((host, port))
+    res = []
+    for host, port in _find_service(["bus"]):
+        res.append((host, port))
 
-     return res
+    return res
 
 
 def _find_service(what):
