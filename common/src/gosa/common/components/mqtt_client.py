@@ -140,13 +140,19 @@ class MQTTClient(object):
                 self.blacklist(self.host, self.port)
 
             # find mqtt service from DNS records
-            for broker_host, broker_port in find_bus_service():
-                if (broker_host not in self.__broker_blacklist \
+            record_found = False
+            records = find_bus_service()
+            for broker_host, broker_port in records:
+                if (broker_host not in self.__broker_blacklist
                         or broker_port not in self.__broker_blacklist[broker_host]) \
                         and (host is None or broker_host == host):
                     self.log.debug("using first white-listed MQTT broker from DNS entries: %s:%s" % (broker_host, broker_port))
                     host = broker_host
                     port = broker_port
+                    record_found = True
+
+            if record_found is False:
+                self.log.error("No whitelisted DNS entries found for GOsa bus service: %s" % records)
 
         if host != self.host:
             self.log.info("switching MQTT connection from '%s' to '%s'" % (self.host, host))
