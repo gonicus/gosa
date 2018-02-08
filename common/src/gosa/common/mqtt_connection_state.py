@@ -9,11 +9,14 @@
 #  GPL-2: http://www.gnu.org/licenses/gpl-2.0.html
 #
 # See the LICENSE file in the project's top-level directory for details.
+from urllib.parse import urlparse
+
 import zope
 from lxml import objectify, etree
 
 from zope.interface import implementer, Interface
 
+from gosa.backend.components.httpd import get_server_url
 from gosa.common import Environment
 from gosa.common.event import EventMaker
 from gosa.common.components.mqtt_handler import MQTTHandler
@@ -57,23 +60,29 @@ class MQTTConnectionHandler(MQTTHandler):
         else:
             self.client_id = self.env.uuid
 
-        self.init = self.e.Event(self.e.BusClientState(
-            self.e.Id(self.client_id),
-            self.e.State('init'),
-            self.e.Type(self.client_type)
-        ))
+        self.init = self.__gen_state_event('init')
+        self.ready = self.__gen_state_event('ready')
+        self.goodbye = self.__gen_state_event('leave')
 
-        self.ready = self.e.Event(self.e.BusClientState(
-            self.e.Id(self.client_id),
-            self.e.State('ready'),
-            self.e.Type(self.client_type)
-        ))
+    def __gen_state_event(self, state):
+        if not self.__hostname:
+            url = urlparse(get_server_url())
+            self.__hostname = url.hostname
 
-        self.goodbye = self.e.Event(self.e.BusClientState(
-            self.e.Id(self.client_id),
-            self.e.State('leave'),
-            self.e.Type(self.client_type)
-        ))
+        if self.client_type in ['proxy', 'backend']:
+            return self.e.Event(self.e.BusClientState(
+                self.e.Id(self.client_id),
+                self.e.Hostname(self.__hostname),
+                self.e.State(state),
+                self.e.Type(self.client_type)
+            ))
+        else:
+            return self.e.Event(self.e.BusClientState(
+                self.e.Id(self.client_id),
+                self.e.State(state),
+                self.e.Type(self.client_type)
+            ))
+
 
     def serve(self):
         # set last will
@@ -113,8 +122,9 @@ class MQTTConnectionHandler(MQTTHandler):
                     client_id = xml.BusClientState.Id.text
                     client_type = xml.BusClientState.Type.text
                     client_state = xml.BusClientState.State.text
+                    hostname = xml.BusClientState.Hostname.text if hasattr(xml.BusClientState, 'Hostname') else None
 
-                    zope.event.notify(BusClientAvailability(client_id, client_state, client_type))
+                    zope.event.notify(BusClientAvailability(client_id, client_state, client_type, hostname))
 
                     if client_state in ["init", "ready"]:
                         if client_type not in self.__active_connections:
@@ -147,7 +157,8 @@ class IBusClientAvailability(Interface):  # pragma: nocover
 @implementer(IBusClientAvailability)
 class BusClientAvailability(object):
 
-    def __init__(self, client_id, state, type):
+    def __init__(self, client_id, state, type, hostname=None):
         self.client_id = client_id
         self.state = state
         self.type = type
+        self.hostname = hostname

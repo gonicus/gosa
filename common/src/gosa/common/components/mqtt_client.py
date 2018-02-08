@@ -15,6 +15,7 @@ from tornado.queues import Queue, QueueEmpty
 from tornado import gen
 from gosa.common import Environment
 from gosa.common.components import JSONRPCException, PluginRegistry
+from gosa.common.utils import find_bus_service
 
 client_counter = 0
 
@@ -57,13 +58,14 @@ class MQTTClient(object):
     __connection_retries = 3
     __connection_retry_delay = 3
     __retried = 0
+    __connected = False
+    __connection_listeners = []
+    __broker_blacklist = {}
 
     def __init__(self, host, port=1883, keepalive=60, use_ssl=None, ca_file=None, insecure=None, client_id_prefix=None):
         global client_counter
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
-
-        self.connected = False
 
         uuid = self.env.core_uuid if hasattr(self.env, "core_uuid") else self.env.uuid
         if client_id_prefix is not None:
@@ -122,6 +124,68 @@ class MQTTClient(object):
         self.client.loop_start()
         self.env.threads.append(self.client.get_thread())
 
+    def switch_to_host(self, host=None, port=None, blacklist_current=False):
+        """
+        Connect to another MQTT broker. If no host/port is specified the next
+        not blacklisted host from DNS is used
+
+        :param host: optional host name to use
+        :param port: optional port to use
+        :param ca_file: optional cafile path to use for the connection
+        :param blacklist_current: if True the current MQTT broker is blacklisted
+        :return:
+        """
+        if host is None or port is None:
+            if blacklist_current is True:
+                self.blacklist(self.host, self.port)
+
+            # find mqtt service from DNS records
+            for broker_host, broker_port in find_bus_service():
+                if (broker_host not in self.__broker_blacklist \
+                        or broker_port not in self.__broker_blacklist[broker_host]) \
+                        and (host is None or broker_host == host):
+                    self.log.debug("using first white-listed MQTT broker from DNS entries: %s:%s" % (broker_host, broker_port))
+                    host = broker_host
+                    port = broker_port
+
+        if host != self.host:
+            self.log.info("switching MQTT connection from '%s' to '%s'" % (self.host, host))
+            if self.connected is True:
+                self.disconnect()
+            self.host = host
+            if port is not None:
+                self.port = port
+
+            self.connect()
+
+    def blacklist(self, host, port='*'):
+        """
+        Add a host to the blacklist
+        :param host: hostname
+        :param port: port number or '*' for general blocking
+        """
+        if host not in self.__broker_blacklist:
+            self.__broker_blacklist[host] = []
+        if port not in self.__broker_blacklist[host]:
+            self.__broker_blacklist[host].append(port)
+
+    def whitelist(self, host, port='*'):
+        """
+        Remove a host from the blacklist
+        :param host: hostname
+        :param port: port number or '*' for general unblocking
+        """
+        if host in self.__broker_blacklist:
+            if port in self.__broker_blacklist[host]:
+                self.__broker_blacklist[host].remove(port)
+            if port == '*' or len(self.__broker_blacklist[host]) == 0 or \
+                    len(self.__broker_blacklist[host]) == 1 and self.__broker_blacklist[host][0] == '*':
+                del self.__broker_blacklist[host]
+
+    def is_blacklisted(self, host, port='*'):
+        """ Check if a host is blacklisted """
+        return host in self.__broker_blacklist and (port == '*' or port in self.__broker_blacklist[host] or '*' in self.__broker_blacklist[host])
+
     def reconnect(self):
         self.client.reconnect()
 
@@ -130,6 +194,26 @@ class MQTTClient(object):
         self.client.disconnect()
         self.client.loop_stop()
         self.__sender_id = None
+
+    @property
+    def connected(self):
+        return self.__connected
+
+    def _set_connected(self, val):
+        """ change the connection state and notify the listeners """
+        if self.__connected != val:
+            self.__connected = val
+
+            # remove this host from the blacklist
+            if val is True:
+                self.whitelist(self.host, self.port)
+
+            for listener in self.__connection_listeners:
+                listener(self.__connected)
+
+    def add_connection_listener(self, callback):
+        if callback not in self.__connection_listeners:
+            self.__connection_listeners.append(callback)
 
     def add_subscription(self, topic, callback=None, qos=0, sync=False):
         """ subscribe to a topic """
@@ -186,7 +270,7 @@ class MQTTClient(object):
         if rc == mqtt.CONNACK_ACCEPTED:
             # connection successful
             self.log.info("%s: MQTT successfully connected" % self.get_identifier())
-            self.connected = True
+            self._set_connected(True)
             self.__retried = 0
             for topic in self.subscriptions.keys():
                 (res, mid) = self.client.subscribe(topic)
@@ -194,7 +278,7 @@ class MQTTClient(object):
                 self.subscriptions[topic]['mid'] = mid
                 self.subscriptions[topic]['subscription_result'] = res
         else:
-            self.connected = False
+            self._set_connected(False)
             msg = mqtt.error_string(rc)
             self.log.error("%s: MQTT connection error: %s" % (self.get_identifier(), msg))
             self.__reconnect()

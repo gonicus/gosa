@@ -57,6 +57,7 @@ from gosa.common.components.registry import PluginRegistry
 from gosa.common.event import EventMaker
 from gosa.common import Environment
 from gosa.client.event import Resume
+from gosa.common.mqtt_connection_state import BusClientAvailability
 
 
 @implementer(IInterfaceHandler)
@@ -113,14 +114,36 @@ class MQTTClientService(object):
         sched = PluginRegistry.getInstance("SchedulerService").get_scheduler()
         sched.add_interval_job(self.__ping, seconds=timeout, start_date=datetime.datetime.now() + datetime.timedelta(seconds=1))
 
+        # Listen for object events
+        zope.event.subscribers.append(self.__handle_events)
+
     def stop(self):
         self.client.send_event(self.goodbye, qos=1)
         self.client.close()
+
+        if self.__handle_events in zope.event.subscribers:
+            zope.event.subscribers.remove(self.__handle_events)
 
     def __ping(self):
         e = EventMaker()
         info = e.Event(e.ClientPing(e.Id(self.env.uuid)))
         self.client.send_event(info)
+
+    def __handle_events(self, event):
+        if isinstance(event, BusClientAvailability):
+
+            if event.type in ["proxy", "backend"]:
+                if event.state == "leave":
+                    self.client.blacklist(event.hostname)
+                    # are we connected to the host?
+                    if self.client.host == event.hostname:
+                        self.client.switch_to_host()
+
+                elif event.state == "ready":
+                    self.client.whitelist(event.hostname)
+                    # connect to this host
+                    if self.client.connected is False:
+                        self.client.switch_to_host(host=event.hostname)
 
     def reAnnounce(self):
         """

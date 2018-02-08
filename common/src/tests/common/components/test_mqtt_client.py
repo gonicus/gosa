@@ -50,7 +50,7 @@ class MqttClientTestCase(AsyncTestCase):
         assert "test/topic" in self.mqtt.subscriptions
         assert not self.mqtt.client.subscribe.called
 
-        self.mqtt.connected = True
+        self.mqtt._set_connected(True)
         self.mqtt.client.subscribe.return_value = 0, 0
         self.mqtt.add_subscription("test/topic2")
         assert "test/topic2" in self.mqtt.subscriptions
@@ -59,6 +59,38 @@ class MqttClientTestCase(AsyncTestCase):
         self.mqtt.client.on_subscribe(None, None, 0, 1)
         assert self.mqtt.subscriptions['test/topic2']['subscribed'] is True
         assert self.mqtt.subscriptions['test/topic2']['granted_qos'] == 1
+
+    def test_switch_to_host(self):
+        self.mqtt._set_connected(True)
+        with mock.patch('gosa.common.components.mqtt_client.find_bus_service') as m, \
+                mock.patch.object(self.mqtt, 'disconnect') as m_dis, \
+                mock.patch.object(self.mqtt, 'connect') as m_con:
+            m.return_value = [('broker1', 1883), ('broker2', 1883), ('broker3', 1883)]
+            assert not self.mqtt.is_blacklisted('localhost', 1883)
+            self.mqtt.switch_to_host(blacklist_current=True)
+            assert m_dis.called
+            assert m_con.called
+            assert self.mqtt.is_blacklisted('localhost', 1883)
+            assert self.mqtt.host == 'broker1'
+
+            self.mqtt._set_connected(False)
+            m_dis.reset_mock()
+            m_con.reset_mock()
+
+            self.mqtt.switch_to_host(host='broker3')
+            assert self.mqtt.host == 'broker3'
+            assert not m_dis.called
+            assert m_con.called
+
+    def test_whitelist(self):
+        with mock.patch('gosa.common.components.mqtt_client.find_bus_service') as m:
+            m.return_value = [('broker1', 1883), ('broker2', 1883), ('broker3', 1883)]
+            self.mqtt.blacklist('broker2')
+            assert self.mqtt.is_blacklisted('broker2')
+            assert self.mqtt.is_blacklisted('broker2', 1883)
+            self.mqtt.whitelist('broker2')
+            assert not self.mqtt.is_blacklisted('broker2')
+            assert not self.mqtt.is_blacklisted('broker2', 1883)
 
     def test_set_subscription_callback(self):
         self.mqtt.add_subscription("test/topic")
@@ -81,7 +113,7 @@ class MqttClientTestCase(AsyncTestCase):
         assert "test/topic2" not in self.mqtt.subscriptions
         assert not self.mqtt.client.unsubscribe.called
 
-        self.mqtt.connected = True
+        self.mqtt._set_connected(True)
         self.mqtt.remove_subscription("test/topic")
         self.mqtt.client.unsubscribe.assert_called_with("test/topic")
 
@@ -115,7 +147,7 @@ class MqttClientTestCase(AsyncTestCase):
         assert 0 not in self.mqtt._MQTTClient__published_messages
 
     def test_on_unsubscribe(self):
-        self.mqtt.connected = True
+        self.mqtt._set_connected(True)
         self.mqtt.client.subscribe.return_value = 0, 0
         self.mqtt.add_subscription("test/topic")
         self.mqtt.client.on_unsubscribe(None, None, 0)
@@ -129,7 +161,7 @@ class MqttClientTestCase(AsyncTestCase):
         self.mqtt.client.subscribe.assert_called_with("test/topic")
 
         self.mqtt.client.reset_mock()
-        self.mqtt.connected = False
+        self.mqtt._set_connected(False)
         self.mqtt.client.on_connect(None, None, None, mqtt.CONNACK_REFUSED_NOT_AUTHORIZED)
         assert not self.mqtt.connected
         assert not self.mqtt.client.subscribe.called
@@ -176,7 +208,7 @@ class MqttClientTestCase(AsyncTestCase):
             payload = '{"sender_id": "backend", "content": "message content"}'
             topic = "test/topic/response"
 
-        self.mqtt.client.connected = True
+        self.mqtt._set_connected(True)
         self.mqtt.client.subscribe.return_value = 0, 0
         self.mqtt.client.publish.return_value = (mqtt.MQTT_ERR_SUCCESS, 0)
         m_message = MessageMock()

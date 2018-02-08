@@ -25,6 +25,7 @@ class MQTTHandler(object):
     _conn = None
     __capabilities = {}
     __peers = {}
+    __connection_listeners = []
     _eventProvider = None
     __client = None
     url = None
@@ -111,12 +112,19 @@ class MQTTHandler(object):
     def get_client(self):
         return self.__client
 
-    def is_connected(self):
+    @property
+    def connected(self):
         return self.__client.connected
+
+    def add_connection_listener(self, callback):
+        self.__client.add_connection_listener(callback)
+
+    def switch_to_host(self, host=None, port=None, blacklist_current=False):
+        self.__client.switch_to_host(host=host, port=port, blacklist_current=blacklist_current)
 
     @gen.coroutine
     def wait_for_connection(self, callback):
-        while self.is_connected() is False:
+        while self.connected is False:
             yield gen.sleep(0.1)
             self.log.debug("%s: waiting for connection..." % self.__client.get_identifier())
         self.log.debug("%s: connected" % self.__client.get_identifier())

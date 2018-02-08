@@ -21,6 +21,14 @@
     </annotation>
     <sequence>
       <element name="Id" type="string"/>
+      <element name="Hostname" type="string" minOccurs="0">
+        <annotation>
+          <documentation xml:lang="en">
+            FQDN of the emitting host, proxy and backend servers can send this value to tell the clients
+            which server is gone now
+          </documentation>
+        </annotation>
+      </element>
       <element name="State">
         <simpleType>
           <restriction base="string">

@@ -24,6 +24,18 @@ class MQTTClientHandler(MQTTHandler):
         ))
         self.will_set("%s/client/%s" % (self.domain, self.env.uuid), self.goodbye, qos=1)
 
+        self.add_connection_listener(self.__on_connection_change)
+
+    def __on_connection_change(self, connected):
+        """
+        handle state changes of the connection to the MQTT broker
+
+        :param connected: connection state
+        :type connected: boolean
+        """
+        if connected is False:
+            self.log.error("Disconnected from %s:%s" % (self.host, self.port))
+
     def send_message(self, data, topic=None, qos=0):
         """ Send message to mqtt. """
         if topic is None:
