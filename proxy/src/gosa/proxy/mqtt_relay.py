@@ -1,9 +1,11 @@
 import logging
+from urllib.parse import urlparse
 
 from lxml import objectify, etree
 
 from zope.interface import implementer
 
+from gosa.backend.components.httpd import get_server_url
 from gosa.common import Environment
 from gosa.common.components import PluginRegistry
 from gosa.common.components.mqtt_handler import MQTTHandler
@@ -47,8 +49,9 @@ class MQTTRelayService(object):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         e = EventMaker()
-        self.goodbye = e.Event(e.BusClientState(e.Id(self.env.core_uuid), e.Type("proxy"), e.State("leave")))
-        self.hello = e.Event(e.BusClientState(e.Id(self.env.core_uuid), e.Type("proxy"), e.State("ready")))
+        url = urlparse(get_server_url())
+        self.goodbye = e.Event(e.BusClientState(e.Id(self.env.core_uuid), e.Hostname(url.hostname), e.Type("proxy"), e.State("leave")))
+        self.hello = e.Event(e.BusClientState(e.Id(self.env.core_uuid), e.Hostname(url.hostname), e.Type("proxy"), e.State("ready")))
 
     def serve(self):
         self.backend_mqtt = MQTTHandler(
