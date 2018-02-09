@@ -120,13 +120,13 @@ class MQTTHandler(object):
         self.log.debug("%s: connected" % self.__client.get_identifier())
         callback()
 
-    def send_message(self, data, topic, qos=0):
+    def send_message(self, data, topic, qos=0, proxied=False):
         """ Send message via proxy to mqtt. """
-        return self.__client.publish(topic, data, qos=qos)
+        return self.__client.publish(topic, data, qos=qos, proxied=proxied)
 
-    def send_event(self, event, topic, qos=0):
+    def send_event(self, event, topic, qos=0, proxied=False):
         data = etree.tostring(event, pretty_print=True).decode('utf-8')
-        self.send_message(data, topic, qos=qos)
+        self.send_message(data, topic, qos=qos, proxied=proxied)
 
     def will_set(self, topic, event, qos=0, retain=False):
         """

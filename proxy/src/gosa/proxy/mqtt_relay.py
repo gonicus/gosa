@@ -105,7 +105,7 @@ class MQTTRelayService(object):
 
         if forward is True:
             self.log.debug("forwarding message in topic '%s' to proxy MQTT broker: %s" % (topic, message[0:80]))
-            self.proxy_mqtt.send_message(message, topic, qos=1)
+            self.proxy_mqtt.send_message(message, topic, qos=1, proxied=True)
 
     def _handle_proxy_message(self, topic, message):
         """ forwards proxy messages to backend MQTT """
@@ -124,7 +124,7 @@ class MQTTRelayService(object):
                 self.log.error("Message parsing error: %s" % e)
 
         self.log.debug("forwarding message in topic '%s' to backend MQTT broker: %s" % (topic, message[0:80]))
-        self.backend_mqtt.send_message(message, topic, qos=1)
+        self.backend_mqtt.send_message(message, topic, qos=1, proxied=True)
 
     def __handleClientPoll(self):
         """ register proxy-backend again """

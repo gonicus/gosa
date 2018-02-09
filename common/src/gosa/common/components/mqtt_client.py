@@ -338,7 +338,7 @@ class MQTTClient(object):
             self.switch_to_host(blacklist_current=True)
 
     def __on_message(self, client, userdata, message):
-        self.log.debug("%s: __on_message client='%s', userdata='%s', message='%s'" % (self.get_identifier(), client, userdata, message))
+        self.log.debug("%s: __on_message client='%s', userdata='%s', message='%s'" % (self.get_identifier(), client, userdata, message.payload))
         payload = loads(message.payload)
         if isinstance(payload, dict) and "content" in payload:
             content = payload["content"]
@@ -387,12 +387,15 @@ class MQTTClient(object):
             self.remove_subscription(listen_to_topic)
 
     @gen.coroutine
-    def publish(self, topic, message, qos=0, retain=False, retried=0):
+    def publish(self, topic, message, qos=0, retain=False, retried=0, proxied=False):
         """ Publish a message on the MQTT bus"""
         message = {
             "sender_id": self.__sender_id,
             "content": message
         }
+        if proxied is True:
+            message['proxied_by'] = self.__sender_id
+
         res, mid = self.client.publish(topic, payload=dumps(message), qos=qos, retain=retain)
 
         self.__published_messages[mid] = res
