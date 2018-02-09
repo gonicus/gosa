@@ -112,10 +112,7 @@ class MQTTConnectionHandler(MQTTHandler):
         self.get_client().add_subscription(self.topic, qos=1, callback=self._handle_message)
 
     def _handle_message(self, topic, message):
-        while isinstance(message, dict) and 'content' in message:
-            message = message['content']
 
-        print("Received message: %s " % message)
         if message[0:1] == "<":
             # event received
             try:

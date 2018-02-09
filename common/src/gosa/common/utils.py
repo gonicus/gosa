@@ -311,10 +311,18 @@ def _find_service(what):
         log.error("invalid DNS configuration: there is no domain configured for this client")
 
     res = []
+
+    # import locally, otherwise we have a cyclic dependency
+    from gosa.common import Environment
+    domain = Environment.getInstance().config.get('core.dns-resolve-domain')
+    if domain is None:
+        domain = ""
+    else:
+        domain = ".%s." % domain
     for part in what:
         try:
             log.debug("looking for DNS SRV records: _gosa-%s._tcp" % part)
-            for data in dns.resolver.query("_gosa-%s._tcp" % part, "SRV"):
+            for data in dns.resolver.query("_gosa-%s._tcp%s" % (part, domain), "SRV"):
                 res.append((data.priority, data.weight, str(data.target)[:-1], data.port))
 
         except dns.resolver.NXDOMAIN:
