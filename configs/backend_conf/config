@@ -6,6 +6,8 @@ id = backend
 idGenerator = "{%sn}-{%givenName[0-4]}"
 # master/slave mode
 mode = master
+# domain to use for resolving _gosa-*._tcp DNS SRV entries
+# dns-resolve-domain =
 
 [http]
 host = 0.0.0.0
