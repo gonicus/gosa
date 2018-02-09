@@ -48,7 +48,7 @@ class MQTTRelayService(object):
         self.log = logging.getLogger(__name__)
         e = EventMaker()
         self.goodbye = e.Event(e.BusClientState(e.Id(self.env.core_uuid), e.Type("proxy"), e.State("leave")))
-        self.hello = e.Event(e.BusClientState(e.Id(self.env.core_uuid), e.Type("proxy"), e.State("enter")))
+        self.hello = e.Event(e.BusClientState(e.Id(self.env.core_uuid), e.Type("proxy"), e.State("ready")))
 
     def serve(self):
         self.backend_mqtt = MQTTHandler(
