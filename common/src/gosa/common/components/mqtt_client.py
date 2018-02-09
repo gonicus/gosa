@@ -387,11 +387,11 @@ class MQTTClient(object):
             self.remove_subscription(listen_to_topic)
 
     @gen.coroutine
-    def publish(self, topic, message, qos=0, retain=False, retried=0, proxied=False):
+    def publish(self, topic, content, qos=0, retain=False, retried=0, proxied=False):
         """ Publish a message on the MQTT bus"""
         message = {
             "sender_id": self.__sender_id,
-            "content": message
+            "content": content
         }
         if proxied is True:
             message['proxied_by'] = self.__sender_id
@@ -405,7 +405,7 @@ class MQTTClient(object):
             if qos > 0 and retried < 3:
                 # try again
                 yield gen.sleep(0.1)
-                self.publish(topic, message, qos=qos, retain=retain, retried=retried+1)
+                self.publish(topic, content, qos=qos, retain=retain, retried=retried+1)
 
     def will_set(self, topic, message, qos=0, retain=False):
         """
