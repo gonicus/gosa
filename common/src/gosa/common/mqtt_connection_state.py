@@ -115,6 +115,7 @@ class MQTTConnectionHandler(MQTTHandler):
         while isinstance(message, dict) and 'content' in message:
             message = message['content']
 
+        print("Received message: %s " % message)
         if message[0:1] == "<":
             # event received
             try:
@@ -125,15 +126,21 @@ class MQTTConnectionHandler(MQTTHandler):
                     client_state = xml.BusClientState.State.text
                     hostname = xml.BusClientState.Hostname.text if hasattr(xml.BusClientState, 'Hostname') else None
 
-                    zope.event.notify(BusClientAvailability(client_id, client_state, client_type, hostname))
-
+                    state_changed = False
                     if client_state in ["init", "ready"]:
                         if client_type not in self.__active_connections:
                             self.__active_connections[client_type] = []
-                        self.__active_connections[client_type].append(client_id)
+                        if client_id not in self.__active_connections[client_type]:
+                            self.__active_connections[client_type].append(client_id)
+                            state_changed = True
                     elif client_state == "leave":
                         if client_type in self.__active_connections and client_id in self.__active_connections[client_type]:
                             self.__active_connections[client_type].remove(client_id)
+                            state_changed = True
+
+                    if state_changed is True:
+                        zope.event.notify(BusClientAvailability(client_id, client_state, client_type, hostname))
+
                 elif hasattr(xml, "ClientPoll"):
                     # say hello
                     self.send_event(self.hello, self.topic, qos=1)
