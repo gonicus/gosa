@@ -103,7 +103,7 @@ class MQTTConnectionHandler(MQTTHandler):
 
     def stop(self):
         self.log.info("MQTTConnectionHandler sending goodbye")
-        self.send_event(self.goodbye, self.topic, qos=1)
+        self.send_event(self.goodbye, self.topic, qos=2)
         self.close()
 
     def init_subscriptions(self):
@@ -112,7 +112,10 @@ class MQTTConnectionHandler(MQTTHandler):
         self.get_client().add_subscription(self.topic, qos=1, callback=self._handle_message)
 
     def _handle_message(self, topic, message):
-        if message[0:1] != "{":
+        while isinstance(message, dict) and 'content' in message:
+            message = message['content']
+
+        if message[0:1] == "<":
             # event received
             try:
                 xml = objectify.fromstring(message)
