@@ -290,10 +290,9 @@ def find_api_service():
 
 
 def find_bus_service():
-    res = [('smitty.intranet.gonicus.de', 8883), ('gosa-slave.test.intranet.gonicus.de', 8883)]
-    # for host, port in _find_service(["bus"]):
-    #     res.append((host, port))
-
+    res = []
+    for host, port in _find_service(["bus"]):
+        res.append((host, port))
     return res
 
 
@@ -301,9 +300,9 @@ def _find_service(what):
     """
     Search for DNS SRV records like these:
 
-    _gosa-api._tcp.example.com. 3600  IN  SRV  10  0  8000  gosa.intranet.gonicus.de.
-    _gosa-bus._tcp.example.com. 3600  IN  SRV  10  50  1883  gosa-bus.intranet.gonicus.de.
-                                      IN  SRV  10  60  1883  gosa-bus2.intranet.gonicus.de.
+    _gosa-api._tcp.example.com. 3600  IN  SRV  10  0  8050  gosa.intranet.gonicus.de.
+    _gosa-bus._tcp.example.com. 3600  IN  SRV  10  50  8883  gosa-bus.intranet.gonicus.de.
+                                      IN  SRV  10  60  8883  gosa-bus2.intranet.gonicus.de.
     """
     log = logging.getLogger(__name__)
 
