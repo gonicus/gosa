@@ -17,6 +17,8 @@ from gosa.common.hsts_request_handler import HSTSRequestHandler
 
 
 class BaseMosquittoClass(HSTSRequestHandler):
+    __backend_registry = None
+
     def __init__(self, application, request, **kwargs):
         super(BaseMosquittoClass, self).__init__(application, request, **kwargs)
         self.env = Environment.getInstance()
@@ -24,7 +26,12 @@ class BaseMosquittoClass(HSTSRequestHandler):
         self.superuser = self.env.config.get("mqtt.superuser")
         if self.superuser is not None:
             self.log.warning("MQTT superuser is set. Please do not use this setting in a productive environment!")
-        self.backend_registry = PluginRegistry.getInstance("BackendRegistry")
+
+    @classmethod
+    def get_backend_registry(cls):
+        if cls.__backend_registry is None:
+            cls.__backend_registry = PluginRegistry.getInstance("BackendRegistry")
+        return cls.__backend_registry
 
     def initialize(self):
         self.set_header('Content-Type', 'text/plain')
@@ -59,8 +66,8 @@ class MosquittoAuthHandler(BaseMosquittoClass):
             client_id = self.get_argument('clientid')
 
             # backend self authentification mode
-            is_backend = self.backend_registry.check_auth(username, password)
-            backend_type = self.backend_registry.get_type(username)
+            is_backend = BaseMosquittoClass.get_backend_registry().check_auth(username, password)
+            backend_type = BaseMosquittoClass.get_backend_registry().get_type(username)
             is_allowed = is_backend or check_auth(username, password)
             self.log.debug("MQTT AUTH request for user '%s' ['%s'] from '%s'=> %s" %
                            (username, backend_type if backend_type is not None else "client", client_id,
@@ -88,7 +95,7 @@ class MosquittoAclHandler(BaseMosquittoClass):
         # 1 == SUB, 2 == PUB
         acc = self.get_argument('acc')
 
-        backend_type = self.backend_registry.get_type(uuid)
+        backend_type = BaseMosquittoClass.get_backend_registry().get_type(uuid)
 
         client_channel = "%s/client/%s" % (self.env.domain, uuid)
         event_channel = "%s/events" % self.env.domain
