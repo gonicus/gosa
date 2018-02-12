@@ -19,6 +19,12 @@ from gosa.common.event import EventMaker
 from gosa.common.handler import IInterfaceHandler
 
 
+# TODO: Der Callback zu Änderungen wird zu einem Zeitpunkt aufgerufen, an dem die propagierte Änderung noch nicht in der LDAP-Datenbank committed wurde
+# Die Vorgehensweise sollte sein:
+# 1. Änderungscallback wird aufgerufen, spooled die Suche nach der Änderung mit dem aktuellen Cookie-Wert für die Suche
+# 2. Neuer Cookie vom Server, die Änderung wurde also in der DB persistiert, eine Suche sollte jetzt ein Ergebnis bringen
+#    Daher muss hier geschaut werden, ob noch Suchen gespooled sind, diese müssen dann durchgeführt werden
+
 @implementer(IInterfaceHandler)
 class SyncReplClient(Plugin):
     _priority_ = 21
@@ -51,6 +57,7 @@ class SyncReplClient(Plugin):
                                  ldap_url=self.__url,
                                  mode=SyncreplMode.REFRESH_AND_PERSIST)
 
+        # TODO: Evtl. threading verwenden?
         target=self.__client.run()
 
         self.log.debug("Syncrepl Client active for '{}'".format(self.__url))
@@ -79,23 +86,22 @@ class ReplCallback(BaseCallback):
 
     def __init__(self):
         self.__cookie = None
+        self.__refresh_done = False
+        self.__spool = []
         self.lh = LDAPHandler.get_instance()
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.log.info("initializing syncrepl client callback")
 
 
-    def __get_change(self, dn):
+    def __get_change(self, dn, csn):
         result = None
-        if self.__cookie is not None:
+        if self.__refresh_done and self.__cookie is not None:
             with self.lh.get_handle() as con:
-                # TODO: Fix race
-                import time
-                time.sleep(1)
                 try:
-                    fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(!{2}))".format(ldap.filter.filter_format("(reqDn=%s)", [dn]), self.__cookie, ldap.filter.filter_format("(reqAuthzID=%s)", [self.env.config.get('backend-monitor.modifier')]))
+                    fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(!{2}))".format(ldap.filter.filter_format("(reqDn=%s)", [dn]), csn, ldap.filter.filter_format("(reqAuthzID=%s)", [self.env.config.get('backend-monitor.modifier')]))
                     self.log.debug("Searching in Base '{ldap_base}' with filter '{ldap_filter}'".format(ldap_base=self.env.config.get('ldap.syncrepl-accesslog-base', default='cn=accesslog'), ldap_filter=fltr))
-                    result = con.search_ext_s(self.env.config.get('ldap.syncrepl-accesslog-base', default='cn=accesslog'), ldap.SCOPE_ONELEVEL, fltr, attrlist=['*'])
+                    result = con.search_s(self.env.config.get('ldap.syncrepl-accesslog-base', default='cn=accesslog'), ldap.SCOPE_ONELEVEL, fltr, attrlist=['*'])
 
                 except ldap.NO_SUCH_OBJECT:
                     pass
@@ -109,6 +115,7 @@ class ReplCallback(BaseCallback):
 
     def refresh_done(self, items):
         self.log.debug("LDAP Refresh complete")
+        self.__refresh_done = True
         #for item in items:
         #    print(item, file=self.dest)
         #    attrs = items[item]
@@ -119,9 +126,9 @@ class ReplCallback(BaseCallback):
 
 
     def record_add(self, dn, attrs):
-        res = self.__get_change(dn)
-        if res is None:
-            return
+        #res = self.__get_change(dn)
+        #if res is None:
+        #    return
 
         self.log.debug("New record '{}'".format(dn))
         #for attr in attrs.keys():
@@ -131,53 +138,54 @@ class ReplCallback(BaseCallback):
 
 
     def record_delete(self, dn):
-        res = self.__get_change(dn)
-        if res is None:
-            return
-
         self.log.debug("Deleted record '{}'".format(dn))
+        #res = self.__get_change(dn)
+        #if res is None:
+        #    return
 
-        e = EventMaker
-        update = e.Event(
-            e.BackendChange(
-                e.DN(dn),
-                e.ModificationTime("%sZ" % res['reqEnd'].split(".")[0]),
-                e.ChangeType(res['reqType'])
-            )
-        )
-        zope.event.notify(update)
+
+        #e = EventMaker
+        #update = e.Event(
+        #    e.BackendChange(
+        #        e.DN(dn),
+        #        e.ModificationTime("%sZ" % res['reqEnd'].split(".")[0]),
+        #        e.ChangeType(res['reqType'])
+        #    )
+        #)
+        #zope.event.notify(update)
 
     def record_rename(self, old_dn, new_dn):
-        res = self.__get_change(dn)
-        if res is None:
-            return
+        #res = self.__get_change(dn)
+        #if res is None:
+        #    return
         self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
 
 
     def record_change(self, dn, old_attrs, new_attrs):
-        res = self.__get_change(dn)
-        if res is None:
+        if not self.__refresh_done:
             return
 
         self.log.debug("Changed record '{}'".format(dn))
-        self.log.debug(pprint.pformat(res))
-        e = EventMaker()
-        #update = e.Event(
-        #    e.BackendChange(
-        #        e.DN(dn),
-        #        e.ModificationTime("%sZ" % res[0][1]['reqEnd'][0].split(".")[0]),
-        #        e.ChangeType(res[0][1]['reqType'][0])
-        #    )
-        #)
-        #zope.event.notify(update)
-        #for attr in new_attrs.keys():
-        #    print("\t", attr, sep='', file=self.dest)
-        #    for value in new_attrs[attr]:
-        #        print("\t\t", value, sep='', file=self.dest)
+        self.__spool.append({'dn': dn, 'cookie': self.__cookie})
 
 
     def cookie_change(self, cookie):
         self.log.debug("Changed cookie '{}'".format(cookie))
+        if self.__spool:
+            e = EventMaker()
+            spool = self.__spool
+            self.__spool = []
+            for entry in spool:
+                res = self.__get_change(entry['dn'], entry['cookie'])
+                if res:
+                    update = e.Event(
+                        e.BackendChange(
+                            e.DN(entry['dn']),
+                            e.ModificationTime("%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]),
+                            e.ChangeType(res[0][1]['reqType'][0].decode('utf-8'))
+                        )
+                    )
+                    self.log.debug("Sent update for entry '{}'".format(entry['dn']))
         # 'rid=000,csn=20180212123829.435971Z#000000#000#000000;20171012151750.124741Z#000000#001#000000;20171012152055.398182Z#000000#002#000000'
         # re.match matches from 'beginning' (!) of string
         self.__cookie = re.match(r".+?csn=([0-9.]+)Z", cookie).group(1) + "Z"
