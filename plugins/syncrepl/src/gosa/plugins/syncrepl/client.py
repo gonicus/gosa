@@ -1,6 +1,9 @@
 import ldap
 import ldapurl
+import logging
 import os
+import threading
+import pprint
 
 import re
 import zope
@@ -25,6 +28,9 @@ class SyncReplClient(Plugin):
 
     def __init__(self):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
+        self.log.info("initializing syncrepl client service")
+
 
     def serve(self):
 
@@ -36,7 +42,7 @@ class SyncReplClient(Plugin):
         if get("ldap.tls", default="True").lower() == "true" and ldap.TLS_AVAIL and self.__url.urlscheme != "ldaps":
             self.__tls = True
 
-        path = self.env.config.get('ldap.syncrepl-data-path', default=os.path.join(os.path.sep, 'var', 'lib', 'gosa', 'syncrepl'))
+        path = self.env.config.get('ldap.syncrepl-data-path', default=os.path.join(os.path.sep, 'var', 'lib', 'gosa', 'syncrepl', ''))
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -44,6 +50,10 @@ class SyncReplClient(Plugin):
                                  callback=ReplCallback(),
                                  ldap_url=self.__url,
                                  mode=SyncreplMode.REFRESH_AND_PERSIST)
+
+        target=self.__client.run()
+
+        self.log.debug("Syncrepl Client active for '{}'".format(self.__url))
 
 
 class ReplCallback(BaseCallback):
@@ -66,54 +76,66 @@ class ReplCallback(BaseCallback):
     This can be anything which can be used in :func:`print`'s `file` parameter.
     Defaults to :obj:`sys.stdout`.
     """
-    
+
     def __init__(self):
         self.__cookie = None
         self.lh = LDAPHandler.get_instance()
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
+        self.log.info("initializing syncrepl client callback")
+
 
     def __get_change(self, dn):
-        with self.lh.get_handle() as con:
-            try:
-                fltr = "(&(objectClass=auditWriteObject)(reqResult=0)({0})(reqStart>={1})(!({2})))".format(ldap.filter.filter_format("(reqDn=%s)", [dn]), self.__cookie, ldap.filter.filter_format("(reqAuthzID=%s)", [self.env.config.get('backend-monitor.modifier')]))
-                return con.search_s(self.env.config.get('ldap.syncrepl-accesslog-base', default='cn=accesslog'), ldap.SCOPE_ONE, fltr,
-                                   ['*'])
+        result = None
+        if self.__cookie is not None:
+            with self.lh.get_handle() as con:
+                # TODO: Fix race
+                import time
+                time.sleep(1)
+                try:
+                    fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(!{2}))".format(ldap.filter.filter_format("(reqDn=%s)", [dn]), self.__cookie, ldap.filter.filter_format("(reqAuthzID=%s)", [self.env.config.get('backend-monitor.modifier')]))
+                    self.log.debug("Searching in Base '{ldap_base}' with filter '{ldap_filter}'".format(ldap_base=self.env.config.get('ldap.syncrepl-accesslog-base', default='cn=accesslog'), ldap_filter=fltr))
+                    result = con.search_ext_s(self.env.config.get('ldap.syncrepl-accesslog-base', default='cn=accesslog'), ldap.SCOPE_ONELEVEL, fltr, attrlist=['*'])
 
-            except ldap.NO_SUCH_OBJECT:
-                return None
+                except ldap.NO_SUCH_OBJECT:
+                    pass
+
+        return result
+
 
     def bind_complete(self, ldap):
-        print('BIND COMPLETE!', file=self.dest)
-        print("\tWE ARE:", ldap.whoami_s(), file=self.dest)
+        self.log.debug("LDAP Bind complete as DN '{}'".format(ldap.whoami_s()))
 
-    
+
     def refresh_done(self, items):
-        print('REFRESH COMPLETE!', file=self.dest)
-        print('BEGIN DIRECTORY CONTENTS:', file=self.dest)
-        for item in items:
-            print(item, file=self.dest)
-            attrs = items[item]
-            for attr in attrs.keys():
-                print("\t", attr, sep='', file=self.dest)
-                for value in attrs[attr]:
-                    print("\t\t", value, sep='', file=self.dest)
-        print('END DIRECTORY CONTENTS', file=self.dest)
+        self.log.debug("LDAP Refresh complete")
+        #for item in items:
+        #    print(item, file=self.dest)
+        #    attrs = items[item]
+        #    for attr in attrs.keys():
+        #        print("\t", attr, sep='', file=self.dest)
+        #        for value in attrs[attr]:
+        #            print("\t\t", value, sep='', file=self.dest)
 
-    
+
     def record_add(self, dn, attrs):
-        print('NEW RECORD:', dn, file=self.dest)
-        for attr in attrs.keys():
-            print("\t", attr, sep='', file=self.dest)
-            for value in attrs[attr]:
-                print("\t\t", value, sep='', file=self.dest)
-
-    
-    def record_delete(self, dn):
-        print('DELETED RECORD:', dn, file=self.dest)
-
         res = self.__get_change(dn)
         if res is None:
             return
+
+        self.log.debug("New record '{}'".format(dn))
+        #for attr in attrs.keys():
+        #    print("\t", attr, sep='', file=self.dest)
+        #    for value in attrs[attr]:
+        #        print("\t\t", value, sep='', file=self.dest)
+
+
+    def record_delete(self, dn):
+        res = self.__get_change(dn)
+        if res is None:
+            return
+
+        self.log.debug("Deleted record '{}'".format(dn))
 
         e = EventMaker
         update = e.Event(
@@ -124,27 +146,42 @@ class ReplCallback(BaseCallback):
             )
         )
         zope.event.notify(update)
-    
+
     def record_rename(self, old_dn, new_dn):
-        print('RENAMED RECORD:', file=self.dest)
-        print("\tOld:", old_dn, file=self.dest)
-        print("\tNew:", new_dn, file=self.dest)
+        res = self.__get_change(dn)
+        if res is None:
+            return
+        self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
 
-    
+
     def record_change(self, dn, old_attrs, new_attrs):
-        print('RECORD CHANGED:', dn, file=self.dest)
-        for attr in new_attrs.keys():
-            print("\t", attr, sep='', file=self.dest)
-            for value in new_attrs[attr]:
-                print("\t\t", value, sep='', file=self.dest)
+        res = self.__get_change(dn)
+        if res is None:
+            return
 
-    
+        self.log.debug("Changed record '{}'".format(dn))
+        self.log.debug(pprint.pformat(res))
+        e = EventMaker()
+        #update = e.Event(
+        #    e.BackendChange(
+        #        e.DN(dn),
+        #        e.ModificationTime("%sZ" % res[0][1]['reqEnd'][0].split(".")[0]),
+        #        e.ChangeType(res[0][1]['reqType'][0])
+        #    )
+        #)
+        #zope.event.notify(update)
+        #for attr in new_attrs.keys():
+        #    print("\t", attr, sep='', file=self.dest)
+        #    for value in new_attrs[attr]:
+        #        print("\t\t", value, sep='', file=self.dest)
+
+
     def cookie_change(self, cookie):
-        print('COOKIE CHANGED:', cookie)
-        #self.__cookie = cookie
-        # rid=000,csn=20180209133349.356454Z#000000#000#000000
-        self.__cookie = re.match(cookie, r"csn=([0-9.]+)Z").group(1) + "Z"
+        self.log.debug("Changed cookie '{}'".format(cookie))
+        # 'rid=000,csn=20180212123829.435971Z#000000#000#000000;20171012151750.124741Z#000000#001#000000;20171012152055.398182Z#000000#002#000000'
+        # re.match matches from 'beginning' (!) of string
+        self.__cookie = re.match(r".+?csn=([0-9.]+)Z", cookie).group(1) + "Z"
 
-    
+
     def debug(self, message):
-        print('[DEBUG]', message, file=self.dest)
+        self.log.debug(message)
