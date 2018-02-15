@@ -7,6 +7,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import collections
 import datetime
 import logging
 import uuid
@@ -64,6 +65,8 @@ class Foreman(Plugin):
     __session = None
     __acl_resolver = None
     client = None
+    syncing = False
+    _after_sync_callbacks = None
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -119,15 +122,29 @@ class Foreman(Plugin):
         """
         if event.__class__.__name__ == "IndexScanFinished":
             self.log.info("index scan finished, triggered foreman sync")
-            self.create_container()
+            Foreman.syncing = True
+            try:
+                self.create_container()
 
-            self.sync_release_names()
+                self.sync_release_names()
 
-            self.sync_type("ForemanHostGroup")
-            self.sync_type("ForemanHost")
+                self.sync_type("ForemanHostGroup")
+                self.sync_type("ForemanHost")
 
-            # read discovered hosts
-            self.sync_type("ForemanHost", "discovered_hosts")
+                # read discovered hosts
+                self.sync_type("ForemanHost", "discovered_hosts")
+
+                while len(self._after_sync_callbacks):
+                    cb = self._after_sync_callbacks.popleft()
+                    cb()
+
+            finally:
+                Foreman.syncing = False
+
+    def add_after_sync_callback(self, cb):
+        if self._after_sync_callbacks is None:
+            self._after_sync_callbacks = collections.deque()
+        self._after_sync_callbacks.append(cb)
 
     def create_container(self):
         # create incoming ou if not exists
@@ -828,6 +845,12 @@ class ForemanRealmReceiver(object):
 
     @gen.coroutine
     def handle_request(self, request_handler):
+        if Foreman.syncing is True:
+            request_handler.finish(dumps({
+                "error": "GOsa is currently syncing with Foreman, all requests are blocked"
+            }))
+            return
+
         foreman = PluginRegistry.getInstance("Foreman")
         self.log.debug(request_handler.request.body)
         data = loads(request_handler.request.body)
@@ -872,15 +895,33 @@ class ForemanRealmReceiver(object):
 class ForemanHookReceiver(object):
     """ Webhook handler for foreman realm events (Content-Type: application/vnd.foreman.hookevent+json) """
     skip_next_event = {}
+    _queued_requests = []
 
     def __init__(self):
         self.type = N_("Foreman hook event")
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
+    def process_queue(self):
+        queue = self._queued_requests
+        self._queued_requests = []
+        for data in queue:
+            self._handle_data(data)
+
     def handle_request(self, request_handler):
-        foreman = PluginRegistry.getInstance("Foreman")
         data = loads(request_handler.request.body)
+        self._handle_data(data)
+
+    def _handle_data(self, data):
+        foreman = PluginRegistry.getInstance("Foreman")
+
+        if Foreman.syncing is True:
+            self.log.error("GOsa is currently syncing with Foreman, all requests are blocked")
+            if len(self._queued_requests) == 0:
+                # add callback
+                foreman.add_after_sync_callback(self.process_queue)
+            self._queued_requests.append(data)
+            return
 
         if self.env.config.get("foreman.event-log") is not None:
             with open(self.env.config.get("foreman.event-log"), "a") as f:
