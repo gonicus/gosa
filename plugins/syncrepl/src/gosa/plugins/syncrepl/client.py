@@ -48,11 +48,11 @@ class SyncReplClient(Plugin):
         if get("ldap.tls", default="True").lower() == "true" and ldap.TLS_AVAIL and self.__url.urlscheme != "ldaps":
             self.__tls = True
 
-        path = self.env.config.get('ldap.syncrepl-data-path', default=os.path.join(os.path.sep, 'var', 'lib', 'gosa', 'syncrepl', ''))
+        path = self.env.config.get('ldap.syncrepl-data-path', default=os.path.join(os.path.sep, 'var', 'lib', 'gosa', 'syncrepl'))
         if not os.path.exists(path):
             os.makedirs(path)
 
-        self.__client = Syncrepl(data_path=path,
+        self.__client = Syncrepl(data_path=os.sep.join((path, 'database.db')),
                                  callback=ReplCallback(),
                                  ldap_url=self.__url,
                                  mode=SyncreplMode.REFRESH_AND_PERSIST)
@@ -109,11 +109,11 @@ class ReplCallback(BaseCallback):
         return result
 
 
-    def bind_complete(self, ldap):
+    def bind_complete(self, ldap, cursor):
         self.log.debug("LDAP Bind complete as DN '{}'".format(ldap.whoami_s()))
 
 
-    def refresh_done(self, items):
+    def refresh_done(self, items, cursor):
         self.log.debug("LDAP Refresh complete")
         self.__refresh_done = True
         #for item in items:
@@ -125,7 +125,7 @@ class ReplCallback(BaseCallback):
         #            print("\t\t", value, sep='', file=self.dest)
 
 
-    def record_add(self, dn, attrs):
+    def record_add(self, dn, attrs, cursor):
         #res = self.__get_change(dn)
         #if res is None:
         #    return
@@ -137,7 +137,7 @@ class ReplCallback(BaseCallback):
         #        print("\t\t", value, sep='', file=self.dest)
 
 
-    def record_delete(self, dn):
+    def record_delete(self, dn, cursor):
         self.log.debug("Deleted record '{}'".format(dn))
         #res = self.__get_change(dn)
         #if res is None:
@@ -154,14 +154,14 @@ class ReplCallback(BaseCallback):
         #)
         #zope.event.notify(update)
 
-    def record_rename(self, old_dn, new_dn):
+    def record_rename(self, old_dn, new_dn, cursor):
         #res = self.__get_change(dn)
         #if res is None:
         #    return
         self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
 
 
-    def record_change(self, dn, old_attrs, new_attrs):
+    def record_change(self, dn, old_attrs, new_attrs, cursor):
         if not self.__refresh_done:
             return
 
