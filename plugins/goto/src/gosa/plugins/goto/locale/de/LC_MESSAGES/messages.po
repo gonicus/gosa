@@ -31,13 +31,13 @@ msgstr "Benutzer '%(topic)s' ist nicht eindeutig"
 
 #: src/gosa/plugins/goto/client_service.py:45
 #, python-format
-msgid "Client '%(topic)s' not found"
-msgstr "Client '%(topic)s' nicht gefunden"
+msgid "Client '%(client)s' not found"
+msgstr "Client '%(client)s' nicht gefunden"
 
 #: src/gosa/plugins/goto/client_service.py:46
 #, python-format
-msgid "Client '%(topic)s' is offline"
-msgstr "Client '%(topic)s' ist offline"
+msgid "Client '%(client)s' is offline"
+msgstr "Client '%(client)s' ist offline"
 
 #: src/gosa/plugins/goto/client_service.py:47
 #, python-format
@@ -46,32 +46,32 @@ msgstr "Client '%(topic)s' unterstützt die Methode '%(method)s' nicht"
 
 #: src/gosa/plugins/goto/client_service.py:48
 #, fuzzy, python-format
-msgid "Invalid data '%(entry)s:%(data)s' for client '%(topic)s provided'"
-msgstr "Ungültige Daten '%(entry)s:%(data)s' für Client '%(topic)s' angegeben"
+msgid "Invalid data '%(entry)s:%(data)s' for client '%(client)s provided'"
+msgstr "Ungültige Daten '%(entry)s:%(data)s' für Client '%(client)s' angegeben"
 
 #: src/gosa/plugins/goto/client_service.py:49
 #, python-format
 msgid ""
-"Device type '%(type)s' for client '%(topic)s' is invalid [terminal, "
+"Device type '%(type)s' for client '%(client)s' is invalid [terminal, "
 "workstation, server, sipphone, switch, router, printer, scanner]"
 msgstr ""
-"Unzulässiger Gerätetyp '%(type)s' für Slient '%(topic)s' [terminal, "
+"Unzulässiger Gerätetyp '%(type)s' für Slient '%(client)s' [terminal, "
 "workstation, server, sipphone, switch, router, printer, scanner]"
 
 #: src/gosa/plugins/goto/client_service.py:50
 #, python-format
-msgid "Owner '%(owner)s' for client '%(topic)s' not found"
-msgstr "Besitzer '%(owner)s' für Client '%(topic)s' nicht gefunden"
+msgid "Owner '%(owner)s' for client '%(client)s' not found"
+msgstr "Besitzer '%(owner)s' für Client '%(client)s' nicht gefunden"
 
 #: src/gosa/plugins/goto/client_service.py:51
 #, python-format
-msgid "Invalid client UUID '%(topic)s'"
-msgstr "Ungültige Client UUID '%(topic)s'"
+msgid "Invalid client UUID '%(uuid)s'"
+msgstr "Ungültige Client UUID '%(uuid)s'"
 
 #: src/gosa/plugins/goto/client_service.py:52
 #, python-format
-msgid "Invalid status '%(status)s' for client '%(topic)s'"
-msgstr "Ungültiger Status '%(status)s' für Client '%(topic)s'"
+msgid "Invalid status '%(status)s' for client '%(client)s'"
+msgstr "Ungültiger Status '%(status)s' für Client '%(client)s'"
 
 #: src/gosa/plugins/goto/client_service.py:159
 msgid "List available clients."

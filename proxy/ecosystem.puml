@@ -1,0 +1,71 @@
+@startuml
+
+skinparam componentStyle uml2
+
+frame "GOsa server" {
+
+    () "JSONRPC" as masterRpc
+    database "Postgres Master" as masterDB #LightBlue
+    [LDAP Master] as masterLdap #LightGreen
+
+    [MQTT Broker] as masterMqttBroker #LightGrey
+
+    node "GOsa Backend" as backend {
+        [MQTT Auth] as masterMqttAuth
+        [SSE]
+
+        frame "RPC Service" as masterRpc {
+            [JSON] as masterJsonRpc
+            [MQTT] as masterMqttRpc
+        }
+
+        masterMqttBroker <--> masterMqttAuth : AUTH + ACL
+        masterMqttRpc <--> masterMqttBroker
+    }
+
+    masterDB - backend  #LightBlue
+    masterLdap - backend #LightGreen
+}
+
+frame "Proxy server" {
+
+    [MQTT Broker] as proxyMqttBroker #LightGrey
+    database "Postgres Slave" as proxyDB #LightBlue
+    [LDAP Slave] as proxyLdap #LightGreen
+
+    node "GOsa proxy" as proxy {
+        [MQTT Auth] as proxyMqttAuth
+
+        frame "RPC" as proxyRpc {
+            [JSON] as proxyJsonRpc
+            [MQTT] as proxyMqttRpc
+        }
+    }
+
+    proxyMqttAuth <--> proxyMqttBroker
+    masterMqttRpc <..> proxy
+    proxyMqttBroker <--> proxyMqttRpc
+    proxy <..> masterJsonRpc : registerProxy()
+
+    masterDB --> proxyDB #LightBlue : Replication
+    masterLdap --> proxyLdap #LightGreen : Replication
+
+    proxyDB --> proxy #LightBlue : read only
+    proxyLdap - proxy #LightGreen : authentication only
+}
+
+frame "Clients" {
+    [Client1]
+    [GUI]
+    [CLI]
+
+    Client1 <..> proxyMqttBroker : RPC + Events
+    Client1 ..> proxyJsonRpc : joinClient()
+
+    GUI <~~ SSE
+    CLI <~~ SSE
+    CLI <--> masterJsonRpc
+    GUI <--> masterJsonRpc
+}
+
+@enduml

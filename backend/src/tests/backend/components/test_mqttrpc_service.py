@@ -50,7 +50,7 @@ class MQTTRPCServiceTestCase(TestCase):
 
             # call without params
             service.handle_request(topic, dumps({
-                "id": "jsonrpc",
+                "id": "mqttrpc",
                 "method": "fakeCall",
                 "user": "admin"
             }))
@@ -62,11 +62,12 @@ class MQTTRPCServiceTestCase(TestCase):
 
             # call with empty params
             service.handle_request(topic, dumps({
-                "id": "jsonrpc",
+                "id": "mqttrpc",
                 "method": "fakeCall",
                 "user": "admin",
                 "session_id": "fake_session_id",
-                "params": []
+                "params": [],
+                "kwparams": {}
             }))
             m.assert_called_with("admin", "fake_session_id", "fakeCall")
             args, kwargs = mq.call_args
@@ -78,10 +79,11 @@ class MQTTRPCServiceTestCase(TestCase):
             m.reset_mock()
 
             service.handle_request(topic, dumps({
-                "id": "jsonrpc",
+                "id": "mqttrpc",
                 "method": "fakeCall",
                 "user": "admin",
-                "params": ["param1", "param2"]
+                "params": ["param1", "param2"],
+                "kwparams": {}
             }))
             m.assert_called_with("admin", None, "fakeCall", "param1", "param2")
             args, kwargs = mq.call_args
@@ -95,9 +97,10 @@ class MQTTRPCServiceTestCase(TestCase):
 
             # call without user (client id taken as user)
             service.handle_request(topic, dumps({
-                "id": "jsonrpc",
+                "id": "mqttrpc",
                 "method": "fakeCall",
-                "params": []
+                "params": [],
+                "kwparams": {}
             }))
             m.assert_called_with("fake_client_id", None, "fakeCall")
             args, kwargs = mq.call_args

@@ -44,7 +44,7 @@ class SettingsRegistry(Plugin):
             self.register_handler(entry.name, module())
 
     def stop(self):
-        print("shutdown settings registry")
+        self.__log.info("shutdown settings registry")
         # called from PluginRegistry.shutdown()
         for handler in self.__handlers.values():
             if getattr(handler, "stop"):

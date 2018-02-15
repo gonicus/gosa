@@ -91,9 +91,6 @@ class MQTTServiceProxy(object):
             data['session_id'] = kwargs['__session_id__']
             del kwargs['__session_id__']
 
-        if len(kwargs) > 0 and len(args) > 0:
-            raise JSONRPCException("JSON-RPC does not support positional and keyword arguments at the same time")
-
         # Default to 'core' queue
         call_id = uuid.uuid4()
         topic = "%s/%s" % (self.__serviceAddress, call_id)
@@ -107,16 +104,14 @@ class MQTTServiceProxy(object):
         # Send
         data.update({
             "method": self.__serviceName,
-            "id": "jsonrpc",
+            "id": "mqttrpc",
             "sender": self.env.uuid
         })
-        if len(kwargs):
-            data["params"] = kwargs
-        else:
-            data["params"] = args
+        data["kwparams"] = kwargs
+        data["params"] = args
         postdata = dumps(data)
 
-        response = yield self.__handler.send_sync_message(postdata, topic)
+        response = yield self.__handler.send_sync_message(postdata, topic, qos=2)
         resp = loads(response)
 
         if 'error' in resp and resp['error'] is not None:

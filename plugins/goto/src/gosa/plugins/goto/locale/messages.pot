@@ -30,12 +30,12 @@ msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:45
 #, python-format
-msgid "Client '%(topic)s' not found"
+msgid "Client '%(client)s' not found"
 msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:46
 #, python-format
-msgid "Client '%(topic)s' is offline"
+msgid "Client '%(client)s' is offline"
 msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:47
@@ -45,29 +45,29 @@ msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:48
 #, python-format
-msgid "Invalid data '%(entry)s:%(data)s' for client '%(topic)s provided'"
+msgid "Invalid data '%(entry)s:%(data)s' for client '%(client)s provided'"
 msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:49
 #, python-format
 msgid ""
-"Device type '%(type)s' for client '%(topic)s' is invalid [terminal, "
+"Device type '%(type)s' for client '%(client)s' is invalid [terminal, "
 "workstation, server, sipphone, switch, router, printer, scanner]"
 msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:50
 #, python-format
-msgid "Owner '%(owner)s' for client '%(topic)s' not found"
+msgid "Owner '%(owner)s' for client '%(client)s' not found"
 msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:51
 #, python-format
-msgid "Invalid client UUID '%(topic)s'"
+msgid "Invalid client UUID '%(uuid)s'"
 msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:52
 #, python-format
-msgid "Invalid status '%(status)s' for client '%(topic)s'"
+msgid "Invalid status '%(status)s' for client '%(client)s'"
 msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:159

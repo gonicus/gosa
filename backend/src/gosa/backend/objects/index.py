@@ -48,6 +48,7 @@ import itertools
 from gosa.backend.routes.sse.main import SseHandler
 from zope.interface import implementer
 from gosa.common import Environment
+from gosa.common.mqtt_connection_state import BusClientAvailability
 from gosa.common.utils import N_
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import Command, Plugin, PluginRegistry, JSONServiceProxy
@@ -175,7 +176,7 @@ class OpenObject(Base):
     __tablename__ = "open-objects"
 
     ref = Column(String(36), primary_key=True, nullable=False)
-    uuid = Column(String(36), nullable=False)
+    uuid = Column(String(36), nullable=True)
     oid = Column(String)
     data = Column(JSON)
     backend_uuid = Column(String, ForeignKey('registered-backends.uuid'))
@@ -264,58 +265,61 @@ class ObjectIndex(Plugin):
     def serve(self):
         # Configure database for the index
         orm.configure_mappers()
-        Base.metadata.create_all(self.env.getDatabaseEngine("backend-database"))
+
+        engine = self.env.getDatabaseEngine("backend-database")
+        Base.metadata.create_all(engine)
 
         self.__value_extender = gosa.backend.objects.renderer.get_renderers()
 
         self._acl_resolver = PluginRegistry.getInstance("ACLResolver")
 
-        with make_session() as session:
+        if self.env.mode == "backend":
+            with make_session() as session:
 
-            # create view
-            try:
-                # check if extension exists
-                if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'pg_trgm';").rowcount == 0:
-                    session.execute("CREATE EXTENSION pg_trgm;")
+                # create view
+                try:
+                    # check if extension exists
+                    if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'pg_trgm';").rowcount == 0:
+                        session.execute("CREATE EXTENSION pg_trgm;")
 
-                if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'fuzzystrmatch';").rowcount == 0:
-                    session.execute("CREATE EXTENSION fuzzystrmatch;")
+                    if session.execute("SELECT * FROM \"pg_extension\" WHERE extname = 'fuzzystrmatch';").rowcount == 0:
+                        session.execute("CREATE EXTENSION fuzzystrmatch;")
 
-                view_name = "unique_lexeme"
-                # check if view exists
-                res = session.execute("SELECT count(*) > 0 as \"exists\" FROM pg_catalog.pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind = 'm' AND n.nspname = 'public' AND c.relname = '%s';" % view_name).first()
-                if res[0] is False:
-                    session.execute("CREATE MATERIALIZED VIEW %s AS SELECT word FROM ts_stat('SELECT so_index.search_vector FROM so_index');" % view_name)
-                    session.execute("CREATE INDEX words_idx ON %s USING gin(word gin_trgm_ops);" % view_name)
-                self.fuzzy = True
-            except Exception as e:
-                self.log.error("Error creating view for unique word index: %s" % str(e))
-                session.rollback()
+                    view_name = "unique_lexeme"
+                    # check if view exists
+                    res = session.execute("SELECT count(*) > 0 as \"exists\" FROM pg_catalog.pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind = 'm' AND n.nspname = 'public' AND c.relname = '%s';" % view_name).first()
+                    if res[0] is False:
+                        session.execute("CREATE MATERIALIZED VIEW %s AS SELECT word FROM ts_stat('SELECT so_index.search_vector FROM so_index');" % view_name)
+                        session.execute("CREATE INDEX words_idx ON %s USING gin(word gin_trgm_ops);" % view_name)
+                    self.fuzzy = True
+                except Exception as e:
+                    self.log.error("Error creating view for unique word index: %s" % str(e))
+                    session.rollback()
 
-            # If there is already a collection, check if there is a newer schema available
-            schema = self.factory.getXMLObjectSchema(True)
-            if self.isSchemaUpdated(schema):
-                if self.env.config.getboolean("backend.index", default=True) is False:
-                    self.log.error("object definitions changed and the index needs to be re-created. Please enable the index in your config file!")
-                else:
-                    session.query(Schema).delete()
-                    session.query(KeyValueIndex).delete()
-                    session.query(ExtensionIndex).delete()
-                    session.query(SearchObjectIndex).delete()
-                    session.query(ObjectInfoIndex).delete()
-                    session.query(RegisteredBackend).delete()
-                    self.log.info('object definitions changed, dropped old object index')
+                # If there is already a collection, check if there is a newer schema available
+                schema = self.factory.getXMLObjectSchema(True)
+                if self.isSchemaUpdated(schema):
+                    if self.env.config.getboolean("backend.index", default=True) is False:
+                        self.log.error("object definitions changed and the index needs to be re-created. Please enable the index in your config file!")
+                    else:
+                        session.query(Schema).delete()
+                        session.query(KeyValueIndex).delete()
+                        session.query(ExtensionIndex).delete()
+                        session.query(SearchObjectIndex).delete()
+                        session.query(ObjectInfoIndex).delete()
+                        session.query(RegisteredBackend).delete()
+                        self.log.info('object definitions changed, dropped old object index')
 
-            # Create the initial schema information if required
-            if not session.query(Schema).one_or_none():
-                self.log.info('created schema')
-                md5s = hashlib.md5()
-                md5s.update(schema)
-                md5sum = md5s.hexdigest()
+                # Create the initial schema information if required
+                if not session.query(Schema).one_or_none():
+                    self.log.info('created schema')
+                    md5s = hashlib.md5()
+                    md5s.update(schema)
+                    md5sum = md5s.hexdigest()
 
-                schema = Schema(hash=md5sum)
-                session.add(schema)
-                session.commit()
+                    schema = Schema(hash=md5sum)
+                    session.add(schema)
+                    session.commit()
 
         # Extract search aid
         attrs = {}
@@ -370,15 +374,19 @@ class ObjectIndex(Plugin):
 
         # store core_uuid/core_key into DB
         if hasattr(self.env, "core_uuid"):
-            if self.env.mode != "proxy":
+            if self.env.mode == "backend":
                 with make_session() as session:
-                    session.query(UserSession).delete()
-                    session.query(OpenObject).delete()
-                    session.query(RegisteredBackend).delete()
+                    tables_to_recreate = [UserSession.__table__, OpenObject.__table__, RegisteredBackend.__table__]
+
+                    for table in tables_to_recreate:
+                        table.drop(engine)
+
+                    Base.metadata.create_all(engine, tables=tables_to_recreate)
+
                     rb = RegisteredBackend(
                         uuid=self.env.core_uuid,
                         password=self.env.core_key,
-                        url=get_internal_server_url(),
+                        url=get_server_url(),
                         type=BackendTypes.active_master
                     )
                     session.add(rb)
@@ -387,7 +395,7 @@ class ObjectIndex(Plugin):
                 self.registerProxy()
 
         # Schedule index sync
-        if self.env.config.get("backend.index", "true").lower() == "true":
+        if self.env.config.get("backend.index", "true").lower() == "true" and self.env.mode == 'backend':
             if not hasattr(sys, '_called_from_test'):
                 sobj = PluginRegistry.getInstance("SchedulerService")
                 sobj.getScheduler().add_date_job(self.syncIndex,
@@ -403,19 +411,29 @@ class ObjectIndex(Plugin):
                                              datetime.datetime.now() + datetime.timedelta(seconds=10),
                                              tag='_internal', jobstore='ram')
 
-    def registerProxy(self):
+
+
+    def registerProxy(self, backend_uuid=None):
         if self.env.mode == "proxy":
             # register on the current master
             with make_session() as session:
                 # get any other registered backend
-                master_backend = session.query(RegisteredBackend) \
-                    .filter(RegisteredBackend.uuid != self.env.core_uuid,
-                            RegisteredBackend.type == BackendTypes.active_master).first()
+                if backend_uuid is None:
+                    master_backend = session.query(RegisteredBackend) \
+                        .filter(RegisteredBackend.uuid != self.env.core_uuid,
+                                RegisteredBackend.type == BackendTypes.active_master).first()
+                else:
+                    master_backend = session.query(RegisteredBackend) \
+                        .filter(RegisteredBackend.uuid == backend_uuid,
+                                RegisteredBackend.type == BackendTypes.active_master).first()
+
                 if master_backend is None:
                     raise GosaException(C.make_error("NO_MASTER_BACKEND_FOUND"))
+
                 # Try to log in with provided credentials
                 url = urlparse("%s/rpc" % master_backend.url)
                 connection = '%s://%s%s' % (url.scheme, url.netloc, url.path)
+                print(connection)
                 proxy = JSONServiceProxy(connection)
 
                 if self.env.config.get("core.backend-user") is None or self.env.config.get("core.backend-key") is None:
@@ -436,9 +454,9 @@ class ObjectIndex(Plugin):
                         self.log.error("Error: %s " % str(e))
                         raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
 
-                except Exception as e:
-                    self.log.error("Error: %s " % str(e))
-                    raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
+                # except Exception as e:
+                #     self.log.error("Error: %s " % str(e))
+                #     raise GosaException(C.make_error("NO_MASTER_BACKEND_CONNECTION"))
 
     def stop(self):
         if self.__handle_events in zope.event.subscribers:
@@ -935,6 +953,20 @@ class ObjectIndex(Plugin):
                 xml = objectify.fromstring(event_string, PluginRegistry.getEventParser())
 
                 SseHandler.notify(xml, channel="broadcast")
+
+        elif isinstance(event, BusClientAvailability):
+            backend_registry = PluginRegistry.getInstance("BackendRegistry")
+            if event.type == "proxy":
+                # entering proxies are not handled, because they register themselves with credentials vie JSONRPC
+                if event.state == "leave":
+                    self.log.debug("unregistering proxy: %s" % event.client_id)
+                    backend_registry.unregisterBackend(event.client_id)
+            elif event.type == "backend":
+                if event.state == "ready":
+                    self.log.debug("new backend announced: %s" % event.client_id)
+                    if self.env.mode == "proxy":
+                        # register ourselves to this backend
+                        self.registerProxy(event.client_id)
 
     def insert(self, obj, skip_base_check=False, session=None):
         if session is not None:
@@ -1574,18 +1606,19 @@ class BackendRegistry(Plugin):
     @Command(__help__=N_("Register a backend to allow MQTT access"))
     def registerBackend(self, uuid, password, url=None, type=BackendTypes.unknown):
         with make_session() as session:
-            if session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).count() == 0:
-                rb = RegisteredBackend(
-                    uuid=uuid,
-                    password=password,
-                    url=url,
-                    type=type
-                )
-                session.add(rb)
-            else:
-                self.log.error("there is already a backend registered for this uuid")
-                rb = session.query(RegisteredBackend).filter(RegisteredBackend.uuid == uuid).one()
-                rb.password = password
+            query = session.query(RegisteredBackend).filter(or_(RegisteredBackend.uuid == uuid,
+                                                                RegisteredBackend.url == url))
+            if query.count() > 0:
+                # delete old entries
+                query.delete()
+
+            rb = RegisteredBackend(
+                uuid=uuid,
+                password=password,
+                url=url,
+                type=type
+            )
+            session.add(rb)
             session.commit()
 
     @Command(__help__=N_("Unregister a backend from MQTT access"))

@@ -116,4 +116,4 @@ class SessionKeeper(Plugin):
                     e.Id(self.env.uuid),
                     e.User(*more)))
 
-            mqtt.send_event(info)
+            mqtt.send_event(info, qos=1)

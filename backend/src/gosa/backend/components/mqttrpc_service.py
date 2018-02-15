@@ -10,6 +10,8 @@ import logging
 import sys
 import traceback
 from lxml import objectify, etree
+from tornado import gen
+from tornado.concurrent import is_future
 
 from zope.interface import implementer
 
@@ -29,22 +31,24 @@ class MQTTRPCService(object):
     The ProxyServer handles to the RPC calls from the GOsa proxies received via MQTT
     """
     mqtt = None
-    _priority_ = 10
+    _priority_ = 0
     __command_registry = None
 
     def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.subtopic = "%s/proxy" % self.env.domain
-        self.mqtt = MQTTHandler(host=self.env.config.get("mqtt.host"),
-                                port=self.env.config.getint("mqtt.port", default=1883))
 
     def serve(self):
-        self.mqtt.get_client().add_subscription('%s/#' % self.subtopic)
-        self.mqtt.set_subscription_callback(self.handle_request)
+        self.mqtt = MQTTHandler(host=self.env.config.get("mqtt.host"),
+                                port=self.env.config.getint("mqtt.port", default=1883),
+                                client_id_prefix="MQTTRPCService")
+
         self.__command_registry = PluginRegistry.getInstance('CommandRegistry')
         self.log.info("MQTT RPC service started, listening on subtopic '%s/#'" % self.subtopic)
+        self.mqtt.get_client().add_subscription('%s/#' % self.subtopic, qos=2, callback=self.handle_request)
 
+    @gen.coroutine
     def handle_request(self, topic, message):
         if topic == self.subtopic:
             # event from proxy received
@@ -64,7 +68,10 @@ class MQTTRPCService(object):
 
             try:
                 id_, res = self.process(topic, message)
+                if is_future(res):
+                    res = yield res
                 response = dumps({"result": res, "id": id_})
+                self.log.debug("MQTT-RPC response: %s on topic %s" % (response, topic))
 
             except Exception as e:
                 err = str(e)
@@ -72,7 +79,7 @@ class MQTTRPCService(object):
                 response = dumps({'id': topic.split("/")[-2], 'error': err})
 
             # Get rid of it...
-            self.mqtt.send_message(response, topic=response_topic)
+            self.mqtt.send_message(response, topic=response_topic, qos=2)
 
         else:
             self.log.warning("unhandled topic request received: %s" % topic)
@@ -88,17 +95,21 @@ class MQTTRPCService(object):
             id_ = req['id']
             name = req['method']
             args = req['params']
-            user = req['user'] if 'user' in req else topic.split("/")[2]
+            kwargs = req['kwparams']
+            if 'user' in req:
+                user = req['user']
+            else:
+                user = topic.split("/")[2]
             sid = req['session_id'] if 'session_id' in req else None
 
         except KeyError as e:
             self.log.error("KeyError: %s" % e)
             raise BadServiceRequest(message)
 
-        self.log.debug("received call [%s] for %s: %s(%s)" % (id_, topic, name, args))
+        self.log.debug("received call [%s] for %s: %s(%s,%s)" % (id_, topic, name, args, kwargs))
 
         try:
-            return id_, self.__command_registry.dispatch(user, sid, name, *args)
+            return id_, self.__command_registry.dispatch(user, sid, name, *args, **kwargs)
         except Exception as e:
             # Write exception to log
             exc_type, exc_value, exc_traceback = sys.exc_info()

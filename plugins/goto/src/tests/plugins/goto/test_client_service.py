@@ -7,9 +7,12 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import pytest
+import uuid
 from tornado.concurrent import Future
 from tornado.testing import AsyncTestCase, gen_test
 from unittest import mock
+
+import gosa
 from gosa.plugins.goto.client_service import *
 
 
@@ -334,3 +337,113 @@ class GotoClientServiceTestCase(AsyncTestCase):
         with mock.patch.object(self.service.log, "error") as m:
             self.service.mqtt.simulate_message("net.example/client/fake_client_uuid", etree.tostring(event))
             assert m.called
+
+    def test_getDestinationIndicator(self):
+
+        with pytest.raises(ValueError):
+            self.service.getDestinationIndicator('fake-client-id', 'unknown-uid', 'lts-%')
+
+        client_id = str(uuid.uuid4())
+        m_index = mock.MagicMock()
+        with mock.patch('gosa.plugins.goto.client_service.ObjectProxy') as m, \
+                mock.patch.dict(PluginRegistry.modules, {'ObjectIndex': m_index}):
+
+            m_client = mock.MagicMock()
+            m_user = mock.MagicMock()
+
+            # 1. user, 2. device, 3.+4. server searches
+            m_index.search.side_effect = [[{"dn": 'cn=fake-uid,%s' % self.service.env.base}],
+                                          [{"dn": 'cn=fake-device,%s' % self.service.env.base}],
+                                          [],
+                                          [{"dn": 'cn=lts-test1,%s' % self.service.env.base},
+                                           {"dn": 'cn=lts-test2,%s' % self.service.env.base}]]
+
+            m.side_effect = [m_user, m_client]
+            m_client.get_adjusted_parent_dn.side_effect = ['ou=testorg,%s' % self.service.env.base, self.service.env.base]
+            m.get_adjusted_dn.side_effect = ['ou=testorg,%s' % self.service.env.base, self.service.env.base]
+
+            res = self.service.getDestinationIndicator(client_id, 'fake-uid', 'lts-%')
+
+            assert res == 'cn=lts-test1,%s' % self.service.env.base
+            assert m_user.destinationIndicator == 'cn=lts-test1,%s' % self.service.env.base
+            assert m_user.commit.called
+
+            m_user.reset_mock()
+            m_client.reset_mock()
+            m_index.reset_mock()
+            m.reset_mock()
+
+            m_index.search.side_effect = [[{"dn": 'cn=fake-uid,%s' % self.service.env.base}],
+                                          [{"dn": 'cn=fake-device,%s' % self.service.env.base}],
+                                          [],
+                                          [{"dn": 'cn=lts-test1,%s' % self.service.env.base},
+                                           {"dn": 'cn=lts-test2,%s' % self.service.env.base}]]
+            m.side_effect = [m_user, m_client]
+            m_client.get_adjusted_parent_dn.side_effect = ['ou=testorg,%s' % self.service.env.base, self.service.env.base]
+            m.get_adjusted_dn.side_effect = ['ou=testorg,%s' % self.service.env.base, self.service.env.base]
+
+            # now try the rotation
+            m_user.destinationIndicator = 'cn=lts-test1,%s' % self.service.env.base
+            res = self.service.getDestinationIndicator(client_id, 'fake-uid', 'lts-%', rotate=True)
+            assert res == 'cn=lts-test2,%s' % self.service.env.base
+            assert m_user.destinationIndicator == 'cn=lts-test2,%s' % self.service.env.base
+            assert m_user.commit.called
+
+            m_client.reset_mock()
+            m_index.reset_mock()
+            m.reset_mock()
+            m_index.search.side_effect = [[{"dn": 'cn=fake-uid,%s' % self.service.env.base}],
+                                          [{"dn": 'cn=fake-device,%s' % self.service.env.base}],
+                                          [],
+                                          [{"dn": 'cn=lts-test1,%s' % self.service.env.base},
+                                           {"dn": 'cn=lts-test2,%s' % self.service.env.base}]]
+            m.side_effect = [m_user, m_client]
+            m_client.get_adjusted_parent_dn.side_effect = ['ou=testorg,%s' % self.service.env.base, self.service.env.base]
+            m.get_adjusted_dn.side_effect = ['ou=testorg,%s' % self.service.env.base, self.service.env.base]
+
+            # again without rotation, use the stored value
+            res = self.service.getDestinationIndicator(client_id, 'fake-uid', 'lts-%', rotate=False)
+            assert res == 'cn=lts-test2,%s' % self.service.env.base
+            assert m_user.destinationIndicator == 'cn=lts-test2,%s' % self.service.env.base
+
+            m_user.reset_mock()
+            m_client.reset_mock()
+            m_index.reset_mock()
+            m.reset_mock()
+            m_index.search.side_effect = [[{"dn": 'cn=fake-uid,%s' % self.service.env.base}],
+                                          [{"dn": 'cn=fake-device,%s' % self.service.env.base}],
+                                          [],
+                                          [{"dn": 'cn=lts-test1,%s' % self.service.env.base},
+                                           {"dn": 'cn=lts-test2,%s' % self.service.env.base}]]
+            m.side_effect = [m_user, m_client]
+            m_client.get_adjusted_parent_dn.side_effect = ['ou=testorg,%s' % self.service.env.base, self.service.env.base]
+            m.get_adjusted_dn.side_effect = ['ou=testorg,%s' % self.service.env.base, self.service.env.base]
+
+            # rotation with empty value (first server should be returned
+            m_user.destinationIndicator = None
+            res = self.service.getDestinationIndicator(client_id, 'fake-uid', 'lts-%', rotate=True)
+            assert res == 'cn=lts-test1,%s' % self.service.env.base
+            assert m_user.destinationIndicator == 'cn=lts-test1,%s' % self.service.env.base
+            assert m_user.commit.called
+
+            m_user.reset_mock()
+            m_client.reset_mock()
+            m_index.reset_mock()
+            m.reset_mock()
+            m_index.search.side_effect = [[{"dn": 'cn=fake-uid,%s' % self.service.env.base}],
+                                          [{"dn": 'cn=fake-device,%s' % self.service.env.base}],
+                                          [],
+                                          [{"dn": 'cn=lts-test1,%s' % self.service.env.base},
+                                           {"dn": 'cn=lts-test2,%s' % self.service.env.base}]]
+            m.side_effect = [m_user, m_client]
+            m_client.get_adjusted_parent_dn.side_effect = ['ou=testorg,%s' % self.service.env.base, self.service.env.base]
+            m.get_adjusted_dn.side_effect = ['ou=testorg,%s' % self.service.env.base, self.service.env.base]
+
+            m_user.destinationIndicator = 'cn=lts-test2,%s' % self.service.env.base
+            # rotation with last value (first server should be returned)
+            res = self.service.getDestinationIndicator(client_id, 'fake-uid', 'lts-%', rotate=True)
+            assert res == 'cn=lts-test1,%s' % self.service.env.base
+            assert m_user.destinationIndicator == 'cn=lts-test1,%s' % self.service.env.base
+            assert m_user.commit.called
+
+

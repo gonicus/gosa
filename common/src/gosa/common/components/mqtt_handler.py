@@ -25,12 +25,14 @@ class MQTTHandler(object):
     _conn = None
     __capabilities = {}
     __peers = {}
+    __connection_listeners = []
     _eventProvider = None
     __client = None
     url = None
     joined = False
 
-    def __init__(self, autostart=True, host=None, port=None, keepalive=None):
+    def __init__(self, autostart=True, host=None, port=None, keepalive=None, use_ssl=None, ca_file=None, insecure=None,
+                 client_id_prefix=None):
         """
         Construct a new MQTTClientHandler instance based on the configuration
         stored in the environment.
@@ -39,16 +41,17 @@ class MQTTHandler(object):
         @param env: L{Environment} object
         """
         self.log = logging.getLogger(__name__)
-        self.log.debug("initializing MQTT client handler")
         self.env = Environment.getInstance()
+        self.use_ssl = use_ssl if use_ssl is not None else self.env.config.getboolean('mqtt.ssl', default=True)
+        self.ca_file = ca_file if ca_file is not None else self.env.config.get('mqtt.ca_file')
+        self.insecure = insecure if insecure is not None else self.env.config.getboolean('mqtt.insecure', default=False)
 
         # Load configuration
         self.host = self.env.config.get('mqtt.host') if host is None else host
         if port is not None:
             self.port = port
         else:
-            self.port = int(self.env.config.get('mqtt.port', default=1883)) \
-                if self.env.config.get('mqtt.port', default=1883) is not None else 1883
+            self.port = self.env.config.getint('mqtt.port', default=1883)
 
         # Auto detect if possible
         if not self.host:
@@ -60,6 +63,8 @@ class MQTTHandler(object):
         if not self.host:
             self.log.error("no MQTT host available for bus communication")
             raise Exception("no MQTT host available")
+
+        self.log.debug("initializing MQTT client handler on %s:%s" % (self.host, self.port))
 
         self.keep_alive = self.env.config.get('mqtt.keepalive', default=60) if keepalive is None else keepalive
         self.domain = self.env.domain
@@ -79,8 +84,16 @@ class MQTTHandler(object):
             key = self.env.config.get('jsonrpc.key')
 
         # Make proxy connection
-        self.log.info("using service '%s:%s'" % (self.host, self.port))
-        self.__client = MQTTClient(self.host, port=self.port, keepalive=self.keep_alive)
+        self.log.info("using service '%s:%s (SSL=%s, insecure=%s)'" % (self.host, self.port, self.use_ssl, self.insecure))
+        self.__client = MQTTClient(
+            self.host,
+            port=self.port,
+            keepalive=self.keep_alive,
+            use_ssl=self.use_ssl,
+            ca_file=self.ca_file,
+            insecure=self.insecure,
+            client_id_prefix=client_id_prefix
+        )
 
         self.__client.authenticate(user, key)
 
@@ -93,19 +106,27 @@ class MQTTHandler(object):
     def init_subscriptions(self): # pragma: nocover
         pass
 
-    def set_subscription_callback(self, callback):
-        self.__client.set_subscription_callback(callback)
-
     def get_client(self):
         return self.__client
 
-    def send_message(self, data, topic, qos=0):
-        """ Send message via proxy to mqtt. """
-        return self.__client.publish(topic, data, qos=qos)
+    def __getattr__(self, name):
+        return getattr(self.__client, name)
 
-    def send_event(self, event, topic, qos=0):
+    @gen.coroutine
+    def wait_for_connection(self, callback):
+        while self.connected is False:
+            yield gen.sleep(0.1)
+            self.log.debug("%s: waiting for connection..." % self.__client.get_identifier())
+        self.log.debug("%s: connected" % self.__client.get_identifier())
+        callback()
+
+    def send_message(self, data, topic, qos=0, proxied=False):
+        """ Send message via proxy to mqtt. """
+        return self.__client.publish(topic, data, qos=qos, proxied=proxied)
+
+    def send_event(self, event, topic, qos=0, proxied=False):
         data = etree.tostring(event, pretty_print=True).decode('utf-8')
-        self.send_message(data, topic, qos=qos)
+        self.send_message(data, topic, qos=qos, proxied=proxied)
 
     def will_set(self, topic, event, qos=0, retain=False):
         """
@@ -116,10 +137,10 @@ class MQTTHandler(object):
         self.__client.will_set(topic, data, qos, retain)
 
     @gen.coroutine
-    def send_sync_message(self, data, topic):
+    def send_sync_message(self, data, topic, qos=0):
         """Send request and return the response"""
-        result = yield self.__client.get_sync_response(topic, data)
-        raise gen.Return(result)
+        result = yield self.__client.get_sync_response(topic, data, qos=qos)
+        return result
 
     def start(self):
         """

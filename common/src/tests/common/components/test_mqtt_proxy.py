@@ -21,9 +21,6 @@ class MqttProxyTestCase(AsyncTestCase):
         with mock.patch("gosa.common.components.mqtt_proxy.MQTTHandler", spec=MQTTHandler) as m_handler:
             proxy = MQTTServiceProxy(mqttHandler=m_handler, serviceAddress="test/client", methods=['testCall'])
 
-            with pytest.raises(JSONRPCException):
-                yield proxy.testCall("arg", test="kwarg")
-
             with pytest.raises(NameError):
                 yield proxy.unknownCall("arg")
 
@@ -35,13 +32,14 @@ class MqttProxyTestCase(AsyncTestCase):
 
             timer = Timer(0.1, send)
             timer.start()
-            res = yield proxy.testCall("arg")
+            res = yield proxy.testCall("arg", test="kw")
             args, kwargs = m_handler.send_sync_message.call_args
 
             content = loads(args[0])
             assert content['method'] == "testCall"
             assert content['params'] == ["arg"]
-            assert content['id'] == "jsonrpc"
+            assert "test" in content['kwparams']
+            assert content['id'] == "mqttrpc"
             assert args[1].startswith("test/client/")
             assert res == "test"
 
@@ -83,8 +81,8 @@ class MqttProxyTestCase(AsyncTestCase):
 
             content = loads(args[0])
             assert content['method'] == "testCall"
-            assert content['params'] == {'test': 'arg'}
-            assert content['id'] == "jsonrpc"
+            assert content['kwparams'] == {'test': 'arg'}
+            assert content['id'] == "mqttrpc"
             assert args[1].startswith("test/client/")
             assert res == {"testCall": "test"}
 

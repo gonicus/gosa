@@ -38,16 +38,16 @@ def shutdown():
     env = Environment.getInstance()
     log = logging.getLogger(__name__)
 
-    # Function to shut down the client. Do some clean up and close sockets.
-    mqtt = PluginRegistry.getInstance("MQTTRelayService")
-
-    # Tell others that we're away now
-    e = EventMaker()
-
-    goodbye = e.Event(e.ClientLeave(e.Id(env.core_uuid)))
-    if mqtt:
-        mqtt.backend_mqtt.send_event(goodbye, "%s/proxy" % env.domain, qos=1)
-        mqtt.close()
+    # # Function to shut down the client. Do some clean up and close sockets.
+    # mqtt = PluginRegistry.getInstance("MQTTRelayService")
+    #
+    # # Tell others that we're away now
+    # e = EventMaker()
+    #
+    # goodbye = e.Event(e.ClientLeave(e.Id(env.core_uuid)))
+    # if mqtt:
+    #     mqtt.backend_mqtt.send_event(goodbye, "%s/bus" % env.domain, qos=1)
+    #     mqtt.close()
 
     # Shutdown plugins
     PluginRegistry.shutdown()
@@ -176,15 +176,19 @@ def netactivity(online):
         env = Environment.getInstance()
         netstate = False
 
-        # Function to shut down the client. Do some clean up and close sockets.
-        mqtt = PluginRegistry.getInstance("MQTTClientHandler")
-
-        # Tell others that we're away now
-        e = EventMaker()
-        goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
-        if mqtt:
-            mqtt.send_event(goodbye, qos=2)
-            mqtt.close()
+        # # Function to shut down the client. Do some clean up and close sockets.
+        # mqtt = PluginRegistry.getInstance("MQTTRelayService")
+        #
+        # # Tell others that we're away now
+        # e = EventMaker()
+        # goodbye = e.Event(e.BusClientState(
+        #     e.Id(env.uuid),
+        #     e.Type('proxy'),
+        #     e.State('leave')
+        # ))
+        # if mqtt:
+        #     mqtt.backend_mqtt.send_event(goodbye, qos=2)
+        #     mqtt.close()
 
         env.reset_requested = True
         env.active = False

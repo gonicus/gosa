@@ -63,15 +63,19 @@ class PPDProxy(object):
         local_path = path.join(self.ppd_dir, host, rel_path)
         if not path.exists(local_path):
             # cache locally
-            r = requests.get(source_url)
-            if r.ok:
-                local_dir = path.dirname(local_path)
-                if not path.exists(local_dir):
-                    makedirs(local_dir)
-                with open(local_path, "w") as f:
-                    f.write(r.text)
-            else:
-                self.log.error("requesting PPD from %s failed with status code: %s" % (source_url, r.status_code))
+            try:
+                r = requests.get(source_url)
+                if r.ok:
+                    local_dir = path.dirname(local_path)
+                    if not path.exists(local_dir):
+                        makedirs(local_dir)
+                    with open(local_path, "w") as f:
+                        f.write(r.text)
+                else:
+                    self.log.error("requesting PPD from %s failed with status code: %s" % (source_url, r.status_code))
+                    return source_url
+            except requests.exceptions.ConnectionError as e:
+                self.log.error("requesting PPD from %s failed with error: %s" % (source_url, str(e)))
                 return source_url
 
         return "%s%s/%s" % (self.base_url, host, rel_path)

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects">
+  <Object>
+    <Name>GoServer</Name>
+    <DisplayName>GoServer</DisplayName>
+    <Description>Server description (v2.7)</Description>
+    <Backend>LDAP</Backend>
+    <BaseObject>false</BaseObject>
+    <BackendParameters>
+      <Backend objectClasses="goServer" RDN="cn">LDAP</Backend>
+    </BackendParameters>
+    <Extends>
+      <Value>Device</Value>
+    </Extends>
+    <Attributes>
+      <ForeignAttribute>
+        <Name>cn</Name>
+      </ForeignAttribute>
+      <ForeignAttribute>
+        <Name>description</Name>
+      </ForeignAttribute>
+      <ForeignAttribute>
+        <Name>macAddress</Name>
+      </ForeignAttribute>
+      <ForeignAttribute>
+        <Name>ipHostNumber</Name>
+      </ForeignAttribute>
+    </Attributes>
+  </Object>
+</Objects>

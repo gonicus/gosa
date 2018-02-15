@@ -1,360 +1,360 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" 
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.gonicus.de/Events">
+<xs:schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified"
+					 xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.gonicus.de/Events">
 
-	<xs:element name="Inventory" type="Inventory"></xs:element>
+	<xs:element name="Inventory" type="Inventory"/>
 
 	<xs:complexType name="Inventory">
 		<xs:sequence>
-			<xs:element name="Checksum" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="DeviceID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="QueryType" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="ClientVersion" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="ClientUUID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="HardwareUUID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Hostname" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Controller" type="Controller" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Modem" type="Modem" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Drive" type="Drive" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Storage" type="Storage" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Memory" type="Memory" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Port" type="Port" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Slot" type="Slot" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Software" type="Software" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Monitor" type="Monitor" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Video" type="Video" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Sound" type="Sound" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Network" type="Network" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Hardware" type="Hardware" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Bios" type="Bios" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Cpu" type="Cpu" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Login" type="Login" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Printer" type="Printer" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="VirtualMachine" type="VirtualMachine" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Process" type="Process" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="AccessLog" type="AccessLog" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Environment" type="Environment" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="USBDevice" type="USBDevice" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Battery" type="Battery" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="Antivirus" type="Antivirus" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="LogicalVolume" type="LogicalVolume" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="PhysicalVolume" type="PhysicalVolume" maxOccurs="unbounded" minOccurs="0"></xs:element>
-			<xs:element name="VolumeGroup" type="VolumeGroup" maxOccurs="unbounded" minOccurs="0"></xs:element>
+			<xs:element name="Checksum" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="DeviceID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="QueryType" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="ClientVersion" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="ClientUUID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="HardwareUUID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Hostname" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Controller" type="Controller" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Modem" type="Modem" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Drive" type="Drive" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Storage" type="Storage" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Memory" type="Memory" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Port" type="Port" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Slot" type="Slot" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Software" type="Software" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Monitor" type="Monitor" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Video" type="Video" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Sound" type="Sound" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Network" type="Network" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Hardware" type="Hardware" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Bios" type="Bios" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Cpu" type="Cpu" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Login" type="Login" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Printer" type="Printer" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="VirtualMachine" type="VirtualMachine" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Process" type="Process" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="AccessLog" type="AccessLog" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Environment" type="Environment" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="USBDevice" type="USBDevice" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Battery" type="Battery" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="Antivirus" type="Antivirus" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="LogicalVolume" type="LogicalVolume" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="PhysicalVolume" type="PhysicalVolume" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="VolumeGroup" type="VolumeGroup" maxOccurs="unbounded" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Controller">
 		<xs:sequence>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Manufacturer" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Driver" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="PCIClass" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="PCIID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="PCISlot" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Manufacturer" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Driver" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="PCIClass" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="PCIID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="PCISlot" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Modem">
 		<xs:sequence>
-			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Drive">
 		<xs:sequence>
-			<xs:element name="Device" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="MountPoint" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Filesystem" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Label" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element nillable="true" name="CreateDate" type="xs:dateTime" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="TotalSpace" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="FreeSpace" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Device" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="MountPoint" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Filesystem" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Label" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element nillable="true" name="CreateDate" type="xs:dateTime" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="TotalSpace" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="FreeSpace" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Storage">
 		<xs:sequence>
-			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="DiskSize" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Firmware" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Manufacturer" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Model" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="SCSI_CHID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="SCSI_COID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="SCSI_LUN" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="SCSI_UNID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="DiskSize" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Firmware" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Manufacturer" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Model" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="SCSI_CHID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="SCSI_COID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="SCSI_LUN" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="SCSI_UNID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Memory">
 		<xs:sequence>
-			<xs:element name="Capacity" type="xs:integer" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Caption" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Speed" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="NumberOfSlots" type="xs:integer" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Capacity" type="xs:integer" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Caption" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Speed" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="NumberOfSlots" type="xs:integer" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Port">
 		<xs:sequence>
-			<xs:element name="Caption" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Caption" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Slot">
 		<xs:sequence>
-			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Designation" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Status" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Designation" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Status" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="Software"> 
+	<xs:complexType name="Software">
 		<xs:sequence>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Version" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Publisher" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="InstallDate" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Comments" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Size" type="xs:integer" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Folder" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Version" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Publisher" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="InstallDate" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Comments" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Size" type="xs:integer" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Folder" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Monitor">
 		<xs:sequence>
-			<xs:element name="EDID_Base64" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="EDID_UUEncode" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Caption" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Manufacturer" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="EDID_Base64" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="EDID_UUEncode" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Caption" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Manufacturer" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Video">
 		<xs:sequence>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Memory" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Chipset" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Resolution" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Memory" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Chipset" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Resolution" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Sound">
 		<xs:sequence>
-			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Manufacturer" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Manufacturer" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Network">
 		<xs:sequence>
-			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Driver" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="IpAddress" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="DhcpIp" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="GatewayIp" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="SubnetMask" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Subnet" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="MacAddress" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="PCISlot" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Slaves" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Status" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="VirtualDevice" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Driver" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="IpAddress" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="DhcpIp" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="GatewayIp" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="SubnetMask" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Subnet" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="MacAddress" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="PCISlot" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Slaves" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Status" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="VirtualDevice" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Hardware">
 		<xs:sequence>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Architecture" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Checksum" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="LastLoggedUser" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="DateLastLoggedUser" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="DefaultGateway" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="IpAddress" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Memory" type="xs:integer" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="OperatingSystemComment" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="OperatingSystem" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="OperatingSystemVersion" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="UserID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Processors" type="xs:integer" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="ProcessorSpeed" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="ProcessorType" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="SwapMemory" type="xs:integer" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="VirtualMachineSystem" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Workgroup" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="DNS" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="ReportGenerationTime" type="xs:integer" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Architecture" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Checksum" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="LastLoggedUser" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="DateLastLoggedUser" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="DefaultGateway" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="IpAddress" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Memory" type="xs:integer" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="OperatingSystemComment" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="OperatingSystem" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="OperatingSystemVersion" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="UserID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Processors" type="xs:integer" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="ProcessorSpeed" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="ProcessorType" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="SwapMemory" type="xs:integer" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="VirtualMachineSystem" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Workgroup" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="DNS" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="ReportGenerationTime" type="xs:integer" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Bios">
 		<xs:sequence>
-			<xs:element name="BiosDate" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="BiosManufacturer" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="BiosVersion" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="SystenManufacturer" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="SystemModel" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="SystemSerial" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="BiosAssetTag" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="BiosDate" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="BiosManufacturer" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="BiosVersion" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="SystenManufacturer" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="SystemModel" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="SystemSerial" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="BiosAssetTag" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Cpu">
 		<xs:sequence>
-			<xs:element name="Manufacturer" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Core" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Speed" type="xs:integer" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Thread" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Manufacturer" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Core" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Speed" type="xs:integer" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Thread" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Login">
 		<xs:sequence>
-			<xs:element name="Login" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Login" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Printer">
 		<xs:sequence>
-			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Driver" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Port" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Description" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Driver" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Port" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="VirtualMachine">
 		<xs:sequence>
-			<xs:element name="Memory" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="UUID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Status" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="SubSystem" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="CPUs" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="VirtualMachineID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Memory" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="UUID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Status" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="SubSystem" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Type" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="CPUs" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="VirtualMachineID" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Process">
 		<xs:sequence>
-			<xs:element name="Command" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="CpuUsage" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="MemoryUsagePercent" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="StartDate" type="xs:dateTime" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="User" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="VirtualMemory" type="xs:integer" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="TTY" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="PID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Command" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="CpuUsage" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="MemoryUsagePercent" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="StartDate" type="xs:dateTime" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="User" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="VirtualMemory" type="xs:integer" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="TTY" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="PID" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="AccessLog">
 		<xs:sequence>
-			<xs:element name="LoginDate" type="xs:dateTime" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="UserID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="LoginDate" type="xs:dateTime" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="UserID" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Environment">
 		<xs:sequence>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Value" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Value" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="USBDevice">
 		<xs:sequence>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="VendorID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="ProductID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Class" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="SubClass" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="VendorID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="ProductID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Class" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="SubClass" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Battery">
 		<xs:sequence>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Manufacturer" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Voltage" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Date" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Chemistry" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Capacity" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Serial" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Manufacturer" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Voltage" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Date" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Chemistry" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Capacity" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="Antivirus">
 		<xs:sequence>
-			<xs:element name="Company" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="GUID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Enabled" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="UpToDate" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Version" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Company" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="GUID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Enabled" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="UpToDate" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Version" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="LogicalVolume">
 		<xs:sequence>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="UUID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="VolumeGroupName" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Parameters" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Size" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="SegmentCount" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="UUID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="VolumeGroupName" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Parameters" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Size" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="SegmentCount" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="PhysicalVolume">
 		<xs:sequence>
-			<xs:element name="Device" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="UUID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Format" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Parameters" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Size" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Free" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="ExtendSize" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="ExtendCount" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Device" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="UUID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Format" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Parameters" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Size" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Free" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="ExtendSize" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="ExtendCount" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="VolumeGroup">
 		<xs:sequence>
-			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="PhysicalVolumeCount" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="LogicalVolumeCount" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Parameters" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Size" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="Free" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="UUID" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-			<xs:element name="ExtendSize" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+			<xs:element name="Name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="PhysicalVolumeCount" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="LogicalVolumeCount" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Parameters" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Size" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="Free" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="UUID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="ExtendSize" type="xs:string" maxOccurs="1" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 

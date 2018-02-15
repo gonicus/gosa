@@ -68,6 +68,10 @@ elif sys.argv[1] == "test":
     Environment.noargs = True
     env = Environment.getInstance()
 
+    gosa_dir = os.path.join(os.path.sep, 'tmp', 'gosa')
+    if not os.path.exists(gosa_dir):
+        os.makedirs(gosa_dir)
+
 
 class CollectI18nStats(distutils.cmd.Command):
 
@@ -281,6 +285,7 @@ setup(
         settings = gosa.backend.components.settings_registry:SettingsRegistry
         mail = gosa.backend.plugins.mail.main:Mail
         user = gosa.backend.plugins.user.main:User
+        mqtt_connection = gosa.common.mqtt_connection_state:MQTTConnectionHandler
         
         [gosa.backend.plugin]
         workflow = gosa.backend.components.workflowregistry:WorkflowRegistry

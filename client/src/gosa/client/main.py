@@ -30,11 +30,14 @@ from gosa.common.event import EventMaker
 
 netstate = False
 
+
 def shutdown(a=None, b=None):
     global dr
 
     env = Environment.getInstance()
     log = logging.getLogger(__name__)
+
+    # Function to shut down the client. Do some clean up and close sockets.
 
     # Function to shut down the client. Do some clean up and close sockets.
     mqtt = PluginRegistry.getInstance("MQTTClientHandler")
@@ -43,8 +46,8 @@ def shutdown(a=None, b=None):
     e = EventMaker()
     goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
     if mqtt:
-        mqtt.send_event(goodbye, qos=2)
-        mqtt.close()
+        log.info("sending ClientLeave")
+        mqtt.send_event(goodbye, qos=1)
 
     # Shutdown plugins
     PluginRegistry.shutdown()
@@ -185,8 +188,7 @@ def netactivity(online):
         e = EventMaker()
         goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
         if mqtt:
-            mqtt.send_event(goodbye, qos=2)
-            mqtt.close()
+            mqtt.send_event(goodbye, qos=1)
 
         env.reset_requested = True
         env.active = False
@@ -205,6 +207,7 @@ def main():
     # Initialize core environment
     env = Environment.getInstance()
     env.active = False
+    env.mode = "client"
 
     env.log.info("GOsa client is starting up")
 

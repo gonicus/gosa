@@ -55,7 +55,10 @@ class ImageIndex(Base):
         return "<ImageIndex(uuid='%s', attribute='%s')>" % (self.uuid, self.attribute)
 
 
-Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
+tables = [ImageSize.__table__, ImageIndex.__table__]
+
+Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"),
+                         tables=tables)
 
 
 class ImageProcessor(ElementFilter):
@@ -85,7 +88,7 @@ class ImageProcessor(ElementFilter):
                         entry = session.query(ImageIndex).filter(and_(ImageIndex.uuid == obj.uuid, ImageIndex.attribute == key)).one_or_none()
                     except OperationalError:
                         session.rollback()
-                        Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
+                        Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"), tables=tables)
                         entry = None
     
                     if entry:
@@ -126,7 +129,7 @@ class ImageProcessor(ElementFilter):
                             try:
                                 se = session.query(ImageSize.size).filter(and_(ImageSize.uuid == obj.uuid, ImageSize.size == s)).one_or_none()
                             except OperationalError:
-                                Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"))
+                                Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"), tables=tables)
                                 se = None
                             if not se:
                                 se = ImageSize(uuid=obj.uuid, size=s, path=wds)

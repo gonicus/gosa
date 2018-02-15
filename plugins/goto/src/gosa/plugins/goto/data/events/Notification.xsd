@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events">
-    <complexType name="Notification">
-    	<annotation>
-    		<documentation>
-    			The Notification event is fired by notify_user if there's a user (web) session
-			available somewhere. This event is used internally - only the agents should have
-			access to it. Make sure your ACLs are set up correctly.
-    		</documentation>
-    	</annotation>
-        <all>
-    		<element name="Target" type="string" maxOccurs="1" minOccurs="1"></element>
-    		<element name="Title" type="string" maxOccurs="1" minOccurs="0"></element>
-    		<element name="Body" type="string" maxOccurs="1" minOccurs="1"></element>
-    		<element name="Icon" type="string" maxOccurs="1" minOccurs="0"></element>
-    		<element name="Timeout" type="int" maxOccurs="1" minOccurs="0"></element>
-    	</all>
-    </complexType>
-    <element name="Notification" type="e:Notification"></element>
+	<complexType name="Notification">
+		<annotation>
+			<documentation>
+				The Notification event is fired by notify_user if there's a user (web) session
+				available somewhere. This event is used internally - only the agents should have
+				access to it. Make sure your ACLs are set up correctly.
+			</documentation>
+		</annotation>
+		<all>
+			<element name="Target" type="string" maxOccurs="1" minOccurs="1"/>
+			<element name="Title" type="string" maxOccurs="1" minOccurs="0"/>
+			<element name="Body" type="string" maxOccurs="1" minOccurs="1"/>
+			<element name="Icon" type="string" maxOccurs="1" minOccurs="0"/>
+			<element name="Timeout" type="int" maxOccurs="1" minOccurs="0"/>
+		</all>
+	</complexType>
+	<element name="Notification" type="e:Notification"/>
 </schema>

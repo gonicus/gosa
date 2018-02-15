@@ -6,6 +6,8 @@ id = backend
 idGenerator = "{%sn}-{%givenName[0-4]}"
 # master/slave mode
 mode = master
+# domain to use for resolving _gosa-*._tcp DNS SRV entries
+# dns-resolve-domain =
 
 [http]
 host = 0.0.0.0
@@ -45,6 +47,8 @@ host = localhost
 #ssl = <inherit from http.ssl>
 #ca_file =
 #insecure = false
+# can be used to allow external clients to listen on any mqtt topic e.g. for debugging the message bus
+#superuser =
 
 [jsonrpc]
 url = http://localhost:8000/rpc

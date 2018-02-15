@@ -88,7 +88,7 @@ setup(
         [console_scripts]
         gosa-client = gosa.client.main:main
         gosa-join = gosa.client.join:main
-        gosa-session = gosa.client.session:main
+        gosa-client-cli = gosa.client.cli:main
 
         [gosa.client.join.module]
         join.cli = gosa.client.plugins.join.cli:Cli
@@ -104,5 +104,6 @@ setup(
         powermanagement = gosa.client.plugins.powermanagement.main:PowerManagement
         session = gosa.client.plugins.sessions.main:SessionKeeper
         scheduler = gosa.client.scheduler:SchedulerService
+        mqtt_connection = gosa.common.mqtt_connection_state:MQTTConnectionHandler
     """
 )

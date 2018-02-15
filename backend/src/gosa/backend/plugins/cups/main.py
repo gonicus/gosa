@@ -38,7 +38,7 @@ C.register_codes(dict(
     OPTION_CONFLICT=N_("Setting option '%(option)s' to '%(value)s' caused %(conflicts)s"),
     OPTION_NOT_FOUND=N_("Option '%(option)s' not found in PPD"),
     COULD_NOT_READ_SOURCE_PPD=N_("Could not read source PPD file"),
-    USER_NOT_FOUND=N_("User '%(topic)s' not found"),
+    USER_NOT_FOUND=N_("User '%(user)s' not found"),
     PPD_DIFF_TO_LARGE=N_("Cannot find new ppd file per diff, because to many new printers where found"),
     PPD_ALREADY_EXISTS=N_("Cannot find new ppd file per diff, because if already exists"),
     PPD_NOT_EXACTLY_ONE=N_(

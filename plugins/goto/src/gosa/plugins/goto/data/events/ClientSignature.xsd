@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events">
 
-    <complexType name="ClientCapabilities">
-    	<sequence maxOccurs="unbounded" minOccurs="0">
-    		<element name="ClientMethod" type="e:ClientMethod"></element>
-    	</sequence>
-    </complexType>
-    
-    <complexType name="ClientMethod">
-        <all>
-    		<element name="Name" type="string" maxOccurs="1" minOccurs="1"></element>
-    		<element name="Path" type="string" maxOccurs="1" minOccurs="1"></element>
-    		<element name="Signature" type="string" maxOccurs="1" minOccurs="1"></element>
-    		<element name="Documentation" type="string" maxOccurs="1" minOccurs="1"></element>
-    	</all>
-    </complexType>
+	<complexType name="ClientCapabilities">
+		<sequence maxOccurs="unbounded" minOccurs="0">
+			<element name="ClientMethod" type="e:ClientMethod"/>
+		</sequence>
+	</complexType>
 
-    <element name="ClientCapabilities" type="e:ClientCapabilities"></element>
+	<complexType name="ClientMethod">
+		<all>
+			<element name="Name" type="string" maxOccurs="1" minOccurs="1"/>
+			<element name="Path" type="string" maxOccurs="1" minOccurs="1"/>
+			<element name="Signature" type="string" maxOccurs="1" minOccurs="1"/>
+			<element name="Documentation" type="string" maxOccurs="1" minOccurs="1"/>
+		</all>
+	</complexType>
 
-    <element name="ClientMethod" type="e:ClientMethod"></element>
+	<element name="ClientCapabilities" type="e:ClientCapabilities"/>
 
-    <complexType name="ClientSignature">
-        <all>
-    		<element name="ClientCapabilities" type="e:ClientCapabilities" maxOccurs="1" minOccurs="0">
-    		</element>
-    		<element name="Id" type="string" maxOccurs="1" minOccurs="1">
-    		</element>
-    		<element name="Name" type="string" maxOccurs="1" minOccurs="1"></element>
-    	</all>
+	<element name="ClientMethod" type="e:ClientMethod"/>
 
-    </complexType>
+	<complexType name="ClientSignature">
+		<all>
+			<element name="ClientCapabilities" type="e:ClientCapabilities" maxOccurs="1" minOccurs="0">
+			</element>
+			<element name="Id" type="string" maxOccurs="1" minOccurs="1">
+			</element>
+			<element name="Name" type="string" maxOccurs="1" minOccurs="1"/>
+		</all>
 
-    <element name="ClientSignature" type="e:ClientSignature"></element>
+	</complexType>
+
+	<element name="ClientSignature" type="e:ClientSignature"/>
 
 </schema>

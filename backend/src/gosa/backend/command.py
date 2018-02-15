@@ -30,32 +30,25 @@ via the :meth:`gosa.backend.command.CommandRegistry.dispatch` method
 """
 import re
 import logging
-from datetime import timedelta
 
 from lxml import objectify, etree
 
 import zope
 import gettext
 
-from tornado import gen
-from tornado.gen import coroutine
-
-from gosa.common.components.mqtt_handler import MQTTHandler
 from gosa.common.components.mqtt_proxy import MQTTServiceProxy
-from gosa.common.exceptions import ACLException
 from pkg_resources import resource_filename #@UnresolvedImport
 from threading import Event
-from inspect import getargspec, getmembers, ismethod
+from inspect import getmembers, ismethod, getfullargspec
 from zope.interface import implementer
-from gosa.common.components import PluginRegistry, ObjectRegistry, Command, no_login_commands
-from gosa.common.gjson import loads
+from gosa.common.components import PluginRegistry, Command, no_login_commands
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
-from gosa.common.utils import stripNs, N_
+from gosa.common.utils import N_
 from gosa.common.error import GosaErrorHandler as C
 from gosa.common.components import Plugin
 from gosa.common.events import Event, EventNotAuthorized
-from gosa.backend.exceptions import CommandInvalid, CommandNotAuthorized, MQTTProxyException
+from gosa.backend.exceptions import CommandInvalid, CommandNotAuthorized
 from gosa.backend.routes.sse.main import SseHandler
 
 
@@ -273,18 +266,32 @@ class CommandRegistry(Plugin):
             self.log.debug("executing '%s' locally" % func)
             return method(*arg, **larg)
         else:
-            self.log.debug("proxying '%s(%s)' call to GOsa backend via %s:%s" % (func, arg, self.mqtt.host, self.mqtt.port))
+            # remove attached user session_id again
+            return self.dispatchRemote(user, session_id, *arg[2:], **larg)
 
-            if self.callNeedsUser(func):
-                larg['__user__'] = arg.pop(0)
-            else:
-                # always add user to the call (for general ACL checks)
-                larg['__user__'] = user
-            if self.callNeedsSession(func):
-                larg['__session_id__'] = arg.pop(0)
+    def dispatchRemote(self, user, session_id, func, *arg, **larg):
+        """
+        Dispatches the RPC to the backend if it exists (only in proxy-mode)
+        :param user: the calling users name
+        :param session_id: the calling session id
+        :param func: method to call
+        :param arg: ordinary argument list
+        :param larg: ordinary argument dict
+        :return: Future
+        """
+        if self.backend_proxy is None:
+            self.log.error("no backend proxy available, remote dispatching rpcs not possible")
+            return
 
-            future = getattr(self.backend_proxy, func)(*arg, **larg)
-            return future.result()
+        self.log.debug("proxying '%s(%s)' call to GOsa backend via %s:%s" % (func, arg, self.mqtt.host, self.mqtt.port))
+
+        # Convert to list
+        arg = list(arg)
+
+        larg['__user__'] = user
+        larg['__session_id__'] = session_id
+
+        return getattr(self.backend_proxy, func)(*arg, **larg)
 
     def path2method(self, path):
         """
@@ -361,7 +368,7 @@ class CommandRegistry(Plugin):
                     info = {
                         'name': func,
                         'path': "%s.%s" % (clazz.__class__.__name__, mname),
-                        'sig': [] if not getargspec(method).args else getargspec(method).args,
+                        'sig': [] if not getfullargspec(method).args else getfullargspec(method).args,
                         'target': clazz.get_target(),
                         'type': getattr(method, "type", NORMAL),
                         'doc': doc,
@@ -372,9 +379,10 @@ class CommandRegistry(Plugin):
 
                     self.commands[func] = info
 
+    def init_backend_proxy(self, mqtt):
         if self.env.mode == "proxy":
             # initializing MQTTServiceProxy to GOsa backend
-            self.mqtt = MQTTHandler(host=self.env.config.get("backend.mqtt-host"), port=self.env.config.getint("backend.mqtt-port", default=1883))
+            self.mqtt = mqtt
             queue = '%s/proxy/%s' % (self.env.domain, self.env.uuid)
             self.backend_proxy = MQTTServiceProxy(mqttHandler=self.mqtt, serviceAddress=queue, methods=False)
 

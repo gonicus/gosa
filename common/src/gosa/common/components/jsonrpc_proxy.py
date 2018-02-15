@@ -205,10 +205,10 @@ class JSONServiceProxy(object):
             else:
                 respdata = self.__opener.open(self.__serviceURL + "?" + quote(postdata.encode('utf8'))).read()
         except HTTPError as e:
-            raise JSONRPCException(str(e))
+            raise JSONRPCException(e.reason if len(e.reason) else str(e))
 
         resp = loads(respdata)
-        if resp['error'] != None:
+        if resp['error'] is not None:
             raise JSONRPCException(resp['error'])
 
         return resp['result']

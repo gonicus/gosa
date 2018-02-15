@@ -17,6 +17,7 @@
 			<Type>DeviceContainer</Type>
 			<Type>PrinterContainer</Type>
 			<Type>OrganizationalUnit</Type>
+			<Type>ServerContainer</Type>
 		</Container>
 	</Object>
 </Objects>

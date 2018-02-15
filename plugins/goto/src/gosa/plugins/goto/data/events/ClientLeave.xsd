@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events">
 
-    <complexType name="ClientLeave">
-    	<sequence>
-    		<element name="Id" type="string"></element>
-    	</sequence>
-    </complexType>
-    
+  <complexType name="ClientLeave">
+    <sequence>
+      <element name="Id" type="string"/>
+    </sequence>
+  </complexType>
 
-    <element name="ClientLeave" type="e:ClientLeave"></element>
+
+  <element name="ClientLeave" type="e:ClientLeave"/>
 
 </schema>

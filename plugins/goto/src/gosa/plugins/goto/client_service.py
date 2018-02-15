@@ -40,16 +40,16 @@ from base64 import b64encode as encode
 
 # Register the errors handled  by us
 C.register_codes(dict(
-    DEVICE_EXISTS=N_("Device with hardware address '%(topic)s' already exists"),
-    USER_NOT_UNIQUE=N_("User '%(topic)s' is not unique"),
-    CLIENT_NOT_FOUND=N_("Client '%(topic)s' not found"),
-    CLIENT_OFFLINE=N_("Client '%(topic)s' is offline"),
-    CLIENT_METHOD_NOT_FOUND=N_("Client '%(topic)s' has no method %(method)s"),
-    CLIENT_DATA_INVALID=N_("Invalid data '%(entry)s:%(data)s' for client '%(topic)s provided'"),
-    CLIENT_TYPE_INVALID=N_("Device type '%(type)s' for client '%(topic)s' is invalid [terminal, workstation, server, sipphone, switch, router, printer, scanner]"),
-    CLIENT_OWNER_NOT_FOUND=N_("Owner '%(owner)s' for client '%(topic)s' not found"),
-    CLIENT_UUID_INVALID=N_("Invalid client UUID '%(topic)s'"),
-    CLIENT_STATUS_INVALID=N_("Invalid status '%(status)s' for client '%(topic)s'")))
+    DEVICE_EXISTS=N_("Device with hardware address '%(mac)s' already exists"),
+    USER_NOT_UNIQUE=N_("User '%(user)s' is not unique"),
+    CLIENT_NOT_FOUND=N_("Client '%(client)s' not found"),
+    CLIENT_OFFLINE=N_("Client '%(client)s' is offline"),
+    CLIENT_METHOD_NOT_FOUND=N_("Client '%(client)s' has no method %(method)s"),
+    CLIENT_DATA_INVALID=N_("Invalid data '%(entry)s:%(data)s' for client '%(client)s provided'"),
+    CLIENT_TYPE_INVALID=N_("Device type '%(type)s' for client '%(client)s' is invalid [terminal, workstation, server, sipphone, switch, router, printer, scanner]"),
+    CLIENT_OWNER_NOT_FOUND=N_("Owner '%(owner)s' for client '%(client)s' not found"),
+    CLIENT_UUID_INVALID=N_("Invalid client UUID '%(uuid)s'"),
+    CLIENT_STATUS_INVALID=N_("Invalid status '%(status)s' for client '%(client)s'")))
 
 
 class GOtoException(Exception):
@@ -85,6 +85,7 @@ class ClientService(Plugin):
     printer_attributes = ["gotoPrinterPPD", "labeledURI", "cn", "l", "description"]
     __client_call_queue = {}
     ppd_proxy = None
+    __current_backend_rpc = None
 
     def __init__(self):
         """
@@ -100,15 +101,15 @@ class ClientService(Plugin):
 
     def __get_handler(self):
         if self.mqtt is None:
-            self.mqtt = MQTTHandler()
+            self.mqtt = MQTTHandler(client_id_prefix="ClientService")
         return self.mqtt
 
     def serve(self):
         # Add event processor
         mqtt = self.__get_handler()
         # listen to client topics
-        mqtt.get_client().add_subscription('%s/client/+' % self.env.domain)
-        self.log.debug("subscribing to %s event queue" % '%s/client/+' % self.env.domain)
+        mqtt.get_client().add_subscription('%s/client/+' % self.env.domain, qos=1)
+        self.log.debug("subscribing to %s event queue on %s" % ('%s/client/+' % self.env.domain, mqtt.host))
         mqtt.set_subscription_callback(self.__eventProcessor)
 
         # Get registry - we need it later on
@@ -294,6 +295,58 @@ class ClientService(Plugin):
         """
         return [client for client, users in self.__user_session.items() if user in users]
 
+    @Command(__help__=N_("Get the destinationIndicator for a user"))
+    def getDestinationIndicator(self, client_id, uid, cn_query, rotate=True):
+        """
+
+        :param client_id: UUID of the client used to find the closest destinationIndicators
+        :param uid: uid of the user
+        :param cn_query: filter for destinationIndicator-cns (e.g. 'lts-% for wildcards)
+        :param rotate: rotate the destinationIndicators (do not use the last one twice in a row)
+        :return: FQDN of the server marked as destinationIndicator
+        """
+        index = PluginRegistry.getInstance('ObjectIndex')
+        res = index.search({'_type': 'User', 'uid': uid}, {'dn': 1})
+        if len(res) == 0:
+            raise ValueError(C.make_error("USER_NOT_FOUND", user=uid, status_code=404))
+
+        user = ObjectProxy(res[0]['dn'])
+
+        if rotate is False and user.destinationIndicator is not None:
+            # nothing to rotate, take the stored one
+            return user.destinationIndicator
+
+        client = self.__open_device(client_id)
+        parent_dn = client.get_adjusted_parent_dn()
+        res = index.search({'_type': 'Device', 'extension': 'GoServer', 'cn': cn_query, '_adjusted_parent_dn': parent_dn}, {'dn': 1})
+
+        while len(res) == 0 and len(parent_dn) > len(self.env.base):
+            parent_dn = ObjectProxy.get_adjusted_dn(parent_dn, self.env.base)
+            res = index.search({'_type': 'Device', 'cn': cn_query, '_adjusted_parent_dn': parent_dn}, {'dn': 1})
+
+        if len(res) > 0:
+            di_pool = sorted([x['dn'] for x in res])
+            if user.destinationIndicator is None:
+                # nothing to rotate, take the first one
+                user.destinationIndicator = di_pool[0]
+                user.commit()
+
+            elif rotate is True:
+                if user.destinationIndicator in di_pool:
+                    # take the next one from list
+                    position = di_pool.index(user.destinationIndicator)+1
+                    if position >= len(di_pool):
+                        position = 0
+                    user.destinationIndicator = di_pool[position]
+                    user.commit()
+                else:
+                    # nothing to rotate, take the first one
+                    user.destinationIndicator = di_pool[0]
+                    user.commit()
+
+            return user.destinationIndicator
+        return None
+
     @Command(__help__=N_("Send synchronous notification message to user"), type="READONLY")
     def notifyUser(self, users, title, message, timeout=10, level='normal', icon="dialog-information"):
         """
@@ -363,7 +416,7 @@ class ClientService(Plugin):
         res = index.search({'_type': 'Device', 'deviceUUID': device_uuid},
                            {'dn': 1})
         if len(res) != 1:
-            raise ValueError(C.make_error("CLIENT_NOT_FOUND", device_uuid, status_code=404))
+            raise ValueError(C.make_error("CLIENT_NOT_FOUND", client=device_uuid, status_code=404))
         return ObjectProxy(res[0]['dn'])
 
     @Command(__help__=N_("Set system status"), type="READONLY")
@@ -393,7 +446,7 @@ class ClientService(Plugin):
         r = re.compile(r"([+-].)")
         for stat in r.findall(status):
             if stat[1] not in mapping:
-                raise ValueError(C.make_error("CLIENT_STATUS_INVALID", device_uuid, status=stat[1]))
+                raise ValueError(C.make_error("CLIENT_STATUS_INVALID", client=device_uuid, status=stat[1]))
             setattr(device, mapping[stat[1]], stat.startswith("+"))
         device.commit()
 
@@ -407,7 +460,7 @@ class ClientService(Plugin):
 
         uuid_check = re.compile(r"^[0-9a-f]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$", re.IGNORECASE)
         if not uuid_check.match(device_uuid):
-            raise ValueError(C.make_error("CLIENT_UUID_INVALID", device_uuid))
+            raise ValueError(C.make_error("CLIENT_UUID_INVALID", uuid=device_uuid))
 
         # Handle info, if present
         more_info = []
@@ -417,7 +470,7 @@ class ClientService(Plugin):
             for entry in filter(lambda x: x in info, ["serialNumber", "ou", "o", "l", "description"]):
 
                 if not re.match(r"^[\w\s]+$", info[entry]):
-                    raise ValueError(C.make_error("CLIENT_DATA_INVALID", device_uuid, entry=entry, data=info[entry]))
+                    raise ValueError(C.make_error("CLIENT_DATA_INVALID", client=device_uuid, entry=entry, data=info[entry]))
 
                 more_info.append((entry, info[entry]))
 
@@ -427,14 +480,14 @@ class ClientService(Plugin):
 
                     more_info.append(("deviceType", info["deviceType"]))
                 else:
-                    raise ValueError(C.make_error("CLIENT_TYPE_INVALID", device_uuid, type=info["deviceType"]))
+                    raise ValueError(C.make_error("CLIENT_TYPE_INVALID", client=device_uuid, type=info["deviceType"]))
 
             # Check owner for presence
             if "owner" in info:
                 # Take a look at the directory to see if there's  such an owner DN
                 res = index.search({'_dn': info["owner"]}, {'_dn': 1})
                 if len(res) == 0:
-                    raise ValueError(C.make_error("CLIENT_OWNER_NOT_FOUND", device_uuid, owner=info["owner"]))
+                    raise ValueError(C.make_error("CLIENT_OWNER_NOT_FOUND", client=device_uuid, owner=info["owner"]))
                 more_info.append(("owner", info["owner"]))
 
         # Generate random client key
@@ -474,7 +527,7 @@ class ClientService(Plugin):
                                {'dn': 1})
 
             if len(res) != 1:
-                raise GOtoException(C.make_error("USER_NOT_UNIQUE" if res else "UNKNOWN_USER", target=user))
+                raise GOtoException(C.make_error("USER_NOT_UNIQUE" if res else "UNKNOWN_USER", user=user))
             manager = res[0]['dn']
 
             # Create new machine entry
@@ -509,6 +562,7 @@ class ClientService(Plugin):
             try:
                 data = etree.fromstring(message, PluginRegistry.getEventParser())
                 eventType = stripNs(data.xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag)
+                self.log.debug("'%s' event received from local MQTT broker" % eventType)
                 if hasattr(self, "_handle"+eventType):
                     func = getattr(self, "_handle" + eventType)
                     func(data)
@@ -530,12 +584,14 @@ class ClientService(Plugin):
 
             self.__user_session[id] = users
 
-            for user in users:
-                self.preUserSession(id, user, skip_config=True)
+            # proxied user events need no configuration as the proxy sends an extra RPC for that
+            if not hasattr(data, "Proxied") or data.Proxied is False:
+                for user in users:
+                    self.preUserSession(id, user, skip_config=True)
 
-            if len(new_users):
-                self.log.debug("configuring new users: %s" % new_users)
-                self.configureUsers(id, new_users)
+                if len(new_users):
+                    self.log.debug("configuring new users: %s" % new_users)
+                    self.configureUsers(id, new_users)
 
         else:
             self.__user_session[id] = []
@@ -549,8 +605,14 @@ class ClientService(Plugin):
         # delay changes, send configuration first
         if self.env.mode == "proxy":
             # answer config locally and proceed the write-part of the call to the GOsa backend
-            # TODO add MQTT call to backend MQTT-broker (with skip_config=True)
-            self.log.info("calling preUserSession(%s, %s, skip_config=True) on master backend" % (client_id, user_name))
+            if self.__current_backend_rpc is None or self.__current_backend_rpc.done() is True:
+                self.log.info("calling preUserSession(%s, %s, skip_config=True) on master backend" % (client_id, user_name))
+                self.__current_backend_rpc = self.__cr.dispatchRemote(client_id, None, 'preUserSession', client_id, user_name, skip_config=True)
+
+            if skip_config is False:
+                user_config = self.__collect_user_configuration(client_id, [user_name])
+                if user_config is not None and user_name in user_config:
+                    return user_config[user_name]
 
         elif skip_config is True:
             self.__maintain_user_session(client_id, user_name)
@@ -562,7 +624,6 @@ class ClientService(Plugin):
                                              args=(client_id, user_name),
                                              tag='_internal', jobstore='ram')
 
-        if skip_config is False:
             user_config = self.__collect_user_configuration(client_id, [user_name])
             if user_config is not None and user_name in user_config:
                 return user_config[user_name]
@@ -597,6 +658,8 @@ class ClientService(Plugin):
             self.__user_session[client_id].remove(user)
         if len(self.__user_session[client_id]) == 0:
             self.systemSetStatus(client_id, "-B")
+            return True
+        return False
 
     @Command(__help__="Send user configurations of all logged in user to a client")
     def configureUsers(self, client_id, users):
@@ -1025,7 +1088,16 @@ class ClientService(Plugin):
     def applyClientRights(self, device_uuid):
         # check rights
         acl = PluginRegistry.getInstance("ACLResolver")
-        if not acl.check(device_uuid, "%s.%s.%s" % (self.env.domain, "command", "preUserSession"), "x"):
+        allowed_commands = [
+            'joinClient',
+            'preUserSession',
+            'postUserSession',
+            'getMethods',
+            'getDestinationIndicator'
+        ]
+        missing = [x for x in allowed_commands if not acl.check(device_uuid, "%s.%s.%s" % (self.env.domain, "command", x), "x")]
+
+        if len(missing) > 0:
             role_name = "$$ClientDevices"
             # create AclRole for joining if not exists
             index = PluginRegistry.getInstance("ObjectIndex")
@@ -1034,20 +1106,22 @@ class ClientService(Plugin):
                 # create
                 role = ObjectProxy(self.env.base, "AclRole")
                 role.name = role_name
+            else:
+                role = ObjectProxy(res[0]['dn'])
 
-                # create rule
-                aclentry = {
-                    "priority": 0,
-                    "scope": "sub",
-                    "actions": [
-                        {
-                            "topic": "%s\.command\.(joinClient|preUserSession|postUserSession|getMethods)" % self.env.domain,
-                            "acl": "x",
-                            "options": {}
-                        }
-                    ]}
-                role.AclRoles = [aclentry]
-                role.commit()
+            # create rule
+            aclentry = {
+                "priority": 0,
+                "scope": "sub",
+                "actions": [
+                    {
+                        "topic": "%s\.command\.(%s)" % (self.env.domain, "|".join(allowed_commands)),
+                        "acl": "x",
+                        "options": {}
+                    }
+                ]}
+            role.AclRoles = [aclentry]
+            role.commit()
 
             # check if device has role
             found = False
