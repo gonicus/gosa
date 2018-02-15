@@ -1,3 +1,115 @@
+gosa (3.0-19) xenial; urgency=medium
+
+  * Add gosa-session 
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Tue, 13 Feb 2018 13:21:09 +0100
+
+gosa (3.0-18) xenial; urgency=medium
+
+  * Fix dependencies
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Mon, 29 Jan 2018 14:19:02 +0100
+
+gosa (3.0-17) xenial; urgency=medium
+
+  * Sync with upstream 
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Thu, 25 Jan 2018 15:29:24 +0100
+
+gosa (3.0-16) xenial; urgency=medium
+
+  * Fix cli install 
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Tue, 19 Dec 2017 13:40:15 +0100
+
+gosa (3.0-15) xenial; urgency=medium
+
+  * Add CLI for start/stop of a user session 
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Tue, 19 Dec 2017 11:33:04 +0100
+
+gosa (3.0-14) xenial; urgency=medium
+
+  * Fix client communication
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Fri, 08 Dec 2017 15:43:04 +0100
+
+gosa (3.0-13) xenial; urgency=medium
+
+  * Fix application scripts
+  * Fix database issues
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Tue, 05 Dec 2017 14:15:01 +0100
+
+gosa (3.0-12ubuntu1) xenial; urgency=medium
+
+  * Sync with upstream
+  * Support MQTT over SSL 
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Wed, 29 Nov 2017 10:59:43 +0100
+
+gosa (3.0-11ubuntu2) xenial; urgency=medium
+
+  * Fix dep 
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Wed, 22 Nov 2017 16:28:47 +0100
+
+gosa (3.0-11ubuntu1) xenial; urgency=medium
+
+  * Fix dep 
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Wed, 22 Nov 2017 16:17:33 +0100
+
+gosa (3.0-11) xenial; urgency=medium
+
+  * Fix join 
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Wed, 22 Nov 2017 16:00:41 +0100
+
+gosa (3.0-10) xenial; urgency=medium
+
+  * Fix systemd units 
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Mon, 20 Nov 2017 14:40:26 +0100
+
+gosa (3.0-9) xenial; urgency=medium
+
+  * Printers are now supported 
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Mon, 20 Nov 2017 10:49:33 +0100
+
+gosa (3.0-8) xenial; urgency=medium
+
+  * Add OTP usage
+  * Fix depends
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Thu, 16 Nov 2017 11:35:14 +0100
+
+gosa (3.0-7) xenial; urgency=medium
+
+  * Merge Branch KMO 
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Wed, 15 Nov 2017 15:46:43 +0100
+
+gosa (3.0-6) xenial; urgency=medium
+
+  * Remove supervisor
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Wed, 15 Nov 2017 11:26:42 +0100
+
+gosa (3.0-5) xenial; urgency=medium
+
+  * Fix build-depends
+  * Fetch system printers 
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Tue, 14 Nov 2017 16:59:43 +0100
+
+gosa (3.0-4) xenial; urgency=medium
+
+  * recognize XFCE sessions
+
+ -- Tobias Bräutigam <braeutigam@gonicus.de>  Tue, 22 Aug 2017 11:36:11 +0200
+
 gosa (3.0-3) xenial; urgency=medium
 
   * delay dbus access in client

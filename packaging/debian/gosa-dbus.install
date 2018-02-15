@@ -1,5 +1,4 @@
 ../org.gosa.conf etc/dbus-1/system.d
-../supervisor/gosa-dbus.conf /etc/supervisor/conf.d
 usr/lib/python*/dist-packages/gosa/dbus
 usr/bin/gosa-dbus usr/sbin
 usr/bin/notify-user usr/sbin
