@@ -9,8 +9,12 @@
 import base64
 import os
 import shutil
+
+import sqlalchemy
 from PIL import Image
 from PIL import ImageOps #@UnresolvedImport
+
+from gosa.backend.objects.index import ObjectIndex
 from gosa.common import Environment
 from gosa.backend.objects.filter import ElementFilter
 from gosa.backend.exceptions import ElementFilterException
@@ -57,8 +61,12 @@ class ImageIndex(Base):
 
 tables = [ImageSize.__table__, ImageIndex.__table__]
 
-Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"),
+try:
+    Base.metadata.create_all(Environment.getInstance().getDatabaseEngine("backend-database"),
                          tables=tables)
+except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.IntegrityError):
+    # already exists
+    pass
 
 
 class ImageProcessor(ElementFilter):
@@ -281,6 +289,11 @@ class IsMemberOfAclRole(ElementFilter):
 
     def process(self, obj, key, valDict, uidAttribute, role_name):
         if uidAttribute in valDict:
+            if ObjectIndex.importing:
+                # ACLs are not loaded during sync, mark for later processing
+                ObjectIndex.to_be_updated.append(obj.uuid)
+                return key, valDict
+
             acl = PluginRegistry.getInstance("ACLResolver")
             res = []
             for uid in valDict[uidAttribute]["value"]:
@@ -297,6 +310,11 @@ class UpdateMemberOfAclRole(ElementFilter):
     Add a user to a ACLRole if the references attribute value is True or remove it if False
     """
     def process(self, obj, key, valDict, uidAttribute, role_name):
+        if ObjectIndex.importing:
+            # ACLs are not loaded during sync, mark for later processing
+            ObjectIndex.to_be_updated.append(obj.uuid)
+            return key, valDict
+
         acl = PluginRegistry.getInstance("ACLResolver")
         for idx, val in enumerate(valDict[key]["value"]):
             uid = valDict[uidAttribute]["value"][idx]
