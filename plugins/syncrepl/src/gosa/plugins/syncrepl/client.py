@@ -46,11 +46,11 @@ class SyncReplClient(Plugin):
         if get("ldap.tls", default="True").lower() == "true" and ldap.TLS_AVAIL and self.__url.urlscheme != "ldaps":
             self.__tls = True
 
-        path = self.env.config.get('ldap.syncrepl-data-path', default=os.path.join(os.path.sep, 'var', 'lib', 'gosa', 'syncrepl', ''))
+        path = self.env.config.get('ldap.syncrepl-data-path', default=os.path.join(os.path.sep, 'var', 'lib', 'gosa', 'syncrepl'))
         if not os.path.exists(path):
             os.makedirs(path)
 
-        self.__client = Syncrepl(data_path=path,
+        self.__client = Syncrepl(data_path=os.sep.join((path, 'database.db')),
                                  callback=ReplCallback(),
                                  ldap_url=self.__url,
                                  mode=SyncreplMode.REFRESH_AND_PERSIST)
@@ -104,35 +104,35 @@ class ReplCallback(BaseCallback):
 
         return result
 
-    def bind_complete(self, ldap):
+    def bind_complete(self, ldap, cursor):
         self.log.debug("LDAP Bind complete as DN '{}'".format(ldap.whoami_s()))
 
-    def refresh_done(self, items):
+    def refresh_done(self, items, cursor):
         self.log.debug("LDAP Refresh complete")
         self.__refresh_done = True
 
-    def record_add(self, dn, attrs):
+    def record_add(self, dn, attrs, cursor):
         if not self.__refresh_done:
             return
 
         self.log.debug("New record '{}'".format(dn))
         self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'add'})
 
-    def record_delete(self, dn):
+    def record_delete(self, dn, cursor):
         if not self.__refresh_done:
             return
 
         self.log.debug("Deleted record '{}'".format(dn))
         self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'delete'})
 
-    def record_rename(self, old_dn, new_dn):
+    def record_rename(self, old_dn, new_dn, cursor):
         if not self.__refresh_done:
             return
 
         self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
         self.__spool.append({'dn': old_dn, 'new_dn': new_dn, 'cookie': self.__cookie, 'type': 'rename'})
 
-    def record_change(self, dn, old_attrs, new_attrs):
+    def record_change(self, dn, old_attrs, new_attrs, cursor):
         if not self.__refresh_done:
             return
 
