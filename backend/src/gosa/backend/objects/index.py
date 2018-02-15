@@ -623,18 +623,24 @@ class ObjectIndex(Plugin):
 
             # Move
             if change_type in ['modrdn', 'moddn']:
-
-                # Get object
-                obj = self._get_object(new_dn)
-                if not obj:
-                    return
-
                 # Check if the entry exists - if not, maybe let create it
                 entry = session.query(ObjectInfoIndex.dn).filter(
                     or_(
                         ObjectInfoIndex.uuid == _uuid,
                         func.lower(ObjectInfoIndex.dn) == func.lower(dn)
                     )).one_or_none()
+
+                if new_dn[-1:] == ",":
+                    # only new RDN received, get parent from db
+                    if entry is not None:
+                        new_dn = "%s,%s" % (new_dn, entry._parent_dn)
+                    else:
+                        self.log.error('DN modification event received: could not get parent DN from existing object to complete the new DN')
+
+                # Get object
+                obj = self._get_object(new_dn)
+                if not obj:
+                    return
 
                 if entry:
                     self.update(obj)

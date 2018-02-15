@@ -116,28 +116,28 @@ class ReplCallback(BaseCallback):
             return
 
         self.log.debug("New record '{}'".format(dn))
-        self.__spool.append({'dn': dn, 'cookie': self.__cookie})
+        self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'add'})
 
     def record_delete(self, dn):
         if not self.__refresh_done:
             return
 
         self.log.debug("Deleted record '{}'".format(dn))
-        self.__spool.append({'dn': dn, 'cookie': self.__cookie})
+        self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'delete'})
 
     def record_rename(self, old_dn, new_dn):
         if not self.__refresh_done:
             return
 
         self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
-        self.__spool.append({'dn': old_dn, 'new_dn': new_dn, 'cookie': self.__cookie})
+        self.__spool.append({'dn': old_dn, 'new_dn': new_dn, 'cookie': self.__cookie, 'type': 'rename'})
 
     def record_change(self, dn, old_attrs, new_attrs):
         if not self.__refresh_done:
             return
 
         self.log.debug("Changed record '{}'".format(dn))
-        self.__spool.append({'dn': dn, 'cookie': self.__cookie})
+        self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'modify'})
 
     def cookie_change(self, cookie):
         self.log.debug("Changed cookie '{}'".format(cookie))
@@ -148,12 +148,21 @@ class ReplCallback(BaseCallback):
             for entry in spool:
                 res = self.__get_change(entry['dn'], entry['cookie'])
                 if res:
-                    change_type = res[0][1]['reqType'][0].decode('utf-8')
-                    if change_type == "modrdn":
+                    data = res[0][1]
+                    change_type = data['reqType'][0].decode('utf-8')
+                    uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
+                    modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
+                    if change_type in ["modrdn", "moddn"]:
+                        if 'reqNewSuperior' in data:
+                            new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
+                        else:
+                            new_dn = "%s," % data['reqNewRDN'][0].decode('utf-8')
                         update = e.Event(
                             e.BackendChange(
                                 e.DN(entry['dn']),
-                                e.ModificationTime("%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]),
+                                e.UUID(uuid),
+                                e.NewDN(new_dn),
+                                e.ModificationTime(modification_time),
                                 e.ChangeType(change_type)
                             )
                         )
@@ -161,7 +170,8 @@ class ReplCallback(BaseCallback):
                         update = e.Event(
                             e.BackendChange(
                                 e.DN(entry['dn']),
-                                e.ModificationTime("%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]),
+                                e.UUID(uuid),
+                                e.ModificationTime(modification_time),
                                 e.ChangeType(change_type)
                             )
                         )
