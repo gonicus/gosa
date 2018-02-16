@@ -737,7 +737,7 @@ class Foreman(Plugin):
 
             # make sure the client has the access rights he needs
             client_service = PluginRegistry.getInstance("ClientService")
-            client_service.applyClientRights(device.deviceUUID)
+            client_service.applyClientRights(update['deviceUUID'] if device.deviceUUID is None else device.deviceUUID)
 
             if delay_update is True:
                 # process the update when the current dirty object has been processed
