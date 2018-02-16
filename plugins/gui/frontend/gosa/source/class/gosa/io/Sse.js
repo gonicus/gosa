@@ -240,7 +240,7 @@ qx.Class.define("gosa.io.Sse", {
     closePopup : function(popup) {
       //TODO: take care about multiple popups at one time (rearranging)
 
-      if (!popup) {
+      if (!popup || !popup.getBounds()) {
         return;
       }
 
