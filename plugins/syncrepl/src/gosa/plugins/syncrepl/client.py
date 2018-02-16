@@ -66,7 +66,8 @@ class SyncReplClient(Plugin):
         thread.join()
 
     def stop(self):
-        self.__client.please_stop()
+        if self.__client is not None:
+            self.__client.please_stop()
 
 
 class ReplCallback(BaseCallback):
@@ -118,24 +119,24 @@ class ReplCallback(BaseCallback):
         self.__refresh_done = True
 
     def record_add(self, dn, attrs, cursor):
+        self.log.debug("New record '{}'".format(dn))
         if not self.__refresh_done:
             return
 
-        self.log.debug("New record '{}'".format(dn))
         self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'add'})
 
     def record_delete(self, dn, cursor):
+        self.log.debug("Deleted record '{}'".format(dn))
         if not self.__refresh_done:
             return
 
-        self.log.debug("Deleted record '{}'".format(dn))
         self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'delete'})
 
     def record_rename(self, old_dn, new_dn, cursor):
+        self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
         if not self.__refresh_done:
             return
 
-        self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
         self.__renamed[new_dn] = old_dn
         # self.__spool.append({'dn': old_dn, 'new_dn': new_dn, 'cookie': self.__cookie, 'type': 'rename'})
 
@@ -160,14 +161,19 @@ class ReplCallback(BaseCallback):
                     change_type = data['reqType'][0].decode('utf-8')
                     uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
                     modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
+                    dn = entry['dn']
                     if change_type in ["modrdn", "moddn"]:
                         if 'reqNewSuperior' in data:
                             new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
+                        elif dn in self.__renamed:
+                            new_dn = dn
+                            dn = self.__renamed[dn]
+                            del self.__renamed[dn]
                         else:
                             new_dn = "%s," % data['reqNewRDN'][0].decode('utf-8')
                         update = e.Event(
                             e.BackendChange(
-                                e.DN(entry['dn']),
+                                e.DN(dn),
                                 e.UUID(uuid),
                                 e.NewDN(new_dn),
                                 e.ModificationTime(modification_time),
