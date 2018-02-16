@@ -102,7 +102,7 @@ class ClientCommandRegistry(object):
             raise CommandInvalid("no method '%s' available" % func)
 
     def __del__(self):
-        self.log.debug("shutting down command registry")
+        logging.getLogger(__name__).debug("shutting down command registry")
 
     @Command()
     def getMethods(self):
