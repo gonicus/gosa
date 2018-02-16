@@ -756,7 +756,7 @@ class ClientService(Plugin):
             for res in index.search({'_type': 'GroupOfNames', "member": user.dn, "extension": "GotoEnvironment"},
                                     {"dn": 1}):
                 user_group = ObjectProxy(res["dn"])
-                if user_group.dn == group.dn:
+                if group is not None and user_group.dn == group.dn:
                     continue
                 s = self.__collect_printer_settings(user_group)
 
