@@ -898,7 +898,8 @@ class ObjectIndex(Plugin):
                     # New pre-events don't have a dn. Just skip is in this case...
                     if hasattr(e, 'dn'):
                         _dn = e.dn
-                        _last_changed = e._last_modified
+                        if e._last_modified is not None:
+                            _last_changed = e._last_modified
                     else:
                         _dn = "not known yet"
 
