@@ -93,8 +93,7 @@ def connect():
 
 def notify_backend(options):
     """
-    Main event loop which will process all registered threads in a loop.
-    It will run as long env.active is set to True.
+    Notify backend about user session
     """
 
     mode = options.mode
@@ -115,6 +114,7 @@ def notify_backend(options):
                 config = proxy.preUserSession(sys_id, user)
             except JSONRPCException as e:
                 handle_error(proxy, e)
+                return
 
             # send config to dbus
             if "menu" in config:
@@ -182,6 +182,8 @@ def handle_error(proxy, e):
             print(bcolors.FAIL + info['text'] + detail + ": " + info['topic'])
         else:
             print(bcolors.FAIL + info['text'] + detail)
+    else:
+        print(bcolors.FAIL + str(err))
 
 
 def main():

@@ -66,13 +66,13 @@ class Foreman(Plugin):
     __acl_resolver = None
     client = None
     syncing = False
-    _after_sync_callbacks = None
 
     def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.factory = ObjectFactory.getInstance()
         incoming_base = self.env.config.get("foreman.host-rdn")
+        self._after_sync_callbacks = collections.deque()
 
         if incoming_base is not None and len(incoming_base.strip()) > 0 and incoming_base != "None":
             incoming_base = "%s,%s" % (incoming_base, self.env.base)
@@ -142,8 +142,6 @@ class Foreman(Plugin):
                 Foreman.syncing = False
 
     def add_after_sync_callback(self, cb):
-        if self._after_sync_callbacks is None:
-            self._after_sync_callbacks = collections.deque()
         self._after_sync_callbacks.append(cb)
 
     def create_container(self):
