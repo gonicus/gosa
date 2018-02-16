@@ -191,8 +191,7 @@ qx.Class.define("gosa.io.Sse", {
             textColor : "#F0F0F0",
             decorator : "scroll-knob",
             iconPosition : "left",
-            padding : 8,
-            paddingRight : 20,
+            padding : [8, 20],
             zIndex : 10000,
             opacity : 0.8,
             rich : true
