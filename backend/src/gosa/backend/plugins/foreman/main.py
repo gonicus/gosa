@@ -846,8 +846,9 @@ class ForemanRealmReceiver(object):
         if data['action'] == "create":
             # new client -> join it
             try:
+                self.log.debug("adding host")
                 key = yield foreman.add_host(data['hostname'])
-
+                self.log.debug("returning otp key to foreman")
                 # send key as otp to foremans realm proxy
                 request_handler.finish(dumps({
                     "randompassword": key
