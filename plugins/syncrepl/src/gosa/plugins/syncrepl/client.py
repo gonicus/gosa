@@ -15,6 +15,7 @@ from zope.interface import implementer
 from gosa.backend.utils.ldap import LDAPHandler
 from gosa.common import Environment
 from gosa.common.components import Plugin, PluginRegistry
+from gosa.common.error import GosaException
 from gosa.common.event import EventMaker
 from gosa.common.handler import IInterfaceHandler
 
@@ -50,6 +51,9 @@ class SyncReplClient(Plugin):
         if not os.path.exists(path):
             os.makedirs(path)
 
+        if self.env.config.get('backend-monitor.modifier') is None:
+            raise GosaException("backend-monitor.modifier config option is missing")
+
         self.__client = Syncrepl(data_path=os.sep.join((path, 'database.db')),
                                  callback=ReplCallback(),
                                  ldap_url=self.__url,
@@ -70,6 +74,8 @@ class ReplCallback(BaseCallback):
     Callback class which transfoms changes received by the syncrepl client and transforms them into
     `BackendChange`-events for GOsa.
     """
+    __cookie = None
+    __renamed = {}
 
     def __init__(self):
         self.__refresh_done = False
@@ -79,7 +85,7 @@ class ReplCallback(BaseCallback):
         self.log = logging.getLogger(__name__)
         self.log.info("initializing syncrepl client callback")
 
-    def __get_change(self, dn, csn):
+    def __get_change(self, dn, csn, type):
         result = None
         if self.__refresh_done and self.__cookie is not None:
             with self.lh.get_handle() as con:
@@ -130,7 +136,8 @@ class ReplCallback(BaseCallback):
             return
 
         self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
-        self.__spool.append({'dn': old_dn, 'new_dn': new_dn, 'cookie': self.__cookie, 'type': 'rename'})
+        self.__renamed[new_dn] = old_dn
+        # self.__spool.append({'dn': old_dn, 'new_dn': new_dn, 'cookie': self.__cookie, 'type': 'rename'})
 
     def record_change(self, dn, old_attrs, new_attrs, cursor):
         if not self.__refresh_done:
@@ -146,9 +153,10 @@ class ReplCallback(BaseCallback):
             spool = self.__spool
             self.__spool = []
             for entry in spool:
-                res = self.__get_change(entry['dn'], entry['cookie'])
+                res = self.__get_change(entry['dn'], entry['cookie'], entry['type'])
                 if res:
                     data = res[0][1]
+                    print(data)
                     change_type = data['reqType'][0].decode('utf-8')
                     uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
                     modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
