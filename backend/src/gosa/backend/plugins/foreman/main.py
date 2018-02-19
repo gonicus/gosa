@@ -965,64 +965,65 @@ class ForemanHookReceiver(object):
         backend_data = {}
         delay_update = False
 
-        if data['event'] in ["update", "create", "after_commit", "after_create"] and foreman_type == "host":
+        if data['event'] in ["after_commit"] and foreman_type == "host":
             id = payload_data["id"] if "id" in payload_data else None
             foreman.mark_for_parameter_setting(data['object'], {
                 "status": "created",
                 "use_id": id
             })
 
-        if data['event'] in ["after_commit", "update", "after_create", "create"]:
+        if data['event'] == "after_commit":
             host = None
             update = {'__extensions__': []}
-            if data['event'] in ["create", "after_create"] and foreman_type == "host" and "name" in payload_data and payload_data["name"] is not None:
-                # check if this host already exists (from a realm request)
-                index = PluginRegistry.getInstance("ObjectIndex")
-                for entry in index.get_dirty_objects().values():
-                    if entry["obj"].is_extended_by("RegisteredDevice") and \
-                            entry["obj"].is_extended_by("simpleSecurityObject") and \
-                            hasattr(entry["obj"], "cn") and entry["obj"].cn == payload_data["name"]:
-                        host = entry["obj"]
-                        self.log.debug("found dirty host %s" % entry["obj"].dn)
-                        delay_update = True
-                        break
+            if foreman_type == "host":
+                if "mac" in payload_data and payload_data["mac"] is not None:
+                    # check if we have an discovered host for this mac
+                    index = PluginRegistry.getInstance("ObjectIndex")
+                    for entry in index.get_dirty_objects().values():
+                        if entry["obj"].is_extended_by("ForemanHost") and \
+                                hasattr(entry["obj"], "macAddress") and entry["obj"].macAddress == payload_data["mac"]:
+                            host = entry["obj"]
+                            self.log.debug("found dirty host %s" % entry["obj"].dn)
+                            delay_update = True
+                            break
 
-                if host is None:
-                    res = index.search({
-                        "_type": "Device",
-                        "extension": ["RegisteredDevice", "simpleSecurityObject"],
-                        "cn": payload_data["name"]
-                    }, {"dn": 1})
+                    if host is None:
+                        res = index.search({
+                            "_type": "Device",
+                            "extension": ["ForemanHost", "ieee802Device"],
+                            "macAddress": payload_data["mac"],
+                            "status": "discovered"
+                        }, {"dn": 1})
 
-                    if len(res):
-                        self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
-                        host = ObjectProxy(res[0]["dn"])
+                        if len(res):
+                            self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
+                            host = ObjectProxy(res[0]["dn"])
 
-            elif data['event'] in ["update", "after_commit"] and foreman_type == "host" and "mac" in payload_data and payload_data["mac"] is not None:
-                # check if we have an discovered host for this mac
-                index = PluginRegistry.getInstance("ObjectIndex")
-                for entry in index.get_dirty_objects().values():
-                    if entry["obj"].is_extended_by("ForemanHost") and \
-                            hasattr(entry["obj"], "macAddress") and entry["obj"].macAddress == payload_data["mac"]:
-                        host = entry["obj"]
-                        self.log.debug("found dirty host %s" % entry["obj"].dn)
-                        delay_update = True
-                        break
+                    if host is not None and foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
+                        update['status'] = "unknown"
 
-                if host is None:
-                    res = index.search({
-                        "_type": "Device",
-                        "extension": ["ForemanHost", "ieee802Device"],
-                        "macAddress": payload_data["mac"],
-                        "status": "discovered"
-                    }, {"dn": 1})
+                elif "name" in payload_data and payload_data["name"] is not None:
+                    # check if this host already exists (from a realm request)
+                    index = PluginRegistry.getInstance("ObjectIndex")
+                    for entry in index.get_dirty_objects().values():
+                        if entry["obj"].is_extended_by("RegisteredDevice") and \
+                                entry["obj"].is_extended_by("simpleSecurityObject") and \
+                                hasattr(entry["obj"], "cn") and entry["obj"].cn == payload_data["name"]:
+                            host = entry["obj"]
+                            self.log.debug("found dirty host %s" % entry["obj"].dn)
+                            delay_update = True
+                            break
 
-                    if len(res):
-                        self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
-                        host = ObjectProxy(res[0]["dn"])
+                    if host is None:
+                        res = index.search({
+                            "_type": "Device",
+                            "extension": ["RegisteredDevice", "simpleSecurityObject"],
+                            "cn": payload_data["name"]
+                        }, {"dn": 1})
 
-                if host is not None and foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
-                    update['status'] = "unknown"
+                        if len(res):
+                            self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
+                            host = ObjectProxy(res[0]["dn"])
 
             foreman_object, skip_this = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None)
             if foreman_object and host:
