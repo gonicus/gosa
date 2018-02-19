@@ -965,7 +965,7 @@ class ForemanHookReceiver(object):
         backend_data = {}
         delay_update = False
 
-        if data['event'] in ["update", "create"] and foreman_type == "host":
+        if data['event'] in ["update", "create", "after_commit", "after_create"] and foreman_type == "host":
             id = payload_data["id"] if "id" in payload_data else None
             foreman.mark_for_parameter_setting(data['object'], {
                 "status": "created",

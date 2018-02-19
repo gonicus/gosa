@@ -34,6 +34,7 @@ from sqlalchemy_utils import TSVectorType
 
 import gosa
 from gosa.backend.components.httpd import get_server_url, get_internal_server_url
+from gosa.backend.objects.backend.back_foreman import ForemanBackendException
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 from gosa.backend.utils import BackendTypes
 from gosa.common.env import declarative_base, make_session
@@ -931,7 +932,7 @@ class ObjectIndex(Plugin):
                     _dn = obj.dn
                     change_type = "create"
 
-                if event.reason in ["post object update"]:
+                if event.reason == "post object update":
                     self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
                     if not event.dn and _dn != "not known yet":
                         event.dn = _dn

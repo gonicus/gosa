@@ -49,7 +49,7 @@ Create the directory structure for the hooks
 
 .. code-block:: bash
 
-    mkdir -p /usr/share/foreman/config/hooks/host/managed/{create,destroy,update}
+    mkdir -p /usr/share/foreman/config/hooks/host/managed/{after_create,after_destroy,after_commit}
     mkdir -p /usr/share/foreman/config/hooks/host/discovered/{after_create,after_destroy,after_commit} 
     mkdir -p /usr/share/foreman/config/hooks/hostgroup/{after_create,after_destroy,after_commit}
     mkdir -p /usr/share/foreman/config/hooks/operatingsystem/{after_create,after_destroy,after_commit}  
@@ -58,9 +58,9 @@ Create the directory structure for the hooks
     cp backend/src/gosa/backend/plugins/foreman/gosa_integration.py /usr/share/foreman/config/hooks/
     
     # create symlinks
-    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/managed/create
-    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/managed/update
-    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/managed/destroy
+    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/managed/after_create
+    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/managed/after_commit
+    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/managed/after_destroy
     
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/discovered/after_create
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/discovered/after_commit
