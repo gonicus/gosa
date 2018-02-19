@@ -684,7 +684,14 @@ class Foreman(Plugin):
         return self.__acl_resolver
 
     @gen.coroutine
-    def add_host(self, hostname, base=None):
+    def add_host(self, hostname, base=None, preliminary=False):
+        """
+        Add a new host with the given hostname (if it does not exist) and create a one time password for it
+        :param hostname: FQDN of the host
+        :param base: parent DN
+        :param preliminary: set this to True if the host does not exist in foreman yet (e.g. during a realm request)
+        :return: combination of key and uuid separated by |
+        """
 
         # create dn
         index = PluginRegistry.getInstance("ObjectIndex")
@@ -705,6 +712,8 @@ class Foreman(Plugin):
             self.log.debug("Realm request: creating new host with hostname: %s" % hostname)
             device = ObjectProxy(base, "Device")
             update['cn'] = hostname
+            if preliminary is False:
+                device.extend("ForemanHost")
             device.cn = hostname
             # commit now to get a uuid
             device.commit()
@@ -717,6 +726,8 @@ class Foreman(Plugin):
 
         try:
             update['__extensions__'] = ['RegisteredDevice', 'simpleSecurityObject']
+            if preliminary is False:
+                update['__extensions__'].append("ForemanHost")
 
             # Generate random client key
             h, key, salt = generate_random_key()
@@ -847,7 +858,7 @@ class ForemanRealmReceiver(object):
             # new client -> join it
             try:
                 self.log.debug("adding host")
-                key = yield foreman.add_host(data['hostname'])
+                key = yield foreman.add_host(data['hostname'], preliminary=True)
                 self.log.debug("returning otp key to foreman")
                 # send key as otp to foremans realm proxy
                 request_handler.finish(dumps({
