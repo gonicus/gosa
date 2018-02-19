@@ -975,7 +975,7 @@ class ForemanHookReceiver(object):
         if data['event'] in ["after_commit", "update", "after_create", "create"]:
             host = None
             update = {'__extensions__': []}
-            if data['event'] == "create" and foreman_type == "host" and "name" in payload_data and payload_data["name"] is not None:
+            if data['event'] in ["create", "after_create"] and foreman_type == "host" and "name" in payload_data and payload_data["name"] is not None:
                 # check if this host already exists (from a realm request)
                 index = PluginRegistry.getInstance("ObjectIndex")
                 for entry in index.get_dirty_objects().values():
