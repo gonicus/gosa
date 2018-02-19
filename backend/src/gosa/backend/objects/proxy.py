@@ -1294,8 +1294,6 @@ class ObjectProxy(object):
         """
         Returns JSON representations for the base-object and all its extensions.
         """
-
-        #TODO: only_indexed!?
         atypes = self.__factory.getAttributeTypes()
 
         object_types = self.__factory.getObjectTypes()
