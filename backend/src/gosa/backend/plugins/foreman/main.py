@@ -965,20 +965,18 @@ class ForemanHookReceiver(object):
         backend_data = {}
         delay_update = False
 
-        if data['event'] in ["after_commit"] and foreman_type == "host":
-            id = payload_data["id"] if "id" in payload_data else None
-            foreman.mark_for_parameter_setting(data['object'], {
-                "status": "created",
-                "use_id": id
-            })
-
         if data['event'] == "after_commit":
             host = None
             update = {'__extensions__': []}
             if foreman_type == "host":
+                id = payload_data["id"] if "id" in payload_data else None
+                foreman.mark_for_parameter_setting(data['object'], {
+                    "status": "created",
+                    "use_id": id
+                })
+                index = PluginRegistry.getInstance("ObjectIndex")
                 if "mac" in payload_data and payload_data["mac"] is not None:
                     # check if we have an discovered host for this mac
-                    index = PluginRegistry.getInstance("ObjectIndex")
                     for entry in index.get_dirty_objects().values():
                         if entry["obj"].is_extended_by("ForemanHost") and \
                                 hasattr(entry["obj"], "macAddress") and entry["obj"].macAddress == payload_data["mac"]:
@@ -1002,9 +1000,8 @@ class ForemanHookReceiver(object):
                     if host is not None and foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
                         update['status'] = "unknown"
 
-                elif "name" in payload_data and payload_data["name"] is not None:
+                if host is None and "name" in payload_data and payload_data["name"] is not None:
                     # check if this host already exists (from a realm request)
-                    index = PluginRegistry.getInstance("ObjectIndex")
                     for entry in index.get_dirty_objects().values():
                         if entry["obj"].is_extended_by("RegisteredDevice") and \
                                 entry["obj"].is_extended_by("simpleSecurityObject") and \
