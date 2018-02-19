@@ -34,6 +34,7 @@ from sqlalchemy_utils import TSVectorType
 
 import gosa
 from gosa.backend.components.httpd import get_server_url, get_internal_server_url
+from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 from gosa.backend.utils import BackendTypes
 from gosa.common.env import declarative_base, make_session
 from gosa.common.event import EventMaker
@@ -495,7 +496,10 @@ class ObjectIndex(Plugin):
         :type update: dict
         """
         if not self.is_dirty(obj.uuid):
-            raise GosaException(C.make_error('DELAYED_UPDATE_FOR_NON_DIRTY_OBJECT', topic=obj.uuid))
+            self.log.warning("Trying to add a delayed update to a non-dirty object '%s'" % obj.uuid)
+            obj.apply_update(update)
+            obj.commit()
+            return
 
         self.log.info("adding delayed update to %s (%s)" % (obj.uuid, obj.dn))
         self.__dirty[obj.uuid]["updates"].append({
@@ -888,7 +892,6 @@ class ObjectIndex(Plugin):
             _uuid = event.uuid
             _dn = None
             _last_changed = datetime.datetime.now()
-            obj = event.obj.parent if hasattr(event.obj, "parent") else None
 
             # Try to find the affected DN
             with make_session() as session:
@@ -914,8 +917,7 @@ class ObjectIndex(Plugin):
 
                 if event.reason == "post object move":
                     self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
-                    if obj is None:
-                        obj = ObjectProxy(event.dn)
+                    obj = ObjectProxy(event.dn)
                     self.update(obj, session=session)
                     _dn = obj.dn
                     change_type = "move"
@@ -924,8 +926,7 @@ class ObjectIndex(Plugin):
 
                 if event.reason == "post object create":
                     self.log.debug("creating object index for %s (%s)" % (_uuid, _dn))
-                    if obj is None:
-                        obj = ObjectProxy(event.dn)
+                    obj = ObjectProxy(event.dn)
                     self.insert(obj, session=session)
                     _dn = obj.dn
                     change_type = "create"
@@ -934,8 +935,7 @@ class ObjectIndex(Plugin):
                     self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
                     if not event.dn and _dn != "not known yet":
                         event.dn = _dn
-                    if obj is None:
-                        obj = ObjectProxy(event.dn)
+                    obj = ObjectProxy(event.dn)
                     self.update(obj, session=session)
                     change_type = "update"
 

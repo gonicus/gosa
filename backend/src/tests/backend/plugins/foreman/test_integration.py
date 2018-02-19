@@ -247,6 +247,7 @@ class ForemanIntegrationTestCase(GosaTestCase, RemoteTestCase):
             return True
 
         def execute(**kwargs):
+            logging.getLogger("test.foreman-integration").info("executing realm request simulation")
             # execute realm request to GOsa
             payload = bytes(dumps({"parameters": {"update": "true", "userclass": "Test", "splat": [],
                                    "captures": ["GOSA"], "realm": "GOSA"}, "action": "create",
@@ -299,7 +300,8 @@ class ForemanIntegrationTestCase(GosaTestCase, RemoteTestCase):
         d_host = ObjectProxy("cn=Testhost,ou=incoming,%s" % self._test_dn)
         assert d_host.status != "discovered"
         assert d_host.name == "Testhost"
-        assert d_host.is_extended_by("RegisteredDevice")
+        assert d_host.hostgroup_id == "4"
+        assert d_host.is_extended_by("RegisteredDevice") is True
         assert len(d_host.userPassword[0]) > 0
         assert d_host.deviceUUID is not None
 

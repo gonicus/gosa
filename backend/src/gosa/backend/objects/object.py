@@ -1657,7 +1657,6 @@ class ObjectChanged(object):
 
     def __init__(self, reason, obj=None, dn=None, uuid=None, orig_dn=None, o_type=None, changed_props=None):
         self.reason = reason
-        self.obj = obj
         self.uuid = uuid or obj.uuid
         self.dn = dn or obj.dn
         self.orig_dn = orig_dn or obj.orig_dn

@@ -53,7 +53,7 @@ class MQTTRelayServiceTestCase(TestCase):
             payload = dumps({"id": "mqttrpc", "method": "test", "params": []})
             topic = "%s/client/client_id/request_id/request" % self.env.domain
             self.service._handle_backend_message(topic, payload)
-            mps.assert_called_with(payload, topic, qos=1)
+            mps.assert_called_with(payload, topic, qos=1, proxied=True)
 
     def test_handle_proxy_message(self):
 
@@ -62,7 +62,7 @@ class MQTTRelayServiceTestCase(TestCase):
             payload = dumps({"id": "mqttrpc", "result": "test"})
             topic = "%s/client/client_id/request_id/response" % self.env.domain
             self.service._handle_proxy_message(topic, payload)
-            mbs.assert_called_with(payload, topic, qos=1)
+            mbs.assert_called_with(payload, topic, qos=1, proxied=True)
 
     def test_handle_user_session(self):
         e = EventMaker()
