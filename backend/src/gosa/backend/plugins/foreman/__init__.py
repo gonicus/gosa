@@ -49,28 +49,24 @@ Create the directory structure for the hooks
 
 .. code-block:: bash
 
-    mkdir -p /usr/share/foreman/config/hooks/host/managed/{after_create,after_destroy,after_commit}
-    mkdir -p /usr/share/foreman/config/hooks/host/discovered/{after_create,after_destroy,after_commit} 
-    mkdir -p /usr/share/foreman/config/hooks/hostgroup/{after_create,after_destroy,after_commit}
-    mkdir -p /usr/share/foreman/config/hooks/operatingsystem/{after_create,after_destroy,after_commit}  
+    mkdir -p /usr/share/foreman/config/hooks/host/managed/{after_destroy,after_commit}
+    mkdir -p /usr/share/foreman/config/hooks/host/discovered/{after_destroy,after_commit} 
+    mkdir -p /usr/share/foreman/config/hooks/hostgroup/{after_destroy,after_commit}
+    mkdir -p /usr/share/foreman/config/hooks/operatingsystem/{after_destroy,after_commit}  
 
     # Copy the hook script
     cp backend/src/gosa/backend/plugins/foreman/gosa_integration.py /usr/share/foreman/config/hooks/
     
     # create symlinks
-    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/managed/after_create
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/managed/after_commit
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/managed/after_destroy
     
-    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/discovered/after_create
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/discovered/after_commit
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/host/discovered/after_destroy
     
-    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/hostgroup/after_create
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/hostgroup/after_commit
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/hostgroup/after_destroy
     
-    ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/operatingsystem/after_create
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/operatingsystem/after_commit
     ln -s /usr/share/foreman/config/hooks/gosa_integration.py /usr/share/foreman/config/hooks/operatingsystem/after_destroy
     
