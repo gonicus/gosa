@@ -51,7 +51,10 @@ class FactoryException(Exception):
 
 
 class ProxyException(Exception):
-    pass
+
+    def __init__(self, error, status=None):
+        super(ProxyException, self).__init__()
+        self.status = status
 
 
 class ObjectException(Exception):

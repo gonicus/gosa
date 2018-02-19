@@ -16,6 +16,8 @@ from gosa.backend.objects.index import OpenObject
 from gosa.common.env import make_session
 from gosa.common.event import EventMaker
 from zope.interface import implementer
+
+from gosa.common.exceptions import ProxyException
 from gosa.common.utils import N_
 from gosa.common import Environment
 from gosa.common.error import GosaErrorHandler as C
@@ -425,8 +427,14 @@ class JSONRPCObjectMapper(Plugin):
 
         # Make object instance and store it
         kwargs['user'] = user
-        obj = obj_type(*args, **kwargs)
-        obj.remove()
+        try:
+            obj = obj_type(*args, **kwargs)
+            obj.remove()
+        except ProxyException as e:
+            if e.status == 404:
+                return True
+            else:
+                raise e
         return True
 
     @Command(needsUser=True, needsSession=True, __help__=N_("Instantiate object identified by a combination of attribute/type"))
