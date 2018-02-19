@@ -17,7 +17,7 @@ from gosa.common.env import make_session
 from gosa.common.event import EventMaker
 from zope.interface import implementer
 
-from gosa.common.exceptions import ProxyException
+from gosa.backend.exceptions import ProxyException
 from gosa.common.utils import N_
 from gosa.common import Environment
 from gosa.common.error import GosaErrorHandler as C
