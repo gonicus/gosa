@@ -158,8 +158,8 @@ class MosquittoAuthTestCase(AsyncHTTPTestCase):
                 assert response.code == (200 if test[acc] else 403), msg
 
         # test event channel for client separately as we need to mock the acl check
-        with mock.patch("gosa.backend.plugins.mqtt.mosquitto_auth.PluginRegistry.getInstance") as m_resolver:
-            m_resolver.return_value.get_type.return_value = None
+        with mock.patch("gosa.backend.plugins.mqtt.mosquitto_auth.BaseMosquittoClass.get_backend_registry") as m_registry:
+            m_registry.return_value.get_type.return_value = None
             params = urlencode({'username': 'uuid', 'topic': "%s/events" % self.env.domain, 'clientid': test['clientid'], 'acc': 2})
             response = self.fetch('/mqtt/acl', method="POST", body=params)
             assert response.code == 403
@@ -168,7 +168,7 @@ class MosquittoAuthTestCase(AsyncHTTPTestCase):
             response = self.fetch('/mqtt/acl', method="POST", body=params)
             assert response.code == 403
 
-            m_resolver.return_value.get_type.return_value = BackendTypes.active_master
+            m_registry.return_value.get_type.return_value = BackendTypes.active_master
             params = urlencode({'username': 'uuid', 'topic': "%s/events" % self.env.domain, 'clientid': test['clientid'], 'acc': 2})
             response = self.fetch('/mqtt/acl', method="POST", body=params)
             assert response.code == 200

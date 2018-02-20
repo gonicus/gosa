@@ -21,6 +21,7 @@ from sqlalchemy import and_
 from tornado import gen
 
 from gosa.backend.components.httpd import get_server_url
+from gosa.backend.lock import GlobalLock
 from gosa.backend.objects import ObjectProxy, ObjectFactory
 from gosa.backend.objects.index import ObjectInfoIndex, ExtensionIndex, KeyValueIndex, Cache
 from gosa.backend.routes.sse.main import SseHandler
@@ -684,7 +685,14 @@ class Foreman(Plugin):
         return self.__acl_resolver
 
     @gen.coroutine
-    def add_host(self, hostname, base=None):
+    def add_host(self, hostname, base=None, preliminary=False):
+        """
+        Add a new host with the given hostname (if it does not exist) and create a one time password for it
+        :param hostname: FQDN of the host
+        :param base: parent DN
+        :param preliminary: set this to True if the host does not exist in foreman yet (e.g. during a realm request)
+        :return: combination of key and uuid separated by |
+        """
 
         # create dn
         index = PluginRegistry.getInstance("ObjectIndex")
@@ -700,23 +708,13 @@ class Foreman(Plugin):
 
         device, delay_update = self.get_object("ForemanHost", hostname, create=False)
         update = {}
-        # # apply changes to device immediately or delayed
-        # dirty = index.get_dirty_objects()
-        # if device is None and len(dirty) > 0:
-        #     # check if the device is currently updated
-        #     for entry in dirty.values():
-        #         if entry["obj"].is_extended_by("ForemanHost") and entry["obj"].cn == hostname:
-        #             # obj is currently being committed, we cannot change things in it
-        #             # but need a new instance
-        #             device = entry["obj"]
-        #             delay_update = True
-        #             break
 
         if device is None:
             self.log.debug("Realm request: creating new host with hostname: %s" % hostname)
             device = ObjectProxy(base, "Device")
-            device.extend("ForemanHost")
             update['cn'] = hostname
+            if preliminary is False:
+                device.extend("ForemanHost")
             device.cn = hostname
             # commit now to get a uuid
             device.commit()
@@ -728,24 +726,18 @@ class Foreman(Plugin):
             self.log.debug("Realm request: use existing host with hostname: %s" % hostname)
 
         try:
-            update['__extensions__'] = ['ForemanHost', 'RegisteredDevice', 'simpleSecurityObject']
-            # if not device.is_extended_by("ForemanHost"):
-            #     device.extend("ForemanHost")
+            update['__extensions__'] = ['RegisteredDevice', 'simpleSecurityObject']
+            if preliminary is False:
+                update['__extensions__'].append("ForemanHost")
 
             # Generate random client key
             h, key, salt = generate_random_key()
 
             # While the client is going to be joined, generate a random uuid and an encoded join key
-            # if not device.is_extended_by("RegisteredDevice"):
-            #     device.extend("RegisteredDevice")
-            # if not device.is_extended_by("simpleSecurityObject"):
-            #     device.extend("simpleSecurityObject")
             if device.deviceUUID is None:
                 update['deviceUUID'] = str(uuid.uuid4())
 
-            # device.status = "pending"
-            # device.status_InstallationInProgress = True
-            update['status'] = 'pending'
+            # update['status'] = 'pending'
             update['status_InstallationInProgress'] = True
 
             update['userPassword'] = device.userPassword
@@ -757,7 +749,7 @@ class Foreman(Plugin):
 
             # make sure the client has the access rights he needs
             client_service = PluginRegistry.getInstance("ClientService")
-            client_service.applyClientRights(device.deviceUUID)
+            client_service.applyClientRights(update['deviceUUID'] if device.deviceUUID is None else device.deviceUUID)
 
             if delay_update is True:
                 # process the update when the current dirty object has been processed
@@ -843,6 +835,12 @@ class ForemanRealmReceiver(object):
 
     @gen.coroutine
     def handle_request(self, request_handler):
+        if GlobalLock.exists("scan_index"):
+            request_handler.finish(dumps({
+                "error": "GOsa is currently re-creating its index, all requests are blocked"
+            }))
+            return
+
         if Foreman.syncing is True:
             request_handler.finish(dumps({
                 "error": "GOsa is currently syncing with Foreman, all requests are blocked"
@@ -866,8 +864,9 @@ class ForemanRealmReceiver(object):
         if data['action'] == "create":
             # new client -> join it
             try:
-                key = yield foreman.add_host(data['hostname'])
-
+                self.log.debug("adding host")
+                key = yield foreman.add_host(data['hostname'], preliminary=True)
+                self.log.debug("returning otp key to foreman")
                 # send key as otp to foremans realm proxy
                 request_handler.finish(dumps({
                     "randompassword": key
@@ -973,51 +972,72 @@ class ForemanHookReceiver(object):
         backend_data = {}
         delay_update = False
 
-        if data['event'] in ["update", "create"] and foreman_type == "host":
-            id = payload_data["id"] if "id" in payload_data else None
-            foreman.mark_for_parameter_setting(data['object'], {
-                "status": "created",
-                "use_id": id
-            })
-
-        if data['event'] in ["after_commit", "update", "after_create", "create"]:
+        if data['event'] == "after_commit":
             host = None
             update = {'__extensions__': []}
-            if data['event'] in ["update", "after_commit"] and foreman_type == "host" and "mac" in payload_data and payload_data["mac"] is not None:
-                # check if we have an discovered host for this mac
+            if foreman_type == "host":
+                id = payload_data["id"] if "id" in payload_data else None
+                foreman.mark_for_parameter_setting(data['object'], {
+                    "status": "created",
+                    "use_id": id
+                })
                 index = PluginRegistry.getInstance("ObjectIndex")
-                for entry in index.get_dirty_objects().values():
-                    if entry["obj"].is_extended_by("ForemanHost") and \
-                            hasattr(entry["obj"], "macAddress") and entry["obj"].macAddress == payload_data["mac"]:
-                        host = entry["obj"]
-                        self.log.debug("found dirty host %s" % entry["obj"].dn)
-                        delay_update = True
-                        break
+                if "mac" in payload_data and payload_data["mac"] is not None:
+                    # check if we have an discovered host for this mac
+                    for entry in index.get_dirty_objects().values():
+                        if entry["obj"].is_extended_by("ForemanHost") and \
+                                hasattr(entry["obj"], "macAddress") and entry["obj"].macAddress == payload_data["mac"]:
+                            host = entry["obj"]
+                            self.log.debug("found dirty host %s" % entry["obj"].dn)
+                            delay_update = True
+                            break
 
-                if host is None:
-                    res = index.search({
-                        "_type": "Device",
-                        "extension": ["ForemanHost", "ieee802Device"],
-                        "macAddress": payload_data["mac"],
-                        "status": "discovered"
-                    }, {"dn": 1})
+                    if host is None:
+                        res = index.search({
+                            "_type": "Device",
+                            "extension": ["ForemanHost", "ieee802Device"],
+                            "macAddress": payload_data["mac"],
+                            "status": "discovered"
+                        }, {"dn": 1})
 
-                    if len(res):
-                        self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
-                        host = ObjectProxy(res[0]["dn"])
+                        if len(res):
+                            self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
+                            host = ObjectProxy(res[0]["dn"])
 
-                if host is not None and foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
-                    update['status'] = "unknown"
+                    if host is not None and foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
+                        update['status'] = "unknown"
+
+                if host is None and "name" in payload_data and payload_data["name"] is not None:
+                    # check if this host already exists (from a realm request)
+                    for entry in index.get_dirty_objects().values():
+                        if entry["obj"].is_extended_by("RegisteredDevice") and \
+                                entry["obj"].is_extended_by("simpleSecurityObject") and \
+                                hasattr(entry["obj"], "cn") and entry["obj"].cn == payload_data["name"]:
+                            host = entry["obj"]
+                            self.log.debug("found dirty host %s" % entry["obj"].dn)
+                            delay_update = True
+                            break
+
+                    if host is None:
+                        res = index.search({
+                            "_type": "Device",
+                            "extension": ["RegisteredDevice", "simpleSecurityObject"],
+                            "cn": payload_data["name"]
+                        }, {"dn": 1})
+
+                        if len(res):
+                            self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
+                            host = ObjectProxy(res[0]["dn"])
 
             foreman_object, skip_this = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None)
             if foreman_object and host:
-                if foreman_object != host:
+                if foreman_object.uuid != host.uuid:
                     self.log.debug("using known host instead of creating a new one")
                     # host is the formerly discovered host, which might have been changed in GOsa for provisioning
                     # so we want to use this one, foreman_object is the joined one, so copy the credentials from foreman_object to host
                     update['__extensions__'].extend(['RegisteredDevice', 'simpleSecurityObject'])
                     for attr in ['deviceUUID', 'userPassword', 'otp', 'userPassword']:
-                        update[attr] = getattr(foreman, attr)
+                        update[attr] = getattr(foreman_object, attr)
 
                     # now delete the formerly joined host
                     foreman_object.remove()

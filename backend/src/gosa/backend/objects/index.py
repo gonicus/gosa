@@ -34,6 +34,8 @@ from sqlalchemy_utils import TSVectorType
 
 import gosa
 from gosa.backend.components.httpd import get_server_url, get_internal_server_url
+from gosa.backend.objects.backend.back_foreman import ForemanBackendException
+from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 from gosa.backend.utils import BackendTypes
 from gosa.common.env import declarative_base, make_session
 from gosa.common.event import EventMaker
@@ -495,7 +497,10 @@ class ObjectIndex(Plugin):
         :type update: dict
         """
         if not self.is_dirty(obj.uuid):
-            raise GosaException(C.make_error('DELAYED_UPDATE_FOR_NON_DIRTY_OBJECT', topic=obj.uuid))
+            self.log.warning("Trying to add a delayed update to a non-dirty object '%s'" % obj.uuid)
+            obj.apply_update(update)
+            obj.commit()
+            return
 
         self.log.info("adding delayed update to %s (%s)" % (obj.uuid, obj.dn))
         self.__dirty[obj.uuid]["updates"].append({
@@ -903,7 +908,8 @@ class ObjectIndex(Plugin):
                     # New pre-events don't have a dn. Just skip is in this case...
                     if hasattr(e, 'dn'):
                         _dn = e.dn
-                        _last_changed = e._last_modified
+                        if e._last_modified is not None:
+                            _last_changed = e._last_modified
                     else:
                         _dn = "not known yet"
 
@@ -932,11 +938,10 @@ class ObjectIndex(Plugin):
                     _dn = obj.dn
                     change_type = "create"
 
-                if event.reason in ["post object update"]:
+                if event.reason == "post object update":
                     self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
                     if not event.dn and _dn != "not known yet":
                         event.dn = _dn
-
                     obj = ObjectProxy(event.dn)
                     self.update(obj, session=session)
                     change_type = "update"

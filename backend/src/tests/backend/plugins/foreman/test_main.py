@@ -102,17 +102,18 @@ class ForemanTestCase(GosaTestCase):
         env = Environment.getInstance()
         env.config.set("foreman.host-rdn", None)
         env.config.set("foreman.group-rdn", None)
+        self.log = logging.getLogger(__name__)
         self.foreman = ForemanPlugin()
         # just use a fake url as the requests are mocked anyway
         self.foreman.init_client("http://localhost:8000/api/v2")
         self.foreman.serve()
         self.foreman.create_container()
 
-    def tearDown(self):
+    # def tearDown(self):
         # logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.INFO)
         # logging.getLogger("gosa.backend.objects").setLevel(logging.INFO)
         # logging.getLogger("gosa.backend.objects").info("tear down")
-        super(ForemanTestCase, self).tearDown()
+        # super(ForemanTestCase, self).tearDown()
 
     def test_add_host(self, m_get, m_del, m_put, m_post):
         self._create_test_data()
@@ -467,6 +468,8 @@ class ForemanRealmTestCase(RemoteTestCase):
 
         # check if the host has been created
         device = ObjectProxy("cn=new-foreman-host,ou=incoming,dc=example,dc=net")
+        device.extend('ForemanHost')
+        device.commit()
         assert device.cn == "new-foreman-host"
 
         # delete the host
@@ -595,7 +598,7 @@ class ForemanHookTestCase(RemoteTestCase):
         self._host_dn = "cn=Testgroup,ou=groups,dc=example,dc=net"
 
         payload_data = {
-            "event": "after_create",
+            "event": "after_commit",
             "object": "Testgroup",
             "data": {
                 "hostgroup": {

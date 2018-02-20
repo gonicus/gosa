@@ -164,7 +164,7 @@ class ObjectProxy(object):
             extensions = []
 
         if not base:
-            raise ProxyException(C.make_error('OBJECT_NOT_FOUND', id=dn_or_base))
+            raise ProxyException(C.make_error('OBJECT_NOT_FOUND', id=dn_or_base), status=404)
 
         if self.__read_only is True and base_mode == "create":
             raise ProxyException(C.make_error('CANNOT_CREATE_OBJECT_READ_ONLY', id=dn_or_base))
@@ -1294,8 +1294,6 @@ class ObjectProxy(object):
         """
         Returns JSON representations for the base-object and all its extensions.
         """
-
-        #TODO: only_indexed!?
         atypes = self.__factory.getAttributeTypes()
 
         object_types = self.__factory.getObjectTypes()
