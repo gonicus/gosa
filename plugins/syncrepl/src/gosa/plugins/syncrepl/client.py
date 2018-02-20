@@ -47,7 +47,11 @@ class SyncReplClient(Plugin):
         if get("ldap.tls", default="True").lower() == "true" and ldap.TLS_AVAIL and self.__url.urlscheme != "ldaps":
             self.__tls = True
 
-        path = self.env.config.get('ldap.syncrepl-data-path', default=os.path.join(os.path.sep, 'var', 'lib', 'gosa', 'syncrepl'))
+        path = self.env.config.get('ldap.syncrepl-data-path')
+        if path is None:
+            # do not use syncrepl
+            return
+
         if not os.path.exists(path):
             os.makedirs(path)
 
