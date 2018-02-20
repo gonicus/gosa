@@ -1024,13 +1024,13 @@ class ForemanHookReceiver(object):
 
             foreman_object, skip_this = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None)
             if foreman_object and host:
-                if foreman_object != host:
+                if foreman_object.uuid != host.uuid:
                     self.log.debug("using known host instead of creating a new one")
                     # host is the formerly discovered host, which might have been changed in GOsa for provisioning
                     # so we want to use this one, foreman_object is the joined one, so copy the credentials from foreman_object to host
                     update['__extensions__'].extend(['RegisteredDevice', 'simpleSecurityObject'])
                     for attr in ['deviceUUID', 'userPassword', 'otp', 'userPassword']:
-                        update[attr] = getattr(foreman, attr)
+                        update[attr] = getattr(foreman_object, attr)
 
                     # now delete the formerly joined host
                     foreman_object.remove()

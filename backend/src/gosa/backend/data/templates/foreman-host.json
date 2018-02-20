@@ -75,7 +75,7 @@
             "readOnly": true
           },
           "modelPath": "status",
-          "class": "gosa.ui.widgets.QLineEditWidget",
+          "class": "gosa.ui.widgets.QComboBoxWidget",
           "addOptions": {
             "column": 1,
             "row": 0

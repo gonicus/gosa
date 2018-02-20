@@ -598,7 +598,7 @@ class ForemanHookTestCase(RemoteTestCase):
         self._host_dn = "cn=Testgroup,ou=groups,dc=example,dc=net"
 
         payload_data = {
-            "event": "after_create",
+            "event": "after_commit",
             "object": "Testgroup",
             "data": {
                 "hostgroup": {
