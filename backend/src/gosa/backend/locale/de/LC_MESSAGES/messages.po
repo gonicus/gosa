@@ -1125,7 +1125,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/foreman-host.json:45
 msgid "Foreman host settings"
-msgstr ""
+msgstr "Foreman Host-Einstellungen"
 
 #: src/gosa/backend/data/templates/foreman-host.json:62
 msgid "Status"
@@ -1153,7 +1153,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/gosaAccount.json:15
 msgid "Account"
-msgstr ""
+msgstr "Konto"
 
 #: src/gosa/backend/data/templates/gosaAccount.json:24
 #, fuzzy
@@ -1197,7 +1197,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/gosaApplication.json:82
 msgid "Application name"
-msgstr ""
+msgstr "Applikationsname"
 
 #: src/gosa/backend/data/templates/gosaApplication.json:104
 msgid "Category"
@@ -1217,11 +1217,11 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/gosaApplication.json:187
 msgid "On desktop"
-msgstr ""
+msgstr "Auf dem Desktop"
 
 #: src/gosa/backend/data/templates/gosaApplication.json:198
 msgid "In startmenu"
-msgstr ""
+msgstr "Im Startmenü"
 
 #: src/gosa/backend/data/templates/gosaApplication.json:216
 #, fuzzy
@@ -1230,7 +1230,7 @@ msgstr "Parameter"
 
 #: src/gosa/backend/data/templates/gosaApplicationScript.json:7
 msgid "Application script"
-msgstr ""
+msgstr "Applikationsskript"
 
 #: src/gosa/backend/data/templates/gosaApplicationScript.json:25
 msgid "Script"
@@ -1291,7 +1291,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/gotoMenu.json:7
 msgid "Menu entry"
-msgstr ""
+msgstr "Menüeintrag"
 
 #: src/gosa/backend/data/templates/gotoMenu.json:62
 #, fuzzy
@@ -1320,7 +1320,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/gotoPrinter-relations.json:114
 msgid "Group"
-msgstr ""
+msgstr "Gruppe"
 
 #: src/gosa/backend/data/templates/gotoPrinter-relations.json:131
 msgid "Edit printer group"
@@ -1336,7 +1336,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/gotoPrinter.json:28
 msgid "Upload PPD file"
-msgstr ""
+msgstr "PPD-Datei hochladen"
 
 #: src/gosa/backend/data/templates/gotoPrinter.json:124
 msgid "Labeled URI"
@@ -1344,19 +1344,19 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/gotoPrinter.json:146
 msgid "Printer configuration"
-msgstr ""
+msgstr "Druckereinstellungen"
 
 #: src/gosa/backend/data/templates/gotoPrinter.json:168
 msgid "Manufacturer"
-msgstr ""
+msgstr "Herstelleer"
 
 #: src/gosa/backend/data/templates/gotoPrinter.json:191
 msgid "Model"
-msgstr ""
+msgstr "Modell"
 
 #: src/gosa/backend/data/templates/gotoPrinter.json:215
 msgid "Configure"
-msgstr ""
+msgstr "Konfigurieren"
 
 #: src/gosa/backend/data/templates/group-posix.json:12
 #: src/gosa/backend/data/templates/user-posix.json:15
@@ -1492,32 +1492,32 @@ msgstr "Kontakt-Information"
 #: src/gosa/backend/data/templates/user.json:303
 #, fuzzy
 msgid "Phone"
-msgstr "an"
+msgstr "Telefon"
 
 #: src/gosa/backend/data/templates/organizational-unit.json:139
 #: src/gosa/backend/data/templates/user-organizational.json:270
 msgid "Fax"
-msgstr ""
+msgstr "Fax"
 
 #: src/gosa/backend/data/templates/organizational-unit.json:179
 #: src/gosa/backend/data/templates/user-organizational.json:310
 msgid "State"
-msgstr ""
+msgstr "Status"
 
 #: src/gosa/backend/data/templates/organizational-unit.json:199
 #: src/gosa/backend/data/templates/user-organizational.json:330
 #: src/gosa/backend/data/templates/user.json:282
 msgid "Address"
-msgstr ""
+msgstr "Adresse"
 
 #: src/gosa/backend/data/templates/samba-domain.json:9
 #: src/gosa/backend/data/templates/samba-ws.json:56
 msgid "Samba domain"
-msgstr ""
+msgstr "Sambadomäne"
 
 #: src/gosa/backend/data/templates/samba-domain.json:32
 msgid "Windows NT domain"
-msgstr ""
+msgstr "Windows NT Domäne"
 
 #: src/gosa/backend/data/templates/samba-domain.json:49
 #: src/gosa/backend/plugins/samba/domain.py:253
@@ -1527,12 +1527,12 @@ msgstr "Sperrzeit"
 #: src/gosa/backend/data/templates/samba-domain.json:50
 #: src/gosa/backend/data/templates/samba-domain.json:60
 msgid "Lockout duration in minutes (default: 3"
-msgstr ""
+msgstr "Sperrzeit in Minuten (standard: 3"
 
 #: src/gosa/backend/data/templates/samba-domain.json:70
 #, fuzzy
 msgid "Lockout observation window"
-msgstr "Sperrzeit"
+msgstr "Sperrzeit Beobachtungsfenster"
 
 #: src/gosa/backend/data/templates/samba-domain.json:71
 #: src/gosa/backend/data/templates/samba-domain.json:81
@@ -1839,7 +1839,7 @@ msgstr "Standard-Drucker vom Client wählen"
 
 #: src/gosa/backend/data/templates/user-samba.json:18
 msgid "Change samba password..."
-msgstr ""
+msgstr "Samba Passwort ändern..."
 
 #: src/gosa/backend/data/templates/user-samba.json:31
 msgid "Common"
@@ -2095,19 +2095,19 @@ msgstr "Kein Passwort zum Sperren vorhanden."
 
 #: src/gosa/backend/data/templates/user.json:39
 msgid "Lock account"
-msgstr ""
+msgstr "Konto sperren"
 
 #: src/gosa/backend/data/templates/user.json:45
 msgid "Unlock account"
-msgstr ""
+msgstr "Konto entsperren"
 
 #: src/gosa/backend/data/templates/user.json:51
 msgid "Send message..."
-msgstr ""
+msgstr "Nachricht senden..."
 
 #: src/gosa/backend/data/templates/user.json:56
 msgid "Change 2FA method..."
-msgstr ""
+msgstr "2-Faktor Methode ändern..."
 
 #: src/gosa/backend/data/templates/user.json:108
 msgid "Login &ID"
@@ -2127,7 +2127,7 @@ msgstr "Bitte geben Sie hier die Adresse Ihrer Internetseite an"
 
 #: src/gosa/backend/data/templates/user.json:341
 msgid "Access rights"
-msgstr ""
+msgstr "Zugriffsrechte"
 
 #: src/gosa/backend/data/templates/user.json:363
 msgid "Self service"
@@ -2135,7 +2135,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/user.json:385
 msgid "Administrator"
-msgstr ""
+msgstr "Administrator"
 
 #: src/gosa/backend/data/templates/zarafa-server.json:45
 #, fuzzy
@@ -2241,7 +2241,7 @@ msgstr ""
 
 #: src/gosa/backend/objects/index.py:75
 msgid "connection to GOsa backend failed"
-msgstr ""
+msgstr "Verbinsung zum GOsa Backend fehlgeschlagen"
 
 #: src/gosa/backend/objects/index.py:76
 msgid ""
@@ -2260,34 +2260,34 @@ msgstr ""
 
 #: src/gosa/backend/objects/index.py:743 src/gosa/backend/objects/index.py:748
 msgid "scanning for objects"
-msgstr ""
+msgstr "Suche nach Objekten"
 
 #: src/gosa/backend/objects/index.py:768
 msgid "Generating object index"
-msgstr ""
+msgstr "Erstelle Objektindex"
 
 #: src/gosa/backend/objects/index.py:780
 #, python-format
 msgid "Processing object %s/%s"
-msgstr ""
+msgstr "Verarbeite Objekt %s/%s"
 
 #: src/gosa/backend/objects/index.py:794
 #, python-format
 msgid "%s objects processed"
-msgstr ""
+msgstr "%s Objekte verarbeitet"
 
 #: src/gosa/backend/objects/index.py:798
 msgid "removing orphan objects from index"
-msgstr ""
+msgstr "entferne verwaiste Objekte aus dem Index"
 
 #: src/gosa/backend/objects/index.py:816
 msgid "Index refresh finished"
-msgstr ""
+msgstr "Index Aktualisierung abgeschlossen"
 
 #: src/gosa/backend/objects/index.py:841
 #, python-format
 msgid "Refreshing object %s/%s"
-msgstr ""
+msgstr "Aktualisiere Objekt %s/%s"
 
 #: src/gosa/backend/objects/index.py:1190
 msgid "Check if an object with the given UUID exists."
@@ -2303,11 +2303,11 @@ msgstr "Index nach Einträgen durchsuchen."
 
 #: src/gosa/backend/objects/index.py:1597
 msgid "Register a backend to allow MQTT access"
-msgstr ""
+msgstr "Ein Backend für den MQTT Zugriff registrieren"
 
 #: src/gosa/backend/objects/index.py:1615
 msgid "Unregister a backend from MQTT access"
-msgstr ""
+msgstr "Backend Registrierung für den MQTT Zugriff entfernen"
 
 #: src/gosa/backend/objects/object.py:45
 #, python-format
