@@ -120,24 +120,24 @@ class ReplCallback(BaseCallback):
         self.__refresh_done = True
 
     def record_add(self, dn, attrs, cursor):
-        self.log.debug("New record '{}'".format(dn))
         if not self.__refresh_done:
             return
 
+        self.log.debug("New record '{}'".format(dn))
         self.__spool.append({'dn': dn, 'cookie': self.__cookie})
 
     def record_delete(self, dn, cursor):
-        self.log.debug("Deleted record '{}'".format(dn))
         if not self.__refresh_done:
             return
 
+        self.log.debug("Deleted record '{}'".format(dn))
         self.__spool.append({'dn': dn, 'cookie': self.__cookie})
 
     def record_rename(self, old_dn, new_dn, cursor):
-        self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
         if not self.__refresh_done:
             return
 
+        self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
         self.__renamed[new_dn] = old_dn
 
     def record_change(self, dn, old_attrs, new_attrs, cursor):
