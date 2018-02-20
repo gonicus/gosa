@@ -59,7 +59,7 @@ class SyncReplClient(Plugin):
                                  ldap_url=self.__url,
                                  mode=SyncreplMode.REFRESH_AND_PERSIST)
 
-        thread=threading.Thread(target=self.__client.run)
+        thread = threading.Thread(target=self.__client.run)
 
         self.log.debug("Syncrepl Client active for '{}'".format(self.__url))
         thread.start()
@@ -86,7 +86,7 @@ class ReplCallback(BaseCallback):
         self.log = logging.getLogger(__name__)
         self.log.info("initializing syncrepl client callback")
 
-    def __get_change(self, dn, csn, type):
+    def __get_change(self, dn, csn):
         result = None
         if self.__refresh_done and self.__cookie is not None:
             with self.lh.get_handle() as con:
@@ -94,7 +94,8 @@ class ReplCallback(BaseCallback):
                     fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(!{2}))".format(
                         ldap.filter.filter_format("(reqDn=%s)", [dn]),
                         csn,
-                        ldap.filter.filter_format("(reqAuthzID=%s)", [self.env.config.get('backend-monitor.modifier')]))
+                        ldap.filter.filter_format("(reqAuthzID=%s)", [self.env.config.get('backend-monitor.modifier')])
+                    )
 
                     self.log.debug("Searching in Base '{ldap_base}' with filter '{ldap_filter}'".
                                    format(ldap_base=self.env.config.get('ldap.syncrepl-accesslog-base',
@@ -123,14 +124,14 @@ class ReplCallback(BaseCallback):
         if not self.__refresh_done:
             return
 
-        self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'add'})
+        self.__spool.append({'dn': dn, 'cookie': self.__cookie})
 
     def record_delete(self, dn, cursor):
         self.log.debug("Deleted record '{}'".format(dn))
         if not self.__refresh_done:
             return
 
-        self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'delete'})
+        self.__spool.append({'dn': dn, 'cookie': self.__cookie})
 
     def record_rename(self, old_dn, new_dn, cursor):
         self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
@@ -138,14 +139,13 @@ class ReplCallback(BaseCallback):
             return
 
         self.__renamed[new_dn] = old_dn
-        # self.__spool.append({'dn': old_dn, 'new_dn': new_dn, 'cookie': self.__cookie, 'type': 'rename'})
 
     def record_change(self, dn, old_attrs, new_attrs, cursor):
         if not self.__refresh_done:
             return
 
         self.log.debug("Changed record '{}'".format(dn))
-        self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'modify'})
+        self.__spool.append({'dn': dn, 'cookie': self.__cookie})
 
     def cookie_change(self, cookie):
         self.log.debug("Changed cookie '{}'".format(cookie))
@@ -154,10 +154,9 @@ class ReplCallback(BaseCallback):
             spool = self.__spool
             self.__spool = []
             for entry in spool:
-                res = self.__get_change(entry['dn'], entry['cookie'], entry['type'])
+                res = self.__get_change(entry['dn'], entry['cookie'])
                 if res:
                     data = res[0][1]
-                    print(data)
                     change_type = data['reqType'][0].decode('utf-8')
                     uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
                     modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
@@ -166,6 +165,7 @@ class ReplCallback(BaseCallback):
                         if 'reqNewSuperior' in data:
                             new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
                         elif dn in self.__renamed:
+                            # get the old dn from a modrdn change
                             new_dn = dn
                             dn = self.__renamed[dn]
                             del self.__renamed[dn]
