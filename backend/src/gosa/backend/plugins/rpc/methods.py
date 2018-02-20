@@ -588,11 +588,13 @@ class RPCMethods(Plugin):
                         r = session.execute("SELECT word FROM unique_lexeme WHERE length(word) > 2 AND similarity(word, '{0}') > {1} ORDER BY levenshtein(word, '{0}', 2, 2, 1) LIMIT 3;".format(kw, self.__fuzzy_similarity_threshold)).fetchall()
                         keywords[i] = " or ".join([x['word'] for x in r])
 
-                    self.log.info("no results found for: '%s' => re-trying with: '%s'" % (qstring, " ".join(keywords)))
+                    keywords_string = " ".join(keywords)
+                    self.log.info("no results found for: '%s' => re-trying with: '%s'" % (qstring, keywords_string))
                     response['orig'] = qstring
-                    response['fuzzy'] = " ".join(keywords)
-                    query_result, ranked = self.finalize_query(query, fltr, session, qstring=" ".join(keywords), order_by=order_by)
-                    total = query_result.count()
+                    if qstring != keywords_string:
+                        response['fuzzy'] = keywords_string
+                        query_result, ranked = self.finalize_query(query, fltr, session, qstring=" ".join(keywords), order_by=order_by)
+                        total = query_result.count()
 
             response['primary_total'] = total
             self.log.debug("Query: %s Keywords: %s, Filter: %s => %s results" % (qstring, keywords, fltr, total))
