@@ -247,6 +247,7 @@ class ObjectIndex(Plugin):
     # notification period in seconds during indexing
     notify_every = 1
     __value_extender = None
+    _acl_resolver = None
 
     procs = multiprocessing.cpu_count()
 
