@@ -21,6 +21,7 @@ from sqlalchemy import and_
 from tornado import gen
 
 from gosa.backend.components.httpd import get_server_url
+from gosa.backend.lock import GlobalLock
 from gosa.backend.objects import ObjectProxy, ObjectFactory
 from gosa.backend.objects.index import ObjectInfoIndex, ExtensionIndex, KeyValueIndex, Cache
 from gosa.backend.routes.sse.main import SseHandler
@@ -834,6 +835,12 @@ class ForemanRealmReceiver(object):
 
     @gen.coroutine
     def handle_request(self, request_handler):
+        if GlobalLock.exists("scan_index"):
+            request_handler.finish(dumps({
+                "error": "GOsa is currently re-creating its index, all requests are blocked"
+            }))
+            return
+
         if Foreman.syncing is True:
             request_handler.finish(dumps({
                 "error": "GOsa is currently syncing with Foreman, all requests are blocked"
