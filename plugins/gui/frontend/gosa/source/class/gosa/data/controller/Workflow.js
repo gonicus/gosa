@@ -172,8 +172,8 @@ qx.Class.define("gosa.data.controller.Workflow", {
           var workflow = this.getObject();
           return new qx.Promise(function(resolve, reject) {
             var timer = qx.event.Timer.once(function() {
-              reject(new Error(qx.locale.Manager.tr("Timout waiting for workflow execution")));
-            }, this, 60000);
+              reject(new Error(qx.locale.Manager.tr("Timeout waiting for workflow execution")));
+            }, this, 120000);
             gosa.io.Sse.getInstance().addBackendDoneListener(workflow.uuid, "workflow", function(message) {
               if (!timer.isDisposed() && timer.isEnabled()) {
                 timer.stop();
