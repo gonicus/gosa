@@ -878,13 +878,8 @@ class ForemanRealmReceiver(object):
                 raise e
 
         elif data['action'] == "delete":
-            try:
-                foreman.remove_type("ForemanHost", data['hostname'])
-            except Exception as e:
-                request_handler.finish(dumps({
-                    "error": "%s" % e
-                }))
-                raise e
+            # this is handled by the after_destroy hook, which is triggered before the host delete
+            pass
 
         ForemanBackend.modifier = None
 
