@@ -881,7 +881,7 @@ class ObjectIndex(Plugin):
                 session.rollback()
                 raise e
 
-    def __handle_events(self, event):
+    def __handle_events(self, event, retried=False):
         if GlobalLock.exists("scan_index"):
             return
 
@@ -916,29 +916,42 @@ class ObjectIndex(Plugin):
                     self.log.debug("starting object movement from %s to %s" % (_dn, event.dn))
                     self.currently_moving[_dn] = event.dn
 
-                if event.reason == "post object move":
-                    self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
-                    obj = ObjectProxy(event.dn)
-                    self.update(obj, session=session)
-                    _dn = obj.dn
-                    change_type = "move"
-                    if event.orig_dn in self.currently_moving:
-                        del self.currently_moving[event.orig_dn]
+                try:
+                    if event.reason == "post object move":
+                        self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
+                        obj = ObjectProxy(event.dn)
+                        self.update(obj, session=session)
+                        _dn = obj.dn
+                        change_type = "move"
+                        if event.orig_dn in self.currently_moving:
+                            del self.currently_moving[event.orig_dn]
 
-                if event.reason == "post object create":
-                    self.log.debug("creating object index for %s (%s)" % (_uuid, _dn))
-                    obj = ObjectProxy(event.dn)
-                    self.insert(obj, session=session)
-                    _dn = obj.dn
-                    change_type = "create"
+                    if event.reason == "post object create":
+                        self.log.debug("creating object index for %s (%s)" % (_uuid, _dn))
+                        obj = ObjectProxy(event.dn)
+                        self.insert(obj, session=session)
+                        _dn = obj.dn
+                        change_type = "create"
 
-                if event.reason == "post object update":
-                    self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
-                    if not event.dn and _dn != "not known yet":
-                        event.dn = _dn
-                    obj = ObjectProxy(event.dn)
-                    self.update(obj, session=session)
-                    change_type = "update"
+                    if event.reason == "post object update":
+                        self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
+                        if not event.dn and _dn != "not known yet":
+                            event.dn = _dn
+                        obj = ObjectProxy(event.dn)
+                        self.update(obj, session=session)
+                        change_type = "update"
+                except ForemanBackendException as e:
+                    if retried is False and e.response.status_code == 404:
+                        self.log.info("Foreman object %s (%s) not available yet, retrying to update index in one second"
+                                      % (_uuid, _dn))
+                        # foreman object might not be ready yet, try again later
+                        sobj = PluginRegistry.getInstance("SchedulerService")
+                        sobj.getScheduler().add_date_job(self.__handle_events,
+                                                         datetime.datetime.now() + datetime.timedelta(seconds=1),
+                                                         tag='_internal', jobstore='ram',
+                                                         args=(event,),
+                                                         kwargs={"retried": True})
+                    raise e
 
             # send the event to the clients
             e = EventMaker()
