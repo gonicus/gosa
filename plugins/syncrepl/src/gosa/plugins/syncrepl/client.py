@@ -6,6 +6,8 @@ import threading
 import pprint
 
 import re
+
+import time
 import zope
 from syncrepl_client import Syncrepl, SyncreplMode
 from syncrepl_client.callbacks import BaseCallback
@@ -43,7 +45,7 @@ class SyncReplClient(Plugin):
 
     """
     _priority_ = 21
-    __client = None
+    thread = None
     __url = None
     __tls = False
 
@@ -72,20 +74,38 @@ class SyncReplClient(Plugin):
         if self.env.config.get('backend-monitor.modifier') is None:
             raise GosaException("backend-monitor.modifier config option is missing")
 
-        self.__client = Syncrepl(data_path=os.sep.join((path, 'database.db')),
+        client = Syncrepl(data_path=os.sep.join((path, 'database.db')),
                                  callback=ReplCallback(),
                                  ldap_url=self.__url,
                                  mode=SyncreplMode.REFRESH_AND_PERSIST)
 
-        thread = threading.Thread(target=self.__client.run)
+        self.thread = SyncReplThread(client)
 
         self.log.debug("Syncrepl Client active for '{}'".format(self.__url))
-        thread.start()
-        thread.join()
+        self.thread.start()
 
     def stop(self):
-        if self.__client is not None:
-            self.__client.please_stop()
+        self.thread.stop()
+
+
+class SyncReplThread(threading.Thread):
+
+    def __init__(self, client):
+        self.__client = client
+        super(SyncReplThread, self).__init__(target=client.run)
+
+    def run(self):
+        try:
+            if self.__client:
+                self.__client.run()
+        finally:
+            # Avoid a refcycle if the thread is running a function with
+            # an argument that has a member that points to the thread.
+            self.__client.unbind()
+            del self.__client
+
+    def stop(self):
+        self.__client.please_stop()
 
 
 class ReplCallback(BaseCallback):
@@ -124,7 +144,7 @@ class ReplCallback(BaseCallback):
                                           ldap.SCOPE_ONELEVEL,
                                           fltr,
                                           attrlist=['*'])
-
+                    self.log.debug("Change found: %s" % result)
                 except ldap.NO_SUCH_OBJECT:
                     pass
 
