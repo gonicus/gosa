@@ -128,11 +128,13 @@ qx.Class.define("gosa.view.Tree", {
 
         case "create-menu-button":
           control = new qx.ui.toolbar.MenuButton(this.tr("Create"));
+          control.setEnabled(false);
           control.setMenu(this.getChildControl("create-menu"));
           break;
 
         case "filter-menu-button":
           control = new qx.ui.toolbar.MenuButton(this.tr("Show"));
+          control.setEnabled(false);
           control.setMenu(this.getChildControl("filter-menu"));
           break;
 
@@ -277,12 +279,15 @@ qx.Class.define("gosa.view.Tree", {
                                      contextMenu) {
       var actionButton = new qx.ui.menu.Button(this.tr("Action"));
       actionButton.setMenu(this.getChildControl("action-menu"));
+      actionButton.setEnabled(this.getChildControl("action-menu-button").isEnabled());
       contextMenu.add(actionButton);
       var createButton = new qx.ui.menu.Button(this.tr("Create"));
       createButton.setMenu(this.getChildControl("create-menu"));
+      createButton.setEnabled(this.getChildControl("create-menu").hasChildren());
       contextMenu.add(createButton);
       var filterButton = new qx.ui.menu.Button(this.tr("Filter"));
       filterButton.setMenu(this.getChildControl("filter-menu"));
+      filterButton.setEnabled(this.getChildControl("filter-menu").hasChildren());
       contextMenu.add(filterButton);
 
       return true;
@@ -371,16 +376,21 @@ qx.Class.define("gosa.view.Tree", {
         if (selection.getType() === "root") {
           // nothing can be added to root element, skip RPC and clear everything
           this._objectRights = {};
+          this.getChildControl("action-menu-button").setEnabled(false);
           this.getChildControl("create-menu").removeAll();
+          this.getChildControl("create-menu-button").setEnabled(false);
           this.getChildControl("filter-menu").removeAll();
+          this.getChildControl("filter-menu-button").setEnabled(false);
           return;
         }
         // load object types
         this._rpc.cA("getAllowedSubElementsForObjectWithActions", selection.getType())
         .then(function(result) {
           this._objectRights = result;
-          this.getChildControl("create-menu").removeAll();
-          this.getChildControl("filter-menu").removeAll();
+          const createMenu = this.getChildControl("create-menu");
+          createMenu.removeAll();
+          const filterMenu = this.getChildControl("filter-menu");
+          filterMenu.removeAll();
           var visibleTypes = {};
           this._tableModel.getData().forEach(function(item) {
             visibleTypes[item[0]] = true;
@@ -392,7 +402,7 @@ qx.Class.define("gosa.view.Tree", {
               var button = new qx.ui.menu.Button(this['tr'](name), icon);
               button.setAppearance("icon-menu-button");
               button.setUserData("type", name);
-              this.getChildControl("create-menu").add(button);
+              createMenu.add(button);
               button.addListener("execute", this._onCreateObject, this);
             }
             if (visibleTypes[name] && allowed.includes("r")) {
@@ -400,7 +410,7 @@ qx.Class.define("gosa.view.Tree", {
               // initially they are all selected
               button.setValue(true);
               button.setUserData("type", name);
-              this.getChildControl("filter-menu").add(button);
+              filterMenu.add(button);
               button.addListener("execute", this._applyFilter, this);
               button.addListener("contextmenu", function() {
                 // select only this button
@@ -413,6 +423,8 @@ qx.Class.define("gosa.view.Tree", {
               }, this);
             }
           }, this);
+          createMenu.setEnabled(createMenu.getChildren().length > 0);
+          filterMenu.setEnabled(filterMenu.getChildren().length > 0);
         }, this).catch(function(error) {
           new gosa.ui.dialogs.Error(error).open();
         });
