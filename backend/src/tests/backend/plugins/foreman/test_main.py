@@ -474,9 +474,15 @@ class ForemanRealmTestCase(RemoteTestCase):
 
         # delete the host
         payload = bytes(dumps({
-            "action": "delete",
-            "hostname": "new-foreman-host",
-            "parameters": {}
+            "action": "after_destroy",
+            "object": "new-foreman-host",
+            "data": {
+                "host": {
+                    "host": {
+                        "name": "new-foreman-host"
+                    }
+                }
+            }
         }), 'utf-8')
         signature_hash = hmac.new(token, msg=payload, digestmod="sha512")
         signature = 'sha1=' + signature_hash.hexdigest()
