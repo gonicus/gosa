@@ -1,3 +1,4 @@
+import datetime
 import ldap
 import ldapurl
 import logging
@@ -45,7 +46,7 @@ class SyncReplClient(Plugin):
 
     """
     _priority_ = 21
-    thread = None
+    __thread = None
     __url = None
     __tls = False
 
@@ -79,13 +80,13 @@ class SyncReplClient(Plugin):
                                  ldap_url=self.__url,
                                  mode=SyncreplMode.REFRESH_AND_PERSIST)
 
-        self.thread = SyncReplThread(client)
+        self.__thread = SyncReplThread(client)
 
         self.log.debug("Syncrepl Client active for '{}'".format(self.__url))
-        self.thread.start()
+        self.__thread.start()
 
     def stop(self):
-        self.thread.stop()
+        self.__thread.stop()
 
 
 class SyncReplThread(threading.Thread):
@@ -99,8 +100,6 @@ class SyncReplThread(threading.Thread):
             if self.__client:
                 self.__client.run()
         finally:
-            # Avoid a refcycle if the thread is running a function with
-            # an argument that has a member that points to the thread.
             self.__client.unbind()
             del self.__client
 
@@ -156,6 +155,8 @@ class ReplCallback(BaseCallback):
     def refresh_done(self, items, cursor):
         self.log.debug("LDAP Refresh complete")
         self.__refresh_done = True
+        if not self.__cookie:
+            self.__cookie = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S.%fZ')
 
     def record_add(self, dn, attrs, cursor):
         if not self.__refresh_done:
@@ -192,23 +193,29 @@ class ReplCallback(BaseCallback):
             spool = self.__spool
             self.__spool = []
             for entry in spool:
-                res = self.__get_change(entry['dn'], entry['cookie'])
+                dn = entry['dn']
+                if dn in self.__renamed:
+                    # use the old DN to find the change
+                    new_dn = dn
+                    dn = self.__renamed[dn]
+                    del self.__renamed[new_dn]
+                else:
+                    new_dn = None
+
+                res = self.__get_change(dn, entry['cookie'])
+
                 if res:
                     data = res[0][1]
                     change_type = data['reqType'][0].decode('utf-8')
                     uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
                     modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
-                    dn = entry['dn']
+
                     if change_type in ["modrdn", "moddn"]:
-                        if 'reqNewSuperior' in data:
-                            new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
-                        elif dn in self.__renamed:
-                            # get the old dn from a modrdn change
-                            new_dn = dn
-                            dn = self.__renamed[dn]
-                            del self.__renamed[dn]
-                        else:
-                            new_dn = "%s," % data['reqNewRDN'][0].decode('utf-8')
+                        if new_dn is None:
+                            if 'reqNewSuperior' in data:
+                                new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
+                            else:
+                                new_dn = "%s," % data['reqNewRDN'][0].decode('utf-8')
                         update = e.Event(
                             e.BackendChange(
                                 e.DN(dn),
