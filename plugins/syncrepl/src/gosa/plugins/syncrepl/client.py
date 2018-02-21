@@ -23,8 +23,12 @@ from gosa.common.handler import IInterfaceHandler
 @implementer(IInterfaceHandler)
 class SyncReplClient(Plugin):
     """
-    The SyncReplClient is needs the following config options:
+    The SyncReplClient notifies GOsa about LDAP changes from another origin.
+    It uses the modifiers name to distinguish changes made by GOsa itself (which are ignored here) and
+    changes done by third parties. To make this work you have to make sure, that GOsa uses a unique bind DN
+    that no other third party LDAP client uses.
 
+    The SyncReplClient needs the following config options:
 
     .. code-block:: ini
 
