@@ -174,6 +174,9 @@ class WebhookSettingsHandler(object):
                 self.__hooks = loads(f.read())
 
     def stop(self):
+        self.save()
+
+    def save(self):
         settings_file = self.env.config.get("webhooks.registry-store", "/var/lib/gosa/webhooks")
         to_save = self.__hooks.copy()
         for mime_type, sender_name in self.__temporary:
@@ -193,11 +196,13 @@ class WebhookSettingsHandler(object):
                 del self.__hooks[mime_type][sender_name]
                 if len(self.__hooks[mime_type].keys()) == 0:
                     del self.__hooks[mime_type]
+                    self.save()
         else:
             if mime_type not in self.__hooks:
                 self.__hooks[mime_type] = {}
 
             self.__hooks[mime_type][sender_name] = value
+            self.save()
             if temporary:
                 self.__temporary.append((mime_type, sender_name))
 
