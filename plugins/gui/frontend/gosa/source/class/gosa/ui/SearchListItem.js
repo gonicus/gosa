@@ -249,12 +249,10 @@ qx.Class.define("gosa.ui.SearchListItem", {
       var widget = this.getChildControl("overlay-icon");
       var source = this.getOverlayIcon();
       if (source) {
-        new qx.util.DeferredCall(function() {
-          widget.setSource(source+"/"+this.__overlayIconSize);
-          if (this.getOverlayIconColor()) {
-            widget.setTextColor(this.getOverlayIconColor());
-          }
-        }, this).schedule();
+        widget.setSource(source);
+        if (this.getOverlayIconColor()) {
+          widget.setTextColor(this.getOverlayIconColor());
+        }
         this._showChildControl("overlay-icon");
       } else {
         this._excludeChildControl("overlay-icon");
