@@ -20,14 +20,24 @@ from gosa.common.event import EventMaker
 from gosa.common.handler import IInterfaceHandler
 
 
-# TODO: Der Callback zu Änderungen wird zu einem Zeitpunkt aufgerufen, an dem die propagierte Änderung noch nicht in der LDAP-Datenbank committed wurde
-# Die Vorgehensweise sollte sein:
-# 1. Änderungscallback wird aufgerufen, spooled die Suche nach der Änderung mit dem aktuellen Cookie-Wert für die Suche
-# 2. Neuer Cookie vom Server, die Änderung wurde also in der DB persistiert, eine Suche sollte jetzt ein Ergebnis bringen
-#    Daher muss hier geschaut werden, ob noch Suchen gespooled sind, diese müssen dann durchgeführt werden
-
 @implementer(IInterfaceHandler)
 class SyncReplClient(Plugin):
+    """
+    The SyncReplClient is needs the following config options:
+
+
+    .. code-block:: ini
+
+        [backend-monitor]
+        syncrepl-data-path = <path-to-local-syncrepl-dir>
+        modifier = <do not sync changes from this bind dn>
+
+    .. IMPORTANT::
+
+        Please make sure that you do not use the backend_ldap_monitor and the syncrepl-client
+        together. Use either one or the other.
+
+    """
     _priority_ = 21
     __client = None
     __url = None
@@ -47,7 +57,7 @@ class SyncReplClient(Plugin):
         if get("ldap.tls", default="True").lower() == "true" and ldap.TLS_AVAIL and self.__url.urlscheme != "ldaps":
             self.__tls = True
 
-        path = self.env.config.get('ldap.syncrepl-data-path')
+        path = self.env.config.get('backend-monitor.syncrepl-data-path')
         if path is None:
             # do not use syncrepl
             return
