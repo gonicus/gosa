@@ -387,9 +387,9 @@ qx.Class.define("gosa.view.Tree", {
         this._rpc.cA("getAllowedSubElementsForObjectWithActions", selection.getType())
         .then(function(result) {
           this._objectRights = result;
-          const createMenu = this.getChildControl("create-menu");
+          var createMenu = this.getChildControl("create-menu");
           createMenu.removeAll();
-          const filterMenu = this.getChildControl("filter-menu");
+          var filterMenu = this.getChildControl("filter-menu");
           filterMenu.removeAll();
           var visibleTypes = {};
           this._tableModel.getData().forEach(function(item) {
