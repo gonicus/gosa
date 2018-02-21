@@ -67,6 +67,8 @@ class RPCMethods(Plugin):
     __value_extender = None
     __search_aid = None
     __fuzzy_similarity_threshold = 0.3
+    __acl_resolver = None
+    __oi = None
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -84,6 +86,7 @@ class RPCMethods(Plugin):
         self.__value_extender = gosa.backend.objects.renderer.get_renderers()
         self.__search_aid = PluginRegistry.getInstance("ObjectIndex").get_search_aid()
         self.__oi = PluginRegistry.getInstance("ObjectIndex")
+        self.__acl_resolver = PluginRegistry.getInstance("ACLResolver")
 
     @Command(__help__=N_("Returns a list containing all available object names"))
     def getAvailableObjectNames(self, only_base_objects=False, base=None):
@@ -552,7 +555,6 @@ class RPCMethods(Plugin):
         these = dict([(x, 1) for x in self.__search_aid['used_attrs']])
         these.update(dict(dn=1, _type=1, _uuid=1, _last_changed=1))
         these = list(these.keys())
-        ranked = False
 
         with make_session() as session:
             query_result, ranked = self.finalize_query(query, fltr, session, qstring=qstring, order_by=order_by)
@@ -770,8 +772,8 @@ class RPCMethods(Plugin):
         aid = self.__search_aid['mapping'][search_item._type]
 
         for ext in search_item.extensions:
-            if ext in self.__search_aid['mapping']:
-                aid.update(self.__search_aid['mapping'][ext])
+            if ext.extension in self.__search_aid['mapping']:
+                aid.update(self.__search_aid['mapping'][ext.extension])
 
         # Filter out what the current use is not allowed to see
         item = self.__filter_entry(user, search_item, these, aid=aid)
@@ -903,9 +905,8 @@ class RPCMethods(Plugin):
         """
         Checks whether the given user has access to the given object/attribute or not.
         """
-        aclresolver = PluginRegistry.getInstance("ACLResolver")
         if user:
             topic = "%s.objects.%s.attributes.%s" % (self.env.domain, object_type, attr)
-            return aclresolver.check(user, topic, "r", base=object_dn)
+            return self.__acl_resolver.check(user, topic, "r", base=object_dn)
         else:
             return True
