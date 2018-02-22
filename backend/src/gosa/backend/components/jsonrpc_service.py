@@ -23,6 +23,8 @@ import logging
 import tornado.web
 import time
 
+from tornado import gen, concurrent
+
 from gosa.backend.objects.index import UserSession
 from gosa.common.env import make_session
 from gosa.common.hsts_request_handler import HSTSRequestHandler
@@ -61,6 +63,7 @@ class JsonRpcHandler(HSTSRequestHandler):
 
     # denial service for some time after login fails to often
     __dos_manager = {}
+    executor = concurrent.futures.ThreadPoolExecutor(4)
 
     def initialize(self):
         self.dispatcher = PluginRegistry.getInstance('CommandRegistry')
@@ -120,7 +123,7 @@ class JsonRpcHandler(HSTSRequestHandler):
                 }
         return None
 
-    @coroutine
+    @tornado.concurrent.run_on_executor
     def process(self, data):
         """
         Process an incoming JSONRPC request and dispatch it thru the
