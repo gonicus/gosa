@@ -121,73 +121,52 @@ class ChangeProcessor(multiprocessing.Process):
             if data == "DONE":
                 time.sleep(1)
             else:
-
                 e = EventMaker()
-                renamed = {}
-                for entry in data['spool']:
-                    if entry['type'] == 'modrdn':
-                        renamed[entry['new_dn']] = entry['dn']
-                        continue
+                res = self.__get_change(data['start'], data['end'])
 
-                    dn = entry['dn']
-                    if dn in renamed:
-                        # use the old DN to find the change
-                        new_dn = dn
-                        dn = renamed[dn]
-                        del renamed[new_dn]
-                    else:
-                        new_dn = None
+                if len(res):
+                    for entry in res[0]:
+                        print(entry)
+                        dn = entry['reqDN'][0].decode('utf-8')
 
-                    res = []
-                    while len(res) == 0:
-                        res = self.__get_change(dn, entry['cookie'], None, entry['type'])
-                        time.sleep(1)
+                        change_type = entry['reqType'][0].decode('utf-8')
+                        uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
+                        modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
 
-                    data = res[0][1]
-                    if data['reqAuthzID'] == self.env.config.get('backend-monitor.modifier'):
-                        # ignore own changes
-                        continue
-
-                    change_type = data['reqType'][0].decode('utf-8')
-                    uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
-                    modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
-
-                    if change_type in ["modrdn", "moddn"]:
-                        if new_dn is None:
+                        if change_type in ["modrdn", "moddn"]:
                             if 'reqNewSuperior' in data:
                                 new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
                             else:
                                 new_dn = "%s," % data['reqNewRDN'][0].decode('utf-8')
-                        update = e.Event(
-                            e.BackendChange(
-                                e.DN(dn),
-                                e.UUID(uuid),
-                                e.NewDN(new_dn),
-                                e.ModificationTime(modification_time),
-                                e.ChangeType(change_type)
+                            update = e.Event(
+                                e.BackendChange(
+                                    e.DN(dn),
+                                    e.UUID(uuid),
+                                    e.NewDN(new_dn),
+                                    e.ModificationTime(modification_time),
+                                    e.ChangeType(change_type)
+                                )
                             )
-                        )
-                    else:
-                        update = e.Event(
-                            e.BackendChange(
-                                e.DN(entry['dn']),
-                                e.UUID(uuid),
-                                e.ModificationTime(modification_time),
-                                e.ChangeType(change_type)
+                        else:
+                            update = e.Event(
+                                e.BackendChange(
+                                    e.DN(entry['dn']),
+                                    e.UUID(uuid),
+                                    e.ModificationTime(modification_time),
+                                    e.ChangeType(change_type)
+                                )
                             )
-                        )
-                    self.log.debug("Sent update for entry '{}'".format(entry['dn']))
-                    zope.event.notify(update)
+                        self.log.debug("Sent update for entry '{}'".format(entry['dn']))
+                        zope.event.notify(update)
 
-    def __get_change(self, dn, start, end, type):
+    def __get_change(self, start, end):
         result = []
         with self.lh.get_handle() as con:
             try:
-                fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1}){2}{3})".format(
-                    ldap.filter.filter_format("(reqDn=%s)", [dn]),
+                fltr = "(&(objectClass=auditWriteObject)(reqResult=0)(reqStart>={0}){1}(!{2}))".format(
                     start,
                     ldap.filter.filter_format("(reqEnd>=%s)", [end]) if end is not None else "",
-                    ldap.filter.filter_format("(reqType=%s)", [type])
+                    ldap.filter.filter_format("(reqAuthzID=%s)", [self.env.config.get('backend-monitor.modifier')])
                 )
 
                 self.log.debug("Searching in Base '{ldap_base}' with filter '{ldap_filter}'".
@@ -239,39 +218,37 @@ class ReplCallback(BaseCallback):
             return
 
         self.log.debug("New record '{}'".format(dn))
-        self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'add'})
+        # self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'add'})
 
     def record_delete(self, dn, cursor):
         if not self.__refresh_done:
             return
 
         self.log.debug("Deleted record '{}'".format(dn))
-        self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'delete'})
+        # self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'delete'})
 
     def record_rename(self, old_dn, new_dn, cursor):
         if not self.__refresh_done:
             return
 
         self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
-        self.__spool.append({'dn': old_dn, 'new_dn': new_dn, 'cookie': self.__cookie, 'type': 'modrdn'})
+        # self.__spool.append({'dn': old_dn, 'new_dn': new_dn, 'cookie': self.__cookie, 'type': 'modrdn'})
 
     def record_change(self, dn, old_attrs, new_attrs, cursor):
         if not self.__refresh_done:
             return
 
         self.log.debug("Changed record '{}'".format(dn))
-        self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'modify'})
+        # self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'modify'})
 
     def cookie_change(self, cookie):
         self.log.debug("Changed cookie '{}'".format(cookie))
-        if self.__spool:
-
-            self.__cookie = re.match(r".+?csn=([0-9.]+)Z", cookie).group(1) + "Z"
-            self.__queue.put({
-                "current_cookie": self.__cookie,
-                "spool": self.__spool
-            })
-            self.__spool = []
+        current_cookie = re.match(r".+?csn=([0-9.]+)Z", cookie).group(1) + "Z"
+        self.__queue.put({
+            "start": self.__cookie,
+            "end": current_cookie
+        })
+        self.__cookie = current_cookie
 
     def debug(self, message):
         self.log.debug(message)
