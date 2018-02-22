@@ -144,6 +144,10 @@ class ChangeProcessor(multiprocessing.Process):
                         time.sleep(1)
 
                     data = res[0][1]
+                    if data['reqAuthzID'] == self.env.config.get('backend-monitor.modifier'):
+                        # ignore own changes
+                        continue
+
                     change_type = data['reqType'][0].decode('utf-8')
                     uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
                     modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
@@ -179,12 +183,11 @@ class ChangeProcessor(multiprocessing.Process):
         result = None
         with self.lh.get_handle() as con:
             try:
-                fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(reqEnd<={2})(!{3})({4}))".format(
+                fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(reqEnd<={2})({3}))".format(
                     ldap.filter.filter_format("(reqDn=%s)", [dn]),
                     start,
                     end,
-                    ldap.filter.filter_format("(reqType=%s)", [type]),
-                    ldap.filter.filter_format("(reqAuthzID=%s)", [self.env.config.get('backend-monitor.modifier')])
+                    ldap.filter.filter_format("(reqType=%s)", [type])
                 )
 
                 self.log.debug("Searching in Base '{ldap_base}' with filter '{ldap_filter}'".
