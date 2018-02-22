@@ -107,6 +107,102 @@ class SyncReplThread(threading.Thread):
         self.__client.please_stop()
 
 
+class ChangeProcessor(multiprocessing.Process):
+
+    def __init__(self, queue):
+        super(ChangeProcessor, self).__init__(target=self.process, args=(queue,))
+        self.lh = LDAPHandler.get_instance()
+        self.log = logging.getLogger(__name__)
+        self.env = Environment.getInstance()
+
+    def process(self, queue):
+        while True:
+            data = queue.get()
+            if data == "DONE":
+                time.sleep(1)
+            else:
+
+                e = EventMaker()
+                renamed = {}
+                for entry in data['spool']:
+                    if entry['type'] == 'modrdn':
+                        renamed[entry['new_dn']] = entry['dn']
+                        continue
+
+                    dn = entry['dn']
+                    if dn in renamed:
+                        # use the old DN to find the change
+                        new_dn = dn
+                        dn = renamed[dn]
+                        del renamed[new_dn]
+                    else:
+                        new_dn = None
+
+                    res = None
+                    while res is None:
+                        res = self.__get_change(dn, entry['cookie'], data['current_cookie'], entry['type'])
+                        time.sleep(1)
+
+                    data = res[0][1]
+                    change_type = data['reqType'][0].decode('utf-8')
+                    uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
+                    modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
+
+                    if change_type in ["modrdn", "moddn"]:
+                        if new_dn is None:
+                            if 'reqNewSuperior' in data:
+                                new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
+                            else:
+                                new_dn = "%s," % data['reqNewRDN'][0].decode('utf-8')
+                        update = e.Event(
+                            e.BackendChange(
+                                e.DN(dn),
+                                e.UUID(uuid),
+                                e.NewDN(new_dn),
+                                e.ModificationTime(modification_time),
+                                e.ChangeType(change_type)
+                            )
+                        )
+                    else:
+                        update = e.Event(
+                            e.BackendChange(
+                                e.DN(entry['dn']),
+                                e.UUID(uuid),
+                                e.ModificationTime(modification_time),
+                                e.ChangeType(change_type)
+                            )
+                        )
+                    self.log.debug("Sent update for entry '{}'".format(entry['dn']))
+                    zope.event.notify(update)
+
+    def __get_change(self, dn, start, end, type):
+        result = None
+        with self.lh.get_handle() as con:
+            try:
+                fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(reqEnd<={2})(!{3})({4}))".format(
+                    ldap.filter.filter_format("(reqDn=%s)", [dn]),
+                    start,
+                    end,
+                    ldap.filter.filter_format("(reqType=%s)", [type]),
+                    ldap.filter.filter_format("(reqAuthzID=%s)", [self.env.config.get('backend-monitor.modifier')])
+                )
+
+                self.log.debug("Searching in Base '{ldap_base}' with filter '{ldap_filter}'".
+                               format(ldap_base=self.env.config.get('ldap.syncrepl-accesslog-base',
+                                                                    default='cn=accesslog'),
+                                      ldap_filter=fltr))
+
+                result = con.search_s(self.env.config.get('ldap.syncrepl-accesslog-base', default='cn=accesslog'),
+                                      ldap.SCOPE_ONELEVEL,
+                                      fltr,
+                                      attrlist=['*'])
+                self.log.debug("Change found: %s" % result)
+            except ldap.NO_SUCH_OBJECT:
+                pass
+
+        return result
+
+
 class ReplCallback(BaseCallback):
     """
     Callback class which transfoms changes received by the syncrepl client and transforms them into
@@ -118,97 +214,13 @@ class ReplCallback(BaseCallback):
     def __init__(self):
         self.__refresh_done = False
         self.__spool = []
-        self.lh = LDAPHandler.get_instance()
-        self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.log.info("initializing syncrepl client callback")
         self.__queue = multiprocessing.Queue()
 
-        p = multiprocessing.Process(target=self.__process, args=(self.__queue,))
+        p = ChangeProcessor(self.__queue)
+        p.daemon = True
         p.start()
-
-    def __process(self):
-        data = self.__queue.get()
-        e = EventMaker()
-        renamed = {}
-        for entry in data['spool']:
-            if entry['type'] == 'modrdn':
-                renamed[entry['new_dn']] = entry['dn']
-                continue
-
-            dn = entry['dn']
-            if dn in renamed:
-                # use the old DN to find the change
-                new_dn = dn
-                dn = renamed[dn]
-                del renamed[new_dn]
-            else:
-                new_dn = None
-
-            res = None
-            while res is None:
-                res = self.__get_change(dn, entry['cookie'], data['current_cookie'], entry['type'])
-                time.sleep(1)
-
-            data = res[0][1]
-            change_type = data['reqType'][0].decode('utf-8')
-            uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
-            modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
-
-            if change_type in ["modrdn", "moddn"]:
-                if new_dn is None:
-                    if 'reqNewSuperior' in data:
-                        new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
-                    else:
-                        new_dn = "%s," % data['reqNewRDN'][0].decode('utf-8')
-                update = e.Event(
-                    e.BackendChange(
-                        e.DN(dn),
-                        e.UUID(uuid),
-                        e.NewDN(new_dn),
-                        e.ModificationTime(modification_time),
-                        e.ChangeType(change_type)
-                    )
-                )
-            else:
-                update = e.Event(
-                    e.BackendChange(
-                        e.DN(entry['dn']),
-                        e.UUID(uuid),
-                        e.ModificationTime(modification_time),
-                        e.ChangeType(change_type)
-                    )
-                )
-            self.log.debug("Sent update for entry '{}'".format(entry['dn']))
-            zope.event.notify(update)
-
-    def __get_change(self, dn, start, end, type):
-        result = None
-        if self.__refresh_done and self.__cookie is not None:
-            with self.lh.get_handle() as con:
-                try:
-                    fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(reqEnd<={2})(!{3})({4}))".format(
-                        ldap.filter.filter_format("(reqDn=%s)", [dn]),
-                        start,
-                        end,
-                        ldap.filter.filter_format("(reqType=%s)", [type]),
-                        ldap.filter.filter_format("(reqAuthzID=%s)", [self.env.config.get('backend-monitor.modifier')])
-                    )
-
-                    self.log.debug("Searching in Base '{ldap_base}' with filter '{ldap_filter}'".
-                                   format(ldap_base=self.env.config.get('ldap.syncrepl-accesslog-base',
-                                                                        default='cn=accesslog'),
-                                          ldap_filter=fltr))
-
-                    result = con.search_s(self.env.config.get('ldap.syncrepl-accesslog-base', default='cn=accesslog'),
-                                          ldap.SCOPE_ONELEVEL,
-                                          fltr,
-                                          attrlist=['*'])
-                    self.log.debug("Change found: %s" % result)
-                except ldap.NO_SUCH_OBJECT:
-                    pass
-
-        return result
 
     def bind_complete(self, ldap, cursor):
         self.log.debug("LDAP Bind complete as DN '{}'".format(ldap.whoami_s()))
@@ -250,8 +262,6 @@ class ReplCallback(BaseCallback):
     def cookie_change(self, cookie):
         self.log.debug("Changed cookie '{}'".format(cookie))
         if self.__spool:
-            # e = EventMaker()
-            # spool = self.__spool
 
             self.__cookie = re.match(r".+?csn=([0-9.]+)Z", cookie).group(1) + "Z"
             self.__queue.put({
@@ -259,55 +269,6 @@ class ReplCallback(BaseCallback):
                 "spool": self.__spool
             })
             self.__spool = []
-
-            # for entry in spool:
-            #     dn = entry['dn']
-            #     if dn in self.__renamed:
-            #         # use the old DN to find the change
-            #         new_dn = dn
-            #         dn = self.__renamed[dn]
-            #         del self.__renamed[new_dn]
-            #     else:
-            #         new_dn = None
-            #
-            #     res = self.__get_change(dn, entry['cookie'])
-            #
-            #     if res:
-            #         data = res[0][1]
-            #         change_type = data['reqType'][0].decode('utf-8')
-            #         uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
-            #         modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
-            #
-            #         if change_type in ["modrdn", "moddn"]:
-            #             if new_dn is None:
-            #                 if 'reqNewSuperior' in data:
-            #                     new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
-            #                 else:
-            #                     new_dn = "%s," % data['reqNewRDN'][0].decode('utf-8')
-            #             update = e.Event(
-            #                 e.BackendChange(
-            #                     e.DN(dn),
-            #                     e.UUID(uuid),
-            #                     e.NewDN(new_dn),
-            #                     e.ModificationTime(modification_time),
-            #                     e.ChangeType(change_type)
-            #                 )
-            #             )
-            #         else:
-            #             update = e.Event(
-            #                 e.BackendChange(
-            #                     e.DN(entry['dn']),
-            #                     e.UUID(uuid),
-            #                     e.ModificationTime(modification_time),
-            #                     e.ChangeType(change_type)
-            #                 )
-            #             )
-            #         self.log.debug("Sent update for entry '{}'".format(entry['dn']))
-            #         zope.event.notify(update)
-
-        # 'rid=000,csn=20180212123829.435971Z#000000#000#000000;20171012151750.124741Z#000000#001#000000;20171012152055.398182Z#000000#002#000000'
-        # re.match matches from 'beginning' (!) of string
-        # self.__cookie = re.match(r".+?csn=([0-9.]+)Z", cookie).group(1) + "Z"
 
     def debug(self, message):
         self.log.debug(message)
