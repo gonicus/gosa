@@ -138,8 +138,8 @@ class ChangeProcessor(multiprocessing.Process):
                     else:
                         new_dn = None
 
-                    res = None
-                    while res is None:
+                    res = []
+                    while len(res) == 0:
                         res = self.__get_change(dn, entry['cookie'], data['current_cookie'], entry['type'])
                         time.sleep(1)
 
@@ -180,7 +180,7 @@ class ChangeProcessor(multiprocessing.Process):
                     zope.event.notify(update)
 
     def __get_change(self, dn, start, end, type):
-        result = None
+        result = []
         with self.lh.get_handle() as con:
             try:
                 fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(reqEnd<={2}){3})".format(
