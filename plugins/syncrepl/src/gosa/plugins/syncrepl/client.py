@@ -134,7 +134,7 @@ class ChangeProcessor(multiprocessing.Process):
                     retried += 1
 
                 if len(res):
-                    for entry in res[0]:
+                    for change_dn, entry in res:
                         print(entry)
                         dn = entry['reqDN'][0].decode('utf-8')
 
