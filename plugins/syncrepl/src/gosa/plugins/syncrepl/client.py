@@ -126,6 +126,12 @@ class ChangeProcessor(multiprocessing.Process):
                 if self.__cookie is None:
                     self.__cookie = data['start']
                 res = self.__get_change(self.__cookie, None)
+                retried = 0
+                while len(res) == 0 and retried <= 3:
+                    # try again
+                    time.sleep(0.05)
+                    res = self.__get_change(self.__cookie, None)
+                    retried += 1
 
                 if len(res):
                     for entry in res[0]:
