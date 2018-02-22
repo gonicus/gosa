@@ -58,7 +58,7 @@ from gosa.common.error import GosaErrorHandler as C, GosaException
 from gosa.backend.objects import ObjectFactory, ObjectProxy, ObjectChanged
 from gosa.backend.exceptions import FilterException, IndexException, ProxyException, ObjectException
 from gosa.backend.lock import GlobalLock
-from sqlalchemy.orm import relationship, joinedload
+from sqlalchemy.orm import relationship, subqueryload
 from sqlalchemy import Column, String, Integer, Boolean, Sequence, DateTime, ForeignKey, or_, and_, not_, func, orm, \
     JSON, Enum
 from gosa.backend.routes.system import State
@@ -1483,15 +1483,15 @@ class ObjectIndex(Plugin):
             options = {}
 
         q = session.query(ObjectInfoIndex) \
-            .options(joinedload(ObjectInfoIndex.properties)) \
-            .options(joinedload(ObjectInfoIndex.extensions))
+            .options(subqueryload(ObjectInfoIndex.properties)) \
+            .options(subqueryload(ObjectInfoIndex.extensions))
 
         # check if we need something from the searchObject
         so_props = None
         if properties is not None:
             so_props = [x for x in properties if hasattr(SearchObjectIndex, x)]
             if len(so_props) > 0:
-                q = q.options(joinedload(ObjectInfoIndex.search_object))
+                q = q.options(subqueryload(ObjectInfoIndex.search_object))
         q = q.filter(*fltr)
 
         if 'limit' in options:

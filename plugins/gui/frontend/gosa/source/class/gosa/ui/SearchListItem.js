@@ -131,7 +131,8 @@ qx.Class.define("gosa.ui.SearchListItem", {
 
     overlayIconColor:  {
       check: "Color",
-      nullable: true
+      nullable: true,
+      apply: "_applyOverlayIconColor"
     },
 
     overlayIconPosition: {
@@ -249,16 +250,27 @@ qx.Class.define("gosa.ui.SearchListItem", {
       var widget = this.getChildControl("overlay-icon");
       var source = this.getOverlayIcon();
       if (source) {
-        new qx.util.DeferredCall(function() {
-          widget.setSource(source+"/"+this.__overlayIconSize);
-          if (this.getOverlayIconColor()) {
-            widget.setTextColor(this.getOverlayIconColor());
-          }
-        }, this).schedule();
+        widget.setSource(this.getOverlayIcon());
+        if (this.getOverlayIconColor()) {
+          widget.setTextColor(this.getOverlayIconColor());
+        }
         this._showChildControl("overlay-icon");
+        this.__maintainOverlayPosition()
       } else {
         this._excludeChildControl("overlay-icon");
       }
+    },
+
+    _applyOverlayIconColor: function(value) {
+      if (value) {
+        this.getChildControl("overlay-icon").setTextColor(value)
+      } else {
+        this.getChildControl("overlay-icon").resetTextColor()
+      }
+    },
+
+    _applyIconTooltip: function(value) {
+
     },
 
     _applyDescription: function(value){
@@ -372,9 +384,7 @@ qx.Class.define("gosa.ui.SearchListItem", {
           control.setAnonymous(true);
           control.exclude();
           control.setUserBounds(0,0,0,0);
-          if (this.getOverlayIcon()) {
-            new qx.util.DeferredCall(this.__maintainOverlayPosition, this).schedule();
-          }
+          control.addListener('appear', this.__maintainOverlayPosition, this);
           this.getChildControl("icon").addListener("resize", this.__maintainOverlayPosition, this);
           this.getChildControl("container").add(control);
           break;
