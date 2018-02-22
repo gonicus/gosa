@@ -140,7 +140,7 @@ class ChangeProcessor(multiprocessing.Process):
 
                     res = []
                     while len(res) == 0:
-                        res = self.__get_change(dn, entry['cookie'], data['current_cookie'], entry['type'])
+                        res = self.__get_change(dn, entry['cookie'], None, entry['type'])
                         time.sleep(1)
 
                     data = res[0][1]
@@ -183,10 +183,10 @@ class ChangeProcessor(multiprocessing.Process):
         result = []
         with self.lh.get_handle() as con:
             try:
-                fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(reqEnd<={2}){3})".format(
+                fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1}){2}{3})".format(
                     ldap.filter.filter_format("(reqDn=%s)", [dn]),
                     start,
-                    end,
+                    ldap.filter.filter_format("(reqEnd>=%s)", [end]) if end is not None else "",
                     ldap.filter.filter_format("(reqType=%s)", [type])
                 )
 
