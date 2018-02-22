@@ -1,10 +1,11 @@
 import datetime
+import multiprocessing
+
 import ldap
 import ldapurl
 import logging
 import os
 import threading
-import pprint
 
 import re
 
@@ -12,7 +13,6 @@ import time
 import zope
 from syncrepl_client import Syncrepl, SyncreplMode
 from syncrepl_client.callbacks import BaseCallback
-from sys import stdout
 from zope.interface import implementer
 
 from gosa.backend.utils.ldap import LDAPHandler
@@ -122,15 +122,76 @@ class ReplCallback(BaseCallback):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.log.info("initializing syncrepl client callback")
+        self.__queue = multiprocessing.Queue()
 
-    def __get_change(self, dn, csn):
+        p = multiprocessing.Process(target=self.__process, args=(self.__queue,))
+        p.start()
+
+    def __process(self):
+        data = self.__queue.get()
+        e = EventMaker()
+        renamed = {}
+        for entry in data['spool']:
+            if entry['type'] == 'modrdn':
+                renamed[entry['new_dn']] = entry['dn']
+                continue
+
+            dn = entry['dn']
+            if dn in renamed:
+                # use the old DN to find the change
+                new_dn = dn
+                dn = renamed[dn]
+                del renamed[new_dn]
+            else:
+                new_dn = None
+
+            res = None
+            while res is None:
+                res = self.__get_change(dn, entry['cookie'], data['current_cookie'], entry['type'])
+                time.sleep(1)
+
+            data = res[0][1]
+            change_type = data['reqType'][0].decode('utf-8')
+            uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
+            modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
+
+            if change_type in ["modrdn", "moddn"]:
+                if new_dn is None:
+                    if 'reqNewSuperior' in data:
+                        new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
+                    else:
+                        new_dn = "%s," % data['reqNewRDN'][0].decode('utf-8')
+                update = e.Event(
+                    e.BackendChange(
+                        e.DN(dn),
+                        e.UUID(uuid),
+                        e.NewDN(new_dn),
+                        e.ModificationTime(modification_time),
+                        e.ChangeType(change_type)
+                    )
+                )
+            else:
+                update = e.Event(
+                    e.BackendChange(
+                        e.DN(entry['dn']),
+                        e.UUID(uuid),
+                        e.ModificationTime(modification_time),
+                        e.ChangeType(change_type)
+                    )
+                )
+            self.log.debug("Sent update for entry '{}'".format(entry['dn']))
+            zope.event.notify(update)
+
+    def __get_change(self, dn, start, end, type):
         result = None
         if self.__refresh_done and self.__cookie is not None:
             with self.lh.get_handle() as con:
                 try:
-                    fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(!{2}))".format(
+                    fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(reqEnd<={2})(!{3})({4}))".format(
                         ldap.filter.filter_format("(reqDn=%s)", [dn]),
-                        csn,
+                        start,
+                        end,
+                        ldap.filter.filter_format("(reqType=%s)", [type]),
                         ldap.filter.filter_format("(reqAuthzID=%s)", [self.env.config.get('backend-monitor.modifier')])
                     )
 
@@ -163,83 +224,90 @@ class ReplCallback(BaseCallback):
             return
 
         self.log.debug("New record '{}'".format(dn))
-        self.__spool.append({'dn': dn, 'cookie': self.__cookie})
+        self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'add'})
 
     def record_delete(self, dn, cursor):
         if not self.__refresh_done:
             return
 
         self.log.debug("Deleted record '{}'".format(dn))
-        self.__spool.append({'dn': dn, 'cookie': self.__cookie})
+        self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'delete'})
 
     def record_rename(self, old_dn, new_dn, cursor):
         if not self.__refresh_done:
             return
 
         self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
-        self.__renamed[new_dn] = old_dn
+        self.__spool.append({'dn': old_dn, 'new_dn': new_dn, 'cookie': self.__cookie, 'type': 'modrdn'})
 
     def record_change(self, dn, old_attrs, new_attrs, cursor):
         if not self.__refresh_done:
             return
 
         self.log.debug("Changed record '{}'".format(dn))
-        self.__spool.append({'dn': dn, 'cookie': self.__cookie})
+        self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'modify'})
 
     def cookie_change(self, cookie):
         self.log.debug("Changed cookie '{}'".format(cookie))
         if self.__spool:
-            e = EventMaker()
-            spool = self.__spool
+            # e = EventMaker()
+            # spool = self.__spool
+
+            self.__cookie = re.match(r".+?csn=([0-9.]+)Z", cookie).group(1) + "Z"
+            self.__queue.put({
+                "current_cookie": self.__cookie,
+                "spool": self.__spool
+            })
             self.__spool = []
-            for entry in spool:
-                dn = entry['dn']
-                if dn in self.__renamed:
-                    # use the old DN to find the change
-                    new_dn = dn
-                    dn = self.__renamed[dn]
-                    del self.__renamed[new_dn]
-                else:
-                    new_dn = None
 
-                res = self.__get_change(dn, entry['cookie'])
-
-                if res:
-                    data = res[0][1]
-                    change_type = data['reqType'][0].decode('utf-8')
-                    uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
-                    modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
-
-                    if change_type in ["modrdn", "moddn"]:
-                        if new_dn is None:
-                            if 'reqNewSuperior' in data:
-                                new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
-                            else:
-                                new_dn = "%s," % data['reqNewRDN'][0].decode('utf-8')
-                        update = e.Event(
-                            e.BackendChange(
-                                e.DN(dn),
-                                e.UUID(uuid),
-                                e.NewDN(new_dn),
-                                e.ModificationTime(modification_time),
-                                e.ChangeType(change_type)
-                            )
-                        )
-                    else:
-                        update = e.Event(
-                            e.BackendChange(
-                                e.DN(entry['dn']),
-                                e.UUID(uuid),
-                                e.ModificationTime(modification_time),
-                                e.ChangeType(change_type)
-                            )
-                        )
-                    self.log.debug("Sent update for entry '{}'".format(entry['dn']))
-                    zope.event.notify(update)
+            # for entry in spool:
+            #     dn = entry['dn']
+            #     if dn in self.__renamed:
+            #         # use the old DN to find the change
+            #         new_dn = dn
+            #         dn = self.__renamed[dn]
+            #         del self.__renamed[new_dn]
+            #     else:
+            #         new_dn = None
+            #
+            #     res = self.__get_change(dn, entry['cookie'])
+            #
+            #     if res:
+            #         data = res[0][1]
+            #         change_type = data['reqType'][0].decode('utf-8')
+            #         uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
+            #         modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
+            #
+            #         if change_type in ["modrdn", "moddn"]:
+            #             if new_dn is None:
+            #                 if 'reqNewSuperior' in data:
+            #                     new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
+            #                 else:
+            #                     new_dn = "%s," % data['reqNewRDN'][0].decode('utf-8')
+            #             update = e.Event(
+            #                 e.BackendChange(
+            #                     e.DN(dn),
+            #                     e.UUID(uuid),
+            #                     e.NewDN(new_dn),
+            #                     e.ModificationTime(modification_time),
+            #                     e.ChangeType(change_type)
+            #                 )
+            #             )
+            #         else:
+            #             update = e.Event(
+            #                 e.BackendChange(
+            #                     e.DN(entry['dn']),
+            #                     e.UUID(uuid),
+            #                     e.ModificationTime(modification_time),
+            #                     e.ChangeType(change_type)
+            #                 )
+            #             )
+            #         self.log.debug("Sent update for entry '{}'".format(entry['dn']))
+            #         zope.event.notify(update)
 
         # 'rid=000,csn=20180212123829.435971Z#000000#000#000000;20171012151750.124741Z#000000#001#000000;20171012152055.398182Z#000000#002#000000'
         # re.match matches from 'beginning' (!) of string
-        self.__cookie = re.match(r".+?csn=([0-9.]+)Z", cookie).group(1) + "Z"
+        # self.__cookie = re.match(r".+?csn=([0-9.]+)Z", cookie).group(1) + "Z"
 
     def debug(self, message):
         self.log.debug(message)
