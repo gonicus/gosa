@@ -183,7 +183,7 @@ class ChangeProcessor(multiprocessing.Process):
         result = None
         with self.lh.get_handle() as con:
             try:
-                fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(reqEnd<={2})({3}))".format(
+                fltr = "(&(objectClass=auditWriteObject)(reqResult=0){0}(reqStart>={1})(reqEnd<={2}){3})".format(
                     ldap.filter.filter_format("(reqDn=%s)", [dn]),
                     start,
                     end,
