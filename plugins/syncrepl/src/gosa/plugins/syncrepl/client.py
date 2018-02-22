@@ -114,6 +114,7 @@ class ChangeProcessor(multiprocessing.Process):
         self.lh = LDAPHandler.get_instance()
         self.log = logging.getLogger(__name__)
         self.env = Environment.getInstance()
+        self.__cookie = None
 
     def process(self, queue):
         while True:
@@ -122,7 +123,9 @@ class ChangeProcessor(multiprocessing.Process):
                 time.sleep(1)
             else:
                 e = EventMaker()
-                res = self.__get_change(data['start'], data['end'])
+                if self.__cookie is None:
+                    self.__cookie = data['start']
+                res = self.__get_change(self.__cookie, None)
 
                 if len(res):
                     for entry in res[0]:
@@ -132,7 +135,8 @@ class ChangeProcessor(multiprocessing.Process):
                         change_type = entry['reqType'][0].decode('utf-8')
                         uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
                         modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
-
+                        if self.__cookie < modification_time:
+                            self.__cookie = modification_time
                         if change_type in ["modrdn", "moddn"]:
                             if 'reqNewSuperior' in data:
                                 new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
