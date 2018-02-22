@@ -18,6 +18,7 @@ from zope.interface import implementer
 from gosa.backend.utils.ldap import LDAPHandler
 from gosa.common import Environment
 from gosa.common.components import Plugin, PluginRegistry
+from gosa.common.env import make_session
 from gosa.common.error import GosaException
 from gosa.common.event import EventMaker
 from gosa.common.handler import IInterfaceHandler
@@ -114,18 +115,22 @@ class ChangeProcessor(multiprocessing.Process):
         self.lh = LDAPHandler.get_instance()
         self.log = logging.getLogger(__name__)
         self.env = Environment.getInstance()
-        self.__cookie = None
+        index = PluginRegistry.getInstance('ObjectIndex')
+        time = index.get_last_modification()
+        self.log.info("initial cookie: %s " % time)
+        if time is not None:
+            self.__cookie = time.strftime('%Y%m%d%H%M%S.%fZ')
+        else:
+            self.__cookie = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S.%fZ')
 
     def process(self, queue):
         while True:
-            data = queue.get()
-            if data == "DONE":
+            cookie = queue.get()
+            if cookie == "DONE":
                 time.sleep(1)
             else:
                 e = EventMaker()
-                if self.__cookie is None:
-                    self.__cookie = data['start']
-                res = self.__get_change(self.__cookie, None)
+                res = self.__get_change(self.__cookie, cookie)
                 retried = 0
                 while len(res) == 0 and retried <= 3:
                     # try again
@@ -139,15 +144,15 @@ class ChangeProcessor(multiprocessing.Process):
                         dn = entry['reqDN'][0].decode('utf-8')
 
                         change_type = entry['reqType'][0].decode('utf-8')
-                        uuid = data['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in data and len(data['reqEntryUUID']) == 1 else None
+                        uuid = entry['reqEntryUUID'][0].decode('utf-8') if 'reqEntryUUID' in entry and len(entry['reqEntryUUID']) == 1 else None
                         modification_time = "%sZ" % res[0][1]['reqEnd'][0].decode('utf-8').split(".")[0]
                         if self.__cookie < modification_time:
                             self.__cookie = modification_time
                         if change_type in ["modrdn", "moddn"]:
-                            if 'reqNewSuperior' in data:
-                                new_dn = "%s,%s" % (data['reqNewRDN'][0].decode('utf-8'), data['reqNewSuperior'][0].decode('utf-8'))
+                            if 'reqNewSuperior' in entry:
+                                new_dn = "%s,%s" % (entry['reqNewRDN'][0].decode('utf-8'), entry['reqNewSuperior'][0].decode('utf-8'))
                             else:
-                                new_dn = "%s," % data['reqNewRDN'][0].decode('utf-8')
+                                new_dn = "%s," % entry['reqNewRDN'][0].decode('utf-8')
                             update = e.Event(
                                 e.BackendChange(
                                     e.DN(dn),
@@ -200,7 +205,6 @@ class ReplCallback(BaseCallback):
     Callback class which transfoms changes received by the syncrepl client and transforms them into
     `BackendChange`-events for GOsa.
     """
-    __cookie = None
     __renamed = {}
 
     def __init__(self):
@@ -220,8 +224,6 @@ class ReplCallback(BaseCallback):
     def refresh_done(self, items, cursor):
         self.log.debug("LDAP Refresh complete")
         self.__refresh_done = True
-        if not self.__cookie:
-            self.__cookie = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S.%fZ')
 
     def record_add(self, dn, attrs, cursor):
         if not self.__refresh_done:
@@ -254,11 +256,7 @@ class ReplCallback(BaseCallback):
     def cookie_change(self, cookie):
         self.log.debug("Changed cookie '{}'".format(cookie))
         current_cookie = re.match(r".+?csn=([0-9.]+)Z", cookie).group(1) + "Z"
-        self.__queue.put({
-            "start": self.__cookie,
-            "end": current_cookie
-        })
-        self.__cookie = current_cookie
+        self.__queue.put(current_cookie)
 
     def debug(self, message):
         self.log.debug(message)

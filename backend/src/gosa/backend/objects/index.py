@@ -687,6 +687,11 @@ class ObjectIndex(Plugin):
             if hasattr(sys, '_called_from_test'):
                 self.post_process()
 
+    def get_last_modification(self):
+        with make_session() as session:
+            return session.query(ObjectInfoIndex._last_modified).order_by(ObjectInfoIndex._last_modified.desc()).limit(1).one_or_none()
+        return None
+
     def _post_process_by_timer(self):
         self._post_process_job = None
         self.post_process()
