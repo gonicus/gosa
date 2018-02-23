@@ -26,9 +26,13 @@ from urllib.parse import urlparse
 
 import ldap
 import sqlalchemy
+from lxml.builder import ElementMaker
 from passlib.hash import bcrypt
 from requests import HTTPError
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.schema import CreateTable
+from sqlalchemy.sql.ddl import DropTable
 from sqlalchemy_searchable import make_searchable, parse_search_query
 from sqlalchemy_utils import TSVectorType
 
@@ -83,10 +87,11 @@ C.register_codes(dict(
 class Schema(Base):
     __tablename__ = 'schema'
 
-    hash = Column(String(32), primary_key=True)
+    type = Column(String, primary_key=True)
+    hash = Column(String(32))
 
     def __repr__(self):  # pragma: nocover
-       return "<Schema(hash='%s')>" % self.hash
+       return "<Schema(type='%s', hash='%s')>" % (self.type, self.hash)
 
 
 class SearchObjectIndex(Base):
@@ -144,13 +149,14 @@ class ObjectInfoIndex(Base):
     _type = Column(String(64), index=True)
     _last_modified = Column(DateTime)
     _invisible = Column(Boolean)
+    _master_backend = Column(String)
     properties = relationship("KeyValueIndex", order_by=KeyValueIndex.key)
     extensions = relationship("ExtensionIndex", order_by=ExtensionIndex.extension)
     search_object = relationship("SearchObjectIndex", back_populates="object")
 
     def __repr__(self):  # pragma: nocover
-       return "<ObjectInfoIndex(uuid='%s', dn='%s', _parent_dn='%s', _adjusted_parent_dn='%s', _type='%s', _last_modified='%s', _invisible='%s')>" % (
-                            self.uuid, self.dn, self._parent_dn, self._adjusted_parent_dn, self._type, self._last_modified, self._invisible)
+       return "<ObjectInfoIndex(uuid='%s', dn='%s', _parent_dn='%s', _adjusted_parent_dn='%s', _type='%s', _last_modified='%s', _invisible='%s', _master_backend='%s')>" % (
+                            self.uuid, self.dn, self._parent_dn, self._adjusted_parent_dn, self._type, self._last_modified, self._invisible, self._master_backend)
 
 
 class RegisteredBackend(Base):
@@ -216,9 +222,16 @@ class Cache(Base):
         return "<Cache(key='%s',data='%s',time='%s')" % (self.key, self.data, self.time)
 
 
+@compiles(DropTable, "postgresql")
+def _compile_drop_table(element, compiler, **kwargs):
+    return compiler.visit_drop_table(element) + " CASCADE"
+
+
 class IndexScanFinished():  # pragma: nocover
     pass
 
+class IndexSyncFinished():  # pragma: nocover
+    pass
 
 @implementer(IInterfaceHandler)
 class ObjectIndex(Plugin):
@@ -270,7 +283,8 @@ class ObjectIndex(Plugin):
         orm.configure_mappers()
 
         engine = self.env.getDatabaseEngine("backend-database")
-        Base.metadata.create_all(engine)
+        Base.metadata.bind = engine
+        Base.metadata.create_all()
 
         self.__value_extender = gosa.backend.objects.renderer.get_renderers()
 
@@ -299,28 +313,61 @@ class ObjectIndex(Plugin):
                     self.log.error("Error creating view for unique word index: %s" % str(e))
                     session.rollback()
 
-                # If there is already a collection, check if there is a newer schema available
+                try:
+                    current_db_hash = session.query(Schema).filter(Schema.type == 'database').one_or_none()
+                except:
+                    current_db_hash = None
+
+                # check DB schema
+                tables = [Schema.__table__, KeyValueIndex.__table__, ExtensionIndex.__table__,
+                          SearchObjectIndex.__table__, ObjectInfoIndex.__table__, RegisteredBackend.__table__]
+                sql = ""
+                for table in tables:
+                    statement = CreateTable(table)
+                    sql += str(statement.compile(dialect=postgresql.dialect()))
+
+                md5s = hashlib.md5()
+                md5s.update(sql.encode('utf-8'))
+                md5sum = md5s.hexdigest()
+                db_recreated = False
                 schema = self.factory.getXMLObjectSchema(True)
-                if self.isSchemaUpdated(schema):
-                    if self.env.config.getboolean("backend.index", default=True) is False:
-                        self.log.error("object definitions changed and the index needs to be re-created. Please enable the index in your config file!")
-                    else:
-                        session.query(Schema).delete()
+
+                if current_db_hash is None or current_db_hash.hash != md5sum:
+                    # Database schema has changed -> re-create
+                    self.log.info("database schema has changed, dropping object tables")
+                    session.commit()
+                    Base.metadata.drop_all()
+                    Base.metadata.create_all()
+                    self.log.info("created new database tables")
+                    schema = Schema(type='database', hash=md5sum)
+                    session.add(schema)
+                    session.commit()
+                    # enable indexing
+                    self.env.backend_index = True
+                    db_recreated = True
+
+                else:
+
+                    # If there is already a collection, check if there is a newer schema available
+                    if self.isSchemaUpdated(schema):
+                        session.query(Schema).filter(Schema.type == 'objects').delete()
                         session.query(KeyValueIndex).delete()
                         session.query(ExtensionIndex).delete()
                         session.query(SearchObjectIndex).delete()
                         session.query(ObjectInfoIndex).delete()
                         session.query(RegisteredBackend).delete()
                         self.log.info('object definitions changed, dropped old object index')
+                        # enable indexing
+                        self.env.backend_index = True
 
                 # Create the initial schema information if required
-                if not session.query(Schema).one_or_none():
+                if not session.query(Schema).filter(Schema.type == 'objects').one_or_none():
                     self.log.info('created schema')
                     md5s = hashlib.md5()
                     md5s.update(schema)
                     md5sum = md5s.hexdigest()
 
-                    schema = Schema(hash=md5sum)
+                    schema = Schema(type='objects', hash=md5sum)
                     session.add(schema)
                     session.commit()
 
@@ -379,12 +426,14 @@ class ObjectIndex(Plugin):
         if hasattr(self.env, "core_uuid"):
             if self.env.mode == "backend":
                 with make_session() as session:
-                    tables_to_recreate = [UserSession.__table__, OpenObject.__table__, RegisteredBackend.__table__]
 
-                    for table in tables_to_recreate:
-                        table.drop(engine)
+                    if db_recreated is False:
+                        tables_to_recreate = [UserSession.__table__, OpenObject.__table__, RegisteredBackend.__table__]
 
-                    Base.metadata.create_all(engine, tables=tables_to_recreate)
+                        for table in tables_to_recreate:
+                            table.drop(engine)
+
+                        Base.metadata.create_all(tables=tables_to_recreate)
 
                     rb = RegisteredBackend(
                         uuid=self.env.core_uuid,
@@ -398,7 +447,7 @@ class ObjectIndex(Plugin):
                 self.registerProxy()
 
         # Schedule index sync
-        if self.env.config.get("backend.index", "true").lower() == "true" and self.env.mode == 'backend':
+        if self.env.backend_index is True and self.env.mode == 'backend':
             if not hasattr(sys, '_called_from_test'):
                 sobj = PluginRegistry.getInstance("SchedulerService")
                 sobj.getScheduler().add_date_job(self.syncIndex,
@@ -407,14 +456,13 @@ class ObjectIndex(Plugin):
         else:
             def finish():
                 zope.event.notify(IndexScanFinished())
+                zope.event.notify(IndexSyncFinished())
                 State.system_state = "ready"
 
             sobj = PluginRegistry.getInstance("SchedulerService")
             sobj.getScheduler().add_date_job(finish,
                                              datetime.datetime.now() + datetime.timedelta(seconds=10),
                                              tag='_internal', jobstore='ram')
-
-
 
     def registerProxy(self, backend_uuid=None):
         if self.env.mode == "proxy":
@@ -436,7 +484,6 @@ class ObjectIndex(Plugin):
                 # Try to log in with provided credentials
                 url = urlparse("%s/rpc" % master_backend.url)
                 connection = '%s://%s%s' % (url.scheme, url.netloc, url.path)
-                print(connection)
                 proxy = JSONServiceProxy(connection)
 
                 if self.env.config.get("core.backend-user") is None or self.env.config.get("core.backend-key") is None:
@@ -630,7 +677,7 @@ class ObjectIndex(Plugin):
             # Move
             if change_type in ['modrdn', 'moddn']:
                 # Check if the entry exists - if not, maybe let create it
-                entry = session.query(ObjectInfoIndex.dn).filter(
+                entry = session.query(ObjectInfoIndex).filter(
                     or_(
                         ObjectInfoIndex.uuid == _uuid,
                         func.lower(ObjectInfoIndex.dn) == func.lower(dn)
@@ -639,7 +686,7 @@ class ObjectIndex(Plugin):
                 if new_dn[-1:] == ",":
                     # only new RDN received, get parent from db
                     if entry is not None:
-                        new_dn = "%s,%s" % (new_dn, entry._parent_dn)
+                        new_dn = new_dn + entry._parent_dn
                     else:
                         self.log.error('DN modification event received: could not get parent DN from existing object to complete the new DN')
 
@@ -687,9 +734,16 @@ class ObjectIndex(Plugin):
             if hasattr(sys, '_called_from_test'):
                 self.post_process()
 
-    def get_last_modification(self):
+    def get_last_modification(self, backend='LDAP'):
         with make_session() as session:
-            return session.query(ObjectInfoIndex._last_modified).order_by(ObjectInfoIndex._last_modified.desc()).limit(1).one_or_none()
+            res = session.query(ObjectInfoIndex._last_modified)\
+                .filter(ObjectInfoIndex._master_backend == backend)\
+                .order_by(ObjectInfoIndex._last_modified.desc())\
+                .limit(1)\
+                .one_or_none()
+
+            if res is not None:
+                return res[0]
         return None
 
     def _post_process_by_timer(self):
@@ -720,7 +774,7 @@ class ObjectIndex(Plugin):
         md5sum = md5s.hexdigest()
 
         with make_session() as session:
-            stored_md5sum = session.query(Schema.hash).one_or_none()
+            stored_md5sum = session.query(Schema.hash).filter(Schema.type == 'objects').one_or_none()
         if stored_md5sum and stored_md5sum[0] == md5sum:
             return False
 
@@ -844,7 +898,10 @@ class ObjectIndex(Plugin):
                 GlobalLock.release("scan_index")
                 t1 = time.time()
                 self.log.info("processed %d objects in %ds" % (total, t1 - t0))
+                # notify others that the index scan is done, they now can do own sync processed
                 zope.event.notify(IndexScanFinished())
+                # now the index is really ready and up-to-date
+                zope.event.notify(IndexSyncFinished())
                 State.system_state = "ready"
             else:
                 raise IndexException("Error creating index, please restart.")
@@ -1046,7 +1103,8 @@ class ObjectIndex(Plugin):
             _type=data["_type"],
             _parent_dn=data["_parent_dn"],
             _adjusted_parent_dn=data["_adjusted_parent_dn"],
-            _invisible=data["_invisible"]
+            _invisible=data["_invisible"],
+            _master_backend=data["_master_backend"]
         )
 
         if '_last_changed' in data:

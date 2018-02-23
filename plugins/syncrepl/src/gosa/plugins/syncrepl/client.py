@@ -1,5 +1,6 @@
 import datetime
 import multiprocessing
+from lxml import objectify, etree
 
 import ldap
 import ldapurl
@@ -50,6 +51,7 @@ class SyncReplClient(Plugin):
     __thread = None
     __url = None
     __tls = False
+    path = None
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -65,29 +67,38 @@ class SyncReplClient(Plugin):
         if get("ldap.tls", default="True").lower() == "true" and ldap.TLS_AVAIL and self.__url.urlscheme != "ldaps":
             self.__tls = True
 
-        path = self.env.config.get('backend-monitor.syncrepl-data-path')
-        if path is None:
+        self.path = self.env.config.get('backend-monitor.syncrepl-data-path')
+        if self.path is None:
             # do not use syncrepl
             return
 
-        if not os.path.exists(path):
-            os.makedirs(path)
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
 
         if self.env.config.get('backend-monitor.modifier') is None:
             raise GosaException("backend-monitor.modifier config option is missing")
 
-        client = Syncrepl(data_path=os.sep.join((path, 'database.db')),
-                                 callback=ReplCallback(),
-                                 ldap_url=self.__url,
-                                 mode=SyncreplMode.REFRESH_AND_PERSIST)
+        zope.event.subscribers.append(self.__handle_events)
 
-        self.__thread = SyncReplThread(client)
+    def __handle_events(self, event):
+        """
+        Start own synchronozation after GOsa's main index refresh is done and the system is ready to process
+        new changes.
+        """
+        if event.__class__.__name__ == "IndexScanFinished":
+            client = Syncrepl(data_path=os.sep.join((self.path, 'database.db')),
+                              callback=ReplCallback(),
+                              ldap_url=self.__url,
+                              mode=SyncreplMode.REFRESH_AND_PERSIST)
 
-        self.log.debug("Syncrepl Client active for '{}'".format(self.__url))
-        self.__thread.start()
+            self.__thread = SyncReplThread(client)
+
+            self.log.debug("Syncrepl Client active for '{}'".format(self.__url))
+            self.__thread.start()
 
     def stop(self):
-        self.__thread.stop()
+        if self.__thread is not None:
+            self.__thread.stop()
 
 
 class SyncReplThread(threading.Thread):
@@ -117,16 +128,17 @@ class ChangeProcessor(multiprocessing.Process):
         self.env = Environment.getInstance()
         index = PluginRegistry.getInstance('ObjectIndex')
         time = index.get_last_modification()
-        self.log.info("initial cookie: %s " % time)
         if time is not None:
             self.__cookie = time.strftime('%Y%m%d%H%M%S.%fZ')
         else:
             self.__cookie = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S.%fZ')
+        self.log.info("Initial cookie timestamp: %s" % self.__cookie)
 
     def process(self, queue):
         while True:
             cookie = queue.get()
             if cookie == "DONE":
+                self.log.debug("queue empty: waiting")
                 time.sleep(1)
             else:
                 e = EventMaker()
@@ -140,7 +152,6 @@ class ChangeProcessor(multiprocessing.Process):
 
                 if len(res):
                     for change_dn, entry in res:
-                        print(entry)
                         dn = entry['reqDN'][0].decode('utf-8')
 
                         change_type = entry['reqType'][0].decode('utf-8')
@@ -165,14 +176,17 @@ class ChangeProcessor(multiprocessing.Process):
                         else:
                             update = e.Event(
                                 e.BackendChange(
-                                    e.DN(entry['dn']),
+                                    e.DN(dn),
                                     e.UUID(uuid),
                                     e.ModificationTime(modification_time),
                                     e.ChangeType(change_type)
                                 )
                             )
-                        self.log.debug("Sent update for entry '{}'".format(entry['dn']))
-                        zope.event.notify(update)
+                        self.log.debug("Sent update for entry '{}' of type '{}'".format(dn, change_type))
+                        xml = objectify.fromstring(etree.tostring(update), PluginRegistry.getEventParser())
+                        zope.event.notify(xml)
+
+                self.__cookie = cookie
 
     def __get_change(self, start, end):
         result = []
@@ -224,6 +238,8 @@ class ReplCallback(BaseCallback):
     def refresh_done(self, items, cursor):
         self.log.debug("LDAP Refresh complete")
         self.__refresh_done = True
+        # trigger initial refresh
+        self.__queue.put(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S.%fZ'))
 
     def record_add(self, dn, attrs, cursor):
         if not self.__refresh_done:
