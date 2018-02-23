@@ -9,7 +9,7 @@ import os
 import threading
 
 import re
-
+import sys
 import time
 import zope
 from syncrepl_client import Syncrepl, SyncreplMode
@@ -78,7 +78,8 @@ class SyncReplClient(Plugin):
         if self.env.config.get('backend-monitor.modifier') is None:
             raise GosaException("backend-monitor.modifier config option is missing")
 
-        zope.event.subscribers.append(self.__handle_events)
+        if not hasattr(sys, '_called_from_test'):
+            zope.event.subscribers.append(self.__handle_events)
 
     def __handle_events(self, event):
         """
@@ -229,7 +230,6 @@ class ReplCallback(BaseCallback):
         self.__queue = multiprocessing.Queue()
 
         p = ChangeProcessor(self.__queue)
-        p.daemon = True
         p.start()
 
     def bind_complete(self, ldap, cursor):
