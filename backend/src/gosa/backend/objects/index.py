@@ -339,8 +339,8 @@ class ObjectIndex(Plugin):
                     Base.metadata.drop_all()
                     Base.metadata.create_all()
                     self.log.info("created new database tables")
-                    schema = Schema(type='database', hash=md5sum)
-                    session.add(schema)
+                    db_schema = Schema(type='database', hash=md5sum)
+                    session.add(db_schema)
                     session.commit()
                     # enable indexing
                     self.env.backend_index = True
