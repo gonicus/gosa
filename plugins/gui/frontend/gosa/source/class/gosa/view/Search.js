@@ -394,11 +394,11 @@ qx.Class.define("gosa.view.Search", {
 
       if (isFuzzy) {
         resultString += this.tr("Search for '%1' returned no results, searched for '%2' instead",
-          this._currentResponse.orig.replace(" or ", "' or '"),
-          this._currentResponse.fuzzy.replace(" or ", "' or '"))+"<br/><br/>";
+          this._currentResponse.orig.replace(/ or /g, "' " + this.tr('or') + " '"),
+          this._currentResponse.fuzzy.replace(/ or /g, "' " + this.tr('or') + " '"))+"<br/><br/>";
       }
       if (moreResults) {
-        resultString += this.trn("%1 / %2 result shown", "%1 / %2 results shown", count, count, this._total);
+        resultString += this.trn("%1 result shown", "%1 / %2 results shown", count, count, this._total);
       } else {
         resultString += this.trn("%1 result", "%1 results", count, count);
       }
@@ -413,20 +413,19 @@ qx.Class.define("gosa.view.Search", {
       this._currentResponse = result;
       var items = result.results;
       this._total = result.total;
-      var i = items.length;
+      var resultsShown = items.length;
 
       this.searchInfo.show();
       this.resultList.getChildControl("scrollbar-x").setPosition(0);
       this.resultList.getChildControl("scrollbar-y").setPosition(0);
 
-      if (i === 0){
+      if (resultsShown === 0){
           this.searchResult.hide();
       } else {
           this.searchResult.show();
       }
       this.__duration = Math.round(duration / 10) / 100;
       this.__fuzzy = fuzzy;
-      this.__updateResultInfo(i);
       this.setSearchOnFilterUpdate(i < this._total);
 
       var model = [];
@@ -446,7 +445,7 @@ qx.Class.define("gosa.view.Search", {
         "month": 0,
         "year": 0
       };
-      for (i = 0; i<items.length; i++) {
+      for (var i = 0; i<items.length; i++) {
         var item = new gosa.data.model.SearchResultItem();
         item = this.__fillSearchListItem(item, items[i]);
         model.push(item);
@@ -550,6 +549,8 @@ qx.Class.define("gosa.view.Search", {
             "year": { name: this.tr("Last year"), count: modifiedCounters.year }
         }, this.__selection['mod-time']);
       }
+      console.log(this.resultList.getPane().getRowConfig().getItemCount())
+      this.__updateResultInfo(this.resultList.getPane().getRowConfig().getItemCount());
     },
 
     __sortByRelevance: function(a, b){
