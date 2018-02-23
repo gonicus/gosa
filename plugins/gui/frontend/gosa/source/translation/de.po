@@ -16,35 +16,35 @@ msgstr ""
 "X-Language: de_DE\n"
 "X-Source-Language: de\n"
 
-#: gosa/Application.js:59
+#: gosa/Application.js:60
 msgid "Page %1 not found"
 msgstr "Seite %1 nicht gefunden"
 
-#: gosa/Application.js:225
+#: gosa/Application.js:226
 msgid "Unable to receive commands."
 msgstr "Konnte Kommando nicht empfangen."
 
-#: gosa/Application.js:240
+#: gosa/Application.js:241
 msgid "Fetching translations failed."
 msgstr "Beziehen der Übersetzungen ist fehlgeschlagen."
 
-#: gosa/Application.js:252
+#: gosa/Application.js:253
 msgid "Fetching base failed."
 msgstr "Beziehen der Basis ist fehlgeschlagen."
 
-#: gosa/Application.js:275
+#: gosa/Application.js:276
 msgid "Fetching object description failed."
 msgstr "Beziehen der Objektbeschreibungen ist fehlgeschlagen."
 
-#: gosa/Application.js:295
+#: gosa/Application.js:296
 msgid "Fetching templates failed."
 msgstr "Beziehen der Vorlagen ist fehlgeschlagen."
 
-#: gosa/Application.js:428
+#: gosa/Application.js:429
 msgid "There is a new version of this application available."
 msgstr "Es ist eine neue Version dieser Anwendung verfügbar."
 
-#: gosa/Application.js:429
+#: gosa/Application.js:430
 msgid "Do you want to reload in order to activate it?"
 msgstr "Möchten Sie erneut laden um sie zu aktivieren?"
 
@@ -102,7 +102,7 @@ msgid ""
 msgstr ""
 
 #: gosa/data/controller/Workflow.js:175
-msgid "Timout waiting for workflow execution"
+msgid "Timeout waiting for workflow execution"
 msgstr ""
 
 #: gosa/engine/extensions/Validator.js:36
@@ -113,7 +113,7 @@ msgstr ""
 msgid "Value conflicts with '%1' option value '%2'"
 msgstr ""
 
-#: gosa/io/Rpc.js:296
+#: gosa/io/Rpc.js:303
 msgid "Communication with the backend failed!"
 msgstr "Kommunikation mit dem Server ist fehlgeschlagen!"
 
@@ -199,6 +199,10 @@ msgstr "Mein Profil bearbeiten"
 msgid "Logout"
 msgstr "Abmelden"
 
+#: gosa/ui/SearchAid.js:26
+msgid "Filter results"
+msgstr "Ergebnisse filtern"
+
 #: gosa/ui/dialogs/actions/Change2FAMethod.js:168 gosa/ui/base/Buttons.js:46
 #: gosa/ui/dialogs/ItemSelector.js:202
 msgid "OK"
@@ -216,7 +220,7 @@ msgstr "Objekt"
 
 #: gosa/ui/dialogs/AddDependentExtensions.js:24
 msgid "Add missing extensions"
-msgstr ""
+msgstr "Fehlende Erweiterungen hinzufügen"
 
 #: gosa/ui/dialogs/AddDependentExtensions.js:28
 #: gosa/ui/dialogs/AddDependentExtensions.js:43 gosa/view/Dashboard.js:306
@@ -244,7 +248,7 @@ msgstr ""
 
 #: gosa/ui/dialogs/AddDependentExtensions.js:75
 msgid "depends on"
-msgstr ""
+msgstr "hängt ab von"
 
 #: gosa/ui/dialogs/ClosingObject.js:23
 msgid "Object: %1"
@@ -328,7 +332,7 @@ msgstr ""
 msgid "Select Base"
 msgstr ""
 
-#: gosa/view/Tree.js:284 gosa/ui/dialogs/ItemSelector.js:309
+#: gosa/view/Tree.js:288 gosa/ui/dialogs/ItemSelector.js:309
 msgid "Filter"
 msgstr ""
 
@@ -542,7 +546,7 @@ msgstr "Achtung"
 msgid "Change 2FA method"
 msgstr "2FA Methode ändern"
 
-#: gosa/view/Search.js:528 gosa/view/Search.js:544
+#: gosa/view/Search.js:524 gosa/view/Search.js:540
 #: gosa/ui/dialogs/actions/Change2FAMethod.js:75
 msgid "Disabled"
 msgstr "Deaktiviert"
@@ -634,7 +638,7 @@ msgstr "Objekt verschieben"
 msgid "Root"
 msgstr "Wurzel"
 
-#: gosa/view/Tree.js:176 gosa/ui/dialogs/actions/MoveObjectDialog.js:116
+#: gosa/view/Tree.js:178 gosa/ui/dialogs/actions/MoveObjectDialog.js:116
 msgid "Move"
 msgstr "Verschieben"
 
@@ -673,7 +677,7 @@ msgstr "Einstellungen"
 msgid "Path"
 msgstr "Pfad"
 
-#: gosa/ui/settings/Editor.js:163 gosa/view/Tree.js:192
+#: gosa/ui/settings/Editor.js:163 gosa/view/Tree.js:194
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -686,7 +690,7 @@ msgid "Webhooks"
 msgstr ""
 
 #: gosa/ui/settings/Webhooks.js:97 gosa/ui/widgets/ObjectEdit.js:316
-#: gosa/view/Tree.js:140 gosa/view/Tree.js:278
+#: gosa/view/Tree.js:142 gosa/view/Tree.js:280
 msgid "Action"
 msgstr "Aktion"
 
@@ -699,12 +703,12 @@ msgid "Create..."
 msgstr "Erstellen..."
 
 #: gosa/ui/settings/Webhooks.js:113 gosa/ui/settings/Webhooks.js:192
-#: gosa/view/Tree.js:170 gosa/view/Workflows.js:239
+#: gosa/view/Tree.js:172 gosa/view/Workflows.js:239
 #: gosa/ui/widgets/MenuEditWidget.js:201 gosa/view/Dashboard.js:332
 msgid "Delete"
 msgstr "Löschen"
 
-#: gosa/ui/settings/Webhooks.js:150 gosa/view/Tree.js:192
+#: gosa/ui/settings/Webhooks.js:150 gosa/view/Tree.js:194
 #: gosa/ui/widgets/MenuEditWidget.js:236 gosa/ui/widgets/MenuEditWidget.js:259
 #: gosa/ui/widgets/MenuEditWidget.js:300
 msgid "Name"
@@ -813,7 +817,7 @@ msgstr "Aufnehmen"
 msgid "Remove image"
 msgstr "Bild entfernen"
 
-#: gosa/view/Tree.js:164 gosa/view/Dashboard.js:314
+#: gosa/view/Tree.js:166 gosa/view/Dashboard.js:314
 #: gosa/ui/widgets/QTableWidgetWidget.js:157
 msgid "Edit"
 msgstr "Bearbeiten"
@@ -894,68 +898,76 @@ msgstr "Leeren"
 #: gosa/view/Search.js:396
 msgid "Search for '%1' returned no results, searched for '%2' instead"
 msgstr ""
+"Die Suche nach '%1' lieferte keine Ergebnisse, gesucht wurde stattdessen "
+"nach '%2'"
 
-#: gosa/view/Search.js:404
-msgid "%1 / %2 result shown"
+#: gosa/view/Search.js:397 gosa/view/Search.js:398
+msgid "or"
+msgstr "oder"
+
+#: gosa/view/Search.js:401
+msgid "%1 result shown"
 msgid_plural "%1 / %2 results shown"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 Ergebnis angezeigt"
+msgstr[1] "%1 / %2 Ergebnisse angezeigt"
 
-#: gosa/view/Search.js:406
+#: gosa/view/Search.js:403
 msgid "%1 result"
 msgid_plural "%1 results"
 msgstr[0] "%1 Ergebnis"
 msgstr[1] "%1 Ergebnisse"
 
-#: gosa/view/Search.js:408
+#: gosa/view/Search.js:405
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] "%1 Sekunde"
 msgstr[1] "%1 Sekunden"
 
-#: gosa/view/Search.js:410
+#: gosa/view/Search.js:407
 msgid ""
 "Please consider using a more specific search string or filters to reduce the"
 " result set. "
 msgstr ""
+"Bitte benutzen Sie eine genauere Suche oder die Filter, um die Ergebnismenge"
+" einzuschränken."
 
-#: gosa/view/Search.js:502 gosa/view/Search.js:531 gosa/view/Search.js:548
+#: gosa/view/Search.js:498 gosa/view/Search.js:527 gosa/view/Search.js:544
 msgid "All"
 msgstr "Alle"
 
-#: gosa/view/Search.js:527 gosa/view/Search.js:543
+#: gosa/view/Search.js:523 gosa/view/Search.js:539
 msgid "Enabled"
 msgstr "Aktiviert"
 
-#: gosa/view/Search.js:532 gosa/view/Search.js:549
+#: gosa/view/Search.js:528 gosa/view/Search.js:545
 msgid "Last hour"
 msgstr "Letzte Stunde"
 
-#: gosa/view/Search.js:533 gosa/view/Search.js:550
+#: gosa/view/Search.js:529 gosa/view/Search.js:546
 msgid "Last 24 hours"
 msgstr "Letzte 24 Stunden"
 
-#: gosa/view/Search.js:534 gosa/view/Search.js:551
+#: gosa/view/Search.js:530 gosa/view/Search.js:547
 msgid "Last week"
 msgstr "Vorherige Woche"
 
-#: gosa/view/Search.js:535 gosa/view/Search.js:552
+#: gosa/view/Search.js:531 gosa/view/Search.js:548
 msgid "Last month"
 msgstr "Vorheriger Monat"
 
-#: gosa/view/Search.js:536 gosa/view/Search.js:553
+#: gosa/view/Search.js:532 gosa/view/Search.js:549
 msgid "Last year"
 msgstr "Vorheriges Jahr"
 
-#: gosa/view/Search.js:539
+#: gosa/view/Search.js:535
 msgid "Category"
 msgstr "Kategorie"
 
-#: gosa/view/Search.js:542
+#: gosa/view/Search.js:538
 msgid "Secondary search"
 msgstr "Sekundäre Suche"
 
-#: gosa/view/Search.js:547
+#: gosa/view/Search.js:543
 msgid "Last modification"
 msgstr "Letzte Änderung"
 
@@ -963,23 +975,23 @@ msgstr "Letzte Änderung"
 msgid "Sections"
 msgstr "Sektionen"
 
-#: gosa/view/Tree.js:130 gosa/view/Tree.js:281
+#: gosa/view/Tree.js:130 gosa/view/Tree.js:284
 msgid "Create"
 msgstr "Anlegen"
 
-#: gosa/view/Tree.js:135
+#: gosa/view/Tree.js:136
 msgid "Show"
 msgstr "Zeigen"
 
-#: gosa/view/Tree.js:147
+#: gosa/view/Tree.js:149
 msgid "Filter..."
-msgstr ""
+msgstr "Filter..."
 
-#: gosa/view/Tree.js:192
+#: gosa/view/Tree.js:194
 msgid "DN"
 msgstr "DN"
 
-#: gosa/view/Tree.js:192
+#: gosa/view/Tree.js:194
 msgid "UUID"
 msgstr "UUID"
 
@@ -1060,6 +1072,9 @@ msgstr ""
 
 #~ msgid "This object has been closed by the backend!"
 #~ msgstr "Dieses Objekt wurde vom Backend geschlossen!"
+
+#~ msgid "Timout waiting for workflow execution"
+#~ msgstr ""
 
 #~ msgid "Two factor authentification:"
 #~ msgstr "Zwei Faktor Authentifizierung:"

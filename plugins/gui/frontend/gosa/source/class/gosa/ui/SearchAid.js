@@ -22,6 +22,10 @@ qx.Class.define("gosa.ui.SearchAid",
     this.__selection = {};
     this.__filters = {};
     this.__block_event = false;
+
+    var headline = new qx.ui.basic.Label(this.tr("Filter results"));
+    headline.setFont('Subtitle');
+    this.add(headline)
   },
 
   events: {

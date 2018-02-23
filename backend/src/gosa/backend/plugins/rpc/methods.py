@@ -587,7 +587,11 @@ class RPCMethods(Plugin):
 
                     # find most similar words
                     for i, kw in enumerate(keywords):
-                        r = session.execute("SELECT word FROM unique_lexeme WHERE length(word) > 2 AND similarity(word, '{0}') > {1} ORDER BY levenshtein(word, '{0}', 2, 2, 1) LIMIT 3;".format(kw, self.__fuzzy_similarity_threshold)).fetchall()
+                        r = session.execute("SELECT word, similarity(word, '{0}') as sim FROM unique_lexeme WHERE length(word) > 2 AND similarity(word, '{0}') > {1} ORDER BY similarity(word, '{0}') DESC LIMIT 3;".format(kw, self.__fuzzy_similarity_threshold)).fetchall()
+                        if self.__fuzzy_similarity_threshold < 0.5 <= r[0]['sim']:
+                            # we have good results to take only those and ignore the lower similarity threshold
+                            r = [x for x in r if x['sim'] >= 0.5]
+
                         keywords[i] = " or ".join([x['word'] for x in r])
 
                     keywords_string = " ".join(keywords)
