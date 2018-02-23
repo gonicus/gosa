@@ -238,36 +238,8 @@ class ReplCallback(BaseCallback):
     def refresh_done(self, items, cursor):
         self.log.debug("LDAP Refresh complete")
         self.__refresh_done = True
-        # trigger initial refresh
+        # trigger initial refresh til now
         self.__queue.put(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S.%fZ'))
-
-    def record_add(self, dn, attrs, cursor):
-        if not self.__refresh_done:
-            return
-
-        self.log.debug("New record '{}'".format(dn))
-        # self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'add'})
-
-    def record_delete(self, dn, cursor):
-        if not self.__refresh_done:
-            return
-
-        self.log.debug("Deleted record '{}'".format(dn))
-        # self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'delete'})
-
-    def record_rename(self, old_dn, new_dn, cursor):
-        if not self.__refresh_done:
-            return
-
-        self.log.debug("Renamed record '{}' -> '{}'".format(old_dn, new_dn))
-        # self.__spool.append({'dn': old_dn, 'new_dn': new_dn, 'cookie': self.__cookie, 'type': 'modrdn'})
-
-    def record_change(self, dn, old_attrs, new_attrs, cursor):
-        if not self.__refresh_done:
-            return
-
-        self.log.debug("Changed record '{}'".format(dn))
-        # self.__spool.append({'dn': dn, 'cookie': self.__cookie, 'type': 'modify'})
 
     def cookie_change(self, cookie):
         self.log.debug("Changed cookie '{}'".format(cookie))
