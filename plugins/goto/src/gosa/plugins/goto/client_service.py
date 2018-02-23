@@ -409,7 +409,7 @@ class ClientService(Plugin):
 
         return e.Event(e.Notification(*data))
 
-    def __open_device(self, device_uuid):
+    def __open_device(self, device_uuid, read_only=False):
         device_uuid = self.get_client_uuid(device_uuid)
         index = PluginRegistry.getInstance("ObjectIndex")
 
@@ -417,7 +417,7 @@ class ClientService(Plugin):
                            {'dn': 1})
         if len(res) != 1:
             raise ValueError(C.make_error("CLIENT_NOT_FOUND", client=device_uuid, status_code=404))
-        return ObjectProxy(res[0]['dn'])
+        return ObjectProxy(res[0]['dn'], read_only=read_only)
 
     @Command(__help__=N_("Set system status"), type="READONLY")
     def systemGetStatus(self, device_uuid):
@@ -685,12 +685,12 @@ class ClientService(Plugin):
         if isinstance(client_id, ObjectProxy):
             client = client_id
         else:
-            client = self.__open_device(client_id)
+            client = self.__open_device(client_id, read_only=True)
         group = None
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({"_type": "GroupOfNames", "member": client.dn}, {"dn": 1})
         if len(res) > 0:
-            group = ObjectProxy(res[0]["dn"])
+            group = ObjectProxy(res[0]["dn"], read_only=True)
         config = {}
 
         resolution = None
@@ -711,7 +711,7 @@ class ClientService(Plugin):
                 if len(res) == 0:
                     break
                 else:
-                    parent_group = ObjectProxy(res[0]["dn"])
+                    parent_group = ObjectProxy(res[0]["dn"], read_only=True)
                     release = parent_group.getReleaseName()
 
         if release is None:
@@ -725,7 +725,7 @@ class ClientService(Plugin):
         # collect users DNs
         query_result = index.search({"_type": "User", "uid": {"in_": users}}, {"dn": 1})
         for entry in query_result:
-            user = ObjectProxy(entry["dn"])
+            user = ObjectProxy(entry["dn"], read_only=True)
             config[user.uid] = {}
 
             if release is not None:
@@ -755,7 +755,7 @@ class ClientService(Plugin):
             printer_names = [x["cn"] for x in settings["printers"]]
             for res in index.search({'_type': 'GroupOfNames', "member": user.dn, "extension": "GotoEnvironment"},
                                     {"dn": 1}):
-                user_group = ObjectProxy(res["dn"])
+                user_group = ObjectProxy(res["dn"], read_only=True)
                 if group is not None and user_group.dn == group.dn:
                     continue
                 s = self.__collect_printer_settings(user_group)
@@ -791,7 +791,7 @@ class ClientService(Plugin):
                         return None
                     elif len(res) == 1:
                         # add this one to the result set
-                        printer = ObjectProxy(res[0]["dn"])
+                        printer = ObjectProxy(res[0]["dn"], read_only=True)
                         p_conf = {}
                         for attr in self.printer_attributes:
                             p_conf[attr] = getattr(printer, attr)
@@ -918,7 +918,7 @@ class ClientService(Plugin):
 
             # collect printer PPDs
             for printer_dn in object.gotoPrinters:
-                printer = ObjectProxy(printer_dn)
+                printer = ObjectProxy(printer_dn, read_only=True)
                 p_conf = {}
                 for attr in self.printer_attributes:
                     p_conf[attr] = getattr(printer, attr) if getattr(printer, attr) is not None else ""
