@@ -6,7 +6,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
+import copy
 import logging
 import uuid
 import os
@@ -178,7 +178,7 @@ class WebhookSettingsHandler(object):
 
     def save(self):
         settings_file = self.env.config.get("webhooks.registry-store", "/var/lib/gosa/webhooks")
-        to_save = self.__hooks.copy()
+        to_save = copy.deepcopy(self.__hooks)
         for mime_type, sender_name in self.__temporary:
             if mime_type in to_save and sender_name in to_save[mime_type]:
                 del to_save[mime_type][sender_name]

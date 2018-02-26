@@ -22,7 +22,7 @@ from tests.RemoteTestCase import RemoteTestCase
 from gosa.backend.exceptions import ProxyException
 from gosa.backend.plugins.webhook.registry import WebhookReceiver
 from tests.GosaTestCase import GosaTestCase
-from gosa.backend.plugins.foreman.main import Foreman as ForemanPlugin
+from gosa.backend.plugins.foreman.main import Foreman as ForemanPlugin, ForemanHookReceiver
 from gosa.backend.objects.backend.back_foreman import *
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
 import time
@@ -426,15 +426,20 @@ class ForemanRealmTestCase(RemoteTestCase):
     registry = None
     url = None
     token = None
+    hurl = None
+    htoken = None
 
     def setUp(self):
         super(ForemanRealmTestCase, self).setUp()
         self.registry = PluginRegistry.getInstance("WebhookRegistry")
         self.url, self.token = self.registry.registerWebhook("admin", "test-webhook", "application/vnd.foreman.hostevent+json")
+        self.hurl, self.htoken = self.registry.registerWebhook("admin", "test-hwebhook", "application/vnd.foreman.hookevent+json")
 
     def tearDown(self):
         super(ForemanRealmTestCase, self).tearDown()
         self.registry.unregisterWebhook("admin", "test-webhook", "application/vnd.foreman.hostevent+json")
+        self.registry.unregisterWebhook("admin", "test-hwebhook", "application/vnd.foreman.hookevent+json")
+        ForemanHookReceiver.skip_next_event = {}
 
     def get_app(self):
         return Application([('/hooks(?P<path>.*)?', WebhookReceiver)], cookie_secret='TecloigJink4', xsrf_cookies=True)
@@ -474,7 +479,7 @@ class ForemanRealmTestCase(RemoteTestCase):
 
         # delete the host
         payload = bytes(dumps({
-            "action": "after_destroy",
+            "event": "after_destroy",
             "object": "new-foreman-host",
             "data": {
                 "host": {
@@ -484,9 +489,13 @@ class ForemanRealmTestCase(RemoteTestCase):
                 }
             }
         }), 'utf-8')
-        signature_hash = hmac.new(token, msg=payload, digestmod="sha512")
+        signature_hash = hmac.new(bytes(self.htoken, 'ascii'), msg=payload, digestmod="sha512")
         signature = 'sha1=' + signature_hash.hexdigest()
-        headers['HTTP_X_HUB_SIGNATURE'] = signature
+        headers = {
+            'Content-Type': 'application/vnd.foreman.hookevent+json',
+            'HTTP_X_HUB_SENDER': 'test-hwebhook',
+            'HTTP_X_HUB_SIGNATURE': signature
+        }
         AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
 
         with pytest.raises(ProxyException):
@@ -510,6 +519,7 @@ class ForemanHookTestCase(RemoteTestCase):
     def tearDown(self):
         super(ForemanHookTestCase, self).tearDown()
         self.registry.unregisterWebhook("admin", "test-webhook", "application/vnd.foreman.hookevent+json")
+        ForemanHookReceiver.skip_next_event = {}
 
         if self._host_cn is not None:
             # cleanup
