@@ -243,7 +243,7 @@ class Foreman(Plugin):
             # lookup the dirty ones
             dirty = index.get_dirty_objects()
             # check if the device is currently updated
-            for entry in dirty.values():
+            for entry in list(dirty.values()):
                 if (hasattr(entry['obj'], backend_attributes["Foreman"]["_uuidAttribute"]) and
                         getattr(entry['obj'], backend_attributes["Foreman"]["_uuidAttribute"]) == str(oid) and
                         (types["base"] is False and entry["obj"].is_extended_by(object_type)) or
