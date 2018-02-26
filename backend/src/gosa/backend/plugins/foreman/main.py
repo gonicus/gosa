@@ -809,12 +809,16 @@ class Foreman(Plugin):
         :param hostname: host name (optional)
         :param use_id: host ID (optional)
         """
-        self.log.debug("writing host parameters to %s" % hostname)
-        self.client.set_common_parameter("gosa-server", self.gosa_server, host=use_id if use_id is not None else hostname)
-        if self.mqtt_host is not None:
-            self.client.set_common_parameter("gosa-mqtt", self.mqtt_host, host=use_id if use_id is not None else hostname)
+        write_params = self.env.config.get('foreman.write-params', default='server,mqtt,domain')
+        if write_params.lower() != "none":
+            self.log.debug("writing host parameters to %s" % hostname)
+            if 'server' in write_params:
+                self.client.set_common_parameter("gosa-server", self.gosa_server, host=use_id if use_id is not None else hostname)
+            if self.mqtt_host is not None and 'mqtt' in write_params:
+                self.client.set_common_parameter("gosa-mqtt", self.mqtt_host, host=use_id if use_id is not None else hostname)
 
-        self.client.set_common_parameter("gosa-domain", self.env.domain, host=use_id if use_id is not None else hostname)
+            if 'domain' in write_params:
+                self.client.set_common_parameter("gosa-domain", self.env.domain, host=use_id if use_id is not None else hostname)
 
         if hostname is not None and hostname in self.__marked_hosts:
             del self.__marked_hosts[hostname]

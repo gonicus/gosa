@@ -1309,7 +1309,8 @@ class ObjectProxy(object):
                '_parent_dn': self.get_parent_dn(self.__base.dn),
                '_adjusted_parent_dn': self.get_adjusted_parent_dn(self.__base.dn),
                '_uuid': self.__base.uuid,
-               '_invisible': object_types[self.__base.__class__.__name__]['invisible']}
+               '_invisible': object_types[self.__base.__class__.__name__]['invisible'],
+               '_master_backend': getattr(self.__base, '_backend')}
 
         # Create non object pseudo attributes
         if self.__base.modifyTimestamp:
