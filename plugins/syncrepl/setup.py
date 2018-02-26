@@ -70,7 +70,8 @@ setup(
         'coveralls'
     ],
     install_requires = [
-        'gosa.backend'
+        'gosa.backend',
+        'syncrepl-client'
     ],
 
     entry_points="""
