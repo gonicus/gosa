@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa.plugins.goto 3.0\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-01-22 11:20+0100\n"
+"POT-Creation-Date: 2018-02-26 14:12+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,12 +20,12 @@ msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:43
 #, python-format
-msgid "Device with hardware address '%(topic)s' already exists"
+msgid "Device with hardware address '%(mac)s' already exists"
 msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:44
 #, python-format
-msgid "User '%(topic)s' is not unique"
+msgid "User '%(user)s' is not unique"
 msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:45
@@ -40,7 +40,7 @@ msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:47
 #, python-format
-msgid "Client '%(topic)s' has no method %(method)s"
+msgid "Client '%(client)s' has no method %(method)s"
 msgstr ""
 
 #: src/gosa/plugins/goto/client_service.py:48
@@ -70,60 +70,64 @@ msgstr ""
 msgid "Invalid status '%(status)s' for client '%(client)s'"
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:159
+#: src/gosa/plugins/goto/client_service.py:160
 msgid "List available clients."
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:173
+#: src/gosa/plugins/goto/client_service.py:174
 msgid "Call method exposed by client."
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:213
+#: src/gosa/plugins/goto/client_service.py:214
 msgid "Check if the client supports a method call"
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:237
+#: src/gosa/plugins/goto/client_service.py:238
 msgid "Get the client Interface/IP/Netmask/Broadcast/MAC list."
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:263
+#: src/gosa/plugins/goto/client_service.py:264
 msgid "List available client methods for specified client."
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:279
+#: src/gosa/plugins/goto/client_service.py:280
 msgid "List user sessions per client"
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:290
+#: src/gosa/plugins/goto/client_service.py:291
 msgid "List clients a user is logged in"
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:297
+#: src/gosa/plugins/goto/client_service.py:298
+msgid "Get the destinationIndicator for a user"
+msgstr ""
+
+#: src/gosa/plugins/goto/client_service.py:350
 msgid "Send synchronous notification message to user"
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:369
-#: src/gosa/plugins/goto/client_service.py:380
+#: src/gosa/plugins/goto/client_service.py:422
+#: src/gosa/plugins/goto/client_service.py:433
 msgid "Set system status"
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:400
+#: src/gosa/plugins/goto/client_service.py:453
 msgid "Join a client to the GOsa infrastructure."
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:546
+#: src/gosa/plugins/goto/client_service.py:602
 msgid "Prepare a user session after a user has logged in"
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:588
+#: src/gosa/plugins/goto/client_service.py:649
 msgid "Cleanup a user session after a user has logged out"
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:806
+#: src/gosa/plugins/goto/client_service.py:869
 msgid "unknown"
 msgstr ""
 
-#: src/gosa/plugins/goto/client_service.py:829
+#: src/gosa/plugins/goto/client_service.py:892
 msgid ""
 "Send user specific configuration (e.g. printers) to a clients active user"
 " sessions"

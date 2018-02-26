@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  GOsa3\n"
 "Report-Msgid-Bugs-To: pollmeier@gonicus.de\n"
-"POT-Creation-Date: 2018-02-06 10:16+0100\n"
+"POT-Creation-Date: 2018-02-26 14:12+0100\n"
 "PO-Revision-Date: 2012-09-28 16:00+0200\n"
 "Last-Translator: Cajus Pollmeier <pollmeier@gonicus.de>\n"
 "Language: de\n"
@@ -246,113 +246,113 @@ msgstr "Ein Ereignis auf den Bus senden."
 msgid "'%(path)s' has already been registered"
 msgstr "'%(path)s' ist bereits registriert"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:28
+#: src/gosa/backend/components/jsonrpc_objects.py:30
 #, python-format
 msgid "Reference '%(ref)s' not found"
 msgstr "Referenz '%(ref)s' nicht gefunden"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:29
+#: src/gosa/backend/components/jsonrpc_objects.py:31
 #, python-format
 msgid "Property '%(property)s' not found"
 msgstr "Eigenschaft '%(property)s' nicht gefunden"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:30
+#: src/gosa/backend/components/jsonrpc_objects.py:32
 #, python-format
 msgid "Method '%(method)s' not found"
 msgstr "Methode '%(method)s' nicht gefunden"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:31
+#: src/gosa/backend/components/jsonrpc_objects.py:33
 #, python-format
 msgid "Object '%(object)s' has been locked by '%(user)s' on %(when)s"
 msgstr "Objekt '%(object)s' wurde von '%(user)s' am %(when)s gesperrt"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:32
+#: src/gosa/backend/components/jsonrpc_objects.py:34
 #, python-format
 msgid "Object OID '%(oid)s' not found"
 msgstr "Objekt-OID '%(oid)s' nicht gefunden"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:33
+#: src/gosa/backend/components/jsonrpc_objects.py:35
 msgid "Caller does not own the referenced object"
 msgstr "Der Aufrufer ist nicht Eigentümer des Objektes"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:34
+#: src/gosa/backend/components/jsonrpc_objects.py:36
 msgid "Tried to manually set an auto-generated attribute"
 msgstr ""
 
-#: src/gosa/backend/components/jsonrpc_objects.py:35
+#: src/gosa/backend/components/jsonrpc_objects.py:37
 msgid ""
 "No master backend defined in slave mode. Please configure a master server"
 " in 'core.master' config option"
 msgstr ""
 
-#: src/gosa/backend/components/jsonrpc_objects.py:74
+#: src/gosa/backend/components/jsonrpc_objects.py:76
 msgid "List available object OIDs"
 msgstr "Listet verfügbare Objekt-OIDs auf"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:83
+#: src/gosa/backend/components/jsonrpc_objects.py:85
 msgid "Close object and remove it from stack"
 msgstr "Schliesst ein Objekt und entfernt es vom Stapel"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:106
+#: src/gosa/backend/components/jsonrpc_objects.py:108
 msgid "Prevent an object from being automatically closed by an inactivity timeout"
 msgstr ""
 
-#: src/gosa/backend/components/jsonrpc_objects.py:137
+#: src/gosa/backend/components/jsonrpc_objects.py:139
 msgid "Check if an object references is still available"
 msgstr ""
 
-#: src/gosa/backend/components/jsonrpc_objects.py:164
+#: src/gosa/backend/components/jsonrpc_objects.py:166
 msgid "Set property for object on stack"
 msgstr "Setzt Eigenschaft für Objekt auf dem Stapel"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:210
+#: src/gosa/backend/components/jsonrpc_objects.py:212
 msgid "Get property from object on stack"
 msgstr "Holt Eigenschaft für Objekt auf dem Stapel"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:236
+#: src/gosa/backend/components/jsonrpc_objects.py:238
 msgid "Call method from object on stack"
 msgstr "Ruft Methode von Objekt auf dem Stapel auf"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:263
+#: src/gosa/backend/components/jsonrpc_objects.py:265
 msgid "Reloads the object"
 msgstr "Läd Objekt neu"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:290
+#: src/gosa/backend/components/jsonrpc_objects.py:292
 msgid "Returns a delta of the reference currently in store and the data store"
 msgstr "Liefert die Änderungen der Objekt-Referenz und des momentanen Objektes"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:399
+#: src/gosa/backend/components/jsonrpc_objects.py:401
 msgid "Removes the given object"
 msgstr "Entfernt das angegebene Objekt"
 
-#: src/gosa/backend/components/jsonrpc_objects.py:432
+#: src/gosa/backend/components/jsonrpc_objects.py:441
 msgid "Instantiate object identified by a combination of attribute/type"
 msgstr ""
 
-#: src/gosa/backend/components/jsonrpc_objects.py:449
+#: src/gosa/backend/components/jsonrpc_objects.py:458
 msgid "Instantiate object and place it on stack"
 msgstr "Instanziert Objekt und platziert es auf dem Stapel"
 
-#: src/gosa/backend/components/jsonrpc_service.py:48
+#: src/gosa/backend/components/jsonrpc_service.py:50
 #, python-format
 msgid "Invalid JSON string '%(data)s'"
 msgstr "Ungültige JSON-Zeichenkette '%(data)s'"
 
-#: src/gosa/backend/components/jsonrpc_service.py:49
+#: src/gosa/backend/components/jsonrpc_service.py:51
 msgid "Parameter missing in JSON body"
 msgstr "Parameter im JSON-Body fehlen"
 
-#: src/gosa/backend/components/jsonrpc_service.py:50
+#: src/gosa/backend/components/jsonrpc_service.py:52
 msgid "Parameter must be list or dictionary"
 msgstr "Parameter muss eine Liste oder ein Verzeichnis sein"
 
-#: src/gosa/backend/components/jsonrpc_service.py:51
-#: src/gosa/backend/objects/index.py:72
+#: src/gosa/backend/components/jsonrpc_service.py:53
+#: src/gosa/backend/objects/index.py:74
 #, fuzzy
 msgid "Index rebuild in progress - try again later"
 msgstr "Index wird gerade erneuert - bitte später versuchen"
 
-#: src/gosa/backend/components/jsonrpc_service.py:52
+#: src/gosa/backend/components/jsonrpc_service.py:54
 msgid "Registry is not ready"
 msgstr "Registry ist nicht bereit"
 
@@ -2168,7 +2168,7 @@ msgid "'%(type)s' is no base type"
 msgstr "'%(type)s' ist kein Basis-Typ"
 
 #: src/gosa/backend/objects/factory.py:79 src/gosa/backend/objects/proxy.py:66
-#: src/gosa/backend/plugins/foreman/main.py:40
+#: src/gosa/backend/plugins/foreman/main.py:42
 #, python-format
 msgid "Unknown object type '%(type)s'"
 msgstr "Unbekannter Objekt-Typ '%(type)s'"
@@ -2220,92 +2220,92 @@ msgstr "Methode '%(method)s' hängt von einem unbekannten Attribut %(attribute)s
 msgid "Parameter '%(parameter)s' for command '%(command)s' is missing"
 msgstr "'%(parameter)s' Parameter für Methode '%(command)s' fehlt"
 
-#: src/gosa/backend/objects/index.py:70
+#: src/gosa/backend/objects/index.py:72
 #, python-format
 msgid "Object with UUID %(uuid)s already exists"
 msgstr "Objekt mit der UUID %(uuid)s existiert bereits"
 
-#: src/gosa/backend/objects/index.py:71
+#: src/gosa/backend/objects/index.py:73
 #, python-format
 msgid "Cannot find object %(id)s"
 msgstr "Kann Objekt %(id)s nicht finden"
 
-#: src/gosa/backend/objects/index.py:73
+#: src/gosa/backend/objects/index.py:75
 #, python-format
 msgid "Requested search operator %(operator)s is not supported"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:74
+#: src/gosa/backend/objects/index.py:76
 msgid "No master backend found"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:75
+#: src/gosa/backend/objects/index.py:77
 msgid "connection to GOsa backend failed"
 msgstr "Verbinsung zum GOsa Backend fehlgeschlagen"
 
-#: src/gosa/backend/objects/index.py:76
+#: src/gosa/backend/objects/index.py:78
 msgid ""
 "Please add valid backend credentials to you configuration (core.backend-"
 "user, core.backend-key)"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:77
+#: src/gosa/backend/objects/index.py:79
 #, python-format
 msgid "Trying to add a delayed update to a non-dirty object (%(topic)s)"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:715
+#: src/gosa/backend/objects/index.py:729
 msgid "Start index synchronizing from an optional root-DN"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:743 src/gosa/backend/objects/index.py:748
+#: src/gosa/backend/objects/index.py:757 src/gosa/backend/objects/index.py:762
 msgid "scanning for objects"
 msgstr "Suche nach Objekten"
 
-#: src/gosa/backend/objects/index.py:768
+#: src/gosa/backend/objects/index.py:782
 msgid "Generating object index"
 msgstr "Erstelle Objektindex"
 
-#: src/gosa/backend/objects/index.py:780
+#: src/gosa/backend/objects/index.py:794
 #, python-format
 msgid "Processing object %s/%s"
 msgstr "Verarbeite Objekt %s/%s"
 
-#: src/gosa/backend/objects/index.py:794
+#: src/gosa/backend/objects/index.py:808
 #, python-format
 msgid "%s objects processed"
 msgstr "%s Objekte verarbeitet"
 
-#: src/gosa/backend/objects/index.py:798
+#: src/gosa/backend/objects/index.py:812
 msgid "removing orphan objects from index"
 msgstr "entferne verwaiste Objekte aus dem Index"
 
-#: src/gosa/backend/objects/index.py:816
+#: src/gosa/backend/objects/index.py:830
 msgid "Index refresh finished"
 msgstr "Index Aktualisierung abgeschlossen"
 
-#: src/gosa/backend/objects/index.py:841
+#: src/gosa/backend/objects/index.py:855
 #, python-format
 msgid "Refreshing object %s/%s"
 msgstr "Aktualisiere Objekt %s/%s"
 
-#: src/gosa/backend/objects/index.py:1190
+#: src/gosa/backend/objects/index.py:1217
 msgid "Check if an object with the given UUID exists."
 msgstr "Prüfen ob ein Objekt mit der angegebenen UUID existiert."
 
-#: src/gosa/backend/objects/index.py:1210
+#: src/gosa/backend/objects/index.py:1237
 msgid "Get list of defined base object types."
 msgstr "Listet definierte Basis-Objekt-Typen auf."
 
-#: src/gosa/backend/objects/index.py:1219
+#: src/gosa/backend/objects/index.py:1246
 msgid "Query the index for entries."
 msgstr "Index nach Einträgen durchsuchen."
 
-#: src/gosa/backend/objects/index.py:1597
+#: src/gosa/backend/objects/index.py:1624
 msgid "Register a backend to allow MQTT access"
 msgstr "Ein Backend für den MQTT Zugriff registrieren"
 
-#: src/gosa/backend/objects/index.py:1615
+#: src/gosa/backend/objects/index.py:1642
 msgid "Unregister a backend from MQTT access"
 msgstr "Backend Registrierung für den MQTT Zugriff entfernen"
 
@@ -2820,129 +2820,129 @@ msgstr ""
 msgid "Configure printer: %s"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:41
+#: src/gosa/backend/plugins/foreman/main.py:43
 #, fuzzy, python-format
 msgid "No MAC given to identify host '%(hostname)s'"
 msgstr "ungültiger hostname '%(hostname)s'"
 
-#: src/gosa/backend/plugins/foreman/main.py:42
+#: src/gosa/backend/plugins/foreman/main.py:44
 #, fuzzy, python-format
 msgid "Cannot find device '%(hostname)s'"
 msgstr "ungültiger hostname '%(hostname)s'"
 
-#: src/gosa/backend/plugins/foreman/main.py:43
+#: src/gosa/backend/plugins/foreman/main.py:45
 msgid "This object is not managed by foreman"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:44
+#: src/gosa/backend/plugins/foreman/main.py:46
 #, fuzzy, python-format
 msgid "%(devices)s found for hostname '%(hostname)s'"
 msgstr "%(devices)s gefunden für Hostname '%(hostname)s'"
 
-#: src/gosa/backend/plugins/foreman/main.py:45
+#: src/gosa/backend/plugins/foreman/main.py:47
 #, python-format
 msgid "Cannot find hostgroup with id '%(group_id)s'"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:46
+#: src/gosa/backend/plugins/foreman/main.py:48
 #, python-format
 msgid "%(groups)s found for group id '%(group_id)s'"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:439
+#: src/gosa/backend/plugins/foreman/main.py:455
 msgid "Get all available foreman LSB names"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:448
+#: src/gosa/backend/plugins/foreman/main.py:464
 msgid "Get release name of an operating system"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:458
+#: src/gosa/backend/plugins/foreman/main.py:474
 msgid "Get details of a single foreman hostgroup."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:476
+#: src/gosa/backend/plugins/foreman/main.py:492
 msgid "Get available foreman compute resources."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:489
+#: src/gosa/backend/plugins/foreman/main.py:505
 #, fuzzy
 msgid "Get available foreman domains."
 msgstr "Listet verfügbare Clients."
 
-#: src/gosa/backend/plugins/foreman/main.py:493
-#: src/gosa/backend/plugins/foreman/main.py:540
+#: src/gosa/backend/plugins/foreman/main.py:509
+#: src/gosa/backend/plugins/foreman/main.py:556
 #, fuzzy
 msgid "Get available foreman hostgroups."
 msgstr "Listet verfügbare Clients."
 
-#: src/gosa/backend/plugins/foreman/main.py:515
-#: src/gosa/backend/plugins/foreman/main.py:523
+#: src/gosa/backend/plugins/foreman/main.py:531
+#: src/gosa/backend/plugins/foreman/main.py:539
 msgid "Get available foreman operating systems."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:519
+#: src/gosa/backend/plugins/foreman/main.py:535
 #, fuzzy
 msgid "Get available foreman architectures."
 msgstr "Listet verfügbare Clients."
 
-#: src/gosa/backend/plugins/foreman/main.py:527
+#: src/gosa/backend/plugins/foreman/main.py:543
 msgid "Get available foreman partition tables."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:531
+#: src/gosa/backend/plugins/foreman/main.py:547
 msgid "Get available foreman media."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:557
+#: src/gosa/backend/plugins/foreman/main.py:573
 msgid "Get discovered hosts as search key(dn): value(cn) pairs."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:574
+#: src/gosa/backend/plugins/foreman/main.py:590
 msgid "Get all SystemsContainer search key(dn): value(dn) pairs."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:587
+#: src/gosa/backend/plugins/foreman/main.py:603
 msgid "Get foreman hosts as search key(dn): value(cn) pairs."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:604
+#: src/gosa/backend/plugins/foreman/main.py:620
 msgid "Get discovered hosts as search result."
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:625
+#: src/gosa/backend/plugins/foreman/main.py:641
 msgid "Force a Puppet agent run on the host"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:629
+#: src/gosa/backend/plugins/foreman/main.py:645
 msgid "Boot host from specified device"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:639
+#: src/gosa/backend/plugins/foreman/main.py:655
 msgid "Run a power operation on host"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:648
+#: src/gosa/backend/plugins/foreman/main.py:664
 msgid "Checks if a host supports power operations"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:652
+#: src/gosa/backend/plugins/foreman/main.py:668
 msgid "Get a foreman setting by ID"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:825
+#: src/gosa/backend/plugins/foreman/main.py:832
 msgid "Foreman host event"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:877
+#: src/gosa/backend/plugins/foreman/main.py:893
 msgid "Foreman hook event"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:1011
+#: src/gosa/backend/plugins/foreman/main.py:1065
 msgid "Host ready"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:1012
+#: src/gosa/backend/plugins/foreman/main.py:1066
 #, python-format
 msgid "Host '%s' has been successfully build."
 msgstr ""
@@ -3811,81 +3811,81 @@ msgstr "Backend-Parameter für '%(extension)s.%(attribute)s' fehlt"
 msgid "Unknown extension '%(target)s'"
 msgstr "Ungültiger Benutzer '%(target)s'"
 
-#: src/gosa/backend/plugins/rpc/methods.py:88
+#: src/gosa/backend/plugins/rpc/methods.py:91
 msgid "Returns a list containing all available object names"
 msgstr "Liefert eine Liste mit allen verfügbaren Objekt-Namen"
 
-#: src/gosa/backend/plugins/rpc/methods.py:96
+#: src/gosa/backend/plugins/rpc/methods.py:99
 msgid ""
 "Returns a list of objects that can be stored as sub-objects for the given"
 " object."
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:101
+#: src/gosa/backend/plugins/rpc/methods.py:104
 msgid "Returns all templates used by the given object type."
 msgstr "Liefert alle Vorlagen "
 
-#: src/gosa/backend/plugins/rpc/methods.py:109
+#: src/gosa/backend/plugins/rpc/methods.py:112
 msgid "Returns all dialog-templates used by the given object type."
 msgstr "Liefert alle Dialog-Vorlagen für den angegebenen Objekt-Typ."
 
-#: src/gosa/backend/plugins/rpc/methods.py:117
+#: src/gosa/backend/plugins/rpc/methods.py:120
 msgid "Get all translations bound to templates."
 msgstr "Liefert alle an Vorlagen gebundene Übersetzungen."
 
-#: src/gosa/backend/plugins/rpc/methods.py:127
+#: src/gosa/backend/plugins/rpc/methods.py:130
 msgid "Returns details about the currently logged in user"
 msgstr "Liefert Details über den momentan angemeldeten Benutzer"
 
-#: src/gosa/backend/plugins/rpc/methods.py:147
+#: src/gosa/backend/plugins/rpc/methods.py:150
 msgid ""
 "Checks whether the given extension is already activated for the current "
 "object"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:155
+#: src/gosa/backend/plugins/rpc/methods.py:158
 msgid "Save user preferences"
 msgstr "Sichert Benutzer-Einstellungen"
 
-#: src/gosa/backend/plugins/rpc/methods.py:171
+#: src/gosa/backend/plugins/rpc/methods.py:174
 msgid "Load user preferences"
 msgstr "Läd Benutzereinstellungen"
 
-#: src/gosa/backend/plugins/rpc/methods.py:187
+#: src/gosa/backend/plugins/rpc/methods.py:190
 #, fuzzy
 msgid "Search for related object information"
 msgstr "Suche nach Objekt-Informationen"
 
-#: src/gosa/backend/plugins/rpc/methods.py:206
+#: src/gosa/backend/plugins/rpc/methods.py:209
 msgid "Search for object information"
 msgstr "Suche nach Objekt-Informationen"
 
-#: src/gosa/backend/plugins/rpc/methods.py:290
+#: src/gosa/backend/plugins/rpc/methods.py:293
 msgid "Return object information like: title and icon"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:324
+#: src/gosa/backend/plugins/rpc/methods.py:327
 msgid "Resolves object information"
 msgstr "Löst Objekt-Informationen auf"
 
-#: src/gosa/backend/plugins/rpc/methods.py:384
+#: src/gosa/backend/plugins/rpc/methods.py:387
 msgid "Returns a list with all selectable samba-domain-names"
 msgstr "Liefert eine Liste mit allen auswählbaren Samba Domänen-Namen"
 
-#: src/gosa/backend/plugins/rpc/methods.py:392
+#: src/gosa/backend/plugins/rpc/methods.py:395
 msgid "Returns a list of DOS/Windows drive letters"
 msgstr "Liefert eine Liste von DOS/Windows Laufwerksbuchstaben"
 
-#: src/gosa/backend/plugins/rpc/methods.py:400
+#: src/gosa/backend/plugins/rpc/methods.py:403
 msgid "Checks an object of the given type can be placed in the dn"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:417
+#: src/gosa/backend/plugins/rpc/methods.py:420
 #, fuzzy
 msgid "Returns a list of all containers"
 msgstr "Liefert eine Liste mit allen Containern"
 
-#: src/gosa/backend/plugins/rpc/methods.py:451
+#: src/gosa/backend/plugins/rpc/methods.py:454
 msgid "Filter for indexed attributes and return the matches."
 msgstr "Filter nach indizierten Attributen und liefert die Ergebnisse."
 
@@ -4082,11 +4082,11 @@ msgstr ""
 msgid "Registers a temporary upload path"
 msgstr ""
 
-#: src/gosa/backend/plugins/user/filters.py:30
+#: src/gosa/backend/plugins/user/filters.py:34
 msgid "Invalid image cache"
 msgstr ""
 
-#: src/gosa/backend/plugins/user/filters.py:31
+#: src/gosa/backend/plugins/user/filters.py:35
 msgid "Image sizes not specified"
 msgstr "Bildgrössen wurden nicht angegeben"
 
@@ -4152,11 +4152,11 @@ msgstr ""
 msgid "Shows all mime-types a webhook can be registered for"
 msgstr ""
 
-#: src/gosa/backend/plugins/webhook/registry.py:216
+#: src/gosa/backend/plugins/webhook/registry.py:221
 msgid "Webhooks"
 msgstr ""
 
-#: src/gosa/backend/plugins/webhook/registry.py:289
+#: src/gosa/backend/plugins/webhook/registry.py:294
 msgid "GOsa events"
 msgstr ""
 
