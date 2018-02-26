@@ -100,10 +100,6 @@ msgstr ""
 msgid "Timeout waiting for workflow execution"
 msgstr ""
 
-#: gosa/engine/extensions/Validator.js:36
-msgid "Prename and user name may not be the same."
-msgstr ""
-
 #: gosa/engine/extensions/validators/Constraints.js:89
 msgid "Value conflicts with '%1' option value '%2'"
 msgstr ""
@@ -550,7 +546,7 @@ msgid ""
 msgstr ""
 
 #: gosa/ui/dialogs/actions/Change2FAMethod.js:206
-msgid "Code: <b>"
+msgid "Code: <b>%1</b>"
 msgstr ""
 
 #: gosa/ui/dialogs/actions/ChangeSambaPasswordDialog.js:21
@@ -703,7 +699,7 @@ msgid "Format"
 msgstr ""
 
 #: gosa/ui/settings/Webhooks.js:247
-msgid "The emitter of packages for this webhook must use this data:"
+msgid "Please use the following configuration to send data to this webhook:"
 msgstr ""
 
 #: gosa/ui/settings/Webhooks.js:253
@@ -1028,6 +1024,9 @@ msgstr ""
 #~ msgid "Choose"
 #~ msgstr ""
 
+#~ msgid "Code: <b>"
+#~ msgstr ""
+
 #~ msgid "Colspan"
 #~ msgstr ""
 
@@ -1090,6 +1089,12 @@ msgstr ""
 #~ msgid "Please add a workflow dragging a workflow zip file into this window"
 #~ msgstr ""
 
+#~ msgid "Please use the following configuration to send data to this wenhook:"
+#~ msgstr ""
+
+#~ msgid "Prename and user name may not be the same."
+#~ msgstr ""
+
 #~ msgid "Recently changed items"
 #~ msgstr ""
 
@@ -1111,6 +1116,9 @@ msgstr ""
 #~ msgid ""
 #~ "The dashboard is empty. To add widgets please activate the edit mode by "
 #~ "clicking the settings button in the upper right corner"
+#~ msgstr ""
+
+#~ msgid "The emitter of packages for this webhook must use this data:"
 #~ msgstr ""
 
 #~ msgid "The object was out of date and has been refreshed!"

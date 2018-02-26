@@ -244,7 +244,7 @@ qx.Class.define("gosa.ui.settings.Webhooks", {
           var mime = row[1] + "+" + row[2];
           var secret = row[3];
 
-          var msg = this.tr("The emitter of packages for this webhook must use this data:") + "<br><br><table>";
+          var msg = this.tr("Please use the following configuration to send data to this webhook:") + "<br><br><table>";
           msg += '<tr><td><strong>URL</strong></td><td><i>'+ gosa.ui.settings.Webhooks.URL + "</i></td></tr>";
           msg += '<tr><td><strong>Content-Type</strong></td><td><i>' + mime + "</i></td></tr>";
           msg += '<tr><td><strong>Secret</strong></td><td><i>'+ secret + "</i></td></tr>";
