@@ -684,7 +684,6 @@ class Foreman(Plugin):
             self.__acl_resolver = PluginRegistry.getInstance("ACLResolver")
         return self.__acl_resolver
 
-    @gen.coroutine
     def add_host(self, hostname, base=None, preliminary=False):
         """
         Add a new host with the given hostname (if it does not exist) and create a one time password for it
@@ -837,7 +836,6 @@ class ForemanRealmReceiver(object):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
-    @gen.coroutine
     def handle_request(self, request_handler):
         if GlobalLock.exists("scan_index"):
             request_handler.finish(dumps({
@@ -869,7 +867,7 @@ class ForemanRealmReceiver(object):
             # new client -> join it
             try:
                 self.log.debug("adding host")
-                key = yield foreman.add_host(data['hostname'], preliminary=True)
+                key = foreman.add_host(data['hostname'], preliminary=True)
                 self.log.debug("returning otp key to foreman")
                 # send key as otp to foremans realm proxy
                 request_handler.finish(dumps({
