@@ -1,6 +1,6 @@
 # Cajus Pollmeier <pollmeier@gonicus.de>, 2017.
 # Tobias Bräutigam <braeutigam@gonicus.de>, 2018.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
@@ -129,8 +129,9 @@ msgstr "%1 Vorgang fehlgeschlagen"
 msgid "Please enter your search..."
 msgstr "Bitte geben Sie den Suchtext ein..."
 
-#: gosa/view/Search.js:73 gosa/view/Search.js:92 gosa/plugins/search/Main.js:65
-#: gosa/plugins/search/Main.js:91 gosa/ui/dialogs/ItemSelector.js:281
+#: gosa/view/Search.js:73 gosa/view/Search.js:92
+#: gosa/plugins/search/Main.js:65 gosa/plugins/search/Main.js:91
+#: gosa/ui/dialogs/ItemSelector.js:281
 msgid "Search"
 msgstr "Suche"
 
@@ -207,8 +208,9 @@ msgstr "Ergebnisse filtern"
 msgid "OK"
 msgstr "OK"
 
-#: gosa/ui/widgets/WorkflowWizard.js:277 gosa/ui/dialogs/PromptTextDialog.js:70
-#: gosa/ui/base/Buttons.js:50 gosa/ui/dialogs/ItemSelector.js:209
+#: gosa/ui/widgets/WorkflowWizard.js:277
+#: gosa/ui/dialogs/PromptTextDialog.js:70 gosa/ui/base/Buttons.js:50
+#: gosa/ui/dialogs/ItemSelector.js:209
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -257,7 +259,8 @@ msgid "Object: %1"
 msgstr "Objekt: %1"
 
 #: gosa/ui/dialogs/ClosingObject.js:30 gosa/ui/dialogs/ClosingObject.js:37
-msgid "This object will be closed in %1 seconds if you don't continue editing!"
+msgid ""
+"This object will be closed in %1 seconds if you don't continue editing!"
 msgstr ""
 "Das Objekt wird in %1 Sekunden geschlossen wenn es nicht weiter bearbeitet "
 "wird!"
@@ -404,13 +407,13 @@ msgstr "Erweiterung"
 
 #: gosa/ui/dialogs/MergeDialog.js:186
 msgid ""
-"The object has been updated while you were modifying it. Please determine to "
-"keep your local or the server version of the item. You can achieve this by "
+"The object has been updated while you were modifying it. Please determine to"
+" keep your local or the server version of the item. You can achieve this by "
 "marking the appropriate one."
 msgstr ""
 "Das Objekt wurde während des Bearbeitungsvorganges verändert. Bitte "
-"bestimmen Sie ob Ihre lokale oder die Server-Version übernommen werden soll. "
-"Dies können Sie durch Markieren des entsprechenden Wertes erreichen."
+"bestimmen Sie ob Ihre lokale oder die Server-Version übernommen werden soll."
+" Dies können Sie durch Markieren des entsprechenden Wertes erreichen."
 
 #: gosa/ui/dialogs/PasswordRecovery.js:22
 msgid "Password recovery"
@@ -546,8 +549,8 @@ msgid ""
 "keys. After granting permission, the device will start to blink."
 msgstr ""
 "Möglicherweise müssen Sie dieser Seite den Zugriff auf Ihre Sicherheits-"
-"Schlüssel gewähren. Nachdem Sie dies getan haben, wird das Gerät anfangen zu "
-"blinken."
+"Schlüssel gewähren. Nachdem Sie dies getan haben, wird das Gerät anfangen zu"
+" blinken."
 
 #: gosa/ui/dialogs/Warning.js:22
 msgid "Warning"
@@ -579,8 +582,8 @@ msgid ""
 "Please scan the QR code with your mobile device or enter the code to your "
 "authentication application."
 msgstr ""
-"Bitte scannen Sie den QR-Code mit Ihrem Mobiltelefon oder geben den Code aus "
-"Ihrer Authentifizierungs-Applikation ein."
+"Bitte scannen Sie den QR-Code mit Ihrem Mobiltelefon oder geben den Code aus"
+" Ihrer Authentifizierungs-Applikation ein."
 
 #: gosa/ui/dialogs/actions/Change2FAMethod.js:206
 msgid "Code: <b>%1</b>"
@@ -674,7 +677,8 @@ msgstr "PPD-Datei hochladen"
 #: gosa/ui/dialogs/actions/UploadPPD.js:116
 msgid ""
 "PPD files describe the features and capabilities of a PostScript printer. "
-"Please select the appropriate file distributed by the vendor of your printer."
+"Please select the appropriate file distributed by the vendor of your "
+"printer."
 msgstr ""
 "PPD-Dateien beschreiben die Funktionen und Fähigkeiten eines PostScript "
 "Druckers. Bitte wählen Sie die passende Datei für Ihren Drucker aus."
@@ -739,8 +743,8 @@ msgstr "Format"
 #: gosa/ui/settings/Webhooks.js:247
 msgid "Please use the following configuration to send data to this webhook:"
 msgstr ""
-"Bitte benutzen Sie die folgende Konfiguration, um Daten an diesen Webhook zu "
-"senden:"
+"Bitte benutzen Sie die folgende Konfiguration, um Daten an diesen Webhook zu"
+" senden:"
 
 #: gosa/ui/settings/Webhooks.js:253
 msgid "SHA-512, secret encrypted hash of the content body"
@@ -753,8 +757,8 @@ msgstr "Webhook löschen"
 #: gosa/ui/settings/Webhooks.js:300
 msgid "Please make sure that there are no services left using this webhook."
 msgstr ""
-"Bitte stellen Sie sicher, dass es keine Dienst mehr gibt, die diesen Webhook "
-"nutzen."
+"Bitte stellen Sie sicher, dass es keine Dienst mehr gibt, die diesen Webhook"
+" nutzen."
 
 #: gosa/ui/settings/Webhooks.js:301
 msgid "Are you sure that you want to delete this webhook?"
@@ -941,11 +945,11 @@ msgstr[1] "%1 Sekunden"
 
 #: gosa/view/Search.js:407
 msgid ""
-"Please consider using a more specific search string or filters to reduce the "
-"result set. "
+"Please consider using a more specific search string or filters to reduce the"
+" result set. "
 msgstr ""
-"Bitte benutzen Sie eine genauere Suche oder die Filter, um die Ergebnismenge "
-"einzuschränken."
+"Bitte benutzen Sie eine genauere Suche oder die Filter, um die Ergebnismenge"
+" einzuschränken."
 
 #: gosa/view/Search.js:498 gosa/view/Search.js:527 gosa/view/Search.js:544
 msgid "All"

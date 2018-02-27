@@ -3,21 +3,23 @@
 # This file is distributed under the same license as the gosa.client
 # project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+# Tobias Bräutigam <braeutigam@gonicus.de>, 2018.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: gosa.client 1.0\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-02-26 14:12+0100\n"
-"PO-Revision-Date: 2018-01-16 10:44+0100\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2018-02-27 09:24+0100\n"
+"PO-Revision-Date: 2018-02-27 09:56+0100\n"
+"Last-Translator: Tobias Bräutigam <braeutigam@gonicus.de>\n"
 "Language: de\n"
-"Language-Team: de <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Language-Team: Deutsch <>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.5.3\n"
+"X-Generator: Gtranslator 2.91.7\n"
 
 #: src/gosa/client/cli.py:75 src/gosa/client/cli.py:83
 #: src/gosa/client/plugins/join/methods.py:87
@@ -25,19 +27,19 @@ msgstr ""
 #: src/gosa/client/plugins/join/methods.py:117
 msgid "Cannot join client: check user name or password!"
 msgstr ""
-"Hinzufügen des Clients fehlgeschlagen: Überprüfen Sie den Benutzernamen "
-"oder das Passwort!"
+"Hinzufügen des Clients fehlgeschlagen: Überprüfen Sie den Benutzernamen oder "
+"das Passwort!"
 
 #: src/gosa/client/cli.py:256
 #, python-format
 msgid "action '%s' is not available"
-msgstr ""
+msgstr "Aktion '%s' ist nicht verfügbar"
 
 #: src/gosa/client/plugins/join/cli.py:31
 msgid "Please enter username and password to join the GOsa infrastructure."
 msgstr ""
-"Bitte geben Sie einen Benutzernamen und ein Passwort an, um den Client "
-"zur GOsa Infrastruktur hinzuzufügen."
+"Bitte geben Sie einen Benutzernamen und ein Passwort an, um den Client zur "
+"GOsa Infrastruktur hinzuzufügen."
 
 #: src/gosa/client/plugins/join/cli.py:32
 #, python-format
@@ -60,6 +62,4 @@ msgstr "Suche nach Service-Providern"
 #: src/gosa/client/plugins/join/methods.py:222
 msgid "Cannot join client: please provide a service URL!"
 msgstr ""
-"Hinzufügen des Clients fehlgeschlagen: Bitte geben Sie eine Service-URL "
-"an!"
-
+"Hinzufügen des Clients fehlgeschlagen: Bitte geben Sie eine Service-URL an!"

@@ -2,16 +2,17 @@
 # Copyright (C) 2012 ORGANIZATION
 # This file is distributed under the same license as the GOsa3 project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+# Tobias Bräutigam <braeutigam@gonicus.de>, 2018.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version:  GOsa3\n"
 "Report-Msgid-Bugs-To: pollmeier@gonicus.de\n"
-"POT-Creation-Date: 2018-02-26 14:12+0100\n"
-"PO-Revision-Date: 2012-09-28 16:00+0200\n"
-"Last-Translator: Cajus Pollmeier <pollmeier@gonicus.de>\n"
+"POT-Creation-Date: 2018-02-27 09:24+0100\n"
+"PO-Revision-Date: 2018-02-26 14:59+0100\n"
+"Last-Translator: Tobias Bräutigam <braeutigam@gonicus.de>\n"
 "Language: de\n"
-"Language-Team: de <LL@li.org>\n"
+"Language-Team: Deutsch <>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -231,7 +232,7 @@ msgstr "Listet verfügbare auf dem Bus registrierte Methoden."
 
 #: src/gosa/backend/command.py:151
 msgid "Shut down the service."
-msgstr ""
+msgstr "Dienst beenden"
 
 #: src/gosa/backend/command.py:389
 msgid "Return the current session's user ID."
@@ -347,7 +348,7 @@ msgid "Parameter must be list or dictionary"
 msgstr "Parameter muss eine Liste oder ein Verzeichnis sein"
 
 #: src/gosa/backend/components/jsonrpc_service.py:53
-#: src/gosa/backend/objects/index.py:74
+#: src/gosa/backend/objects/index.py:78
 #, fuzzy
 msgid "Index rebuild in progress - try again later"
 msgstr "Index wird gerade erneuert - bitte später versuchen"
@@ -399,15 +400,15 @@ msgstr ""
 
 #: src/gosa/backend/components/settings_registry.py:149
 msgid "Settings"
-msgstr ""
+msgstr "Einstellungen"
 
 #: src/gosa/backend/components/settings_registry.py:159
 msgid "Indexing"
-msgstr ""
+msgstr "Indiziert"
 
 #: src/gosa/backend/components/settings_registry.py:163
 msgid "Debug mode"
-msgstr ""
+msgstr "Debug Modus"
 
 #: src/gosa/backend/components/settings_registry.py:167
 msgid "Log level"
@@ -471,7 +472,7 @@ msgstr "Beschreibung"
 #: src/gosa/backend/components/workflowregistry.py:97
 #: src/gosa/backend/components/workflowregistry.py:129
 msgid "category"
-msgstr ""
+msgstr "Kategory"
 
 #: src/gosa/backend/components/workflowregistry.py:109
 #, fuzzy
@@ -484,7 +485,7 @@ msgstr ""
 
 #: src/gosa/backend/components/workflowregistry.py:219
 msgid "Refresh workflow list"
-msgstr ""
+msgstr "Workflowliste aktualisieren"
 
 #: src/gosa/backend/data/objects/foremanHost.xml:34
 msgid "Unknown"
@@ -533,42 +534,42 @@ msgstr "Entdeckt"
 #: src/gosa/backend/data/objects/foremanHost.xml:239
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:137
 msgid "PXELinux BIOS"
-msgstr ""
+msgstr "PXELinux BIOS"
 
 #: src/gosa/backend/data/objects/foremanHost.xml:240
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:138
 msgid "PXELinux UEFI"
-msgstr ""
+msgstr "PXELinux UEFI"
 
 #: src/gosa/backend/data/objects/foremanHost.xml:241
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:139
 msgid "Grub UEFI 64bit"
-msgstr ""
+msgstr "Grub UEFI 64bit"
 
 #: src/gosa/backend/data/objects/foremanHost.xml:242
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:140
 msgid "Grub UEFI 32bit"
-msgstr ""
+msgstr "Grub UEFI 32bit"
 
 #: src/gosa/backend/data/objects/foremanHost.xml:243
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:141
 msgid "Grub SecureBoot"
-msgstr ""
+msgstr "Grub SecureBoot"
 
 #: src/gosa/backend/data/objects/foremanHost.xml:244
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:142
 msgid "Grub2 UEFI 64bit"
-msgstr ""
+msgstr "Grub2 UEFI 64bit"
 
 #: src/gosa/backend/data/objects/foremanHost.xml:245
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:143
 msgid "Grub2 UEFI 32bit"
-msgstr ""
+msgstr "Grub2 UEFI 32bit"
 
 #: src/gosa/backend/data/objects/foremanHost.xml:246
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:144
 msgid "Grub2 SecureBoot"
-msgstr ""
+msgstr "Grub2 SecureBoot"
 
 #: src/gosa/backend/data/objects/foremanHost.xml:247
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:145
@@ -618,7 +619,7 @@ msgstr ""
 
 #: src/gosa/backend/data/objects/organizationalRole.xml:132
 msgid "telex"
-msgstr ""
+msgstr "Telex"
 
 #: src/gosa/backend/data/objects/organizationalRole.xml:133
 msgid "teletex"
@@ -642,7 +643,7 @@ msgstr ""
 
 #: src/gosa/backend/data/objects/organizationalRole.xml:138
 msgid "telephone"
-msgstr ""
+msgstr "Telefon"
 
 #: src/gosa/backend/data/objects/registered-device.xml:80
 msgid "terminal"
@@ -654,7 +655,7 @@ msgstr ""
 
 #: src/gosa/backend/data/objects/registered-device.xml:82
 msgid "server"
-msgstr ""
+msgstr "Server"
 
 #: src/gosa/backend/data/objects/registered-device.xml:83
 msgid "sipphone"
@@ -747,7 +748,6 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/country.json:5
 #: src/gosa/backend/data/templates/country.json:9
-#, fuzzy
 msgid "Country"
 msgstr "Land"
 
@@ -1071,7 +1071,6 @@ msgstr "Bereitstellungsgruppe"
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:20
 #: src/gosa/backend/data/templates/foreman-host.json:15
-#, fuzzy
 msgid "Deployment"
 msgstr "wird bereitgestellt"
 
@@ -1082,7 +1081,6 @@ msgid "Login information"
 msgstr "Server-Informationen"
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:43
-#, fuzzy
 msgid "Parent"
 msgstr ""
 
@@ -1348,7 +1346,7 @@ msgstr "Druckereinstellungen"
 
 #: src/gosa/backend/data/templates/gotoPrinter.json:168
 msgid "Manufacturer"
-msgstr "Herstelleer"
+msgstr "Hersteller"
 
 #: src/gosa/backend/data/templates/gotoPrinter.json:191
 msgid "Model"
@@ -1576,7 +1574,6 @@ msgstr "Änderung des Maschinenpasswortes verbieten"
 
 #: src/gosa/backend/data/templates/samba-domain.json:155
 #: src/gosa/backend/data/templates/samba-domain.json:165
-#, fuzzy
 msgid "Allow Machine Password changes (default: 0 => off)"
 msgstr "Änderung des Maschinenpasswortes verbieten"
 
@@ -1628,7 +1625,6 @@ msgstr "Minimale Passwortlänge"
 
 #: src/gosa/backend/data/templates/samba-domain.json:277
 #: src/gosa/backend/data/templates/samba-domain.json:287
-#, fuzzy
 msgid "Minimal password length (default: 5)"
 msgstr "Minimale Passwortlänge"
 
@@ -2220,92 +2216,92 @@ msgstr "Methode '%(method)s' hängt von einem unbekannten Attribut %(attribute)s
 msgid "Parameter '%(parameter)s' for command '%(command)s' is missing"
 msgstr "'%(parameter)s' Parameter für Methode '%(command)s' fehlt"
 
-#: src/gosa/backend/objects/index.py:72
+#: src/gosa/backend/objects/index.py:76
 #, python-format
 msgid "Object with UUID %(uuid)s already exists"
 msgstr "Objekt mit der UUID %(uuid)s existiert bereits"
 
-#: src/gosa/backend/objects/index.py:73
+#: src/gosa/backend/objects/index.py:77
 #, python-format
 msgid "Cannot find object %(id)s"
 msgstr "Kann Objekt %(id)s nicht finden"
 
-#: src/gosa/backend/objects/index.py:75
+#: src/gosa/backend/objects/index.py:79
 #, python-format
 msgid "Requested search operator %(operator)s is not supported"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:76
+#: src/gosa/backend/objects/index.py:80
 msgid "No master backend found"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:77
+#: src/gosa/backend/objects/index.py:81
 msgid "connection to GOsa backend failed"
 msgstr "Verbinsung zum GOsa Backend fehlgeschlagen"
 
-#: src/gosa/backend/objects/index.py:78
+#: src/gosa/backend/objects/index.py:82
 msgid ""
 "Please add valid backend credentials to you configuration (core.backend-"
 "user, core.backend-key)"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:79
+#: src/gosa/backend/objects/index.py:83
 #, python-format
 msgid "Trying to add a delayed update to a non-dirty object (%(topic)s)"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:729
+#: src/gosa/backend/objects/index.py:795
 msgid "Start index synchronizing from an optional root-DN"
 msgstr ""
 
-#: src/gosa/backend/objects/index.py:757 src/gosa/backend/objects/index.py:762
+#: src/gosa/backend/objects/index.py:823 src/gosa/backend/objects/index.py:828
 msgid "scanning for objects"
 msgstr "Suche nach Objekten"
 
-#: src/gosa/backend/objects/index.py:782
+#: src/gosa/backend/objects/index.py:848
 msgid "Generating object index"
 msgstr "Erstelle Objektindex"
 
-#: src/gosa/backend/objects/index.py:794
+#: src/gosa/backend/objects/index.py:860
 #, python-format
 msgid "Processing object %s/%s"
 msgstr "Verarbeite Objekt %s/%s"
 
-#: src/gosa/backend/objects/index.py:808
+#: src/gosa/backend/objects/index.py:874
 #, python-format
 msgid "%s objects processed"
 msgstr "%s Objekte verarbeitet"
 
-#: src/gosa/backend/objects/index.py:812
+#: src/gosa/backend/objects/index.py:878
 msgid "removing orphan objects from index"
 msgstr "entferne verwaiste Objekte aus dem Index"
 
-#: src/gosa/backend/objects/index.py:830
+#: src/gosa/backend/objects/index.py:896
 msgid "Index refresh finished"
 msgstr "Index Aktualisierung abgeschlossen"
 
-#: src/gosa/backend/objects/index.py:855
+#: src/gosa/backend/objects/index.py:924
 #, python-format
 msgid "Refreshing object %s/%s"
 msgstr "Aktualisiere Objekt %s/%s"
 
-#: src/gosa/backend/objects/index.py:1217
+#: src/gosa/backend/objects/index.py:1287
 msgid "Check if an object with the given UUID exists."
 msgstr "Prüfen ob ein Objekt mit der angegebenen UUID existiert."
 
-#: src/gosa/backend/objects/index.py:1237
+#: src/gosa/backend/objects/index.py:1307
 msgid "Get list of defined base object types."
 msgstr "Listet definierte Basis-Objekt-Typen auf."
 
-#: src/gosa/backend/objects/index.py:1246
+#: src/gosa/backend/objects/index.py:1316
 msgid "Query the index for entries."
 msgstr "Index nach Einträgen durchsuchen."
 
-#: src/gosa/backend/objects/index.py:1624
+#: src/gosa/backend/objects/index.py:1694
 msgid "Register a backend to allow MQTT access"
 msgstr "Ein Backend für den MQTT Zugriff registrieren"
 
-#: src/gosa/backend/objects/index.py:1642
+#: src/gosa/backend/objects/index.py:1712
 msgid "Unregister a backend from MQTT access"
 msgstr "Backend Registrierung für den MQTT Zugriff entfernen"
 
@@ -2930,26 +2926,26 @@ msgstr ""
 msgid "Get a foreman setting by ID"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:832
+#: src/gosa/backend/plugins/foreman/main.py:836
 msgid "Foreman host event"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:893
+#: src/gosa/backend/plugins/foreman/main.py:897
 msgid "Foreman hook event"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:1065
+#: src/gosa/backend/plugins/foreman/main.py:1069
 msgid "Host ready"
 msgstr ""
 
-#: src/gosa/backend/plugins/foreman/main.py:1066
+#: src/gosa/backend/plugins/foreman/main.py:1070
 #, python-format
 msgid "Host '%s' has been successfully build."
 msgstr ""
 
 #: src/gosa/backend/plugins/lint/main.py:55
 msgid "invalid shebang line"
-msgstr ""
+msgstr "Ungültige shebang Zeile"
 
 #: src/gosa/backend/plugins/mail/filter_validators.py:27
 #, python-format
@@ -4066,7 +4062,6 @@ msgid "Returns the available two factor authentication methods"
 msgstr ""
 
 #: src/gosa/backend/plugins/two_factor/main.py:93
-#, fuzzy
 msgid "Returns the current two factor authentication method for the given user"
 msgstr ""
 
@@ -4080,7 +4075,7 @@ msgstr ""
 
 #: src/gosa/backend/plugins/upload/main.py:49
 msgid "Registers a temporary upload path"
-msgstr ""
+msgstr "Registriert einen temporären Uploadpfad"
 
 #: src/gosa/backend/plugins/user/filters.py:34
 msgid "Invalid image cache"
@@ -4101,7 +4096,7 @@ msgstr ""
 
 #: src/gosa/backend/plugins/user/main.py:33
 msgid "Generates a uid"
-msgstr ""
+msgstr "Generiert eine Uid"
 
 #: src/gosa/backend/plugins/user/main.py:50
 msgid "Create PosixGroup if it does not exists and add the user to it"
@@ -4110,7 +4105,7 @@ msgstr ""
 #: src/gosa/backend/plugins/user/main.py:61
 #, python-format
 msgid "Group of user %s"
-msgstr ""
+msgstr "Gruppe des Benutzers %s"
 
 #: src/gosa/backend/plugins/webhook/registry.py:36
 #, python-format
@@ -4292,1141 +4287,39 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgid "Generate samba lm:nt hash combination from the supplied password."
 #~ msgstr "Erzeuge Samba LM:NT Hash-Kombination aus dem angegebenen Passwort."
 
-#~ msgid "Acl"
-#~ msgstr ""
-
-#~ msgid "Acl extension"
-#~ msgstr ""
-
-#~ msgid "AclRole"
-#~ msgstr ""
-
-#~ msgid "Country"
-#~ msgstr ""
-
-#~ msgid "A country"
-#~ msgstr ""
-
-#~ msgid "Country ISO code"
-#~ msgstr ""
-
-#~ msgid "Description"
-#~ msgstr ""
-
-#~ msgid "Organizational unit"
-#~ msgstr ""
-
-#~ msgid "The dn of the manager"
-#~ msgstr ""
-
-#~ msgid "Domain component"
-#~ msgstr ""
-
-#~ msgid "A domain component"
-#~ msgstr ""
-
-#~ msgid "domain component"
-#~ msgstr ""
-
-#~ msgid "DeviceContainer"
-#~ msgstr ""
-
-#~ msgid "Organizational unit that can contain devices"
-#~ msgstr ""
-
-#~ msgid "Device"
-#~ msgstr ""
-
-#~ msgid "Common Name"
-#~ msgstr ""
-
-#~ msgid "description"
-#~ msgstr ""
-
-#~ msgid "serialNumber"
-#~ msgstr ""
-
-#~ msgid "seeAlso"
-#~ msgstr ""
-
-#~ msgid "owner"
-#~ msgstr ""
-
 #~ msgid "ou"
 #~ msgstr "Stunde"
 
 #~ msgid "o"
 #~ msgstr "an"
 
-#~ msgid "location"
-#~ msgstr ""
-
-#~ msgid "Domain"
-#~ msgstr ""
-
-#~ msgid "A domain"
-#~ msgstr ""
-
-#~ msgid "Organization name"
-#~ msgstr ""
-
-#~ msgid "Deployment"
-#~ msgstr ""
-
-#~ msgid "The foreman - this device is managed by foreman"
-#~ msgstr ""
-
-#~ msgid "The foreman - current device status"
-#~ msgstr ""
-
-#~ msgid "Assigned host group"
-#~ msgstr ""
-
-#~ msgid "Foreman build status ID"
-#~ msgstr ""
-
-#~ msgid "Foreman global status ID"
-#~ msgstr ""
-
-#~ msgid "ID of the hostgroup this host is part of"
-#~ msgstr ""
-
-#~ msgid "IP address"
-#~ msgstr ""
-
-#~ msgid "MAC address"
-#~ msgstr ""
-
-#~ msgid "Domain the host should be added to"
-#~ msgstr ""
-
-#~ msgid "Reboot host to start the build"
-#~ msgstr ""
-
-#~ msgid "OTP hash generated for foreman"
-#~ msgstr ""
-
 #~ msgid "Deployment Group"
 #~ msgstr "Bereitstellungsgruppe"
-
-#~ msgid "The foreman - this group is managed by foreman"
-#~ msgstr ""
-
-#~ msgid "ID used in foreman to identify the hostGroup"
-#~ msgstr ""
-
-#~ msgid "Parent host group id"
-#~ msgstr ""
-
-#~ msgid "GosaAccount"
-#~ msgstr ""
-
-#~ msgid "Class for GOsa Accounts (v2.7)"
-#~ msgstr ""
-
-#~ msgid "Timestamp for a Users last System Login"
-#~ msgstr ""
-
-#~ msgid "The DN of the System where the Login was performed"
-#~ msgstr ""
-
-#~ msgid "Multivalue attribute to carry a number of allowed ips/subnets"
-#~ msgstr ""
-
-#~ msgid "Defines a default printer a user owns"
-#~ msgstr ""
 
 #~ msgid "Gender of the user"
 #~ msgstr "Ein Ereignis auf den Bus senden."
 
-#~ msgid "GosaApplication"
-#~ msgstr ""
-
-#~ msgid "Class for GOsa applications (v2.7)"
-#~ msgstr ""
-
-#~ msgid "Specifies the executable path of an application"
-#~ msgstr ""
-
-#~ msgid "RFC4519: common name(s) for which the entity is known by"
-#~ msgstr ""
-
-#~ msgid "Store application parameters"
-#~ msgstr ""
-
-#~ msgid "Keeps the application icon in png format"
-#~ msgstr ""
-
-#~ msgid "Specifies the application flags G(roup only), D(esktop), M(enu)"
-#~ msgstr ""
-
-#~ msgid "RFC4519: descriptive information"
-#~ msgstr ""
-
-#~ msgid "Takes a list of relevant mime-type|priority settings"
-#~ msgstr ""
-
-#~ msgid "Specifies the name of an application to be shown up on users desktop"
-#~ msgstr ""
-
-#~ msgid "GOto - specifies a LogonScript"
-#~ msgstr ""
-
-#~ msgid "GotoEnvironment"
-#~ msgstr ""
-
-#~ msgid "GOto - contains environment settings (v2.7)"
-#~ msgstr ""
-
-#~ msgid "GOto - Gonicus Terminal Concept, value xResolution."
-#~ msgstr ""
-
-#~ msgid "List of assigned printers"
-#~ msgstr ""
-
-#~ msgid "GOto - specifies the profile server"
-#~ msgstr ""
-
-#~ msgid "GOto - Flags for Profile handling - C is for caching"
-#~ msgstr ""
-
-#~ msgid "GOto - specifies a share"
-#~ msgstr ""
-
-#~ msgid "GOto - specifies a kiosk profile"
-#~ msgstr ""
-
-#~ msgid "GOto - keeps hotplug devices"
-#~ msgstr ""
-
-#~ msgid "GOto - save quota for home"
-#~ msgstr ""
-
-#~ msgid "GOto - points to hotplug devices"
-#~ msgstr ""
-
-#~ msgid "GotoMenu"
-#~ msgstr ""
-
-#~ msgid "GOto - defines a menu entry (v2.7)"
-#~ msgstr ""
-
-#~ msgid "Foreman release"
-#~ msgstr ""
-
-#~ msgid "JSON encoded menu"
-#~ msgstr ""
-
-#~ msgid "GotoPrinter"
-#~ msgstr ""
-
-#~ msgid "GOto - Gonicus Terminal Concept, objectclass (v2.7)"
-#~ msgstr ""
-
-#~ msgid "RFC2256: locality which this object resides in"
-#~ msgstr ""
-
-#~ msgid "RFC2079: Uniform Resource Identifier with optional label"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Internal helper attribute to mark PPDs"
-#~ " that have been configured since last"
-#~ " change."
-#~ msgstr ""
-
-#~ msgid "GOto - Gonicus Terminal Concept, PPD data"
-#~ msgstr ""
-
-#~ msgid "GOto - keeps printers we are admin for"
-#~ msgstr ""
-
-#~ msgid "GOto - keeps printers shown for this user"
-#~ msgstr ""
-
-#~ msgid "Groups"
-#~ msgstr ""
-
-#~ msgid "Organizational unit that can contain groups"
-#~ msgstr ""
-
-#~ msgid "GroupOfNames"
-#~ msgstr ""
-
-#~ msgid "RFC2256: a group of names (DNs)"
-#~ msgstr ""
-
-#~ msgid "RFC2256: member of a group"
-#~ msgstr ""
-
-#~ msgid "RFC2256: business category"
-#~ msgstr ""
-
-#~ msgid "RFC2256: organization this object belongs to"
-#~ msgstr ""
-
-#~ msgid "RFC2256: owner (of the object)"
-#~ msgstr ""
-
-#~ msgid "RFC2256: organizational unit this object belongs to"
-#~ msgstr ""
-
-#~ msgid "RFC4519: DN of related object"
-#~ msgstr ""
-
-#~ msgid "Posix group"
-#~ msgstr ""
-
-#~ msgid "A posix group"
-#~ msgstr ""
-
-#~ msgid "The primary group number number"
-#~ msgstr ""
-
-#~ msgid "A list of member-uids"
-#~ msgstr ""
-
-#~ msgid "Samba group extension"
-#~ msgstr ""
-
-#~ msgid "A samba extension for a posix group"
-#~ msgstr ""
-
-#~ msgid "Security ID"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Samba group(0) Domain administrators(512) "
-#~ "Domain users(513) Domain guests(514)"
-#~ msgstr ""
-
-#~ msgid "Displayed name"
-#~ msgstr ""
-
-#~ msgid "A list of member-SIDs"
-#~ msgstr ""
-
-#~ msgid "ieee802Device"
-#~ msgstr ""
-
-#~ msgid "IncomingDeviceContainer"
-#~ msgstr ""
-
-#~ msgid "Organizational unit that can contain newly reported devices"
-#~ msgstr ""
-
-#~ msgid "InstalledDevice"
-#~ msgstr ""
-
-#~ msgid "Object class for bundling installation recipes"
-#~ msgstr ""
-
-#~ msgid "IpHost"
-#~ msgstr ""
-
-#~ msgid "Locality"
-#~ msgstr ""
-
-#~ msgid "Locality name"
-#~ msgstr ""
-
-#~ msgid "Nagios group extension"
-#~ msgstr ""
-
-#~ msgid "Nagios extension for a group"
-#~ msgstr ""
-
-#~ msgid "Organization"
-#~ msgstr ""
-
-#~ msgid "An organization"
-#~ msgstr ""
-
-#~ msgid "Organizational role"
-#~ msgstr ""
-
-#~ msgid "RFC2256: an organizational role"
-#~ msgstr ""
-
-#~ msgid "RFC2256: Telephone Number"
-#~ msgstr ""
-
-#~ msgid "RFC2256: registered postal address"
-#~ msgstr ""
-
-#~ msgid "RFC2256: Physical Delivery Office Name"
-#~ msgstr ""
-
-#~ msgid "RFC2256: occupant of role"
-#~ msgstr ""
-
-#~ msgid "RFC2256: Facsimile (Fax) Telephone Number"
-#~ msgstr ""
-
-#~ msgid "RFC2256: Post Office Box"
-#~ msgstr ""
-
-#~ msgid "RFC2256: Teletex Terminal Identifier"
-#~ msgstr ""
-
-#~ msgid "RFC2256: state or province which this object resides in"
-#~ msgstr ""
-
-#~ msgid "RFC2256: postal code"
-#~ msgstr ""
-
-#~ msgid "RFC2256: street address of this object"
-#~ msgstr ""
-
-#~ msgid "RFC2256: preferred delivery method"
-#~ msgstr ""
-
-#~ msgid "RFC2256: Telex Number"
-#~ msgstr ""
-
-#~ msgid "RFC2256: X.121 Address"
-#~ msgstr ""
-
-#~ msgid "RFC2256: international ISDN number"
-#~ msgstr ""
-
-#~ msgid "RFC2256: postal address"
-#~ msgstr ""
-
-#~ msgid "RFC2256: destination indicator"
-#~ msgstr ""
-
 #~ msgid "Users"
 #~ msgstr "Stunden"
-
-#~ msgid "Organizational unit that can contain users"
-#~ msgstr ""
-
-#~ msgid "PrinterContainer"
-#~ msgstr ""
-
-#~ msgid "Organizational unit that can contain printers"
-#~ msgstr ""
-
-#~ msgid "RegisteredDevice"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The registeredDevice is a device that"
-#~ " is known to GOsa and will "
-#~ "display additional information."
-#~ msgstr ""
-
-#~ msgid "DN of manager"
-#~ msgstr ""
-
-#~ msgid "This attribute keeps the encrypted (initial) device secret"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The deviceStatus attribute represents several"
-#~ " states a system can represent.\n"
-#~ "\t\t\t\t\tNote that this is the "
-#~ "current status - i.e. no history "
-#~ "of states is\n"
-#~ "\t\t\t\t\trecordable this way. The "
-#~ "attribute is mostly used to quickly "
-#~ "determine\n"
-#~ "\t\t\t\t\tthe state without reading system logs.\n"
-#~ "\t\t\t\t"
-#~ msgstr ""
-
-#~ msgid "To order systems, you can mark a system i.e. as a server"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This attribute keeps a unique identifier for a device that should be\n"
-#~ "\t\t\t\t\tregistered to the GOsa "
-#~ "services. It is used as a unique"
-#~ " key to find\n"
-#~ "\t\t\t\t\tthe relationship of the "
-#~ "registered device to other information "
-#~ "like\n"
-#~ "\t\t\t\t\tinventory, received events and logging data.\n"
-#~ "\t\t\t\t"
-#~ msgstr ""
-
-#~ msgid "OrganizationalRoleContainer"
-#~ msgstr ""
-
-#~ msgid "Samba Workstation Container"
-#~ msgstr ""
-
-#~ msgid "Organizational unit that can contain Samba workstations"
-#~ msgstr ""
-
-#~ msgid "Windows Workstation"
-#~ msgstr ""
-
-#~ msgid "Windows workstation account"
-#~ msgstr ""
-
-#~ msgid "preferred name of a person to be used when displaying entries"
-#~ msgstr ""
-
-#~ msgid "Account Flags"
-#~ msgstr ""
-
-#~ msgid "Windows NT domain to which the user belongs"
-#~ msgstr ""
-
-#~ msgid "An integer uniquely identifying a user in an administrative domain"
-#~ msgstr ""
-
-#~ msgid "An integer uniquely identifying a group in an administrative domain"
-#~ msgstr ""
-
-#~ msgid "See also (distinguishedName)"
-#~ msgstr ""
-
-#~ msgid "The GECOS field; the common name"
-#~ msgstr ""
-
-#~ msgid "The Userid attribute type specifies a computer system login name."
-#~ msgstr ""
-
-#~ msgid "The absolute path to the home directory"
-#~ msgstr ""
-
-#~ msgid "The path to the login shell"
-#~ msgstr ""
-
-#~ msgid "Samba domain"
-#~ msgstr ""
-
-#~ msgid "Windows NT domain"
-#~ msgstr ""
-
-#~ msgid "Base at which the samba RID generation algorithm should operate"
-#~ msgstr ""
-
-#~ msgid "Next NT rid to give our for users"
-#~ msgstr ""
-
-#~ msgid "Minimal password length (default: 5)"
-#~ msgstr "Minimale Passwortlänge"
-
-#~ msgid "Length of Password History Entries (default: 0 => off)"
-#~ msgstr ""
-
-#~ msgid "Force Users to logon for password change (default: 0 => off, 2 => on)"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Maximum password age, in seconds "
-#~ "(default: -1 => never expire passwords)"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Minimum password age, in seconds "
-#~ "(default: 0 => allow immediate password"
-#~ " change)"
-#~ msgstr ""
-
-#~ msgid "Lockout duration in minutes (default: 30, -1 => forever)"
-#~ msgstr ""
-
-#~ msgid "Reset time after lockout in minutes (default: 30)"
-#~ msgstr ""
-
-#~ msgid "Lockout users after bad logon attempts (default: 0 => off)"
-#~ msgstr ""
-
-#~ msgid "Disconnect Users outside logon hours (default: -1 => off, 0 => on)"
-#~ msgstr ""
-
-#~ msgid "Allow Machine Password changes (default: 0 => off)"
-#~ msgstr "Änderung des Maschinenpasswortes verbieten"
-
-#~ msgid "Next NT rid to give out for anything"
-#~ msgstr ""
-
-#~ msgid "simpleSecurityObject"
-#~ msgstr ""
-
-#~ msgid "password"
-#~ msgstr ""
-
-#~ msgid "Container for systems"
-#~ msgstr ""
-
-#~ msgid "Organizational unit that can contain systems"
-#~ msgstr ""
-
-#~ msgid "Trust account"
-#~ msgstr ""
-
-#~ msgid "A trust account extension"
-#~ msgstr ""
-
-#~ msgid "Access scheme"
-#~ msgstr ""
-
-#~ msgid "Access to which servers user is allowed"
-#~ msgstr ""
-
-#~ msgid "POSIX extension"
-#~ msgstr ""
-
-#~ msgid "A posix extension for a generic user"
-#~ msgstr ""
-
-#~ msgid "A list on posix-group names this user is member of"
-#~ msgstr ""
-
-#~ msgid "Samba"
-#~ msgstr ""
-
-#~ msgid "A samba extension for a POSIX user"
-#~ msgstr ""
-
-#~ msgid "LanManager Password"
-#~ msgstr ""
-
-#~ msgid "MD4 hash of the unicode password"
-#~ msgstr ""
 
 #~ msgid "Timestamp of the last password update"
 #~ msgstr "Letzte Passwortaktualisierung"
 
-#~ msgid "Timestamp of last logon"
-#~ msgstr ""
-
-#~ msgid "Timestamp of last logoff"
-#~ msgstr ""
-
-#~ msgid "Timestamp of when the user will be logged off automatically"
-#~ msgstr ""
-
-#~ msgid "Timestamp of when the user is allowed to update the password"
-#~ msgstr ""
-
-#~ msgid "Timestamp of when the password will expire"
-#~ msgstr ""
-
-#~ msgid "Home directory UNC path"
-#~ msgstr ""
-
-#~ msgid "Driver letter of home directory mapping"
-#~ msgstr ""
-
-#~ msgid "Logon script path"
-#~ msgstr ""
-
-#~ msgid "Roaming profile path"
-#~ msgstr ""
-
-#~ msgid "List of user workstations the user is allowed to logon to"
-#~ msgstr ""
-
-#~ msgid "Primary Group Security ID"
-#~ msgstr ""
-
 #~ msgid "Bad password attempt count"
 #~ msgstr "Letzte Passwortaktualisierung"
-
-#~ msgid "Time of the last bad password attempt"
-#~ msgstr ""
-
-#~ msgid "Concatenated MD5 hashes of the salted NT passwords used on this account"
-#~ msgstr ""
-
-#~ msgid "Base64 encoded user parameter string"
-#~ msgstr ""
 
 #~ msgid "Logon Hours"
 #~ msgstr "Stunden"
 
-#~ msgid ""
-#~ "There seems to be an old and "
-#~ "a new storage method for the "
-#~ "sambaMungedDial attribute, this\n"
-#~ "                    flag just shows the "
-#~ "whether the processes values was in "
-#~ "the old or in the new style. "
-#~ "Saved will\n"
-#~ "                    always be done in the new way.\n"
-#~ "                "
-#~ msgstr ""
-
-#~ msgid "Shadow extension"
-#~ msgstr ""
-
-#~ msgid "A Shadow extension for a generic user"
-#~ msgstr ""
-
 #~ msgid "The dat of the last password change."
 #~ msgstr "Änderung des Maschinenpasswortes verbieten"
-
-#~ msgid ""
-#~ "The minimum password age is the "
-#~ "number of days the user will have"
-#~ " to wait before she will be "
-#~ "allowed to change her password again."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The maximum password age is the "
-#~ "number of days after which the "
-#~ "user will have to change her "
-#~ "password."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The number of days before a "
-#~ "password is going to expire (see "
-#~ "the shadowMax) during which the user "
-#~ "should be warned."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The number of days after a "
-#~ "password has expired (see the shadowMax)"
-#~ " during which the password should "
-#~ "still be accepted (and the user "
-#~ "should update her password during the"
-#~ " next login)."
-#~ msgstr ""
-
-#~ msgid "The date of expiration of the account."
-#~ msgstr ""
-
-#~ msgid "Zarafa"
-#~ msgstr ""
-
-#~ msgid "Zarafa: an user of Zarafa"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: Override child quota"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: Warning quota size in MB"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: Soft quota size in MB"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: Hard quota size in MB"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: Users may directly send email as this user"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: Administrator of zarafa"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: is store a shared store"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: for shared stores, resource is type Room or Equipment"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: number of rooms or equipment available"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: entry is a part of zarafa"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: This object should be hidden from address book"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: This user has these features explicitly enabled"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: This user has these features explicitly disabled"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: List of server names that contain an archive store for the user"
-#~ msgstr ""
-
-#~ msgid "RFC1274: RFC822 Mailbox"
-#~ msgstr ""
-
-#~ msgid "Specify users main mail server"
-#~ msgstr ""
-
-#~ msgid "Whether the account is in vacation"
-#~ msgstr ""
-
-#~ msgid "Whether to use a SPAM filter for the account"
-#~ msgstr ""
-
-#~ msgid "Whether to reject mails of certain size"
-#~ msgstr ""
-
-#~ msgid "Whether to do a local delivery only"
-#~ msgstr ""
-
-#~ msgid "Whether to skip insertion into the users own mailbox"
-#~ msgstr ""
-
-#~ msgid "Don't use GOsa 2.x build in sieve script generation"
-#~ msgstr ""
-
-#~ msgid "What to do with mails"
-#~ msgstr ""
-
-#~ msgid "Additional mail addresses where the user is reachable"
-#~ msgstr ""
-
-#~ msgid "Addresses where to forward mail to"
-#~ msgstr ""
-
-#~ msgid "Text to display in case of vacation"
-#~ msgstr ""
-
-#~ msgid "Timestamp for enabling current vacation message"
-#~ msgstr ""
-
-#~ msgid "Timestamp for switching off current vacation message"
-#~ msgstr ""
-
-#~ msgid "goZarafa Display Name"
-#~ msgstr ""
-
-#~ msgid "A generic user"
-#~ msgstr ""
-
-#~ msgid "This attribute stores user specific settings for the GUI"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The Audio attribute type allows the "
-#~ "storing of sounds in the Directory. "
-#~ "The attribute uses a u-law encoded "
-#~ "sound file as used by the \"play\""
-#~ " utility on a Sun 4. This is"
-#~ " an interim format"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This attribute describes the kind of "
-#~ "business performed by an organization."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This multivalued field is used to "
-#~ "record the values of the license "
-#~ "or registration plate associated with an"
-#~ " individual."
-#~ msgstr ""
-
-#~ msgid "Identifies a department within an organization"
-#~ msgstr ""
-
-#~ msgid "numerically identifies an employee within an organization'"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Used to identify the employer to "
-#~ "employee relationship. Typical values used "
-#~ "will be \"Contractor\", \"Employee\", "
-#~ "\"Intern\", \"Temp\", \"External\", and "
-#~ "\"Unknown\" but any value may be "
-#~ "used."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The givenName attribute is used to "
-#~ "hold the part of a person's name"
-#~ " which is not their surname nor "
-#~ "middle name."
-#~ msgstr ""
-
-#~ msgid "homePhone"
-#~ msgstr ""
-
-#~ msgid "Birthday of the user"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The Home postal address attribute type"
-#~ " specifies a home postal address for"
-#~ " an object.  This should be limited"
-#~ " to up to 6 lines of 30 "
-#~ "characters each."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The initials attribute contains the "
-#~ "initials of some or all of an "
-#~ "individuals names, but not the "
-#~ "surname(s)."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Used to store one or more images"
-#~ " of a person using the JPEG "
-#~ "File Interchange Format [JFIF]."
-#~ msgstr ""
-
-#~ msgid "Uniform Resource Identifier with optional label"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The Manager attribute type specifies the"
-#~ " manager of an object represented by"
-#~ " an entry."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The Mobile Telephone Number attribute "
-#~ "type specifies a mobile telephone number"
-#~ " associated with a person. Attribute "
-#~ "values should follow the agreed format"
-#~ " for international telephone numbers: i.e.,"
-#~ " \"+44 71 123 4567\"."
-#~ msgstr ""
-
-#~ msgid "This attribute contains the name of an organization (organizationName)."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The Pager Telephone Number attribute "
-#~ "type specifies a pager telephone number"
-#~ " for an object. Attribute values "
-#~ "should follow the agreed format for "
-#~ "international telephone numbers: i.e., \"+44"
-#~ " 71 123 4567\"."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The Photo attribute type specifies a "
-#~ "\"photograph\" for an object. This "
-#~ "should be encoded in G3 fax as "
-#~ "explained in recommendation T.4, with an"
-#~ " ASN.1 wrapper to make it compatible"
-#~ " with an X.400 BodyPart as defined"
-#~ " in X.420."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The Room Number attribute type specifies"
-#~ " the room number of an object.  "
-#~ "Note that the commonName attribute "
-#~ "should be used for naming room "
-#~ "objects."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The Secretary attribute type specifies "
-#~ "the secretary of a person. The "
-#~ "attribute value for Secretary is a "
-#~ "distinguished name"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This attribute is to be stored and"
-#~ " requested in the binary form, as "
-#~ "'userCertificate;binary'."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The x500UniqueIdentifier attribute is used "
-#~ "to distinguish between objects when a"
-#~ " distinguished name has been reused.  "
-#~ "This is a different attribute type "
-#~ "from both the \"uid\" and "
-#~ "\"uniqueIdentifier\" types."
-#~ msgstr ""
-
-#~ msgid "Preferred written or spoken language for a person"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "A PKCS#7 [RFC2315] SignedData, where the"
-#~ " content that is signed is ignored"
-#~ " by consumers of userSMIMECertificate "
-#~ "values.  It is recommended that values"
-#~ " have a `contentType' of data with"
-#~ " an absent `content' field.  Values "
-#~ "of this attribute contain a person's "
-#~ "entire certificate chain and an "
-#~ "smimeCapabilities field [RFC2633] that at "
-#~ "a minimum describes their SMIME "
-#~ "algorithm capabilities.  Values for this "
-#~ "attribute are to be stored and "
-#~ "requested in binary form, as "
-#~ "'userSMIMECertificate;binary'.  If available, this"
-#~ " attribute is preferred over the "
-#~ "userCertificate attribute for S/MIME "
-#~ "applications."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "PKCS #12 [PKCS12] provides a format "
-#~ "for exchange of personal identity "
-#~ "information.  When such information is "
-#~ "stored in a directory service, the "
-#~ "userPKCS12 attribute should be used. "
-#~ "This attribute is to be stored and"
-#~ " requested in binary form, as "
-#~ "'userPKCS12;binary'.  The attribute values are"
-#~ " PFX PDUs stored as binary data."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This attribute contains the title, such"
-#~ " as \"Vice President\", of a person"
-#~ " in their organizational context.  The "
-#~ "\"personalTitle\" attribute would be used "
-#~ "for a person's title independent of "
-#~ "their job function."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This attribute contains the title, such"
-#~ " as \"Phd\", of a person in "
-#~ "their organizational context.  The "
-#~ "\"academicTitle\" attribute would be used "
-#~ "for a person's title independent of "
-#~ "their job function."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This attribute holds a postal address"
-#~ " suitable for reception of telegrams "
-#~ "or expedited documents, where it is "
-#~ "necessary to have the recipient accept"
-#~ " delivery."
-#~ msgstr ""
-
-#~ msgid "This attribute is used for the telegram service."
-#~ msgstr ""
-
-#~ msgid "Preferred delivery method"
-#~ msgstr ""
-
-#~ msgid "Telex number"
-#~ msgstr ""
-
-#~ msgid "Teletex terminal identifier"
-#~ msgstr ""
-
-#~ msgid "Telephone number"
-#~ msgstr ""
-
-#~ msgid "International iSDN number"
-#~ msgstr ""
-
-#~ msgid "Facsimile telephone number"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This attribute contains the physical "
-#~ "address of the object to which the"
-#~ " entry corresponds, such as an "
-#~ "address for package delivery (streetAddress)."
-#~ msgstr ""
-
-#~ msgid "Post office box"
-#~ msgstr ""
-
-#~ msgid "Postal code"
-#~ msgstr ""
-
-#~ msgid "Physical delivery office name"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This attribute contains the name of "
-#~ "an organizational unit (organizationalUnitName)."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This attribute contains the full name"
-#~ " of a state or province "
-#~ "(stateOrProvinceName)."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This attribute contains the name of "
-#~ "a locality, such as a city, county"
-#~ " or other geographic region (localityName)."
-#~ msgstr ""
 
 #~ msgid "The selected password encryption method"
 #~ msgstr "Ändert die verwendete Passwortverschlüsselungsmethode"
 
-#~ msgid "Represents the account locking status. True means locked!"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Passwords are stored using an Octet "
-#~ "String syntax and are not encrypted."
-#~ "  Transfer of cleartext passwords are "
-#~ "strongly discouraged where the underlying "
-#~ "transport service cannot guarantee "
-#~ "confidentiality and may result in "
-#~ "disclosure of the password to "
-#~ "unauthorized parties."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This is the X.500 surname attribute, "
-#~ "which contains the family name of "
-#~ "a person."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This is the X.500 commonName attribute,"
-#~ " which contains a name of an "
-#~ "object.  If the object corresponds to"
-#~ " a person, it is typically the "
-#~ "person's full name."
-#~ msgstr ""
-
-#~ msgid "True means we are in a secure context"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "If the user has successfully started "
-#~ "a password recovery process this "
-#~ "attribute shows the current state for"
-#~ "\n"
-#~ "          this process."
-#~ msgstr ""
-
 #~ msgid "This hash contains the chosen password recovery questions and answers"
 #~ msgstr "Listet alle verfügbaren Passwort-Methoden"
 
-#~ msgid "ZARAFA: a Zarafa server"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: Port for the http connection"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: Port for the ssl connection"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: The unix socket or named pipe to the server"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: This server contains the public store"
-#~ msgstr ""
-
-#~ msgid "ZARAFA: Full proxy URL for this server"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This attribute keeps a unique identifier"
-#~ " for a device that should be "
-#~ "registered to the GOsa services. It "
-#~ "is used as a unique key to "
-#~ "find the relationship of the registered"
-#~ " device to other information like "
-#~ "inventory, received events and logging "
-#~ "data."
-#~ msgstr ""
-
 #~ msgid "Domain Component"
 #~ msgstr "Domänen-Objekt-Klasse"
-
-#~ msgid "(%groups)s found for group id '%(group_id)s'"
-#~ msgstr ""
 

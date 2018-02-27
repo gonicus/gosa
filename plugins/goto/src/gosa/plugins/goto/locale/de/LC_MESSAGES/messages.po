@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa-plugin-goto 1.0\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-02-26 14:12+0100\n"
+"POT-Creation-Date: 2018-02-27 09:24+0100\n"
 "PO-Revision-Date: 2018-01-16 10:44+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de\n"
@@ -20,14 +20,14 @@ msgstr ""
 "Generated-By: Babel 2.5.3\n"
 
 #: src/gosa/plugins/goto/client_service.py:43
-#, fuzzy, python-format
+#, python-format
 msgid "Device with hardware address '%(mac)s' already exists"
-msgstr "Ein Gerät mit der Hardware-Adresse '%(topic)s' existiert bereits"
+msgstr "Ein Gerät mit der Hardware-Adresse '%(mac)s' existiert bereits"
 
 #: src/gosa/plugins/goto/client_service.py:44
-#, fuzzy, python-format
+#, python-format
 msgid "User '%(user)s' is not unique"
-msgstr "Benutzer '%(topic)s' ist nicht eindeutig"
+msgstr "Benutzer '%(user)s' ist nicht eindeutig"
 
 #: src/gosa/plugins/goto/client_service.py:45
 #, python-format
@@ -40,12 +40,12 @@ msgid "Client '%(client)s' is offline"
 msgstr "Client '%(client)s' ist offline"
 
 #: src/gosa/plugins/goto/client_service.py:47
-#, fuzzy, python-format
+#, python-format
 msgid "Client '%(client)s' has no method %(method)s"
-msgstr "Client '%(topic)s' unterstützt die Methode '%(method)s' nicht"
+msgstr "Client '%(client)s' unterstützt die Methode '%(method)s' nicht"
 
 #: src/gosa/plugins/goto/client_service.py:48
-#, fuzzy, python-format
+#, python-format
 msgid "Invalid data '%(entry)s:%(data)s' for client '%(client)s provided'"
 msgstr "Ungültige Daten '%(entry)s:%(data)s' für Client '%(client)s' angegeben"
 
@@ -103,7 +103,7 @@ msgstr "Liefert die Clients mit aktiviert Benutzersitzung"
 
 #: src/gosa/plugins/goto/client_service.py:298
 msgid "Get the destinationIndicator for a user"
-msgstr ""
+msgstr "Liefert den destinationIndicator für einen Benutzer"
 
 #: src/gosa/plugins/goto/client_service.py:350
 msgid "Send synchronous notification message to user"
