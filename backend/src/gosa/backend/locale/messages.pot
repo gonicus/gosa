@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa.backend 3.0\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-02-27 09:24+0100\n"
+"POT-Creation-Date: 2018-02-27 10:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -881,7 +881,8 @@ msgstr ""
 msgid ""
 "This attribute keeps a unique identifier for a device that should be "
 "registered to the GOsa services. It is used as a unique key to find the "
-"relationship of the registered device to other information like inventor"
+"relationship of the registered device to other information like "
+"inventory, received events and logging data."
 msgstr ""
 
 #: src/gosa/backend/data/templates/device-registered.json:80
@@ -912,7 +913,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/device-registered.json:124
 #: src/gosa/backend/data/templates/device-registered.json:134
-msgid "To order system"
+msgid "To order systems, you can mark a system i.e. as a server"
 msgstr ""
 
 #: src/gosa/backend/data/templates/device-registered.json:145
@@ -1484,7 +1485,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:50
 #: src/gosa/backend/data/templates/samba-domain.json:60
-msgid "Lockout duration in minutes (default: 3"
+msgid "Lockout duration in minutes (default: 30, -1 => forever)"
 msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:70
@@ -1511,7 +1512,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:113
 #: src/gosa/backend/data/templates/samba-domain.json:123
-msgid "Force Users to logon for password change (default: 0 => of"
+msgid "Force Users to logon for password change (default: 0 => off, 2 => on)"
 msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:133
@@ -1520,7 +1521,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:134
 #: src/gosa/backend/data/templates/samba-domain.json:144
-msgid "Disconnect Users outside logon hours (default: -1 => of"
+msgid "Disconnect Users outside logon hours (default: -1 => off, 0 => on)"
 msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:154
@@ -1591,7 +1592,9 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:298
 #: src/gosa/backend/data/templates/samba-domain.json:308
-msgid "Minimum password ag"
+msgid ""
+"Minimum password age, in seconds (default: 0 => allow immediate password "
+"change)"
 msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:318
@@ -1602,7 +1605,7 @@ msgstr ""
 
 #: src/gosa/backend/data/templates/samba-domain.json:319
 #: src/gosa/backend/data/templates/samba-domain.json:329
-msgid "Maximum password ag"
+msgid "Maximum password age, in seconds (default: -1 => never expire passwords)"
 msgstr ""
 
 #: src/gosa/backend/data/templates/samba-ws.json:8

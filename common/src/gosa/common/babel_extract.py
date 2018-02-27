@@ -48,6 +48,7 @@ def extract_template_json(fileobj, keywords, comment_tags, options):
     """
     found = []
     pattern = re.compile('(tr|trc|trn|trnc|marktr)\((.*)\)')
+    inner_pattern = re.compile('\'([^\']+)\'')
     line_no = 0
     strings = []
     for line in fileobj:
@@ -56,7 +57,7 @@ def extract_template_json(fileobj, keywords, comment_tags, options):
             try:
                 method_name = match.group(1)
                 # get only string arguments
-                messages = [x.strip()[1:-1] for x in match.group(2).split(",") if x.strip()[0:1] in ["'", '"', "\""]]
+                messages = [x for x in inner_pattern.findall(match.group(2))]
                 func_name = 'gettext'
                 if 'c' in method_name:
                     # with context
