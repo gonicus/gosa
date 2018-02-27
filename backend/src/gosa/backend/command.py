@@ -140,7 +140,8 @@ class CommandRegistry(Plugin):
                         resource_filename(mod, "locale"),
                         fallback=True,
                         languages=[locale])
-                res[name]['doc'] = t.gettext(info['doc'])
+                doc = info['doc'] # avoid quoted string in t.gettext, because it would be extracted as translatable message
+                res[name]['doc'] = t.gettext(doc)
 
         return res
 

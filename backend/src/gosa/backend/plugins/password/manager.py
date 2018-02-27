@@ -31,7 +31,7 @@ C.register_codes(dict(
     PASSWORD_NO_ATTRIBUTE=N_("Object has no 'userPassword' attribute"),
     PASSWORD_NOT_AVAILABLE=N_("No password to lock."),
     UID_UNKNOWN=N_("User ID '%(target)s' is unknown."),
-    PASSWORD_RECOVERY_IMPOSSIBLE=N_("The password recovery process cannot be started for this user, because of invalid ot missing data"),
+    PASSWORD_RECOVERY_IMPOSSIBLE=N_("The password recovery process cannot be started for this user, because of invalid or missing data"),
     PASSWORD_RECOVERY_STATE_ERROR=N_("This step of the password recovery process cannot be executed at the current state")
 ))
 
