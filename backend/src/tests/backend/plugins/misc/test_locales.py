@@ -28,9 +28,9 @@ class LocalesTests(unittest.TestCase):
 
         assert len(all_locs) > 50
         assert 'en_US.UTF-8' in all_locs
-        assert all_locs['en_US.UTF-8']['value'] == "English (USA)"
+        assert all_locs['en_US.UTF-8']['value'] == "Englisch (USA)"
         assert 'de_DE.UTF-8' in all_locs
-        assert all_locs['de_DE.UTF-8']['value'] == "German (Germany) - Deutsch"
+        assert all_locs['de_DE.UTF-8']['value'] == "Deutsch (Deutschland) - Deutsch"
 
     def test_get_locales_map(self):
         loc = Locales()

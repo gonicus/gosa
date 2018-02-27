@@ -16,7 +16,7 @@ import pytest
 from unittest import TestCase, mock
 
 from sqlalchemy import and_
-from tornado.testing import AsyncHTTPTestCase
+from tornado.testing import AsyncHTTPTestCase, AsyncTestCase
 from tornado.web import Application, HTTPError
 
 from gosa.backend.objects import ObjectProxy
@@ -144,7 +144,7 @@ class MockForeman:
 @mock.patch("gosa.backend.objects.backend.back_foreman.requests.put")
 @mock.patch("gosa.backend.objects.backend.back_foreman.requests.delete")
 @mock.patch("gosa.backend.objects.backend.back_foreman.requests.get")
-class ForemanIntegrationTestCase(GosaTestCase, RemoteTestCase):
+class ForemanIntegrationTestCase(RemoteTestCase):
     foreman = None
     host_url = None
     host_token = None
@@ -153,12 +153,13 @@ class ForemanIntegrationTestCase(GosaTestCase, RemoteTestCase):
     registry = None
     foreman_backend = None
     foreman_backend_client_backup = None
+    _test_dn = None
 
     def setUp(self):
         logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.DEBUG)
         # logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
         logging.getLogger("gosa.backend.objects").info("SET UP")
-        super(ForemanIntegrationTestCase, self).setUp()
+        RemoteTestCase.setUp(self)
         env = Environment.getInstance()
         env.config.set("foreman.host-rdn", None)
         env.config.set("foreman.group-rdn", None)
@@ -183,14 +184,17 @@ class ForemanIntegrationTestCase(GosaTestCase, RemoteTestCase):
         logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.INFO)
         # logging.getLogger("gosa.backend.objects").setLevel(logging.INFO)
         logging.getLogger("gosa.backend.objects").info("tear down")
-        super(ForemanIntegrationTestCase, self).tearDown()
+        if self._test_dn is not None:
+            GosaTestCase.remove_test_data(self._test_dn)
+            self._test_dn = None
+        RemoteTestCase.tearDown(self)
 
     def get_app(self):
         return Application([('/hooks(?P<path>.*)?', WebhookReceiver)], cookie_secret='TecloigJink4', xsrf_cookies=True)
 
     def test_provision_host(self, m_get, m_del, m_put, m_post):
         """ convert a discovered host to a 'real' host  """
-        self._create_test_data()
+        self._test_dn = GosaTestCase.create_test_data()
         container = ObjectProxy(self._test_dn, "IncomingDeviceContainer")
         container.commit()
 

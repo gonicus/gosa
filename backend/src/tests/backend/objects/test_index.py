@@ -236,20 +236,25 @@ class ObjectIndexTestCase(TestCase):
 
     def test_serve(self):
 
-        with mock.patch("gosa.backend.objects.index.ObjectIndex.isSchemaUpdated", return_value=True):
-            index = ObjectIndex()
+        with mock.patch("gosa.backend.objects.index.hashlib.md5") as m_md5, \
+                mock.patch("gosa.backend.objects.index.make_session") as m:
+            m_session = m.return_value.__enter__.return_value
+            m_session.query.return_value.filter.return_value.one_or_none.return_value.hash = 'fake-hash'
+            m_md5.return_value.hexdigest.return_value = 'fake-hash'
 
-            with mock.patch("gosa.backend.objects.index.make_session") as m,\
-                    mock.patch.object(index.env.config, "getboolean", return_value=True):
-                m_session = m.return_value.__enter__.return_value
-                m_session.query.return_value.one_or_none.return_value = None
+            with mock.patch("gosa.backend.objects.index.ObjectIndex.isSchemaUpdated", return_value=True):
+                index = ObjectIndex()
 
-                index.serve()
+                with mock.patch.object(index.env.config, "getboolean", return_value=True):
 
-                assert m_session.query.return_value.delete.called
-                assert m_session.add.called
-                assert m_session.commit.called
+                    m_session.query.return_value.one_or_none.return_value = None
 
-                index.stop()
-                del index
+                    index.serve()
+
+                    assert m_session.query.return_value.delete.called
+                    assert m_session.add.called
+                    assert m_session.commit.called
+
+                    index.stop()
+                    del index
 
