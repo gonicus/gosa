@@ -1054,7 +1054,7 @@ msgstr "Bereitstellungsgruppe"
 #: src/gosa/backend/data/templates/foreman-host-group.json:20
 #: src/gosa/backend/data/templates/foreman-host.json:15
 msgid "Deployment"
-msgstr "wird bereitgestellt"
+msgstr "Bereitstellung"
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:26
 #: src/gosa/backend/data/templates/user.json:67
