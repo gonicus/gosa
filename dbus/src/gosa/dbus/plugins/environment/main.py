@@ -175,7 +175,7 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
                 with open(script_log, 'w+') as logfile:
                     p = subprocess.Popen(
                         cmd,
-                        shell=True,
+                        shell=False,
                         env=environment,
                         bufsize=-1,
                         stdout=logfile,
