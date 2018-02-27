@@ -23,6 +23,7 @@ import subprocess
 import dbus.service
 import pwd
 import stat
+import psutil
 
 from gosa.common import Environment
 from gosa.common.components import Plugin
@@ -56,6 +57,7 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     local_icons = os.path.join(".local", "share", "icons")
     local_directories = os.path.join(".local", "share", "desktop-directories")
     __initialized_dirs = []
+    _DISPLAY = ''
 
     def __init__(self):
         conn = get_system_bus()
@@ -65,7 +67,7 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
 
     def query_output(self, user):
         result = None
-        cmd = ['sudo', '-n', '-u', user, 'DISPLAY=:0', 'xrandr', '-q']
+        cmd = ['sudo', '-n', '-u', user, 'DISPLAY={DISPLAY}'.format(DISPLAY=self.getDisplay()), 'xrandr', '-q']
         try:
             p = subprocess.Popen(
                 cmd,
@@ -103,7 +105,7 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
 
     def set_resolution(self, user, monitor, width, height):
         result = False
-        cmd = ['sudo', '-n', '-u', user, 'DISPLAY=:0', 'xrandr', '--output', monitor, '--mode', str(height) + 'x' + str(width)]
+        cmd = ['sudo', '-n', '-u', user, 'DISPLAY={DISPLAY}'.format(DISPLAY=self.getDisplay()), 'xrandr', '--output', monitor, '--mode', str(height) + 'x' + str(width)]
         try:
             p = subprocess.Popen(
                 cmd,
@@ -169,7 +171,7 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
 
             script_log = os.path.join(self.home_dir, self.local_application_scripts_log, os.path.basename(script['path']) + '.log')
             # Run command as user using sudo
-            cmd = ['sudo', '-n', '-u', user, '"DISPLAY=:0"', '-i', script['path']]
+            cmd = ['sudo', '-n', '-u', user, 'DISPLAY={DISPLAY}'.format(DISPLAY=self.getDisplay()), '-i', script['path']]
             self.log.debug("executing {script} as {user}, logging to {log}".format(script=" ".join(cmd), user=pw_ent.pw_name, log=script_log))
             try:
                 with open(script_log, 'w+') as logfile:
@@ -193,6 +195,14 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
             finally:
                 if os.path.exists(script_log):
                     self.__chown(script_log, uid, gid)
+
+    def getDisplay(self):
+        if self._DISPLAY == '':
+            displays = [x.host for x in psutil.users() if x.name == self.username]
+            if len(displays) > 0:
+                self._DISPLAY = displays[0]
+
+        return self._DISPLAY
 
     def chown_dirs(self, user, primary_group):
         self.log.debug("chown %s dirs to %s:%s" % (self.__initialized_dirs, user, primary_group))
