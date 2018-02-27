@@ -90,6 +90,13 @@ class Environment:
                 self.log.error("system has no id - please configure one in the core section")
                 raise Exception("No system id found")
 
+        self.backend_index = self.config.getboolean("backend.index", default=True)
+        if self.backend_index is False and self.config.get("backend.index-trigger") is not None \
+                and os.path.exists(self.config.get("backend.index-trigger")):
+            self.backend_index = True
+            os.remove(self.config.get("backend.index-trigger"))
+
+
     def requestRestart(self):
         self.log.warning("a component requested an environment reset")
         self.reset_requested = True

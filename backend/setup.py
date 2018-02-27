@@ -239,7 +239,8 @@ setup(
         'pylint',
         'sqlalchemy_searchable',
         'bcrypt',
-        'polib'
+        'polib',
+        'syncrepl-client'
         ],
 
     entry_points = """

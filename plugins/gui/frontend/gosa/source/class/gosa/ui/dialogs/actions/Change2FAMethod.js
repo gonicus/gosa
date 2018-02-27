@@ -203,7 +203,7 @@ qx.Class.define("gosa.ui.dialogs.actions.Change2FAMethod", {
           maxWidth : 350,
           marginBottom : 24
         }));
-        this._qrCodeField.add(new qx.ui.basic.Label(this.tr("Code: <b>") + data.split("=")[1] + "</b>").set({
+        this._qrCodeField.add(new qx.ui.basic.Label(this.tr("Code: <b>%1</b>", data.split("=")[1])).set({
           marginBottom:24,
           rich: true
         }));

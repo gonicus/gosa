@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa.utils 3.0\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-01-22 11:20+0100\n"
+"POT-Creation-Date: 2018-02-27 09:33+0100\n"
 "PO-Revision-Date: 2018-01-16 10:44+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de\n"
@@ -21,22 +21,24 @@ msgstr ""
 #: src/gosa/utils/acl_admin.py:92
 #, python-format
 msgid "<%s> parameter is missing!"
-msgstr ""
+msgstr "<%s> Parameter fehlt!"
 
 #: src/gosa/utils/acl_admin.py:111
 #, python-format
 msgid "<%s> parameter is invalid!"
-msgstr ""
+msgstr "<%s> Parameter ist ungültig!"
 
 #: src/gosa/utils/acl_admin.py:131
 msgid "The dn parameter specifies the location of an acl/role"
-msgstr ""
+msgstr "Der dn Parameter legt den Ort einer Acl/Rolle fest"
 
 #: src/gosa/utils/acl_admin.py:132
 msgid ""
 "The base parameter specifies the position acls are active for. For "
 "example: dc=example,dc=de"
 msgstr ""
+"Der base Parameter definiert den Bereich, für den die Acls gelten. Zum "
+"Beispiel: dc=example,dc=de"
 
 #: src/gosa/utils/acl_admin.py:133
 msgid ""
@@ -51,6 +53,18 @@ msgid ""
 "  reset - Revokes previously defined acls, except for those with scope "
 "'psub'"
 msgstr ""
+"Der Gültigkeits legt fest, wie sich die Acl-Rolle auf Unterverzeichnisse "
+"auswirkt\n"
+"Mögliche Gültigkeitsbereich-Werte sind:\n"
+"  one   - Für Acls, die nur für die aktuelle Basis gelten.\n"
+"          Dies kann mit dem 'reset' Gültikeitsbereich aufgehoben werden!\n"
+"  sub   - Für Acls, die für den gesamten Teilbaum gültig sind.\n"
+"          Dies kann mit dem 'reset' Gültikeitsbereich aufgehoben werden!\n"
+"  psub  - Für Acls, die für den gesamten Teilbaum gültig sind.\n"
+"          Dies kann NICHT mit dem 'reset' Gültikeitsbereich aufgehoben "
+"werden!\n"
+"  reset - Hebt übergeordnete Acls auf, ausgenommen solcher mit "
+"Gültigkeitsbereich 'psub'"
 
 #: src/gosa/utils/acl_admin.py:142
 msgid ""
@@ -59,6 +73,10 @@ msgid ""
 "  highest priority: -100\n"
 "  lowest priority: 100"
 msgstr ""
+"Eine Zahl mit der eine ACL-Regel priorisiert werden kann. (Geringere "
+"Werte bedeuten eine höhere Priorität)\n"
+"  Höchste Priorität: -100\n"
+"  Niedrigste Priorität: 100"
 
 #: src/gosa/utils/acl_admin.py:145
 msgid ""
@@ -66,11 +84,14 @@ msgid ""
 "  A comma separated list:\n"
 "   e.g.: hubert,peter,klaus"
 msgstr ""
+"Die Name von Benutzern/Clients für die die ACL-Regel gültig sein soll. \n"
+"  Eine Komma-separierte Liste:\n"
+"   z.B. hubert,peter,klaus"
 
 #: src/gosa/utils/acl_admin.py:148
 msgid ""
-"The <acl-defintion> parameter specifies what actions can be performed on "
-"a given topic.\n"
+"The <acl-definition> parameter specifies what actions can be performed on"
+" a given topic.\n"
 "\n"
 " Syntax {<topic>:<acls>:<option1>: ... :<option N>,}\n"
 "\n"
@@ -118,14 +139,60 @@ msgid ""
 "  e.g. (Do not forget to use quotes!)\n"
 "   'uid:peter;eventType:start;'"
 msgstr ""
+"Der <acl-definition> Parameter legt fest, welche Aktionen in einem bestimmten Thema ausgeführt "
+"werden können.\n"
+"\n"
+" Syntax {<Thema>:<Acls>:<Option1>: ... :<Pption N>,}\n"
+"\n"
+" Beispiele:\n"
+"   Eine einfache Definition ohne Optionen:\n"
+"       '^org\\.gosa\\..*:crowdsexm'\n"
+"\n"
+"   Eine einfache Definition mit Optionen:\n"
+"       '^org\\.gosa\\..*:crowdsexm:uid=user_*:tag=event'\n"
+"\n"
+"   Eine Definition mit mehreren Aktionen\n"
+"       "
+"'^org\\.gosa\\.events$:crowdsexm,^org\\.gosa\\.factory$:rw,^org\\.gosa\\.something$:rw'"
+"\n"
+"\n"
+" <Thema> \n"
+" ========\n"
+" Das Thema legt fest für welche Ziel-Aktion diese Acl definiert wurde\n"
+" Themen werden durch reguläre Ausdrücke definiert, wodurch eine flexible Zuordnung möglich ist.\n"
+"\n"
+"  z.B.: \n"
+"   '^org\\.gosa\\..*'                für alle Themen in org.gosa\n"
+"   '^org\\.gosa\\.[^\\.]*\\.help$'      Erlaubt das Ausrufen der Hilfe-Methoden aller Module direkt unterhalb "
+"von org.gosa\n"
+"\n"
+" <Acls>\n"
+" ======\n"
+" Der Acl legt fest welche Aktionen innerhalb eines bestimmten Themas erlaubt sind.\"
+"  z.B.:\n"
+"   rwcd    -> gewährt to Lese-(r), Schreib-(w), Erzeug-(c) und Löschrechte (d)\n"
+"\n"
+"  Mögliche Werte sind:\n"
+"    r - Lesen             w - Schreiben        m - Verschieben\n"
+"    c - Erzeugen          d - Löschen          s - Suchen - oder gefunden werden"
+"\n"
+"    x - Ausführen         e - Events empfangen\n"
+"\n"
+" <Pptionen>\n"
+" =========\n"
+" Optionen sind zusätzliche Prüfungen, bitte lesen Sie die GOsa Dokumentation für weitere "
+"Details.\n"
+" Das Format ist:  key:value;key:value;...\n"
+"  z.B. (Bitte Anführungstriche nicht vergessen!)\n"
+"   'uid:peter;eventType:start;'"
 
 #: src/gosa/utils/acl_admin.py:188
 msgid "The name of the acl role you want to set"
-msgstr ""
+msgstr "Der Name der Acl Rolle, die sie setzten möchten"
 
 #: src/gosa/utils/acl_admin.py:189
 msgid ""
-"You can specify the upate-action for the acl.\n"
+"You can specify the update-action for the acl.\n"
 "  Possible values are:\n"
 "    * set-scope      Update the scope of an acl-rule\n"
 "    * set-members    Set a new list of members for an acl-rule\n"
@@ -133,20 +200,34 @@ msgid ""
 "    * set-action     Set a new action for the acl\n"
 "    * set-role       Let the acl-rule point to a role"
 msgstr ""
+"Sie können die Update-Aktion für eine Acl festlegen.\n"
+"  Mögliche Werte sind:\n"
+"    * sel-scope      Den Gültigkeitsbereich einer Acl-Regel ändern\n"
+"    * set-members    Eine neue Liste von Mitgliedern einer Acl-Regel "
+"ändern\n"
+"    * set-priority   Die Priorität einer Acl-Regel ändern\n"
+"    * set-action     Die Aktionen einer Acl-Regel ändern\n"
+"    * set-role       Die Acl-Regel mit einer Rolle verknüpfen"
 
 #: src/gosa/utils/acl_admin.py:196
 msgid ""
-"You can specify the upate-action for the role-acl.\n"
+"You can specify the update-action for the role-acl.\n"
 "  Possible values are:\n"
 "    * set-scope      Update the scope of an acl-rule\n"
 "    * set-priority   Set another priority level for the acl-rule\n"
 "    * set-action     Set a new action for the acl\n"
 "    * set-role       Let the acl-rule point to a role"
 msgstr ""
+"Sie können die Update-Aktion für eine Rollen-Acl festlegen.\n"
+"  Mögliche Werte sind:\n"
+"    * set-scope      Den Gültigkeitsbereich einer Acl-Regel ändern\n"
+"    * set-priority   Die Priorität einer Acl-Regel ändern\n"
+"    * set-action     Die Aktionen einer Acl-Regel ändern\n"
+"    * set-role       Die Acl-Regel mit einer Rolle verknüpfen"
 
 #: src/gosa/utils/acl_admin.py:202
 msgid ""
-"You can either create acl-rule that contain direkt permissions settings "
+"You can either create acl-rule that contain direct permissions settings "
 "or you can use previously defined roles\n"
 "  Possible values are:\n"
 "    * with-actions   To directly specify the topic, acls and options this"
@@ -154,75 +235,84 @@ msgid ""
 "    * with-role      To use a rolename instead of defining actions "
 "directly"
 msgstr ""
+"Sie können entweder eine Rolle erstellen, die direkte Berechtigungen "
+"enthält oder eine bereits definierte Rolle nutzen\n"
+"  Mögliche Werte sind:\n"
+"    * with-actions   um direkt das Thema, Acls und Optionen anzugeben\n"
+"    * with-role      um eine vorhandene Rolle zu nutzen"
 
 #: src/gosa/utils/acl_admin.py:212
 #, python-format
 msgid "no help for %s ..."
-msgstr ""
+msgstr "kein Hilfeeintrag für %s ..."
 
 #: src/gosa/utils/acl_admin.py:416
 msgid "Adds a new acl entry to an object"
-msgstr ""
+msgstr "Fügt einen neuen ACL Eintrag zu einem Objekt hinzu"
 
 #: src/gosa/utils/acl_admin.py:416
 msgid ""
 "add acl [with-role|with-actions] <base> <priority> <members> "
 "[rolename|<scope> <topic> <acls> [options]]"
 msgstr ""
+"Acl hinzufügen [with-role|with-actions] <Basis> <Priorität> <Mitglieder> "
+"[Rollenname|<Gültigkeitsbereich> <Thema> <Acls> [Optionen]]"
 
 #: src/gosa/utils/acl_admin.py:471
 msgid "Adds a new acl entry to an existing role"
-msgstr ""
+msgstr "Fügt einen neuen Acl Eintrag zu einer existierenden Rollen hinzu"
 
 #: src/gosa/utils/acl_admin.py:471
 msgid ""
 "add roleacl [with-role|with-actions] <dn> <priority> [rolename|<scope> "
 "<topic> <acls> [options]]"
 msgstr ""
+"Rollen-Acl hinzufügen [with-role|with-actions] <dn> <Priorität> "
+"[Rollenname|<Gültigkeitsbereich> <Thema> <Acls> [Optionen]]"
 
 #: src/gosa/utils/acl_admin.py:514
 msgid "Adds a new role"
-msgstr ""
+msgstr "Fügt eine neue Rolle hinzu"
 
 #: src/gosa/utils/acl_admin.py:514
 msgid "add role <base> <rolename>"
-msgstr ""
+msgstr "Rolle hinzufügen <basis> <rollenname>"
 
 #: src/gosa/utils/acl_admin.py:540
 msgid "Removes all acl entries from a role"
-msgstr ""
+msgstr "Entfernt alle Acl Einträge für eine Rolle"
 
 #: src/gosa/utils/acl_admin.py:540
 msgid "remove roleacl <DN>"
-msgstr ""
+msgstr "Entferne Rollen-ACL <DN>"
 
 #: src/gosa/utils/acl_admin.py:556
 msgid "Removes all acl entries for a given base"
-msgstr ""
+msgstr "Entfernt alle ACL Einträge für die angegebene Basis"
 
 #: src/gosa/utils/acl_admin.py:556
 msgid "remove roleacl <BASE>"
-msgstr ""
+msgstr "entferne Rollen-Acl <BASIS>"
 
 #: src/gosa/utils/acl_admin.py:594
 msgid "Removes a role"
-msgstr ""
+msgstr "Entfernt eine Rolle"
 
 #: src/gosa/utils/acl_admin.py:594
 msgid "remove role <DN>"
-msgstr ""
+msgstr "Entferne Rolle <DN>"
 
 #: src/gosa/utils/acl_admin.py:615
 msgid "List all defined acls"
-msgstr ""
+msgstr "Liste aller definierten Acls"
 
 #: src/gosa/utils/acl_admin.py:629
 msgid "Listing of active GOsa acls"
-msgstr ""
+msgstr "Liste der aktiven GOsa Acls"
 
 #: src/gosa/utils/acl_admin.py:656
 msgid "Listing of active GOsa roles"
-msgstr ""
+msgstr "Liste der aktiven GOsa Rollen"
 
 #: src/gosa/utils/acl_admin.py:687
 msgid ""
@@ -234,33 +324,40 @@ msgid ""
 "\n"
 "Actions:"
 msgstr ""
+"\n"
+"GOsa Rechte von der Kommandozeile verwalten.\n"
+"\n"
+" ./acl-admin [-u/--user Benutzername] [-p/--password Passwort] [-s/--url "
+"service-url] <AKtion>\n"
+"\n"
+"Aktionen:"
 
 #: src/gosa/utils/acl_admin.py:755
 #, python-format
 msgid "Invalid argument list: %s"
-msgstr ""
+msgstr "Ungültige Argumentliste: %s"
 
 #: src/gosa/utils/acl_admin.py:781
 msgid "Need at least a service URI!"
-msgstr ""
+msgstr "Eine Service-URL wird mindestens benötigt!"
 
 #. Conected to URL, i.e. https://gosa.local:8080/rpc
 #: src/gosa/utils/acl_admin.py:785
 #, python-format
 msgid "Connected to %s://%s:%s/%s"
-msgstr ""
+msgstr "Verbunden mit %s://%s:%s/%s"
 
 #. This is a prompt - Username [joe]:
 #: src/gosa/utils/acl_admin.py:799
 msgid "Username"
-msgstr ""
+msgstr "Benutzername"
 
 #. This is a prompt - Password:
 #: src/gosa/utils/acl_admin.py:805
 msgid "Password"
-msgstr ""
+msgstr "Passwort"
 
 #: src/gosa/utils/acl_admin.py:817
 msgid "The selected protocol is not supported!"
-msgstr ""
+msgstr "Das ausgewählte Protokoll wird nicht unterstützt!"
 

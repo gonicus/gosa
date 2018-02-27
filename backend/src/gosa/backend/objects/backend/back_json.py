@@ -12,6 +12,7 @@ This class implements the Json-Backend which is capable of storing GOsa objects.
 """
 
 # -*- coding: utf-8 -*-
+import json
 import os
 import re
 import uuid
@@ -53,7 +54,13 @@ class JSON(ObjectBackend):
         """
         Loads the json file and returns a object
         """
-        return loads(open(self._file_path).read())
+        with open(self._file_path) as f:
+            data = f.read()
+        try:
+            return loads(data)
+        except json.decoder.JSONDecodeError as e:
+            self.log.error("%s: %s" % (str(e), data))
+            raise e
 
     def __save(self, json):
         """

@@ -233,7 +233,7 @@
             "buddyModelPath": "sambaNextUserRid",
             "properties": {
                 "text": "tr('Next user RID')",
-                "toolTipText": "tr('Next NT rid to give our for users')"
+                "toolTipText": "tr('Next NT rid to give out for users')"
             },
             "addOptions": {
                 "row": 3,
@@ -243,7 +243,7 @@
             "class": "gosa.ui.widgets.QSpinBoxWidget",
             "modelPath": "sambaNextUserRid",
             "properties": {
-                "toolTipText": "tr('Next NT rid to give our for users')"
+                "toolTipText": "tr('Next NT rid to give out for users')"
             },
             "addOptions": {
                 "row": 3,

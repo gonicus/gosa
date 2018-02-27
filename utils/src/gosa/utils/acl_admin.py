@@ -145,7 +145,7 @@ class ACLAdmin(object):
                 "members": _("The names of the users/clients the acl-rule should be valid for. "
                     "\n  A comma separated list:"
                     "\n   e.g.: hubert,peter,klaus"),
-                "acl-definition": _("The <acl-defintion> parameter specifies what actions can be performed on a given topic."
+                "acl-definition": _("The <acl-definition> parameter specifies what actions can be performed on a given topic."
                     "\n"
                     "\n Syntax {<topic>:<acls>:<option1>: ... :<option N>,}"
                     "\n"
@@ -186,20 +186,20 @@ class ACLAdmin(object):
                     "\n  e.g. (Do not forget to use quotes!)"
                     "\n   'uid:peter;eventType:start;'"),
                 "rolename": _("The name of the acl role you want to set"),
-                "acl-update-action": _("You can specify the upate-action for the acl."
+                "acl-update-action": _("You can specify the update-action for the acl."
                     "\n  Possible values are:"
                     "\n    * set-scope      Update the scope of an acl-rule"
                     "\n    * set-members    Set a new list of members for an acl-rule"
                     "\n    * set-priority   Set another priority level for the acl-rule"
                     "\n    * set-action     Set a new action for the acl"
                     "\n    * set-role       Let the acl-rule point to a role"),
-                "roleacl-update-action": _("You can specify the upate-action for the role-acl."
+                "roleacl-update-action": _("You can specify the update-action for the role-acl."
                     "\n  Possible values are:"
                     "\n    * set-scope      Update the scope of an acl-rule"
                     "\n    * set-priority   Set another priority level for the acl-rule"
                     "\n    * set-action     Set a new action for the acl"
                     "\n    * set-role       Let the acl-rule point to a role"),
-                "acl-add-action": _("You can either create acl-rule that contain direkt permissions settings"
+                "acl-add-action": _("You can either create acl-rule that contain direct permissions settings"
                     " or you can use previously defined roles"
                     "\n  Possible values are:"
                     "\n    * with-actions   To directly specify the topic, acls and options this defintions includes"

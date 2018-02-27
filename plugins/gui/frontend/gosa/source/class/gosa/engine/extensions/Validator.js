@@ -17,26 +17,6 @@ qx.Class.define("gosa.engine.extensions.Validator", {
 
   statics : {
     FORM_VALIDATORS : {
-      "userNameNotPrename" : function(widgets, form) {
-        var prenameWidget, userNameWidget;
-        widgets.forEach(function(widget) {
-          var modelPath = widget.getUserData("modelPath");
-          if (modelPath === "person.prename") {
-            prenameWidget = widget;
-          }
-          else if (modelPath === "person.id") {
-            userNameWidget = widget;
-          }
-        });
-
-        qx.core.Assert.assertQxWidget(prenameWidget);
-        qx.core.Assert.assertQxWidget(userNameWidget);
-        var cond = prenameWidget.getValue() !== userNameWidget.getValue();
-        if (!cond) {
-          form.setInvalidMessage(qx.locale.Manager.tr("Prename and user name may not be the same."));
-        }
-        return cond;
-      }
     },
 
     WIDGET_VALIDATORS : {

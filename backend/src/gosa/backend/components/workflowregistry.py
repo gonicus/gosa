@@ -89,9 +89,10 @@ class WorkflowRegistry(Plugin):
             if not user or aclresolver.check(user, topic, "r", base=self.env.base):
                 if locale is not None:
                     t = Workflow.gettext(self.__path, id, locale)
+                    display_name = workflow["display_name"]  # avoid quoted string in t.gettext, because it would be extracted as translatable message
 
                     res[id] = dict(
-                        name=t.gettext(workflow["display_name"]),
+                        name=t.gettext(display_name),
                         description=t.gettext(workflow["description"]),
                         icon=workflow["icon"],
                         category=t.gettext(workflow['category'])
@@ -122,8 +123,9 @@ class WorkflowRegistry(Plugin):
                                             os.path.join(self.__path, id, "i18n"),
                                             fallback=True,
                                             languages=[locale])
+                    display_name = workflow["display_name"]  # avoid quoted string in t.gettext, because it would be extracted as translatable message
                     return dict(
-                        name=t.gettext(workflow["display_name"]),
+                        name=t.gettext(display_name),
                         description=t.gettext(workflow["description"]),
                         icon=workflow["icon"],
                         category=t.gettext(workflow['category'])

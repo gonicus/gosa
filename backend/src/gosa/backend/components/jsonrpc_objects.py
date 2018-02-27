@@ -136,7 +136,7 @@ class JSONRPCObjectMapper(Plugin):
             # to remove this mark now
             self.__gc()
 
-    @Command(needsUser=True, needsSession=True, __help__=N_("Check if an object references is still available"))
+    @Command(needsUser=True, needsSession=True, __help__=N_("Check if an object reference is still available"))
     def checkObjectRef(self, user, session_id, ref):
         """
         Objects which have been opened but not edited for a certain amount of time are automatically closed by the backend.
