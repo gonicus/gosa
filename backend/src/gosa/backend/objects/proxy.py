@@ -112,7 +112,7 @@ class ObjectProxy(object):
     __attribute_change_write_hooks = None
     __read_only = False
 
-    def __init__(self, _id, what=None, user=None, session_id=None, data=None, read_only=False):
+    def __init__(self, _id, what=None, user=None, session_id=None, data=None, read_only=False, skip_value_population=False):
         self.__env = Environment.getInstance()
         self.__log = getLogger(__name__)
         self.__factory = ObjectFactory.getInstance()
@@ -177,7 +177,8 @@ class ObjectProxy(object):
         self.__base = self.__factory.getObject(base, dn_or_base,
                                                mode=base_mode,
                                                data=data[base] if data is not None and base in data else None,
-                                               read_only=self.__read_only)
+                                               read_only=self.__read_only,
+                                               skip_value_population=skip_value_population)
         self.__base._owner = self.__current_user
         self.__base._session_id = self.__current_session_id
         self.__base.parent = self
@@ -187,7 +188,8 @@ class ObjectProxy(object):
             self.__log.debug("loading %s extension for %s" % (extension, dn_or_base))
             self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid,
                                                                     data=data[extension] if data is not None and extension in data else None,
-                                                                    read_only=self.__read_only)
+                                                                    read_only=self.__read_only,
+                                                                    skip_value_population=skip_value_population)
             self.__extensions[extension].dn = self.__base.dn
             self.__extensions[extension].parent = self
             self.__extensions[extension]._owner = self.__current_user

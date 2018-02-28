@@ -990,7 +990,7 @@ class ObjectIndex(Plugin):
                 try:
                     if event.reason == "post object move":
                         self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
-                        obj = ObjectProxy(event.dn)
+                        obj = ObjectProxy(event.dn, skip_value_population=True)
                         self.update(obj, session=session)
                         _dn = obj.dn
                         change_type = "move"
@@ -999,7 +999,7 @@ class ObjectIndex(Plugin):
 
                     if event.reason == "post object create":
                         self.log.debug("creating object index for %s (%s)" % (_uuid, _dn))
-                        obj = ObjectProxy(event.dn)
+                        obj = ObjectProxy(event.dn, skip_value_population=True)
                         self.insert(obj, session=session)
                         _dn = obj.dn
                         change_type = "create"
@@ -1008,7 +1008,7 @@ class ObjectIndex(Plugin):
                         self.log.debug("updating object index for %s (%s)" % (_uuid, _dn))
                         if not event.dn and _dn != "not known yet":
                             event.dn = _dn
-                        obj = ObjectProxy(event.dn)
+                        obj = ObjectProxy(event.dn, skip_value_population=True)
                         self.update(obj, session=session)
                         change_type = "update"
                 except ForemanBackendException as e:

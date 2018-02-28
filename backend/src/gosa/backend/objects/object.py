@@ -149,7 +149,8 @@ class Object(object):
             res[level].append(item)
         return res
 
-    def __init__(self, where=None, mode="update", data=None, force_update=False, read_only=False):
+    def __init__(self, where=None, mode="update", data=None, force_update=False, read_only=False,
+                 skip_value_population=False):
         self.env = Environment.getInstance()
         self._validator = Validator(self)
         self._read_only = read_only
@@ -170,7 +171,11 @@ class Object(object):
         for key in self.myProperties:
 
             # Load dynamic dropdown-values (when not read_only)
-            if self._read_only is False and self.myProperties[key]['values_populate'] and self.myProperties[key]['re_populate_on_update'] is False:
+            if self._read_only is False and \
+                    skip_value_population is False and \
+                    self.myProperties[key]['values_populate'] and \
+                    self.myProperties[key]['re_populate_on_update'] is False:
+
                 cr = PluginRegistry.getInstance('CommandRegistry')
                 values = cr.call(self.myProperties[key]['values_populate'])
                 if type(values).__name__ == "dict":
