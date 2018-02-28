@@ -73,7 +73,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome'],
+    browsers: ['Chrome_headless'],
 
     client: {
       captureConsole: false
@@ -89,6 +89,18 @@ module.exports = function(config) {
         { type: 'html' },
         { type: 'text-summary' }
       ]
+    },
+
+    customLaunchers: {
+      Chrome_headless: {
+        base: 'Chrome',
+        flags: [
+          '--no-sandbox',
+          '--headless',
+          '--disable-gpu',
+          '--remote-debugging-port=9222'
+        ]
+      }
     },
 
     // Continuous Integration mode

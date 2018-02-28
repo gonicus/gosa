@@ -339,7 +339,7 @@ qx.Class.define("gosa.io.Rpc", {
             resolve(qx.bom.Cookie.get("_xsrf"));
           });
           req.addListener("fail", function(e) {
-            reject(e.toString());
+            reject(new Error(e.getData()));
           });
           req.send();
         }, this)
