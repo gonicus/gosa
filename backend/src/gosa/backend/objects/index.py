@@ -952,7 +952,7 @@ class ObjectIndex(Plugin):
                 session.rollback()
                 raise e
 
-    def __handle_events(self, event, retried=False):
+    def __handle_events(self, event, retried=0):
         if GlobalLock.exists("scan_index"):
             return
 
@@ -1012,17 +1012,19 @@ class ObjectIndex(Plugin):
                         self.update(obj, session=session)
                         change_type = "update"
                 except ForemanBackendException as e:
-                    if retried is False and e.response.status_code == 404:
+                    if retried < 3 and e.response.status_code == 404:
                         self.log.info("Foreman object %s (%s) not available yet, retrying to update index in one second"
                                       % (_uuid, _dn))
                         # foreman object might not be ready yet, try again later
                         sobj = PluginRegistry.getInstance("SchedulerService")
+                        retried += 1
                         sobj.getScheduler().add_date_job(self.__handle_events,
-                                                         datetime.datetime.now() + datetime.timedelta(seconds=1),
+                                                         datetime.datetime.now() + datetime.timedelta(seconds=2*retried),
                                                          tag='_internal', jobstore='ram',
                                                          args=(event,),
-                                                         kwargs={"retried": True})
-                    raise e
+                                                         kwargs={"retried": retried})
+                    else:
+                        raise e
 
             # send the event to the clients
             e = EventMaker()
