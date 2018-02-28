@@ -478,7 +478,6 @@ class ACL(object):
 
         self.actions = []
         self.members = []
-        self.lock = RLock()
 
         r = PluginRegistry.getInstance("ACLResolver")
         self.id = r.get_next_acl_id()
@@ -955,6 +954,7 @@ class ACLResolver(Plugin):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.log.debug("initializing ACL resolver")
+        self.lock = RLock()
 
         # Listen for object events
         zope.event.subscribers.append(self.__handle_events)
