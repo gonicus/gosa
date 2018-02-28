@@ -1151,6 +1151,7 @@ class ACLResolverTestCase(TestCase):
             m_index.return_value.search.side_effect = [[
                 {'dn': 'name=tester,ou=aclroles,dc=example,dc=net'}
             ],
-                []  # no ACLSets
+            [],  # no ACLSets
+            []  # no ACLSets
             ]
             self.resolver.load_from_object_database()
