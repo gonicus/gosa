@@ -1208,7 +1208,7 @@ class ACLResolver(Plugin):
 
             # Try to load the object to read the AclSets parameter from it.
             try:
-                o = ObjectProxy(entry_dn)
+                o = ObjectProxy(entry_dn, read_only=True)
             except:
                 self.log.warning("failed to load acl information for '%s'" % entry_dn)
                 continue
