@@ -65,6 +65,7 @@ import re
 import ldap
 import logging
 import zope.event
+from multiprocessing import RLock
 
 from zope.interface import implementer
 
@@ -477,6 +478,7 @@ class ACL(object):
 
         self.actions = []
         self.members = []
+        self.lock = RLock()
 
         r = PluginRegistry.getInstance("ACLResolver")
         self.id = r.get_next_acl_id()
@@ -1006,17 +1008,18 @@ class ACLResolver(Plugin):
         """
         Load acls definitions from backend
         """
-        self.clear()
+        with self.lock:
+            self.clear()
 
-        # Load override admins from configuration
-        admins = self.env.config.get("backend.admins", default=None)
-        if admins:
-            admins = re.sub(r'\s', '', admins)
-            self.log.warning("adding users to the ACL override: %s" % admins)
-            self.admins = admins.split(",")
+            # Load override admins from configuration
+            admins = self.env.config.get("backend.admins", default=None)
+            if admins:
+                admins = re.sub(r'\s', '', admins)
+                self.log.warning("adding users to the ACL override: %s" % admins)
+                self.admins = admins.split(",")
 
-        # Load Acls from the object DB
-        self.load_from_object_database()
+            # Load Acls from the object DB
+            self.load_from_object_database()
 
     @Command(__help__=N_("Checks if user has admin rights"))
     def isAdmin(self, user):
@@ -1140,7 +1143,7 @@ class ACLResolver(Plugin):
 
             # Try to open the object
             try:
-                o = ObjectProxy(entry_dn)
+                o = ObjectProxy(entry_dn, read_only=True)
             except:
                 self.log.warning("failed to load acl-role information for '%s'" % entry_dn)
                 continue
@@ -1326,72 +1329,72 @@ class ACLResolver(Plugin):
             >>> self.resolver.check('user1','org.gosa.factory','rwx', 'dc=example,dc=net')
 
         """
+        with self.lock:
+            # Admin users are allowed to do anything.
+            if skip_admin_override is False:
+                if user is None or self.isAdmin(user):
+                    self.log.debug("ACL check override active for %s/%s/%s" % (user, base, str(topic)))
+                    return True
 
-        # Admin users are allowed to do anything.
-        if skip_admin_override is False:
-            if user is None or self.isAdmin(user):
-                self.log.debug("ACL check override active for %s/%s/%s" % (user, base, str(topic)))
-                return True
+            # Load default base if needed
+            if not base:
+                base = self.base
 
-        # Load default base if needed
-        if not base:
-            base = self.base
+            # Collect all acls matching the where statement
+            allowed = False
+            reset = False
 
-        # Collect all acls matching the where statement
-        allowed = False
-        reset = False
+            self.log.debug("checking ACL for %s/%s/%s" % (user, base, str(topic)))
 
-        self.log.debug("checking ACL for %s/%s/%s" % (user, base, str(topic)))
+            # Remove the first part of the dn, until we reach the ldap base.
+            orig_loc = base
+            while self.base in base and len(base):
 
-        # Remove the first part of the dn, until we reach the ldap base.
-        orig_loc = base
-        while self.base in base and len(base):
-
-            # Check acls for each acl set.
-            if not self.acl_sets:
-                base = ','.join(ldap.dn.explode_dn(base)[1::])
-                continue
-
-            for acl_set in self.acl_sets:
-
-                # Skip acls that do not match the current ldap base.
-                if base != acl_set.base:
+                # Check acls for each acl set.
+                if not self.acl_sets:
+                    base = ','.join(ldap.dn.explode_dn(base)[1::])
                     continue
 
-                # Check ACls
-                for acl in acl_set:
+                for acl_set in self.acl_sets:
 
-                    (match, scope) = acl.match(user, topic, acls, orig_loc, options)
-                    if match:
+                    # Skip acls that do not match the current ldap base.
+                    if base != acl_set.base:
+                        continue
 
-                        self.log.debug("found matching ACL in '%s'" % base)
-                        if scope == ACL.RESET:
-                            self.log.debug("found ACL reset for topic '%s'" % topic)
-                            reset = True
-                        else:
+                    # Check ACls
+                    for acl in acl_set:
 
-                            if scope == ACL.PSUB:
-                                self.log.debug("found permanent ACL for topic '%s'" % topic)
-                                return True
+                        (match, scope) = acl.match(user, topic, acls, orig_loc, options)
+                        if match:
 
-                            elif scope == ACL.SUB:
-                                if not reset:
-                                    self.log.debug("found ACL for topic '%s' (SUB)" % topic)
+                            self.log.debug("found matching ACL in '%s'" % base)
+                            if scope == ACL.RESET:
+                                self.log.debug("found ACL reset for topic '%s'" % topic)
+                                reset = True
+                            else:
+
+                                if scope == ACL.PSUB:
+                                    self.log.debug("found permanent ACL for topic '%s'" % topic)
                                     return True
-                                else:
-                                    self.log.debug("ACL DO NOT match due to reset. (SUB)")
 
-                            elif scope == ACL.ONE and orig_loc == acl_set.base:
-                                if not reset:
-                                    self.log.debug("found ACL for topic '%s' (ONE)" % topic)
-                                    return True
-                                else:
-                                    self.log.debug("ACL DO NOT match due to reset. (ONE)")
+                                elif scope == ACL.SUB:
+                                    if not reset:
+                                        self.log.debug("found ACL for topic '%s' (SUB)" % topic)
+                                        return True
+                                    else:
+                                        self.log.debug("ACL DO NOT match due to reset. (SUB)")
 
-            # Remove the first part of the dn
-            base = ','.join([d for d in ldap.dn.explode_dn(base.encode('utf-8'), flags=ldap.DN_FORMAT_LDAPV3)[1::]])
+                                elif scope == ACL.ONE and orig_loc == acl_set.base:
+                                    if not reset:
+                                        self.log.debug("found ACL for topic '%s' (ONE)" % topic)
+                                        return True
+                                    else:
+                                        self.log.debug("ACL DO NOT match due to reset. (ONE)")
 
-        return allowed
+                # Remove the first part of the dn
+                base = ','.join([d for d in ldap.dn.explode_dn(base.encode('utf-8'), flags=ldap.DN_FORMAT_LDAPV3)[1::]])
+
+            return allowed
 
     def list_acls(self):
         """
