@@ -30,7 +30,7 @@ common_install_requires = [
     'polib',
     'cryptography',
     'colorlog',
-    'dnspython3',
+    'dnspython',
     'pycrypto'
     ],
 
