@@ -560,12 +560,14 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _onOk : function() {
+      this._okButton.setEnabled(false);
       this.getController().saveObject()
       .then(this._close, this)
       .catch(function(exc) {
+        this._okButton.setEnabled(true);
         throw exc;
         // do nothing as the error has already been handled
-      });
+      }, this);
     },
 
     _onCancel : function() {
