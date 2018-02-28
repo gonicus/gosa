@@ -27,6 +27,7 @@ from urllib.parse import urlparse
 import ldap
 import sqlalchemy
 from lxml.builder import ElementMaker
+from multiprocessing import RLock
 from passlib.hash import bcrypt
 from requests import HTTPError
 from sqlalchemy.dialects import postgresql
@@ -277,6 +278,7 @@ class ObjectIndex(Plugin):
 
         # Listen for object events
         zope.event.subscribers.append(self.__handle_events)
+        self.lock = RLock()
 
     def serve(self):
         # Configure database for the index
@@ -1082,7 +1084,8 @@ class ObjectIndex(Plugin):
         if uuid:
             raise IndexException(C.make_error('OBJECT_EXISTS', "base", uuid=obj.uuid))
 
-        self.__save(obj.asJSON(True), session=session)
+        with self.lock:
+            self.__save(obj.asJSON(True), session=session)
 
     def __save(self, data, session=None):
         if self.env.mode == "proxy":
@@ -1256,8 +1259,9 @@ class ObjectIndex(Plugin):
         old_dn = old_dn[0]
 
         # Remove old entry and insert new
-        self.remove_by_uuid(obj.uuid, session=session)
-        self.__save(current, session=session)
+        with self.lock:
+            self.remove_by_uuid(obj.uuid, session=session)
+            self.__save(current, session=session)
 
         # Has the entry been moved?
         if current['dn'] != old_dn:
