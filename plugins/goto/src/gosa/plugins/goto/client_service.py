@@ -15,7 +15,7 @@ from copy import copy
 
 import ldap
 import zope
-from ldap import str2dn, dn2str
+from ldap.dn import str2dn, dn2str
 
 from gosa.backend.lock import GlobalLock
 from gosa.backend.objects import ObjectProxy
