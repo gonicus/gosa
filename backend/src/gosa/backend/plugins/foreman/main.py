@@ -735,6 +735,9 @@ class Foreman(Plugin):
             # While the client is going to be joined, generate a random uuid and an encoded join key
             if device.deviceUUID is None:
                 update['deviceUUID'] = str(uuid.uuid4())
+                device_uuid = update['deviceUUID']
+            else:
+                device_uuid = device.deviceUUID
 
             # update['status'] = 'pending'
             update['status_InstallationInProgress'] = True
@@ -748,7 +751,7 @@ class Foreman(Plugin):
 
             # make sure the client has the access rights he needs
             client_service = PluginRegistry.getInstance("ClientService")
-            client_service.applyClientRights(update['deviceUUID'] if device.deviceUUID is None else device.deviceUUID)
+            client_service.applyClientRights(device_uuid)
 
             if delay_update is True:
                 # process the update when the current dirty object has been processed
@@ -757,7 +760,7 @@ class Foreman(Plugin):
                 device.apply_update(update)
                 device.commit()
             self.mark_for_parameter_setting(hostname, {"status": "added"})
-            return "%s|%s" % (key, update['deviceUUID'])
+            return "%s|%s" % (key, device_uuid)
 
         finally:
             ForemanBackend.modifier = None
