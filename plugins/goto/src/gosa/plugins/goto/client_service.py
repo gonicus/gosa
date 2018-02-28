@@ -316,12 +316,12 @@ class ClientService(Plugin):
             # nothing to rotate, take the stored one
             return user.destinationIndicator
 
-        client = self.__open_device(client_id)
+        client = self.__open_device(client_id, read_only=True)
         parent_dn = client.get_adjusted_parent_dn()
         res = index.search({'_type': 'Device', 'extension': 'GoServer', 'cn': cn_query, '_adjusted_parent_dn': parent_dn}, {'dn': 1})
 
         while len(res) == 0 and len(parent_dn) > len(self.env.base):
-            parent_dn = ObjectProxy.get_adjusted_dn(parent_dn, self.env.base)
+            parent_dn = ObjectProxy.get_adjusted_dn(parent_dn, self.env.base, property='_adjusted_parent_dn')
             res = index.search({'_type': 'Device', 'cn': cn_query, '_adjusted_parent_dn': parent_dn}, {'dn': 1})
 
         if len(res) > 0:

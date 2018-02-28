@@ -564,7 +564,7 @@ class ObjectProxy(object):
         return ObjectProxy.get_adjusted_dn(self.get_parent_dn(dn), self.__env.base)
 
     @classmethod
-    def get_adjusted_dn(cls, dn, base):
+    def get_adjusted_dn(cls, dn, base, property='dn'):
         index = PluginRegistry.getInstance("ObjectIndex")
         factory = ObjectFactory.getInstance()
         tdn = []
@@ -578,7 +578,7 @@ class ObjectProxy(object):
                 break
 
             # Fetch object type for pdn
-            res = index.search({"dn": pdn}, {'_type': 1})
+            res = index.search({property: pdn}, {'_type': 1})
             if len(res) == 0:
                 raise Exception("no type found for DN: %s" % pdn)
             ptype = res[0]['_type']
