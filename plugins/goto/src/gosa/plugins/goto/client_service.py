@@ -13,7 +13,9 @@ import logging
 from uuid import uuid4
 from copy import copy
 
+import ldap
 import zope
+from ldap import str2dn, dn2str
 
 from gosa.backend.lock import GlobalLock
 from gosa.backend.objects import ObjectProxy
@@ -321,7 +323,7 @@ class ClientService(Plugin):
         res = index.search({'_type': 'Device', 'extension': 'GoServer', 'cn': cn_query, '_adjusted_parent_dn': parent_dn}, {'dn': 1})
 
         while len(res) == 0 and len(parent_dn) > len(self.env.base):
-            parent_dn = ObjectProxy.get_adjusted_dn(parent_dn, self.env.base, property='_adjusted_parent_dn')
+            parent_dn = dn2str(str2dn(parent_dn, flags=ldap.DN_FORMAT_LDAPV3)[1:])
             res = index.search({'_type': 'Device', 'cn': cn_query, '_adjusted_parent_dn': parent_dn}, {'dn': 1})
 
         if len(res) > 0:
