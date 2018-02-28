@@ -308,7 +308,6 @@ class ForemanIntegrationTestCase(RemoteTestCase):
         assert d_host.status != "discovered"
         assert d_host.name == "Testhost"
         assert d_host.hostgroup_id == "4"
-        print(d_host.get_extension_types())
         assert d_host.is_extended_by("RegisteredDevice") is True
         assert len(d_host.userPassword[0]) > 0
         assert d_host.deviceUUID is not None
