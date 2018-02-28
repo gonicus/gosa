@@ -56,7 +56,7 @@ for module in modules:
 for root, dirs, files in os.walk("plugins"):
     if "setup.py" in files:
         plugin = root.split(os.path.sep)[-1:][0]
-        if testing and plugin in skip_tests:
+        if testing and (plugin in skip_tests or not os.path.exists(os.path.join(root, "src", "tests"))):
             continue
         plugin_return_code = os.system("cd %s && ./setup.py %s" % (root, " ".join(sys.argv[1:])))
         paths.append("%s/" % root)
