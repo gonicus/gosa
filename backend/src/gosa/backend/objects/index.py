@@ -1012,17 +1012,10 @@ class ObjectIndex(Plugin):
                         self.update(obj, session=session)
                         change_type = "update"
                 except ForemanBackendException as e:
-                    if retried < 3 and e.response.status_code == 404:
-                        self.log.info("Foreman object %s (%s) not available yet, retrying to update index in one second"
+                    if e.response.status_code == 404:
+                        self.log.info("Foreman object %s (%s) not available yet, skipping index update."
                                       % (_uuid, _dn))
-                        # foreman object might not be ready yet, try again later
-                        sobj = PluginRegistry.getInstance("SchedulerService")
-                        retried += 1
-                        sobj.getScheduler().add_date_job(self.__handle_events,
-                                                         datetime.datetime.now() + datetime.timedelta(seconds=2*retried),
-                                                         tag='_internal', jobstore='ram',
-                                                         args=(event,),
-                                                         kwargs={"retried": retried})
+                        # do nothing else as foreman will send some kind of event, when the object becomes available
                     else:
                         raise e
 
