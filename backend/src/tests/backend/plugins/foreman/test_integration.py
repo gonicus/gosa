@@ -15,6 +15,7 @@ import os
 import pytest
 from unittest import TestCase, mock
 
+import time
 from sqlalchemy import and_
 from tornado.testing import AsyncHTTPTestCase, AsyncTestCase
 from tornado.web import Application, HTTPError
@@ -266,6 +267,7 @@ class ForemanIntegrationTestCase(RemoteTestCase):
             }
             response = AsyncHTTPTestCase.fetch(myself, "/hooks/", method="POST", headers=headers, body=payload)
             assert response.code == 200
+            assert len(response.body.decode('utf-8').split('|')) == 2
 
             # send update
             payload = bytes(dumps({
@@ -297,6 +299,7 @@ class ForemanIntegrationTestCase(RemoteTestCase):
         d_host.cn = "Testhost"
         d_host.groupMembership = hostgroup.dn
         d_host.commit()
+        time.sleep(1)
 
         logging.getLogger("test.foreman-integration").info("########### END: Add Host to group #############")
 
@@ -305,6 +308,7 @@ class ForemanIntegrationTestCase(RemoteTestCase):
         assert d_host.status != "discovered"
         assert d_host.name == "Testhost"
         assert d_host.hostgroup_id == "4"
+        print(d_host.get_extension_types())
         assert d_host.is_extended_by("RegisteredDevice") is True
         assert len(d_host.userPassword[0]) > 0
         assert d_host.deviceUUID is not None
