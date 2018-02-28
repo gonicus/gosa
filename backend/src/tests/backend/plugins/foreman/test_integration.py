@@ -299,7 +299,7 @@ class ForemanIntegrationTestCase(RemoteTestCase):
         d_host.cn = "Testhost"
         d_host.groupMembership = hostgroup.dn
         d_host.commit()
-        time.sleep(1)
+        time.sleep(5)
 
         logging.getLogger("test.foreman-integration").info("########### END: Add Host to group #############")
 
