@@ -67,28 +67,6 @@ qx.Class.define("gosa.test.engine.extensions.ValidatorTest",
       val += "a";
       widget.setValue(val);
       this._shouldNotValidate(form);
-    },
-
-    testValidatorUserNameNotPrename : function() {
-      var form = new qx.ui.form.Form();
-
-      var userNameWidget = new qx.ui.form.TextField();
-      userNameWidget.setUserData("modelPath", "person.prename");
-
-      var prenameWidget = new qx.ui.form.TextField();
-      prenameWidget.setUserData("modelPath", "person.id");
-
-      form.add(userNameWidget, "foo");
-      form.add(prenameWidget, "bar");
-
-      this.__extension.process("userNameNotPrename", form);
-
-      prenameWidget.setValue("aaaaaa");
-      userNameWidget.setValue("bbbbbb");
-      this._shouldValidate(form);
-
-      userNameWidget.setValue("aaaaaa");
-      this._shouldNotValidate(form);
     }
   }
 });
