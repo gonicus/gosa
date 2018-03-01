@@ -216,7 +216,7 @@ class ObjectProxy(object):
             self.__all_method_names = self.__all_method_names + self.__factory.getObjectMethods(obj)
 
         # Generate method mapping
-        for obj in [base] + extensions:
+        for obj in [base] + [x for x in extensions if self.__extensions[x] is not None]:
             for method in object_types[obj]['methods']:
                 if obj == self.__base.__class__.__name__:
                     self.__method_map[method] = getattr(self.__base, method)
