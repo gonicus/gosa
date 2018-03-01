@@ -112,7 +112,8 @@ class ObjectProxy(object):
     __attribute_change_write_hooks = None
     __read_only = False
 
-    def __init__(self, _id, what=None, user=None, session_id=None, data=None, read_only=False, skip_value_population=False):
+    def __init__(self, _id, what=None, user=None, session_id=None,
+                 data=None, read_only=False, skip_value_population=False, open_mode=None):
         self.__env = Environment.getInstance()
         self.__log = getLogger(__name__)
         self.__factory = ObjectFactory.getInstance()
@@ -136,6 +137,7 @@ class ObjectProxy(object):
         self.__attribute_change_hooks = {}
         # hooks that are triggered when the attribute change is committed
         self.__attribute_change_write_hooks = {}
+        self.__open_mode = open_mode
 
         # Do we have a uuid when opening?
         dn_or_base = _id
@@ -186,15 +188,22 @@ class ObjectProxy(object):
         self.__base_mode = base_mode
         for extension in extensions:
             self.__log.debug("loading %s extension for %s" % (extension, dn_or_base))
-            self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid,
-                                                                    data=data[extension] if data is not None and extension in data else None,
-                                                                    read_only=self.__read_only,
-                                                                    skip_value_population=skip_value_population)
-            self.__extensions[extension].dn = self.__base.dn
-            self.__extensions[extension].parent = self
-            self.__extensions[extension]._owner = self.__current_user
-            self.__extensions[extension]._session_id = self.__current_session_id
-            self.__initial_extension_state[extension] = {"active": True, "allowed": True}
+            try:
+                self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid,
+                                                                        data=data[extension] if data is not None and extension in data else None,
+                                                                        read_only=self.__read_only,
+                                                                        skip_value_population=skip_value_population)
+                self.__extensions[extension].dn = self.__base.dn
+                self.__extensions[extension].parent = self
+                self.__extensions[extension]._owner = self.__current_user
+                self.__extensions[extension]._session_id = self.__current_session_id
+                self.__initial_extension_state[extension] = {"active": True, "allowed": True}
+            except Exception as e:
+                if open_mode == "delete" and hasattr(e, "status_code") and e.status_code == 404:
+                    self.__initial_extension_state[extension] = {"active": False, "allowed": True, "deleted": True}
+                else:
+                    raise e
+
         for extension in all_extensions:
             if extension not in self.__extensions:
                 self.__extensions[extension] = None

@@ -210,7 +210,7 @@ class Foreman(Plugin):
         res = index.search(query, {'dn': 1})
 
         for entry in res:
-            foreman_object = ObjectProxy(entry['dn'])
+            foreman_object = ObjectProxy(entry['dn'], open_mode="delete")
             self.log.debug("removing %s '%s'" % (base_type, foreman_object.dn))
             foreman_object.remove()
 
