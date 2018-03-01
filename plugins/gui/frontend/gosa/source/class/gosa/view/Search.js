@@ -549,7 +549,6 @@ qx.Class.define("gosa.view.Search", {
             "year": { name: this.tr("Last year"), count: modifiedCounters.year }
         }, this.__selection['mod-time']);
       }
-      console.log(this.resultList.getPane().getRowConfig().getItemCount())
       this.__updateResultInfo(this.resultList.getPane().getRowConfig().getItemCount());
     },
 
