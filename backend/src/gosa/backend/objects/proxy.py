@@ -111,6 +111,7 @@ class ObjectProxy(object):
     __attribute_change_hooks = None
     __attribute_change_write_hooks = None
     __read_only = False
+    __open_mode = None
 
     def __init__(self, _id, what=None, user=None, session_id=None,
                  data=None, read_only=False, skip_value_population=False, open_mode=None):
