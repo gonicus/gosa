@@ -83,7 +83,7 @@ class SyncReplClient(Plugin):
 
     def __handle_events(self, event):
         """
-        Start own synchronozation after GOsa's main index refresh is done and the system is ready to process
+        Start own synchronization after GOsa's main index refresh is done and the system is ready to process
         new changes.
         """
         if event.__class__.__name__ == "IndexScanFinished":
