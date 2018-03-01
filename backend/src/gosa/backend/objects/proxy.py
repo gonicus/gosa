@@ -201,6 +201,7 @@ class ObjectProxy(object):
                 self.__initial_extension_state[extension] = {"active": True, "allowed": True}
             except Exception as e:
                 if open_mode == "delete" and hasattr(e, "response") and getattr(e, "response").status_code == 404:
+                    self.__extensions[extension] = None
                     self.__initial_extension_state[extension] = {"active": False, "allowed": True, "deleted": True}
                 else:
                     raise e
