@@ -605,6 +605,11 @@ class ClientService(Plugin):
     def preUserSession(self, client_id, user_name, skip_config=False):
         sobj = PluginRegistry.getInstance("SchedulerService")
         # delay changes, send configuration first
+        if client_id not in self.__user_session:
+            self.__user_session[client_id] = [user_name]
+        elif user_name not in self.__user_session[client_id]:
+            self.__user_session[client_id].append(user_name)
+
         if self.env.mode == "proxy":
             # answer config locally and proceed the write-part of the call to the GOsa backend
             if self.__current_backend_rpc is None or self.__current_backend_rpc.done() is True:
@@ -898,6 +903,8 @@ class ClientService(Plugin):
         """
         if client_id in self.__user_session:
             self.configureUsers(client_id, self.__user_session[client_id])
+        else:
+            self.log.debug("no active user found for client %s" % client_id)
 
     def configureHostPrinters(self, client_id, config):
         """ configure the printers for this client via dbus. """
