@@ -144,6 +144,9 @@ qx.Class.define("gosa.Application",
 
       // Base settings
       var locale = gosa.Tools.getLocale();
+      if (!qx.io.PartLoader.getInstance().hasPart(locale) && locale.includes('-')) {
+        locale = locale.split('-')[0];
+      }
       qx.io.PartLoader.require([locale], function() {
         // Open the loading dialog which shows the loading status.
         var loadingDialog = new gosa.ui.dialogs.Loading();
