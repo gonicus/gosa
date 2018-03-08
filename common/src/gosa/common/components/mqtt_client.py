@@ -16,7 +16,7 @@ from gosa.common.gjson import loads, dumps
 from tornado.queues import Queue, QueueEmpty
 from tornado import gen
 from gosa.common import Environment
-from gosa.common.components import JSONRPCException
+from gosa.common.components import JSONRPCException, PluginRegistry
 from gosa.common import BusClientAvailability
 from gosa.common.utils import find_bus_service
 
@@ -137,7 +137,7 @@ class MQTTClient(object):
         self.__sender_id = uuid
         self.client.username_pw_set(uuid, secret)
 
-    def connect(self, uuid=None, secret=None):
+    def connect(self, uuid=None, secret=None, retry=0):
         """
         Connect to the MQTT broker
         :param uuid: username (optional)
@@ -145,9 +145,19 @@ class MQTTClient(object):
         """
         if uuid is not None:
             self.authenticate(uuid, secret)
-        self.client.connect(self.host, port=self.port, keepalive=self.keepalive)
-        self.client.loop_start()
-        self.env.threads.append(self.client.get_thread())
+        try:
+            self.log.debug("trying to connect to mqtt broker...")
+            self.client.connect(self.host, port=self.port, keepalive=self.keepalive)
+            self.client.loop_start()
+            self.env.threads.append(self.client.get_thread())
+        except OSError as e:
+            self.log.error("error connecting to mqtt broker: %s" % str(e))
+            # network not reachable try again later
+            sobj = PluginRegistry.getInstance("SchedulerService")
+            sobj.getScheduler().add_date_job(self.connect,
+                                             datetime.datetime.now() + datetime.timedelta(seconds=max(60, ((retry+1)*10))),
+                                             kwargs={"uuid": uuid, "secret": secret, "retry": retry+1},
+                                             tag='_internal', jobstore='ram')
 
     def switch_to_host(self, host=None, port=None, blacklist_current=False):
         """
@@ -169,6 +179,9 @@ class MQTTClient(object):
             if broker_host is not None:
                 host = broker_host
                 port = broker_port
+            else:
+                # no host found we could connect to
+                return
 
         if host != self.host:
             self.log.info("switching MQTT connection from '%s' to '%s'" % (self.host, host))

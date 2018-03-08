@@ -34,5 +34,5 @@ class SchedulerService(object):
     def stop(self):
         self.sched.shutdown()
 
-    def get_scheduler(self):
+    def getScheduler(self):
         return self.sched

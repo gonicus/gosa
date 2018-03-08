@@ -71,6 +71,7 @@ class MQTTClientService(object):
     time_obj = None
     time_int = 3
     client = None
+    __last_announce = None
 
     def __init__(self):
         env = Environment.getInstance()
@@ -102,16 +103,26 @@ class MQTTClientService(object):
         """ Start MQTT service for this gosa service provider. """
         # Load MQTT and Command registry instances
         self.client = PluginRegistry.getInstance('MQTTClientHandler')
+        self.client.get_client().add_connection_listener(self._on_connection_change)
         self.__cr = PluginRegistry.getInstance('ClientCommandRegistry')
 
         self.client.set_subscription_callback(self._handle_message)
 
-        self.__announce(True)
+    def _on_connection_change(self, connected):
+        if connected is True:
+            if self.__last_announce is None or self.__last_announce < (datetime.datetime.now() - datetime.timedelta(minutes=5)):
+                self.__announce(send_client_announce=True, send_user_session=True)
 
-        # Send a ping on a regular base
-        timeout = float(self.env.config.get('client.ping-interval', default=600))
-        sched = PluginRegistry.getInstance("SchedulerService").get_scheduler()
-        sched.add_interval_job(self.__ping, seconds=timeout, start_date=datetime.datetime.now() + datetime.timedelta(seconds=1))
+            # Send a ping on a regular base
+            if self._ping_job is None:
+                timeout = float(self.env.config.get('client.ping-interval', default=600))
+                sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
+                self._ping_job = sched.add_interval_job(self.__ping, seconds=timeout, start_date=datetime.datetime.now() + datetime.timedelta(seconds=1))
+        else:
+            if self._ping_job is not None:
+                sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
+                sched.unschedule_job(self._ping_job)
+                self._ping_job = None
 
     def stop(self):
         self.client.send_event(self.goodbye, qos=1)
@@ -142,7 +153,7 @@ class MQTTClientService(object):
         """
         Re-announces the client signatures
         """
-        self.__announce(False)
+        self.__announce(send_client_announce=False, send_user_session=False)
 
     def commandReceived(self, topic, message):
         """
@@ -209,17 +220,18 @@ class MQTTClientService(object):
         delay = random.randint(0, 30)
         self.log.debug("received client poll - will answer in %d seconds" % delay)
         time.sleep(delay)
-        self.__announce(True)
+        self.__announce(send_client_announce=True, send_user_session=True)
 
         # Send a resume to all registered plugins
         zope.event.notify(Resume())
 
-    def __announce(self, initial=False):
+    def __announce(self, send_client_announce=False, send_user_session=True):
         e = EventMaker()
 
         # Assemble network information
         more = []
         netinfo = []
+        self.__last_announce = datetime.datetime.now()
         for interface in netifaces.interfaces():
             i_info = netifaces.ifaddresses(interface)
 
@@ -252,7 +264,7 @@ class MQTTClientService(object):
         more.append(e.NetworkInformation(*netinfo))
 
         # Build event
-        if initial:
+        if send_client_announce is True:
             info = e.Event(
                 e.ClientAnnounce(
                     e.Id(self.env.uuid),
@@ -281,7 +293,7 @@ class MQTTClientService(object):
 
         self.client.send_event(info, qos=1)
 
-        if not initial:
+        if send_user_session is True:
             try:
                 sk = PluginRegistry.getInstance('SessionKeeper')
                 sk.sendSessionNotification()

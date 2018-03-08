@@ -182,16 +182,20 @@ def netactivity(online):
         netstate = False
 
         # Function to shut down the client. Do some clean up and close sockets.
-        mqtt = PluginRegistry.getInstance("MQTTClientHandler")
+        try:
+            mqtt = PluginRegistry.getInstance("MQTTClientHandler")
 
-        # Tell others that we're away now
-        e = EventMaker()
-        goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
-        if mqtt:
-            mqtt.send_event(goodbye, qos=1)
+            # Tell others that we're away now
+            e = EventMaker()
+            goodbye = e.Event(e.ClientLeave(e.Id(env.uuid)))
+            if mqtt:
+                mqtt.send_event(goodbye, qos=1)
 
-        env.reset_requested = True
-        env.active = False
+        except ValueError:
+            pass
+        finally:
+            env.reset_requested = True
+            env.active = False
 
 
 def main():

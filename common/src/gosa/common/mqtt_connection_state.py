@@ -43,7 +43,7 @@ class MQTTConnectionHandler(MQTTHandler):
         But the clients also use this handler to be informed about active proxies/backends.
 
     """
-    _priority_ = 0
+    _priority_ = 1
     __active_connections = {}
     __hostname = None
 

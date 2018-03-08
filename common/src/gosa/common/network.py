@@ -90,14 +90,15 @@ class Monitor(object):
             self.__callback(False)
 
     def __network_state(self, state):
-        if not self.__state and (state in [NM_STATE_CONNECTED_SITE, NM_STATE_CONNECTED_GLOBAL]):
-            self.log.info("network up")
-            self.__state = True
+        if state in [NM_STATE_CONNECTED_SITE, NM_STATE_CONNECTED_GLOBAL]:
+            if self.__state is False:
+                self.log.info("network up")
+                self.__state = True
 
-            if self.__callback:
-                self.__callback(True)
+                if self.__callback:
+                    self.__callback(True)
 
-        elif self.__state:
+        elif self.__state is True:
             self.log.info("network down")
             self.__state = False
 
