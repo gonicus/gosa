@@ -328,8 +328,8 @@ def _find_service(what):
         except dns.resolver.NXDOMAIN:
             pass
 
-    # Sort by priority
-    sorted(res, key=lambda entry: entry[1])
+    # Sort by priority (highest first)
+    res = sorted(res, key=lambda x: x[1], reverse=True)
     return [(entry[2], entry[3]) for entry in res]
 
 

@@ -290,8 +290,15 @@ class CommonUtilsTestCase(unittest.TestCase):
                 self.target = t
                 self.port = p
 
-        with unittest.mock.patch("gosa.common.utils.dns.resolver.query", return_value=[Result(100, 50, "localhost_", 8080)]) as m_query:
-            assert find_bus_service() == [("localhost", 8080)]
+        result = [
+            Result(100, 50, "localhost_", 8080),
+            Result(100, 10, "localhost1_", 8080)
+        ]
+        with unittest.mock.patch("gosa.common.utils.dns.resolver.query", return_value=result) as m_query:
+            assert find_bus_service()[0] == ("localhost", 8080)
+
+            m_query.return_value = [Result(100, 10, "localhost1_", 8080), Result(100, 50, "localhost_", 8080)]
+            assert find_bus_service()[0] == ("localhost", 8080)
 
             m_query.side_effect = dns.resolver.NXDOMAIN
             with unittest.mock.patch("gosa.common.utils.socket.getfqdn", return_value="invalid-domain"):
