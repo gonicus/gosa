@@ -740,9 +740,6 @@ class Foreman(Plugin):
             else:
                 device_uuid = device.deviceUUID
 
-            # update['status'] = 'pending'
-            update['status_InstallationInProgress'] = True
-
             update['userPassword'] = device.userPassword
             if update['userPassword'] is None:
                 update['userPassword'] = []
@@ -1057,8 +1054,6 @@ class ForemanHookReceiver(object):
 
             if foreman_type == "host":
                 old_build_state = foreman_object.build
-                if payload_data['build'] != "false":
-                    update['status_InstallationInProgress'] = False
 
             foreman.update_type(object_type,
                                 foreman_object,
