@@ -329,6 +329,7 @@ class ObjectProxy(object):
         for name, value in update.items():
             ext = self.get_extension_off_attribute(name)
             if ext != self.__base.get_type() and not self.is_extended_by(ext):
+                self.log.debug("extending with %s for attribute %s" % (ext, name))
                 self.extend(ext)
             setattr(self, name, value)
 
