@@ -20,6 +20,7 @@ import socket
 from sqlalchemy import and_
 from tornado import gen
 
+from gosa.backend.plugins.foreman.filter import FM_STATUS_BUILD_PENDING
 from gosa.backend.components.httpd import get_server_url
 from gosa.backend.lock import GlobalLock
 from gosa.backend.objects import ObjectProxy, ObjectFactory
@@ -907,7 +908,10 @@ class ForemanHookReceiver(object):
 
     def handle_request(self, request_handler):
         data = loads(request_handler.request.body)
-        self._handle_data(data)
+        try:
+            self._handle_data(data)
+        except Exception as e:
+            self.log.error("Error during webhook processing: %s" % str(e))
 
     def _handle_data(self, data):
         foreman = PluginRegistry.getInstance("Foreman")
@@ -1053,6 +1057,8 @@ class ForemanHookReceiver(object):
 
             if foreman_type == "host":
                 old_build_state = foreman_object.build
+                if payload_data['build_status'] != FM_STATUS_BUILD_PENDING:
+                    update['status_InstallationInProgress'] = False
 
             foreman.update_type(object_type,
                                 foreman_object,
