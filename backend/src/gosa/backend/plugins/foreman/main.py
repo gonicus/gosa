@@ -1057,7 +1057,7 @@ class ForemanHookReceiver(object):
 
             if foreman_type == "host":
                 old_build_state = foreman_object.build
-                if payload_data['build_status'] != FM_STATUS_BUILD_PENDING:
+                if payload_data['build'] != "false":
                     update['status_InstallationInProgress'] = False
 
             foreman.update_type(object_type,
