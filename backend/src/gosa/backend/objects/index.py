@@ -671,10 +671,13 @@ class ObjectIndex(Plugin):
                     self.remove_by_uuid(_uuid, session=session)
                 else:
                     obj = self._get_object(dn)
-                    if not obj:
-                        return
-
-                    self.remove(obj)
+                    if obj is None:
+                        # lets see if we can find a UUID for the deleted DN
+                        uuid = session.query(ObjectInfoIndex.uuid).filter(func.lower(ObjectInfoIndex.dn) == func.lower(dn)).one_or_none()
+                        if uuid is not None:
+                            self.remove_by_uuid(uuid)
+                    else:
+                        self.remove(obj)
 
             # Move
             if change_type in ['modrdn', 'moddn']:
@@ -756,7 +759,7 @@ class ObjectIndex(Plugin):
         try:
             obj = ObjectProxy(dn)
 
-        except ProxyException as e:
+        except (ProxyException, ldap.NO_SUCH_OBJECT) as e:
             self.log.warning("not found %s: %s" % (dn, str(e)))
             obj = None
 
