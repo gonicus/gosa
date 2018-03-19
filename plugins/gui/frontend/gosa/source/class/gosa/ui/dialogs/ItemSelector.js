@@ -103,7 +103,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
       if (this.hasChildControl("base-selector")) {
         var selectedParentDn = gosa.ui.widgets.Widget.getSingleValue(this.getChildControl("base-selector").getValue());
         if (selectedParentDn) {
-          this._searchArgs.options.filter[this._selectorOptions.filters.base.use] = "%,"+selectedParentDn;
+          this._searchArgs.options.filter[this._selectorOptions.filters.base.use] = "%"+selectedParentDn;
         } else {
           delete this._searchArgs.options.filter[this._selectorOptions.filters.base.use];
         }
