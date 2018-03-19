@@ -2,7 +2,7 @@
 <Objects xmlns="http://www.gonicus.de/Objects">
     <Object>
         <Name>GotoMenu</Name>
-        <DisplayName>GotoMenu</DisplayName>
+        <DisplayName>Menu</DisplayName>
         <Description>GOto - defines a menu entry (v2.7)</Description>
         <Backend>LDAP</Backend>
         <Extends>

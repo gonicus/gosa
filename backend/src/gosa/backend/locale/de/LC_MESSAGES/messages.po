@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GOsa3\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-02-27 13:47+0100\n"
-"PO-Revision-Date: 2018-02-27 13:50+0100\n"
+"POT-Creation-Date: 2018-03-19 14:40+0100\n"
+"PO-Revision-Date: 2018-03-19 15:49+0100\n"
 "Last-Translator: Tobias Bräutigam <braeutigam@gonicus.de>\n"
 "Language: de\n"
 "Language-Team: Deutsch <>\n"
@@ -20,172 +20,167 @@ msgstr ""
 "Generated-By: Babel 2.5.3\n"
 "X-Generator: Poedit 1.8.7.1\n"
 
-#: src/gosa/backend/acl.py:92
+#: src/gosa/backend/acl.py:93
 msgid "ACL not found"
 msgstr "ACL nicht gefunden"
 
-#: src/gosa/backend/acl.py:93
+#: src/gosa/backend/acl.py:94
 #, python-format
 msgid "Item is not of type '%(type)s'"
 msgstr "Element ist nicht vom Typ '%(type)s'"
 
-#: src/gosa/backend/acl.py:94
+#: src/gosa/backend/acl.py:95
 #, python-format
 msgid "Invalid ACL scope '%(scope)s'"
 msgstr "Ungültiger ACL-Bereich '%(scope)s'"
 
-#: src/gosa/backend/acl.py:95
+#: src/gosa/backend/acl.py:96
 #, python-format
 msgid "Role '%(role)s' not found"
 msgstr "Rolle '%(role)s' nicht gefunden"
 
-#: src/gosa/backend/acl.py:96
+#: src/gosa/backend/acl.py:97
 msgid "Cannot set scope for role ACLs"
 msgstr "Kann keinen Bereich für Rollen-ACLs setzen"
 
-#: src/gosa/backend/acl.py:97
+#: src/gosa/backend/acl.py:98
 msgid "ACL and Role objects are not combinable"
 msgstr "ACL- und Rollen-Objekte sind nicht kombinierbar"
 
-#: src/gosa/backend/acl.py:98
-msgid ""
-"Invalid permission map - combination of the characters c, r, o, w, d, s, e, x "
-"and m expected"
-msgstr ""
-"Ungültige Berechtigungsabbildung - Kombination der Zeichen c, r, o, w, d, s, e, "
-"x und m erwartet"
-
 #: src/gosa/backend/acl.py:99
+msgid "Invalid permission map - combination of the characters c, r, o, w, d, s, e, x and m expected"
+msgstr "Ungültige Berechtigungsabbildung - Kombination der Zeichen c, r, o, w, d, s, e, x und m erwartet"
+
+#: src/gosa/backend/acl.py:100
 #, python-format
 msgid "Entry %(dn)s is not unique"
 msgstr "Eintrag %(dn)s ist nicht eindeutig"
 
-#: src/gosa/backend/acl.py:100
+#: src/gosa/backend/acl.py:101
 #, python-format
 msgid "Recursion in ACL resolution for role '%(role)s'"
 msgstr "Rekursion in der ACL-Auflösung für Rolle '%(role)s'"
 
-#: src/gosa/backend/acl.py:101
+#: src/gosa/backend/acl.py:102
 msgid "Role ACLs do not support members"
 msgstr "Rollen-ACLs unterstützen keine Mitglieder"
 
-#: src/gosa/backend/acl.py:102
+#: src/gosa/backend/acl.py:103
 #, python-format
 msgid "Unresolved role references: %(references)s"
 msgstr "Nicht aufgelöste Rollen-Referenzen: %(references)s"
 
-#: src/gosa/backend/acl.py:103
+#: src/gosa/backend/acl.py:104
 #, python-format
 msgid "No base ACL definition for '%(base)s' found"
 msgstr "Keine Basis-ACL-Definition für '%(base)s' gefunden"
 
-#: src/gosa/backend/acl.py:104
+#: src/gosa/backend/acl.py:105
 #, python-format
 msgid "No ACL definition for '%(base)s' found"
 msgstr "Keine ACL-Definition für '%(base)s' gefunden"
 
-#: src/gosa/backend/acl.py:105
+#: src/gosa/backend/acl.py:106
 #, python-format
 msgid "Role '%(role)s' is still in use"
 msgstr "Rolle '%(role)s' wird noch benutzt"
 
-#: src/gosa/backend/acl.py:106
+#: src/gosa/backend/acl.py:107
 msgid "Priority needs to be above -100 and below 100"
 msgstr "Priorität muss zwischen -100 und 100 liegen"
 
-#: src/gosa/backend/acl.py:107
+#: src/gosa/backend/acl.py:108
 #, python-format
 msgid "Action '%(action)s' lacks a '%(key)s' key"
 msgstr "Aktion '%(action)s' hat keinen '%(key)s' Schlüssel"
 
-#: src/gosa/backend/acl.py:108
+#: src/gosa/backend/acl.py:109
 msgid "Action and role name parameter cannot be used at the same time"
 msgstr "Aktion und Rollenname Parameter können nicht gleichzeitig benutzt werden"
 
-#: src/gosa/backend/acl.py:109
+#: src/gosa/backend/acl.py:110
 #, python-format
 msgid "No permission to modify '%(target)s'"
 msgstr "Keine Berechtigung um '%(target)s' zu ändern"
 
-#: src/gosa/backend/acl.py:110
+#: src/gosa/backend/acl.py:111
 #, python-format
 msgid "Role '%(name)s' already exists"
 msgstr "Rolle '%(name)s' existiert bereits"
 
-#: src/gosa/backend/acl.py:111
+#: src/gosa/backend/acl.py:112
 msgid "Roles cannot point to themselves"
 msgstr "Rollen können nicht auf sich selbst verweisen"
 
-#: src/gosa/backend/acl.py:112
+#: src/gosa/backend/acl.py:113
 #, python-format
 msgid "No permission to send event '%(target)s'"
 msgstr "Keine Berechtigung das Ereignis '%(target)s' zu senden"
 
-#: src/gosa/backend/acl.py:113
+#: src/gosa/backend/acl.py:114
 msgid "No way to find a matching base"
 msgstr "Es wurde keine passende Basis gefunden"
 
-#: src/gosa/backend/acl.py:1021
+#: src/gosa/backend/acl.py:1024
 msgid "Checks if user has admin rights"
 msgstr "Prüfe ob der Benutzer Administrationsrechte hat"
 
-#: src/gosa/backend/acl.py:1638
+#: src/gosa/backend/acl.py:1641
 msgid "Get entry points for browsing the object tree."
 msgstr "Liefere die Einstiegspunkte, um den Objektbaum durchsuchen zu können"
 
-#: src/gosa/backend/acl.py:1739
+#: src/gosa/backend/acl.py:1742
 msgid "List allowed Actions by topic."
 msgstr "Liste die erlauben Aktionen nach Thema sortiert."
 
-#: src/gosa/backend/acl.py:1751
+#: src/gosa/backend/acl.py:1754
 msgid "List allowed Actions for the given object type."
 msgstr "Liefert die erlaubten Aktionen für den angegebenen Objekttyp"
 
-#: src/gosa/backend/acl.py:1755
+#: src/gosa/backend/acl.py:1758
 msgid "List defined ACLs by base or topic."
 msgstr "Definierte ACLs nach Basis oder Topic listen."
 
-#: src/gosa/backend/acl.py:1837
+#: src/gosa/backend/acl.py:1840
 msgid "Remove defined ACL by ID."
 msgstr "Definierte ACL anhand der ID löschen."
 
-#: src/gosa/backend/acl.py:1877
+#: src/gosa/backend/acl.py:1880
 msgid "Add a new ACL."
 msgstr "Neue ACL hinzufügen."
 
-#: src/gosa/backend/acl.py:1963
+#: src/gosa/backend/acl.py:1966
 msgid "Refresh existing ACL by ID."
 msgstr "Existierende ACL anhand der ID aktualisieren."
 
-#: src/gosa/backend/acl.py:2056
+#: src/gosa/backend/acl.py:2059
 msgid "List defined roles."
 msgstr "Definierte Rollen auflisten."
 
-#: src/gosa/backend/acl.py:2094
+#: src/gosa/backend/acl.py:2097
 msgid "Add new role."
 msgstr "Neue Rolle hinzufügen."
 
-#: src/gosa/backend/acl.py:2128
+#: src/gosa/backend/acl.py:2131
 msgid "Add new acl to an existing role."
 msgstr "Neue ACL zu einer existierenden Rolle hinzufügen."
 
-#: src/gosa/backend/acl.py:2210
+#: src/gosa/backend/acl.py:2213
 msgid "Refresh existing role by ID."
 msgstr "Existierende Rolle anhand der ID aktualisiern."
 
-#: src/gosa/backend/acl.py:2311
+#: src/gosa/backend/acl.py:2314
 msgid "Remove defined role-acl by ID."
 msgstr "Definierte Rollen-ACL anhand der ID löschen."
 
-#: src/gosa/backend/acl.py:2340
+#: src/gosa/backend/acl.py:2343
 msgid "Remove a defined acl-role by name"
 msgstr "Definierte Rollen-ACL anhand des Namens löschen"
 
 #: src/gosa/backend/command.py:63
 #, python-format
 msgid "Calling method '%(method)s' without a valid user session is not permitted"
-msgstr ""
-"Methodenaufruf '%(method)s' ohne gültige Benutzer-Sitzung ist nicht erlaubt"
+msgstr "Methodenaufruf '%(method)s' ohne gültige Benutzer-Sitzung ist nicht erlaubt"
 
 #: src/gosa/backend/command.py:64
 #, python-format
@@ -274,12 +269,8 @@ msgid "Tried to manually set an auto-generated attribute"
 msgstr "Es wurde versucht ein automatisch generiertes Attribute manuell zu ändern"
 
 #: src/gosa/backend/components/jsonrpc_objects.py:37
-msgid ""
-"No master backend defined in slave mode. Please configure a master server in "
-"'core.master' config option"
-msgstr ""
-"Kein Master-Backend im Slave-Modus gefunden. Bitte konfigurieren Sie einen "
-"Master-Server mit der 'core.master' Konfugurations-Option"
+msgid "No master backend defined in slave mode. Please configure a master server in 'core.master' config option"
+msgstr "Kein Master-Backend im Slave-Modus gefunden. Bitte konfigurieren Sie einen Master-Server mit der 'core.master' Konfugurations-Option"
 
 #: src/gosa/backend/components/jsonrpc_objects.py:76
 msgid "List available object OIDs"
@@ -343,7 +334,7 @@ msgid "Parameter must be list or dictionary"
 msgstr "Parameter muss eine Liste oder ein Verzeichnis sein"
 
 #: src/gosa/backend/components/jsonrpc_service.py:53
-#: src/gosa/backend/objects/index.py:78
+#: src/gosa/backend/objects/index.py:79
 msgid "Index rebuild in progress - try again later"
 msgstr "Index wird gerade erneuert - bitte später versuchen"
 
@@ -418,7 +409,7 @@ msgid "Error executing workflow script '%(topic)s'"
 msgstr "Fehler bei der Ausführung des Workflow Skripts '%(topic)s'"
 
 #: src/gosa/backend/components/workflow.py:137
-#: src/gosa/backend/objects/proxy.py:524
+#: src/gosa/backend/objects/proxy.py:538
 #: src/gosa/backend/plugins/misc/locales.py:194
 msgid "value"
 msgstr "Wert"
@@ -473,6 +464,45 @@ msgstr "Workflow aus der Liste der verfügbaren Workflows entfernen"
 #: src/gosa/backend/components/workflowregistry.py:221
 msgid "Refresh workflow list"
 msgstr "Workflowliste aktualisieren"
+
+#: src/gosa/backend/data/objects/acl.xml:5
+msgid "Acl"
+msgstr "Acl"
+
+#: src/gosa/backend/data/objects/aclrole.xml:5
+msgid "AclRole"
+msgstr "Acl-Rolle"
+
+#: src/gosa/backend/data/objects/country.xml:5
+#: src/gosa/backend/data/templates/country.json:5
+#: src/gosa/backend/data/templates/country.json:9
+msgid "Country"
+msgstr "Land"
+
+#: src/gosa/backend/data/objects/dcobject-organization.xml:5
+#: src/gosa/backend/data/objects/dcobject.xml:5
+#: src/gosa/backend/data/templates/domain.json:35
+#: src/gosa/backend/data/templates/domaincomponent.json:5
+#: src/gosa/backend/data/templates/domaincomponent.json:9
+msgid "Domain component"
+msgstr "Domänen-Objekt-Klasse"
+
+#: src/gosa/backend/data/objects/device-container.xml:5
+msgid "DeviceContainer"
+msgstr "Geräte-Container"
+
+#: src/gosa/backend/data/objects/device.xml:6
+#: src/gosa/backend/data/templates/device.json:12
+msgid "Device"
+msgstr "Gerät"
+
+#: src/gosa/backend/data/objects/domain.xml:5
+#: src/gosa/backend/data/templates/domain.json:12
+#: src/gosa/backend/data/templates/foreman-host-group.json:88
+#: src/gosa/backend/data/templates/group-samba.json:63
+#: src/gosa/backend/data/templates/user-samba.json:120
+msgid "Domain"
+msgstr "Domäne"
 
 #: src/gosa/backend/data/objects/foremanHost.xml:34
 msgid "Unknown"
@@ -563,6 +593,17 @@ msgstr "Grub2 SecureBoot"
 msgid "None"
 msgstr "Nichts"
 
+#: src/gosa/backend/data/objects/foremanHost.xml:5
+#: src/gosa/backend/data/templates/foreman-host-group.json:20
+#: src/gosa/backend/data/templates/foreman-host.json:15
+msgid "Deployment"
+msgstr "Bereitstellung"
+
+
+#: src/gosa/backend/data/objects/goServer.xml:5
+msgid "Server"
+msgstr "Server"
+
 #: src/gosa/backend/data/objects/gosaAccount.xml:94
 msgid "female"
 msgstr "weiblich"
@@ -570,6 +611,43 @@ msgstr "weiblich"
 #: src/gosa/backend/data/objects/gosaAccount.xml:95
 msgid "male"
 msgstr "männlich"
+
+#: src/gosa/backend/data/objects/gosaAccount.xml:5
+#: src/gosa/backend/data/templates/gosaAccount.json:15
+msgid "Account"
+msgstr "Konto"
+
+#: src/gosa/backend/data/objects/gosaApplication.xml:5
+#: src/gosa/backend/data/templates/gosaApplication.json:7
+msgid "Application"
+msgstr "Applikation"
+
+#: src/gosa/backend/data/objects/gotoEnvironment.xml:5
+msgid "Environment"
+msgstr ""
+
+#: src/gosa/backend/data/objects/gotoMenu.xml:5
+#: src/gosa/backend/data/templates/gotoMenu.json:62
+msgid "Menu"
+msgstr "Hauptmenü"
+
+#: src/gosa/backend/data/objects/gotoPrinter.xml:5
+#: src/gosa/backend/data/templates/gotoEnvironment.json:224
+#: src/gosa/backend/data/templates/gotoPrinter.json:15
+msgid "Printer"
+msgstr "Drucker"
+
+#: src/gosa/backend/data/objects/group-container.xml:5
+msgid "Groups"
+msgstr "Gruppe"
+
+#: src/gosa/backend/data/objects/group-of-names.xml:5
+msgid "GroupOfNames"
+msgstr "Gruppe von Namen"
+
+#: src/gosa/backend/data/objects/group-posix.xml:9
+msgid "Posix group"
+msgstr "POSIX-Gruppe"
 
 #: src/gosa/backend/data/objects/group-samba.xml:66
 msgid "Samba group"
@@ -586,6 +664,45 @@ msgstr "Domänen-Benutzer"
 #: src/gosa/backend/data/objects/group-samba.xml:69
 msgid "Domain guests"
 msgstr "Domänen-Gäste"
+
+#: src/gosa/backend/data/objects/group-samba.xml:6
+msgid "Samba group extension"
+msgstr "Sambagruppe"
+
+#: src/gosa/backend/data/objects/ieee802Device.xml:6
+msgid "ieee802Device"
+msgstr "IEEE 802 Gerät"
+
+#: src/gosa/backend/data/objects/incoming-device-container.xml:17
+msgid "IncomingDeviceContainer"
+msgstr ""
+
+#: src/gosa/backend/data/objects/installed-device.xml:6
+msgid "InstalledDevice"
+msgstr "Installiertes Gerät"
+
+#: src/gosa/backend/data/objects/ipHost.xml:6
+msgid "IpHost"
+msgstr "Host erstellen"
+
+#: src/gosa/backend/data/objects/locality.xml:6
+#: src/gosa/backend/data/templates/locality.json:5
+#: src/gosa/backend/data/templates/locality.json:9
+msgid "Locality"
+msgstr "Lokalität"
+
+#: src/gosa/backend/data/objects/nagios-group.xml:6
+msgid "Nagios group extension"
+msgstr ""
+
+#: src/gosa/backend/data/objects/organization.xml:6
+#: src/gosa/backend/data/templates/device.json:137
+#: src/gosa/backend/data/templates/groupOfNames.json:122
+#: src/gosa/backend/data/templates/organization.json:6
+#: src/gosa/backend/data/templates/organization.json:14
+#: src/gosa/backend/data/templates/user-organizational.json:111
+msgid "Organization"
+msgstr "Organisation"
 
 #: src/gosa/backend/data/objects/organizationalRole.xml:129
 msgid "any"
@@ -627,6 +744,24 @@ msgstr "Videotex"
 msgid "telephone"
 msgstr "Telefon"
 
+#: src/gosa/backend/data/objects/organizationalRole.xml:5
+msgid "Organizational role"
+msgstr "Organisatorisch"
+
+#: src/gosa/backend/data/objects/ou.xml:5
+#: src/gosa/backend/data/templates/device.json:120
+#: src/gosa/backend/data/templates/groupOfNames.json:56
+msgid "Organizational unit"
+msgstr "Organisationseinheit"
+
+#: src/gosa/backend/data/objects/people-container.xml:5
+msgid "Users"
+msgstr "Benutzer"
+
+#: src/gosa/backend/data/objects/printer-container.xml:17
+msgid "PrinterContainer"
+msgstr "Drucker"
+
 #: src/gosa/backend/data/objects/registered-device.xml:80
 msgid "terminal"
 msgstr "Terminal"
@@ -659,6 +794,42 @@ msgstr "Drucker"
 msgid "scanner"
 msgstr "Scanner"
 
+#: src/gosa/backend/data/objects/registered-device.xml:6
+msgid "RegisteredDevice"
+msgstr "Registriertes Gerät"
+
+#: src/gosa/backend/data/objects/rfc2256-role-container.xml:5
+msgid "OrganizationalRoleContainer"
+msgstr "Organisationseinheit"
+
+#: src/gosa/backend/data/objects/samba-ws-container.xml:5
+msgid "Samba Workstation Container"
+msgstr "Samba Workstation Container"
+
+#: src/gosa/backend/data/objects/samba-ws.xml:7
+#: src/gosa/backend/data/templates/samba-ws.json:8
+#: src/gosa/backend/data/templates/samba-ws.json:15
+msgid "Windows Workstation"
+msgstr "Windows Arbeitsplätze"
+
+#: src/gosa/backend/data/objects/sambadomain.xml:6
+#: src/gosa/backend/data/templates/samba-domain.json:9
+#: src/gosa/backend/data/templates/samba-ws.json:56
+msgid "Samba domain"
+msgstr "Sambadomäne"
+
+#: src/gosa/backend/data/objects/server-container.xml:17
+msgid "Container for servers"
+msgstr "Server-Container"
+
+#: src/gosa/backend/data/objects/simpleSecurityObject.xml:6
+msgid "simpleSecurityObject"
+msgstr ""
+
+#: src/gosa/backend/data/objects/systems-container.xml:5
+msgid "Container for systems"
+msgstr "System-Container"
+
 #: src/gosa/backend/data/objects/trustaccount.xml:22
 msgid "Disabled"
 msgstr "deaktiviert"
@@ -670,6 +841,15 @@ msgstr "Voller Zugridd"
 #: src/gosa/backend/data/objects/trustaccount.xml:24
 msgid "By host"
 msgstr "Über den Host"
+
+#: src/gosa/backend/data/objects/trustaccount.xml:6
+#: src/gosa/backend/data/templates/trustaccount.json:9
+msgid "Trust account"
+msgstr "Konto vertrauen"
+
+#: src/gosa/backend/data/objects/user-posix.xml:5
+msgid "POSIX extension"
+msgstr "POSIX"
 
 #: src/gosa/backend/data/objects/user-samba.xml:584
 msgid "disconnect"
@@ -710,7 +890,18 @@ msgstr ""
 msgid "input off, notify off"
 msgstr ""
 
+#: src/gosa/backend/data/objects/user-samba.xml:7
+#: src/gosa/backend/data/templates/group-samba.json:12
+#: src/gosa/backend/data/templates/user-samba.json:23
+msgid "Samba"
+msgstr "Samba"
+
+#: src/gosa/backend/data/objects/user-shadow.xml:5
+msgid "Shadow extension"
+msgstr ""
+
 #: src/gosa/backend/data/objects/user-zarafa.xml:171
+#: src/gosa/backend/data/objects/user.xml:6
 #: src/gosa/backend/data/templates/gotoPrinter-relations.json:44
 #: src/gosa/backend/data/templates/user.json:61
 msgid "User"
@@ -724,10 +915,10 @@ msgstr "Raum"
 msgid "Equipment"
 msgstr "Ausrüstungsgegenstand"
 
-#: src/gosa/backend/data/templates/country.json:5
-#: src/gosa/backend/data/templates/country.json:9
-msgid "Country"
-msgstr "Land"
+#: src/gosa/backend/data/objects/user-zarafa.xml:5
+#: src/gosa/backend/data/objects/zarafa-server.xml:5
+msgid "Zarafa"
+msgstr "Zarafa"
 
 #: src/gosa/backend/data/templates/country.json:35
 #: src/gosa/backend/data/templates/device-registered.json:162
@@ -876,16 +1067,8 @@ msgstr "Geräte UUID"
 
 #: src/gosa/backend/data/templates/device-registered.json:60
 #: src/gosa/backend/data/templates/device-registered.json:70
-msgid ""
-"This attribute keeps a unique identifier for a device that should be registered "
-"to the GOsa services. It is used as a unique key to find the relationship of the "
-"registered device to other information like inventory, received events and "
-"logging data."
-msgstr ""
-"Diese Attribut enthält einen eindeutigen Kennzeichner für ein Gerät, dass bei "
-"dem GOsa Dienst registriert werden soll. Er wird benutzt als eindeutiger "
-"Schlüssel, um das Gerät mit anderen Informationen, wie dem Inventar, empfangenen "
-"Events und Log-Daten in Verbindung zu bringen."
+msgid "This attribute keeps a unique identifier for a device that should be registered to the GOsa services. It is used as a unique key to find the relationship of the registered device to other information like inventory, received events and logging data."
+msgstr "Diese Attribut enthält einen eindeutigen Kennzeichner für ein Gerät, dass bei dem GOsa Dienst registriert werden soll. Er wird benutzt als eindeutiger Schlüssel, um das Gerät mit anderen Informationen, wie dem Inventar, empfangenen Events und Log-Daten in Verbindung zu bringen."
 
 #: src/gosa/backend/data/templates/device-registered.json:80
 msgid "Device key"
@@ -902,16 +1085,8 @@ msgstr "Gerätestatus"
 
 #: src/gosa/backend/data/templates/device-registered.json:102
 #: src/gosa/backend/data/templates/device-registered.json:112
-msgid ""
-"The deviceStatus attribute represents several states a system can represent. "
-"Note that this is the current status - i.e. no history of states is recordable "
-"this way. The attribute is mostly used to quickly determine the state without "
-"reading system logs. "
-msgstr ""
-"Der Gerätestatus beinhaltet diverse Status, die den Zustand eines System "
-"beschreiben. Es beinhaltet nur den aktuellen Zustand  - es kann z.B. keine "
-"Historie aufzeichnen. Das Attribut wird hauptsächlich dazu genutzt, schnell den "
-"Systemstatus bestimmen zu können ohne die Systemlogs einsehen zu müssen."
+msgid "The deviceStatus attribute represents several states a system can represent. Note that this is the current status - i.e. no history of states is recordable this way. The attribute is mostly used to quickly determine the state without reading system logs. "
+msgstr "Der Gerätestatus beinhaltet diverse Status, die den Zustand eines System beschreiben. Es beinhaltet nur den aktuellen Zustand  - es kann z.B. keine Historie aufzeichnen. Das Attribut wird hauptsächlich dazu genutzt, schnell den Systemstatus bestimmen zu können ohne die Systemlogs einsehen zu müssen."
 
 #: src/gosa/backend/data/templates/device-registered.json:123
 msgid "Device type"
@@ -920,8 +1095,7 @@ msgstr "Gerätetyp"
 #: src/gosa/backend/data/templates/device-registered.json:124
 #: src/gosa/backend/data/templates/device-registered.json:134
 msgid "To order systems, you can mark a system i.e. as a server"
-msgstr ""
-"Um Systeme sortieren zu können, können Sie diese z.B. als Server deklarieren"
+msgstr "Um Systeme sortieren zu können, können Sie diese z.B. als Server deklarieren"
 
 #: src/gosa/backend/data/templates/device-registered.json:145
 msgid "DN of manager"
@@ -986,10 +1160,6 @@ msgstr "wird installiert"
 msgid "VM creation in progress"
 msgstr "VM wird erstellt"
 
-#: src/gosa/backend/data/templates/device.json:12
-msgid "Device"
-msgstr "Gerät"
-
 #: src/gosa/backend/data/templates/device.json:35
 #: src/gosa/backend/data/templates/gosaApplication.json:38
 #: src/gosa/backend/data/templates/groupOfNames.json:34
@@ -1008,19 +1178,6 @@ msgstr "Siehe auch"
 msgid "Owner"
 msgstr "Besitzer"
 
-#: src/gosa/backend/data/templates/device.json:120
-#: src/gosa/backend/data/templates/groupOfNames.json:56
-msgid "Organizational unit"
-msgstr "Organisationseinheit"
-
-#: src/gosa/backend/data/templates/device.json:137
-#: src/gosa/backend/data/templates/groupOfNames.json:122
-#: src/gosa/backend/data/templates/organization.json:6
-#: src/gosa/backend/data/templates/organization.json:14
-#: src/gosa/backend/data/templates/user-organizational.json:111
-msgid "Organization"
-msgstr "Organisation"
-
 #: src/gosa/backend/data/templates/device.json:154
 #: src/gosa/backend/data/templates/gosaAccount.json:157
 #: src/gosa/backend/data/templates/gotoPrinter.json:80
@@ -1028,19 +1185,6 @@ msgstr "Organisation"
 #: src/gosa/backend/data/templates/user-organizational.json:290
 msgid "Location"
 msgstr "Ort"
-
-#: src/gosa/backend/data/templates/domain.json:12
-#: src/gosa/backend/data/templates/foreman-host-group.json:88
-#: src/gosa/backend/data/templates/group-samba.json:63
-#: src/gosa/backend/data/templates/user-samba.json:120
-msgid "Domain"
-msgstr "Domäne"
-
-#: src/gosa/backend/data/templates/domain.json:35
-#: src/gosa/backend/data/templates/domaincomponent.json:5
-#: src/gosa/backend/data/templates/domaincomponent.json:9
-msgid "Domain component"
-msgstr "Domänen-Objekt-Klasse"
 
 #: src/gosa/backend/data/templates/domain.json:70
 #: src/gosa/backend/data/templates/organization.json:35
@@ -1050,11 +1194,6 @@ msgstr "Organisationsname"
 #: src/gosa/backend/data/templates/foreman-host-group.json:15
 msgid "Deployment group"
 msgstr "Bereitstellungsgruppe"
-
-#: src/gosa/backend/data/templates/foreman-host-group.json:20
-#: src/gosa/backend/data/templates/foreman-host.json:15
-msgid "Deployment"
-msgstr "Bereitstellung"
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:26
 #: src/gosa/backend/data/templates/user.json:67
@@ -1129,10 +1268,6 @@ msgstr "Host erstellen"
 msgid "Compute resource"
 msgstr "Compute-Resource"
 
-#: src/gosa/backend/data/templates/gosaAccount.json:15
-msgid "Account"
-msgstr "Konto"
-
 #: src/gosa/backend/data/templates/gosaAccount.json:24
 msgid "General information"
 msgstr "Allgemeine Informationen"
@@ -1161,10 +1296,6 @@ msgstr "Standarddrucker"
 #: src/gosa/backend/data/templates/gosaAccount.json:154
 msgid "Choose the default printer"
 msgstr "Standarddrucker wählen"
-
-#: src/gosa/backend/data/templates/gosaApplication.json:7
-msgid "Application"
-msgstr "Applikation"
 
 #: src/gosa/backend/data/templates/gosaApplication.json:60
 msgid "Executable path"
@@ -1251,11 +1382,6 @@ msgstr "Letzer"
 msgid "Last script"
 msgstr "Letztes Skript"
 
-#: src/gosa/backend/data/templates/gotoEnvironment.json:224
-#: src/gosa/backend/data/templates/gotoPrinter.json:15
-msgid "Printer"
-msgstr "Drucker"
-
 #: src/gosa/backend/data/templates/gotoEnvironment.json:241
 #: src/gosa/backend/data/templates/gotoPrinter-relations.json:61
 msgid "Edit printer user"
@@ -1264,10 +1390,6 @@ msgstr "Druckerbenutzer bearbeiten"
 #: src/gosa/backend/data/templates/gotoMenu.json:7
 msgid "Menu entry"
 msgstr "Menüeintrag"
-
-#: src/gosa/backend/data/templates/gotoMenu.json:62
-msgid "Menu"
-msgstr "Hauptmenü"
 
 #: src/gosa/backend/data/templates/gotoMenu.json:81
 msgid "Add application"
@@ -1371,11 +1493,6 @@ msgstr "Nachname"
 msgid "Given name"
 msgstr "Vorname"
 
-#: src/gosa/backend/data/templates/group-samba.json:12
-#: src/gosa/backend/data/templates/user-samba.json:23
-msgid "Samba"
-msgstr "Samba"
-
 #: src/gosa/backend/data/templates/group-samba.json:42
 #: src/gosa/backend/data/templates/group-samba.json:137
 #: src/gosa/backend/data/templates/user-samba.json:53
@@ -1424,11 +1541,6 @@ msgstr "Titel"
 msgid "DN"
 msgstr "DN"
 
-#: src/gosa/backend/data/templates/locality.json:5
-#: src/gosa/backend/data/templates/locality.json:9
-msgid "Locality"
-msgstr "Lokalität"
-
 #: src/gosa/backend/data/templates/locality.json:35
 msgid "Locality name"
 msgstr "Ortsname"
@@ -1476,11 +1588,6 @@ msgstr "Status"
 msgid "Address"
 msgstr "Adresse"
 
-#: src/gosa/backend/data/templates/samba-domain.json:9
-#: src/gosa/backend/data/templates/samba-ws.json:56
-msgid "Samba domain"
-msgstr "Sambadomäne"
-
 #: src/gosa/backend/data/templates/samba-domain.json:32
 msgid "Windows NT domain"
 msgstr "Windows NT Domäne"
@@ -1520,9 +1627,7 @@ msgstr "Erzwinge die Anmeldung für die Passwortänderung"
 #: src/gosa/backend/data/templates/samba-domain.json:113
 #: src/gosa/backend/data/templates/samba-domain.json:123
 msgid "Force Users to logon for password change (default: 0 => off, 2 => on)"
-msgstr ""
-"Erzwingen, dass sich Benutzer für die Kennwortänderung anmelden (Standard: 0 => "
-"aus, 2 => ein)"
+msgstr "Erzwingen, dass sich Benutzer für die Kennwortänderung anmelden (Standard: 0 => aus, 2 => ein)"
 
 #: src/gosa/backend/data/templates/samba-domain.json:133
 msgid "Force log off"
@@ -1531,8 +1636,7 @@ msgstr "Abmeldung erzwingen"
 #: src/gosa/backend/data/templates/samba-domain.json:134
 #: src/gosa/backend/data/templates/samba-domain.json:144
 msgid "Disconnect Users outside logon hours (default: -1 => off, 0 => on)"
-msgstr ""
-"Benuzter außerhalb der Anmeldezeiten trennen (Standard: -1 => aus, 0 => an)"
+msgstr "Benuzter außerhalb der Anmeldezeiten trennen (Standard: -1 => aus, 0 => an)"
 
 #: src/gosa/backend/data/templates/samba-domain.json:154
 #: src/gosa/backend/plugins/samba/domain.py:256
@@ -1602,11 +1706,8 @@ msgstr "Minimales Passwortalter"
 
 #: src/gosa/backend/data/templates/samba-domain.json:298
 #: src/gosa/backend/data/templates/samba-domain.json:308
-msgid ""
-"Minimum password age, in seconds (default: 0 => allow immediate password change)"
-msgstr ""
-"Minimales Passwortalter in Sekunden (Standard: 0 => erlaubt sofortige "
-"Passwortänderungen)"
+msgid "Minimum password age, in seconds (default: 0 => allow immediate password change)"
+msgstr "Minimales Passwortalter in Sekunden (Standard: 0 => erlaubt sofortige Passwortänderungen)"
 
 #: src/gosa/backend/data/templates/samba-domain.json:318
 #: src/gosa/backend/data/templates/user-shadow.json:186
@@ -1617,18 +1718,11 @@ msgstr "Maximales Passwortalter"
 #: src/gosa/backend/data/templates/samba-domain.json:319
 #: src/gosa/backend/data/templates/samba-domain.json:329
 msgid "Maximum password age, in seconds (default: -1 => never expire passwords)"
-msgstr ""
-"Maximales Passwortalter in Sekunden (Standard: -1 => Passwörter laufen nie ab)"
-
-#: src/gosa/backend/data/templates/samba-ws.json:8
-#: src/gosa/backend/data/templates/samba-ws.json:15
-msgid "Windows Workstation"
-msgstr "Windows Arbeitsplätze"
+msgstr "Maximales Passwortalter in Sekunden (Standard: -1 => Passwörter laufen nie ab)"
 
 #: src/gosa/backend/data/templates/samba-ws.json:39
 msgid "preferred name of a person to be used when displaying entries"
-msgstr ""
-"Bevorzugter Name einer Person, der benutzt werden soll. um Einträge anzuzeigen"
+msgstr "Bevorzugter Name einer Person, der benutzt werden soll. um Einträge anzuzeigen"
 
 #: src/gosa/backend/data/templates/samba-ws.json:57
 msgid "Windows NT domain to which the user belongs"
@@ -1647,10 +1741,6 @@ msgstr "Anmeldezeiten"
 #: src/gosa/backend/data/templates/user-samba.json:445
 msgid "User workstations"
 msgstr "Benutzer Arbeitsstationen"
-
-#: src/gosa/backend/data/templates/trustaccount.json:9
-msgid "Trust account"
-msgstr "Konto vertrauen"
 
 #: src/gosa/backend/data/templates/trustaccount.json:24
 msgid "Trust settings"
@@ -1849,9 +1939,7 @@ msgstr "Erzwungene Abmeldezeit"
 
 #: src/gosa/backend/data/templates/user-samba.json:368
 msgid "Date and time when the user should be logged of the workstation"
-msgstr ""
-"Datum und Uhrzeit an denen der Benutzer nicht an dem Arbeitsplatz angemeldet "
-"sein sollte"
+msgstr "Datum und Uhrzeit an denen der Benutzer nicht an dem Arbeitsplatz angemeldet sein sollte"
 
 #: src/gosa/backend/data/templates/user-samba.json:388
 msgid "Password change allowed after"
@@ -1887,10 +1975,8 @@ msgstr "Warnen vor Ablauf des Passwortes"
 
 #: src/gosa/backend/data/templates/user-shadow.json:90
 #: src/gosa/backend/data/templates/user-shadow.json:100
-msgid ""
-"Specifies the number of days before the password expires that the user is warned."
-msgstr ""
-"Legt fest, wie viele Tage vor Ablauf des Passwortes, der Benutzer gewarnt wird."
+msgid "Specifies the number of days before the password expires that the user is warned."
+msgstr "Legt fest, wie viele Tage vor Ablauf des Passwortes, der Benutzer gewarnt wird."
 
 #: src/gosa/backend/data/templates/user-shadow.json:115
 msgid "Inactivity before account is disabled"
@@ -1908,8 +1994,7 @@ msgstr "Optionen"
 #: src/gosa/backend/data/templates/user-shadow.json:161
 #: src/gosa/backend/data/templates/user-shadow.json:171
 msgid "Specifices the minimum number of days required between password changes."
-msgstr ""
-"Mindest Anzahl an Tagen, die zwischen zweier Passwortänderungen vergehen müssen"
+msgstr "Mindest Anzahl an Tagen, die zwischen zweier Passwortänderungen vergehen müssen"
 
 #: src/gosa/backend/data/templates/user-shadow.json:187
 #: src/gosa/backend/data/templates/user-shadow.json:197
@@ -2110,7 +2195,7 @@ msgid "'%(type)s' is no base type"
 msgstr "'%(type)s' ist kein Basis-Typ"
 
 #: src/gosa/backend/objects/factory.py:79 src/gosa/backend/objects/proxy.py:66
-#: src/gosa/backend/plugins/foreman/main.py:42
+#: src/gosa/backend/plugins/foreman/main.py:43
 #, python-format
 msgid "Unknown object type '%(type)s'"
 msgstr "Unbekannter Objekt-Typ '%(type)s'"
@@ -2127,12 +2212,8 @@ msgstr "Kein Basis-Typ für Attribut '%(attribute)s' gefunden"
 
 #: src/gosa/backend/objects/factory.py:82
 #, python-format
-msgid ""
-"Cannot identify '%(topic)s' - it seems to be of type '%(type1)s' and '%(type2)s' "
-"at the same time"
-msgstr ""
-"Kann '%(topic)s' nicht identifizieren - es scheint gleichzeitig von Typ "
-"'%(type1)s und %(type2)s zu sein'"
+msgid "Cannot identify '%(topic)s' - it seems to be of type '%(type1)s' and '%(type2)s' at the same time"
+msgstr "Kann '%(topic)s' nicht identifizieren - es scheint gleichzeitig von Typ '%(type1)s und %(type2)s zu sein'"
 
 #: src/gosa/backend/objects/factory.py:83
 msgid "Cannot load object schema"
@@ -2141,16 +2222,12 @@ msgstr "Kann Objekt-Schema nicht laden"
 #: src/gosa/backend/objects/factory.py:84
 #, python-format
 msgid "Attribute '%(topic)s' is blocked by non existing attribute '%(blocker)s'"
-msgstr ""
-"Attribut '%(topic)s' wird von einem nicht existierenden Attribut '%(blocker)s' "
-"blockiert"
+msgstr "Attribut '%(topic)s' wird von einem nicht existierenden Attribut '%(blocker)s' blockiert"
 
 #: src/gosa/backend/objects/factory.py:85
 #, python-format
 msgid "Attribute '%(topic)s' depends on non existing attribute '%(dependency)s'"
-msgstr ""
-"Attribut '%(topic)s' hängt von einem nicht existierenden Attribut "
-"'%(dependency)s' ab"
+msgstr "Attribut '%(topic)s' hängt von einem nicht existierenden Attribut '%(dependency)s' ab"
 
 #: src/gosa/backend/objects/factory.py:86
 #, python-format
@@ -2162,96 +2239,90 @@ msgstr "Methode '%(method)s' hängt von einem unbekannten Attribut %(attribute)s
 msgid "Parameter '%(parameter)s' for command '%(command)s' is missing"
 msgstr "'%(parameter)s' Parameter für Methode '%(command)s' fehlt"
 
-#: src/gosa/backend/objects/index.py:76
+#: src/gosa/backend/objects/index.py:77
 #, python-format
 msgid "Object with UUID %(uuid)s already exists"
 msgstr "Objekt mit der UUID %(uuid)s existiert bereits"
 
-#: src/gosa/backend/objects/index.py:77
+#: src/gosa/backend/objects/index.py:78
 #, python-format
 msgid "Cannot find object %(id)s"
 msgstr "Kann Objekt %(id)s nicht finden"
 
-#: src/gosa/backend/objects/index.py:79
+#: src/gosa/backend/objects/index.py:80
 #, python-format
 msgid "Requested search operator %(operator)s is not supported"
 msgstr "Der angefragte Such-Operator %(operator)s wird nicht unterstützt"
 
-#: src/gosa/backend/objects/index.py:80
+#: src/gosa/backend/objects/index.py:81
 msgid "No master backend found"
 msgstr "Kein Master-Backend gefunden"
 
-#: src/gosa/backend/objects/index.py:81
+#: src/gosa/backend/objects/index.py:82
 msgid "connection to GOsa backend failed"
 msgstr "Verbinsung zum GOsa Backend fehlgeschlagen"
 
-#: src/gosa/backend/objects/index.py:82
-msgid ""
-"Please add valid backend credentials to you configuration (core.backend-user, "
-"core.backend-key)"
-msgstr ""
-"Bitte fügen Sie gültige Zugangsdaten zu Ihrer Konfiguration hinzu (core.backend-"
-"user, core.backend-key)"
-
 #: src/gosa/backend/objects/index.py:83
+msgid "Please add valid backend credentials to you configuration (core.backend-user, core.backend-key)"
+msgstr "Bitte fügen Sie gültige Zugangsdaten zu Ihrer Konfiguration hinzu (core.backend-user, core.backend-key)"
+
+#: src/gosa/backend/objects/index.py:84
 #, python-format
 msgid "Trying to add a delayed update to a non-dirty object (%(topic)s)"
-msgstr ""
-"Es wurde versucht ein verzögertes Update zu einem nicht geöffneten Objekt "
-"hinzuzufügen (%(topic)s)"
+msgstr "Es wurde versucht ein verzögertes Update zu einem nicht geöffneten Objekt hinzuzufügen (%(topic)s)"
 
-#: src/gosa/backend/objects/index.py:795
+#: src/gosa/backend/objects/index.py:806
 msgid "Start index synchronizing from an optional root-DN"
 msgstr "Starte Index-Synchronisierung von einer optionalen Wurzel-DN"
 
-#: src/gosa/backend/objects/index.py:823 src/gosa/backend/objects/index.py:828
+#: src/gosa/backend/objects/index.py:834 src/gosa/backend/objects/index.py:839
 msgid "scanning for objects"
 msgstr "Suche nach Objekten"
 
-#: src/gosa/backend/objects/index.py:848
+#: src/gosa/backend/objects/index.py:859
 msgid "Generating object index"
 msgstr "Erstelle Objektindex"
 
-#: src/gosa/backend/objects/index.py:860
+#: src/gosa/backend/objects/index.py:871
 #, python-format
 msgid "Processing object %s/%s"
 msgstr "Verarbeite Objekt %s/%s"
 
-#: src/gosa/backend/objects/index.py:874
+#: src/gosa/backend/objects/index.py:885
 #, python-format
 msgid "%s objects processed"
 msgstr "%s Objekte verarbeitet"
 
-#: src/gosa/backend/objects/index.py:878
+#: src/gosa/backend/objects/index.py:889
 msgid "removing orphan objects from index"
 msgstr "entferne verwaiste Objekte aus dem Index"
 
-#: src/gosa/backend/objects/index.py:896
+#: src/gosa/backend/objects/index.py:907
 msgid "Index refresh finished"
 msgstr "Index Aktualisierung abgeschlossen"
 
-#: src/gosa/backend/objects/index.py:924
+#: src/gosa/backend/objects/index.py:935
 #, python-format
 msgid "Refreshing object %s/%s"
 msgstr "Aktualisiere Objekt %s/%s"
 
-#: src/gosa/backend/objects/index.py:1287
+#: src/gosa/backend/objects/index.py:1295
 msgid "Check if an object with the given UUID exists."
 msgstr "Prüfen ob ein Objekt mit der angegebenen UUID existiert."
 
-#: src/gosa/backend/objects/index.py:1307
+#: src/gosa/backend/objects/index.py:1315
 msgid "Get list of defined base object types."
 msgstr "Listet definierte Basis-Objekt-Typen auf."
 
-#: src/gosa/backend/objects/index.py:1316
+#: src/gosa/backend/objects/index.py:1324
 msgid "Query the index for entries."
 msgstr "Index nach Einträgen durchsuchen."
 
-#: src/gosa/backend/objects/index.py:1694
+#: src/gosa/backend/objects/index.py:1702
 msgid "Register a backend to allow MQTT access"
 msgstr "Ein Backend für den MQTT Zugriff registrieren"
 
-#: src/gosa/backend/objects/index.py:1712
+#: src/gosa/backend/objects/index.py:1720
 msgid "Unregister a backend from MQTT access"
 msgstr "Backend Registrierung für den MQTT Zugriff entfernen"
 
@@ -2282,21 +2353,13 @@ msgstr "Attribut '%(topic)s' ist erforderlich"
 
 #: src/gosa/backend/objects/object.py:50
 #, python-format
-msgid ""
-"Attribute '%(topic)s' is tagged to be auto-generated but has neither an output "
-"filter nor a dependency"
-msgstr ""
-"Attribut '%(topic)s' ist als automatisch generiert markiert aber hat weder einen "
-"Output-Filter noch eine Abhängigkeit"
+msgid "Attribute '%(topic)s' is tagged to be auto-generated but has neither an output filter nor a dependency"
+msgstr "Attribut '%(topic)s' ist als automatisch generiert markiert aber hat weder einen Output-Filter noch eine Abhängigkeit"
 
 #: src/gosa/backend/objects/object.py:52
 #, python-format
-msgid ""
-"Attribute '%(topic)s' is tagged to be auto-generated too many dependencies and "
-"no output filter"
-msgstr ""
-"Attribut '%(topic)s' ist als automatisch generiert markiert aber hat zu viele "
-"Abhängikeiten und keinen Output-Filter"
+msgid "Attribute '%(topic)s' is tagged to be auto-generated too many dependencies and no output filter"
+msgstr "Attribut '%(topic)s' ist als automatisch generiert markiert aber hat zu viele Abhängikeiten und keinen Output-Filter"
 
 #: src/gosa/backend/objects/object.py:54
 #, python-format
@@ -2309,11 +2372,8 @@ msgstr "Wert ist ungültig - Liste erwartet"
 
 #: src/gosa/backend/objects/object.py:56
 #, python-format
-msgid ""
-"Value for attribute '%(topic)s' is invalid - expected value of type '%(type)s'"
-msgstr ""
-"Wert ist für Attribut  '%(topic)s' ist ungültig - Wert vom Typ '%(type)s' "
-"erwartet"
+msgid "Value for attribute '%(topic)s' is invalid - expected value of type '%(type)s'"
+msgstr "Wert ist für Attribut  '%(topic)s' ist ungültig - Wert vom Typ '%(type)s' erwartet"
 
 #: src/gosa/backend/objects/object.py:57
 #, python-format
@@ -2348,8 +2408,7 @@ msgstr "Kein Basistyp für DN '%(dn)s' gefunden"
 #: src/gosa/backend/objects/object.py:63
 #, python-format
 msgid "Object of type '%(ext)s' cannot be added as to the '%(base)s' container"
-msgstr ""
-"Objekte vom Typ '%(ext)s' können nicht im Container '%(base)s' abgelegt werden"
+msgstr "Objekte vom Typ '%(ext)s' können nicht im Container '%(base)s' abgelegt werden"
 
 #: src/gosa/backend/objects/object.py:64
 msgid "Cannot remove non base object"
@@ -2376,8 +2435,7 @@ msgstr "Fehlender Schlüssel '%(key)s' nach dem Verarbeiten von Filter '%(filter
 #: src/gosa/backend/objects/object.py:69
 #, python-format
 msgid "Filter '%(filter)s' did not return a %(type)s value - a list was expected"
-msgstr ""
-"Filter '%(filter)s' lieferte einen %(type)s Wert - eine Liste wurde erwartet"
+msgstr "Filter '%(filter)s' lieferte einen %(type)s Wert - eine Liste wurde erwartet"
 
 #: src/gosa/backend/objects/object.py:70
 msgid "Potential loop in attribute dependencies"
@@ -2386,8 +2444,7 @@ msgstr "Potentielle Schleife in Attribut-Abhängigkeiten"
 #: src/gosa/backend/objects/object.py:71
 #, python-format
 msgid "Error reading value for '%(backend)s' backend UUID attribute '%(name)s'"
-msgstr ""
-"Fehler beim Lesen des Wertes für '%(backend)s' Backend-UUID-Attribut '%(name)s'"
+msgstr "Fehler beim Lesen des Wertes für '%(backend)s' Backend-UUID-Attribut '%(name)s'"
 
 #: src/gosa/backend/objects/object.py:72
 #, python-format
@@ -2457,17 +2514,12 @@ msgstr "Keine Berechtigung auf '%(topic)s' von '%(target)s' zuzugreifen"
 #: src/gosa/backend/objects/proxy.py:79
 #, python-format
 msgid "UUID of base (%(b_uuid)s) and extension (%(e_uuid)s) differ"
-msgstr ""
-"UUID der Basis (%(b_uuid)s) und der  Erweiterung (%(e_uuid)s) unterscheiden sich"
+msgstr "UUID der Basis (%(b_uuid)s) und der  Erweiterung (%(e_uuid)s) unterscheiden sich"
 
 #: src/gosa/backend/objects/proxy.py:80
 #, python-format
-msgid ""
-"moving object '%(target)s' from '%(old_dn)s' to '%(new_dn)s' failed: no valid "
-"container found"
-msgstr ""
-"Verschieben des Objekts '%(target)s' von '%(old_dn)s' nach '%(new_dn)s' "
-"fehlgeschlagen: kein gültiger Container gefunden"
+msgid "moving object '%(target)s' from '%(old_dn)s' to '%(new_dn)s' failed: no valid container found"
+msgstr "Verschieben des Objekts '%(target)s' von '%(old_dn)s' nach '%(new_dn)s' fehlgeschlagen: kein gültiger Container gefunden"
 
 #: src/gosa/backend/objects/proxy.py:81
 #, python-format
@@ -2490,9 +2542,7 @@ msgstr "Kein 'RDN' Backend-Parameter angegeben"
 #: src/gosa/backend/objects/backend/__init__.py:22
 #, python-format
 msgid "Cannot generate a unique DN in '%(base)s' using a combination of %(rdns)s"
-msgstr ""
-"Kann keine eindeutige DN in '%(base)s' aus einer Kombination von %(rdns)s "
-"erzeugen"
+msgstr "Kann keine eindeutige DN in '%(base)s' aus einer Kombination von %(rdns)s erzeugen"
 
 #: src/gosa/backend/objects/backend/__init__.py:23
 #, python-format
@@ -2507,9 +2557,7 @@ msgstr "Keine Datenbank-Konfiguration für '%(target)s' gefunden"
 #: src/gosa/backend/objects/backend/__init__.py:25
 #, python-format
 msgid "Attribute '%s' uses the ObjectHandler backend but there is no config for it"
-msgstr ""
-"Attribut '%s' verwendet das ObjectHandler-Backend, aber es existiert keine "
-"Konfiguration dafür"
+msgstr "Attribut '%s' verwendet das ObjectHandler-Backend, aber es existiert keine Konfiguration dafür"
 
 #: src/gosa/backend/objects/backend/__init__.py:26
 #, python-format
@@ -2519,9 +2567,7 @@ msgstr "Kann Quell-Objekt '%(object)s' nicht finden"
 #: src/gosa/backend/objects/backend/__init__.py:27
 #, python-format
 msgid "No unique '%(object)s' object which matches '%(attribute)s == %(value)s'"
-msgstr ""
-"Kein eindeutiges '%(object)s' Objekt bei dem '%(attribute)s == %(value)s' gilt "
-"gefunden"
+msgstr "Kein eindeutiges '%(object)s' Objekt bei dem '%(attribute)s == %(value)s' gilt gefunden"
 
 #: src/gosa/backend/objects/backend/__init__.py:28
 msgid "Failed to generate a unique ID"
@@ -2606,8 +2652,7 @@ msgstr "unbekannte Rolle '%(role)s'"
 #: src/gosa/backend/objects/comparator/acl_roles.py:130
 #: src/gosa/backend/objects/comparator/acl_set.py:129
 msgid "please use a combination of the charaters c, r, o, w, d, s, e, x and m"
-msgstr ""
-"Bitte verwenden Sie eine Kombination der Zeichen c, r, o, w, d, s, e, x und m"
+msgstr "Bitte verwenden Sie eine Kombination der Zeichen c, r, o, w, d, s, e, x und m"
 
 #: src/gosa/backend/objects/comparator/acl_roles.py:143
 #: src/gosa/backend/objects/comparator/acl_set.py:142
@@ -2617,9 +2662,7 @@ msgstr "unbekannte Attribute %(attributes)s"
 
 #: src/gosa/backend/objects/comparator/basic.py:38
 msgid "item does not match the given value ignoring the case"
-msgstr ""
-"Element passt nicht zu dem angegebenen Wert beim Ingorieren der Gross-/"
-"Kleinschreibung"
+msgstr "Element passt nicht zu dem angegebenen Wert beim Ingorieren der Gross-/Kleinschreibung"
 
 #: src/gosa/backend/objects/comparator/basic.py:44
 msgid "item does not match the given value"
@@ -2705,9 +2748,7 @@ msgstr "PPD-Datei '%(ppd)s' nicht gefunden"
 #: src/gosa/backend/plugins/cups/main.py:38
 #, python-format
 msgid "Setting option '%(option)s' to '%(value)s' caused %(conflicts)s"
-msgstr ""
-"Das Ändern der Option '%(option)s' auf den Wert '%(value)s' verursachte "
-"%(conflicts)s"
+msgstr "Das Ändern der Option '%(option)s' auf den Wert '%(value)s' verursachte %(conflicts)s"
 
 #: src/gosa/backend/plugins/cups/main.py:39
 #, python-format
@@ -2725,9 +2766,7 @@ msgstr "Benutzer '%(user)s' nicht gefunden"
 
 #: src/gosa/backend/plugins/cups/main.py:42
 msgid "Cannot find new ppd file per diff, because to many new printers where found"
-msgstr ""
-"Konnte neue PPD-Datei nicht identifizieren, weil zu viele neue Drucker gefunden "
-"wurden"
+msgstr "Konnte neue PPD-Datei nicht identifizieren, weil zu viele neue Drucker gefunden wurden"
 
 #: src/gosa/backend/plugins/cups/main.py:43
 msgid "Cannot find new ppd file per diff, because if already exists"
@@ -2735,12 +2774,8 @@ msgstr "Konnte neue PPD-Datei nicht identifizieren, weil sie bereits existiert."
 
 #: src/gosa/backend/plugins/cups/main.py:44
 #, python-format
-msgid ""
-"Cannot find cups ppd - there should be exactly one for the manufacturer but "
-"there are %(number_ppds)s"
-msgstr ""
-"Kann CUPS PPD nicht finden - es sollte genau eine geben für den Hersteller, aber "
-"es wurden %(number_ppds)s gefunden"
+msgid "Cannot find cups ppd - there should be exactly one for the manufacturer but there are %(number_ppds)s"
+msgstr "Kann CUPS PPD nicht finden - es sollte genau eine geben für den Hersteller, aber es wurden %(number_ppds)s gefunden"
 
 #: src/gosa/backend/plugins/cups/main.py:124
 msgid "Write a general PPD file to the cups pool"
@@ -2771,110 +2806,110 @@ msgstr "Generiert ein GUI-Template aus einer PPD-Datei"
 msgid "Configure printer: %s"
 msgstr "Konfiguriere Drucker: %s"
 
-#: src/gosa/backend/plugins/foreman/main.py:43
+#: src/gosa/backend/plugins/foreman/main.py:44
 #, python-format
 msgid "No MAC given to identify host '%(hostname)s'"
 msgstr "Keine MAC angegeben, um den Host zu identifizieren '%(hostname)s'"
 
-#: src/gosa/backend/plugins/foreman/main.py:44
+#: src/gosa/backend/plugins/foreman/main.py:45
 #, python-format
 msgid "Cannot find device '%(hostname)s'"
 msgstr "Gerät '%(hostname)s' kann nicht gefunden werden"
 
-#: src/gosa/backend/plugins/foreman/main.py:45
+#: src/gosa/backend/plugins/foreman/main.py:46
 msgid "This object is not managed by foreman"
 msgstr "Dieses Objekt wird nicht durch Foreman verwaltet"
 
-#: src/gosa/backend/plugins/foreman/main.py:46
+#: src/gosa/backend/plugins/foreman/main.py:47
 #, python-format
 msgid "%(devices)s found for hostname '%(hostname)s'"
 msgstr "%(devices)s gefunden für Hostname '%(hostname)s'"
 
-#: src/gosa/backend/plugins/foreman/main.py:47
+#: src/gosa/backend/plugins/foreman/main.py:48
 #, python-format
 msgid "Cannot find hostgroup with id '%(group_id)s'"
 msgstr "Kann die Hostgruppe mit id '%(group_id)s' nicht finden"
 
-#: src/gosa/backend/plugins/foreman/main.py:48
+#: src/gosa/backend/plugins/foreman/main.py:49
 #, python-format
 msgid "%(groups)s found for group id '%(group_id)s'"
 msgstr "%(groups)s gefunden für Gruppen-ID '%(group_id)s'"
 
-#: src/gosa/backend/plugins/foreman/main.py:455
+#: src/gosa/backend/plugins/foreman/main.py:456
 msgid "Get all available foreman LSB names"
 msgstr "Liefert alle verfügbaren Foreman LSB Namen"
 
-#: src/gosa/backend/plugins/foreman/main.py:464
+#: src/gosa/backend/plugins/foreman/main.py:465
 msgid "Get release name of an operating system"
 msgstr "Liefert den Releasenamen eines Betriebssystems"
 
-#: src/gosa/backend/plugins/foreman/main.py:474
+#: src/gosa/backend/plugins/foreman/main.py:475
 msgid "Get details of a single foreman hostgroup."
 msgstr "Liefert die Details für eine Foreman Hostgruppe"
 
-#: src/gosa/backend/plugins/foreman/main.py:492
+#: src/gosa/backend/plugins/foreman/main.py:493
 msgid "Get available foreman compute resources."
 msgstr "Liefert verfügbare Foreman Compute-Resourcen"
 
-#: src/gosa/backend/plugins/foreman/main.py:505
+#: src/gosa/backend/plugins/foreman/main.py:506
 msgid "Get available foreman domains."
 msgstr "Listet verfügbare Foreman Domänen."
 
-#: src/gosa/backend/plugins/foreman/main.py:509
-#: src/gosa/backend/plugins/foreman/main.py:556
+#: src/gosa/backend/plugins/foreman/main.py:510
+#: src/gosa/backend/plugins/foreman/main.py:557
 msgid "Get available foreman hostgroups."
 msgstr "Listet verfügbare Foreman Hostgruppen."
 
-#: src/gosa/backend/plugins/foreman/main.py:531
-#: src/gosa/backend/plugins/foreman/main.py:539
+#: src/gosa/backend/plugins/foreman/main.py:532
+#: src/gosa/backend/plugins/foreman/main.py:540
 msgid "Get available foreman operating systems."
 msgstr "Liefert die verfügbaren Foreman Betriebssysteme"
 
-#: src/gosa/backend/plugins/foreman/main.py:535
+#: src/gosa/backend/plugins/foreman/main.py:536
 msgid "Get available foreman architectures."
 msgstr "Listet verfügbare Foreman Architekturen."
 
-#: src/gosa/backend/plugins/foreman/main.py:543
+#: src/gosa/backend/plugins/foreman/main.py:544
 msgid "Get available foreman partition tables."
 msgstr "Liefert die verfügbaren Foreman Partitionstabellen"
 
-#: src/gosa/backend/plugins/foreman/main.py:547
+#: src/gosa/backend/plugins/foreman/main.py:548
 msgid "Get available foreman media."
 msgstr "Liefert die verfügbaren Foreman Medien"
 
-#: src/gosa/backend/plugins/foreman/main.py:573
+#: src/gosa/backend/plugins/foreman/main.py:574
 msgid "Get discovered hosts as search key(dn): value(cn) pairs."
 msgstr "Liefert alle entdeckten Hosts als key(dn): value(cn) Paare"
 
-#: src/gosa/backend/plugins/foreman/main.py:590
+#: src/gosa/backend/plugins/foreman/main.py:591
 msgid "Get all SystemsContainer search key(dn): value(dn) pairs."
 msgstr "Liefert alle System-Container als key(dn): value(dn) Paare"
 
-#: src/gosa/backend/plugins/foreman/main.py:603
+#: src/gosa/backend/plugins/foreman/main.py:604
 msgid "Get foreman hosts as search key(dn): value(cn) pairs."
 msgstr "Liefert alle Foreman Hosts als key(dn): value(cn) Paare"
 
-#: src/gosa/backend/plugins/foreman/main.py:620
+#: src/gosa/backend/plugins/foreman/main.py:621
 msgid "Get discovered hosts as search result."
 msgstr "Liefert die Entdeckten Hosts als Suchergebnis"
 
-#: src/gosa/backend/plugins/foreman/main.py:641
+#: src/gosa/backend/plugins/foreman/main.py:642
 msgid "Force a Puppet agent run on the host"
 msgstr "Erzwinge einen Puppet Lauf auf dem Host"
 
-#: src/gosa/backend/plugins/foreman/main.py:645
+#: src/gosa/backend/plugins/foreman/main.py:646
 msgid "Boot host from specified device"
 msgstr "Starte Host vom angegebenen Device"
 
-#: src/gosa/backend/plugins/foreman/main.py:655
+#: src/gosa/backend/plugins/foreman/main.py:656
 msgid "Run a power operation on host"
 msgstr "Lässt eine \"Power\" Operation auf dem Host laufen"
 
-#: src/gosa/backend/plugins/foreman/main.py:664
+#: src/gosa/backend/plugins/foreman/main.py:665
 msgid "Checks if a host supports power operations"
 msgstr "Prüft ob ein Host \"Power\"-Operationen unterstützt"
 
-#: src/gosa/backend/plugins/foreman/main.py:668
+#: src/gosa/backend/plugins/foreman/main.py:669
 msgid "Get a foreman setting by ID"
 msgstr "Liefert eine Foreman-Einstellung zu einer ID"
 
@@ -2882,15 +2917,15 @@ msgstr "Liefert eine Foreman-Einstellung zu einer ID"
 msgid "Foreman host event"
 msgstr "Foreman Host Event"
 
-#: src/gosa/backend/plugins/foreman/main.py:897
+#: src/gosa/backend/plugins/foreman/main.py:896
 msgid "Foreman hook event"
 msgstr "Foreman Hook Event"
 
-#: src/gosa/backend/plugins/foreman/main.py:1069
+#: src/gosa/backend/plugins/foreman/main.py:1071
 msgid "Host ready"
 msgstr "Host bereit"
 
-#: src/gosa/backend/plugins/foreman/main.py:1070
+#: src/gosa/backend/plugins/foreman/main.py:1072
 #, python-format
 msgid "Host '%s' has been successfully build."
 msgstr "Host '%s' wurde erfolgreich erstellt."
@@ -2917,11 +2952,8 @@ msgstr "DN '%(dn)s' existiert nicht"
 
 #: src/gosa/backend/plugins/misc/filter_validators.py:113
 #, python-format
-msgid ""
-"no '%(type)s' object with '%(attribute)s' property matching '%(value)s' found"
-msgstr ""
-"kein '%(type)s'-Objekt mit %(attribute)s'-Eigenschaft welche auf '%(value)s' "
-"passt gefunden"
+msgid "no '%(type)s' object with '%(attribute)s' property matching '%(value)s' found"
+msgstr "kein '%(type)s'-Objekt mit %(attribute)s'-Eigenschaft welche auf '%(value)s' passt gefunden"
 
 #: src/gosa/backend/plugins/misc/filter_validators.py:133
 #, python-format
@@ -2936,11 +2968,8 @@ msgstr "Objekt hat kein Mitglied vom Typ '%(type)s'"
 
 #: src/gosa/backend/plugins/misc/filter_validators.py:250
 #, python-format
-msgid ""
-"Object is extended by '%(extension)s', which is not allowed. Reason: '%(error)s'"
-msgstr ""
-"Objekt wurde erweitert durch '%(extension)s'. Dies ist nicht erlaubt, "
-"Begründung: '%(error)s'"
+msgid "Object is extended by '%(extension)s', which is not allowed. Reason: '%(error)s'"
+msgstr "Objekt wurde erweitert durch '%(extension)s'. Dies ist nicht erlaubt, Begründung: '%(error)s'"
 
 #: src/gosa/backend/plugins/misc/gravatar.py:30
 msgid "Generate the gravatar URL for the given mail address and size."
@@ -3562,20 +3591,12 @@ msgid "User ID '%(target)s' is unknown."
 msgstr "Benutzer ID  '%(target)s' ist unbekannt."
 
 #: src/gosa/backend/plugins/password/manager.py:34
-msgid ""
-"The password recovery process cannot be started for this user, because of "
-"invalid or missing data"
-msgstr ""
-"Der Kennwortwiederherstellungsprozess kann für diesen Benutzer aufgrund "
-"ungültiger oder fehlender Daten nicht gestartet werden"
+msgid "The password recovery process cannot be started for this user, because of invalid or missing data"
+msgstr "Der Kennwortwiederherstellungsprozess kann für diesen Benutzer aufgrund ungültiger oder fehlender Daten nicht gestartet werden"
 
 #: src/gosa/backend/plugins/password/manager.py:35
-msgid ""
-"This step of the password recovery process cannot be executed at the current "
-"state"
-msgstr ""
-"Dieser Schritt des Passwortwiederherstellungsprozesses kann im aktuellen Status "
-"nicht ausgeführt werden"
+msgid "This step of the password recovery process cannot be executed at the current state"
+msgstr "Dieser Schritt des Passwortwiederherstellungsprozesses kann im aktuellen Status nicht ausgeführt werden"
 
 #: src/gosa/backend/plugins/password/manager.py:66
 msgid "Locks the account password for the given DN"
@@ -3614,42 +3635,28 @@ msgid "List all password recovery questions"
 msgstr "Listet alle verfügbaren Passwortwiederherstellungs-Methoden"
 
 #: src/gosa/backend/plugins/password/manager.py:307
-msgid ""
-"Which phone number from your childhood do you remember best (e.g. 058123456)?"
-msgstr ""
-"Welche Telefonnummer aus Ihrer Kindheit erinnern Sie am besten (z. B. 058123456)?"
+msgid "Which phone number from your childhood do you remember best (e.g. 058123456)?"
+msgstr "Welche Telefonnummer aus Ihrer Kindheit erinnern Sie am besten (z. B. 058123456)?"
 
 #: src/gosa/backend/plugins/password/manager.py:308
 msgid "What is the name of your oldest cousin (e.g. Luise Miller)?"
 msgstr "Wie heißt Ihre älteste Cousine (z. B. Luise Miller)?"
 
 #: src/gosa/backend/plugins/password/manager.py:309
-msgid ""
-"What are the second names or nicknames of all your children (e.g. Max, Sam, and "
-"Lisa)?"
-msgstr ""
-"Wie lauten die Zweitnamen oder Spitznamen aller Ihrer Kinder (z. B. Max, Sam und "
-"Lisa)?"
+msgid "What are the second names or nicknames of all your children (e.g. Max, Sam, and Lisa)?"
+msgstr "Wie lauten die Zweitnamen oder Spitznamen aller Ihrer Kinder (z. B. Max, Sam und Lisa)?"
 
 #: src/gosa/backend/plugins/password/manager.py:310
 msgid "Who was your best friend in childhood (e.g. Robert Danilo)?"
 msgstr "Wer war Ihr bester Freund in der Kindheit (z. B. Robert Danilo)?"
 
 #: src/gosa/backend/plugins/password/manager.py:311
-msgid ""
-"What is your favorite book (author and title) (e.g. Donald Knuth, The Art of "
-"Programming)?"
-msgstr ""
-"Was ist Ihr Lieblingsbuch (Autor und Titel) (z. B. Donald Knuth, Die Kunst der "
-"Programmierung)?"
+msgid "What is your favorite book (author and title) (e.g. Donald Knuth, The Art of Programming)?"
+msgstr "Was ist Ihr Lieblingsbuch (Autor und Titel) (z. B. Donald Knuth, Die Kunst der Programmierung)?"
 
 #: src/gosa/backend/plugins/password/manager.py:312
-msgid ""
-"What is your favorite quote / proverb / aphorism (e.g. the pen is mightier than "
-"the sword)?"
-msgstr ""
-"Was ist Ihr Lieblingszitat / Sprichwort / Aphorismus (z. B. der Stift ist "
-"mächtiger als das Schwert)?"
+msgid "What is your favorite quote / proverb / aphorism (e.g. the pen is mightier than the sword)?"
+msgstr "Was ist Ihr Lieblingszitat / Sprichwort / Aphorismus (z. B. der Stift ist mächtiger als das Schwert)?"
 
 #: src/gosa/backend/plugins/password/manager.py:313
 msgid "Who was your favorite teacher (e.g. Anna Webber)?"
@@ -3660,17 +3667,12 @@ msgid "Who is your favorite historical person (e.g. Henry Dunant)?"
 msgstr "Wer ist Ihre liebste historische Person (z. B. Henry Dunant)?"
 
 #: src/gosa/backend/plugins/password/manager.py:315
-msgid ""
-"Where did you spend the most wonderful holidays of your childhood (e.g. Paradise "
-"Island)?"
-msgstr ""
-"Wo haben Sie die schönsten Ferien Ihrer Kindheit verbracht (z. B. Paradise "
-"Island)?"
+msgid "Where did you spend the most wonderful holidays of your childhood (e.g. Paradise Island)?"
+msgstr "Wo haben Sie die schönsten Ferien Ihrer Kindheit verbracht (z. B. Paradise Island)?"
 
 #: src/gosa/backend/plugins/password/manager.py:316
 msgid "What is your favorite historical event (e.g. the industrial revolution)?"
-msgstr ""
-"Was ist Ihr liebstes historisches Ereignis (z. B. die industrielle Revolution)?"
+msgstr "Was ist Ihr liebstes historisches Ereignis (z. B. die industrielle Revolution)?"
 
 #: src/gosa/backend/plugins/password/manager.py:317
 msgid "What is your favorite literary figure (e.g. William Tell)?"
@@ -3685,17 +3687,12 @@ msgid "What model was your first car or bicycle (e.g. Fiat Panda)?"
 msgstr "Welches Modell war Ihr erstes Auto oder Fahrrad (z. B. Fiat Panda)?"
 
 #: src/gosa/backend/plugins/password/manager.py:320
-msgid ""
-"Which famous, no longer living person would you like to meet (e.g. Leonardo da "
-"Vinci)?"
-msgstr ""
-"Welchen berühmten, nicht mehr lebenden Menschen würden Sie gerne treffen (z. B. "
-"Leonardo da Vinci)?"
+msgid "Which famous, no longer living person would you like to meet (e.g. Leonardo da Vinci)?"
+msgstr "Welchen berühmten, nicht mehr lebenden Menschen würden Sie gerne treffen (z. B. Leonardo da Vinci)?"
 
 #: src/gosa/backend/plugins/password/manager.py:321
 msgid "Who is your favorite actor, musician or painter (e.g. Pablo Picasso)?"
-msgstr ""
-"Wer ist Ihr Lieblingsschauspieler, Musiker oder Maler (z. B. Pablo Picasso)?"
+msgstr "Wer ist Ihr Lieblingsschauspieler, Musiker oder Maler (z. B. Pablo Picasso)?"
 
 #: src/gosa/backend/plugins/password/manager.py:322
 msgid "What was your favorite stuffed animal (e.g. teddy)?"
@@ -3706,11 +3703,8 @@ msgid "Where were you at New Year 2000 (e.g. Moulin Rouge)?"
 msgstr "Wo waren Sie im neuen Jahr 2000 (z. B. Moulin Rouge)?"
 
 #: src/gosa/backend/plugins/password/manager.py:324
-msgid ""
-"What are the last two words on page 32 of your favorite book (e.g. went out)?"
-msgstr ""
-"Was sind die letzten zwei Wörter auf Seite 32 Ihres Lieblingsbuchs (z. B. sind "
-"ausgegangen)?"
+msgid "What are the last two words on page 32 of your favorite book (e.g. went out)?"
+msgstr "Was sind die letzten zwei Wörter auf Seite 32 Ihres Lieblingsbuchs (z. B. sind ausgegangen)?"
 
 #: src/gosa/backend/plugins/password/manager.py:328
 msgid "Request a password reset"
@@ -3718,8 +3712,7 @@ msgstr "Fordere ein Passwort-Reset an"
 
 #: src/gosa/backend/plugins/password/manager.py:367
 msgid "Please open this link to continue your password recovery process."
-msgstr ""
-"Bitte öffnen Sie diesen Link, um mit der Passwortwiederherstellung fortzufahren."
+msgstr "Bitte öffnen Sie diesen Link, um mit der Passwortwiederherstellung fortzufahren."
 
 #: src/gosa/backend/plugins/password/manager.py:372
 msgid "Password recovery link"
@@ -3752,8 +3745,7 @@ msgstr "Ungültiger Gültigkeitsbereich '%(scope)s' [SUB, BASE, ONE, CHILDREN]"
 #: src/gosa/backend/plugins/rpc/methods.py:42
 #, python-format
 msgid "Invalid date specification '%(date)s' [hour, day, week, month, year, all]"
-msgstr ""
-"Ungültige Datums-Sepzifikation '%(date)s' [hour, day, week, month, year, all]"
+msgstr "Ungültige Datums-Sepzifikation '%(date)s' [hour, day, week, month, year, all]"
 
 #: src/gosa/backend/plugins/rpc/methods.py:43
 #, python-format
@@ -3775,11 +3767,8 @@ msgid "Returns a list containing all available object names"
 msgstr "Liefert eine Liste mit allen verfügbaren Objekt-Namen"
 
 #: src/gosa/backend/plugins/rpc/methods.py:99
-msgid ""
-"Returns a list of objects that can be stored as sub-objects for the given object."
-msgstr ""
-"Gibt eine Liste von Objekten zurück, die als Unterobjekte für das angegebene "
-"Objekt gespeichert werden können."
+msgid "Returns a list of objects that can be stored as sub-objects for the given object."
+msgstr "Gibt eine Liste von Objekten zurück, die als Unterobjekte für das angegebene Objekt gespeichert werden können."
 
 #: src/gosa/backend/plugins/rpc/methods.py:104
 msgid "Returns all templates used by the given object type."
@@ -3798,11 +3787,8 @@ msgid "Returns details about the currently logged in user"
 msgstr "Liefert Details über den momentan angemeldeten Benutzer"
 
 #: src/gosa/backend/plugins/rpc/methods.py:150
-msgid ""
-"Checks whether the given extension is already activated for the current object"
-msgstr ""
-"Prüft, ob die angegebene Erweiterung für das aktuelle Objekt bereits aktiviert "
-"ist"
+msgid "Checks whether the given extension is already activated for the current object"
+msgstr "Prüft, ob die angegebene Erweiterung für das aktuelle Objekt bereits aktiviert ist"
 
 #: src/gosa/backend/plugins/rpc/methods.py:158
 msgid "Save user preferences"
@@ -3838,8 +3824,7 @@ msgstr "Liefert eine Liste von DOS/Windows Laufwerksbuchstaben"
 
 #: src/gosa/backend/plugins/rpc/methods.py:403
 msgid "Checks an object of the given type can be placed in the dn"
-msgstr ""
-"Überprüft, ob ein Objekt des angegebenen Typs in der DN platziert werden kann"
+msgstr "Überprüft, ob ein Objekt des angegebenen Typs in der DN platziert werden kann"
 
 #: src/gosa/backend/plugins/rpc/methods.py:420
 msgid "Returns a list of all containers"
@@ -3855,8 +3840,7 @@ msgstr "Setzt ein neues Benutzerpasswort"
 
 #: src/gosa/backend/plugins/samba/domain.py:64
 msgid "Returns the current samba domain policy for a given user"
-msgstr ""
-"Liefert die momentane Samba Domänen-Richtlinie für den angegebenen Benutzer"
+msgstr "Liefert die momentane Samba Domänen-Richtlinie für den angegebenen Benutzer"
 
 #: src/gosa/backend/plugins/samba/domain.py:145
 #: src/gosa/backend/plugins/samba/domain.py:149
@@ -4018,9 +4002,7 @@ msgstr "Unbekannte Zwei-Faktor-Authentifizierungsmethode '%(method)s'"
 
 #: src/gosa/backend/plugins/two_factor/main.py:30
 msgid "Wrong password! Changing two-factor authentication method denied."
-msgstr ""
-"Falsches Passwort! Die Änderung der Zwei-Faktor-Authentifizierungsmethode wurde "
-"abgelehnt."
+msgstr "Falsches Passwort! Die Änderung der Zwei-Faktor-Authentifizierungsmethode wurde abgelehnt."
 
 #: src/gosa/backend/plugins/two_factor/main.py:89
 msgid "Returns the available two factor authentication methods"
@@ -4028,9 +4010,7 @@ msgstr "Gibt die verfügbaren Zwei-Faktor-Authentifizierungsmethoden zurück"
 
 #: src/gosa/backend/plugins/two_factor/main.py:93
 msgid "Returns the current two factor authentication method for the given user"
-msgstr ""
-"Gibt die aktuelle Zwei-Faktor-Authentifizierungsmethode für den angegebenen "
-"Benutzer zurück"
+msgstr "Gibt die aktuelle Zwei-Faktor-Authentifizierungsmethode für den angegebenen Benutzer zurück"
 
 #: src/gosa/backend/plugins/two_factor/main.py:101
 msgid "Enable two factor authentication for the given user"
@@ -4067,8 +4047,7 @@ msgstr "Generiert eine Uid"
 
 #: src/gosa/backend/plugins/user/main.py:50
 msgid "Create PosixGroup if it does not exists and add the user to it"
-msgstr ""
-"Posixgruppe erstellen, falls sie nicht existiert und füge den Benutzer hinzu"
+msgstr "Posixgruppe erstellen, falls sie nicht existiert und füge den Benutzer hinzu"
 
 #: src/gosa/backend/plugins/user/main.py:61
 #, python-format
@@ -4082,27 +4061,16 @@ msgstr "Kein Webhook-Handler für den Mime-Typ '%(topic)s' gefunden"
 
 #: src/gosa/backend/plugins/webhook/registry.py:37
 #, python-format
-msgid ""
-"There is already a webhook registered for mime-type '%(topic)s' with name "
-"'%(name)s'"
-msgstr ""
-"Es ist bereits ein Webhook für Mime-Type '%(topic)s' mit dem Namen '%(name)s' "
-"registriert"
+msgid "There is already a webhook registered for mime-type '%(topic)s' with name '%(name)s'"
+msgstr "Es ist bereits ein Webhook für Mime-Type '%(topic)s' mit dem Namen '%(name)s' registriert"
 
 #: src/gosa/backend/plugins/webhook/registry.py:38
-msgid ""
-"Invalid sender name syntax: only ASCII letters and optional hyphens are allowed"
-msgstr ""
-"Ungültige Syntax im Absendernamen: Nur ASCII-Buchstaben und optionale "
-"Bindestriche sind zulässig"
+msgid "Invalid sender name syntax: only ASCII letters and optional hyphens are allowed"
+msgstr "Ungültige Syntax im Absendernamen: Nur ASCII-Buchstaben und optionale Bindestriche sind zulässig"
 
 #: src/gosa/backend/plugins/webhook/registry.py:39
-msgid ""
-"Invalid mime-type syntax: only alphanumeric, . (dot), + (plus) and / (slash) "
-"characters are allowed"
-msgstr ""
-"Ungültige MIME-Syntax: nur alphanumerische Zeichen,. (Punkt), + (Plus) und / "
-"(Schrägstrich) sind erlaubt"
+msgid "Invalid mime-type syntax: only alphanumeric, . (dot), + (plus) and / (slash) characters are allowed"
+msgstr "Ungültige MIME-Syntax: nur alphanumerische Zeichen,. (Punkt), + (Plus) und / (Schrägstrich) sind erlaubt"
 
 #: src/gosa/backend/plugins/webhook/registry.py:87
 msgid "Get the webhook receiver URL"
@@ -4160,12 +4128,17 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 #~ msgstr "Listet verfügbaren Dienst-Konten des Busses."
 
 #~ msgid ""
-#~ "Shut down the service belonging to the supplied queue. In case of HTTP "
-#~ "connections, this command will shut down the node you're currently logged in."
+#~ "Shut down the service belonging to "
+#~ "the supplied queue. In case of "
+#~ "HTTP connections, this command will shut"
+#~ " down the node you're currently "
+#~ "logged in."
 #~ msgstr ""
-#~ "Node herunterfahren, dem die verwendete Queue gehört. Im Fall von HTTP-"
-#~ "Verbindungen wird der Node heruntergefahren, der das HTTP-Gateway "
-#~ "bereitstellt an dem Sie angemeldet sind."
+#~ "Node herunterfahren, dem die verwendete "
+#~ "Queue gehört. Im Fall von HTTP-"
+#~ "Verbindungen wird der Node heruntergefahren,"
+#~ " der das HTTP-Gateway bereitstellt an"
+#~ " dem Sie angemeldet sind."
 
 #~ msgid "Attribute not found"
 #~ msgstr "Attribut %(target)s nicht gefunden"
@@ -4187,19 +4160,24 @@ msgstr "Keine LDAP-Verbindung verfügbar"
 
 #~ msgid "Invalid data '%(entry)s:%(data)s' for client '%(target)s provided'"
 #~ msgstr ""
-#~ "Es wurden ungültige Daten '%(entry)s:%(data)s' für den Client '%(target)s "
-#~ "angegeben"
+#~ "Es wurden ungültige Daten '%(entry)s:%(data)s'"
+#~ " für den Client '%(target)s angegeben"
 
 #~ msgid ""
-#~ "Device type '%(type)s' for client '%(target)s' is invalid [terminal, "
-#~ "workstation, server, sipphone, switch, router, printer, scanner]"
+#~ "Device type '%(type)s' for client "
+#~ "'%(target)s' is invalid [terminal, "
+#~ "workstation, server, sipphone, switch, router,"
+#~ " printer, scanner]"
 #~ msgstr ""
-#~ "Geräte-Typ '%(type)s' des Clients '%(target)s' ist ungültig [terminal, "
-#~ "workstation, server, sipphone, switch, router, printer, scanner]"
+#~ "Geräte-Typ '%(type)s' des Clients "
+#~ "'%(target)s' ist ungültig [terminal, "
+#~ "workstation, server, sipphone, switch, router,"
+#~ " printer, scanner]"
 
 #~ msgid "Owner '%(owner)s' for client '%(target)s' not found"
 #~ msgstr ""
-#~ "Eigentümer '%(owner)s' des Clients %(target)s' kann nicht gefunden werden"
+#~ "Eigentümer '%(owner)s' des Clients %(target)s'"
+#~ " kann nicht gefunden werden"
 
 #~ msgid "Invalid client UUID '%(target)s'"
 #~ msgstr "Ungültige Client UUID '%(target)s'"

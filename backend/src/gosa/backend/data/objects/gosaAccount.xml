@@ -2,7 +2,7 @@
 <Objects xmlns="http://www.gonicus.de/Objects">
   <Object>
     <Name>GosaAccount</Name>
-    <DisplayName>GosaAccount</DisplayName>
+    <DisplayName>Account</DisplayName>
     <Description>Class for GOsa Accounts (v2.7)</Description>
     <Backend>LDAP</Backend>
     <BackendParameters>

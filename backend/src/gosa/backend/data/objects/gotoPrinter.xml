@@ -2,7 +2,7 @@
 <Objects xmlns="http://www.gonicus.de/Objects">
     <Object>
         <Name>GotoPrinter</Name>
-        <DisplayName>GotoPrinter</DisplayName>
+        <DisplayName>Printer</DisplayName>
         <Description>GOto - Gonicus Terminal Concept, objectclass (v2.7)</Description>
         <Backend>LDAP</Backend>
         <Templates>

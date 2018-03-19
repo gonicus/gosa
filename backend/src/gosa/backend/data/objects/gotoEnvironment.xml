@@ -2,7 +2,7 @@
 <Objects xmlns="http://www.gonicus.de/Objects" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gonicus.de/Objects ../object.xsd ">
     <Object>
         <Name>GotoEnvironment</Name>
-        <DisplayName>GotoEnvironment</DisplayName>
+        <DisplayName>Environment</DisplayName>
         <Description>GOto - contains environment settings (v2.7)</Description>
         <Backend>LDAP</Backend>
         <BaseObject>false</BaseObject>

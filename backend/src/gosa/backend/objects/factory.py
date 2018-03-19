@@ -308,7 +308,7 @@ class ObjectFactory(object):
 
         return res
 
-    def getAllowedSubElementsForObject(self, objectType, includeInvisible=False):
+    def getAllowedSubElementsForObject(self, objectType, includeInvisible=False, locale=None):
         """
         Returns a list of objects that can be stored as sub-objects for the given object.
         """
@@ -333,10 +333,10 @@ class ObjectFactory(object):
                         res.append(attr.text)
         return res
 
-    def getAllowedSubElementsForObjectWithActions(self, user, objectType):
+    def getAllowedSubElementsForObjectWithActions(self, user, objectType, locale=None):
         res = {}
         resolver = PluginRegistry.getInstance("ACLResolver")
-        for type in self.getAllowedSubElementsForObject(objectType):
+        for type in self.getAllowedSubElementsForObject(objectType, locale=locale):
             actions = resolver.getAllowedActions(user, topic="%s.objects.%s" % (self.env.domain, type))
             if len(actions):
                 res[type] = actions
