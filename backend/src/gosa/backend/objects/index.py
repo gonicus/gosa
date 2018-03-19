@@ -721,9 +721,15 @@ class ObjectIndex(Plugin):
                     e.ModificationTime(_last_changed.strftime("%Y%m%d%H%M%SZ")),
                     e.ChangeType(event_change_type)
                 ))
-            else:
+            elif _uuid is not None:
                 ev = e.Event(e.ObjectChanged(
                     e.UUID(_uuid),
+                    e.DN(dn),
+                    e.ModificationTime(_last_changed.strftime("%Y%m%d%H%M%SZ")),
+                    e.ChangeType(event_change_type)
+                ))
+            else:
+                ev = e.Event(e.ObjectChanged(
                     e.DN(dn),
                     e.ModificationTime(_last_changed.strftime("%Y%m%d%H%M%SZ")),
                     e.ChangeType(event_change_type)
