@@ -685,7 +685,7 @@ class ObjectIndex(Plugin):
                         func.lower(ObjectInfoIndex.dn) == func.lower(dn)
                     )).one_or_none()
 
-                if new_dn[-1:] == ",":
+                if new_dn is not None and new_dn[-1:] == ",":
                     # only new RDN received, get parent from db
                     if entry is not None:
                         new_dn = new_dn + entry._parent_dn

@@ -292,9 +292,11 @@ class WebhookEventReceiver(object):
 
     def __init__(self):
         self.type = N_("GOsa events")
+        self.log = logging.getLogger(__name__)
 
     def handle_request(self, requestHandler):
         # read and validate event
+        self.log.debug('Received event via webhook: %s' % requestHandler.request.body)
         xml = objectify.fromstring(requestHandler.request.body, PluginRegistry.getEventParser())
         # forward incoming event to internal event bus
         zope.event.notify(xml)
