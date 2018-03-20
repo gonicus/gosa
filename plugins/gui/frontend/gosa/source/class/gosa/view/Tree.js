@@ -301,8 +301,8 @@ qx.Class.define("gosa.view.Tree", {
         var canDelete = true;
         selectionModel.iterateSelection(function(index) {
           var selection = this._tableModel.getRowData(index);
-          canOpen = canOpen && qx.lang.Array.contains(this._objectRights[selection[0]] || [], "r");
-          canDelete = canDelete && qx.lang.Array.contains(this._objectRights[selection[0]] || [], "d");
+          canOpen = canOpen && this._isAllowed(selection[0],"r");
+          canDelete = canDelete && this._isAllowed(selection[0], "d");
         }, this);
         this.getChildControl("action-menu-button").setEnabled(canOpen && canDelete);
         this.getChildControl("open-button").setEnabled(canOpen);
@@ -384,7 +384,7 @@ qx.Class.define("gosa.view.Tree", {
           return;
         }
         // load object types
-        this._rpc.cA("getAllowedSubElementsForObjectWithActions", selection.getType())
+        this._rpc.cA("getAllowedSubElementsForObjectWithActions", selection.getType(), gosa.Config.getLocale())
         .then(function(result) {
           this._objectRights = result;
           var createMenu = this.getChildControl("create-menu");
@@ -396,17 +396,18 @@ qx.Class.define("gosa.view.Tree", {
             visibleTypes[item[0]] = true;
           });
           Object.getOwnPropertyNames(result).sort().forEach(function(name) {
-            var allowed = result[name];
+            var allowed = result[name].actions;
+            var displayName = result[name].hasOwnProperty('displayName') ? result[name].displayName : this['tr'](name);
             if (allowed.includes("c")) {
               var icon = gosa.util.Icons.getIconByType(name, 22);
-              var button = new qx.ui.menu.Button(this['tr'](name), icon);
+              var button = new qx.ui.menu.Button(displayName, icon);
               button.setAppearance("icon-menu-button");
               button.setUserData("type", name);
               createMenu.add(button);
               button.addListener("execute", this._onCreateObject, this);
             }
             if (visibleTypes[name] && allowed.includes("r")) {
-              var button = new qx.ui.menu.CheckBox(this['tr'](name));
+              var button = new qx.ui.menu.CheckBox(displayName);
               // initially they are all selected
               button.setValue(true);
               button.setUserData("type", name);
@@ -532,7 +533,7 @@ qx.Class.define("gosa.view.Tree", {
       if (selection.getSelectedCount() === 1) {
         selection.iterateSelection(function(index) {
           var row = this._tableModel.getRowData(index);
-          if (qx.lang.Array.contains(this._objectRights[row[0]] || [], "w")) {
+          if (this._isAllowed(row[0], "w")) {
             gosa.proxy.ObjectFactory.openObject(row[3])
             .then(function(object) {
               var dialog = new gosa.ui.dialogs.actions.MoveObjectDialog(new gosa.data.controller.Actions(object));
@@ -544,11 +545,15 @@ qx.Class.define("gosa.view.Tree", {
       }
     },
 
+    _isAllowed: function (type, action) {
+      return this._objectRights.hasOwnProperty(type) && this._objectRights[type].actions.includes(action);
+    },
+
     _onDeleteObject : function() {
       // get currently selected dn in tree
       this.getChildControl("table").getSelectionModel().iterateSelection(function(index) {
         var row = this._tableModel.getRowData(index);
-        if (qx.lang.Array.contains(this._objectRights[row[0]] || [], "d")) {
+        if (this._isAllowed(row[0], "d")) {
           gosa.proxy.ObjectFactory.removeObject(row[3]);
         }
       }, this);
@@ -562,7 +567,7 @@ qx.Class.define("gosa.view.Tree", {
         var promises = [];
         selection.iterateSelection(function(index) {
           var row = this._tableModel.getRowData(index);
-          if (qx.lang.Array.contains(this._objectRights[row[0]] || [], "r")) {
+          if (this._isAllowed(row[0], "r")) {
             promises.push(gosa.ui.controller.Objects.getInstance().openObject(row[3]));
           }
         }, this);

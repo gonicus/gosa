@@ -2,7 +2,7 @@
 <Objects xmlns="http://www.gonicus.de/Objects">
   <Object>
     <Name>ForemanHostGroup</Name>
-    <DisplayName>Deployment Group</DisplayName>
+    <DisplayName>Deployment group</DisplayName>
     <Description>The foreman - this group is managed by foreman</Description>
     <Templates>
       <Template>foreman-host-group.json</Template>

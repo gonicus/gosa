@@ -16,9 +16,9 @@ import math
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import aliased, contains_eager, subqueryload
 from sqlalchemy_searchable import search, parse_search_query
-
+from pkg_resources import resource_filename
 import gosa.backend.objects.renderer
-
+import gettext
 from sqlalchemy import desc
 from zope.interface import implementer
 from gosa.common import Environment
@@ -89,17 +89,50 @@ class RPCMethods(Plugin):
         self.__acl_resolver = PluginRegistry.getInstance("ACLResolver")
 
     @Command(__help__=N_("Returns a list containing all available object names"))
-    def getAvailableObjectNames(self, only_base_objects=False, base=None):
+    def getAvailableObjectNames(self, only_base_objects=False, base=None, locale=None):
         factory = ObjectFactory.getInstance()
         if base is not None:
-            return factory.getAllowedSubElementsForObject(base)
+            res = factory.getAllowedSubElementsForObject(base)
         else:
-            return factory.getAvailableObjectNames(only_base_objects, base)
+            res = factory.getAvailableObjectNames(only_base_objects, base)
+        if locale is None:
+            return res
+        else:
+            languages = [locale]
+            if len(locale.split('-')) == 2:
+                languages.append(locale.split('-')[0])
+            t = gettext.translation('messages',
+                                    resource_filename("gosa.backend", "locale"),
+                                    fallback=True,
+                                    languages=languages)
+            translated = {}
+            for name in res:
+                xml = factory.getXMLSchema(name)
+                if xml is not None:
+                    translated[name] = t.gettext(xml.DisplayName.text)
+                else:
+                    self.log.info('no xml found for %s' % name)
+            return translated
 
     @Command(needsUser=True, __help__=N_("Returns a list of objects that can be stored as sub-objects for the given object."))
-    def getAllowedSubElementsForObjectWithActions(self, user, base=None):
+    def getAllowedSubElementsForObjectWithActions(self, user, base=None, locale=None):
         factory = ObjectFactory.getInstance()
-        return factory.getAllowedSubElementsForObjectWithActions(user, base)
+        res = {}
+        languages = [locale]
+        if len(locale.split('-')) == 2:
+            languages.append(locale.split('-')[0])
+        t = gettext.translation('messages',
+                                resource_filename("gosa.backend", "locale"),
+                                fallback=True,
+                                languages=languages)
+        for obj_type, actions in factory.getAllowedSubElementsForObjectWithActions(user, base).items():
+            xml = factory.getXMLSchema(obj_type)
+            if xml is not None:
+                res[obj_type] = {
+                    "actions": actions,
+                    "displayName": t.gettext(xml.DisplayName.text)
+                }
+        return res
 
     @Command(__help__=N_("Returns all templates used by the given object type."))
     def getGuiTemplates(self, objectType):

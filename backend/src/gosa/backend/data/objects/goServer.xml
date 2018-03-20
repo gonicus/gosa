@@ -2,7 +2,7 @@
 <Objects xmlns="http://www.gonicus.de/Objects">
   <Object>
     <Name>GoServer</Name>
-    <DisplayName>GoServer</DisplayName>
+    <DisplayName>Server</DisplayName>
     <Description>Server description (v2.7)</Description>
     <Backend>LDAP</Backend>
     <BaseObject>false</BaseObject>
