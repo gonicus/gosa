@@ -2,7 +2,7 @@
 <Objects xmlns="http://www.gonicus.de/Objects">
   <Object>
     <Name>ZarafaServer</Name>
-    <DisplayName>Zarafa</DisplayName>
+    <DisplayName>Zarafa server</DisplayName>
     <Description>ZARAFA: a Zarafa server</Description>
     <Backend>LDAP</Backend>
     <BackendParameters>

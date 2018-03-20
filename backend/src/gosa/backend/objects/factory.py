@@ -308,7 +308,7 @@ class ObjectFactory(object):
 
         return res
 
-    def getAllowedSubElementsForObject(self, objectType, includeInvisible=False, locale=None):
+    def getAllowedSubElementsForObject(self, objectType, includeInvisible=False):
         """
         Returns a list of objects that can be stored as sub-objects for the given object.
         """

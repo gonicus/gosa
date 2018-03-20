@@ -3,7 +3,7 @@
   <Object>
     <Name>NagiosGroup</Name>
     <Description>Nagios extension for a group</Description>
-    <DisplayName>Nagios group extension</DisplayName>
+    <DisplayName>Nagios group</DisplayName>
     <BackendParameters>
       <Backend objectClasses="nagiosContactGroup">LDAP</Backend>
     </BackendParameters>

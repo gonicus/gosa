@@ -28,6 +28,11 @@ qx.Class.define("gosa.data.filter.AllowedValues", {
       nullable: true
     },
 
+    delegateFilterPropertyName: {
+      check: 'String',
+      nullable: true
+    },
+
     /**
      * Maximum allowed values
      */
@@ -53,7 +58,9 @@ qx.Class.define("gosa.data.filter.AllowedValues", {
         return;
       }
       list.forEach(function(entry) {
-        if (entry.hasOwnProperty(this.getPropertyName())) {
+        // only use the resolved ones
+        if (entry.hasOwnProperty(this.getPropertyName()) &&
+          (this.getPropertyName() !== '__identifier') || entry[this.getPropertyName()] !== entry['__identifier__']) {
           tmp[entry[this.getPropertyName()]] = 1;
         }
       }, this);
@@ -82,6 +89,18 @@ qx.Class.define("gosa.data.filter.AllowedValues", {
       return list.filter(function(entry) {
         return !entry.hasOwnProperty(this.getPropertyName()) || this.__distinctValues.indexOf(entry[this.getPropertyName()]) >= 0;
       }, this);
+    },
+
+    delegateFilter: function(modelItem) {
+      if (this.getDelegateFilterPropertyName()) {
+        if (this.__distinctValues.length < this.getMaximum()) {
+          return true;
+        } else if (this.__distinctValues.indexOf(modelItem.get(this.getDelegateFilterPropertyName())) >= 0) {
+          return true;
+        }
+        return false;
+      }
+      return true;
     }
   }
 });

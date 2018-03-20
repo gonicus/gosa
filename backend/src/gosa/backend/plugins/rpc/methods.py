@@ -89,12 +89,30 @@ class RPCMethods(Plugin):
         self.__acl_resolver = PluginRegistry.getInstance("ACLResolver")
 
     @Command(__help__=N_("Returns a list containing all available object names"))
-    def getAvailableObjectNames(self, only_base_objects=False, base=None):
+    def getAvailableObjectNames(self, only_base_objects=False, base=None, locale=None):
         factory = ObjectFactory.getInstance()
         if base is not None:
-            return factory.getAllowedSubElementsForObject(base)
+            res = factory.getAllowedSubElementsForObject(base)
         else:
-            return factory.getAvailableObjectNames(only_base_objects, base)
+            res = factory.getAvailableObjectNames(only_base_objects, base)
+        if locale is None:
+            return res
+        else:
+            languages = [locale]
+            if len(locale.split('-')) == 2:
+                languages.append(locale.split('-')[0])
+            t = gettext.translation('messages',
+                                    resource_filename("gosa.backend", "locale"),
+                                    fallback=True,
+                                    languages=languages)
+            translated = {}
+            for name in res:
+                xml = factory.getXMLSchema(name)
+                if xml is not None:
+                    translated[name] = t.gettext(xml.DisplayName.text)
+                else:
+                    self.log.info('no xml found for %s' % name)
+            return translated
 
     @Command(needsUser=True, __help__=N_("Returns a list of objects that can be stored as sub-objects for the given object."))
     def getAllowedSubElementsForObjectWithActions(self, user, base=None, locale=None):
@@ -275,7 +293,6 @@ class RPCMethods(Plugin):
         if len(extensions):
             query["extension"] = {"in_": extensions}
 
-        print(query)
         search_result = index.search(query, attrs, options)
 
         result = []

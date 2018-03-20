@@ -21,6 +21,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
   construct: function(title, current_values, extension, attribute, columnSettings, single, modelFilter, sortByColumn, mode, options) {
     this.base(arguments);
+    console.log(arguments);
     this.setCaption(title);
     this.setResizable(true, true, true, true);
     this.setWidth(500);
@@ -40,10 +41,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     }
     if (modelFilter) {
       searchOptions.filter = modelFilter.getSearchOptions();
-    }
-
-    if (searchOptions.hasOwnProperty("filter") && searchOptions.filter.hasOwnProperty("_type")) {
-      this._allowedTypes = qx.lang.Object.clone(searchOptions.filter._type);
+      modelFilter.setDelegateFilterPropertyName('key');
     }
 
     this._selectorOptions = options || {};
@@ -58,7 +56,22 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
       modelFilter: modelFilter
     };
 
-    this.__initWidgets(columnSettings, extension, attribute);
+    var allowedTypes = new qx.data.Array();
+    this.setAllowedTypes(allowedTypes);
+
+    if (searchOptions.hasOwnProperty("filter") && searchOptions.filter.hasOwnProperty("_type")) {
+      this._typeFilter = searchOptions.filter._type;
+
+      // get complete list of allowed types from backend (and use this._typeFilter to filter them)
+      gosa.io.Rpc.getInstance().cA('getAvailableObjectNames', false, null, gosa.Config.getLocale()).then(function (res) {
+        // add the empty type
+        allowedTypes.push(new gosa.data.KeyValue('-', ''));
+        Object.keys(res).forEach(function (type) {
+          allowedTypes.push(new gosa.data.KeyValue(type, res[type]));
+        });
+        this.__initWidgets(columnSettings, extension, attribute);
+      }, this);
+    }
 
     if (!this._selectorOptions.skipInitialSearch) {
       this._updateValues();
@@ -67,6 +80,18 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
   events: {
     "selected": "qx.event.type.Data"
+  },
+
+  /*
+  *****************************************************************************
+     PROPERTIES
+  *****************************************************************************
+  */
+  properties: {
+    allowedTypes: {
+      check: 'qx.data.Array',
+      init: null
+    }
   },
 
   members : {
@@ -78,8 +103,8 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     _detailsRpc: null,
     _throbber: null,
     _filter: null,
+    _typeFilter: null,
     _columnSettings: null,
-    _allowedTypes: null,
     _selectorOptions: null,
 
 
@@ -92,8 +117,8 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
         var selection = this.getChildControl("type-selector").getSelection();
         var selectedTypes = [];
         selection.forEach(function(sel) {
-          if (sel.getUserData("type")) {
-            selectedTypes.push(sel.getUserData("type"));
+          if (sel.getKey() && sel.getKey() !== '-') {
+            selectedTypes.push(sel.getKey());
           }
         });
         if (selectedTypes.length > 0) {
@@ -137,7 +162,6 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
     __initWidgets : function(columnSettings, extension, attribute) {
       if (this._selectorOptions.hasOwnProperty("filters")) {
-        this._createChildControl("filter-button");
         for (var filterName in this._selectorOptions.filters) {
           switch (filterName) {
             case "search":
@@ -149,18 +173,14 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
             case "base":
               var control = this.getChildControl('base-selector');
-              control.setObjectTypes(this._allowedTypes);
+              control.setObjectTypes(this.getAllowedTypes().map(function (entry) {
+                return entry.getKey();
+              }));
               break;
 
             case "type":
-              if (this._allowedTypes) {
-                var control = this.getChildControl('type-selector');
-                control.add(new qx.ui.form.ListItem(""));
-                this._allowedTypes.forEach(function(type) {
-                  var item = new qx.ui.form.ListItem(this['tr'](type));
-                  item.setUserData("type", type);
-                  control.add(item);
-                }, this);
+              if (this.getAllowedTypes().length > 0) {
+                this.getChildControl('type-selector').setModel(this.getAllowedTypes());
               }
               break;
 
@@ -169,6 +189,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
               break;
           }
         }
+        this._createChildControl("filter-button");
       }
 
       this._tableContainer = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
@@ -286,7 +307,17 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
           break;
 
         case 'type-selector':
-          control = new qx.ui.form.SelectBox();
+          control = new qx.ui.form.VirtualSelectBox();
+          control.setLabelPath('value');
+          control.setDelegate({
+            filter: function (data) {
+              return data.getKey() === '-' || !this._searchArgs.modelFilter || this._searchArgs.modelFilter.delegateFilter(data);
+            }.bind(this),
+
+            sorter: function (a, b) {
+              return a.getValue().localeCompare(b.getValue());
+            }
+          });
           control.addListener("changeSelection", this.__maintainSearchButton, this);
           var label = new qx.ui.basic.Label(this.tr("Type"));
           var container = new qx.ui.container.Composite(new qx.ui.layout.HBox());

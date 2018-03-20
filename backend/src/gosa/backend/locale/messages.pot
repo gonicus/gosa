@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gosa.backend 3.0\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
-"POT-Creation-Date: 2018-03-19 14:40+0100\n"
+"POT-Creation-Date: 2018-03-20 10:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -602,7 +602,8 @@ msgid "Deployment"
 msgstr ""
 
 #: src/gosa/backend/data/objects/foremanHostGroup.xml:5
-msgid "Deployment Group"
+#: src/gosa/backend/data/templates/foreman-host-group.json:15
+msgid "Deployment group"
 msgstr ""
 
 #: src/gosa/backend/data/objects/goServer.xml:5
@@ -697,7 +698,7 @@ msgid "Locality"
 msgstr ""
 
 #: src/gosa/backend/data/objects/nagios-group.xml:6
-msgid "Nagios group extension"
+msgid "Nagios group"
 msgstr ""
 
 #: src/gosa/backend/data/objects/organization.xml:6
@@ -760,7 +761,7 @@ msgid "Organizational unit"
 msgstr ""
 
 #: src/gosa/backend/data/objects/people-container.xml:5
-msgid "Users"
+msgid "Container for users"
 msgstr ""
 
 #: src/gosa/backend/data/objects/printer-container.xml:17
@@ -921,8 +922,11 @@ msgid "Equipment"
 msgstr ""
 
 #: src/gosa/backend/data/objects/user-zarafa.xml:5
+msgid "Zarafa user"
+msgstr ""
+
 #: src/gosa/backend/data/objects/zarafa-server.xml:5
-msgid "Zarafa"
+msgid "Zarafa server"
 msgstr ""
 
 #: src/gosa/backend/data/templates/country.json:35
@@ -1202,10 +1206,6 @@ msgstr ""
 #: src/gosa/backend/data/templates/domain.json:70
 #: src/gosa/backend/data/templates/organization.json:35
 msgid "Organization name"
-msgstr ""
-
-#: src/gosa/backend/data/templates/foreman-host-group.json:15
-msgid "Deployment group"
 msgstr ""
 
 #: src/gosa/backend/data/templates/foreman-host-group.json:26
@@ -3823,75 +3823,75 @@ msgstr ""
 msgid "Returns a list containing all available object names"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:99
+#: src/gosa/backend/plugins/rpc/methods.py:118
 msgid ""
 "Returns a list of objects that can be stored as sub-objects for the given"
 " object."
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:104
+#: src/gosa/backend/plugins/rpc/methods.py:138
 msgid "Returns all templates used by the given object type."
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:112
+#: src/gosa/backend/plugins/rpc/methods.py:146
 msgid "Returns all dialog-templates used by the given object type."
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:120
+#: src/gosa/backend/plugins/rpc/methods.py:154
 msgid "Get all translations bound to templates."
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:130
+#: src/gosa/backend/plugins/rpc/methods.py:164
 msgid "Returns details about the currently logged in user"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:150
+#: src/gosa/backend/plugins/rpc/methods.py:184
 msgid ""
 "Checks whether the given extension is already activated for the current "
 "object"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:158
+#: src/gosa/backend/plugins/rpc/methods.py:192
 msgid "Save user preferences"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:174
+#: src/gosa/backend/plugins/rpc/methods.py:208
 msgid "Load user preferences"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:190
+#: src/gosa/backend/plugins/rpc/methods.py:224
 msgid "Search for related object information"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:209
+#: src/gosa/backend/plugins/rpc/methods.py:243
 msgid "Search for object information"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:293
+#: src/gosa/backend/plugins/rpc/methods.py:328
 msgid "Return object information like: title and icon"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:327
+#: src/gosa/backend/plugins/rpc/methods.py:362
 msgid "Resolves object information"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:387
+#: src/gosa/backend/plugins/rpc/methods.py:422
 msgid "Returns a list with all selectable samba-domain-names"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:395
+#: src/gosa/backend/plugins/rpc/methods.py:430
 msgid "Returns a list of DOS/Windows drive letters"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:403
+#: src/gosa/backend/plugins/rpc/methods.py:438
 msgid "Checks an object of the given type can be placed in the dn"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:420
+#: src/gosa/backend/plugins/rpc/methods.py:455
 msgid "Returns a list of all containers"
 msgstr ""
 
-#: src/gosa/backend/plugins/rpc/methods.py:454
+#: src/gosa/backend/plugins/rpc/methods.py:489
 msgid "Filter for indexed attributes and return the matches."
 msgstr ""
 

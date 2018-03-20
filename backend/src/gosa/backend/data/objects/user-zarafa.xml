@@ -2,7 +2,7 @@
 <Objects xmlns="http://www.gonicus.de/Objects">
   <Object>
     <Name>ZarafaAccount</Name>
-    <DisplayName>Zarafa</DisplayName>
+    <DisplayName>Zarafa user</DisplayName>
     <Description>Zarafa: an user of Zarafa</Description>
     <Templates>
       <Template>user-zarafa.json</Template>
