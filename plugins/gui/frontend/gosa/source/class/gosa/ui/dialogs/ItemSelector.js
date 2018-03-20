@@ -21,7 +21,6 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
   construct: function(title, current_values, extension, attribute, columnSettings, single, modelFilter, sortByColumn, mode, options) {
     this.base(arguments);
-    console.log(arguments);
     this.setCaption(title);
     this.setResizable(true, true, true, true);
     this.setWidth(500);
