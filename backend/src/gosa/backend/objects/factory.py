@@ -336,7 +336,7 @@ class ObjectFactory(object):
     def getAllowedSubElementsForObjectWithActions(self, user, objectType, locale=None):
         res = {}
         resolver = PluginRegistry.getInstance("ACLResolver")
-        for type in self.getAllowedSubElementsForObject(objectType, locale=locale):
+        for type in self.getAllowedSubElementsForObject(objectType):
             actions = resolver.getAllowedActions(user, topic="%s.objects.%s" % (self.env.domain, type))
             if len(actions):
                 res[type] = actions
