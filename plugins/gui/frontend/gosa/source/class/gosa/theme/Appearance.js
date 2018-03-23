@@ -979,6 +979,24 @@ qx.Theme.define("gosa.theme.Appearance", {
 
     "window/base-selector/tree": "virtual-tree",
 
+
+    "gosa-dialog-register-webhook": "window",
+    "gosa-dialog-register-webhook/name-field": "textfield",
+    "gosa-dialog-register-webhook/mime-type": "selectbox",
+    "gosa-dialog-register-webhook/save-button": "button-primary",
+    "gosa-dialog-register-webhook/cancel-button": "button",
+    "gosa-dialog-register-webhook/error-message": {
+      include: "statusLabel",
+      alias: "statusLabel",
+
+      style: function() {
+        return {
+          padding : 10,
+          maxWidth: 350
+        }
+      }
+    },
+
     // - FLAT - do not insert anything behind this marker -----------------------------------------------------
 
     "root": {
@@ -1081,23 +1099,6 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "window-error/title": "window/title",
-
-    "gosa-dialog-register-webhook": "window",
-    "gosa-dialog-register-webhook/name-field": "textfield",
-    "gosa-dialog-register-webhook/mime-type": "selectbox",
-    "gosa-dialog-register-webhook/save-button": "button-primary",
-    "gosa-dialog-register-webhook/cancel-button": "button",
-    "gosa-dialog-register-webhook/error-message": {
-      include: "statusLabel",
-      alias: "statusLabel",
-
-      style: function() {
-        return {
-          padding : 10,
-          maxWidth: 350
-        }
-      }
-    },
 
     "button": {
       style: function(states) {
