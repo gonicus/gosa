@@ -357,6 +357,7 @@ class ObjectIndex(Plugin):
                         session.query(ExtensionIndex).delete()
                         session.query(SearchObjectIndex).delete()
                         session.query(ObjectInfoIndex).delete()
+                        session.query(OpenObject).delete()  # delete references to backends
                         session.query(RegisteredBackend).delete()
                         self.log.info('object definitions changed, dropped old object index')
                         # enable indexing
