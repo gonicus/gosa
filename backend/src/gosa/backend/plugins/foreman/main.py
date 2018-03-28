@@ -136,6 +136,7 @@ class Foreman(Plugin):
                 # read discovered hosts
                 self.sync_type("ForemanHost", "discovered_hosts")
 
+                Foreman.syncing = False
                 while len(self._after_sync_callbacks):
                     cb = self._after_sync_callbacks.popleft()
                     cb()
@@ -888,7 +889,7 @@ class ForemanRealmReceiver(object):
 
 
 class ForemanHookReceiver(object):
-    """ Webhook handler for foreman realm events (Content-Type: application/vnd.foreman.hookevent+json) """
+    """ Webhook handler for foreman hook events (Content-Type: application/vnd.foreman.hookevent+json) """
     skip_next_event = {}
     _queued_requests = []
 
@@ -898,6 +899,14 @@ class ForemanHookReceiver(object):
         self.log = logging.getLogger(__name__)
 
     def process_queue(self):
+        if Foreman.syncing is True:
+            # still syncing
+            self.log.info("GOsa is currently syncing with Foreman, cannot process the queue now. Waiting 10 seconds...")
+            sobj = PluginRegistry.getInstance("SchedulerService")
+            sobj.getScheduler().add_date_job(self.process_queue,
+                                             datetime.datetime.now() + datetime.timedelta(seconds=10),
+                                             tag='_internal', jobstore='ram')
+            return
         queue = self._queued_requests
         self._queued_requests = []
         for data in queue:
