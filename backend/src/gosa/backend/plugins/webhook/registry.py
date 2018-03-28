@@ -13,6 +13,7 @@ import os
 import re
 
 import pkg_resources
+import shutil
 import zope
 from lxml import objectify
 from tornado.web import HTTPError
@@ -185,6 +186,8 @@ class WebhookSettingsHandler(object):
                 if len(to_save[mime_type].keys()) == 0:
                     del to_save[mime_type]
 
+        # backup old file
+        shutil.copyfile(settings_file, "%s.backup" % settings_file)
         with open(settings_file, 'w') as f:
             f.write(dumps(to_save))
 
