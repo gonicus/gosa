@@ -14,12 +14,20 @@
     <Backend>LDAP</Backend>
 
     <Attributes>
-      <ForeignAttribute>
+      <Attribute>
         <Name>cn</Name>
-      </ForeignAttribute>
-      <ForeignAttribute>
+        <Description>Common Name</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>false</MultiValue>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
         <Name>description</Name>
-      </ForeignAttribute>
+        <Description>Description</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>false</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
       <Attribute>
         <Name>gidNumber</Name>
         <Description>The primary group number number</Description>
