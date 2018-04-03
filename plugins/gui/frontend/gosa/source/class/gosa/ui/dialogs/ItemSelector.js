@@ -68,9 +68,9 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
         Object.keys(res).forEach(function (type) {
           allowedTypes.push(new gosa.data.KeyValue(type, res[type]));
         });
-        this.__initWidgets(columnSettings, extension, attribute);
       }, this);
     }
+    this.__initWidgets(columnSettings, extension, attribute);
 
     if (!this._selectorOptions.skipInitialSearch) {
       this._updateValues();
