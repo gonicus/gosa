@@ -459,6 +459,7 @@ qx.Class.define("gosa.view.Tree", {
         var tableModel = this.getChildControl("table").getTableModel();
 
         var item = sel.getItem(0);
+
         item.load().then(function() {
           if (!this._tableData) {
             this._tableData = new qx.data.Array();
@@ -478,9 +479,11 @@ qx.Class.define("gosa.view.Tree", {
           if (searchField.getValue() && searchField.isEnabled()) {
             this._applyFilter();
           }
-        }, this);
-
-        this.__updateMenus();
+          this.__updateMenus();
+        }, this).catch(function (err) {
+          this.__updateMenus();
+          throw err;
+        });
 
       } else {
         this.getChildControl("search-field").setEnabled(false);
