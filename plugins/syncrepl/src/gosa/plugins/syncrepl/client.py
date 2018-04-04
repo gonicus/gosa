@@ -1,5 +1,8 @@
 import datetime
+import hmac
 import multiprocessing
+
+import requests
 from lxml import objectify, etree
 
 import ldap
@@ -127,6 +130,8 @@ class ChangeProcessor(multiprocessing.Process):
         self.lh = LDAPHandler.get_instance()
         self.log = logging.getLogger(__name__)
         self.env = Environment.getInstance()
+        self.webhook_target = self.env.config.get('backend-monitor.webhook-target', default='http://localhost:8000/hooks')
+        self.token = bytes(self.env.config.get('backend-monitor.webhook-token'), 'ascii')
         index = PluginRegistry.getInstance('ObjectIndex')
         time = index.get_last_modification()
         if time is not None:
@@ -184,8 +189,18 @@ class ChangeProcessor(multiprocessing.Process):
                                 )
                             )
                         self.log.debug("Sent update for entry '{}' of type '{}'".format(dn, change_type))
-                        xml = objectify.fromstring(etree.tostring(update), PluginRegistry.getEventParser())
-                        zope.event.notify(xml)
+                        payload = etree.tostring(update)
+                        signature_hash = hmac.new(self.token, msg=payload, digestmod="sha512")
+                        signature = 'sha1=' + signature_hash.hexdigest()
+
+                        headers = {
+                            'Content-Type': 'application/vnd.gosa.event+xml',
+                            'HTTP_X_HUB_SENDER': 'backend-monitor',
+                            'HTTP_X_HUB_SIGNATURE': signature
+                        }
+                        # as the syncrepl client run in another thread we cannot send the event directly
+                        # and use the webhook instead
+                        requests.post(self.webhook_target, data=payload, headers=headers)
 
                 self.__cookie = cookie
 

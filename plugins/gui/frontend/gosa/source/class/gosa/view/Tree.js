@@ -480,6 +480,8 @@ qx.Class.define("gosa.view.Tree", {
             this._applyFilter();
           }
           this.__updateMenus();
+          // fix unreturned promise warning
+          return null;
         }, this).catch(function (err) {
           this.__updateMenus();
           throw err;
