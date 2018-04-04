@@ -266,6 +266,19 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       this.__updateToolMenuButtonVisibility();
     },
 
+    _showThrobber: function (show) {
+      if (show && !this.__throbber) {
+        this.__throbber = new gosa.ui.Throbber();
+        this.__throbber.addState('blocking');
+        qx.core.Init.getApplication().getRoot().add(this.__throbber, {edge: 0});
+      }
+      if (show) {
+        this.__throbber.show();
+      } else if (this.__throbber) {
+        this.__throbber.exclude();
+      }
+    },
+
     _createActionButtons : function() {
       var allActionEntries = {};
       var actionEntries, key;
@@ -560,11 +573,14 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _onOk : function() {
+
       this._okButton.setEnabled(false);
+      this._showThrobber(true);
       this.getController().saveObject()
       .then(this._close, this)
       .catch(function(exc) {
         this._okButton.setEnabled(true);
+        this._showThrobber(false);
         throw exc;
         // do nothing as the error has already been handled
       }, this);
@@ -581,6 +597,7 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     },
 
     _close : function() {
+      this._showThrobber(false);
       this.closeOpenDialogs();
       this._getParentWindow().close();
       this.fireEvent("close");
@@ -617,6 +634,9 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
     this.resetController();
     this._templates = null;
     this.__openDialogs = null;
+    if (this.__throbber) {
+      qx.core.Init.getApplication().getRoot().remove(this.__throbber);
+    }
     qx.util.DisposeUtil.disposeArray("_contexts");
     this._disposeObjects(
       "_okButton",
@@ -628,7 +648,8 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
       "_toolMenu",
       "_buttonPane",
       "_tabView",
-      "__closingDialog"
+      "__closingDialog",
+      "__throbber"
     );
   }
 });
