@@ -745,7 +745,7 @@ class ClientService(Plugin):
 
                 for res in index.search(query, {"gotoMenu": 1}):
                     # collect user menus
-                    for m in res["gotoMenu"]:
+                    for m in res.get("gotoMenu", []):
                         menus.append(loads(m))
 
                 if len(menus):
