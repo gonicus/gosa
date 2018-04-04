@@ -199,8 +199,16 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     def getDisplay(self):
         if self._DISPLAY == '':
             displays = [x.host for x in psutil.users() if x.name == self.username]
-            if len(displays) > 0:
+            if len(displays) == 1:
                 self._DISPLAY = displays[0]
+            elif len(displays) > 1:
+                # When doing autologin, two terminals (tty2 + tty7) are allocated
+                displays = [x for x in psutil.users() if x.name == self.username]
+                for display in displays:
+                    least = 0
+                    if display.host.startswith(':') and display.started > Least:
+                        self._DISPLAY = display.host
+                        least = display.started
 
         return self._DISPLAY
 
