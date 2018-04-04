@@ -479,7 +479,7 @@ qx.Class.define("gosa.view.Tree", {
           if (searchField.getValue() && searchField.isEnabled()) {
             this._applyFilter();
           }
-          this.__updateMenus();
+          return this.__updateMenus();
         }, this).catch(function (err) {
           this.__updateMenus();
           throw err;
