@@ -203,6 +203,7 @@ qx.Class.define("gosa.ui.controller.Objects", {
           promises.push(this.__openObjects[id].close());
         }
       }
+      this.__openObjects = [];
       return qx.Promise.all(promises);
     }
   },

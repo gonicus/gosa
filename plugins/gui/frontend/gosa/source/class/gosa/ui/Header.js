@@ -142,11 +142,15 @@ qx.Class.define("gosa.ui.Header", {
         width: 22,
         scale: true
       });
-      logout.addListener("execute", function(){
-        gosa.Session.getInstance().logout();
+      logout.addListener("execute", function() {
+        gosa.ui.controller.Objects.getInstance().closeAllObjects()
+          .then(function () {
+            return gosa.Session.getInstance().logout();
+          }).catch(function(error) {
+          new gosa.ui.dialogs.Error(error).open();
+        });
       }, this);
       menu.add(logout);
-
       return menu;
     },
 
