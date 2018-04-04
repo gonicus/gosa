@@ -14,6 +14,7 @@ import threading
 import re
 import sys
 import time
+import zope
 from syncrepl_client import Syncrepl, SyncreplMode
 from syncrepl_client.callbacks import BaseCallback
 from zope.interface import implementer
