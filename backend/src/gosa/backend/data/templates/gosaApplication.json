@@ -140,9 +140,18 @@
         },
         {
           "class": "qx.ui.container.Composite",
-          "layout": "qx.ui.layout.HBox",
+          "layout": "qx.ui.layout.Grid",
           "layoutConfig": {
-            "spacing": "CONST_SPACING_X"
+            "spacingX": "CONST_SPACING_X",
+            "spacingY": "CONST_SPACING_Y"
+          },
+          "extensions": {
+            "layoutOptions": {
+              "columnFlex": {
+                "column": [0, 1, 2],
+                "flex": 1
+              }
+            }
           },
           "addOptions": {
             "row": 5,
@@ -155,7 +164,8 @@
                 "label": "tr('Group only')"
               },
               "addOptions": {
-                "flex": 1
+                "row": 0,
+                "column": 0
               },
               "modelPath": "execForGroupmembers",
               "class": "gosa.ui.widgets.QCheckBoxWidget"
@@ -166,7 +176,8 @@
                 "label": "tr('Overwrite config')"
               },
               "addOptions": {
-                "flex": 1
+                "row": 0,
+                "column": 1
               },
               "modelPath": "overwriteConfig",
               "class": "gosa.ui.widgets.QCheckBoxWidget"
@@ -177,7 +188,8 @@
                 "label": "tr('In launchbar')"
               },
               "addOptions": {
-                "flex": 1
+                "row": 0,
+                "column": 2
               },
               "modelPath": "placeOnKicker",
               "class": "gosa.ui.widgets.QCheckBoxWidget"
@@ -188,7 +200,8 @@
                 "label": "tr('On desktop')"
               },
               "addOptions": {
-                "flex": 1
+                "row": 1,
+                "column": 0
               },
               "modelPath": "placeOnDesktop",
               "class": "gosa.ui.widgets.QCheckBoxWidget"
@@ -199,7 +212,8 @@
                 "label": "tr('In startmenu')"
               },
               "addOptions": {
-                "flex": 1
+                "row": 1,
+                "column": 1
               },
               "modelPath": "placeInStartmenu",
               "class": "gosa.ui.widgets.QCheckBoxWidget"
