@@ -64,6 +64,11 @@
                 "cn": "tr('Name')",
                 "description": "tr('Description')"
               },
+              "columnRenderers": {
+                "1": {
+                  "class": "qx.ui.table.cellrenderer.Html"
+                }
+              },
               "droppable": true,
               "draggable": true,
               "dragDropType": "gosa/user"
@@ -98,6 +103,11 @@
               "columns": {
                 "cn": "tr('Name')",
                 "description": "tr('Description')"
+              },
+              "columnRenderers": {
+                "1": {
+                  "class": "qx.ui.table.cellrenderer.Html"
+                }
               },
               "droppable": true,
               "draggable": true,
@@ -134,6 +144,11 @@
                 "cn": "tr('Name')",
                 "description": "tr('Description')"
               },
+              "columnRenderers": {
+                "1": {
+                  "class": "qx.ui.table.cellrenderer.Html"
+                }
+              },
               "droppable": true,
               "draggable": true,
               "dragDropType": "gosa/group"
@@ -168,6 +183,11 @@
               "columns": {
                 "cn": "tr('Name')",
                 "description": "tr('Description')"
+              },
+              "columnRenderers": {
+                "1": {
+                  "class": "qx.ui.table.cellrenderer.Html"
+                }
               },
               "droppable": true,
               "draggable": true,
