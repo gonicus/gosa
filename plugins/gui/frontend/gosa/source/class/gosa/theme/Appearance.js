@@ -1038,6 +1038,8 @@ qx.Theme.define("gosa.theme.Appearance", {
       }
     },
 
+    "window/subtree-checkbox": "checkbox",
+
     "window/icon": {
       style: function() {
         return {

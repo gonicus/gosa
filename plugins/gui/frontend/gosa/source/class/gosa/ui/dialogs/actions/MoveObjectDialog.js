@@ -151,19 +151,8 @@ qx.Class.define("gosa.ui.dialogs.actions.MoveObjectDialog", {
 
     __applyTreeDelegate : function(tree) {
       // Special delegation handling
-      var iconConverter = function(data, model) {
-        if (!model.isLoading()) {
-          if (model.getType()) {
-            return gosa.util.Icons.getIconByType(model.getType(), 22);
-          }
-          return "@Ligature/pencil";
-        } else {
-          return "@Ligature/adjust";
-        }
-      };
 
       var delegate = {
-
         // Bind properties from the item to the tree-widget and vice versa
         bindItem : function(controller, item, index) {
           controller.bindDefaultProperties(item, index);
@@ -174,8 +163,8 @@ qx.Class.define("gosa.ui.dialogs.actions.MoveObjectDialog", {
           controller.bindProperty("moveTarget", "selectable", null, item, index);
 
           // Handle images
-          controller.bindProperty("type", "icon", { converter: iconConverter }, item, index);
-          controller.bindProperty("loading", "icon", { converter: iconConverter }, item, index);
+          controller.bindProperty("type", "icon", { converter: gosa.util.Icons.treeIconConverter }, item, index);
+          controller.bindProperty("loading", "icon", { converter: gosa.util.Icons.treeIconConverter }, item, index);
         }
       };
       tree.setDelegate(delegate);

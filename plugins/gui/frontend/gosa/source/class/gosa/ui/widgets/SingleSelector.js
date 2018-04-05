@@ -214,6 +214,8 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
         }
       }, this);
 
+      this._getController().addDialog(d);
+
       d.open();
     },
 

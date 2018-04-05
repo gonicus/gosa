@@ -174,6 +174,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
         }
       }, this);
 
+      this._getController().addDialog(d);
       d.open();
     },
 

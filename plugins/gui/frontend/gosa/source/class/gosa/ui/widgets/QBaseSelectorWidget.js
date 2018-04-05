@@ -25,16 +25,6 @@ qx.Class.define("gosa.ui.widgets.QBaseSelectorWidget", {
     appearance: {
       refine: true,
       init: "base-selector"
-    },
-
-    /**
-     * The type of the object for which a base shall be selected, e.g. "user".
-     */
-    objectType : {
-      check : "Array",
-      init : null,
-      event : "changeObjectType",
-      apply : "__generateTreeDelegate"
     }
   },
 
@@ -50,6 +40,10 @@ qx.Class.define("gosa.ui.widgets.QBaseSelectorWidget", {
   members : {
     __root : null,
     __objectTypes: null,
+
+    getRoot: function () {
+      return this.__root;
+    },
 
     setObjectTypes: function(values) {
       var old = this.__objectTypes ? this.__objectTypes.slice(0) : null;
@@ -77,6 +71,10 @@ qx.Class.define("gosa.ui.widgets.QBaseSelectorWidget", {
       return this.__objectTypes;
     },
 
+    resetObjectType: function() {
+      this.setObjectType([]);
+    },
+
     __draw : function() {
       this.__root = new gosa.data.model.TreeResultItem(this.tr("Root"));
       this.__root.setMoveTarget(false);
@@ -92,37 +90,28 @@ qx.Class.define("gosa.ui.widgets.QBaseSelectorWidget", {
       }, this);
     },
 
+    convertMoveTarget: function (value) {
+      return this.__objectTypes === null || this.__objectTypes.length === 0 || value;
+    },
+
     __generateTreeDelegate : function() {
       // Special delegation handling
-      var iconConverter = function(data, model) {
-        if (!model.isLoading()) {
-          if (model.getType()) {
-            return gosa.util.Icons.getIconByType(model.getType(), 22);
-          }
-          return "@Ligature/pencil";
-        } else {
-          return "@Ligature/adjust";
-        }
-      };
-
-      var delegate = {
-
+      var convertMoveTarget = this.convertMoveTarget.bind(this);
+      return {
         // Bind properties from the item to the tree-widget and vice versa
         bindItem : function(controller, item, index) {
           controller.bindDefaultProperties(item, index);
           controller.bindPropertyReverse("open", "open", null, item, index);
           controller.bindProperty("open", "open", null, item, index);
           controller.bindProperty("dn", "toolTipText", null, item, index);
-          controller.bindProperty("moveTarget", "enabled", null, item, index);
-          controller.bindProperty("moveTarget", "selectable", null, item, index);
+          controller.bindProperty("moveTarget", "enabled", { converter: convertMoveTarget}, item, index);
+          controller.bindProperty("moveTarget", "selectable", { converter: convertMoveTarget}, item, index);
 
           // Handle images
-          controller.bindProperty("type", "icon", { converter: iconConverter }, item, index);
-          controller.bindProperty("loading", "icon", { converter: iconConverter }, item, index);
+          controller.bindProperty("type", "icon", { converter: gosa.util.Icons.treeIconConverter }, item, index);
+          controller.bindProperty("loading", "icon", { converter: gosa.util.Icons.treeIconConverter }, item, index);
         }
       };
-
-      this.getChildControl("tree").setDelegate(delegate);
     },
 
     __onSelectionChange : function() {
@@ -147,6 +136,8 @@ qx.Class.define("gosa.ui.widgets.QBaseSelectorWidget", {
           control.getChildControl("pane").setWidth(null);
           control.setHideRoot(true);
           control.setSelectionMode("one");
+
+          control.setDelegate(this.__generateTreeDelegate());
 
           control.getSelection().addListener("change", this.__onSelectionChange, this);
 

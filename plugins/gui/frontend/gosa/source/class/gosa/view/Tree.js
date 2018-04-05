@@ -318,31 +318,6 @@ qx.Class.define("gosa.view.Tree", {
 
     __applyTreeDelegate : function(tree) {
       // Special delegation handling
-      var iconConverter = function(data, model, source, target) {
-        if (model.isDummy()) {
-          return null;
-        }
-        if (!model.isLoading()) {
-          if (target.$$animationHandle) {
-            gosa.ui.Throbber.stopAnimation(target.getChildControl('icon'), target.$$animationHandle, true);
-            delete target.$$animationHandle;
-          }
-          if (model.getType()) {
-            return gosa.util.Icons.getIconByType(model.getType(), 22);
-          }
-          return "@Ligature/pencil";
-        } else {
-          if (target.getChildControl('icon').getBounds()) {
-            target.$$animationHandle = gosa.ui.Throbber.animate(target.getChildControl('icon'));
-          } else {
-            target.getChildControl('icon').addListenerOnce('appear', function() {
-              target.$$animationHandle = gosa.ui.Throbber.animate(target.getChildControl('icon'));
-            }, this);
-          }
-          return "@Ligature/adjust";
-        }
-      };
-
       var delegate = {
 
         // Bind properties from the item to the tree-widget and vice versa
@@ -353,8 +328,8 @@ qx.Class.define("gosa.view.Tree", {
           controller.bindProperty("dn", "toolTipText", null, item, index);
 
           // Handle images
-          controller.bindProperty("type", "icon", { converter: iconConverter }, item, index);
-          controller.bindProperty("loading", "icon", { converter: iconConverter }, item, index);
+          controller.bindProperty("type", "icon", { converter: gosa.util.Icons.treeIconConverter }, item, index);
+          controller.bindProperty("loading", "icon", { converter: gosa.util.Icons.treeIconConverter }, item, index);
         }
       };
       tree.setDelegate(delegate);

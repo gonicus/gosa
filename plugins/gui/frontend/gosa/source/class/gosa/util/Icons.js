@@ -60,6 +60,38 @@ qx.Class.define("gosa.util.Icons", {
     },
 
     /**
+     * This converter can be used in icon bindings for tree items. e.g.
+     *
+     * <pre>
+     *  controller.bindProperty("type", "icon", { converter: gosa.util.Icons.treeIconConverter }, item, index);
+     * <pre>
+     */
+    treeIconConverter: function(data, model, source, target) {
+      if (model.isDummy()) {
+        return null;
+      }
+      if (!model.isLoading()) {
+        if (target.$$animationHandle) {
+          gosa.ui.Throbber.stopAnimation(target.getChildControl('icon'), target.$$animationHandle, true);
+          delete target.$$animationHandle;
+        }
+        if (model.getType()) {
+          return gosa.util.Icons.getIconByType(model.getType(), 22);
+        }
+        return "@Ligature/pencil";
+      } else {
+        if (target.getChildControl('icon').getBounds()) {
+          target.$$animationHandle = gosa.ui.Throbber.animate(target.getChildControl('icon'));
+        } else {
+          target.getChildControl('icon').addListenerOnce('appear', function() {
+            target.$$animationHandle = gosa.ui.Throbber.animate(target.getChildControl('icon'));
+          }, this);
+        }
+        return "@Ligature/adjust";
+      }
+    },
+
+    /**
      * Parse an icon received from the backend
      * @param data {String|Object} icon data can be a simple icon source string or stringified JSON data
      * @param property {String?} optional property to return (data must be an object or JSON string)
