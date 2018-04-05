@@ -14,11 +14,11 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
 
   extend: gosa.ui.widgets.Widget,
 
-  include: gosa.ui.widgets.MDragDrop,
+  include: [gosa.ui.widgets.MDragDrop, gosa.ui.widgets.MItemSelector],
 
   construct: function(valueIndex){
-
     this.base(arguments, valueIndex);
+    this.setSingle(true);
     this.contents.setLayout(new qx.ui.layout.HBox(0));
     this._columnSettings = {names: [], ids: [], renderers: [], widths: []};
     this._resolvedNames = {};
@@ -45,9 +45,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
     this._disposeObjects("_table", "_actionBtn", "_widget", "_tableModel");
 
     this._tableData = null;
-    this._columnSettings = null;
     this._editTitle = null;
-    this._firstColumn = null;
     this._resolvedNames = null;
   },
 
@@ -59,13 +57,10 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
     _table: null,
     _tableModel: null,
     _tableData: null,
-    _columnSettings: null,
     _editTitle: "",
-    _firstColumn: null,
     _resolvedNames: null,
     _widget: null,
     _actionBtn: null,
-    _selectorOptions: null,
 
     /* Color the specific row red, if an error occurred!
      */
@@ -80,6 +75,15 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
     resetErrorMessage: function(){
       this.setInvalidMessage("");
       this.setValid(true);
+    },
+
+    _onSelected: function(e){
+      if (e.getData().length) {
+        this.getValue().removeAll();
+        this.getValue().push(e.getData()[0]);
+        this.fireDataEvent("changeValue", this.getValue().copy());
+        this.__resolveMissingValues();
+      }
     },
 
     /**
@@ -167,11 +171,13 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
             this.fireDataEvent("changeValue", this.getValue().copy());
           }
           else {
-            this.__openSelectionDialog();
+            this.openSelector();
           }
         }, this);
 
-     this._initDragDropListeners();
+      this._initDragDropListeners();
+
+      this._createModelFilter();
     },
 
     _onDropRequest: function(e) {
@@ -189,34 +195,6 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
 
         e.addData(this.getDragDropType(), value);
       }
-    },
-
-    __openSelectionDialog : function() {
-      var d = new gosa.ui.dialogs.ItemSelector(
-        this['tr'](this._editTitle),
-        this.getValue().toArray(),
-        this.getExtension(),
-        this.getAttribute(),
-        this._columnSettings,
-        true,
-        this._modelFilter,
-        this._sortByColumn,
-        null,
-        this._selectorOptions
-      );
-
-      d.addListener("selected", function(e){
-        if (e.getData().length) {
-          this.getValue().removeAll();
-          this.getValue().push(e.getData()[0]);
-          this.fireDataEvent("changeValue", this.getValue().copy());
-          this.__resolveMissingValues();
-        }
-      }, this);
-
-      this._getController().addDialog(d);
-
-      d.open();
     },
 
     onDrop: function(ev) {
@@ -273,60 +251,6 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
         });
       } else {
         this.__updateVisibleText();
-      }
-    },
-
-
-    /**
-     * Apply properties that were defined in the ui template.
-     *
-     * Collect column names here.
-     */
-    _applyGuiProperties: function(props){
-
-      // This happens when this widgets gets destroyed - all properties will be set to null.
-      if(!props){
-        return;
-      }
-
-      if('editTitle' in props){
-        this._editTitle = props['editTitle'];
-      }
-      this._applyDragDropGuiProperties(props);
-
-      this._columnSettings = {
-        names: [],
-        ids: [],
-        renderers: {},
-        widths: {}
-      };
-      var first = null;
-      if('columns' in props){
-        for(var col in props['columns']){
-          if (props['columns'].hasOwnProperty(col)) {
-            this._columnSettings.names.push(this['tr'](props['columns'][col]));
-            this._columnSettings.ids.push(col);
-            if (!first) {
-              first = col;
-            }
-          }
-        }
-      }
-      if (props.hasOwnProperty("columnRenderers")) {
-        this._columnSettings.renderers = props.columnRenderers;
-      }
-      if (props.hasOwnProperty("columnWidths")) {
-        this._columnSettings.widths = props.columnWidths;
-      }
-      this._firstColumn = first;
-      if ("sortByColumn" in props) {
-        this._sortByColumn = props.sortByColumn;
-      }
-      if (props.hasOwnProperty("contextMenu")) {
-        this._contextMenuConfig = props.contextMenu;
-      }
-      if (props.hasOwnProperty("selectorOptions")) {
-        this._selectorOptions = props.selectorOptions;
       }
     }
   }
