@@ -170,6 +170,9 @@ class WebhookSettingsHandler(object):
     def __init__(self):
         self.env = Environment.getInstance()
         settings_file = self.env.config.get("webhooks.registry-store", "/var/lib/gosa/webhooks")
+        if not os.path.exists(os.path.dirname(settings_file)):
+            os.makedirs(os.path.dirname(settings_file))
+
         if os.path.exists(settings_file):
             with open(settings_file, 'r') as f:
                 self.__hooks = loads(f.read())
@@ -187,7 +190,8 @@ class WebhookSettingsHandler(object):
                     del to_save[mime_type]
 
         # backup old file
-        shutil.copyfile(settings_file, "%s.backup" % settings_file)
+        if os.path.exists(settings_file):
+            shutil.copyfile(settings_file, "%s.backup" % settings_file)
         with open(settings_file, 'w') as f:
             f.write(dumps(to_save))
 
