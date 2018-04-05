@@ -163,9 +163,17 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     },
 
     openSelector :  function() {
-      var d = new gosa.ui.dialogs.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
-        this.getExtension(), this.getAttribute(), this._columnSettings, false,
-        this._modelFilter, this._sortByColumn, null, this._selectorOptions);
+      var d = new gosa.ui.dialogs.ItemSelector(
+        this['tr'](this._editTitle),
+        this.getValue().toArray(),
+        this.getExtension(),
+        this.getAttribute(),
+        this._columnSettings,
+        false,
+        this._modelFilter,
+        this._sortByColumn,
+        null,
+        this._selectorOptions);
 
       d.addListener("selected", function(e){
         if(e.getData().length){

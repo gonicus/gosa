@@ -20,9 +20,9 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
 
     this.base(arguments, valueIndex);
     this.contents.setLayout(new qx.ui.layout.HBox(0));
-    this._columnNames = [];
-    this._columnIDs = [];
+    this._columnSettings = {names: [], ids: [], renderers: [], widths: []};
     this._resolvedNames = {};
+    this._selectorOptions = {};
 
     // Create the gui on demand
     this.addListenerOnce("initCompleteChanged", function() {
@@ -45,9 +45,8 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
     this._disposeObjects("_table", "_actionBtn", "_widget", "_tableModel");
 
     this._tableData = null;
-    this._columnNames = null;
+    this._columnSettings = null;
     this._editTitle = null;
-    this._columnIDs = null;
     this._firstColumn = null;
     this._resolvedNames = null;
   },
@@ -60,13 +59,13 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
     _table: null,
     _tableModel: null,
     _tableData: null,
-    _columnNames: null,
+    _columnSettings: null,
     _editTitle: "",
-    _columnIDs: null,
     _firstColumn: null,
     _resolvedNames: null,
     _widget: null,
     _actionBtn: null,
+    _selectorOptions: null,
 
     /* Color the specific row red, if an error occurred!
      */
@@ -198,11 +197,12 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
         this.getValue().toArray(),
         this.getExtension(),
         this.getAttribute(),
-        {
-          ids : this._columnIDs,
-          names : this._columnNames
-        },
-        true
+        this._columnSettings,
+        true,
+        this._modelFilter,
+        this._sortByColumn,
+        null,
+        this._selectorOptions
       );
 
       d.addListener("selected", function(e){
@@ -257,7 +257,7 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
       }
 
       if (unknown_values.length) {
-        rpc.cA("getObjectDetails", this.getExtension(), this.getAttribute(), unknown_values, this._columnIDs)
+        rpc.cA("getObjectDetails", this.getExtension(), this.getAttribute(), unknown_values, this._columnSettings.ids)
         .then(function(result) {
           for(var value in result['map']){
             var data = result['result'][result['map'][value]];
@@ -292,21 +292,42 @@ qx.Class.define("gosa.ui.widgets.SingleSelector", {
       if('editTitle' in props){
         this._editTitle = props['editTitle'];
       }
-      this._columnNames = [];
-      this._columnIDs = [];
+      this._applyDragDropGuiProperties(props);
+
+      this._columnSettings = {
+        names: [],
+        ids: [],
+        renderers: {},
+        widths: {}
+      };
       var first = null;
       if('columns' in props){
         for(var col in props['columns']){
-          this._columnNames.push(props['columns'][col]);
-          this._columnIDs.push(col);
-          if(!first){
-            first = col;
+          if (props['columns'].hasOwnProperty(col)) {
+            this._columnSettings.names.push(this['tr'](props['columns'][col]));
+            this._columnSettings.ids.push(col);
+            if (!first) {
+              first = col;
+            }
           }
         }
       }
+      if (props.hasOwnProperty("columnRenderers")) {
+        this._columnSettings.renderers = props.columnRenderers;
+      }
+      if (props.hasOwnProperty("columnWidths")) {
+        this._columnSettings.widths = props.columnWidths;
+      }
       this._firstColumn = first;
-
-      this._applyDragDropGuiProperties(props);
+      if ("sortByColumn" in props) {
+        this._sortByColumn = props.sortByColumn;
+      }
+      if (props.hasOwnProperty("contextMenu")) {
+        this._contextMenuConfig = props.contextMenu;
+      }
+      if (props.hasOwnProperty("selectorOptions")) {
+        this._selectorOptions = props.selectorOptions;
+      }
     }
   }
 });
