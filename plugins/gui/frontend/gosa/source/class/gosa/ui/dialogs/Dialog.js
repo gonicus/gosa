@@ -31,6 +31,12 @@ qx.Class.define("gosa.ui.dialogs.Dialog",
     this.setAlwaysOnTop(true);
     this.setResizable(false, false, false, false);
 
+    // do not allow the dialog to exceed the desktop bounds
+    gosa.ui.controller.Objects.getInstance().getDesktopBounds().then(function (bounds) {
+      this.setMaxHeight(bounds.height);
+      this.setMaxWidth(bounds.width);
+    }, this);
+
     // Set layout and prepare the dialog view
     this.setLayout(new qx.ui.layout.VBox(5));
 
