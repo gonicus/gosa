@@ -78,6 +78,13 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
         this.__initWidgets(columnSettings, extension, attribute);
       }, this);
     } else {
+      if (qx.lang.Type.isArray(this._selectorOptions.filters.type)) {
+        // hardcoded list of allowed types, limit the resultset to these
+        this._typeFilter = {
+          values: this._selectorOptions.filters.type,
+          limit: true
+        }
+      }
       this.__initWidgets(columnSettings, extension, attribute);
     }
 
@@ -205,10 +212,12 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
               break;
 
             case "type":
-              if (this.getAllowedTypes().length > 0) {
-                this.getChildControl('type-selector').setModel(this.getAllowedTypes());
-                if (this._defaultType) {
-                  this.getChildControl('type-selector').getSelection().replace([this._defaultType])
+              if (this._selectorOptions.filters.type === true) {
+                if (this.getAllowedTypes().length > 0) {
+                  this.getChildControl('type-selector').setModel(this.getAllowedTypes());
+                  if (this._defaultType) {
+                    this.getChildControl('type-selector').getSelection().replace([this._defaultType])
+                  }
                 }
               }
               break;
