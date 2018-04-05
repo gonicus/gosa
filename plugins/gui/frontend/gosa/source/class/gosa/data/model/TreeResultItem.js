@@ -10,10 +10,8 @@
  * See the LICENSE file in the project's top-level directory for details.
  */
 
-qx.Class.define("gosa.data.model.TreeResultItem",
-{
+qx.Class.define("gosa.data.model.TreeResultItem", {
   extend : qx.core.Object,
-
   include: [qx.data.marshal.MEventBubbling],
 
   construct: function(title, prnt){
@@ -139,6 +137,11 @@ qx.Class.define("gosa.data.model.TreeResultItem",
     dummy: {
       check: "Boolean",
       init: false
+    },
+
+    adjustedDn: {
+      check: 'String',
+      nullable: true
     }
   },
 
@@ -283,15 +286,16 @@ qx.Class.define("gosa.data.model.TreeResultItem",
     /**
      *  Parses a result item into a TreeResultItem
      */
-    parseItemForResult: function(result){
+    parseItemForResult: function(result) {
       var item = new gosa.data.model.TreeResultItem(result['title'], this).set({
-          container: !!result['container'],
-          dn: result['dn'],
-          description: result['description'],
-          title: result['title'],
-          type: result['tag'],
-          uuid: result['uuid']
-        });
+        container: !!result['container'],
+        dn: result['dn'],
+        description: result['description'],
+        title: result['title'],
+        type: result['tag'],
+        uuid: result['uuid'],
+        adjustedDn: result['adjusted_dn'] || result['dn']
+      });
       if (this.getMoveTargetFor() !== null) {
         if ('allowed_move_target' in result) {
           item.setMoveTarget(result['allowed_move_target']);
@@ -300,7 +304,7 @@ qx.Class.define("gosa.data.model.TreeResultItem",
       }
 
       // Add a dummy object if we know that this container has children.
-      if(result['hasChildren']){
+      if(result['hasChildren'] === true){
         item.setHasChildren(true);
         var dummy = new gosa.data.model.TreeResultItem();
         dummy.setDummy(true);

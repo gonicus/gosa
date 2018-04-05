@@ -6,9 +6,12 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import logging
+
 import enum
 
 from gosa.common.components.jsonrpc_utils import JSONDataHandler
+from sqlalchemy.dialects import postgresql
 
 __import__('pkg_resources').declare_namespace(__name__)
 
@@ -37,3 +40,12 @@ class BackendTypesEncoder(JSONDataHandler):
     @staticmethod
     def canhandle():
         return "gosa.backend.utils.BackendTypes"
+
+
+def print_query(query_result):
+    try:
+        return str(query_result.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
+    except Exception as e:
+        logging.getLogger(__name__).warning(str(e))
+        return str(query_result)
+        pass
