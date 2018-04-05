@@ -73,7 +73,10 @@ qx.Class.define("gosa.data.filter.AllowedValues", {
      */
     getSearchOptions: function() {
       var res = {};
-      res[this.getPropertyName()] = this.__distinctValues;
+      res[this.getPropertyName()] = {
+        values: this.__distinctValues,
+        limit: this.__distinctValues.length >= this.getMaximum()
+      };
       return res;
     },
 

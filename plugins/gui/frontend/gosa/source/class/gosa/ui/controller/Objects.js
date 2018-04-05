@@ -55,6 +55,24 @@ qx.Class.define("gosa.ui.controller.Objects", {
     },
 
     /**
+     * Returns the bounds of the desktop.
+     * @returns {qx.Promise}
+     */
+    getDesktopBounds: function () {
+      return new qx.Promise(function(resolve, reject) {
+        var bounds = this._desktop.getBounds();
+        if (bounds) {
+          resolve(bounds)
+        } else {
+          this._desktop.addListenerOnce('appear', function () {
+            bounds = this._desktop.getBounds();
+            resolve(bounds)
+          }, this);
+        }
+      }, this)
+    },
+
+    /**
      * Open the object given by its uuid/dn
      */
     openObject : function(dn, type) {

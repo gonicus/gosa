@@ -31,7 +31,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
     this._detailsRpc = mode || "searchForObjectDetails";
 
-    var searchOptions = {};
+    var searchOptions = {fullText: true};
     var queryFilter =  "";
     if (options && options.hasOwnProperty('queryFilter')) {
       queryFilter = options.queryFilter;
@@ -60,17 +60,24 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
     if (searchOptions.hasOwnProperty("filter") && searchOptions.filter.hasOwnProperty("_type")) {
       this._typeFilter = searchOptions.filter._type;
+      var defaultType = this._typeFilter.values.length === 1 ? this._typeFilter.values[0] : null;
 
       // get complete list of allowed types from backend (and use this._typeFilter to filter them)
       gosa.io.Rpc.getInstance().cA('getAvailableObjectNames', false, null, gosa.Config.getLocale()).then(function (res) {
         // add the empty type
         allowedTypes.push(new gosa.data.KeyValue('-', ''));
         Object.keys(res).forEach(function (type) {
-          allowedTypes.push(new gosa.data.KeyValue(type, res[type]));
-        });
+          var kvItem = new gosa.data.KeyValue(type, res[type]);
+          if (type === defaultType) {
+            this._defaultType = kvItem;
+          }
+          allowedTypes.push(kvItem);
+        }, this);
+        this.__initWidgets(columnSettings, extension, attribute);
       }, this);
+    } else {
+      this.__initWidgets(columnSettings, extension, attribute);
     }
-    this.__initWidgets(columnSettings, extension, attribute);
 
     if (!this._selectorOptions.skipInitialSearch) {
       this._updateValues();
@@ -105,6 +112,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     _typeFilter: null,
     _columnSettings: null,
     _selectorOptions: null,
+    _defaultType: null,
 
 
     _updateValues: function() {
@@ -122,6 +130,10 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
         });
         if (selectedTypes.length > 0) {
           this._searchArgs.options.filter._type = selectedTypes;
+        } else if (this._typeFilter.limit === true) {
+          this._searchArgs.options.filter._type = this._typeFilter.values;
+        } else {
+          delete this._searchArgs.options.filter._type;
         }
       }
       if (this.hasChildControl("base-selector")) {
@@ -180,6 +192,9 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
             case "type":
               if (this.getAllowedTypes().length > 0) {
                 this.getChildControl('type-selector').setModel(this.getAllowedTypes());
+                if (this._defaultType) {
+                  this.getChildControl('type-selector').getSelection().replace([this._defaultType])
+                }
               }
               break;
 
@@ -258,8 +273,8 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
         var selection = this.getChildControl("type-selector").getSelection();
         var selectedTypes = [];
         selection.forEach(function(sel) {
-          if (sel.getUserData("type")) {
-            selectedTypes.push(sel.getUserData("type"));
+          if (sel.getKey() !== '-') {
+            selectedTypes.push(sel.getKey());
           }
         });
         if (selectedTypes.length > 0) {
