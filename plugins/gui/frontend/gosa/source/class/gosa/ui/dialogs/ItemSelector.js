@@ -118,7 +118,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
 
     _updateValues: function() {
-      if (!this.hasChildControl("filter-button") || !this.getChildControl("filter-button").isEnabled()) {
+      if (this.hasChildControl("filter-button") && !this.getChildControl("filter-button").isEnabled()) {
         return;
       }
       var queryFilter = this._searchArgs.queryFilter;
