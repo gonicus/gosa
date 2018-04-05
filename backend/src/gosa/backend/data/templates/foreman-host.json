@@ -108,16 +108,16 @@
               "editTitle": "tr('Change hostgroup membership')",
               "columns": {
                 "cn": "tr('Hostgroup name')"
-              }
-            },
-            "selectorOptions": {
-              "filters": {
-                "base": {
-                  "use": "_adjusted_parent_dn",
-                  "mode": "children"
-                },
-                "type": ["ForemanHostGroup"],
-                "search": true
+              },
+              "selectorOptions": {
+                "filters": {
+                  "base": {
+                    "use": "_adjusted_parent_dn",
+                    "mode": "children"
+                  },
+                  "type": ["ForemanHostGroup"],
+                  "search": true
+                }
               }
             }
           }
