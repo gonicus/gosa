@@ -7,7 +7,7 @@
       "favicon": "@Ligature/circle"
     },
     "tabConfig": {
-      "title": "tr('Group of names')",
+      "title": "tr('Objectgroup')",
       "icon": "favicon"
     }
   },

@@ -239,7 +239,7 @@
           "class": "gosa.ui.widgets.QTableWidgetWidget",
           "extensions": {
             "guiProperties": {
-              "editTitle": "tr('Edit printer user')",
+              "editTitle": "tr('Edit printer')",
               "columns": {
                 "cn": "tr('Name')",
                 "description": "tr('Description')"

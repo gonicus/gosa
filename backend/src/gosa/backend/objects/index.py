@@ -41,7 +41,7 @@ import gosa
 from gosa.backend.components.httpd import get_server_url, get_internal_server_url
 from gosa.backend.objects.backend.back_foreman import ForemanBackendException
 from gosa.backend.objects.backend.registry import ObjectBackendRegistry
-from gosa.backend.utils import BackendTypes
+from gosa.backend.utils import BackendTypes, print_query
 from gosa.common.env import declarative_base, make_session
 from gosa.common.event import EventMaker
 from lxml import etree
@@ -1570,11 +1570,7 @@ class ObjectIndex(Plugin):
         if 'limit' in options:
             q.limit(options['limit'])
 
-        # try:
-        #     self.log.debug(str(q.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
-        # except Exception as e:
-        #     self.log.error("Error creating SQL string: %s" % str(e))
-        #     self.log.debug(str(q))
+        self.log.info(print_query(q))
 
         try:
             for o in q.all():
