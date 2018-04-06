@@ -33,7 +33,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
     this.debouncedUpdate = qx.util.Function.debounce(this._updateValues, 500, false).bind(this);
 
-    var searchOptions = {fullText: true};
+    var searchOptions = {fullText: options.hasOwnProperty('fullText') ? options.fullText : true};
     var queryFilter =  "";
     if (options && options.hasOwnProperty('queryFilter')) {
       queryFilter = options.queryFilter;
