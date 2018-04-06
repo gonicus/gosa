@@ -180,7 +180,7 @@
                 "params": [22, 22]
               },
               "2": {
-                "class": "qx.ui.table.cellrenderer.Html"
+                "class": "gosa.ui.table.cellrenderer.Html"
               }
             },
             "selectorOptions": {

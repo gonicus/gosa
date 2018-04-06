@@ -24,6 +24,7 @@
  * 3. As a simple table to show a group of attribute values and open a dialog
  *    to edit/add this group
  *
+ * @require(gosa.ui.table.cellrenderer.Html)
  */
 qx.Class.define("gosa.ui.widgets.QTableWidgetWidget", {
 
