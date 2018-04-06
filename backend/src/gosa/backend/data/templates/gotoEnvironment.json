@@ -244,6 +244,11 @@
                 "cn": "tr('Name')",
                 "description": "tr('Description')"
               },
+              "columnRenderers": {
+                "1": {
+                  "class": "gosa.ui.table.cellrenderer.Html"
+                }
+              },
               "draggable": true,
               "dragDropActions": ["copy"],
               "dragDropType": "gosa/printer",

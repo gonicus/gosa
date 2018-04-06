@@ -33,7 +33,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
     this.debouncedUpdate = qx.util.Function.debounce(this._updateValues, 500, false).bind(this);
 
-    var searchOptions = {fullText: true};
+    var searchOptions = {fullText: options.hasOwnProperty('fullText') ? options.fullText : true};
     var queryFilter =  "";
     if (options && options.hasOwnProperty('queryFilter')) {
       queryFilter = options.queryFilter;
@@ -78,7 +78,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
         this.__initWidgets(columnSettings, extension, attribute);
       }, this);
     } else {
-      if (this._selectorOptions.filter._type && this._selectorOptions.filter._type.limit === true) {
+      if (this._selectorOptions.filter && this._selectorOptions.filter._type && this._selectorOptions.filter._type.limit === true) {
         // hardcoded list of allowed types (defined in the template), limit the resultset to these
         if (!searchOptions.filter) {
           searchOptions.filter = {};

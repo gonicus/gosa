@@ -66,7 +66,7 @@
               },
               "columnRenderers": {
                 "1": {
-                  "class": "qx.ui.table.cellrenderer.Html"
+                  "class": "gosa.ui.table.cellrenderer.Html"
                 }
               },
               "droppable": true,
@@ -106,7 +106,7 @@
               },
               "columnRenderers": {
                 "1": {
-                  "class": "qx.ui.table.cellrenderer.Html"
+                  "class": "gosa.ui.table.cellrenderer.Html"
                 }
               },
               "droppable": true,
@@ -146,7 +146,7 @@
               },
               "columnRenderers": {
                 "1": {
-                  "class": "qx.ui.table.cellrenderer.Html"
+                  "class": "gosa.ui.table.cellrenderer.Html"
                 }
               },
               "droppable": true,
@@ -186,7 +186,7 @@
               },
               "columnRenderers": {
                 "1": {
-                  "class": "qx.ui.table.cellrenderer.Html"
+                  "class": "gosa.ui.table.cellrenderer.Html"
                 }
               },
               "droppable": true,

@@ -310,7 +310,7 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
      * Adds a {@link gosa.ui.tree.Application}, which represents an application, to the tree.
      */
     _onAddApp: function() {
-      var options = {};
+      var options = {fullText: false};
       if (this._queryFilterConfig) {
         if (this._queryFilterConfig.valueFrom) {
           // get value from current objects attribute
