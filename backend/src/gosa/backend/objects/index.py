@@ -933,7 +933,8 @@ class ObjectIndex(Plugin):
             while not result.ready():
                 now = time.time()
                 current = total-result._number_left
-                self.notify_frontends(N_("Refreshing object %s/%s" % (current, total)), round(100/total*current), step=4)
+                if GlobalLock.exists("scan_index"):
+                    self.notify_frontends(N_("Refreshing object %s/%s" % (current, total)), round(100/total*current), step=4)
                 self.last_notification = now
                 time.sleep(self.notify_every)
 

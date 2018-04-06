@@ -37,6 +37,8 @@ from sqlalchemy.inspection import inspect
 
 
 # Register the errors handled  by us
+from gosa.backend.utils import print_query
+
 C.register_codes(dict(
     INVALID_SEARCH_SCOPE=N_("Invalid scope '%(scope)s' [SUB, BASE, ONE, CHILDREN]"),
     INVALID_SEARCH_DATE=N_("Invalid date specification '%(date)s' [hour, day, week, month, year, all]"),
@@ -254,8 +256,9 @@ class RPCMethods(Plugin):
         query = {}
         object_factory = ObjectFactory.getInstance()
         if len(search_filter) > 0:
-            if object_attribute is None:
-                query["*"] = '%{}%'.format(search_filter)
+            if object_attribute is None or object_attribute == '*' or \
+                    (options is not None and options.get('fullText', False) is True):
+                query["*"] = search_filter
             else:
                 query[object_attribute] = '%{}%'.format(search_filter)
 
@@ -452,17 +455,16 @@ class RPCMethods(Plugin):
 
     @Command(needsUser=True, __help__=N_("Returns a list of all containers"))
     def getContainerTree(self, user, base, object_type=None):
-        types = []
         table = inspect(ObjectInfoIndex)
         o2 = aliased(ObjectInfoIndex)
-        for container in self.containers:
-            types.append(getattr(ObjectInfoIndex, "_type") == container)
-
-        query = and_(getattr(ObjectInfoIndex, "_adjusted_parent_dn") == base, or_(*types))
+        base = ObjectProxy.get_adjusted_dn(base, self.env.base)
+        query = and_(getattr(ObjectInfoIndex, "_adjusted_parent_dn") == base, getattr(ObjectInfoIndex, "_type").in_(self.containers))
+        count = func.count(getattr(o2, "_parent_dn"))
+        parent_join_condition = getattr(o2, "_parent_dn") == getattr(ObjectInfoIndex, "dn")
 
         with make_session() as session:
-            query_result = session.query(ObjectInfoIndex, func.count(getattr(o2, "_adjusted_parent_dn"))) \
-                .outerjoin(o2, and_(getattr(o2, "_invisible").is_(False), getattr(o2, "_adjusted_parent_dn") == getattr(ObjectInfoIndex, "dn"))) \
+            query_result = session.query(ObjectInfoIndex, count) \
+                .outerjoin(o2, and_(getattr(o2, "_invisible").is_(False), parent_join_condition)) \
                 .filter(query) \
                 .group_by(*table.c)
 
@@ -471,17 +473,19 @@ class RPCMethods(Plugin):
         for item, children in query_result:
             self.update_res(res, item, user, 1)
 
-            if object_type is not None and item.dn in res:
+            if item.dn in res:
                 res[item.dn]['hasChildren'] = children > 0
-                # check if object_type is allowed in this container
-                allowed = factory.getAllowedSubElementsForObject(res[item.dn]['tag'], includeInvisible=False)
-                if "*" in object_type:
-                    # all allowed
-                    res[item.dn]['allowed_move_target'] = True
-                elif isinstance(object_type, list):
-                    res[item.dn]['allowed_move_target'] = len(set(object_type).intersection(allowed)) > 0
-                else:
-                    res[item.dn]['allowed_move_target'] = object_type in allowed
+                res[item.dn]['adjusted_dn'] = ObjectProxy.get_adjusted_dn(item.dn, self.env.base)
+                if object_type is not None:
+                    # check if object_type is allowed in this container
+                    allowed = factory.getAllowedSubElementsForObject(res[item.dn]['tag'], includeInvisible=False)
+                    if "*" in object_type:
+                        # all allowed
+                        res[item.dn]['allowed_move_target'] = True
+                    elif isinstance(object_type, list):
+                        res[item.dn]['allowed_move_target'] = len(set(object_type).intersection(allowed)) > 0
+                    else:
+                        res[item.dn]['allowed_move_target'] = object_type in allowed
         return res
 
     @Command(needsUser=True, __help__=N_("Filter for indexed attributes and return the matches."))
@@ -808,6 +812,8 @@ class RPCMethods(Plugin):
         return penalty
 
     def update_res(self, res, search_item, user=None, relevance=0, secondary=False, these=None, actions=False):
+        if search_item.dn == 'ou=printers,ou=systems,ou=workstations,ou=systems,dc=klingel,dc=test':
+            print()
         if search_item._type not in self.__search_aid['mapping']:
             return
         aid = self.__search_aid['mapping'][search_item._type]

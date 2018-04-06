@@ -356,6 +356,8 @@ qx.Class.define("gosa.ui.widgets.MenuEditWidget", {
         }
       }, this);
 
+      this._getController().addDialog(d);
+
       d.open();
     },
 

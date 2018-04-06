@@ -16,7 +16,8 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
 
   include: [
     gosa.ui.widgets.MDragDrop,
-    gosa.ui.table.MColumnSettings
+    gosa.ui.table.MColumnSettings,
+    gosa.ui.widgets.MItemSelector
   ],
 
   construct: function(valueIndex){
@@ -24,10 +25,8 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     this.base(arguments, valueIndex);
     this.contents.setLayout(new qx.ui.layout.Canvas());
     this.setDecorator("main");
-    this._columnSettings = {names: [], ids: [], renderers: [], widths: []};
     this._tableData = [];
     this._resolvedNames = {};
-    this._selectorOptions = {};
     this.__listeners = [];
 
     // Create the gui on demand
@@ -55,16 +54,10 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     _table: null,
     _tableModel: null,
     _tableData: null,
-    _columnSettings: null,
     _editTitle: "",
-    _firstColumn: null,
     _resolvedNames: null,
     _errorRows: null,
-    _sortByColumn: null,
     _initiallyHiddenColumns: null,
-    _modelFilter: null,
-    _selectorOptions: null,
-    _contextMenuConfig: null,
     __listeners: null,
 
     /* Color the specific row red, if an error occurred!
@@ -122,24 +115,7 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       // drag&drop
       this._initDragDropListeners();
 
-      // check if we have some table filters
-      var object = this._getController().getObject();
-
-      if (this.getAttribute() && object.attribute_data[this.getAttribute()]["validator_information"]) {
-        Object.getOwnPropertyNames(object.attribute_data[this.getAttribute()]["validator_information"]).forEach(function(info) {
-          var settings = object.attribute_data[this.getAttribute()]["validator_information"][info];
-          if (info === "MaxAllowedTypes") {
-            var filter = new gosa.data.filter.AllowedValues();
-            if (settings.hasOwnProperty("key")) {
-              filter.setPropertyName(settings.key);
-            }
-            if (settings.hasOwnProperty("maximum")) {
-              filter.setMaximum(settings.maximum);
-            }
-            this._modelFilter = filter;
-          }
-        }, this);
-      }
+     this._createModelFilter();
     },
 
     _onDropRequest: function(e) {
@@ -162,19 +138,11 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
       }
     },
 
-    openSelector :  function() {
-      var d = new gosa.ui.dialogs.ItemSelector(this['tr'](this._editTitle), this.getValue().toArray(),
-        this.getExtension(), this.getAttribute(), this._columnSettings, false,
-        this._modelFilter, this._sortByColumn, null, this._selectorOptions);
-
-      d.addListener("selected", function(e){
-        if(e.getData().length){
-          this.setValue(this.getValue().concat(e.getData()));
-          this.fireDataEvent("changeValue", this.getValue().copy());
-        }
-      }, this);
-
-      d.open();
+    _onSelected: function(e){
+      if(e.getData().length){
+        this.setValue(this.getValue().concat(e.getData()));
+        this.fireDataEvent("changeValue", this.getValue().copy());
+      }
     },
 
     removeSelection : function(){
@@ -375,55 +343,6 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
           }
         }
       }
-    },
-
-    _applyGuiProperties: function(props){
-
-      // This happens when this widgets gets destroyed - all properties will be set to null.
-      if(props === null){
-        return;
-      }
-
-      if('editTitle' in props){
-        this._editTitle = props['editTitle'];
-      }
-
-      this._applyDragDropGuiProperties(props);
-
-      this._columnSettings = {
-        names: [],
-        ids: [],
-        renderers: {},
-        widths: {}
-      };
-      var first = null;
-      if('columns' in props){
-        for(var col in props['columns']){
-          if (props['columns'].hasOwnProperty(col)) {
-            this._columnSettings.names.push(this['tr'](props['columns'][col]));
-            this._columnSettings.ids.push(col);
-            if (!first) {
-              first = col;
-            }
-          }
-        }
-      }
-      if (props.hasOwnProperty("columnRenderers")) {
-        this._columnSettings.renderers = props.columnRenderers;
-      }
-      if (props.hasOwnProperty("columnWidths")) {
-        this._columnSettings.widths = props.columnWidths;
-      }
-      this._firstColumn = first;
-      if ("sortByColumn" in props) {
-        this._sortByColumn = props.sortByColumn;
-      }
-      if (props.hasOwnProperty("contextMenu")) {
-        this._contextMenuConfig = props.contextMenu;
-      }
-      if (props.hasOwnProperty("selectorOptions")) {
-        this._selectorOptions = props.selectorOptions;
-      }
     }
   },
 
@@ -441,12 +360,9 @@ qx.Class.define("gosa.ui.widgets.TableWithSelector", {
     this._disposeObjects("_table", "_actionBtn", "_widget", "_tableModel");
 
     this._tableData = null;
-    this._columnSettings = null;
     this._editTitle = null;
-    this._firstColumn = null;
     this._resolvedNames = null;
     this._errorRows = null;
-    this._selectorOptions = null;
     this.__listeners.forEach(function(entry) {
       entry[0].removeListenerById(entry[1]);
     });

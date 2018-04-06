@@ -108,6 +108,14 @@
               "editTitle": "tr('Change hostgroup membership')",
               "columns": {
                 "cn": "tr('Hostgroup name')"
+              },
+              "selectorOptions": {
+                "filter": {
+                  "_type": {
+                    "values": ["ForemanHostGroup"],
+                    "limit": true
+                  }
+                }
               }
             }
           }

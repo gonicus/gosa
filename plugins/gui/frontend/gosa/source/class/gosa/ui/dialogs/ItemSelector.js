@@ -31,7 +31,9 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
     this._detailsRpc = mode || "searchForObjectDetails";
 
-    var searchOptions = {};
+    this.debouncedUpdate = qx.util.Function.debounce(this._updateValues, 500, false).bind(this);
+
+    var searchOptions = {fullText: true};
     var queryFilter =  "";
     if (options && options.hasOwnProperty('queryFilter')) {
       queryFilter = options.queryFilter;
@@ -60,17 +62,31 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
 
     if (searchOptions.hasOwnProperty("filter") && searchOptions.filter.hasOwnProperty("_type")) {
       this._typeFilter = searchOptions.filter._type;
+      var defaultType = this._typeFilter.values.length === 1 ? this._typeFilter.values[0] : null;
 
       // get complete list of allowed types from backend (and use this._typeFilter to filter them)
       gosa.io.Rpc.getInstance().cA('getAvailableObjectNames', false, null, gosa.Config.getLocale()).then(function (res) {
         // add the empty type
         allowedTypes.push(new gosa.data.KeyValue('-', ''));
         Object.keys(res).forEach(function (type) {
-          allowedTypes.push(new gosa.data.KeyValue(type, res[type]));
-        });
+          var kvItem = new gosa.data.KeyValue(type, res[type]);
+          if (type === defaultType) {
+            this._defaultType = kvItem;
+          }
+          allowedTypes.push(kvItem);
+        }, this);
+        this.__initWidgets(columnSettings, extension, attribute);
       }, this);
+    } else {
+      if (this._selectorOptions.filter._type && this._selectorOptions.filter._type.limit === true) {
+        // hardcoded list of allowed types (defined in the template), limit the resultset to these
+        if (!searchOptions.filter) {
+          searchOptions.filter = {};
+        }
+        searchOptions.filter._type = this._selectorOptions.filter._type.values;
+      }
+      this.__initWidgets(columnSettings, extension, attribute);
     }
-    this.__initWidgets(columnSettings, extension, attribute);
 
     if (!this._selectorOptions.skipInitialSearch) {
       this._updateValues();
@@ -105,9 +121,13 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     _typeFilter: null,
     _columnSettings: null,
     _selectorOptions: null,
+    _defaultType: null,
 
 
     _updateValues: function() {
+      if (this.hasChildControl("filter-button") && !this.getChildControl("filter-button").isEnabled()) {
+        return;
+      }
       var queryFilter = this._searchArgs.queryFilter;
       if (this.hasChildControl("search-field")) {
         queryFilter = this.getChildControl("search-field").getValue() || this._searchArgs.queryFilter;
@@ -122,12 +142,24 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
         });
         if (selectedTypes.length > 0) {
           this._searchArgs.options.filter._type = selectedTypes;
+        } else if (this._typeFilter.limit === true) {
+          this._searchArgs.options.filter._type = this._typeFilter.values;
+        } else {
+          delete this._searchArgs.options.filter._type;
         }
       }
       if (this.hasChildControl("base-selector")) {
         var selectedParentDn = gosa.ui.widgets.Widget.getSingleValue(this.getChildControl("base-selector").getValue());
         if (selectedParentDn) {
-          this._searchArgs.options.filter[this._selectorOptions.filters.base.use] = "%"+selectedParentDn;
+          if (this.getChildControl('subtree-checkbox').getValue() === true) {
+            this._searchArgs.options.filter[this._selectorOptions.filters.base.use] = "%" + selectedParentDn;
+          } else {
+            this._searchArgs.options.filter[this._selectorOptions.filters.base.use] = selectedParentDn;
+          }
+        } else if (this.getChildControl('subtree-checkbox').getValue() === false) {
+          // use base as parent (no subtree search)
+          this._searchArgs.options.filter[this._selectorOptions.filters.base.use] =
+            this.getChildControl("base-selector").getRoot().getChildren().getItem(0).getDn();
         } else {
           delete this._searchArgs.options.filter[this._selectorOptions.filters.base.use];
         }
@@ -171,15 +203,22 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
               break;
 
             case "base":
-              var control = this.getChildControl('base-selector');
-              control.setObjectTypes(this.getAllowedTypes().map(function (entry) {
-                return entry.getKey();
-              }));
+              if (!this.hasChildControl('base-selector')) {
+                this._createChildControl('base-selector');
+              }
+              if (!this.hasChildControl('subtree-checkbox')) {
+                this._createChildControl('subtree-checkbox');
+              }
               break;
 
             case "type":
-              if (this.getAllowedTypes().length > 0) {
-                this.getChildControl('type-selector').setModel(this.getAllowedTypes());
+              if (this._selectorOptions.filters.type === true) {
+                if (this.getAllowedTypes().length > 0) {
+                  this.getChildControl('type-selector').setModel(this.getAllowedTypes());
+                  if (this._defaultType) {
+                    this.getChildControl('type-selector').getSelection().replace([this._defaultType])
+                  }
+                }
               }
               break;
 
@@ -257,9 +296,10 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
       if (this.hasChildControl("type-selector")) {
         var selection = this.getChildControl("type-selector").getSelection();
         var selectedTypes = [];
-        selection.forEach(function(sel) {
-          if (sel.getUserData("type")) {
-            selectedTypes.push(sel.getUserData("type"));
+        selection.some(function(sel) {
+          if (sel.getKey() !== '-') {
+            selectedTypes.push(sel.getKey());
+            return true;
           }
         });
         if (selectedTypes.length > 0) {
@@ -293,16 +333,12 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
             liveUpdate: true,
             allowGrowX: true
           });
-          var debouncedUpdate = qx.util.Function.debounce(this._updateValues, 500, false).bind(this);
-          control.addListener("changeValue", function() {
-            debouncedUpdate();
-            this.__maintainSearchButton();
-          }, this);
+          control.addListener("changeValue", this.__maintainSearchButton, this);
           var label = new qx.ui.basic.Label(this.tr("Search"));
           var container = new qx.ui.container.Composite(new qx.ui.layout.HBox());
           container.add(label, {width: "20%"});
           container.add(control, {flex: 1});
-          this.getChildControl('filter-container').addAt(container, 3);
+          this.getChildControl('filter-container').addAt(container, 4);
           break;
 
         case 'type-selector':
@@ -317,12 +353,12 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
               return a.getValue().localeCompare(b.getValue());
             }
           });
-          control.addListener("changeSelection", this.__maintainSearchButton, this);
+          control.getSelection().addListener("change", this.__maintainSearchButton, this);
           var label = new qx.ui.basic.Label(this.tr("Type"));
           var container = new qx.ui.container.Composite(new qx.ui.layout.HBox());
           container.add(label, {width: "20%"});
           container.add(control, {flex: 1});
-          this.getChildControl('filter-container').addAt(container, 2);
+          this.getChildControl('filter-container').addAt(container, 3);
           break;
 
         case 'base-selector':
@@ -335,10 +371,19 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
           this.getChildControl('filter-container').addAt(control, 1);
           break;
 
+        case 'subtree-checkbox':
+          control = new qx.ui.form.CheckBox(this.tr('Search in subtree'));
+          var container = new qx.ui.container.Composite(new qx.ui.layout.HBox());
+          container.add(new qx.ui.core.Spacer(), {width: "20%"});
+          container.add(control, {flex: 1});
+          control.addListener("changeValue", this.__maintainSearchButton, this);
+          this.getChildControl('filter-container').addAt(container, 2);
+          break;
+
         case 'filter-button':
-          control = new qx.ui.form.Button(this.tr("Filter"));
+          control = new qx.ui.form.Button(this.tr("Filter"), '@Ligature/search/22');
           control.setEnabled(false);
-          this.getChildControl('filter-container').addAt(control, 4);
+          this.getChildControl('filter-container').addAt(control, 5);
           control.addListener("execute", this._updateValues, this);
           break;
       }

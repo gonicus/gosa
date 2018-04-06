@@ -201,6 +201,9 @@ qx.Class.define("gosa.ui.widgets.ObjectEdit", {
      */
     addDialog : function(dialog) {
       this.__openDialogs.push(dialog);
+      dialog.addListener('close', function () {
+        qx.lang.Array.remove(this.__openDialogs, dialog);
+      }, this);
     },
 
     /**
