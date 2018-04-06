@@ -78,9 +78,12 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
         this.__initWidgets(columnSettings, extension, attribute);
       }, this);
     } else {
-      if (this._selectorOptions.filter._type) {
+      if (this._selectorOptions.filter._type && this._selectorOptions.filter._type.limit === true) {
         // hardcoded list of allowed types (defined in the template), limit the resultset to these
-        this._typeFilter = this._selectorOptions.filter._type
+        if (!searchOptions.filter) {
+          searchOptions.filter = {};
+        }
+        searchOptions.filter._type = this._selectorOptions.filter._type.values;
       }
       this.__initWidgets(columnSettings, extension, attribute);
     }
