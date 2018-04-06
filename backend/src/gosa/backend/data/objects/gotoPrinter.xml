@@ -14,7 +14,8 @@
             <Backend gotoUserAdminPrinter="PosixUser:uid,gotoUserAdminPrinter=uid"
                      gotoUserPrinter="PosixUser:uid,gotoUserPrinter=uid"
                      gotoGroupAdminPrinter="GroupOfNames:dn,gotoGroupAdminPrinter=dn"
-                     gotoGroupPrinter="GroupOfNames:dn,gotoGroupPrinter=dn">ObjectHandler</Backend>
+                     gotoGroupPrinter="GroupOfNames:dn,gotoGroupPrinter=dn"
+                     groupMembership="GroupOfNames:dn,member=dn">ObjectHandler</Backend>
         </BackendParameters>
         <BaseObject>true</BaseObject>
         <Attributes>
@@ -158,6 +159,20 @@
                         <Attribute>uid</Attribute>
                     </Reference>
                 </References>
+            </Attribute>
+            <Attribute>
+                <Name>groupMembership</Name>
+                <Description>A list of GroupOfNames this printer is part of</Description>
+                <Type>String</Type>
+                <Backend>ObjectHandler</Backend>
+                <MultiValue>true</MultiValue>
+                <Validators>
+                    <Condition>
+                        <Name>ObjectWithPropertyExists</Name>
+                        <Param>GroupOfNames</Param>
+                        <Param>dn</Param>
+                    </Condition>
+                </Validators>
             </Attribute>
             <Attribute>
                 <Name>gotoGroupAdminPrinter</Name>

@@ -76,50 +76,10 @@
           }
         },
         {
-          "buddyModelPath": "gotoUserAdminPrinter",
+          "buddyModelPath": "gotoGroupPrinter",
           "addOptions": {
             "row": 0,
             "column": 1
-          },
-          "properties": {
-            "text": "tr('Admin')"
-          },
-          "class": "gosa.ui.widgets.QLabelWidget"
-        },
-        {
-          "class": "gosa.ui.widgets.QTableWidgetWidget",
-          "modelPath": "gotoUserAdminPrinter",
-          "addOptions": {
-            "row": 1,
-            "column": 1
-          },
-          "properties": {
-            "multivalue": true,
-            "height" : 350
-          },
-          "extensions": {
-            "guiProperties": {
-              "editTitle": "tr('Edit printer admin')",
-              "columns": {
-                "cn": "tr('Name')",
-                "description": "tr('Description')"
-              },
-              "columnRenderers": {
-                "1": {
-                  "class": "gosa.ui.table.cellrenderer.Html"
-                }
-              },
-              "droppable": true,
-              "draggable": true,
-              "dragDropType": "gosa/user"
-            }
-          }
-        },
-        {
-          "buddyModelPath": "gotoGroupPrinter",
-          "addOptions": {
-            "row": 2,
-            "column": 0
           },
           "properties": {
             "text": "tr('Group')"
@@ -128,10 +88,10 @@
         },
         {
           "class": "gosa.ui.widgets.QTableWidgetWidget",
-          "modelPath": "gotoGroupPrinter",
+          "modelPath": "groupMembership",
           "addOptions": {
-            "row": 3,
-            "column": 0
+            "row": 1,
+            "column": 1
           },
           "properties": {
             "multivalue": true,
@@ -149,46 +109,17 @@
                   "class": "gosa.ui.table.cellrenderer.Html"
                 }
               },
-              "droppable": true,
-              "draggable": true,
-              "dragDropType": "gosa/group"
-            }
-          }
-        },
-        {
-          "buddyModelPath": "gotoGroupAdminPrinter",
-          "addOptions": {
-            "row": 2,
-            "column": 1
-          },
-          "properties": {
-            "text": "tr('Admin group')"
-          },
-          "class": "gosa.ui.widgets.QLabelWidget"
-        },
-        {
-          "class": "gosa.ui.widgets.QTableWidgetWidget",
-          "modelPath": "gotoGroupAdminPrinter",
-          "addOptions": {
-            "row": 3,
-            "column": 1
-          },
-          "properties": {
-            "multivalue": true,
-            "height" : 350
-          },
-          "extensions": {
-            "guiProperties": {
-              "editTitle": "tr('Edit printer admin group')",
-              "columns": {
-                "cn": "tr('Name')",
-                "description": "tr('Description')"
-              },
-              "columnRenderers": {
-                "1": {
-                  "class": "gosa.ui.table.cellrenderer.Html"
+              "selectorOptions": {
+                "filters": {
+                  "base": {
+                    "use": "_adjusted_parent_dn",
+                    "mode": "children"
+                  },
+                  "type": true,
+                  "search": true
                 }
               },
+              "sortByColumn": "cn",
               "droppable": true,
               "draggable": true,
               "dragDropType": "gosa/group"
