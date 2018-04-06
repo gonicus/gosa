@@ -78,12 +78,9 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
         this.__initWidgets(columnSettings, extension, attribute);
       }, this);
     } else {
-      if (qx.lang.Type.isArray(this._selectorOptions.filters.type)) {
-        // hardcoded list of allowed types, limit the resultset to these
-        this._typeFilter = {
-          values: this._selectorOptions.filters.type,
-          limit: true
-        }
+      if (this._selectorOptions.filter._type) {
+        // hardcoded list of allowed types (defined in the template), limit the resultset to these
+        this._typeFilter = this._selectorOptions.filter._type
       }
       this.__initWidgets(columnSettings, extension, attribute);
     }
