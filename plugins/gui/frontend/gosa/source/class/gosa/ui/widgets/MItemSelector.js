@@ -71,7 +71,11 @@ qx.Mixin.define('gosa.ui.widgets.MItemSelector', {
 
     _createModelFilter: function () {
       // check if we have some table filters
-      var object = this._getController().getObject();
+      var controller = this._getController();
+      if (!controller) {
+        return;
+      }
+      var object = controller.getObject();
 
       if (this.getAttribute() && object.attribute_data[this.getAttribute()]["validator_information"]) {
         Object.getOwnPropertyNames(object.attribute_data[this.getAttribute()]["validator_information"]).forEach(function(info) {
