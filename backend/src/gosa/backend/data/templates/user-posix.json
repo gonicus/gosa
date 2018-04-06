@@ -202,7 +202,18 @@
                     "columns": {
                         "cn": "tr('Name')",
                         "description": "tr('Description')"
-                    }
+                    },
+                    "selectorOptions": {
+                        "filters": {
+                            "base": {
+                                "use": "_adjusted_parent_dn",
+                                "mode": "children"
+                            },
+                            "type": true,
+                            "search": true
+                        }
+                    },
+                    "sortByColumn": "cn"
                 }
             }
         }]
