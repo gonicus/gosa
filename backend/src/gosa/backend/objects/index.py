@@ -1570,7 +1570,7 @@ class ObjectIndex(Plugin):
         if 'limit' in options:
             q.limit(options['limit'])
 
-        self.log.info(print_query(q))
+        # self.log.info(print_query(q))
 
         try:
             for o in q.all():
