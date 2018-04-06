@@ -24,7 +24,7 @@ qx.Class.define("gosa.ui.table.cellrenderer.Html", {
   members: {
     // overridden
     _getContentHtml: function (cellInfo) {
-      return (cellInfo.value.replace(/^\s*(<br\/>)*/, '') || '');
+      return cellInfo.value ? cellInfo.value.replace(/^\s*(<br\/>)*/, '') : '';
     }
   }
 });
