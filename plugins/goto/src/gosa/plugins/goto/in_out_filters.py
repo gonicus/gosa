@@ -42,7 +42,7 @@ class registeredDeviceStatusOut(ElementFilter):
         for flag in mapping:
             if len(valDict[mapping[flag]]['value']) >= 1 and valDict[mapping[flag]]['value'][0]:
                 flagStr += flag
-        valDict[key]['value'] = [flagStr]
+        valDict[key]['value'] = [flagStr] if len(flagStr) > 0 else []
         return key, valDict
 
 
