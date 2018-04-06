@@ -89,7 +89,7 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     }
 
     if (!this._selectorOptions.skipInitialSearch) {
-      this._updateValues();
+      this._updateValues(true);
     }
   },
 
@@ -124,8 +124,8 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
     _defaultType: null,
 
 
-    _updateValues: function() {
-      if (this.hasChildControl("filter-button") && !this.getChildControl("filter-button").isEnabled()) {
+    _updateValues: function(force) {
+      if (!force && this.hasChildControl("filter-button") && !this.getChildControl("filter-button").isEnabled()) {
         return;
       }
       var queryFilter = this._searchArgs.queryFilter;
@@ -149,6 +149,9 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
         }
       }
       if (this.hasChildControl("base-selector")) {
+        if (!this._searchArgs.options.filter) {
+          this._searchArgs.options.filter = {};
+        }
         var selectedParentDn = gosa.ui.widgets.Widget.getSingleValue(this.getChildControl("base-selector").getValue());
         if (selectedParentDn) {
           if (this.getChildControl('subtree-checkbox').getValue() === true) {
@@ -156,7 +159,8 @@ qx.Class.define("gosa.ui.dialogs.ItemSelector", {
           } else {
             this._searchArgs.options.filter[this._selectorOptions.filters.base.use] = selectedParentDn;
           }
-        } else if (this.getChildControl('subtree-checkbox').getValue() === false) {
+        } else if (this.getChildControl('subtree-checkbox').getValue() === false &&
+          this.getChildControl("base-selector").getRoot().getChildren().length > 0) {
           // use base as parent (no subtree search)
           this._searchArgs.options.filter[this._selectorOptions.filters.base.use] =
             this.getChildControl("base-selector").getRoot().getChildren().getItem(0).getDn();
