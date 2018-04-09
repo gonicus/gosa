@@ -760,10 +760,12 @@ class ClientService(Plugin):
             # collect printer settings for user, starting with the clients printers
             settings = self.__collect_printer_settings(group)
             printer_names = [x["cn"] for x in settings["printers"]]
-            for res in index.search({'_type': 'GroupOfNames', "member": user.dn, "extension": "GotoEnvironment"},
+            # get all GroupOfNames with GotoEnvironment the user or client is member of
+            for res in index.search({'_type': 'GroupOfNames', "member": {"in_": [user.dn, client.dn]}, "extension": "GotoEnvironment"},
                                     {"dn": 1}):
                 user_group = ObjectProxy(res["dn"], read_only=True)
                 if group is not None and user_group.dn == group.dn:
+                    # this group has already been handled
                     continue
                 s = self.__collect_printer_settings(user_group)
 
