@@ -20,6 +20,8 @@ import sys
 import uuid
 import traceback
 import logging
+
+import multiprocessing
 import tornado.web
 import time
 
@@ -63,7 +65,7 @@ class JsonRpcHandler(HSTSRequestHandler):
 
     # denial service for some time after login fails to often
     __dos_manager = {}
-    executor = concurrent.futures.ThreadPoolExecutor(4)
+    executor = concurrent.futures.ThreadPoolExecutor(multiprocessing.cpu_count())
 
     def initialize(self):
         self.dispatcher = PluginRegistry.getInstance('CommandRegistry')
