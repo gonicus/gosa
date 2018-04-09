@@ -249,6 +249,7 @@
                   "class": "gosa.ui.table.cellrenderer.Html"
                 }
               },
+              "sortByColumn": "cn",
               "draggable": true,
               "dragDropActions": ["copy"],
               "dragDropType": "gosa/printer",
