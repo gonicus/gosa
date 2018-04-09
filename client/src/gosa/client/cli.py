@@ -15,6 +15,7 @@ import codecs
 import gettext
 import locale
 import os
+import pprint
 import sys
 import logging
 from urllib.parse import urlparse
@@ -112,6 +113,11 @@ def notify_backend(options):
             print("calling preUserSession...")
             try:
                 config = proxy.preUserSession(sys_id, user)
+                if options.dry_run is True:
+                    pp = pprint.PrettyPrinter(indent=4)
+                    pp.pprint(config)
+                    return
+
             except JSONRPCException as e:
                 handle_error(proxy, e)
                 return
@@ -212,6 +218,10 @@ def main():
                 {
                     'args': ('-m', '--mode'),
                     'kwargs': {'dest': 'mode', 'type': str, 'help': '"start" or "end" to specify the user session state'}
+                },
+                {
+                    'args': ('-d', '--dry-run'),
+                    'kwargs': {'dest': 'dry_run', 'action': 'store_true', 'help': 'Only print the backend response, do not apply the settings.'}
                 }
             ],
 

@@ -109,7 +109,7 @@ class SyncReplThread(threading.Thread):
 
     def __init__(self, client):
         self.__client = client
-        super(SyncReplThread, self).__init__(target=client.run)
+        super(SyncReplThread, self).__init__(target=client.run, name='syncrepl')
 
     def run(self):
         try:

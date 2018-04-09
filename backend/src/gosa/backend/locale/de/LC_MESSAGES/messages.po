@@ -1554,8 +1554,8 @@ msgid "Edit nested groups"
 msgstr "Verschachtelte Gruppen bearbeiten"
 
 #: src/gosa/backend/data/templates/groupOfNames.json:9
-msgid "Group of names"
-msgstr "Gruppe von Namen"
+msgid "Objectgroup"
+msgstr "Objektgruppe"
 
 #: src/gosa/backend/data/templates/groupOfNames.json:100
 #: src/gosa/backend/data/templates/organizational-unit.json:61

@@ -120,8 +120,9 @@ class GetPPDUrl(PPDFilters):
         if True not in valDict["configured"]["value"]:
             # a customized URL has not been written -> get the server PPD and write that one
             client = PluginRegistry.getInstance("CupsClient")
-            res = client.writePPD(valDict["cn"]["value"][0], valDict["serverPPD"]["value"][0], None, {})
-            valDict[key]["value"] = res["gotoPrinterPPD"]
-            self.log.debug("default PPD written to %s" % res["gotoPrinterPPD"])
+            if len(valDict["serverPPD"]["value"]) > 0:
+                res = client.writePPD(valDict["cn"]["value"][0], valDict["serverPPD"]["value"][0], None, {})
+                valDict[key]["value"] = res["gotoPrinterPPD"]
+                self.log.debug("default PPD written to %s" % res["gotoPrinterPPD"])
 
         return key, valDict

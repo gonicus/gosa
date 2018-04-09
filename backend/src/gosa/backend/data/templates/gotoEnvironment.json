@@ -239,7 +239,7 @@
           "class": "gosa.ui.widgets.QTableWidgetWidget",
           "extensions": {
             "guiProperties": {
-              "editTitle": "tr('Edit printer user')",
+              "editTitle": "tr('Edit printer')",
               "columns": {
                 "cn": "tr('Name')",
                 "description": "tr('Description')"
@@ -249,6 +249,7 @@
                   "class": "gosa.ui.table.cellrenderer.Html"
                 }
               },
+              "sortByColumn": "cn",
               "draggable": true,
               "dragDropActions": ["copy"],
               "dragDropType": "gosa/printer",
