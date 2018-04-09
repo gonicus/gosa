@@ -287,6 +287,7 @@ setup(
         mail = gosa.backend.plugins.mail.main:Mail
         user = gosa.backend.plugins.user.main:User
         mqtt_connection = gosa.common.mqtt_connection_state:MQTTConnectionHandler
+        executor_wrapper = gosa.backend.components.jsonrpc_service:ExecutorWrapper
         
         [gosa.backend.plugin]
         workflow = gosa.backend.components.workflowregistry:WorkflowRegistry
