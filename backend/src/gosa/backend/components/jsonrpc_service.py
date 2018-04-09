@@ -42,11 +42,15 @@ from gosa.backend.lock import GlobalLock
 from gosa.backend.utils.ldap import check_auth
 from gosa.backend.exceptions import FilterException
 from gosa.common.components.command import no_login_commands
+from zope.interface.declarations import implementer
+from gosa.common.handler import IInterfaceHandler
 import hashlib
 
 
 # Register the errors handled  by us
 from tornado.concurrent import Future
+
+from gosa.common.components.plugin import Plugin
 
 C.register_codes(dict(
     INVALID_JSON=N_("Invalid JSON string '%(data)s'"),
@@ -57,6 +61,18 @@ C.register_codes(dict(
     ), module="gosa.backend")
 
 
+@implementer(IInterfaceHandler)
+class ExecutorWrapper(Plugin):
+    _priority_ = 0
+    _target_ = 'core'
+
+    def __init__(self):
+        self.executor = concurrent.futures.ThreadPoolExecutor(multiprocessing.cpu_count())
+
+    def stop(self):
+        self.executor.shutdown(True)
+
+
 class JsonRpcHandler(HSTSRequestHandler):
     """
     This is the tornado request handler which is responsible for serving the
@@ -65,13 +81,14 @@ class JsonRpcHandler(HSTSRequestHandler):
 
     # denial service for some time after login fails to often
     __dos_manager = {}
-    executor = concurrent.futures.ThreadPoolExecutor(multiprocessing.cpu_count())
+    executor = None
 
     def initialize(self):
         self.dispatcher = PluginRegistry.getInstance('CommandRegistry')
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
         self.ident = "GOsa JSON-RPC service (%s)" % VERSION
+        self.executor = PluginRegistry.getInstance('ExecutorWrapper').executor
 
     def get(self):
         """Allow the clients to get the XSRF cookie"""
