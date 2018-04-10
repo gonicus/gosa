@@ -154,9 +154,6 @@ class SseHandlerTestCase(RemoteTestCase):
         ))
         self.fetch_async(self.get_url('/events'), streaming_callback=self.handle_message,
                          headers={'Last-Event-ID': self.last_id})
-        # for some reason the first wait stops immediately
-        self.wait()
-        # so we need to wait one more tine for the message
         self.wait()
 
     def test_notification(self, mocked_resolver):

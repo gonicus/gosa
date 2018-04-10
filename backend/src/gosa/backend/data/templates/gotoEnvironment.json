@@ -249,6 +249,15 @@
                   "class": "gosa.ui.table.cellrenderer.Html"
                 }
               },
+              "selectorOptions": {
+                "filters": {
+                  "base": {
+                    "use": "_adjusted_parent_dn",
+                    "mode": "children"
+                  },
+                  "search": true
+                }
+              },
               "sortByColumn": "cn",
               "draggable": true,
               "dragDropActions": ["copy"],
