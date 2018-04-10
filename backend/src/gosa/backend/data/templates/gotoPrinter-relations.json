@@ -76,7 +76,7 @@
           }
         },
         {
-          "buddyModelPath": "gotoGroupPrinter",
+          "buddyModelPath": "groupAssociation",
           "addOptions": {
             "row": 0,
             "column": 1
@@ -88,7 +88,7 @@
         },
         {
           "class": "gosa.ui.widgets.QTableWidgetWidget",
-          "modelPath": "groupMembership",
+          "modelPath": "groupAssociation",
           "addOptions": {
             "row": 1,
             "column": 1

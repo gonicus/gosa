@@ -12,10 +12,10 @@
         <BackendParameters>
             <Backend RDN="cn" objectClasses="gotoPrinter">LDAP</Backend>
             <Backend gotoUserAdminPrinter="PosixUser:uid,gotoUserAdminPrinter=uid"
-                     gotoUserPrinter="PosixUser:uid,gotoUserPrinter=uid"
+                     gotoUserPrinter="PosixUser:dn,gotoPrinters=dn"
                      gotoGroupAdminPrinter="GroupOfNames:dn,gotoGroupAdminPrinter=dn"
                      gotoGroupPrinter="GroupOfNames:dn,gotoGroupPrinter=dn"
-                     groupMembership="GroupOfNames:dn,member=dn">ObjectHandler</Backend>
+                     groupAssociation="GotoEnvironment:dn,gotoPrinters=dn">ObjectHandler</Backend>
         </BackendParameters>
         <BaseObject>true</BaseObject>
         <Attributes>
@@ -161,15 +161,15 @@
                 </References>
             </Attribute>
             <Attribute>
-                <Name>groupMembership</Name>
-                <Description>A list of GroupOfNames this printer is part of</Description>
+                <Name>groupAssociation</Name>
+                <Description>A list of GotoEnvironment this printer is assigned to</Description>
                 <Type>String</Type>
                 <Backend>ObjectHandler</Backend>
                 <MultiValue>true</MultiValue>
                 <Validators>
                     <Condition>
                         <Name>ObjectWithPropertyExists</Name>
-                        <Param>GroupOfNames</Param>
+                        <Param>GotoEnvironment</Param>
                         <Param>dn</Param>
                     </Condition>
                 </Validators>
