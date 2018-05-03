@@ -201,9 +201,10 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
             # get DISPLAY from running processes
             processes=[process for process in psutil.process_iter() if process.username() == self.username]
             for process in processes:
-                if 'DISPLAY' in process.environ():
-                    self._DISPLAY = process.environ()['DISPLAY']
-                    break
+                if hasattr(process, 'environ'):
+                    if 'DISPLAY' in process.environ():
+                        self._DISPLAY = process.environ()['DISPLAY']
+                        break
 
         return self._DISPLAY
 
