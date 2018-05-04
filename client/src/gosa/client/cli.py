@@ -123,11 +123,6 @@ def notify_backend(options):
                 return
 
             # send config to dbus
-            if "menu" in config:
-                # send to client
-                print("sending generated menu for user '%s'" % user)
-                dbus_proxy.callDBusMethod("dbus_configureUserMenu", user, dumps(config["menu"]))
-
             if "printer-setup" in config and "printers" in config["printer-setup"]:
                 dbus_proxy.callDBusMethod("dbus_deleteAllPrinters")
                 for p_conf in config["printer-setup"]["printers"]:
@@ -142,6 +137,12 @@ def notify_backend(options):
             if "resolution" in config and config["resolution"] is not None and len(config["resolution"]):
                 print("sending screen resolution: %sx%s for user %s" % (config["resolution"][0], config["resolution"][1], user))
                 dbus_proxy.callDBusMethod("dbus_configureUserScreen", user, config["resolution"][0], config["resolution"][1])
+
+            if "menu" in config:
+                # send to client
+                print("sending generated menu for user '%s'" % user)
+                dbus_proxy.callDBusMethod("dbus_configureUserMenu", user, dumps(config["menu"]))
+
 
         elif mode == "end":
             print("calling postUserSession...")
