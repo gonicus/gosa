@@ -304,16 +304,17 @@ class DBusEnvironmentHandler(dbus.service.Object, Plugin):
     def write_icon(self, basename, icon):
         result = ""
 
-        icon_path = os.path.join(self.home_dir, self.local_icons, basename + ".png")
-        if isinstance(icon, Binary):
-            icon = icon.get()
+        if icon is not None:
+            icon_path = os.path.join(self.home_dir, self.local_icons, basename + ".png")
+            if isinstance(icon, Binary):
+                icon = icon.get()
 
-        if os.path.exists(icon_path):
-            os.unlink(icon_path)
+            if os.path.exists(icon_path):
+                os.unlink(icon_path)
 
-        with open(icon_path, 'wb') as icon_file:
-            icon_file.write(icon)
-            result = icon_path
+            with open(icon_path, 'wb') as icon_file:
+                icon_file.write(icon)
+                result = icon_path
 
         return result
 
