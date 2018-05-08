@@ -1,6 +1,6 @@
 usr/bin/gosa-join usr/sbin
 usr/bin/gosa-client usr/sbin
-usr/bin/gosa-session usr/bin
+usr/bin/gosa-client-cli usr/bin
 usr/lib/python*/dist-packages/gosa/client
 usr/lib/python*/dist-packages/gosa.client-*.egg-info
 usr/lib/python*/dist-packages/gosa.client-*-nspkg.pth

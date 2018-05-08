@@ -25,7 +25,8 @@ Description: gosa infrastructure service - common files
 Package: gosa-dbus
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, gosa-common, python3-dateutil,
- python3-dbus, python3-setproctitle, python3-pyinotify, python3-polib, python3-xdg
+ python3-dbus, python3-setproctitle, python3-pyinotify, python3-polib, python3-xdg,
+ python3-psutil
 Description: GOsa infrastructure service - DBUS service provider
  Brief description is missing.
  .
