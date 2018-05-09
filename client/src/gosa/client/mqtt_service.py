@@ -72,6 +72,7 @@ class MQTTClientService(object):
     time_int = 3
     client = None
     __last_announce = None
+    _ping_job = None
 
     def __init__(self):
         env = Environment.getInstance()
