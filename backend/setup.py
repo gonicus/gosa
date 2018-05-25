@@ -237,7 +237,7 @@ setup(
         'pycups',
         'sh',
         'pylint',
-        'sqlalchemy_searchable',
+        'sqlalchemy_searchable>=1.0.3',
         'bcrypt',
         'polib',
         'syncrepl-client'

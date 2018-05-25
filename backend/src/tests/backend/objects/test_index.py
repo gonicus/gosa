@@ -167,6 +167,11 @@ class ObjectIndexTestCase(TestCase):
         assert len(res) == 1
         assert 'cn=Frank Reich,ou=people,dc=example,dc=net' in res[0]['dn']
 
+        # full text search
+        res = self.obj.search({'*': 'Frank Reich'}, {'dn': 1})
+        assert len(res) == 1
+        assert 'cn=Frank Reich,ou=people,dc=example,dc=net' in res[0]['dn']
+
     def test_backend_change_processor(self):
 
         e = EventMaker()

@@ -34,7 +34,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.schema import CreateTable
 from sqlalchemy.sql.ddl import DropTable
-from sqlalchemy_searchable import make_searchable, parse_search_query
+from sqlalchemy_searchable import make_searchable, search
 from sqlalchemy_utils import TSVectorType
 
 import gosa
@@ -69,7 +69,7 @@ from sqlalchemy import Column, String, Integer, Boolean, Sequence, DateTime, For
 from gosa.backend.routes.system import State
 
 Base = declarative_base()
-make_searchable()
+make_searchable(Base.metadata)
 
 
 # Register the errors handled  by us
@@ -1426,10 +1426,7 @@ class ObjectIndex(Plugin):
                             exprs.append(ExtensionIndex.extension == v)
                         else:
                             if key == "*":
-                                search_query = parse_search_query(v)
-                                sub_query = session.query(SearchObjectIndex.so_uuid). \
-                                    filter(SearchObjectIndex.search_vector.match(search_query, sort=True, postgresql_regconfig='simple')). \
-                                    subquery()
+                                sub_query = search(session.query(SearchObjectIndex.so_uuid), v, sort=True, regconfig='simple').subquery()
                             elif "%" in v:
                                 if v == "%":
                                     sub_query = session.query(KeyValueIndex.uuid). \
@@ -1462,10 +1459,7 @@ class ObjectIndex(Plugin):
                         res.append(ExtensionIndex.extension == value)
                     else:
                         if key == "*":
-                            search_query = parse_search_query(value)
-                            sub_query = session.query(SearchObjectIndex.so_uuid). \
-                                filter(SearchObjectIndex.search_vector.match(search_query, sort=True, postgresql_regconfig='simple')). \
-                                subquery()
+                            sub_query = search(session.query(SearchObjectIndex.so_uuid), value, sort=True, regconfig='simple').subquery()
                         elif "%" in value:
                             if value == "%":
                                 sub_query = session.query(KeyValueIndex.uuid). \

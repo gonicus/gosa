@@ -13,10 +13,10 @@ import datetime
 import shlex
 
 import math
-from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import aliased, contains_eager, subqueryload
-from sqlalchemy_searchable import search, parse_search_query
 from pkg_resources import resource_filename
+from sqlalchemy_searchable import search
+
 import gosa.backend.objects.renderer
 import gettext
 from sqlalchemy import desc
@@ -727,26 +727,22 @@ class RPCMethods(Plugin):
 
     def finalize_query(self, query, fltr, session, qstring=None, order_by=None):
         search_query = None
-        if qstring is not None:
-            search_query = parse_search_query(qstring)
-            ft_query = and_(SearchObjectIndex.search_vector.match(search_query, sort=order_by is None, postgresql_regconfig='simple'),
-                            SearchObjectIndex.so_uuid == ObjectInfoIndex.uuid,
-                            query)
-        else:
-            ft_query = query
-
         ranked = False
+        if qstring is not None:
+            ft_query = and_(SearchObjectIndex.so_uuid == ObjectInfoIndex.uuid, query)
+            q = session.query(
+                ObjectInfoIndex,
+                func.ts_rank_cd(
+                    SearchObjectIndex.search_vector,
+                    func.plainto_tsquery(qstring)
+                ).label('rank'))\
+            .options(subqueryload(ObjectInfoIndex.search_object))\
+            .options(subqueryload(ObjectInfoIndex.properties)).filter(ft_query)
 
-        if search_query is not None:
-            query_result = session.query(ObjectInfoIndex, func.ts_rank_cd(
-                SearchObjectIndex.search_vector,
-                func.to_tsquery(search_query)
-            ).label('rank'))\
-                .options(subqueryload(ObjectInfoIndex.search_object))\
-                .options(subqueryload(ObjectInfoIndex.properties)).filter(ft_query)
+            query_result = search(q, qstring, vector=SearchObjectIndex.search_vector, sort=order_by is None, regconfig='simple')
             ranked = True
         else:
-            query_result = session.query(ObjectInfoIndex).options(subqueryload(ObjectInfoIndex.properties)).filter(ft_query)
+            query_result = session.query(ObjectInfoIndex).options(subqueryload(ObjectInfoIndex.properties)).filter(query)
 
         if order_by is not None:
             query_result = query_result.order_by(order_by)
