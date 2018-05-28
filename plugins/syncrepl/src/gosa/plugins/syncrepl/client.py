@@ -247,10 +247,10 @@ class ReplCallback(BaseCallback):
         p = ChangeProcessor(self.__queue)
         p.start()
 
-    def bind_complete(self, ldap, cursor):
+    def bind_complete(self, ldap, cursor=None):
         self.log.debug("LDAP Bind complete as DN '{}'".format(ldap.whoami_s()))
 
-    def refresh_done(self, items, cursor):
+    def refresh_done(self, items, cursor=None):
         self.log.debug("LDAP Refresh complete")
         self.__refresh_done = True
         # trigger initial refresh til now
