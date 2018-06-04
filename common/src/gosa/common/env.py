@@ -29,6 +29,7 @@ from decorator import contextmanager
 from sqlalchemy.engine.url import make_url
 
 from gosa.common.config import Config
+from gosa.common.error import GosaException
 from gosa.common.utils import dmi_system
 
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -82,6 +83,8 @@ class Environment:
 
         self.uuid = self.config.get("core.id", default=None)
         self.mode = self.config.get("core.mode", default="backend")
+        if self.mode not in ["backend", "proxy"]:
+            raise GosaException("Unknown mode: %s (only 'backend' or 'proxy' are allowed)" % self.mode)
         if not self.uuid:
             self.log.warning("system has no id - falling back to configured hardware uuid")
             self.uuid = dmi_system("uuid")
