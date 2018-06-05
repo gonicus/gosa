@@ -228,7 +228,8 @@
         </Attributes>
         <Extends>
             <!--<Value>User</Value>-->
-            <Value>GroupOfNames</Value>
+            <Value>GosaGroupOfNames</Value>
+            <Value>PosixGroup</Value>
             <Value>Device</Value>
         </Extends>
         <!--<ExtensionConditions>-->

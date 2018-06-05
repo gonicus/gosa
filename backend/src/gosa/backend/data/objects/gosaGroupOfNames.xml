@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ This file is part of the GOsa project -  http://gosa-project.org
+  ~
+  ~ Copyright:
+  ~    (C) 2010-2018 GONICUS GmbH, Germany, http://www.gonicus.de
+  ~
+  ~ License:
+  ~    LGPL-2.1: http://www.gnu.org/licenses/lgpl-2.1.html
+  ~
+  ~ See the LICENSE file in the project's top-level directory for details.
+  -->
+
+<Objects xmlns="http://www.gonicus.de/Objects">
+  <Object>
+    <Name>GosaGroupOfNames</Name>
+    <DisplayName>GosaGroupOfNames</DisplayName>
+    <Description>GOsa object grouping (v2.7)</Description>
+    <Backend>LDAP</Backend>
+    <BackendParameters>
+      <Backend RDN="cn" objectClasses="gosaGroupOfNames">LDAP</Backend>
+      <Backend member="*:dn,">ObjectHandler</Backend>
+    </BackendParameters>
+    <BaseObject>true</BaseObject>
+    <Attributes>
+      <Attribute>
+        <Name>cn</Name>
+        <Description>RFC4519: common name(s) for which the entity is known by</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>true</Mandatory>
+      </Attribute>
+      <Attribute>
+        <Name>gosaGroupObjects</Name>
+        <Description>Takes a list of all object types that are in a gosaGroupOfNames</Description>
+        <Type>String</Type>
+        <MultiValue>false</MultiValue>
+        <Mandatory>true</Mandatory>
+        <Validators>
+          <Condition>
+            <Name>RegEx</Name>
+            <Param>^[\x00-\x7F]*$</Param>
+          </Condition>
+        </Validators>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>MaintainGosaGroupObjects</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>member</Name>
+        <Description>RFC2256: member of a group</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>true</Mandatory>
+        <Validators>
+          <ConditionOperator>
+            <Operator>and</Operator>
+            <LeftConditionChain>
+              <ConditionOperator>
+                <Operator>and</Operator>
+                <LeftConditionChain>
+                  <Condition>
+                    <Name>IsExistingDN</Name>
+                  </Condition>
+                </LeftConditionChain>
+                <RightConditionChain>
+                  <Condition>
+                    <Name>MaxAllowedTypes</Name>
+                    <Param>2</Param>
+                  </Condition>
+                </RightConditionChain>
+              </ConditionOperator>
+            </LeftConditionChain>
+            <RightConditionChain>
+              <Condition>
+                <Name>CheckExtensionConditions</Name>
+                <Param>__self__</Param>
+              </Condition>
+            </RightConditionChain>
+          </ConditionOperator>
+
+        </Validators>
+        <References>
+          <Reference>
+            <Object>*</Object>
+            <Attribute>dn</Attribute>
+          </Reference>
+        </References>
+        <InFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>FilterOwnDn</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </InFilter>
+        <OutFilter>
+          <FilterChain>
+            <FilterEntry>
+              <Filter>
+                <Name>AddOwnDnIfEmpty</Name>
+              </Filter>
+            </FilterEntry>
+          </FilterChain>
+        </OutFilter>
+      </Attribute>
+      <Attribute>
+        <Name>description</Name>
+        <Description>RFC4519: descriptive information</Description>
+        <Type>UnicodeString</Type>
+        <MultiValue>true</MultiValue>
+        <Mandatory>false</Mandatory>
+      </Attribute>
+    </Attributes>
+    <Find>
+      <Aspect>
+        <Tag>GosaGroupOfNames</Tag>
+        <Keyword>Group</Keyword>
+        <Keyword>Member</Keyword>
+        <Keyword>Membership</Keyword>
+        <Search>cn</Search>
+        <Search>description</Search>
+        <Resolve type="*" filter="dn">member</Resolve>
+        <Result>
+          <Map>
+            <Source>cn</Source>
+            <Destination>title</Destination>
+          </Map>
+        </Result>
+      </Aspect>
+    </Find>
+  </Object>
+</Objects>

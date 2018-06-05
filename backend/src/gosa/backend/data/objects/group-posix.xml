@@ -8,26 +8,18 @@
     </Templates>
     <DisplayName>Posix group</DisplayName>
     <BackendParameters>
-      <Backend objectClasses="posixGroup" RDN="cn">LDAP</Backend>
+      <Backend objectClasses="posixGroup">LDAP</Backend>
       <Backend memberUid="PosixUser:uid,">ObjectHandler</Backend>
     </BackendParameters>
     <Backend>LDAP</Backend>
 
     <Attributes>
-      <Attribute>
+      <ForeignAttribute>
         <Name>cn</Name>
-        <Description>Common Name</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>true</Mandatory>
-      </Attribute>
-      <Attribute>
+      </ForeignAttribute>
+      <ForeignAttribute>
         <Name>description</Name>
-        <Description>Description</Description>
-        <Type>UnicodeString</Type>
-        <MultiValue>false</MultiValue>
-        <Mandatory>false</Mandatory>
-      </Attribute>
+      </ForeignAttribute>
       <Attribute>
         <Name>gidNumber</Name>
         <Description>The primary group number number</Description>
@@ -85,7 +77,10 @@
         </OutFilter>
       </Attribute>
     </Attributes>
-    <BaseObject>true</BaseObject>
+    <BaseObject>false</BaseObject>
+    <Extends>
+      <Value>GroupOfNames</Value>
+    </Extends>
 
     <Find>
       <Aspect>

@@ -44,7 +44,7 @@
       <element name="ExtensionConditions" maxOccurs="1" minOccurs="0">
         <complexType>
           <sequence>
-            <element name="ExtensionCondition" maxOccurs="1" minOccurs="0">
+            <element name="ExtensionCondition" maxOccurs="unbounded" minOccurs="0">
               <complexType>
                 <complexContent>
                   <extension base="o:Validator">

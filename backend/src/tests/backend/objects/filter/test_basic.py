@@ -147,3 +147,21 @@ class BasicFilterTests(unittest.TestCase):
         (new_key, newDict) = filter.process(None, "attr", testDict, "%Y-%m-%d")
         assert newDict['attr']['backend_type'] == "String"
         assert list(newDict['attr']['value'])[0] == "2016-06-21"
+
+    def test_MaintainGosaGroupObjects(self):
+        filter = MaintainGosaGroupObjects(None)
+
+        testDict = {
+            "member": {
+                "value": [
+                    "cn=Frank Reich,ou=people,dc=example,dc=net",
+                    "cn=freich,ou=groups,dc=example,dc=net"
+                ]
+            },
+            "gosaGroupObjects": {
+                "value": []
+            }
+        }
+
+        (new_key, newDict) = filter.process(None, "gosaGroupObjects", testDict)
+        assert newDict['gosaGroupObjects']['value'] == "[UG]"

@@ -6,10 +6,19 @@
         <Description>GOto - defines a menu entry (v2.7)</Description>
         <Backend>LDAP</Backend>
         <Extends>
-            <Value>GroupOfNames</Value>
+            <Value>GosaGroupOfNames</Value>
+            <Value>PosixGroup</Value>
             <Value>ForemanHost</Value>
         </Extends>
         <ExtensionConditions>
+            <ExtensionCondition extension="GosaGroupOfNames" properties="member">
+                <Condition>
+                    <Name>HasMemberOfType</Name>
+                    <Param>User</Param>
+                    <Param>member</Param>
+                    <Param>dn</Param>
+                </Condition>
+            </ExtensionCondition>
             <ExtensionCondition extension="GroupOfNames" properties="member">
                 <Condition>
                     <Name>HasMemberOfType</Name>

@@ -18,7 +18,7 @@ import zope
 from ldap.dn import str2dn, dn2str
 
 from gosa.backend.lock import GlobalLock
-from gosa.backend.objects import ObjectProxy
+from gosa.backend.objects import ObjectProxy, ObjectFactory
 from gosa.common.components.jsonrpc_utils import Binary
 from lxml import etree
 
@@ -695,7 +695,10 @@ class ClientService(Plugin):
             client = self.__open_device(client_id, read_only=True)
         group = None
         index = PluginRegistry.getInstance("ObjectIndex")
-        res = index.search({"_type": "GroupOfNames", "member": client.dn}, {"dn": 1})
+        res = index.search({
+            "_type": {"in_": ["GosaGroupOfNames", "GroupOfNames"]},
+            "member": client.dn
+        }, {"dn": 1})
         if len(res) > 0:
             group = ObjectProxy(res[0]["dn"], read_only=True)
         config = {}
@@ -714,7 +717,7 @@ class ClientService(Plugin):
             release = group.getReleaseName()
             parent_group = group
             while release is None and parent_group is not None and parent_group.parent_id is not None:
-                res = index.search({"_type": "GroupOfNames", "extension": "ForemanHostGroup", "foremanGroupId": parent_group.parent_id}, {"dn": 1})
+                res = index.search({"extension": "ForemanHostGroup", "foremanGroupId": parent_group.parent_id}, {"dn": 1})
                 if len(res) == 0:
                     break
                 else:
@@ -741,7 +744,7 @@ class ClientService(Plugin):
                     menus.append(client_menu)
 
                 # get all groups the user is member of which have a menu for the given release
-                query = {'_type': 'GroupOfNames', "member": user.dn, "extension": "GotoMenu", "gotoLsbName": release}
+                query = {"member": user.dn, "extension": "GotoMenu", "gotoLsbName": release}
 
                 for res in index.search(query, {"gotoMenu": 1}):
                     # collect user menus
@@ -761,7 +764,7 @@ class ClientService(Plugin):
             settings = self.__collect_printer_settings(group)
             printer_names = [x["cn"] for x in settings["printers"]]
             # get all GroupOfNames with GotoEnvironment the user or client is member of
-            for res in index.search({'_type': 'GroupOfNames', "member": {"in_": [user.dn, client.dn]}, "extension": "GotoEnvironment"},
+            for res in index.search({"member": {"in_": [user.dn, client.dn]}, "extension": "GotoEnvironment"},
                                     {"dn": 1}):
                 user_group = ObjectProxy(res["dn"], read_only=True)
                 if group is not None and user_group.dn == group.dn:

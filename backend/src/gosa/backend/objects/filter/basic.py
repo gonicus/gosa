@@ -8,6 +8,7 @@
 # See the LICENSE file in the project's top-level directory for details.
 import logging
 
+from gosa.backend.objects import ObjectProxy
 from gosa.backend.objects.filter import ElementFilter
 from gosa.backend.objects.factory import ObjectFactory
 import time
@@ -396,4 +397,42 @@ class AddOwnDnIfEmpty(ElementFilter):
     def process(self, obj, key, valDict):
         if len(valDict[key]['value']) == 0:
             valDict[key]['value'].append(obj.get_final_dn())
+        return key, valDict
+
+
+class MaintainGosaGroupObjects(ElementFilter):
+    """ write member types of a gosaGroupOfNames to the (gosaGroupObjects) attribute """
+    class_to_type = {
+        "GosaUserTemplate": "Y",
+        "GosaAccount": "U",
+        "PosixGroup": "G",
+        "GosaApplication": "A",
+        "GosaDepartment": "D",
+        "GoServer": "S",
+        "GotoWorkstation": "W",
+        "OpsiClient": "O",
+        "GotoTerminal": "T",
+        "GoFonHardware": "F",
+        "GotoPrinter": "P"
+    }
+
+    def process(self, obj, key, valDict):
+        types = ""
+
+        for dn in valDict['member']['value']:
+            print(dn)
+            obj = ObjectProxy(dn)
+            print(obj.get_base_type())
+            if obj.get_base_type() in self.class_to_type:
+                if self.class_to_type[obj.get_base_type()] not in types:
+                    types += self.class_to_type[obj.get_base_type()]
+            else:
+                # check extension types
+                for ext in obj.get_extension_types():
+                    if ext in self.class_to_type:
+                        if self.class_to_type[ext] not in types:
+                            types += self.class_to_type[ext]
+                        break
+
+        valDict[key]['value'] = '[%s]' % types
         return key, valDict

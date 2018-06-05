@@ -198,6 +198,7 @@
       </Aspect>
     </Find>
     <Extends>
+      <Value>GosaGroupOfNames</Value>
       <Value>GroupOfNames</Value>
     </Extends>
     <!--<ExtensionConditions>-->

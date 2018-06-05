@@ -210,8 +210,12 @@ class HasMemberOfType(ElementComparator):
         """ do a BFS search in sub-groups for object type """
         index = PluginRegistry.getInstance("ObjectIndex")
         # check if the type can by found in a group
-        res = index.search({"_type": group_type, attribute_content: {"in_": value}},
-                           {attribute: 1})
+        search = {attribute_content: {"in_": value}}
+        if ObjectFactory.getInstance().isBaseType(group_type):
+            search["_type"] = group_type
+        else:
+            search["extension"] = group_type
+        res = index.search(search, {attribute: 1})
         sub_values = [x[attribute] for x in res]
         res = []
         if len(sub_values):
