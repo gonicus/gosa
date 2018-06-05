@@ -7,7 +7,7 @@
         <Backend>LDAP</Backend>
         <Extends>
             <Value>GosaGroupOfNames</Value>
-            <Value>PosixGroup</Value>
+            <Value>GroupOfNames</Value>
             <Value>ForemanHost</Value>
         </Extends>
         <ExtensionConditions>
