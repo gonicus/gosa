@@ -12,6 +12,7 @@ import gettext
 import getpass
 from gosa.client.plugins.join.methods import join_method
 from pkg_resources import resource_filename #@UnresolvedImport
+import socket
 
 # Include locales
 t = gettext.translation('messages', resource_filename("gosa.client", "locale"), fallback=True)
@@ -31,7 +32,10 @@ class Cli(join_method):
             print(_("Please enter username and password to join the GOsa infrastructure."))
             username = input(_("User name [%s]: ") % getpass.getuser())
             password = getpass.getpass(_("Password") + ": ")
-            key = self.join(username, password)
+            data = dict()
+            data['hostname'] = socket.gethostname()
+            data['ipHostNumber'] = socket.gethostbyname(data['hostname'])
+            key = self.join(username, password, data)
 
     def show_error(self, error):
         print(_("Error") + ": " + error)

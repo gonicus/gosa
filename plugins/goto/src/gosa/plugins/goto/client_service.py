@@ -466,6 +466,7 @@ class ClientService(Plugin):
 
         # Handle info, if present
         more_info = []
+        extensions = ["simpleSecurityObject", "ieee802Device"]
 
         if info:
             # Check string entries
@@ -475,6 +476,18 @@ class ClientService(Plugin):
                     raise ValueError(C.make_error("CLIENT_DATA_INVALID", client=device_uuid, entry=entry, data=info[entry]))
 
                 more_info.append((entry, info[entry]))
+
+            if "ipHostNumber" in info:
+                if re.match(r"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", info["ipHostNumber"]):
+                    more_info.append(("ipHostNumber", info["ipHostNumber"]))
+                    extensions.append("ipHost")
+                else:
+                    raise ValueError(C.make_error("CLIENT_DATA_INVALID", client=device_uuid, entry="ipHostNumber", data=info["ipHostNumber"]))
+
+            if "hostname" in info:
+                allowed = re.compile("(?!-)[A-Z\d-]{1,63}(?<!-)$", re.IGNORECASE)
+                if all(allowed.match(x) for x in info["hostname"].split(".")):
+                    more_info.append(("description", info["hostname"]))
 
             # Check desired device type if set
             if "deviceType" in info:
@@ -501,7 +514,7 @@ class ClientService(Plugin):
 
         if len(res) > 0:
             record = ObjectProxy(res[0]['dn'])
-            for ext in ["simpleSecurityObject", "ieee802Device"]:
+            for ext in extensions:
                 if not record.is_extended_by(ext):
                     record.extend(ext)
 
@@ -536,8 +549,8 @@ class ClientService(Plugin):
             dn = ",".join([self.env.config.get("goto.machine-rdn", default="ou=systems"), self.env.base])
             record = ObjectProxy(dn, "Device")
             record.extend("RegisteredDevice")
-            record.extend("ieee802Device")
-            record.extend("simpleSecurityObject")
+            for ext in extensions:
+                record.extend(ext)
             record.deviceUUID = cn
             record.deviceKey = Binary(device_key)
             record.cn = "mac%s" % mac.replace(":", "")
