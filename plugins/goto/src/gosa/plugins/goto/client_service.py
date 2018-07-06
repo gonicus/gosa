@@ -480,7 +480,7 @@ class ClientService(Plugin):
             if "ipHostNumber" in info:
                 if re.match(r"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", info["ipHostNumber"]):
                     more_info.append(("ipHostNumber", info["ipHostNumber"]))
-                    extensions.append("ipHost")
+                    extensions.append("IpHost")
                 else:
                     raise ValueError(C.make_error("CLIENT_DATA_INVALID", client=device_uuid, entry="ipHostNumber", data=info["ipHostNumber"]))
 
