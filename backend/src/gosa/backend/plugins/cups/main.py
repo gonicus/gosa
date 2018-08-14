@@ -89,6 +89,7 @@ class CupsClient(Plugin):
 
         except RuntimeError as e:
             self.log.error(str(e))
+            self.client = None
 
     def __get_printer_list(self):
         if self.__printer_list is None:
