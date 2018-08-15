@@ -161,7 +161,7 @@ class ObjectProxy(object):
 
             start_dn = dn_or_base
             dn_or_base = self.find_dn_for_object(what, base, start_dn, []) if base else dn_or_base
-            self.create_missing_containers(dn_or_base, start_dn, base)
+            ObjectProxy.create_missing_containers(dn_or_base, start_dn, base)
             base = what
             base_mode = "create"
             extensions = []
@@ -373,24 +373,27 @@ class ObjectProxy(object):
                             if result is not None:
                                 return result
 
-    def create_missing_containers(self, new_dn, base_dn, base_type):
+    @classmethod
+    def create_missing_containers(cls, new_dn, base_dn, base_type):
         if new_dn == base_dn:
             return
-        for base, dn in self.get_missing_containers(new_dn, base_dn, base_type, []):
+        for base, dn in cls.get_missing_containers(new_dn, base_dn, base_type, []):
             if dn != new_dn:
                 # create container
-                self.__log.debug("create container of type %s in %s" % (base, dn))
+                getLogger(__name__).debug("create container of type %s in %s" % (base, dn))
                 container = ObjectProxy(dn, base)
                 container.commit()
 
-    def get_missing_containers(self, new_dn, base_dn, base_type, result=None):
+    @classmethod
+    def get_missing_containers(cls, new_dn, base_dn, base_type, result=None):
         if new_dn is None:
             return []
         if result is None:
             result = []
         if new_dn == base_dn:
             return result
-        self.__log.debug("collect missing containers for new object '%s' starting from '%s' (%s)" % (new_dn, base_dn, base_type))
+        getLogger(__name__).debug("collect missing containers for new object '%s' starting from '%s' (%s)" % (new_dn, base_dn, base_type))
+        getLogger(__name__).debug("collect missing containers for new object '%s' starting from '%s' (%s)" % (new_dn, base_dn, base_type))
         rel_dn = new_dn[0:-len(base_dn)-1]
         parts = rel_dn.split(",")
         if len(parts) < 0:
@@ -400,7 +403,7 @@ class ObjectProxy(object):
         check_dn = "%s,%s" % (",".join(parts[-1:]), base_dn)
         index = PluginRegistry.getInstance("ObjectIndex")
 
-        object_types = self.__factory.getObjectTypes()
+        object_types = ObjectFactory.getInstance().getObjectTypes()
         for sub_base in object_types[base_type]['container']:
             if 'FixedRDN' in object_types[sub_base]['backend_attrs'] and object_types[sub_base]['backend_attrs']['FixedRDN'] == part:
                 base_type = sub_base
@@ -412,7 +415,7 @@ class ObjectProxy(object):
             result.append((base_type, base_dn))
 
         if len(parts) > 1:
-            return self.get_missing_containers(new_dn, check_dn, base_type, result=result)
+            return cls.get_missing_containers(new_dn, check_dn, base_type, result=result)
         else:
             return result
 
@@ -836,7 +839,7 @@ class ObjectProxy(object):
 
         old_base = self.__base.dn
 
-        self.create_missing_containers(real_new_base, base_dn, base_type)
+        ObjectProxy.create_missing_containers(real_new_base, base_dn, base_type)
 
         if recursive:
 

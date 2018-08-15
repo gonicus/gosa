@@ -12,6 +12,9 @@ import datetime
 import logging
 import uuid
 import sys
+
+import ldap
+from ldap.dn import dn2str, str2dn
 from lxml import objectify, etree
 
 import zope
@@ -20,6 +23,7 @@ import socket
 from sqlalchemy import and_
 from tornado import gen
 
+from gosa.backend.exceptions import ProxyException
 from gosa.backend.plugins.foreman.filter import FM_STATUS_BUILD_PENDING
 from gosa.backend.components.httpd import get_server_url
 from gosa.backend.lock import GlobalLock
@@ -117,6 +121,28 @@ class Foreman(Plugin):
         if self.client and self.env.mode != "proxy" and not hasattr(sys, '_called_from_test'):
             sched = PluginRegistry.getInstance("SchedulerService").getScheduler()
             sched.add_interval_job(self.flush_parameter_setting, seconds=60, tag='_internal', jobstore="ram")
+
+        # create needed container is they do not exist
+        try:
+            o = ObjectProxy(self.type_bases['ForemanHost'])
+        except ProxyException as e:
+            # create container
+            dn_parts = str2dn(self.type_bases['ForemanHost'], flags=ldap.DN_FORMAT_LDAPV3)
+            base_dn = dn2str(dn_parts[1:])
+            o = ObjectProxy(base_dn, 'OrganizationalUnit')
+            setattr(o, dn_parts[0][0][0], dn_parts[0][0][1])
+            o.commit()
+
+        if self.type_bases['ForemanHostGroup'] != self.type_bases['ForemanHost']:
+            try:
+                o = ObjectProxy(self.type_bases['ForemanHostGroup'])
+            except ProxyException as e:
+                # create container
+                dn_parts = str2dn(self.type_bases['ForemanHostGroup'], flags=ldap.DN_FORMAT_LDAPV3)
+                base_dn = dn2str(dn_parts[1:])
+                o = ObjectProxy(base_dn, 'OrganizationalUnit')
+                setattr(o, dn_parts[0][0][0], dn_parts[0][0][1])
+                o.commit()
 
     def __handle_events(self, event):
         """
