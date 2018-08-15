@@ -274,7 +274,7 @@ class CupsClient(Plugin):
     @Command(__help__=N_("Get a list of all available printer models for one manufacturer"))
     def getPrinterModels(self, *args):
         if self.client is None:
-            return []
+            return {}
         printers = self.__get_printer_list()
         res = {}
         manufacturer = None
