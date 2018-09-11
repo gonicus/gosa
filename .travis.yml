@@ -40,7 +40,7 @@ install:
   - pip install --upgrade pip # upgrade pip, we need the latest version
   - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' hidraw-pure decorator syncrepl-client
   - cat .env/lib/python3.6/site-packages/syncrepl_client-0.95.1-py3.6.egg/EGG-INFO/requires.txt
-  - echo "pyasn1>=0.2.2\npyldap>=2.4.37" > .env/lib/python3.6/site-packages/syncrepl_client-0.95.1-py3.6.egg/EGG-INFO/requires.txt
+  - echo -e "pyasn1>=0.2.2\npyldap>=2.4.37" > .env/lib/python3.6/site-packages/syncrepl_client-0.95.1-py3.6.egg/EGG-INFO/requires.txt
   - cat .env/lib/python3.6/site-packages/syncrepl_client-0.95.1-py3.6.egg/EGG-INFO/requires.txt
   #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
 before_script:
