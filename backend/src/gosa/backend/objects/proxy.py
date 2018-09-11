@@ -359,16 +359,14 @@ class ObjectProxy(object):
                 return dn
             else:
                 for sub_base in object_types[current_base]['container']:
-                    if sub_base not in checked and 'container' in object_types[sub_base]:
+                    if sub_base not in checked and 'container' in object_types[sub_base] and 'FixedRDN' in object_types[sub_base]['backend_attrs']:
                         checked.append(sub_base)
                         if new_base in object_types[sub_base]['container']:
                             self.__log.debug("found DN '%s,%s' for base '%s'" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn,
                                                                                  new_base))
                             return "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
                         else:
-                            new_dn = dn
-                            if 'FixedRDN' in object_types[sub_base]['backend_attrs']:
-                                new_dn = "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
+                            new_dn = "%s,%s" % (object_types[sub_base]['backend_attrs']['FixedRDN'], dn)
                             result = self.find_dn_for_object(new_base, sub_base, new_dn, checked)
                             if result is not None:
                                 return result
@@ -392,7 +390,6 @@ class ObjectProxy(object):
             result = []
         if new_dn == base_dn:
             return result
-        getLogger(__name__).debug("collect missing containers for new object '%s' starting from '%s' (%s)" % (new_dn, base_dn, base_type))
         getLogger(__name__).debug("collect missing containers for new object '%s' starting from '%s' (%s)" % (new_dn, base_dn, base_type))
         rel_dn = new_dn[0:-len(base_dn)-1]
         parts = rel_dn.split(",")

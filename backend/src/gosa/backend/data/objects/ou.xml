@@ -81,8 +81,8 @@
       <Type>SambaDomain</Type>
       <Type>AclRole</Type>
       <Type>GosaApplication</Type>
+      <Type>SystemsContainer</Type><!-- SystemsContainer must be ordered before the IncomingDeviceContainer to by found first by the find_dn_for_object method -->
       <Type>IncomingDeviceContainer</Type>
-      <Type>SystemsContainer</Type>
     </Container>
     <BaseObject>true</BaseObject>
     <Find>

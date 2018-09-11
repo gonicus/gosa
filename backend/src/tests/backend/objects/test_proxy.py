@@ -383,3 +383,16 @@ class ObjectProxyTestCase(GosaTestCase):
                                            "DomainComponent")
         assert ('SystemsContainer', 'dc=test,dc=example,dc=net') in res
         assert ('DeviceContainer', 'ou=systems,dc=test,dc=example,dc=net') in res
+
+    def test_find_dn_for_object(self):
+        self._create_test_data()
+
+        # new unit
+        unit = ObjectProxy("dc=test,dc=example,dc=net", "OrganizationalUnit")
+        unit.ou = "testunit"
+        unit.commit()
+
+        print("Start test")
+        dn = unit.find_dn_for_object("Device", "OrganizationalUnit", "ou=testunit,dc=test,dc=example,dc=net")
+        print(dn)
+        assert dn == "ou=devices,ou=systems,ou=testunit,dc=test,dc=example,dc=net"
