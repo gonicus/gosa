@@ -38,10 +38,7 @@ install:
   - virtualenv --python=python3.6 --system-site-packages .env
   - source .env/bin/activate
   - pip install --upgrade pip # upgrade pip, we need the latest version
-  - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' hidraw-pure decorator syncrepl-client
-  - find .env/ | grep requires.txt | grep syncrepl
-#  - echo -e "pyasn1>=0.2.2\npyldap>=2.4.37" > .env/lib/python3.6/site-packages/syncrepl_client-0.95.1-py3.6.egg/EGG-INFO/requires.txt
-#  - cat .env/lib/python3.6/site-packages/syncrepl_client-0.95.1-py3.6.egg/EGG-INFO/requires.txt
+  - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' hidraw-pure decorator
   #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
 before_script:
     - export DISPLAY=:99.0
