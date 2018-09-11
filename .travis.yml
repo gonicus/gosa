@@ -41,10 +41,10 @@ install:
   - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' hidraw-pure decorator syncrepl-client
   - ls -la .env/lib/python3.6
   - ls -la .env/lib/python3.6/site-packages/
-  - ls -la .env/lib/python3.6/site-packages/syncrepl_client-0.95.1-py3.6.egg/
-  - cat .env/lib/python3.6/site-packages/syncrepl_client-0.95.1-py3.6.egg/EGG-INFO/requires.txt
-  - echo -e "pyasn1>=0.2.2\npyldap>=2.4.37" > .env/lib/python3.6/site-packages/syncrepl_client-0.95.1-py3.6.egg/EGG-INFO/requires.txt
-  - cat .env/lib/python3.6/site-packages/syncrepl_client-0.95.1-py3.6.egg/EGG-INFO/requires.txt
+  - ls -la .env/lib/python3.6/site-packages/syncrepl_client/
+  - cat .env/lib/python3.6/site-packages/syncrepl_client-0.95.1.dist-info/
+#  - echo -e "pyasn1>=0.2.2\npyldap>=2.4.37" > .env/lib/python3.6/site-packages/syncrepl_client-0.95.1-py3.6.egg/EGG-INFO/requires.txt
+#  - cat .env/lib/python3.6/site-packages/syncrepl_client-0.95.1-py3.6.egg/EGG-INFO/requires.txt
   #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
 before_script:
     - export DISPLAY=:99.0
