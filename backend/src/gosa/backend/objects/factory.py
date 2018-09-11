@@ -485,7 +485,7 @@ class ObjectFactory(object):
                 find = objectify.ObjectPath("Object.Extends")
                 if find.hasattr(item):
                     for ext in item["Extends"].iterchildren():
-                        if ext.text == baseclass:
+                        if ext.text == baseclass and hasattr(item, "Attributes"):
                             for attr in item["Attributes"].iterchildren():
                                 if attr.tag == "{http://www.gonicus.de/Objects}Attribute" and attr["Name"] == attribute:
                                     return attr
