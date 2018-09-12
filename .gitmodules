@@ -7,3 +7,6 @@
 [submodule "plugins/gui/frontend/uploadmgr"]
 	path = plugins/gui/frontend/uploadmgr
 	url = https://github.com/johnspackman/UploadMgr.git
+[submodule "plugins/syncrepl-client"]
+	path = plugins/syncrepl-client
+	url = https://github.com/peuter/syncrepl.git

@@ -97,7 +97,7 @@ setup(
 
 return_code = 0
 
-if sys.argv[1] == "test":
+if sys.argv[1] == "test" and 'SKIP_GUI_TESTS' not in os.environ or os.environ['SKIP_GUI_TESTS'] == "false":
     return_code = os.system('cd frontend/gosa && ./node_modules/grunt/bin/grunt')
     os.system('mv ./frontend/gosa/coverage/coveralls.json ../../')
 
