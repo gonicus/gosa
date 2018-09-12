@@ -5,4 +5,4 @@ if [[ ! -z "$cid" ]]; then
     docker rm $cid
 fi
 export COMMAND=$@
-docker run --privileged --net=host -it -v "$(pwd)":"$(pwd)" -v /dev/shm:/dev/shm --name gosa-dev-helper --workdir "$(pwd)" -e COMMAND peuter/gosa-dev-helper:latest
+docker run --privileged --net=host -it -v "$(pwd)":"$(pwd)" -v /dev/shm:/dev/shm --name gosa-dev-helper --workdir "$(pwd)" -e COMMAND gonicus/gosa-dev-helper:latest
