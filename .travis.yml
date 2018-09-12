@@ -20,30 +20,9 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   - export PYENV_VERSION=3.6-dev
-  - sudo apt-get update
-  - sudo cp ./configs/test_conf/org.gosa.conf /etc/dbus-1/system.d/
-  - sudo service dbus reload
   - sudo killall -9 postgres # kill systems postgres, as we use the one from docker
   - cd .utils/test-containers && docker-compose up -d && cd ../../
-  # some preparations for the tests
-  - export TZ=Europe/Berlin
-  - sudo mkdir -p /tmp/gosa/workflows
-  - sudo mkdir /tmp/gosa/images
-  - sudo mkdir /tmp/gosa/widgets
-  - sudo mkdir /etc/gosa
-  - sudo cp ./configs/test_conf/config /etc/gosa/
-  - sudo chown -R travis:travis /tmp/gosa
-install:
-  - sudo apt-get install libcups2-dev libdbus-1-dev libdbus-glib-1-dev libusb-1.0-0-dev libudev-dev libgirepository1.0-dev python3-dbus
-  - virtualenv --python=python3.6 --system-site-packages .env
-  - source .env/bin/activate
-  - pip install --upgrade pip # upgrade pip, we need the latest version
-  - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' hidraw-pure decorator 'pyasn1>=0.3.7'
-  #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
 before_script:
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    # build the gui, to be able to test it if gets served
     - cd plugins/gui/frontend/gosa/
     - npm install
     - export PYENV_VERSION=2.7
@@ -51,13 +30,8 @@ before_script:
     - python2 generate.py -sI test-source
     - cd ../../../../
     - export PYENV_VERSION=3.6-dev
-    # setup GOsa, install deps...
-    - ./setup.py develop
-    - find .env/ -name dnspython*
 script:
-    # finally run the tests, with running dbus
-    - export ASYNC_TEST_TIMEOUT=10
-    - dbus-launch ./setup.py test --addopts="--runslow -v"
+    - ./docker-run "./setup.py test --addopts=\"--runslow -v\""
 after_success:
     # send test coverage results to coveralls.io
     - coveralls --merge=coveralls.json

@@ -6,9 +6,14 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import os
 from unittest import TestCase, mock
+
+import pytest
+
 from gosa.plugins.goto.network import *
 
+@pytest.mark.skipif('TRAVIS' in os.environ and os.environ['TRAVIS'] == "true", reason="Gives strange results inside the docker container")
 class GotoNetworkUtilsTestCase(TestCase):
 
     def setUp(self):

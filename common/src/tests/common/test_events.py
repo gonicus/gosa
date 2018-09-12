@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+import os
+
 from pkg_resources import resource_filename
 import unittest
 import zope.event
@@ -32,6 +34,8 @@ class EventsTestCase(unittest.TestCase):
         callback.assert_called_once_with(event.get_data())
 
     def test_MqttEventConsumer(self):
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        backend_path = os.path.abspath(os.path.join(dir_path, '..', '..', '..', '..', 'backend', 'src', 'gosa', 'backend'))
         schema = '<?xml version="1.0"?>' \
                  '<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:e="http://www.gonicus.de/Events" ' \
                  'targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified">'\
@@ -47,7 +51,7 @@ class EventsTestCase(unittest.TestCase):
                  '</choice>'\
                  '</group>'\
                  '<element name="Event" type="e:Event"/>'\
-                 '</schema>' % resource_filename('gosa.backend', 'data/events/BackendChange.xsd')
+                 '</schema>' % os.path.join(backend_path, 'data', 'events', 'BackendChange.xsd')
 
         with unittest.mock.patch("gosa.common.events.PluginRegistry.getEventSchema", return_value=schema):
             e = EventMaker()
