@@ -38,7 +38,7 @@ install:
   - virtualenv --python=python3.6 --system-site-packages .env
   - source .env/bin/activate
   - pip install --upgrade pip # upgrade pip, we need the latest version
-  - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' hidraw-pure decorator
+  - pip install setproctitle pylint tornado coveralls 'pytest>=2.9' hidraw-pure decorator 'pyasn1>=0.3.7'
   #- pip install -e git+https://git.gnome.org/browse/pygobject#egg=pygobject==3.24
 before_script:
     - export DISPLAY=:99.0
