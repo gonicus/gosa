@@ -14,7 +14,7 @@ modules = [
 paths = []
 return_code = 0
 skip_tests = ["client"]
-skip_return_code = []
+skip_return_code = ["dbus"]
 
 failed_modules = {}
 
