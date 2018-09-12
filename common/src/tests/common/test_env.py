@@ -2,6 +2,8 @@
 
 import unittest, pytest
 import unittest.mock
+import uuid
+
 from gosa.common.env import *
 
 class EnvTestCase(unittest.TestCase):
@@ -21,13 +23,23 @@ class EnvTestCase(unittest.TestCase):
                 return {"option": "value", "key": "val"}
             else:
                 return {"opt": "v"}
+
+        def get(section, default=None):
+            if section == "core.mode":
+                return "backend"
+            elif section == "core.id":
+                return uuid.uuid4()
+            elif default is not None:
+                return default
+
         confMock = unittest.mock.MagicMock()
         confMock.getSections.return_value = ["section", "other"]
         confMock.getOptions.side_effect = getOptions
+        confMock.get.side_effect = get
         configMock.return_value = confMock
-        
+
         e = Environment.getInstance()
-        
+
         assert loggerMock.debug.call_args_list[0] == unittest.mock.call("configuration dump:")
         assert loggerMock.debug.call_args_list[1] == unittest.mock.call("[section]")
         # As implementation iterates a dict the order is not defined
