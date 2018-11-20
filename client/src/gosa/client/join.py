@@ -28,7 +28,6 @@ joiner = None
 
 
 def signal_handler(signal, frame):
-    joiner.end_gui()
     sys.exit(1)
 
 
