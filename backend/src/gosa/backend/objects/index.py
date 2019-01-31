@@ -21,6 +21,7 @@ import logging
 import multiprocessing
 import sys
 import re
+import traceback
 from multiprocessing.pool import Pool
 from urllib.parse import urlparse
 
@@ -898,7 +899,6 @@ class ObjectIndex(Plugin):
 
         except Exception as e:
             self.log.critical("building the index failed: %s" % str(e))
-            import traceback
             traceback.print_exc()
 
         finally:
@@ -1662,9 +1662,16 @@ def post_process(uuid):
     index = PluginRegistry.getInstance("ObjectIndex")
     with make_session() as inner_session:
         if uuid:
-            obj = ObjectProxy(uuid)
-            index.update(obj, session=inner_session)
-            return True
+            try:
+                obj = ObjectProxy(uuid)
+                index.update(obj, session=inner_session)
+                return True
+
+            except Exception as e:
+                index.log.warning("not post-processing %s: %s" % (uuid, str(e)))
+                traceback.print_exc()
+                return False
+
     return False
 
 
