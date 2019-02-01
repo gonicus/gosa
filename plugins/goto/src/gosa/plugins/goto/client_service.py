@@ -640,7 +640,7 @@ class ClientService(Plugin):
             # normal (non-proxy) mode -> return the config and schedule the user_session maintenance
             # to prevent it from blocking the config generation
             sobj.getScheduler().add_date_job(self.__maintain_user_session,
-                                             datetime.datetime.now() + datetime.timedelta(milliseconds=1),
+                                             datetime.datetime.now() + datetime.timedelta(milliseconds=250),
                                              args=(client_id, user_name),
                                              tag='_internal', jobstore='ram')
 
