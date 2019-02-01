@@ -21,11 +21,6 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
-data_files = []
-for path, dirs, files in os.walk("src/gosa/plugins/goto/data"):
-    for f in files:
-        data_files.append(os.path.join(path[14:], f))
-
 setup(
     name = "gosa.plugins.goto",
     version = "3.0",
@@ -55,7 +50,7 @@ setup(
 
     include_package_data = True,
     package_data = {
-        'gosa.plugins.goto': data_files
+        'gosa.plugins.goto': ['data/events/*']
     },
 
     zip_safe = False,
