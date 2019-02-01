@@ -1626,11 +1626,7 @@ def process_objects(o):
         try:
             obj = ObjectProxy(o)
 
-        except ProxyException as e:
-            index.log.warning("not indexing %s: %s" % (o, str(e)))
-            return res, None, ObjectIndex.to_be_updated
-
-        except ObjectException as e:
+        except Exception as e:
             index.log.warning("not indexing %s: %s" % (o, str(e)))
             return res, None, ObjectIndex.to_be_updated
 
