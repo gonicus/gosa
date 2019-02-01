@@ -3,6 +3,7 @@ Description=GOsa client
 
 [Service]
 ExecStart=/usr/sbin/gosa-client
+KillSignal=INT
 Restart=on-failure
 User=gosa
 

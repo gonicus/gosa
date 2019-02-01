@@ -6,11 +6,8 @@ case "$1" in
   configure)
 
     # Ask the bus to reload the config file
-    if [ -x "/etc/init.d/dbus" ]; then
-      invoke-rc.d dbus force-reload || true
-    fi
-
-    mkdir /etc/gosa/shell.d || /bin/true
+    invoke-rc.d dbus force-reload || true
+    mkdir /etc/gosa/shell.d 2>/dev/null || /bin/true
   ;;
   abort-upgrade|abort-remove|abort-deconfigure)
   ;;

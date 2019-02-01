@@ -3,6 +3,7 @@ Description=GOsa DBUS agent
 
 [Service]
 ExecStart=/usr/sbin/gosa-dbus
+KillSignal=INT
 Restart=on-failure
 
 [Install]
