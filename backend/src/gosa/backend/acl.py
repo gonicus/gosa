@@ -1062,6 +1062,7 @@ class ACLResolver(Plugin):
                         ]}
                     role.AclRoles = [aclentry]
                     role.commit()
+                    zope.event.notify(ACLChanged())
 
                 self.add_member_to_role(role_name, new_admin)
                 self.check.cache_clear(key=cache_key)
@@ -1588,6 +1589,7 @@ class ACLResolver(Plugin):
         base.commit()
 
         self.check.cache_clear()
+        zope.event.notify(ACLChanged())
 
     def remove_member_from_role(self, role, member, base=None):
         if base is None:
@@ -1606,6 +1608,7 @@ class ACLResolver(Plugin):
         if changed is True:
             base.commit()
             self.check.cache_clear()
+            zope.event.notify(ACLChanged())
 
     def remove_acls_for_user(self, user):
         """
