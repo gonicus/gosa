@@ -1018,6 +1018,12 @@ class ACLResolver(Plugin):
                 self.log.warning("adding users to the ACL override: %s" % admins)
                 self.admins = admins.split(",")
 
+            # make sure that the base has an ACL extension
+            base = ObjectProxy(self.env.base)
+            if not base.is_extended_by("Acl"):
+                base.extend("Acl")
+                base.commit()
+
             # Load Acls from the object DB
             self.load_from_object_database()
 
@@ -1059,11 +1065,13 @@ class ACLResolver(Plugin):
 
                 self.add_member_to_role(role_name, new_admin)
                 self.check.cache_clear(key=cache_key)
+                self.check.cache_clear(key="%s.skipAdmin" % cache_key)
 
             elif value is False and self.isAdmin(new_admin):
                 # find the ACLSet and remove the user from it
                 self.remove_member_from_role(role_name, new_admin)
                 self.check.cache_clear(key=cache_key)
+                self.check.cache_clear(key="%s.skipAdmin" % cache_key)
 
     def is_member_of_role(self, user, role_name, base=None):
         if base is None:
@@ -1144,8 +1152,10 @@ class ACLResolver(Plugin):
             # Try to open the object
             try:
                 o = ObjectProxy(entry_dn, read_only=True)
-            except:
-                self.log.warning("failed to load acl-role information for '%s'" % entry_dn)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                self.log.warning("failed to load acl-role information for '%s': %s" % (entry_dn, str(e)))
                 continue
 
             # Create a new role object with the given name on demand.

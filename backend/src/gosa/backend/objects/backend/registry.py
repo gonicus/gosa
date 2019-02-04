@@ -8,6 +8,8 @@
 # See the LICENSE file in the project's top-level directory for details.
 
 import pkg_resources
+
+from gosa.common.components import PluginRegistry
 from gosa.common.utils import N_
 from gosa.common.error import GosaErrorHandler as C
 
@@ -22,6 +24,7 @@ class ObjectBackendRegistry(object):
     instance = None
     backends = {}
     uuidAttr = "entryUUID"
+    __index = None
 
     def __init__(self):
         # Load available backends
@@ -29,11 +32,27 @@ class ObjectBackendRegistry(object):
             clazz = entry.load()
             ObjectBackendRegistry.backends[clazz.__name__] = clazz()
 
-    def dn2uuid(self, backend, dn):
-        return ObjectBackendRegistry.backends[backend].dn2uuid(dn)
+    def dn2uuid(self, backend, dn, read_only=False):
+        uuid = ObjectBackendRegistry.backends[backend].dn2uuid(dn)
+        if uuid is None and read_only is True:
+            # fallback to db
+            if self.__index is None:
+                self.__index = PluginRegistry.getInstance("ObjectIndex")
+            res = self.__index.search({'dn': dn}, {'uuid': 1})
+            if len(res) == 1:
+                uuid = res[0]['_uuid']
+        return uuid
 
-    def uuid2dn(self, backend, uuid):
-        return ObjectBackendRegistry.backends[backend].uuid2dn(uuid)
+    def uuid2dn(self, backend, uuid, read_only=False):
+        dn = ObjectBackendRegistry.backends[backend].uuid2dn(uuid)
+        if dn is None and read_only is True:
+            # fallback to db
+            if self.__index is None:
+                self.__index = PluginRegistry.getInstance("ObjectIndex")
+            res = self.__index.search({'uuid': uuid}, {'dn': 1})
+            if len(res) == 1:
+                dn = res[0]['dn']
+        return dn
 
     def get_timestamps(self, backend, dn):
         return ObjectBackendRegistry.backends[backend].get_timestamps(dn)

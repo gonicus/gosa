@@ -154,7 +154,7 @@ class ObjectProxy(object):
         object_types = self.__factory.getObjectTypes()
 
         base_mode = "update"
-        base, extensions = self.__factory.identifyObject(dn_or_base)
+        base, extensions = self.__factory.identifyObject(dn_or_base, read_only=self.__read_only)
         if what:
             if what not in object_types:
                 raise ProxyException(C.make_error('OBJECT_UNKNOWN_TYPE', type=type))

@@ -312,14 +312,14 @@ class Object(object):
         if is_uuid(where):
             #pylint: disable=E1101
             if self._base_object:
-                self.dn = self._reg.uuid2dn(self._backend, where)
+                self.dn = self._reg.uuid2dn(self._backend, where, read_only=self._read_only)
             else:
                 self.dn = None
 
             self.uuid = where
         else:
             self.dn = where
-            self.uuid = self._reg.dn2uuid(self._backend, where)
+            self.uuid = self._reg.dn2uuid(self._backend, where, read_only=self._read_only)
 
         # Get last change timestamp
         self.orig_dn = self.dn
