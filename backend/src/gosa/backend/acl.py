@@ -897,17 +897,20 @@ class CacheCheck:
             if skip_admin_override is True:
                 key += ".skipAdmin"
             res = self.memoized[key]
-            self.log.debug("cache HIT %s" % key)
+            self.log.debug("cache HIT %s: %s" % (key, res))
             return res
         except KeyError:
-            self.log.debug("cache MISS %s" % key)
             self.memoized[key] = self.function(self._instance, user, topic, acls, options, base, skip_admin_override)
+            self.log.debug("cache MISS %s: %s" % (key, self.memoized[key]))
             return self.memoized[key]
 
     def cache_clear(self, key=None):
         if key is None:
             self.memoized = {}
+            self.log.debug("clearing cache")
+
         elif key in self.memoized:
+            self.log.debug("delete cached result for %s" % key)
             del self.memoized[key]
 
 
@@ -1132,6 +1135,7 @@ class ACLResolver(Plugin):
         """
         Loads acl definitions from the object databases
         """
+        self.check.cache_clear()
 
         # A map for scope-strings to konstants
         acl_scope_map = {'one': ACL.ONE, 'sub': ACL.SUB, 'psub': ACL.PSUB, 'reset': ACL.RESET}
@@ -1588,8 +1592,7 @@ class ACLResolver(Plugin):
             base.AclSets.append(acl_entry)
         base.commit()
 
-        self.check.cache_clear()
-        zope.event.notify(ACLChanged())
+        self.load_acls()
 
     def remove_member_from_role(self, role, member, base=None):
         if base is None:
@@ -1607,8 +1610,7 @@ class ACLResolver(Plugin):
 
         if changed is True:
             base.commit()
-            self.check.cache_clear()
-            zope.event.notify(ACLChanged())
+            self.load_acls()
 
     def remove_acls_for_user(self, user):
         """
