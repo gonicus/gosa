@@ -985,6 +985,7 @@ class ACLResolver(Plugin):
 
         if event.__class__.__name__ == "IndexScanFinished":
             self.log.info("index scan finished, triggered acl-reload")
+            self._init_required_roles()
             self.load_acls()
 
         if isinstance(event, ObjectChanged):
@@ -1006,6 +1007,35 @@ class ACLResolver(Plugin):
                 if reload:
                     self.log.info("object change for %s triggered acl-reload" % event.dn)
                     self.load_acls()
+
+    def _init_required_roles(self):
+        """ init the roles that are required by the system """
+        # create AclRole for joining if not exists
+        index = PluginRegistry.getInstance("ObjectIndex")
+        res = index.search({"_type": "AclRole", "name": "SelfService"}, {"dn": 1})
+        if len(res) == 0:
+            # create
+            role = ObjectProxy(self.env.base, "AclRole")
+            role.name = "SelfService"
+        else:
+            role = ObjectProxy(res[0]['dn'])
+
+        allowed_commands = ["getError", "getNoLoginMethods", "listRecoveryQuestions", "requestPasswordReset",
+                            "getNoLoginMethods", "getSessionUser", "getUserDetails", "getAllowedMethods", "getSettingHandlers", "getTemplateI18N", "getBase", "getAvailableObjectNames", "getGuiDialogs", "getGuiTemplates",
+                            "search", "getEntryPoints", "openObject", "dispatchObjectMethod", "setObjectProperty", "closeObject", "getObjectSearchItem", "getWorkflows", "getMethods"]
+        # create rule
+        aclentry = {
+            "priority": 0,
+            "scope": "sub",
+            "actions": [
+                {
+                    "topic": "%s\.command\.(%s)" % (self.env.domain, "|".join(allowed_commands)),
+                    "acl": "x",
+                    "options": {}
+                }
+            ]}
+        role.AclRoles = [aclentry]
+        role.commit()
 
     def load_acls(self):
         """
