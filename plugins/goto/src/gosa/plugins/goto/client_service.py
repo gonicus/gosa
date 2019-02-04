@@ -1121,9 +1121,9 @@ class ClientService(Plugin):
         ]
         missing = [x for x in allowed_commands if not acl.check(device_uuid, "%s.%s.%s" % (self.env.domain, "command", x), "x")]
         reload = False
+        role_name = "$$ClientDevices"
 
         if len(missing) > 0:
-            role_name = "$$ClientDevices"
             # create AclRole for joining if not exists
             index = PluginRegistry.getInstance("ObjectIndex")
             res = index.search({"_type": "AclRole", "name": role_name}, {"dn": 1})
