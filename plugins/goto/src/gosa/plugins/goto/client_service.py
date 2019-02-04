@@ -1120,6 +1120,7 @@ class ClientService(Plugin):
             'getDestinationIndicator'
         ]
         missing = [x for x in allowed_commands if not acl.check(device_uuid, "%s.%s.%s" % (self.env.domain, "command", x), "x")]
+        reload = False
 
         if len(missing) > 0:
             role_name = "$$ClientDevices"
@@ -1146,21 +1147,27 @@ class ClientService(Plugin):
                 ]}
             role.AclRoles = [aclentry]
             role.commit()
+            reload = True
 
-            # check if device has role
-            found = False
-            base = ObjectProxy(self.env.base)
-            if base.is_extended_by("Acl"):
-                for entry in base.AclSets:
-                    if entry["rolename"] == role_name and device_uuid in entry["members"]:
-                        found = True
-                        break
-            else:
-                base.extend("Acl")
+        # check if device has role
+        found = False
+        base = ObjectProxy(self.env.base)
+        if base.is_extended_by("Acl"):
+            for entry in base.AclSets:
+                if entry["rolename"] == role_name and device_uuid in entry["members"]:
+                    found = True
+                    break
+        else:
+            base.extend("Acl")
 
-            if found is False:
-                acl_entry = {"priority": 0,
-                             "members": [device_uuid],
-                             "rolename": role_name}
-                base.AclSets.append(acl_entry)
-                base.commit()
+        if found is False:
+            acl_entry = {"priority": 0,
+                         "members": [device_uuid],
+                         "rolename": role_name}
+            base.AclSets.append(acl_entry)
+            base.commit()
+            reload = True
+
+        if reload is True:
+            # reload acls to make sure that they are applied in the current instance
+            acl.load_acls()
