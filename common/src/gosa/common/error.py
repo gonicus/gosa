@@ -7,14 +7,17 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import inspect
+import logging
 import traceback
 import gettext
 import uuid
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
+
+from gosa.common import Environment
 from pkg_resources import resource_filename
 from gosa.common.utils import N_
-from gosa.common.components import Command
+from gosa.common.components import Command, PluginRegistry
 from gosa.common.components import Plugin
 
 
@@ -25,6 +28,26 @@ class GosaErrorHandler(Plugin):
     _i18n_map = {}
     _errors = {}
     _error_regex = re.compile("^<([^>]+)>.*$")
+    _gc_active = False
+    max_minutes_age = 120
+    log = logging.getLogger(__name__)
+
+    @staticmethod
+    def __init_gc():
+        if GosaErrorHandler._gc_active is False:
+            GosaErrorHandler.max_minutes_age = int(Environment.getInstance().config.get("core.max-error-age", default="120"))
+            sched = PluginRegistry.getInstance('SchedulerService').getScheduler()
+            sched.add_interval_job(GosaErrorHandler.__gc, minutes=1, tag='_internal', jobstore="ram")
+            GosaErrorHandler._gc_active = True
+
+    @staticmethod
+    def __gc():
+        """ remove all errors that are older than 2 hours """
+        before = len(GosaErrorHandler._errors)
+        threshold_date = (datetime.now() - timedelta(minutes=GosaErrorHandler.max_minutes_age))
+        GosaErrorHandler._errors = {error_id: error for error_id, error in GosaErrorHandler._errors.items()
+                                    if error["timestamp"] > threshold_date}
+        GosaErrorHandler.log.info('Error GC: %d => %d' % (before, len(GosaErrorHandler._errors)))
 
     @Command(needsUser=True, noLoginRequired=True, __help__=N_("Get the error message assigned to a specific ID."))
     def getError(self, user, _id, locale=None, trace=False, keep=False):
@@ -87,6 +110,8 @@ class GosaErrorHandler(Plugin):
         # Save entry
         __id = str(uuid.uuid1())
         GosaErrorHandler._errors[__id] = data
+
+        GosaErrorHandler.__init_gc()
 
         return '<%s> %s' % (__id, text)
 
