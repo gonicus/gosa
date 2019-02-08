@@ -37,7 +37,7 @@ class GosaErrorHandler(Plugin):
         if GosaErrorHandler._gc_active is False:
             GosaErrorHandler.max_minutes_age = int(Environment.getInstance().config.get("core.max-error-age", default="120"))
             sched = PluginRegistry.getInstance('SchedulerService').getScheduler()
-            sched.add_interval_job(GosaErrorHandler.__gc, minutes=1, tag='_internal', jobstore="ram")
+            sched.add_interval_job(GosaErrorHandler.__gc, minutes=60, tag='_internal', jobstore="ram")
             GosaErrorHandler._gc_active = True
 
     @staticmethod
