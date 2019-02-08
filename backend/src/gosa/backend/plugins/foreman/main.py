@@ -939,6 +939,11 @@ class ForemanHookReceiver(object):
             self._handle_data(data)
 
     def handle_request(self, request_handler):
+        if GlobalLock.exists("scan_index"):
+            request_handler.finish(dumps({
+                "error": "GOsa is currently re-creating its index, all requests are blocked"
+            }))
+            return
         data = loads(request_handler.request.body)
         try:
             self._handle_data(data)
