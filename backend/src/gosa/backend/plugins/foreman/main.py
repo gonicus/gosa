@@ -21,10 +21,8 @@ import zope
 import socket
 
 from sqlalchemy import and_
-from tornado import gen
 
 from gosa.backend.exceptions import ProxyException
-from gosa.backend.plugins.foreman.filter import FM_STATUS_BUILD_PENDING
 from gosa.backend.components.httpd import get_server_url
 from gosa.backend.lock import GlobalLock
 from gosa.backend.objects import ObjectProxy, ObjectFactory
@@ -72,6 +70,7 @@ class Foreman(Plugin):
     __acl_resolver = None
     client = None
     syncing = False
+    __sync_retry_interval = 1
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -150,25 +149,37 @@ class Foreman(Plugin):
         """
         if event.__class__.__name__ == "IndexScanFinished":
             self.log.info("index scan finished, triggered foreman sync")
-            Foreman.syncing = True
-            try:
-                self.create_container()
+            self.__full_sync()
 
-                self.sync_release_names()
+    def __full_sync(self):
+        Foreman.syncing = True
+        try:
+            self.create_container()
 
-                self.sync_type("ForemanHostGroup")
-                self.sync_type("ForemanHost")
+            self.sync_release_names()
 
-                # read discovered hosts
-                self.sync_type("ForemanHost", "discovered_hosts")
+            self.sync_type("ForemanHostGroup")
+            self.sync_type("ForemanHost")
 
-                Foreman.syncing = False
-                while len(self._after_sync_callbacks):
-                    cb = self._after_sync_callbacks.popleft()
-                    cb()
+            # read discovered hosts
+            self.sync_type("ForemanHost", "discovered_hosts")
 
-            finally:
-                Foreman.syncing = False
+            Foreman.syncing = False
+            while len(self._after_sync_callbacks):
+                cb = self._after_sync_callbacks.popleft()
+                cb()
+        except Exception as e:
+            # sync process did not succeed
+            self.log.warning("Foreman sync process failed with error: %s. Re-scheduling sync in %s minutes." %
+                             (str(e), self.__sync_retry_interval))
+            sobj = PluginRegistry.getInstance("SchedulerService")
+            sobj.getScheduler().add_date_job(self.__full_sync,
+                                             datetime.datetime.now() + datetime.timedelta(seconds=1),
+                                             tag='_internal', jobstore='ram')
+            self.__sync_retry_interval *= max(2, 60)
+
+        finally:
+            Foreman.syncing = False
 
     def add_after_sync_callback(self, cb):
         self._after_sync_callbacks.append(cb)
