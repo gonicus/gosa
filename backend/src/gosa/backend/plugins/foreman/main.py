@@ -168,6 +168,8 @@ class Foreman(Plugin):
             while len(self._after_sync_callbacks):
                 cb = self._after_sync_callbacks.popleft()
                 cb()
+            self.__sync_retry_interval = 1
+
         except Exception as e:
             # sync process did not succeed
             self.log.warning("Foreman sync process failed with error: %s. Re-scheduling sync in %s minutes." %
