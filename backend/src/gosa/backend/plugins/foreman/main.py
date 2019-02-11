@@ -174,9 +174,9 @@ class Foreman(Plugin):
                              (str(e), self.__sync_retry_interval))
             sobj = PluginRegistry.getInstance("SchedulerService")
             sobj.getScheduler().add_date_job(self.__full_sync,
-                                             datetime.datetime.now() + datetime.timedelta(seconds=1),
+                                             datetime.datetime.now() + datetime.timedelta(minutes=self.__sync_retry_interval),
                                              tag='_internal', jobstore='ram')
-            self.__sync_retry_interval *= max(2, 60)
+            self.__sync_retry_interval *= min(2, 60)
 
         finally:
             Foreman.syncing = False
