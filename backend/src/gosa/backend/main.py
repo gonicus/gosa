@@ -50,11 +50,11 @@ def mainLoop(env):
             gc.set_debug(gc.DEBUG_LEAK | gc.DEBUG_STATS)
             log.info("setting gc.set_debug(gc.DEBUG_LEAK)")
 
-        if 'GOSA_DEBUG_SHELL' in os.environ:
-            from gosa.backend import debug
-            debug.listen()
-            log.info("Opening a remote shell. Connect to it by running: gosa/backend/debug.py <GOSA-PID>")
-            log.warning("ONLY FOR DEBUGGING: NEVER USE THIS IN A PRODUCTIVE ENVIRONMENT!!!")
+        # if 'GOSA_DEBUG_SHELL' in os.environ:
+        #     from gosa.backend import debug
+        #     debug.listen()
+        #     log.info("Opening a remote shell. Connect to it by running: gosa/backend/debug.py <GOSA-PID>")
+        #     log.warning("ONLY FOR DEBUGGING: NEVER USE THIS IN A PRODUCTIVE ENVIRONMENT!!!")
 
         # Load plugins
         oreg = ObjectRegistry.getInstance() #@UnusedVariable
