@@ -286,7 +286,8 @@ class ForemanClient(object):
             "headers": self.headers,
             "verify": self.env.config.get("foreman.verify", "true") == "true",
             "data": data,
-            "cookies": self.__cookies
+            "cookies": self.__cookies,
+            "timeout": 60
         }
         if self.__cookies is None:
             response = self.__authenticate(method, url, kwargs)
